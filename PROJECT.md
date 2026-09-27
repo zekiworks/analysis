@@ -2,17 +2,20 @@
 
 ## Purpose and structure
 
-This repository contains a static HTML report titled **Jev → GPT: packet-level reanalysis and held-out cascade**. The current report distributes the article and figure only, without an embedded reproduction archive or download controls.
+This repository contains a static HTML report titled **Jev → GPT: packet-level reanalysis and held-out cascade**. The report links to a separate reproduction ZIP; it does not embed binary payloads in the HTML.
 
 - `jev-swe-bench.html`: report entrypoint, with inline CSS and report content.
+- `jev-q50-reanalysis.zip`: original reproduction archive, preserved byte for byte; 3,118,932 bytes and 482 files, including a SHA-256 inventory.
 - `images/image-01.png`: image asset.
 - `LICENSE`: repository license.
 
 ## Operation and constraints
 
-Open `jev-swe-bench.html` directly in a browser. Its CSS is inline, and the figure loads from the relative path `images/image-01.png`. No build step or application server is needed for this viewing flow. No package manifest, build configuration, or test runner is present in the repository.
+Open `jev-swe-bench.html` directly in a browser, or run `python3 -u -m http.server 0 --bind 127.0.0.1` from the repository root and open the printed server address followed by `/jev-swe-bench.html`. Its CSS is inline, and the figure loads from the relative path `images/image-01.png`. No build step or application server is required; Python is only needed for the optional HTTP preview.
 
-Names of data files, request templates, source files and analysis code in the article describe the original experiment's artifacts, not files supplied by this report-only repository. The artifact-availability section states this limitation; instructions requiring the removed archive are not included.
+The download button and reproduction-section link both request the sibling `jev-q50-reanalysis.zip` as a separate file. Publish the HTML, ZIP and `images/` directory together, preserving their relative paths. The displayed archive size, file count and SHA-256 must remain synchronized with the ZIP.
+
+The archive contains the original packets, backend prompt mappings, referenced sources, frozen controls and labels, paired trial data, analysis/construction code, tests, pinned dependencies and upstream license notices. Unpack it before following the report's reproduction commands, which use `reanalysis/paired-trials.csv` rather than replaying provider calls. Installing dependencies can require network access. There is no build configuration or test runner for the static report itself.
 
 The report explicitly corrects the provenance of its labels: they were written by an AI assistant, not human annotators. Preserve that distinction when describing the results.
 
@@ -22,4 +25,4 @@ Removing an embedded archive from the current HTML does not remove copies from G
 
 ## Verification
 
-The local-file viewing flow has been exercised in Chromium. The report renders without download controls, embedded ZIP links, checksum metadata or archive-dependent reproduction commands. All five numerical tables retain their original contents, the 2080 × 1440 figure loads, and the label-provenance correction and dataset attribution link remain visible.
+The report has been exercised in Chromium over local HTTP. Clicking its download button saves a ZIP that matches the verified archive byte for byte; all 481 entries in its checksum manifest have been verified. The HTML has no embedded data/blob links, all five numerical tables retain their original contents, the figure loads, and the label-provenance correction and dataset attribution remain intact. This publication verification does not rerun the bundled analysis or provider inference.
