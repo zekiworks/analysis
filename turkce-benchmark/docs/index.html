@@ -43,10 +43,12 @@
         <li>Without reasoning, Gemma 4 31B is the strongest open-weight model. DeepSeek-V4.1-Flash trails it by 8 points,
           most of them in the grammatical-analysis units (parts of speech, noun phrases, verbals, sentence
           elements).</li>
-        <li>Reasoning closes that gap. With thinking on, DeepSeek-V4.1-Flash rises from 65.7% to 92.4%, narrowly ahead
-          of Claude Opus 5.5 at low effort: 1.9 points, still significant after correcting for the 15 paired comparisons
-          (Holm p = 0.045). On the grammatical-analysis units it goes from 53% to 92%. It writes about
-          1,000 output tokens per question for this, against 21 for GPT-6 Astra.</li>
+        <li>Reasoning closes that gap. With thinking on, DeepSeek-V4.1-Flash rises from 65.7% to 92.4%, 1.9 points ahead
+          of Claude Opus 5.5 at low effort (p = 0.006 for this comparison alone). After correcting for the 16 paired
+          comparisons the lead is borderline (Holm p = 0.050): it has crossed 0.05 twice, once when the key audit
+          excluded questions and once when the vote-share run added a comparison. On the grammatical-analysis units it
+          goes from 53% to 92%. It writes about 1,000 output tokens per question for this, against 21 for GPT-6
+          Astra.</li>
         <li>The ranking depends on the question mix. The bank is 70% grammar; the 2026 TYT paper was 18% grammar.
           Weighted like that paper (the TYT mix column), Gemma 4 31B passes Claude Sonnet 5.5 at high effort,
           Perplexity's Decider passes Sonnet at low effort, and Opus edges past DeepSeek with reasoning.</li>
@@ -59,11 +61,23 @@
           0.99. These answers cover 1–14% of the questions.</li>
         <li>As a first pass for a frontier model, a decision model can take 11–36% of the questions without lowering the
           frontier model's accuracy on these questions; with the threshold chosen on other questions, accuracy drops by
-          0.1–0.2 points. Their uncertainty points only weakly at the questions the frontier models get wrong.</li>
-        <li>A small model's stated confidence is useless here and its token probabilities work. On the same answers,
-          Qwen3.8-27B's own, its stated confidence sorts right from wrong no better than chance (AUROC 0.515), while
-          the yes/no probability of each answer reaches 0.782 and Open-Jev's 0.819. The gap comes from the confidence
-          source, not from different answers.</li>
+          0.1–0.2 points. Run for real, with the threshold fixed on one half of the questions before testing on the
+          other, Perplexity's Decider took 18% of the questions before GPT-6 Astra and 31% before Claude Sonnet 5.5 at
+          high effort. Accuracy changed by −0.4 points (95% interval −0.8 to +0.1) and −0.1 points (−2.0 to +1.8), both
+          within the 0.5 points accepted beforehand. The cost fell by 17–18%, but request time did not: the Decider
+          answers one question per request. Decision models' uncertainty points only weakly at the questions the
+          frontier models get wrong.</li>
+        <li>A small model's stated confidence is useless here; its token probabilities, and sampling it repeatedly, both
+          work. On the same answers, Qwen3.8-27B's own, its stated confidence sorts right from wrong no better than
+          chance (AUROC 0.515). The yes/no probability of each answer reaches 0.782, the share of 10 samples that chose
+          it 0.779, and Open-Jev's probability 0.819. The gap comes from the confidence source, not from different
+          answers. Answering with the majority of the 10 samples did not raise accuracy (54.3% against 54.2%), and when
+          all 10 samples agreed, as on 40% of the questions, the answer was right only 85% of the time.</li>
+        <li>Some setups give the same answers every time and some do not. Over 5 runs, Gemma 4 31B, Open-Jev and
+          Perplexity's Decider gave the same answers (the Decider changed 2 of 2,198). GPT-6 Astra changed 1 of 200
+          sampled questions, Claude Opus 5.5 (low) 20 and Sonnet 5.5 (high) 31, scoring 94.0–97.5% and 87.0–91.0% on
+          that sample. Jev changed 14% of its answers, d1 10% and Qwen's yes/no scoring 7%. Most of the Claude models'
+          mistakes did not recur in every run; the decision models' mistakes mostly did.</li>
         <li>Repairing the question bank raised every setup that ran on both versions, except the Laya models, by 11–30
           points on the repaired questions.</li>
         <li>Two checks found no clear sign that the models memorized the book: their scores on 40 fresh questions from
@@ -117,6 +131,9 @@
             <tr><td>Qwen3.8-27B, stated confidence</td><td>The same base model used the ordinary way: it picks an
               option and states a 0–1 confidence. This shows whether the model's own words give a confidence as
               useful as its token probabilities.</td></tr>
+            <tr><td>Qwen3.8-27B, vote share</td><td>The same request as the stated-confidence run, sampled 10 times; the
+              answer is the most frequent letter and the confidence the share of samples that chose it. This shows
+              whether sampling a model repeatedly, without reading its probabilities, flags mistakes as well.</td></tr>
             <tr><td>GPT-6 Astra, Claude Opus 5.5, Claude Sonnet 5.5</td><td>Frontier models that also state a
               confidence: an upper reference for accuracy, and a test of how well a strong model's stated confidence
               tracks its accuracy. Sonnet ran at low and at high effort.</td></tr>
@@ -170,10 +187,11 @@
       <p class="note">AUROC: the chance that a right answer gets a higher confidence than a wrong one; 0.5 is no
         better than chance. ECE: the average gap between confidence and accuracy, over 10 equal-width bins; 0 is
         perfect. Top 20%, 50%, 80%: accuracy if the run answered only that share of the questions, those with the
-        highest confidence. Equal confidences count as ties. Small numbers: 95% bootstrap intervals.</p>
+        highest confidence. Equal confidences count as ties, which matters for the vote share: it takes only 10 values.
+        Small numbers: 95% bootstrap intervals.</p>
       <div class="table-wrap"><table id="ranking"></table></div>
       <figure class="chart"><img src="charts/coverage.svg" loading="lazy"
-        alt="Line charts of accuracy on the most confident share of answers, from 2% to 100% of the answers, for the probability-based runs and for the runs that state a confidence. Accuracy falls as more answers are included, except for Qwen's stated confidence, which drops to near its overall accuracy almost at once."></figure>
+        alt="Line charts of accuracy on the most confident share of answers, from 2% to 100% of the answers, for the probability-based runs and for the runs that state a confidence or count votes. Accuracy falls as more answers are included, except for Qwen's stated confidence, which drops to near its overall accuracy almost at once."></figure>
       <h3>Answers at 0.99 or more</h3>
       <p class="note">How many answers each run gave at a probability or stated confidence of 0.99 or more, how many of
         them were right, and the 95% Wilson interval on that accuracy. A few answers cannot show an accuracy of 99%:
@@ -201,6 +219,18 @@
     </section>
 
     <section class="card">
+      <h2>Run-to-run variation</h2>
+      <p class="note">Each setup run several times on the same questions. The one-question setups ran 5 times on the
+        whole bank, their first run being the one above; the 16-question setups ran 5 times on one fixed sample of
+        200 questions, with the same batches every time. Changed answer: questions on which the runs did not all
+        choose the same option. Same mistake every run: questions every run got wrong with the same option, of those
+        any run got wrong; another run would not reveal these. Score spread: the median, over the questions, of the
+        largest minus the smallest score of the chosen options. Wrong at ≥ 0.99: each run's count, and the questions
+        wrong at that score in every run.</p>
+      <div class="table-wrap"><table id="repeats"></table></div>
+    </section>
+
+    <section class="card">
       <h2>Paired comparisons</h2>
       <p class="note">Each run against the next one by score, plus Open-Jev against Qwen's yes/no scoring and
         Perplexity's Decider against Jev, over the same questions. The interval and the exact McNemar test rest on the
@@ -220,10 +250,19 @@
         passage together: the mean share answered, the mean accuracy difference from the frontier run alone in
         percentage points, and the share of splits where the cascade did worse. Cost: API-equivalent, the decision
         model's run plus the frontier run on the questions passed on. Held out is not a deployment test: a real
-        pipeline would send the remaining questions in new batches.</p>
+        pipeline sends the remaining questions in new batches, which <em>The cascade as a pipeline</em> below
+        does.</p>
       <div class="table-wrap"><table id="cascade"></table></div>
       <figure class="chart"><img src="charts/cascade.svg" loading="lazy"
         alt="Line charts of cascade accuracy against the share of questions the decision model answers, before GPT-6 Astra and before Claude Sonnet 5.5 at high effort. Accuracy stays at the frontier run's level up to a share that differs by decision model, then falls."></figure>
+      <h3>The cascade as a pipeline</h3>
+      <p class="note">The table above simulates the cascade with stored runs. Here it ran: the questions were split
+        into two halves, keeping questions that share a passage together, and the threshold was fixed on one half
+        before any run. On the other half, Perplexity's Decider answered the questions at or above the threshold, from
+        its stored run, and a new frontier run answered the rest in batches of 16 of their own. The same frontier
+        setup also ran on every held-out question, at the same time, for comparison. Tolerance: the accuracy loss
+        accepted before the runs.</p>
+      <div class="table-wrap"><table id="pipelines"></table></div>
       <h3>Does a decision model's doubt point at frontier mistakes?</h3>
       <p class="note">Doubt is the entropy of the decision model's option probabilities. Spearman: its rank
         correlation with how many of GPT-6 Astra (low), Claude Opus 5.5 (low) and Claude Sonnet 5.5 (high) got the
@@ -259,6 +298,9 @@
           temperature 0. DeepSeek's reasoning run samples with the server's defaults (temperature 1.0, top_p 1.0, within
           the model card's recommendation) at its default reasoning effort, because greedy decoding made its reasoning
           loop. Each request may write up to 65,536 tokens, thinking included; the longest used 59,763.</li>
+        <li>Qwen's vote-share run sends the stated-confidence request and samples 10 replies with the model card's
+          settings (temperature 0.7, top_p 0.8, top_k 20, presence penalty 1.5). It answers with the most frequent letter;
+          a tie goes to the letter sampled first.</li>
         <li>Claude Code and Codex do not expose temperature; the Reasoning column gives their effort setting.</li>
         <li>Claude Code and Codex runs replace the tools' agent instructions with a short benchmark instruction,
           disable web search and every tool that can be switched off, and ignore local configuration. None of the runs
@@ -271,12 +313,13 @@
       <p>The decision models and the Qwen yes/no run give a probability for every option; their confidence is the
         probability of the chosen option. Jev and Open-Jev also report the rescaled confidence described in
         <a href="#open-jev">How Open-Jev works</a>, which sorts answers in the same order. Claude, GPT and the Qwen
-        stated-confidence run give a 0–1 confidence with each answer. Gemma and DeepSeek give none.</p>
+        stated-confidence run give a 0–1 confidence with each answer. The Qwen vote-share run's confidence is the share
+        of its 10 samples that chose the answer. Gemma and DeepSeek give none.</p>
       <h3>Statistics</h3>
       <p>AUROC and the top-share accuracies carry 95% bootstrap intervals from 1,000 resamples of the questions. The
         14 questions that share a passage (7 passages) are drawn together, and the cascade splits keep them in the same
         half. Paired comparisons use the exact McNemar test with a paired interval, and Holm's method corrects for the
-        15 comparisons shown. Accuracies of small groups of answers carry 95% Wilson intervals.</p>
+        16 comparisons shown. Accuracies of small groups of answers carry 95% Wilson intervals.</p>
       <h3>Speed, tokens and cost</h3>
       <p>Questions/min divides the answered questions by the time spent in requests. DeepSeek's reasoning run kept 8
         requests in flight, so its time is the time any request was running; another application shared the server
@@ -315,9 +358,12 @@
           the reviewer could not prove it against the models' reading. Most models got the 12 wrong, so excluding them
           raises scores by at most 0.5 points. It also removes 3 of GPT-6 Astra's 8 wrong answers at 0.99 or more, 2 of
           Jev's 3, 2 of d1's 3 and 6 of Qwen's yes/no 8; every one that remains has a confirmed key.</li>
-        <li>Each setup ran once. With 2,198 questions, the 95% interval on a score is about ±2.1 percentage points near
-          50% and ±1.3 near 90%; the paired comparisons are tighter. Runs with 16 questions per request also change
-          some answers from one run to the next (see <em>Repairing the question bank</em>).</li>
+        <li>The leaderboard shows one run per setup. With 2,198 questions, the 95% interval on a score is about ±2.1
+          percentage points near 50% and ±1.3 near 90%; the paired comparisons are tighter. Runs also change some
+          answers from one run to the next (see <em>Run-to-run variation</em>). Scaled from the 200-question sample to
+          the whole bank, that moves a single run's score by about 0.3 points (one standard deviation) for the Claude
+          runs, 0.06 for GPT-6 Astra and nothing for Gemma. The paired tests do not include this. DeepSeek with
+          reasoning, which samples, was not repeated, because it needs all four GPUs.</li>
         <li>The Claude and GPT models ran at their lowest reasoning setting, except the second Sonnet 5.5 run at high.
           DeepSeek ran with reasoning off and at its default effort. Sonnet's and DeepSeek's two runs show how much the
           setting can matter.</li>

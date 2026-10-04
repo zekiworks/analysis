@@ -66,6 +66,12 @@ PROVIDERS: dict[str, dict[str, Any]] = {
         "billing": "local",
         "cost_basis": "an assumed $0.40 / $2.40 per 1M input / output tokens",
     },
+    "vllm-vote": {
+        "access": "vLLM, self-hosted, BF16",
+        "scoring": False,
+        "billing": "local",
+        "cost_basis": "an assumed $0.40 / $2.40 per 1M input / output tokens",
+    },
     "claude": {
         "access": "Claude Code CLI, Claude subscription",
         "scoring": False,
@@ -80,9 +86,13 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     },
 }
 # Where a run's confidence comes from (the report's score_source).
-CONFIDENCE_SOURCES = {"probability": "Probability of the chosen option", "stated": "Stated by the model"}
+CONFIDENCE_SOURCES = {
+    "probability": "Probability of the chosen option",
+    "stated": "Stated by the model",
+    "votes": "Share of 10 samples",
+}
 # Runs of one model through different providers.
-VARIANTS = {"vllm-yes-no": "yes/no scoring", "vllm-verbal": "stated confidence"}
+VARIANTS = {"vllm-yes-no": "yes/no scoring", "vllm-verbal": "stated confidence", "vllm-vote": "vote share"}
 GPU = "RTX PRO 6000 Blackwell (96 GB)"
 # Display names, list prices, and for models on our GPUs the hardware and precision.
 MODELS: dict[str, dict[str, str]] = {
@@ -215,28 +225,51 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
     if not records:
         raise ValueError("the report contains no benchmark-result records")
     by_key = {record["run_key"]: record for record in records}
+    # Runs over a whole question set; repeats and runs on listed questions have their own report sections.
     full = [
         record
         for record in records
-        if record["evaluated"] == record["eligible_total"] and record.get("replace_key_text") is None
+        if record["evaluated"] == record["eligible_total"]
+        and record.get("replace_key_text") is None
+        and record.get("repeat") is None
+        and not record.get("question_list")
     ]
     if not full:
         raise ValueError("the report holds no run over a full question set")
+    # The runs graded against the same question bank as the newest one, whichever version they ran on.
     newest = max(full, key=lambda record: record["updated"])
     full_set = newest["eligible_total"]
-    selected = [record for record in full if record["dataset_sha256"] == newest["dataset_sha256"]]
+
+    def bank(record: dict[str, Any]) -> str:
+        return record.get("graded_sha256") or record["dataset_sha256"]
+
+    selected = [record for record in full if bank(record) == bank(newest)]
     if any(record["eligible_total"] != full_set for record in selected):
         raise ValueError(f"the full runs on {Path(newest['dataset']).name} do not all cover {full_set} questions")
     unit_names = sorted(selected[0]["categories"], key=unit_number)
     totals = {name: selected[0]["categories"][name]["total"] for name in unit_names}
     versions = {item["newer"]: item for item in analysis.get("versions", [])}
+
+    def described(record: dict[str, Any]) -> dict[str, Any]:
+        """How the page names a run: its model's display name, the variant and the reasoning setting."""
+        provider_name = record.get("provider", "ollama")
+        provider = PROVIDERS.get(provider_name)
+        if provider is None:
+            raise ValueError(f"run {record['run_id']} ({record['model']}, {provider_name}): unknown provider; add it to PROVIDERS")
+        variants = [VARIANTS.get(provider_name), "options shuffled" if record.get("shuffle_options") is not None else None]
+        return {
+            "model": record["model"],
+            "name": MODELS.get(record["model"], {}).get("name", record["model"]),
+            "variant": ", ".join(variant for variant in variants if variant) or None,
+            "reasoning": None if provider["scoring"] else record["thinking"],
+        }
+
     runs = []
     for record in selected:
         provider_name = record.get("provider", "ollama")
         label = f"run {record['run_id']} ({record['model']}, {provider_name})"
-        provider = PROVIDERS.get(provider_name)
-        if provider is None:
-            raise ValueError(f"{label}: unknown provider; add it to PROVIDERS")
+        names = described(record)
+        provider = PROVIDERS[provider_name]
         categories = record["categories"]
         if {name: counts["total"] for name, counts in categories.items()} != totals:
             raise ValueError(f"{label}: its units differ from the other runs'")
@@ -256,7 +289,6 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             for name in GROUPS
             if name in record["groups"]
         }
-        variants = [VARIANTS.get(provider_name), "options shuffled" if record.get("shuffle_options") is not None else None]
         version = versions.get(record["run_key"])
         previous = None
         if version is not None and version["older"] in by_key:
@@ -267,13 +299,10 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         runs.append(
             {
                 "run": record["run_id"],
-                "model": record["model"],
-                "name": model.get("name", record["model"]),
-                "variant": ", ".join(variant for variant in variants if variant) or None,
+                **names,
                 "note": model.get("note"),
                 "provider": provider_name,
                 "access": model.get("access", provider["access"]),
-                "reasoning": None if provider["scoring"] else record["thinking"],
                 "questions_per_request": record["batch_size"],
                 "concurrency": record.get("concurrency", 1),
                 "correct": record["correct"],
@@ -345,7 +374,13 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             "sources": [
                 {
                     "run": exported[entry["run"]]["run_id"],
-                    "stated": entry["run"] == item["answers"],
+                    # The answering run's own stated confidence, another run's option probabilities, or the
+                    # share of a sampling run's samples that chose the same option.
+                    "kind": "stated"
+                    if entry["run"] == item["answers"]
+                    else "votes"
+                    if exported[entry["run"]].get("provider") == "vllm-vote"
+                    else "probability",
                     **{key: entry[key] for key in ("questions", "auroc", "auroc_interval", "risk_coverage")},
                 }
                 for entry in item["sources"]
@@ -355,6 +390,50 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         for item in analysis.get("sources", [])
         if item["answers"] in exported
     ]
+    # Repeated runs of one configuration on the same questions: the whole bank, or one fixed sample.
+    repeats = []
+    for item in analysis.get("repeats", []):
+        records = [by_key[key] for key in item["run_keys"] if key in by_key]
+        if len(records) != len(item["run_keys"]) or bank(records[0]) != bank(newest) or not item["questions"]:
+            continue
+        first = records[0]
+        repeats.append(
+            {
+                **described(first),
+                "questions_per_request": first["batch_size"],
+                "whole_bank": first["evaluated"] == first["eligible_total"],
+                "runs": [record["run_id"] for record in records],
+                **{
+                    key: item[key]
+                    for key in (
+                        "questions", "accuracy", "changed_answer", "wrong_any", "wrong_every_run_same", "scored",
+                        "score_spread_median", "score_identical", "sure_wrong", "sure_wrong_every_run",
+                    )
+                },
+            }
+        )
+    # Batched setups first, then by mean accuracy.
+    repeats.sort(key=lambda item: (-item["questions_per_request"], -sum(item["accuracy"]) / len(item["accuracy"])))
+    # Cascades run as pipelines: a frontier run on the questions the decision model passes on.
+    pipelines = []
+    for item in analysis.get("pipelines", []):
+        if item["decision"] not in exported or item["frontier"] not in exported:
+            continue
+        measured = item.get("measured")
+        pipelines.append(
+            {
+                "decision": exported[item["decision"]]["run_id"],
+                "frontier": exported[item["frontier"]]["run_id"],
+                **{key: item[key] for key in ("seed", "tolerance_points", "threshold", "held_out", "routed", "simulated")},
+                "measured": None
+                if measured is None
+                else {
+                    "pipeline_run": by_key[measured["pipeline_run"]]["run_id"],
+                    "alone_run": by_key[measured["alone_run"]]["run_id"],
+                    **{key: value for key, value in measured.items() if key not in ("pipeline_run", "alone_run")},
+                },
+            }
+        )
     reference = selected[0]
     suspect = None
     if "without_suspect" in reference["groups"]:
@@ -391,14 +470,18 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         "cascades": cascades,
         "doubts": doubts,
         "sources": sources,
+        "repeats": repeats,
+        "pipelines": pipelines,
     }
 
 
 def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers."""
-    dataset = next((item for item in document["datasets"] if item["sha256"] == data["dataset"]["sha256"]), None)
+    dataset = next(
+        (item for item in document["datasets"] if item["graded_sha256"] == data["dataset"]["graded_sha256"]), None
+    )
     if dataset is None:
-        raise ValueError("the answers file has no runs on the exported question bank")
+        raise ValueError("the answers file has no runs graded against the exported question bank")
     wanted = {run["run"] for run in data["runs"]}
     runs = [run for run in dataset["runs"] if run["run"] in wanted]
     missing = wanted - {run["run"] for run in runs}
@@ -406,7 +489,7 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
     return {
         "schema_version": document["schema_version"],
-        "dataset": {"name": dataset["name"], "sha256": dataset["sha256"]},
+        "dataset": {"name": dataset["name"], "graded_sha256": dataset["graded_sha256"]},
         "prompts": document["prompts"],
         "questions": dataset["questions"],
         "runs": runs,

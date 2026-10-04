@@ -13,12 +13,18 @@ benchmark's metric code, so the tables can be rebuilt from the published data.
 ## Updating the results
 
 `export_results.py` rebuilds `docs/results.json` from the report the benchmark script writes
-(`benchmark-results.md`). It keeps the runs over the full question set of the newest question bank,
-leaves out runs whose correct option was replaced (a memorization test, not an accuracy run), and
-exports only aggregate numbers: no question text, prompts, answers or local paths. The comparisons
-between runs (paired tests with Holm-adjusted p-values, cascades, decision-model doubt, confidence
-sources scored on the same answers and each run's change from the previous question bank) come from
-the report's `benchmark-analysis` record.
+(`benchmark-results.md`). Its leaderboard holds the runs over a full question set that are graded
+against the same question bank as the newest such run, whichever version of the bank they ran on. It
+leaves out repeats, runs on listed questions and runs whose correct option was replaced (a memorization
+test, not an accuracy run), and exports only aggregate numbers: no question text, prompts, answers or
+local paths. The comparisons between runs come from the report's `benchmark-analysis` record:
+
+- paired tests with Holm-adjusted p-values;
+- cascades simulated and run as pipelines;
+- decision-model doubt;
+- confidence sources scored on the same answers;
+- each run's change from the previous question bank;
+- the run-to-run variation of repeated runs.
 
 With `--answers`, it also writes `docs/answers.json` from the benchmark's per-question export, keeping
 the same runs:

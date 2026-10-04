@@ -366,6 +366,45 @@ def version_change(older: dict[int, tuple[int, Any, Any]], newer: dict[int, tupl
     }
 
 
+def repeat_stability(runs: Sequence[dict[int, tuple[int, Any, float | None]]]) -> dict[str, Any]:
+    """How repeated runs of one configuration agree, on the questions every run answered.
+
+    Each run maps question IDs to (correct, chosen option, score). Changed answer: questions on which the
+    runs did not all choose the same option. Wrong in every run, same option: questions every run got
+    wrong with the same option, mistakes no repeat would reveal. Score spread: per question, the largest
+    minus the smallest score of the chosen options, over the questions every run scored.
+    """
+    questions = sorted(set.intersection(*(set(run) for run in runs))) if runs else []
+    if not questions:
+        return {"runs": len(runs), "questions": 0}
+    choices = {question: {run[question][1] for run in runs} for question in questions}
+    wrong_any = [question for question in questions if any(not run[question][0] for run in runs)]
+    spreads = [
+        max(scores) - min(scores)
+        for question in questions
+        if None not in (scores := [run[question][2] for run in runs])
+    ]
+    sure_wrong = [
+        [question for question in questions if not run[question][0] and (run[question][2] or 0.0) >= SURE_SCORE]
+        for run in runs
+    ]
+    return {
+        "runs": len(runs),
+        "questions": len(questions),
+        "accuracy": [sum(run[question][0] for question in questions) / len(questions) for run in runs],
+        "changed_answer": sum(len(choices[question]) > 1 for question in questions),
+        "wrong_any": len(wrong_any),
+        "wrong_every_run_same": sum(
+            all(not run[question][0] for run in runs) and len(choices[question]) == 1 for question in wrong_any
+        ),
+        "scored": len(spreads),
+        "score_spread_median": statistics.median(spreads) if spreads else None,
+        "score_identical": sum(spread == 0 for spread in spreads),
+        "sure_wrong": [len(questions_wrong) for questions_wrong in sure_wrong],
+        "sure_wrong_every_run": len(set.intersection(*(set(questions_wrong) for questions_wrong in sure_wrong))),
+    }
+
+
 def cascade(
     decision_scores: Sequence[float],
     decision_correct: Sequence[int],

@@ -107,7 +107,8 @@ pub struct SourceSet {
 #[derive(Debug, Deserialize)]
 pub struct Source {
     pub run: u32,
-    pub stated: bool,
+    /// "stated" (the answering run's own confidence), "probability" or "votes" (share of samples).
+    pub kind: String,
     pub auroc: f64,
     pub risk_coverage: Vec<[f64; 2]>,
 }
@@ -177,6 +178,7 @@ fn color(run: &Run) -> Color {
         ("d1:free", ..) => rgb(0xca8a04),
         ("open-jev-27b-v1.1", ..) => rgb(0x0d9488),
         ("qwen38-27b-bf16", _, Some("stated confidence")) => rgb(0x78716c),
+        ("qwen38-27b-bf16", _, Some("vote share")) => rgb(0x4f46e5),
         ("qwen38-27b-bf16", ..) => rgb(0x92400e),
         _ => GUIDE,
     }
@@ -184,6 +186,12 @@ fn color(run: &Run) -> Color {
 
 fn accuracy(group: &Group) -> f64 {
     100.0 * f64::from(group.correct) / f64::from(group.questions)
+}
+
+/// A count as prose writes it: a word up to ten, digits above.
+fn count_word(count: usize) -> String {
+    const WORDS: [&str; 11] = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+    WORDS.get(count).map_or_else(|| count.to_string(), |word| (*word).to_string())
 }
 
 fn thousands(value: u32) -> String {
@@ -514,18 +522,19 @@ fn coverage_curve(points: &[[f64; 2]]) -> Vec<(f64, f64)> {
 }
 
 fn coverage(results: &Results) -> Figure<'_> {
-    let curves = |source: &str| -> Vec<Series> {
+    // Left: token probabilities. Right: confidence the model states, or the share of its samples.
+    let curves = |probability: bool| -> Vec<Series> {
         results
             .runs
             .iter()
             .filter_map(|run| {
                 let confidence = run.confidence.as_ref()?;
-                (confidence.source == source && run.provider != "laya")
+                ((confidence.source == "probability") == probability && run.provider != "laya")
                     .then(|| Series::line(results.label(run), color(run), coverage_curve(&confidence.risk_coverage)))
             })
             .collect()
     };
-    let (probability, stated) = (curves("probability"), curves("stated"));
+    let (probability, stated) = (curves(true), curves(false));
     let x = percent_scale("answered", 0.0, 100.0, 2);
     let y = percent_scale("accuracy", 40.0, 100.0, 6);
     Figure {
@@ -535,16 +544,19 @@ fn coverage(results: &Results) -> Figure<'_> {
         height: 30,
         draw: Box::new(move |area, buf| {
             let body = heading(buf, area, "Accuracy (y) on the most confident share of the answers (x)");
-            panels(buf, body, &[("Probability of the chosen option", &probability), ("Stated by the model", &stated)], &x, &y);
+            panels(buf, body, &[("Probability of the chosen option", &probability), ("Stated, or share of samples", &stated)], &x, &y);
         }),
     }
 }
 
 fn calibration(results: &Results) -> Figure<'_> {
-    let bins = |source: &str| -> Vec<Series> {
+    let bins = |probability: bool| -> Vec<Series> {
         let mut series = vec![Series::line("perfect calibration", GUIDE, vec![(0.0, 0.0), (100.0, 100.0)])];
         for run in &results.runs {
-            let Some(confidence) = run.confidence.as_ref().filter(|confidence| confidence.source == source) else { continue };
+            let Some(confidence) = run.confidence.as_ref().filter(|confidence| (confidence.source == "probability") == probability)
+            else {
+                continue;
+            };
             if run.provider == "laya" {
                 continue;
             }
@@ -559,7 +571,7 @@ fn calibration(results: &Results) -> Figure<'_> {
         }
         series
     };
-    let (probability, stated) = (bins("probability"), bins("stated"));
+    let (probability, stated) = (bins(true), bins(false));
     let x = percent_scale("mean confidence", 0.0, 100.0, 2);
     let y = percent_scale("accuracy", 0.0, 100.0, 4);
     Figure {
@@ -574,7 +586,7 @@ fn calibration(results: &Results) -> Figure<'_> {
                 "Accuracy (y) against mean confidence (x), in each tenth of the confidence range with at least {MIN_BIN_ANSWERS} answers"
             );
             let body = heading(buf, area, &text);
-            panels(buf, body, &[("Probability of the chosen option", &probability), ("Stated by the model", &stated)], &x, &y);
+            panels(buf, body, &[("Probability of the chosen option", &probability), ("Stated, or share of samples", &stated)], &x, &y);
         }),
     }
 }
@@ -587,19 +599,20 @@ fn sources(results: &Results) -> Option<Figure<'_>> {
         .iter()
         .filter_map(|source| {
             let run = results.run(source.run)?;
-            let name = if source.stated {
-                format!("stated confidence, AUROC {:.3}", source.auroc)
-            } else {
-                format!("{} probability, AUROC {:.3}", results.label(run), source.auroc)
+            let name = match source.kind.as_str() {
+                "stated" => format!("stated confidence, AUROC {:.3}", source.auroc),
+                "votes" => format!("share of 10 samples, AUROC {:.3}", source.auroc),
+                _ => format!("{} probability, AUROC {:.3}", results.label(run), source.auroc),
             };
             Some(Series::line(name, color(run), coverage_curve(&source.risk_coverage)))
         })
         .collect();
     let title = format!(
-        "{}'s own answers ({} of {} right), scored by three confidence sources",
+        "{}'s own answers ({} of {} right), scored by {} confidence sources",
         answers.name,
         thousands(set.correct),
-        thousands(set.questions)
+        thousands(set.questions),
+        count_word(series.len())
     );
     let x = percent_scale("answered", 0.0, 100.0, 2);
     let y = percent_scale("accuracy", 40.0, 100.0, 6);

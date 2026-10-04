@@ -376,6 +376,12 @@ function renderConfidence(data) {
   );
 }
 
+const SOURCE_KINDS = {
+  stated: 'Stated with the answer',
+  probability: 'Probability of the same answer',
+  votes: 'Share of 10 samples with the same answer',
+};
+
 function renderSources(data) {
   const byRun = new Map(data.runs.map(run => [run.run, run]));
   const rows = data.sources.flatMap(item =>
@@ -384,7 +390,7 @@ function renderSources(data) {
         'tr',
         {},
         modelCell(byRun.get(entry.run), { withSetting: true }),
-        td(entry.stated ? 'Stated with the answer' : 'Probability of the same answer'),
+        td(SOURCE_KINDS[entry.kind]),
         td([formatScore(entry.auroc), el('span', { class: 'small', text: scoreRange(entry.auroc_interval) ?? '' })], {
           value: entry.auroc,
           numeric: true,
@@ -541,6 +547,113 @@ function renderCascade(data) {
   );
 }
 
+/* Repeated runs of one setup on the same questions. */
+function renderRepeats(data) {
+  const rows = data.repeats.map(item => {
+    const mean = (100 * item.accuracy.reduce((sum, value) => sum + value, 0)) / item.accuracy.length;
+    const range = `${(100 * Math.min(...item.accuracy)).toFixed(1)}–${(100 * Math.max(...item.accuracy)).toFixed(1)}%`;
+    return el(
+      'tr',
+      {},
+      modelCell(item, { withSetting: true }),
+      td(String(item.questions_per_request), { value: item.questions_per_request, numeric: true }),
+      td(`${integer(item.questions)}${item.whole_bank ? '' : ' (sample)'}`, { value: item.questions, numeric: true }),
+      td(String(item.runs.length), { value: item.runs.length, numeric: true, title: `Runs ${item.runs.join(', ')}` }),
+      percentCell(mean, { digits: 2, detail: range }),
+      td(`${integer(item.changed_answer)} (${formatPercent(percent(item.changed_answer, item.questions), 1)})`, {
+        value: percent(item.changed_answer, item.questions),
+        numeric: true,
+      }),
+      td(`${integer(item.wrong_every_run_same)} of ${integer(item.wrong_any)}`, {
+        value: percent(item.wrong_every_run_same, item.wrong_any),
+        numeric: true,
+        title: formatPercent(percent(item.wrong_every_run_same, item.wrong_any), 1),
+      }),
+      td(formatScore(item.score_spread_median), { value: item.score_spread_median, numeric: true }),
+      td(item.scored ? `${integer(item.score_identical)} of ${integer(item.scored)}` : '—', {
+        value: item.scored ? percent(item.score_identical, item.scored) : null,
+        numeric: true,
+      }),
+      td(item.sure_wrong.join(' / '), { value: Math.max(...item.sure_wrong), numeric: true }),
+      td(String(item.sure_wrong_every_run), { value: item.sure_wrong_every_run, numeric: true }),
+    );
+  });
+  fillTable(
+    document.getElementById('repeats'),
+    [
+      { label: 'Setup' },
+      { label: 'Per request', numeric: true, title: 'Questions per request' },
+      { label: 'Questions', numeric: true, title: 'Asked the same way in every run' },
+      { label: 'Runs', numeric: true },
+      { label: 'Accuracy', numeric: true, title: 'Mean over the runs, with the lowest and highest' },
+      { label: 'Changed answer', numeric: true, title: 'Questions on which the runs did not all choose the same option' },
+      { label: 'Same mistake every run', numeric: true, title: 'Wrong in every run with the same option, of the questions any run got wrong' },
+      { label: 'Score spread', numeric: true, title: 'Median over the questions of the largest minus the smallest score of the chosen options' },
+      { label: 'Same score', numeric: true, title: 'Questions scored the same in every run' },
+      { label: 'Wrong at ≥ 0.99', numeric: true, title: 'Each run’s wrong answers at a score of 0.99 or more' },
+      { label: 'In every run', numeric: true, title: 'Questions wrong at 0.99 or more in every run' },
+    ],
+    rows,
+  );
+}
+
+/* Cascades run for real: the frontier model answers only the questions the decision model passes on. */
+function renderPipelines(data) {
+  const byRun = new Map(data.runs.map(run => [run.run, run]));
+  const rows = data.pipelines.map(item => {
+    const measured = item.measured;
+    return el(
+      'tr',
+      {},
+      modelCell(byRun.get(item.decision)),
+      modelCell(byRun.get(item.frontier), { withSetting: true }),
+      td(integer(item.held_out), { value: item.held_out, numeric: true }),
+      td(item.threshold.toFixed(3), { value: item.threshold, numeric: true }),
+      percentCell(percent(item.routed, item.held_out), { detail: `${integer(item.routed)} questions` }),
+      percentCell(100 * item.simulated.accuracy, { detail: `frontier ${formatPercent(100 * item.simulated.frontier_accuracy, 1)}` }),
+      measured
+        ? percentCell(100 * measured.accuracy, { detail: `frontier ${formatPercent(100 * measured.frontier_accuracy, 1)}` })
+        : td('not run yet'),
+      measured
+        ? td([formatPoints(measured.difference), el('span', { class: 'small', text: `${formatPoints(measured.low)} to ${formatPoints(measured.high)}` })], {
+            value: 100 * measured.difference,
+            numeric: true,
+          })
+        : td('—'),
+      td(measured ? formatP(measured.p) : '—', { value: measured?.p, numeric: true }),
+      td(
+        `${item.tolerance_points.toFixed(1)} points${measured ? (measured.within_tolerance ? ', kept' : ', missed') : ''}`,
+      ),
+      td(measured ? `${formatUsd(measured.cost_usd)} / ${formatUsd(measured.frontier_cost_usd)}` : '—', {
+        value: measured?.cost_usd,
+        numeric: true,
+      }),
+      td(
+        measured ? `${(measured.request_seconds / 60).toFixed(1)} / ${(measured.frontier_request_seconds / 60).toFixed(1)}` : '—',
+        { value: measured?.request_seconds, numeric: true },
+      ),
+    );
+  });
+  fillTable(
+    document.getElementById('pipelines'),
+    [
+      { label: 'Decision model' },
+      { label: 'Frontier run' },
+      { label: 'Held out', numeric: true, title: 'Questions in the half the threshold was not chosen on' },
+      { label: 'Threshold', numeric: true, title: 'Chosen on the other half, before the runs' },
+      { label: 'Decision model answers', numeric: true },
+      { label: 'Simulated', numeric: true, title: 'The stored whole-bank runs, scored on the held-out questions' },
+      { label: 'Pipeline', numeric: true, title: 'New frontier run on the questions passed on, plus the decision model’s answers' },
+      { label: 'Difference', numeric: true, title: 'Pipeline minus the frontier run on all held-out questions, in points, with the paired 95% interval' },
+      { label: 'p', numeric: true, title: 'Exact McNemar test' },
+      { label: 'Tolerance', title: 'The accuracy loss accepted before the runs' },
+      { label: 'Cost', numeric: true, title: 'API-equivalent: pipeline / frontier alone' },
+      { label: 'Minutes', numeric: true, title: 'Request time: pipeline / frontier alone' },
+    ],
+    rows,
+  );
+}
+
 function renderSummary(data) {
   const date = new Date(data.updated).toLocaleDateString('en-GB', {
     day: 'numeric',
@@ -580,6 +693,8 @@ async function main() {
   renderVersions(data);
   renderPaired(data);
   renderCascade(data);
+  renderPipelines(data);
+  renderRepeats(data);
 }
 
 main();

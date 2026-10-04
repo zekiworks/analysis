@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-10-04T15:54:27Z",
+  "updated": "2026-10-04T21:33:38Z",
   "dataset": {
     "name": "questions-v2.sqlite",
     "sha256": "1ecdc4c89f7a2335717ce85dd3acc20876783dcf0e581f6e9986f5571d38497c",
@@ -169,10 +169,10 @@
       "model": "gpt-6-astra",
       "name": "GPT-6 Astra",
       "variant": null,
+      "reasoning": "low",
       "note": null,
       "provider": "openai",
       "access": "Codex CLI, ChatGPT subscription",
-      "reasoning": "low",
       "questions_per_request": 16,
       "concurrency": 1,
       "correct": 2145,
@@ -604,10 +604,10 @@
       "model": "deepseek-v4.1-flash",
       "name": "DeepSeek-V4.1-Flash",
       "variant": null,
+      "reasoning": "on",
       "note": null,
       "provider": "vllm",
       "access": "SGLang, self-hosted, published mixed precision",
-      "reasoning": "on",
       "questions_per_request": 16,
       "concurrency": 8,
       "correct": 2030,
@@ -669,10 +669,10 @@
       "model": "claude-opus-5-5",
       "name": "Claude Opus 5.5",
       "variant": null,
+      "reasoning": "low",
       "note": null,
       "provider": "claude",
       "access": "Claude Code CLI, Claude subscription",
-      "reasoning": "low",
       "questions_per_request": 16,
       "concurrency": 1,
       "correct": 1988,
@@ -1101,10 +1101,10 @@
       "model": "claude-sonnet-5-5",
       "name": "Claude Sonnet 5.5",
       "variant": null,
+      "reasoning": "high",
       "note": null,
       "provider": "claude",
       "access": "Claude Code CLI, Claude subscription",
-      "reasoning": "high",
       "questions_per_request": 16,
       "concurrency": 1,
       "correct": 1869,
@@ -1533,10 +1533,10 @@
       "model": "gemma-4-31B-it",
       "name": "Gemma 4 31B",
       "variant": null,
+      "reasoning": "off",
       "note": null,
       "provider": "vllm",
       "access": "vLLM, self-hosted, FP8",
-      "reasoning": "off",
       "questions_per_request": 16,
       "concurrency": 1,
       "correct": 1624,
@@ -1598,10 +1598,10 @@
       "model": "deepseek-v4.1-flash",
       "name": "DeepSeek-V4.1-Flash",
       "variant": null,
+      "reasoning": "off",
       "note": null,
       "provider": "vllm",
       "access": "SGLang, self-hosted, published mixed precision",
-      "reasoning": "off",
       "questions_per_request": 16,
       "concurrency": 1,
       "correct": 1443,
@@ -1663,10 +1663,10 @@
       "model": "claude-sonnet-5-5",
       "name": "Claude Sonnet 5.5",
       "variant": null,
+      "reasoning": "low",
       "note": null,
       "provider": "claude",
       "access": "Claude Code CLI, Claude subscription",
-      "reasoning": "low",
       "questions_per_request": 16,
       "concurrency": 1,
       "correct": 1349,
@@ -2095,10 +2095,10 @@
       "model": "pplx-decider-v1-27b",
       "name": "Perplexity Decider 27B",
       "variant": null,
+      "reasoning": null,
       "note": null,
       "provider": "perplexity",
       "access": "Perplexity Decisions API",
-      "reasoning": null,
       "questions_per_request": 1,
       "concurrency": 1,
       "correct": 1327,
@@ -2530,10 +2530,10 @@
       "model": "jev-1.13.0",
       "name": "Jev 1.13.0",
       "variant": null,
+      "reasoning": null,
       "note": null,
       "provider": "jev",
       "access": "TypeSafe System One API",
-      "reasoning": null,
       "questions_per_request": 1,
       "concurrency": 1,
       "correct": 1264,
@@ -2965,10 +2965,10 @@
       "model": "d1:free",
       "name": "Liquid d1",
       "variant": null,
+      "reasoning": null,
       "note": null,
       "provider": "liquid",
       "access": "Liquid AI decisions API",
-      "reasoning": null,
       "questions_per_request": 1,
       "concurrency": 1,
       "correct": 1253,
@@ -3400,10 +3400,10 @@
       "model": "open-jev-27b-v1.1",
       "name": "Open-Jev 27B v1.1",
       "variant": null,
+      "reasoning": null,
       "note": "Fine-tune of Qwen3.8-27B (LoRA and a scoring head)",
       "provider": "open-jev",
       "access": "Open-Jev server, self-hosted",
-      "reasoning": null,
       "questions_per_request": 1,
       "concurrency": 1,
       "correct": 1224,
@@ -3828,14 +3828,423 @@
       "updated": "2026-10-04T08:45:43Z"
     },
     {
+      "run": 83,
+      "model": "qwen38-27b-bf16",
+      "name": "Qwen3.8-27B",
+      "variant": "vote share",
+      "reasoning": "off",
+      "note": "Open-Jev's base model",
+      "provider": "vllm-vote",
+      "access": "vLLM, self-hosted, BF16",
+      "questions_per_request": 1,
+      "concurrency": 1,
+      "correct": 1194,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 551
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 643
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1190
+        }
+      },
+      "tyt_mix": 0.7659231062762962,
+      "questions_per_minute": 36.42730498097688,
+      "request_seconds": 3620.3611567990156,
+      "median_request_seconds": 1.6240591129753739,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": 1.3623256,
+      "cost_basis": "an assumed $0.40 / $2.40 per 1M input / output tokens",
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+      "input_tokens": 693112,
+      "output_tokens": 452117,
+      "confidence": {
+        "source": "votes",
+        "label": "Share of 10 samples",
+        "bins": [
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 201,
+            "correct": 49
+          },
+          {
+            "questions": 830,
+            "correct": 269
+          },
+          {
+            "questions": 155,
+            "correct": 71
+          },
+          {
+            "questions": 1012,
+            "correct": 805
+          }
+        ],
+        "auroc": 0.7774655148251216,
+        "auroc_interval": [
+          0.7590938390202316,
+          0.7966106093636458
+        ],
+        "aurc": 0.25747343636994446,
+        "ece": 0.22493175614194588,
+        "brier": 0.24103730664240217,
+        "coverage_accuracy": {
+          "0.20": 0.8525714285714286,
+          "0.50": 0.7687457806216795,
+          "0.80": 0.6128316917386526
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.8296639629200463,
+            0.8764568764568764
+          ],
+          "0.50": [
+            0.7417853103391985,
+            0.7943292684627982
+          ],
+          "0.80": [
+            0.5899474824866682,
+            0.6366341216141759
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.1474
+          ],
+          [
+            0.04,
+            0.1474
+          ],
+          [
+            0.06,
+            0.1474
+          ],
+          [
+            0.08,
+            0.1474
+          ],
+          [
+            0.1,
+            0.1474
+          ],
+          [
+            0.12,
+            0.1474
+          ],
+          [
+            0.14,
+            0.1474
+          ],
+          [
+            0.16,
+            0.1474
+          ],
+          [
+            0.18,
+            0.1474
+          ],
+          [
+            0.2,
+            0.1474
+          ],
+          [
+            0.22,
+            0.1474
+          ],
+          [
+            0.24,
+            0.1474
+          ],
+          [
+            0.26,
+            0.1474
+          ],
+          [
+            0.28,
+            0.1474
+          ],
+          [
+            0.3,
+            0.1474
+          ],
+          [
+            0.32,
+            0.1474
+          ],
+          [
+            0.34,
+            0.1474
+          ],
+          [
+            0.36,
+            0.1474
+          ],
+          [
+            0.38,
+            0.1474
+          ],
+          [
+            0.4,
+            0.1494
+          ],
+          [
+            0.42,
+            0.1694
+          ],
+          [
+            0.44,
+            0.1876
+          ],
+          [
+            0.46,
+            0.2042
+          ],
+          [
+            0.48,
+            0.2183
+          ],
+          [
+            0.5,
+            0.2313
+          ],
+          [
+            0.52,
+            0.2432
+          ],
+          [
+            0.54,
+            0.2552
+          ],
+          [
+            0.56,
+            0.2676
+          ],
+          [
+            0.58,
+            0.279
+          ],
+          [
+            0.6,
+            0.2897
+          ],
+          [
+            0.62,
+            0.2997
+          ],
+          [
+            0.64,
+            0.3109
+          ],
+          [
+            0.66,
+            0.3223
+          ],
+          [
+            0.68,
+            0.333
+          ],
+          [
+            0.7,
+            0.3431
+          ],
+          [
+            0.72,
+            0.3526
+          ],
+          [
+            0.74,
+            0.3616
+          ],
+          [
+            0.76,
+            0.3701
+          ],
+          [
+            0.78,
+            0.3787
+          ],
+          [
+            0.8,
+            0.3872
+          ],
+          [
+            0.82,
+            0.3952
+          ],
+          [
+            0.84,
+            0.4029
+          ],
+          [
+            0.86,
+            0.4102
+          ],
+          [
+            0.88,
+            0.4172
+          ],
+          [
+            0.9,
+            0.4239
+          ],
+          [
+            0.92,
+            0.4307
+          ],
+          [
+            0.94,
+            0.4376
+          ],
+          [
+            0.96,
+            0.4443
+          ],
+          [
+            0.98,
+            0.4506
+          ],
+          [
+            1.0,
+            0.4568
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 25,
+            "mean_confidence": 0.2999999999999999,
+            "accuracy": 0.24
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 176,
+            "mean_confidence": 0.3999999999999995,
+            "accuracy": 0.24431818181818182
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 308,
+            "mean_confidence": 0.5,
+            "accuracy": 0.2824675324675325
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 312,
+            "mean_confidence": 0.5999999999999966,
+            "accuracy": 0.3141025641025641
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 210,
+            "mean_confidence": 0.7000000000000003,
+            "accuracy": 0.4
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 155,
+            "mean_confidence": 0.7999999999999979,
+            "accuracy": 0.45806451612903226
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 1012,
+            "mean_confidence": 0.9864624505928838,
+            "accuracy": 0.7954545454545454
+          }
+        ],
+        "median_right": 1.0,
+        "median_wrong": 0.6,
+        "sure": {
+          "questions": 875,
+          "correct": 746,
+          "interval": [
+            0.8275396883011108,
+            0.8745208422882469
+          ]
+        },
+        "doubtful": {
+          "questions": 821,
+          "correct": 234,
+          "interval": [
+            0.2551958862106012,
+            0.31684315740698554
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        106,
+        133,
+        52,
+        91,
+        82,
+        87,
+        59,
+        22,
+        42,
+        27,
+        33,
+        25,
+        59,
+        33,
+        37,
+        52,
+        24,
+        67,
+        59,
+        104
+      ],
+      "updated": "2026-10-04T21:33:38Z"
+    },
+    {
       "run": 53,
       "model": "qwen38-27b-bf16",
       "name": "Qwen3.8-27B",
       "variant": "stated confidence",
+      "reasoning": "off",
       "note": "Open-Jev's base model",
       "provider": "vllm-verbal",
       "access": "vLLM, self-hosted, BF16",
-      "reasoning": "off",
       "questions_per_request": 1,
       "concurrency": 1,
       "correct": 1191,
@@ -4267,10 +4676,10 @@
       "model": "qwen38-27b-bf16",
       "name": "Qwen3.8-27B",
       "variant": "yes/no scoring",
+      "reasoning": null,
       "note": "Open-Jev's base model",
       "provider": "vllm-yes-no",
       "access": "vLLM, self-hosted, BF16",
-      "reasoning": null,
       "questions_per_request": 1,
       "concurrency": 1,
       "correct": 1141,
@@ -4702,10 +5111,10 @@
       "model": "laya",
       "name": "Laya",
       "variant": null,
+      "reasoning": null,
       "note": "Encoder with a decision head",
       "provider": "laya",
       "access": "Laya server, self-hosted",
-      "reasoning": null,
       "questions_per_request": 1,
       "concurrency": 1,
       "correct": 418,
@@ -5134,10 +5543,10 @@
       "model": "laya-multilingual",
       "name": "Laya multilingual",
       "variant": null,
+      "reasoning": null,
       "note": "Encoder with a decision head",
       "provider": "laya",
       "access": "Laya server, self-hosted",
-      "reasoning": null,
       "questions_per_request": 1,
       "concurrency": 1,
       "correct": 393,
@@ -5576,7 +5985,7 @@
       "low": 0.04196008998560532,
       "high": 0.0626804923619834,
       "p": 6.3004691602339085e-25,
-      "p_holm": 8.820656824327471e-24
+      "p_holm": 9.450703740350863e-24
     },
     {
       "first": 59,
@@ -5588,7 +5997,7 @@
       "low": 0.0059060855241470315,
       "high": 0.03231047498540711,
       "p": 0.005584007033222324,
-      "p_holm": 0.044672056265778595
+      "p_holm": 0.05025606329900092
     },
     {
       "first": 47,
@@ -5600,7 +6009,7 @@
       "low": 0.03852720387825319,
       "high": 0.06975305089881688,
       "p": 1.4657942286341076e-11,
-      "p_holm": 1.6123736514975182e-10
+      "p_holm": 1.7589530743609292e-10
     },
     {
       "first": 55,
@@ -5612,7 +6021,7 @@
       "low": 0.09052016102668917,
       "high": 0.13240977527904332,
       "p": 7.09288135771834e-25,
-      "p_holm": 9.220745765033841e-24
+      "p_holm": 9.930033900805676e-24
     },
     {
       "first": 57,
@@ -5624,7 +6033,7 @@
       "low": 0.06212903390238685,
       "high": 0.10256614353164409,
       "p": 2.7083657404742196e-15,
-      "p_holm": 3.2500388885690634e-14
+      "p_holm": 3.5208754626164856e-14
     },
     {
       "first": 58,
@@ -5636,7 +6045,7 @@
       "low": 0.02147700776775579,
       "high": 0.06405529432505586,
       "p": 0.00010034793609245237,
-      "p_holm": 0.0010034793609245236
+      "p_holm": 0.001103827297016976
     },
     {
       "first": 54,
@@ -5648,7 +6057,7 @@
       "low": -0.012262122285840652,
       "high": 0.03228032064798806,
       "p": 0.40054985117099756,
-      "p_holm": 0.941746841112727
+      "p_holm": 1.0
     },
     {
       "first": 44,
@@ -5660,7 +6069,7 @@
       "low": 0.008033138518606254,
       "high": 0.04929170224572496,
       "p": 0.007404857447081556,
-      "p_holm": 0.05183400212957089
+      "p_holm": 0.059238859576652446
     },
     {
       "first": 49,
@@ -5672,7 +6081,7 @@
       "low": -0.013677882473968915,
       "high": 0.02368698165504262,
       "p": 0.6332170783309289,
-      "p_holm": 0.941746841112727
+      "p_holm": 1.0
     },
     {
       "first": 52,
@@ -5684,19 +6093,31 @@
       "low": -0.0078442995210072,
       "high": 0.03423192463474696,
       "p": 0.23543671027818175,
-      "p_holm": 0.941746841112727
+      "p_holm": 1.0
     },
     {
       "first": 45,
-      "second": 53,
+      "second": 83,
       "questions": 2198,
       "first_only": 267,
-      "second_only": 234,
-      "difference": 0.015013648771610554,
-      "low": -0.00493586880985784,
-      "high": 0.034963166353078945,
-      "p": 0.15274497168628004,
-      "p_holm": 0.7637248584314003
+      "second_only": 237,
+      "difference": 0.01364877161055505,
+      "low": -0.006362153356293554,
+      "high": 0.033659696577403656,
+      "p": 0.19638999894547188,
+      "p_holm": 1.0
+    },
+    {
+      "first": 83,
+      "second": 53,
+      "questions": 2198,
+      "first_only": 100,
+      "second_only": 97,
+      "difference": 0.001364877161055505,
+      "low": -0.011150875816214918,
+      "high": 0.013880630138325927,
+      "p": 0.8867367256095349,
+      "p_holm": 1.0
     },
     {
       "first": 53,
@@ -5708,7 +6129,7 @@
       "low": 0.003688027661566406,
       "high": 0.04180787770695042,
       "p": 0.02194066100694269,
-      "p_holm": 0.13164396604165612
+      "p_holm": 0.15358462704859882
     },
     {
       "first": 50,
@@ -5720,7 +6141,7 @@
       "low": 0.3018708611276209,
       "high": 0.3559999305011325,
       "p": 2.185057409316946e-107,
-      "p_holm": 3.2775861139754194e-106
+      "p_holm": 3.496091854907114e-106
     },
     {
       "first": 51,
@@ -5732,7 +6153,7 @@
       "low": -0.009816625686337836,
       "high": 0.03256457837059625,
       "p": 0.31264376433157115,
-      "p_holm": 0.941746841112727
+      "p_holm": 1.0
     },
     {
       "first": 45,
@@ -5744,7 +6165,7 @@
       "low": 0.01794483214073702,
       "high": 0.05757837077100093,
       "p": 0.00022780042456489667,
-      "p_holm": 0.00205020382108407
+      "p_holm": 0.0022780042456489666
     }
   ],
   "cascades": [
@@ -10423,7 +10844,7 @@
       "sources": [
         {
           "run": 53,
-          "stated": true,
+          "kind": "stated",
           "questions": 2198,
           "auroc": 0.5147923394342041,
           "auroc_interval": [
@@ -10635,7 +11056,7 @@
         },
         {
           "run": 45,
-          "stated": false,
+          "kind": "probability",
           "questions": 2198,
           "auroc": 0.8185047238599326,
           "auroc_interval": [
@@ -10846,8 +11267,220 @@
           ]
         },
         {
+          "run": 83,
+          "kind": "votes",
+          "questions": 2198,
+          "auroc": 0.7788444782408948,
+          "auroc_interval": [
+            0.7584856386009123,
+            0.7971547529520745
+          ],
+          "risk_coverage": [
+            [
+              0.02,
+              0.1474
+            ],
+            [
+              0.04,
+              0.1474
+            ],
+            [
+              0.06,
+              0.1474
+            ],
+            [
+              0.08,
+              0.1474
+            ],
+            [
+              0.1,
+              0.1474
+            ],
+            [
+              0.12,
+              0.1474
+            ],
+            [
+              0.14,
+              0.1474
+            ],
+            [
+              0.16,
+              0.1474
+            ],
+            [
+              0.18,
+              0.1474
+            ],
+            [
+              0.2,
+              0.1474
+            ],
+            [
+              0.22,
+              0.1474
+            ],
+            [
+              0.24,
+              0.1474
+            ],
+            [
+              0.26,
+              0.1474
+            ],
+            [
+              0.28,
+              0.1474
+            ],
+            [
+              0.3,
+              0.1474
+            ],
+            [
+              0.32,
+              0.1474
+            ],
+            [
+              0.34,
+              0.1474
+            ],
+            [
+              0.36,
+              0.1474
+            ],
+            [
+              0.38,
+              0.1474
+            ],
+            [
+              0.4,
+              0.1494
+            ],
+            [
+              0.42,
+              0.1694
+            ],
+            [
+              0.44,
+              0.1876
+            ],
+            [
+              0.46,
+              0.2042
+            ],
+            [
+              0.48,
+              0.218
+            ],
+            [
+              0.5,
+              0.2306
+            ],
+            [
+              0.52,
+              0.2422
+            ],
+            [
+              0.54,
+              0.2541
+            ],
+            [
+              0.56,
+              0.2658
+            ],
+            [
+              0.58,
+              0.2768
+            ],
+            [
+              0.6,
+              0.287
+            ],
+            [
+              0.62,
+              0.298
+            ],
+            [
+              0.64,
+              0.3107
+            ],
+            [
+              0.66,
+              0.3226
+            ],
+            [
+              0.68,
+              0.3338
+            ],
+            [
+              0.7,
+              0.3443
+            ],
+            [
+              0.72,
+              0.3543
+            ],
+            [
+              0.74,
+              0.3635
+            ],
+            [
+              0.76,
+              0.3721
+            ],
+            [
+              0.78,
+              0.3804
+            ],
+            [
+              0.8,
+              0.3882
+            ],
+            [
+              0.82,
+              0.3956
+            ],
+            [
+              0.84,
+              0.4036
+            ],
+            [
+              0.86,
+              0.4113
+            ],
+            [
+              0.88,
+              0.4187
+            ],
+            [
+              0.9,
+              0.4258
+            ],
+            [
+              0.92,
+              0.4329
+            ],
+            [
+              0.94,
+              0.4402
+            ],
+            [
+              0.96,
+              0.4472
+            ],
+            [
+              0.98,
+              0.4524
+            ],
+            [
+              1.0,
+              0.4581
+            ]
+          ]
+        },
+        {
           "run": 50,
-          "stated": false,
+          "kind": "probability",
           "questions": 2198,
           "auroc": 0.7820262361621463,
           "auroc_interval": [
@@ -11058,6 +11691,436 @@
           ]
         }
       ]
+    }
+  ],
+  "repeats": [
+    {
+      "model": "gpt-6-astra",
+      "name": "GPT-6 Astra",
+      "variant": null,
+      "reasoning": "low",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        69,
+        78,
+        82,
+        87,
+        91
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.975,
+        0.98,
+        0.98,
+        0.98,
+        0.98
+      ],
+      "changed_answer": 1,
+      "wrong_any": 5,
+      "wrong_every_run_same": 4,
+      "scored": 200,
+      "score_spread_median": 0.0,
+      "score_identical": 105,
+      "sure_wrong": [
+        1,
+        0,
+        1,
+        1,
+        1
+      ],
+      "sure_wrong_every_run": 0
+    },
+    {
+      "model": "claude-opus-5-5",
+      "name": "Claude Opus 5.5",
+      "variant": null,
+      "reasoning": "low",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        67,
+        77,
+        81,
+        86,
+        90
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.94,
+        0.95,
+        0.95,
+        0.96,
+        0.975
+      ],
+      "changed_answer": 20,
+      "wrong_any": 22,
+      "wrong_every_run_same": 2,
+      "scored": 200,
+      "score_spread_median": 0.050000000000000044,
+      "score_identical": 23,
+      "sure_wrong": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "name": "Claude Sonnet 5.5",
+      "variant": null,
+      "reasoning": "high",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        63,
+        80,
+        88,
+        93,
+        98
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.895,
+        0.91,
+        0.895,
+        0.87,
+        0.87
+      ],
+      "changed_answer": 31,
+      "wrong_any": 40,
+      "wrong_every_run_same": 9,
+      "scored": 200,
+      "score_spread_median": 0.09999999999999998,
+      "score_identical": 14,
+      "sure_wrong": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0
+    },
+    {
+      "model": "gemma-4-31B-it",
+      "name": "Gemma 4 31B",
+      "variant": null,
+      "reasoning": "off",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        61,
+        72,
+        73,
+        76,
+        79
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.705,
+        0.705,
+        0.705,
+        0.705,
+        0.705
+      ],
+      "changed_answer": 0,
+      "wrong_any": 59,
+      "wrong_every_run_same": 59,
+      "scored": 0,
+      "score_spread_median": null,
+      "score_identical": 0,
+      "sure_wrong": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0
+    },
+    {
+      "model": "pplx-decider-v1-27b",
+      "name": "Perplexity Decider 27B",
+      "variant": null,
+      "reasoning": null,
+      "questions_per_request": 1,
+      "whole_bank": true,
+      "runs": [
+        44,
+        64,
+        84,
+        96,
+        100
+      ],
+      "questions": 2198,
+      "accuracy": [
+        0.6037306642402184,
+        0.6037306642402184,
+        0.6037306642402184,
+        0.6037306642402184,
+        0.6041856232939036
+      ],
+      "changed_answer": 2,
+      "wrong_any": 871,
+      "wrong_every_run_same": 869,
+      "scored": 2198,
+      "score_spread_median": 0.0,
+      "score_identical": 2169,
+      "sure_wrong": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0
+    },
+    {
+      "model": "jev-1.13.0",
+      "name": "Jev 1.13.0",
+      "variant": null,
+      "reasoning": null,
+      "questions_per_request": 1,
+      "whole_bank": true,
+      "runs": [
+        49,
+        65,
+        85,
+        97,
+        101
+      ],
+      "questions": 2198,
+      "accuracy": [
+        0.5750682438580528,
+        0.5714285714285714,
+        0.5759781619654231,
+        0.5727934485896269,
+        0.5800727934485896
+      ],
+      "changed_answer": 314,
+      "wrong_any": 1035,
+      "wrong_every_run_same": 721,
+      "scored": 2198,
+      "score_spread_median": 0.04999999999999999,
+      "score_identical": 271,
+      "sure_wrong": [
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "sure_wrong_every_run": 0
+    },
+    {
+      "model": "d1:free",
+      "name": "Liquid d1",
+      "variant": null,
+      "reasoning": null,
+      "questions_per_request": 1,
+      "whole_bank": true,
+      "runs": [
+        52,
+        66,
+        94,
+        105,
+        108
+      ],
+      "questions": 2198,
+      "accuracy": [
+        0.5700636942675159,
+        0.5691537761601456,
+        0.5677888989990901,
+        0.5686988171064604,
+        0.5673339399454049
+      ],
+      "changed_answer": 217,
+      "wrong_any": 1016,
+      "wrong_every_run_same": 799,
+      "scored": 2198,
+      "score_spread_median": 0.008535373288807185,
+      "score_identical": 824,
+      "sure_wrong": [
+        1,
+        1,
+        1,
+        2,
+        1
+      ],
+      "sure_wrong_every_run": 1
+    },
+    {
+      "model": "open-jev-27b-v1.1",
+      "name": "Open-Jev 27B v1.1",
+      "variant": null,
+      "reasoning": null,
+      "questions_per_request": 1,
+      "whole_bank": true,
+      "runs": [
+        45,
+        60,
+        92,
+        102,
+        106
+      ],
+      "questions": 2198,
+      "accuracy": [
+        0.556869881710646,
+        0.556869881710646,
+        0.556869881710646,
+        0.556869881710646,
+        0.556869881710646
+      ],
+      "changed_answer": 0,
+      "wrong_any": 974,
+      "wrong_every_run_same": 974,
+      "scored": 2198,
+      "score_spread_median": 0.0,
+      "score_identical": 2198,
+      "sure_wrong": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0
+    },
+    {
+      "model": "qwen38-27b-bf16",
+      "name": "Qwen3.8-27B",
+      "variant": "stated confidence",
+      "reasoning": "off",
+      "questions_per_request": 1,
+      "whole_bank": true,
+      "runs": [
+        53,
+        74,
+        95,
+        103,
+        107
+      ],
+      "questions": 2198,
+      "accuracy": [
+        0.5418562329390355,
+        0.5427661510464058,
+        0.5427661510464058,
+        0.5427661510464058,
+        0.5427661510464058
+      ],
+      "changed_answer": 44,
+      "wrong_any": 1019,
+      "wrong_every_run_same": 975,
+      "scored": 2198,
+      "score_spread_median": 0.0,
+      "score_identical": 2193,
+      "sure_wrong": [
+        1,
+        2,
+        2,
+        2,
+        2
+      ],
+      "sure_wrong_every_run": 1
+    },
+    {
+      "model": "qwen38-27b-bf16",
+      "name": "Qwen3.8-27B",
+      "variant": "yes/no scoring",
+      "reasoning": null,
+      "questions_per_request": 1,
+      "whole_bank": true,
+      "runs": [
+        50,
+        75,
+        89,
+        99,
+        104
+      ],
+      "questions": 2198,
+      "accuracy": [
+        0.5191082802547771,
+        0.5168334849863512,
+        0.5163785259326661,
+        0.5141037306642402,
+        0.5159235668789809
+      ],
+      "changed_answer": 160,
+      "wrong_any": 1109,
+      "wrong_every_run_same": 949,
+      "scored": 2198,
+      "score_spread_median": 0.016477080928385346,
+      "score_identical": 0,
+      "sure_wrong": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "sure_wrong_every_run": 2
+    }
+  ],
+  "pipelines": [
+    {
+      "decision": 44,
+      "frontier": 48,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "threshold": 0.9156852342507505,
+      "held_out": 1099,
+      "routed": 194,
+      "simulated": {
+        "accuracy": 0.9736123748862603,
+        "frontier_accuracy": 0.9736123748862603
+      },
+      "measured": {
+        "pipeline_run": 70,
+        "alone_run": 71,
+        "accuracy": 0.9708826205641492,
+        "frontier_accuracy": 0.9745222929936306,
+        "difference": -0.003639672429481347,
+        "low": -0.008002885959281333,
+        "high": 0.0007235411003186395,
+        "p": 0.21875,
+        "within_tolerance": true,
+        "cost_usd": 4.714345516072398,
+        "frontier_cost_usd": 5.67298,
+        "request_seconds": 1127.6062055643858,
+        "frontier_request_seconds": 992.3243447878631
+      }
+    },
+    {
+      "decision": 44,
+      "frontier": 55,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "threshold": 0.7190257589471052,
+      "held_out": 1099,
+      "routed": 343,
+      "simulated": {
+        "accuracy": 0.8525932666060054,
+        "frontier_accuracy": 0.8462238398544131
+      },
+      "measured": {
+        "pipeline_run": 62,
+        "alone_run": 68,
+        "accuracy": 0.8480436760691538,
+        "frontier_accuracy": 0.8489535941765242,
+        "difference": -0.0009099181073703367,
+        "low": -0.01952949531030512,
+        "high": 0.017709659095564444,
+        "p": 1.0,
+        "within_tolerance": true,
+        "cost_usd": 2.8568095160723983,
+        "frontier_cost_usd": 3.487294,
+        "request_seconds": 1845.901194359744,
+        "frontier_request_seconds": 1799.8465952617116
+      }
     }
   ]
 }
