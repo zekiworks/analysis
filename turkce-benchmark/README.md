@@ -34,6 +34,26 @@ the script stops until it has one. A new model is shown by its ID unless `MODELS
 name; a Claude or OpenAI model with a cost needs its list price there, and a model on our GPUs its
 hardware.
 
+## Graphs
+
+`charts/` is a Rust crate that draws the page's graphs from `docs/results.json`. It uses ratatui's
+`Chart`, `BarChart` and `Canvas` widgets, rendered into ratatui's test backend, so each graph is a
+buffer of terminal cells. The page shows them as SVGs next to their tables in `docs/charts/`.
+
+- **SVG output:** a small writer (`charts/src/svg.rs`) turns each buffer into an SVG on a fixed grid of
+  8 × 16 px cells. It draws braille dots, box lines, bar blocks and dots as shapes, so a graph looks
+  the same whatever fonts the reader has.
+- **Snapshots:** the same buffer, as text, is the graph's insta snapshot in `charts/tests/snapshots/`.
+  When the data changes, the snapshot diff shows how each graph changed.
+
+```bash
+cargo run --release --manifest-path charts/Cargo.toml -- docs/results.json docs/charts   # write the SVGs
+cargo test --manifest-path charts/Cargo.toml   # compare each graph with its snapshot
+INSTA_UPDATE=always cargo test --manifest-path charts/Cargo.toml   # accept the new graphs
+```
+
+`cargo insta review` (from `cargo install cargo-insta`) shows the changed snapshots one by one instead.
+
 ## Preview
 
 ```bash

@@ -99,6 +99,11 @@ td.score .value { position: relative; }
 }
 #units thead th:first-child { background: var(--bg); }
 
+/* Graphs: SVGs drawn on a terminal-cell grid. They never grow past their own size and scroll sideways
+   on narrow screens instead of shrinking their text to nothing. */
+.chart { margin: 1.25rem 0 0; overflow-x: auto; }
+.chart img { display: block; max-width: 100%; min-width: 640px; height: auto; }
+
 footer { text-align: center; color: var(--text-muted); font-size: .85rem; }
 
 @media (max-width: 640px) {

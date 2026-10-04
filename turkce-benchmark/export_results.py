@@ -189,6 +189,13 @@ def confidence(record: dict[str, Any]) -> dict[str, Any] | None:
         "brier": overall["brier"],
         "coverage_accuracy": overall["coverage_accuracy"],
         "coverage_intervals": overall.get("coverage_intervals"),
+        # [coverage, risk] at even coverages, highest confidence first: the risk–coverage curve.
+        "risk_coverage": record.get("risk_coverage"),
+        # Calibration bins: answers, mean confidence and accuracy per equal-width confidence bin.
+        "reliability": [
+            {key: interval[key] for key in ("low", "high", "questions", "mean_confidence", "accuracy")}
+            for interval in record.get("reliability") or []
+        ],
         "median_right": extremes["median_right"],
         "median_wrong": extremes["median_wrong"],
         "sure": extremes["sure"],
@@ -315,6 +322,8 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "frontier": frontier["run_id"],
                 "frontier_accuracy": item["frontier_accuracy"],
                 "in_sample": item["in_sample"],
+                # [share answered by the decision model, cascade accuracy], highest threshold first.
+                "curve": item.get("curve"),
                 "held_out": item["held_out"],
                 "api_equivalent_usd": cost,
             }
@@ -337,7 +346,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 {
                     "run": exported[entry["run"]]["run_id"],
                     "stated": entry["run"] == item["answers"],
-                    **{key: entry[key] for key in ("questions", "auroc", "auroc_interval")},
+                    **{key: entry[key] for key in ("questions", "auroc", "auroc_interval", "risk_coverage")},
                 }
                 for entry in item["sources"]
                 if entry["run"] in exported

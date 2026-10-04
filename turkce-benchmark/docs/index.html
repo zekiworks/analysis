@@ -133,6 +133,8 @@
         reading and grammar weighted like the 2026 TYT paper (33 and 7 questions). Output tokens: per question,
         thinking included. Click a column heading to sort.</p>
       <div class="table-wrap"><table id="leaderboard"></table></div>
+      <figure class="chart"><img src="charts/reading-grammar.svg" loading="lazy"
+        alt="Horizontal bars of each run's accuracy on the reading units and on the grammar units. GPT-6 Astra, DeepSeek-V4.1-Flash with reasoning and Claude Sonnet 5.5 at high effort score about the same on both; every other model scores far lower on grammar."></figure>
     </section>
 
     <section class="card">
@@ -152,6 +154,8 @@
       <p class="note">Percentage of each unit's questions answered correctly. Hover a cell for the count. Guessing
         scores 20%; always answering E, the key's most common letter, would score 22.7%.</p>
       <div class="table-wrap"><table id="units" class="heatmap"></table></div>
+      <figure class="chart"><img src="charts/units.svg" loading="lazy"
+        alt="Line chart of accuracy by unit for GPT-6 Astra, DeepSeek-V4.1-Flash with and without reasoning, Gemma 4 31B, Jev and Laya, with lines at the 20% chance level and the 22.7% always-E level. The reading units 1 to 6 are high for all but Laya; the grammar units drop sharply for the models without reasoning; Laya stays near chance."></figure>
     </section>
 
     <section class="card">
@@ -160,12 +164,16 @@
         parentheses. Ranges include their lower bound; the last also includes 1.00. Runs without a confidence are
         not listed.</p>
       <div class="table-wrap"><table id="confidence" class="heatmap"></table></div>
+      <figure class="chart"><img src="charts/calibration.svg" loading="lazy"
+        alt="Calibration charts: accuracy against mean confidence per confidence bin, for the probability-based runs and for the runs that state a confidence, with the diagonal of perfect calibration. Open-Jev lies far above the diagonal, the Qwen stated confidence far below it."></figure>
       <h3>How well the confidence sorts answers</h3>
       <p class="note">AUROC: the chance that a right answer gets a higher confidence than a wrong one; 0.5 is no
         better than chance. ECE: the average gap between confidence and accuracy, over 10 equal-width bins; 0 is
         perfect. Top 20%, 50%, 80%: accuracy if the run answered only that share of the questions, those with the
         highest confidence. Equal confidences count as ties. Small numbers: 95% bootstrap intervals.</p>
       <div class="table-wrap"><table id="ranking"></table></div>
+      <figure class="chart"><img src="charts/coverage.svg" loading="lazy"
+        alt="Line charts of accuracy on the most confident share of answers, from 2% to 100% of the answers, for the probability-based runs and for the runs that state a confidence. Accuracy falls as more answers are included, except for Qwen's stated confidence, which drops to near its overall accuracy almost at once."></figure>
       <h3>Answers at 0.99 or more</h3>
       <p class="note">How many answers each run gave at a probability or stated confidence of 0.99 or more, how many of
         them were right, and the 95% Wilson interval on that accuracy. A few answers cannot show an accuracy of 99%:
@@ -177,6 +185,8 @@
         confidence is compared with the probability that Qwen's yes/no scoring and Open-Jev give each of those same
         answers.</p>
       <div class="table-wrap"><table id="sources"></table></div>
+      <figure class="chart"><img src="charts/sources.svg" loading="lazy"
+        alt="Line chart of Qwen3.8-27B's own answers ranked by three confidence sources. With its stated confidence, accuracy is near flat; with the yes/no probability or Open-Jev's probability of the same answers, the most confident answers are almost all right."></figure>
     </section>
 
     <section class="card">
@@ -197,6 +207,8 @@
         questions only one of the two got right. Differences are in percentage points. Holm p corrects for testing all
         the comparisons in the table; greyed values are not significant at 0.05.</p>
       <div class="table-wrap"><table id="paired"></table></div>
+      <figure class="chart"><img src="charts/paired.svg" loading="lazy"
+        alt="Forest plot of the paired comparisons: each accuracy difference in percentage points with its 95% interval, coloured when it stays significant after the Holm correction."></figure>
     </section>
 
     <section class="card">
@@ -210,6 +222,8 @@
         model's run plus the frontier run on the questions passed on. Held out is not a deployment test: a real
         pipeline would send the remaining questions in new batches.</p>
       <div class="table-wrap"><table id="cascade"></table></div>
+      <figure class="chart"><img src="charts/cascade.svg" loading="lazy"
+        alt="Line charts of cascade accuracy against the share of questions the decision model answers, before GPT-6 Astra and before Claude Sonnet 5.5 at high effort. Accuracy stays at the frontier run's level up to a share that differs by decision model, then falls."></figure>
       <h3>Does a decision model's doubt point at frontier mistakes?</h3>
       <p class="note">Doubt is the entropy of the decision model's option probabilities. Spearman: its rank
         correlation with how many of GPT-6 Astra (low), Claude Opus 5.5 (low) and Claude Sonnet 5.5 (high) got the
@@ -318,7 +332,9 @@
       <code>export_results.py</code>. Every run's answer to every question, without the questions' text:
       <a href="answers.json">answers.json</a> (question IDs, units, pages, printed numbers, keys and statuses; each
       run's settings, chosen letters, scores and option probabilities; the prompt templates). The metrics come from
-      <a href="https://github.com/zekiworks/analysis/blob/main/turkce-benchmark/benchmark_metrics.py">benchmark_metrics.py</a>.</p>
+      <a href="https://github.com/zekiworks/analysis/blob/main/turkce-benchmark/benchmark_metrics.py">benchmark_metrics.py</a>.
+      The graphs are drawn with <a href="https://ratatui.rs/">ratatui</a> widgets by the <code>charts</code> crate,
+      which also keeps a text snapshot of each graph.</p>
   </footer>
 </body>
 </html>
