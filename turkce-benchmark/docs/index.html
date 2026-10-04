@@ -46,9 +46,10 @@
         <li>Reasoning closes that gap. With thinking on, DeepSeek-V4.1-Flash rises from 65.7% to 92.4%, 1.9 points ahead
           of Claude Opus 5.5 at low effort (p = 0.006 for this comparison alone). After correcting for the 16 paired
           comparisons the lead is borderline (Holm p = 0.050): it has crossed 0.05 twice, once when the key audit
-          excluded questions and once when the vote-share run added a comparison. On the grammatical-analysis units it
-          goes from 53% to 92%. It writes about 1,000 output tokens per question for this, against 21 for GPT-6
-          Astra.</li>
+          excluded questions and once when the vote-share run added a comparison. On the 200-question sample of the
+          repeats, averaged over five runs each, the two scored about the same (94.9% and 95.5%). On the
+          grammatical-analysis units DeepSeek goes from 53% to 92%. It writes about 1,000 output tokens per question for
+          this, against 21 for GPT-6 Astra.</li>
         <li>The ranking depends on the question mix. The bank is 70% grammar; the 2026 TYT paper was 18% grammar.
           Weighted like that paper (the TYT mix column), Gemma 4 31B passes Claude Sonnet 5.5 at high effort,
           Perplexity's Decider passes Sonnet at low effort, and Opus edges past DeepSeek with reasoning.</li>
@@ -76,8 +77,10 @@
         <li>Some setups give the same answers every time and some do not. Over 5 runs, Gemma 4 31B, Open-Jev and
           Perplexity's Decider gave the same answers (the Decider changed 2 of 2,198). GPT-6 Astra changed 1 of 200
           sampled questions, Claude Opus 5.5 (low) 20 and Sonnet 5.5 (high) 31, scoring 94.0–97.5% and 87.0–91.0% on
-          that sample. Jev changed 14% of its answers, d1 10% and Qwen's yes/no scoring 7%. Most of the Claude models'
-          mistakes did not recur in every run; the decision models' mistakes mostly did.</li>
+          that sample. DeepSeek-V4.1-Flash changed 12 with reasoning off, although it decodes greedily, and 15 with
+          reasoning on (93.5–97.0%). Jev changed 14% of its answers, d1 10% and Qwen's yes/no scoring 7%. Most of the
+          Claude models' and DeepSeek's mistakes did not recur in every run; the decision models' mistakes mostly
+          did.</li>
         <li>Repairing the question bank raised every setup that ran on both versions, except the Laya models, by 11–30
           points on the repaired questions.</li>
         <li>Two checks found no clear sign that the models memorized the book: their scores on 40 fresh questions from
@@ -362,8 +365,8 @@
           percentage points near 50% and ±1.3 near 90%; the paired comparisons are tighter. Runs also change some
           answers from one run to the next (see <em>Run-to-run variation</em>). Scaled from the 200-question sample to
           the whole bank, that moves a single run's score by about 0.3 points (one standard deviation) for the Claude
-          runs, 0.06 for GPT-6 Astra and nothing for Gemma. The paired tests do not include this. DeepSeek with
-          reasoning, which samples, was not repeated, because it needs all four GPUs.</li>
+          runs and DeepSeek with reasoning, 0.16 for DeepSeek without, 0.06 for GPT-6 Astra and nothing for Gemma. The
+          paired tests do not include this.</li>
         <li>The Claude and GPT models ran at their lowest reasoning setting, except the second Sonnet 5.5 run at high.
           DeepSeek ran with reasoning off and at its default effort. Sonnet's and DeepSeek's two runs show how much the
           setting can matter.</li>
