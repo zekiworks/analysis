@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Turkish Question Bank Benchmark</title>
-  <meta name="description" content="Language models on 2,210 TYT Türkçe multiple-choice questions: scores, accuracy by unit, confidence, speed and cost.">
+  <meta name="description" content="Language models on 2,204 TYT Türkçe multiple-choice questions: scores, accuracy by unit, confidence, speed and cost.">
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
@@ -36,14 +36,14 @@
       <ul id="findings">
         <li>GPT-6 Astra leads at its lowest reasoning effort, ahead of DeepSeek-V4.1-Flash with reasoning on, Claude Opus
           5.5 and Claude Sonnet 5.5 at high effort.</li>
-        <li>Grammar separates the models. Every model but the near-chance Laya models gets 79–96% of the reading units
+        <li>Grammar separates the models. Every model but the near-chance Laya models gets 80–96% of the reading units
           (1–6) right. On the grammar units (7–20), GPT-6 Astra, DeepSeek-V4.1-Flash with reasoning and Claude Sonnet
-          5.5 at high effort do as well as on reading and Claude Opus 5.5 drops 5 points; every other model drops 22–41
-          points.</li>
+          5.5 at high effort do about as well as on reading and Claude Opus 5.5 drops 6 points; every other model drops
+          22–41 points.</li>
         <li>Without reasoning, Gemma 4 31B is the strongest open-weight model. DeepSeek-V4.1-Flash trails it by 8 points,
           most of them in the grammatical-analysis units (parts of speech, noun phrases, verbals, sentence
           elements).</li>
-        <li>Reasoning closes that gap. With thinking on, DeepSeek-V4.1-Flash rises from 65.3% to 91.9%, level with
+        <li>Reasoning closes that gap. With thinking on, DeepSeek-V4.1-Flash rises from 65.5% to 92.1%, level with
           Claude Opus 5.5 at low effort: it is 1.9 points ahead, but not significantly once the 15 paired comparisons
           are corrected for (Holm p = 0.052). On the grammatical-analysis units it goes from 53% to 92%. It writes about
           1,000 output tokens per question for this, against 21 for GPT-6 Astra.</li>
@@ -54,7 +54,7 @@
           18–19%. The first four's probabilities flag their own mistakes well: AUROC 0.79–0.82, each with a 95%
           interval of about ±0.02.</li>
         <li>Answers at a probability of 0.99 or more are rare and almost always right, but the evidence differs by
-          model: Jev was right on 311 of 314 such answers and d1 on 273 of 276 (95% intervals from about 97%). The
+          model: Jev was right on 311 of 313 such answers and d1 on 273 of 276 (95% intervals from about 97%). The
           Decider's 21 of 21 are too few to show 99% accuracy (95% interval 84.5–100%), and Open-Jev never reaches
           0.99. These answers cover 1–14% of the questions.</li>
         <li>As a first pass for a frontier model, a decision model can take 8–36% of the questions without lowering the
@@ -62,7 +62,7 @@
           0.1–0.3 points. Their uncertainty points only weakly at the questions the frontier models get wrong.</li>
         <li>A small model's stated confidence is useless here and its token probabilities work. On the same answers,
           Qwen3.8-27B's own, its stated confidence sorts right from wrong no better than chance (AUROC 0.515), while
-          the yes/no probability of each answer reaches 0.778 and Open-Jev's 0.814. The gap comes from the confidence
+          the yes/no probability of each answer reaches 0.780 and Open-Jev's 0.816. The gap comes from the confidence
           source, not from different answers.</li>
         <li>Repairing the question bank raised every setup that ran on both versions, except the Laya models, by 11–30
           points on the 375 repaired questions.</li>
@@ -226,9 +226,11 @@
         the book's answer key is used for scoring. This is the second version of the question bank (v2). The first lost
         much of the markup that grammar questions refer to: 196 of the 229 questions about underlined words had no
         underline, and 186 questions about numbered words had no numbers. Every flagged question was transcribed again
-        and checked by hand against the page image. 491 questions are verified; 15 whose printed key is unreadable or
-        contradicted by the question are marked suspect. v2 changes the text or key of 375 questions and makes 12 more
-        scoreable. <span id="question-count"></span></p>
+        and checked by hand against the page image. v2 changes the text or key of 375 questions and makes 12 more
+        scoreable. After the runs, a key audit against the page images excluded 6 more questions whose key could not
+        be confirmed; the runs had answered them, and those answers are left out of every figure except time, tokens
+        and cost. 499 questions are verified, and 12 whose printed key is unreadable or contradicted by the question
+        are marked suspect. <span id="question-count"></span></p>
       <h3>Prompt</h3>
       <p>Each question is sent with its lettered options and a Turkish instruction to answer without explaining.
         Generative models reply in JSON constrained by a schema: one of the supplied letters per question, plus a 0–1
@@ -287,15 +289,18 @@
               models ran in October, so they could have seen the June exam; the questions themselves stay
               private.</li>
             <li>With the correct option's text replaced by a wrong option's text, GPT-6 Astra picked the original
-              letter about as often as the option whose text was copied (31.0% against 28.2% on questions with text
+              letter about as often as the option whose text was copied (31.1% against 28.4% on questions with text
               options, p = 0.15). This tests only memory of answer letters, not memory of the questions.</li>
           </ul>
           Codex turns web search on by default; in an earlier run it opened the book's pages online and searched for its
           answer key, which is why the benchmark now disables web search.</li>
-        <li>The question bank still has errors. 15 questions are marked suspect; leaving them out changes no score by
-          more than 0.6 points. GPT-6 Astra, Claude Opus 5.5 and Claude Sonnet 5.5 (high) agree on an option other
-          than the key for 31 questions; 9 of those keys are not yet checked against the page images.</li>
-        <li>Each setup ran once. With 2,210 questions, the 95% interval on a score is about ±2.1 percentage points near
+        <li>The question bank still has errors. 12 questions are marked suspect; leaving them out changes no score by
+          more than 0.5 points. The key audit covered 25 questions: the wrong answers given at 0.99 or more and the keys
+          that GPT-6 Astra, Claude Opus 5.5 and Claude Sonnet 5.5 (high) all contradict. It confirmed 13 keys, excluded
+          6 questions and left 6 undecided. Most models got the 6 excluded questions wrong, so excluding them raises
+          scores by at most 0.3 points; it also removes 2 of GPT-6 Astra's, 1 of Jev's and 3 of Qwen's yes/no wrong
+          answers at 0.99 or more, and none of d1's.</li>
+        <li>Each setup ran once. With 2,204 questions, the 95% interval on a score is about ±2.1 percentage points near
           50% and ±1.3 near 90%; the paired comparisons are tighter. Runs with 16 questions per request also change
           some answers from one run to the next (see <em>Repairing the question bank</em>).</li>
         <li>The Claude and GPT models ran at their lowest reasoning setting, except the second Sonnet 5.5 run at high.

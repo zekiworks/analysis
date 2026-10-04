@@ -142,7 +142,7 @@ function renderLeaderboard(data) {
   const rows = data.runs.map(run => {
     const score = percent(run.correct, total);
     const rank = 1 + data.runs.filter(other => other.correct > run.correct).length;
-    const tokens = run.output_tokens == null ? null : run.output_tokens / total;
+    const tokens = run.output_tokens == null ? null : run.output_tokens / (run.answered_questions ?? total);
     return el(
       'tr',
       {},
@@ -557,7 +557,8 @@ function renderSummary(data) {
   document.getElementById('question-count').textContent =
     `${integer(data.questions)} questions in ${data.units.length} units are used` +
     (left ? `; ${left} were left out (${reasons.join(', ')})` : '') +
-    (data.suspect ? `; ${data.suspect} of them are marked suspect.` : '.');
+    (data.excluded_since_run ? `; ${data.excluded_since_run} more were excluded after the runs, in a key audit` : '') +
+    (data.suspect ? `; ${data.suspect} of the questions used are marked suspect.` : '.');
 }
 
 async function main() {
