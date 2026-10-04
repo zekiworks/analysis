@@ -34,14 +34,18 @@
 
       <h3>Findings</h3>
       <ul id="findings">
-        <li>GPT-6 Astra leads at its lowest reasoning effort, ahead of Claude Opus 5.5 and Claude Sonnet 5.5 at high
-          effort.</li>
+        <li>GPT-6 Astra leads at its lowest reasoning effort, ahead of DeepSeek-V4.1-Flash with reasoning on, Claude Opus
+          5.5 and Claude Sonnet 5.5 at high effort.</li>
         <li>Grammar separates the models. Every model but the near-chance Laya models gets 79–96% of the reading units
-          (1–6) right. On the grammar units (7–20), GPT-6 Astra and Claude Sonnet 5.5 at high effort do as well as on
-          reading and Claude Opus 5.5 drops 5 points; every other model drops 22–41 points.</li>
+          (1–6) right. On the grammar units (7–20), GPT-6 Astra, DeepSeek-V4.1-Flash with reasoning and Claude Sonnet
+          5.5 at high effort do as well as on reading and Claude Opus 5.5 drops 5 points; every other model drops 22–41
+          points.</li>
         <li>Without reasoning, Gemma 4 31B is the strongest open-weight model. DeepSeek-V4.1-Flash trails it by 8 points,
           most of them in the grammatical-analysis units (parts of speech, noun phrases, verbals, sentence
           elements).</li>
+        <li>Reasoning closes that gap and more. With thinking on, DeepSeek-V4.1-Flash rises from 65.3% to 91.9%, 1.9
+          points above Claude Opus 5.5 at low effort; on the grammatical-analysis units it goes from 53% to 92%. It
+          writes about 1,000 output tokens per question for this, against 21 for GPT-6 Astra.</li>
         <li>Perplexity's Decider, Jev, d1 and Open-Jev answer 55–60% of the questions correctly, the Laya models
           18–19%. The first four's probabilities flag their own mistakes well (AUROC 0.79–0.82). Of Jev's, d1's and
           the Decider's answers at a probability of 0.99 or more, 99–100% are right; Open-Jev's never reach 0.99.</li>
@@ -107,7 +111,7 @@
               confidence: an upper reference for accuracy, and a test of how well a strong model's stated confidence
               tracks its accuracy. Sonnet ran at low and at high effort.</td></tr>
             <tr><td>Gemma 4 31B, DeepSeek-V4.1-Flash</td><td>Self-hosted open-weight models that only answer: reference
-              points for accuracy. A DeepSeek run with reasoning on is under way and will be added here.</td></tr>
+              points for accuracy. DeepSeek ran with reasoning off and on, which shows what thinking adds.</td></tr>
           </tbody>
         </table>
       </div>
@@ -198,7 +202,9 @@
       <h3>Settings</h3>
       <ul>
         <li>Gemma, DeepSeek and Qwen are self-hosted with vLLM or SGLang. Without reasoning they decode greedily, at
-          temperature 0.</li>
+          temperature 0. DeepSeek's reasoning run samples with the server's defaults (temperature 1.0, top_p 1.0, within
+          the model card's recommendation) at its default reasoning effort, because greedy decoding made its reasoning
+          loop. Each request may write up to 65,536 tokens, thinking included; the longest used 59,763.</li>
         <li>Claude Code and Codex do not expose temperature; the Reasoning column gives their effort setting.</li>
         <li>Claude Code and Codex runs replace the tools' agent instructions with a short benchmark instruction,
           disable web search and every tool that can be switched off, and ignore local configuration. None of the runs
@@ -213,8 +219,10 @@
         <a href="#open-jev">How Open-Jev works</a>, which sorts answers in the same order. Claude, GPT and the Qwen
         stated-confidence run give a 0–1 confidence with each answer. Gemma and DeepSeek give none.</p>
       <h3>Speed, tokens and cost</h3>
-      <p>Questions/min divides the answered questions by the time spent in requests. It reflects this setup (local GPUs,
-        network, subscription limits and questions per request), so it compares runs rather than models.</p>
+      <p>Questions/min divides the answered questions by the time spent in requests. DeepSeek's reasoning run kept 8
+        requests in flight, so its time is the time any request was running; another application shared the server
+        during part of it. The figure reflects this setup (local GPUs, network, subscription limits and questions per
+        request), so it compares runs rather than models.</p>
       <p>Output tokens are those each API or server reports, thinking included. The decision models generate no text:
         d1, Open-Jev and Laya report no output tokens, Perplexity 1 and Jev a fixed 52 per question.</p>
       <p>Costs are estimates from the tokens each run reports, at the rates listed under the leaderboard. The Claude
@@ -247,7 +255,8 @@
           50% and ±1.3 near 90%; the paired comparisons are tighter. Runs with 16 questions per request also change
           some answers from one run to the next (see <em>Repairing the question bank</em>).</li>
         <li>The Claude and GPT models ran at their lowest reasoning setting, except the second Sonnet 5.5 run at high.
-          Sonnet's two runs show how much the setting can matter.</li>
+          DeepSeek ran with reasoning off and at its default effort. Sonnet's and DeepSeek's two runs show how much the
+          setting can matter.</li>
         <li>Sending 16 questions per request may cost accuracy. On earlier 100-question samples, GPT-5.5 got 81 right
           at 4 questions per request and 73 at 100, and Gemma 4 31B 65 at 4 and 61 at 16.</li>
       </ul>

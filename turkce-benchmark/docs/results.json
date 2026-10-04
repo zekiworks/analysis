@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-10-04T13:12:48Z",
+  "updated": "2026-10-04T15:54:27Z",
   "dataset": {
     "name": "questions-v2.sqlite",
     "sha256": "1ecdc4c89f7a2335717ce85dd3acc20876783dcf0e581f6e9986f5571d38497c"
@@ -286,6 +286,65 @@
         172
       ],
       "updated": "2026-10-04T09:07:22Z"
+    },
+    {
+      "run": 59,
+      "model": "deepseek-v4.1-flash",
+      "name": "DeepSeek-V4.1-Flash",
+      "variant": null,
+      "note": null,
+      "provider": "vllm",
+      "access": "SGLang, self-hosted, published mixed precision",
+      "reasoning": "on",
+      "questions_per_request": 16,
+      "concurrency": 8,
+      "correct": 2030,
+      "invalid": 0,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 617
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 1413
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 2028
+        }
+      },
+      "questions_per_minute": 17.948858643963128,
+      "request_seconds": 7387.65637583303,
+      "cost_usd": null,
+      "cost_basis": null,
+      "input_tokens": 673444,
+      "output_tokens": 2214725,
+      "confidence": null,
+      "previous": null,
+      "units": [
+        124,
+        151,
+        63,
+        94,
+        92,
+        93,
+        131,
+        64,
+        86,
+        71,
+        75,
+        64,
+        137,
+        69,
+        82,
+        188,
+        68,
+        119,
+        100,
+        159
+      ],
+      "updated": "2026-10-04T15:54:27Z"
     },
     {
       "run": 47,
@@ -1828,14 +1887,25 @@
   "paired": [
     {
       "first": 48,
+      "second": 59,
+      "questions": 2210,
+      "first_only": 129,
+      "second_only": 13,
+      "difference": 0.05248868778280543,
+      "low": 0.04214937674387811,
+      "high": 0.06282799882173276,
+      "p": 3.4647755616804076e-25
+    },
+    {
+      "first": 59,
       "second": 47,
       "questions": 2210,
-      "first_only": 168,
-      "second_only": 11,
-      "difference": 0.07104072398190045,
-      "low": 0.059550722623289316,
-      "high": 0.08253072534051158,
-      "p": 3.0887846315815047e-37
+      "first_only": 131,
+      "second_only": 90,
+      "difference": 0.018552036199095023,
+      "low": 0.005390357875416503,
+      "high": 0.031713714522773544,
+      "p": 0.00699472939295214
     },
     {
       "first": 47,
