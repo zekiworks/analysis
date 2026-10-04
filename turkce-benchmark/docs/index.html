@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Turkish Question Bank Benchmark</title>
-  <meta name="description" content="Language models on 2,198 TYT Türkçe multiple-choice questions: scores, accuracy by unit, confidence, speed and cost.">
+  <meta name="description" content="Language models on 2,210 TYT Türkçe multiple-choice questions: scores, accuracy by unit, confidence, speed and cost.">
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
@@ -26,10 +26,36 @@
           answers from wrong ones. A model that does this can answer the questions it is sure of and leave the rest to
           a person or a larger model.</li>
       </ul>
-      <p>The second question comes from decision models such as TypeSafe's <a href="https://docs.typesafe.ai/">Jev</a>,
-        which return a probability for every option instead of writing an answer. Jev's weights and training are
-        private. <a href="https://github.com/Zefan-Cai/Open-Jev">Open-Jev</a> is an independent, open implementation
-        inspired by it, so we can see how its probabilities are made and test the parts separately.</p>
+      <p>The second question comes from decision models, which return a probability for every option instead of
+        writing an answer: TypeSafe's <a href="https://docs.typesafe.ai/">Jev</a>, Perplexity's Decider, Liquid AI's d1
+        and the open Laya models. Jev's weights and training are private.
+        <a href="https://github.com/Zefan-Cai/Open-Jev">Open-Jev</a> is an independent, open implementation inspired
+        by it, so we can see how its probabilities are made and test the parts separately.</p>
+
+      <h3>Findings</h3>
+      <ul id="findings">
+        <li>GPT-6 Astra leads at its lowest reasoning effort, ahead of Claude Opus 5.5 and Claude Sonnet 5.5 at high
+          effort.</li>
+        <li>Grammar separates the models. Every model but the near-chance Laya models gets 79–96% of the reading units
+          (1–6) right. On the grammar units (7–20), GPT-6 Astra and Claude Sonnet 5.5 at high effort do as well as on
+          reading and Claude Opus 5.5 drops 5 points; every other model drops 22–41 points.</li>
+        <li>Without reasoning, Gemma 4 31B is the strongest open-weight model. DeepSeek-V4.1-Flash trails it by 8 points,
+          most of them in the grammatical-analysis units (parts of speech, noun phrases, verbals, sentence
+          elements).</li>
+        <li>Perplexity's Decider, Jev, d1 and Open-Jev answer 55–60% of the questions correctly, the Laya models
+          18–19%. The first four's probabilities flag their own mistakes well (AUROC 0.79–0.82). Of Jev's, d1's and
+          the Decider's answers at a probability of 0.99 or more, 99–100% are right; Open-Jev's never reach 0.99.</li>
+        <li>As a first pass for a frontier model, a decision model can take 8–36% of the questions without lowering the
+          frontier model's accuracy on these questions; with the threshold chosen on other questions, accuracy drops by
+          0.1–0.3 points. Their uncertainty points only weakly at the questions the frontier models get wrong.</li>
+        <li>A small model's stated confidence is useless here and its token probabilities work: Qwen3.8-27B's stated
+          confidence sorts right from wrong answers no better than chance (AUROC 0.515), its yes/no probabilities
+          almost as well as the decision models' (0.797).</li>
+        <li>Repairing the question bank raised every setup that ran on both versions, except the Laya models, by 11–30
+          points on the 375 repaired questions.</li>
+        <li>Two checks found no sign that the models memorized the book: their scores on 40 fresh questions from the
+          2026 TYT, and a test on GPT-6 Astra that replaces the correct option's text.</li>
+      </ul>
 
       <h3 id="open-jev">How Open-Jev works</h3>
       <p>Open-Jev 27B v1.1 is Qwen3.8-27B, left unchanged, plus three small trained parts: a LoRA adapter (15.5 million
@@ -52,6 +78,10 @@
         training stage used natural-language-inference pairs, synthetic decision tasks and replay rows, and the
         temperature was fitted on 512 of those rows. Turkish exam questions therefore test how well it carries over
         to a new domain.</p>
+      <p>The temperature does not carry over. Refitted with cross-validation on Open-Jev's answers to the first version
+        of the question bank, it comes out at 0.68 instead of 2.53, and the expected calibration error falls from 0.228
+        to 0.030. Accuracy is unchanged and AUROC barely moves (0.8193 to 0.8191). The page shows Open-Jev as
+        served.</p>
 
       <h3>The setups</h3>
       <div class="table-wrap">
@@ -60,20 +90,24 @@
           <tbody>
             <tr><td>Jev 1.13.0</td><td>The hosted decision model that inspired Open-Jev, through TypeSafe's
               API.</td></tr>
+            <tr><td>Perplexity Decider 27B, Liquid d1</td><td>Two more hosted decision models: Perplexity's
+              <code>pplx-decider-v1-27b</code> through its Decisions API, and Liquid AI's d1 through its free
+              tier.</td></tr>
+            <tr><td>Laya, Laya multilingual</td><td>Open-weight decision models, self-hosted: an encoder with a decision
+              head that scores every option in one pass.</td></tr>
             <tr><td>Open-Jev 27B v1.1</td><td>The open decision model as released, self-hosted.</td></tr>
             <tr><td>Qwen3.8-27B, yes/no scoring</td><td>Open-Jev without its trained parts: the same base model and
-              prompts, scored by the Yes-minus-No logit at temperature 1, with the same probability and confidence
-              formulas. The gap to Open-Jev is what the adapter, head and temperature add. Temperature never changes
-              which option wins, so the accuracy comparison is exact; the confidence values are not
-              recalibrated.</td></tr>
+              prompts, scored by the Yes-minus-No logit at temperature 1, with the same probability formula. The gap to
+              Open-Jev is what the adapter, head and temperature add. Temperature never changes which option wins, so
+              the accuracy comparison is exact.</td></tr>
             <tr><td>Qwen3.8-27B, stated confidence</td><td>The same base model used the ordinary way: it picks an
               option and states a 0–1 confidence. This shows whether the model's own words give a confidence as
               useful as its token probabilities.</td></tr>
             <tr><td>GPT-6 Astra, Claude Opus 5.5, Claude Sonnet 5.5</td><td>Frontier models that also state a
               confidence: an upper reference for accuracy, and a test of how well a strong model's stated confidence
-              tracks its accuracy.</td></tr>
-            <tr><td>Gemma 4 31B, DeepSeek V4 Flash, Muse Glimmer 30B</td><td>Self-hosted open-weight models that only
-              answer: reference points for accuracy.</td></tr>
+              tracks its accuracy. Sonnet ran at low and at high effort.</td></tr>
+            <tr><td>Gemma 4 31B, DeepSeek-V4.1-Flash</td><td>Self-hosted open-weight models that only answer: reference
+              points for accuracy. A DeepSeek run with reasoning on is under way and will be added here.</td></tr>
           </tbody>
         </table>
       </div>
@@ -81,7 +115,8 @@
 
     <section class="card" id="leaderboard-section">
       <h2>Leaderboard</h2>
-      <p class="note">Score: correct answers out of all questions. Click a column heading to sort.</p>
+      <p class="note">Score: correct answers out of all questions. Reading: units 1–6; grammar: units 7–20. Output
+        tokens: per question, thinking included. Click a column heading to sort.</p>
       <div class="table-wrap"><table id="leaderboard"></table></div>
       <h3>Cost basis</h3>
       <ul class="footnote" id="cost-notes"></ul>
@@ -89,7 +124,8 @@
 
     <section class="card">
       <h2>Accuracy by unit</h2>
-      <p class="note">Percentage of each unit's questions answered correctly. Hover a cell for the count.</p>
+      <p class="note">Percentage of each unit's questions answered correctly. Hover a cell for the count. Guessing
+        scores 20%; always answering E, the key's most common letter, would score 22.7%.</p>
       <div class="table-wrap"><table id="units" class="heatmap"></table></div>
     </section>
 
@@ -99,57 +135,121 @@
         parentheses. Ranges include their lower bound; the last also includes 1.00. Runs without a confidence are
         not listed.</p>
       <div class="table-wrap"><table id="confidence" class="heatmap"></table></div>
-      <h3>Answering only confident questions</h3>
-      <p class="note">What each run would score if it answered only the questions whose confidence is at or above its
-        mean confidence and left the rest blank. Blanks count as wrong.</p>
-      <div class="table-wrap"><table id="selective"></table></div>
+      <h3>How well the confidence sorts answers</h3>
+      <p class="note">AUROC: the chance that a right answer gets a higher confidence than a wrong one; 0.5 is no
+        better than chance. ECE: the average gap between confidence and accuracy, over 10 equal-width bins; 0 is
+        perfect. Top 20%, 50%, 80%: accuracy if the run answered only that share of the questions, those with the
+        highest confidence. Equal confidences count as ties.</p>
+      <div class="table-wrap"><table id="ranking"></table></div>
+    </section>
+
+    <section class="card">
+      <h2>Repairing the question bank</h2>
+      <p class="note">Each row compares a setup's run on the first version of the question bank (v1) with its run on
+        v2. Repaired: the questions whose text or key the repair changed. Unchanged: the questions asked identically,
+        where any difference is run-to-run variation. Changed answer: how often the run picked a different option on
+        an unchanged question. Repeated mistakes: wrong v2 answers on unchanged questions that repeat the v1 choice,
+        mistakes that asking again would not reveal. Runs with 16 questions per request saw different neighbouring
+        questions in the two runs. Gemma and DeepSeek ran only on v2.</p>
+      <div class="table-wrap"><table id="versions"></table></div>
+    </section>
+
+    <section class="card">
+      <h2>Paired comparisons</h2>
+      <p class="note">Each run against the next one by score, plus Open-Jev against Qwen's yes/no scoring and
+        Perplexity's Decider against Jev, over the same questions. The interval and the exact McNemar test rest on the
+        questions only one of the two got right. Differences are in percentage points.</p>
+      <div class="table-wrap"><table id="paired"></table></div>
+    </section>
+
+    <section class="card">
+      <h2>Decision models as a first pass</h2>
+      <p class="note">A decision model answers the questions where its probability for the chosen option reaches a
+        threshold, and passes the rest to a frontier run. Answered: the share it answers at the lowest threshold that
+        keeps the frontier run's accuracy, chosen and scored on all questions. Held out: the threshold is chosen on a
+        random half of the questions and scored on the other half, over 300 splits: the mean share answered, the mean
+        accuracy difference from the frontier run alone in percentage points, and the share of splits where the
+        cascade did worse. Cost: the decision model's run plus the frontier run on the questions passed on.</p>
+      <div class="table-wrap"><table id="cascade"></table></div>
+      <h3>Does a decision model's doubt point at frontier mistakes?</h3>
+      <p class="note">Doubt is the entropy of the decision model's option probabilities. Spearman: its rank
+        correlation with how many of GPT-6 Astra (low), Claude Opus 5.5 (low) and Claude Sonnet 5.5 (high) got the
+        question wrong. p: 200 shuffles within each unit, so a link that only separates easy units from hard ones
+        fails. Most uncertain tenth: how many of the questions some frontier run got wrong fall in the decision
+        model's most uncertain 10%.</p>
+      <div class="table-wrap"><table id="doubts"></table></div>
     </section>
 
     <section class="card prose" id="method">
       <h2>Method</h2>
       <h3>Questions</h3>
       <p>The questions come from a published TYT Türkçe question bank. They were extracted from the book's pages, and
-        the book's answer key is used for scoring.
-        <span id="question-count"></span></p>
+        the book's answer key is used for scoring. This is the second version of the question bank (v2). The first lost
+        much of the markup that grammar questions refer to: 196 of the 229 questions about underlined words had no
+        underline, and 186 questions about numbered words had no numbers. Every flagged question was transcribed again
+        and checked by hand against the page image. 491 questions are verified; 15 whose printed key is unreadable or
+        contradicted by the question are marked suspect. v2 changes the text or key of 375 questions and makes 12 more
+        scoreable. <span id="question-count"></span></p>
       <h3>Prompt</h3>
       <p>Each question is sent with its lettered options and a Turkish instruction to answer without explaining.
         Generative models reply in JSON constrained by a schema: one of the supplied letters per question, plus a 0–1
-        confidence for the runs that state one. The Ollama, Claude and GPT runs get 16 questions per request; Jev,
-        Open-Jev and the Qwen runs get one.</p>
+        confidence for the runs that state one. The Claude, GPT, Gemma and DeepSeek runs get 16 questions per request;
+        the decision models and the Qwen runs get one.</p>
       <h3>Settings</h3>
       <ul>
-        <li>Ollama and vLLM runs use temperature 0 with thinking off. Claude Code and Codex do not expose temperature;
-          the Reasoning column gives their effort setting.</li>
+        <li>Gemma, DeepSeek and Qwen are self-hosted with vLLM or SGLang. Without reasoning they decode greedily, at
+          temperature 0.</li>
+        <li>Claude Code and Codex do not expose temperature; the Reasoning column gives their effort setting.</li>
         <li>Claude Code and Codex runs replace the tools' agent instructions with a short benchmark instruction,
           disable web search and every tool that can be switched off, and ignore local configuration. None of the runs
           searched the web or ran a command.</li>
-        <li>Jev, Open-Jev and the Qwen yes/no run score the supplied options instead of writing an answer, so they have
-          no reasoning setting.</li>
+        <li>The decision models and the Qwen yes/no run score the supplied options instead of writing an answer, so
+          they have no reasoning setting.</li>
         <li>An answer that is missing or not one of the options counts as wrong. No run had any.</li>
       </ul>
       <h3>Confidence</h3>
-      <p>Jev, Open-Jev and the Qwen yes/no run derive their confidence from the option probabilities, with the formula
-        in <a href="#open-jev">How Open-Jev works</a>. Claude, GPT and the Qwen stated-confidence run give a 0–1
-        confidence with each answer. The Ollama runs give none.</p>
-      <h3>Speed and cost</h3>
-      <p>Questions/min divides the answered questions by the time spent in requests. It reflects this setup (local
-        GPUs, network, subscription limits and questions per request), so it compares runs rather than models.</p>
+      <p>The decision models and the Qwen yes/no run give a probability for every option; their confidence is the
+        probability of the chosen option. Jev and Open-Jev also report the rescaled confidence described in
+        <a href="#open-jev">How Open-Jev works</a>, which sorts answers in the same order. Claude, GPT and the Qwen
+        stated-confidence run give a 0–1 confidence with each answer. Gemma and DeepSeek give none.</p>
+      <h3>Speed, tokens and cost</h3>
+      <p>Questions/min divides the answered questions by the time spent in requests. It reflects this setup (local GPUs,
+        network, subscription limits and questions per request), so it compares runs rather than models.</p>
+      <p>Output tokens are those each API or server reports, thinking included. The decision models generate no text:
+        d1, Open-Jev and Laya report no output tokens, Perplexity 1 and Jev a fixed 52 per question.</p>
       <p>Costs are estimates from the tokens each run reports, at the rates listed under the leaderboard. The Claude
         and GPT runs used subscriptions and were not billed per token. Claude figures count Claude Code's cache reads
         and writes as ordinary input; Claude Code's own estimate is higher because it prices cache writes above input.
-        The Ollama runs report no cost.</p>
+        The self-hosted open-weight runs have no price.</p>
     </section>
 
     <section class="card prose" id="caveats">
       <h2>Caveats</h2>
       <ul>
         <li>The book can be found online, so models may have seen these questions, and possibly their answers, in
-          training. Codex turns web search on by default; in an earlier run it opened the book's pages online and
-          searched for its answer key, which is why the benchmark now disables web search.</li>
-        <li>Each configuration ran once. With 2,198 questions, the 95% interval on a score is about ±2.1 percentage
-          points near 50% and ±1.3 near 90%.</li>
+          training. Two checks found no sign of it:
+          <ul>
+            <li>On the 40 Türkçe questions of the 2026 TYT, sat on 20 June 2026 and printed in no book, each model
+              scored close to what its book scores predict once reading and grammar are weighted like the paper (33
+              reading, 7 grammar questions): GPT-6 Astra 40, Claude Opus 5.5 and Perplexity's Decider 33, Claude Sonnet
+              5.5 (high) 32, Jev 30, d1 and Open-Jev 28. At 40 questions the 95% interval is about ±12 points. The
+              questions themselves stay private.</li>
+            <li>With the correct option's text replaced by a wrong option's text, GPT-6 Astra picked the original
+              letter about as often as the option whose text was copied (31.0% against 28.2% on questions with text
+              options, p = 0.15), so it does not remember answer letters.</li>
+          </ul>
+          Codex turns web search on by default; in an earlier run it opened the book's pages online and searched for its
+          answer key, which is why the benchmark now disables web search.</li>
+        <li>The question bank still has errors. 15 questions are marked suspect; leaving them out changes no score by
+          more than 0.6 points. GPT-6 Astra, Claude Opus 5.5 and Claude Sonnet 5.5 (high) agree on an option other
+          than the key for 31 questions; 9 of those keys are not yet checked against the page images.</li>
+        <li>Each setup ran once. With 2,210 questions, the 95% interval on a score is about ±2.1 percentage points near
+          50% and ±1.3 near 90%; the paired comparisons are tighter. Runs with 16 questions per request also change
+          some answers from one run to the next (see <em>Repairing the question bank</em>).</li>
         <li>The Claude and GPT models ran at their lowest reasoning setting, except the second Sonnet 5.5 run at high.
           Sonnet's two runs show how much the setting can matter.</li>
+        <li>Sending 16 questions per request may cost accuracy. On earlier 100-question samples, GPT-5.5 got 81 right
+          at 4 questions per request and 73 at 100, and Gemma 4 31B 65 at 4 and 61 at 16.</li>
       </ul>
     </section>
   </main>

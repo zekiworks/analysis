@@ -13,6 +13,9 @@ function heatColor(accuracy) {
 const integer = n => n.toLocaleString('en-US');
 const percent = (correct, total) => (total ? (100 * correct) / total : null);
 const formatPercent = (value, digits = 2) => (value == null ? '—' : `${value.toFixed(digits)}%`);
+const formatScore = value => (value == null ? '—' : value.toFixed(3));
+const formatP = p => (p < 0.0001 ? '< 0.0001' : p.toFixed(4));
+const formatPoints = (fraction, digits = 1) => `${fraction >= 0 ? '+' : '−'}${Math.abs(100 * fraction).toFixed(digits)}`;
 const EXCLUSIONS = {
   unanswered: 'with no answer in the key',
   incomplete: 'incomplete',
@@ -38,6 +41,17 @@ function td(content, { value, numeric = false, className = null, title = null, s
   const cell = el('td', { class: classes, title, style }, ...[].concat(content));
   if (value !== undefined) cell.dataset.value = value ?? '';
   return cell;
+}
+
+/* A numeric cell showing a percentage. */
+function percentCell(value, { digits = 1, title = null, heat = false } = {}) {
+  return td(formatPercent(value, digits), {
+    value,
+    numeric: true,
+    title,
+    className: heat ? 'heat' : null,
+    style: heat && value != null ? `background: ${heatColor(value)}` : null,
+  });
 }
 
 /* Click or press Enter on a heading to sort; numbers sort high to low first, missing values last. */
@@ -88,7 +102,7 @@ function fillTable(table, columns, rows, footer = null) {
   makeSortable(table);
 }
 
-const reasoningLabel = reasoning => (reasoning === 'off' ? 'reasoning off' : `${reasoning} reasoning`);
+const reasoningLabel = reasoning => (['off', 'on'].includes(reasoning) ? `reasoning ${reasoning}` : `${reasoning} reasoning`);
 
 function runLabel(run) {
   return run.variant ?? (run.reasoning ? reasoningLabel(run.reasoning) : 'option scoring');
@@ -104,8 +118,13 @@ function modelCell(run, { withSetting = false } = {}) {
       el('code', { class: 'small', text: run.model }),
       run.note ? el('span', { class: 'small', text: run.note }) : null,
     ],
-    { value: `${run.name} ${run.variant ?? ''} ${run.reasoning ?? ''}` },
+    { value: `${run.name} ${run.variant ?? ''} ${run.reasoning ?? ''}`, className: 'model' },
   );
+}
+
+function groupAccuracy(run, name) {
+  const group = run.groups[name];
+  return group ? percent(group.correct, group.questions) : null;
 }
 
 function renderLeaderboard(data) {
@@ -113,6 +132,7 @@ function renderLeaderboard(data) {
   const rows = data.runs.map(run => {
     const score = percent(run.correct, total);
     const rank = 1 + data.runs.filter(other => other.correct > run.correct).length;
+    const tokens = run.output_tokens == null ? null : run.output_tokens / total;
     return el(
       'tr',
       {},
@@ -125,11 +145,19 @@ function renderLeaderboard(data) {
         { value: score, numeric: true, className: 'score' },
       ),
       td(integer(run.correct), { value: run.correct, numeric: true }),
+      percentCell(groupAccuracy(run, 'reading')),
+      percentCell(groupAccuracy(run, 'grammar')),
       td(run.questions_per_minute == null ? '—' : run.questions_per_minute.toFixed(1), {
         value: run.questions_per_minute,
         numeric: true,
+        title: run.concurrency > 1 ? `${run.concurrency} requests at a time` : null,
       }),
       td(String(run.questions_per_request), { value: run.questions_per_request, numeric: true }),
+      td(tokens == null ? '—' : tokens.toFixed(1), {
+        value: tokens,
+        numeric: true,
+        title: run.output_tokens == null ? null : `${integer(run.output_tokens)} output tokens in all`,
+      }),
       td(run.cost_usd == null ? '—' : `$${run.cost_usd.toFixed(2)}`, {
         value: run.cost_usd,
         numeric: true,
@@ -147,20 +175,24 @@ function renderLeaderboard(data) {
       { label: 'Reasoning', title: 'Thinking or effort setting' },
       { label: 'Score', numeric: true },
       { label: 'Correct', numeric: true },
+      { label: 'Reading', numeric: true, title: 'Units 1–6' },
+      { label: 'Grammar', numeric: true, title: 'Units 7–20' },
       { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time' },
       { label: 'Per request', numeric: true, title: 'Questions sent in one request' },
+      { label: 'Output tokens', numeric: true, title: 'Output tokens per question, thinking included' },
       { label: 'Cost (USD)', numeric: true, title: 'Estimate; see the cost basis below' },
     ],
     rows,
   );
   table.tHead.rows[0].cells[4].setAttribute('aria-sort', 'descending');
 
-  const notes = new Set(
-    data.runs.filter(run => run.cost_basis).map(run => `${run.name}: ${run.cost_basis}.`),
-  );
+  const notes = new Set(data.runs.filter(run => run.cost_basis).map(run => `${run.name}: ${run.cost_basis}.`));
+  const unpriced = [...new Set(data.runs.filter(run => run.cost_usd == null).map(run => run.name))];
   document.getElementById('cost-notes').replaceChildren(
     ...[...notes].map(text => el('li', { text })),
-    el('li', { text: 'Ollama runs: no token counts, so no estimate.' }),
+    unpriced.length
+      ? el('li', { text: `${unpriced.join(', ')}: self-hosted open weights with no price, so no estimate.` })
+      : null,
   );
 }
 
@@ -222,7 +254,7 @@ function renderConfidence(data) {
       'tr',
       {},
       modelCell(run, { withSetting: true }),
-      td(run.confidence.source),
+      td(run.confidence.label),
       ...run.confidence.bins.map(interval => {
         if (!interval.questions) return td('—', { value: null, className: 'heat muted' });
         const accuracy = percent(interval.correct, interval.questions);
@@ -241,33 +273,169 @@ function renderConfidence(data) {
     rows,
   );
 
-  const selective = runs.map(run => {
-    const { questions, correct } = run.confidence.above_mean;
-    const accuracy = percent(correct, questions);
-    const blankScore = percent(correct, data.questions);
-    const fullScore = percent(run.correct, data.questions);
+  const ranking = runs.map(run => {
+    const { auroc, ece, coverage_accuracy: coverage, sure } = run.confidence;
     return el(
       'tr',
       {},
       modelCell(run, { withSetting: true }),
-      td(run.confidence.mean.toFixed(3), { value: run.confidence.mean, numeric: true }),
-      td(integer(questions), { value: questions, numeric: true }),
-      td(formatPercent(accuracy), { value: accuracy, numeric: true }),
-      td(formatPercent(blankScore), { value: blankScore, numeric: true }),
-      td(formatPercent(fullScore), { value: fullScore, numeric: true }),
+      td(formatScore(auroc), { value: auroc, numeric: true }),
+      td(formatScore(ece), { value: ece, numeric: true }),
+      ...data.coverages.map(share => {
+        const accuracy = coverage[share.toFixed(2)];
+        return percentCell(accuracy == null ? null : 100 * accuracy, { heat: true });
+      }),
+      percentCell(percent(run.correct, data.questions), { heat: true }),
+      td(sure.questions ? `${integer(sure.correct)} of ${integer(sure.questions)}` : '—', {
+        value: sure.questions ? percent(sure.correct, sure.questions) : null,
+        numeric: true,
+      }),
     );
   });
   fillTable(
-    document.getElementById('selective'),
+    document.getElementById('ranking'),
     [
       { label: 'Model' },
-      { label: 'Mean confidence', numeric: true },
-      { label: 'Answered', numeric: true, title: 'Questions at or above the mean confidence' },
-      { label: 'Accuracy', numeric: true, title: 'Correct share of the answered questions' },
-      { label: 'Score, rest blank', numeric: true },
-      { label: 'Score, all answered', numeric: true },
+      { label: 'AUROC', numeric: true, title: 'Chance that a right answer has a higher confidence than a wrong one' },
+      { label: 'ECE', numeric: true, title: 'Expected calibration error over 10 equal-width bins; lower is better' },
+      ...data.coverages.map(share => ({
+        label: `Top ${Math.round(100 * share)}%`,
+        numeric: true,
+        title: `Accuracy on the ${Math.round(100 * share)}% of answers with the highest confidence`,
+      })),
+      { label: 'All', numeric: true, title: 'Accuracy on every answer' },
+      { label: '≥ 0.99 right', numeric: true, title: 'Answers with a confidence of 0.99 or more, and how many are right' },
     ],
-    selective,
+    ranking,
+  );
+}
+
+function renderVersions(data) {
+  const runs = data.runs.filter(run => run.previous);
+  const moved = part => `${formatPercent(percent(part.older_correct, part.questions), 1)} → ${formatPercent(percent(part.newer_correct, part.questions), 1)}`;
+  const rows = runs.map(run => {
+    const { changed, unchanged } = run.previous;
+    return el(
+      'tr',
+      {},
+      modelCell(run, { withSetting: true }),
+      td(moved(changed), { value: percent(changed.newer_correct - changed.older_correct, changed.questions), numeric: true }),
+      td(moved(unchanged), { value: percent(unchanged.newer_correct - unchanged.older_correct, unchanged.questions), numeric: true }),
+      td(`${formatPercent(percent(unchanged.changed_answer, unchanged.questions), 1)}`, {
+        value: percent(unchanged.changed_answer, unchanged.questions),
+        numeric: true,
+        title: `${unchanged.changed_answer} of ${unchanged.questions} answers`,
+      }),
+      td(unchanged.newer_wrong ? `${integer(unchanged.repeated_mistakes)} of ${integer(unchanged.newer_wrong)}` : '—', {
+        value: unchanged.newer_wrong ? percent(unchanged.repeated_mistakes, unchanged.newer_wrong) : null,
+        numeric: true,
+      }),
+      td(String(run.questions_per_request), { value: run.questions_per_request, numeric: true }),
+    );
+  });
+  const sample = runs[0]?.previous;
+  fillTable(
+    document.getElementById('versions'),
+    [
+      { label: 'Model' },
+      { label: `Repaired (${sample ? integer(sample.changed.questions) : '—'})`, numeric: true, title: 'Accuracy on the questions whose text or key the repair changed, v1 → v2' },
+      { label: `Unchanged (${sample ? integer(sample.unchanged.questions) : '—'})`, numeric: true, title: 'Accuracy on the questions asked identically, v1 → v2' },
+      { label: 'Changed answer', numeric: true, title: 'Share of the unchanged questions answered with a different option' },
+      { label: 'Repeated mistakes', numeric: true, title: 'Wrong v2 answers on unchanged questions that repeat the v1 choice' },
+      { label: 'Per request', numeric: true, title: 'Questions sent in one request' },
+    ],
+    rows,
+  );
+}
+
+function renderPaired(data) {
+  const byRun = new Map(data.runs.map(run => [run.run, run]));
+  const rows = data.paired.map(item =>
+    el(
+      'tr',
+      {},
+      modelCell(byRun.get(item.first), { withSetting: true }),
+      modelCell(byRun.get(item.second), { withSetting: true }),
+      td(formatPoints(item.difference), { value: 100 * item.difference, numeric: true }),
+      td(`${formatPoints(item.low)} to ${formatPoints(item.high)}`, { value: 100 * item.low, numeric: true }),
+      td(integer(item.first_only), { value: item.first_only, numeric: true }),
+      td(integer(item.second_only), { value: item.second_only, numeric: true }),
+      td(formatP(item.p), { value: item.p, numeric: true }),
+    ),
+  );
+  fillTable(
+    document.getElementById('paired'),
+    [
+      { label: 'First' },
+      { label: 'Second' },
+      { label: 'Difference', numeric: true, title: 'Accuracy difference in percentage points' },
+      { label: '95% interval', numeric: true, title: 'Paired interval on the difference' },
+      { label: 'Only first right', numeric: true },
+      { label: 'Only second right', numeric: true },
+      { label: 'p', numeric: true, title: 'Exact McNemar test' },
+    ],
+    rows,
+  );
+}
+
+function renderCascade(data) {
+  const byRun = new Map(data.runs.map(run => [run.run, run]));
+  const rows = data.cascades.map(item => {
+    const frontier = byRun.get(item.frontier);
+    return el(
+      'tr',
+      {},
+      modelCell(byRun.get(item.decision)),
+      modelCell(frontier, { withSetting: true }),
+      percentCell(100 * item.frontier_accuracy),
+      percentCell(100 * item.in_sample.answered, { title: `Threshold ${item.in_sample.threshold.toFixed(3)}` }),
+      td(item.cost_usd == null ? '—' : `$${item.cost_usd.toFixed(2)}`, { value: item.cost_usd, numeric: true }),
+      td(frontier.cost_usd == null ? '—' : `$${frontier.cost_usd.toFixed(2)}`, { value: frontier.cost_usd, numeric: true }),
+      percentCell(100 * item.held_out.answered),
+      td(formatPoints(item.held_out.difference, 2), { value: 100 * item.held_out.difference, numeric: true }),
+      percentCell(100 * item.held_out.worse, { digits: 0 }),
+    );
+  });
+  fillTable(
+    document.getElementById('cascade'),
+    [
+      { label: 'Decision model' },
+      { label: 'Frontier run' },
+      { label: 'Frontier accuracy', numeric: true },
+      { label: 'Answered', numeric: true, title: 'Share the decision model answers at the lowest threshold that keeps the frontier accuracy' },
+      { label: 'Cost', numeric: true, title: 'Decision model run plus the frontier run on the questions passed on' },
+      { label: 'Frontier cost', numeric: true },
+      { label: 'Answered, held out', numeric: true, title: 'Threshold chosen on random halves, scored on the other halves' },
+      { label: 'Difference, held out', numeric: true, title: 'Mean accuracy difference from the frontier run alone, in points' },
+      { label: 'Worse, held out', numeric: true, title: 'Share of the splits where the cascade scored lower' },
+    ],
+    rows,
+  );
+
+  const doubts = data.doubts.map(item =>
+    el(
+      'tr',
+      {},
+      modelCell(byRun.get(item.decision)),
+      td(formatScore(item.rho), { value: item.rho, numeric: true }),
+      td(formatP(item.p), { value: item.p, numeric: true }),
+      td(formatScore(item.auroc), { value: item.auroc, numeric: true }),
+      td(
+        `${integer(item.top_tenth.with_mistake)} of ${integer(item.top_tenth.all_with_mistake)} (${formatPercent(percent(item.top_tenth.with_mistake, item.top_tenth.all_with_mistake), 0)})`,
+        { value: percent(item.top_tenth.with_mistake, item.top_tenth.all_with_mistake), numeric: true },
+      ),
+    ),
+  );
+  fillTable(
+    document.getElementById('doubts'),
+    [
+      { label: 'Decision model' },
+      { label: 'Spearman', numeric: true, title: 'Rank correlation of the entropy with the number of frontier runs that got the question wrong' },
+      { label: 'p', numeric: true, title: '200 shuffles within each unit; the smallest possible p is 1/201' },
+      { label: 'AUROC', numeric: true, title: 'Chance that a question some frontier run got wrong has the higher entropy' },
+      { label: 'Most uncertain tenth', numeric: true, title: 'Questions some frontier run got wrong that fall in the most uncertain 10%; chance is 10%' },
+    ],
+    doubts,
   );
 }
 
@@ -279,14 +447,15 @@ function renderSummary(data) {
     timeZone: 'UTC',
   });
   document.getElementById('summary').textContent =
-    `${integer(data.questions)} TYT Türkçe multiple-choice questions in ${data.units.length} units · ` +
+    `${integer(data.questions)} TYT Türkçe multiple-choice questions in ${data.units.length} units (question bank v2) · ` +
     `${data.runs.length} runs · last run ${date}`;
   const excluded = Object.entries(data.excluded);
   const left = excluded.reduce((sum, [, count]) => sum + count, 0);
   const reasons = excluded.map(([reason, count]) => `${count} ${EXCLUSIONS[reason] ?? reason.replaceAll('_', ' ')}`);
   document.getElementById('question-count').textContent =
     `${integer(data.questions)} questions in ${data.units.length} units are used` +
-    (left ? `; ${left} were left out (${reasons.join(', ')}).` : '.');
+    (left ? `; ${left} were left out (${reasons.join(', ')})` : '') +
+    (data.suspect ? `; ${data.suspect} of them are marked suspect.` : '.');
 }
 
 async function main() {
@@ -303,6 +472,9 @@ async function main() {
   renderLeaderboard(data);
   renderUnits(data);
   renderConfidence(data);
+  renderVersions(data);
+  renderPaired(data);
+  renderCascade(data);
 }
 
 main();

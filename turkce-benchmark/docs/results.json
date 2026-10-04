@@ -1,11 +1,13 @@
 {
-  "updated": "2026-09-29T21:43:01Z",
-  "questions": 2198,
-  "excluded": {
-    "incomplete": 1,
-    "unanswered": 10,
-    "malformed_choices": 1
+  "schema_version": 2,
+  "updated": "2026-10-04T13:12:48Z",
+  "dataset": {
+    "name": "questions-v2.sqlite",
+    "sha256": "1ecdc4c89f7a2335717ce85dd3acc20876783dcf0e581f6e9986f5571d38497c"
   },
+  "questions": 2210,
+  "suspect": 15,
+  "excluded": {},
   "confidence_bins": [
     [
       0.0,
@@ -27,6 +29,11 @@
       0.9,
       1.0
     ]
+  ],
+  "coverages": [
+    0.2,
+    0.5,
+    0.8
   ],
   "units": [
     {
@@ -87,13 +94,13 @@
       "number": 10,
       "name": "FİİLİMSİLER",
       "english": "Verbals",
-      "questions": 71
+      "questions": 72
     },
     {
       "number": 11,
       "name": "EKLER",
       "english": "Suffixes",
-      "questions": 78
+      "questions": 79
     },
     {
       "number": 12,
@@ -147,12 +154,12 @@
       "number": 20,
       "name": "ANLATIM BOZUKLUKLARI",
       "english": "Expression errors",
-      "questions": 166
+      "questions": 176
     }
   ],
   "runs": [
     {
-      "run": 37,
+      "run": 48,
       "model": "gpt-6-astra",
       "name": "GPT-6 Astra",
       "variant": null,
@@ -161,70 +168,127 @@
       "access": "Codex CLI, ChatGPT subscription",
       "reasoning": "low",
       "questions_per_request": 16,
-      "correct": 2058,
+      "concurrency": 1,
+      "correct": 2146,
       "invalid": 0,
-      "questions_per_minute": 51.581290494947886,
-      "request_seconds": 2556.7409953211027,
-      "cost_usd": 12.46629,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 636
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 1510
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 2143
+        }
+      },
+      "questions_per_minute": 61.21174024165934,
+      "request_seconds": 2166.2511060215766,
+      "cost_usd": 11.88588,
       "cost_basis": "OpenAI API list price, $10 per 1M input tokens ($1 cached), $50 per 1M output tokens; the run used a subscription",
-      "input_tokens": 1149014,
-      "output_tokens": 60995,
+      "input_tokens": 1167698,
+      "output_tokens": 47378,
       "confidence": {
-        "source": "Stated by the model",
+        "source": "stated",
+        "label": "Stated by the model",
         "bins": [
           {
-            "questions": 7,
-            "correct": 2
+            "questions": 3,
+            "correct": 1
           },
           {
-            "questions": 52,
-            "correct": 25
+            "questions": 3,
+            "correct": 1
           },
           {
-            "questions": 66,
-            "correct": 38
+            "questions": 11,
+            "correct": 5
           },
           {
-            "questions": 93,
-            "correct": 60
+            "questions": 35,
+            "correct": 24
           },
           {
-            "questions": 1980,
-            "correct": 1933
+            "questions": 2158,
+            "correct": 2115
           }
         ],
-        "mean": 0.9521173794358507,
-        "above_mean": {
-          "questions": 1872,
-          "correct": 1846
+        "auroc": 0.8973599137931034,
+        "aurc": 0.004174630300684576,
+        "ece": 0.012923076923081927,
+        "brier": 0.024186606334841626,
+        "coverage_accuracy": {
+          "0.20": 1.0,
+          "0.50": 0.9967729988244954,
+          "0.80": 0.9944605644948563
+        },
+        "median_right": 0.99,
+        "median_wrong": 0.955,
+        "sure": {
+          "questions": 1728,
+          "correct": 1720
+        },
+        "doubtful": {
+          "questions": 11,
+          "correct": 5
+        }
+      },
+      "previous": {
+        "run": 37,
+        "changed": {
+          "questions": 375,
+          "older_correct": 288,
+          "newer_correct": 362,
+          "flipped": 78,
+          "changed_answer": 80,
+          "newer_wrong": 13,
+          "repeated_mistakes": 9,
+          "p": 2.039496518310745e-20
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 1770,
+          "newer_correct": 1772,
+          "flipped": 24,
+          "changed_answer": 25,
+          "newer_wrong": 51,
+          "repeated_mistakes": 39,
+          "p": 0.8388197422027588
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 12
         }
       },
       "units": [
-        127,
-        150,
-        63,
+        128,
+        153,
+        65,
         95,
         100,
-        96,
-        129,
-        61,
-        90,
-        64,
-        60,
-        61,
+        95,
         139,
+        64,
+        91,
+        71,
+        78,
+        66,
+        142,
         73,
         84,
         211,
-        69,
-        115,
-        111,
-        160
+        74,
+        132,
+        113,
+        172
       ],
-      "updated": "2026-09-29T19:46:10Z"
+      "updated": "2026-10-04T09:07:22Z"
     },
     {
-      "run": 36,
+      "run": 47,
       "model": "claude-opus-5-5",
       "name": "Claude Opus 5.5",
       "variant": null,
@@ -233,70 +297,127 @@
       "access": "Claude Code CLI, Claude subscription",
       "reasoning": "low",
       "questions_per_request": 16,
-      "correct": 1845,
+      "concurrency": 1,
+      "correct": 1989,
       "invalid": 0,
-      "questions_per_minute": 69.47830600172485,
-      "request_seconds": 1898.1464515949192,
-      "cost_usd": 8.381028,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 622
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 1367
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1988
+        }
+      },
+      "questions_per_minute": 71.89577090051554,
+      "request_seconds": 1844.3365769522497,
+      "cost_usd": 8.46244,
       "cost_basis": "Anthropic API list price, $4 / $20 per 1M input / output tokens; the run used a subscription",
-      "input_tokens": 1232182,
-      "output_tokens": 172615,
+      "input_tokens": 1248840,
+      "output_tokens": 173354,
       "confidence": {
-        "source": "Stated by the model",
+        "source": "stated",
+        "label": "Stated by the model",
         "bins": [
           {
-            "questions": 58,
-            "correct": 14
+            "questions": 2,
+            "correct": 1
           },
           {
-            "questions": 324,
-            "correct": 154
+            "questions": 206,
+            "correct": 111
           },
           {
-            "questions": 644,
-            "correct": 541
+            "questions": 573,
+            "correct": 491
           },
           {
-            "questions": 835,
-            "correct": 800
+            "questions": 982,
+            "correct": 941
           },
           {
-            "questions": 337,
-            "correct": 336
+            "questions": 447,
+            "correct": 445
           }
         ],
-        "mean": 0.6835759781619655,
-        "above_mean": {
-          "questions": 1346,
-          "correct": 1296
+        "auroc": 0.8319785972168192,
+        "aurc": 0.028368685896809628,
+        "ece": 0.16123529411764675,
+        "brier": 0.10272972850678733,
+        "coverage_accuracy": {
+          "0.20": 0.9955072501028384,
+          "0.50": 0.9777241041946925,
+          "0.80": 0.9538833778087172
+        },
+        "median_right": 0.8,
+        "median_wrong": 0.5,
+        "sure": {
+          "questions": 0,
+          "correct": 0
+        },
+        "doubtful": {
+          "questions": 628,
+          "correct": 464
+        }
+      },
+      "previous": {
+        "run": 36,
+        "changed": {
+          "questions": 375,
+          "older_correct": 224,
+          "newer_correct": 338,
+          "flipped": 138,
+          "changed_answer": 147,
+          "newer_wrong": 37,
+          "repeated_mistakes": 16,
+          "p": 3.855331674762765e-25
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 1621,
+          "newer_correct": 1639,
+          "flipped": 174,
+          "changed_answer": 191,
+          "newer_wrong": 184,
+          "repeated_mistakes": 89,
+          "p": 0.19733841594358562
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 12
         }
       },
       "units": [
-        119,
-        147,
-        61,
-        98,
+        125,
+        149,
+        60,
         96,
-        94,
-        116,
-        56,
-        83,
-        61,
-        53,
-        50,
-        128,
-        69,
-        78,
-        151,
-        46,
-        97,
-        96,
-        146
+        101,
+        91,
+        137,
+        64,
+        86,
+        70,
+        75,
+        59,
+        139,
+        71,
+        79,
+        163,
+        54,
+        111,
+        99,
+        160
       ],
-      "updated": "2026-09-29T18:28:36Z"
+      "updated": "2026-10-04T09:02:00Z"
     },
     {
-      "run": 39,
+      "run": 55,
       "model": "claude-sonnet-5-5",
       "name": "Claude Sonnet 5.5",
       "variant": null,
@@ -305,156 +426,245 @@
       "access": "Claude Code CLI, Claude subscription",
       "reasoning": "high",
       "questions_per_request": 16,
-      "correct": 1740,
+      "concurrency": 1,
+      "correct": 1869,
       "invalid": 0,
-      "questions_per_minute": 37.1076310460509,
-      "request_seconds": 3553.9859668308054,
-      "cost_usd": 7.015712,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 559
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 1310
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1868
+        }
+      },
+      "questions_per_minute": 37.778240432131966,
+      "request_seconds": 3509.9570144939353,
+      "cost_usd": 6.822926,
       "cost_basis": "Anthropic API list price, $2 / $10 per 1M input / output tokens; the run used a subscription",
-      "input_tokens": 1196891,
-      "output_tokens": 462193,
+      "input_tokens": 1215038,
+      "output_tokens": 439285,
       "confidence": {
-        "source": "Stated by the model",
+        "source": "stated",
+        "label": "Stated by the model",
         "bins": [
           {
-            "questions": 82,
-            "correct": 22
+            "questions": 17,
+            "correct": 5
           },
           {
-            "questions": 468,
-            "correct": 258
+            "questions": 281,
+            "correct": 150
           },
           {
-            "questions": 786,
-            "correct": 642
+            "questions": 789,
+            "correct": 655
           },
           {
-            "questions": 685,
-            "correct": 644
+            "questions": 868,
+            "correct": 814
           },
           {
-            "questions": 177,
-            "correct": 174
+            "questions": 255,
+            "correct": 245
           }
         ],
-        "mean": 0.622420382165605,
-        "above_mean": {
-          "questions": 1034,
-          "correct": 973
+        "auroc": 0.7732191693771977,
+        "aurc": 0.066758092427683,
+        "ece": 0.15495475113122067,
+        "brier": 0.1373581447963801,
+        "coverage_accuracy": {
+          "0.20": 0.9570135746606335,
+          "0.50": 0.9432770144049152,
+          "0.80": 0.9103000714455822
+        },
+        "median_right": 0.8,
+        "median_wrong": 0.5,
+        "sure": {
+          "questions": 0,
+          "correct": 0
+        },
+        "doubtful": {
+          "questions": 891,
+          "correct": 641
+        }
+      },
+      "previous": {
+        "run": 39,
+        "changed": {
+          "questions": 375,
+          "older_correct": 214,
+          "newer_correct": 323,
+          "flipped": 131,
+          "changed_answer": 150,
+          "newer_wrong": 52,
+          "repeated_mistakes": 22,
+          "p": 2.561478241341199e-24
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 1526,
+          "newer_correct": 1534,
+          "flipped": 194,
+          "changed_answer": 234,
+          "newer_wrong": 289,
+          "repeated_mistakes": 156,
+          "p": 0.615380740884383
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 12
         }
       },
       "units": [
-        107,
-        132,
-        51,
-        92,
-        86,
+        105,
+        138,
+        48,
+        91,
         87,
-        114,
-        58,
-        83,
-        56,
-        52,
-        53,
-        116,
-        67,
+        90,
+        131,
+        59,
         79,
-        149,
-        50,
-        84,
-        96,
-        128
+        68,
+        75,
+        58,
+        130,
+        68,
+        77,
+        170,
+        61,
+        101,
+        94,
+        139
       ],
-      "updated": "2026-09-29T21:43:01Z"
+      "updated": "2026-10-04T10:10:17Z"
     },
     {
-      "run": 23,
-      "model": "gemma4:31b",
+      "run": 57,
+      "model": "gemma-4-31B-it",
       "name": "Gemma 4 31B",
       "variant": null,
       "note": null,
-      "provider": "ollama",
-      "access": "Ollama, self-hosted",
+      "provider": "vllm",
+      "access": "vLLM, self-hosted, FP8",
       "reasoning": "off",
       "questions_per_request": 16,
-      "correct": 1513,
+      "concurrency": 1,
+      "correct": 1625,
       "invalid": 0,
-      "questions_per_minute": 224.94414617425318,
-      "request_seconds": 586.2788707461586,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 590
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 1035
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1621
+        }
+      },
+      "questions_per_minute": 244.95525798081135,
+      "request_seconds": 541.3233465288067,
       "cost_usd": null,
       "cost_basis": null,
-      "input_tokens": null,
-      "output_tokens": null,
+      "input_tokens": 492817,
+      "output_tokens": 20416,
       "confidence": null,
+      "previous": null,
       "units": [
-        110,
+        112,
         143,
-        62,
-        95,
+        60,
+        94,
         88,
-        92,
-        96,
-        40,
-        68,
-        46,
-        30,
-        29,
-        86,
-        60,
-        60,
-        99,
+        93,
+        102,
+        48,
+        72,
+        61,
+        42,
         32,
-        77,
-        81,
-        119
+        97,
+        59,
+        55,
+        116,
+        39,
+        103,
+        80,
+        129
       ],
-      "updated": "2026-08-11T08:56:04Z"
+      "updated": "2026-10-04T12:39:18Z"
     },
     {
-      "run": 27,
-      "model": "deepseek-v4-flash:latest",
-      "name": "DeepSeek V4 Flash",
+      "run": 58,
+      "model": "deepseek-v4.1-flash",
+      "name": "DeepSeek-V4.1-Flash",
       "variant": null,
       "note": null,
-      "provider": "ollama",
-      "access": "Ollama, self-hosted",
+      "provider": "vllm",
+      "access": "SGLang, self-hosted, published mixed precision",
       "reasoning": "off",
       "questions_per_request": 16,
-      "correct": 1309,
+      "concurrency": 1,
+      "correct": 1444,
       "invalid": 0,
-      "questions_per_minute": 191.38228497228144,
-      "request_seconds": 689.091992078058,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 579
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 865
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1441
+        }
+      },
+      "questions_per_minute": 194.67309989199123,
+      "request_seconds": 681.1418736002524,
       "cost_usd": null,
       "cost_basis": null,
-      "input_tokens": null,
-      "output_tokens": null,
+      "input_tokens": 669969,
+      "output_tokens": 13956,
       "confidence": null,
+      "previous": null,
       "units": [
-        109,
-        137,
-        60,
-        92,
-        87,
-        87,
-        69,
-        23,
+        113,
+        138,
         57,
-        33,
-        29,
-        26,
-        61,
-        53,
-        46,
-        72,
-        34,
-        66,
+        95,
+        87,
+        89,
+        80,
+        35,
         59,
-        109
+        48,
+        40,
+        27,
+        71,
+        50,
+        52,
+        84,
+        33,
+        94,
+        72,
+        120
       ],
-      "updated": "2026-08-13T06:29:22Z"
+      "updated": "2026-10-04T13:12:48Z"
     },
     {
-      "run": 38,
+      "run": 54,
       "model": "claude-sonnet-5-5",
       "name": "Claude Sonnet 5.5",
       "variant": null,
@@ -463,70 +673,256 @@
       "access": "Claude Code CLI, Claude subscription",
       "reasoning": "low",
       "questions_per_request": 16,
-      "correct": 1252,
+      "concurrency": 1,
+      "correct": 1349,
       "invalid": 0,
-      "questions_per_minute": 244.3641725818001,
-      "request_seconds": 539.686315741943,
-      "cost_usd": 2.893642,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 544
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 805
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1346
+        }
+      },
+      "questions_per_minute": 230.28394322199546,
+      "request_seconds": 575.8108800150803,
+      "cost_usd": 2.925792,
       "cost_basis": "Anthropic API list price, $2 / $10 per 1M input / output tokens; the run used a subscription",
-      "input_tokens": 1196901,
-      "output_tokens": 49984,
+      "input_tokens": 1215056,
+      "output_tokens": 49568,
       "confidence": {
-        "source": "Stated by the model",
+        "source": "stated",
+        "label": "Stated by the model",
         "bins": [
           {
-            "questions": 40,
-            "correct": 10
+            "questions": 3,
+            "correct": 1
           },
           {
-            "questions": 1038,
-            "correct": 360
+            "questions": 915,
+            "correct": 334
           },
           {
-            "questions": 724,
-            "correct": 515
+            "questions": 829,
+            "correct": 581
           },
           {
-            "questions": 312,
-            "correct": 283
+            "questions": 375,
+            "correct": 346
           },
           {
-            "questions": 84,
-            "correct": 84
+            "questions": 88,
+            "correct": 87
           }
         ],
-        "mean": 0.5070518653321201,
-        "above_mean": {
-          "questions": 824,
-          "correct": 694
+        "auroc": 0.7826096501990117,
+        "aurc": 0.18637877764140492,
+        "ece": 0.0760180995475102,
+        "brier": 0.19070153846153845,
+        "coverage_accuracy": {
+          "0.20": 0.9366515837104072,
+          "0.50": 0.8176470588235294,
+          "0.80": 0.6860684797313057
+        },
+        "median_right": 0.6,
+        "median_wrong": 0.4,
+        "sure": {
+          "questions": 0,
+          "correct": 0
+        },
+        "doubtful": {
+          "questions": 1619,
+          "correct": 805
+        }
+      },
+      "previous": {
+        "run": 38,
+        "changed": {
+          "questions": 375,
+          "older_correct": 157,
+          "newer_correct": 229,
+          "flipped": 136,
+          "changed_answer": 207,
+          "newer_wrong": 146,
+          "repeated_mistakes": 43,
+          "p": 4.426263938479104e-10
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 1095,
+          "newer_correct": 1113,
+          "flipped": 276,
+          "changed_answer": 425,
+          "newer_wrong": 710,
+          "repeated_mistakes": 432,
+          "p": 0.3061693933230553
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 7
         }
       },
       "units": [
-        96,
+        107,
         133,
-        48,
-        92,
+        50,
+        91,
         76,
-        86,
-        62,
-        25,
-        59,
-        27,
-        32,
+        87,
+        75,
         31,
-        69,
-        46,
-        43,
-        65,
-        25,
-        71,
+        61,
+        44,
+        42,
+        28,
         64,
-        102
+        53,
+        41,
+        68,
+        27,
+        93,
+        62,
+        116
       ],
-      "updated": "2026-09-29T20:02:55Z"
+      "updated": "2026-10-04T09:11:41Z"
     },
     {
-      "run": 29,
+      "run": 44,
+      "model": "pplx-decider-v1-27b",
+      "name": "Perplexity Decider 27B",
+      "variant": null,
+      "note": null,
+      "provider": "perplexity",
+      "access": "Perplexity Decisions API",
+      "reasoning": null,
+      "questions_per_request": 1,
+      "concurrency": 1,
+      "correct": 1328,
+      "invalid": 0,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 564
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 764
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1325
+        }
+      },
+      "questions_per_minute": 284.5404418373233,
+      "request_seconds": 466.01459934405284,
+      "cost_usd": 0.034337480000000004,
+      "cost_basis": "Perplexity's price: $0.04 per 1M input tokens, output free",
+      "input_tokens": 858437,
+      "output_tokens": 2210,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 119,
+            "correct": 24
+          },
+          {
+            "questions": 1005,
+            "correct": 391
+          },
+          {
+            "questions": 439,
+            "correct": 299
+          },
+          {
+            "questions": 239,
+            "correct": 210
+          },
+          {
+            "questions": 408,
+            "correct": 404
+          }
+        ],
+        "auroc": 0.8224769827609759,
+        "aurc": 0.1695383224775913,
+        "ece": 0.046810931122350734,
+        "brier": 0.16911136179946318,
+        "coverage_accuracy": {
+          "0.20": 0.9864253393665159,
+          "0.50": 0.8361990950226245,
+          "0.80": 0.6900452488687783
+        },
+        "median_right": 0.7075924097298354,
+        "median_wrong": 0.3450715410645837,
+        "sure": {
+          "questions": 21,
+          "correct": 21
+        },
+        "doubtful": {
+          "questions": 1485,
+          "correct": 654
+        }
+      },
+      "previous": {
+        "run": 43,
+        "changed": {
+          "questions": 375,
+          "older_correct": 147,
+          "newer_correct": 193,
+          "flipped": 112,
+          "changed_answer": 185,
+          "newer_wrong": 182,
+          "repeated_mistakes": 76,
+          "p": 1.6356858141740275e-05
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 1127,
+          "newer_correct": 1127,
+          "flipped": 0,
+          "changed_answer": 0,
+          "newer_wrong": 696,
+          "repeated_mistakes": 696,
+          "p": 1.0
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 8
+        }
+      },
+      "units": [
+        103,
+        137,
+        56,
+        92,
+        83,
+        93,
+        76,
+        33,
+        55,
+        33,
+        45,
+        20,
+        64,
+        49,
+        49,
+        80,
+        24,
+        67,
+        59,
+        110
+      ],
+      "updated": "2026-10-04T08:39:05Z"
+    },
+    {
+      "run": 49,
       "model": "jev-1.13.0",
       "name": "Jev 1.13.0",
       "variant": null,
@@ -535,70 +931,256 @@
       "access": "TypeSafe System One API",
       "reasoning": null,
       "questions_per_request": 1,
-      "correct": 1214,
+      "concurrency": 1,
+      "correct": 1264,
       "invalid": 0,
-      "questions_per_minute": 154.75930521935982,
-      "request_seconds": 852.1620061105205,
-      "cost_usd": 0.06286954800000001,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 549
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 715
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1263
+        }
+      },
+      "questions_per_minute": 251.69948821856477,
+      "request_seconds": 526.8187112277956,
+      "cost_usd": 0.06375499200000001,
       "cost_basis": "TypeSafe's price: $0.042 per 1M input tokens, output free",
-      "input_tokens": 1496894,
-      "output_tokens": 114296,
+      "input_tokens": 1517976,
+      "output_tokens": 114920,
       "confidence": {
-        "source": "Reported by the API",
+        "source": "probability",
+        "label": "Probability of the chosen option",
         "bins": [
           {
-            "questions": 647,
-            "correct": 176
+            "questions": 16,
+            "correct": 3
           },
           {
-            "questions": 545,
-            "correct": 213
+            "questions": 864,
+            "correct": 272
           },
           {
-            "questions": 340,
-            "correct": 218
+            "questions": 552,
+            "correct": 297
           },
           {
-            "questions": 192,
-            "correct": 152
+            "questions": 239,
+            "correct": 183
           },
           {
-            "questions": 474,
-            "correct": 455
+            "questions": 539,
+            "correct": 509
           }
         ],
-        "mean": 0.5072838944494995,
-        "above_mean": {
-          "questions": 991,
-          "correct": 816
+        "auroc": 0.8037564896834105,
+        "aurc": 0.19687716631315835,
+        "ece": 0.05504072398190081,
+        "brier": 0.17915737556561084,
+        "coverage_accuracy": {
+          "0.20": 0.975461190393317,
+          "0.50": 0.8082740788623142,
+          "0.80": 0.6432280954339779
+        },
+        "median_right": 0.8,
+        "median_wrong": 0.43,
+        "sure": {
+          "questions": 314,
+          "correct": 311
+        },
+        "doubtful": {
+          "questions": 1344,
+          "correct": 512
+        }
+      },
+      "previous": {
+        "run": 29,
+        "changed": {
+          "questions": 375,
+          "older_correct": 135,
+          "newer_correct": 186,
+          "flipped": 121,
+          "changed_answer": 204,
+          "newer_wrong": 189,
+          "repeated_mistakes": 71,
+          "p": 4.004113903707686e-06
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 1079,
+          "newer_correct": 1071,
+          "flipped": 70,
+          "changed_answer": 114,
+          "newer_wrong": 752,
+          "repeated_mistakes": 669,
+          "p": 0.40296307504607976
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 7
         }
       },
       "units": [
-        94,
+        105,
         137,
         50,
-        94,
+        93,
         78,
         86,
-        70,
-        31,
-        52,
-        29,
+        76,
         32,
-        23,
-        60,
-        42,
-        40,
-        67,
-        20,
+        51,
+        41,
+        39,
+        24,
+        65,
+        44,
+        41,
+        68,
+        21,
         52,
-        57,
-        100
+        55,
+        106
       ],
-      "updated": "2026-09-26T16:29:31Z"
+      "updated": "2026-10-04T08:47:59Z"
     },
     {
-      "run": 31,
+      "run": 52,
+      "model": "d1:free",
+      "name": "Liquid d1",
+      "variant": null,
+      "note": null,
+      "provider": "liquid",
+      "access": "Liquid AI decisions API",
+      "reasoning": null,
+      "questions_per_request": 1,
+      "concurrency": 1,
+      "correct": 1254,
+      "invalid": 0,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 544
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 710
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1251
+        }
+      },
+      "questions_per_minute": 150.12319443415166,
+      "request_seconds": 883.2745699277148,
+      "cost_usd": 0.0,
+      "cost_basis": "$0: the free d1 model (Liquid publishes no price for d1)",
+      "input_tokens": 821310,
+      "output_tokens": 0,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 13,
+            "correct": 2
+          },
+          {
+            "questions": 720,
+            "correct": 226
+          },
+          {
+            "questions": 543,
+            "correct": 255
+          },
+          {
+            "questions": 295,
+            "correct": 183
+          },
+          {
+            "questions": 639,
+            "correct": 588
+          }
+        ],
+        "auroc": 0.7881031744442888,
+        "aurc": 0.20804186373421357,
+        "ece": 0.10535049006104653,
+        "brier": 0.19675684378054967,
+        "coverage_accuracy": {
+          "0.20": 0.9638009049773756,
+          "0.50": 0.7782805429864253,
+          "0.80": 0.6391402714932126
+        },
+        "median_right": 0.8743496921751127,
+        "median_wrong": 0.4853336507996221,
+        "sure": {
+          "questions": 276,
+          "correct": 273
+        },
+        "doubtful": {
+          "questions": 1181,
+          "correct": 438
+        }
+      },
+      "previous": {
+        "run": 40,
+        "changed": {
+          "questions": 375,
+          "older_correct": 138,
+          "newer_correct": 201,
+          "flipped": 115,
+          "changed_answer": 195,
+          "newer_wrong": 174,
+          "repeated_mistakes": 68,
+          "p": 2.952378329881734e-09
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 1042,
+          "newer_correct": 1046,
+          "flipped": 58,
+          "changed_answer": 91,
+          "newer_wrong": 777,
+          "repeated_mistakes": 717,
+          "p": 0.6940040940761316
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 7
+        }
+      },
+      "units": [
+        104,
+        133,
+        53,
+        93,
+        76,
+        85,
+        69,
+        33,
+        46,
+        40,
+        39,
+        24,
+        66,
+        40,
+        40,
+        63,
+        22,
+        61,
+        57,
+        110
+      ],
+      "updated": "2026-10-04T09:02:49Z"
+    },
+    {
+      "run": 45,
       "model": "open-jev-27b-v1.1",
       "name": "Open-Jev 27B v1.1",
       "variant": null,
@@ -607,28 +1189,44 @@
       "access": "Open-Jev server, self-hosted",
       "reasoning": null,
       "questions_per_request": 1,
-      "correct": 1175,
+      "concurrency": 1,
+      "correct": 1225,
       "invalid": 0,
-      "questions_per_minute": 131.57797141474214,
-      "request_seconds": 1002.2954342737648,
-      "cost_usd": 0.12471732000000002,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 544
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 681
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1222
+        }
+      },
+      "questions_per_minute": 153.40666379539002,
+      "request_seconds": 864.3692309015896,
+      "cost_usd": 0.12782141400000002,
       "cost_basis": "Jev's price applied to its tokens; self-hosted, so not billed",
-      "input_tokens": 2969460,
+      "input_tokens": 3043367,
       "output_tokens": 0,
       "confidence": {
-        "source": "Reported by the server",
+        "source": "probability",
+        "label": "Probability of the chosen option",
         "bins": [
           {
-            "questions": 1825,
-            "correct": 812
+            "questions": 801,
+            "correct": 217
           },
           {
-            "questions": 338,
-            "correct": 328
+            "questions": 1228,
+            "correct": 828
           },
           {
-            "questions": 35,
-            "correct": 35
+            "questions": 181,
+            "correct": 180
           },
           {
             "questions": 0,
@@ -639,38 +1237,79 @@
             "correct": 0
           }
         ],
-        "mean": 0.13337878981036236,
-        "above_mean": {
-          "questions": 776,
-          "correct": 678
+        "auroc": 0.8182376463275666,
+        "aurc": 0.20472600341812694,
+        "ece": 0.2422286969337752,
+        "brier": 0.2646151723679359,
+        "coverage_accuracy": {
+          "0.20": 0.9615384615384616,
+          "0.50": 0.7954751131221719,
+          "0.80": 0.6368778280542986
+        },
+        "median_right": 0.3321148766241605,
+        "median_wrong": 0.24198418934882812,
+        "sure": {
+          "questions": 0,
+          "correct": 0
+        },
+        "doubtful": {
+          "questions": 2210,
+          "correct": 1225
+        }
+      },
+      "previous": {
+        "run": 31,
+        "changed": {
+          "questions": 375,
+          "older_correct": 138,
+          "newer_correct": 180,
+          "flipped": 108,
+          "changed_answer": 194,
+          "newer_wrong": 195,
+          "repeated_mistakes": 76,
+          "p": 6.550370792480044e-05
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 1037,
+          "newer_correct": 1037,
+          "flipped": 0,
+          "changed_answer": 0,
+          "newer_wrong": 786,
+          "repeated_mistakes": 786,
+          "p": 1.0
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 8
         }
       },
       "units": [
-        98,
+        101,
         131,
         50,
         92,
         80,
-        89,
-        64,
+        90,
+        71,
+        34,
+        52,
         33,
-        51,
-        28,
-        31,
-        14,
-        55,
+        47,
+        19,
+        58,
         40,
         35,
-        42,
-        20,
-        64,
-        56,
-        102
+        40,
+        18,
+        69,
+        55,
+        110
       ],
-      "updated": "2026-09-28T19:31:56Z"
+      "updated": "2026-10-04T08:45:43Z"
     },
     {
-      "run": 35,
+      "run": 53,
       "model": "qwen38-27b-bf16",
       "name": "Qwen3.8-27B",
       "variant": "stated confidence",
@@ -679,23 +1318,39 @@
       "access": "vLLM, self-hosted, BF16",
       "reasoning": "off",
       "questions_per_request": 1,
-      "correct": 1132,
+      "concurrency": 1,
+      "correct": 1192,
       "invalid": 0,
-      "questions_per_minute": 146.9188770329083,
-      "request_seconds": 897.6382250080787,
-      "cost_usd": 0.406706,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 547
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 645
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1187
+        }
+      },
+      "questions_per_minute": 147.0429555938642,
+      "request_seconds": 901.7773035400896,
+      "cost_usd": 0.4134384,
       "cost_basis": "$0.40 / $2.40 per 1M input / output tokens; self-hosted, so not billed",
-      "input_tokens": 726797,
-      "output_tokens": 48328,
+      "input_tokens": 741942,
+      "output_tokens": 48609,
       "confidence": {
-        "source": "Stated by the model",
+        "source": "stated",
+        "label": "Stated by the model",
         "bins": [
           {
-            "questions": 15,
-            "correct": 2
+            "questions": 0,
+            "correct": 0
           },
           {
-            "questions": 1,
+            "questions": 0,
             "correct": 0
           },
           {
@@ -703,46 +1358,87 @@
             "correct": 1
           },
           {
-            "questions": 33,
-            "correct": 10
+            "questions": 2,
+            "correct": 0
           },
           {
-            "questions": 2147,
-            "correct": 1119
+            "questions": 2206,
+            "correct": 1191
           }
         ],
-        "mean": 0.9432575068243857,
-        "above_mean": {
-          "questions": 2147,
-          "correct": 1119
+        "auroc": 0.5147706220909535,
+        "aurc": 0.43207835450123244,
+        "ece": 0.41079638009052444,
+        "brier": 0.41677185520361987,
+        "coverage_accuracy": {
+          "0.20": 0.5676565421193811,
+          "0.50": 0.5468230958896686,
+          "0.80": 0.5416147343322405
+        },
+        "median_right": 0.95,
+        "median_wrong": 0.95,
+        "sure": {
+          "questions": 8,
+          "correct": 7
+        },
+        "doubtful": {
+          "questions": 2,
+          "correct": 1
+        }
+      },
+      "previous": {
+        "run": 35,
+        "changed": {
+          "questions": 375,
+          "older_correct": 136,
+          "newer_correct": 182,
+          "flipped": 114,
+          "changed_answer": 183,
+          "newer_wrong": 193,
+          "repeated_mistakes": 90,
+          "p": 1.9596368034800067e-05
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 996,
+          "newer_correct": 1000,
+          "flipped": 18,
+          "changed_answer": 31,
+          "newer_wrong": 823,
+          "repeated_mistakes": 803,
+          "p": 0.480682373046875
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 10
         }
       },
       "units": [
-        98,
+        102,
         133,
-        51,
-        91,
-        78,
-        90,
         52,
-        21,
-        37,
+        91,
+        79,
+        90,
+        55,
+        22,
+        41,
+        28,
+        39,
         19,
-        29,
-        17,
-        59,
+        62,
         34,
         35,
-        50,
+        52,
         29,
+        64,
         59,
-        55,
-        95
+        106
       ],
-      "updated": "2026-09-28T20:14:50Z"
+      "updated": "2026-10-04T09:09:07Z"
     },
     {
-      "run": 34,
+      "run": 50,
       "model": "qwen38-27b-bf16",
       "name": "Qwen3.8-27B",
       "variant": "yes/no scoring",
@@ -751,110 +1447,814 @@
       "access": "vLLM, self-hosted, BF16",
       "reasoning": null,
       "questions_per_request": 1,
-      "correct": 1091,
+      "concurrency": 1,
+      "correct": 1142,
       "invalid": 0,
-      "questions_per_minute": 200.37266978970786,
-      "request_seconds": 658.173592927662,
-      "cost_usd": 1.2141600000000001,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 528
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 614
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 1136
+        }
+      },
+      "questions_per_minute": 193.206449833369,
+      "request_seconds": 686.3124917121604,
+      "cost_usd": 1.2438668000000002,
       "cost_basis": "$0.40 / $2.40 per 1M input / output tokens; self-hosted, so not billed",
-      "input_tokens": 2969460,
-      "output_tokens": 10990,
+      "input_tokens": 3043367,
+      "output_tokens": 11050,
       "confidence": {
-        "source": "Computed from Yes/No token probabilities",
+        "source": "probability",
+        "label": "Probability of the chosen option",
         "bins": [
           {
-            "questions": 783,
-            "correct": 200
+            "questions": 23,
+            "correct": 5
           },
           {
-            "questions": 502,
-            "correct": 169
+            "questions": 990,
+            "correct": 281
           },
           {
-            "questions": 258,
-            "correct": 143
+            "questions": 454,
+            "correct": 211
           },
           {
-            "questions": 157,
-            "correct": 113
+            "questions": 184,
+            "correct": 127
           },
           {
-            "questions": 498,
-            "correct": 466
+            "questions": 559,
+            "correct": 518
           }
         ],
-        "mean": 0.48738238917957405,
-        "above_mean": {
-          "questions": 927,
-          "correct": 730
+        "auroc": 0.7972354499957365,
+        "aurc": 0.24251141927903222,
+        "ece": 0.09236639917996181,
+        "brier": 0.1863528431173347,
+        "coverage_accuracy": {
+          "0.20": 0.9434389140271493,
+          "0.50": 0.7438914027149321,
+          "0.80": 0.582579185520362
+        },
+        "median_right": 0.8416853010814549,
+        "median_wrong": 0.4084024059442275,
+        "sure": {
+          "questions": 295,
+          "correct": 287
+        },
+        "doubtful": {
+          "questions": 1386,
+          "correct": 445
+        }
+      },
+      "previous": {
+        "run": 34,
+        "changed": {
+          "questions": 375,
+          "older_correct": 124,
+          "newer_correct": 167,
+          "flipped": 105,
+          "changed_answer": 177,
+          "newer_wrong": 208,
+          "repeated_mistakes": 105,
+          "p": 3.275535268744219e-05
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 967,
+          "newer_correct": 969,
+          "flipped": 68,
+          "changed_answer": 115,
+          "newer_wrong": 854,
+          "repeated_mistakes": 774,
+          "p": 0.9035973456835125
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 6
         }
       },
       "units": [
-        84,
-        137,
+        91,
+        135,
         51,
-        90,
-        78,
+        89,
+        79,
         83,
-        56,
-        20,
-        37,
-        18,
-        23,
-        24,
-        47,
-        34,
-        28,
-        58,
+        59,
+        19,
+        41,
         27,
-        57,
-        44,
-        95
+        29,
+        21,
+        55,
+        33,
+        27,
+        66,
+        25,
+        62,
+        47,
+        103
       ],
-      "updated": "2026-09-28T19:59:46Z"
+      "updated": "2026-10-04T08:53:57Z"
     },
     {
-      "run": 21,
-      "model": "muse-glimmer:30b",
-      "name": "Muse Glimmer 30B",
+      "run": 51,
+      "model": "laya",
+      "name": "Laya",
       "variant": null,
-      "note": null,
-      "provider": "ollama",
-      "access": "Ollama, self-hosted",
-      "reasoning": "off",
-      "questions_per_request": 16,
-      "correct": 1082,
+      "note": "Encoder with a decision head",
+      "provider": "laya",
+      "access": "Laya server, self-hosted",
+      "reasoning": null,
+      "questions_per_request": 1,
+      "concurrency": 1,
+      "correct": 424,
       "invalid": 0,
-      "questions_per_minute": 314.15047954202544,
-      "request_seconds": 419.7988180449611,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 140
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 284
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 418
+        }
+      },
+      "questions_per_minute": 4612.493508939851,
+      "request_seconds": 28.74800793605391,
       "cost_usd": null,
       "cost_basis": null,
-      "input_tokens": null,
-      "output_tokens": null,
-      "confidence": null,
+      "input_tokens": 891078,
+      "output_tokens": 0,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 498,
+            "correct": 99
+          },
+          {
+            "questions": 1553,
+            "correct": 308
+          },
+          {
+            "questions": 152,
+            "correct": 16
+          },
+          {
+            "questions": 7,
+            "correct": 1
+          },
+          {
+            "questions": 0,
+            "correct": 0
+          }
+        ],
+        "auroc": 0.4797831403579201,
+        "aurc": 0.8288902915838563,
+        "ece": 0.13043316742081437,
+        "brier": 0.18653573178733032,
+        "coverage_accuracy": {
+          "0.20": 0.14592760180995476,
+          "0.50": 0.18280542986425338,
+          "0.80": 0.18891402714932126
+        },
+        "median_right": 0.28605,
+        "median_wrong": 0.2908,
+        "sure": {
+          "questions": 0,
+          "correct": 0
+        },
+        "doubtful": {
+          "questions": 2193,
+          "correct": 422
+        }
+      },
+      "previous": {
+        "run": 41,
+        "changed": {
+          "questions": 375,
+          "older_correct": 68,
+          "newer_correct": 62,
+          "flipped": 48,
+          "changed_answer": 101,
+          "newer_wrong": 313,
+          "repeated_mistakes": 233,
+          "p": 0.4708790136217118
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 360,
+          "newer_correct": 360,
+          "flipped": 0,
+          "changed_answer": 0,
+          "newer_wrong": 1463,
+          "repeated_mistakes": 1463,
+          "p": 1.0
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 2
+        }
+      },
       "units": [
-        92,
-        128,
-        53,
-        88,
-        70,
-        86,
-        52,
-        20,
-        37,
+        34,
+        35,
+        9,
         18,
-        30,
-        22,
-        46,
-        36,
-        28,
-        55,
-        25,
-        53,
-        52,
-        91
+        29,
+        15,
+        18,
+        10,
+        15,
+        10,
+        13,
+        11,
+        33,
+        12,
+        23,
+        47,
+        17,
+        23,
+        17,
+        35
       ],
-      "updated": "2026-08-11T08:42:56Z"
+      "updated": "2026-10-04T08:46:34Z"
+    },
+    {
+      "run": 46,
+      "model": "laya-multilingual",
+      "name": "Laya multilingual",
+      "variant": null,
+      "note": "Encoder with a decision head",
+      "provider": "laya",
+      "access": "Laya server, self-hosted",
+      "reasoning": null,
+      "questions_per_request": 1,
+      "concurrency": 1,
+      "correct": 399,
+      "invalid": 0,
+      "groups": {
+        "reading": {
+          "questions": 664,
+          "correct": 115
+        },
+        "grammar": {
+          "questions": 1546,
+          "correct": 284
+        },
+        "without_suspect": {
+          "questions": 2195,
+          "correct": 395
+        }
+      },
+      "questions_per_minute": 5364.397759879482,
+      "request_seconds": 24.71852497436339,
+      "cost_usd": null,
+      "cost_basis": null,
+      "input_tokens": 676255,
+      "output_tokens": 0,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 103,
+            "correct": 20
+          },
+          {
+            "questions": 1377,
+            "correct": 259
+          },
+          {
+            "questions": 510,
+            "correct": 89
+          },
+          {
+            "questions": 179,
+            "correct": 23
+          },
+          {
+            "questions": 41,
+            "correct": 8
+          }
+        ],
+        "auroc": 0.4535759608850951,
+        "aurc": 0.8369655075987079,
+        "ece": 0.2749705882352941,
+        "brier": 0.26325872182805427,
+        "coverage_accuracy": {
+          "0.20": 0.1493212669683258,
+          "0.50": 0.16221719457013575,
+          "0.80": 0.167420814479638
+        },
+        "median_right": 0.3776,
+        "median_wrong": 0.4041,
+        "sure": {
+          "questions": 1,
+          "correct": 0
+        },
+        "doubtful": {
+          "questions": 1916,
+          "correct": 358
+        }
+      },
+      "previous": {
+        "run": 42,
+        "changed": {
+          "questions": 375,
+          "older_correct": 72,
+          "newer_correct": 70,
+          "flipped": 42,
+          "changed_answer": 93,
+          "newer_wrong": 305,
+          "repeated_mistakes": 232,
+          "p": 0.8776143287523155
+        },
+        "unchanged": {
+          "questions": 1823,
+          "older_correct": 325,
+          "newer_correct": 325,
+          "flipped": 0,
+          "changed_answer": 0,
+          "newer_wrong": 1498,
+          "repeated_mistakes": 1498,
+          "p": 1.0
+        },
+        "added": {
+          "questions": 12,
+          "newer_correct": 4
+        }
+      },
+      "units": [
+        26,
+        19,
+        12,
+        22,
+        20,
+        16,
+        26,
+        8,
+        14,
+        12,
+        16,
+        12,
+        24,
+        11,
+        17,
+        43,
+        13,
+        30,
+        20,
+        38
+      ],
+      "updated": "2026-10-04T08:31:44Z"
+    }
+  ],
+  "paired": [
+    {
+      "first": 48,
+      "second": 47,
+      "questions": 2210,
+      "first_only": 168,
+      "second_only": 11,
+      "difference": 0.07104072398190045,
+      "low": 0.059550722623289316,
+      "high": 0.08253072534051158,
+      "p": 3.0887846315815047e-37
+    },
+    {
+      "first": 47,
+      "second": 55,
+      "questions": 2210,
+      "first_only": 217,
+      "second_only": 97,
+      "difference": 0.05429864253393665,
+      "low": 0.038747039080525375,
+      "high": 0.06985024598734793,
+      "p": 1.0567549631770186e-11
+    },
+    {
+      "first": 55,
+      "second": 57,
+      "questions": 2210,
+      "first_only": 412,
+      "second_only": 168,
+      "difference": 0.11040723981900452,
+      "low": 0.08955032002501574,
+      "high": 0.13126415961299331,
+      "p": 1.229290849359924e-24
+    },
+    {
+      "first": 57,
+      "second": 58,
+      "questions": 2210,
+      "first_only": 356,
+      "second_only": 175,
+      "difference": 0.08190045248868778,
+      "low": 0.061751025080066024,
+      "high": 0.10204987989730954,
+      "p": 3.0670896290337708e-15
+    },
+    {
+      "first": 58,
+      "second": 54,
+      "questions": 2210,
+      "first_only": 335,
+      "second_only": 240,
+      "difference": 0.042986425339366516,
+      "low": 0.02179549543174287,
+      "high": 0.06417735524699017,
+      "p": 8.554384139056771e-05
+    },
+    {
+      "first": 54,
+      "second": 44,
+      "questions": 2210,
+      "first_only": 323,
+      "second_only": 302,
+      "difference": 0.009502262443438913,
+      "low": -0.012666143490086728,
+      "high": 0.031670668376964556,
+      "p": 0.42373318703658996
+    },
+    {
+      "first": 44,
+      "second": 49,
+      "questions": 2210,
+      "first_only": 301,
+      "second_only": 237,
+      "difference": 0.02895927601809955,
+      "low": 0.008423761984052088,
+      "high": 0.049494790052147006,
+      "p": 0.006551549501583589
+    },
+    {
+      "first": 49,
+      "second": 52,
+      "questions": 2210,
+      "first_only": 225,
+      "second_only": 215,
+      "difference": 0.004524886877828055,
+      "low": -0.014077462797213152,
+      "high": 0.023127236552869263,
+      "p": 0.6679293414551754
+    },
+    {
+      "first": 52,
+      "second": 45,
+      "questions": 2210,
+      "first_only": 294,
+      "second_only": 265,
+      "difference": 0.013122171945701358,
+      "low": -0.007839302444822503,
+      "high": 0.034083646336225216,
+      "p": 0.2362767021604583
+    },
+    {
+      "first": 45,
+      "second": 53,
+      "questions": 2210,
+      "first_only": 267,
+      "second_only": 234,
+      "difference": 0.01493212669683258,
+      "low": -0.004909121035713395,
+      "high": 0.034773374429378556,
+      "p": 0.15274497168628004
+    },
+    {
+      "first": 53,
+      "second": 50,
+      "questions": 2210,
+      "first_only": 254,
+      "second_only": 204,
+      "difference": 0.02262443438914027,
+      "low": 0.0036678740449526508,
+      "high": 0.041580994733327895,
+      "p": 0.02194066100694269
+    },
+    {
+      "first": 50,
+      "second": 51,
+      "questions": 2210,
+      "first_only": 941,
+      "second_only": 223,
+      "difference": 0.3248868778280543,
+      "low": 0.2978301085036557,
+      "high": 0.3519436471524529,
+      "p": 2.7632837766074434e-105
+    },
+    {
+      "first": 51,
+      "second": 46,
+      "questions": 2210,
+      "first_only": 297,
+      "second_only": 272,
+      "difference": 0.011312217194570135,
+      "low": -0.00983786098830358,
+      "high": 0.03246229537744385,
+      "p": 0.3143512034274815
+    },
+    {
+      "first": 45,
+      "second": 50,
+      "questions": 2210,
+      "first_only": 290,
+      "second_only": 207,
+      "difference": 0.03755656108597285,
+      "low": 0.017847054557416045,
+      "high": 0.05726606761452965,
+      "p": 0.00022780042456489667
+    }
+  ],
+  "cascades": [
+    {
+      "decision": 44,
+      "frontier": 48,
+      "frontier_accuracy": 0.9710407239819004,
+      "in_sample": {
+        "threshold": 0.9156852342507505,
+        "answered": 0.17058823529411765,
+        "accuracy": 0.9710407239819004
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.18323680241327303,
+        "difference": -0.0008657616892910996,
+        "worse": 0.44
+      },
+      "cost_usd": 9.892626185882351
+    },
+    {
+      "decision": 44,
+      "frontier": 47,
+      "frontier_accuracy": 0.9,
+      "in_sample": {
+        "threshold": 0.9156852342507505,
+        "answered": 0.17058823529411765,
+        "accuracy": 0.9
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.19615082956259447,
+        "difference": -0.001257918552036197,
+        "worse": 0.6033333333333334
+      },
+      "cost_usd": 7.053184774117647
+    },
+    {
+      "decision": 44,
+      "frontier": 55,
+      "frontier_accuracy": 0.8457013574660633,
+      "in_sample": {
+        "threshold": 0.6621500580464365,
+        "answered": 0.3565610859728507,
+        "accuracy": 0.8457013574660633
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.36566817496229265,
+        "difference": -0.0026334841628959274,
+        "worse": 0.5333333333333333
+      },
+      "cost_usd": 4.424473575927601
+    },
+    {
+      "decision": 49,
+      "frontier": 48,
+      "frontier_accuracy": 0.9710407239819004,
+      "in_sample": {
+        "threshold": 1.0,
+        "answered": 0.10995475113122172,
+        "accuracy": 0.9710407239819004
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.15031975867269998,
+        "difference": -0.0010889894419306163,
+        "worse": 0.63
+      },
+      "cost_usd": 10.642726014624433
+    },
+    {
+      "decision": 49,
+      "frontier": 47,
+      "frontier_accuracy": 0.9,
+      "in_sample": {
+        "threshold": 0.97,
+        "answered": 0.17647058823529413,
+        "accuracy": 0.9004524886877828
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.17954449472096545,
+        "difference": -0.0009622926093514317,
+        "worse": 0.5366666666666666
+      },
+      "cost_usd": 7.032823227294118
+    },
+    {
+      "decision": 49,
+      "frontier": 55,
+      "frontier_accuracy": 0.8457013574660633,
+      "in_sample": {
+        "threshold": 0.8099999999999999,
+        "answered": 0.3095022624434389,
+        "accuracy": 0.8461538461538461
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.303562594268477,
+        "difference": -0.0020874811463046754,
+        "worse": 0.5433333333333333
+      },
+      "cost_usd": 4.774969958515837
+    },
+    {
+      "decision": 52,
+      "frontier": 48,
+      "frontier_accuracy": 0.9710407239819004,
+      "in_sample": {
+        "threshold": 0.9956824052064029,
+        "answered": 0.08190045248868778,
+        "accuracy": 0.9710407239819004
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.1261508295625942,
+        "difference": -0.0013695324283559548,
+        "worse": 0.69
+      },
+      "cost_usd": 10.912421049773755
+    },
+    {
+      "decision": 52,
+      "frontier": 47,
+      "frontier_accuracy": 0.9,
+      "in_sample": {
+        "threshold": 0.9956824052064029,
+        "answered": 0.08190045248868778,
+        "accuracy": 0.9
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.13393363499245856,
+        "difference": -0.0014660633484162868,
+        "worse": 0.69
+      },
+      "cost_usd": 7.769362334841629
+    },
+    {
+      "decision": 52,
+      "frontier": 55,
+      "frontier_accuracy": 0.8457013574660633,
+      "in_sample": {
+        "threshold": 0.8895799348397195,
+        "answered": 0.2981900452488688,
+        "accuracy": 0.8457013574660633
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.2987752639517349,
+        "difference": -0.002316742081447963,
+        "worse": 0.5766666666666667
+      },
+      "cost_usd": 4.788397387330316
+    },
+    {
+      "decision": 45,
+      "frontier": 48,
+      "frontier_accuracy": 0.9710407239819004,
+      "in_sample": {
+        "threshold": 0.4702689339045559,
+        "answered": 0.1081447963800905,
+        "accuracy": 0.9710407239819004
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.12403016591251873,
+        "difference": -0.0008959276018099536,
+        "worse": 0.49
+      },
+      "cost_usd": 10.728305341601809
+    },
+    {
+      "decision": 45,
+      "frontier": 47,
+      "frontier_accuracy": 0.9,
+      "in_sample": {
+        "threshold": 0.4702689339045559,
+        "answered": 0.1081447963800905,
+        "accuracy": 0.9
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.13168325791855195,
+        "difference": -0.0014509803921568605,
+        "worse": 0.5166666666666667
+      },
+      "cost_usd": 7.675092563321268
+    },
+    {
+      "decision": 45,
+      "frontier": 55,
+      "frontier_accuracy": 0.8457013574660633,
+      "in_sample": {
+        "threshold": 0.3470583499882852,
+        "answered": 0.27239819004524884,
+        "accuracy": 0.8457013574660633
+      },
+      "held_out": {
+        "splits": 300,
+        "answered": 0.277218702865762,
+        "difference": -0.0020120663650075423,
+        "worse": 0.48333333333333334
+      },
+      "cost_usd": 5.092194720787331
+    }
+  ],
+  "doubts": [
+    {
+      "decision": 44,
+      "frontier": [
+        48,
+        47,
+        55
+      ],
+      "questions": 2210,
+      "rho": 0.2185217449527274,
+      "p": 0.004975124378109453,
+      "auroc": 0.6570417290002228,
+      "top_tenth": {
+        "questions": 221,
+        "with_mistake": 65,
+        "all_with_mistake": 445
+      }
+    },
+    {
+      "decision": 49,
+      "frontier": [
+        48,
+        47,
+        55
+      ],
+      "questions": 2210,
+      "rho": 0.19515889170397344,
+      "p": 0.004975124378109453,
+      "auroc": 0.6410402011649744,
+      "top_tenth": {
+        "questions": 221,
+        "with_mistake": 62,
+        "all_with_mistake": 445
+      }
+    },
+    {
+      "decision": 52,
+      "frontier": [
+        48,
+        47,
+        55
+      ],
+      "questions": 2210,
+      "rho": 0.1928192840979589,
+      "p": 0.004975124378109453,
+      "auroc": 0.6405665722379603,
+      "top_tenth": {
+        "questions": 221,
+        "with_mistake": 65,
+        "all_with_mistake": 445
+      }
+    },
+    {
+      "decision": 45,
+      "frontier": [
+        48,
+        47,
+        55
+      ],
+      "questions": 2210,
+      "rho": 0.21541068375485456,
+      "p": 0.004975124378109453,
+      "auroc": 0.6554731514784989,
+      "top_tenth": {
+        "questions": 221,
+        "with_mistake": 77,
+        "all_with_mistake": 445
+      }
     }
   ]
 }
