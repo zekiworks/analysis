@@ -8,6 +8,10 @@
   "questions": 2210,
   "suspect": 15,
   "excluded": {},
+  "tyt_mix": {
+    "reading": 33,
+    "grammar": 7
+  },
   "confidence_bins": [
     [
       0.0,
@@ -185,10 +189,15 @@
           "correct": 2143
         }
       },
+      "tyt_mix": 0.9611358110319674,
       "questions_per_minute": 61.21174024165934,
       "request_seconds": 2166.2511060215766,
-      "cost_usd": 11.88588,
-      "cost_basis": "OpenAI API list price, $10 per 1M input tokens ($1 cached), $50 per 1M output tokens; the run used a subscription",
+      "median_request_seconds": null,
+      "billing": "subscription",
+      "billed_usd": null,
+      "api_equivalent_usd": 11.88588,
+      "cost_basis": "OpenAI API list price, $10 per 1M input tokens ($1 cached), $50 per 1M output tokens",
+      "hardware": null,
       "input_tokens": 1167698,
       "output_tokens": 47378,
       "confidence": {
@@ -217,6 +226,10 @@
           }
         ],
         "auroc": 0.8973599137931034,
+        "auroc_interval": [
+          0.8569528875379939,
+          0.9325013050526142
+        ],
         "aurc": 0.004174630300684576,
         "ece": 0.012923076923081927,
         "brier": 0.024186606334841626,
@@ -225,15 +238,37 @@
           "0.50": 0.9967729988244954,
           "0.80": 0.9944605644948563
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.9999999999999999,
+            1.0000000000000002
+          ],
+          "0.50": [
+            0.9941890386818503,
+            0.9988178781415836
+          ],
+          "0.80": [
+            0.990745931283906,
+            0.9975620767494358
+          ]
+        },
         "median_right": 0.99,
         "median_wrong": 0.955,
         "sure": {
           "questions": 1728,
-          "correct": 1720
+          "correct": 1720,
+          "interval": [
+            0.9908907883305993,
+            0.9976522747301333
+          ]
         },
         "doubtful": {
           "questions": 11,
-          "correct": 5
+          "correct": 5,
+          "interval": [
+            0.21270957543988045,
+            0.7199122443100118
+          ]
         }
       },
       "previous": {
@@ -314,10 +349,15 @@
           "correct": 2028
         }
       },
+      "tyt_mix": 0.9265489350675665,
       "questions_per_minute": 17.948858643963128,
       "request_seconds": 7387.65637583303,
-      "cost_usd": null,
+      "median_request_seconds": null,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
       "cost_basis": null,
+      "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers",
       "input_tokens": 673444,
       "output_tokens": 2214725,
       "confidence": null,
@@ -373,10 +413,15 @@
           "correct": 1988
         }
       },
+      "tyt_mix": 0.9275542986954285,
       "questions_per_minute": 71.89577090051554,
       "request_seconds": 1844.3365769522497,
-      "cost_usd": 8.46244,
-      "cost_basis": "Anthropic API list price, $4 / $20 per 1M input / output tokens; the run used a subscription",
+      "median_request_seconds": null,
+      "billing": "subscription",
+      "billed_usd": null,
+      "api_equivalent_usd": 8.46244,
+      "cost_basis": "Anthropic API list price, $4 / $20 per 1M input / output tokens",
+      "hardware": null,
       "input_tokens": 1248840,
       "output_tokens": 173354,
       "confidence": {
@@ -405,6 +450,10 @@
           }
         ],
         "auroc": 0.8319785972168192,
+        "auroc_interval": [
+          0.8037559451751701,
+          0.8593280905443822
+        ],
         "aurc": 0.028368685896809628,
         "ece": 0.16123529411764675,
         "brier": 0.10272972850678733,
@@ -413,15 +462,34 @@
           "0.50": 0.9777241041946925,
           "0.80": 0.9538833778087172
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.9886877828054299,
+            1.0
+          ],
+          "0.50": [
+            0.9691938313787053,
+            0.9860148928051892
+          ],
+          "0.80": [
+            0.9443709250532567,
+            0.9633271717736367
+          ]
+        },
         "median_right": 0.8,
         "median_wrong": 0.5,
         "sure": {
           "questions": 0,
-          "correct": 0
+          "correct": 0,
+          "interval": null
         },
         "doubtful": {
           "questions": 628,
-          "correct": 464
+          "correct": 464,
+          "interval": [
+            0.7031195012435041,
+            0.7716830442045954
+          ]
         }
       },
       "previous": {
@@ -502,10 +570,15 @@
           "correct": 1868
         }
       },
+      "tyt_mix": 0.8428265617450397,
       "questions_per_minute": 37.778240432131966,
       "request_seconds": 3509.9570144939353,
-      "cost_usd": 6.822926,
-      "cost_basis": "Anthropic API list price, $2 / $10 per 1M input / output tokens; the run used a subscription",
+      "median_request_seconds": null,
+      "billing": "subscription",
+      "billed_usd": null,
+      "api_equivalent_usd": 6.822926,
+      "cost_basis": "Anthropic API list price, $2 / $10 per 1M input / output tokens",
+      "hardware": null,
       "input_tokens": 1215038,
       "output_tokens": 439285,
       "confidence": {
@@ -534,6 +607,10 @@
           }
         ],
         "auroc": 0.7732191693771977,
+        "auroc_interval": [
+          0.7459964162483155,
+          0.7992449704142012
+        ],
         "aurc": 0.066758092427683,
         "ece": 0.15495475113122067,
         "brier": 0.1373581447963801,
@@ -542,15 +619,34 @@
           "0.50": 0.9432770144049152,
           "0.80": 0.9103000714455822
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.9396681749622926,
+            0.9715897735101886
+          ],
+          "0.50": [
+            0.9285890580008226,
+            0.9553269840164362
+          ],
+          "0.80": [
+            0.8965758299862728,
+            0.9225866194497655
+          ]
+        },
         "median_right": 0.8,
         "median_wrong": 0.5,
         "sure": {
           "questions": 0,
-          "correct": 0
+          "correct": 0,
+          "interval": null
         },
         "doubtful": {
           "questions": 891,
-          "correct": 641
+          "correct": 641,
+          "interval": [
+            0.6890216245304581,
+            0.7479272164711224
+          ]
         }
       },
       "previous": {
@@ -631,10 +727,15 @@
           "correct": 1621
         }
       },
+      "tyt_mix": 0.8502144087345501,
       "questions_per_minute": 244.95525798081135,
       "request_seconds": 541.3233465288067,
-      "cost_usd": null,
+      "median_request_seconds": null,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
       "cost_basis": null,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 weights and KV cache",
       "input_tokens": 492817,
       "output_tokens": 20416,
       "confidence": null,
@@ -690,10 +791,15 @@
           "correct": 1441
         }
       },
+      "tyt_mix": 0.8173040317804204,
       "questions_per_minute": 194.67309989199123,
       "request_seconds": 681.1418736002524,
-      "cost_usd": null,
+      "median_request_seconds": null,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
       "cost_basis": null,
+      "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers",
       "input_tokens": 669969,
       "output_tokens": 13956,
       "confidence": null,
@@ -749,10 +855,15 @@
           "correct": 1346
         }
       },
+      "tyt_mix": 0.767025865428077,
       "questions_per_minute": 230.28394322199546,
       "request_seconds": 575.8108800150803,
-      "cost_usd": 2.925792,
-      "cost_basis": "Anthropic API list price, $2 / $10 per 1M input / output tokens; the run used a subscription",
+      "median_request_seconds": null,
+      "billing": "subscription",
+      "billed_usd": null,
+      "api_equivalent_usd": 2.925792,
+      "cost_basis": "Anthropic API list price, $2 / $10 per 1M input / output tokens",
+      "hardware": null,
       "input_tokens": 1215056,
       "output_tokens": 49568,
       "confidence": {
@@ -781,6 +892,10 @@
           }
         ],
         "auroc": 0.7826096501990117,
+        "auroc_interval": [
+          0.7625123966942149,
+          0.8003352508162974
+        ],
         "aurc": 0.18637877764140492,
         "ece": 0.0760180995475102,
         "brier": 0.19070153846153845,
@@ -789,15 +904,34 @@
           "0.50": 0.8176470588235294,
           "0.80": 0.6860684797313057
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.9136986767357212,
+            0.9582782057091074
+          ],
+          "0.50": [
+            0.7944400452488688,
+            0.8404127881858529
+          ],
+          "0.80": [
+            0.6630762562593948,
+            0.7080876666286725
+          ]
+        },
         "median_right": 0.6,
         "median_wrong": 0.4,
         "sure": {
           "questions": 0,
-          "correct": 0
+          "correct": 0,
+          "interval": null
         },
         "doubtful": {
           "questions": 1619,
-          "correct": 805
+          "correct": 805,
+          "interval": [
+            0.4729004916621036,
+            0.521553680575039
+          ]
         }
       },
       "previous": {
@@ -878,10 +1012,15 @@
           "correct": 1325
         }
       },
+      "tyt_mix": 0.7872342539628111,
       "questions_per_minute": 284.5404418373233,
       "request_seconds": 466.01459934405284,
-      "cost_usd": 0.034337480000000004,
+      "median_request_seconds": null,
+      "billing": "api",
+      "billed_usd": 0.034337480000000004,
+      "api_equivalent_usd": 0.034337480000000004,
       "cost_basis": "Perplexity's price: $0.04 per 1M input tokens, output free",
+      "hardware": null,
       "input_tokens": 858437,
       "output_tokens": 2210,
       "confidence": {
@@ -910,6 +1049,10 @@
           }
         ],
         "auroc": 0.8224769827609759,
+        "auroc_interval": [
+          0.8060432881861453,
+          0.8382283144142214
+        ],
         "aurc": 0.1695383224775913,
         "ece": 0.046810931122350734,
         "brier": 0.16911136179946318,
@@ -918,15 +1061,37 @@
           "0.50": 0.8361990950226245,
           "0.80": 0.6900452488687783
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.970614828209765,
+            0.9963768115942029
+          ],
+          "0.50": [
+            0.8103214124038026,
+            0.8588235294117647
+          ],
+          "0.80": [
+            0.6694608065246941,
+            0.7116168478260869
+          ]
+        },
         "median_right": 0.7075924097298354,
         "median_wrong": 0.3450715410645837,
         "sure": {
           "questions": 21,
-          "correct": 21
+          "correct": 21,
+          "interval": [
+            0.8453561767357979,
+            0.9999999999999999
+          ]
         },
         "doubtful": {
           "questions": 1485,
-          "correct": 654
+          "correct": 654,
+          "interval": [
+            0.4153402670100064,
+            0.4657753600654327
+          ]
         }
       },
       "previous": {
@@ -1007,10 +1172,15 @@
           "correct": 1263
         }
       },
+      "tyt_mix": 0.7630506339718512,
       "questions_per_minute": 251.69948821856477,
       "request_seconds": 526.8187112277956,
-      "cost_usd": 0.06375499200000001,
+      "median_request_seconds": null,
+      "billing": "api",
+      "billed_usd": 0.06375499200000001,
+      "api_equivalent_usd": 0.06375499200000001,
       "cost_basis": "TypeSafe's price: $0.042 per 1M input tokens, output free",
+      "hardware": null,
       "input_tokens": 1517976,
       "output_tokens": 114920,
       "confidence": {
@@ -1039,6 +1209,10 @@
           }
         ],
         "auroc": 0.8037564896834105,
+        "auroc_interval": [
+          0.7838315455569932,
+          0.8211223446171386
+        ],
         "aurc": 0.19687716631315835,
         "ece": 0.05504072398190081,
         "brier": 0.17915737556561084,
@@ -1047,15 +1221,37 @@
           "0.50": 0.8082740788623142,
           "0.80": 0.6432280954339779
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.9495842367348883,
+            0.9911797777420815
+          ],
+          "0.50": [
+            0.7825856615298316,
+            0.8337348188296698
+          ],
+          "0.80": [
+            0.6214063484562067,
+            0.6659012629161882
+          ]
+        },
         "median_right": 0.8,
         "median_wrong": 0.43,
         "sure": {
           "questions": 314,
-          "correct": 311
+          "correct": 311,
+          "interval": [
+            0.97229057656989,
+            0.9967455722539266
+          ]
         },
         "doubtful": {
           "questions": 1344,
-          "correct": 512
+          "correct": 512,
+          "interval": [
+            0.35536355806925063,
+            0.40721981968077564
+          ]
         }
       },
       "previous": {
@@ -1136,10 +1332,15 @@
           "correct": 1251
         }
       },
+      "tyt_mix": 0.7562723078601599,
       "questions_per_minute": 150.12319443415166,
       "request_seconds": 883.2745699277148,
-      "cost_usd": 0.0,
-      "cost_basis": "$0: the free d1 model (Liquid publishes no price for d1)",
+      "median_request_seconds": null,
+      "billing": "api",
+      "billed_usd": 0.0,
+      "api_equivalent_usd": 0.0,
+      "cost_basis": "the free d1 model; Liquid publishes no price for d1",
+      "hardware": null,
       "input_tokens": 821310,
       "output_tokens": 0,
       "confidence": {
@@ -1168,6 +1369,10 @@
           }
         ],
         "auroc": 0.7881031744442888,
+        "auroc_interval": [
+          0.7680975552262931,
+          0.8064738280568547
+        ],
         "aurc": 0.20804186373421357,
         "ece": 0.10535049006104653,
         "brier": 0.19675684378054967,
@@ -1176,15 +1381,37 @@
           "0.50": 0.7782805429864253,
           "0.80": 0.6391402714932126
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.9434133091896786,
+            0.981924988703118
+          ],
+          "0.50": [
+            0.7504520795660036,
+            0.8047122791119167
+          ],
+          "0.80": [
+            0.6153846153846154,
+            0.6635049683830172
+          ]
+        },
         "median_right": 0.8743496921751127,
         "median_wrong": 0.4853336507996221,
         "sure": {
           "questions": 276,
-          "correct": 273
+          "correct": 273,
+          "interval": [
+            0.9685348547189621,
+            0.9962966785484291
+          ]
         },
         "doubtful": {
           "questions": 1181,
-          "correct": 438
+          "correct": 438,
+          "interval": [
+            0.3437828894347599,
+            0.39879873497815743
+          ]
         }
       },
       "previous": {
@@ -1265,10 +1492,15 @@
           "correct": 1222
         }
       },
+      "tyt_mix": 0.7529896429183747,
       "questions_per_minute": 153.40666379539002,
       "request_seconds": 864.3692309015896,
-      "cost_usd": 0.12782141400000002,
-      "cost_basis": "Jev's price applied to its tokens; self-hosted, so not billed",
+      "median_request_seconds": null,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": 0.12782141400000002,
+      "cost_basis": "Jev's API price applied to its tokens, for comparison",
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 3043367,
       "output_tokens": 0,
       "confidence": {
@@ -1297,6 +1529,10 @@
           }
         ],
         "auroc": 0.8182376463275666,
+        "auroc_interval": [
+          0.8012340300050362,
+          0.8357049079996841
+        ],
         "aurc": 0.20472600341812694,
         "ece": 0.2422286969337752,
         "brier": 0.2646151723679359,
@@ -1305,15 +1541,34 @@
           "0.50": 0.7954751131221719,
           "0.80": 0.6368778280542986
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.9389416553595659,
+            0.9774164408310749
+          ],
+          "0.50": [
+            0.7692307692307693,
+            0.825497287522604
+          ],
+          "0.80": [
+            0.6131006346328195,
+            0.6592039800995024
+          ]
+        },
         "median_right": 0.3321148766241605,
         "median_wrong": 0.24198418934882812,
         "sure": {
           "questions": 0,
-          "correct": 0
+          "correct": 0,
+          "interval": null
         },
         "doubtful": {
           "questions": 2210,
-          "correct": 1225
+          "correct": 1225,
+          "interval": [
+            0.5334991365068095,
+            0.5749097035836469
+          ]
         }
       },
       "previous": {
@@ -1394,10 +1649,15 @@
           "correct": 1187
         }
       },
+      "tyt_mix": 0.7526420202154023,
       "questions_per_minute": 147.0429555938642,
       "request_seconds": 901.7773035400896,
-      "cost_usd": 0.4134384,
-      "cost_basis": "$0.40 / $2.40 per 1M input / output tokens; self-hosted, so not billed",
+      "median_request_seconds": null,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": 0.4134384,
+      "cost_basis": "an assumed $0.40 / $2.40 per 1M input / output tokens",
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 741942,
       "output_tokens": 48609,
       "confidence": {
@@ -1426,6 +1686,10 @@
           }
         ],
         "auroc": 0.5147706220909535,
+        "auroc_interval": [
+          0.5098911237465454,
+          0.5200733888909527
+        ],
         "aurc": 0.43207835450123244,
         "ece": 0.41079638009052444,
         "brier": 0.41677185520361987,
@@ -1434,15 +1698,37 @@
           "0.50": 0.5468230958896686,
           "0.80": 0.5416147343322405
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.5446214324451384,
+            0.5908611032692491
+          ],
+          "0.50": [
+            0.5267064200870796,
+            0.5682145882068242
+          ],
+          "0.80": [
+            0.5216193324453628,
+            0.5623230682227988
+          ]
+        },
         "median_right": 0.95,
         "median_wrong": 0.95,
         "sure": {
           "questions": 8,
-          "correct": 7
+          "correct": 7,
+          "interval": [
+            0.5291051942301386,
+            0.9775830911367038
+          ]
         },
         "doubtful": {
           "questions": 2,
-          "correct": 1
+          "correct": 1,
+          "interval": [
+            0.09452865480086614,
+            0.9054713451991339
+          ]
         }
       },
       "previous": {
@@ -1523,10 +1809,15 @@
           "correct": 1136
         }
       },
+      "tyt_mix": 0.7255260368771334,
       "questions_per_minute": 193.206449833369,
       "request_seconds": 686.3124917121604,
-      "cost_usd": 1.2438668000000002,
-      "cost_basis": "$0.40 / $2.40 per 1M input / output tokens; self-hosted, so not billed",
+      "median_request_seconds": null,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": 1.2438668000000002,
+      "cost_basis": "an assumed $0.40 / $2.40 per 1M input / output tokens",
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 3043367,
       "output_tokens": 11050,
       "confidence": {
@@ -1555,6 +1846,10 @@
           }
         ],
         "auroc": 0.7972354499957365,
+        "auroc_interval": [
+          0.7765592360489406,
+          0.8167514079843695
+        ],
         "aurc": 0.24251141927903222,
         "ece": 0.09236639917996181,
         "brier": 0.1863528431173347,
@@ -1563,15 +1858,37 @@
           "0.50": 0.7438914027149321,
           "0.80": 0.582579185520362
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.9185151652331371,
+            0.9706281066425666
+          ],
+          "0.50": [
+            0.7160940325497287,
+            0.7753623188405797
+          ],
+          "0.80": [
+            0.5582579185520362,
+            0.6080316742081447
+          ]
+        },
         "median_right": 0.8416853010814549,
         "median_wrong": 0.4084024059442275,
         "sure": {
           "questions": 295,
-          "correct": 287
+          "correct": 287,
+          "interval": [
+            0.9474089683498349,
+            0.9861959916021933
+          ]
         },
         "doubtful": {
           "questions": 1386,
-          "correct": 445
+          "correct": 445,
+          "interval": [
+            0.2970111759130885,
+            0.3461136233446111
+          ]
         }
       },
       "previous": {
@@ -1652,10 +1969,15 @@
           "correct": 418
         }
       },
+      "tyt_mix": 0.20609326049346155,
       "questions_per_minute": 4612.493508939851,
       "request_seconds": 28.74800793605391,
-      "cost_usd": null,
+      "median_request_seconds": null,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
       "cost_basis": null,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB)",
       "input_tokens": 891078,
       "output_tokens": 0,
       "confidence": {
@@ -1684,6 +2006,10 @@
           }
         ],
         "auroc": 0.4797831403579201,
+        "auroc_interval": [
+          0.45077560649713977,
+          0.5083760199116191
+        ],
         "aurc": 0.8288902915838563,
         "ece": 0.13043316742081437,
         "brier": 0.18653573178733032,
@@ -1692,15 +2018,34 @@
           "0.50": 0.18280542986425338,
           "0.80": 0.18891402714932126
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.11538461538461539,
+            0.18066847335140018
+          ],
+          "0.50": [
+            0.15873015873015872,
+            0.20299048482102403
+          ],
+          "0.80": [
+            0.17222850678733032,
+            0.20687217194570134
+          ]
+        },
         "median_right": 0.28605,
         "median_wrong": 0.2908,
         "sure": {
           "questions": 0,
-          "correct": 0
+          "correct": 0,
+          "interval": null
         },
         "doubtful": {
           "questions": 2193,
-          "correct": 422
+          "correct": 422,
+          "interval": [
+            0.17647473745641248,
+            0.20946187262963098
+          ]
         }
       },
       "previous": {
@@ -1781,10 +2126,15 @@
           "correct": 395
         }
       },
+      "tyt_mix": 0.17503151350550977,
       "questions_per_minute": 5364.397759879482,
       "request_seconds": 24.71852497436339,
-      "cost_usd": null,
+      "median_request_seconds": null,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
       "cost_basis": null,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB)",
       "input_tokens": 676255,
       "output_tokens": 0,
       "confidence": {
@@ -1813,6 +2163,10 @@
           }
         ],
         "auroc": 0.4535759608850951,
+        "auroc_interval": [
+          0.4214694252224262,
+          0.4853600150854965
+        ],
         "aurc": 0.8369655075987079,
         "ece": 0.2749705882352941,
         "brier": 0.26325872182805427,
@@ -1821,15 +2175,37 @@
           "0.50": 0.16221719457013575,
           "0.80": 0.167420814479638
         },
+        "coverage_intervals": {
+          "0.20": [
+            0.11759384893713251,
+            0.18857660924750688
+          ],
+          "0.50": [
+            0.1421457673155274,
+            0.18371040723981902
+          ],
+          "0.80": [
+            0.14999245510789194,
+            0.18430574400723654
+          ]
+        },
         "median_right": 0.3776,
         "median_wrong": 0.4041,
         "sure": {
           "questions": 1,
-          "correct": 0
+          "correct": 0,
+          "interval": [
+            0.0,
+            0.7934567085261071
+          ]
         },
         "doubtful": {
           "questions": 1916,
-          "correct": 358
+          "correct": 358,
+          "interval": [
+            0.17002670986678212,
+            0.20492172337896067
+          ]
         }
       },
       "previous": {
@@ -1894,7 +2270,8 @@
       "difference": 0.05248868778280543,
       "low": 0.04214937674387811,
       "high": 0.06282799882173276,
-      "p": 3.4647755616804076e-25
+      "p": 3.4647755616804076e-25,
+      "p_holm": 4.850685786352571e-24
     },
     {
       "first": 59,
@@ -1905,7 +2282,8 @@
       "difference": 0.018552036199095023,
       "low": 0.005390357875416503,
       "high": 0.031713714522773544,
-      "p": 0.00699472939295214
+      "p": 0.00699472939295214,
+      "p_holm": 0.05241239601266871
     },
     {
       "first": 47,
@@ -1916,7 +2294,8 @@
       "difference": 0.05429864253393665,
       "low": 0.038747039080525375,
       "high": 0.06985024598734793,
-      "p": 1.0567549631770186e-11
+      "p": 1.0567549631770186e-11,
+      "p_holm": 1.1624304594947205e-10
     },
     {
       "first": 55,
@@ -1927,7 +2306,8 @@
       "difference": 0.11040723981900452,
       "low": 0.08955032002501574,
       "high": 0.13126415961299331,
-      "p": 1.229290849359924e-24
+      "p": 1.229290849359924e-24,
+      "p_holm": 1.5980781041679013e-23
     },
     {
       "first": 57,
@@ -1938,7 +2318,8 @@
       "difference": 0.08190045248868778,
       "low": 0.061751025080066024,
       "high": 0.10204987989730954,
-      "p": 3.0670896290337708e-15
+      "p": 3.0670896290337708e-15,
+      "p_holm": 3.680507554840525e-14
     },
     {
       "first": 58,
@@ -1949,7 +2330,8 @@
       "difference": 0.042986425339366516,
       "low": 0.02179549543174287,
       "high": 0.06417735524699017,
-      "p": 8.554384139056771e-05
+      "p": 8.554384139056771e-05,
+      "p_holm": 0.0008554384139056771
     },
     {
       "first": 54,
@@ -1960,7 +2342,8 @@
       "difference": 0.009502262443438913,
       "low": -0.012666143490086728,
       "high": 0.031670668376964556,
-      "p": 0.42373318703658996
+      "p": 0.42373318703658996,
+      "p_holm": 0.9451068086418332
     },
     {
       "first": 44,
@@ -1971,7 +2354,8 @@
       "difference": 0.02895927601809955,
       "low": 0.008423761984052088,
       "high": 0.049494790052147006,
-      "p": 0.006551549501583589
+      "p": 0.006551549501583589,
+      "p_holm": 0.05241239601266871
     },
     {
       "first": 49,
@@ -1982,7 +2366,8 @@
       "difference": 0.004524886877828055,
       "low": -0.014077462797213152,
       "high": 0.023127236552869263,
-      "p": 0.6679293414551754
+      "p": 0.6679293414551754,
+      "p_holm": 0.9451068086418332
     },
     {
       "first": 52,
@@ -1993,7 +2378,8 @@
       "difference": 0.013122171945701358,
       "low": -0.007839302444822503,
       "high": 0.034083646336225216,
-      "p": 0.2362767021604583
+      "p": 0.2362767021604583,
+      "p_holm": 0.9451068086418332
     },
     {
       "first": 45,
@@ -2004,7 +2390,8 @@
       "difference": 0.01493212669683258,
       "low": -0.004909121035713395,
       "high": 0.034773374429378556,
-      "p": 0.15274497168628004
+      "p": 0.15274497168628004,
+      "p_holm": 0.7637248584314003
     },
     {
       "first": 53,
@@ -2015,7 +2402,8 @@
       "difference": 0.02262443438914027,
       "low": 0.0036678740449526508,
       "high": 0.041580994733327895,
-      "p": 0.02194066100694269
+      "p": 0.02194066100694269,
+      "p_holm": 0.13164396604165612
     },
     {
       "first": 50,
@@ -2026,7 +2414,8 @@
       "difference": 0.3248868778280543,
       "low": 0.2978301085036557,
       "high": 0.3519436471524529,
-      "p": 2.7632837766074434e-105
+      "p": 2.7632837766074434e-105,
+      "p_holm": 4.1449256649111653e-104
     },
     {
       "first": 51,
@@ -2037,7 +2426,8 @@
       "difference": 0.011312217194570135,
       "low": -0.00983786098830358,
       "high": 0.03246229537744385,
-      "p": 0.3143512034274815
+      "p": 0.3143512034274815,
+      "p_holm": 0.9451068086418332
     },
     {
       "first": 45,
@@ -2048,7 +2438,8 @@
       "difference": 0.03755656108597285,
       "low": 0.017847054557416045,
       "high": 0.05726606761452965,
-      "p": 0.00022780042456489667
+      "p": 0.00022780042456489667,
+      "p_holm": 0.00205020382108407
     }
   ],
   "cascades": [
@@ -2063,11 +2454,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.18323680241327303,
-        "difference": -0.0008657616892910996,
-        "worse": 0.44
+        "answered": 0.18414948769844033,
+        "difference": -0.0009528676321537102,
+        "worse": 0.5
       },
-      "cost_usd": 9.892626185882351
+      "api_equivalent_usd": 9.892626185882351
     },
     {
       "decision": 44,
@@ -2080,11 +2471,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.19615082956259447,
-        "difference": -0.001257918552036197,
-        "worse": 0.6033333333333334
+        "answered": 0.1980553031597392,
+        "difference": -0.0014171478068700596,
+        "worse": 0.6466666666666666
       },
-      "cost_usd": 7.053184774117647
+      "api_equivalent_usd": 7.053184774117647
     },
     {
       "decision": 44,
@@ -2097,11 +2488,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.36566817496229265,
-        "difference": -0.0026334841628959274,
-        "worse": 0.5333333333333333
+        "answered": 0.3673896889592769,
+        "difference": -0.0026871770065347448,
+        "worse": 0.5433333333333333
       },
-      "cost_usd": 4.424473575927601
+      "api_equivalent_usd": 4.424473575927601
     },
     {
       "decision": 49,
@@ -2114,11 +2505,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.15031975867269998,
-        "difference": -0.0010889894419306163,
-        "worse": 0.63
+        "answered": 0.1531417707971279,
+        "difference": -0.0012575439810149826,
+        "worse": 0.6533333333333333
       },
-      "cost_usd": 10.642726014624433
+      "api_equivalent_usd": 10.642726014624433
     },
     {
       "decision": 49,
@@ -2131,11 +2522,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.17954449472096545,
-        "difference": -0.0009622926093514317,
-        "worse": 0.5366666666666666
+        "answered": 0.17749362962072207,
+        "difference": -0.0009107826638036661,
+        "worse": 0.5266666666666666
       },
-      "cost_usd": 7.032823227294118
+      "api_equivalent_usd": 7.032823227294118
     },
     {
       "decision": 49,
@@ -2148,11 +2539,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.303562594268477,
-        "difference": -0.0020874811463046754,
-        "worse": 0.5433333333333333
+        "answered": 0.29900048270051227,
+        "difference": -0.0015326666650281268,
+        "worse": 0.4533333333333333
       },
-      "cost_usd": 4.774969958515837
+      "api_equivalent_usd": 4.774969958515837
     },
     {
       "decision": 52,
@@ -2165,11 +2556,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.1261508295625942,
-        "difference": -0.0013695324283559548,
-        "worse": 0.69
+        "answered": 0.1225322331339325,
+        "difference": -0.0013083266161111556,
+        "worse": 0.5933333333333334
       },
-      "cost_usd": 10.912421049773755
+      "api_equivalent_usd": 10.912421049773755
     },
     {
       "decision": 52,
@@ -2182,11 +2573,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.13393363499245856,
-        "difference": -0.0014660633484162868,
-        "worse": 0.69
+        "answered": 0.1287044776656138,
+        "difference": -0.0014289330184625191,
+        "worse": 0.5766666666666667
       },
-      "cost_usd": 7.769362334841629
+      "api_equivalent_usd": 7.769362334841629
     },
     {
       "decision": 52,
@@ -2199,11 +2590,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.2987752639517349,
-        "difference": -0.002316742081447963,
-        "worse": 0.5766666666666667
+        "answered": 0.2971975388635259,
+        "difference": -0.0023558479130642318,
+        "worse": 0.57
       },
-      "cost_usd": 4.788397387330316
+      "api_equivalent_usd": 4.788397387330316
     },
     {
       "decision": 45,
@@ -2216,11 +2607,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.12403016591251873,
-        "difference": -0.0008959276018099536,
-        "worse": 0.49
+        "answered": 0.12414609185014626,
+        "difference": -0.0008864974517408606,
+        "worse": 0.49666666666666665
       },
-      "cost_usd": 10.728305341601809
+      "api_equivalent_usd": 10.728305341601809
     },
     {
       "decision": 45,
@@ -2233,11 +2624,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.13168325791855195,
-        "difference": -0.0014509803921568605,
-        "worse": 0.5166666666666667
+        "answered": 0.13569461911762928,
+        "difference": -0.0017457822871096073,
+        "worse": 0.54
       },
-      "cost_usd": 7.675092563321268
+      "api_equivalent_usd": 7.675092563321268
     },
     {
       "decision": 45,
@@ -2250,11 +2641,11 @@
       },
       "held_out": {
         "splits": 300,
-        "answered": 0.277218702865762,
-        "difference": -0.0020120663650075423,
-        "worse": 0.48333333333333334
+        "answered": 0.2741489621928377,
+        "difference": -0.001909050670143035,
+        "worse": 0.52
       },
-      "cost_usd": 5.092194720787331
+      "api_equivalent_usd": 5.092194720787331
     }
   ],
   "doubts": [
@@ -2325,6 +2716,45 @@
         "with_mistake": 77,
         "all_with_mistake": 445
       }
+    }
+  ],
+  "sources": [
+    {
+      "answers": 53,
+      "questions": 2210,
+      "correct": 1192,
+      "sources": [
+        {
+          "run": 53,
+          "stated": true,
+          "questions": 2210,
+          "auroc": 0.5147706220909535,
+          "auroc_interval": [
+            0.5099564521531991,
+            0.5199227652779986
+          ]
+        },
+        {
+          "run": 45,
+          "stated": false,
+          "questions": 2210,
+          "auroc": 0.8138630490104297,
+          "auroc_interval": [
+            0.7961243116021077,
+            0.8309672131012081
+          ]
+        },
+        {
+          "run": 50,
+          "stated": false,
+          "questions": 2210,
+          "auroc": 0.7775403475692567,
+          "auroc_interval": [
+            0.7570388429752066,
+            0.7962722990407097
+          ]
+        }
+      ]
     }
   ]
 }

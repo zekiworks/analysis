@@ -16,10 +16,19 @@ const formatPercent = (value, digits = 2) => (value == null ? '—' : `${value.t
 const formatScore = value => (value == null ? '—' : value.toFixed(3));
 const formatP = p => (p < 0.0001 ? '< 0.0001' : p.toFixed(4));
 const formatPoints = (fraction, digits = 1) => `${fraction >= 0 ? '+' : '−'}${Math.abs(100 * fraction).toFixed(digits)}`;
+const formatUsd = value => (value == null ? '—' : `$${value.toFixed(2)}`);
+const scoreRange = interval => (interval ? `${interval[0].toFixed(3)}–${interval[1].toFixed(3)}` : null);
+const percentRange = (interval, digits = 1) =>
+  interval ? `${(100 * interval[0]).toFixed(digits)}–${(100 * interval[1]).toFixed(digits)}%` : null;
 const EXCLUSIONS = {
   unanswered: 'with no answer in the key',
   incomplete: 'incomplete',
   malformed_choices: 'with malformed options',
+};
+const BILLING = {
+  api: 'Billed per token',
+  subscription: 'Subscription',
+  local: 'Self-hosted',
 };
 
 function el(tag, props = {}, ...children) {
@@ -43,9 +52,9 @@ function td(content, { value, numeric = false, className = null, title = null, s
   return cell;
 }
 
-/* A numeric cell showing a percentage. */
-function percentCell(value, { digits = 1, title = null, heat = false } = {}) {
-  return td(formatPercent(value, digits), {
+/* A numeric cell showing a percentage, with an optional second line (an interval). */
+function percentCell(value, { digits = 1, title = null, heat = false, detail = null } = {}) {
+  return td([formatPercent(value, digits), detail ? el('span', { class: 'small', text: detail }) : null], {
     value,
     numeric: true,
     title,
@@ -129,6 +138,7 @@ function groupAccuracy(run, name) {
 
 function renderLeaderboard(data) {
   const total = data.questions;
+  const mix = `${data.tyt_mix.reading} reading and ${data.tyt_mix.grammar} grammar questions`;
   const rows = data.runs.map(run => {
     const score = percent(run.correct, total);
     const rank = 1 + data.runs.filter(other => other.correct > run.correct).length;
@@ -147,6 +157,7 @@ function renderLeaderboard(data) {
       td(integer(run.correct), { value: run.correct, numeric: true }),
       percentCell(groupAccuracy(run, 'reading')),
       percentCell(groupAccuracy(run, 'grammar')),
+      percentCell(run.tyt_mix == null ? null : 100 * run.tyt_mix, { title: `Reading and grammar weighted like ${mix}` }),
       td(run.questions_per_minute == null ? '—' : run.questions_per_minute.toFixed(1), {
         value: run.questions_per_minute,
         numeric: true,
@@ -157,11 +168,6 @@ function renderLeaderboard(data) {
         value: tokens,
         numeric: true,
         title: run.output_tokens == null ? null : `${integer(run.output_tokens)} output tokens in all`,
-      }),
-      td(run.cost_usd == null ? '—' : `$${run.cost_usd.toFixed(2)}`, {
-        value: run.cost_usd,
-        numeric: true,
-        title: run.cost_basis,
       }),
     );
   });
@@ -177,22 +183,52 @@ function renderLeaderboard(data) {
       { label: 'Correct', numeric: true },
       { label: 'Reading', numeric: true, title: 'Units 1–6' },
       { label: 'Grammar', numeric: true, title: 'Units 7–20' },
+      { label: 'TYT mix', numeric: true, title: `Reading and grammar weighted like the 2026 TYT paper: ${mix}` },
       { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time' },
       { label: 'Per request', numeric: true, title: 'Questions sent in one request' },
       { label: 'Output tokens', numeric: true, title: 'Output tokens per question, thinking included' },
-      { label: 'Cost (USD)', numeric: true, title: 'Estimate; see the cost basis below' },
     ],
     rows,
   );
   table.tHead.rows[0].cells[4].setAttribute('aria-sort', 'descending');
+}
 
+function renderCost(data) {
+  const rows = data.runs.map(run => {
+    const minutes = run.request_seconds == null ? null : run.request_seconds / 60;
+    return el(
+      'tr',
+      {},
+      modelCell(run, { withSetting: true }),
+      td(BILLING[run.billing]),
+      td(run.billing === 'api' ? formatUsd(run.billed_usd) : '—', {
+        value: run.billing === 'api' ? run.billed_usd : null,
+        numeric: true,
+      }),
+      td(formatUsd(run.api_equivalent_usd), { value: run.api_equivalent_usd, numeric: true, title: run.cost_basis }),
+      td(run.hardware ?? '—'),
+      td(minutes == null ? '—' : minutes.toFixed(1), { value: minutes, numeric: true }),
+      td(String(run.concurrency), { value: run.concurrency, numeric: true }),
+    );
+  });
+  fillTable(
+    document.getElementById('cost'),
+    [
+      { label: 'Model' },
+      { label: 'Paid by' },
+      { label: 'Billed (USD)', numeric: true, title: 'What the API charged for the run' },
+      { label: 'API-equivalent (USD)', numeric: true, title: 'The run’s tokens at a list or assumed price; see the basis below' },
+      { label: 'Local GPU' },
+      { label: 'Request time (min)', numeric: true },
+      { label: 'Requests at a time', numeric: true },
+    ],
+    rows,
+  );
   const notes = new Set(data.runs.filter(run => run.cost_basis).map(run => `${run.name}: ${run.cost_basis}.`));
-  const unpriced = [...new Set(data.runs.filter(run => run.cost_usd == null).map(run => run.name))];
+  const unpriced = [...new Set(data.runs.filter(run => run.api_equivalent_usd == null).map(run => run.name))];
   document.getElementById('cost-notes').replaceChildren(
     ...[...notes].map(text => el('li', { text })),
-    unpriced.length
-      ? el('li', { text: `${unpriced.join(', ')}: self-hosted open weights with no price, so no estimate.` })
-      : null,
+    unpriced.length ? el('li', { text: `${unpriced.join(', ')}: open weights with no price to apply.` }) : null,
   );
 }
 
@@ -274,22 +310,25 @@ function renderConfidence(data) {
   );
 
   const ranking = runs.map(run => {
-    const { auroc, ece, coverage_accuracy: coverage, sure } = run.confidence;
+    const { auroc, auroc_interval: aurocInterval, ece, coverage_accuracy: coverage, coverage_intervals: intervals } = run.confidence;
     return el(
       'tr',
       {},
       modelCell(run, { withSetting: true }),
-      td(formatScore(auroc), { value: auroc, numeric: true }),
-      td(formatScore(ece), { value: ece, numeric: true }),
-      ...data.coverages.map(share => {
-        const accuracy = coverage[share.toFixed(2)];
-        return percentCell(accuracy == null ? null : 100 * accuracy, { heat: true });
-      }),
-      percentCell(percent(run.correct, data.questions), { heat: true }),
-      td(sure.questions ? `${integer(sure.correct)} of ${integer(sure.questions)}` : '—', {
-        value: sure.questions ? percent(sure.correct, sure.questions) : null,
+      td([formatScore(auroc), aurocInterval ? el('span', { class: 'small', text: scoreRange(aurocInterval) }) : null], {
+        value: auroc,
         numeric: true,
       }),
+      td(formatScore(ece), { value: ece, numeric: true }),
+      ...data.coverages.map(share => {
+        const key = share.toFixed(2);
+        const accuracy = coverage[key];
+        return percentCell(accuracy == null ? null : 100 * accuracy, {
+          heat: true,
+          detail: intervals ? percentRange(intervals[key]) : null,
+        });
+      }),
+      percentCell(percent(run.correct, data.questions), { heat: true }),
     );
   });
   fillTable(
@@ -304,10 +343,71 @@ function renderConfidence(data) {
         title: `Accuracy on the ${Math.round(100 * share)}% of answers with the highest confidence`,
       })),
       { label: 'All', numeric: true, title: 'Accuracy on every answer' },
-      { label: '≥ 0.99 right', numeric: true, title: 'Answers with a confidence of 0.99 or more, and how many are right' },
     ],
     ranking,
   );
+
+  const sure = runs
+    .filter(run => run.confidence.sure.questions)
+    .map(run => {
+      const { questions, correct, interval } = run.confidence.sure;
+      return el(
+        'tr',
+        {},
+        modelCell(run, { withSetting: true }),
+        td(run.confidence.label),
+        td(`${integer(correct)} of ${integer(questions)}`, { value: questions, numeric: true }),
+        percentCell(percent(correct, questions)),
+        percentCell(percent(questions, data.questions), { title: 'Share of all questions answered at 0.99 or more' }),
+        td(percentRange(interval) ?? '—', { value: interval ? 100 * interval[0] : null, numeric: true }),
+      );
+    });
+  fillTable(
+    document.getElementById('sure'),
+    [
+      { label: 'Model' },
+      { label: 'Confidence' },
+      { label: 'Right', numeric: true, title: 'Right answers among those at 0.99 or more' },
+      { label: 'Accuracy', numeric: true },
+      { label: 'Share of questions', numeric: true },
+      { label: '95% interval', numeric: true, title: 'Wilson score interval on the accuracy' },
+    ],
+    sure,
+  );
+}
+
+function renderSources(data) {
+  const byRun = new Map(data.runs.map(run => [run.run, run]));
+  const rows = data.sources.flatMap(item =>
+    item.sources.map(entry =>
+      el(
+        'tr',
+        {},
+        modelCell(byRun.get(entry.run), { withSetting: true }),
+        td(entry.stated ? 'Stated with the answer' : 'Probability of the same answer'),
+        td([formatScore(entry.auroc), el('span', { class: 'small', text: scoreRange(entry.auroc_interval) ?? '' })], {
+          value: entry.auroc,
+          numeric: true,
+        }),
+      ),
+    ),
+  );
+  fillTable(
+    document.getElementById('sources'),
+    [
+      { label: 'Confidence from' },
+      { label: 'How' },
+      { label: 'AUROC', numeric: true, title: 'With the 95% bootstrap interval' },
+    ],
+    rows,
+  );
+  const item = data.sources[0];
+  if (item) {
+    const answers = byRun.get(item.answers);
+    document.getElementById('sources-answers').textContent =
+      `${answers.name}'s own answers from its stated-confidence run: ${integer(item.correct)} of ` +
+      `${integer(item.questions)} right.`;
+  }
 }
 
 function renderVersions(data) {
@@ -361,6 +461,7 @@ function renderPaired(data) {
       td(integer(item.first_only), { value: item.first_only, numeric: true }),
       td(integer(item.second_only), { value: item.second_only, numeric: true }),
       td(formatP(item.p), { value: item.p, numeric: true }),
+      td(formatP(item.p_holm), { value: item.p_holm, numeric: true, className: item.p_holm >= 0.05 ? 'muted' : null }),
     ),
   );
   fillTable(
@@ -373,6 +474,7 @@ function renderPaired(data) {
       { label: 'Only first right', numeric: true },
       { label: 'Only second right', numeric: true },
       { label: 'p', numeric: true, title: 'Exact McNemar test' },
+      { label: 'Holm p', numeric: true, title: 'p adjusted with Holm’s method for all the comparisons in this table' },
     ],
     rows,
   );
@@ -389,8 +491,8 @@ function renderCascade(data) {
       modelCell(frontier, { withSetting: true }),
       percentCell(100 * item.frontier_accuracy),
       percentCell(100 * item.in_sample.answered, { title: `Threshold ${item.in_sample.threshold.toFixed(3)}` }),
-      td(item.cost_usd == null ? '—' : `$${item.cost_usd.toFixed(2)}`, { value: item.cost_usd, numeric: true }),
-      td(frontier.cost_usd == null ? '—' : `$${frontier.cost_usd.toFixed(2)}`, { value: frontier.cost_usd, numeric: true }),
+      td(formatUsd(item.api_equivalent_usd), { value: item.api_equivalent_usd, numeric: true }),
+      td(formatUsd(frontier.api_equivalent_usd), { value: frontier.api_equivalent_usd, numeric: true }),
       percentCell(100 * item.held_out.answered),
       td(formatPoints(item.held_out.difference, 2), { value: 100 * item.held_out.difference, numeric: true }),
       percentCell(100 * item.held_out.worse, { digits: 0 }),
@@ -403,8 +505,8 @@ function renderCascade(data) {
       { label: 'Frontier run' },
       { label: 'Frontier accuracy', numeric: true },
       { label: 'Answered', numeric: true, title: 'Share the decision model answers at the lowest threshold that keeps the frontier accuracy' },
-      { label: 'Cost', numeric: true, title: 'Decision model run plus the frontier run on the questions passed on' },
-      { label: 'Frontier cost', numeric: true },
+      { label: 'Cost', numeric: true, title: 'API-equivalent: the decision model run plus the frontier run on the questions passed on' },
+      { label: 'Frontier cost', numeric: true, title: 'API-equivalent cost of the frontier run alone' },
       { label: 'Answered, held out', numeric: true, title: 'Threshold chosen on random halves, scored on the other halves' },
       { label: 'Difference, held out', numeric: true, title: 'Mean accuracy difference from the frontier run alone, in points' },
       { label: 'Worse, held out', numeric: true, title: 'Share of the splits where the cascade scored lower' },
@@ -470,8 +572,10 @@ async function main() {
   }
   renderSummary(data);
   renderLeaderboard(data);
+  renderCost(data);
   renderUnits(data);
   renderConfidence(data);
+  renderSources(data);
   renderVersions(data);
   renderPaired(data);
   renderCascade(data);
