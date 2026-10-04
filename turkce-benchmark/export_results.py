@@ -2,9 +2,9 @@
 """Write docs/results.json, the data behind the GitHub page, from the benchmark report.
 
 The report (benchmark-results.md) embeds one JSON record per run and one with the comparisons between
-runs. Only runs over the full question set are exported (the newest question bank's), without runs
-whose correct option was replaced, and only aggregate numbers: no question text, prompts, answers or
-local paths.
+runs. Only runs over a full question set are exported, those on the question bank of the most recently
+finished full run, without runs whose correct option was replaced, and only aggregate numbers: no
+question text, prompts, answers or local paths.
 """
 
 from __future__ import annotations
@@ -208,15 +208,18 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
     if not records:
         raise ValueError("the report contains no benchmark-result records")
     by_key = {record["run_key"]: record for record in records}
-    full_set = max(record["eligible_total"] for record in records)
-    selected = [
+    full = [
         record
         for record in records
-        if record["evaluated"] == record["eligible_total"] == full_set and record.get("replace_key_text") is None
+        if record["evaluated"] == record["eligible_total"] and record.get("replace_key_text") is None
     ]
-    datasets = {record["dataset_sha256"] for record in selected}
-    if len(datasets) != 1:
-        raise ValueError(f"the runs over {full_set} questions use {len(datasets)} question banks")
+    if not full:
+        raise ValueError("the report holds no run over a full question set")
+    newest = max(full, key=lambda record: record["updated"])
+    full_set = newest["eligible_total"]
+    selected = [record for record in full if record["dataset_sha256"] == newest["dataset_sha256"]]
+    if any(record["eligible_total"] != full_set for record in selected):
+        raise ValueError(f"the full runs on {Path(newest['dataset']).name} do not all cover {full_set} questions")
     unit_names = sorted(selected[0]["categories"], key=unit_number)
     totals = {name: selected[0]["categories"][name]["total"] for name in unit_names}
     versions = {item["newer"]: item for item in analysis.get("versions", [])}
