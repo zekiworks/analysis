@@ -61,7 +61,10 @@ thead th {
 }
 thead th[tabindex] { cursor: pointer; user-select: none; }
 thead th[tabindex]:hover, thead th[tabindex]:focus-visible { background: var(--border); outline: none; }
-.setups td:first-child { font-weight: 600; min-width: 12rem; }
+.setups td:first-child, .carries td:first-child { font-weight: 600; min-width: 12rem; }
+/* The routing rule under the cascade card's heading. */
+.flow { margin: 0 0 1rem; padding: .6rem .9rem; background: var(--bg); border-left: 3px solid var(--primary);
+  border-radius: 4px; max-width: 80ch; }
 th[aria-sort="ascending"]::after { content: " \25B2"; font-size: .7rem; color: var(--primary); }
 th[aria-sort="descending"]::after { content: " \25BC"; font-size: .7rem; color: var(--primary); }
 tbody tr:nth-child(even) { background: #fafbfc; }

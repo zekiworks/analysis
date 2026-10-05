@@ -143,6 +143,9 @@ function renderLeaderboard(data) {
     const score = percent(run.correct, total);
     const rank = 1 + data.runs.filter(other => other.correct > run.correct).length;
     const tokens = run.output_tokens == null ? null : run.output_tokens / (run.answered_questions ?? total);
+    // Every request counts, so the cost is per question asked, as the output tokens are.
+    const cost = run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / (run.answered_questions ?? total);
+    const auroc = run.confidence?.auroc ?? null;
     return el(
       'tr',
       {},
@@ -157,7 +160,8 @@ function renderLeaderboard(data) {
       td(integer(run.correct), { value: run.correct, numeric: true }),
       percentCell(groupAccuracy(run, 'reading')),
       percentCell(groupAccuracy(run, 'grammar')),
-      percentCell(run.tyt_mix == null ? null : 100 * run.tyt_mix, { title: `Reading and grammar weighted like ${mix}` }),
+      percentCell(run.tyt_mix == null ? null : 100 * run.tyt_mix, { title: `Meaning and form weighted like ${mix}` }),
+      td(formatScore(auroc), { value: auroc, numeric: true }),
       td(run.questions_per_minute == null ? '—' : run.questions_per_minute.toFixed(1), {
         value: run.questions_per_minute,
         numeric: true,
@@ -169,6 +173,7 @@ function renderLeaderboard(data) {
         numeric: true,
         title: run.output_tokens == null ? null : `${integer(run.output_tokens)} output tokens in all`,
       }),
+      td(formatUsd(cost), { value: cost, numeric: true, title: run.cost_basis }),
     );
   });
   const table = document.getElementById('leaderboard');
@@ -178,15 +183,25 @@ function renderLeaderboard(data) {
       { label: '#', numeric: true, title: 'Rank by score' },
       { label: 'Model' },
       { label: 'Access' },
-      { label: 'Reasoning', title: 'Thinking or effort setting' },
+      { label: 'Reasoning', title: 'Reasoning or effort setting' },
       { label: 'Score', numeric: true },
       { label: 'Correct', numeric: true },
-      { label: 'Reading', numeric: true, title: 'Units 1–6' },
-      { label: 'Grammar', numeric: true, title: 'Units 7–20' },
-      { label: 'TYT mix', numeric: true, title: `Reading and grammar weighted like the 2026 TYT paper: ${mix}` },
+      { label: 'Meaning (reading)', numeric: true, title: 'Units 1–6' },
+      { label: 'Form (grammar)', numeric: true, title: 'Units 7–20' },
+      { label: 'TYT mix', numeric: true, title: `Meaning and form weighted like the 2026 TYT paper: ${mix}` },
+      {
+        label: 'AUROC',
+        numeric: true,
+        title: 'Chance that a right answer has a higher confidence than a wrong one; empty without a confidence',
+      },
       { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time' },
       { label: 'Per request', numeric: true, title: 'Questions sent in one request' },
-      { label: 'Output tokens', numeric: true, title: 'Output tokens per question, thinking included' },
+      { label: 'Output tokens', numeric: true, title: 'Output tokens per question, reasoning included' },
+      {
+        label: 'Cost per 1,000 (USD)',
+        numeric: true,
+        title: 'API-equivalent cost per 1,000 questions; empty for open weights with no price',
+      },
     ],
     rows,
   );
@@ -232,14 +247,27 @@ function renderCost(data) {
   );
 }
 
+/* A unit's printed title (all capitals) in Turkish sentence case: Turkish rules map I to ı and İ to i. */
+const sentenceCase = title => {
+  const lower = title.toLocaleLowerCase('tr');
+  return lower.charAt(0).toLocaleUpperCase('tr') + lower.slice(1);
+};
+// Units 1–6 test meaning (reading); units 7–20 test form (grammar).
+const unitPart = number => (number <= 6 ? 'Meaning' : 'Form');
+
 function renderUnits(data) {
   const rows = data.units.map((unit, index) =>
     el(
       'tr',
       {},
-      td([el('span', { text: `${unit.number}. ${unit.name}` }), el('span', { class: 'small', text: unit.english })], {
-        value: String(unit.number),
-      }),
+      td(
+        [
+          el('span', { text: `${unit.number}. ${unit.english}` }),
+          el('span', { class: 'small', lang: 'tr', text: sentenceCase(unit.name) }),
+        ],
+        { value: String(unit.number) },
+      ),
+      td(unitPart(unit.number)),
       td(integer(unit.questions), { value: unit.questions, numeric: true }),
       ...data.runs.map(run => {
         const accuracy = percent(run.units[index], unit.questions);
@@ -256,6 +284,7 @@ function renderUnits(data) {
     'tr',
     {},
     td('All units'),
+    td(''),
     td(integer(data.questions), { numeric: true }),
     ...data.runs.map(run => {
       const score = percent(run.correct, data.questions);
@@ -270,6 +299,7 @@ function renderUnits(data) {
     document.getElementById('units'),
     [
       { label: 'Unit' },
+      { label: 'Part', title: 'Meaning: units 1–6, reading. Form: units 7–20, grammar.' },
       { label: 'Questions', numeric: true },
       ...data.runs.map(run => ({
         label: [run.name, el('span', { class: 'small', text: runLabel(run) })],
@@ -662,7 +692,7 @@ function renderSummary(data) {
     timeZone: 'UTC',
   });
   document.getElementById('summary').textContent =
-    `${integer(data.questions)} TYT Türkçe multiple-choice questions in ${data.units.length} units (question bank v2) · ` +
+    `${integer(data.questions)} Turkish-language exam questions in ${data.units.length} units · question bank version 2 · ` +
     `${data.runs.length} runs · last run ${date}`;
   const excluded = Object.entries(data.excluded);
   const left = excluded.reduce((sum, [, count]) => sum + count, 0);

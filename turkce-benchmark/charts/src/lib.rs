@@ -188,12 +188,6 @@ fn accuracy(group: &Group) -> f64 {
     100.0 * f64::from(group.correct) / f64::from(group.questions)
 }
 
-/// A count as prose writes it: a word up to ten, digits above.
-fn count_word(count: usize) -> String {
-    const WORDS: [&str; 11] = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
-    WORDS.get(count).map_or_else(|| count.to_string(), |word| (*word).to_string())
-}
-
 fn thousands(value: u32) -> String {
     let digits = value.to_string();
     let mut out = String::new();
@@ -353,10 +347,11 @@ fn panels(buf: &mut Buffer, area: Rect, panels: &[(&str, &[Series])], x: &Scale,
     }
 }
 
-/// A figure's heading, then a blank row; returns the area below them.
-fn heading(buf: &mut Buffer, area: Rect, text: &str) -> Rect {
-    let [top, rest] = Layout::vertical([Constraint::Length(2), Constraint::Fill(1)]).areas(area);
-    Paragraph::new(Line::from(text.to_string()).bold()).render(top, buf);
+/// A figure's heading: its finding in bold, the second line in grey (what the axes show), then a blank row;
+/// returns the area below them.
+fn heading(buf: &mut Buffer, area: Rect, title: &str, second: Line<'_>) -> Rect {
+    let [top, rest] = Layout::vertical([Constraint::Length(3), Constraint::Fill(1)]).areas(area);
+    Paragraph::new(vec![Line::from(title.to_string()).bold(), second]).render(top, buf);
     rest
 }
 
@@ -405,26 +400,29 @@ fn segment(x1: f64, y1: f64, x2: f64, y2: f64, color: Color) -> Segment {
     Segment { x1, y1, x2, y2, color }
 }
 
+const READING_GRAMMAR_TITLE: &str = "Meaning carries over, form does not: accuracy on reading and grammar";
+
 fn reading_grammar(results: &Results) -> Figure<'_> {
     let rows: Vec<(String, f64, f64)> = results
         .runs
         .iter()
         .filter_map(|run| Some((results.label(run), accuracy(run.groups.get("reading")?), accuracy(run.groups.get("grammar")?))))
         .collect();
-    let height = rows.len() as u16 * 3 + 1;
+    // The heading's three rows, then two bars per run with a blank row between runs.
+    let height = 3 + rows.len() as u16 * 3 - 1;
     Figure {
         name: "reading-grammar",
-        title: "Each run's accuracy on the reading units (1–6) and on the grammar units (7–20)".into(),
+        title: READING_GRAMMAR_TITLE.into(),
         width: 100,
         height,
         draw: Box::new(move |area, buf| {
-            let title = Line::from(vec![
-                Span::from("Accuracy on reading and grammar   ").bold(),
+            let key = Line::from(vec![
                 Span::from("██").fg(READING),
-                Span::from(" reading (units 1–6)   "),
+                Span::from(" meaning: reading, units 1–6   ").fg(MUTED),
                 Span::from("██").fg(GRAMMAR),
-                Span::from(" grammar (units 7–20)"),
+                Span::from(" form: grammar, units 7–20").fg(MUTED),
             ]);
+            let body = heading(buf, area, READING_GRAMMAR_TITLE, key);
             let bar = |value: f64, color: Color, label: &str| {
                 Bar::new((value * 10.0).round() as u64)
                     .label(Line::from(label.to_string()))
@@ -433,18 +431,12 @@ fn reading_grammar(results: &Results) -> Figure<'_> {
                     .value_style(Style::new().fg(Color::White).bg(color))
             };
             let chart = rows.iter().fold(
-                BarChart::default()
-                    .block(Block::new().title(title))
-                    .direction(Direction::Horizontal)
-                    .bar_width(1)
-                    .bar_gap(0)
-                    .group_gap(1)
-                    .max(1000),
+                BarChart::default().direction(Direction::Horizontal).bar_width(1).bar_gap(0).group_gap(1).max(1000),
                 |chart, (name, reading, grammar)| {
                     chart.data(BarGroup::new(vec![bar(*reading, READING, name), bar(*grammar, GRAMMAR, "")]))
                 },
             );
-            chart.render(area, buf);
+            chart.render(body, buf);
         }),
     }
 }
@@ -458,6 +450,8 @@ const UNIT_RUNS: [(&str, Option<&str>); 6] = [
     ("jev-1.13.0", None),
     ("laya", None),
 ];
+
+const UNITS_TITLE: &str = "Without reasoning, accuracy falls at unit 7, where form (grammar) begins";
 
 fn units(results: &Results) -> Figure<'_> {
     let lines: Vec<(String, Color, Vec<(f64, f64)>)> = UNIT_RUNS
@@ -477,11 +471,11 @@ fn units(results: &Results) -> Figure<'_> {
     let (left, right, reading_end) = (0.5, count as f64 + 0.5, 6.5);
     Figure {
         name: "units",
-        title: "Accuracy by unit for six runs, with the 20% chance level and the 22.7% level of always answering E".into(),
+        title: UNITS_TITLE.into(),
         width: 120,
-        height: 27,
+        height: 28,
         draw: Box::new(move |area, buf| {
-            let body = heading(buf, area, "Accuracy by unit (y) for six runs, units 1–20 (x)");
+            let body = heading(buf, area, UNITS_TITLE, muted("Accuracy (y) by unit (x) for six runs; unit names are in the table above"));
             let plot = Plot { area: body, x: [-4.0, right + 5.0], y: [-14.0, 106.0] };
             plot.canvas(|ctx| {
                 ctx.draw(&segment(left, 0.0, right, 0.0, GUIDE));
@@ -503,8 +497,8 @@ fn units(results: &Results) -> Figure<'_> {
                 plot.text(buf, unit as f64, -7.0, muted(unit.to_string()), Alignment::Center);
             }
             plot.text(buf, right + 0.4, -7.0, muted("unit"), Alignment::Left);
-            plot.text(buf, (left + reading_end) / 2.0, 103.0, muted("reading"), Alignment::Center);
-            plot.text(buf, (reading_end + right) / 2.0, 103.0, muted("grammar"), Alignment::Center);
+            plot.text(buf, (left + reading_end) / 2.0, 103.0, muted("meaning (reading)"), Alignment::Center);
+            plot.text(buf, (reading_end + right) / 2.0, 103.0, muted("form (grammar)"), Alignment::Center);
             plot.text(buf, right + 0.4, 17.0, muted("chance 20%"), Alignment::Left);
             plot.text(buf, right + 0.4, 27.0, muted("always E 22.7%"), Alignment::Left);
             // The legend sits in the empty space below the reading units' lines, one run per row.
@@ -520,6 +514,15 @@ fn units(results: &Results) -> Figure<'_> {
 fn coverage_curve(points: &[[f64; 2]]) -> Vec<(f64, f64)> {
     points.iter().map(|&[coverage, risk]| (100.0 * coverage, 100.0 * (1.0 - risk))).collect()
 }
+
+const COVERAGE_TITLE: &str = "Answering only the most confident questions raises accuracy, except with Qwen's stated confidence";
+const CALIBRATION_TITLE: &str = "Calibration: does a confidence of 0.8 mean 80% right?";
+const SOURCES_TITLE: &str =
+    "Same answers: Qwen's stated confidence does no better than chance; its probabilities and its votes work";
+// The two panels of the coverage and calibration figures: token probabilities, and confidence the model states
+// or the share of its samples.
+const PROBABILITY_PANEL: &str = "Probability of the chosen option";
+const STATED_PANEL: &str = "Stated confidence, or share of samples";
 
 fn coverage(results: &Results) -> Figure<'_> {
     // Left: token probabilities. Right: confidence the model states, or the share of its samples.
@@ -539,12 +542,12 @@ fn coverage(results: &Results) -> Figure<'_> {
     let y = percent_scale("accuracy", 40.0, 100.0, 6);
     Figure {
         name: "coverage",
-        title: "Accuracy on the most confident share of the answers, for probabilities and for stated confidence".into(),
+        title: COVERAGE_TITLE.into(),
         width: 160,
-        height: 30,
+        height: 31,
         draw: Box::new(move |area, buf| {
-            let body = heading(buf, area, "Accuracy (y) on the most confident share of the answers (x)");
-            panels(buf, body, &[("Probability of the chosen option", &probability), ("Stated, or share of samples", &stated)], &x, &y);
+            let body = heading(buf, area, COVERAGE_TITLE, muted("Accuracy (y) on the most confident share of the answers (x)"));
+            panels(buf, body, &[(PROBABILITY_PANEL, &probability), (STATED_PANEL, &stated)], &x, &y);
         }),
     }
 }
@@ -576,17 +579,15 @@ fn calibration(results: &Results) -> Figure<'_> {
     let y = percent_scale("accuracy", 0.0, 100.0, 4);
     Figure {
         name: "calibration",
-        title: format!(
-            "Calibration: accuracy against mean confidence in each tenth of the confidence range with at least {MIN_BIN_ANSWERS} answers"
-        ),
+        title: CALIBRATION_TITLE.into(),
         width: 160,
-        height: 30,
+        height: 31,
         draw: Box::new(move |area, buf| {
-            let text = format!(
+            let second = format!(
                 "Accuracy (y) against mean confidence (x), in each tenth of the confidence range with at least {MIN_BIN_ANSWERS} answers"
             );
-            let body = heading(buf, area, &text);
-            panels(buf, body, &[("Probability of the chosen option", &probability), ("Stated, or share of samples", &stated)], &x, &y);
+            let body = heading(buf, area, CALIBRATION_TITLE, muted(second));
+            panels(buf, body, &[(PROBABILITY_PANEL, &probability), (STATED_PANEL, &stated)], &x, &y);
         }),
     }
 }
@@ -607,26 +608,27 @@ fn sources(results: &Results) -> Option<Figure<'_>> {
             Some(Series::line(name, color(run), coverage_curve(&source.risk_coverage)))
         })
         .collect();
-    let title = format!(
-        "{}'s own answers ({} of {} right), scored by {} confidence sources",
+    let second = format!(
+        "{}'s own answers ({} of {} right). Accuracy (y) on the most confident share (x)",
         answers.name,
         thousands(set.correct),
-        thousands(set.questions),
-        count_word(series.len())
+        thousands(set.questions)
     );
     let x = percent_scale("answered", 0.0, 100.0, 2);
     let y = percent_scale("accuracy", 40.0, 100.0, 6);
     Some(Figure {
         name: "sources",
-        title: title.clone(),
-        width: 100,
-        height: 26,
+        title: SOURCES_TITLE.into(),
+        width: 110,
+        height: 27,
         draw: Box::new(move |area, buf| {
-            let body = heading(buf, area, &title);
-            panels(buf, body, &[("Accuracy (y) on the most confident share (x)", &series)], &x, &y);
+            let body = heading(buf, area, SOURCES_TITLE, muted(second.clone()));
+            panels(buf, body, &[("", &series)], &x, &y);
         }),
     })
 }
+
+const PAIRED_TITLE: &str = "Which gaps between neighbouring runs are real?";
 
 fn paired(results: &Results) -> Figure<'_> {
     let rows: Vec<(String, f64, f64, f64, bool)> = results
@@ -650,14 +652,15 @@ fn paired(results: &Results) -> Figure<'_> {
     let count = rows.len() as u16;
     Figure {
         name: "paired",
-        title: "Accuracy difference of each paired comparison, in percentage points, with its 95% interval".into(),
+        title: PAIRED_TITLE.into(),
         width: 120,
-        height: count + 5,
+        height: count + 6,
         draw: Box::new(move |area, buf| {
             let [title, body, axis] =
-                Layout::vertical([Constraint::Length(3), Constraint::Length(count), Constraint::Length(2)]).areas(area);
+                Layout::vertical([Constraint::Length(4), Constraint::Length(count), Constraint::Length(2)]).areas(area);
             Paragraph::new(vec![
-                Line::from("Accuracy difference, first run minus second, in percentage points, with 95% intervals").bold(),
+                Line::from(PAIRED_TITLE).bold(),
+                muted("Accuracy difference, first run minus second, in percentage points, with 95% intervals"),
                 Line::from(vec![
                     Span::from("━━ ").fg(SIGNIFICANT),
                     Span::from("significant after Holm correction   "),
@@ -707,6 +710,9 @@ fn paired(results: &Results) -> Figure<'_> {
     }
 }
 
+const CASCADE_TITLE: &str =
+    "Confident answers stay with the decision model, the rest go to the frontier model: accuracy holds up to a point";
+
 /// The frontier runs on the cascade figure: (model, reasoning setting).
 const CASCADE_FRONTIERS: [(&str, &str); 2] = [("gpt-6-astra", "low"), ("claude-sonnet-5-5", "high")];
 
@@ -734,14 +740,17 @@ fn cascade(results: &Results) -> Option<Figure<'_>> {
     let y = percent_scale("accuracy", 50.0, 100.0, 5);
     Some(Figure {
         name: "cascade",
-        title: "Cascade accuracy against the share of questions the decision model answers, before two frontier runs".into(),
+        title: CASCADE_TITLE.into(),
         width: 160,
-        height: 30,
+        height: 31,
         draw: Box::new(move |area, buf| {
             let body = heading(
                 buf,
                 area,
-                "Accuracy (y) when a decision model answers its most confident share (x) and a frontier run the rest; dots: in-sample threshold",
+                CASCADE_TITLE,
+                muted(
+                    "Accuracy (y) when the decision model answers its most confident share (x) and the frontier run the rest; dots: in-sample threshold",
+                ),
             );
             let pairs: Vec<(&str, &[Series])> = charts.iter().map(|(title, series)| (title.as_str(), series.as_slice())).collect();
             panels(buf, body, &pairs, &x, &y);
