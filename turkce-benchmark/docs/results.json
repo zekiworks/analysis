@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-10-04T21:33:38Z",
+  "updated": "2026-10-05T21:12:45Z",
   "dataset": {
     "name": "questions-v2.sqlite",
     "sha256": "1ecdc4c89f7a2335717ce85dd3acc20876783dcf0e581f6e9986f5571d38497c",
@@ -618,7 +618,861 @@
       "updated": "2026-10-04T09:07:22Z"
     },
     {
-      "run": 59,
+      "run": 124,
+      "model": "gpt-6.1-sol",
+      "name": "GPT-6.1 Sol",
+      "variant": null,
+      "reasoning": "low",
+      "note": null,
+      "provider": "openai",
+      "access": "Codex CLI, ChatGPT subscription",
+      "questions_per_request": 16,
+      "concurrency": 1,
+      "correct": 2125,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 631
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 1494
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 2121
+        }
+      },
+      "tyt_mix": 0.9631119804023915,
+      "questions_per_minute": 60.83084796503379,
+      "request_seconds": 2167.9789845409687,
+      "median_request_seconds": 13.26978919148678,
+      "billing": "subscription",
+      "billed_usd": null,
+      "api_equivalent_usd": 2.48456,
+      "cost_basis": "OpenAI API list price, $2 per 1M input tokens ($0.10 cached), $10 per 1M output tokens",
+      "hardware": null,
+      "input_tokens": 1159990,
+      "output_tokens": 54154,
+      "confidence": {
+        "source": "stated",
+        "label": "Stated by the model",
+        "bins": [
+          {
+            "questions": 3,
+            "correct": 1
+          },
+          {
+            "questions": 5,
+            "correct": 3
+          },
+          {
+            "questions": 11,
+            "correct": 8
+          },
+          {
+            "questions": 43,
+            "correct": 28
+          },
+          {
+            "questions": 2136,
+            "correct": 2085
+          }
+        ],
+        "auroc": 0.8585688960515713,
+        "auroc_interval": [
+          0.8103745494436608,
+          0.9019869675278273
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.967987321711569,
+            "auroc_interval": [
+              0.9458984375,
+              0.9837190131307778
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.8009956492637216,
+            "auroc_interval": [
+              0.7372203031552897,
+              0.862030562030562
+            ]
+          }
+        },
+        "aurc": 0.007414674863018657,
+        "ece": 0.01493630573248991,
+        "brier": 0.028964012738853503,
+        "coverage_accuracy": {
+          "0.20": 0.99800796812749,
+          "0.50": 0.9932068207724121,
+          "0.80": 0.9893609575138238
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.993801652892562,
+            1.0
+          ],
+          "0.50": [
+            0.9894110092415956,
+            0.9967465802762838
+          ],
+          "0.80": [
+            0.9846940559440559,
+            0.9937285642631529
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.002
+          ],
+          [
+            0.04,
+            0.002
+          ],
+          [
+            0.06,
+            0.002
+          ],
+          [
+            0.08,
+            0.002
+          ],
+          [
+            0.1,
+            0.002
+          ],
+          [
+            0.12,
+            0.002
+          ],
+          [
+            0.14,
+            0.002
+          ],
+          [
+            0.16,
+            0.002
+          ],
+          [
+            0.18,
+            0.002
+          ],
+          [
+            0.2,
+            0.002
+          ],
+          [
+            0.22,
+            0.002
+          ],
+          [
+            0.24,
+            0.0024
+          ],
+          [
+            0.26,
+            0.0031
+          ],
+          [
+            0.28,
+            0.0036
+          ],
+          [
+            0.3,
+            0.0041
+          ],
+          [
+            0.32,
+            0.0045
+          ],
+          [
+            0.34,
+            0.0049
+          ],
+          [
+            0.36,
+            0.0052
+          ],
+          [
+            0.38,
+            0.0055
+          ],
+          [
+            0.4,
+            0.0058
+          ],
+          [
+            0.42,
+            0.006
+          ],
+          [
+            0.44,
+            0.0062
+          ],
+          [
+            0.46,
+            0.0064
+          ],
+          [
+            0.48,
+            0.0066
+          ],
+          [
+            0.5,
+            0.0068
+          ],
+          [
+            0.52,
+            0.0069
+          ],
+          [
+            0.54,
+            0.0071
+          ],
+          [
+            0.56,
+            0.0072
+          ],
+          [
+            0.58,
+            0.0074
+          ],
+          [
+            0.6,
+            0.0075
+          ],
+          [
+            0.62,
+            0.0076
+          ],
+          [
+            0.64,
+            0.0077
+          ],
+          [
+            0.66,
+            0.0078
+          ],
+          [
+            0.68,
+            0.0079
+          ],
+          [
+            0.7,
+            0.0079
+          ],
+          [
+            0.72,
+            0.008
+          ],
+          [
+            0.74,
+            0.0084
+          ],
+          [
+            0.76,
+            0.0092
+          ],
+          [
+            0.78,
+            0.0099
+          ],
+          [
+            0.8,
+            0.0106
+          ],
+          [
+            0.82,
+            0.0113
+          ],
+          [
+            0.84,
+            0.012
+          ],
+          [
+            0.86,
+            0.0124
+          ],
+          [
+            0.88,
+            0.0127
+          ],
+          [
+            0.9,
+            0.013
+          ],
+          [
+            0.92,
+            0.0146
+          ],
+          [
+            0.94,
+            0.0167
+          ],
+          [
+            0.96,
+            0.0206
+          ],
+          [
+            0.98,
+            0.0257
+          ],
+          [
+            1.0,
+            0.0332
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 4,
+            "mean_confidence": 0.23249999999999998,
+            "accuracy": 0.5
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 2,
+            "mean_confidence": 0.32499999999999996,
+            "accuracy": 0.5
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 2,
+            "mean_confidence": 0.435,
+            "accuracy": 0.5
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 3,
+            "mean_confidence": 0.5366666666666666,
+            "accuracy": 0.6666666666666666
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 5,
+            "mean_confidence": 0.632,
+            "accuracy": 0.6
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 10,
+            "mean_confidence": 0.7550000000000001,
+            "accuracy": 0.7
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 36,
+            "mean_confidence": 0.8597222222222223,
+            "accuracy": 0.6666666666666666
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 2136,
+            "mean_confidence": 0.986999063670418,
+            "accuracy": 0.976123595505618
+          }
+        ],
+        "median_right": 0.99,
+        "median_wrong": 0.94,
+        "sure": {
+          "questions": 1610,
+          "correct": 1597,
+          "interval": [
+            0.9862337881881241,
+            0.995275177747566
+          ]
+        },
+        "doubtful": {
+          "questions": 16,
+          "correct": 9,
+          "interval": [
+            0.33178195606776517,
+            0.7690163666481448
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        128,
+        151,
+        64,
+        94,
+        99,
+        95,
+        138,
+        63,
+        91,
+        71,
+        78,
+        65,
+        142,
+        73,
+        82,
+        208,
+        72,
+        130,
+        110,
+        171
+      ],
+      "updated": "2026-10-05T21:12:45Z"
+    },
+    {
+      "run": 123,
+      "model": "gemini-3.8-flash",
+      "name": "Gemini 3.8 Flash",
+      "variant": null,
+      "reasoning": "low",
+      "note": null,
+      "provider": "gemini",
+      "access": "Gemini API",
+      "questions_per_request": 16,
+      "concurrency": 1,
+      "correct": 2050,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 624
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 1426
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 2047
+        }
+      },
+      "tyt_mix": 0.9465913764196008,
+      "questions_per_minute": 399.91697973147666,
+      "request_seconds": 329.7684436618583,
+      "median_request_seconds": 2.1872003605240025,
+      "billing": "api",
+      "billed_usd": 0.5903475,
+      "api_equivalent_usd": 0.5903475,
+      "cost_basis": "Gemini API list price, $0.75 per 1M input tokens, $3.75 per 1M output tokens, thinking included (introductory price through 2026)",
+      "hardware": null,
+      "input_tokens": 483830,
+      "output_tokens": 60660,
+      "confidence": {
+        "source": "stated",
+        "label": "Stated by the model",
+        "bins": [
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 1,
+            "correct": 1
+          },
+          {
+            "questions": 3,
+            "correct": 0
+          },
+          {
+            "questions": 39,
+            "correct": 24
+          },
+          {
+            "questions": 2155,
+            "correct": 2025
+          }
+        ],
+        "auroc": 0.765596572181938,
+        "auroc_interval": [
+          0.7246943765281174,
+          0.802016129032258
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.8043369391025641,
+            "auroc_interval": [
+              0.7083712465878071,
+              0.8861677419354839
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.7625985394399575,
+            "auroc_interval": [
+              0.7202386101499423,
+              0.8013830532212886
+            ]
+          }
+        },
+        "aurc": 0.02684836217262224,
+        "ece": 0.03474977252048743,
+        "brier": 0.05971137397634213,
+        "coverage_accuracy": {
+          "0.20": 0.9843184559710495,
+          "0.50": 0.9811757404261361,
+          "0.80": 0.9598300086907391
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.9754672897196262,
+            0.9924623115577889
+          ],
+          "0.50": [
+            0.9726028068885212,
+            0.9886076661323434
+          ],
+          "0.80": [
+            0.9507848771381875,
+            0.9681232290682815
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0157
+          ],
+          [
+            0.04,
+            0.0157
+          ],
+          [
+            0.06,
+            0.0157
+          ],
+          [
+            0.08,
+            0.0157
+          ],
+          [
+            0.1,
+            0.0157
+          ],
+          [
+            0.12,
+            0.0157
+          ],
+          [
+            0.14,
+            0.0157
+          ],
+          [
+            0.16,
+            0.0157
+          ],
+          [
+            0.18,
+            0.0157
+          ],
+          [
+            0.2,
+            0.0157
+          ],
+          [
+            0.22,
+            0.0157
+          ],
+          [
+            0.24,
+            0.0157
+          ],
+          [
+            0.26,
+            0.0157
+          ],
+          [
+            0.28,
+            0.0157
+          ],
+          [
+            0.3,
+            0.0157
+          ],
+          [
+            0.32,
+            0.0157
+          ],
+          [
+            0.34,
+            0.0157
+          ],
+          [
+            0.36,
+            0.0157
+          ],
+          [
+            0.38,
+            0.0157
+          ],
+          [
+            0.4,
+            0.0156
+          ],
+          [
+            0.42,
+            0.0155
+          ],
+          [
+            0.44,
+            0.0154
+          ],
+          [
+            0.46,
+            0.0164
+          ],
+          [
+            0.48,
+            0.0177
+          ],
+          [
+            0.5,
+            0.0188
+          ],
+          [
+            0.52,
+            0.0199
+          ],
+          [
+            0.54,
+            0.0217
+          ],
+          [
+            0.56,
+            0.0237
+          ],
+          [
+            0.58,
+            0.0256
+          ],
+          [
+            0.6,
+            0.0274
+          ],
+          [
+            0.62,
+            0.029
+          ],
+          [
+            0.64,
+            0.0306
+          ],
+          [
+            0.66,
+            0.032
+          ],
+          [
+            0.68,
+            0.0334
+          ],
+          [
+            0.7,
+            0.0347
+          ],
+          [
+            0.72,
+            0.0359
+          ],
+          [
+            0.74,
+            0.0371
+          ],
+          [
+            0.76,
+            0.0381
+          ],
+          [
+            0.78,
+            0.0392
+          ],
+          [
+            0.8,
+            0.0402
+          ],
+          [
+            0.82,
+            0.0411
+          ],
+          [
+            0.84,
+            0.042
+          ],
+          [
+            0.86,
+            0.0428
+          ],
+          [
+            0.88,
+            0.0437
+          ],
+          [
+            0.9,
+            0.046
+          ],
+          [
+            0.92,
+            0.0498
+          ],
+          [
+            0.94,
+            0.0534
+          ],
+          [
+            0.96,
+            0.0569
+          ],
+          [
+            0.98,
+            0.0603
+          ],
+          [
+            1.0,
+            0.0673
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 1,
+            "mean_confidence": 0.4,
+            "accuracy": 1.0
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 1,
+            "mean_confidence": 0.5,
+            "accuracy": 0.0
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 2,
+            "mean_confidence": 0.7,
+            "accuracy": 0.0
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 39,
+            "mean_confidence": 0.8430769230769235,
+            "accuracy": 0.6153846153846154
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 2155,
+            "mean_confidence": 0.9698375870069751,
+            "accuracy": 0.9396751740139211
+          }
+        ],
+        "median_right": 0.98,
+        "median_wrong": 0.95,
+        "sure": {
+          "questions": 976,
+          "correct": 961,
+          "interval": [
+            0.9747976246987011,
+            0.9906645479626759
+          ]
+        },
+        "doubtful": {
+          "questions": 2,
+          "correct": 1,
+          "interval": [
+            0.09452865480086614,
+            0.9054713451991339
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        126,
+        149,
+        62,
+        96,
+        96,
+        95,
+        133,
+        62,
+        91,
+        68,
+        72,
+        64,
+        130,
+        73,
+        79,
+        190,
+        66,
+        128,
+        104,
+        166
+      ],
+      "updated": "2026-10-05T20:10:28Z"
+    },
+    {
+      "run": 121,
       "model": "deepseek-v4.1-flash",
       "name": "DeepSeek-V4.1-Flash",
       "variant": null,
@@ -628,59 +1482,418 @@
       "access": "SGLang, self-hosted, published mixed precision",
       "questions_per_request": 16,
       "concurrency": 8,
-      "correct": 2030,
+      "correct": 2023,
       "invalid": 0,
-      "answered_questions": 2210,
+      "answered_questions": 2198,
       "groups": {
         "reading": {
           "questions": 656,
-          "correct": 617
+          "correct": 613
         },
         "grammar": {
           "questions": 1542,
-          "correct": 1413
+          "correct": 1410
         },
         "without_suspect": {
           "questions": 2186,
-          "correct": 2028
+          "correct": 2020
         }
       },
-      "tyt_mix": 0.9363126660814274,
-      "questions_per_minute": 17.948858643963128,
-      "request_seconds": 7387.65637583303,
-      "median_request_seconds": null,
+      "tyt_mix": 0.9309417113504793,
+      "questions_per_minute": 19.260714724220154,
+      "request_seconds": 6847.09793422994,
+      "median_request_seconds": 365.14285134349484,
       "billing": "local",
       "billed_usd": null,
       "api_equivalent_usd": null,
       "cost_basis": null,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers",
-      "input_tokens": 673444,
-      "output_tokens": 2214725,
-      "confidence": null,
+      "input_tokens": 669316,
+      "output_tokens": 2212141,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 2198,
+            "correct": 2023
+          }
+        ],
+        "auroc": 0.561861450462538,
+        "auroc_interval": [
+          0.5197339736501216,
+          0.6051804510346025
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.598012064190599,
+            "auroc_interval": [
+              0.5086850649350649,
+              0.6810838709677419
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.5574736728992048,
+            "auroc_interval": [
+              0.5061183606466153,
+              0.6138800545206724
+            ]
+          }
+        },
+        "aurc": 0.0644329020491846,
+        "ece": 0.07960198328526213,
+        "brier": 0.07960859691673716,
+        "coverage_accuracy": {
+          "0.20": 0.9317561419472248,
+          "0.50": 0.9326660600545951,
+          "0.80": 0.9306187443130118
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.9072305593451568,
+            0.9567000911577028
+          ],
+          "0.50": [
+            0.9173103134938664,
+            0.9480874316939891
+          ],
+          "0.80": [
+            0.9169699727024568,
+            0.9425352753755121
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0227
+          ],
+          [
+            0.04,
+            0.0227
+          ],
+          [
+            0.06,
+            0.0455
+          ],
+          [
+            0.08,
+            0.0455
+          ],
+          [
+            0.1,
+            0.0546
+          ],
+          [
+            0.12,
+            0.0455
+          ],
+          [
+            0.14,
+            0.052
+          ],
+          [
+            0.16,
+            0.0597
+          ],
+          [
+            0.18,
+            0.0632
+          ],
+          [
+            0.2,
+            0.0682
+          ],
+          [
+            0.22,
+            0.0703
+          ],
+          [
+            0.24,
+            0.0645
+          ],
+          [
+            0.26,
+            0.0612
+          ],
+          [
+            0.28,
+            0.0617
+          ],
+          [
+            0.3,
+            0.0598
+          ],
+          [
+            0.32,
+            0.0626
+          ],
+          [
+            0.34,
+            0.0642
+          ],
+          [
+            0.36,
+            0.0632
+          ],
+          [
+            0.38,
+            0.0658
+          ],
+          [
+            0.4,
+            0.066
+          ],
+          [
+            0.42,
+            0.0672
+          ],
+          [
+            0.44,
+            0.0651
+          ],
+          [
+            0.46,
+            0.0663
+          ],
+          [
+            0.48,
+            0.0663
+          ],
+          [
+            0.5,
+            0.0673
+          ],
+          [
+            0.52,
+            0.0674
+          ],
+          [
+            0.54,
+            0.0666
+          ],
+          [
+            0.56,
+            0.0658
+          ],
+          [
+            0.58,
+            0.0705
+          ],
+          [
+            0.6,
+            0.0705
+          ],
+          [
+            0.62,
+            0.0695
+          ],
+          [
+            0.64,
+            0.069
+          ],
+          [
+            0.66,
+            0.0696
+          ],
+          [
+            0.68,
+            0.0703
+          ],
+          [
+            0.7,
+            0.0689
+          ],
+          [
+            0.72,
+            0.0714
+          ],
+          [
+            0.74,
+            0.0707
+          ],
+          [
+            0.76,
+            0.0706
+          ],
+          [
+            0.78,
+            0.07
+          ],
+          [
+            0.8,
+            0.0694
+          ],
+          [
+            0.82,
+            0.0727
+          ],
+          [
+            0.84,
+            0.0728
+          ],
+          [
+            0.86,
+            0.0758
+          ],
+          [
+            0.88,
+            0.0781
+          ],
+          [
+            0.9,
+            0.0789
+          ],
+          [
+            0.92,
+            0.0796
+          ],
+          [
+            0.94,
+            0.0799
+          ],
+          [
+            0.96,
+            0.0787
+          ],
+          [
+            0.98,
+            0.0789
+          ],
+          [
+            1.0,
+            0.0796
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 2198,
+            "mean_confidence": 0.9999841488903577,
+            "accuracy": 0.9203821656050956
+          }
+        ],
+        "median_right": 0.9999997494873384,
+        "median_wrong": 0.9999996215664603,
+        "sure": {
+          "questions": 2198,
+          "correct": 2023,
+          "interval": [
+            0.9083178247126321,
+            0.9309796070372266
+          ]
+        },
+        "doubtful": {
+          "questions": 0,
+          "correct": 0,
+          "interval": null
+        }
+      },
       "previous": null,
       "units": [
-        124,
-        151,
-        63,
-        94,
+        125,
+        150,
+        59,
         92,
+        94,
         93,
-        131,
-        64,
-        86,
-        71,
+        129,
+        63,
+        89,
+        70,
         75,
-        64,
-        137,
-        69,
-        82,
-        188,
-        68,
-        119,
-        100,
-        159
+        61,
+        136,
+        70,
+        81,
+        190,
+        66,
+        125,
+        98,
+        157
       ],
-      "updated": "2026-10-04T15:54:27Z"
+      "updated": "2026-10-05T20:56:59Z"
     },
     {
       "run": 47,
@@ -1583,7 +2796,7 @@
       "updated": "2026-10-04T10:10:17Z"
     },
     {
-      "run": 57,
+      "run": 119,
       "model": "gemma-4-31B-it",
       "name": "Gemma 4 31B",
       "variant": null,
@@ -1593,62 +2806,424 @@
       "access": "vLLM, self-hosted, FP8",
       "questions_per_request": 16,
       "concurrency": 1,
-      "correct": 1624,
+      "correct": 1607,
       "invalid": 0,
-      "answered_questions": 2210,
+      "answered_questions": 2198,
       "groups": {
         "reading": {
           "questions": 656,
-          "correct": 590
+          "correct": 596
         },
         "grammar": {
           "questions": 1542,
-          "correct": 1034
+          "correct": 1011
         },
         "without_suspect": {
           "questions": 2186,
-          "correct": 1620
+          "correct": 1604
         }
       },
-      "tyt_mix": 0.8593445517383189,
-      "questions_per_minute": 244.95525798081135,
-      "request_seconds": 541.3233465288067,
-      "median_request_seconds": null,
+      "tyt_mix": 0.8642800370124324,
+      "questions_per_minute": 245.32171674964297,
+      "request_seconds": 537.5798023400712,
+      "median_request_seconds": 3.972206312988419,
       "billing": "local",
       "billed_usd": null,
       "api_equivalent_usd": null,
       "cost_basis": null,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 weights and KV cache",
-      "input_tokens": 492817,
-      "output_tokens": 20416,
-      "confidence": null,
+      "input_tokens": 489825,
+      "output_tokens": 20046,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 12,
+            "correct": 5
+          },
+          {
+            "questions": 78,
+            "correct": 30
+          },
+          {
+            "questions": 94,
+            "correct": 29
+          },
+          {
+            "questions": 2014,
+            "correct": 1543
+          }
+        ],
+        "auroc": 0.8330400942576734,
+        "auroc_interval": [
+          0.8159328986887407,
+          0.8511324555869844
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.8842841163310962,
+            "auroc_interval": [
+              0.84754279873946,
+              0.9165817626082526
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.7885779960919528,
+            "auroc_interval": [
+              0.7658726105355319,
+              0.8103122447464172
+            ]
+          }
+        },
+        "aurc": 0.09064879467975782,
+        "ece": 0.24156780736968866,
+        "brier": 0.24203788326889283,
+        "coverage_accuracy": {
+          "0.20": 0.986351228389445,
+          "0.50": 0.9426751592356688,
+          "0.80": 0.8180163785259327
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.9749544626593807,
+            0.9977231329690346
+          ],
+          "0.50": [
+            0.9245454545454546,
+            0.9585798816568047
+          ],
+          "0.80": [
+            0.7982954545454546,
+            0.8375
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0
+          ],
+          [
+            0.04,
+            0.0
+          ],
+          [
+            0.06,
+            0.0
+          ],
+          [
+            0.08,
+            0.0
+          ],
+          [
+            0.1,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.14,
+            0.0032
+          ],
+          [
+            0.16,
+            0.0057
+          ],
+          [
+            0.18,
+            0.0101
+          ],
+          [
+            0.2,
+            0.0136
+          ],
+          [
+            0.22,
+            0.0124
+          ],
+          [
+            0.24,
+            0.0114
+          ],
+          [
+            0.26,
+            0.0122
+          ],
+          [
+            0.28,
+            0.0146
+          ],
+          [
+            0.3,
+            0.0167
+          ],
+          [
+            0.32,
+            0.0213
+          ],
+          [
+            0.34,
+            0.0281
+          ],
+          [
+            0.36,
+            0.0341
+          ],
+          [
+            0.38,
+            0.0347
+          ],
+          [
+            0.4,
+            0.0353
+          ],
+          [
+            0.42,
+            0.0368
+          ],
+          [
+            0.44,
+            0.0403
+          ],
+          [
+            0.46,
+            0.0446
+          ],
+          [
+            0.48,
+            0.0484
+          ],
+          [
+            0.5,
+            0.0573
+          ],
+          [
+            0.52,
+            0.0656
+          ],
+          [
+            0.54,
+            0.0741
+          ],
+          [
+            0.56,
+            0.0845
+          ],
+          [
+            0.58,
+            0.0941
+          ],
+          [
+            0.6,
+            0.0971
+          ],
+          [
+            0.62,
+            0.1086
+          ],
+          [
+            0.64,
+            0.1164
+          ],
+          [
+            0.66,
+            0.1266
+          ],
+          [
+            0.68,
+            0.1342
+          ],
+          [
+            0.7,
+            0.1421
+          ],
+          [
+            0.72,
+            0.151
+          ],
+          [
+            0.74,
+            0.1562
+          ],
+          [
+            0.76,
+            0.1634
+          ],
+          [
+            0.78,
+            0.17
+          ],
+          [
+            0.8,
+            0.182
+          ],
+          [
+            0.82,
+            0.19
+          ],
+          [
+            0.84,
+            0.2
+          ],
+          [
+            0.86,
+            0.2121
+          ],
+          [
+            0.88,
+            0.2182
+          ],
+          [
+            0.9,
+            0.2265
+          ],
+          [
+            0.92,
+            0.236
+          ],
+          [
+            0.94,
+            0.2479
+          ],
+          [
+            0.96,
+            0.2545
+          ],
+          [
+            0.98,
+            0.2609
+          ],
+          [
+            1.0,
+            0.2689
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 1,
+            "mean_confidence": 0.2617147737506787,
+            "accuracy": 0.0
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 2,
+            "mean_confidence": 0.36520061426339834,
+            "accuracy": 0.0
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 9,
+            "mean_confidence": 0.4750944265186299,
+            "accuracy": 0.5555555555555556
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 26,
+            "mean_confidence": 0.5520949019450557,
+            "accuracy": 0.34615384615384615
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 39,
+            "mean_confidence": 0.6501353062005182,
+            "accuracy": 0.38461538461538464
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 43,
+            "mean_confidence": 0.761164279599376,
+            "accuracy": 0.4186046511627907
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 64,
+            "mean_confidence": 0.8542942679028498,
+            "accuracy": 0.265625
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 2014,
+            "mean_confidence": 0.9951018534627699,
+            "accuracy": 0.766137040714995
+          }
+        ],
+        "median_right": 0.9999995466782146,
+        "median_wrong": 0.9946603553455324,
+        "sure": {
+          "questions": 1782,
+          "correct": 1450,
+          "interval": [
+            0.7949466515577485,
+            0.831088714624784
+          ]
+        },
+        "doubtful": {
+          "questions": 77,
+          "correct": 29,
+          "interval": [
+            0.27669846411806526,
+            0.48827402529332703
+          ]
+        }
+      },
       "previous": null,
       "units": [
-        112,
-        143,
-        60,
-        94,
-        88,
+        113,
+        144,
+        62,
+        95,
+        89,
         93,
-        102,
-        48,
-        72,
-        61,
+        94,
         42,
-        32,
-        97,
-        59,
-        55,
-        116,
-        39,
-        102,
-        80,
-        129
+        69,
+        57,
+        54,
+        38,
+        93,
+        57,
+        58,
+        109,
+        38,
+        98,
+        82,
+        122
       ],
-      "updated": "2026-10-04T12:39:18Z"
+      "updated": "2026-10-05T18:32:29Z"
     },
     {
-      "run": 58,
+      "run": 120,
       "model": "deepseek-v4.1-flash",
       "name": "DeepSeek-V4.1-Flash",
       "variant": null,
@@ -1658,59 +3233,421 @@
       "access": "SGLang, self-hosted, published mixed precision",
       "questions_per_request": 16,
       "concurrency": 1,
-      "correct": 1443,
+      "correct": 1449,
       "invalid": 0,
-      "answered_questions": 2210,
+      "answered_questions": 2198,
       "groups": {
         "reading": {
           "questions": 656,
-          "correct": 579
+          "correct": 576
         },
         "grammar": {
           "questions": 1542,
-          "correct": 864
+          "correct": 873
         },
         "without_suspect": {
           "questions": 2186,
-          "correct": 1440
+          "correct": 1447
         }
       },
-      "tyt_mix": 0.8262175844642687,
-      "questions_per_minute": 194.67309989199123,
-      "request_seconds": 681.1418736002524,
-      "median_request_seconds": null,
+      "tyt_mix": 0.8234661193888204,
+      "questions_per_minute": 177.54848553740285,
+      "request_seconds": 742.783018401009,
+      "median_request_seconds": 4.361823945015203,
       "billing": "local",
       "billed_usd": null,
       "api_equivalent_usd": null,
       "cost_basis": null,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers",
-      "input_tokens": 669969,
-      "output_tokens": 13956,
-      "confidence": null,
+      "input_tokens": 665866,
+      "output_tokens": 13878,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 3,
+            "correct": 1
+          },
+          {
+            "questions": 307,
+            "correct": 105
+          },
+          {
+            "questions": 506,
+            "correct": 207
+          },
+          {
+            "questions": 313,
+            "correct": 179
+          },
+          {
+            "questions": 1069,
+            "correct": 957
+          }
+        ],
+        "auroc": 0.8247840921550795,
+        "auroc_interval": [
+          0.8090117907065028,
+          0.8409324220465525
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.9104817708333334,
+            "auroc_interval": [
+              0.8840836509735243,
+              0.934260429835651
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.7573287308852008,
+            "auroc_interval": [
+              0.7346649153024596,
+              0.7807149057050422
+            ]
+          }
+        },
+        "aurc": 0.12959397834920494,
+        "ece": 0.13539692525320116,
+        "brier": 0.18661813604410746,
+        "coverage_accuracy": {
+          "0.20": 0.9954504094631483,
+          "0.50": 0.8862602365787079,
+          "0.80": 0.741810737033667
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.9886208466090123,
+            1.0
+          ],
+          "0.50": [
+            0.8650250797993616,
+            0.9088422971741112
+          ],
+          "0.80": [
+            0.7191624943104232,
+            0.7636363636363637
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0
+          ],
+          [
+            0.04,
+            0.0
+          ],
+          [
+            0.06,
+            0.0
+          ],
+          [
+            0.08,
+            0.0
+          ],
+          [
+            0.1,
+            0.0
+          ],
+          [
+            0.12,
+            0.0038
+          ],
+          [
+            0.14,
+            0.0032
+          ],
+          [
+            0.16,
+            0.0028
+          ],
+          [
+            0.18,
+            0.0025
+          ],
+          [
+            0.2,
+            0.0045
+          ],
+          [
+            0.22,
+            0.0041
+          ],
+          [
+            0.24,
+            0.0057
+          ],
+          [
+            0.26,
+            0.0087
+          ],
+          [
+            0.28,
+            0.0179
+          ],
+          [
+            0.3,
+            0.0188
+          ],
+          [
+            0.32,
+            0.0313
+          ],
+          [
+            0.34,
+            0.0361
+          ],
+          [
+            0.36,
+            0.0392
+          ],
+          [
+            0.38,
+            0.047
+          ],
+          [
+            0.4,
+            0.0591
+          ],
+          [
+            0.42,
+            0.0628
+          ],
+          [
+            0.44,
+            0.0775
+          ],
+          [
+            0.46,
+            0.091
+          ],
+          [
+            0.48,
+            0.1005
+          ],
+          [
+            0.5,
+            0.1137
+          ],
+          [
+            0.52,
+            0.1207
+          ],
+          [
+            0.54,
+            0.1297
+          ],
+          [
+            0.56,
+            0.1414
+          ],
+          [
+            0.58,
+            0.149
+          ],
+          [
+            0.6,
+            0.1621
+          ],
+          [
+            0.62,
+            0.1717
+          ],
+          [
+            0.64,
+            0.1825
+          ],
+          [
+            0.66,
+            0.19
+          ],
+          [
+            0.68,
+            0.2014
+          ],
+          [
+            0.7,
+            0.2116
+          ],
+          [
+            0.72,
+            0.219
+          ],
+          [
+            0.74,
+            0.2296
+          ],
+          [
+            0.76,
+            0.2421
+          ],
+          [
+            0.78,
+            0.252
+          ],
+          [
+            0.8,
+            0.2582
+          ],
+          [
+            0.82,
+            0.2652
+          ],
+          [
+            0.84,
+            0.2769
+          ],
+          [
+            0.86,
+            0.2894
+          ],
+          [
+            0.88,
+            0.2942
+          ],
+          [
+            0.9,
+            0.3019
+          ],
+          [
+            0.92,
+            0.3116
+          ],
+          [
+            0.94,
+            0.3176
+          ],
+          [
+            0.96,
+            0.3247
+          ],
+          [
+            0.98,
+            0.3329
+          ],
+          [
+            1.0,
+            0.3408
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 21,
+            "mean_confidence": 0.2720217646474662,
+            "accuracy": 0.23809523809523808
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 102,
+            "mean_confidence": 0.35871668653728334,
+            "accuracy": 0.3137254901960784
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 187,
+            "mean_confidence": 0.45084843878086894,
+            "accuracy": 0.3689839572192513
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 209,
+            "mean_confidence": 0.5512095121489691,
+            "accuracy": 0.3492822966507177
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 198,
+            "mean_confidence": 0.6443963171907059,
+            "accuracy": 0.42424242424242425
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 187,
+            "mean_confidence": 0.7476381027622825,
+            "accuracy": 0.5133689839572193
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 225,
+            "mean_confidence": 0.8529687096085111,
+            "accuracy": 0.5911111111111111
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 1069,
+            "mean_confidence": 0.9779912823655359,
+            "accuracy": 0.8952291861552854
+          }
+        ],
+        "median_right": 0.9714270404055687,
+        "median_wrong": 0.6195863390284381,
+        "sure": {
+          "questions": 576,
+          "correct": 571,
+          "interval": [
+            0.9798419495618019,
+            0.9962867035048287
+          ]
+        },
+        "doubtful": {
+          "questions": 717,
+          "correct": 263,
+          "interval": [
+            0.33232662618967,
+            0.4027053142532788
+          ]
+        }
+      },
       "previous": null,
       "units": [
-        113,
-        138,
-        57,
-        95,
-        87,
-        89,
-        80,
-        35,
-        59,
-        48,
-        40,
-        27,
-        71,
-        50,
-        52,
-        84,
-        33,
+        111,
+        140,
+        56,
         94,
-        72,
-        119
+        85,
+        90,
+        84,
+        34,
+        60,
+        46,
+        46,
+        28,
+        69,
+        53,
+        46,
+        82,
+        31,
+        102,
+        65,
+        127
       ],
-      "updated": "2026-10-04T13:12:48Z"
+      "updated": "2026-10-05T19:01:55Z"
     },
     {
       "run": 54,
@@ -3067,6 +5004,430 @@
         106
       ],
       "updated": "2026-10-04T08:47:59Z"
+    },
+    {
+      "run": 125,
+      "model": "clef",
+      "name": "Clef",
+      "variant": null,
+      "reasoning": null,
+      "note": "Cloudflare's decision model, post-trained from Qwen3.8-27B",
+      "provider": "clef",
+      "access": "Clef server, self-hosted",
+      "questions_per_request": 1,
+      "concurrency": 1,
+      "correct": 1259,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 558
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 701
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1256
+        }
+      },
+      "tyt_mix": 0.7813088205055203,
+      "questions_per_minute": 285.0197317975998,
+      "request_seconds": 462.7048070259625,
+      "median_request_seconds": 0.20457697298843414,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
+      "cost_basis": null,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+      "input_tokens": 1004535,
+      "output_tokens": 0,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 3,
+            "correct": 0
+          },
+          {
+            "questions": 611,
+            "correct": 188
+          },
+          {
+            "questions": 644,
+            "correct": 294
+          },
+          {
+            "questions": 363,
+            "correct": 233
+          },
+          {
+            "questions": 577,
+            "correct": 544
+          }
+        ],
+        "auroc": 0.7850073718428592,
+        "auroc_interval": [
+          0.7664443128121592,
+          0.8040524558700295
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.8756857581742374,
+            "auroc_interval": [
+              0.8456854345165239,
+              0.9043910806174957
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.6873287862930653,
+            "auroc_interval": [
+              0.6597310357465234,
+              0.7150232129741613
+            ]
+          }
+        },
+        "aurc": 0.20484180390491813,
+        "ece": 0.1069694722474975,
+        "brier": 0.19947404868516835,
+        "coverage_accuracy": {
+          "0.20": 0.9727024567788899,
+          "0.50": 0.7816196542311192,
+          "0.80": 0.6426296633303002
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.9567395264116576,
+            0.9863822060826146
+          ],
+          "0.50": [
+            0.7531876138433515,
+            0.8098495212038304
+          ],
+          "0.80": [
+            0.6184510250569476,
+            0.6662112932604736
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0
+          ],
+          [
+            0.04,
+            0.0
+          ],
+          [
+            0.06,
+            0.0
+          ],
+          [
+            0.08,
+            0.0057
+          ],
+          [
+            0.1,
+            0.0045
+          ],
+          [
+            0.12,
+            0.0076
+          ],
+          [
+            0.14,
+            0.0097
+          ],
+          [
+            0.16,
+            0.0142
+          ],
+          [
+            0.18,
+            0.0253
+          ],
+          [
+            0.2,
+            0.0273
+          ],
+          [
+            0.22,
+            0.0352
+          ],
+          [
+            0.24,
+            0.0398
+          ],
+          [
+            0.26,
+            0.0542
+          ],
+          [
+            0.28,
+            0.0796
+          ],
+          [
+            0.3,
+            0.0886
+          ],
+          [
+            0.32,
+            0.0986
+          ],
+          [
+            0.34,
+            0.1155
+          ],
+          [
+            0.36,
+            0.1289
+          ],
+          [
+            0.38,
+            0.1428
+          ],
+          [
+            0.4,
+            0.1554
+          ],
+          [
+            0.42,
+            0.1712
+          ],
+          [
+            0.44,
+            0.1846
+          ],
+          [
+            0.46,
+            0.1929
+          ],
+          [
+            0.48,
+            0.2057
+          ],
+          [
+            0.5,
+            0.2184
+          ],
+          [
+            0.52,
+            0.2345
+          ],
+          [
+            0.54,
+            0.2435
+          ],
+          [
+            0.56,
+            0.2534
+          ],
+          [
+            0.58,
+            0.2627
+          ],
+          [
+            0.6,
+            0.2705
+          ],
+          [
+            0.62,
+            0.2779
+          ],
+          [
+            0.64,
+            0.2882
+          ],
+          [
+            0.66,
+            0.2996
+          ],
+          [
+            0.68,
+            0.3069
+          ],
+          [
+            0.7,
+            0.3159
+          ],
+          [
+            0.72,
+            0.3237
+          ],
+          [
+            0.74,
+            0.3363
+          ],
+          [
+            0.76,
+            0.3436
+          ],
+          [
+            0.78,
+            0.3485
+          ],
+          [
+            0.8,
+            0.3574
+          ],
+          [
+            0.82,
+            0.3667
+          ],
+          [
+            0.84,
+            0.3721
+          ],
+          [
+            0.86,
+            0.3816
+          ],
+          [
+            0.88,
+            0.3888
+          ],
+          [
+            0.9,
+            0.3951
+          ],
+          [
+            0.92,
+            0.4016
+          ],
+          [
+            0.94,
+            0.4095
+          ],
+          [
+            0.96,
+            0.4157
+          ],
+          [
+            0.98,
+            0.422
+          ],
+          [
+            1.0,
+            0.4272
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 48,
+            "mean_confidence": 0.278475,
+            "accuracy": 0.2916666666666667
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 239,
+            "mean_confidence": 0.356336820083682,
+            "accuracy": 0.301255230125523
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 327,
+            "mean_confidence": 0.44891987767584085,
+            "accuracy": 0.3119266055045872
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 282,
+            "mean_confidence": 0.5460460992907799,
+            "accuracy": 0.41134751773049644
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 254,
+            "mean_confidence": 0.6488141732283463,
+            "accuracy": 0.48031496062992124
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 215,
+            "mean_confidence": 0.7499934883720922,
+            "accuracy": 0.5534883720930233
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 256,
+            "mean_confidence": 0.852619140625,
+            "accuracy": 0.6640625
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 577,
+            "mean_confidence": 0.9518570190641246,
+            "accuracy": 0.9428076256499134
+          }
+        ],
+        "median_right": 0.8571,
+        "median_wrong": 0.5215,
+        "sure": {
+          "questions": 0,
+          "correct": 0,
+          "interval": null
+        },
+        "doubtful": {
+          "questions": 1150,
+          "correct": 426,
+          "interval": [
+            0.3429978072936793,
+            0.39873450674318683
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        101,
+        142,
+        54,
+        93,
+        80,
+        88,
+        71,
+        27,
+        47,
+        30,
+        41,
+        25,
+        50,
+        38,
+        42,
+        75,
+        24,
+        70,
+        55,
+        106
+      ],
+      "updated": "2026-10-05T21:07:04Z"
     },
     {
       "run": 52,
@@ -6206,32 +8567,480 @@
         38
       ],
       "updated": "2026-10-04T08:31:44Z"
+    },
+    {
+      "run": 122,
+      "model": "gliner2.5-multi-v1",
+      "name": "GLiNER2.5 Multi",
+      "variant": null,
+      "reasoning": null,
+      "note": "Multilingual extraction and classification model (287M)",
+      "provider": "gliner",
+      "access": "GLiNER2 server, self-hosted",
+      "questions_per_request": 1,
+      "concurrency": 1,
+      "correct": 384,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 113
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 271
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 382
+        }
+      },
+      "tyt_mix": 0.17286679280946507,
+      "questions_per_minute": 1922.5854452978283,
+      "request_seconds": 68.59513075090945,
+      "median_request_seconds": 0.03178766701603308,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
+      "cost_basis": null,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP16",
+      "input_tokens": 431150,
+      "output_tokens": 0,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 5,
+            "correct": 1
+          },
+          {
+            "questions": 968,
+            "correct": 192
+          },
+          {
+            "questions": 1056,
+            "correct": 167
+          },
+          {
+            "questions": 164,
+            "correct": 23
+          },
+          {
+            "questions": 5,
+            "correct": 1
+          }
+        ],
+        "auroc": 0.4506471655641308,
+        "auroc_interval": [
+          0.4206265425239493,
+          0.48061901803791646
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.4186508906598869,
+            "auroc_interval": [
+              0.3584979118000991,
+              0.48041863039431093
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.4638849614302595,
+            "auroc_interval": [
+              0.42443125710057983,
+              0.4995170347094935
+            ]
+          }
+        },
+        "aurc": 0.8429137711686909,
+        "ece": 0.35619655110491094,
+        "brier": 0.29778652443440456,
+        "coverage_accuracy": {
+          "0.20": 0.15468607825295722,
+          "0.50": 0.15013648771610555,
+          "0.80": 0.16492265696087352
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.12050932241928149,
+            0.18425841674249316
+          ],
+          "0.50": [
+            0.13,
+            0.17114246700045516
+          ],
+          "0.80": [
+            0.14722601182355616,
+            0.18278837420526792
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.7498
+          ],
+          [
+            0.04,
+            0.7962
+          ],
+          [
+            0.06,
+            0.8341
+          ],
+          [
+            0.08,
+            0.8587
+          ],
+          [
+            0.1,
+            0.8553
+          ],
+          [
+            0.12,
+            0.8568
+          ],
+          [
+            0.14,
+            0.844
+          ],
+          [
+            0.16,
+            0.8465
+          ],
+          [
+            0.18,
+            0.8518
+          ],
+          [
+            0.2,
+            0.8453
+          ],
+          [
+            0.22,
+            0.8532
+          ],
+          [
+            0.24,
+            0.8597
+          ],
+          [
+            0.26,
+            0.8618
+          ],
+          [
+            0.28,
+            0.8644
+          ],
+          [
+            0.3,
+            0.865
+          ],
+          [
+            0.32,
+            0.8678
+          ],
+          [
+            0.34,
+            0.8662
+          ],
+          [
+            0.36,
+            0.8622
+          ],
+          [
+            0.38,
+            0.8563
+          ],
+          [
+            0.4,
+            0.8533
+          ],
+          [
+            0.42,
+            0.8559
+          ],
+          [
+            0.44,
+            0.8552
+          ],
+          [
+            0.46,
+            0.8457
+          ],
+          [
+            0.48,
+            0.8493
+          ],
+          [
+            0.5,
+            0.8499
+          ],
+          [
+            0.52,
+            0.8486
+          ],
+          [
+            0.54,
+            0.8492
+          ],
+          [
+            0.56,
+            0.844
+          ],
+          [
+            0.58,
+            0.8447
+          ],
+          [
+            0.6,
+            0.8408
+          ],
+          [
+            0.62,
+            0.8378
+          ],
+          [
+            0.64,
+            0.8386
+          ],
+          [
+            0.66,
+            0.8366
+          ],
+          [
+            0.68,
+            0.8381
+          ],
+          [
+            0.7,
+            0.8382
+          ],
+          [
+            0.72,
+            0.8351
+          ],
+          [
+            0.74,
+            0.8334
+          ],
+          [
+            0.76,
+            0.833
+          ],
+          [
+            0.78,
+            0.8349
+          ],
+          [
+            0.8,
+            0.8351
+          ],
+          [
+            0.82,
+            0.8341
+          ],
+          [
+            0.84,
+            0.8332
+          ],
+          [
+            0.86,
+            0.8318
+          ],
+          [
+            0.88,
+            0.8303
+          ],
+          [
+            0.9,
+            0.8271
+          ],
+          [
+            0.92,
+            0.8259
+          ],
+          [
+            0.94,
+            0.8262
+          ],
+          [
+            0.96,
+            0.8256
+          ],
+          [
+            0.98,
+            0.8264
+          ],
+          [
+            1.0,
+            0.8253
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 67,
+            "mean_confidence": 0.27965851506190514,
+            "accuracy": 0.22388059701492538
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 403,
+            "mean_confidence": 0.35655440578685504,
+            "accuracy": 0.2109181141439206
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 503,
+            "mean_confidence": 0.44966872460088486,
+            "accuracy": 0.1848906560636183
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 514,
+            "mean_confidence": 0.5504470308699033,
+            "accuracy": 0.188715953307393
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 404,
+            "mean_confidence": 0.6435851771937738,
+            "accuracy": 0.11386138613861387
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 229,
+            "mean_confidence": 0.7414461704841347,
+            "accuracy": 0.14847161572052403
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 73,
+            "mean_confidence": 0.8345194034380455,
+            "accuracy": 0.1780821917808219
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 5,
+            "mean_confidence": 0.9317659735679626,
+            "accuracy": 0.2
+          }
+        ],
+        "median_right": 0.49681758880615234,
+        "median_wrong": 0.5310882925987244,
+        "sure": {
+          "questions": 0,
+          "correct": 0,
+          "interval": null
+        },
+        "doubtful": {
+          "questions": 1891,
+          "correct": 336,
+          "interval": [
+            0.16111355800596627,
+            0.1955608996373534
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        24,
+        20,
+        12,
+        21,
+        22,
+        14,
+        23,
+        9,
+        16,
+        11,
+        17,
+        9,
+        27,
+        15,
+        19,
+        32,
+        13,
+        18,
+        17,
+        45
+      ],
+      "updated": "2026-10-05T19:35:51Z"
     }
   ],
   "paired": [
     {
       "first": 48,
-      "second": 59,
+      "second": 124,
       "questions": 2198,
-      "first_only": 128,
-      "second_only": 13,
-      "difference": 0.05232029117379436,
-      "low": 0.04196008998560532,
-      "high": 0.0626804923619834,
-      "p": 6.3004691602339085e-25,
-      "p_holm": 9.450703740350863e-24
+      "first_only": 28,
+      "second_only": 8,
+      "difference": 0.009099181073703366,
+      "low": 0.0037624029350301572,
+      "high": 0.014435959212376575,
+      "p": 0.0011932429624721408,
+      "p_holm": 0.01551215851213783
     },
     {
-      "first": 59,
+      "first": 124,
+      "second": 123,
+      "questions": 2198,
+      "first_only": 109,
+      "second_only": 34,
+      "difference": 0.034121929026387623,
+      "low": 0.023554359443423187,
+      "high": 0.04468949860935206,
+      "p": 2.3305055920143637e-10,
+      "p_holm": 3.728808947222982e-09
+    },
+    {
+      "first": 123,
+      "second": 121,
+      "questions": 2198,
+      "first_only": 113,
+      "second_only": 86,
+      "difference": 0.012283894449499545,
+      "low": -0.00028487352823502315,
+      "high": 0.024852662427234114,
+      "p": 0.06504501335635778,
+      "p_holm": 0.58540512020722
+    },
+    {
+      "first": 121,
       "second": 47,
       "questions": 2198,
-      "first_only": 131,
-      "second_only": 89,
-      "difference": 0.01910828025477707,
-      "low": 0.0059060855241470315,
-      "high": 0.03231047498540711,
-      "p": 0.005584007033222324,
-      "p_holm": 0.05025606329900092
+      "first_only": 127,
+      "second_only": 92,
+      "difference": 0.01592356687898089,
+      "low": 0.0027441217437400613,
+      "high": 0.029103012014221722,
+      "p": 0.021375972466109734,
+      "p_holm": 0.23513569712720708
     },
     {
       "first": 47,
@@ -6243,43 +9052,43 @@
       "low": 0.03852720387825319,
       "high": 0.06975305089881688,
       "p": 1.4657942286341076e-11,
-      "p_holm": 1.7589530743609292e-10
+      "p_holm": 2.491850188677983e-10
     },
     {
       "first": 55,
-      "second": 57,
+      "second": 119,
       "questions": 2198,
-      "first_only": 412,
-      "second_only": 167,
-      "difference": 0.11146496815286625,
-      "low": 0.09052016102668917,
-      "high": 0.13240977527904332,
-      "p": 7.09288135771834e-25,
-      "p_holm": 9.930033900805676e-24
+      "first_only": 426,
+      "second_only": 164,
+      "difference": 0.1191992720655141,
+      "low": 0.09812052257721107,
+      "high": 0.14027802155381713,
+      "p": 8.0571967837094125e-28,
+      "p_holm": 1.5308673889047885e-26
     },
     {
-      "first": 57,
-      "second": 58,
+      "first": 119,
+      "second": 120,
       "questions": 2198,
-      "first_only": 355,
-      "second_only": 174,
-      "difference": 0.08234758871701547,
-      "low": 0.06212903390238685,
-      "high": 0.10256614353164409,
-      "p": 2.7083657404742196e-15,
-      "p_holm": 3.5208754626164856e-14
+      "first_only": 330,
+      "second_only": 172,
+      "difference": 0.0718835304822566,
+      "low": 0.05213153751630696,
+      "high": 0.09163552344820623,
+      "p": 1.6028856329690422e-12,
+      "p_holm": 2.885194139344276e-11
     },
     {
-      "first": 58,
+      "first": 120,
       "second": 54,
       "questions": 2198,
-      "first_only": 334,
-      "second_only": 240,
-      "difference": 0.042766151046405826,
-      "low": 0.02147700776775579,
-      "high": 0.06405529432505586,
-      "p": 0.00010034793609245237,
-      "p_holm": 0.001103827297016976
+      "first_only": 336,
+      "second_only": 236,
+      "difference": 0.04549590536851683,
+      "low": 0.024254055250958802,
+      "high": 0.06673775548607486,
+      "p": 3.3358835091345055e-05,
+      "p_holm": 0.0005003825263701758
     },
     {
       "first": 54,
@@ -6303,18 +9112,30 @@
       "low": 0.008033138518606254,
       "high": 0.04929170224572496,
       "p": 0.007404857447081556,
-      "p_holm": 0.059238859576652446
+      "p_holm": 0.08885828936497867
     },
     {
       "first": 49,
+      "second": 125,
+      "questions": 2198,
+      "first_only": 268,
+      "second_only": 263,
+      "difference": 0.0022747952684258415,
+      "low": -0.0182732726470048,
+      "high": 0.02282286318385648,
+      "p": 0.8622122760478431,
+      "p_holm": 1.0
+    },
+    {
+      "first": 125,
       "second": 52,
       "questions": 2198,
-      "first_only": 225,
-      "second_only": 214,
-      "difference": 0.005004549590536852,
-      "low": -0.013677882473968915,
-      "high": 0.02368698165504262,
-      "p": 0.6332170783309289,
+      "first_only": 272,
+      "second_only": 266,
+      "difference": 0.00272975432211101,
+      "low": -0.0179532160725664,
+      "high": 0.023412724716788416,
+      "p": 0.829351490507984,
       "p_holm": 1.0
     },
     {
@@ -6363,7 +9184,7 @@
       "low": 0.003688027661566406,
       "high": 0.04180787770695042,
       "p": 0.02194066100694269,
-      "p_holm": 0.15358462704859882
+      "p_holm": 0.23513569712720708
     },
     {
       "first": 50,
@@ -6375,7 +9196,7 @@
       "low": 0.3018708611276209,
       "high": 0.3559999305011325,
       "p": 2.185057409316946e-107,
-      "p_holm": 3.496091854907114e-106
+      "p_holm": 4.370114818633892e-106
     },
     {
       "first": 51,
@@ -6390,6 +9211,18 @@
       "p_holm": 1.0
     },
     {
+      "first": 46,
+      "second": 122,
+      "questions": 2198,
+      "first_only": 217,
+      "second_only": 208,
+      "difference": 0.004094631483166515,
+      "low": -0.014287844984190067,
+      "high": 0.022477107950523097,
+      "p": 0.6980218732848629,
+      "p_holm": 1.0
+    },
+    {
       "first": 45,
       "second": 50,
       "questions": 2198,
@@ -6399,7 +9232,7 @@
       "low": 0.01794483214073702,
       "high": 0.05757837077100093,
       "p": 0.00022780042456489667,
-      "p_holm": 0.0022780042456489666
+      "p_holm": 0.0031892059439085534
     }
   ],
   "cascades": [
@@ -8460,6 +11293,1251 @@
         "worse": 0.4666666666666667
       },
       "api_equivalent_usd": 4.782065965612374
+    },
+    {
+      "decision": 125,
+      "frontier": 48,
+      "frontier_accuracy": 0.9758871701546861,
+      "in_sample": {
+        "threshold": 0.9705,
+        "answered": 0.062329390354868064,
+        "accuracy": 0.9758871701546861
+      },
+      "curve": [
+        [
+          0.0,
+          0.9759
+        ],
+        [
+          0.01,
+          0.9759
+        ],
+        [
+          0.02,
+          0.9759
+        ],
+        [
+          0.03,
+          0.9759
+        ],
+        [
+          0.04,
+          0.9759
+        ],
+        [
+          0.05,
+          0.9759
+        ],
+        [
+          0.0601,
+          0.9759
+        ],
+        [
+          0.071,
+          0.9754
+        ],
+        [
+          0.0823,
+          0.9754
+        ],
+        [
+          0.0924,
+          0.9754
+        ],
+        [
+          0.1033,
+          0.9754
+        ],
+        [
+          0.1137,
+          0.9754
+        ],
+        [
+          0.1242,
+          0.9754
+        ],
+        [
+          0.1342,
+          0.975
+        ],
+        [
+          0.1442,
+          0.9745
+        ],
+        [
+          0.1551,
+          0.9745
+        ],
+        [
+          0.1656,
+          0.9741
+        ],
+        [
+          0.1756,
+          0.9732
+        ],
+        [
+          0.1856,
+          0.9727
+        ],
+        [
+          0.1956,
+          0.9722
+        ],
+        [
+          0.2056,
+          0.9718
+        ],
+        [
+          0.2157,
+          0.9713
+        ],
+        [
+          0.2266,
+          0.9695
+        ],
+        [
+          0.237,
+          0.97
+        ],
+        [
+          0.247,
+          0.9695
+        ],
+        [
+          0.2571,
+          0.9654
+        ],
+        [
+          0.2675,
+          0.9631
+        ],
+        [
+          0.2775,
+          0.9591
+        ],
+        [
+          0.2875,
+          0.9568
+        ],
+        [
+          0.2975,
+          0.955
+        ],
+        [
+          0.3076,
+          0.9527
+        ],
+        [
+          0.318,
+          0.9504
+        ],
+        [
+          0.328,
+          0.9459
+        ],
+        [
+          0.338,
+          0.944
+        ],
+        [
+          0.348,
+          0.9404
+        ],
+        [
+          0.3581,
+          0.9372
+        ],
+        [
+          0.3685,
+          0.9331
+        ],
+        [
+          0.3785,
+          0.9286
+        ],
+        [
+          0.3885,
+          0.9249
+        ],
+        [
+          0.3985,
+          0.9208
+        ],
+        [
+          0.4086,
+          0.9167
+        ],
+        [
+          0.419,
+          0.9122
+        ],
+        [
+          0.429,
+          0.9095
+        ],
+        [
+          0.439,
+          0.9031
+        ],
+        [
+          0.449,
+          0.8999
+        ],
+        [
+          0.4591,
+          0.8954
+        ],
+        [
+          0.4695,
+          0.8904
+        ],
+        [
+          0.4795,
+          0.8854
+        ],
+        [
+          0.49,
+          0.8817
+        ],
+        [
+          0.5005,
+          0.8749
+        ],
+        [
+          0.5114,
+          0.8685
+        ],
+        [
+          0.5218,
+          0.8621
+        ],
+        [
+          0.5318,
+          0.8594
+        ],
+        [
+          0.5428,
+          0.8535
+        ],
+        [
+          0.5532,
+          0.848
+        ],
+        [
+          0.5637,
+          0.8439
+        ],
+        [
+          0.5737,
+          0.8412
+        ],
+        [
+          0.5842,
+          0.8362
+        ],
+        [
+          0.5946,
+          0.8312
+        ],
+        [
+          0.6046,
+          0.8239
+        ],
+        [
+          0.6146,
+          0.8194
+        ],
+        [
+          0.6247,
+          0.8157
+        ],
+        [
+          0.6351,
+          0.8089
+        ],
+        [
+          0.6451,
+          0.803
+        ],
+        [
+          0.6551,
+          0.7957
+        ],
+        [
+          0.6652,
+          0.7894
+        ],
+        [
+          0.6756,
+          0.7839
+        ],
+        [
+          0.6856,
+          0.778
+        ],
+        [
+          0.6956,
+          0.7716
+        ],
+        [
+          0.7056,
+          0.7666
+        ],
+        [
+          0.7157,
+          0.7602
+        ],
+        [
+          0.7261,
+          0.7539
+        ],
+        [
+          0.7361,
+          0.7461
+        ],
+        [
+          0.7461,
+          0.7402
+        ],
+        [
+          0.7561,
+          0.7343
+        ],
+        [
+          0.7662,
+          0.7298
+        ],
+        [
+          0.7771,
+          0.7225
+        ],
+        [
+          0.7875,
+          0.7161
+        ],
+        [
+          0.7975,
+          0.7088
+        ],
+        [
+          0.8076,
+          0.702
+        ],
+        [
+          0.818,
+          0.6961
+        ],
+        [
+          0.828,
+          0.6884
+        ],
+        [
+          0.838,
+          0.6829
+        ],
+        [
+          0.848,
+          0.6761
+        ],
+        [
+          0.8585,
+          0.6688
+        ],
+        [
+          0.869,
+          0.6597
+        ],
+        [
+          0.8794,
+          0.6538
+        ],
+        [
+          0.8894,
+          0.6479
+        ],
+        [
+          0.8995,
+          0.6406
+        ],
+        [
+          0.9099,
+          0.6338
+        ],
+        [
+          0.9199,
+          0.6269
+        ],
+        [
+          0.9299,
+          0.6192
+        ],
+        [
+          0.9399,
+          0.6124
+        ],
+        [
+          0.95,
+          0.606
+        ],
+        [
+          0.9604,
+          0.5983
+        ],
+        [
+          0.9704,
+          0.5928
+        ],
+        [
+          0.9804,
+          0.5851
+        ],
+        [
+          0.9904,
+          0.5778
+        ],
+        [
+          1.0,
+          0.5728
+        ]
+      ],
+      "held_out": {
+        "splits": 300,
+        "answered": 0.11173405941522305,
+        "difference": -0.0013855064192252276,
+        "worse": 0.6233333333333333
+      },
+      "api_equivalent_usd": null
+    },
+    {
+      "decision": 125,
+      "frontier": 47,
+      "frontier_accuracy": 0.9044585987261147,
+      "in_sample": {
+        "threshold": 0.9705,
+        "answered": 0.062329390354868064,
+        "accuracy": 0.9044585987261147
+      },
+      "curve": [
+        [
+          0.0,
+          0.9045
+        ],
+        [
+          0.01,
+          0.9045
+        ],
+        [
+          0.02,
+          0.9045
+        ],
+        [
+          0.03,
+          0.9045
+        ],
+        [
+          0.04,
+          0.9045
+        ],
+        [
+          0.05,
+          0.9045
+        ],
+        [
+          0.0601,
+          0.9045
+        ],
+        [
+          0.071,
+          0.904
+        ],
+        [
+          0.0823,
+          0.904
+        ],
+        [
+          0.0924,
+          0.904
+        ],
+        [
+          0.1033,
+          0.9035
+        ],
+        [
+          0.1137,
+          0.9035
+        ],
+        [
+          0.1242,
+          0.9035
+        ],
+        [
+          0.1342,
+          0.904
+        ],
+        [
+          0.1442,
+          0.9035
+        ],
+        [
+          0.1551,
+          0.9035
+        ],
+        [
+          0.1656,
+          0.9031
+        ],
+        [
+          0.1756,
+          0.9022
+        ],
+        [
+          0.1856,
+          0.9017
+        ],
+        [
+          0.1956,
+          0.9013
+        ],
+        [
+          0.2056,
+          0.9008
+        ],
+        [
+          0.2157,
+          0.8999
+        ],
+        [
+          0.2266,
+          0.8985
+        ],
+        [
+          0.237,
+          0.8985
+        ],
+        [
+          0.247,
+          0.899
+        ],
+        [
+          0.2571,
+          0.8949
+        ],
+        [
+          0.2675,
+          0.8926
+        ],
+        [
+          0.2775,
+          0.8913
+        ],
+        [
+          0.2875,
+          0.889
+        ],
+        [
+          0.2975,
+          0.8876
+        ],
+        [
+          0.3076,
+          0.8872
+        ],
+        [
+          0.318,
+          0.8858
+        ],
+        [
+          0.328,
+          0.8822
+        ],
+        [
+          0.338,
+          0.8813
+        ],
+        [
+          0.348,
+          0.8776
+        ],
+        [
+          0.3581,
+          0.8753
+        ],
+        [
+          0.3685,
+          0.8726
+        ],
+        [
+          0.3785,
+          0.869
+        ],
+        [
+          0.3885,
+          0.8658
+        ],
+        [
+          0.3985,
+          0.8626
+        ],
+        [
+          0.4086,
+          0.8585
+        ],
+        [
+          0.419,
+          0.8544
+        ],
+        [
+          0.429,
+          0.8521
+        ],
+        [
+          0.439,
+          0.8467
+        ],
+        [
+          0.449,
+          0.8439
+        ],
+        [
+          0.4591,
+          0.8394
+        ],
+        [
+          0.4695,
+          0.8362
+        ],
+        [
+          0.4795,
+          0.8317
+        ],
+        [
+          0.49,
+          0.8285
+        ],
+        [
+          0.5005,
+          0.8239
+        ],
+        [
+          0.5114,
+          0.8176
+        ],
+        [
+          0.5218,
+          0.813
+        ],
+        [
+          0.5318,
+          0.8112
+        ],
+        [
+          0.5428,
+          0.8062
+        ],
+        [
+          0.5532,
+          0.8021
+        ],
+        [
+          0.5637,
+          0.798
+        ],
+        [
+          0.5737,
+          0.7962
+        ],
+        [
+          0.5842,
+          0.7916
+        ],
+        [
+          0.5946,
+          0.7866
+        ],
+        [
+          0.6046,
+          0.7793
+        ],
+        [
+          0.6146,
+          0.7748
+        ],
+        [
+          0.6247,
+          0.7721
+        ],
+        [
+          0.6351,
+          0.7671
+        ],
+        [
+          0.6451,
+          0.7625
+        ],
+        [
+          0.6551,
+          0.7552
+        ],
+        [
+          0.6652,
+          0.7493
+        ],
+        [
+          0.6756,
+          0.7448
+        ],
+        [
+          0.6856,
+          0.7407
+        ],
+        [
+          0.6956,
+          0.7348
+        ],
+        [
+          0.7056,
+          0.7311
+        ],
+        [
+          0.7157,
+          0.7261
+        ],
+        [
+          0.7261,
+          0.7216
+        ],
+        [
+          0.7361,
+          0.7143
+        ],
+        [
+          0.7461,
+          0.7093
+        ],
+        [
+          0.7561,
+          0.7047
+        ],
+        [
+          0.7662,
+          0.7015
+        ],
+        [
+          0.7771,
+          0.6952
+        ],
+        [
+          0.7875,
+          0.6902
+        ],
+        [
+          0.7975,
+          0.6843
+        ],
+        [
+          0.8076,
+          0.6774
+        ],
+        [
+          0.818,
+          0.6715
+        ],
+        [
+          0.828,
+          0.6656
+        ],
+        [
+          0.838,
+          0.6615
+        ],
+        [
+          0.848,
+          0.6574
+        ],
+        [
+          0.8585,
+          0.651
+        ],
+        [
+          0.869,
+          0.6429
+        ],
+        [
+          0.8794,
+          0.6397
+        ],
+        [
+          0.8894,
+          0.6347
+        ],
+        [
+          0.8995,
+          0.6278
+        ],
+        [
+          0.9099,
+          0.6233
+        ],
+        [
+          0.9199,
+          0.6183
+        ],
+        [
+          0.9299,
+          0.6119
+        ],
+        [
+          0.9399,
+          0.6051
+        ],
+        [
+          0.95,
+          0.5996
+        ],
+        [
+          0.9604,
+          0.5933
+        ],
+        [
+          0.9704,
+          0.5896
+        ],
+        [
+          0.9804,
+          0.5823
+        ],
+        [
+          0.9904,
+          0.5764
+        ],
+        [
+          1.0,
+          0.5728
+        ]
+      ],
+      "held_out": {
+        "splits": 300,
+        "answered": 0.11954698131492317,
+        "difference": -0.0013792553365715033,
+        "worse": 0.64
+      },
+      "api_equivalent_usd": null
+    },
+    {
+      "decision": 125,
+      "frontier": 55,
+      "frontier_accuracy": 0.8503184713375797,
+      "in_sample": {
+        "threshold": 0.9083,
+        "answered": 0.24977252047315743,
+        "accuracy": 0.8503184713375797
+      },
+      "curve": [
+        [
+          0.0,
+          0.8503
+        ],
+        [
+          0.01,
+          0.8503
+        ],
+        [
+          0.02,
+          0.8503
+        ],
+        [
+          0.03,
+          0.8508
+        ],
+        [
+          0.04,
+          0.8508
+        ],
+        [
+          0.05,
+          0.8508
+        ],
+        [
+          0.0601,
+          0.8512
+        ],
+        [
+          0.071,
+          0.8508
+        ],
+        [
+          0.0823,
+          0.8512
+        ],
+        [
+          0.0924,
+          0.8517
+        ],
+        [
+          0.1033,
+          0.8517
+        ],
+        [
+          0.1137,
+          0.8517
+        ],
+        [
+          0.1242,
+          0.8517
+        ],
+        [
+          0.1342,
+          0.8512
+        ],
+        [
+          0.1442,
+          0.8517
+        ],
+        [
+          0.1551,
+          0.8517
+        ],
+        [
+          0.1656,
+          0.8512
+        ],
+        [
+          0.1756,
+          0.8503
+        ],
+        [
+          0.1856,
+          0.8508
+        ],
+        [
+          0.1956,
+          0.8508
+        ],
+        [
+          0.2056,
+          0.8503
+        ],
+        [
+          0.2157,
+          0.8499
+        ],
+        [
+          0.2266,
+          0.8485
+        ],
+        [
+          0.237,
+          0.8499
+        ],
+        [
+          0.247,
+          0.8508
+        ],
+        [
+          0.2571,
+          0.848
+        ],
+        [
+          0.2675,
+          0.8476
+        ],
+        [
+          0.2775,
+          0.8449
+        ],
+        [
+          0.2875,
+          0.8449
+        ],
+        [
+          0.2975,
+          0.8439
+        ],
+        [
+          0.3076,
+          0.8435
+        ],
+        [
+          0.318,
+          0.8426
+        ],
+        [
+          0.328,
+          0.8403
+        ],
+        [
+          0.338,
+          0.8394
+        ],
+        [
+          0.348,
+          0.8385
+        ],
+        [
+          0.3581,
+          0.8371
+        ],
+        [
+          0.3685,
+          0.8353
+        ],
+        [
+          0.3785,
+          0.833
+        ],
+        [
+          0.3885,
+          0.8321
+        ],
+        [
+          0.3985,
+          0.8289
+        ],
+        [
+          0.4086,
+          0.8262
+        ],
+        [
+          0.419,
+          0.8226
+        ],
+        [
+          0.429,
+          0.8217
+        ],
+        [
+          0.439,
+          0.818
+        ],
+        [
+          0.449,
+          0.8157
+        ],
+        [
+          0.4591,
+          0.8116
+        ],
+        [
+          0.4695,
+          0.8094
+        ],
+        [
+          0.4795,
+          0.8057
+        ],
+        [
+          0.49,
+          0.8039
+        ],
+        [
+          0.5005,
+          0.7994
+        ],
+        [
+          0.5114,
+          0.7957
+        ],
+        [
+          0.5218,
+          0.7907
+        ],
+        [
+          0.5318,
+          0.7889
+        ],
+        [
+          0.5428,
+          0.783
+        ],
+        [
+          0.5532,
+          0.7798
+        ],
+        [
+          0.5637,
+          0.7766
+        ],
+        [
+          0.5737,
+          0.7743
+        ],
+        [
+          0.5842,
+          0.7707
+        ],
+        [
+          0.5946,
+          0.7666
+        ],
+        [
+          0.6046,
+          0.7616
+        ],
+        [
+          0.6146,
+          0.758
+        ],
+        [
+          0.6247,
+          0.7552
+        ],
+        [
+          0.6351,
+          0.7507
+        ],
+        [
+          0.6451,
+          0.7461
+        ],
+        [
+          0.6551,
+          0.7407
+        ],
+        [
+          0.6652,
+          0.7357
+        ],
+        [
+          0.6756,
+          0.7316
+        ],
+        [
+          0.6856,
+          0.7288
+        ],
+        [
+          0.6956,
+          0.7229
+        ],
+        [
+          0.7056,
+          0.7202
+        ],
+        [
+          0.7157,
+          0.7161
+        ],
+        [
+          0.7261,
+          0.712
+        ],
+        [
+          0.7361,
+          0.7038
+        ],
+        [
+          0.7461,
+          0.7015
+        ],
+        [
+          0.7561,
+          0.697
+        ],
+        [
+          0.7662,
+          0.6943
+        ],
+        [
+          0.7771,
+          0.6897
+        ],
+        [
+          0.7875,
+          0.6838
+        ],
+        [
+          0.7975,
+          0.6783
+        ],
+        [
+          0.8076,
+          0.6724
+        ],
+        [
+          0.818,
+          0.667
+        ],
+        [
+          0.828,
+          0.6606
+        ],
+        [
+          0.838,
+          0.6565
+        ],
+        [
+          0.848,
+          0.6529
+        ],
+        [
+          0.8585,
+          0.646
+        ],
+        [
+          0.869,
+          0.6383
+        ],
+        [
+          0.8794,
+          0.6338
+        ],
+        [
+          0.8894,
+          0.6297
+        ],
+        [
+          0.8995,
+          0.6237
+        ],
+        [
+          0.9099,
+          0.6183
+        ],
+        [
+          0.9199,
+          0.6142
+        ],
+        [
+          0.9299,
+          0.6078
+        ],
+        [
+          0.9399,
+          0.6024
+        ],
+        [
+          0.95,
+          0.5974
+        ],
+        [
+          0.9604,
+          0.591
+        ],
+        [
+          0.9704,
+          0.5874
+        ],
+        [
+          0.9804,
+          0.5814
+        ],
+        [
+          0.9904,
+          0.576
+        ],
+        [
+          1.0,
+          0.5728
+        ]
+      ],
+      "held_out": {
+        "splits": 300,
+        "answered": 0.22837585420252102,
+        "difference": -0.0018651054497957368,
+        "worse": 0.4866666666666667
+      },
+      "api_equivalent_usd": null
     },
     {
       "decision": 52,
@@ -11032,6 +15110,23 @@
       "top_tenth": {
         "questions": 219,
         "with_mistake": 61,
+        "all_with_mistake": 433
+      }
+    },
+    {
+      "decision": 125,
+      "frontier": [
+        48,
+        47,
+        55
+      ],
+      "questions": 2198,
+      "rho": 0.1812948326361934,
+      "p": 0.004975124378109453,
+      "auroc": 0.630554337941367,
+      "top_tenth": {
+        "questions": 219,
+        "with_mistake": 62,
         "all_with_mistake": 433
       }
     },

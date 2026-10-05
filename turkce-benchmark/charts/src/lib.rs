@@ -117,6 +117,8 @@ pub fn load(path: &Path) -> Result<Results, Box<dyn Error>> {
     Ok(serde_json::from_str(&std::fs::read_to_string(path)?)?)
 }
 
+/// Providers whose runs answer near chance, left out of the coverage and calibration figures.
+const NEAR_CHANCE_PROVIDERS: [&str; 2] = ["laya", "gliner"];
 /// Calibration bins with fewer answers than this are too noisy to plot.
 const MIN_BIN_ANSWERS: u32 = 20;
 
@@ -167,6 +169,8 @@ fn color(run: &Run) -> Color {
     let rgb = |code: u32| Color::Rgb((code >> 16) as u8, (code >> 8) as u8, code as u8);
     match (run.model.as_str(), run.reasoning.as_deref(), run.variant.as_deref()) {
         ("gpt-6-astra", ..) => rgb(0x2563eb),
+        ("gpt-6.1-sol", ..) => rgb(0x0284c7),
+        ("gemini-3.8-flash", ..) => rgb(0x65a30d),
         ("claude-opus-5-5", ..) => rgb(0x7c3aed),
         ("claude-sonnet-5-5", Some("high"), _) => rgb(0xdb2777),
         ("claude-sonnet-5-5", ..) => rgb(0xf472b6),
@@ -177,6 +181,7 @@ fn color(run: &Run) -> Color {
         ("jev-1.13.0", ..) => rgb(0xdc2626),
         ("d1:free", ..) => rgb(0xca8a04),
         ("open-jev-27b-v1.1", ..) => rgb(0x0d9488),
+        ("clef", ..) => rgb(0x9333ea),
         ("qwen38-27b-bf16", _, Some("stated confidence")) => rgb(0x78716c),
         ("qwen38-27b-bf16", _, Some("vote share")) => rgb(0x4f46e5),
         ("qwen38-27b-bf16", ..) => rgb(0x92400e),
@@ -520,7 +525,7 @@ fn coverage_curve(points: &[[f64; 2]]) -> Vec<(f64, f64)> {
     points.iter().map(|&[coverage, risk]| (100.0 * coverage, 100.0 * (1.0 - risk))).collect()
 }
 
-const COVERAGE_TITLE: &str = "More confident, more often right, except Qwen's stated confidence";
+const COVERAGE_TITLE: &str = "More confident, more often right, except Qwen's stated confidence and DeepSeek after reasoning";
 const CALIBRATION_TITLE: &str = "Does 0.8 mean 80% right?";
 const SOURCES_TITLE: &str = "Qwen's stated confidence fails; its probabilities and votes work";
 // The two panels of the coverage and calibration figures: token probabilities, and confidence the model states
@@ -536,7 +541,7 @@ fn coverage(results: &Results) -> Figure<'_> {
             .iter()
             .filter_map(|run| {
                 let confidence = run.confidence.as_ref()?;
-                ((confidence.source == "probability") == probability && run.provider != "laya")
+                ((confidence.source == "probability") == probability && !NEAR_CHANCE_PROVIDERS.contains(&run.provider.as_str()))
                     .then(|| Series::line(results.label(run), color(run), coverage_curve(&confidence.risk_coverage)))
             })
             .collect()
@@ -564,7 +569,7 @@ fn calibration(results: &Results) -> Figure<'_> {
             else {
                 continue;
             };
-            if run.provider == "laya" {
+            if NEAR_CHANCE_PROVIDERS.contains(&run.provider.as_str()) {
                 continue;
             }
             let points: Vec<(f64, f64)> = confidence

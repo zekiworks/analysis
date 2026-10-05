@@ -54,6 +54,14 @@ PROVIDERS: dict[str, dict[str, Any]] = {
         "cost_basis": "the free d1 model; Liquid publishes no price for d1",
     },
     "laya": {"access": "Laya server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
+    "gliner": {"access": "GLiNER2 server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
+    "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
+    "gemini": {
+        "access": "Gemini API",
+        "scoring": False,
+        "billing": "api",
+        "cost_basis": "Gemini API list price, {price}",
+    },
     "vllm-yes-no": {
         "access": "vLLM, self-hosted, BF16",
         "scoring": True,
@@ -100,6 +108,10 @@ MODELS: dict[str, dict[str, str]] = {
         "name": "GPT-6 Astra",
         "price": "$10 per 1M input tokens ($1 cached), $50 per 1M output tokens",
     },
+    "gpt-6.1-sol": {
+        "name": "GPT-6.1 Sol",
+        "price": "$2 per 1M input tokens ($0.10 cached), $10 per 1M output tokens",
+    },
     "claude-opus-5-5": {
         "name": "Claude Opus 5.5",
         "price": "$4 / $20 per 1M input / output tokens",
@@ -132,6 +144,16 @@ MODELS: dict[str, dict[str, str]] = {
     "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}"},
     "laya-multilingual": {"name": "Laya multilingual", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}"},
     "qwen38-27b-bf16": {"name": "Qwen3.8-27B", "note": "Open-Jev's base model", "hardware": f"1 × {GPU}; BF16"},
+    "gliner2.5-multi-v1": {
+        "name": "GLiNER2.5 Multi",
+        "note": "Multilingual extraction and classification model (287M)",
+        "hardware": f"1 × {GPU}; FP16",
+    },
+    "clef": {"name": "Clef", "note": "Cloudflare's decision model, post-trained from Qwen3.8-27B", "hardware": f"1 × {GPU}; BF16"},
+    "gemini-3.8-flash": {
+        "name": "Gemini 3.8 Flash",
+        "price": "$0.75 per 1M input tokens, $3.75 per 1M output tokens, thinking included (introductory price through 2026)",
+    },
 }
 UNITS_EN = {
     1: "Meaning of words and phrases",

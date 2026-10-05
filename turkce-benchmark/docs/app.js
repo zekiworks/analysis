@@ -642,8 +642,8 @@ function renderRepeats(data) {
         value: item.scored ? percent(item.score_identical, item.scored) : null,
         numeric: true,
       }),
-      td(item.sure_wrong.join(' / '), { value: Math.max(...item.sure_wrong), numeric: true }),
-      td(String(item.sure_wrong_every_run), { value: item.sure_wrong_every_run, numeric: true }),
+      td(item.scored ? item.sure_wrong.join(' / ') : '—', { value: item.scored ? Math.max(...item.sure_wrong) : null, numeric: true }),
+      td(item.scored ? String(item.sure_wrong_every_run) : '—', { value: item.scored ? item.sure_wrong_every_run : null, numeric: true }),
     );
   });
   fillTable(
