@@ -1,4 +1,4 @@
-# Understanding Under Thin Training: A Turkish Exam Benchmark
+# Understanding Under Thin Training? A Turkish Exam Benchmark
 
 Results page for language models on 2,198 multiple-choice questions from a TYT Türkçe question bank, in
 its second version with the lost markup repaired: scores, accuracy by unit, confidence with bootstrap

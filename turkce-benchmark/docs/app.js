@@ -151,29 +151,29 @@ function renderLeaderboard(data) {
       {},
       td(String(rank), { value: rank, numeric: true }),
       modelCell(run),
-      td(run.access),
       td(run.reasoning ?? '—', { title: run.reasoning ? null : 'Scores the supplied options; no reasoning setting' }),
       td(
         [el('span', { class: 'bar', style: `width: ${score}%` }), el('span', { class: 'value', text: formatPercent(score) })],
         { value: score, numeric: true, className: 'score' },
       ),
-      td(integer(run.correct), { value: run.correct, numeric: true }),
       percentCell(groupAccuracy(run, 'reading')),
       percentCell(groupAccuracy(run, 'grammar')),
-      percentCell(run.tyt_mix == null ? null : 100 * run.tyt_mix, { title: `Meaning and form weighted like ${mix}` }),
       td(formatScore(auroc), { value: auroc, numeric: true }),
-      td(run.questions_per_minute == null ? '—' : run.questions_per_minute.toFixed(1), {
-        value: run.questions_per_minute,
-        numeric: true,
-        title: run.concurrency > 1 ? `${run.concurrency} requests at a time` : null,
-      }),
-      td(String(run.questions_per_request), { value: run.questions_per_request, numeric: true }),
       td(tokens == null ? '—' : tokens.toFixed(1), {
         value: tokens,
         numeric: true,
         title: run.output_tokens == null ? null : `${integer(run.output_tokens)} output tokens in all`,
       }),
       td(formatUsd(cost), { value: cost, numeric: true, title: run.cost_basis }),
+      percentCell(run.tyt_mix == null ? null : 100 * run.tyt_mix, { title: `Meaning and form weighted like ${mix}` }),
+      td(run.questions_per_minute == null ? '—' : run.questions_per_minute.toFixed(1), {
+        value: run.questions_per_minute,
+        numeric: true,
+        title: run.concurrency > 1 ? `${run.concurrency} requests at a time` : null,
+      }),
+      td(String(run.questions_per_request), { value: run.questions_per_request, numeric: true }),
+      td(integer(run.correct), { value: run.correct, numeric: true }),
+      td(run.access),
     );
   });
   const table = document.getElementById('leaderboard');
@@ -182,30 +182,30 @@ function renderLeaderboard(data) {
     [
       { label: '#', numeric: true, title: 'Rank by score' },
       { label: 'Model' },
-      { label: 'Access' },
       { label: 'Reasoning', title: 'Reasoning or effort setting' },
       { label: 'Score', numeric: true },
-      { label: 'Correct', numeric: true },
       { label: 'Meaning (reading)', numeric: true, title: 'Units 1–6' },
       { label: 'Form (grammar)', numeric: true, title: 'Units 7–20' },
-      { label: 'TYT mix', numeric: true, title: `Meaning and form weighted like the 2026 TYT paper: ${mix}` },
       {
         label: 'AUROC',
         numeric: true,
         title: 'Chance that a right answer has a higher confidence than a wrong one; empty without a confidence',
       },
-      { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time' },
-      { label: 'Per request', numeric: true, title: 'Questions sent in one request' },
       { label: 'Output tokens', numeric: true, title: 'Output tokens per question, reasoning included' },
       {
         label: 'Cost per 1,000 (USD)',
         numeric: true,
         title: 'API-equivalent cost per 1,000 questions; empty for open weights with no price',
       },
+      { label: 'TYT mix', numeric: true, title: `Meaning and form weighted like the 2026 TYT paper: ${mix}` },
+      { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time' },
+      { label: 'Per request', numeric: true, title: 'Questions sent in one request' },
+      { label: 'Correct', numeric: true },
+      { label: 'Access' },
     ],
     rows,
   );
-  table.tHead.rows[0].cells[4].setAttribute('aria-sort', 'descending');
+  table.tHead.rows[0].cells[3].setAttribute('aria-sort', 'descending');
 }
 
 function renderCost(data) {
@@ -393,7 +393,7 @@ function renderConfidence(data) {
       );
     });
   fillTable(
-    document.getElementById('sure'),
+    document.getElementById('sure-table'),
     [
       { label: 'Model' },
       { label: 'Confidence' },
@@ -412,6 +412,42 @@ const SOURCE_KINDS = {
   votes: 'Share of 10 samples with the same answer',
 };
 
+/* AUROC on meaning and on form for every run with a confidence, highest on meaning first. */
+function renderParts(data) {
+  const runs = data.runs
+    .filter(run => run.confidence?.parts?.meaning && run.confidence.parts.form)
+    .sort((a, b) => b.confidence.parts.meaning.auroc - a.confidence.parts.meaning.auroc);
+  const aurocCell = part =>
+    td([formatScore(part.auroc), el('span', { class: 'small', text: scoreRange(part.auroc_interval) ?? '' })], {
+      value: part.auroc,
+      numeric: true,
+    });
+  const rows = runs.map(run => {
+    const { meaning, form } = run.confidence.parts;
+    // Below 0.6 on both parts a confidence barely ranks answers, so a drop between the parts means nothing.
+    const chance = Math.max(meaning.auroc, form.auroc) < 0.6;
+    const drop = meaning.auroc - form.auroc;
+    return el(
+      'tr',
+      {},
+      modelCell(run, { withSetting: true }),
+      aurocCell(meaning),
+      aurocCell(form),
+      td(chance ? 'near chance on both' : drop.toFixed(2), { value: chance ? null : drop, numeric: true }),
+    );
+  });
+  fillTable(
+    document.getElementById('parts'),
+    [
+      { label: 'Run' },
+      { label: 'AUROC, meaning', numeric: true, title: 'Reading questions, units 1–6, with the 95% bootstrap interval' },
+      { label: 'AUROC, form', numeric: true, title: 'Grammar questions, units 7–20, with the 95% bootstrap interval' },
+      { label: 'Drop', numeric: true, title: 'AUROC on meaning minus AUROC on form' },
+    ],
+    rows,
+  );
+}
+
 function renderSources(data) {
   const byRun = new Map(data.runs.map(run => [run.run, run]));
   const rows = data.sources.flatMap(item =>
@@ -429,7 +465,7 @@ function renderSources(data) {
     ),
   );
   fillTable(
-    document.getElementById('sources'),
+    document.getElementById('sources-table'),
     [
       { label: 'Confidence from' },
       { label: 'How' },
@@ -723,6 +759,7 @@ async function main() {
   renderVersions(data);
   renderPaired(data);
   renderCascade(data);
+  renderParts(data);
   renderPipelines(data);
   renderRepeats(data);
 }

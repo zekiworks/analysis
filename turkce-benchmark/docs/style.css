@@ -62,6 +62,7 @@ thead th {
 thead th[tabindex] { cursor: pointer; user-select: none; }
 thead th[tabindex]:hover, thead th[tabindex]:focus-visible { background: var(--border); outline: none; }
 .setups td:first-child, .carries td:first-child { font-weight: 600; min-width: 12rem; }
+table.ladder { width: auto; }
 /* The routing rule under the cascade card's heading. */
 .flow { margin: 0 0 1rem; padding: .6rem .9rem; background: var(--bg); border-left: 3px solid var(--primary);
   border-radius: 4px; max-width: 80ch; }
@@ -75,7 +76,7 @@ tfoot td { font-weight: 600; border-top: 2px solid var(--border); border-bottom:
 .small { display: block; font-size: .78rem; color: var(--text-muted); }
 .model-name { font-weight: 600; }
 td.model { min-width: 11rem; }
-#leaderboard td:nth-child(3) { min-width: 9rem; }
+#leaderboard td:last-child { min-width: 9rem; }
 
 /* Score column: the number sits on a bar proportional to the score. */
 td.score { position: relative; font-weight: 700; min-width: 7rem; }

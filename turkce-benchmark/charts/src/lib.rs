@@ -400,7 +400,7 @@ fn segment(x1: f64, y1: f64, x2: f64, y2: f64, color: Color) -> Segment {
     Segment { x1, y1, x2, y2, color }
 }
 
-const READING_GRAMMAR_TITLE: &str = "Meaning carries over, form does not: accuracy on reading and grammar";
+const READING_GRAMMAR_TITLE: &str = "Meaning generalizes; form mostly does not";
 
 fn reading_grammar(results: &Results) -> Figure<'_> {
     let rows: Vec<(String, f64, f64)> = results
@@ -451,7 +451,7 @@ const UNIT_RUNS: [(&str, Option<&str>); 6] = [
     ("laya", None),
 ];
 
-const UNITS_TITLE: &str = "Without reasoning, accuracy falls at unit 7, where form (grammar) begins";
+const UNITS_TITLE: &str = "Without reasoning, models break at unit 7";
 
 fn units(results: &Results) -> Figure<'_> {
     let lines: Vec<(String, Color, Vec<(f64, f64)>)> = UNIT_RUNS
@@ -475,7 +475,12 @@ fn units(results: &Results) -> Figure<'_> {
         width: 120,
         height: 28,
         draw: Box::new(move |area, buf| {
-            let body = heading(buf, area, UNITS_TITLE, muted("Accuracy (y) by unit (x) for six runs; unit names are in the table above"));
+            let body = heading(
+                buf,
+                area,
+                UNITS_TITLE,
+                muted("Accuracy (y) by unit (x) for six runs; form (grammar) starts at unit 7; names in the table above"),
+            );
             let plot = Plot { area: body, x: [-4.0, right + 5.0], y: [-14.0, 106.0] };
             plot.canvas(|ctx| {
                 ctx.draw(&segment(left, 0.0, right, 0.0, GUIDE));
@@ -515,10 +520,9 @@ fn coverage_curve(points: &[[f64; 2]]) -> Vec<(f64, f64)> {
     points.iter().map(|&[coverage, risk]| (100.0 * coverage, 100.0 * (1.0 - risk))).collect()
 }
 
-const COVERAGE_TITLE: &str = "Answering only the most confident questions raises accuracy, except with Qwen's stated confidence";
-const CALIBRATION_TITLE: &str = "Calibration: does a confidence of 0.8 mean 80% right?";
-const SOURCES_TITLE: &str =
-    "Same answers: Qwen's stated confidence does no better than chance; its probabilities and its votes work";
+const COVERAGE_TITLE: &str = "More confident, more often right, except Qwen's stated confidence";
+const CALIBRATION_TITLE: &str = "Does 0.8 mean 80% right?";
+const SOURCES_TITLE: &str = "Qwen's stated confidence fails; its probabilities and votes work";
 // The two panels of the coverage and calibration figures: token probabilities, and confidence the model states
 // or the share of its samples.
 const PROBABILITY_PANEL: &str = "Probability of the chosen option";
@@ -619,7 +623,7 @@ fn sources(results: &Results) -> Option<Figure<'_>> {
     Some(Figure {
         name: "sources",
         title: SOURCES_TITLE.into(),
-        width: 110,
+        width: 100,
         height: 27,
         draw: Box::new(move |area, buf| {
             let body = heading(buf, area, SOURCES_TITLE, muted(second.clone()));
@@ -627,8 +631,6 @@ fn sources(results: &Results) -> Option<Figure<'_>> {
         }),
     })
 }
-
-const PAIRED_TITLE: &str = "Which gaps between neighbouring runs are real?";
 
 fn paired(results: &Results) -> Figure<'_> {
     let rows: Vec<(String, f64, f64, f64, bool)> = results
@@ -650,16 +652,18 @@ fn paired(results: &Results) -> Figure<'_> {
     let bounds = [(lowest / 5.0).floor() * 5.0, (highest / 5.0).ceil() * 5.0];
     let label_width = rows.iter().map(|row| row.0.chars().count()).max().unwrap_or(0) as u16;
     let count = rows.len() as u16;
+    // The title counts the gaps that stay significant after the Holm correction, so it follows the data.
+    let title = format!("{} of {} gaps are real", rows.iter().filter(|row| row.4).count(), rows.len());
     Figure {
         name: "paired",
-        title: PAIRED_TITLE.into(),
+        title: title.clone(),
         width: 120,
         height: count + 6,
         draw: Box::new(move |area, buf| {
-            let [title, body, axis] =
+            let [head, body, axis] =
                 Layout::vertical([Constraint::Length(4), Constraint::Length(count), Constraint::Length(2)]).areas(area);
             Paragraph::new(vec![
-                Line::from(PAIRED_TITLE).bold(),
+                Line::from(title.clone()).bold(),
                 muted("Accuracy difference, first run minus second, in percentage points, with 95% intervals"),
                 Line::from(vec![
                     Span::from("━━ ").fg(SIGNIFICANT),
@@ -668,7 +672,7 @@ fn paired(results: &Results) -> Figure<'_> {
                     Span::from("not significant"),
                 ]),
             ])
-            .render(title, buf);
+            .render(head, buf);
             let [labels, _, plot_area, values] = Layout::horizontal([
                 Constraint::Length(label_width),
                 Constraint::Length(2),
@@ -710,8 +714,7 @@ fn paired(results: &Results) -> Figure<'_> {
     }
 }
 
-const CASCADE_TITLE: &str =
-    "Confident answers stay with the decision model, the rest go to the frontier model: accuracy holds up to a point";
+const CASCADE_TITLE: &str = "Accuracy holds until the cheap model takes too many";
 
 /// The frontier runs on the cascade figure: (model, reasoning setting).
 const CASCADE_FRONTIERS: [(&str, &str); 2] = [("gpt-6-astra", "low"), ("claude-sonnet-5-5", "high")];

@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Understanding Under Thin Training: A Turkish Exam Benchmark</title>
-  <meta name="description" content="What happens when AI models leave the territory they were trained on? Understanding or memory, knowing when they are right, and the cost in tokens and reasoning, tested on 2,198 Turkish exam questions.">
-  <meta property="og:title" content="Understanding Under Thin Training: A Turkish Exam Benchmark">
-  <meta property="og:description" content="What happens when AI models leave the territory they were trained on? Understanding or memory, knowing when they are right, and the cost in tokens and reasoning, tested on 2,198 Turkish exam questions.">
+  <title>Understanding Under Thin Training? A Turkish Exam Benchmark</title>
+  <meta name="description" content="What happens when AI models leave the territory they were trained on? A test of generalization: understanding or memory, knowing when they are right, and the cost in tokens and reasoning, on 2,198 Turkish exam questions.">
+  <meta property="og:title" content="Understanding Under Thin Training? A Turkish Exam Benchmark">
+  <meta property="og:description" content="What happens when AI models leave the territory they were trained on? A test of generalization: understanding or memory, knowing when they are right, and the cost in tokens and reasoning, on 2,198 Turkish exam questions.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   <link rel="stylesheet" href="style.css">
@@ -14,21 +14,25 @@
 </head>
 <body>
   <header>
-    <h1>Understanding Under Thin Training: A Turkish Exam Benchmark</h1>
-    <p class="subtitle">What happens when AI models leave the territory they were trained on? We test whether they
-      understand or only remember, whether they know when they are right, and what a right answer costs in tokens and
-      reasoning.</p>
+    <h1>Understanding Under Thin Training? A Turkish Exam Benchmark</h1>
+    <p class="subtitle">What happens when AI models leave the territory they were trained on? Do they understand, or only
+      remember? Do they know when they are right? And what does a right answer cost?</p>
     <p class="subtitle" id="summary">Loading results…</p>
     <noscript><p class="subtitle">The tables need JavaScript. The numbers are in <a href="results.json">results.json</a>.</p></noscript>
   </header>
 
   <main>
     <section class="card prose" id="about">
-      <h2>What this benchmark measures</h2>
-      <p>This benchmark asks what happens when AI models leave the territory they were trained on. Turkish is the test
-        bed, not the topic. Most models probably see far less Turkish than English in training. We cannot check this,
-        because the training data of most models is not public. So the "thin training" in the title is an assumption,
-        and the page treats it as one.</p>
+      <h2>The four questions</h2>
+      <p>This benchmark asks what happens when AI models leave the territory they were trained on. It is a test of
+        generalization: how well what a model learned carries over to a setting its training did not focus on. Turkish
+        is the test bed, not the topic. Right answers on multiple-choice questions are a proxy for understanding, not a
+        direct measure of it.</p>
+      <p>The title is a question, because "thin training" is a hypothesis, not a finding. Two facts support it. Most
+        models probably see far less Turkish than English in training. And Turkish school grammar, for example how
+        verbals and noun phrases are analysed, is a niche topic even in Turkish text. Two facts weaken it. We cannot see
+        the training data of most models. And the question book is online, so some of these questions may have been in
+        training.</p>
       <p>We measure four things:</p>
       <ul>
         <li><strong>Meaning:</strong> reading questions ask what a word, a sentence or a paragraph says (units 1–6, 656
@@ -45,7 +49,8 @@
       <p><strong>Why confidence matters.</strong> A confidence score tells a system which answers it can trust. Of
         Jev's answers at a confidence of 0.9 or more, 95% were right (509 of 534); of its answers below 0.5, only 31%
         were right (275 of 877). With a reliable confidence, a cheap model can keep the answers it is sure of, a person
-        can check only the doubtful ones, and a drop in confidence marks unfamiliar territory.</p>
+        can check only the doubtful ones, and a drop in confidence marks unfamiliar territory. <em>Evidence:</em>
+        <a href="#confidence-section">Do models know when they are right?</a></p>
       <p>The questions come from a practice book for the Turkish-language section of the Basic Proficiency Test (TYT
         Türkçe), the first stage of Turkey's university entrance exam. Every question has a printed answer key, so no
         model grades another. The bank is 70% grammar, so the total score weights form more than meaning. The
@@ -56,86 +61,102 @@
         <a href="https://github.com/Zefan-Cai/Open-Jev">Open-Jev</a> is an independent, open implementation inspired
         by it, so we can see how its probabilities are made and test the parts separately.</p>
 
-      <h3>Key findings</h3>
+      <h3>What we found</h3>
       <ol id="findings">
-        <li><strong>Meaning carries over; form does not.</strong> Every model except the near-chance Laya models answers
-          80–97% of the reading questions correctly. On the grammar questions, GPT-6 Astra, DeepSeek-V4.1-Flash with
-          reasoning and Claude Sonnet 5.5 at high effort stay at their reading level. Claude Opus 5.5 at low effort loses
-          6 points, and every other model except Laya loses 23–42 points.</li>
-        <li><strong>Reasoning recovers form, but it costs tokens and time.</strong> With reasoning on, DeepSeek-V4.1-Flash
-          goes from 56% to 92% on the grammar questions. It writes about 1,000 output tokens per question instead of 6,
-          and its run takes 123 minutes instead of 11. GPT-6 Astra reaches 98% on grammar with 21 output tokens per
-          question.</li>
-        <li><strong>Strong models know when they are right; a small model knows it only through its
-          probabilities.</strong> GPT-6 Astra's stated confidence separates its right answers from its wrong answers
-          best: its AUROC, the chance that a right answer gets a higher confidence than a wrong one, is 0.92. On the same
-          answers, Qwen3.8-27B's stated confidence does no better than chance (0.51). Its yes/no probabilities (0.78)
-          and the share of 10 samples that agree (0.78) work.</li>
-        <li><strong>The order of the confidence carries over; its size does not.</strong> Open-Jev still ranks right
-          answers above wrong ones (AUROC 0.82). But its confidence is too low: all 144 of its answers at a confidence
-          of 0.5–0.6 were right.</li>
+        <li><strong>Meaning generalizes; form mostly does not.</strong> Every model except the near-chance Laya models
+          answers 80–97% of the reading questions correctly. On the grammar questions, GPT-6 Astra, DeepSeek-V4.1-Flash
+          with reasoning and Claude Sonnet 5.5 at high effort stay at their reading level. Claude Opus 5.5 at low effort
+          loses 6 points, and every other model except Laya loses 23–42 points. <em>Evidence:</em>
+          <a href="#leaderboard-section">Leaderboard</a>, <a href="#units-section">Where models break</a>.</li>
+        <li><strong>Reasoning buys back form, at a price.</strong> With reasoning on, DeepSeek-V4.1-Flash goes from 56% to
+          92% on the grammar questions. It writes about 1,000 output tokens per question instead of 6, and its run takes
+          123 minutes instead of 11. GPT-6 Astra reaches 98% on grammar with 21 output tokens per question.
+          <em>Evidence:</em> <a href="#reasoning">What reasoning buys</a>.</li>
+        <li><strong>Frontier models' stated confidence tells right from wrong; Qwen's does not.</strong> GPT-6 Astra's
+          stated confidence separates its right answers from its wrong answers best: its AUROC, the chance that a right
+          answer gets a higher confidence than a wrong one, is 0.92. The size of the confidence is less reliable: Claude
+          Opus 5.5 (low) and Claude Sonnet 5.5 (high) are off by about 0.16 on average (ECE). On its own answers,
+          Qwen3.8-27B's stated confidence does no better than chance (0.51). Its yes/no probabilities (0.78) and the
+          share of 10 samples that agree (0.78) work. <em>Evidence:</em> <a href="#confidence-section">Do models know
+          when they are right?</a>, <a href="#sources">Stated confidence, probabilities or votes?</a></li>
+        <li><strong>Away from home, confidence keeps part of its order and loses its size.</strong> Jev's AUROC is
+          0.95–0.99 on English tasks with two labels (measured by
+          <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize</a>), 0.89 on our Turkish meaning questions
+          and 0.72 on form questions. Open-Jev, <a href="https://github.com/Zefan-Cai/Open-Jev">Zefan Cai's open take on
+          Jev</a>, adds a 0.06% LoRA adapter, a scoring head and a temperature to Qwen3.8-27B. These parts raise accuracy
+          by 3.8 points and confidence ranking from 0.78 to 0.82, but they do not make its calibration generalize: all
+          144 of its answers at a confidence of 0.5–0.6 were right. The language, the task and the number of options all
+          change at once, so these drops show how far the confidence generalizes, not which change causes them.
+          <em>Evidence:</em> <a href="#carries-over">What generalizes</a>;
+          <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize</a>;
+          <a href="https://github.com/Zefan-Cai/Open-Jev">Open-Jev</a>.</li>
         <li><strong>Knowing when it is right saves money.</strong> The rule is simple: a cheap decision model answers
           first; when its confidence is high, its answer stands; when it is not, the question goes to a frontier model.
           A decision model costs 2% or less of a frontier model per question. Run as a real pipeline in front of GPT-6
           Astra, Perplexity's Decider answered 18% of the questions and cut the cost by 17%. Accuracy changed by −0.4
           points (95% interval −0.8 to +0.1), inside the 0.5-point tolerance set before the run. In simulation, Jev in
           front of GPT-6 Astra kept 15% of the questions at a loss of 0.1 points, with the threshold chosen on other
-          questions.</li>
-        <li><strong>Is it memory? Two checks found no clear sign.</strong> On the 40 Turkish-language questions of the
-          June 2026 exam, which no book prints, each model scored close to what its book score predicts once meaning and
-          form are weighted like the exam paper, within the ±12-point uncertainty that 40 questions allow. When the
-          correct option's text was replaced by a copy of a wrong option, GPT-6 Astra picked the original letter about
-          as often as the copied option (31.0% and 28.4%, on the questions whose options are text). A model that
-          remembered answer letters would pick the original letter far more often. Both checks have limits, listed
-          under Caveats.</li>
+          questions. <em>Evidence:</em> <a href="#cascade-section">Answer when sure</a>.</li>
+        <li><strong>Is it memory? Not clearly, but we cannot rule it out.</strong> On the 40 Turkish-language questions
+          of the June 2026 exam, which no book prints, each model scored within the ±12-point uncertainty that 40
+          questions allow of what its book score predicts. But five of the seven models scored below their prediction,
+          Claude Opus 5.5 by 11 points. With 40 questions this is not significant (sign test p = 0.45), but it is the
+          direction that memorization would push. When the correct option's text was replaced by a copy of a wrong
+          option, GPT-6 Astra picked the original letter about as often as the copied option (31.0% and 28.4%, on the
+          questions whose options are text). A model that remembered answer letters would pick the original letter far
+          more often. Both checks have limits, listed under <em>What could be wrong</em>. <em>Evidence:</em>
+          <a href="#caveats">What could be wrong</a>.</li>
       </ol>
     </section>
 
     <section class="card" id="leaderboard-section">
-      <h2>Leaderboard: accuracy, confidence and cost</h2>
+      <h2>Leaderboard</h2>
       <p class="note">Each row is one run. Score: the share of all questions answered correctly. Meaning: the reading
         units (1–6). Form: the grammar units (7–20). TYT mix: meaning and form weighted like the 2026 TYT paper (33
         reading and 7 grammar questions). AUROC: how well the run's confidence separates right from wrong answers;
         empty when the run gives no confidence. Output tokens: per question, reasoning included. Cost: API-equivalent
-        US dollars per 1,000 questions. "<a href="#setups">The setups</a>" under Method explains each run. Click a
-        column heading to sort.</p>
+        US dollars per 1,000 questions. Between neighbouring runs, every gap of 3 points or less is within noise (not
+        significant after the Holm correction); see <a href="#gaps"><em>Which gaps are real?</em></a>
+        "<a href="#setups">The setups</a>" under Method explains each run. Click a column heading to sort.</p>
       <div class="table-wrap"><table id="leaderboard"></table></div>
       <figure class="chart"><img src="charts/reading-grammar.svg" loading="lazy"
         alt="Horizontal bars of each run's accuracy on meaning (reading, units 1–6) and on form (grammar, units 7–20). GPT-6 Astra, DeepSeek-V4.1-Flash with reasoning and Claude Sonnet 5.5 at high effort score about the same on both. Claude Opus 5.5 at low effort scores 6 points lower on form. Every other model except Laya scores 23–42 points lower on form."></figure>
     </section>
 
     <section class="card" id="cascade-section">
-      <h2>Knowing when it is right saves money: confident answers stay, the rest go to a frontier model</h2>
+      <h2>Answer when sure, pass on when not</h2>
       <p class="flow">Question → decision model (Jev, Perplexity's Decider, d1 or Open-Jev) → confident?
         <strong>Yes:</strong> its answer stands. <strong>No:</strong> the frontier model (GPT-6 Astra or Claude Sonnet
         5.5) answers.</p>
-      <p class="note">The rule is simple. A cheap decision model answers first. When its confidence reaches a threshold,
-        its answer stands. When it does not, the question goes to the frontier model. A decision model costs 2% or less
-        of a frontier model per question, so every question it keeps saves money. The risk is a confident wrong answer,
-        and the threshold controls that risk: a higher threshold keeps fewer questions and makes fewer mistakes. A
-        decision model answers the questions where its probability for the chosen option reaches a threshold, and
-        passes the rest to a frontier run. Answered: the share it answers at the lowest threshold that keeps the
-        frontier run's accuracy, chosen and scored on all questions. Held out: the threshold is chosen on a random half
-        of the questions and scored on the other half, over 300 splits that keep questions sharing a passage together:
-        the mean share answered, the mean accuracy difference from the frontier run alone in percentage points, and the
-        share of splits where the cascade did worse. Cost: API-equivalent, the decision model's run plus the frontier
-        run on the questions passed on. Held out is not a deployment test: a real pipeline sends the remaining
-        questions in new batches, which <em>The cascade run for real</em> below does.</p>
+      <p class="note">Knowing when it is right saves money. A cheap decision model answers first. When its confidence
+        reaches a threshold, its answer stands. When it does not, the question goes to the frontier model. A decision
+        model costs 2% or less of a frontier model per question, so every question it keeps saves money. The risk is a
+        confident wrong answer, and the threshold controls that risk: a higher threshold keeps fewer questions and makes
+        fewer mistakes.</p>
+      <h3>Run for real</h3>
+      <p class="note">This test checks whether the saving holds in a real pipeline. It does for cost: with Perplexity's
+        Decider in front of GPT-6 Astra, the cost fell by 17%. It does not for time: the pipeline spent 19 minutes in
+        requests against 17 for GPT-6 Astra alone, because the Decider answers one question per request. Here the
+        cascade ran: the questions were split into two halves, keeping questions that share a passage together, and the
+        threshold was fixed on one half before any run. On the other half, Perplexity's Decider answered the questions
+        at or above the threshold, from its stored run, and a new frontier run answered the rest in batches of 16 of
+        their own. The same frontier setup also ran on every held-out question, at the same time, for comparison.
+        Tolerance: the accuracy loss accepted before the runs.</p>
+      <div class="table-wrap"><table id="pipelines"></table></div>
+      <h3>In simulation</h3>
+      <p class="note">With stored runs, the cascade can be tried at every threshold. A decision model answers the
+        questions where its probability for the chosen option reaches a threshold, and passes the rest to a frontier
+        run. Answered: the share it answers at the lowest threshold that keeps the frontier run's accuracy, chosen and
+        scored on all questions. Held out: the threshold is chosen on a random half of the questions and scored on the
+        other half, over 300 splits that keep questions sharing a passage together: the mean share answered, the mean
+        accuracy difference from the frontier run alone in percentage points, and the share of splits where the cascade
+        did worse. Cost: API-equivalent, the decision model's run plus the frontier run on the questions passed on. Held
+        out is not a deployment test: a real pipeline sends the remaining questions in new batches, which <em>Run for
+        real</em> above does.</p>
       <div class="table-wrap"><table id="cascade"></table></div>
       <figure class="chart"><img src="charts/cascade.svg" loading="lazy"
         alt="Line charts of cascade accuracy against the share of questions that the decision model answers, in front of GPT-6 Astra and in front of Claude Sonnet 5.5 at high effort. Accuracy stays at the frontier run's level up to a share that differs by decision model, and then falls."></figure>
-      <h3>The cascade run for real</h3>
-      <p class="note">This test checks whether the saving holds in a real pipeline. It does for cost: with Perplexity's
-        Decider in front of GPT-6 Astra, the cost fell by 17%. It does not for time: the pipeline spent 19 minutes in
-        requests against 17 for GPT-6 Astra alone, because the Decider answers one question per request. The table
-        above simulates the cascade with stored runs. Here it ran: the questions were split into two halves, keeping
-        questions that share a passage together, and the threshold was fixed on one half before any run. On the other
-        half, Perplexity's Decider answered the questions at or above the threshold, from its stored run, and a new
-        frontier run answered the rest in batches of 16 of their own. The same frontier setup also ran on every
-        held-out question, at the same time, for comparison. Tolerance: the accuracy loss accepted before the
-        runs.</p>
-      <div class="table-wrap"><table id="pipelines"></table></div>
-      <h3>Does a decision model's doubt point at frontier mistakes?</h3>
+      <h3>Does doubt spot the frontier model's mistakes?</h3>
       <p class="note">Doubt is the entropy of the decision model's option probabilities: 0 when one option has all the
         probability, and highest when all options are equally likely. Spearman: its rank correlation with how many of
         GPT-6 Astra (low), Claude Opus 5.5 (low) and Claude Sonnet 5.5 (high) got the question wrong. p: 200 shuffles
@@ -145,7 +166,7 @@
     </section>
 
     <section class="card" id="cost-section">
-      <h2>Cost: tokens, reasoning, money and time</h2>
+      <h2>What an answer costs</h2>
       <p class="note">A right answer costs tokens, and reasoning multiplies them. This section shows what each run spent
         and what reasoning bought.</p>
       <p class="note">Billed: what a pay-per-token API charged for the run. API-equivalent: the run's tokens at a list
@@ -154,7 +175,7 @@
         although both ran on our GPUs. Local GPU: the hardware and precision of the self-hosted runs. Request time:
         minutes spent in requests.</p>
       <div class="table-wrap"><table id="cost"></table></div>
-      <h3>What reasoning buys</h3>
+      <h3 id="reasoning">What reasoning buys</h3>
       <p class="note">Two models ran with less and with more reasoning. More reasoning raised accuracy on form (grammar)
         by 33–36 points. It also multiplied the output tokens per question by 9 for Sonnet and by about 160 for
         DeepSeek, and the request time by about 6 and 11.</p>
@@ -179,12 +200,12 @@
       </div>
       <p class="note">For comparison, GPT-6 Astra at its lowest reasoning effort answers 97.6% of the questions correctly
         with 21 output tokens per question, at $5.38 per 1,000 questions. A stronger model can beat more reasoning.</p>
-      <h3>Price basis</h3>
+      <h3>Prices used</h3>
       <ul class="footnote" id="cost-notes"></ul>
     </section>
 
-    <section class="card">
-      <h2>Accuracy by unit: meaning and form</h2>
+    <section class="card" id="units-section">
+      <h2>Where models break, unit by unit</h2>
       <p class="note">The share of each unit's questions answered correctly. Units 1–6 test meaning (reading); units
         7–20 test form (grammar). Each unit's English name comes first and its Turkish name second. Hover a cell for the
         count. Guessing scores 20%; always answering E, the key's most common letter, scores 22.7%.</p>
@@ -193,8 +214,8 @@
         alt="Line chart of accuracy by unit for six runs: GPT-6 Astra, DeepSeek-V4.1-Flash with and without reasoning, Gemma 4 31B, Jev and Laya. Lines mark the 20% chance level and the 22.7% always-E level. On units 1–6 (meaning), every run except Laya scores high. From unit 7 (form), the runs without reasoning fall sharply: Gemma 4 31B from 96% to 73%, DeepSeek-V4.1-Flash without reasoning from 92% to 57%, and Jev from 89% to 54%. Laya stays near chance."></figure>
     </section>
 
-    <section class="card">
-      <h2>Knowing when it is right: confidence and accuracy</h2>
+    <section class="card" id="confidence-section">
+      <h2>Do models know when they are right?</h2>
       <h3>How we read confidence</h3>
       <div class="prose">
         <p>We look at the confidence score of every answer, not only at whether the answer is right. The question is:
@@ -220,7 +241,7 @@
       <div class="table-wrap"><table id="confidence" class="heatmap"></table></div>
       <figure class="chart"><img src="charts/calibration.svg" loading="lazy"
         alt="Calibration charts: accuracy against mean confidence in each confidence range, for the runs that give a probability and for the runs that state a confidence or count votes. The diagonal is perfect calibration. GPT-6 Astra, Perplexity's Decider and Jev lie close to it. Open-Jev lies far above it, so its confidence is too low. Qwen's stated confidence lies far below it, so its confidence is too high."></figure>
-      <h3>How well confidence separates right from wrong answers</h3>
+      <h3>Telling right from wrong</h3>
       <p class="note">AUROC: the chance that a right answer gets a higher confidence than a wrong answer; 0.5 is chance
         and 1.0 is perfect. ECE (expected calibration error): the average gap between confidence and accuracy, over 10
         equal-width ranges; 0 is perfect. Top 20%, 50%, 80%: the accuracy if the run answered only that share of the
@@ -229,65 +250,92 @@
       <div class="table-wrap"><table id="ranking"></table></div>
       <figure class="chart"><img src="charts/coverage.svg" loading="lazy"
         alt="Line charts of accuracy on the most confident share of the answers, from 2% to 100%, for the runs that give a probability and for the runs that state a confidence or count votes. For every run except Qwen's stated confidence, accuracy is highest on the most confident answers and falls as more answers are included. With Qwen's stated confidence, accuracy is near its overall level from the start."></figure>
-      <h3>How far to trust a confidence of 0.99</h3>
+      <h3 id="sure">Can you trust 0.99?</h3>
       <p class="note">How many answers each run gave at a probability or stated confidence of 0.99 or more, how many of
         them were right, and the 95% Wilson interval on that accuracy. A few answers cannot show an accuracy of 99%.
         For example, 21 right answers out of 21 show only that the accuracy is between 84.5% and 100%.</p>
-      <div class="table-wrap"><table id="sure"></table></div>
-      <h3>Same answers, four confidence sources</h3>
+      <div class="table-wrap"><table id="sure-table"></table></div>
+      <h3 id="sources">Stated confidence, probabilities or votes?</h3>
       <p class="note">The runs above each score their own answers, so a comparison between them also compares different
         answers. Here one set of answers is scored by four confidence sources: <span id="sources-answers"></span> The
         four sources are Qwen's stated confidence, the share of its 10 samples that chose the answer, Qwen's yes/no
         probability and Open-Jev's probability. Only the confidence source changes.</p>
-      <div class="table-wrap"><table id="sources"></table></div>
+      <div class="table-wrap"><table id="sources-table"></table></div>
       <figure class="chart"><img src="charts/sources.svg" loading="lazy"
         alt="Line chart of Qwen3.8-27B's own answers (1,191 of 2,198 right), ranked by four confidence sources. With its stated confidence (AUROC 0.515), accuracy is near flat. With Qwen's yes/no probability (0.782) or Open-Jev's probability (0.819), the most confident answers are almost all right. The share of 10 samples (0.779) sorts almost as well."></figure>
     </section>
 
     <section class="card prose" id="carries-over">
-      <h2>What carries over when training is thin</h2>
-      <p>This card sorts the key findings by ability and gives the evidence for each. Some abilities carry over to a
-        setting that a model's training did not focus on, and some do not.</p>
+      <h2>What generalizes, and what does not</h2>
       <div class="table-wrap">
-        <table class="carries">
-          <thead><tr><th>Ability</th><th>Carries over?</th><th>Evidence</th></tr></thead>
+        <table class="carries ladder">
+          <thead><tr><th>Setting</th><th class="num">Jev's AUROC</th></tr></thead>
           <tbody>
-            <tr><td>Understanding meaning</td><td>Yes</td><td>Every model except the near-chance Laya models answers
-              80–97% of the reading questions correctly.</td></tr>
-            <tr><td>Knowledge of form</td><td>Only in the strongest models</td><td>GPT-6 Astra answers 98% of the
-              grammar questions correctly. Gemma 4 31B answers 90% of the reading questions but 67% of the grammar
-              questions.</td></tr>
-            <tr><td>Reasoning in place of training</td><td>Yes, at a cost</td><td>With reasoning on,
-              DeepSeek-V4.1-Flash goes from 56% to 92% on the grammar questions; it writes about 1,000 output tokens per
-              question instead of 6. Claude Sonnet 5.5 goes from 52% to 85% between low and high effort, with 199 output
-              tokens per question instead of 22.</td></tr>
-            <tr><td>Order of the confidence (AUROC)</td><td>Mostly for meaning; less for form</td><td>Jev's AUROC is
-              0.89 on the reading questions and 0.72 on the grammar questions. Arize measured 0.95 to 0.99 for Jev,
-              depending on the request format, on English tasks with two labels; those tasks differ from these
-              questions.</td></tr>
-            <tr><td>Size of the confidence (calibration)</td><td>No</td><td>Open-Jev divides its scores by a temperature
-              of 2.53, fitted on its training data. On these questions the best temperature is 0.68.</td></tr>
+            <tr><td>Home: English tasks with two labels
+              (<a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize</a>)</td><td class="num">0.95–0.99</td></tr>
+            <tr><td>Turkish meaning (reading)</td><td class="num">0.89</td></tr>
+            <tr><td>Turkish form (grammar)</td><td class="num">0.72</td></tr>
           </tbody>
         </table>
       </div>
-      <p><strong>Why form does not carry over.</strong> A grammar question asks about Turkish form, for example which
+      <p>The further from home, the lower the AUROC. The language, the task and the number of options change together,
+        so the ladder shows how far Jev's confidence generalizes, not which change causes the drop.</p>
+      <p>Every model with a working confidence ranks its answers less well on form than on meaning. Frontier models lose
+        the least AUROC (0.04–0.10). The decision models and Qwen's probabilities lose the most (0.14–0.22): their
+        confidence works well on meaning but generalizes less to form.</p>
+      <div class="table-wrap"><table id="parts"></table></div>
+      <p class="note">Gemma 4 31B and both DeepSeek-V4.1-Flash runs give no confidence, so they are not in this table.
+        Questions left out by the key audit are excluded. Small numbers: 95% bootstrap intervals.</p>
+      <p>Open-Jev, <a href="https://github.com/Zefan-Cai/Open-Jev">Zefan Cai's open take on Jev</a>, shows what small
+        trained parts buy. It is Qwen3.8-27B plus a LoRA adapter (15.5 million weights, 0.06% of the model), a one-layer
+        scoring head and a temperature. Against Qwen's plain yes/no scoring, these parts raise accuracy by 3.8 points
+        (Holm p = 0.002) and the AUROC from 0.78 to 0.82 on the same answers. They do not fix generalization: the
+        temperature fitted on the training data (2.53) is far from the best one here (0.68), and the AUROC still drops
+        from 0.89 on meaning to 0.75 on form.</p>
+      <p>This card sorts the key findings by ability and gives the evidence for each. Some abilities generalize to a
+        setting that a model's training did not focus on, and some do not.</p>
+      <div class="table-wrap">
+        <table class="carries">
+          <thead><tr><th>Ability</th><th>Generalizes?</th><th>Evidence</th></tr></thead>
+          <tbody>
+            <tr><td>Understanding meaning</td><td>Yes</td><td>Every model except the near-chance Laya models answers
+              80–97% of the reading questions correctly. See <a href="#leaderboard-section">Leaderboard</a>.</td></tr>
+            <tr><td>Knowledge of form</td><td>Only in the strongest models</td><td>GPT-6 Astra answers 98% of the
+              grammar questions correctly. Gemma 4 31B answers 90% of the reading questions but 67% of the grammar
+              questions. See <a href="#units-section">Where models break</a>.</td></tr>
+            <tr><td>Reasoning in place of training</td><td>Yes, at a cost</td><td>With reasoning on,
+              DeepSeek-V4.1-Flash goes from 56% to 92% on the grammar questions; it writes about 1,000 output tokens per
+              question instead of 6. Claude Sonnet 5.5 goes from 52% to 85% between low and high effort, with 199 output
+              tokens per question instead of 22. See <a href="#reasoning">What reasoning buys</a>.</td></tr>
+            <tr><td>Order of the confidence (AUROC)</td><td>Mostly for meaning; less for form</td><td>Jev's AUROC is
+              0.89 on the reading questions and 0.72 on the grammar questions.
+              <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize measured</a> 0.95 to 0.99 for Jev,
+              depending on the request format, on English tasks with two labels; those tasks differ from these
+              questions. See <a href="#confidence-section">Do models know when they are right?</a></td></tr>
+            <tr><td>Size of the confidence (calibration)</td><td>No</td><td>Open-Jev divides its scores by a temperature
+              of 2.53, fitted on its training data. On these questions the best temperature is 0.68. See
+              <a href="#open-jev">How Open-Jev works</a>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Why form does not generalize.</strong> A grammar question asks about Turkish form, for example which
         suffix turns a verb into a noun. A model can answer it only if the model learned that form. A meaning question
         depends less on this. A likely reason is that a model can find the main idea of a paragraph with skills that it
         also learned in other languages.</p>
-      <p><strong>Why the order carries over but the size does not.</strong> The temperature changes how spread out the
+      <p><strong>Why the order generalizes but the size does not.</strong> The temperature changes how spread out the
         probabilities are, but it does not change their order. With the temperature fitted on its training data,
         Open-Jev's confidence is too low: all 144 of its answers at a confidence of 0.5–0.6 were right, and it never
         gives a confidence of 0.7 or more. But Open-Jev still puts right answers above wrong ones. Refitted on its
         answers to the first version of the question bank, the temperature cut the ECE from 0.228 to 0.030, and the
         AUROC stayed the same (0.8193 before, 0.8191 after).</p>
-      <p><strong>Two limits.</strong> First, we do not know how much Turkish each model saw in training, so "thin
-        training" is an assumption. The book is also online, so some questions may have been in training (see
-        Caveats). Second, Turkish is one setting. A claim about unfamiliar settings in general needs a second test in a
-        different setting.</p>
+      <p><strong>Two limits.</strong> First, "thin training" is a hypothesis: we do not know how much Turkish each model
+        saw in training, and the book is online, so some questions may have been in training (see <em>What could be
+        wrong</em>). Second, Turkish is one setting. A claim about unfamiliar settings in general needs a second test in
+        a different setting.</p>
     </section>
 
-    <section class="card">
-      <h2>Run-to-run variation: same question, same answer?</h2>
+    <section class="card" id="repeats-section">
+      <h2>Same question, same answer?</h2>
       <p class="note">A confidence is worth little if the answer changes when the same question is asked again. Each
         setup run several times on the same questions. The one-question setups ran 5 times on the whole bank, their
         first run being the one above; the 16-question setups ran 5 times on one fixed sample of 200 questions, with the
@@ -299,8 +347,8 @@
       <div class="table-wrap"><table id="repeats"></table></div>
     </section>
 
-    <section class="card">
-      <h2>Paired comparisons: which gaps are real?</h2>
+    <section class="card" id="gaps">
+      <h2>Which gaps are real?</h2>
       <p class="note">Each run against the next one by score, plus Open-Jev against Qwen's yes/no scoring and
         Perplexity's Decider against Jev, over the same questions. The interval and the exact McNemar test rest on the
         questions only one of the two got right. Differences are in percentage points. Holm p corrects for testing all
@@ -315,40 +363,46 @@
       <ul>
         <li><strong>Ranking.</strong> GPT-6 Astra at its lowest reasoning effort has the highest score, 97.6%.
           DeepSeek-V4.1-Flash with reasoning (92.4%), Claude Opus 5.5 at low effort (90.4%) and Claude Sonnet 5.5 at high
-          effort (85.0%) follow.</li>
+          effort (85.0%) follow. <em>Evidence:</em> <a href="#leaderboard-section">Leaderboard</a>.</li>
         <li><strong>A borderline lead.</strong> DeepSeek-V4.1-Flash with reasoning leads Claude Opus 5.5 at low effort
           by 1.9 points. For this comparison alone p = 0.006, but after the Holm correction for all 16 comparisons
           p = 0.050. The corrected p has crossed 0.05 twice as the data changed. On the 200-question sample of the
-          repeats, averaged over five runs each, the two score about the same (94.9% and 95.5%).</li>
+          repeats, averaged over five runs each, the two score about the same (94.9% and 95.5%). <em>Evidence:</em>
+          <a href="#gaps">Which gaps are real?</a>, <a href="#repeats-section">Same question, same answer?</a></li>
         <li><strong>Open-weight models without reasoning.</strong> Gemma 4 31B is the strongest (73.9%).
           DeepSeek-V4.1-Flash trails it by 8 points, mostly in the units on parts of speech, noun phrases, verbals and
-          sentence elements.</li>
+          sentence elements. <em>Evidence:</em> <a href="#leaderboard-section">Leaderboard</a>,
+          <a href="#units-section">Where models break</a>.</li>
         <li><strong>The question mix changes the ranking.</strong> The bank is 70% grammar; the 2026 TYT paper was 18%
           grammar. Weighted like that paper (the TYT mix column), Gemma 4 31B passes Claude Sonnet 5.5 at high effort,
-          Perplexity's Decider passes Sonnet at low effort, and Opus edges past DeepSeek with reasoning.</li>
+          Perplexity's Decider passes Sonnet at low effort, and Opus edges past DeepSeek with reasoning.
+          <em>Evidence:</em> <a href="#leaderboard-section">Leaderboard</a>.</li>
         <li><strong>Decision models.</strong> Perplexity's Decider, Jev, d1 and Open-Jev answer 56–60% of the questions
           correctly, and the Laya models 18–19%. The first four flag their own mistakes well: AUROC 0.79–0.83, each with
-          a 95% interval of about ±0.02.</li>
+          a 95% interval of about ±0.02. <em>Evidence:</em> <a href="#confidence-section">Do models know when they are
+          right?</a></li>
         <li><strong>Answers at 0.99 or more.</strong> They are rare and almost always right, but the evidence differs by
           model. Jev was right on 311 of 312 such answers and d1 on 273 of 274 (95% intervals from about 98%). The
           Decider's 21 of 21 are too few to show 99% accuracy (95% interval 84.5–100%). Open-Jev never reaches 0.99.
-          These answers cover 1–14% of the questions.</li>
+          These answers cover 1–14% of the questions. <em>Evidence:</em> <a href="#sure">Can you trust 0.99?</a></li>
         <li><strong>The cascade in simulation.</strong> With stored runs, a decision model can take 11–36% of the
           questions without lowering the frontier model's accuracy. With the threshold chosen on other questions,
           accuracy drops by 0.1–0.2 points. Run for real, the pipeline saved no request time, because the Decider
           answers one question per request. A decision model's doubt points only weakly at the questions that the
-          frontier models get wrong.</li>
+          frontier models get wrong. <em>Evidence:</em> <a href="#cascade-section">Answer when sure</a>.</li>
         <li><strong>Votes.</strong> Answering with the majority of Qwen's 10 samples did not raise accuracy (54.3%
           against 54.2%). When all 10 samples agreed, as on 40% of the questions, the answer was right only 85% of the
-          time.</li>
+          time. <em>Evidence:</em> <a href="#sources">Stated confidence, probabilities or votes?</a></li>
         <li><strong>Same question, same answer?</strong> Over 5 runs, Gemma 4 31B, Open-Jev and Perplexity's Decider
           gave the same answers (the Decider changed 2 of 2,198). On a 200-question sample, GPT-6 Astra changed 1
           answer, DeepSeek-V4.1-Flash 12 without reasoning (although it decodes greedily) and 15 with reasoning, Claude
           Opus 5.5 (low) 20 and Sonnet 5.5 (high) 31. On the whole bank, Jev changed 14% of its answers, d1 10% and
           Qwen's yes/no scoring 7%. Most mistakes of the Claude models and DeepSeek did not recur in every run; most
-          mistakes of the decision models did.</li>
+          mistakes of the decision models did. <em>Evidence:</em> <a href="#repeats-section">Same question, same
+          answer?</a></li>
         <li><strong>Repairing the question bank</strong> raised every setup that ran on both versions, except the Laya
-          models, by 11–30 points on the repaired questions.</li>
+          models, by 11–30 points on the repaired questions. <em>Evidence:</em> <a href="#repair">Repairing the question
+          bank</a>.</li>
       </ul>
     </section>
 
@@ -405,9 +459,9 @@
         exactly Qwen's Yes logit minus its No logit. Training moves the adapter and the head away from that starting
         point. According to the <a href="https://huggingface.co/ZefanCai/Open-Jev-27B-v1.1">model card</a>, the final
         training stage used natural-language-inference pairs, synthetic decision tasks and replay rows, and the
-        temperature was fitted on 512 of those rows. Turkish exam questions therefore test how well it carries over
-        to a new domain.</p>
-      <p>The temperature does not carry over. Refitted with cross-validation on Open-Jev's answers to the first version
+        temperature was fitted on 512 of those rows. Turkish exam questions therefore test how well it generalizes to a
+        new domain.</p>
+      <p>The temperature does not generalize. Refitted with cross-validation on Open-Jev's answers to the first version
         of the question bank, it comes out at 0.68 instead of 2.53, and the expected calibration error falls from 0.228
         to 0.030. Accuracy is unchanged and AUROC barely moves (0.8193 to 0.8191). The page shows Open-Jev as
         served.</p>
@@ -422,7 +476,7 @@
         questions whose key could not be confirmed; the runs had answered them, and those answers are left out of every
         figure except time, tokens and cost. 493 questions are verified, and 12 whose printed key is unreadable or
         contradicted by the question are marked suspect. <span id="question-count"></span></p>
-      <h3>Repairing the question bank</h3>
+      <h3 id="repair">Repairing the question bank</h3>
       <p class="note">Each row compares a setup's run on the first version of the question bank (v1) with its run on
         v2. Repaired: the questions whose text or key the repair changed. Unchanged: the questions asked identically,
         where any difference is run-to-run variation. Changed answer: how often the run picked a different option on
@@ -455,7 +509,7 @@
           they have no reasoning setting.</li>
         <li>An answer that is missing or not one of the options counts as wrong. No run had any.</li>
       </ul>
-      <h3>Confidence</h3>
+      <h3>Confidence sources</h3>
       <p>The decision models and the Qwen yes/no run give a probability for every option; their confidence is the
         probability of the chosen option. Jev and Open-Jev also report the rescaled confidence described in
         <a href="#open-jev">How Open-Jev works</a>, which sorts answers in the same order. Claude, GPT and the Qwen
@@ -474,23 +528,24 @@
         gives no per-call latency.</p>
       <p>Output tokens are those each API or server reports, reasoning included. The decision models generate no text:
         d1, Open-Jev and Laya report no output tokens, Perplexity 1 and Jev a fixed 52 per question.</p>
-      <p>Costs come from the tokens each run reports, at the rates listed under <em>Cost: tokens, reasoning, money and
-        time</em>. Claude figures count Claude Code's cache reads and writes as ordinary input; Claude Code's own
-        estimate is higher because it prices cache writes above input.</p>
+      <p>Costs come from the tokens each run reports, at the rates listed under <em>What an answer costs</em>. Claude
+        figures count Claude Code's cache reads and writes as ordinary input; Claude Code's own estimate is higher
+        because it prices cache writes above input.</p>
     </section>
 
     <section class="card prose" id="caveats">
-      <h2>Caveats</h2>
+      <h2>What could be wrong</h2>
       <ul>
         <li>The book can be found online, so models may have seen these questions, and possibly their answers, in
-          training. Two checks found no clear sign of memorization, and each has a limit:
+          training. Two checks found no clear sign of memorization, but they cannot rule it out, and each has a limit:
           <ul>
             <li>On the 40 Turkish-language questions of the 2026 TYT, sat on 20 June 2026 and printed in no book, each
-              model scored close to what its book scores predict once reading and grammar are weighted like the paper
-              (33 reading, 7 grammar questions): GPT-6 Astra 40, Claude Opus 5.5 and Perplexity's Decider 33, Claude
-              Sonnet 5.5 (high) 32, Jev 30, d1 and Open-Jev 28. At 40 questions the 95% interval is about ±12 points.
-              The models ran in October, so they could have seen the June exam; the questions themselves stay
-              private.</li>
+              model scored within about ±12 points of what its book scores predict once meaning and form are weighted
+              like the paper (33 reading, 7 grammar questions): GPT-6 Astra 40, Claude Opus 5.5 and Perplexity's Decider
+              33, Claude Sonnet 5.5 (high) 32, Jev 30, d1 and Open-Jev 28. At 40 questions the 95% interval is about ±12
+              points. Five of the seven scored below their prediction, Claude Opus 5.5 by 11 points; with 40 questions
+              this is not significant (sign test p = 0.45), but it is the direction memorization would push. The models
+              ran in October, so they could have seen the June exam; the questions themselves stay private.</li>
             <li>With the correct option's text replaced by a wrong option's text, GPT-6 Astra picked the original
               letter about as often as the option whose text was copied (31.0% against 28.4% on questions with text
               options, p = 0.19). This tests only memory of answer letters, not memory of the questions.</li>
@@ -506,10 +561,10 @@
           Jev's 3, 2 of d1's 3 and 6 of Qwen's yes/no 8; every one that remains has a confirmed key.</li>
         <li>The leaderboard shows one run per setup. With 2,198 questions, the 95% interval on a score is about ±2.1
           percentage points near 50% and ±1.3 near 90%; the paired comparisons are tighter. Runs also change some
-          answers from one run to the next (see <em>Run-to-run variation</em>). Scaled from the 200-question sample to
-          the whole bank, that moves a single run's score by about 0.3 points (one standard deviation) for the Claude
-          runs and DeepSeek with reasoning, 0.16 for DeepSeek without, 0.06 for GPT-6 Astra and nothing for Gemma. The
-          paired tests do not include this.</li>
+          answers from one run to the next (see <em>Same question, same answer?</em>). Scaled from the 200-question
+          sample to the whole bank, that moves a single run's score by about 0.3 points (one standard deviation) for the
+          Claude runs and DeepSeek with reasoning, 0.16 for DeepSeek without, 0.06 for GPT-6 Astra and nothing for
+          Gemma. The paired tests do not include this.</li>
         <li>The Claude and GPT models ran at their lowest reasoning setting, except the second Sonnet 5.5 run at high.
           DeepSeek ran with reasoning off and at its default effort. Sonnet's and DeepSeek's two runs show how much the
           setting can matter.</li>

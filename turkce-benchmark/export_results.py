@@ -194,6 +194,16 @@ def confidence(record: dict[str, Any]) -> dict[str, Any] | None:
         "bins": [{"questions": interval["questions"], "correct": interval["correct"]} for interval in record["confidence_bins"]],
         "auroc": overall["auroc"],
         "auroc_interval": overall.get("auroc_interval"),
+        # AUROC on the meaning (reading, units 1–6) and form (grammar, units 7–20) questions.
+        "parts": {
+            part: {
+                "questions": record["groups"][group]["scored"],
+                "auroc": record["groups"][group]["auroc"],
+                "auroc_interval": record["groups"][group].get("auroc_interval"),
+            }
+            for part, group in (("meaning", "reading"), ("form", "grammar"))
+            if record["groups"].get(group, {}).get("auroc") is not None
+        },
         "aurc": overall["aurc"],
         "ece": overall["ece"],
         "brier": overall["brier"],
