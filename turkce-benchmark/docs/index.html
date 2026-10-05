@@ -76,9 +76,10 @@
           stated confidence separates its right answers from its wrong answers best: its AUROC, the chance that a right
           answer gets a higher confidence than a wrong one, is 0.92. The size of the confidence is less reliable: Claude
           Opus 5.5 (low) and Claude Sonnet 5.5 (high) are off by about 0.16 on average (ECE). On its own answers,
-          Qwen3.8-27B's stated confidence does no better than chance (0.51). Its yes/no probabilities (0.78) and the
-          share of 10 samples that agree (0.78) work. <em>Evidence:</em> <a href="#confidence-section">Do models know
-          when they are right?</a>, <a href="#sources">Stated confidence, probabilities or votes?</a></li>
+          Qwen3.8-27B's stated confidence is barely better than chance (0.51, 95% interval 0.51–0.52). Its yes/no
+          probabilities (0.78) and the share of 10 samples that agree (0.78) work. <em>Evidence:</em>
+          <a href="#confidence-section">Do models know when they are right?</a>,
+          <a href="#sources">Stated confidence, probabilities or votes?</a></li>
         <li><strong>Away from home, confidence keeps part of its order and loses its size.</strong> Jev's AUROC is
           0.95–0.99 on English tasks with two labels (measured by
           <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize</a>), 0.89 on our Turkish meaning questions
@@ -98,8 +99,8 @@
           front of GPT-6 Astra kept 15% of the questions at a loss of 0.1 points, with the threshold chosen on other
           questions. <em>Evidence:</em> <a href="#cascade-section">Answer when sure</a>.</li>
         <li><strong>Is it memory? Not clearly, but we cannot rule it out.</strong> On the 40 Turkish-language questions
-          of the June 2026 exam, which no book prints, each model scored within the ±12-point uncertainty that 40
-          questions allow of what its book score predicts. But five of the seven models scored below their prediction,
+          of the June 2026 exam, which no book prints, each model scored within ±12 points of what its book score
+          predicts, the uncertainty that 40 questions allow. But five of the seven models scored below their prediction,
           Claude Opus 5.5 by 11 points. With 40 questions this is not significant (sign test p = 0.45), but it is the
           direction that memorization would push. When the correct option's text was replaced by a copy of a wrong
           option, GPT-6 Astra picked the original letter about as often as the copied option (31.0% and 28.4%, on the
@@ -280,9 +281,10 @@
       </div>
       <p>The further from home, the lower the AUROC. The language, the task and the number of options change together,
         so the ladder shows how far Jev's confidence generalizes, not which change causes the drop.</p>
-      <p>Every model with a working confidence ranks its answers less well on form than on meaning. Frontier models lose
-        the least AUROC (0.04–0.10). The decision models and Qwen's probabilities lose the most (0.14–0.22): their
-        confidence works well on meaning but generalizes less to form.</p>
+      <p>Every model with a working confidence ranks its answers less well on form than on meaning. The AUROC drops by
+        0.04–0.10 for the frontier models, 0.11 for Qwen's vote share, 0.14–0.18 for the decision models and 0.22 for
+        Qwen's yes/no probabilities. So the decision models' confidence works well on meaning but generalizes less to
+        form.</p>
       <div class="table-wrap"><table id="parts"></table></div>
       <p class="note">Gemma 4 31B and both DeepSeek-V4.1-Flash runs give no confidence, so they are not in this table.
         Questions left out by the key audit are excluded. Small numbers: 95% bootstrap intervals.</p>

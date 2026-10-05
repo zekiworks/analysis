@@ -424,8 +424,10 @@ function renderParts(data) {
     });
   const rows = runs.map(run => {
     const { meaning, form } = run.confidence.parts;
-    // Below 0.6 on both parts a confidence barely ranks answers, so a drop between the parts means nothing.
-    const chance = Math.max(meaning.auroc, form.auroc) < 0.6;
+    // A run whose 95% intervals reach 0.5 on both parts is no better than chance on either, so its drop means
+    // nothing. A run just above chance on one part still shows its drop.
+    const noBetter = part => (part.auroc_interval ? part.auroc_interval[0] <= 0.5 : part.auroc <= 0.5);
+    const chance = noBetter(meaning) && noBetter(form);
     const drop = meaning.auroc - form.auroc;
     return el(
       'tr',
@@ -433,7 +435,7 @@ function renderParts(data) {
       modelCell(run, { withSetting: true }),
       aurocCell(meaning),
       aurocCell(form),
-      td(chance ? 'near chance on both' : drop.toFixed(2), { value: chance ? null : drop, numeric: true }),
+      td(chance ? 'no better than chance on both' : drop.toFixed(2), { value: chance ? null : drop, numeric: true }),
     );
   });
   fillTable(
