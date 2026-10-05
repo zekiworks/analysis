@@ -124,7 +124,10 @@
 
     <section class="card" id="leaderboard-section">
       <h2>Leaderboard</h2>
-      <p class="note">Each row is one run. Score: the share of all questions answered correctly. Meaning: the reading
+      <p class="note">Each row is one run. Parameters: the model's weights, counted from its checkpoint or as its maker
+        publishes them; for DeepSeek, a mixture of experts, also those active per token (8B while reading the prompt,
+        16B while writing); NA when the maker publishes no size. Score: the share of all questions answered correctly.
+        Meaning: the reading
         units (1–6). Form: the grammar units (7–20). TYT mix: meaning and form weighted like the 2026 TYT paper (33
         reading and 7 grammar questions). AUROC: how well the run's confidence separates right from wrong answers.
         Output tokens: per question, reasoning included. Cost: API-equivalent US dollars per 1,000 questions. Between

@@ -17,6 +17,14 @@ const formatScore = value => (value == null ? '—' : value.toFixed(3));
 const formatP = p => (p < 0.0001 ? '< 0.0001' : p.toFixed(4));
 const formatPoints = (fraction, digits = 1) => `${fraction >= 0 ? '+' : '−'}${Math.abs(100 * fraction).toFixed(digits)}`;
 const formatUsd = value => (value == null ? '—' : `$${value.toFixed(2)}`);
+/* A parameter count: 31.3B or 287M, with the parameters active per token for a mixture of experts; NA when the
+   maker publishes no size. */
+const formatBillions = count => `${(count / 1e9).toFixed(1).replace(/\.0$/, '')}`;
+const formatParameters = (count, active = null) => {
+  if (count == null) return 'NA';
+  const size = count >= 1e9 ? `${formatBillions(count)}B` : `${Math.round(count / 1e6)}M`;
+  return active ? `${size} (${active.map(formatBillions).join('–')}B active)` : size;
+};
 const scoreRange = interval => (interval ? `${interval[0].toFixed(3)}–${interval[1].toFixed(3)}` : null);
 const percentRange = (interval, digits = 1) =>
   interval ? `${(100 * interval[0]).toFixed(digits)}–${(100 * interval[1]).toFixed(digits)}%` : null;
@@ -151,6 +159,11 @@ function renderLeaderboard(data) {
       {},
       td(String(rank), { value: rank, numeric: true }),
       modelCell(run),
+      td(formatParameters(run.parameters, run.active_parameters), {
+        value: run.parameters,
+        numeric: true,
+        title: run.parameters == null ? 'Not published by its maker' : `${integer(run.parameters)} parameters`,
+      }),
       td(run.reasoning ?? '—', { title: run.reasoning ? null : 'Scores the supplied options; no reasoning setting' }),
       td(
         [el('span', { class: 'bar', style: `width: ${score}%` }), el('span', { class: 'value', text: formatPercent(score) })],
@@ -182,6 +195,11 @@ function renderLeaderboard(data) {
     [
       { label: '#', numeric: true, title: 'Rank by score' },
       { label: 'Model' },
+      {
+        label: 'Parameters',
+        numeric: true,
+        title: 'Model weights, counted from the checkpoint or as published; NA when the maker does not publish them',
+      },
       { label: 'Reasoning', title: 'Reasoning or effort setting' },
       { label: 'Score', numeric: true },
       { label: 'Meaning (reading)', numeric: true, title: 'Units 1–6' },
@@ -205,7 +223,7 @@ function renderLeaderboard(data) {
     ],
     rows,
   );
-  table.tHead.rows[0].cells[3].setAttribute('aria-sort', 'descending');
+  table.tHead.rows[0].cells[4].setAttribute('aria-sort', 'descending');
 }
 
 function renderCost(data) {

@@ -103,7 +103,12 @@ CONFIDENCE_SOURCES = {
 VARIANTS = {"vllm-yes-no": "yes/no scoring", "vllm-verbal": "stated confidence", "vllm-vote": "vote share"}
 GPU = "RTX PRO 6000 Blackwell (96 GB)"
 # Display names, list prices, and for models on our GPUs the hardware and precision.
-MODELS: dict[str, dict[str, str]] = {
+# parameters: the model's weights, counted from the tensor shapes in each local checkpoint's safetensors
+# files (Open-Jev: Qwen3.8-27B plus its LoRA adapter and scoring head; Clef: the backbone plus its joint
+# head); Perplexity's Decider from the total_parameters of its published index; DeepSeek-V4.1-Flash from
+# its model card, a mixture of experts with 552B backbone parameters, of which 8B are active per token in
+# prefill and 16B in decode (active_parameters). Models whose makers publish no size have neither.
+MODELS: dict[str, dict[str, Any]] = {
     "gpt-6-astra": {
         "name": "GPT-6 Astra",
         "price": "$10 per 1M input tokens ($1 cached), $50 per 1M output tokens",
@@ -124,11 +129,14 @@ MODELS: dict[str, dict[str, str]] = {
         "name": "Gemma 4 31B",
         "access": "vLLM, self-hosted, FP8",
         "hardware": f"1 × {GPU}; FP8 weights and KV cache",
+        "parameters": 31_273_088_876,
     },
     "deepseek-v4.1-flash": {
         "name": "DeepSeek-V4.1-Flash",
         "access": "SGLang, self-hosted, published mixed precision",
         "hardware": f"4 × {GPU}; FP4 experts, FP8 and BF16 layers",
+        "parameters": 552_000_000_000,
+        "active_parameters": [8_000_000_000, 16_000_000_000],
     },
     "gemma4:31b": {"name": "Gemma 4 31B"},
     "deepseek-v4-flash:latest": {"name": "DeepSeek V4 Flash"},
@@ -138,18 +146,35 @@ MODELS: dict[str, dict[str, str]] = {
         "name": "Open-Jev 27B v1.1",
         "note": "Fine-tune of Qwen3.8-27B (LoRA and a scoring head)",
         "hardware": f"1 × {GPU}; BF16",
+        "parameters": 27_796_899_569,
     },
-    "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B"},
+    "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B", "parameters": 26_085_330_160},
     "d1:free": {"name": "Liquid d1"},
-    "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}"},
-    "laya-multilingual": {"name": "Laya multilingual", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}"},
-    "qwen38-27b-bf16": {"name": "Qwen3.8-27B", "note": "Open-Jev's base model", "hardware": f"1 × {GPU}; BF16"},
+    "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}", "parameters": 421_293_830},
+    "laya-multilingual": {
+        "name": "Laya multilingual",
+        "note": "Encoder with a decision head",
+        "hardware": f"1 × {GPU}",
+        "parameters": 321_908_998,
+    },
+    "qwen38-27b-bf16": {
+        "name": "Qwen3.8-27B",
+        "note": "Open-Jev's base model",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 27_781_427_952,
+    },
     "gliner2.5-multi-v1": {
         "name": "GLiNER2.5 Multi",
-        "note": "Multilingual extraction and classification model (287M)",
+        "note": "Multilingual extraction and classification model",
         "hardware": f"1 × {GPU}; FP16",
+        "parameters": 287_355_159,
     },
-    "clef": {"name": "Clef", "note": "Cloudflare's decision model, post-trained from Qwen3.8-27B", "hardware": f"1 × {GPU}; BF16"},
+    "clef": {
+        "name": "Clef",
+        "note": "Cloudflare's decision model, post-trained from Qwen3.8-27B",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 27_484_784_884,
+    },
     "gemini-3.8-flash": {
         "name": "Gemini 3.8 Flash",
         "price": "$0.75 per 1M input tokens, $3.75 per 1M output tokens, thinking included (introductory price through 2026)",
@@ -333,6 +358,8 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "run": record["run_id"],
                 **names,
                 "note": model.get("note"),
+                "parameters": model.get("parameters"),
+                "active_parameters": model.get("active_parameters"),
                 "provider": provider_name,
                 "access": model.get("access", provider["access"]),
                 "questions_per_request": record["batch_size"],
