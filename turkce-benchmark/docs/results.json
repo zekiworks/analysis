@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated": "2026-10-06T11:07:43Z",
+  "updated": "2026-10-06T13:02:06Z",
   "dataset": {
     "name": "questions-v2.sqlite",
     "sha256": "1ecdc4c89f7a2335717ce85dd3acc20876783dcf0e581f6e9986f5571d38497c",
@@ -1048,7 +1048,7 @@
         171
       ],
       "updated": "2026-10-05T21:12:45Z",
-      "group": "b"
+      "group": "a"
     },
     {
       "run": 123,
@@ -1478,7 +1478,7 @@
         166
       ],
       "updated": "2026-10-05T20:10:28Z",
-      "group": "c"
+      "group": "b"
     },
     {
       "run": 121,
@@ -1908,7 +1908,7 @@
         157
       ],
       "updated": "2026-10-05T20:56:59Z",
-      "group": "cd"
+      "group": "bc"
     },
     {
       "run": 47,
@@ -2361,7 +2361,7 @@
         160
       ],
       "updated": "2026-10-04T09:02:00Z",
-      "group": "d"
+      "group": "c"
     },
     {
       "run": 55,
@@ -2814,6 +2814,436 @@
         139
       ],
       "updated": "2026-10-04T10:10:17Z",
+      "group": "d"
+    },
+    {
+      "run": 130,
+      "model": "gemini-3.1-pro-preview",
+      "name": "Gemini 3.1 Pro (preview)",
+      "variant": null,
+      "reasoning": "low",
+      "note": null,
+      "parameters": null,
+      "active_parameters": null,
+      "provider": "gemini",
+      "access": "Gemini API",
+      "questions_per_request": 16,
+      "concurrency": 1,
+      "correct": 1646,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 543
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 1103
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1644
+        }
+      },
+      "tyt_mix": 0.8080670593306127,
+      "questions_per_minute": 172.45037951202275,
+      "request_seconds": 764.7417209122796,
+      "median_request_seconds": 5.000915342418011,
+      "billing": "api",
+      "billed_usd": 1.747756,
+      "api_equivalent_usd": 1.747756,
+      "cost_basis": "Gemini API list price, $2 per 1M input tokens, $12 per 1M output tokens, thinking included",
+      "hardware": null,
+      "input_tokens": 483830,
+      "output_tokens": 65008,
+      "confidence": {
+        "source": "stated",
+        "label": "Stated by the model",
+        "bins": [
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 1046,
+            "correct": 743
+          },
+          {
+            "questions": 33,
+            "correct": 14
+          },
+          {
+            "questions": 339,
+            "correct": 225
+          },
+          {
+            "questions": 780,
+            "correct": 664
+          }
+        ],
+        "auroc": 0.5924980629369397,
+        "auroc_interval": [
+          0.5694353118891061,
+          0.6161214346648863
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.5921299238905458,
+            "auroc_interval": [
+              0.5465408805031446,
+              0.6377937463585163
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.6004250160568505,
+            "auroc_interval": [
+              0.5722276279536632,
+              0.6273190499117317
+            ]
+          }
+        },
+        "aurc": 0.18416432792990783,
+        "ece": 0.2745632393084629,
+        "brier": 0.2877889444949955,
+        "coverage_accuracy": {
+          "0.20": 0.8858320398222983,
+          "0.50": 0.7993462069895191,
+          "0.80": 0.758496991006947
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.8593932002783055,
+            0.9132459759656114
+          ],
+          "0.50": [
+            0.7695810564663024,
+            0.8240868998265448
+          ],
+          "0.80": [
+            0.7394223014512425,
+            0.7778655768934013
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0829
+          ],
+          [
+            0.04,
+            0.1003
+          ],
+          [
+            0.06,
+            0.1061
+          ],
+          [
+            0.08,
+            0.1089
+          ],
+          [
+            0.1,
+            0.1107
+          ],
+          [
+            0.12,
+            0.1118
+          ],
+          [
+            0.14,
+            0.1127
+          ],
+          [
+            0.16,
+            0.1133
+          ],
+          [
+            0.18,
+            0.1138
+          ],
+          [
+            0.2,
+            0.1142
+          ],
+          [
+            0.22,
+            0.1145
+          ],
+          [
+            0.24,
+            0.1212
+          ],
+          [
+            0.26,
+            0.1277
+          ],
+          [
+            0.28,
+            0.1334
+          ],
+          [
+            0.3,
+            0.1382
+          ],
+          [
+            0.32,
+            0.1425
+          ],
+          [
+            0.34,
+            0.1462
+          ],
+          [
+            0.36,
+            0.1508
+          ],
+          [
+            0.38,
+            0.1582
+          ],
+          [
+            0.4,
+            0.1649
+          ],
+          [
+            0.42,
+            0.1714
+          ],
+          [
+            0.44,
+            0.1797
+          ],
+          [
+            0.46,
+            0.1873
+          ],
+          [
+            0.48,
+            0.1942
+          ],
+          [
+            0.5,
+            0.2007
+          ],
+          [
+            0.52,
+            0.2141
+          ],
+          [
+            0.54,
+            0.2183
+          ],
+          [
+            0.56,
+            0.2209
+          ],
+          [
+            0.58,
+            0.2232
+          ],
+          [
+            0.6,
+            0.2254
+          ],
+          [
+            0.62,
+            0.2275
+          ],
+          [
+            0.64,
+            0.2295
+          ],
+          [
+            0.66,
+            0.2313
+          ],
+          [
+            0.68,
+            0.233
+          ],
+          [
+            0.7,
+            0.2346
+          ],
+          [
+            0.72,
+            0.2362
+          ],
+          [
+            0.74,
+            0.2376
+          ],
+          [
+            0.76,
+            0.239
+          ],
+          [
+            0.78,
+            0.2403
+          ],
+          [
+            0.8,
+            0.2415
+          ],
+          [
+            0.82,
+            0.2427
+          ],
+          [
+            0.84,
+            0.2438
+          ],
+          [
+            0.86,
+            0.2449
+          ],
+          [
+            0.88,
+            0.2459
+          ],
+          [
+            0.9,
+            0.2469
+          ],
+          [
+            0.92,
+            0.2478
+          ],
+          [
+            0.94,
+            0.2487
+          ],
+          [
+            0.96,
+            0.2495
+          ],
+          [
+            0.98,
+            0.2504
+          ],
+          [
+            1.0,
+            0.2511
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 1046,
+            "mean_confidence": 0.25,
+            "accuracy": 0.7103250478011472
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 17,
+            "mean_confidence": 0.5,
+            "accuracy": 0.5294117647058824
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 2,
+            "mean_confidence": 0.6,
+            "accuracy": 0.5
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 27,
+            "mean_confidence": 0.7240740740740739,
+            "accuracy": 0.37037037037037035
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 326,
+            "mean_confidence": 0.8210122699386523,
+            "accuracy": 0.6717791411042945
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 780,
+            "mean_confidence": 0.9321666666666677,
+            "accuracy": 0.8512820512820513
+          }
+        ],
+        "median_right": 0.8,
+        "median_wrong": 0.25,
+        "sure": {
+          "questions": 13,
+          "correct": 13,
+          "interval": [
+            0.7718981569447083,
+            1.0
+          ]
+        },
+        "doubtful": {
+          "questions": 1065,
+          "correct": 753,
+          "interval": [
+            0.6790029237769084,
+            0.7335932925380253
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        105,
+        123,
+        61,
+        91,
+        81,
+        82,
+        102,
+        46,
+        77,
+        61,
+        64,
+        39,
+        97,
+        61,
+        68,
+        118,
+        38,
+        123,
+        72,
+        137
+      ],
+      "updated": "2026-10-06T12:34:37Z",
       "group": "e"
     },
     {
@@ -3244,6 +3674,436 @@
         122
       ],
       "updated": "2026-10-05T18:32:29Z",
+      "group": "e"
+    },
+    {
+      "run": 133,
+      "model": "gpt-6-luna",
+      "name": "GPT-6 Luna",
+      "variant": null,
+      "reasoning": "low",
+      "note": null,
+      "parameters": null,
+      "active_parameters": null,
+      "provider": "openai",
+      "access": "Codex CLI, ChatGPT subscription",
+      "questions_per_request": 16,
+      "concurrency": 1,
+      "correct": 1501,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 573
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 928
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1499
+        }
+      },
+      "tyt_mix": 0.8259351471797792,
+      "questions_per_minute": 106.27926346966372,
+      "request_seconds": 1240.8817646505777,
+      "median_request_seconds": 7.705671253963374,
+      "billing": "subscription",
+      "billed_usd": null,
+      "api_equivalent_usd": 0.10553408,
+      "cost_basis": "OpenAI API list price, $0.10 per 1M input tokens ($0.01 cached), $0.50 per 1M output tokens",
+      "hardware": null,
+      "input_tokens": 1197871,
+      "output_tokens": 28541,
+      "confidence": {
+        "source": "stated",
+        "label": "Stated by the model",
+        "bins": [
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 2,
+            "correct": 1
+          },
+          {
+            "questions": 85,
+            "correct": 29
+          },
+          {
+            "questions": 321,
+            "correct": 157
+          },
+          {
+            "questions": 1790,
+            "correct": 1314
+          }
+        ],
+        "auroc": 0.6851137978793669,
+        "auroc_interval": [
+          0.6600100900103961,
+          0.7067208024931074
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.7189175550369016,
+            "auroc_interval": [
+              0.6625968992248062,
+              0.7739693757361602
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.6522213369089072,
+            "auroc_interval": [
+              0.6249880660662572,
+              0.6778510105352353
+            ]
+          }
+        },
+        "aurc": 0.19950706787609154,
+        "ece": 0.2565468607825413,
+        "brier": 0.26862033666969976,
+        "coverage_accuracy": {
+          "0.20": 0.8457488696651195,
+          "0.50": 0.8039505611161661,
+          "0.80": 0.7384321066841689
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.8210651940610787,
+            0.8686369787181695
+          ],
+          "0.50": [
+            0.7797339995591153,
+            0.8265441298228183
+          ],
+          "0.80": [
+            0.7168841071909161,
+            0.7594877741433856
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            -0.0
+          ],
+          [
+            0.04,
+            0.0623
+          ],
+          [
+            0.06,
+            0.1006
+          ],
+          [
+            0.08,
+            0.1198
+          ],
+          [
+            0.1,
+            0.1313
+          ],
+          [
+            0.12,
+            0.1389
+          ],
+          [
+            0.14,
+            0.1444
+          ],
+          [
+            0.16,
+            0.1485
+          ],
+          [
+            0.18,
+            0.1517
+          ],
+          [
+            0.2,
+            0.1543
+          ],
+          [
+            0.22,
+            0.1563
+          ],
+          [
+            0.24,
+            0.1581
+          ],
+          [
+            0.26,
+            0.1596
+          ],
+          [
+            0.28,
+            0.1608
+          ],
+          [
+            0.3,
+            0.1619
+          ],
+          [
+            0.32,
+            0.1629
+          ],
+          [
+            0.34,
+            0.1637
+          ],
+          [
+            0.36,
+            0.1645
+          ],
+          [
+            0.38,
+            0.1659
+          ],
+          [
+            0.4,
+            0.1721
+          ],
+          [
+            0.42,
+            0.1778
+          ],
+          [
+            0.44,
+            0.183
+          ],
+          [
+            0.46,
+            0.1877
+          ],
+          [
+            0.48,
+            0.1921
+          ],
+          [
+            0.5,
+            0.196
+          ],
+          [
+            0.52,
+            0.1998
+          ],
+          [
+            0.54,
+            0.2056
+          ],
+          [
+            0.56,
+            0.211
+          ],
+          [
+            0.58,
+            0.2161
+          ],
+          [
+            0.6,
+            0.2219
+          ],
+          [
+            0.62,
+            0.2276
+          ],
+          [
+            0.64,
+            0.2329
+          ],
+          [
+            0.66,
+            0.2376
+          ],
+          [
+            0.68,
+            0.2419
+          ],
+          [
+            0.7,
+            0.2446
+          ],
+          [
+            0.72,
+            0.248
+          ],
+          [
+            0.74,
+            0.2538
+          ],
+          [
+            0.76,
+            0.2576
+          ],
+          [
+            0.78,
+            0.2575
+          ],
+          [
+            0.8,
+            0.2616
+          ],
+          [
+            0.82,
+            0.2678
+          ],
+          [
+            0.84,
+            0.2717
+          ],
+          [
+            0.86,
+            0.2764
+          ],
+          [
+            0.88,
+            0.2811
+          ],
+          [
+            0.9,
+            0.2866
+          ],
+          [
+            0.92,
+            0.2907
+          ],
+          [
+            0.94,
+            0.2958
+          ],
+          [
+            0.96,
+            0.303
+          ],
+          [
+            0.98,
+            0.309
+          ],
+          [
+            1.0,
+            0.3171
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 2,
+            "mean_confidence": 0.44999999999999996,
+            "accuracy": 0.5
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 12,
+            "mean_confidence": 0.5641666666666666,
+            "accuracy": 0.4166666666666667
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 32,
+            "mean_confidence": 0.6521875000000001,
+            "accuracy": 0.21875
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 111,
+            "mean_confidence": 0.7541441441441444,
+            "accuracy": 0.40540540540540543
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 251,
+            "mean_confidence": 0.8499601593625498,
+            "accuracy": 0.5139442231075697
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 1790,
+            "mean_confidence": 0.9715642458100702,
+            "accuracy": 0.7340782122905027
+          }
+        ],
+        "median_right": 0.98,
+        "median_wrong": 0.95,
+        "sure": {
+          "questions": 830,
+          "correct": 693,
+          "interval": [
+            0.8081516217664547,
+            0.8586416876582609
+          ]
+        },
+        "doubtful": {
+          "questions": 46,
+          "correct": 13,
+          "interval": [
+            0.1732404154491407,
+            0.42548835730293777
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        114,
+        144,
+        52,
+        93,
+        79,
+        91,
+        77,
+        31,
+        64,
+        49,
+        51,
+        36,
+        78,
+        55,
+        55,
+        91,
+        29,
+        109,
+        76,
+        127
+      ],
+      "updated": "2026-10-06T13:02:06Z",
       "group": "f"
     },
     {
@@ -3674,7 +4534,7 @@
         128
       ],
       "updated": "2026-10-06T11:07:43Z",
-      "group": "g"
+      "group": "f"
     },
     {
       "run": 120,
@@ -4107,7 +4967,7 @@
         127
       ],
       "updated": "2026-10-05T19:01:55Z",
-      "group": "g"
+      "group": "f"
     },
     {
       "run": 54,
@@ -4560,7 +5420,7 @@
         116
       ],
       "updated": "2026-10-04T09:11:41Z",
-      "group": "h"
+      "group": "g"
     },
     {
       "run": 44,
@@ -5016,7 +5876,7 @@
         109
       ],
       "updated": "2026-10-04T08:39:05Z",
-      "group": "hi"
+      "group": "gh"
     },
     {
       "run": 49,
@@ -5472,7 +6332,7 @@
         106
       ],
       "updated": "2026-10-04T08:47:59Z",
-      "group": "ij"
+      "group": "hi"
     },
     {
       "run": 125,
@@ -5899,7 +6759,7 @@
         106
       ],
       "updated": "2026-10-05T21:07:04Z",
-      "group": "j"
+      "group": "i"
     },
     {
       "run": 52,
@@ -6355,7 +7215,7 @@
         110
       ],
       "updated": "2026-10-04T09:02:49Z",
-      "group": "j"
+      "group": "i"
     },
     {
       "run": 127,
@@ -6785,7 +7645,7 @@
         101
       ],
       "updated": "2026-10-06T10:06:56Z",
-      "group": "j"
+      "group": "i"
     },
     {
       "run": 45,
@@ -7238,7 +8098,7 @@
         109
       ],
       "updated": "2026-10-04T08:45:43Z",
-      "group": "j"
+      "group": "i"
     },
     {
       "run": 128,
@@ -7668,7 +8528,7 @@
         105
       ],
       "updated": "2026-10-06T10:28:09Z",
-      "group": "jk"
+      "group": "ij"
     },
     {
       "run": 83,
@@ -8098,7 +8958,7 @@
         104
       ],
       "updated": "2026-10-04T21:33:38Z",
-      "group": "jk"
+      "group": "ij"
     },
     {
       "run": 53,
@@ -8554,7 +9414,7 @@
         105
       ],
       "updated": "2026-10-04T09:09:07Z",
-      "group": "jk"
+      "group": "ij"
     },
     {
       "run": 50,
@@ -9010,6 +9870,866 @@
         102
       ],
       "updated": "2026-10-04T08:53:57Z",
+      "group": "j"
+    },
+    {
+      "run": 131,
+      "model": "qwen3-14b",
+      "name": "Qwen3-14B",
+      "variant": null,
+      "reasoning": "off",
+      "note": "Erk-14B's base model",
+      "parameters": 14768307200,
+      "active_parameters": null,
+      "provider": "vllm",
+      "access": "vLLM, self-hosted, BF16",
+      "questions_per_request": 16,
+      "concurrency": 1,
+      "correct": 1005,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 473
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 532
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1003
+        }
+      },
+      "tyt_mix": 0.6552313178165827,
+      "questions_per_minute": 331.1300910910813,
+      "request_seconds": 398.27247220405843,
+      "median_request_seconds": 2.8455167649663053,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
+      "cost_basis": null,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+      "input_tokens": 556424,
+      "output_tokens": 17716,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 138,
+            "correct": 39
+          },
+          {
+            "questions": 395,
+            "correct": 104
+          },
+          {
+            "questions": 287,
+            "correct": 81
+          },
+          {
+            "questions": 1378,
+            "correct": 781
+          }
+        ],
+        "auroc": 0.7336857206006847,
+        "auroc_interval": [
+          0.7098968834321366,
+          0.7538051312338585
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.8069467068704583,
+            "auroc_interval": [
+              0.7680431218522581,
+              0.84231053019922
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.6189384351969032,
+            "auroc_interval": [
+              0.5875231781257358,
+              0.6475021854942953
+            ]
+          }
+        },
+        "aurc": 0.33405093708542116,
+        "ece": 0.41002744844910793,
+        "brier": 0.40025856324402215,
+        "coverage_accuracy": {
+          "0.20": 0.8680618744313012,
+          "0.50": 0.6232939035486806,
+          "0.80": 0.5069381255686989
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.8295350957155879,
+            0.9020947176684881
+          ],
+          "0.50": [
+            0.5901639344262295,
+            0.6542649727767695
+          ],
+          "0.80": [
+            0.4822565969062784,
+            0.5303961748633881
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0682
+          ],
+          [
+            0.04,
+            0.0569
+          ],
+          [
+            0.06,
+            0.0531
+          ],
+          [
+            0.08,
+            0.0626
+          ],
+          [
+            0.1,
+            0.0637
+          ],
+          [
+            0.12,
+            0.072
+          ],
+          [
+            0.14,
+            0.0715
+          ],
+          [
+            0.16,
+            0.0958
+          ],
+          [
+            0.18,
+            0.1163
+          ],
+          [
+            0.2,
+            0.1319
+          ],
+          [
+            0.22,
+            0.1572
+          ],
+          [
+            0.24,
+            0.1763
+          ],
+          [
+            0.26,
+            0.1916
+          ],
+          [
+            0.28,
+            0.2275
+          ],
+          [
+            0.3,
+            0.2433
+          ],
+          [
+            0.32,
+            0.2721
+          ],
+          [
+            0.34,
+            0.2917
+          ],
+          [
+            0.36,
+            0.297
+          ],
+          [
+            0.38,
+            0.3125
+          ],
+          [
+            0.4,
+            0.3255
+          ],
+          [
+            0.42,
+            0.3401
+          ],
+          [
+            0.44,
+            0.3455
+          ],
+          [
+            0.46,
+            0.358
+          ],
+          [
+            0.48,
+            0.3649
+          ],
+          [
+            0.5,
+            0.3767
+          ],
+          [
+            0.52,
+            0.3902
+          ],
+          [
+            0.54,
+            0.3993
+          ],
+          [
+            0.56,
+            0.4069
+          ],
+          [
+            0.58,
+            0.4164
+          ],
+          [
+            0.6,
+            0.4239
+          ],
+          [
+            0.62,
+            0.43
+          ],
+          [
+            0.64,
+            0.4386
+          ],
+          [
+            0.66,
+            0.4458
+          ],
+          [
+            0.68,
+            0.4527
+          ],
+          [
+            0.7,
+            0.4631
+          ],
+          [
+            0.72,
+            0.4711
+          ],
+          [
+            0.74,
+            0.4762
+          ],
+          [
+            0.76,
+            0.4834
+          ],
+          [
+            0.78,
+            0.489
+          ],
+          [
+            0.8,
+            0.4931
+          ],
+          [
+            0.82,
+            0.5012
+          ],
+          [
+            0.84,
+            0.5064
+          ],
+          [
+            0.86,
+            0.511
+          ],
+          [
+            0.88,
+            0.516
+          ],
+          [
+            0.9,
+            0.5212
+          ],
+          [
+            0.92,
+            0.5267
+          ],
+          [
+            0.94,
+            0.531
+          ],
+          [
+            0.96,
+            0.5341
+          ],
+          [
+            0.98,
+            0.5385
+          ],
+          [
+            1.0,
+            0.5428
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 4,
+            "mean_confidence": 0.2905192759080034,
+            "accuracy": 0.0
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 30,
+            "mean_confidence": 0.3596873627205906,
+            "accuracy": 0.3
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 104,
+            "mean_confidence": 0.4637286027047631,
+            "accuracy": 0.28846153846153844
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 131,
+            "mean_confidence": 0.5510678808594073,
+            "accuracy": 0.25190839694656486
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 194,
+            "mean_confidence": 0.6498088818259937,
+            "accuracy": 0.26804123711340205
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 168,
+            "mean_confidence": 0.7561127168340297,
+            "accuracy": 0.26785714285714285
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 189,
+            "mean_confidence": 0.8529922570693944,
+            "accuracy": 0.291005291005291
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 1378,
+            "mean_confidence": 0.9866216041680235,
+            "accuracy": 0.5667634252539913
+          }
+        ],
+        "median_right": 0.9995688557992545,
+        "median_wrong": 0.9003574982798129,
+        "sure": {
+          "questions": 975,
+          "correct": 633,
+          "interval": [
+            0.6187435577014109,
+            0.6785466269413343
+          ]
+        },
+        "doubtful": {
+          "questions": 463,
+          "correct": 124,
+          "interval": [
+            0.22951384168030597,
+            0.3099445099318897
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        80,
+        115,
+        46,
+        84,
+        72,
+        76,
+        45,
+        19,
+        27,
+        24,
+        24,
+        25,
+        37,
+        25,
+        27,
+        61,
+        24,
+        50,
+        53,
+        91
+      ],
+      "updated": "2026-10-06T12:32:15Z",
+      "group": "k"
+    },
+    {
+      "run": 132,
+      "model": "erk-14b",
+      "name": "Erk-14B",
+      "variant": null,
+      "reasoning": "off",
+      "note": "Qwen3-14B with continued Turkish training (eCloud)",
+      "parameters": 14768307200,
+      "active_parameters": null,
+      "provider": "vllm",
+      "access": "vLLM, self-hosted, BF16",
+      "questions_per_request": 16,
+      "concurrency": 1,
+      "correct": 989,
+      "invalid": 0,
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 474
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 515
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 988
+        }
+      },
+      "tyt_mix": 0.6545596271867388,
+      "questions_per_minute": 392.70250832565097,
+      "request_seconds": 335.82673195109237,
+      "median_request_seconds": 2.3896605125046335,
+      "billing": "local",
+      "billed_usd": null,
+      "api_equivalent_usd": null,
+      "cost_basis": null,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+      "input_tokens": 556424,
+      "output_tokens": 14720,
+      "confidence": {
+        "source": "probability",
+        "label": "Probability of the chosen option",
+        "bins": [
+          {
+            "questions": 41,
+            "correct": 6
+          },
+          {
+            "questions": 983,
+            "correct": 257
+          },
+          {
+            "questions": 533,
+            "correct": 230
+          },
+          {
+            "questions": 235,
+            "correct": 145
+          },
+          {
+            "questions": 406,
+            "correct": 351
+          }
+        ],
+        "auroc": 0.75398239191905,
+        "auroc_interval": [
+          0.7329048323570657,
+          0.7755322555835458
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.833344925117077,
+            "auroc_interval": [
+              0.7980460808674046,
+              0.8628873011883819
+            ]
+          },
+          "form": {
+            "questions": 1542,
+            "auroc": 0.637928361425965,
+            "auroc_interval": [
+              0.6055290599746399,
+              0.6669121413934426
+            ]
+          }
+        },
+        "aurc": 0.33057398258050896,
+        "ece": 0.13455620377261668,
+        "brier": 0.21437003773396557,
+        "coverage_accuracy": {
+          "0.20": 0.8430391264786169,
+          "0.50": 0.6342129208371247,
+          "0.80": 0.5006824385805277
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.804456571168713,
+            0.884090909090909
+          ],
+          "0.50": [
+            0.6061987237921604,
+            0.6643929058663028
+          ],
+          "0.80": [
+            0.47655894401456533,
+            0.5233878292461398
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0227
+          ],
+          [
+            0.04,
+            0.056
+          ],
+          [
+            0.06,
+            0.0455
+          ],
+          [
+            0.08,
+            0.0569
+          ],
+          [
+            0.1,
+            0.0673
+          ],
+          [
+            0.12,
+            0.0749
+          ],
+          [
+            0.14,
+            0.091
+          ],
+          [
+            0.16,
+            0.1043
+          ],
+          [
+            0.18,
+            0.1314
+          ],
+          [
+            0.2,
+            0.157
+          ],
+          [
+            0.22,
+            0.1716
+          ],
+          [
+            0.24,
+            0.1868
+          ],
+          [
+            0.26,
+            0.1995
+          ],
+          [
+            0.28,
+            0.2201
+          ],
+          [
+            0.3,
+            0.2342
+          ],
+          [
+            0.32,
+            0.2516
+          ],
+          [
+            0.34,
+            0.2636
+          ],
+          [
+            0.36,
+            0.2796
+          ],
+          [
+            0.38,
+            0.2957
+          ],
+          [
+            0.4,
+            0.3062
+          ],
+          [
+            0.42,
+            0.3197
+          ],
+          [
+            0.44,
+            0.3319
+          ],
+          [
+            0.46,
+            0.3443
+          ],
+          [
+            0.48,
+            0.3545
+          ],
+          [
+            0.5,
+            0.3658
+          ],
+          [
+            0.52,
+            0.3745
+          ],
+          [
+            0.54,
+            0.3866
+          ],
+          [
+            0.56,
+            0.3989
+          ],
+          [
+            0.58,
+            0.4078
+          ],
+          [
+            0.6,
+            0.417
+          ],
+          [
+            0.62,
+            0.424
+          ],
+          [
+            0.64,
+            0.432
+          ],
+          [
+            0.66,
+            0.4396
+          ],
+          [
+            0.68,
+            0.4476
+          ],
+          [
+            0.7,
+            0.4553
+          ],
+          [
+            0.72,
+            0.4648
+          ],
+          [
+            0.74,
+            0.4737
+          ],
+          [
+            0.76,
+            0.4828
+          ],
+          [
+            0.78,
+            0.4902
+          ],
+          [
+            0.8,
+            0.4993
+          ],
+          [
+            0.82,
+            0.5049
+          ],
+          [
+            0.84,
+            0.5098
+          ],
+          [
+            0.86,
+            0.5165
+          ],
+          [
+            0.88,
+            0.5213
+          ],
+          [
+            0.9,
+            0.5253
+          ],
+          [
+            0.92,
+            0.5319
+          ],
+          [
+            0.94,
+            0.5349
+          ],
+          [
+            0.96,
+            0.5414
+          ],
+          [
+            0.98,
+            0.5439
+          ],
+          [
+            1.0,
+            0.55
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 220,
+            "mean_confidence": 0.27045114386202834,
+            "accuracy": 0.22727272727272727
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 449,
+            "mean_confidence": 0.3478851609341981,
+            "accuracy": 0.23162583518930957
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 355,
+            "mean_confidence": 0.4478541688013936,
+            "accuracy": 0.30704225352112674
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 276,
+            "mean_confidence": 0.5445133475362183,
+            "accuracy": 0.38768115942028986
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 169,
+            "mean_confidence": 0.6489070711168314,
+            "accuracy": 0.46153846153846156
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 177,
+            "mean_confidence": 0.7516227878410612,
+            "accuracy": 0.5536723163841808
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 146,
+            "mean_confidence": 0.8520778195097863,
+            "accuracy": 0.6301369863013698
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 406,
+            "mean_confidence": 0.9671799089250693,
+            "accuracy": 0.8645320197044335
+          }
+        ],
+        "median_right": 0.750993488829512,
+        "median_wrong": 0.4316644753636113,
+        "sure": {
+          "questions": 101,
+          "correct": 96,
+          "interval": [
+            0.8893042659293906,
+            0.9786718046380176
+          ]
+        },
+        "doubtful": {
+          "questions": 1469,
+          "correct": 448,
+          "interval": [
+            0.28195955672336465,
+            0.328996570534312
+          ]
+        }
+      },
+      "previous": null,
+      "units": [
+        84,
+        114,
+        46,
+        89,
+        64,
+        77,
+        45,
+        20,
+        27,
+        28,
+        30,
+        16,
+        38,
+        21,
+        25,
+        60,
+        20,
+        48,
+        40,
+        97
+      ],
+      "updated": "2026-10-06T12:31:11Z",
       "group": "k"
     },
     {
@@ -10776,7 +12496,7 @@
       "group": "m"
     }
   ],
-  "group_pairs": 276,
+  "group_pairs": 378,
   "paired": [
     {
       "first": 48,
@@ -10788,7 +12508,7 @@
       "low": 0.0037624029350301572,
       "high": 0.014435959212376575,
       "p": 0.0011932429624721408,
-      "p_holm": 0.019091887399554253
+      "p_holm": 0.022671616286970675
     },
     {
       "first": 124,
@@ -10800,7 +12520,7 @@
       "low": 0.023554359443423187,
       "high": 0.04468949860935206,
       "p": 2.3305055920143637e-10,
-      "p_holm": 4.661011184028727e-09
+      "p_holm": 5.826263980035909e-09
     },
     {
       "first": 123,
@@ -10812,7 +12532,7 @@
       "low": -0.00028487352823502315,
       "high": 0.024852662427234114,
       "p": 0.06504501335635778,
-      "p_holm": 0.7805401602762934
+      "p_holm": 0.9756752003453666
     },
     {
       "first": 121,
@@ -10824,7 +12544,7 @@
       "low": 0.0027441217437400613,
       "high": 0.029103012014221722,
       "p": 0.021375972466109734,
-      "p_holm": 0.2992636145255363
+      "p_holm": 0.3633915319238655
     },
     {
       "first": 47,
@@ -10836,31 +12556,55 @@
       "low": 0.03852720387825319,
       "high": 0.06975305089881688,
       "p": 1.4657942286341076e-11,
-      "p_holm": 3.0781678801316257e-10
+      "p_holm": 3.81106499444868e-10
     },
     {
       "first": 55,
+      "second": 130,
+      "questions": 2198,
+      "first_only": 410,
+      "second_only": 187,
+      "difference": 0.10145586897179254,
+      "low": 0.08008479848919678,
+      "high": 0.1228269394543883,
+      "p": 3.755885795918284e-20,
+      "p_holm": 1.0140891648979368e-18
+    },
+    {
+      "first": 130,
       "second": 119,
       "questions": 2198,
-      "first_only": 426,
-      "second_only": 164,
-      "difference": 0.1191992720655141,
-      "low": 0.09812052257721107,
-      "high": 0.14027802155381713,
-      "p": 8.0571967837094125e-28,
-      "p_holm": 1.853155260253165e-26
+      "first_only": 320,
+      "second_only": 281,
+      "difference": 0.017743403093721567,
+      "low": -0.004104786276214339,
+      "high": 0.03959159246365747,
+      "p": 0.12105661373952667,
+      "p_holm": 1.0
     },
     {
       "first": 119,
+      "second": 133,
+      "questions": 2198,
+      "first_only": 324,
+      "second_only": 218,
+      "difference": 0.048225659690627844,
+      "low": 0.027563759266166867,
+      "high": 0.06888756011508881,
+      "p": 6.075818939751477e-06,
+      "p_holm": 0.00013974383561428396
+    },
+    {
+      "first": 133,
       "second": 129,
       "questions": 2198,
-      "first_only": 355,
-      "second_only": 240,
-      "difference": 0.05232029117379436,
-      "low": 0.030679166621566563,
-      "high": 0.07396141572602216,
-      "p": 2.7673699726562264e-06,
-      "p_holm": 5.25800294804683e-05
+      "first_only": 322,
+      "second_only": 313,
+      "difference": 0.004094631483166515,
+      "low": -0.018375346329844618,
+      "high": 0.026564609296177648,
+      "p": 0.750915254482066,
+      "p_holm": 1.0
     },
     {
       "first": 129,
@@ -10872,7 +12616,7 @@
       "low": -0.002427350314492961,
       "high": 0.04155382893141744,
       "p": 0.08868642134501356,
-      "p_holm": 0.9755506347951491
+      "p_holm": 1.0
     },
     {
       "first": 120,
@@ -10884,7 +12628,7 @@
       "low": 0.024254055250958802,
       "high": 0.06673775548607486,
       "p": 3.3358835091345055e-05,
-      "p_holm": 0.000600459031644211
+      "p_holm": 0.0007338943720095912
     },
     {
       "first": 54,
@@ -10908,7 +12652,7 @@
       "low": 0.008033138518606254,
       "high": 0.04929170224572496,
       "p": 0.007404857447081556,
-      "p_holm": 0.11107286170622334
+      "p_holm": 0.133287434047468
     },
     {
       "first": 49,
@@ -11004,19 +12748,43 @@
       "low": 0.003688027661566406,
       "high": 0.04180787770695042,
       "p": 0.02194066100694269,
-      "p_holm": 0.2992636145255363
+      "p_holm": 0.3633915319238655
     },
     {
       "first": 50,
+      "second": 131,
+      "questions": 2198,
+      "first_only": 395,
+      "second_only": 259,
+      "difference": 0.06187443130118289,
+      "low": 0.03921728938975795,
+      "high": 0.08453157321260783,
+      "p": 1.1754427566695457e-07,
+      "p_holm": 2.8210626160069096e-06
+    },
+    {
+      "first": 131,
+      "second": 132,
+      "questions": 2198,
+      "first_only": 288,
+      "second_only": 272,
+      "difference": 0.007279344858962694,
+      "low": -0.013820401250214265,
+      "high": 0.02837909096813965,
+      "p": 0.5262054670180019,
+      "p_holm": 1.0
+    },
+    {
+      "first": 132,
       "second": 126,
       "questions": 2198,
-      "first_only": 494,
-      "second_only": 249,
-      "difference": 0.11146496815286625,
-      "low": 0.08760932189014448,
-      "high": 0.13532061441558801,
-      "p": 1.6520495546201404e-19,
-      "p_holm": 3.634509020164309e-18
+      "first_only": 421,
+      "second_only": 328,
+      "difference": 0.042311191992720654,
+      "low": 0.017970916928709595,
+      "high": 0.06665146705673171,
+      "p": 0.0007641053000487032,
+      "p_holm": 0.015282106000974063
     },
     {
       "first": 126,
@@ -11028,7 +12796,7 @@
       "low": 0.19141070364760046,
       "high": 0.24353015167542044,
       "p": 5.800412999770335e-56,
-      "p_holm": 1.3920991199448805e-54
+      "p_holm": 1.624115639935694e-54
     },
     {
       "first": 51,
@@ -11064,7 +12832,7 @@
       "low": 0.01794483214073702,
       "high": 0.05757837077100093,
       "p": 0.00022780042456489667,
-      "p_holm": 0.0038726072176032433
+      "p_holm": 0.0047838089158628305
     }
   ],
   "cascades": [

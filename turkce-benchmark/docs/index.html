@@ -69,11 +69,14 @@
       <h3>What we found</h3>
       <ol id="findings">
         <li><strong>Meaning generalizes; form mostly does not.</strong> Every model except the near-chance Laya models
-          and GLiNER2.5 Multi, and the small Metask-Jev 4B (63%), answers 80–97% of the reading questions correctly. On
+          and GLiNER2.5 Multi, and the smaller Metask-Jev 4B, Qwen3-14B and Erk-14B (63–72%), answers 80–97% of the
+          reading questions correctly. On
           the grammar questions, GPT-6 Astra, GPT-6.1 Sol, Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and
           Claude Sonnet 5.5 at high effort stay
-          within 3 points of their reading level. Claude Opus 5.5 at low effort loses 6 points, and every other model
-          above chance loses 25–42 points. <em>Evidence:</em>
+          within 3 points of their reading level. Claude Opus 5.5 at low effort loses 6 points and Gemini 3.1 Pro 11, and
+          every other model above chance loses 25–42 points. More Turkish training did not change that: Erk-14B, which is
+          Qwen3-14B trained further on Turkish text, scores the same as Qwen3-14B, on form too (33.4% against 34.5%).
+          <em>Evidence:</em>
           <a href="#leaderboard-section">Leaderboard</a>, <a href="#units-section">Where models break</a>.</li>
         <li><strong>Reasoning buys back form, at a price.</strong> With reasoning on, DeepSeek-V4.1-Flash goes from 57% to
           91% on the grammar questions. It writes about 1,000 output tokens per question instead of 6, and its run takes
@@ -118,9 +121,9 @@
           front of GPT-6 Astra kept 15% of the questions at a loss of 0.1 points, with the threshold chosen on other
           questions. <em>Evidence:</em> <a href="#cascade-section">Answer when sure</a>.</li>
         <li><strong>Is it memory? Not clearly, but we cannot rule it out.</strong> On the 40 Turkish-language questions
-          of the June 2026 exam, which no book prints, each of the seven models we ran on them scored within ±12 points
-          of what its book score predicts, the uncertainty that 40 questions allow. But five of the seven scored below
-          their prediction, Claude Opus 5.5 by 11 points. With 40 questions this is not significant (sign test p = 0.45),
+          of the June 2026 exam, which no book prints, each of the nine models we ran on them scored within ±12 points
+          of what its book score predicts, the uncertainty that 40 questions allow. But six of the nine scored below
+          their prediction, Claude Opus 5.5 by 11 points. With 40 questions this is not significant (sign test p = 0.51),
           but it is the
           direction that memorization would push. When the correct option's text was replaced by a copy of a wrong
           option, GPT-6 Astra picked the original letter about as often as the copied option (31.0% and 28.4%, on the
@@ -140,16 +143,17 @@
         reading and 7 grammar questions). AUROC: how well the run's confidence separates right from wrong answers.
         Output tokens: per question, reasoning included. Cost: API-equivalent US dollars per 1,000 questions.
         Group: runs that share a letter are statistically tied, because no exact paired test separates them after
-        Holm's correction over all 276 pairs of runs. A run with two letters is tied with runs in both groups, which
+        Holm's correction over all 378 pairs of runs. A run with two letters is tied with runs in both groups, which
         are not tied with each other, and a line in the table starts each group that shares no letter with the run
-        above. Whether two runs are tied depends on how often they disagree, not only on the gap: GPT-6 Astra's 0.9-point
-        lead over GPT-6.1 Sol is real, because the two disagree on only 36 questions, while GLiDE's 2-point lead over
-        DeepSeek without reasoning is not, because those two disagree on 609. See <a href="#gaps"><em>Which gaps are
-        real?</em></a>
+        above. Whether a gap is real depends on how often two runs disagree, not only on its size: GPT-6 Astra leads
+        GPT-6.1 Sol by 0.9 points and the two disagree on only 36 questions (p = 0.001 alone), while GLiDE leads
+        DeepSeek without reasoning by 2 points but the two disagree on 609 (p = 0.09). Astra's lead passes the
+        correction for the 28 comparisons of <a href="#gaps"><em>Which gaps are real?</em></a> but not the stricter
+        one for all 378 pairs, so the two share a letter.
         "<a href="#setups">The setups</a>" under Method explains each run. Click a column heading to sort.</p>
       <div class="table-wrap"><table id="leaderboard"></table></div>
       <figure class="chart"><img src="charts/reading-grammar.svg" loading="lazy"
-        alt="Horizontal bars of each run's accuracy on meaning (reading, units 1–6) and on form (grammar, units 7–20). GPT-6 Astra, GPT-6.1 Sol, Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and Claude Sonnet 5.5 at high effort score within 3 points on both. Claude Opus 5.5 at low effort scores 6 points lower on form. Every other model above chance scores 25–42 points lower on form; the Laya models and GLiNER2.5 Multi stay near chance on both."></figure>
+        alt="Horizontal bars of each run's accuracy on meaning (reading, units 1–6) and on form (grammar, units 7–20). GPT-6 Astra, GPT-6.1 Sol, Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and Claude Sonnet 5.5 at high effort score within 3 points on both. Claude Opus 5.5 at low effort scores 6 points lower on form and Gemini 3.1 Pro 11. Every other model above chance scores 25–42 points lower on form; the Laya models and GLiNER2.5 Multi stay near chance on both."></figure>
     </section>
 
     <section class="card" id="cascade-section">
@@ -252,11 +256,12 @@
       <h3>How we read confidence</h3>
       <div class="prose">
         <p>We look at the confidence score of every answer, not only at whether the answer is right. The question is:
-          when the confidence goes up, does the chance of a right answer go up too? All 24 runs give a confidence, so we
+          when the confidence goes up, does the chance of a right answer go up too? All 28 runs give a confidence, so we
           ask this for every run.</p>
         <p>A confidence comes from one of three sources. Some models state it as a number from 0 to 1. The decision
-          models, GLiNER2.5 Multi and Qwen's yes/no scoring give a probability for every option; for Gemma 4 31B and
-          DeepSeek-V4.1-Flash, which write their answers, it is the probability of the letter they write. Qwen's
+          models, GLiNER2.5 Multi and Qwen's yes/no scoring give a probability for every option; for Gemma 4 31B,
+          DeepSeek-V4.1-Flash, Qwen3-14B and Erk-14B, which write their answers, it is the probability of the letter they
+          write. Qwen's
           vote-share run samples 10 answers and uses the share of samples that agree.</p>
         <p>We measure the link between confidence and correctness with AUROC. AUROC is the chance that a right answer
           gets a higher confidence than a wrong answer: 0.5 means no link, and 1.0 means that every right answer has a
@@ -333,7 +338,8 @@
           <thead><tr><th>Ability</th><th>Generalizes?</th><th>Evidence</th></tr></thead>
           <tbody>
             <tr><td>Understanding meaning</td><td>Yes</td><td>Every model except the near-chance Laya models and GLiNER2.5
-              Multi, and the small Metask-Jev 4B (63%), answers 80–97% of the reading questions correctly. See
+              Multi, and the smaller Metask-Jev 4B, Qwen3-14B and Erk-14B (63–72%), answers 80–97% of the reading
+              questions correctly. See
               <a href="#leaderboard-section">Leaderboard</a>.</td></tr>
             <tr><td>Knowledge of form</td><td>Only in the strongest models</td><td>GPT-6 Astra answers 98% of the
               grammar questions correctly. Gemma 4 31B answers 91% of the reading questions but 66% of the grammar
@@ -357,13 +363,24 @@
         suffix turns a verb into a noun. A model can answer it only if the model learned that form. A meaning question
         depends less on this. A likely reason is that a model can find the main idea of a paragraph with skills that it
         also learned in other languages.</p>
+      <p><strong>More Turkish training did not help.</strong> Erk-14B is Qwen3-14B with continued training on Turkish
+        web text and on generated sentences that drill Turkish suffixes, verb voice and spelling; the architecture and
+        the size are the same. Given the same request, it scores
+        the same as Qwen3-14B: 45.0% against 45.7% overall, and 33.4% against 34.5% on form; neither difference is
+        significant (p = 0.53 and 0.45). No unit changes significantly either, not even the ones its generated sentences
+        drill: suffixes +7.6 points, verb voice −5.4, spelling −1.5. What changed is its confidence: its calibration
+        error fell from 0.41 to 0.14. So the Turkish training Erk received did not supply the knowledge of form these
+        questions test. That is one
+        model and one kind of training, so it does not settle the question, but it weakens the simplest version of the
+        "thin training" explanation.</p>
       <p><strong>Why the order generalizes but the size does not.</strong> The temperature changes how spread out the
         probabilities are, but it does not change their order. With the temperature fitted on its training data,
         Open-Jev's confidence is too low: all 144 of its answers at a confidence of 0.5–0.6 were right, and it never
         gives a confidence of 0.7 or more. But Open-Jev still puts right answers above wrong ones. Refitted on its
         answers to the first version of the question bank, the temperature cut the ECE from 0.228 to 0.030, and the
         AUROC stayed the same (0.8193 before, 0.8191 after).</p>
-      <p><strong>Two limits.</strong> First, "thin training" is a hypothesis: we do not know how much Turkish each model
+      <p><strong>Two limits.</strong> First, "thin training" is a hypothesis, and the Erk test above argues against its
+        simplest form: we do not know how much Turkish each model
         saw in training, and the book is online, so some questions may have been in training (see <em>What could be
         wrong</em>). Second, Turkish is one setting. A claim about unfamiliar settings in general needs a second test in
         a different setting.</p>
@@ -404,10 +421,11 @@
           <a href="#leaderboard-section">Leaderboard</a>.</li>
         <li><strong>Close calls.</strong> Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and Claude Opus 5.5 at
           low effort lie within 3 points (93.3%, 92.0% and 90.4%), and neither gap between them is significant after the
-          Holm correction for all 24 comparisons: DeepSeek's 1.6-point lead over Opus has p = 0.02 alone and 0.30
+          Holm correction for all 28 comparisons: DeepSeek's 1.6-point lead over Opus has p = 0.02 alone and 0.36
           corrected. On the 200-question sample of the repeats, averaged over five runs each, DeepSeek and Opus score
           about the same (94.9% and 95.5%). The smallest significant gap is GPT-6 Astra's 0.9-point lead over GPT-6.1
-          Sol (Holm p = 0.019). In the tied groups, DeepSeek with reasoning is tied with both, while Gemini is ahead of
+          Sol (Holm p = 0.023), although the tied groups, which correct for all 378 pairs, put the two together. In the
+          tied groups, DeepSeek with reasoning is tied with both, while Gemini is ahead of
           Opus. <em>Evidence:</em> <a href="#gaps">Which gaps are real?</a>,
           <a href="#repeats-section">Same question, same answer?</a></li>
         <li><strong>Open-weight models that write their answers.</strong> Without reasoning, Gemma 4 31B is the
@@ -442,7 +460,8 @@
           GLiDE, Jev, d1, Winnow-12B and the Decider these answers cover 1–14% of the questions.
           GPT-6 Astra,
           GPT-6.1 Sol and Gemini 3.8 Flash state 0.99 or more on 44–78% of the questions and are right on 98.5–99.7% of
-          them. Token probabilities differ: Gemma 4 31B was right on only 81% of its 1,782 such answers, and
+          them; GPT-6 Luna states it on 38% and is right on only 83.5% (693 of 830).
+          Token probabilities differ: Gemma 4 31B was right on only 81% of its 1,782 such answers, and
           DeepSeek-V4.1-Flash with reasoning gave all 2,198 answers at 0.99 or more, 92% of them right.
           <em>Evidence:</em> <a href="#sure">Can you trust 0.99?</a></li>
         <li><strong>The cascade in simulation.</strong> With stored runs, a decision model can take 1–45% of the
@@ -507,13 +526,17 @@
             <tr><td>Qwen3.8-27B, vote share</td><td>The same request as the stated-confidence run, sampled 10 times; the
               answer is the most frequent letter and the confidence the share of samples that chose it. This shows
               whether sampling a model repeatedly, without reading its probabilities, flags mistakes as well.</td></tr>
-            <tr><td>GPT-6 Astra, GPT-6.1 Sol, Claude Opus 5.5, Claude Sonnet 5.5, Gemini 3.8 Flash</td><td>Frontier
-              models that also state a confidence: an upper reference for accuracy, and a test of how well a strong
-              model's stated confidence tracks its accuracy. Sonnet ran at low and at high effort. GPT-6.1 Sol is
-              OpenAI's lower-cost model near Astra; Gemini 3.8 Flash is Google's most capable Flash model.</td></tr>
+            <tr><td>GPT-6 Astra, GPT-6.1 Sol, GPT-6 Luna, Claude Opus 5.5, Claude Sonnet 5.5, Gemini 3.8 Flash, Gemini 3.1
+              Pro</td><td>Frontier models that also state a confidence: an upper reference for accuracy, and a test of how
+              well a strong model's stated confidence tracks its accuracy. Sonnet ran at low and at high effort. GPT-6.1
+              Sol is OpenAI's lower-cost model near Astra and GPT-6 Luna its cheapest GPT-6 tier; Gemini 3.8 Flash is
+              Google's most capable Flash model and Gemini 3.1 Pro (preview) its Pro model.</td></tr>
             <tr><td>Gemma 4 31B, DeepSeek-V4.1-Flash</td><td>Self-hosted open-weight models that write their answers;
               their confidence is the probability of the letter they write. DeepSeek ran with reasoning off and on, which
               shows what reasoning adds.</td></tr>
+            <tr><td>Qwen3-14B, Erk-14B</td><td>A controlled test of Turkish training: Erk-14B is Qwen3-14B with continued
+              training on Turkish text, by eCloud. Both run self-hosted with the same request and settings, so the
+              difference is the Turkish training alone.</td></tr>
           </tbody>
         </table>
       </div>
@@ -565,7 +588,8 @@
       <h3>Prompt</h3>
       <p>Each question is sent with its lettered options and a Turkish instruction to answer without explaining.
         Generative models reply in JSON constrained by a schema: one of the supplied letters per question, plus a 0–1
-        confidence for the runs that state one. The Claude, GPT, Gemini, Gemma and DeepSeek runs get 16 questions per
+        confidence for the runs that state one. The Claude, GPT, Gemini, Gemma, DeepSeek, Qwen3-14B and Erk runs get 16
+        questions per
         request; the decision models, GLiNER2.5 Multi and the Qwen runs get one.</p>
       <p>The decision models (Jev, Open-Jev, d1, Perplexity's Decider, Clef, Metask-Jev, Cygnet, Winnow-12B, GLiDE and
         Laya)
@@ -582,7 +606,8 @@
         text the description of its letter; a softmax over the letters' scores gives the option probabilities.</p>
       <h3>Settings</h3>
       <ul>
-        <li>Gemma, DeepSeek and Qwen are self-hosted with vLLM or SGLang. Without reasoning they decode greedily, at
+        <li>Gemma, DeepSeek, Qwen, Qwen3-14B and Erk-14B are self-hosted with vLLM or SGLang. Without reasoning they
+          decode greedily, at
           temperature 0. DeepSeek's reasoning run samples with the server's defaults (temperature 1.0, top_p 1.0, within
           the model card's recommendation) at its default reasoning effort, because greedy decoding made its reasoning
           loop. Each request may write up to 65,536 tokens, reasoning included; the longest used 60,881.</li>
@@ -607,7 +632,8 @@
         confidence is the probability of the chosen option. Jev and Open-Jev also report the rescaled confidence
         described in <a href="#open-jev">How Open-Jev works</a>, which sorts answers in the same order. Claude, GPT,
         Gemini and the Qwen stated-confidence run give a 0–1 confidence with each answer. The Qwen vote-share run's
-        confidence is the share of its 10 samples that chose the answer. For Gemma and DeepSeek it is the probability
+        confidence is the share of its 10 samples that chose the answer. For Gemma, DeepSeek, Qwen3-14B and Erk-14B it is
+        the probability
         of the letter they write: at that token, the model's 10 most likely alternatives that differ only in the letter
         give each option's probability, renormalized over the question's options. With reasoning on, the letter comes
         after the reasoning.</p>
@@ -615,7 +641,7 @@
       <p>AUROC and the top-share accuracies carry 95% bootstrap intervals from 1,000 resamples of the questions. The
         14 questions that share a passage (7 passages) are drawn together, and the cascade splits keep them in the same
         half. Paired comparisons use the exact McNemar test with a paired interval, and Holm's method corrects for the
-        24 comparisons shown. The tied groups test every pair of runs, 276 in all, with Holm's method over all of them.
+        28 comparisons shown. The tied groups test every pair of runs, 378 in all, with Holm's method over all of them.
         Accuracies of small groups of answers carry 95% Wilson intervals.</p>
       <h3>Speed, tokens and cost</h3>
       <p>Questions/min divides the answered questions by the time spent in requests. DeepSeek's reasoning run kept 8
@@ -636,12 +662,15 @@
           training. Two checks found no clear sign of memorization, but they cannot rule it out, and each has a limit:
           <ul>
             <li>On the 40 Turkish-language questions of the 2026 TYT, sat on 20 June 2026 and printed in no book, each
-              of the seven models we ran on them scored within about ±12 points of what its book scores predict once
+              of the nine models we ran on them scored within about ±12 points of what its book scores predict once
               meaning and form are weighted like the paper (33 reading, 7 grammar questions): GPT-6 Astra 40, Claude
-              Opus 5.5 and Perplexity's Decider 33, Claude Sonnet 5.5 (high) 32, Jev 30, d1 and Open-Jev 28. At 40
+              Opus 5.5 and Perplexity's Decider 33, Claude Sonnet 5.5 (high) 32, Jev 30, d1 and Open-Jev 28, Qwen3-14B 27
+              and Erk-14B 24. At 40
               questions the 95% interval is about ±12
-              points. Five of the seven scored below their prediction, Claude Opus 5.5 by 11 points; with 40 questions
-              this is not significant (sign test p = 0.45), but it is the direction memorization would push. The models
+              points. Six of the nine scored below their prediction, Claude Opus 5.5 by 11 points; with 40 questions
+              this is not significant (sign test p = 0.51), but it is the direction memorization would push. Erk-14B,
+              whose extra training used Turkish web text where the book can be found, scored 2 below its prediction and
+              Qwen3-14B 1 above, so its extra training shows no sign of the book. The models
               ran in October, so they could have seen the June exam; the questions themselves stay private.</li>
             <li>With the correct option's text replaced by a wrong option's text, GPT-6 Astra picked the original
               letter about as often as the option whose text was copied (31.0% against 28.4% on questions with text
@@ -665,10 +694,15 @@
           Claude runs and DeepSeek with reasoning, 0.16 for DeepSeek without, 0.06 for GPT-6 Astra and nothing for
           Gemma within one server session. The paired tests do not include this.</li>
         <li>The Claude, GPT and Gemini models ran at their lowest reasoning setting, except the second Sonnet 5.5 run at
-          high. DeepSeek ran with reasoning off and at its default effort. Sonnet's and DeepSeek's two runs show how much
-          the setting can matter.</li>
+          high; GPT-6 Luna ran at low, like the other GPT-6 tiers, although it also offers none. DeepSeek ran with
+          reasoning off and at its default effort. Sonnet's and DeepSeek's two runs show how much the setting can
+          matter.</li>
         <li>Sending 16 questions per request may cost accuracy. On earlier 100-question samples, GPT-5.5 got 81 right
-          at 4 questions per request and 73 at 100, and Gemma 4 31B 65 at 4 and 61 at 16.</li>
+          at 4 questions per request and 73 at 100, and Gemma 4 31B 65 at 4 and 61 at 16. Gemini 3.1 Pro (preview) at its
+          lowest thinking level shows the problem plainly: it does no thinking, answers the first four questions of a
+          request right 58% of the time against 87% for the last four, and gives every answer in about half of its
+          requests the same 0.25 confidence. No other run shows such a slope. On 32 questions at its default thinking
+          level it got all 32 right, so its 74.9% here reflects that interaction, not what the model knows.</li>
         <li>A self-hosted model's answers can change with the server's state. Gemma 4 31B gave the same answers in five
           runs on one server session, but after a restart the same requests changed 15 of the 200 sample answers. The
           reruns that added token probabilities also grouped the questions into new batches of 16, because the key audit

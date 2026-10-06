@@ -170,7 +170,11 @@ fn color(run: &Run) -> Color {
     match (run.model.as_str(), run.reasoning.as_deref(), run.variant.as_deref()) {
         ("gpt-6-astra", ..) => rgb(0x2563eb),
         ("gpt-6.1-sol", ..) => rgb(0x0284c7),
+        ("gpt-6-luna", ..) => rgb(0x7dd3fc),
         ("gemini-3.8-flash", ..) => rgb(0x65a30d),
+        ("gemini-3.1-pro-preview", ..) => rgb(0x15803d),
+        ("erk-14b", ..) => rgb(0xe11d48),
+        ("qwen3-14b", ..) => rgb(0xfda4af),
         ("claude-opus-5-5", ..) => rgb(0x7c3aed),
         ("claude-sonnet-5-5", Some("high"), _) => rgb(0xdb2777),
         ("claude-sonnet-5-5", ..) => rgb(0xf472b6),

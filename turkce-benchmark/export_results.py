@@ -126,6 +126,10 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "GPT-6.1 Sol",
         "price": "$2 per 1M input tokens ($0.10 cached), $10 per 1M output tokens",
     },
+    "gpt-6-luna": {
+        "name": "GPT-6 Luna",
+        "price": "$0.10 per 1M input tokens ($0.01 cached), $0.50 per 1M output tokens",
+    },
     "claude-opus-5-5": {
         "name": "Claude Opus 5.5",
         "price": "$4 / $20 per 1M input / output tokens",
@@ -206,6 +210,24 @@ MODELS: dict[str, dict[str, Any]] = {
     "gemini-3.8-flash": {
         "name": "Gemini 3.8 Flash",
         "price": "$0.75 per 1M input tokens, $3.75 per 1M output tokens, thinking included (introductory price through 2026)",
+    },
+    "gemini-3.1-pro-preview": {
+        "name": "Gemini 3.1 Pro (preview)",
+        "price": "$2 per 1M input tokens, $12 per 1M output tokens, thinking included",
+    },
+    "erk-14b": {
+        "name": "Erk-14B",
+        "note": "Qwen3-14B with continued Turkish training (eCloud)",
+        "access": "vLLM, self-hosted, BF16",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 14_768_307_200,
+    },
+    "qwen3-14b": {
+        "name": "Qwen3-14B",
+        "note": "Erk-14B's base model",
+        "access": "vLLM, self-hosted, BF16",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 14_768_307_200,
     },
 }
 UNITS_EN = {
