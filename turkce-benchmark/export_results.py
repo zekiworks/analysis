@@ -53,6 +53,12 @@ PROVIDERS: dict[str, dict[str, Any]] = {
         "billing": "api",
         "cost_basis": "the free d1 model; Liquid publishes no price for d1",
     },
+    "fastino": {
+        "access": "Fastino System One API",
+        "scoring": True,
+        "billing": "api",
+        "cost_basis": "Fastino's price: $0.15 per 1M input tokens, output free",
+    },
     "laya": {"access": "Laya server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "gliner": {"access": "GLiNER2 server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
@@ -152,6 +158,7 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 27_796_899_569,
     },
     "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B", "parameters": 26_085_330_160},
+    "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model that reasons on uncertain decisions"},
     "d1:free": {"name": "Liquid d1"},
     "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}", "parameters": 421_293_830},
     "laya-multilingual": {
@@ -406,8 +413,13 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "updated": record["updated"],
             }
         )
-    runs.sort(key=lambda run: (-run["correct"], run["name"].casefold(), run["run"]))
     exported = {record["run_key"]: record for record in selected}
+    # Tied groups (the report's compact letter display): the letters, and how many pairs were tested.
+    groups = {exported[item["run_key"]]["run_id"]: item for item in analysis.get("groups", []) if item["run_key"] in exported}
+    for run in runs:
+        run["group"] = groups[run["run"]]["letters"] if run["run"] in groups else None
+    group_pairs = max((item["pairs"] for item in groups.values()), default=0)
+    runs.sort(key=lambda run: (-run["correct"], run["name"].casefold(), run["run"]))
     paired = [
         {
             "first": exported[item["first"]]["run_id"],
@@ -546,6 +558,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             for name in unit_names
         ],
         "runs": runs,
+        "group_pairs": group_pairs,
         "paired": paired,
         "cascades": cascades,
         "doubts": doubts,

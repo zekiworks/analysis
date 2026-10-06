@@ -185,6 +185,7 @@ fn color(run: &Run) -> Color {
         ("metask-jev-4b-policy-mix", ..) => rgb(0x1e40af),
         ("cygnet", ..) => rgb(0x27272a),
         ("winnow-12b", ..) => rgb(0xbe185d),
+        ("fastino/GLiDE", ..) => rgb(0x059669),
         ("qwen38-27b-bf16", _, Some("stated confidence")) => rgb(0x78716c),
         ("qwen38-27b-bf16", _, Some("vote share")) => rgb(0x4f46e5),
         ("qwen38-27b-bf16", ..) => rgb(0x92400e),

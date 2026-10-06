@@ -12,8 +12,9 @@ import bisect
 import math
 import random
 import statistics
+import string
 from collections import defaultdict
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 # Intervals of the report's confidence table. Each includes its lower bound; the last also includes 1.0.
 CONFIDENCE_BINS = ((0.0, 0.25), (0.25, 0.5), (0.5, 0.75), (0.75, 0.9), (0.9, 1.0))
@@ -188,6 +189,27 @@ def holm(p_values: Sequence[float]) -> list[float]:
         running = max(running, min(1.0, (len(p_values) - rank) * p_values[index]))
         adjusted[index] = running
     return adjusted
+
+
+def tied_groups(count: int, separated: Callable[[int, int], bool]) -> list[str]:
+    """Letters for `count` runs in rank order, a compact letter display: each letter marks a longest
+    stretch of consecutive runs no two of which `separated(i, j)` tells apart, and a run gets the letter
+    of every stretch it belongs to. Runs that share a letter are tied; a run with two letters is tied
+    with runs that are not tied with each other."""
+    stretches: list[tuple[int, int]] = []
+    for start in range(count):
+        end = start
+        while end + 1 < count and not any(separated(member, end + 1) for member in range(start, end + 1)):
+            end += 1
+        # A stretch from a later start reaches at least as far; keep only those that reach further.
+        if not stretches or end > stretches[-1][1]:
+            stretches.append((start, end))
+    letters = [""] * count
+    for index, (start, end) in enumerate(stretches):
+        letter = string.ascii_lowercase[index % 26] * (index // 26 + 1)
+        for run in range(start, end + 1):
+            letters[run] += letter
+    return letters
 
 
 def bootstrap_ranking(

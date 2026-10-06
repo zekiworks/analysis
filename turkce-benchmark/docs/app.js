@@ -82,6 +82,8 @@ function makeSortable(table) {
       const descending = current ? current === 'ascending' : numeric;
       headers.forEach(header => header.removeAttribute('aria-sort'));
       th.setAttribute('aria-sort', descending ? 'descending' : 'ascending');
+      // Group lines follow the score order; another order would draw them in the wrong places.
+      delete table.dataset.grouped;
       const key = row => {
         const cell = row.cells[index];
         const raw = cell.dataset.value ?? cell.textContent.trim();
@@ -147,7 +149,9 @@ function groupAccuracy(run, name) {
 function renderLeaderboard(data) {
   const total = data.questions;
   const mix = `${data.tyt_mix.reading} reading and ${data.tyt_mix.grammar} grammar questions`;
-  const rows = data.runs.map(run => {
+  // A group starts where a run shares no letter with the run above it.
+  const sharesLetter = (first, second) => [...(first ?? '')].some(letter => (second ?? '').includes(letter));
+  const rows = data.runs.map((run, index) => {
     const score = percent(run.correct, total);
     const rank = 1 + data.runs.filter(other => other.correct > run.correct).length;
     const tokens = run.output_tokens == null ? null : run.output_tokens / (run.answered_questions ?? total);
@@ -156,7 +160,7 @@ function renderLeaderboard(data) {
     const auroc = run.confidence?.auroc ?? null;
     return el(
       'tr',
-      {},
+      { class: index > 0 && !sharesLetter(run.group, data.runs[index - 1].group) ? 'group-start' : null },
       td(String(rank), { value: rank, numeric: true }),
       modelCell(run),
       td(formatParameters(run.parameters, run.active_parameters), {
@@ -169,6 +173,10 @@ function renderLeaderboard(data) {
         [el('span', { class: 'bar', style: `width: ${score}%` }), el('span', { class: 'value', text: formatPercent(score) })],
         { value: score, numeric: true, className: 'score' },
       ),
+      td(run.group ?? '—', {
+        className: 'group',
+        title: run.group ? `Tied with every run that shares a letter (${run.group})` : null,
+      }),
       percentCell(groupAccuracy(run, 'reading')),
       percentCell(groupAccuracy(run, 'grammar')),
       td(formatScore(auroc), { value: auroc, numeric: true }),
@@ -202,6 +210,10 @@ function renderLeaderboard(data) {
       },
       { label: 'Reasoning', title: 'Reasoning or effort setting' },
       { label: 'Score', numeric: true },
+      {
+        label: 'Group',
+        title: `Runs that share a letter are statistically tied: no paired test of all ${integer(data.group_pairs)} pairs separates them`,
+      },
       { label: 'Meaning (reading)', numeric: true, title: 'Units 1–6' },
       { label: 'Form (grammar)', numeric: true, title: 'Units 7–20' },
       {
@@ -224,6 +236,7 @@ function renderLeaderboard(data) {
     rows,
   );
   table.tHead.rows[0].cells[4].setAttribute('aria-sort', 'descending');
+  table.dataset.grouped = '';
 }
 
 function renderCost(data) {

@@ -77,6 +77,9 @@ tfoot td { font-weight: 600; border-top: 2px solid var(--border); border-bottom:
 .model-name { font-weight: 600; }
 td.model { min-width: 11rem; }
 #leaderboard td:last-child { min-width: 9rem; }
+/* Tied groups: letters in their own column; in the default order a heavier line starts each new group. */
+td.group { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 600; letter-spacing: .05em; }
+#leaderboard[data-grouped] tr.group-start > td { border-top: 2px solid var(--text-muted); }
 
 /* Score column: the number sits on a bar proportional to the score. */
 td.score { position: relative; font-weight: 700; min-width: 7rem; }
