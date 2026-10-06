@@ -57,16 +57,18 @@
         leaderboard shows both parts.</p>
       <p>The question of knowing when it is right comes from decision models, which return a probability for every
         option instead of writing an answer: TypeSafe's <a href="https://docs.typesafe.ai/">Jev</a>, Perplexity's
-        Decider, Liquid AI's d1, Cloudflare's <a href="https://blog.cloudflare.com/clef-decision-models/">Clef</a> and
-        the open Laya models. Jev's weights and training are private.
+        Decider, Liquid AI's d1, Cloudflare's <a href="https://blog.cloudflare.com/clef-decision-models/">Clef</a>,
+        <a href="https://huggingface.co/wayfind/metask-jev-4b-policy-mix">Metask-Jev</a> and the open Laya models.
+        Jev's weights and training are private.
         <a href="https://github.com/Zefan-Cai/Open-Jev">Open-Jev</a> is an independent, open implementation inspired
         by it, so we can see how its probabilities are made and test the parts separately.</p>
 
       <h3>What we found</h3>
       <ol id="findings">
         <li><strong>Meaning generalizes; form mostly does not.</strong> Every model except the near-chance Laya models
-          and GLiNER2.5 Multi answers 80–97% of the reading questions correctly. On the grammar questions, GPT-6 Astra,
-          GPT-6.1 Sol, Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and Claude Sonnet 5.5 at high effort stay
+          and GLiNER2.5 Multi, and the small Metask-Jev 4B (63%), answers 80–97% of the reading questions correctly. On
+          the grammar questions, GPT-6 Astra, GPT-6.1 Sol, Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and
+          Claude Sonnet 5.5 at high effort stay
           within 3 points of their reading level. Claude Opus 5.5 at low effort loses 6 points, and every other model
           above chance loses 25–42 points. <em>Evidence:</em>
           <a href="#leaderboard-section">Leaderboard</a>, <a href="#units-section">Where models break</a>.</li>
@@ -85,7 +87,7 @@
           <a href="#sources">Stated confidence, probabilities or votes?</a></li>
         <li><strong>Token probabilities work without reasoning, but not after it.</strong> Gemma 4 31B and
           DeepSeek-V4.1-Flash write their answers. The probability of the letter they write separates right from wrong
-          answers about as well as the decision models' probabilities do (AUROC 0.83 and 0.82, against 0.78–0.83), but
+          answers about as well as the decision models' probabilities do (AUROC 0.83 and 0.82, against 0.73–0.83), but
           its size misleads: of Gemma's answers at 0.99 or more, only 81% were right (1,450 of 1,782). With reasoning
           on, DeepSeek writes every answer letter at 0.99 or more, right or wrong, so the probability barely tells them
           apart (AUROC 0.56). <em>Evidence:</em> <a href="#confidence-section">Do models know when they are right?</a>,
@@ -142,7 +144,7 @@
 
     <section class="card" id="cascade-section">
       <h2>Answer when sure, pass on when not</h2>
-      <p class="flow">Question → decision model (Jev, Perplexity's Decider, Clef, d1 or Open-Jev) → confident?
+      <p class="flow">Question → decision model (Jev, Perplexity's Decider, Clef, d1, Open-Jev or Metask-Jev) → confident?
         <strong>Yes:</strong> its answer stands. <strong>No:</strong> the frontier model (GPT-6 Astra or Claude Sonnet
         5.5) answers.</p>
       <p class="note">Knowing when it is right saves money. A cheap decision model answers first. When its confidence
@@ -239,7 +241,7 @@
       <h3>How we read confidence</h3>
       <div class="prose">
         <p>We look at the confidence score of every answer, not only at whether the answer is right. The question is:
-          when the confidence goes up, does the chance of a right answer go up too? All 20 runs give a confidence, so we
+          when the confidence goes up, does the chance of a right answer go up too? All 21 runs give a confidence, so we
           ask this for every run.</p>
         <p>A confidence comes from one of three sources. Some models state it as a number from 0 to 1. The decision
           models, GLiNER2.5 Multi and Qwen's yes/no scoring give a probability for every option; for Gemma 4 31B and
@@ -260,7 +262,7 @@
         its lower bound; the last range also includes 1.00.</p>
       <div class="table-wrap"><table id="confidence" class="heatmap"></table></div>
       <figure class="chart"><img src="charts/calibration.svg" loading="lazy"
-        alt="Calibration charts: accuracy against mean confidence in each confidence range, for the runs that give a probability and for the runs that state a confidence or count votes. The diagonal is perfect calibration. GPT-6 Astra, GPT-6.1 Sol, Perplexity's Decider and Jev lie close to it. Open-Jev lies far above it, so its confidence is too low. Gemma 4 31B's letter probabilities and Qwen's stated confidence lie far below it, so their confidence is too high. DeepSeek-V4.1-Flash with reasoning gives every answer a probability of 0.99 or more, so it is a single point, at 92% right. The Laya models and GLiNER2.5 Multi, near chance, are left out."></figure>
+        alt="Calibration charts: accuracy against mean confidence in each confidence range, for the runs that give a probability and for the runs that state a confidence or count votes. The diagonal is perfect calibration. GPT-6 Astra, GPT-6.1 Sol, Perplexity's Decider, Jev and Metask-Jev 4B lie close to it. Open-Jev lies far above it, so its confidence is too low. Gemma 4 31B's letter probabilities and Qwen's stated confidence lie far below it, so their confidence is too high. DeepSeek-V4.1-Flash with reasoning gives every answer a probability of 0.99 or more, so it is a single point, at 92% right. The Laya models and GLiNER2.5 Multi, near chance, are left out."></figure>
       <h3>Telling right from wrong</h3>
       <p class="note">AUROC: the chance that a right answer gets a higher confidence than a wrong answer; 0.5 is chance
         and 1.0 is perfect. ECE (expected calibration error): the average gap between confidence and accuracy, over 10
@@ -320,7 +322,8 @@
           <thead><tr><th>Ability</th><th>Generalizes?</th><th>Evidence</th></tr></thead>
           <tbody>
             <tr><td>Understanding meaning</td><td>Yes</td><td>Every model except the near-chance Laya models and GLiNER2.5
-              Multi answers 80–97% of the reading questions correctly. See <a href="#leaderboard-section">Leaderboard</a>.</td></tr>
+              Multi, and the small Metask-Jev 4B (63%), answers 80–97% of the reading questions correctly. See
+              <a href="#leaderboard-section">Leaderboard</a>.</td></tr>
             <tr><td>Knowledge of form</td><td>Only in the strongest models</td><td>GPT-6 Astra answers 98% of the
               grammar questions correctly. Gemma 4 31B answers 91% of the reading questions but 66% of the grammar
               questions. See <a href="#units-section">Where models break</a>.</td></tr>
@@ -390,7 +393,7 @@
           <a href="#leaderboard-section">Leaderboard</a>.</li>
         <li><strong>Close calls.</strong> Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and Claude Opus 5.5 at
           low effort lie within 3 points (93.3%, 92.0% and 90.4%), and neither gap between them is significant after the
-          Holm correction for all 20 comparisons: DeepSeek's 1.6-point lead over Opus has p = 0.02 alone and 0.24
+          Holm correction for all 21 comparisons: DeepSeek's 1.6-point lead over Opus has p = 0.02 alone and 0.24
           corrected. On the 200-question sample of the repeats, averaged over five runs each, DeepSeek and Opus score
           about the same (94.9% and 95.5%). The smallest significant gap is GPT-6 Astra's 0.9-point lead over GPT-6.1
           Sol (Holm p = 0.016). <em>Evidence:</em> <a href="#gaps">Which gaps are real?</a>,
@@ -405,18 +408,21 @@
           <em>Evidence:</em> <a href="#leaderboard-section">Leaderboard</a>.</li>
         <li><strong>Decision models.</strong> Perplexity's Decider, Jev, Clef, d1 and Open-Jev answer 56–60% of the
           questions correctly, and the Laya models 18–19%. The first five flag their own mistakes well: AUROC 0.78–0.83,
-          each with a 95% interval of about ±0.02. GLiNER2.5 Multi, a small extraction and classification model given
-          the same request, answers 17.5% correctly, below the 20% that guessing scores. <em>Evidence:</em>
+          each with a 95% interval of about ±0.02. Metask-Jev 4B, with 4.5B parameters, answers 41% (63% of the reading
+          questions); its confidence ranks less well (AUROC 0.73) but is well calibrated (ECE 0.06). GLiNER2.5 Multi, a
+          small extraction and classification model given the same request, answers 17.5% correctly, below the 20% that
+          guessing scores. <em>Evidence:</em>
           <a href="#confidence-section">Do models know when they are right?</a></li>
         <li><strong>Answers at 0.99 or more.</strong> From the decision models they are rare and almost always right,
           but the evidence differs by model. Jev was right on 311 of 312 such answers and d1 on 273 of 274 (95% intervals
-          from about 98%). The Decider's 21 of 21 are too few to show 99% accuracy (95% interval 84.5–100%). Open-Jev and
-          Clef never reach 0.99. For the decision models these answers cover 1–14% of the questions. GPT-6 Astra,
+          from about 98%). The Decider's 21 of 21 are too few to show 99% accuracy (95% interval 84.5–100%). Open-Jev,
+          Clef and Metask-Jev never reach 0.99. For the decision models these answers cover 1–14% of the questions.
+          GPT-6 Astra,
           GPT-6.1 Sol and Gemini 3.8 Flash state 0.99 or more on 44–78% of the questions and are right on 98.5–99.7% of
           them. Token probabilities differ: Gemma 4 31B was right on only 81% of its 1,782 such answers, and
           DeepSeek-V4.1-Flash with reasoning gave all 2,198 answers at 0.99 or more, 92% of them right.
           <em>Evidence:</em> <a href="#sure">Can you trust 0.99?</a></li>
-        <li><strong>The cascade in simulation.</strong> With stored runs, a decision model can take 6–35% of the
+        <li><strong>The cascade in simulation.</strong> With stored runs, a decision model can take 1–35% of the
           questions without lowering the frontier model's accuracy. With the threshold chosen on other questions,
           accuracy drops by 0.1–0.2 points. Run for real, the pipeline saved no request time, because the Decider
           answers one question per request. A decision model's doubt points only weakly at the questions that the
@@ -451,6 +457,9 @@
               tier.</td></tr>
             <tr><td>Clef</td><td>Cloudflare's open-weight decision model, post-trained from Qwen3.8-27B with a scoring
               head, self-hosted. It scores every option of the System One request in one forward pass.</td></tr>
+            <tr><td>Metask-Jev 4B</td><td>An open-weight decision model fine-tuned from Qwen3.5-4B, self-hosted. Its
+              training covers 16 languages, Turkish among them, and its model card estimates that it would rank above Jev
+              1.13.0 on JevBench.</td></tr>
             <tr><td>Laya, Laya multilingual</td><td>Open-weight decision models, self-hosted: an encoder with a decision
               head that scores every option in one pass.</td></tr>
             <tr><td>GLiNER2.5 Multi</td><td>Fastino's small open-weight model for extraction and classification (287
@@ -527,12 +536,13 @@
         Generative models reply in JSON constrained by a schema: one of the supplied letters per question, plus a 0–1
         confidence for the runs that state one. The Claude, GPT, Gemini, Gemma and DeepSeek runs get 16 questions per
         request; the decision models, GLiNER2.5 Multi and the Qwen runs get one.</p>
-      <p>The decision models (Jev, Open-Jev, d1, Perplexity's Decider, Clef and Laya) and GLiNER2.5 Multi get the
-        System One request in its native form: the question with its lettered options as <code>state</code>, the
-        instruction "Which option is the correct answer to this Turkish multiple-choice question?", and each option's
-        text as a typed choice. Clef and GLiNER run behind small local servers that take this request. Clef's release
-        code answers it as it is. For GLiNER, the instruction becomes the task prompt and each option's text the
-        description of its letter; a softmax over the letters' scores gives the option probabilities.</p>
+      <p>The decision models (Jev, Open-Jev, d1, Perplexity's Decider, Clef, Metask-Jev and Laya) and GLiNER2.5 Multi
+        get the System One request in its native form: the question with its lettered options as <code>state</code>,
+        the instruction "Which option is the correct answer to this Turkish multiple-choice question?", and each
+        option's text as a typed choice. Clef, Metask-Jev and GLiNER run behind small local servers that take this
+        request. Clef's release code answers it as it is. Metask-Jev's vendor code scores it, with the temperature its
+        release ships for choice questions (1.9). For GLiNER, the instruction becomes the task prompt and each option's
+        text the description of its letter; a softmax over the letters' scores gives the option probabilities.</p>
       <h3>Settings</h3>
       <ul>
         <li>Gemma, DeepSeek and Qwen are self-hosted with vLLM or SGLang. Without reasoning they decode greedily, at
@@ -568,7 +578,7 @@
       <p>AUROC and the top-share accuracies carry 95% bootstrap intervals from 1,000 resamples of the questions. The
         14 questions that share a passage (7 passages) are drawn together, and the cascade splits keep them in the same
         half. Paired comparisons use the exact McNemar test with a paired interval, and Holm's method corrects for the
-        20 comparisons shown. Accuracies of small groups of answers carry 95% Wilson intervals.</p>
+        21 comparisons shown. Accuracies of small groups of answers carry 95% Wilson intervals.</p>
       <h3>Speed, tokens and cost</h3>
       <p>Questions/min divides the answered questions by the time spent in requests. DeepSeek's reasoning run kept 8
         requests in flight, so its time is the time any request was running. The figure reflects this setup (local

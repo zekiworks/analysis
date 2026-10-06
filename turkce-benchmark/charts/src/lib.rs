@@ -182,6 +182,7 @@ fn color(run: &Run) -> Color {
         ("d1:free", ..) => rgb(0xca8a04),
         ("open-jev-27b-v1.1", ..) => rgb(0x0d9488),
         ("clef", ..) => rgb(0x9333ea),
+        ("metask-jev-4b-policy-mix", ..) => rgb(0x1e40af),
         ("qwen38-27b-bf16", _, Some("stated confidence")) => rgb(0x78716c),
         ("qwen38-27b-bf16", _, Some("vote share")) => rgb(0x4f46e5),
         ("qwen38-27b-bf16", ..) => rgb(0x92400e),

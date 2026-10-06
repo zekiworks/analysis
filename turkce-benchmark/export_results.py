@@ -56,6 +56,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "laya": {"access": "Laya server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "gliner": {"access": "GLiNER2 server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
+    "metask": {"access": "Metask-Jev server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "gemini": {
         "access": "Gemini API",
         "scoring": False,
@@ -174,6 +175,12 @@ MODELS: dict[str, dict[str, Any]] = {
         "note": "Cloudflare's decision model, post-trained from Qwen3.8-27B",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 27_484_784_884,
+    },
+    "metask-jev-4b-policy-mix": {
+        "name": "Metask-Jev 4B",
+        "note": "Fine-tune of Qwen3.5-4B (merged LoRA)",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 4_539_265_536,
     },
     "gemini-3.8-flash": {
         "name": "Gemini 3.8 Flash",
