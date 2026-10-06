@@ -57,6 +57,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "gliner": {"access": "GLiNER2 server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "metask": {"access": "Metask-Jev server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
+    "cygnet": {"access": "Cygnet decision server on vLLM, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "gemini": {
         "access": "Gemini API",
         "scoring": False,
@@ -181,6 +182,12 @@ MODELS: dict[str, dict[str, Any]] = {
         "note": "Fine-tune of Qwen3.5-4B (merged LoRA)",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 4_539_265_536,
+    },
+    "cygnet": {
+        "name": "Cygnet",
+        "note": "Gemma 4 12B IT, unchanged, read out by option letter",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 11_959_730_224,
     },
     "gemini-3.8-flash": {
         "name": "Gemini 3.8 Flash",
