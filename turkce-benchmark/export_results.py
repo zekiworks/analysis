@@ -58,6 +58,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "metask": {"access": "Metask-Jev server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "cygnet": {"access": "Cygnet decision server on vLLM, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
+    "winnow": {"access": "Winnow server (llama.cpp), self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "gemini": {
         "access": "Gemini API",
         "scoring": False,
@@ -188,6 +189,12 @@ MODELS: dict[str, dict[str, Any]] = {
         "note": "Gemma 4 12B IT, unchanged, read out by option letter",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 11_959_730_224,
+    },
+    "winnow-12b": {
+        "name": "Winnow-12B",
+        "note": "Fine-tune of Gemma 4 12B IT (Q8_0 GGUF)",
+        "hardware": f"1 × {GPU}; Q8_0",
+        "parameters": 11_907_350_576,
     },
     "gemini-3.8-flash": {
         "name": "Gemini 3.8 Flash",
