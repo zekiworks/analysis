@@ -2,30 +2,29 @@
 source: tests/snapshots.rs
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
-Qwen's stated confidence fails; its probabilities and votes work
-Qwen3.8-27B's own answers (1,191 of 2,198 right). Accuracy (y) on the most confident share (x)
+Different confidence methods, the same Qwen answers
+Qwen3.8-27B's answers, the same for every method: 1,191 correct of 2,198
 
 
-100%│  ⠉⠉⠉⠉⠉⠉⠉⠉⠉⠒⠒⠒⠒⠒⠤⣀⢄⣀⡀
-    │                  ⠉⠒⠢⠤⣀⣀⠒⠢⢄⣀
-    │                        ⠉⠑⠢⠤⣀⠑⠒⠤⣀⡀
-90% │  ⡄                          ⠉⠒⠢⠤⣀⠑⠢⣀⡀
-    │  ⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠉⠒⠤⣀⢄⡀⢄⡀
-    │  ⠘⡄                                  ⠉⠒⠢⢄⢄⡀⢄⡀
-80% │   ⢇                                      ⠉⠢⢄⡀⠤⣀⣀
-    │   ⢸                                         ⠈⠉⠒⠤⣀⠢⠤⢄⣀⣀
-    │    ⡇                                             ⠉⠒⠤⣀⡀⠒⠤⠤⣀⡀⡀
-70% │    ⠘⡄                                                ⠈⠉⠒⠢⢄⣀⠑⠒⠤⠤⣀⢄⣀
-    │     ⠘⢄                                                     ⠉⠉⠒⠒⠤⢄⣀⡀⠤⢄⣀⡀⣀
-    │       ⠑⠢⢄⣀                                                        ⠈⠉⠑⠒⠒⠒⠤⠤⣀⣀⣀⣀
-60% │           ⠉⠑⠒⠢⠤⠤⠤⢄⣀⣀⣀                                                         ⠉⠉⠒⠢⠤⢄⣀⣀⣀⡀
-    │                      ⠉⠉⠉⠉⠉⠉⠉⠉⠉⠑⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠢⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠈⠉⠒⠒⠤⠤⠤
-    │
-50% │
-    │
-40% │                                                                                       answered
-    └───────────────────────────────────────────────────────────────────────────────────────────────
-   0%                                             50%                                           100%
+Accuracy among retained answers
+100% ⢠ ⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⣤⣄⡀
+     ⢸               ⠉⠙⠫⠵⠶⢖⣒⠤⢄⡀
+     ⢸                      ⠉⠑⠪⠭⣉⠑⠒⠤⣀
+     ⢸ ⡆                         ⠉⠒⠢⠤⣉⣑⠢⠤⣀⡀
+     ⢸ ⢹⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠙⠫⢞⣵⣢⣀
+ 80% ⢸  ⡇                                   ⠉⠳⢯⡵⣢⡤⣀
+     ⢸  ⢱                                      ⠈⠑⠚⠵⣫⠶⢤⣀⣀⣀
+     ⢸  ⠈⡆                                          ⠉⠑⠢⢍⣉⠛⠛⠶⢦⣤⣀
+     ⢸   ⠘⡄                                              ⠉⠉⠒⠢⠤⢍⣛⠶⠶⣤⣤⣀⡀
+     ⢸    ⠈⠒⢄⡀                                                  ⠉⠉⠒⠒⠭⠽⠿⢷⣶⣤⣤⣀⣀
+ 60% ⢸       ⠈⠑⠢⠤⢄⣀                                                      ⠉⠉⠉⠉⠛⠳⠶⠦⠤⣤⣤⣀⣀
+     ⢸             ⠉⠉⠉⠉⠉⠑⠒⠒⠒⠒⠒⠒⠒⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣉⣉⣉⣑⣒⣲⣶⣤⣤⣤⣤⣀
+     ⢸
+     ⢸
+     ⢸
+ 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%                20%               40%               60%               80%              100%
+                                      Share of answers retained
 
 ━━ stated confidence, AUROC 0.515   ━━ Open-Jev probability, AUROC 0.819
-━━ share of 10 samples, AUROC 0.779   ━━ Qwen3.8 yes/no probability, AUROC 0.782
+━━ share of 10 samples agreeing, AUROC 0.779   ━━ Qwen3.8-27B (yes/no) probability, AUROC 0.782

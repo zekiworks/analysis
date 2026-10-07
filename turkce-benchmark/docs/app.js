@@ -28,11 +28,10 @@ const formatParameters = (count, active = null) => {
 const scoreRange = interval => (interval ? `${interval[0].toFixed(3)}–${interval[1].toFixed(3)}` : null);
 const percentRange = (interval, digits = 1) =>
   interval ? `${(100 * interval[0]).toFixed(digits)}–${(100 * interval[1]).toFixed(digits)}%` : null;
-const EXCLUSIONS = {
-  unanswered: 'with no answer in the key',
-  incomplete: 'incomplete',
-  malformed_choices: 'with malformed options',
-};
+/* A self-hosted run valued at another model's token price or an assumed price carries an asterisk. */
+const costText = (value, run) => (value != null && run.hypothetical_cost ? `${formatUsd(value)}*` : formatUsd(value));
+const costTitle = run =>
+  run.hypothetical_cost ? `Hypothetical: ${run.cost_basis ?? 'a self-hosted run valued at an assumed price'}` : run.cost_basis;
 const BILLING = {
   api: 'Billed per token',
   subscription: 'Subscription',
@@ -71,7 +70,45 @@ function percentCell(value, { digits = 1, title = null, heat = false, detail = n
   });
 }
 
-/* Click or press Enter on a heading to sort; numbers sort high to low first, missing values last. */
+/* A table note under a table; parts are strings or [href, text] links. */
+function tableNote(...parts) {
+  return el('p', { class: 'table-note' }, ...parts.map(part => (Array.isArray(part) ? el('a', { href: part[0], text: part[1] }) : part)));
+}
+
+const hypotheticalNote = runs =>
+  runs.some(run => run.hypothetical_cost)
+    ? tableNote(
+        '* Hypothetical: a self-hosted run valued at another model’s token price or an assumed price; see ',
+        ['#cost-estimates', 'How monetary costs are estimated'],
+        '.',
+      )
+    : null;
+
+/* Notes go right after the table's scrolling box. */
+function addNotes(table, ...notes) {
+  (table.closest('.table-wrap') ?? table).after(...notes.filter(Boolean));
+}
+
+/* A button before the table that shows or hides its columns marked extra; the table starts with them hidden. */
+function addColumnToggle(table) {
+  const button = el('button', {
+    type: 'button',
+    class: 'show-all',
+    'aria-expanded': 'false',
+    'aria-controls': table.id,
+    text: 'Show all columns',
+  });
+  table.classList.add('collapsed');
+  button.addEventListener('click', () => {
+    const expanded = !table.classList.toggle('collapsed');
+    button.setAttribute('aria-expanded', String(expanded));
+    button.textContent = expanded ? 'Show fewer columns' : 'Show all columns';
+  });
+  (table.closest('.table-wrap') ?? table).before(button);
+}
+
+/* Click or press Enter on a heading to sort; numbers sort high to low first, missing values last, ties in the
+   original order. */
 function makeSortable(table) {
   const headers = [...table.tHead.rows[0].cells];
   const body = table.tBodies[0];
@@ -83,7 +120,8 @@ function makeSortable(table) {
       headers.forEach(header => header.removeAttribute('aria-sort'));
       th.setAttribute('aria-sort', descending ? 'descending' : 'ascending');
       // Group lines follow the score order; another order would draw them in the wrong places.
-      delete table.dataset.grouped;
+      if (table.dataset.groupColumn === String(index) && descending) table.dataset.grouped = '';
+      else delete table.dataset.grouped;
       const key = row => {
         const cell = row.cells[index];
         const raw = cell.dataset.value ?? cell.textContent.trim();
@@ -92,9 +130,13 @@ function makeSortable(table) {
       const rows = [...body.rows].sort((a, b) => {
         const x = key(a);
         const y = key(b);
-        if (x == null || y == null) return (x == null) - (y == null);
-        const order = numeric ? x - y : String(x).localeCompare(String(y), 'tr', { numeric: true });
-        return descending ? -order : order;
+        let order;
+        if (x == null || y == null) order = (x == null) - (y == null);
+        else {
+          order = numeric ? x - y : String(x).localeCompare(String(y), 'tr', { numeric: true });
+          if (descending) order = -order;
+        }
+        return order || a.dataset.order - b.dataset.order;
       });
       body.append(...rows);
     };
@@ -109,16 +151,28 @@ function makeSortable(table) {
   });
 }
 
-/* columns: [{ label, numeric, title, className }]; header labels may be strings or node arrays. */
-function fillTable(table, columns, rows, footer = null) {
+/* Fills the table with this id; returns it, or null when the page has no such table. columns: [{ label, numeric,
+   title, className, extra }]; header labels may be strings or node arrays; extra columns hide behind the toggle. */
+function fillTable(id, columns, rows, footer = null) {
+  const table = document.getElementById(id);
+  if (!table) return null;
   const head = el('tr');
   for (const column of columns) {
     const classes = [column.numeric ? 'num' : null, column.className].filter(Boolean).join(' ') || null;
     head.append(el('th', { scope: 'col', class: classes, title: column.title }, ...[].concat(column.label)));
   }
+  rows.forEach((row, index) => {
+    row.dataset.order = index;
+  });
+  for (const row of [head, ...rows, footer].filter(Boolean)) {
+    columns.forEach((column, index) => {
+      if (column.extra) row.cells[index]?.classList.add('extra');
+    });
+  }
   table.replaceChildren(el('thead', {}, head), el('tbody', {}, ...rows));
   if (footer) table.append(el('tfoot', {}, footer));
   makeSortable(table);
+  return table;
 }
 
 const reasoningLabel = reasoning => (['off', 'on'].includes(reasoning) ? `reasoning ${reasoning}` : `${reasoning} reasoning`);
@@ -185,8 +239,12 @@ function renderLeaderboard(data) {
         numeric: true,
         title: run.output_tokens == null ? null : `${integer(run.output_tokens)} output tokens in all`,
       }),
-      td(formatUsd(cost), { value: cost, numeric: true, title: run.cost_basis }),
-      percentCell(run.tyt_mix == null ? null : 100 * run.tyt_mix, { title: `Meaning and form weighted like ${mix}` }),
+      td(costText(cost, run), {
+        value: cost,
+        numeric: true,
+        title: costTitle(run),
+      }),
+      percentCell(run.tyt_mix == null ? null : 100 * run.tyt_mix, { title: `Reading and grammar weighted like ${mix}` }),
       td(run.questions_per_minute == null ? '—' : run.questions_per_minute.toFixed(1), {
         value: run.questions_per_minute,
         numeric: true,
@@ -197,46 +255,61 @@ function renderLeaderboard(data) {
       td(run.access),
     );
   });
-  const table = document.getElementById('leaderboard');
-  fillTable(
-    table,
+  const table = fillTable(
+    'leaderboard',
     [
-      { label: '#', numeric: true, title: 'Rank by score' },
+      { label: '#', numeric: true, title: 'Rank by score', extra: true },
       { label: 'Model' },
       {
         label: 'Parameters',
         numeric: true,
         title: 'Model weights, counted from the checkpoint or as published; NA when the maker does not publish them',
+        extra: true,
       },
-      { label: 'Reasoning', title: 'Reasoning or effort setting' },
+      { label: 'Setting', title: 'Reasoning or effort setting' },
       { label: 'Score', numeric: true },
       {
         label: 'Group',
         title: `Runs that share a letter are statistically tied: no paired test of all ${integer(data.group_pairs)} pairs separates them`,
+        extra: true,
       },
-      { label: 'Meaning (reading)', numeric: true, title: 'Units 1–6' },
-      { label: 'Form (grammar)', numeric: true, title: 'Units 7–20' },
+      { label: 'Reading', numeric: true, title: 'Reading comprehension: units 1–6' },
+      { label: 'Grammar', numeric: true, title: 'Grammatical analysis: units 7–20' },
       {
         label: 'AUROC',
         numeric: true,
         title: 'Chance that a right answer has a higher confidence than a wrong one; empty without a confidence',
+        extra: true,
       },
-      { label: 'Output tokens', numeric: true, title: 'Output tokens per question, reasoning included' },
+      { label: 'Output tokens', numeric: true, title: 'Output tokens per question, reasoning included', extra: true },
       {
         label: 'Cost per 1,000 (USD)',
         numeric: true,
         title: 'API-equivalent cost per 1,000 questions; empty for open weights with no price',
       },
-      { label: 'TYT mix', numeric: true, title: `Meaning and form weighted like the 2026 TYT paper: ${mix}` },
-      { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time' },
-      { label: 'Per request', numeric: true, title: 'Questions sent in one request' },
-      { label: 'Correct', numeric: true },
-      { label: 'Access' },
+      { label: 'TYT mix', numeric: true, title: `Reading and grammar weighted like the 2026 TYT paper: ${mix}`, extra: true },
+      { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time', extra: true },
+      { label: 'Per request', numeric: true, title: 'Questions sent in one request', extra: true },
+      { label: 'Correct', numeric: true, extra: true },
+      { label: 'Access', extra: true },
     ],
     rows,
   );
-  table.tHead.rows[0].cells[4].setAttribute('aria-sort', 'descending');
+  if (!table) return;
+  const scoreColumn = 4;
+  table.tHead.rows[0].cells[scoreColumn].setAttribute('aria-sort', 'descending');
+  table.dataset.groupColumn = String(scoreColumn);
   table.dataset.grouped = '';
+  addColumnToggle(table);
+  addNotes(
+    table,
+    tableNote(
+      'Lines separate groups of runs that no paired test tells apart (see ',
+      ['#differences', 'Interpreting performance differences'],
+      '); Show all columns adds each run’s group letters.',
+    ),
+    hypotheticalNote(data.runs),
+  );
 }
 
 function renderCost(data) {
@@ -251,14 +324,18 @@ function renderCost(data) {
         value: run.billing === 'api' ? run.billed_usd : null,
         numeric: true,
       }),
-      td(formatUsd(run.api_equivalent_usd), { value: run.api_equivalent_usd, numeric: true, title: run.cost_basis }),
+      td(costText(run.api_equivalent_usd, run), {
+        value: run.api_equivalent_usd,
+        numeric: true,
+        title: costTitle(run),
+      }),
       td(run.hardware ?? '—'),
       td(minutes == null ? '—' : minutes.toFixed(1), { value: minutes, numeric: true }),
       td(String(run.concurrency), { value: run.concurrency, numeric: true }),
     );
   });
-  fillTable(
-    document.getElementById('cost'),
+  const table = fillTable(
+    'cost',
     [
       { label: 'Model' },
       { label: 'Paid by' },
@@ -270,9 +347,10 @@ function renderCost(data) {
     ],
     rows,
   );
+  if (table) addNotes(table, hypotheticalNote(data.runs));
   const notes = new Set(data.runs.filter(run => run.cost_basis).map(run => `${run.name}: ${run.cost_basis}.`));
   const unpriced = [...new Set(data.runs.filter(run => run.api_equivalent_usd == null).map(run => run.name))];
-  document.getElementById('cost-notes').replaceChildren(
+  document.getElementById('cost-notes')?.replaceChildren(
     ...[...notes].map(text => el('li', { text })),
     unpriced.length ? el('li', { text: `${unpriced.join(', ')}: open weights with no price to apply.` }) : null,
   );
@@ -283,64 +361,68 @@ const sentenceCase = title => {
   const lower = title.toLocaleLowerCase('tr');
   return lower.charAt(0).toLocaleUpperCase('tr') + lower.slice(1);
 };
-// Units 1–6 test meaning (reading); units 7–20 test form (grammar).
-const unitPart = number => (number <= 6 ? 'Meaning' : 'Form');
+// Units 1–6 test reading comprehension; units 7–20 test grammatical analysis.
+const isReading = unit => unit.number <= 6;
 
+/* One row per run: the score, reading and grammar, then (behind the toggle) every unit, coloured by accuracy. */
 function renderUnits(data) {
-  const rows = data.units.map((unit, index) =>
+  const heatCell = (correct, questions, run, extra = '') => {
+    const accuracy = percent(correct, questions);
+    return td(formatPercent(accuracy, 1), {
+      value: accuracy,
+      numeric: true,
+      className: 'heat',
+      title: `${run.name}, ${runLabel(run)}${extra}: ${integer(correct)} of ${integer(questions)} correct`,
+      style: accuracy == null ? null : `background: ${heatColor(accuracy)}`,
+    });
+  };
+  const sum = (values, keep) => values.reduce((total, value, index) => total + (keep(data.units[index]) ? value : 0), 0);
+  const questions = data.units.map(unit => unit.questions);
+  const readingQuestions = sum(questions, isReading);
+  const grammarQuestions = sum(questions, unit => !isReading(unit));
+  const rows = data.runs.map(run =>
     el(
       'tr',
       {},
-      td(
-        [
-          el('span', { text: `${unit.number}. ${unit.english}` }),
-          el('span', { class: 'small', lang: 'tr', text: sentenceCase(unit.name) }),
-        ],
-        { value: String(unit.number) },
-      ),
-      td(unitPart(unit.number)),
-      td(integer(unit.questions), { value: unit.questions, numeric: true }),
-      ...data.runs.map(run => {
-        const accuracy = percent(run.units[index], unit.questions);
-        return td(formatPercent(accuracy, 1), {
-          value: accuracy,
-          className: 'heat',
-          title: `${run.name}, ${runLabel(run)}: ${run.units[index]} of ${unit.questions} correct`,
-          style: `background: ${heatColor(accuracy)}`,
-        });
-      }),
+      modelCell(run, { withSetting: true }),
+      heatCell(run.correct, data.questions, run),
+      heatCell(sum(run.units, isReading), readingQuestions, run, ', reading'),
+      heatCell(sum(run.units, unit => !isReading(unit)), grammarQuestions, run, ', grammar'),
+      ...data.units.map((unit, index) => heatCell(run.units[index], unit.questions, run, `, unit ${unit.number}`)),
     ),
   );
-  const footer = el(
-    'tr',
-    {},
-    td('All units'),
-    td(''),
-    td(integer(data.questions), { numeric: true }),
-    ...data.runs.map(run => {
-      const score = percent(run.correct, data.questions);
-      return td(formatPercent(score, 1), {
-        className: 'heat',
-        title: `${run.name}, ${runLabel(run)}: ${integer(run.correct)} of ${integer(data.questions)} correct`,
-        style: `background: ${heatColor(score)}`,
-      });
-    }),
-  );
-  fillTable(
-    document.getElementById('units'),
+  const table = fillTable(
+    'units',
     [
-      { label: 'Unit' },
-      { label: 'Part', title: 'Meaning: units 1–6, reading. Form: units 7–20, grammar.' },
-      { label: 'Questions', numeric: true },
-      ...data.runs.map(run => ({
-        label: [run.name, el('span', { class: 'small', text: runLabel(run) })],
+      { label: 'Model' },
+      { label: ['Score', el('span', { class: 'small', text: integer(data.questions) })], numeric: true, className: 'unit' },
+      {
+        label: ['Reading', el('span', { class: 'small', text: `units 1–6, ${integer(readingQuestions)}` })],
         numeric: true,
-        className: 'run',
+        className: 'unit',
+      },
+      {
+        label: ['Grammar', el('span', { class: 'small', text: `units 7–20, ${integer(grammarQuestions)}` })],
+        numeric: true,
+        className: 'unit',
+      },
+      ...data.units.map(unit => ({
+        label: [
+          `${unit.number}. ${unit.english}`,
+          el('span', { class: 'small', lang: 'tr', text: sentenceCase(unit.name) }),
+          el('span', { class: 'small', text: `${integer(unit.questions)} questions` }),
+        ],
+        numeric: true,
+        className: 'unit',
+        title: isReading(unit) ? 'Reading comprehension' : 'Grammatical analysis',
+        extra: true,
       })),
     ],
     rows,
-    footer,
   );
+  if (!table) return;
+  table.tHead.rows[0].cells[1].setAttribute('aria-sort', 'descending');
+  addColumnToggle(table);
 }
 
 function renderConfidence(data) {
@@ -365,7 +447,7 @@ function renderConfidence(data) {
     ),
   );
   fillTable(
-    document.getElementById('confidence'),
+    'confidence',
     [{ label: 'Model' }, { label: 'Confidence' }, ...bins.map(label => ({ label, numeric: true }))],
     rows,
   );
@@ -393,7 +475,7 @@ function renderConfidence(data) {
     );
   });
   fillTable(
-    document.getElementById('ranking'),
+    'ranking',
     [
       { label: 'Model' },
       { label: 'AUROC', numeric: true, title: 'Chance that a right answer has a higher confidence than a wrong one' },
@@ -408,30 +490,47 @@ function renderConfidence(data) {
     ranking,
   );
 
+  // At 0.99 or more, graded before the key audit (the excluded questions with the printed key) and after it; the
+  // question bank before the audit also holds the questions it excluded.
+  const sureCells = (sure, bank) => {
+    if (!sure?.questions) return [td('—', { value: null, numeric: true }), td('—', { value: null, numeric: true })];
+    const { questions, correct, interval } = sure;
+    return [
+      td(`${integer(correct)} of ${integer(questions)}`, {
+        value: questions,
+        numeric: true,
+        title: `${formatPercent(percent(questions, bank), 1)} of ${integer(bank)} questions answered at 0.99 or more`,
+      }),
+      percentCell(percent(correct, questions), { detail: percentRange(interval) }),
+    ];
+  };
+  const bankBeforeAudit = data.questions + (data.excluded_since_run ?? 0);
   const sure = runs
-    .filter(run => run.confidence.sure.questions)
-    .map(run => {
-      const { questions, correct, interval } = run.confidence.sure;
-      return el(
+    .filter(run => run.confidence.sure?.questions || run.confidence.sure_before_audit?.questions)
+    .map(run =>
+      el(
         'tr',
         {},
         modelCell(run, { withSetting: true }),
         td(run.confidence.label),
-        td(`${integer(correct)} of ${integer(questions)}`, { value: questions, numeric: true }),
-        percentCell(percent(correct, questions)),
-        percentCell(percent(questions, data.questions), { title: 'Share of all questions answered at 0.99 or more' }),
-        td(percentRange(interval) ?? '—', { value: interval ? 100 * interval[0] : null, numeric: true }),
-      );
-    });
+        ...sureCells(run.confidence.sure_before_audit, bankBeforeAudit),
+        ...sureCells(run.confidence.sure, data.questions),
+      ),
+    );
+  const audited = data.excluded_since_run ? `the ${integer(data.excluded_since_run)} questions the key audit excluded` : 'the questions the key audit excluded';
   fillTable(
-    document.getElementById('sure-table'),
+    'sure-table',
     [
       { label: 'Model' },
       { label: 'Confidence' },
-      { label: 'Right', numeric: true, title: 'Right answers among those at 0.99 or more' },
-      { label: 'Accuracy', numeric: true },
-      { label: 'Share of questions', numeric: true },
-      { label: '95% interval', numeric: true, title: 'Wilson score interval on the accuracy' },
+      {
+        label: 'Right of answered, before audit',
+        numeric: true,
+        title: `Right answers among those at 0.99 or more, counting ${audited}, graded with the printed key`,
+      },
+      { label: 'Accuracy, before audit', numeric: true, title: 'With the 95% Wilson score interval' },
+      { label: 'Right of answered, after audit', numeric: true, title: 'Right answers among those at 0.99 or more, on the scored questions' },
+      { label: 'Accuracy, after audit', numeric: true, title: 'With the 95% Wilson score interval' },
     ],
     sure,
   );
@@ -443,7 +542,7 @@ const SOURCE_KINDS = {
   votes: 'Share of 10 samples with the same answer',
 };
 
-/* AUROC on meaning and on form for every run with a confidence, highest on meaning first. */
+/* AUROC on reading and on grammar for every run with a confidence, highest on reading first. */
 function renderParts(data) {
   const runs = data.runs
     .filter(run => run.confidence?.parts?.meaning && run.confidence.parts.form)
@@ -470,12 +569,12 @@ function renderParts(data) {
     );
   });
   fillTable(
-    document.getElementById('parts'),
+    'parts',
     [
       { label: 'Run' },
-      { label: 'AUROC, meaning', numeric: true, title: 'Reading questions, units 1–6, with the 95% bootstrap interval' },
-      { label: 'AUROC, form', numeric: true, title: 'Grammar questions, units 7–20, with the 95% bootstrap interval' },
-      { label: 'Drop', numeric: true, title: 'AUROC on meaning minus AUROC on form' },
+      { label: 'AUROC, reading', numeric: true, title: 'Reading questions, units 1–6, with the 95% bootstrap interval' },
+      { label: 'AUROC, grammar', numeric: true, title: 'Grammar questions, units 7–20, with the 95% bootstrap interval' },
+      { label: 'Drop', numeric: true, title: 'AUROC on reading minus AUROC on grammar' },
     ],
     rows,
   );
@@ -498,7 +597,7 @@ function renderSources(data) {
     ),
   );
   fillTable(
-    document.getElementById('sources-table'),
+    'sources-table',
     [
       { label: 'Confidence from' },
       { label: 'How' },
@@ -506,13 +605,6 @@ function renderSources(data) {
     ],
     rows,
   );
-  const item = data.sources[0];
-  if (item) {
-    const answers = byRun.get(item.answers);
-    document.getElementById('sources-answers').textContent =
-      `${answers.name}'s own answers from its stated-confidence run: ${integer(item.correct)} of ` +
-      `${integer(item.questions)} right.`;
-  }
 }
 
 function renderVersions(data) {
@@ -540,7 +632,7 @@ function renderVersions(data) {
   });
   const sample = runs[0]?.previous;
   fillTable(
-    document.getElementById('versions'),
+    'versions',
     [
       { label: 'Model' },
       { label: `Repaired (${sample ? integer(sample.changed.questions) : '—'})`, numeric: true, title: 'Accuracy on the questions whose text or key the repair changed, v1 → v2' },
@@ -570,7 +662,7 @@ function renderPaired(data) {
     ),
   );
   fillTable(
-    document.getElementById('paired'),
+    'paired',
     [
       { label: 'First' },
       { label: 'Second' },
@@ -604,7 +696,7 @@ function renderCascade(data) {
     );
   });
   fillTable(
-    document.getElementById('cascade'),
+    'cascade',
     [
       { label: 'Decision model' },
       { label: 'Frontier run' },
@@ -634,7 +726,7 @@ function renderCascade(data) {
     ),
   );
   fillTable(
-    document.getElementById('doubts'),
+    'doubts',
     [
       { label: 'Decision model' },
       { label: 'Spearman', numeric: true, title: 'Rank correlation of the entropy with the number of frontier runs that got the question wrong' },
@@ -678,7 +770,7 @@ function renderRepeats(data) {
     );
   });
   fillTable(
-    document.getElementById('repeats'),
+    'repeats',
     [
       { label: 'Setup' },
       { label: 'Per request', numeric: true, title: 'Questions per request' },
@@ -734,7 +826,7 @@ function renderPipelines(data) {
     );
   });
   fillTable(
-    document.getElementById('pipelines'),
+    'pipelines',
     [
       { label: 'Decision model' },
       { label: 'Frontier run' },
@@ -753,37 +845,32 @@ function renderPipelines(data) {
   );
 }
 
-function renderSummary(data) {
-  const date = new Date(data.updated).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
-  document.getElementById('summary').textContent =
-    `${integer(data.questions)} Turkish-language exam questions in ${data.units.length} units · question bank version 2 · ` +
-    `${data.runs.length} runs · last run ${date}`;
-  const excluded = Object.entries(data.excluded);
-  const left = excluded.reduce((sum, [, count]) => sum + count, 0);
-  const reasons = excluded.map(([reason, count]) => `${count} ${EXCLUSIONS[reason] ?? reason.replaceAll('_', ' ')}`);
-  document.getElementById('question-count').textContent =
-    `${integer(data.questions)} questions in ${data.units.length} units are used` +
-    (left ? `; ${left} were left out (${reasons.join(', ')})` : '') +
-    (data.excluded_since_run ? `; ${data.excluded_since_run} more were excluded after the runs, in a key audit` : '') +
-    (data.suspect ? `; ${data.suspect} of the questions used are marked suspect.` : '.');
+/* The charts are drawn at their own pixel size with 13-pixel text. One may shrink to fit its box, but not below
+   three quarters of that size: a narrower box (a phone) scrolls the chart sideways inside its figure instead. */
+const CHART_MIN_SCALE = 0.75;
+
+function sizeCharts() {
+  for (const image of document.querySelectorAll('figure.chart img')) {
+    const size = () => {
+      if (image.naturalWidth) image.style.minWidth = `${Math.round(CHART_MIN_SCALE * image.naturalWidth)}px`;
+    };
+    if (image.complete) size();
+    else image.addEventListener('load', size, { once: true });
+  }
 }
 
 async function main() {
+  sizeCharts();
   let data;
   try {
     const response = await fetch('results.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     data = await response.json();
   } catch (error) {
-    document.getElementById('summary').textContent = `Could not load results.json: ${error.message}`;
+    const message = el('p', { class: 'load-error', role: 'alert', text: `Could not load results.json: ${error.message}` });
+    (document.querySelector('main') ?? document.body).prepend(message);
     return;
   }
-  renderSummary(data);
   renderLeaderboard(data);
   renderCost(data);
   renderUnits(data);

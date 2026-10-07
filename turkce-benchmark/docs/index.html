@@ -1,228 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Understanding Under Thin Training? A Turkish Exam Benchmark</title>
-  <meta name="description" content="What happens when AI models leave the territory they were trained on? A test of generalization: understanding or memory, knowing when they are right, and the cost in tokens and reasoning, on 2,198 Turkish exam questions.">
-  <meta property="og:title" content="Understanding Under Thin Training? A Turkish Exam Benchmark">
-  <meta property="og:description" content="What happens when AI models leave the territory they were trained on? A test of generalization: understanding or memory, knowing when they are right, and the cost in tokens and reasoning, on 2,198 Turkish exam questions.">
+  <title>What Does a Correct Answer Tell Us About Understanding?</title>
+  <meta name="description" content="25 models, 2,198 Turkish exam questions: where accuracy holds and where it breaks, whether confidence spots mistakes, and what a right answer costs.">
+  <meta property="og:title" content="What Does a Correct Answer Tell Us About Understanding?">
+  <meta property="og:description" content="25 models, 2,198 Turkish exam questions: where accuracy holds and where it breaks, whether confidence spots mistakes, and what a right answer costs.">
   <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:url" content="https://zekiworks.github.io/analysis/turkce-benchmark/docs/">
+  <meta property="og:image" content="https://zekiworks.github.io/analysis/turkce-benchmark/docs/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Selected configurations from the 30-run benchmark: accuracy on reading and grammar questions.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="What Does a Correct Answer Tell Us About Understanding?">
+  <meta name="twitter:description" content="25 models, 2,198 Turkish exam questions: where accuracy holds and where it breaks, whether confidence spots mistakes, and what a right answer costs.">
+  <meta name="twitter:image" content="https://zekiworks.github.io/analysis/turkce-benchmark/docs/og-image.png">
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
 <body>
   <header>
-    <h1>Understanding Under Thin Training? A Turkish Exam Benchmark</h1>
-    <p class="subtitle">What happens when AI models leave the territory they were trained on? Do they understand, or only
-      remember? Do they know when they are right? And what does a right answer cost?</p>
-    <p class="subtitle" id="summary">Loading results…</p>
+    <h1>What Does a Correct Answer Tell Us About Understanding?</h1>
+    <p class="subtitle">Accuracy, confidence and cost across reading and grammar tasks in Turkish.</p>
+    <p class="byline">By Zeki Works (<a href="https://x.com/zekiworks">@zekiworks</a>) · <a href="https://github.com/zekiworks/analysis/tree/main/turkce-benchmark">Code and data</a> · Updated 7 October 2026</p>
+    <nav class="toc" aria-label="Sections">
+      <ul>
+        <li><a href="#main-findings">Main findings</a></li>
+        <li><a href="#accuracy">Accuracy</a></li>
+        <li><a href="#tests">What this benchmark tests</a></li>
+        <li><a href="#routing">Routing</a></li>
+        <li><a href="#cost-section">Cost</a></li>
+        <li><a href="#topics">Topics</a></li>
+        <li><a href="#confidence-section">Confidence</a></li>
+        <li><a href="#understanding">Understanding</a></li>
+        <li><a href="#repeats-section">Repeats</a></li>
+        <li><a href="#differences">Differences</a></li>
+        <li><a href="#method">Method</a></li>
+        <li><a href="#limits">Limits</a></li>
+        <li><a href="#data">Data and code</a></li>
+        <li><a href="#references">References</a></li>
+      </ul>
+    </nav>
     <noscript><p class="subtitle">The tables need JavaScript. The numbers are in <a href="results.json">results.json</a>.</p></noscript>
+    <div class="intro prose">
+      <p>A model can identify the main idea of a passage yet struggle to analyze a sentence in the same language. Does its confidence help us recognize those mistakes? Does giving it more room to reason improve its answers, and at what cost?</p>
+      <p>We tested 25 models in 30 configurations on 2,198 Turkish exam questions covering reading comprehension and grammatical analysis. We measured accuracy, examined whether confidence distinguishes correct answers from mistakes, and compared the resources used by different reasoning settings. We also tested whether a cheaper model can answer selected questions while passing the rest to a stronger one.</p>
+      <p>Understanding matters when we need a model to use the same relationship across different wordings or apply a familiar rule to a new example. Mitchell and Krakauer (2023) examine different accounts of understanding and their implications for evaluation.<sup class="cite"><a id="cite-1-a" href="#ref-1">1</a></sup> Chollet (2019) distinguishes acquired skill from the efficiency of acquiring new skills, accounting for prior knowledge and experience.<sup class="cite"><a id="cite-2-a" href="#ref-2">2</a></sup> Our benchmark compares existing capabilities across reading and grammar tasks in Turkish. It identifies patterns of success and failure that controlled tests of rewording and new combinations could investigate further.</p>
+    </div>
   </header>
 
   <main>
-    <section class="card prose" id="about">
-      <h2>The four questions</h2>
-      <p>This benchmark asks what happens when AI models leave the territory they were trained on. It is a test of
-        generalization: how well what a model learned carries over to a setting its training did not focus on. Turkish
-        is the test bed, not the topic. Right answers on multiple-choice questions are a proxy for understanding, not a
-        direct measure of it.</p>
-      <p>The title is a question, because "thin training" is a hypothesis, not a finding. Two facts support it. Most
-        models probably see far less Turkish than English in training. And Turkish school grammar, for example how
-        verbals and noun phrases are analysed, is a niche topic even in Turkish text. Two facts weaken it. We cannot see
-        the training data of most models. And the question book is online, so some of these questions may have been in
-        training.</p>
-      <p>We measure four things:</p>
-      <ul>
-        <li><strong>Meaning:</strong> reading questions ask what a word, a sentence or a paragraph says (units 1–6, 656
-          questions).</li>
-        <li><strong>Form:</strong> grammar questions ask how words are built and how a sentence is put together (units
-          7–20, 1,542 questions). Turkish builds words from chains of suffixes, so these questions need analysis that
-          English patterns do not supply.</li>
-        <li><strong>Knowing when it is right:</strong> whether the confidence that comes with an answer goes up when the
-          answer is right. A model that knows this can answer the questions it is sure of and pass the rest to a person
-          or a larger model.</li>
-        <li><strong>Cost:</strong> how many output tokens, how much reasoning, how much money and how much time a run
-          needs for its answers.</li>
-      </ul>
-      <p><strong>Why confidence matters.</strong> A confidence score tells a system which answers it can trust. Of
-        Jev's answers at a confidence of 0.9 or more, 95% were right (509 of 534); of its answers below 0.5, only 31%
-        were right (275 of 877). With a reliable confidence, a cheap model can keep the answers it is sure of, a person
-        can check only the doubtful ones, and a drop in confidence marks unfamiliar territory. <em>Evidence:</em>
-        <a href="#confidence-section">Do models know when they are right?</a></p>
-      <p>The questions come from a practice book for the Turkish-language section of the Basic Proficiency Test (TYT
-        Türkçe), the first stage of Turkey's university entrance exam. Every question has a printed answer key, so no
-        model grades another. The bank is 70% grammar, so the total score weights form more than meaning. The
-        leaderboard shows both parts.</p>
-      <p>The question of knowing when it is right comes from decision models, which return a probability for every
-        option instead of writing an answer: TypeSafe's <a href="https://docs.typesafe.ai/">Jev</a>, Perplexity's
-        Decider, Liquid AI's d1, Cloudflare's <a href="https://blog.cloudflare.com/clef-decision-models/">Clef</a>,
-        <a href="https://huggingface.co/wayfind/metask-jev-4b-policy-mix">Metask-Jev</a>, blockbrain-ai's
-        <a href="https://github.com/blockbrain-ai/cygnet-recipe">Cygnet</a>, EldanRing's
-        <a href="https://huggingface.co/EldanRing/Winnow-12B">Winnow</a>, Fastino's
-        <a href="https://docs.fastino.ai/concepts/glide">GLiDE</a> and the open Laya models. Jev's weights and training
-        are private.
-        <a href="https://github.com/Zefan-Cai/Open-Jev">Open-Jev</a> is an independent, open implementation inspired
-        by it, so we can see how its probabilities are made and test the parts separately.</p>
-
-      <h3>What we found</h3>
-      <ol id="findings">
-        <li><strong>Meaning generalizes; form mostly does not.</strong> Every model except the near-chance Laya models
-          and GLiNER2.5 Multi, and the smaller Metask-Jev 4B, Qwen3-14B and Erk-14B (63–72%), answers 80–97% of the
-          reading questions correctly. On
-          the grammar questions, GPT-6 Astra, GPT-6.1 Sol, Gemini 3.1 Pro with high thinking, Gemini 3.8 Flash,
-          DeepSeek-V4.1-Flash with reasoning and Claude Sonnet 5.5 at high effort stay
-          within 3 points of their reading level. Claude Opus 5.5 at low effort loses 6 points and Gemini 3.1 Pro at low
-          thinking 11, and
-          every other model above chance loses 25–42 points. More Turkish training did not change that: Erk-14B, which is
-          Qwen3-14B trained further on Turkish text, scores the same as Qwen3-14B, on form too (33.4% against 34.5%).
-          <em>Evidence:</em>
-          <a href="#leaderboard-section">Leaderboard</a>, <a href="#units-section">Where models break</a>.</li>
-        <li><strong>Reasoning buys back form, at a price.</strong> With reasoning on, DeepSeek-V4.1-Flash goes from 57% to
-          91% on the grammar questions. It writes about 1,000 output tokens per question instead of 6, and its run takes
-          114 minutes instead of 12. Gemini 3.1 Pro goes from 72% to 98% on them with high thinking, writing 529 output
-          tokens per question instead of 30, and takes the top score. GPT-6 Astra reaches 98% on grammar with 21 output
-          tokens per
-          question, and Gemini 3.8 Flash 92% with 28 and no reasoning tokens. Reasoning helps decision models too:
-          Fastino's GLiDE, which
-          reasons on uncertain decisions, answers 59% of the grammar questions, against 44–50% for the decision models
-          that do not. <em>Evidence:</em> <a href="#reasoning">What reasoning
-          buys</a>.</li>
-        <li><strong>Frontier models' stated confidence tells right from wrong; Qwen's does not.</strong> GPT-6 Astra's
-          stated confidence separates its right answers from its wrong answers best: its AUROC, the chance that a right
-          answer gets a higher confidence than a wrong one, is 0.92. The size of the confidence is less reliable: Claude
-          Opus 5.5 (low) and Claude Sonnet 5.5 (high) are off by about 0.16 on average (ECE). On its own answers,
-          Qwen3.8-27B's stated confidence is barely better than chance (0.51, 95% interval 0.51–0.52). Its yes/no
-          probabilities (0.78) and the share of 10 samples that agree (0.78) work. <em>Evidence:</em>
-          <a href="#confidence-section">Do models know when they are right?</a>,
-          <a href="#sources">Stated confidence, probabilities or votes?</a></li>
-        <li><strong>Token probabilities work without reasoning, but not after it.</strong> Gemma 4 31B and
-          DeepSeek-V4.1-Flash write their answers. The probability of the letter they write separates right from wrong
-          answers about as well as the decision models' probabilities do (AUROC 0.83 and 0.82, against 0.73–0.83), but
-          its size misleads: of Gemma's answers at 0.99 or more, only 81% were right (1,450 of 1,782). With reasoning
-          on, DeepSeek writes every answer letter at 0.99 or more, right or wrong, so the probability barely tells them
-          apart (AUROC 0.56). <em>Evidence:</em> <a href="#confidence-section">Do models know when they are right?</a>,
-          <a href="#sure">Can you trust 0.99?</a></li>
-        <li><strong>Away from home, confidence keeps part of its order and loses its size.</strong> Jev's AUROC is
-          0.95–0.99 on English tasks with two labels (measured by
-          <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize</a>), 0.89 on our Turkish meaning questions
-          and 0.72 on form questions. Open-Jev, <a href="https://github.com/Zefan-Cai/Open-Jev">Zefan Cai's open take on
-          Jev</a>, adds a 0.06% LoRA adapter, a scoring head and a temperature to Qwen3.8-27B. These parts raise accuracy
-          by 3.8 points and confidence ranking from 0.78 to 0.82, but they do not make its calibration generalize: all
-          144 of its answers at a confidence of 0.5–0.6 were right. The language, the task and the number of options all
-          change at once, so these drops show how far the confidence generalizes, not which change causes them.
-          <em>Evidence:</em> <a href="#carries-over">What generalizes</a>;
-          <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize</a>;
-          <a href="https://github.com/Zefan-Cai/Open-Jev">Open-Jev</a>.</li>
-        <li><strong>Knowing when it is right saves money.</strong> The rule is simple: a cheap decision model answers
-          first; when its confidence is high, its answer stands; when it is not, the question goes to a frontier model.
-          A decision model costs 5% or less of GPT-6 Astra, Claude Opus 5.5 or Claude Sonnet 5.5 (high) per question,
-          and 2% or less when it does not reason.
-          Run as a real pipeline in front of GPT-6 Astra, Perplexity's Decider answered 18% of the questions and cut the
-          cost by 17%. Accuracy changed by −0.4
-          points (95% interval −0.8 to +0.1), inside the 0.5-point tolerance set before the run. In simulation, Jev in
-          front of GPT-6 Astra kept 15% of the questions at a loss of 0.1 points, with the threshold chosen on other
-          questions. <em>Evidence:</em> <a href="#cascade-section">Answer when sure</a>.</li>
-        <li><strong>Is it memory? Not clearly, but we cannot rule it out.</strong> On the 40 Turkish-language questions
-          of the June 2026 exam, which no book prints, each of the nine models we ran on them scored within ±12 points
-          of what its book score predicts, the uncertainty that 40 questions allow. But six of the nine scored below
-          their prediction, Claude Opus 5.5 by 11 points. With 40 questions this is not significant (sign test p = 0.51),
-          but it is the
-          direction that memorization would push. When the correct option's text was replaced by a copy of a wrong
-          option, GPT-6 Astra picked the original letter about as often as the copied option (31.0% and 28.4%, on the
-          questions whose options are text). A model that remembered answer letters would pick the original letter far
-          more often. Both checks have limits, listed under <em>What could be wrong</em>. <em>Evidence:</em>
-          <a href="#caveats">What could be wrong</a>.</li>
-      </ol>
+    <section class="card prose" id="main-findings">
+      <h2>Main findings</h2>
+      <h3>Strong reading performance can coexist with weak grammar performance</h3>
+      <p>Most models perform substantially better on reading than on grammar. Gemma 4 31B, for example, answers about 91% of reading questions correctly and 66% of grammar questions. The strongest configurations perform well on both: GPT-6 Astra reaches about 97% on reading and 98% on grammar.</p>
+      <h3>Additional reasoning substantially improves grammar accuracy</h3>
+      <p>DeepSeek-V4.1-Flash improves from 56.6% to 91.4% on grammar when reasoning is enabled, writing about 1,000 output tokens per question instead of 6. Claude Sonnet 5.5 improves from 52.2% to 85.0% between low and high effort, at more than twice the cost. The same model, with a different inference setting, reaches a very different grammar score.</p>
+      <h3>Confidence quality depends on how it is produced</h3>
+      <p>GPT-6 Astra's stated confidence distinguishes correct from incorrect answers well, with an AUROC of about 0.92. Qwen's stated confidence barely beats chance (0.51): it says 0.95 on 98% of its answers. Scoring the same Qwen answers by option probabilities or by agreement across ten samples gives a much more useful ranking (about 0.78). A confidence value is only as good as the model and method that produce it.</p>
+      <h3>Useful rankings, poor calibration</h3>
+      <p>Some models tend to give correct answers higher confidence than incorrect ones while consistently overstating or understating the probability of being right. Open-Jev is a clear example of underconfidence: all 144 answers assigned a probability between 0.5 and 0.6 are correct. Ranking answers by confidence and interpreting confidence as a probability are separate requirements.</p>
+      <h3>Confidence can reduce cost, with an accuracy tradeoff that needs validation</h3>
+      <p>In the routing test with new GPT-6 Astra calls, Perplexity's Decider handles 17.7% of the questions and cuts estimated API cost by 16.9%. Accuracy is 0.36 points lower than Astra alone, inside the 0.5-point tolerance set before the run; the 95% interval, from −0.80 to +0.07 points, also allows a larger loss. Request time does not fall.</p>
+      <h3>Sol costs 79% less, with a 0.9-point accuracy loss</h3>
+      <p>Routing Astra's questions through the Decider saves 17% of the cost. Switching from Astra to GPT-6.1 Sol saves 79%, for 0.9 points of accuracy: 96.7% against 97.6%, a difference that is significant after the Holm correction across the 32 selected comparisons, though not across all 435 pairs behind the tied groups, and larger than the 0.5-point tolerance used for routing. Gemini 3.8 Flash reaches 93.3% at $0.27 per 1,000 questions, against $5.38 for Astra. The Sol and Gemini figures come from the full bank; a matched test on the routing test's held-out half is the next experiment.</p>
+      <h3>Three decision models share the same Qwen base</h3>
+      <p>Perplexity's Decider, Cloudflare's Clef and Open-Jev are all built on Qwen3.8-27B (<a href="https://docs.sglang.io/cookbook/autoregressive/Perplexity/pplx-decider-v1-27b">Decider</a>, <a href="https://blog.cloudflare.com/clef-decision-models/">Clef</a>, <a href="https://huggingface.co/ZefanCai/Open-Jev-27B-v1.1">Open-Jev</a>). TypeSafe and Liquid AI do not say what Jev and d1 are built on. Part of the variety among decision models therefore comes from different adaptations of one shared base. These three, Jev, d1 and the two decision models built on Gemma 4 12B (Cygnet and Winnow-12B) score 55.5–60.4%, a few points above plain Qwen3.8-27B (51.9–54.3%), and no gap between neighbours among them is significant after the Holm correction across the 32 selected comparisons. The Decider scores within one point of Claude Sonnet 5.5 at low effort, with no significant difference, at $0.02 instead of $1.32 per 1,000 questions.</p>
+      <h3>GLiDE leads the tested decision models on accuracy</h3>
+      <p>Fastino's GLiDE scores 67.9%, 7.5 points above the next decision model, Perplexity's Decider (paired test, p &lt; 10⁻¹⁴). The gain is almost all on grammar, 59.4% against 49.5%; on reading the two are close, 87.8% against 86.0%. GLiDE costs $0.16 per 1,000 questions, ten times the Decider, and has the lowest calibration error of the decision models (ECE 0.045). Fastino describes GLiDE as reasoning on uncertain decisions, and it reports about 250 output tokens per question where the other decision models report almost none; without a run with that reasoning switched off, the lead cannot be attributed to it. As a first pass in the routing simulations, it answers more questions on its own than any other decision model: 20% in front of Astra and 45% in front of Sonnet at high effort. Gemma 4 31B, a general open model, scores 5.2 points higher still (73.1%, paired test p &lt; 10⁻⁵), but its confidence is far less calibrated (ECE 0.24).</p>
+      <h3>In one model pair, extra Turkish training improved calibration, not accuracy</h3>
+      <p>Erk-14B is Qwen3-14B with continued training on Turkish. On this benchmark the two score almost the same: 45.0% against 45.7%, with no significant difference. Erk-14B's confidence is much better calibrated (ECE 0.135 against 0.41) and ranks its answers slightly better (AUROC 0.75 against 0.73). This is the only pair here that changes Turkish training while keeping the model fixed.</p>
     </section>
 
-    <section class="card" id="leaderboard-section">
-      <h2>Leaderboard</h2>
-      <p class="note">Each row is one run. Parameters: the model's weights, counted from its checkpoint or as its maker
-        publishes them; for DeepSeek, a mixture of experts, also those active per token (8B while reading the prompt,
-        16B while writing); NA when the maker publishes no size. Score: the share of all questions answered correctly.
-        Meaning: the reading
-        units (1–6). Form: the grammar units (7–20). TYT mix: meaning and form weighted like the 2026 TYT paper (33
-        reading and 7 grammar questions). AUROC: how well the run's confidence separates right from wrong answers.
-        Output tokens: per question, reasoning included. Cost: API-equivalent US dollars per 1,000 questions.
-        Group: runs that share a letter are statistically tied, because no exact paired test separates them after
-        Holm's correction over all 406 pairs of runs. A run with two letters is tied with runs in both groups, which
-        are not tied with each other, and a line in the table starts each group that shares no letter with the run
-        above. Whether a gap is real depends on how often two runs disagree, not only on its size: GPT-6 Astra leads
-        GPT-6.1 Sol by 0.9 points and the two disagree on only 36 questions (p = 0.001 alone), while GLiDE leads
-        DeepSeek without reasoning by 2 points but the two disagree on 609 (p = 0.09). Astra's lead passes the
-        correction for the 29 comparisons of <a href="#gaps"><em>Which gaps are real?</em></a> but not the stricter
-        one for all 406 pairs, so the two share a letter.
-        "<a href="#setups">The setups</a>" under Method explains each run. Click a column heading to sort.</p>
+    <section class="card prose" id="accuracy">
+      <h2>Accuracy across models and tasks</h2>
+      <p>Each leaderboard row represents one model configuration and one recorded run. Among stable releases, GPT-6 Astra has the highest overall accuracy at 97.6%, followed by GPT-6.1 Sol at 96.7%, Gemini 3.8 Flash at 93.3%, DeepSeek-V4.1-Flash with reasoning at 92.0%, Claude Opus 5.5 at low effort at 90.4%, and Claude Sonnet 5.5 at high effort at 85.0%. Gemini 3.1 Pro (preview) at high thinking scores 97.9%, not significantly different from Astra; preview models can be withdrawn, so no finding on this page rests on it.</p>
+      <p>Read the overall score alongside the reading and grammar columns. The TYT mix column reweights those two scores to match the 2026 examination's composition of 33 reading questions and seven grammar questions. It illustrates how the question mix changes the ranking; it is not a direct score on that examination.</p>
+      <p>AUROC measures how well confidence ranks correct answers above incorrect ones. Output tokens are reported per question and include reasoning tokens where reported. Cost is the estimated API equivalent in US dollars per 1,000 questions. Parameter counts come from released checkpoints or provider disclosures; unavailable counts are marked NA. For mixture-of-experts models, the table also reports active parameters where known. Costs for locally run models are hypothetical and are marked as such in the table (see <a href="#cost-estimates"><em>How monetary costs are estimated</em></a>).</p>
+      <p>Small gaps need paired comparisons: what decides them is the questions that only one of the two runs answered correctly (see <a href="#differences"><em>Interpreting performance differences</em></a>).</p>
       <div class="table-wrap"><table id="leaderboard"></table></div>
-      <figure class="chart"><img src="charts/reading-grammar.svg" loading="lazy"
-        alt="Horizontal bars of each run's accuracy on meaning (reading, units 1–6) and on form (grammar, units 7–20). GPT-6 Astra, GPT-6.1 Sol, Gemini 3.1 Pro with high thinking, Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and Claude Sonnet 5.5 at high effort score within 3 points on both. Claude Opus 5.5 at low effort scores 6 points lower on form and Gemini 3.1 Pro at low thinking 11. Every other model above chance scores 25–42 points lower on form; the Laya models and GLiNER2.5 Multi stay near chance on both."></figure>
+      <figure class="chart"><img src="charts/reading-grammar.svg" alt="Chart titled “Strong reading performance can coexist with weak grammar performance”: accuracy of each of the 30 configurations on reading comprehension (656 questions) and grammatical analysis (1,542 questions)." loading="lazy"></figure>
     </section>
 
-    <section class="card" id="cascade-section">
-      <h2>Answer when sure, pass on when not</h2>
-      <p class="flow">Question → decision model (Jev, Perplexity's Decider, Clef, d1, Open-Jev, Metask-Jev, Cygnet,
-        Winnow or GLiDE) → confident?
-        <strong>Yes:</strong> its answer stands. <strong>No:</strong> the frontier model (GPT-6 Astra or Claude Sonnet
-        5.5) answers.</p>
-      <p class="note">Knowing when it is right saves money. A cheap decision model answers first. When its confidence
-        reaches a threshold, its answer stands. When it does not, the question goes to the frontier model. A decision
-        model costs 5% or less of these frontier models per question, so every question it keeps saves money; a cheaper
-        frontier model leaves less to save (against Gemini 3.8 Flash, a decision model costs up to 60% as much). The
-        risk is a confident wrong answer, and the threshold controls that risk: a higher threshold keeps fewer questions
-        and makes fewer mistakes.</p>
-      <h3>Run for real</h3>
-      <p class="note">This test checks whether the saving holds in a real pipeline. It does for cost: with Perplexity's
-        Decider in front of GPT-6 Astra, the cost fell by 17%. It does not for time: the pipeline spent 19 minutes in
-        requests against 17 for GPT-6 Astra alone, because the Decider answers one question per request. Here the
-        cascade ran: the questions were split into two halves, keeping questions that share a passage together, and the
-        threshold was fixed on one half before any run. On the other half, Perplexity's Decider answered the questions
-        at or above the threshold, from its stored run, and a new frontier run answered the rest in batches of 16 of
-        their own. The same frontier setup also ran on every held-out question, at the same time, for comparison.
-        Tolerance: the accuracy loss accepted before the runs.</p>
+    <section class="card prose" id="tests">
+      <h2>What this benchmark tests</h2>
+      <p>The benchmark examines four connected questions: how accurately models answer reading questions, how accurately they analyze grammatical structure, whether confidence helps identify errors, and what resources are needed to achieve a given level of accuracy. Understanding guides the interpretation of these measurements; it is not a separate score calculated from them.</p>
+      <p>Reading and grammar scores show how capabilities vary across task categories. Confidence ranking shows whether a model’s more confident answers are more often correct. Calibration asks whether its numerical confidence matches observed accuracy. Reasoning and routing comparisons show what changes when we alter how answers are produced and selected.</p>
+      <p>TurkishMMLU<sup class="cite"><a id="cite-3-a" href="#ref-3">3</a></sup> evaluates accuracy on more than 10,000 Turkish questions across nine high-school subjects, and holistic evaluations such as HELM report calibration and efficiency next to accuracy<sup class="cite"><a id="cite-4-a" href="#ref-4">4</a></sup>. Here, reading and grammar are reported separately, alongside confidence ranking, calibration and the cost of routing questions between models. This benchmark evaluates these decision models independently of their makers.</p>
+      <p>Reading comprehension includes questions about words, sentences and passages. Grammatical analysis includes word formation, suffixes, sentence structure and the categories used in Turkish school grammar. Comparing these tasks lets us examine whether strong performance in one area is accompanied by strong performance in another.</p>
+      <p>One hypothesis motivating the study is that performance and confidence become less reliable on tasks that are less well represented in training. Training exposure is unknown for most models, so this benchmark cannot isolate it as the cause of a performance gap. One pair tests it directly: Erk-14B, Qwen3-14B with continued Turkish training, scores no higher than Qwen3-14B.</p>
+      <p>The questions come from a practice book for the Turkish language section of TYT, the first stage of Turkey's university entrance examination. The bank contains 656 reading questions and 1,542 grammar questions across 20 units. Grammar accounts for 70% of the total, so we report reading and grammar separately as well as together.</p>
+    </section>
+
+    <section class="card prose" id="routing">
+      <h2>Using confidence to decide when to answer</h2>
+      <p>A routing system first asks a cheaper model to answer. If its confidence reaches a chosen threshold, the system keeps that answer. Otherwise, it sends the question to a stronger model. Cascades of this kind, such as FrugalGPT<sup class="cite"><a id="cite-5-a" href="#ref-5">5</a></sup> and RouteLLM<sup class="cite"><a id="cite-6-a" href="#ref-6">6</a></sup>, have been proposed to cut the cost of large models. The threshold determines how many questions the cheaper model handles and how many of its mistakes enter the final result.</p>
+      <p>This approach pays off most when the first model is much cheaper than the model receiving the remaining questions. Under the price assumptions used here, most decision models cost less than 2% as much per question as Astra, Opus or Sonnet at high effort; GLiDE, which reasons, costs 3–5%. The main alternative is a cheaper frontier model: GPT-6.1 Sol costs $1.13 and Gemini 3.8 Flash $0.27 per 1,000 questions, against $5.38 for Astra.</p>
+      <h3>Routing with new frontier model calls</h3>
+      <p>We split the questions into two halves, keeping questions that share a passage together. A confidence threshold is selected on the first half and fixed before evaluation on the second. The decision model's answers come from its stored run. The remaining questions are sent in new batches to the frontier model, which also answers the entire evaluation half in a separate comparison run.</p>
+      <p>For Decider followed by GPT-6 Astra, the evaluation half contains 1,099 questions. Decider handles 194 of them. Pipeline accuracy is 97.09%, compared with 97.45% for Astra alone. Estimated API cost falls from $5.67 to $4.71, a saving of 16.9%. Request time rises from about 17 to 19 minutes.</p>
+      <p>For Decider followed by Claude Sonnet 5.5 at high effort, Decider handles 343 of 1,099 questions. Pipeline accuracy is 84.80%, compared with 84.90% for Sonnet alone. Estimated cost falls by 18.1%, while request time rises slightly. The accuracy difference has a wide 95% interval, from a loss of 1.95 percentage points to a gain of 1.77.</p>
+      <p>Both observed losses are below the 0.5-point tolerance, and both intervals include larger losses. The decision model's answers come from its stored run; only the frontier calls are new.</p>
       <div class="table-wrap"><table id="pipelines"></table></div>
-      <h3>In simulation</h3>
-      <p class="note">With stored runs, the cascade can be tried at every threshold. A decision model answers the
-        questions where its probability for the chosen option reaches a threshold, and passes the rest to a frontier
-        run. Answered: the share it answers at the lowest threshold that keeps the frontier run's accuracy, chosen and
-        scored on all questions. Held out: the threshold is chosen on a random half of the questions and scored on the
-        other half, over 300 splits that keep questions sharing a passage together: the mean share answered, the mean
-        accuracy difference from the frontier run alone in percentage points, and the share of splits where the cascade
-        did worse. Cost: API-equivalent, the decision model's run plus the frontier run on the questions passed on. Held
-        out is not a deployment test: a real pipeline sends the remaining questions in new batches, which <em>Run for
-        real</em> above does.</p>
+      <h3>Routing simulations with stored answers</h3>
+      <p>Stored answers let us compare many combinations of decision models, frontier models and confidence thresholds. Selecting and evaluating a threshold on the same questions gives an optimistic estimate. We therefore also select thresholds on one half of the questions and evaluate them on the other, repeating this process over 300 random splits.</p>
+      <p>The table reports the share of questions handled by the decision model, the change in accuracy and the proportion of splits in which routing performs worse than the frontier model alone. For Jev followed by Astra, the evaluation halves average 15.3% coverage and an accuracy loss of 0.11 percentage points. Routing is worse than Astra alone in 68% of those splits: a small average loss, but a loss in most splits.</p>
+      <p>These simulations reuse both models' stored answers. They screen thresholds and model pairs; the runs with new frontier calls above test them.</p>
+      <figure class="chart"><img src="charts/cascade.svg" alt="Chart titled “How routing accuracy changes as the cheaper model answers more questions”: accuracy of decision-model and frontier-model pipelines against the share of questions the decision model answers, at thresholds chosen in-sample." loading="lazy"><figcaption>The thresholds in this chart are chosen and evaluated on the same questions (in-sample); the held-out results are in the table directly below.</figcaption></figure>
       <div class="table-wrap"><table id="cascade"></table></div>
-      <figure class="chart"><img src="charts/cascade.svg" loading="lazy"
-        alt="Line charts of cascade accuracy against the share of questions that the decision model answers, in front of GPT-6 Astra and in front of Claude Sonnet 5.5 at high effort. Accuracy stays at the frontier run's level up to a share that differs by decision model, and then falls."></figure>
-      <h3>Does doubt spot the frontier model's mistakes?</h3>
-      <p class="note">Doubt is the entropy of the decision model's option probabilities: 0 when one option has all the
-        probability, and highest when all options are equally likely. Spearman: its rank correlation with how many of
-        GPT-6 Astra (low), Claude Opus 5.5 (low) and Claude Sonnet 5.5 (high) got the question wrong. p: 200 shuffles
-        within each unit, so a link that only separates easy units from hard ones fails. Most uncertain tenth: how many
-        of the questions some frontier run got wrong fall in the decision model's most uncertain 10%.</p>
+      <h3>Predicting mistakes in stronger models</h3>
+      <p>We also test whether a decision model's uncertainty identifies questions that stronger models answer incorrectly. Here uncertainty is measured by entropy: it is low when probability is concentrated on one option and high when probability is spread across the options.</p>
+      <p>The analysis compares this uncertainty with the number of errors made by Astra, Opus and Sonnet. We report rank correlations, permutation tests within each unit, and the share of frontier errors found in the most uncertain tenth of questions. Decision model uncertainty is a weak predictor of frontier errors. Its AUROC for them is 0.63–0.67, and the most uncertain tenth of questions holds 14–18% of the questions on which a frontier model makes a mistake; a random tenth would hold 10%.</p>
       <div class="table-wrap"><table id="doubts"></table></div>
     </section>
 
-    <section class="card" id="cost-section">
-      <h2>What an answer costs</h2>
-      <p class="note">A right answer costs tokens, and reasoning multiplies them. This section shows what each run spent
-        and what reasoning bought.</p>
-      <p class="note">Billed: what a pay-per-token API charged for the run. API-equivalent: the run's tokens at a list
-        price or an assumed price, so that runs can be compared. The Claude and GPT runs used flat subscriptions, so
-        their figures are list prices for the same tokens. Open-Jev is priced at Jev's rate and Qwen at an assumed rate,
-        although both ran on our GPUs. Local GPU: the hardware and precision of the self-hosted runs. Request time:
-        minutes spent in requests.</p>
+    <section class="card prose" id="cost-section">
+      <h2>The cost of accuracy and additional reasoning</h2>
+      <p>Accuracy needs to be considered alongside the resources used to obtain it. We report output tokens, request time and monetary cost separately because they describe different aspects of a run. Token counts from different models are not a direct measure of equivalent computation.</p>
       <div class="table-wrap"><table id="cost"></table></div>
-      <h3 id="reasoning">What reasoning buys</h3>
-      <p class="note">Three models ran with less and with more reasoning. More reasoning raised accuracy on form
-        (grammar) by 27–35 points. It also multiplied the output tokens per question by 9 for Sonnet, 18 for Gemini 3.1
-        Pro and about 160 for DeepSeek. The request time grew about 6, 3 and 9 times, although Gemini's and DeepSeek's
-        runs with more reasoning kept 4 and 8 requests in flight: Gemini's median request took 61 s instead of 5.</p>
-      <div class="table-wrap">
+      <h3 id="reasoning">What additional reasoning changes</h3>
+      <p>Increasing Sonnet 5.5 from low to high effort raises overall accuracy from 61.4% to 85.0% and grammar accuracy from 52.2% to 85.0%. Output grows from about 22 to 199 tokens per question. Estimated API cost rises from $1.32 to $3.09 per 1,000 questions, and request time increases from about 10 to 58 minutes.</p>
+      <p>Enabling reasoning for DeepSeek-V4.1-Flash raises overall accuracy from 65.9% to 92.0% and grammar accuracy from 56.6% to 91.4%. Output grows from about six to 1,006 tokens per question. The reasoning run takes about 114 minutes with eight concurrent requests, compared with about 12 minutes for the run without reasoning.</p>
+      <p>Raising Gemini 3.1 Pro (preview) from low to high thinking raises overall accuracy from 74.9% to 97.9% and grammar accuracy from 71.5% to 98.3%. Output grows from about 30 to 529 tokens per question, estimated API cost from $0.80 to $6.78 per 1,000 questions, and request time from about 13 to 41 minutes, with four requests in flight. Other work also finds that more computation at inference time can raise accuracy, on some problems more than a larger model would<sup class="cite"><a id="cite-7-a" href="#ref-7">7</a></sup>.</p>
+      <p>The relationship between output length and accuracy also differs across models. At the settings tested, Astra reaches 97.6% accuracy with about 21 output tokens per question, Sol reaches 96.7% with 25, and Gemini 3.8 Flash reaches 93.3% with 28. Gemini reports no thinking tokens in this run.</p>
+            <div class="table-wrap">
         <table class="static">
           <thead>
-            <tr><th>Model</th><th>Reasoning</th><th class="num">Score</th><th class="num">Form (grammar)</th>
+            <tr><th>Model</th><th>Reasoning</th><th class="num">Score</th><th class="num">Grammar</th>
               <th class="num">Output tokens per question</th><th class="num">Cost per 1,000 questions</th>
               <th class="num">Request time</th></tr>
           </thead>
@@ -242,265 +148,94 @@
           </tbody>
         </table>
       </div>
-      <p class="note">For comparison, at their lowest reasoning settings GPT-6 Astra answers 97.6% of the questions
-        correctly with 21 output tokens per question, at $5.38 per 1,000 questions; GPT-6.1 Sol 96.7% with 25 tokens,
-        at $1.13; and Gemini 3.8 Flash 93.3% with 28 tokens and no reasoning tokens, at $0.27. A stronger model can beat
-        more reasoning. GPT-6 Astra at low effort ties Gemini 3.1 Pro at high thinking (97.6% and 97.9%, p = 0.47) with a
-        25th of the output tokens, at $5.38 against $6.78.</p>
-      <h3>Prices used</h3>
+      <h3 id="cost-estimates">How monetary costs are estimated</h3>
+      <p>Billed cost is the amount charged by an API for a run. API-equivalent cost applies a listed or assumed token price to recorded usage. The GPT and Claude runs used flat subscriptions, so their API equivalents are estimates rather than actual charges.</p>
+      <p>Open-Jev is valued at Jev's token rate, and Qwen at an assumed rate. Both ran locally, so these values are hypothetical and leave out the cost of running the GPUs. d1 ran on a free tier, billed at zero. The price table records the assumptions for each comparison.</p>
       <ul class="footnote" id="cost-notes"></ul>
     </section>
 
-    <section class="card" id="units-section">
-      <h2>Where models break, unit by unit</h2>
-      <p class="note">The share of each unit's questions answered correctly. Units 1–6 test meaning (reading); units
-        7–20 test form (grammar). Each unit's English name comes first and its Turkish name second. Hover a cell for the
-        count. Guessing scores 20%; always answering E, the key's most common letter, scores 22.7%.</p>
+    <section class="card prose" id="topics">
+      <h2>Performance across the 20 topics</h2>
+      <p>The unit table shows the proportion of questions answered correctly in each topic. Units 1 to 6 cover reading comprehension; units 7 to 20 cover grammar. English names appear alongside the Turkish labels so that the task remains clear to readers unfamiliar with the examination.</p>
+      <p>Topic scores show where an overall average hides uneven performance. They also help distinguish a broad reading and grammar gap from difficulty with a particular grammatical category. Random guessing among the five options has an expected accuracy of 20%; always choosing E, the most common answer in the key, achieves 22.7% on this bank. Models can also prefer particular option letters regardless of content<sup class="cite"><a id="cite-8-a" href="#ref-8">8</a></sup>. Topic scores are also a starting point for behavioral tests of specific capabilities, as in CheckList<sup class="cite"><a id="cite-9-a" href="#ref-9">9</a></sup>: keep a grammatical relationship under a change of wording, or change the relationship and require the answer to change.</p>
       <div class="table-wrap"><table id="units" class="heatmap"></table></div>
-      <figure class="chart"><img src="charts/units.svg" loading="lazy"
-        alt="Line chart of accuracy by unit for six runs: GPT-6 Astra, DeepSeek-V4.1-Flash with and without reasoning, Gemma 4 31B, Jev and Laya. Lines mark the 20% chance level and the 22.7% always-E level. On units 1–6 (meaning), every run except Laya scores high. From unit 7 (form), the runs without reasoning fall sharply: Gemma 4 31B from 96% to 67%, DeepSeek-V4.1-Flash without reasoning from 93% to 60%, and Jev from 89% to 54%. Laya stays near chance."></figure>
+      <figure class="chart"><img src="charts/units.svg" alt="Chart titled “Where performance changes across 20 topics”: accuracy of the configurations in each of the 20 topics, with the number of questions per topic." loading="lazy"></figure>
     </section>
 
-    <section class="card" id="confidence-section">
-      <h2>Do models know when they are right?</h2>
-      <h3>How we read confidence</h3>
-      <div class="prose">
-        <p>We look at the confidence score of every answer, not only at whether the answer is right. The question is:
-          when the confidence goes up, does the chance of a right answer go up too? All 29 runs give a confidence, so we
-          ask this for every run.</p>
-        <p>A confidence comes from one of three sources. Some models state it as a number from 0 to 1. The decision
-          models, GLiNER2.5 Multi and Qwen's yes/no scoring give a probability for every option; for Gemma 4 31B,
-          DeepSeek-V4.1-Flash, Qwen3-14B and Erk-14B, which write their answers, it is the probability of the letter they
-          write. Qwen's
-          vote-share run samples 10 answers and uses the share of samples that agree.</p>
-        <p>We measure the link between confidence and correctness with AUROC. AUROC is the chance that a right answer
-          gets a higher confidence than a wrong answer: 0.5 means no link, and 1.0 means that every right answer has a
-          higher confidence than every wrong answer. We do not use the ordinary correlation coefficient (Pearson's r),
-          because r also depends on how often a model is right. For example, GPT-6 Astra is right on 97.6% of the
-          questions. Its r is only 0.43, although its AUROC of 0.92 is the highest on this page. Perplexity's Decider
-          has a higher r (0.56) but a lower AUROC (0.83).</p>
-        <p>Calibration checks a second property: whether the size of the confidence matches the accuracy. Of the answers
-          given at a confidence of 0.8, about 80% should be right. ECE (expected calibration error) is the average gap
-          between confidence and accuracy; 0 is perfect.</p>
-      </div>
-      <p class="note">A confidence is useful only if higher confidence means more right answers. This table shows the
-        accuracy of the answers in each confidence range, with the number of answers in parentheses. A range includes
-        its lower bound; the last range also includes 1.00.</p>
-      <div class="table-wrap"><table id="confidence" class="heatmap"></table></div>
-      <figure class="chart"><img src="charts/calibration.svg" loading="lazy"
-        alt="Calibration charts: accuracy against mean confidence in each confidence range, for the runs that give a probability and for the runs that state a confidence or count votes. The diagonal is perfect calibration. GPT-6 Astra, GPT-6.1 Sol, Perplexity's Decider, Jev and Metask-Jev 4B lie close to it. Open-Jev lies far above it, so its confidence is too low. Gemma 4 31B's letter probabilities and Qwen's stated confidence lie far below it, so their confidence is too high; Cygnet and Winnow-12B lie below it too, less far. DeepSeek-V4.1-Flash with reasoning gives every answer a probability of 0.99 or more, so it is a single point, at 92% right. The Laya models and GLiNER2.5 Multi, near chance, are left out."></figure>
-      <h3>Telling right from wrong</h3>
-      <p class="note">AUROC: the chance that a right answer gets a higher confidence than a wrong answer; 0.5 is chance
-        and 1.0 is perfect. ECE (expected calibration error): the average gap between confidence and accuracy, over 10
-        equal-width ranges; 0 is perfect. Top 20%, 50%, 80%: the accuracy if the run answered only that share of the
-        questions, the ones with the highest confidence. Equal confidences count as ties, which matters for the vote
-        share: it takes only 10 values. Small numbers: 95% bootstrap intervals.</p>
+    <section class="card prose" id="confidence-section">
+      <h2>When confidence helps identify mistakes</h2>
+      <p>A useful confidence score should help distinguish answers that are more likely to be correct from those that are less likely to be correct. We evaluate this for all 30 configurations, while keeping track of how each score is produced.</p>
+      <h3>Ranking correct and incorrect answers</h3>
+      <p>AUROC measures how often a randomly selected correct answer has higher confidence than a randomly selected incorrect answer, with tied scores receiving half credit. A value of 0.5 corresponds to chance ranking; 1.0 means every correct answer ranks above every incorrect answer.</p>
+      <p>This measure answers a practical question: can confidence help us select a more reliable subset of answers? This is selective prediction: answering only the most confident questions and abstaining on the rest<sup class="cite"><a id="cite-10-a" href="#ref-10">10</a></sup>. Routing adds a second model for the rejected questions, so accuracy among retained answers (this chart) and accuracy of the complete two-model pipeline (the routing charts) are different quantities. The top 20%, 50% and 80% columns show accuracy when retaining those proportions of answers, ordered by confidence. When a cutoff falls inside a tie, the calculation averages over the tied answers.</p>
       <div class="table-wrap"><table id="ranking"></table></div>
-      <figure class="chart"><img src="charts/coverage.svg" loading="lazy"
-        alt="Line charts of accuracy on the most confident share of the answers, from 2% to 100%, for the runs that give a probability and for the runs that state a confidence or count votes. For every run except Qwen's stated confidence and DeepSeek-V4.1-Flash with reasoning, accuracy is highest on the most confident answers and falls as more answers are included. For those two, accuracy is near its overall level from the start. The Laya models and GLiNER2.5 Multi, near chance, are left out."></figure>
-      <h3 id="sure">Can you trust 0.99?</h3>
-      <p class="note">How many answers each run gave at a probability or stated confidence of 0.99 or more, how many of
-        them were right, and the 95% Wilson interval on that accuracy. A few answers cannot show an accuracy of 99%.
-        For example, 21 right answers out of 21 show only that the accuracy is between 84.5% and 100%.</p>
+      <figure class="chart"><img src="charts/coverage.svg" alt="Chart titled “How accuracy changes when we keep only the most confident answers”: accuracy among retained answers against the share of answers retained, for each configuration." loading="lazy"><figcaption>When a cutoff falls inside a tie in confidence, the accuracy shown averages over the tied answers.</figcaption></figure>
+      <h3>Interpreting confidence as a probability</h3>
+      <p>Calibration asks whether the numerical confidence matches observed accuracy. Among answers assigned a probability close to 0.8, approximately 80% should be correct if those probabilities are well calibrated.</p>
+      <p>We report expected calibration error<sup class="cite"><a id="cite-11-a" href="#ref-11">11</a></sup>, or ECE, using 10 equal-width confidence bins. It is the average absolute gap between confidence and accuracy across those bins, weighted by the number of answers in each. Lower is better. Zero means confidence and accuracy match within the bins used here.</p>
+      <p>The confidence range table shows the number of answers next to each accuracy, because a range with few answers says little.</p>
+      <div class="table-wrap"><table id="confidence" class="heatmap"></table></div>
+      <figure class="chart"><img src="charts/calibration.svg" alt="Chart titled “Does 0.8 mean 80% right?”: observed accuracy against stated confidence in each confidence range, with the diagonal of perfect calibration and the number of answers per range." loading="lazy"><figcaption>The plot leaves out confidence ranges with fewer than 20 answers; the confidence range table keeps them.</figcaption></figure>
+      <h3 id="sure">What a confidence of 0.99 actually delivers</h3>
+      <p>What a confidence of 0.99 delivers depends on the scoring method.</p>
+      <p>Jev answers 311 of 312 questions correctly when its chosen option probability is at least 0.99; d1 answers 273 of 274 correctly. Decider answers all 21 correctly, but that sample is too small to establish 99% accuracy: its 95% Wilson interval runs from 84.5% to 100%. GLiDE answers all 121 of its answers at 0.99 or more correctly (95% interval from 96.9%).</p>
+      <p>Token probabilities behave differently. Gemma answers 1,450 of 1,782 questions correctly at this threshold, about 81%. DeepSeek with reasoning assigns at least 0.99 to every answer letter, including its mistakes, while overall accuracy is about 92%. In this setup, the answer-letter probability after reasoning says almost nothing about correctness.</p>
+      <p>These figures are after the answer-key audit, which removed some highly confident errors (see <a href="#key-uncertainty"><em>Answer key uncertainty affects some conclusions</em></a>).</p>
       <div class="table-wrap"><table id="sure-table"></table></div>
-      <h3 id="sources">Stated confidence, probabilities or votes?</h3>
-      <p class="note">The runs above each score their own answers, so a comparison between them also compares different
-        answers. Here one set of answers is scored by four confidence sources: <span id="sources-answers"></span> The
-        four sources are Qwen's stated confidence, the share of its 10 samples that chose the answer, Qwen's yes/no
-        probability and Open-Jev's probability. Only the confidence source changes.</p>
+      <h3 id="sources">Comparing confidence sources on the same answers</h3>
+      <p>Comparisons across configurations can mix two effects: different answers and different confidence scores. To isolate the scoring method, we also apply four confidence sources to the same set of Qwen answers.</p>
+      <p>On this fixed answer set, Qwen's stated confidence has an AUROC of about 0.51. Its yes/no probabilities and the share of ten samples choosing the answer both reach about 0.78. Open-Jev's probabilities reach about 0.82. This matches earlier work: stated confidence tends to cluster at high values<sup class="cite"><a id="cite-12-a" href="#ref-12">12</a></sup>, while large models' answer probabilities on multiple-choice questions can be well calibrated<sup class="cite"><a id="cite-13-a" href="#ref-13">13</a></sup>. Here, access to alternative scoring methods improves the confidence ranking substantially.</p>
+      <p>Repeated sampling has a different effect on answer accuracy. Choosing the majority answer across ten Qwen samples reaches 54.3%, compared with 54.2% for the stated confidence run. Even when all ten samples agree, the answer is correct only about 85% of the time. Agreement is informative, but repeated agreement can also preserve the same mistake.</p>
       <div class="table-wrap"><table id="sources-table"></table></div>
-      <figure class="chart"><img src="charts/sources.svg" loading="lazy"
-        alt="Line chart of Qwen3.8-27B's own answers (1,191 of 2,198 right), ranked by four confidence sources. With its stated confidence (AUROC 0.515), accuracy is near flat. With Qwen's yes/no probability (0.782) or Open-Jev's probability (0.819), the most confident answers are almost all right. The share of 10 samples (0.779) sorts almost as well."></figure>
+      <figure class="chart"><img src="charts/sources.svg" alt="Chart titled “Different confidence methods, the same Qwen answers”: for four confidence sources applied to the same Qwen answers (1,191 correct of 2,198), how well each separates correct from incorrect answers, with each method’s AUROC." loading="lazy"></figure>
     </section>
 
-    <section class="card prose" id="carries-over">
-      <h2>What generalizes, and what does not</h2>
-      <div class="table-wrap">
-        <table class="carries ladder">
-          <thead><tr><th>Setting</th><th class="num">Jev's AUROC</th></tr></thead>
-          <tbody>
-            <tr><td>Home: English tasks with two labels
-              (<a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize</a>)</td><td class="num">0.95–0.99</td></tr>
-            <tr><td>Turkish meaning (reading)</td><td class="num">0.89</td></tr>
-            <tr><td>Turkish form (grammar)</td><td class="num">0.72</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p>The further from home, the lower the AUROC. The language, the task and the number of options change together,
-        so the ladder shows how far Jev's confidence generalizes, not which change causes the drop.</p>
-      <p>Every model with a working confidence ranks its answers less well on form than on meaning. The AUROC drops by
-        0.04–0.10 for most frontier models (0.17 for GPT-6.1 Sol), 0.10–0.15 for the letter probabilities of Gemma 4
-        31B and DeepSeek-V4.1-Flash without reasoning, 0.11 for Qwen's vote share, 0.14–0.19 for the decision models
-        and 0.22 for Qwen's yes/no probabilities. So the decision models' confidence works well on meaning but
-        generalizes less to form.</p>
+    <section class="card prose" id="understanding">
+      <h2>What the results suggest about understanding</h2>
+      <p>The reading and grammar gap shows that strong performance in one part of a language can coexist with difficulty in another. The reasoning comparisons show that performance also depends on how a model is used: Sonnet and DeepSeek answer substantially more grammar questions correctly with additional reasoning. These findings favor describing specific capabilities under specified conditions when discussing understanding, rather than assigning a single judgment to a model.<sup class="cite"><a id="cite-1-b" href="#ref-1">1</a></sup></p>
+      <p>The reasoning gains concern the use of capabilities during inference. They do not measure how efficiently a model acquired those capabilities during training. In the terms of Chollet (2019), our scores measure acquired skill under the tested conditions.<sup class="cite"><a id="cite-2-b" href="#ref-2">2</a></sup> Unknown training exposure also prevents us from attributing the reading and grammar gap to differences in the amount of relevant training.</p>
+      <p>McCoy, Pavlick and Linzen (2019) show how strong performance on a language inference benchmark can conceal syntactic shortcuts that fail on controlled examples.<sup class="cite"><a id="cite-14-a" href="#ref-14">14</a></sup> For our benchmark, this motivates a specific follow-up: test matched questions in which a change in grammatical structure should change the answer, alongside changes in wording that should preserve it. The observed reading and grammar gap identifies areas to investigate; it does not establish which strategy a model used.</p>
+      <p>Recent work also distinguishes the evidence needed for different claims. Beckmann and Queloz (2026) argue that internal computational structures can support specific forms of understanding.<sup class="cite"><a id="cite-15-a" href="#ref-15">15</a></sup> Our output comparisons do not inspect those structures. Blanck and Noble (2026) distinguish linguistic from inferential generalization.<sup class="cite"><a id="cite-16-a" href="#ref-16">16</a></sup> Their distinction motivates separating changes in how a question is expressed from changes in the inference needed to answer it. Our current contribution is to map behavioral differences across tasks, confidence methods and inference settings, providing a basis for those more targeted experiments.</p>
+      <h3>Capabilities vary across demands within one language</h3>
+      <p>The reading and grammar contrast is one of the clearest patterns in the benchmark. Many models answer questions about meaning considerably better than questions requiring explicit grammatical analysis. The strongest configurations handle both well, and additional reasoning narrows the gap substantially for Sonnet and DeepSeek.</p>
+      <p>One interpretation is that reading comprehension draws on abilities that transfer across tasks and languages, while school grammar depends more on language-specific knowledge and learned conventions. Task difficulty, training exposure and question format could also produce the gap; the benchmark does not separate these causes.</p>
+      <h3>Confidence becomes less informative on grammar</h3>
+      <p>For many configurations, confidence separates correct and incorrect answers less well on grammar than on reading. Jev's AUROC falls from about 0.89 on reading to 0.72 on grammar; Open-Jev's falls from about 0.89 to 0.75. A confidence that works on one kind of task can work less well on another.</p>
+      <p>An external <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize evaluation</a> reports higher AUROC for Jev on English tasks with two labels. Language, task and the number of options all differ between the two settings.</p>
       <div class="table-wrap"><table id="parts"></table></div>
-      <p class="note">Questions left out by the key audit are excluded. Small numbers: 95% bootstrap intervals.</p>
-      <p>Open-Jev, <a href="https://github.com/Zefan-Cai/Open-Jev">Zefan Cai's open take on Jev</a>, shows what small
-        trained parts buy. It is Qwen3.8-27B plus a LoRA adapter (15.5 million weights, 0.06% of the model), a one-layer
-        scoring head and a temperature. Against Qwen's plain yes/no scoring, these parts raise accuracy by 3.8 points
-        (Holm p = 0.002) and the AUROC from 0.78 to 0.82 on the same answers. They do not fix generalization: the
-        temperature fitted on the training data (2.53) is far from the best one here (0.68), and the AUROC still drops
-        from 0.89 on meaning to 0.75 on form.</p>
-      <p>This card sorts the key findings by ability and gives the evidence for each. Some abilities generalize to a
-        setting that a model's training did not focus on, and some do not.</p>
-      <div class="table-wrap">
-        <table class="carries">
-          <thead><tr><th>Ability</th><th>Generalizes?</th><th>Evidence</th></tr></thead>
-          <tbody>
-            <tr><td>Understanding meaning</td><td>Yes</td><td>Every model except the near-chance Laya models and GLiNER2.5
-              Multi, and the smaller Metask-Jev 4B, Qwen3-14B and Erk-14B (63–72%), answers 80–97% of the reading
-              questions correctly. See
-              <a href="#leaderboard-section">Leaderboard</a>.</td></tr>
-            <tr><td>Knowledge of form</td><td>Only in the strongest models</td><td>GPT-6 Astra answers 98% of the
-              grammar questions correctly. Gemma 4 31B answers 91% of the reading questions but 66% of the grammar
-              questions. See <a href="#units-section">Where models break</a>.</td></tr>
-            <tr><td>Reasoning in place of training</td><td>Yes, at a cost</td><td>With reasoning on,
-              DeepSeek-V4.1-Flash goes from 57% to 91% on the grammar questions; it writes about 1,000 output tokens per
-              question instead of 6. Claude Sonnet 5.5 goes from 52% to 85% between low and high effort, with 199 output
-              tokens per question instead of 22. See <a href="#reasoning">What reasoning buys</a>.</td></tr>
-            <tr><td>Order of the confidence (AUROC)</td><td>Mostly for meaning; less for form</td><td>Jev's AUROC is
-              0.89 on the reading questions and 0.72 on the grammar questions.
-              <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize measured</a> 0.95 to 0.99 for Jev,
-              depending on the request format, on English tasks with two labels; those tasks differ from these
-              questions. See <a href="#confidence-section">Do models know when they are right?</a></td></tr>
-            <tr><td>Size of the confidence (calibration)</td><td>No</td><td>Open-Jev divides its scores by a temperature
-              of 2.53, fitted on its training data. On these questions the best temperature is 0.68. See
-              <a href="#open-jev">How Open-Jev works</a>.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p><strong>Why form does not generalize.</strong> A grammar question asks about Turkish form, for example which
-        suffix turns a verb into a noun. A model can answer it only if the model learned that form. A meaning question
-        depends less on this. A likely reason is that a model can find the main idea of a paragraph with skills that it
-        also learned in other languages.</p>
-      <p><strong>More Turkish training did not help.</strong> Erk-14B is Qwen3-14B with continued training on Turkish
-        web text and on generated sentences that drill Turkish suffixes, verb voice and spelling; the architecture and
-        the size are the same. Given the same request, it scores
-        the same as Qwen3-14B: 45.0% against 45.7% overall, and 33.4% against 34.5% on form; neither difference is
-        significant (p = 0.53 and 0.45). No unit changes significantly either, not even the ones its generated sentences
-        drill: suffixes +7.6 points, verb voice −5.4, spelling −1.5. What changed is its confidence: its calibration
-        error fell from 0.41 to 0.14. So the Turkish training Erk received did not supply the knowledge of form these
-        questions test. That is one
-        model and one kind of training, so it does not settle the question, but it weakens the simplest version of the
-        "thin training" explanation.</p>
-      <p><strong>Why the order generalizes but the size does not.</strong> The temperature changes how spread out the
-        probabilities are, but it does not change their order. With the temperature fitted on its training data,
-        Open-Jev's confidence is too low: all 144 of its answers at a confidence of 0.5–0.6 were right, and it never
-        gives a confidence of 0.7 or more. But Open-Jev still puts right answers above wrong ones. Refitted on its
-        answers to the first version of the question bank, the temperature cut the ECE from 0.228 to 0.030, and the
-        AUROC stayed the same (0.8193 before, 0.8191 after).</p>
-      <p><strong>Two limits.</strong> First, "thin training" is a hypothesis, and the Erk test above argues against its
-        simplest form: we do not know how much Turkish each model
-        saw in training, and the book is online, so some questions may have been in training (see <em>What could be
-        wrong</em>). Second, Turkish is one setting. A claim about unfamiliar settings in general needs a second test in
-        a different setting.</p>
+      <h3>Adaptation improves accuracy and confidence ranking</h3>
+      <p>Open-Jev adds a small adapter, a scoring head and a calibration temperature to the Qwen base model. Compared with Qwen's plain yes/no scoring, the released configuration improves accuracy by about 3.8 percentage points. The paired difference remains significant after the Holm correction across the 32 selected comparisons, with p = 0.005. On the same answers, confidence AUROC improves from about 0.78 to 0.82.</p>
+      <p>Its probability scale nevertheless transfers poorly to these questions. Open-Jev never assigns a chosen option probability of 0.7 or more, despite answering all 144 questions in the 0.5 to 0.6 range correctly. In a separate analysis on version 1 of the bank, refitting the temperature with cross-validation lowers ECE from 0.228 to 0.030. Accuracy is unchanged and AUROC changes only slightly, from 0.8193 to 0.8191. The main results use the released configuration, without this refitting.</p>
+      <p>Accuracy, confidence ranking and calibration move separately, so each needs its own measurement.</p>
+      <h3>What stronger evidence would require</h3>
+      <p>A next experiment could hold the relevant rule constant while changing wording and vocabulary, then change a grammatical relationship that should alter the answer. A separate experiment could introduce unfamiliar rules through a fixed number of examples and test new combinations. These designs would help distinguish consistent use of a relationship from success tied to familiar question patterns. The present reading and grammar comparison identifies where such tests would be informative.</p>
     </section>
 
-    <section class="card" id="repeats-section">
-      <h2>Same question, same answer?</h2>
-      <p class="note">A confidence is worth little if the answer changes when the same question is asked again. Each
-        setup run several times on the same questions. The one-question setups ran 5 times on the whole bank, their
-        first run being the one above; the 16-question setups ran 5 times on one fixed sample of 200 questions, with the
-        same batches every time. Changed answer: questions on which the runs did not all choose the same option. Same
-        mistake every run: questions every run got wrong with the same option, of those any run got wrong; another run
-        would not reveal these. Score spread: the median, over the questions, of the largest minus the smallest score
-        of the chosen options. Wrong at ≥ 0.99: each run's count, and the questions wrong at that score in every
-        run. Gemma's and DeepSeek's repeats ran before their requests asked for token probabilities, so they have no
-        scores. Gemma's five runs shared one server session; after a restart, the same requests changed 15 of the 200
-        answers.</p>
+    <section class="card prose" id="repeats-section">
+      <h2>Answer stability across repeated runs</h2>
+      <p>Repeated runs reveal whether an answer changes when the same question is asked again. We repeat the configurations that take one question per request five times over the whole bank. Configurations that take 16 questions per request are repeated five times on a fixed sample of 200 questions, using the same batches.</p>
+      <p>Across the full bank, Open-Jev keeps every answer unchanged and Decider changes two of 2,198. Jev changes about 14%, d1 about 10%, and Qwen's yes/no scoring about 7%. On the sample of 200 questions, Astra changes one answer, Opus changes 20 and Sonnet at high effort changes 31. The two groups use different question sets.</p>
+      <p>Stable answers are not necessarily correct. The table also counts mistakes made with the same option in every run: these mistakes persisted across all five runs.</p>
+      <p>Server state can matter as well. Gemma gives identical answers across five runs within one server session; after a restart, the same requests change 15 of the 200 answers. The repeats for Gemma and DeepSeek were recorded before token probabilities were requested, so those repeat runs do not include confidence scores.</p>
       <div class="table-wrap"><table id="repeats"></table></div>
     </section>
 
-    <section class="card" id="gaps">
-      <h2>Which gaps are real?</h2>
-      <p class="note">Each run against the next one by score, plus Open-Jev against Qwen's yes/no scoring and
-        Perplexity's Decider against Jev, over the same questions. The interval and the exact McNemar test rest on the
-        questions only one of the two got right. Differences are in percentage points. Holm p corrects for testing all
-        the comparisons in the table; greyed values are not significant at 0.05.</p>
+    <section class="card prose" id="differences">
+      <h2>Interpreting performance differences</h2>
+      <p>The comparison table uses paired tests because both configurations answer the same questions. The relevant evidence comes from questions on which only one configuration is correct. We report exact McNemar tests<sup class="cite"><a id="cite-17-a" href="#ref-17">17</a></sup> and apply the Holm correction across the 32 comparisons shown.</p>
+      <p>Astra's lead over Sol is about 0.9 percentage points. Of the 36 questions on which only one is correct, Astra answers 28 correctly and Sol answers eight. The difference is significant after correction, with p = 0.025. The leaderboard's tied groups use a separate correction across all 435 pairs; under it, the same pair falls just short of significance (p = 0.060). A shared group means no difference was detected, not that two models are equal.</p>
+      <p>Some larger gaps do not reach that threshold. DeepSeek with reasoning leads Opus at low effort by about 1.6 percentage points, but its corrected p value is about 0.41: The test cannot separate the two, which is not the same as showing they are equal. Many comparisons in language processing lack the statistical power to detect differences of this size<sup class="cite"><a id="cite-18-a" href="#ref-18">18</a></sup>.</p>
       <div class="table-wrap"><table id="paired"></table></div>
-      <figure class="chart"><img src="charts/paired.svg" loading="lazy"
-        alt="Forest plot of the paired comparisons: each accuracy difference in percentage points with its 95% interval, coloured when it stays significant after the Holm correction."></figure>
-    </section>
-
-    <section class="card prose" id="more-findings">
-      <h2>More findings</h2>
-      <ul>
-        <li><strong>Ranking.</strong> Gemini 3.1 Pro (preview) at high thinking has the highest score, 97.9%, and GPT-6
-          Astra at its lowest reasoning effort the second, 97.6%; the gap is not significant (p = 0.47 alone), and the
-          two share the top group with GPT-6.1 Sol (96.7%). Gemini 3.8 Flash (93.3%), DeepSeek-V4.1-Flash with reasoning
-          (92.0%), Claude Opus 5.5 at low effort (90.4%) and Claude Sonnet 5.5 at high effort (85.0%) follow.
-          <em>Evidence:</em>
-          <a href="#leaderboard-section">Leaderboard</a>.</li>
-        <li><strong>Close calls.</strong> Gemini 3.8 Flash, DeepSeek-V4.1-Flash with reasoning and Claude Opus 5.5 at
-          low effort lie within 3 points (93.3%, 92.0% and 90.4%), and neither gap between them is significant after the
-          Holm correction for all 29 comparisons: DeepSeek's 1.6-point lead over Opus has p = 0.02 alone and 0.38
-          corrected. On the 200-question sample of the repeats, averaged over five runs each, DeepSeek and Opus score
-          about the same (94.9% and 95.5%). The smallest significant gap is GPT-6 Astra's 0.9-point lead over GPT-6.1
-          Sol (Holm p = 0.024), although the tied groups, which correct for all 406 pairs, put the two together. In the
-          tied groups, DeepSeek with reasoning is tied with both, while Gemini 3.8 Flash is ahead of
-          Opus. <em>Evidence:</em> <a href="#gaps">Which gaps are real?</a>,
-          <a href="#repeats-section">Same question, same answer?</a></li>
-        <li><strong>Open-weight models that write their answers.</strong> Without reasoning, Gemma 4 31B is the
-          strongest (73.1%). DeepSeek-V4.1-Flash trails it by 7 points, most in the units on sentence elements, verbals,
-          punctuation and word structure. <em>Evidence:</em> <a href="#leaderboard-section">Leaderboard</a>,
-          <a href="#units-section">Where models break</a>.</li>
-        <li><strong>The question mix changes the ranking.</strong> The bank is 70% grammar; the 2026 TYT paper was 18%
-          grammar. Weighted like that paper (the TYT mix column), Gemma 4 31B passes Claude Sonnet 5.5 at high effort,
-          Perplexity's Decider and Clef pass Sonnet at low effort, and Opus edges past DeepSeek with reasoning.
-          <em>Evidence:</em> <a href="#leaderboard-section">Leaderboard</a>.</li>
-        <li><strong>Decision models.</strong> Fastino's GLiDE answers 67.9% of the questions correctly, 7.5 points more
-          than the next decision model, Perplexity's Decider. Most of the gain is on form (59.4% against 44–50%), and
-          GLiDE reasons on uncertain decisions: the gain reasoning brought DeepSeek, on a smaller scale. Its confidence
-          is the best calibrated of the decision models (ECE 0.045). Perplexity's Decider, Jev, Clef, d1, Open-Jev,
-          Cygnet and Winnow-12B answer 55–60%, and the Laya models 18–19%. These seven and GLiDE flag their own mistakes
-          well:
-          AUROC 0.78–0.83, each with a 95% interval of about ±0.02. Cygnet, an unchanged Gemma 4 12B read out by option
-          letter, gets as many right as Open-Jev (1,224 each) and ranks its answers almost as well (AUROC 0.80 against
-          0.82). Winnow-12B, the same Gemma 4 12B fine-tuned for such decisions, does no better (1,219 right, AUROC 0.79),
-          although the two choose the same option on only 74% of the questions. The six other than the Decider share one
-          tied group with two of Qwen's runs; GLiDE is tied with DeepSeek without reasoning.
-          Metask-Jev 4B, with 4.5B parameters, answers 41% (63% of the reading
-          questions); its confidence ranks less well (AUROC 0.73) but is well calibrated (ECE 0.06). GLiNER2.5 Multi, a
-          small extraction and classification model given the same request, answers 17.5% correctly, below the 20% that
-          guessing scores. <em>Evidence:</em>
-          <a href="#confidence-section">Do models know when they are right?</a></li>
-        <li><strong>Answers at 0.99 or more.</strong> From the decision models they are rare and almost always right,
-          but the evidence differs by model. GLiDE was right on all 121 such answers, Jev on 311 of 312, d1 on 273 of 274
-          and Winnow-12B on 162 of 163 (95% intervals from about 97–98%). The Decider's 21 of 21 are too few to show 99%
-          accuracy (95%
-          interval 84.5–100%). Open-Jev, Clef and Metask-Jev never reach 0.99, and Cygnet did twice (both right). For
-          GLiDE, Jev, d1, Winnow-12B and the Decider these answers cover 1–14% of the questions.
-          GPT-6 Astra,
-          GPT-6.1 Sol, Gemini 3.8 Flash and Gemini 3.1 Pro at high thinking state 0.99 or more on 39–78% of the questions
-          and are right on 98.5–99.7% of them; GPT-6 Luna states it on 38% and is right on only 83.5% (693 of 830).
-          Token probabilities differ: Gemma 4 31B was right on only 81% of its 1,782 such answers, and
-          DeepSeek-V4.1-Flash with reasoning gave all 2,198 answers at 0.99 or more, 92% of them right.
-          <em>Evidence:</em> <a href="#sure">Can you trust 0.99?</a></li>
-        <li><strong>The cascade in simulation.</strong> With stored runs, a decision model can take 1–45% of the
-          questions without lowering the frontier model's accuracy. With the threshold chosen on other questions,
-          accuracy drops by 0.1–0.2 points. Run for real, the pipeline saved no request time, because the Decider
-          answers one question per request. A decision model's doubt points only weakly at the questions that the
-          frontier models get wrong. <em>Evidence:</em> <a href="#cascade-section">Answer when sure</a>.</li>
-        <li><strong>Votes.</strong> Answering with the majority of Qwen's 10 samples did not raise accuracy (54.3%
-          against 54.2%). When all 10 samples agreed, as on 40% of the questions, the answer was right only 85% of the
-          time. <em>Evidence:</em> <a href="#sources">Stated confidence, probabilities or votes?</a></li>
-        <li><strong>Same question, same answer?</strong> On the whole bank, over 5 runs, Open-Jev gave the same answers
-          and Perplexity's Decider changed 2 of 2,198; Jev changed 14% of its answers, d1 10% and Qwen's yes/no scoring
-          7%. On a 200-question sample, Gemma 4 31B gave the same answers within one server session (after a restart,
-          the same requests changed 15), GPT-6 Astra changed 1 answer, DeepSeek-V4.1-Flash 12 without reasoning
-          (although it decodes greedily) and 15 with reasoning, Claude Opus 5.5 (low) 20 and Sonnet 5.5 (high) 31. Most
-          mistakes of the Claude models and DeepSeek did not recur in every run; most mistakes of the decision models
-          did. <em>Evidence:</em> <a href="#repeats-section">Same question, same answer?</a></li>
-        <li><strong>Repairing the question bank</strong> raised every setup that ran on both versions, except the Laya
-          models, by 11–30 points on the repaired questions. <em>Evidence:</em> <a href="#repair">Repairing the question
-          bank</a>.</li>
-      </ul>
+      <figure class="chart"><img src="charts/paired.svg" alt="Forest plot of the paired comparisons: each accuracy difference in percentage points with its 95% interval, coloured when it stays significant after the Holm correction." loading="lazy"></figure>
     </section>
 
     <section class="card prose" id="method">
-      <h2>Method</h2>
-      <h3 id="setups">The setups</h3>
-      <div class="table-wrap">
+      <h2>How the benchmark was run</h2>
+      <h3 id="setups">Models and configurations</h3>
+      <p>The benchmark includes hosted decision models, locally served decision models, generative models with released weights, and hosted frontier models. Decision models score supplied options; generative models produce an answer and, in some configurations, a stated confidence.</p>
+      <p>Jev, Perplexity's Decider, Liquid AI's d1, Cloudflare's Clef, Fastino's GLiDE, Cygnet, Winnow-12B, Metask-Jev 4B, Laya and Open-Jev provide different implementations of option scoring. The Decider, Clef and Open-Jev are all built on Qwen3.8-27B. Fastino describes GLiDE as reasoning on uncertain decisions before scoring. Cygnet runs Gemma 4 12B IT unchanged, read out by option letter; Winnow-12B is a fine-tune of Gemma 4 12B IT, and Metask-Jev 4B a fine-tune of Qwen3.5-4B. GLiNER2.5 Multi (<code>gliner2.5-multi-v1</code>) is Fastino's base extraction and classification model, and <a href="https://huggingface.co/fastino/GLiNER2.5-multi-Decide">GLiNER2.5-multi-Decide</a> its decision fine-tune of the same 287M model. Both score at chance level (17.5% and 20.2%) and provide a smaller baseline. The Qwen comparisons examine stated confidence, yes/no scoring and agreement across ten samples, allowing us to test how confidence is obtained from the same base model.</p>
+      <p>GPT-6 Astra, GPT-6.1 Sol, GPT-6 Luna, Claude Opus 5.5, Claude Sonnet 5.5, Gemini 3.1 Pro (preview) and Gemini 3.8 Flash provide generative comparisons. Sonnet runs at both low and high effort, and Gemini 3.1 Pro at low and high thinking. Qwen3-14B and Erk-14B, Qwen3-14B with continued Turkish training, run locally and expose answer token probabilities. Gemma 4 31B and DeepSeek-V4.1-Flash run locally and expose answer token probabilities. DeepSeek runs with reasoning disabled and enabled. Each row in the setup table records the particular configuration used.</p>
+            <div class="table-wrap">
         <table class="setups">
           <thead><tr><th>Runs</th><th>Why they are here</th></tr></thead>
           <tbody>
@@ -520,13 +255,16 @@
             <tr><td>Winnow-12B</td><td>EldanRing's fine-tune of Gemma 4 12B IT for typed decisions, published only as GGUF
               files: its recommended 8-bit (Q8_0) file on its own llama.cpp-based server, with the settings its author
               measured. Its author reports matching Jev on JevBench's public items.</td></tr>
-            <tr><td>Fastino GLiDE</td><td>A hosted decision model that makes a fast assessment, then reasons further on
-              uncertain decisions before it returns the probabilities, through Fastino's System One API.</td></tr>
+            <tr><td>Fastino GLiDE</td><td>A hosted decision model, through Fastino's System One API. Fastino describes it as
+              making a fast assessment, then reasoning further on uncertain decisions before it returns the
+              probabilities.</td></tr>
             <tr><td>Laya, Laya multilingual</td><td>Open-weight decision models, self-hosted: an encoder with a decision
               head that scores every option in one pass.</td></tr>
-            <tr><td>GLiNER2.5 Multi</td><td>Fastino's small open-weight model for extraction and classification (287
+            <tr><td>GLiNER2.5 Multi (base)</td><td>Fastino's small open-weight model for extraction and classification (287
               million weights), self-hosted. It gets the decision models' request and scores the options as labels, which
               shows how far a small multilingual classifier gets.</td></tr>
+            <tr><td>GLiNER2.5-multi-Decide</td><td>Fastino's decision fine-tune of the same 287M model, self-hosted with the same
+              server and request as the base model.</td></tr>
             <tr><td>Open-Jev 27B v1.1</td><td>The open decision model as released, self-hosted.</td></tr>
             <tr><td>Qwen3.8-27B, yes/no scoring</td><td>Open-Jev without its trained parts: the same base model and
               prompts, scored by the Yes-minus-No logit at temperature 1, with the same probability formula. The gap to
@@ -539,9 +277,9 @@
               answer is the most frequent letter and the confidence the share of samples that chose it. This shows
               whether sampling a model repeatedly, without reading its probabilities, flags mistakes as well.</td></tr>
             <tr><td>GPT-6 Astra, GPT-6.1 Sol, GPT-6 Luna, Claude Opus 5.5, Claude Sonnet 5.5, Gemini 3.8 Flash, Gemini 3.1
-              Pro</td><td>Frontier models that also state a confidence: an upper reference for accuracy, and a test of how
+              Pro (preview)</td><td>Frontier models that also state a confidence: an upper reference for accuracy, and a test of how
               well a strong model's stated confidence tracks its accuracy. Sonnet ran at low and at high effort, and
-              Gemini 3.1 Pro at low and at high thinking. GPT-6.1 Sol is OpenAI's lower-cost model near Astra and GPT-6
+              Gemini 3.1 Pro (preview) at low and at high thinking. GPT-6.1 Sol is OpenAI's lower-cost model near Astra and GPT-6
               Luna its cheapest GPT-6 tier; Gemini 3.8 Flash is Google's most capable Flash model and Gemini 3.1 Pro
               (preview) its Pro model.</td></tr>
             <tr><td>Gemma 4 31B, DeepSeek-V4.1-Flash</td><td>Self-hosted open-weight models that write their answers;
@@ -553,189 +291,81 @@
           </tbody>
         </table>
       </div>
-
-      <h3 id="open-jev">How Open-Jev works</h3>
-      <p>Open-Jev 27B v1.1 is Qwen3.8-27B, left unchanged, plus three small trained parts: a LoRA adapter (15.5 million
-        weights, 0.06% of the model), a one-layer scoring head and a single calibration temperature. It never
-        generates text. For a question with K options (five in the TYT), it:</p>
-      <ol>
-        <li>writes one prompt per option: the question, that option as the proposed answer, and "Is this proposed
-          answer correct? Answer Yes or No.";</li>
-        <li>runs each prompt through the model on its own, so the options never see each other;</li>
-        <li>reads one score per option from the model's final hidden state, using the scoring head;</li>
-        <li>divides the scores by the temperature (2.53) and turns them into probabilities with a softmax over the
-          options;</li>
-        <li>reports a confidence of (p<sub>max</sub> − 1/K) / (1 − 1/K): 0 when every option is equally likely, 1 when
-          one option has all the probability. Jev's reported confidence follows the same formula, rounded to two
-          decimals.</li>
-      </ol>
-      <p>The scoring head starts out as Qwen's own preference for "Yes" over "No": before training, each score is
-        exactly Qwen's Yes logit minus its No logit. Training moves the adapter and the head away from that starting
-        point. According to the <a href="https://huggingface.co/ZefanCai/Open-Jev-27B-v1.1">model card</a>, the final
-        training stage used natural-language-inference pairs, synthetic decision tasks and replay rows, and the
-        temperature was fitted on 512 of those rows. Turkish exam questions therefore test how well it generalizes to a
-        new domain.</p>
-      <p>The temperature does not generalize. Refitted with cross-validation on Open-Jev's answers to the first version
-        of the question bank, it comes out at 0.68 instead of 2.53, and the expected calibration error falls from 0.228
-        to 0.030. Accuracy is unchanged and AUROC barely moves (0.8193 to 0.8191). The page shows Open-Jev as
-        served.</p>
-
-      <h3>Questions</h3>
-      <p>The questions come from a published question bank for the Turkish-language section of the TYT. They were
-        extracted from the book's pages, and the book's answer key is used for scoring. This is the second version of
-        the question bank (v2). The first lost much of the markup that grammar questions refer to: 196 of the 229
-        questions about underlined words had no underline, and 186 questions about numbered words had no numbers. Every
-        flagged question was transcribed again and checked by hand against the page image. v2 changes the text or key of
-        375 questions and makes 12 more scoreable. After most of the runs, a key audit against the page images excluded
-        12 more questions whose key could not be confirmed; the answers already given to them are left out of every
-        figure except time, tokens and cost. 493 questions are verified, and 12 whose printed key is unreadable or
-        contradicted by the question are marked suspect. <span id="question-count"></span></p>
-      <h3 id="repair">Repairing the question bank</h3>
-      <p class="note">Each row compares a setup's run on the first version of the question bank (v1) with its run on
-        v2. Repaired: the questions whose text or key the repair changed. Unchanged: the questions asked identically,
-        where any difference is run-to-run variation. Changed answer: how often the run picked a different option on
-        an unchanged question. Repeated mistakes: wrong v2 answers on unchanged questions that repeat the v1 choice,
-        mistakes that asking again would not reveal. Runs with 16 questions per request saw different neighbouring
-        questions in the two runs. Setups without a row ran only on v2.</p>
+      <h3 id="open-jev">How Open-Jev produces probabilities</h3>
+      <p>Open-Jev 27B v1.1 uses the Qwen base model with a LoRA adapter containing 15.5 million parameters, about 0.06% of the base model's size, plus a scoring head and a calibration temperature. It scores candidate answers without generating a written response.</p>
+      <p>For each option, it constructs a prompt containing the question context and that option as the proposed answer. The candidate prompts are evaluated separately, although the question context includes all the answer options. The scoring head produces one score per candidate. Dividing these scores by a temperature of 2.53 and applying softmax produces probabilities across the options.</p>
+      <p>The scoring head starts from Qwen's preference for Yes over No. Training updates the adapter and head from that starting point. The <a href="https://huggingface.co/ZefanCai/Open-Jev-27B-v1.1">model card</a> describes the training stages and the data used to fit the released temperature.</p>
+      <p>Jev and Open-Jev also return a rescaled confidence that maps an equal probability over all options to zero and complete concentration on one option to one. This benchmark uses the chosen option probability for calibration. Changing a positive temperature preserves the winning option within a question, but can change the confidence ordering across different questions. The near constant AUROC in the version 1 refitting experiment is an observed result, not a general guarantee.</p>
+      <h3 id="repair">Question extraction and verification</h3>
+      <p>The current bank is version 2. Initial extraction lost formatting that some grammar questions required: 196 of 229 questions referring to underlined words had no underline, and 186 questions referring to numbered words had lost the numbers. Flagged questions were transcribed again and checked against the page images.</p>
+      <p>Version 2 changes the text or answer key of 375 questions and makes 12 additional questions scoreable. A subsequent audit excludes 12 questions whose keys could not be confirmed. The scored set contains 2,198 questions, including 12 still marked suspect. Excluded questions are omitted from accuracy and confidence metrics; resources already spent answering them remain included in time, token and cost totals. In all, 493 questions are marked verified.</p>
+      <p>The repair table compares configurations run on both versions. It separates repaired questions from unchanged questions so that improvements following transcription fixes can be distinguished from variation between runs. On repaired questions, accuracy rises by 11 to 30 percentage points for the configurations tested on both versions, except the Laya models. Configurations using batches of 16 also encounter different neighboring questions between versions.</p>
+      <p>The source book is <em>TYT IQ Türkçe Soru Kütüphanesi</em>, published by Paraf Yayınları (ISBN 978-625-7423-18-2; the imprint gives © 2022 and no edition number). The question texts are copyrighted and cannot be shared. Someone who owns the book can rebuild the bank in the same format with the extraction and repair scripts in the repository's <code>runner</code> folder: they read the book's pages into the SQLite schema the runner uses, with questions, options, passages and keys, and record each repair. The answer export lists every question's ID, unit, page and printed number, so a rebuilt bank can be matched to ours question by question.</p>
       <div class="table-wrap"><table id="versions"></table></div>
-      <h3>Prompt</h3>
-      <p>Each question is sent with its lettered options and a Turkish instruction to answer without explaining.
-        Generative models reply in JSON constrained by a schema: one of the supplied letters per question, plus a 0–1
-        confidence for the runs that state one. The Claude, GPT, Gemini, Gemma, DeepSeek, Qwen3-14B and Erk runs get 16
-        questions per
-        request; the decision models, GLiNER2.5 Multi and the Qwen runs get one.</p>
-      <p>The decision models (Jev, Open-Jev, d1, Perplexity's Decider, Clef, Metask-Jev, Cygnet, Winnow-12B, GLiDE and
-        Laya)
-        and GLiNER2.5 Multi
-        get the System One request in its native form: the question with its lettered options as <code>state</code>,
-        the instruction "Which option is the correct answer to this Turkish multiple-choice question?", and each
-        option's text as a typed choice. Clef, Metask-Jev, Cygnet, Winnow-12B and GLiNER run behind local servers that
-        take this
-        request. Clef's release code answers it as it is. Metask-Jev's vendor code scores it, with the temperature its
-        release ships for choice questions (1.9). Cygnet's own decision server shows the options as letters to Gemma 4
-        12B IT on vLLM 0.30.0, limits its one output token to those letters and applies its authors' temperature (3.4).
-        Winnow-12B's own server takes the softmax of the option letters' logits as they are (temperature 1).
-        For GLiNER, the instruction becomes the task prompt and each option's
-        text the description of its letter; a softmax over the letters' scores gives the option probabilities.</p>
-      <h3>Settings</h3>
-      <ul>
-        <li>Gemma, DeepSeek, Qwen, Qwen3-14B and Erk-14B are self-hosted with vLLM or SGLang. Without reasoning they
-          decode greedily, at
-          temperature 0. DeepSeek's reasoning run samples with the server's defaults (temperature 1.0, top_p 1.0, within
-          the model card's recommendation) at its default reasoning effort, because greedy decoding made its reasoning
-          loop. Each request may write up to 65,536 tokens, reasoning included; the longest used 60,881.</li>
-        <li>The Gemma and DeepSeek requests also ask for each written token's log probability and its 10 most likely
-          alternatives. This does not change the answers: on the same server, Gemma gave the same answers to the 200
-          sample questions with and without it.</li>
-        <li>Gemini 3.8 Flash runs through Google's API at its lowest thinking level, low. Gemini 3 models take no
-          temperature. It reported no thinking tokens.</li>
-        <li>Qwen's vote-share run sends the stated-confidence request and samples 10 replies with the model card's
-          settings (temperature 0.7, top_p 0.8, top_k 20, presence penalty 1.5). It answers with the most frequent letter;
-          a tie goes to the letter sampled first.</li>
-        <li>Claude Code and Codex do not expose temperature; the Reasoning column gives their effort setting.</li>
-        <li>Claude Code and Codex runs replace the tools' agent instructions with a short benchmark instruction,
-          disable web search and every tool that can be switched off, and ignore local configuration. None of the runs
-          searched the web or ran a command.</li>
-        <li>The decision models, GLiNER2.5 Multi and the Qwen yes/no run score the supplied options instead of writing
-          an answer, so they have no reasoning setting.</li>
-        <li>An answer that is missing or not one of the options counts as wrong. No run had any.</li>
-      </ul>
-      <h3>Confidence sources</h3>
-      <p>The decision models, GLiNER2.5 Multi and the Qwen yes/no run give a probability for every option; their
-        confidence is the probability of the chosen option. Jev and Open-Jev also report the rescaled confidence
-        described in <a href="#open-jev">How Open-Jev works</a>, which sorts answers in the same order. Claude, GPT,
-        Gemini and the Qwen stated-confidence run give a 0–1 confidence with each answer. The Qwen vote-share run's
-        confidence is the share of its 10 samples that chose the answer. For Gemma, DeepSeek, Qwen3-14B and Erk-14B it is
-        the probability
-        of the letter they write: at that token, the model's 10 most likely alternatives that differ only in the letter
-        give each option's probability, renormalized over the question's options. With reasoning on, the letter comes
-        after the reasoning.</p>
-      <h3>Statistics</h3>
-      <p>AUROC and the top-share accuracies carry 95% bootstrap intervals from 1,000 resamples of the questions. The
-        14 questions that share a passage (7 passages) are drawn together, and the cascade splits keep them in the same
-        half. Paired comparisons use the exact McNemar test with a paired interval, and Holm's method corrects for the
-        29 comparisons shown. The tied groups test every pair of runs, 406 in all, with Holm's method over all of them.
-        Accuracies of small groups of answers carry 95% Wilson intervals.</p>
-      <h3>Speed, tokens and cost</h3>
-      <p>Questions/min divides the answered questions by the time spent in requests. DeepSeek's reasoning run kept 8
-        requests in flight, and GLiDE's run and Gemini 3.1 Pro's high-thinking run 4, so their time is the time any
-        request was running. The figure reflects this setup (local
-        GPUs, network, subscription limits and questions per request), so it compares runs rather than models. Most
-        runs did not record each request's time, so the page gives no per-call latency.</p>
-      <p>Output tokens are those each API or server reports, reasoning included. The decision models generate no text:
-        d1, Open-Jev and Laya report no output tokens, Perplexity 1 and Jev a fixed 52 per question.</p>
-      <p>Costs come from the tokens each run reports, at the rates listed under <em>What an answer costs</em>. Claude
-        figures count Claude Code's cache reads and writes as ordinary input; Claude Code's own estimate is higher
-        because it prices cache writes above input.</p>
+      <h3>Prompts and batching</h3>
+      <p>Questions are supplied with their lettered options. Generative models receive a Turkish instruction to answer without explanation and return structured JSON containing an allowed letter, plus confidence where requested. GPT, Claude, Gemini, Gemma, DeepSeek, Qwen3-14B and Erk-14B receive 16 questions per request. Decision models, GLiNER and the Qwen3.8-27B configurations receive one.</p>
+      <p>The decision request contains the complete question and options as context, an instruction to identify the correct answer, and each option as a typed choice. Local adapters translate that request into the input expected by the particular model. Missing answers or letters outside the allowed options count as incorrect; none occur in the reported runs.</p>
+      <h3>Inference settings</h3>
+      <p>Local generative runs without reasoning use greedy decoding. DeepSeek's reasoning run uses sampling at temperature 1.0 and top-p 1.0 because greedy decoding caused reasoning loops. Qwen's ten sample comparison uses temperature 0.7, top-p 0.8, top-k 20 and a presence penalty of 1.5.</p>
+      <p>The hosted GPT, Claude and Gemini comparisons use the lowest reasoning setting tested here, apart from Sonnet's additional high-effort run and Gemini 3.1 Pro's high-thinking run. Temperature is not exposed by every access method. Gemini reports no thinking tokens for its recorded low setting.</p>
+      <p>Agent instructions are replaced with a short benchmark instruction where applicable, local configuration is ignored, and available tools are disabled. The reported benchmark runs do not search the web or execute commands. Earlier exploratory runs revealed that web access could retrieve the source book, which made disabling it necessary.</p>
+      <h3>Sources of confidence</h3>
+      <p>For decision models, GLiNER and Qwen's yes/no scoring, confidence is the probability assigned to the selected option. GPT, Claude, Gemini and Qwen's stated confidence configuration return a number between zero and one. For the sampling comparison, confidence is the fraction of ten samples choosing the selected answer.</p>
+      <p>For Gemma, DeepSeek, Qwen3-14B and Erk-14B, confidence comes from the probability of the generated answer letter, renormalized over the available option letters recovered from the token alternatives. With reasoning enabled, this letter is produced after the reasoning. These scores come from different mechanisms, so each is tested on its own results rather than assumed comparable.</p>
+      <h3>Statistical methods</h3>
+      <p>Confidence AUROC and selective accuracy estimates use 95% bootstrap intervals from 1,000 resamples. The 14 questions sharing seven passages are resampled together. Routing splits also keep each shared passage in one half. Small subsets, including answers above a confidence threshold, use Wilson intervals for accuracy.</p>
+      <p>Paired model comparisons use exact McNemar tests, with Holm correction across the 32 reported comparisons. Routing simulations use 300 random splits.</p>
+      <h3>Time and token accounting</h3>
+      <p>Throughput divides the number of answered questions by the time spent in requests. For runs with several requests in flight (DeepSeek with reasoning, eight; GLiDE and Gemini 3.1 Pro at high thinking, four each), time is measured while any request is active. Hardware, concurrency, network behavior, batching and service limits all affect this result, so it describes the tested setup.</p>
+      <p>Most runs do not record the timing of each individual request, and the benchmark therefore does not report latency for a single question. Output tokens use the counts reported by each API or server. Some decision services report fixed output token charges despite generating no text, so these counts should be read as usage or billing conventions rather than equivalent amounts of generated reasoning.</p>
     </section>
 
-    <section class="card prose" id="caveats">
-      <h2>What could be wrong</h2>
-      <ul>
-        <li>The book can be found online, so models may have seen these questions, and possibly their answers, in
-          training. Two checks found no clear sign of memorization, but they cannot rule it out, and each has a limit:
-          <ul>
-            <li>On the 40 Turkish-language questions of the 2026 TYT, sat on 20 June 2026 and printed in no book, each
-              of the nine models we ran on them scored within about ±12 points of what its book scores predict once
-              meaning and form are weighted like the paper (33 reading, 7 grammar questions): GPT-6 Astra 40, Claude
-              Opus 5.5 and Perplexity's Decider 33, Claude Sonnet 5.5 (high) 32, Jev 30, d1 and Open-Jev 28, Qwen3-14B 27
-              and Erk-14B 24. At 40
-              questions the 95% interval is about ±12
-              points. Six of the nine scored below their prediction, Claude Opus 5.5 by 11 points; with 40 questions
-              this is not significant (sign test p = 0.51), but it is the direction memorization would push. Erk-14B,
-              whose extra training used Turkish web text where the book can be found, scored 2 below its prediction and
-              Qwen3-14B 1 above, so its extra training shows no sign of the book. The models
-              ran in October, so they could have seen the June exam; the questions themselves stay private.</li>
-            <li>With the correct option's text replaced by a wrong option's text, GPT-6 Astra picked the original
-              letter about as often as the option whose text was copied (31.0% against 28.4% on questions with text
-              options, p = 0.19). This tests only memory of answer letters, not memory of the questions.</li>
-          </ul>
-          Codex turns web search on by default; in an earlier run it opened the book's pages online and searched for its
-          answer key, which is why the benchmark now disables web search.</li>
-        <li>The question bank still has errors. 12 questions are marked suspect; leaving them out changes no score by
-          more than 0.5 points. The key audit covered 25 questions: the wrong answers that the runs made before it gave
-          at 0.99 or more, and the keys that GPT-6 Astra, Claude Opus 5.5 and Claude Sonnet 5.5 (high) all contradict.
-          It confirmed 13 keys and
-          excluded the other 12: 6 whose key the page image did not settle, and 6 where the key may well be right but
-          the reviewer could not prove it against the models' reading. Most models got the 12 wrong, so excluding them
-          raises scores by at most 0.5 points. It also removes 3 of GPT-6 Astra's 8 wrong answers at 0.99 or more, 2 of
-          Jev's 3, 2 of d1's 3 and 6 of Qwen's yes/no 8; every one that remains has a confirmed key. The later runs'
-          wrong answers at 0.99 or more were not audited.</li>
-        <li>The leaderboard shows one run per setup. With 2,198 questions, the 95% interval on a score is about ±2.1
-          percentage points near 50% and ±1.3 near 90%; the paired comparisons are tighter. Runs also change some
-          answers from one run to the next (see <em>Same question, same answer?</em>). Scaled from the 200-question
-          sample to the whole bank, that moves a single run's score by about 0.3 points (one standard deviation) for the
-          Claude runs and DeepSeek with reasoning, 0.16 for DeepSeek without, 0.06 for GPT-6 Astra and nothing for
-          Gemma within one server session. The paired tests do not include this.</li>
-        <li>The Claude, GPT and Gemini models ran at their lowest reasoning setting, except the second Sonnet 5.5 and
-          Gemini 3.1 Pro runs at high; GPT-6 Luna ran at low, like the other GPT-6 tiers, although it also offers none.
-          DeepSeek ran with reasoning off and at its default effort. The two runs of Sonnet, Gemini 3.1 Pro and DeepSeek
-          show how much the setting can matter.</li>
-        <li>Sending 16 questions per request may cost accuracy. On earlier 100-question samples, GPT-5.5 got 81 right
-          at 4 questions per request and 73 at 100, and Gemma 4 31B 65 at 4 and 61 at 16. Gemini 3.1 Pro (preview) at its
-          lowest thinking level shows the problem plainly: it does no thinking, answers the first four questions of a
-          request right 58% of the time against 87% for the last four, and gives every answer in about half of its
-          requests the same 0.25 confidence. No other run shows such a slope. At its default level, high, it thinks
-          first and scores 97.9%, with no slope (97.1% on the first four, 97.8% on the last four), so its 74.9% at low
-          reflects that interaction, not what the model knows.</li>
-        <li>A self-hosted model's answers can change with the server's state. Gemma 4 31B gave the same answers in five
-          runs on one server session, but after a restart the same requests changed 15 of the 200 sample answers. The
-          reruns that added token probabilities also grouped the questions into new batches of 16, because the key audit
-          had removed 12; they changed 15% of Gemma's answers, 16% of DeepSeek's without reasoning and 6% with it, yet
-          moved each score by less than 1 point (Gemma 73.9% to 73.1%, DeepSeek 65.7% to 65.9% and 92.4% to
-          92.0%).</li>
-      </ul>
+    <section class="card prose" id="limits">
+      <h2>Limits of the evidence</h2>
+      <h3>Training exposure and memorization remain unresolved</h3>
+      <p>The source book is available online. Some models may have encountered its questions, explanations or answer keys during training, a form of benchmark contamination that is rarely measured<sup class="cite"><a id="cite-19-a" href="#ref-19">19</a></sup>. Disabling retrieval during evaluation prevents live access to those materials; it cannot remove prior exposure.</p>
+      <p>We use two supplementary checks. Nine models answer the 40 Turkish questions from the June 2026 TYT examination, with scores ranging from 24 to 40 correct. The models are tested in October, after the examination became public, so this set cannot be assumed to be unseen. Its small size also limits comparisons with the much larger question bank.</p>
+      <p>A separate modification replaces the correct option's text with a copy of an incorrect option. On questions with text options, Astra selects the original answer letter 31.0% of the time and the copied option 28.4%, with p = 0.19. This check finds no clear preference for the original letter, but addresses only that particular form of answer recall. It cannot rule out familiarity with the question or its content.</p>
+      <h3 id="key-uncertainty">Answer key uncertainty affects some conclusions</h3>
+      <p>Label errors are common in benchmark test sets and can change model rankings<sup class="cite"><a id="cite-20-a" href="#ref-20">20</a></sup>. The targeted key audit examines 25 cases, including highly confident errors and questions on which several strong models disagree with the printed key. It confirms 13 keys and excludes 12 questions. Six exclusions arise because the page image does not settle the key; in the other six, the reviewer cannot establish the printed answer against the models' interpretation.</p>
+      <p>Most models answer the excluded questions incorrectly under the printed key, so removing them raises reported accuracy. The effect is no more than about 0.5 percentage points, but it is more substantial within the small subset of highly confident errors. For Qwen's yes/no scoring, six of its eight errors at a confidence of 0.99 or more are removed; for Astra, three of eight; for Jev and d1, two of three. Later runs do not receive the same audit. The confidence threshold results should be read with this asymmetry in mind.</p>
+      <h3>The results depend on the tested configurations</h3>
+      <p>One configuration does not represent every way a model can be used. Reasoning effort, batching, sampling, precision, serving software and server state can all affect answers. Repeated runs and the three reasoning comparisons show some of this sensitivity, but do not exhaust it.</p>
+      <p>The benchmark also covers one language, one source book and a particular mixture of reading and grammar tasks. It provides evidence about these conditions and motivates tests in others. Establishing broader generalization would require additional datasets and better control over prior exposure.</p>
+    </section>
+
+    <section class="card prose" id="data">
+      <h2>Data and code</h2>
+      <p>The published <a href="https://zekiworks.github.io/analysis/turkce-benchmark/docs/results.json">results file</a> contains the summary metrics. The <a href="https://zekiworks.github.io/analysis/turkce-benchmark/docs/answers.json">answer export</a> contains the answers of the 30 main configurations, the 54 repeat runs and the four runs of the two routing tests with new frontier calls: question identifiers and metadata, recorded scores and option probabilities at full precision, settings and prompt templates. It does not include the question texts. The <a href="https://github.com/zekiworks/analysis/blob/main/turkce-benchmark/benchmark_metrics.py">metric code</a> shows how the reported statistics are calculated.</p>
+      <p>From a copy of the <a href="https://github.com/zekiworks/analysis/tree/main/turkce-benchmark">repository</a>, <code>reproduce.py</code> recomputes from the answer export each main configuration's accuracy, AUROC, ECE and answers at 0.99 or more, before and after the key audit, together with the 32 paired comparisons and the tied groups, and checks them against the results file: all 310 checks match. The <code>runner</code> folder holds the benchmark code, the run scripts and the server wrappers used for the self-hosted models, with setup instructions.</p>
+      <p>Some things remain unavailable. The question texts and the book's pages are copyrighted, so running the benchmark again needs a rebuilt bank (see <a href="#repair">Question extraction and verification</a>). The 40 questions of the 2026 examination stay private, and only aggregate scores are published. The raw model responses behind the token counts are not exported. The bootstrap intervals, the routing simulations and the repeat statistics use the same metric code and exported answers, but <code>reproduce.py</code> does not yet check them.</p>
+    </section>
+
+    <section class="card prose" id="references">
+      <h2>References</h2>
+      <ol class="references">
+        <li id="ref-1">Mitchell, M., &amp; Krakauer, D. C. (2023). The debate over understanding in AI's large language models. Proceedings of the National Academy of Sciences, 120(13), e2215907120. <a href="https://doi.org/10.1073/pnas.2215907120">https://doi.org/10.1073/pnas.2215907120</a> <a class="backref" href="#cite-1-a" aria-label="Back to the text">↩</a> <a class="backref" href="#cite-1-b" aria-label="Back to the text">↩</a></li>
+        <li id="ref-2">Chollet, F. (2019). On the Measure of Intelligence. arXiv:1911.01547. <a href="https://arxiv.org/abs/1911.01547">https://arxiv.org/abs/1911.01547</a> <a class="backref" href="#cite-2-a" aria-label="Back to the text">↩</a> <a class="backref" href="#cite-2-b" aria-label="Back to the text">↩</a></li>
+        <li id="ref-3">Yüksel, A., Köksal, A., Şenel, L. K., Korhonen, A., &amp; Schütze, H. (2024). TurkishMMLU: Measuring Massive Multitask Language Understanding in Turkish. Findings of EMNLP 2024. <a href="https://aclanthology.org/2024.findings-emnlp.413/">https://aclanthology.org/2024.findings-emnlp.413/</a> <a class="backref" href="#cite-3-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-4">Liang, P., et al. (2023). Holistic Evaluation of Language Models. Transactions on Machine Learning Research. <a href="https://arxiv.org/abs/2211.09110">https://arxiv.org/abs/2211.09110</a> <a class="backref" href="#cite-4-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-5">Chen, L., Zaharia, M., &amp; Zou, J. (2023). FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance. arXiv:2305.05176. <a href="https://arxiv.org/abs/2305.05176">https://arxiv.org/abs/2305.05176</a> <a class="backref" href="#cite-5-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-6">Ong, I., et al. (2024). RouteLLM: Learning to Route LLMs with Preference Data. arXiv:2406.18665. <a href="https://arxiv.org/abs/2406.18665">https://arxiv.org/abs/2406.18665</a> <a class="backref" href="#cite-6-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-7">Snell, C., Lee, J., Xu, K., &amp; Kumar, A. (2024). Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters. arXiv:2408.03314. <a href="https://arxiv.org/abs/2408.03314">https://arxiv.org/abs/2408.03314</a> <a class="backref" href="#cite-7-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-8">Zheng, C., Zhou, H., Meng, F., Zhou, J., &amp; Huang, M. (2024). Large Language Models Are Not Robust Multiple Choice Selectors. ICLR 2024. <a href="https://arxiv.org/abs/2309.03882">https://arxiv.org/abs/2309.03882</a> <a class="backref" href="#cite-8-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-9">Ribeiro, M. T., Wu, T., Guestrin, C., &amp; Singh, S. (2020). Beyond Accuracy: Behavioral Testing of NLP Models with CheckList. Proceedings of ACL, pp. 4902–4912. <a href="https://aclanthology.org/2020.acl-main.442/">https://aclanthology.org/2020.acl-main.442/</a> <a class="backref" href="#cite-9-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-10">Geifman, Y., &amp; El-Yaniv, R. (2017). Selective Classification for Deep Neural Networks. Advances in Neural Information Processing Systems 30. <a href="https://arxiv.org/abs/1705.08500">https://arxiv.org/abs/1705.08500</a> <a class="backref" href="#cite-10-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-11">Guo, C., Pleiss, G., Sun, Y., &amp; Weinberger, K. Q. (2017). On Calibration of Modern Neural Networks. Proceedings of ICML, PMLR 70, 1321–1330. <a href="https://arxiv.org/abs/1706.04599">https://arxiv.org/abs/1706.04599</a> <a class="backref" href="#cite-11-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-12">Xiong, M., et al. (2024). Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs. ICLR 2024. <a href="https://arxiv.org/abs/2306.13063">https://arxiv.org/abs/2306.13063</a> <a class="backref" href="#cite-12-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-13">Kadavath, S., et al. (2022). Language Models (Mostly) Know What They Know. arXiv:2207.05221. <a href="https://arxiv.org/abs/2207.05221">https://arxiv.org/abs/2207.05221</a> <a class="backref" href="#cite-13-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-14">McCoy, R. T., Pavlick, E., &amp; Linzen, T. (2019). Right for the Wrong Reasons: Diagnosing Syntactic Heuristics in Natural Language Inference. Proceedings of ACL, pp. 3428–3448. <a href="https://aclanthology.org/P19-1334/">https://aclanthology.org/P19-1334/</a> <a class="backref" href="#cite-14-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-15">Beckmann, P., &amp; Queloz, M. (2026). Mechanistic indicators of understanding in large language models. Philosophical Studies, 183, 1747–1792. <a href="https://doi.org/10.1007/s11098-026-02513-1">https://doi.org/10.1007/s11098-026-02513-1</a> <a class="backref" href="#cite-15-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-16">Blanck, R., &amp; Noble, B. (2026). Logic, inference, understanding: cross-domain generalization for generative language models. Frontiers in Artificial Intelligence, 9, 1800372. <a href="https://doi.org/10.3389/frai.2026.1800372">https://doi.org/10.3389/frai.2026.1800372</a> <a class="backref" href="#cite-16-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-17">Dietterich, T. G. (1998). Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms. Neural Computation, 10(7), 1895–1923. <a href="https://doi.org/10.1162/089976698300017197">https://doi.org/10.1162/089976698300017197</a> <a class="backref" href="#cite-17-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-18">Card, D., Henderson, P., Khandelwal, U., Jia, R., Mahowald, K., &amp; Jurafsky, D. (2020). With Little Power Comes Great Responsibility. Proceedings of EMNLP 2020, pp. 9263–9274. <a href="https://aclanthology.org/2020.emnlp-main.745/">https://aclanthology.org/2020.emnlp-main.745/</a> <a class="backref" href="#cite-18-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-19">Sainz, O., et al. (2023). NLP Evaluation in trouble: On the Need to Measure LLM Data Contamination for each Benchmark. Findings of EMNLP 2023. <a href="https://arxiv.org/abs/2310.18018">https://arxiv.org/abs/2310.18018</a> <a class="backref" href="#cite-19-a" aria-label="Back to the text">↩</a></li>
+        <li id="ref-20">Northcutt, C. G., Athalye, A., &amp; Mueller, J. (2021). Pervasive Label Errors in Test Sets Destabilize Machine Learning Benchmarks. NeurIPS 2021 Datasets and Benchmarks Track. <a href="https://arxiv.org/abs/2103.14749">https://arxiv.org/abs/2103.14749</a> <a class="backref" href="#cite-20-a" aria-label="Back to the text">↩</a></li>
+      </ol>
     </section>
   </main>
-
-  <footer>
-    <p>Numbers: <a href="results.json">results.json</a>, exported from the benchmark report by
-      <code>export_results.py</code>. Every run's answer to every question, without the questions' text:
-      <a href="answers.json">answers.json</a> (question IDs, units, pages, printed numbers, keys and statuses; each
-      run's settings, chosen letters, scores and option probabilities; the prompt templates). The metrics come from
-      <a href="https://github.com/zekiworks/analysis/blob/main/turkce-benchmark/benchmark_metrics.py">benchmark_metrics.py</a>.
-      The graphs are drawn with <a href="https://ratatui.rs/">ratatui</a> widgets by the <code>charts</code> crate,
-      which also keeps a text snapshot of each graph.</p>
-  </footer>
 </body>
 </html>

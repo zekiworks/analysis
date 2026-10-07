@@ -26,8 +26,37 @@ header, main, footer { max-width: 1400px; margin: 0 auto; }
 header { text-align: center; margin-bottom: 2rem; }
 h1 { font-size: 1.75rem; margin: 0 0 .25rem; }
 .subtitle { color: var(--text-muted); margin: 0; }
+.byline { color: var(--text-muted); font-size: .875rem; margin: .75rem 0 0; }
 a { color: var(--primary); }
 code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85em; }
+[id] { scroll-margin-top: 1rem; }
+
+/* Section menu under the byline: a compact, wrapping row of links. */
+nav.toc { margin: 1rem auto 0; max-width: 80ch; font-size: .875rem; }
+nav.toc ul { display: flex; flex-wrap: wrap; gap: .3rem 1rem; list-style: none; margin: 0; padding: 0; }
+header nav.toc ul { justify-content: center; }
+nav.toc a { text-decoration: none; white-space: nowrap; }
+nav.toc a:hover, nav.toc a:focus-visible { text-decoration: underline; }
+/* The introduction under the menu reads as prose, not as centred header text. */
+header .intro { text-align: left; max-width: 80ch; margin: 1.5rem auto 0; }
+
+/* Numbered citations and the references they link to; each reference links back to every place it is cited. */
+sup.cite { font-size: .75em; line-height: 0; }
+sup.cite a { text-decoration: none; padding: 0 .1em; }
+sup.cite a:hover, sup.cite a:focus-visible { text-decoration: underline; }
+ol.references { padding-left: 1.75rem; font-size: .9rem; }
+ol.references li { overflow-wrap: anywhere; }
+ol.references li:target, sup.cite a:target { background: var(--bar); border-radius: 3px; }
+a.backref { text-decoration: none; margin-left: .25rem; }
+
+.load-error {
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+  margin: 0 0 2rem;
+}
 
 .card {
   background: var(--card-bg);
@@ -48,9 +77,26 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 .prose li + li { margin-top: .35rem; }
 .note, .footnote { color: var(--text-muted); font-size: .875rem; }
 .footnote { padding-left: 1.25rem; margin: 0; }
+.table-note { color: var(--text-muted); font-size: .85rem; margin: .5rem 0 0; max-width: 80ch; }
 
 /* Tables */
 .table-wrap { overflow-x: auto; }
+/* Generated before a wide table: shows the columns marked extra, which a collapsed table hides. */
+.show-all {
+  display: inline-block;
+  margin: 0 0 .5rem;
+  padding: .3rem .75rem;
+  font: inherit;
+  font-size: .85rem;
+  color: var(--primary);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.show-all:hover { background: var(--table-hover); }
+.show-all:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+table.collapsed .extra { display: none; }
 table { width: 100%; border-collapse: collapse; font-size: .875rem; }
 th, td { padding: .55rem .75rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
 thead th {
@@ -94,22 +140,31 @@ td.score .bar {
 td.score .value { position: relative; }
 
 /* Heat maps: cell colour follows accuracy. */
-.heatmap td.heat { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.heat { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .heatmap .count { color: var(--text-muted); font-size: .78rem; }
-#units th.run { white-space: normal; min-width: 5.5rem; text-align: right; }
+#units th.unit { white-space: normal; min-width: 7rem; text-align: right; }
 #units td:first-child, #units th:first-child {
   position: sticky;
   left: 0;
   z-index: 1;
   background: var(--card-bg);
-  min-width: 16rem;
+  min-width: 14rem;
 }
 #units thead th:first-child { background: var(--bg); }
 
-/* Graphs: SVGs drawn on a terminal-cell grid. They never grow past their own size and scroll sideways
-   on narrow screens instead of shrinking their text to nothing. */
-.chart { margin: 1.25rem 0 0; overflow-x: auto; }
-.chart img { display: block; max-width: 100%; min-width: 640px; height: auto; }
+/* Graphs: SVGs drawn on a terminal-cell grid. They never grow past their own size; app.js stops them shrinking
+   below three quarters of it, and a narrower figure scrolls the chart sideways inside its own box. */
+figure.chart { margin: 1.25rem 0 0; overflow-x: auto; }
+.chart img { display: block; max-width: 100%; height: auto; }
+/* The caption stays in view while the chart above it scrolls. */
+.chart figcaption {
+  position: sticky;
+  left: 0;
+  margin-top: .5rem;
+  max-width: 80ch;
+  color: var(--text-muted);
+  font-size: .85rem;
+}
 
 footer { text-align: center; color: var(--text-muted); font-size: .85rem; }
 

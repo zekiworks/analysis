@@ -162,7 +162,7 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 27_796_899_569,
     },
     "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B", "parameters": 26_085_330_160},
-    "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model that reasons on uncertain decisions"},
+    "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "d1:free": {"name": "Liquid d1"},
     "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}", "parameters": 421_293_830},
     "laya-multilingual": {
@@ -178,8 +178,14 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 27_781_427_952,
     },
     "gliner2.5-multi-v1": {
-        "name": "GLiNER2.5 Multi",
+        "name": "GLiNER2.5 Multi (base)",
         "note": "Multilingual extraction and classification model",
+        "hardware": f"1 × {GPU}; FP16",
+        "parameters": 287_355_159,
+    },
+    "gliner2.5-multi-decide": {
+        "name": "GLiNER2.5-multi-Decide",
+        "note": "Fastino's decision fine-tune of GLiNER2.5 Multi",
         "hardware": f"1 × {GPU}; FP16",
         "parameters": 287_355_159,
     },
@@ -316,6 +322,9 @@ def confidence(record: dict[str, Any]) -> dict[str, Any] | None:
         "median_right": extremes["median_right"],
         "median_wrong": extremes["median_wrong"],
         "sure": extremes["sure"],
+        # The same counts before the key audit, with the questions it excluded graded by the printed key;
+        # None for runs that never answered those questions.
+        "sure_before_audit": (record.get("confidence_extremes_before_audit") or {}).get("sure"),
         "doubtful": extremes["doubtful"],
     }
 
@@ -425,6 +434,8 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "billing": provider["billing"],
                 "billed_usd": cost if provider["billing"] == "api" else None,
                 "api_equivalent_usd": cost,
+                # A self-hosted run priced at another model's rate or an assumed rate: a valuation, not a charge.
+                "hypothetical_cost": cost is not None and provider["billing"] == "local",
                 "cost_basis": cost_basis,
                 "hardware": model.get("hardware") if provider["billing"] == "local" else None,
                 "input_tokens": record.get("input_tokens"),
@@ -591,15 +602,23 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
 
 
 def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
-    """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers."""
+    """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
+    runs, the repeats of each repeated configuration and the runs of each measured routing pipeline."""
     dataset = next(
         (item for item in document["datasets"] if item["graded_sha256"] == data["dataset"]["graded_sha256"]), None
     )
     if dataset is None:
         raise ValueError("the answers file has no runs graded against the exported question bank")
-    wanted = {run["run"] for run in data["runs"]}
-    runs = [run for run in dataset["runs"] if run["run"] in wanted]
-    missing = wanted - {run["run"] for run in runs}
+    main = {run["run"] for run in data["runs"]}
+    repeats = {run: item["runs"] for item in data["repeats"] for run in item["runs"] if run not in main}
+    pipelines = {
+        item["measured"][role]: {"decision": item["decision"], "frontier": item["frontier"], "role": label}
+        for item in data["pipelines"]
+        if item.get("measured")
+        for role, label in (("pipeline_run", "pipeline"), ("alone_run", "frontier alone"))
+    }
+    by_id = {run["run"]: run for run in dataset["runs"]}
+    missing = (main | set(repeats) | set(pipelines)) - set(by_id)
     if missing:
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
     return {
@@ -607,7 +626,10 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
         "dataset": {"name": dataset["name"], "graded_sha256": dataset["graded_sha256"]},
         "prompts": document["prompts"],
         "questions": dataset["questions"],
-        "runs": runs,
+        "runs": [by_id[run] for run in sorted(main)],
+        # Each repeat lists the runs of its configuration's repeat set (results.json `repeats`).
+        "repeat_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(repeats.items())],
+        "pipeline_runs": [{**by_id[run], "pipeline": pipeline} for run, pipeline in sorted(pipelines.items())],
     }
 
 
