@@ -152,7 +152,7 @@ question. `--codex-bin` and `--claude-bin` point at other executables.
 
 | Script | Configuration | Key |
 |---|---|---|
-| `run_gemini.sh`, `run_gemini_pro.sh`, `run_gemini_pro_high.sh` | Gemini 3.8 Flash (low thinking), Gemini 3.1 Pro preview (low; high with 4 requests at a time) | `GEMINI_API_KEY` |
+| `run_gemini.sh` | Gemini 3.8 Flash (low thinking) | `GEMINI_API_KEY` |
 | `run_perplexity.sh` | Perplexity Decider 27B | `PERPLEXITY_API_KEY` |
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
 | `run_liquid_d1.sh` | Liquid AI d1 | `LIQUID_API_KEY` |

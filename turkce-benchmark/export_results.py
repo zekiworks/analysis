@@ -217,10 +217,6 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "Gemini 3.8 Flash",
         "price": "$0.75 per 1M input tokens, $3.75 per 1M output tokens, thinking included (introductory price through 2026)",
     },
-    "gemini-3.1-pro-preview": {
-        "name": "Gemini 3.1 Pro (preview)",
-        "price": "$2 per 1M input tokens, $12 per 1M output tokens, thinking included",
-    },
     "erk-14b": {
         "name": "Erk-14B",
         "note": "Qwen3-14B with continued Turkish training (eCloud)",

@@ -23,8 +23,9 @@ python_files=(
   audit_questions.py extract_questions.py extract_questions_text.py vision_ocr.py osym_bank.py repair_questions.py
   test_benchmark_metrics.py test_benchmark_ollama.py
 )
-# Run scripts behind no published run: the PEGEM ALES extraction and an Ollama run on the second bank.
-skipped_scripts=(run_generate_questions.sh run_quiz.sh)
+# Run scripts behind no published run: the PEGEM ALES extraction, an Ollama run on the second bank, and
+# the two Gemini 3.1 Pro (preview) runs, taken off the page because a preview model can be withdrawn.
+skipped_scripts=(run_generate_questions.sh run_quiz.sh run_gemini_pro.sh run_gemini_pro_high.sh)
 
 staging=$(mktemp -d "$repo/.runner.XXXXXX")
 trap 'rm -rf "$staging"' EXIT

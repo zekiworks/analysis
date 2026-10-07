@@ -2,41 +2,39 @@
 source: tests/snapshots.rs
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
-12 of 32 gaps are real
+12 of 30 gaps are real
 Accuracy difference, first run minus second, in percentage points, with 95% intervals
 ━━ significant after Holm correction   ━━ not significant
 
-Gemini 3.1 Pro (preview, high) vs GPT-6 Astra (low)           ⠤⣷⠤                                                   +0.3
-             GPT-6 Astra (low) vs GPT-6.1 Sol (low)            ⡧⢴⠤⠄                                                 +0.9
-        GPT-6.1 Sol (low) vs Gemini 3.8 Flash (low)            ⡇   ⠠⠤⢴⠤⠤⠄                                           +3.4
- Gemini 3.8 Flash (low) vs DeepSeek-V4.1-Flash (on)            ⡧⠤⢴⠤⠤⠄                                               +1.2
-         DeepSeek-V4.1-Flash (on) vs Opus 5.5 (low)            ⡧⠤⠤⡦⠤⠤                                               +1.6
-                Opus 5.5 (low) vs Sonnet 5.5 (high)            ⡇      ⠠⠤⠤⢴⠤⠤⠤⠄                                      +5.4
- Sonnet 5.5 (high) vs Gemini 3.1 Pro (preview, low)            ⡇               ⠤⠤⠤⠤⡦⠤⠤⠤⠤                           +10.1
- Gemini 3.1 Pro (preview, low) vs Gemma 4 31B (off)           ⠤⡧⠤⠤⢴⠤⠤⠤⠤⠄                                            +1.8
-              Gemma 4 31B (off) vs GPT-6 Luna (low)            ⡇    ⠠⠤⠤⠤⢴⠤⠤⠤⠤                                       +4.8
-                  GPT-6 Luna (low) vs Fastino GLiDE        ⠠⠤⠤⠤⣷⠤⠤⠤⠤⠄                                               +0.4
-         Fastino GLiDE vs DeepSeek-V4.1-Flash (off)           ⠠⡧⠤⠤⠤⡧⠤⠤⠤⠄                                            +2.0
-      DeepSeek-V4.1-Flash (off) vs Sonnet 5.5 (low)            ⡇   ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠄                                       +4.5
-                        Sonnet 5.5 (low) vs Decider         ⠠⠤⠤⡧⠤⡧⠤⠤⠤⠤                                              +1.0
-                                     Decider vs Jev            ⡇⠠⠤⠤⠤⢼⠤⠤⠤⠤                                           +2.9
-                                        Jev vs Clef        ⠠⠤⠤⠤⣿⠤⠤⠤⠤                                                +0.2
-                                         Clef vs d1        ⠠⠤⠤⠤⣿⠤⠤⠤⠤                                                +0.3
-                                     d1 vs Open-Jev          ⠐⠒⡗⠒⢺⠒⠒⠒⠒                                              +1.3
-                                 Open-Jev vs Cygnet       ⠐⠒⠒⠒⠒⡗⠒⠒⠒⠂                                                +0.0
-                               Cygnet vs Winnow-12B         ⠒⠒⠒⣿⠒⠒⠒                                                 +0.2
-             Winnow-12B vs Qwen3.8-27B (vote share)          ⠒⠒⡗⠒⡗⠒⠒⠒⠒                                              +1.1
-   Qwen3.8-27B (vote share) vs Qwen3.8-27B (stated)         ⠐⠒⠒⡗⠒⠒                                                  +0.1
-       Qwen3.8-27B (stated) vs Qwen3.8-27B (yes/no)            ⡗⠒⠒⠒⢺⠒⠒⠒⠂                                            +2.3
-            Qwen3.8-27B (yes/no) vs Qwen3-14B (off)            ⡇      ⠐⠒⠒⠒⠒⠗⠒⠒⠒⠒                                    +6.2
-                   Qwen3-14B (off) vs Erk-14B (off)         ⠒⠒⠒⡗⠺⠒⠒⠒⠒                                               +0.7
-                     Erk-14B (off) vs Metask-Jev 4B            ⡇  ⠐⠒⠒⠒⠒⠺⠒⠒⠒⠒⠂                                       +4.2
-            Metask-Jev 4B vs GLiNER2.5-multi-Decide            ⡇                                  ⠐⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠂     +20.6
-                     GLiNER2.5-multi-Decide vs Laya          ⠒⠒⡗⠒⠺⠒⠒⠒⠒                                              +1.2
-                          Laya vs Laya multilingual          ⠒⠒⡗⠒⠗⠒⠒⠒⠒                                              +1.1
-        Laya multilingual vs GLiNER2.5 Multi (base)         ⠒⠒⠒⡿⠒⠒⠒⠒                                                +0.4
-                   Open-Jev vs Qwen3.8-27B (yes/no)            ⡇  ⠐⠒⠒⠒⠺⠒⠒⠒⠒                                         +3.8
-                           Fastino GLiDE vs Decider            ⡇          ⠒⠒⠒⠒⠗⠒⠒⠒                                  +7.5
-                 Gemma 4 31B (off) vs Fastino GLiDE            ⡇     ⠒⠒⠒⠒⠺⠒⠒⠒⠒                                      +5.2
-                                                     -5        0        +5        +10      +15       +20      +25
-                                                                           percentage points
+            GPT-6 Astra (low) vs GPT-6.1 Sol (low)            ⡇⠤⡦⠄                                                  +0.9
+       GPT-6.1 Sol (low) vs Gemini 3.8 Flash (low)            ⡇    ⠤⠤⡦⠤⠄                                            +3.4
+Gemini 3.8 Flash (low) vs DeepSeek-V4.1-Flash (on)            ⡧⠤⢴⠤⠤⠄                                                +1.2
+        DeepSeek-V4.1-Flash (on) vs Opus 5.5 (low)            ⡧⠤⠤⢴⠤⠤⠄                                               +1.6
+               Opus 5.5 (low) vs Sonnet 5.5 (high)            ⡇       ⠤⠤⠤⡦⠤⠤⠄                                       +5.4
+            Sonnet 5.5 (high) vs Gemma 4 31B (off)            ⡇                   ⠤⠤⠤⠤⡦⠤⠤⠤⠤                        +11.9
+             Gemma 4 31B (off) vs GPT-6 Luna (low)            ⡇    ⠠⠤⠤⠤⠤⡦⠤⠤⠤⠄                                       +4.8
+                 GPT-6 Luna (low) vs Fastino GLiDE        ⠠⠤⠤⠤⡧⡦⠤⠤⠤⠤                                                +0.4
+        Fastino GLiDE vs DeepSeek-V4.1-Flash (off)           ⠠⡧⠤⠤⠤⡦⠤⠤⠤⠤                                             +2.0
+     DeepSeek-V4.1-Flash (off) vs Sonnet 5.5 (low)            ⡇    ⠤⠤⠤⠤⢼⠤⠤⠤⠤                                        +4.5
+                       Sonnet 5.5 (low) vs Decider         ⠠⠤⠤⡧⠤⡧⠤⠤⠤⠤                                               +1.0
+                                    Decider vs Jev            ⡇⠠⠤⠤⠤⠤⡧⠤⠤⠤⠄                                           +2.9
+                                       Jev vs Clef        ⠠⠤⠤⠤⣿⠤⠤⠤⠤                                                 +0.2
+                                        Clef vs d1        ⠠⠤⠤⠤⣿⠤⠤⠤⠤⠄                                                +0.3
+                                    d1 vs Open-Jev          ⠠⠤⡧⠤⢼⠤⠤⠤⠤⠄                                              +1.3
+                                Open-Jev vs Cygnet        ⠒⠒⠒⠒⡗⠒⠒⠒⠒                                                 +0.0
+                              Cygnet vs Winnow-12B         ⠒⠒⠒⣿⠒⠒⠒⠂                                                 +0.2
+            Winnow-12B vs Qwen3.8-27B (vote share)          ⠒⠒⡗⠒⢺⠒⠒⠒⠒⠂                                              +1.1
+  Qwen3.8-27B (vote share) vs Qwen3.8-27B (stated)          ⠒⠒⣿⠒⠒⠂                                                  +0.1
+      Qwen3.8-27B (stated) vs Qwen3.8-27B (yes/no)            ⡇⠒⠒⠒⢺⠒⠒⠒⠒                                             +2.3
+           Qwen3.8-27B (yes/no) vs Qwen3-14B (off)            ⡇       ⠒⠒⠒⠒⢺⠒⠒⠒⠒⠂                                    +6.2
+                  Qwen3-14B (off) vs Erk-14B (off)         ⠐⠒⠒⡗⠺⠒⠒⠒⠒⠂                                               +0.7
+                    Erk-14B (off) vs Metask-Jev 4B            ⡇  ⠐⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒                                        +4.2
+           Metask-Jev 4B vs GLiNER2.5-multi-Decide            ⡇                                   ⠒⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠂     +20.6
+                    GLiNER2.5-multi-Decide vs Laya          ⠒⠒⡗⠒⠺⠒⠒⠒⠒⠂                                              +1.2
+                         Laya vs Laya multilingual          ⠒⠒⡗⠒⠺⠒⠒⠒⠒                                               +1.1
+       Laya multilingual vs GLiNER2.5 Multi (base)         ⠒⠒⠒⡗⠗⠒⠒⠒                                                 +0.4
+                  Open-Jev vs Qwen3.8-27B (yes/no)            ⡇  ⠐⠒⠒⠒⠺⠒⠒⠒⠒                                          +3.8
+                          Fastino GLiDE vs Decider            ⡇          ⠐⠒⠒⠒⠗⠒⠒⠒⠂                                  +7.5
+                Gemma 4 31B (off) vs Fastino GLiDE            ⡇     ⠐⠒⠒⠒⠺⠒⠒⠒⠒⠂                                      +5.2
+                                                    -5        0        +5        +10       +15       +20      +25
+                                                                          percentage points

@@ -194,8 +194,6 @@ fn color(run: &Run) -> Color {
         ("gpt-6.1-sol", ..) => rgb(0x0891b2),
         ("gpt-6-luna", ..) => rgb(0x60a5fa),
         ("gemini-3.8-flash", ..) => rgb(0x65a30d),
-        ("gemini-3.1-pro-preview", Some("low"), _) => rgb(0x4ade80),
-        ("gemini-3.1-pro-preview", ..) => rgb(0x15803d),
         ("erk-14b", ..) => rgb(0xe11d48),
         ("qwen3-14b", ..) => rgb(0xfda4af),
         ("claude-opus-5-5", ..) => rgb(0x7c3aed),
