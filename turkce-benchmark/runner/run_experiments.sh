@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# The runs of plan step 5.3: repeats, Qwen's vote share and the cascade pipelines.
+# The runs of plan steps 5.3 and 6.11: repeats, Qwen's vote share, the cascade pipelines, cheaper models on
+# the pipelines' held-out half, and one question per request on the repeats' sample.
 #
 #   ./run_experiments.sh LANE
 #
@@ -52,6 +53,9 @@ case "${1:-}" in
   # DeepSeek needs all four GPUs (deepseek-v41.service), so Gemma is stopped while these run.
   deepseek-sample) repeats "1 2 3 4 5" deepseek-v4.1-flash --provider vllm --vllm-url "$DEEPSEEK_URL" --data "$DATA" --batch-size 16 --sample "$SAMPLE" ;;
   deepseek-thinking-sample) repeats "1 2 3 4 5" deepseek-v4.1-flash --provider vllm --vllm-thinking --concurrency 8 --vllm-url "$DEEPSEEK_URL" --data "$DATA" --batch-size 16 --timeout 3600 --sample "$SAMPLE" ;;
+  # One question per request on the same sample, set against the batched runs above.
+  astra-one) bench gpt-6-astra --provider openai --openai-reasoning low --data "$DATA" --batch-size 1 --timeout 600 --sample "$SAMPLE" ;;
+  gemma-one) bench gemma-4-31B-it --provider vllm --vllm-url "$GEMMA_URL" --data "$DATA" --batch-size 1 --sample "$SAMPLE" ;;
   # One-question setups: repeats 2–5 of the whole-bank run.
   jev)
     JEV_API_KEY="$(cat "$HOME/code/jev/key")"
@@ -71,8 +75,11 @@ case "${1:-}" in
   astra-held-out) bench "${astra[@]}" --questions pipeline/decider-astra-held-out.txt ;;
   sonnet-high-passed) bench "${sonnet_high[@]}" --questions pipeline/decider-sonnet-high-passed.txt ;;
   sonnet-high-held-out) bench "${sonnet_high[@]}" --questions pipeline/decider-sonnet-high-held-out.txt ;;
+  # Cheaper frontier configurations alone on the same held-out questions, for a matched cost comparison.
+  sol-held-out) bench gpt-6.1-sol --provider openai --openai-reasoning low --data "$DATA" --batch-size 16 --timeout 600 --questions pipeline/decider-astra-held-out.txt ;;
+  flash-held-out) bench gemini-3.8-flash --provider gemini --gemini-thinking low --data "$DATA" --batch-size 16 --timeout 600 --questions pipeline/decider-astra-held-out.txt ;;
   *)
-    sed -n '2,8p' "$0" >&2
+    sed -n '2,9p' "$0" >&2
     exit 2
     ;;
 esac

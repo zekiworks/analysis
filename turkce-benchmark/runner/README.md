@@ -152,7 +152,7 @@ question. `--codex-bin` and `--claude-bin` point at other executables.
 
 | Script | Configuration | Key |
 |---|---|---|
-| `run_gemini.sh` | Gemini 3.8 Flash (low thinking) | `GEMINI_API_KEY` |
+| `run_gemini.sh`, `run_gemini_high.sh` | Gemini 3.8 Flash (low thinking; high with 4 requests at a time) | `GEMINI_API_KEY` |
 | `run_perplexity.sh` | Perplexity Decider 27B | `PERPLEXITY_API_KEY` |
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
 | `run_liquid_d1.sh` | Liquid AI d1 | `LIQUID_API_KEY` |
@@ -198,6 +198,8 @@ docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=1 \
 | `run_gliner.sh`, `run_gliner_decide.sh` | GLiNER2.5 Multi (base), GLiNER2.5-multi-Decide | `servers/gliner_server.py`, ports 18090 and 18094 (`--model-dir` and `--model-name` select the Decide checkpoint) |
 | `run_clef.sh` | Clef | `servers/clef_server.py`: Clef's `systemone()` behind a server, port 18091 |
 | `run_metask.sh` | Metask-Jev 4B | `servers/metask_server.py`: the vendor's `jev_scorer.score` behind a server, port 18092 |
+| `run_clef_flash.sh` | Clef-flash | `servers/clef_flash_server.py`: the Clef server with the Clef-flash release (`Cloudflare/clef-flash` at `fde727a`), port 18095 |
+| `run_strands.sh` | Strands Decider 2B | `servers/strands_server.py`: starts the `strands-decider` package's own System One server (commit `3e94e9d`) with `StrandsAgents/strands-decider-2B-hobson-v21` at `2b52a62`, port 18096 |
 
 Cygnet and Winnow were started as their authors describe:
 
@@ -225,7 +227,7 @@ Every server takes the decision request the hosted decision APIs take, `POST /v1
 
 and must answer `{"answers": {"answer": {"choice": "A", "probabilities": {"A": 0.7, …}}}, "usage":
 {"input_tokens": …, "output_tokens": …}}`. The chosen option's probability is the answer's score.
-Open-Jev and Laya get no `model` field. `servers/` holds the four wrappers used for the published runs,
+Open-Jev and Laya get no `model` field. `servers/` holds the six wrappers used for the published runs,
 each copied next to its model's checkpoint and virtual environment (`model/` beside the script; each
 file's docstring gives its command). They only translate this request for the model; the page's Method
 section describes how each was read out.
@@ -236,12 +238,15 @@ section describes how each was read out.
 
 - `gemma-sample`, `astra-sample`, `opus-sample`, `sonnet-high-sample`, `deepseek-sample`,
   `deepseek-thinking-sample`: five runs on one fixed 200-question sample, 16 questions per request.
+- `astra-one`, `gemma-one`: the same sample with one question per request.
 - `jev`, `decider`, `d1`, `open-jev`, `qwen-yes-no`, `qwen-stated`: repeats 2–5 of the whole-bank run.
 - `qwen-vote`: Qwen3.8-27B's stated-confidence request sampled 10 times per question.
 - `astra-passed`, `astra-held-out`, `sonnet-high-passed`, `sonnet-high-held-out`: the routing runs,
   the frontier configuration on the questions the Decider passes on and on the whole held-out half,
   from the plans in `pipeline/`. `./cascade_pipeline.py NAME --decision RUN --frontier RUN --seed 1
   --tolerance 0.5` makes a new plan from two stored runs.
+- `sol-held-out`, `flash-held-out`: GPT-6.1 Sol and Gemini 3.8 Flash alone on the same held-out half,
+  for a cost comparison with the routing runs on the same questions.
 
 `REPEATS="4 5"` limits a lane to some repeats; `RETRIES` and `RETRY_WAIT` restart a failed run.
 

@@ -193,6 +193,7 @@ fn color(run: &Run) -> Color {
         ("gpt-6-astra", ..) => rgb(0x2563eb),
         ("gpt-6.1-sol", ..) => rgb(0x0891b2),
         ("gpt-6-luna", ..) => rgb(0x60a5fa),
+        ("gemini-3.8-flash", Some("high"), _) => rgb(0x3f6212),
         ("gemini-3.8-flash", ..) => rgb(0x65a30d),
         ("erk-14b", ..) => rgb(0xe11d48),
         ("qwen3-14b", ..) => rgb(0xfda4af),
@@ -207,10 +208,12 @@ fn color(run: &Run) -> Color {
         ("d1:free", ..) => rgb(0xca8a04),
         ("open-jev-27b-v1.1", ..) => rgb(0x0d9488),
         ("clef", ..) => rgb(0x9333ea),
+        ("clef-flash", ..) => rgb(0xc084fc),
         ("metask-jev-4b-policy-mix", ..) => rgb(0x1e40af),
         ("cygnet", ..) => rgb(0x27272a),
         ("winnow-12b", ..) => rgb(0xbe185d),
-        ("fastino/GLiDE", ..) => rgb(0x059669),
+        ("fastino/GLiDE", ..) => rgb(0x1d4ed8),
+        ("strands-decider-2b", ..) => rgb(0xf97316),
         ("qwen38-27b-bf16", _, Some("stated confidence")) => rgb(0x78716c),
         ("qwen38-27b-bf16", _, Some("vote share")) => rgb(0x4f46e5),
         ("qwen38-27b-bf16", ..) => rgb(0x92400e),
@@ -987,8 +990,8 @@ fn paired(results: &Results) -> Figure<'_> {
 
 const CASCADE_TITLE: &str = "How routing accuracy changes as the cheaper model answers more questions";
 
-/// One panel per frontier run and part of the decision models (best first), each with its curves,
-/// the frontier run's own accuracy and the in-sample thresholds.
+/// One panel per frontier run and part of the first models (decision models and Gemma 4 31B, best first),
+/// each with its curves, the frontier run's own accuracy and the in-sample thresholds.
 fn cascade(results: &Results) -> Option<Figure<'_>> {
     let mut frontiers: Vec<&Run> = Vec::new();
     let mut decisions: Vec<&Run> = Vec::new();
@@ -1001,8 +1004,8 @@ fn cascade(results: &Results) -> Option<Figure<'_>> {
         }
     }
     decisions.sort_by_key(|run| Reverse(run.correct));
-    // Room for the frontier line next to the decision models' curves.
-    let parts = split("Decision models", decisions, MAX_SERIES - 1);
+    // Room for the frontier line next to the first models' curves.
+    let parts = split("First models", decisions, MAX_SERIES - 1);
     let mut panels = Vec::new();
     for frontier in &frontiers {
         let accuracy = 100.0 * results.cascades.iter().find(|cascade| cascade.frontier == frontier.run)?.frontier_accuracy;
@@ -1032,10 +1035,10 @@ fn cascade(results: &Results) -> Option<Figure<'_>> {
         return None;
     }
     let grid = Grid { panels, columns: parts.len().max(1), plot_rows: PLOT_ROWS };
-    let x = percent_scale("Share answered by the cheaper decision model", 0.0, 100.0, 20.0);
+    let x = percent_scale("Share answered by the cheaper first model", 0.0, 100.0, 20.0);
     let lines = vec![
         muted("In-sample thresholds (●): chosen and scored on all questions; held-out results in the table below."),
-        muted("The decision model answers its most confident share (x) and the frontier run the rest; grey line: the frontier run alone."),
+        muted("The first model answers its most confident share (x) and the frontier run the rest; grey line: the frontier run alone."),
     ];
     Some(Figure {
         name: "cascade",

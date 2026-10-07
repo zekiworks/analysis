@@ -698,7 +698,7 @@ function renderCascade(data) {
   fillTable(
     'cascade',
     [
-      { label: 'Decision model' },
+      { label: 'First model', title: 'A decision model, or Gemma 4 31B, answering first' },
       { label: 'Frontier run' },
       { label: 'Frontier accuracy', numeric: true },
       { label: 'Answered', numeric: true, title: 'Share the decision model answers at the lowest threshold that keeps the frontier accuracy' },
@@ -728,7 +728,7 @@ function renderCascade(data) {
   fillTable(
     'doubts',
     [
-      { label: 'Decision model' },
+      { label: 'First model' },
       { label: 'Spearman', numeric: true, title: 'Rank correlation of the entropy with the number of frontier runs that got the question wrong' },
       { label: 'p', numeric: true, title: '200 shuffles within each unit; the smallest possible p is 1/201' },
       { label: 'AUROC', numeric: true, title: 'Chance that a question some frontier run got wrong has the higher entropy' },
@@ -825,7 +825,7 @@ function renderPipelines(data) {
       ),
     );
   });
-  fillTable(
+  const table = fillTable(
     'pipelines',
     [
       { label: 'Decision model' },
@@ -843,6 +843,21 @@ function renderPipelines(data) {
     ],
     rows,
   );
+  // Cheaper configurations run alone on the same held-out questions (the plans share one held-out half),
+  // leaving out the runs that already appear as a pipeline's frontier run alone.
+  const frontierAlone = new Set(data.pipelines.map(item => item.measured?.alone_run).filter(Boolean));
+  const alternatives = new Map();
+  for (const item of data.pipelines) {
+    for (const alternative of item.measured?.alternatives ?? []) {
+      if (!frontierAlone.has(alternative.run)) alternatives.set(alternative.run, alternative);
+    }
+  }
+  if (table && alternatives.size) {
+    const listed = [...alternatives.values()].map(
+      item => `${item.name}${item.reasoning ? ` (${item.reasoning})` : ''} ${formatPercent(100 * item.accuracy, 1)} at ${formatUsd(item.cost_usd)}`,
+    );
+    addNotes(table, tableNote(`On the same ${integer(data.pipelines[0].held_out)} held-out questions, run alone: ${listed.join('; ')}.`));
+  }
 }
 
 /* The charts are drawn at their own pixel size with 13-pixel text. One may shrink to fit its box, but not below

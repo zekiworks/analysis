@@ -65,6 +65,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "metask": {"access": "Metask-Jev server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "cygnet": {"access": "Cygnet decision server on vLLM, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "winnow": {"access": "Winnow server (llama.cpp), self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
+    "strands": {"access": "Strands Decider server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
     "gemini": {
         "access": "Gemini API",
         "scoring": False,
@@ -195,6 +196,12 @@ MODELS: dict[str, dict[str, Any]] = {
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 27_484_784_884,
     },
+    "clef-flash": {
+        "name": "Clef-flash",
+        "note": "Cloudflare's 9B decision model, post-trained from Qwen3.5-9B",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 9_531_576_564,
+    },
     "metask-jev-4b-policy-mix": {
         "name": "Metask-Jev 4B",
         "note": "Fine-tune of Qwen3.5-4B (merged LoRA)",
@@ -212,6 +219,12 @@ MODELS: dict[str, dict[str, Any]] = {
         "note": "Fine-tune of Gemma 4 12B IT (Q8_0 GGUF)",
         "hardware": f"1 × {GPU}; Q8_0",
         "parameters": 11_907_350_576,
+    },
+    "strands-decider-2b": {
+        "name": "Strands Decider 2B",
+        "note": "Amazon's decision model: a LoRA adapter and a decision head on Qwen3.5-2B-Base",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 2_291_942_208,
     },
     "gemini-3.8-flash": {
         "name": "Gemini 3.8 Flash",
@@ -551,10 +564,30 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 else {
                     "pipeline_run": by_key[measured["pipeline_run"]]["run_id"],
                     "alone_run": by_key[measured["alone_run"]]["run_id"],
-                    **{key: value for key, value in measured.items() if key not in ("pipeline_run", "alone_run")},
+                    **{key: value for key, value in measured.items() if key not in ("pipeline_run", "alone_run", "alternatives")},
+                    # Other configurations run alone on the same held-out questions, for a matched cost.
+                    "alternatives": [
+                        {**alternative, "run": by_key[alternative["run"]]["run_id"], **described(by_key[alternative["run"]])}
+                        for alternative in measured.get("alternatives", [])
+                        if alternative["run"] in by_key
+                    ],
                 },
             }
         )
+    # The same configuration asked the same questions with another number of questions per request.
+    batching = [
+        {
+            "run": by_key[item["run"]]["run_id"],
+            **described(by_key[item["run"]]),
+            **{key: item[key] for key in ("batch_size", "compared_batch_size", "questions", "correct")},
+            "others": [
+                {**other, "run": by_key[other["run"]]["run_id"], "repeat": by_key[other["run"]].get("repeat")}
+                for other in item["others"]
+            ],
+        }
+        for item in analysis.get("batching", [])
+        if item["run"] in by_key and all(other["run"] in by_key for other in item["others"])
+    ]
     reference = selected[0]
     suspect = None
     if "without_suspect" in reference["groups"]:
@@ -594,6 +627,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         "sources": sources,
         "repeats": repeats,
         "pipelines": pipelines,
+        "batching": batching,
     }
 
 
@@ -613,8 +647,22 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
         if item.get("measured")
         for role, label in (("pipeline_run", "pipeline"), ("alone_run", "frontier alone"))
     }
+    for item in data["pipelines"]:
+        for alternative in (item.get("measured") or {}).get("alternatives", []):
+            pipelines.setdefault(
+                alternative["run"],
+                {"decision": item["decision"], "frontier": item["frontier"], "role": "same questions, other configuration"},
+            )
+    batching = {
+        item["run"]: {
+            "questions_per_request": item["batch_size"],
+            "compared_questions_per_request": item["compared_batch_size"],
+            "compared_runs": [other["run"] for other in item["others"]],
+        }
+        for item in data.get("batching", [])
+    }
     by_id = {run["run"]: run for run in dataset["runs"]}
-    missing = (main | set(repeats) | set(pipelines)) - set(by_id)
+    missing = (main | set(repeats) | set(pipelines) | set(batching)) - set(by_id)
     if missing:
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
     return {
@@ -626,6 +674,8 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
         # Each repeat lists the runs of its configuration's repeat set (results.json `repeats`).
         "repeat_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(repeats.items())],
         "pipeline_runs": [{**by_id[run], "pipeline": pipeline} for run, pipeline in sorted(pipelines.items())],
+        # Runs of a configuration with another number of questions per request (results.json `batching`).
+        "batching_runs": [{**by_id[run], "batching": batch} for run, batch in sorted(batching.items())],
     }
 
 

@@ -101,10 +101,13 @@ SYSTEM_ONE = {
     "winnow": SystemOneService("Winnow", "http://127.0.0.1:8091"),
     # Fastino's hosted GLiDE (model fastino/GLiDE), which takes the same request and returns the same answers.
     "fastino": SystemOneService("Fastino", "https://api.fastino.ai", key_vars=("FASTINO_API_KEY",), key_required=True),
+    # ~/code/strands-decider/server.py: Amazon's Strands Decider 2B through its own package, behind the
+    # System One format.
+    "strands": SystemOneService("Strands Decider", "http://127.0.0.1:18096"),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Self-hosted open-weight System One models with no published price to apply.
-UNPRICED_SYSTEM_ONE = ("laya", "gliner", "clef", "metask", "cygnet", "winnow")
+UNPRICED_SYSTEM_ONE = ("laya", "gliner", "clef", "metask", "cygnet", "winnow", "strands")
 # TypeSafe's published System One price: input tokens only, output free
 # (https://typesafe.ai/blog/introducing-system-one-models-and-jev). Reports apply the same
 # rate to the input tokens Open-Jev's API reports, so the two providers compare directly.
@@ -157,9 +160,14 @@ PAIRED_CONFIGURATIONS: tuple[tuple[str | tuple[str, str], str | tuple[str, str]]
 # Tied groups: two runs over the same questions count as told apart when their exact paired test, Holm-
 # adjusted over every pair of those runs, falls below this level.
 TIE_ALPHA = 0.05
-# Cascade simulation: a decision model answers when confident and passes the rest to a frontier run,
-# given as (provider, model, thinking).
-CASCADE_DECISION_PROVIDERS = ("perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino")
+# Cascade simulation: a first model answers when confident and passes the rest to a frontier run. First
+# models: the decision models, and Gemma 4 31B, the most accurate run with option probabilities; each is a
+# provider, or a (provider, model) pair when the provider serves several models. Frontier runs are given
+# as (provider, model, thinking).
+CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
+    "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "strands",
+    ("vllm", "gemma-4-31B-it"),
+)
 CASCADE_FRONTIER_RUNS = (
     ("openai", "gpt-6-astra", "low"),
     ("claude", "claude-opus-5-5", "low"),
@@ -2889,6 +2897,57 @@ def pipeline_lines(pipelines: list[dict[str, Any]], results: dict[str, dict[str,
             + ("—" if None in costs else f"${costs[0]:.2f} / ${costs[1]:.2f}")
             + f" | {measured['request_seconds'] / 60:.1f} / {measured['frontier_request_seconds'] / 60:.1f} |"
         )
+    alternatives = [
+        (item, alternative)
+        for item in pipelines
+        for alternative in (item.get("measured") or {}).get("alternatives", [])
+    ]
+    if alternatives:
+        lines.extend(
+            [
+                "",
+                "Other configurations run alone on the same held-out questions (`--questions`), against the "
+                "pipeline and the frontier run alone. Difference: their accuracy minus the other's, in points, "
+                "with a paired 95% interval and an exact McNemar p.",
+                "",
+                "| Plan | Run | Accuracy | Cost (USD) | Request time (min) | Against the pipeline | p | "
+                "Against the frontier alone | p |",
+                "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+            ]
+        )
+        for item, alternative in alternatives:
+            versus_pipeline, versus_frontier = alternative["versus_pipeline"], alternative["versus_frontier"]
+            cost = "—" if alternative["cost_usd"] is None else f"${alternative['cost_usd']:.2f}"
+            minutes = "—" if alternative["request_seconds"] is None else f"{alternative['request_seconds'] / 60:.1f}"
+            lines.append(
+                f"| {item['name']} | {run_label(results[alternative['run']])} | {100 * alternative['accuracy']:.2f}% | "
+                f"{cost} | {minutes} | {100 * versus_pipeline['difference']:+.2f} | {format_p(versus_pipeline['p'])} | "
+                f"{100 * versus_frontier['difference']:+.2f} | {format_p(versus_frontier['p'])} |"
+            )
+    return lines
+
+
+def batching_lines(batching: list[dict[str, Any]], results: dict[str, dict[str, Any]]) -> list[str]:
+    lines = [
+        "",
+        "## Questions per request",
+        "",
+        "A configuration asked the same questions with another number of questions per request than its "
+        "main run, against every run of the configuration that answered those questions with the main "
+        "number. Only first, only second: the questions only that run answered correctly; p: exact McNemar.",
+        "",
+        "| Run | Per request | Questions | Correct | Against | Per request | Correct | Only first | Only second | "
+        "Difference | p |",
+        "|---|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    for item in batching:
+        run = results[item["run"]]
+        for other in item["others"]:
+            lines.append(
+                f"| {run_label(run)} | {item['batch_size']} | {item['questions']} | {item['correct']} | "
+                f"{run_label(results[other['run']])} | {item['compared_batch_size']} | {other['correct']} | "
+                f"{other['first_only']} | {other['second_only']} | {100 * other['difference']:+.1f} | {format_p(other['p'])} |"
+            )
     return lines
 
 
@@ -3059,6 +3118,8 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         lines.extend(repeat_lines(comparisons["repeats"], results))
     if comparisons.get("pipelines"):
         lines.extend(pipeline_lines(comparisons["pipelines"], results))
+    if comparisons.get("batching"):
+        lines.extend(batching_lines(comparisons["batching"], results))
     if replaced:
         lines.extend(key_replacement_lines(sorted(replaced, key=lambda item: item["run_id"])))
     for result in ordered:
@@ -3578,7 +3639,7 @@ def run_comparisons(
         ]
         for decision in members:
             if (
-                decision.get("provider") not in CASCADE_DECISION_PROVIDERS
+                not any(matches_side(decision, side) for side in CASCADE_FIRST_CONFIGURATIONS)
                 or decision.get("shuffle_options") is not None
                 or not frontier_runs
             ):
@@ -3623,6 +3684,7 @@ def run_comparisons(
         "versions": versions,
         "repeats": run_repeats(connection, results, search_dir),
         "pipelines": run_pipelines(connection, results, search_dir),
+        "batching": run_batching(connection, results, search_dir),
     }
 
 
@@ -3738,7 +3800,80 @@ def run_pipelines(connection: sqlite3.Connection, results: dict[str, dict[str, A
                 "request_seconds": decision["timed_seconds"] * share + pipeline_run["timed_seconds"],
                 "frontier_request_seconds": alone_run["timed_seconds"],
             }
+            # Other configurations run alone on the same held-out questions: the cost of a cheaper model
+            # on the questions the pipeline answered, against the pipeline and the frontier run alone.
+            alternatives = []
+            for run in results.values():
+                if not run.get("question_list") or configuration(run) == configuration(frontier):
+                    continue
+                answers = run_outcomes(connection, run, search_dir)
+                if frozenset(answers) != held_out:
+                    continue
+                outcomes = [answers[q][0] for q in order]
+                tests = {"pipeline": bm.paired_comparison(outcomes, measured), "frontier": bm.paired_comparison(outcomes, alone)}
+                alternatives.append(
+                    {
+                        "run": run["run_key"],
+                        "accuracy": accuracy(outcomes),
+                        "cost_usd": run.get("cost_usd"),
+                        "request_seconds": run.get("timed_seconds"),
+                        **{
+                            f"versus_{name}": {key: test[key] for key in ("difference", "low", "high", "p")}
+                            for name, test in tests.items()
+                        },
+                    }
+                )
+            item["measured"]["alternatives"] = sorted(alternatives, key=lambda alternative: -alternative["accuracy"])
         found.append(item)
+    return found
+
+
+def run_batching(connection: sqlite3.Connection, results: dict[str, dict[str, Any]], search_dir: Path) -> list[dict[str, Any]]:
+    """Each run that asks a configuration's questions with another number of questions per request than
+    its main-table run (e.g. one per request on the repeats' sample): its accuracy against every run of
+    the configuration that answered those questions with the main number, by an exact McNemar test on
+    those questions."""
+
+    def configuration(run: dict[str, Any]) -> tuple[Any, ...]:
+        return (run.get("provider", "ollama"), run["model"], run["thinking"])
+
+    def plain(run: dict[str, Any]) -> bool:
+        return run.get("replace_key_text") is None and run.get("shuffle_options") is None
+
+    main = {configuration(run): run["batch_size"] for run in results.values() if in_main_tables(run) and plain(run)}
+    found = []
+    for run in results.values():
+        size = main.get(configuration(run))
+        if size is None or run["batch_size"] == size or in_main_tables(run) or run.get("repeat") is not None or not plain(run):
+            continue
+        answers = run_outcomes(connection, run, search_dir)
+        questions = sorted(answers)
+        others = []
+        for other in results.values():
+            if configuration(other) != configuration(run) or other["batch_size"] != size or not plain(other):
+                continue
+            theirs = run_outcomes(connection, other, search_dir)
+            if not set(questions) <= set(theirs):
+                continue
+            test = bm.paired_comparison([answers[q][0] for q in questions], [theirs[q][0] for q in questions])
+            others.append(
+                {
+                    "run": other["run_key"],
+                    "correct": sum(theirs[q][0] for q in questions),
+                    **{key: test[key] for key in ("first_only", "second_only", "difference", "low", "high", "p")},
+                }
+            )
+        if others:
+            found.append(
+                {
+                    "run": run["run_key"],
+                    "batch_size": run["batch_size"],
+                    "compared_batch_size": size,
+                    "questions": len(questions),
+                    "correct": sum(answers[q][0] for q in questions),
+                    "others": others,
+                }
+            )
     return found
 
 
