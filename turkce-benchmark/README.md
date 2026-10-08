@@ -29,11 +29,14 @@ python3 -m http.server 8000 --directory docs               # preview at http://1
   from `docs/answers.json`, each main run's correct answers on the scored questions (the 12 the key
   audit excluded are skipped), AUROC, expected calibration error and the answers scored 0.99 or more,
   before and after the key audit; the leaderboard's tied groups (every pair of runs, exact McNemar,
-  Holm over all pairs, alpha 0.05); and the listed paired comparisons (exact McNemar, Holm over the
-  listed pairs). It prints one row per run and exits with status 1 when a value differs from
+  Holm over all pairs, alpha 0.05); the listed paired comparisons (exact McNemar, Holm over the
+  listed pairs); and the costs: each priced run's from its token counts at the rates in
+  `docs/results.json`'s `prices`, every run without a price shown as a free tier or self-hosted, each
+  routing simulation's cost per 1,000 questions from its runs, and the routing tests' costs from their
+  parts. It prints one row per run and exits with status 1 when a value differs from
   `docs/results.json`: counts and group letters must match exactly, AUROC and ECE within 10⁻⁹,
-  p-values within a relative 10⁻⁹. The bootstrap intervals, routing, repeats and the other tables are
-  not recomputed.
+  p-values and costs within a relative 10⁻⁹. The bootstrap intervals, the routing simulations'
+  accuracy, the repeats and the other tables are not recomputed.
 - **The graphs** are drawn by `charts/`, a Rust crate, from `docs/results.json` (see below).
 - **The sharing image** `charts/og-image.sh docs` writes `docs/og-image.svg` with the charts binary
   and `docs/og-image.png` (1200 × 630) with headless Chrome; `CHROME` names another Chrome or
@@ -103,7 +106,8 @@ The last command must find nothing; its pattern is written so that it does not m
 `sync_runner.sh` refuses to copy a file that contains a local path; it copies every `run_*.sh` script
 except those listed in it as behind no published run, and prints the list.
 
-A new provider needs an entry in `PROVIDERS` (its access route, how it is paid for and its cost basis);
-the script stops until it has one. A new model is shown by its ID unless `MODELS` gives it a display
-name; a Claude or OpenAI model with a cost needs its list price there, and a model on our GPUs its
-hardware.
+A new provider needs an entry in `PROVIDERS` (its access route and how it is paid for); the script
+stops until it has one. A new model is shown by its ID unless `MODELS` gives it a display name, and a
+model on our GPUs needs its hardware there. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
+the export takes each run's price from the report, and stops when a paid run has none or a free or
+self-hosted run has one.

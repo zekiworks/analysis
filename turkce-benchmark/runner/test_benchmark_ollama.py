@@ -3,6 +3,7 @@ import math
 import unittest
 
 from benchmark_ollama import (
+    PRICES,
     Option,
     Question,
     answer_usage,
@@ -109,6 +110,35 @@ class OpenAIDecisionsTests(unittest.TestCase):
         raw = self.stored([{"type": "refusal", "name": "answer"}])
         self.assertIsNone(answer_usage("openai-decisions", 1, raw)[1])
         self.assertIsNone(option_probabilities("openai-decisions", raw))
+
+
+class ClaudeCostTests(unittest.TestCase):
+    def test_cache_reads_and_writes_cost_their_own_rates(self) -> None:
+        # One Sonnet 5.5 request as Claude Code reported it: 2 uncached prompt tokens, 6,759 written to the 1-hour
+        # cache, 2,181 read from the cache and 2,362 output tokens.
+        usage = {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 6759,
+            "cache_read_input_tokens": 2181,
+            "cache_creation": {"ephemeral_1h_input_tokens": 6759, "ephemeral_5m_input_tokens": 0},
+            "output_tokens": 2362,
+        }
+        raw = json.dumps({"answers": {"1": {"confidence": 0.9}}, "output": {"usage": usage}})
+        tokens, score = answer_usage("claude", 1, raw)
+        self.assertEqual(
+            tokens,
+            {
+                "input_tokens": 8942,
+                "output_tokens": 2362,
+                "cached_input_tokens": 2181,
+                "cache_write_input_tokens": 0,
+                "cache_write_1h_input_tokens": 6759,
+            },
+        )
+        self.assertEqual(score, 0.9)
+        # $2 per 1M uncached input, $4 per 1M 1-hour cache writes, $0.10 per 1M cache reads, $10 per 1M output.
+        expected = (2 * 2.00 + 6759 * 4.00 + 2181 * 0.10 + 2362 * 10.00) / 1_000_000
+        self.assertTrue(math.isclose(PRICES["claude", "claude-sonnet-5-5"].cost(tokens), expected, rel_tol=1e-12))
 
 
 class ShuffleOptionsTests(unittest.TestCase):

@@ -19,96 +19,45 @@ from typing import Any
 RESULT_PATTERN = re.compile(r"<!-- benchmark-result: (\{.*?\}) -->")
 ANALYSIS_PATTERN = re.compile(r"<!-- benchmark-analysis: (\{.*?\}) -->")
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "docs" / "results.json"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
-# How each provider was reached, how it was paid for and what its cost figure means. Scoring providers
-# rate the supplied options instead of generating an answer, so they have no reasoning setting.
-# billing: "api" (billed per token), "subscription" (a flat plan, priced at list rates for comparison)
-# or "local" (our GPUs; any price is an assumption). "{price}" is replaced by the model's list price
-# from MODELS; a model's "access" in MODELS replaces its provider's.
+# How each provider was reached and paid for. Scoring providers rate the supplied options instead of generating
+# an answer, so they have no reasoning setting. billing: "api" (billed per token), "subscription" (a flat plan;
+# the cost is what the same tokens cost on the API), "free" (a free tier with no published price) or "local" (our
+# GPUs; no dollar cost, only request time). A run's price comes from the report (PRICES in benchmark_ollama.py).
+# A model's "access" in MODELS replaces its provider's.
 PROVIDERS: dict[str, dict[str, Any]] = {
-    "ollama": {"access": "Ollama, self-hosted", "scoring": False, "billing": "local", "cost_basis": None},
-    "vllm": {"access": "vLLM, self-hosted", "scoring": False, "billing": "local", "cost_basis": None},
-    "jev": {
-        "access": "TypeSafe System One API",
-        "scoring": True,
-        "billing": "api",
-        "cost_basis": "TypeSafe's price: $0.042 per 1M input tokens, output free",
-    },
-    "open-jev": {
-        "access": "Open-Jev server, self-hosted",
-        "scoring": True,
-        "billing": "local",
-        "cost_basis": "Jev's API price applied to its tokens, for comparison",
-    },
-    "perplexity": {
-        "access": "Perplexity Decisions API",
-        "scoring": True,
-        "billing": "api",
-        "cost_basis": "Perplexity's price: $0.04 per 1M input tokens, output free",
-    },
-    "liquid": {
-        "access": "Liquid AI decisions API",
-        "scoring": True,
-        "billing": "api",
-        "cost_basis": "the free d1 model; Liquid publishes no price for d1",
-    },
-    "fastino": {
-        "access": "Fastino System One API",
-        "scoring": True,
-        "billing": "api",
-        "cost_basis": "Fastino's price: $0.15 per 1M input tokens, output free",
-    },
-    "laya": {"access": "Laya server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
-    "gliner": {"access": "GLiNER2 server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
-    "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
-    "metask": {"access": "Metask-Jev server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
-    "cygnet": {"access": "Cygnet decision server on vLLM, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
-    "winnow": {"access": "Winnow server (llama.cpp), self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
-    "strands": {"access": "Strands Decider server, self-hosted", "scoring": True, "billing": "local", "cost_basis": None},
-    "gemini": {
-        "access": "Gemini API",
-        "scoring": False,
-        "billing": "api",
-        "cost_basis": "Gemini API list price, {price}",
-    },
-    "vllm-yes-no": {
-        "access": "vLLM, self-hosted, BF16",
-        "scoring": True,
-        "billing": "local",
-        "cost_basis": "an assumed $0.40 / $2.40 per 1M input / output tokens",
-    },
-    "vllm-verbal": {
-        "access": "vLLM, self-hosted, BF16",
-        "scoring": False,
-        "billing": "local",
-        "cost_basis": "an assumed $0.40 / $2.40 per 1M input / output tokens",
-    },
-    "vllm-vote": {
-        "access": "vLLM, self-hosted, BF16",
-        "scoring": False,
-        "billing": "local",
-        "cost_basis": "an assumed $0.40 / $2.40 per 1M input / output tokens",
-    },
-    "claude": {
-        "access": "Claude Code CLI, Claude subscription",
-        "scoring": False,
-        "billing": "subscription",
-        "cost_basis": "Anthropic API list price, {price}",
-    },
-    "openai": {
-        "access": "Codex CLI, ChatGPT subscription",
-        "scoring": False,
-        "billing": "subscription",
-        "cost_basis": "OpenAI API list price, {price}",
-    },
-    "openai-decisions": {
-        "access": "OpenAI Decisions API (public beta)",
-        "scoring": True,
-        "billing": "api",
-        "cost_basis": "OpenAI's price for the Decisions API: $0.10 per 1M input tokens, output free",
-    },
+    "ollama": {"access": "Ollama, self-hosted", "scoring": False, "billing": "local"},
+    "vllm": {"access": "vLLM, self-hosted", "scoring": False, "billing": "local"},
+    "jev": {"access": "TypeSafe System One API", "scoring": True, "billing": "api"},
+    "open-jev": {"access": "Open-Jev server, self-hosted", "scoring": True, "billing": "local"},
+    "perplexity": {"access": "Perplexity Decisions API", "scoring": True, "billing": "api"},
+    "liquid": {"access": "Liquid AI decisions API", "scoring": True, "billing": "free"},
+    "fastino": {"access": "Fastino System One API", "scoring": True, "billing": "api"},
+    "laya": {"access": "Laya server, self-hosted", "scoring": True, "billing": "local"},
+    "gliner": {"access": "GLiNER2 server, self-hosted", "scoring": True, "billing": "local"},
+    "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local"},
+    "metask": {"access": "Metask-Jev server, self-hosted", "scoring": True, "billing": "local"},
+    "cygnet": {"access": "Cygnet decision server on vLLM, self-hosted", "scoring": True, "billing": "local"},
+    "winnow": {"access": "Winnow server (llama.cpp), self-hosted", "scoring": True, "billing": "local"},
+    "strands": {"access": "Strands Decider server, self-hosted", "scoring": True, "billing": "local"},
+    "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
+    "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
+    "vllm-verbal": {"access": "vLLM, self-hosted, BF16", "scoring": False, "billing": "local"},
+    "vllm-vote": {"access": "vLLM, self-hosted, BF16", "scoring": False, "billing": "local"},
+    "claude": {"access": "Claude Code CLI, Claude subscription", "scoring": False, "billing": "subscription"},
+    "openai": {"access": "Codex CLI, ChatGPT subscription", "scoring": False, "billing": "subscription"},
+    "openai-decisions": {"access": "OpenAI Decisions API (public beta)", "scoring": True, "billing": "api"},
 }
+# The token totals a price applies to (TOKEN_KINDS in benchmark_ollama.py): every prompt token, the cache reads
+# and writes among them, and the output.
+TOKEN_KINDS = (
+    "input_tokens",
+    "cached_input_tokens",
+    "cache_write_input_tokens",
+    "cache_write_1h_input_tokens",
+    "output_tokens",
+)
 # Where a run's confidence comes from (the report's score_source).
 CONFIDENCE_SOURCES = {
     "probability": "Probability of the chosen option",
@@ -123,33 +72,18 @@ VARIANTS = {
     "openai-decisions": "Decisions API, beta",
 }
 GPU = "RTX PRO 6000 Blackwell (96 GB)"
-# Display names, list prices, and for models on our GPUs the hardware and precision.
+# Display names, and for models on our GPUs the hardware and precision.
 # parameters: the model's weights, counted from the tensor shapes in each local checkpoint's safetensors
 # files (Open-Jev: Qwen3.8-27B plus its LoRA adapter and scoring head; Clef: the backbone plus its joint
 # head); Perplexity's Decider from the total_parameters of its published index; DeepSeek-V4.1-Flash from
 # its model card, a mixture of experts with 552B backbone parameters, of which 8B are active per token in
 # prefill and 16B in decode (active_parameters). Models whose makers publish no size have neither.
 MODELS: dict[str, dict[str, Any]] = {
-    "gpt-6-astra": {
-        "name": "GPT-6 Astra",
-        "price": "$10 per 1M input tokens ($1 cached), $50 per 1M output tokens",
-    },
-    "gpt-6.1-sol": {
-        "name": "GPT-6.1 Sol",
-        "price": "$2 per 1M input tokens ($0.10 cached), $10 per 1M output tokens",
-    },
-    "gpt-6-luna": {
-        "name": "GPT-6 Luna",
-        "price": "$0.10 per 1M input tokens ($0.01 cached), $0.50 per 1M output tokens",
-    },
-    "claude-opus-5-5": {
-        "name": "Claude Opus 5.5",
-        "price": "$4 / $20 per 1M input / output tokens",
-    },
-    "claude-sonnet-5-5": {
-        "name": "Claude Sonnet 5.5",
-        "price": "$2 / $10 per 1M input / output tokens",
-    },
+    "gpt-6-astra": {"name": "GPT-6 Astra"},
+    "gpt-6.1-sol": {"name": "GPT-6.1 Sol"},
+    "gpt-6-luna": {"name": "GPT-6 Luna"},
+    "claude-opus-5-5": {"name": "Claude Opus 5.5"},
+    "claude-sonnet-5-5": {"name": "Claude Sonnet 5.5"},
     "gemma-4-31B-it": {
         "name": "Gemma 4 31B",
         "access": "vLLM, self-hosted, FP8",
@@ -237,10 +171,7 @@ MODELS: dict[str, dict[str, Any]] = {
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 2_291_942_208,
     },
-    "gemini-3.8-flash": {
-        "name": "Gemini 3.8 Flash",
-        "price": "$0.75 per 1M input tokens, $3.75 per 1M output tokens, thinking included (introductory price through 2026)",
-    },
+    "gemini-3.8-flash": {"name": "Gemini 3.8 Flash"},
     "erk-14b": {
         "name": "Erk-14B",
         "note": "Qwen3-14B with continued Turkish training (eCloud)",
@@ -398,7 +329,25 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             "name": MODELS.get(record["model"], {}).get("name", record["model"]),
             "variant": ", ".join(variant for variant in variants if variant) or None,
             "reasoning": None if provider["scoring"] else record["thinking"],
+            "provider": provider_name,
         }
+
+    # The price of every priced run exported, by provider and model (the report's PRICES).
+    prices: dict[tuple[str, str], dict[str, Any]] = {}
+
+    def priced(record: dict[str, Any]) -> dict[str, int]:
+        """The record's token totals, with its price entered in the price table."""
+        price = record.get("price")
+        if price is not None:
+            key = (record.get("provider", "ollama"), record["model"])
+            if prices.setdefault(key, price) != price:
+                raise ValueError(f"run {record['run_id']}: its price differs from another run of {key[1]}")
+        return {kind: record.get(kind, 0) for kind in TOKEN_KINDS}
+
+    def per_thousand(record: dict[str, Any]) -> float | None:
+        """A run's API cost per 1,000 questions asked, or None for a run without a price."""
+        cost = record.get("cost_usd")
+        return None if cost is None else 1000 * cost / record.get("as_run", {}).get("evaluated", record["evaluated"])
 
     runs = []
     for record in selected:
@@ -413,11 +362,10 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             raise ValueError(f"{label}: unit results do not add up to its score")
         model = MODELS.get(record["model"], {})
         cost = record.get("cost_usd")
-        cost_basis = None
-        if cost is not None:
-            if provider["cost_basis"] is None or ("{price}" in provider["cost_basis"] and "price" not in model):
-                raise ValueError(f"{label}: has a cost but no cost basis or list price")
-            cost_basis = provider["cost_basis"].format(price=model.get("price"))
+        if (cost is None) != (record.get("price") is None):
+            raise ValueError(f"{label}: a cost needs its price, and a price its cost")
+        if (cost is None) != (provider["billing"] in ("free", "local")):
+            raise ValueError(f"{label}: billed as {provider['billing']!r} with{'out' if cost is None else ''} a price")
         if provider["billing"] == "local" and "hardware" not in model:
             raise ValueError(f"{label}: runs on our GPUs; add its hardware to MODELS")
         groups = {
@@ -452,14 +400,10 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "request_seconds": record.get("timed_seconds"),
                 "median_request_seconds": record.get("median_request_seconds"),
                 "billing": provider["billing"],
-                "billed_usd": cost if provider["billing"] == "api" else None,
+                # What the run's tokens cost at its model's list price (`prices`); None for free and self-hosted runs.
                 "api_equivalent_usd": cost,
-                # A self-hosted run priced at another model's rate or an assumed rate: a valuation, not a charge.
-                "hypothetical_cost": cost is not None and provider["billing"] == "local",
-                "cost_basis": cost_basis,
                 "hardware": model.get("hardware") if provider["billing"] == "local" else None,
-                "input_tokens": record.get("input_tokens"),
-                "output_tokens": record.get("output_tokens"),
+                **priced(record),
                 "confidence": confidence(record),
                 "previous": previous,
                 "units": [categories[name]["correct"] for name in unit_names],
@@ -487,9 +431,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         if item["decision"] not in exported or item["frontier"] not in exported:
             continue
         decision, frontier = exported[item["decision"]], exported[item["frontier"]]
-        cost = None
-        if decision.get("cost_usd") is not None and frontier.get("cost_usd") is not None:
-            cost = decision["cost_usd"] + frontier["cost_usd"] * (1 - item["in_sample"]["answered"])
+        first, frontier_cost = per_thousand(decision), per_thousand(frontier)
         cascades.append(
             {
                 "decision": decision["run_id"],
@@ -499,7 +441,11 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 # [share answered by the decision model, cascade accuracy], highest threshold first.
                 "curve": item.get("curve"),
                 "held_out": item["held_out"],
-                "api_equivalent_usd": cost,
+                # API cost per 1,000 questions: the first model's, where it has a price, plus the frontier run's for
+                # the held-out share passed on, as if every question cost the frontier run the same.
+                "usd_per_1000": None
+                if frontier_cost is None
+                else (first or 0.0) + frontier_cost * (1 - item["held_out"]["answered"]),
             }
         )
     doubts = [
@@ -576,9 +522,17 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                     "pipeline_run": by_key[measured["pipeline_run"]]["run_id"],
                     "alone_run": by_key[measured["alone_run"]]["run_id"],
                     **{key: value for key, value in measured.items() if key not in ("pipeline_run", "alone_run", "alternatives")},
+                    # The token totals behind cost_usd (with decision_cost_usd) and frontier_cost_usd.
+                    "pipeline_tokens": priced(by_key[measured["pipeline_run"]]),
+                    "alone_tokens": priced(by_key[measured["alone_run"]]),
                     # Other configurations run alone on the same held-out questions, for a matched cost.
                     "alternatives": [
-                        {**alternative, "run": by_key[alternative["run"]]["run_id"], **described(by_key[alternative["run"]])}
+                        {
+                            **alternative,
+                            "run": by_key[alternative["run"]]["run_id"],
+                            **described(by_key[alternative["run"]]),
+                            "tokens": priced(by_key[alternative["run"]]),
+                        }
                         for alternative in measured.get("alternatives", [])
                         if alternative["run"] in by_key
                     ],
@@ -630,6 +584,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             }
             for name in unit_names
         ],
+        "prices": [{"provider": provider, "model": model, **price} for (provider, model), price in sorted(prices.items())],
         "runs": runs,
         "group_pairs": group_pairs,
         "paired": paired,

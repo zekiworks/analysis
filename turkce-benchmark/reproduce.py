@@ -7,8 +7,11 @@ For every main run: the correct answers on the scored questions (questions the k
 skipped), AUROC, expected calibration error, the answers scored 0.99 or more (also before the key audit,
 when results.json has those counts), and the leaderboard's tied groups (every pair of runs tested,
 exact McNemar, Holm over all pairs, alpha 0.05). Then the listed paired comparisons: exact McNemar
-and Holm over the listed pairs. Uses only the standard library and benchmark_metrics.py, the metric code
-the benchmark report uses. Exits with status 1 when anything differs beyond the tolerances printed.
+and Holm over the listed pairs. Then the costs: each priced run's from its token counts at the published
+rates, every run without a price shown as a free tier or self-hosted, each routing simulation's cost per
+1,000 questions from its runs, and the routing tests' costs from their parts. Uses only the standard
+library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with status 1 when
+anything differs beyond the tolerances printed.
 """
 
 from __future__ import annotations
@@ -28,6 +31,8 @@ import benchmark_metrics as bm  # noqa: E402
 TIE_ALPHA = 0.05  # the report's level for telling two runs apart (TIE_ALPHA in benchmark_ollama.py)
 METRIC_TOLERANCE = 1e-9  # absolute, for AUROC and ECE
 P_TOLERANCE = 1e-9  # relative, for p-values
+COST_TOLERANCE = 1e-9  # relative, for dollar amounts
+CACHE_KINDS = ("cached_input_tokens", "cache_write_input_tokens", "cache_write_1h_input_tokens")
 
 
 def close(published: Any, recomputed: Any, absolute: float = 0.0, relative: float = 0.0) -> bool:
@@ -51,6 +56,13 @@ def label(run: dict[str, Any]) -> str:
     if run.get("reasoning"):
         text += f" ({run['reasoning']})"
     return text if len(text) <= 36 else text[:35] + "…"
+
+
+def token_cost(tokens: dict[str, int], rates: dict[str, float]) -> float:
+    """Token counts at a price's rates in USD per 1M tokens: the prompt tokens outside the cache at the input
+    rate, the cache reads and writes among them and the output at their own."""
+    uncached = tokens["input_tokens"] - sum(tokens[kind] for kind in CACHE_KINDS)
+    return (uncached * rates["input_tokens"] + sum(tokens[kind] * rates[kind] for kind in (*CACHE_KINDS, "output_tokens"))) / 1e6
 
 
 class Checks:
@@ -232,8 +244,73 @@ def main() -> int:
     for line in mismatches:
         print(line)
 
+    before = checks.passed + checks.failed
+    cost_mismatches = check_costs(results, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nCosts (tokens at the published rates within a relative {COST_TOLERANCE:g}; routing costs from their parts): "
+        f"{checked - len(cost_mismatches)} of {checked} match"
+    )
+    for line in cost_mismatches:
+        print(line)
+
     print(f"\n{checks.passed} checks match, {checks.failed} differ")
     return 1 if checks.failed else 0
+
+
+def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
+    """Check every cost results.json publishes against its parts; returns a line per mismatch."""
+    prices = {(price["provider"], price["model"]): price["rates"] for price in results["prices"]}
+    runs = {run["run"]: run for run in results["runs"]}
+    mismatches: list[str] = []
+
+    def check(what: str, published: float | None, recomputed: float | None) -> None:
+        cell = checks.cell(close(published, recomputed, relative=COST_TOLERANCE), number(recomputed, 6), number(published, 6))
+        if "≠" in cell:
+            mismatches.append(f"  {what}: {cell}")
+
+    def tokens(record: dict[str, Any]) -> dict[str, int]:
+        return {kind: record[kind] for kind in ("input_tokens", *CACHE_KINDS, "output_tokens")}
+
+    def per_thousand(run: dict[str, Any]) -> float | None:
+        cost = run["api_equivalent_usd"]
+        return None if cost is None else 1000 * cost / run["answered_questions"]
+
+    for run in results["runs"]:
+        rates = prices.get((run["provider"], run["model"]))
+        if rates is None:
+            # A run without a price must say why: a free tier, or our own GPUs.
+            matched = run["api_equivalent_usd"] is None and run["billing"] in ("free", "local")
+            cell = checks.cell(matched, f"no price ({run['billing']})", f"{run['api_equivalent_usd']} ({run['billing']})")
+            if "≠" in cell:
+                mismatches.append(f"  run {run['run']} ({label(run)}): {cell}")
+        else:
+            check(f"run {run['run']} ({label(run)})", run["api_equivalent_usd"], token_cost(tokens(run), rates))
+    for item in results["cascades"]:
+        first, frontier = runs[item["decision"]], runs[item["frontier"]]
+        frontier_cost = per_thousand(frontier)
+        recomputed = (
+            None if frontier_cost is None else (per_thousand(first) or 0.0) + frontier_cost * (1 - item["held_out"]["answered"])
+        )
+        check(f"routing {label(first)} → {label(frontier)}", item["usd_per_1000"], recomputed)
+    for item in results["pipelines"]:
+        measured = item.get("measured")
+        if not measured:
+            continue
+        decision, frontier = runs[item["decision"]], runs[item["frontier"]]
+        rates = prices[(frontier["provider"], frontier["model"])]
+        name = f"routing test {label(decision)} → {label(frontier)}"
+        share = decision["api_equivalent_usd"] * item["held_out"] / decision["answered_questions"]
+        check(f"{name}, decision model's share", measured["decision_cost_usd"], share)
+        check(f"{name}, pipeline", measured["cost_usd"], share + token_cost(measured["pipeline_tokens"], rates))
+        check(f"{name}, frontier alone", measured["frontier_cost_usd"], token_cost(measured["alone_tokens"], rates))
+        for alternative in measured["alternatives"]:
+            check(
+                f"{name}, {alternative['name']} alone",
+                alternative["cost_usd"],
+                token_cost(alternative["tokens"], prices[(alternative["provider"], alternative["model"])]),
+            )
+    return mismatches
 
 
 if __name__ == "__main__":

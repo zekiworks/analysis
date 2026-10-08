@@ -125,8 +125,8 @@ pub fn load(path: &Path) -> Result<Results, Box<dyn Error>> {
     Ok(serde_json::from_str(&std::fs::read_to_string(path)?)?)
 }
 
-/// Models that answer near chance on this bank; their runs share a panel in the confidence figures.
-const NEAR_CHANCE_MODELS: [&str; 4] = ["laya", "laya-multilingual", "gliner2.5-multi-v1", "gliner2.5-multi-decide"];
+/// Models that answer at or below chance on this bank; their runs share a panel in the confidence figures.
+const CHANCE_MODELS: [&str; 4] = ["laya", "laya-multilingual", "gliner2.5-multi-v1", "gliner2.5-multi-decide"];
 /// Calibration bins with fewer answers than this are too noisy to plot (the page's table keeps them).
 const MIN_BIN_ANSWERS: u32 = 20;
 /// Calibration bins with at least this many answers get the large dot.
@@ -734,12 +734,12 @@ const FAMILIES: [&str; 6] = [
     "Open-weight generative models",
     "Qwen3.8-27B, different confidence scores",
     "Decision models",
-    "Near chance: Laya and GLiNER",
+    "At or below chance: Laya and GLiNER",
 ];
 
 /// Which of [`FAMILIES`] a run belongs to.
 fn family(run: &Run) -> usize {
-    if NEAR_CHANCE_MODELS.contains(&run.model.as_str()) {
+    if CHANCE_MODELS.contains(&run.model.as_str()) {
         5
     } else if matches!(run.provider.as_str(), "openai" | "gemini") {
         0
@@ -927,8 +927,12 @@ fn paired(results: &Results) -> Figure<'_> {
     let bounds = [(lowest / 5.0).floor() * 5.0, (highest / 5.0).ceil() * 5.0];
     let label_width = rows.iter().map(|row| row.0.chars().count()).max().unwrap_or(0) as u16;
     let count = rows.len() as u16;
-    // The title counts the gaps that stay significant after the Holm correction, so it follows the data.
-    let title = format!("{} of {} gaps are real", rows.iter().filter(|row| row.4).count(), rows.len());
+    // The title counts the differences that stay significant after the Holm correction, so it follows the data.
+    let title = format!(
+        "{} of {} differences are significant after Holm correction",
+        rows.iter().filter(|row| row.4).count(),
+        rows.len()
+    );
     Figure {
         name: "paired",
         title: title.clone(),

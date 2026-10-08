@@ -120,22 +120,119 @@ SYSTEM_ONE = {
     ),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
-# Self-hosted open-weight System One models with no published price to apply.
-UNPRICED_SYSTEM_ONE = ("laya", "gliner", "clef", "metask", "cygnet", "winnow", "strands")
-# TypeSafe's published System One price: input tokens only, output free
-# (https://typesafe.ai/blog/introducing-system-one-models-and-jev). Reports apply the same
-# rate to the input tokens Open-Jev's API reports, so the two providers compare directly.
-TYPESAFE_USD_PER_INPUT_TOKEN = 0.042 / 1_000_000
-# Liquid AI publishes no d1 price; d1:free is its free d1 model. Other Liquid models get no cost.
-LIQUID_USD_PER_INPUT_TOKEN = {"d1:free": 0.0}
-# Perplexity's published Decisions API price: input tokens only, output free
-# (https://docs.perplexity.ai/docs/decisions/quickstart#pricing).
-PERPLEXITY_USD_PER_INPUT_TOKEN = 0.04 / 1_000_000
-# Fastino's published GLiDE price: input tokens only, output free (https://docs.fastino.ai/pricing).
-FASTINO_USD_PER_INPUT_TOKEN = 0.15 / 1_000_000
-# OpenAI's price for /v1/decisions with gpt-6-luna: input tokens only; no cache or output charges
-# (https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability).
-OPENAI_DECISIONS_USD_PER_INPUT_TOKEN = 0.10 / 1_000_000
+# Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
+# (cached_input_tokens) and cache writes are parts (cache_write_input_tokens: OpenAI's, and Anthropic's 5-minute
+# ones; cache_write_1h_input_tokens: Anthropic's 1-hour ones); and output_tokens, thinking and reasoning included.
+TOKEN_KINDS = (
+    "input_tokens",
+    "cached_input_tokens",
+    "cache_write_input_tokens",
+    "cache_write_1h_input_tokens",
+    "output_tokens",
+)
+CACHE_KINDS = TOKEN_KINDS[1:4]
+
+
+@dataclass(frozen=True)
+class Price:
+    """A list price in USD per 1M tokens, and where it comes from. A cache rate left out is the input rate:
+    the provider lists no separate rate for those tokens."""
+
+    basis: str  # whose price, and from when where it has changed
+    source: str  # the page it was read from
+    input: float
+    output: float = 0.0
+    cached_input: float | None = None
+    cache_write: float | None = None
+    cache_write_1h: float | None = None
+
+    def rates(self) -> dict[str, float]:
+        """USD per 1M tokens of each of TOKEN_KINDS; the input rate applies to the prompt tokens outside the cache."""
+        return {
+            "input_tokens": self.input,
+            "cached_input_tokens": self.input if self.cached_input is None else self.cached_input,
+            "cache_write_input_tokens": self.input if self.cache_write is None else self.cache_write,
+            "cache_write_1h_input_tokens": self.input if self.cache_write_1h is None else self.cache_write_1h,
+            "output_tokens": self.output,
+        }
+
+    def cost(self, tokens: dict[str, int]) -> float:
+        rates = self.rates()
+        uncached = tokens.get("input_tokens", 0) - sum(tokens.get(kind, 0) for kind in CACHE_KINDS)
+        return (uncached * rates["input_tokens"] + sum(tokens.get(kind, 0) * rates[kind] for kind in TOKEN_KINDS[1:])) / 1_000_000
+
+
+ANTHROPIC_PRICING = "https://platform.claude.com/docs/en/about-claude/pricing"
+GEMINI_PRICING = "https://ai.google.dev/gemini-api/docs/pricing"
+OPENAI_PRICING = "https://developers.openai.com/api/docs/pricing"
+# List prices by (provider, model), checked 8 October 2026. A run without one has no cost: models on our GPUs,
+# and d1, which Liquid AI serves on a free tier with no published price. Claude and OpenAI runs use
+# subscriptions, so their costs are what the same tokens would cost on the API.
+PRICES: dict[tuple[str, str], Price] = {
+    ("jev", "jev-1.13.0"): Price(
+        "TypeSafe's System One price", "https://typesafe.ai/blog/introducing-system-one-models-and-jev", 0.042
+    ),
+    # $0.04 on 4 October 2026, the day of the run (the pricing page as archived that day); $0.02 since.
+    ("perplexity", "pplx-decider-v1-27b"): Price(
+        "Perplexity's Decisions API price on 4 October 2026, the day of the run; $0.02 since",
+        "https://docs.perplexity.ai/docs/getting-started/pricing",
+        0.04,
+    ),
+    ("fastino", "fastino/GLiDE"): Price("Fastino's GLiDE price", "https://docs.fastino.ai/pricing", 0.15),
+    # No cache or output charges.
+    ("openai-decisions", "gpt-6-luna"): Price(
+        "OpenAI's Decisions API price", "https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability", 0.10
+    ),
+    # Claude Code writes its prompts to the 1-hour cache; reads cost 0.05 times the input price on these models.
+    ("claude", "claude-opus-5-5"): Price(
+        "Anthropic's API list price", ANTHROPIC_PRICING, 4.00, 20.00, cached_input=0.20, cache_write=5.00, cache_write_1h=8.00
+    ),
+    ("claude", "claude-sonnet-5-5"): Price(
+        "Anthropic's API list price", ANTHROPIC_PRICING, 2.00, 10.00, cached_input=0.10, cache_write=2.50, cache_write_1h=4.00
+    ),
+    # Thinking is billed as output; prompts up to 200K tokens. Gemini 3.8 Flash's price doubles on 1 January 2027.
+    ("gemini", "gemini-3.8-flash"): Price(
+        "Google's Gemini API price through 31 December 2026; it doubles on 1 January 2027",
+        GEMINI_PRICING,
+        0.75,
+        3.75,
+        cached_input=0.075,
+    ),
+    ("gemini", "gemini-3.1-pro-preview"): Price("Google's Gemini API price", GEMINI_PRICING, 2.00, 12.00, cached_input=0.20),
+    # Prompts up to 272K tokens.
+    ("openai", "gpt-6-astra"): Price("OpenAI's API list price", OPENAI_PRICING, 10.00, 50.00, cached_input=1.00, cache_write=12.50),
+    ("openai", "gpt-6.1-sol"): Price("OpenAI's API list price", OPENAI_PRICING, 2.00, 10.00, cached_input=0.10, cache_write=2.50),
+    ("openai", "gpt-6-luna"): Price("OpenAI's API list price", OPENAI_PRICING, 0.10, 0.50, cached_input=0.01, cache_write=0.125),
+}
+
+
+def usd_rate(value: float) -> str:
+    """A rate in dollars: whole dollars bare, cents with two decimals, smaller fractions as they are."""
+    if value == int(value):
+        return f"${value:.0f}"
+    return f"${value:.2f}" if round(value, 2) == value else f"${value:g}"
+
+
+def price_text(price: Price) -> str:
+    """The rates of a price in words, per 1M tokens, leaving out cache rates equal to the input rate."""
+    rates = price.rates()
+    parts = [f"{usd_rate(rates['input_tokens'])} input"]
+    for kind, words in (
+        ("cached_input_tokens", "cached input"),
+        ("cache_write_input_tokens", "cache writes" if price.cache_write_1h is None else "5-minute cache writes"),
+        ("cache_write_1h_input_tokens", "1-hour cache writes"),
+    ):
+        if rates[kind] != rates["input_tokens"]:
+            parts.append(f"{usd_rate(rates[kind])} {words}")
+    parts.append(f"{usd_rate(rates['output_tokens'])} output" if rates["output_tokens"] else "output free")
+    return ", ".join(parts) + " per 1M tokens"
+
+
+def questions_asked(result: dict[str, Any]) -> int:
+    """The questions a run asked, including those its bank has since excluded: what its time, tokens and cost cover."""
+    return result.get("as_run", {}).get("evaluated", result["evaluated"])
+
+
 DEFAULT_VLLM_URL = "http://192.168.1.126:8888"
 # vllm sends the Ollama models' prompt, several questions per request; vllm-yes-no, vllm-verbal and
 # vllm-vote send one question per request.
@@ -155,9 +252,6 @@ VLLM_THINKING_MAX_TOKENS = 65536
 # Alternatives vLLM and SGLang return for each generated token (top_logprobs). At an answer letter they are
 # the other option letters, so 10 cover a question's five options, with room for duplicate spellings.
 VLLM_TOP_LOGPROBS = 10
-# Price set for Qwen served by vLLM, applied to the prompt and completion tokens vLLM reports.
-VLLM_USD_PER_INPUT_TOKEN = 0.40 / 1_000_000
-VLLM_USD_PER_OUTPUT_TOKEN = 2.40 / 1_000_000
 # Providers whose answers carry option probabilities; the report scores each answer by the probability
 # of the chosen option. vllm reads them from the token probabilities of the answer letters it writes.
 # The other providers with a confidence state it with each answer.
@@ -247,23 +341,9 @@ CONFIDENCE_SYSTEM_PROMPT = (
     "question and state your confidence in each answer. Do not explain."
 )
 CLAUDE_EFFORTS = ("low", "medium", "high", "xhigh", "max")
-# Anthropic API list prices in USD per 1M input / output tokens. Claude runs use the subscription;
-# the report prices every prompt token, including Claude Code's cache reads and writes, as input.
-CLAUDE_USD_PER_MTOK = {"claude-opus-5-5": (4.00, 20.00), "claude-sonnet-5-5": (2.00, 10.00)}
-# Gemini API list prices in USD per 1M input / output tokens, thinking billed as output: Gemini 3.8 Flash's
-# introductory price through 31 December 2026 (https://ai.google.dev/gemini-api/docs/latest-model).
-GEMINI_USD_PER_MTOK = {"gemini-3.8-flash": (0.75, 3.75), "gemini-3.1-pro-preview": (2.00, 12.00)}
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta"
 # The API key: GEMINI_API_KEY, else this file.
 GEMINI_KEY_FILE = Path("~/.config/gemini/key")
-# OpenAI API list prices in USD per 1M input / cached input / cache write / output tokens, for prompts
-# up to 272K tokens. OpenAI runs use the ChatGPT subscription; Codex reports cached input and cache
-# writes as parts of the input.
-OPENAI_USD_PER_MTOK = {
-    "gpt-6-astra": (10.00, 1.00, 12.50, 50.00),
-    "gpt-6.1-sol": (2.00, 0.10, 2.50, 10.00),
-    "gpt-6-luna": (0.10, 0.01, 0.125, 0.50),
-}
 # Codex features whose tools the OpenAI provider turns off: shell and exec, goals, apps and plugins
 # with their MCP resources, image viewing and generation, and sleep. Web search is turned off through
 # the `web_search` setting. Checked with Codex 0.159.0.
@@ -2855,19 +2935,26 @@ def cascade_lines(cascades: list[dict[str, Any]], results: dict[str, dict[str, A
         "chosen the same way on a random half of the questions and scored on the other half, over "
         f"{cascades[0]['held_out']['splits']} seeded splits, giving the mean share the decision model "
         "answers, the mean accuracy difference from the frontier run alone in points, and how often the "
-        "cascade did worse. Cost: the decision model's run cost plus the frontier run's cost for the share "
-        "of questions passed on.",
+        "cascade did worse. Cost per 1,000 questions: the decision model's, where it has a price, plus the "
+        "frontier run's for the held-out share of questions passed on, as if every question cost the frontier "
+        "run the same.",
         "",
-        "| Decision model | Frontier run | Dataset | Frontier accuracy | Answered | Accuracy | Cost (USD) | "
-        "Frontier cost (USD) | Answered, held out | Difference, held out | Worse, held out |",
+        "| Decision model | Frontier run | Dataset | Frontier accuracy | Answered | Accuracy | Cost per 1,000 (USD) | "
+        "Frontier cost per 1,000 (USD) | Answered, held out | Difference, held out | Worse, held out |",
         "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for item in cascades:
         decision, frontier = results[item["decision"]], results[item["frontier"]]
         in_sample, held_out = item["in_sample"], item["held_out"]
-        costs = (decision.get("cost_usd"), frontier.get("cost_usd"))
-        cost = "—" if None in costs else f"${costs[0] + costs[1] * (1 - in_sample['answered']):.2f}"
-        frontier_cost = "—" if costs[1] is None else f"${costs[1]:.2f}"
+        frontier_cost = None if frontier.get("cost_usd") is None else 1000 * frontier["cost_usd"] / questions_asked(frontier)
+        passed_on = None if frontier_cost is None else frontier_cost * (1 - held_out["answered"])
+        if passed_on is None:
+            cost = "—"
+        elif decision.get("cost_usd") is None:
+            cost = f"${passed_on:.2f} + unpriced decision model"
+        else:
+            cost = f"${1000 * decision['cost_usd'] / questions_asked(decision) + passed_on:.2f}"
+        frontier_cost = "—" if frontier_cost is None else f"${frontier_cost:.2f}"
         lines.append(
             f"| {run_label(decision)} | {run_label(frontier)} | {dataset_label(decision)} | "
             f"{100 * item['frontier_accuracy']:.1f}% | {100 * in_sample['answered']:.1f}% | "
@@ -3125,19 +3212,12 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         "since excluded are left out of every figure except time, tokens and cost, and correctness follows "
         "its current keys. The Dataset column names the bank version the run used.",
         "",
-        "Questions/min counts request time only. Cost: Jev and Open-Jev at TypeSafe's System One "
-        "price ($0.042 per 1M input tokens, output free) on the input tokens each API reports; "
-        "Liquid AI's d1:free at $0, the free d1 model (Liquid publishes no d1 price); none for "
-        "Laya, which runs on local weights; Perplexity's pplx-decider-v1-27b at its Decisions API "
-        "price ($0.04 per 1M input tokens, output free); Fastino's GLiDE at $0.15 and OpenAI's Decisions "
-        "API at $0.10 per 1M input tokens, output free; the vllm-yes-no and vllm-verbal entries (Qwen) "
-        "at $0.40 / $2.40 per 1M input / output tokens on the tokens vLLM reports; none for the Ollama "
-        "and vllm entries, which run on local weights; Claude "
-        "at Anthropic's API list price (Opus 5.5: $4 / $20, Sonnet 5.5: $2 / $10 per 1M input / output "
-        "tokens) on the tokens Claude Code reports, although those runs use the Claude subscription; "
-        "OpenAI at its API list price (GPT-6 Astra: $10 input, $1 cached input, $12.50 cache write and "
-        "$50 output per 1M tokens) on the tokens Codex reports, although those runs use the ChatGPT "
-        "subscription. Dataset: the question bank's file name and the first 8 hex digits of its SHA-256.",
+        "Questions/min counts request time only. Cost: a run's tokens at its model's list price, with cache "
+        "reads and writes at their own rates where the provider lists them; runs on local weights have none, "
+        "nor does d1, which Liquid AI serves on a free tier with no published price. Claude and OpenAI runs use "
+        "subscriptions, so their costs are what the same tokens would cost on the API. Prices: "
+        + "; ".join(f"{provider} {model}: {price_text(price)} ({price.basis})" for (provider, model), price in PRICES.items())
+        + ". Dataset: the question bank's file name and the first 8 hex digits of its SHA-256.",
         "",
         "| Provider | Model | Thinking | Dataset | Questions | Score | Correct | Invalid | Batch | Questions/min | Cost (USD) | Updated (UTC) |",
         "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|",
@@ -3199,6 +3279,7 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
                 for key, label in (
                     ("cached_input_tokens", "cached"),
                     ("cache_write_input_tokens", "written to cache"),
+                    ("cache_write_1h_input_tokens", "written to the 1-hour cache"),
                 )
                 if result.get(key)
             )
@@ -3262,11 +3343,12 @@ def answer_usage(
     The score is the chosen option's probability for PROBABILITY_PROVIDERS and the stated confidence
     for the others, or None when the response has neither. input_tokens counts every prompt token
     (Ollama: the ones it evaluated, without the part it reused from its prompt cache); output_tokens
-    includes thinking and reasoning tokens. For Codex, the cached and cache-write parts of the input
-    are also given.
+    includes thinking and reasoning tokens. Where the response reports them, the cache parts of the input
+    (CACHE_KINDS) are also given.
     """
     record = json.loads(raw_response)
     score = None
+    cache: dict[str, int] = {}
     if provider in SYSTEM_ONE_PROVIDERS:
         response = record["response"]
         usage = response.get("usage") or {}
@@ -3276,21 +3358,25 @@ def answer_usage(
     elif provider == "claude":
         usage = (record.get("output") or {}).get("usage") or {}
         score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
-        input_tokens = sum(
-            int(usage.get(key) or 0)
-            for key in ("input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
-        )
+        read = int(usage.get("cache_read_input_tokens") or 0)
+        written = int(usage.get("cache_creation_input_tokens") or 0)
+        # Of the tokens written to the cache, those that went to the 1-hour cache; the rest went to the 5-minute one.
+        hour = int((usage.get("cache_creation") or {}).get("ephemeral_1h_input_tokens") or 0)
+        input_tokens = int(usage.get("input_tokens") or 0) + written + read
         output_tokens = usage.get("output_tokens")
+        cache = {"cached_input_tokens": read, "cache_write_input_tokens": written - hour, "cache_write_1h_input_tokens": hour}
     elif provider == "gemini":
         usage = (record.get("response") or {}).get("usageMetadata") or {}
         score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
         input_tokens = usage.get("promptTokenCount")
         # Thinking is billed as output.
         output_tokens = int(usage.get("candidatesTokenCount") or 0) + int(usage.get("thoughtsTokenCount") or 0)
+        cache = {"cached_input_tokens": int(usage.get("cachedContentTokenCount") or 0)}
     elif provider == "openai":
         usage = record.get("usage") or {}
         score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
         input_tokens, output_tokens = usage.get("input_tokens"), usage.get("output_tokens")
+        cache = {key: int(usage.get(key) or 0) for key in ("cached_input_tokens", "cache_write_input_tokens")}
     elif provider == "vllm":
         # vLLM's response, stored as it came apart from the token log probabilities (see ask_vllm).
         usage = record.get("usage") or {}
@@ -3312,10 +3398,7 @@ def answer_usage(
     else:
         # Ollama's response, stored as it came.
         input_tokens, output_tokens = record.get("prompt_eval_count"), record.get("eval_count")
-    tokens = {"input_tokens": int(input_tokens or 0), "output_tokens": int(output_tokens or 0)}
-    if provider == "openai":
-        for key in ("cached_input_tokens", "cache_write_input_tokens"):
-            tokens[key] = int(usage.get(key) or 0)
+    tokens = {"input_tokens": int(input_tokens or 0), "output_tokens": int(output_tokens or 0), **cache}
     return tokens, float(score) if isinstance(score, (int, float)) else None
 
 
@@ -3350,9 +3433,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
         "timed_seconds": float(run["timed_seconds"]),
         "questions_per_minute": run["questions_per_minute"],
     }
-    totals = dict.fromkeys(
-        ("input_tokens", "cached_input_tokens", "cache_write_input_tokens", "output_tokens"), 0
-    )
+    totals = dict.fromkeys(TOKEN_KINDS, 0)
     requests: set[bytes] = set()
     request_seconds: list[float] = []
     stored = 0
@@ -3443,39 +3524,10 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     if request_seconds:
         metrics["median_request_seconds"] = statistics.median(request_seconds)
     metrics.update(totals)
-    input_tokens, output_tokens = totals["input_tokens"], totals["output_tokens"]
-    if provider == "liquid":
-        price = LIQUID_USD_PER_INPUT_TOKEN.get(run["model"])
-        cost_usd = None if price is None else input_tokens * price
-    elif provider == "openai-decisions":
-        cost_usd = input_tokens * OPENAI_DECISIONS_USD_PER_INPUT_TOKEN
-    elif provider == "fastino":
-        cost_usd = input_tokens * FASTINO_USD_PER_INPUT_TOKEN
-    elif provider == "perplexity":
-        cost_usd = input_tokens * PERPLEXITY_USD_PER_INPUT_TOKEN
-    elif provider in SYSTEM_ONE_PROVIDERS and provider not in UNPRICED_SYSTEM_ONE:
-        cost_usd = input_tokens * TYPESAFE_USD_PER_INPUT_TOKEN
-    elif provider in ("vllm-yes-no", "vllm-verbal", "vllm-vote"):
-        cost_usd = input_tokens * VLLM_USD_PER_INPUT_TOKEN + output_tokens * VLLM_USD_PER_OUTPUT_TOKEN
-    elif provider == "claude":
-        prices = CLAUDE_USD_PER_MTOK.get(run["model"])
-        cost_usd = None if prices is None else (input_tokens * prices[0] + output_tokens * prices[1]) / 1_000_000
-    elif provider == "gemini":
-        prices = GEMINI_USD_PER_MTOK.get(run["model"])
-        cost_usd = None if prices is None else (input_tokens * prices[0] + output_tokens * prices[1]) / 1_000_000
-    elif provider == "openai":
-        prices = OPENAI_USD_PER_MTOK.get(run["model"])
-        cached, written = totals["cached_input_tokens"], totals["cache_write_input_tokens"]
-        cost_usd = None if prices is None else (
-            (input_tokens - cached - written) * prices[0]
-            + cached * prices[1]
-            + written * prices[2]
-            + output_tokens * prices[3]
-        ) / 1_000_000
-    else:
-        cost_usd = None  # Laya, Ollama and vllm run on local weights; no price to apply
-    if cost_usd is not None:
-        metrics["cost_usd"] = cost_usd
+    price = PRICES.get((provider, run["model"]))
+    if price is not None:
+        metrics["cost_usd"] = price.cost(totals)
+        metrics["price"] = {"basis": price.basis, "source": price.source, "rates": price.rates(), "text": price_text(price)}
     if run["replace_key_text"] is not None:
         metrics["key_replacement"] = key_replacement(connection, run, graded, search_dir)
     return metrics
@@ -3863,6 +3915,7 @@ def run_pipelines(connection: sqlite3.Connection, results: dict[str, dict[str, A
                 "frontier_accuracy": accuracy(alone),
                 **{key: test[key] for key in ("difference", "low", "high", "p")},
                 "within_tolerance": 100 * test["difference"] >= -plan["tolerance_points"],
+                "decision_cost_usd": decision_cost,
                 "cost_usd": None
                 if decision_cost is None or pipeline_run.get("cost_usd") is None
                 else decision_cost + pipeline_run["cost_usd"],

@@ -28,15 +28,28 @@ const formatParameters = (count, active = null) => {
 const scoreRange = interval => (interval ? `${interval[0].toFixed(3)}–${interval[1].toFixed(3)}` : null);
 const percentRange = (interval, digits = 1) =>
   interval ? `${(100 * interval[0]).toFixed(digits)}–${(100 * interval[1]).toFixed(digits)}%` : null;
-/* A self-hosted run valued at another model's token price or an assumed price carries an asterisk. */
-const costText = (value, run) => (value != null && run.hypothetical_cost ? `${formatUsd(value)}*` : formatUsd(value));
-const costTitle = run =>
-  run.hypothetical_cost ? `Hypothetical: ${run.cost_basis ?? 'a self-hosted run valued at an assumed price'}` : run.cost_basis;
+/* A run's API cost and request time per 1,000 questions asked; the cost is null for free and self-hosted runs. */
+const costPer1000 = run => (run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / run.answered_questions);
+const minutesPer1000 = run => (run.request_seconds == null ? null : (1000 * run.request_seconds) / 60 / run.answered_questions);
+/* What a cost cell shows for a run without a dollar figure. */
+const NO_COST = { free: 'Free tier', local: 'Not estimated' };
+const costText = run => (run.api_equivalent_usd == null ? (NO_COST[run.billing] ?? '—') : formatUsd(costPer1000(run)));
 const BILLING = {
   api: 'Billed per token',
   subscription: 'Subscription',
+  free: 'Free tier',
   local: 'Self-hosted',
 };
+const priceOf = (data, run) => data.prices.find(price => price.provider === run.provider && price.model === run.model);
+function costTitle(data, run) {
+  if (run.billing === 'local') {
+    const minutes = minutesPer1000(run);
+    return `Self-hosted on ${run.hardware}${minutes == null ? '' : `: ${minutes.toFixed(1)} min of request time per 1,000 questions`}; no dollar cost estimated`;
+  }
+  if (run.billing === 'free') return 'Free tier, with no published price';
+  const price = priceOf(data, run);
+  return price ? `${price.text} (${price.basis})` : null;
+}
 
 function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
@@ -74,15 +87,6 @@ function percentCell(value, { digits = 1, title = null, heat = false, detail = n
 function tableNote(...parts) {
   return el('p', { class: 'table-note' }, ...parts.map(part => (Array.isArray(part) ? el('a', { href: part[0], text: part[1] }) : part)));
 }
-
-const hypotheticalNote = runs =>
-  runs.some(run => run.hypothetical_cost)
-    ? tableNote(
-        '* Hypothetical: a self-hosted run valued at another model’s token price or an assumed price; see ',
-        ['#cost-estimates', 'How monetary costs are estimated'],
-        '.',
-      )
-    : null;
 
 /* Notes go right after the table's scrolling box. */
 function addNotes(table, ...notes) {
@@ -209,8 +213,7 @@ function renderLeaderboard(data) {
     const score = percent(run.correct, total);
     const rank = 1 + data.runs.filter(other => other.correct > run.correct).length;
     const tokens = run.output_tokens == null ? null : run.output_tokens / (run.answered_questions ?? total);
-    // Every request counts, so the cost is per question asked, as the output tokens are.
-    const cost = run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / (run.answered_questions ?? total);
+    const cost = costPer1000(run);
     const auroc = run.confidence?.auroc ?? null;
     return el(
       'tr',
@@ -239,11 +242,7 @@ function renderLeaderboard(data) {
         numeric: true,
         title: run.output_tokens == null ? null : `${integer(run.output_tokens)} output tokens in all`,
       }),
-      td(costText(cost, run), {
-        value: cost,
-        numeric: true,
-        title: costTitle(run),
-      }),
+      td(costText(run), { value: cost, numeric: true, title: costTitle(data, run) }),
       percentCell(run.tyt_mix == null ? null : 100 * run.tyt_mix, { title: `Reading and grammar weighted like ${mix}` }),
       td(run.questions_per_minute == null ? '—' : run.questions_per_minute.toFixed(1), {
         value: run.questions_per_minute,
@@ -283,9 +282,9 @@ function renderLeaderboard(data) {
       },
       { label: 'Output tokens', numeric: true, title: 'Output tokens per question, reasoning included', extra: true },
       {
-        label: 'Cost per 1,000 (USD)',
+        label: 'API cost per 1,000 (USD)',
         numeric: true,
-        title: 'API-equivalent cost per 1,000 questions; empty for open weights with no price',
+        title: 'What 1,000 questions cost at the API’s list price; self-hosted runs show their request time in the cost table instead',
       },
       { label: 'TYT mix', numeric: true, title: `Reading and grammar weighted like the 2026 TYT paper: ${mix}`, extra: true },
       { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time', extra: true },
@@ -308,51 +307,55 @@ function renderLeaderboard(data) {
       ['#differences', 'Interpreting performance differences'],
       '); Show all columns adds each run’s group letters.',
     ),
-    hypotheticalNote(data.runs),
   );
 }
 
 function renderCost(data) {
   const rows = data.runs.map(run => {
-    const minutes = run.request_seconds == null ? null : run.request_seconds / 60;
+    const cost = costPer1000(run);
+    const minutes = minutesPer1000(run);
     return el(
       'tr',
       {},
       modelCell(run, { withSetting: true }),
       td(BILLING[run.billing]),
-      td(run.billing === 'api' ? formatUsd(run.billed_usd) : '—', {
-        value: run.billing === 'api' ? run.billed_usd : null,
-        numeric: true,
-      }),
-      td(costText(run.api_equivalent_usd, run), {
-        value: run.api_equivalent_usd,
-        numeric: true,
-        title: costTitle(run),
-      }),
-      td(run.hardware ?? '—'),
+      td(costText(run), { value: cost, numeric: true, title: costTitle(data, run) }),
       td(minutes == null ? '—' : minutes.toFixed(1), { value: minutes, numeric: true }),
+      td(run.hardware ?? '—'),
       td(String(run.concurrency), { value: run.concurrency, numeric: true }),
     );
   });
-  const table = fillTable(
+  fillTable(
     'cost',
     [
       { label: 'Model' },
       { label: 'Paid by' },
-      { label: 'Billed (USD)', numeric: true, title: 'What the API charged for the run' },
-      { label: 'API-equivalent (USD)', numeric: true, title: 'The run’s tokens at a list or assumed price; see the basis below' },
+      {
+        label: 'API cost per 1,000 (USD)',
+        numeric: true,
+        title: 'The run’s tokens at the API’s list price, per 1,000 questions asked; see the prices below',
+      },
+      {
+        label: 'Request time per 1,000 (min)',
+        numeric: true,
+        title: 'Time while requests were in flight, per 1,000 questions asked',
+      },
       { label: 'Local GPU' },
-      { label: 'Request time (min)', numeric: true },
       { label: 'Requests at a time', numeric: true },
     ],
     rows,
   );
-  if (table) addNotes(table, hypotheticalNote(data.runs));
-  const notes = new Set(data.runs.filter(run => run.cost_basis).map(run => `${run.name}: ${run.cost_basis}.`));
-  const unpriced = [...new Set(data.runs.filter(run => run.api_equivalent_usd == null).map(run => run.name))];
+  const names = runs => [...new Set(runs.map(run => run.name))].join(', ');
+  const priced = data.prices.map(price => {
+    const runs = data.runs.filter(run => run.provider === price.provider && run.model === price.model);
+    return el('li', { text: `${names(runs)}: ${price.text} (${price.basis}).` });
+  });
+  const free = data.runs.filter(run => run.billing === 'free');
+  const local = data.runs.filter(run => run.billing === 'local');
   document.getElementById('cost-notes')?.replaceChildren(
-    ...[...notes].map(text => el('li', { text })),
-    unpriced.length ? el('li', { text: `${unpriced.join(', ')}: open weights with no price to apply.` }) : null,
+    ...priced,
+    free.length ? el('li', { text: `${names(free)}: a free tier with no published price.` }) : null,
+    local.length ? el('li', { text: `${names(local)}: self-hosted; no dollar cost is estimated.` }) : null,
   );
 }
 
@@ -680,11 +683,13 @@ function renderPaired(data) {
 function renderCascade(data) {
   const byRun = new Map(data.runs.map(run => [run.run, run]));
   const rows = data.cascades.map(item => {
+    const first = byRun.get(item.decision);
     const frontier = byRun.get(item.frontier);
+    const unpriced = first.api_equivalent_usd == null;
     return el(
       'tr',
       {},
-      modelCell(byRun.get(item.decision)),
+      modelCell(first),
       modelCell(frontier, { withSetting: true }),
       percentCell(100 * item.frontier_accuracy),
       percentCell(100 * item.in_sample.answered, {
@@ -693,28 +698,57 @@ function renderCascade(data) {
             ? 'No threshold keeps the frontier accuracy on these questions'
             : `Threshold ${item.in_sample.threshold.toFixed(3)}`,
       }),
-      td(formatUsd(item.api_equivalent_usd), { value: item.api_equivalent_usd, numeric: true }),
-      td(formatUsd(frontier.api_equivalent_usd), { value: frontier.api_equivalent_usd, numeric: true }),
       percentCell(100 * item.held_out.answered),
       td(formatPoints(item.held_out.difference, 2), { value: 100 * item.held_out.difference, numeric: true }),
       percentCell(100 * item.held_out.worse, { digits: 0 }),
+      td(
+        [
+          formatUsd(item.usd_per_1000),
+          unpriced ? el('span', { class: 'small', text: `plus the first model: ${NO_COST[first.billing].toLowerCase()}` }) : null,
+        ],
+        { value: item.usd_per_1000, numeric: true, title: unpriced ? costTitle(data, first) : null },
+      ),
+      td(formatUsd(costPer1000(frontier)), { value: costPer1000(frontier), numeric: true }),
     );
   });
-  fillTable(
+  const table = fillTable(
     'cascade',
     [
       { label: 'First model', title: 'A decision model, or Gemma 4 31B, answering first' },
       { label: 'Frontier run' },
       { label: 'Frontier accuracy', numeric: true },
-      { label: 'Answered', numeric: true, title: 'Share the decision model answers at the lowest threshold that keeps the frontier accuracy' },
-      { label: 'Cost', numeric: true, title: 'API-equivalent: the decision model run plus the frontier run on the questions passed on' },
-      { label: 'Frontier cost', numeric: true, title: 'API-equivalent cost of the frontier run alone' },
+      { label: 'Answered', numeric: true, title: 'Share the first model answers at the lowest threshold that keeps the frontier accuracy, chosen and scored on all questions' },
       { label: 'Answered, held out', numeric: true, title: 'Threshold chosen on random halves, scored on the other halves' },
       { label: 'Difference, held out', numeric: true, title: 'Mean accuracy difference from the frontier run alone, in points' },
       { label: 'Worse, held out', numeric: true, title: 'Share of the splits where the cascade scored lower' },
+      {
+        label: 'Cost per 1,000, estimate (USD)',
+        numeric: true,
+        title: 'The first model’s API cost plus the frontier run’s for the held-out share passed on, as if every question cost the frontier the same',
+      },
+      { label: 'Frontier alone per 1,000 (USD)', numeric: true },
     ],
     rows,
   );
+  // The routing test with new frontier calls shows what the proportional estimate leaves out.
+  const measured = data.pipelines
+    .filter(item => item.measured?.cost_usd != null)
+    .map(item => {
+      const { cost_usd: cost, frontier_cost_usd: alone, decision_cost_usd: first } = item.measured;
+      const estimate = first + alone * (1 - item.routed / item.held_out);
+      const frontier = byRun.get(item.frontier);
+      return `${byRun.get(item.decision).name} followed by ${frontier.name} (${frontier.reasoning}) saved ${formatPercent(100 * (1 - cost / alone), 1)}, against an estimated ${formatPercent(100 * (1 - estimate / alone), 1)}`;
+    });
+  if (table && measured.length) {
+    addNotes(
+      table,
+      tableNote(
+        'The cost estimate treats every question passed on as costing the frontier model the same. The harder questions it receives can cost more: in the routing test with new frontier calls, ',
+        measured.join('; '),
+        '.',
+      ),
+    );
+  }
 
   const doubts = data.doubts.map(item =>
     el(
@@ -818,12 +852,14 @@ function renderPipelines(data) {
         : td('—'),
       td(measured ? formatP(measured.p) : '—', { value: measured?.p, numeric: true }),
       td(
-        `${item.tolerance_points.toFixed(1)} points${measured ? (measured.within_tolerance ? ', kept' : ', missed') : ''}`,
+        `${item.tolerance_points.toFixed(1)} points${measured ? `; observed loss ${measured.within_tolerance ? 'under' : 'over'} it` : ''}`,
       ),
-      td(measured ? `${formatUsd(measured.cost_usd)} / ${formatUsd(measured.frontier_cost_usd)}` : '—', {
-        value: measured?.cost_usd,
-        numeric: true,
-      }),
+      td(
+        measured
+          ? `${formatUsd((1000 * measured.cost_usd) / item.held_out)} / ${formatUsd((1000 * measured.frontier_cost_usd) / item.held_out)}`
+          : '—',
+        { value: measured ? (1000 * measured.cost_usd) / item.held_out : null, numeric: true },
+      ),
       td(
         measured ? `${(measured.request_seconds / 60).toFixed(1)} / ${(measured.frontier_request_seconds / 60).toFixed(1)}` : '—',
         { value: measured?.request_seconds, numeric: true },
@@ -843,7 +879,7 @@ function renderPipelines(data) {
       { label: 'Difference', numeric: true, title: 'Pipeline minus the frontier run on all held-out questions, in points, with the paired 95% interval' },
       { label: 'p', numeric: true, title: 'Exact McNemar test' },
       { label: 'Tolerance', title: 'The accuracy loss accepted before the runs' },
-      { label: 'Cost', numeric: true, title: 'API-equivalent: pipeline / frontier alone' },
+      { label: 'Cost per 1,000 (USD)', numeric: true, title: 'API cost per 1,000 held-out questions: pipeline / frontier alone' },
       { label: 'Minutes', numeric: true, title: 'Request time: pipeline / frontier alone' },
     ],
     rows,
@@ -859,7 +895,8 @@ function renderPipelines(data) {
   }
   if (table && alternatives.size) {
     const listed = [...alternatives.values()].map(
-      item => `${item.name}${item.reasoning ? ` (${item.reasoning})` : ''} ${formatPercent(100 * item.accuracy, 1)} at ${formatUsd(item.cost_usd)}`,
+      item =>
+        `${item.name}${item.reasoning ? ` (${item.reasoning})` : ''} ${formatPercent(100 * item.accuracy, 1)} at ${formatUsd((1000 * item.cost_usd) / data.pipelines[0].held_out)} per 1,000 questions`,
     );
     addNotes(table, tableNote(`On the same ${integer(data.pipelines[0].held_out)} held-out questions, run alone: ${listed.join('; ')}.`));
   }
