@@ -56,6 +56,9 @@ class SystemOneService:
     model_field: bool = True
     # Response header holding the server's request ID, stored with each answer.
     request_id_header: str | None = None
+    # OpenAI's Decisions API: the same three parts under other names (`input`, a list of named
+    # `questions`, `choices` with values and descriptions), and answers listed by name (system_one_answer).
+    openai_format: bool = False
 
     def key_help(self) -> str:
         if not self.key_vars:
@@ -104,6 +107,17 @@ SYSTEM_ONE = {
     # ~/code/strands-decider/server.py: Amazon's Strands Decider 2B through its own package, behind the
     # System One format.
     "strands": SystemOneService("Strands Decider", "http://127.0.0.1:18096"),
+    # OpenAI's Decisions API (public beta), which serves gpt-6-luna. Needs an API key with billing; the
+    # Codex-based openai provider never uses one.
+    "openai-decisions": SystemOneService(
+        "OpenAI",
+        "https://api.openai.com",
+        path="/v1/decisions",
+        key_vars=("OPENAI_API_KEY",),
+        key_required=True,
+        request_id_header="x-request-id",
+        openai_format=True,
+    ),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Self-hosted open-weight System One models with no published price to apply.
@@ -119,6 +133,9 @@ LIQUID_USD_PER_INPUT_TOKEN = {"d1:free": 0.0}
 PERPLEXITY_USD_PER_INPUT_TOKEN = 0.04 / 1_000_000
 # Fastino's published GLiDE price: input tokens only, output free (https://docs.fastino.ai/pricing).
 FASTINO_USD_PER_INPUT_TOKEN = 0.15 / 1_000_000
+# OpenAI's price for /v1/decisions with gpt-6-luna: input tokens only; no cache or output charges
+# (https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability).
+OPENAI_DECISIONS_USD_PER_INPUT_TOKEN = 0.10 / 1_000_000
 DEFAULT_VLLM_URL = "http://192.168.1.126:8888"
 # vllm sends the Ollama models' prompt, several questions per request; vllm-yes-no, vllm-verbal and
 # vllm-vote send one question per request.
@@ -156,6 +173,8 @@ PAIRED_CONFIGURATIONS: tuple[tuple[str | tuple[str, str], str | tuple[str, str]]
     ("perplexity", "jev"),
     (("fastino", "fastino/GLiDE"), "perplexity"),
     (("vllm", "gemma-4-31B-it"), ("fastino", "fastino/GLiDE")),
+    # The same model read two ways: option probabilities from the Decisions API, a stated confidence via Codex.
+    (("openai-decisions", "gpt-6-luna"), ("openai", "gpt-6-luna")),
 )
 # Tied groups: two runs over the same questions count as told apart when their exact paired test, Holm-
 # adjusted over every pair of those runs, falls below this level.
@@ -166,6 +185,7 @@ TIE_ALPHA = 0.05
 # as (provider, model, thinking).
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "strands",
+    "openai-decisions",
     ("vllm", "gemma-4-31B-it"),
 )
 CASCADE_FRONTIER_RUNS = (
@@ -1997,6 +2017,31 @@ def post_json(
         raise RuntimeError(f"{service} returned invalid JSON: {exc}") from exc
 
 
+def system_one_answer(response: Any) -> dict[str, Any]:
+    """The benchmark question's answer in a System One response, in System One's shape: `choice`,
+    `confidence` and `probabilities` keyed by option, or {} when there is none. OpenAI's Decisions API
+    lists its answers by name and gives each option's probability as {value, probability}; its answer
+    comes back in the same shape, and a refusal (type "refusal") keeps its type and has no choice."""
+    answers = response.get("answers") if isinstance(response, dict) else None
+    if isinstance(answers, dict):
+        answer = answers.get("answer")
+        return answer if isinstance(answer, dict) else {}
+    if not isinstance(answers, list):
+        return {}
+    answer = next((item for item in answers if isinstance(item, dict) and item.get("name") == "answer"), {})
+    probabilities = answer.get("probabilities")
+    if isinstance(probabilities, list):
+        answer = {
+            **answer,
+            "probabilities": {
+                str(item["value"]): float(item["probability"])
+                for item in probabilities
+                if isinstance(item, dict) and "value" in item and isinstance(item.get("probability"), (int, float))
+            },
+        }
+    return answer
+
+
 def ask_jev(
     service: SystemOneService,
     base_url: str,
@@ -2011,16 +2056,29 @@ def ask_jev(
     # Open-Jev and Laya serve one checkpoint and take no model field, so their model argument is only
     # the report label.
     payload: dict[str, Any] = {"model": model} if service.model_field else {}
-    payload.update(
-        state=question.prompt,
-        questions={
-            "answer": {
-                "type": "choice",
-                "instructions": JEV_INSTRUCTIONS,
-                "criteria": {option.label: option.text for option in question.options},
-            }
-        },
-    )
+    if service.openai_format:
+        payload.update(
+            input=question.prompt,
+            questions=[
+                {
+                    "type": "choice",
+                    "name": "answer",
+                    "instructions": JEV_INSTRUCTIONS,
+                    "choices": [{"value": option.label, "description": option.text} for option in question.options],
+                }
+            ],
+        )
+    else:
+        payload.update(
+            state=question.prompt,
+            questions={
+                "answer": {
+                    "type": "choice",
+                    "instructions": JEV_INSTRUCTIONS,
+                    "criteria": {option.label: option.text for option in question.options},
+                }
+            },
+        )
     headers = {"Content-Type": "application/json"}
     if api_key is not None:
         headers["Authorization"] = f"Bearer {api_key}"
@@ -2033,9 +2091,12 @@ def ask_jev(
         ensure_ascii=False,
         separators=(",", ":"),
     )
-    try:
-        prediction = result["answers"]["answer"]["choice"]
-    except (KeyError, TypeError):
+    answer = system_one_answer(result)
+    if answer.get("type") == "refusal":
+        print(f"warning: {service.name} refused question {question.question_id}", file=sys.stderr)
+        return None, stored_response
+    prediction = answer.get("choice")
+    if prediction is None:
         print(f"warning: invalid {service.name} response: {result!r}", file=sys.stderr)
         return None, stored_response
     if prediction not in labels:
@@ -3068,7 +3129,8 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         "price ($0.042 per 1M input tokens, output free) on the input tokens each API reports; "
         "Liquid AI's d1:free at $0, the free d1 model (Liquid publishes no d1 price); none for "
         "Laya, which runs on local weights; Perplexity's pplx-decider-v1-27b at its Decisions API "
-        "price ($0.04 per 1M input tokens, output free); the vllm-yes-no and vllm-verbal entries (Qwen) "
+        "price ($0.04 per 1M input tokens, output free); Fastino's GLiDE at $0.15 and OpenAI's Decisions "
+        "API at $0.10 per 1M input tokens, output free; the vllm-yes-no and vllm-verbal entries (Qwen) "
         "at $0.40 / $2.40 per 1M input / output tokens on the tokens vLLM reports; none for the Ollama "
         "and vllm entries, which run on local weights; Claude "
         "at Anthropic's API list price (Opus 5.5: $4 / $20, Sonnet 5.5: $2 / $10 per 1M input / output "
@@ -3208,7 +3270,7 @@ def answer_usage(
     if provider in SYSTEM_ONE_PROVIDERS:
         response = record["response"]
         usage = response.get("usage") or {}
-        answer = (response.get("answers") or {}).get("answer") or {}
+        answer = system_one_answer(response)
         score = (answer.get("probabilities") or {}).get(answer.get("choice"))
         input_tokens, output_tokens = usage.get("input_tokens"), usage.get("output_tokens")
     elif provider == "claude":
@@ -3385,6 +3447,8 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     if provider == "liquid":
         price = LIQUID_USD_PER_INPUT_TOKEN.get(run["model"])
         cost_usd = None if price is None else input_tokens * price
+    elif provider == "openai-decisions":
+        cost_usd = input_tokens * OPENAI_DECISIONS_USD_PER_INPUT_TOKEN
     elif provider == "fastino":
         cost_usd = input_tokens * FASTINO_USD_PER_INPUT_TOKEN
     elif provider == "perplexity":
@@ -3513,7 +3577,7 @@ def option_probabilities(provider: str, raw_response: str, question_id: int | No
     so it needs the question's ID."""
     record = json.loads(raw_response)
     if provider in SYSTEM_ONE_PROVIDERS:
-        return ((record["response"].get("answers") or {}).get("answer") or {}).get("probabilities")
+        return system_one_answer(record["response"]).get("probabilities")
     if provider == "vllm-yes-no":
         return record.get("probabilities")
     if provider == "vllm":
@@ -3611,7 +3675,13 @@ def run_comparisons(
             for first in members:
                 for second in members:
                     pair = (first["run_key"], second["run_key"])
-                    if matches_side(first, first_side) and matches_side(second, second_side) and pair not in pairs:
+                    # Either order: a configured pair can already be a pair of neighbours.
+                    if (
+                        matches_side(first, first_side)
+                        and matches_side(second, second_side)
+                        and pair not in pairs
+                        and pair[::-1] not in pairs
+                    ):
                         pairs.append(pair)
         family: list[dict[str, Any]] = []
         for first, second in pairs:

@@ -102,6 +102,12 @@ PROVIDERS: dict[str, dict[str, Any]] = {
         "billing": "subscription",
         "cost_basis": "OpenAI API list price, {price}",
     },
+    "openai-decisions": {
+        "access": "OpenAI Decisions API (public beta)",
+        "scoring": True,
+        "billing": "api",
+        "cost_basis": "OpenAI's price for the Decisions API: $0.10 per 1M input tokens, output free",
+    },
 }
 # Where a run's confidence comes from (the report's score_source).
 CONFIDENCE_SOURCES = {
@@ -110,7 +116,12 @@ CONFIDENCE_SOURCES = {
     "votes": "Share of 10 samples",
 }
 # Runs of one model through different providers.
-VARIANTS = {"vllm-yes-no": "yes/no scoring", "vllm-verbal": "stated confidence", "vllm-vote": "vote share"}
+VARIANTS = {
+    "vllm-yes-no": "yes/no scoring",
+    "vllm-verbal": "stated confidence",
+    "vllm-vote": "vote share",
+    "openai-decisions": "Decisions API, beta",
+}
 GPU = "RTX PRO 6000 Blackwell (96 GB)"
 # Display names, list prices, and for models on our GPUs the hardware and precision.
 # parameters: the model's weights, counted from the tensor shapes in each local checkpoint's safetensors

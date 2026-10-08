@@ -157,6 +157,7 @@ question. `--codex-bin` and `--claude-bin` point at other executables.
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
 | `run_liquid_d1.sh` | Liquid AI d1 | `LIQUID_API_KEY` |
 | `run_glide.sh` | Fastino GLiDE, 4 requests at a time | `FASTINO_API_KEY` |
+| `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
 
 `run_jev.sh` (and the `jev` lane of `run_experiments.sh`) reads the key from `$HOME/code/jev/key`;
 put it there, or run the script's command with `JEV_API_KEY` set. The decision APIs get one question

@@ -2,7 +2,17 @@ import json
 import math
 import unittest
 
-from benchmark_ollama import Option, Question, letter_probabilities, parse_ollama_content, regrade, replace_key_text, shuffle_options
+from benchmark_ollama import (
+    Option,
+    Question,
+    answer_usage,
+    letter_probabilities,
+    option_probabilities,
+    parse_ollama_content,
+    regrade,
+    replace_key_text,
+    shuffle_options,
+)
 
 
 class RegradeTests(unittest.TestCase):
@@ -71,6 +81,34 @@ class LetterProbabilitiesTests(unittest.TestCase):
     def test_a_reply_missing_from_the_tokens_gives_nothing(self) -> None:
         result = {"choices": [{"logprobs": {"content": [token("x", 0.0)]}}]}
         self.assertEqual(letter_probabilities(result, '{"answers": {"1": "A"}}', [question(1)]), {})
+
+
+class OpenAIDecisionsTests(unittest.TestCase):
+    @staticmethod
+    def stored(answers: list[dict]) -> str:
+        return json.dumps({"request_id": None, "response": {"answers": answers, "usage": {"input_tokens": 120, "output_tokens": 0}}})
+
+    def test_score_is_the_chosen_options_listed_probability(self) -> None:
+        # The API lists probabilities as {value, probability}; its own confidence field is not the score.
+        raw = self.stored(
+            [
+                {"type": "predicate", "name": "other", "probability": 0.9},
+                {
+                    "type": "choice",
+                    "name": "answer",
+                    "choice": "B",
+                    "probabilities": [{"value": "A", "probability": 0.25}, {"value": "B", "probability": 0.75}],
+                    "confidence": 0.5,
+                },
+            ]
+        )
+        self.assertEqual(answer_usage("openai-decisions", 1, raw), ({"input_tokens": 120, "output_tokens": 0}, 0.75))
+        self.assertEqual(option_probabilities("openai-decisions", raw), {"A": 0.25, "B": 0.75})
+
+    def test_a_refusal_has_no_score(self) -> None:
+        raw = self.stored([{"type": "refusal", "name": "answer"}])
+        self.assertIsNone(answer_usage("openai-decisions", 1, raw)[1])
+        self.assertIsNone(option_probabilities("openai-decisions", raw))
 
 
 class ShuffleOptionsTests(unittest.TestCase):

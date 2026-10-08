@@ -687,7 +687,12 @@ function renderCascade(data) {
       modelCell(byRun.get(item.decision)),
       modelCell(frontier, { withSetting: true }),
       percentCell(100 * item.frontier_accuracy),
-      percentCell(100 * item.in_sample.answered, { title: `Threshold ${item.in_sample.threshold.toFixed(3)}` }),
+      percentCell(100 * item.in_sample.answered, {
+        title:
+          item.in_sample.threshold == null
+            ? 'No threshold keeps the frontier accuracy on these questions'
+            : `Threshold ${item.in_sample.threshold.toFixed(3)}`,
+      }),
       td(formatUsd(item.api_equivalent_usd), { value: item.api_equivalent_usd, numeric: true }),
       td(formatUsd(frontier.api_equivalent_usd), { value: frontier.api_equivalent_usd, numeric: true }),
       percentCell(100 * item.held_out.answered),

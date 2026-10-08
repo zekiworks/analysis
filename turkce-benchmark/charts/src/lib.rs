@@ -192,6 +192,7 @@ fn color(run: &Run) -> Color {
     match (run.model.as_str(), run.reasoning.as_deref(), run.variant.as_deref()) {
         ("gpt-6-astra", ..) => rgb(0x2563eb),
         ("gpt-6.1-sol", ..) => rgb(0x0891b2),
+        ("gpt-6-luna", _, Some(_)) => rgb(0x0ea5e9),
         ("gpt-6-luna", ..) => rgb(0x60a5fa),
         ("gemini-3.8-flash", Some("high"), _) => rgb(0x3f6212),
         ("gemini-3.8-flash", ..) => rgb(0x65a30d),
