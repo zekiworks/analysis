@@ -4,15 +4,20 @@
     python3 build_page.py               # the page, the sharing images and the X posts
     python3 build_page.py --no-images   # without the images (no Chrome needed)
 
-Every number in the overview, in the sharing images and in the X posts comes from the snapshot. docs/index.html
-keeps the copy; this script rewrites what is inside its markers:
+Every number in the overview, in the sharing images and in the X posts comes from the snapshot, and so do the
+numbers in the study's sentences that carry a marker. docs/index.html keeps the copy; this script rewrites what is
+inside its markers:
 
 - <span data-value="key">…</span>: a number or a short text from values();
-- <!-- build:name --> … <!-- /build:name -->: a block from blocks() (tables, bars, meta tags).
+- <!-- build:name --> … <!-- /build:name -->: a block from blocks() (tables, bars, sentences, meta tags).
 
-The images are drawn by headless Chrome from HTML made here, from the same rows as the page, and saved under
-docs/share/ with the results version in their names; share/x-posts.md holds the announcement text.
-reproduce.py must pass first, and the build stops otherwise. Set CHROME to use another Chrome or Chromium binary.
+"lead" in page_config.json names the finding the page leads with (one of "leads"): it opens the page, comes
+first in the confidence figure, and is what the link preview, the X image and the main X post show. The images
+are drawn by headless Chrome from HTML made here, from the same rows as the page, and saved under docs/share/
+with the results version in their names; share/x-posts.md holds the announcement text. Earlier images are
+deleted until "announced" holds the date of the first public post, and kept after it, so that earlier link
+previews keep working. reproduce.py must pass first, and the build stops otherwise. Set CHROME to use another
+Chrome or Chromium binary.
 """
 
 from __future__ import annotations
@@ -72,6 +77,14 @@ def count(value: int) -> str:
     return f"{value:,}"
 
 
+NUMBER_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine"}
+
+
+def in_words(value: int) -> str:
+    """A count below ten in words, a larger one in figures."""
+    return NUMBER_WORDS.get(value, count(value))
+
+
 def usd(value: float) -> str:
     return f"${value:.2f}"
 
@@ -116,6 +129,29 @@ def label_html(item: dict[str, Any]) -> str:
     return f'<span class="model-name">{esc(item["name"])}</span>' + (f'<span class="muted"> · {esc(detail)}</span>' if detail else "")
 
 
+def alone(item: dict[str, Any]) -> str:
+    """'GPT-6.1 Sol alone (low reasoning)': a configuration that answers every question itself."""
+    detail = setting(item)
+    return f"{item['name']} alone" + (f" ({detail})" if detail else "")
+
+
+VERSION = re.compile(r"^(.*?)\s+v(\d+(?:\.\d+)*)$")
+
+
+def neutral_order(run: dict[str, Any]) -> tuple[Any, ...]:
+    """Alphabetical by name and setting, a model's newer version first: an order that ranks nothing."""
+    found = VERSION.match(run["name"])
+    base, parts = (found.group(1), [int(part) for part in found.group(2).split(".")]) if found else (run["name"], [])
+    newest_first = tuple(-part for part in parts) + (0,) * (4 - len(parts))
+    return (base.casefold(), newest_first, setting(run).casefold())
+
+
+def minutes(seconds: float) -> str:
+    """Request time in minutes: one decimal below ten, whole minutes from ten."""
+    value = seconds / 60
+    return f"{value:.1f}" if value < 10 else f"{value:.0f}"
+
+
 # ---------------------------------------------------------------- the snapshot
 
 
@@ -157,22 +193,36 @@ class Snapshot:
         self.reading_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] in reading_units)
         self.grammar_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] not in reading_units)
         self.models = len({run["model"] for run in self.runs})
-        # Each section orders its rows by its own measure, ties in the configuration's order: confidence rows by
-        # answers accepted, after the preview rows; task rows by overall accuracy, before the reference rows;
-        # stability rows by changed answers, fewest first.
+        # The confidence rows: the lead finding first, then an order that ranks nothing. Task rows by overall
+        # accuracy, the reference rows last; stability rows by changed answers, fewest first. Ties keep the
+        # configuration's order.
         thresholds = [row for spec in config["confidence_rows"] if (row := self.threshold_row(spec))]
-        self.thresholds = [row for row in thresholds if row["preview"]] + sorted(
-            (row for row in thresholds if not row["preview"]), key=lambda row: -row["accepted"]
-        )
+        keyed = {row["key"]: row for row in thresholds if row["key"]}
+        lead_keys = config["leads"][config["lead"]]
+        missing = [key for key in lead_keys if key not in keyed]
+        if missing:
+            raise ValueError(f"lead {config['lead']!r} names confidence rows that do not exist: {', '.join(missing)}")
+        self.lead = [keyed[key] for key in lead_keys]
+        others = [row for row in thresholds if all(row is not lead for lead in self.lead)]
+        self.thresholds = self.lead + sorted(others, key=lambda row: neutral_order(row["run"]))
         tasks = [row for spec in config["accuracy_rows"] if (row := self.task_row(spec))]
         self.tasks = sorted((row for row in tasks if not row["reference"]), key=lambda row: -row["overall"]) + [
             row for row in tasks if row["reference"]
         ]
-        whole_bank = [item for spec in config["stability_whole_bank"] if (item := pick(results["repeats"], spec, "stability"))]
-        for item in whole_bank:
+        # Runs the study's sentences name by key: the keyed rows, then page_config.json's named runs.
+        self.named = {row["key"]: row["run"] for row in [*thresholds, *tasks] if row["key"]}
+        for key, spec in config.get("named_runs", {}).items():
+            found = pick(self.runs, spec, f"named run {key}")
+            assert found is not None
+            self.named[key] = found
+        self.repeats_by_key: dict[str, dict[str, Any]] = {}
+        for spec in config["stability_whole_bank"]:
+            item = pick(results["repeats"], spec, "stability")
+            assert item is not None
             if not item["whole_bank"] or item["questions_per_request"] != 1:
                 raise ValueError(f"{label(item)}: its repeats are not one question per request over the whole bank")
-        self.whole_bank = sorted(whole_bank, key=lambda item: item["changed_answer"])
+            self.repeats_by_key[spec["key"]] = item
+        self.whole_bank = sorted(self.repeats_by_key.values(), key=lambda item: item["changed_answer"])
         per_request = config["stability_sample_questions_per_request"]
         self.sample = sorted(
             (item for item in results["repeats"] if not item["whole_bank"] and item["questions_per_request"] == per_request),
@@ -197,7 +247,6 @@ class Snapshot:
                 raise ValueError(f"{label(run)}: stored interval {interval}, Wilson interval of the counts {recomputed}")
         return {
             "key": spec.get("key"),
-            "preview": spec.get("preview", False),
             "run": run,
             "source": (run.get("confidence") or {}).get("label", "no confidence"),
             "accepted": accepted,
@@ -243,16 +292,16 @@ class Snapshot:
         )
         measured = plan["measured"]
         rows = [
-            {"label": f"{named(frontier)}, alone", "runs": [frontier], "accuracy": measured["frontier_accuracy"], "versus": None,
+            {"label": alone(frontier), "runs": [frontier], "accuracy": measured["frontier_accuracy"], "versus": None,
              "cost": measured["frontier_cost_usd"], "seconds": measured["frontier_request_seconds"]},
-            {"label": f"{named(decision)}, then {named(frontier)}", "runs": [decision, frontier], "accuracy": measured["accuracy"],
+            {"label": f"{named(decision)} followed by {named(frontier)}", "runs": [decision, frontier], "accuracy": measured["accuracy"],
              "versus": {key: measured[key] for key in ("difference", "low", "high", "p")},
              "cost": measured["cost_usd"], "seconds": measured["request_seconds"]},
         ]
         for alternative_spec in spec["alternatives"]:
             alternative = pick(measured["alternatives"], alternative_spec, "cost alternatives")
             assert alternative is not None
-            rows.append({"label": f"{named(alternative)}, alone", "runs": [self.main_run(alternative)], "accuracy": alternative["accuracy"],
+            rows.append({"label": alone(alternative), "runs": [self.main_run(alternative)], "accuracy": alternative["accuracy"],
                          "versus": alternative["versus_frontier"], "cost": alternative["cost_usd"], "seconds": alternative["request_seconds"]})
         return plan, rows
 
@@ -268,6 +317,7 @@ class Snapshot:
 
 def values(snap: Snapshot) -> dict[str, str]:
     results, fmt = snap.results, snap.fmt
+    per_request = snap.config["stability_sample_questions_per_request"]
     out = {
         "threshold": f"{snap.config['threshold']:.2f}",
         "questions": count(snap.total),
@@ -286,6 +336,13 @@ def values(snap: Snapshot) -> dict[str, str]:
         "held_out": count(snap.plan["held_out"]),
         # Repeat runs beyond each configuration's leaderboard run, as in the answer export.
         "repeat_runs": count(len({run for item in results["repeats"] for run in item["runs"]} - snap.by_id.keys())),
+        # Configurations by questions per request, and how many of each were repeated.
+        "one_question_configs": count(sum(run["questions_per_request"] == 1 for run in snap.runs)),
+        "batched_configs": count(sum(run["questions_per_request"] == per_request for run in snap.runs)),
+        "repeated_whole_bank": count(sum(item["whole_bank"] and item["questions_per_request"] == 1 for item in results["repeats"])),
+        "repeated_sample": count(len(snap.sample)),
+        "sample_questions": count(snap.sample[0]["questions"]) if snap.sample else "0",
+        "batch_size": count(per_request),
     }
     for row in snap.thresholds:
         if row["key"]:
@@ -297,54 +354,86 @@ def values(snap: Snapshot) -> dict[str, str]:
             out[f"{row['key']}_error_high"] = fmt.pct(row["error_range"][1]) if row["error_range"] else "not applicable"
             out[f"{row['key']}_accuracy_low"] = fmt.pct(1 - row["error_range"][1]) if row["error_range"] else "not applicable"
             out[f"{row['key']}_per_request"] = count(row["run"]["questions_per_request"])
-    for row in snap.tasks:
-        if row["key"]:
-            out[f"{row['key']}_reading"] = fmt.pct(row["reading"])
-            out[f"{row['key']}_grammar"] = fmt.pct(row["grammar"])
-    for spec in snap.config["stability_whole_bank"]:
-        item = pick(results["repeats"], spec, "stability") if spec.get("key") else None
-        if item:
-            out[f"{spec['key']}_changed"] = count(item["changed_answer"])
-            out[f"{spec['key']}_changed_share"] = fmt.pct(item["changed_answer"] / item["questions"], 0)
+    for key, run in snap.named.items():
+        groups, confidence = run["groups"], run.get("confidence") or {}
+        out[f"{key}_accuracy"] = fmt.pct(run["correct"] / snap.total)
+        out[f"{key}_reading"] = fmt.pct(groups["reading"]["correct"] / groups["reading"]["questions"])
+        out[f"{key}_grammar"] = fmt.pct(groups["grammar"]["correct"] / groups["grammar"]["questions"])
+        out[f"{key}_auroc"] = f"{confidence['auroc']:.2f}" if confidence.get("auroc") is not None else "not available"
+        out[f"{key}_ece"] = f"{confidence['ece']:.3f}" if confidence.get("ece") is not None else "not available"
+        out[f"{key}_tokens"] = count(round(run["output_tokens"] / run["answered_questions"])) if run.get("output_tokens") is not None else "not reported"
+        out[f"{key}_cost"] = usd(1000 * run["api_equivalent_usd"] / run["answered_questions"]) if run.get("api_equivalent_usd") is not None else "not estimated"
+        out[f"{key}_minutes"] = minutes(run["request_seconds"])
+        out[f"{key}_concurrency"] = count(run["concurrency"])
+    for key, item in snap.repeats_by_key.items():
+        out[f"{key}_changed"] = count(item["changed_answer"])
+        out[f"{key}_changed_share"] = fmt.pct(item["changed_answer"] / item["questions"], 0)
+        out[f"{key}_same_wrong"] = count(item["wrong_every_run_same"])
+        out[f"{key}_wrong_any"] = count(item["wrong_any"])
+    # On all scored questions: what switching from GPT-6 Astra to GPT-6.1 Sol saves, and the accuracy it costs.
+    astra, sol = snap.named["astra"], snap.named["sol"]
+    per_thousand = {key: 1000 * run["api_equivalent_usd"] / run["answered_questions"] for key, run in (("astra", astra), ("sol", sol))}
+    out["sol_saving"] = fmt.pct(1 - per_thousand["sol"] / per_thousand["astra"], 0)
+    out["sol_gap"] = f"{100 * (astra['correct'] - sol['correct']) / snap.total:.1f}"
     return out
 
 
 # ---------------------------------------------------------------- blocks
 
 
+# Below this share of a bar, an accepted-but-wrong segment is too thin to see at phone width; a marker outside the
+# bar shows where it sits, and the segment keeps its true width.
+MARKER_BELOW = 0.02
+
+
 def stack_html(row: dict[str, Any], snap: Snapshot) -> str:
-    """The three segments of a threshold bar, as shares of all scored questions."""
-    total = snap.total
-    widths = [100 * row["correct"] / total, 100 * row["errors"] / total]
+    """The three segments of a threshold bar, as shares of all scored questions, drawn to scale."""
+    correct, wrong = row["correct"] / snap.total, row["errors"] / snap.total
+    marker = f'<span class="wrong-marker" style="left: {100 * correct:.3f}%"></span>' if row["errors"] and wrong < MARKER_BELOW else ""
     wrong_class = "wrong nonzero" if row["errors"] else "wrong"
     return (
-        '<span class="stack" aria-hidden="true">'
-        f'<span class="ok" style="flex-basis: {widths[0]:.3f}%"></span>'
-        f'<span class="{wrong_class}" style="flex-basis: {widths[1]:.3f}%"></span>'
-        '<span class="check"></span></span>'
+        '<span class="stack" aria-hidden="true"><span class="fill">'
+        f'<span class="ok" style="flex-basis: {100 * correct:.3f}%"></span>'
+        f'<span class="{wrong_class}" style="flex-basis: {100 * wrong:.3f}%"></span>'
+        f'<span class="check"></span></span>{marker}</span>'
     )
 
 
+def bar_values(row: dict[str, Any], fmt: Format) -> str:
+    """Under a bar: the answers accepted with their share of all questions, the wrong ones with their share of
+    the accepted answers and the error estimate range of that share, and the answers sent to check."""
+    if not row["accepted"]:
+        return f'<span>0 accepted; error rate not applicable</span> <span>{count(row["sent"])} sent to check</span>'
+    return (
+        f'<span>{count(row["accepted"])} accepted ({fmt.pct(row["coverage"])} of questions)</span> '
+        f'<span class="v-wrong">{count(row["errors"])} wrong ({fmt.pct(row["error_rate"])} of accepted answers; '
+        f'error estimate range {fmt.span(*row["error_range"])})</span> '
+        f'<span>{count(row["sent"])} sent to check</span>'
+    )
+
+
+LEGEND = (
+    '<span class="legend"><span><i class="key ok"></i>accepted and correct</span> '
+    '<span><i class="key wrong"></i>accepted but wrong</span> <span><i class="key check"></i>sent to check</span></span>'
+)
+
+
 def threshold_figure(snap: Snapshot) -> str:
-    fmt, total = snap.fmt, snap.total
     items = []
     for row in snap.thresholds:
-        run = row["run"]
+        is_lead = any(row is first for first in snap.lead)
         items.append(
-            "<li>"
-            f'<p class="bar-label">{label_html(run)}<span class="small">Confidence: {esc(row["source"].lower())}</span></p>'
+            ('<li class="lead">' if is_lead else "<li>")
+            + f'<p class="bar-label">{label_html(row["run"])}<span class="small">Confidence: {esc(row["source"].lower())}</span></p>'
             + stack_html(row, snap)
-            + '<p class="bar-values">'
-            f'<span><i class="key ok"></i>Accepted and correct: {count(row["correct"])} ({fmt.share(row["correct"], total)})</span> '
-            f'<span class="v-wrong"><i class="key wrong"></i>Accepted but wrong: {count(row["errors"])} ({fmt.share(row["errors"], total)})</span> '
-            f'<span><i class="key check"></i>Sent to check: {count(row["sent"])} ({fmt.share(row["sent"], total)})</span>'
-            "</p></li>"
+            + f'<p class="bar-values">{bar_values(row, snap.fmt)}</p></li>'
         )
     threshold = f"{snap.config['threshold']:.2f}"
     return (
         '<figure class="threshold-figure" aria-labelledby="threshold-title">'
-        f'<figcaption id="threshold-title">Confidence of {threshold} or higher, applied to recorded answers. Each bar is all {count(total)} '
-        "scored questions; percentages are shares of all of them.</figcaption>"
+        f'<figcaption id="threshold-title">Confidence of {threshold} or higher, applied to recorded answers. Each bar is all '
+        f"{count(snap.total)} scored questions: {LEGEND}. The lead finding comes first; the other rows follow in alphabetical "
+        "order, a model's newer version first. The order is not a ranking.</figcaption>"
         f'<ul class="threshold-bars">{"".join(items)}</ul></figure>'
     )
 
@@ -385,21 +474,23 @@ def task_figure(snap: Snapshot) -> str:
             for part, name in (("reading", "Reading"), ("grammar", "Grammar"))
         )
         items.append(f'<li><p class="bar-label">{label_html(row["run"])}</p>{bars}</li>')
+    # The axis is one more row of the same grid, so its ticks sit over the bars' own track.
+    ticks = "".join(f'<span style="left: {tick}%">{tick}%</span>' for tick in (0, 25, 50, 75, 100))
     return (
         '<figure class="task-figure" aria-labelledby="task-title">'
         '<figcaption id="task-title" class="figure-title">Strong reading scores, weaker grammar scores</figcaption>'
         f'<ul class="task-bars">{"".join(items)}</ul>'
-        '<p class="axis" aria-hidden="true"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></p>'
+        f'<p class="pair axis" aria-hidden="true"><span></span><span class="axis-track">{ticks}</span><span></span></p>'
         f'<p class="caption">{count(snap.reading_questions)} reading questions and {count(snap.grammar_questions)} grammar questions. '
         "Selected configurations. Performance on one task type does not establish performance on another. "
         "These results do not identify the cause of the gap.</p></figure>"
     )
 
 
-def results_table(snap: Snapshot) -> str:
+def results_rows(snap: Snapshot, runs: list[dict[str, Any]]) -> str:
     fmt = snap.fmt
     rows = []
-    for run in snap.runs:
+    for run in runs:
         groups = run["groups"]
         detail = setting(run) or "option scoring, no reasoning setting"
         badge = (
@@ -417,16 +508,30 @@ def results_table(snap: Snapshot) -> str:
             f'<dt>Run started</dt><dd>{long_date(run["started"])}</dd>'
             f"</dl></details>{badge}</td>"
             f'<td class="num" data-label="Overall">{fmt.pct(run["correct"] / snap.total)}</td>'
-            f'<td class="num" data-label="Reading">{fmt.pct(groups["reading"]["correct"] / groups["reading"]["questions"])}</td>'
-            f'<td class="num" data-label="Grammar">{fmt.pct(groups["grammar"]["correct"] / groups["grammar"]["questions"])}</td>'
-            f'<td class="group" data-label="Group">{esc(run.get("group") or "—")}</td>'
+            f'<td class="num reading" data-label="Reading">{fmt.pct(groups["reading"]["correct"] / groups["reading"]["questions"])}</td>'
+            f'<td class="num grammar" data-label="Grammar">{fmt.pct(groups["grammar"]["correct"] / groups["grammar"]["questions"])}</td>'
+            f'<td class="group" data-label="Tie group">{esc(run.get("group") or "—")}</td>'
             "</tr>"
         )
     return (
         '<div class="table-wrap"><table class="overview results">'
-        '<thead><tr><th scope="col">Model and setting</th><th scope="col" class="num">Overall</th><th scope="col" class="num">Reading</th>'
-        '<th scope="col" class="num">Grammar</th><th scope="col">Group</th></tr></thead>'
+        '<thead><tr><th scope="col">Model and setting</th><th scope="col" class="num">Overall</th>'
+        '<th scope="col" class="num reading"><i class="key reading"></i>Reading</th>'
+        '<th scope="col" class="num grammar"><i class="key grammar"></i>Grammar</th><th scope="col">Tie group</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
+def results_table(snap: Snapshot) -> str:
+    """The configurations the page's figures show, by overall accuracy, then every configuration on request."""
+    shown = {row["run"]["run"] for row in [*snap.thresholds, *snap.tasks]}
+    featured = [run for run in snap.runs if run["run"] in shown]
+    everything = count(len(snap.runs))
+    return (
+        f'<p class="note">Shown: the {count(len(featured))} configurations in the figures on this page, by overall accuracy. '
+        f"“View all configurations” lists all {everything}.</p>"
+        + results_rows(snap, featured)
+        + f'<details class="all-configs"><summary>View all configurations ({everything})</summary>{results_rows(snap, snap.runs)}</details>'
     )
 
 
@@ -436,30 +541,53 @@ def stability_table(items: list[dict[str, Any]], fmt: Format) -> str:
         rows.append(
             "<tr>"
             f'<td data-label="Configuration">{label_html(item)}</td>'
-            f'<td class="num" data-label="Runs">{len(item["runs"])}</td>'
-            f'<td class="num" data-label="Questions">{count(item["questions"])}</td>'
             f'<td class="num" data-label="Changed answers">{count(item["changed_answer"])}'
             f'<span class="small">{fmt.pct(item["changed_answer"] / item["questions"])} of questions</span></td>'
-            f'<td class="num" data-label="Same mistake in every run">{count(item["wrong_every_run_same"])}'
+            f'<td class="num" data-label="Same wrong answer in every run">{count(item["wrong_every_run_same"])}'
             f'<span class="small">of {count(item["wrong_any"])} questions answered wrong in any run</span></td>'
             "</tr>"
         )
     return (
         '<div class="table-wrap"><table class="overview cards">'
-        '<thead><tr><th scope="col">Configuration</th><th scope="col" class="num">Runs</th><th scope="col" class="num">Questions</th>'
-        '<th scope="col" class="num">Changed answers</th><th scope="col" class="num">Same mistake in every run</th></tr></thead>'
+        '<thead><tr><th scope="col">Configuration</th><th scope="col" class="num">Changed answers</th>'
+        '<th scope="col" class="num">Same wrong answer in every run</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
     )
 
 
+def group_heading(items: list[dict[str, Any]], what: str) -> str:
+    """A stability group's questions, questions per request and runs, which every configuration in it shares."""
+    questions = {item["questions"] for item in items}
+    per_request = {item["questions_per_request"] for item in items}
+    runs = {len(item["runs"]) for item in items}
+    if len(questions) != 1 or len(per_request) != 1 or len(runs) != 1:
+        raise ValueError(f"{what}: the configurations differ in questions, questions per request or runs")
+    (questions_value,), (per_request_value,), (runs_value,) = questions, per_request, runs
+    noun = "question" if per_request_value == 1 else "questions"
+    return f"{count(questions_value)} questions, {in_words(per_request_value)} {noun} per request, {in_words(runs_value)} runs each"
+
+
 def stability(snap: Snapshot) -> str:
-    sample = snap.sample[0]["questions"] if snap.sample else 0
     return (
-        '<h3 id="stability-whole-bank">Whole bank, one question per request</h3>'
+        f'<h3 id="stability-whole-bank">Whole bank: {group_heading(snap.whole_bank, "whole bank")}</h3>'
         + stability_table(snap.whole_bank, snap.fmt)
-        + f'<h3 id="stability-sample">Fixed sample of {count(sample)} questions, '
-        f'{snap.config["stability_sample_questions_per_request"]} questions per request</h3>'
+        + f'<h3 id="stability-sample">Fixed sample: {group_heading(snap.sample, "sample")}</h3>'
         + stability_table(snap.sample, snap.fmt)
+    )
+
+
+def stability_lead(snap: Snapshot) -> str:
+    """The section's opening finding: one configuration's changed answers and repeated mistakes."""
+    item = snap.repeats_by_key[snap.config["stability_lead"]]
+    changed = "changed no answers" if not item["changed_answer"] else f"changed its answer on {count(item['changed_answer'])} questions"
+    if item["wrong_every_run_same"] == item["wrong_any"]:
+        same = f"gave the same wrong answer in every run to all {count(item['wrong_any'])} questions it got wrong"
+    else:
+        same = (f"gave the same wrong answer in every run to {count(item['wrong_every_run_same'])} of the "
+                f"{count(item['wrong_any'])} questions it got wrong in any run")
+    return (
+        f"<p>{esc(label(item))} {changed} across {in_words(len(item['runs']))} runs of all {count(item['questions'])} questions, "
+        f"and {same}. Stable is not the same as correct.</p>"
     )
 
 
@@ -479,36 +607,44 @@ def price_note(snap: Snapshot, runs: list[dict[str, Any]]) -> str:
 
 
 def cost_table(snap: Snapshot) -> str:
+    """The four setups on the held-out questions; tests, access, cost basis and price dates are in the details below."""
     fmt, held_out = snap.fmt, snap.plan["held_out"]
     rows = []
     for row in snap.costs:
         versus = row["versus"]
-        difference = (
-            "reference"
-            if versus is None
-            else f'{points(versus["difference"])} points<span class="small">95% interval {points(versus["low"])} to {points(versus["high"])}; {p_text(versus["p"])}</span>'
-        )
-        access = " + ".join(dict.fromkeys(snap.billing(run)["access"] for run in row["runs"]))
-        basis = " + ".join(dict.fromkeys(snap.billing(run)["cost_basis"] for run in row["runs"]))
+        difference = "reference" if versus is None else f'{points(versus["difference"])} points'
         per_request = " / ".join(str(run["questions_per_request"]) for run in row["runs"])
         rows.append(
             "<tr>"
             f'<td class="setup" data-label="Setup"><span class="model-name">{esc(row["label"])}</span>'
-            f'<span class="small">Access mode: {esc(access)}</span>'
-            f'<span class="small">Cost basis: {esc(basis)}</span>'
             f'<span class="small">Questions per request: {per_request}</span></td>'
             f'<td class="num" data-label="Accuracy">{fmt.pct(row["accuracy"])}</td>'
             f'<td class="num" data-label="Difference from the first row">{difference}</td>'
-            f'<td class="num" data-label="Cost per 1,000 questions">{usd(1000 * row["cost"] / held_out)}'
-            f'<span class="small">{esc(price_note(snap, row["runs"]))}</span></td>'
+            f'<td class="num" data-label="Estimated cost per 1,000 questions">{usd(1000 * row["cost"] / held_out)}</td>'
             f'<td class="num" data-label="Request time">{row["seconds"] / 60:.1f} min<span class="small">for {count(held_out)} questions</span></td>'
             "</tr>"
         )
     return (
         '<div class="table-wrap"><table class="overview cards costs">'
         '<thead><tr><th scope="col">Setup</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">Difference from the first row</th>'
-        '<th scope="col" class="num">Cost per 1,000 questions</th><th scope="col" class="num">Request time</th></tr></thead>'
+        '<th scope="col" class="num">Estimated cost per 1,000 questions</th><th scope="col" class="num">Request time</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
+def cost_lead(snap: Snapshot) -> str:
+    """The main comparison, above the table: the cheaper model alone and the routing setup, against the reference."""
+    fmt, held_out = snap.fmt, snap.plan["held_out"]
+    reference, routed, cheaper = snap.costs[0], snap.costs[1], snap.costs[2]
+
+    def per_thousand(row: dict[str, Any]) -> str:
+        return usd(1000 * row["cost"] / held_out)
+
+    return (
+        f"<p>On the same {count(held_out)} held-out questions, {esc(cheaper['label'])} cost an estimated {per_thousand(cheaper)} "
+        f"per 1,000 questions at {fmt.pct(cheaper['accuracy'])} accuracy, and {esc(routed['label'])} {per_thousand(routed)} at "
+        f"{fmt.pct(routed['accuracy'])}. {esc(reference['label'])} cost {per_thousand(reference)} at {fmt.pct(reference['accuracy'])}. "
+        "In this experiment, one question is one decision.</p>"
     )
 
 
@@ -525,16 +661,27 @@ def cost_summary(snap: Snapshot) -> str:
             f'Its accuracy was {abs(100 * versus["difference"]):.2f} points {"lower" if versus["difference"] < 0 else "higher"} '
             f'(95% interval {points(versus["low"])} to {points(versus["high"])} points; exact McNemar test, {p_text(versus["p"])}).'
         )
-    return "<ul>" + "".join(f"<li>{sentence}</li>" for sentence in sentences) + "</ul>"
+    return (
+        f"<p>On the {count(held_out)} held-out questions:</p>"
+        + "<ul>" + "".join(f"<li>{sentence}</li>" for sentence in sentences) + "</ul>"
+    )
 
 
 def cost_setup(snap: Snapshot) -> str:
-    """Price dates, known price changes, batching and concurrency of the runs in the cost comparison."""
+    """Each setup's access mode, cost basis and price dates; then the runs' batching, concurrency, prices and known
+    price changes."""
+    setups = []
+    for row in snap.costs:
+        access = " + ".join(dict.fromkeys(snap.billing(run)["access"] for run in row["runs"]))
+        basis = " + ".join(dict.fromkeys(snap.billing(run)["cost_basis"] for run in row["runs"]))
+        setups.append(
+            f"<li><b>{esc(row['label'])}</b>: access mode {esc(access)}; cost basis {esc(basis)}; {esc(price_note(snap, row['runs']))}.</li>"
+        )
     seen: dict[tuple[str, str], dict[str, Any]] = {}
     for row in snap.costs:
         for run in row["runs"]:
             seen.setdefault((run["provider"], run["model"]), run)
-    items = []
+    runs = []
     for run in seen.values():
         price = snap.price(run)
         price_text = (
@@ -544,11 +691,97 @@ def cost_setup(snap: Snapshot) -> str:
             if price
             else "no price"
         )
-        items.append(
+        runs.append(
             f"<li><b>{esc(run['name'])}</b>: {esc(run['access'])}; {run['questions_per_request']} "
             f"question{'s' if run['questions_per_request'] != 1 else ''} per request, {run['concurrency']} at a time. Price: {esc(price_text)}.</li>"
         )
-    return "<ul>" + "".join(items) + "</ul>"
+    return (
+        "<p><b>Access mode, cost basis and price dates</b></p><ul>" + "".join(setups) + "</ul>"
+        "<p><b>Batching, concurrency and prices of each run</b></p><ul>" + "".join(runs) + "</ul>"
+    )
+
+
+# How the lead finding names each setup of one model, in full on the page and briefly in the meta description.
+SETUP_PHRASES = {
+    "luna_api": ("Through OpenAI's Decisions API, which returns a probability for each option", "Decisions API"),
+    "luna_stated": ("With the confidence it states itself", "stated confidence"),
+}
+
+
+def per_request_text(rows: list[dict[str, Any]]) -> str:
+    return " versus ".join(str(row["run"]["questions_per_request"]) for row in rows)
+
+
+def lead_finding(snap: Snapshot) -> str:
+    """The finding under the page's headline: the lead rows' answers accepted, errors and uncertainty."""
+    fmt, rows = snap.fmt, snap.lead
+    rule = f"accepting only answers with a confidence of {snap.config['threshold']:.2f} or higher"
+    if len(rows) == 1:
+        row = rows[0]
+        if row["errors"]:
+            errors = (f"{count(row['errors'])} of them wrong ({fmt.pct(row['error_rate'])}; error estimate range "
+                      f"{fmt.span(*row['error_range'])}).")
+        else:
+            errors = ("none of them wrong. Zero observed errors does not establish zero risk: the error estimate range "
+                      f"runs up to {fmt.pct(row['error_range'][1])}.")
+        text = f"{esc(row['run']['name'])}, {rule}: {count(row['accepted'])} answers accepted ({fmt.pct(row['coverage'])} of questions), {errors}"
+    else:
+        parts = [
+            f"{esc(SETUP_PHRASES.get(row['key'], (label(row['run']), ''))[0])}: {count(row['accepted'])} answers accepted "
+            f"({fmt.pct(row['coverage'])} of questions), {fmt.pct(row['error_rate'])} of them wrong."
+            for row in rows
+        ]
+        text = (
+            f"{esc(rows[0]['run']['name'])} in {in_words(len(rows))} setups, {rule}. " + " ".join(parts)
+            + f" The setups also differ in request format ({per_request_text(rows)} questions per request), so this does not "
+            "isolate the confidence method."
+        )
+    return (
+        f'<div class="finding"><p class="finding-label">Finding</p><p>{text}</p>'
+        '<p class="small"><a href="#overview-confidence">See the confidence results</a></p></div>'
+    )
+
+
+def finding_sentence(snap: Snapshot) -> str:
+    """The lead finding in one plain sentence, for the link preview's description and the images' alt text."""
+    fmt, rows, total = snap.fmt, snap.lead, count(snap.total)
+    threshold = f"{snap.config['threshold']:.2f}"
+    if len(rows) == 1:
+        row = rows[0]
+        wrong = "none wrong" if not row["errors"] else f"{count(row['errors'])} wrong"
+        return (f"{row['run']['name']} on {total} Turkish exam questions: {count(row['accepted'])} answers accepted at a confidence of "
+                f"{threshold} or higher ({fmt.pct(row['coverage'])} of questions), {wrong}; error estimate range {fmt.span(*row['error_range'])}.")
+    parts = [
+        f"{count(row['accepted'])} accepted with {count(row['errors'])} wrong ({SETUP_PHRASES.get(row['key'], ('', setting(row['run'])))[1]})"
+        for row in rows
+    ]
+    return (f"{rows[0]['run']['name']} in {in_words(len(rows))} setups on {total} Turkish exam questions, accepting only answers with a confidence of "
+            f"{threshold} or higher: " + ", ".join(parts) + ".")
+
+
+def reasoning_table(snap: Snapshot) -> str:
+    """Each reasoning pair from page_config.json: the same model at two settings."""
+    fmt = snap.fmt
+    rows = []
+    for pair in snap.config["reasoning_pairs"]:
+        for key in pair:
+            run = snap.named[key]
+            per_thousand = (
+                usd(1000 * run["api_equivalent_usd"] / run["answered_questions"]) if run.get("api_equivalent_usd") is not None else "Not estimated"
+            )
+            in_flight = f", {run['concurrency']} requests at a time" if run["concurrency"] > 1 else ""
+            grammar = run["groups"]["grammar"]
+            rows.append(
+                f"<tr><td>{esc(run['name'])}</td><td>{esc(run['reasoning'] or '—')}</td>"
+                f'<td class="num">{fmt.pct(run["correct"] / snap.total)}</td><td class="num">{fmt.pct(grammar["correct"] / grammar["questions"])}</td>'
+                f'<td class="num">{count(round(run["output_tokens"] / run["answered_questions"]))}</td><td class="num">{per_thousand}</td>'
+                f'<td class="num">{minutes(run["request_seconds"])} min{in_flight}</td></tr>'
+            )
+    return (
+        '<div class="table-wrap"><table class="static"><thead><tr><th>Model</th><th>Reasoning</th><th class="num">Score</th>'
+        '<th class="num">Grammar</th><th class="num">Output tokens per question</th><th class="num">Estimated cost per 1,000 questions</th>'
+        f'<th class="num">Request time</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
+    )
 
 
 def head(snap: Snapshot, images: dict[str, str]) -> str:
@@ -559,13 +792,10 @@ def head(snap: Snapshot, images: dict[str, str]) -> str:
         "Accuracy, confidence, answer stability and cost across decision models and generative models, evaluated on Turkish "
         "exam questions. Methods, code and recorded answers."
     )
-    rows = [row for row in snap.thresholds if row["preview"]]
-    alt = (
-        f"{rows[0]['run']['name']} in two setups on {count(snap.total)} Turkish exam questions: answers accepted at a confidence of "
-        f"{snap.config['threshold']:.2f} or higher, and how many of them were wrong."
-        if rows
-        else title
-    )
+    # The link preview's description and alt text state the finding its image shows.
+    finding = finding_sentence(snap)
+    shared = f"{finding} Methods, code and recorded answers."
+    alt = f"Bar chart. {finding}"
     image = site + images["preview"]
     return "\n".join(
         [
@@ -573,7 +803,7 @@ def head(snap: Snapshot, images: dict[str, str]) -> str:
             f"  <title>{esc(title.rstrip('.'))}</title>",
             f'  <meta name="description" content="{esc(description)}">',
             f'  <meta property="og:title" content="{esc(title)}">',
-            f'  <meta property="og:description" content="{esc(description)}">',
+            f'  <meta property="og:description" content="{esc(shared)}">',
             '  <meta property="og:type" content="website">',
             f'  <meta property="og:url" content="{esc(site)}">',
             f'  <meta property="og:image" content="{esc(image)}">',
@@ -582,7 +812,7 @@ def head(snap: Snapshot, images: dict[str, str]) -> str:
             f'  <meta property="og:image:alt" content="{esc(alt)}">',
             '  <meta name="twitter:card" content="summary_large_image">',
             f'  <meta name="twitter:title" content="{esc(title)}">',
-            f'  <meta name="twitter:description" content="{esc(description)}">',
+            f'  <meta name="twitter:description" content="{esc(shared)}">',
             f'  <meta name="twitter:image" content="{esc(image)}">',
             f'  <meta name="twitter:image:alt" content="{esc(alt)}">',
             "  ",
@@ -597,14 +827,18 @@ def share_link(path: str, name: str) -> str:
 def blocks(snap: Snapshot, images: dict[str, str]) -> dict[str, str]:
     return {
         "head": head(snap, images),
-        "threshold-figure": threshold_figure(snap) + share_link(images["confidence"], "Confidence threshold figure"),
+        "lead-finding": lead_finding(snap),
+        "threshold-figure": threshold_figure(snap) + share_link(images["finding"], "The lead finding"),
         "threshold-table": threshold_table(snap),
         "task-figure": task_figure(snap) + share_link(images["tasks"], "Reading and grammar figure"),
         "results-table": results_table(snap),
+        "stability-lead": stability_lead(snap),
         "stability": stability(snap),
+        "cost-lead": cost_lead(snap),
         "cost-table": cost_table(snap),
         "cost-summary": cost_summary(snap),
         "cost-setup": cost_setup(snap),
+        "reasoning-table": reasoning_table(snap),
     }
 
 
@@ -634,17 +868,20 @@ html, body { width: %(width)dpx; height: %(height)dpx; overflow: hidden; backgro
 body { padding: %(pad)dpx; display: flex; flex-direction: column; }
 h1 { font-size: %(title)dpx; line-height: 1.1; letter-spacing: -.01em; }
 .sub { font-size: %(sub)dpx; color: #334155; margin-top: .25em; }
+i.key { display: inline-block; width: .8em; height: .8em; margin-right: .3em; border-radius: 2px; vertical-align: -.05em; }
+i.key.ok { background: #334155; } i.key.wrong { background: #c026d3; }
+i.key.check { background: repeating-linear-gradient(135deg, #e2e8f0 0 4px, #cbd5e1 4px 8px); border: 1px solid #cbd5e1; }
 .rows { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: %(gap)dpx; }
-.head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; }
 .row-label { font-size: %(label)dpx; font-weight: 700; white-space: nowrap; }
 .row-label .muted { font-weight: 400; color: #475569; }
-.nums { font-size: %(value)dpx; color: #1e293b; text-align: right; white-space: nowrap; }
-.nums b.wrong, .vals b.wrong { color: #b91c1c; }
-.vals { font-size: %(value)dpx; color: #1e293b; margin-top: .15em; }
-.stack { display: flex; height: %(bar)dpx; margin-top: .2em; border-radius: 4px; overflow: hidden; background: #e2e8f0; }
-.stack .ok { background: #334155; flex-grow: 0; flex-shrink: 0; } .stack .wrong { background: #dc2626; flex-grow: 0; flex-shrink: 0; }
-.stack .wrong.nonzero { min-width: 7px; }
+.vals { font-size: %(value)dpx; color: #1e293b; margin-top: .25em; line-height: 1.3; }
+.vals .wrong { color: #c026d3; font-weight: 700; }
+.stack { position: relative; display: block; height: %(bar)dpx; margin-top: .35em; }
+.stack .fill { display: flex; height: 100%%; border-radius: 4px; overflow: hidden; background: #e2e8f0; }
+.stack .ok { background: #334155; flex-grow: 0; flex-shrink: 0; } .stack .wrong { background: #c026d3; flex-grow: 0; flex-shrink: 0; }
+.stack .wrong.nonzero { box-shadow: inset 3px 0 0 #fff; }
 .stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, #e2e8f0 0 10px, #cbd5e1 10px 20px); }
+.wrong-marker { position: absolute; top: -10px; bottom: -10px; width: 5px; margin-left: -2px; background: #c026d3; border-radius: 2px; }
 .caveat { font-size: %(caveat)dpx; color: #1e293b; border-top: 2px solid #e2e8f0; padding-top: .45em; line-height: 1.3; }
 .foot { font-size: %(foot)dpx; color: #475569; margin-top: .3em; }
 .pair { display: grid; grid-template-columns: %(part)dpx 1fr %(num)dpx; align-items: center; gap: 16px; font-size: %(value)dpx; }
@@ -681,40 +918,40 @@ def image_label(row: dict[str, Any]) -> str:
     return f'<span class="row-label">{esc(run["name"])}<span class="muted"> · {esc(" · ".join(details))}</span></span>'
 
 
-def threshold_image(snap: Snapshot, rows: list[dict[str, Any]], size: dict[str, int], compact: bool) -> str:
-    fmt, total, threshold = snap.fmt, snap.total, f"{snap.config['threshold']:.2f}"
+def finding_image(snap: Snapshot, size: dict[str, int], compact: bool) -> str:
+    """The lead finding as an image: its rows only, each with answers accepted and sent to check, then the wrong
+    answers, their share of the accepted ones and the error estimate range."""
+    fmt, threshold, rows = snap.fmt, f"{snap.config['threshold']:.2f}", snap.lead
     items = []
     for row in rows:
         bar = stack_html(row, snap).replace(' aria-hidden="true"', "")
-        if row["accepted"]:
-            wrong = f'<b class="wrong">{count(row["errors"])} wrong</b> ({fmt.pct(row["error_rate"])}; range {fmt.span(*row["error_range"])})'
+        first = f'{count(row["accepted"])} accepted ({fmt.pct(row["coverage"])} of questions) · {count(row["sent"])} sent to check'
+        if not row["accepted"]:
+            second = "Error rate not applicable"
+        elif row["errors"]:
+            second = (f'<span class="wrong">{count(row["errors"])} wrong</span>: {fmt.pct(row["error_rate"])} of accepted answers '
+                      f'(error estimate range {fmt.span(*row["error_range"])})')
         else:
-            wrong = "none accepted"
-        if compact:
-            wrong_long = wrong.replace(f"{fmt.pct(row['error_rate'])};", f"{fmt.pct(row['error_rate'])} of accepted;") if row["accepted"] else wrong
-            items.append(
-                f"<div>{image_label(row)}{bar}"
-                f'<p class="vals">{count(row["accepted"])} accepted ({fmt.pct(row["coverage"])}) · {wrong_long}<br>'
-                f'{count(row["sent"])} sent to check</p></div>'
-            )
-        else:
-            items.append(
-                f'<div><p class="head">{image_label(row)}<span class="nums">{count(row["accepted"])} accepted · {wrong}</span></p>{bar}</div>'
-            )
-    if compact:
-        scale = {"pad": 40, "title": 42, "sub": 24, "gap": 18, "label": 31, "bar": 36, "value": 26, "caveat": 21, "foot": 16, "part": 0, "num": 0}
-        title = f"{rows[0]['run']['name']}, two setups: answers accepted at a confidence of {threshold} or higher"
-        sub = "Dark: accepted and correct · red: accepted but wrong · striped: sent to check"
-        formats = " against ".join(str(row["run"]["questions_per_request"]) for row in rows)
-        caveat = f"The setups also differ in request format ({formats} questions per request), so this does not isolate the confidence method."
+            second = f'<span class="wrong">None wrong</span> (error estimate range {fmt.span(*row["error_range"])})'
+        items.append(f'<div>{image_label(row)}{bar}<p class="vals">{first}<br>{second}</p></div>')
+    name = rows[0]["run"]["name"]
+    if len(rows) == 1:
+        title = f"{name}: answers accepted at a confidence of {threshold} or higher"
+        caveat = ("Zero observed errors does not establish zero risk. " if rows[0]["accepted"] and not rows[0]["errors"] else "") + (
+            "The range is the 95% Wilson interval of the error rate, not an error limit for future decisions."
+        )
     else:
-        scale = {"pad": 46, "title": 54, "sub": 27, "gap": 13, "label": 30, "bar": 24, "value": 28, "caveat": 22, "foot": 18, "part": 0, "num": 0}
-        title = f"What gets through a {threshold} confidence threshold?"
-        sub = (f"Each bar is all {count(total)} scored questions. Dark: accepted and correct · red: accepted but wrong · striped: sent to check. "
-               "Wrong % is of accepted answers.")
-        caveat = ("The range is the 95% Wilson interval of that error rate, not an error limit for future decisions. "
-                  "The two GPT-6 Luna rows also differ in request format.")
-    body = f'<h1>{esc(title)}</h1><p class="sub">{esc(sub)}</p><div class="rows">{"".join(items)}</div>' + footer(snap, caveat)
+        title = f"{name}, {in_words(len(rows))} setups: answers accepted at a confidence of {threshold} or higher"
+        caveat = f"The setups also differ in request format ({per_request_text(rows)} questions per request), so this does not isolate the confidence method."
+    legend = ('<i class="key ok"></i>accepted and correct · <i class="key wrong"></i>accepted but wrong · '
+              '<i class="key check"></i>sent to check')
+    if compact:
+        scale = {"pad": 36, "title": 40, "sub": 22, "gap": 18, "label": 30, "bar": 32, "value": 25, "caveat": 20, "foot": 15, "part": 0, "num": 0}
+        sub = legend
+    else:
+        scale = {"pad": 52, "title": 58, "sub": 30, "gap": 34, "label": 44, "bar": 54, "value": 38, "caveat": 26, "foot": 20, "part": 0, "num": 0}
+        sub = f"Each bar is all {count(snap.total)} scored questions: {legend}"
+    body = f'<h1>{esc(title)}</h1><p class="sub">{sub}</p><div class="rows">{"".join(items)}</div>' + footer(snap, caveat)
     return figure_page(size, scale, body)
 
 
@@ -744,8 +981,8 @@ def render_images(snap: Snapshot, names: dict[str, str]) -> None:
     chrome = os.environ.get("CHROME", "google-chrome")
     sizes = snap.config["images"]
     pages = {
-        "preview": (threshold_image(snap, [row for row in snap.thresholds if row["preview"]], sizes["preview"], True), sizes["preview"]),
-        "confidence": (threshold_image(snap, snap.thresholds, sizes["share"], False), sizes["share"]),
+        "preview": (finding_image(snap, sizes["preview"], True), sizes["preview"]),
+        "finding": (finding_image(snap, sizes["share"], False), sizes["share"]),
         "tasks": (task_image(snap, sizes["share"]), sizes["share"]),
     }
     SHARE.mkdir(parents=True, exist_ok=True)
@@ -763,6 +1000,9 @@ def render_images(snap: Snapshot, names: dict[str, str]) -> None:
                 raise SystemExit(f"{target} is {png_size(target)}, not {size['width']}x{size['height']}")
             os.chmod(target, 0o644)
             print(f"Wrote {target.relative_to(ROOT)} ({size['width']}x{size['height']})")
+    # Before the first public post, earlier versions go; after it, they stay, so that posted previews keep working.
+    if snap.config.get("announced"):
+        return
     current = {DOCS / name for name in names.values()}
     for old in SHARE.glob("*.png"):
         if old not in current:
@@ -777,26 +1017,66 @@ def x_length(text: str) -> int:
     return len(re.sub(r"https?://\S+", "x" * X_LINK_LENGTH, text))
 
 
+def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
+    """The main X post for the lead finding: one model in two setups, or one configuration with its repeats."""
+    rows, fmt, site, threshold = snap.lead, snap.fmt, snap.config["site_url"], numbers["threshold"]
+
+    def number(fraction: float) -> str:
+        return fmt.pct(fraction).rstrip("%")
+
+    if len(rows) == 2:
+        first, second = rows
+        return (
+            f"We tested one model, {first['run']['name']}, in two setups on {numbers['questions']} Turkish exam questions. In both setups, "
+            f"we accepted only answers with a confidence of {threshold} or higher.\n\n"
+            f"Setup 1, OpenAI's Decisions API, which returns a probability for each option: {count(first['accepted'])} answers accepted "
+            f"({number(first['coverage'])}% of questions), {count(first['errors'])} wrong ({number(first['error_rate'])}%).\n"
+            f"Setup 2, {second['run']['name'].split()[-1]} states its own confidence: {count(second['accepted'])} accepted "
+            f"({number(second['coverage'])}%), {count(second['errors'])} wrong ({number(second['error_rate'])}%).\n\n"
+            "The setups also used different request formats, so this does not isolate the confidence method. It does not set an error "
+            "limit for future tasks. Exam questions, not market predictions.\n\n"
+            f"{site}"
+        )
+    row = rows[0]
+    run, item = row["run"], snap.repeats_by_key.get(row["key"])
+    parts = [
+        f"{run['name']} is a decision model: it chooses from given options and returns a probability for each option. We tested it "
+        f"on {numbers['questions']} Turkish exam questions and accepted only answers with a confidence of {threshold} or higher."
+    ]
+    if row["errors"]:
+        parts.append(
+            f"{count(row['accepted'])} answers were accepted ({number(row['coverage'])}% of questions), and {count(row['errors'])} of them "
+            f"were wrong ({number(row['error_rate'])}%; 95% error estimate range {fmt.span(*row['error_range'])})."
+        )
+    else:
+        parts.append(
+            f"{count(row['accepted'])} answers were accepted ({number(row['coverage'])}% of questions). None of the {count(row['accepted'])} "
+            f"were wrong. Zero errors does not mean zero risk: the 95% error estimate range runs up to {number(row['error_range'][1])}%."
+        )
+    if item:
+        runs = in_words(len(item["runs"]))
+        stable = "it chose the same option on every question" if not item["changed_answer"] else f"it changed its answer on {count(item['changed_answer'])} questions"
+        parts.append(
+            f"In {runs} repeated runs, {stable}. Stable is not the same as correct: it repeated the same wrong answer on "
+            f"{count(item['wrong_every_run_same'])} questions."
+        )
+    groups = run["groups"]
+    parts.append(
+        f"Accuracy: {number(groups['reading']['correct'] / groups['reading']['questions'])}% on reading, "
+        f"{number(groups['grammar']['correct'] / groups['grammar']['questions'])}% on grammar. Exam questions, not market predictions."
+    )
+    parts.append(site)
+    return "\n\n".join(parts)
+
+
 def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, str]) -> str:
-    rows = {row["key"]: row for row in snap.thresholds if row["key"]}
-    api, stated = rows["luna_api"], rows["luna_stated"]
     glide = next(row for row in snap.tasks if row["key"] == "glide")
     site, fmt = snap.config["site_url"], snap.fmt
 
     def number(fraction: float) -> str:
         return fmt.pct(fraction).rstrip("%")
 
-    main = (
-        f"We tested one model, {api['run']['name']}, in two setups on {numbers['questions']} Turkish exam questions. In both setups, "
-        f"we accepted only answers with a confidence of {numbers['threshold']} or higher.\n\n"
-        f"Setup 1, OpenAI's Decisions API, which returns a probability for each option: {count(api['accepted'])} answers accepted "
-        f"({number(api['coverage'])}% of questions), {count(api['errors'])} wrong ({number(api['error_rate'])}%).\n"
-        f"Setup 2, {stated['run']['name'].split()[-1]} states its own confidence: {count(stated['accepted'])} accepted "
-        f"({number(stated['coverage'])}%), {count(stated['errors'])} wrong ({number(stated['error_rate'])}%).\n\n"
-        "The setups also used different request formats, so this does not isolate the confidence method. It does not set an error "
-        "limit for future tasks. Exam questions, not market predictions.\n\n"
-        f"{site}"
-    )
+    main = main_post(snap, numbers)
     follow = (
         f"{glide['run']['name'].split()[-1]}, a decision model, scored {number(glide['reading'])}% on reading questions and "
         f"{number(glide['grammar'])}% on grammar questions in our Turkish benchmark.\n\n"
@@ -814,7 +1094,7 @@ def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, str]) -> s
         "",
         f"## Main post: confidence and checking ({x_length(main)} characters as X counts them)",
         "",
-        f"Attach `docs/{names['confidence']}`." + (" Longer than one post: it needs a long-post account, or split it into a thread with the caveat paragraph in the first post's image." if x_length(main) > X_POST_LIMIT else ""),
+        f"Attach `docs/{names['finding']}`." + (" Longer than one post: it needs a long-post account, or split it into a thread with the caveat paragraph in the first post's image." if x_length(main) > X_POST_LIMIT else ""),
         "",
         "```text",
         main,
@@ -846,7 +1126,7 @@ def main() -> int:
         version = results["results_version"]
         names = {
             "preview": f"share/preview-{version}.png",
-            "confidence": f"share/confidence-{version}.png",
+            "finding": f"share/finding-{version}.png",
             "tasks": f"share/reading-grammar-{version}.png",
         }
         numbers = values(snap)

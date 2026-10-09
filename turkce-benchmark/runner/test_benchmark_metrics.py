@@ -1,3 +1,5 @@
+import itertools
+import random
 import unittest
 
 import benchmark_metrics as bm
@@ -92,6 +94,21 @@ class IntervalTests(unittest.TestCase):
         apart = {(0, 2), (0, 3), (1, 3), (2, 3)}
         letters = bm.tied_groups(4, lambda i, j: (min(i, j), max(i, j)) in apart)
         self.assertEqual(letters, ["a", "ab", "b", "c"])
+
+    def test_tied_groups_share_a_letter_across_a_run_in_between(self) -> None:
+        # Runs 0 and 2 are tied although run 1, between them in the ranking, is told apart from run 0.
+        letters = bm.tied_groups(3, lambda i, j: (min(i, j), max(i, j)) == (0, 1))
+        self.assertEqual(letters, ["a", "b", "ab"])
+
+    def test_tied_groups_share_a_letter_exactly_when_not_told_apart(self) -> None:
+        rng = random.Random(7)
+        for count in (2, 5, 9, 14):
+            for _ in range(40):
+                apart = {pair for pair in itertools.combinations(range(count), 2) if rng.random() < 0.4}
+                letters = bm.tied_groups(count, lambda i, j: (min(i, j), max(i, j)) in apart)
+                for first, second in itertools.combinations(range(count), 2):
+                    shared = bool(set(letters[first]) & set(letters[second]))
+                    self.assertEqual(shared, (first, second) not in apart, (count, apart, letters))
 
     def test_bootstrap_counts_ties_as_half(self) -> None:
         scored = [(0.5, index % 2) for index in range(40)]

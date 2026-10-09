@@ -183,7 +183,7 @@ PRICES: dict[tuple[str, str], Price] = {
         "https://docs.perplexity.ai/docs/getting-started/pricing",
         "2026-10-04",
         0.04,
-        change="$0.02 per 1M input tokens since (listed on 8 October 2026)",
+        change="$0.02 per 1M input tokens since, as listed on 8 October 2026",
     ),
     ("perplexity", "pplx-decider-v1.1-27b"): Price(
         "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-09", 0.02
@@ -2936,9 +2936,9 @@ def tied_group_lines(groups: list[dict[str, Any]], results: dict[str, dict[str, 
         "## Tied groups",
         "",
         "Every pair of runs over the same questions, compared with the exact paired test and Holm's method "
-        f"over all those pairs. Two runs are told apart when the adjusted p is below {TIE_ALPHA:g}. Runs that "
-        "share a letter are told apart by no comparison; a run with two letters is tied with runs of both "
-        "groups that are not tied with each other. Runs are in the order of the score table.",
+        f"over all those pairs. Two runs are told apart when the adjusted p is below {TIE_ALPHA:g}. Two runs share "
+        "a letter exactly when they are not told apart, so a letter can skip runs in between. Runs are in the "
+        "order of the score table.",
         "",
         "| Run | Dataset | Accuracy | Group | Pairs tested |",
         "|---|---|---:|---|---:|",

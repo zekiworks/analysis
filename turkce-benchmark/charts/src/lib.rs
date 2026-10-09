@@ -124,7 +124,7 @@ pub fn load(path: &Path) -> Result<Results, Box<dyn Error>> {
     Ok(serde_json::from_str(&std::fs::read_to_string(path)?)?)
 }
 
-/// Models that answer at or below chance on this bank; their runs share a panel in the confidence figures.
+/// Models that answer near chance on this bank; their runs share a panel in the confidence figures.
 const CHANCE_MODELS: [&str; 4] = ["laya", "laya-multilingual", "gliner2.5-multi-v1", "gliner2.5-multi-decide"];
 /// Calibration bins with fewer answers than this are too noisy to plot (the page's table keeps them).
 const MIN_BIN_ANSWERS: u32 = 20;
@@ -735,7 +735,7 @@ const FAMILIES: [&str; 6] = [
     "Open-weight generative models",
     "Qwen3.8-27B, different confidence scores",
     "Decision models",
-    "At or below chance: Laya and GLiNER",
+    "Near chance: Laya and GLiNER",
 ];
 
 /// Which of [`FAMILIES`] a run belongs to.
@@ -785,7 +785,7 @@ fn coverage_curve(points: &[[f64; 2]]) -> Vec<(f64, f64)> {
     points.iter().map(|&[coverage, risk]| (100.0 * coverage, 100.0 * (1.0 - risk))).collect()
 }
 
-const COVERAGE_TITLE: &str = "How accuracy changes when we keep only the most confident answers";
+const COVERAGE_TITLE: &str = "How accuracy changes when we accept only the most confident answers";
 const COVERAGE_X: &str = "Share of answers accepted";
 const COVERAGE_Y: &str = "Accuracy among accepted answers";
 const CALIBRATION_TITLE: &str = "Does 0.8 mean 80% right?";

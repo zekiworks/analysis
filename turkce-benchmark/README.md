@@ -32,25 +32,34 @@ python3 -m http.server 8000 --directory docs               # preview at http://1
   from `docs/answers.json`, each main run's correct answers on the scored questions (the 12 the key
   audit excluded are skipped), AUROC, expected calibration error and the answers scored 0.99 or more,
   before and after the key audit; the leaderboard's tied groups (every pair of runs, exact McNemar,
-  Holm over all pairs, alpha 0.05); the listed paired comparisons (exact McNemar, Holm over the
-  listed pairs); and the costs: each priced run's from its token counts at the rates in
-  `docs/results.json`'s `prices`, every run without a price shown as a free tier or self-hosted, each
-  routing simulation's cost per 1,000 questions from its runs, and the routing tests' costs from their
-  parts. It prints one row per run and exits with status 1 when a value differs from
-  `docs/results.json`: counts and group letters must match exactly, AUROC and ECE within 10⁻⁹,
-  p-values and costs within a relative 10⁻⁹. The bootstrap intervals, the routing simulations'
-  accuracy, the repeats and the other tables are not recomputed.
+  Holm over all pairs, alpha 0.05), including that two runs share a letter exactly when that test does
+  not tell them apart; the listed paired comparisons (exact McNemar, Holm over the listed pairs); each
+  repeated configuration's stability statistics, from its runs' answers; and the costs: each priced
+  run's from its token counts at the rates in `docs/results.json`'s `prices`, every run without a
+  price shown as a free tier or self-hosted, each routing simulation's cost per 1,000 questions from
+  its runs, and the routing tests' costs from their parts. It prints one row per run and exits with
+  status 1 when a value differs from `docs/results.json`: counts and group letters must match exactly,
+  AUROC, ECE and the repeats' accuracies within 10⁻⁹, p-values and costs within a relative 10⁻⁹. The
+  bootstrap intervals, the routing simulations' accuracy and the other tables are not recomputed.
 - **The graphs** are drawn by `charts/`, a Rust crate, from `docs/results.json` (see below).
 - **The page build** `build_page.py` runs `reproduce.py` first and stops unless every check matches.
   It fills the page's `<span data-value="…">` elements and `<!-- build:… -->` blocks from
   `docs/results.json`, with the constants in `page_config.json`: the 0.99 threshold, the configurations
-  each overview figure shows, display precision and image sizes. Each section orders its rows by its own
-  measure: confidence rows by answers accepted (the two preview rows first), task rows by overall accuracy
-  (the reference row last), stability rows by changed answers. It draws the sharing images with
-  headless Chrome from the same rows (`docs/share/`, named with the results version) and writes the
-  announcement text to `share/x-posts.md`; `--no-images` skips Chrome, and `CHROME` names another
-  Chrome or Chromium binary. The dataset version, the results version (a hash of `results.json`) and
-  the publication date in `page_config.json` are shown separately.
+  each overview figure shows, the runs the study's sentences name, display precision and image sizes.
+  - **`lead`** names the finding the page leads with, one of `leads`: it opens the page, comes first in
+    the confidence figure, and is what the link preview, its description, the X image and the main X
+    post show. Changing it and building again switches all of them.
+  - **Row order:** the confidence figure puts the lead finding first and the other rows in alphabetical
+    order, a model's newer version first, so the order ranks nothing. Task rows go by overall accuracy
+    (the reference row last), stability rows by changed answers.
+  - **Images:** drawn with headless Chrome from the same rows (`docs/share/`, named with the results
+    version). Earlier versions are deleted until `announced` holds the date of the first public post;
+    from then on they are kept, so posted link previews keep working.
+  - **X posts:** the announcement text goes to `share/x-posts.md`; `--no-images` skips Chrome, and
+    `CHROME` names another Chrome or Chromium binary.
+
+  The dataset version, the results version (a hash of `results.json`) and the publication date in
+  `page_config.json` are shown separately.
 - **The preview** needs a server: opening `docs/index.html` from disk does not work, because browsers
   block loading `results.json` from a `file://` page.
 

@@ -6,13 +6,14 @@
 For every main run: the correct answers on the scored questions (questions the key audit excluded are
 skipped), AUROC, expected calibration error, the answers scored 0.99 or more with the Wilson interval of
 their accuracy (the counts also before the key audit, when results.json has them), and the leaderboard's
-tied groups (every pair of runs tested,
-exact McNemar, Holm over all pairs, alpha 0.05). Then the listed paired comparisons: exact McNemar
-and Holm over the listed pairs. Then the costs: each priced run's from its token counts at the published
-rates, every run without a price shown as a free tier or self-hosted, each routing simulation's cost per
-1,000 questions from its runs, and the routing tests' costs from their parts. Uses only the standard
-library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with status 1 when
-anything differs beyond the tolerances printed.
+tied groups (every pair of runs tested, exact McNemar, Holm over all pairs, alpha 0.05), including that
+two runs share a letter exactly when that test does not tell them apart. Then the listed paired
+comparisons: exact McNemar and Holm over the listed pairs. Then the repeats: each configuration's
+repeated runs, recomputed from their exported answers. Then the costs: each priced run's from its token
+counts at the published rates, every run without a price shown as a free tier or self-hosted, each
+routing simulation's cost per 1,000 questions from its runs, and the routing tests' costs from their
+parts. Uses only the standard library and benchmark_metrics.py, the metric code the benchmark report
+uses. Exits with status 1 when anything differs beyond the tolerances printed.
 """
 
 from __future__ import annotations
@@ -109,9 +110,8 @@ def main() -> int:
         print(f"MISMATCH: results.json scores {results['questions']} questions, answers.json {len(scored)}")
     else:
         checks.passed += 1
-    extra = [f"{len(answers[name])} {name}" for name in ("repeat_runs", "pipeline_runs") if answers.get(name)]
-    if extra:
-        print(f"Not checked here: {', '.join(extra)}")
+    if answers.get("pipeline_runs"):
+        print(f"Not checked here: {len(answers['pipeline_runs'])} pipeline_runs")
     print(
         f"Tolerances: counts and group letters exact; AUROC and ECE within {METRIC_TOLERANCE:g}; "
         f"p-values within a relative {P_TOLERANCE:g}. A cell shows the recomputed value, then '≠' and the "
@@ -215,6 +215,23 @@ def main() -> int:
     for row in [header, *rows]:
         print("  ".join(cell.ljust(width) for cell, width in zip(row, widths)).rstrip())
     print(f"\nTied groups: {group_pairs_cell} pairs, Holm over all of them, alpha {TIE_ALPHA}")
+    # The published letters must say which pairs the test tells apart: a shared letter for every pair with an
+    # adjusted p of TIE_ALPHA or more, none for the others.
+    letter_mismatches: list[str] = []
+    for i, j in every_pair:
+        first, second = published[ranked[i]], published[ranked[j]]
+        shared = bool(set(first.get("group") or "") & set(second.get("group") or ""))
+        tied = adjusted[i, j] >= TIE_ALPHA
+        if "≠" in checks.cell(shared == tied, "shared" if shared else "none", "tied" if tied else "told apart"):
+            letter_mismatches.append(
+                f"  {label(first)} ({first.get('group')}) vs {label(second)} ({second.get('group')}): Holm p {adjusted[i, j]:.3g}"
+            )
+    print(
+        f"Letters against the tests: {len(every_pair) - len(letter_mismatches)} of {len(every_pair)} pairs share a letter "
+        f"exactly when Holm p ≥ {TIE_ALPHA}"
+    )
+    for line in letter_mismatches:
+        print(line)
 
     # Paired comparisons: Holm within each set of pairs over the same questions (one set here).
     families: dict[int, list[tuple[dict[str, Any], dict[str, Any]]]] = defaultdict(list)
@@ -252,6 +269,16 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    repeat_mismatches = check_repeats(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nRepeats ({len(results.get('repeats', []))} configurations, from their runs' exported answers; accuracy and "
+        f"score spread within {METRIC_TOLERANCE:g}): {checked - len(repeat_mismatches)} of {checked} match"
+    )
+    for line in repeat_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     cost_mismatches = check_costs(results, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -263,6 +290,41 @@ def main() -> int:
 
     print(f"\n{checks.passed} checks match, {checks.failed} differ")
     return 1 if checks.failed else 0
+
+
+def check_repeats(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute each repeated configuration's stability from its runs' answers, on the scored questions every
+    run answered; returns a line per configuration that differs."""
+    by_run = {run["run"]: run for run in answers["runs"] + answers.get("repeat_runs", [])}
+    counts = ("questions", "changed_answer", "wrong_any", "wrong_every_run_same", "scored", "score_identical", "sure_wrong", "sure_wrong_every_run")
+    mismatches = []
+    for item in results.get("repeats", []):
+        missing = [run_id for run_id in item["runs"] if run_id not in by_run]
+        if missing:
+            checks.failed += 1
+            mismatches.append(f"  {label(item)}: runs {missing} are not in answers.json")
+            continue
+        outcomes = [
+            {index: (run["correct"][index], run["choice"][index], run["score"][index]) for index in scored if run["correct"][index] is not None}
+            for run in (by_run[run_id] for run_id in item["runs"])
+        ]
+        common = set.intersection(*(set(outcome) for outcome in outcomes))
+        stats = bm.repeat_stability([{index: outcome[index] for index in common} for outcome in outcomes])
+        cells = [checks.cell(stats.get(key) == item[key], f"{key} {stats.get(key)}", str(item[key])) for key in counts]
+        accuracy_matched = len(stats["accuracy"]) == len(item["accuracy"]) and all(
+            close(published, recomputed, METRIC_TOLERANCE) for published, recomputed in zip(item["accuracy"], stats["accuracy"])
+        )
+        cells.append(checks.cell(accuracy_matched, f"accuracy {stats['accuracy']}", str(item["accuracy"])))
+        cells.append(
+            checks.cell(
+                close(item["score_spread_median"], stats["score_spread_median"], METRIC_TOLERANCE),
+                f"score spread {number(stats['score_spread_median'])}",
+                number(item["score_spread_median"]),
+            )
+        )
+        if any("≠" in cell for cell in cells):
+            mismatches.append(f"  {label(item)}: " + ", ".join(cell for cell in cells if "≠" in cell))
+    return mismatches
 
 
 def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:

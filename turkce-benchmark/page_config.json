@@ -4,6 +4,7 @@
   "issue_url": "https://github.com/zekiworks/analysis/issues/new?template=suggest-a-task.md",
   "x_url": "https://x.com/zekiworks",
   "published": "2026-10-09",
+  "announced": null,
   "threshold": 0.99,
   "percent_digits": 1,
   "reading_units": [1, 2, 3, 4, 5, 6],
@@ -12,9 +13,14 @@
     "strands", "gliner", "laya"
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
+  "lead": "luna",
+  "leads": {
+    "luna": ["luna_api", "luna_stated"],
+    "decider_v11": ["decider_v11"]
+  },
   "confidence_rows": [
-    {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api", "preview": true},
-    {"provider": "openai", "model": "gpt-6-luna", "key": "luna_stated", "preview": true},
+    {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api"},
+    {"provider": "openai", "model": "gpt-6-luna", "key": "luna_stated"},
     {"provider": "jev", "model": "jev-1.13.0", "key": "jev"},
     {"provider": "liquid", "model": "d1:free", "key": "d1"},
     {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
@@ -28,6 +34,22 @@
     {"provider": "perplexity", "model": "pplx-decider-v1.1-27b"},
     {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low", "reference": true}
   ],
+  "named_runs": {
+    "astra": {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"},
+    "sol": {"provider": "openai", "model": "gpt-6.1-sol", "reasoning": "low"},
+    "sonnet_low": {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "low"},
+    "sonnet_high": {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "high"},
+    "deepseek_off": {"provider": "vllm", "model": "deepseek-v4.1-flash", "reasoning": "off"},
+    "deepseek_on": {"provider": "vllm", "model": "deepseek-v4.1-flash", "reasoning": "on"},
+    "gemini_low": {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"},
+    "gemini_high": {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "high"},
+    "qwen3_14b": {"provider": "vllm", "model": "qwen3-14b"},
+    "erk": {"provider": "vllm", "model": "erk-14b"},
+    "gemma": {"provider": "vllm", "model": "gemma-4-31B-it"},
+    "gliner_base": {"provider": "gliner", "model": "gliner2.5-multi-v1"},
+    "gliner_decide": {"provider": "gliner", "model": "gliner2.5-multi-decide"}
+  },
+  "reasoning_pairs": [["sonnet_low", "sonnet_high"], ["deepseek_off", "deepseek_on"], ["gemini_low", "gemini_high"]],
   "stability_whole_bank": [
     {"provider": "open-jev", "model": "open-jev-27b-v1.1", "key": "open_jev"},
     {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
@@ -36,6 +58,7 @@
     {"provider": "liquid", "model": "d1:free", "key": "d1"},
     {"provider": "vllm-yes-no", "model": "qwen38-27b-bf16", "key": "qwen_yes_no"}
   ],
+  "stability_lead": "decider_v11",
   "stability_sample_questions_per_request": 16,
   "cost": {
     "decision": {"provider": "perplexity", "model": "pplx-decider-v1-27b"},

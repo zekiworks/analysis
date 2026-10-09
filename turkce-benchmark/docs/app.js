@@ -34,10 +34,11 @@ const minutesPer1000 = run => (run.request_seconds == null ? null : (1000 * run.
 /* What a cost cell shows for a run without a dollar figure. */
 const NO_COST = { free: 'Free tier', local: 'Not estimated' };
 const costText = run => (run.api_equivalent_usd == null ? (NO_COST[run.billing] ?? '—') : formatUsd(costPer1000(run)));
+/* Access mode, as the overview names it; how each cost was estimated is in the method section. */
 const BILLING = {
-  api: 'Billed per token',
-  subscription: 'Subscription',
-  free: 'Free tier',
+  api: 'Hosted API',
+  subscription: 'Subscription access',
+  free: 'Hosted API, free tier',
   local: 'Self-hosted',
 };
 const priceOf = (data, run) => data.prices.find(price => price.provider === run.provider && price.model === run.model);
@@ -268,8 +269,8 @@ function renderLeaderboard(data) {
       { label: 'Setting', title: 'Reasoning or effort setting' },
       { label: 'Score', numeric: true },
       {
-        label: 'Group',
-        title: `Runs that share a letter are statistically tied: no paired test of all ${integer(data.group_pairs)} pairs separates them`,
+        label: 'Tie group',
+        title: `Runs that share a letter are statistically tied: the paired test across all ${integer(data.group_pairs)} pairs does not tell them apart`,
         extra: true,
       },
       { label: 'Reading', numeric: true, title: 'Reading comprehension: units 1–6' },
@@ -303,9 +304,9 @@ function renderLeaderboard(data) {
   addNotes(
     table,
     tableNote(
-      'Lines separate groups of runs that no paired test tells apart (see ',
+      'A heavier line marks a run that shares no group letter with the run above it: the test tells those two apart (see ',
       ['#differences', 'Interpreting performance differences'],
-      '); Show all columns adds each run’s group letters.',
+      '). Two runs share a letter exactly when the test does not tell them apart; Show all columns adds each run’s letters.',
     ),
   );
 }
@@ -318,9 +319,9 @@ function renderCost(data) {
       'tr',
       {},
       modelCell(run, { withSetting: true }),
-      td(BILLING[run.billing]),
       td(costText(run), { value: cost, numeric: true, title: costTitle(data, run) }),
       td(minutes == null ? '—' : minutes.toFixed(1), { value: minutes, numeric: true }),
+      td(BILLING[run.billing]),
       td(run.hardware ?? '—'),
       td(String(run.concurrency), { value: run.concurrency, numeric: true }),
     );
@@ -329,7 +330,6 @@ function renderCost(data) {
     'cost',
     [
       { label: 'Model' },
-      { label: 'Paid by' },
       {
         label: 'API cost per 1,000 (USD)',
         numeric: true,
@@ -340,6 +340,7 @@ function renderCost(data) {
         numeric: true,
         title: 'Time while requests were in flight, per 1,000 questions asked',
       },
+      { label: 'Access mode' },
       { label: 'Local GPU' },
       { label: 'Requests at a time', numeric: true },
     ],
@@ -515,9 +516,9 @@ function renderConfidence(data) {
         'tr',
         {},
         modelCell(run, { withSetting: true }),
-        td(run.confidence.label),
-        ...sureCells(run.confidence.sure_before_audit, bankBeforeAudit),
         ...sureCells(run.confidence.sure, data.questions),
+        ...sureCells(run.confidence.sure_before_audit, bankBeforeAudit),
+        td(run.confidence.label),
       ),
     );
   const audited = data.excluded_since_run ? `the ${integer(data.excluded_since_run)} questions the key audit excluded` : 'the questions the key audit excluded';
@@ -525,15 +526,15 @@ function renderConfidence(data) {
     'sure-table',
     [
       { label: 'Model' },
-      { label: 'Confidence' },
+      { label: 'Right of answered, after audit', numeric: true, title: 'Right answers among those at 0.99 or more, on the scored questions' },
+      { label: 'Accuracy, after audit', numeric: true, title: 'With the 95% Wilson score interval' },
       {
         label: 'Right of answered, before audit',
         numeric: true,
         title: `Right answers among those at 0.99 or more, counting ${audited}, graded with the printed key`,
       },
       { label: 'Accuracy, before audit', numeric: true, title: 'With the 95% Wilson score interval' },
-      { label: 'Right of answered, after audit', numeric: true, title: 'Right answers among those at 0.99 or more, on the scored questions' },
-      { label: 'Accuracy, after audit', numeric: true, title: 'With the 95% Wilson score interval' },
+      { label: 'Confidence' },
     ],
     sure,
   );
@@ -704,13 +705,6 @@ function renderCascade(data) {
       {},
       modelCell(first),
       modelCell(frontier, { withSetting: true }),
-      percentCell(100 * item.frontier_accuracy),
-      percentCell(100 * item.in_sample.answered, {
-        title:
-          item.in_sample.threshold == null
-            ? 'No threshold keeps the frontier accuracy on these questions'
-            : `Threshold ${item.in_sample.threshold.toFixed(3)}`,
-      }),
       percentCell(100 * item.held_out.answered),
       td(formatPoints(item.held_out.difference, 2), { value: 100 * item.held_out.difference, numeric: true }),
       percentCell(100 * item.held_out.worse, { digits: 0 }),
@@ -722,6 +716,13 @@ function renderCascade(data) {
         { value: item.usd_per_1000, numeric: true, title: unpriced ? costTitle(data, first) : null },
       ),
       td(formatUsd(costPer1000(frontier)), { value: costPer1000(frontier), numeric: true }),
+      percentCell(100 * item.frontier_accuracy),
+      percentCell(100 * item.in_sample.answered, {
+        title:
+          item.in_sample.threshold == null
+            ? 'No threshold keeps the frontier accuracy on these questions'
+            : `Threshold ${item.in_sample.threshold.toFixed(3)}`,
+      }),
     );
   });
   const table = fillTable(
@@ -729,8 +730,6 @@ function renderCascade(data) {
     [
       { label: 'First model', title: 'A decision model, or Gemma 4 31B, answering first' },
       { label: 'Frontier run' },
-      { label: 'Frontier accuracy', numeric: true },
-      { label: 'Answered', numeric: true, title: 'Share the first model answers at the lowest threshold that keeps the frontier accuracy, chosen and scored on all questions' },
       { label: 'Answered, held out', numeric: true, title: 'Threshold chosen on random halves, scored on the other halves' },
       { label: 'Difference, held out', numeric: true, title: 'Mean accuracy difference from the frontier run alone, in points' },
       { label: 'Worse, held out', numeric: true, title: 'Share of the splits where the cascade scored lower' },
@@ -740,6 +739,8 @@ function renderCascade(data) {
         title: 'The first model’s API cost plus the frontier run’s for the held-out share passed on, as if every question cost the frontier the same',
       },
       { label: 'Frontier alone per 1,000 (USD)', numeric: true },
+      { label: 'Frontier accuracy', numeric: true },
+      { label: 'Answered, in-sample', numeric: true, title: 'Share the first model answers at the lowest threshold that keeps the frontier accuracy, chosen and scored on all questions' },
     ],
     rows,
   );
@@ -884,19 +885,20 @@ function renderPipelines(data) {
     [
       { label: 'Decision model' },
       { label: 'Frontier run' },
-      { label: 'Held out', numeric: true, title: 'Questions in the half the threshold was not chosen on' },
-      { label: 'Threshold', numeric: true, title: 'Chosen on the other half, before the runs' },
+      { label: 'Held out', numeric: true, title: 'Questions in the half the threshold was not chosen on', extra: true },
+      { label: 'Threshold', numeric: true, title: 'Chosen on the other half, before the runs', extra: true },
       { label: 'Decision model answers', numeric: true },
-      { label: 'Simulated', numeric: true, title: 'The stored whole-bank runs, scored on the held-out questions' },
+      { label: 'Simulated', numeric: true, title: 'The stored whole-bank runs, scored on the held-out questions', extra: true },
       { label: 'Pipeline', numeric: true, title: 'New frontier run on the questions passed on, plus the decision model’s answers' },
       { label: 'Difference', numeric: true, title: 'Pipeline minus the frontier run on all held-out questions, in points, with the paired 95% interval' },
       { label: 'p', numeric: true, title: 'Exact McNemar test' },
-      { label: 'Tolerance', title: 'The accuracy loss accepted before the runs' },
+      { label: 'Tolerance', title: 'The accuracy loss accepted before the runs', extra: true },
       { label: 'Cost per 1,000 (USD)', numeric: true, title: 'API cost per 1,000 held-out questions: pipeline / frontier alone' },
-      { label: 'Minutes', numeric: true, title: 'Request time: pipeline / frontier alone' },
+      { label: 'Minutes', numeric: true, title: 'Request time: pipeline / frontier alone', extra: true },
     ],
     rows,
   );
+  if (table) addColumnToggle(table);
   // Cheaper configurations run alone on the same held-out questions (the plans share one held-out half),
   // leaving out the runs that already appear as a pipeline's frontier run alone.
   const frontierAlone = new Set(data.pipelines.map(item => item.measured?.alone_run).filter(Boolean));
@@ -915,22 +917,7 @@ function renderPipelines(data) {
   }
 }
 
-/* The charts are drawn at their own pixel size with 13-pixel text. One may shrink to fit its box, but not below
-   three quarters of that size: a narrower box (a phone) scrolls the chart sideways inside its figure instead. */
-const CHART_MIN_SCALE = 0.75;
-
-function sizeCharts() {
-  for (const image of document.querySelectorAll('figure.chart img')) {
-    const size = () => {
-      if (image.naturalWidth) image.style.minWidth = `${Math.round(CHART_MIN_SCALE * image.naturalWidth)}px`;
-    };
-    if (image.complete) size();
-    else image.addEventListener('load', size, { once: true });
-  }
-}
-
 async function main() {
-  sizeCharts();
   let data;
   try {
     const response = await fetch('results.json');

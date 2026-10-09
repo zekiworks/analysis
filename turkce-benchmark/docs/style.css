@@ -9,11 +9,14 @@
   --bar: #dbeafe;
   --shadow: 0 1px 3px rgba(0, 0, 0, .08);
   --radius: 8px;
-  /* Reading is blue and grammar orange everywhere; the confidence figure has its own neutral palette. */
+  /* Reading is blue and grammar orange everywhere; the confidence figure has its own neutral palette, in which
+     magenta marks the accepted but wrong answers and means nothing else on the page. */
   --reading: #2563eb;
   --grammar: #ea580c;
+  --reading-text: #1d4ed8;
+  --grammar-text: #c2410c;
   --accepted: #334155;
-  --wrong: #dc2626;
+  --wrong: #c026d3;
   --check: #e2e8f0;
   --check-stripe: #cbd5e1;
 }
@@ -145,7 +148,7 @@ tfoot td { font-weight: 600; border-top: 2px solid var(--border); border-bottom:
 td.model { min-width: 11rem; }
 #leaderboard td:last-child { min-width: 9rem; }
 /* Tied groups: letters in their own column; in the default order a heavier line starts each new group. */
-td.group { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 600; letter-spacing: .05em; }
+td.group { font-weight: 600; letter-spacing: .08em; }
 #leaderboard[data-grouped] tr.group-start > td { border-top: 2px solid var(--text-muted); }
 
 /* Score column: the number sits on a bar proportional to the score. */
@@ -173,14 +176,12 @@ td.heat { text-align: right; font-variant-numeric: tabular-nums; white-space: no
 }
 #units thead th:first-child { background: var(--bg); }
 
-/* Graphs: SVGs drawn on a terminal-cell grid. They never grow past their own size; app.js stops them shrinking
-   below three quarters of it, and a narrower figure scrolls the chart sideways inside its own box. */
-figure.chart { margin: 1.25rem 0 0; overflow-x: auto; }
+/* Graphs: SVGs drawn on a terminal-cell grid. They never grow past their own size and shrink to fit a narrower box,
+   so no title or legend is cut off; each links to its file for a full-size view. */
+figure.chart { margin: 1.25rem 0 0; }
+.chart-link { display: block; }
 .chart img { display: block; max-width: 100%; height: auto; }
-/* The caption stays in view while the chart above it scrolls. */
 .chart figcaption {
-  position: sticky;
-  left: 0;
   margin-top: .5rem;
   max-width: 80ch;
   color: var(--text-muted);
@@ -203,41 +204,63 @@ table.overview td.num .small { white-space: normal; }
 details.setup-details { margin: 1rem 0; }
 details.setup-details summary { cursor: pointer; font-weight: 600; }
 
-/* Confidence threshold figure: one stacked bar per configuration, every segment labelled in text. */
+/* Confidence threshold figure: one stacked bar per configuration, drawn to scale, every segment labelled in text. */
 .threshold-figure { margin: 1.25rem 0; }
 .threshold-figure figcaption { color: var(--text-muted); font-size: .875rem; margin-bottom: .75rem; }
+.threshold-figure .legend span { white-space: nowrap; }
 .threshold-bars { list-style: none; margin: 0; padding: 0; }
 .threshold-bars li { padding: .6rem 0; border-top: 1px solid var(--border); }
 .bar-label { margin: 0 0 .3rem; }
 .bar-label .small { display: inline; margin-left: .5rem; }
-.stack { display: flex; height: 1.1rem; border-radius: 4px; overflow: hidden; background: var(--check); }
+.stack { position: relative; display: block; height: 1.1rem; margin: .5rem 0 .45rem; }
+.stack .fill { display: flex; height: 100%; border-radius: 4px; overflow: hidden; background: var(--check); }
 .stack .ok { background: var(--accepted); flex-grow: 0; flex-shrink: 0; }
 .stack .wrong { background: var(--wrong); flex-grow: 0; flex-shrink: 0; }
-.stack .wrong.nonzero { min-width: 4px; }
+/* A white edge keeps the wrong segment apart from the dark one, for readers who cannot tell the colours apart. */
+.stack .wrong.nonzero { box-shadow: inset 2px 0 0 #fff; }
 .stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, var(--check) 0 6px, var(--check-stripe) 6px 12px); }
+/* A wrong segment too thin to see keeps its true width; this mark outside the bar shows where it sits. */
+.wrong-marker { position: absolute; top: -.4rem; bottom: -.4rem; width: 3px; margin-left: -1px; background: var(--wrong); border-radius: 1px; }
 .bar-values { display: flex; flex-wrap: wrap; gap: .1rem 1.25rem; margin: .35rem 0 0; font-size: .875rem; }
-.bar-values .v-wrong { color: #b91c1c; font-weight: 600; }
+.bar-values .v-wrong { color: var(--wrong); font-weight: 600; }
 i.key { display: inline-block; width: .75rem; height: .75rem; margin-right: .35rem; border-radius: 2px; vertical-align: -.05rem; }
 i.key.ok { background: var(--accepted); }
 i.key.wrong { background: var(--wrong); }
 i.key.check { background: repeating-linear-gradient(135deg, var(--check) 0 3px, var(--check-stripe) 3px 6px); border: 1px solid var(--check-stripe); }
+i.key.reading { background: var(--reading); }
+i.key.grammar { background: var(--grammar); }
 
 /* Reading and grammar figure: two bars per configuration on one 0–100% axis. */
 .task-figure { margin: 1rem 0; }
 .figure-title { font-weight: 700; font-size: 1.05rem; margin-bottom: .5rem; }
 .task-bars { list-style: none; margin: 0; padding: 0; }
 .task-bars li { padding: .5rem 0; border-top: 1px solid var(--border); }
-.task-bars .pair { display: grid; grid-template-columns: 5rem 1fr 3.5rem; align-items: center; gap: .5rem; margin-top: .2rem; font-size: .875rem; }
+.task-figure .pair { display: grid; grid-template-columns: 5rem 1fr 3.5rem; align-items: center; gap: .5rem; margin-top: .2rem; font-size: .875rem; }
 .task-bars .track { height: .9rem; background: var(--table-hover); border-radius: 3px; overflow: hidden; }
 .task-bars .bar { display: block; height: 100%; }
-.part.reading { color: #1d4ed8; font-weight: 600; } .part.grammar { color: #c2410c; font-weight: 600; }
+.part.reading { color: var(--reading-text); font-weight: 600; } .part.grammar { color: var(--grammar-text); font-weight: 600; }
 .bar.reading { background: var(--reading); } .bar.grammar { background: var(--grammar); }
 .task-bars .value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
-.task-figure .axis { display: flex; justify-content: space-between; margin: .25rem 4rem 0 5.5rem; color: var(--text-muted); font-size: .75rem; }
+/* The axis is one more row of the bars' grid, so its ticks sit over the same track. */
+.task-figure .axis { margin: .25rem 0 0; max-width: none; color: var(--text-muted); font-size: .75rem; }
+.task-figure .axis-track { position: relative; height: 1.1em; }
+.task-figure .axis-track span { position: absolute; top: 0; transform: translateX(-50%); }
+.task-figure .axis-track span:first-child { transform: none; }
+.task-figure .axis-track span:last-child { transform: translateX(-100%); }
 .task-figure .caption { color: var(--text-muted); font-size: .875rem; margin-top: .5rem; }
 
 /* Overview tables: model details open on tap or keyboard; the decision model badge explains itself on focus. */
 table.overview td { overflow-wrap: anywhere; }
+table.overview th.reading { color: var(--reading-text); } table.overview th.grammar { color: var(--grammar-text); }
+/* Tables and lists that open on request; plain HTML, so they work without JavaScript. */
+details.show-table, details.all-configs { margin: 1rem 0; }
+details.show-table > summary, details.all-configs > summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+/* The finding under the headline. */
+.finding { text-align: left; margin: 0 auto 1.25rem; padding: .8rem 1rem; border-left: 4px solid var(--accepted);
+  border-radius: var(--radius); background: var(--card-bg); box-shadow: var(--shadow); max-width: 64ch; }
+.finding p { margin: 0; }
+.finding p + p { margin-top: .4rem; }
+.finding-label { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
 details.model-details summary { cursor: pointer; }
 details.model-details dl { display: grid; grid-template-columns: auto 1fr; gap: .1rem .75rem; margin: .4rem 0 .2rem; font-size: .8rem; }
 details.model-details dt { color: var(--text-muted); }
@@ -275,6 +298,15 @@ details.model-details dd { margin: 0; }
   table.overview.results td { border: none; padding: .1rem 0; text-align: left; white-space: normal; }
   table.overview.results td:first-child { grid-column: 1 / -1; }
   table.overview.results td[data-label]::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .7rem; }
-  .task-bars .pair { grid-template-columns: 4.2rem 1fr 3.2rem; }
-  .task-figure .axis { margin: .25rem 3.7rem 0 4.7rem; }
+  .task-figure .pair { grid-template-columns: 4.2rem 1fr 3.2rem; }
+  table.overview.results td.reading::before { color: var(--reading-text); }
+  table.overview.results td.grammar::before { color: var(--grammar-text); }
+  /* Study tables: the model's name stays in view at the left while the numbers scroll beside it. */
+  .study table:not(.setups):not(.static) td.model { position: sticky; left: 0; z-index: 1; min-width: 7rem; max-width: 9rem;
+    background: var(--card-bg); box-shadow: 1px 0 0 var(--border); overflow-wrap: break-word; }
+  .study table:not(.setups):not(.static) thead th:first-child { position: sticky; left: 0; z-index: 2; }
+  .study td.model code.small { display: none; }
+  /* Headers wrap, so a column is as wide as its numbers rather than its heading. */
+  .study table:not(.setups):not(.static) thead th { white-space: normal; min-width: 4rem; }
+  .study table:not(.setups):not(.static) th, .study table:not(.setups):not(.static) td { padding: .45rem .5rem; }
 }

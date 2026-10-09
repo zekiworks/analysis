@@ -9,6 +9,7 @@ are tied; a metric that cuts through a tie takes the expected value over the ord
 from __future__ import annotations
 
 import bisect
+import itertools
 import math
 import random
 import statistics
@@ -192,22 +193,30 @@ def holm(p_values: Sequence[float]) -> list[float]:
 
 
 def tied_groups(count: int, separated: Callable[[int, int], bool]) -> list[str]:
-    """Letters for `count` runs in rank order, a compact letter display: each letter marks a longest
-    stretch of consecutive runs no two of which `separated(i, j)` tells apart, and a run gets the letter
-    of every stretch it belongs to. Runs that share a letter are tied; a run with two letters is tied
-    with runs that are not tied with each other."""
-    stretches: list[tuple[int, int]] = []
-    for start in range(count):
-        end = start
-        while end + 1 < count and not any(separated(member, end + 1) for member in range(start, end + 1)):
-            end += 1
-        # A stretch from a later start reaches at least as far; keep only those that reach further.
-        if not stretches or end > stretches[-1][1]:
-            stretches.append((start, end))
+    """Letters for `count` runs in rank order, a complete compact letter display: two runs share a letter
+    exactly when `separated(i, j)` does not tell them apart, so a letter can skip runs in between.
+
+    Piepho's insert-and-absorb method: start with one letter for every run; for each separated pair,
+    split every letter that holds both into one without the first run and one without the second, then
+    drop any letter whose runs another letter also holds. Letters are named in the order of their
+    best-ranked run."""
+    columns: list[frozenset[int]] = [frozenset(range(count))] if count else []
+    for first, second in itertools.combinations(range(count), 2):
+        if not separated(first, second):
+            continue
+        split: list[frozenset[int]] = []
+        for column in columns:
+            split.extend([column - {first}, column - {second}] if first in column and second in column else [column])
+        unique = list(dict.fromkeys(split))
+        columns = [column for column in unique if not any(column < other for other in unique)]
+    # One character per letter, so a run's letters can be read back from their string.
+    alphabet = string.ascii_lowercase + string.ascii_uppercase
+    ordered = sorted(columns, key=lambda column: sorted(column))
+    if len(ordered) > len(alphabet):
+        raise ValueError(f"{len(ordered)} letters needed, more than the {len(alphabet)} available")
     letters = [""] * count
-    for index, (start, end) in enumerate(stretches):
-        letter = string.ascii_lowercase[index % 26] * (index // 26 + 1)
-        for run in range(start, end + 1):
+    for letter, column in zip(alphabet, ordered):
+        for run in sorted(column):
             letters[run] += letter
     return letters
 
