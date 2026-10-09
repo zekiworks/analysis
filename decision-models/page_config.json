@@ -1,6 +1,6 @@
 {
-  "site_url": "https://zekiworks.github.io/analysis/turkce-benchmark/docs/",
-  "code_url": "https://github.com/zekiworks/analysis/tree/main/turkce-benchmark",
+  "site_url": "https://zekiworks.github.io/analysis/decision-models/",
+  "code_url": "https://github.com/zekiworks/analysis/tree/main/decision-models",
   "issue_url": "https://github.com/zekiworks/analysis/issues/new?template=suggest-a-task.md",
   "x_url": "https://x.com/zekiworks",
   "published": "2026-10-09",
@@ -13,19 +13,25 @@
     "strands", "gliner", "laya"
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
-  "lead": "luna",
+  "lead": "decider_v11",
   "leads": {
-    "luna": ["luna_api", "luna_stated"],
-    "decider_v11": ["decider_v11"]
+    "decider_v11": {
+      "rows": ["decider_v11"],
+      "order": "Decider v1.1 comes first, then the other decision models, then the two GPT-6 Luna setups"
+    },
+    "luna": {
+      "rows": ["luna_api", "luna_stated"],
+      "order": "The two GPT-6 Luna setups come first, then the decision models"
+    }
   },
   "confidence_rows": [
-    {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api"},
-    {"provider": "openai", "model": "gpt-6-luna", "key": "luna_stated"},
+    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "key": "decider_v11"},
+    {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
+    {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
     {"provider": "jev", "model": "jev-1.13.0", "key": "jev"},
     {"provider": "liquid", "model": "d1:free", "key": "d1"},
-    {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
-    {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
-    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "key": "decider_v11"}
+    {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api"},
+    {"provider": "openai", "model": "gpt-6-luna", "key": "luna_stated"}
   ],
   "accuracy_rows": [
     {"provider": "jev", "model": "jev-1.13.0"},

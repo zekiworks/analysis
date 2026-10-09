@@ -207,7 +207,7 @@ function groupAccuracy(run, name) {
 
 function renderLeaderboard(data) {
   const total = data.questions;
-  const mix = `${data.tyt_mix.reading} reading and ${data.tyt_mix.grammar} grammar questions`;
+  const mix = `the Turkish section of the 2026 TYT, the first stage of Turkey's university entrance exam: ${data.tyt_mix.reading} reading and ${data.tyt_mix.grammar} grammar questions`;
   // A group starts where a run shares no letter with the run above it.
   const sharesLetter = (first, second) => [...(first ?? '')].some(letter => (second ?? '').includes(letter));
   const rows = data.runs.map((run, index) => {
@@ -287,7 +287,7 @@ function renderLeaderboard(data) {
         numeric: true,
         title: 'What 1,000 questions cost at the API’s list price; self-hosted runs show their request time in the cost table instead',
       },
-      { label: 'TYT mix', numeric: true, title: `Reading and grammar weighted like the 2026 TYT paper: ${mix}`, extra: true },
+      { label: 'Exam mix', numeric: true, title: `Reading and grammar weighted like ${mix}`, extra: true },
       { label: 'Questions/min', numeric: true, title: 'Answered questions per minute of request time', extra: true },
       { label: 'Per request', numeric: true, title: 'Questions sent in one request', extra: true },
       { label: 'Correct', numeric: true, extra: true },
@@ -360,11 +360,6 @@ function renderCost(data) {
   );
 }
 
-/* A unit's printed title (all capitals) in Turkish sentence case: Turkish rules map I to ı and İ to i. */
-const sentenceCase = title => {
-  const lower = title.toLocaleLowerCase('tr');
-  return lower.charAt(0).toLocaleUpperCase('tr') + lower.slice(1);
-};
 // Units 1–6 test reading comprehension; units 7–20 test grammatical analysis.
 const isReading = unit => unit.number <= 6;
 
@@ -413,7 +408,6 @@ function renderUnits(data) {
       ...data.units.map(unit => ({
         label: [
           `${unit.number}. ${unit.english}`,
-          el('span', { class: 'small', lang: 'tr', text: sentenceCase(unit.name) }),
           el('span', { class: 'small', text: `${integer(unit.questions)} questions` }),
         ],
         numeric: true,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Recompute the published numbers from docs/answers.json and check them against docs/results.json.
+"""Recompute the published numbers from answers.json and check them against results.json.
 
-    python3 reproduce.py [--docs DOCS]
+    python3 reproduce.py [--docs FOLDER]
 
 For every main run: the correct answers on the scored questions (questions the key audit excluded are
 skipped), AUROC, expected calibration error, the answers scored 0.99 or more with the Wilson interval of
@@ -92,8 +92,8 @@ def main() -> int:
     parser.add_argument(
         "--docs",
         type=Path,
-        default=Path(__file__).resolve().parent / "docs",
-        help="folder with results.json and answers.json (default: docs next to this script)",
+        default=Path(__file__).resolve().parent,
+        help="folder with results.json and answers.json (default: this script's folder)",
     )
     args = parser.parse_args()
     results = json.loads((args.docs / "results.json").read_text(encoding="utf-8"))

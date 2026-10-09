@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write docs/results.json, the data behind the GitHub page, from the benchmark report.
+"""Write results.json, the data behind the GitHub page, from the benchmark report.
 
 The report (benchmark-results.md) embeds one JSON record per run and one with the comparisons between
 runs. Only runs over a full question set are exported, those on the question bank of the most recently
@@ -22,7 +22,7 @@ import benchmark_metrics as bm  # noqa: E402
 
 RESULT_PATTERN = re.compile(r"<!-- benchmark-result: (\{.*?\}) -->")
 ANALYSIS_PATTERN = re.compile(r"<!-- benchmark-analysis: (\{.*?\}) -->")
-DEFAULT_OUTPUT = Path(__file__).resolve().parent / "docs" / "results.json"
+DEFAULT_OUTPUT = Path(__file__).resolve().parent / "results.json"
 SCHEMA_VERSION = 4
 
 # How each provider was reached and paid for. Scoring providers rate the supplied options instead of generating

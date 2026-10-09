@@ -65,7 +65,7 @@ The report grades every stored answer against the bank as it stands now, from th
 `questions` (`id`, `printed_number`, `passage_id`, `answer`) and `question_status` (`question_id`,
 `status`). A run is tied to its bank by the file's SHA-256, so a rebuilt bank gives new runs.
 
-**Matching the published answers.** `../docs/answers.json` lists every question's ID, unit, page,
+**Matching the published answers.** `../answers.json` lists every question's ID, unit, page,
 printed number, passage and status. A rebuilt bank numbers its questions in extraction order, so match
 questions by page and printed number, which are unique.
 
@@ -106,7 +106,7 @@ questions by page and printed number, which are unique.
    ```
 
    The PDF must sit next to the bank, unchanged. The published bank ends with 493 `verified`, 12
-   `suspect` and 12 `excluded` questions; `../docs/answers.json` gives each question's status, so the
+   `suspect` and 12 `excluded` questions; `../answers.json` gives each question's status, so the
    same questions can be marked (`--work DIR sheet --question ID …` builds a page for chosen questions).
 
 ## Running the configurations

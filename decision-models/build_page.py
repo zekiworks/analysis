@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Fill the page's generated parts from one data snapshot: docs/results.json, with page_config.json.
+"""Fill the page's generated parts from one data snapshot: results.json, with page_config.json.
 
     python3 build_page.py               # the page, the sharing images and the X posts
     python3 build_page.py --no-images   # without the images (no Chrome needed)
 
 Every number in the overview, in the sharing images and in the X posts comes from the snapshot, and so do the
-numbers in the study's sentences that carry a marker. docs/index.html keeps the copy; this script rewrites what is
+numbers in the study's sentences that carry a marker. index.html keeps the copy; this script rewrites what is
 inside its markers:
 
 - <span data-value="key">…</span>: a number or a short text from values();
@@ -13,8 +13,8 @@ inside its markers:
 
 "lead" in page_config.json names the finding the page leads with (one of "leads"): it opens the page, comes
 first in the confidence figure, and is what the link preview, the X image and the main X post show. The images
-are drawn by headless Chrome from HTML made here, from the same rows as the page, and saved under docs/share/
-with the results version in their names; share/x-posts.md holds the announcement text. Earlier images are
+are drawn by headless Chrome from HTML made here, from the same rows as the page, and saved under share/ with
+the results version in their names; share/x-posts.md holds the announcement text. Earlier images are
 deleted until "announced" holds the date of the first public post, and kept after it, so that earlier link
 previews keep working. reproduce.py must pass first, and the build stops otherwise. Set CHROME to use another
 Chrome or Chromium binary.
@@ -37,17 +37,19 @@ from typing import Any
 sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 import benchmark_metrics as bm  # noqa: E402
 
+# The page and its data sit next to this script: the folder is the site GitHub Pages serves.
 ROOT = Path(__file__).resolve().parent
-DOCS = ROOT / "docs"
-PAGE = DOCS / "index.html"
-SHARE = DOCS / "share"
-X_POSTS = ROOT / "share" / "x-posts.md"
+PAGE = ROOT / "index.html"
+SHARE = ROOT / "share"
+X_POSTS = SHARE / "x-posts.md"
 VALUE = re.compile(r'(<span data-value="([a-z0-9_]+)">)(.*?)(</span>)', re.S)
 BLOCK = re.compile(r"(<!-- build:([a-z0-9-]+) -->)(.*?)(<!-- /build:\2 -->)", re.S)
 CHECKS = re.compile(r"^(\d+) checks match, (\d+) differ$", re.M)
 # The X counts every link as this many characters.
 X_LINK_LENGTH = 23
 X_POST_LIMIT = 280
+# The level below which an exact McNemar test counts as detecting a difference, as in the report and reproduce.py.
+ALPHA = 0.05
 
 esc = html.escape
 
@@ -135,17 +137,6 @@ def alone(item: dict[str, Any]) -> str:
     return f"{item['name']} alone" + (f" ({detail})" if detail else "")
 
 
-VERSION = re.compile(r"^(.*?)\s+v(\d+(?:\.\d+)*)$")
-
-
-def neutral_order(run: dict[str, Any]) -> tuple[Any, ...]:
-    """Alphabetical by name and setting, a model's newer version first: an order that ranks nothing."""
-    found = VERSION.match(run["name"])
-    base, parts = (found.group(1), [int(part) for part in found.group(2).split(".")]) if found else (run["name"], [])
-    newest_first = tuple(-part for part in parts) + (0,) * (4 - len(parts))
-    return (base.casefold(), newest_first, setting(run).casefold())
-
-
 def minutes(seconds: float) -> str:
     """Request time in minutes: one decimal below ten, whole minutes from ten."""
     value = seconds / 60
@@ -193,22 +184,24 @@ class Snapshot:
         self.reading_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] in reading_units)
         self.grammar_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] not in reading_units)
         self.models = len({run["model"] for run in self.runs})
-        # The confidence rows: the lead finding first, then an order that ranks nothing. Task rows by overall
-        # accuracy, the reference rows last; stability rows by changed answers, fewest first. Ties keep the
-        # configuration's order.
+        # The confidence rows: the lead finding first, then the other rows in page_config.json's order, an editorial
+        # order that ranks nothing. Task rows by overall accuracy, the reference rows last; stability rows by changed
+        # answers, fewest first. Ties keep the configuration's order.
         thresholds = [row for spec in config["confidence_rows"] if (row := self.threshold_row(spec))]
         keyed = {row["key"]: row for row in thresholds if row["key"]}
-        lead_keys = config["leads"][config["lead"]]
-        missing = [key for key in lead_keys if key not in keyed]
+        self.lead_spec = config["leads"][config["lead"]]
+        missing = [key for key in self.lead_spec["rows"] if key not in keyed]
         if missing:
             raise ValueError(f"lead {config['lead']!r} names confidence rows that do not exist: {', '.join(missing)}")
-        self.lead = [keyed[key] for key in lead_keys]
-        others = [row for row in thresholds if all(row is not lead for lead in self.lead)]
-        self.thresholds = self.lead + sorted(others, key=lambda row: neutral_order(row["run"]))
+        self.lead = [keyed[key] for key in self.lead_spec["rows"]]
+        self.thresholds = self.lead + [row for row in thresholds if all(row is not lead for lead in self.lead)]
         tasks = [row for spec in config["accuracy_rows"] if (row := self.task_row(spec))]
         self.tasks = sorted((row for row in tasks if not row["reference"]), key=lambda row: -row["overall"]) + [
             row for row in tasks if row["reference"]
         ]
+        # The accuracy table's short list: the configurations the page's figures show, in the leaderboard's order.
+        shown = {row["run"]["run"] for row in [*self.thresholds, *self.tasks]}
+        self.featured = [run for run in self.runs if run["run"] in shown]
         # Runs the study's sentences name by key: the keyed rows, then page_config.json's named runs.
         self.named = {row["key"]: row["run"] for row in [*thresholds, *tasks] if row["key"]}
         for key, spec in config.get("named_runs", {}).items():
@@ -323,6 +316,7 @@ def values(snap: Snapshot) -> dict[str, str]:
         "questions": count(snap.total),
         "models": count(snap.models),
         "configs": count(len(snap.runs)),
+        "featured_configs": count(len(snap.featured)),
         "reading_questions": count(snap.reading_questions),
         "grammar_questions": count(snap.grammar_questions),
         "grammar_share": f"{100 * snap.grammar_questions / snap.total:.0f}%",
@@ -331,7 +325,7 @@ def values(snap: Snapshot) -> dict[str, str]:
         "dataset_version": f"{results['dataset']['name']} ({(results['dataset']['graded_sha256'] or results['dataset']['sha256'])[:8]})",
         "checks": count(snap.checks),
         "comparisons": count(len(results["paired"])),
-        "significant": count(sum(item["p_holm"] < 0.05 for item in results["paired"])),
+        "significant": count(sum(item["p_holm"] < ALPHA for item in results["paired"])),
         "pairs": count(results["group_pairs"]),
         "held_out": count(snap.plan["held_out"]),
         # Repeat runs beyond each configuration's leaderboard run, as in the answer export.
@@ -343,6 +337,9 @@ def values(snap: Snapshot) -> dict[str, str]:
         "repeated_sample": count(len(snap.sample)),
         "sample_questions": count(snap.sample[0]["questions"]) if snap.sample else "0",
         "batch_size": count(per_request),
+        # The Turkish section of the 2026 exam the Exam mix column reweights to.
+        "exam_reading": in_words(results["tyt_mix"]["reading"]),
+        "exam_grammar": in_words(results["tyt_mix"]["grammar"]),
     }
     for row in snap.thresholds:
         if row["key"]:
@@ -352,6 +349,7 @@ def values(snap: Snapshot) -> dict[str, str]:
             out[f"{row['key']}_errors"] = count(row["errors"])
             out[f"{row['key']}_error_rate"] = fmt.pct(row["error_rate"]) if row["error_rate"] is not None else "not applicable"
             out[f"{row['key']}_error_high"] = fmt.pct(row["error_range"][1]) if row["error_range"] else "not applicable"
+            out[f"{row['key']}_error_span"] = fmt.span(*row["error_range"]) if row["error_range"] else "not applicable"
             out[f"{row['key']}_accuracy_low"] = fmt.pct(1 - row["error_range"][1]) if row["error_range"] else "not applicable"
             out[f"{row['key']}_per_request"] = count(row["run"]["questions_per_request"])
     for key, run in snap.named.items():
@@ -401,13 +399,13 @@ def stack_html(row: dict[str, Any], snap: Snapshot) -> str:
 
 def bar_values(row: dict[str, Any], fmt: Format) -> str:
     """Under a bar: the answers accepted with their share of all questions, the wrong ones with their share of
-    the accepted answers and the error estimate range of that share, and the answers sent to check."""
+    the accepted answers and the 95% error estimate range of that share, and the answers sent to check."""
     if not row["accepted"]:
         return f'<span>0 accepted; error rate not applicable</span> <span>{count(row["sent"])} sent to check</span>'
     return (
         f'<span>{count(row["accepted"])} accepted ({fmt.pct(row["coverage"])} of questions)</span> '
         f'<span class="v-wrong">{count(row["errors"])} wrong ({fmt.pct(row["error_rate"])} of accepted answers; '
-        f'error estimate range {fmt.span(*row["error_range"])})</span> '
+        f'95% error estimate range {fmt.span(*row["error_range"])})</span> '
         f'<span>{count(row["sent"])} sent to check</span>'
     )
 
@@ -432,8 +430,8 @@ def threshold_figure(snap: Snapshot) -> str:
     return (
         '<figure class="threshold-figure" aria-labelledby="threshold-title">'
         f'<figcaption id="threshold-title">Confidence of {threshold} or higher, applied to recorded answers. Each bar is all '
-        f"{count(snap.total)} scored questions: {LEGEND}. The lead finding comes first; the other rows follow in alphabetical "
-        "order, a model's newer version first. The order is not a ranking.</figcaption>"
+        f"{count(snap.total)} scored questions: {LEGEND}. {esc(snap.lead_spec['order'])}. The order is editorial, not a "
+        "ranking.</figcaption>"
         f'<ul class="threshold-bars">{"".join(items)}</ul></figure>'
     )
 
@@ -524,13 +522,9 @@ def results_rows(snap: Snapshot, runs: list[dict[str, Any]]) -> str:
 
 def results_table(snap: Snapshot) -> str:
     """The configurations the page's figures show, by overall accuracy, then every configuration on request."""
-    shown = {row["run"]["run"] for row in [*snap.thresholds, *snap.tasks]}
-    featured = [run for run in snap.runs if run["run"] in shown]
     everything = count(len(snap.runs))
     return (
-        f'<p class="note">Shown: the {count(len(featured))} configurations in the figures on this page, by overall accuracy. '
-        f"“View all configurations” lists all {everything}.</p>"
-        + results_rows(snap, featured)
+        results_rows(snap, snap.featured)
         + f'<details class="all-configs"><summary>View all configurations ({everything})</summary>{results_rows(snap, snap.runs)}</details>'
     )
 
@@ -623,31 +617,42 @@ def cost_table(snap: Snapshot) -> str:
             f'<span class="small">Questions per request: {per_request}</span></td>'
             f'<td class="num" data-label="Accuracy">{fmt.pct(row["accuracy"])}</td>'
             f'<td class="num" data-label="Difference from the first row">{difference}</td>'
-            f'<td class="num" data-label="Estimated cost per 1,000 questions">{usd(1000 * row["cost"] / held_out)}</td>'
+            f'<td class="num" data-label="Estimated API cost per 1,000 questions">{usd(1000 * row["cost"] / held_out)}</td>'
             f'<td class="num" data-label="Request time">{row["seconds"] / 60:.1f} min<span class="small">for {count(held_out)} questions</span></td>'
             "</tr>"
         )
     return (
         '<div class="table-wrap"><table class="overview cards costs">'
         '<thead><tr><th scope="col">Setup</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">Difference from the first row</th>'
-        '<th scope="col" class="num">Estimated cost per 1,000 questions</th><th scope="col" class="num">Request time</th></tr></thead>'
+        '<th scope="col" class="num">Estimated API cost per 1,000 questions</th><th scope="col" class="num">Request time</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
     )
 
 
 def cost_lead(snap: Snapshot) -> str:
-    """The main comparison, above the table: the cheaper model alone and the routing setup, against the reference."""
+    """The routing tradeoff above the table, against the reference: the estimated API cost, the total request time and
+    the accuracy difference with its interval; then how the experiment was run and what it did not measure."""
     fmt, held_out = snap.fmt, snap.plan["held_out"]
-    reference, routed, cheaper = snap.costs[0], snap.costs[1], snap.costs[2]
-
-    def per_thousand(row: dict[str, Any]) -> str:
-        return usd(1000 * row["cost"] / held_out)
-
+    reference, routed = snap.costs[0], snap.costs[1]
+    decision, frontier = routed["runs"]
+    versus = routed["versus"]
+    saving = 1 - routed["cost"] / reference["cost"]
+    cost_change = (f"reduced the estimated API cost by {fmt.pct(saving, 0)}" if saving > 0
+                   else f"increased the estimated API cost by {fmt.pct(-saving, 0)}")
+    before, after = reference["seconds"] / 60, routed["seconds"] / 60
+    time_change = f"{'increased' if after > before else 'reduced'} total request time from {before:.1f} to {after:.1f} minutes"
+    verdict = ("so the test did not detect a difference" if versus["p"] >= ALPHA
+               else f"a difference the test detects (exact McNemar test, {p_text(versus['p'])})")
+    others = len(snap.costs) - 2
     return (
-        f"<p>On the same {count(held_out)} held-out questions, {esc(cheaper['label'])} cost an estimated {per_thousand(cheaper)} "
-        f"per 1,000 questions at {fmt.pct(cheaper['accuracy'])} accuracy, and {esc(routed['label'])} {per_thousand(routed)} at "
-        f"{fmt.pct(routed['accuracy'])}. {esc(reference['label'])} cost {per_thousand(reference)} at {fmt.pct(reference['accuracy'])}. "
-        "In this experiment, one question is one decision.</p>"
+        f"<p>Compared with {esc(reference['label'])}, {esc(routed['label'])} {cost_change} and {time_change}. "
+        f"Its accuracy was {abs(100 * versus['difference']):.2f} percentage points {'lower' if versus['difference'] < 0 else 'higher'}, "
+        f"with a 95% interval from {points(versus['low'])} to {points(versus['high'])}, {verdict}. The table also shows "
+        f"{in_words(others)} cheaper models, each run alone on the same questions.</p>"
+        f'<p class="note">The experiment combined stored {esc(decision["name"])} answers with new {esc(frontier["name"])} calls on '
+        f"the same {count(held_out)} held-out questions; in it, one question is one decision. Human review time, human accuracy, "
+        "production costs and the financial consequences of mistakes were not measured. The monetary figures are API cost "
+        f"estimates. Request time is the total for all {count(held_out)} questions, not the latency of one question.</p>"
     )
 
 
@@ -659,10 +664,11 @@ def cost_summary(snap: Snapshot) -> str:
         saving = 1 - row["cost"] / reference["cost"]
         versus = row["versus"]
         sentences.append(
-            f'{esc(row["label"])} cost {fmt.pct(saving, 0)} less than {esc(reference["label"])} '
-            f'({usd(1000 * row["cost"] / held_out)} against {usd(1000 * reference["cost"] / held_out)} per 1,000 questions). '
-            f'Its accuracy was {abs(100 * versus["difference"]):.2f} points {"lower" if versus["difference"] < 0 else "higher"} '
-            f'(95% interval {points(versus["low"])} to {points(versus["high"])} points; exact McNemar test, {p_text(versus["p"])}).'
+            f'{esc(row["label"])} had an estimated API cost {fmt.pct(abs(saving), 0)} {"lower" if saving > 0 else "higher"} than '
+            f'{esc(reference["label"])} ({usd(1000 * row["cost"] / held_out)} against {usd(1000 * reference["cost"] / held_out)} '
+            f'per 1,000 questions). Its accuracy was {abs(100 * versus["difference"]):.2f} percentage points '
+            f'{"lower" if versus["difference"] < 0 else "higher"} (95% interval {points(versus["low"])} to {points(versus["high"])} '
+            f'points; exact McNemar test, {p_text(versus["p"])}).'
         )
     return (
         f"<p>On the {count(held_out)} held-out questions:</p>"
@@ -715,19 +721,27 @@ def per_request_text(rows: list[dict[str, Any]]) -> str:
     return " versus ".join(str(row["run"]["questions_per_request"]) for row in rows)
 
 
+ZERO_ERRORS = "Zero observed errors does not establish an error limit for future decisions."
+
+
+def outcome_text(row: dict[str, Any], fmt: Format) -> str:
+    """A lead row's accepted answers that were wrong, with the 95% error estimate range of their share."""
+    if not row["accepted"]:
+        return "so the error rate is not applicable."
+    span = f"95% error estimate range {fmt.span(*row['error_range'])}"
+    if row["errors"]:
+        return f"{count(row['errors'])} of them wrong ({fmt.pct(row['error_rate'])} of accepted answers; {span})."
+    return f"with zero observed errors ({span}). {ZERO_ERRORS}"
+
+
 def lead_finding(snap: Snapshot) -> str:
-    """The finding under the page's headline: the lead rows' answers accepted, errors and uncertainty."""
-    fmt, rows = snap.fmt, snap.lead
-    rule = f"accepting only answers with a confidence of {snap.config['threshold']:.2f} or higher"
+    """The finding under the page's headline: the lead rows' answers accepted, errors and uncertainty, with the scope."""
+    fmt, rows, total = snap.fmt, snap.lead, count(snap.total)
+    rule = f"accepting only answers with a reported confidence of {snap.config['threshold']:.2f} or higher"
     if len(rows) == 1:
         row = rows[0]
-        if row["errors"]:
-            errors = (f"{count(row['errors'])} of them wrong ({fmt.pct(row['error_rate'])}; error estimate range "
-                      f"{fmt.span(*row['error_range'])}).")
-        else:
-            errors = ("none of them wrong. Zero observed errors does not establish zero risk: the error estimate range "
-                      f"runs up to {fmt.pct(row['error_range'][1])}.")
-        text = f"{esc(row['run']['name'])}, {rule}: {count(row['accepted'])} answers accepted ({fmt.pct(row['coverage'])} of questions), {errors}"
+        text = (f"{esc(row['run']['name'])} on {total} Turkish exam questions, {rule}: {count(row['accepted'])} answers accepted "
+                f"({fmt.pct(row['coverage'])} of questions), {esc(outcome_text(row, fmt))}")
     else:
         parts = [
             f"{esc(SETUP_PHRASES.get(row['key'], (label(row['run']), ''))[0])}: {count(row['accepted'])} answers accepted "
@@ -735,7 +749,7 @@ def lead_finding(snap: Snapshot) -> str:
             for row in rows
         ]
         text = (
-            f"{esc(rows[0]['run']['name'])} in {in_words(len(rows))} setups, {rule}. " + " ".join(parts)
+            f"{esc(rows[0]['run']['name'])} in {in_words(len(rows))} setups on {total} Turkish exam questions, {rule}. " + " ".join(parts)
             + f" The setups also differ in request format ({per_request_text(rows)} questions per request), so this does not "
             "isolate the confidence method."
         )
@@ -751,15 +765,16 @@ def finding_sentence(snap: Snapshot) -> str:
     threshold = f"{snap.config['threshold']:.2f}"
     if len(rows) == 1:
         row = rows[0]
-        wrong = "none wrong" if not row["errors"] else f"{count(row['errors'])} wrong"
-        return (f"{row['run']['name']} on {total} Turkish exam questions: {count(row['accepted'])} answers accepted at a confidence of "
-                f"{threshold} or higher ({fmt.pct(row['coverage'])} of questions), {wrong}; error estimate range {fmt.span(*row['error_range'])}.")
+        wrong = "zero observed errors" if not row["errors"] else f"{count(row['errors'])} wrong"
+        span = f"; 95% error estimate range {fmt.span(*row['error_range'])}" if row["accepted"] else ""
+        return (f"{row['run']['name']} on {total} Turkish exam questions: {count(row['accepted'])} answers accepted at a reported "
+                f"confidence of {threshold} or higher ({fmt.pct(row['coverage'])} of questions), {wrong}{span}.")
     parts = [
         f"{count(row['accepted'])} accepted with {count(row['errors'])} wrong ({SETUP_PHRASES.get(row['key'], ('', setting(row['run'])))[1]})"
         for row in rows
     ]
-    return (f"{rows[0]['run']['name']} in {in_words(len(rows))} setups on {total} Turkish exam questions, accepting only answers with a confidence of "
-            f"{threshold} or higher: " + ", ".join(parts) + ".")
+    return (f"{rows[0]['run']['name']} in {in_words(len(rows))} setups on {total} Turkish exam questions, accepting only answers with a "
+            f"reported confidence of {threshold} or higher: " + ", ".join(parts) + ".")
 
 
 def reasoning_table(snap: Snapshot) -> str:
@@ -782,7 +797,7 @@ def reasoning_table(snap: Snapshot) -> str:
             )
     return (
         '<div class="table-wrap"><table class="static"><thead><tr><th>Model</th><th>Reasoning</th><th class="num">Score</th>'
-        '<th class="num">Grammar</th><th class="num">Output tokens per question</th><th class="num">Estimated cost per 1,000 questions</th>'
+        '<th class="num">Grammar</th><th class="num">Output tokens per question</th><th class="num">Estimated API cost per 1,000 questions</th>'
         f'<th class="num">Request time</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
     )
 
@@ -804,6 +819,7 @@ def head(snap: Snapshot, images: dict[str, str]) -> str:
         [
             "",
             f"  <title>{esc(title.rstrip('.'))}</title>",
+            f'  <link rel="canonical" href="{esc(site)}">',
             f'  <meta name="description" content="{esc(description)}">',
             f'  <meta property="og:title" content="{esc(title)}">',
             f'  <meta property="og:description" content="{esc(shared)}">',
@@ -828,10 +844,11 @@ def share_link(path: str, name: str) -> str:
 
 
 def blocks(snap: Snapshot, images: dict[str, str]) -> dict[str, str]:
+    lead_names = ", ".join(dict.fromkeys(row["run"]["name"] for row in snap.lead))
     return {
         "head": head(snap, images),
         "lead-finding": lead_finding(snap),
-        "threshold-figure": threshold_figure(snap) + share_link(images["finding"], "The lead finding"),
+        "threshold-figure": threshold_figure(snap) + share_link(images["finding"], f"Lead finding: {lead_names}"),
         "threshold-table": threshold_table(snap),
         "task-figure": task_figure(snap) + share_link(images["tasks"], "Reading and grammar figure"),
         "results-table": results_table(snap),
@@ -923,7 +940,7 @@ def image_label(row: dict[str, Any]) -> str:
 
 def finding_image(snap: Snapshot, size: dict[str, int], compact: bool) -> str:
     """The lead finding as an image: its rows only, each with answers accepted and sent to check, then the wrong
-    answers, their share of the accepted ones and the error estimate range."""
+    answers, their share of the accepted ones and the 95% error estimate range."""
     fmt, threshold, rows = snap.fmt, f"{snap.config['threshold']:.2f}", snap.lead
     items = []
     for row in rows:
@@ -933,18 +950,18 @@ def finding_image(snap: Snapshot, size: dict[str, int], compact: bool) -> str:
             second = "Error rate not applicable"
         elif row["errors"]:
             second = (f'<span class="wrong">{count(row["errors"])} wrong</span>: {fmt.pct(row["error_rate"])} of accepted answers '
-                      f'(error estimate range {fmt.span(*row["error_range"])})')
+                      f'(95% error estimate range {fmt.span(*row["error_range"])})')
         else:
-            second = f'<span class="wrong">None wrong</span> (error estimate range {fmt.span(*row["error_range"])})'
+            second = f'<span class="wrong">Zero observed errors</span> (95% error estimate range {fmt.span(*row["error_range"])})'
         items.append(f'<div>{image_label(row)}{bar}<p class="vals">{first}<br>{second}</p></div>')
     name = rows[0]["run"]["name"]
     if len(rows) == 1:
-        title = f"{name}: answers accepted at a confidence of {threshold} or higher"
-        caveat = ("Zero observed errors does not establish zero risk. " if rows[0]["accepted"] and not rows[0]["errors"] else "") + (
-            "The range is the 95% Wilson interval of the error rate, not an error limit for future decisions."
+        title = f"{name}: answers accepted at a reported confidence of {threshold} or higher"
+        caveat = (f"{ZERO_ERRORS} " if rows[0]["accepted"] and not rows[0]["errors"] else "") + (
+            "The range is a 95% Wilson interval for the error rate among accepted answers."
         )
     else:
-        title = f"{name}, {in_words(len(rows))} setups: answers accepted at a confidence of {threshold} or higher"
+        title = f"{name}, {in_words(len(rows))} setups: answers accepted at a reported confidence of {threshold} or higher"
         caveat = f"The setups also differ in request format ({per_request_text(rows)} questions per request), so this does not isolate the confidence method."
     legend = ('<i class="key ok"></i>accepted and correct · <i class="key wrong"></i>accepted but wrong · '
               '<i class="key check"></i>sent to check')
@@ -991,7 +1008,7 @@ def render_images(snap: Snapshot, names: dict[str, str]) -> None:
     SHARE.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as work:
         for key, (page, size) in pages.items():
-            source, target = Path(work) / f"{key}.html", DOCS / names[key]
+            source, target = Path(work) / f"{key}.html", ROOT / names[key]
             source.write_text(page, encoding="utf-8")
             subprocess.run(
                 [chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", f"--user-data-dir={work}/profile",
@@ -1006,7 +1023,7 @@ def render_images(snap: Snapshot, names: dict[str, str]) -> None:
     # Before the first public post, earlier versions go; after it, they stay, so that posted previews keep working.
     if snap.config.get("announced"):
         return
-    current = {DOCS / name for name in names.values()}
+    current = {ROOT / name for name in names.values()}
     for old in SHARE.glob("*.png"):
         if old not in current:
             old.unlink()
@@ -1044,7 +1061,7 @@ def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
     run, item = row["run"], snap.repeats_by_key.get(row["key"])
     parts = [
         f"{run['name']} is a decision model: it chooses from given options and returns a probability for each option. We tested it "
-        f"on {numbers['questions']} Turkish exam questions and accepted only answers with a confidence of {threshold} or higher."
+        f"on {numbers['questions']} Turkish exam questions and accepted only answers with a reported confidence of {threshold} or higher."
     ]
     if row["errors"]:
         parts.append(
@@ -1053,8 +1070,8 @@ def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
         )
     else:
         parts.append(
-            f"{count(row['accepted'])} answers were accepted ({number(row['coverage'])}% of questions). None of the {count(row['accepted'])} "
-            f"were wrong. Zero errors does not mean zero risk: the 95% error estimate range runs up to {number(row['error_range'][1])}%."
+            f"{count(row['accepted'])} answers were accepted ({number(row['coverage'])}% of questions), with zero observed errors "
+            f"(95% error estimate range {fmt.span(*row['error_range'])}). {ZERO_ERRORS}"
         )
     if item:
         runs = in_words(len(item["runs"]))
@@ -1097,7 +1114,7 @@ def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, str]) -> s
         "",
         f"## Main post: confidence and checking ({x_length(main)} characters as X counts them)",
         "",
-        f"Attach `docs/{names['finding']}`." + (" Longer than one post: it needs a long-post account, or split it into a thread with the caveat paragraph in the first post's image." if x_length(main) > X_POST_LIMIT else ""),
+        f"Attach `{names['finding']}`." + (" Longer than one post: it needs a long-post account, or split it into a thread with the caveat paragraph in the first post's image." if x_length(main) > X_POST_LIMIT else ""),
         "",
         "```text",
         main,
@@ -1105,7 +1122,7 @@ def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, str]) -> s
         "",
         f"## Follow-up: task differences ({x_length(follow)} characters as X counts them)",
         "",
-        f"Attach `docs/{names['tasks']}`." + (" Longer than one post: needs a long-post account or a thread." if x_length(follow) > X_POST_LIMIT else ""),
+        f"Attach `{names['tasks']}`." + (" Longer than one post: needs a long-post account or a thread." if x_length(follow) > X_POST_LIMIT else ""),
         "",
         "```text",
         follow,
@@ -1123,7 +1140,7 @@ def main() -> int:
     parser.add_argument("--no-images", action="store_true", help="skip the sharing images (no Chrome needed)")
     args = parser.parse_args()
     try:
-        results = json.loads((DOCS / "results.json").read_text(encoding="utf-8"))
+        results = json.loads((ROOT / "results.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "page_config.json").read_text(encoding="utf-8"))
         snap = Snapshot(results, config, reproduce())
         version = results["results_version"]

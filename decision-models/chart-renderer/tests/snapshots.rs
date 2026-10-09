@@ -4,8 +4,8 @@
 use std::path::Path;
 
 fn results() -> charts::Results {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../docs/results.json");
-    charts::load(&path).expect("docs/results.json loads")
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../results.json");
+    charts::load(&path).expect("results.json loads")
 }
 
 #[test]
