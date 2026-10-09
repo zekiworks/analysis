@@ -536,6 +536,8 @@ def results_table(snap: Snapshot) -> str:
 
 
 def stability_table(items: list[dict[str, Any]], fmt: Format) -> str:
+    # Every configuration in a group has the same number of runs (group_heading checks it).
+    repeated = f"Same wrong answer in all {in_words(len(items[0]['runs']))} runs"
     rows = []
     for item in items:
         rows.append(
@@ -543,14 +545,14 @@ def stability_table(items: list[dict[str, Any]], fmt: Format) -> str:
             f'<td data-label="Configuration">{label_html(item)}</td>'
             f'<td class="num" data-label="Changed answers">{count(item["changed_answer"])}'
             f'<span class="small">{fmt.pct(item["changed_answer"] / item["questions"])} of questions</span></td>'
-            f'<td class="num" data-label="Same wrong answer in every run">{count(item["wrong_every_run_same"])}'
-            f'<span class="small">of {count(item["wrong_any"])} questions answered wrong in any run</span></td>'
+            f'<td class="num" data-label="{repeated}">{count(item["wrong_every_run_same"])}'
+            f'<span class="small">of the {count(item["wrong_any"])} questions it got wrong at least once</span></td>'
             "</tr>"
         )
     return (
         '<div class="table-wrap"><table class="overview cards">'
         '<thead><tr><th scope="col">Configuration</th><th scope="col" class="num">Changed answers</th>'
-        '<th scope="col" class="num">Same wrong answer in every run</th></tr></thead>'
+        f'<th scope="col" class="num">{repeated}</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
     )
 
@@ -580,13 +582,14 @@ def stability_lead(snap: Snapshot) -> str:
     """The section's opening finding: one configuration's changed answers and repeated mistakes."""
     item = snap.repeats_by_key[snap.config["stability_lead"]]
     changed = "changed no answers" if not item["changed_answer"] else f"changed its answer on {count(item['changed_answer'])} questions"
+    runs = in_words(len(item["runs"]))
     if item["wrong_every_run_same"] == item["wrong_any"]:
-        same = f"gave the same wrong answer in every run to all {count(item['wrong_any'])} questions it got wrong"
+        same = f"gave the same wrong answer in all {runs} runs to all {count(item['wrong_any'])} questions it got wrong at least once"
     else:
-        same = (f"gave the same wrong answer in every run to {count(item['wrong_every_run_same'])} of the "
-                f"{count(item['wrong_any'])} questions it got wrong in any run")
+        same = (f"gave the same wrong answer in all {runs} runs to {count(item['wrong_every_run_same'])} of the "
+                f"{count(item['wrong_any'])} questions it got wrong at least once")
     return (
-        f"<p>{esc(label(item))} {changed} across {in_words(len(item['runs']))} runs of all {count(item['questions'])} questions, "
+        f"<p>{esc(label(item))} {changed} across {runs} runs of all {count(item['questions'])} questions, "
         f"and {same}. Stable is not the same as correct.</p>"
     )
 
@@ -877,7 +880,7 @@ i.key.check { background: repeating-linear-gradient(135deg, #e2e8f0 0 4px, #cbd5
 .vals { font-size: %(value)dpx; color: #1e293b; margin-top: .25em; line-height: 1.3; }
 .vals .wrong { color: #c026d3; font-weight: 700; }
 .stack { position: relative; display: block; height: %(bar)dpx; margin-top: .35em; }
-.stack .fill { display: flex; height: 100%%; border-radius: 4px; overflow: hidden; background: #e2e8f0; }
+.stack .fill { display: flex; height: 100%%; border: 2px solid #64748b; border-radius: 4px; overflow: hidden; background: #e2e8f0; }
 .stack .ok { background: #334155; flex-grow: 0; flex-shrink: 0; } .stack .wrong { background: #c026d3; flex-grow: 0; flex-shrink: 0; }
 .stack .wrong.nonzero { box-shadow: inset 3px 0 0 #fff; }
 .stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, #e2e8f0 0 10px, #cbd5e1 10px 20px); }

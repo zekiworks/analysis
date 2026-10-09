@@ -831,7 +831,7 @@ function renderRepeats(data) {
       { label: 'Runs', numeric: true },
       { label: 'Accuracy', numeric: true, title: 'Mean over the runs, with the lowest and highest' },
       { label: 'Changed answer', numeric: true, title: 'Questions on which the runs did not all choose the same option' },
-      { label: 'Same mistake every run', numeric: true, title: 'Wrong in every run with the same option, of the questions any run got wrong' },
+      { label: 'Same wrong answer in all runs', numeric: true, title: 'Wrong in every run with the same option, of the questions it got wrong at least once' },
       { label: 'Score spread', numeric: true, title: 'Median over the questions of the largest minus the smallest score of the chosen options' },
       { label: 'Same score', numeric: true, title: 'Questions scored the same in every run' },
       { label: 'Wrong at ≥ 0.99', numeric: true, title: 'Each run’s wrong answers at a score of 0.99 or more' },

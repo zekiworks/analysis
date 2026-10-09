@@ -213,7 +213,8 @@ details.setup-details summary { cursor: pointer; font-weight: 600; }
 .bar-label { margin: 0 0 .3rem; }
 .bar-label .small { display: inline; margin-left: .5rem; }
 .stack { position: relative; display: block; height: 1.1rem; margin: .5rem 0 .45rem; }
-.stack .fill { display: flex; height: 100%; border-radius: 4px; overflow: hidden; background: var(--check); }
+/* A thin outline shows where each whole bar, all scored questions, ends. */
+.stack .fill { display: flex; height: 100%; border: 1px solid #64748b; border-radius: 4px; overflow: hidden; background: var(--check); }
 .stack .ok { background: var(--accepted); flex-grow: 0; flex-shrink: 0; }
 .stack .wrong { background: var(--wrong); flex-grow: 0; flex-shrink: 0; }
 /* A white edge keeps the wrong segment apart from the dark one, for readers who cannot tell the colours apart. */
