@@ -107,6 +107,9 @@ SYSTEM_ONE = {
     # ~/code/strands-decider/server.py: Amazon's Strands Decider 2B through its own package, behind the
     # System One format.
     "strands": SystemOneService("Strands Decider", "http://127.0.0.1:18096"),
+    # ~/code/pplx-decider/server.py: Perplexity's pplx-decider-v1.1-27b on our GPUs, through the server code its
+    # checkpoint ships, which takes the same request and returns the same answers.
+    "pplx-decider": SystemOneService("Perplexity Decider", "http://127.0.0.1:18097", request_id_header="x-request-id"),
     # OpenAI's Decisions API (public beta), which serves gpt-6-luna. Needs an API key with billing; the
     # Codex-based openai provider never uses one.
     "openai-decisions": SystemOneService(
@@ -135,16 +138,18 @@ CACHE_KINDS = TOKEN_KINDS[1:4]
 
 @dataclass(frozen=True)
 class Price:
-    """A list price in USD per 1M tokens, and where it comes from. A cache rate left out is the input rate:
-    the provider lists no separate rate for those tokens."""
+    """A list price in USD per 1M tokens, where it comes from and the date it applies to. A cache rate left out is
+    the input rate: the provider lists no separate rate for those tokens."""
 
-    basis: str  # whose price, and from when where it has changed
+    basis: str  # whose price
     source: str  # the page it was read from
+    date: str  # the day the price was read, or the day of the run where it has changed since (ISO)
     input: float
     output: float = 0.0
     cached_input: float | None = None
     cache_write: float | None = None
     cache_write_1h: float | None = None
+    change: str | None = None  # a known change after `date`
 
     def rates(self) -> dict[str, float]:
         """USD per 1M tokens of each of TOKEN_KINDS; the input rate applies to the prompt tokens outside the cache."""
@@ -165,44 +170,64 @@ class Price:
 ANTHROPIC_PRICING = "https://platform.claude.com/docs/en/about-claude/pricing"
 GEMINI_PRICING = "https://ai.google.dev/gemini-api/docs/pricing"
 OPENAI_PRICING = "https://developers.openai.com/api/docs/pricing"
-# List prices by (provider, model), checked 8 October 2026. A run without one has no cost: models on our GPUs,
-# and d1, which Liquid AI serves on a free tier with no published price. Claude and OpenAI runs use
-# subscriptions, so their costs are what the same tokens would cost on the API.
+# List prices by (provider, model). A run without one has no cost: models on our GPUs, and d1, which Liquid AI
+# serves on a free tier with no published price. Claude and OpenAI runs use subscriptions, so their costs are what
+# the same tokens would cost on the API.
 PRICES: dict[tuple[str, str], Price] = {
     ("jev", "jev-1.13.0"): Price(
-        "TypeSafe's System One price", "https://typesafe.ai/blog/introducing-system-one-models-and-jev", 0.042
+        "TypeSafe's System One price", "https://typesafe.ai/blog/introducing-system-one-models-and-jev", "2026-10-08", 0.042
     ),
-    # $0.04 on 4 October 2026, the day of the run (the pricing page as archived that day); $0.02 since.
+    # $0.04 on 4 October 2026, the day of the run (the pricing page as archived that day and the next); $0.02 by 8 October.
     ("perplexity", "pplx-decider-v1-27b"): Price(
-        "Perplexity's Decisions API price on 4 October 2026, the day of the run; $0.02 since",
+        "Perplexity's Decisions API price",
         "https://docs.perplexity.ai/docs/getting-started/pricing",
+        "2026-10-04",
         0.04,
+        change="$0.02 per 1M input tokens since (listed on 8 October 2026)",
     ),
-    ("fastino", "fastino/GLiDE"): Price("Fastino's GLiDE price", "https://docs.fastino.ai/pricing", 0.15),
+    ("perplexity", "pplx-decider-v1.1-27b"): Price(
+        "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-09", 0.02
+    ),
+    ("fastino", "fastino/GLiDE"): Price("Fastino's GLiDE price", "https://docs.fastino.ai/pricing", "2026-10-08", 0.15),
     # No cache or output charges.
     ("openai-decisions", "gpt-6-luna"): Price(
-        "OpenAI's Decisions API price", "https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability", 0.10
+        "OpenAI's Decisions API price",
+        "https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability",
+        "2026-10-08",
+        0.10,
     ),
     # Claude Code writes its prompts to the 1-hour cache; reads cost 0.05 times the input price on these models.
     ("claude", "claude-opus-5-5"): Price(
-        "Anthropic's API list price", ANTHROPIC_PRICING, 4.00, 20.00, cached_input=0.20, cache_write=5.00, cache_write_1h=8.00
+        "Anthropic's API list price", ANTHROPIC_PRICING, "2026-10-08", 4.00, 20.00,
+        cached_input=0.20, cache_write=5.00, cache_write_1h=8.00,
     ),
     ("claude", "claude-sonnet-5-5"): Price(
-        "Anthropic's API list price", ANTHROPIC_PRICING, 2.00, 10.00, cached_input=0.10, cache_write=2.50, cache_write_1h=4.00
+        "Anthropic's API list price", ANTHROPIC_PRICING, "2026-10-08", 2.00, 10.00,
+        cached_input=0.10, cache_write=2.50, cache_write_1h=4.00,
     ),
-    # Thinking is billed as output; prompts up to 200K tokens. Gemini 3.8 Flash's price doubles on 1 January 2027.
+    # Thinking is billed as output; prompts up to 200K tokens.
     ("gemini", "gemini-3.8-flash"): Price(
-        "Google's Gemini API price through 31 December 2026; it doubles on 1 January 2027",
+        "Google's Gemini API price, introductory",
         GEMINI_PRICING,
+        "2026-10-08",
         0.75,
         3.75,
         cached_input=0.075,
+        change="doubles on 1 January 2027, to $1.50 input and $7.50 output per 1M tokens",
     ),
-    ("gemini", "gemini-3.1-pro-preview"): Price("Google's Gemini API price", GEMINI_PRICING, 2.00, 12.00, cached_input=0.20),
+    ("gemini", "gemini-3.1-pro-preview"): Price(
+        "Google's Gemini API price", GEMINI_PRICING, "2026-10-08", 2.00, 12.00, cached_input=0.20
+    ),
     # Prompts up to 272K tokens.
-    ("openai", "gpt-6-astra"): Price("OpenAI's API list price", OPENAI_PRICING, 10.00, 50.00, cached_input=1.00, cache_write=12.50),
-    ("openai", "gpt-6.1-sol"): Price("OpenAI's API list price", OPENAI_PRICING, 2.00, 10.00, cached_input=0.10, cache_write=2.50),
-    ("openai", "gpt-6-luna"): Price("OpenAI's API list price", OPENAI_PRICING, 0.10, 0.50, cached_input=0.01, cache_write=0.125),
+    ("openai", "gpt-6-astra"): Price(
+        "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 10.00, 50.00, cached_input=1.00, cache_write=12.50
+    ),
+    ("openai", "gpt-6.1-sol"): Price(
+        "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 2.00, 10.00, cached_input=0.10, cache_write=2.50
+    ),
+    ("openai", "gpt-6-luna"): Price(
+        "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 0.10, 0.50, cached_input=0.01, cache_write=0.125
+    ),
 }
 
 
@@ -264,11 +289,13 @@ DOUBT_SHUFFLES = 200
 # or a (provider, model) pair when the provider serves several models.
 PAIRED_CONFIGURATIONS: tuple[tuple[str | tuple[str, str], str | tuple[str, str]], ...] = (
     ("open-jev", "vllm-yes-no"),
-    ("perplexity", "jev"),
-    (("fastino", "fastino/GLiDE"), "perplexity"),
+    (("perplexity", "pplx-decider-v1-27b"), "jev"),
+    (("fastino", "fastino/GLiDE"), ("perplexity", "pplx-decider-v1-27b")),
     (("vllm", "gemma-4-31B-it"), ("fastino", "fastino/GLiDE")),
     # The same model read two ways: option probabilities from the Decisions API, a stated confidence via Codex.
     (("openai-decisions", "gpt-6-luna"), ("openai", "gpt-6-luna")),
+    # Two versions of Perplexity's Decider, both through Perplexity's Decisions API.
+    (("perplexity", "pplx-decider-v1.1-27b"), ("perplexity", "pplx-decider-v1-27b")),
 )
 # Tied groups: two runs over the same questions count as told apart when their exact paired test, Holm-
 # adjusted over every pair of those runs, falls below this level.
@@ -2687,7 +2714,7 @@ def confidence_lines(scored: list[dict[str, Any]]) -> list[str]:
         "## Confidence",
         "",
         "Each answer's score is the probability of the chosen option for the providers that return "
-        "option probabilities: Jev, Open-Jev, Liquid AI's d1, Laya, Perplexity's pplx-decider-v1-27b, "
+        "option probabilities: the System One providers (the decision models, Laya and GLiNER), "
         "vllm-yes-no, which computes them from Qwen's Yes/No token probabilities as Open-Jev does, and vllm, "
         "which reads them from the token probabilities of the answer letters the model writes. "
         "For vllm-verbal, claude, openai and gemini it is the confidence the model states, and for vllm-vote the "
@@ -3216,7 +3243,12 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         "reads and writes at their own rates where the provider lists them; runs on local weights have none, "
         "nor does d1, which Liquid AI serves on a free tier with no published price. Claude and OpenAI runs use "
         "subscriptions, so their costs are what the same tokens would cost on the API. Prices: "
-        + "; ".join(f"{provider} {model}: {price_text(price)} ({price.basis})" for (provider, model), price in PRICES.items())
+        + "; ".join(
+            f"{provider} {model}: {price_text(price)} ({price.basis}, {price.date}"
+            + (f"; {price.change}" if price.change else "")
+            + ")"
+            for (provider, model), price in PRICES.items()
+        )
         + ". Dataset: the question bank's file name and the first 8 hex digits of its SHA-256.",
         "",
         "| Provider | Model | Thinking | Dataset | Questions | Score | Correct | Invalid | Batch | Questions/min | Cost (USD) | Updated (UTC) |",
@@ -3423,7 +3455,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     (graded_answers), including the run's totals and units."""
     run = connection.execute(
         "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,thinking_mode,batch_size,"
-        "dataset,dataset_sha256,selection_sha256 FROM runs WHERE run_key=?",
+        "dataset,dataset_sha256,selection_sha256,created_at FROM runs WHERE run_key=?",
         (run_key,),
     ).fetchone()
     if run is None:
@@ -3431,6 +3463,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     provider = run["provider"]
     metrics: dict[str, Any] = {
         "timed_seconds": float(run["timed_seconds"]),
+        "started": run["created_at"],
         "questions_per_minute": run["questions_per_minute"],
     }
     totals = dict.fromkeys(TOKEN_KINDS, 0)
@@ -3527,7 +3560,14 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     price = PRICES.get((provider, run["model"]))
     if price is not None:
         metrics["cost_usd"] = price.cost(totals)
-        metrics["price"] = {"basis": price.basis, "source": price.source, "rates": price.rates(), "text": price_text(price)}
+        metrics["price"] = {
+            "basis": price.basis,
+            "source": price.source,
+            "date": price.date,
+            "change": price.change,
+            "rates": price.rates(),
+            "text": price_text(price),
+        }
     if run["replace_key_text"] is not None:
         metrics["key_replacement"] = key_replacement(connection, run, graded, search_dir)
     return metrics

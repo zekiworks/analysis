@@ -4,8 +4,9 @@
     python3 reproduce.py [--docs DOCS]
 
 For every main run: the correct answers on the scored questions (questions the key audit excluded are
-skipped), AUROC, expected calibration error, the answers scored 0.99 or more (also before the key audit,
-when results.json has those counts), and the leaderboard's tied groups (every pair of runs tested,
+skipped), AUROC, expected calibration error, the answers scored 0.99 or more with the Wilson interval of
+their accuracy (the counts also before the key audit, when results.json has them), and the leaderboard's
+tied groups (every pair of runs tested,
 exact McNemar, Holm over all pairs, alpha 0.05). Then the listed paired comparisons: exact McNemar
 and Holm over the listed pairs. Then the costs: each priced run's from its token counts at the published
 rates, every run without a price shown as a free tier or self-hosted, each routing simulation's cost per
@@ -164,8 +165,14 @@ def main() -> int:
             cells += [
                 checks.metric(confidence["auroc"], auroc),
                 checks.metric(confidence["ece"], ece),
+                # The counts, and the Wilson interval of their accuracy that the page turns into an error range.
                 checks.cell(
-                    (sure["questions"], sure["correct"]) == (published_sure["questions"], published_sure["correct"]),
+                    (sure["questions"], sure["correct"]) == (published_sure["questions"], published_sure["correct"])
+                    and (sure["interval"] is None) == (published_sure.get("interval") is None)
+                    and all(
+                        close(published, recomputed, METRIC_TOLERANCE)
+                        for published, recomputed in zip(published_sure.get("interval") or [], sure["interval"] or [])
+                    ),
                     sure_text(sure),
                     sure_text(published_sure),
                 ),

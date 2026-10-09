@@ -153,7 +153,8 @@ question. `--codex-bin` and `--claude-bin` point at other executables.
 | Script | Configuration | Key |
 |---|---|---|
 | `run_gemini.sh`, `run_gemini_high.sh` | Gemini 3.8 Flash (low thinking; high with 4 requests at a time) | `GEMINI_API_KEY` |
-| `run_perplexity.sh` | Perplexity Decider 27B | `PERPLEXITY_API_KEY` |
+| `run_perplexity.sh` | Perplexity Decider 27B v1 | `PERPLEXITY_API_KEY` |
+| `run_perplexity_v1_1.sh` | Perplexity Decider 27B v1.1 (add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
 | `run_liquid_d1.sh` | Liquid AI d1 | `LIQUID_API_KEY` |
 | `run_glide.sh` | Fastino GLiDE, 4 requests at a time | `FASTINO_API_KEY` |
@@ -240,10 +241,11 @@ section describes how each was read out.
 - `gemma-sample`, `astra-sample`, `opus-sample`, `sonnet-high-sample`, `deepseek-sample`,
   `deepseek-thinking-sample`: five runs on one fixed 200-question sample, 16 questions per request.
 - `astra-one`, `gemma-one`: the same sample with one question per request.
-- `jev`, `decider`, `d1`, `open-jev`, `qwen-yes-no`, `qwen-stated`: repeats 2–5 of the whole-bank run.
+- `jev`, `decider` (Decider v1), `d1`, `open-jev`, `qwen-yes-no`, `qwen-stated`: repeats 2–5 of the whole-bank
+  run. Decider v1.1's repeats come from `run_perplexity_v1_1.sh --repeat N`.
 - `qwen-vote`: Qwen3.8-27B's stated-confidence request sampled 10 times per question.
 - `astra-passed`, `astra-held-out`, `sonnet-high-passed`, `sonnet-high-held-out`: the routing runs,
-  the frontier configuration on the questions the Decider passes on and on the whole held-out half,
+  the frontier configuration on the questions Decider v1 passes on and on the whole held-out half,
   from the plans in `pipeline/`. `./cascade_pipeline.py NAME --decision RUN --frontier RUN --seed 1
   --tolerance 0.5` makes a new plan from two stored runs.
 - `sol-held-out`, `flash-held-out`: GPT-6.1 Sol and Gemini 3.8 Flash alone on the same held-out half,

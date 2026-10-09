@@ -9,6 +9,13 @@
   --bar: #dbeafe;
   --shadow: 0 1px 3px rgba(0, 0, 0, .08);
   --radius: 8px;
+  /* Reading is blue and grammar orange everywhere; the confidence figure has its own neutral palette. */
+  --reading: #2563eb;
+  --grammar: #ea580c;
+  --accepted: #334155;
+  --wrong: #dc2626;
+  --check: #e2e8f0;
+  --check-stripe: #cbd5e1;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -25,6 +32,20 @@ body {
 header, main, footer { max-width: 1400px; margin: 0 auto; }
 header { text-align: center; margin-bottom: 2rem; }
 h1 { font-size: 1.75rem; margin: 0 0 .25rem; }
+
+/* The page's opening: the method framing, the scope and one way in. */
+.hero { max-width: 72ch; margin: 1rem auto 2.5rem; }
+.hero h1 { font-size: 2.25rem; line-height: 1.15; margin-bottom: 1rem; }
+.hero .lede { font-size: 1.15rem; margin: 0 0 1rem; }
+.hero .scope { color: var(--text-muted); margin: 0 0 1rem; }
+.hero .scope-note { display: inline-block; margin: 0 0 1.25rem; padding: .4rem .8rem; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--card-bg); font-size: .95rem; }
+.button { display: inline-block; padding: .6rem 1.2rem; border-radius: var(--radius); background: var(--primary); color: #fff;
+  font-weight: 600; text-decoration: none; }
+.button:hover, .button:focus-visible { background: #1d4ed8; }
+.button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.button.secondary { background: var(--card-bg); color: var(--primary); border: 1px solid var(--primary); padding: .4rem .9rem; }
+.button.secondary:hover, .button.secondary:focus-visible { background: var(--table-hover); }
 .subtitle { color: var(--text-muted); margin: 0; }
 .byline { color: var(--text-muted); font-size: .875rem; margin: .75rem 0 0; }
 a { color: var(--primary); }
@@ -65,13 +86,13 @@ a.backref { text-decoration: none; margin-left: .25rem; }
   padding: 1.5rem;
   margin-bottom: 2rem;
 }
-.card h2 {
+.card h2, .study > .card > h3:first-child {
   font-size: 1.2rem;
   margin: 0 0 1rem;
   padding-bottom: .5rem;
   border-bottom: 1px solid var(--border);
 }
-.card h3 { font-size: 1rem; margin: 1.5rem 0 .5rem; }
+.overview h3, .study .card h4 { font-size: 1rem; margin: 1.5rem 0 .5rem; }
 .prose p, .prose li { max-width: 80ch; }
 .prose ul { padding-left: 1.25rem; }
 .prose li + li { margin-top: .35rem; }
@@ -165,11 +186,95 @@ figure.chart { margin: 1.25rem 0 0; overflow-x: auto; }
   color: var(--text-muted);
   font-size: .85rem;
 }
-
 footer { text-align: center; color: var(--text-muted); font-size: .85rem; }
+
+/* Overview sections: one question, one figure, the table below it. */
+.overview { max-width: 1100px; margin-left: auto; margin-right: auto; }
+.overview p, .overview li { max-width: 80ch; }
+.overview .threshold-bars li, .overview .task-bars li { max-width: none; }
+table.overview.costs td.setup { min-width: 15rem; }
+table.overview td.num .small { white-space: normal; }
+.eyebrow { margin: 0 0 .25rem; color: var(--text-muted); font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.overview ul.notes { padding-left: 1.25rem; color: var(--text-muted); font-size: .875rem; }
+.overview ul.notes li + li, .overview ul li + li { margin-top: .35rem; }
+.share { margin: .75rem 0 0; }
+.share .small { display: inline; }
+.actions { display: flex; flex-wrap: wrap; gap: .75rem 1rem; align-items: center; }
+details.setup-details { margin: 1rem 0; }
+details.setup-details summary { cursor: pointer; font-weight: 600; }
+
+/* Confidence threshold figure: one stacked bar per configuration, every segment labelled in text. */
+.threshold-figure { margin: 1.25rem 0; }
+.threshold-figure figcaption { color: var(--text-muted); font-size: .875rem; margin-bottom: .75rem; }
+.threshold-bars { list-style: none; margin: 0; padding: 0; }
+.threshold-bars li { padding: .6rem 0; border-top: 1px solid var(--border); }
+.bar-label { margin: 0 0 .3rem; }
+.bar-label .small { display: inline; margin-left: .5rem; }
+.stack { display: flex; height: 1.1rem; border-radius: 4px; overflow: hidden; background: var(--check); }
+.stack .ok { background: var(--accepted); flex-grow: 0; flex-shrink: 0; }
+.stack .wrong { background: var(--wrong); flex-grow: 0; flex-shrink: 0; }
+.stack .wrong.nonzero { min-width: 4px; }
+.stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, var(--check) 0 6px, var(--check-stripe) 6px 12px); }
+.bar-values { display: flex; flex-wrap: wrap; gap: .1rem 1.25rem; margin: .35rem 0 0; font-size: .875rem; }
+.bar-values .v-wrong { color: #b91c1c; font-weight: 600; }
+i.key { display: inline-block; width: .75rem; height: .75rem; margin-right: .35rem; border-radius: 2px; vertical-align: -.05rem; }
+i.key.ok { background: var(--accepted); }
+i.key.wrong { background: var(--wrong); }
+i.key.check { background: repeating-linear-gradient(135deg, var(--check) 0 3px, var(--check-stripe) 3px 6px); border: 1px solid var(--check-stripe); }
+
+/* Reading and grammar figure: two bars per configuration on one 0–100% axis. */
+.task-figure { margin: 1rem 0; }
+.figure-title { font-weight: 700; font-size: 1.05rem; margin-bottom: .5rem; }
+.task-bars { list-style: none; margin: 0; padding: 0; }
+.task-bars li { padding: .5rem 0; border-top: 1px solid var(--border); }
+.task-bars .pair { display: grid; grid-template-columns: 5rem 1fr 3.5rem; align-items: center; gap: .5rem; margin-top: .2rem; font-size: .875rem; }
+.task-bars .track { height: .9rem; background: var(--table-hover); border-radius: 3px; overflow: hidden; }
+.task-bars .bar { display: block; height: 100%; }
+.part.reading { color: #1d4ed8; font-weight: 600; } .part.grammar { color: #c2410c; font-weight: 600; }
+.bar.reading { background: var(--reading); } .bar.grammar { background: var(--grammar); }
+.task-bars .value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.task-figure .axis { display: flex; justify-content: space-between; margin: .25rem 4rem 0 5.5rem; color: var(--text-muted); font-size: .75rem; }
+.task-figure .caption { color: var(--text-muted); font-size: .875rem; margin-top: .5rem; }
+
+/* Overview tables: model details open on tap or keyboard; the decision model badge explains itself on focus. */
+table.overview td { overflow-wrap: anywhere; }
+details.model-details summary { cursor: pointer; }
+details.model-details dl { display: grid; grid-template-columns: auto 1fr; gap: .1rem .75rem; margin: .4rem 0 .2rem; font-size: .8rem; }
+details.model-details dt { color: var(--text-muted); }
+details.model-details dd { margin: 0; }
+.badge { position: relative; display: inline-block; margin-left: .4rem; padding: 0 .4rem; border: 1px solid var(--accepted);
+  border-radius: 999px; font-size: .7rem; color: var(--accepted); cursor: help; white-space: nowrap; }
+.badge:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.badge-tip { display: none; position: absolute; left: 0; top: 1.5rem; z-index: 2; width: 16rem; padding: .4rem .6rem;
+  background: var(--text); color: #fff; border-radius: 4px; font-size: .78rem; white-space: normal; }
+.badge:hover .badge-tip, .badge:focus .badge-tip { display: block; }
+
+/* The full study keeps its sections under its own title. */
+.study-header { text-align: center; max-width: 80ch; margin: 3rem auto 2rem; }
+.study-header h2 { font-size: 1.6rem; margin: 0 0 .25rem; }
+.study-header .intro { text-align: left; margin-top: 1.5rem; }
+.study-header nav.toc ul { justify-content: center; }
 
 @media (max-width: 640px) {
   body { padding: 1rem .5rem; }
   .card { padding: 1rem; }
   #units td:first-child, #units th:first-child { min-width: 11rem; }
+  .hero h1 { font-size: 1.8rem; }
+  /* Overview tables become one card per row, each value with its column's name. */
+  table.cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.cards, table.cards tbody, table.cards tr, table.cards td { display: block; width: 100%; }
+  table.cards tr { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: .75rem; padding: .25rem .5rem; }
+  table.cards td { border: none; padding: .3rem 0; text-align: left; white-space: normal; }
+  table.cards td[data-label]::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .75rem; }
+  table.cards td.num .small { display: inline; margin-left: .35rem; }
+  /* The results table: the model on its own line, its four values under it, each with its column's name. */
+  table.overview.results thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.overview.results, table.overview.results tbody { display: block; }
+  table.overview.results tr { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: .5rem; padding: .4rem 0;
+    border-bottom: 1px solid var(--border); }
+  table.overview.results td { border: none; padding: .1rem 0; text-align: left; white-space: normal; }
+  table.overview.results td:first-child { grid-column: 1 / -1; }
+  table.overview.results td[data-label]::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .7rem; }
+  .task-bars .pair { grid-template-columns: 4.2rem 1fr 3.2rem; }
+  .task-figure .axis { margin: .25rem 3.7rem 0 4.7rem; }
 }

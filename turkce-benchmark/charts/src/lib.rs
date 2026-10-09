@@ -2,9 +2,8 @@
 //!
 //! Each [`Figure`] draws into a ratatui buffer through a [`TestBackend`] ([`render`]). The buffer's
 //! text is the figure's insta snapshot (`tests/snapshots.rs`), and [`svg::buffer_to_svg`] turns the
-//! same buffer into the SVG the page shows (`src/main.rs`). [`og::og_image`] draws the sharing card.
+//! same buffer into the SVG the page shows (`src/main.rs`). The sharing images come from `build_page.py`.
 
-pub mod og;
 pub mod svg;
 
 use std::cmp::Reverse;
@@ -154,7 +153,8 @@ impl Results {
         let base = match run.model.as_str() {
             "claude-opus-5-5" => "Opus 5.5",
             "claude-sonnet-5-5" => "Sonnet 5.5",
-            "pplx-decider-v1-27b" => "Decider",
+            "pplx-decider-v1-27b" => "Decider v1",
+            "pplx-decider-v1.1-27b" => "Decider v1.1",
             "jev-1.13.0" => "Jev",
             "d1:free" => "d1",
             "open-jev-27b-v1.1" => "Open-Jev",
@@ -205,6 +205,7 @@ fn color(run: &Run) -> Color {
         ("deepseek-v4.1-flash", ..) => rgb(0x06b6d4),
         ("gemma-4-31B-it", ..) => rgb(0x16a34a),
         ("pplx-decider-v1-27b", ..) => rgb(0xea580c),
+        ("pplx-decider-v1.1-27b", ..) => rgb(0x9a3412),
         ("jev-1.13.0", ..) => rgb(0xdc2626),
         ("d1:free", ..) => rgb(0xca8a04),
         ("open-jev-27b-v1.1", ..) => rgb(0x0d9488),
@@ -785,8 +786,8 @@ fn coverage_curve(points: &[[f64; 2]]) -> Vec<(f64, f64)> {
 }
 
 const COVERAGE_TITLE: &str = "How accuracy changes when we keep only the most confident answers";
-const COVERAGE_X: &str = "Share of answers retained";
-const COVERAGE_Y: &str = "Accuracy among retained answers";
+const COVERAGE_X: &str = "Share of answers accepted";
+const COVERAGE_Y: &str = "Accuracy among accepted answers";
 const CALIBRATION_TITLE: &str = "Does 0.8 mean 80% right?";
 const SOURCES_TITLE: &str = "Different confidence methods, the same Qwen answers";
 /// Columns of the confidence figures' panel grids.

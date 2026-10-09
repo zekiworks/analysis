@@ -17,10 +17,3 @@ fn figures_match_their_snapshots() {
         insta::assert_snapshot!(figure.name, charts::buffer_text(&charts::render(&figure)));
     }
 }
-
-#[test]
-fn og_image_matches_its_snapshot() {
-    let svg = charts::og::og_image(&results()).expect("every selected configuration is in results.json");
-    assert!(svg.contains(r#"width="1200" height="630""#), "the card is 1200 × 630");
-    insta::assert_snapshot!("og-image", svg);
-}

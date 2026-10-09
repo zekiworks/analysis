@@ -1,20 +1,9 @@
-//! Writes the results page's graphs as SVG: `charts <results.json> <output directory>`, or the
-//! sharing card: `charts og-image <results.json> <output.svg>`.
+//! Writes the results page's graphs as SVG: `charts <results.json> <output directory>`.
 
 use std::path::Path;
 use std::process::ExitCode;
 
-const USAGE: &str = "usage: charts <results.json> <output directory>\n       charts og-image <results.json> <output.svg>";
-
-fn load(results: &str) -> Option<charts::Results> {
-    match charts::load(Path::new(results)) {
-        Ok(results) => Some(results),
-        Err(error) => {
-            eprintln!("error: {results}: {error}");
-            None
-        }
-    }
-}
+const USAGE: &str = "usage: charts <results.json> <output directory>";
 
 fn write(path: &Path, content: &str) -> bool {
     match std::fs::write(path, content) {
@@ -30,7 +19,13 @@ fn write(path: &Path, content: &str) -> bool {
 }
 
 fn figures(results: &str, output: &str) -> ExitCode {
-    let Some(results) = load(results) else { return ExitCode::FAILURE };
+    let results = match charts::load(Path::new(results)) {
+        Ok(results) => results,
+        Err(error) => {
+            eprintln!("error: {results}: {error}");
+            return ExitCode::FAILURE;
+        }
+    };
     let output = Path::new(output);
     if let Err(error) = std::fs::create_dir_all(output) {
         eprintln!("error: {}: {error}", output.display());
@@ -45,22 +40,9 @@ fn figures(results: &str, output: &str) -> ExitCode {
     ExitCode::SUCCESS
 }
 
-fn og_image(results: &str, output: &str) -> ExitCode {
-    let Some(results) = load(results) else { return ExitCode::FAILURE };
-    match charts::og::og_image(&results) {
-        Ok(svg) if write(Path::new(output), &svg) => ExitCode::SUCCESS,
-        Ok(_) => ExitCode::FAILURE,
-        Err(error) => {
-            eprintln!("error: {error}");
-            ExitCode::FAILURE
-        }
-    }
-}
-
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
     match args.as_slice() {
-        [_, command, results, output] if command == "og-image" => og_image(results, output),
         [_, results, output] => figures(results, output),
         _ => {
             eprintln!("{USAGE}");

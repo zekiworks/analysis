@@ -7,8 +7,11 @@ multiple-choice questions from a TYT Türkçe question bank: how accuracy holds 
 grammar, whether a model's confidence points at its mistakes, what a right answer costs, and what
 routing questions from a cheap model to an expensive one saves.
 
-The site is the `docs/` folder, served by GitHub Pages from the `main` branch. It is static:
-`docs/app.js` renders the tables from `docs/results.json`, the aggregate results. `docs/answers.json`
+The site is the `docs/` folder, served by GitHub Pages from the `main` branch. It is static. The page
+opens with an overview for readers who build, choose or review AI tools (confidence, accuracy, answer
+stability and cost), followed by the full study. `build_page.py` writes the overview's numbers, tables
+and bars into `docs/index.html` from `docs/results.json`, the aggregate results, so they read without
+JavaScript; `docs/app.js` renders the full study's tables from the same file. `docs/answers.json`
 holds every answer of every main, repeat and routing run, with its full-precision score and option
 probabilities but without the questions' text. `benchmark_metrics.py` is the benchmark's metric code,
 and `runner/` the code that ran the benchmark.
@@ -21,7 +24,7 @@ None of these commands needs a private file:
 python3 reproduce.py                                       # recompute the published numbers
 cargo run --release --manifest-path charts/Cargo.toml -- docs/results.json docs/charts   # the graphs
 cargo test --manifest-path charts/Cargo.toml               # compare each graph with its snapshot
-charts/og-image.sh docs                                    # the sharing image
+python3 build_page.py                                      # the overview, the sharing images, the X posts
 python3 -m http.server 8000 --directory docs               # preview at http://127.0.0.1:8000/
 ```
 
@@ -38,9 +41,14 @@ python3 -m http.server 8000 --directory docs               # preview at http://1
   p-values and costs within a relative 10⁻⁹. The bootstrap intervals, the routing simulations'
   accuracy, the repeats and the other tables are not recomputed.
 - **The graphs** are drawn by `charts/`, a Rust crate, from `docs/results.json` (see below).
-- **The sharing image** `charts/og-image.sh docs` writes `docs/og-image.svg` with the charts binary
-  and `docs/og-image.png` (1200 × 630) with headless Chrome; `CHROME` names another Chrome or
-  Chromium binary.
+- **The page build** `build_page.py` runs `reproduce.py` first and stops unless every check matches.
+  It fills the page's `<span data-value="…">` elements and `<!-- build:… -->` blocks from
+  `docs/results.json`, with the constants in `page_config.json`: the 0.99 threshold, the configurations
+  each overview figure shows, display precision and image sizes. It draws the sharing images with
+  headless Chrome from the same rows (`docs/share/`, named with the results version) and writes the
+  announcement text to `share/x-posts.md`; `--no-images` skips Chrome, and `CHROME` names another
+  Chrome or Chromium binary. The dataset version, the results version (a hash of `results.json`) and
+  the publication date in `page_config.json` are shown separately.
 - **The preview** needs a server: opening `docs/index.html` from disk does not work, because browsers
   block loading `results.json` from a `file://` page.
 
@@ -99,8 +107,9 @@ refresh `runner/` and the metric code, and check the result:
 ./export_results.py /path/to/benchmark-results.md --answers /tmp/benchmark-answers.json
 ./sync_runner.sh /path/to/benchmark-folder   # runner/ and benchmark_metrics.py
 python3 reproduce.py
-grep -r -I -E '/(home|Volumes)|T[7]' README.md reproduce.py sync_runner.sh export_results.py runner docs charts/src charts/tests
-```
+cargo run --release --manifest-path charts/Cargo.toml -- docs/results.json docs/charts
+python3 build_page.py   # set "published" in page_config.json first
+grep -r -I -E '/(home|Volumes)|T[7]' README.md reproduce.py build_page.py sync_runner.sh export_results.py runner docs charts/src charts/tests share
 
 The last command must find nothing; its pattern is written so that it does not match itself.
 `sync_runner.sh` refuses to copy a file that contains a local path; it copies every `run_*.sh` script

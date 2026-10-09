@@ -6,7 +6,7 @@ How accuracy changes when we keep only the most confident answers
 Answers ordered from most to least confident; each curve ends at the run's accuracy on all answers. Panels group related runs; read each panel's own y axis.
 
 Frontier APIs: OpenAI and Google · stated confidence                              Frontier APIs: Anthropic · stated confidence
-Accuracy among retained answers                                                   Accuracy among retained answers
+Accuracy among accepted answers                                                   Accuracy among accepted answers
 100% ⢠⢠⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⡤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣤⣀⣀⣀⣀      100% ⢠⢠⣄⣀⣤⣤⣤⣤⡤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
      ⢸ ⢣                                  ⠈⠉⠉⠉⠉⠉⠉⠑⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠤⠤⠤⠤⠤⠤⠤⠤⠤⢄⣀⣉⡉⠉⠛           ⢸ ⠉⠒⠤⠔⠒⠒⠚⠓⠒⠶⢖⣒⣤⡤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⢄⣀⣀⣉⣉⣉⣉⡉⠉⠉⠉⠉⠉⠉⠉⠉⠒⠒⠒⠒⠒⠢⠤⠤⠤⠤⠤⠤⢄⣀⣀
      ⢸  ⠱⡀                                                               ⠈⠉⠉           ⢸              ⠈⠉⠉⠒⠢⠤⣀⡀                 ⠈⠉⠉⠉⠉⠉⠉⠉⠉⠒⠒⠒⠒⠒⠒⠒⠤⠤⢄⣀⣀⡀  ⠉⠑⠒⠒⠢⠤⣀
@@ -24,13 +24,13 @@ Accuracy among retained answers                                                 
      ⢸                                                                                 ⢸
  40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
     0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
-                            Share of answers retained                                                         Share of answers retained
+                            Share of answers accepted                                                         Share of answers accepted
 
 ━━ Gemini 3.8 Flash (high)   ━━ GPT-6 Astra (low)   ━━ GPT-6.1 Sol (low)          ━━ Opus 5.5 (low)   ━━ Sonnet 5.5 (high)   ━━ Sonnet 5.5 (low)
 ━━ Gemini 3.8 Flash (low)   ━━ GPT-6 Luna (low)
 
 Open-weight generative models · option probability                                Qwen3.8-27B, different confidence scores
-Accuracy among retained answers                                                   Accuracy among retained answers
+Accuracy among accepted answers                                                   Accuracy among accepted answers
 100% ⢠⠠⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⢤⣤⣤⣤⣤⣤⣤⣄⣀⣀⡀                                                      100% ⢠⠠⠤⠤⠤⠤⠤⠤⠤⠤⠤⣀⡀
      ⢸⠈⢫⣑⣦⣤⣤⣀⡠⢄⣀⣀⡀        ⣀⡙⠛⠛⠒⠲⠶⣒⠒⠢⠤⠤⠤⠤⣀                                              ⢸           ⠈⠑⠢⠤⢄⣀
      ⢸⠈⠁  ⠈⠉⠉⠑⠶⣢⢄⠈⠉⠉⠑⠊⠉⠉⠉⠉ ⠈⠉⠉⠉⠉⠉⠉⠉⠙⠫⢍⡉⠉⠉⠉⠙⠛⠭⢕⣒⣒⡊⠉⠉⠉⠑⠒⠉⠑⠒⠒⠒⠒⠒⠉⠑⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒           ⢸                 ⠉⠒⠤⣀
@@ -48,55 +48,55 @@ Accuracy among retained answers                                                 
      ⢸                                                                  ⠉⠉⠉⠛           ⢸
  40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
     0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
-                            Share of answers retained                                                         Share of answers retained
+                            Share of answers accepted                                                         Share of answers accepted
 
 ━━ DeepSeek-V4.1-Flash (on)   ━━ Gemma 4 31B (off)                                ━━ Qwen3.8-27B (vote share)   ━━ Qwen3.8-27B (stated)
 ━━ DeepSeek-V4.1-Flash (off)   ━━ Qwen3-14B (off)   ━━ Erk-14B (off)              ━━ Qwen3.8-27B (yes/no)
 
-Decision models, higher scores · option probability                               Decision models, lower scores · option probability
-Accuracy among retained answers                                                   Accuracy among retained answers
-100% ⢠⠠⠤⠤⠤⠤⠤⠤⠤⠤⠤⣤⣤⣤⣤⣄⣀⣀                                                           100% ⢠⢠⡤⢤⡤⠤⠤⠤⠤⠤⠤⣤⣄⣀⣀⡀
-     ⢸           ⠈⠉⠉⠑⠺⠯⣟⡓⠒⠶⢦⣄⣀                                                         ⢸⢀⣀⣀⣈⣉⡑⠢⢄⡀     ⠈⠙⠛⠿⢷⣶⣤⣤⣄⣀
-     ⢸                  ⠉⠛⠯⢦⢌⣉⠛⠫⠭⣭⣒⡢⠤⣀⣀⣀                                               ⢸⠘⡄   ⠈⠑⠢⣈⠑⠢⣀         ⠈⠙⠛⠿⢷⣶⣒⣤⣄⣀
-     ⢸                      ⠉⠒⠭⣑⠢⣀⠉⠙⠫⢖⡢⠤⣉⠒⠢⠤⣀⡀                                     80% ⢸ ⠘⡄      ⠉⠒⠢⠭⠶⢄⡀           ⠉⠒⠚⠛⠿⢯⣵⣤⣤⣄⣀
-     ⢸                          ⠉⠲⢭⣑⠒⠤⢌⣉⠢⢍⣑⣒⠤⢌⣉⠒⠢⢄⣀⣀⡀                                  ⢸  ⠘⡄           ⠈⠉⠒⠶⣒⠒⠢⢄⣀           ⠉⠙⠛⠿⠿⠿⣶⣦⣤⣤⣀⡀
- 80% ⢸                             ⠈⠉⠒⠢⠤⣉⠒⠢⢄⡉⠑⠢⢍⡑⠢⠤⠤⣈⠉⠒⠢⢄⣀                             ⢸   ⠈⢆               ⠉⠉⠑⠒⠭⢍⣉⠒⠒⠢⠤⠤⢄⣀⣀        ⠈⠉⠉⠙⠛⠛⠳⢶⣶⣤⣄⣀⣀⡀
-     ⢸                                  ⠈⠙⠳⠶⣬⣕⣢⢄⡈⠑⠒⠤⢄⣉⠉⠑⠢⠤⣉⡑⠒⠤⠤⢄⣀                  60% ⢸    ⠈⠢⢄⡀                   ⠉⠒⠢⠤⣀⣀⣀ ⠉⠑⠒⠒⠒⠒⠤⠤⢄⣀⣀⡀      ⠈⠉⠉⠙⠛⠛⠒⠲⠶⠤⣤⣄⣀⣀⡀
-     ⢸                                       ⠈⠉⠛⠛⠳⠶⣤⣄⣀⠉⠑⠢⠤⣀⡈⠉⠒⠢⢄⣀⠉⠑⠒⠤⣀⣀⣀               ⢸       ⠈⠒⠤⣀⡀                      ⠉⠒⠢⠤⠤⠤⠤⣀⣀⡀  ⠈⠉⠉⠑⠒⠒⠒⠢⠤⠤⢄⣀⣀        ⠈⠉⠉
-     ⢸                                              ⠈⠉⠛⠳⢦⣤⣀⡈⠉⠉⠑⠢⠤⣉⡑⠒⠤⠤⢄⣀⠉⠑⠒⠤           ⢸           ⠈⠉⠉⠑⠢⠤⣀⣀⣀                       ⠈⠉⠉⠑⠒⠒⠒⠢⠤⠤⠤⠤⠤⢄⣀⣀⣉⡉⠉⠒⠒⠒⠒⠒⠢⠤⠤
-     ⢸                                                    ⠉⠙⠛⠒⠲⢦⣤⣀⡈⠉⠒⠤⢄⣀⣉⡑⠒⠤       40% ⢸                    ⠉⠉⠑⠒⠒⠢⠤⠤⣀⣀⣀⣀⡀                           ⠈⠉⠉⠉⠉⠉⠒⠒⠒⠒
- 60% ⢸                                                           ⠉⠙⠛⠒⠶⢦⣤⣀⣈⣉⠒           ⢸                                ⠈⠉⠉⠉⠑⠒⠒⠢⠤⠤⠤⠤⠤⠤⢄⣀⣀⣀⣀⣀⣀⡀
-     ⢸                                                                   ⠈⠉⠉           ⢸                                                     ⠈⠉⠉⠉⠉⠉⠉⠑⠒⠒⠒⠒⠒⠒⠒⠒⠒
-     ⢸                                                                             20% ⢸
+Decision models, part 1 of 3 · option probability                                 Decision models, part 2 of 3 · option probability
+Accuracy among accepted answers                                                   Accuracy among accepted answers
+100% ⢠⠠⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⢤⣤⣤⣤⣤⣤⣀⣀⣀⣀⣀⡀                                                     100% ⢠⠠⠤⠤⠤⠤⠤⠤⢤⡤⠤⣤⣄⣀
+     ⢸              ⠑⠪⠭⣛⡓⠒⠶⢦⣌⣉⠒⠢⠤⣀⣀⡀                                                   ⢸           ⠈⠉⠉⠳⢶⣶⣤⣀
+     ⢸                  ⠈⠉⠉⠢⢌⣉⠛⠫⠭⣭⣒⡪⠭⣒⣒⣢⣀⣀                                             ⢸                ⠈⠙⠻⠿⠶⣦⣄⣀
+     ⢸                        ⠉⠑⠢⣀⠉⠙⠫⢖⡢⠤⣉⠒⠫⠶⣤⣄⣀                                        ⢸                     ⠑⠫⢟⡿⣖⠤⢄⡀
+     ⢸                            ⠉⠑⠒⠤⢌⣉⠢⢍⣑⣒⠤⢌⣉⠛⠳⢦⣤⣀⡀                                  ⢸                        ⠈⠒⢍⠲⢬⣒⠤⣀⡀
+ 80% ⢸                                  ⠉⠒⠢⢄⡉⠑⠢⢍⡑⠢⠤⠤⣈⠉⠒⠢⢄⣀⣀                        80% ⢸                           ⠉⠉⠙⠛⠿⢾⡵⣤⣀⡀
+     ⢸                                      ⠈⠑⠢⢄⡈⠑⠒⠤⢄⣉⠉⠑⠢⠤⣉⡙⠒⠤⢤⣄⣀                      ⢸                                 ⠈⠚⠽⢿⣿⣶⣦⣤⣀
+     ⢸                                          ⠈⠑⠒⠤⢄⣀⠉⠑⠢⠤⣀⡈⠉⠒⠢⢌⣉⠉⠑⠒⠤⣀⣀⣀               ⢸                                      ⠉⠙⠛⠿⢷⡶⢶⣤⣀
+     ⢸                                                ⠉⠑⠢⠤⣀⡈⠉⠉⠑⠢⠤⣉⡑⠒⠤⠤⢌⣉⠛⠳⠶⣤           ⢸                                           ⠈⠉⠚⠻⠿⠶⣶⣤⣀
+     ⢸                                                     ⠈⠉⠒⠒⠢⠤⣀⡈⠉⠒⠤⢄⣀⣉⡑⠒⠤           ⢸                                                 ⠈⠙⠛⠿⢟⣛⣶⣦⣄⣀
+ 60% ⢸                                                            ⠈⠉⠒⠒⠢⠤⣀⣈⣉⠒       60% ⢸                                                        ⠈⠉⠉⠛⠻⠿⠶⣤⣤⣤⣀⡀
+     ⢸                                                                     ⠉           ⢸                                                                ⠈⠉⠛⠛⠛⠭
      ⢸                                                                                 ⢸
      ⢸                                                                                 ⢸
- 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+     ⢸                                                                                 ⢸
+ 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
     0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
-                            Share of answers retained                                                         Share of answers retained
+                            Share of answers accepted                                                         Share of answers accepted
 
-━━ Fastino GLiDE   ━━ GPT-6 Luna (Decisions API, beta)   ━━ Decider               ━━ Cygnet   ━━ Open-Jev   ━━ Winnow-12B   ━━ Clef-flash   ━━ Metask-Jev 4B
-━━ Jev   ━━ Clef   ━━ d1                                                          ━━ Strands Decider 2B
+━━ Fastino GLiDE   ━━ Decider v1.1   ━━ GPT-6 Luna (Decisions API, beta)          ━━ Clef   ━━ d1   ━━ Cygnet   ━━ Open-Jev   ━━ Winnow-12B
+━━ Decider v1   ━━ Jev
 
-At or below chance: Laya and GLiNER · option probability
-Accuracy among retained answers
-100% ⢠
-     ⢸
-     ⢸
- 80% ⢸
-     ⢸
-     ⢸
- 60% ⢸
-     ⢸
-     ⢸
- 40% ⢸
-     ⢸⠈⢆
-     ⢸⠠⡀⠑⠢⠤⢄⡀⢀⣀⣀⣀⣀⣀⣀⡀
- 20% ⢸⢀⡨⢦⡀  ⠈⠁      ⠈⠉⠉⠉⠉⠉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣑⣒⣒⣉⣉⣉⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⣶⡶⠶⠶⠶⢶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶
-     ⢸⢀⡠⠤⣙⣓⣒⣒⣒⡺⠿⠭⠕⠒⠛⠛⠛⠛⠛⠛⠛⠛⠫⠝⠛⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠁
-     ⢸
-  0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
-    0%            20%           40%           60%           80%          100%
-                            Share of answers retained
+Decision models, part 3 of 3 · option probability                                 At or below chance: Laya and GLiNER · option probability
+Accuracy among accepted answers                                                   Accuracy among accepted answers
+100% ⢠⢀⡠⢄⡀                                                                        100% ⢠
+     ⢸⢀⣀⣀⣈⣉⡑⠢⢄⡀                                                                        ⢸
+     ⢸⠘⡄   ⠈⠑⠢⣈⠑⠢⣀                                                                     ⢸
+ 80% ⢸ ⠘⡄      ⠉⠒⠢⠭⠶⢄⡀                                                             80% ⢸
+     ⢸  ⠘⡄           ⠈⠉⠒⠶⣒⠒⠢⢄⣀                                                         ⢸
+     ⢸   ⠈⢆               ⠉⠉⠑⠒⠭⢍⣉⠒⠒⠢⠤⠤⢄⣀⣀                                              ⢸
+ 60% ⢸    ⠈⠢⢄⡀                   ⠉⠒⠢⠤⣀⣀⣀ ⠉⠑⠒⠒⠒⠒⠤⠤⢄⣀⣀⡀                              60% ⢸
+     ⢸       ⠈⠒⠤⣀⡀                      ⠉⠒⠢⠤⠤⠤⠤⣀⣀⡀  ⠈⠉⠉⠑⠒⠒⠒⠢⠤⠤⢄⣀⣀                      ⢸
+     ⢸           ⠈⠉⠉⠑⠢⠤⣀⣀⣀                       ⠈⠉⠉⠑⠒⠒⠒⠢⠤⠤⠤⠤⠤⢄⣀⣀⣉⡉⠉⠒⠒⠒⠒⠒⠢⠤⠤           ⢸
+ 40% ⢸                    ⠉⠉⠑⠒⠒⠢⠤⠤⣀⣀⣀⣀⡀                           ⠈⠉⠉⠉⠉⠉⠒⠒⠒⠒       40% ⢸
+     ⢸                                ⠈⠉⠉⠉⠑⠒⠒⠢⠤⠤⠤⠤⠤⠤⢄⣀⣀⣀⣀⣀⣀⡀                           ⢸⠈⢆
+     ⢸                                                     ⠈⠉⠉⠉⠉⠉⠉⠑⠒⠒⠒⠒⠒⠒⠒⠒⠒           ⢸⠠⡀⠑⠢⠤⢄⡀⢀⣀⣀⣀⣀⣀⣀⡀
+ 20% ⢸                                                                             20% ⢸⢀⡨⢦⡀  ⠈⠁      ⠈⠉⠉⠉⠉⠉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣑⣒⣒⣉⣉⣉⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⠶⣶⡶⠶⠶⠶⢶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶
+     ⢸                                                                                 ⢸⢀⡠⠤⣙⣓⣒⣒⣒⡺⠿⠭⠕⠒⠛⠛⠛⠛⠛⠛⠛⠛⠫⠝⠛⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠁
+     ⢸                                                                                 ⢸
+  0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
+                            Share of answers accepted                                                         Share of answers accepted
 
-━━ GLiNER2.5-multi-Decide   ━━ Laya   ━━ Laya multilingual
-━━ GLiNER2.5 Multi (base)
+━━ Clef-flash   ━━ Metask-Jev 4B   ━━ Strands Decider 2B                          ━━ GLiNER2.5-multi-Decide   ━━ Laya   ━━ Laya multilingual
+                                                                                  ━━ GLiNER2.5 Multi (base)

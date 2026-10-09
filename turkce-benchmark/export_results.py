@@ -10,16 +10,20 @@ question text, prompts, answers or local paths.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
 from pathlib import Path
 from typing import Any
 
+sys.dont_write_bytecode = True  # no __pycache__ next to the published files
+import benchmark_metrics as bm  # noqa: E402
+
 RESULT_PATTERN = re.compile(r"<!-- benchmark-result: (\{.*?\}) -->")
 ANALYSIS_PATTERN = re.compile(r"<!-- benchmark-analysis: (\{.*?\}) -->")
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "docs" / "results.json"
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 # How each provider was reached and paid for. Scoring providers rate the supplied options instead of generating
 # an answer, so they have no reasoning setting. billing: "api" (billed per token), "subscription" (a flat plan;
@@ -107,7 +111,9 @@ MODELS: dict[str, dict[str, Any]] = {
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 27_796_899_569,
     },
-    "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B", "parameters": 26_085_330_160},
+    "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B v1", "parameters": 26_085_330_160},
+    # Counted from the released checkpoint (perplexity-ai/pplx-decider-v1.1-27b at 5cd25e3), backbone and head.
+    "pplx-decider-v1.1-27b": {"name": "Perplexity Decider 27B v1.1", "parameters": 26_086_635_760},
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "d1:free": {"name": "Liquid d1"},
     "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}", "parameters": 421_293_830},
@@ -407,6 +413,8 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "confidence": confidence(record),
                 "previous": previous,
                 "units": [categories[name]["correct"] for name in unit_names],
+                # When the run started and when its record last changed; the two are different dates.
+                "started": record["started"],
                 "updated": record["updated"],
             }
         )
@@ -560,7 +568,11 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
     scored = next((record for record in selected if record.get("score_source")), None)
     return {
         "schema_version": SCHEMA_VERSION,
+        # Set by main(): a hash of everything else in the file, so each published snapshot has its own version.
+        "results_version": None,
         "updated": max(run["updated"] for run in runs),
+        # The score at or above which an answer counts as very sure (the 0.99 threshold of the confidence tables).
+        "sure_threshold": bm.SURE_SCORE,
         "dataset": {
             "name": Path(reference["dataset"]).name,
             "sha256": reference["dataset_sha256"],
@@ -661,6 +673,8 @@ def main() -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    content = json.dumps({**data, "results_version": None}, ensure_ascii=False, sort_keys=True)
+    data["results_version"] = hashlib.sha256(content.encode("utf-8")).hexdigest()[:8]
     args.output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {len(data['runs'])} runs over {data['questions']:,} questions to {args.output}")
     if answers is not None:

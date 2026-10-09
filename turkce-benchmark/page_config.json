@@ -1,0 +1,58 @@
+{
+  "site_url": "https://zekiworks.github.io/analysis/turkce-benchmark/docs/",
+  "code_url": "https://github.com/zekiworks/analysis/tree/main/turkce-benchmark",
+  "issue_url": "https://github.com/zekiworks/analysis/issues/new?template=suggest-a-task.md",
+  "x_url": "https://x.com/zekiworks",
+  "published": "2026-10-09",
+  "threshold": 0.99,
+  "percent_digits": 1,
+  "reading_units": [1, 2, 3, 4, 5, 6],
+  "decision_model_providers": [
+    "jev", "perplexity", "liquid", "fastino", "openai-decisions", "clef", "cygnet", "open-jev", "winnow", "metask",
+    "strands", "gliner", "laya"
+  ],
+  "not_decision_models": ["gliner2.5-multi-v1"],
+  "confidence_rows": [
+    {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api", "preview": true},
+    {"provider": "openai", "model": "gpt-6-luna", "key": "luna_stated", "preview": true},
+    {"provider": "jev", "model": "jev-1.13.0", "key": "jev"},
+    {"provider": "liquid", "model": "d1:free", "key": "d1"},
+    {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
+    {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
+    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "key": "decider_v11"}
+  ],
+  "accuracy_rows": [
+    {"provider": "jev", "model": "jev-1.13.0"},
+    {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
+    {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
+    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "optional": true},
+    {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"}
+  ],
+  "stability_whole_bank": [
+    {"provider": "open-jev", "model": "open-jev-27b-v1.1", "key": "open_jev"},
+    {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
+    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "key": "decider_v11"},
+    {"provider": "jev", "model": "jev-1.13.0", "key": "jev"},
+    {"provider": "liquid", "model": "d1:free", "key": "d1"},
+    {"provider": "vllm-yes-no", "model": "qwen38-27b-bf16", "key": "qwen_yes_no"}
+  ],
+  "stability_sample_questions_per_request": 16,
+  "cost": {
+    "decision": {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
+    "frontier": {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"},
+    "alternatives": [
+      {"provider": "openai", "model": "gpt-6.1-sol", "reasoning": "low"},
+      {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"}
+    ]
+  },
+  "billing": {
+    "api": {"access": "Hosted API", "cost_basis": "List price × reported tokens"},
+    "subscription": {"access": "Subscription access", "cost_basis": "API-equivalent estimate"},
+    "free": {"access": "Hosted API, free tier", "cost_basis": "Not estimated"},
+    "local": {"access": "Local serving", "cost_basis": "Not estimated"}
+  },
+  "images": {
+    "preview": {"width": 1200, "height": 630},
+    "share": {"width": 1600, "height": 900}
+  }
+}
