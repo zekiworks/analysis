@@ -157,14 +157,27 @@ class Snapshot:
         self.reading_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] in reading_units)
         self.grammar_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] not in reading_units)
         self.models = len({run["model"] for run in self.runs})
-        self.thresholds = [row for spec in config["confidence_rows"] if (row := self.threshold_row(spec))]
-        self.tasks = [row for spec in config["accuracy_rows"] if (row := self.task_row(spec))]
-        self.whole_bank = [item for spec in config["stability_whole_bank"] if (item := pick(results["repeats"], spec, "stability"))]
-        for item in self.whole_bank:
+        # Each section orders its rows by its own measure, ties in the configuration's order: confidence rows by
+        # answers accepted, after the preview rows; task rows by overall accuracy, before the reference rows;
+        # stability rows by changed answers, fewest first.
+        thresholds = [row for spec in config["confidence_rows"] if (row := self.threshold_row(spec))]
+        self.thresholds = [row for row in thresholds if row["preview"]] + sorted(
+            (row for row in thresholds if not row["preview"]), key=lambda row: -row["accepted"]
+        )
+        tasks = [row for spec in config["accuracy_rows"] if (row := self.task_row(spec))]
+        self.tasks = sorted((row for row in tasks if not row["reference"]), key=lambda row: -row["overall"]) + [
+            row for row in tasks if row["reference"]
+        ]
+        whole_bank = [item for spec in config["stability_whole_bank"] if (item := pick(results["repeats"], spec, "stability"))]
+        for item in whole_bank:
             if not item["whole_bank"] or item["questions_per_request"] != 1:
                 raise ValueError(f"{label(item)}: its repeats are not one question per request over the whole bank")
+        self.whole_bank = sorted(whole_bank, key=lambda item: item["changed_answer"])
         per_request = config["stability_sample_questions_per_request"]
-        self.sample = [item for item in results["repeats"] if not item["whole_bank"] and item["questions_per_request"] == per_request]
+        self.sample = sorted(
+            (item for item in results["repeats"] if not item["whole_bank"] and item["questions_per_request"] == per_request),
+            key=lambda item: item["changed_answer"],
+        )
         self.prices = {(price["provider"], price["model"]): price for price in results["prices"]}
         self.plan, self.costs = self.cost_rows()
 
@@ -204,6 +217,7 @@ class Snapshot:
         groups = run["groups"]
         return {
             "key": spec.get("key"),
+            "reference": spec.get("reference", False),
             "run": run,
             "overall": run["correct"] / self.total,
             "reading": groups["reading"]["correct"] / groups["reading"]["questions"],

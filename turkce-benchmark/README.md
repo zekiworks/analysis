@@ -44,7 +44,9 @@ python3 -m http.server 8000 --directory docs               # preview at http://1
 - **The page build** `build_page.py` runs `reproduce.py` first and stops unless every check matches.
   It fills the page's `<span data-value="…">` elements and `<!-- build:… -->` blocks from
   `docs/results.json`, with the constants in `page_config.json`: the 0.99 threshold, the configurations
-  each overview figure shows, display precision and image sizes. It draws the sharing images with
+  each overview figure shows, display precision and image sizes. Each section orders its rows by its own
+  measure: confidence rows by answers accepted (the two preview rows first), task rows by overall accuracy
+  (the reference row last), stability rows by changed answers. It draws the sharing images with
   headless Chrome from the same rows (`docs/share/`, named with the results version) and writes the
   announcement text to `share/x-posts.md`; `--no-images` skips Chrome, and `CHROME` names another
   Chrome or Chromium binary. The dataset version, the results version (a hash of `results.json`) and

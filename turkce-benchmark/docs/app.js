@@ -664,7 +664,7 @@ function renderPaired(data) {
       td(formatP(item.p_holm), { value: item.p_holm, numeric: true, className: item.p_holm >= 0.05 ? 'muted' : null }),
     ),
   );
-  fillTable(
+  const table = fillTable(
     'paired',
     [
       { label: 'First' },
@@ -678,6 +678,19 @@ function renderPaired(data) {
     ],
     rows,
   );
+  if (table) {
+    // The ranking of the leaderboard: most correct first, ties by run.
+    const ranked = [...data.runs].sort((a, b) => b.correct - a.correct || a.run - b.run);
+    const position = new Map(ranked.map((run, index) => [run.run, index]));
+    const neighbours = data.paired.filter(item => Math.abs(position.get(item.first) - position.get(item.second)) === 1).length;
+    addNotes(
+      table,
+      tableNote(
+        `Rows go down the ranking. Each configuration is compared with the next one (${integer(neighbours)} pairs); ` +
+          `the ${integer(data.paired.length - neighbours)} selected comparisons sit with the higher-ranked configuration of their pair.`,
+      ),
+    );
+  }
 }
 
 function renderCascade(data) {

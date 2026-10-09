@@ -2910,7 +2910,8 @@ def paired_lines(paired: list[dict[str, Any]], results: dict[str, dict[str, Any]
         "## Paired comparisons",
         "",
         "Each run against the next one in the ranking by accuracy, over the same questions, plus the "
-        "pairs Open-Jev / vllm-yes-no, Perplexity / Jev, GLiDE / Perplexity and Gemma 4 31B / GLiDE. "
+        f"configured pairs ({', '.join(f'{side_name(first)} / {side_name(second)}' for first, second in PAIRED_CONFIGURATIONS)}). "
+        "Rows go down the ranking: each pair sits with its better-ranked run, the comparison with the next run first. "
         "Difference: the first run's accuracy minus the "
         "second's, in points, with a paired 95% interval. Only first, only second: the questions only that "
         "run answered correctly. p: exact two-sided McNemar test on those two counts. Holm p: p adjusted "
@@ -3735,6 +3736,11 @@ def matches_side(result: dict[str, Any], side: str | tuple[str, str]) -> bool:
     return result.get("provider") == provider and (model is None or result["model"] == model)
 
 
+def side_name(side: str | tuple[str, str]) -> str:
+    """A PAIRED_CONFIGURATIONS side as the report names it: the provider, or the provider and model."""
+    return side if isinstance(side, str) else f"{side[0]} {side[1]}"
+
+
 def run_comparisons(
     connection: sqlite3.Connection, results: dict[str, dict[str, Any]], search_dir: Path
 ) -> dict[str, list[dict[str, Any]]]:
@@ -3775,6 +3781,10 @@ def run_comparisons(
                         and pair[::-1] not in pairs
                     ):
                         pairs.append(pair)
+        # Down the ranking: each run's comparison with the next run, then the configured comparisons in which it
+        # is the better-ranked run. Holm's adjustment does not depend on this order.
+        rank = {result["run_key"]: index for index, result in enumerate(members)}
+        pairs.sort(key=lambda pair: sorted((rank[pair[0]], rank[pair[1]])))
         family: list[dict[str, Any]] = []
         for first, second in pairs:
             questions = sorted(outcomes[first])
