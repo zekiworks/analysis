@@ -215,6 +215,7 @@ fn color(run: &Run) -> Color {
         ("cygnet", ..) => rgb(0x27272a),
         ("winnow-12b", ..) => rgb(0xbe185d),
         ("fastino/GLiDE", ..) => rgb(0x1d4ed8),
+        ("celeris-1-decision", ..) => rgb(0x4d7c0f),
         ("strands-decider-2b", ..) => rgb(0xf97316),
         ("qwen38-27b-bf16", _, Some("stated confidence")) => rgb(0x78716c),
         ("qwen38-27b-bf16", _, Some("vote share")) => rgb(0x4f46e5),

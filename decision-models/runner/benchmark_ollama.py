@@ -104,6 +104,11 @@ SYSTEM_ONE = {
     "winnow": SystemOneService("Winnow", "http://127.0.0.1:8091"),
     # Fastino's hosted GLiDE (model fastino/GLiDE), which takes the same request and returns the same answers.
     "fastino": SystemOneService("Fastino", "https://api.fastino.ai", key_vars=("FASTINO_API_KEY",), key_required=True),
+    # Celeris's celeris-1-decision through its System One endpoint (docs.celeris.ai/decisions), which takes the same
+    # request and returns the same answers; choice probabilities come rounded to two decimals.
+    "celeris": SystemOneService(
+        "Celeris", "https://inference.celeris.ai/celeris-1-decision", key_vars=("CELERIS_API_KEY",), key_required=True
+    ),
     # ~/code/strands-decider/server.py: Amazon's Strands Decider 2B through its own package, behind the
     # System One format.
     "strands": SystemOneService("Strands Decider", "http://127.0.0.1:18096"),
@@ -189,6 +194,10 @@ PRICES: dict[tuple[str, str], Price] = {
         "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-09", 0.02
     ),
     ("fastino", "fastino/GLiDE"): Price("Fastino's GLiDE price", "https://docs.fastino.ai/pricing", "2026-10-08", 0.15),
+    # Output tokens are free; cached input costs the same as input.
+    ("celeris", "celeris-1-decision"): Price(
+        "Celeris's decision model price", "https://docs.celeris.ai/pricing", "2026-10-10", 0.04
+    ),
     # No cache or output charges.
     ("openai-decisions", "gpt-6-luna"): Price(
         "OpenAI's Decisions API price",
@@ -305,7 +314,7 @@ TIE_ALPHA = 0.05
 # provider, or a (provider, model) pair when the provider serves several models. Frontier runs are given
 # as (provider, model, thinking).
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
-    "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "strands",
+    "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
     "openai-decisions",
     ("vllm", "gemma-4-31B-it"),
 )

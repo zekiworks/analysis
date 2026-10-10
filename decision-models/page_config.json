@@ -9,8 +9,8 @@
   "percent_digits": 1,
   "reading_units": [1, 2, 3, 4, 5, 6],
   "decision_model_providers": [
-    "jev", "perplexity", "liquid", "fastino", "openai-decisions", "clef", "cygnet", "open-jev", "winnow", "metask",
-    "strands", "gliner", "laya"
+    "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "clef", "cygnet", "open-jev", "winnow",
+    "metask", "strands", "gliner", "laya"
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
   "lead": "decider_v11",
@@ -30,12 +30,14 @@
     {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
     {"provider": "jev", "model": "jev-1.13.0", "key": "jev"},
     {"provider": "liquid", "model": "d1:free", "key": "d1"},
+    {"provider": "celeris", "model": "celeris-1-decision", "key": "celeris"},
     {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api"},
     {"provider": "openai", "model": "gpt-6-luna", "key": "luna_stated"}
   ],
   "accuracy_rows": [
     {"provider": "jev", "model": "jev-1.13.0"},
     {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
+    {"provider": "celeris", "model": "celeris-1-decision"},
     {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
     {"provider": "perplexity", "model": "pplx-decider-v1.1-27b"},
     {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low", "reference": true}
@@ -80,6 +82,7 @@
     {"provider": "jev", "model": "jev-1.13.0"},
     {"provider": "liquid", "model": "d1:free"},
     {"provider": "fastino", "model": "fastino/GLiDE"},
+    {"provider": "celeris", "model": "celeris-1-decision"},
     {"provider": "openai-decisions", "model": "gpt-6-luna"},
     {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"},
     {"provider": "openai", "model": "gpt-6.1-sol", "reasoning": "low"},

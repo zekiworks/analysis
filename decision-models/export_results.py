@@ -38,6 +38,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "perplexity": {"access": "Perplexity Decisions API", "scoring": True, "billing": "api"},
     "liquid": {"access": "Liquid AI decisions API", "scoring": True, "billing": "free"},
     "fastino": {"access": "Fastino System One API", "scoring": True, "billing": "api"},
+    "celeris": {"access": "Celeris System One API", "scoring": True, "billing": "api"},
     "laya": {"access": "Laya server, self-hosted", "scoring": True, "billing": "local"},
     "gliner": {"access": "GLiNER2 server, self-hosted", "scoring": True, "billing": "local"},
     "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local"},
@@ -115,6 +116,7 @@ MODELS: dict[str, dict[str, Any]] = {
     # Counted from the released checkpoint (perplexity-ai/pplx-decider-v1.1-27b at 5cd25e3), backbone and head.
     "pplx-decider-v1.1-27b": {"name": "Perplexity Decider 27B v1.1", "parameters": 26_086_635_760},
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
+    "celeris-1-decision": {"name": "Celeris-1 Decision"},
     "d1:free": {"name": "Liquid d1"},
     "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}", "parameters": 421_293_830},
     "laya-multilingual": {
