@@ -25,7 +25,7 @@ fn figures_draw_in_the_dark_theme() {
     let results = results();
     for figure in charts::figures(&results) {
         let svg = charts::svg::buffer_to_svg(&charts::render(&figure), &figure.title, charts::svg::Theme::Dark);
-        assert!(svg.contains(r##"</style><rect width=""##) && svg.contains(r##"fill="#1e293b"/>"##), "{} paints the dark card first", figure.name);
-        assert!(svg.contains(r##"fill="#e2e8f0""##), "{} draws default text in the dark text colour", figure.name);
+        assert!(svg.contains(r##"</style><rect width=""##) && svg.contains(r##"fill="#1f1e1c"/>"##), "{} paints the dark card first", figure.name);
+        assert!(svg.contains(r##"fill="#ebe9e4""##), "{} draws default text in the dark text colour", figure.name);
     }
 }

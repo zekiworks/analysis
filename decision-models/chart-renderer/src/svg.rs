@@ -23,27 +23,28 @@ const DOT_RADIUS: f64 = 1.9;
 /// The colour of cells that set none.
 const TEXT_COLOR: &str = "#1f2937";
 const FONT: &str = r#"13px ui-monospace,SFMono-Regular,Menlo,Consolas,"DejaVu Sans Mono",monospace"#;
-/// The dark theme's card, painted behind the whole graph.
-const DARK_BACKGROUND: &str = "#1e293b";
+/// The dark theme's card (the page's `--card-bg`), painted behind the whole graph.
+const DARK_BACKGROUND: &str = "#1f1e1c";
 /// Each light colour the figures use and its dark-theme counterpart. Text and series colours keep at
 /// least 4.5:1 contrast against [`DARK_BACKGROUND`], guide lines at least 3:1; gridlines stay subtle.
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
+/// Text, guides, gridlines, reading and grammar follow the page's dark tokens.
 const DARK: [(&str, &str); 39] = [
     // Text: default, muted (also `Color::Gray`).
-    (TEXT_COLOR, "#e2e8f0"),
-    ("#6b7280", "#94a3b8"),
+    (TEXT_COLOR, "#ebe9e4"),
+    ("#6b7280", "#a8a6a0"),
     // Guide lines: axes, diagonals, zero and chance lines, non-significant intervals.
-    ("#9ca3af", "#64748b"),
+    ("#9ca3af", "#6b6963"),
     // Gridlines.
-    ("#e5e7eb", "#334155"),
+    ("#e5e7eb", "#34332f"),
     // Reading, significant intervals and a run colour (also `Color::Blue`); grammar and a run colour.
-    ("#2563eb", "#60a5fa"),
-    ("#ea580c", "#fb923c"),
+    ("#2563eb", "#86b9f3"),
+    ("#ea580c", "#f0a35e"),
     // Run colours (`fn color` in lib.rs), lighter shades of the same hues. Two runs of one hue in a
-    // panel keep their distance: the darker light shade becomes a 400 or 500, the lighter one a 200.
+    // panel keep their distance: the darker light shade becomes a 400 or 500, the lighter one a 100 or 200.
     ("#0891b2", "#22d3ee"),
     ("#0ea5e9", "#7dd3fc"),
-    ("#60a5fa", "#bfdbfe"),
+    ("#60a5fa", "#dbeafe"),
     ("#3f6212", "#a3e635"),
     ("#65a30d", "#d9f99d"),
     ("#e11d48", "#fb7185"),
@@ -61,7 +62,7 @@ const DARK: [(&str, &str); 39] = [
     ("#9333ea", "#c084fc"),
     ("#c084fc", "#d8b4fe"),
     ("#1e40af", "#60a5fa"),
-    ("#27272a", "#d4d4d8"),
+    ("#27272a", "#d6d3cc"),
     ("#be185d", "#f472b6"),
     ("#1d4ed8", "#60a5fa"),
     ("#f97316", "#fdba74"),
@@ -70,9 +71,9 @@ const DARK: [(&str, &str); 39] = [
     ("#92400e", "#fbbf24"),
     ("#a16207", "#fde047"),
     ("#f59e0b", "#f59e0b"),
-    ("#475569", "#cbd5e1"),
+    ("#475569", "#d6d3cc"),
     // Named colours of `hex` not covered above.
-    ("#000000", "#e2e8f0"),
+    ("#000000", "#ebe9e4"),
     ("#ffffff", "#ffffff"),
     ("#c026d3", "#e879f9"),
 ];

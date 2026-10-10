@@ -60,10 +60,12 @@ python3 -m http.server 8000                                # preview at http://1
     is editorial, not a ranking. Task rows go by overall accuracy (the reference row last), stability
     rows by changed answers.
   - **Images:** drawn with headless Chrome from the same rows, in both themes (`share/`, named with the
-    theme and the results version, for example `finding-dark-<version>.png`). The dark ones are the main
-    ones: the link preview and the X posts use them, and "Share figure" downloads the version that matches
-    the theme being viewed. Earlier versions are deleted until `announced` holds the date of the first
-    public post; from then on they are kept, so posted link previews keep working.
+    theme and a short hash of the file, for example `finding-dark-1a2b3c4d.png`, so that a changed image
+    gets a new address and no link preview shows a cached copy). The dark ones, on the page background,
+    are the main ones: the link preview and the X posts use them, and "Share figure" downloads the version
+    that matches the theme being viewed. With `--no-images` the page keeps the images it links to. Earlier
+    images are deleted until `announced` holds the date of the first public post; from then on they are
+    kept, so posted link previews keep working.
   - **Generated sentences:** the openings of the Confidence and Accuracy sections, the box on how the two
     kinds of model answer, the Accuracy, cost and latency table (`latency_rows`, with the untimed runs
     its note names in `latency_untimed_examples`) and the cost follow-up post (`cost_post`) come from the

@@ -15,16 +15,18 @@ inside its markers, and the size of the chart images:
 "lead" in page_config.json names the finding the page leads with (one of "leads"): it opens the page, comes
 first in the confidence figure, and is what the link preview, the X image and the main X post show. The images
 are drawn by headless Chrome from HTML made here, from the same rows as the page, and saved under share/ with
-the results version in their names; share/x-posts.md holds the announcement text. Earlier images are
-deleted until "announced" holds the date of the first public post, and kept after it, so that earlier link
-previews keep working. reproduce.py must pass first, and the build stops otherwise. Set CHROME to use another
-Chrome or Chromium binary.
+a short hash of their content in their names, so that a changed image gets a new address and no link preview shows
+a cached copy; share/x-posts.md holds the announcement text. Earlier images are deleted until "announced" holds the
+date of the first public post, and kept after it, so that earlier link previews keep working. With --no-images the
+page keeps the images it links to. reproduce.py must pass first, and the build stops otherwise. Set CHROME to use
+another Chrome or Chromium binary.
 """
 
 from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import html
 import json
 import os
@@ -1128,10 +1130,10 @@ def fill(page: str, numbers: dict[str, str], parts: dict[str, str]) -> str:
 # The sharing images' colours: the page's tokens, so the dark images look like the site and the light ones print well.
 IMAGE_THEMES = {
     "dark": {
-        "bg": "#1e293b", "text": "#e2e8f0", "values": "#e2e8f0", "sub": "#cbd5e1", "muted": "#94a3b8", "rule": "#334155",
-        "ok": "#cbd5e1", "wrong": "#e879f9", "check": "#334155", "stripe": "#475569", "key-border": "#64748b",
-        "outline": "#64748b", "track": "#273449", "reading": "#60a5fa", "grammar": "#fb923c",
-        "reading-text": "#60a5fa", "grammar-text": "#fb923c",
+        "bg": "#161615", "text": "#ebe9e4", "values": "#ebe9e4", "sub": "#d6d3cc", "muted": "#a8a6a0", "rule": "#34332f",
+        "ok": "#d6d3cc", "wrong": "#e879f9", "check": "#2b2a27", "stripe": "#3d3c38", "key-border": "#6b6963",
+        "outline": "#6b6963", "track": "#2b2a27", "reading": "#86b9f3", "grammar": "#f0a35e",
+        "reading-text": "#86b9f3", "grammar-text": "#f0a35e",
     },
     "light": {
         "bg": "#ffffff", "text": "#0f172a", "values": "#1e293b", "sub": "#334155", "muted": "#475569", "rule": "#e2e8f0",
@@ -1140,8 +1142,14 @@ IMAGE_THEMES = {
         "reading-text": "#1d4ed8", "grammar-text": "#c2410c",
     },
 }
-# The main images are the dark ones; the light ones are for reports and slides.
+# The main images are the dark ones, on the page background like the cards of a thread; the light ones are for
+# reports and slides.
 THEMES = tuple(IMAGE_THEMES)
+# The sharing images: their key in the code and the start of their file names, which end in a hash of the file.
+IMAGE_STEMS = (("preview", "preview"), ("finding", "finding"), ("tasks", "reading-grammar"))
+SHARED_IMAGE = re.compile(
+    rf"share/({'|'.join(stem for _, stem in IMAGE_STEMS)})-({'|'.join(THEMES)})-([0-9a-f]{{8}})\.png"
+)
 FIGURE_STYLE = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: %(width)dpx; height: %(height)dpx; overflow: hidden; background: var(--bg); color: var(--text);
@@ -1264,7 +1272,9 @@ def png_size(path: Path) -> tuple[int, int]:
     return int.from_bytes(data[:4], "big"), int.from_bytes(data[4:], "big")
 
 
-def render_images(snap: Snapshot, names: dict[str, dict[str, str]]) -> None:
+def render_images(snap: Snapshot) -> dict[str, dict[str, str]]:
+    """Draw every sharing image in both themes and save it under share/ as <stem>-<theme>-<hash>.png, the hash being
+    the start of the file's SHA-256. Returns the names by image and theme."""
     chrome = os.environ.get("CHROME", "google-chrome")
     sizes = snap.config["images"]
     pages = {
@@ -1272,23 +1282,49 @@ def render_images(snap: Snapshot, names: dict[str, dict[str, str]]) -> None:
         "finding": (lambda theme: finding_image(snap, sizes["share"], False, theme), sizes["share"]),
         "tasks": (lambda theme: task_image(snap, sizes["share"], theme), sizes["share"]),
     }
+    names: dict[str, dict[str, str]] = {}
     SHARE.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as work:
-        for key, (page, size) in pages.items():
+        for key, stem in IMAGE_STEMS:
+            page, size = pages[key]
             for theme in THEMES:
-                source, target = Path(work) / f"{key}-{theme}.html", ROOT / names[key][theme]
+                source, shot = Path(work) / f"{key}-{theme}.html", Path(work) / f"{key}-{theme}.png"
                 source.write_text(page(theme), encoding="utf-8")
                 subprocess.run(
                     [chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", f"--user-data-dir={work}/profile",
                      "--force-device-scale-factor=1", "--hide-scrollbars", f"--window-size={size['width']},{size['height']}",
-                     f"--screenshot={target}", source.as_uri()],
+                     f"--screenshot={shot}", source.as_uri()],
                     check=True, capture_output=True,
                 )
-                if png_size(target) != (size["width"], size["height"]):
-                    raise SystemExit(f"{target} is {png_size(target)}, not {size['width']}x{size['height']}")
-                os.chmod(target, 0o644)
-                print(f"Wrote {target.relative_to(ROOT)} ({size['width']}x{size['height']})")
-    # Before the first public post, earlier versions go; after it, they stay, so that posted previews keep working.
+                if png_size(shot) != (size["width"], size["height"]):
+                    raise SystemExit(f"{key} ({theme}) is {png_size(shot)}, not {size['width']}x{size['height']}")
+                data = shot.read_bytes()
+                name = f"share/{stem}-{theme}-{hashlib.sha256(data).hexdigest()[:8]}.png"
+                (ROOT / name).write_bytes(data)
+                os.chmod(ROOT / name, 0o644)
+                names.setdefault(key, {})[theme] = name
+                print(f"Wrote {name} ({size['width']}x{size['height']})")
+    return names
+
+
+def current_images(page: str) -> dict[str, dict[str, str]]:
+    """The sharing images the page links to now, for a build without Chrome. The light preview is the one image the
+    page does not link to; it is the single light preview in share/."""
+    linked = {(found.group(1), found.group(2)): found.group(0) for found in SHARED_IMAGE.finditer(page)}
+    names: dict[str, dict[str, str]] = {}
+    for key, stem in IMAGE_STEMS:
+        for theme in THEMES:
+            name = linked.get((stem, theme))
+            if name is None and len(files := sorted(SHARE.glob(f"{stem}-{theme}-*.png"))) == 1:
+                name = f"share/{files[0].name}"
+            if name is None or not (ROOT / name).is_file():
+                raise ValueError(f"no {theme} {stem} image to keep; build once without --no-images")
+            names.setdefault(key, {})[theme] = name
+    return names
+
+
+def remove_old_images(snap: Snapshot, names: dict[str, dict[str, str]]) -> None:
+    """Before the first public post, earlier images go; after it, they stay, so that posted previews keep working."""
     if snap.config.get("announced"):
         return
     current = {ROOT / name for paths in names.values() for name in paths.values()}
@@ -1408,12 +1444,12 @@ def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, dict[str, 
         "# X posts",
         "",
         f"Generated by build_page.py from results {results['results_version']} (data {numbers['dataset_version']}), published "
-        f"{numbers['published']}. Do not edit by hand: run the build again. The images are the dark versions; each has a light "
-        "one next to it, with `light` in place of `dark` in its name.",
+        f"{numbers['published']}. Do not edit by hand: run the build again. Attach the dark images, which match the site; "
+        "each post also names its light version.",
         "",
         f"## Main post: confidence and checking ({x_length(main)} characters as X counts them)",
         "",
-        f"Attach `{names['finding']['dark']}`." + (" Longer than one post: it needs a long-post account, or split it into a thread with the caveat paragraph in the first post's image." if x_length(main) > X_POST_LIMIT else ""),
+        f"Attach `{names['finding']['dark']}` (light version: `{names['finding']['light']}`)." + (" Longer than one post: it needs a long-post account, or split it into a thread with the caveat paragraph in the first post's image." if x_length(main) > X_POST_LIMIT else ""),
         "",
         "```text",
         main,
@@ -1429,7 +1465,7 @@ def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, dict[str, 
         "",
         f"## Follow-up: task differences ({x_length(follow)} characters as X counts them)",
         "",
-        f"Attach `{names['tasks']['dark']}`." + length_note(follow),
+        f"Attach `{names['tasks']['dark']}` (light version: `{names['tasks']['light']}`)." + length_note(follow),
         "",
         "```text",
         follow,
@@ -1450,13 +1486,10 @@ def main() -> int:
         results = json.loads((ROOT / "results.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "page_config.json").read_text(encoding="utf-8"))
         snap = Snapshot(results, config, reproduce())
-        version = results["results_version"]
-        names = {
-            key: {theme: f"share/{stem}-{theme}-{version}.png" for theme in THEMES}
-            for key, stem in (("preview", "preview"), ("finding", "finding"), ("tasks", "reading-grammar"))
-        }
         numbers = values(snap)
         page = PAGE.read_text(encoding="utf-8")
+        # The page links to the images by names that hash their content, so they are drawn first.
+        names = current_images(page) if args.no_images else render_images(snap)
         filled = chart_sizes(fill(page, numbers, blocks(snap, names)))
     except (OSError, ValueError, KeyError, StopIteration) as error:
         print(f"error: {error!r}", file=sys.stderr)
@@ -1467,7 +1500,7 @@ def main() -> int:
     else:
         print(f"{PAGE.relative_to(ROOT)} is up to date")
     if not args.no_images:
-        render_images(snap, names)
+        remove_old_images(snap, names)
     X_POSTS.parent.mkdir(parents=True, exist_ok=True)
     X_POSTS.write_text(x_posts(snap, numbers, names), encoding="utf-8")
     print(f"Wrote {X_POSTS.relative_to(ROOT)}")
