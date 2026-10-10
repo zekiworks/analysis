@@ -11,7 +11,9 @@
   --text: #1e293b;
   --text-muted: #64748b;
   --border: #e2e8f0;
-  --table-hover: #f1f5f9;
+  --table-hover: #f8fafc;
+  /* The 0–100% track behind the reading and grammar bars. */
+  --track: #f1f5f9;
   --row-alt: #fafbfc;
   --bar: #dbeafe;
   --shadow: 0 1px 3px rgba(0, 0, 0, .08);
@@ -49,6 +51,7 @@
     --text-muted: #94a3b8;
     --border: #334155;
     --table-hover: #273449;
+    --track: #273449;
     --row-alt: #212d40;
     --bar: #1e3a5f;
     --shadow: 0 1px 3px rgba(0, 0, 0, .5);
@@ -317,7 +320,7 @@ i.key.grammar { background: var(--grammar); }
 .task-bars { list-style: none; margin: 0; padding: 0; }
 .task-bars li { padding: .5rem 0; border-top: 1px solid var(--border); }
 .task-figure .pair { display: grid; grid-template-columns: 5rem 1fr 3.5rem; align-items: center; gap: .5rem; margin-top: .2rem; font-size: .875rem; }
-.task-bars .track { height: .9rem; background: var(--table-hover); border-radius: 3px; overflow: hidden; }
+.task-bars .track { height: .9rem; background: var(--track); border-radius: 3px; overflow: hidden; }
 .task-bars .bar { display: block; height: 100%; }
 .part.reading { color: var(--reading-text); font-weight: 600; } .part.grammar { color: var(--grammar-text); font-weight: 600; }
 .bar.reading { background: var(--reading); } .bar.grammar { background: var(--grammar); }

@@ -6,10 +6,11 @@
 
 Every number in the overview, in the sharing images and in the X posts comes from the snapshot, and so do the
 numbers in the study's sentences that carry a marker. index.html keeps the copy; this script rewrites what is
-inside its markers:
+inside its markers, and the size of the chart images:
 
 - <span data-value="key">…</span>: a number or a short text from values();
-- <!-- build:name --> … <!-- /build:name -->: a block from blocks() (tables, bars, sentences, meta tags).
+- <!-- build:name --> … <!-- /build:name -->: a block from blocks() (tables, bars, sentences, meta tags);
+- <img src="charts/….svg">: the width and height of the chart's SVG, so its space is kept while it loads.
 
 "lead" in page_config.json names the finding the page leads with (one of "leads"): it opens the page, comes
 first in the confidence figure, and is what the link preview, the X image and the main X post show. The images
@@ -44,6 +45,9 @@ SHARE = ROOT / "share"
 X_POSTS = SHARE / "x-posts.md"
 VALUE = re.compile(r'(<span data-value="([a-z0-9_]+)">)(.*?)(</span>)', re.S)
 BLOCK = re.compile(r"(<!-- build:([a-z0-9-]+) -->)(.*?)(<!-- /build:\2 -->)", re.S)
+# A chart image, with the size the build gives it, and an SVG's size.
+CHART_IMAGE = re.compile(r'(<img src="(charts/[a-z0-9-]+\.svg)")(?: width="\d+" height="\d+")?')
+SVG_SIZE = re.compile(r'<svg\b[^>]*\bviewBox="0 0 ([\d.]+) ([\d.]+)"')
 CHECKS = re.compile(r"^(\d+) checks match, (\d+) differ$", re.M)
 # The X counts every link as this many characters.
 X_LINK_LENGTH = 23
@@ -498,6 +502,15 @@ def threshold_table(snap: Snapshot) -> str:
     )
 
 
+def task_title(snap: Snapshot) -> str:
+    """The reading-and-grammar figure's title, on the page and in its sharing images. It speaks for the decision models,
+    with a general-purpose model as the reference row; the build stops if another row no longer fits it."""
+    for row in snap.tasks:
+        if not row["reference"] and (not snap.decision_model(row["run"]) or row["reading"] <= row["grammar"]):
+            raise ValueError(f"{label(row['run'])} does not fit the title of the reading and grammar figure")
+    return "Decision models: strong reading scores, weaker grammar scores"
+
+
 def task_figure(snap: Snapshot) -> str:
     fmt = snap.fmt
     items = []
@@ -512,7 +525,7 @@ def task_figure(snap: Snapshot) -> str:
     ticks = "".join(f'<span style="left: {tick}%">{tick}%</span>' for tick in (0, 25, 50, 75, 100))
     return (
         '<figure class="task-figure" aria-labelledby="task-title">'
-        '<figcaption id="task-title" class="figure-title">Strong reading scores, weaker grammar scores</figcaption>'
+        f'<figcaption id="task-title" class="figure-title">{esc(task_title(snap))}</figcaption>'
         f'<ul class="task-bars">{"".join(items)}</ul>'
         f'<p class="pair axis" aria-hidden="true"><span></span><span class="axis-track">{ticks}</span><span></span></p>'
         f'<p class="caption">{count(snap.reading_questions)} reading questions and {count(snap.grammar_questions)} grammar questions. '
@@ -779,11 +792,11 @@ def latency_table(snap: Snapshot) -> str:
         rows.append(
             "<tr>"
             f'<td data-label="Configuration">{label_html(run)}</td>'
-            f'<td class="num" data-label="Accuracy">{fmt.pct(run["correct"] / snap.total)}</td>'
-            f'<td class="num" data-label="Estimated API cost per 1,000 decisions">{cost_cell}</td>'
-            f'<td class="num" data-label="Latency per request (median / 90th percentile)">{latency}'
+            f'<td class="num" data-label="Accuracy, all {count(snap.total)} questions">{fmt.pct(run["correct"] / snap.total)}</td>'
+            f'<td class="num" data-label="Estimated API cost per 1,000 decisions, one question is one decision">{cost_cell}</td>'
+            f'<td class="num" data-label="Latency per request, median / 90th percentile">{latency}'
             + (f'<span class="small">{in_flight}</span>' if in_flight else "")
-            + f'</td><td class="num" data-label="Accepted at {threshold}">{count(accepted)} ({fmt.pct(accepted / snap.total)})'
+            + f'</td><td class="num" data-label="Accepted at {threshold}, share of questions">{count(accepted)} ({fmt.pct(accepted / snap.total)})'
             f'<span class="small">{count(accepted - sure["correct"])} wrong</span></td>'
             "</tr>"
         )
@@ -802,8 +815,17 @@ def latency_table(snap: Snapshot) -> str:
         f"{opening_count(len(untimed))} runs, including {and_list(list(dict.fromkeys(run['name'] for run in examples)))}, ran "
         "before per-request timing was switched on, so their latency was not recorded. Costs are estimates at API list prices."
     )
+    # The routing table above covers only the held-out questions, so the same configuration costs a little differently
+    # there; one example tells phone readers, who see the two tables as cards, why.
+    reference = snap.costs[0]
+    there, here = 1000 * reference["cost"] / snap.plan["held_out"], per_thousand(reference["runs"][0])
+    if all(run is not reference["runs"][0] for run in shown) or here is None or abs(here / there - 1) > 0.25:
+        raise ValueError("the scope sentence of Accuracy, cost and latency no longer fits the data")
+    scope = (f"All {count(snap.total)} questions. The routing table above uses the {count(snap.plan['held_out'])} held-out "
+             f"questions, so its figures differ slightly ({esc(reference['runs'][0]['name'])}: {usd(there)} there, "
+             f"{usd(here)} here).")
     return (
-        '<h3 id="accuracy-cost-latency">Accuracy, cost and latency</h3>'
+        f'<h3 id="accuracy-cost-latency">Accuracy, cost and latency</h3><p class="note">{scope}</p>'
         '<div class="table-wrap"><table class="overview cards latency"><thead><tr><th scope="col">Configuration</th>'
         f'<th scope="col" class="num">Accuracy<span class="small">all {count(snap.total)} questions</span></th>'
         '<th scope="col" class="num">Estimated API cost per 1,000 decisions<span class="small">one question is one decision</span></th>'
@@ -924,11 +946,13 @@ def accuracy_lead(snap: Snapshot) -> str:
     if (snap.decision_model(example) or example["correct"] - best["correct"] < 0.1 * snap.total
             or example_cost is None or example_cost < 10 * dearest):
         raise ValueError("the Accuracy section's opening no longer matches the data: rewrite it")
+    tied = [run for run in decision if run is not best and shares_letter(run.get("group"), best.get("group"))]
+    apart = f" (the test did not tell it apart from {and_list([snap.short(run) for run in tied])})" if tied else ""
     return (
         f"<p>The most accurate general-purpose models were far more accurate on these questions: {esc(named(example))} answered "
-        f"{fmt.pct(example['correct'] / snap.total)} correctly, against {fmt.pct(best['correct'] / snap.total)} for the most "
-        f"accurate decision model, {esc(best['name'])}; decision models cost much less per question than those models and "
-        "return a probability for every option.</p>"
+        f"{fmt.pct(example['correct'] / snap.total)} correctly, against {fmt.pct(best['correct'] / snap.total)} for "
+        f"{esc(best['name'])}, the highest-scoring decision model{esc(apart)}; decision models cost much less per question than "
+        "those models and return a probability for every option.</p>"
     )
 
 
@@ -956,7 +980,7 @@ def model_kinds(snap: Snapshot) -> str:
         '<aside class="explainer" aria-labelledby="model-kinds-title">'
         '<p class="explainer-title" id="model-kinds-title">How the two kinds of model answer</p>'
         "<p>A decision model reads the question and the options, and returns a probability for each option. It does not write "
-        f"an answer. This makes it cheap and fast: {esc(decision['name'])} has an estimated API cost of {usd(per_thousand(decision))} "
+        f"an answer. This can make it cheap and fast: {esc(decision['name'])} has an estimated API cost of {usd(per_thousand(decision))} "
         f"per 1,000 decisions, with a median latency of {decision['median_request_seconds']:.2f} seconds.</p>"
         f"<p>A general-purpose model writes its answer, and it can reason first. In this test, {standing} wrote very little: "
         f"{esc(general['name'])}, with {esc(general['reasoning'])} reasoning, used about {tokens} output tokens per question, "
@@ -1069,6 +1093,20 @@ def blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
 
 
 # ---------------------------------------------------------------- the page
+
+
+def chart_sizes(page: str) -> str:
+    """Give every chart image the width and height of its SVG. In the dark theme the charts load lazily; with their size
+    known, the page keeps its height while they arrive and does not jump."""
+
+    def sized(match: re.Match[str]) -> str:
+        found = SVG_SIZE.search((ROOT / match.group(2)).read_text(encoding="utf-8"))
+        if not found:
+            raise ValueError(f"{match.group(2)} has no viewBox")
+        width, height = (round(float(value)) for value in found.groups())
+        return f'{match.group(1)} width="{width}" height="{height}"'
+
+    return CHART_IMAGE.sub(sized, page)
 
 
 def fill(page: str, numbers: dict[str, str], parts: dict[str, str]) -> str:
@@ -1205,7 +1243,8 @@ def finding_image(snap: Snapshot, size: dict[str, int], compact: bool, theme: st
 
 def task_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
     fmt = snap.fmt
-    scale = {"pad": 46, "title": 56, "sub": 28, "gap": 16, "label": 30, "bar": 30, "value": 28, "caveat": 22, "foot": 18, "part": 160, "num": 120}
+    # The title fits on one line at this size, so the rows keep their spacing.
+    scale = {"pad": 46, "title": 48, "sub": 28, "gap": 16, "label": 30, "bar": 30, "value": 28, "caveat": 22, "foot": 18, "part": 160, "num": 120}
     items = []
     for row in snap.tasks:
         pairs = "".join(
@@ -1216,7 +1255,7 @@ def task_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
         items.append(f'<div><p class="row-label">{esc(row["run"]["name"])}<span class="muted">{esc(" · " + setting(row["run"]) if setting(row["run"]) else "")}</span></p>{pairs}</div>')
     sub = f"Accuracy on {count(snap.reading_questions)} reading and {count(snap.grammar_questions)} grammar questions; selected configurations, axis 0–100%"
     caveat = "Performance on one task type does not establish performance on another; these results do not identify the cause of the gap."
-    body = f'<h1>Strong reading scores, weaker grammar scores</h1><p class="sub">{esc(sub)}</p><div class="rows">{"".join(items)}</div>' + footer(snap, caveat)
+    body = f'<h1>{esc(task_title(snap))}</h1><p class="sub">{esc(sub)}</p><div class="rows">{"".join(items)}</div>' + footer(snap, caveat)
     return figure_page(size, scale, body, theme)
 
 
@@ -1418,7 +1457,7 @@ def main() -> int:
         }
         numbers = values(snap)
         page = PAGE.read_text(encoding="utf-8")
-        filled = fill(page, numbers, blocks(snap, names))
+        filled = chart_sizes(fill(page, numbers, blocks(snap, names)))
     except (OSError, ValueError, KeyError, StopIteration) as error:
         print(f"error: {error!r}", file=sys.stderr)
         return 1

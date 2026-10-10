@@ -50,6 +50,8 @@ python3 -m http.server 8000                                # preview at http://1
   It fills the page's `<span data-value="…">` elements and `<!-- build:… -->` blocks from
   `results.json`, with the constants in `page_config.json`: the 0.99 threshold, the configurations
   each overview figure shows, the runs the study's sentences name, display precision and image sizes.
+  It also gives each chart `<img>` the width and height of its SVG, so the page keeps its layout while
+  the charts load.
   - **`lead`** names the finding the page leads with, one of `leads`: it opens the page, comes first in
     the confidence figure, and is what the link preview, its description, the X image and the main X
     post show. Changing it and building again switches all of them.
