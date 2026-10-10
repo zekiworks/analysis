@@ -2,7 +2,7 @@
 //!
 //! Each [`Figure`] draws into a ratatui buffer through a [`TestBackend`] ([`render`]). The buffer's
 //! text is the figure's insta snapshot (`tests/snapshots.rs`), and [`svg::buffer_to_svg`] turns the
-//! same buffer into the SVG the page shows (`src/main.rs`). The sharing images come from `build_page.py`.
+//! same buffer into the light and dark SVGs the page shows (`src/main.rs`). The sharing images come from `build_page.py`.
 
 pub mod svg;
 

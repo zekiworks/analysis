@@ -405,6 +405,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "questions_per_minute": record.get("questions_per_minute"),
                 "request_seconds": record.get("timed_seconds"),
                 "median_request_seconds": record.get("median_request_seconds"),
+                "p90_request_seconds": record.get("p90_request_seconds"),
                 "billing": provider["billing"],
                 # What the run's tokens cost at its model's list price (`prices`); None for free and self-hosted runs.
                 "api_equivalent_usd": cost,

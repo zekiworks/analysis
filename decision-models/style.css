@@ -1,16 +1,26 @@
+/* Two themes. Light is the base, and print always uses it. On screen the dark theme applies unless the reader chose
+   light: data-theme="light" on <html>, set before the page renders by the script in <head>. Without JavaScript the
+   page is dark. */
 :root {
+  color-scheme: light;
   --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --on-primary: #ffffff;
   --bg: #f8fafc;
   --card-bg: #ffffff;
   --text: #1e293b;
   --text-muted: #64748b;
   --border: #e2e8f0;
   --table-hover: #f1f5f9;
+  --row-alt: #fafbfc;
   --bar: #dbeafe;
   --shadow: 0 1px 3px rgba(0, 0, 0, .08);
   --radius: 8px;
-  /* Reading is blue and grammar orange everywhere; the confidence figure has its own neutral palette, in which
-     magenta marks the accepted but wrong answers and means nothing else on the page. */
+  /* The small section labels and the finding's edge: gray on light, the accent on dark. */
+  --label: #64748b;
+  --finding-border: #334155;
+  /* Reading is blue and grammar orange everywhere; the confidence figure has its own palette, in which magenta marks
+     the accepted but wrong answers and means nothing else on the page. */
   --reading: #2563eb;
   --grammar: #ea580c;
   --reading-text: #1d4ed8;
@@ -19,7 +29,52 @@
   --wrong: #c026d3;
   --check: #e2e8f0;
   --check-stripe: #cbd5e1;
+  --key-check-border: #cbd5e1;
+  --bar-outline: #64748b;
+  /* Answer counts inside heat-map cells, whose background follows accuracy. */
+  --heat-count: #475569;
+  --error-text: #991b1b;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
 }
+@media screen {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --primary: #60a5fa;
+    --primary-hover: #93c5fd;
+    --on-primary: #0f172a;
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --table-hover: #273449;
+    --row-alt: #212d40;
+    --bar: #1e3a5f;
+    --shadow: 0 1px 3px rgba(0, 0, 0, .5);
+    --label: #60a5fa;
+    --finding-border: #60a5fa;
+    --reading: #60a5fa;
+    --grammar: #fb923c;
+    --reading-text: #60a5fa;
+    --grammar-text: #fb923c;
+    /* The light theme's logic flips: accepted and correct is light, sent to check dark, so wrong still stands out. */
+    --accepted: #cbd5e1;
+    --wrong: #e879f9;
+    --check: #334155;
+    --check-stripe: #475569;
+    --key-check-border: #64748b;
+    --bar-outline: #64748b;
+    --heat-count: #cbd5e1;
+    --error-text: #fecaca;
+    --error-bg: #450a0a;
+    --error-border: #7f1d1d;
+  }
+}
+/* Elements drawn for one theme only: the charts and the sharing images exist in both. */
+@media screen { :root:not([data-theme="light"]) .theme-light { display: none !important; } }
+:root[data-theme="light"] .theme-dark { display: none !important; }
+@media print { .theme-dark, .theme-switch { display: none !important; } }
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -36,16 +91,32 @@ header, main, footer { max-width: 1400px; margin: 0 auto; }
 header { text-align: center; margin-bottom: 2rem; }
 h1 { font-size: 1.75rem; margin: 0 0 .25rem; }
 
-/* The page's opening: the method framing, the scope and one way in. */
+/* The page's opening: the question, the method framing, the scope and one way in. */
 .hero { max-width: 72ch; margin: 1rem auto 2.5rem; }
-.hero h1 { font-size: 2.25rem; line-height: 1.15; margin-bottom: 1rem; }
+.hero h1 { font-size: 2.25rem; line-height: 1.15; margin-bottom: .5rem; text-wrap: balance; }
+/* A subtitle, not a heading, so the page outline keeps one h1 and the section h2s. */
+.hero .subtitle { font-size: 1.35rem; font-weight: 600; color: var(--text); margin: 0 0 1rem; }
 .hero .lede { font-size: 1.15rem; margin: 0 0 1rem; }
 .hero .scope { color: var(--text-muted); margin: 0 0 1rem; }
 .hero .scope-note { display: inline-block; margin: 0 0 1.25rem; padding: .4rem .8rem; border: 1px solid var(--border);
   border-radius: var(--radius); background: var(--card-bg); font-size: .95rem; }
-.button { display: inline-block; padding: .6rem 1.2rem; border-radius: var(--radius); background: var(--primary); color: #fff;
+/* Dark / Light: shown by app.js, which also remembers the choice; without JavaScript the page stays dark. */
+.theme-switch { display: flex; justify-content: flex-end; margin: 0 0 .75rem; }
+.theme-switch[hidden] { display: none; }
+.theme-switch button { font: inherit; font-size: .8rem; padding: .2rem .7rem; border: 1px solid var(--border);
+  background: var(--card-bg); color: var(--text-muted); cursor: pointer; }
+.theme-switch button:first-child { border-radius: 999px 0 0 999px; }
+.theme-switch button:last-child { border-radius: 0 999px 999px 0; border-left: none; }
+.theme-switch button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
+.theme-switch button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+/* The three questions the page answers, each linked to its sections. */
+.questions { text-align: left; max-width: 64ch; margin: 0 auto 1.25rem; }
+.questions p { margin: 0 0 .3rem; }
+.questions ol { margin: 0; padding-left: 1.5rem; }
+.questions li + li { margin-top: .25rem; }
+.button { display: inline-block; padding: .6rem 1.2rem; border-radius: var(--radius); background: var(--primary); color: var(--on-primary);
   font-weight: 600; text-decoration: none; }
-.button:hover, .button:focus-visible { background: #1d4ed8; }
+.button:hover, .button:focus-visible { background: var(--primary-hover); }
 .button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 .button.secondary { background: var(--card-bg); color: var(--primary); border: 1px solid var(--primary); padding: .4rem .9rem; }
 .button.secondary:hover, .button.secondary:focus-visible { background: var(--table-hover); }
@@ -74,9 +145,9 @@ ol.references li:target, sup.cite a:target { background: var(--bar); border-radi
 a.backref { text-decoration: none; margin-left: .25rem; }
 
 .load-error {
-  color: #991b1b;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  color: var(--error-text);
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
   border-radius: var(--radius);
   padding: .75rem 1rem;
   margin: 0 0 2rem;
@@ -138,7 +209,7 @@ table.ladder { width: auto; }
   border-radius: 4px; max-width: 80ch; }
 th[aria-sort="ascending"]::after { content: " \25B2"; font-size: .7rem; color: var(--primary); }
 th[aria-sort="descending"]::after { content: " \25BC"; font-size: .7rem; color: var(--primary); }
-tbody tr:nth-child(even) { background: #fafbfc; }
+tbody tr:nth-child(even) { background: var(--row-alt); }
 tbody tr:hover { background: var(--table-hover); }
 tfoot td { font-weight: 600; border-top: 2px solid var(--border); border-bottom: none; }
 .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -164,8 +235,10 @@ td.score .bar {
 td.score .value { position: relative; }
 
 /* Heat maps: cell colour follows accuracy. */
-td.heat { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.heatmap .count { color: var(--text-muted); font-size: .78rem; }
+td.heat { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; background: var(--heat-light); }
+@media screen { :root:not([data-theme="light"]) td.heat { background: var(--heat-dark); } }
+.heatmap .count, td.heat .small { color: var(--heat-count); }
+.heatmap .count { font-size: .78rem; }
 #units th.unit { white-space: normal; min-width: 7rem; text-align: right; }
 #units td:first-child, #units th:first-child {
   position: sticky;
@@ -195,7 +268,7 @@ footer { text-align: center; color: var(--text-muted); font-size: .85rem; }
 .overview .threshold-bars li, .overview .task-bars li { max-width: none; }
 table.overview.costs td.setup { min-width: 15rem; }
 table.overview td.num .small { white-space: normal; }
-.eyebrow { margin: 0 0 .25rem; color: var(--text-muted); font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.eyebrow { margin: 0 0 .25rem; color: var(--label); font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .overview ul.notes { padding-left: 1.25rem; color: var(--text-muted); font-size: .875rem; }
 .overview ul.notes li + li, .overview ul li + li { margin-top: .35rem; }
 .share { margin: .75rem 0 0; }
@@ -203,6 +276,12 @@ table.overview td.num .small { white-space: normal; }
 .actions { display: flex; flex-wrap: wrap; gap: .75rem 1rem; align-items: center; }
 details.setup-details { margin: 1rem 0; }
 details.setup-details summary { cursor: pointer; font-weight: 600; }
+/* How the two kinds of model answer: a box at the top of the Accuracy section. */
+.explainer { margin: 0 0 1.25rem; padding: .8rem 1rem; border: 1px solid var(--border); border-left: 4px solid var(--primary);
+  border-radius: var(--radius); background: var(--bg); max-width: 80ch; }
+.explainer p { margin: 0; }
+.explainer p + p { margin-top: .5rem; }
+.explainer .explainer-title { font-weight: 700; }
 
 /* Confidence threshold figure: one stacked bar per configuration, drawn to scale, every segment labelled in text. */
 .threshold-figure { margin: 1.25rem 0; }
@@ -214,11 +293,12 @@ details.setup-details summary { cursor: pointer; font-weight: 600; }
 .bar-label .small { display: inline; margin-left: .5rem; }
 .stack { position: relative; display: block; height: 1.1rem; margin: .5rem 0 .45rem; }
 /* A thin outline shows where each whole bar, all scored questions, ends. */
-.stack .fill { display: flex; height: 100%; border: 1px solid #64748b; border-radius: 4px; overflow: hidden; background: var(--check); }
+.stack .fill { display: flex; height: 100%; border: 1px solid var(--bar-outline); border-radius: 4px; overflow: hidden; background: var(--check); }
 .stack .ok { background: var(--accepted); flex-grow: 0; flex-shrink: 0; }
 .stack .wrong { background: var(--wrong); flex-grow: 0; flex-shrink: 0; }
-/* A white edge keeps the wrong segment apart from the dark one, for readers who cannot tell the colours apart. */
-.stack .wrong.nonzero { box-shadow: inset 2px 0 0 #fff; }
+/* An edge in the card colour keeps the wrong segment apart from the accepted one, for readers who cannot tell the
+   colours apart. */
+.stack .wrong.nonzero { box-shadow: inset 2px 0 0 var(--card-bg); }
 .stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, var(--check) 0 6px, var(--check-stripe) 6px 12px); }
 /* A wrong segment too thin to see keeps its true width; this mark outside the bar shows where it sits. */
 .wrong-marker { position: absolute; top: -.4rem; bottom: -.4rem; width: 3px; margin-left: -1px; background: var(--wrong); border-radius: 1px; }
@@ -227,7 +307,7 @@ details.setup-details summary { cursor: pointer; font-weight: 600; }
 i.key { display: inline-block; width: .75rem; height: .75rem; margin-right: .35rem; border-radius: 2px; vertical-align: -.05rem; }
 i.key.ok { background: var(--accepted); }
 i.key.wrong { background: var(--wrong); }
-i.key.check { background: repeating-linear-gradient(135deg, var(--check) 0 3px, var(--check-stripe) 3px 6px); border: 1px solid var(--check-stripe); }
+i.key.check { background: repeating-linear-gradient(135deg, var(--check) 0 3px, var(--check-stripe) 3px 6px); border: 1px solid var(--key-check-border); }
 i.key.reading { background: var(--reading); }
 i.key.grammar { background: var(--grammar); }
 
@@ -257,11 +337,11 @@ table.overview th.reading { color: var(--reading-text); } table.overview th.gram
 details.show-table, details.all-configs { margin: 1rem 0; }
 details.show-table > summary, details.all-configs > summary { cursor: pointer; font-weight: 600; color: var(--primary); }
 /* The finding under the headline. */
-.finding { text-align: left; margin: 0 auto 1.25rem; padding: .8rem 1rem; border-left: 4px solid var(--accepted);
+.finding { text-align: left; margin: 0 auto 1.25rem; padding: .8rem 1rem; border-left: 4px solid var(--finding-border);
   border-radius: var(--radius); background: var(--card-bg); box-shadow: var(--shadow); max-width: 64ch; }
 .finding p { margin: 0; }
 .finding p + p { margin-top: .4rem; }
-.finding-label { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+.finding-label { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--label); }
 details.model-details summary { cursor: pointer; }
 details.model-details dl { display: grid; grid-template-columns: auto 1fr; gap: .1rem .75rem; margin: .4rem 0 .2rem; font-size: .8rem; }
 details.model-details dt { color: var(--text-muted); }
@@ -270,7 +350,7 @@ details.model-details dd { margin: 0; }
   border-radius: 999px; font-size: .7rem; color: var(--accepted); cursor: help; white-space: nowrap; }
 .badge:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .badge-tip { display: none; position: absolute; left: 0; top: 1.5rem; z-index: 2; width: 16rem; padding: .4rem .6rem;
-  background: var(--text); color: #fff; border-radius: 4px; font-size: .78rem; white-space: normal; }
+  background: var(--text); color: var(--card-bg); border-radius: 4px; font-size: .78rem; white-space: normal; }
 .badge:hover .badge-tip, .badge:focus .badge-tip { display: block; }
 
 /* The full study keeps its sections under its own title. */
@@ -284,6 +364,7 @@ details.model-details dd { margin: 0; }
   .card { padding: 1rem; }
   #units td:first-child, #units th:first-child { min-width: 11rem; }
   .hero h1 { font-size: 1.8rem; }
+  .hero .subtitle { font-size: 1.25rem; }
   /* Overview tables become one card per row, each value with its column's name. */
   table.cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   table.cards, table.cards tbody, table.cards tr, table.cards td { display: block; width: 100%; }

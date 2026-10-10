@@ -80,6 +80,9 @@ def count(value: int) -> str:
 
 
 NUMBER_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine"}
+# A count that opens a sentence is spelled out further.
+OPENING_WORDS = {**NUMBER_WORDS, 10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen", 14: "fourteen", 15: "fifteen",
+                 16: "sixteen", 17: "seventeen", 18: "eighteen", 19: "nineteen", 20: "twenty"}
 
 
 def in_words(value: int) -> str:
@@ -87,8 +90,22 @@ def in_words(value: int) -> str:
     return NUMBER_WORDS.get(value, count(value))
 
 
+def opening_count(value: int) -> str:
+    """A count at the start of a sentence: in words up to twenty."""
+    return OPENING_WORDS.get(value, count(value)).capitalize()
+
+
 def usd(value: float) -> str:
-    return f"${value:.2f}"
+    """Dollars: cents from $0.10 up and three decimals below, so that $0.0078 does not read as $0.01."""
+    if value >= 0.1 or value == 0:
+        return f"${value:.2f}"
+    text = f"{value:.3f}"
+    return f"${text}" if text != "0.000" else f"${value:.2g}"
+
+
+def times(ratio: float) -> str:
+    """A ratio to two significant figures, for 'roughly N times': 689.7 becomes 690."""
+    return f"{float(f'{ratio:.2g}'):,.0f}"
 
 
 def points(fraction: float) -> str:
@@ -141,6 +158,21 @@ def minutes(seconds: float) -> str:
     """Request time in minutes: one decimal below ten, whole minutes from ten."""
     value = seconds / 60
     return f"{value:.1f}" if value < 10 else f"{value:.0f}"
+
+
+def shares_letter(first: str | None, second: str | None) -> bool:
+    """Whether two tie groups share a letter: the test over all pairs did not tell the configurations apart."""
+    return any(letter in (second or "") for letter in (first or ""))
+
+
+def and_list(items: list[str]) -> str:
+    """'A', 'A and B', 'A, B and C'."""
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def per_thousand(run: dict[str, Any]) -> float | None:
+    """A run's estimated API cost per 1,000 questions asked; None for free tiers and self-hosted runs."""
+    return None if run.get("api_equivalent_usd") is None else 1000 * run["api_equivalent_usd"] / run["answered_questions"]
 
 
 # ---------------------------------------------------------------- the snapshot
@@ -303,6 +335,10 @@ class Snapshot:
 
     def price(self, run: dict[str, Any]) -> dict[str, Any] | None:
         return self.prices.get((run["provider"], run["model"]))
+
+    def short(self, run: dict[str, Any]) -> str:
+        """A configuration's short name, for a second mention in one sentence (page_config.json's short_names)."""
+        return self.config["short_names"].get(run["model"], run["name"])
 
 
 # ---------------------------------------------------------------- values for the page's spans
@@ -648,7 +684,8 @@ def cost_lead(snap: Snapshot) -> str:
         f"<p>Compared with {esc(reference['label'])}, {esc(routed['label'])} {cost_change} and {time_change}. "
         f"Its accuracy was {abs(100 * versus['difference']):.2f} percentage points {'lower' if versus['difference'] < 0 else 'higher'}, "
         f"with a 95% interval from {points(versus['low'])} to {points(versus['high'])}, {verdict}. The table also shows "
-        f"{in_words(others)} cheaper models, each run alone on the same questions.</p>"
+        f"{in_words(others)} cheaper models, each run alone on the same questions. For single configurations side by side, "
+        'including the time per request, see <a href="#accuracy-cost-latency">Accuracy, cost and latency</a> below.</p>'
         f'<p class="note">The experiment combined stored {esc(decision["name"])} answers with new {esc(frontier["name"])} calls on '
         f"the same {count(held_out)} held-out questions; in it, one question is one decision. Human review time, human accuracy, "
         "production costs and the financial consequences of mistakes were not measured. The monetary figures are API cost "
@@ -710,6 +747,72 @@ def cost_setup(snap: Snapshot) -> str:
     )
 
 
+def latency_text(run: dict[str, Any]) -> tuple[str, str]:
+    """A run's time per request: median and 90th percentile with the requests in flight, only when it sent one question
+    per request and recorded each request's time. A batch's time is never divided among its questions."""
+    if run.get("median_request_seconds") is None:
+        return "not recorded", ""
+    if run["questions_per_request"] != 1:
+        return f"batched ({run['questions_per_request']} per request)", ""
+    seconds = f"{run['median_request_seconds']:.2f} s"
+    if run.get("p90_request_seconds") is not None:
+        seconds += f" / {run['p90_request_seconds']:.2f} s"
+    return seconds, f"{run['concurrency']} at a time"
+
+
+def latency_table(snap: Snapshot) -> str:
+    """Single configurations side by side on all scored questions: accuracy, estimated API cost per 1,000 decisions, the
+    time per request and the answers accepted at the threshold; then what the times include and which runs lack them."""
+    fmt, threshold = snap.fmt, f"{snap.config['threshold']:.2f}"
+    shown = [pick(snap.runs, spec, "latency_rows") for spec in snap.config["latency_rows"]]
+    rows = []
+    for run in shown:
+        assert run is not None
+        cost = per_thousand(run)
+        if cost is None:
+            cost_cell = "free tier, not priced" if run["billing"] == "free" else "self-hosted, not priced"
+        else:
+            cost_cell = usd(cost) + ('<span class="small">API-price estimate</span>' if run["billing"] == "subscription" else "")
+        latency, in_flight = latency_text(run)
+        sure = (run.get("confidence") or {}).get("sure") or {"questions": 0, "correct": 0}
+        accepted = sure["questions"]
+        rows.append(
+            "<tr>"
+            f'<td data-label="Configuration">{label_html(run)}</td>'
+            f'<td class="num" data-label="Accuracy">{fmt.pct(run["correct"] / snap.total)}</td>'
+            f'<td class="num" data-label="Estimated API cost per 1,000 decisions">{cost_cell}</td>'
+            f'<td class="num" data-label="Latency per request (median / 90th percentile)">{latency}'
+            + (f'<span class="small">{in_flight}</span>' if in_flight else "")
+            + f'</td><td class="num" data-label="Accepted at {threshold}">{count(accepted)} ({fmt.pct(accepted / snap.total)})'
+            f'<span class="small">{count(accepted - sure["correct"])} wrong</span></td>'
+            "</tr>"
+        )
+    concurrent = sorted({run["concurrency"] for run in shown if run["concurrency"] > 1 and latency_text(run)[1]})
+    untimed = [run for run in snap.runs if run.get("median_request_seconds") is None]
+    examples = [pick(snap.runs, spec, "latency_untimed_examples") for spec in snap.config["latency_untimed_examples"]]
+    if any(run is None or run.get("median_request_seconds") is not None for run in examples):
+        raise ValueError("latency_untimed_examples names a run whose time per request was recorded")
+    note = ("Latency is the time per request, measured from our machine with one question per request; it includes network "
+            "time and any retry waits after errors. ")
+    if concurrent:
+        marked = f"Runs marked “{concurrent[0]} at a time”" if len(concurrent) == 1 else "Runs with several requests at a time"
+        note += f"{marked} also include waiting behind our own parallel requests. "
+    note += (
+        "Hosted and self-hosted runs differ in setup, so latency compares setups, not models. "
+        f"{opening_count(len(untimed))} runs, including {and_list(list(dict.fromkeys(run['name'] for run in examples)))}, ran "
+        "before per-request timing was switched on, so their latency was not recorded. Costs are estimates at API list prices."
+    )
+    return (
+        '<h3 id="accuracy-cost-latency">Accuracy, cost and latency</h3>'
+        '<div class="table-wrap"><table class="overview cards latency"><thead><tr><th scope="col">Configuration</th>'
+        f'<th scope="col" class="num">Accuracy<span class="small">all {count(snap.total)} questions</span></th>'
+        '<th scope="col" class="num">Estimated API cost per 1,000 decisions<span class="small">one question is one decision</span></th>'
+        '<th scope="col" class="num">Latency per request<span class="small">median / 90th percentile</span></th>'
+        f'<th scope="col" class="num">Accepted at {threshold}<span class="small">share of questions; wrong among them</span></th>'
+        f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div><p class="note">{note}</p>'
+    )
+
+
 # How the lead finding names each setup of one model, in full on the page and briefly in the meta description.
 SETUP_PHRASES = {
     "luna_api": ("Through OpenAI's Decisions API, which returns a probability for each option", "Decisions API"),
@@ -724,38 +827,45 @@ def per_request_text(rows: list[dict[str, Any]]) -> str:
 ZERO_ERRORS = "Zero observed errors does not establish an error limit for future decisions."
 
 
-def outcome_text(row: dict[str, Any], fmt: Format) -> str:
-    """A lead row's accepted answers that were wrong, with the 95% error estimate range of their share."""
-    if not row["accepted"]:
-        return "so the error rate is not applicable."
-    span = f"95% error estimate range {fmt.span(*row['error_range'])}"
-    if row["errors"]:
-        return f"{count(row['errors'])} of them wrong ({fmt.pct(row['error_rate'])} of accepted answers; {span})."
-    return f"with zero observed errors ({span}). {ZERO_ERRORS}"
+def rule_text(threshold: str) -> str:
+    """The rule the lead finding applies, stated before its numbers."""
+    return (f"<p><b>The rule:</b> accept an answer only when the model reports a confidence of {threshold} or higher. Send "
+            "every other answer to be checked, by a stronger model or a person.</p>")
 
 
 def lead_finding(snap: Snapshot) -> str:
-    """The finding under the page's headline: the lead rows' answers accepted, errors and uncertainty, with the scope."""
+    """The finding under the page's headline: the rule, then what the lead rows let through, how many of those were wrong
+    with the 95% error estimate range, and how many go to check."""
     fmt, rows, total = snap.fmt, snap.lead, count(snap.total)
-    rule = f"accepting only answers with a reported confidence of {snap.config['threshold']:.2f} or higher"
+    threshold = f"{snap.config['threshold']:.2f}"
     if len(rows) == 1:
         row = rows[0]
-        text = (f"{esc(row['run']['name'])} on {total} Turkish exam questions, {rule}: {count(row['accepted'])} answers accepted "
-                f"({fmt.pct(row['coverage'])} of questions), {esc(outcome_text(row, fmt))}")
+        name, accepted = esc(row["run"]["name"]), count(row["accepted"])
+        if not row["accepted"]:
+            text = f"{name} passed this rule on none of {total} non-English exam questions; all of them go to check."
+        else:
+            span = f"95% error estimate range {fmt.span(*row['error_range'])}"
+            if row["errors"]:
+                wrong = (f"{count(row['errors'])} of those {accepted} answers were wrong ({fmt.pct(row['error_rate'])} of "
+                         f"accepted answers; {span}).")
+            else:
+                wrong = f"None of those {accepted} answers was wrong ({span})."
+            text = (f"{name} passed this rule on {accepted} of {total} non-English exam questions ({fmt.pct(row['coverage'])}). "
+                    f"{wrong} The other {count(row['sent'])} go to check." + ("" if row["errors"] else f" {ZERO_ERRORS}"))
     else:
         parts = [
-            f"{esc(SETUP_PHRASES.get(row['key'], (label(row['run']), ''))[0])}: {count(row['accepted'])} answers accepted "
+            f"{esc(SETUP_PHRASES.get(row['key'], (label(row['run']), ''))[0])}: {count(row['accepted'])} answers passed "
             f"({fmt.pct(row['coverage'])} of questions), {fmt.pct(row['error_rate'])} of them wrong."
             for row in rows
         ]
         text = (
-            f"{esc(rows[0]['run']['name'])} in {in_words(len(rows))} setups on {total} Turkish exam questions, {rule}. " + " ".join(parts)
+            f"{esc(rows[0]['run']['name'])} in {in_words(len(rows))} setups on {total} non-English exam questions. " + " ".join(parts)
             + f" The setups also differ in request format ({per_request_text(rows)} questions per request), so this does not "
             "isolate the confidence method."
         )
     return (
-        f'<div class="finding"><p class="finding-label">Finding</p><p>{text}</p>'
-        '<p class="small"><a href="#overview-confidence">See the confidence results</a></p></div>'
+        f'<div class="finding"><p class="finding-label">Finding</p>{rule_text(threshold)}'
+        f'<p>{text}</p><p class="small"><a href="#overview-confidence">See the confidence results</a></p></div>'
     )
 
 
@@ -767,14 +877,94 @@ def finding_sentence(snap: Snapshot) -> str:
         row = rows[0]
         wrong = "zero observed errors" if not row["errors"] else f"{count(row['errors'])} wrong"
         span = f"; 95% error estimate range {fmt.span(*row['error_range'])}" if row["accepted"] else ""
-        return (f"{row['run']['name']} on {total} Turkish exam questions: {count(row['accepted'])} answers accepted at a reported "
-                f"confidence of {threshold} or higher ({fmt.pct(row['coverage'])} of questions), {wrong}{span}.")
+        return (f"{row['run']['name']} on {total} non-English exam questions: {count(row['accepted'])} answers accepted at a "
+                f"reported confidence of {threshold} or higher ({fmt.pct(row['coverage'])} of questions), {wrong}{span}.")
     parts = [
         f"{count(row['accepted'])} accepted with {count(row['errors'])} wrong ({SETUP_PHRASES.get(row['key'], ('', setting(row['run'])))[1]})"
         for row in rows
     ]
-    return (f"{rows[0]['run']['name']} in {in_words(len(rows))} setups on {total} Turkish exam questions, accepting only answers with a "
-            f"reported confidence of {threshold} or higher: " + ", ".join(parts) + ".")
+    return (f"{rows[0]['run']['name']} in {in_words(len(rows))} setups on {total} non-English exam questions, accepting only "
+            f"answers with a reported confidence of {threshold} or higher: " + ", ".join(parts) + ".")
+
+
+def confidence_lead(snap: Snapshot) -> str:
+    """The Confidence section's opening: which decision model does best, measure by measure. It names no overall winner,
+    and the build stops if one model ever leads every measure, since the sentence would then be wrong."""
+    decision = [run for run in snap.runs if snap.decision_model(run)]
+    best = max(decision, key=lambda run: run["correct"])
+    tied = [run for run in decision if run is not best and shares_letter(run.get("group"), best.get("group"))]
+    clean = [run for run in decision
+             if (sure := (run.get("confidence") or {}).get("sure")) and sure["questions"] and sure["questions"] == sure["correct"]]
+    surest = max(clean, key=lambda run: run["confidence"]["sure"]["questions"])
+    stable = sorted((item for item in snap.whole_bank if not item["changed_answer"] and snap.decision_model(item)),
+                    key=lambda item: item["model"] != surest["model"])
+    if best is surest and all(item["model"] == best["model"] for item in stable):
+        raise ValueError("one decision model leads every measure: the Confidence section's opening needs new wording")
+    if tied:
+        accuracy = (f"{and_list([best['name'], *(run['name'] for run in tied)])} could not be told apart on accuracy (exact "
+                    f"McNemar tests on all {count(snap.results['group_pairs'])} pairs, Holm correction)")
+    else:
+        accuracy = f"{best['name']} was the most accurate"
+    clauses = [accuracy, f"{snap.short(surest)} had the most answers accepted at {snap.config['threshold']:.2f} with zero "
+                         f"observed errors ({count(surest['confidence']['sure']['questions'])})"]
+    if stable:
+        clauses.append(f"{and_list([snap.short(item) for item in stable])} changed no answers across "
+                       f"{in_words(len(stable[0]['runs']))} runs of all {count(snap.total)} questions")
+    return f"<p>{esc('No single decision model led on every measure: ' + '; '.join(clauses[:-1]) + '; and ' + clauses[-1])}.</p>"
+
+
+def accuracy_lead(snap: Snapshot) -> str:
+    """The Accuracy section's opening: the most accurate general-purpose models against the decision models. The build
+    stops if the example no longer leads every decision model by ten points or costs ten times the dearest one."""
+    fmt, example = snap.fmt, snap.named[snap.config["accuracy_example"]]
+    decision = [run for run in snap.runs if snap.decision_model(run)]
+    best = max(decision, key=lambda run: run["correct"])
+    dearest = max(cost for run in decision if (cost := per_thousand(run)) is not None)
+    example_cost = per_thousand(example)
+    if (snap.decision_model(example) or example["correct"] - best["correct"] < 0.1 * snap.total
+            or example_cost is None or example_cost < 10 * dearest):
+        raise ValueError("the Accuracy section's opening no longer matches the data: rewrite it")
+    return (
+        f"<p>The most accurate general-purpose models were far more accurate on these questions: {esc(named(example))} answered "
+        f"{fmt.pct(example['correct'] / snap.total)} correctly, against {fmt.pct(best['correct'] / snap.total)} for the most "
+        f"accurate decision model, {esc(best['name'])}; decision models cost much less per question than those models and "
+        "return a probability for every option.</p>"
+    )
+
+
+def model_kinds(snap: Snapshot) -> str:
+    """How the two kinds of model answer: one example of each, and one of what reasoning changed. The build stops when an
+    example no longer fits its sentence."""
+    fmt, kinds = snap.fmt, snap.config["model_kinds"]
+    decision, general = snap.named[kinds["decision"]], snap.named[kinds["general"]]
+    low, high = (snap.named[key] for key in kinds["reasoning"])
+    top = max(snap.runs, key=lambda run: run["correct"])
+    standing = ("the most accurate configuration" if general is top
+                else "one of the most accurate configurations" if shares_letter(general.get("group"), top.get("group")) else None)
+    # The token count includes reasoning tokens: Codex CLI reports them in its output tokens (see the method section).
+    tokens = round(general["output_tokens"] / general["answered_questions"])
+    cost_ratio = per_thousand(high) / per_thousand(low)
+    if (not snap.decision_model(decision) or latency_text(decision)[1] == "" or snap.decision_model(general)
+            or standing is None or tokens > 50 or high["correct"] <= low["correct"]):
+        raise ValueError("an example in 'How the two kinds of model answer' no longer fits its sentence")
+    ratio = "almost twice the cost" if 1.75 <= cost_ratio < 2 else f"{cost_ratio:.1f} times the cost"
+
+    def grammar(run: dict[str, Any]) -> str:
+        return fmt.pct(run["groups"]["grammar"]["correct"] / run["groups"]["grammar"]["questions"])
+
+    return (
+        '<aside class="explainer" aria-labelledby="model-kinds-title">'
+        '<p class="explainer-title" id="model-kinds-title">How the two kinds of model answer</p>'
+        "<p>A decision model reads the question and the options, and returns a probability for each option. It does not write "
+        f"an answer. This makes it cheap and fast: {esc(decision['name'])} has an estimated API cost of {usd(per_thousand(decision))} "
+        f"per 1,000 decisions, with a median latency of {decision['median_request_seconds']:.2f} seconds.</p>"
+        f"<p>A general-purpose model writes its answer, and it can reason first. In this test, {standing} wrote very little: "
+        f"{esc(general['name'])}, with {esc(general['reasoning'])} reasoning, used about {tokens} output tokens per question, "
+        f"reasoning tokens included, and answered {fmt.pct(general['correct'] / snap.total)} correctly. So reasoning does not "
+        "explain the accuracy gap here, and the benchmark does not isolate what does.</p>"
+        f"<p>Reasoning did help some models: {esc(low['name'])} went from {grammar(low)} to {grammar(high)} on grammar between "
+        f"{esc(low['reasoning'])} and {esc(high['reasoning'])} effort, at {ratio}.</p></aside>"
+    )
 
 
 def reasoning_table(snap: Snapshot) -> str:
@@ -802,19 +992,23 @@ def reasoning_table(snap: Snapshot) -> str:
     )
 
 
-def head(snap: Snapshot, images: dict[str, str]) -> str:
+# The page's headline, also its title and the link preview's.
+HEADLINE = "When should you trust an AI model to make a decision?"
+
+
+def head(snap: Snapshot, images: dict[str, dict[str, str]]) -> str:
     site = snap.config["site_url"]
     preview = snap.config["images"]["preview"]
-    title = "Test decision models before you automate."
+    title = HEADLINE
     description = (
-        "Accuracy, confidence, answer stability and cost across decision models and generative models, evaluated on Turkish "
-        "exam questions. Methods, code and recorded answers."
+        "Accuracy, confidence, answer stability and cost across decision models and general-purpose models, evaluated on "
+        "non-English exam questions. Methods, code and recorded answers."
     )
-    # The link preview's description and alt text state the finding its image shows.
+    # The link preview's description and alt text state the finding its image shows; the image is the dark one, like the site.
     finding = finding_sentence(snap)
     shared = f"{finding} Methods, code and recorded answers."
     alt = f"Bar chart. {finding}"
-    image = site + images["preview"]
+    image = site + images["preview"]["dark"]
     return "\n".join(
         [
             "",
@@ -839,17 +1033,28 @@ def head(snap: Snapshot, images: dict[str, str]) -> str:
     )
 
 
-def share_link(path: str, name: str) -> str:
-    return f'<p class="share"><a class="button secondary" href="{esc(path)}" download>Share figure</a> <span class="small">{esc(name)}, PNG</span></p>'
+def share_link(paths: dict[str, str], name: str) -> str:
+    """'Share figure' downloads the image in the theme being viewed; a small link offers the other one."""
+    buttons = "".join(
+        f'<a class="button secondary theme-{theme}" href="{esc(paths[theme])}" download>Share figure</a>' for theme in THEMES
+    )
+    others = "".join(
+        f'<a class="theme-{theme}" href="{esc(paths[other])}" download>{other} version</a>'
+        for theme, other in (("dark", "light"), ("light", "dark"))
+    )
+    return f'<p class="share">{buttons} <span class="small">{esc(name)}, PNG · {others}</span></p>'
 
 
-def blocks(snap: Snapshot, images: dict[str, str]) -> dict[str, str]:
+def blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
     lead_names = ", ".join(dict.fromkeys(row["run"]["name"] for row in snap.lead))
     return {
         "head": head(snap, images),
         "lead-finding": lead_finding(snap),
+        "confidence-lead": confidence_lead(snap),
         "threshold-figure": threshold_figure(snap) + share_link(images["finding"], f"Lead finding: {lead_names}"),
         "threshold-table": threshold_table(snap),
+        "accuracy-lead": accuracy_lead(snap),
+        "model-kinds": model_kinds(snap),
         "task-figure": task_figure(snap) + share_link(images["tasks"], "Reading and grammar figure"),
         "results-table": results_table(snap),
         "stability-lead": stability_lead(snap),
@@ -858,6 +1063,7 @@ def blocks(snap: Snapshot, images: dict[str, str]) -> dict[str, str]:
         "cost-table": cost_table(snap),
         "cost-summary": cost_summary(snap),
         "cost-setup": cost_setup(snap),
+        "latency-table": latency_table(snap),
         "reasoning-table": reasoning_table(snap),
     }
 
@@ -881,42 +1087,60 @@ def fill(page: str, numbers: dict[str, str], parts: dict[str, str]) -> str:
 
 # ---------------------------------------------------------------- sharing images
 
+# The sharing images' colours: the page's tokens, so the dark images look like the site and the light ones print well.
+IMAGE_THEMES = {
+    "dark": {
+        "bg": "#1e293b", "text": "#e2e8f0", "values": "#e2e8f0", "sub": "#cbd5e1", "muted": "#94a3b8", "rule": "#334155",
+        "ok": "#cbd5e1", "wrong": "#e879f9", "check": "#334155", "stripe": "#475569", "key-border": "#64748b",
+        "outline": "#64748b", "track": "#273449", "reading": "#60a5fa", "grammar": "#fb923c",
+        "reading-text": "#60a5fa", "grammar-text": "#fb923c",
+    },
+    "light": {
+        "bg": "#ffffff", "text": "#0f172a", "values": "#1e293b", "sub": "#334155", "muted": "#475569", "rule": "#e2e8f0",
+        "ok": "#334155", "wrong": "#c026d3", "check": "#e2e8f0", "stripe": "#cbd5e1", "key-border": "#cbd5e1",
+        "outline": "#64748b", "track": "#f1f5f9", "reading": "#2563eb", "grammar": "#ea580c",
+        "reading-text": "#1d4ed8", "grammar-text": "#c2410c",
+    },
+}
+# The main images are the dark ones; the light ones are for reports and slides.
+THEMES = tuple(IMAGE_THEMES)
 FIGURE_STYLE = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: %(width)dpx; height: %(height)dpx; overflow: hidden; background: #fff; color: #0f172a;
+html, body { width: %(width)dpx; height: %(height)dpx; overflow: hidden; background: var(--bg); color: var(--text);
   font-family: "Helvetica Neue", Arial, "Liberation Sans", sans-serif; }
 body { padding: %(pad)dpx; display: flex; flex-direction: column; }
 h1 { font-size: %(title)dpx; line-height: 1.1; letter-spacing: -.01em; }
-.sub { font-size: %(sub)dpx; color: #334155; margin-top: .25em; }
+.sub { font-size: %(sub)dpx; color: var(--sub); margin-top: .25em; }
 i.key { display: inline-block; width: .8em; height: .8em; margin-right: .3em; border-radius: 2px; vertical-align: -.05em; }
-i.key.ok { background: #334155; } i.key.wrong { background: #c026d3; }
-i.key.check { background: repeating-linear-gradient(135deg, #e2e8f0 0 4px, #cbd5e1 4px 8px); border: 1px solid #cbd5e1; }
+i.key.ok { background: var(--ok); } i.key.wrong { background: var(--wrong); }
+i.key.check { background: repeating-linear-gradient(135deg, var(--check) 0 4px, var(--stripe) 4px 8px); border: 1px solid var(--key-border); }
 .rows { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: %(gap)dpx; }
 .row-label { font-size: %(label)dpx; font-weight: 700; white-space: nowrap; }
-.row-label .muted { font-weight: 400; color: #475569; }
-.vals { font-size: %(value)dpx; color: #1e293b; margin-top: .25em; line-height: 1.3; }
-.vals .wrong { color: #c026d3; font-weight: 700; }
+.row-label .muted { font-weight: 400; color: var(--muted); }
+.vals { font-size: %(value)dpx; color: var(--values); margin-top: .25em; line-height: 1.3; }
+.vals .wrong { color: var(--wrong); font-weight: 700; }
 .stack { position: relative; display: block; height: %(bar)dpx; margin-top: .35em; }
-.stack .fill { display: flex; height: 100%%; border: 2px solid #64748b; border-radius: 4px; overflow: hidden; background: #e2e8f0; }
-.stack .ok { background: #334155; flex-grow: 0; flex-shrink: 0; } .stack .wrong { background: #c026d3; flex-grow: 0; flex-shrink: 0; }
-.stack .wrong.nonzero { box-shadow: inset 3px 0 0 #fff; }
-.stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, #e2e8f0 0 10px, #cbd5e1 10px 20px); }
-.wrong-marker { position: absolute; top: -10px; bottom: -10px; width: 5px; margin-left: -2px; background: #c026d3; border-radius: 2px; }
-.caveat { font-size: %(caveat)dpx; color: #1e293b; border-top: 2px solid #e2e8f0; padding-top: .45em; line-height: 1.3; }
-.foot { font-size: %(foot)dpx; color: #475569; margin-top: .3em; }
+.stack .fill { display: flex; height: 100%%; border: 2px solid var(--outline); border-radius: 4px; overflow: hidden; background: var(--check); }
+.stack .ok { background: var(--ok); flex-grow: 0; flex-shrink: 0; } .stack .wrong { background: var(--wrong); flex-grow: 0; flex-shrink: 0; }
+.stack .wrong.nonzero { box-shadow: inset 3px 0 0 var(--bg); }
+.stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, var(--check) 0 10px, var(--stripe) 10px 20px); }
+.wrong-marker { position: absolute; top: -10px; bottom: -10px; width: 5px; margin-left: -2px; background: var(--wrong); border-radius: 2px; }
+.caveat { font-size: %(caveat)dpx; color: var(--values); border-top: 2px solid var(--rule); padding-top: .45em; line-height: 1.3; }
+.foot { font-size: %(foot)dpx; color: var(--muted); margin-top: .3em; }
 .pair { display: grid; grid-template-columns: %(part)dpx 1fr %(num)dpx; align-items: center; gap: 16px; font-size: %(value)dpx; }
-.track { height: %(bar)dpx; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.track { height: %(bar)dpx; background: var(--track); border-radius: 4px; overflow: hidden; }
 .bar { display: block; height: 100%%; }
-.reading { color: #1d4ed8; } .grammar { color: #c2410c; }
-.bar.reading { background: #2563eb; } .bar.grammar { background: #ea580c; }
+.reading { color: var(--reading-text); } .grammar { color: var(--grammar-text); }
+.bar.reading { background: var(--reading); } .bar.grammar { background: var(--grammar); }
 .num { text-align: right; font-weight: 700; }
 """
 # How an image names a confidence source, shorter than the page.
 SHORT_SOURCES = {"Probability of the chosen option": "option probability", "Stated by the model": "stated confidence"}
 
 
-def figure_page(size: dict[str, int], scale: dict[str, int], body: str) -> str:
-    style = FIGURE_STYLE % {**size, **scale}
+def figure_page(size: dict[str, int], scale: dict[str, int], body: str, theme: str) -> str:
+    palette = "; ".join(f"--{name}: {value}" for name, value in IMAGE_THEMES[theme].items())
+    style = f":root {{ {palette}; }}" + FIGURE_STYLE % {**size, **scale}
     return f'<!doctype html><html lang="en"><head><meta charset="utf-8"><style>{style}</style></head><body>{body}</body></html>'
 
 
@@ -926,7 +1150,7 @@ def footer(snap: Snapshot, caveat: str) -> str:
     site = snap.config["site_url"].removeprefix("https://").rstrip("/")
     dataset = (results["dataset"]["graded_sha256"] or results["dataset"]["sha256"])[:8]
     return (
-        f'<p class="caveat">{count(snap.total)} Turkish exam questions (reading and grammar), not market predictions or financial tasks. {esc(caveat)}</p>'
+        f'<p class="caveat">{count(snap.total)} non-English exam questions (reading and grammar), not market predictions or financial tasks. {esc(caveat)}</p>'
         f'<p class="foot">Data {esc(results["dataset"]["name"])} ({dataset}) · results {esc(results["results_version"])} · '
         f"published {long_date(snap.config['published'])} · {esc(site)}</p>"
     )
@@ -938,7 +1162,7 @@ def image_label(row: dict[str, Any]) -> str:
     return f'<span class="row-label">{esc(run["name"])}<span class="muted"> · {esc(" · ".join(details))}</span></span>'
 
 
-def finding_image(snap: Snapshot, size: dict[str, int], compact: bool) -> str:
+def finding_image(snap: Snapshot, size: dict[str, int], compact: bool, theme: str) -> str:
     """The lead finding as an image: its rows only, each with answers accepted and sent to check, then the wrong
     answers, their share of the accepted ones and the 95% error estimate range."""
     fmt, threshold, rows = snap.fmt, f"{snap.config['threshold']:.2f}", snap.lead
@@ -965,17 +1189,21 @@ def finding_image(snap: Snapshot, size: dict[str, int], compact: bool) -> str:
         caveat = f"The setups also differ in request format ({per_request_text(rows)} questions per request), so this does not isolate the confidence method."
     legend = ('<i class="key ok"></i>accepted and correct · <i class="key wrong"></i>accepted but wrong · '
               '<i class="key check"></i>sent to check')
+    # A single bar is drawn larger, so that it does not sit between wide empty bands.
+    one = len(rows) == 1
     if compact:
-        scale = {"pad": 36, "title": 40, "sub": 22, "gap": 18, "label": 30, "bar": 32, "value": 25, "caveat": 20, "foot": 15, "part": 0, "num": 0}
+        scale = {"pad": 36, "title": 40, "sub": 22, "gap": 18, "label": 42 if one else 30, "bar": 84 if one else 32,
+                 "value": 34 if one else 25, "caveat": 20, "foot": 15, "part": 0, "num": 0}
         sub = legend
     else:
-        scale = {"pad": 52, "title": 58, "sub": 30, "gap": 34, "label": 44, "bar": 54, "value": 38, "caveat": 26, "foot": 20, "part": 0, "num": 0}
+        scale = {"pad": 52, "title": 58, "sub": 30, "gap": 34, "label": 62 if one else 44, "bar": 140 if one else 54,
+                 "value": 54 if one else 38, "caveat": 26, "foot": 20, "part": 0, "num": 0}
         sub = f"Each bar is all {count(snap.total)} scored questions: {legend}"
     body = f'<h1>{esc(title)}</h1><p class="sub">{sub}</p><div class="rows">{"".join(items)}</div>' + footer(snap, caveat)
-    return figure_page(size, scale, body)
+    return figure_page(size, scale, body, theme)
 
 
-def task_image(snap: Snapshot, size: dict[str, int]) -> str:
+def task_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
     fmt = snap.fmt
     scale = {"pad": 46, "title": 56, "sub": 28, "gap": 16, "label": 30, "bar": 30, "value": 28, "caveat": 22, "foot": 18, "part": 160, "num": 120}
     items = []
@@ -989,7 +1217,7 @@ def task_image(snap: Snapshot, size: dict[str, int]) -> str:
     sub = f"Accuracy on {count(snap.reading_questions)} reading and {count(snap.grammar_questions)} grammar questions; selected configurations, axis 0–100%"
     caveat = "Performance on one task type does not establish performance on another; these results do not identify the cause of the gap."
     body = f'<h1>Strong reading scores, weaker grammar scores</h1><p class="sub">{esc(sub)}</p><div class="rows">{"".join(items)}</div>' + footer(snap, caveat)
-    return figure_page(size, scale, body)
+    return figure_page(size, scale, body, theme)
 
 
 def png_size(path: Path) -> tuple[int, int]:
@@ -997,33 +1225,34 @@ def png_size(path: Path) -> tuple[int, int]:
     return int.from_bytes(data[:4], "big"), int.from_bytes(data[4:], "big")
 
 
-def render_images(snap: Snapshot, names: dict[str, str]) -> None:
+def render_images(snap: Snapshot, names: dict[str, dict[str, str]]) -> None:
     chrome = os.environ.get("CHROME", "google-chrome")
     sizes = snap.config["images"]
     pages = {
-        "preview": (finding_image(snap, sizes["preview"], True), sizes["preview"]),
-        "finding": (finding_image(snap, sizes["share"], False), sizes["share"]),
-        "tasks": (task_image(snap, sizes["share"]), sizes["share"]),
+        "preview": (lambda theme: finding_image(snap, sizes["preview"], True, theme), sizes["preview"]),
+        "finding": (lambda theme: finding_image(snap, sizes["share"], False, theme), sizes["share"]),
+        "tasks": (lambda theme: task_image(snap, sizes["share"], theme), sizes["share"]),
     }
     SHARE.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as work:
         for key, (page, size) in pages.items():
-            source, target = Path(work) / f"{key}.html", ROOT / names[key]
-            source.write_text(page, encoding="utf-8")
-            subprocess.run(
-                [chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", f"--user-data-dir={work}/profile",
-                 "--force-device-scale-factor=1", "--hide-scrollbars", f"--window-size={size['width']},{size['height']}",
-                 f"--screenshot={target}", source.as_uri()],
-                check=True, capture_output=True,
-            )
-            if png_size(target) != (size["width"], size["height"]):
-                raise SystemExit(f"{target} is {png_size(target)}, not {size['width']}x{size['height']}")
-            os.chmod(target, 0o644)
-            print(f"Wrote {target.relative_to(ROOT)} ({size['width']}x{size['height']})")
+            for theme in THEMES:
+                source, target = Path(work) / f"{key}-{theme}.html", ROOT / names[key][theme]
+                source.write_text(page(theme), encoding="utf-8")
+                subprocess.run(
+                    [chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", f"--user-data-dir={work}/profile",
+                     "--force-device-scale-factor=1", "--hide-scrollbars", f"--window-size={size['width']},{size['height']}",
+                     f"--screenshot={target}", source.as_uri()],
+                    check=True, capture_output=True,
+                )
+                if png_size(target) != (size["width"], size["height"]):
+                    raise SystemExit(f"{target} is {png_size(target)}, not {size['width']}x{size['height']}")
+                os.chmod(target, 0o644)
+                print(f"Wrote {target.relative_to(ROOT)} ({size['width']}x{size['height']})")
     # Before the first public post, earlier versions go; after it, they stay, so that posted previews keep working.
     if snap.config.get("announced"):
         return
-    current = {ROOT / name for name in names.values()}
+    current = {ROOT / name for paths in names.values() for name in paths.values()}
     for old in SHARE.glob("*.png"):
         if old not in current:
             old.unlink()
@@ -1038,41 +1267,50 @@ def x_length(text: str) -> int:
 
 
 def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
-    """The main X post for the lead finding: one model in two setups, or one configuration with its repeats."""
-    rows, fmt, site, threshold = snap.lead, snap.fmt, snap.config["site_url"], numbers["threshold"]
+    """The main X post for the lead finding: the rule first, then one model in two setups, or one configuration with its
+    accuracy on all questions and its repeats."""
+    rows, fmt, site, threshold, total = snap.lead, snap.fmt, snap.config["site_url"], numbers["threshold"], numbers["questions"]
 
     def number(fraction: float) -> str:
         return fmt.pct(fraction).rstrip("%")
 
+    rule = (f"We tested a simple rule for trusting a model's answers: accept an answer only when the model reports a "
+            f"confidence of {threshold} or higher, and send every other answer to a stronger model or a person.")
     if len(rows) == 2:
         first, second = rows
         return (
-            f"We tested one model, {first['run']['name']}, in two setups on {numbers['questions']} Turkish exam questions. In both setups, "
-            f"we accepted only answers with a confidence of {threshold} or higher.\n\n"
-            f"Setup 1, OpenAI's Decisions API, which returns a probability for each option: {count(first['accepted'])} answers accepted "
-            f"({number(first['coverage'])}% of questions), {count(first['errors'])} wrong ({number(first['error_rate'])}%).\n"
-            f"Setup 2, {second['run']['name'].split()[-1]} states its own confidence: {count(second['accepted'])} accepted "
+            f"{rule}\n\n"
+            f"We tested one model, {first['run']['name']}, in two setups on {total} non-English exam questions.\n"
+            f"Setup 1, OpenAI's Decisions API, which returns a probability for each option: {count(first['accepted'])} answers "
+            f"passed ({number(first['coverage'])}% of questions), {count(first['errors'])} wrong ({number(first['error_rate'])}%).\n"
+            f"Setup 2, {second['run']['name'].split()[-1]} states its own confidence: {count(second['accepted'])} passed "
             f"({number(second['coverage'])}%), {count(second['errors'])} wrong ({number(second['error_rate'])}%).\n\n"
-            "The setups also used different request formats, so this does not isolate the confidence method. It does not set an error "
-            "limit for future tasks. Exam questions, not market predictions.\n\n"
+            "The setups also used different request formats, so this does not isolate the confidence method. It does not set an "
+            "error limit for future tasks. Exam questions, not market predictions.\n\n"
             f"{site}"
         )
     row = rows[0]
     run, item = row["run"], snap.repeats_by_key.get(row["key"])
-    parts = [
-        f"{run['name']} is a decision model: it chooses from given options and returns a probability for each option. We tested it "
-        f"on {numbers['questions']} Turkish exam questions and accepted only answers with a reported confidence of {threshold} or higher."
-    ]
+    if not row["accepted"]:
+        raise ValueError(f"the lead finding, {label(run)}, accepts no answers")
     if row["errors"]:
-        parts.append(
-            f"{count(row['accepted'])} answers were accepted ({number(row['coverage'])}% of questions), and {count(row['errors'])} of them "
-            f"were wrong ({number(row['error_rate'])}%; 95% error estimate range {fmt.span(*row['error_range'])})."
-        )
+        wrong = (f"{count(row['errors'])} of those {count(row['accepted'])} answers were wrong ({number(row['error_rate'])}%; 95% "
+                 f"error estimate range {fmt.span(*row['error_range'])}).")
     else:
-        parts.append(
-            f"{count(row['accepted'])} answers were accepted ({number(row['coverage'])}% of questions), with zero observed errors "
-            f"(95% error estimate range {fmt.span(*row['error_range'])}). {ZERO_ERRORS}"
-        )
+        wrong = f"None of those {count(row['accepted'])} answers was wrong."
+    passed = (f"it passed the rule on {count(row['accepted'])} ({number(row['coverage'])}%). {wrong} The other "
+              f"{count(row['sent'])} went to check.")
+    if snap.decision_model(run):
+        result = (f"{run['name']} is a decision model: it chooses from given options and returns a probability for each option. "
+                  f"On {total} non-English exam questions, {passed}")
+    else:
+        result = f"{run['name']} was tested on {total} non-English exam questions: {passed}"
+    accuracy = (f"On all {total} questions, its accuracy was {number(run['correct'] / snap.total)}%. The rule kept only the "
+                "answers it was sure of.")
+    if not row["errors"]:
+        accuracy += (" Zero observed errors does not set an error limit for future decisions: the 95% error estimate range runs "
+                     f"up to {number(row['error_range'][1])}%.")
+    parts = [rule, result, accuracy]
     if item:
         runs = in_words(len(item["runs"]))
         stable = "it chose the same option on every question" if not item["changed_answer"] else f"it changed its answer on {count(item['changed_answer'])} questions"
@@ -1080,28 +1318,49 @@ def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
             f"In {runs} repeated runs, {stable}. Stable is not the same as correct: it repeated the same wrong answer on "
             f"{count(item['wrong_every_run_same'])} questions."
         )
-    groups = run["groups"]
-    parts.append(
-        f"Accuracy: {number(groups['reading']['correct'] / groups['reading']['questions'])}% on reading, "
-        f"{number(groups['grammar']['correct'] / groups['grammar']['questions'])}% on grammar. Exam questions, not market predictions."
-    )
-    parts.append(site)
+    parts += ["Exam questions, not market predictions.", site]
     return "\n\n".join(parts)
 
 
-def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, str]) -> str:
+def cost_post(snap: Snapshot, numbers: dict[str, str]) -> str:
+    """The follow-up on cost and latency: one decision model against a more accurate reference, from the same values as
+    the Accuracy, cost and latency table."""
+    fmt, site = snap.fmt, snap.config["site_url"]
+    model, reference = (snap.named[snap.config["cost_post"][key]] for key in ("model", "reference"))
+    model_cost, reference_cost = per_thousand(model), per_thousand(reference)
+    if model_cost is None or reference_cost is None or not latency_text(model)[1] or reference["correct"] <= model["correct"]:
+        raise ValueError("the cost post needs a priced, timed one-question model and a priced, more accurate reference")
+    accurate = "far more accurate" if reference["correct"] - model["correct"] >= 0.1 * snap.total else "more accurate"
+    measured = ("" if latency_text(reference)[1]
+                else f" {reference['name']}'s latency was not measured the same way.")
+    return (
+        f"{model['name']} costs {usd(model_cost)} per 1,000 decisions, with a median latency of "
+        f"{model['median_request_seconds']:.2f} seconds ({model['p90_request_seconds']:.2f} s at the 90th percentile). "
+        f"{reference['name']} costs about {usd(reference_cost)} per 1,000, roughly {times(reference_cost / model_cost)} times more, "
+        f"but it is {accurate}: {fmt.pct(reference['correct'] / snap.total)} against {fmt.pct(model['correct'] / snap.total)} on "
+        f"the same {numbers['questions']} non-English exam questions.\n\n"
+        "Costs are estimates at API list prices. Latency was measured from our machine, one question per request, including "
+        f"network time.{measured}\n\n{site}"
+    )
+
+
+def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, dict[str, str]]) -> str:
     glide = next(row for row in snap.tasks if row["key"] == "glide")
     site, fmt = snap.config["site_url"], snap.fmt
 
     def number(fraction: float) -> str:
         return fmt.pct(fraction).rstrip("%")
 
+    def length_note(text: str) -> str:
+        return " Longer than one post: needs a long-post account or a thread." if x_length(text) > X_POST_LIMIT else ""
+
     main = main_post(snap, numbers)
+    costs = cost_post(snap, numbers)
     follow = (
         f"{glide['run']['name'].split()[-1]}, a decision model, scored {number(glide['reading'])}% on reading questions and "
-        f"{number(glide['grammar'])}% on grammar questions in our Turkish benchmark.\n\n"
-        "Performance on one kind of task does not establish performance on another. We compare decision models with generative "
-        "models and report the task scores separately.\n\n"
+        f"{number(glide['grammar'])}% on grammar questions in our benchmark of {numbers['questions']} non-English exam questions.\n\n"
+        "Performance on one kind of task does not establish performance on another. We compare decision models with "
+        "general-purpose models and report the task scores separately.\n\n"
         "Inspect the tested configurations, methods, code and recorded answers:\n\n"
         f"{site}"
     )
@@ -1110,19 +1369,28 @@ def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, str]) -> s
         "# X posts",
         "",
         f"Generated by build_page.py from results {results['results_version']} (data {numbers['dataset_version']}), published "
-        f"{numbers['published']}. Do not edit by hand: run the build again.",
+        f"{numbers['published']}. Do not edit by hand: run the build again. The images are the dark versions; each has a light "
+        "one next to it, with `light` in place of `dark` in its name.",
         "",
         f"## Main post: confidence and checking ({x_length(main)} characters as X counts them)",
         "",
-        f"Attach `{names['finding']}`." + (" Longer than one post: it needs a long-post account, or split it into a thread with the caveat paragraph in the first post's image." if x_length(main) > X_POST_LIMIT else ""),
+        f"Attach `{names['finding']['dark']}`." + (" Longer than one post: it needs a long-post account, or split it into a thread with the caveat paragraph in the first post's image." if x_length(main) > X_POST_LIMIT else ""),
         "",
         "```text",
         main,
         "```",
         "",
+        f"## Follow-up: cost and latency ({x_length(costs)} characters as X counts them)",
+        "",
+        "No image." + length_note(costs),
+        "",
+        "```text",
+        costs,
+        "```",
+        "",
         f"## Follow-up: task differences ({x_length(follow)} characters as X counts them)",
         "",
-        f"Attach `{names['tasks']}`." + (" Longer than one post: needs a long-post account or a thread." if x_length(follow) > X_POST_LIMIT else ""),
+        f"Attach `{names['tasks']['dark']}`." + length_note(follow),
         "",
         "```text",
         follow,
@@ -1145,9 +1413,8 @@ def main() -> int:
         snap = Snapshot(results, config, reproduce())
         version = results["results_version"]
         names = {
-            "preview": f"share/preview-{version}.png",
-            "finding": f"share/finding-{version}.png",
-            "tasks": f"share/reading-grammar-{version}.png",
+            key: {theme: f"share/{stem}-{theme}-{version}.png" for theme in THEMES}
+            for key, stem in (("preview", "preview"), ("finding", "finding"), ("tasks", "reading-grammar"))
         }
         numbers = values(snap)
         page = PAGE.read_text(encoding="utf-8")

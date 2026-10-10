@@ -3,6 +3,9 @@
 //! Every cell is `CELL_WIDTH` × `CELL_HEIGHT` pixels. Braille, block, box-drawing and dot characters
 //! become shapes, so a graph looks the same in any font; other characters become text placed one
 //! character per cell.
+//!
+//! The buffer's colours are the light theme's; [`Theme::Dark`] swaps each for its counterpart in
+//! [`DARK`] and paints the dark card behind the graph.
 
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
@@ -20,6 +23,101 @@ const DOT_RADIUS: f64 = 1.9;
 /// The colour of cells that set none.
 const TEXT_COLOR: &str = "#1f2937";
 const FONT: &str = r#"13px ui-monospace,SFMono-Regular,Menlo,Consolas,"DejaVu Sans Mono",monospace"#;
+/// The dark theme's card, painted behind the whole graph.
+const DARK_BACKGROUND: &str = "#1e293b";
+/// Each light colour the figures use and its dark-theme counterpart. Text and series colours keep at
+/// least 4.5:1 contrast against [`DARK_BACKGROUND`], guide lines at least 3:1; gridlines stay subtle.
+/// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
+const DARK: [(&str, &str); 39] = [
+    // Text: default, muted (also `Color::Gray`).
+    (TEXT_COLOR, "#e2e8f0"),
+    ("#6b7280", "#94a3b8"),
+    // Guide lines: axes, diagonals, zero and chance lines, non-significant intervals.
+    ("#9ca3af", "#64748b"),
+    // Gridlines.
+    ("#e5e7eb", "#334155"),
+    // Reading, significant intervals and a run colour (also `Color::Blue`); grammar and a run colour.
+    ("#2563eb", "#60a5fa"),
+    ("#ea580c", "#fb923c"),
+    // Run colours (`fn color` in lib.rs), lighter shades of the same hues. Two runs of one hue in a
+    // panel keep their distance: the darker light shade becomes a 400 or 500, the lighter one a 200.
+    ("#0891b2", "#22d3ee"),
+    ("#0ea5e9", "#7dd3fc"),
+    ("#60a5fa", "#bfdbfe"),
+    ("#3f6212", "#a3e635"),
+    ("#65a30d", "#d9f99d"),
+    ("#e11d48", "#fb7185"),
+    ("#fda4af", "#fecdd3"),
+    ("#7c3aed", "#a78bfa"),
+    ("#db2777", "#f472b6"),
+    ("#f472b6", "#fbcfe8"),
+    ("#0e7490", "#06b6d4"),
+    ("#06b6d4", "#a5f3fc"),
+    ("#16a34a", "#4ade80"),
+    ("#9a3412", "#fed7aa"),
+    ("#dc2626", "#f87171"),
+    ("#ca8a04", "#facc15"),
+    ("#0d9488", "#2dd4bf"),
+    ("#9333ea", "#c084fc"),
+    ("#c084fc", "#d8b4fe"),
+    ("#1e40af", "#60a5fa"),
+    ("#27272a", "#d4d4d8"),
+    ("#be185d", "#f472b6"),
+    ("#1d4ed8", "#60a5fa"),
+    ("#f97316", "#fdba74"),
+    ("#78716c", "#a8a29e"),
+    ("#4f46e5", "#818cf8"),
+    ("#92400e", "#fbbf24"),
+    ("#a16207", "#fde047"),
+    ("#f59e0b", "#f59e0b"),
+    ("#475569", "#cbd5e1"),
+    // Named colours of `hex` not covered above.
+    ("#000000", "#e2e8f0"),
+    ("#ffffff", "#ffffff"),
+    ("#c026d3", "#e879f9"),
+];
+
+/// The dark counterpart of a light colour in [`DARK`].
+fn dark(light: &str) -> Option<&'static str> {
+    DARK.iter().find(|(from, _)| *from == light).map(|(_, to)| *to)
+}
+
+/// The page theme an SVG is drawn for.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Theme {
+    Light,
+    Dark,
+}
+
+impl Theme {
+    pub const ALL: [Theme; 2] = [Theme::Light, Theme::Dark];
+
+    /// What follows the figure's name in its file name: `<name><suffix>.svg`.
+    pub fn suffix(self) -> &'static str {
+        match self {
+            Theme::Light => "",
+            Theme::Dark => "-dark",
+        }
+    }
+
+    /// The theme's shade of a light colour.
+    ///
+    /// # Panics
+    /// In the dark theme, for a colour without a counterpart in [`DARK`].
+    fn paint(self, mut light: String) -> String {
+        if self == Theme::Dark {
+            let shade = dark(&light).unwrap_or_else(|| panic!("{light} has no dark counterpart: add it to DARK in src/svg.rs"));
+            light.clear();
+            light.push_str(shade);
+        }
+        light
+    }
+
+    /// The SVG fill of a cell colour, or None for the default.
+    fn color(self, color: Color) -> Option<String> {
+        hex(color).map(|light| self.paint(light))
+    }
+}
 
 /// Braille dots for bits 0–7 of a pattern (U+2800 + bits), as (column, row) in the 2 × 4 dot grid.
 const BRAILLE_DOTS: [(f64, f64); 8] =
@@ -158,9 +256,10 @@ fn flush(texts: &mut String, run: &mut Option<TextRun>, baseline: f64) {
     }
 }
 
-/// The buffer as an SVG image with `title` as its accessible name.
-pub fn buffer_to_svg(buffer: &Buffer, title: &str) -> String {
+/// The buffer as an SVG image in `theme` with `title` as its accessible name.
+pub fn buffer_to_svg(buffer: &Buffer, title: &str, theme: Theme) -> String {
     let area = buffer.area;
+    let text_color = theme.paint(TEXT_COLOR.to_string());
     let mut backgrounds = Paths::default();
     let mut shapes = Paths::default();
     let mut texts = String::new();
@@ -170,10 +269,10 @@ pub fn buffer_to_svg(buffer: &Buffer, title: &str) -> String {
         for x in area.left()..area.right() {
             let cell = &buffer[(x, y)];
             let left = f64::from(x - area.x) * CELL_WIDTH;
-            if let Some(background) = hex(cell.bg) {
+            if let Some(background) = theme.color(cell.bg) {
                 backgrounds.rect(&background, left, top, CELL_WIDTH, CELL_HEIGHT);
             }
-            let color = hex(cell.fg).unwrap_or_else(|| TEXT_COLOR.to_string());
+            let color = theme.color(cell.fg).unwrap_or_else(|| text_color.clone());
             let symbol = cell.symbol();
             let mut chars = symbol.chars();
             let single = match (chars.next(), chars.next()) {
@@ -238,6 +337,9 @@ pub fn buffer_to_svg(buffer: &Buffer, title: &str) -> String {
         h = number(height),
         title = escape(title),
     );
+    if theme == Theme::Dark {
+        let _ = write!(svg, r#"<rect width="{}" height="{}" fill="{DARK_BACKGROUND}"/>"#, number(width), number(height));
+    }
     backgrounds.write(&mut svg);
     shapes.write(&mut svg);
     svg.push_str(&texts);
@@ -266,5 +368,81 @@ mod tests {
         assert_eq!(block_part('▄'), Some((0.0, 0.5, 1.0, 1.0)));
         assert_eq!(block_part('▏'), Some((0.0, 0.0, 0.125, 1.0)));
         assert_eq!(block_part('▌'), Some((0.0, 0.0, 0.5, 1.0)));
+    }
+
+    /// WCAG 2 relative luminance of a "#rrggbb" colour.
+    fn luminance(color: &str) -> f64 {
+        let channel = |start: usize| {
+            let value = f64::from(u8::from_str_radix(&color[start..start + 2], 16).expect("a #rrggbb colour")) / 255.0;
+            if value <= 0.03928 { value / 12.92 } else { ((value + 0.055) / 1.055).powf(2.4) }
+        };
+        0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5)
+    }
+
+    fn contrast(first: &str, second: &str) -> f64 {
+        let (first, second) = (luminance(first), luminance(second));
+        (first.max(second) + 0.05) / (first.min(second) + 0.05)
+    }
+
+    #[test]
+    fn dark_colours_keep_their_contrast_on_the_dark_card() {
+        for (index, (light, shade)) in DARK.iter().enumerate() {
+            assert!(DARK[..index].iter().all(|(other, _)| other != light), "{light} is in DARK twice");
+            let minimum = match *light {
+                // Gridlines: visible but subtle.
+                "#e5e7eb" => 1.3,
+                // Guide lines.
+                "#9ca3af" => 3.0,
+                _ => 4.5,
+            };
+            let ratio = contrast(shade, DARK_BACKGROUND);
+            assert!(ratio >= minimum, "{light} → {shade}: {ratio:.2}:1 against {DARK_BACKGROUND}, below {minimum}:1");
+        }
+    }
+
+    #[test]
+    fn every_named_and_figure_colour_has_a_dark_counterpart() {
+        let named = [
+            Color::Black,
+            Color::White,
+            Color::Gray,
+            Color::DarkGray,
+            Color::Red,
+            Color::LightRed,
+            Color::Green,
+            Color::LightGreen,
+            Color::Yellow,
+            Color::LightYellow,
+            Color::Blue,
+            Color::LightBlue,
+            Color::Magenta,
+            Color::LightMagenta,
+            Color::Cyan,
+            Color::LightCyan,
+        ];
+        let mut lights: Vec<String> = named.into_iter().map(|color| hex(color).expect("named colours have a hex")).collect();
+        // Every colour lib.rs writes, as `rgb(0xrrggbb)` (the run colours) or `Color::Rgb(0xrr, 0xgg, 0xbb)`.
+        let source = include_str!("lib.rs");
+        for (start, pattern) in source.match_indices("rgb(0x") {
+            let digits = &source[start + pattern.len()..start + pattern.len() + 6];
+            lights.push(format!("#{}", digits.to_ascii_lowercase()));
+        }
+        for (start, pattern) in source.match_indices("Color::Rgb(0x") {
+            let rest = &source[start + pattern.len() - 2..];
+            let channels = &rest[..rest.find(')').expect("Color::Rgb closes")];
+            let digits: String = channels.split(',').map(|channel| channel.trim().trim_start_matches("0x")).collect();
+            lights.push(format!("#{}", digits.to_ascii_lowercase()));
+        }
+        assert!(lights.len() > 40, "the scan of lib.rs found its colours");
+        for light in lights {
+            assert!(dark(&light).is_some(), "{light} has no dark counterpart in DARK");
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "no dark counterpart")]
+    fn a_colour_without_a_dark_counterpart_stops_the_dark_svg() {
+        assert_eq!(Theme::Light.color(Color::Rgb(0x12, 0x34, 0x56)).as_deref(), Some("#123456"));
+        Theme::Dark.color(Color::Rgb(0x12, 0x34, 0x56));
     }
 }

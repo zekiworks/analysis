@@ -17,3 +17,15 @@ fn figures_match_their_snapshots() {
         insta::assert_snapshot!(figure.name, charts::buffer_text(&charts::render(&figure)));
     }
 }
+
+/// Every colour a figure uses has a dark counterpart (`buffer_to_svg` panics otherwise), and each dark
+/// SVG paints its own card.
+#[test]
+fn figures_draw_in_the_dark_theme() {
+    let results = results();
+    for figure in charts::figures(&results) {
+        let svg = charts::svg::buffer_to_svg(&charts::render(&figure), &figure.title, charts::svg::Theme::Dark);
+        assert!(svg.contains(r##"</style><rect width=""##) && svg.contains(r##"fill="#1e293b"/>"##), "{} paints the dark card first", figure.name);
+        assert!(svg.contains(r##"fill="#e2e8f0""##), "{} draws default text in the dark text colour", figure.name);
+    }
+}

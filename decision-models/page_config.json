@@ -74,6 +74,34 @@
       {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"}
     ]
   },
+  "latency_rows": [
+    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b"},
+    {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
+    {"provider": "jev", "model": "jev-1.13.0"},
+    {"provider": "liquid", "model": "d1:free"},
+    {"provider": "fastino", "model": "fastino/GLiDE"},
+    {"provider": "openai-decisions", "model": "gpt-6-luna"},
+    {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"},
+    {"provider": "openai", "model": "gpt-6.1-sol", "reasoning": "low"},
+    {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"}
+  ],
+  "latency_untimed_examples": [
+    {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"},
+    {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "high"},
+    {"provider": "jev", "model": "jev-1.13.0"},
+    {"provider": "liquid", "model": "d1:free"}
+  ],
+  "accuracy_example": "astra",
+  "model_kinds": {"decision": "decider_v11", "general": "astra", "reasoning": ["sonnet_low", "sonnet_high"]},
+  "cost_post": {"model": "decider_v11", "reference": "astra"},
+  "short_names": {
+    "pplx-decider-v1.1-27b": "Decider v1.1",
+    "pplx-decider-v1-27b": "Decider v1",
+    "fastino/GLiDE": "GLiDE",
+    "open-jev-27b-v1.1": "Open-Jev",
+    "jev-1.13.0": "Jev",
+    "d1:free": "d1"
+  },
   "billing": {
     "api": {"access": "Hosted API", "cost_basis": "List price × reported tokens"},
     "subscription": {"access": "Subscription access", "cost_basis": "API-equivalent estimate"},

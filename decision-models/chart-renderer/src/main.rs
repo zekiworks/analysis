@@ -1,4 +1,5 @@
-//! Writes the results page's graphs as SVG: `charts <results.json> <output directory>`.
+//! Writes the results page's graphs as SVG: `charts <results.json> <output directory>`. Each figure
+//! gets `<name>.svg` for the light theme and `<name>-dark.svg` for the dark one.
 
 use std::path::Path;
 use std::process::ExitCode;
@@ -32,9 +33,12 @@ fn figures(results: &str, output: &str) -> ExitCode {
         return ExitCode::FAILURE;
     }
     for figure in charts::figures(&results) {
-        let svg = charts::svg::buffer_to_svg(&charts::render(&figure), &figure.title);
-        if !write(&output.join(format!("{}.svg", figure.name)), &svg) {
-            return ExitCode::FAILURE;
+        let buffer = charts::render(&figure);
+        for theme in charts::svg::Theme::ALL {
+            let svg = charts::svg::buffer_to_svg(&buffer, &figure.title, theme);
+            if !write(&output.join(format!("{}{}.svg", figure.name, theme.suffix())), &svg) {
+                return ExitCode::FAILURE;
+            }
         }
     }
     ExitCode::SUCCESS

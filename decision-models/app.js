@@ -1,13 +1,19 @@
 'use strict';
 
-/* Accuracy 0–100 → red (#fee2e2), amber (#fef3c7) at 50, green (#bbf7d0); the local dashboard's scale. */
-function heatColor(accuracy) {
+/* Accuracy 0–100 → red, amber at 50, green: the local dashboard's scale. Each cell carries its light and dark colour
+   and the stylesheet shows the one for the theme, so switching themes needs no redraw. The dark colours keep light
+   text and the answer counts above 4.5:1. */
+const HEAT = {
+  light: [[254, 226, 226], [254, 243, 199], [187, 247, 208]],
+  dark: [[76, 29, 36], [74, 59, 16], [19, 78, 46]],
+};
+function heatStyle(accuracy) {
   const p = Math.min(100, Math.max(0, accuracy)) / 100;
-  const [from, to, t] = p <= 0.5
-    ? [[254, 226, 226], [254, 243, 199], p / 0.5]
-    : [[254, 243, 199], [187, 247, 208], (p - 0.5) / 0.5];
-  const [r, g, b] = from.map((start, i) => Math.round(start + (to[i] - start) * t));
-  return `rgb(${r}, ${g}, ${b})`;
+  const mix = ([low, mid, high]) => {
+    const [from, to, t] = p <= 0.5 ? [low, mid, p / 0.5] : [mid, high, (p - 0.5) / 0.5];
+    return `rgb(${from.map((start, i) => Math.round(start + (to[i] - start) * t)).join(', ')})`;
+  };
+  return `--heat-light: ${mix(HEAT.light)}; --heat-dark: ${mix(HEAT.dark)}`;
 }
 
 const integer = n => n.toLocaleString('en-US');
@@ -16,7 +22,13 @@ const formatPercent = (value, digits = 2) => (value == null ? '—' : `${value.t
 const formatScore = value => (value == null ? '—' : value.toFixed(3));
 const formatP = p => (p < 0.0001 ? '< 0.0001' : p.toFixed(4));
 const formatPoints = (fraction, digits = 1) => `${fraction >= 0 ? '+' : '−'}${Math.abs(100 * fraction).toFixed(digits)}`;
-const formatUsd = value => (value == null ? '—' : `$${value.toFixed(2)}`);
+/* Dollars: cents from $0.10 up and three decimals below, so that $0.0078 does not read as $0.01 (as in build_page.py). */
+const formatUsd = value => {
+  if (value == null) return '—';
+  if (value >= 0.1 || value === 0) return `$${value.toFixed(2)}`;
+  const text = value.toFixed(3);
+  return text === '0.000' ? `$${value.toPrecision(2)}` : `$${text}`;
+};
 /* A parameter count: 31.3B or 287M, with the parameters active per token for a mixture of experts; NA when the
    maker publishes no size. */
 const formatBillions = count => `${(count / 1e9).toFixed(1).replace(/\.0$/, '')}`;
@@ -80,7 +92,7 @@ function percentCell(value, { digits = 1, title = null, heat = false, detail = n
     numeric: true,
     title,
     className: heat ? 'heat' : null,
-    style: heat && value != null ? `background: ${heatColor(value)}` : null,
+    style: heat && value != null ? heatStyle(value) : null,
   });
 }
 
@@ -372,7 +384,7 @@ function renderUnits(data) {
       numeric: true,
       className: 'heat',
       title: `${run.name}, ${runLabel(run)}${extra}: ${integer(correct)} of ${integer(questions)} correct`,
-      style: accuracy == null ? null : `background: ${heatColor(accuracy)}`,
+      style: accuracy == null ? null : heatStyle(accuracy),
     });
   };
   const sum = (values, keep) => values.reduce((total, value, index) => total + (keep(data.units[index]) ? value : 0), 0);
@@ -439,7 +451,7 @@ function renderConfidence(data) {
           value: accuracy,
           className: 'heat',
           title: `${interval.correct} of ${interval.questions} correct`,
-          style: `background: ${heatColor(accuracy)}`,
+          style: heatStyle(accuracy),
         });
       }),
     ),
@@ -911,6 +923,32 @@ function renderPipelines(data) {
   }
 }
 
+/* The Dark / Light switch in the header. The script in <head> has already applied a stored choice. Storage can be
+   blocked, so each access is guarded and a choice then lasts for the visit. */
+function setUpThemeSwitch() {
+  const group = document.querySelector('.theme-switch');
+  if (!group) return;
+  const root = document.documentElement;
+  const show = theme => {
+    root.dataset.theme = theme;
+    for (const button of group.querySelectorAll('button[data-theme-choice]')) {
+      button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
+    }
+  };
+  group.addEventListener('click', event => {
+    const button = event.target.closest('button[data-theme-choice]');
+    if (!button) return;
+    show(button.dataset.themeChoice);
+    try {
+      localStorage.setItem('theme', button.dataset.themeChoice);
+    } catch {
+      // Storage blocked: the theme applies until the page is left.
+    }
+  });
+  show(root.dataset.theme === 'light' ? 'light' : 'dark');
+  group.hidden = false;
+}
+
 async function main() {
   let data;
   try {
@@ -935,4 +973,5 @@ async function main() {
   renderRepeats(data);
 }
 
+setUpThemeSwitch();
 main();

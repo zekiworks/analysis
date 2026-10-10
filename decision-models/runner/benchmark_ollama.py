@@ -3557,6 +3557,9 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     metrics["groups"] = groups
     if request_seconds:
         metrics["median_request_seconds"] = statistics.median(request_seconds)
+    if len(request_seconds) >= 2:
+        # Linear interpolation between the closest ranks, over the same requests as the median.
+        metrics["p90_request_seconds"] = statistics.quantiles(request_seconds, n=10, method="inclusive")[-1]
     metrics.update(totals)
     price = PRICES.get((provider, run["model"]))
     if price is not None:

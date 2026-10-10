@@ -57,11 +57,20 @@ python3 -m http.server 8000                                # preview at http://1
     `confidence_rows`; each entry of `leads` gives its rows and the sentence that tells readers the order
     is editorial, not a ranking. Task rows go by overall accuracy (the reference row last), stability
     rows by changed answers.
-  - **Images:** drawn with headless Chrome from the same rows (`share/`, named with the results
-    version). Earlier versions are deleted until `announced` holds the date of the first public post;
-    from then on they are kept, so posted link previews keep working.
+  - **Images:** drawn with headless Chrome from the same rows, in both themes (`share/`, named with the
+    theme and the results version, for example `finding-dark-<version>.png`). The dark ones are the main
+    ones: the link preview and the X posts use them, and "Share figure" downloads the version that matches
+    the theme being viewed. Earlier versions are deleted until `announced` holds the date of the first
+    public post; from then on they are kept, so posted link previews keep working.
+  - **Generated sentences:** the openings of the Confidence and Accuracy sections, the box on how the two
+    kinds of model answer, the Accuracy, cost and latency table (`latency_rows`, with the untimed runs
+    its note names in `latency_untimed_examples`) and the cost follow-up post (`cost_post`) come from the
+    data. Each checks that its wording still fits the numbers and stops the build otherwise.
   - **X posts:** the announcement text goes to `share/x-posts.md`; `--no-images` skips Chrome, and
     `CHROME` names another Chrome or Chromium binary.
+- **Themes:** the page is dark by default, also without JavaScript; `style.css` keeps both palettes, and
+  a reader's Dark / Light choice is stored in `localStorage` and applied by a line in `<head>` before the
+  page renders. Printing always uses the light theme, so the light charts load with the page.
 
   The dataset version, the results version (a hash of `results.json`) and the publication date in
   `page_config.json` are shown separately.
@@ -80,11 +89,13 @@ decision servers. The questions themselves cannot be shared.
 
 `chart-renderer/` draws the page's graphs from `results.json`. It uses ratatui's `Chart`, `BarChart`
 and `Canvas` widgets, rendered into ratatui's test backend, so each graph is a buffer of terminal cells.
-The page shows them as SVGs next to their tables, from `charts/`.
+The page shows them as SVGs next to their tables, from `charts/`: `<name>.svg` in the light theme and
+`<name>-dark.svg` in the dark one, written from the same buffer.
 
 - **SVG output:** a small writer (`chart-renderer/src/svg.rs`) turns each buffer into an SVG on a fixed grid of
   8 × 16 px cells. It draws braille dots, box lines, bar blocks and dots as shapes, so a graph looks
-  the same whatever fonts the reader has.
+  the same whatever fonts the reader has. The dark version maps every colour through the `DARK` table,
+  whose entries keep at least 4.5:1 against the dark card; a colour missing from it stops the build.
 - **Snapshots:** the same buffer, as text, is the graph's insta snapshot in `chart-renderer/tests/snapshots/`.
   When the data changes, the snapshot diff shows how each graph changed.
 
