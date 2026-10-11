@@ -173,7 +173,7 @@ as criteria. Rate limits and server errors are retried.
 |---|---|---|
 | `run_gemma.sh` | Gemma 4 31B, vLLM, FP8 weights and KV cache | `gemma-4-31B-it` |
 | `run_deepseek.sh`, `run_deepseek_thinking.sh` | DeepSeek-V4.1-Flash on SGLang (4 GPUs), thinking off and on | `deepseek-v4.1-flash` |
-| `run_glm.sh` | GLM-5.3-Flash on TensorFold (4 GPUs), thinking off, stated confidence | `glm-5.3-flash` |
+| `run_glm.sh`, `run_glm_thinking.sh` | GLM-5.3-Flash on TensorFold (4 GPUs), thinking off and on, stated confidence | `glm-5.3-flash` |
 | `run_qwen3_14b.sh`, `run_erk.sh` | Qwen3-14B and Erk-14B, vLLM, BF16 | `qwen3-14b`, `erk-14b` |
 | `run_qwen_yes_no.sh`, `run_qwen_verbal.sh` | Qwen3.8-27B, vLLM, BF16: yes/no scoring, stated confidence | `qwen38-27b-bf16` |
 

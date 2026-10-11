@@ -407,6 +407,9 @@ def values(snap: Snapshot) -> dict[str, str]:
         out[f"{key}_concurrency"] = count(run["concurrency"])
         single = run["single_question_latency"]
         out[f"{key}_single_median"] = f"{single['median_request_seconds']:.2f}" if single else "not measured"
+        # Questions left without a valid answer count as wrong; the accuracy on the rest shows what they cost.
+        out[f"{key}_unanswered"] = count(run["invalid"])
+        out[f"{key}_answered_accuracy"] = fmt.pct(run["correct"] / (snap.total - run["invalid"]))
     for key, item in snap.repeats_by_key.items():
         out[f"{key}_changed"] = count(item["changed_answer"])
         out[f"{key}_changed_share"] = fmt.pct(item["changed_answer"] / item["questions"], 0)

@@ -204,6 +204,7 @@ fn color(run: &Run) -> Color {
         ("deepseek-v4.1-flash", Some("on"), _) => rgb(0x0e7490),
         ("deepseek-v4.1-flash", ..) => rgb(0x06b6d4),
         ("gemma-4-31B-it", ..) => rgb(0x16a34a),
+        ("glm-5.3-flash", Some("on"), _) => rgb(0x713f12),
         ("glm-5.3-flash", ..) => rgb(0x854d0e),
         ("pplx-decider-v1-27b", ..) => rgb(0xea580c),
         ("pplx-decider-v1.1-27b", ..) => rgb(0x9a3412),

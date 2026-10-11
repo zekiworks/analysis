@@ -54,11 +54,14 @@
     "qwen3_14b": {"provider": "vllm", "model": "qwen3-14b"},
     "erk": {"provider": "vllm", "model": "erk-14b"},
     "gemma": {"provider": "vllm", "model": "gemma-4-31B-it"},
-    "glm": {"provider": "vllm-stated", "model": "glm-5.3-flash"},
+    "glm_off": {"provider": "vllm-stated", "model": "glm-5.3-flash", "reasoning": "off"},
+    "glm_on": {"provider": "vllm-stated", "model": "glm-5.3-flash", "reasoning": "on"},
     "gliner_base": {"provider": "gliner", "model": "gliner2.5-multi-v1"},
     "gliner_decide": {"provider": "gliner", "model": "gliner2.5-multi-decide"}
   },
-  "reasoning_pairs": [["sonnet_low", "sonnet_high"], ["deepseek_off", "deepseek_on"], ["gemini_low", "gemini_high"]],
+  "reasoning_pairs": [
+    ["sonnet_low", "sonnet_high"], ["deepseek_off", "deepseek_on"], ["gemini_low", "gemini_high"], ["glm_off", "glm_on"]
+  ],
   "stability_whole_bank": [
     {"provider": "open-jev", "model": "open-jev-27b-v1.1", "key": "open_jev"},
     {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
