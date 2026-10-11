@@ -48,6 +48,8 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "strands": {"access": "Strands Decider server, self-hosted", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
+    # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
+    "vllm-stated": {"access": "vLLM-compatible chat API, self-hosted", "scoring": False, "billing": "local"},
     "vllm-verbal": {"access": "vLLM, self-hosted, BF16", "scoring": False, "billing": "local"},
     "vllm-vote": {"access": "vLLM, self-hosted, BF16", "scoring": False, "billing": "local"},
     "claude": {"access": "Claude Code CLI, Claude subscription", "scoring": False, "billing": "subscription"},
@@ -80,9 +82,10 @@ GPU = "RTX PRO 6000 Blackwell (96 GB)"
 # Display names, and for models on our GPUs the hardware and precision.
 # parameters: the model's weights, counted from the tensor shapes in each local checkpoint's safetensors
 # files (Open-Jev: Qwen3.8-27B plus its LoRA adapter and scoring head; Clef: the backbone plus its joint
-# head); Perplexity's Decider from the total_parameters of its published index; DeepSeek-V4.1-Flash from
-# its model card, a mixture of experts with 552B backbone parameters, of which 8B are active per token in
-# prefill and 16B in decode (active_parameters). Models whose makers publish no size have neither.
+# head); Perplexity's Decider from the total_parameters of its published index; DeepSeek-V4.1-Flash and GLM-5.3-Flash
+# from their model cards, mixtures of experts: DeepSeek with 552B backbone parameters, of which 8B are active per token
+# in prefill and 16B in decode, GLM with 320B, of which 18B are active (active_parameters). Models whose makers publish
+# no size have neither.
 MODELS: dict[str, dict[str, Any]] = {
     "gpt-6-astra": {"name": "GPT-6 Astra"},
     "gpt-6.1-sol": {"name": "GPT-6.1 Sol"},
@@ -101,6 +104,13 @@ MODELS: dict[str, dict[str, Any]] = {
         "hardware": f"4 × {GPU}; FP4 experts, FP8 and BF16 layers",
         "parameters": 552_000_000_000,
         "active_parameters": [8_000_000_000, 16_000_000_000],
+    },
+    "glm-5.3-flash": {
+        "name": "GLM-5.3-Flash",
+        "access": "TensorFold, self-hosted, EXL3 4-bit experts",
+        "hardware": f"4 × {GPU}; EXL3 4-bit experts, FP8 dense layers and KV cache",
+        "parameters": 320_000_000_000,
+        "active_parameters": [18_000_000_000],
     },
     "gemma4:31b": {"name": "Gemma 4 31B"},
     "deepseek-v4-flash:latest": {"name": "DeepSeek V4 Flash"},

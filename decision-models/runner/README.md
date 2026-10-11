@@ -173,14 +173,18 @@ as criteria. Rate limits and server errors are retried.
 |---|---|---|
 | `run_gemma.sh` | Gemma 4 31B, vLLM, FP8 weights and KV cache | `gemma-4-31B-it` |
 | `run_deepseek.sh`, `run_deepseek_thinking.sh` | DeepSeek-V4.1-Flash on SGLang (4 GPUs), thinking off and on | `deepseek-v4.1-flash` |
+| `run_glm.sh` | GLM-5.3-Flash on TensorFold (4 GPUs), thinking off, stated confidence | `glm-5.3-flash` |
 | `run_qwen3_14b.sh`, `run_erk.sh` | Qwen3-14B and Erk-14B, vLLM, BF16 | `qwen3-14b`, `erk-14b` |
 | `run_qwen_yes_no.sh`, `run_qwen_verbal.sh` | Qwen3.8-27B, vLLM, BF16: yes/no scoring, stated confidence | `qwen38-27b-bf16` |
 
 The model argument must be the served model name. `--provider vllm` sends 16 questions per request
 with thinking off, temperature 0 and seed 0, and reads each answer letter's probabilities from the
 token log probabilities (`--vllm-thinking` lets the model think first; the published run used
-`--concurrency 8` and a 60-minute timeout). SGLang serves the same API. The 14B pair ran in
-`vllm/vllm-openai:v0.30.0`, pinned to the benchmarked revisions:
+`--concurrency 8` and a 60-minute timeout). SGLang serves the same API. `--provider vllm-stated` sends the same
+request with the hosted models' prompt and schema, a letter and a stated confidence per question, for a server
+that returns no token probabilities: TensorFold, which serves GLM-5.3-Flash with Mia's AI Lab's EXL3 checkpoint
+(revision `78353f1f`; routed experts at 4 bits, dense layers and KV cache converted to FP8 at load). The 14B pair
+ran in `vllm/vllm-openai:v0.30.0`, pinned to the benchmarked revisions:
 
 ```bash
 docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=1 \

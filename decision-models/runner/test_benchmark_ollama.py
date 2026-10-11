@@ -114,6 +114,20 @@ class OpenAIDecisionsTests(unittest.TestCase):
         self.assertIsNone(option_probabilities("openai-decisions", raw))
 
 
+class StatedConfidenceTests(unittest.TestCase):
+    def test_vllm_stated_reads_each_questions_confidence_and_the_requests_tokens(self) -> None:
+        # ask_vllm_stated stores the chat API's response with the answers read from it, keyed by question ID.
+        raw = json.dumps(
+            {
+                "answers": {"7": {"answer": "B", "confidence": 0.85}, "8": {"answer": None, "confidence": None}},
+                "response": {"usage": {"prompt_tokens": 4161, "completion_tokens": 298}},
+            }
+        )
+        self.assertEqual(answer_usage("vllm-stated", 7, raw), ({"input_tokens": 4161, "output_tokens": 298}, 0.85))
+        self.assertIsNone(answer_usage("vllm-stated", 8, raw)[1])
+        self.assertIsNone(option_probabilities("vllm-stated", raw, 7))
+
+
 class ClaudeCostTests(unittest.TestCase):
     def test_cache_reads_and_writes_cost_their_own_rates(self) -> None:
         # One Sonnet 5.5 request as Claude Code reported it: 2 uncached prompt tokens, 6,759 written to the 1-hour

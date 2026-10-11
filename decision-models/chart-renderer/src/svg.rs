@@ -29,7 +29,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// least 4.5:1 contrast against [`DARK_BACKGROUND`], guide lines at least 3:1; gridlines stay subtle.
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens.
-const DARK: [(&str, &str); 40] = [
+const DARK: [(&str, &str); 41] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -55,6 +55,7 @@ const DARK: [(&str, &str); 40] = [
     ("#0e7490", "#06b6d4"),
     ("#06b6d4", "#a5f3fc"),
     ("#16a34a", "#4ade80"),
+    ("#854d0e", "#fde68a"),
     ("#9a3412", "#fed7aa"),
     ("#dc2626", "#f87171"),
     ("#ca8a04", "#facc15"),

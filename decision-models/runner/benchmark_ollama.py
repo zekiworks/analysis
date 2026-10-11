@@ -268,9 +268,10 @@ def questions_asked(result: dict[str, Any]) -> int:
 
 
 DEFAULT_VLLM_URL = "http://192.168.1.126:8888"
-# vllm sends the Ollama models' prompt, several questions per request; vllm-yes-no, vllm-verbal and
-# vllm-vote send one question per request.
-VLLM_PROVIDERS = ("vllm", "vllm-yes-no", "vllm-verbal", "vllm-vote")
+# vllm sends the Ollama models' prompt, several questions per request, and reads the letters' token probabilities;
+# vllm-stated sends the hosted models' stated-confidence prompt the same way, for a server that returns no token
+# probabilities; vllm-yes-no, vllm-verbal and vllm-vote send one question per request.
+VLLM_PROVIDERS = ("vllm", "vllm-stated", "vllm-yes-no", "vllm-verbal", "vllm-vote")
 SINGLE_QUESTION_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm-verbal", "vllm-vote")
 # --provider vllm-vote: the vllm-verbal request sampled VOTE_SAMPLES times with the instruct sampling
 # settings of Qwen's model card (~/code/Qwen3.8-27B-DGX-Spark-RTX-6000/README.md). The answer is the
@@ -278,8 +279,8 @@ SINGLE_QUESTION_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm-verbal"
 VOTE_SAMPLES = 10
 VOTE_SAMPLING = {"temperature": 0.7, "top_p": 0.8, "top_k": 20, "presence_penalty": 1.5}
 VOTE_PROVIDERS = ("vllm-vote",)
-# Output tokens allowed per question for --provider vllm; enough for the letters, and a stop for a
-# reply that runs on.
+# Output tokens allowed per question for --provider vllm and vllm-stated; enough for a letter, or a letter and a
+# confidence, and a stop for a reply that runs on.
 VLLM_TOKENS_PER_ANSWER = 32
 # Output tokens allowed per request with --vllm-thinking: the thinking and the reply together.
 VLLM_THINKING_MAX_TOKENS = 65536
@@ -290,7 +291,7 @@ VLLM_TOP_LOGPROBS = 10
 # of the chosen option. vllm reads them from the token probabilities of the answer letters it writes.
 # The other providers with a confidence state it with each answer.
 PROBABILITY_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm")
-STATED_CONFIDENCE_PROVIDERS = ("vllm-verbal", "claude", "openai", "gemini")
+STATED_CONFIDENCE_PROVIDERS = ("vllm-verbal", "vllm-stated", "claude", "openai", "gemini")
 READING_UNITS = range(1, 7)  # units 1–6 test reading, units 7–20 grammar
 # Within-unit shuffles behind the p-value of the decision-model doubt analysis.
 DOUBT_SHUFFLES = 200
@@ -517,18 +518,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--vllm-url",
         default=DEFAULT_VLLM_URL,
-        help=f"vLLM server base URL for --provider vllm, vllm-yes-no or vllm-verbal (default: {DEFAULT_VLLM_URL})",
+        help=f"vLLM server base URL for --provider {', '.join(VLLM_PROVIDERS)} (default: {DEFAULT_VLLM_URL})",
     )
     parser.add_argument(
         "--vllm-thinking",
         action="store_true",
-        help="let the model think before it answers, for --provider vllm (default: thinking off)",
+        help="let the model think before it answers, for --provider vllm and vllm-stated (default: thinking off)",
     )
     parser.add_argument(
         "--concurrency",
         type=int,
         default=1,
-        help="requests in flight at once, for --provider vllm, gemini and the System One providers (default: 1)",
+        help="requests in flight at once, for --provider vllm, vllm-stated, gemini and the System One providers (default: 1)",
     )
     parser.add_argument(
         "--claude-bin",
@@ -631,12 +632,12 @@ def parse_args() -> argparse.Namespace:
         parser.error("--num-ctx is only supported by --provider ollama")
     if args.provider != "ollama" and args.image_input == "on":
         parser.error("--image-input=on is currently supported only by --provider ollama")
-    if args.vllm_thinking and args.provider != "vllm":
-        parser.error("--vllm-thinking is only supported by --provider vllm")
+    if args.vllm_thinking and args.provider not in ("vllm", "vllm-stated"):
+        parser.error("--vllm-thinking is only supported by --provider vllm and vllm-stated")
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
-    if args.concurrency > 1 and args.provider not in ("vllm", "gemini") and args.provider not in SYSTEM_ONE:
-        parser.error("--concurrency is only supported by --provider vllm, gemini and the System One providers")
+    if args.concurrency > 1 and args.provider not in ("vllm", "vllm-stated", "gemini") and args.provider not in SYSTEM_ONE:
+        parser.error("--concurrency is only supported by --provider vllm, vllm-stated, gemini and the System One providers")
     if args.repeat is not None and args.repeat < 2:
         parser.error("--repeat must be at least 2; the first run of a configuration is repeat 1")
     if args.questions is not None and (args.sample is not None or args.limit is not None):
@@ -1652,6 +1653,27 @@ def ask_ollama(
     return batch_predictions(content, batch, result), stored_response
 
 
+def vllm_chat_payload(
+    model: str, system: str, prompt: str, schema: dict[str, Any], seed: int, thinking: bool, questions: int
+) -> dict[str, Any]:
+    """A chat request with an answer schema through vLLM's chat API, which SGLang and TensorFold also serve, with the
+    run's seed. Without thinking it decodes greedily (temperature 0); with thinking it samples with the server's
+    defaults, because greedy decoding makes reasoning loop. The answer schema applies to the reply after the thinking."""
+    payload: dict[str, Any] = {
+        "model": model,
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+        "seed": seed,
+        "max_tokens": VLLM_THINKING_MAX_TOKENS if thinking else VLLM_TOKENS_PER_ANSWER * questions,
+        "response_format": {"type": "json_schema", "json_schema": {"name": "answers", "schema": schema, "strict": True}},
+        # Qwen's, Gemma's and GLM's chat templates read enable_thinking, DeepSeek's reads thinking; each ignores the
+        # other.
+        "chat_template_kwargs": {"enable_thinking": thinking, "thinking": thinking},
+    }
+    if not thinking:
+        payload["temperature"] = 0
+    return payload
+
+
 def ask_vllm(
     base_url: str,
     model: str,
@@ -1661,34 +1683,13 @@ def ask_vllm(
     thinking: bool,
     verbose_log: TextIO | None,
 ) -> tuple[list[str | None], str]:
-    """The Ollama request through vLLM's chat API, which SGLang also serves: the same prompt and answer
-    schema and the run's seed. Without thinking it decodes greedily (temperature 0); with thinking it
-    samples with the server's defaults, because greedy decoding makes reasoning loop. The answer
-    schema applies to the reply after the thinking.
+    """The Ollama request through vLLM's chat API (vllm_chat_payload): the same prompt and answer schema.
 
     The server also returns each generated token's log probability and top alternatives. The stored
     response keeps, instead of those, each question's answer and its letter probabilities
     (letter_probabilities), keyed by question ID."""
-    payload: dict[str, Any] = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": ANSWER_SYSTEM_PROMPT},
-            {"role": "user", "content": make_prompt(batch)},
-        ],
-        "seed": seed,
-        "max_tokens": VLLM_THINKING_MAX_TOKENS if thinking else VLLM_TOKENS_PER_ANSWER * len(batch),
-        "response_format": {
-            "type": "json_schema",
-            "json_schema": {"name": "answers", "schema": answers_schema(batch), "strict": True},
-        },
-        # Qwen's and Gemma's chat templates read enable_thinking, DeepSeek's reads thinking; each ignores
-        # the other.
-        "chat_template_kwargs": {"enable_thinking": thinking, "thinking": thinking},
-        "logprobs": True,
-        "top_logprobs": VLLM_TOP_LOGPROBS,
-    }
-    if not thinking:
-        payload["temperature"] = 0
+    payload = vllm_chat_payload(model, ANSWER_SYSTEM_PROMPT, make_prompt(batch), answers_schema(batch), seed, thinking, len(batch))
+    payload.update(logprobs=True, top_logprobs=VLLM_TOP_LOGPROBS)
     result, _ = post_json(
         f"{base_url.rstrip('/')}/v1/chat/completions",
         payload,
@@ -1711,6 +1712,40 @@ def ask_vllm(
         for index, (question, prediction) in enumerate(zip(batch, predictions), 1)
     }
     return predictions, json.dumps(result, ensure_ascii=False, separators=(",", ":"))
+
+
+def ask_vllm_stated(
+    base_url: str,
+    model: str,
+    batch: list[Question],
+    timeout: float,
+    seed: int,
+    thinking: bool,
+    verbose_log: TextIO | None,
+) -> tuple[list[str | None], str]:
+    """The hosted models' request through vLLM's chat API (vllm_chat_payload), for a server that returns no token
+    probabilities, such as TensorFold: the prompt, system instruction and schema of the Claude, OpenAI and Gemini
+    providers, a letter and a stated 0-1 confidence per question. Stored like the Gemini provider's response."""
+    payload = vllm_chat_payload(
+        model, CONFIDENCE_SYSTEM_PROMPT, make_prompt(batch, CONFIDENCE_INSTRUCTION), confidence_schema(batch), seed, thinking, len(batch)
+    )
+    result, _ = post_json(
+        f"{base_url.rstrip('/')}/v1/chat/completions",
+        payload,
+        {"Content-Type": "application/json"},
+        timeout,
+        verbose_log,
+        "vLLM",
+    )
+    try:
+        answers = json.loads(result["choices"][0]["message"]["content"]).get("answers")
+    except (AttributeError, IndexError, KeyError, TypeError, json.JSONDecodeError):
+        answers = None
+    predictions, per_question = confidence_answers(answers, batch)
+    if any(prediction is None for prediction in predictions):
+        print(f"warning: incomplete vLLM response: {result!r}", file=sys.stderr)
+    stored_response = json.dumps({"answers": per_question, "response": result}, ensure_ascii=False, separators=(",", ":"))
+    return predictions, stored_response
 
 
 # A question's answer in a reply to make_prompt: "<number>": "<letter>".
@@ -2530,6 +2565,8 @@ def ask_batch(
         return [prediction], raw_response
     if args.provider == "vllm":
         return ask_vllm(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log)
+    if args.provider == "vllm-stated":
+        return ask_vllm_stated(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log)
     if args.provider == "vllm-verbal":
         prediction, raw_response = ask_vllm_verbal(
             args.vllm_url, args.model, questions[0], args.timeout, args.seed, verbose_log
@@ -3424,6 +3461,11 @@ def answer_usage(
         usage = record.get("usage") or {}
         answer = (record.get("answers") or {}).get(str(question_id)) or {}
         score = (answer.get("probabilities") or {}).get(answer.get("answer"))
+        input_tokens, output_tokens = usage.get("prompt_tokens"), usage.get("completion_tokens")
+    elif provider == "vllm-stated":
+        # The chat API's response, with each question's answer and stated confidence (see ask_vllm_stated).
+        usage = (record.get("response") or {}).get("usage") or {}
+        score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
         input_tokens, output_tokens = usage.get("prompt_tokens"), usage.get("completion_tokens")
     elif provider in VOTE_PROVIDERS:
         usage = record.get("usage") or {}
