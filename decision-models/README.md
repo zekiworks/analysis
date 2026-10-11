@@ -67,9 +67,11 @@ python3 -m http.server 8000                                # preview at http://1
     images are deleted until `announced` holds the date of the first public post; from then on they are
     kept, so posted link previews keep working.
   - **Generated sentences:** the openings of the Confidence and Accuracy sections, the box on how the two
-    kinds of model answer, the Accuracy, cost and latency table (`latency_rows`, with the untimed runs
-    its note names in `latency_untimed_examples`) and the cost follow-up post (`cost_post`) come from the
-    data. Each checks that its wording still fits the numbers and stops the build otherwise.
+    kinds of model answer, the Accuracy, cost and latency table (`latency_rows`; its note names the
+    configurations with no timed run) and the cost follow-up post (`cost_post`) come from the data. Each
+    checks that its wording still fits the numbers and stops the build otherwise. A configuration's time per
+    request is its own run's, or, when that run predates per-request timing, the pooled times of its later
+    runs of the same setup (`latency` in `results.json`); a batch's time is never divided among its questions.
   - **X posts:** the announcement text goes to `share/x-posts.md`; `--no-images` skips Chrome, and
     `CHROME` names another Chrome or Chromium binary.
 - **Themes:** the page is dark by default, also without JavaScript; `style.css` keeps both palettes, and
@@ -126,7 +128,7 @@ question text, prompts, answers or local paths. The comparisons between runs com
 - decision-model doubt;
 - confidence sources scored on the same answers;
 - each run's change from the previous question bank;
-- the run-to-run variation of repeated runs.
+- the run-to-run variation of repeated runs, with the request times pooled over the runs that recorded them.
 
 With `--answers`, it also writes `answers.json` from the benchmark's per-question export: the
 main runs, the repeats of each repeated configuration (`repeat_runs`) and the two runs of each measured

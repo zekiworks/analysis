@@ -405,6 +405,8 @@ def values(snap: Snapshot) -> dict[str, str]:
         out[f"{key}_cost"] = usd(1000 * run["api_equivalent_usd"] / run["answered_questions"]) if run.get("api_equivalent_usd") is not None else "not estimated"
         out[f"{key}_minutes"] = minutes(run["request_seconds"])
         out[f"{key}_concurrency"] = count(run["concurrency"])
+        single = run["single_question_latency"]
+        out[f"{key}_single_median"] = f"{single['median_request_seconds']:.2f}" if single else "not measured"
     for key, item in snap.repeats_by_key.items():
         out[f"{key}_changed"] = count(item["changed_answer"])
         out[f"{key}_changed_share"] = fmt.pct(item["changed_answer"] / item["questions"], 0)
@@ -762,17 +764,47 @@ def cost_setup(snap: Snapshot) -> str:
     )
 
 
-def latency_text(run: dict[str, Any]) -> tuple[str, str]:
-    """A run's time per request: median and 90th percentile with the requests in flight, only when it sent one question
-    per request and recorded each request's time. A batch's time is never divided among its questions."""
-    if run.get("median_request_seconds") is None:
-        return "not recorded", ""
+def timed_alone(run: dict[str, Any]) -> bool:
+    """Whether the run timed its own requests with one question per request, as the page's latency examples need."""
+    return run["questions_per_request"] == 1 and (run["latency"] or {}).get("source") == "run"
+
+
+def seconds_text(latency: dict[str, Any]) -> str:
+    """Median / 90th percentile of a time per request."""
+    text = f"{latency['median_request_seconds']:.2f} s"
+    return text if latency.get("p90_request_seconds") is None else f"{text} / {latency['p90_request_seconds']:.2f} s"
+
+
+def numbers_text(numbers: list[int]) -> str:
+    """'2–5' for consecutive numbers, else '2, 4 and 5'."""
+    if len(numbers) > 1 and numbers == list(range(numbers[0], numbers[-1] + 1)):
+        return f"{numbers[0]}–{numbers[-1]}"
+    return and_list([str(number) for number in numbers])
+
+
+def latency_cell(run: dict[str, Any]) -> str:
+    """A configuration's time per request in the latency table: median / 90th percentile, then what it covers: the
+    questions per request (a batch's time is the whole request's, never divided among its questions), the requests in
+    flight, and the runs it comes from when not the configuration's own. A batched configuration also timed with one
+    question per request adds that time."""
+    latency = run["latency"]
+    if latency is None:
+        return "not recorded"
+    notes = []
     if run["questions_per_request"] != 1:
-        return f"batched ({run['questions_per_request']} per request)", ""
-    seconds = f"{run['median_request_seconds']:.2f} s"
-    if run.get("p90_request_seconds") is not None:
-        seconds += f" / {run['p90_request_seconds']:.2f} s"
-    return seconds, f"{run['concurrency']} at a time"
+        notes.append(f"per request of {count(run['questions_per_request'])} questions")
+    if latency["concurrency"] is not None:
+        notes.append(f"{latency['concurrency']} at a time")
+    if latency["source"] == "repeats":
+        notes.append(f"from repeats {numbers_text(latency['repeats'])}")
+    elif latency["source"] == "sample":
+        notes.append(f"from {in_words(len(latency['runs']))} runs on {count(latency['questions'])} questions")
+    text = f'{seconds_text(latency)}<span class="small">{esc(", ".join(notes))}</span>'
+    single = run["single_question_latency"]
+    if single:
+        text += (f'<span class="small">{seconds_text(single)} with one question per request '
+                 f'({count(single["questions"])} questions)</span>')
+    return text
 
 
 def latency_table(snap: Snapshot) -> str:
@@ -788,7 +820,6 @@ def latency_table(snap: Snapshot) -> str:
             cost_cell = "free tier, not priced" if run["billing"] == "free" else "self-hosted, not priced"
         else:
             cost_cell = usd(cost) + ('<span class="small">API-price estimate</span>' if run["billing"] == "subscription" else "")
-        latency, in_flight = latency_text(run)
         sure = (run.get("confidence") or {}).get("sure") or {"questions": 0, "correct": 0}
         accepted = sure["questions"]
         rows.append(
@@ -796,27 +827,32 @@ def latency_table(snap: Snapshot) -> str:
             f'<td data-label="Configuration">{label_html(run)}</td>'
             f'<td class="num" data-label="Accuracy, all {count(snap.total)} questions">{fmt.pct(run["correct"] / snap.total)}</td>'
             f'<td class="num" data-label="Estimated API cost per 1,000 decisions, one question is one decision">{cost_cell}</td>'
-            f'<td class="num" data-label="Latency per request, median / 90th percentile">{latency}'
-            + (f'<span class="small">{in_flight}</span>' if in_flight else "")
+            f'<td class="num" data-label="Latency per request, median / 90th percentile">{latency_cell(run)}'
             + f'</td><td class="num" data-label="Accepted at {threshold}, share of questions">{count(accepted)} ({fmt.pct(accepted / snap.total)})'
             f'<span class="small">{count(accepted - sure["correct"])} wrong</span></td>'
             "</tr>"
         )
-    concurrent = sorted({run["concurrency"] for run in shown if run["concurrency"] > 1 and latency_text(run)[1]})
-    untimed = [run for run in snap.runs if run.get("median_request_seconds") is None]
-    examples = [pick(snap.runs, spec, "latency_untimed_examples") for spec in snap.config["latency_untimed_examples"]]
-    if any(run is None or run.get("median_request_seconds") is not None for run in examples):
-        raise ValueError("latency_untimed_examples names a run whose time per request was recorded")
-    note = ("Latency is the time per request, measured from our machine with one question per request; it includes network "
-            "time and any retry waits after errors. ")
+    timed = [run["latency"] for run in shown if run["latency"]]
+    concurrent = sorted({latency["concurrency"] for latency in timed if (latency["concurrency"] or 1) > 1})
+    batched = sorted({run["questions_per_request"] for run in shown if run["latency"] and run["questions_per_request"] != 1})
+    untimed = [run for run in snap.runs if run["latency"] is None]
+    note = ("Latency is the time per request, measured from our machine; it includes network time and any retry waits after "
+            "errors. ")
+    if batched:
+        size = f"{count(batched[0])} questions per request" if len(batched) == 1 else "several questions per request"
+        note += (f"With {size}, no answer arrives before the whole request is done, so those rows give the whole request's "
+                 "time; it is not divided among its questions. ")
     if concurrent:
         marked = f"Runs marked “{concurrent[0]} at a time”" if len(concurrent) == 1 else "Runs with several requests at a time"
         note += f"{marked} also include waiting behind our own parallel requests. "
-    note += (
-        "Hosted and self-hosted runs differ in setup, so latency compares setups, not models. "
-        f"{opening_count(len(untimed))} runs, including {and_list(list(dict.fromkeys(run['name'] for run in examples)))}, ran "
-        "before per-request timing was switched on, so their latency was not recorded. Costs are estimates at API list prices."
-    )
+    if any(latency["source"] != "run" for latency in timed):
+        note += ("Where a configuration's first run predates per-request timing, its times come from later runs of the same "
+                 "setup, as marked. ")
+    note += "Hosted and self-hosted runs differ in setup, so latency compares setups, not models. "
+    if untimed:
+        note += (f"{opening_count(len(untimed))} {'configuration has' if len(untimed) == 1 else 'configurations have'} no timed "
+                 f"run: {and_list([named(run) for run in untimed])}. ")
+    note += "Costs are estimates at API list prices."
     # The routing table above covers only the held-out questions, so the same configuration costs a little differently
     # there; one example tells phone readers, who see the two tables as cards, why.
     reference = snap.costs[0]
@@ -970,7 +1006,7 @@ def model_kinds(snap: Snapshot) -> str:
     # The token count includes reasoning tokens: Codex CLI reports them in its output tokens (see the method section).
     tokens = round(general["output_tokens"] / general["answered_questions"])
     cost_ratio = per_thousand(high) / per_thousand(low)
-    if (not snap.decision_model(decision) or latency_text(decision)[1] == "" or snap.decision_model(general)
+    if (not snap.decision_model(decision) or not timed_alone(decision) or snap.decision_model(general)
             or standing is None or tokens > 50 or high["correct"] <= low["correct"]):
         raise ValueError("an example in 'How the two kinds of model answer' no longer fits its sentence")
     ratio = "almost twice the cost" if 1.75 <= cost_ratio < 2 else f"{cost_ratio:.1f} times the cost"
@@ -1403,10 +1439,10 @@ def cost_post(snap: Snapshot, numbers: dict[str, str]) -> str:
     fmt, site = snap.fmt, snap.config["site_url"]
     model, reference = (snap.named[snap.config["cost_post"][key]] for key in ("model", "reference"))
     model_cost, reference_cost = per_thousand(model), per_thousand(reference)
-    if model_cost is None or reference_cost is None or not latency_text(model)[1] or reference["correct"] <= model["correct"]:
+    if model_cost is None or reference_cost is None or not timed_alone(model) or reference["correct"] <= model["correct"]:
         raise ValueError("the cost post needs a priced, timed one-question model and a priced, more accurate reference")
     accurate = "far more accurate" if reference["correct"] - model["correct"] >= 0.1 * snap.total else "more accurate"
-    measured = ("" if latency_text(reference)[1]
+    measured = ("" if timed_alone(reference)
                 else f" {reference['name']}'s latency was not measured the same way.")
     return (
         f"{model['name']} costs {usd(model_cost)} per 1,000 decisions, with a median latency of "

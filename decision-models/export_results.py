@@ -296,6 +296,64 @@ def tyt_mix(groups: dict[str, Any]) -> float | None:
     return weighted / sum(TYT_MIX.values())
 
 
+# Runs of the same setup: provider, model and setting; a run's time per request may come from another run of its setup
+# with the same number of questions per request.
+SETUP_KEYS = ("provider", "model", "reasoning", "variant")
+
+
+def run_latency(run: dict[str, Any], repeats: list[dict[str, Any]], repeat_of: dict[int, int]) -> dict[str, Any] | None:
+    """A run's time per request, median and 90th percentile: its own, or, for a run that predates per-request timing,
+    the times pooled over the later runs of its setup: its repeats over the same questions, else its repeated runs on a
+    fixed sample. None when no run of the setup was timed."""
+    if run["median_request_seconds"] is not None:
+        return {
+            "source": "run",
+            "runs": [run["run"]],
+            "concurrency": run["concurrency"],
+            "median_request_seconds": run["median_request_seconds"],
+            "p90_request_seconds": run["p90_request_seconds"],
+        }
+    timed = [
+        item
+        for item in repeats
+        if item["latency"]
+        and item["questions_per_request"] == run["questions_per_request"]
+        and all(item.get(key) == run.get(key) for key in SETUP_KEYS)
+    ]
+    own = [item for item in timed if run["run"] in item["runs"]]
+    if len(own) > 1 or (not own and len(timed) > 1):
+        raise ValueError(f"run {run['run']}: more than one set of repeated runs could give its time per request")
+    if not timed:
+        return None
+    item = (own or timed)[0]
+    latency = item["latency"]
+    return {
+        "source": "repeats" if own else "sample",
+        "runs": latency["runs"],
+        "repeats": [repeat_of[run_id] for run_id in latency["runs"]],
+        "questions": item["questions"],
+        "concurrency": latency["concurrency"],
+        "median_request_seconds": latency["median_request_seconds"],
+        "p90_request_seconds": latency["p90_request_seconds"],
+    }
+
+
+def single_question_latency(run: dict[str, Any], batching: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """For a batched run: the time per request of its setup's run with one question per request, where there is one."""
+    found = [
+        item
+        for item in batching
+        if item["batch_size"] == 1
+        and item["compared_batch_size"] == run["questions_per_request"] != 1
+        and item["median_request_seconds"] is not None
+        and all(item.get(key) == run.get(key) for key in SETUP_KEYS)
+    ]
+    if len(found) > 1:
+        raise ValueError(f"run {run['run']}: more than one run of its setup with one question per request")
+    return {key: found[0][key] for key in ("run", "questions", "median_request_seconds", "p90_request_seconds")} if found else None
+
+
+
 def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str, Any]:
     if not records:
         raise ValueError("the report contains no benchmark-result records")
@@ -499,6 +557,9 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         if len(records) != len(item["run_keys"]) or bank(records[0]) != bank(newest) or not item["questions"]:
             continue
         first = records[0]
+        latency = item.get("latency")
+        timed = [by_key[key] for key in latency["run_keys"]] if latency else []
+        in_flight = {record.get("concurrency", 1) for record in timed}
         repeats.append(
             {
                 **described(first),
@@ -511,6 +572,14 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                         "questions", "accuracy", "changed_answer", "wrong_any", "wrong_every_run_same", "scored",
                         "score_spread_median", "score_identical", "sure_wrong", "sure_wrong_every_run",
                     )
+                },
+                # Request times pooled over the runs that recorded them (median and 90th percentile).
+                "latency": None
+                if latency is None
+                else {
+                    "runs": [record["run_id"] for record in timed],
+                    "concurrency": in_flight.pop() if len(in_flight) == 1 else None,
+                    **{key: latency.get(key) for key in ("requests", "median_request_seconds", "p90_request_seconds")},
                 },
             }
         )
@@ -556,6 +625,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             "run": by_key[item["run"]]["run_id"],
             **described(by_key[item["run"]]),
             **{key: item[key] for key in ("batch_size", "compared_batch_size", "questions", "correct")},
+            **{key: by_key[item["run"]].get(key) for key in ("median_request_seconds", "p90_request_seconds")},
             "others": [
                 {**other, "run": by_key[other["run"]]["run_id"], "repeat": by_key[other["run"]].get("repeat")}
                 for other in item["others"]
@@ -564,6 +634,11 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         for item in analysis.get("batching", [])
         if item["run"] in by_key and all(other["run"] in by_key for other in item["others"])
     ]
+    # Each run's time per request, and for batched setups the time with one question per request where measured.
+    repeat_of = {record["run_id"]: record.get("repeat") or 1 for record in by_key.values()}
+    for run in runs:
+        run["latency"] = run_latency(run, repeats, repeat_of)
+        run["single_question_latency"] = single_question_latency(run, batching)
     reference = selected[0]
     suspect = None
     if "without_suspect" in reference["groups"]:

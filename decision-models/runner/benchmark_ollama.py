@@ -3458,6 +3458,30 @@ def answer_groups(row: sqlite3.Row) -> list[str]:
     return groups
 
 
+def run_requests(connection: sqlite3.Connection, run_id: int, batch_size: int) -> Iterator[sqlite3.Row]:
+    """One stored answer for each request a run made. A batched provider stores its request's one response, and the
+    request's time, with every answer in the request, so answers with the same response are one request; with one
+    question per request every answer is its own request, even when two responses happen to match."""
+    seen: set[bytes] = set()
+    for row in connection.execute("SELECT question_id,raw_response,request_seconds FROM answers WHERE run_id=?", (run_id,)):
+        if batch_size > 1:
+            request = hashlib.sha256(row["raw_response"].encode()).digest()
+            if request in seen:
+                continue
+            seen.add(request)
+        yield row
+
+
+def latency_summary(request_seconds: list[float]) -> dict[str, float]:
+    """The median and the 90th percentile of request times; the percentile interpolates linearly between the
+    closest ranks."""
+    summary = {"median_request_seconds": statistics.median(request_seconds)} if request_seconds else {}
+    if len(request_seconds) >= 2:
+        summary["p90_request_seconds"] = statistics.quantiles(request_seconds, n=10, method="inclusive")[-1]
+    return summary
+
+
+
 def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) -> dict[str, Any]:
     """Request time, token counts and accuracy by question group for any run; cost and confidence metrics
     where the provider has them, with bootstrap intervals clustered by passage. Time, tokens and cost cover
@@ -3477,19 +3501,13 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
         "questions_per_minute": run["questions_per_minute"],
     }
     totals = dict.fromkeys(TOKEN_KINDS, 0)
-    requests: set[bytes] = set()
     request_seconds: list[float] = []
-    stored = 0
-    for row in connection.execute("SELECT question_id,raw_response,request_seconds FROM answers WHERE run_id=?", (run["id"],)):
-        stored += 1
-        # Batched providers store one response for every answer in the request; count it once.
-        request = hashlib.sha256(row["raw_response"].encode()).digest()
-        if request not in requests:
-            requests.add(request)
-            for key, count in answer_usage(provider, row["question_id"], row["raw_response"])[0].items():
-                totals[key] += count
-            if row["request_seconds"] is not None:
-                request_seconds.append(float(row["request_seconds"]))
+    for row in run_requests(connection, run["id"], run["batch_size"]):
+        for key, count in answer_usage(provider, row["question_id"], row["raw_response"])[0].items():
+            totals[key] += count
+        if row["request_seconds"] is not None:
+            request_seconds.append(float(row["request_seconds"]))
+    stored = connection.execute("SELECT COUNT(*) FROM answers WHERE run_id=?", (run["id"],)).fetchone()[0]
     members: dict[str, list[tuple[float | None, int]]] = {}
     clusters = passage_clusters(run["dataset"], str(search_dir))
     # The passage cluster of each scored answer, per group, in the order of that group's scored answers.
@@ -3564,11 +3582,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
                 group["auroc_interval"] = bm.bootstrap_ranking(scored, scored_clusters[name])["auroc"]
         groups[name] = group
     metrics["groups"] = groups
-    if request_seconds:
-        metrics["median_request_seconds"] = statistics.median(request_seconds)
-    if len(request_seconds) >= 2:
-        # Linear interpolation between the closest ranks, over the same requests as the median.
-        metrics["p90_request_seconds"] = statistics.quantiles(request_seconds, n=10, method="inclusive")[-1]
+    metrics.update(latency_summary(request_seconds))
     metrics.update(totals)
     price = PRICES.get((provider, run["model"]))
     if price is not None:
@@ -3908,7 +3922,23 @@ def run_repeats(connection: sqlite3.Connection, results: dict[str, dict[str, Any
         stability = bm.repeat_stability(
             [{question: run_answers[question][:3] for question in identical} for run_answers in answers]
         )
-        found.append({"run_keys": [run["run_key"] for run in runs], **stability})
+        item: dict[str, Any] = {"run_keys": [run["run_key"] for run in runs], **stability}
+        # Request times pooled over the runs that recorded them: for a configuration whose first run predates
+        # per-request timing, its later runs of the same setup.
+        timed: list[str] = []
+        pooled: list[float] = []
+        for run in runs:
+            seconds = [
+                float(row["request_seconds"])
+                for row in run_requests(connection, run["run_id"], run["batch_size"])
+                if row["request_seconds"] is not None
+            ]
+            if seconds:
+                timed.append(run["run_key"])
+                pooled.extend(seconds)
+        if pooled:
+            item["latency"] = {"run_keys": timed, "requests": len(pooled), **latency_summary(pooled)}
+        found.append(item)
     return found
 
 

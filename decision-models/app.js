@@ -43,6 +43,38 @@ const percentRange = (interval, digits = 1) =>
 /* A run's API cost and request time per 1,000 questions asked; the cost is null for free and self-hosted runs. */
 const costPer1000 = run => (run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / run.answered_questions);
 const minutesPer1000 = run => (run.request_seconds == null ? null : (1000 * run.request_seconds) / 60 / run.answered_questions);
+/* A run's time per request, median / 90th percentile, and what it covers, as the latency table words it (latency_cell in
+   build_page.py): a batch's time is the whole request's, never divided among its questions; times from later runs of
+   the same setup, for a run that predates per-request timing, say which. */
+const secondsText = latency =>
+  `${latency.median_request_seconds.toFixed(2)} s` +
+  (latency.p90_request_seconds == null ? '' : ` / ${latency.p90_request_seconds.toFixed(2)} s`);
+const numbersText = numbers => {
+  const last = numbers[numbers.length - 1];
+  if (numbers.length > 1 && numbers.every((number, index) => number === numbers[0] + index)) return `${numbers[0]}–${last}`;
+  return numbers.length > 1 ? `${numbers.slice(0, -1).join(', ')} and ${last}` : String(last);
+};
+/* A count below ten in words, a larger one in figures (in_words in build_page.py). */
+const inWords = value => ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][value] ?? integer(value);
+function latencyCell(run) {
+  const latency = run.latency;
+  if (!latency) return td('not recorded', { value: null, numeric: true });
+  const notes = [];
+  if (run.questions_per_request !== 1) notes.push(`per request of ${integer(run.questions_per_request)} questions`);
+  if (latency.source === 'repeats') notes.push(`from repeats ${numbersText(latency.repeats)}`);
+  if (latency.source === 'sample') notes.push(`from ${inWords(latency.runs.length)} runs on ${integer(latency.questions)} questions`);
+  const single = run.single_question_latency;
+  return td(
+    [
+      secondsText(latency),
+      notes.length ? el('span', { class: 'small', text: notes.join(', ') }) : null,
+      single
+        ? el('span', { class: 'small', text: `${secondsText(single)} with one question per request (${integer(single.questions)} questions)` })
+        : null,
+    ],
+    { value: latency.median_request_seconds, numeric: true },
+  );
+}
 /* What a cost cell shows for a run without a dollar figure. */
 const NO_COST = { free: 'Free tier', local: 'Not estimated' };
 const costText = run => (run.api_equivalent_usd == null ? (NO_COST[run.billing] ?? '—') : formatUsd(costPer1000(run)));
@@ -333,12 +365,13 @@ function renderCost(data) {
       modelCell(run, { withSetting: true }),
       td(costText(run), { value: cost, numeric: true, title: costTitle(data, run) }),
       td(minutes == null ? '—' : minutes.toFixed(1), { value: minutes, numeric: true }),
+      latencyCell(run),
       td(BILLING[run.billing]),
       td(run.hardware ?? '—'),
       td(String(run.concurrency), { value: run.concurrency, numeric: true }),
     );
   });
-  fillTable(
+  const table = fillTable(
     'cost',
     [
       { label: 'Model' },
@@ -352,11 +385,25 @@ function renderCost(data) {
         numeric: true,
         title: 'Time while requests were in flight, per 1,000 questions asked',
       },
+      {
+        label: 'Latency per request (median / 90th percentile)',
+        numeric: true,
+        title: 'Time per request from our machine; with several questions per request, the whole request’s time',
+      },
       { label: 'Access mode' },
       { label: 'Local GPU' },
       { label: 'Requests at a time', numeric: true },
     ],
     rows,
+  );
+  addNotes(
+    table,
+    tableNote(
+      'Latency: a batch’s time is the whole request’s, not divided among its questions. “From repeats” and “from five ',
+      'runs” mark times from later runs of the same setup, for configurations whose first run predates per-request timing (see ',
+      ['#accuracy-cost-latency', 'Accuracy, cost and latency'],
+      ').',
+    ),
   );
   const names = runs => [...new Set(runs.map(run => run.name))].join(', ');
   const priced = data.prices.map(price => {

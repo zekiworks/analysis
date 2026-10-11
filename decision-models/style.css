@@ -376,6 +376,8 @@ details.model-details dd { margin: 0; }
   table.cards td { border: none; padding: .3rem 0; text-align: left; white-space: normal; }
   table.cards td[data-label]::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .75rem; }
   table.cards td.num .small { display: inline; margin-left: .35rem; }
+  /* A second note in a card cell (a batched setup's time with one question per request) starts its own line. */
+  table.cards td.num .small + .small { display: block; margin-left: 0; }
   /* The results table: the model on its own line, its four values under it, each with its column's name. */
   table.overview.results thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   table.overview.results, table.overview.results tbody { display: block; }

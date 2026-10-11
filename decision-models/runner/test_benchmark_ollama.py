@@ -1,5 +1,6 @@
 import json
 import math
+import sqlite3
 import unittest
 
 from benchmark_ollama import (
@@ -12,6 +13,7 @@ from benchmark_ollama import (
     parse_ollama_content,
     regrade,
     replace_key_text,
+    run_requests,
     shuffle_options,
 )
 
@@ -175,6 +177,26 @@ class ReplaceKeyTextTests(unittest.TestCase):
             self.assertEqual([o for o in shown if o.label != "C"], [o for o in original if o.label != "C"])
             self.assertEqual(replace_key_text(original, "C", 1, question_id), (shown, twin))
         self.assertEqual(twins, {"A", "B", "D", "E"})
+
+
+class RunRequestsTests(unittest.TestCase):
+    SAME = '{"request_id":null,"response":{"answers":{"answer":{"choice":"B"}},"usage":{"input_tokens":300}}}'
+
+    def setUp(self) -> None:
+        self.connection = sqlite3.connect(":memory:")
+        self.connection.row_factory = sqlite3.Row
+        self.connection.execute("CREATE TABLE answers (run_id INTEGER, question_id INTEGER, raw_response TEXT, request_seconds REAL)")
+        self.connection.executemany(
+            "INSERT INTO answers VALUES (?, ?, ?, ?)",
+            [(1, 10, self.SAME, 0.4), (1, 11, self.SAME, 0.5), (2, 10, '{"batch":1}', 3.0), (2, 11, '{"batch":1}', 3.0)],
+        )
+
+    def test_one_question_per_request_counts_matching_responses_apart(self) -> None:
+        self.assertEqual([row["request_seconds"] for row in run_requests(self.connection, 1, 1)], [0.4, 0.5])
+
+    def test_a_batch_counts_its_shared_response_once(self) -> None:
+        self.assertEqual([row["request_seconds"] for row in run_requests(self.connection, 2, 16)], [3.0])
+
 
 
 if __name__ == "__main__":
