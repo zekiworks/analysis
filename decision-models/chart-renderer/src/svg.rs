@@ -29,7 +29,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// least 4.5:1 contrast against [`DARK_BACKGROUND`], guide lines at least 3:1; gridlines stay subtle.
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens.
-const DARK: [(&str, &str); 42] = [
+const DARK: [(&str, &str); 49] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -75,6 +75,15 @@ const DARK: [(&str, &str); 42] = [
     ("#a16207", "#fde047"),
     ("#f59e0b", "#f59e0b"),
     ("#475569", "#d6d3cc"),
+    // Kept and right, kept but wrong: the page's shared palette.
+    ("#15803d", "#4ade80"),
+    ("#b91c1c", "#fca5a5"),
+    // The topic chart's colour scale (cell backgrounds under default text), lowest accuracy first.
+    ("#f0f9ff", "#23272b"),
+    ("#e0f2fe", "#17324a"),
+    ("#bae6fd", "#0c4a6e"),
+    ("#7dd3fc", "#075985"),
+    ("#38bdf8", "#0369a1"),
     // Named colours of `hex` not covered above.
     ("#000000", "#ebe9e4"),
     ("#ffffff", "#ffffff"),
@@ -163,6 +172,8 @@ fn block_part(symbol: char) -> Option<(f64, f64, f64, f64)> {
     Some(match symbol {
         '█' => (0.0, 0.0, 1.0, 1.0),
         '▀' => (0.0, 0.0, 1.0, 0.5),
+        // Upper one eighth: a baseline along the top of its cell.
+        '▔' => (0.0, 0.0, 1.0, 1.0 / 8.0),
         '▐' => (0.5, 0.0, 1.0, 1.0),
         // A heavy horizontal line, used for legend keys: a bar 3 px thick across the cell's middle.
         '━' => (0.0, 0.5 - 1.5 / CELL_HEIGHT, 1.0, 0.5 + 1.5 / CELL_HEIGHT),
@@ -260,8 +271,9 @@ fn flush(texts: &mut String, run: &mut Option<TextRun>, baseline: f64) {
     }
 }
 
-/// The buffer as an SVG image in `theme` with `title` as its accessible name.
-pub fn buffer_to_svg(buffer: &Buffer, title: &str, theme: Theme) -> String {
+/// The buffer as an SVG image in `theme` with `title` as its accessible name and the results
+/// snapshot `version` in its metadata.
+pub fn buffer_to_svg(buffer: &Buffer, title: &str, version: &str, theme: Theme) -> String {
     let area = buffer.area;
     let text_color = theme.paint(TEXT_COLOR.to_string());
     let mut backgrounds = Paths::default();
@@ -336,10 +348,11 @@ pub fn buffer_to_svg(buffer: &Buffer, title: &str, theme: Theme) -> String {
     }
     let (width, height) = (f64::from(area.width) * CELL_WIDTH, f64::from(area.height) * CELL_HEIGHT);
     let mut svg = format!(
-        r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img"><title>{title}</title><style>text{{font:{FONT};white-space:pre}}</style>"#,
+        r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}" role="img"><title>{title}</title><metadata>results {version}</metadata><style>text{{font:{FONT};white-space:pre}}</style>"#,
         w = number(width),
         h = number(height),
         title = escape(title),
+        version = escape(version),
     );
     if theme == Theme::Dark {
         let _ = write!(svg, r#"<rect width="{}" height="{}" fill="{DARK_BACKGROUND}"/>"#, number(width), number(height));
@@ -397,10 +410,24 @@ mod tests {
                 "#e5e7eb" => 1.3,
                 // Guide lines.
                 "#9ca3af" => 3.0,
+                // Heat cells: backgrounds, checked against their text below.
+                light if HEAT.contains(&light) => 1.0,
                 _ => 4.5,
             };
             let ratio = contrast(shade, DARK_BACKGROUND);
             assert!(ratio >= minimum, "{light} → {shade}: {ratio:.2}:1 against {DARK_BACKGROUND}, below {minimum}:1");
+        }
+    }
+
+    const HEAT: [&str; 5] = ["#f0f9ff", "#e0f2fe", "#bae6fd", "#7dd3fc", "#38bdf8"];
+
+    #[test]
+    fn text_stays_readable_on_every_heat_cell() {
+        let text = dark(TEXT_COLOR).expect("the text colour has a dark counterpart");
+        for light in HEAT {
+            let shade = dark(light).expect("heat colours have dark counterparts");
+            assert!(contrast(TEXT_COLOR, light) >= 4.5, "{TEXT_COLOR} on {light}");
+            assert!(contrast(text, shade) >= 4.5, "{text} on {shade}");
         }
     }
 

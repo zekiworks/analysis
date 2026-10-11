@@ -1,0 +1,47 @@
+---
+source: tests/snapshots.rs
+expression: "charts::buffer_text(&charts::render(&figure))"
+---
+How many questions can each model handle before Astra?
+We replayed recorded answers on 2,198 Turkish exam questions. The first model
+answers the questions it is surest about; GPT-6 Astra (low reasoning) answers the
+rest. We choose the cutoff on half the questions and test it on the other half;
+bars show the average over 300 splits.
+
+                                                                  Accuracy change
+                                                                  vs Astra alone
+Decision models
+               Decider v1.1 █████████████████████████▏ 20.9%      −0.13 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+              Fastino GLiDE ████████████████████████▏ 20.1%       −0.09 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                 Decider v1 ██████████████████████▎ 18.6% ▏       −0.10 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                  Celeris 1 ███████████████████▏ 15.9%    ▏       −0.13 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                        Jev ██████████████████▍ 15.3%     ▏       −0.11 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                  Liquid d1 █████████████████▏ 14.3%      ▏       −0.12 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                   Open Jev ██████████████▉ 12.4%   ▏     ▏       −0.09 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                     Cygnet ██████████████ 11.7%    ▏     ▏       −0.08 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                       Clef █████████████▍ 11.2%    ▏     ▏       −0.14 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                 Winnow 12B ███████████ 9.2%  ▏     ▏     ▏       −0.09 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+  GPT-6 Luna, Decisions API █████████▉ 8.2%   ▏     ▏     ▏       −0.09 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+              Metask Jev 4B ███▌ 2.9%   ▏     ▏     ▏     ▏       −0.09 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+                 Clef flash █▏ 0.9%     ▏     ▏     ▏     ▏       −0.08 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+         Strands Decider 2B █ 0.8%      ▏     ▏     ▏     ▏       −0.09 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+Chat model for comparison
+                Gemma 4 31B █████████████████▉ 14.9%      ▏       −0.09 points
+                            ▏     ▏     ▏     ▏     ▏     ▏
+          GPT-6 Astra alone 0%: Astra answers every question      baseline
+                           0%    5%    10%   15%   20%   25%
+Share of final answers supplied by the first model

@@ -1,0 +1,99 @@
+---
+source: tests/snapshots.rs
+expression: "charts::buffer_text(&charts::render(&figure))"
+---
+What does a first answer cost, and how long does it take?
+Recorded runs on 2,198 Turkish exam questions. Times describe the service and hardware we tested; they are not times for the two-step setup.
+
+Estimated cost per 1,000 questions, in US dollars
+Logarithmic scale: equal steps show equal multiples; each labelled step is 10 times the one before.
+                                            $0.001    $0.01    $0.1      $1       $10
+One question per request
+  Decider v1.1                                 ████████ $0.008   ▏        ▏        ▏
+  GLiNER2.5-multi-Decide                       No dollar estimate         ▏        ▏
+  Strands Decider 2B                           No dollar estimate         ▏        ▏
+  Cygnet                                       No dollar estimate         ▏        ▏
+  Winnow 12B                                   No dollar estimate         ▏        ▏
+  Clef flash                                   No dollar estimate         ▏        ▏
+  Metask Jev 4B                                No dollar estimate         ▏        ▏
+  GPT-6 Luna, Decisions API                    ██████████████▌ $0.040     ▏        ▏
+  Clef                                         No dollar estimate         ▏        ▏
+  Decider v1                                   ██████████▊ $0.016         ▏        ▏
+  Jev                                          █████████████▏ $0.029      ▏        ▏
+  Liquid d1                                    Free tier used    ▏        ▏        ▏
+  Open Jev                                     No dollar estimate         ▏        ▏
+  Celeris 1                                    ██████████▋ $0.015         ▏        ▏
+  Fastino GLiDE                                ███████████████████▉ $0.16 ▏        ▏
+  GLiNER2.5 Multi (base)                       No dollar estimate         ▏        ▏
+  Qwen 3.8 27B (yes/no score)                  No dollar estimate         ▏        ▏
+  Qwen 3.8 27B (written estimate)              No dollar estimate         ▏        ▏
+  Qwen 3.8 27B (agreement across ten answers)  No dollar estimate         ▏        ▏
+16 questions per request
+  GLM-5.3-Flash (reasoning off)                No dollar estimate         ▏        ▏
+  Gemini 3.8 Flash (low reasoning)             █████████████████████▉ $0.27        ▏
+  Erk-14B                                      No dollar estimate         ▏        ▏
+  Qwen3-14B                                    No dollar estimate         ▏        ▏
+  Gemma 4 31B                                  No dollar estimate         ▏        ▏
+  DeepSeek-V4.1-Flash (reasoning off)          No dollar estimate         ▏        ▏
+  GPT-6 Luna (low reasoning)                   ███████████████▏ $0.048    ▏        ▏
+  GPT-6 Astra (low reasoning)                  █████████████████████████████████▋ $5.38
+  GPT-6.1 Sol (low reasoning)                  ███████████████████████████▌ $1.13  ▏
+  Claude Opus 5.5 (low reasoning)              █████████████████████████████████▎ $4.93
+  Claude Sonnet 5.5 (high reasoning)           ████████████████████████████████▏ $3.65
+  Gemini 3.8 Flash (high reasoning)            ██████████████████████████████▌ $2.42
+  GLM-5.3-Flash (reasoning on)                 No dollar estimate         ▏        ▏
+  DeepSeek-V4.1-Flash (reasoning on)           No dollar estimate         ▏        ▏
+Separate tests: one question per request, on 200 questions
+  GPT-6 Astra (low reasoning)                  Not measured in this test  ▏        ▏
+  Gemma 4 31B                                  Not measured in this test  ▏        ▏
+                                            $0.001    $0.01    $0.1      $1       $10
+
+Waiting time for one request
+Logarithmic scale: equal steps show equal multiples; each labelled step is 10 times the one before.
+██ typical time (median)
+━━│ 9 in 10 requests finish within this time (90th percentile)
+                                            0.001 s  0.01 s    0.1 s     1 s     10 s     100 s   1,000 s
+One question per request
+  Decider v1.1                                 █████████████████████▎│  0.23 s · 0.29 s     ▏        ▏
+  GLiNER2.5-multi-Decide                       ████████▌│  0.009 s · 0.010 s       ▏        ▏        ▏
+  Strands Decider 2B                           ████████████▊│  0.026 s · 0.030 s   ▏        ▏        ▏
+  Cygnet                                       ██████████████━│  0.036 s · 0.045 s ▏        ▏        ▏
+  Winnow 12B                                   ███████████████▉━│▏ 0.059 s · 0.070 s        ▏        ▏
+  Clef flash                                   ████████████████▉│▏ 0.075 s · 0.081 s        ▏        ▏
+  Metask Jev 4B                                █████████████████▋│  0.090 s · 0.098 s       ▏        ▏
+  GPT-6 Luna, Decisions API                    ████████████████████▌━│  0.19 s · 0.25 s, 4 requests at a time
+  Clef                                         ████████████████████▊━│  0.20 s · 0.25 s     ▏        ▏
+  Decider v1                                   █████████████████████━│  0.22 s · 0.27 s     ▏        ▏
+  Jev                                          █████████████████████▌│  0.24 s · 0.28 s     ▏        ▏
+  Liquid d1                                    ██████████████████████▍━━━│▏ 0.31 s · 0.79 s ▏        ▏
+  Open Jev                                     ███████████████████████▎━│  0.39 s · 0.57 s  ▏        ▏
+  Celeris 1                                    ███████████████████████▍│  0.40 s · 0.42 s   ▏        ▏
+  Fastino GLiDE                                █████████████████████████████▉│  2.09 s · 2.28 s, 4 requests at a time
+  GLiNER2.5 Multi (base)                       █████████████▌│  0.032 s · 0.036 s  ▏        ▏        ▏
+  Qwen 3.8 27B (yes/no score)                  ██████████████████████━━│  0.28 s · 0.41 s   ▏        ▏
+  Qwen 3.8 27B (written estimate)              ███████████████████████▊│  0.43 s · 0.47 s   ▏        ▏
+  Qwen 3.8 27B (agreement across ten answers)  ████████████████████████████▉│  1.62 s · 1.84 s       ▏
+16 questions per request
+  GLM-5.3-Flash (reasoning off)                ███████████████████████████▎│  1.07 s · 1.22 s        ▏
+  Gemini 3.8 Flash (low reasoning)             ██████████████████████████████━│  2.19 s · 2.69 s     ▏
+  Erk-14B                                      ██████████████████████████████▍│  2.39 s · 2.66 s     ▏
+  Qwen3-14B                                    ███████████████████████████████▏│  2.85 s · 3.11 s    ▏
+  Gemma 4 31B                                  ████████████████████████████████▍│  3.97 s · 4.26 s   ▏
+  DeepSeek-V4.1-Flash (reasoning off)          ████████████████████████████████▊━━│▏ 4.36 s · 7.86 s ▏
+  GPT-6 Luna (low reasoning)                   ███████████████████████████████████━│  7.71 s · 11.2 s
+  GPT-6 Astra (low reasoning)                  █████████████████████████████████████━│  13.0 s · 16.8 s
+  GPT-6.1 Sol (low reasoning)                  █████████████████████████████████████▏━━│  13.3 s · 24.6 s
+  Claude Opus 5.5 (low reasoning)              █████████████████████████████████████▏━│  13.4 s · 19.8 s
+  Claude Sonnet 5.5 (high reasoning)           ██████████████████████████████████████▊━━│  20.5 s · 37.0 s
+  Gemini 3.8 Flash (high reasoning)            ██████████████████████████████████████████▋━━━│  53.7 s · 134 s, 4 requests at a time
+  GLM-5.3-Flash (reasoning on)                 █████████████████████████████████████████████▏━━━━━━│  103 s · 639 s, 8 requests at a time
+  DeepSeek-V4.1-Flash (reasoning on)           ██████████████████████████████████████████████████━━━│▏ 365 s · 687 s, 8 requests at a time
+Separate tests: one question per request, on 200 questions
+  GPT-6 Astra (low reasoning)                  ██████████████████████████████████▏│▏ 6.14 s · 8.57 s ▏
+  Gemma 4 31B                                  ██████████████████████▎│  0.29 s · 0.30 s    ▏        ▏
+                                            0.001 s  0.01 s    0.1 s     1 s     10 s     100 s   1,000 s
+
+Times for GPT-6 Astra (low reasoning), Claude Opus 5.5 (low reasoning) and Claude Sonnet 5.5 (high reasoning) come from 5 repeat tests on 200
+questions.
+Times for Decider v1, Jev, Liquid d1, Open Jev, Qwen 3.8 27B (yes/no score) and Qwen 3.8 27B (written estimate) come from later repeat runs
+on all questions.

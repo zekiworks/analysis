@@ -17,7 +17,7 @@
   "leads": {
     "decider_v11": {
       "rows": ["decider_v11"],
-      "order": "Decider v1.1 comes first, then the other decision models, then the two GPT-6 Luna setups"
+      "order": "We put Decider v1.1 first, then the other decision models, then GPT-6 Luna with its written confidence"
     },
     "luna": {
       "rows": ["luna_api", "luna_stated"],
@@ -35,16 +35,20 @@
     {"provider": "openai", "model": "gpt-6-luna", "key": "luna_stated"}
   ],
   "accuracy_rows": [
-    {"provider": "jev", "model": "jev-1.13.0"},
+    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "key": "decider_v11"},
     {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
-    {"provider": "celeris", "model": "celeris-1-decision"},
-    {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
-    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b"},
+    {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api"},
+    {"provider": "celeris", "model": "celeris-1-decision", "key": "celeris"},
+    {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
+    {"provider": "jev", "model": "jev-1.13.0", "key": "jev"},
+    {"provider": "liquid", "model": "d1:free", "key": "d1"},
+    {"provider": "vllm", "model": "gemma-4-31B-it", "reference": true},
     {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low", "reference": true}
   ],
   "named_runs": {
     "astra": {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"},
     "sol": {"provider": "openai", "model": "gpt-6.1-sol", "reasoning": "low"},
+    "opus": {"provider": "claude", "model": "claude-opus-5-5", "reasoning": "low"},
     "sonnet_low": {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "low"},
     "sonnet_high": {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "high"},
     "deepseek_off": {"provider": "vllm", "model": "deepseek-v4.1-flash", "reasoning": "off"},
@@ -57,7 +61,12 @@
     "glm_off": {"provider": "vllm-stated", "model": "glm-5.3-flash", "reasoning": "off"},
     "glm_on": {"provider": "vllm-stated", "model": "glm-5.3-flash", "reasoning": "on"},
     "gliner_base": {"provider": "gliner", "model": "gliner2.5-multi-v1"},
-    "gliner_decide": {"provider": "gliner", "model": "gliner2.5-multi-decide"}
+    "gliner_decide": {"provider": "gliner", "model": "gliner2.5-multi-decide"},
+    "open_jev": {"provider": "open-jev", "model": "open-jev-27b-v1.1"},
+    "qwen_yes_no": {"provider": "vllm-yes-no", "model": "qwen38-27b-bf16"},
+    "qwen_stated": {"provider": "vllm-verbal", "model": "qwen38-27b-bf16"},
+    "qwen_votes": {"provider": "vllm-vote", "model": "qwen38-27b-bf16"},
+    "clef": {"provider": "clef", "model": "clef"}
   },
   "reasoning_pairs": [
     ["sonnet_low", "sonnet_high"], ["deepseek_off", "deepseek_on"], ["gemini_low", "gemini_high"], ["glm_off", "glm_on"]
@@ -69,6 +78,7 @@
     {"provider": "jev", "model": "jev-1.13.0", "key": "jev"},
     {"provider": "liquid", "model": "d1:free", "key": "d1"},
     {"provider": "vllm-yes-no", "model": "qwen38-27b-bf16", "key": "qwen_yes_no"},
+    {"provider": "vllm-verbal", "model": "qwen38-27b-bf16", "key": "qwen_stated"},
     {"provider": "celeris", "model": "celeris-1-decision", "key": "celeris"}
   ],
   "stability_lead": "decider_v11",
@@ -83,19 +93,27 @@
   },
   "latency_rows": [
     {"provider": "perplexity", "model": "pplx-decider-v1.1-27b"},
+    {"provider": "fastino", "model": "fastino/GLiDE"},
+    {"provider": "openai-decisions", "model": "gpt-6-luna"},
+    {"provider": "celeris", "model": "celeris-1-decision"},
     {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
     {"provider": "jev", "model": "jev-1.13.0"},
     {"provider": "liquid", "model": "d1:free"},
-    {"provider": "fastino", "model": "fastino/GLiDE"},
-    {"provider": "celeris", "model": "celeris-1-decision"},
-    {"provider": "openai-decisions", "model": "gpt-6-luna"},
+    {"provider": "vllm", "model": "gemma-4-31B-it"},
     {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"},
     {"provider": "openai", "model": "gpt-6.1-sol", "reasoning": "low"},
-    {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"}
+    {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"},
+    {"provider": "claude", "model": "claude-opus-5-5", "reasoning": "low"},
+    {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "high"}
   ],
-  "accuracy_example": "astra",
-  "model_kinds": {"decision": "decider_v11", "general": "astra", "reasoning": ["sonnet_low", "sonnet_high"]},
-  "cost_post": {"model": "decider_v11", "reference": "astra"},
+  "confidence_lead_rows": {"glide": "GLiDE", "luna_api": "Luna through the Decisions API", "jev": "Jev", "d1": "Liquid d1"},
+  "accuracy_lead": {"pair": ["glide", "decider_v11"], "chat": ["opus", "sonnet_high", "astra"], "task": ["decider_v11", "gemma", "astra"]},
+  "model_kinds": {"decision": "decider_v11", "general": "astra", "decisions_api": "luna_api", "reasoning": ["sonnet_low", "sonnet_high"]},
+  "live_tests": ["sonnet_high", "astra"],
+  "live_short_names": {
+    "claude-sonnet-5-5": "Sonnet", "gpt-6-astra": "Astra", "pplx-decider-v1-27b": "Decider v1", "pplx-decider-v1.1-27b": "Decider v1.1"
+  },
+  "cost_post": {"reference": "opus"},
   "short_names": {
     "pplx-decider-v1.1-27b": "Decider v1.1",
     "pplx-decider-v1-27b": "Decider v1",
@@ -104,11 +122,19 @@
     "jev-1.13.0": "Jev",
     "d1:free": "d1"
   },
+  "method_records": {
+    "about": "Numbers the method and limits sections state that neither results.json nor answers.json holds. Each group names where it was recorded; build_page.py checks the key review against results.json's excluded questions.",
+    "extraction": {"source": "the extraction and repair log of question set version 2", "underline_questions": 229, "underline_lost": 196, "numbers_lost": 186, "text_or_key_changed": 375},
+    "recalibration_v1": {"source": "the separate cross-validated temperature refit of Open-Jev on question set version 1", "ece_before": 0.228, "ece_after": 0.030, "auroc_before": 0.8193, "auroc_after": 0.8191},
+    "exam_check": {"source": "the check on the June 2026 TYT exam's Turkish questions (kept private; only the scores are recorded)", "models": 9, "lowest": 24, "highest": 40},
+    "copy_check": {"source": "the check that replaced the correct option's text with a copy of a wrong option (GPT-6 Astra)", "original": 0.310, "copy": 0.284, "p": 0.19},
+    "key_review": {"source": "the targeted answer key review", "cases": 25, "confirmed": 13, "image_unsettled": 6, "key_disputed": 6, "largest_rise_points": 0.5}
+  },
   "billing": {
-    "api": {"access": "Hosted API", "cost_basis": "List price × reported tokens"},
-    "subscription": {"access": "Subscription access", "cost_basis": "API-equivalent estimate"},
-    "free": {"access": "Hosted API, free tier", "cost_basis": "Not estimated"},
-    "local": {"access": "Local serving", "cost_basis": "Not estimated"}
+    "api": {"access": "Provider service", "cost_basis": "Estimated from published prices and recorded token usage"},
+    "subscription": {"access": "Subscription", "cost_basis": "Subscription run priced as if we had used the API"},
+    "free": {"access": "Free tier used", "cost_basis": "Free tier used; no paid price in this record"},
+    "local": {"access": "Our own hardware", "cost_basis": "No dollar estimate; see hardware and time"}
   },
   "images": {
     "preview": {"width": 1200, "height": 630},

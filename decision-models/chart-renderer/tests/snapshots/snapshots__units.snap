@@ -2,36 +2,46 @@
 source: tests/snapshots.rs
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
-Where performance changes across 20 topics
-Accuracy (y) by topic (x) for 6 runs. Topics 1–6: reading comprehension; 7–20: grammatical analysis.
+Which topics cause the most mistakes?
+Recorded answers on 2,198 Turkish exam questions. Correct answers in each topic, as a share of its questions
+(the count in brackets). Darker cells: more answers right. Each column is one model.
+Correct answers: ██ 0–19%   ██ 20–39%   ██ 40–59%   ██ 60–79%   ██ 80–100%
 
-                   reading comprehension                  grammatical analysis
-            100% ⢰   ⣀⣀⠤⣀              ⣀⣀⡦⠤⠤⠤⢄⣀⣀⡠⢤⣔⣒⣢⡤⢄⣀⣀⣀⣀⡀      ⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀        ⢀⡠⠤⣀⡀    ⢀⡀
-                 ⢸ ⠨⠭⠒⠒⢉⢆⠑⠤⡀⢀⡠⡴⣾⣗⠒⠤⣀⠤⠒⣩⢖⠤⣇  ⢀⡠⠒⠉⠉⠁   ⠈⠉⠉⠑⠒⠢⢌⠑⠢⢄⡠⠔⠊⢁⣀⣀⠤⠤⠤⠤⠤⠤⡀⠉⠉⠒⠒⠒⠒⠒⠊⠁ ⡀ ⠈⠑⠒⠊⠉⠁
-                 ⢸   ⣀⢔⣡⡉⠳⣄⡈⡡⢊⣼⠃⢻⡷⣄⡀⡠⡺⡱⢻⡄⡇⠉⠊⠁               ⠑⠢⡀⣀⠤⠊⠁        ⠈⠢⡀      ⡠⠊⠈⠢⡀     ⡀
-                 ⢸ ⢠⠮⢒⠕⠉⢞⢄⠑⡌⡠⡞⡎  ⢏⢗⡌⡔⡝⡰⢻⣧⡇                    ⠈              ⠈⠢⠤⠤⠤⠤⠊    ⠑⢄⢀⡠⠔⠉
-                 ⢸ ⢀⠔⠁  ⠈⢆⠱⡈⡜⡜   ⠈⡎⢎⠎⡰⠁⠘⣯⡇                                                ⠁
-             80% ⢸       ⠈⢆⠈⢰⠁    ⠘⡄⡰⠁  ⢻⡿⡀        ⣀⠤⠔⠊⠑⡄             ⡠⡀              ⡀
-                 ⢸        ⠈⢦⠃      ⠘⠁   ⠘⣷⢇      ⢀⠜     ⠈⠢⡀          ⡔⢁⠈⠢⡀           ⢠⠷⡤⣀     ⡄
-                 ⢸                       ⣯⡞⣄    ⡠⠃        ⠑⢄       ⢀⠎ ⡎⢆ ⠈⢢          ⡼ ⢱ ⠉⠒⠒⠒⡞⠂
-                 ⢸                       ⡟⣵ ⠉⠑⠢⠜  ⡰⠉⠑⠒⠢⢄⡀  ⠈⢆     ⡠⠃ ⡜ ⠈⢆  ⢣        ⢰⠇  ⢣   ⡜
-             60% ⢸                       ⡇⢫⢆     ⡔⠁     ⠈⠑⠤⡀⠈⢢  ⡠⠊  ⢰⠁⡠⡀⠈⢆  ⢣       ⣾   ⠈⢆ ⡜ ⢠⠂
-                 ⢸                       ⡇⠘⡄⠑⠢⡀⢀⠎ ⡠⠒⠒⠒⠒⠢⢄  ⠱⡀ ⠣⠊   ⢀⠇⡰⠁⠘⢄⠈⢆  ⢣     ⡸⡇    ⠈⠞ ⡠⠃
-                 ⢸                       ⡇ ⠈⠑⠢⣈⢊⠔⠊       ⠑⠢⡀⢱      ⡎⡔⠁   ⠱⡀⢣  ⢣⣀⣀⣀⣠⢳⠁      ⡔⠁
-                 ⢸                       ⡇     ⠁           ⠱⡀⢣   ⣀⠜⡜      ⠘⡄⢣      ⡎     ⢀⠜
-                 ⢸                       ⡇                  ⠱⡀⢣⠤⠊⡠⠊        ⠘⡄⢣    ⢠⠃   ⡠⠔⠁
-             40% ⢸                       ⡇                   ⠱⡀⢀⠜           ⠘⡄⠣⠤⠒⠒⠉  ⢠⠊
-                 ⢸                       ⡇                    ⠑⠁             ⠘⡄     ⡰⠁
-                 ⢸                       ⡇                                    ⠈⠑⠢⢄⡀⡔⠁
-                 ⢸ ⠐⠢⠤⣀           ⡠⠊⢆    ⡇                               ⢠⠊⠒⠤⡀    ⠈              always E 22.7%
-             20% ⢸⠭⠭⠭⠭⠭⠭⢯⠭⠭⠭⠭⠭⠭⠭⡭⠯⠭⠭⠭⠯⡭⠭⠭⡯⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⠭⡭⠯⠿⢭⠭⠭⢭⠽⠭⠭⠭⠭⠭⠽⠿⠿⠭⠭⠿⢭⠭⠭⠭⠭⠭⠭⠭⠭⠭⡭⠭⠅
-                 ⢸       ⠑⢄  ⢀⠤⠊      ⠘⠤⣀⡇   ⢀⡠⠤⠤⠔⠒⠒⠤⢄⡀ ⣀⡠⠔⠒⠤⠤⣀⠔⠉    ⠉⠢⠊             ⠉⠒⠢⠤⢄⣀⠤⠒⠉   chance 20%
-                 ⢸        ⠈⠢⠒⠁           ⡏⠑⠒⠉⠁        ⠈⠉
-                 ⢸                       ⡇
-                 ⢸                       ⡇
-              0% ⠈⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠁
-                   1   2   3   4   5   6   7   8   9  10  11 12  13  14  15  16  17  18  19  20  topic
-                  131 154 70  98  106 97  140 65  91  72  79 69  145 74  85  220 77  133 117 175 questions
-
-━━ GPT-6 Astra (low)   ━━ DeepSeek-V4.1-Flash (on)   ━━ Gemma 4 31B (off)   ━━ DeepSeek-V4.1-Flash (off)   ━━ Jev
-━━ Laya
+                                       Decision models               Chat models for comparison
+                                         Decider       Jev      Laya     GPT-6  DeepSeek   Gemma 4  DeepSeek
+                                            v1.1                         Astra reasoning       31B reasoning
+                                                                                      on                 off
+Reading: topics 1–6, 656 questions
+1.  Word and phrase meanings (131)          84%       80%       25%       98%       95%       86%       85%
+2.  Sentence meanings (154)                 93%       89%       23%       99%       97%       94%       91%
+3.  How a writer explains and               84%       71%       11%       93%       84%       89%       80%
+    develops ideas (70)
+4.  Topic and main point of a               95%       95%       18%       97%       94%       97%       96%
+    paragraph (98)
+5.  How a paragraph fits                    83%       74%       26%       94%       89%       84%       80%
+    together (106)
+6.  Details that support a                  94%       89%       15%       98%       96%       96%       93%
+    paragraph’s main point (97)
+Grammar: topics 7–20, 1,542 questions
+7.  Word types, such as nouns and           64%       54%       13%       99%       92%       67%       60%
+    verbs (140)
+8.  Groups of words built around a          58%       49%       15%       98%       97%       65%       52%
+    noun (65)
+9.  Verbs and their forms (91)              65%       56%       16%      100%       98%       76%       66%
+10. Verb forms used like nouns or           65%       57%       14%       99%       97%       79%       64%
+    modifiers (72)
+11. Word endings and what they              63%       49%       16%       99%       95%       68%       58%
+    do (79)
+12. How words are built (69)                39%       35%       14%       94%       88%       55%       41%
+13. The roles of words and phrases in       53%       45%       23%       98%       94%       64%       48%
+    a sentence (145)
+14. How verbs show who acts and who         72%       59%       16%       99%       95%       77%       72%
+    receives the action (74)
+15. Types of sentences (85)                 61%       48%       27%       99%       95%       68%       54%
+16. Questions combining several             42%       31%       21%       96%       86%       50%       37%
+    grammar topics (220)
+17. Sound patterns and changes (77)         25%       27%       22%       96%       86%       49%       40%
+18. Spelling (133)                          62%       39%       17%       99%       94%       74%       77%
+19. Punctuation (117)                       62%       47%       15%       97%       84%       70%       56%
+20. Problems in sentence                    72%       61%       19%       98%       90%       70%       73%
+    wording (175)

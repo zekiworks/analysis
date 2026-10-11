@@ -1,24 +1,27 @@
-# What Does a Correct Answer Tell Us About Understanding?
+# Let a cheap, fast model decide when it is sure
 
-*Accuracy, confidence and cost across reading and grammar tasks in Turkish.*
+*A cheap decision model answers first; a stronger model answers the rest. Accuracy, confidence and cost on
+Turkish exam questions.*
 
 The results page of a benchmark of language models and decision models on 2,198 scored
 multiple-choice questions from a question bank for the Turkish section of the TYT, the first stage of
-Turkey's university entrance exam: how accuracy holds on reading and breaks on grammar, whether a
-model's confidence points at its mistakes, what a right answer costs, and what routing questions from a
-cheap model to an expensive one saves.
+Turkey's university entrance exam. It leads with a replay of recorded answers: Perplexity's Decider v1.1
+answers first and keeps its answer when it is sure, and Claude Sonnet 5.5, Claude Opus 5.5 or GPT-6 Astra
+answers the rest. It then shows what a fixed confidence cutoff keeps, how accuracy holds on reading and
+falls on grammar, whether answers repeat, what each model costs and how long it takes, and the full study.
 
 Page: <https://zekiworks.github.io/analysis/decision-models/>
 
 The site is this folder, served by GitHub Pages from the `main` branch. It is static. The page opens
-with an overview for readers who build, choose or review AI tools (confidence, accuracy, answer
-stability and cost), followed by the full study. `build_page.py` writes the overview's numbers, tables
-and bars into `index.html` from `results.json`, the aggregate results, so they read without
-JavaScript; `app.js` renders the full study's tables from the same file. `answers.json` holds every
-answer of every main, repeat and routing run, with its full-precision score and option probabilities
-but without the questions' text. `benchmark_metrics.py` is the benchmark's metric code, and `runner/`
-the code that ran the benchmark. The page used to live at `/analysis/turkce-benchmark/docs/`; a
-redirect page there sends readers here.
+with the replay's results and the sections that explain them (confidence, the two-step setup, why
+Decider, speed, the cutoff, the savings), then an overview (fixed cutoff, accuracy, repeated answers, a
+live test, cost and time), then the full study. `build_page.py` writes every number, the overview's
+tables and bars, the chart figures and their descriptions into `index.html` from `results.json`, the
+aggregate results, so they read without JavaScript; `app.js` renders the full study's tables from the
+same file. `answers.json` holds every answer of every main, repeat and routing run, with its
+full-precision score and option probabilities but without the questions' text. `benchmark_metrics.py`
+is the benchmark's metric code, and `runner/` the code that ran the benchmark. The page used to live at
+`/analysis/turkce-benchmark/docs/`; a redirect page there sends readers here.
 
 ## From a clean copy
 
@@ -35,51 +38,57 @@ python3 -m http.server 8000                                # preview at http://1
 - **`reproduce.py`** (Python 3.10 or newer, standard library and `benchmark_metrics.py`) recomputes,
   from `answers.json`, each main run's correct answers on the scored questions (the 12 the key
   audit excluded are skipped), AUROC, expected calibration error and the answers scored 0.99 or more,
-  before and after the key audit; the leaderboard's tied groups (every pair of runs, exact McNemar,
-  Holm over all pairs, alpha 0.05), including that two runs share a letter exactly when that test does
-  not tell them apart; the listed paired comparisons (exact McNemar, Holm over the listed pairs); each
-  repeated configuration's answer stability statistics, from its runs' answers; and the costs: each
-  priced run's from its token counts at the rates in `results.json`'s `prices`, every run without a
-  price shown as a free tier or self-hosted, each routing simulation's cost per 1,000 questions from
-  its runs, and the routing tests' costs from their parts. It prints one row per run and exits with
-  status 1 when a value differs from `results.json`: counts and group letters must match exactly,
-  AUROC, ECE and the repeats' accuracies within 10⁻⁹, p-values and costs within a relative 10⁻⁹. The
-  bootstrap intervals, the routing simulations' accuracy and the other tables are not recomputed.
+  before and after the key audit; the leaderboard's comparison groups (every pair of runs, exact
+  McNemar, Holm over all pairs, alpha 0.05), including that two runs share a letter exactly when that
+  test does not tell them apart; the listed paired comparisons (exact McNemar, Holm over the listed
+  pairs and over all pairs); each repeated configuration's answer stability statistics, from its runs'
+  answers; every routing simulation (the cutoff chosen in sample and its 300 held-out splits); the
+  replay the page leads with (Decider v1.1's answers kept at each cutoff and in its surest quarter, and
+  what keeping them changes in front of each second model, on all questions and on the same splits);
+  the answer-key baselines; and the costs: each priced run's from its token counts at the rates in
+  `results.json`'s `prices`, every run without a price shown as a free tier or self-hosted, each routing
+  simulation's and replay's cost per 1,000 questions from its runs, and the routing tests' costs from
+  their parts. It prints one row per run and exits with status 1 when a value differs from
+  `results.json`: counts and group letters must match exactly, AUROC, ECE, shares and accuracies within
+  10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals and the other tables are not
+  recomputed.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json` (see below).
 - **The page build** `build_page.py` runs `reproduce.py` first and stops unless every check matches.
   It fills the page's `<span data-value="…">` elements and `<!-- build:… -->` blocks from
-  `results.json`, with the constants in `page_config.json`: the 0.99 threshold, the configurations
-  each overview figure shows, the runs the study's sentences name, display precision and image sizes.
-  It also gives each chart `<img>` the width and height of its SVG, so the page keeps its layout while
-  the charts load.
-  - **`lead`** names the finding the page leads with, one of `leads`: it opens the page, comes first in
-    the confidence figure, and is what the link preview, its description, the X image and the main X
-    post show. Changing it and building again switches all of them.
-  - **Row order:** the confidence figure puts the lead finding first and the other rows in the order of
+  `results.json`, with the constants in `page_config.json`: the 99% cutoff, the configurations each
+  overview figure shows, the runs the copy names, display precision and image sizes. It also gives each
+  chart `<img>` the width and height of its SVG, so the page keeps its layout while the charts load.
+  - **`lead`** names the confidence rows the 99% figure starts with, one of `leads`; the 99% share image
+    and its X post show them.
+  - **Row order:** the confidence figure puts the lead rows first and the other rows in the order of
     `confidence_rows`; each entry of `leads` gives its rows and the sentence that tells readers the order
-    is editorial, not a ranking. Task rows go by overall accuracy (the reference row last), stability
-    rows by changed answers.
+    is editorial, not a ranking. Task rows go by overall accuracy, decision models before the chat models
+    shown for comparison; stability rows by changed answers.
   - **Images:** drawn with headless Chrome from the same rows, in both themes (`share/`, named with the
-    theme and a short hash of the file, for example `finding-dark-1a2b3c4d.png`, so that a changed image
-    gets a new address and no link preview shows a cached copy). The dark ones, on the page background,
-    are the main ones: the link preview and the X posts use them, and "Share figure" downloads the version
-    that matches the theme being viewed. With `--no-images` the page keeps the images it links to. Earlier
-    images are deleted until `announced` holds the date of the first public post; from then on they are
-    kept, so posted link previews keep working.
-  - **Generated sentences:** the openings of the Confidence and Accuracy sections, the box on how the two
-    kinds of model answer, the Accuracy, cost and latency table (`latency_rows`; its note names the
-    configurations with no timed run) and the cost follow-up post (`cost_post`) come from the data. Each
-    checks that its wording still fits the numbers and stops the build otherwise. A configuration's time per
-    request is its own run's, or, when that run predates per-request timing, the pooled times of its later
-    runs of the same setup (`latency` in `results.json`); a batch's time is never divided among its questions.
+    theme and a short hash of the file, for example `preview-dark-1a2b3c4d.png`, so that a changed image
+    gets a new address and no link preview shows a cached copy). The link preview is the cutoff chart.
+    The dark images, on the page background, are the main ones: the link preview and the X posts use
+    them, and "Share or download this chart" downloads the version that matches the theme being viewed.
+    With `--no-images` the page keeps the images it links to. Earlier images are deleted until
+    `announced` holds the date of the first public post; from then on they are kept, so posted link
+    previews keep working.
+  - **Generated sentences:** every sentence that compares models or states a trend (the opening, the
+    savings, the fixed cutoff, accuracy, repeated answers, the live test, cost and time, and the study's
+    findings) checks that its wording still fits the numbers and stops the build otherwise. A
+    configuration's time per request is its own run's, or, when that run predates per-request timing, the
+    pooled times of its later runs of the same setup (`latency` in `results.json`); a batch's time is never
+    divided among its questions. Numbers recorded outside the published data (the question repairs, the
+    exam and copy checks, the key review, a recalibration experiment) are in `page_config.json`'s
+    `method_records`, each with its source.
   - **X posts:** the announcement text goes to `share/x-posts.md`; `--no-images` skips Chrome, and
     `CHROME` names another Chrome or Chromium binary.
 - **Themes:** the page is dark by default, also without JavaScript; `style.css` keeps both palettes, and
-  a reader's Dark / Light choice is stored in `localStorage` and applied by a line in `<head>` before the
-  page renders. Printing always uses the light theme, so the light charts load with the page.
+  a reader's Dark background / Light background choice is stored in `localStorage` and applied by a
+  line in `<head>` before the page renders. Printing always uses the light theme, so the light charts
+  load with the page.
 
-  The dataset version, the results version (a hash of `results.json`) and the publication date in
-  `page_config.json` are shown separately.
+  The question set version, the results snapshot (a hash of `results.json`), the first publication date
+  in `page_config.json` and the results update date are shown separately.
 - **The preview** needs a server: opening `index.html` from disk does not work, because browsers
   block loading `results.json` from a `file://` page.
 
@@ -130,10 +139,12 @@ question text, prompts, answers or local paths. The comparisons between runs com
 - each run's change from the previous question bank;
 - the run-to-run variation of repeated runs, with the request times pooled over the runs that recorded them.
 
-With `--answers`, it also writes `answers.json` from the benchmark's per-question export: the
-main runs, the repeats of each repeated configuration (`repeat_runs`) and the two runs of each measured
-routing pipeline (`pipeline_runs`), with scores and option probabilities at full precision. Then
-refresh `runner/` and the metric code, and check the result:
+`--answers` names the benchmark's per-question export. The export takes from it the replay the page
+leads with (`replay`), each listed comparison's Holm p-value over all pairs (`p_holm_all`) and the
+answer-key baselines (`baselines`), and writes `answers.json`: the main runs, the repeats of each
+repeated configuration (`repeat_runs`) and the two runs of each measured routing pipeline
+(`pipeline_runs`), with scores and option probabilities at full precision. Then refresh `runner/` and
+the metric code, and check the result:
 
 ```bash
 ./benchmark_ollama.py --export-answers /tmp/benchmark-answers.json   # in the benchmark folder

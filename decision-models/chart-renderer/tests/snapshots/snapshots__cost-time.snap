@@ -1,0 +1,52 @@
+---
+source: tests/snapshots.rs
+expression: "charts::buffer_text(&charts::render(&figure))"
+---
+What does a first answer cost, and how long does it take?
+Recorded runs on 2,198 Turkish exam questions. Times describe the service and
+hardware we tested; they are not times for the two-step setup.
+
+Estimated cost per 1,000 questions, in US dollars
+Logarithmic scale: equal steps show equal multiples; each labelled step is 10
+times the one before.
+ $0.001    $0.01    $0.1      $1       $10
+One question per request
+  Decider v1.1
+    ████████ $0.008   ▏        ▏        ▏
+  Fastino GLiDE
+    ███████████████████▉ $0.16 ▏        ▏
+16 questions per request
+  Claude Opus 5.5 (low reasoning)
+    █████████████████████████████████▎ $4.93
+  Claude Sonnet 5.5 (high reasoning)
+    ████████████████████████████████▏ $3.65
+  GPT-6 Astra (low reasoning)
+    █████████████████████████████████▋ $5.38
+Separate tests: one question per request, on 200 questions
+  GPT-6 Astra (low reasoning)
+    Not measured in this test  ▏        ▏
+ $0.001    $0.01    $0.1      $1       $10
+
+Waiting time for one request
+██ typical time (median)
+━━│ 9 in 10 requests finish within this time (90th percentile)
+   0 s     10 s     20 s     30 s     40 s
+One question per request
+  Decider v1.1
+    ▎│  0.23 s · 0.29 s        ▏        ▏
+  Fastino GLiDE
+    █▉│  2.09 s · 2.28 s, 4 requests at a time
+16 questions per request
+  Claude Opus 5.5 (low reasoning)
+    ████████████▏━━━━━│  13.4 s · 19.8 s
+  Claude Sonnet 5.5 (high reasoning)
+    ██████████████████▌━━━━━━━━━━━━━━│  20.5 s · 37.0 s
+  GPT-6 Astra (low reasoning)
+    ███████████▊━━━│  13.0 s · 16.8 s   ▏
+Separate tests: one question per request, on 200 questions
+  GPT-6 Astra (low reasoning)
+    █████▌━━│▏ 6.14 s · 8.57 s ▏        ▏
+   0 s     10 s     20 s     30 s     40 s
+
+Times for Claude Opus 5.5 (low reasoning), Claude Sonnet 5.5 (high reasoning)
+and GPT-6 Astra (low reasoning) come from 5 repeat tests on 200 questions.

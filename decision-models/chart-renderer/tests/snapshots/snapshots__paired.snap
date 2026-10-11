@@ -2,50 +2,51 @@
 source: tests/snapshots.rs
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
-15 of 41 differences are significant after Holm correction
-Accuracy difference, first run minus second, in percentage points, with 95% intervals
-━━ significant after Holm correction   ━━ not significant
+How large are the accuracy gaps, and how uncertain are they?
+Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
+establish a difference; the colour shows a related but separate test, adjusted across these 41 comparisons (15 pass).
+━━ passes the Holm adjustment across these 41 comparisons   ━━ does not pass
 
-                 Gemini 3.8 Flash (high) vs GPT-6 Astra (low)                  ⢸⢴⠤                                  +0.5
-                       GPT-6 Astra (low) vs GPT-6.1 Sol (low)                  ⢸⠤⡦⠄                                 +0.9
-                  GPT-6.1 Sol (low) vs Gemini 3.8 Flash (low)                  ⢸   ⠠⠤⡦⠤⠄                            +3.4
-           Gemini 3.8 Flash (low) vs DeepSeek-V4.1-Flash (on)                  ⢸⠤⢴⠤⠤                                +1.2
-                   DeepSeek-V4.1-Flash (on) vs Opus 5.5 (low)                  ⢸⠤⠤⡦⠤⠤                               +1.6
-                          Opus 5.5 (low) vs Sonnet 5.5 (high)                  ⢸      ⠤⠤⢴⠤⠤⠄                        +5.4
-                      Sonnet 5.5 (high) vs GLM-5.3-Flash (on)                  ⢸       ⠤⠤⠤⡦⠤⠤⠄                      +6.2
-                      GLM-5.3-Flash (on) vs Gemma 4 31B (off)                  ⢸     ⠠⠤⠤⠤⡦⠤⠤⠤                       +5.7
-                        Gemma 4 31B (off) vs GPT-6 Luna (low)                  ⢸    ⠤⠤⠤⢴⠤⠤⠤⠄                        +4.8
-                           Gemma 4 31B (off) vs Fastino GLiDE                  ⢸    ⠠⠤⠤⠤⡦⠤⠤⠤                        +5.2
-                            GPT-6 Luna (low) vs Fastino GLiDE               ⠠⠤⠤⢼⡦⠤⠤⠤⠄                               +0.4
-         GPT-6 Luna (Decisions API, beta) vs GPT-6 Luna (low)       ⠠⠤⠤⠤⡦⠤⠤⠄   ⢸                                    -4.7
-                                Fastino GLiDE vs Decider v1.1                 ⠤⢼⠤⡦⠤⠤⠤                               +1.0
-                                  Fastino GLiDE vs Decider v1                  ⢸         ⠤⠤⠤⡧⠤⠤⠄                    +7.5
-                    Decider v1.1 vs DeepSeek-V4.1-Flash (off)                ⠠⠤⢼⠤⡧⠤⠤⠤                               +1.0
-                                   Decider v1.1 vs Decider v1                  ⢸       ⠠⠤⠤⡧⠤⠤⠄                      +6.5
-DeepSeek-V4.1-Flash (off) vs GPT-6 Luna (Decisions API, beta)                  ⢸⠤⠤⠤⢼⠤⠤⠤                             +2.3
-         GPT-6 Luna (Decisions API, beta) vs Sonnet 5.5 (low)                  ⢸⠤⠤⠤⡧⠤⠤⠤⠄                            +2.2
-                       Sonnet 5.5 (low) vs Celeris-1 Decision                ⠠⠤⢼⠤⡧⠤⠤⠤                               +0.9
-                             Celeris-1 Decision vs Decider v1               ⠤⠤⠤⢼⠤⠤⠤⠄                                +0.1
-                            Decider v1 vs GLM-5.3-Flash (off)                  ⢸⠤⠤⠤⠤⡧⠤⠤⠤                            +2.6
-                                            Decider v1 vs Jev                  ⢸ ⠒⠒⠒⡗⠒⠒⠒                            +2.9
-                                   GLM-5.3-Flash (off) vs Jev               ⠐⠒⠒⢺⡗⠒⠒⠒                                +0.3
-                                                  Jev vs Clef               ⠐⠒⠒⢺⡗⠒⠒⠒                                +0.2
-                                                   Clef vs d1               ⠐⠒⠒⢺⡗⠒⠒⠒                                +0.3
-                                               d1 vs Open-Jev                 ⠒⢺⠒⢺⠒⠒⠒⠂                              +1.3
-                                           Open-Jev vs Cygnet               ⠒⠒⠒⢺⠒⠒⠒⠂                                +0.0
-                             Open-Jev vs Qwen3.8-27B (yes/no)                  ⢸  ⠐⠒⠒⢺⠒⠒⠒⠂                          +3.8
-                                         Cygnet vs Winnow-12B                ⠒⠒⢺⠗⠒⠒                                 +0.2
-                       Winnow-12B vs Qwen3.8-27B (vote share)                 ⠒⢺⠒⠺⠒⠒⠒⠂                              +1.1
-             Qwen3.8-27B (vote share) vs Qwen3.8-27B (stated)                ⠐⠒⢺⠒⠒⠂                                 +0.1
-                 Qwen3.8-27B (stated) vs Qwen3.8-27B (yes/no)                  ⢸⠒⠒⠒⠺⠒⠒⠒                             +2.3
-                      Qwen3.8-27B (yes/no) vs Qwen3-14B (off)                  ⢸      ⠒⠒⠒⠺⠒⠒⠒⠒                      +6.2
-                                Qwen3-14B (off) vs Clef-flash               ⠒⠒⠒⢺⠒⠒⠒⠂                                +0.0
-                                  Clef-flash vs Erk-14B (off)                ⠒⠒⢺⠺⠒⠒⠒⠒                               +0.7
-                               Erk-14B (off) vs Metask-Jev 4B                  ⢸  ⠐⠒⠒⠒⠺⠒⠒⠒⠒                         +4.2
-                          Metask-Jev 4B vs Strands Decider 2B                  ⢸                 ⠒⠒⠒⠒⠺⠒⠒⠒⠒         +13.3
-                 Strands Decider 2B vs GLiNER2.5-multi-Decide                  ⢸       ⠐⠒⠒⠒⠺⠒⠒⠒⠒                    +7.3
-                               GLiNER2.5-multi-Decide vs Laya                ⠐⠒⢺⠒⠺⠒⠒⠒⠂                              +1.2
-                                    Laya vs Laya multilingual                 ⠒⢺⠒⠺⠒⠒⠒⠂                              +1.1
-                  Laya multilingual vs GLiNER2.5 Multi (base)                ⠒⠒⢺⠗⠒⠒⠂                                +0.4
-                                                               -10    -5       0       +5      +10     +15    +20
-                                                                                percentage points
+              Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (low reasoning)                     ⠠⡧⡦⠄                                        +0.5
+                    GPT-6 Astra (low reasoning) minus GPT-6.1 Sol (low reasoning)                      ⡧⢴⠤                                        +0.9
+               GPT-6.1 Sol (low reasoning) minus Gemini 3.8 Flash (low reasoning)                      ⡇   ⠠⠤⢴⠤⠤                                  +3.4
+        Gemini 3.8 Flash (low reasoning) minus DeepSeek-V4.1-Flash (reasoning on)                      ⡧⠤⢴⠤⠤⠄                                     +1.2
+         DeepSeek-V4.1-Flash (reasoning on) minus Claude Opus 5.5 (low reasoning)                      ⡧⠤⠤⡦⠤⠤                                     +1.6
+         Claude Opus 5.5 (low reasoning) minus Claude Sonnet 5.5 (high reasoning)                      ⡇      ⠠⠤⠤⢴⠤⠤⠤                             +5.4
+            Claude Sonnet 5.5 (high reasoning) minus GLM-5.3-Flash (reasoning on)                      ⡇       ⠠⠤⠤⠤⡦⠤⠤⠤⠄                          +6.2
+                                   GLM-5.3-Flash (reasoning on) minus Gemma 4 31B                      ⡇      ⠤⠤⠤⠤⡦⠤⠤⠤⠄                           +5.7
+                                     Gemma 4 31B minus GPT-6 Luna (low reasoning)                      ⡇    ⠠⠤⠤⠤⢴⠤⠤⠤⠤                             +4.8
+                                                  Gemma 4 31B minus Fastino GLiDE                      ⡇     ⠤⠤⠤⠤⡦⠤⠤⠤⠤                            +5.2
+                                   GPT-6 Luna (low reasoning) minus Fastino GLiDE                  ⠤⠤⠤⠤⣷⠤⠤⠤⠤⠄                                     +0.4
+                       GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)        ⠠⠤⠤⠤⢴⠤⠤⠤⠤     ⡇                                          -4.7
+                                                 Fastino GLiDE minus Decider v1.1                    ⠤⠤⡧⠤⡦⠤⠤⠤                                     +1.0
+                                                   Fastino GLiDE minus Decider v1                      ⡇          ⠤⠤⠤⢼⠤⠤⠤⠤                        +7.5
+                           Decider v1.1 minus DeepSeek-V4.1-Flash (reasoning off)                   ⠠⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +1.0
+                                                    Decider v1.1 minus Decider v1                      ⡇        ⠤⠤⠤⢼⠤⠤⠤⠄                          +6.5
+              DeepSeek-V4.1-Flash (reasoning off) minus GPT-6 Luna, Decisions API                      ⡧⠤⠤⠤⢼⠤⠤⠤⠤                                  +2.3
+                GPT-6 Luna, Decisions API minus Claude Sonnet 5.5 (low reasoning)                      ⡧⠤⠤⠤⢼⠤⠤⠤⠤                                  +2.2
+                                Claude Sonnet 5.5 (low reasoning) minus Celeris 1                   ⠤⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +0.9
+                                                       Celeris 1 minus Decider v1                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.1
+                                   Decider v1 minus GLM-5.3-Flash (reasoning off)                      ⡧⠤⠤⠤⠤⡧⠤⠤⠤⠤                                 +2.6
+                                                             Decider v1 minus Jev                      ⡇⠐⠒⠒⠒⢺⠒⠒⠒⠒                                 +2.9
+                                          GLM-5.3-Flash (reasoning off) minus Jev                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.3
+                                                                   Jev minus Clef                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.2
+                                                             Clef minus Liquid d1                  ⠐⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.3
+                                                         Liquid d1 minus Open Jev                    ⠐⠒⡗⠒⢺⠒⠒⠒⠒                                    +1.3
+                                                            Open Jev minus Cygnet                 ⠐⠒⠒⠒⠒⡗⠒⠒⠒⠂                                      +0.0
+                                       Open Jev minus Qwen 3.8 27B (yes/no score)                      ⡇  ⠐⠒⠒⠒⢺⠒⠒⠒⠒                               +3.8
+                                                          Cygnet minus Winnow 12B                   ⠒⠒⠒⡿⠒⠒⠒                                       +0.2
+                     Winnow 12B minus Qwen 3.8 27B (agreement across ten answers)                    ⠒⠒⡗⠒⠗⠒⠒⠒⠒                                    +1.1
+Qwen 3.8 27B (agreement across ten answers) minus Qwen 3.8 27B (written estimate)                   ⠐⠒⠒⡗⠒⠒                                        +0.1
+                Qwen 3.8 27B (written estimate) minus Qwen 3.8 27B (yes/no score)                      ⡗⠒⠒⠒⠺⠒⠒⠒⠂                                  +2.3
+                                      Qwen 3.8 27B (yes/no score) minus Qwen3-14B                      ⡇      ⠐⠒⠒⠒⠒⠗⠒⠒⠒⠒                          +6.2
+                                                       Qwen3-14B minus Clef flash                 ⠐⠒⠒⠒⠒⡗⠒⠒⠒⠒                                      +0.0
+                                                         Clef flash minus Erk-14B                  ⠐⠒⠒⠒⡗⠺⠒⠒⠒⠒⠂                                    +0.7
+                                                      Erk-14B minus Metask Jev 4B                      ⡇  ⠐⠒⠒⠒⠒⠗⠒⠒⠒⠒⠂                             +4.2
+                                           Metask Jev 4B minus Strands Decider 2B                      ⡇                    ⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠂          +13.3
+                                  Strands Decider 2B minus GLiNER2.5-multi-Decide                      ⡇        ⠐⠒⠒⠒⠒⠺⠒⠒⠒⠒⠂                       +7.3
+                                                GLiNER2.5-multi-Decide minus Laya                   ⠐⠒⠒⡗⠒⠗⠒⠒⠒⠒                                    +1.2
+                                                     Laya minus Laya multilingual                    ⠒⠒⡗⠒⠗⠒⠒⠒⠒                                    +1.1
+                                   Laya multilingual minus GLiNER2.5 Multi (base)                   ⠒⠒⠒⡿⠒⠒⠒⠒                                      +0.4
+                                                                                   -10      -5         0        +5       +10       +15      +20
+                                                                                      Accuracy of model A minus model B, in percentage points

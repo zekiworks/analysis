@@ -1,0 +1,38 @@
+---
+source: tests/snapshots.rs
+expression: "charts::buffer_text(&charts::render(&figure))"
+---
+Lower the cutoff: Decider keeps more, and makes more mistakes
+Decider v1.1 on 2,198 Turkish exam questions. We replayed recorded answers.
+Above each bar: the share of all questions it keeps, and its mistakes.
+██ Kept and right   ██ Kept but wrong   ██ Shaded: our rule, the 99% cutoff
+
+Answers kept, out of 2,198
+                                                                        44%
+1,000  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁ 62 wrong
+                                            Surest quarter             ▃▃▃▃▃
+                                            550 kept, 4 wrong          █████
+                                                    │            35%   █████
+                                                    │          25 wrong█████
+  750  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁│▁▁▁▁▁▁▁▁▁▁▁▃▃▃▃▃▁▁█████▁▁
+                                                   25%          █████  █████
+                                                 4 wrong  27%   █████  █████
+                Our rule                    23%         6 wrong █████  █████
+                349 kept, 0 wrong         4 wrong        ▆▆▆▆▆  █████  █████
+  500  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁│▁▁▁▁▁▁▁▁▁▁▁ 20% ▁▁▁▁▁▁▁▁▁█████▁▁█████▁▁█████▁▁█████▁▁
+                        │     18%  3 wrong █████  █████  █████  █████  █████
+                       16%  0 wrong ▇▇▇▇▇  █████  █████  █████  █████  █████
+                12%  0 wrong █████  █████  █████  █████  █████  █████  █████
+              0 wrong █████  █████  █████  █████  █████  █████  █████  █████
+  250  ▁▁▁▁▁▁▁▁▃▃▃▃▃▁▁█████▁▁█████▁▁█████▁▁█████▁▁█████▁▁█████▁▁█████▁▁█████▁▁
+               █████  █████  █████  █████  █████  █████  █████  █████  █████
+         4%    █████  █████  █████  █████  █████  █████  █████  █████  █████
+       0 wrong █████  █████  █████  █████  █████  █████  █████  █████  █████
+        ▆▆▆▆▆  █████  █████  █████  █████  █████  █████  █████  █████  ▂▂▂▂▂
+    0   █████  █████  █████  █████  ▁▁▁▁▁  ▁▁▁▁▁  ▁▁▁▁▁  ▁▁▁▁▁  ▄▄▄▄▄  █████
+       ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
+        99.9%  99.5%   99%   98.5%   98%    97%   96.05%  95%    90%    80%
+                         Cutoff (lowest confidence we keep)
+
+The share Decider keeps is roughly the share of the second model's bill you
+save.

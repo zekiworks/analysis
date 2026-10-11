@@ -35,7 +35,7 @@ fn figures(results: &str, output: &str) -> ExitCode {
     for figure in charts::figures(&results) {
         let buffer = charts::render(&figure);
         for theme in charts::svg::Theme::ALL {
-            let svg = charts::svg::buffer_to_svg(&buffer, &figure.title, theme);
+            let svg = charts::svg::buffer_to_svg(&buffer, &figure.title, &results.results_version, theme);
             if !write(&output.join(format!("{}{}.svg", figure.name, theme.suffix())), &svg) {
                 return ExitCode::FAILURE;
             }

@@ -15,7 +15,7 @@ import random
 import statistics
 import string
 from collections import defaultdict
-from typing import Any, Callable, Sequence
+from typing import Any, Callable, Iterator, Sequence
 
 # Intervals of the report's confidence table. Each includes its lower bound; the last also includes 1.0.
 CONFIDENCE_BINS = ((0.0, 0.25), (0.25, 0.5), (0.5, 0.75), (0.75, 0.9), (0.9, 1.0))
@@ -436,6 +436,22 @@ def repeat_stability(runs: Sequence[dict[int, tuple[int, Any, float | None]]]) -
     }
 
 
+def halves(n: int, splits: int, seed: int, clusters: Sequence[Any] | None = None) -> Iterator[tuple[list[int], list[int]]]:
+    """`splits` seeded random splits of the items 0 … n-1 into a first and a second half, each a list of items. Items
+    in one cluster (questions sharing a passage) always fall in the same half; the first half holds half the
+    clusters, rounded down. The same seed gives the same halves, so rules scored with it are scored alike."""
+    members: dict[Any, list[int]] = defaultdict(list)
+    for item, cluster in enumerate(range(n) if clusters is None else clusters):
+        members[cluster].append(item)
+    units = list(members.values())
+    rng = random.Random(seed)
+    half = len(units) // 2
+    for _ in range(splits):
+        order = list(range(len(units)))
+        rng.shuffle(order)
+        yield [item for unit in order[:half] for item in units[unit]], [item for unit in order[half:] for item in units[unit]]
+
+
 def cascade(
     decision_scores: Sequence[float],
     decision_correct: Sequence[int],
@@ -490,19 +506,10 @@ def cascade(
         curve.append([answered / n, (frontier_total + net) / n])
     chosen = lowest_threshold(range(n))
 
-    members: dict[Any, list[int]] = defaultdict(list)
-    for item, cluster in enumerate(range(n) if clusters is None else clusters):
-        members[cluster].append(item)
-    units = list(members.values())
-    rng = random.Random(seed)
-    half = len(units) // 2
     shares = differences = 0.0
     worse = 0
-    for _ in range(splits):
-        order = list(range(len(units)))
-        rng.shuffle(order)
-        test = [item for unit in order[half:] for item in units[unit]]
-        chosen_level = lowest_threshold([item for unit in order[:half] for item in units[unit]])
+    for first, test in halves(n, splits, seed, clusters):
+        chosen_level = lowest_threshold(first)
         taken = [item for item in test if level[item] <= chosen_level]
         difference = sum(decision_correct[item] - frontier_correct[item] for item in taken) / len(test)
         shares += len(taken) / len(test)
@@ -524,6 +531,78 @@ def cascade(
             "worse": worse / splits,
         },
         "curve": thin_curve(curve),
+    }
+
+
+def share_cut(scores: Sequence[float], share: float) -> float:
+    """The cut of the rule that keeps the `share` most confident answers: the lowest score among them, the
+    ceil(share × n)-th highest. A rule keeps the answers at or above its cut, so answers tied at the cut stay together."""
+    if not scores or not 0 < share <= 1:
+        raise ValueError("a share rule needs scores and a share above 0 and at most 1")
+    return sorted(scores, reverse=True)[math.ceil(share * len(scores)) - 1]
+
+
+def kept_answers(scores: Sequence[float], correct: Sequence[int], cut: float) -> dict[str, int]:
+    """The answers scored at or above `cut`, and the wrong ones among them."""
+    kept = [item for item, score in enumerate(scores) if score >= cut]
+    return {"kept": len(kept), "wrong": sum(1 for item in kept if not correct[item])}
+
+
+def handoff(
+    decision_scores: Sequence[float], decision_correct: Sequence[int], frontier_correct: Sequence[int], cut: float
+) -> dict[str, Any]:
+    """A decision model's answers at or above `cut` replace a frontier run's: the questions it keeps, the questions
+    among them that only the decision model or only the frontier run got right, and the change in accuracy over all
+    questions. The sequences are aligned by question."""
+    kept = [item for item, score in enumerate(decision_scores) if score >= cut]
+    first_only = sum(1 for item in kept if decision_correct[item] and not frontier_correct[item])
+    second_only = sum(1 for item in kept if frontier_correct[item] and not decision_correct[item])
+    return {
+        "kept": len(kept),
+        "first_only": first_only,
+        "second_only": second_only,
+        "difference": (first_only - second_only) / len(decision_scores),
+    }
+
+
+def share_rule(
+    decision_scores: Sequence[float],
+    decision_correct: Sequence[int],
+    frontier_correct: Sequence[int],
+    share: float,
+    splits: int = 300,
+    seed: int = 0,
+    clusters: Sequence[Any] | None = None,
+) -> dict[str, Any]:
+    """A decision model answers its `share` most confident questions; a frontier run answers the rest. The share is
+    fixed in advance, so no answer key tunes the rule. On all questions the cut is share_cut() of all scores (see
+    handoff()). Held out, it is share_cut() of the scores of a random half, applied to the other half, over the
+    seeded splits of halves(), the same halves cascade() uses with the same seed. The sequences are aligned by question.
+    """
+    n = len(decision_scores)
+    if not n or n != len(decision_correct) or n != len(frontier_correct):
+        raise ValueError("a share rule needs the same, non-empty question list for both runs")
+    cut = share_cut(decision_scores, share)
+    shares = differences = 0.0
+    worse = better = 0
+    for first, test in halves(n, splits, seed, clusters):
+        test_cut = share_cut([decision_scores[item] for item in first], share)
+        taken = [item for item in test if decision_scores[item] >= test_cut]
+        difference = sum(decision_correct[item] - frontier_correct[item] for item in taken) / len(test)
+        shares += len(taken) / len(test)
+        differences += difference
+        worse += difference < 0
+        better += difference > 0
+    return {
+        "cut": cut,
+        **handoff(decision_scores, decision_correct, frontier_correct, cut),
+        "held_out": {
+            "splits": splits,
+            "answered": shares / splits,
+            "difference": differences / splits,
+            "worse": worse / splits,
+            "better": better / splits,
+        },
     }
 
 

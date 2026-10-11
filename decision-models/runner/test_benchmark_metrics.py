@@ -170,5 +170,37 @@ class CascadeTests(unittest.TestCase):
         self.assertEqual(result["held_out"]["answered"], 0.0)
 
 
+class ShareRuleTests(unittest.TestCase):
+    def test_the_cut_keeps_answers_tied_with_it(self) -> None:
+        # A quarter of eight answers is two, but the second-highest score is shared by three answers.
+        scores = [0.99, 0.97, 0.97, 0.97, 0.5, 0.4, 0.3, 0.2]
+        cut = bm.share_cut(scores, 0.25)
+        self.assertEqual(cut, 0.97)
+        self.assertEqual(bm.kept_answers(scores, [1, 1, 0, 1, 1, 1, 1, 1], cut), {"kept": 4, "wrong": 1})
+
+    def test_handoff_counts_each_side_of_a_disagreement(self) -> None:
+        result = bm.handoff([0.9, 0.8, 0.7, 0.1], [1, 0, 1, 0], [0, 1, 1, 1], 0.7)
+        self.assertEqual((result["kept"], result["first_only"], result["second_only"]), (3, 1, 1))
+        self.assertEqual(result["difference"], 0.0)
+
+    def test_halves_keep_each_cluster_in_one_half(self) -> None:
+        clusters = ["a", "a", "b", "c", "c", "d", "e"]
+        for first, second in bm.halves(len(clusters), 20, 0, clusters):
+            self.assertEqual(sorted(first + second), list(range(len(clusters))))
+            self.assertEqual(len({clusters[item] for item in first}), 2)  # half of five clusters, rounded down
+            self.assertFalse({clusters[item] for item in first} & {clusters[item] for item in second})
+
+    def test_the_held_out_cut_comes_from_the_other_half(self) -> None:
+        # Two passages, one holding every high score. A cut set on the other half takes either all of the test half
+        # or none of it; a cut set on the test half itself would take a quarter of it every time.
+        scores = [0.99, 0.98, 0.97, 0.96, 0.4, 0.3, 0.2, 0.1]
+        result = bm.share_rule(scores, [1] * 4 + [0] * 4, [0] * 8, 0.25, splits=50, clusters=["high"] * 4 + ["low"] * 4)
+        self.assertEqual((result["cut"], result["kept"], result["difference"]), (0.98, 2, 0.25))
+        held_out = result["held_out"]
+        self.assertTrue(0 < held_out["answered"] < 1)
+        self.assertAlmostEqual(held_out["answered"], held_out["better"])
+        self.assertEqual(held_out["worse"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

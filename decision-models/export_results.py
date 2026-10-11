@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import itertools
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -65,12 +67,15 @@ TOKEN_KINDS = (
     "cache_write_1h_input_tokens",
     "output_tokens",
 )
-# Where a run's confidence comes from (the report's score_source).
+# Where a run's confidence comes from (the report's score_source), as the page names it: a scoring provider's score for
+# the option it chose (SCORING_SOURCE), the probability of the answer letter a generative model wrote, the number a
+# model writes with its answer, or the share of ten sampled answers that agree with the chosen one.
 CONFIDENCE_SOURCES = {
-    "probability": "Probability of the chosen option",
-    "stated": "Stated by the model",
-    "votes": "Share of 10 samples",
+    "probability": "Answer letter probability",
+    "stated": "Written estimate",
+    "votes": "Agreement across ten answers",
 }
+SCORING_SOURCE = "Option score"
 # Runs of one model through different providers.
 VARIANTS = {
     "vllm-yes-no": "yes/no scoring",
@@ -205,32 +210,46 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 14_768_307_200,
     },
 }
+# Each unit's plain English label; results.json keeps the printed Turkish title next to it.
 UNITS_EN = {
-    1: "Meaning of words and phrases",
-    2: "Sentence meaning",
-    3: "Modes of expression and ways of developing ideas",
-    4: "Topic and main idea of a paragraph",
-    5: "Paragraph structure",
-    6: "Supporting ideas in a paragraph",
-    7: "Parts of speech",
-    8: "Noun phrases",
-    9: "Verbs",
-    10: "Verbals",
-    11: "Suffixes",
-    12: "Word structure",
-    13: "Sentence elements",
-    14: "Verb voice",
-    15: "Sentence types",
-    16: "Mixed grammar",
-    17: "Phonology",
-    18: "Spelling rules",
+    1: "Word and phrase meanings",
+    2: "Sentence meanings",
+    3: "How a writer explains and develops ideas",
+    4: "Topic and main point of a paragraph",
+    5: "How a paragraph fits together",
+    6: "Details that support a paragraph’s main point",
+    7: "Word types, such as nouns and verbs",
+    8: "Groups of words built around a noun",
+    9: "Verbs and their forms",
+    10: "Verb forms used like nouns or modifiers",
+    11: "Word endings and what they do",
+    12: "How words are built",
+    13: "The roles of words and phrases in a sentence",
+    14: "How verbs show who acts and who receives the action",
+    15: "Types of sentences",
+    16: "Questions combining several grammar topics",
+    17: "Sound patterns and changes",
+    18: "Spelling",
     19: "Punctuation",
-    20: "Expression errors",
+    20: "Problems in sentence wording",
 }
 # Question groups the page shows, from the report's groups.
 GROUPS = ("reading", "grammar", "without_suspect")
 # The 2026 TYT Türkçe paper's mix of reading and grammar questions, for the reweighted score.
 TYT_MIX = {"reading": 33, "grammar": 7}
+# The replay the page leads with. The decision run answers first, keeping its answers at or above each cutoff, and
+# separately its REPLAY_SHARE most confident answers, a share fixed in advance that no answer key tunes; the second
+# run answers the rest. Runs by (provider, model, reasoning). The cutoffs include the sure threshold, bm.SURE_SCORE.
+REPLAY_DECISION = ("perplexity", "pplx-decider-v1.1-27b", None)
+REPLAY_FRONTIERS = (
+    ("claude", "claude-opus-5-5", "low"),
+    ("claude", "claude-sonnet-5-5", "high"),
+    ("openai", "gpt-6-astra", "low"),
+    ("openai", "gpt-6.1-sol", "low"),
+    ("gemini", "gemini-3.8-flash", "low"),
+)
+REPLAY_CUTOFFS = (0.999, 0.995, 0.99, 0.985, 0.98, 0.97, 0.95, 0.9, 0.8)
+REPLAY_SHARE = 0.25
 
 
 def parse_args() -> argparse.Namespace:
@@ -240,8 +259,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--answers",
         type=Path,
-        help="the per-question file from benchmark_ollama.py --export-answers; writes answers.json next to --output "
-        "with the exported runs only",
+        required=True,
+        help="the per-question file from benchmark_ollama.py --export-answers: the replays come from it, and it is "
+        "written as answers.json next to --output with the exported runs only",
     )
     return parser.parse_args()
 
@@ -260,9 +280,10 @@ def confidence(record: dict[str, Any]) -> dict[str, Any] | None:
         return None
     overall = record["groups"]["all"]
     extremes = record["confidence_extremes"]
+    scoring = PROVIDERS[record.get("provider", "ollama")]["scoring"]
     return {
         "source": source,
-        "label": CONFIDENCE_SOURCES[source],
+        "label": SCORING_SOURCE if source == "probability" and scoring else CONFIDENCE_SOURCES[source],
         "bins": [{"questions": interval["questions"], "correct": interval["correct"]} for interval in record["confidence_bins"]],
         "auroc": overall["auroc"],
         "auroc_interval": overall.get("auroc_interval"),
@@ -697,6 +718,101 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
     }
 
 
+def baselines(answers: dict[str, Any], run_id: int) -> dict[str, Any]:
+    """What answering without reading would score on the scored questions: guessing among the options at random (the
+    options counted from one scoring run's option probabilities, which must give every question the same number), and
+    always giving the letter the answer key uses most often."""
+    scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
+    run = next(run for run in answers["runs"] if run["run"] == run_id)
+    options = {len(run["probabilities"][index]) for index in scored if run["probabilities"][index]}
+    if len(options) != 1:
+        raise ValueError(f"run {run_id} gives questions different numbers of options: {sorted(options)}")
+    letters = Counter(answers["questions"]["key"][index] for index in scored)
+    letter, used = max(sorted(letters.items()), key=lambda item: item[1])
+    return {"options": options.pop(), "letter": letter, "letter_share": used / len(scored)}
+
+
+def holm_over_all_pairs(paired: list[dict[str, Any]], runs: list[dict[str, Any]], answers: dict[str, Any]) -> None:
+    """Give each listed comparison its p-value with Holm's correction over every pair of main runs, the correction
+    behind the leaderboard's comparison letters, so that the page can set the two corrections side by side."""
+    scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
+    exported = {run["run"]: run for run in answers["runs"]}
+    correct = {run["run"]: [int(bool(exported[run["run"]]["correct"][index])) for index in scored] for run in runs}
+    pairs = list(itertools.combinations(sorted(correct), 2))
+    adjusted = dict(zip(pairs, bm.holm([bm.paired_comparison(correct[first], correct[second])["p"] for first, second in pairs])))
+    for item in paired:
+        item["p_holm_all"] = adjusted[min(item["first"], item["second"]), max(item["first"], item["second"])]
+
+
+def replay(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, Any]:
+    """The replay the page leads with, from the exported answers (export_answers()) on the scored questions in question
+    order with their passages as clusters, as the report's routing simulations take them: the decision run's answers kept
+    at each cutoff, and its surest REPLAY_SHARE with the Wilson interval of their accuracy. For each second run: what
+    keeping them changes at the sure threshold and with the share rule (bm.share_rule, on the same held-out halves as
+    the cascades), and the pair's estimated cost per 1,000 questions as the cascades count it: the decision run on every
+    question, the second run on the rest at its own average cost."""
+    if bm.SURE_SCORE not in REPLAY_CUTOFFS:
+        raise ValueError(f"REPLAY_CUTOFFS must include the sure threshold, {bm.SURE_SCORE}")
+
+    def find(spec: tuple[str, str, str | None]) -> dict[str, Any]:
+        found = [run for run in runs if (run["provider"], run["model"], run["reasoning"]) == spec]
+        if len(found) != 1:
+            raise ValueError(f"replay: {len(found)} runs match {spec}")
+        if found[0]["api_equivalent_usd"] is None:
+            raise ValueError(f"replay: run {found[0]['run']} ({spec[1]}) has no cost")
+        return found[0]
+
+    questions = answers["questions"]
+    order = sorted(
+        (index for index, status in enumerate(questions["status"]) if status != "excluded"), key=lambda index: questions["id"][index]
+    )
+    clusters = [
+        f"passage {questions['passage'][index]}" if questions["passage"][index] is not None else f"question {questions['id'][index]}"
+        for index in order
+    ]
+    exported = {run["run"]: run for run in answers["runs"]}
+
+    def outcomes(run: dict[str, Any]) -> tuple[list[int], list[float]]:
+        answer = exported[run["run"]]
+        return [int(bool(answer["correct"][index])) for index in order], [answer["score"][index] or 0.0 for index in order]
+
+    def per_thousand(run: dict[str, Any]) -> float:
+        return 1000 * run["api_equivalent_usd"] / run["answered_questions"]
+
+    decision = find(REPLAY_DECISION)
+    correct, scores = outcomes(decision)
+    total, first_cost = len(order), per_thousand(decision)
+    cut = bm.share_cut(scores, REPLAY_SHARE)
+    surest = bm.kept_answers(scores, correct, cut)
+    frontiers = []
+    for spec in REPLAY_FRONTIERS:
+        frontier = find(spec)
+        second, _ = outcomes(frontier)
+        cost = per_thousand(frontier)
+        sure = bm.handoff(scores, correct, second, bm.SURE_SCORE)
+        rule = bm.share_rule(scores, correct, second, REPLAY_SHARE, clusters=clusters)
+        del rule["cut"]
+        frontiers.append(
+            {
+                "frontier": frontier["run"],
+                "sure": {**sure, "usd_per_1000": first_cost + cost * (1 - sure["kept"] / total)},
+                "share": {**rule, "usd_per_1000": first_cost + cost * (1 - rule["kept"] / total)},
+            }
+        )
+    return {
+        "decision": decision["run"],
+        "questions": total,
+        "cutoffs": [{"cutoff": cutoff, **bm.kept_answers(scores, correct, cutoff)} for cutoff in REPLAY_CUTOFFS],
+        "share": {
+            "share": REPLAY_SHARE,
+            "cut": cut,
+            **surest,
+            "interval": bm.wilson_interval(surest["kept"] - surest["wrong"], surest["kept"]),
+        },
+        "frontiers": frontiers,
+    }
+
+
 def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
     runs, the repeats of each repeated configuration and the runs of each measured routing pipeline."""
@@ -754,9 +870,10 @@ def main() -> int:
             [json.loads(match.group(1)) for match in RESULT_PATTERN.finditer(text)],
             json.loads(analysis.group(1)) if analysis else {},
         )
-        answers = None
-        if args.answers is not None:
-            answers = export_answers(json.loads(args.answers.read_text(encoding="utf-8")), data)
+        answers = export_answers(json.loads(args.answers.read_text(encoding="utf-8")), data)
+        data["replay"] = replay(data["runs"], answers)
+        holm_over_all_pairs(data["paired"], data["runs"], answers)
+        data["baselines"] = baselines(answers, data["replay"]["decision"])
     except (OSError, ValueError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
@@ -765,10 +882,9 @@ def main() -> int:
     data["results_version"] = hashlib.sha256(content.encode("utf-8")).hexdigest()[:8]
     args.output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {len(data['runs'])} runs over {data['questions']:,} questions to {args.output}")
-    if answers is not None:
-        path = args.output.parent / "answers.json"
-        path.write_text(json.dumps(answers, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
-        print(f"Wrote the answers of {len(answers['runs'])} runs to {path}")
+    path = args.output.parent / "answers.json"
+    path.write_text(json.dumps(answers, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    print(f"Wrote the answers of {len(answers['runs'])} runs to {path}")
     return 0
 
 

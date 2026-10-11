@@ -1,0 +1,140 @@
+---
+source: tests/snapshots.rs
+expression: "charts::buffer_text(&charts::render(&figure))"
+---
+When a model scores answers at 80%, are about 80% right?
+Recorded answers on 2,198 Turkish exam questions. Each dot is a group of answers with similar confidence: its average confidence (x) against the share right
+(y). Above the diagonal, the model was right more often than its confidence says; below it, less often. Dot size: • 20 to 199 answers, ● 200 or more. Groups
+with fewer than 20 answers are left out of the plot (the table keeps them).
+
+Decision models, part 1 of 3 · Option score                                       Decision models, part 2 of 3 · Option score
+Correct answers in this group                                                     Correct answers in this group
+100% ⢠                                                               ⢀●⣀●●⣀⠤      100% ⢠                              ●⣀⣀⣀⡠⠤⠤•⠤⠤⠤⠤•                         ⣀⠤
+     ⢸                                                          ●•⣶⠶⠛⢉⣡⡴⠞●             ⢸                            ⡠⠔⠁                                ⢀⣠⡴●●
+     ⢸                                                      ⣀⡤⠒⣉●⣉⣤⡶⠟⠋⠁                ⢸                          ⡠⠊                              ⢀⣀⡤⢖⡫⢛⠝⡡⠊
+ 80% ⢸                                                ⢀⣀⡠•⠶⠛⣁⣤⡾⠾•●⠁                80% ⢸                       ●⠔⠉                            ⣀⢤⡴⠞●⠥⠒⠁⣰⠥⠊
+     ⢸                                           ⣀⠤•⠊⠉⢁⣠⡮•⡺⠝⠋⠁                         ⢸                      ⢠⠃                         ⢀⡠⠔⣒⠭⠒⠁⢀⠔⠁ ⣠⠞⠁
+     ⢸                                        ⡠⠔⠊ •⣠⡴⠚⢉⡡⠞●                             ⢸                     ⢠⠃                     ⢀⣀⣤⡲⠭⠓⠒•  ⡠⠔⠁⢀⣠•⠁
+ 60% ⢸                                   ⢀⣀•⢒⣉⣤⠴⢞⡫●⢉⡠⠒⠉                            60% ⢸                    ⡰⠁                  ⣀⠤⢔⠞•⠁      ⣠⡪⠤⣒⠝⠋
+     ⢸                              ●⡠⠤⠶⠚⣓⡮●⣓⡻⠶⠾⠷⠒•⠉                                   ⢸                   ⡰⠁              ⢀⡠⠔⠒⢉⡠⠊⢁⡠●⠒⠢⣤⣤⡴⢖●•⠔⠉
+     ⢸                          ⢀⡠⡴⠊⢁⣀⣤⢖⡫⣕⠮⠓●                                          ⢸                  ⡜           ⢀⣀⠤⠒⠉⠁ ●⠔⣁⢤⣊⠥⠤●⡪⠝⠊⠁
+ 40% ⢸                  •⣀⣀⡀ ●⠔⢊⣕⠮⣔⣮●●⡪⠕⠊                                          40% ⢸                 ⡜        ⣀⠤⠔⠊⠁ ⣀⣀⡤⣶⠽●⠋⠉⢁⡠⠔⠊⠁
+     ⢸                    ⢀⢜⣫●•⠟⠛⠉⠉⠉⠉•                                                 ⢸                ● •⣀ ⢀⣠●●⣉⣀⣠⣤⣶●⡻⠝⠊⠉⣀⣀⠤●⠊⠁
+     ⢸                ⢀⣀•⠾⠝⡫⠋⠁                                                         ⢸                ⢀⣀•⠛⠛⠉⣉⡲•⠭⠤⠤⠒⠒⠒●⠊⠉⠉
+ 20% ⢸            ⣀⠤⠔⠊⠁●•⠔⠊                                                        20% ⢸            ⣀⠤⠔⠊⠁  •⠉⠉
+     ⢸       ⢀⡠⠔⠒⠉                                                                     ⢸       ⢀⡠⠔⠒⠉
+     ⢸  ⢀⣀⠤⠒⠉⠁                                                                         ⢸  ⢀⣀⠤⠒⠉⠁
+  0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
+                        Average confidence in this group                                                  Average confidence in this group
+
+━━ Confidence matches accuracy   ━━ Decider v1.1 · Option score                   ━━ Confidence matches accuracy   ━━ Jev · Option score
+━━ Fastino GLiDE · Option score                                                   ━━ Clef · Option score   ━━ Liquid d1 · Option score
+━━ GPT-6 Luna, Decisions API · Option score   ━━ Celeris 1 · Option score         ━━ Cygnet · Option score   ━━ Open Jev · Option score
+━━ Decider v1 · Option score
+
+Decision models, part 3 of 3 · Option score                                       Chat models from OpenAI and Google · Written estimate
+Correct answers in this group                                                     Correct answers in this group
+100% ⢠                                                                •   ⣀⠤      100% ⢠                                                                    ●⠤
+     ⢸                                                             ⣀⠤⢊⡡•⠒⠉             ⢸                                                               ⢀⡠⢔⣶●⠁
+     ⢸                                                          ⢀•⠮⢒⠭⠓●                ⢸                                                          ⢀⣀⠤⠒⠉⡡⢔⠝⠁
+ 80% ⢸                                                      ⣀⠤⡴⠚•⠔⠊⠁⢀⠔⠁ ⡠●         80% ⢸                                                      ⣀⠤⠔⠊⠁ ⢀⡠⠊⡴⠃
+     ⢸                                                 ⢀⡠⠔⠒⢉⡠⠊⢀⠎   ⡠⠃ ⡠⠊               ⢸                                                 ⢀⡠⠔⠒⠉     •⠁⡠⠊   ⣀●
+     ⢸                                            ⢀⣀⠤⠒⠉⠁ ⣀•⠁⢀⠔⠁ ⢀●⠊ ⢀⠎                 ⢸                                            ⢀⣀⠤⠒⠉⠁         •⠎  ⢀⠤⠊
+ 60% ⢸                                        ⣀⠤⠔⠊⠁  ⢀⡠⠔⠉●⡠⡤⠞⠒⠊⠉⠁ ⢀⠔⠁              60% ⢸                                        ⣀⠤⠔⠊⠁             •⠁ ⡠⠔⠁
+     ⢸                                   ⢀⡠⠔⠒⠉   ⢀•⠤⠒⠁⣀⠔⠊⢁⠎    ⢀⡠●⠁                    ⢸                                   ⢀⡠⠔⠒⠉                  ●⠔⠊
+     ⢸                              ⢀⣀⠤⠒⠉⠁⢀•⠤⠒⠒⠊⠉⠁⣀●⠔⢊⡠⠔⠊• ⣀⠤⠒⠊⠁                       ⢸                              ⢀⣀⠤⠒⠉⠁                  ⣀⠤⠒⠉
+ 40% ⢸                          ⣀⠤⠔⠊⠁  ⣀⢔⡪⣥•⠶⠒⠒⠪⢭⠭••⠋⠉⠉⠉⠉⠉●                        40% ⢸                          ⣀⠤⠔⠊⠁                   ⢀⡠•⠉
+     ⢸                     ⢀⡠⠔⠒⠉ ⢀⣠⣔●⠗⣛⠭⢗⡉   ⣀⠔⠊⠁                                      ⢸                     ⢀⡠⠔⠒⠉                      ⣀⠔⠁
+     ⢸                ⢀●•⣶⣭⣥⣤●●⣖⣮⡻⠭⠒⠊●   ⠈⠉●⠉                                          ⢸                ⢀⣀⠤⠒⠉⠁                       ⢀⠤⠊
+ 20% ⢸            ⣀⠤⠔⠊⠁ ●⠶⠶⠒⠒●⠋⠉                                                   20% ⢸            ⣀⠤⠔⠊⠁                            •
+     ⢸       ⢀⡠⠔⠒⠉                                                                     ⢸       ⢀⡠⠔⠒⠉
+     ⢸  ⢀⣀⠤⠒⠉⠁                                                                         ⢸  ⢀⣀⠤⠒⠉⠁
+  0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
+                        Average confidence in this group                                                  Average confidence in this group
+
+━━ Confidence matches accuracy   ━━ Winnow 12B · Option score                     ━━ Confidence matches accuracy
+━━ Clef flash · Option score   ━━ Metask Jev 4B · Option score                    ━━ Gemini 3.8 Flash (high reasoning) · Written estimate
+━━ Strands Decider 2B · Option score                                              ━━ GPT-6 Astra (low reasoning) · Written estimate
+                                                                                  ━━ GPT-6.1 Sol (low reasoning) · Written estimate
+                                                                                  ━━ Gemini 3.8 Flash (low reasoning) · Written estimate
+                                                                                  ━━ GPT-6 Luna (low reasoning) · Written estimate
+
+Chat models from Anthropic · Written estimate                                     Open-weight chat models, part 1 of 2
+Correct answers in this group                                                     Correct answers in this group
+100% ⢠                                                        ⣀●⣀⣀⡠⣤⡤•    ⣀⠤      100% ⢠                                                                    ⣀⠤
+     ⢸                                             ⣀⣀⠤⠤⠒●⣒⣉⣉⣭⣭⠴●⠒⠚⠋⠉⠉●⡠⠔⠒⠉             ⢸                                                            ⢀⡠⠔⢊●⠔⠒⠉ ●
+     ⢸                                     ⢀⣀⣠⡤●⠒⠛⠛⠒⢉⡩•●⠉⠉⠉     ⢀⣀⠤⠒⠉⠁                 ⢸                                                      ⣀⣀⡠●⢔⣊⠥⠒⠉⠁  ⡠●
+ 80% ⢸                                  ⡠•⢉⡡⠒⠁  ⢀⡠⠔⠊⠁       ⣀⠤⠔⠊⠁                  80% ⢸                                               ⣀⠤●⠒⠉⠉⠉⣀⠤⠔⠊⠁     ⡠⠊
+     ⢸                                ⡠⢊⠤●⠁  ⢀⠔●⠁      ⢀⡠⠔⠒⠉                           ⢸                                          •⡠⠔⠊⠉  ⢀⡠⠔⠒⠉        ⢀⠜    ⡰●
+     ⢸                              ⣠⠮⠊⠁  ⢀⠤⠊⠁    ⢀⣀⠤⠒⠉⠁                               ⢸                                      ⢀⡠⠔⠊⠁ ⢀⣀⠤⠒⠉⠁          ⢀⠔⠁   ⢀⠜
+ 60% ⢸                           ⣀•⠊   ⢀●⠒⠁   ⣀⠤⠔⠊⠁                                60% ⢸                                   ⣀•⠊⠁ ⣀⠤⠔⠊⠁            ⣀⡠●⠁    ⢠⠊
+     ⢸                        ⣀⠴⠚⠉   ⡠⠔⠁ ⢀⡠⠔⠒⠉                                         ⢸                                ⢀⡠⠊⢀⡠⠔⠒⠉           •⡠⠤⠒⠊⠉       ⡰⠁
+     ⢸                    ⣀⡠•⠋    ⣀⠔⢉⣀⠤⠒⠉⠁                                             ⢸                              ⣀⣔⠥⠒⠉⠁         ⢀⣀⠤⠔⠊⠉           ⢀⠜
+ 40% ⢸               •⠤⠔⠒⠉     ⡠⣔●⠔⠊⠁                                              40% ⢸                          ⣀⠤⠔•⢁•⣀       ⣀⡠⣤⣒••⠤⠒⠒⠒⠒⠉•⠢⢄      ⢠⠊
+     ⢸                     ●⡤⠖⠛⠉                                                       ⢸                     ⢀⡠⠔•⡩⠤⠒⠒⠉⠁  ⠉⠉⠉⠑⠒●⠋⠉⠉             ⠑⠢⡀  ⡰⠁
+     ⢸                ⢀⣀⠤⠒⠉⠁                                                           ⢸                ⢀⣀•⡲⠭⠓⠊⠉                                 ⠈⠑•
+ 20% ⢸            ⣀⠤⠔⠊⠁                                                            20% ⢸            ⣀⠤⠔⠊⠁
+     ⢸       ⢀⡠⠔⠒⠉                                                                     ⢸       ⢀⡠⠔⠒⠉
+     ⢸  ⢀⣀⠤⠒⠉⠁                                                                         ⢸  ⢀⣀⠤⠒⠉⠁
+  0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
+                        Average confidence in this group                                                  Average confidence in this group
+
+━━ Confidence matches accuracy                                                    ━━ Confidence matches accuracy
+━━ Claude Opus 5.5 (low reasoning) · Written estimate                             ━━ DeepSeek-V4.1-Flash (reasoning on) · Answer letter probability
+━━ Claude Sonnet 5.5 (high reasoning) · Written estimate                          ━━ GLM-5.3-Flash (reasoning on) · Written estimate
+━━ Claude Sonnet 5.5 (low reasoning) · Written estimate                           ━━ Gemma 4 31B · Answer letter probability
+                                                                                  ━━ DeepSeek-V4.1-Flash (reasoning off) · Answer letter probability
+
+Open-weight chat models, part 2 of 2                                              Qwen 3.8 27B, different confidence sources
+Correct answers in this group                                                     Correct answers in this group
+100% ⢠                                                                    ⣀⠤      100% ⢠                                                                    ⣀⠤
+     ⢸                                                               ⢀⡠⠔⠒⠉             ⢸                                                               ⢀⡠⠔⡲●
+     ⢸                                                          ⢀⣀⠤⠒⠉⠁  ⢀●             ⢸                                                          ⢀⣀⠤⠒⠉⢁⠔⠊
+ 80% ⢸                                                      ⣀⠤⠔⠊⠁   ⢀●⡠⠔⠁          80% ⢸                                                      ⣀⠤⠔⠊⠁ ⢀⠤⠊⠁   ⢀●
+     ⢸                                                 ⢀⡠⠔⠒⠉      ⢀⠔⡡⠊                 ⢸                                                 ⢀⡠⠔⠒⠉  ⢀⣀•⠒⠁    ⡠⠔⠁
+     ⢸                                            ⢀⣀⠤⠒⠉⠁        ⢀⢔⠕⠊                   ⢸                                            ⢀⣀⠤⠒⠉⠁ •⡠⠤⠒⠊⠁     ⢀⠔⠊
+ 60% ⢸                                        ⣀⠤⠔⠊⠁        ⣀⣀⠤⡴⠒●•        ●        60% ⢸                                        ⣀⠤⠔⠊⠁   ⢀⠤⠊⠁       ⢀⡠⠊⠁
+     ⢸                                   ⢀⡠⠔⠒⠉        ⣀⠤⠔⠊•⡠⠔⠉          ⣀⠔⠁            ⢸                                   ⢀⡠⠔⠒⠉     ⣀⠔⠊⠁        ⡠⠔⠁      ●
+     ⢸                              ⢀⣀⠤⠒⠉⠁      ⣀⣀•⠔⠊⠉  ⣀⠔⠉           ⡠⠊               ⢸                              ⢀⣀⠤⠒⠉⠁    ⢀⣀⠤⠒•        ⣀⡠•⠊
+ 40% ⢸                          ⣀⠤⠔⠊⠁    ⢀⣀●⠔⠒⠊⠉  ⣀⣀⠤⠔⠒●            ⡠⠊             40% ⢸                          ⣀⠤⠔⠊⠁    ⣀⣀●⠔⠊⠁     ⢀⣀●⠔⠒⠉⠉
+     ⢸                     ⢀⡠⠔⠒⠉    ●⡠⠤⠒⠊⠁   ⣀⠤●⠊⠉               ⢀⠔⠉                   ⢸                     ⢀⡠⠔⠒⠉  ⣀⣀●⠔⠒⠊⠉    ⢀⣀●⠤⠔⠒⠉⠁
+     ⢸                ⢀⣀⠤⠒⠉⠁  •⣉⠭⠝⠋⠉⠉•⠉⠑⠒•⠶⠮•⠤⠤⠔⠒⠒•⠒⠒⠒⠒⠒⠒⠒•⠒⠒⠒⠉⠉⠉•                     ⢸                ⢀⣀•⠒•⣣⣤●⣔⣒⣊•⣀⠤⠤⠤⠔⠒●⠒⠉⠉⠉⠁
+ 20% ⢸            ⣀⠤⠔⠊⠁ ●⠉⠉⠉⠉●⠁                                                    20% ⢸            ⣀⠤⠔⠊⠁
+     ⢸       ⢀⡠⠔⠒⠉                                                                     ⢸       ⢀⡠⠔⠒⠉
+     ⢸  ⢀⣀⠤⠒⠉⠁                                                                         ⢸  ⢀⣀⠤⠒⠉⠁
+  0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
+                        Average confidence in this group                                                  Average confidence in this group
+
+━━ Confidence matches accuracy                                                    ━━ Confidence matches accuracy
+━━ GLM-5.3-Flash (reasoning off) · Written estimate                               ━━ Qwen 3.8 27B (agreement across ten answers)
+━━ Qwen3-14B · Answer letter probability                                          ━━ Qwen 3.8 27B (written estimate)
+━━ Erk-14B · Answer letter probability                                            ━━ Qwen 3.8 27B (yes/no score) · Option score
+
+Near chance: Laya and GLiNER · Option score
+Correct answers in this group
+100% ⢠                                                                    ⣀⠤
+     ⢸                                                               ⢀⡠⠔⠒⠉
+     ⢸                                                          ⢀⣀⠤⠒⠉⠁
+ 80% ⢸                                                      ⣀⠤⠔⠊⠁
+     ⢸                                                 ⢀⡠⠔⠒⠉
+     ⢸                                            ⢀⣀⠤⠒⠉⠁
+ 60% ⢸                                        ⣀⠤⠔⠊⠁
+     ⢸                                   ⢀⡠⠔⠒⠉
+     ⢸                              ⢀⣀⠤⠒⠉⠁
+ 40% ⢸                          ⣀⠤⠔⠊⠁
+     ⢸                     ⢀⡠⠔⠒⠉
+     ⢸                ⢀⣀⠤⠒⠉⠁                     ⢀•⣀⣀⣀⡀    ⣀⣀⡠⠤⠔•
+ 20% ⢸            ⣀⠤⠔⠊⠁●●•⠿⠿⠶●●⣶⣒⣲⠶⠶●⠶⠶⠶⢦⣤⣤●●⣒⣒⡪⠭⠥•⠤⣀⣀⡈⠉⠉•⠉   ⣀•     ⣀⡠•
+     ⢸       ⢀⡠⠔⠒⠉               ⠈⠉⠉●⠛⠭⠭⢅⣀⡀  ⢀⣉⣑⡲⠤●⣀⡠⠤⠬⠝⠓●⠒⠛⠛⠫⠤⠤•⠔⠒⠉⠉
+     ⢸  ⢀⣀⠤⠒⠉⠁                            ⠈•⠉⠁
+  0% ⠸⠴⠮⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%            20%           40%           60%           80%          100%
+                        Average confidence in this group
+
+━━ Confidence matches accuracy   ━━ GLiNER2.5-multi-Decide · Option score
+━━ Laya · Option score   ━━ Laya multilingual · Option score
+━━ GLiNER2.5 Multi (base) · Option score

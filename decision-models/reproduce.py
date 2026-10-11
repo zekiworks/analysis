@@ -9,11 +9,16 @@ their accuracy (the counts also before the key audit, when results.json has them
 tied groups (every pair of runs tested, exact McNemar, Holm over all pairs, alpha 0.05), including that
 two runs share a letter exactly when that test does not tell them apart. Then the listed paired
 comparisons: exact McNemar and Holm over the listed pairs. Then the repeats: each configuration's
-repeated runs, recomputed from their exported answers. Then the costs: each priced run's from its token
-counts at the published rates, every run without a price shown as a free tier or self-hosted, each
-routing simulation's cost per 1,000 questions from its runs, and the routing tests' costs from their
-parts. Uses only the standard library and benchmark_metrics.py, the metric code the benchmark report
-uses. Exits with status 1 when anything differs beyond the tolerances printed.
+repeated runs, recomputed from their exported answers. Then the replays: every routing simulation (the
+threshold chosen in sample and its 300 held-out splits), and the replay the page leads with: the
+decision run's answers kept at each cutoff and in its surest share, and what keeping them changes in
+front of each second run, on all questions and on the same held-out splits; with them the answer-key
+baselines (options per question, the key's most used letter and its share). Then the costs: each priced
+run's from its token counts at the published rates, every run without a price shown as a free tier or
+self-hosted, each routing simulation's and replay's cost per 1,000 questions from its runs, and the
+routing tests' costs from their parts. Uses only the standard library and benchmark_metrics.py, the
+metric code the benchmark report uses. Exits with status 1 when anything differs beyond the tolerances
+printed.
 """
 
 from __future__ import annotations
@@ -242,6 +247,13 @@ def main() -> int:
             continue
         test = bm.paired_comparison(correct[item["first"]], correct[item["second"]])
         families[item["questions"]].append((item, test))
+    position = {run_id: index for index, run_id in enumerate(ranked)}
+
+    def all_pairs(item: dict[str, Any]) -> float:
+        """A listed pair's p-value with Holm's correction over every pair, the correction the letters use."""
+        first, second = sorted((position[item["first"]], position[item["second"]]))
+        return adjusted[first, second]
+
     mismatches: list[str] = []
     listed = 0
     for family in families.values():
@@ -258,11 +270,16 @@ def main() -> int:
                 checks.cell(
                     close(item["p_holm"], p_holm, relative=P_TOLERANCE), f"Holm {p_holm:.3g}", f"{item['p_holm']:.3g}"
                 ),
+                checks.cell(
+                    close(item["p_holm_all"], all_pairs(item), relative=P_TOLERANCE),
+                    f"Holm over all pairs {all_pairs(item):.3g}",
+                    f"{item['p_holm_all']:.3g}",
+                ),
             ]
             if any("≠" in cell for cell in cells):
                 mismatches.append(f"  {item['first']} vs {item['second']}: " + ", ".join(cells))
     print(
-        f"Paired comparisons (exact McNemar, Holm over the {listed} listed pairs): "
+        f"Paired comparisons (exact McNemar, Holm over the {listed} listed pairs and over all pairs): "
         f"{listed - len(mismatches)} of {listed} match"
     )
     for line in mismatches:
@@ -276,6 +293,17 @@ def main() -> int:
         f"score spread within {METRIC_TOLERANCE:g}): {checked - len(repeat_mismatches)} of {checked} match"
     )
     for line in repeat_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    replay_mismatches = check_replays(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nReplays ({len(results['cascades'])} routing simulations, the lead replay and the answer-key baselines, from the exported answers in question "
+        f"order with passages kept together; shares and accuracy within {METRIC_TOLERANCE:g}): "
+        f"{checked - len(replay_mismatches)} of {checked} match"
+    )
+    for line in replay_mismatches:
         print(line)
 
     before = checks.passed + checks.failed
@@ -324,6 +352,91 @@ def check_repeats(results: dict[str, Any], answers: dict[str, Any], scored: list
         )
         if any("≠" in cell for cell in cells):
             mismatches.append(f"  {label(item)}: " + ", ".join(cell for cell in cells if "≠" in cell))
+    return mismatches
+
+
+def check_replays(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute every routing simulation (bm.cascade) and the lead replay (bm.kept_answers, bm.handoff, bm.share_rule)
+    from the exported answers, on the scored questions in question order with each passage's questions as one cluster,
+    as the report takes them; returns a line per mismatch."""
+    questions = answers["questions"]
+    order = sorted(scored, key=lambda index: questions["id"][index])
+    clusters = [
+        f"passage {questions['passage'][index]}" if questions["passage"][index] is not None else f"question {questions['id'][index]}"
+        for index in order
+    ]
+    exported = {run["run"]: run for run in answers["runs"]}
+    runs = {run["run"]: run for run in results["runs"]}
+    mismatches: list[str] = []
+
+    def outcomes(run_id: int) -> tuple[list[int], list[float]]:
+        answer = exported[run_id]
+        return [int(bool(answer["correct"][index])) for index in order], [answer["score"][index] or 0.0 for index in order]
+
+    def check(what: str, published: Any, recomputed: Any, kind: str = "exact") -> None:
+        if kind == "exact":
+            cell = checks.cell(published == recomputed, str(recomputed), str(published))
+        elif kind == "cost":
+            cell = checks.cell(close(published, recomputed, relative=COST_TOLERANCE), number(recomputed, 6), number(published, 6))
+        else:
+            cell = checks.cell(close(published, recomputed, METRIC_TOLERANCE), number(recomputed, 6), number(published, 6))
+        if "≠" in cell:
+            mismatches.append(f"  {what}: {cell}")
+
+    for item in results["cascades"]:
+        name = f"routing {label(runs[item['decision']])} → {label(runs[item['frontier']])}"
+        correct, scores = outcomes(item["decision"])
+        second, _ = outcomes(item["frontier"])
+        again = bm.cascade(scores, correct, second, clusters=clusters)
+        check(f"{name}, threshold in sample", item["in_sample"]["threshold"], again["in_sample"]["threshold"])
+        for part, keys in (("in_sample", ("answered", "accuracy")), ("held_out", ("answered", "difference", "worse"))):
+            for key in keys:
+                check(f"{name}, {key} {part.replace('_', ' ')}", item[part][key], again[part][key], "metric")
+        check(f"{name}, curve", item["curve"], again["curve"])
+
+    lead = results["replay"]
+    decision = runs[lead["decision"]]
+    correct, scores = outcomes(lead["decision"])
+    check("replay, questions", lead["questions"], len(order))
+    for row in lead["cutoffs"]:
+        kept = bm.kept_answers(scores, correct, row["cutoff"])
+        check(f"replay, kept and wrong at {row['cutoff']}", (row["kept"], row["wrong"]), (kept["kept"], kept["wrong"]))
+    share = lead["share"]
+    cut = bm.share_cut(scores, share["share"])
+    surest = bm.kept_answers(scores, correct, cut)
+    check("replay, surest share's cut", share["cut"], cut)
+    check("replay, surest share kept and wrong", (share["kept"], share["wrong"]), (surest["kept"], surest["wrong"]))
+    interval = bm.wilson_interval(surest["kept"] - surest["wrong"], surest["kept"]) or [None, None]
+    for end, published, again in zip(("low", "high"), share["interval"] or [None, None], interval):
+        check(f"replay, surest share's interval, {end}", published, again, "metric")
+    first_cost = 1000 * decision["api_equivalent_usd"] / decision["answered_questions"]
+    for item in lead["frontiers"]:
+        frontier = runs[item["frontier"]]
+        name = f"replay {label(decision)} → {label(frontier)}"
+        second, _ = outcomes(item["frontier"])
+        cost = 1000 * frontier["api_equivalent_usd"] / frontier["answered_questions"]
+        rules = (
+            ("at the sure threshold", item["sure"], bm.handoff(scores, correct, second, results["sure_threshold"])),
+            ("with the surest share", item["share"], bm.share_rule(scores, correct, second, share["share"], clusters=clusters)),
+        )
+        for what, published, again in rules:
+            check(f"{name} {what}, kept", (published["kept"], published["first_only"], published["second_only"]),
+                  (again["kept"], again["first_only"], again["second_only"]))
+            check(f"{name} {what}, difference", published["difference"], again["difference"], "metric")
+            check(f"{name} {what}, cost", published["usd_per_1000"], first_cost + cost * (1 - again["kept"] / len(order)), "cost")
+            for key in ("answered", "difference", "worse", "better") if "held_out" in again else ():
+                check(f"{name} {what}, {key} held out", published["held_out"][key], again["held_out"][key], "metric")
+    # The baselines: random guessing among the options of the lead run's questions, and the key's most used letter.
+    letters: dict[str, int] = defaultdict(int)
+    for index in scored:
+        letters[questions["key"][index]] += 1
+    letter, used = max(sorted(letters.items()), key=lambda item: item[1])
+    probabilities = exported[lead["decision"]]["probabilities"]
+    options = {len(probabilities[index]) for index in scored if probabilities[index]}
+    base = results["baselines"]
+    check("baselines, options per question", base["options"], options.pop() if len(options) == 1 else sorted(options))
+    check("baselines, the key's most used letter", base["letter"], letter)
+    check("baselines, that letter's share", base["letter_share"], used / len(scored), "metric")
     return mismatches
 
 

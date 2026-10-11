@@ -1,0 +1,31 @@
+---
+source: tests/snapshots.rs
+expression: "charts::buffer_text(&charts::render(&figure))"
+---
+Decider answers when it is sure; Opus answers the rest
+Decider v1.1 on 2,198 Turkish exam questions. We replayed recorded
+answers.
+
+                         ┌─────────────┐
+                         │  Question   │
+                         └──────┬──────┘
+                                ▼
+                        ┌───────────────┐
+                        │ Decider v1.1  │  about 0.23 s per question
+                        └───────┬───────┘
+                                ▼
+          ┌───────────────────────────────────────────┐
+          │         Among its surest quarter?         │
+          └─────┬───────────────────────────────┬─────┘
+            Yes │                               │ No
+                ▼                               ▼
+  ┌──────────────────────────┐    ┌────────────────────────────┐
+  │         We keep          │    │  Claude Opus 5.5 answers,  │
+  │     Decider's answer     │    │  and we use Opus's answer  │
+  └──────────────────────────┘    └────────────────────────────┘
+
+        25% of questions                 75% of questions
+        546 of 550 right              about 13 s per request
+                                         of 16 questions
+
+The same steps work with Claude Sonnet 5.5 and GPT-6 Astra.
