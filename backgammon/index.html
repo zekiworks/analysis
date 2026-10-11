@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decision models play backgammon</title>
+  <link rel="canonical" href="https://zekiworks.github.io/analysis/backgammon/">
+  <meta name="description" content="Seven decision models play backgammon leagues against each other. What they are shown, why the prompt changed, and how they finished.">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --table-hover: #f1f5f9;
+      --bar: #dbeafe;
+      --win: #15803d;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .08);
+      --radius: 8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; padding: 2rem 1rem; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.55; }
+    header, main, footer { max-width: 980px; margin: 0 auto; }
+    .hero { max-width: 72ch; margin: 1rem auto 2.5rem; text-align: center; }
+    .hero h1 { font-size: 2.25rem; line-height: 1.15; margin: 0 0 1rem; }
+    .lede { font-size: 1.15rem; margin: 0 0 1rem; }
+    .byline { color: var(--text-muted); font-size: .875rem; margin: .75rem 0 0; }
+    .finding { text-align: left; margin: 1.5rem 0 0; padding: 1rem 1.25rem; background: var(--card-bg); border: 1px solid var(--border);
+      border-left: 4px solid var(--primary); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .finding p { margin: .25rem 0; }
+    .finding-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); font-weight: 600; }
+    nav.toc ul { list-style: none; padding: 0; margin: 1.25rem 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem 1.1rem; }
+    a { color: var(--primary); }
+    section { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 1.5rem 1.75rem; margin: 0 0 1.5rem; }
+    section > :first-child { margin-top: 0; }
+    h2 { font-size: 1.35rem; margin: 0 0 .75rem; }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 .5rem; }
+    p, li { max-width: 78ch; }
+    .muted { color: var(--text-muted); }
+    .note { color: var(--text-muted); font-size: .9rem; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85em; }
+    pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8rem; line-height: 1.45; background: #0f172a;
+      color: #e2e8f0; border-radius: var(--radius); padding: 1rem 1.1rem; overflow-x: auto; white-space: pre; }
+    pre .c { color: #94a3b8; }
+    pre .h { color: #fde68a; }
+    .table-wrap { overflow-x: auto; margin: .75rem 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { padding: .45rem .6rem; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; vertical-align: top; }
+    th { color: var(--text-muted); font-weight: 600; font-size: .82rem; }
+    th.l, td.l { text-align: left; }
+    td.wrap { white-space: normal; min-width: 18ch; }
+    tbody tr:hover td { background: var(--table-hover); }
+    td.zero { color: #cbd5e1; }
+    td.gold { color: var(--win); font-weight: 700; }
+    tr.stopped td { color: var(--text-muted); }
+    .bar { position: relative; }
+    .bar span { position: relative; z-index: 1; }
+    .bar::before { content: ""; position: absolute; left: 0; top: 18%; bottom: 18%; width: var(--w); background: var(--bar); border-radius: 3px; }
+    ol.flow { padding-left: 1.4rem; }
+    ol.flow li { margin: .3rem 0; }
+    dl.models dt { font-weight: 600; margin-top: .9rem; }
+    dl.models dd { margin: .2rem 0 0; max-width: 78ch; }
+    footer { color: var(--text-muted); font-size: .85rem; text-align: center; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Decision models play backgammon</h1>
+    <p class="lede">Seven decision models play full backgammon leagues against each other. A decision model does not write
+      moves: it is given a description of the position and the complete list of legal plays, and it picks one. We changed
+      what that description contains several times and watched how the games changed.</p>
+    <p class="byline">Updated 9 October 2026 · 12 leagues run, 4 finished with the current prompt · every decision scored by GNU Backgammon</p>
+    <div class="finding">
+      <p class="finding-label">Finding</p>
+      <p>Describing, for every legal play, what the position looks like after it (blots left, how many of the opponent's
+        36 rolls hit one of them, points made, pips) changed the games more than anything else. GNU Backgammon's error rate
+        fell from about 130 to about 38: each move gave away less than a third as much equity as before. About four in five
+        games used to run to the 300-turn limit; after the change none did.</p>
+      <p>Even so, every model plays far below a casual human: the best, Gemma 4 31B, has an error rate of 25, where
+        casual players are usually above 10 and world-class players below 3.5. Gemma 4 31B won three of the four finished leagues
+        and Jev 1.13.0 one; Open-Jev 27B finished last in all four.</p>
+      <p>An All-star team that asks all seven and plays the most confident answer does not beat Gemma 4 31B alone:
+        confidence shows how hard a position is, not which model is right.</p>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <ul>
+        <li><a href="#setup">The setup</a></li>
+        <li><a href="#models">Models</a></li>
+        <li><a href="#prompt">The prompt</a></li>
+        <li><a href="#changes">Why it looks like this</a></li>
+        <li><a href="#error-rate">Error rate</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#allstar">All-star team</a></li>
+        <li><a href="#limits">Limits</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="setup" aria-labelledby="setup-title">
+      <h2 id="setup-title">The setup</h2>
+      <p>Each model plays every other model once per league (a single round robin). A match is played in rounds of two
+        games with the same dice: in the second game the players swap seats and the same sequence of rolls is repeated,
+        so both face the same luck. Games score 1 point, 2 for a gammon and 3 for a backgammon; there is no doubling cube.</p>
+      <ul>
+        <li><strong>Match length:</strong> 3 rounds, or fewer: the first player to 5 points after a full round (both games)
+          wins if ahead. A tie gets one extra round, then counts as a draw.</li>
+        <li><strong>League table:</strong> 3 points for a match win, 1 for a draw; ties broken by more games won, then fewer
+          games lost.</li>
+        <li><strong>Turn limit:</strong> a game still running after 300 turns (both sides counted) goes to the lower pip count
+          for 1 point.</li>
+        <li><strong>Clock:</strong> 30 seconds free per decision, then a 5-minute bank per game. Running out loses the game.</li>
+        <li><strong>Legality:</strong> the program generates every legal play and the model chooses one of them, so a model
+          can never make an illegal move. A roll with only one legal play is played automatically.</li>
+        <li><strong>Memory:</strong> every decision is a separate request. Models are not told how earlier games went.</li>
+      </ul>
+      <p>With seven models, each league has 21 matches and one model sits out each matchday. A match starts as soon as both of
+        its models are free, and no model plays two matches at once.</p>
+    </section>
+
+    <section id="models" aria-labelledby="models-title">
+      <h2 id="models-title">Models</h2>
+      <p>All seven answer the same kind of request: a text state and one choice question whose options are the legal plays.
+        Two are hosted services; the other five run on our own GPUs.</p>
+      <dl class="models">
+        <dt>Jev 1.13.0 <span class="muted">· TypeSafe, hosted</span></dt>
+        <dd>TypeSafe's decision model, served through its System One API; the request format the others copy.</dd>
+        <dt>GPT-6 Luna <span class="muted">· OpenAI Decisions API, hosted</span></dt>
+        <dd>OpenAI's decision endpoint with <code>gpt-6-luna</code>. The only one that sometimes declines to choose; that
+          happened 3 times in early leagues, on positions with 97 to 439 legal plays, and never in the current format.</dd>
+        <dt>Decider v1.1 27B <span class="muted">· Perplexity, self-hosted</span></dt>
+        <dd>The released <code>pplx-decider-v1.1-27b</code> checkpoint, run with its own server code. It accepts up to 8,192 tokens,
+          so long play lists are sent in groups of 25 (see below). It replaced Perplexity's hosted Decider 27B from league #6 on.</dd>
+        <dt>Clef <span class="muted">· Cloudflare, self-hosted</span></dt>
+        <dd>A 27B decision model that scores all options in one pass. Groups of up to 110 options.</dd>
+        <dt>Open-Jev 27B v1.1 <span class="muted">· open reimplementation of Jev, self-hosted</span></dt>
+        <dd>A LoRA adapter and decision head on a 27B base model. It scores every option as its own sequence that repeats the
+          whole question, with a 4,096-token limit per sequence, which is what limits the prompt's length for every model.</dd>
+        <dt>Cygnet <span class="muted">· blockbrain-ai recipe, self-hosted</span></dt>
+        <dd>Google's <code>gemma-4-12B-it</code>, unchanged, behind a server that labels the options A, B, C… and reads the
+          model's probability for each letter. Groups of up to 26 options.</dd>
+        <dt>Gemma 4 31B <span class="muted">· our configuration of the Cygnet recipe</span></dt>
+        <dd>The same letter-reading server in front of <code>gemma-4-31B-it</code>, served in FP8. Not a trained decision model:
+          a general chat model whose answer-letter probabilities are read directly. Its calibration setting was fitted for
+          Cygnet's 12B model; that changes its reported confidence, not which play it picks.</dd>
+      </dl>
+      <p class="note">When a position has more legal plays than a model's group size, the plays are split into equal groups,
+        the model picks a winner in each, then chooses among the winners. Liquid's d1 played in the early leagues and was
+        dropped after its free tier rate-limited a league to a stop.</p>
+    </section>
+
+    <section id="prompt" aria-labelledby="prompt-title">
+      <h2 id="prompt-title">The prompt</h2>
+      <p>Every decision sends the same parts in the same order:</p>
+      <ol class="flow">
+        <li><strong>Rules and strategy</strong> (about 6,400 characters): the rules of backgammon, strategy principles
+          (blots and points, distribution, exposure, blocking, hitting, anchors), the best opening plays from computer
+          rollouts, and the match rules above. A longer version with a glossary, game plans and a worked example goes to
+          chat models; decision models get this short one because of Open-Jev's 4,096-token limit.</li>
+        <li><strong>Score and time:</strong> match score, round and game, turn number, both clocks.</li>
+        <li><strong>Position</strong> from the mover's side: checkers on every point, bar, borne off, pip counts.</li>
+        <li><strong>Race:</strong> the pip lead and whether the two sides are still in contact.</li>
+        <li><strong>The last 10 moves of this game</strong>, both sides, in the mover's numbering <span class="muted">(league #13 on)</span>.</li>
+        <li><strong>Dice</strong>, then the question: <em>Which of the following moves makes a point in front of the opponent's
+          checkers, or reduces your single pieces, or gets you closer to your home?</em></li>
+        <li><strong>The legal plays</strong>, each followed by what the position looks like after it, computed by the program.</li>
+      </ol>
+      <p>A real request from league #13, Jev 1.13.0 to move (the rules part is left out):</p>
+<pre><span class="c">Score: you 1, opponent 1 (tied).
+Match: round 2 of 3, game 1 of 2 in this round.
+Turn 24 of at most 300 in this game.
+Clock: 0:30 free delay for this decision, then your bank: 5:00 of 5:00 left in this game (opponent 5:00). …</span>
+
+Position (your numbering; you move 24 -> 1):
+  your checkers:     24:1 20:1 15:1 4:1 3:4 2:2 1:5
+  opponent checkers: 11:1 12:2 17:2 18:2 19:5 23:3
+  on the bar: you 0, opponent 0
+  borne off:  you 0, opponent 0
+  pip count:  you 84, opponent 106
+Race: you lead by 22 pips; the checkers are still in contact.
+Last 10 moves of this game (oldest first, your numbering):
+  turn 14, you rolled 2-5: bar/23 21/16
+  turn 15, opponent rolled 3-3: 12/15 12/15 15/18 15/18
+  …
+  turn 22, you rolled 4-6: bar/21 21/15
+  turn 23, opponent rolled 4-5: 19/23 6/11
+Dice: 2-5
+
+Which of the following moves makes a point in front of the opponent's checkers, or reduces your single pieces, or gets you closer to your home?
+
+<span class="h">Options (8):</span>
+24/22 20/15: hits 0; makes the 15 point; leaves 2 blots, the opponent hits with 31 of 36 rolls; you hold 4 points (3 in your home board), longest prime 3; pips: you 77, opponent 106
+4/2 20/15: hits 0; makes the 15 point; leaves 1 blot, the opponent hits with 36 of 36 rolls; you hold 4 points (3 in your home board), longest prime 3; pips: you 77, opponent 106
+15/13 13/8: hits 0; makes no new point; leaves 4 blots, the opponent hits with 36 of 36 rolls; …
+<span class="c">… 5 more</span>
+
+<span class="h">Answer:</span> 4/2 20/15 (probability 0.41; 24/22 20/15 had 0.39)</pre>
+      <p>The numbers after each play are exact. The opponent's hitting rolls are counted by generating its legal plays for
+        each of the 36 rolls and checking whether any of them hits. In the example the model narrowly preferred the play with
+        one blot that every roll hits over the one with two blots that 31 rolls hit.</p>
+    </section>
+
+    <section id="changes" aria-labelledby="changes-title">
+      <h2 id="changes-title">Why it looks like this</h2>
+      <p>The prompt was changed one step at a time, and a league was run after each step. Leagues stopped part-way are kept,
+        with their finished matches only.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>League</th><th class="l">What changed</th><th>Games</th><th>Hit the 300-turn limit</th><th>Moves that hit</th><th>Average game</th><th>Best opening play</th><th>Error rate</th></tr>
+          </thead>
+          <tbody>
+            <tr class="stopped"><td>#1</td><td class="l wrap">Structured state (JSON) with a short rules text and how every earlier game ended</td><td>38</td><td class="bar" style="--w:82%"><span>82%</span></td><td>62%</td><td>277 turns</td><td>28%</td><td>138</td></tr>
+            <tr><td>#3</td><td class="l wrap">Rules and strategy text, then score, time, position and dice; nothing about earlier games</td><td>170</td><td class="bar" style="--w:81%"><span>81%</span></td><td>60%</td><td>274 turns</td><td>77%</td><td>132</td></tr>
+            <tr class="stopped"><td>#6</td><td class="l wrap">+ the question before the choices; Decider v1.1 self-hosted</td><td>124</td><td class="bar" style="--w:71%"><span>71%</span></td><td>58%</td><td>255 turns</td><td>83%</td><td>120</td></tr>
+            <tr class="stopped"><td>#7</td><td class="l wrap">+ what each play leads to, and the race line</td><td>135</td><td class="bar" style="--w:0%"><span>0%</span></td><td>9.7%</td><td>50 turns</td><td>68%</td><td>38.5</td></tr>
+            <tr><td>#8</td><td class="l wrap">As #7 without d1 (7 models)</td><td>120</td><td class="bar" style="--w:0%"><span>0%</span></td><td>9.5%</td><td>51 turns</td><td>69%</td><td>39.4</td></tr>
+            <tr><td>#11</td><td class="l wrap">Repeat, new dice</td><td>112</td><td class="bar" style="--w:0%"><span>0%</span></td><td>9.3%</td><td>50 turns</td><td>58%</td><td>40.1</td></tr>
+            <tr><td>#12</td><td class="l wrap">Repeat, new dice</td><td>112</td><td class="bar" style="--w:0%"><span>0%</span></td><td>9.7%</td><td>51 turns</td><td>69%</td><td>36.2</td></tr>
+            <tr><td>#13</td><td class="l wrap">+ the last 10 moves of the game</td><td>106</td><td class="bar" style="--w:0%"><span>0%</span></td><td>10.9%</td><td>52 turns</td><td>72%</td><td>39.1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Grey rows did not finish. "Best opening play" is the share of first moves of a game that match the
+        computer-rollout table in the prompt. "Error rate" is GNU Backgammon's, over all model decisions of the league (see
+        <a href="#error-rate">Error rate</a>); lower is better. Leagues #2, #4, #5, #9 and #10 failed at start or were stopped
+        within minutes; league #3 is left out of the standings below because its format differs.</p>
+
+      <h3>Rules and strategy as text, not a data structure</h3>
+      <p>The first leagues sent the position as structured data with a short rules summary. Models opened badly: 28% of
+        first moves matched the known best play. With the rules, strategy principles and the opening table as prose,
+        that rose to 77%. Opening play improved, but the middle game did not: games still ran to the turn limit, because both
+        sides kept hitting and re-entering.</p>
+
+      <h3>A question that names what a good move does</h3>
+      <p>The question before the choices states three goals in plain words: build a point in front of the opponent's
+        checkers, reduce your blots, bring checkers home. It deliberately leaves hitting out, because hitting on almost every move was the
+        problem. The turn-limit share fell from 81% to 71% (this league also switched to the
+        self-hosted Decider v1.1); hitting barely changed.</p>
+
+      <h3>Compute the consequences in code, not in the model</h3>
+      <p>Backgammon decisions turn on numbers a language model cannot work out reliably from a list of notations: which
+        checkers are left alone, how many of the opponent's 36 rolls hit them, which points are made. Earlier, each option
+        was just its notation, like <code>bar/19 13/11*</code>, and the model had to imagine the resulting position.
+        Now the program computes those numbers for every option and the model compares them. This is the change that
+        ended the endless games: hits fell from about 60% to under 10% of moves and the average game from about 270 turns
+        to about 50.</p>
+      <p>Opening play got worse at the same time, from about 80% to between 58% and 69% best plays. The metrics after each option
+        compete with the opening table earlier in the prompt, and on the first move several plays look similar on these numbers.</p>
+
+      <h3>Recent moves, for longer plans</h3>
+      <p>Each decision is a separate request, so a model cannot see how the position came about. League #13 adds the last
+        10 moves of the game, both sides. Ten turns add about 200 tokens. More would eat into Open-Jev's
+        4,096-token limit, which it applies to the whole question repeated for every option.</p>
+      <p>It made no measurable difference. League #13's error rate was 39.1 (± 2.2), against 38.6 (± 1.2) for #8, #11 and #12
+        together, and the finishing order barely changed. Ten moves may be too few, or these models may not use them.</p>
+    </section>
+
+    <section id="error-rate" aria-labelledby="error-rate-title">
+      <h2 id="error-rate-title">Error rate</h2>
+      <p>Wins and losses depend heavily on the dice. A backgammon engine can instead judge every decision directly:
+        for each move it finds the best play, and measures how much winning chance, in equity (expected points per game), the
+        chosen play gave away. Averaged over all decisions and multiplied by 500, this is the error rate
+        (performance rating, PR) that backgammon players use. As a rough guide for humans: below 3.5 is world class,
+        5 to 8 advanced, above 10 casual.</p>
+      <p>We scored all 104,045 decisions the models made in every league with GNU Backgammon 1.08. Every legal play was
+        evaluated at 0-ply, then the five best and the chosen play again at 2-ply; the loss is the 2-ply equity of the best
+        play minus that of the chosen one. As a check, on the opening roll the plays that the rollout table calls best lose
+        0.0002 equity on average, other plays 0.063.</p>
+      <h3>By model, leagues #8, #11 and #12</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="l">Model</th><th>Decisions</th><th>Error rate</th><th>Engine's best play</th><th>Blunders</th><th>#8</th><th>#11</th><th>#12</th><th>#13</th></tr></thead>
+          <tbody>
+            <tr><td class="l">Gemma 4 31B</td><td>1,894</td><td><strong>25.4</strong> ± 2.4</td><td>54%</td><td>19.5%</td><td>22.7</td><td>26.3</td><td>27.2</td><td>28.8</td></tr>
+            <tr><td class="l">Decider v1.1 27B</td><td>1,942</td><td><strong>32.7</strong> ± 2.9</td><td>49%</td><td>24.5%</td><td>33.0</td><td>33.1</td><td>31.9</td><td>34.2</td></tr>
+            <tr><td class="l">Jev 1.13.0</td><td>2,066</td><td><strong>35.7</strong> ± 2.9</td><td>46%</td><td>26.7%</td><td>34.2</td><td>36.2</td><td>36.7</td><td>32.0</td></tr>
+            <tr><td class="l">Clef</td><td>2,100</td><td><strong>35.8</strong> ± 3.0</td><td>47%</td><td>25.6%</td><td>35.7</td><td>40.5</td><td>30.6</td><td>42.8</td></tr>
+            <tr><td class="l">GPT-6 Luna</td><td>2,044</td><td><strong>39.4</strong> ± 3.5</td><td>46%</td><td>25.6%</td><td>40.1</td><td>35.9</td><td>41.7</td><td>37.5</td></tr>
+            <tr><td class="l">Cygnet</td><td>2,078</td><td><strong>43.2</strong> ± 3.4</td><td>42%</td><td>30.2%</td><td>46.9</td><td>45.6</td><td>36.7</td><td>40.6</td></tr>
+            <tr><td class="l">Open-Jev 27B</td><td>1,758</td><td><strong>59.6</strong> ± 4.6</td><td>36%</td><td>36.5%</td><td>65.8</td><td>63.1</td><td>49.5</td><td>58.1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Error rate: mean equity lost per decision × 500, with a 95% interval that treats decisions as
+        independent (moves within a game are not, so the true interval is somewhat wider). "Engine's best play": share of
+        decisions where the chosen play lost less than 0.001. "Blunders": decisions losing more than 0.08 equity. The last four
+        columns are the error rate in each league; #13 adds the move history.</p>
+      <ul>
+        <li><strong>The engine ranks the models almost as the league tables do.</strong> Gemma 4 31B is clearly best and
+          Open-Jev 27B clearly worst. Decider v1.1, Jev, Clef and GPT-6 Luna are within about one interval of each other, which is
+          why their league places move around; Cygnet is a little behind them.</li>
+        <li><strong>Every model blunders often:</strong> from one move in five (Gemma 4 31B) to one in three (Open-Jev 27B). Even Gemma 4 31B chooses the engine's best play
+          only about half the time.</li>
+        <li><strong>The prompt mattered more than the model.</strong> Before move consequences were computed, the whole field
+          averaged 120 to 138; after, 36 to 40. The worst model now is better than the average model was then.</li>
+      </ul>
+    </section>
+
+    <section id="results" aria-labelledby="results-title">
+      <h2 id="results-title">Results</h2>
+      <p>The standings below use the three finished leagues with computed move consequences and no move history: #8, #11 and
+        #12 (7 models, same prompt, different dice). League #13, with move history, finished 1. Gemma 4 31B, 2. Jev 1.13.0,
+        3. Decider v1.1 27B, 4. Cygnet, 5. GPT-6 Luna, 6. Clef, 7. Open-Jev 27B.</p>
+
+      <h3>Final places</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="l">Model</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th>6th</th><th>7th</th></tr></thead>
+          <tbody>
+            <tr><td class="l">Gemma 4 31B</td><td class="gold">2</td><td>1</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td></tr>
+            <tr><td class="l">Jev 1.13.0</td><td class="gold">1</td><td class="zero">0</td><td class="zero">0</td><td>1</td><td>1</td><td class="zero">0</td><td class="zero">0</td></tr>
+            <tr><td class="l">Decider v1.1 27B</td><td class="zero">0</td><td>2</td><td>1</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td></tr>
+            <tr><td class="l">Clef</td><td class="zero">0</td><td class="zero">0</td><td>1</td><td>1</td><td class="zero">0</td><td>1</td><td class="zero">0</td></tr>
+            <tr><td class="l">Cygnet</td><td class="zero">0</td><td class="zero">0</td><td>1</td><td>1</td><td class="zero">0</td><td>1</td><td class="zero">0</td></tr>
+            <tr><td class="l">GPT-6 Luna</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td>3</td><td class="zero">0</td><td class="zero">0</td></tr>
+            <tr><td class="l">Open-Jev 27B</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td>3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">In league #12, Jev 1.13.0 and GPT-6 Luna finished level on every tiebreak and share 5th place.</p>
+
+      <h3>Across the three leagues</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th class="l">Model</th><th>Matches W-D-L</th><th>Games won-lost</th><th>Points for-against</th><th>Gammons and backgammons won</th><th>Picked the safest play</th><th>Shots left on average</th><th>Time per decision</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="l">Gemma 4 31B</td><td>14-1-3</td><td>67-27</td><td>91-36</td><td>23</td><td>84%</td><td>5.1</td><td>0.30 s</td></tr>
+            <tr><td class="l">Decider v1.1 27B</td><td>12-0-6</td><td>56-40</td><td>79-56</td><td>20</td><td>77%</td><td>6.1</td><td>1.14 s</td></tr>
+            <tr><td class="l">Jev 1.13.0</td><td>11-0-7</td><td>53-49</td><td>71-61</td><td>16</td><td>82%</td><td>5.1</td><td>0.26 s</td></tr>
+            <tr><td class="l">Clef</td><td>9-1-8</td><td>53-45</td><td>81-64</td><td>21</td><td>68%</td><td>7.0</td><td>1.13 s</td></tr>
+            <tr><td class="l">Cygnet</td><td>8-0-10</td><td>52-54</td><td>65-72</td><td>11</td><td>82%</td><td>4.6</td><td>0.22 s</td></tr>
+            <tr><td class="l">GPT-6 Luna</td><td>8-0-10</td><td>48-54</td><td>62-68</td><td>11</td><td>87%</td><td>3.8</td><td>0.20 s</td></tr>
+            <tr><td class="l">Open-Jev 27B</td><td>0-0-18</td><td>15-75</td><td>18-110</td><td>2</td><td>65%</td><td>8.5</td><td>1.69 s</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">"Safest play": the option whose position the opponent hits with the fewest of its 36 rolls, read from the
+        numbers the model was shown. "Shots left": opponent rolls out of 36 that hit after the chosen play. Both are measured on
+        decisions sent as a single request (about 1,700 to 2,100 per model); the safest available play left 2.7 to 4.2 shots on
+        average, a typical option about 13.</p>
+
+      <h3>What the numbers say</h3>
+      <ul>
+        <li><strong>Gemma 4 31B is the strongest player here</strong>, and it is not a trained decision model: a general chat
+          model whose answer-letter probabilities are read. It lost 3 of 18 matches and won the most gammons.</li>
+        <li><strong>Safe is not the same as good.</strong> GPT-6 Luna picks the safest play most often and leaves the fewest shots,
+          yet finished 5th in all three leagues. Winning also takes making points and building a prime, which costs some risk;
+          Gemma and Clef take more risk and win more gammons.</li>
+        <li><strong>Open-Jev 27B collapsed in this format.</strong> It finished 2nd in league #3, where options were just notations,
+          and last in every league since, with the most shots left and the highest error rate. We have not found out why; the
+          numbers it is shown are the same as everyone else's.</li>
+        <li><strong>Speed does not decide it.</strong> The three fastest models are spread across the table, and no model came
+          close to its clock.</li>
+      </ul>
+    </section>
+
+    <section id="allstar" aria-labelledby="allstar-title">
+      <h2 id="allstar-title">Can a team beat the best model?</h2>
+      <p>Every model reports a probability for each option. If those probabilities say when a model is right, a team could
+        ask all seven and play the answer of whichever is most sure. To test this, we sent the same 1,000 recorded positions
+        (2 to 25 legal plays each, drawn from leagues #8, #11, #12 and #13) to all seven models with exactly the request the
+        original player received, and scored every legal play with GNU Backgammon at 2-ply: 7,000 answers and 9,439
+        evaluated plays. Any team and any rule can then be scored offline on the same positions.</p>
+
+      <h3>Confidence says how hard a position is, not who is right</h3>
+      <p>Within each model, confidence does carry information: across its league decisions, a model is right more often
+        when it is more confident (AUROC 0.66 to 0.74, where 0.5 is chance). But the models use very different scales:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="l">Model</th><th>Engine's best play</th><th>Average stated probability</th><th>When it is most sure</th><th>it is right</th></tr></thead>
+          <tbody>
+            <tr><td class="l">Gemma 4 31B</td><td>57%</td><td>0.85 <span class="muted">overconfident</span></td><td>0.8 – 1.0</td><td>65%</td></tr>
+            <tr><td class="l">Decider v1.1 27B</td><td>51%</td><td>0.58</td><td>0.8 – 1.0</td><td>84%</td></tr>
+            <tr><td class="l">Jev 1.13.0</td><td>47%</td><td>0.55</td><td>0.8 – 1.0</td><td>81%</td></tr>
+            <tr><td class="l">Clef</td><td>46%</td><td>0.28 <span class="muted">underconfident</span></td><td>0.6 – 0.8</td><td>89%</td></tr>
+            <tr><td class="l">GPT-6 Luna</td><td>46%</td><td>0.56</td><td>0.8 – 1.0</td><td>65%</td></tr>
+            <tr><td class="l">Cygnet</td><td>44%</td><td>0.67 <span class="muted">overconfident</span></td><td>0.8 – 1.0</td><td>63%</td></tr>
+            <tr><td class="l">Open-Jev 27B</td><td>36%</td><td>0.21 <span class="muted">underconfident</span></td><td>0.6 – 0.8</td><td>92%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">From 17,579 league decisions sent as a single request; "right" means the engine's best play (loss below
+        0.001 equity). The stated probability is the one the model gave its chosen play; the models' own "confidence"
+        fields are defined differently from one another, so they are not used.</p>
+      <p>Clef and Open-Jev look like the most reliable models when they are sure, but they are only sure on easy positions,
+        where everyone else is right as well. The test that matters is what happens when models disagree on the same position:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="l">When Gemma 4 31B and this model disagree</th><th>Gemma has the better play</th><th>The more confident model has the better play</th></tr></thead>
+          <tbody>
+            <tr><td class="l">Decider v1.1 27B</td><td>62%</td><td>62%</td></tr>
+            <tr><td class="l">Clef</td><td>64%</td><td>64%</td></tr>
+            <tr><td class="l">Jev 1.13.0</td><td>69%</td><td>67%</td></tr>
+            <tr><td class="l">GPT-6 Luna</td><td>73%</td><td>70%</td></tr>
+            <tr><td class="l">Cygnet</td><td>77%</td><td>75%</td></tr>
+            <tr><td class="l">Open-Jev 27B</td><td>76%</td><td>76%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Following the more confident model is never better than simply following Gemma 4 31B.</p>
+
+      <h3>Teams</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="l">Team and rule</th><th>Error rate</th><th>Engine's best play</th><th>Difference from Gemma alone (95%)</th></tr></thead>
+          <tbody>
+            <tr><td class="l wrap">Gemma 4 31B alone</td><td>23.5</td><td>54.4%</td><td>–</td></tr>
+            <tr><td class="l wrap">All 7: highest stated probability</td><td>24.0</td><td>53.8%</td><td>+0.4 (−0.2 to +1.2)</td></tr>
+            <tr><td class="l wrap">All 7: lowest expected loss, calibrated</td><td>26.0</td><td>52.9%</td><td>+2.5 (+0.7 to +4.3)</td></tr>
+            <tr><td class="l wrap">All 7: most likely correct, calibrated</td><td>27.7</td><td>51.9%</td><td>+4.2 (+2.2 to +6.4)</td></tr>
+            <tr><td class="l wrap">All 7: probabilities added up</td><td>27.7</td><td>52.0%</td><td>+4.2 (+2.1 to +6.6)</td></tr>
+            <tr><td class="l wrap">Best of 120 formations: Clef + Decider v1.1 + Gemma, probabilities added up</td><td>23.4</td><td>54.8%</td><td>−0.2 (−0.7 to +0.2)</td></tr>
+            <tr><td class="l wrap"><em>Oracle: the best answer any of the 7 gave</em></td><td><em>12.7</em></td><td><em>70.1%</em></td><td><em>−10.8</em></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Error rate on the 1,000 shared positions (lower is better). Calibrated rules map each model's stated
+        probability to its observed accuracy or loss with isotonic regression, fitted on one half of the positions and scored
+        on the other (two-fold cross-fitting). Intervals are bootstrap intervals over positions, paired with Gemma 4 31B on
+        the same positions. The best formation was chosen on the same positions it is scored on, which flatters it.</p>
+      <ul>
+        <li><strong>No team beats the best single model.</strong> Raw confidence ties with Gemma 4 31B only because its inflated
+          probabilities win almost every vote; correcting the scales makes the team worse.</li>
+        <li><strong>The room for a team is large.</strong> Gemma 4 31B misses the engine's best play on 456 of the 1,000 positions,
+          and on a third of those another model found it. An oracle would halve the error rate. What is missing is a way to
+          tell which answer is the right one.</li>
+        <li><strong>The data is kept for further formations.</strong> Other selectors (agreement between models, the number
+          of legal plays, the stage of the game) can be tested on the same 1,000 positions without new requests.</li>
+      </ul>
+    </section>
+
+    <section id="limits" aria-labelledby="limits-title">
+      <h2 id="limits-title">Limits</h2>
+      <ul>
+        <li><strong>Small sample.</strong> Three finished leagues of 21 matches in the main format, about 340 games. Placings in
+          the middle of the table move from league to league; the error rate is the steadier measure.</li>
+        <li><strong>The engine evaluation is not the strongest available.</strong> Moves are judged at 2-ply with GNU Backgammon,
+          not by full rollouts or eXtreme Gammon, and in cubeless money equity: the games have no doubling cube, and match score
+          is ignored. Small differences between close plays can be wrong, but the losses that count as blunders and the gaps between models are
+          much larger than that.</li>
+        <li><strong>Models only play each other.</strong> Their absolute strength against human or engine players is unknown.
+          The engine shows that all of them play far below strong human level.</li>
+        <li><strong>Configuration matters.</strong> Five models run on servers set up by us, and Gemma 4 31B uses a
+          recipe built for a different model. Hosted services can change without notice.</li>
+        <li><strong>The prompt steers.</strong> The question and the strategy text say what a good move looks like, so the
+          results measure how well models follow that guidance with the numbers in front of them, as much as how well they play.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>The leagues are run by jevgammon, our league runner: it generates the legal plays, computes the numbers after each play,
+      sends the requests and records every move, request and answer.</p>
+  </footer>
+</body>
+</html>
