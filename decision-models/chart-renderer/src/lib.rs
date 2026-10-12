@@ -906,7 +906,7 @@ fn cutoffs(results: &Results) -> Option<Figure<'_>> {
         Span::from("██").fg(GRIDLINE),
         Span::from(format!(" Shaded: our rule, the {} cutoff", cutoff_text(results.sure_threshold))),
     ]));
-    let note = wrap("The share Decider keeps is roughly the share of the second model's bill you save.", usize::from(width));
+    let note = wrap("The share Decider keeps is roughly the share of the second model's estimated cost you save.", usize::from(width));
     // Heading, the y-axis title, two rows for the labels over the tallest bar, the plot, the
     // baseline, the cutoff labels, the x-axis title, a blank row and the note.
     let height = 2 + lines.len() as u16 + 1 + 2 + rows + 4 + note.len() as u16;

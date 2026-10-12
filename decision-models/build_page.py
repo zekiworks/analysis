@@ -800,7 +800,7 @@ def results_rows(snap: Snapshot, runs: list[dict[str, Any]]) -> str:
         detail = setting(run) or ("Scores the supplied options" if decides else "Not applicable")
         badge = (
             '<span class="badge" tabindex="0" aria-describedby="decision-model-help">Decision model'
-            '<span class="badge-tip" role="tooltip">Picks from the options we give it and gives each option a score. Writes no text.</span></span>'
+            '<span class="badge-tip" role="tooltip">Picks from the options we give it and gives each option a score. In this test, we used only the pick and the scores.</span></span>'
             if decides
             else ""
         )
@@ -1888,7 +1888,7 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     halves = {key: rules["half"] for key, rules in live_tests(snap)["decider"].items()}
     replayed = {item["key"]: item["strict"]["saving"] for item in snap.replay["frontiers"] if item["strict"]}
     if any(saving(test["measured"]) >= replayed[key] for key, test in halves.items()):
-        raise ValueError("the opening says the live test's bills fell by less than the replay's")
+        raise ValueError("the opening says the live test's estimated cost fell by less than the replay's")
     if max(test["measured"]["difference"] for test in halves.values()) > 0 or min(test["measured"]["p"] for test in halves.values()) < 0.05:
         raise ValueError("the opening says accuracy fell by at most the largest loss and no live test established a change")
     for key, test in halves.items():
@@ -1944,11 +1944,7 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     out["decision_models_tried"] = count(len(tried))
     out["opening_llm_count"] = in_words(len(seconds_list))
     out["glide_cost_ratio"] = times(per_thousand(named["glide"]) / per_thousand(decider))
-    more = sorted(round(-1000 * item["strict"]["difference"]) for item in seconds_list)
-    if more[0] < 1:
-        raise ValueError("the opening says each two-step setup got more answers wrong per 1,000 questions than its LLM")
-    span = f"{more[0]} to {more[-1]}" if more[0] != more[-1] else f"{more[0]}"
-    out["opening_more_wrong"] = f"{span} more answer{'' if more[-1] == 1 else 's'}"
+    out["opening_more_wrong"] = f"{more_wrong_span(snap)} more answers"
     best = max(run["correct"] for run in tried + untried) / snap.total
     if not 0.6 <= best <= 0.72:
         raise ValueError("the opening says the best decision models get about two answers in three right")
@@ -2193,8 +2189,14 @@ def handoff_figure(snap: Snapshot) -> str:
            f"{count(share['kept'] - share['wrong'])} of {count(share['kept'])} right; Opus answers {fmt.pct(1 - kept, 0)}. Decider "
            f"takes about {seconds(decider['latency']['median_request_seconds'])} seconds per question; Opus takes about "
            f"{opus_run['latency']['median_request_seconds']:.0f} seconds per request of {opus_run['questions_per_request']} questions.")
-    caption = (f"Decider keeps its most confident quarter of answers and gets {count(share['kept'] - share['wrong'])} of {count(share['kept'])} right. "
-               f"Opus answers the rest. Opus's bill falls {fmt.pct(opus['share']['saving'], 0)}; we replayed recorded answers.")
+    worse = {rule: -100 * opus[rule]["difference"] for rule in ("share", "strict")}
+    if min(worse.values()) <= 0:
+        raise ValueError("the handoff caption says accuracy fell with both rules in front of Opus")
+    caption = (f"In a separate replay, we kept Decider's most confident quarter of answers. Decider got "
+               f"{count(share['kept'] - share['wrong'])} of those {count(share['kept'])} answers right, and Opus answered the rest. "
+               f"The estimated combined cost fell {fmt.pct(opus['share']['saving'], 0)}, and accuracy fell {worse['share']:.2f} points. "
+               "This is a different rule from the one at the top of the page, where we chose the cutoff on half the questions "
+               f"and accuracy fell {worse['strict']:.2f} points on average.")
     return chart_figure("handoff", alt, caption)
 
 
@@ -2316,23 +2318,32 @@ def savings_live_table(snap: Snapshot) -> str:
     )
 
 
+def more_wrong_span(snap: Snapshot) -> str:
+    """How many more answers per 1,000 questions the opening's two-step setups got wrong than their LLMs alone, with the
+    cutoff chosen on half the questions, to one decimal: '1.0 to 2.3'. The build stops unless each got more wrong."""
+    more = sorted(-1000 * item["strict"]["difference"] for item in opening_seconds(snap))
+    if more[0] <= 0:
+        raise ValueError("the opening says each two-step setup got more answers wrong per 1,000 questions than its LLM")
+    low, high = f"{more[0]:.1f}", f"{more[-1]:.1f}"
+    return low if low == high else f"{low} to {high}"
+
+
 def head(snap: Snapshot, images: dict[str, dict[str, str]]) -> str:
     """The title, the description and the link preview: the preview image is the cutoff chart, in the dark theme like the site."""
     site, fmt = snap.config["site_url"], snap.fmt
     preview = snap.config["images"]["preview"]
-    share, latency = snap.replay["share"], snap.replay["run"]["latency"]
-    opus = next(item for item in snap.replay["frontiers"] if item["key"] == "opus")
-    sonnet = next(item for item in snap.replay["frontiers"] if item["key"] == "sonnet_high")
-    net = opus["share"]["first_only"] - opus["share"]["second_only"]
-    wrong = "no more wrong answers" if net >= 0 else f"{count(-net)} more wrong answer{'s' if net != -1 else ''}"
+    tried, untried = decision_first_models(snap)
+    firsts = opening_seconds(snap)
+    if any(abs(item["strict"]["share"] - item["strict"]["saving"]) > 0.01 for item in firsts):
+        raise ValueError("the description says the estimated combined cost fell by about the share Decider took")
+    shares = [f"{fmt.pct(item['strict']['share'], 0)} of {item['run']['name']}'s" for item in firsts]
+    shares[0] += " questions"
     description = (
-        f"Perplexity's Decider v1.1 took a quarter of Claude Opus 5.5's work on {count(snap.total)} Turkish exam questions: Opus's "
-        f"bill fell {fmt.pct(opus['share']['saving'], 0)}, with {wrong}, and those answers came back in "
-        f"{speed_words(latency['median_request_seconds'])}. In front of Claude Sonnet 5.5 it took up to "
-        f"{fmt.pct(sonnet['strict']['share'], 0)}. We replayed recorded answers."
+        f"We tested {count(len(tried) + len(untried))} decision models on {count(snap.total)} Turkish exam questions. Perplexity's "
+        f"Decider v1.1 took the most work off each LLM: {and_list(shares)}. The estimated combined cost fell by about the same "
+        f"share. The cost in accuracy: {more_wrong_span(snap)} more wrong answers per 1,000 questions, on average. We replayed "
+        "recorded answers."
     )
-    if abs(share["kept"] / snap.total - 0.25) > 0.005:
-        raise ValueError("the description says Decider took a quarter of the work")
     alt = cutoff_alt(snap)
     image = site + images["preview"]["dark"]
     return "\n".join(
@@ -2937,7 +2948,7 @@ def cutoff_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
         f"answers · {legend}</p>"
         f'<div class="cols" style="--count: {len(rows)}">{"".join(columns)}</div>'
         f'<p class="axis">Cutoff (lowest confidence we keep). Bar height: answers kept, out of {count(snap.total)}. The share Decider '
-        "keeps is roughly the share of the second model's bill you save.</p>"
+        "keeps is roughly the share of the second model's estimated cost you save.</p>"
         + footer(snap, "Choose a cutoff on one set of questions and test it on new ones.")
     )
     return figure_page(size, scale, body, theme, CUTOFF_STYLE)
@@ -3085,8 +3096,8 @@ def sure_post(snap: Snapshot, numbers: dict[str, str]) -> str:
         raise ValueError("the 99% post says Decider's kept answers were all right and each LLM saved the same share with no loss")
     return "\n\n".join([
         f"At a {snap.cutoff} cutoff, Decider v1.1 kept {count(row['accepted'])} of {numbers['questions']} answers "
-        f"({fmt.pct(row['coverage'])}), and all of them were right. With Decider in front, each LLM's bill fell about "
-        f"{savings.pop()} with no loss of accuracy (we replayed recorded answers).",
+        f"({fmt.pct(row['coverage'])}), and all of them were right. With Decider in front, the estimated cost fell about "
+        f"{savings.pop()} for each LLM with no loss of accuracy (we replayed recorded answers).",
         f"No mistakes in a sample is not zero risk: the 95% interval for the error rate runs from {fmt.span(*row['error_range'])}.",
         site,
     ])
