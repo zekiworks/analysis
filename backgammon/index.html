@@ -95,6 +95,7 @@
         <li><a href="#error-rate">Error rate</a></li>
         <li><a href="#results">Results</a></li>
         <li><a href="#allstar">All-star team</a></li>
+        <li><a href="#speed-cost">Speed and cost</a></li>
         <li><a href="#limits">Limits</a></li>
       </ul>
     </nav>
@@ -433,6 +434,53 @@ Which of the following moves makes a point in front of the opponent's checkers, 
           tell which answer is the right one.</li>
         <li><strong>The data is kept for further formations.</strong> Other selectors (agreement between models, the number
           of legal plays, the stage of the game) can be tested on the same 1,000 positions without new requests.</li>
+      </ul>
+    </section>
+
+    <section id="speed-cost" aria-labelledby="speed-cost-title">
+      <h2 id="speed-cost-title">Speed and cost</h2>
+      <p>Measured on the same 1,000 recorded positions as the team test, with exactly the request each original player
+        received. Besides the seven league players, the table includes four general language models we tried the same way:
+        DeepSeek V4.1 Flash, Qwen3.8 Flash Next and GLM-4.7-Flash are read through their probabilities for each answer letter,
+        like Gemma 4 31B. Gemini 3.8 Flash cannot return those probabilities or switch off its reasoning, so it answers one
+        letter after reasoning at its lowest available level, which is also why it is the slowest.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="l">Model</th><th class="l">Runs on</th><th>Error rate</th><th>Time per decision<br><span class="muted">median / 90th pct</span></th><th>In flight</th><th>Estimated API cost<br><span class="muted">per 1,000 decisions</span></th></tr></thead>
+          <tbody>
+            <tr><td class="l">Gemini 3.8 Flash</td><td class="l">Google Gemini API</td><td>18.3</td><td>2.87 s / 7.96 s</td><td>4</td><td>$3.25</td></tr>
+            <tr><td class="l">Gemma 4 31B</td><td class="l">our GPUs: 1</td><td>23.5</td><td>0.59 s / 0.87 s</td><td>4</td><td class="muted">own hardware</td></tr>
+            <tr><td class="l">DeepSeek V4.1 Flash</td><td class="l">our GPUs: 4</td><td>27.5</td><td>0.57 s / 0.98 s</td><td>4</td><td class="muted">own hardware</td></tr>
+            <tr><td class="l">Qwen3.8 Flash Next</td><td class="l">our GPUs: 4</td><td>31.1</td><td>0.46 s / 0.71 s</td><td>4</td><td class="muted">own hardware</td></tr>
+            <tr><td class="l">Decider v1.1 27B</td><td class="l">our GPUs: shares 2</td><td>31.8</td><td>0.82 s / 1.35 s</td><td>1</td><td class="muted">own hardware</td></tr>
+            <tr><td class="l">Jev 1.13.0</td><td class="l">TypeSafe API</td><td>33.6</td><td>0.25 s / 0.29 s</td><td>4</td><td>$0.16</td></tr>
+            <tr><td class="l">Clef</td><td class="l">our GPUs: 1</td><td>34.1</td><td>0.94 s / 1.28 s</td><td>1</td><td class="muted">own hardware</td></tr>
+            <tr><td class="l">GPT-6 Luna</td><td class="l">OpenAI Decisions API</td><td>35.0</td><td>0.22 s / 0.27 s</td><td>4</td><td>$0.32</td></tr>
+            <tr><td class="l">Cygnet</td><td class="l">our GPUs: 1</td><td>38.9</td><td>0.78 s / 1.12 s</td><td>4</td><td class="muted">own hardware</td></tr>
+            <tr><td class="l">GLM-4.7-Flash</td><td class="l">our GPUs: 1</td><td>50.6</td><td>0.20 s / 0.27 s</td><td>4</td><td class="muted">own hardware</td></tr>
+            <tr><td class="l">Open-Jev 27B</td><td class="l">our GPUs: 1</td><td>59.9</td><td>1.38 s / 1.91 s</td><td>1</td><td class="muted">own hardware</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Error rate on the 1,000 shared positions (lower is better). Time is wall-clock per request, from
+        sending it to receiving the answer, with the stated number of requests in flight. Our GPUs are NVIDIA RTX PRO 6000
+        Blackwell cards with 96 GB each, in one machine. The seven league players were asked together, so the self-hosted
+        ones shared the machine; DeepSeek, Qwen, GLM-4.7 and Gemini were each asked alone. A run of GLM-5.3-Flash is left
+        out: it played close to random, most likely because of how we had to run it on this machine.</p>
+      <p class="note">Cost basis: the provider's list price × the tokens its API reported; the bill itself was not checked.
+        Jev 1.13.0 ($0.042 per 1M input tokens, output free) and GPT-6 Luna on OpenAI's Decisions API ($0.10 per 1M input
+        tokens, output free): prices of 8 October 2026, tokens averaged over their league decisions with 2 to 25 legal plays
+        (3,740 and 3,238 input tokens per decision). Gemini 3.8 Flash ($0.75 per 1M input tokens, $3.75 per 1M output tokens,
+        reasoning billed as output; introductory price of 8 October 2026, which doubles on 1 January 2027): tokens measured on
+        100 of the positions, 3,373 input and 192 output per decision on average. Self-hosted models have no per-request
+        price; a 7-model league of about 690 decisions per player took about 30 minutes on the four GPUs.</p>
+      <ul>
+        <li><strong>The cheapest strong player is one we run ourselves.</strong> Gemma 4 31B costs only GPU time, needs one
+          card, and answers in about 0.6 s.</li>
+        <li><strong>The best player costs most and is slowest.</strong> Gemini 3.8 Flash makes the fewest errors, at about
+          ten times the price of GPT-6 Luna and with one decision in ten taking 8 seconds or more.</li>
+        <li><strong>The hosted decision services are fastest and cheapest per decision</strong>, at about 0.2 s and well
+          under a dollar per 1,000 decisions, but they play worse than Gemma 4 31B.</li>
       </ul>
     </section>
 
