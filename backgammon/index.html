@@ -85,6 +85,9 @@
         and Jev 1.13.0 one; Open-Jev 27B finished last in all four.</p>
       <p>An All-star team that asks all seven and plays the most confident answer does not beat Gemma 4 31B alone:
         confidence shows how hard a position is, not which model is right.</p>
+      <p>The strongest players are frontier chat models reasoning briefly before they answer: GPT-6 Astra (error rate 11.2,
+        near casual human play) and Claude Opus 5.5 (17.3), ahead of every decision model. They are also the slowest and,
+        at API prices, the most expensive (see <a href="#speed-cost">Speed and cost</a>).</p>
     </div>
     <nav class="toc" aria-label="Sections">
       <ul>
@@ -440,14 +443,17 @@ Which of the following moves makes a point in front of the opponent's checkers, 
     <section id="speed-cost" aria-labelledby="speed-cost-title">
       <h2 id="speed-cost-title">Speed and cost</h2>
       <p>Measured on the same 1,000 recorded positions as the team test, with exactly the request each original player
-        received. Besides the seven league players, the table includes four general language models we tried the same way:
+        received. Besides the seven league players, the table includes six general language models we tried the same way:
         DeepSeek V4.1 Flash, Qwen3.8 Flash Next and GLM-4.7-Flash are read through their probabilities for each answer letter,
-        like Gemma 4 31B. Gemini 3.8 Flash cannot return those probabilities or switch off its reasoning, so it answers one
-        letter after reasoning at its lowest available level, which is also why it is the slowest.</p>
+        like Gemma 4 31B. GPT-6 Astra, Claude Opus 5.5 and Gemini 3.8 Flash return no such probabilities: each answers one
+        letter, constrained to the option letters, after reasoning at low effort (Gemini's lowest available level), which is
+        why they are the slowest. GPT-6 Astra and Claude Opus 5.5 ran through ChatGPT and Claude subscriptions.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th class="l">Model</th><th class="l">Runs on</th><th>Error rate</th><th>Time per decision<br><span class="muted">median / 90th pct</span></th><th>In flight</th><th>Estimated API cost<br><span class="muted">per 1,000 decisions</span></th></tr></thead>
           <tbody>
+            <tr><td class="l">GPT-6 Astra</td><td class="l">ChatGPT subscription</td><td>11.2</td><td>4.60 s / 10.95 s</td><td>4</td><td>$36.45 <span class="muted">API-equivalent</span></td></tr>
+            <tr><td class="l">Claude Opus 5.5</td><td class="l">Claude subscription</td><td>17.3</td><td>3.43 s / 6.66 s</td><td>4</td><td>$21.65 <span class="muted">API-equivalent</span></td></tr>
             <tr><td class="l">Gemini 3.8 Flash</td><td class="l">Google Gemini API</td><td>18.3</td><td>2.87 s / 7.96 s</td><td>4</td><td>$3.25</td></tr>
             <tr><td class="l">Gemma 4 31B</td><td class="l">our GPUs: 1</td><td>23.5</td><td>0.59 s / 0.87 s</td><td>4</td><td class="muted">own hardware</td></tr>
             <tr><td class="l">DeepSeek V4.1 Flash</td><td class="l">our GPUs: 4</td><td>27.5</td><td>0.57 s / 0.98 s</td><td>4</td><td class="muted">own hardware</td></tr>
@@ -472,13 +478,19 @@ Which of the following moves makes a point in front of the opponent's checkers, 
         tokens, output free): prices of 8 October 2026, tokens averaged over their league decisions with 2 to 25 legal plays
         (3,740 and 3,238 input tokens per decision). Gemini 3.8 Flash ($0.75 per 1M input tokens, $3.75 per 1M output tokens,
         reasoning billed as output; introductory price of 8 October 2026, which doubles on 1 January 2027): tokens measured on
-        100 of the positions, 3,373 input and 192 output per decision on average. Self-hosted models have no per-request
+        100 of the positions, 3,373 input and 192 output per decision on average. GPT-6 Astra ($10 per 1M input, $50 per 1M
+        output) and Claude Opus 5.5 ($4 input, $20 output): API list prices of 8 October 2026 × the tokens reported for all
+        1,000 positions (3,213 input and 86 output, and 4,424 input and 198 output per decision). Both ran on subscriptions,
+        which are not billed per token, so these are API-equivalent estimates. Self-hosted models have no per-request
         price; a 7-model league of about 690 decisions per player took about 30 minutes on the four GPUs.</p>
       <ul>
         <li><strong>The cheapest strong player is one we run ourselves.</strong> Gemma 4 31B costs only GPU time, needs one
           card, and answers in about 0.6 s.</li>
-        <li><strong>The best player costs most and is slowest.</strong> Gemini 3.8 Flash makes the fewest errors, at about
-          ten times the price of GPT-6 Luna and with one decision in ten taking 8 seconds or more.</li>
+        <li><strong>The best players cost most and are slowest.</strong> GPT-6 Astra makes the fewest errors by far, but at
+          API prices it costs about a hundred times as much per decision as GPT-6 Luna, and one decision in ten takes 11
+          seconds or more. Claude Opus 5.5 and Gemini 3.8 Flash are about level (17.3 against 18.3; the difference is within
+          chance), with Gemini about seven times cheaper. Even asking Astra, Opus and Gemini together and taking the majority
+          answer is worse than Astra alone (14.4).</li>
         <li><strong>The hosted decision services are fastest and cheapest per decision</strong>, at about 0.2 s and well
           under a dollar per 1,000 decisions, but they play worse than Gemma 4 31B.</li>
       </ul>
