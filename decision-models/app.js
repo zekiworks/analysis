@@ -1264,10 +1264,26 @@ function renderRepeats(data) {
 }
 
 /* The two-step setup run for real: the second model answers, with new calls, only the questions the first model
-   does not keep. */
+   does not keep. Rows: the lead replay's first model before the earlier one, then by how the cutoff was set, its
+   batched tests before its timed ones, and the second models from the least to the most accurate alone, the order
+   the page names them in. */
+const PIPELINE_RULES = ['half', 'share', 'cutoff'];
+function ruleText(item) {
+  if (item.rule === 'share') {
+    return item.share === 0.25 ? 'Its most confident quarter of these questions' : `Its most confident ${formatPercent(100 * item.share)} of these questions`;
+  }
+  return item.rule === 'cutoff' ? `Fixed at ${cutoffText(item.threshold)} before the test` : 'Chosen on the other half';
+}
 function renderPipelines(data) {
   const byRun = new Map(data.runs.map(run => [run.run, run]));
-  const rows = data.pipelines.map(item => {
+  const sorted = [...data.pipelines].sort(
+    (a, b) =>
+      (b.decision === data.replay.decision) - (a.decision === data.replay.decision) ||
+      PIPELINE_RULES.indexOf(a.rule) - PIPELINE_RULES.indexOf(b.rule) ||
+      b.batch_size - a.batch_size ||
+      byRun.get(a.frontier).accuracy - byRun.get(b.frontier).accuracy,
+  );
+  const rows = sorted.map(item => {
     const measured = item.measured;
     const perThousand = usd => formatUsd((1000 * usd) / item.held_out);
     return el(
@@ -1275,6 +1291,8 @@ function renderPipelines(data) {
       {},
       modelCell(byRun.get(item.decision)),
       modelCell(byRun.get(item.frontier), { withSetting: true }),
+      td(ruleText(item), { className: 'wrap' }),
+      td(integer(item.batch_size), { value: item.batch_size, numeric: true }),
       td(integer(item.held_out), { value: item.held_out, numeric: true }),
       td(cutoffText(item.threshold), { value: item.threshold, numeric: true, title: `Confidence cutoff: ${cutoffText(item.threshold)}` }),
       percentCell(percent(item.routed, item.held_out), { detail: `${integer(item.routed)} questions` }),
@@ -1323,8 +1341,10 @@ function renderPipelines(data) {
     [
       { label: 'Model answering first' },
       { label: 'Model answering the rest' },
+      { label: 'How we set the cutoff' },
+      { label: 'Questions per request', numeric: true, title: 'The second model’s questions in each request; one question per request times each question’s wait', extra: true },
       { label: 'Questions reserved for testing', numeric: true, title: 'The half of the questions the cutoff was not chosen on', extra: true },
-      { label: 'Confidence cutoff chosen before this test', numeric: true, title: 'Chosen on the other half, before the test', extra: true },
+      { label: 'Confidence cutoff chosen before this test', numeric: true, title: 'Fixed before the test', extra: true },
       { label: 'Final answers supplied by the first model', numeric: true },
       { label: 'Accuracy using recorded answers from both models', numeric: true, extra: true },
       { label: 'Accuracy with new answers from the second model', numeric: true },

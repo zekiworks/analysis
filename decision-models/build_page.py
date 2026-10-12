@@ -905,17 +905,58 @@ def stability_lead(snap: Snapshot) -> str:
     return f"<p>We asked the same questions {runs} times with the same settings. {changed} {repeated}</p>"
 
 
-def live_tests(snap: Snapshot) -> list[dict[str, Any]]:
-    """The live tests with new calls to the second model, in page_config.json's live_tests order (the second models'
-    named keys), each with its first model, its second model and its measured results."""
-    tests = []
-    for key in snap.config["live_tests"]:
-        frontier = snap.named[key]
-        plan = next((item for item in snap.results["pipelines"] if item["frontier"] == frontier["run"] and item.get("measured")), None)
-        if plan is None:
-            raise ValueError(f"results.json has no live test with {label(frontier)}")
-        tests.append({"plan": plan, "measured": plan["measured"], "decision": snap.by_id[plan["decision"]], "frontier": frontier})
+# The live tests' rules in the order the savings table names them, with the label each has on the page.
+LIVE_RULES = {"share": "Most confident quarter", "half": "Cutoff chosen on half the questions", "cutoff": "Fixed 99% rule"}
+
+
+def live_tests(snap: Snapshot) -> dict[str, Any]:
+    """The live tests with new calls to the second model, from results.json's pipelines, each with its plan, its measured
+    results, its first and second models and the second model's key. "decider": the replay's first model (Decider v1.1)
+    in front of each of page_config.json's live_tests seconds, by rule, with the second model's own number of questions
+    per request; "timed": the same pairs with the cutoff chosen on half the questions and one question per request;
+    "earlier": the cost section's first model (Decider v1) in front of the earlier seconds. The build stops when a test
+    is missing, when a rule is not the one its label names, or when the tests do not share their questions and limit."""
+    spec, replayed, earlier = snap.config["live_tests"], snap.replay["run"], snap.by_id[snap.plan["decision"]]
+    decider: dict[str, dict[str, dict[str, Any]]] = {}
+    timed: dict[str, dict[str, Any]] = {}
+    before: dict[str, dict[str, Any]] = {}
+    for item in snap.results["pipelines"]:
+        if not item.get("measured"):
+            continue
+        decision, frontier = snap.by_id[item["decision"]], snap.by_id[item["frontier"]]
+        test = {"plan": item, "measured": item["measured"], "decision": decision, "frontier": frontier, "key": snap.frontier_key(frontier)}
+        if decision is replayed and item["batch_size"] == frontier["questions_per_request"]:
+            decider.setdefault(test["key"], {})[item["rule"]] = test
+        elif decision is replayed and item["batch_size"] == 1 and item["rule"] == "half":
+            timed[test["key"]] = test
+        elif decision is earlier and item["rule"] == "half":
+            before[test["key"]] = test
+    missing = ([f"{key} {rule}" for key in spec["seconds"] for rule in LIVE_RULES if rule not in decider.get(key, {})]
+               + [f"{key} one question per request" for key in spec["seconds"] if key not in timed]
+               + [f"{key} with {label(earlier)}" for key in spec["earlier"] if key not in before])
+    if missing:
+        raise ValueError(f"results.json lacks live tests: {', '.join(missing)}")
+    tests = {
+        "decider": {key: {rule: decider[key][rule] for rule in LIVE_RULES} for key in spec["seconds"]},
+        "timed": {key: timed[key] for key in spec["seconds"]},
+        "earlier": [before[key] for key in spec["earlier"]],
+    }
+    every = [test for rules in tests["decider"].values() for test in rules.values()] + list(tests["timed"].values()) + tests["earlier"]
+    if (any(rules["share"]["plan"]["share"] != 0.25 for rules in tests["decider"].values())
+            or any(rules["cutoff"]["plan"]["threshold"] != snap.config["threshold"] for rules in tests["decider"].values())
+            or len({test["plan"]["held_out"] for test in every}) != 1 or len({test["plan"]["tolerance_points"] for test in every}) != 1):
+        raise ValueError("the live tests no longer fit the copy: quarter, 99% cutoff, shared questions and loss limit")
     return tests
+
+
+def decider_tests(snap: Snapshot) -> list[dict[str, Any]]:
+    """Decider v1.1's batched live tests, by second model, then by rule."""
+    return [test for rules in live_tests(snap)["decider"].values() for test in rules.values()]
+
+
+def saving(measured: dict[str, Any]) -> float:
+    """A live test's estimated saving: one minus the pair's estimated cost over the second model's alone."""
+    return 1 - measured["cost_usd"] / measured["frontier_cost_usd"]
 
 
 def live_name(snap: Snapshot, run: dict[str, Any]) -> str:
@@ -932,53 +973,100 @@ def interval_points(low: float, high: float) -> str:
     return f"{points(low)} to {points(high)} points"
 
 
+def and_list(items: list[str]) -> str:
+    """'A', 'A and B', 'A, B and C'."""
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def passed_cost(test: dict[str, Any]) -> float:
+    """What one question passed to the second model cost in a live test, over its average question alone."""
+    plan, measured = test["plan"], test["measured"]
+    passed = plan["held_out"] - plan["routed"]
+    return ((measured["cost_usd"] - measured["decision_cost_usd"]) / passed) / (measured["frontier_cost_usd"] / plan["held_out"])
+
+
 def cost_lead(snap: Snapshot) -> str:
-    """Block 07: the two live tests with new calls to the second model, both with the earlier Decider. The build stops
-    unless both used the same first model, which is not the replay's, on the same questions with the same loss limit,
-    and unless the cheaper models run alone come from one of them."""
+    """Block 07: Decider v1.1's live tests with new calls to each second model, with each rule, then the earlier tests with
+    Decider v1 and the cheaper models run alone on the same questions. The build stops unless the text still fits: the
+    savings with the cutoff chosen on half the questions below the replay's, one share kept per fixed rule, and the cases
+    of the loss limit and the McNemar sentences."""
     fmt, tests = snap.fmt, live_tests(snap)
-    decision, replayed = tests[0]["decision"], snap.replay["run"]
-    held_out = {test["plan"]["held_out"] for test in tests}
-    limits = {test["plan"]["tolerance_points"] for test in tests}
-    if (any(test["decision"] is not decision for test in tests) or decision is replayed or len(held_out) != 1
-            or len(limits) != 1 or all(test["plan"] is not snap.plan for test in tests)):
-        raise ValueError("the live tests no longer fit the copy of 'What happened in a live test?'")
-    (questions,), (limit,) = held_out, limits
-    first = esc(live_name(snap, decision))
+    decider, earlier = tests["decider"], tests["earlier"]
+    some = next(iter(decider.values()))["half"]
+    questions, limit = some["plan"]["held_out"], some["plan"]["tolerance_points"]
+    me = esc(live_name(snap, some["decision"]))
+    names = [esc(live_name(snap, rules["half"]["frontier"])) for rules in decider.values()]
+    earlier_alone = {test["measured"]["alone_run"] for test in earlier}
+    reused = [esc(live_name(snap, rules["half"]["frontier"])) for rules in decider.values()
+              if rules["half"]["measured"]["alone_run"] in earlier_alone]
+    replayed = {item["key"]: item["strict"] for item in snap.replay["frontiers"]}
+    if any(saving(rules["half"]["measured"]) >= replayed[key]["saving"] for key, rules in decider.items()):
+        raise ValueError("block 07 says the live tests saved less than the replay")
+    kept = {rule: {rules[rule]["plan"]["routed"] for rules in decider.values()} for rule in ("share", "cutoff")}
+    if any(len(shares) != 1 for shares in kept.values()):
+        raise ValueError("block 07 gives one share kept by the most confident quarter and one by the 99% cutoff")
+
+    def costs(rule: str) -> str:
+        return and_list([fmt.pct(saving(rules[rule]["measured"]), 0) for rules in decider.values()])
+
+    def dearer(test: dict[str, Any]) -> str:
+        factor = passed_cost(test) - 1
+        return "as much as" if round(100 * factor) == 0 else f"{fmt.pct(abs(factor), 0)} {'more' if factor > 0 else 'less'}"
+
+    halves = [rules["half"] for rules in decider.values()]
     paragraphs = [
-        f"We also ran the two-step setup live, with new answers from the second model. Both live tests used the earlier "
-        f"{first}, not {esc(live_name(snap, replayed))}. Our other savings replay recorded answers.",
-        f"In each test, we chose {first}'s cutoff on one half of the questions. On the other {count(questions)} questions, "
-        "we kept the answers that reached that cutoff and the second model answered the rest. We also asked the second "
-        f"model alone to answer all {count(questions)} questions, in a separate run.",
+        f"We ran the two-step setup live, with {me} in front of each of the {in_words(len(decider))} LLMs. {me}'s answers came "
+        "from its recorded run; each LLM answered the questions it passed on, with new calls. We split the questions in half "
+        f"at random, keeping the questions about one passage together, and tested on one half: {count(questions)} questions. "
+        f"Each LLM also answered all {count(questions)} of them alone, in a separate run"
+        + (f"; for {and_list(reused)}, that run comes from our earlier live tests on the same questions." if reused else "."),
+        f"We tested all {in_words(len(LIVE_RULES))} rules. With the cutoff chosen on half the questions, we set the cutoff on "
+        f"the other half. With the most confident quarter, {me} kept its {count(kept['share'].pop())} most confident answers "
+        f"among the test questions. With the fixed {snap.cutoff} rule, it kept every answer at {snap.cutoff} or more, "
+        f"{count(kept['cutoff'].pop())} of them.",
+        f"With the cutoff chosen on half the questions, {me} kept "
+        f"{and_list([fmt.pct(test['plan']['routed'] / questions, 0) for test in halves])} of the questions in front of "
+        f"{and_list(names)}, and the estimated cost fell {costs('half')}. The replay of recorded answers gave "
+        f"{and_list([fmt.pct(replayed[key]['saving'], 0) for key in decider])}. The replay averages "
+        f"{count(snap.results['cascades'][0]['held_out']['splits'])} splits of the questions and gives every question passed to "
+        "the LLM the same average cost. The live test used one split, and each LLM's own cost for the questions passed to it: "
+        + f"a question passed to {names[0]} cost {dearer(halves[0])}{'' if dearer(halves[0]) == 'as much as' else ' than'} its "
+        "average question, " + and_list([f"one passed to {name} {dearer(test)}" + (" its average" if dearer(test) == "as much as" else "")
+                                          for name, test in zip(names[1:], halves[1:])])
+        + ".",
+        f"With the most confident quarter, the estimated cost fell {costs('share')} for {and_list(names)}. With the fixed "
+        f"{snap.cutoff} rule, it fell {costs('cutoff')}.",
     ]
-    for test in tests:
-        plan, measured, frontier = test["plan"], test["measured"], test["frontier"]
-        name = esc(live_name(snap, frontier))
-        together, alone_cost = 1000 * measured["cost_usd"] / questions, 1000 * measured["frontier_cost_usd"] / questions
-        saving = 1 - together / alone_cost
-        before, after = measured["frontier_request_seconds"] / 60, measured["request_seconds"] / 60
-        cost = (f"The estimated cost fell by {fmt.pct(saving)}, from {usd(alone_cost)} to {usd(together)} per 1,000 questions."
-                if saving > 0 else f"The estimated cost rose by {fmt.pct(-saving)}, from {usd(alone_cost)} to {usd(together)} per 1,000 questions.")
-        paragraphs.append(
-            f"With {esc(named(frontier))}, we kept {count(plan['routed'])} of {first}'s recorded answers, or "
-            f"{fmt.pct(plan['routed'] / questions)}, and {name} answered the rest. Together they scored "
-            f"{pct2(measured['accuracy'])}, against {pct2(measured['frontier_accuracy'])} for {name} alone. {cost} The total "
-            f"run time {'rose' if after > before else 'fell'} from {before:.1f} to {after:.1f} minutes."
-        )
-    checks = []
-    for test in tests:
-        measured, name = test["measured"], esc(live_name(snap, test["frontier"]))
-        change = (f"the observed loss was {abs(100 * measured['difference']):.2f} points" if measured["difference"] < 0
-                  else f"accuracy rose by {100 * measured['difference']:.2f} points")
-        span = (f"the 95% interval runs from a loss of {abs(100 * measured['low']):.2f} points to a gain of "
-                f"{100 * measured['high']:.2f} points")
-        if -100 * measured["low"] > limit:
-            checks.append(f"With {name}, {change}, but {span}. So this test does not establish that the loss stays within our limit.")
-        else:
-            checks.append(f"With {name}, {change}, and {span}: the whole interval stays within our limit.")
-    paragraphs.append(f"Before the tests, we chose the largest accuracy loss we would accept: {limit:g} percentage points. "
-                      + " ".join(checks))
+    every = decider_tests(snap)
+    beyond = [test for test in every if -100 * test["measured"]["difference"] > limit]
+    open_ended = [test for test in every if -100 * test["measured"]["low"] > limit]
+    observed = (f"In all {in_words(len(every))} tests, the observed change stayed within it." if not beyond else
+                f"In {in_words(len(every) - len(beyond))} of the {in_words(len(every))} tests, the observed change stayed within "
+                "it; in the " + ("tests" if len(beyond) > 1 else "test") + " "
+                + and_list([f"with {esc(live_name(snap, test['frontier']))} and the {LIVE_RULES[test['plan']['rule']].lower()}"
+                            for test in beyond]) + ", the observed loss was larger.")
+    if len(open_ended) == len(every):
+        interval = "But in every test the 95% interval also allows a larger loss, so no test establishes that the loss stays within our limit."
+    elif open_ended:
+        interval = (f"In {in_words(len(open_ended))} of the {in_words(len(every))} tests, the 95% interval also allows a larger loss, "
+                    "so those tests do not establish that the loss stays within our limit.")
+    else:
+        interval = "In every test the whole 95% interval stays within our limit."
+    smallest = min(test["measured"]["p"] for test in every)
+    if smallest < 0.05:
+        raise ValueError("block 07 says no live test established a change in accuracy")
+    paragraphs.append(
+        f"Before the tests, we chose the largest accuracy loss we would accept: {limit:g} percentage points. {observed} {interval} "
+        f"None of the {in_words(len(every))} tests established a change in accuracy from the LLM alone: the exact McNemar test "
+        f"gave p = {smallest:.2g} or more."
+    )
+    paragraphs.append(
+        f"Our first live tests used the earlier {esc(live_name(snap, earlier[0]['decision']))}, with the cutoff chosen on half the "
+        "questions: " + "; ".join(
+            f"in front of {esc(live_name(snap, test['frontier']))}, it kept {fmt.pct(test['plan']['routed'] / questions)} of the "
+            f"questions and the estimated cost fell {fmt.pct(saving(test['measured']))}, with accuracy {change_text(test['measured']['difference'])}"
+            for test in earlier) + "."
+    )
     others = snap.costs[2:]
     if others:
         alone_text = " ".join(
@@ -993,45 +1081,75 @@ def cost_lead(snap: Snapshot) -> str:
     return "".join(f"<p>{text}</p>" for text in paragraphs)
 
 
+def live_row(snap: Snapshot, test: dict[str, Any], detail: str) -> str:
+    """One live test in block 07's table: the pair, the answers the first model kept, the pair's accuracy, the change
+    against the second model alone with its interval and the loss limit, both costs and both total times."""
+    fmt, plan, measured = snap.fmt, test["plan"], test["measured"]
+    questions, limit = plan["held_out"], plan["tolerance_points"]
+    together, alone_cost = 1000 * measured["cost_usd"] / questions, 1000 * measured["frontier_cost_usd"] / questions
+    if -100 * measured["difference"] > limit:
+        loss = "Observed loss above the chosen limit."
+    elif -100 * measured["low"] > limit:
+        loss = "Observed change within the chosen limit. The 95% interval still allows a larger loss."
+    else:
+        loss = "The whole 95% interval stays within the chosen limit."
+    return (
+        "<tr>"
+        f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(live_name(snap, test["decision"]))}, then '
+        f'{esc(live_name(snap, test["frontier"]))}</span><span class="small">{detail}</span></td>'
+        f'<td class="num" data-label="Final answers supplied by the first model">{count(plan["routed"])} of {count(questions)}'
+        f'<span class="small">{fmt.pct(plan["routed"] / questions)}</span></td>'
+        f'<td class="num" data-label="Correct answers">{pct2(measured["accuracy"])}<span class="small">With new answers from the '
+        f'second model</span><span class="small">Replay of recorded answers from both models: {pct2(plan["simulated"]["accuracy"])}</span></td>'
+        f'<td class="num" data-label="Accuracy change compared with the second model alone">{change_text(measured["difference"])}'
+        f'<span class="small">95% interval: {interval_points(measured["low"], measured["high"])}</span>'
+        f'<span class="small">Accuracy loss allowed before the test: {limit:g} points. {loss}</span></td>'
+        f'<td class="num" data-label="Estimated cost per 1,000 questions">Combined cost {usd(together)}'
+        f'<span class="small">Second model alone: {usd(alone_cost)}</span>'
+        f'<span class="small">Saving: {fmt.pct(saving(measured))}</span></td>'
+        f'<td class="num" data-label="Total time for this test">Combined process: {measured["request_seconds"] / 60:.1f} min'
+        f'<span class="small">Second model alone: {measured["frontier_request_seconds"] / 60:.1f} min</span></td>'
+        "</tr>"
+    )
+
+
 def cost_table(snap: Snapshot) -> str:
-    """Block 07's comparison table: each live test against its second model alone, then the cheaper models run alone
-    against GPT-6 Astra alone, on the same questions. Every cost cell names both of its values."""
-    fmt, tests = snap.fmt, live_tests(snap)
-    questions = snap.plan["held_out"]
+    """Block 07's table, a heading row before each group: each second model alone, then Decider v1.1 in front of it with
+    each rule; the earlier tests with Decider v1; the cheaper models run alone, against GPT-6 Astra alone. Every cost
+    cell names both of its values."""
+    tests, questions = live_tests(snap), snap.plan["held_out"]
     rows = []
-    for test in tests:
-        plan, measured, decision, frontier = test["plan"], test["measured"], test["decision"], test["frontier"]
-        together, alone_cost = 1000 * measured["cost_usd"] / questions, 1000 * measured["frontier_cost_usd"] / questions
-        loss = ("Observed loss below the chosen limit. The uncertainty interval may still allow a larger loss."
-                if -100 * measured["difference"] < plan["tolerance_points"] else "Observed loss above the chosen limit.")
+
+    def heading(text: str) -> None:
+        rows.append(f'<tr class="group-row"><th scope="rowgroup" colspan="6">{text}</th></tr>')
+
+    for rules in tests["decider"].values():
+        some = rules["half"]
+        frontier, measured = some["frontier"], some["measured"]
+        heading(f"In front of {esc(named(frontier))}")
         rows.append(
             "<tr>"
-            f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(live_name(snap, decision))}, then '
-            f'{esc(named(frontier))}</span><span class="small">Model answering first: {esc(decision["name"])}. Model answering the '
-            f'rest: {esc(named(frontier))}.</span><span class="small">Confidence cutoff chosen before this test: '
-            f'{cutoff_text(plan["threshold"])}</span></td>'
-            f'<td class="num" data-label="Final answers supplied by the first model">{count(plan["routed"])} of {count(questions)}'
-            f'<span class="small">{fmt.pct(plan["routed"] / questions)}</span></td>'
-            f'<td class="num" data-label="Correct answers">{pct2(measured["accuracy"])}<span class="small">With new answers from the '
-            f'second model</span><span class="small">Replay of recorded answers from both models: {pct2(plan["simulated"]["accuracy"])}</span></td>'
-            f'<td class="num" data-label="Accuracy change compared with the second model alone">{change_text(measured["difference"])}'
-            f'<span class="small">95% interval: {interval_points(measured["low"], measured["high"])}</span>'
-            f'<span class="small">Accuracy loss allowed before the test: {plan["tolerance_points"]:g} points. {loss}</span></td>'
-            f'<td class="num" data-label="Estimated cost per 1,000 questions">Combined cost {usd(together)}'
-            f'<span class="small">Second model alone: {usd(alone_cost)}</span>'
-            f'<span class="small">Saving: {fmt.pct(1 - together / alone_cost)}</span></td>'
-            f'<td class="num" data-label="Total time for this test">Combined process: {measured["request_seconds"] / 60:.1f} min'
-            f'<span class="small">Second model alone: {measured["frontier_request_seconds"] / 60:.1f} min</span></td>'
+            f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(alone(frontier))}</span></td>'
+            '<td class="num" data-label="Final answers supplied by the first model">Not applicable</td>'
+            f'<td class="num" data-label="Correct answers">{pct2(measured["frontier_accuracy"])}</td>'
+            '<td class="num" data-label="Accuracy change compared with the second model alone">Not applicable</td>'
+            f'<td class="num" data-label="Estimated cost per 1,000 questions">{usd(1000 * measured["frontier_cost_usd"] / questions)}</td>'
+            f'<td class="num" data-label="Total time for this test">{measured["frontier_request_seconds"] / 60:.1f} min</td>'
             "</tr>"
         )
+        for rule, test in rules.items():
+            rows.append(live_row(snap, test, f"{LIVE_RULES[rule]}: confidence cutoff {cutoff_text(test['plan']['threshold'])}"))
+    heading(f"Earlier tests with {esc(named(tests['earlier'][0]['decision']))}")
+    for test in tests["earlier"]:
+        rows.append(live_row(snap, test, f"{LIVE_RULES['half']}: confidence cutoff {cutoff_text(test['plan']['threshold'])}"))
     reference = snap.costs[0]
     reference_name = esc(named(reference["runs"][0]))
+    heading(f"Cheaper models alone on the same questions, against {reference_name} alone")
     for row in snap.costs[2:]:
         versus = row["versus"]
         rows.append(
             "<tr>"
-            f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(row["label"])}</span>'
-            f'<span class="small">Same questions as the {esc(live_name(snap, reference["runs"][0]))} test</span></td>'
+            f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(row["label"])}</span></td>'
             '<td class="num" data-label="Final answers supplied by the first model">Not applicable</td>'
             f'<td class="num" data-label="Correct answers">{pct2(row["accuracy"])}</td>'
             f'<td class="num" data-label="Accuracy change compared with the second model alone">{change_text(versus["difference"])}'
@@ -1055,12 +1173,13 @@ def cost_summary(snap: Snapshot) -> str:
     """Each comparison of block 07 with its observed accuracy change, 95% interval and exact McNemar p-value."""
     tests, questions = live_tests(snap), snap.plan["held_out"]
     items = []
-    for test in tests:
+    for test in decider_tests(snap) + tests["earlier"]:
         measured = test["measured"]
         items.append(
-            f"{esc(live_name(snap, test['decision']))}, then {esc(named(test['frontier']))}, against "
-            f"{esc(named(test['frontier']))} alone: {change_text(measured['difference'])} (95% interval "
-            f"{interval_points(measured['low'], measured['high'])}; exact McNemar test, {esc(p_text(measured['p']))})."
+            f"{esc(live_name(snap, test['decision']))}, then {esc(named(test['frontier']))}, "
+            f"{LIVE_RULES[test['plan']['rule']].lower()}, against {esc(named(test['frontier']))} alone: "
+            f"{change_text(measured['difference'])} (95% interval {interval_points(measured['low'], measured['high'])}; "
+            f"exact McNemar test, {esc(p_text(measured['p']))})."
         )
     reference = named(snap.costs[0]["runs"][0])
     for row in snap.costs[2:]:
@@ -1109,7 +1228,7 @@ def price_sentence(snap: Snapshot, run: dict[str, Any]) -> str:
 def cost_setup(snap: Snapshot) -> str:
     """How we called each model in block 07, how we estimated its cost, its requests and its prices."""
     seen: dict[int, dict[str, Any]] = {}
-    for test in live_tests(snap):
+    for test in decider_tests(snap) + live_tests(snap)["earlier"]:
         for run in (test["decision"], test["frontier"]):
             seen.setdefault(run["run"], run)
     for row in snap.costs[2:]:
@@ -1272,7 +1391,7 @@ def overview_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[s
            "later tests.")
     caption = (f"<b>What does a first answer cost, and how long does it take?</b> Times describe the services and hardware "
                f"we tested. {esc(name)}'s typical response time was {typical}; 9 in 10 requests finished within {within}. "
-               "The whole two-step setup needs its own timing test.")
+               "The speed section times the whole two-step setup, one question at a time.")
     return {"cost-time-figure": chart_figure("cost-time-all", alt, caption)}
 
 
@@ -1499,16 +1618,32 @@ def study_values(snap: Snapshot) -> dict[str, str]:
         "study_coverage_first": f"{100 * results['coverages'][0]:.0f}%",
         "study_coverage_rest": and_list([f"{100 * share:.0f}%" for share in results["coverages"][1:]]),
     }
-    # The live tests with new second model calls (Decider v1): the limit set before them, and Sonnet's 95% interval.
-    sonnet = next(item for item in results["pipelines"] if item["frontier"] == named["sonnet_high"]["run"])
-    tolerances = {item["tolerance_points"] for item in results["pipelines"]}
+    # The live tests with new second model calls: the limit set before them, the tests whose observed loss went beyond
+    # it and the tests whose 95% interval allows a larger loss.
+    measured = [item for item in results["pipelines"] if item.get("measured")]
+    tolerances = {item["tolerance_points"] for item in measured}
     if len(tolerances) != 1:
         raise ValueError(f"the live tests set different accuracy limits: {sorted(tolerances)}")
-    out["study_live_tolerance"] = f"{tolerances.pop():g}"
-    out["study_live_sonnet_low"] = f"{abs(100 * sonnet['measured']['low']):.2f}"
-    out["study_live_sonnet_high"] = f"{abs(100 * sonnet['measured']['high']):.2f}"
-    if not sonnet["measured"]["low"] < 0 < sonnet["measured"]["high"]:
-        raise ValueError("the study reads Sonnet's live test interval as running from a loss to a gain")
+    limit = tolerances.pop()
+    out["study_live_tolerance"] = f"{limit:g}"
+    beyond = sum(1 for item in measured if -100 * item["measured"]["difference"] > limit)
+    open_ended = sum(1 for item in measured if -100 * item["measured"]["low"] > limit)
+    if not beyond:
+        raise ValueError("the study says the observed loss went beyond the limit in some live tests")
+    out["study_live_beyond"] = f"{in_words(beyond)} test{'s' if beyond != 1 else ''}"
+    out["study_live_open"] = "every test" if open_ended == len(measured) else f"{in_words(open_ended)} of the {in_words(len(measured))} tests"
+    established = [item for item in measured if item["measured"]["p"] < 0.05]
+
+    def described(item: dict[str, Any]) -> str:
+        request = ", one question per request" if item["batch_size"] == 1 else ""
+        return (f"{live_name(snap, snap.by_id[item['decision']])}, then {live_name(snap, snap.by_id[item['frontier']])}{request}, "
+                f"with accuracy {change_text(item['measured']['difference'])}")
+
+    out["study_live_established"] = (
+        "No test established a change in accuracy." if not established else
+        f"{opening_count(len(established))} test{'s' if len(established) != 1 else ''} established a change in accuracy: "
+        + and_list([described(item) for item in established]) + "."
+    )
     # Uncertainty (entropy) against the stronger models' mistakes: the share of those mistakes in the most uncertain
     # tenth, over the decision models, and what a random tenth of the questions would hold on average.
     found = [item["top_tenth"]["with_mistake"] / item["top_tenth"]["all_with_mistake"] for item in results["doubts"]]
@@ -1734,13 +1869,7 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     out["glide_opus_loss"] = f"{-100 * glide_opus['held_out']['difference']:.2f}"
     out["decider_opus_loss"] = f"{-100 * opus_strict['difference']:.2f}"
 
-    # Speed: the earlier batch test took longer; GLiDE ran several requests at a time, the others one; sample timings.
-    live = {snap.frontier_key(test["frontier"]): test for test in live_tests(snap)}
-    astra_live = live["astra"]["measured"]
-    if astra_live["request_seconds"] <= astra_live["frontier_request_seconds"]:
-        raise ValueError("the speed section says the earlier batch test took longer")
-    out["opening_live_astra_minutes"] = f"{astra_live['request_seconds'] / 60:.1f}"
-    out["opening_live_astra_alone_minutes"] = f"{astra_live['frontier_request_seconds'] / 60:.1f}"
+    # Speed: GLiDE ran several requests at a time, the others one; sample timings.
     timed = [named[key] for key, _ in SPEED_ROWS]
     if any(run["latency"]["concurrency"] != 1 for run in timed if run is not named["glide"]):
         raise ValueError("the speed section says every model but GLiDE ran one request at a time")
@@ -1752,14 +1881,40 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     if named["astra"]["single_question_latency"]["questions"] != questions:
         raise ValueError("the speed section says Astra's one-question test used the same questions")
 
-    # Savings: the most confident quarter on halves and the two live tests (Decider v1).
+    # Savings: the most confident quarter on halves; the opening's live test, with the cutoff chosen on half the questions.
     sonnet = next(item for item in snap.replay["frontiers"] if item["key"] == "sonnet_high")
     better = sonnet["share"]["held_out"]["better"]
     out["sonnet_high_surest_held_words"] = "every time" if better == 1 else f"in {fmt.pct(better, 0)} of them"
-    for key, item in live.items():
-        measured = item["measured"]
-        out[f"opening_live_{key}_saving"] = fmt.pct(1 - measured["cost_usd"] / measured["frontier_cost_usd"])
-        out[f"opening_live_{key}_change"] = change_text(measured["difference"])
+    halves = {key: rules["half"] for key, rules in live_tests(snap)["decider"].items()}
+    replayed = {item["key"]: item["strict"]["saving"] for item in snap.replay["frontiers"] if item["strict"]}
+    if any(saving(test["measured"]) >= replayed[key] for key, test in halves.items()):
+        raise ValueError("the opening says the live test's bills fell by less than the replay's")
+    if max(test["measured"]["difference"] for test in halves.values()) > 0 or min(test["measured"]["p"] for test in halves.values()) < 0.05:
+        raise ValueError("the opening says accuracy fell by at most the largest loss and no live test established a change")
+    for key, test in halves.items():
+        out[f"live_{key}_saving_whole"] = fmt.pct(saving(test["measured"]), 0)
+    out["live_questions"] = count(snap.plan["held_out"])
+    out["live_most_lost"] = f"{-100 * min(test['measured']['difference'] for test in halves.values()):.2f}"
+    # The savings note: in how many live tests the saving was smaller than the replay's for the same LLM and rule.
+    rules_replayed = replay_rules(snap)
+    every = [(key, rule, test) for key, rules in live_tests(snap)["decider"].items() for rule, test in rules.items()]
+    smaller = sum(1 for key, rule, test in every if saving(test["measured"]) < rules_replayed[key][rule]["saving"])
+    if not smaller:
+        raise ValueError("the savings note says some live savings were smaller than the replay's")
+    out["live_smaller"] = f"all {in_words(len(every))}" if smaller == len(every) else f"{in_words(smaller)} of the {in_words(len(every))}"
+    # The opening's pointer to the timed test: an accuracy change that test established, with the LLM alone more accurate
+    # there than with batched requests (the case the sentence describes).
+    one = [(key, test) for key, test in live_tests(snap)["timed"].items() if test["measured"]["p"] < 0.05]
+    if not one:
+        out["live_one_question"] = "With one question per request, no test established a change in accuracy either"
+    else:
+        if any(test["measured"]["difference"] > 0 or test["measured"]["frontier_accuracy"] <= halves[key]["measured"]["frontier_accuracy"]
+               for key, test in one):
+            raise ValueError("the opening says one question per request made the LLM alone more accurate and the pair less")
+        names = and_list([live_name(snap, test["frontier"]) for _, test in one])
+        fewer = and_list(["%.2f" % (-100 * test["measured"]["difference"]) for _, test in one])
+        out["live_one_question"] = (f"With one question per request, {names} alone got more answers right, and with Decider first "
+                                    f"{'it' if len(one) == 1 else 'they'} got {fewer} points fewer right")
     # "Why Opus and Sonnet gain more: they make more mistakes than Astra"; "Sol gets cheaper with no change in accuracy";
     # "Decider wins on speed and price" over GLiDE.
     if not (named["opus"]["correct"] < named["astra"]["correct"] and named["sonnet_high"]["correct"] < named["astra"]["correct"]):
@@ -1771,7 +1926,6 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     if not (latency["median_request_seconds"] < glide["latency"]["median_request_seconds"] and per_thousand(decider) < per_thousand(glide)):
         raise ValueError("the copy says Decider is faster and cheaper than GLiDE")
     out["opening_opus_per_request"] = count(named["opus"]["questions_per_request"])
-    out["opening_astra_per_request"] = count(named["astra"]["questions_per_request"])
 
     def mistakes(wrong: int) -> str:
         return "no mistakes" if not wrong else f"{count(wrong)} mistake{'s' if wrong != 1 else ''}"
@@ -1886,6 +2040,77 @@ def speed_table(snap: Snapshot) -> str:
     )
 
 
+# A request this long counts as a stall: the speed text names the longest, since the averages include it.
+STALL_SECONDS = 60
+
+
+def speed_whole(snap: Snapshot) -> str:
+    """T5's timed live test: each LLM alone and with Decider v1.1 first, one question per request and one request at a
+    time, on the live test's questions with the cutoff chosen on half the questions. First how the typical and the
+    average wait changed, with the longest request of any run that stalled; then accuracy, which one question per request
+    changed too, against the same LLM alone with 16 questions per request; then per setup each question's typical wait,
+    the wait nine in ten stayed within, the average and the answers right, with Decider first also the questions it kept
+    and those it passed on. The build stops unless every cutoff was chosen on recorded runs of the batched size."""
+    fmt, tests = snap.fmt, live_tests(snap)
+    timed, batched = tests["timed"], tests["decider"]
+    questions = snap.plan["held_out"]
+    me = esc(live_name(snap, next(iter(timed.values()))["decision"]))
+    sizes = {snap.named[key]["questions_per_request"] for key in timed}
+    if len(sizes) != 1:
+        raise ValueError("the speed section says every cutoff was chosen on recorded answers to one number of questions per request")
+    (size,) = sizes
+
+    def cell(label: str, wait: dict[str, Any], right: float, parts: str = "") -> str:
+        return (f'<td class="num" data-label="{label}">Typical {time_text(wait["median_seconds"])}'
+                f'<span class="small">9 in 10 within {time_text(wait["p90_seconds"])}</span>'
+                f'<span class="small">Average {time_text(wait["mean_seconds"])}</span>'
+                f'<span class="small">Correct answers: {pct2(right)}</span>{parts}</td>')
+
+    rows, typical, changes, stalls, accuracy, established, unchanged = [], [], [], [], [], [], []
+    for key, test in timed.items():
+        measured, name = test["measured"], esc(live_name(snap, test["frontier"]))
+        waits = measured["waits"]
+        typical.append(f"from {time_text(waits['alone']['median_seconds'])} to {time_text(waits['pipeline']['median_seconds'])} with {name}")
+        changes.append((1 - waits["pipeline"]["mean_seconds"] / waits["alone"]["mean_seconds"], name))
+        longest = {part: waits[part]["max_seconds"] for part in ("alone", "pipeline")}
+        if max(longest.values()) > STALL_SECONDS:
+            stalls.append(f"the longest request with {name} took {longest['pipeline']:.0f} seconds after {me} and "
+                          f"{longest['alone']:.0f} seconds alone")
+        accuracy.append((name, measured["frontier_accuracy"], batched[key]["half"]["measured"]["frontier_accuracy"]))
+        if measured["p"] < 0.05:
+            established.append(
+                f"With {me} first, {name} got {abs(100 * measured['difference']):.2f} points {'fewer' if measured['difference'] < 0 else 'more'} "
+                f"right (95% interval {interval_points(measured['low'], measured['high'])}; exact McNemar test, {esc(p_text(measured['p']))})."
+            )
+        else:
+            unchanged.append(name)
+        parts = (f'<span class="small">Kept by {me}: typical {time_text(waits["kept"]["median_seconds"])}</span>'
+                 f'<span class="small">Passed on: typical {time_text(waits["passed"]["median_seconds"])}</span>')
+        rows.append(
+            f'<tr><td data-label="LLM">{esc(named(test["frontier"]))}</td>{cell("LLM alone", waits["alone"], measured["frontier_accuracy"])}'
+            f'{cell(f"{me}, then the LLM", waits["pipeline"], measured["accuracy"], parts)}</tr>'
+        )
+    average = (f"{'fell' if changes[0][0] > 0 else 'rose'} " + and_list([f"{fmt.pct(abs(change), 0)} with {name}" for change, name in changes])
+               if len({change > 0 for change, _ in changes}) == 1
+               else and_list([f"{'fell' if change > 0 else 'rose'} {fmt.pct(abs(change), 0)} with {name}" for change, name in changes]))
+    speed = (f"<p>We also timed the whole two-step setup on the live test's {count(questions)} questions, with the cutoff chosen "
+             f"on half the questions: one question per request, one request at a time. {me}'s times come from its recorded run; "
+             f"each LLM answered with new calls, alone and after {me}. With {me} first, the typical wait per question went "
+             f"{and_list(typical)}. The average wait {average}."
+             + (f" {and_list(stalls)[0].upper()}{and_list(stalls)[1:]}; the averages include such waits." if stalls else "") + "</p>")
+    right = ("<p>On their own, with one question per request, "
+             + and_list([f"{name} got {pct2(one)} right" for name, one, _ in accuracy])
+             + f"; with {size} questions per request, " + and_list([pct2(many) for _, _, many in accuracy]) + ". "
+             + " ".join(established)
+             + (f" We chose every cutoff on recorded answers to {size} questions per request." if established else "")
+             + (f" With {and_list(unchanged)}, the test did not establish a change in accuracy." if unchanged else "") + "</p>")
+    return speed + right + (
+        '<div class="table-wrap"><table class="overview cards"><caption>Wait per question, one question per request</caption>'
+        f'<thead><tr><th scope="col">LLM</th><th scope="col" class="num">LLM alone</th><th scope="col" class="num">{me}, then the LLM'
+        f'</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
 def speed_figure(snap: Snapshot) -> str:
     """Chart 05 at the top: price and response time of the speed table's models."""
     latency = snap.replay["run"]["latency"]
@@ -1902,7 +2127,7 @@ def speed_figure(snap: Snapshot) -> str:
            "time for one request, typical and 9 in 10 within. " + "; ".join(parts) + ".")
     caption = (f"Times describe the services and hardware we tested. Decider v1.1's typical response time was "
                f"{time_text(latency['median_request_seconds'])}; 9 in 10 answers arrived within {time_text(latency['p90_request_seconds'])}. "
-               "A request of 16 questions is timed as a whole. The whole two-step setup needs its own timing test.")
+               "A request of 16 questions is timed as a whole. The whole two-step setup is timed above, one question at a time.")
     return chart_figure("cost-time", alt, caption)
 
 
@@ -2065,6 +2290,32 @@ def savings_sure_table(snap: Snapshot) -> str:
     )
 
 
+def replay_rules(snap: Snapshot) -> dict[str, dict[str, Any]]:
+    """The replay's numbers for each second model, by live test rule (None where the replay has no such rule)."""
+    return {item["key"]: {"share": item["share"], "half": item["strict"], "cutoff": item["sure"]} for item in snap.replay["frontiers"]}
+
+
+def savings_live_table(snap: Snapshot) -> str:
+    """The savings section's live table: Decider v1.1 in front of each of the opening's LLMs with new calls, by rule in the replay table's
+    order: the share it kept, the saving and the change in accuracy."""
+    fmt, tests = snap.fmt, live_tests(snap)
+    rows = []
+    for rules in tests["decider"].values():
+        cells = "".join(
+            f'<td class="num" data-label="{esc(LIVE_RULES[rule])}">Decider kept {fmt.pct(test["plan"]["routed"] / test["plan"]["held_out"])}: '
+            f'{fmt.pct(saving(test["measured"]))} cheaper, {change_text(test["measured"]["difference"])}</td>'
+            for rule, test in rules.items()
+        )
+        rows.append(f'<tr><td data-label="LLM">{esc(named(rules["half"]["frontier"]))}</td>{cells}</tr>')
+    head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in LIVE_RULES.values())
+    questions = snap.plan["held_out"]
+    return (
+        f'<div class="table-wrap"><table class="overview cards savings"><caption>Live test with new calls to each LLM, on '
+        f'{count(questions)} questions</caption><thead><tr><th scope="col">LLM</th>{head}</tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
 def head(snap: Snapshot, images: dict[str, dict[str, str]]) -> str:
     """The title, the description and the link preview: the preview image is the cutoff chart, in the dark theme like the site."""
     site, fmt = snap.config["site_url"], snap.fmt
@@ -2154,10 +2405,12 @@ def top_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, s
         "handoff-figure": handoff_figure(snap),
         "first-models-figure": first_models_figure(snap),
         "speed-table": speed_table(snap),
+        "speed-whole": speed_whole(snap),
         "speed-figure": speed_figure(snap),
         "cutoff-figure": cutoff_figure(snap) + share_link(images["preview"], "Cutoff chart"),
         "savings-table": savings_table(snap),
         "savings-sure-table": savings_sure_table(snap),
+        "savings-live-table": savings_live_table(snap),
     }
 
 
@@ -2803,19 +3056,21 @@ def x_length(text: str) -> int:
 
 
 def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
-    """The main X post: the opening's question and answer, the comparison of decision models, and each LLM's saving with
-    its change in accuracy, replayed from recorded answers."""
+    """The main X post: the opening's question and answer, the comparison of decision models, each LLM's saving with its
+    change in accuracy, replayed from recorded answers, and the smaller savings of the live test with new calls."""
     fmt, site = snap.fmt, snap.config["site_url"]
     savings = [
         f"{item['run']['name']}: {fmt.pct(item['strict']['saving'], 0)} cheaper, accuracy {change_text(item['strict']['difference'])}"
         for item in opening_seconds(snap)
     ]
+    live = [f"{numbers['live_' + item['key'] + '_saving_whole']} for {live_name(snap, item['run'])}" for item in opening_seconds(snap)]
     return "\n\n".join([
         "When should you trust an AI model to make a decision? When its confident answers turn out to be right.",
         f"We tested {numbers['decision_models']} decision models on {numbers['questions']} Turkish exam questions and put "
         f"{numbers['decision_models_tried']} of them in front of {numbers['opening_llm_count']} LLMs. When the decision model was "
         "confident, we kept its answer; when it was not, the LLM answered.",
         "Perplexity's Decider v1.1 took the most work off each LLM. Replaying our recorded answers:\n" + "\n".join(savings),
+        f"In a live test with new calls to each LLM, the estimated cost fell by less: {and_list(live)}.",
         "Exam questions, not financial decisions. Test on your own task first.",
         site,
     ])

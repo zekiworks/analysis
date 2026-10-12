@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "results_version": "3e280d58",
+  "results_version": "deb56771",
   "updated": "2026-10-11T11:57:51Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -36607,6 +36607,8 @@
       "frontier": 48,
       "seed": 1,
       "tolerance_points": 0.5,
+      "rule": "half",
+      "batch_size": 16,
       "threshold": 0.9156852342507505,
       "held_out": 1099,
       "routed": 194,
@@ -36705,6 +36707,36 @@
             }
           },
           {
+            "run": 165,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 5.387050599999999,
+            "request_seconds": 929.1633372180659,
+            "versus_pipeline": {
+              "difference": -0.07734303912647862,
+              "low": -0.09591358971040771,
+              "high": -0.05877248854254953,
+              "p": 1.3522957587316645e-16
+            },
+            "versus_frontier": {
+              "difference": -0.08098271155595996,
+              "low": -0.09915214754244522,
+              "high": -0.06281327556947469,
+              "p": 4.0853725805661456e-19
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 628800,
+              "cached_input_tokens": 171673,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 456987,
+              "output_tokens": 84813
+            }
+          },
+          {
             "run": 68,
             "accuracy": 0.8489535941765242,
             "cost_usd": 4.1268408,
@@ -36742,6 +36774,8 @@
       "frontier": 55,
       "seed": 1,
       "tolerance_points": 0.5,
+      "rule": "half",
+      "batch_size": 16,
       "threshold": 0.7190257589471052,
       "held_out": 1099,
       "routed": 343,
@@ -36867,6 +36901,1965 @@
               "cache_write_input_tokens": 0,
               "cache_write_1h_input_tokens": 0,
               "output_tokens": 30341
+            }
+          },
+          {
+            "run": 165,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 5.387050599999999,
+            "request_seconds": 929.1633372180659,
+            "versus_pipeline": {
+              "difference": 0.04549590536851683,
+              "low": 0.02324038085043073,
+              "high": 0.06775142988660293,
+              "p": 8.548342922070617e-05
+            },
+            "versus_frontier": {
+              "difference": 0.044585987261146494,
+              "low": 0.022829831897380495,
+              "high": 0.06634214262491249,
+              "p": 8.212852870228109e-05
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 628800,
+              "cached_input_tokens": 171673,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 456987,
+              "output_tokens": 84813
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 48,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "cutoff",
+      "batch_size": 16,
+      "threshold": 0.99,
+      "held_out": 1099,
+      "routed": 176,
+      "simulated": {
+        "accuracy": 0.9736123748862603,
+        "frontier_accuracy": 0.9736123748862603
+      },
+      "measured": {
+        "pipeline_run": 176,
+        "alone_run": 71,
+        "accuracy": 0.9754322111010009,
+        "frontier_accuracy": 0.9745222929936306,
+        "difference": 0.0009099181073703367,
+        "low": -0.003808312575386305,
+        "high": 0.005628148790126978,
+        "p": 1.0,
+        "within_tolerance": true,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 4.83464346,
+        "frontier_cost_usd": 5.67298,
+        "request_seconds": 1244.687020608093,
+        "frontier_request_seconds": 992.3243447878631,
+        "pipeline_tokens": {
+          "input_tokens": 479281,
+          "cached_input_tokens": 115200,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 0,
+          "output_tokens": 21402
+        },
+        "alone_tokens": {
+          "input_tokens": 582668,
+          "cached_input_tokens": 144000,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 0,
+          "output_tokens": 22846
+        },
+        "alternatives": [
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": -0.007279344858962694,
+              "low": -0.014400108715310153,
+              "high": -0.0001585810026152332,
+              "p": 0.076812744140625
+            },
+            "versus_frontier": {
+              "difference": -0.006369426751592357,
+              "low": -0.012788672867968776,
+              "high": 4.981936478406189e-05,
+              "p": 0.09228515625
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": -0.0646041856232939,
+              "low": -0.08059688556495011,
+              "high": -0.04861148568163769,
+              "p": 2.7959374761947534e-16
+            },
+            "versus_frontier": {
+              "difference": -0.06369426751592357,
+              "low": -0.07939880684293842,
+              "high": -0.04798972818890872,
+              "p": 1.5686991122453906e-16
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 165,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 5.387050599999999,
+            "request_seconds": 929.1633372180659,
+            "versus_pipeline": {
+              "difference": -0.0818926296633303,
+              "low": -0.10013519006432656,
+              "high": -0.06365006926233405,
+              "p": 2.262519224355612e-19
+            },
+            "versus_frontier": {
+              "difference": -0.08098271155595996,
+              "low": -0.09915214754244522,
+              "high": -0.06281327556947469,
+              "p": 4.0853725805661456e-19
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 628800,
+              "cached_input_tokens": 171673,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 456987,
+              "output_tokens": 84813
+            }
+          },
+          {
+            "run": 68,
+            "accuracy": 0.8489535941765242,
+            "cost_usd": 4.1268408,
+            "request_seconds": 1799.8465952617116,
+            "versus_pipeline": {
+              "difference": -0.1264786169244768,
+              "low": -0.14707865334275164,
+              "high": -0.10587858050620194,
+              "p": 1.0875369892924252e-35
+            },
+            "versus_frontier": {
+              "difference": -0.12556869881710647,
+              "low": -0.14611091193863107,
+              "high": -0.10502648569558187,
+              "p": 2.08925524731209e-35
+            },
+            "model": "claude-sonnet-5-5",
+            "name": "Claude Sonnet 5.5",
+            "variant": null,
+            "reasoning": "high",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 609112,
+              "cached_input_tokens": 148308,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 460666,
+              "output_tokens": 226907
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 48,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "half",
+      "batch_size": 1,
+      "threshold": 0.9825243141806727,
+      "held_out": 1099,
+      "routed": 219,
+      "simulated": {
+        "accuracy": 0.9727024567788899,
+        "frontier_accuracy": 0.9736123748862603
+      },
+      "measured": {
+        "pipeline_run": 169,
+        "alone_run": 163,
+        "accuracy": 0.9727024567788899,
+        "frontier_accuracy": 0.9754322111010009,
+        "difference": -0.00272975432211101,
+        "low": -0.007445530788481704,
+        "high": 0.001986022144259684,
+        "p": 0.453125,
+        "within_tolerance": true,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 23.68529946,
+        "frontier_cost_usd": 31.648706,
+        "request_seconds": 11274.370967360068,
+        "frontier_request_seconds": 7964.2585057840915,
+        "waits": {
+          "pipeline": {
+            "questions": 1099,
+            "median_seconds": 6.631,
+            "p90_seconds": 10.136600000000001,
+            "mean_seconds": 10.271715195632392,
+            "max_seconds": 394.978,
+            "total_seconds": 11288.615
+          },
+          "kept": {
+            "questions": 219,
+            "median_seconds": 0.231,
+            "p90_seconds": 0.2834,
+            "mean_seconds": 0.2428812785388128,
+            "max_seconds": 0.546,
+            "total_seconds": 53.191
+          },
+          "passed": {
+            "questions": 880,
+            "median_seconds": 7.1995,
+            "p90_seconds": 10.9358,
+            "mean_seconds": 12.767527272727273,
+            "max_seconds": 394.978,
+            "total_seconds": 11235.424
+          },
+          "alone": {
+            "questions": 1099,
+            "median_seconds": 6.665,
+            "p90_seconds": 9.7262,
+            "mean_seconds": 7.246808917197453,
+            "max_seconds": 28.965,
+            "total_seconds": 7964.243
+          }
+        },
+        "pipeline_tokens": {
+          "input_tokens": 4074897,
+          "cached_input_tokens": 2221056,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 0,
+          "output_tokens": 58346
+        },
+        "alone_tokens": {
+          "input_tokens": 5103512,
+          "cached_input_tokens": 2509696,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 0,
+          "output_tokens": 64017
+        },
+        "alternatives": [
+          {
+            "run": 166,
+            "accuracy": 0.9272065514103731,
+            "cost_usd": 12.8286324,
+            "request_seconds": 4694.714676301097,
+            "versus_pipeline": {
+              "difference": -0.04549590536851683,
+              "low": -0.059507567242236284,
+              "high": -0.03148424349479738,
+              "p": 7.638141345540223e-11
+            },
+            "versus_frontier": {
+              "difference": -0.048225659690627844,
+              "low": -0.06209114647456982,
+              "high": -0.03436017290668587,
+              "p": 1.6623508125590547e-12
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 1746017,
+              "cached_input_tokens": 701622,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 1042197,
+              "output_tokens": 217097
+            }
+          },
+          {
+            "run": 167,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 8.6273988,
+            "request_seconds": 6064.148409693618,
+            "versus_pipeline": {
+              "difference": -0.0791628753412193,
+              "low": -0.09664720801122059,
+              "high": -0.061678542671217994,
+              "p": 5.109797372820077e-20
+            },
+            "versus_frontier": {
+              "difference": -0.0818926296633303,
+              "low": -0.09942390909910859,
+              "high": -0.06436135022755202,
+              "p": 2.253920747846914e-21
+            },
+            "model": "claude-sonnet-5-5",
+            "name": "Claude Sonnet 5.5",
+            "variant": null,
+            "reasoning": "high",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 1648174,
+              "cached_input_tokens": 599508,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 1046468,
+              "output_tokens": 437718
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 48,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "share",
+      "batch_size": 16,
+      "threshold": 0.9642039538871846,
+      "held_out": 1099,
+      "routed": 275,
+      "simulated": {
+        "accuracy": 0.9727024567788899,
+        "frontier_accuracy": 0.9736123748862603
+      },
+      "share": 0.25,
+      "measured": {
+        "pipeline_run": 175,
+        "alone_run": 71,
+        "accuracy": 0.9708826205641492,
+        "frontier_accuracy": 0.9745222929936306,
+        "difference": -0.003639672429481347,
+        "low": -0.00981393925260459,
+        "high": 0.0025345943936418975,
+        "p": 0.3876953125,
+        "within_tolerance": true,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 4.67707346,
+        "frontier_cost_usd": 5.67298,
+        "request_seconds": 1113.8878569669614,
+        "frontier_request_seconds": 992.3243447878631,
+        "pipeline_tokens": {
+          "input_tokens": 424904,
+          "cached_input_tokens": 60800,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 0,
+          "output_tokens": 19334
+        },
+        "alone_tokens": {
+          "input_tokens": 582668,
+          "cached_input_tokens": 144000,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 0,
+          "output_tokens": 22846
+        },
+        "alternatives": [
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": -0.00272975432211101,
+              "low": -0.010900907086924596,
+              "high": 0.005441398442702574,
+              "p": 0.6636238098144531
+            },
+            "versus_frontier": {
+              "difference": -0.006369426751592357,
+              "low": -0.012788672867968776,
+              "high": 4.981936478406189e-05,
+              "p": 0.09228515625
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": -0.06005459508644222,
+              "low": -0.07600979106647317,
+              "high": -0.044099399106411266,
+              "p": 4.308584029113881e-14
+            },
+            "versus_frontier": {
+              "difference": -0.06369426751592357,
+              "low": -0.07939880684293842,
+              "high": -0.04798972818890872,
+              "p": 1.5686991122453906e-16
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 165,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 5.387050599999999,
+            "request_seconds": 929.1633372180659,
+            "versus_pipeline": {
+              "difference": -0.07734303912647862,
+              "low": -0.09608408130194028,
+              "high": -0.05860199695101696,
+              "p": 2.8669598238307665e-16
+            },
+            "versus_frontier": {
+              "difference": -0.08098271155595996,
+              "low": -0.09915214754244522,
+              "high": -0.06281327556947469,
+              "p": 4.0853725805661456e-19
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 628800,
+              "cached_input_tokens": 171673,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 456987,
+              "output_tokens": 84813
+            }
+          },
+          {
+            "run": 68,
+            "accuracy": 0.8489535941765242,
+            "cost_usd": 4.1268408,
+            "request_seconds": 1799.8465952617116,
+            "versus_pipeline": {
+              "difference": -0.12192902638762511,
+              "low": -0.1425477397529321,
+              "high": -0.1013103130223181,
+              "p": 7.799950339037261e-33
+            },
+            "versus_frontier": {
+              "difference": -0.12556869881710647,
+              "low": -0.14611091193863107,
+              "high": -0.10502648569558187,
+              "p": 2.08925524731209e-35
+            },
+            "model": "claude-sonnet-5-5",
+            "name": "Claude Sonnet 5.5",
+            "variant": null,
+            "reasoning": "high",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 609112,
+              "cached_input_tokens": 148308,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 460666,
+              "output_tokens": 226907
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 48,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "half",
+      "batch_size": 16,
+      "threshold": 0.9825243141806727,
+      "held_out": 1099,
+      "routed": 219,
+      "simulated": {
+        "accuracy": 0.9727024567788899,
+        "frontier_accuracy": 0.9736123748862603
+      },
+      "measured": {
+        "pipeline_run": 161,
+        "alone_run": 71,
+        "accuracy": 0.9745222929936306,
+        "frontier_accuracy": 0.9745222929936306,
+        "difference": 0.0,
+        "low": -0.0050443286301205936,
+        "high": 0.0050443286301205936,
+        "p": 1.0,
+        "within_tolerance": true,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 4.9963634599999995,
+        "frontier_cost_usd": 5.67298,
+        "request_seconds": 1189.094736152052,
+        "frontier_request_seconds": 992.3243447878631,
+        "pipeline_tokens": {
+          "input_tokens": 453928,
+          "cached_input_tokens": 64000,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 0,
+          "output_tokens": 20491
+        },
+        "alone_tokens": {
+          "input_tokens": 582668,
+          "cached_input_tokens": 144000,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 0,
+          "output_tokens": 22846
+        },
+        "alternatives": [
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": -0.006369426751592357,
+              "low": -0.014533492652310458,
+              "high": 0.0017946391491257437,
+              "p": 0.18924713134765625
+            },
+            "versus_frontier": {
+              "difference": -0.006369426751592357,
+              "low": -0.012788672867968776,
+              "high": 4.981936478406189e-05,
+              "p": 0.09228515625
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": -0.06369426751592357,
+              "low": -0.07960004848719057,
+              "high": -0.04778848654465656,
+              "p": 5.137564699362503e-16
+            },
+            "versus_frontier": {
+              "difference": -0.06369426751592357,
+              "low": -0.07939880684293842,
+              "high": -0.04798972818890872,
+              "p": 1.5686991122453906e-16
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 165,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 5.387050599999999,
+            "request_seconds": 929.1633372180659,
+            "versus_pipeline": {
+              "difference": -0.08098271155595996,
+              "low": -0.09949894847741117,
+              "high": -0.062466474634508745,
+              "p": 2.687543585380812e-18
+            },
+            "versus_frontier": {
+              "difference": -0.08098271155595996,
+              "low": -0.09915214754244522,
+              "high": -0.06281327556947469,
+              "p": 4.0853725805661456e-19
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 628800,
+              "cached_input_tokens": 171673,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 456987,
+              "output_tokens": 84813
+            }
+          },
+          {
+            "run": 68,
+            "accuracy": 0.8489535941765242,
+            "cost_usd": 4.1268408,
+            "request_seconds": 1799.8465952617116,
+            "versus_pipeline": {
+              "difference": -0.12556869881710647,
+              "low": -0.14611091193863107,
+              "high": -0.10502648569558187,
+              "p": 2.08925524731209e-35
+            },
+            "versus_frontier": {
+              "difference": -0.12556869881710647,
+              "low": -0.14611091193863107,
+              "high": -0.10502648569558187,
+              "p": 2.08925524731209e-35
+            },
+            "model": "claude-sonnet-5-5",
+            "name": "Claude Sonnet 5.5",
+            "variant": null,
+            "reasoning": "high",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 609112,
+              "cached_input_tokens": 148308,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 460666,
+              "output_tokens": 226907
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 47,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "cutoff",
+      "batch_size": 16,
+      "threshold": 0.99,
+      "held_out": 1099,
+      "routed": 176,
+      "simulated": {
+        "accuracy": 0.905368516833485,
+        "frontier_accuracy": 0.905368516833485
+      },
+      "measured": {
+        "pipeline_run": 172,
+        "alone_run": 165,
+        "accuracy": 0.8844404003639672,
+        "frontier_accuracy": 0.8935395814376706,
+        "difference": -0.009099181073703366,
+        "low": -0.027796314332103306,
+        "high": 0.009597952184696572,
+        "p": 0.39092745669950485,
+        "within_tolerance": false,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 4.4161930599999994,
+        "frontier_cost_usd": 5.387050599999999,
+        "request_seconds": 1078.980863467048,
+        "frontier_request_seconds": 929.1633372180659,
+        "pipeline_tokens": {
+          "input_tokens": 495388,
+          "cached_input_tokens": 129618,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 365654,
+          "output_tokens": 72802
+        },
+        "alone_tokens": {
+          "input_tokens": 628800,
+          "cached_input_tokens": 171673,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 456987,
+          "output_tokens": 84813
+        },
+        "alternatives": [
+          {
+            "run": 71,
+            "accuracy": 0.9745222929936306,
+            "cost_usd": 5.67298,
+            "request_seconds": 992.3243447878631,
+            "versus_pipeline": {
+              "difference": 0.09008189262966333,
+              "low": 0.07206280755970734,
+              "high": 0.10810097769961932,
+              "p": 1.8478334088755076e-24
+            },
+            "versus_frontier": {
+              "difference": 0.08098271155595996,
+              "low": 0.06281327556947469,
+              "high": 0.09915214754244522,
+              "p": 4.0853725805661456e-19
+            },
+            "model": "gpt-6-astra",
+            "name": "GPT-6 Astra",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582668,
+              "cached_input_tokens": 144000,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 22846
+            }
+          },
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": 0.08371246587807098,
+              "low": 0.06498223676411861,
+              "high": 0.10244269499202334,
+              "p": 4.764406071312224e-19
+            },
+            "versus_frontier": {
+              "difference": 0.0746132848043676,
+              "low": 0.05591847354625709,
+              "high": 0.09330809606247811,
+              "p": 2.9566626383126704e-15
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": 0.026387625113739762,
+              "low": 0.0061918159303973284,
+              "high": 0.0465834342970822,
+              "p": 0.013380437039567964
+            },
+            "versus_frontier": {
+              "difference": 0.017288444040036398,
+              "low": -0.0034080250492140966,
+              "high": 0.037984913129286896,
+              "p": 0.12101372565511773
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 68,
+            "accuracy": 0.8489535941765242,
+            "cost_usd": 4.1268408,
+            "request_seconds": 1799.8465952617116,
+            "versus_pipeline": {
+              "difference": -0.03548680618744313,
+              "low": -0.05843822530069169,
+              "high": -0.012535387074194576,
+              "p": 0.00315764881359094
+            },
+            "versus_frontier": {
+              "difference": -0.044585987261146494,
+              "low": -0.06634214262491249,
+              "high": -0.022829831897380495,
+              "p": 8.212852870228109e-05
+            },
+            "model": "claude-sonnet-5-5",
+            "name": "Claude Sonnet 5.5",
+            "variant": null,
+            "reasoning": "high",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 609112,
+              "cached_input_tokens": 148308,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 460666,
+              "output_tokens": 226907
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 47,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "half",
+      "batch_size": 1,
+      "threshold": 0.9825243141806727,
+      "held_out": 1099,
+      "routed": 219,
+      "simulated": {
+        "accuracy": 0.9044585987261147,
+        "frontier_accuracy": 0.905368516833485
+      },
+      "measured": {
+        "pipeline_run": 168,
+        "alone_run": 166,
+        "accuracy": 0.9335759781619655,
+        "frontier_accuracy": 0.9272065514103731,
+        "difference": 0.006369426751592357,
+        "low": -0.002889942045888322,
+        "high": 0.015628795549073038,
+        "p": 0.24778856337070465,
+        "within_tolerance": true,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 10.56694966,
+        "frontier_cost_usd": 12.8286324,
+        "request_seconds": 4184.495180073995,
+        "frontier_request_seconds": 4694.714676301097,
+        "waits": {
+          "pipeline": {
+            "questions": 1099,
+            "median_seconds": 3.924,
+            "p90_seconds": 6.1256,
+            "mean_seconds": 3.82051228389445,
+            "max_seconds": 34.648,
+            "total_seconds": 4198.743
+          },
+          "kept": {
+            "questions": 219,
+            "median_seconds": 0.231,
+            "p90_seconds": 0.2834,
+            "mean_seconds": 0.2428812785388128,
+            "max_seconds": 0.546,
+            "total_seconds": 53.191
+          },
+          "passed": {
+            "questions": 880,
+            "median_seconds": 4.334,
+            "p90_seconds": 6.609100000000001,
+            "mean_seconds": 4.710854545454545,
+            "max_seconds": 34.648,
+            "total_seconds": 4145.552
+          },
+          "alone": {
+            "questions": 1099,
+            "median_seconds": 3.77,
+            "p90_seconds": 6.1594,
+            "mean_seconds": 4.271797088262057,
+            "max_seconds": 22.185,
+            "total_seconds": 4694.705
+          }
+        },
+        "pipeline_tokens": {
+          "input_tokens": 1373985,
+          "cached_input_tokens": 568721,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 803504,
+          "output_tokens": 200480
+        },
+        "alone_tokens": {
+          "input_tokens": 1746017,
+          "cached_input_tokens": 701622,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 1042197,
+          "output_tokens": 217097
+        },
+        "alternatives": [
+          {
+            "run": 163,
+            "accuracy": 0.9754322111010009,
+            "cost_usd": 31.648706,
+            "request_seconds": 7964.2585057840915,
+            "versus_pipeline": {
+              "difference": 0.04185623293903549,
+              "low": 0.02874163169875927,
+              "high": 0.05497083417931171,
+              "p": 1.170292474039769e-10
+            },
+            "versus_frontier": {
+              "difference": 0.048225659690627844,
+              "low": 0.03436017290668587,
+              "high": 0.06209114647456982,
+              "p": 1.6623508125590547e-12
+            },
+            "model": "gpt-6-astra",
+            "name": "GPT-6 Astra",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 5103512,
+              "cached_input_tokens": 2509696,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 64017
+            }
+          },
+          {
+            "run": 167,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 8.6273988,
+            "request_seconds": 6064.148409693618,
+            "versus_pipeline": {
+              "difference": -0.040036396724294813,
+              "low": -0.05771300818223522,
+              "high": -0.0223597852663544,
+              "p": 1.2579150016678854e-05
+            },
+            "versus_frontier": {
+              "difference": -0.03366696997270246,
+              "low": -0.051657121097316086,
+              "high": -0.015676818848088834,
+              "p": 0.00034099780128697693
+            },
+            "model": "claude-sonnet-5-5",
+            "name": "Claude Sonnet 5.5",
+            "variant": null,
+            "reasoning": "high",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 1648174,
+              "cached_input_tokens": 599508,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 1046468,
+              "output_tokens": 437718
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 47,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "share",
+      "batch_size": 16,
+      "threshold": 0.9642039538871846,
+      "held_out": 1099,
+      "routed": 275,
+      "simulated": {
+        "accuracy": 0.9044585987261147,
+        "frontier_accuracy": 0.905368516833485
+      },
+      "share": 0.25,
+      "measured": {
+        "pipeline_run": 171,
+        "alone_run": 165,
+        "accuracy": 0.8871701546860783,
+        "frontier_accuracy": 0.8935395814376706,
+        "difference": -0.006369426751592357,
+        "low": -0.0242888152823936,
+        "high": 0.011549961779208884,
+        "p": 0.5507089135982718,
+        "within_tolerance": false,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 4.13014146,
+        "frontier_cost_usd": 5.387050599999999,
+        "request_seconds": 1111.0155438639922,
+        "frontier_request_seconds": 929.1633372180659,
+        "pipeline_tokens": {
+          "input_tokens": 434443,
+          "cached_input_tokens": 113700,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 320639,
+          "output_tokens": 76667
+        },
+        "alone_tokens": {
+          "input_tokens": 628800,
+          "cached_input_tokens": 171673,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 456987,
+          "output_tokens": 84813
+        },
+        "alternatives": [
+          {
+            "run": 71,
+            "accuracy": 0.9745222929936306,
+            "cost_usd": 5.67298,
+            "request_seconds": 992.3243447878631,
+            "versus_pipeline": {
+              "difference": 0.08735213830755233,
+              "low": 0.06973177466928716,
+              "high": 0.10497250194581749,
+              "p": 2.6256041585124165e-24
+            },
+            "versus_frontier": {
+              "difference": 0.08098271155595996,
+              "low": 0.06281327556947469,
+              "high": 0.09915214754244522,
+              "p": 4.0853725805661456e-19
+            },
+            "model": "gpt-6-astra",
+            "name": "GPT-6 Astra",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582668,
+              "cached_input_tokens": 144000,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 22846
+            }
+          },
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": 0.08098271155595996,
+              "low": 0.06298918240699025,
+              "high": 0.09897624070492966,
+              "p": 1.457836211253665e-19
+            },
+            "versus_frontier": {
+              "difference": 0.0746132848043676,
+              "low": 0.05591847354625709,
+              "high": 0.09330809606247811,
+              "p": 2.9566626383126704e-15
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": 0.023657870791628753,
+              "low": 0.0036877362927157445,
+              "high": 0.04362800529054176,
+              "p": 0.02554336402978297
+            },
+            "versus_frontier": {
+              "difference": 0.017288444040036398,
+              "low": -0.0034080250492140966,
+              "high": 0.037984913129286896,
+              "p": 0.12101372565511773
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 68,
+            "accuracy": 0.8489535941765242,
+            "cost_usd": 4.1268408,
+            "request_seconds": 1799.8465952617116,
+            "versus_pipeline": {
+              "difference": -0.03821656050955414,
+              "low": -0.059197185877242015,
+              "high": -0.01723593514186626,
+              "p": 0.00048561896725776954
+            },
+            "versus_frontier": {
+              "difference": -0.044585987261146494,
+              "low": -0.06634214262491249,
+              "high": -0.022829831897380495,
+              "p": 8.212852870228109e-05
+            },
+            "model": "claude-sonnet-5-5",
+            "name": "Claude Sonnet 5.5",
+            "variant": null,
+            "reasoning": "high",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 609112,
+              "cached_input_tokens": 148308,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 460666,
+              "output_tokens": 226907
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 47,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "half",
+      "batch_size": 16,
+      "threshold": 0.9825243141806727,
+      "held_out": 1099,
+      "routed": 219,
+      "simulated": {
+        "accuracy": 0.9044585987261147,
+        "frontier_accuracy": 0.905368516833485
+      },
+      "measured": {
+        "pipeline_run": 164,
+        "alone_run": 165,
+        "accuracy": 0.8926296633303002,
+        "frontier_accuracy": 0.8935395814376706,
+        "difference": -0.0009099181073703367,
+        "low": -0.01847467766231635,
+        "high": 0.016654841447575675,
+        "p": 1.0,
+        "within_tolerance": true,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 4.38446586,
+        "frontier_cost_usd": 5.387050599999999,
+        "request_seconds": 1131.248071975031,
+        "frontier_request_seconds": 929.1633372180659,
+        "pipeline_tokens": {
+          "input_tokens": 478223,
+          "cached_input_tokens": 130962,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 347149,
+          "output_tokens": 78605
+        },
+        "alone_tokens": {
+          "input_tokens": 628800,
+          "cached_input_tokens": 171673,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 456987,
+          "output_tokens": 84813
+        },
+        "alternatives": [
+          {
+            "run": 71,
+            "accuracy": 0.9745222929936306,
+            "cost_usd": 5.67298,
+            "request_seconds": 992.3243447878631,
+            "versus_pipeline": {
+              "difference": 0.0818926296633303,
+              "low": 0.06454372636014774,
+              "high": 0.09924153296651286,
+              "p": 5.657185283317709e-22
+            },
+            "versus_frontier": {
+              "difference": 0.08098271155595996,
+              "low": 0.06281327556947469,
+              "high": 0.09915214754244522,
+              "p": 4.0853725805661456e-19
+            },
+            "model": "gpt-6-astra",
+            "name": "GPT-6 Astra",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582668,
+              "cached_input_tokens": 144000,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 22846
+            }
+          },
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": 0.07552320291173795,
+              "low": 0.05780227700995354,
+              "high": 0.09324412881352236,
+              "p": 1.3869287779064768e-17
+            },
+            "versus_frontier": {
+              "difference": 0.0746132848043676,
+              "low": 0.05591847354625709,
+              "high": 0.09330809606247811,
+              "p": 2.9566626383126704e-15
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": 0.018198362147406732,
+              "low": -0.001308588285279768,
+              "high": 0.03770531258009323,
+              "p": 0.08240747932752655
+            },
+            "versus_frontier": {
+              "difference": 0.017288444040036398,
+              "low": -0.0034080250492140966,
+              "high": 0.037984913129286896,
+              "p": 0.12101372565511773
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 68,
+            "accuracy": 0.8489535941765242,
+            "cost_usd": 4.1268408,
+            "request_seconds": 1799.8465952617116,
+            "versus_pipeline": {
+              "difference": -0.04367606915377616,
+              "low": -0.0649209846060858,
+              "high": -0.022431153701466536,
+              "p": 7.799113896848694e-05
+            },
+            "versus_frontier": {
+              "difference": -0.044585987261146494,
+              "low": -0.06634214262491249,
+              "high": -0.022829831897380495,
+              "p": 8.212852870228109e-05
+            },
+            "model": "claude-sonnet-5-5",
+            "name": "Claude Sonnet 5.5",
+            "variant": null,
+            "reasoning": "high",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 609112,
+              "cached_input_tokens": 148308,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 460666,
+              "output_tokens": 226907
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 55,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "cutoff",
+      "batch_size": 16,
+      "threshold": 0.99,
+      "held_out": 1099,
+      "routed": 176,
+      "simulated": {
+        "accuracy": 0.8498635122838945,
+        "frontier_accuracy": 0.8462238398544131
+      },
+      "measured": {
+        "pipeline_run": 174,
+        "alone_run": 68,
+        "accuracy": 0.8571428571428571,
+        "frontier_accuracy": 0.8489535941765242,
+        "difference": 0.00818926296633303,
+        "low": -0.009186810653492545,
+        "high": 0.025565336586158605,
+        "p": 0.41191007368097654,
+        "within_tolerance": true,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 3.68969116,
+        "frontier_cost_usd": 4.1268408,
+        "request_seconds": 2001.7496087580075,
+        "frontier_request_seconds": 1799.8465952617116,
+        "pipeline_tokens": {
+          "input_tokens": 490249,
+          "cached_input_tokens": 124317,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 365816,
+          "output_tokens": 220523
+        },
+        "alone_tokens": {
+          "input_tokens": 609112,
+          "cached_input_tokens": 148308,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 460666,
+          "output_tokens": 226907
+        },
+        "alternatives": [
+          {
+            "run": 71,
+            "accuracy": 0.9745222929936306,
+            "cost_usd": 5.67298,
+            "request_seconds": 992.3243447878631,
+            "versus_pipeline": {
+              "difference": 0.11737943585077343,
+              "low": 0.09737165678674037,
+              "high": 0.1373872149148065,
+              "p": 7.352026653297796e-33
+            },
+            "versus_frontier": {
+              "difference": 0.12556869881710647,
+              "low": 0.10502648569558187,
+              "high": 0.14611091193863107,
+              "p": 2.08925524731209e-35
+            },
+            "model": "gpt-6-astra",
+            "name": "GPT-6 Astra",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582668,
+              "cached_input_tokens": 144000,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 22846
+            }
+          },
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": 0.11101000909918107,
+              "low": 0.09079672440902348,
+              "high": 0.13122329378933867,
+              "p": 2.5747366898777346e-28
+            },
+            "versus_frontier": {
+              "difference": 0.1191992720655141,
+              "low": 0.09875690893398828,
+              "high": 0.13964163519703993,
+              "p": 5.294448923596039e-32
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": 0.05368516833484986,
+              "low": 0.03099742234231355,
+              "high": 0.07637291432738617,
+              "p": 5.076173568329694e-06
+            },
+            "versus_frontier": {
+              "difference": 0.06187443130118289,
+              "low": 0.03877269078891368,
+              "high": 0.0849761718134521,
+              "p": 2.2849587651185474e-07
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 165,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 5.387050599999999,
+            "request_seconds": 929.1633372180659,
+            "versus_pipeline": {
+              "difference": 0.036396724294813464,
+              "low": 0.01436968479581385,
+              "high": 0.058423763793813074,
+              "p": 0.0015876769917063935
+            },
+            "versus_frontier": {
+              "difference": 0.044585987261146494,
+              "low": 0.022829831897380495,
+              "high": 0.06634214262491249,
+              "p": 8.212852870228109e-05
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 628800,
+              "cached_input_tokens": 171673,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 456987,
+              "output_tokens": 84813
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 55,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "half",
+      "batch_size": 1,
+      "threshold": 0.7171164205094459,
+      "held_out": 1099,
+      "routed": 558,
+      "simulated": {
+        "accuracy": 0.8343949044585988,
+        "frontier_accuracy": 0.8462238398544131
+      },
+      "measured": {
+        "pipeline_run": 170,
+        "alone_run": 167,
+        "accuracy": 0.8462238398544131,
+        "frontier_accuracy": 0.8935395814376706,
+        "difference": -0.047315741583257506,
+        "low": -0.0647478551295116,
+        "high": -0.029883628037003413,
+        "p": 1.3172242120654852e-07,
+        "within_tolerance": false,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 5.21685236,
+        "frontier_cost_usd": 8.6273988,
+        "request_seconds": 3980.5925824250007,
+        "frontier_request_seconds": 6064.148409693618,
+        "waits": {
+          "pipeline": {
+            "questions": 1099,
+            "median_seconds": 0.4,
+            "p90_seconds": 8.8948,
+            "mean_seconds": 3.634992720655141,
+            "max_seconds": 32.635999999999996,
+            "total_seconds": 3994.857
+          },
+          "kept": {
+            "questions": 558,
+            "median_seconds": 0.232,
+            "p90_seconds": 0.28300000000000003,
+            "mean_seconds": 0.29999283154121864,
+            "max_seconds": 31.381,
+            "total_seconds": 167.396
+          },
+          "passed": {
+            "questions": 541,
+            "median_seconds": 5.985,
+            "p90_seconds": 11.602,
+            "mean_seconds": 7.074789279112753,
+            "max_seconds": 32.635999999999996,
+            "total_seconds": 3827.461
+          },
+          "alone": {
+            "questions": 1099,
+            "median_seconds": 4.774,
+            "p90_seconds": 8.731800000000002,
+            "mean_seconds": 5.517877161055505,
+            "max_seconds": 21.935,
+            "total_seconds": 6064.147
+          }
+        },
+        "pipeline_tokens": {
+          "input_tokens": 785837,
+          "cached_input_tokens": 298909,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 485846,
+          "output_tokens": 323288
+        },
+        "alone_tokens": {
+          "input_tokens": 1648174,
+          "cached_input_tokens": 599508,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 1046468,
+          "output_tokens": 437718
+        },
+        "alternatives": [
+          {
+            "run": 163,
+            "accuracy": 0.9754322111010009,
+            "cost_usd": 31.648706,
+            "request_seconds": 7964.2585057840915,
+            "versus_pipeline": {
+              "difference": 0.1292083712465878,
+              "low": 0.10828410243890053,
+              "high": 0.15013264005427504,
+              "p": 8.935182693751113e-36
+            },
+            "versus_frontier": {
+              "difference": 0.0818926296633303,
+              "low": 0.06436135022755202,
+              "high": 0.09942390909910859,
+              "p": 2.253920747846914e-21
+            },
+            "model": "gpt-6-astra",
+            "name": "GPT-6 Astra",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 5103512,
+              "cached_input_tokens": 2509696,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 64017
+            }
+          },
+          {
+            "run": 166,
+            "accuracy": 0.9272065514103731,
+            "cost_usd": 12.8286324,
+            "request_seconds": 4694.714676301097,
+            "versus_pipeline": {
+              "difference": 0.08098271155595996,
+              "low": 0.05989641185577714,
+              "high": 0.10206901125614277,
+              "p": 6.155096365873754e-14
+            },
+            "versus_frontier": {
+              "difference": 0.03366696997270246,
+              "low": 0.015676818848088834,
+              "high": 0.051657121097316086,
+              "p": 0.00034099780128697693
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 1746017,
+              "cached_input_tokens": 701622,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 1042197,
+              "output_tokens": 217097
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 55,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "share",
+      "batch_size": 16,
+      "threshold": 0.9642039538871846,
+      "held_out": 1099,
+      "routed": 275,
+      "simulated": {
+        "accuracy": 0.8553230209281165,
+        "frontier_accuracy": 0.8462238398544131
+      },
+      "share": 0.25,
+      "measured": {
+        "pipeline_run": 173,
+        "alone_run": 68,
+        "accuracy": 0.8607825295723385,
+        "frontier_accuracy": 0.8489535941765242,
+        "difference": 0.011828935395814377,
+        "low": -0.006777580673092972,
+        "high": 0.030435451464721725,
+        "p": 0.25028200469192174,
+        "within_tolerance": true,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 3.37300646,
+        "frontier_cost_usd": 4.1268408,
+        "request_seconds": 1886.570894726974,
+        "frontier_request_seconds": 1799.8465952617116,
+        "pipeline_tokens": {
+          "input_tokens": 429829,
+          "cached_input_tokens": 109050,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 320675,
+          "output_tokens": 207066
+        },
+        "alone_tokens": {
+          "input_tokens": 609112,
+          "cached_input_tokens": 148308,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 460666,
+          "output_tokens": 226907
+        },
+        "alternatives": [
+          {
+            "run": 71,
+            "accuracy": 0.9745222929936306,
+            "cost_usd": 5.67298,
+            "request_seconds": 992.3243447878631,
+            "versus_pipeline": {
+              "difference": 0.11373976342129208,
+              "low": 0.09381765627121447,
+              "high": 0.1336618705713697,
+              "p": 5.166045778807018e-31
+            },
+            "versus_frontier": {
+              "difference": 0.12556869881710647,
+              "low": 0.10502648569558187,
+              "high": 0.14611091193863107,
+              "p": 2.08925524731209e-35
+            },
+            "model": "gpt-6-astra",
+            "name": "GPT-6 Astra",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582668,
+              "cached_input_tokens": 144000,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 22846
+            }
+          },
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": 0.10737033666969972,
+              "low": 0.08724587552101651,
+              "high": 0.12749479781838294,
+              "p": 1.0618810807448801e-26
+            },
+            "versus_frontier": {
+              "difference": 0.1191992720655141,
+              "low": 0.09875690893398828,
+              "high": 0.13964163519703993,
+              "p": 5.294448923596039e-32
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": 0.05004549590536852,
+              "low": 0.02718909948193704,
+              "high": 0.0729018923288,
+              "p": 2.505115608706493e-05
+            },
+            "versus_frontier": {
+              "difference": 0.06187443130118289,
+              "low": 0.03877269078891368,
+              "high": 0.0849761718134521,
+              "p": 2.2849587651185474e-07
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 165,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 5.387050599999999,
+            "request_seconds": 929.1633372180659,
+            "versus_pipeline": {
+              "difference": 0.03275705186533212,
+              "low": 0.011443588455153298,
+              "high": 0.05407051527551095,
+              "p": 0.003393884063573226
+            },
+            "versus_frontier": {
+              "difference": 0.044585987261146494,
+              "low": 0.022829831897380495,
+              "high": 0.06634214262491249,
+              "p": 8.212852870228109e-05
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 628800,
+              "cached_input_tokens": 171673,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 456987,
+              "output_tokens": 84813
+            }
+          }
+        ]
+      }
+    },
+    {
+      "decision": 145,
+      "frontier": 55,
+      "seed": 1,
+      "tolerance_points": 0.5,
+      "rule": "half",
+      "batch_size": 16,
+      "threshold": 0.7171164205094459,
+      "held_out": 1099,
+      "routed": 558,
+      "simulated": {
+        "accuracy": 0.8343949044585988,
+        "frontier_accuracy": 0.8462238398544131
+      },
+      "measured": {
+        "pipeline_run": 162,
+        "alone_run": 68,
+        "accuracy": 0.8425841674249318,
+        "frontier_accuracy": 0.8489535941765242,
+        "difference": -0.006369426751592357,
+        "low": -0.028281462396915237,
+        "high": 0.015542608893730525,
+        "p": 0.6255036238897121,
+        "within_tolerance": false,
+        "decision_cost_usd": 0.008533460000000001,
+        "cost_usd": 2.5804246600000003,
+        "frontier_cost_usd": 4.1268408,
+        "request_seconds": 1677.1019263799535,
+        "frontier_request_seconds": 1799.8465952617116,
+        "pipeline_tokens": {
+          "input_tokens": 274389,
+          "cached_input_tokens": 69792,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 204529,
+          "output_tokens": 174666
+        },
+        "alone_tokens": {
+          "input_tokens": 609112,
+          "cached_input_tokens": 148308,
+          "cache_write_input_tokens": 0,
+          "cache_write_1h_input_tokens": 460666,
+          "output_tokens": 226907
+        },
+        "alternatives": [
+          {
+            "run": 71,
+            "accuracy": 0.9745222929936306,
+            "cost_usd": 5.67298,
+            "request_seconds": 992.3243447878631,
+            "versus_pipeline": {
+              "difference": 0.13193812556869883,
+              "low": 0.11069579859223826,
+              "high": 0.15318045254515938,
+              "p": 6.769507367528149e-36
+            },
+            "versus_frontier": {
+              "difference": 0.12556869881710647,
+              "low": 0.10502648569558187,
+              "high": 0.14611091193863107,
+              "p": 2.08925524731209e-35
+            },
+            "model": "gpt-6-astra",
+            "name": "GPT-6 Astra",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582668,
+              "cached_input_tokens": 144000,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 22846
+            }
+          },
+          {
+            "run": 137,
+            "accuracy": 0.9681528662420382,
+            "cost_usd": 1.3225,
+            "request_seconds": 1362.2349697217578,
+            "versus_pipeline": {
+              "difference": 0.12556869881710647,
+              "low": 0.10426637302645733,
+              "high": 0.1468710246077556,
+              "p": 4.576636824126176e-32
+            },
+            "versus_frontier": {
+              "difference": 0.1191992720655141,
+              "low": 0.09875690893398828,
+              "high": 0.13964163519703993,
+              "p": 5.294448923596039e-32
+            },
+            "model": "gpt-6.1-sol",
+            "name": "GPT-6.1 Sol",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "openai",
+            "tokens": {
+              "input_tokens": 582670,
+              "cached_input_tokens": 57600,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 26660
+            }
+          },
+          {
+            "run": 138,
+            "accuracy": 0.910828025477707,
+            "cost_usd": 0.29709675,
+            "request_seconds": 300.7470318475971,
+            "versus_pipeline": {
+              "difference": 0.06824385805277525,
+              "low": 0.0448623126424854,
+              "high": 0.0916254034630651,
+              "p": 1.6420148695755048e-08
+            },
+            "versus_frontier": {
+              "difference": 0.06187443130118289,
+              "low": 0.03877269078891368,
+              "high": 0.0849761718134521,
+              "p": 2.2849587651185474e-07
+            },
+            "model": "gemini-3.8-flash",
+            "name": "Gemini 3.8 Flash",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "gemini",
+            "tokens": {
+              "input_tokens": 244424,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 30341
+            }
+          },
+          {
+            "run": 165,
+            "accuracy": 0.8935395814376706,
+            "cost_usd": 5.387050599999999,
+            "request_seconds": 929.1633372180659,
+            "versus_pipeline": {
+              "difference": 0.050955414012738856,
+              "low": 0.027760654036543823,
+              "high": 0.07415017398893389,
+              "p": 2.350182078373937e-05
+            },
+            "versus_frontier": {
+              "difference": 0.044585987261146494,
+              "low": 0.022829831897380495,
+              "high": 0.06634214262491249,
+              "p": 8.212852870228109e-05
+            },
+            "model": "claude-opus-5-5",
+            "name": "Claude Opus 5.5",
+            "variant": null,
+            "reasoning": "low",
+            "provider": "claude",
+            "tokens": {
+              "input_tokens": 628800,
+              "cached_input_tokens": 171673,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 456987,
+              "output_tokens": 84813
             }
           }
         ]

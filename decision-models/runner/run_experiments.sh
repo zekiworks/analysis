@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# The runs of plan steps 5.3 and 6.11: repeats, Qwen's vote share, the cascade pipelines, cheaper models on
-# the pipelines' held-out half, and one question per request on the repeats' sample.
+# The runs of plan steps 5.3, 6.11 and 6.29: repeats, Qwen's vote share, the cascade pipelines (Decider v1's,
+# then Decider v1.1's), cheaper models on the pipelines' held-out half, and one question per request on the
+# repeats' sample.
 #
 #   ./run_experiments.sh LANE
 #
@@ -43,6 +44,7 @@ repeats() { # repeats DEFAULT_REPEATS ARGS...
 
 astra=(gpt-6-astra --provider openai --openai-reasoning low --data "$DATA" --batch-size 16 --timeout 600)
 sonnet_high=(claude-sonnet-5-5 --provider claude --claude-effort high --data "$DATA" --batch-size 16 --timeout 600)
+opus=(claude-opus-5-5 --provider claude --claude-effort low --data "$DATA" --batch-size 16 --timeout 600)
 
 case "${1:-}" in
   # Batched setups: 5 runs on one fixed 200-question sample, the same batches every time.
@@ -78,8 +80,31 @@ case "${1:-}" in
   # Cheaper frontier configurations alone on the same held-out questions, for a matched cost comparison.
   sol-held-out) bench gpt-6.1-sol --provider openai --openai-reasoning low --data "$DATA" --batch-size 16 --timeout 600 --questions pipeline/decider-astra-held-out.txt ;;
   flash-held-out) bench gemini-3.8-flash --provider gemini --gemini-thinking low --data "$DATA" --batch-size 16 --timeout 600 --questions pipeline/decider-astra-held-out.txt ;;
+  # Decider v1.1's cascade pipelines (plans pipeline/decider-v11-*, plan step 6.29): the frontier configuration
+  # on the questions it passes on. Their held-out half is the one above, so astra-held-out and
+  # sonnet-high-held-out are Astra's and Sonnet's runs alone; Opus gets its own.
+  v11-sonnet-high-passed) bench "${sonnet_high[@]}" --questions pipeline/decider-v11-sonnet-high-passed.txt ;;
+  v11-opus-passed) bench "${opus[@]}" --questions pipeline/decider-v11-opus-passed.txt ;;
+  v11-opus-held-out) bench "${opus[@]}" --questions pipeline/decider-v11-opus-held-out.txt ;;
+  v11-astra-passed) bench "${astra[@]}" --questions pipeline/decider-v11-astra-passed.txt ;;
+  # The same two lists with one question per request, one request at a time: the timed runs, alone and in the
+  # two-step setup (plans pipeline/decider-v11-*-one).
+  v11-sonnet-high-held-out-one) bench claude-sonnet-5-5 --provider claude --claude-effort high --data "$DATA" --batch-size 1 --timeout 600 --questions pipeline/decider-v11-sonnet-high-held-out.txt ;;
+  v11-sonnet-high-passed-one) bench claude-sonnet-5-5 --provider claude --claude-effort high --data "$DATA" --batch-size 1 --timeout 600 --questions pipeline/decider-v11-sonnet-high-passed.txt ;;
+  v11-opus-held-out-one) bench claude-opus-5-5 --provider claude --claude-effort low --data "$DATA" --batch-size 1 --timeout 600 --questions pipeline/decider-v11-opus-held-out.txt ;;
+  v11-opus-passed-one) bench claude-opus-5-5 --provider claude --claude-effort low --data "$DATA" --batch-size 1 --timeout 600 --questions pipeline/decider-v11-opus-passed.txt ;;
+  v11-astra-held-out-one) bench gpt-6-astra --provider openai --openai-reasoning low --data "$DATA" --batch-size 1 --timeout 600 --questions pipeline/decider-v11-astra-held-out.txt ;;
+  v11-astra-passed-one) bench gpt-6-astra --provider openai --openai-reasoning low --data "$DATA" --batch-size 1 --timeout 600 --questions pipeline/decider-v11-astra-passed.txt ;;
+  # Decider v1.1's most confident quarter and fixed 99% cutoff on the same held-out half (plans
+  # pipeline/decider-v11-*-quarter and -99): the frontier configuration on the questions each passes on.
+  v11-sonnet-high-quarter-passed) bench "${sonnet_high[@]}" --questions pipeline/decider-v11-sonnet-high-quarter-passed.txt ;;
+  v11-sonnet-high-99-passed) bench "${sonnet_high[@]}" --questions pipeline/decider-v11-sonnet-high-99-passed.txt ;;
+  v11-opus-quarter-passed) bench "${opus[@]}" --questions pipeline/decider-v11-opus-quarter-passed.txt ;;
+  v11-opus-99-passed) bench "${opus[@]}" --questions pipeline/decider-v11-opus-99-passed.txt ;;
+  v11-astra-quarter-passed) bench "${astra[@]}" --questions pipeline/decider-v11-astra-quarter-passed.txt ;;
+  v11-astra-99-passed) bench "${astra[@]}" --questions pipeline/decider-v11-astra-99-passed.txt ;;
   *)
-    sed -n '2,9p' "$0" >&2
+    sed -n '2,10p' "$0" >&2
     exit 2
     ;;
 esac

@@ -17,7 +17,7 @@ Page: <https://zekiworks.github.io/analysis/decision-models/>
 The site is this folder, served by GitHub Pages from the `main` branch. It is static. The page opens
 with the comparison of decision models in front of three LLMs and the sections that explain it
 (confidence, the two-step setup, why Decider, speed, the cutoff, the savings), then an overview (fixed
-cutoff, accuracy, repeated answers, a live test, cost and time, trying it on your own task), then the full
+cutoff, accuracy, repeated answers, live tests, cost and time, trying it on your own task), then the full
 study. `build_page.py` writes every number, the overview's
 tables and bars, the chart figures and their descriptions into `index.html` from `results.json`, the
 aggregate results, so they read without JavaScript; `app.js` renders the full study's tables from the
@@ -48,10 +48,13 @@ python3 -m http.server 8000                                # preview at http://1
   answers; every routing simulation (the cutoff chosen in sample and its 300 held-out splits); the
   replay the page leads with (Decider v1.1's answers kept at each cutoff and in its most confident quarter, and
   what keeping them changes in front of each second model, on all questions and on the same splits);
-  the answer-key baselines; and the costs: each priced run's from its token counts at the rates in
-  `results.json`'s `prices`, every run without a price shown as a free tier or self-hosted, each routing
-  simulation's and replay's cost per 1,000 questions from its runs, and the routing tests' costs from
-  their parts. It prints one row per run and exits with status 1 when a value differs from
+  the answer-key baselines; every live test (the questions the first model kept, against its cutoff,
+  the pair's and the second model's accuracy, the paired change with its 95% interval and exact McNemar
+  p and, with one question per request, each question's wait); and the costs: each priced run's from its
+  token counts at the rates in `results.json`'s `prices`, every run without a price shown as a free tier
+  or self-hosted, each routing simulation's and replay's cost per 1,000 questions from its runs, and the
+  routing tests' costs from their parts. It prints one row per run and exits with status 1 when a value
+  differs from
   `results.json`: counts and group letters must match exactly, AUROC, ECE, shares and accuracies within
   10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals and the other tables are not
   recomputed.
@@ -76,7 +79,7 @@ python3 -m http.server 8000                                # preview at http://1
     `announced` holds the date of the first public post; from then on they are kept, so posted link
     previews keep working.
   - **Generated sentences:** every sentence that compares models or states a trend (the opening, the
-    savings, the fixed cutoff, accuracy, repeated answers, the live test, cost and time, and the study's
+    savings, the fixed cutoff, accuracy, repeated answers, the live tests, cost and time, and the study's
     findings) checks that its wording still fits the numbers and stops the build otherwise. A
     configuration's time per request is its own run's, or, when that run predates per-request timing, the
     pooled times of its later runs of the same setup (`latency` in `results.json`); a batch's time is never
@@ -145,8 +148,9 @@ question text, prompts, answers or local paths. The comparisons between runs com
 `--answers` names the benchmark's per-question export. The export takes from it the replay the page
 leads with (`replay`), each listed comparison's Holm p-value over all pairs (`p_holm_all`) and the
 answer-key baselines (`baselines`), and writes `answers.json`: the main runs, the repeats of each
-repeated configuration (`repeat_runs`) and the two runs of each measured routing pipeline
-(`pipeline_runs`), with scores and option probabilities at full precision. Then refresh `runner/` and
+repeated configuration (`repeat_runs`) and the runs of each measured live test (`pipeline_runs`; a run
+that serves several tests, such as a second model alone on the shared test half, lists every role it
+has), with scores and option probabilities at full precision. Then refresh `runner/` and
 the metric code, and check the result:
 
 ```bash

@@ -13,12 +13,14 @@ repeated runs, recomputed from their exported answers. Then the replays: every r
 threshold chosen in sample and its 300 held-out splits), and the replay the page leads with: the
 decision run's answers kept at each cutoff and in its surest share, and what keeping them changes in
 front of each second run, on all questions and on the same held-out splits; with them the answer-key
-baselines (options per question, the key's most used letter and its share). Then the costs: each priced
-run's from its token counts at the published rates, every run without a price shown as a free tier or
-self-hosted, each routing simulation's and replay's cost per 1,000 questions from its runs, and the
-routing tests' costs from their parts. Uses only the standard library and benchmark_metrics.py, the
-metric code the benchmark report uses. Exits with status 1 when anything differs beyond the tolerances
-printed.
+baselines (options per question, the key's most used letter and its share). Then the live tests: each
+test's kept questions (the decision run's scores against its cutoff), the pair's and the second model's
+accuracy, the paired change with its 95% interval and exact McNemar p and, with one question per
+request, each question's wait. Then the costs: each priced run's from its token counts at the published
+rates, every run without a price shown as a free tier or self-hosted, each routing simulation's and
+replay's cost per 1,000 questions from its runs, and the routing tests' costs from their parts. Uses only
+the standard library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with
+status 1 when anything differs beyond the tolerances printed.
 """
 
 from __future__ import annotations
@@ -27,6 +29,7 @@ import argparse
 import itertools
 import json
 import math
+import statistics
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -115,8 +118,6 @@ def main() -> int:
         print(f"MISMATCH: results.json scores {results['questions']} questions, answers.json {len(scored)}")
     else:
         checks.passed += 1
-    if answers.get("pipeline_runs"):
-        print(f"Not checked here: {len(answers['pipeline_runs'])} pipeline_runs")
     print(
         f"Tolerances: counts and group letters exact; AUROC and ECE within {METRIC_TOLERANCE:g}; "
         f"p-values within a relative {P_TOLERANCE:g}. A cell shows the recomputed value, then '≠' and the "
@@ -307,6 +308,17 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    live_mismatches = check_live_tests(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nLive tests ({sum(1 for item in results['pipelines'] if item.get('measured'))} tests with new calls to the "
+        "second model, from the exported answers; accuracy, change, interval and waits within "
+        f"{METRIC_TOLERANCE:g}, p-values within a relative {P_TOLERANCE:g}): {checked - len(live_mismatches)} of {checked} match"
+    )
+    for line in live_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     cost_mismatches = check_costs(results, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -437,6 +449,75 @@ def check_replays(results: dict[str, Any], answers: dict[str, Any], scored: list
     check("baselines, options per question", base["options"], options.pop() if len(options) == 1 else sorted(options))
     check("baselines, the key's most used letter", base["letter"], letter)
     check("baselines, that letter's share", base["letter_share"], used / len(scored), "metric")
+    return mismatches
+
+
+def check_live_tests(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute every live test (results.json `pipelines` with `measured`) from the exported answers, in question
+    order as the report takes them: the held-out questions (the second model's run alone), the ones the decision
+    model kept (those its new run left out, each scored at or above the cutoff), the pair's and the second model's
+    accuracy, the paired change with its 95% interval and exact McNemar p and, with one question per request, each
+    question's wait (the decision model's request, plus the second model's for a question passed on); returns a line
+    per mismatch."""
+    questions = answers["questions"]
+    exported = {run["run"]: run for run in answers["runs"] + answers.get("pipeline_runs", [])}
+    runs = {run["run"]: run for run in results["runs"]}
+    order = sorted(scored, key=lambda index: questions["id"][index])
+    mismatches: list[str] = []
+
+    def check(what: str, published: Any, recomputed: Any, kind: str = "exact") -> None:
+        if kind == "exact":
+            cell = checks.cell(published == recomputed, str(recomputed), str(published))
+        elif kind == "p":
+            cell = checks.cell(close(published, recomputed, relative=P_TOLERANCE), number(recomputed, 6), number(published, 6))
+        else:
+            cell = checks.cell(close(published, recomputed, METRIC_TOLERANCE), number(recomputed, 6), number(published, 6))
+        if "≠" in cell:
+            mismatches.append(f"  {what}: {cell}")
+
+    for item in results["pipelines"]:
+        measured = item.get("measured")
+        if not measured:
+            continue
+        decision, pipeline, alone = (exported[run] for run in (item["decision"], measured["pipeline_run"], measured["alone_run"]))
+        name = (f"live test {label(runs[item['decision']])} → {label(runs[item['frontier']])} "
+                f"({item['rule']}, {item['batch_size']} per request)")
+        held = [index for index in order if alone["correct"][index] is not None]
+        passed = {index for index in order if pipeline["correct"][index] is not None}
+        kept = [index for index in held if index not in passed]
+        check(f"{name}, questions", item["held_out"], len(held))
+        check(f"{name}, kept", item["routed"], len(kept))
+        check(f"{name}, passed on below the cutoff", True, passed <= set(held)
+              and all(decision["score"][index] >= item["threshold"] for index in kept)
+              and all(decision["score"][index] < item["threshold"] for index in passed))
+        together = [int(bool((pipeline if index in passed else decision)["correct"][index])) for index in held]
+        by_itself = [int(bool(alone["correct"][index])) for index in held]
+        test = bm.paired_comparison(together, by_itself)
+        check(f"{name}, accuracy", measured["accuracy"], sum(together) / len(held), "metric")
+        check(f"{name}, second model alone", measured["frontier_accuracy"], sum(by_itself) / len(held), "metric")
+        for key in ("difference", "low", "high"):
+            check(f"{name}, {key}", measured[key], test[key], "metric")
+        check(f"{name}, p", measured["p"], test["p"], "p")
+        if "waits" not in measured:
+            continue
+        first, then, own = decision["request_seconds"], pipeline["request_seconds"], alone["request_seconds"]
+        waits = {index: first[index] + (then[index] if index in passed else 0.0) for index in held}
+        for part, values in (
+            ("pipeline", [waits[index] for index in held]),
+            ("kept", [waits[index] for index in kept]),
+            ("passed", [waits[index] for index in held if index in passed]),
+            ("alone", [own[index] for index in held]),
+        ):
+            published = measured["waits"][part]
+            check(f"{name}, {part} waits", published["questions"], len(values))
+            for key, value in (
+                ("median_seconds", statistics.median(values)),
+                ("p90_seconds", statistics.quantiles(values, n=10, method="inclusive")[-1] if len(values) >= 2 else None),
+                ("mean_seconds", statistics.fmean(values)),
+                ("max_seconds", max(values)),
+                ("total_seconds", sum(values)),
+            ):
+                check(f"{name}, {part} {key.replace('_', ' ')}", published[key], value, "metric")
     return mismatches
 
 

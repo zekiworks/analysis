@@ -626,7 +626,9 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             {
                 "decision": exported[item["decision"]]["run_id"],
                 "frontier": exported[item["frontier"]]["run_id"],
-                **{key: item[key] for key in ("seed", "tolerance_points", "threshold", "held_out", "routed", "simulated")},
+                **{key: item[key] for key in ("seed", "tolerance_points", "rule", "batch_size", "threshold", "held_out", "routed", "simulated")},
+                # The rule "share" keeps the decision model's most confident share of the held-out questions.
+                **({"share": item["share"]} if "share" in item else {}),
                 "measured": None
                 if measured is None
                 else {
@@ -823,18 +825,19 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
         raise ValueError("the answers file has no runs graded against the exported question bank")
     main = {run["run"] for run in data["runs"]}
     repeats = {run: item["runs"] for item in data["repeats"] for run in item["runs"] if run not in main}
-    pipelines = {
-        item["measured"][role]: {"decision": item["decision"], "frontier": item["frontier"], "role": label}
-        for item in data["pipelines"]
-        if item.get("measured")
-        for role, label in (("pipeline_run", "pipeline"), ("alone_run", "frontier alone"))
-    }
+    # A run can serve several plans (one run alone on the held-out half serves every plan with its configuration),
+    # so each run lists every role it has.
+    pipelines: dict[int, list[dict[str, Any]]] = {}
     for item in data["pipelines"]:
-        for alternative in (item.get("measured") or {}).get("alternatives", []):
-            pipelines.setdefault(
-                alternative["run"],
-                {"decision": item["decision"], "frontier": item["frontier"], "role": "same questions, other configuration"},
-            )
+        measured = item.get("measured")
+        if not measured:
+            continue
+        plan = {"decision": item["decision"], "frontier": item["frontier"], "rule": item["rule"],
+                "questions_per_request": item["batch_size"]}
+        for role, label in (("pipeline_run", "pipeline"), ("alone_run", "frontier alone")):
+            pipelines.setdefault(measured[role], []).append({**plan, "role": label})
+        for alternative in measured.get("alternatives", []):
+            pipelines.setdefault(alternative["run"], []).append({**plan, "role": "same questions, other configuration"})
     batching = {
         item["run"]: {
             "questions_per_request": item["batch_size"],
@@ -855,7 +858,7 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
         "runs": [by_id[run] for run in sorted(main)],
         # Each repeat lists the runs of its configuration's repeat set (results.json `repeats`).
         "repeat_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(repeats.items())],
-        "pipeline_runs": [{**by_id[run], "pipeline": pipeline} for run, pipeline in sorted(pipelines.items())],
+        "pipeline_runs": [{**by_id[run], "pipelines": roles} for run, roles in sorted(pipelines.items())],
         # Runs of a configuration with another number of questions per request (results.json `batching`).
         "batching_runs": [{**by_id[run], "batching": batch} for run, batch in sorted(batching.items())],
     }

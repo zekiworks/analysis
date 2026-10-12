@@ -3083,25 +3083,30 @@ def pipeline_lines(pipelines: list[dict[str, Any]], results: dict[str, dict[str,
         "## Cascade as a pipeline",
         "",
         "Each plan (`cascade_pipeline.py`) splits the questions into two halves, keeping questions that "
-        "share a passage together, and fixes the threshold on one half: the lowest that keeps the frontier "
-        "run's accuracy there. On the other half, the held-out questions, the decision model answers the "
-        "questions at or above the threshold, from its stored run, and a new frontier run answers the rest "
-        "in batches of their own. The frontier configuration is run again on all held-out questions for "
-        "comparison. Simulated: the same split scored with the stored whole-set runs, as the Cascade table "
-        "does. Tolerance: the accuracy loss accepted before the runs. Cost and time: the decision model's "
-        "share of its run plus the new frontier run, against the frontier run on all held-out questions.",
+        "share a passage together. Its rule fixes the threshold: fitted on one half (the lowest that keeps "
+        "the frontier run's accuracy there), set in advance, or the lowest score among the decision model's "
+        "most confident share of the other half. On the other half, the held-out questions, the decision "
+        "model answers the questions at or above the threshold, from its stored run, and a new frontier run "
+        "answers the rest in requests of their own (Per request: the questions in each). The frontier "
+        "configuration is run again on all held-out questions for comparison. Simulated: the same split "
+        "scored with the stored whole-set runs, as the Cascade table does. Tolerance: the accuracy loss "
+        "accepted before the runs. Cost and time: the decision model's share of its run plus the new frontier "
+        "run, against the frontier run on all held-out questions.",
         "",
-        "| Decision model | Frontier run | Held out | Threshold | Answered by the decision model | Simulated: "
-        "cascade / frontier | Pipeline / frontier alone | Difference | 95% interval | p | Tolerance | Cost (USD) | "
-        "Request time (min) |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|",
+        "| Decision model | Frontier run | Rule | Per request | Held out | Threshold | Answered by the decision model | "
+        "Simulated: cascade / frontier | Pipeline / frontier alone | Difference | 95% interval | p | Tolerance | "
+        "Cost (USD) | Request time (min) |",
+        "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|",
     ]
+    rules = {"half": "fitted on the other half", "cutoff": "set in advance"}
     for item in pipelines:
         decision, frontier = results[item["decision"]], results[item["frontier"]]
         simulated = item["simulated"]
         measured = item.get("measured")
         common = (
-            f"| {run_label(decision)} | {run_label(frontier)} | {item['held_out']} | {item['threshold']:.3f} | "
+            f"| {run_label(decision)} | {run_label(frontier)} | "
+            + (f"most confident {100 * item['share']:g}%" if item["rule"] == "share" else rules[item["rule"]])
+            + f" | {item['batch_size']} | {item['held_out']} | {item['threshold']:.3f} | "
             f"{item['routed']} ({percent(item['routed'], item['held_out'])}) | "
             f"{100 * simulated['accuracy']:.1f}% / {100 * simulated['frontier_accuracy']:.1f}% | "
         )
@@ -3119,6 +3124,32 @@ def pipeline_lines(pipelines: list[dict[str, Any]], results: dict[str, dict[str,
             + ("—" if None in costs else f"${costs[0]:.2f} / ${costs[1]:.2f}")
             + f" | {measured['request_seconds'] / 60:.1f} / {measured['frontier_request_seconds'] / 60:.1f} |"
         )
+    timed = [item for item in pipelines if (item.get("measured") or {}).get("waits")]
+    if timed:
+
+        def seconds(value: float | None) -> str:
+            return "—" if value is None else f"{value:.2f}"
+
+        lines.extend(
+            [
+                "",
+                "Timed plans, one question per request and one request at a time: each held-out question's wait in "
+                "seconds. Pipeline: the decision model's recorded request time, plus the new frontier run's request "
+                "for a question it passed on; kept and passed on split it. Alone: the frontier run's request on every "
+                "held-out question.",
+                "",
+                "| Plan | Wait | Questions | Median | 90th percentile | Mean | Longest | Total (min) |",
+                "|---|---|---:|---:|---:|---:|---:|---:|",
+            ]
+        )
+        for item in timed:
+            for part, label in (("pipeline", "pipeline"), ("kept", "kept"), ("passed", "passed on"), ("alone", "alone")):
+                wait = item["measured"]["waits"][part]
+                lines.append(
+                    f"| {item['name']} | {label} | {wait['questions']} | {seconds(wait['median_seconds'])} | "
+                    f"{seconds(wait['p90_seconds'])} | {seconds(wait['mean_seconds'])} | {seconds(wait['max_seconds'])} | "
+                    f"{wait['total_seconds'] / 60:.1f} |"
+                )
     alternatives = [
         (item, alternative)
         for item in pipelines
@@ -3521,6 +3552,30 @@ def latency_summary(request_seconds: list[float]) -> dict[str, float]:
     if len(request_seconds) >= 2:
         summary["p90_request_seconds"] = statistics.quantiles(request_seconds, n=10, method="inclusive")[-1]
     return summary
+
+
+def wait_summary(seconds: list[float]) -> dict[str, Any]:
+    """Waits per question: how many, the median and the 90th percentile (as latency_summary takes them), the mean,
+    the longest and the total."""
+    summary = latency_summary(seconds)
+    return {
+        "questions": len(seconds),
+        "median_seconds": summary.get("median_request_seconds"),
+        "p90_seconds": summary.get("p90_request_seconds"),
+        "mean_seconds": statistics.fmean(seconds) if seconds else None,
+        "max_seconds": max(seconds) if seconds else None,
+        "total_seconds": sum(seconds),
+    }
+
+
+def request_times(connection: sqlite3.Connection, result: dict[str, Any], search_dir: Path) -> dict[int, float]:
+    """Each graded answer's request time, by question ID: with one question per request, its question's wait. Rounded
+    to the millisecond as --export-answers writes it, so the waits can be recomputed exactly from the export."""
+    return {
+        int(row["question_id"]): round(float(row["request_seconds"]), 3)
+        for row in graded_answers(connection, result["run_key"], result["dataset"], search_dir)
+        if row["request_seconds"] is not None
+    }
 
 
 
@@ -3990,7 +4045,9 @@ def run_pipelines(connection: sqlite3.Connection, results: dict[str, dict[str, A
     On the plan's held-out questions, the pipeline takes the decision model's answers at or above the
     threshold and the answers of a frontier run made on just the questions passed on; it is compared with
     the same frontier configuration run on all held-out questions, both made for the plan (--questions).
-    The simulation's prediction from the stored whole-set runs is given beside it.
+    Both runs use the frontier run's number of questions per request unless the plan sets its own. With one
+    question per request, each held-out question's wait is measured too. The simulation's prediction from
+    the stored whole-set runs is given beside it.
     """
     found = []
     for path in sorted((search_dir / "pipeline").glob("*.json")):
@@ -4012,6 +4069,10 @@ def run_pipelines(connection: sqlite3.Connection, results: dict[str, dict[str, A
             "frontier": plan["frontier"],
             "seed": plan["seed"],
             "tolerance_points": plan["tolerance_points"],
+            # Plans from before the rules were named fit their threshold on the calibration half.
+            "rule": plan.get("rule", "half"),
+            **({"share": plan["share"]} if "share" in plan else {}),
+            "batch_size": plan.get("batch_size", frontier["batch_size"]),
             "threshold": plan["threshold"],
             "held_out": len(order),
             "routed": len(routed),
@@ -4024,9 +4085,10 @@ def run_pipelines(connection: sqlite3.Connection, results: dict[str, dict[str, A
         def configuration(run: dict[str, Any]) -> tuple[Any, ...]:
             return (run.get("provider", "ollama"), run["model"], run["thinking"], run["batch_size"])
 
+        wanted = configuration(frontier)[:3] + (item["batch_size"],)
         made: dict[str, dict[str, Any]] = {}
         for run in results.values():
-            if run.get("question_list") and configuration(run) == configuration(frontier):
+            if run.get("question_list") and configuration(run) == wanted:
                 answered = frozenset(run_outcomes(connection, run, search_dir))
                 if answered == passed:
                     made["pipeline"] = run
@@ -4057,11 +4119,26 @@ def run_pipelines(connection: sqlite3.Connection, results: dict[str, dict[str, A
                 "request_seconds": decision["timed_seconds"] * share + pipeline_run["timed_seconds"],
                 "frontier_request_seconds": alone_run["timed_seconds"],
             }
-            # Other configurations run alone on the same held-out questions: the cost of a cheaper model
-            # on the questions the pipeline answered, against the pipeline and the frontier run alone.
+            if item["batch_size"] == 1 and decision["batch_size"] == 1:
+                # One question per request, one request at a time: each held-out question's wait. The decision
+                # model answers it first (its recorded request); a question it passes on also waits for the new
+                # frontier run's request.
+                first, then = request_times(connection, decision, search_dir), request_times(connection, pipeline_run, search_dir)
+                by_itself = request_times(connection, alone_run, search_dir)
+                if all(q in first and q in by_itself for q in order) and all(q in then for q in passed):
+                    waits = {q: first[q] + (then[q] if q in passed else 0.0) for q in order}
+                    item["measured"]["waits"] = {
+                        "pipeline": wait_summary([waits[q] for q in order]),
+                        "kept": wait_summary([waits[q] for q in order if q in routed]),
+                        "passed": wait_summary([waits[q] for q in order if q in passed]),
+                        "alone": wait_summary([by_itself[q] for q in order]),
+                    }
+            # Other configurations run alone on the same held-out questions with as many questions per request:
+            # the cost of a cheaper model on the questions the pipeline answered, against the pipeline and the
+            # frontier run alone.
             alternatives = []
             for run in results.values():
-                if not run.get("question_list") or configuration(run) == configuration(frontier):
+                if not run.get("question_list") or run["batch_size"] != item["batch_size"] or configuration(run) == wanted:
                     continue
                 answers = run_outcomes(connection, run, search_dir)
                 if frozenset(answers) != held_out:
@@ -4089,7 +4166,7 @@ def run_batching(connection: sqlite3.Connection, results: dict[str, dict[str, An
     """Each run that asks a configuration's questions with another number of questions per request than
     its main-table run (e.g. one per request on the repeats' sample): its accuracy against every run of
     the configuration that answered those questions with the main number, by an exact McNemar test on
-    those questions."""
+    those questions. Runs on listed questions belong to the cascade pipelines, which compare them there."""
 
     def configuration(run: dict[str, Any]) -> tuple[Any, ...]:
         return (run.get("provider", "ollama"), run["model"], run["thinking"])
@@ -4101,7 +4178,8 @@ def run_batching(connection: sqlite3.Connection, results: dict[str, dict[str, An
     found = []
     for run in results.values():
         size = main.get(configuration(run))
-        if size is None or run["batch_size"] == size or in_main_tables(run) or run.get("repeat") is not None or not plain(run):
+        if (size is None or run["batch_size"] == size or in_main_tables(run) or run.get("repeat") is not None or not plain(run)
+                or run.get("question_list")):
             continue
         answers = run_outcomes(connection, run, search_dir)
         questions = sorted(answers)

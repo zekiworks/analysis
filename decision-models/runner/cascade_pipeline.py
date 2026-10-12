@@ -2,17 +2,22 @@
 """Plan a cascade pipeline: split the questions, fix the threshold, and write the question lists.
 
     ./cascade_pipeline.py NAME --decision RUN_ID --frontier RUN_ID [--seed 1] [--tolerance 0.5]
+                          [--cutoff C | --share S] [--batch-size N]
 
 The questions both stored runs answered, graded against the current question bank, are split into two
-halves at random; questions that share a passage stay together. On the calibration half the threshold is
-fixed with the Cascade table's rule (the lowest decision-model score that keeps the frontier run's
-accuracy). On the held-out half, the questions scored at or above it are routed to the decision model and
-the rest passed on to the frontier model.
+halves at random; questions that share a passage stay together. The plan's rule fixes the threshold:
+"half", the default, on the calibration half with the Cascade table's rule (the lowest decision-model
+score that keeps the frontier run's accuracy); "cutoff" (--cutoff) at a value set in advance, such as
+0.99; "share" (--share) at the lowest score among the decision model's S most confident held-out answers,
+so 0.25 keeps its most confident quarter. On the held-out half, the questions scored at or above it are
+routed to the decision model and the rest passed on to the frontier model.
 
 Writes pipeline/NAME.json, the plan the report reads, and two question lists for
 `benchmark_ollama.py --questions`: pipeline/NAME-passed.txt (the frontier configuration's pipeline run)
 and pipeline/NAME-held-out.txt (the same configuration on every held-out question, for comparison).
-The tolerance is the accuracy loss, in percentage points, accepted before the runs are made.
+The tolerance is the accuracy loss, in percentage points, accepted before the runs are made. The runs use
+the frontier run's number of questions per request unless --batch-size sets another, such as 1 for the
+timed runs, which then also give each question's wait.
 """
 
 import argparse
@@ -35,6 +40,10 @@ def main() -> int:
     parser.add_argument("--frontier", type=int, required=True, help="run ID of the frontier model's stored run")
     parser.add_argument("--seed", type=int, default=1, help="seed of the split (default 1)")
     parser.add_argument("--tolerance", type=float, default=0.5, help="accepted accuracy loss in points (default 0.5)")
+    fixed = parser.add_mutually_exclusive_group()
+    fixed.add_argument("--cutoff", type=float, help="a threshold set in advance instead of one fitted on the calibration half")
+    fixed.add_argument("--share", type=float, help="keep the decision model's most confident share of the held-out answers")
+    parser.add_argument("--batch-size", type=int, help="questions per request of the plan's runs, if not the frontier run's")
     parser.add_argument("--report", type=Path, default=HERE / "benchmark-results.md")
     parser.add_argument("--database", type=Path, default=HERE / "benchmark-results.sqlite")
     args = parser.parse_args()
@@ -61,16 +70,24 @@ def main() -> int:
     calibration = sorted(question for unit in units[: len(units) // 2] for question in unit)
     held_out = sorted(question for unit in units[len(units) // 2 :] for question in unit)
 
-    fitted = bm.cascade(
-        [decided[question][1] for question in calibration],
-        [decided[question][0] for question in calibration],
-        [answered[question][0] for question in calibration],
-        splits=1,
-    )["in_sample"]
-    threshold = fitted["threshold"]
-    if threshold is None:
-        print("No threshold keeps the frontier run's accuracy on the calibration half.", file=sys.stderr)
-        return 1
+    held_out_scores = [decided[question][1] for question in held_out]
+    if args.cutoff is not None:
+        rule, threshold, fitted = "cutoff", args.cutoff, None
+    elif args.share is not None:
+        if not 0 < args.share <= 1:
+            parser.error("--share must be above 0 and at most 1")
+        rule, threshold, fitted = "share", bm.share_cut(held_out_scores, args.share), None
+    else:
+        fitted = bm.cascade(
+            [decided[question][1] for question in calibration],
+            [decided[question][0] for question in calibration],
+            [answered[question][0] for question in calibration],
+            splits=1,
+        )["in_sample"]
+        rule, threshold = "half", fitted["threshold"]
+        if threshold is None:
+            print("No threshold keeps the frontier run's accuracy on the calibration half.", file=sys.stderr)
+            return 1
     routed = [question for question in held_out if decided[question][1] >= threshold]
     passed = [question for question in held_out if decided[question][1] < threshold]
 
@@ -82,6 +99,9 @@ def main() -> int:
         "frontier": frontier["run_key"],
         "seed": args.seed,
         "tolerance_points": args.tolerance,
+        "rule": rule,
+        **({"share": args.share} if rule == "share" else {}),
+        **({"batch_size": args.batch_size} if args.batch_size is not None else {}),
         "threshold": threshold,
         "calibration": calibration,
         "held_out": held_out,
@@ -91,10 +111,10 @@ def main() -> int:
     (folder / f"{args.name}.json").write_text(json.dumps(plan, indent=1) + "\n", encoding="utf-8")
     for suffix, listed in (("passed", passed), ("held-out", held_out)):
         (folder / f"{args.name}-{suffix}.txt").write_text("".join(f"{question}\n" for question in listed), encoding="utf-8")
+    fit = "" if fitted is None else f", {100 * fitted['answered']:.1f}% answered by the decision model there"
     print(
-        f"{args.name}: threshold {threshold:.4f} (calibration: {len(calibration)} questions, "
-        f"{100 * fitted['answered']:.1f}% answered by the decision model); held out: {len(held_out)} questions, "
-        f"{len(routed)} routed to the decision model, {len(passed)} passed on"
+        f"{args.name}: rule {rule}, threshold {threshold:.4f} (calibration: {len(calibration)} questions{fit}); "
+        f"held out: {len(held_out)} questions, {len(routed)} routed to the decision model, {len(passed)} passed on"
     )
     return 0
 
