@@ -2334,15 +2334,16 @@ def head(snap: Snapshot, images: dict[str, dict[str, str]]) -> str:
     preview = snap.config["images"]["preview"]
     tried, untried = decision_first_models(snap)
     firsts = opening_seconds(snap)
-    if any(abs(item["strict"]["share"] - item["strict"]["saving"]) > 0.01 for item in firsts):
-        raise ValueError("the description says the estimated combined cost fell by about the share Decider took")
+    live = [live_tests(snap)["decider"][item["key"]]["half"]["measured"] for item in firsts]
+    if any(measured["difference"] > 0 for measured in live):
+        raise ValueError("the description says accuracy fell by at most the live test's largest loss")
     shares = [f"{fmt.pct(item['strict']['share'], 0)} of {item['run']['name']}'s" for item in firsts]
     shares[0] += " questions"
     description = (
         f"We tested {count(len(tried) + len(untried))} decision models on {count(snap.total)} Turkish exam questions. Perplexity's "
-        f"Decider v1.1 took the most work off each LLM: {and_list(shares)}. The estimated combined cost fell by about the same "
-        f"share. The cost in accuracy: {more_wrong_span(snap)} more wrong answers per 1,000 questions, on average. We replayed "
-        "recorded answers."
+        f"Decider v1.1 took the most work off each LLM: {and_list(shares)}, in a replay of recorded answers. In a live test with "
+        f"new calls, the estimated cost fell {and_list([fmt.pct(saving(measured), 0) for measured in live])}, and accuracy fell by "
+        f"at most {-100 * min(measured['difference'] for measured in live):.2f} points."
     )
     alt = cutoff_alt(snap)
     image = site + images["preview"]["dark"]
@@ -2909,14 +2910,15 @@ def finding_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
     return figure_page(size, scale, body, theme)
 
 
-# The cutoff image's own layout: one column per cutoff, the bar drawn to scale against the most answers kept.
+# The cutoff image's own layout: one column per cutoff, the bar drawn to scale against the most answers kept. The bars take
+# the height the title, labels, note and footer leave, so a longer note never pushes the footer off the image.
 CUTOFF_STYLE = """
-.cols { flex: 1; display: grid; grid-template-columns: repeat(var(--count), 1fr); gap: 10px; margin-top: 16px; }
+.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--count), 1fr); gap: 10px; margin-top: 16px; }
 .col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; border-radius: 6px; padding: 4px 2px; }
 .col.rule { background: var(--track); }
 .col .kept { font-size: 22px; font-weight: 700; color: var(--values); }
 .col .top { font-size: 15px; color: var(--sub); margin-bottom: 6px; white-space: nowrap; }
-.col .area { height: 250px; width: 64%; display: flex; flex-direction: column-reverse; }
+.col .area { flex: 1; min-height: 0; width: 64%; display: flex; flex-direction: column-reverse; }
 .col .ok { background: var(--ok); } .col .wrong { background: var(--wrong); }
 .col .cut { font-size: 19px; font-weight: 700; margin-top: 8px; }
 .col .tag { font-size: 13px; color: var(--muted); min-height: 34px; line-height: 1.25; text-align: center; }
@@ -2947,8 +2949,8 @@ def cutoff_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
         f'<p class="sub">{esc(snap.short(snap.replay["run"]))} on {count(snap.total)} Turkish exam questions; we replayed recorded '
         f"answers · {legend}</p>"
         f'<div class="cols" style="--count: {len(rows)}">{"".join(columns)}</div>'
-        f'<p class="axis">Cutoff (lowest confidence we keep). Bar height: answers kept, out of {count(snap.total)}. The share Decider '
-        "keeps is roughly the share of the second model's estimated cost you save.</p>"
+        f'<p class="axis">Cutoff (lowest confidence we keep). Bar height: answers kept, out of {count(snap.total)}. In a replay of '
+        "recorded answers, the share Decider keeps is roughly the share of the second model's estimated cost you save.</p>"
         + footer(snap, "Choose a cutoff on one set of questions and test it on new ones.")
     )
     return figure_page(size, scale, body, theme, CUTOFF_STYLE)
