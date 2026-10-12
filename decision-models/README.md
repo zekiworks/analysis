@@ -1,21 +1,24 @@
-# Let a cheap, fast model decide when it is sure
+# When should you trust an AI model to make a decision?
 
 *A cheap decision model answers first; a stronger model answers the rest. Accuracy, confidence and cost on
 Turkish exam questions.*
 
 The results page of a benchmark of language models and decision models on 2,198 scored
 multiple-choice questions from a question bank for the Turkish section of the TYT, the first stage of
-Turkey's university entrance exam. It leads with a replay of recorded answers: Perplexity's Decider v1.1
-answers first and keeps its answer when it is sure, and Claude Sonnet 5.5, Claude Opus 5.5 or GPT-6 Astra
-answers the rest. It then shows what a fixed confidence cutoff keeps, how accuracy holds on reading and
-falls on grammar, whether answers repeat, what each model costs and how long it takes, and the full study.
+Turkey's university entrance exam. It opens with 17 decision models and the share of the questions each
+took off three LLMs (Claude Sonnet 5.5, Claude Opus 5.5, GPT-6 Astra) when we kept its answer only when it
+was confident, from a replay of recorded answers. It then explains confidence and the two-step setup, why
+Perplexity's Decider v1.1, speed, the cutoff and the savings; what a fixed confidence cutoff keeps, how
+accuracy holds on reading and falls on grammar, whether answers repeat, what each model costs and how long
+it takes; and the full study.
 
 Page: <https://zekiworks.github.io/analysis/decision-models/>
 
 The site is this folder, served by GitHub Pages from the `main` branch. It is static. The page opens
-with the replay's results and the sections that explain them (confidence, the two-step setup, why
-Decider, speed, the cutoff, the savings), then an overview (fixed cutoff, accuracy, repeated answers, a
-live test, cost and time), then the full study. `build_page.py` writes every number, the overview's
+with the comparison of decision models in front of three LLMs and the sections that explain it
+(confidence, the two-step setup, why Decider, speed, the cutoff, the savings), then an overview (fixed
+cutoff, accuracy, repeated answers, a live test, cost and time, trying it on your own task), then the full
+study. `build_page.py` writes every number, the overview's
 tables and bars, the chart figures and their descriptions into `index.html` from `results.json`, the
 aggregate results, so they read without JavaScript; `app.js` renders the full study's tables from the
 same file. `answers.json` holds every answer of every main, repeat and routing run, with its
@@ -43,7 +46,7 @@ python3 -m http.server 8000                                # preview at http://1
   test does not tell them apart; the listed paired comparisons (exact McNemar, Holm over the listed
   pairs and over all pairs); each repeated configuration's answer stability statistics, from its runs'
   answers; every routing simulation (the cutoff chosen in sample and its 300 held-out splits); the
-  replay the page leads with (Decider v1.1's answers kept at each cutoff and in its surest quarter, and
+  replay the page leads with (Decider v1.1's answers kept at each cutoff and in its most confident quarter, and
   what keeping them changes in front of each second model, on all questions and on the same splits);
   the answer-key baselines; and the costs: each priced run's from its token counts at the rates in
   `results.json`'s `prices`, every run without a price shown as a free tier or self-hosted, each routing

@@ -396,20 +396,31 @@ details.model-details dd { margin: 0; }
   .study table:not(.setups):not(.static) th, .study table:not(.setups):not(.static) td { padding: .45rem .5rem; }
 }
 
-/* top: the opening's label, figures and text, and the sections before the confidence overview. */
+/* top: the opening (the question, what we did, the shares table, what we found) and the sections before the confidence
+   overview. */
 .hero .kicker { margin: 0 0 .5rem; color: var(--label); font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-/* The opening's subtitle is four sentences long: body weight, a little larger than the text below it. */
+/* The opening's subtitle is two sentences long: body weight, a little larger than the text below it. */
 .hero .subtitle { font-size: 1.2rem; font-weight: 400; line-height: 1.45; }
-.figure-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; list-style: none; margin: 1.25rem 0 .75rem; padding: 0; }
-.figure-strip li { display: flex; flex-direction: column; align-items: center; gap: .15rem; padding: .75rem .5rem;
-  border: 1px solid var(--border); border-radius: var(--radius); background: var(--card-bg); }
-.figure-strip .figure { font-size: 2rem; font-weight: 700; line-height: 1.1; }
-.figure-strip .figure-label { font-size: .875rem; font-weight: 600; }
-.figure-strip .figure-note { font-size: .78rem; color: var(--text-muted); }
 .hero .language { color: var(--text-muted); margin: 0 0 1.25rem; }
 .hero .opening { text-align: left; margin: 0 0 1rem; }
 .hero .opening p { margin: 0 0 .75rem; }
-.hero .opening .footnote { padding-left: 0; }
+.hero .opening-heading { font-size: 1.15rem; margin: 1.5rem 0 .5rem; }
+.hero .opening ol.steps { padding-left: 1.5rem; margin: 0 0 .75rem; }
+.hero .opening ol.steps li + li { margin-top: .4rem; }
+.hero .opening .caption { color: var(--text-muted); font-size: .875rem; }
+/* The opening's table: each share tinted by its value (the page's blue, never green or red), the lead's row marked with
+   Decider's colour. */
+:root { --share-tint: 37, 99, 235; }
+@media screen { :root:not([data-theme="light"]) { --share-tint: 134, 185, 243; } }
+table.shares { border-collapse: collapse; width: 100%; margin: .25rem 0 .5rem; }
+table.shares caption { text-align: left; font-weight: 600; margin-bottom: .5rem; }
+table.shares th, table.shares td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); }
+table.shares thead th { white-space: normal; vertical-align: bottom; }
+table.shares tbody th { text-align: left; font-weight: 400; }
+table.shares td.share { background: rgba(var(--share-tint), calc(var(--share) * .3)); }
+table.shares tr.lead th, table.shares tr.lead td { font-weight: 700; }
+table.shares tr.lead th { box-shadow: inset 4px 0 0 #9a3412; padding-left: .8rem; }
+@media screen { :root:not([data-theme="light"]) table.shares tr.lead th { box-shadow: inset 4px 0 0 #fed7aa; } }
 .hero .actions { justify-content: center; margin: 0 0 .5rem; }
 .hero .disclosure { color: var(--text-muted); font-size: .875rem; margin: .25rem 0 0; }
 table.example-scores { border-collapse: collapse; margin: .5rem 0 1rem; }
@@ -417,17 +428,14 @@ table.example-scores caption { text-align: left; color: var(--text-muted); font-
 table.example-scores th, table.example-scores td { padding: .35rem .75rem; border: 1px solid var(--border); text-align: center; }
 table.example-scores td.picked { font-weight: 700; background: var(--table-hover); }
 .overview ol.steps { padding-left: 1.5rem; }
-.overview ul.reasons { padding-left: 1.25rem; }
-.overview ol.steps li + li, .overview ul.reasons li + li { margin-top: .4rem; }
-details.show-all { margin: 1rem 0; }
-details.show-all > summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+.overview ul.reasons, .overview ul.rules { padding-left: 1.25rem; }
+.overview ol.steps li + li, .overview ul.reasons li + li, .overview ul.rules li + li { margin-top: .4rem; }
+/* "Show all" panels in plain HTML; the button class .show-all belongs to app.js's table controls. */
+details.show-more { margin: 1rem 0; }
+details.show-more > summary { cursor: pointer; font-weight: 600; color: var(--primary); }
 table.overview tr.lead td { font-weight: 600; }
 table.overview tr.group-row th { text-align: left; padding-top: .75rem; color: var(--label); font-size: .8rem; letter-spacing: .06em;
   text-transform: uppercase; }
-@media (max-width: 640px) {
-  .figure-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .figure-strip .figure { font-size: 1.6rem; }
-}
 
 /* tables: sort buttons, group label rows, empty-value reasons and controls of the tables app.js fills. */
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;

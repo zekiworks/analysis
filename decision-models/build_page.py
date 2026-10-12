@@ -642,17 +642,17 @@ LEGEND = (
 
 
 def threshold_caption(snap: Snapshot) -> str:
-    """Chart 03's caption: what the lead keeps at the fixed cutoff, and that the strict cutoff's share in front of Astra
-    is a different result. Only a single lead with no wrong kept answers fits the sentence."""
+    """Chart 03's caption: what the lead keeps at the fixed cutoff, and that the share of the cutoff chosen on half the
+    questions in front of Astra is a different result. Only a single lead with no wrong kept answers fits the sentence."""
     if len(snap.lead) != 1 or not snap.lead[0]["accepted"] or snap.lead[0]["errors"]:
         return ""
     lead = snap.lead[0]
     strict = next((item["strict"] for item in snap.replay["frontiers"] if item["key"] == "astra" and item["strict"]), None)
     if strict is None:
-        raise ValueError("chart 03's caption names the strict cutoff in front of Astra, which results.json no longer has")
+        raise ValueError("chart 03's caption names the cutoff chosen on half the questions in front of Astra, which results.json no longer has")
     return (f"A separate check with one fixed cutoff. {esc(snap.short(lead['run']))} keeps {count(lead['accepted'])} answers, "
-            f"or {snap.fmt.pct(lead['coverage'])}, with no wrong answers. This is not the {snap.fmt.pct(strict['share'])} "
-            "strict cutoff result in front of Astra, which comes from a separate replay. ")
+            f"or {snap.fmt.pct(lead['coverage'])}, with no wrong answers. This is not the {snap.fmt.pct(strict['share'])} it "
+            "takes in front of Astra with the cutoff chosen on half the questions, which comes from a separate replay. ")
 
 
 def threshold_figure(snap: Snapshot) -> str:
@@ -1350,7 +1350,7 @@ def accuracy_lead(snap: Snapshot) -> str:
         f"<p>On all {count(snap.total)} questions, {one} answered {pct(first)} correctly and {two} {pct(second)}. "
         f"{one}'s score was {gap_text} higher. Our test did not establish a difference between them.</p>"
         f"<p>The stronger chat models answered many more questions right: {and_list(chat_list)}. We put {two} first to keep "
-        f"its surest answers at a low cost, and a stronger model such as {esc(chats[0]['name'])} answers the rest.</p>"
+        f"its most confident answers at a low cost, and a stronger model such as {esc(chats[0]['name'])} answers the rest.</p>"
         f"<p>Reading and grammar give different results. {esc(snap.short(decision))} scored {pct(decision, 'reading')} on "
         f"reading and {pct(decision, 'grammar')} on grammar. {esc(chat['name'])} scored {pct(chat, 'reading')} and "
         f"{pct(chat, 'grammar')}. So {esc(chat['name'])} beat every decision model on both, even though its grammar score was "
@@ -1650,7 +1650,7 @@ def study_gap(run: dict[str, Any]) -> str:
 
 
 # The page's title and the link preview's (the headline on the page is the h1 in index.html).
-TITLE = "Let a cheap, fast model decide when it is sure · Zeki Works"
+TITLE = "Let a cheap, fast model decide when it is confident · Zeki Works"
 # The three LLMs the opening puts Decider in front of, by named-run key; the opening orders them by saving.
 OPENING_SECONDS = ("sonnet_high", "opus", "astra")
 # The speed table's rows: a named run and whether the row is its separate one-question test.
@@ -1683,7 +1683,7 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     if decider is not named["decider_v11"]:
         raise ValueError("the opening speaks of Decider v1.1, but the replay leads with another run")
     seconds_list = opening_seconds(snap)
-    out = {"headline_saving": fmt.pct(seconds_list[0]["strict"]["saving"], 0)}
+    out = {}
     latency = decider["latency"]
     out["decider_speed_words"] = speed_words(latency["median_request_seconds"])
     splits = {item["held_out"]["splits"] for item in snap.results["cascades"]}
@@ -1694,7 +1694,7 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     chat = max((run for run in snap.runs if not snap.decision_model(run)), key=lambda run: run["correct"])
     out["best_chat_accuracy_whole"] = fmt.pct(chat["correct"] / snap.total, 0)
 
-    # "Decider v1.1 took the most work off every LLM; GLiDE came second each time; accuracy fell by x to y points."
+    # "Decider v1.1 took the most questions off each LLM; GLiDE came second each time; accuracy fell in front of each."
     for item in seconds_list:
         ranking = strict_ranking(snap, item["run"])
         if ranking[0][0] is not decider or ranking[1][0] is not named["glide"]:
@@ -1702,13 +1702,8 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     losses = [-item["strict"]["difference"] for item in seconds_list]
     if min(losses) <= 0:
         raise ValueError("the opening says accuracy fell in front of every LLM")
-    out["opening_loss_low"], out["opening_loss_high"] = f"{100 * min(losses):.2f}", f"{100 * max(losses):.2f}"
-    # "Gemma took even more work off Sonnet."
-    sonnet_cascades = {item["decision"]: item for item in snap.results["cascades"] if item["frontier"] == named["sonnet_high"]["run"]}
-    if sonnet_cascades[named["gemma"]["run"]]["held_out"]["answered"] <= sonnet_cascades[decider["run"]]["held_out"]["answered"]:
-        raise ValueError("the opening's footnote says Gemma takes more work off Sonnet than Decider")
 
-    # Why Decider v1.1: the most sure-and-right answers, the best ranking, no changed answers, the step from v1.
+    # Why Decider v1.1: the most confident-and-right answers, the best ranking, no changed answers, the step from v1.
     clean = sorted(
         (run for run in snap.runs if snap.decision_model(run) and (sure := (run.get("confidence") or {}).get("sure"))
          and sure["questions"] and sure["questions"] == sure["correct"]),
@@ -1757,7 +1752,7 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     if named["astra"]["single_question_latency"]["questions"] != questions:
         raise ValueError("the speed section says Astra's one-question test used the same questions")
 
-    # Savings: the surest quarter on halves and the two live tests (Decider v1).
+    # Savings: the most confident quarter on halves and the two live tests (Decider v1).
     sonnet = next(item for item in snap.replay["frontiers"] if item["key"] == "sonnet_high")
     better = sonnet["share"]["held_out"]["better"]
     out["sonnet_high_surest_held_words"] = "every time" if better == 1 else f"in {fmt.pct(better, 0)} of them"
@@ -1786,41 +1781,86 @@ def top_values(snap: Snapshot) -> dict[str, str]:
         out[f"cut_{tag}_cutoff"] = cutoff_text(row["cutoff"])
         out[f"cut_{tag}_mistakes"] = mistakes(row["wrong"])
     out["surest_mistakes"] = mistakes(snap.replay["share"]["wrong"])
+
+    # The opening: how many decision models we tested and put in front of an LLM, what GLiDE's calls cost against
+    # Decider's, how many more answers the two-step setups got wrong per 1,000 questions, and that the best decision
+    # models get about two answers in three right.
+    tried, untried = decision_first_models(snap)
+    out["decision_models"] = count(len(tried) + len(untried))
+    out["decision_models_tried"] = count(len(tried))
+    out["opening_llm_count"] = in_words(len(seconds_list))
+    out["glide_cost_ratio"] = times(per_thousand(named["glide"]) / per_thousand(decider))
+    more = sorted(round(-1000 * item["strict"]["difference"]) for item in seconds_list)
+    if more[0] < 1:
+        raise ValueError("the opening says each two-step setup got more answers wrong per 1,000 questions than its LLM")
+    span = f"{more[0]} to {more[-1]}" if more[0] != more[-1] else f"{more[0]}"
+    out["opening_more_wrong"] = f"{span} more answer{'' if more[-1] == 1 else 's'}"
+    best = max(run["correct"] for run in tried + untried) / snap.total
+    if not 0.6 <= best <= 0.72:
+        raise ValueError("the opening says the best decision models get about two answers in three right")
     return out
 
 
-def figure_strip(snap: Snapshot) -> str:
-    """The opening's figures: each LLM's saving with the strict cutoff and its change in accuracy, largest saving first,
-    then Decider's typical response time."""
-    fmt, decider = snap.fmt, snap.replay["run"]
-    items = [
-        f'<li><span class="figure">{fmt.pct(item["strict"]["saving"], 0)}</span><span class="figure-label">cheaper · '
-        f'{esc(item["run"]["name"])}</span><span class="figure-note">accuracy {change_text(item["strict"]["difference"]).replace(" points ", " percentage points ")}</span></li>'
-        for item in opening_seconds(snap)
-    ]
-    latency = decider["latency"]
-    items.append(
-        f'<li><span class="figure">{seconds(latency["median_request_seconds"])} s</span><span class="figure-label">per answer · '
-        f'{esc(snap.short(decider))}</span><span class="figure-note">typical; 9 in 10 within {seconds(latency["p90_request_seconds"])} s</span></li>'
-    )
-    return f'<ul class="figure-strip" aria-label="Main results, replayed from recorded answers">{"".join(items)}</ul>'
-
-
-def opening_leaders(snap: Snapshot) -> str:
-    """Which decision model took the most work off each LLM with the strict cutoff (top_values checks the claims)."""
-    fmt, items = snap.fmt, opening_seconds(snap)
-    shares = and_list([f"{fmt.pct(item['strict']['share'])}{' of the questions' if index == 0 else ''} off {OPENING_SHORT[item['key']]}"
-                       for index, item in enumerate(items)])
-    return (
-        f"<p>Of all the decision models, Perplexity's Decider v1.1 took the most work off every LLM: {shares}. Fastino's GLiDE "
-        "came second each time. Accuracy fell by "
-        f"{min(-100 * item['strict']['difference'] for item in items):.2f} to {max(-100 * item['strict']['difference'] for item in items):.2f} "
-        "percentage points.</p>"
-    )
+def decision_first_models(snap: Snapshot) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """The decision models we put in front of an LLM, and those we did not, each in results.json's order."""
+    first = {item["decision"] for item in snap.results["cascades"]}
+    decision = [run for run in snap.runs if snap.decision_model(run)]
+    return [run for run in decision if run["run"] in first], [run for run in decision if run["run"] not in first]
 
 
 # How the opening names each LLM on second mention.
 OPENING_SHORT = {"sonnet_high": "Sonnet", "opus": "Opus", "astra": "Astra"}
+# The opening's table shows this many decision models; a details element holds all of them.
+OPENING_ROWS = 6
+
+
+def opening_table(snap: Snapshot) -> str:
+    """The share of the questions each decision model took off each LLM with the cutoff chosen on half the questions: one
+    row per decision model we put in front of an LLM, by the Opus column, the first OPENING_ROWS shown and all of them in
+    a details element, each cell shaded by its share and the lead's row marked. The caption names the decision models we
+    did not put in front of an LLM; the build stops unless each got about one answer in as many as there are options."""
+    fmt, items, results = snap.fmt, opening_seconds(snap), snap.results
+    tried, untried = decision_first_models(snap)
+    shares = {(item["decision"], item["frontier"]): item["held_out"]["answered"] for item in results["cascades"]}
+    rows = sorted(tried, key=lambda run: -shares[run["run"], snap.named["opus"]["run"]])
+    top = max(shares[run["run"], item["run"]["run"]] for run in rows for item in items)
+    options = results["baselines"]["options"]
+    if any(abs(run["correct"] / snap.total - 1 / options) > 0.05 for run in untried):
+        raise ValueError("the opening's table caption says the decision models left out got about one answer in "
+                         f"{options} right")
+    head = "".join(
+        f'<th scope="col" class="num">{esc(item["run"]["name"])}<span class="small">{esc(setting(item["run"]))}</span></th>'
+        for item in items
+    )
+
+    def table(selection: list[dict[str, Any]]) -> str:
+        body = []
+        for run in selection:
+            cells = "".join(
+                f'<td class="num share" data-label="{esc(item["run"]["name"])}" style="--share: {shares[run["run"], item["run"]["run"]] / top:.3f}">'
+                f'{fmt.pct(shares[run["run"], item["run"]["run"]], 0)}</td>'
+                for item in items
+            )
+            body.append(('<tr class="lead">' if run is snap.replay["run"] else "<tr>") + f'<th scope="row">{esc(named(run))}</th>{cells}</tr>')
+        return (
+            '<div class="table-wrap"><table class="overview shares"><caption>Share of the questions each decision model took off '
+            f'each LLM</caption><thead><tr><th scope="col">Decision model</th>{head}</tr></thead><tbody>{"".join(body)}</tbody>'
+            "</table></div>"
+        )
+
+    splits = count(next(iter(results["cascades"]))["held_out"]["splits"])
+    left_out = and_list([named(run) for run in untried])
+    caption = (
+        f"Each cell is the share of questions the decision model answered, averaged over {splits} splits: we chose the cutoff "
+        "on half of the questions and checked it on the other half. We replayed recorded answers. We did not put the other "
+        f"{in_words(len(untried))} decision models ({esc(left_out)}) in front of an LLM: on their own they got about one answer "
+        f"in {in_words(options)} right, no better than picking one of the {in_words(options)} options at random."
+    )
+    return (
+        table(rows[:OPENING_ROWS])
+        + f'<details class="show-more"><summary>Show all {count(len(rows))}</summary>{table(rows)}</details>'
+        + f'<p class="caption">{caption}</p>'
+    )
 
 
 def speed_table(snap: Snapshot) -> str:
@@ -1867,7 +1907,7 @@ def speed_figure(snap: Snapshot) -> str:
 
 
 def cutoff_rows(snap: Snapshot) -> list[dict[str, Any]]:
-    """Decider's fixed cutoffs and its surest quarter, from the highest cutoff to the lowest."""
+    """Decider's fixed cutoffs and its most confident quarter, from the highest cutoff to the lowest."""
     replay = snap.replay
     rows = [{"cut": row["cutoff"], "kept": row["kept"], "wrong": row["wrong"], "surest": False} for row in replay["cutoffs"]]
     rows.append({"cut": replay["share"]["cut"], "kept": replay["share"]["kept"], "wrong": replay["share"]["wrong"], "surest": True})
@@ -1883,7 +1923,7 @@ def cutoff_alt(snap: Snapshot) -> str:
             f"keeps more answers, from {fmt.pct(rows[0]['kept'] / snap.total, 0)} to {fmt.pct(rows[-1]['kept'] / snap.total, 0)} of all "
             f"questions, and makes more mistakes, from {count(rows[0]['wrong'])} to {count(rows[-1]['wrong'])}. At {snap.cutoff} it "
             f"keeps {count(rule['kept'])} answers with {'no' if not rule['wrong'] else count(rule['wrong'])} mistakes. At "
-            f"{cutoff_text(surest['cut'])}, its surest quarter, it keeps {count(surest['kept'])} answers with {count(surest['wrong'])} mistakes.")
+            f"{cutoff_text(surest['cut'])}, its most confident quarter, it keeps {count(surest['kept'])} answers with {count(surest['wrong'])} mistakes.")
 
 
 def cutoff_figure(snap: Snapshot) -> str:
@@ -1893,10 +1933,10 @@ def cutoff_figure(snap: Snapshot) -> str:
     surest = next(row for row in rows if row["surest"])
     caption = (f"Decider v1.1 on {count(snap.total)} Turkish exam questions; we replayed recorded answers. At {snap.cutoff} it keeps "
                f"{count(rule['kept'])} answers with {'no' if not rule['wrong'] else count(rule['wrong'])} mistakes. At "
-               f"{cutoff_text(surest['cut'])}, its surest quarter, it keeps {count(surest['kept'])} and gets {count(surest['wrong'])} wrong.")
+               f"{cutoff_text(surest['cut'])}, its most confident quarter, it keeps {count(surest['kept'])} and gets {count(surest['wrong'])} wrong.")
     table_rows = []
     for row in rows:
-        name = cutoff_text(row["cut"]) + (" (surest quarter)" if row["surest"] else " (our rule)" if row["cut"] == threshold else "")
+        name = cutoff_text(row["cut"]) + (" (most confident quarter)" if row["surest"] else " (our rule)" if row["cut"] == threshold else "")
         table_rows.append(
             ("<tr class=\"lead\">" if row["cut"] == threshold or row["surest"] else "<tr>")
             + f'<td data-label="Cutoff">{name}</td><td class="num" data-label="Answers kept">{count(row["kept"])}</td>'
@@ -1923,12 +1963,12 @@ def handoff_figure(snap: Snapshot) -> str:
     opus = next(item for item in snap.replay["frontiers"] if item["key"] == "opus")
     kept = share["kept"] / snap.total
     decider, opus_run = snap.replay["run"], snap.named["opus"]
-    alt = (f"Flow diagram. Every question goes to Decider v1.1 first. If the question is among Decider's surest quarter, we keep "
+    alt = (f"Flow diagram. Every question goes to Decider v1.1 first. If the question is among Decider's most confident quarter, we keep "
            f"its answer. Otherwise Claude Opus 5.5 answers. Decider answers {fmt.pct(kept, 0)} of the questions and gets "
            f"{count(share['kept'] - share['wrong'])} of {count(share['kept'])} right; Opus answers {fmt.pct(1 - kept, 0)}. Decider "
            f"takes about {seconds(decider['latency']['median_request_seconds'])} seconds per question; Opus takes about "
            f"{opus_run['latency']['median_request_seconds']:.0f} seconds per request of {opus_run['questions_per_request']} questions.")
-    caption = (f"Decider keeps its surest quarter of answers and gets {count(share['kept'] - share['wrong'])} of {count(share['kept'])} right. "
+    caption = (f"Decider keeps its most confident quarter of answers and gets {count(share['kept'] - share['wrong'])} of {count(share['kept'])} right. "
                f"Opus answers the rest. Opus's bill falls {fmt.pct(opus['share']['saving'], 0)}; we replayed recorded answers.")
     return chart_figure("handoff", alt, caption)
 
@@ -1975,7 +2015,7 @@ def first_models_figure(snap: Snapshot) -> str:
         f'<p class="note">Astra alone costs an estimated {usd(per_thousand(astra))} per 1,000 questions. This estimate gives each '
         "question passed to the second model the same average cost. In a new run, the remaining questions may cost more.</p></details>"
     )
-    everyone = ('<details class="show-all"><summary>Show all first models</summary>'
+    everyone = ('<details class="show-more"><summary>Show all first models</summary>'
                 + chart_figure("first-models-all", alt.replace("Bar chart:", "Bar chart with every first model:"), caption) + "</details>")
     return chart_figure("first-models", alt, caption) + everyone + table
 
@@ -1985,6 +2025,7 @@ def savings_table(snap: Snapshot) -> str:
     fmt = snap.fmt
     first = opening_seconds(snap)
     items = first + [item for item in snap.replay["frontiers"] if item not in first]
+    rule_names = ("Most confident quarter", "Cutoff chosen on half the questions", f"Fixed {snap.cutoff} rule")
 
     def rule(numbers: dict[str, Any] | None, takes: bool = False) -> str:
         if numbers is None:
@@ -1996,17 +2037,31 @@ def savings_table(snap: Snapshot) -> str:
         "<tr>"
         f'<td data-label="Model behind Decider">{esc(named(item["run"]))}</td>'
         f'<td class="num" data-label="Its accuracy alone">{fmt.pct(item["accuracy"])}</td>'
-        f'<td class="num" data-label="Surest quarter">{rule(item["share"])}</td>'
-        f'<td class="num" data-label="Strict cutoff">{rule(item["strict"], True)}</td>'
-        f'<td class="num" data-label="{esc(snap.cutoff)} cutoff">{rule(item["sure"])}</td>'
+        f'<td class="num" data-label="{esc(rule_names[0])}">{rule(item["share"])}</td>'
+        f'<td class="num" data-label="{esc(rule_names[1])}">{rule(item["strict"], True)}</td>'
+        f'<td class="num" data-label="{esc(rule_names[2])}">{rule(item["sure"])}</td>'
         "</tr>"
         for item in items
     ]
+    head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in rule_names)
     return (
         '<div class="table-wrap"><table class="overview cards savings"><thead><tr><th scope="col">Model behind Decider</th>'
-        '<th scope="col" class="num">Its accuracy alone</th><th scope="col" class="num">Surest quarter</th>'
-        f'<th scope="col" class="num">Strict cutoff</th><th scope="col" class="num">{esc(snap.cutoff)} cutoff</th></tr></thead>'
-        f'<tbody>{"".join(rows)}</tbody></table></div>'
+        f'<th scope="col" class="num">Its accuracy alone</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
+    )
+
+
+def savings_sure_table(snap: Snapshot) -> str:
+    """With the fixed 99% rule, each of the opening's LLMs' estimated cost per 1,000 questions alone and with Decider in
+    front (Decider on every question, the LLM on the rest at its average cost)."""
+    rows = "".join(
+        f'<tr><td data-label="LLM">{esc(named(item["run"]))}</td><td class="num" data-label="LLM alone">{usd(item["cost"])}</td>'
+        f'<td class="num" data-label="Decider and LLM">{usd(item["sure"]["usd_per_1000"])}</td></tr>'
+        for item in opening_seconds(snap)
+    )
+    return (
+        f'<div class="table-wrap"><table class="overview cards"><caption>With the fixed {esc(snap.cutoff)} rule, cost per 1,000 '
+        'questions</caption><thead><tr><th scope="col">LLM</th><th scope="col" class="num">LLM alone</th>'
+        f'<th scope="col" class="num">Decider and LLM</th></tr></thead><tbody>{rows}</tbody></table></div>'
     )
 
 
@@ -2095,14 +2150,14 @@ def blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
 def top_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
     """Blocks only the top of the page uses: the opening and the sections before the confidence overview."""
     return {
-        "figure-strip": figure_strip(snap),
-        "opening-leaders": opening_leaders(snap),
+        "opening-table": opening_table(snap),
         "handoff-figure": handoff_figure(snap),
         "first-models-figure": first_models_figure(snap),
         "speed-table": speed_table(snap),
         "speed-figure": speed_figure(snap),
         "cutoff-figure": cutoff_figure(snap) + share_link(images["preview"], "Cutoff chart"),
         "savings-table": savings_table(snap),
+        "savings-sure-table": savings_sure_table(snap),
     }
 
 
@@ -2600,7 +2655,7 @@ CUTOFF_STYLE = """
 .col .area { height: 250px; width: 64%; display: flex; flex-direction: column-reverse; }
 .col .ok { background: var(--ok); } .col .wrong { background: var(--wrong); }
 .col .cut { font-size: 19px; font-weight: 700; margin-top: 8px; }
-.col .tag { font-size: 14px; color: var(--muted); height: 18px; white-space: nowrap; }
+.col .tag { font-size: 13px; color: var(--muted); min-height: 34px; line-height: 1.25; text-align: center; }
 .axis { font-size: 16px; color: var(--sub); margin: 6px 0 10px; }
 """
 
@@ -2614,7 +2669,7 @@ def cutoff_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
         ok, wrong = (row["kept"] - row["wrong"]) / top, row["wrong"] / top
         # A nonzero wrong segment keeps a few pixels, so that it never vanishes; the label above gives the count.
         wrong_style = f"height: max(4px, {100 * wrong:.2f}%)" if row["wrong"] else "height: 0"
-        tag = "Our rule" if row["cut"] == threshold else "Surest quarter" if row["surest"] else ""
+        tag = "Our rule" if row["cut"] == threshold else "Most confident quarter" if row["surest"] else ""
         columns.append(
             f'<div class="col{" rule" if tag else ""}"><span class="kept">{count(row["kept"])}</span>'
             f'<span class="top">{fmt.pct(row["kept"] / snap.total, 0)} · {count(row["wrong"])} wrong</span>'
@@ -2748,19 +2803,19 @@ def x_length(text: str) -> int:
 
 
 def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
-    """The main X post: the opening's story, each LLM's saving with its change in accuracy, replayed from recorded answers."""
+    """The main X post: the opening's question and answer, the comparison of decision models, and each LLM's saving with
+    its change in accuracy, replayed from recorded answers."""
     fmt, site = snap.fmt, snap.config["site_url"]
     savings = [
         f"{item['run']['name']}: {fmt.pct(item['strict']['saving'], 0)} cheaper, accuracy {change_text(item['strict']['difference'])}"
         for item in opening_seconds(snap)
     ]
-    latency = snap.replay["run"]["latency"]
     return "\n\n".join([
-        "A cheap model answered first, and the LLM bills fell.",
-        f"We put Perplexity's Decider v1.1 in front of three LLMs on {numbers['questions']} Turkish exam questions. When Decider was "
-        "sure, we kept its answer; when it was not, the LLM answered.",
-        "Replaying our recorded answers:\n" + "\n".join(savings),
-        f"Decider answered in a typical {seconds(latency['median_request_seconds'])} s.",
+        "When should you trust an AI model to make a decision? When its confident answers turn out to be right.",
+        f"We tested {numbers['decision_models']} decision models on {numbers['questions']} Turkish exam questions and put "
+        f"{numbers['decision_models_tried']} of them in front of {numbers['opening_llm_count']} LLMs. When the decision model was "
+        "confident, we kept its answer; when it was not, the LLM answered.",
+        "Perplexity's Decider v1.1 took the most work off each LLM. Replaying our recorded answers:\n" + "\n".join(savings),
         "Exam questions, not financial decisions. Test on your own task first.",
         site,
     ])
@@ -2788,7 +2843,7 @@ def task_post(snap: Snapshot, numbers: dict[str, str]) -> str:
         f"Where do decision models fall short? Grammar. Decider v1.1 got {numbers['decider_v11_reading']} of the reading questions "
         f"right but {numbers['decider_v11_grammar']} of the grammar questions. Gemma 4 31B, a chat model, scored "
         f"{numbers['gemma_reading']} and {numbers['gemma_grammar']}.",
-        "A good reading score does not establish a good grammar score, so we keep Decider's answer only when it is sure.",
+        "A good reading score does not establish a good grammar score, so we keep Decider's answer only when it is confident.",
         snap.config["site_url"],
     ])
 

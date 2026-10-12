@@ -137,7 +137,7 @@ pub struct Cascade {
     pub usd_per_1000: f64,
 }
 
-/// The strict cutoff: chosen on one half of the questions, tested on the other, averaged over the splits.
+/// The cutoff chosen on half the questions: chosen on one half, tested on the other, averaged over the splits.
 #[derive(Debug, Deserialize)]
 pub struct HeldOut {
     pub splits: u32,
@@ -178,7 +178,7 @@ pub struct Cut {
     pub wrong: u32,
 }
 
-/// The surest quarter: the share kept, the confidence where it ends, and its answers.
+/// The most confident quarter: the share kept, the confidence where it ends, and its answers.
 #[derive(Debug, Deserialize)]
 pub struct Share {
     pub share: f64,
@@ -851,12 +851,12 @@ struct CutBar {
     cutoff: f64,
     kept: u32,
     wrong: u32,
-    /// The bar's two-line callout: our rule (shaded) or the surest quarter, then its answers.
+    /// The bar's two-line callout: our rule (shaded) or the most confident quarter, then its answers.
     note: Option<[String; 2]>,
     rule: bool,
 }
 
-/// One stacked bar per cutoff of the replay, plus the surest quarter at its cut, highest cutoff on
+/// One stacked bar per cutoff of the replay, plus the most confident quarter at its cut, highest cutoff on
 /// the left; each bar's height is the answers kept out of all scored questions.
 fn cutoffs(results: &Results) -> Option<Figure<'_>> {
     let replay = &results.replay;
@@ -881,7 +881,7 @@ fn cutoffs(results: &Results) -> Option<Figure<'_>> {
         cutoff: share.cut,
         kept: share.kept,
         wrong: share.wrong,
-        note: Some(["Surest quarter".to_string(), format!("{} kept, {} wrong", thousands(share.kept), thousands(share.wrong))]),
+        note: Some(["Most confident quarter".to_string(), format!("{} kept, {} wrong", thousands(share.kept), thousands(share.wrong))]),
         rule: false,
     });
     bars.sort_by(|first, second| second.cutoff.total_cmp(&first.cutoff));
@@ -1031,7 +1031,7 @@ fn cutoffs(results: &Results) -> Option<Figure<'_>> {
 // ---------------------------------------------------------------------------------------------
 // 01 The handoff
 
-const HANDOFF_TITLE: &str = "Decider answers when it is sure; Opus answers the rest";
+const HANDOFF_TITLE: &str = "Decider answers when it is confident; Opus answers the rest";
 const HANDOFF_WIDTH: u16 = 70;
 
 /// A box of `width` columns with `lines` centred in it, its border in `color`.
@@ -1064,7 +1064,7 @@ fn arrow_down(buf: &mut Buffer, column: u16, edge: u16, length: u16, color: Colo
     buf[(column, edge + length)].set_char('▼').set_fg(GUIDE);
 }
 
-/// Question → Decider v1.1 → among its surest quarter? → keep Decider's answer, or Opus answers.
+/// Question → Decider v1.1 → among its most confident quarter? → keep Decider's answer, or Opus answers.
 fn handoff(results: &Results) -> Option<Figure<'_>> {
     let replay = &results.replay;
     let decider = results.run(replay.decision)?;
@@ -1112,7 +1112,7 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
             let first = draw_box(buf, centre_column - 8, y + 4, 17, vec![Line::from(decider_name.clone()).bold().fg(ACCENT)], ACCENT);
             buf.set_line(first.right() + 2, y + 5, &muted(decider_speed.clone()), HANDOFF_WIDTH);
             arrow_down(buf, centre_column, first.bottom() - 1, 1, ACCENT);
-            let ask = draw_box(buf, x + 10, y + 8, 45, vec![Line::from("Among its surest quarter?").bold()], GUIDE);
+            let ask = draw_box(buf, x + 10, y + 8, 45, vec![Line::from("Among its most confident quarter?").bold()], GUIDE);
             let (yes, no) = (x + 16, x + 48);
             arrow_down(buf, yes, ask.bottom() - 1, 2, GUIDE);
             arrow_down(buf, no, ask.bottom() - 1, 2, GUIDE);
@@ -1154,7 +1154,7 @@ const FIRST_MODELS_TITLE: &str = "How many questions can each model handle befor
 const FIRST_BAR_CELLS: u16 = 30;
 const FIRST_STEP: f64 = 5.0;
 
-/// The strict cutoff's held-out share of each first model in front of GPT-6 Astra (low reasoning),
+/// The held-out share of each first model in front of GPT-6 Astra (low reasoning) with the cutoff chosen on half the questions,
 /// decision models first and chat models below; `all` adds the first models we served ourselves.
 fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
     let astra = results.find(ASTRA)?;
@@ -1189,7 +1189,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
     let chat_title = if chat.len() == 1 { "Chat model for comparison" } else { "Chat models for comparison" };
     let subtitle = notes(
         &format!(
-            "We replayed recorded answers on {} Turkish exam questions. The first model answers the questions it is surest about; {} answers the rest. We choose the cutoff on half the questions and test it on the other half; bars show the average over {} splits.",
+            "We replayed recorded answers on {} Turkish exam questions. The first model answers the questions it is most confident about; {} answers the rest. We choose the cutoff on half the questions and test it on the other half; bars show the average over {} splits.",
             thousands(results.questions),
             results.label(astra),
             thousands(splits)
