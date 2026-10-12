@@ -1650,7 +1650,7 @@ def study_gap(run: dict[str, Any]) -> str:
 
 
 # The page's title and the link preview's (the headline on the page is the h1 in index.html).
-TITLE = "Let a cheap, fast model decide when it is confident · Zeki Works"
+TITLE = "When should you trust an AI model to make a decision? · Zeki Works"
 # The three LLMs the opening puts Decider in front of, by named-run key; the opening orders them by saving.
 OPENING_SECONDS = ("sonnet_high", "opus", "astra")
 # The speed table's rows: a named run and whether the row is its separate one-question test.

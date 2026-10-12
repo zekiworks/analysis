@@ -95,15 +95,13 @@ header, main, footer { max-width: 1400px; margin: 0 auto; }
 header { text-align: center; margin-bottom: 2rem; }
 h1 { font-size: 1.75rem; margin: 0 0 .25rem; }
 
-/* The page's opening: the question, the method framing, the scope and one way in. */
-.hero { max-width: 72ch; margin: 1rem auto 2.5rem; }
+/* The page's opening: the kicker, the question and its answer line centred as one block; everything below them left-aligned. */
+.hero { max-width: 72ch; margin: 1rem auto 2.5rem; text-align: left; }
+.hero .title-block { text-align: center; }
 .hero h1 { font-size: 2.25rem; line-height: 1.15; margin-bottom: .5rem; text-wrap: balance; }
 /* A subtitle, not a heading, so the page outline keeps one h1 and the section h2s. */
 .hero .subtitle { font-size: 1.35rem; font-weight: 600; color: var(--text); margin: 0 0 1rem; }
 .hero .lede { font-size: 1.15rem; margin: 0 0 1rem; }
-.hero .scope { color: var(--text-muted); margin: 0 0 1rem; }
-.hero .scope-note { display: inline-block; margin: 0 0 1.25rem; padding: .4rem .8rem; border: 1px solid var(--border);
-  border-radius: var(--radius); background: var(--card-bg); font-size: .95rem; }
 /* Dark / Light: shown by app.js, which also remembers the choice; without JavaScript the page stays dark. */
 .theme-switch { display: flex; justify-content: flex-end; margin: 0 0 .75rem; }
 .theme-switch[hidden] { display: none; }
@@ -133,7 +131,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 /* Section menu under the byline: a compact, wrapping row of links. */
 nav.toc { margin: 1rem auto 0; max-width: 80ch; font-size: .875rem; }
 nav.toc ul { display: flex; flex-wrap: wrap; gap: .3rem 1rem; list-style: none; margin: 0; padding: 0; }
-header nav.toc ul { justify-content: center; }
 nav.toc a { text-decoration: none; white-space: nowrap; }
 nav.toc a:hover, nav.toc a:focus-visible { text-decoration: underline; }
 /* The introduction under the menu reads as prose, not as centred header text. */
@@ -399,10 +396,8 @@ details.model-details dd { margin: 0; }
 /* top: the opening (the question, what we did, the shares table, what we found) and the sections before the confidence
    overview. */
 .hero .kicker { margin: 0 0 .5rem; color: var(--label); font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-/* The opening's subtitle is two sentences long: body weight, a little larger than the text below it. */
-.hero .subtitle { font-size: 1.2rem; font-weight: 400; line-height: 1.45; }
 .hero .language { color: var(--text-muted); margin: 0 0 1.25rem; }
-.hero .opening { text-align: left; margin: 0 0 1rem; }
+.hero .opening { margin: 0 0 1rem; }
 .hero .opening p { margin: 0 0 .75rem; }
 .hero .opening-heading { font-size: 1.15rem; margin: 1.5rem 0 .5rem; }
 .hero .opening ol.steps { padding-left: 1.5rem; margin: 0 0 .75rem; }
@@ -421,7 +416,7 @@ table.shares td.share { background: rgba(var(--share-tint), calc(var(--share) * 
 table.shares tr.lead th, table.shares tr.lead td { font-weight: 700; }
 table.shares tr.lead th { box-shadow: inset 4px 0 0 #9a3412; padding-left: .8rem; }
 @media screen { :root:not([data-theme="light"]) table.shares tr.lead th { box-shadow: inset 4px 0 0 #fed7aa; } }
-.hero .actions { justify-content: center; margin: 0 0 .5rem; }
+.hero .actions { margin: 0 0 .5rem; }
 .hero .disclosure { color: var(--text-muted); font-size: .875rem; margin: .25rem 0 0; }
 table.example-scores { border-collapse: collapse; margin: .5rem 0 1rem; }
 table.example-scores caption { text-align: left; color: var(--text-muted); font-size: .875rem; margin-bottom: .35rem; }

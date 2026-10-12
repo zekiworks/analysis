@@ -1,6 +1,6 @@
 # When should you trust an AI model to make a decision?
 
-*A cheap decision model answers first; a stronger model answers the rest. Accuracy, confidence and cost on
+*A decision model answers first; a stronger model answers the rest. Accuracy, confidence and cost on
 Turkish exam questions.*
 
 The results page of a benchmark of language models and decision models on 2,198 scored
