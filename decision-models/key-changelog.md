@@ -25,17 +25,17 @@ page, test and number locate each question in the book.
 
 | Question ID | Topic | Page | Test | Number | Change | Reason | Date |
 |---|---|---|---|---|---|---|---|
-| 379 | 4, Topic and main point of a paragraph | 88 | 3 | 7 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. | 2026-10-04 |
+| 379 | 4, Topic and main point of a paragraph | 88 | 3 | 7 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
 | 459 | 4, Topic and main point of a paragraph | 108 | 13 | 8 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
-| 652 | 6, Details that support a paragraph's main point | 160 | 11 | 6 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. | 2026-10-04 |
-| 2473 | 16, Questions combining several grammar topics | 331 | 16 | 5 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. | 2026-10-04 |
+| 652 | 6, Details that support a paragraph's main point | 160 | 11 | 6 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
+| 2473 | 16, Questions combining several grammar topics | 331 | 16 | 5 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
 | 3024 | 1, Word and phrase meanings | 9 | 1 | 4 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
 | 3087 | 1, Word and phrase meanings | 21 | 7 | 6 | Removed from scoring | The key could not be confirmed: a red mark covers the printed answer strip, so the printed key cannot be read. | 2026-10-04 |
 | 3185 | 3, How a writer explains and develops ideas | 80 | 7 | 8 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
 | 3223 | 5, How a paragraph fits together | 121 | 7 | 2 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
-| 3242 | 5, How a paragraph fits together | 135 | 14 | 2 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. | 2026-10-04 |
+| 3242 | 5, How a paragraph fits together | 135 | 14 | 2 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
 | 3640 | 12, How words are built | 240 | 1 | 7 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
-| 4115 | 18, Spelling | 366 | 8 | 11 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. | 2026-10-04 |
+| 4115 | 18, Spelling | 366 | 8 | 11 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
 | 4206 | 20, Problems in sentence wording | 418 | 1 | 22 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
 
 ## Later fixes
