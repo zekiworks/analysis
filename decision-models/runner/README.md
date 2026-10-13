@@ -133,7 +133,7 @@ changed runner before using it. A resumed run keeps its own record and stops whe
 | `--provider vllm`, `vllm-yes-no`, `vllm-verbal`, `vllm-vote` | `http://192.168.1.126:8888` | `--vllm-url` |
 | `--provider open-jev` | `http://192.168.1.126:8791` | `--jev-url` |
 | Other decision servers | `http://127.0.0.1:` 18080–18094, 8091 | `--jev-url` |
-| `run_gemma.sh`, `run_deepseek.sh`, `run_deepseek_thinking.sh` | `--vllm-url http://192.168.1.126:8010` | run the script's command with your `--vllm-url` |
+| `run_gemma.sh`, `run_gemma_one.sh`, `run_deepseek.sh`, `run_deepseek_thinking.sh` | `--vllm-url http://192.168.1.126:8010` | run the script's command with your `--vllm-url` |
 | `run_experiments.sh` | | `GEMMA_URL`, `DEEPSEEK_URL`, `QWEN_URL`, `OPEN_JEV_URL` |
 | `extract_questions*.py` | `127.0.0.1` | `--base-url` or `LOCAL_LLM_BASE_URL` |
 | `repair_questions.py transcribe` | `http://127.0.0.1:8010` | `--endpoint` |
@@ -144,6 +144,7 @@ changed runner before using it. A resumed run keeps its own record and stops whe
 |---|---|
 | `run_openai.sh`, `run_openai_sol.sh`, `run_openai_luna.sh` | GPT-6 Astra, GPT-6.1 Sol, GPT-6 Luna, low reasoning |
 | `run_claude_opus.sh`, `run_claude_sonnet.sh`, `run_claude_sonnet_high.sh` | Claude Opus 5.5 low, Sonnet 5.5 low and high effort |
+| `run_openai_one.sh`, `run_openai_sol_one.sh`, `run_claude_opus_one.sh`, `run_claude_sonnet_high_one.sh` | GPT-6 Astra and GPT-6.1 Sol low, Claude Opus 5.5 low, Sonnet 5.5 high, one question per request |
 
 - **OpenAI** runs through the Codex CLI signed in with ChatGPT (`codex login`); the provider refuses
   API-key sign-in and removes `OPENAI_API_KEY` from Codex's environment. Each request replaces Codex's
@@ -153,14 +154,14 @@ changed runner before using it. A resumed run keeps its own record and stops whe
   `claude auth status` must show a claude.ai login). API keys and base-URL overrides are removed from
   its environment; tools, settings and MCP servers are off.
 
-Both send 16 questions per request and constrain the reply to a letter and a 0–1 confidence per
-question. `--codex-bin` and `--claude-bin` point at other executables.
+The main runs send 16 questions per request, the `_one` scripts one; each reply is constrained to a letter
+and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at other executables.
 
 ### Hosted APIs
 
 | Script | Configuration | Key |
 |---|---|---|
-| `run_gemini.sh`, `run_gemini_high.sh` | Gemini 3.8 Flash (low thinking; high with 4 requests at a time) | `GEMINI_API_KEY` |
+| `run_gemini.sh`, `run_gemini_high.sh`, `run_gemini_one.sh` | Gemini 3.8 Flash (low thinking; high with 4 requests at a time; low with one question per request) | `GEMINI_API_KEY` |
 | `run_perplexity.sh` | Perplexity Decider 27B v1 | `PERPLEXITY_API_KEY` |
 | `run_perplexity_v1_1.sh` | Perplexity Decider 27B v1.1 (add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
@@ -179,7 +180,7 @@ as criteria. Rate limits and server errors are retried.
 
 | Script | Configuration | Served model |
 |---|---|---|
-| `run_gemma.sh` | Gemma 4 31B, vLLM, FP8 weights and KV cache | `gemma-4-31B-it` |
+| `run_gemma.sh`, `run_gemma_one.sh` | Gemma 4 31B, vLLM, FP8 weights and KV cache (16 questions per request; one) | `gemma-4-31B-it` |
 | `run_deepseek.sh`, `run_deepseek_thinking.sh` | DeepSeek-V4.1-Flash on SGLang (4 GPUs), thinking off and on | `deepseek-v4.1-flash` |
 | `run_glm.sh`, `run_glm_thinking.sh` | GLM-5.3-Flash on TensorFold (4 GPUs), thinking off and on, stated confidence | `glm-5.3-flash` |
 | `run_qwen3_14b.sh`, `run_erk.sh` | Qwen3-14B and Erk-14B, vLLM, BF16 | `qwen3-14b`, `erk-14b` |

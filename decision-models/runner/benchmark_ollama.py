@@ -318,16 +318,22 @@ TIE_ALPHA = 0.05
 # Cascade simulation: a first model answers when confident and passes the rest to a frontier run. First
 # models: the decision models, and Gemma 4 31B, the most accurate run with option probabilities; each is a
 # provider, or a (provider, model) pair when the provider serves several models. Frontier runs are given
-# as (provider, model, thinking).
+# as (provider, model, thinking): the LLMs of the live tests, then the other LLMs the routing replays put
+# second. The doubt counts the mistakes of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
     "openai-decisions", "subq",
     ("vllm", "gemma-4-31B-it"),
 )
-CASCADE_FRONTIER_RUNS = (
+DOUBT_FRONTIER_RUNS = (
     ("openai", "gpt-6-astra", "low"),
     ("claude", "claude-opus-5-5", "low"),
     ("claude", "claude-sonnet-5-5", "high"),
+)
+CASCADE_FRONTIER_RUNS = (
+    *DOUBT_FRONTIER_RUNS,
+    ("openai", "gpt-6.1-sol", "low"),
+    ("gemini", "gemini-3.8-flash", "low"),
 )
 # Question groups the report scores separately, by label. Missing markup: the question text refers to
 # underlined or numbered words without marking them (see missing_markup).
@@ -2958,7 +2964,7 @@ def summary_lines(ranked: list[dict[str, Any]], versions: list[dict[str, Any]]) 
 
 
 def doubt_lines(doubts: list[dict[str, Any]], results: dict[str, dict[str, Any]]) -> list[str]:
-    frontier = ", ".join(f"{model} ({thinking})" for _, model, thinking in CASCADE_FRONTIER_RUNS)
+    frontier = ", ".join(f"{model} ({thinking})" for _, model, thinking in DOUBT_FRONTIER_RUNS)
     lines = [
         "",
         "## Decision-model doubt and frontier mistakes",
@@ -3027,6 +3033,8 @@ def paired_lines(paired: list[dict[str, Any]], results: dict[str, dict[str, Any]
         "",
         "Each run against the next one in the ranking by accuracy, over the same questions, plus the "
         f"configured pairs ({', '.join(f'{side_name(first)} / {side_name(second)}' for first, second in PAIRED_CONFIGURATIONS)}). "
+        "A run that asks another number of questions per request than its configuration's first run is not in this "
+        "ranking; the tied groups compare it with every other run. "
         "Rows go down the ranking: each pair sits with its better-ranked run, the comparison with the next run first. "
         "Difference: the first run's accuracy minus the "
         "second's, in points, with a paired 95% interval. Only first, only second: the questions only that "
@@ -3923,6 +3931,23 @@ def in_main_tables(result: dict[str, Any]) -> bool:
     )
 
 
+def format_reruns(results: dict[str, dict[str, Any]]) -> set[str]:
+    """Run keys of format reruns: main-table runs of a configuration (question bank, provider, model, thinking) whose
+    first main-table run asked another number of questions per request. Each is a setup of its own in the main tables,
+    the tied groups and a second run in the cascades; what is defined on a configuration's first run (the ranking
+    neighbours and configured pairs of the paired tests, the doubt counts, the request-size comparisons on samples, the
+    cascades' first models) leaves them out."""
+    first: dict[tuple[Any, ...], dict[str, Any]] = {}
+    reruns: set[str] = set()
+    for result in sorted(results.values(), key=lambda result: result["run_id"]):
+        if not in_main_tables(result) or result.get("shuffle_options") is not None:
+            continue
+        key = (Path(result["dataset"]).name, result.get("provider", "ollama"), result["model"], result["thinking"])
+        if first.setdefault(key, result)["batch_size"] != result["batch_size"]:
+            reruns.add(result["run_key"])
+    return reruns
+
+
 def matches_side(result: dict[str, Any], side: str | tuple[str, str]) -> bool:
     """Whether a run is one side of a PAIRED_CONFIGURATIONS pair: its provider, or its provider and model."""
     provider, model = (side, None) if isinstance(side, str) else side
@@ -3952,6 +3977,7 @@ def run_comparisons(
     sources: list[dict[str, Any]] = []
     groups: list[dict[str, Any]] = []
     outcomes = {key: run_outcomes(connection, result, search_dir) for key, result in results.items() if in_main_tables(result)}
+    reruns = format_reruns(results)
     same_questions: dict[tuple[str, str | None, frozenset[int]], list[dict[str, Any]]] = {}
     for key, answered in outcomes.items():
         if answered:
@@ -3961,7 +3987,10 @@ def run_comparisons(
     for members in same_questions.values():
         clusters = passage_clusters(members[0]["dataset"], str(search_dir))
         members = sorted(members, key=lambda result: (-result["correct"], result["run_id"]))
-        pairs = [(first["run_key"], second["run_key"]) for first, second in zip(members, members[1:])]
+        # Neighbours down the ranking of the configurations' first runs: the tied groups compare a format rerun with every
+        # run, and export_results.py formats() with its configuration's first run.
+        ranked_first = [result for result in members if result["run_key"] not in reruns]
+        pairs = [(first["run_key"], second["run_key"]) for first, second in zip(ranked_first, ranked_first[1:])]
         for first_side, second_side in PAIRED_CONFIGURATIONS:
             for first in members:
                 for second in members:
@@ -3970,6 +3999,8 @@ def run_comparisons(
                     if (
                         matches_side(first, first_side)
                         and matches_side(second, second_side)
+                        and first["run_key"] not in reruns
+                        and second["run_key"] not in reruns
                         and pair not in pairs
                         and pair[::-1] not in pairs
                     ):
@@ -4006,6 +4037,7 @@ def run_comparisons(
             if (
                 not any(matches_side(decision, side) for side in CASCADE_FIRST_CONFIGURATIONS)
                 or decision.get("shuffle_options") is not None
+                or decision["run_key"] in reruns
                 or not frontier_runs
             ):
                 continue
@@ -4019,9 +4051,17 @@ def run_comparisons(
                     clusters=[clusters.get(question, f"question {question}") for question in questions],
                 )
                 cascades.append({"decision": decision["run_key"], "frontier": frontier["run_key"], **simulation})
-            doubt = run_doubt(connection, decision, [outcomes[frontier["run_key"]] for frontier in frontier_runs])
+            # The doubt counts the mistakes of the live tests' LLMs, each configuration's first run; format reruns
+            # stay out.
+            counted = [
+                frontier
+                for frontier in frontier_runs
+                if frontier["run_key"] not in reruns
+                and (frontier.get("provider"), frontier["model"], frontier["thinking"]) in DOUBT_FRONTIER_RUNS
+            ]
+            doubt = run_doubt(connection, decision, [outcomes[frontier["run_key"]] for frontier in counted])
             if doubt is not None:
-                doubts.append({"decision": decision["run_key"], "frontier": [run["run_key"] for run in frontier_runs], **doubt})
+                doubts.append({"decision": decision["run_key"], "frontier": [run["run_key"] for run in counted], **doubt})
         sources.extend(confidence_sources(connection, members, clusters, search_dir))
     # The same configuration on two versions of the question bank, older first.
     versions: list[dict[str, Any]] = []
@@ -4244,7 +4284,12 @@ def run_batching(connection: sqlite3.Connection, results: dict[str, dict[str, An
     def plain(run: dict[str, Any]) -> bool:
         return run.get("replace_key_text") is None and run.get("shuffle_options") is None
 
-    main = {configuration(run): run["batch_size"] for run in results.values() if in_main_tables(run) and plain(run)}
+    reruns = format_reruns(results)
+    main = {
+        configuration(run): run["batch_size"]
+        for run in results.values()
+        if in_main_tables(run) and plain(run) and run["run_key"] not in reruns
+    }
     found = []
     for run in results.values():
         size = main.get(configuration(run))
