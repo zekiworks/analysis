@@ -126,6 +126,9 @@ SYSTEM_ONE = {
         request_id_header="x-request-id",
         openai_format=True,
     ),
+    # SubQ's subq-snap-preview (public preview) through its Decisions API (docs.subq.ai/endpoints/decisions-api), which
+    # takes the same request at the default path and returns the same answers.
+    "subq": SystemOneService("SubQ", "https://api.subq.ai", key_vars=("SUBQ_API_KEY",), key_required=True),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -198,6 +201,8 @@ PRICES: dict[tuple[str, str], Price] = {
     ("celeris", "celeris-1-decision"): Price(
         "Celeris's decision model price", "https://docs.celeris.ai/pricing", "2026-10-10", 0.04
     ),
+    # Output tokens are free (docs.subq.ai/using-the-api/models); the model is in public preview.
+    ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
     # No cache or output charges.
     ("openai-decisions", "gpt-6-luna"): Price(
         "OpenAI's Decisions API price",
@@ -316,7 +321,7 @@ TIE_ALPHA = 0.05
 # as (provider, model, thinking).
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions",
+    "openai-decisions", "subq",
     ("vllm", "gemma-4-31B-it"),
 )
 CASCADE_FRONTIER_RUNS = (

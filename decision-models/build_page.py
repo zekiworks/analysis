@@ -1372,9 +1372,20 @@ def latency_table(snap: Snapshot) -> str:
 # ---------------------------------------------------------------- the overview sections (blocks 04 to 09)
 
 
+# The decision models block 04 says kept no answer at the fixed cutoff.
+NONE_KEPT = ("celeris", "subq")
+
+
 def overview_values(snap: Snapshot) -> dict[str, str]:
-    """Values only the overview sections (blocks 04 to 09) use."""
-    return {}
+    """Values only the overview sections (blocks 04 to 09) use: the highest score of each model that kept no answer at
+    the fixed cutoff. The build stops when one of them now keeps answers there."""
+    out = {}
+    for key in NONE_KEPT:
+        run = snap.named[key]
+        if ((run.get("confidence") or {}).get("sure") or {}).get("questions"):
+            raise ValueError(f"block 04 says {run['name']} kept no answers at the fixed cutoff")
+        out[f"overview_{key}_top"] = cutoff_text(max(score for score in method_scores(run["run"]) if score is not None))
+    return out
 
 
 def overview_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
@@ -1670,10 +1681,18 @@ def study_values(snap: Snapshot) -> dict[str, str]:
     out["study_sources_questions"] = count(fixed["questions"])
     for item in fixed["sources"]:
         out[f"study_source_{keys[item['run']]}_auroc"] = f"{item['auroc']:.2f}"
-    # Prices: the date most rates were recorded, and the dated exceptions the copy names.
+    # Prices: the date most rates were recorded, and the dated exceptions the copy names; the build stops when a price
+    # recorded on another date is not among them.
     dates = [price["date"] for price in results["prices"]]
-    out["study_price_date"] = long_date(max(set(dates), key=dates.count))
-    for key in ("decider_v1", "decider_v11", "celeris", "gemini_low"):
+    common = max(set(dates), key=dates.count)
+    out["study_price_date"] = long_date(common)
+    priced = ("decider_v1", "decider_v11", "celeris", "subq", "gemini_low")
+    named_prices = {(named[key]["provider"], named[key]["model"]) for key in priced}
+    unnamed = sorted(f"{price['provider']} {price['model']}" for price in results["prices"]
+                     if price["date"] != common and (price["provider"], price["model"]) not in named_prices)
+    if unnamed:
+        raise ValueError(f"the study's price sentence does not name the prices recorded on another date: {unnamed}")
+    for key in priced:
         price = snap.price(named[key])
         assert price is not None
         out[f"study_price_{key}"] = f"${price['rates']['input_tokens']:.2f}"
@@ -1788,6 +1807,8 @@ def study_gap(run: dict[str, Any]) -> str:
 TITLE = "When should you trust an AI model to make a decision? · Zeki Works"
 # The three LLMs the opening puts Decider in front of, by named-run key; the opening orders them by saving.
 OPENING_SECONDS = ("sonnet_high", "opus", "astra")
+# How the opening names a decision model that came second in front of an LLM; others go by their short name.
+RUNNER_UP_NAMES = {"fastino/GLiDE": "Fastino's GLiDE", "subq-snap-preview": "SubQ Snap"}
 # The speed table's rows: a named run and whether the row is its separate one-question test.
 SPEED_ROWS = (("decider_v11", False), ("glide", False), ("opus", False), ("sonnet_high", False), ("astra", True), ("astra", False))
 
@@ -1829,11 +1850,29 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     chat = max((run for run in snap.runs if not snap.decision_model(run)), key=lambda run: run["correct"])
     out["best_chat_accuracy_whole"] = fmt.pct(chat["correct"] / snap.total, 0)
 
-    # "Decider v1.1 took the most questions off each LLM; GLiDE came second each time; accuracy fell in front of each."
+    # "Decider v1.1 took the most questions off each LLM", then which decision model came second in front of each LLM
+    # and what its own calls cost against Decider's; "accuracy fell in front of each".
+    runners: dict[int, list[str]] = {}
     for item in seconds_list:
         ranking = strict_ranking(snap, item["run"])
-        if ranking[0][0] is not decider or ranking[1][0] is not named["glide"]:
-            raise ValueError(f"Decider v1.1 and GLiDE no longer lead the decision models in front of {label(item['run'])}")
+        if ranking[0][0] is not decider:
+            raise ValueError(f"Decider v1.1 no longer takes the most questions off {label(item['run'])}")
+        runners.setdefault(ranking[1][0]["run"], []).append(live_name(snap, item["run"]))
+
+    def ratio_text(run: dict[str, Any]) -> str:
+        ratio = per_thousand(run) / per_thousand(decider)
+        return times(ratio) if ratio >= 10 else f"{ratio:.1f}".rstrip("0").rstrip(".")
+
+    second = [(snap.by_id[run_id], llms) for run_id, llms in runners.items()]
+    if len(second) == 1:
+        out["opening_runner_up"] = (f"{RUNNER_UP_NAMES.get(second[0][0]['model'], snap.short(second[0][0]))} came second each "
+                                    f"time, but its own calls cost {ratio_text(second[0][0])} times as much as Decider's.")
+    else:
+        places = [f"{RUNNER_UP_NAMES.get(run['model'], snap.short(run))}{' came second' if index == 0 else ''} in front of "
+                  f"{and_list(llms)}" for index, (run, llms) in enumerate(second)]
+        last = ", and " if len(places) == 2 else "; and "
+        out["opening_runner_up"] = (f"{'; '.join(places[:-1])}{last}{places[-1]}. Their own calls cost "
+                                    f"{and_list([ratio_text(run) for run, _ in second])} times as much as Decider's.")
     losses = [-item["strict"]["difference"] for item in seconds_list]
     if min(losses) <= 0:
         raise ValueError("the opening says accuracy fell in front of every LLM")
@@ -1943,7 +1982,6 @@ def top_values(snap: Snapshot) -> dict[str, str]:
     out["decision_models"] = count(len(tried) + len(untried))
     out["decision_models_tried"] = count(len(tried))
     out["opening_llm_count"] = in_words(len(seconds_list))
-    out["glide_cost_ratio"] = times(per_thousand(named["glide"]) / per_thousand(decider))
     out["opening_more_wrong"] = f"{more_wrong_span(snap)} more answers"
     best = max(run["correct"] for run in tried + untried) / snap.total
     if not 0.6 <= best <= 0.72:
@@ -2626,6 +2664,7 @@ METHOD_SETUPS: list[tuple[list[dict[str, str]], str]] = [
     ([{"provider": "winnow"}], "We ran a version of Gemma 4 12B IT that its author trained for decisions. We used the recommended Q8_0 model file, which stores each weight in eight bits, and the author's server settings. The author's JevBench comparison is separate from our test."),
     ([{"provider": "fastino"}], "We called Fastino's System One API. Fastino says GLiDE makes a first assessment and reasons more on uncertain cases before it returns option probabilities. We did not run a version with that internal reasoning switched off."),
     ([{"provider": "celeris"}], "We called Celeris's System One API. The service returns option probabilities rounded to whole percentage points. Celeris publishes no model size or design for it."),
+    ([{"provider": "subq"}], "We called SubQ's Decisions API, in public preview. It returns a probability for each option. SubQ says preview models can change before general availability, and it publishes no model size or design for this one."),
     ([{"provider": "strands"}], "We ran Amazon's released decision model with its own server and probability settings. It adds a small trained adapter and a scoring part to Qwen 3.5 2B Base."),
     ([{"provider": "laya"}], "We ran both released decision models on our own hardware. Each reads the input and scores all options in one pass."),
     ([{"model": "gliner2.5-multi-v1"}], "We ran Fastino's model for extracting and classifying text, with {size} parameters. We gave it the same question and options and asked it to score the options as labels. It shows how a much smaller classifier does."),

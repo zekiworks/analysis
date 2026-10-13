@@ -5,7 +5,7 @@ Turkish exam questions.*
 
 The results page of a benchmark of language models and decision models on 2,198 scored
 multiple-choice questions from a question bank for the Turkish section of the TYT, the first stage of
-Turkey's university entrance exam. It opens with 17 decision models and the share of the questions each
+Turkey's university entrance exam. It opens with 18 decision models and the share of the questions each
 took off three LLMs (Claude Sonnet 5.5, Claude Opus 5.5, GPT-6 Astra) when we kept its answer only when it
 was confident, from a replay of recorded answers. It then explains confidence and the two-step setup, why
 Perplexity's Decider v1.1, speed, the cutoff and the savings; what a fixed confidence cutoff keeps, how

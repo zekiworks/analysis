@@ -4,81 +4,80 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 What happens as we keep more answers from the first model?
 We choose and test these cutoffs on the same questions.
-We replayed recorded answers on 2,198 Turkish exam questions. Each first model answers the share of questions it is most confident about (x); the second model answers
-the rest. Grey line: the second model alone. Curves that use the same questions to choose and test can look better than a test on new questions; the main result uses
-separate halves.
+We replayed recorded answers on 2,198 Turkish exam questions. Each first model answers the share of questions it is most confident about (x); the second model answers the rest. Grey line: the second model alone. Curves that
+use the same questions to choose and test can look better than a test on new questions; the main result uses separate halves.
 
-Second model: Claude Sonnet 5.5 (high reasoning)         Second model: Claude Sonnet 5.5 (high reasoning)         Second model: Claude Sonnet 5.5 (high reasoning)
-Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers
-100% ⢠                                                   100% ⢠                                                   100% ⢠
-     ⢸                                                        ⢸                                                        ⢸
-     ⢸                                                        ⢸                                                        ⢸⣤⣤⣤⣤⣤⣤⣤⠤⠤⣤⣤⣤⣤⣤⣤⣤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
-     ⢸            ⢀⣀⡀ ⣀⣀⣀⣀⣀⣀⣀⣀                                ⢸                                                    80% ⢸  ⠈⠉⠒⠢⠭⣉⡉⠛⠓⠶⠶⣤⣤⢍⣉⡙⠛⠒⠲⠦⠤⣤⣀⣀
-     ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠛⠛⠻⢟⣛⠻⠿⣻⡯⣭⣉⣉⠛⠛⠫⠭⣉⣉⡉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠛⠋⠛⠛⠛⠻⠿⠿⣿⣛⣭⢍⣉⡉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸        ⠈⠑⠒⠤⢄⣀ ⠉⠑⠚⠫⢍⣒⡢⠤⢄⣈⠉⠉⠛⠒⠦⠤⣀⡀
- 80% ⢸                    ⠉⠉⠑⠚⠫⠵⣚⠭⠽⠷⡦⢤⣄⣈⠑⠒⠤⢄⡀             80% ⢸                   ⠉⠛⠳⠾⣭⣕⡒⠤⣀⡀                           ⢸              ⠉⠓⠤⢄⡀  ⠈⠑⠒⠤⣉⡑⠒⠤⢄⣀ ⠉⠙⠒⠤⣄⣀⡀
-     ⢸                           ⠉⠒⠢⢌⡉⠑⠫⠿⡶⢤⣀⠈⠉⠒⠤⣀⣀            ⢸                        ⠉⠛⠳⢦⣌⣓⠤⣀⡀                   60% ⢸                  ⠈⠉⠒⠦⠤⣀  ⠈⠉⠒⠤⣀⡉⠓⠢⠤⣀⡀⠈⠉⠓⠲⠤⣄⣀
-     ⢸                               ⠈⠉⠒⠤⠬⡒⠬⢝⠲⢦⣄⡀ ⠉           ⢸                            ⠈⠛⠷⢶⣬⡑⠦⣀⡀                   ⢸                        ⠉⠑⠢⣄⡀  ⠈⠉⠒⠦⢄⣈⠑⠒⠤⢄⡀  ⠉
-     ⢸                                    ⠈⠒⠤⢍⡒⢄⣉⠳⣦           ⢸                                ⠈⠙⠷⣦⣈⠑⠢⣄                ⢸                            ⠈⠉⠒⠢⢄⡀   ⠉⠑⠦⠤⣈⡉⠢⠤
-     ⢸                                        ⠈⠒⢄⡑⠢           ⢸                                    ⠉⠛⠶⣄⡉⠒⢄⡀        40% ⢸                                 ⠈⠙⠢⠤⡀    ⠈⠉⠒
- 60% ⢸                                           ⠈⠒       60% ⢸                                       ⠉⠛⢗⣦⣈⠓           ⢸                                     ⠈⠉⠒⠤⢄⡀
-     ⢸                                                        ⢸                                           ⠑⠯           ⢸                                          ⠈⠉⠒
-     ⢸                                                        ⢸                                                    20% ⢸
-     ⢸                                                        ⢸                                                        ⢸
-     ⢸                                                        ⢸                                                        ⢸
- 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
-    0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%
-     Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model
+Second model: Claude Sonnet 5.5 (high reasoning)         Second model: Claude Sonnet 5.5 (high reasoning)         Second model: Claude Sonnet 5.5 (high reasoning)         Second model: Claude Sonnet 5.5 (high reasoning)
+Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers
+100% ⢠                                                   100% ⢠                                                   100% ⢠                                                   100% ⢠
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸⣤⣤⣤⣤⣤⣤⣤⠤⠤⠤⣤⣤⣤⣤⣤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+     ⢸            ⢀⣀⡀ ⣀⣀⣀⣀⣀⣀⣀⣀                                ⢸                                                        ⢸                                                    80% ⢸  ⠈⠉⠒⠢⠭⣉⡉⠛⠓⠶⠶⣤⣤⢍⣉⡑⠒⠒⠢⠤⠤⣀⡀
+     ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠙⠛⠛⠻⠯⣭⣉⣉⠛⠛⠫⠭⣉⣉⡉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠙⠛⠻⠿⠿⣟⣿⢯⣭⣉⡉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠛⠛⠛⠛⠛⠻⠭⢭⣉⣉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸        ⠈⠑⠒⠤⢄⣀ ⠉⠑⠚⠫⢍⣒⡢⠤⢄⣈⠉⠉⠒⠒⠤⠤⣀⡀
+ 80% ⢸                          ⠉⠙⠛⠷⣦⣤⣄⣈⠑⠒⠤⢄⡀             80% ⢸                    ⠉⠙⠛⠿⢿⡷⣶⣤⡤⠤⡀                     80% ⢸                  ⠈⠙⠓⠲⠤⣀⡀                               ⢸              ⠉⠓⠤⢄⡀  ⠈⠑⠒⠤⣉⡑⠒⠤⢄⣀ ⠈⠑⠒⠤⣀⣀⡀
+     ⢸                               ⠈⠑⠛⢟⣶⢤⣀⠈⠉⠒⠤⣀⣀            ⢸                         ⠈⠑⠫⢞⣳⢬⣉⡑⠢⠤⡀                    ⢸                        ⠉⠛⠲⢤⣄                       60% ⢸                  ⠈⠉⠒⠦⠤⣀  ⠈⠉⠒⠤⣀⡉⠓⠢⠤⣀⡀ ⠈⠑⠒⠤⢄⣀
+     ⢸                                    ⠉⠚⠽⡲⢦⣄⡀ ⠉           ⢸                              ⠑⠚⠭⡓⠦⣬⡒⠤⢄                 ⢸                            ⠈⠛⠶⢦⣄⡀                      ⢸                        ⠉⠑⠢⣄⡀  ⠈⠉⠒⠦⢄⣈⠑⠒⠤⢄⡀  ⠉
+     ⢸                                       ⠈⠉⠒⠭⣳⣦           ⢸                                 ⠈⠑⠢⣈⠓⠦⣍⡒⢄⣀             ⢸                                ⠉⠛⢷⣤⣀                   ⢸                            ⠈⠉⠒⠢⢄⡀   ⠉⠑⠦⠤⣈⡉⠢⠤
+     ⢸                                            ⠉           ⢸                                     ⠉⠒⢄⡉⠒⢄⡑⠢           ⢸                                   ⠈⠙⠻⣦⣄            40% ⢸                                 ⠈⠙⠢⠤⡀    ⠈⠉⠒
+ 60% ⢸                                                    60% ⢸                                        ⠈⠑⠢⣈⠓       60% ⢸                                       ⠙⠻⣖⣤⣀            ⢸                                     ⠈⠉⠒⠤⢄⡀
+     ⢸                                                        ⢸                                            ⠉           ⢸                                          ⠈⠑⠯           ⢸                                          ⠈⠉⠒
+     ⢸                                                        ⢸                                                        ⢸                                                    20% ⢸
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸
+ 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%
+     Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model
 
-━━ Decider v1.1   ━━ Gemma 4 31B                         ━━ Decider v1   ━━ Jev   ━━ Clef   ━━ Liquid d1          ━━ Cygnet   ━━ Winnow 12B   ━━ Clef flash
-━━ Fastino GLiDE   ━━ GPT-6 Luna, Decisions API          ━━ Open Jev   ━━ Claude Sonnet 5.5 alone                 ━━ Metask Jev 4B   ━━ Strands Decider 2B
-━━ Celeris 1   ━━ Claude Sonnet 5.5 alone                                                                         ━━ Claude Sonnet 5.5 alone
+━━ Decider v1.1   ━━ Gemma 4 31B                         ━━ GPT-6 Luna, Decisions API   ━━ Celeris 1              ━━ Clef   ━━ Liquid d1   ━━ Open Jev   ━━ Cygnet         ━━ Winnow 12B   ━━ Clef flash   ━━ Metask Jev 4B
+━━ Fastino GLiDE   ━━ SubQ Snap                          ━━ Decider v1   ━━ Jev                                   ━━ Claude Sonnet 5.5 alone                               ━━ Strands Decider 2B   ━━ Claude Sonnet 5.5 alone
+━━ Claude Sonnet 5.5 alone                               ━━ Claude Sonnet 5.5 alone
 
-Second model: Claude Opus 5.5 (low reasoning)            Second model: Claude Opus 5.5 (low reasoning)            Second model: Claude Opus 5.5 (low reasoning)
-Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers
-100% ⢠                                                   100% ⢠                                                   100% ⢠
-     ⢸                                                        ⢸                                                        ⢸⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
-     ⢸⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀           ⢸⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀           ⢸⠈⠉⠑⠛⠭⢍⡛⠒⠒⠯⢭⣍⣉⣙⡓⠲⠶⢤⣤⣀⣀
-     ⢸          ⠈⠉⠉⠉⠙⠛⠻⠿⣛⣿⠿⣷⣶⣖⡤⠤⠤⣀⣀                           ⢸         ⠉⠉⠉⠛⠛⠻⠶⣶⣦⣤⣀                                80% ⢸      ⠈⠉⠒⠦⣀⡀⠈⠉⠛⠽⢖⣒⠤⢄⣉⡉⠑⠒⠦⣤⣀⡀
-     ⢸                    ⠑⠒⠪⠭⢝⠻⠶⣤⣤⡉⠑⠒⠤⢄⡀                     ⢸                 ⠈⠉⠛⠿⣗⣲⣤⣄⡀                              ⢸           ⠈⠉⠒⠢⣄⡀ ⠉⠒⠤⢍⣉⠒⠤⠤⣈⠉⠙⠳⠦⢄⣀⡀
- 80% ⢸                         ⠉⠑⠒⢌⡉⠛⠲⡦⢤⡈⠑⠢⠤⣀⡀            80% ⢸                      ⠈⠙⠻⢾⣫⡒⠤⡀                          ⢸                ⠈⠑⠢⠤⣀  ⠉⠢⠤⢄⡉⠒⠢⠤⣀ ⠉⠓⠶⠤⣀⣀
-     ⢸                             ⠈⠑⠢⢌⣑⠛⢕⠢⢄⡀⠉⠑⠤⢄⣀            ⢸                          ⠈⠉⠳⣞⣕⠢⢄⡀                  60% ⢸                     ⠉⠒⠢⢄⡀ ⠈⠉⠢⠤⣀⡉⠒⠢⢄⣀ ⠈⠙⠒⠤⢄⣀
-     ⢸                                  ⠑⠒⢍⠒⠪⣓⠦⣄⡀ ⠉           ⢸                              ⠉⠛⠶⣌⡓⠤⢄                   ⢸                         ⠈⠉⠢⢄⣀  ⠈⠉⠒⠤⢄⡙⠒⠤⢄⡀  ⠉
-     ⢸                                     ⠉⠑⠢⣑⠤⢍⠓⣦           ⢸                                  ⠛⠷⣤⣉⠒⢄⡀               ⢸                              ⠉⠒⠤⣀   ⠈⠉⠢⠤⢌⡉⠢⠤
-     ⢸                                        ⠈⠒⠤⡑⠢           ⢸                                     ⠙⠳⣦⣈⡒⠤⡀        40% ⢸                                  ⠉⠒⠤⣀    ⠈⠉⠒
- 60% ⢸                                           ⠈⠒       60% ⢸                                       ⠈⠙⠻⣦⣈⠓           ⢸                                      ⠉⠑⠢⢄⣀
-     ⢸                                                        ⢸                                           ⠉⠯           ⢸                                           ⠉⠒
-     ⢸                                                        ⢸                                                    20% ⢸
-     ⢸                                                        ⢸                                                        ⢸
-     ⢸                                                        ⢸                                                        ⢸
- 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
-    0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%
-     Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model
+Second model: Claude Opus 5.5 (low reasoning)            Second model: Claude Opus 5.5 (low reasoning)            Second model: Claude Opus 5.5 (low reasoning)            Second model: Claude Opus 5.5 (low reasoning)
+Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers
+100% ⢠                                                   100% ⢠                                                   100% ⢠                                                   100% ⢠
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
+     ⢸⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀           ⢸⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀           ⢸⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀           ⢸⠈⠉⠑⠛⠭⢍⡛⠒⠒⠯⢭⣍⣉⣑⡒⠢⠤⢄⣀⣀
+     ⢸          ⠈⠉⠉⠉⠉⠉⠉⠛⠛⠻⠿⢷⣶⣖⡤⠤⠤⣀⣀                           ⢸         ⠉⠉⠉⠉⠙⠛⠻⠶⢶⣶⣤⠤⣀⡀                                 ⢸         ⠉⠉⠉⠛⠓⠲⠦⣤⣀⡀                                 80% ⢸      ⠈⠉⠒⠦⣀⡀⠈⠉⠛⠽⢖⣒⠤⢄⣉⡉⠑⠒⠤⣀⡀
+     ⢸                       ⠈⠙⠛⠲⢤⣤⡉⠑⠒⠤⢄⡀                     ⢸                   ⠈⠙⠓⠺⣭⣕⡢⠤⣀⡀                           ⢸                 ⠈⠉⠓⠶⣄⣀                                 ⢸           ⠈⠉⠒⠢⣄⡀ ⠉⠒⠤⢍⣉⠒⠤⠤⣈⠉⠑⠢⠤⢄⣀
+ 80% ⢸                            ⠈⠙⠻⠶⡦⢤⡈⠑⠢⠤⣀⡀            80% ⢸                        ⠈⠛⠻⡒⢬⡉⠒⠢⡀                   80% ⢸                      ⠈⠙⠷⣤⣀                             ⢸                ⠈⠑⠢⠤⣀  ⠉⠢⠤⢄⡉⠒⠢⠤⣀ ⠉⠒⠤⠤⣀⡀
+     ⢸                                ⠈⠉⠯⣑⡢⢄⡀⠉⠑⠤⢄⣀            ⢸                           ⠈⠑⠚⢕⠢⢌⣑⠒⢄                    ⢸                          ⠈⠙⠲⣆⡀                     60% ⢸                     ⠉⠒⠢⢄⡀ ⠈⠉⠢⠤⣀⡉⠒⠢⢄⣀ ⠈⠑⠒⠤⢄⣀
+     ⢸                                    ⠈⠑⠪⣗⠦⣄⡀ ⠉           ⢸                               ⠉⠒⢌⡓⠶⢍⠒⠢⣀                ⢸                             ⠈⠙⠳⢦⣄⡀                     ⢸                         ⠈⠉⠢⢄⣀  ⠈⠉⠒⠤⢄⡙⠒⠤⢄⡀  ⠉
+     ⢸                                        ⠉⠒⠭⢗⣦           ⢸                                  ⠈⠑⠤⣉⠓⢦⣑⠤⢄             ⢸                                 ⠈⠛⢶⣤⡀                  ⢸                              ⠉⠒⠤⣀   ⠈⠉⠢⠤⢌⡉⠢⠤
+     ⢸                                            ⠉           ⢸                                      ⠑⠢⣈⡒⠤⡑⠢           ⢸                                    ⠈⠛⠷⣤⡀           40% ⢸                                  ⠉⠒⠤⣀    ⠈⠉⠒
+ 60% ⢸                                                    60% ⢸                                         ⠈⠢⣈⠓       60% ⢸                                       ⠈⠙⠷⣤⣀            ⢸                                      ⠉⠑⠢⢄⣀
+     ⢸                                                        ⢸                                            ⠉           ⢸                                           ⠉⠯           ⢸                                           ⠉⠒
+     ⢸                                                        ⢸                                                        ⢸                                                    20% ⢸
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸
+ 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%
+     Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model
 
-━━ Decider v1.1   ━━ Gemma 4 31B                         ━━ Decider v1   ━━ Jev   ━━ Clef   ━━ Liquid d1          ━━ Cygnet   ━━ Winnow 12B   ━━ Clef flash
-━━ Fastino GLiDE   ━━ GPT-6 Luna, Decisions API          ━━ Open Jev   ━━ Claude Opus 5.5 alone                   ━━ Metask Jev 4B   ━━ Strands Decider 2B
-━━ Celeris 1   ━━ Claude Opus 5.5 alone                                                                           ━━ Claude Opus 5.5 alone
+━━ Decider v1.1   ━━ Gemma 4 31B                         ━━ GPT-6 Luna, Decisions API   ━━ Celeris 1              ━━ Clef   ━━ Liquid d1   ━━ Open Jev   ━━ Cygnet         ━━ Winnow 12B   ━━ Clef flash   ━━ Metask Jev 4B
+━━ Fastino GLiDE   ━━ SubQ Snap                          ━━ Decider v1   ━━ Jev   ━━ Claude Opus 5.5 alone        ━━ Claude Opus 5.5 alone                                 ━━ Strands Decider 2B   ━━ Claude Opus 5.5 alone
+━━ Claude Opus 5.5 alone
 
-Second model: GPT-6 Astra (low reasoning)                Second model: GPT-6 Astra (low reasoning)                Second model: GPT-6 Astra (low reasoning)
-Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers
-100% ⢠                                                   100% ⢠                                                   100% ⢠⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
-     ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠙⠛⠛⠻⠿⣿⣿⣿⣿⡯⣭⣭⣉⣉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠛⠛⠻⠿⠿⣭⣭⣉⣉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸ ⠈⠉⠒⠭⢍⡛⠒⠒⠭⢭⣉⣉⠑⠒⠶⠤⣤⣀⡀
-     ⢸                 ⠈⠢⠭⣙⡳⢟⡵⣯⣑⡒⠤⢄⡀                          ⢸               ⠉⠙⠳⢯⣷⣤⢄⡀                                 ⢸      ⠈⠉⠒⠦⣀ ⠉⠉⠫⠶⣢⡤⢄⡉⠙⠓⠲⠤⣄⡀
-     ⢸                     ⠈⠑⠪⠭⣪⠭⣓⡦⣌⡉⠒⠢⢄⡀                     ⢸                   ⠈⠙⠻⢿⣵⣦⢄⣀                         80% ⢸           ⠉⠑⠢⠤⡀ ⠈⠑⠪⢍⣓⠢⢄⣀⠉⠙⠒⠦⣄⡀
-     ⢸                          ⠉⠒⢌⡑⠭⢗⠦⣄⠈⠒⠤⣀                  ⢸                       ⠉⠓⠷⣦⣑⠢⡄                          ⢸               ⠈⠑⠢⢄⣀  ⠉⠒⢄⣉⠑⠢⢄⣀⠈⠙⠒⠤⣄
- 80% ⢸                             ⠈⠒⠢⡉⠑⢕⠢⣀ ⠑⠦⣀           80% ⢸                           ⠉⠳⣞⢕⠢⢄                       ⢸                    ⠉⠢⠤⣀  ⠉⠒⠤⣄⠉⠒⠤⣀⠈⠉⠓⠢⢤⡀
-     ⢸                                ⠈⠉⠢⢕⠤⡉⠢⣄ ⠑⠤⣀            ⢸                              ⠉⠳⢤⡉⠢⢄                60% ⢸                        ⠉⠒⠤⡀  ⠉⠑⠢⠤⡉⠒⠤⣀ ⠈⠑⠒⠤⣀
-     ⢸                                    ⠑⠬⡙⠬⡑⠢⣄ ⠉           ⢸                                 ⠙⠷⣦⡉⠢⢄                 ⢸                           ⠈⠑⠢⢄⡀  ⠈⠉⠒⠬⣉⠒⠤⣀  ⠉
-     ⢸                                      ⠈⠑⢬⠢⢄⠑⣦           ⢸                                   ⠈⠛⢶⣄⠓⢄               ⢸                               ⠈⠑⠢⢄    ⠑⠒⠤⣉⠢⠤
-     ⢸                                         ⠉⠢⡑⠢           ⢸                                      ⠈⠳⣦⢍⠢⡀        40% ⢸                                   ⠉⠒⠤⣀    ⠉⠒
- 60% ⢸                                           ⠈⠒       60% ⢸                                        ⠈⠛⢷⣬⡓           ⢸                                       ⠉⠒⠤⣀
-     ⢸                                                        ⢸                                           ⠈⠯           ⢸                                           ⠉⠒
-     ⢸                                                        ⢸                                                    20% ⢸
-     ⢸                                                        ⢸                                                        ⢸
-     ⢸                                                        ⢸                                                        ⢸
- 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
-    0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%
-     Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model
+Second model: GPT-6 Astra (low reasoning)                Second model: GPT-6 Astra (low reasoning)                Second model: GPT-6 Astra (low reasoning)                Second model: GPT-6 Astra (low reasoning)
+Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers                         Accuracy of the combined answers
+100% ⢠                                                   100% ⢠                                                   100% ⢠                                                   100% ⢠⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
+     ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠙⠛⠛⠛⠻⠿⠿⠿⣿⣯⣭⣭⣉⣉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠛⠛⠛⠛⠿⠯⣭⣉⣉⣉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⠛⠛⠿⠭⢭⣍⡉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉           ⢸ ⠈⠉⠒⠭⢍⡛⠒⠒⠬⢭⣉⣉⠑⠒⠤⠤⣀⣀
+     ⢸                   ⠈⠉⠑⠛⠵⣯⣑⡒⠤⢄⡀                          ⢸                ⠈⠙⠫⠿⣵⣦⣄⡀                                ⢸               ⠉⠙⠲⢦⣄⡀                                   ⢸      ⠈⠉⠒⠦⣀ ⠉⠉⠫⠶⣢⡤⢄⡉⠑⠒⠢⠤⣀
+     ⢸                         ⠈⠙⠳⢦⣌⡉⠒⠢⢄⡀                     ⢸                     ⠉⠙⠿⢯⣦⣤⣀⡀                           ⢸                   ⠈⠙⠳⢦⣀⡀                           80% ⢸           ⠉⠑⠢⠤⡀ ⠈⠑⠪⢍⣓⠢⢄⣀⠉⠑⠒⠤⣄⡀
+     ⢸                             ⠉⠫⢗⡦⣄⠈⠒⠤⣀                  ⢸                         ⠑⠫⣓⢮⡕⠤⢄                        ⢸                       ⠉⠓⠦⣄⡀                            ⢸               ⠈⠑⠢⢄⣀  ⠉⠒⢄⣉⠑⠢⢄⣀⠈⠑⠒⠤⡀
+ 80% ⢸                                ⠈⠑⢕⡢⣀ ⠑⠦⣀           80% ⢸                            ⠑⠚⢗⠢⣍⠑⢄                 80% ⢸                           ⠙⠲⣄                          ⢸                    ⠉⠢⠤⣀  ⠉⠒⠤⣄⠉⠒⠤⣀⠈⠉⠒⠢⢄⡀
+     ⢸                                   ⠈⠑⠫⡢⣄ ⠑⠤⣀            ⢸                               ⠑⠬⡉⠢⢕⠤⡀                  ⢸                             ⠈⠛⠶⣄⡀                  60% ⢸                        ⠉⠒⠤⡀  ⠉⠑⠢⠤⡉⠒⠤⣀ ⠈⠑⠒⠤⣀
+     ⢸                                      ⠈⠛⢕⡢⣄ ⠉           ⢸                                 ⠈⠑⠢⡙⠮⣝⠤⡀               ⢸                                ⠈⠛⢦⣄                    ⢸                           ⠈⠑⠢⢄⡀  ⠈⠉⠒⠬⣉⠒⠤⣀  ⠉
+     ⢸                                         ⠈⠒⢕⣦           ⢸                                    ⠈⠒⢌⠓⢬⠢⢄             ⢸                                   ⠉⠻⣦⡀                 ⢸                               ⠈⠑⠢⢄    ⠑⠒⠤⣉⠢⠤
+     ⢸                                            ⠉           ⢸                                       ⠑⠢⢍⠢⡑⠢           ⢸                                      ⠉⢷⣄           40% ⢸                                   ⠉⠒⠤⣀    ⠉⠒
+ 60% ⢸                                                    60% ⢸                                          ⠑⠬⡓       60% ⢸                                        ⠈⠛⢦⣄            ⢸                                       ⠉⠒⠤⣀
+     ⢸                                                        ⢸                                            ⠈           ⢸                                           ⠉⠯           ⢸                                           ⠉⠒
+     ⢸                                                        ⢸                                                        ⢸                                                    20% ⢸
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸
+     ⢸                                                        ⢸                                                        ⢸                                                        ⢸
+ 40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤       40% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤        0% ⠸⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+    0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%         0%       20%      40%      60%      80%     100%
+     Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model           Share of questions answered by the first model
 
-━━ Decider v1.1   ━━ Gemma 4 31B                         ━━ Decider v1   ━━ Jev   ━━ Clef   ━━ Liquid d1          ━━ Cygnet   ━━ Winnow 12B   ━━ Clef flash
-━━ Fastino GLiDE   ━━ GPT-6 Luna, Decisions API          ━━ Open Jev   ━━ GPT-6 Astra alone                       ━━ Metask Jev 4B   ━━ Strands Decider 2B
-━━ Celeris 1   ━━ GPT-6 Astra alone                                                                               ━━ GPT-6 Astra alone
+━━ Decider v1.1   ━━ Gemma 4 31B                         ━━ GPT-6 Luna, Decisions API   ━━ Celeris 1              ━━ Clef   ━━ Liquid d1   ━━ Open Jev   ━━ Cygnet         ━━ Winnow 12B   ━━ Clef flash   ━━ Metask Jev 4B
+━━ Fastino GLiDE   ━━ SubQ Snap                          ━━ Decider v1   ━━ Jev   ━━ GPT-6 Astra alone            ━━ GPT-6 Astra alone                                     ━━ Strands Decider 2B   ━━ GPT-6 Astra alone
+━━ GPT-6 Astra alone

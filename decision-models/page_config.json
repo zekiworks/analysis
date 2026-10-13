@@ -9,7 +9,7 @@
   "percent_digits": 1,
   "reading_units": [1, 2, 3, 4, 5, 6],
   "decision_model_providers": [
-    "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "clef", "cygnet", "open-jev", "winnow",
+    "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "subq", "clef", "cygnet", "open-jev", "winnow",
     "metask", "strands", "gliner", "laya"
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
@@ -31,12 +31,14 @@
     {"provider": "jev", "model": "jev-1.13.0", "key": "jev"},
     {"provider": "liquid", "model": "d1:free", "key": "d1"},
     {"provider": "celeris", "model": "celeris-1-decision", "key": "celeris"},
+    {"provider": "subq", "model": "subq-snap-preview", "key": "subq"},
     {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api"},
     {"provider": "openai", "model": "gpt-6-luna", "key": "luna_stated"}
   ],
   "accuracy_rows": [
     {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "key": "decider_v11"},
     {"provider": "fastino", "model": "fastino/GLiDE", "key": "glide"},
+    {"provider": "subq", "model": "subq-snap-preview", "key": "subq"},
     {"provider": "openai-decisions", "model": "gpt-6-luna", "key": "luna_api"},
     {"provider": "celeris", "model": "celeris-1-decision", "key": "celeris"},
     {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
@@ -79,7 +81,8 @@
     {"provider": "liquid", "model": "d1:free", "key": "d1"},
     {"provider": "vllm-yes-no", "model": "qwen38-27b-bf16", "key": "qwen_yes_no"},
     {"provider": "vllm-verbal", "model": "qwen38-27b-bf16", "key": "qwen_stated"},
-    {"provider": "celeris", "model": "celeris-1-decision", "key": "celeris"}
+    {"provider": "celeris", "model": "celeris-1-decision", "key": "celeris"},
+    {"provider": "subq", "model": "subq-snap-preview", "key": "subq"}
   ],
   "stability_lead": "decider_v11",
   "stability_sample_questions_per_request": 16,
@@ -94,6 +97,7 @@
   "latency_rows": [
     {"provider": "perplexity", "model": "pplx-decider-v1.1-27b"},
     {"provider": "fastino", "model": "fastino/GLiDE"},
+    {"provider": "subq", "model": "subq-snap-preview"},
     {"provider": "openai-decisions", "model": "gpt-6-luna"},
     {"provider": "celeris", "model": "celeris-1-decision"},
     {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
@@ -121,7 +125,8 @@
     "fastino/GLiDE": "GLiDE",
     "open-jev-27b-v1.1": "Open-Jev",
     "jev-1.13.0": "Jev",
-    "d1:free": "d1"
+    "d1:free": "d1",
+    "subq-snap-preview": "SubQ Snap"
   },
   "method_records": {
     "about": "Numbers the method and limits sections state that neither results.json nor answers.json holds. Each group names where it was recorded; build_page.py checks the key review against results.json's excluded questions.",

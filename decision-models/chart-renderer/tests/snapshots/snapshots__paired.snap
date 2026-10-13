@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 41 comparisons (15 pass).
-━━ passes the Holm adjustment across these 41 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 42 comparisons (15 pass).
+━━ passes the Holm adjustment across these 42 comparisons   ━━ does not pass
 
               Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (low reasoning)                     ⠠⡧⡦⠄                                        +0.5
                     GPT-6 Astra (low reasoning) minus GPT-6.1 Sol (low reasoning)                      ⡧⢴⠤                                        +0.9
@@ -23,11 +23,12 @@ establish a difference; the colour shows a related but separate test, adjusted a
                                                    Fastino GLiDE minus Decider v1                      ⡇          ⠤⠤⠤⢼⠤⠤⠤⠤                        +7.5
                            Decider v1.1 minus DeepSeek-V4.1-Flash (reasoning off)                   ⠠⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +1.0
                                                     Decider v1.1 minus Decider v1                      ⡇        ⠤⠤⠤⢼⠤⠤⠤⠄                          +6.5
-              DeepSeek-V4.1-Flash (reasoning off) minus GPT-6 Luna, Decisions API                      ⡧⠤⠤⠤⢼⠤⠤⠤⠤                                  +2.3
+                              DeepSeek-V4.1-Flash (reasoning off) minus SubQ Snap                   ⠤⠤⠤⡧⡧⠤⠤⠤⠤                                     +0.7
+                                        SubQ Snap minus GPT-6 Luna, Decisions API                    ⠠⠤⡧⠤⠤⡧⠤⠤⠤⠤                                   +1.6
                 GPT-6 Luna, Decisions API minus Claude Sonnet 5.5 (low reasoning)                      ⡧⠤⠤⠤⢼⠤⠤⠤⠤                                  +2.2
                                 Claude Sonnet 5.5 (low reasoning) minus Celeris 1                   ⠤⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +0.9
                                                        Celeris 1 minus Decider v1                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.1
-                                   Decider v1 minus GLM-5.3-Flash (reasoning off)                      ⡧⠤⠤⠤⠤⡧⠤⠤⠤⠤                                 +2.6
+                                   Decider v1 minus GLM-5.3-Flash (reasoning off)                      ⡗⠒⠒⠒⠒⡗⠒⠒⠒⠒                                 +2.6
                                                              Decider v1 minus Jev                      ⡇⠐⠒⠒⠒⢺⠒⠒⠒⠒                                 +2.9
                                           GLM-5.3-Flash (reasoning off) minus Jev                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.3
                                                                    Jev minus Clef                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.2

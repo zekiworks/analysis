@@ -199,6 +199,7 @@ const DECIDER_V1: RunKey = ("perplexity", "pplx-decider-v1-27b", None);
 const GLIDE: RunKey = ("fastino", "fastino/GLiDE", None);
 const LUNA_API: RunKey = ("openai-decisions", "gpt-6-luna", None);
 const CELERIS: RunKey = ("celeris", "celeris-1-decision", None);
+const SUBQ: RunKey = ("subq", "subq-snap-preview", None);
 const JEV: RunKey = ("jev", "jev-1.13.0", None);
 const D1: RunKey = ("liquid", "d1:free", None);
 const LAYA: RunKey = ("laya", "laya", None);
@@ -211,9 +212,9 @@ const DEEPSEEK_OFF: RunKey = ("vllm", "deepseek-v4.1-flash", Some("off"));
 
 /// Providers whose runs are decision models (the page's `decision_model_providers`), and the
 /// models of those providers that are not.
-const DECISION_PROVIDERS: [&str; 14] = [
-    "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "clef", "cygnet", "open-jev", "winnow", "metask",
-    "strands", "gliner", "laya",
+const DECISION_PROVIDERS: [&str; 15] = [
+    "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "subq", "clef", "cygnet", "open-jev", "winnow",
+    "metask", "strands", "gliner", "laya",
 ];
 const NOT_DECISION_MODELS: [&str; 1] = ["gliner2.5-multi-v1"];
 
@@ -271,6 +272,7 @@ impl Results {
             "d1:free" => "Liquid d1",
             "open-jev-27b-v1.1" => "Open Jev",
             "celeris-1-decision" => "Celeris 1",
+            "subq-snap-preview" => "SubQ Snap",
             "qwen38-27b-bf16" => "Qwen 3.8 27B",
             "winnow-12b" => "Winnow 12B",
             "clef-flash" => "Clef flash",
@@ -351,6 +353,7 @@ fn color(run: &Run) -> Color {
         ("winnow-12b", ..) => rgb(0xbe185d),
         ("fastino/GLiDE", ..) => rgb(0x1d4ed8),
         ("celeris-1-decision", ..) => rgb(0x4d7c0f),
+        ("subq-snap-preview", ..) => rgb(0xa21caf),
         ("strands-decider-2b", ..) => rgb(0xf97316),
         ("qwen38-27b-bf16", _, Some("stated confidence")) => rgb(0x78716c),
         ("qwen38-27b-bf16", _, Some("vote share")) => rgb(0x4f46e5),
@@ -1556,7 +1559,7 @@ const READING_GRAMMAR_TITLE: &str = "How often do models get reading and grammar
 /// The bar charts' labelled values; the cells for the bars are a multiple of 4, so each lands on a cell edge.
 const BAR_TICKS: [f64; 5] = [0.0, 25.0, 50.0, 75.0, 100.0];
 /// The decision models in the page's order, then the chat models below them.
-const READING_GRAMMAR_DECISION: [RunKey; 7] = [DECIDER, GLIDE, LUNA_API, CELERIS, DECIDER_V1, JEV, D1];
+const READING_GRAMMAR_DECISION: [RunKey; 8] = [DECIDER, GLIDE, SUBQ, LUNA_API, CELERIS, DECIDER_V1, JEV, D1];
 const READING_GRAMMAR_CHAT: [RunKey; 2] = [GEMMA, ASTRA];
 
 fn reading_grammar(results: &Results) -> Figure<'_> {
