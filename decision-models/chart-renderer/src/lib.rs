@@ -72,6 +72,9 @@ pub struct Run {
     pub latency: Option<Latency>,
     /// A separate test with one question per request.
     pub single_question_latency: Option<SingleLatency>,
+    /// A format rerun's setup's first run: the same setup asked another number of questions per request.
+    #[serde(default)]
+    pub format_of: Option<u32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -255,16 +258,28 @@ impl Results {
         self.runs.iter().find(|run| run.run == id)
     }
 
+    /// A setup's first run; a format rerun of it (`format_of`) is a setup of its own.
     fn find(&self, (provider, model, reasoning): RunKey) -> Option<&Run> {
-        self.runs
-            .iter()
-            .find(|run| run.provider == provider && run.model == model && run.reasoning.as_deref() == reasoning)
+        self.runs.iter().find(|run| {
+            run.provider == provider && run.model == model && run.reasoning.as_deref() == reasoning && run.format_of.is_none()
+        })
     }
 
     /// The plain name of a run with its setting in parentheses: its confidence variant, or its
     /// reasoning setting where that is a level ("low reasoning") or where the model has runs with
-    /// another setting ("reasoning on").
+    /// another setting ("reasoning on"); then its questions per request where the same setup also
+    /// ran with another number. For charts that can show both runs of such a setup.
     pub fn label(&self, run: &Run) -> String {
+        self.name_with(run, true)
+    }
+
+    /// `label` without the questions per request: for charts that show a setup's first run only, or
+    /// that name the request size in a group title.
+    pub fn setup_label(&self, run: &Run) -> String {
+        self.name_with(run, false)
+    }
+
+    fn name_with(&self, run: &Run, with_format: bool) -> String {
         let base = match run.model.as_str() {
             "pplx-decider-v1-27b" => "Decider v1",
             "pplx-decider-v1.1-27b" => "Decider v1.1",
@@ -294,10 +309,16 @@ impl Results {
             (None, Some(setting)) if sibling => Some(format!("reasoning {setting}")),
             _ => None,
         };
-        match setting {
-            Some(setting) => format!("{base} ({setting})"),
-            None => base.to_string(),
-        }
+        let other_format = self.runs.iter().any(|other| {
+            other.provider == run.provider
+                && other.model == run.model
+                && other.variant == run.variant
+                && other.reasoning == run.reasoning
+                && other.questions_per_request != run.questions_per_request
+        });
+        let format = (with_format && other_format).then(|| format!("{} per request", run.questions_per_request));
+        let parts: Vec<String> = setting.into_iter().chain(format).collect();
+        if parts.is_empty() { base.to_string() } else { format!("{base} ({})", parts.join(", ")) }
     }
 
     /// The reading and grammar question counts, from the units.
@@ -324,6 +345,18 @@ fn cost(run: &Run) -> Option<f64> {
 /// Each run's colour, the same in every figure and distinct within each panel.
 fn color(run: &Run) -> Color {
     let rgb = |code: u32| Color::Rgb((code >> 16) as u8, (code >> 8) as u8, code as u8);
+    // A format rerun gets its own colour, distinct from its setup's first run in every panel they share.
+    if run.format_of.is_some() {
+        return match run.model.as_str() {
+            "gpt-6-astra" => rgb(0xc2410c),
+            "gpt-6.1-sol" => rgb(0xbe123c),
+            "gemini-3.8-flash" => rgb(0x7e22ce),
+            "claude-opus-5-5" => rgb(0x0f766e),
+            "claude-sonnet-5-5" => rgb(0xb45309),
+            "gemma-4-31B-it" => rgb(0x6b21a8),
+            _ => GUIDE,
+        };
+    }
     match (run.model.as_str(), run.reasoning.as_deref(), run.variant.as_deref()) {
         ("gpt-6-astra", ..) => rgb(0x2563eb),
         ("gpt-6.1-sol", ..) => rgb(0x0891b2),
@@ -1079,16 +1112,20 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
     let total = replay.questions;
     let decider_time = decider.latency.as_ref()?.median_request_seconds;
     let opus_time = opus.latency.as_ref()?.median_request_seconds;
-    // The other second models Decider v1.1 was tested in front of, largest strict share first.
+    // The other second models Decider v1.1 was tested in front of, in their first format, largest strict share first.
     let mut others: Vec<(&Run, f64)> = results
         .cascades
         .iter()
         .filter(|cascade| cascade.decision == decider.run && cascade.frontier != opus.run)
-        .filter_map(|cascade| Some((results.run(cascade.frontier)?, cascade.held_out.answered)))
+        .filter_map(|cascade| Some((results.run(cascade.frontier).filter(|run| run.format_of.is_none())?, cascade.held_out.answered)))
         .collect();
     others.sort_by(|first, second| second.1.total_cmp(&first.1));
     let names: Vec<String> = others.iter().map(|(run, _)| run.name.clone()).collect();
-    let same = if names.is_empty() { String::new() } else { format!("The same steps work with {}.", and_list(&names)) };
+    let same = if names.is_empty() {
+        Vec::new()
+    } else {
+        wrap(&format!("The same steps work with {}.", and_list(&names)), usize::from(HANDOFF_WIDTH))
+    };
     let subtitle = notes(
         &format!("{} on the {} questions. We replayed recorded answers.", results.label(decider), thousands(total)),
         HANDOFF_WIDTH,
@@ -1103,7 +1140,7 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
         format!("about {:.0} s per request", opus_time),
         format!("of {} questions", opus.questions_per_request),
     ];
-    let height = 2 + subtitle.len() as u16 + 23;
+    let height = 2 + subtitle.len() as u16 + 22 + same.len().max(1) as u16;
     Some(Figure {
         name: "handoff",
         title: HANDOFF_TITLE.into(),
@@ -1147,7 +1184,9 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
             for (index, line) in rest_lines.enumerate() {
                 centre(buf, rest.x, rest.bottom() + 1 + index as u16, rest.width, line);
             }
-            buf.set_line(x, y + 22, &Line::from(same.clone()), body.width);
+            for (index, line) in same.iter().enumerate() {
+                buf.set_line(x, y + 22 + index as u16, &Line::from(line.clone()), body.width);
+            }
         }),
     })
 }
@@ -1186,7 +1225,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
     let label_width = decision
         .iter()
         .chain(&chat)
-        .map(|(run, _)| results.label(run).chars().count())
+        .map(|(run, _)| results.setup_label(run).chars().count())
         .chain([baseline.chars().count()])
         .max()? as u16;
     // Indent, labels, a space, the bars, the share ("20.9%"), then the change column.
@@ -1197,7 +1236,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
         &format!(
             "We replayed recorded answers on the {} questions. The first model answers the questions it is most confident about; {} answers the rest. We choose the cutoff on half the questions and test it on the other half; bars show the average over {} splits.",
             thousands(results.questions),
-            results.label(astra),
+            results.setup_label(astra),
             thousands(splits)
         ),
         width,
@@ -1228,7 +1267,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
                 buf.set_line(x, y, &Line::from(*title).bold(), body.width);
                 y += 1;
                 for (run, cascade) in rows {
-                    let label = results.label(run);
+                    let label = results.setup_label(run);
                     let decider = results.is_decider(run);
                     let fill = if decider { ACCENT } else if is_decision(run) { GUIDE } else { MUTED };
                     let start = x + 2 + label_width - label.chars().count() as u16;
@@ -1327,7 +1366,7 @@ fn cost_groups<'a>(results: &'a Results, all: bool) -> Vec<(String, Vec<CostRow<
     let row = |run: &'a Run, latency: &Latency| CostRow {
         run,
         single: false,
-        label: results.label(run),
+        label: results.setup_label(run),
         decider: results.is_decider(run),
         cost: cost(run).ok_or(match run.billing.as_str() {
             "free" => "Free tier used",
@@ -1379,7 +1418,7 @@ fn cost_groups<'a>(results: &'a Results, all: bool) -> Vec<(String, Vec<CostRow<
                 Some(CostRow {
                     run,
                     single: true,
-                    label: results.label(run),
+                    label: results.setup_label(run),
                     decider: results.is_decider(run),
                     cost: Err("Not measured in this test"),
                     median: single.median_request_seconds,
@@ -1565,7 +1604,7 @@ const READING_GRAMMAR_CHAT: [RunKey; 2] = [GEMMA, ASTRA];
 fn reading_grammar(results: &Results) -> Figure<'_> {
     let row = |key: &RunKey| -> Option<(String, f64, f64, bool)> {
         let run = results.find(*key)?;
-        Some((results.label(run), accuracy(run.groups.get("reading")?), accuracy(run.groups.get("grammar")?), results.is_decider(run)))
+        Some((results.setup_label(run), accuracy(run.groups.get("reading")?), accuracy(run.groups.get("grammar")?), results.is_decider(run)))
     };
     let groups: Vec<(&str, Vec<(String, f64, f64, bool)>)> = vec![
         ("Decision models", READING_GRAMMAR_DECISION.iter().filter_map(&row).collect()),
@@ -1871,8 +1910,9 @@ fn coverage(results: &Results) -> Figure<'_> {
     }
 }
 
-/// A calibration panel: the diagonal, then each run's groups as a line with dots sized by answers.
-fn calibration_panel(results: &Results, title: String, runs: &[&Run]) -> Panel {
+/// A calibration panel: the diagonal, then each run's groups as a line with dots sized by answers,
+/// named with their questions per request when `with_format` and their setup also ran with another.
+fn calibration_panel(results: &Results, title: String, runs: &[&Run], with_format: bool) -> Panel {
     let mut series = vec![Series::line(DIAGONAL, GUIDE, vec![(0.0, 0.0), (100.0, 100.0)])];
     for run in runs {
         let Some(confidence) = run.confidence.as_ref() else { continue };
@@ -1886,7 +1926,7 @@ fn calibration_panel(results: &Results, title: String, runs: &[&Run]) -> Panel {
             bins.iter().filter(|bin| (bin.2 >= LARGE_BIN_ANSWERS) == large).map(|bin| (bin.0, bin.1)).collect()
         };
         // The run's name with its confidence source, unless the name already says it.
-        let label = results.label(run);
+        let label = results.name_with(run, with_format);
         let name = if label.to_lowercase().contains(&confidence.label.to_lowercase()) {
             label
         } else {
@@ -1918,8 +1958,8 @@ fn calibration(results: &Results) -> Option<Figure<'_>> {
     if runs.is_empty() {
         return None;
     }
-    let names: Vec<String> = runs.iter().map(|run| results.label(run)).collect();
-    let grid = Grid::new(vec![calibration_panel(results, names.join(" and "), &runs)], 1);
+    let names: Vec<String> = runs.iter().map(|run| results.setup_label(run)).collect();
+    let grid = Grid::new(vec![calibration_panel(results, names.join(" and "), &runs, false)], 1);
     let x = percent_scale(CALIBRATION_X, 0.0, 100.0, 20.0);
     let lines = calibration_notes(results.questions, NARROW_WIDTH);
     Some(Figure {
@@ -1935,7 +1975,7 @@ fn calibration(results: &Results) -> Option<Figure<'_>> {
 }
 
 fn calibration_all(results: &Results) -> Figure<'_> {
-    let panels = families(results).into_iter().map(|(title, runs)| calibration_panel(results, title, &runs)).collect();
+    let panels = families(results).into_iter().map(|(title, runs)| calibration_panel(results, title, &runs, true)).collect();
     let grid = Grid::new(panels, 2);
     let x = percent_scale(CALIBRATION_X, 0.0, 100.0, 20.0);
     let lines = calibration_notes(results.questions, WIDE_WIDTH);
@@ -2009,7 +2049,7 @@ fn paired(results: &Results) -> Figure<'_> {
         .filter_map(|pair| {
             let (first, second) = (results.run(pair.first)?, results.run(pair.second)?);
             Some((
-                format!("{} minus {}", results.label(first), results.label(second)),
+                format!("{} minus {}", results.setup_label(first), results.setup_label(second)),
                 100.0 * pair.difference,
                 100.0 * pair.low,
                 100.0 * pair.high,
@@ -2103,14 +2143,17 @@ fn paired(results: &Results) -> Figure<'_> {
 
 const CASCADE_TITLE: &str = "What happens as we keep more answers from the first model?";
 
-/// One panel per second model and part of the first models (decision models and Gemma 4 31B, best
-/// first), each with its curves and the second model's own accuracy; the second models come in
-/// order of Decider v1.1's saving in front of them.
+/// One panel per second model in its first format and part of the first models (decision models and
+/// Gemma 4 31B, best first), each with its curves and the second model's own accuracy; the second models
+/// come in order of Decider v1.1's saving in front of them. The savings table shows the format reruns.
 fn cascade(results: &Results) -> Option<Figure<'_>> {
     let mut frontiers: Vec<&Run> = Vec::new();
     let mut decisions: Vec<&Run> = Vec::new();
     for cascade in &results.cascades {
-        if let Some(run) = results.run(cascade.frontier).filter(|run| !frontiers.iter().any(|other| other.run == run.run)) {
+        if let Some(run) = results
+            .run(cascade.frontier)
+            .filter(|run| run.format_of.is_none() && !frontiers.iter().any(|other| other.run == run.run))
+        {
             frontiers.push(run);
         }
         if let Some(run) = results.run(cascade.decision).filter(|run| !decisions.iter().any(|other| other.run == run.run)) {
@@ -2144,11 +2187,11 @@ fn cascade(results: &Results) -> Option<Figure<'_>> {
                     continue;
                 };
                 let points = cascade.curve.iter().map(|&[answered, accuracy]| (100.0 * answered, 100.0 * accuracy)).collect();
-                series.push(Series::line(results.label(decision), color(decision), points).in_front(results.is_decider(decision)));
+                series.push(Series::line(results.setup_label(decision), color(decision), points).in_front(results.is_decider(decision)));
             }
             series.push(Series::line(format!("{} alone", frontier.name), GUIDE, vec![(0.0, accuracy), (100.0, accuracy)]));
             let y = accuracy_scale("Accuracy of the combined answers", &series);
-            panels.push(Panel { title: format!("Second model: {}", results.label(frontier)), series, y });
+            panels.push(Panel { title: format!("Second model: {}", results.setup_label(frontier)), series, y });
         }
     }
     if panels.is_empty() {

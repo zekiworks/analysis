@@ -51,7 +51,8 @@ python3 -m http.server 8000                                # preview at http://1
   before and after the key audit; the leaderboard's comparison groups (every pair of runs, exact
   McNemar, Holm over all pairs, alpha 0.05), including that two runs share a letter exactly when that
   test does not tell them apart; the listed paired comparisons (exact McNemar, Holm over the listed
-  pairs and over all pairs); each repeated configuration's answer stability statistics, from its runs'
+  pairs and over all pairs); each format rerun against its setup's first run on the same questions (exact
+  McNemar, Holm over these comparisons); each repeated configuration's answer stability statistics, from its runs'
   answers; every routing simulation (the cutoff chosen in sample and its 300 held-out splits); the
   replay the page leads with (Decider v1.1's answers kept at each cutoff and in its most confident quarter, and
   what keeping them changes in front of each second model, on all questions and on the same splits);

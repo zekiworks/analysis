@@ -521,6 +521,12 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "updated": record["updated"],
             }
         )
+    # A format rerun: a later main run of a setup (SETUP_KEYS) with another number of questions per request. It is a
+    # setup of its own; format_of names its setup's first run, None for every other run.
+    first_runs: dict[tuple[Any, ...], dict[str, Any]] = {}
+    for run in sorted(runs, key=lambda run: run["run"]):
+        base = first_runs.setdefault(tuple(run.get(key) for key in SETUP_KEYS), run)
+        run["format_of"] = base["run"] if base["questions_per_request"] != run["questions_per_request"] else None
     exported = {record["run_key"]: record for record in selected}
     # Tied groups (the report's compact letter display): the letters, and how many pairs were tested.
     groups = {exported[item["run_key"]]["run_id"]: item for item in analysis.get("groups", []) if item["run_key"] in exported}
@@ -768,7 +774,7 @@ def replay(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, Any
         raise ValueError(f"REPLAY_CUTOFFS must include the sure threshold, {bm.SURE_SCORE}")
 
     def find(spec: tuple[str, str, str | None]) -> dict[str, Any]:
-        found = [run for run in runs if (run["provider"], run["model"], run["reasoning"]) == spec]
+        found = [run for run in runs if (run["provider"], run["model"], run["reasoning"]) == spec and run.get("format_of") is None]
         if len(found) != 1:
             raise ValueError(f"replay: {len(found)} runs match {spec}")
         if found[0]["api_equivalent_usd"] is None:
@@ -798,8 +804,12 @@ def replay(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, Any
     cut = bm.share_cut(scores, REPLAY_SHARE)
     surest = bm.kept_answers(scores, correct, cut)
     frontiers = []
-    for spec in REPLAY_FRONTIERS:
-        frontier = find(spec)
+    # Each second run's setup in its first format, then its format reruns, each a second run of its own.
+    seconds = [find(spec) for spec in REPLAY_FRONTIERS]
+    seconds += [run for base in seconds for run in sorted(runs, key=lambda run: run["run"]) if run.get("format_of") == base["run"]]
+    for frontier in seconds:
+        if frontier["api_equivalent_usd"] is None:
+            raise ValueError(f"replay: run {frontier['run']} ({frontier['model']}) has no cost")
         second, _ = outcomes(frontier)
         cost = per_thousand(frontier)
         sure = bm.handoff(scores, correct, second, bm.SURE_SCORE)
@@ -824,6 +834,32 @@ def replay(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, Any
         },
         "frontiers": frontiers,
     }
+
+
+def formats(runs: list[dict[str, Any]], answers: dict[str, Any]) -> list[dict[str, Any]]:
+    """Each format rerun against its setup's first run on the scored questions: the paired accuracy test (exact McNemar,
+    bm.paired_comparison; first the rerun, second the first run), with Holm's correction over these comparisons."""
+    scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
+    exported = {run["run"]: run for run in answers["runs"]}
+    by_id = {run["run"]: run for run in runs}
+    found = []
+    for run in sorted((run for run in runs if run.get("format_of") is not None), key=lambda run: run["run"]):
+        base = by_id[run["format_of"]]
+        first = [int(bool(exported[run["run"]]["correct"][index])) for index in scored]
+        second = [int(bool(exported[base["run"]]["correct"][index])) for index in scored]
+        test = bm.paired_comparison(first, second)
+        found.append({
+            "run": run["run"],
+            "base": base["run"],
+            "questions_per_request": run["questions_per_request"],
+            "base_questions_per_request": base["questions_per_request"],
+            "correct": sum(first),
+            "base_correct": sum(second),
+            **{key: test[key] for key in ("questions", "first_only", "second_only", "difference", "low", "high", "p")},
+        })
+    for item, adjusted in zip(found, bm.holm([item["p"] for item in found])):
+        item["p_holm"] = adjusted
+    return found
 
 
 def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
@@ -904,6 +940,7 @@ def main() -> int:
         )
         answers = export_answers(json.loads(args.answers.read_text(encoding="utf-8")), data)
         data["answer_key"] = answer_key(answers)
+        data["formats"] = formats(data["runs"], answers)
         data["replay"] = replay(data["runs"], answers)
         holm_over_all_pairs(data["paired"], data["runs"], answers)
         data["baselines"] = baselines(answers, data["replay"]["decision"])

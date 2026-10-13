@@ -11,7 +11,9 @@ of their accuracy (the counts also before the key audit, when results.json has t
 leaderboard's tied groups (every pair of runs tested, exact McNemar, Holm over all pairs, alpha 0.05),
 including that two runs share a letter exactly when that test does not tell them apart. Then the listed
 paired comparisons: exact McNemar and Holm over the listed pairs. Then the grading of every other
-exported run (repeats, routing tests, request sizes) against the same key. Then the repeats: each
+exported run (repeats, routing tests, request sizes) against the same key. Then each format rerun (a
+setup's later main run with another number of questions per request) against its setup's first run:
+exact McNemar and Holm over those comparisons. Then the repeats: each
 configuration's repeated runs, recomputed from their exported answers. Then the replays: every routing
 simulation (the threshold chosen in sample and its 300 held-out splits), and the replay the page leads with: the
 decision run's answers kept at each cutoff and in its surest share, and what keeping them changes in
@@ -312,6 +314,16 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    format_mismatches = check_formats(results, correct, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nRequest formats ({len(results.get('formats', []))} reruns against their setup's first run on the same questions; "
+        f"exact McNemar, Holm over these comparisons): {checked - len(format_mismatches)} of {checked} match"
+    )
+    for line in format_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     repeat_mismatches = check_repeats(results, answers, scored, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -367,6 +379,32 @@ def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[
         differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
         if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
             mismatches.append(f"  run {run['run']} ({label(run)}): {differ} of {len(given)} answers are not graded on the key")
+    return mismatches
+
+
+def check_formats(results: dict[str, Any], correct: dict[int, list[int]], checks: Checks) -> list[str]:
+    """Recompute each format rerun's comparison with its setup's first run (results.json `formats`) from the exported
+    answers on the scored questions: the counts, the paired difference with its interval, the exact McNemar p and Holm's
+    correction over these comparisons. Returns a line per comparison that differs."""
+    items = results.get("formats", [])
+    tests = [bm.paired_comparison(correct[item["run"]], correct[item["base"]]) for item in items]
+    mismatches = []
+    for item, test, p_holm in zip(items, tests, bm.holm([test["p"] for test in tests])):
+        counts = (sum(correct[item["run"]]), sum(correct[item["base"]]), test["first_only"], test["second_only"])
+        published = (item["correct"], item["base_correct"], item["first_only"], item["second_only"])
+        cells = [
+            checks.cell(counts == published, " ".join(map(str, counts)), " ".join(map(str, published))),
+            checks.cell(
+                all(close(item[key], test[key], METRIC_TOLERANCE) for key in ("difference", "low", "high")),
+                f"{100 * test['difference']:+.2f}", f"{100 * item['difference']:+.2f}",
+            ),
+            checks.cell(
+                close(item["p"], test["p"], relative=P_TOLERANCE) and close(item["p_holm"], p_holm, relative=P_TOLERANCE),
+                f"p {test['p']:.3g}, Holm {p_holm:.3g}", f"p {item['p']:.3g}, Holm {item['p_holm']:.3g}",
+            ),
+        ]
+        if any("≠" in cell for cell in cells):
+            mismatches.append(f"  run {item['run']} against run {item['base']}: " + ", ".join(cells))
     return mismatches
 
 

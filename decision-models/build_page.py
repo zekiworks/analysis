@@ -155,6 +155,8 @@ def setting(item: dict[str, Any]) -> str:
     parts = [item["variant"]] if item.get("variant") else []
     if item.get("reasoning"):
         parts.append(reasoning_label(item["reasoning"]))
+    if item.get("format"):
+        parts.append(item["format"])
     return ", ".join(parts)
 
 
@@ -175,8 +177,9 @@ def label_html(item: dict[str, Any]) -> str:
 
 
 def alone(item: dict[str, Any]) -> str:
-    """'GPT-6.1 Sol alone (low reasoning)': a configuration that answers every question itself."""
-    detail = setting(item)
+    """'GPT-6.1 Sol alone (low reasoning)': a configuration that answers every question itself, without its request size:
+    the live tests' tables and texts name the request size of the test."""
+    detail = setting({**item, "format": None})
     return f"{item['name']} alone" + (f" ({detail})" if detail else "")
 
 
@@ -218,13 +221,17 @@ def chart_figure(name: str, alt: str, caption: str, lazy: bool = True) -> str:
 
 
 def matches(item: dict[str, Any], spec: dict[str, Any]) -> bool:
-    return all(item.get(key) == spec[key] for key in ("provider", "model", "reasoning", "variant") if key in spec)
+    keys = ("provider", "model", "reasoning", "variant", "questions_per_request")
+    return all(item.get(key) == spec[key] for key in keys if key in spec)
 
 
 def pick(items: list[dict[str, Any]], spec: dict[str, Any], what: str) -> dict[str, Any] | None:
     found = [item for item in items if matches(item, spec)]
+    if len(found) > 1 and "questions_per_request" not in spec:
+        # A spec without a request size names its setup's first run, not a format rerun (results.json format_of).
+        found = [item for item in found if item.get("format_of") is None]
     if len(found) > 1:
-        raise ValueError(f"{what}: {spec} matches {len(found)} entries; name its reasoning or variant")
+        raise ValueError(f"{what}: {spec} matches {len(found)} entries; name its reasoning, variant or questions_per_request")
     if not found and not spec.get("optional"):
         raise ValueError(f"{what}: nothing matches {spec}")
     return found[0] if found else None
@@ -251,6 +258,12 @@ class Snapshot:
         self.total = results["questions"]
         self.runs = results["runs"]
         self.by_id = {run["run"]: run for run in self.runs}
+        # A setup that also ran with another number of questions per request (format_of): both of its runs name their
+        # request size wherever the page names them.
+        bases = {run["format_of"] for run in self.runs if run.get("format_of") is not None}
+        for run in self.runs:
+            if run.get("format_of") is not None or run["run"] in bases:
+                run["format"] = request_size_text(run["questions_per_request"])
         reading_units = set(config["reading_units"])
         self.reading_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] in reading_units)
         self.grammar_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] not in reading_units)
@@ -360,7 +373,7 @@ class Snapshot:
         rows = [
             {"label": alone(frontier), "runs": [frontier], "accuracy": measured["frontier_accuracy"], "versus": None,
              "cost": measured["frontier_cost_usd"], "seconds": measured["frontier_request_seconds"]},
-            {"label": f"{named(decision)} followed by {named(frontier)}", "runs": [decision, frontier], "accuracy": measured["accuracy"],
+            {"label": f"{named(decision)} followed by {setup_name(frontier)}", "runs": [decision, frontier], "accuracy": measured["accuracy"],
              "versus": {key: measured[key] for key in ("difference", "low", "high", "p")},
              "cost": measured["cost_usd"], "seconds": measured["request_seconds"]},
         ]
@@ -918,6 +931,11 @@ def request_size_text(size: int) -> str:
     return f"{count(size)} question{'' if size == 1 else 's'} per request"
 
 
+def per_request_words(size: int) -> str:
+    """'one question per request', '16 questions per request': a request size in running text."""
+    return f"{in_words(size)} question{'' if size == 1 else 's'} per request"
+
+
 def one_size(sizes: set[int], where: str) -> int:
     """The one number of questions per request a table's title names; the build stops when its rows use several."""
     if len(sizes) != 1:
@@ -1099,7 +1117,7 @@ def cost_lead(snap: Snapshot) -> str:
     others = snap.costs[2:]
     if others:
         alone_text = " ".join(
-            f"{esc(named(row['runs'][0]))} scored {pct2(row['accuracy'])} at an estimated {usd(1000 * row['cost'] / questions)} "
+            f"{esc(setup_name(row['runs'][0]))} scored {pct2(row['accuracy'])} at an estimated {usd(1000 * row['cost'] / questions)} "
             "per 1,000 questions."
             for row in others
         )
@@ -1155,7 +1173,7 @@ def cost_table(snap: Snapshot) -> str:
     for rules in tests["decider"].values():
         some = rules["half"]
         frontier, measured = some["frontier"], some["measured"]
-        heading(f"In front of {esc(named(frontier))}")
+        heading(f"In front of {esc(setup_name(frontier))}")
         rows.append(
             "<tr>"
             f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(alone(frontier))}</span></td>'
@@ -1172,7 +1190,7 @@ def cost_table(snap: Snapshot) -> str:
     for test in tests["earlier"]:
         rows.append(live_row(snap, test, f"{LIVE_RULES['half']}: confidence cutoff {cutoff_text(test['plan']['threshold'])}"))
     reference = snap.costs[0]
-    reference_name = esc(named(reference["runs"][0]))
+    reference_name = esc(setup_name(reference["runs"][0]))
     heading(f"Cheaper models alone on the same questions, against {reference_name} alone")
     for row in snap.costs[2:]:
         versus = row["versus"]
@@ -1206,12 +1224,12 @@ def cost_summary(snap: Snapshot) -> str:
     for test in decider_tests(snap) + tests["earlier"]:
         measured = test["measured"]
         items.append(
-            f"{esc(live_name(snap, test['decision']))}, then {esc(named(test['frontier']))}, "
-            f"{LIVE_RULES[test['plan']['rule']].lower()}, against {esc(named(test['frontier']))} alone: "
+            f"{esc(live_name(snap, test['decision']))}, then {esc(setup_name(test['frontier']))}, "
+            f"{LIVE_RULES[test['plan']['rule']].lower()}, against {esc(setup_name(test['frontier']))} alone: "
             f"{change_text(measured['difference'])} (95% interval {interval_points(measured['low'], measured['high'])}; "
             f"exact McNemar test, {esc(p_text(measured['p']))})."
         )
-    reference = named(snap.costs[0]["runs"][0])
+    reference = setup_name(snap.costs[0]["runs"][0])
     for row in snap.costs[2:]:
         versus = row["versus"]
         items.append(
@@ -1271,7 +1289,7 @@ def cost_setup(snap: Snapshot) -> str:
         requests = (f"{opening_count(per_request)} question{'s' if per_request != 1 else ''} per request, "
                     + ("one request at a time" if run["concurrency"] == 1 else f"{run['concurrency']} simultaneous requests"))
         items.append(
-            f"<li><b>{esc(named(run))}.</b> How we called the model: {esc(run['access'])} ({esc(billing['access'])}). "
+            f"<li><b>{esc(setup_name(run))}.</b> How we called the model: {esc(run['access'])} ({esc(billing['access'])}). "
             f"{requests}. {esc(billing['cost_basis'])}. {price_sentence(snap, run)}</li>"
         )
     return (
@@ -1549,11 +1567,14 @@ def accuracy_lead(snap: Snapshot) -> str:
     gap = f"{100 * (first['correct'] - second['correct']) / snap.total:.1f}"
     gap_text = "one percentage point" if gap == "1.0" else f"{gap} percentage points"
     one, two = esc(snap.short(first)), esc(snap.short(second))
-    chat_list = [f"{esc(named(run))} {'reached ' if index == 0 else ''}{pct(run)}" for index, run in enumerate(chats)]
+    chat_list = [f"{esc(setup_name(run))} {'reached ' if index == 0 else ''}{pct(run)}" for index, run in enumerate(chats)]
+    # A chat example asked with two request sizes: the sentence names the size of the runs it quotes once.
+    size = one_size({run["questions_per_request"] for run in chats}, "block 05's opening") if any(run.get("format") for run in chats) else None
+    stronger = f"With {request_size_text(size)}, the stronger" if size else "The stronger"
     return (
         f"<p>On all {count(snap.total)} questions, {one} answered {pct(first)} correctly and {two} {pct(second)}. "
         f"{one}'s score was {gap_text} higher. Our test did not establish a difference between them.</p>"
-        f"<p>The stronger chat models answered many more questions right: {and_list(chat_list)}. We put {two} first to keep "
+        f"<p>{stronger} chat models answered many more questions right: {and_list(chat_list)}. We put {two} first to keep "
         f"its most confident answers at a low cost, and a stronger model such as {esc(chats[0]['name'])} answers the rest.</p>"
         f"<p>Reading and grammar give different results. {esc(snap.short(decision))} scored {pct(decision, 'reading')} on "
         f"reading and {pct(decision, 'grammar')} on grammar. {esc(chat['name'])} scored {pct(chat, 'reading')} and "
@@ -1665,11 +1686,8 @@ def study_checks(snap: Snapshot) -> None:
         raise ValueError("the study says Decider v1.1 has the highest ranking score among the decision models")
     if min(decision, key=lambda run: run["confidence"]["ece"]) is not named["luna_api"]:
         raise ValueError("the study says Luna through the Decisions API has the smallest calibration gap among the decision models")
-    top = sorted(snap.runs, key=lambda run: -run["correct"])[:3]
-    if [run["run"] for run in top] != [named[key]["run"] for key in ("gemini_high", "astra", "sol")]:
-        raise ValueError("the study names Gemini 3.8 Flash (high), Astra and Sol as the three highest scores")
     by_runs = {(item["first"], item["second"]): item for item in snap.results["paired"]}
-    for first, second in (("gemini_high", "astra"), ("glide", "decider_v11")):
+    for first, second in (("glide", "decider_v11"),):
         item = by_runs[(named[first]["run"], named[second]["run"])]
         if item["p_holm_all"] < ALPHA:
             raise ValueError(f"the study says the test over all pairs did not establish a difference between {first} and {second}")
@@ -1784,6 +1802,25 @@ def study_alt_scores(snap: Snapshot, keys: tuple[str, ...]) -> str:
     )
 
 
+def study_top(snap: Snapshot) -> str:
+    """The full accuracy table's three highest scores in words, the second and third together when they are one setup at
+    two request sizes, and whether the test over all pairs told the first two apart (their comparison group letters)."""
+    first, second, third = sorted(snap.runs, key=lambda run: (-run["correct"], run["run"]))[:3]
+
+    def pct(run: dict[str, Any]) -> str:
+        return snap.fmt.pct(run["correct"] / snap.total)
+
+    if second.get("format_of") == third["run"] or third.get("format_of") == second["run"]:
+        follow = (f"{esc(setup_name(second))} followed at {pct(second)} with {per_request_words(second['questions_per_request'])} "
+                  f"and {pct(third)} with {per_request_words(third['questions_per_request'])}")
+    else:
+        follow = f"{esc(named(second))} followed at {pct(second)} and {esc(named(third))} at {pct(third)}"
+    apart = ("did not establish a difference between" if shares_letter(first.get("group"), second.get("group"))
+             else "established a difference between")
+    return (f"{esc(named(first))} had the highest score, {pct(first)}. {follow}. The test over all pairs {apart} "
+            f"{esc(snap.short(first))} and {esc(snap.short(second))}.")
+
+
 def study_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
     """Blocks only the full study's sections up to its confidence sections (blocks 10 to 22) use: their chart figures,
     with part 6's titles, captions and accessible descriptions, numbers from the snapshot."""
@@ -1807,7 +1844,14 @@ def study_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str,
         f"{STUDY_CALIBRATION_MIN} answers are left out of the chart; "
         "the table above keeps them."
     )
+    # The cascade chart's second models: each first-format run the routing simulations put second, in their order.
+    seconds: dict[int, dict[str, Any]] = {}
+    for item in results["cascades"]:
+        if snap.by_id[item["frontier"]].get("format_of") is None:
+            seconds.setdefault(item["frontier"], snap.by_id[item["frontier"]])
+    cascade_seconds = [run["name"] for run in seconds.values()]
     return {
+        "study-top": study_top(snap),
         "study-reading-grammar": chart_figure(
             "reading-grammar",
             "Chart: How often do models get reading and grammar questions right? Reading and grammar accuracy, with "
@@ -1820,9 +1864,9 @@ def study_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str,
         "study-cascade": chart_figure(
             "cascade",
             "Chart: What happens as we keep more answers from the first model? Curves show the accuracy of the combined "
-            "answers as the first model gives more of the final answers, with Astra, Opus and Sonnet as the second model. "
-            "A reference line shows the second model answering every question. These curves choose and test the cutoffs on "
-            "the same recorded questions, so they differ from the averages over separate test halves above.",
+            f"answers as the first model gives more of the final answers, with {and_list(cascade_seconds)} as the second "
+            "model. A reference line shows the second model answering every question. These curves choose and test the "
+            "cutoffs on the same recorded questions, so they differ from the averages over separate test halves above.",
             "This curve explores the same recorded questions we used to choose each cutoff. It may look better than a test "
             "on new questions. The main result above uses separate halves.",
         ),
@@ -2135,7 +2179,7 @@ def speed_table(snap: Snapshot) -> str:
         note = "Separate test: one question per request" if single else ""
         rows.append(
             "<tr>"
-            f'<td data-label="Model">{esc(named(run))}' + (f'<span class="small">{note}</span>' if note else "") + "</td>"
+            f'<td data-label="Model">{esc(setup_name(run))}' + (f'<span class="small">{note}</span>' if note else "") + "</td>"
             f'<td class="num" data-label="Questions per request">{per_request}</td>'
             f'<td class="num" data-label="Typical response time">{time_text(latency["median_request_seconds"])}</td>'
             f'<td class="num" data-label="9 in 10 within">{time_text(latency["p90_request_seconds"])}</td>'
@@ -2195,7 +2239,7 @@ def speed_whole(snap: Snapshot) -> str:
         parts = (f'<span class="small">Kept by {me}: typical {time_text(waits["kept"]["median_seconds"])}</span>'
                  f'<span class="small">Passed on: typical {time_text(waits["passed"]["median_seconds"])}</span>')
         rows.append(
-            f'<tr><td data-label="LLM">{esc(named(test["frontier"]))}</td>{cell("LLM alone", waits["alone"], measured["frontier_accuracy"])}'
+            f'<tr><td data-label="LLM">{esc(setup_name(test["frontier"]))}</td>{cell("LLM alone", waits["alone"], measured["frontier_accuracy"])}'
             f'{cell(f"{me}, then the LLM", waits["pipeline"], measured["accuracy"], parts)}</tr>'
         )
     average = (f"{'fell' if changes[0][0] > 0 else 'rose'} " + and_list([f"{fmt.pct(abs(change), 0)} with {name}" for change, name in changes])
@@ -2229,7 +2273,7 @@ def speed_figure(snap: Snapshot) -> str:
         timing = run["single_question_latency"] if single else run["latency"]
         per_request = 1 if single else run["questions_per_request"]
         cost = per_thousand(run)
-        parts.append(f"{named(run)}, {per_request} question{'s' if per_request != 1 else ''} per request: "
+        parts.append(f"{setup_name(run)}, {per_request} question{'s' if per_request != 1 else ''} per request: "
                      f"{usd(cost) if cost is not None else 'no dollar estimate'} per 1,000 questions, typical "
                      f"{time_text(timing['median_request_seconds'])}, 9 in 10 within {time_text(timing['p90_request_seconds'])}")
     alt = ("Two panels. Left, the estimated cost per 1,000 questions in US dollars on a logarithmic scale; right, the waiting "
@@ -2322,8 +2366,9 @@ def first_models_figure(snap: Snapshot) -> str:
     decision = [pair for pair in found if snap.decision_model(pair[0])]
     chat = [pair for pair in found if not snap.decision_model(pair[0])]
     lead = next(item for run, item in found if run is snap.replay["run"])
-    shares = [f"{named(run)} {fmt.pct(item['held_out']['answered'])}" for run, item in decision if run["billing"] in ("api", "free")]
-    compared = [f"{named(run)} {fmt.pct(item['held_out']['answered'])}" for run, item in chat]
+    # First models are always a setup's first run, so they go without a request size, as in the chart.
+    shares = [f"{setup_name(run)} {fmt.pct(item['held_out']['answered'])}" for run, item in decision if run["billing"] in ("api", "free")]
+    compared = [f"{setup_name(run)} {fmt.pct(item['held_out']['answered'])}" for run, item in chat]
     alt = (f"Bar chart: the share of answers each first model supplies before GPT-6 Astra, averaged over "
            f"{count(lead['held_out']['splits'])} test splits. Decision models through a provider's service: {', '.join(shares)}. "
            f"For comparison, the chat model {and_list(compared)}. A second column gives each pair's average accuracy change "
@@ -2342,7 +2387,7 @@ def first_models_figure(snap: Snapshot) -> str:
                 cost += '<span class="small">the first model used a free tier; this assumes no charge for it</span>'
             rows.append(
                 ('<tr class="lead">' if run is snap.replay["run"] else "<tr>")
-                + f'<td data-label="Model answering first">{esc(named(run))}</td>'
+                + f'<td data-label="Model answering first">{esc(setup_name(run))}</td>'
                 f'<td class="num" data-label="Questions handled by the first model">{fmt.pct(item["held_out"]["answered"])}</td>'
                 f'<td class="num" data-label="Accuracy change compared with Astra alone">{change_text(item["held_out"]["difference"])}</td>'
                 f'<td class="num" data-label="Estimated combined cost per 1,000 questions">{cost}</td></tr>'
@@ -2360,11 +2405,20 @@ def first_models_figure(snap: Snapshot) -> str:
     return chart_figure("first-models", alt, caption) + everyone + table
 
 
+def setup_name(item: dict[str, Any]) -> str:
+    """A setup's name with its setting in brackets, without its request size: tables that compare request sizes name
+    them in their headings."""
+    return named({**item, "format": None})
+
+
 def savings_table(snap: Snapshot) -> str:
-    """What each second model saves with Decider in front, by rule; the opening's three LLMs first, by saving."""
+    """What each second model saves with Decider in front, by rule; the opening's three LLMs first, by saving. Where some
+    second models also ran with another number of questions per request, a heading row before each size names it, and
+    each format rerun keeps its setup's place."""
     fmt = snap.fmt
     first = opening_seconds(snap)
     items = first + [item for item in snap.replay["frontiers"] if item not in first]
+    place = {item["run"]["run"]: index for index, item in enumerate(items)}
     rule_names = ("Most confident quarter", "Cutoff chosen on half the questions", f"Fixed {snap.cutoff} rule")
 
     def rule(numbers: dict[str, Any] | None, takes: bool = False) -> str:
@@ -2373,21 +2427,129 @@ def savings_table(snap: Snapshot) -> str:
         text = f"{fmt.pct(numbers['saving'])} cheaper, {change_text(numbers['difference'])}"
         return f"Decider takes {fmt.pct(numbers['share'])}: {text}" if takes else text
 
-    rows = [
-        "<tr>"
-        f'<td data-label="Model behind Decider">{esc(named(item["run"]))}</td>'
-        f'<td class="num" data-label="Its accuracy alone">{fmt.pct(item["accuracy"])}</td>'
-        f'<td class="num" data-label="{esc(rule_names[0])}">{rule(item["share"])}</td>'
-        f'<td class="num" data-label="{esc(rule_names[1])}">{rule(item["strict"], True)}</td>'
-        f'<td class="num" data-label="{esc(rule_names[2])}">{rule(item["sure"])}</td>'
-        "</tr>"
-        for item in items
-    ]
+    def row(item: dict[str, Any]) -> str:
+        return (
+            "<tr>"
+            f'<td data-label="Model behind Decider">{esc(setup_name(item["run"]))}</td>'
+            f'<td class="num" data-label="Its accuracy alone">{fmt.pct(item["accuracy"])}</td>'
+            f'<td class="num" data-label="{esc(rule_names[0])}">{rule(item["share"])}</td>'
+            f'<td class="num" data-label="{esc(rule_names[1])}">{rule(item["strict"], True)}</td>'
+            f'<td class="num" data-label="{esc(rule_names[2])}">{rule(item["sure"])}</td>'
+            "</tr>"
+        )
+
+    sizes = sorted({item["run"]["questions_per_request"] for item in items}, reverse=True)
+    rows = []
+    for size in sizes:
+        group = sorted((item for item in items if item["run"]["questions_per_request"] == size),
+                       key=lambda item: place[item["run"].get("format_of") or item["run"]["run"]])
+        if len(sizes) > 1:
+            rows.append(f'<tr class="group-row"><th scope="rowgroup" colspan="5">Second model: {request_size_text(size)}</th></tr>')
+        rows.extend(row(item) for item in group)
     head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in rule_names)
     return (
         '<div class="table-wrap"><table class="overview cards savings"><thead><tr><th scope="col">Model behind Decider</th>'
         f'<th scope="col" class="num">Its accuracy alone</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
     )
+
+
+def format_table(snap: Snapshot) -> str:
+    """The request format table: each setup asked every question with both numbers of questions per request (results.json
+    formats), its accuracy with each and the change, with its 95% interval and the exact McNemar p after Holm's
+    correction over these comparisons. Largest change first."""
+    items = snap.results.get("formats") or []
+    if not items:
+        raise ValueError("the request format table needs format reruns in results.json")
+    first = one_size({item["base_questions_per_request"] for item in items}, "the request format table")
+    again = one_size({item["questions_per_request"] for item in items}, "the request format table")
+    heads = (request_size_text(first).capitalize(), request_size_text(again).capitalize(), "Change",
+             "Exact McNemar test, Holm-adjusted")
+    rows = []
+    for item in sorted(items, key=lambda item: -item["difference"]):
+        cells = (pct2(item["base_correct"] / snap.total), pct2(item["correct"] / snap.total),
+                 f'{change_text(item["difference"])}<span class="small">95% interval: {interval_points(item["low"], item["high"])}</span>',
+                 esc(p_text(item["p_holm"])))
+        rows.append(f'<tr><td data-label="Setup">{esc(setup_name(snap.by_id[item["base"]]))}</td>'
+                    + "".join(f'<td class="num" data-label="{esc(head)}">{cell}</td>' for head, cell in zip(heads, cells)) + "</tr>")
+    return (f'<div class="table-wrap"><table class="overview cards"><caption>Accuracy on all {count(snap.total)} questions, by '
+            'questions per request</caption><thead><tr><th scope="col">Setup</th>'
+            + "".join(f'<th scope="col" class="num">{esc(head)}</th>' for head in heads)
+            + f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
+
+
+def format_lead(snap: Snapshot) -> str:
+    """The request format section's opening: why we asked the chat setups again with the decision models' request size,
+    which setups the test found more or less accurate that way (exact McNemar, Holm over these comparisons) and which it
+    did not; and routing with the reruns as second models (Decider v1.1 first, cutoff chosen on half the questions)
+    against the loss limit set before the live tests, whichever way it came out. The build stops when a decision model
+    asked another number of questions per request."""
+    items = snap.results["formats"]
+    first = one_size({item["base_questions_per_request"] for item in items}, "the request format section")
+    again = one_size({item["questions_per_request"] for item in items}, "the request format section")
+    if {run["questions_per_request"] for run in snap.runs if snap.decision_model(run)} != {again}:
+        raise ValueError(f"the request format section says every decision model got {request_size_text(again)}")
+    names = {item["run"]: setup_name(snap.by_id[item["base"]]) for item in items}
+    gains = sorted((item for item in items if item["p_holm"] < ALPHA and item["difference"] > 0), key=lambda item: -item["difference"])
+    losses = sorted((item for item in items if item["p_holm"] < ALPHA and item["difference"] < 0), key=lambda item: item["difference"])
+    unchanged = [item for item in items if item["p_holm"] >= ALPHA]
+    found = []
+    if gains:
+        found.append(and_list([f"{esc(names[item['run']])} got {abs(100 * item['difference']):.2f} points more right" for item in gains]))
+    if losses:
+        found.append(and_list([f"{esc(names[item['run']])} got {abs(100 * item['difference']):.2f} points fewer right" for item in losses]))
+
+    setups = f"{in_words(len(items))} chat setup{'' if len(items) == 1 else 's'}"
+    paragraphs = [
+        f"Every decision model got {per_request_words(again)}. In our main runs, the chat models got {per_request_words(first)}. "
+        f"So we asked {setups} all {count(snap.total)} questions again, with {per_request_words(again)} and the same prompt and "
+        "settings.",
+        (f"With {per_request_words(again)}, " + "; ".join(found) + "." if found else "")
+        + (f" For {and_list([esc(names[item['run']]) for item in unchanged])}, the test did not establish a change." if unchanged else ""),
+    ]
+    reruns = rerun_frontiers(snap)
+    limit = one_size({test["plan"]["tolerance_points"] for test in decider_tests(snap)}, "the loss limit")
+    worst = max(reruns, key=lambda item: -item["strict"]["difference"])
+    loss = -100 * worst["strict"]["difference"]
+    over = [item for item in reruns if -100 * item["strict"]["difference"] > limit]
+    if loss <= 0:
+        verdict = "accuracy fell with none of them"
+    elif not over:
+        verdict = (f"the largest drop in accuracy was {loss:.2f} points, with {esc(live_name(snap, worst['run']))}, within the "
+                   f"{limit:g}-point limit we set before the live tests")
+    else:
+        verdict = (f"accuracy fell by more than the {limit:g}-point limit we set before the live tests: " + and_list(
+            [f"{-100 * item['strict']['difference']:.2f} points with {esc(live_name(snap, item['run']))}" for item in over]))
+    subject = "these runs" if len(reruns) == len(items) else f"{in_words(len(reruns))} of these runs"
+    paragraphs.append(
+        f"We also replayed routing with {subject} as the second model. With Decider v1.1 first and the cutoff chosen on half "
+        f'the questions, {verdict}. The table in <a href="#savings">How much do you save?</a> shows both request sizes.'
+    )
+    return "".join(f"<p>{text.strip()}</p>" for text in paragraphs if text.strip())
+
+
+def rerun_frontiers(snap: Snapshot) -> list[dict[str, Any]]:
+    """The lead replay's second models that are format reruns, in results.json's order. The build stops when one has no
+    routing simulation with the cutoff chosen on half the questions, the rule the request format's verdict uses."""
+    items = [item for item in snap.replay["frontiers"] if item["run"].get("format_of") is not None]
+    if any(item["strict"] is None for item in items):
+        raise ValueError("a format rerun in the replay has no routing simulation with the cutoff chosen on half the questions")
+    return items
+
+
+def format_warning(snap: Snapshot) -> str:
+    """The opening's warning when routing with the format reruns breaks the loss limit set before the live tests: with the
+    cutoff chosen on half the questions, Decider v1.1 in front of a rerun loses more than that limit on average over the
+    splits. Empty when no rerun does."""
+    limit = one_size({test["plan"]["tolerance_points"] for test in decider_tests(snap)}, "the loss limit")
+    failing = [item for item in rerun_frontiers(snap) if -100 * item["strict"]["difference"] > limit]
+    if not failing:
+        return ""
+    size = one_size({item["run"]["questions_per_request"] for item in failing}, "the opening's warning")
+    main = one_size({snap.by_id[item["run"]["format_of"]]["questions_per_request"] for item in failing}, "the opening's warning")
+    changes = and_list([f"{abs(100 * item['strict']['difference']):.2f} points with {esc(live_name(snap, item['run']))}" for item in failing])
+    return (f'<p class="language"><b>One limit:</b> when the LLM answered {request_size_text(size)}, Decider v1.1 first cost more '
+            f"than {limit:g} points of accuracy: {changes}, in a replay of recorded answers with the cutoff chosen on half the "
+            f"questions. The savings below use the LLMs' main runs, with {request_size_text(main)}.</p>")
 
 
 def savings_sure_table(snap: Snapshot) -> str:
@@ -2421,7 +2583,7 @@ def savings_live_table(snap: Snapshot) -> str:
             f'{fmt.pct(saving(test["measured"]))} cheaper, {change_text(test["measured"]["difference"])}</td>'
             for rule, test in rules.items()
         )
-        rows.append(f'<tr><td data-label="LLM">{esc(named(rules["half"]["frontier"]))}</td>{cells}</tr>')
+        rows.append(f'<tr><td data-label="LLM">{esc(setup_name(rules["half"]["frontier"]))}</td>{cells}</tr>')
     head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in LIVE_RULES.values())
     questions = snap.plan["held_out"]
     size = one_size({test["plan"]["batch_size"] for rules in tests["decider"].values() for test in rules.values()},
@@ -2523,7 +2685,16 @@ def blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
         **overview_blocks(snap, images),
         **study_blocks(snap, images),
         **method_blocks(snap, images),
+        **format_blocks(snap),
     }
+
+
+def format_blocks(snap: Snapshot) -> dict[str, str]:
+    """The request format section and the opening's warning, once results.json has format reruns (index.html then has their
+    markers; fill() stops on a marker without a block and a block without a marker)."""
+    if not snap.results.get("formats"):
+        return {}
+    return {"format-lead": format_lead(snap), "format-table": format_table(snap), "format-warning": format_warning(snap)}
 
 
 def top_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
@@ -2825,6 +2996,11 @@ def method_setups(snap: Snapshot) -> str:
 def method_timing(snap: Snapshot) -> str:
     """Where each response time comes from and which runs sent several requests at a time, from the runs' latency."""
     def names(runs: list[dict[str, Any]]) -> str:
+        """The runs as a list; when they share one request size and a setup was asked with two, that size comes once,
+        first ('With 16 questions per request, A, B and C')."""
+        sizes = {run["questions_per_request"] for run in runs}
+        if len(sizes) == 1 and any(run.get("format") for run in runs):
+            return f"With {request_size_text(sizes.pop())}, {and_list([setup_name(run) for run in runs])}"
         return and_list([named(run) for run in runs])
 
     busy: dict[int, list[dict[str, Any]]] = {}
@@ -3252,6 +3428,44 @@ def cost_post(snap: Snapshot, numbers: dict[str, str]) -> str:
     ])
 
 
+def format_post(snap: Snapshot, numbers: dict[str, str]) -> str:
+    """The follow-up on the request format, whichever way it came out: each format rerun's accuracy at both request sizes
+    with what the paired test established after Holm's correction (Q1), and Decider v1.1 in front of every rerun in the
+    replay, with the cutoff chosen on half the questions, against the loss limit set before the live tests (Q2). The
+    build stops unless the reruns asked one question per request."""
+    fmt, items = snap.fmt, snap.results["formats"]
+    first = one_size({item["base_questions_per_request"] for item in items}, "the request format post")
+    if one_size({item["questions_per_request"] for item in items}, "the request format post") != 1:
+        raise ValueError("the request format post says the reruns asked one question at a time")
+    limit = one_size({test["plan"]["tolerance_points"] for test in decider_tests(snap)}, "the request format post")
+
+    def found(item: dict[str, Any]) -> str:
+        if item["p_holm"] >= ALPHA:
+            return "no clear change"
+        return f"{abs(100 * item['difference']):.2f} points {'higher' if item['difference'] > 0 else 'lower'}"
+
+    accuracy = [
+        f"{setup_name(snap.by_id[item['base']])}: {pct2(item['base_correct'] / snap.total)} → {pct2(item['correct'] / snap.total)}, {found(item)}"
+        for item in sorted(items, key=lambda item: -item["difference"])
+    ]
+    reruns = sorted(rerun_frontiers(snap), key=lambda item: -item["strict"]["saving"])
+    routing = [
+        f"{item['run']['name']}: {fmt.pct(item['strict']['saving'], 0)} cheaper, accuracy {change_text(item['strict']['difference'])}"
+        for item in reruns
+    ]
+    over = [item["run"]["name"] for item in reruns if -100 * item["strict"]["difference"] > limit]
+    return "\n\n".join([
+        "Does it matter how many questions an LLM gets in one request? Our decision models got one at a time; our LLM runs got "
+        f"{count(first)}. So we asked {in_words(len(items))} LLM setups all {numbers['questions']} questions again, one at a time.",
+        f"Accuracy with {count(first)} questions per request → one:\n" + "\n".join(accuracy),
+        "Decider v1.1 in front of each LLM answering one question at a time, replaying our recorded answers:\n" + "\n".join(routing),
+        f"Each change in accuracy is within the {limit:g}-point limit we set before the live test." if not over
+        else f"With {and_list(over)}, accuracy fell by more than the {limit:g}-point limit we set before the live test.",
+        snap.config["site_url"],
+    ])
+
+
+
 def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, dict[str, str]]) -> str:
     def length_note(text: str) -> str:
         return " Longer than one post: needs a long-post account or a thread." if x_length(text) > X_POST_LIMIT else ""
@@ -3265,6 +3479,8 @@ def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, dict[str, 
         ("Follow-up: reading and grammar", task_post(snap, numbers), attach("tasks")),
         ("Follow-up: cost and speed", cost_post(snap, numbers), "No image."),
     ]
+    if snap.results.get("formats"):
+        posts.append(("Reply: one question per request", format_post(snap, numbers), "No image."))
     results = snap.results
     lines = [
         "# X posts",

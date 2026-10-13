@@ -387,13 +387,16 @@ function fillTable(id, columns, rows, { groups = null, sorted = null } = {}) {
 
 const reasoningLabel = reasoning => (['off', 'on'].includes(reasoning) ? `reasoning ${reasoning}` : `${reasoning} reasoning`);
 const runLabel = run => run.variant ?? (run.reasoning ? reasoningLabel(run.reasoning) : OPTION_SCORES.toLowerCase());
-const displayName = run => `${run.name}${run.variant ? ` (${run.variant})` : ''}`;
+const displayName = run => {
+  const details = [run.variant, run.format].filter(Boolean);
+  return `${run.name}${details.length ? ` (${details.join(', ')})` : ''}`;
+};
 const sourceText = run => `Confidence source: ${run.confidence.label.toLowerCase()}`;
 
 /* withSetting: also name the reasoning setting, for tables without a reasoning column. withSource: add the
    confidence source badge. */
 function modelCell(run, { withSetting = false, withSource = false } = {}) {
-  const setting = run.variant ?? (withSetting && run.reasoning ? reasoningLabel(run.reasoning) : null);
+  const setting = [run.variant ?? (withSetting && run.reasoning ? reasoningLabel(run.reasoning) : null), run.format].filter(Boolean).join(' · ');
   return td(
     [
       el('span', { class: 'model-name', text: run.name }),
@@ -402,7 +405,7 @@ function modelCell(run, { withSetting = false, withSource = false } = {}) {
       withSource && run.confidence ? el('span', { class: 'small source', text: sourceText(run) }) : null,
       run.note ? small(run.note) : null,
     ],
-    { value: `${run.name} ${run.variant ?? ''} ${run.reasoning ?? ''}`, className: 'model' },
+    { value: `${run.name} ${run.variant ?? ''} ${run.reasoning ?? ''} ${run.format ?? ''}`, className: 'model' },
   );
 }
 
@@ -1036,15 +1039,22 @@ function renderPaired(data) {
       `The comparison letters in the accuracy table use all ${integer(data.group_pairs)} pairs. A pair can pass one adjustment and not the other.`,
     ),
   );
-  // The order of the accuracy table: most correct first.
-  const ranked = [...data.runs].sort((a, b) => b.correct - a.correct || a.run - b.run);
+  // The order of the accuracy table, most correct first, among setups in their first format: the report pairs each
+  // with the next one down and leaves format reruns (format_of) to the request format table.
+  const ranked = data.runs.filter(run => run.format_of == null).sort((a, b) => b.correct - a.correct || a.run - b.run);
   const position = new Map(ranked.map((run, index) => [run.run, index]));
-  const neighbours = data.paired.filter(item => Math.abs(position.get(item.first) - position.get(item.second)) === 1).length;
+  const neighbours = data.paired.filter(
+    item => position.has(item.first) && position.has(item.second) && Math.abs(position.get(item.first) - position.get(item.second)) === 1,
+  ).length;
+  const reruns = data.runs.length - ranked.length;
   addNotes(
     table,
     tableNote(
       `Rows follow the order of observed accuracy. We compare each setup with the next one down (${integer(neighbours)} pairs). ` +
-        `The other ${integer(data.paired.length - neighbours)} selected comparisons sit with the higher-scoring setup of their pair.`,
+        `The other ${integer(data.paired.length - neighbours)} selected comparisons sit with the higher-scoring setup of their pair.` +
+        (reruns
+          ? ` The ${integer(reruns)} setups we asked again with another number of questions per request are not in this order: the request format table compares each with its first run.`
+          : ''),
     ),
   );
 }
@@ -1429,6 +1439,15 @@ function showLoadError(error) {
   (document.querySelector('main') ?? document.body).prepend(message);
 }
 
+/* A setup that also ran with another number of questions per request (results.json format_of): both of its runs name
+   their request size, so that every table shows which run is which. */
+function markFormats(runs) {
+  const bases = new Set(runs.filter(run => run.format_of != null).map(run => run.format_of));
+  for (const run of runs) {
+    if (run.format_of != null || bases.has(run.run)) run.format = perRequestText(run.questions_per_request);
+  }
+}
+
 async function main() {
   let data;
   let config;
@@ -1439,6 +1458,7 @@ async function main() {
     showLoadError(error);
     return;
   }
+  markFormats(data.runs);
   renderLeaderboard(data, config);
   renderCost(data);
   renderUnits(data);
