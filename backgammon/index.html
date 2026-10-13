@@ -80,13 +80,13 @@
         36 rolls hit one of them, points made, pips) changed the games more than anything else. GNU Backgammon's error rate
         fell from about 130 to about 38: each move gave away less than a third as much equity as before. About four in five
         games used to run to the 300-turn limit; after the change none did.</p>
-      <p>Even so, every model plays far below a casual human: the best, Gemma 4 31B, has an error rate of 25, where
-        casual players are usually above 10 and world-class players below 3.5. Gemma 4 31B won three of the four finished leagues
+      <p>Among the league players, Gemma 4 31B is best with an error rate of about 25, beginner level on eXtreme Gammon's
+        human scale; every decision model is worse than beginner. Gemma 4 31B won three of the four finished leagues
         and Jev 1.13.0 one; Open-Jev 27B finished last in all four.</p>
       <p>An All-star team that asks all seven and plays the most confident answer does not beat Gemma 4 31B alone:
         confidence shows how hard a position is, not which model is right.</p>
       <p>The strongest players are frontier chat models reasoning briefly before they answer: GPT-6 Astra (error rate 11.2,
-        near casual human play) and Claude Opus 5.5 (17.3), ahead of every decision model. They are also the slowest and,
+        advanced on the human scale) and Claude Opus 5.5 (17.3, intermediate), ahead of every decision model. They are also the slowest and,
         at API prices, the most expensive (see <a href="#speed-cost">Speed and cost</a>).</p>
     </div>
     <nav class="toc" aria-label="Sections">
@@ -269,8 +269,10 @@ Which of the following moves makes a point in front of the opponent's checkers, 
       <p>Wins and losses depend heavily on the dice. A backgammon engine can instead judge every decision directly:
         for each move it finds the best play, and measures how much winning chance, in equity (expected points per game), the
         chosen play gave away. Averaged over all decisions and multiplied by 500, this is the error rate
-        (performance rating, PR) that backgammon players use. As a rough guide for humans: below 3.5 is world class,
-        5 to 8 advanced, above 10 casual.</p>
+        (performance rating, PR) that backgammon players use, here for checker plays only; forced moves are not counted.
+        eXtreme Gammon's human scale: under 2.5 world champion, 2.5 to 5 world class, 5 to 7.5 expert, 7.5 to 12.5
+        advanced, 12.5 to 17.5 intermediate, 17.5 to 22.5 casual, 22.5 to 30 beginner. Human ratings also count doubling
+        cube decisions, which these games do not have, so the comparison is approximate.</p>
       <p>We scored all 104,045 decisions the models made in every league with GNU Backgammon 1.08. Every legal play was
         evaluated at 0-ply, then the five best and the chosen play again at 2-ply; the loss is the 2-ply equity of the best
         play minus that of the chosen one. As a check, on the opening roll the plays that the rollout table calls best lose
@@ -506,7 +508,7 @@ Which of the following moves makes a point in front of the opponent's checkers, 
           is ignored. Small differences between close plays can be wrong, but the losses that count as blunders and the gaps between models are
           much larger than that.</li>
         <li><strong>Models only play each other.</strong> Their absolute strength against human or engine players is unknown.
-          The engine shows that all of them play far below strong human level.</li>
+          On the engine's scale none of them reaches expert level; the best, GPT-6 Astra, plays like an advanced human.</li>
         <li><strong>Configuration matters.</strong> Five models run on servers set up by us, and Gemma 4 31B uses a
           recipe built for a different model. Hosted services can change without notice.</li>
         <li><strong>The prompt steers.</strong> The question and the strategy text say what a good move looks like, so the
