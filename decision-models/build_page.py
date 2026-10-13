@@ -367,8 +367,9 @@ class Snapshot:
         for alternative_spec in spec["alternatives"]:
             alternative = pick(measured["alternatives"], alternative_spec, "cost alternatives")
             assert alternative is not None
-            rows.append({"label": alone(alternative), "runs": [self.main_run(alternative)], "accuracy": alternative["accuracy"],
-                         "versus": alternative["versus_frontier"], "cost": alternative["cost_usd"], "seconds": alternative["request_seconds"]})
+            rows.append({"label": alone(alternative), "runs": [self.main_run(alternative)], "run": alternative["run"],
+                         "accuracy": alternative["accuracy"], "versus": alternative["versus_frontier"], "cost": alternative["cost_usd"],
+                         "seconds": alternative["request_seconds"]})
         return plan, rows
 
     def billing(self, run: dict[str, Any]) -> dict[str, str]:
@@ -912,6 +913,31 @@ def stability_lead(snap: Snapshot) -> str:
 LIVE_RULES = {"share": "Most confident quarter", "half": "Cutoff chosen on half the questions", "cutoff": "Fixed 99% rule"}
 
 
+def request_size_text(size: int) -> str:
+    """'1 question per request', '16 questions per request': the request format a live test table names."""
+    return f"{count(size)} question{'' if size == 1 else 's'} per request"
+
+
+def one_size(sizes: set[int], where: str) -> int:
+    """The one number of questions per request a table's title names; the build stops when its rows use several."""
+    if len(sizes) != 1:
+        raise ValueError(f"{where} names one number of questions per request, but its tests use {sorted(sizes)}")
+    return next(iter(sizes))
+
+
+def exported_per_request(run_id: int) -> int:
+    """The questions per request of any exported run: main, repeat, live test or request-size run."""
+    return next(run["questions_per_request"] for group in ("runs", "repeat_runs", "pipeline_runs", "batching_runs")
+                for run in method_answers().get(group, []) if run["run"] == run_id)
+
+
+def block07_size(snap: Snapshot) -> int:
+    """The second model's questions per request in block 07's table and list: every Decider v1.1 test with the second
+    model's own request size, the earlier tests and the cheaper models run alone."""
+    return one_size({test["plan"]["batch_size"] for test in decider_tests(snap) + live_tests(snap)["earlier"]}
+                    | {exported_per_request(row["run"]) for row in snap.costs[2:]}, "block 07's table")
+
+
 def live_tests(snap: Snapshot) -> dict[str, Any]:
     """The live tests with new calls to the second model, from results.json's pipelines, each with its plan, its measured
     results, its first and second models and the second model's key. "decider": the replay's first model (Decider v1.1)
@@ -1164,7 +1190,8 @@ def cost_table(snap: Snapshot) -> str:
         )
     return (
         '<div class="table-wrap"><table class="overview cards costs">'
-        f"<caption>Live tests on {count(questions)} questions reserved for testing</caption>"
+        f"<caption>Live tests on {count(questions)} questions reserved for testing (second model: "
+        f"{request_size_text(block07_size(snap))})</caption>"
         '<thead><tr><th scope="col">Model or model pair</th><th scope="col" class="num">Final answers supplied by the first model</th>'
         '<th scope="col" class="num">Correct answers</th><th scope="col" class="num">Accuracy change compared with the second model alone</th>'
         '<th scope="col" class="num">Estimated cost per 1,000 questions</th><th scope="col" class="num">Total time for this test</th></tr></thead>'
@@ -1191,7 +1218,8 @@ def cost_summary(snap: Snapshot) -> str:
             f"{esc(row['label'])} against {esc(reference)} alone: {change_text(versus['difference'])} (95% interval "
             f"{interval_points(versus['low'], versus['high'])}; exact McNemar test, {esc(p_text(versus['p']))})."
         )
-    return f"<p>On the {count(questions)} questions reserved for testing:</p><ul>" + "".join(f"<li>{item}</li>" for item in items) + "</ul>"
+    return (f"<p>On the {count(questions)} questions reserved for testing, with {request_size_text(block07_size(snap))} to the "
+            "second model:</p><ul>" + "".join(f"<li>{item}</li>" for item in items) + "</ul>")
 
 
 def rate_text(rate: float) -> str:
@@ -2185,7 +2213,8 @@ def speed_whole(snap: Snapshot) -> str:
              + (f" We chose every cutoff on recorded answers to {size} questions per request." if established else "")
              + (f" With {and_list(unchanged)}, the test did not establish a change in accuracy." if unchanged else "") + "</p>")
     return speed + right + (
-        '<div class="table-wrap"><table class="overview cards"><caption>Wait per question, one question per request</caption>'
+        '<div class="table-wrap"><table class="overview cards"><caption>Wait per question ('
+        f'{request_size_text(one_size({test["plan"]["batch_size"] for test in timed.values()}, "the speed section table"))})</caption>'
         f'<thead><tr><th scope="col">LLM</th><th scope="col" class="num">LLM alone</th><th scope="col" class="num">{me}, then the LLM'
         f'</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
     )
@@ -2395,9 +2424,11 @@ def savings_live_table(snap: Snapshot) -> str:
         rows.append(f'<tr><td data-label="LLM">{esc(named(rules["half"]["frontier"]))}</td>{cells}</tr>')
     head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in LIVE_RULES.values())
     questions = snap.plan["held_out"]
+    size = one_size({test["plan"]["batch_size"] for rules in tests["decider"].values() for test in rules.values()},
+                    "the savings section's live table")
     return (
         f'<div class="table-wrap"><table class="overview cards savings"><caption>Live test with new calls to each LLM, on '
-        f'{count(questions)} questions</caption><thead><tr><th scope="col">LLM</th>{head}</tr></thead>'
+        f'{count(questions)} questions (second model: {request_size_text(size)})</caption><thead><tr><th scope="col">LLM</th>{head}</tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table></div>'
     )
 

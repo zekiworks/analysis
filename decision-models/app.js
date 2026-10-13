@@ -1110,7 +1110,7 @@ function renderCascade(data) {
       const { cost_usd: cost, frontier_cost_usd: alone, decision_cost_usd: first } = item.measured;
       const estimate = first + alone * (1 - item.routed / item.held_out);
       const second = byRun.get(item.frontier);
-      return `${byRun.get(item.decision).name} then ${second.name} (${reasoningLabel(second.reasoning)}) cut the cost by ${formatPercent(100 * (1 - cost / alone), 1)}; this estimate method gives ${formatPercent(100 * (1 - estimate / alone), 1)}`;
+      return `${byRun.get(item.decision).name} then ${second.name} (${reasoningLabel(second.reasoning)}), ${ruleClause(item)}, ${perRequestText(item.batch_size)} to the second model, cut the cost by ${formatPercent(100 * (1 - cost / alone), 1)}; this estimate method gives ${formatPercent(100 * (1 - estimate / alone), 1)}`;
     });
   addNotes(
     table,
@@ -1274,6 +1274,15 @@ function ruleText(item) {
   }
   return item.rule === 'cutoff' ? `Fixed at ${cutoffText(item.threshold)} before the test` : 'Chosen on the other half';
 }
+/* The rule inside a sentence: "cutoff chosen on the other half", "keeping its most confident quarter of these questions". */
+function ruleClause(item) {
+  const text = ruleText(item);
+  return `${item.rule === 'share' ? 'keeping' : 'cutoff'} ${text.charAt(0).toLowerCase()}${text.slice(1)}`;
+}
+/* "1 question per request", "16 questions per request": the request format each live test names. */
+function perRequestText(count) {
+  return `${integer(count)} ${count === 1 ? 'question' : 'questions'} per request`;
+}
 function renderPipelines(data) {
   const byRun = new Map(data.runs.map(run => [run.run, run]));
   const sorted = [...data.pipelines].sort(
@@ -1342,7 +1351,7 @@ function renderPipelines(data) {
       { label: 'Model answering first' },
       { label: 'Model answering the rest' },
       { label: 'How we set the cutoff' },
-      { label: 'Questions per request', numeric: true, title: 'The second model’s questions in each request; one question per request times each question’s wait', extra: true },
+      { label: 'Second model’s questions per request', numeric: true, title: 'The second model’s questions in each request; one question per request times each question’s wait' },
       { label: 'Questions reserved for testing', numeric: true, title: 'The half of the questions the cutoff was not chosen on', extra: true },
       { label: 'Confidence cutoff chosen before this test', numeric: true, title: 'Fixed before the test', extra: true },
       { label: 'Final answers supplied by the first model', numeric: true },
