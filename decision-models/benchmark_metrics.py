@@ -9,7 +9,9 @@ are tied; a metric that cuts through a tie takes the expected value over the ord
 from __future__ import annotations
 
 import bisect
+import hashlib
 import itertools
+import json
 import math
 import random
 import statistics
@@ -615,3 +617,10 @@ def thin_curve(curve: list[list[float]], step: float = 0.01) -> list[list[float]
     if kept[-1][0] != round(curve[-1][0], 4):
         kept.append([round(curve[-1][0], 4), round(curve[-1][1], 4)])
     return kept
+
+
+def answer_key_fingerprint(ids: Sequence[int], keys: Sequence[str | None], excluded: Sequence[bool]) -> str:
+    """SHA-256 of the answer key as scored: per question, its ID, its key and whether it is excluded, as one compact JSON
+    list ([[id, key, excluded], ...] in question order). Anyone can compute it from answers.json `questions`."""
+    rows = [[int(question), key, bool(out)] for question, key, out in zip(ids, keys, excluded, strict=True)]
+    return hashlib.sha256(json.dumps(rows, ensure_ascii=False, separators=(",", ":")).encode("utf-8")).hexdigest()

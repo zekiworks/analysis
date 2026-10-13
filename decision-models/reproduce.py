@@ -3,14 +3,17 @@
 
     python3 reproduce.py [--docs FOLDER]
 
-For every main run: the correct answers on the scored questions (questions the key audit excluded are
-skipped), AUROC, expected calibration error, the answers scored 0.99 or more with the Wilson interval of
-their accuracy (the counts also before the key audit, when results.json has them), and the leaderboard's
-tied groups (every pair of runs tested, exact McNemar, Holm over all pairs, alpha 0.05), including that
-two runs share a letter exactly when that test does not tell them apart. Then the listed paired
-comparisons: exact McNemar and Holm over the listed pairs. Then the repeats: each configuration's
-repeated runs, recomputed from their exported answers. Then the replays: every routing simulation (the
-threshold chosen in sample and its 300 held-out splits), and the replay the page leads with: the
+First the answer key: answers.json's keys and exclusions must give the fingerprint of the frozen key
+version results.json names (bm.answer_key_fingerprint). For every main run: the correct answers on the
+scored questions (questions the key audit excluded are skipped), each following from the chosen option
+and the key, AUROC, expected calibration error, the answers scored 0.99 or more with the Wilson interval
+of their accuracy (the counts also before the key audit, when results.json has them), and the
+leaderboard's tied groups (every pair of runs tested, exact McNemar, Holm over all pairs, alpha 0.05),
+including that two runs share a letter exactly when that test does not tell them apart. Then the listed
+paired comparisons: exact McNemar and Holm over the listed pairs. Then the grading of every other
+exported run (repeats, routing tests, request sizes) against the same key. Then the repeats: each
+configuration's repeated runs, recomputed from their exported answers. Then the replays: every routing
+simulation (the threshold chosen in sample and its 300 held-out splits), and the replay the page leads with: the
 decision run's answers kept at each cutoff and in its surest share, and what keeping them changes in
 front of each second run, on all questions and on the same held-out splits; with them the answer-key
 baselines (options per question, the key's most used letter and its share). Then the live tests: each
@@ -118,6 +121,18 @@ def main() -> int:
         print(f"MISMATCH: results.json scores {results['questions']} questions, answers.json {len(scored)}")
     else:
         checks.passed += 1
+    # The answer key: answers.json's keys and exclusions must be the frozen key version results.json names.
+    key = results.get("answer_key") or {}
+    fingerprint = bm.answer_key_fingerprint(answers["questions"]["id"], keys, [value == "excluded" for value in status])
+    excluded_ids = [answers["questions"]["id"][index] for index in excluded]
+    if (fingerprint, excluded_ids, answers["dataset"]["graded_sha256"]) == (
+        key.get("fingerprint"), key.get("excluded"), key.get("graded_sha256")
+    ):
+        checks.passed += 1
+        print(f"Answer key version {key['version']}: fingerprint {fingerprint[:12]}, {len(excluded_ids)} questions excluded")
+    else:
+        checks.failed += 1
+        print(f"MISMATCH: answers.json's key (fingerprint {fingerprint[:12]}) is not answer key version {key.get('version')}")
     print(
         f"Tolerances: counts and group letters exact; AUROC and ECE within {METRIC_TOLERANCE:g}; "
         f"p-values within a relative {P_TOLERANCE:g}. A cell shows the recomputed value, then '≠' and the "
@@ -287,6 +302,16 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    grading_mismatches = check_grading(answers, keys, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nGrading (every repeat, routing-test and request-size run, each answer against answer key version "
+        f"{key.get('version')}): {checked - len(grading_mismatches)} of {checked} runs match"
+    )
+    for line in grading_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     repeat_mismatches = check_repeats(results, answers, scored, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -330,6 +355,19 @@ def main() -> int:
 
     print(f"\n{checks.passed} checks match, {checks.failed} differ")
     return 1 if checks.failed else 0
+
+
+def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[int], checks: Checks) -> list[str]:
+    """Check that every exported run besides the main ones (the main ones are checked with their accuracy) is graded on
+    the published key: each answer it gave on a scored question is correct exactly when its option is the key's.
+    Returns a line per run that differs."""
+    mismatches = []
+    for run in answers.get("repeat_runs", []) + answers.get("pipeline_runs", []) + answers.get("batching_runs", []):
+        given = [index for index in scored if run["correct"][index] is not None and keys[index] is not None]
+        differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
+        if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
+            mismatches.append(f"  run {run['run']} ({label(run)}): {differ} of {len(given)} answers are not graded on the key")
+    return mismatches
 
 
 def check_repeats(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:

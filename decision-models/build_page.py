@@ -45,6 +45,7 @@ ROOT = Path(__file__).resolve().parent
 PAGE = ROOT / "index.html"
 SHARE = ROOT / "share"
 X_POSTS = SHARE / "x-posts.md"
+CITATION = ROOT / "CITATION.cff"
 VALUE = re.compile(r'(<span data-value="([a-z0-9_]+)">)(.*?)(</span>)', re.S)
 BLOCK = re.compile(r"(<!-- build:([a-z0-9-]+) -->)(.*?)(<!-- /build:\2 -->)", re.S)
 # A chart image, with the size the build gives it, and an SVG's size.
@@ -506,6 +507,8 @@ def values(snap: Snapshot) -> dict[str, str]:
     out.update(paired_values(snap))
     out.update(top_values(snap))
     out.update(overview_values(snap))
+    out.update(subq_values(snap))
+    out.update(key_values(snap))
     out.update(study_values(snap))
     out.update(method_values(snap))
     return out
@@ -1388,6 +1391,49 @@ def overview_values(snap: Snapshot) -> dict[str, str]:
     return out
 
 
+def subq_values(snap: Snapshot) -> dict[str, str]:
+    """The numbers of block 03's SubQ Snap paragraph that the per-run values do not give: its release date (page_config.json
+    subq_release), its share in front of Sonnet, its cost against Decider's and the context its maker claims. The build
+    stops when the paragraph's claims no longer hold: tested the day after the release, not told apart from Decider v1.1
+    or GLiDE, second to Decider v1.1 in front of Sonnet."""
+    named, release = snap.named, snap.config["subq_release"]
+    subq, decider = named["subq"], named["decider_v11"]
+    day = datetime.date.fromisoformat(release["date"])
+    if datetime.date.fromisoformat(subq["started"][:10]) != day + datetime.timedelta(days=1):
+        raise ValueError("block 03 says we tested SubQ Snap the day after its release")
+    for other in (decider, named["glide"]):
+        if not set(subq["group"]) & set(other["group"]):
+            raise ValueError(f"block 03 says our test did not separate SubQ Snap from {other['name']}")
+    sonnet = next(item for item in opening_seconds(snap) if item["key"] == "sonnet_high")
+    ranking = strict_ranking(snap, sonnet["run"])
+    if ranking[0][0] is not decider or ranking[1][0] is not subq:
+        raise ValueError("block 03 says SubQ Snap came second to Decider v1.1 in front of Sonnet")
+    ratio = per_thousand(subq) / per_thousand(decider)
+    return {
+        "subq_released": long_date(release["date"]),
+        "subq_sonnet_share": snap.fmt.pct(ranking[1][1]["held_out"]["answered"], 0),
+        "subq_cost_ratio": times(ratio) if ratio >= 10 else f"{ratio:.1f}",
+        "subq_context": release["context"],
+    }
+
+
+KEY_CHANGELOG = ROOT / "key-changelog.md"
+
+
+def key_values(snap: Snapshot) -> dict[str, str]:
+    """The frozen answer key's version (results.json answer_key). The build stops when key-changelog.md has no section for
+    this version or leaves out of its tables a question the key excludes."""
+    key = snap.results["answer_key"]
+    text = KEY_CHANGELOG.read_text(encoding="utf-8")
+    if re.search(rf"^## Version {key['version']}\b", text, re.M) is None:
+        raise ValueError(f"key-changelog.md has no section for answer key version {key['version']}")
+    listed = {int(found) for found in re.findall(r"^\| (\d+) \|", text, re.M)}
+    missing = [question for question in key["excluded"] if question not in listed]
+    if missing:
+        raise ValueError(f"key-changelog.md does not list the excluded questions {missing}")
+    return {"key_version": f"version {key['version']}"}
+
+
 def overview_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
     """Blocks only the overview sections (blocks 04 to 09) use: chart 05's full version in block 08."""
     decision = snap.named[snap.config["model_kinds"]["decision"]]
@@ -2190,7 +2236,7 @@ def cutoff_figure(snap: Snapshot) -> str:
     fmt, rows, threshold = snap.fmt, cutoff_rows(snap), snap.config["threshold"]
     rule = next(row for row in rows if row["cut"] == threshold)
     surest = next(row for row in rows if row["surest"])
-    caption = (f"Decider v1.1 on {count(snap.total)} Turkish exam questions; we replayed recorded answers. At {snap.cutoff} it keeps "
+    caption = (f"Decider v1.1 on the {count(snap.total)} questions; we replayed recorded answers. At {snap.cutoff} it keeps "
                f"{count(rule['kept'])} answers with {'no' if not rule['wrong'] else count(rule['wrong'])} mistakes. At "
                f"{cutoff_text(surest['cut'])}, its most confident quarter, it keeps {count(surest['kept'])} and gets {count(surest['wrong'])} wrong.")
     table_rows = []
@@ -2378,7 +2424,8 @@ def head(snap: Snapshot, images: dict[str, dict[str, str]]) -> str:
     shares = [f"{fmt.pct(item['strict']['share'], 0)} of {item['run']['name']}'s" for item in firsts]
     shares[0] += " questions"
     description = (
-        f"We tested {count(len(tried) + len(untried))} decision models on {count(snap.total)} Turkish exam questions. Perplexity's "
+        f"We tested {count(len(tried) + len(untried))} decision models on a reading and grammar test in native Turkish (not "
+        f"translated): {count(snap.total)} questions. Perplexity's "
         f"Decider v1.1 took the most work off each LLM: {and_list(shares)}, in a replay of recorded answers. In a live test with "
         f"new calls, the estimated cost fell {and_list([fmt.pct(saving(measured), 0) for measured in live])}, and accuracy fell by "
         f"at most {-100 * min(measured['difference'] for measured in live):.2f} points."
@@ -2896,14 +2943,16 @@ def figure_page(size: dict[str, int], scale: dict[str, int], body: str, theme: s
 
 
 def footer(snap: Snapshot, caveat: str) -> str:
-    """The image's caveats in readable type, then the results update date, results snapshot, question set and address."""
+    """The image's caveats in readable type, then the results update date, results snapshot, question set, answer key
+    version and address."""
     results = snap.results
     site = snap.config["site_url"].removeprefix("https://").rstrip("/")
     dataset = (results["dataset"]["graded_sha256"] or results["dataset"]["sha256"])[:8]
     return (
-        f'<p class="caveat">{count(snap.total)} Turkish exam questions (reading and grammar), not financial decisions. {esc(caveat)}</p>'
+        f'<p class="caveat">The {count(snap.total)} questions test reading and grammar, not financial decisions. {esc(caveat)}</p>'
         f'<p class="foot">Results updated {long_date(results["updated"])} · Results snapshot {esc(results["results_version"])} · '
-        f'Question set {esc(results["dataset"]["name"])} ({dataset}) · {esc(site)}</p>'
+        f'Question set {esc(results["dataset"]["name"])} ({dataset}) · Answer key version {results["answer_key"]["version"]} · '
+        f'{esc(site)}</p>'
     )
 
 
@@ -2985,7 +3034,7 @@ def cutoff_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
     scale = {"pad": 38, "title": 38, "sub": 19, "gap": 0, "label": 0, "bar": 0, "value": 0, "caveat": 16, "foot": 13, "part": 0, "num": 0}
     body = (
         "<h1>Lower the cutoff: Decider keeps more, and makes more mistakes</h1>"
-        f'<p class="sub">{esc(snap.short(snap.replay["run"]))} on {count(snap.total)} Turkish exam questions; we replayed recorded '
+        f'<p class="sub">{esc(snap.short(snap.replay["run"]))} on the {count(snap.total)} questions; we replayed recorded '
         f"answers · {legend}</p>"
         f'<div class="cols" style="--count: {len(rows)}">{"".join(columns)}</div>'
         f'<p class="axis">Cutoff (lowest confidence we keep). Bar height: answers kept, out of {count(snap.total)}. In a replay of '
@@ -3118,12 +3167,13 @@ def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
     live = [f"{numbers['live_' + item['key'] + '_saving_whole']} for {live_name(snap, item['run'])}" for item in opening_seconds(snap)]
     return "\n\n".join([
         "When should you trust an AI model to make a decision? When its confident answers turn out to be right.",
-        f"We tested {numbers['decision_models']} decision models on {numbers['questions']} Turkish exam questions and put "
-        f"{numbers['decision_models_tried']} of them in front of {numbers['opening_llm_count']} LLMs. When the decision model was "
-        "confident, we kept its answer; when it was not, the LLM answered.",
+        f"We tested {numbers['decision_models']} decision models on a reading and grammar test in native Turkish (not translated): "
+        f"{numbers['questions']} questions. We put {numbers['decision_models_tried']} of them in front of "
+        f"{numbers['opening_llm_count']} LLMs. When the decision model was confident, we kept its answer; when it was not, the LLM "
+        "answered.",
         "Perplexity's Decider v1.1 took the most work off each LLM. Replaying our recorded answers:\n" + "\n".join(savings),
         f"In a live test with new calls to each LLM, the estimated cost fell by less: {and_list(live)}.",
-        "Exam questions, not financial decisions. Test on your own task first.",
+        "The test covers reading and grammar, not financial decisions. Test on your own task first.",
         site,
     ])
 
@@ -3198,6 +3248,34 @@ def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, dict[str, 
     return "\n".join(lines)
 
 
+def citation(snap: Snapshot, numbers: dict[str, str]) -> str:
+    """CITATION.cff: how to cite these results, with the results version and the answer key version they come from."""
+    results, config = snap.results, snap.config
+    return "\n".join([
+        "# Generated by build_page.py from results.json. Do not edit by hand: run the build again.",
+        "cff-version: 1.2.0",
+        'message: "If you use these results, please cite them with the results version, the answer key version and the '
+        'commit of zekiworks/analysis you used."',
+        f'title: "{TITLE.removesuffix(" · Zeki Works")}"',
+        f'abstract: "We tested {numbers["models"]} models, {numbers["decision_models"]} of them decision models, on a reading '
+        f'and grammar test in native Turkish (not translated): {numbers["questions"]} questions."',
+        "type: dataset",
+        "authors:",
+        '  - name: "Zeki Works"',
+        f'version: "results {results["results_version"]}, answer key version {results["answer_key"]["version"]}"',
+        f'date-released: "{results["updated"][:10]}"',
+        f'url: "{config["site_url"]}"',
+        f'repository-code: "{config["code_url"]}"',
+        "license: MIT",
+        "keywords:",
+        '  - "decision models"',
+        '  - "confidence"',
+        '  - "calibration"',
+        '  - "Turkish"',
+        "",
+    ])
+
+
 # ---------------------------------------------------------------- main
 
 
@@ -3227,6 +3305,8 @@ def main() -> int:
     X_POSTS.parent.mkdir(parents=True, exist_ok=True)
     X_POSTS.write_text(x_posts(snap, numbers, names), encoding="utf-8")
     print(f"Wrote {X_POSTS.relative_to(ROOT)}")
+    CITATION.write_text(citation(snap, numbers), encoding="utf-8")
+    print(f"Wrote {CITATION.relative_to(ROOT)}")
     return 0
 
 

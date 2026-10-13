@@ -117,6 +117,14 @@ A run resumes when started again (`--restart` discards it). The report is rewrit
 `./benchmark_ollama.py --export-answers FILE` writes every run's answers without question text. For a
 first test, add `--sample 100 --seed 0` to a script's command.
 
+**Run records.** A new run records the code and the prompts behind it. `prompt_version` is the first 12 hex
+digits of the SHA-256 of the prompt templates (`answers.json` `prompts`, as compact JSON with sorted keys).
+`harness_commit` is the published commit that holds this exact `benchmark_ollama.py`: the checkout's `HEAD`
+when you run from an unchanged checkout of the repository, or else the newest pushed commit of the clone that
+`HARNESS_REPO` names with an identical copy of the file. A new run stops when neither exists, so publish a
+changed runner before using it. A resumed run keeps its own record and stops when the prompts have changed;
+`--restart` answers it again and records the current ones. `answers.json` gives both fields for each run.
+
 **Addresses.** The code and some scripts default to the author's network (`192.168.1.126`). Override:
 
 | Where | Default | Override |

@@ -26,6 +26,13 @@ full-precision score and option probabilities but without the questions' text. `
 is the benchmark's metric code, and `runner/` the code that ran the benchmark. The page used to live at
 `/analysis/turkce-benchmark/docs/`; a redirect page there sends readers here.
 
+## Contributing and citing
+
+`CONTRIBUTING.md` says how to report a wrong answer key, ask us to test a model or send a dataset.
+`key-changelog.md` lists every change to the answer key, and `results.json` names the key version every run is
+scored on (`answer_key`). `CITATION.cff`, which `build_page.py` writes, gives the results version and the key
+version to cite.
+
 ## From a clean copy
 
 None of these commands needs a private file:

@@ -26,6 +26,15 @@ RESULT_PATTERN = re.compile(r"<!-- benchmark-result: (\{.*?\}) -->")
 ANALYSIS_PATTERN = re.compile(r"<!-- benchmark-analysis: (\{.*?\}) -->")
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "results.json"
 SCHEMA_VERSION = 4
+# The frozen answer keys, by version (key-changelog.md): the question bank's SHA-256 and the fingerprint of its key as
+# scored (bm.answer_key_fingerprint). An export graded against any other key stops: record the change in
+# key-changelog.md, add the new key here as the next version and export again, which rescores every run.
+ANSWER_KEYS = {
+    2: {
+        "graded_sha256": "797ad6c868bc1c9485bc54203f58839ad995b0443b7149f6a9e36cf0d07df4d7",
+        "fingerprint": "cd7f998de262e355cd28f596465a51f4158211646ee0cbfbc85f5d8cdeced20a",
+    },
+}
 
 # How each provider was reached and paid for. Scoring providers rate the supplied options instead of generating
 # an answer, so they have no reasoning setting. billing: "api" (billed per token), "subscription" (a flat plan;
@@ -866,6 +875,24 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
     }
 
 
+def answer_key(answers: dict[str, Any]) -> dict[str, Any]:
+    """The frozen answer key (ANSWER_KEYS) the exported answers are graded against: its version, the bank's SHA-256, the
+    key's fingerprint and the excluded questions. Stops when the key is not one of the frozen versions."""
+    questions = answers["questions"]
+    excluded = [status == "excluded" for status in questions["status"]]
+    found = {
+        "graded_sha256": answers["dataset"]["graded_sha256"],
+        "fingerprint": bm.answer_key_fingerprint(questions["id"], questions["key"], excluded),
+    }
+    version = next((version for version, frozen in ANSWER_KEYS.items() if frozen == found), None)
+    if version is None:
+        raise ValueError(
+            f"the answers are graded against an answer key that is not frozen (bank {found['graded_sha256'][:8]}, key "
+            f"{found['fingerprint'][:8]}): record the change in key-changelog.md and add the key to ANSWER_KEYS as a new version"
+        )
+    return {"version": version, **found, "excluded": [question for question, out in zip(questions["id"], excluded) if out]}
+
+
 def main() -> int:
     args = parse_args()
     try:
@@ -876,6 +903,7 @@ def main() -> int:
             json.loads(analysis.group(1)) if analysis else {},
         )
         answers = export_answers(json.loads(args.answers.read_text(encoding="utf-8")), data)
+        data["answer_key"] = answer_key(answers)
         data["replay"] = replay(data["runs"], answers)
         holm_over_all_pairs(data["paired"], data["runs"], answers)
         data["baselines"] = baselines(answers, data["replay"]["decision"])

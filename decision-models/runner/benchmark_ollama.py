@@ -382,6 +382,24 @@ CONFIDENCE_SYSTEM_PROMPT = (
     "You are taking a Turkish multiple-choice benchmark. Select exactly one supplied option per "
     "question and state your confidence in each answer. Do not explain."
 )
+# The prompt templates, as answers.json publishes them. PROMPT_VERSION identifies them in each new run's record: the
+# first 12 hex digits of the SHA-256 of this dict as compact JSON with sorted keys, which anyone can recompute from
+# answers.json `prompts`.
+PROMPTS = {
+    "answer_system": ANSWER_SYSTEM_PROMPT,
+    "answer_instruction": ANSWER_INSTRUCTION,
+    "confidence_system": CONFIDENCE_SYSTEM_PROMPT,
+    "confidence_instruction": CONFIDENCE_INSTRUCTION,
+    "verbal_system": VERBAL_SYSTEM_PROMPT,
+    "verbal_instruction": VERBAL_INSTRUCTION,
+    "system_one_instructions": JEV_INSTRUCTIONS,
+    "yes_no": YES_NO_PROMPT,
+}
+PROMPT_VERSION = hashlib.sha256(
+    json.dumps(PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()[:12]
+# Where a clone of the published repository (HARNESS_REPO, see harness_commit) keeps this file.
+HARNESS_PATHS = ("decision-models/runner/benchmark_ollama.py", "runner/benchmark_ollama.py")
 CLAUDE_EFFORTS = ("low", "medium", "high", "xhigh", "max")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta"
 # The API key: GEMINI_API_KEY, else this file.
@@ -1183,7 +1201,9 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                 "runs": [],
             },
         )
-        run = connection.execute("SELECT seed FROM runs WHERE run_key=?", (result["run_key"],)).fetchone()
+        run = connection.execute(
+            "SELECT seed, harness_commit, prompt_version FROM runs WHERE run_key=?", (result["run_key"],)
+        ).fetchone()
         answers = {}
         for row in graded_answers(connection, result["run_key"], result["dataset"], report.parent, keep_excluded=True):
             question = int(row["question_id"])
@@ -1212,6 +1232,9 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                 "questions_per_request": result["batch_size"],
                 "concurrency": result.get("concurrency", 1),
                 "seed": run["seed"],
+                # The code and the prompts behind the run (harness_commit, PROMPT_VERSION); None for runs from before both.
+                "harness_commit": run["harness_commit"],
+                "prompt_version": run["prompt_version"],
                 "shuffle_options": result.get("shuffle_options"),
                 "replace_key_text": result.get("replace_key_text"),
                 "repeat": result.get("repeat"),
@@ -1251,16 +1274,7 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
         )
     document = {
         "schema_version": 2,
-        "prompts": {
-            "answer_system": ANSWER_SYSTEM_PROMPT,
-            "answer_instruction": ANSWER_INSTRUCTION,
-            "confidence_system": CONFIDENCE_SYSTEM_PROMPT,
-            "confidence_instruction": CONFIDENCE_INSTRUCTION,
-            "verbal_system": VERBAL_SYSTEM_PROMPT,
-            "verbal_instruction": VERBAL_INSTRUCTION,
-            "system_one_instructions": JEV_INSTRUCTIONS,
-            "yes_no": YES_NO_PROMPT,
-        },
+        "prompts": dict(PROMPTS),
         "datasets": output,
     }
     path.write_text(json.dumps(document, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
@@ -1328,12 +1342,52 @@ def open_result_database(path: Path) -> sqlite3.Connection:
         ("answers", "status", "TEXT"),
         ("answers", "request_seconds", "REAL"),
         ("runs", "repeat", "INTEGER"),
+        ("runs", "harness_commit", "TEXT"),
+        ("runs", "prompt_version", "TEXT"),
     ):
         columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})")}
         if column not in columns:
             with connection:
                 connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
     return connection
+
+
+def git_output(repo: Path, *arguments: str) -> str | None:
+    """A git command's output in `repo`, or None when it fails or git is missing."""
+    try:
+        completed = subprocess.run(["git", "-C", str(repo), *arguments], capture_output=True, text=True, check=False)
+    except OSError:
+        return None
+    return completed.stdout.strip() if completed.returncode == 0 else None
+
+
+def harness_commit() -> str:
+    """The published git commit that holds this exact file, recorded with each new run. Run from a git checkout where
+    this file is unchanged, it is that checkout's HEAD. Otherwise HARNESS_REPO must name a clone of the published
+    repository, and it is the newest pushed commit whose copy of this file (HARNESS_PATHS) is identical. Stops when
+    neither finds one."""
+    source = Path(__file__).resolve()
+    content = source.read_bytes()
+    blob = hashlib.sha1(b"blob %d\0" % len(content) + content).hexdigest()  # git's ID for this file's content
+    top = git_output(source.parent, "rev-parse", "--show-toplevel")
+    if top is not None:
+        relative = Path(os.path.relpath(source, Path(top).resolve())).as_posix()
+        head = git_output(Path(top), "rev-parse", "HEAD")
+        if head and git_output(Path(top), "rev-parse", f"HEAD:{relative}") == blob:
+            return head
+    repo = os.environ.get("HARNESS_REPO")
+    if repo:
+        clone = Path(repo).expanduser()
+        for path in HARNESS_PATHS:
+            for commit in (git_output(clone, "log", "--format=%H", "--", path) or "").split():
+                if git_output(clone, "rev-parse", f"{commit}:{path}") == blob:
+                    if git_output(clone, "branch", "--remotes", "--contains", commit):
+                        return commit
+                    raise ValueError(f"commit {commit[:12]} in {clone} holds this benchmark_ollama.py but is not pushed")
+    raise ValueError(
+        "no published commit holds this benchmark_ollama.py: copy it into the published repository (sync_runner.sh), "
+        "commit and push, then set HARNESS_REPO to that clone, or run from a checkout of it"
+    )
 
 
 def start_run(
@@ -1390,14 +1444,22 @@ def start_run(
     )
     run_key = hashlib.sha256(identity.encode()).hexdigest()
     now = utc_now()
+    existing = connection.execute("SELECT prompt_version FROM runs WHERE run_key=?", (run_key,)).fetchone()
+    if existing is not None and not restart and existing["prompt_version"] not in (None, PROMPT_VERSION):
+        raise ValueError(
+            f"this run started with prompt version {existing['prompt_version']}, not {PROMPT_VERSION}: add --restart to "
+            "answer it again with the current prompts"
+        )
+    # A new run, or one answered again, records the code and the prompts that answer it; a resumed run keeps its own.
+    harness = harness_commit() if existing is None or restart else None
     with connection:
         connection.execute(
             """
             INSERT OR IGNORE INTO runs (
                 run_key, model, provider, dataset, dataset_sha256, selection_sha256,
                 ollama_url, seed, batch_size, num_ctx, shuffle_options, replace_key_text, repeat, thinking_mode,
-                selected_total, evaluated_total, skipped_json, status, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?)
+                selected_total, evaluated_total, skipped_json, status, created_at, updated_at, harness_commit, prompt_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
             """,
             (
                 run_key,
@@ -1419,6 +1481,8 @@ def start_run(
                 json.dumps(selection.skipped, sort_keys=True),
                 now,
                 now,
+                harness,
+                PROMPT_VERSION,
             ),
         )
         row = connection.execute("SELECT id FROM runs WHERE run_key=?", (run_key,)).fetchone()
@@ -1428,8 +1492,9 @@ def start_run(
         if restart:
             connection.execute("DELETE FROM answers WHERE run_id=?", (run_id,))
             connection.execute(
-                "UPDATE runs SET timed_questions=0,timed_seconds=0,questions_per_minute=NULL WHERE id=?",
-                (run_id,),
+                "UPDATE runs SET timed_questions=0,timed_seconds=0,questions_per_minute=NULL,harness_commit=?,"
+                "prompt_version=? WHERE id=?",
+                (harness, PROMPT_VERSION, run_id),
             )
         connection.execute(
             "UPDATE runs SET status='running',updated_at=? WHERE id=?", (now, run_id)

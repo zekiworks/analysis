@@ -895,7 +895,7 @@ fn cutoffs(results: &Results) -> Option<Figure<'_>> {
     let width = CUT_AXIS_WIDTH + plot_width + 1;
     let mut lines = notes(
         &format!(
-            "{} on {} Turkish exam questions. We replayed recorded answers. Above each bar: the share of all questions it keeps, and its mistakes.",
+            "{} on the {} questions. We replayed recorded answers. Above each bar: the share of all questions it keeps, and its mistakes.",
             results.label(decider),
             thousands(total)
         ),
@@ -1090,7 +1090,7 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
     let names: Vec<String> = others.iter().map(|(run, _)| run.name.clone()).collect();
     let same = if names.is_empty() { String::new() } else { format!("The same steps work with {}.", and_list(&names)) };
     let subtitle = notes(
-        &format!("{} on {} Turkish exam questions. We replayed recorded answers.", results.label(decider), thousands(total)),
+        &format!("{} on the {} questions. We replayed recorded answers.", results.label(decider), thousands(total)),
         HANDOFF_WIDTH,
     );
     let decider_name = results.label(decider);
@@ -1195,7 +1195,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
     let chat_title = if chat.len() == 1 { "Chat model for comparison" } else { "Chat models for comparison" };
     let subtitle = notes(
         &format!(
-            "We replayed recorded answers on {} Turkish exam questions. The first model answers the questions it is most confident about; {} answers the rest. We choose the cutoff on half the questions and test it on the other half; bars show the average over {} splits.",
+            "We replayed recorded answers on the {} questions. The first model answers the questions it is most confident about; {} answers the rest. We choose the cutoff on half the questions and test it on the other half; bars show the average over {} splits.",
             thousands(results.questions),
             results.label(astra),
             thousands(splits)
@@ -1498,7 +1498,7 @@ fn cost_time(results: &Results, all: bool) -> Option<Figure<'_>> {
     }
     let subtitle = notes(
         &format!(
-            "Recorded runs on {} Turkish exam questions. Times describe the service and hardware we tested; they are not times for the two-step setup.",
+            "Recorded runs on the {} questions. Times describe the service and hardware we tested; they are not times for the two-step setup.",
             thousands(results.questions)
         ),
         width,
@@ -1580,7 +1580,7 @@ fn reading_grammar(results: &Results) -> Figure<'_> {
     // The heading's four rows, tick labels above and below, a title row per group, two bars per run
     // with a blank row after each, and the axis title.
     let body_rows = groups.len() as u16 + runs * 3;
-    let source = notes(&format!("Recorded answers on {} Turkish exam questions.", thousands(results.questions)), width);
+    let source = notes(&format!("Recorded answers on the {} questions.", thousands(results.questions)), width);
     let height = 2 + source.len() as u16 + 1 + 1 + body_rows + 1 + 1;
     Figure {
         name: "reading-grammar",
@@ -1676,7 +1676,7 @@ fn units(results: &Results) -> Figure<'_> {
     let width = UNIT_LABEL + 1 + columns.len() as u16 * UNIT_COLUMN;
     let subtitle = notes(
         &format!(
-            "Recorded answers on {} Turkish exam questions. Correct answers in each topic, as a share of its questions (the count in brackets). Darker cells: more answers right. Each column is one model.",
+            "Recorded answers on the {} questions. Correct answers in each topic, as a share of its questions (the count in brackets). Darker cells: more answers right. Each column is one model.",
             thousands(results.questions)
         ),
         width,
@@ -1854,7 +1854,7 @@ fn coverage(results: &Results) -> Figure<'_> {
     let x = Scale { title: COVERAGE_X.into(), bounds: [0.0, 100.0], ticks: [0.0].into_iter().chain(COVERAGE_MARKS).chain([100.0]).collect() };
     let lines = notes(
         &format!(
-            "Recorded answers on {} Turkish exam questions. Each curve starts with a model's most confident answers and adds less confident ones. The marks at 20%, 50% and 80% are shares of the answers, not confidence scores. Each curve ends at the model's accuracy on all answers. No second model answers the rest here. Panels group related models, decision models first; read each panel's own y axis.",
+            "Recorded answers on the {} questions. Each curve starts with a model's most confident answers and adds less confident ones. The marks at 20%, 50% and 80% are shares of the answers, not confidence scores. Each curve ends at the model's accuracy on all answers. No second model answers the rest here. Panels group related models, decision models first; read each panel's own y axis.",
             thousands(results.questions)
         ),
         WIDE_WIDTH,
@@ -1902,7 +1902,7 @@ fn calibration_panel(results: &Results, title: String, runs: &[&Run]) -> Panel {
 fn calibration_notes(questions: u32, width: u16) -> Vec<Line<'static>> {
     notes(
         &format!(
-            "Recorded answers on {} Turkish exam questions. Each dot is a group of answers with similar confidence: its average confidence (x) against the share right (y). Above the diagonal, the model was right more often than its confidence says; below it, less often. Dot size: • {MIN_BIN_ANSWERS} to {} answers, ● {LARGE_BIN_ANSWERS} or more. Groups with fewer than {MIN_BIN_ANSWERS} answers are left out of the plot (the table keeps them).",
+            "Recorded answers on the {} questions. Each dot is a group of answers with similar confidence: its average confidence (x) against the share right (y). Above the diagonal, the model was right more often than its confidence says; below it, less often. Dot size: • {MIN_BIN_ANSWERS} to {} answers, ● {LARGE_BIN_ANSWERS} or more. Groups with fewer than {MIN_BIN_ANSWERS} answers are left out of the plot (the table keeps them).",
             thousands(questions),
             LARGE_BIN_ANSWERS - 1
         ),
@@ -2159,7 +2159,7 @@ fn cascade(results: &Results) -> Option<Figure<'_>> {
     let mut lines = vec![Line::from("We choose and test these cutoffs on the same questions.").bold()];
     lines.extend(notes(
         &format!(
-            "We replayed recorded answers on {} Turkish exam questions. Each first model answers the share of questions it is most confident about (x); the second model answers the rest. Grey line: the second model alone. Curves that use the same questions to choose and test can look better than a test on new questions; the main result uses separate halves.",
+            "We replayed recorded answers on the {} questions. Each first model answers the share of questions it is most confident about (x); the second model answers the rest. Grey line: the second model alone. Curves that use the same questions to choose and test can look better than a test on new questions; the main result uses separate halves.",
             thousands(results.questions)
         ),
         width,
