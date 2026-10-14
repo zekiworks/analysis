@@ -108,7 +108,8 @@ python3 -m http.server 8000                                # preview at http://1
 - **The preview** needs a server: opening `index.html` from disk does not work, because browsers
   block loading `results.json` from a `file://` page.
 - **The v2 site preview** (`v2/`, at `/analysis/decision-models/v2/`): `python3 build_v2.py` builds it from
-  `results.json`, `answers.json` and `page_config.json`.
+  `results.json`, `answers.json` and `page_config.json`. It runs `reproduce.py` for the Method page's count
+  of checks and stops unless every check matches.
   - **Home page** (`v2/index.html`): the script fills its `<!-- build:… -->` blocks (the meta tags, the stats
     row, the leaderboard as a plain table for readers without JavaScript, the settings `v2/v2.js` reads).
     `v2/v2.js` draws the filters, the four leaderboard tabs and the two charts in the browser from
@@ -118,7 +119,9 @@ python3 -m http.server 8000                                # preview at http://1
     after writing the pages.
   - **Other pages**: each module of `v2build/` (`PAGE_MODULES` in `build_v2.py`) returns whole pages,
     written to `v2/<path>index.html`: one page per setup (`models/<run>/`), every question, one page per
-    question (`question/?id=…`, drawn by `v2/question.js`), where models disagree with the key, topics with
+    question (`question/?id=…`, drawn by `v2/question.js`, with a line for readers without JavaScript),
+    where models disagree with the key (the questions where the chat setups in `page_config.json`'s
+    `key_disagreement` agree on another answer, then the questions most setups got wrong), topics with
     the accuracy-by-topic heat map and one page per topic, Compare (`v2/compare.js`, exact McNemar test as
     in `benchmark_metrics.py`), Method and Data. `v2build/site.py` holds the shared page shell.
   - **`v2/data/picks.json`**: each leaderboard setup's pick and score on each scored question, written from

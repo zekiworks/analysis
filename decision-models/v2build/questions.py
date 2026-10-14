@@ -109,11 +109,13 @@ def every_question(site: Site, data: dict[str, Any]) -> str:
 
 
 def question_view(site: Site) -> str:
-    """One page per question, by its ID in the URL; question.js fills it from picks.json and results.json."""
+    """One page per question, by its ID in the URL; question.js fills it from picks.json. Readers without JavaScript
+    get a line pointing to answers.json and the Every question page instead."""
     path = "question/"
     body = f"""    <section class="card" id="question">
       <h1>Question</h1>
-      <p class="note" data-question-status>Loading the question… This page needs JavaScript. <a href="{rel(path, "questions/")}">Every question</a> lists each question's key and how many setups got it right.</p>
+      <p class="note" data-question-status hidden>Loading the question…</p>
+      <noscript><p class="note">This page needs JavaScript. Without it, <a href="{rel(path, "")}../answers.json" download>answers.json</a> holds every setup's answer to every question, and <a href="{rel(path, "questions/")}">Every question</a> lists each question's key and how many setups got it right.</p></noscript>
       <div data-question hidden></div>
     </section>"""
     return site.page(path, "Question", "One question: its part, topic, page, printed number, answer key and every setup's pick.", body,

@@ -13,7 +13,7 @@ import re
 from typing import Any
 
 import build_page as bp
-from v2build.site import ROOT, Site, esc, rel
+from v2build.site import REPO_URL, Site, esc, rel
 
 PATH = "method/"
 TITLE = "Method"
@@ -103,10 +103,6 @@ REFERENCES = (
     ("Northcutt, C. G., Athalye, A., &amp; Mueller, J. (2021). Pervasive Label Errors in Test Sets Destabilize Machine "
      "Learning Benchmarks. NeurIPS 2021 Datasets and Benchmarks Track.", "https://arxiv.org/abs/2103.14749"),
 )
-REPO = "https://github.com/zekiworks/analysis"
-# The main page's count of reproduce.py checks; results.json does not hold it, and running reproduce.py is the main
-# page build's job.
-CHECKS = re.compile(r'data-value="checks">([\d,]+)<')
 # The main page's price list texts (app.js): the reuse note and the lines for free and self-hosted runs.
 REUSE_EXPLAINED = "A service may save input so a later call can reuse it. It may charge one rate to save it and another to read it again."
 FREE_RATE = "Free tier used; no paid rate in this record."
@@ -134,11 +130,9 @@ class Cites:
 
 
 def snapshot(site: Site) -> bp.Snapshot:
-    """build_page.py's Snapshot over a copy of results.json (it adds request size labels to the runs it holds)."""
-    found = CHECKS.search((ROOT / "index.html").read_text(encoding="utf-8"))
-    if not found:
-        raise ValueError("index.html no longer shows the count of reproduce.py checks")
-    return bp.Snapshot(json.loads(json.dumps(site.results)), site.config, int(found.group(1).replace(",", "")))
+    """build_page.py's Snapshot over a copy of results.json (it adds request size labels to the runs it holds), with
+    the count of checks from running reproduce.py (bp.reproduce), which stops the build unless every check matches."""
+    return bp.Snapshot(json.loads(json.dumps(site.results)), site.config, bp.reproduce())
 
 
 def signed(points: float) -> str:
@@ -387,7 +381,7 @@ mistakes. Among wrong answers at {v['threshold']} or more, it removed {v['method
 time, tokens and money stay in the totals.</p>
 <p>Every setup is scored on the same frozen key, {v['key_version']}. A fix needs a check against the book's key or a second
 reviewer, and it rescores every run under a new version; the
-<a href="{REPO}/blob/main/decision-models/key-changelog.md">key changelog</a> lists every change.</p>
+<a href="{REPO_URL}/blob/main/decision-models/key-changelog.md">key changelog</a> lists every change.</p>
 <p>The source is the practice book <i>TYT IQ Turkish Question Library</i> (title translated) from Paraf, ISBN
 978-625-7423-18-2 (© 2022, no edition number). We do not publish its copyrighted questions; with the book, the scripts in the
 repository's <code>runner</code> folder rebuild a matching set, matched by each question's ID, topic, page and number.</p>"""),
@@ -611,12 +605,12 @@ and one question source; a confidence cutoff for a new task needs its own test.<
 {v['dataset_version']} · Answer key {v['key_version']}</p>
 <p>The {results_file} holds the summary numbers; the {answer_file} holds the recorded choices, confidence scores, settings,
 prompt templates and question IDs, without the copyrighted questions. The
-<a href="{REPO}/blob/main/decision-models/benchmark_metrics.py">metric code</a> computes each statistic; the
+<a href="{REPO_URL}/blob/main/decision-models/benchmark_metrics.py">metric code</a> computes each statistic; the
 {link('data/', 'Data page')} describes the files.</p>
 <p>This snapshot holds {v['configs']} main setups, {v['repeat_runs']} extra repeat runs, {v['method_live_runs']} runs from
 the {v['method_live_tests']} live tests, {v['method_alone_runs']} cheaper models tested alone and
 {v['method_single_runs']} more runs with one question per request on {v['method_single_questions']} questions.</p>
-<p>From the <a href="{REPO}/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
+<p>From the <a href="{REPO_URL}/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
 setup's accuracy, ranking score, calibration gap and answers at {v['threshold']} or more (before and after the key review),
 the {v['comparisons']} selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
 replays with their {v['method_splits']} splits and live tests: all {v['checks']} checks match. It does not yet check the

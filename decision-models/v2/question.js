@@ -18,6 +18,7 @@ const scoreCell = (score, source) =>
 async function start() {
   const status = document.querySelector('[data-question-status]');
   const box = document.querySelector('[data-question]');
+  status.hidden = false;
   const id = Number(new URLSearchParams(window.location.search).get('id'));
   let data;
   try {
