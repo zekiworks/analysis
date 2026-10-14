@@ -20,8 +20,10 @@ stops when the answers are graded against a key that is not frozen there.
 - 2,210 questions with a key; 2,198 scored.
 
 Version 2 is the key after the review of 4 October 2026. The review checked 25 disputed keys, confirmed 13 and
-removed these 12 questions from scoring. Their printed keys stay in the data, but they count in no result. Topic,
-page, test and number locate each question in the book.
+removed these 12 questions from scoring.
+
+Their printed keys stay in the data, but they count in no result. Topic, page, test and number locate each question
+in the book.
 
 | Question ID | Topic | Page | Test | Number | Change | Reason | Date |
 |---|---|---|---|---|---|---|---|

@@ -156,7 +156,7 @@ function visibleRuns() {
 /* ---- Leaderboard ---- */
 
 const modelCell = run =>
-  `<td class="model"><span class="model-name">${esc(run.name)}</span><span class="small">${esc(runDetail(run))}</span></td>`;
+  `<td class="model"><a class="model-name" href="models/${run.run}/">${esc(run.name)}</a><span class="small">${esc(runDetail(run))}</span></td>`;
 const numCell = (label, html) => `<td class="num" data-label="${esc(label)}">${html}</td>`;
 
 function accuracyCell(run) {
@@ -720,32 +720,7 @@ function onChange(event) {
   render();
 }
 
-/* Dark / Light, as on the main page: the choice is kept in localStorage. */
-function setupTheme() {
-  const control = document.querySelector('.theme-switch');
-  const buttons = control.querySelectorAll('button');
-  const show = () => {
-    const light = document.documentElement.dataset.theme === 'light';
-    buttons.forEach(button => button.setAttribute('aria-pressed', String((button.dataset.themeChoice === 'light') === light)));
-  };
-  control.hidden = false;
-  show();
-  control.addEventListener('click', event => {
-    const choice = event.target.closest('button')?.dataset.themeChoice;
-    if (!choice) return;
-    if (choice === 'light') document.documentElement.dataset.theme = 'light';
-    else delete document.documentElement.dataset.theme;
-    try {
-      localStorage.setItem('theme', choice);
-    } catch (error) {
-      /* Storage may be unavailable; the choice then lasts for this page view. */
-    }
-    show();
-  });
-}
-
 async function start() {
-  setupTheme();
   try {
     const response = await fetch(RESULTS_URL);
     if (!response.ok) throw new Error(`${RESULTS_URL}: ${response.status}`);

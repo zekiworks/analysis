@@ -93,10 +93,35 @@ i.key.key-chat { background: var(--text-muted); }
 /* Links and footer */
 .v2-links { margin: 1.5rem 0; }
 .v2-links ul { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; list-style: none; margin: 0; padding: 0; }
-.v2-links .soon { margin-left: .3rem; padding: 0 .4rem; border: 1px solid var(--border); border-radius: 999px; color: var(--text-muted);
-  font-size: .78rem; white-space: nowrap; }
 .v2-footer { margin-top: 1rem; }
 .v2-footer p { margin: .25rem 0; }
+
+/* Sub-pages: the menu at the top, facts as a two-column list, and the tables only those pages have. */
+.v2-top { max-width: 1100px; margin: 0 auto 1rem; }
+.v2-top .kicker { margin: 0 0 .5rem; font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.v2-top .kicker a { color: var(--label); text-decoration: none; }
+.v2-nav ul { display: flex; flex-wrap: wrap; gap: .3rem 1rem; list-style: none; margin: 0; padding: 0 0 .5rem; border-bottom: 1px solid var(--border);
+  font-size: .9rem; }
+.v2-nav a[aria-current="page"] { color: var(--text); font-weight: 600; text-decoration: none; }
+body.v2 main > .card + .card { margin-top: 1rem; }
+body.v2 main h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+.card .subtitle { margin: 0 0 .75rem; }
+dl.facts { display: grid; grid-template-columns: minmax(10rem, max-content) 1fr; gap: .35rem 1rem; margin: 0 0 .75rem; }
+dl.facts dt { color: var(--text-muted); }
+dl.facts dd { margin: 0; overflow-wrap: anywhere; }
+.small.inline { display: inline; margin-left: .3rem; }
+tr.right td.num:nth-child(2) { font-weight: 700; }
+.topic-list { columns: 2 18rem; padding-left: 1.25rem; }
+.topic-list li { break-inside: avoid; margin-bottom: .25rem; }
+.heatmap-table th.unit { white-space: normal; min-width: 6.5rem; vertical-align: bottom; }
+.heatmap-table td.model, .heatmap-table thead th:first-child { position: sticky; left: 0; z-index: 1; background: var(--card-bg);
+  box-shadow: 1px 0 0 var(--border); min-width: 14rem; }
+.compare-pickers { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin: 0 0 1rem; }
+.compare-pickers select { max-width: 100%; }
+.compare-table th[scope="row"] { font-weight: 400; color: var(--text-muted); }
+pre.citation { overflow-x: auto; padding: .75rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: .8rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+body.v2 p code, body.v2 td code, body.v2 li code { overflow-wrap: anywhere; word-break: break-all; }
 
 @media (max-width: 640px) {
   .v2-hero h1 { font-size: 1.7rem; }
@@ -122,4 +147,25 @@ i.key.key-chat { background: var(--text-muted); }
   /* On a phone a tooltip opens as a strip along the bottom of the screen, so it never runs past an edge. */
   .hint:hover::after, .hint:focus::after { position: fixed; left: .5rem; right: .5rem; bottom: .5rem; top: auto; width: auto; max-width: none;
     font-size: .85rem; }
+  dl.facts { grid-template-columns: 1fr; gap: 0; }
+  dl.facts dd { margin-bottom: .5rem; }
+  .heatmap-table td.model, .heatmap-table thead th:first-child { min-width: 7.5rem; max-width: 9rem; }
+}
+
+/* Method page (v2/method/): the worked example box, the average-cost caveat, the confidence sources list and the
+   section headings inside its cards. */
+.method-page .card h3 { font-size: 1rem; margin: 1.5rem 0 .5rem; }
+.worked-example { margin: 0 0 2rem; padding: 1rem 1.25rem; background: var(--card-bg); border: 1px solid var(--border);
+  border-left: 4px solid var(--primary); border-radius: var(--radius); box-shadow: var(--shadow); }
+.worked-example h2 { font-size: 1.2rem; margin: 0 0 .75rem; }
+.worked-example p { max-width: 80ch; }
+.caveat { margin: 1rem 0; padding: .5rem .9rem; background: var(--bg); border-left: 3px solid var(--primary); border-radius: 4px; max-width: 80ch; }
+.caveat h3 { margin-top: .25rem; }
+dl.sources { margin: 0; }
+dl.sources dt { font-weight: 600; margin-top: .5rem; }
+dl.sources dd { margin: 0; max-width: 80ch; }
+table.settings td:first-child { font-weight: 600; min-width: 9rem; }
+@media (max-width: 640px) {
+  .worked-example { padding: .75rem; }
+  table.settings td:first-child { min-width: 7rem; }
 }

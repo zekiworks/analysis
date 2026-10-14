@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
-"""Fill the v2 home page preview (v2/index.html) from results.json, with page_config.json.
+"""Build the v2 site (v2/) from results.json and answers.json, with page_config.json.
 
     python3 build_v2.py
 
-v2/index.html keeps the copy; this script rewrites what is inside its <!-- build:name --> markers: the meta tags,
-the stats row, the leaderboard as a plain table for readers without JavaScript, the settings v2/v2.js reads, and the
-results version in the footer. v2/v2.js draws everything else in the browser from ../results.json.
+The home page, v2/index.html, keeps its copy; this script rewrites what is inside its <!-- build:name --> markers:
+the meta tags, the stats row, the leaderboard as a plain table for readers without JavaScript, the settings
+v2/v2.js reads, and the results version in the footer. v2/v2.js draws everything else there in the browser from
+../results.json.
 
-The page's fixed copy (the intro, the notes under the tabs, the meta description) quotes numbers from the brief.
-copy_checks() compares each with results.json and prints every one that differs; the page is still written, so it
-can be reviewed, and the script exits with status 1.
+Every other page is generated whole by a module of v2build/ (PAGE_MODULES): build(site) returns {path: html}, and
+each page is written to v2/<path>index.html.
+
+The home page's fixed copy (the intro, the notes under the tabs, the meta description) quotes numbers from the brief.
+copy_checks() compares each with results.json and prints every one that differs; the pages are still written, so
+they can be reviewed, and the script exits with status 1.
 """
 
 from __future__ import annotations
 
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -22,10 +27,13 @@ from typing import Any
 sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
+from v2build.site import Site  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 PAGE = ROOT / "v2" / "index.html"
 SITE = "https://zekiworks.github.io/analysis/decision-models/v2/"
+# The modules of v2build/ that write pages, in build order: questions writes v2/data/picks.json, which the others read.
+PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "data", "method")
 TITLE = "When should you trust an AI model to make a decision?"
 DESCRIPTION = (
     "We tested 18 decision models on a reading and grammar test in native Turkish (not translated): 2,198 questions. "
@@ -113,7 +121,7 @@ def fallback_table(data: Data) -> str:
         kind = "Decision model" if data.decision(run) else "Chat model"
         rows.append(
             "<tr>"
-            f'<td class="model"><span class="model-name">{bp.esc(run["name"])}</span><span class="small">{bp.esc(detail(run))} · {kind}</span></td>'
+            f'<td class="model"><a class="model-name" href="models/{run["run"]}/">{bp.esc(run["name"])}</a><span class="small">{bp.esc(detail(run))} · {kind}</span></td>'
             f'<td class="num" data-label="Accuracy">{pct(correct / total)}<span class="small">{pct(low)} to {pct(high)}</span></td>'
             f'<td class="num" data-label="Reading">{pct(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num" data-label="Grammar">{pct(grammar["correct"] / grammar["questions"])}</td>'
@@ -278,11 +286,26 @@ def main() -> int:
     if seen != set(blocks):
         raise ValueError(f"v2/index.html lacks the markers {sorted(set(blocks) - seen)}")
     PAGE.write_text(text)
+    written = write_pages()
     differ = copy_checks(data)
     for claim in differ:
         print(f"copy differs from results.json: {claim}", file=sys.stderr)
-    print(f"wrote {PAGE.relative_to(ROOT)}; {len(differ)} copy claims differ from results.json")
+    print(f"wrote {PAGE.relative_to(ROOT)} and {written} other pages; {len(differ)} copy claims differ from results.json")
     return 1 if differ else 0
+
+
+def write_pages() -> int:
+    """Every page of PAGE_MODULES, each to v2/<path>index.html; the number of pages written."""
+    site = Site()
+    written = 0
+    for name in PAGE_MODULES:
+        module = importlib.import_module(f"v2build.{name}")
+        for path, text in module.build(site).items():
+            target = ROOT / "v2" / path / "index.html"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text)
+            written += 1
+    return written
 
 
 if __name__ == "__main__":
