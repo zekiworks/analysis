@@ -52,7 +52,9 @@ python3 -m http.server 8000                                # preview at http://1
   McNemar, Holm over all pairs, alpha 0.05), including that two runs share a letter exactly when that
   test does not tell them apart; the listed paired comparisons (exact McNemar, Holm over the listed
   pairs and over all pairs); each format rerun against its setup's first run on the same questions (exact
-  McNemar, Holm over these comparisons); each repeated configuration's answer stability statistics, from its runs'
+  McNemar, Holm over these comparisons); each reasoning pair's gains on reading and on grammar and the
+  bootstrap interval of their difference, with the seed and resamples in `results.json`'s `reasoning`;
+  each repeated configuration's answer stability statistics, from its runs'
   answers; every routing simulation (the cutoff chosen in sample and its 300 held-out splits); the
   replay the page leads with (Decider v1.1's answers kept at each cutoff and in its most confident quarter, and
   what keeping them changes in front of each second model, on all questions and on the same splits);
@@ -64,8 +66,8 @@ python3 -m http.server 8000                                # preview at http://1
   routing tests' costs from their parts. It prints one row per run and exits with status 1 when a value
   differs from
   `results.json`: counts and group letters must match exactly, AUROC, ECE, shares and accuracies within
-  10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals and the other tables are not
-  recomputed.
+  10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals of AUROC and of the kept
+  answers' accuracy, and the other tables, are not recomputed.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json` (see below).
 - **The page build** `build_page.py` runs `reproduce.py` first and stops unless every check matches.
   It fills the page's `<span data-value="…">` elements and `<!-- build:… -->` blocks from

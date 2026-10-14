@@ -3,11 +3,12 @@ and cost, and, for a first model, what it took off each LLM in the replay."""
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
 
-from v2build.site import NOT_MEASURED, Site, esc, interval, latency_text, pct, rel, request_size
+from v2build.site import NOT_MEASURED, REPO_URL, Site, esc, interval, latency_text, pct, rel, request_size
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
 # The home page's Routing tab LLMs, by their key in page_config.json's named_runs, with the slug of its URL.
@@ -16,6 +17,8 @@ UNPRICED_FIRST = {
     "local": "Leaves out the first model's hardware cost, which we have not estimated.",
     "free": "The first model used a free tier; this assumes no charge for it.",
 }
+# What the Settings section shows where a run record holds no value. It never fills in a default.
+NOT_RECORDED = "not recorded"
 
 
 def facts(items: list[tuple[str, str | None]]) -> str:
@@ -45,9 +48,6 @@ def called(site: Site, run: dict[str, Any]) -> str:
         ("Paid as", esc(billing["access"])),
         ("Model ID", f"<code>{esc(run['model'])}</code>"),
         ("Variant", esc(run["variant"]) if run.get("variant") else None),
-        ("Reasoning", esc(bp.reasoning_label(run["reasoning"])) if run.get("reasoning") else None),
-        ("Request format", request_size(run["questions_per_request"])),
-        ("Requests at once", str(run["concurrency"])),
         ("Parameters", parameters_text(run)),
         ("Hardware", esc(run["hardware"]) if run.get("hardware") else None),
         ("Note", esc(run["note"]) if run.get("note") else None),
@@ -55,6 +55,27 @@ def called(site: Site, run: dict[str, Any]) -> str:
         ("Run", f"{run['run']}, {bp.long_date(run['started'])}" if run.get("started") else str(run["run"])),
     ]
     return facts(items)
+
+
+def settings(site: Site, run: dict[str, Any]) -> str:
+    """The request settings as the setup's run record in answers.json holds them, each "not recorded" where the record
+    holds no value: no run record names a temperature, and older runs have no harness commit or prompt version. The
+    harness seed goes only into the local servers' requests (vLLM, Ollama) and into picking sampled questions."""
+    record = site.answer_runs[run["run"]]
+
+    def recorded(key: str, show: Callable[[Any], str] = lambda value: esc(str(value))) -> str:
+        value = record.get(key)
+        return NOT_RECORDED if value is None else show(value)
+
+    return facts([
+        ("Reasoning", recorded("thinking")),
+        ("Request format", recorded("questions_per_request", request_size)),
+        ("Requests at once", recorded("concurrency")),
+        ("Temperature", recorded("temperature")),
+        ("Harness seed", recorded("seed")),
+        ("Harness commit", recorded("harness_commit", lambda commit: f'<a href="{REPO_URL}/commit/{esc(commit)}"><code>{esc(commit[:12])}</code></a>')),
+        ("Prompt version", recorded("prompt_version", lambda prompt: f"<code>{esc(prompt)}</code>")),
+    ])
 
 
 def results(site: Site, run: dict[str, Any]) -> str:
@@ -217,6 +238,7 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
         f'    <section class="card">\n      <p class="eyebrow">{site.kind(run)}</p>\n      <h1>{esc(run["name"])}</h1>\n'
         f'      <p class="subtitle">{esc(site.detail(run))}</p>\n      {lead}{formats(site, run) or ""}{routed_llm(site, run) or ""}\n    </section>',
         section("How we called it", called(site, run), "called"),
+        section("Settings", settings(site, run), "settings"),
         section("Results", results(site, run), "results"),
         section("Confidence", confidence(site, run), "confidence"),
         section("Repeats", repeats(site, run), "repeats"),

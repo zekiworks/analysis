@@ -262,6 +262,18 @@ REPLAY_FRONTIERS = (
 REPLAY_CUTOFFS = (0.999, 0.995, 0.99, 0.985, 0.98, 0.97, 0.95, 0.9, 0.8)
 REPLAY_SHARE = 0.25
 
+# Reasoning by task (N3): each model at a lower and a higher reasoning setting, as the (provider, model, reasoning) of
+# its setups' first runs, lower first. Units 1 to 6 test reading, as benchmark_ollama.py's READING_UNITS; the seed is
+# the one the analysis fixed on 13 October.
+REASONING_PAIRS = (
+    (("claude", "claude-sonnet-5-5", "low"), ("claude", "claude-sonnet-5-5", "high")),
+    (("vllm", "deepseek-v4.1-flash", "off"), ("vllm", "deepseek-v4.1-flash", "on")),
+    (("gemini", "gemini-3.8-flash", "low"), ("gemini", "gemini-3.8-flash", "high")),
+    (("vllm-stated", "glm-5.3-flash", "off"), ("vllm-stated", "glm-5.3-flash", "on")),
+)
+READING_UNITS = range(1, 7)
+REASONING_SEED = 20261013
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -862,6 +874,48 @@ def formats(runs: list[dict[str, Any]], answers: dict[str, Any]) -> list[dict[st
     return found
 
 
+def reasoning(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, Any]:
+    """N3: for each reasoning pair, the accuracy gain from the lower to the higher setting on reading and on grammar,
+    and the 95% interval of the grammar gain minus the reading gain (bm.bootstrap_gain_difference), on the scored
+    questions in question order with each passage's questions as one cluster, as the replay takes them. The export stops
+    when READING_UNITS no longer gives the runs' reading questions."""
+    questions = answers["questions"]
+    order = sorted((index for index, status in enumerate(questions["status"]) if status != "excluded"),
+                   key=lambda index: questions["id"][index])
+    parts = ["reading" if questions["unit"][index] in READING_UNITS else "grammar" for index in order]
+    clusters = [
+        f"passage {questions['passage'][index]}" if questions["passage"][index] is not None else f"question {questions['id'][index]}"
+        for index in order
+    ]
+    exported = {run["run"]: run for run in answers["runs"]}
+
+    def find(spec: tuple[str, str, str]) -> dict[str, Any]:
+        found = [run for run in runs if (run["provider"], run["model"], run["reasoning"]) == spec and run.get("format_of") is None]
+        if len(found) != 1:
+            raise ValueError(f"reasoning: {len(found)} runs match {spec}")
+        return found[0]
+
+    def outcomes(run: dict[str, Any]) -> list[int]:
+        return [int(bool(exported[run["run"]]["correct"][index])) for index in order]
+
+    pairs = []
+    for low_spec, high_spec in REASONING_PAIRS:
+        low, high = find(low_spec), find(high_spec)
+        if parts.count("reading") != low["groups"]["reading"]["questions"]:
+            raise ValueError("reasoning: READING_UNITS no longer gives the runs' reading questions")
+        test = bm.bootstrap_gain_difference(outcomes(low), outcomes(high), parts, clusters, of="grammar", against="reading",
+                                            seed=REASONING_SEED)
+        pairs.append({
+            "low": low["run"],
+            "high": high["run"],
+            "reading_gain": test["gains"]["reading"],
+            "grammar_gain": test["gains"]["grammar"],
+            "difference": test["difference"],
+            "interval": test["interval"],
+        })
+    return {"reading_units": list(READING_UNITS), "seed": REASONING_SEED, "resamples": bm.BOOTSTRAP_RESAMPLES, "pairs": pairs}
+
+
 def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
     runs, the repeats of each repeated configuration and the runs of each measured routing pipeline."""
@@ -941,6 +995,7 @@ def main() -> int:
         answers = export_answers(json.loads(args.answers.read_text(encoding="utf-8")), data)
         data["answer_key"] = answer_key(answers)
         data["formats"] = formats(data["runs"], answers)
+        data["reasoning"] = reasoning(data["runs"], answers)
         data["replay"] = replay(data["runs"], answers)
         holm_over_all_pairs(data["paired"], data["runs"], answers)
         data["baselines"] = baselines(answers, data["replay"]["decision"])

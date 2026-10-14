@@ -90,7 +90,8 @@ let byId;
    "Show all" tells its two setups apart. */
 function chartLabels(runs) {
   const name = run => SETTINGS.shortNames[run.model] ?? run.name;
-  const base = run => (run.variant ? `${name(run)} (${run.variant})` : name(run));
+  // page_config.json's chart_labels name a setup outright; the tooltip keeps its full name.
+  const base = run => SETTINGS.chartLabels[run.provider]?.[run.model] ?? (run.variant ? `${name(run)} (${run.variant})` : name(run));
   const labels = new Map();
   runs.forEach(run => {
     const same = runs.filter(other => base(other) === base(run));
@@ -144,6 +145,25 @@ function questionsInFilter() {
 }
 const filtered = () => state.part !== 'all' || state.topic != null;
 
+/* Correct answers and questions of one part (reading or grammar) inside the part and topic filters; null when the
+   filter leaves that part out. */
+function partCounts(run, part) {
+  if (state.topic != null) {
+    const index = units().findIndex(unit => unit.number === state.topic);
+    return unitPart(units()[index]) === part ? { correct: run.units[index], questions: units()[index].questions } : null;
+  }
+  if (state.part !== 'all' && state.part !== part) return null;
+  return run.groups[part];
+}
+
+function partColumn(part, label) {
+  const share = run => {
+    const found = partCounts(run, part);
+    return found ? found.correct / found.questions : null;
+  };
+  return { key: part, label, className: part, value: share, cell: run => (share(run) == null ? tip(EMPTY.allOnly) : pct(share(run))) };
+}
+
 function visibleRuns() {
   return data.runs.filter(
     run =>
@@ -172,16 +192,8 @@ const TABS = {
     rows: () => visibleRuns().map(run => ({ run })),
     columns: [
       { key: 'accuracy', label: 'Accuracy', tip: INTERVAL_TIP, value: accuracyOf, cell: accuracyCell },
-      {
-        key: 'reading', label: 'Reading', className: 'reading',
-        value: run => run.groups.reading.correct / run.groups.reading.questions,
-        cell: run => pct(run.groups.reading.correct / run.groups.reading.questions),
-      },
-      {
-        key: 'grammar', label: 'Grammar', className: 'grammar',
-        value: run => run.groups.grammar.correct / run.groups.grammar.questions,
-        cell: run => pct(run.groups.grammar.correct / run.groups.grammar.questions),
-      },
+      partColumn('reading', 'Reading'),
+      partColumn('grammar', 'Grammar'),
       {
         key: 'latency', label: 'Latency', tip: LATENCY_TIP, low: true, value: latencyOf,
         cell: run => (latencyOf(run) == null ? tip(EMPTY.notMeasured) : duration(latencyOf(run))),

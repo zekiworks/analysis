@@ -271,9 +271,10 @@ models do not stand for equal computation.</p>
 <p>Reasoning helped grammar much more than reading. In all four pairs we tested, the grammar gain was larger, and every 95%
 interval of the difference is above 0. Claude Sonnet 5.5, low to high reasoning: +32.7 points on grammar, +2.3 on reading.
 For DeepSeek and GLM, turning on reasoning also turns on random sampling, so those pairs mix two changes.</p>
-<div class="table-wrap"><table class="overview cards"><thead><tr><th scope="col">Pair</th><th scope="col" class="num">Reading gain (points)</th><th scope="col" class="num">Grammar gain (points)</th><th scope="col" class="num">Difference (grammar gain minus reading gain, points)</th><th scope="col" class="num">95% interval of the difference</th></tr></thead><tbody><tr><td data-label="Pair">Claude Sonnet 5.5, low → high reasoning</td><td class="num" data-label="Reading gain (points)">+2.3</td><td class="num" data-label="Grammar gain (points)">+32.7</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+30.5</td><td class="num" data-label="95% interval of the difference">+27.0 to +34.0</td></tr><tr><td data-label="Pair">DeepSeek-V4.1-Flash, reasoning off → on</td><td class="num" data-label="Reading gain (points)">+5.6</td><td class="num" data-label="Grammar gain (points)">+34.8</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+29.2</td><td class="num" data-label="95% interval of the difference">+25.6 to +32.7</td></tr><tr><td data-label="Pair">Gemini 3.8 Flash, low → high reasoning</td><td class="num" data-label="Reading gain (points)">+2.0</td><td class="num" data-label="Grammar gain (points)">+6.0</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+4.0</td><td class="num" data-label="95% interval of the difference">+2.1 to +5.8</td></tr><tr><td data-label="Pair">GLM-5.3-Flash, reasoning off → on</td><td class="num" data-label="Reading gain (points)">+7.2</td><td class="num" data-label="Grammar gain (points)">+26.9</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+19.7</td><td class="num" data-label="95% interval of the difference">+16.2 to +23.6</td></tr></tbody></table></div>
-<p class="table-note">These intervals are computed by the page build from answers.json; they are not in results.json. Each is
-a paired bootstrap over scored questions (1,000 resamples, Reading and Grammar resampled separately).</p>
+<div class="table-wrap"><table class="overview cards"><thead><tr><th scope="col">Pair</th><th scope="col" class="num">Reading gain (points)</th><th scope="col" class="num">Grammar gain (points)</th><th scope="col" class="num">Difference (grammar gain minus reading gain, points)</th><th scope="col" class="num">95% interval of the difference</th></tr></thead><tbody><tr><td data-label="Pair">Claude Sonnet 5.5, low → high reasoning</td><td class="num" data-label="Reading gain (points)">+2.3</td><td class="num" data-label="Grammar gain (points)">+32.7</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+30.5</td><td class="num" data-label="95% interval of the difference">+26.8 to +34.3</td></tr><tr><td data-label="Pair">DeepSeek-V4.1-Flash, reasoning off → on</td><td class="num" data-label="Reading gain (points)">+5.6</td><td class="num" data-label="Grammar gain (points)">+34.8</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+29.2</td><td class="num" data-label="95% interval of the difference">+25.6 to +32.8</td></tr><tr><td data-label="Pair">Gemini 3.8 Flash, low → high reasoning</td><td class="num" data-label="Reading gain (points)">+2.0</td><td class="num" data-label="Grammar gain (points)">+6.0</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+4.0</td><td class="num" data-label="95% interval of the difference">+2.2 to +5.8</td></tr><tr><td data-label="Pair">GLM-5.3-Flash, reasoning off → on</td><td class="num" data-label="Reading gain (points)">+7.2</td><td class="num" data-label="Grammar gain (points)">+26.9</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+19.7</td><td class="num" data-label="95% interval of the difference">+15.9 to +23.2</td></tr></tbody></table></div>
+<p class="table-note">Each interval is a paired bootstrap over the scored questions (1,000
+resamples, each shared passage's questions kept together). The <a href="../../results.json">results file</a> holds them, and <code>reproduce.py</code>
+recomputes them.</p>
 <p>Short output can go with high accuracy: GPT-6 Astra reached 97.6% with about 21 output
 tokens per question, and GPT-6.1 Sol 96.7% with 25. Other research finds that more computation
 while answering helps on some problems;<sup class="cite"><a id="cite-7-a" href="#ref-7">7</a></sup> we show it only for these settings.</p>
@@ -340,7 +341,7 @@ university entrance exam, public before our October test, 9 models got 24 to
 and one question source; a confidence cutoff for a new task needs its own test.</p>
 </section>
 <section class="card prose" id="data" aria-labelledby="data-title"><h2 id="data-title">Download the data and check our calculations</h2>
-<p class="versions">Results updated 13 October 2026 · Results snapshot 82f7bb88 · Question set
+<p class="versions">Results updated 13 October 2026 · Results snapshot 84d533b4 · Question set
 questions-v2.sqlite (797ad6c8) · Answer key version 2</p>
 <p>The <a href="../../results.json">results file</a> holds the summary numbers; the <a href="../../answers.json">answer export</a> holds the recorded choices, confidence scores, settings,
 prompt templates and question IDs, without the copyrighted questions. The
@@ -351,9 +352,9 @@ the 14 live tests, two cheaper models tested alone and
 two more runs with one question per request on 200 questions.</p>
 <p>From the <a href="https://github.com/zekiworks/analysis/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
 setup's accuracy, ranking score, calibration gap and answers at 99% or more (before and after the key review),
-the 42 selected comparisons, comparison groups, request format comparisons, repeats, prices, replays with
-their 300 splits and live tests: all 3,362 checks match. It does not yet check the bootstrap
-intervals.</p>
+the 42 selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
+replays with their 300 splits and live tests: all 3,370 checks match. It does not yet check the
+bootstrap intervals of the ranking score and the accuracy of kept answers.</p>
 <p>The 40 exam questions stay private, and the raw replies behind token counts are not exported.
 The <code>runner</code> folder holds the test code, run scripts and server wrappers.</p>
 </section>
@@ -362,7 +363,7 @@ The <code>runner</code> folder holds the test code, run scripts and server wrapp
   </main>
   <footer class="v2-footer">
     <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
-    <p>Results 82f7bb88, updated 13 October 2026; answer key version 2.</p>
+    <p>Results 84d533b4, updated 13 October 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

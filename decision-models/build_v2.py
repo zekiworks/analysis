@@ -177,6 +177,8 @@ def page_settings(data: Data) -> str:
         "readingUnits": data.config["reading_units"],
         "threshold": data.config["threshold"],
         "shortNames": data.config["short_names"],
+        # A chart label for a setup whose model ID another setup shares, by provider then model.
+        "chartLabels": data.config["chart_labels"],
         "chartDecisionModels": CHART_DECISION_MODELS,
         "routeLlms": [
             {"key": key, "label": label, "runs": {str(size): data.named(key, size)["run"] for size in (1, 16)}}

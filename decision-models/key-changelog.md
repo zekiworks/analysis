@@ -4,14 +4,16 @@ Every setup in this benchmark is scored on one frozen answer key. This file list
 
 **How a fix works.** A fix to the key needs a check against the book's own key, or a second person who reviews the
 question and its options without seeing the models' answers. Each fix creates a new key version, adds a row to this
-file (question ID, old answer, new answer, reason, date) and rescores every run. To report a wrong key, see
-[CONTRIBUTING.md](CONTRIBUTING.md).
+file (question ID, old answer, new answer, reason, date) and rescores every run.
+
+To report a wrong key, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **How to identify a version.** `results.json` names the key version under `answer_key`, with the SHA-256 of the
 question bank and the key's fingerprint: the SHA-256 of `[[id, key, excluded], ...]` over every question in
 `answers.json`, as compact JSON in question order (`answer_key_fingerprint` in `benchmark_metrics.py`).
-`reproduce.py` recomputes the fingerprint and checks every exported answer against the key. `export_results.py`
-stops when the answers are graded against a key that is not frozen there.
+
+`reproduce.py` recomputes the fingerprint and checks every exported answer against the key. `export_results.py` stops
+when the answers are graded against a key that is not frozen there.
 
 ## Version 2 (frozen 13 October 2026)
 

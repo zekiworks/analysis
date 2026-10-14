@@ -16,6 +16,7 @@ V2 = ROOT / "v2"
 SITE_URL = "https://zekiworks.github.io/analysis/decision-models/v2/"
 KICKER = "Zeki Works · Decision models · answer key v2"
 ISSUE_URL = "https://github.com/zekiworks/analysis/issues/new?template="
+REPO_URL = "https://github.com/zekiworks/analysis"
 esc = html.escape
 
 # Every page's menu, in order: (path under v2/, label). The home page's own link list is in v2/index.html.

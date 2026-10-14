@@ -2,19 +2,16 @@
 
 Its numbers come from results.json through build_page.py's Snapshot (the same values the main page's spans show),
 from page_config.json's method_records, and from answers.json where results.json holds no count. One table is new:
-the reasoning pairs' gains on Reading and Grammar, with paired bootstrap intervals this module computes from
-answers.json (results.json does not store them). Build checks raise ValueError when the copy no longer fits the data.
+the reasoning pairs' gains on Reading and Grammar with the 95% interval of their difference, from results.json's
+reasoning. Build checks raise ValueError when the copy no longer fits the data.
 """
 
 from __future__ import annotations
 
 import json
-import math
-import random
 import re
 from typing import Any
 
-import benchmark_metrics as bm
 import build_page as bp
 from v2build.site import ROOT, Site, esc, rel
 
@@ -144,44 +141,28 @@ def snapshot(site: Site) -> bp.Snapshot:
     return bp.Snapshot(json.loads(json.dumps(site.results)), site.config, int(found.group(1).replace(",", "")))
 
 
-def part_rate(run: dict[str, Any], part: str) -> float:
-    group = run["groups"][part]
-    return group["correct"] / group["questions"]
-
-
 def signed(points: float) -> str:
     return f"{points:+.1f}".replace("-", "\u2212")
 
 
 def reasoning_pairs(site: Site, snap: bp.Snapshot) -> list[dict[str, Any]]:
-    """page_config.json's reasoning pairs: each one's gain on Reading and on Grammar (second setting minus first, from
-    runs[].groups) and a 95% interval of the Grammar gain minus the Reading gain. The interval is a paired bootstrap over
-    the scored questions, stratified by part: Reading and Grammar questions are each resampled with replacement, and both
-    settings are scored on the same resampled questions."""
-    units = site.answers["questions"]["unit"]
-    parts = {part: [index for index in site.scored if site.part(units[index]) == part] for part in ("reading", "grammar")}
+    """results.json's reasoning pairs (N3), in page_config.json's order: each one's gain on Reading and on Grammar, and
+    the 95% interval of the Grammar gain minus the Reading gain, in points. The build stops when results.json's pairs
+    are not page_config.json's, or when the reasoning paragraph no longer fits them."""
+    published = {(item["low"], item["high"]): item for item in site.results["reasoning"]["pairs"]}
     pairs = []
     for first_key, second_key in site.config["reasoning_pairs"]:
         first, second = snap.named[first_key], snap.named[second_key]
-        right = {run["run"]: site.answer_runs[run["run"]]["correct"] for run in (first, second)}
-        for run in (first, second):
-            for part, indices in parts.items():
-                if sum(right[run["run"]][index] for index in indices) != run["groups"][part]["correct"] or len(indices) != run["groups"][part]["questions"]:
-                    raise ValueError(f"answers.json and results.json disagree on {bp.label(run)}'s {part} answers")
-        gain = {index: right[second["run"]][index] - right[first["run"]][index] for index in site.scored}
-        rng = random.Random(0)
-        draws = []
-        for _ in range(bm.BOOTSTRAP_RESAMPLES):
-            mean = {part: sum(gain[index] for index in rng.choices(indices, k=len(indices))) / len(indices)
-                    for part, indices in parts.items()}
-            draws.append(mean["grammar"] - mean["reading"])
-        draws.sort()
-        reading = 100 * (part_rate(second, "reading") - part_rate(first, "reading"))
-        grammar = 100 * (part_rate(second, "grammar") - part_rate(first, "grammar"))
+        item = published.get((first["run"], second["run"]))
+        if item is None:
+            raise ValueError(f"results.json has no reasoning pair {first_key} → {second_key}")
         pairs.append({
-            "keys": (first_key, second_key), "first": first, "second": second, "reading": reading, "grammar": grammar,
-            "low": 100 * draws[int(0.025 * (len(draws) - 1))], "high": 100 * draws[math.ceil(0.975 * (len(draws) - 1))],
+            "keys": (first_key, second_key), "first": first, "second": second,
+            "reading": 100 * item["reading_gain"], "grammar": 100 * item["grammar_gain"],
+            "low": 100 * item["interval"][0], "high": 100 * item["interval"][1],
         })
+    if len(pairs) != len(published):
+        raise ValueError("results.json has reasoning pairs page_config.json does not name")
     keys = {key for item in pairs for key in item["keys"]}
     sonnet = next((item for item in pairs if item["keys"] == ("sonnet_low", "sonnet_high")), None)
     failed = [bp.label(item["first"]) for item in pairs if not item["grammar"] > item["reading"] or not item["low"] > 0]
@@ -562,8 +543,9 @@ models do not stand for equal computation.</p>
 interval of the difference is above 0. Claude Sonnet 5.5, low to high reasoning: +32.7 points on grammar, +2.3 on reading.
 For DeepSeek and GLM, turning on reasoning also turns on random sampling, so those pairs mix two changes.</p>
 {pairs_table(pairs)}
-<p class="table-note">These intervals are computed by the page build from answers.json; they are not in results.json. Each is
-a paired bootstrap over scored questions ({v['method_bootstrap']} resamples, Reading and Grammar resampled separately).</p>
+<p class="table-note">Each interval is a paired bootstrap over the scored questions ({site.results['reasoning']['resamples']:,}
+resamples, each shared passage's questions kept together). The {results_file} holds them, and <code>reproduce.py</code>
+recomputes them.</p>
 <p>Short output can go with high accuracy: GPT-6 Astra reached {v['astra_accuracy']} with about {v['astra_tokens']} output
 tokens per question, and GPT-6.1 Sol {v['sol_accuracy']} with {v['sol_tokens']}. Other research finds that more computation
 while answering helps on some problems;{cite(7)} we show it only for these settings.</p>
@@ -636,9 +618,9 @@ the {v['method_live_tests']} live tests, {v['method_alone_runs']} cheaper models
 {v['method_single_runs']} more runs with one question per request on {v['method_single_questions']} questions.</p>
 <p>From the <a href="{REPO}/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
 setup's accuracy, ranking score, calibration gap and answers at {v['threshold']} or more (before and after the key review),
-the {v['comparisons']} selected comparisons, comparison groups, request format comparisons, repeats, prices, replays with
-their {v['method_splits']} splits and live tests: all {v['checks']} checks match. It does not yet check the bootstrap
-intervals.</p>
+the {v['comparisons']} selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
+replays with their {v['method_splits']} splits and live tests: all {v['checks']} checks match. It does not yet check the
+bootstrap intervals of the ranking score and the accuracy of kept answers.</p>
 <p>The {v['method_exam_questions']} exam questions stay private, and the raw replies behind token counts are not exported.
 The <code>runner</code> folder holds the test code, run scripts and server wrappers.</p>"""),
     ]

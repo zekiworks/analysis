@@ -13,7 +13,9 @@ including that two runs share a letter exactly when that test does not tell them
 paired comparisons: exact McNemar and Holm over the listed pairs. Then the grading of every other
 exported run (repeats, routing tests, request sizes) against the same key. Then each format rerun (a
 setup's later main run with another number of questions per request) against its setup's first run:
-exact McNemar and Holm over those comparisons. Then the repeats: each
+exact McNemar and Holm over those comparisons. Then the reasoning pairs (N3): each model's gains from a lower
+to a higher reasoning setting on reading and on grammar, and the bootstrap interval of their difference, with
+the reading units, seed and resamples results.json names. Then the repeats: each
 configuration's repeated runs, recomputed from their exported answers. Then the replays: every routing
 simulation (the threshold chosen in sample and its 300 held-out splits), and the replay the page leads with: the
 decision run's answers kept at each cutoff and in its surest share, and what keeping them changes in
@@ -324,6 +326,16 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    reasoning_mismatches = check_reasoning(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nReasoning by task ({len(results.get('reasoning', {}).get('pairs', []))} pairs: the gains on reading and on grammar "
+        f"and the bootstrap interval of their difference; within {METRIC_TOLERANCE:g}): {checked - len(reasoning_mismatches)} of {checked} match"
+    )
+    for line in reasoning_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     repeat_mismatches = check_repeats(results, answers, scored, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -405,6 +417,40 @@ def check_formats(results: dict[str, Any], correct: dict[int, list[int]], checks
         ]
         if any("≠" in cell for cell in cells):
             mismatches.append(f"  run {item['run']} against run {item['base']}: " + ", ".join(cells))
+    return mismatches
+
+
+def check_reasoning(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute each reasoning pair (results.json `reasoning`, N3) from the exported answers: the gains from the lower
+    to the higher setting on reading and on grammar, and the bootstrap interval of their difference
+    (bm.bootstrap_gain_difference), on the scored questions in question order with each passage's questions as one
+    cluster, with the reading units, seed and resamples results.json names. Returns a line per value that differs."""
+    published = results.get("reasoning")
+    if not published:
+        return []
+    questions = answers["questions"]
+    order = sorted(scored, key=lambda index: questions["id"][index])
+    reading = set(published["reading_units"])
+    parts = ["reading" if questions["unit"][index] in reading else "grammar" for index in order]
+    clusters = [
+        f"passage {questions['passage'][index]}" if questions["passage"][index] is not None else f"question {questions['id'][index]}"
+        for index in order
+    ]
+    exported = {run["run"]: run for run in answers["runs"]}
+    mismatches = []
+    for item in published["pairs"]:
+        low, high = ([int(bool(exported[run]["correct"][index])) for index in order] for run in (item["low"], item["high"]))
+        test = bm.bootstrap_gain_difference(low, high, parts, clusters, of="grammar", against="reading",
+                                            resamples=published["resamples"], seed=published["seed"])
+        points = lambda values: " ".join(f"{100 * value:+.2f}" for value in values)  # noqa: E731
+        for what, recomputed, shown in (
+            ("gains and difference", (test["gains"]["reading"], test["gains"]["grammar"], test["difference"]),
+             (item["reading_gain"], item["grammar_gain"], item["difference"])),
+            ("interval", tuple(test["interval"]), tuple(item["interval"])),
+        ):
+            cell = checks.cell(all(close(a, b, METRIC_TOLERANCE) for a, b in zip(shown, recomputed)), points(recomputed), points(shown))
+            if "≠" in cell:
+                mismatches.append(f"  runs {item['low']} and {item['high']}, {what}: {cell}")
     return mismatches
 
 

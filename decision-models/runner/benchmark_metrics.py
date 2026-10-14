@@ -282,6 +282,53 @@ def bootstrap_ranking(
     }
 
 
+def bootstrap_gain_difference(
+    low: Sequence[int],
+    high: Sequence[int],
+    parts: Sequence[str],
+    clusters: Sequence[Any],
+    of: str,
+    against: str,
+    resamples: int = BOOTSTRAP_RESAMPLES,
+    seed: int = 0,
+) -> dict[str, Any]:
+    """Two settings of one model on the same questions: each part's accuracy gain from low to high (a share of the
+    part's questions), and the 95% percentile interval of the gain on part `of` minus the gain on part `against`.
+
+    low and high are 0/1 per question, parts each question's part. Each seeded resample draws clusters with
+    replacement, as many as there are, where questions that share a passage form one cluster, as in
+    bootstrap_ranking; the interval uses the same percentile positions."""
+    members: dict[Any, list[tuple[str, int, int]]] = defaultdict(list)
+    for first, second, part, cluster in zip(low, high, parts, clusters, strict=True):
+        members[cluster].append((part, first, second))
+    groups = list(members.values())
+
+    def gains(items: Iterator[tuple[str, int, int]]) -> dict[str, float]:
+        total: dict[str, int] = defaultdict(int)
+        gained: dict[str, int] = defaultdict(int)
+        for part, first, second in items:
+            total[part] += 1
+            gained[part] += second - first
+        return {part: gained[part] / total[part] for part in total}
+
+    point = gains(item for group in groups for item in group)
+    rng = random.Random(seed)
+    differences: list[float] = []
+    for _ in range(resamples):
+        sample = gains(item for group in rng.choices(groups, k=len(groups)) for item in group)
+        if of in sample and against in sample:
+            differences.append(sample[of] - sample[against])
+    differences.sort()
+    return {
+        "gains": point,
+        "difference": point[of] - point[against],
+        "interval": [differences[int(0.025 * (len(differences) - 1))], differences[math.ceil(0.975 * (len(differences) - 1))]],
+        "resamples": resamples,
+        "seed": seed,
+    }
+
+
+
 def entropy_bits(probabilities: Sequence[float]) -> float:
     """Shannon entropy in bits: 0 when one option has all the probability."""
     return -sum(p * math.log2(p) for p in probabilities if p > 0)
