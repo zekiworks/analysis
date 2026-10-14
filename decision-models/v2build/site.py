@@ -1,4 +1,4 @@
-"""What every v2 page shares: the data, setup names, links between pages and the page shell (head, menu, footer)."""
+"""What every page of the site shares: the data, setup names, links between pages and the page shell (head, menu, footer)."""
 
 from __future__ import annotations
 
@@ -12,14 +12,12 @@ import benchmark_metrics as bm
 import build_page as bp
 
 ROOT = Path(__file__).resolve().parent.parent
-V2 = ROOT / "v2"
-SITE_URL = "https://zekiworks.github.io/analysis/decision-models/v2/"
 KICKER = "Zeki Works · Decision models · answer key v2"
 ISSUE_URL = "https://github.com/zekiworks/analysis/issues/new?template="
 REPO_URL = "https://github.com/zekiworks/analysis"
 esc = html.escape
 
-# Every page's menu, in order: (path under v2/, label). The home page's own link list is in v2/index.html.
+# Every page's menu, in order: (path from the site root, label). The home page's own link list is in index.html.
 MENU = (
     ("", "Home"),
     ("questions/", "Every question"),
@@ -33,7 +31,7 @@ NOT_MEASURED = '<span class="hint" tabindex="0" data-tip="Not measured">—</spa
 
 
 def rel(origin: str, target: str) -> str:
-    """A relative link from the page at origin to target, both paths under v2/ ('' is the home page, 'models/145/')."""
+    """A relative link from the page at origin to target, both paths from the site root ('' is the home page, 'models/145/')."""
     up = "../" * origin.count("/")
     return (up + target) or "./"
 
@@ -135,7 +133,7 @@ class Site:
                 f"answer key version {results['answer_key']['version']}.")
 
     def page(self, path: str, title: str, description: str, body: str, scripts: tuple[str, ...] = ()) -> str:
-        """A whole v2 page at path (under v2/): head, menu, body, footer. Kept out of search engines, like the home page."""
+        """A whole page at path (from the site root): head, menu, body, footer."""
         root = rel(path, "")
         current = ' aria-current="page"'
         menu = "".join(
@@ -149,10 +147,9 @@ class Site:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{esc(title)} · Zeki Works</title>
-  <meta name="robots" content="noindex">
   <meta name="description" content="{esc(description)}">
   <script>try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; }} catch (e) {{}}</script>
-  <link rel="stylesheet" href="{root}../style.css">
+  <link rel="stylesheet" href="{root}style.css">
   <link rel="stylesheet" href="{root}v2.css">
   <script src="{root}site.js" defer></script>{extra}
 </head>
@@ -166,7 +163,7 @@ class Site:
 {body}
   </main>
   <footer class="v2-footer">
-    <p>Download: <a href="{root}../results.json" download>results.json</a> · <a href="{root}../answers.json" download>answers.json</a></p>
+    <p>Download: <a href="{root}results.json" download>results.json</a> · <a href="{root}answers.json" download>answers.json</a></p>
     <p>{self.version()}</p>
   </footer>
 </body>

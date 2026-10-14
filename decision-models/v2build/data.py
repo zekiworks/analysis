@@ -71,9 +71,9 @@ def size(path) -> str:
 def build(site: Site) -> dict[str, str]:
     results = site.results
     files = (
-        (ROOT / "results.json", rel(PATH, "../results.json"),
+        (ROOT / "results.json", rel(PATH, "results.json"),
          "Every published number: each setup's accuracy, confidence, latency and cost, and the routing replays and live tests."),
-        (ROOT / "answers.json", rel(PATH, "../answers.json"),
+        (ROOT / "answers.json", rel(PATH, "answers.json"),
          "Every answer of every run, with its score and option probabilities, and the prompts. No question text."),
         (PICKS, rel(PATH, "data/picks.json"),
          "Built from answers.json for these pages: each leaderboard setup's pick and score on each scored question."),

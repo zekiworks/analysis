@@ -34,5 +34,5 @@ financial datasets in particular.
 
 ## Cite the results
 
-Use [CITATION.cff](CITATION.cff). Cite the results version, the answer key version and the commit you used. The page
-shows the first two under "Download the data and check our calculations".
+Use [CITATION.cff](CITATION.cff). Cite the results version, the answer key version and the commit you used. Every
+page's footer shows the first two.

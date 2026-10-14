@@ -1,5 +1,5 @@
-"""Every question: the list of the scored questions, one page per question (v2/question/?id=…, drawn by question.js)
-and the compact per-question data it, the Compare page and the topic pages read (v2/data/picks.json).
+"""Every question: the list of the scored questions, one page per question (question/?id=…, drawn by question.js)
+and the compact per-question data it, the Compare page and the topic pages read (data/picks.json).
 
 The question text is never published: the publisher owns it. A question is identified by its ID, its part and topic,
 and its page and printed number in the book."""
@@ -10,9 +10,9 @@ import json
 import math
 from typing import Any
 
-from v2build.site import V2, Site, esc, rel
+from v2build.site import ROOT, Site, esc, rel
 
-PICKS = V2 / "data" / "picks.json"
+PICKS = ROOT / "data" / "picks.json"
 
 
 def score_text(score: float | None) -> float | None:
@@ -115,7 +115,7 @@ def question_view(site: Site) -> str:
     body = f"""    <section class="card" id="question">
       <h1>Question</h1>
       <p class="note" data-question-status hidden>Loading the question…</p>
-      <noscript><p class="note">This page needs JavaScript. Without it, <a href="{rel(path, "")}../answers.json" download>answers.json</a> holds every setup's answer to every question, and <a href="{rel(path, "questions/")}">Every question</a> lists each question's key and how many setups got it right.</p></noscript>
+      <noscript><p class="note">This page needs JavaScript. Without it, <a href="{rel(path, "answers.json")}" download>answers.json</a> holds every setup's answer to every question, and <a href="{rel(path, "questions/")}">Every question</a> lists each question's key and how many setups got it right.</p></noscript>
       <div data-question hidden></div>
     </section>"""
     return site.page(path, "Question", "One question: its part, topic, page, printed number, answer key and every setup's pick.", body,

@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Build the v2 site (v2/) from results.json and answers.json, with page_config.json.
+"""Build the site from results.json and answers.json, with page_config.json: the home page and every page under it,
+in this folder, which GitHub Pages serves at /analysis/decision-models/.
 
     python3 build_v2.py
 
-The home page, v2/index.html, keeps its copy; this script rewrites what is inside its <!-- build:name --> markers:
+The home page, index.html, keeps its copy; this script rewrites what is inside its <!-- build:name --> markers:
 the meta tags, the stats row, the leaderboard as a plain table for readers without JavaScript, the settings
-v2/v2.js reads, and the results version in the footer. v2/v2.js draws everything else there in the browser from
-../results.json.
+v2.js reads, and the results version in the footer. v2.js draws everything else there in the browser from
+results.json. The link preview is build_page.py's current preview image (share/images.json).
 
 Every other page is generated whole by a module of v2build/ (PAGE_MODULES): build(site) returns {path: html}, and
-each page is written to v2/<path>index.html.
+each page is written to <path>index.html. The Method page runs reproduce.py for its count of checks.
 
 The home page's fixed copy (the intro, the notes under the tabs, the meta description) quotes numbers from the brief.
 copy_checks() compares each with results.json and prints every one that differs; the pages are still written, so
@@ -30,9 +31,8 @@ import build_page as bp  # noqa: E402
 from v2build.site import Site  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
-PAGE = ROOT / "v2" / "index.html"
-SITE = "https://zekiworks.github.io/analysis/decision-models/v2/"
-# The modules of v2build/ that write pages, in build order: questions writes v2/data/picks.json, which the others read.
+PAGE = ROOT / "index.html"
+# The modules of v2build/ that write pages, in build order: questions writes data/picks.json, which the others read.
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "data", "method")
 TITLE = "When should you trust an AI model to make a decision?"
 DESCRIPTION = (
@@ -139,18 +139,18 @@ def fallback_table(data: Data) -> str:
 
 
 def head(data: Data) -> str:
-    image = next(line for line in (ROOT / "index.html").read_text().splitlines() if 'property="og:image"' in line)
-    image_url = image.split('content="')[1].split('"')[0]
+    site = data.config["site_url"]
+    image_url = site + bp.current_images()["preview"]["dark"]
     title = f"{TITLE} · Zeki Works"
     text = bp.esc(DESCRIPTION)
     return (
         f"\n  <title>{bp.esc(title)}</title>\n"
-        '  <meta name="robots" content="noindex">\n'
+        f'  <link rel="canonical" href="{site}">\n'
         f'  <meta name="description" content="{text}">\n'
         f'  <meta property="og:title" content="{bp.esc(title)}">\n'
         f'  <meta property="og:description" content="{text}">\n'
         '  <meta property="og:type" content="website">\n'
-        f'  <meta property="og:url" content="{SITE}">\n'
+        f'  <meta property="og:url" content="{site}">\n'
         f'  <meta property="og:image" content="{image_url}">\n'
         '  <meta name="twitter:card" content="summary_large_image">\n'
         f'  <meta name="twitter:title" content="{bp.esc(title)}">\n'
@@ -296,7 +296,7 @@ def main() -> int:
 
     text = bp.BLOCK.sub(fill, text)
     if seen != set(blocks):
-        raise ValueError(f"v2/index.html lacks the markers {sorted(set(blocks) - seen)}")
+        raise ValueError(f"index.html lacks the markers {sorted(set(blocks) - seen)}")
     PAGE.write_text(text)
     written = write_pages()
     differ = copy_checks(data)
@@ -307,13 +307,13 @@ def main() -> int:
 
 
 def write_pages() -> int:
-    """Every page of PAGE_MODULES, each to v2/<path>index.html; the number of pages written."""
+    """Every page of PAGE_MODULES, each to <path>index.html; the number of pages written."""
     site = Site()
     written = 0
     for name in PAGE_MODULES:
         module = importlib.import_module(f"v2build.{name}")
         for path, text in module.build(site).items():
-            target = ROOT / "v2" / path / "index.html"
+            target = ROOT / path / "index.html"
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(text)
             written += 1

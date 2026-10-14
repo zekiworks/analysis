@@ -1,4 +1,4 @@
-"""Topics: the accuracy-by-topic heatmap (v2/topics/) and one page per topic (v2/topics/<number>/) with every setup's
+"""Topics: the accuracy-by-topic heatmap (topics/) and one page per topic (topics/<number>/) with every setup's
 result on it and its questions."""
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ from typing import Any
 from v2build.questions import picks_data, question_link
 from v2build.site import Site, esc, interval, pct, rel
 
-# Accuracy 0–100% → red, amber at 50%, green: the main page's heat-map scale (app.js heatStyle), in both themes.
+# Accuracy 0–100% → red, amber at 50%, green: the earlier page's heat-map scale (v1/app.js heatStyle), in both themes.
 HEAT = {
     "light": ((254, 226, 226), (254, 243, 199), (187, 247, 208)),
     "dark": ((76, 29, 36), (74, 59, 16), (19, 78, 46)),

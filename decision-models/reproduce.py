@@ -17,7 +17,7 @@ exact McNemar and Holm over those comparisons. Then the reasoning pairs (N3): ea
 to a higher reasoning setting on reading and on grammar, and the bootstrap interval of their difference, with
 the reading units, seed and resamples results.json names. Then the repeats: each
 configuration's repeated runs, recomputed from their exported answers. Then the replays: every routing
-simulation (the threshold chosen in sample and its 300 held-out splits), and the replay the page leads with: the
+simulation (the threshold chosen in sample and its 300 held-out splits), and the Decider v1.1 replay (`replay`): the
 decision run's answers kept at each cutoff and in its surest share, and what keeping them changes in
 front of each second run, on all questions and on the same held-out splits; with them the answer-key
 baselines (options per question, the key's most used letter and its share). Then the live tests: each

@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Method · Zeki Works</title>
+  <meta name="description" content="How we tested decision models and chat models on a reading and grammar test in native Turkish (not translated): the questions, the settings, the measures, the routing replays, the limits and the sources.">
+  <script>try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../v2.css">
+  <script src="../site.js" defer></script>
+</head>
+<body class="v2">
+  <header class="v2-top">
+    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" data-theme-choice="dark" aria-pressed="true">Dark background</button><button type="button" data-theme-choice="light" aria-pressed="false">Light background</button></div>
+    <p class="kicker"><a href="../">Zeki Works · Decision models · answer key v2</a></p>
+    <nav class="v2-nav" aria-label="Pages"><ul><li><a href="../">Home</a></li><li><a href="../questions/">Every question</a></li><li><a href="../disagreements/">Where models disagree with the answer key</a></li><li><a href="../topics/">Topics</a></li><li><a href="../compare/">Compare</a></li><li><a href="../method/" aria-current="page">Method</a></li><li><a href="../data/">Data</a></li></ul></nav>
+  </header>
+  <main>
+<div class="method-page">
+<header class="v2-hero">
+<p class="kicker">Method</p>
+<h1>How we tested confidence, cost and accuracy</h1>
+<p class="intro">We tested 30 models in 43 setups on a reading and grammar test in native Turkish
+(not translated): 2,198 questions. A setup is one model with one set of settings. We measured four things: how often
+each was right, whether its confidence found the answers worth keeping, whether it answered the same way again, and its
+cost and time.</p>
+<nav class="toc" aria-label="Sections of this page"><ul><li><a href="#main-findings">What we found</a></li><li><a href="#tests">The questions</a></li><li><a href="#repair">How we checked the questions and answer key</a></li><li><a href="#setups">Models and setups</a></li><li><a href="#sending">What we sent and which settings we used</a></li><li><a href="#format">Does one question per request change the answers?</a></li><li><a href="#confidence-sources">Where each confidence score comes from</a></li><li><a href="#measures">How we measure accuracy and confidence</a></li><li><a href="#differences">How we tell a score gap from ordinary variation</a></li><li><a href="#statistical-methods">How we measure uncertainty</a></li><li><a href="#routing">How we chose which answers to keep</a></li><li><a href="#cost-section">Cost and reasoning</a></li><li><a href="#understanding">What can these results tell us about understanding?</a></li><li><a href="#repeats-section">What changed when we repeated the same questions?</a></li><li><a href="#latency">How we measure latency and throughput</a></li><li><a href="#limits">What these results do not establish</a></li><li><a href="#data">Download the data and check our calculations</a></li><li><a href="#references">Sources</a></li></ul></nav>
+</header>
+
+<aside class="worked-example" aria-labelledby="worked-example-title">
+<h2 id="worked-example-title">Worked example: Decider v1.1</h2>
+<p>Perplexity's Decider v1.1 is a decision model; this box follows it through the two-step setup. Its typical latency was
+0.23 seconds, at $0.008 per 1,000 questions, against $4.93 for Claude Opus
+5.5 alone.</p>
+<p>At 99%, it kept 349 answers with 0 wrong (error rate interval
+0% to 1.1%), and none of the 12 uncertain questions reached that confidence. Its most
+confident quarter held 546 right answers of 550.</p>
+<p>The table replays recorded answers, Decider v1.1 first and each LLM second. With one question per request, no cutoff
+chosen on half the questions loses more than the 0.5-point limit set before the live tests.</p>
+<div class="table-wrap"><table class="overview cards savings"><thead><tr><th scope="col">Model behind Decider</th><th scope="col" class="num">Its accuracy alone</th><th scope="col" class="num">Most confident quarter</th><th scope="col" class="num">Cutoff chosen on half the questions</th><th scope="col" class="num">Fixed 99% rule</th></tr></thead><tbody><tr class="group-row"><th scope="rowgroup" colspan="5">Second model: 16 questions per request</th></tr><tr><td data-label="Model behind Decider">Claude Sonnet 5.5 (high reasoning)</td><td class="num" data-label="Its accuracy alone">85.0%</td><td class="num" data-label="Most confident quarter">24.8% cheaper, 0.59 points higher</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 48.3%: 48.1% cheaper, 0.10 points lower</td><td class="num" data-label="Fixed 99% rule">15.7% cheaper, 0.27 points higher</td></tr><tr><td data-label="Model behind Decider">Claude Opus 5.5 (low reasoning)</td><td class="num" data-label="Its accuracy alone">90.4%</td><td class="num" data-label="Most confident quarter">24.9% cheaper, 0.09 points lower</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 25.2%: 25.0% cheaper, 0.23 points lower</td><td class="num" data-label="Fixed 99% rule">15.7% cheaper, no change</td></tr><tr><td data-label="Model behind Decider">GPT-6 Astra (low reasoning)</td><td class="num" data-label="Its accuracy alone">97.6%</td><td class="num" data-label="Most confident quarter">24.9% cheaper, 0.14 points lower</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 20.9%: 20.8% cheaper, 0.13 points lower</td><td class="num" data-label="Fixed 99% rule">15.7% cheaper, no change</td></tr><tr><td data-label="Model behind Decider">GPT-6.1 Sol (low reasoning)</td><td class="num" data-label="Its accuracy alone">96.7%</td><td class="num" data-label="Most confident quarter">24.3% cheaper, 0.14 points lower</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 20.9%: 20.2% cheaper, 0.13 points lower</td><td class="num" data-label="Fixed 99% rule">15.2% cheaper, no change</td></tr><tr><td data-label="Model behind Decider">Gemini 3.8 Flash (low reasoning)</td><td class="num" data-label="Its accuracy alone">93.3%</td><td class="num" data-label="Most confident quarter">22.1% cheaper, 0.18 points lower</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 20.0%: 17.1% cheaper, 0.11 points lower</td><td class="num" data-label="Fixed 99% rule">13.0% cheaper, no change</td></tr><tr class="group-row"><th scope="rowgroup" colspan="5">Second model: 1 question per request</th></tr><tr><td data-label="Model behind Decider">Claude Sonnet 5.5 (high reasoning)</td><td class="num" data-label="Its accuracy alone">89.2%</td><td class="num" data-label="Most confident quarter">24.9% cheaper, 0.05 points higher</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 28.6%: 28.5% cheaper, 0.16 points lower</td><td class="num" data-label="Fixed 99% rule">15.8% cheaper, no change</td></tr><tr><td data-label="Model behind Decider">Claude Opus 5.5 (low reasoning)</td><td class="num" data-label="Its accuracy alone">93.3%</td><td class="num" data-label="Most confident quarter">25.0% cheaper, 0.14 points lower</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 21.6%: 21.5% cheaper, 0.14 points lower</td><td class="num" data-label="Fixed 99% rule">15.8% cheaper, no change</td></tr><tr><td data-label="Model behind Decider">GPT-6 Astra (low reasoning)</td><td class="num" data-label="Its accuracy alone">97.4%</td><td class="num" data-label="Most confident quarter">25.0% cheaper, 0.18 points lower</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 19.6%: 19.5% cheaper, 0.10 points lower</td><td class="num" data-label="Fixed 99% rule">15.8% cheaper, no change</td></tr><tr><td data-label="Model behind Decider">GPT-6.1 Sol (low reasoning)</td><td class="num" data-label="Its accuracy alone">96.7%</td><td class="num" data-label="Most confident quarter">24.9% cheaper, 0.14 points lower</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 21.1%: 21.0% cheaper, 0.14 points lower</td><td class="num" data-label="Fixed 99% rule">15.7% cheaper, no change</td></tr><tr><td data-label="Model behind Decider">Gemini 3.8 Flash (low reasoning)</td><td class="num" data-label="Its accuracy alone">97.1%</td><td class="num" data-label="Most confident quarter">24.2% cheaper, 0.14 points lower</td><td class="num" data-label="Cutoff chosen on half the questions">Decider takes 20.9%: 20.1% cheaper, 0.09 points lower</td><td class="num" data-label="Fixed 99% rule">15.1% cheaper, 0.05 points higher</td></tr></tbody></table></div>
+<p>In the live tests, the loss exceeded that limit in four tests, and in 12 of the 14 tests the 95%
+interval allows a larger loss. One test established a change in accuracy: Decider v1.1, then Sonnet, one question per request, with accuracy 4.73 points lower. Live savings were smaller (see
+<a href="#average-cost">the average-cost caveat</a>).</p>
+<p>Across five full runs it changed 0 answers, yet repeated the same wrong answer on
+728 of the 728 questions it ever missed. Its ranking score was
+0.84. Fastino's GLiDE scored 67.9% against its 66.9%, a
+difference not established, at about 21 times its cost for the first model's calls.</p>
+<p>It scored 6.5 points above
+<a href="https://docs.sglang.io/cookbook/autoregressive/Perplexity/pplx-decider-v1-27b">Decider v1</a>, which shares a Qwen
+base with <a href="https://blog.cloudflare.com/clef-decision-models/">Clef</a> and
+<a href="https://huggingface.co/ZefanCai/Open-Jev-27B-v1.1">Open Jev</a>.
+<a href="https://huggingface.co/perplexity-ai/pplx-decider-v1.1-27b">v1.1</a> changed both training data and input handling,
+so the test cannot say which change helped.</p>
+</aside>
+<section class="card prose" id="main-findings" aria-labelledby="main-findings-title"><h2 id="main-findings-title">What we found</h2>
+<p>No model led on every measure: accuracy, ranking answers by confidence and confidence that matches the hit rate are
+separate strengths. Gemma 4 31B, a chat model, scored higher than every decision model on Reading (90.9%)
+and Grammar (65.6%), but its confidence matched its hit rate less closely than the best decision models'
+did.</p>
+<p>How a model gives its confidence matters. GPT-6 Luna through OpenAI's Decisions API ranked its answers better than Luna
+writing its confidence (ranking score 0.82 against 0.69) but got fewer right
+(63.6% against 68.3%), with a different access method and request size. Among
+decision models, it had the smallest calibration gap: 2.4 points.</p>
+<p>Cheaper chat models remain alternatives. GPT-6.1 Sol scored 96.7% at an estimated cost 79%
+below GPT-6 Astra's (97.6%). Gemini 3.8 Flash at high reasoning scored 98.1%, and the
+test over all pairs did not establish a difference from Astra.</p>
+<p>Erk-14B is Qwen3-14B with extra Turkish training by eCloud. Its calibration gap was 13.5 points against
+41.0 for its base, with no accuracy difference detected (45.0% against
+45.7%); the training may have changed more than language knowledge.</p>
+</section>
+<section class="card prose" id="tests" aria-labelledby="tests-title"><h2 id="tests-title">The questions</h2>
+<p>The test has 656 Reading and 1,542 Grammar questions in 20 topics,
+so 70% are Grammar. Reading asks about the meaning of words, sentences and passages; Grammar asks about word
+endings, word types and sentence structure. We report the two separately.</p>
+<p>Topics 1 to 6 are Reading and 7 to 20 Grammar; the <a href="../topics/">Topics page</a>
+gives each one's results. Each question has five options: guessing averages 20%, and
+always choosing E, the most common right letter, scores 22.7%. Models can favour
+some letters whatever the question says.<sup class="cite"><a id="cite-8-a" href="#ref-8">8</a></sup></p>
+<p>An optional exam mix reweights the scores to the Turkish section of the first stage of Turkey's 2026 university entrance
+exam (TYT): 33 Reading and seven Grammar questions. It is not a score on the exam itself.</p>
+<p>TurkishMMLU<sup class="cite"><a id="cite-3-a" href="#ref-3">3</a></sup> covers more than 10,000 Turkish questions in nine school subjects, and HELM<sup class="cite"><a id="cite-4-a" href="#ref-4">4</a></sup> sets accuracy
+beside calibration and efficiency. We study the decision models' own option scores, and using them to decide when another
+model should answer. We do not know what most models saw in training, so we cannot test whether less familiar tasks cause
+more mistakes.</p>
+</section>
+<section class="card prose" id="repair" aria-labelledby="repair-title"><h2 id="repair-title">How we checked the questions and answer key</h2>
+<p>We use version 2 of the question set. Our first copy of the book lost the underline in 196 of
+229 questions that point to underlined words, and the numbers attached to words in
+186 more; we copied flagged questions again and checked them against the page images. Version 2
+changes the text or key of 375 questions and makes 12 more possible to
+score.</p>
+<p>Wrong keys are common in test sets and can change rankings.<sup class="cite"><a id="cite-20-a" href="#ref-20">20</a></sup> We reviewed 25 disputed
+cases (confident mistakes, and questions where several strong models disagreed with the key), confirmed
+13 keys and removed 12 questions: in six the page
+image did not settle the answer, and in six the printed key could not be established. We score
+2,198 questions; 12 stay marked uncertain, and 493 carry a verified
+label.</p>
+<p>The removal raised most models' accuracy by at most about 0.5 points but mattered more for confident
+mistakes. Among wrong answers at 99% or more, it removed six of
+eight for Qwen's yes or no scoring, three of
+eight for Astra, two of three for Jev and
+two of three for d1. Later runs did not get this targeted review.</p>
+<p>For models tested on both versions, accuracy on the repaired questions rose 11 to
+30 points, apart from Laya and Laya multilingual, whose accuracy on them did not rise. Removed questions stay out of accuracy and confidence, but their
+time, tokens and money stay in the totals.</p>
+<p>Every setup is scored on the same frozen key, version 2. A fix needs a check against the book's key or a second
+reviewer, and it rescores every run under a new version; the
+<a href="https://github.com/zekiworks/analysis/blob/main/decision-models/key-changelog.md">key changelog</a> lists every change.</p>
+<p>The source is the practice book <i>TYT IQ Turkish Question Library</i> (title translated) from Paraf, ISBN
+978-625-7423-18-2 (© 2022, no edition number). We do not publish its copyrighted questions; with the book, the scripts in the
+repository's <code>runner</code> folder rebuild a matching set, matched by each question's ID, topic, page and number.</p>
+</section>
+<section class="card prose" id="setups" aria-labelledby="setups-title"><h2 id="setups-title">Models and setups</h2>
+<p>A decision model scores the options we give it, and we used only its pick and its scores. A chat model writes its answer,
+and some reason first. Luna through the Decisions API counts as a decision model, because the service gives a probability
+for each option.</p>
+<p>A setup is one way of running a model: access, reasoning setting, questions per request and other settings. We tested
+43 setups of 30 models. Each name links to its setup's page; the results file keeps each identifier,
+server and hardware.</p>
+<div class="table-wrap"><table class="setups"><thead><tr><th scope="col">Model or setup</th><th scope="col">Why we included it</th></tr></thead><tbody><tr><th scope="row"><a href="../models/49/">Jev 1.13.0</a></th><td><p>TypeSafe&#x27;s hosted decision model; Open Jev compares with it.</p></td></tr><tr><th scope="row"><a href="../models/145/">Perplexity Decider 27B v1.1</a>, <a href="../models/44/">Perplexity Decider 27B v1</a> and <a href="../models/52/">Liquid d1</a></th><td><p>Perplexity&#x27;s Decisions API (two versions) and Liquid&#x27;s free tier.</p></td></tr><tr><th scope="row"><a href="../models/125/">Clef</a></th><td><p>Cloudflare&#x27;s model, on our hardware: it adapts Qwen 3.8 27B and scores all options in one pass.</p></td></tr><tr><th scope="row"><a href="../models/139/">Clef-flash</a></th><td><p>Cloudflare&#x27;s smaller model: Qwen 3.5 9B, with Clef&#x27;s scoring method and release code.</p></td></tr><tr><th scope="row"><a href="../models/126/">Metask-Jev 4B</a></th><td><p>It adapts Qwen 3.5 4B and lists Turkish among its training languages.</p></td></tr><tr><th scope="row"><a href="../models/127/">Cygnet</a></th><td><p>blockbrain-ai&#x27;s recipe on an unchanged Gemma 4 12B IT, served by vLLM: answer letter probabilities rescaled with a temperature of 3.4.</p></td></tr><tr><th scope="row"><a href="../models/128/">Winnow-12B</a></th><td><p>Gemma 4 12B IT trained for decisions, published only as GGUF files: the recommended Q8_0 file (eight bits per weight) on its author&#x27;s llama.cpp-based server.</p></td></tr><tr><th scope="row"><a href="../models/129/">Fastino GLiDE</a></th><td><p>Fastino&#x27;s System One API. GLiDE reasons more on uncertain cases, which we could not switch off.</p></td></tr><tr><th scope="row"><a href="../models/150/">Celeris-1 Decision</a></th><td><p>Celeris&#x27;s System One API: probabilities rounded to whole points, no model size or design published.</p></td></tr><tr><th scope="row"><a href="../models/177/">SubQ Snap Preview</a></th><td><p>SubQ&#x27;s Decisions API, in public preview, with no model size or design published.</p></td></tr><tr><th scope="row"><a href="../models/141/">Strands Decider 2B</a></th><td><p>Amazon&#x27;s released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.</p></td></tr><tr><th scope="row"><a href="../models/51/">Laya</a> and <a href="../models/46/">Laya multilingual</a></th><td><p>Both released models, on our hardware; each scores all options in one pass.</p></td></tr><tr><th scope="row"><a href="../models/122/">GLiNER2.5 Multi (base)</a></th><td><p>Fastino&#x27;s 287 million parameter text classifier, scoring the options as labels: a much smaller baseline.</p></td></tr><tr><th scope="row"><a href="../models/135/">GLiNER2.5-multi-Decide</a></th><td><p>The same 287 million parameter model, trained by Fastino for decisions.</p></td></tr><tr><th scope="row"><a href="../models/45/">Open-Jev 27B v1.1</a></th><td><p>The released open model, with its own scoring part and calibration setting.</p></td></tr><tr><th scope="row"><a href="../models/50/">Qwen3.8-27B</a></th><td><p>Open Jev&#x27;s base model and prompts without its trained parts: the preference for Yes over No, with a calibration temperature of 1.</p></td></tr><tr><th scope="row"><a href="../models/53/">Qwen3.8-27B</a></th><td><p>The base model chooses an option and writes its confidence.</p></td></tr><tr><th scope="row"><a href="../models/83/">Qwen3.8-27B</a></th><td><p>Ten sampled answers: the most common one, with the share that agrees as confidence.</p></td></tr><tr><th scope="row"><a href="../models/140/">Gemini 3.8 Flash</a>, <a href="../models/48/">GPT-6 Astra</a>, <a href="../models/190/">GPT-6.1 Sol</a>, <a href="../models/192/">Claude Opus 5.5</a>, <a href="../models/193/">Claude Sonnet 5.5</a> and <a href="../models/133/">GPT-6 Luna</a></th><td><p>Chat models for comparison; each writes a confidence estimate. Sonnet and Gemini Flash ran with low and with high reasoning.</p></td></tr><tr><th scope="row"><a href="../models/143/">GPT-6 Luna</a></th><td><p>OpenAI&#x27;s Decisions API, in beta, one question per request. The other Luna run writes its confidence through Codex, 16 questions per request.</p></td></tr><tr><th scope="row"><a href="../models/121/">DeepSeek-V4.1-Flash</a> and <a href="../models/119/">Gemma 4 31B</a></th><td><p>On our hardware, with answer letter probabilities. DeepSeek&#x27;s reasoning run also samples.</p></td></tr><tr><th scope="row"><a href="../models/160/">GLM-5.3-Flash</a></th><td><p>Z.ai&#x27;s model with TensorFold: 320 billion parameters, about 18 billion used per token (a mixture of experts); it writes its confidence. Mia&#x27;s AI Lab&#x27;s EXL3 checkpoint, with DFlash2 speculative decoding.</p></td></tr><tr><th scope="row"><a href="../models/131/">Qwen3-14B</a> and <a href="../models/132/">Erk-14B</a></th><td><p>Erk continues this Qwen model&#x27;s training on Turkish text; both ran with the same requests and settings.</p></td></tr></tbody></table></div>
+</section>
+<section class="card prose" id="sending" aria-labelledby="sending-title"><h2 id="sending-title">What we sent and which settings we used</h2>
+<p>Each question went with its lettered options. Chat models were asked, in Turkish, for their answer's letter and, where
+needed, a confidence score, in a structured reply (JSON); a connector turned the same question into each decision service's
+format. Most chat setups got 16 questions per request; decision models, Luna through the Decisions API,
+GLiNER and the Qwen 3.8 setups got one.</p>
+<p>Claude Code and Codex runs were closed-book: no web search, no file or command tools, and an empty folder for each
+request. Earlier trial runs could find the source book online.</p>
+<p>A missing answer, a refusal or a letter outside the options counts as wrong. The Decisions API declined
+4 questions; GLM 5.3 Flash with reasoning left 128 unanswered when it hit the
+65,536-token output limit; DeepSeek's reasoning run had the same limit and left 0.</p>
+<div class="table-wrap"><table class="settings"><thead><tr><th scope="col">Setup</th><th scope="col">How it chose each token</th></tr></thead><tbody>
+<tr><td>Chat models on our hardware, reasoning off</td><td>Greedy decoding: the most likely next token</td></tr>
+<tr><td>DeepSeek, reasoning on</td><td>Sampling, temperature 1.0, top p 1.0 (greedy decoding made its reasoning loop)</td></tr>
+<tr><td>GLM 5.3 Flash, reasoning on</td><td>Server default: temperature 1.0, top p 0.95 (Z.ai's settings), top k 20; TensorFold's high reasoning</td></tr>
+<tr><td>Qwen, ten answers</td><td>Temperature 0.7, top p 0.8, top k 20, presence penalty 1.5</td></tr>
+<tr><td>GPT, Claude and Gemini</td><td>Lowest reasoning setting, plus high reasoning for Sonnet and Gemini Flash; temperature not always settable; Gemini reported no reasoning tokens at low</td></tr>
+</tbody></table></div>
+<p class="table-note">Sampling picks the next token at random by its probability. Temperature sets how strongly it favours
+likely tokens, top p and top k limit the candidates, and a presence penalty discourages repeats.</p>
+</section>
+<section class="card prose" id="format" aria-labelledby="format-title"><h2 id="format-title">Does one question per request change the answers?</h2>
+<p>Every decision model got one question per request; the chat models' main runs got 16. So we asked
+six chat setups all 2,198 questions again, one per request, with the same prompt and
+settings.</p>
+<div class="table-wrap"><table class="overview cards"><caption>Accuracy on all 2,198 questions, by questions per request</caption><thead><tr><th scope="col">Setup</th><th scope="col" class="num">16 questions per request</th><th scope="col" class="num">1 question per request</th><th scope="col" class="num">Change</th><th scope="col" class="num">Exact McNemar test, Holm-adjusted</th></tr></thead><tbody><tr><td data-label="Setup">Claude Sonnet 5.5 (high reasoning)</td><td class="num" data-label="16 questions per request">85.03%</td><td class="num" data-label="1 question per request">89.17%</td><td class="num" data-label="Change">4.14 points higher<span class="small">95% interval: +2.77 to +5.51 points</span></td><td class="num" data-label="Exact McNemar test, Holm-adjusted">p &lt; 0.0001</td></tr><tr><td data-label="Setup">Gemini 3.8 Flash (low reasoning)</td><td class="num" data-label="16 questions per request">93.27%</td><td class="num" data-label="1 question per request">97.13%</td><td class="num" data-label="Change">3.87 points higher<span class="small">95% interval: +2.92 to +4.82 points</span></td><td class="num" data-label="Exact McNemar test, Holm-adjusted">p &lt; 0.0001</td></tr><tr><td data-label="Setup">Claude Opus 5.5 (low reasoning)</td><td class="num" data-label="16 questions per request">90.45%</td><td class="num" data-label="1 question per request">93.31%</td><td class="num" data-label="Change">2.87 points higher<span class="small">95% interval: +1.67 to +4.07 points</span></td><td class="num" data-label="Exact McNemar test, Holm-adjusted">p &lt; 0.0001</td></tr><tr><td data-label="Setup">GPT-6.1 Sol (low reasoning)</td><td class="num" data-label="16 questions per request">96.68%</td><td class="num" data-label="1 question per request">96.72%</td><td class="num" data-label="Change">0.05 points higher<span class="small">95% interval: −0.55 to +0.64 points</span></td><td class="num" data-label="Exact McNemar test, Holm-adjusted">p = 1</td></tr><tr><td data-label="Setup">GPT-6 Astra (low reasoning)</td><td class="num" data-label="16 questions per request">97.59%</td><td class="num" data-label="1 question per request">97.41%</td><td class="num" data-label="Change">0.18 points lower<span class="small">95% interval: −0.69 to +0.32 points</span></td><td class="num" data-label="Exact McNemar test, Holm-adjusted">p = 1</td></tr><tr><td data-label="Setup">Gemma 4 31B (reasoning off)</td><td class="num" data-label="16 questions per request">73.11%</td><td class="num" data-label="1 question per request">66.79%</td><td class="num" data-label="Change">6.32 points lower<span class="small">95% interval: −8.06 to −4.59 points</span></td><td class="num" data-label="Exact McNemar test, Holm-adjusted">p &lt; 0.0001</td></tr></tbody></table></div>
+<p class="table-note">The exact McNemar test uses only the questions one run got right; Holm's correction covers this table.
+Each run with one question per request is a setup of its own.</p>
+<p>An earlier test on 200 questions found no difference: Astra got
+197 right with one question per request and 195 or 196 in
+five runs with 16, and Gemma 137 against
+141 in five runs from an earlier server session.</p>
+</section>
+<section class="card prose" id="confidence-sources" aria-labelledby="confidence-sources-title"><h2 id="confidence-sources-title">Where each confidence score comes from</h2>
+<dl class="sources">
+<dt>Option score</dt><dd>The probability a decision model, GLiNER or Qwen's yes or no scoring gives the chosen option.</dd>
+<dt>Written estimate</dt><dd>A number GPT, Claude, Gemini, GLM or Qwen writes next to its answer.</dd>
+<dt>Answer letter probability</dt><dd>For Gemma, DeepSeek, Qwen 3 14B and Erk, the probability of writing the chosen letter,
+rescaled over the option letters to 100%; with reasoning on, it comes after the reasoning.</dd>
+<dt>Agreement across ten answers</dt><dd>The share of Qwen's ten answers that agree with the most common one (eight of ten
+gives 80%).</dd>
+</dl>
+<p>We test each mechanism against the real answers before we trust it. Some services round: Luna through the Decisions API
+gave 80 distinct scores across 2,194 answered questions, and Celeris
+75 across 2,198, none above 97%; our calculations
+handle tied scores.</p>
+<h3 id="open-jev">How Open Jev turns option scores into probabilities</h3>
+<p>Open Jev adds a LoRA adapter, 15.5 million adjustable values (about 0.06% of the base model), and a scoring head to a
+Qwen model. Each option gets its own prompt, and the head starts from Qwen's preference for "Yes" over "No". Softmax turns
+the scores into probabilities after dividing them by 2.53, the calibration temperature (see the
+<a href="https://huggingface.co/ZefanCai/Open-Jev-27B-v1.1">model card</a>).</p>
+<p>Another positive temperature never changes the winning option within a question, but it can reorder confidence across
+questions. We use the chosen option's ordinary probability, not the rescaled score Jev and Open Jev also offer. Open Jev
+scored 3.8 points above Qwen's yes or no scoring (p =
+0.0068 after adjustment), with ranking scores of 0.82 and
+0.80.</p>
+<p>Its probabilities were too low here. Its highest confidence was 64.98%, yet
+all 144 answers scored 50% to below 60% were
+right. On version 1 of the question set, a separate refit of the temperature cut the calibration gap from
+22.8 to 3.0 points, while the ranking score moved from
+0.8193 to 0.8191; the main results use the released model.</p>
+</section>
+<section class="card prose" id="measures" aria-labelledby="measures-title"><h2 id="measures-title">How we measure accuracy and confidence</h2>
+<p>Accuracy is the share of scored questions a model got right. The ranking score (AUROC) is how often a randomly chosen right
+answer has higher confidence than a randomly chosen wrong one, with half credit for ties: 0.50 is chance, 1.00 perfect.</p>
+<p>Keeping only the most confident answers is called selective prediction.<sup class="cite"><a id="cite-10-a" href="#ref-10">10</a></sup> The most confident
+20% takes that share of answers with the highest scores and checks how many are right; the
+50% and 80% shares work the same way. They describe the kept answers only.</p>
+<figure class="chart"><a class="chart-link theme-dark" href="../charts/coverage-dark.svg" title="Open the full size chart"><img src="../charts/coverage-dark.svg" width="1280" height="2064" alt="Chart: How accurate are the answers we keep? For each model, the curve starts with its most confident answers and adds less confident ones. Across: the share of answers we keep. Up: accuracy among those answers. The 20%, 50% and 80% marks are shares of answers, not confidence scores." loading="lazy"></a><a class="chart-link theme-light" href="../charts/coverage.svg" title="Open the full size chart"><img src="../charts/coverage.svg" width="1280" height="2064" alt="Chart: How accurate are the answers we keep? For each model, the curve starts with its most confident answers and adds less confident ones. Across: the share of answers we keep. Up: accuracy among those answers. The 20%, 50% and 80% marks are shares of answers, not confidence scores." decoding="async"></a><figcaption>We order each model's answers by confidence and check accuracy as we keep more of them. No second model answers the rest here.</figcaption></figure>
+<p>Calibration asks whether the percentages match the hit rate: of 100 answers scored near 80%, about 80 should be right.
+The calibration gap (ECE)<sup class="cite"><a id="cite-11-a" href="#ref-11">11</a></sup> sorts answers into ten confidence groups (0% to below 10%, and
+so on) and compares each group's average confidence with its share right. It averages these gaps, weighting larger groups
+more, in points. Zero means a match within the groups, not that every score is right; the chart leaves out groups with
+fewer than 20 answers.</p>
+<figure class="chart"><a class="chart-link theme-dark" href="../charts/calibration-all-dark.svg" title="Open the full size chart"><img src="../charts/calibration-all-dark.svg" width="1280" height="2192" alt="Chart: When a model scores answers at 80%, are about 80% right? All models, each with its confidence source. Each point groups answers with similar confidence. Its position across gives their average confidence; its height gives how many of them were right. The diagonal shows where confidence matches accuracy. Points below it show confidence higher than the real hit rate; points above it show confidence lower than the real hit rate. The chart leaves out groups with fewer than 20 answers." loading="lazy"></a><a class="chart-link theme-light" href="../charts/calibration-all.svg" title="Open the full size chart"><img src="../charts/calibration-all.svg" width="1280" height="2192" alt="Chart: When a model scores answers at 80%, are about 80% right? All models, each with its confidence source. Each point groups answers with similar confidence. Its position across gives their average confidence; its height gives how many of them were right. The diagonal shows where confidence matches accuracy. Points below it show confidence higher than the real hit rate; points above it show confidence lower than the real hit rate. The chart leaves out groups with fewer than 20 answers." decoding="async"></a><figcaption>A point on the diagonal means the average confidence matches the hit rate in that group. Points below it show confidence that was too high; points above it, too low.</figcaption></figure>
+<h3 id="sure">What a score of 99% or more meant</h3>
+<p>At 99% or more, Jev got 311 of 312 right, d1 273 of
+274, Decider v1 21 of 21 and GLiDE 121 of
+121; Luna got 365 of 368 through the Decisions API and
+693 of 830 writing its confidence. Few answers leave wide intervals: the 95%
+interval for the error rate is 0% to 15.5% for Decider v1 and 0% to 3.1% for GLiDE.</p>
+<p>Gemma's letter probability reached 99% on 1,782 answers, 1,450
+of them right (about 81%). DeepSeek with reasoning gave every answer at least
+99%, and about 92% were right.</p>
+<h3 id="sources">Can another confidence method make the same answers easier to judge?</h3>
+<p>We scored one fixed set of Qwen 3.8 27B answers, 1,191 right of 2,198,
+four ways. The ranking score was about 0.51 for written confidence,
+0.78 for Qwen's option score, 0.78 for agreement across ten
+answers and 0.82 for Open Jev, a separately trained model. Written confidence tends to bunch at
+high values,<sup class="cite"><a id="cite-12-a" href="#ref-12">12</a></sup> while large models' answer probabilities can match their hit rates well.<sup class="cite"><a id="cite-13-a" href="#ref-13">13</a></sup></p>
+<p>The most common of ten answers scored 54.3%, against 54.2% for written
+confidence, and only about 85% were right when all ten agreed. Several answers can repeat one
+mistake.</p>
+<figure class="chart"><a class="chart-link theme-dark" href="../charts/sources-dark.svg" title="Open the full size chart"><img src="../charts/sources-dark.svg" width="784" height="464" alt="Chart: Can different scores help us judge the same answers? Four confidence sources rank the same Qwen3.8-27B answers, 1,191 right out of 2,198. Written estimate: ranking score (AUROC) about 0.51; Qwen option score about 0.78; agreement across ten answers about 0.78; Open Jev score about 0.82. Open Jev is a separately trained scoring model." loading="lazy"></a><a class="chart-link theme-light" href="../charts/sources.svg" title="Open the full size chart"><img src="../charts/sources.svg" width="784" height="464" alt="Chart: Can different scores help us judge the same answers? Four confidence sources rank the same Qwen3.8-27B answers, 1,191 right out of 2,198. Written estimate: ranking score (AUROC) about 0.51; Qwen option score about 0.78; agreement across ten answers about 0.78; Open Jev score about 0.82. Open Jev is a separately trained scoring model." decoding="async"></a><figcaption>Only the score used to rank the same answers changes; the Open Jev row also changes the model that gives the score.</figcaption></figure>
+</section>
+<section class="card prose" id="differences" aria-labelledby="differences-title"><h2 id="differences-title">How we tell a score gap from ordinary variation</h2>
+<p>Both models answer the same questions, so we look at the questions only one got right. The exact McNemar test<sup class="cite"><a id="cite-17-a" href="#ref-17">17</a></sup>
+asks whether that split is too uneven for equal accuracy. Holm's method adjusts the p values for the number of tests: across
+42 selected comparisons, and across all 903 pairs for the comparison groups (setups sharing a
+letter). A result from one set does not carry over to the other.</p>
+<p>Astra scored 0.9 points above Sol: of 36 questions only one
+got right, Astra had 28 and Sol 8. The adjusted p was
+0.033 among the selected comparisons and 0.12 across all pairs, below and
+above 0.05. A p value says how unusual so uneven a split would be at equal accuracy, not the chance that the
+models are equal.</p>
+<p>DeepSeek with reasoning scored 1.6 points above Opus with low reasoning (adjusted p
+0.56). Not establishing a difference does not show equal accuracy: many language comparisons
+have too few questions to detect gaps this small.<sup class="cite"><a id="cite-18-a" href="#ref-18">18</a></sup></p>
+<figure class="chart"><a class="chart-link theme-dark" href="../charts/paired-dark.svg" title="Open the full size chart"><img src="../charts/paired-dark.svg" width="1200" height="784" alt="How large are the accuracy gaps, and how uncertain are they? For each of the 42 selected pairs, a dot shows the observed accuracy of model A minus model B, in percentage points, with a horizontal 95% interval. Positive values favour A and negative values favour B. Colour marks the selected comparison test after adjustment across 42 pairs: 15 of the 42 pass it. Not detecting a difference does not establish equality." loading="lazy"></a><a class="chart-link theme-light" href="../charts/paired.svg" title="Open the full size chart"><img src="../charts/paired.svg" width="1200" height="784" alt="How large are the accuracy gaps, and how uncertain are they? For each of the 42 selected pairs, a dot shows the observed accuracy of model A minus model B, in percentage points, with a horizontal 95% interval. Positive values favour A and negative values favour B. Colour marks the selected comparison test after adjustment across 42 pairs: 15 of the 42 pass it. Not detecting a difference does not establish equality." decoding="async"></a><figcaption><span class="figure-title">How large are the accuracy gaps, and how uncertain are they?</span> Dots show observed gaps and lines show 95% intervals. The colour marks results that pass the adjustment across these 42 selected comparisons (15 of 42 do). A line that crosses zero and the colour answer related but different questions. The full accuracy groups use all 903 pairs.</figcaption></figure>
+</section>
+<section class="card prose" id="statistical-methods" aria-labelledby="statistical-methods-title"><h2 id="statistical-methods-title">How we measure uncertainty</h2>
+<p>A result from one question set is an estimate. For the ranking score and the accuracy of kept answers, we draw
+1,000 bootstrap samples of the questions with replacement, keeping the 14
+questions of seven shared passages together. For small groups, such as answers at 99% or
+more, a Wilson interval gives an error rate above zero even with no mistakes. A 95% interval comes from a method that covers
+the true value in about 95% of repeated studies, under its assumptions; it is not a model's confidence.</p>
+<p>The live tests report their comparisons without Holm's adjustment. Replays with a cutoff chosen on half the questions
+average 300 random splits of this one question set, not new question sets.</p>
+</section>
+<section class="card prose" id="routing" aria-labelledby="routing-title"><h2 id="routing-title">How we chose which answers to keep</h2>
+<p>A cheap model answers first; we keep its answer when its confidence reaches a cutoff, and a stronger model answers the
+rest. FrugalGPT<sup class="cite"><a id="cite-5-a" href="#ref-5">5</a></sup> and RouteLLM<sup class="cite"><a id="cite-6-a" href="#ref-6">6</a></sup> study related routing. We count the first model's cost on every question.</p>
+<p>Three rules set the cutoff. The cutoff chosen on half the questions is chosen on one random half (a passage's questions
+together) and tested on the other, 300 times. The most confident quarter keeps the first model's
+25% surest answers, and the fixed 99% rule every answer at 99% or more.</p>
+<p>These are replays of recorded answers, with no new calls. The accuracy change compares the combined answers with the
+second model alone on the same questions. The estimated cost adds both models' calls, without the hardware of a first
+model we ran ourselves.</p>
+<div class="caveat" id="average-cost">
+<h3>The average-cost caveat</h3>
+<p>Replay savings give every question passed to the second model the same average cost. In the live tests, the passed
+questions cost more, so the savings were smaller in eight of nine tests.</p>
+</div>
+<p>In the live tests, the second model answered the passed questions with new calls, on one split of
+1,099 questions, and separately answered all of them alone. One split checks the replay; it cannot replace
+the average over 300.</p>
+<p>The second model changes the result: in front of Claude Sonnet 5.5 at high reasoning, GLiDE answered
+44.6% of the questions and Gemma 60.9%. The best pair depends
+on the task and the loss you accept.</p>
+<p>Does a decision model's uncertainty (entropy over its option scores) point to the questions a stronger model gets wrong?
+Weakly: its most uncertain 10% of questions held 12% to 18% of those where Opus, Sonnet or
+Astra erred, against about 10% by chance.</p>
+</section>
+<section class="card prose" id="cost-section" aria-labelledby="cost-section-title"><h2 id="cost-section-title">Cost and reasoning</h2>
+<p>We report output tokens, total run time and money separately. Services charge by tokens, but token counts of different
+models do not stand for equal computation.</p>
+<h3 id="reasoning">What changes when a model does more reasoning?</h3>
+<div class="table-wrap"><table class="static"><thead><tr><th scope="col">Model and setup</th><th scope="col">Reasoning setting</th><th scope="col" class="num">Correct answers overall</th><th scope="col" class="num">Grammar accuracy</th><th scope="col" class="num">Output tokens per question</th><th scope="col" class="num">Estimated cost per 1,000 questions in US dollars</th><th scope="col" class="num">Total time for this test</th></tr></thead><tbody><tr><td>Claude Sonnet 5.5</td><td>Low reasoning</td><td class="num">61.4%</td><td class="num">52.2%</td><td class="num">22</td><td class="num">$1.90</td><td class="num">9.6 min</td></tr><tr><td>Claude Sonnet 5.5</td><td>High reasoning</td><td class="num">85.0%</td><td class="num">85.0%</td><td class="num">199</td><td class="num">$3.65</td><td class="num">58 min</td></tr><tr><td>DeepSeek-V4.1-Flash</td><td>Reasoning off</td><td class="num">65.9%</td><td class="num">56.6%</td><td class="num">6</td><td class="num">No dollar estimate; see hardware and time</td><td class="num">12 min</td></tr><tr><td>DeepSeek-V4.1-Flash</td><td>Reasoning on</td><td class="num">92.0%</td><td class="num">91.4%</td><td class="num">1,006</td><td class="num">No dollar estimate; see hardware and time</td><td class="num">114 min, 8 simultaneous requests</td></tr><tr><td>Gemini 3.8 Flash</td><td>Low reasoning</td><td class="num">93.3%</td><td class="num">92.5%</td><td class="num">28</td><td class="num">$0.27</td><td class="num">5.5 min</td></tr><tr><td>Gemini 3.8 Flash</td><td>High reasoning</td><td class="num">98.1%</td><td class="num">98.5%</td><td class="num">601</td><td class="num">$2.42</td><td class="num">43 min, 4 simultaneous requests</td></tr><tr><td>GLM-5.3-Flash</td><td>Reasoning off</td><td class="num">57.8%</td><td class="num">47.4%</td><td class="num">19</td><td class="num">No dollar estimate; see hardware and time</td><td class="num">2.5 min</td></tr><tr><td>GLM-5.3-Flash</td><td>Reasoning on</td><td class="num">78.8%</td><td class="num">74.3%</td><td class="num">1,010</td><td class="num">No dollar estimate; see hardware and time</td><td class="num">64 min, 8 simultaneous requests</td></tr></tbody></table></div>
+<p>Reasoning helped grammar much more than reading. In all four pairs we tested, the grammar gain was larger, and every 95%
+interval of the difference is above 0. Claude Sonnet 5.5, low to high reasoning: +32.7 points on grammar, +2.3 on reading.
+For DeepSeek and GLM, turning on reasoning also turns on random sampling, so those pairs mix two changes.</p>
+<div class="table-wrap"><table class="overview cards"><thead><tr><th scope="col">Pair</th><th scope="col" class="num">Reading gain (points)</th><th scope="col" class="num">Grammar gain (points)</th><th scope="col" class="num">Difference (grammar gain minus reading gain, points)</th><th scope="col" class="num">95% interval of the difference</th></tr></thead><tbody><tr><td data-label="Pair">Claude Sonnet 5.5, low → high reasoning</td><td class="num" data-label="Reading gain (points)">+2.3</td><td class="num" data-label="Grammar gain (points)">+32.7</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+30.5</td><td class="num" data-label="95% interval of the difference">+26.8 to +34.3</td></tr><tr><td data-label="Pair">DeepSeek-V4.1-Flash, reasoning off → on</td><td class="num" data-label="Reading gain (points)">+5.6</td><td class="num" data-label="Grammar gain (points)">+34.8</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+29.2</td><td class="num" data-label="95% interval of the difference">+25.6 to +32.8</td></tr><tr><td data-label="Pair">Gemini 3.8 Flash, low → high reasoning</td><td class="num" data-label="Reading gain (points)">+2.0</td><td class="num" data-label="Grammar gain (points)">+6.0</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+4.0</td><td class="num" data-label="95% interval of the difference">+2.2 to +5.8</td></tr><tr><td data-label="Pair">GLM-5.3-Flash, reasoning off → on</td><td class="num" data-label="Reading gain (points)">+7.2</td><td class="num" data-label="Grammar gain (points)">+26.9</td><td class="num" data-label="Difference (grammar gain minus reading gain, points)">+19.7</td><td class="num" data-label="95% interval of the difference">+15.9 to +23.2</td></tr></tbody></table></div>
+<p class="table-note">Each interval is a paired bootstrap over the scored questions (1,000
+resamples, each shared passage's questions kept together). The <a href="../results.json">results file</a> holds them, and <code>reproduce.py</code>
+recomputes them.</p>
+<p>Short output can go with high accuracy: GPT-6 Astra reached 97.6% with about 21 output
+tokens per question, and GPT-6.1 Sol 96.7% with 25. Other research finds that more computation
+while answering helps on some problems;<sup class="cite"><a id="cite-7-a" href="#ref-7">7</a></sup> we show it only for these settings.</p>
+<h3 id="cost-estimates">How we estimate the money cost</h3>
+<p>We multiply each run's recorded tokens by published prices, in US dollars per 1,000 questions asked, including the
+12 questions later removed. We use the token counts services reported, without checking invoices; GPT and
+Claude ran on subscriptions, so we price the same use at API rates. Rates for new, reused and stored input apply
+separately.</p>
+<p>Most rates date from 8 October 2026. Perplexity's price changed between its two Decider runs, so their cost
+difference is not only a model improvement. Gemini 3.8 Flash's price is introductory: it
+doubles on 1 January 2027, to $1.50 input and $7.50 output per 1M tokens.</p>
+<p>Models on our own GPUs get no dollar estimate, which does not make them free. Liquid's d1 used a free tier, so its replay
+counts d1's charge as zero. Fixed output token charges of some decision services follow pricing rules, not written
+reasoning.</p>
+<ul class="footnote price-list"><li>A service may save input so a later call can reuse it. It may charge one rate to save it and another to read it again.</li><li>Celeris-1 Decision. Prices recorded 10 October 2026. Per one million tokens: input $0.04; output free. Source: <a href="https://docs.celeris.ai/pricing">Celeris&#x27;s decision model price</a>.</li><li>Claude Opus 5.5 (1 question per request), Claude Opus 5.5 (16 questions per request). Prices recorded 8 October 2026. Per one million tokens: input $4; reused input $0.20; saving input for reuse $5 for 5 minutes, $8 for 1 hour; output $20. Source: <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic&#x27;s API list price</a>.</li><li>Claude Sonnet 5.5 (1 question per request), Claude Sonnet 5.5 (16 questions per request), Claude Sonnet 5.5. Prices recorded 8 October 2026. Per one million tokens: input $2; reused input $0.10; saving input for reuse $2.50 for 5 minutes, $4 for 1 hour; output $10. Source: <a href="https://platform.claude.com/docs/en/about-claude/pricing">Anthropic&#x27;s API list price</a>.</li><li>Fastino GLiDE. Prices recorded 8 October 2026. Per one million tokens: input $0.15; output free. Source: <a href="https://docs.fastino.ai/pricing">Fastino&#x27;s GLiDE price</a>.</li><li>Gemini 3.8 Flash, Gemini 3.8 Flash (1 question per request), Gemini 3.8 Flash (16 questions per request). Prices recorded 8 October 2026. Per one million tokens: input $0.75; reused input $0.075; output $3.75. Source: <a href="https://ai.google.dev/gemini-api/docs/pricing">Google&#x27;s Gemini API price, introductory</a>. Provider update: doubles on 1 January 2027, to $1.50 input and $7.50 output per 1M tokens.</li><li>Jev 1.13.0. Prices recorded 8 October 2026. Per one million tokens: input $0.042; output free. Source: <a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">TypeSafe&#x27;s System One price</a>.</li><li>GPT-6 Astra (16 questions per request), GPT-6 Astra (1 question per request). Prices recorded 8 October 2026. Per one million tokens: input $10; reused input $1; saving input for reuse $12.50; output $50. Source: <a href="https://developers.openai.com/api/docs/pricing">OpenAI&#x27;s API list price</a>.</li><li>GPT-6 Luna. Prices recorded 8 October 2026. Per one million tokens: input $0.10; reused input $0.01; saving input for reuse $0.125; output $0.50. Source: <a href="https://developers.openai.com/api/docs/pricing">OpenAI&#x27;s API list price</a>.</li><li>GPT-6.1 Sol (1 question per request), GPT-6.1 Sol (16 questions per request). Prices recorded 8 October 2026. Per one million tokens: input $2; reused input $0.10; saving input for reuse $2.50; output $10. Source: <a href="https://developers.openai.com/api/docs/pricing">OpenAI&#x27;s API list price</a>.</li><li>GPT-6 Luna (Decisions API, beta). Prices recorded 8 October 2026. Per one million tokens: input $0.10; output free. Source: <a href="https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability">OpenAI&#x27;s Decisions API price</a>.</li><li>Perplexity Decider 27B v1. Prices recorded 4 October 2026. Per one million tokens: input $0.04; output free. Source: <a href="https://docs.perplexity.ai/docs/getting-started/pricing">Perplexity&#x27;s Decisions API price</a>. Provider update: $0.02 per 1M input tokens since, as listed on 8 October 2026.</li><li>Perplexity Decider 27B v1.1. Prices recorded 9 October 2026. Per one million tokens: input $0.02; output free. Source: <a href="https://docs.perplexity.ai/docs/getting-started/pricing">Perplexity&#x27;s Decisions API price</a>.</li><li>SubQ Snap Preview. Prices recorded 13 October 2026. Per one million tokens: input $0.05; output free. Source: <a href="https://docs.subq.ai/using-the-api/models/">SubQ&#x27;s Decisions API price</a>.</li><li>Liquid d1. Free tier used; no paid rate in this record.</li><li>DeepSeek-V4.1-Flash, GLM-5.3-Flash, Gemma 4 31B (16 questions per request), Gemma 4 31B (1 question per request), Clef, Cygnet, Open-Jev 27B v1.1, Winnow-12B, Qwen3.8-27B (vote share), Qwen3.8-27B (stated confidence), Qwen3.8-27B (yes/no scoring), Clef-flash, Qwen3-14B, Erk-14B, Metask-Jev 4B, Strands Decider 2B, GLiNER2.5-multi-Decide, Laya, Laya multilingual, GLiNER2.5 Multi (base). No dollar estimate; see hardware and time.</li></ul>
+</section>
+<section class="card prose" id="understanding" aria-labelledby="understanding-title"><h2 id="understanding-title">What can these results tell us about understanding?</h2>
+<p>A model may answer a passage question correctly and miss a grammar rule in the same language: performance changes by task,
+which does not settle whether it understands. These tests measure skills models have, not how fast they learn; Mitchell and
+Krakauer discuss meanings of understanding,<sup class="cite"><a id="cite-1-a" href="#ref-1">1</a></sup> and Chollet separates a skill from the ability to learn new
+ones.<sup class="cite"><a id="cite-2-a" href="#ref-2">2</a></sup></p>
+<p>Reading may draw on patterns shared across languages, and school grammar more on local rules; training, difficulty and
+format could also explain the gap. Confidence changes too: Jev's ranking score fell from 0.89 on
+Reading to 0.72 on Grammar, and Open Jev's from 0.89 to
+0.75. An <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize evaluation</a>
+reports a stronger score for Jev on two-label English tasks, a different test.</p>
+<p>Stronger evidence would change a question's words but not the relationship the answer depends on, then change that
+relationship and check the answer follows (CheckList<sup class="cite"><a id="cite-9-a" href="#ref-9">9</a></sup>; McCoy, Pavlick and Linzen<sup class="cite"><a id="cite-14-a" href="#ref-14">14</a></sup>). Teaching an unfamiliar
+rule would test learning directly. Other work looks inside models<sup class="cite"><a id="cite-15-a" href="#ref-15">15</a></sup> or tests generalisation across wording and
+reasoning problems.<sup class="cite"><a id="cite-16-a" href="#ref-16">16</a></sup></p>
+</section>
+<section class="card prose" id="repeats-section" aria-labelledby="repeats-section-title"><h2 id="repeats-section-title">What changed when we repeated the same questions?</h2>
+<p>We ran 9 of the 28 one-question-per-request setups
+five times on all 2,198 questions, and 6 of the
+15 setups with 16 per request five times on a fixed
+200-question set.</p>
+<p>On all questions, Open Jev changed no answers, Decider v1 two answers
+and SubQ Snap nine answers; Jev changed about 14%, d1 10%,
+Celeris 1 9%, Qwen's yes or no scoring 7% and Qwen with written
+confidence 44 answers (2%). On the 200-question
+set, Astra changed 1 question, Opus 20 questions and Sonnet with high reasoning
+31 questions. A model can repeat the same wrong answer, so stability alone proves little.</p>
+<p>Gemma's stored repeats, in one server session, changed 0 questions; an unsaved rerun after a
+restart changed some. The Gemma and DeepSeek repeats have no confidence scores.</p>
+</section>
+<section class="card prose" id="latency" aria-labelledby="latency-title"><h2 id="latency-title">How we measure latency and throughput</h2>
+<p>Latency is the time from sending one request to receiving its answer, measured from our computer, network and retries
+included; a request holds one question or 16. Throughput is answered questions per minute of active request
+time, overlaps counted once. Total run time is the whole run.</p>
+<p>DeepSeek-V4.1-Flash (reasoning on) and GLM-5.3-Flash (reasoning on) sent eight requests at a time. Gemini 3.8 Flash (high reasoning), Fastino GLiDE and GPT-6 Luna (Decisions API, beta) sent four requests at a time. These choices, along with hardware, network conditions and service limits, affect the measured throughput.</p><p>Some early runs recorded the total time but not the time of each request. For those, we take latencies from later runs of the same setup. Perplexity Decider 27B v1, Jev 1.13.0, Liquid d1, Open-Jev 27B v1.1, Qwen3.8-27B (stated confidence, reasoning off) and Qwen3.8-27B (yes/no scoring) use their four later repeat runs on all 2,198 questions. With 16 questions per request, GPT-6 Astra (low reasoning), Claude Opus 5.5 (low reasoning) and Claude Sonnet 5.5 (high reasoning) use their five repeat runs on the same 200 questions. Claude Sonnet 5.5 (low reasoning), Laya and Laya multilingual have no recorded latencies.</p>
+<p>Astra's typical latency is 13.04 seconds for 16 questions (from the
+200-question repeats) and 6.14 for one; Gemma's is 3.97 and
+0.29 seconds.</p>
+</section>
+<section class="card prose" id="limits" aria-labelledby="limits-title"><h2 id="limits-title">What these results do not establish</h2>
+<p>The questions are online, so models may have seen them in training (contamination, which few tests measure<sup class="cite"><a id="cite-19-a" href="#ref-19">19</a></sup>);
+turning off web access cannot undo that. On the 40 Turkish questions of Turkey's June 2026
+university entrance exam, public before our October test, 9 models got 24 to
+40 right.</p>
+<p>When we replaced the correct option's text with a copy of a wrong one, Astra chose the original letter
+31.0% of the time and the copy 28.4%, with no established preference (p =
+0.19). That checks one form of recall, not whether the model knew the question.</p>
+<p>Reasoning, sampling, request size, precision, server software and server state can change answers. This is one language
+and one question source; a confidence cutoff for a new task needs its own test.</p>
+</section>
+<section class="card prose" id="data" aria-labelledby="data-title"><h2 id="data-title">Download the data and check our calculations</h2>
+<p class="versions">Results updated 13 October 2026 · Results snapshot 84d533b4 · Question set
+questions-v2.sqlite (797ad6c8) · Answer key version 2</p>
+<p>The <a href="../results.json">results file</a> holds the summary numbers; the <a href="../answers.json">answer export</a> holds the recorded choices, confidence scores, settings,
+prompt templates and question IDs, without the copyrighted questions. The
+<a href="https://github.com/zekiworks/analysis/blob/main/decision-models/benchmark_metrics.py">metric code</a> computes each statistic; the
+<a href="../data/">Data page</a> describes the files.</p>
+<p>This snapshot holds 43 main setups, 66 extra repeat runs, 20 runs from
+the 14 live tests, two cheaper models tested alone and
+two more runs with one question per request on 200 questions.</p>
+<p>From the <a href="https://github.com/zekiworks/analysis/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
+setup's accuracy, ranking score, calibration gap and answers at 99% or more (before and after the key review),
+the 42 selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
+replays with their 300 splits and live tests: all 3,370 checks match. It does not yet check the
+bootstrap intervals of the ranking score and the accuracy of kept answers.</p>
+<p>The 40 exam questions stay private, and the raw replies behind token counts are not exported.
+The <code>runner</code> folder holds the test code, run scripts and server wrappers.</p>
+</section>
+<section class="card prose" id="references" aria-labelledby="references-title"><h2 id="references-title">Sources and related research</h2><p>These sources explain the methods and the earlier research above; our measurements come from the recorded runs.</p><ol class="references"><li id="ref-1">Mitchell, M., &amp; Krakauer, D. C. (2023). The debate over understanding in AI's large language models. Proceedings of the National Academy of Sciences, 120(13), e2215907120. <a href="https://doi.org/10.1073/pnas.2215907120">https://doi.org/10.1073/pnas.2215907120</a> <a class="backref" href="#cite-1-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-2">Chollet, F. (2019). On the Measure of Intelligence. arXiv:1911.01547. <a href="https://arxiv.org/abs/1911.01547">https://arxiv.org/abs/1911.01547</a> <a class="backref" href="#cite-2-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-3">Yüksel, A., Köksal, A., Şenel, L. K., Korhonen, A., &amp; Schütze, H. (2024). TurkishMMLU: Measuring Massive Multitask Language Understanding in Turkish. Findings of EMNLP 2024. <a href="https://aclanthology.org/2024.findings-emnlp.413/">https://aclanthology.org/2024.findings-emnlp.413/</a> <a class="backref" href="#cite-3-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-4">Liang, P., et al. (2023). Holistic Evaluation of Language Models. Transactions on Machine Learning Research. <a href="https://arxiv.org/abs/2211.09110">https://arxiv.org/abs/2211.09110</a> <a class="backref" href="#cite-4-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-5">Chen, L., Zaharia, M., &amp; Zou, J. (2023). FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance. arXiv:2305.05176. <a href="https://arxiv.org/abs/2305.05176">https://arxiv.org/abs/2305.05176</a> <a class="backref" href="#cite-5-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-6">Ong, I., et al. (2024). RouteLLM: Learning to Route LLMs with Preference Data. arXiv:2406.18665. <a href="https://arxiv.org/abs/2406.18665">https://arxiv.org/abs/2406.18665</a> <a class="backref" href="#cite-6-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-7">Snell, C., Lee, J., Xu, K., &amp; Kumar, A. (2024). Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters. arXiv:2408.03314. <a href="https://arxiv.org/abs/2408.03314">https://arxiv.org/abs/2408.03314</a> <a class="backref" href="#cite-7-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-8">Zheng, C., Zhou, H., Meng, F., Zhou, J., &amp; Huang, M. (2024). Large Language Models Are Not Robust Multiple Choice Selectors. ICLR 2024. <a href="https://arxiv.org/abs/2309.03882">https://arxiv.org/abs/2309.03882</a> <a class="backref" href="#cite-8-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-9">Ribeiro, M. T., Wu, T., Guestrin, C., &amp; Singh, S. (2020). Beyond Accuracy: Behavioral Testing of NLP Models with CheckList. Proceedings of ACL, pp. 4902–4912. <a href="https://aclanthology.org/2020.acl-main.442/">https://aclanthology.org/2020.acl-main.442/</a> <a class="backref" href="#cite-9-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-10">Geifman, Y., &amp; El-Yaniv, R. (2017). Selective Classification for Deep Neural Networks. Advances in Neural Information Processing Systems 30. <a href="https://arxiv.org/abs/1705.08500">https://arxiv.org/abs/1705.08500</a> <a class="backref" href="#cite-10-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-11">Guo, C., Pleiss, G., Sun, Y., &amp; Weinberger, K. Q. (2017). On Calibration of Modern Neural Networks. Proceedings of ICML, PMLR 70, 1321–1330. <a href="https://arxiv.org/abs/1706.04599">https://arxiv.org/abs/1706.04599</a> <a class="backref" href="#cite-11-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-12">Xiong, M., et al. (2024). Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs. ICLR 2024. <a href="https://arxiv.org/abs/2306.13063">https://arxiv.org/abs/2306.13063</a> <a class="backref" href="#cite-12-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-13">Kadavath, S., et al. (2022). Language Models (Mostly) Know What They Know. arXiv:2207.05221. <a href="https://arxiv.org/abs/2207.05221">https://arxiv.org/abs/2207.05221</a> <a class="backref" href="#cite-13-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-14">McCoy, R. T., Pavlick, E., &amp; Linzen, T. (2019). Right for the Wrong Reasons: Diagnosing Syntactic Heuristics in Natural Language Inference. Proceedings of ACL, pp. 3428–3448. <a href="https://aclanthology.org/P19-1334/">https://aclanthology.org/P19-1334/</a> <a class="backref" href="#cite-14-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-15">Beckmann, P., &amp; Queloz, M. (2026). Mechanistic indicators of understanding in large language models. Philosophical Studies, 183, 1747–1792. <a href="https://doi.org/10.1007/s11098-026-02513-1">https://doi.org/10.1007/s11098-026-02513-1</a> <a class="backref" href="#cite-15-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-16">Blanck, R., &amp; Noble, B. (2026). Logic, inference, understanding: cross-domain generalization for generative language models. Frontiers in Artificial Intelligence, 9, 1800372. <a href="https://doi.org/10.3389/frai.2026.1800372">https://doi.org/10.3389/frai.2026.1800372</a> <a class="backref" href="#cite-16-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-17">Dietterich, T. G. (1998). Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms. Neural Computation, 10(7), 1895–1923. <a href="https://doi.org/10.1162/089976698300017197">https://doi.org/10.1162/089976698300017197</a> <a class="backref" href="#cite-17-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-18">Card, D., Henderson, P., Khandelwal, U., Jia, R., Mahowald, K., &amp; Jurafsky, D. (2020). With Little Power Comes Great Responsibility. Proceedings of EMNLP 2020, pp. 9263–9274. <a href="https://aclanthology.org/2020.emnlp-main.745/">https://aclanthology.org/2020.emnlp-main.745/</a> <a class="backref" href="#cite-18-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-19">Sainz, O., et al. (2023). NLP Evaluation in trouble: On the Need to Measure LLM Data Contamination for each Benchmark. Findings of EMNLP 2023. <a href="https://arxiv.org/abs/2310.18018">https://arxiv.org/abs/2310.18018</a> <a class="backref" href="#cite-19-a" aria-label="Return to the paragraph that cites this source">↩</a></li><li id="ref-20">Northcutt, C. G., Athalye, A., &amp; Mueller, J. (2021). Pervasive Label Errors in Test Sets Destabilize Machine Learning Benchmarks. NeurIPS 2021 Datasets and Benchmarks Track. <a href="https://arxiv.org/abs/2103.14749">https://arxiv.org/abs/2103.14749</a> <a class="backref" href="#cite-20-a" aria-label="Return to the paragraph that cites this source">↩</a></li></ol></section>
+</div>
+  </main>
+  <footer class="v2-footer">
+    <p>Download: <a href="../results.json" download>results.json</a> · <a href="../answers.json" download>answers.json</a></p>
+    <p>Results 84d533b4, updated 13 October 2026; answer key version 2.</p>
+  </footer>
+</body>
+</html>

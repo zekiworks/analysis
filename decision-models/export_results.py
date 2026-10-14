@@ -248,9 +248,10 @@ UNITS_EN = {
 GROUPS = ("reading", "grammar", "without_suspect")
 # The 2026 TYT Türkçe paper's mix of reading and grammar questions, for the reweighted score.
 TYT_MIX = {"reading": 33, "grammar": 7}
-# The replay the page leads with. The decision run answers first, keeping its answers at or above each cutoff, and
-# separately its REPLAY_SHARE most confident answers, a share fixed in advance that no answer key tunes; the second
-# run answers the rest. Runs by (provider, model, reasoning). The cutoffs include the sure threshold, bm.SURE_SCORE.
+# The Decider v1.1 replay (results.json `replay`). The decision run answers first, keeping its answers at or above
+# each cutoff, and separately its REPLAY_SHARE most confident answers, a share fixed in advance that no answer key
+# tunes; the second run answers the rest. Runs by (provider, model, reasoning). The cutoffs include the sure
+# threshold, bm.SURE_SCORE.
 REPLAY_DECISION = ("perplexity", "pplx-decider-v1.1-27b", None)
 REPLAY_FRONTIERS = (
     ("claude", "claude-opus-5-5", "low"),
@@ -776,12 +777,12 @@ def holm_over_all_pairs(paired: list[dict[str, Any]], runs: list[dict[str, Any]]
 
 
 def replay(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, Any]:
-    """The replay the page leads with, from the exported answers (export_answers()) on the scored questions in question
-    order with their passages as clusters, as the report's routing simulations take them: the decision run's answers kept
-    at each cutoff, and its surest REPLAY_SHARE with the Wilson interval of their accuracy. For each second run: what
-    keeping them changes at the sure threshold and with the share rule (bm.share_rule, on the same held-out halves as
-    the cascades), and the pair's estimated cost per 1,000 questions as the cascades count it: the decision run on every
-    question, the second run on the rest at its own average cost."""
+    """The Decider v1.1 replay (results.json `replay`), from the exported answers (export_answers()) on the scored
+    questions in question order with their passages as clusters, as the report's routing simulations take them: the
+    decision run's answers kept at each cutoff, and its surest REPLAY_SHARE with the Wilson interval of their accuracy.
+    For each second run: what keeping them changes at the sure threshold and with the share rule (bm.share_rule, on
+    the same held-out halves as the cascades), and the pair's estimated cost per 1,000 questions as the cascades count
+    it: the decision run on every question, the second run on the rest at its own average cost."""
     if bm.SURE_SCORE not in REPLAY_CUTOFFS:
         raise ValueError(f"REPLAY_CUTOFFS must include the sure threshold, {bm.SURE_SCORE}")
 

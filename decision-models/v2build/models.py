@@ -1,4 +1,4 @@
-"""One page per setup (v2/models/<run id>/): how we called it, its settings, results, confidence, repeats, latency
+"""One page per setup (models/<run id>/): how we called it, its settings, results, confidence, repeats, latency
 and cost, and, for a first model, what it took off each LLM in the replay."""
 
 from __future__ import annotations

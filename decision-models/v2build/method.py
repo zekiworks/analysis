@@ -1,6 +1,6 @@
-"""The Method page (v2/method/): how we ran the test, the request format check, the full study and its limits.
+"""The Method page (method/): how we ran the test, the request format check, the full study and its limits.
 
-Its numbers come from results.json through build_page.py's Snapshot (the same values the main page's spans show),
+Its numbers come from results.json through build_page.py's Snapshot (the values the earlier page, v1/, showed),
 from page_config.json's method_records, and from answers.json where results.json holds no count. One table is new:
 the reasoning pairs' gains on Reading and Grammar with the 95% interval of their difference, from results.json's
 reasoning. Build checks raise ValueError when the copy no longer fits the data.
@@ -103,7 +103,7 @@ REFERENCES = (
     ("Northcutt, C. G., Athalye, A., &amp; Mueller, J. (2021). Pervasive Label Errors in Test Sets Destabilize Machine "
      "Learning Benchmarks. NeurIPS 2021 Datasets and Benchmarks Track.", "https://arxiv.org/abs/2103.14749"),
 )
-# The main page's price list texts (app.js): the reuse note and the lines for free and self-hosted runs.
+# The earlier page's price list texts (v1/app.js): the reuse note and the lines for free and self-hosted runs.
 REUSE_EXPLAINED = "A service may save input so a later call can reuse it. It may charge one rate to save it and another to read it again."
 FREE_RATE = "Free tier used; no paid rate in this record."
 NO_COST_LOCAL = "No dollar estimate; see hardware and time"
@@ -201,10 +201,15 @@ def average_cost(snap: bp.Snapshot) -> tuple[str, str]:
     return bp.in_words(smaller), bp.in_words(len(tests))
 
 
+def from_here(figure: str) -> str:
+    """A figure built for the folder root (charts/…), with its links made relative to this page."""
+    charts = rel(PATH, "charts/")
+    return figure.replace('href="charts/', f'href="{charts}').replace('src="charts/', f'src="{charts}')
+
+
 def chart(name: str, alt: str, caption: str) -> str:
-    """A chart in both themes, linked from this page (v2/method/) to decision-models/charts/."""
-    figure = bp.chart_sizes(bp.chart_figure(name, alt, caption))
-    return figure.replace('href="charts/', 'href="../../charts/').replace('src="charts/', 'src="../../charts/')
+    """A chart in both themes, linked from this page to charts/."""
+    return from_here(bp.chart_sizes(bp.chart_figure(name, alt, caption)))
 
 
 def chart_alt(block: str, name: str) -> str:
@@ -279,7 +284,7 @@ def rate_parts(price: dict[str, Any]) -> list[str]:
 
 
 def price_list(snap: bp.Snapshot) -> str:
-    """The price notes as the main page's app.js draws them under "How we estimate the money cost"."""
+    """The price notes as the earlier page's app.js (v1/) drew them under "How we estimate the money cost"."""
     def names(runs: list[dict[str, Any]]) -> str:
         return ", ".join(dict.fromkeys(display_name(run) for run in runs))
 
@@ -320,14 +325,13 @@ def build(site: Site) -> dict[str, str]:
             raise ValueError(f"build_page.method_timing no longer says {old!r}")
         timing = timing.replace(old, new)
     link = lambda target, text: f'<a href="{rel(PATH, target)}">{text}</a>'  # noqa: E731
-    results_file = f'<a href="{rel(PATH, "")}../results.json">results file</a>'
-    answer_file = f'<a href="{rel(PATH, "")}../answers.json">answer export</a>'
+    results_file = f'<a href="{rel(PATH, "results.json")}">results file</a>'
+    answer_file = f'<a href="{rel(PATH, "answers.json")}">answer export</a>'
     calibration_alt = chart_alt(study["study-calibration"], "calibration-all")
     if "; the table keeps them." not in calibration_alt:
         raise ValueError("the calibration chart's description changed; check what it says about the table")
     calibration_alt = calibration_alt.replace("; the table keeps them.", ".")
-    paired_figure = bp.chart_sizes(bp.method_paired_figure(snap))
-    paired_figure = paired_figure.replace('href="charts/', 'href="../../charts/').replace('src="charts/', 'src="../../charts/')
+    paired_figure = from_here(bp.chart_sizes(bp.method_paired_figure(snap)))
 
     sections = [
         ("main-findings", "What we found", f"""

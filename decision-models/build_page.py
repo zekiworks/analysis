@@ -1,25 +1,19 @@
 #!/usr/bin/env python3
-"""Fill the page's generated parts from one data snapshot: results.json, with page_config.json.
+"""The sharing images, the X posts and CITATION.cff, from one data snapshot: results.json, with page_config.json.
 
-    python3 build_page.py               # the page, the sharing images and the X posts
-    python3 build_page.py --no-images   # without the images (no Chrome needed)
+    python3 build_page.py               # the sharing images, the X posts and CITATION.cff
+    python3 build_page.py --no-images   # keep the current images (no Chrome needed)
 
-Every number in the overview, in the sharing images and in the X posts comes from the snapshot, and so do the
-numbers in the study's sentences that carry a marker. index.html keeps the copy; this script rewrites what is
-inside its markers, and the size of the chart images:
+The site itself is built by build_v2.py, whose Method page uses this module's Snapshot, values() and table and
+figure code. v1/ keeps the earlier page as it was on 14 October 2026; nothing rebuilds it.
 
-- <span data-value="key">…</span>: a number or a short text from values();
-- <!-- build:name --> … <!-- /build:name -->: a block from blocks() (tables, bars, sentences, meta tags);
-- <img src="charts/….svg">: the width and height of the chart's SVG, so its space is kept while it loads.
-
-"lead" in page_config.json names the finding the page leads with (one of "leads"): it opens the page, comes
-first in the confidence figure, and is what the link preview, the X image and the main X post show. The images
-are drawn by headless Chrome from HTML made here, from the same rows as the page, and saved under share/ with
-a short hash of their content in their names, so that a changed image gets a new address and no link preview shows
-a cached copy; share/x-posts.md holds the announcement text. Earlier images are deleted until "announced" holds the
-date of the first public post, and kept after it, so that earlier link previews keep working. With --no-images the
-page keeps the images it links to. reproduce.py must pass first, and the build stops otherwise. Set CHROME to use
-another Chrome or Chromium binary.
+"lead" in page_config.json names the finding the link preview, the X image and the main X post show (one of
+"leads"). The images are drawn by headless Chrome from HTML made here and saved under share/ with a short hash of
+their content in their names, so that a changed image gets a new address and no link preview shows a cached copy.
+share/images.json names the current ones, which the home page's link preview uses; share/x-posts.md holds the
+announcement text. Earlier images are deleted until "announced" holds the date of the first public post, and kept
+after it, so that earlier link previews keep working. reproduce.py must pass first, and the build stops otherwise.
+Set CHROME to use another Chrome or Chromium binary.
 """
 
 from __future__ import annotations
@@ -40,13 +34,13 @@ from typing import Any
 sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 import benchmark_metrics as bm  # noqa: E402
 
-# The page and its data sit next to this script: the folder is the site GitHub Pages serves.
+# The site and its data sit next to this script: the folder is what GitHub Pages serves.
 ROOT = Path(__file__).resolve().parent
-PAGE = ROOT / "index.html"
 SHARE = ROOT / "share"
 X_POSTS = SHARE / "x-posts.md"
+# The current sharing images by image and theme, written with every build that draws them.
+IMAGES = SHARE / "images.json"
 CITATION = ROOT / "CITATION.cff"
-VALUE = re.compile(r'(<span data-value="([a-z0-9_]+)">)(.*?)(</span>)', re.S)
 BLOCK = re.compile(r"(<!-- build:([a-z0-9-]+) -->)(.*?)(<!-- /build:\2 -->)", re.S)
 # A chart image, with the size the build gives it, and an SVG's size.
 CHART_IMAGE = re.compile(r'(<img src="(charts/[a-z0-9-]+\.svg)")(?: width="\d+" height="\d+")?')
@@ -169,11 +163,6 @@ def named(item: dict[str, Any]) -> str:
     """A configuration's name with its setting in brackets, for use inside a longer label."""
     detail = setting(item)
     return item["name"] + (f" ({detail})" if detail else "")
-
-
-def label_html(item: dict[str, Any]) -> str:
-    detail = setting(item)
-    return f'<span class="model-name">{esc(item["name"])}</span>' + (f'<span class="muted"> · {esc(detail)}</span>' if detail else "")
 
 
 def alone(item: dict[str, Any]) -> str:
@@ -430,7 +419,7 @@ class Snapshot:
         return {**replay, "run": decision, "frontiers": frontiers}
 
 
-# ---------------------------------------------------------------- values for the page's spans
+# ---------------------------------------------------------------- values: the numbers the Method page, the images and the X posts quote
 
 
 def values(snap: Snapshot) -> dict[str, str]:
@@ -633,109 +622,6 @@ def stack_html(row: dict[str, Any], snap: Snapshot) -> str:
     )
 
 
-def kept_sentences(row: dict[str, Any], snap: Snapshot) -> list[tuple[str, str]]:
-    """The row template of the fixed cutoff, as (class, sentence) pairs: the answers we keep with their share of all
-    questions, the wrong ones with their share of the kept answers, the 95% interval for that error rate and the
-    questions that need another answer. A row with nothing kept gets no error rate. Only a nonzero wrong count is
-    marked as wrong, so that zero wrong answers never take the error colour."""
-    fmt = snap.fmt
-    if not row["accepted"]:
-        return [("", f"No answer reaches the {snap.cutoff} cutoff."),
-                ("", f"All {count(snap.total)} questions need another answer."),
-                ("", "Error rate among kept answers: not applicable.")]
-    errors = row["errors"]
-    wrong = ("None of them is wrong." if not errors
-             else f"{opening_count(errors)} {'is' if errors == 1 else 'are'} wrong, {fmt.pct(row['error_rate'])} of the kept answers.")
-    return [("", f"We keep {count(row['accepted'])} answers, {fmt.pct(row['coverage'])} of all questions."),
-            ("v-wrong" if errors else "", wrong),
-            ("", f"The 95% interval for the error rate is {fmt.span(*row['error_range'])}."),
-            ("", f"{count(row['sent'])} questions need another answer.")]
-
-
-LEGEND = (
-    '<span class="legend"><span><i class="key ok"></i>Kept and correct</span> '
-    '<span><i class="key wrong"></i>Kept but wrong</span> <span><i class="key check"></i>Needs another answer</span></span>'
-)
-
-
-def threshold_caption(snap: Snapshot) -> str:
-    """Chart 03's caption: what the lead keeps at the fixed cutoff, and that the share of the cutoff chosen on half the
-    questions in front of Astra is a different result. Only a single lead with no wrong kept answers fits the sentence."""
-    if len(snap.lead) != 1 or not snap.lead[0]["accepted"] or snap.lead[0]["errors"]:
-        return ""
-    lead = snap.lead[0]
-    strict = next((item["strict"] for item in snap.replay["frontiers"] if item["key"] == "astra" and item["strict"]), None)
-    if strict is None:
-        raise ValueError("chart 03's caption names the cutoff chosen on half the questions in front of Astra, which results.json no longer has")
-    return (f"A separate check with one fixed cutoff. {esc(snap.short(lead['run']))} keeps {count(lead['accepted'])} answers, "
-            f"or {snap.fmt.pct(lead['coverage'])}, with no wrong answers. This is not the {snap.fmt.pct(strict['share'])} it "
-            "takes in front of Astra with the cutoff chosen on half the questions, which comes from a separate replay. ")
-
-
-def threshold_figure(snap: Snapshot) -> str:
-    items = []
-    for row in snap.thresholds:
-        is_lead = any(row is first for first in snap.lead)
-        values = " ".join(f'<span class="{kind}">{esc(text)}</span>' if kind else f"<span>{esc(text)}</span>"
-                          for kind, text in kept_sentences(row, snap))
-        items.append(
-            ('<li class="lead">' if is_lead else "<li>")
-            + f'<p class="bar-label">{label_html(row["run"])}<span class="small">Confidence source: {esc(row["source"].lower())}</span></p>'
-            + stack_html(row, snap)
-            + f'<p class="bar-values">{values}</p></li>'
-        )
-    return (
-        '<figure class="threshold-figure" aria-labelledby="threshold-title" aria-describedby="threshold-caption">'
-        f'<p class="figure-title" id="threshold-title">Which answers pass a {snap.cutoff} confidence cutoff?</p>'
-        f'<p class="legend-line">{LEGEND}</p>'
-        f'<ul class="threshold-bars">{"".join(items)}</ul>'
-        f'<figcaption id="threshold-caption">Each bar is all {count(snap.total)} scored questions. {threshold_caption(snap)}'
-        f"{esc(snap.lead_spec['order'])}. This order is an editorial grouping, not a ranking.</figcaption></figure>"
-    )
-
-
-def overview_tip(text: str, about: str) -> str:
-    """A small focusable mark that shows `text` on hover or keyboard focus; the copy around it says the same."""
-    return (f' <span class="tip" tabindex="0" aria-label="About {esc(about)}">?'
-            f'<span class="badge-tip" role="tooltip">{esc(text)}</span></span>')
-
-
-INTERVAL_TIP = ("A range describing sampling uncertainty in this measured rate. It does not cover every source of error or "
-                "guarantee a future rate.")
-
-
-def threshold_table(snap: Snapshot) -> str:
-    fmt = snap.fmt
-    rows = []
-    for row in snap.thresholds:
-        run = row["run"]
-        if row["accepted"]:
-            kept = f'{count(row["accepted"])}<span class="small">{fmt.pct(row["coverage"])} of all questions</span>'
-            rate = "0%" if not row["errors"] else fmt.pct(row["error_rate"])
-            errors = f'{count(row["errors"])}<span class="small">{rate} of the kept answers</span>'
-            span = fmt.span(*row["error_range"])
-        else:
-            kept = '0<span class="small">No answers reach this cutoff</span>'
-            errors, span = "Not applicable", "Not applicable"
-        rows.append(
-            "<tr>"
-            f'<td data-label="Model and setup">{label_html(run)}</td>'
-            f'<td data-label="Where the confidence score comes from">{esc(row["source"])}</td>'
-            f'<td class="num" data-label="Answers we keep">{kept}</td>'
-            f'<td class="num" data-label="Wrong answers among those we keep">{errors}</td>'
-            f'<td class="num" data-label="95% interval for the error rate">{span}</td>'
-            "</tr>"
-        )
-    return (
-        '<div class="table-wrap"><table class="overview cards">'
-        '<thead><tr><th scope="col">Model and setup</th><th scope="col">Where the confidence score comes from</th>'
-        f'<th scope="col" class="num">Answers we keep<span class="small">at {snap.cutoff} confidence or higher</span></th>'
-        '<th scope="col" class="num">Wrong answers among those we keep</th>'
-        f'<th scope="col" class="num">95% interval for the error rate{overview_tip(INTERVAL_TIP, "the 95% interval")}</th></tr></thead>'
-        f'<tbody>{"".join(rows)}</tbody></table></div>'
-    )
-
-
 def task_title(snap: Snapshot) -> str:
     """The reading-and-grammar figure's title, on the page and in its sharing images. The figure shows the decision
     models above the chat models for comparison (accuracy_rows marks those as references); the build stops if a row
@@ -744,182 +630,6 @@ def task_title(snap: Snapshot) -> str:
         if snap.decision_model(row["run"]) == row["reference"]:
             raise ValueError(f"{label(row['run'])} no longer fits its group in the reading and grammar figure")
     return "How often do models get reading and grammar questions right?"
-
-
-def task_groups(snap: Snapshot) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """The decision model rows, the lead first and the others by overall accuracy, then the chat models for comparison."""
-    lead = {row["run"]["run"] for row in snap.lead}
-    decision = sorted((row for row in snap.tasks if not row["reference"]), key=lambda row: row["run"]["run"] not in lead)
-    return decision, [row for row in snap.tasks if row["reference"]]
-
-
-def task_check(snap: Snapshot) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
-    """The decision model, the chat model and the top model that the accuracy copy and chart 04's caption compare on
-    reading and grammar. The build stops unless the chat model beats every decision model on both tasks with a grammar
-    score at least ten points below its own reading score."""
-    decision, chat, top = (snap.named[key] for key in snap.config["accuracy_lead"]["task"])
-    deciders = [run for run in snap.runs if snap.decision_model(run)]
-
-    def share(run: dict[str, Any], part: str) -> float:
-        return run["groups"][part]["correct"] / run["groups"][part]["questions"]
-
-    if (not snap.decision_model(decision) or snap.decision_model(chat) or snap.decision_model(top)
-            or any(share(chat, part) <= max(share(run, part) for run in deciders) for part in ("reading", "grammar"))
-            or share(chat, "reading") - share(chat, "grammar") < 0.1):
-        raise ValueError("the reading and grammar comparison in the Accuracy section no longer fits the data")
-    return decision, chat, top
-
-
-def task_figure(snap: Snapshot) -> str:
-    fmt = snap.fmt
-
-    def bars(rows: list[dict[str, Any]]) -> str:
-        items = []
-        for row in rows:
-            pairs = "".join(
-                f'<span class="pair"><span class="part {part}">{name}</span><span class="track"><span class="bar {part}" style="width: {100 * row[part]:.2f}%"></span></span>'
-                f'<span class="value">{fmt.pct(row[part])}</span></span>'
-                for part, name in (("reading", "Reading"), ("grammar", "Grammar"))
-            )
-            items.append(f'<li><p class="bar-label">{label_html(row["run"])}</p>{pairs}</li>')
-        return f'<ul class="task-bars">{"".join(items)}</ul>'
-
-    decision, chat = task_groups(snap)
-    _, model, _ = task_check(snap)
-    name = esc(snap.short(model))
-    lead = and_list([esc(snap.short(row["run"])) for row in snap.lead])
-    # The axis is one more row of the same grid, so its ticks sit over the bars' own track.
-    ticks = "".join(f'<span style="left: {tick}%">{tick}%</span>' for tick in (0, 25, 50, 75, 100))
-    return (
-        '<figure class="task-figure" aria-labelledby="task-title" aria-describedby="task-caption">'
-        f'<p id="task-title" class="figure-title">{esc(task_title(snap))}</p>'
-        f'<p class="caption">Reading: {count(snap.reading_questions)} questions. Grammar: {count(snap.grammar_questions)} questions. '
-        "Each bar shows correct answers, from 0% to 100%.</p>"
-        f'<p class="task-group">Decision models</p>{bars(decision)}'
-        f'<p class="task-group">Chat models for comparison</p>{bars(chat)}'
-        f'<p class="pair axis" aria-hidden="true"><span></span><span class="axis-track">{ticks}</span><span></span></p>'
-        f'<figcaption id="task-caption" class="caption">{name} scores higher than every decision model on both reading and '
-        "grammar. Its grammar result is lower than its own reading result. This test does not establish why the task scores "
-        f"differ. We list {lead} first and the other decision models by correct answers overall; this is a reading order, "
-        "not a rank.</figcaption></figure>"
-    )
-
-
-GROUP_TIP = ("The all pairs test did not detect a difference from setups sharing a letter. This does not establish equality.")
-
-
-def results_rows(snap: Snapshot, runs: list[dict[str, Any]]) -> str:
-    fmt = snap.fmt
-    rows = []
-    for run in runs:
-        groups = run["groups"]
-        decides = snap.decision_model(run)
-        detail = setting(run) or ("Scores the supplied options" if decides else "Not applicable")
-        badge = (
-            '<span class="badge" tabindex="0" aria-describedby="decision-model-help">Decision model'
-            '<span class="badge-tip" role="tooltip">Picks from the options we give it and gives each option a score. In this test, we used only the pick and the scores.</span></span>'
-            if decides
-            else ""
-        )
-        rows.append(
-            "<tr>"
-            f'<td><details class="model-details"><summary>{label_html(run)}</summary><dl>'
-            f'<dt>How we called the model</dt><dd>{esc(run["access"])}</dd>'
-            f'<dt>Reasoning setting</dt><dd>{esc(detail)}</dd>'
-            f'<dt>Questions in each request</dt><dd>{run["questions_per_request"]}</dd>'
-            f'<dt>Test started</dt><dd>{long_date(run["started"])}</dd>'
-            f"</dl></details>{badge}</td>"
-            f'<td class="num" data-label="Correct answers overall">{fmt.pct(run["correct"] / snap.total)}</td>'
-            f'<td class="num reading" data-label="Reading accuracy">{fmt.pct(groups["reading"]["correct"] / groups["reading"]["questions"])}</td>'
-            f'<td class="num grammar" data-label="Grammar accuracy">{fmt.pct(groups["grammar"]["correct"] / groups["grammar"]["questions"])}</td>'
-            f'<td class="group" data-label="Comparison group">{esc(run.get("group") or "Not applicable")}</td>'
-            "</tr>"
-        )
-    return "".join(rows)
-
-
-def results_grid(snap: Snapshot, runs: list[dict[str, Any]], others: str) -> str:
-    """One accuracy table: the decision models, then the other models under their own label, each by overall accuracy."""
-    decision = [run for run in runs if snap.decision_model(run)]
-    rest = [run for run in runs if not snap.decision_model(run)]
-    return (
-        '<div class="table-wrap"><table class="overview results">'
-        '<thead><tr><th scope="col">Model and setup</th><th scope="col" class="num">Correct answers overall</th>'
-        '<th scope="col" class="num reading"><i class="key reading"></i>Reading accuracy</th>'
-        '<th scope="col" class="num grammar"><i class="key grammar"></i>Grammar accuracy</th>'
-        f'<th scope="col">Comparison group{overview_tip(GROUP_TIP, "comparison groups")}</th></tr></thead>'
-        f'<tbody><tr class="group-row"><th scope="colgroup" colspan="5">Decision models</th></tr>{results_rows(snap, decision)}'
-        f'<tr class="group-row"><th scope="colgroup" colspan="5">{others}</th></tr>{results_rows(snap, rest)}</tbody></table></div>'
-    )
-
-
-def results_table(snap: Snapshot) -> str:
-    """The setups the page's figures show, then every setup on request."""
-    return (
-        results_grid(snap, snap.featured, "Chat models for comparison")
-        + f'<details class="all-configs"><summary>Show all {count(len(snap.runs))} model setups</summary>'
-        + results_grid(snap, snap.runs, "Chat models and other models for comparison") + "</details>"
-    )
-
-
-def stability_table(items: list[dict[str, Any]], fmt: Format) -> str:
-    # Every setup in a group has the same number of runs (group_heading checks it).
-    repeated = f"Questions with the same wrong answer in all {in_words(len(items[0]['runs']))} runs"
-    rows = []
-    for item in items:
-        rows.append(
-            "<tr>"
-            f'<td data-label="Model and setup">{label_html(item)}</td>'
-            f'<td class="num" data-label="Questions where the answer changed">{count(item["changed_answer"])}'
-            f'<span class="small">{fmt.pct(item["changed_answer"] / item["questions"])} of questions</span></td>'
-            f'<td class="num" data-label="{repeated}">{count(item["wrong_every_run_same"])}'
-            f'<span class="small">out of the {count(item["wrong_any"])} questions answered wrongly at least once</span></td>'
-            "</tr>"
-        )
-    return (
-        '<div class="table-wrap"><table class="overview cards">'
-        '<thead><tr><th scope="col">Model and setup</th><th scope="col" class="num">Questions where the answer changed</th>'
-        f'<th scope="col" class="num">{repeated}</th></tr></thead>'
-        f'<tbody>{"".join(rows)}</tbody></table></div>'
-    )
-
-
-def group_heading(items: list[dict[str, Any]], what: str) -> str:
-    """A repeat group's questions, questions per request and runs, which every setup in it shares."""
-    questions = {item["questions"] for item in items}
-    per_request = {item["questions_per_request"] for item in items}
-    runs = {len(item["runs"]) for item in items}
-    if len(questions) != 1 or len(per_request) != 1 or len(runs) != 1:
-        raise ValueError(f"{what}: the setups differ in questions, questions per request or runs")
-    (questions_value,), (per_request_value,), (runs_value,) = questions, per_request, runs
-    noun = "question" if per_request_value == 1 else "questions"
-    return f"{count(questions_value)} questions, {in_words(per_request_value)} {noun} per request, {in_words(runs_value)} runs"
-
-
-def stability(snap: Snapshot) -> str:
-    if snap.whole_bank[0]["questions"] != snap.total or snap.sample[0]["questions"] >= snap.total:
-        raise ValueError("the repeat groups no longer split into the full question set and a smaller one")
-    return (
-        f'<h3 id="stability-whole-bank">Full question set: {group_heading(snap.whole_bank, "full question set")}</h3>'
-        + stability_table(snap.whole_bank, snap.fmt)
-        + f'<h3 id="stability-sample">Smaller question set: {group_heading(snap.sample, "smaller question set")}</h3>'
-        + stability_table(snap.sample, snap.fmt)
-    )
-
-
-def stability_lead(snap: Snapshot) -> str:
-    """The section's opening: one setup's changed answers and repeated wrong answers, with their denominators."""
-    item = snap.repeats_by_key[snap.config["stability_lead"]]
-    name, runs, total = esc(snap.short(item)), in_words(len(item["runs"])), count(item["questions"])
-    changed = (f"{name} chose the same answer every time on all {total} questions." if not item["changed_answer"]
-               else f"{name} changed its answer on {count(item['changed_answer'])} of the {total} questions.")
-    same = count(item["wrong_every_run_same"])
-    if item["wrong_every_run_same"] == item["wrong_any"]:
-        repeated = f"It also gave the same wrong answer every time on {same} questions: every question it got wrong at least once."
-    else:
-        repeated = (f"It also gave the same wrong answer every time on {same} of the {count(item['wrong_any'])} questions it "
-                    "got wrong at least once.")
-    return f"<p>We asked the same questions {runs} times with the same settings. {changed} {repeated}</p>"
 
 
 # The live tests' rules in the order the savings table names them, with the label each has on the page.
@@ -941,19 +651,6 @@ def one_size(sizes: set[int], where: str) -> int:
     if len(sizes) != 1:
         raise ValueError(f"{where} names one number of questions per request, but its tests use {sorted(sizes)}")
     return next(iter(sizes))
-
-
-def exported_per_request(run_id: int) -> int:
-    """The questions per request of any exported run: main, repeat, live test or request-size run."""
-    return next(run["questions_per_request"] for group in ("runs", "repeat_runs", "pipeline_runs", "batching_runs")
-                for run in method_answers().get(group, []) if run["run"] == run_id)
-
-
-def block07_size(snap: Snapshot) -> int:
-    """The second model's questions per request in block 07's table and list: every Decider v1.1 test with the second
-    model's own request size, the earlier tests and the cheaper models run alone."""
-    return one_size({test["plan"]["batch_size"] for test in decider_tests(snap) + live_tests(snap)["earlier"]}
-                    | {exported_per_request(row["run"]) for row in snap.costs[2:]}, "block 07's table")
 
 
 def live_tests(snap: Snapshot) -> dict[str, Any]:
@@ -1020,11 +717,6 @@ def interval_points(low: float, high: float) -> str:
     return f"{points(low)} to {points(high)} points"
 
 
-def and_list(items: list[str]) -> str:
-    """'A', 'A and B', 'A, B and C'."""
-    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
-
-
 def passed_cost(test: dict[str, Any]) -> float:
     """What one question passed to the second model cost in a live test, over its average question alone."""
     plan, measured = test["plan"], test["measured"]
@@ -1032,393 +724,7 @@ def passed_cost(test: dict[str, Any]) -> float:
     return ((measured["cost_usd"] - measured["decision_cost_usd"]) / passed) / (measured["frontier_cost_usd"] / plan["held_out"])
 
 
-def cost_lead(snap: Snapshot) -> str:
-    """Block 07: Decider v1.1's live tests with new calls to each second model, with each rule, then the earlier tests with
-    Decider v1 and the cheaper models run alone on the same questions. The build stops unless the text still fits: the
-    savings with the cutoff chosen on half the questions below the replay's, one share kept per fixed rule, and the cases
-    of the loss limit and the McNemar sentences."""
-    fmt, tests = snap.fmt, live_tests(snap)
-    decider, earlier = tests["decider"], tests["earlier"]
-    some = next(iter(decider.values()))["half"]
-    questions, limit = some["plan"]["held_out"], some["plan"]["tolerance_points"]
-    me = esc(live_name(snap, some["decision"]))
-    names = [esc(live_name(snap, rules["half"]["frontier"])) for rules in decider.values()]
-    earlier_alone = {test["measured"]["alone_run"] for test in earlier}
-    reused = [esc(live_name(snap, rules["half"]["frontier"])) for rules in decider.values()
-              if rules["half"]["measured"]["alone_run"] in earlier_alone]
-    replayed = {item["key"]: item["strict"] for item in snap.replay["frontiers"]}
-    if any(saving(rules["half"]["measured"]) >= replayed[key]["saving"] for key, rules in decider.items()):
-        raise ValueError("block 07 says the live tests saved less than the replay")
-    kept = {rule: {rules[rule]["plan"]["routed"] for rules in decider.values()} for rule in ("share", "cutoff")}
-    if any(len(shares) != 1 for shares in kept.values()):
-        raise ValueError("block 07 gives one share kept by the most confident quarter and one by the 99% cutoff")
-
-    def costs(rule: str) -> str:
-        return and_list([fmt.pct(saving(rules[rule]["measured"]), 0) for rules in decider.values()])
-
-    def dearer(test: dict[str, Any]) -> str:
-        factor = passed_cost(test) - 1
-        return "as much as" if round(100 * factor) == 0 else f"{fmt.pct(abs(factor), 0)} {'more' if factor > 0 else 'less'}"
-
-    halves = [rules["half"] for rules in decider.values()]
-    paragraphs = [
-        f"We ran the two-step setup live, with {me} in front of each of the {in_words(len(decider))} LLMs. {me}'s answers came "
-        "from its recorded run; each LLM answered the questions it passed on, with new calls. We split the questions in half "
-        f"at random, keeping the questions about one passage together, and tested on one half: {count(questions)} questions. "
-        f"Each LLM also answered all {count(questions)} of them alone, in a separate run"
-        + (f"; for {and_list(reused)}, that run comes from our earlier live tests on the same questions." if reused else "."),
-        f"We tested all {in_words(len(LIVE_RULES))} rules. With the cutoff chosen on half the questions, we set the cutoff on "
-        f"the other half. With the most confident quarter, {me} kept its {count(kept['share'].pop())} most confident answers "
-        f"among the test questions. With the fixed {snap.cutoff} rule, it kept every answer at {snap.cutoff} or more, "
-        f"{count(kept['cutoff'].pop())} of them.",
-        f"With the cutoff chosen on half the questions, {me} kept "
-        f"{and_list([fmt.pct(test['plan']['routed'] / questions, 0) for test in halves])} of the questions in front of "
-        f"{and_list(names)}, and the estimated cost fell {costs('half')}. The replay of recorded answers gave "
-        f"{and_list([fmt.pct(replayed[key]['saving'], 0) for key in decider])}. The replay averages "
-        f"{count(snap.results['cascades'][0]['held_out']['splits'])} splits of the questions and gives every question passed to "
-        "the LLM the same average cost. The live test used one split, and each LLM's own cost for the questions passed to it: "
-        + f"a question passed to {names[0]} cost {dearer(halves[0])}{'' if dearer(halves[0]) == 'as much as' else ' than'} its "
-        "average question, " + and_list([f"one passed to {name} {dearer(test)}" + (" its average" if dearer(test) == "as much as" else "")
-                                          for name, test in zip(names[1:], halves[1:])])
-        + ".",
-        f"With the most confident quarter, the estimated cost fell {costs('share')} for {and_list(names)}. With the fixed "
-        f"{snap.cutoff} rule, it fell {costs('cutoff')}.",
-    ]
-    every = decider_tests(snap)
-    beyond = [test for test in every if -100 * test["measured"]["difference"] > limit]
-    open_ended = [test for test in every if -100 * test["measured"]["low"] > limit]
-    observed = (f"In all {in_words(len(every))} tests, the observed change stayed within it." if not beyond else
-                f"In {in_words(len(every) - len(beyond))} of the {in_words(len(every))} tests, the observed change stayed within "
-                "it; in the " + ("tests" if len(beyond) > 1 else "test") + " "
-                + and_list([f"with {esc(live_name(snap, test['frontier']))} and the {LIVE_RULES[test['plan']['rule']].lower()}"
-                            for test in beyond]) + ", the observed loss was larger.")
-    if len(open_ended) == len(every):
-        interval = "But in every test the 95% interval also allows a larger loss, so no test establishes that the loss stays within our limit."
-    elif open_ended:
-        interval = (f"In {in_words(len(open_ended))} of the {in_words(len(every))} tests, the 95% interval also allows a larger loss, "
-                    "so those tests do not establish that the loss stays within our limit.")
-    else:
-        interval = "In every test the whole 95% interval stays within our limit."
-    smallest = min(test["measured"]["p"] for test in every)
-    if smallest < 0.05:
-        raise ValueError("block 07 says no live test established a change in accuracy")
-    paragraphs.append(
-        f"Before the tests, we chose the largest accuracy loss we would accept: {limit:g} percentage points. {observed} {interval} "
-        f"None of the {in_words(len(every))} tests established a change in accuracy from the LLM alone: the exact McNemar test "
-        f"gave p = {smallest:.2g} or more."
-    )
-    paragraphs.append(
-        f"Our first live tests used the earlier {esc(live_name(snap, earlier[0]['decision']))}, with the cutoff chosen on half the "
-        "questions: " + "; ".join(
-            f"in front of {esc(live_name(snap, test['frontier']))}, it kept {fmt.pct(test['plan']['routed'] / questions)} of the "
-            f"questions and the estimated cost fell {fmt.pct(saving(test['measured']))}, with accuracy {change_text(test['measured']['difference'])}"
-            for test in earlier) + "."
-    )
-    others = snap.costs[2:]
-    if others:
-        alone_text = " ".join(
-            f"{esc(setup_name(row['runs'][0]))} scored {pct2(row['accuracy'])} at an estimated {usd(1000 * row['cost'] / questions)} "
-            "per 1,000 questions."
-            for row in others
-        )
-        paragraphs.append(
-            f"We also ran {in_words(len(others))} cheaper models alone on the same {count(questions)} questions. {alone_text} "
-            "They can be good choices when their accuracy is enough for the task."
-        )
-    return "".join(f"<p>{text}</p>" for text in paragraphs)
-
-
-def live_row(snap: Snapshot, test: dict[str, Any], detail: str) -> str:
-    """One live test in block 07's table: the pair, the answers the first model kept, the pair's accuracy, the change
-    against the second model alone with its interval and the loss limit, both costs and both total times."""
-    fmt, plan, measured = snap.fmt, test["plan"], test["measured"]
-    questions, limit = plan["held_out"], plan["tolerance_points"]
-    together, alone_cost = 1000 * measured["cost_usd"] / questions, 1000 * measured["frontier_cost_usd"] / questions
-    if -100 * measured["difference"] > limit:
-        loss = "Observed loss above the chosen limit."
-    elif -100 * measured["low"] > limit:
-        loss = "Observed change within the chosen limit. The 95% interval still allows a larger loss."
-    else:
-        loss = "The whole 95% interval stays within the chosen limit."
-    return (
-        "<tr>"
-        f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(live_name(snap, test["decision"]))}, then '
-        f'{esc(live_name(snap, test["frontier"]))}</span><span class="small">{detail}</span></td>'
-        f'<td class="num" data-label="Final answers supplied by the first model">{count(plan["routed"])} of {count(questions)}'
-        f'<span class="small">{fmt.pct(plan["routed"] / questions)}</span></td>'
-        f'<td class="num" data-label="Correct answers">{pct2(measured["accuracy"])}<span class="small">With new answers from the '
-        f'second model</span><span class="small">Replay of recorded answers from both models: {pct2(plan["simulated"]["accuracy"])}</span></td>'
-        f'<td class="num" data-label="Accuracy change compared with the second model alone">{change_text(measured["difference"])}'
-        f'<span class="small">95% interval: {interval_points(measured["low"], measured["high"])}</span>'
-        f'<span class="small">Accuracy loss allowed before the test: {limit:g} points. {loss}</span></td>'
-        f'<td class="num" data-label="Estimated cost per 1,000 questions">Combined cost {usd(together)}'
-        f'<span class="small">Second model alone: {usd(alone_cost)}</span>'
-        f'<span class="small">Saving: {fmt.pct(saving(measured))}</span></td>'
-        f'<td class="num" data-label="Total time for this test">Combined process: {measured["request_seconds"] / 60:.1f} min'
-        f'<span class="small">Second model alone: {measured["frontier_request_seconds"] / 60:.1f} min</span></td>'
-        "</tr>"
-    )
-
-
-def cost_table(snap: Snapshot) -> str:
-    """Block 07's table, a heading row before each group: each second model alone, then Decider v1.1 in front of it with
-    each rule; the earlier tests with Decider v1; the cheaper models run alone, against GPT-6 Astra alone. Every cost
-    cell names both of its values."""
-    tests, questions = live_tests(snap), snap.plan["held_out"]
-    rows = []
-
-    def heading(text: str) -> None:
-        rows.append(f'<tr class="group-row"><th scope="rowgroup" colspan="6">{text}</th></tr>')
-
-    for rules in tests["decider"].values():
-        some = rules["half"]
-        frontier, measured = some["frontier"], some["measured"]
-        heading(f"In front of {esc(setup_name(frontier))}")
-        rows.append(
-            "<tr>"
-            f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(alone(frontier))}</span></td>'
-            '<td class="num" data-label="Final answers supplied by the first model">Not applicable</td>'
-            f'<td class="num" data-label="Correct answers">{pct2(measured["frontier_accuracy"])}</td>'
-            '<td class="num" data-label="Accuracy change compared with the second model alone">Not applicable</td>'
-            f'<td class="num" data-label="Estimated cost per 1,000 questions">{usd(1000 * measured["frontier_cost_usd"] / questions)}</td>'
-            f'<td class="num" data-label="Total time for this test">{measured["frontier_request_seconds"] / 60:.1f} min</td>'
-            "</tr>"
-        )
-        for rule, test in rules.items():
-            rows.append(live_row(snap, test, f"{LIVE_RULES[rule]}: confidence cutoff {cutoff_text(test['plan']['threshold'])}"))
-    heading(f"Earlier tests with {esc(named(tests['earlier'][0]['decision']))}")
-    for test in tests["earlier"]:
-        rows.append(live_row(snap, test, f"{LIVE_RULES['half']}: confidence cutoff {cutoff_text(test['plan']['threshold'])}"))
-    reference = snap.costs[0]
-    reference_name = esc(setup_name(reference["runs"][0]))
-    heading(f"Cheaper models alone on the same questions, against {reference_name} alone")
-    for row in snap.costs[2:]:
-        versus = row["versus"]
-        rows.append(
-            "<tr>"
-            f'<td class="setup" data-label="Model or model pair"><span class="model-name">{esc(row["label"])}</span></td>'
-            '<td class="num" data-label="Final answers supplied by the first model">Not applicable</td>'
-            f'<td class="num" data-label="Correct answers">{pct2(row["accuracy"])}</td>'
-            f'<td class="num" data-label="Accuracy change compared with the second model alone">{change_text(versus["difference"])}'
-            f'<span class="small">compared with {reference_name} alone; 95% interval: {interval_points(versus["low"], versus["high"])}</span></td>'
-            f'<td class="num" data-label="Estimated cost per 1,000 questions">{usd(1000 * row["cost"] / questions)}'
-            f'<span class="small">{reference_name} alone: {usd(1000 * reference["cost"] / questions)}</span></td>'
-            f'<td class="num" data-label="Total time for this test">{row["seconds"] / 60:.1f} min</td>'
-            "</tr>"
-        )
-    return (
-        '<div class="table-wrap"><table class="overview cards costs">'
-        f"<caption>Live tests on {count(questions)} questions reserved for testing (second model: "
-        f"{request_size_text(block07_size(snap))})</caption>"
-        '<thead><tr><th scope="col">Model or model pair</th><th scope="col" class="num">Final answers supplied by the first model</th>'
-        '<th scope="col" class="num">Correct answers</th><th scope="col" class="num">Accuracy change compared with the second model alone</th>'
-        '<th scope="col" class="num">Estimated cost per 1,000 questions</th><th scope="col" class="num">Total time for this test</th></tr></thead>'
-        f'<tbody>{"".join(rows)}</tbody></table></div>'
-    )
-
-
-def cost_summary(snap: Snapshot) -> str:
-    """Each comparison of block 07 with its observed accuracy change, 95% interval and exact McNemar p-value."""
-    tests, questions = live_tests(snap), snap.plan["held_out"]
-    items = []
-    for test in decider_tests(snap) + tests["earlier"]:
-        measured = test["measured"]
-        items.append(
-            f"{esc(live_name(snap, test['decision']))}, then {esc(setup_name(test['frontier']))}, "
-            f"{LIVE_RULES[test['plan']['rule']].lower()}, against {esc(setup_name(test['frontier']))} alone: "
-            f"{change_text(measured['difference'])} (95% interval {interval_points(measured['low'], measured['high'])}; "
-            f"exact McNemar test, {esc(p_text(measured['p']))})."
-        )
-    reference = setup_name(snap.costs[0]["runs"][0])
-    for row in snap.costs[2:]:
-        versus = row["versus"]
-        items.append(
-            f"{esc(row['label'])} against {esc(reference)} alone: {change_text(versus['difference'])} (95% interval "
-            f"{interval_points(versus['low'], versus['high'])}; exact McNemar test, {esc(p_text(versus['p']))})."
-        )
-    return (f"<p>On the {count(questions)} questions reserved for testing, with {request_size_text(block07_size(snap))} to the "
-            "second model:</p><ul>" + "".join(f"<li>{item}</li>" for item in items) + "</ul>")
-
-
-def rate_text(rate: float) -> str:
-    """A price per million tokens, with the decimals it was listed with: $4, $0.20, $0.075."""
-    text = f"{rate:.3f}".rstrip("0")
-    if text.endswith("."):
-        return f"${text[:-1]}"
-    return f"${text}" if len(text.split(".")[1]) > 1 else f"${rate:.2f}"
-
-
-# The token kinds of a price, as part 5 of the brief names them, in the order the pricing pattern lists them.
-RATE_NAMES = (
-    ("input_tokens", "input"),
-    ("cached_input_tokens", "reused input"),
-    ("cache_write_input_tokens", "saving input for reuse"),
-    ("cache_write_1h_input_tokens", "saving input for reuse for one hour"),
-    ("output_tokens", "output"),
-)
-
-
-def price_sentence(snap: Snapshot, run: dict[str, Any]) -> str:
-    """Part 5's pricing pattern for one run: the date, then the rate of each kind of token the run used, then the source."""
-    if run["billing"] == "free":
-        return "Free tier used; no paid rate in this record."
-    if run["billing"] == "local":
-        return "No dollar estimate; see hardware and time."
-    price = snap.price(run)
-    if price is None:
-        return "Not published."
-    rates = "; ".join(f"{name} {rate_text(price['rates'][key])}" for key, name in RATE_NAMES
-                      if key == "input_tokens" or key == "output_tokens" or run.get(key))
-    change = f" Price note: {esc(price['change'])}." if price.get("change") else ""
-    return (f"Prices recorded {long_date(price['date'])}. Per one million tokens: {rates}. "
-            f'Source: <a href="{esc(price["source"])}">{esc(price["basis"])}</a>.{change}')
-
-
-def cost_setup(snap: Snapshot) -> str:
-    """How we called each model in block 07, how we estimated its cost, its requests and its prices."""
-    seen: dict[int, dict[str, Any]] = {}
-    for test in decider_tests(snap) + live_tests(snap)["earlier"]:
-        for run in (test["decision"], test["frontier"]):
-            seen.setdefault(run["run"], run)
-    for row in snap.costs[2:]:
-        seen.setdefault(row["runs"][0]["run"], row["runs"][0])
-    items = []
-    for run in seen.values():
-        billing = snap.billing(run)
-        per_request = run["questions_per_request"]
-        requests = (f"{opening_count(per_request)} question{'s' if per_request != 1 else ''} per request, "
-                    + ("one request at a time" if run["concurrency"] == 1 else f"{run['concurrency']} simultaneous requests"))
-        items.append(
-            f"<li><b>{esc(setup_name(run))}.</b> How we called the model: {esc(run['access'])} ({esc(billing['access'])}). "
-            f"{requests}. {esc(billing['cost_basis'])}. {price_sentence(snap, run)}</li>"
-        )
-    return (
-        "<ul>" + "".join(items) + "</ul>"
-        '<p class="note">A service may save input so a later call can reuse it. It may charge one rate to save it and another '
-        "to read it again.</p>"
-    )
-
-
-def timed_alone(run: dict[str, Any]) -> bool:
-    """Whether the run timed its own requests with one question per request, as the page's latency examples need."""
-    return run["questions_per_request"] == 1 and (run["latency"] or {}).get("source") == "run"
-
-
-def time_text(value: float) -> str:
-    """A response time: milliseconds below one second, seconds from one second."""
-    return f"{1000 * value:.0f} ms" if value < 1 else f"{value:.2f} s"
-
-
-def typical_text(latency: dict[str, Any]) -> str:
-    text = f"Typical {time_text(latency['median_request_seconds'])}"
-    return text if latency.get("p90_request_seconds") is None else f"{text}; 9 in 10 within {time_text(latency['p90_request_seconds'])}"
-
-
-def numbers_text(numbers: list[int]) -> str:
-    """'2 to 5' for consecutive numbers, else '2, 4 and 5'."""
-    if len(numbers) > 1 and numbers == list(range(numbers[0], numbers[-1] + 1)):
-        return f"{numbers[0]} to {numbers[-1]}"
-    return and_list([str(number) for number in numbers])
-
-
-def latency_cell(run: dict[str, Any]) -> str:
-    """Part 4's time cell: typical and 9 in 10 within, then the questions in each request (a request of several
-    questions is timed whole, never divided among them), where the times come from and the simultaneous requests. A
-    setup also timed with one question per request adds that separate test."""
-    latency = run["latency"]
-    if latency is None:
-        return "Not measured"
-    per_request = run["questions_per_request"]
-    notes = ["One question per request." if per_request == 1
-             else f"One request contains {count(per_request)} questions; the time covers the whole request."]
-    if latency["source"] == "repeats":
-        notes.append(f"Times from repeats {numbers_text(latency['repeats'])} of the same setup.")
-    elif latency["source"] == "sample":
-        notes.append(f"Times from {in_words(len(latency['runs']))} runs of the same {count(latency['questions'])} questions.")
-    else:
-        notes.append("Main run.")
-    concurrency = latency["concurrency"]
-    if concurrency is not None:
-        notes.append("One request at a time." if concurrency == 1 else f"{concurrency} simultaneous requests.")
-    text = f'{typical_text(latency)}<span class="small">{esc(" ".join(notes))}</span>'
-    single = run["single_question_latency"]
-    if single:
-        text += (f'<span class="small">Separate test: one question per request, {count(single["questions"])} questions. '
-                 f'{typical_text(single)}.</span>')
-    return text
-
-
-def cost_cell(snap: Snapshot, run: dict[str, Any]) -> str:
-    """The estimated cost per 1,000 questions with how we estimated it; free and own-hardware runs say why there is none."""
-    basis = esc(snap.billing(run)["cost_basis"])
-    cost = per_thousand(run)
-    if cost is None:
-        hardware = f'<span class="small">Hardware we used: {esc(run["hardware"])}</span>' if run.get("hardware") else ""
-        return f'{basis}{hardware}'
-    price = snap.price(run)
-    tip = ""
-    if price:
-        tip = (f' title="{esc(price["basis"])}, recorded {long_date(price["date"])}. Rate per million tokens: input '
-               f'{rate_text(price["rates"]["input_tokens"])}; output {rate_text(price["rates"]["output_tokens"])}. Actual invoice not checked."')
-    return f'<span{tip}>{usd(cost)}</span><span class="small">{basis}</span>'
-
-
-def latency_table(snap: Snapshot) -> str:
-    """Block 08's table: single setups side by side on all scored questions, decision models first: correct answers,
-    estimated cost per 1,000 questions, response time and the answers kept at the cutoff; then which setups have no
-    request times."""
-    fmt = snap.fmt
-    shown = [pick(snap.runs, spec, "latency_rows") for spec in snap.config["latency_rows"]]
-    groups: dict[bool, list[str]] = {True: [], False: []}
-    for run in shown:
-        assert run is not None
-        sure = (run.get("confidence") or {}).get("sure") or {"questions": 0, "correct": 0}
-        kept = sure["questions"]
-        kept_cell = (f'{count(kept)}<span class="small">{fmt.pct(kept / snap.total)} of questions; {count(kept - sure["correct"])} wrong</span>'
-                     if kept else '0<span class="small">No answers reach this cutoff</span>')
-        groups[snap.decision_model(run)].append(
-            "<tr>"
-            f'<td data-label="Model and setup">{label_html(run)}</td>'
-            f'<td class="num" data-label="Correct answers, all {count(snap.total)} questions">{fmt.pct(run["correct"] / snap.total)}</td>'
-            f'<td class="num" data-label="Estimated cost per 1,000 questions">{cost_cell(snap, run)}</td>'
-            f'<td class="num" data-label="Response time per request: typical; 9 in 10 within">{latency_cell(run)}</td>'
-            f'<td class="num" data-label="Answers kept at {snap.cutoff} confidence or higher">{kept_cell}</td>'
-            "</tr>"
-        )
-    untimed = [run for run in snap.runs if run["latency"] is None]
-    notes = []
-    if any(run["latency"] and run["latency"]["source"] != "run" for run in shown):
-        notes.append("Where the original run has no request times, we use later runs of the same setup and say which runs "
-                     "supplied them.")
-    if untimed:
-        notes.append(f"{and_list([named(run) for run in untimed])} still {'has' if len(untimed) == 1 else 'have'} no recorded "
-                     "request times.")
-    # The live test covers only its reserved questions, so the same setup costs a little differently there; one example
-    # tells phone readers, who see the two tables as cards, why.
-    reference = snap.costs[0]
-    there, here = 1000 * reference["cost"] / snap.plan["held_out"], per_thousand(reference["runs"][0])
-    if all(run is not reference["runs"][0] for run in shown) or here is None or abs(here / there - 1) > 0.25:
-        raise ValueError("the scope sentence of the cost and response time table no longer fits the data")
-    scope = (f"This table uses all {count(snap.total)} scored questions. The live test used {count(snap.plan['held_out'])} "
-             f"questions, so its cost estimates differ slightly: {esc(reference['runs'][0]['name'])} costs an estimated "
-             f"{usd(here)} per 1,000 questions here and {usd(there)} in that test.")
-    body = "".join(
-        f'<tr class="group-row"><th scope="colgroup" colspan="5">{title}</th></tr>' + "".join(groups[key])
-        for key, title in ((True, "Decision models"), (False, "Chat models for comparison")) if groups[key]
-    )
-    return (
-        f'<h3 id="accuracy-cost-latency">Cost and response time for each model</h3><p>{scope}</p>'
-        '<div class="table-wrap"><table class="overview cards latency"><thead><tr><th scope="col">Model and setup</th>'
-        f'<th scope="col" class="num">Correct answers<span class="small">all {count(snap.total)} questions</span></th>'
-        '<th scope="col" class="num">Estimated cost per 1,000 questions</th>'
-        '<th scope="col" class="num">Response time per request<span class="small">typical; 9 in 10 within</span></th>'
-        f'<th scope="col" class="num">Answers kept at {snap.cutoff} confidence or higher<span class="small">share of questions; wrong among them</span></th>'
-        f'</tr></thead><tbody>{body}</tbody></table></div>'
-        + (f'<p class="note">{" ".join(notes)}</p>' if notes else "")
-    )
-
-
-# ---------------------------------------------------------------- the overview sections (blocks 04 to 09)
+# ---------------------------------------------------------------- the earlier page's overview values (blocks 04 to 09) and the reasoning table
 
 
 # The decision models block 04 says kept no answer at the fixed cutoff.
@@ -1480,149 +786,8 @@ def key_values(snap: Snapshot) -> dict[str, str]:
     return {"key_version": f"version {key['version']}"}
 
 
-def overview_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
-    """Blocks only the overview sections (blocks 04 to 09) use: chart 05's full version in block 08."""
-    decision = snap.named[snap.config["model_kinds"]["decision"]]
-    latency, cost = decision["latency"], per_thousand(decision)
-    if latency is None or cost is None or decision["questions_per_request"] != 1:
-        raise ValueError("chart 05's caption needs a priced first model timed with one question per request")
-    name = snap.short(decision)
-    typical, within = time_text(latency["median_request_seconds"]), time_text(latency["p90_request_seconds"])
-    alt = (f"Two panels: estimated cost per 1,000 questions in US dollars, and response time per request, typical and 9 in "
-           f"10 within. {name} costs about {usd(cost)} per 1,000 questions and has a typical response time of {typical}. Labels "
-           "show the questions in each request, the simultaneous requests and whether the times come from the main run or "
-           "later tests.")
-    caption = (f"<b>What does a first answer cost, and how long does it take?</b> Times describe the services and hardware "
-               f"we tested. {esc(name)}'s typical response time was {typical}; 9 in 10 requests finished within {within}. "
-               "The speed section times the whole two-step setup, one question at a time.")
-    return {"cost-time-figure": chart_figure("cost-time-all", alt, caption)}
-
-
 def per_request_text(rows: list[dict[str, Any]]) -> str:
     return " versus ".join(str(row["run"]["questions_per_request"]) for row in rows)
-
-
-def confidence_lead(snap: Snapshot) -> str:
-    """Block 04's opening after its first paragraph: what the lead keeps at the fixed cutoff, the other decision models
-    of page_config.json's confidence_lead_rows, and what no wrong answers in a sample do and do not show. The build
-    stops when the data no longer fits a sentence: the lead must be one model whose kept answers are all right and the
-    most of any decision model with none wrong; every compared row must be a decision model that keeps answers; and the
-    first compared row with none wrong must keep fewer answers and so have the wider interval."""
-    fmt, cut = snap.fmt, snap.cutoff
-    if len(snap.lead) != 1:
-        raise ValueError("block 04's opening speaks for one lead model")
-    lead = snap.lead[0]
-    clean = [run for run in snap.runs if snap.decision_model(run)
-             and (sure := (run.get("confidence") or {}).get("sure")) and sure["questions"] and sure["questions"] == sure["correct"]]
-    if not lead["accepted"] or lead["errors"] or max(clean, key=lambda run: run["confidence"]["sure"]["questions"]) is not lead["run"]:
-        raise ValueError("the lead no longer keeps the most answers with none wrong: block 04's opening needs new wording")
-    keyed = {row["key"]: row for row in snap.thresholds if row["key"]}
-    others = [(keyed[key], name) for key, name in snap.config["confidence_lead_rows"].items()]
-    if any(not snap.decision_model(row["run"]) or not row["accepted"] for row, _ in others):
-        raise ValueError("a model compared in block 04's opening is no longer a decision model that keeps answers")
-    widest = next(((row, name) for row, name in others if not row["errors"]), None)
-    if widest is None or widest[0]["accepted"] >= lead["accepted"] or widest[0]["error_range"][1] <= lead["error_range"][1]:
-        raise ValueError("block 04's interval comparison no longer fits the data")
-    name, kept = esc(snap.short(lead["run"])), count(lead["accepted"])
-
-    def compared(row: dict[str, Any], label_text: str) -> str:
-        errors = row["errors"]
-        wrong = "also with no mistakes" if not errors else f"with {in_words(errors)} mistake{'s' if errors != 1 else ''}"
-        return f"{esc(label_text)} kept {count(row['accepted'])}, {wrong}."
-
-    return (
-        f"<p>We kept {kept} of {name}'s answers, {fmt.pct(lead['coverage'])} of the questions. All {kept} were right by the "
-        f"checked answer key. The other {count(lead['sent'])} questions need another answer, from another model or a person.</p>"
-        f"<p>{name} kept more answers with no mistakes than any other decision model at this cutoff. "
-        + " ".join(compared(row, label_text) for row, label_text in others) + "</p>"
-        f"<p>No mistakes in a sample does not prove zero risk. For {name}, the 95% interval for the error rate runs from "
-        f"{fmt.span(*lead['error_range'])}. For {esc(widest[1])}, it runs from {fmt.span(*widest[0]['error_range'])}. "
-        f"{esc(widest[1])} kept fewer answers, so its interval is wider. A 95% interval is not a model's confidence: "
-        f"{name}'s {cut} is its own score for one answer, while the 95% interval is the range our statistics give for the "
-        "error rate we measured. These intervals describe sampling uncertainty under the method's assumptions. They do not "
-        "promise an error limit on your next task.</p>"
-    )
-
-
-def accuracy_lead(snap: Snapshot) -> str:
-    """Block 05's opening: the two most accurate decision models, the stronger chat models, and reading against grammar.
-    The build stops when the data no longer fits a sentence: the first of page_config.json's accuracy_lead pair must be
-    the most accurate decision model and share a comparison group with the second; every chat example must be a chat
-    model at least ten points above every decision model; and the task comparison must hold (task_check)."""
-    fmt, config = snap.fmt, snap.config["accuracy_lead"]
-    first, second = (snap.named[key] for key in config["pair"])
-    best = max((run for run in snap.runs if snap.decision_model(run)), key=lambda run: run["correct"])
-    chats = [snap.named[key] for key in config["chat"]]
-    if (best is not first or not snap.decision_model(second) or second["correct"] >= first["correct"]
-            or not shares_letter(first.get("group"), second.get("group"))
-            or any(snap.decision_model(run) or run["correct"] - best["correct"] < 0.1 * snap.total for run in chats)):
-        raise ValueError("block 05's opening no longer matches the data: rewrite it")
-    decision, chat, top = task_check(snap)
-
-    def pct(run: dict[str, Any], part: str | None = None) -> str:
-        if part is None:
-            return fmt.pct(run["correct"] / snap.total)
-        return fmt.pct(run["groups"][part]["correct"] / run["groups"][part]["questions"])
-
-    gap = f"{100 * (first['correct'] - second['correct']) / snap.total:.1f}"
-    gap_text = "one percentage point" if gap == "1.0" else f"{gap} percentage points"
-    one, two = esc(snap.short(first)), esc(snap.short(second))
-    chat_list = [f"{esc(setup_name(run))} {'reached ' if index == 0 else ''}{pct(run)}" for index, run in enumerate(chats)]
-    # A chat example asked with two request sizes: the sentence names the size of the runs it quotes once.
-    size = one_size({run["questions_per_request"] for run in chats}, "block 05's opening") if any(run.get("format") for run in chats) else None
-    stronger = f"With {request_size_text(size)}, the stronger" if size else "The stronger"
-    return (
-        f"<p>On all {count(snap.total)} questions, {one} answered {pct(first)} correctly and {two} {pct(second)}. "
-        f"{one}'s score was {gap_text} higher. Our test did not establish a difference between them.</p>"
-        f"<p>{stronger} chat models answered many more questions right: {and_list(chat_list)}. We put {two} first to keep "
-        f"its most confident answers at a low cost, and a stronger model such as {esc(chats[0]['name'])} answers the rest.</p>"
-        f"<p>Reading and grammar give different results. {esc(snap.short(decision))} scored {pct(decision, 'reading')} on "
-        f"reading and {pct(decision, 'grammar')} on grammar. {esc(chat['name'])} scored {pct(chat, 'reading')} and "
-        f"{pct(chat, 'grammar')}. So {esc(chat['name'])} beat every decision model on both, even though its grammar score was "
-        f"much lower than its own reading score. {esc(top['name'])} scored {pct(top, 'reading')} and {pct(top, 'grammar')}.</p>"
-    )
-
-
-def model_kinds(snap: Snapshot) -> str:
-    """Block 05's box 'How the models answer': the two kinds of model, why Luna through the Decisions API counts as a
-    decision model, one cheap and fast decision model, one chat model's short output and what more reasoning changed.
-    The build stops when an example no longer fits its sentence."""
-    fmt, kinds = snap.fmt, snap.config["model_kinds"]
-    decision, general, api = snap.named[kinds["decision"]], snap.named[kinds["general"]], snap.named[kinds["decisions_api"]]
-    low, high = (snap.named[key] for key in kinds["reasoning"])
-    # The token count includes reasoning tokens: Codex CLI reports them in its output tokens (see the method section).
-    tokens = round(general["output_tokens"] / general["answered_questions"])
-    cost_ratio = per_thousand(high) / per_thousand(low)
-
-    def grammar(run: dict[str, Any]) -> float:
-        return run["groups"]["grammar"]["correct"] / run["groups"]["grammar"]["questions"]
-
-    if (not snap.decision_model(decision) or not timed_alone(decision) or decision["median_request_seconds"] >= 1
-            or snap.decision_model(general) or tokens > 50 or grammar(high) <= grammar(low) or cost_ratio <= 1
-            or not snap.decision_model(api) or api["provider"] != "openai-decisions"):
-        raise ValueError("an example in 'How the models answer' no longer fits its sentence")
-    if 1.75 <= cost_ratio < 2:
-        cost = "almost doubled"
-    elif 2 <= cost_ratio < 2.25:
-        cost = "about doubled"
-    else:
-        cost = f"rose to {cost_ratio:.1f} times as much"
-    return (
-        '<aside class="explainer" aria-labelledby="model-kinds-title">'
-        '<p class="explainer-title" id="model-kinds-title">How the models answer</p>'
-        "<p>A decision model scores the options we give it. A chat model writes an answer and may reason first. We count "
-        f"{esc(api['name'])} through OpenAI's Decisions API as a decision model, because that service returns a probability "
-        "for each option.</p>"
-        f"<p>{esc(snap.short(decision))} cost an estimated {usd(per_thousand(decision))} per 1,000 questions. Its typical "
-        f"response time was {1000 * decision['median_request_seconds']:.0f} milliseconds per request in our setup. A "
-        "millisecond is one thousandth of a second.</p>"
-        f"<p>{esc(named(general))} used about {tokens} output tokens per question, including reported reasoning tokens. A "
-        "token is a small piece of text that a model reads or writes. Output length alone does not tell us how much "
-        "computation a model used or why its accuracy was higher.</p>"
-        f"<p>More reasoning helped some models. {esc(low['name'])}'s grammar score rose from {fmt.pct(grammar(low))} to "
-        f"{fmt.pct(grammar(high))} when we changed its reasoning setting from {esc(low['reasoning'])} to "
-        f"{esc(high['reasoning'])}. Its estimated cost {cost}.</p></aside>"
-    )
 
 
 def reasoning_table(snap: Snapshot) -> str:
@@ -1918,7 +1083,7 @@ def study_gap(run: dict[str, Any]) -> str:
     return f"{100 * run['confidence']['ece']:.1f}"
 
 
-# ---------------------------------------------------------------- the top of the page, the head and the images
+# ---------------------------------------------------------------- the opening's numbers, the title and the images
 
 
 # The page's title and the link preview's (the headline on the page is the h1 in index.html).
@@ -2114,295 +1279,12 @@ def decision_first_models(snap: Snapshot) -> tuple[list[dict[str, Any]], list[di
     return [run for run in decision if run["run"] in first], [run for run in decision if run["run"] not in first]
 
 
-# How the opening names each LLM on second mention.
-OPENING_SHORT = {"sonnet_high": "Sonnet", "opus": "Opus", "astra": "Astra"}
-# The opening's table shows this many decision models; a details element holds all of them.
-OPENING_ROWS = 6
-
-
-def opening_table(snap: Snapshot) -> str:
-    """The share of the questions each decision model took off each LLM with the cutoff chosen on half the questions: one
-    row per decision model we put in front of an LLM, by the Opus column, the first OPENING_ROWS shown and all of them in
-    a details element, each cell shaded by its share and the lead's row marked. The caption names the decision models we
-    did not put in front of an LLM; the build stops unless each got about one answer in as many as there are options."""
-    fmt, items, results = snap.fmt, opening_seconds(snap), snap.results
-    tried, untried = decision_first_models(snap)
-    shares = {(item["decision"], item["frontier"]): item["held_out"]["answered"] for item in results["cascades"]}
-    rows = sorted(tried, key=lambda run: -shares[run["run"], snap.named["opus"]["run"]])
-    top = max(shares[run["run"], item["run"]["run"]] for run in rows for item in items)
-    options = results["baselines"]["options"]
-    if any(abs(run["correct"] / snap.total - 1 / options) > 0.05 for run in untried):
-        raise ValueError("the opening's table caption says the decision models left out got about one answer in "
-                         f"{options} right")
-    head = "".join(
-        f'<th scope="col" class="num">{esc(item["run"]["name"])}<span class="small">{esc(setting(item["run"]))}</span></th>'
-        for item in items
-    )
-
-    def table(selection: list[dict[str, Any]]) -> str:
-        body = []
-        for run in selection:
-            cells = "".join(
-                f'<td class="num share" data-label="{esc(item["run"]["name"])}" style="--share: {shares[run["run"], item["run"]["run"]] / top:.3f}">'
-                f'{fmt.pct(shares[run["run"], item["run"]["run"]], 0)}</td>'
-                for item in items
-            )
-            body.append(('<tr class="lead">' if run is snap.replay["run"] else "<tr>") + f'<th scope="row">{esc(named(run))}</th>{cells}</tr>')
-        return (
-            '<div class="table-wrap"><table class="overview shares"><caption>Share of the questions each decision model took off '
-            f'each LLM</caption><thead><tr><th scope="col">Decision model</th>{head}</tr></thead><tbody>{"".join(body)}</tbody>'
-            "</table></div>"
-        )
-
-    splits = count(next(iter(results["cascades"]))["held_out"]["splits"])
-    left_out = and_list([named(run) for run in untried])
-    caption = (
-        f"Each cell is the share of questions the decision model answered, averaged over {splits} splits: we chose the cutoff "
-        "on half of the questions and checked it on the other half. We replayed recorded answers. We did not put the other "
-        f"{in_words(len(untried))} decision models ({esc(left_out)}) in front of an LLM: on their own they got about one answer "
-        f"in {in_words(options)} right, no better than picking one of the {in_words(options)} options at random."
-    )
-    return (
-        table(rows[:OPENING_ROWS])
-        + f'<details class="show-more"><summary>Show all {count(len(rows))}</summary>{table(rows)}</details>'
-        + f'<p class="caption">{caption}</p>'
-    )
-
-
-def speed_table(snap: Snapshot) -> str:
-    """Typical and 9-in-10 response times of Decider, GLiDE and the three LLMs, with the questions in each request."""
-    rows = []
-    for key, single in SPEED_ROWS:
-        run = snap.named[key]
-        latency = run["single_question_latency"] if single else run["latency"]
-        per_request = 1 if single else run["questions_per_request"]
-        note = "Separate test: one question per request" if single else ""
-        rows.append(
-            "<tr>"
-            f'<td data-label="Model">{esc(setup_name(run))}' + (f'<span class="small">{note}</span>' if note else "") + "</td>"
-            f'<td class="num" data-label="Questions per request">{per_request}</td>'
-            f'<td class="num" data-label="Typical response time">{time_text(latency["median_request_seconds"])}</td>'
-            f'<td class="num" data-label="9 in 10 within">{time_text(latency["p90_request_seconds"])}</td>'
-            "</tr>"
-        )
-    return (
-        '<div class="table-wrap"><table class="overview cards"><thead><tr><th scope="col">Model</th>'
-        '<th scope="col" class="num">Questions per request</th><th scope="col" class="num">Typical response time</th>'
-        f'<th scope="col" class="num">9 in 10 within</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
-    )
-
-
-# A request this long counts as a stall: the speed text names the longest, since the averages include it.
-STALL_SECONDS = 60
-
-
-def speed_whole(snap: Snapshot) -> str:
-    """T5's timed live test: each LLM alone and with Decider v1.1 first, one question per request and one request at a
-    time, on the live test's questions with the cutoff chosen on half the questions. First how the typical and the
-    average wait changed, with the longest request of any run that stalled; then accuracy, which one question per request
-    changed too, against the same LLM alone with 16 questions per request; then per setup each question's typical wait,
-    the wait nine in ten stayed within, the average and the answers right, with Decider first also the questions it kept
-    and those it passed on. The build stops unless every cutoff was chosen on recorded runs of the batched size."""
-    fmt, tests = snap.fmt, live_tests(snap)
-    timed, batched = tests["timed"], tests["decider"]
-    questions = snap.plan["held_out"]
-    me = esc(live_name(snap, next(iter(timed.values()))["decision"]))
-    sizes = {snap.named[key]["questions_per_request"] for key in timed}
-    if len(sizes) != 1:
-        raise ValueError("the speed section says every cutoff was chosen on recorded answers to one number of questions per request")
-    (size,) = sizes
-
-    def cell(label: str, wait: dict[str, Any], right: float, parts: str = "") -> str:
-        return (f'<td class="num" data-label="{label}">Typical {time_text(wait["median_seconds"])}'
-                f'<span class="small">9 in 10 within {time_text(wait["p90_seconds"])}</span>'
-                f'<span class="small">Average {time_text(wait["mean_seconds"])}</span>'
-                f'<span class="small">Correct answers: {pct2(right)}</span>{parts}</td>')
-
-    rows, typical, changes, stalls, accuracy, established, unchanged = [], [], [], [], [], [], []
-    for key, test in timed.items():
-        measured, name = test["measured"], esc(live_name(snap, test["frontier"]))
-        waits = measured["waits"]
-        typical.append(f"from {time_text(waits['alone']['median_seconds'])} to {time_text(waits['pipeline']['median_seconds'])} with {name}")
-        changes.append((1 - waits["pipeline"]["mean_seconds"] / waits["alone"]["mean_seconds"], name))
-        longest = {part: waits[part]["max_seconds"] for part in ("alone", "pipeline")}
-        if max(longest.values()) > STALL_SECONDS:
-            stalls.append(f"the longest request with {name} took {longest['pipeline']:.0f} seconds after {me} and "
-                          f"{longest['alone']:.0f} seconds alone")
-        accuracy.append((name, measured["frontier_accuracy"], batched[key]["half"]["measured"]["frontier_accuracy"]))
-        if measured["p"] < 0.05:
-            established.append(
-                f"With {me} first, {name} got {abs(100 * measured['difference']):.2f} points {'fewer' if measured['difference'] < 0 else 'more'} "
-                f"right (95% interval {interval_points(measured['low'], measured['high'])}; exact McNemar test, {esc(p_text(measured['p']))})."
-            )
-        else:
-            unchanged.append(name)
-        parts = (f'<span class="small">Kept by {me}: typical {time_text(waits["kept"]["median_seconds"])}</span>'
-                 f'<span class="small">Passed on: typical {time_text(waits["passed"]["median_seconds"])}</span>')
-        rows.append(
-            f'<tr><td data-label="LLM">{esc(setup_name(test["frontier"]))}</td>{cell("LLM alone", waits["alone"], measured["frontier_accuracy"])}'
-            f'{cell(f"{me}, then the LLM", waits["pipeline"], measured["accuracy"], parts)}</tr>'
-        )
-    average = (f"{'fell' if changes[0][0] > 0 else 'rose'} " + and_list([f"{fmt.pct(abs(change), 0)} with {name}" for change, name in changes])
-               if len({change > 0 for change, _ in changes}) == 1
-               else and_list([f"{'fell' if change > 0 else 'rose'} {fmt.pct(abs(change), 0)} with {name}" for change, name in changes]))
-    speed = (f"<p>We also timed the whole two-step setup on the live test's {count(questions)} questions, with the cutoff chosen "
-             f"on half the questions: one question per request, one request at a time. {me}'s times come from its recorded run; "
-             f"each LLM answered with new calls, alone and after {me}. With {me} first, the typical wait per question went "
-             f"{and_list(typical)}. The average wait {average}."
-             + (f" {and_list(stalls)[0].upper()}{and_list(stalls)[1:]}; the averages include such waits." if stalls else "") + "</p>")
-    right = ("<p>On their own, with one question per request, "
-             + and_list([f"{name} got {pct2(one)} right" for name, one, _ in accuracy])
-             + f"; with {size} questions per request, " + and_list([pct2(many) for _, _, many in accuracy]) + ". "
-             + " ".join(established)
-             + (f" We chose every cutoff on recorded answers to {size} questions per request." if established else "")
-             + (f" With {and_list(unchanged)}, the test did not establish a change in accuracy." if unchanged else "") + "</p>")
-    return speed + right + (
-        '<div class="table-wrap"><table class="overview cards"><caption>Wait per question ('
-        f'{request_size_text(one_size({test["plan"]["batch_size"] for test in timed.values()}, "the speed section table"))})</caption>'
-        f'<thead><tr><th scope="col">LLM</th><th scope="col" class="num">LLM alone</th><th scope="col" class="num">{me}, then the LLM'
-        f'</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
-    )
-
-
-def speed_figure(snap: Snapshot) -> str:
-    """Chart 05 at the top: price and response time of the speed table's models."""
-    latency = snap.replay["run"]["latency"]
-    parts = []
-    for key, single in SPEED_ROWS:
-        run = snap.named[key]
-        timing = run["single_question_latency"] if single else run["latency"]
-        per_request = 1 if single else run["questions_per_request"]
-        cost = per_thousand(run)
-        parts.append(f"{setup_name(run)}, {per_request} question{'s' if per_request != 1 else ''} per request: "
-                     f"{usd(cost) if cost is not None else 'no dollar estimate'} per 1,000 questions, typical "
-                     f"{time_text(timing['median_request_seconds'])}, 9 in 10 within {time_text(timing['p90_request_seconds'])}")
-    alt = ("Two panels. Left, the estimated cost per 1,000 questions in US dollars on a logarithmic scale; right, the waiting "
-           "time for one request, typical and 9 in 10 within. " + "; ".join(parts) + ".")
-    caption = (f"Times describe the services and hardware we tested. Decider v1.1's typical response time was "
-               f"{time_text(latency['median_request_seconds'])}; 9 in 10 answers arrived within {time_text(latency['p90_request_seconds'])}. "
-               "A request of 16 questions is timed as a whole. The whole two-step setup is timed above, one question at a time.")
-    return chart_figure("cost-time", alt, caption)
-
-
 def cutoff_rows(snap: Snapshot) -> list[dict[str, Any]]:
     """Decider's fixed cutoffs and its most confident quarter, from the highest cutoff to the lowest."""
     replay = snap.replay
     rows = [{"cut": row["cutoff"], "kept": row["kept"], "wrong": row["wrong"], "surest": False} for row in replay["cutoffs"]]
     rows.append({"cut": replay["share"]["cut"], "kept": replay["share"]["kept"], "wrong": replay["share"]["wrong"], "surest": True})
     return sorted(rows, key=lambda row: -row["cut"])
-
-
-def cutoff_alt(snap: Snapshot) -> str:
-    """The cutoff chart in words, for its alt text and the link preview's."""
-    fmt, rows, threshold = snap.fmt, cutoff_rows(snap), snap.config["threshold"]
-    rule = next(row for row in rows if row["cut"] == threshold)
-    surest = next(row for row in rows if row["surest"])
-    return (f"Bar chart. As the cutoff drops from {cutoff_text(rows[0]['cut'])} to {cutoff_text(rows[-1]['cut'])}, Decider v1.1 "
-            f"keeps more answers, from {fmt.pct(rows[0]['kept'] / snap.total, 0)} to {fmt.pct(rows[-1]['kept'] / snap.total, 0)} of all "
-            f"questions, and makes more mistakes, from {count(rows[0]['wrong'])} to {count(rows[-1]['wrong'])}. At {snap.cutoff} it "
-            f"keeps {count(rule['kept'])} answers with {'no' if not rule['wrong'] else count(rule['wrong'])} mistakes. At "
-            f"{cutoff_text(surest['cut'])}, its most confident quarter, it keeps {count(surest['kept'])} answers with {count(surest['wrong'])} mistakes.")
-
-
-def cutoff_figure(snap: Snapshot) -> str:
-    """Chart 00, the cutoff trade-off, with the table of its numbers."""
-    fmt, rows, threshold = snap.fmt, cutoff_rows(snap), snap.config["threshold"]
-    rule = next(row for row in rows if row["cut"] == threshold)
-    surest = next(row for row in rows if row["surest"])
-    caption = (f"Decider v1.1 on the {count(snap.total)} questions; we replayed recorded answers. At {snap.cutoff} it keeps "
-               f"{count(rule['kept'])} answers with {'no' if not rule['wrong'] else count(rule['wrong'])} mistakes. At "
-               f"{cutoff_text(surest['cut'])}, its most confident quarter, it keeps {count(surest['kept'])} and gets {count(surest['wrong'])} wrong.")
-    table_rows = []
-    for row in rows:
-        name = cutoff_text(row["cut"]) + (" (most confident quarter)" if row["surest"] else " (our rule)" if row["cut"] == threshold else "")
-        table_rows.append(
-            ("<tr class=\"lead\">" if row["cut"] == threshold or row["surest"] else "<tr>")
-            + f'<td data-label="Cutoff">{name}</td><td class="num" data-label="Answers kept">{count(row["kept"])}</td>'
-            f'<td class="num" data-label="Share of all questions">{fmt.pct(row["kept"] / snap.total)}</td>'
-            f'<td class="num" data-label="Wrong among kept">{count(row["wrong"])}</td></tr>'
-        )
-    # A lower fixed cutoff that also kept only right answers reads as a better rule; say why the page does not use it.
-    looser = [row for row in rows if not row["surest"] and not row["wrong"] and row["cut"] < threshold]
-    note = (f"<p class=\"note\">We did not make {cutoff_text(looser[-1]['cut'])} our rule, although it kept more answers with no "
-            f"mistakes: we only know that because we looked at the answers. {snap.cutoff} is a round number we set in advance.</p>"
-            if looser else "")
-    table = (
-        '<details class="show-table"><summary>Show the numbers</summary><div class="table-wrap"><table class="overview cards">'
-        '<thead><tr><th scope="col">Cutoff</th><th scope="col" class="num">Answers kept</th><th scope="col" class="num">Share of '
-        f'all questions</th><th scope="col" class="num">Wrong among kept</th></tr></thead><tbody>{"".join(table_rows)}</tbody></table></div>'
-        f"{note}</details>"
-    )
-    return chart_figure("cutoffs", cutoff_alt(snap), caption) + table
-
-
-def handoff_figure(snap: Snapshot) -> str:
-    """Chart 01, the handoff diagram with Opus."""
-    fmt, share = snap.fmt, snap.replay["share"]
-    opus = next(item for item in snap.replay["frontiers"] if item["key"] == "opus")
-    kept = share["kept"] / snap.total
-    decider, opus_run = snap.replay["run"], snap.named["opus"]
-    alt = (f"Flow diagram. Every question goes to Decider v1.1 first. If the question is among Decider's most confident quarter, we keep "
-           f"its answer. Otherwise Claude Opus 5.5 answers. Decider answers {fmt.pct(kept, 0)} of the questions and gets "
-           f"{count(share['kept'] - share['wrong'])} of {count(share['kept'])} right; Opus answers {fmt.pct(1 - kept, 0)}. Decider "
-           f"takes about {seconds(decider['latency']['median_request_seconds'])} seconds per question; Opus takes about "
-           f"{opus_run['latency']['median_request_seconds']:.0f} seconds per request of {opus_run['questions_per_request']} questions.")
-    worse = {rule: -100 * opus[rule]["difference"] for rule in ("share", "strict")}
-    if min(worse.values()) <= 0:
-        raise ValueError("the handoff caption says accuracy fell with both rules in front of Opus")
-    caption = (f"In a separate replay, we kept Decider's most confident quarter of answers. Decider got "
-               f"{count(share['kept'] - share['wrong'])} of those {count(share['kept'])} answers right, and Opus answered the rest. "
-               f"The estimated combined cost fell {fmt.pct(opus['share']['saving'], 0)}, and accuracy fell {worse['share']:.2f} points. "
-               "This is a different rule from the one at the top of the page, where we chose the cutoff on half the questions "
-               f"and accuracy fell {worse['strict']:.2f} points on average.")
-    return chart_figure("handoff", alt, caption)
-
-
-def first_models_figure(snap: Snapshot) -> str:
-    """Chart 02: how much of Astra's work each first model takes with the strict cutoff, the full list behind a details
-    element, and the numbers with each pair's estimated cost."""
-    fmt, astra = snap.fmt, snap.named["astra"]
-    found = sorted(((snap.by_id[item["decision"]], item) for item in snap.results["cascades"] if item["frontier"] == astra["run"]),
-                   key=lambda pair: -pair[1]["held_out"]["answered"])
-    decision = [pair for pair in found if snap.decision_model(pair[0])]
-    chat = [pair for pair in found if not snap.decision_model(pair[0])]
-    lead = next(item for run, item in found if run is snap.replay["run"])
-    # First models are always a setup's first run, so they go without a request size, as in the chart.
-    shares = [f"{setup_name(run)} {fmt.pct(item['held_out']['answered'])}" for run, item in decision if run["billing"] in ("api", "free")]
-    compared = [f"{setup_name(run)} {fmt.pct(item['held_out']['answered'])}" for run, item in chat]
-    alt = (f"Bar chart: the share of answers each first model supplies before GPT-6 Astra, averaged over "
-           f"{count(lead['held_out']['splits'])} test splits. Decision models through a provider's service: {', '.join(shares)}. "
-           f"For comparison, the chat model {and_list(compared)}. A second column gives each pair's average accuracy change "
-           "against Astra alone. We replayed recorded answers.")
-    caption = (f"Averages over {count(lead['held_out']['splits'])} test splits: we choose a cutoff on one half of the questions and test it "
-               f"on the other half. Decider v1.1 handles {fmt.pct(lead['held_out']['answered'])}; combined accuracy averages "
-               f"{abs(100 * lead['held_out']['difference']):.2f} percentage points {'below' if lead['held_out']['difference'] < 0 else 'above'} Astra alone.")
-    rows = []
-    for group, pairs in (("Decision models", decision), ("Chat model for comparison", chat)):
-        rows.append(f'<tr class="group-row"><th scope="rowgroup" colspan="4">{group}</th></tr>')
-        for run, item in pairs:
-            cost = usd(item["usd_per_1000"])
-            if run["billing"] == "local":
-                cost += '<span class="small">plus the first model\'s hardware cost, which we have not estimated</span>'
-            elif run["billing"] == "free":
-                cost += '<span class="small">the first model used a free tier; this assumes no charge for it</span>'
-            rows.append(
-                ('<tr class="lead">' if run is snap.replay["run"] else "<tr>")
-                + f'<td data-label="Model answering first">{esc(setup_name(run))}</td>'
-                f'<td class="num" data-label="Questions handled by the first model">{fmt.pct(item["held_out"]["answered"])}</td>'
-                f'<td class="num" data-label="Accuracy change compared with Astra alone">{change_text(item["held_out"]["difference"])}</td>'
-                f'<td class="num" data-label="Estimated combined cost per 1,000 questions">{cost}</td></tr>'
-            )
-    table = (
-        '<details class="show-table"><summary>Show the numbers, with the cost of each pair</summary><div class="table-wrap">'
-        '<table class="overview cards"><thead><tr><th scope="col">Model answering first</th><th scope="col" class="num">Questions '
-        'handled by the first model</th><th scope="col" class="num">Accuracy change compared with Astra alone</th><th scope="col" '
-        f'class="num">Estimated combined cost per 1,000 questions</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
-        f'<p class="note">Astra alone costs an estimated {usd(per_thousand(astra))} per 1,000 questions. This estimate gives each '
-        "question passed to the second model the same average cost. In a new run, the remaining questions may cost more.</p></details>"
-    )
-    everyone = ('<details class="show-more"><summary>Show all first models</summary>'
-                + chart_figure("first-models-all", alt.replace("Bar chart:", "Bar chart with every first model:"), caption) + "</details>")
-    return chart_figure("first-models", alt, caption) + everyone + table
 
 
 def setup_name(item: dict[str, Any]) -> str:
@@ -2477,56 +1359,6 @@ def format_table(snap: Snapshot) -> str:
             + f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
 
 
-def format_lead(snap: Snapshot) -> str:
-    """The request format section's opening: why we asked the chat setups again with the decision models' request size,
-    which setups the test found more or less accurate that way (exact McNemar, Holm over these comparisons) and which it
-    did not; and routing with the reruns as second models (Decider v1.1 first, cutoff chosen on half the questions)
-    against the loss limit set before the live tests, whichever way it came out. The build stops when a decision model
-    asked another number of questions per request."""
-    items = snap.results["formats"]
-    first = one_size({item["base_questions_per_request"] for item in items}, "the request format section")
-    again = one_size({item["questions_per_request"] for item in items}, "the request format section")
-    if {run["questions_per_request"] for run in snap.runs if snap.decision_model(run)} != {again}:
-        raise ValueError(f"the request format section says every decision model got {request_size_text(again)}")
-    names = {item["run"]: setup_name(snap.by_id[item["base"]]) for item in items}
-    gains = sorted((item for item in items if item["p_holm"] < ALPHA and item["difference"] > 0), key=lambda item: -item["difference"])
-    losses = sorted((item for item in items if item["p_holm"] < ALPHA and item["difference"] < 0), key=lambda item: item["difference"])
-    unchanged = [item for item in items if item["p_holm"] >= ALPHA]
-    found = []
-    if gains:
-        found.append(and_list([f"{esc(names[item['run']])} got {abs(100 * item['difference']):.2f} points more right" for item in gains]))
-    if losses:
-        found.append(and_list([f"{esc(names[item['run']])} got {abs(100 * item['difference']):.2f} points fewer right" for item in losses]))
-
-    setups = f"{in_words(len(items))} chat setup{'' if len(items) == 1 else 's'}"
-    paragraphs = [
-        f"Every decision model got {per_request_words(again)}. In our main runs, the chat models got {per_request_words(first)}. "
-        f"So we asked {setups} all {count(snap.total)} questions again, with {per_request_words(again)} and the same prompt and "
-        "settings.",
-        (f"With {per_request_words(again)}, " + "; ".join(found) + "." if found else "")
-        + (f" For {and_list([esc(names[item['run']]) for item in unchanged])}, the test did not establish a change." if unchanged else ""),
-    ]
-    reruns = rerun_frontiers(snap)
-    limit = one_size({test["plan"]["tolerance_points"] for test in decider_tests(snap)}, "the loss limit")
-    worst = max(reruns, key=lambda item: -item["strict"]["difference"])
-    loss = -100 * worst["strict"]["difference"]
-    over = [item for item in reruns if -100 * item["strict"]["difference"] > limit]
-    if loss <= 0:
-        verdict = "accuracy fell with none of them"
-    elif not over:
-        verdict = (f"the largest drop in accuracy was {loss:.2f} points, with {esc(live_name(snap, worst['run']))}, within the "
-                   f"{limit:g}-point limit we set before the live tests")
-    else:
-        verdict = (f"accuracy fell by more than the {limit:g}-point limit we set before the live tests: " + and_list(
-            [f"{-100 * item['strict']['difference']:.2f} points with {esc(live_name(snap, item['run']))}" for item in over]))
-    subject = "these runs" if len(reruns) == len(items) else f"{in_words(len(reruns))} of these runs"
-    paragraphs.append(
-        f"We also replayed routing with {subject} as the second model. With Decider v1.1 first and the cutoff chosen on half "
-        f'the questions, {verdict}. The table in <a href="#savings">How much do you save?</a> shows both request sizes.'
-    )
-    return "".join(f"<p>{text.strip()}</p>" for text in paragraphs if text.strip())
-
-
 def rerun_frontiers(snap: Snapshot) -> list[dict[str, Any]]:
     """The lead replay's second models that are format reruns, in results.json's order. The build stops when one has no
     routing simulation with the cutoff chosen on half the questions, the rule the request format's verdict uses."""
@@ -2536,63 +1368,9 @@ def rerun_frontiers(snap: Snapshot) -> list[dict[str, Any]]:
     return items
 
 
-def format_warning(snap: Snapshot) -> str:
-    """The opening's warning when routing with the format reruns breaks the loss limit set before the live tests: with the
-    cutoff chosen on half the questions, Decider v1.1 in front of a rerun loses more than that limit on average over the
-    splits. Empty when no rerun does."""
-    limit = one_size({test["plan"]["tolerance_points"] for test in decider_tests(snap)}, "the loss limit")
-    failing = [item for item in rerun_frontiers(snap) if -100 * item["strict"]["difference"] > limit]
-    if not failing:
-        return ""
-    size = one_size({item["run"]["questions_per_request"] for item in failing}, "the opening's warning")
-    main = one_size({snap.by_id[item["run"]["format_of"]]["questions_per_request"] for item in failing}, "the opening's warning")
-    changes = and_list([f"{abs(100 * item['strict']['difference']):.2f} points with {esc(live_name(snap, item['run']))}" for item in failing])
-    return (f'<p class="language"><b>One limit:</b> when the LLM answered {request_size_text(size)}, Decider v1.1 first cost more '
-            f"than {limit:g} points of accuracy: {changes}, in a replay of recorded answers with the cutoff chosen on half the "
-            f"questions. The savings below use the LLMs' main runs, with {request_size_text(main)}.</p>")
-
-
-def savings_sure_table(snap: Snapshot) -> str:
-    """With the fixed 99% rule, each of the opening's LLMs' estimated cost per 1,000 questions alone and with Decider in
-    front (Decider on every question, the LLM on the rest at its average cost)."""
-    rows = "".join(
-        f'<tr><td data-label="LLM">{esc(named(item["run"]))}</td><td class="num" data-label="LLM alone">{usd(item["cost"])}</td>'
-        f'<td class="num" data-label="Decider and LLM">{usd(item["sure"]["usd_per_1000"])}</td></tr>'
-        for item in opening_seconds(snap)
-    )
-    return (
-        f'<div class="table-wrap"><table class="overview cards"><caption>With the fixed {esc(snap.cutoff)} rule, cost per 1,000 '
-        'questions</caption><thead><tr><th scope="col">LLM</th><th scope="col" class="num">LLM alone</th>'
-        f'<th scope="col" class="num">Decider and LLM</th></tr></thead><tbody>{rows}</tbody></table></div>'
-    )
-
-
 def replay_rules(snap: Snapshot) -> dict[str, dict[str, Any]]:
     """The replay's numbers for each second model, by live test rule (None where the replay has no such rule)."""
     return {item["key"]: {"share": item["share"], "half": item["strict"], "cutoff": item["sure"]} for item in snap.replay["frontiers"]}
-
-
-def savings_live_table(snap: Snapshot) -> str:
-    """The savings section's live table: Decider v1.1 in front of each of the opening's LLMs with new calls, by rule in the replay table's
-    order: the share it kept, the saving and the change in accuracy."""
-    fmt, tests = snap.fmt, live_tests(snap)
-    rows = []
-    for rules in tests["decider"].values():
-        cells = "".join(
-            f'<td class="num" data-label="{esc(LIVE_RULES[rule])}">Decider kept {fmt.pct(test["plan"]["routed"] / test["plan"]["held_out"])}: '
-            f'{fmt.pct(saving(test["measured"]))} cheaper, {change_text(test["measured"]["difference"])}</td>'
-            for rule, test in rules.items()
-        )
-        rows.append(f'<tr><td data-label="LLM">{esc(setup_name(rules["half"]["frontier"]))}</td>{cells}</tr>')
-    head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in LIVE_RULES.values())
-    questions = snap.plan["held_out"]
-    size = one_size({test["plan"]["batch_size"] for rules in tests["decider"].values() for test in rules.values()},
-                    "the savings section's live table")
-    return (
-        f'<div class="table-wrap"><table class="overview cards savings"><caption>Live test with new calls to each LLM, on '
-        f'{count(questions)} questions (second model: {request_size_text(size)})</caption><thead><tr><th scope="col">LLM</th>{head}</tr></thead>'
-        f'<tbody>{"".join(rows)}</tbody></table></div>'
-    )
 
 
 def more_wrong_span(snap: Snapshot) -> str:
@@ -2603,114 +1381,6 @@ def more_wrong_span(snap: Snapshot) -> str:
         raise ValueError("the opening says each two-step setup got more answers wrong per 1,000 questions than its LLM")
     low, high = f"{more[0]:.1f}", f"{more[-1]:.1f}"
     return low if low == high else f"{low} to {high}"
-
-
-def head(snap: Snapshot, images: dict[str, dict[str, str]]) -> str:
-    """The title, the description and the link preview: the preview image is the cutoff chart, in the dark theme like the site."""
-    site, fmt = snap.config["site_url"], snap.fmt
-    preview = snap.config["images"]["preview"]
-    tried, untried = decision_first_models(snap)
-    firsts = opening_seconds(snap)
-    live = [live_tests(snap)["decider"][item["key"]]["half"]["measured"] for item in firsts]
-    if any(measured["difference"] > 0 for measured in live):
-        raise ValueError("the description says accuracy fell by at most the live test's largest loss")
-    shares = [f"{fmt.pct(item['strict']['share'], 0)} of {item['run']['name']}'s" for item in firsts]
-    shares[0] += " questions"
-    description = (
-        f"We tested {count(len(tried) + len(untried))} decision models on a reading and grammar test in native Turkish (not "
-        f"translated): {count(snap.total)} questions. Perplexity's "
-        f"Decider v1.1 took the most work off each LLM: {and_list(shares)}, in a replay of recorded answers. In a live test with "
-        f"new calls, the estimated cost fell {and_list([fmt.pct(saving(measured), 0) for measured in live])}, and accuracy fell by "
-        f"at most {-100 * min(measured['difference'] for measured in live):.2f} points."
-    )
-    alt = cutoff_alt(snap)
-    image = site + images["preview"]["dark"]
-    return "\n".join(
-        [
-            "",
-            f"  <title>{esc(TITLE)}</title>",
-            f'  <link rel="canonical" href="{esc(site)}">',
-            f'  <meta name="description" content="{esc(description)}">',
-            f'  <meta property="og:title" content="{esc(TITLE)}">',
-            f'  <meta property="og:description" content="{esc(description)}">',
-            '  <meta property="og:type" content="website">',
-            f'  <meta property="og:url" content="{esc(site)}">',
-            f'  <meta property="og:image" content="{esc(image)}">',
-            f'  <meta property="og:image:width" content="{preview["width"]}">',
-            f'  <meta property="og:image:height" content="{preview["height"]}">',
-            f'  <meta property="og:image:alt" content="{esc(alt)}">',
-            '  <meta name="twitter:card" content="summary_large_image">',
-            f'  <meta name="twitter:title" content="{esc(TITLE)}">',
-            f'  <meta name="twitter:description" content="{esc(description)}">',
-            f'  <meta name="twitter:image" content="{esc(image)}">',
-            f'  <meta name="twitter:image:alt" content="{esc(alt)}">',
-            "  ",
-        ]
-    )
-
-
-def share_link(paths: dict[str, str], name: str) -> str:
-    """'Share or download this chart' downloads the image in the theme being viewed; a small link offers the other one."""
-    buttons = "".join(
-        f'<a class="button secondary theme-{theme}" href="{esc(paths[theme])}" download>Share or download this chart</a>'
-        for theme in THEMES
-    )
-    others = "".join(
-        f'<a class="theme-{theme}" href="{esc(paths[other])}" download>Download with a {other} background</a>'
-        for theme, other in (("dark", "light"), ("light", "dark"))
-    )
-    return f'<p class="share">{buttons} <span class="small">{esc(name)}, PNG · {others}</span></p>'
-
-
-def blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
-    lead_names = ", ".join(dict.fromkeys(row["run"]["name"] for row in snap.lead))
-    return {
-        "head": head(snap, images),
-        "confidence-lead": confidence_lead(snap),
-        "threshold-figure": threshold_figure(snap) + share_link(images["finding"], f"Lead finding: {lead_names}"),
-        "threshold-table": threshold_table(snap),
-        "accuracy-lead": accuracy_lead(snap),
-        "model-kinds": model_kinds(snap),
-        "task-figure": task_figure(snap) + share_link(images["tasks"], "Reading and grammar figure"),
-        "results-table": results_table(snap),
-        "stability-lead": stability_lead(snap),
-        "stability": stability(snap),
-        "cost-lead": cost_lead(snap),
-        "cost-table": cost_table(snap),
-        "cost-summary": cost_summary(snap),
-        "cost-setup": cost_setup(snap),
-        "latency-table": latency_table(snap),
-        "reasoning-table": reasoning_table(snap),
-        **top_blocks(snap, images),
-        **overview_blocks(snap, images),
-        **study_blocks(snap, images),
-        **method_blocks(snap, images),
-        **format_blocks(snap),
-    }
-
-
-def format_blocks(snap: Snapshot) -> dict[str, str]:
-    """The request format section and the opening's warning, once results.json has format reruns (index.html then has their
-    markers; fill() stops on a marker without a block and a block without a marker)."""
-    if not snap.results.get("formats"):
-        return {}
-    return {"format-lead": format_lead(snap), "format-table": format_table(snap), "format-warning": format_warning(snap)}
-
-
-def top_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
-    """Blocks only the top of the page uses: the opening and the sections before the confidence overview."""
-    return {
-        "opening-table": opening_table(snap),
-        "handoff-figure": handoff_figure(snap),
-        "first-models-figure": first_models_figure(snap),
-        "speed-table": speed_table(snap),
-        "speed-whole": speed_whole(snap),
-        "speed-figure": speed_figure(snap),
-        "cutoff-figure": cutoff_figure(snap) + share_link(images["preview"], "Cutoff chart"),
-        "savings-table": savings_table(snap),
-        "savings-sure-table": savings_sure_table(snap),
-        "savings-live-table": savings_live_table(snap),
-    }
 
 
 # ---------------------------------------------------------------- the study's understanding, method and limits (blocks 23 to 36)
@@ -2930,68 +1600,6 @@ METHOD_SETUPS: list[tuple[list[dict[str, str]], str]] = [
     ([{"model": "qwen3-14b"}, {"model": "erk-14b"}], "Erk continues the training of this Qwen model on Turkish text. We ran both on our own hardware with the same requests and settings. The extra training may change more than language knowledge."),
 ]
 
-# Technical notes for the setup records that results.json does not carry.
-METHOD_SETUP_NOTES = {
-    "glm-5.3-flash": "Mia's AI Lab's EXL3 checkpoint; speculative decoding with DFlash2 drafts.",
-    "winnow-12b": "Published only as GGUF files; its own llama.cpp-based server, with its author's settings.",
-    "cygnet": "blockbrain-ai's recipe.",
-}
-
-
-def method_setup_record(snap: Snapshot, run: dict[str, Any]) -> str:
-    """One setup's exact identifiers, server and hardware, for the expandable technical record."""
-    rows = [
-        ("Setup", esc(label(run))),
-        ("Model identifier", f"<code>{esc(run['model'])}</code>"),
-        ("How we called the model", esc(run["access"])),
-        ("Hardware we used", esc(run["hardware"]) if run.get("hardware") else "The provider's service"),
-        ("Questions in each request", count(run["questions_per_request"])),
-        ("Simultaneous requests", count(run["concurrency"])),
-        ("Model size in parameters", method_size(run["parameters"]) if run.get("parameters") else "Not published"),
-    ]
-    if run.get("active_parameters"):
-        rows.append(("Parameters used per token", and_list([method_size(value) for value in run["active_parameters"]])))
-    if run.get("note"):
-        rows.append(("Note", esc(run["note"])))
-    if run["model"] in METHOD_SETUP_NOTES:
-        rows.append(("Setup detail", esc(METHOD_SETUP_NOTES[run["model"]])))
-    return "<dl>" + "".join(f"<dt>{name}</dt><dd>{value}</dd>" for name, value in rows) + "</dl>"
-
-
-def method_setups(snap: Snapshot) -> str:
-    """The setup table: why each model appears in the test, with the exact records behind an expandable summary."""
-    used: set[int] = set()
-    body = []
-    for specs, text in METHOD_SETUPS:
-        runs = [run for run in snap.runs if any(matches(run, spec) for spec in specs)]
-        if not runs:
-            raise ValueError(f"no run matches the setup row {specs}")
-        if used & {run["run"] for run in runs}:
-            raise ValueError(f"a run of {specs} already has a setup row")
-        used |= {run["run"] for run in runs}
-        first = runs[0]
-        others = [run for run in snap.runs if run["model"] == first["model"] and run["run"] not in {item["run"] for item in runs}]
-        fields = {
-            "size": method_size(first["parameters"]) if first.get("parameters") else "",
-            "active": and_list([method_size(value) for value in first.get("active_parameters") or []]) if first.get("active_parameters") else "",
-            "per_request": in_words(first["questions_per_request"]),
-            "other_per_request": count(others[0]["questions_per_request"]) if others else "",
-        }
-        names = and_list(list(dict.fromkeys(run["name"] for run in runs)))
-        records = "".join(method_setup_record(snap, run) for run in runs)
-        summary = "Technical record" if len(runs) == 1 else f"Technical records ({count(len(runs))} setups)"
-        body.append(
-            f'<tr><th scope="row">{esc(names)}</th><td><p>{esc(text.format(**fields))}</p>'
-            f'<details class="setup-record"><summary>{summary}</summary>{records}</details></td></tr>'
-        )
-    missing = [label(run) for run in snap.runs if run["run"] not in used]
-    if missing:
-        raise ValueError(f"setups without a row in METHOD_SETUPS: {', '.join(missing)}")
-    return (
-        '<div class="table-wrap"><table class="setups"><thead><tr><th scope="col">Model or setup</th>'
-        f'<th scope="col">Why we included it</th></tr></thead><tbody>{"".join(body)}</tbody></table></div>'
-    )
-
 
 def method_timing(snap: Snapshot) -> str:
     """Where each response time comes from and which runs sent several requests at a time, from the runs' latency."""
@@ -3046,16 +1654,7 @@ def method_paired_figure(snap: Snapshot) -> str:
     return chart_figure("paired", alt, caption)
 
 
-def method_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str, str]:
-    """Blocks only the study's sections from understanding to the references (blocks 23 to 36) use."""
-    return {
-        "method-setups": method_setups(snap),
-        "method-timing": method_timing(snap),
-        "method-paired-figure": method_paired_figure(snap),
-    }
-
-
-# ---------------------------------------------------------------- the page
+# ---------------------------------------------------------------- chart figures
 
 
 def chart_sizes(page: str) -> str:
@@ -3070,20 +1669,6 @@ def chart_sizes(page: str) -> str:
         return f'{match.group(1)} width="{width}" height="{height}"'
 
     return CHART_IMAGE.sub(sized, page)
-
-
-def fill(page: str, numbers: dict[str, str], parts: dict[str, str]) -> str:
-    unknown = sorted({match.group(2) for match in VALUE.finditer(page)} - numbers.keys())
-    if unknown:
-        raise ValueError(f"index.html asks for values the snapshot does not give: {', '.join(unknown)}")
-    missing = sorted(parts.keys() - {match.group(2) for match in BLOCK.finditer(page)})
-    if missing:
-        raise ValueError(f"index.html has no marker for blocks {', '.join(missing)}")
-    page = VALUE.sub(lambda match: match.group(1) + esc(numbers[match.group(2)]) + match.group(4), page)
-    stray = sorted({match.group(2) for match in BLOCK.finditer(page)} - parts.keys())
-    if stray:
-        raise ValueError(f"index.html has markers for unknown blocks {', '.join(stray)}")
-    return BLOCK.sub(lambda match: match.group(1) + parts[match.group(2)] + match.group(4), page)
 
 
 # ---------------------------------------------------------------- sharing images
@@ -3108,9 +1693,6 @@ IMAGE_THEMES = {
 THEMES = tuple(IMAGE_THEMES)
 # The sharing images: their key in the code and the start of their file names, which end in a hash of the file.
 IMAGE_STEMS = (("preview", "preview"), ("finding", "finding"), ("tasks", "reading-grammar"))
-SHARED_IMAGE = re.compile(
-    rf"share/({'|'.join(stem for _, stem in IMAGE_STEMS)})-({'|'.join(THEMES)})-([0-9a-f]{{8}})\.png"
-)
 FIGURE_STYLE = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: %(width)dpx; height: %(height)dpx; overflow: hidden; background: var(--bg); color: var(--text);
@@ -3329,19 +1911,17 @@ def render_images(snap: Snapshot) -> dict[str, dict[str, str]]:
     return names
 
 
-def current_images(page: str) -> dict[str, dict[str, str]]:
-    """The sharing images the page links to now, for a build without Chrome. The light preview is the one image the
-    page does not link to; it is the single light preview in share/."""
-    linked = {(found.group(1), found.group(2)): found.group(0) for found in SHARED_IMAGE.finditer(page)}
-    names: dict[str, dict[str, str]] = {}
+def current_images() -> dict[str, dict[str, str]]:
+    """The sharing images of the last build that drew them (share/images.json), by image and theme: what a build
+    without Chrome keeps, and the home page's link preview."""
+    if not IMAGES.is_file():
+        raise ValueError(f"{IMAGES.relative_to(ROOT)} is missing; run build_page.py once without --no-images")
+    names: dict[str, dict[str, str]] = json.loads(IMAGES.read_text(encoding="utf-8"))
     for key, stem in IMAGE_STEMS:
         for theme in THEMES:
-            name = linked.get((stem, theme))
-            if name is None and len(files := sorted(SHARE.glob(f"{stem}-{theme}-*.png"))) == 1:
-                name = f"share/{files[0].name}"
+            name = names.get(key, {}).get(theme)
             if name is None or not (ROOT / name).is_file():
-                raise ValueError(f"no {theme} {stem} image to keep; build once without --no-images")
-            names.setdefault(key, {})[theme] = name
+                raise ValueError(f"no {theme} {stem} image in {IMAGES.relative_to(ROOT)}; build once without --no-images")
     return names
 
 
@@ -3528,28 +2108,21 @@ def citation(snap: Snapshot, numbers: dict[str, str]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--no-images", action="store_true", help="skip the sharing images (no Chrome needed)")
+    parser.add_argument("--no-images", action="store_true", help="keep the current sharing images (no Chrome needed)")
     args = parser.parse_args()
     try:
         results = json.loads((ROOT / "results.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "page_config.json").read_text(encoding="utf-8"))
         snap = Snapshot(results, config, reproduce())
         numbers = values(snap)
-        page = PAGE.read_text(encoding="utf-8")
-        # The page links to the images by names that hash their content, so they are drawn first.
-        names = current_images(page) if args.no_images else render_images(snap)
-        filled = chart_sizes(fill(page, numbers, blocks(snap, names)))
+        names = current_images() if args.no_images else render_images(snap)
     except (OSError, ValueError, KeyError, StopIteration) as error:
         print(f"error: {error!r}", file=sys.stderr)
         return 1
-    if filled != page:
-        PAGE.write_text(filled, encoding="utf-8")
-        print(f"Updated {PAGE.relative_to(ROOT)}")
-    else:
-        print(f"{PAGE.relative_to(ROOT)} is up to date")
     if not args.no_images:
         remove_old_images(snap, names)
-    X_POSTS.parent.mkdir(parents=True, exist_ok=True)
+        IMAGES.write_text(json.dumps(names, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        print(f"Wrote {IMAGES.relative_to(ROOT)}")
     X_POSTS.write_text(x_posts(snap, numbers, names), encoding="utf-8")
     print(f"Wrote {X_POSTS.relative_to(ROOT)}")
     CITATION.write_text(citation(snap, numbers), encoding="utf-8")

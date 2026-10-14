@@ -1,0 +1,520 @@
+/* Two themes. Light is the base, and print always uses it. On screen the dark theme applies unless the reader chose
+   light: data-theme="light" on <html>, set before the page renders by the script in <head>. Without JavaScript the
+   page is dark. */
+:root {
+  color-scheme: light;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --on-primary: #ffffff;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --table-hover: #f8fafc;
+  /* The 0–100% track behind the reading and grammar bars. */
+  --track: #f1f5f9;
+  --row-alt: #fafbfc;
+  --bar: #dbeafe;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .08);
+  --radius: 8px;
+  /* The small section labels and the finding's edge: gray on light, the accent on dark. */
+  --label: #64748b;
+  --finding-border: #334155;
+  /* Reading is blue and grammar orange everywhere; the confidence figure has its own palette: green for kept and
+     correct, red for kept but wrong, neutral grey stripes for answers that need another answer. */
+  --reading: #2563eb;
+  --grammar: #ea580c;
+  --reading-text: #1d4ed8;
+  --grammar-text: #c2410c;
+  --accepted: #15803d;
+  --wrong: #b91c1c;
+  --check: #e2e8f0;
+  --check-stripe: #cbd5e1;
+  --key-check-border: #cbd5e1;
+  --bar-outline: #64748b;
+  /* Answer counts inside heat-map cells, whose background follows accuracy. */
+  --heat-count: #475569;
+  --error-text: #991b1b;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+}
+@media screen {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --primary: #86b9f3;
+    --primary-hover: #a9cdf6;
+    --on-primary: #161615;
+    /* A neutral, slightly warm near-black, not the navy of the slate scale. */
+    --bg: #161615;
+    --card-bg: #1f1e1c;
+    --text: #ebe9e4;
+    --text-muted: #a8a6a0;
+    --border: #34332f;
+    --table-hover: #282724;
+    --track: #2b2a27;
+    --row-alt: #232220;
+    --bar: #1e3a5c;
+    --shadow: 0 1px 3px rgba(0, 0, 0, .5);
+    --label: #86b9f3;
+    --finding-border: #86b9f3;
+    --reading: #86b9f3;
+    --grammar: #f0a35e;
+    --reading-text: #86b9f3;
+    --grammar-text: #f0a35e;
+    /* Kept and correct is green, kept but wrong red, needs another answer neutral grey stripes. */
+    --accepted: #4ade80;
+    --wrong: #fca5a5;
+    --check: #2b2a27;
+    --check-stripe: #3d3c38;
+    --key-check-border: #6b6963;
+    --bar-outline: #6b6963;
+    --heat-count: #d6d3cc;
+    --error-text: #f5c2c2;
+    --error-bg: #3a1d1b;
+    --error-border: #6b2a26;
+  }
+}
+/* Elements drawn for one theme only: the charts and the sharing images exist in both. */
+@media screen { :root:not([data-theme="light"]) .theme-light { display: none !important; } }
+:root[data-theme="light"] .theme-dark { display: none !important; }
+@media print { .theme-dark, .theme-switch { display: none !important; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 2rem 1rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+header, main, footer { max-width: 1400px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 2rem; }
+h1 { font-size: 1.75rem; margin: 0 0 .25rem; }
+
+/* The page's opening: the kicker, the question and its answer line centred as one block; everything below them left-aligned. */
+.hero { max-width: 72ch; margin: 1rem auto 2.5rem; text-align: left; }
+.hero .title-block { text-align: center; }
+.hero h1 { font-size: 2.25rem; line-height: 1.15; margin-bottom: .5rem; text-wrap: balance; }
+/* A subtitle, not a heading, so the page outline keeps one h1 and the section h2s. */
+.hero .subtitle { font-size: 1.35rem; font-weight: 600; color: var(--text); margin: 0 0 1rem; }
+.hero .lede { font-size: 1.15rem; margin: 0 0 1rem; }
+/* Dark / Light: shown by app.js, which also remembers the choice; without JavaScript the page stays dark. */
+.theme-switch { display: flex; justify-content: flex-end; margin: 0 0 .75rem; }
+.theme-switch[hidden] { display: none; }
+.theme-switch button { font: inherit; font-size: .8rem; padding: .2rem .7rem; border: 1px solid var(--border);
+  background: var(--card-bg); color: var(--text-muted); cursor: pointer; }
+.theme-switch button:first-child { border-radius: 999px 0 0 999px; }
+.theme-switch button:last-child { border-radius: 0 999px 999px 0; border-left: none; }
+.theme-switch button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
+.theme-switch button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+/* The three questions the page answers, each linked to its sections. */
+.questions { text-align: left; max-width: 64ch; margin: 0 auto 1.25rem; }
+.questions p { margin: 0 0 .3rem; }
+.questions ol { margin: 0; padding-left: 1.5rem; }
+.questions li + li { margin-top: .25rem; }
+.button { display: inline-block; padding: .6rem 1.2rem; border-radius: var(--radius); background: var(--primary); color: var(--on-primary);
+  font-weight: 600; text-decoration: none; }
+.button:hover, .button:focus-visible { background: var(--primary-hover); }
+.button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.button.secondary { background: var(--card-bg); color: var(--primary); border: 1px solid var(--primary); padding: .4rem .9rem; }
+.button.secondary:hover, .button.secondary:focus-visible { background: var(--table-hover); }
+.subtitle { color: var(--text-muted); margin: 0; }
+.byline { color: var(--text-muted); font-size: .875rem; margin: .75rem 0 0; }
+a { color: var(--primary); }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85em; }
+[id] { scroll-margin-top: 1rem; }
+
+/* Section menu under the byline: a compact, wrapping row of links. */
+nav.toc { margin: 1rem auto 0; max-width: 80ch; font-size: .875rem; }
+nav.toc ul { display: flex; flex-wrap: wrap; gap: .3rem 1rem; list-style: none; margin: 0; padding: 0; }
+nav.toc a { text-decoration: none; white-space: nowrap; }
+nav.toc a:hover, nav.toc a:focus-visible { text-decoration: underline; }
+/* The introduction under the menu reads as prose, not as centred header text. */
+header .intro { text-align: left; max-width: 80ch; margin: 1.5rem auto 0; }
+
+/* Numbered citations and the references they link to; each reference links back to every place it is cited. */
+sup.cite { font-size: .75em; line-height: 0; }
+sup.cite a { text-decoration: none; padding: 0 .1em; }
+sup.cite a:hover, sup.cite a:focus-visible { text-decoration: underline; }
+ol.references { padding-left: 1.75rem; font-size: .9rem; }
+ol.references li { overflow-wrap: anywhere; }
+ol.references li:target, sup.cite a:target { background: var(--bar); border-radius: 3px; }
+a.backref { text-decoration: none; margin-left: .25rem; }
+
+.load-error {
+  color: var(--error-text);
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+  margin: 0 0 2rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.card h2, .study > .card > h3:first-child {
+  font-size: 1.2rem;
+  margin: 0 0 1rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--border);
+}
+.overview h3, .study .card h4 { font-size: 1rem; margin: 1.5rem 0 .5rem; }
+.prose p, .prose li { max-width: 80ch; }
+.prose ul { padding-left: 1.25rem; }
+.prose li + li { margin-top: .35rem; }
+.note, .footnote { color: var(--text-muted); font-size: .875rem; }
+.footnote { padding-left: 1.25rem; margin: 0; }
+.table-note { color: var(--text-muted); font-size: .85rem; margin: .5rem 0 0; max-width: 80ch; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+/* Generated before a wide table: shows the columns marked extra, which a collapsed table hides. */
+.show-all {
+  display: inline-block;
+  margin: 0 0 .5rem;
+  padding: .3rem .75rem;
+  font: inherit;
+  font-size: .85rem;
+  color: var(--primary);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.show-all:hover { background: var(--table-hover); }
+.show-all:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+table.collapsed .extra { display: none; }
+table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+th, td { padding: .55rem .75rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+thead th {
+  background: var(--bg);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+.setups td:first-child, .carries td:first-child { font-weight: 600; min-width: 12rem; }
+table.ladder { width: auto; }
+/* The routing rule under the cascade card's heading. */
+.flow { margin: 0 0 1rem; padding: .6rem .9rem; background: var(--bg); border-left: 3px solid var(--primary);
+  border-radius: 4px; max-width: 80ch; }
+th[aria-sort="ascending"]::after { content: " \25B2"; font-size: .7rem; color: var(--primary); }
+th[aria-sort="descending"]::after { content: " \25BC"; font-size: .7rem; color: var(--primary); }
+tbody tr:nth-child(even) { background: var(--row-alt); }
+tbody tr:hover { background: var(--table-hover); }
+tfoot td { font-weight: 600; border-top: 2px solid var(--border); border-bottom: none; }
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--text-muted); }
+.small { display: block; font-size: .78rem; color: var(--text-muted); }
+.model-name { font-weight: 600; }
+td.model { min-width: 11rem; }
+#leaderboard td:last-child { min-width: 9rem; }
+/* Comparison groups: letters in their own column. */
+td.group { font-weight: 600; letter-spacing: .08em; }
+
+/* Score column: the number sits on a bar proportional to the score. */
+td.score { position: relative; font-weight: 700; min-width: 7rem; }
+td.score .bar {
+  position: absolute;
+  left: 0;
+  top: .4rem;
+  height: 1.35rem;
+  background: var(--bar);
+  border-radius: 0 3px 3px 0;
+}
+td.score .value { position: relative; }
+
+/* Heat maps: cell colour follows accuracy. */
+td.heat { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; background: var(--heat-light); }
+@media screen { :root:not([data-theme="light"]) td.heat { background: var(--heat-dark); } }
+.heatmap .count, td.heat .small { color: var(--heat-count); }
+.heatmap .count { font-size: .78rem; }
+#units th.unit { white-space: normal; min-width: 7rem; text-align: right; }
+#units td:first-child, #units th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--card-bg);
+  min-width: 14rem;
+}
+#units thead th:first-child { background: var(--bg); }
+
+/* Graphs: SVGs drawn on a terminal-cell grid. They never grow past their own size and shrink to fit a narrower box,
+   so no title or legend is cut off; each links to its file for a full-size view. */
+figure.chart { margin: 1.25rem 0 0; }
+.chart-link { display: block; }
+.chart img { display: block; max-width: 100%; height: auto; }
+.chart figcaption {
+  margin-top: .5rem;
+  max-width: 80ch;
+  color: var(--text-muted);
+  font-size: .85rem;
+}
+footer { text-align: center; color: var(--text-muted); font-size: .85rem; }
+
+/* Overview sections: one question, one figure, the table below it. */
+.overview { max-width: 1100px; margin-left: auto; margin-right: auto; }
+.overview p, .overview li { max-width: 80ch; }
+.overview .threshold-bars li, .overview .task-bars li { max-width: none; }
+table.overview.costs td.setup { min-width: 15rem; }
+table.overview td.num .small { white-space: normal; }
+.eyebrow { margin: 0 0 .25rem; color: var(--label); font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.overview ul.notes { padding-left: 1.25rem; color: var(--text-muted); font-size: .875rem; }
+.overview ul.notes li + li, .overview ul li + li { margin-top: .35rem; }
+.share { margin: .75rem 0 0; }
+.share .small { display: inline; }
+.actions { display: flex; flex-wrap: wrap; gap: .75rem 1rem; align-items: center; }
+details.setup-details { margin: 1rem 0; }
+details.setup-details summary { cursor: pointer; font-weight: 600; }
+/* How the two kinds of model answer: a box at the top of the Accuracy section. */
+.explainer { margin: 0 0 1.25rem; padding: .8rem 1rem; border: 1px solid var(--border); border-left: 4px solid var(--primary);
+  border-radius: var(--radius); background: var(--bg); max-width: 80ch; }
+.explainer p { margin: 0; }
+.explainer p + p { margin-top: .5rem; }
+.explainer .explainer-title { font-weight: 700; }
+
+/* Confidence threshold figure: one stacked bar per configuration, drawn to scale, every segment labelled in text. */
+.threshold-figure { margin: 1.25rem 0; }
+.threshold-figure figcaption { color: var(--text-muted); font-size: .875rem; margin-bottom: .75rem; }
+.threshold-figure .legend span { white-space: nowrap; }
+.threshold-bars { list-style: none; margin: 0; padding: 0; }
+.threshold-bars li { padding: .6rem 0; border-top: 1px solid var(--border); }
+.bar-label { margin: 0 0 .3rem; }
+.bar-label .small { display: inline; margin-left: .5rem; }
+.stack { position: relative; display: block; height: 1.1rem; margin: .5rem 0 .45rem; }
+/* A thin outline shows where each whole bar, all scored questions, ends. */
+.stack .fill { display: flex; height: 100%; border: 1px solid var(--bar-outline); border-radius: 4px; overflow: hidden; background: var(--check); }
+.stack .ok { background: var(--accepted); flex-grow: 0; flex-shrink: 0; }
+.stack .wrong { background: var(--wrong); flex-grow: 0; flex-shrink: 0; }
+/* An edge in the card colour keeps the wrong segment apart from the accepted one, for readers who cannot tell the
+   colours apart. */
+.stack .wrong.nonzero { box-shadow: inset 2px 0 0 var(--card-bg); }
+.stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, var(--check) 0 6px, var(--check-stripe) 6px 12px); }
+/* A wrong segment too thin to see keeps its true width; this mark outside the bar shows where it sits. */
+.wrong-marker { position: absolute; top: -.4rem; bottom: -.4rem; width: 3px; margin-left: -1px; background: var(--wrong); border-radius: 1px; }
+.bar-values { display: flex; flex-wrap: wrap; gap: .1rem 1.25rem; margin: .35rem 0 0; font-size: .875rem; }
+.bar-values .v-wrong { color: var(--wrong); font-weight: 600; }
+i.key { display: inline-block; width: .75rem; height: .75rem; margin-right: .35rem; border-radius: 2px; vertical-align: -.05rem; }
+i.key.ok { background: var(--accepted); }
+i.key.wrong { background: var(--wrong); }
+i.key.check { background: repeating-linear-gradient(135deg, var(--check) 0 3px, var(--check-stripe) 3px 6px); border: 1px solid var(--key-check-border); }
+i.key.reading { background: var(--reading); }
+i.key.grammar { background: var(--grammar); }
+
+/* Reading and grammar figure: two bars per configuration on one 0–100% axis. */
+.task-figure { margin: 1rem 0; }
+.figure-title { font-weight: 700; font-size: 1.05rem; margin-bottom: .5rem; }
+.task-bars { list-style: none; margin: 0; padding: 0; }
+.task-bars li { padding: .5rem 0; border-top: 1px solid var(--border); }
+.task-figure .pair { display: grid; grid-template-columns: 5rem 1fr 3.5rem; align-items: center; gap: .5rem; margin-top: .2rem; font-size: .875rem; }
+.task-bars .track { height: .9rem; background: var(--track); border-radius: 3px; overflow: hidden; }
+.task-bars .bar { display: block; height: 100%; }
+.part.reading { color: var(--reading-text); font-weight: 600; } .part.grammar { color: var(--grammar-text); font-weight: 600; }
+.bar.reading { background: var(--reading); } .bar.grammar { background: var(--grammar); }
+.task-bars .value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+/* The axis is one more row of the bars' grid, so its ticks sit over the same track. */
+.task-figure .axis { margin: .25rem 0 0; max-width: none; color: var(--text-muted); font-size: .75rem; }
+.task-figure .axis-track { position: relative; height: 1.1em; }
+.task-figure .axis-track span { position: absolute; top: 0; transform: translateX(-50%); }
+.task-figure .axis-track span:first-child { transform: none; }
+.task-figure .axis-track span:last-child { transform: translateX(-100%); }
+.task-figure .caption { color: var(--text-muted); font-size: .875rem; margin-top: .5rem; }
+
+/* Overview tables: model details open on tap or keyboard; the decision model badge explains itself on focus. */
+table.overview td { overflow-wrap: anywhere; }
+table.overview th.reading { color: var(--reading-text); } table.overview th.grammar { color: var(--grammar-text); }
+/* Tables and lists that open on request; plain HTML, so they work without JavaScript. */
+details.show-table, details.all-configs { margin: 1rem 0; }
+details.show-table > summary, details.all-configs > summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+/* The finding under the headline. */
+.finding { text-align: left; margin: 0 auto 1.25rem; padding: .8rem 1rem; border-left: 4px solid var(--finding-border);
+  border-radius: var(--radius); background: var(--card-bg); box-shadow: var(--shadow); max-width: 64ch; }
+.finding p { margin: 0; }
+.finding p + p { margin-top: .4rem; }
+.finding-label { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--label); }
+details.model-details summary { cursor: pointer; }
+details.model-details dl { display: grid; grid-template-columns: auto 1fr; gap: .1rem .75rem; margin: .4rem 0 .2rem; font-size: .8rem; }
+details.model-details dt { color: var(--text-muted); }
+details.model-details dd { margin: 0; }
+.badge { position: relative; display: inline-block; margin-left: .4rem; padding: 0 .4rem; border: 1px solid var(--accepted);
+  border-radius: 999px; font-size: .7rem; color: var(--accepted); cursor: help; white-space: nowrap; }
+.badge:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.badge-tip { display: none; position: absolute; left: 0; top: 1.5rem; z-index: 2; width: 16rem; padding: .4rem .6rem;
+  background: var(--text); color: var(--card-bg); border-radius: 4px; font-size: .78rem; white-space: normal; }
+.badge:hover .badge-tip, .badge:focus .badge-tip { display: block; }
+
+/* The full study keeps its sections under its own title. */
+.study-header { text-align: center; max-width: 80ch; margin: 3rem auto 2rem; }
+.study-header h2 { font-size: 1.6rem; margin: 0 0 .25rem; }
+.study-header .intro { text-align: left; margin-top: 1.5rem; }
+.study-header nav.toc ul { justify-content: center; }
+
+@media (max-width: 640px) {
+  body { padding: 1rem .5rem; }
+  .card { padding: 1rem; }
+  #units td:first-child, #units th:first-child { min-width: 11rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .hero .subtitle { font-size: 1.25rem; }
+  /* Overview tables become one card per row, each value with its column's name. */
+  table.cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.cards, table.cards tbody, table.cards tr, table.cards td { display: block; width: 100%; }
+  table.cards tr { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: .75rem; padding: .25rem .5rem; }
+  table.cards td { border: none; padding: .3rem 0; text-align: left; white-space: normal; }
+  table.cards td[data-label]::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .75rem; }
+  table.cards td.num .small { display: inline; margin-left: .35rem; }
+  /* A second note in a card cell (a batched setup's time with one question per request) starts its own line. */
+  table.cards td.num .small + .small { display: block; margin-left: 0; }
+  /* The results table: the model on its own line, its four values under it, each with its column's name. */
+  table.overview.results thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.overview.results, table.overview.results tbody { display: block; }
+  table.overview.results tr { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: .5rem; padding: .4rem 0;
+    border-bottom: 1px solid var(--border); }
+  table.overview.results td { border: none; padding: .1rem 0; text-align: left; white-space: normal; }
+  table.overview.results td:first-child { grid-column: 1 / -1; }
+  table.overview.results td[data-label]::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .7rem; }
+  .task-figure .pair { grid-template-columns: 4.2rem 1fr 3.2rem; }
+  table.overview.results td.reading::before { color: var(--reading-text); }
+  table.overview.results td.grammar::before { color: var(--grammar-text); }
+  /* Study tables: the model's name stays in view at the left while the numbers scroll beside it. */
+  .study table:not(.setups):not(.static) td.model { position: sticky; left: 0; z-index: 1; min-width: 7rem; max-width: 9rem;
+    background: var(--card-bg); box-shadow: 1px 0 0 var(--border); overflow-wrap: break-word; }
+  .study table:not(.setups):not(.static) thead th:first-child { position: sticky; left: 0; z-index: 2; }
+  .study td.model code.small { display: none; }
+  /* Headers wrap, so a column is as wide as its numbers rather than its heading. */
+  .study table:not(.setups):not(.static) thead th { white-space: normal; min-width: 4rem; }
+  .study table:not(.setups):not(.static) th, .study table:not(.setups):not(.static) td { padding: .45rem .5rem; }
+}
+
+/* top: the opening (the question, what we did, the shares table, what we found) and the sections before the confidence
+   overview. */
+.hero .kicker { margin: 0 0 .5rem; color: var(--label); font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.hero .language { color: var(--text-muted); margin: 0 0 1.25rem; }
+.hero .opening { margin: 0 0 1rem; }
+.hero .opening p { margin: 0 0 .75rem; }
+.hero .opening-heading { font-size: 1.15rem; margin: 1.5rem 0 .5rem; }
+.hero .opening ol.steps { padding-left: 1.5rem; margin: 0 0 .75rem; }
+.hero .opening ol.steps li + li { margin-top: .4rem; }
+.hero .opening .caption { color: var(--text-muted); font-size: .875rem; }
+/* The opening's table: each share tinted by its value (the page's blue, never green or red), the lead's row marked with
+   Decider's colour. */
+:root { --share-tint: 37, 99, 235; }
+@media screen { :root:not([data-theme="light"]) { --share-tint: 134, 185, 243; } }
+table.shares { border-collapse: collapse; width: 100%; margin: .25rem 0 .5rem; }
+table.shares caption { text-align: left; font-weight: 600; margin-bottom: .5rem; }
+table.shares th, table.shares td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); }
+table.shares thead th { white-space: normal; vertical-align: bottom; }
+table.shares tbody th { text-align: left; font-weight: 400; }
+table.shares td.share { background: rgba(var(--share-tint), calc(var(--share) * .3)); }
+table.shares tr.lead th, table.shares tr.lead td { font-weight: 700; }
+table.shares tr.lead th { box-shadow: inset 4px 0 0 #9a3412; padding-left: .8rem; }
+@media screen { :root:not([data-theme="light"]) table.shares tr.lead th { box-shadow: inset 4px 0 0 #fed7aa; } }
+.hero .actions { margin: 0 0 .5rem; }
+.hero .disclosure { color: var(--text-muted); font-size: .875rem; margin: .25rem 0 0; }
+table.example-scores { border-collapse: collapse; margin: .5rem 0 1rem; }
+table.example-scores caption { text-align: left; color: var(--text-muted); font-size: .875rem; margin-bottom: .35rem; }
+table.example-scores th, table.example-scores td { padding: .35rem .75rem; border: 1px solid var(--border); text-align: center; }
+table.example-scores td.picked { font-weight: 700; background: var(--table-hover); }
+.overview ol.steps { padding-left: 1.5rem; }
+.overview ul.reasons, .overview ul.rules { padding-left: 1.25rem; }
+.overview ol.steps li + li, .overview ul.reasons li + li, .overview ul.rules li + li { margin-top: .4rem; }
+/* "Show all" panels in plain HTML; the button class .show-all belongs to app.js's table controls. */
+details.show-more { margin: 1rem 0; }
+details.show-more > summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+table.overview tr.lead td { font-weight: 600; }
+table.overview tr.group-row th { text-align: left; padding-top: .75rem; color: var(--label); font-size: .8rem; letter-spacing: .06em;
+  text-transform: uppercase; }
+
+/* tables: sort buttons, group label rows, empty-value reasons and controls of the tables app.js fills. */
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+table.dynamic thead th { white-space: normal; max-width: 14rem; }
+/* Table cells ignore min-width, so the blocks inside them carry it. */
+thead th > button.sort { display: block; width: 100%; min-width: 6rem; padding: 0; margin: 0; border: 0; background: none;
+  color: inherit; font: inherit; font-weight: inherit; text-align: inherit; cursor: pointer; }
+table.dynamic thead th:first-child > button.sort { min-width: 9rem; }
+thead th > button.sort:hover { text-decoration: underline; }
+thead th > button.sort:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 2px; }
+table.dynamic th[aria-sort]::after { content: none; }
+th[aria-sort="ascending"] > button.sort::after { content: " \25B2"; font-size: .7rem; color: var(--primary); }
+th[aria-sort="descending"] > button.sort::after { content: " \25BC"; font-size: .7rem; color: var(--primary); }
+thead th > button.sort .small { font-weight: normal; }
+tr.group-label > th { padding: .9rem .75rem .4rem; background: var(--card-bg); border-bottom: 2px solid var(--border);
+  font-size: .9rem; text-align: left; }
+tr.group-label > th > span { position: sticky; left: .75rem; }
+tbody tr.group-label:hover { background: none; }
+td .empty { display: block; font-size: .78rem; color: var(--text-muted); white-space: normal; min-width: 6rem; }
+td.heat.no-value { background: none; }
+td.time, td.wrap { white-space: normal; }
+td.time .small, td.wrap .small { min-width: 12rem; }
+td.time .small, td.wrap .small, td.num .small { white-space: normal; }
+.small.source { font-style: italic; }
+.table-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin: 0 0 .5rem; }
+.table-controls .show-all { margin: 0; }
+.show-all[aria-pressed="true"] { background: var(--table-hover); font-weight: 600; }
+.control-hint { color: var(--text-muted); font-size: .8rem; max-width: 60ch; }
+.table-note.lead-note { margin: 0 0 .5rem; }
+.load-error p { margin: 0; }
+.load-error details { margin-top: .5rem; font-size: .85rem; }
+.load-error code { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  thead th > button.sort { min-width: 4.5rem; }
+  table.dynamic thead th:first-child > button.sort { min-width: 6rem; }
+  td.time .small, td.wrap .small { min-width: 10rem; }
+}
+/* study: panels the full study opens on request (plain HTML, so they work without JavaScript), and the notice above an in-sample chart. */
+details.study-more { margin: 1rem 0; }
+details.study-more > summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+details.study-more .notice { margin: .75rem 0 .5rem; padding: .5rem .75rem; border: 1px solid var(--border); border-left: 4px solid var(--text-muted);
+  border-radius: var(--radius); font-weight: 600; max-width: 80ch; }
+
+/* method: the setup table's rows stack on phones; each technical record opens on request, without JavaScript. */
+table.setups th[scope="row"] { font-weight: 600; min-width: 12rem; }
+table.setups td p { margin: 0; }
+details.setup-record { margin-top: .4rem; }
+details.setup-record summary { cursor: pointer; color: var(--text-muted); font-size: .85rem; }
+details.setup-record dl { display: grid; grid-template-columns: auto 1fr; gap: .1rem .75rem; margin: .4rem 0 .6rem; font-size: .8rem; }
+details.setup-record dt { color: var(--text-muted); }
+details.setup-record dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  table.setups thead { display: none; }
+  table.setups, table.setups tbody, table.setups tr, table.setups th[scope="row"], table.setups td { display: block; }
+  table.setups th[scope="row"] { min-width: 0; border-bottom: none; padding-bottom: .2rem; }
+  details.setup-record dl { grid-template-columns: 1fr; }
+  details.setup-record dd { margin-bottom: .3rem; }
+}
+details.setup-record dl + dl { border-top: 1px solid var(--border); padding-top: .5rem; }
+/* overview: blocks 04 to 09 (fixed cutoff figure, grouped tables, live test, tooltips). */
+.threshold-figure .legend-line { margin: 0 0 .5rem; font-size: .875rem; }
+.threshold-figure figcaption { margin: .75rem 0 0; }
+.threshold-bars li.lead { border-left: 4px solid #9a3412; padding-left: .6rem; }
+@media screen { :root:not([data-theme="light"]) .threshold-bars li.lead { border-left-color: #fed7aa; } }
+.task-group { margin: 1rem 0 .25rem; font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--label); }
+table.overview tr.group-row th { text-align: left; padding-top: .9rem; font-size: .8rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--label); }
+table.overview caption { text-align: left; font-weight: 600; margin-bottom: .5rem; }
+.badge { border-color: var(--text-muted); color: var(--text-muted); }
+.tip { position: relative; display: inline-block; margin-left: .25rem; width: 1.1rem; height: 1.1rem; line-height: 1.05rem;
+  border: 1px solid var(--text-muted); border-radius: 50%; text-align: center; font-size: .7rem; font-weight: 600; cursor: help; }
+.tip:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.tip .badge-tip { left: auto; right: 0; text-align: left; font-weight: 400; text-transform: none; letter-spacing: normal; }
+.tip:hover .badge-tip, .tip:focus .badge-tip { display: block; }
+.explainer details { margin: .5rem 0 0; }
+/* Long plain-English headers wrap, so the tables fit the card at desktop width. */
+.overview table.overview th, .overview table.overview td { white-space: normal; }
+.overview table.overview th.num { min-width: 6.5rem; }
+.overview .actions a:not(.button) { white-space: nowrap; }
+@media (max-width: 640px) {
+  table.cards caption { display: block; }
+  table.overview.results tr.group-row, table.cards tr.group-row { display: block; border: none; margin: .5rem 0 .25rem; padding: 0; }
+  table.overview tr.group-row th { display: block; padding: .5rem 0 0; }
+}
+/* v1/ only: the note above the page that it is the earlier version, with a link to the current one. */
+.v1-note { margin: 0; padding: .6rem 1rem; text-align: center; background: var(--card-bg); color: var(--text); border-bottom: 1px solid var(--border); }
