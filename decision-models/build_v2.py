@@ -263,6 +263,16 @@ def copy_checks(data: Data) -> list[str]:
     luna = [run for run in runs if run["model"] == "gpt-6-luna"]
     check("Luna's two setups differ in request format (1 against 16 questions)",
           sorted(run["questions_per_request"] for run in luna) == [1, 16])
+    # The Stability note: decision models and two Qwen3.8-27B setups repeated on all questions, the other chat models on
+    # a sample of 200 questions. A repeat entry names its provider and model, as a run does.
+    chat_repeats = [item for item in results["repeats"] if not data.decision(item)]
+    check("Stability note: every repeated decision model ran on all questions",
+          all(item["whole_bank"] for item in results["repeats"] if data.decision(item)))
+    chat_whole = [item for item in chat_repeats if item["whole_bank"]]
+    check("Stability note: two Qwen3.8-27B setups were the chat models repeated on all questions",
+          len(chat_whole) == 2 and all(item["name"].startswith("Qwen3.8-27B") for item in chat_whole))
+    check("Stability note: the other chat models were repeated on a sample of 200",
+          all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     return found
 
 

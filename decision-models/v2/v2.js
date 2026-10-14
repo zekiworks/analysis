@@ -32,7 +32,7 @@ const ROUTING_NOTES = [
   'SubQ Snap’s place depends on the LLM: second among decision models in front of Sonnet (16 per request), about fifth in front of Opus and Astra. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, GLiDE’s 99.5%.',
 ];
 const STABILITY_NOTE = [
-  'Only the setups we repeated, five times each. Chat models were repeated on a sample of questions, decision models on all of them.',
+  'Only the setups we repeated, five times each. Decision models and two Qwen3.8-27B setups were repeated on all questions; the other chat models on a sample of 200.',
 ];
 /* Each rule's name in the page URL ("slug"), its label, and its name among the live tests in results.json. */
 const ROUTE_RULES = [
