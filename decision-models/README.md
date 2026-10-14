@@ -105,6 +105,13 @@ python3 -m http.server 8000                                # preview at http://1
   in `page_config.json` and the results update date are shown separately.
 - **The preview** needs a server: opening `index.html` from disk does not work, because browsers
   block loading `results.json` from a `file://` page.
+- **The v2 home page preview** (`v2/`, at `/analysis/decision-models/v2/`): `python3 build_v2.py` fills
+  `v2/index.html`'s `<!-- build:… -->` blocks from `results.json` and `page_config.json` (the meta tags,
+  the stats row, the leaderboard as a plain table for readers without JavaScript, and the settings
+  `v2/v2.js` reads). `v2/v2.js` draws the filters, the four leaderboard tabs and the two charts in the
+  browser from `results.json` alone; accuracy for a part or topic and its Wilson 95% interval come from
+  the counts there. The page's fixed copy quotes numbers; the script checks each against `results.json`,
+  prints every claim that differs and then exits with status 1, after writing the page.
 
 ## Running the benchmark
 

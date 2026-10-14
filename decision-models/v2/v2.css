@@ -1,0 +1,125 @@
+/* The v2 home page, on top of ../style.css (palettes, tables, cards). Colours come only from its variables, so both
+   themes follow. */
+
+body.v2 main, body.v2 footer { max-width: 1100px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Opening */
+.v2-hero { max-width: 72ch; margin: 0 auto 1.5rem; text-align: left; }
+.v2-hero .kicker { margin: 0 0 .5rem; color: var(--label); font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.v2-hero h1 { font-size: 2.25rem; line-height: 1.15; margin: 0 0 .75rem; text-wrap: balance; }
+.v2-hero .intro { font-size: 1.1rem; margin: 0 0 1rem; }
+.stats { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; list-style: none; margin: 0; padding: 0; color: var(--text-muted); }
+.stats strong { color: var(--text); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+
+/* Filter bar: stays at the top while the reader scrolls. */
+.filters { position: sticky; top: 0; z-index: 10; margin: 0 0 1rem; padding: .5rem .75rem; background: var(--bg);
+  border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.filters[hidden] { display: none; }
+.filters > summary { cursor: pointer; font-weight: 600; }
+.filters-count { font-variant-numeric: tabular-nums; }
+.filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin-top: .5rem; }
+.control { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .35rem; font-size: .85rem; }
+.control button { font: inherit; font-size: .85rem; padding: .25rem .6rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--card-bg); color: var(--text); cursor: pointer; }
+.control button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
+.control button:focus-visible, .tabs button:focus-visible, th button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.control select, .phone-sort select { font: inherit; font-size: .85rem; max-width: 16rem; padding: .2rem .3rem; color: var(--text);
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; }
+.picker { position: relative; font-size: .85rem; }
+.picker > summary { cursor: pointer; padding: .25rem .6rem; border: 1px solid var(--border); border-radius: 999px; background: var(--card-bg); }
+.picker-list { position: absolute; right: 0; z-index: 11; width: min(24rem, 90vw); max-height: 60vh; overflow-y: auto; margin-top: .3rem;
+  padding: .5rem .75rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.picker-list fieldset { border: none; margin: .5rem 0 0; padding: 0; }
+.picker-list legend { font-weight: 600; padding: 0; }
+.picker-list label { display: block; padding: .15rem 0; }
+.picker-list .show-all { margin: 0; }
+
+/* Leaderboard */
+.board-card { padding-top: .75rem; }
+.tabs { display: flex; flex-wrap: wrap; gap: .25rem; border-bottom: 1px solid var(--border); margin: 0 0 .75rem; }
+.tabs[hidden] { display: none; }
+.tabs button { font: inherit; font-weight: 600; padding: .5rem .9rem; border: none; border-bottom: 3px solid transparent; background: none;
+  color: var(--text-muted); cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--primary); }
+table.board caption { text-align: left; color: var(--text-muted); font-size: .85rem; margin-bottom: .5rem; }
+table.board td.model { min-width: 12rem; }
+table.board th button { font: inherit; font-weight: 600; color: inherit; background: none; border: none; padding: 0; cursor: pointer; text-align: inherit; }
+table.board th.reading { color: var(--reading-text); }
+table.board th.grammar { color: var(--grammar-text); }
+.tab-title { font-size: 1.1rem; margin: 0 0 .5rem; }
+.route-controls { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin: 0 0 .75rem; }
+.table-title { font-weight: 600; margin: 0; }
+.scope { color: var(--text-muted); font-size: .85rem; margin: 0 0 .5rem; }
+.tab-notes { color: var(--text-muted); font-size: .875rem; max-width: 80ch; }
+.tab-notes p { margin: .5rem 0 0; }
+.aa-line { max-width: 80ch; margin: 1rem 0 0; }
+.phone-sort { display: none; font-size: .85rem; margin: 0 0 .5rem; }
+
+/* Tooltips: on hover and on keyboard focus or tap, so they work on phones. They open to the left of their anchor,
+   which sits at the right of a number column, and never past the screen's edge. */
+.hint { position: relative; cursor: help; text-decoration: underline dotted; text-underline-offset: 3px; }
+.hint:hover::after, .hint:focus::after {
+  content: attr(data-tip); position: absolute; right: 0; top: calc(100% + 4px); z-index: 12; width: max-content; max-width: min(18rem, 80vw);
+  padding: .4rem .6rem; background: var(--text); color: var(--card-bg); border-radius: 4px; font-size: .78rem; font-weight: 400;
+  line-height: 1.35; text-align: left; white-space: normal;
+}
+.hint:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Charts */
+.charts { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0 0; }
+.charts[hidden] { display: none; }
+@media (min-width: 1000px) { .charts { grid-template-columns: 1fr 1fr; } .chart-more { grid-column: 1 / -1; } }
+.chart-card { margin: 0; min-width: 0; }
+.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+.chart-head h2 { font-size: 1.1rem; margin: 0; padding: 0; border: none; }
+.chart-box { width: 100%; min-width: 0; }
+.chart-scroll { max-height: var(--chart-max, 360px); overflow-y: auto; overflow-x: hidden; }
+.chart-scroll svg { display: block; }
+.chart-box .grid { stroke: var(--border); stroke-width: 1; }
+.chart-box text { font-size: 12px; font-family: inherit; }
+.chart-box .tick { fill: var(--text-muted); }
+.chart-box .label, .chart-box .value { fill: var(--text); }
+.chart-box .value.muted { fill: var(--text-muted); }
+.chart-box .bar-decision, .chart-box .dot-decision { fill: var(--primary); }
+.chart-box .bar-chat, .chart-box .dot-chat { fill: var(--text-muted); }
+.chart-box .whisker { stroke: var(--text); stroke-width: 1.5; }
+.chart-box .leader { stroke: var(--text-muted); stroke-width: 1; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: .5rem 0 0; font-size: .8rem; }
+i.key.key-decision { background: var(--primary); }
+i.key.key-chat { background: var(--text-muted); }
+.chart-more { margin: 0; }
+
+/* Links and footer */
+.v2-links { margin: 1.5rem 0; }
+.v2-links ul { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; list-style: none; margin: 0; padding: 0; }
+.v2-links .soon { margin-left: .3rem; padding: 0 .4rem; border: 1px solid var(--border); border-radius: 999px; color: var(--text-muted);
+  font-size: .78rem; white-space: nowrap; }
+.v2-footer { margin-top: 1rem; }
+.v2-footer p { margin: .25rem 0; }
+
+@media (max-width: 640px) {
+  .v2-hero h1 { font-size: 1.7rem; }
+  .v2-hero .intro { font-size: 1rem; }
+  .filter-row { gap: .5rem; }
+  .picker-list { position: static; width: auto; max-height: 50vh; }
+  /* A select is as wide as its longest option; here it takes the row's width instead. */
+  label.control { display: flex; flex-wrap: nowrap; width: 100%; }
+  .control select { flex: 1 1 auto; min-width: 0; max-width: none; }
+  .tabs { gap: 0; }
+  .tabs button { padding: .5rem .45rem; font-size: .95rem; }
+  .phone-sort { display: block; }
+  /* The leaderboard as a list: the model on its own line, its values under it, each with its column's name. */
+  table.board.list thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.board.list caption { display: block; }
+  table.board.list, table.board.list tbody { display: block; }
+  table.board.list tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .75rem; padding: .5rem 0;
+    border-bottom: 1px solid var(--border); }
+  table.board.list td { border: none; padding: .15rem 0; text-align: left; white-space: normal; }
+  table.board.list td.model { grid-column: 1 / -1; min-width: 0; }
+  table.board.list td[data-label]::before { content: attr(data-label); display: block; color: var(--text-muted); font-size: .75rem; }
+  table.board.list td.num .small { display: inline; margin-left: .35rem; }
+  /* On a phone a tooltip opens as a strip along the bottom of the screen, so it never runs past an edge. */
+  .hint:hover::after, .hint:focus::after { position: fixed; left: .5rem; right: .5rem; bottom: .5rem; top: auto; width: auto; max-width: none;
+    font-size: .85rem; }
+}
