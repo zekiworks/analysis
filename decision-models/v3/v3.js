@@ -930,8 +930,9 @@ function renderCharts() {
 }
 
 /* On a laptop, a small chart beside the intro: accuracy with its 95% interval for the setups the ranking chart shows,
-   following the filters, as one link to the full charts. With more setups than fit, the rows narrow and the names give
-   way to the dots; the link's label still counts them. */
+   following the filters, as one link to the full charts. Its axis fits the intervals in view, each end on a 10% line,
+   so short intervals stay visible. With more setups than fit, the rows narrow and the names give way to the dots; the
+   link's label still counts them. */
 function miniChart() {
   const box = document.querySelector('[data-mini-chart]');
   if (!box || !LAPTOP.matches) return;
@@ -954,22 +955,34 @@ function miniChart() {
   const top = 2;
   const base = top + runs.length * row;
   const height = base + 18;
-  const x = scale([0, 1], [labelWidth + 8, width - valueWidth - 6], false);
-  const parts = [0, 0.25, 0.5, 0.75, 1].map(value =>
+  const intervals = new Map(runs.map(run => {
+    const { correct, questions } = counts(run);
+    return [run, wilson(correct, questions)];
+  }));
+  const ends = [...intervals.values()];
+  const domain = [Math.max(0, Math.floor((Math.min(...ends.map(end => end[0])) - 0.02) * 10) / 10),
+    Math.min(1, Math.ceil((Math.max(...ends.map(end => end[1])) + 0.02) * 10) / 10)];
+  /* Ticks every 10 points, or every 20 over a wider range; the axis starts on a tick. */
+  const step = domain[1] - domain[0] <= 0.5 + 1e-9 ? 0.1 : 0.2;
+  domain[0] = Math.floor(domain[0] / step + 1e-9) * step;
+  const ticks = [];
+  for (let tick = domain[0]; tick <= domain[1] + 1e-9; tick += step) ticks.push(tick);
+  const x = scale(domain, [labelWidth + 8, width - valueWidth - 6], false);
+  const parts = ticks.map(value =>
     `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>` +
     `<text class="tick" x="${x(value)}" y="${base + 13}" text-anchor="middle">${percent(value, 0)}</text>`);
   runs.forEach((run, index) => {
     const mid = top + index * row + row / 2;
     const value = measure.value(run);
-    const { correct, questions } = counts(run);
-    const [low, high] = wilson(correct, questions);
+    const [low, high] = intervals.get(run);
     const selected = run.run === state.selected;
     const label = named
       ? `<text x="${labelWidth}" y="${mid + 4}" text-anchor="end">${esc(truncate(labels.get(run).text, labelWidth, selected ? 700 : 400, 11))}</text>`
       : '';
     const figure = named ? `<text class="value" x="${width}" y="${mid + 4}" text-anchor="end">${measure.text(value)}</text>` : '';
-    parts.push(`<g class="row${selected ? ' is-selected' : ''}">${label}<path class="whisker" d="M${x(low)} ${mid}H${x(high)}"/>` +
-      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}" cx="${x(value)}" cy="${mid}" r="${named ? 4 : 2.25}"/>${figure}</g>`);
+    const whisker = named ? `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6` : `M${x(low)} ${mid}H${x(high)}`;
+    parts.push(`<g class="row${selected ? ' is-selected' : ''}">${label}<path class="whisker" d="${whisker}"/>` +
+      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}" cx="${x(value)}" cy="${mid}" r="${named ? 3 : 2}"/>${figure}</g>`);
   });
   box.innerHTML = `${head}<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">${parts.join('')}</svg>`;
 }
