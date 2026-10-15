@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GLiNER2.5-multi-Decide · 1 question per request · Zeki Works</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="GLiNER2.5-multi-Decide · 1 question per request: how we called it, results, confidence, latency and cost.">
+  <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
+  <link rel="stylesheet" href="../../v3.css">
+  <script src="../../site.js" defer></script>
+</head>
+<body class="v3">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="../../">Zeki Works · Decision models · answer key v2</a>
+    <nav class="nav" aria-label="Pages"><ul><li><a href="../../questions/">Every question</a></li><li><a href="../../disagreements/">Where models disagree</a></li><li><a href="../../topics/">Topics</a></li><li><a href="../../compare/">Compare</a></li><li><a href="../../method/">Method</a></li><li><a href="../../data/">Data</a></li></ul></nav>
+    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" data-theme-choice="dark" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>Dark background</button><button type="button" class="key" data-theme-choice="light" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Light background</button></div>
+  </header>
+  <main id="main">
+    <section class="card">
+      <p class="eyebrow">Decision model</p>
+      <h1>GLiNER2.5-multi-Decide</h1>
+      <p class="subtitle">1 question per request</p>
+      <p>20.2% of the 2,198 questions right (18.6% to 21.9%, 95% interval). <a href="../../">Back to the leaderboard</a>.</p>
+    </section>
+    <section class="card" id="called">
+      <h2>How we called it</h2>
+      <dl class="facts"><dt>Kind</dt><dd>Decision model</dd><dt>Access</dt><dd>GLiNER2 server, self-hosted</dd><dt>Paid as</dt><dd>Our own hardware</dd><dt>Model ID</dt><dd><code>gliner2.5-multi-decide</code></dd><dt>Parameters</dt><dd>287M</dd><dt>Hardware</dt><dd>1 × RTX PRO 6000 Blackwell (96 GB); FP16</dd><dt>Note</dt><dd>Fastino&#x27;s decision fine-tune of GLiNER2.5 Multi</dd><dt>Confidence from</dt><dd>Option score</dd><dt>Run</dt><dd>135, 7 October 2026</dd></dl>
+    </section>
+    <section class="card" id="settings">
+      <h2>Settings</h2>
+      <dl class="facts"><dt>Reasoning</dt><dd>off</dd><dt>Request format</dt><dd>1 question per request</dd><dt>Requests at once</dt><dd>1</dd><dt>Temperature</dt><dd>not recorded</dd><dt>Harness seed</dt><dd>0</dd><dt>Harness commit</dt><dd>not recorded</dd><dt>Prompt version</dt><dd>not recorded</dd></dl>
+    </section>
+    <section class="card" id="results">
+      <h2>Results</h2>
+      <div class="table-wrap"><table><thead><tr><th scope="col">Questions</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">95% interval</th><th scope="col" class="num">Right</th></tr></thead><tbody><tr><th scope="row">All questions</th><td class="num">20.2%</td><td class="num">18.6% to 21.9%</td><td class="num">444 of 2,198</td></tr><tr><th scope="row">Reading</th><td class="num">21.0%</td><td class="num">18.1% to 24.3%</td><td class="num">138 of 656</td></tr><tr><th scope="row">Grammar</th><td class="num">19.8%</td><td class="num">17.9% to 21.9%</td><td class="num">306 of 1,542</td></tr></tbody></table></div><p>Comparison group: <span class="hint" tabindex="0" data-tip="The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."><strong>u</strong></span>. <a href="../../compare/?a=135">Compare with another setup</a>.</p><details class="show-table"><summary>Accuracy by topic</summary><div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Topic</th><th scope="col">Part</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">Right</th></tr></thead><tbody><tr><td><a href="../../topics/1/">Word and phrase meanings</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">22.1%</td><td class="num" data-label="Right">29 of 131</td></tr><tr><td><a href="../../topics/2/">Sentence meanings</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">23.4%</td><td class="num" data-label="Right">36 of 154</td></tr><tr><td><a href="../../topics/3/">How a writer explains and develops ideas</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">17.1%</td><td class="num" data-label="Right">12 of 70</td></tr><tr><td><a href="../../topics/4/">Topic and main point of a paragraph</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">22.4%</td><td class="num" data-label="Right">22 of 98</td></tr><tr><td><a href="../../topics/5/">How a paragraph fits together</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">14.2%</td><td class="num" data-label="Right">15 of 106</td></tr><tr><td><a href="../../topics/6/">Details that support a paragraph’s main point</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">24.7%</td><td class="num" data-label="Right">24 of 97</td></tr><tr><td><a href="../../topics/7/">Word types, such as nouns and verbs</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">17.9%</td><td class="num" data-label="Right">25 of 140</td></tr><tr><td><a href="../../topics/8/">Groups of words built around a noun</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">12.3%</td><td class="num" data-label="Right">8 of 65</td></tr><tr><td><a href="../../topics/9/">Verbs and their forms</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">25.3%</td><td class="num" data-label="Right">23 of 91</td></tr><tr><td><a href="../../topics/10/">Verb forms used like nouns or modifiers</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">12.5%</td><td class="num" data-label="Right">9 of 72</td></tr><tr><td><a href="../../topics/11/">Word endings and what they do</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">17.7%</td><td class="num" data-label="Right">14 of 79</td></tr><tr><td><a href="../../topics/12/">How words are built</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">20.3%</td><td class="num" data-label="Right">14 of 69</td></tr><tr><td><a href="../../topics/13/">The roles of words and phrases in a sentence</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">25.5%</td><td class="num" data-label="Right">37 of 145</td></tr><tr><td><a href="../../topics/14/">How verbs show who acts and who receives the action</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">24.3%</td><td class="num" data-label="Right">18 of 74</td></tr><tr><td><a href="../../topics/15/">Types of sentences</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">17.6%</td><td class="num" data-label="Right">15 of 85</td></tr><tr><td><a href="../../topics/16/">Questions combining several grammar topics</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">17.7%</td><td class="num" data-label="Right">39 of 220</td></tr><tr><td><a href="../../topics/17/">Sound patterns and changes</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">19.5%</td><td class="num" data-label="Right">15 of 77</td></tr><tr><td><a href="../../topics/18/">Spelling</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">19.5%</td><td class="num" data-label="Right">26 of 133</td></tr><tr><td><a href="../../topics/19/">Punctuation</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">23.1%</td><td class="num" data-label="Right">27 of 117</td></tr><tr><td><a href="../../topics/20/">Problems in sentence wording</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">20.6%</td><td class="num" data-label="Right">36 of 175</td></tr></tbody></table></div></details>
+    </section>
+    <section class="card" id="confidence">
+      <h2>Confidence</h2>
+      <dl class="facts"><dt>Answers kept at 99% or more</dt><dd>0, of which 0 wrong</dd><dt>Calibration gap</dt><dd>23.1 points</dd><dt><span class="hint" tabindex="0" data-tip="ranking score">AUROC</span>, all questions</dt><dd>0.54 <span class="small inline">0.51 to 0.57</span></dd><dt>AUROC, reading</dt><dd>0.56 <span class="small inline">0.51 to 0.61</span></dd><dt>AUROC, grammar</dt><dd>0.53 <span class="small inline">0.49 to 0.57</span></dd><dt>Brier score</dt><dd>0.233</dd><dt>Accuracy of its surest answers</dt><dd>most confident fifth: 23.4% right; most confident half: 21.6% right; most confident four fifths: 21.3% right</dd><dt>Typical score of a right answer</dt><dd>40.7%</dd><dt>Typical score of a wrong answer</dt><dd>38.5%</dd></dl>
+    </section>
+    <section class="card" id="repeats">
+      <h2>Repeats</h2>
+      <p>We did not repeat this setup.</p>
+    </section>
+    <section class="card" id="latency">
+      <h2>Latency</h2>
+      <dl class="facts"><dt>Latency, median request</dt><dd>9 ms (this run)</dd><dt>Latency, 90th percentile</dt><dd>10 ms</dd><dt>Requests at once</dt><dd>1</dd><dt>Throughput</dt><dd>6615.9 questions per minute</dd><dt>Total run time</dt><dd>0.3 minutes</dd></dl><p class="note">Latency: the time from sending one request to receiving its answer, measured from our computer, network and retries included.</p>
+    </section>
+    <section class="card" id="cost">
+      <h2>Cost</h2>
+      <dl class="facts"><dt>$ per 1,000 questions</dt><dd><span class="nm">Not measured</span></dd><dt>Basis</dt><dd>No dollar estimate; see hardware and time</dd><dt>Input tokens per question</dt><dd>196</dd><dt>Output tokens per question</dt><dd>0</dd></dl>
+    </section>
+  </main>
+  <footer class="footer">
+    <p>Download: <a href="../../../results.json" download>results.json</a> · <a href="../../../answers.json" download>answers.json</a></p>
+    <p>Results 84d533b4, updated 13 October 2026; answer key version 2.</p>
+  </footer>
+</body>
+</html>
