@@ -131,6 +131,8 @@ h1, h2, h3 { line-height: 1.2; }
 .nav a[aria-current="page"] { border-bottom-color: var(--text); }
 .theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; }
 .theme-switch[hidden] { display: none; }
+/* With the script, the switch shows from the first paint, so nothing moves when site.js wires it. */
+.js .theme-switch[hidden] { display: inline-flex; }
 
 /* Keys: the only things that look pressable. A pressed key sinks (inset), takes a clear edge and lights its lamp; its size
    never changes, so nothing around it moves. */
@@ -169,7 +171,47 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .readout-value { font-family: var(--mono); font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .readout-label { color: var(--text-2); font-size: .85rem; }
 .version { margin: 0; color: var(--text-2); font-size: .78rem; }
+/* The summary: a lead line, then one short line per measure; each label opens its tab. */
 .summary { margin: 0; font-size: 1rem; }
+.summary-lead { margin: 0 0 .2rem; }
+.summary-list { margin: 0; padding: 0; list-style: none; }
+.summary-list li { margin: .12rem 0; }
+.summary-list a { font-weight: 600; }
+
+/* On a laptop, a small chart beside the intro: accuracy with its 95% interval for the setups the ranking chart shows. It
+   is one link to the charts; its height is kept before it draws, so the page does not move. */
+.mini-chart { display: none; }
+@media (min-width: 1024px) {
+  .hero { display: grid; grid-template-columns: minmax(0, 76ch) minmax(18rem, 1fr); grid-template-areas: "title ." "intro chart"
+    "readouts chart" "summary chart"; column-gap: 2.5rem; align-items: start; max-width: none; }
+  .hero h1 { grid-area: title; }
+  .hero .intro { grid-area: intro; }
+  .hero .readout-row { grid-area: readouts; }
+  .hero .summary { grid-area: summary; }
+  .mini-chart { grid-area: chart; display: block; min-height: 14rem; padding: .6rem .75rem .5rem; color: var(--text); text-decoration: none;
+    background: var(--panel); border: 1px solid var(--edge); border-radius: 10px; box-shadow: var(--shadow); }
+  .mini-chart:hover { border-color: var(--control-edge); }
+}
+.mini-head { display: flex; justify-content: space-between; gap: .75rem; margin-bottom: .3rem; color: var(--text-2); font-size: .78rem; }
+.mini-head .go { color: var(--link); text-decoration: underline; white-space: nowrap; }
+.mini-chart svg { display: block; }
+.mini-chart svg text { font-family: var(--sans); font-size: 11px; fill: var(--text); }
+.mini-chart .tick { fill: var(--text-2); }
+.mini-chart .grid { stroke: var(--edge); stroke-width: 1; }
+.mini-chart .whisker { fill: none; stroke: var(--text); stroke-width: 1.25; }
+.mini-chart .dot-decision { fill: var(--data-decision); }
+.mini-chart .dot-chat { fill: var(--data-chat); }
+.mini-chart svg .value { font-family: var(--mono); }
+.mini-chart .row.is-selected text { font-weight: 700; }
+.mini-chart .row.is-selected circle { stroke: var(--text); stroke-width: 1.5; }
+.mini-chart.has-selection .row:not(.is-selected) circle, .mini-chart.has-selection .row:not(.is-selected) .whisker { opacity: var(--dim); }
+.mini-chart.has-selection .row:not(.is-selected) text { fill: var(--text-2); }
+.mini-empty { margin: .5rem 0 0; color: var(--text-2); font-size: .85rem; }
+
+/* Phone-only parts (shown by the phone rules below): the Table · Charts switch, the swipe label, the versions under the
+   table and the model type inside the filter panel. */
+.view-switch, .swipe-hint, .version-below { display: none; }
+.filters .panel-only { display: none; }
 
 /* Filters: labelled groups; the bar keeps the model type, the count, a summary and Reset in view when the panel is
    closed. The panel sits in the page's flow, so it never covers the tabs or the table. */
@@ -226,6 +268,13 @@ button.mode[aria-selected="true"]::after { content: ""; position: absolute; left
 /* Tables: the model's name prominent, its settings smaller below; numbers right-aligned in a fixed-width face, one
    number of decimals per column, the unit in the header. */
 .table-wrap { overflow-x: auto; }
+/* While columns are hidden to the right, a soft fade on the table's right edge shows there is more to scroll to. */
+.table-frame { position: relative; }
+.table-frame::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 2.25rem; pointer-events: none;
+  background: linear-gradient(to right, transparent, var(--panel)); opacity: 0; transition: opacity .2s; }
+.table-frame.more-right::after { opacity: 1; }
+.swipe-hint { margin: 0 0 .35rem; color: var(--text-2); font-size: .78rem; text-align: right; }
+.swipe-hint.is-done { visibility: hidden; }
 table { width: 100%; border-collapse: collapse; font-size: .875rem; }
 caption { text-align: left; color: var(--text-2); font-size: .85rem; margin-bottom: .5rem; }
 th, td { padding: .5rem .65rem; border-bottom: 1px solid var(--edge); text-align: left; vertical-align: top; }
@@ -314,6 +363,11 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 /* Charts: two, below the table. Room is kept for each before it draws, so the page does not move. */
 .charts { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1rem 0 0; }
 @media (min-width: 1000px) { .charts { grid-template-columns: 1fr 1fr; } .chart-more { grid-column: 1 / -1; } }
+/* On a phone, "Charts" shows them inside the leaderboard panel, in the table's place. */
+.board-panel.shows-charts #board, .board-panel.shows-charts .swipe-hint { display: none; }
+.board-panel .charts { margin: .25rem 0 0; }
+.board-panel .chart-card { padding: 0; border: 0; box-shadow: none; }
+.board-panel .chart-card + .chart-card { padding-top: 1rem; border-top: 1px solid var(--edge); }
 .chart-card { margin: 0; min-width: 0; }
 .chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-bottom: .5rem; }
 .chart-head h2 { margin: 0 auto 0 0; padding: 0; border: 0; font-size: 1.05rem; }
@@ -433,15 +487,50 @@ ul.price-list { padding-left: 1.25rem; }
    inside the table's wrapper; at 375 px at least two number columns show next to it. */
 @media (max-width: 640px) {
   body { padding: 0 .6rem 1.5rem; }
-  .topbar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "brand" "theme" "nav"; gap: .4rem; }
-  .nav ul { gap: .1rem .9rem; }
+  /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
+     that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
+  .topbar { grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem; margin-bottom: .7rem; padding: .45rem 0 .3rem; }
+  .brand { font-size: .66rem; letter-spacing: .04em; }
+  .theme-switch { gap: .25rem; }
+  .theme-switch .key { min-height: 1.75rem; padding: .15rem .45rem; gap: .3rem; font-size: .78rem; }
+  .theme-switch .long { display: none; }
+  /* Padding inside the scrolling bar keeps a focused link's outline unclipped; the negative margin keeps the row's size. */
+  .nav ul { flex-wrap: nowrap; gap: 1rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
+    scroll-padding-inline: .35rem; }
+  .nav ul::-webkit-scrollbar { display: none; }
+  .nav li { flex: none; }
+  .nav a { white-space: nowrap; }
   .panel, .card { padding: .75rem; border-radius: 8px; }
-  .hero h1 { font-size: 1.7rem; }
-  .hero .intro { font-size: 1rem; }
+  .hero { margin-bottom: .75rem; }
+  .hero h1 { font-size: 1.45rem; margin-bottom: .45rem; }
+  .hero .intro { font-size: .95rem; line-height: 1.45; margin-bottom: .55rem; }
+  .readout-row { padding: .3rem 0; margin-bottom: .55rem; }
+  .readouts { flex-wrap: nowrap; }
+  .readout { gap: .2rem; margin-right: .4rem; padding-right: .4rem; white-space: nowrap; }
+  .readout-value { font-size: .82rem; }
+  .readout-label { font-size: .72rem; }
+  .hero .version { display: none; }
+  .version-below { display: block; margin-top: .6rem; }
+  .summary { font-size: .9rem; line-height: 1.4; }
+  /* One filter row: the Filters key, the summary of the active filters and Reset; the model type is inside the panel. */
+  .filters { padding: .45rem .6rem; margin-bottom: .75rem; }
+  .filters-bar { flex-wrap: nowrap; gap: .5rem; }
+  .filters .bar-only { display: none; }
+  .filters .panel-only { display: flex; }
+  .filters-summary { flex: 1 1 auto; min-width: 0; }
   .filters-body { gap: .8rem; }
-  .modes { gap: .3rem; }
-  button.mode { padding: .3rem .55rem; font-size: .9rem; }
-  .in-view { margin-left: 0; }
+  /* The leaderboard panel: the Table · Charts switch and the question count, then the four tabs on one row. */
+  .board-panel { padding-top: .6rem; }
+  .modebar { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "view count" "tabs tabs"; gap: .45rem .5rem;
+    margin-bottom: .5rem; padding-bottom: .55rem; }
+  .view-switch { grid-area: view; display: inline-flex; }
+  .view-switch .key { min-height: 1.9rem; padding: .15rem .55rem; font-size: .8rem; }
+  .modes { grid-area: tabs; display: flex; flex-wrap: wrap; gap: .25rem; }
+  button.mode { flex: 1 1 auto; justify-content: center; gap: .25rem; padding: .3rem .2rem; font-size: .78rem; }
+  .in-view { grid-area: count; justify-self: end; margin-left: 0; }
+  .charts-link { display: none; }
+  .swipe-hint:not([hidden]) { display: block; }
+  .swiped .swipe-hint { display: none; }
   .chart-box { min-height: 22rem; }
   .route-map { grid-template-columns: 1fr; justify-items: start; }
   .rm-wire { width: 2px; height: 1rem; margin-left: 1.25rem; transform-origin: top center; }

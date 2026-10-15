@@ -49,6 +49,7 @@ const ROUTE_RULES = [
 const ROUTE_TESTS = ['replay', 'live'];
 const PHONE = window.matchMedia('(max-width: 640px)');
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)');
+const LAPTOP = window.matchMedia('(min-width: 1024px)');
 
 /* ---- Numbers ---- */
 
@@ -134,6 +135,8 @@ const state = {
   measure: 'accuracy',
   across: 'cost',
   showAll: false,
+  /* On a phone, the leaderboard panel shows the table or the charts; kept in the history entry, not in the URL. */
+  view: 'table',
 };
 /* Each tab's order when it opens: the Routing tab by the share of the LLM's questions taken, the others by accuracy. */
 const DEFAULT_SORTS = { routing: { key: 'share', descending: true } };
@@ -431,7 +434,7 @@ function renderBoard() {
       `${tab.columns.map(column => `<td class="num">${column.cell(row)}</td>`).join('')}</tr>`)
     .join('');
   const table = rows.length
-    ? `<div class="table-wrap"><table class="board"><thead><tr><th scope="col">Model</th>${tab.columns.map(header).join('')}</tr></thead><tbody>${body}</tbody></table></div>`
+    ? `<div class="table-frame"><div class="table-wrap"><table class="board"><thead><tr><th scope="col">Model</th>${tab.columns.map(header).join('')}</tr></thead><tbody>${body}</tbody></table></div></div>`
     : `<div class="empty-state" role="status"><p><span class="icon" aria-hidden="true">⚠</span> ${esc(emptyReason())}</p>` +
       '<button type="button" class="key" data-control="reset">Reset filters</button></div>';
   const routing =
@@ -449,7 +452,50 @@ function renderBoard() {
   const board = document.getElementById('board');
   board.innerHTML = routing + table + marks + (notes ? `<div class="tab-notes">${notes}</div>` : '');
   board.setAttribute('aria-labelledby', `tab-${state.tab}`);
-  document.querySelector('[data-setups]').textContent = `${integer(rows.length)} of ${integer(data.runs.length)} setups`;
+  board.querySelector('.table-wrap')?.addEventListener('scroll', onTableScroll, { passive: true });
+  document.querySelectorAll('[data-setups]').forEach(count => {
+    count.textContent = `${integer(rows.length)} of ${integer(data.runs.length)} setups`;
+  });
+}
+
+/* On a phone the table scrolls sideways inside its frame: a fade on the right edge while columns are hidden there, and a
+   label above the table until the reader first scrolls it (remembered for the session). */
+let swiped = document.documentElement.classList.contains('swiped');
+function edgeFade(wrap) {
+  wrap.parentElement.classList.toggle('more-right', wrap.scrollLeft + wrap.clientWidth < wrap.scrollWidth - 1);
+}
+function updateSwipe() {
+  const wrap = document.querySelector('#board .table-wrap');
+  const hint = document.querySelector('[data-swipe-hint]');
+  hint.classList.remove('is-done');
+  hint.hidden = swiped || !wrap || wrap.scrollWidth - wrap.clientWidth <= 1;
+  if (wrap) edgeFade(wrap);
+}
+function onTableScroll(event) {
+  const wrap = event.currentTarget;
+  if (!swiped && wrap.scrollLeft > 0) {
+    swiped = true;
+    try {
+      sessionStorage.setItem('v3-swiped', '1');
+    } catch (error) {
+      /* Storage may be unavailable; the label then returns on the next page view. */
+    }
+    /* Hidden in place, so the table does not move under the reader's finger; the next render drops the line. */
+    document.querySelector('[data-swipe-hint]').classList.add('is-done');
+  }
+  edgeFade(wrap);
+}
+
+/* On a phone, the Table · Charts switch shows the charts in the table's place, with the same filters and tab; elsewhere
+   the charts stay below the leaderboard. */
+function placeCharts() {
+  const panel = document.querySelector('.board-panel');
+  const charts = document.getElementById('charts');
+  const inPanel = PHONE.matches && state.view === 'charts';
+  if (inPanel && charts.parentElement !== panel) panel.querySelector('.version-below').before(charts);
+  else if (!inPanel && charts.parentElement === panel) panel.after(charts);
+  panel.classList.toggle('shows-charts', inPanel);
+  document.querySelectorAll('[data-view]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === state.view)));
 }
 
 function keys(name, options, current) {
@@ -880,6 +926,52 @@ function renderCharts() {
   button.lastChild.textContent = state.showAll ? 'Show the default setups' : `Show all ${data.runs.length}`;
   barChart(document.querySelector('[data-chart="measures"]'));
   scatterChart(document.querySelector('[data-chart="tradeoff"]'));
+  miniChart();
+}
+
+/* On a laptop, a small chart beside the intro: accuracy with its 95% interval for the setups the ranking chart shows,
+   following the filters, as one link to the full charts. With more setups than fit, the rows narrow and the names give
+   way to the dots; the link's label still counts them. */
+function miniChart() {
+  const box = document.querySelector('[data-mini-chart]');
+  if (!box || !LAPTOP.matches) return;
+  const measure = MEASURES.accuracy;
+  const runs = chartRuns().filter(run => measure.value(run) != null).sort((a, b) => measure.value(b) - measure.value(a));
+  const head = '<span class="mini-head"><span>Accuracy (%), with 95% intervals</span><span class="go">Charts ↓</span></span>';
+  box.setAttribute('aria-label', `Accuracy with 95% intervals for the ${integer(runs.length)} setups in view. Go to the charts.`);
+  box.classList.toggle('has-selection', runs.some(run => run.run === state.selected));
+  if (!runs.length) {
+    box.innerHTML = `${head}<p class="mini-empty">${esc(emptyReason())}</p>`;
+    return;
+  }
+  const labels = chartLabels(runs);
+  const style = getComputedStyle(box);
+  const width = Math.floor(box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight));
+  const named = runs.length <= 14;
+  const row = named ? 20 : Math.max(5, Math.floor(280 / runs.length));
+  const labelWidth = named ? Math.min(150, Math.round(width * 0.38)) : 0;
+  const valueWidth = named ? 34 : 0;
+  const top = 2;
+  const base = top + runs.length * row;
+  const height = base + 18;
+  const x = scale([0, 1], [labelWidth + 8, width - valueWidth - 6], false);
+  const parts = [0, 0.25, 0.5, 0.75, 1].map(value =>
+    `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>` +
+    `<text class="tick" x="${x(value)}" y="${base + 13}" text-anchor="middle">${percent(value, 0)}</text>`);
+  runs.forEach((run, index) => {
+    const mid = top + index * row + row / 2;
+    const value = measure.value(run);
+    const { correct, questions } = counts(run);
+    const [low, high] = wilson(correct, questions);
+    const selected = run.run === state.selected;
+    const label = named
+      ? `<text x="${labelWidth}" y="${mid + 4}" text-anchor="end">${esc(truncate(labels.get(run).text, labelWidth, selected ? 700 : 400, 11))}</text>`
+      : '';
+    const figure = named ? `<text class="value" x="${width}" y="${mid + 4}" text-anchor="end">${measure.text(value)}</text>` : '';
+    parts.push(`<g class="row${selected ? ' is-selected' : ''}">${label}<path class="whisker" d="M${x(low)} ${mid}H${x(high)}"/>` +
+      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}" cx="${x(value)}" cy="${mid}" r="${named ? 4 : 2.25}"/>${figure}</g>`);
+  });
+  box.innerHTML = `${head}<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">${parts.join('')}</svg>`;
 }
 
 /* A chart as a PNG that keeps what it shows: the condition (measure and filters), the setups, the chart's notes with any
@@ -975,8 +1067,8 @@ function readUrl() {
 /* The filters, the highlighted setup and the chart choices, kept with the browser's history entry rather than the URL,
    so Back from a model's page returns to the same tab and filters. */
 function remembered() {
-  const { part, topic, type, qpr, search, selected, filtersOpen, sort, measure, across, showAll } = state;
-  return { part, topic, type, qpr, picked: [...state.picked], search, selected, filtersOpen, sort, measure, across, showAll };
+  const { part, topic, type, qpr, search, selected, filtersOpen, sort, measure, across, showAll, view } = state;
+  return { part, topic, type, qpr, picked: [...state.picked], search, selected, filtersOpen, sort, measure, across, showAll, view };
 }
 
 function restore() {
@@ -1006,6 +1098,8 @@ function render() {
   definition.hidden = !DEFINITIONS[state.tab];
   renderFilters();
   renderBoard();
+  placeCharts();
+  updateSwipe();
   renderCharts();
   writeUrl();
 }
@@ -1032,7 +1126,24 @@ const toggleSelected = id => {
   state.selected = state.selected === id ? null : id;
 };
 
+/* A label in the summary opens its tab and brings the leaderboard into view, with the tab's key focused. */
+function openTab(tab) {
+  state.tab = tab;
+  state.sort = defaultSort(tab);
+  state.view = 'table';
+  render();
+  document.getElementById(`tab-${tab}`).focus({ preventScroll: true });
+  document.querySelector('.board-panel').scrollIntoView({ behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth', block: 'start' });
+}
+
 function onClick(event) {
+  const jump = event.target.closest('a[data-goto-tab]');
+  if (jump) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    openTab(jump.dataset.gotoTab);
+    return;
+  }
   const button = event.target.closest('button');
   if (!button) {
     const mark = event.target.closest('.chart-box .mark');
@@ -1061,6 +1172,7 @@ function onClick(event) {
   else if (dataset.routeMode) state.route.mode = dataset.routeMode;
   else if (dataset.measure) state.measure = dataset.measure;
   else if (dataset.across) state.across = dataset.across;
+  else if (dataset.view) state.view = dataset.view;
   else if (dataset.control === 'filters') state.filtersOpen = !state.filtersOpen;
   else if (dataset.control === 'reset') {
     if (button.getAttribute('aria-disabled') === 'true') return;
@@ -1133,8 +1245,11 @@ async function start() {
   new ResizeObserver(() => {
     if (window.innerWidth === width) return;
     width = window.innerWidth;
+    updateSwipe();
     renderCharts();
   }).observe(document.body);
+  PHONE.addEventListener('change', render);
+  LAPTOP.addEventListener('change', renderCharts);
 }
 
 start();

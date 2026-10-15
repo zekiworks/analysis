@@ -305,17 +305,20 @@ def copy_checks(data: Data) -> list[str]:
           len(chat_whole) == 2 and all(item["name"].startswith("Qwen3.8-27B") for item in chat_whole))
     check("Stability note: the other chat models were repeated on a sample of 200",
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
-    # The summary line under the counters, with the Routing tab's default choices (the cutoff chosen on half the
-    # questions, replayed): three different decision models lead on accuracy, calibration and saving.
+    # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
+    # replayed): GLiDE leads on accuracy and shares a letter with exactly Decider v1.1 and SubQ Snap; Luna through the
+    # Decisions API has the smallest calibration gap; Decider v1.1 gives the biggest estimated saving in 9 of 10 LLM setups.
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
+    luna = next(run for run in decision if run["model"] == "gpt-6-luna")
 
     def shares(first: dict[str, Any], second: dict[str, Any]) -> bool:
         return any(letter in (second.get("group") or "") for letter in (first.get("group") or ""))
 
-    check("Summary: the most accurate decision model is not clearly ahead of the next two (and is of the fourth)",
-          shares(ranked[0], ranked[1]) and shares(ranked[0], ranked[2]) and not shares(ranked[0], ranked[3]))
+    check("Summary: GLiDE has the highest accuracy among decision models", ranked[0] is glide)
+    check("Summary: GLiDE is not clearly ahead of Decider v1.1 and SubQ Snap, and is of every other decision model",
+          {run["run"] for run in decision if run is not glide and shares(glide, run)} == {decider["run"], subq["run"]})
     calibrated = min(decision, key=lambda run: run["confidence"]["ece"])
-    check("Summary: another decision model had the smallest calibration gap", calibrated is not ranked[0])
+    check("Summary: Luna (Decisions API) had the smallest calibration gap among decision models", calibrated is luna)
     winners = []
     for key, _ in ROUTE_LLMS:
         for size in (1, 16):
@@ -325,8 +328,8 @@ def copy_checks(data: Data) -> list[str]:
                        for run in decision if (run["run"], frontier["run"]) in cascades]
             winners.append(max(savings)[1])
     leader, times = Counter(winners).most_common(1)[0]
-    check("Summary: a third decision model gave the biggest estimated saving in 9 of 10 LLM setups",
-          len(winners) == 10 and times == 9 and leader not in (ranked[0]["run"], calibrated["run"]))
+    check("Summary: Decider v1.1 gave the biggest estimated saving in 9 of 10 LLM setups",
+          len(winners) == 10 and times == 9 and leader == decider["run"])
     return found
 
 

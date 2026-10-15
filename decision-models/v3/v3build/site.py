@@ -57,9 +57,10 @@ def topbar(path: str) -> str:
         f'    <a class="brand" href="{rel(path, "")}">{esc(KICKER)}</a>\n'
         f'    <nav class="nav" aria-label="Pages"><ul>{links}</ul></nav>\n'
         '    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" '
-        'data-theme-choice="dark" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>Dark background</button>'
-        '<button type="button" class="key" data-theme-choice="light" aria-pressed="false"><span class="lamp" aria-hidden="true">'
-        "</span>Light background</button></div>\n"
+        'data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>'
+        'Dark<span class="long"> background</span></button><button type="button" class="key" data-theme-choice="light" '
+        'aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light<span class="long">'
+        " background</span></button></div>\n"
         "  </header>"
     )
 

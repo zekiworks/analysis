@@ -26,3 +26,10 @@
     show();
   });
 })();
+
+/* On a phone the navigation bar scrolls sideways; a link that takes the keyboard focus is brought fully into view. */
+(function keepFocusedLinkInView() {
+  const bar = document.querySelector('.nav ul');
+  if (!bar) return;
+  bar.addEventListener('focusin', event => event.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
+})();
