@@ -13,10 +13,6 @@ from v2build.site import NOT_MEASURED, REPO_URL, Site, esc, interval, latency_te
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
 # The home page's Routing tab LLMs, by their key in page_config.json's named_runs, with the slug of its URL.
 ROUTE_SLUGS = {"opus": "opus", "sonnet_high": "sonnet", "astra": "astra", "sol": "sol", "gemini_low": "gemini-flash"}
-UNPRICED_FIRST = {
-    "local": "Leaves out the first model's hardware cost, which we have not estimated.",
-    "free": "The first model used a free tier; this assumes no charge for it.",
-}
 # What the Settings section shows where a run record holds no value. It never fills in a default.
 NOT_RECORDED = "not recorded"
 
@@ -184,6 +180,8 @@ def cost(site: Site, run: dict[str, Any]) -> str:
 def routing(site: Site, run: dict[str, Any]) -> str | None:
     """What this first model took off each LLM in the replay with the cutoff chosen on half the questions."""
     path = site.model_path(run)
+    unpriced = site.config["unpriced_first"].get(run["billing"])
+    marked = False
     rows = []
     for item in site.results["cascades"]:
         if item["decision"] != run["run"]:
@@ -192,9 +190,9 @@ def routing(site: Site, run: dict[str, Any]) -> str | None:
         alone = site.per_thousand(frontier)
         held = item["held_out"]
         saving = f"{pct(1 - item['usd_per_1000'] / alone, 0)}" if alone else NOT_MEASURED
-        caveat = UNPRICED_FIRST.get(run["billing"])
-        if caveat and alone:
-            saving = f'<span class="hint" tabindex="0" data-tip="{esc(caveat)}">{saving}</span>'
+        if unpriced and alone:
+            saving = f'<span class="hint" tabindex="0" data-tip="{esc(unpriced["tip"])}">{saving}</span><span class="mark">{esc(unpriced["mark"])}</span>'
+            marked = True
         rows.append(
             f"<tr>{site.model_cell(path, frontier)}<td class=\"num\" data-label=\"Share taken\">{pct(held['answered'])}</td>"
             f'<td class="num" data-label="Accuracy change">{bp.points(held["difference"])} points</td>'
@@ -202,11 +200,13 @@ def routing(site: Site, run: dict[str, Any]) -> str | None:
         )
     if not rows:
         return None
+    # The note for the † or ‡, only when the marker is in the table.
+    note = f'<p class="table-note">{esc(unpriced["mark"])} {esc(unpriced["note"])}</p>' if marked else ""
     return ('<p class="note">Replay of recorded answers, cutoff chosen on half the questions, averaged over the splits. '
             f'Savings are estimates from API prices; the <a href="{rel(path, "method/")}#average-cost">Method page</a> explains how.</p>'
             '<div class="table-wrap"><table class="board list"><thead><tr><th scope="col">LLM behind it</th>'
             '<th scope="col" class="num">Share taken</th><th scope="col" class="num">Accuracy change</th><th scope="col" class="num">Saving</th>'
-            f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
+            f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>{note}')
 
 
 def routed_llm(site: Site, run: dict[str, Any]) -> str | None:

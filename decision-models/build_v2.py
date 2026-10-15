@@ -141,6 +141,7 @@ def fallback_table(data: Data) -> str:
 def head(data: Data) -> str:
     site = data.config["site_url"]
     image_url = site + bp.current_images()["preview"]["dark"]
+    size = data.config["images"]["preview"]
     title = f"{TITLE} · Zeki Works"
     text = bp.esc(DESCRIPTION)
     return (
@@ -152,6 +153,8 @@ def head(data: Data) -> str:
         '  <meta property="og:type" content="website">\n'
         f'  <meta property="og:url" content="{site}">\n'
         f'  <meta property="og:image" content="{image_url}">\n'
+        f'  <meta property="og:image:width" content="{size["width"]}">\n'
+        f'  <meta property="og:image:height" content="{size["height"]}">\n'
         '  <meta name="twitter:card" content="summary_large_image">\n'
         f'  <meta name="twitter:title" content="{bp.esc(title)}">\n'
         f'  <meta name="twitter:description" content="{text}">\n'
@@ -180,6 +183,8 @@ def page_settings(data: Data) -> str:
         # A chart label for a setup whose model ID another setup shares, by provider then model.
         "chartLabels": data.config["chart_labels"],
         "chartDecisionModels": CHART_DECISION_MODELS,
+        # A saving whose first model has no price: its marker, tooltip and note, by billing.
+        "unpricedFirst": {key: value for key, value in data.config["unpriced_first"].items() if key != "about"},
         "routeLlms": [
             {"key": key, "label": label, "runs": {str(size): data.named(key, size)["run"] for size in (1, 16)}}
             for key, label in ROUTE_LLMS

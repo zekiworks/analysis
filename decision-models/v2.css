@@ -12,11 +12,14 @@ body.v2 main, body.v2 footer { max-width: 1100px; }
 .stats { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; list-style: none; margin: 0; padding: 0; color: var(--text-muted); }
 .stats strong { color: var(--text); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
 
-/* Filter bar: stays at the top while the reader scrolls. */
+/* Filter bar: stays at the top while the reader scrolls. The panel folds away; the model type and the count of setups
+   in view stay visible beside it. */
 .filters { position: sticky; top: 0; z-index: 10; margin: 0 0 1rem; padding: .5rem .75rem; background: var(--bg);
   border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
 .filters[hidden] { display: none; }
-.filters > summary { cursor: pointer; font-weight: 600; }
+.filter-panel > summary { cursor: pointer; font-weight: 600; }
+.type-row { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .75rem; margin-top: .5rem; }
+.setup-count { color: var(--text-muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
 .filters-count { font-variant-numeric: tabular-nums; }
 .filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin-top: .5rem; }
 .control { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .35rem; font-size: .85rem; }
@@ -54,7 +57,12 @@ table.board th.grammar { color: var(--grammar-text); }
 .tab-notes { color: var(--text-muted); font-size: .875rem; max-width: 80ch; }
 .tab-notes p { margin: .5rem 0 0; }
 .aa-line { max-width: 80ch; margin: 1rem 0 0; }
-.phone-sort { display: none; font-size: .85rem; margin: 0 0 .5rem; }
+.phone-sort { display: none; flex-wrap: wrap; align-items: center; gap: .35rem .75rem; font-size: .85rem; margin: 0 0 .5rem; }
+.sort-direction { font: inherit; font-size: .85rem; padding: .2rem .55rem; color: var(--text); background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+.sort-direction:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+/* The † or ‡ after a saving whose first model has no price; the notes under the table explain them. */
+.mark { margin-left: .15em; }
 
 /* Tooltips: on hover and on keyboard focus or tap, so they work on phones. They open to the left of their anchor,
    which sits at the right of a number column, and never past the screen's edge. */
@@ -133,7 +141,7 @@ body.v2 p code, body.v2 td code, body.v2 li code { overflow-wrap: anywhere; word
   .control select { flex: 1 1 auto; min-width: 0; max-width: none; }
   .tabs { gap: 0; }
   .tabs button { padding: .5rem .45rem; font-size: .95rem; }
-  .phone-sort { display: block; }
+  .phone-sort { display: flex; }
   /* The leaderboard as a list: the model on its own line, its values under it, each with its column's name. */
   table.board.list thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   table.board.list caption { display: block; }

@@ -36,7 +36,7 @@ None of these commands needs a private file:
 python3 reproduce.py                                       # recompute the published numbers
 cargo run --release --manifest-path chart-renderer/Cargo.toml -- results.json charts   # the graphs
 cargo test --manifest-path chart-renderer/Cargo.toml       # compare each graph with its snapshot
-python3 build_page.py                                      # the sharing images, the X posts, CITATION.cff
+python3 build_page.py                                      # the link preview image, CITATION.cff
 python3 build_v2.py                                        # the site
 python3 -m http.server 8000                                # preview at http://127.0.0.1:8000/
 ```
@@ -65,18 +65,18 @@ python3 -m http.server 8000                                # preview at http://1
   10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals of AUROC and of the kept
   answers' accuracy, and the other tables, are not recomputed.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json` (see below).
-- **The sharing images, X posts and citation**: `build_page.py` runs `reproduce.py` first and stops
-  unless every check matches. With the constants in `page_config.json` (the 99% cutoff, the runs the copy
-  names, display precision and image sizes), it draws the sharing images and writes `share/x-posts.md` and
-  `CITATION.cff`. Its `Snapshot`, `values()` and table and figure code also build the Method page.
-  - **`lead`** names the confidence rows the 99% share image and the main X post show, one of `leads`.
-  - **Images:** drawn with headless Chrome in both themes (`share/`, named with the theme and a short
-    hash of the file, for example `preview-dark-1a2b3c4d.png`, so that a changed image gets a new address
-    and no link preview shows a cached copy). The link preview is the cutoff chart. The dark images are
-    the main ones: the link preview and the X posts use them. `share/images.json` names the current
-    images; the home page's link preview reads it, and with `--no-images` the build keeps them. Earlier
-    images are deleted until `announced` holds the date of the first public post; from then on they are
-    kept, so posted link previews keep working.
+- **The link preview and citation**: `build_page.py` runs `reproduce.py` first and stops unless every
+  check matches. With the constants in `page_config.json` (the 99% cutoff, the runs the copy names,
+  display precision and the image size), it draws the link preview image and writes `CITATION.cff`. Its
+  `Snapshot`, `values()` and table and figure code also build the Method page.
+  - **Link preview:** every decision model's accuracy with its 95% interval, all drawn alike, with the
+    results version, the answer key version and the page address in its footer. Drawn with headless
+    Chrome in both themes (`share/`, named with the theme and a short hash of the file, for example
+    `preview-dark-1a2b3c4d.png`, so that a changed image gets a new address and no link preview shows a
+    cached copy); the dark one is the link preview. `share/images.json` names the current images; the home
+    page's link preview reads it, and with `--no-images` the build keeps them. Earlier images are deleted
+    until `announced` holds the date of the first public post; from then on they are kept, so posted link
+    previews keep working.
   - **Generated sentences:** every sentence that compares models or states a trend checks that its
     wording still fits the numbers and stops the build otherwise. A configuration's time per request is
     its own run's, or, when that run predates per-request timing, the pooled times of its later runs of
@@ -84,8 +84,7 @@ python3 -m http.server 8000                                # preview at http://1
     Numbers recorded outside the published data (the question repairs, the exam and copy checks, the key
     review, a recalibration experiment) are in `page_config.json`'s `method_records`, each with its
     source.
-  - **X posts:** the announcement text goes to `share/x-posts.md`; `--no-images` skips Chrome, and
-    `CHROME` names another Chrome or Chromium binary.
+  - **Chrome:** `--no-images` skips it, and `CHROME` names another Chrome or Chromium binary.
 - **Themes:** the site is dark by default, also without JavaScript; `style.css` keeps both palettes, and
   a reader's Dark background / Light background choice is stored in `localStorage` and applied by a
   line in `<head>` before the page renders. Printing always uses the light theme.

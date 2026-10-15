@@ -1,8 +1,6 @@
 {
   "site_url": "https://zekiworks.github.io/analysis/decision-models/",
   "code_url": "https://github.com/zekiworks/analysis/tree/main/decision-models",
-  "issue_url": "https://github.com/zekiworks/analysis/issues/new?template=suggest-a-task.md",
-  "x_url": "https://x.com/zekiworks",
   "published": "2026-10-09",
   "announced": null,
   "threshold": 0.99,
@@ -13,17 +11,6 @@
     "metask", "strands", "gliner", "laya"
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
-  "lead": "decider_v11",
-  "leads": {
-    "decider_v11": {
-      "rows": ["decider_v11"],
-      "order": "We put Decider v1.1 first, then the other decision models, then GPT-6 Luna with its written confidence"
-    },
-    "luna": {
-      "rows": ["luna_api", "luna_stated"],
-      "order": "The two GPT-6 Luna setups come first, then the decision models"
-    }
-  },
   "confidence_rows": [
     {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "key": "decider_v11"},
     {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},
@@ -90,7 +77,6 @@
     {"provider": "celeris", "model": "celeris-1-decision", "key": "celeris"},
     {"provider": "subq", "model": "subq-snap-preview", "key": "subq"}
   ],
-  "stability_lead": "decider_v11",
   "stability_sample_questions_per_request": 16,
   "cost": {
     "decision": {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
@@ -100,31 +86,11 @@
       {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"}
     ]
   },
-  "latency_rows": [
-    {"provider": "perplexity", "model": "pplx-decider-v1.1-27b"},
-    {"provider": "fastino", "model": "fastino/GLiDE"},
-    {"provider": "subq", "model": "subq-snap-preview"},
-    {"provider": "openai-decisions", "model": "gpt-6-luna"},
-    {"provider": "celeris", "model": "celeris-1-decision"},
-    {"provider": "perplexity", "model": "pplx-decider-v1-27b"},
-    {"provider": "jev", "model": "jev-1.13.0"},
-    {"provider": "liquid", "model": "d1:free"},
-    {"provider": "vllm", "model": "gemma-4-31B-it"},
-    {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"},
-    {"provider": "openai", "model": "gpt-6.1-sol", "reasoning": "low"},
-    {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"},
-    {"provider": "claude", "model": "claude-opus-5-5", "reasoning": "low"},
-    {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "high"}
-  ],
-  "confidence_lead_rows": {"glide": "GLiDE", "luna_api": "Luna through the Decisions API", "jev": "Jev", "d1": "Liquid d1"},
-  "accuracy_lead": {"pair": ["glide", "decider_v11"], "chat": ["opus", "sonnet_high", "astra"], "task": ["decider_v11", "gemma", "astra"]},
-  "model_kinds": {"decision": "decider_v11", "general": "astra", "decisions_api": "luna_api", "reasoning": ["sonnet_low", "sonnet_high"]},
   "live_tests": {"seconds": ["sonnet_high", "opus", "astra"], "earlier": ["sonnet_high", "astra"]},
   "live_short_names": {
     "claude-sonnet-5-5": "Sonnet", "claude-opus-5-5": "Opus", "gpt-6-astra": "Astra", "pplx-decider-v1-27b": "Decider v1",
     "pplx-decider-v1.1-27b": "Decider v1.1"
   },
-  "cost_post": {"reference": "opus"},
   "subq_release": {"date": "2026-10-12", "context": "384K", "source": "https://subq.ai/introducing-subq-snap"},
   "chart_labels": {"openai-decisions": {"gpt-6-luna": "Luna (Decisions API)"}},
   "short_names": {
@@ -150,8 +116,14 @@
     "free": {"access": "Free tier used", "cost_basis": "Free tier used; no paid price in this record"},
     "local": {"access": "Our own hardware", "cost_basis": "No dollar estimate; see hardware and time"}
   },
+  "unpriced_first": {
+    "about": "A saving whose first model has no price, by billing: the marker after the saving, its tooltip, and the note under the table (shown after the marker, and only when the marker is in the table).",
+    "local": {"mark": "†", "tip": "Leaves out the first model’s hardware cost, which we have not estimated.",
+              "note": "Leaves out the first model’s hardware cost, which we have not estimated."},
+    "free": {"mark": "‡", "tip": "The first model used a free tier; this assumes no charge for it.",
+             "note": "The first model ran on a free tier, and we counted no charge for it. The saving holds only under the free tier’s terms."}
+  },
   "images": {
-    "preview": {"width": 1200, "height": 630},
-    "share": {"width": 1600, "height": 900}
+    "preview": {"width": 1200, "height": 630}
   }
 }

@@ -19,10 +19,8 @@ const LATENCY_TIP =
 const COST_TIP = 'Estimated from API prices and recorded token use, per 1,000 questions.';
 const AUROC_TIP = 'ranking score';
 const SHARE_TIP = 'Share of questions taken: at 16 questions per request, a call still goes out for the rest.';
-const UNPRICED_FIRST = {
-  local: 'Leaves out the first model’s hardware cost, which we have not estimated.',
-  free: 'The first model used a free tier; this assumes no charge for it.',
-};
+/* A saving whose first model has no price (page_config.json unpriced_first): its marker, tooltip and note, by billing. */
+const UNPRICED_FIRST = SETTINGS.unpricedFirst;
 const CONFIDENCE_NOTE = [
   'Every decision model that ranks its answers better than chance ranks them less well on grammar than on reading. A probability from an API is not calibrated by itself. Luna’s two setups also differ in request format (1 against 16 questions).',
 ];
@@ -109,7 +107,7 @@ const NO_SETUP = '<p class="note">No setup matches these filters.</p>';
 const state = {
   part: 'all',
   topic: null,
-  type: 'all',
+  type: 'decision',
   qpr: 'all',
   picked: new Set(),
   tab: 'accuracy',
@@ -119,6 +117,9 @@ const state = {
   across: 'cost',
   showAll: false,
 };
+/* Each tab's order when it opens: the Routing tab by the share of the LLM's questions taken, the others by accuracy. */
+const DEFAULT_SORTS = { routing: { key: 'share', descending: true } };
+const defaultSort = tab => ({ ...(DEFAULT_SORTS[tab] ?? { key: 'accuracy', descending: true }) });
 
 const units = () => data.units;
 const unitPart = unit => (SETTINGS.readingUnits.includes(unit.number) ? 'reading' : 'grammar');
@@ -333,8 +334,8 @@ TABS.routing.columns = ROUTING_COLUMNS;
 
 function savingCell(row, format) {
   if (!row.numbers || row.numbers.saving == null) return tip(EMPTY.notMeasured);
-  const caveat = UNPRICED_FIRST[row.run.billing];
-  return caveat ? tip(caveat, format(row.numbers)) : format(row.numbers);
+  const unpriced = UNPRICED_FIRST[row.run.billing];
+  return unpriced ? `${tip(unpriced.tip, format(row.numbers))}<span class="mark">${unpriced.mark}</span>` : format(row.numbers);
 }
 
 /* ---- Rendering the leaderboard ---- */
@@ -374,18 +375,28 @@ function renderBoard() {
       ? `<h3 class="tab-title">Can a cheap model go first?</h3>${routingControls()}<p class="table-title">${esc(routeTitle())}</p><p class="scope">All ${integer(data.questions)} questions</p>`
       : '';
   const notes = (tab.notes ?? tab.note ?? []).map(text => `<p>${esc(text)}</p>`).join('');
+  /* The note for a † or ‡, each only when its marker is in the table. */
+  const marked = new Set(rows.filter(row => row.numbers?.saving != null && UNPRICED_FIRST[row.run.billing]).map(row => row.run.billing));
+  const marks = Object.entries(UNPRICED_FIRST)
+    .filter(([billing]) => marked.has(billing))
+    .map(([, item]) => `<p class="table-note">${esc(`${item.mark} ${item.note}`)}</p>`)
+    .join('');
   document.getElementById('board').innerHTML =
-    `${title}${sortSelect(tab.columns)}<div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Model</th>${headers}</tr></thead><tbody>${body}</tbody></table></div>${empty}` +
+    `${title}${sortSelect(tab.columns)}<div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Model</th>${headers}</tr></thead><tbody>${body}</tbody></table></div>${empty}${marks}` +
     (notes ? `<div class="tab-notes">${notes}</div>` : '');
   document.getElementById('board').setAttribute('aria-labelledby', `tab-${state.tab}`);
+  document.querySelector('[data-setups]').textContent = `${integer(rows.length)} of ${integer(data.runs.length)} setups`;
 }
 
-/* Phones show the table as a list without headers; this menu sorts it instead. */
+/* Phones show the table as a list without headers; this menu sorts it instead, and the button beside it shows the
+   direction and turns it round. */
 function sortSelect(columns) {
   const options = [['', 'Accuracy'], ...columns.filter(column => column.key !== 'accuracy').map(column => [column.key, column.label])]
     .map(([key, label]) => `<option value="${key}"${(state.sort.key === key || (!key && state.sort.key === 'accuracy')) ? ' selected' : ''}>${esc(label)}</option>`)
     .join('');
-  return `<label class="phone-sort">Sort by <select data-control="phone-sort">${options}</select></label>`;
+  const direction = state.sort.descending ? '<span aria-hidden="true">▼</span> Largest first' : '<span aria-hidden="true">▲</span> Smallest first';
+  return `<div class="phone-sort"><label>Sort by <select data-control="phone-sort">${options}</select></label>` +
+    `<button type="button" class="sort-direction" data-control="sort-direction">${direction}</button></div>`;
 }
 
 function segmented(name, options, current) {
@@ -698,7 +709,7 @@ function onClick(event) {
   else if (dataset.qpr) state.qpr = dataset.qpr === 'all' ? 'all' : Number(dataset.qpr);
   else if (dataset.tab) {
     state.tab = dataset.tab;
-    state.sort = { key: 'accuracy', descending: true };
+    state.sort = defaultSort(state.tab);
   } else if (dataset.sort) {
     const column = TABS[state.tab].columns.find(item => item.key === dataset.sort);
     state.sort = state.sort.key === column.key ? { key: column.key, descending: !state.sort.descending } : { key: column.key, descending: !column.low };
@@ -708,6 +719,7 @@ function onClick(event) {
   else if (dataset.measure) state.measure = dataset.measure;
   else if (dataset.across) state.across = dataset.across;
   else if (dataset.control === 'show-all') state.showAll = !state.showAll;
+  else if (dataset.control === 'sort-direction') state.sort = { ...state.sort, descending: !state.sort.descending };
   else if (dataset.control === 'clear-picked') {
     state.picked.clear();
     renderPicker();
@@ -747,10 +759,11 @@ async function start() {
   byId = new Map(data.runs.map(run => [run.run, run]));
   const filters = document.getElementById('filters');
   filters.hidden = false;
-  if (PHONE.matches) filters.open = false;
+  if (PHONE.matches) filters.querySelector('.filter-panel').open = false;
   document.querySelector('.tabs').hidden = false;
   document.querySelector('.charts').hidden = false;
   readUrl();
+  state.sort = defaultSort(state.tab);
   renderPicker();
   render();
   document.addEventListener('click', onClick);

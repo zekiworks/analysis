@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""The sharing images, the X posts and CITATION.cff, from one data snapshot: results.json, with page_config.json.
+"""The link preview image and CITATION.cff, from one data snapshot: results.json, with page_config.json.
 
-    python3 build_page.py               # the sharing images, the X posts and CITATION.cff
-    python3 build_page.py --no-images   # keep the current images (no Chrome needed)
+    python3 build_page.py               # the link preview image and CITATION.cff
+    python3 build_page.py --no-images   # keep the current image (no Chrome needed)
 
 The site itself is built by build_v2.py, whose Method page uses this module's Snapshot, values() and table and
 figure code. v1/ keeps the earlier page as it was on 14 October 2026; nothing rebuilds it.
 
-"lead" in page_config.json names the finding the link preview, the X image and the main X post show (one of
-"leads"). The images are drawn by headless Chrome from HTML made here and saved under share/ with a short hash of
-their content in their names, so that a changed image gets a new address and no link preview shows a cached copy.
-share/images.json names the current ones, which the home page's link preview uses; share/x-posts.md holds the
-announcement text. Earlier images are deleted until "announced" holds the date of the first public post, and kept
-after it, so that earlier link previews keep working. reproduce.py must pass first, and the build stops otherwise.
-Set CHROME to use another Chrome or Chromium binary.
+The link preview shows every decision model's accuracy with its 95% interval. It is drawn by headless Chrome from
+HTML made here, in both themes, and saved under share/ with a short hash of its content in its name, so that a changed
+image gets a new address and no link preview shows a cached copy. share/images.json names the current files, which
+the home page's link preview uses. Earlier images are deleted until "announced" holds the date of the first public
+post, and kept after it, so that earlier link previews keep working. reproduce.py must pass first, and the build stops
+otherwise. Set CHROME to use another Chrome or Chromium binary.
 """
 
 from __future__ import annotations
@@ -37,7 +36,6 @@ import benchmark_metrics as bm  # noqa: E402
 # The site and its data sit next to this script: the folder is what GitHub Pages serves.
 ROOT = Path(__file__).resolve().parent
 SHARE = ROOT / "share"
-X_POSTS = SHARE / "x-posts.md"
 # The current sharing images by image and theme, written with every build that draws them.
 IMAGES = SHARE / "images.json"
 CITATION = ROOT / "CITATION.cff"
@@ -46,9 +44,6 @@ BLOCK = re.compile(r"(<!-- build:([a-z0-9-]+) -->)(.*?)(<!-- /build:\2 -->)", re
 CHART_IMAGE = re.compile(r'(<img src="(charts/[a-z0-9-]+\.svg)")(?: width="\d+" height="\d+")?')
 SVG_SIZE = re.compile(r'<svg\b[^>]*\bviewBox="0 0 ([\d.]+) ([\d.]+)"')
 CHECKS = re.compile(r"^(\d+) checks match, (\d+) differ$", re.M)
-# The X counts every link as this many characters.
-X_LINK_LENGTH = 23
-X_POST_LIMIT = 280
 # The level below which an exact McNemar test counts as detecting a difference, as in the report and reproduce.py.
 ALPHA = 0.05
 
@@ -257,17 +252,11 @@ class Snapshot:
         self.reading_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] in reading_units)
         self.grammar_questions = sum(unit["questions"] for unit in results["units"] if unit["number"] not in reading_units)
         self.models = len({run["model"] for run in self.runs})
-        # The confidence rows: the lead finding first, then the other rows in page_config.json's order, an editorial
-        # order that ranks nothing. Task rows by overall accuracy, the reference rows last; stability rows by changed
-        # answers, fewest first. Ties keep the configuration's order.
+        # The confidence rows, in page_config.json's order, an editorial order that ranks nothing. Task rows by overall
+        # accuracy, the reference rows last; stability rows by changed answers, fewest first. Ties keep the
+        # configuration's order.
         thresholds = [row for spec in config["confidence_rows"] if (row := self.threshold_row(spec))]
-        keyed = {row["key"]: row for row in thresholds if row["key"]}
-        self.lead_spec = config["leads"][config["lead"]]
-        missing = [key for key in self.lead_spec["rows"] if key not in keyed]
-        if missing:
-            raise ValueError(f"lead {config['lead']!r} names confidence rows that do not exist: {', '.join(missing)}")
-        self.lead = [keyed[key] for key in self.lead_spec["rows"]]
-        self.thresholds = self.lead + [row for row in thresholds if all(row is not lead for lead in self.lead)]
+        self.thresholds = thresholds
         tasks = [row for spec in config["accuracy_rows"] if (row := self.task_row(spec))]
         self.tasks = sorted((row for row in tasks if not row["reference"]), key=lambda row: -row["overall"]) + [
             row for row in tasks if row["reference"]
@@ -419,7 +408,7 @@ class Snapshot:
         return {**replay, "run": decision, "frontiers": frontiers}
 
 
-# ---------------------------------------------------------------- values: the numbers the Method page, the images and the X posts quote
+# ---------------------------------------------------------------- values: the numbers the Method page quotes
 
 
 def values(snap: Snapshot) -> dict[str, str]:
@@ -604,34 +593,6 @@ def paired_values(snap: Snapshot) -> dict[str, str]:
 # ---------------------------------------------------------------- blocks
 
 
-# Below this share of a bar, an accepted-but-wrong segment is too thin to see at phone width; a marker outside the
-# bar shows where it sits, and the segment keeps its true width.
-MARKER_BELOW = 0.02
-
-
-def stack_html(row: dict[str, Any], snap: Snapshot) -> str:
-    """The three segments of a threshold bar, as shares of all scored questions, drawn to scale."""
-    correct, wrong = row["correct"] / snap.total, row["errors"] / snap.total
-    marker = f'<span class="wrong-marker" style="left: {100 * correct:.3f}%"></span>' if row["errors"] and wrong < MARKER_BELOW else ""
-    wrong_class = "wrong nonzero" if row["errors"] else "wrong"
-    return (
-        '<span class="stack" aria-hidden="true"><span class="fill">'
-        f'<span class="ok" style="flex-basis: {100 * correct:.3f}%"></span>'
-        f'<span class="{wrong_class}" style="flex-basis: {100 * wrong:.3f}%"></span>'
-        f'<span class="check"></span></span>{marker}</span>'
-    )
-
-
-def task_title(snap: Snapshot) -> str:
-    """The reading-and-grammar figure's title, on the page and in its sharing images. The figure shows the decision
-    models above the chat models for comparison (accuracy_rows marks those as references); the build stops if a row
-    no longer belongs to its group."""
-    for row in snap.tasks:
-        if snap.decision_model(row["run"]) == row["reference"]:
-            raise ValueError(f"{label(row['run'])} no longer fits its group in the reading and grammar figure")
-    return "How often do models get reading and grammar questions right?"
-
-
 # The live tests' rules in the order the savings table names them, with the label each has on the page.
 LIVE_RULES = {"share": "Most confident quarter", "half": "Cutoff chosen on half the questions", "cutoff": "Fixed 99% rule"}
 
@@ -784,10 +745,6 @@ def key_values(snap: Snapshot) -> dict[str, str]:
     if missing:
         raise ValueError(f"key-changelog.md does not list the excluded questions {missing}")
     return {"key_version": f"version {key['version']}"}
-
-
-def per_request_text(rows: list[dict[str, Any]]) -> str:
-    return " versus ".join(str(row["run"]["questions_per_request"]) for row in rows)
 
 
 def reasoning_table(snap: Snapshot) -> str:
@@ -1279,14 +1236,6 @@ def decision_first_models(snap: Snapshot) -> tuple[list[dict[str, Any]], list[di
     return [run for run in decision if run["run"] in first], [run for run in decision if run["run"] not in first]
 
 
-def cutoff_rows(snap: Snapshot) -> list[dict[str, Any]]:
-    """Decider's fixed cutoffs and its most confident quarter, from the highest cutoff to the lowest."""
-    replay = snap.replay
-    rows = [{"cut": row["cutoff"], "kept": row["kept"], "wrong": row["wrong"], "surest": False} for row in replay["cutoffs"]]
-    rows.append({"cut": replay["share"]["cut"], "kept": replay["share"]["kept"], "wrong": replay["share"]["wrong"], "surest": True})
-    return sorted(rows, key=lambda row: -row["cut"])
-
-
 def setup_name(item: dict[str, Any]) -> str:
     """A setup's name with its setting in brackets, without its request size: tables that compare request sizes name
     them in their headings."""
@@ -1673,26 +1622,19 @@ def chart_sizes(page: str) -> str:
 
 # ---------------------------------------------------------------- sharing images
 
-# The sharing images' colours: the page's tokens, so the dark images look like the site and the light ones print well.
+# The sharing image's colours: the page's tokens, so the dark image looks like the site and the light one prints well.
+# "bar" is the decision models' colour in the site's charts (style.css --primary).
 IMAGE_THEMES = {
-    "dark": {
-        "bg": "#161615", "text": "#ebe9e4", "values": "#ebe9e4", "sub": "#d6d3cc", "muted": "#a8a6a0", "rule": "#34332f",
-        "ok": "#4ade80", "wrong": "#fca5a5", "check": "#2b2a27", "stripe": "#3d3c38", "key-border": "#6b6963",
-        "outline": "#6b6963", "track": "#2b2a27", "reading": "#86b9f3", "grammar": "#f0a35e",
-        "reading-text": "#86b9f3", "grammar-text": "#f0a35e",
-    },
-    "light": {
-        "bg": "#ffffff", "text": "#0f172a", "values": "#1e293b", "sub": "#334155", "muted": "#475569", "rule": "#e2e8f0",
-        "ok": "#15803d", "wrong": "#b91c1c", "check": "#e2e8f0", "stripe": "#cbd5e1", "key-border": "#cbd5e1",
-        "outline": "#64748b", "track": "#f1f5f9", "reading": "#2563eb", "grammar": "#ea580c",
-        "reading-text": "#1d4ed8", "grammar-text": "#c2410c",
-    },
+    "dark": {"bg": "#161615", "text": "#ebe9e4", "values": "#ebe9e4", "sub": "#d6d3cc", "muted": "#a8a6a0", "rule": "#34332f",
+             "bar": "#86b9f3"},
+    "light": {"bg": "#ffffff", "text": "#0f172a", "values": "#1e293b", "sub": "#334155", "muted": "#475569", "rule": "#e2e8f0",
+              "bar": "#2563eb"},
 }
 # The main images are the dark ones, on the page background like the cards of a thread; the light ones are for
 # reports and slides.
 THEMES = tuple(IMAGE_THEMES)
 # The sharing images: their key in the code and the start of their file names, which end in a hash of the file.
-IMAGE_STEMS = (("preview", "preview"), ("finding", "finding"), ("tasks", "reading-grammar"))
+IMAGE_STEMS = (("preview", "preview"),)
 FIGURE_STYLE = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: %(width)dpx; height: %(height)dpx; overflow: hidden; background: var(--bg); color: var(--text);
@@ -1700,29 +1642,9 @@ html, body { width: %(width)dpx; height: %(height)dpx; overflow: hidden; backgro
 body { padding: %(pad)dpx; display: flex; flex-direction: column; }
 h1 { font-size: %(title)dpx; line-height: 1.1; letter-spacing: -.01em; }
 .sub { font-size: %(sub)dpx; color: var(--sub); margin-top: .25em; }
-i.key { display: inline-block; width: .8em; height: .8em; margin-right: .3em; border-radius: 2px; vertical-align: -.05em; }
-i.key.ok { background: var(--ok); } i.key.wrong { background: var(--wrong); }
-i.key.check { background: repeating-linear-gradient(135deg, var(--check) 0 4px, var(--stripe) 4px 8px); border: 1px solid var(--key-border); }
-.rows { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: %(gap)dpx; }
-.row-label { font-size: %(label)dpx; font-weight: 700; white-space: nowrap; }
-.row-label .muted { font-weight: 400; color: var(--muted); }
-.vals { font-size: %(value)dpx; color: var(--values); margin-top: .25em; line-height: 1.3; }
-.vals .wrong { color: var(--wrong); font-weight: 700; }
-.stack { position: relative; display: block; height: %(bar)dpx; margin-top: .35em; }
-.stack .fill { display: flex; height: 100%%; border: 2px solid var(--outline); border-radius: 4px; overflow: hidden; background: var(--check); }
-.stack .ok { background: var(--ok); flex-grow: 0; flex-shrink: 0; } .stack .wrong { background: var(--wrong); flex-grow: 0; flex-shrink: 0; }
-.stack .wrong.nonzero { box-shadow: inset 3px 0 0 var(--bg); }
-.stack .check { flex: 1 1 0; background: repeating-linear-gradient(135deg, var(--check) 0 10px, var(--stripe) 10px 20px); }
-.wrong-marker { position: absolute; top: -10px; bottom: -10px; width: 5px; margin-left: -2px; background: var(--wrong); border-radius: 2px; }
-.caveat { font-size: %(caveat)dpx; color: var(--values); border-top: 2px solid var(--rule); padding-top: .45em; line-height: 1.3; }
 .foot { font-size: %(foot)dpx; color: var(--muted); margin-top: .3em; }
-.pair { display: grid; grid-template-columns: %(part)dpx 1fr %(num)dpx; align-items: center; gap: 16px; font-size: %(value)dpx; }
-.track { height: %(bar)dpx; background: var(--track); border-radius: 4px; overflow: hidden; }
-.bar { display: block; height: 100%%; }
-.reading { color: var(--reading-text); } .grammar { color: var(--grammar-text); }
-.bar.reading { background: var(--reading); } .bar.grammar { background: var(--grammar); }
-.num { text-align: right; font-weight: 700; }
 """
+
 
 def figure_page(size: dict[str, int], scale: dict[str, int], body: str, theme: str, style: str = "") -> str:
     """An image's HTML page: the theme's colours, the shared figure style at this scale, then the image's own `style`."""
@@ -1731,144 +1653,66 @@ def figure_page(size: dict[str, int], scale: dict[str, int], body: str, theme: s
     return f'<!doctype html><html lang="en"><head><meta charset="utf-8"><style>{css}</style></head><body>{body}</body></html>'
 
 
-def footer(snap: Snapshot, caveat: str) -> str:
-    """The image's caveats in readable type, then the results update date, results snapshot, question set, answer key
-    version and address."""
+# The link preview's own layout: a row per decision model on one 0% to 100% scale, the accuracy as a dot, its 95%
+# interval as a line, and the value in a column of its own, so that no label meets a mark.
+ACCURACY_STYLE = """
+.chart { flex: 1; min-height: 0; display: grid; grid-template-columns: 250px 1fr 80px; grid-auto-rows: 1fr;
+  column-gap: 18px; align-items: center; margin-top: 14px; }
+.name { font-size: 17px; font-weight: 600; text-align: right; white-space: nowrap; }
+.lane { position: relative; height: 100%; border-right: 1px solid var(--rule);
+  background: linear-gradient(to right, var(--rule) 0 1px, transparent 1px) 0 0 / 25% 100% repeat-x; }
+.ci { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); }
+.ci::before, .ci::after { content: ""; position: absolute; top: -5px; width: 2px; height: 12px; background: var(--text); }
+.ci::before { left: -1px; } .ci::after { right: -1px; }
+.dot { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  background: var(--bar); box-shadow: 0 0 0 2px var(--bg); }
+.val { font-size: 17px; font-weight: 700; text-align: right; color: var(--values); font-variant-numeric: tabular-nums; }
+.axis { display: grid; grid-template-columns: 250px 1fr 80px; column-gap: 18px; height: 24px; margin-top: 4px; }
+.axis .ticks { position: relative; font-size: 14px; color: var(--muted); }
+.axis .ticks span { position: absolute; top: 3px; transform: translateX(-50%); }
+"""
+
+
+def chart_label(snap: Snapshot, run: dict[str, Any]) -> str:
+    """A setup's label in the site's charts (v2.js chartLabels): page_config.json's chart_labels, else its short name
+    and variant."""
+    named = snap.config["chart_labels"].get(run["provider"], {}).get(run["model"])
+    if named:
+        return named
+    return f"{snap.short(run)} ({run['variant']})" if run.get("variant") else snap.short(run)
+
+
+def accuracy_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
+    """The link preview: every decision model's accuracy on all questions with its 95% interval (Wilson, as the site's
+    tables), most accurate first, all drawn alike so that no model is singled out. The footer gives the results
+    version, the answer key version and the page address."""
+    runs = [run for run in snap.runs if snap.decision_model(run)]
+    totals = {run["run"]: (run["groups"]["reading"]["correct"] + run["groups"]["grammar"]["correct"],
+                           run["groups"]["reading"]["questions"] + run["groups"]["grammar"]["questions"]) for run in runs}
+    rows = []
+    for run in sorted(runs, key=lambda run: -totals[run["run"]][0]):
+        correct, total = totals[run["run"]]
+        low, high = bm.wilson_interval(correct, total)
+        rows.append(
+            f'<span class="name">{esc(chart_label(snap, run))}</span>'
+            f'<span class="lane"><span class="ci" style="left: {100 * low:.2f}%; width: {100 * (high - low):.2f}%"></span>'
+            f'<span class="dot" style="left: {100 * correct / total:.2f}%"></span></span>'
+            f'<span class="val">{100 * correct / total:.1f}%</span>'
+        )
     results = snap.results
     site = snap.config["site_url"].removeprefix("https://").rstrip("/")
-    dataset = (results["dataset"]["graded_sha256"] or results["dataset"]["sha256"])[:8]
-    return (
-        f'<p class="caveat">The {count(snap.total)} questions test reading and grammar, not financial decisions. {esc(caveat)}</p>'
-        f'<p class="foot">Results updated {long_date(results["updated"])} · Results snapshot {esc(results["results_version"])} · '
-        f'Question set {esc(results["dataset"]["name"])} ({dataset}) · Answer key version {results["answer_key"]["version"]} · '
-        f'{esc(site)}</p>'
-    )
-
-
-def image_label(row: dict[str, Any]) -> str:
-    run = row["run"]
-    details = [part for part in (setting(run), f"confidence source: {row['source'].lower()}") if part]
-    return f'<span class="row-label">{esc(run["name"])}<span class="muted"> · {esc(" · ".join(details))}</span></span>'
-
-
-def finding_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
-    """The fixed 99% cutoff as an image: the lead rows only, each with the answers kept and those needing another answer,
-    then the wrong ones, their share of the kept answers and the 95% interval for that error rate."""
-    fmt, rows = snap.fmt, snap.lead
-    items = []
-    for row in rows:
-        bar = stack_html(row, snap).replace(' aria-hidden="true"', "")
-        first = f'{count(row["accepted"])} kept ({fmt.pct(row["coverage"])} of questions) · {count(row["sent"])} need another answer'
-        if not row["accepted"]:
-            second = "No answers reach this cutoff; error rate not applicable"
-        elif row["errors"]:
-            second = (f'<span class="wrong">{count(row["errors"])} wrong</span>: {fmt.pct(row["error_rate"])} of the kept answers '
-                      f'(95% interval for the error rate: {fmt.span(*row["error_range"])})')
-        else:
-            second = f'No mistakes among them (95% interval for the error rate: {fmt.span(*row["error_range"])})'
-        items.append(f'<div>{image_label(row)}{bar}<p class="vals">{first}<br>{second}</p></div>')
-    name = snap.short(rows[0]["run"])
-    if len(rows) == 1:
-        title = f"{name}: which answers pass a {snap.cutoff} confidence cutoff?"
-        caveat = ("No mistakes in a sample does not prove zero risk. " if rows[0]["accepted"] and not rows[0]["errors"] else "") + (
-            "The 95% interval describes sampling uncertainty in the error rate; it is not a promise about future errors."
-        )
-    else:
-        title = f"{name}, {in_words(len(rows))} setups: which answers pass a {snap.cutoff} confidence cutoff?"
-        caveat = f"The setups also differ in request format ({per_request_text(rows)} questions per request), so this does not isolate the confidence method."
-    legend = ('<i class="key ok"></i>kept and correct · <i class="key wrong"></i>kept but wrong · '
-              '<i class="key check"></i>needs another answer')
-    # A single bar is drawn larger, so that it does not sit between wide empty bands.
-    one = len(rows) == 1
-    scale = {"pad": 52, "title": 56, "sub": 30, "gap": 34, "label": 46 if one else 40, "bar": 140 if one else 54,
-             "value": 48 if one else 36, "caveat": 26, "foot": 20, "part": 0, "num": 0}
-    sub = f"Each bar is all {count(snap.total)} questions; we replayed recorded answers: {legend}"
-    body = f'<h1>{esc(title)}</h1><p class="sub">{sub}</p><div class="rows">{"".join(items)}</div>' + footer(snap, caveat)
-    return figure_page(size, scale, body, theme)
-
-
-# The cutoff image's own layout: one column per cutoff, the bar drawn to scale against the most answers kept. The bars take
-# the height the title, labels, note and footer leave, so a longer note never pushes the footer off the image.
-CUTOFF_STYLE = """
-.cols { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--count), 1fr); gap: 10px; margin-top: 16px; }
-.col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; border-radius: 6px; padding: 4px 2px; }
-.col.rule { background: var(--track); }
-.col .kept { font-size: 22px; font-weight: 700; color: var(--values); }
-.col .top { font-size: 15px; color: var(--sub); margin-bottom: 6px; white-space: nowrap; }
-.col .area { flex: 1; min-height: 0; width: 64%; display: flex; flex-direction: column-reverse; }
-.col .ok { background: var(--ok); } .col .wrong { background: var(--wrong); }
-.col .cut { font-size: 19px; font-weight: 700; margin-top: 8px; }
-.col .tag { font-size: 13px; color: var(--muted); min-height: 34px; line-height: 1.25; text-align: center; }
-.axis { font-size: 16px; color: var(--sub); margin: 6px 0 10px; }
-"""
-
-
-def cutoff_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
-    """Chart 00 as the link preview: the answers Decider keeps and the wrong ones among them at each cutoff."""
-    fmt, rows, threshold = snap.fmt, cutoff_rows(snap), snap.config["threshold"]
-    top = max(row["kept"] for row in rows)
-    columns = []
-    for row in rows:
-        ok, wrong = (row["kept"] - row["wrong"]) / top, row["wrong"] / top
-        # A nonzero wrong segment keeps a few pixels, so that it never vanishes; the label above gives the count.
-        wrong_style = f"height: max(4px, {100 * wrong:.2f}%)" if row["wrong"] else "height: 0"
-        tag = "Our rule" if row["cut"] == threshold else "Most confident quarter" if row["surest"] else ""
-        columns.append(
-            f'<div class="col{" rule" if tag else ""}"><span class="kept">{count(row["kept"])}</span>'
-            f'<span class="top">{fmt.pct(row["kept"] / snap.total, 0)} · {count(row["wrong"])} wrong</span>'
-            f'<span class="area"><span class="ok" style="height: {100 * ok:.2f}%"></span><span class="wrong" style="{wrong_style}"></span></span>'
-            f'<span class="cut">{cutoff_text(row["cut"])}</span><span class="tag">{tag}</span></div>'
-        )
-    legend = '<i class="key ok"></i>kept and right · <i class="key wrong"></i>kept but wrong'
-    scale = {"pad": 38, "title": 38, "sub": 19, "gap": 0, "label": 0, "bar": 0, "value": 0, "caveat": 16, "foot": 13, "part": 0, "num": 0}
+    ticks = "".join(f'<span style="left: {tick}%">{tick}%</span>' for tick in (0, 25, 50, 75, 100))
     body = (
-        "<h1>Lower the cutoff: Decider keeps more, and makes more mistakes</h1>"
-        f'<p class="sub">{esc(snap.short(snap.replay["run"]))} on the {count(snap.total)} questions; we replayed recorded '
-        f"answers · {legend}</p>"
-        f'<div class="cols" style="--count: {len(rows)}">{"".join(columns)}</div>'
-        f'<p class="axis">Cutoff (lowest confidence we keep). Bar height: answers kept, out of {count(snap.total)}. In a replay of '
-        "recorded answers, the share Decider keeps is roughly the share of the second model's estimated cost you save.</p>"
-        + footer(snap, "Choose a cutoff on one set of questions and test it on new ones.")
+        f"<h1>Accuracy of the {count(len(runs))} decision models, with 95% intervals</h1>"
+        f'<p class="sub">{count(snap.total)} reading and grammar questions in native Turkish (not translated). '
+        "Dot: accuracy; line: 95% interval.</p>"
+        f'<div class="chart">{"".join(rows)}</div>'
+        f'<div class="axis"><span></span><span class="ticks">{ticks}</span><span></span></div>'
+        f'<p class="foot">Results {esc(results["results_version"])} · Answer key version {results["answer_key"]["version"]} · '
+        f"{esc(site)}</p>"
     )
-    return figure_page(size, scale, body, theme, CUTOFF_STYLE)
-
-
-# The reading and grammar image's own layout: one row per model setup, the two task bars side by side under their headings.
-TASK_STYLE = """
-.grid { flex: 1; display: grid; grid-template-columns: 430px 1fr 1fr; column-gap: 32px; row-gap: 10px; align-content: center; }
-.grid .head { font-size: 26px; font-weight: 700; }
-.grid .group { grid-column: 1 / -1; font-size: 19px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  color: var(--muted); margin-top: 10px; }
-.grid .name { font-size: 26px; font-weight: 700; white-space: nowrap; }
-.grid .name .muted { font-weight: 400; color: var(--muted); }
-.grid .cell { display: grid; grid-template-columns: 1fr 100px; column-gap: 14px; align-items: center; }
-.grid .track { height: 26px; }
-.grid .num { font-size: 25px; }
-"""
-
-
-def task_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
-    """Chart 04 as an image: reading and grammar side by side for each model setup, decision models first and the chat
-    models for comparison below their own heading."""
-    fmt = snap.fmt
-    scale = {"pad": 46, "title": 46, "sub": 26, "gap": 0, "label": 0, "bar": 0, "value": 0, "caveat": 21, "foot": 17, "part": 0, "num": 0}
-    cells = ['<span></span><span class="head reading">Reading</span><span class="head grammar">Grammar</span>']
-    for group, rows in (("Decision models", [row for row in snap.tasks if not row["reference"]]),
-                        ("Chat models for comparison", [row for row in snap.tasks if row["reference"]])):
-        cells.append(f'<span class="group">{group}</span>')
-        for row in rows:
-            detail = setting(row["run"])
-            cells.append(f'<span class="name">{esc(snap.short(row["run"]))}<span class="muted">{esc(" · " + detail if detail else "")}</span></span>')
-            cells += [
-                f'<span class="cell"><span class="track"><span class="bar {part}" style="width: {100 * row[part]:.2f}%"></span></span>'
-                f'<span class="num">{fmt.pct(row[part])}</span></span>'
-                for part in ("reading", "grammar")
-            ]
-    sub = (f"Correct answers, %, on a 0% to 100% scale: reading, {count(snap.reading_questions)} questions; grammar, "
-           f"{count(snap.grammar_questions)} questions")
-    caveat = "A good reading score does not establish a good grammar score. This test does not establish why the task scores differ."
-    body = f'<h1>{esc(task_title(snap))}</h1><p class="sub">{esc(sub)}</p><div class="grid">{"".join(cells)}</div>' + footer(snap, caveat)
-    return figure_page(size, scale, body, theme, TASK_STYLE)
+    scale = {"pad": 34, "title": 32, "sub": 18, "foot": 15}
+    return figure_page(size, scale, body, theme, ACCURACY_STYLE)
 
 
 def png_size(path: Path) -> tuple[int, int]:
@@ -1881,11 +1725,7 @@ def render_images(snap: Snapshot) -> dict[str, dict[str, str]]:
     the start of the file's SHA-256. Returns the names by image and theme."""
     chrome = os.environ.get("CHROME", "google-chrome")
     sizes = snap.config["images"]
-    pages = {
-        "preview": (lambda theme: cutoff_image(snap, sizes["preview"], theme), sizes["preview"]),
-        "finding": (lambda theme: finding_image(snap, sizes["share"], theme), sizes["share"]),
-        "tasks": (lambda theme: task_image(snap, sizes["share"], theme), sizes["share"]),
-    }
+    pages = {"preview": (lambda theme: accuracy_image(snap, sizes["preview"], theme), sizes["preview"])}
     names: dict[str, dict[str, str]] = {}
     SHARE.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as work:
@@ -1936,143 +1776,7 @@ def remove_old_images(snap: Snapshot, names: dict[str, dict[str, str]]) -> None:
             print(f"Removed {old.relative_to(ROOT)}")
 
 
-# ---------------------------------------------------------------- X posts
-
-
-def x_length(text: str) -> int:
-    return len(re.sub(r"https?://\S+", "x" * X_LINK_LENGTH, text))
-
-
-def main_post(snap: Snapshot, numbers: dict[str, str]) -> str:
-    """The main X post: the opening's question and answer, the comparison of decision models, each LLM's saving with its
-    change in accuracy, replayed from recorded answers, and the smaller savings of the live test with new calls."""
-    fmt, site = snap.fmt, snap.config["site_url"]
-    savings = [
-        f"{item['run']['name']}: {fmt.pct(item['strict']['saving'], 0)} cheaper, accuracy {change_text(item['strict']['difference'])}"
-        for item in opening_seconds(snap)
-    ]
-    live = [f"{numbers['live_' + item['key'] + '_saving_whole']} for {live_name(snap, item['run'])}" for item in opening_seconds(snap)]
-    return "\n\n".join([
-        "When should you trust an AI model to make a decision? When its confident answers turn out to be right.",
-        f"We tested {numbers['decision_models']} decision models on a reading and grammar test in native Turkish (not translated): "
-        f"{numbers['questions']} questions. We put {numbers['decision_models_tried']} of them in front of "
-        f"{numbers['opening_llm_count']} LLMs. When the decision model was confident, we kept its answer; when it was not, the LLM "
-        "answered.",
-        "Perplexity's Decider v1.1 took the most work off each LLM. Replaying our recorded answers:\n" + "\n".join(savings),
-        f"In a live test with new calls to each LLM, the estimated cost fell by less: {and_list(live)}.",
-        "The test covers reading and grammar, not financial decisions. Test on your own task first.",
-        site,
-    ])
-
-
-def sure_post(snap: Snapshot, numbers: dict[str, str]) -> str:
-    """The follow-up on the fixed 99% cutoff: what Decider kept, the saving in front of the three LLMs and the interval."""
-    fmt, site, row = snap.fmt, snap.config["site_url"], snap.lead[0]
-    items = opening_seconds(snap)
-    savings = {fmt.pct(item["sure"]["saving"], 0) for item in items}
-    if row["run"] is not snap.replay["run"] or row["errors"] or len(savings) != 1 or any(item["sure"]["difference"] < 0 for item in items):
-        raise ValueError("the 99% post says Decider's kept answers were all right and each LLM saved the same share with no loss")
-    return "\n\n".join([
-        f"At a {snap.cutoff} cutoff, Decider v1.1 kept {count(row['accepted'])} of {numbers['questions']} answers "
-        f"({fmt.pct(row['coverage'])}), and all of them were right. With Decider in front, the estimated cost fell about "
-        f"{savings.pop()} for each LLM with no loss of accuracy (we replayed recorded answers).",
-        f"No mistakes in a sample is not zero risk: the 95% interval for the error rate runs from {fmt.span(*row['error_range'])}.",
-        site,
-    ])
-
-
-def task_post(snap: Snapshot, numbers: dict[str, str]) -> str:
-    """The follow-up on reading and grammar: Decider's two scores, with Gemma's for comparison."""
-    return "\n\n".join([
-        f"Where do decision models fall short? Grammar. Decider v1.1 got {numbers['decider_v11_reading']} of the reading questions "
-        f"right but {numbers['decider_v11_grammar']} of the grammar questions. Gemma 4 31B, a chat model, scored "
-        f"{numbers['gemma_reading']} and {numbers['gemma_grammar']}.",
-        "A good reading score does not establish a good grammar score, so we keep Decider's answer only when it is confident.",
-        snap.config["site_url"],
-    ])
-
-
-def cost_post(snap: Snapshot, numbers: dict[str, str]) -> str:
-    """The follow-up on cost and speed: Decider against one LLM, each timed with its own request size, from the same values
-    as the speed table."""
-    site, decider = snap.config["site_url"], snap.replay["run"]
-    reference = snap.named[snap.config["cost_post"]["reference"]]
-    latency, other = decider["latency"], reference["latency"]
-    return "\n\n".join([
-        f"Decider v1.1 costs {usd(per_thousand(decider))} per 1,000 questions. One question at a time, its typical response time "
-        f"was {seconds(latency['median_request_seconds'])} s, and 9 in 10 answers arrived within {seconds(latency['p90_request_seconds'])} s.",
-        f"{reference['name']} costs about {usd(per_thousand(reference))} per 1,000 questions and took a typical "
-        f"{seconds(other['median_request_seconds'])} s per request of {count(reference['questions_per_request'])} questions.",
-        "Costs are estimates at list prices. We measured times from our own computer, so they include the network.",
-        site,
-    ])
-
-
-def format_post(snap: Snapshot, numbers: dict[str, str]) -> str:
-    """The follow-up on the request format, whichever way it came out: each format rerun's accuracy at both request sizes
-    with what the paired test established after Holm's correction (Q1), and Decider v1.1 in front of every rerun in the
-    replay, with the cutoff chosen on half the questions, against the loss limit set before the live tests (Q2). The
-    build stops unless the reruns asked one question per request."""
-    fmt, items = snap.fmt, snap.results["formats"]
-    first = one_size({item["base_questions_per_request"] for item in items}, "the request format post")
-    if one_size({item["questions_per_request"] for item in items}, "the request format post") != 1:
-        raise ValueError("the request format post says the reruns asked one question at a time")
-    limit = one_size({test["plan"]["tolerance_points"] for test in decider_tests(snap)}, "the request format post")
-
-    def found(item: dict[str, Any]) -> str:
-        if item["p_holm"] >= ALPHA:
-            return "no clear change"
-        return f"{abs(100 * item['difference']):.2f} points {'higher' if item['difference'] > 0 else 'lower'}"
-
-    accuracy = [
-        f"{setup_name(snap.by_id[item['base']])}: {pct2(item['base_correct'] / snap.total)} → {pct2(item['correct'] / snap.total)}, {found(item)}"
-        for item in sorted(items, key=lambda item: -item["difference"])
-    ]
-    reruns = sorted(rerun_frontiers(snap), key=lambda item: -item["strict"]["saving"])
-    routing = [
-        f"{item['run']['name']}: {fmt.pct(item['strict']['saving'], 0)} cheaper, accuracy {change_text(item['strict']['difference'])}"
-        for item in reruns
-    ]
-    over = [item["run"]["name"] for item in reruns if -100 * item["strict"]["difference"] > limit]
-    return "\n\n".join([
-        "Does it matter how many questions an LLM gets in one request? Our decision models got one at a time; our LLM runs got "
-        f"{count(first)}. So we asked {in_words(len(items))} LLM setups all {numbers['questions']} questions again, one at a time.",
-        f"Accuracy with {count(first)} questions per request → one:\n" + "\n".join(accuracy),
-        "Decider v1.1 in front of each LLM answering one question at a time, replaying our recorded answers:\n" + "\n".join(routing),
-        f"Each change in accuracy is within the {limit:g}-point limit we set before the live test." if not over
-        else f"With {and_list(over)}, accuracy fell by more than the {limit:g}-point limit we set before the live test.",
-        snap.config["site_url"],
-    ])
-
-
-
-def x_posts(snap: Snapshot, numbers: dict[str, str], names: dict[str, dict[str, str]]) -> str:
-    def length_note(text: str) -> str:
-        return " Longer than one post: needs a long-post account or a thread." if x_length(text) > X_POST_LIMIT else ""
-
-    def attach(key: str) -> str:
-        return f"Attach `{names[key]['dark']}` (light version: `{names[key]['light']}`)."
-
-    posts = [
-        ("Main post: the savings", main_post(snap, numbers), attach("preview")),
-        (f"Follow-up: the {snap.cutoff} cutoff", sure_post(snap, numbers), attach("finding")),
-        ("Follow-up: reading and grammar", task_post(snap, numbers), attach("tasks")),
-        ("Follow-up: cost and speed", cost_post(snap, numbers), "No image."),
-    ]
-    if snap.results.get("formats"):
-        posts.append(("Reply: one question per request", format_post(snap, numbers), "No image."))
-    results = snap.results
-    lines = [
-        "# X posts",
-        "",
-        f"Generated by build_page.py from results {results['results_version']} (question set {numbers['dataset_version']}), first "
-        f"published {numbers['published']}, results updated {numbers['results_updated']}. Do not edit by hand: run the build again. "
-        "Attach the dark images, which match the site; each post also names its light version.",
-        "",
-    ]
-    for title, text, image in posts:
-        lines += [f"## {title} ({x_length(text)} characters as X counts them)", "", image + length_note(text), "", "```text", text, "```", ""]
-    return "\n".join(lines)
+# ---------------------------------------------------------------- citation
 
 
 def citation(snap: Snapshot, numbers: dict[str, str]) -> str:
@@ -2123,8 +1827,6 @@ def main() -> int:
         remove_old_images(snap, names)
         IMAGES.write_text(json.dumps(names, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(f"Wrote {IMAGES.relative_to(ROOT)}")
-    X_POSTS.write_text(x_posts(snap, numbers, names), encoding="utf-8")
-    print(f"Wrote {X_POSTS.relative_to(ROOT)}")
     CITATION.write_text(citation(snap, numbers), encoding="utf-8")
     print(f"Wrote {CITATION.relative_to(ROOT)}")
     return 0
