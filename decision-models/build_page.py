@@ -1704,7 +1704,7 @@ def accuracy_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
     ticks = "".join(f'<span style="left: {tick}%">{tick}%</span>' for tick in (0, 25, 50, 75, 100))
     body = (
         f"<h1>Accuracy of the {count(len(runs))} decision models, with 95% intervals</h1>"
-        f'<p class="sub">{count(snap.total)} reading and grammar questions in native Turkish (not translated). '
+        f'<p class="sub">Our reading comprehension and grammar test: {count(snap.total)} questions in native Turkish (not translated). '
         "Dot: accuracy; line: 95% interval.</p>"
         f'<div class="chart">{"".join(rows)}</div>'
         f'<div class="axis"><span></span><span class="ticks">{ticks}</span><span></span></div>'
@@ -1789,7 +1789,7 @@ def citation(snap: Snapshot, numbers: dict[str, str]) -> str:
         'commit of zekiworks/analysis you used."',
         f'title: "{TITLE.removesuffix(" · Zeki Works")}"',
         f'abstract: "We tested {numbers["models"]} models, {numbers["decision_models"]} of them decision models, on a reading '
-        f'and grammar test in native Turkish (not translated): {numbers["questions"]} questions."',
+        f'comprehension and grammar test in native Turkish (not translated): {numbers["questions"]} questions."',
         "type: dataset",
         "authors:",
         '  - name: "Zeki Works"',

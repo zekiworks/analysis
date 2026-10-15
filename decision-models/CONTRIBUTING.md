@@ -1,6 +1,6 @@
 # Contributing
 
-This folder holds a benchmark of decision models on a reading and grammar test in native Turkish (not translated).
+This folder holds a benchmark of decision models on a reading comprehension and grammar test in native Turkish (not translated).
 You can help in three ways.
 
 ## Report a wrong answer key

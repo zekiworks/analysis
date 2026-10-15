@@ -18,8 +18,9 @@ from v2build.site import REPO_URL, Site, esc, rel
 PATH = "method/"
 TITLE = "Method"
 DESCRIPTION = (
-    "How we tested decision models and chat models on a reading and grammar test in native Turkish (not translated): "
-    "the questions, the settings, the measures, the routing replays, the limits and the sources."
+    "How we tested decision models and chat models on a reading comprehension and grammar test "
+    "in native Turkish (not translated): the questions, the settings, the measures, the routing replays, the limits "
+    "and the sources."
 )
 # Charts kept on this page: each shows what no table here does. (name, caption)
 CHARTS = {
@@ -660,7 +661,7 @@ so the test cannot say which change helped.</p>
 <header class="v2-hero">
 <p class="kicker">Method</p>
 <h1>How we tested confidence, cost and accuracy</h1>
-<p class="intro">We tested {v['models']} models in {v['configs']} setups on a reading and grammar test in native Turkish
+<p class="intro">We tested {v['models']} models in {v['configs']} setups on a reading comprehension and grammar test in native Turkish
 (not translated): {v['questions']} questions. A setup is one model with one set of settings. We measured four things: how often
 each was right, whether its confidence found the answers worth keeping, whether it answered the same way again, and its
 cost and time.</p>

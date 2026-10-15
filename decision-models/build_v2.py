@@ -36,7 +36,8 @@ PAGE = ROOT / "index.html"
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "data", "method")
 TITLE = "When should you trust an AI model to make a decision?"
 DESCRIPTION = (
-    "We tested 18 decision models on a reading and grammar test in native Turkish (not translated): 2,198 questions. "
+    "We tested 18 decision models on a reading comprehension and grammar test in native Turkish (not translated): "
+    "2,198 questions. "
     "No model led on every measure. Fastino's GLiDE got the most answers right; Perplexity's Decider v1.1 kept the "
     "most answers at 99% confidence with no mistakes. With every model at 1 question per request, the decision model "
     "with the largest share took 20% to 29% of each LLM's questions, with accuracy at most 0.18 points lower, in a "
