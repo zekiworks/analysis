@@ -1229,7 +1229,28 @@ function onInput(event) {
   writeUrl();
 }
 
+/* The page's own text paints before the results, a large file, start to load: the browser's first contentful paint and
+   one frame more, or 300 ms where that paint is not reported (a background tab, or a browser without paint timing). */
+const afterFirstPaint = () => new Promise(resolve => {
+  const timer = setTimeout(resolve, 300);
+  const done = () => {
+    clearTimeout(timer);
+    requestAnimationFrame(() => setTimeout(resolve));
+  };
+  try {
+    new PerformanceObserver((list, observer) => {
+      if (!list.getEntriesByName('first-contentful-paint').length) return;
+      observer.disconnect();
+      done();
+    }).observe({ type: 'paint', buffered: true });
+  } catch (error) {
+    clearTimeout(timer);
+    resolve();
+  }
+});
+
 async function start() {
+  await afterFirstPaint();
   try {
     const response = await fetch(RESULTS_URL);
     if (!response.ok) throw new Error(`${RESULTS_URL}: ${response.status}`);
