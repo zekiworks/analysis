@@ -34,10 +34,10 @@ const ROUTING_NOTES = [
 const STABILITY_NOTE = [
   'Only the setups we repeated, five times each. Decision models and two Qwen3.8-27B setups were repeated on all questions; the other chat models on a sample of 200.',
 ];
-/* One line under the tab keys for each tab but Accuracy, in the Method page's terms. */
+/* One line under the tab keys for Confidence and Stability, in the Method page's terms; the Routing tab's heading and
+   diagram explain it. */
 const DEFINITIONS = {
   confidence: 'Whether a model’s confidence ranks right answers above wrong ones and matches its hit rate.',
-  routing: 'The decision model answers first; below its confidence cutoff, the LLM answers instead.',
   stability: 'How many answers changed when we asked the same questions five times.',
 };
 /* Each rule's name in the page URL ("slug"), its label, and its name among the live tests in results.json. */

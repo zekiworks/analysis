@@ -349,7 +349,10 @@ below GPT-6 Astra's ({v['astra_accuracy']}). Gemini 3.8 Flash at high reasoning 
 test over all pairs did not establish a difference from Astra.</p>
 <p>Erk-14B is Qwen3-14B with extra Turkish training by eCloud. Its calibration gap was {v['erk_ece_points']} points against
 {v['qwen3_14b_ece_points']} for its base, with no accuracy difference detected ({v['erk_accuracy']} against
-{v['qwen3_14b_accuracy']}); the training may have changed more than language knowledge.</p>"""),
+{v['qwen3_14b_accuracy']}); the training may have changed more than language knowledge.</p>
+<p>On Artificial Analysis' <a href="https://artificialanalysis.ai/articles/artificial-analysis-decision-index">Decision Index</a>
+(English tasks), Jev 1.13 leads with 58, ahead of GLiDE and Microsoft-Decision-1 (54). Our order differs. In both tests,
+confidence is less reliable on some question types: knowledge and reasoning there, grammar here.</p>"""),
         ("tests", "The questions", f"""
 <p>The test has {v['reading_questions']} Reading and {v['grammar_questions']} Grammar questions in {v['study_units']} topics,
 so {v['grammar_share']} are Grammar. Reading asks about the meaning of words, sentences and passages; Grammar asks about word
