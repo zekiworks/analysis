@@ -4,19 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Jev 1.13.0 · 1 question per request · Zeki Works</title>
+  <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/49/">
   <meta name="description" content="Jev 1.13.0 · 1 question per request: how we called it, results, confidence, latency and cost.">
-  <script>try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
-  <link rel="stylesheet" href="../../style.css">
-  <link rel="stylesheet" href="../../v2.css">
+  <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
+  <link rel="stylesheet" href="../../v3.css">
   <script src="../../site.js" defer></script>
 </head>
-<body class="v2">
-  <header class="v2-top">
-    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" data-theme-choice="dark" aria-pressed="true">Dark background</button><button type="button" data-theme-choice="light" aria-pressed="false">Light background</button></div>
-    <p class="kicker"><a href="../../">Zeki Works · Decision models · answer key v2</a></p>
-    <nav class="v2-nav" aria-label="Pages"><ul><li><a href="../../">Home</a></li><li><a href="../../questions/">Every question</a></li><li><a href="../../disagreements/">Where models disagree with the answer key</a></li><li><a href="../../topics/">Topics</a></li><li><a href="../../compare/">Compare</a></li><li><a href="../../method/">Method</a></li><li><a href="../../data/">Data</a></li></ul></nav>
+<body class="v3">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="../../">Zeki Works · Decision models · answer key v2</a>
+    <nav class="nav" aria-label="Pages"><ul><li><a href="../../questions/">Every question</a></li><li><a href="../../disagreements/">Where models disagree</a></li><li><a href="../../topics/">Topics</a></li><li><a href="../../compare/">Compare</a></li><li><a href="../../method/">Method</a></li><li><a href="../../data/">Data</a></li></ul></nav>
+    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>Dark<span class="long"> background</span></button><button type="button" class="key" data-theme-choice="light" aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light<span class="long"> background</span></button></div>
   </header>
-  <main>
+  <main id="main">
     <section class="card">
       <p class="eyebrow">Decision model</p>
       <h1>Jev 1.13.0</h1>
@@ -56,9 +57,9 @@
       <p class="note">Replay of recorded answers, cutoff chosen on half the questions, averaged over the splits. Savings are estimates from API prices; the <a href="../../method/#average-cost">Method page</a> explains how.</p><div class="table-wrap"><table class="board list"><thead><tr><th scope="col">LLM behind it</th><th scope="col" class="num">Share taken</th><th scope="col" class="num">Accuracy change</th><th scope="col" class="num">Saving</th></tr></thead><tbody><tr><td class="model"><a class="model-name" href="../../models/48/">GPT-6 Astra</a><span class="small">low reasoning · 16 questions per request</span></td><td class="num" data-label="Share taken">15.3%</td><td class="num" data-label="Accuracy change">−0.11 points</td><td class="num" data-label="Saving">15%</td></tr><tr><td class="model"><a class="model-name" href="../../models/191/">GPT-6 Astra</a><span class="small">low reasoning · 1 question per request</span></td><td class="num" data-label="Share taken">13.8%</td><td class="num" data-label="Accuracy change">−0.08 points</td><td class="num" data-label="Saving">14%</td></tr><tr><td class="model"><a class="model-name" href="../../models/188/">Gemini 3.8 Flash</a><span class="small">low reasoning · 1 question per request</span></td><td class="num" data-label="Share taken">13.8%</td><td class="num" data-label="Accuracy change">−0.10 points</td><td class="num" data-label="Saving">11%</td></tr><tr><td class="model"><a class="model-name" href="../../models/190/">GPT-6.1 Sol</a><span class="small">low reasoning · 1 question per request</span></td><td class="num" data-label="Share taken">16.9%</td><td class="num" data-label="Accuracy change">−0.11 points</td><td class="num" data-label="Saving">16%</td></tr><tr><td class="model"><a class="model-name" href="../../models/124/">GPT-6.1 Sol</a><span class="small">low reasoning · 16 questions per request</span></td><td class="num" data-label="Share taken">15.3%</td><td class="num" data-label="Accuracy change">−0.11 points</td><td class="num" data-label="Saving">13%</td></tr><tr><td class="model"><a class="model-name" href="../../models/192/">Claude Opus 5.5</a><span class="small">low reasoning · 1 question per request</span></td><td class="num" data-label="Share taken">16.7%</td><td class="num" data-label="Accuracy change">−0.08 points</td><td class="num" data-label="Saving">16%</td></tr><tr><td class="model"><a class="model-name" href="../../models/123/">Gemini 3.8 Flash</a><span class="small">low reasoning · 16 questions per request</span></td><td class="num" data-label="Share taken">15.5%</td><td class="num" data-label="Accuracy change">−0.13 points</td><td class="num" data-label="Saving">5%</td></tr><tr><td class="model"><a class="model-name" href="../../models/47/">Claude Opus 5.5</a><span class="small">low reasoning · 16 questions per request</span></td><td class="num" data-label="Share taken">17.8%</td><td class="num" data-label="Accuracy change">−0.09 points</td><td class="num" data-label="Saving">17%</td></tr><tr><td class="model"><a class="model-name" href="../../models/193/">Claude Sonnet 5.5</a><span class="small">high reasoning · 1 question per request</span></td><td class="num" data-label="Share taken">15.5%</td><td class="num" data-label="Accuracy change">−0.11 points</td><td class="num" data-label="Saving">15%</td></tr><tr><td class="model"><a class="model-name" href="../../models/55/">Claude Sonnet 5.5</a><span class="small">high reasoning · 16 questions per request</span></td><td class="num" data-label="Share taken">29.4%</td><td class="num" data-label="Accuracy change">−0.11 points</td><td class="num" data-label="Saving">29%</td></tr></tbody></table></div>
     </section>
   </main>
-  <footer class="v2-footer">
+  <footer class="footer">
     <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
-    <p>Results 77542f2f, updated 16 October 2026; answer key version 2.</p>
+    <p>Results d3aee0ea, updated 16 October 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

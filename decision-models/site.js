@@ -1,7 +1,7 @@
 'use strict';
 
-/* Every page: the Dark / Light switch, as on the earlier page (v1/). The choice is kept in localStorage and applied by a
-   line in each page's <head> before it renders; without JavaScript the page stays dark. */
+/* Every page: the Dark / Light switch, with one memory for the whole site: the choice is kept in localStorage ("theme")
+   and applied by a line in each page's <head> before it renders; without JavaScript the page stays dark. */
 (function setupTheme() {
   const control = document.querySelector('.theme-switch');
   if (!control) return;
@@ -24,4 +24,11 @@
     }
     show();
   });
+})();
+
+/* On a phone the navigation bar scrolls sideways; a link that takes the keyboard focus is brought fully into view. */
+(function keepFocusedLinkInView() {
+  const bar = document.querySelector('.nav ul');
+  if (!bar) return;
+  bar.addEventListener('focusin', event => event.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
 })();

@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 43 comparisons (15 pass).
-━━ passes the Holm adjustment across these 43 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 44 comparisons (15 pass).
+━━ passes the Holm adjustment across these 44 comparisons   ━━ does not pass
 
               Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (low reasoning)                     ⠠⡧⡦⠄                                        +0.5
                     GPT-6 Astra (low reasoning) minus GPT-6.1 Sol (low reasoning)                      ⡧⢴⠤                                        +0.9
@@ -14,7 +14,8 @@ establish a difference; the colour shows a related but separate test, adjusted a
          DeepSeek-V4.1-Flash (reasoning on) minus Claude Opus 5.5 (low reasoning)                      ⡧⠤⠤⡦⠤⠤                                     +1.6
          Claude Opus 5.5 (low reasoning) minus Claude Sonnet 5.5 (high reasoning)                      ⡇      ⠠⠤⠤⢴⠤⠤⠤                             +5.4
             Claude Sonnet 5.5 (high reasoning) minus GLM-5.3-Flash (reasoning on)                      ⡇       ⠠⠤⠤⠤⡦⠤⠤⠤⠄                          +6.2
-                                   GLM-5.3-Flash (reasoning on) minus Gemma 4 31B                      ⡇      ⠤⠤⠤⠤⡦⠤⠤⠤⠄                           +5.7
+                               GLM-5.3-Flash (reasoning on) minus Liquid d1-ultra                     ⠠⡧⠤⠤⢴⠤⠤⠤⠄                                   +1.7
+                                                Liquid d1-ultra minus Gemma 4 31B                      ⡇   ⠤⠤⠤⢴⠤⠤⠤⠤                               +4.0
                                      Gemma 4 31B minus GPT-6 Luna (low reasoning)                      ⡇    ⠠⠤⠤⠤⢴⠤⠤⠤⠤                             +4.8
                                                   Gemma 4 31B minus Fastino GLiDE                      ⡇     ⠤⠤⠤⠤⡦⠤⠤⠤⠤                            +5.2
                                    GPT-6 Luna (low reasoning) minus Fastino GLiDE                  ⠤⠤⠤⠤⣷⠤⠤⠤⠤⠄                                     +0.4
@@ -28,7 +29,7 @@ establish a difference; the colour shows a related but separate test, adjusted a
                 GPT-6 Luna, Decisions API minus Claude Sonnet 5.5 (low reasoning)                      ⡧⠤⠤⠤⢼⠤⠤⠤⠤                                  +2.2
                                 Claude Sonnet 5.5 (low reasoning) minus Celeris 1                   ⠤⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +0.9
                                                        Celeris 1 minus Decider v1                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.1
-                                                        Decider v1 minus Jev 1.14                    ⠤⠤⡧⠤⡧⠤⠤⠤⠄                                    +1.2
+                                                        Decider v1 minus Jev 1.14                    ⠒⠒⡗⠒⡗⠒⠒⠒⠂                                    +1.2
                                                         Decider v1 minus Jev 1.13                      ⡇⠐⠒⠒⠒⢺⠒⠒⠒⠒                                 +2.9
                                      Jev 1.14 minus GLM-5.3-Flash (reasoning off)                    ⠐⠒⡗⠒⢺⠒⠒⠒⠒⠂                                   +1.4
                                      GLM-5.3-Flash (reasoning off) minus Jev 1.13                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.3

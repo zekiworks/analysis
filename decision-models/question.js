@@ -1,7 +1,7 @@
 'use strict';
 
-/* One question's page, question/?id=…: its ID, part, topic, page, printed number, answer key and every setup's
-   pick with its probability or score, from ../data/picks.json. Never the question's text: the publisher owns it. */
+/* One question's page, question/?id=…: its ID, part, topic, page, printed number, answer key and every setup's pick
+   with its probability or score, from ../data/picks.json. Never the question's text: the publisher owns it. */
 
 const PICKS_URL = '../data/picks.json';
 const CORRECTION_URL = 'https://github.com/zekiworks/analysis/issues/new?template=answer-key-correction.md';

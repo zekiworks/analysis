@@ -1,7 +1,7 @@
 'use strict';
 
-/* Compare two setups, compare/?a=…&b=…: their measures side by side from ../results.json, and on the same
-   questions (../data/picks.json) how many each got right that the other got wrong, the paired difference with its
+/* The Compare page, compare/?a=…&b=…: two setups' measures side by side from results.json (one folder up), and on the
+   same questions (../data/picks.json) how many each got right that the other got wrong, the paired difference with its
    95% interval and the exact McNemar test, as benchmark_metrics.paired_comparison computes them. */
 
 const RESULTS_URL = '../results.json';
@@ -81,8 +81,8 @@ const MEASURES = [
   ['Accuracy', run => `${pct(share(total(run)))}<span class="small">${wilson(total(run).correct, total(run).questions).map(v => pct(v)).join(' to ')}</span>`],
   ['Reading', run => pct(share(run.groups.reading))],
   ['Grammar', run => pct(share(run.groups.grammar))],
-  ['Latency', run => (run.latency ? duration(run.latency.median_request_seconds) : NOT_MEASURED)],
-  ['$ per 1,000', run => (costPer1000(run) == null ? NOT_MEASURED : usd(costPer1000(run)))],
+  ['Median latency per request', run => (run.latency ? duration(run.latency.median_request_seconds) : NOT_MEASURED)],
+  ['$ per 1,000 questions', run => (costPer1000(run) == null ? NOT_MEASURED : usd(costPer1000(run)))],
   ['Kept at 99% (wrong)', run => `${run.confidence.sure.questions.toLocaleString('en-US')} (${run.confidence.sure.questions - run.confidence.sure.correct})`],
   ['Calibration gap', run => `${(100 * run.confidence.ece).toFixed(1)} points`],
   ['AUROC reading', run => run.confidence.parts.meaning.auroc.toFixed(2)],

@@ -1,23 +1,18 @@
-#!/usr/bin/env python3
-"""The link preview image and CITATION.cff, from one data snapshot: results.json, with page_config.json.
-
-    python3 build_page.py               # the link preview image and CITATION.cff
-    python3 build_page.py --no-images   # keep the current image (no Chrome needed)
-
-The site itself is built by build_v2.py, whose Method page uses this module's Snapshot, values() and table and
-figure code. v1/ keeps the earlier page as it was on 14 October 2026; nothing rebuilds it.
+"""Numbers, tables and figures shared by the site build (build_site.py), from one data snapshot: results.json, with
+page_config.json. The Method page uses this module's Snapshot, values() and table and figure code; the build draws the
+link preview image and writes CITATION.cff with it. v1/ keeps the earlier page as it was on 14 October 2026; nothing
+rebuilds it.
 
 The link preview shows every decision model's accuracy with its 95% interval. It is drawn by headless Chrome from
 HTML made here, in both themes, and saved under share/ with a short hash of its content in its name, so that a changed
 image gets a new address and no link preview shows a cached copy. share/images.json names the current files, which
 the home page's link preview uses. Earlier images are deleted until "announced" holds the date of the first public
-post, and kept after it, so that earlier link previews keep working. reproduce.py must pass first, and the build stops
-otherwise. Set CHROME to use another Chrome or Chromium binary.
+post, and kept after it, so that earlier link previews keep working. Set CHROME to use another Chrome or Chromium
+binary.
 """
 
 from __future__ import annotations
 
-import argparse
 import datetime
 import hashlib
 import html
@@ -1413,7 +1408,7 @@ ACCURACY_STYLE = """
 
 
 def chart_label(snap: Snapshot, run: dict[str, Any]) -> str:
-    """A setup's label in the site's charts (v2.js chartLabels): page_config.json's chart_labels, else its short name
+    """A setup's label in the site's charts (v3.js chartLabels): page_config.json's chart_labels, else its short name
     and variant."""
     named = snap.config["chart_labels"].get(run["provider"], {}).get(run["model"])
     if named:
@@ -1544,32 +1539,3 @@ def citation(snap: Snapshot, numbers: dict[str, str]) -> str:
         '  - "Turkish"',
         "",
     ])
-
-
-# ---------------------------------------------------------------- main
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--no-images", action="store_true", help="keep the current sharing images (no Chrome needed)")
-    args = parser.parse_args()
-    try:
-        results = json.loads((ROOT / "results.json").read_text(encoding="utf-8"))
-        config = json.loads((ROOT / "page_config.json").read_text(encoding="utf-8"))
-        snap = Snapshot(results, config, reproduce())
-        numbers = values(snap)
-        names = current_images() if args.no_images else render_images(snap)
-    except (OSError, ValueError, KeyError, StopIteration) as error:
-        print(f"error: {error!r}", file=sys.stderr)
-        return 1
-    if not args.no_images:
-        remove_old_images(snap, names)
-        IMAGES.write_text(json.dumps(names, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        print(f"Wrote {IMAGES.relative_to(ROOT)}")
-    CITATION.write_text(citation(snap, numbers), encoding="utf-8")
-    print(f"Wrote {CITATION.relative_to(ROOT)}")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
