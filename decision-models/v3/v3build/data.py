@@ -1,12 +1,14 @@
-"""Data: the downloads, the answer key changelog (rendered from key-changelog.md), how to cite and the licences."""
+"""Data: the downloads (the preview's copy of the results), the answer key changelog (rendered from key-changelog.md), how
+to cite (build_page.py's CITATION.cff text for the preview's results) and the licences."""
 
 from __future__ import annotations
 
 import hashlib
 import re
 
+import build_page as bp
 from v3build.questions import PICKS
-from v3build.site import ROOT, Site, esc, rel, up
+from v3build.site import ROOT, V3, Site, esc, rel
 
 PATH = "data/"
 CODE_URL = "https://github.com/zekiworks/analysis/tree/main/decision-models"
@@ -71,9 +73,9 @@ def size(path) -> str:
 def build(site: Site) -> dict[str, str]:
     results = site.results
     files = (
-        (ROOT / "results.json", up(PATH, "results.json"),
+        (V3 / "results.json", rel(PATH, "results.json"),
          "Every published number: each setup's accuracy, confidence, latency and cost, and the routing replays and live tests."),
-        (ROOT / "answers.json", up(PATH, "answers.json"),
+        (V3 / "answers.json", rel(PATH, "answers.json"),
          "Every answer of every run, with its score and option probabilities, and the prompts. No question text."),
         (PICKS, rel(PATH, "data/picks.json"),
          "Built from answers.json for these pages: each leaderboard setup's pick and score on each scored question."),
@@ -83,7 +85,7 @@ def build(site: Site) -> dict[str, str]:
         f'<td class="num" data-label="Size">{size(path)}</td></tr>'
         for path, href, text in files
     )
-    citation = (ROOT / "CITATION.cff").read_text()
+    citation = bp.citation(site.snapshot, site.values)
     key = results["answer_key"]
     picks_hash = hashlib.sha256(PICKS.read_bytes()).hexdigest()[:12]
     body = f"""    <section class="card">

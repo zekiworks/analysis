@@ -1,6 +1,7 @@
 """What every page of the v3 preview shares: the data, setup names, links between pages and the page shell (head,
-navigation bar, footer). The preview lives in v3/; the site's data (results.json, answers.json, charts/) stays one
-folder up, where the live pages read it."""
+navigation bar, footer). Until the switch the preview reads its own copy of the results, v3/results.json and
+v3/answers.json, with its charts/ and share/ drawn from that copy; page_config.json and key-changelog.md stay one folder
+up, with the live pages."""
 
 from __future__ import annotations
 
@@ -13,7 +14,8 @@ from typing import Any
 import benchmark_metrics as bm
 import build_page as bp
 
-# The site's folder (results.json, page_config.json, charts/) and the preview's folder inside it.
+# The site's folder (page_config.json, key-changelog.md) and the preview's folder inside it, with the preview's copy of
+# the results.
 ROOT = Path(__file__).resolve().parent.parent.parent
 V3 = ROOT / "v3"
 KICKER = "Zeki Works · Decision models · answer key v2"
@@ -38,12 +40,6 @@ def rel(origin: str, target: str) -> str:
     """A relative link from the page at origin to target, both paths inside v3/ ('' is its home page, 'models/145/')."""
     up = "../" * origin.count("/")
     return (up + target) or "./"
-
-
-def up(origin: str, target: str) -> str:
-    """A relative link from the page at origin (a path inside v3/) to target in the site's folder: results.json,
-    answers.json, charts/."""
-    return "../" * (origin.count("/") + 1) + target
 
 
 def topbar(path: str) -> str:
@@ -85,10 +81,11 @@ def request_size(size: int) -> str:
 
 
 class Site:
-    """results.json, page_config.json and, when a page needs it, answers.json."""
+    """The preview's results.json and page_config.json; when a page needs them, the preview's answers.json and
+    build_page.py's snapshot and values over the preview's results."""
 
     def __init__(self) -> None:
-        self.results: dict[str, Any] = json.loads((ROOT / "results.json").read_text())
+        self.results: dict[str, Any] = json.loads((V3 / "results.json").read_text())
         self.config: dict[str, Any] = json.loads((ROOT / "page_config.json").read_text())
         self.runs: list[dict[str, Any]] = self.results["runs"]
         self.by_id = {run["run"]: run for run in self.runs}
@@ -97,7 +94,7 @@ class Site:
 
     @cached_property
     def answers(self) -> dict[str, Any]:
-        return json.loads((ROOT / "answers.json").read_text())
+        return json.loads((V3 / "answers.json").read_text())
 
     @cached_property
     def scored(self) -> list[int]:
@@ -109,6 +106,18 @@ class Site:
     def answer_runs(self) -> dict[int, dict[str, Any]]:
         """Each leaderboard run's per-question answers, by run id."""
         return {item["run"]: item for item in self.answers["runs"]}
+
+    @cached_property
+    def snapshot(self) -> bp.Snapshot:
+        """build_page.py's Snapshot over a copy of results.json (it adds request size labels to the runs it holds), with
+        the count of checks from running reproduce.py on the preview's copy (bp.reproduce), which stops the build unless
+        every check matches."""
+        return bp.Snapshot(json.loads(json.dumps(self.results)), self.config, bp.reproduce(V3))
+
+    @cached_property
+    def values(self) -> dict[str, str]:
+        """build_page.py's values over the snapshot: the Method page's numbers and the citation's counts."""
+        return bp.values(self.snapshot)
 
     def decision(self, run: dict[str, Any]) -> bool:
         return run["provider"] in self.config["decision_model_providers"] and run["model"] not in self.config["not_decision_models"]
@@ -185,7 +194,7 @@ class Site:
 {body}
   </main>
   <footer class="footer">
-    <p>Download: <a href="{up(path, "results.json")}" download>results.json</a> · <a href="{up(path, "answers.json")}" download>answers.json</a></p>
+    <p>Download: <a href="{rel(path, "results.json")}" download>results.json</a> · <a href="{rel(path, "answers.json")}" download>answers.json</a></p>
     <p>{self.version()}</p>
   </footer>
 </body>

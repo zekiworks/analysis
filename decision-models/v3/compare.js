@@ -1,11 +1,11 @@
 'use strict';
 
-/* The v3 preview's Compare page, v3/compare/?a=…&b=…: two setups' measures side by side from the site's results.json
-   (two folders up), and on the same questions (the preview's ../data/picks.json) how many each got right that the other
-   got wrong, the paired difference with its 95% interval and the exact McNemar test, as
+/* The v3 preview's Compare page, v3/compare/?a=…&b=…: two setups' measures side by side from the preview's own copy of
+   results.json (one folder up), and on the same questions (the preview's ../data/picks.json) how many each got right
+   that the other got wrong, the paired difference with its 95% interval and the exact McNemar test, as
    benchmark_metrics.paired_comparison computes them. */
 
-const RESULTS_URL = '../../results.json';
+const RESULTS_URL = '../results.json';
 const PICKS_URL = '../data/picks.json';
 
 const esc = text =>

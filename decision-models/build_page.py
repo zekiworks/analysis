@@ -221,9 +221,10 @@ def pick(items: list[dict[str, Any]], spec: dict[str, Any], what: str) -> dict[s
     return found[0] if found else None
 
 
-def reproduce() -> int:
-    """Run reproduce.py; the number of checks, all of which must match."""
-    done = subprocess.run([sys.executable, "-B", str(ROOT / "reproduce.py")], capture_output=True, text=True, cwd=ROOT)
+def reproduce(folder: Path = ROOT) -> int:
+    """Run reproduce.py on folder's results.json and answers.json; the number of checks, all of which must match."""
+    command = [sys.executable, "-B", str(ROOT / "reproduce.py"), "--docs", str(folder)]
+    done = subprocess.run(command, capture_output=True, text=True, cwd=ROOT)
     found = CHECKS.search(done.stdout)
     if done.returncode or not found or found.group(2) != "0":
         sys.stderr.write(done.stdout[-2000:] + done.stderr[-2000:])
@@ -418,6 +419,7 @@ def values(snap: Snapshot) -> dict[str, str]:
         "threshold": cutoff_text(snap.config["threshold"]),
         "questions": count(snap.total),
         "models": count(snap.models),
+        "decision_models": count(sum(map(snap.decision_model, snap.runs))),
         "configs": count(len(snap.runs)),
         "featured_configs": count(len(snap.featured)),
         "reading_questions": count(snap.reading_questions),
@@ -497,9 +499,6 @@ def values(snap: Snapshot) -> dict[str, str]:
     out["sol_gap"] = f"{100 * (astra['correct'] - sol['correct']) / snap.total:.1f}"
     out.update(replay_values(snap))
     out.update(paired_values(snap))
-    out.update(top_values(snap))
-    out.update(overview_values(snap))
-    out.update(subq_values(snap))
     out.update(key_values(snap))
     out.update(study_values(snap))
     out.update(method_values(snap))
@@ -685,49 +684,7 @@ def passed_cost(test: dict[str, Any]) -> float:
     return ((measured["cost_usd"] - measured["decision_cost_usd"]) / passed) / (measured["frontier_cost_usd"] / plan["held_out"])
 
 
-# ---------------------------------------------------------------- the earlier page's overview values (blocks 04 to 09) and the reasoning table
-
-
-# The decision models block 04 says kept no answer at the fixed cutoff.
-NONE_KEPT = ("celeris", "subq")
-
-
-def overview_values(snap: Snapshot) -> dict[str, str]:
-    """Values only the overview sections (blocks 04 to 09) use: the highest score of each model that kept no answer at
-    the fixed cutoff. The build stops when one of them now keeps answers there."""
-    out = {}
-    for key in NONE_KEPT:
-        run = snap.named[key]
-        if ((run.get("confidence") or {}).get("sure") or {}).get("questions"):
-            raise ValueError(f"block 04 says {run['name']} kept no answers at the fixed cutoff")
-        out[f"overview_{key}_top"] = cutoff_text(max(score for score in method_scores(run["run"]) if score is not None))
-    return out
-
-
-def subq_values(snap: Snapshot) -> dict[str, str]:
-    """The numbers of block 03's SubQ Snap paragraph that the per-run values do not give: its release date (page_config.json
-    subq_release), its share in front of Sonnet, its cost against Decider's and the context its maker claims. The build
-    stops when the paragraph's claims no longer hold: tested the day after the release, not told apart from Decider v1.1
-    or GLiDE, second to Decider v1.1 in front of Sonnet."""
-    named, release = snap.named, snap.config["subq_release"]
-    subq, decider = named["subq"], named["decider_v11"]
-    day = datetime.date.fromisoformat(release["date"])
-    if datetime.date.fromisoformat(subq["started"][:10]) != day + datetime.timedelta(days=1):
-        raise ValueError("block 03 says we tested SubQ Snap the day after its release")
-    for other in (decider, named["glide"]):
-        if not set(subq["group"]) & set(other["group"]):
-            raise ValueError(f"block 03 says our test did not separate SubQ Snap from {other['name']}")
-    sonnet = next(item for item in opening_seconds(snap) if item["key"] == "sonnet_high")
-    ranking = strict_ranking(snap, sonnet["run"])
-    if ranking[0][0] is not decider or ranking[1][0] is not subq:
-        raise ValueError("block 03 says SubQ Snap came second to Decider v1.1 in front of Sonnet")
-    ratio = per_thousand(subq) / per_thousand(decider)
-    return {
-        "subq_released": long_date(release["date"]),
-        "subq_sonnet_share": snap.fmt.pct(ranking[1][1]["held_out"]["answered"], 0),
-        "subq_cost_ratio": times(ratio) if ratio >= 10 else f"{ratio:.1f}",
-        "subq_context": release["context"],
-    }
+# ---------------------------------------------------------------- the answer key version and the reasoning table
 
 
 KEY_CHANGELOG = ROOT / "key-changelog.md"
@@ -794,25 +751,11 @@ def study_range_text(low: float, high: float) -> str:
 
 
 def study_checks(snap: Snapshot) -> None:
-    """The claims the study's copy makes in words; the build stops when the data no longer supports one of them."""
+    """The claims the Method pages make in words; the build stops when the data no longer supports one of them."""
     named, total = snap.named, snap.total
     decision = [run for run in snap.runs if snap.decision_model(run)]
-    gemma = named["gemma"]
-    for group in ("reading", "grammar"):
-        best = max(study_share(snap, run, group) for run in decision)
-        if study_share(snap, gemma, group) <= best:
-            raise ValueError(f"the study says Gemma beats every decision model on {group}; it does not")
-    if max(decision, key=lambda run: run["correct"]) is not named["glide"]:
-        raise ValueError("the study says GLiDE has the highest accuracy among the decision models")
-    if max(decision, key=lambda run: run["confidence"]["auroc"]) is not named["decider_v11"]:
-        raise ValueError("the study says Decider v1.1 has the highest ranking score among the decision models")
     if min(decision, key=lambda run: run["confidence"]["ece"]) is not named["luna_api"]:
         raise ValueError("the study says Luna through the Decisions API has the smallest calibration gap among the decision models")
-    by_runs = {(item["first"], item["second"]): item for item in snap.results["paired"]}
-    for first, second in (("glide", "decider_v11"),):
-        item = by_runs[(named[first]["run"], named[second]["run"])]
-        if item["p_holm_all"] < ALPHA:
-            raise ValueError(f"the study says the test over all pairs did not establish a difference between {first} and {second}")
     deepseek = named["deepseek_on"]["confidence"]["sure"]
     if deepseek["questions"] != total:
         raise ValueError("the study says DeepSeek with reasoning scores every answer letter at 99% or more")
@@ -1030,22 +973,13 @@ def study_gap(run: dict[str, Any]) -> str:
     return f"{100 * run['confidence']['ece']:.1f}"
 
 
-# ---------------------------------------------------------------- the opening's numbers, the title and the images
+# ---------------------------------------------------------------- the title and the images
 
 
 # The page's title and the link preview's (the headline on the page is the h1 in index.html).
 TITLE = "When should you trust an AI model to make a decision? · Zeki Works"
 # The three LLMs the opening puts Decider in front of, by named-run key; the opening orders them by saving.
 OPENING_SECONDS = ("sonnet_high", "opus", "astra")
-# How the opening names a decision model that came second in front of an LLM; others go by their short name.
-RUNNER_UP_NAMES = {"fastino/GLiDE": "Fastino's GLiDE", "subq-snap-preview": "SubQ Snap"}
-# The speed table's rows: a named run and whether the row is its separate one-question test.
-SPEED_ROWS = (("decider_v11", False), ("glide", False), ("opus", False), ("sonnet_high", False), ("astra", True), ("astra", False))
-
-
-def speed_words(value: float) -> str:
-    """Decider's typical response time in words: 'a quarter of a second' while it is within 0.05 s of it."""
-    return "a quarter of a second" if abs(value - 0.25) < 0.05 else f"{value:.2f} seconds"
 
 
 def opening_seconds(snap: Snapshot) -> list[dict[str, Any]]:
@@ -1054,176 +988,6 @@ def opening_seconds(snap: Snapshot) -> list[dict[str, Any]]:
     if len(items) != len(OPENING_SECONDS) or any(item["strict"] is None for item in items):
         raise ValueError("the opening needs a strict cutoff for each of its three LLMs")
     return sorted(items, key=lambda item: -item["strict"]["saving"])
-
-
-def strict_ranking(snap: Snapshot, frontier: dict[str, Any]) -> list[tuple[dict[str, Any], dict[str, Any]]]:
-    """The decision models in front of one LLM with the strict cutoff, by the share they take, largest first."""
-    found = [(snap.by_id[item["decision"]], item) for item in snap.results["cascades"] if item["frontier"] == frontier["run"]]
-    return sorted(((run, item) for run, item in found if snap.decision_model(run)), key=lambda pair: -pair[1]["held_out"]["answered"])
-
-
-def top_values(snap: Snapshot) -> dict[str, str]:
-    """Values only the top of the page uses: the opening and the sections before the confidence overview. Each claim
-    the copy makes around them is checked here, and the build stops when the data no longer supports it."""
-    fmt, decider, named = snap.fmt, snap.replay["run"], snap.named
-    if decider is not named["decider_v11"]:
-        raise ValueError("the opening speaks of Decider v1.1, but the replay leads with another run")
-    seconds_list = opening_seconds(snap)
-    out = {}
-    latency = decider["latency"]
-    out["decider_speed_words"] = speed_words(latency["median_request_seconds"])
-    splits = {item["held_out"]["splits"] for item in snap.results["cascades"]}
-    if len(splits) != 1:
-        raise ValueError("the routing simulations use different numbers of splits")
-    out["splits"] = count(splits.pop())
-    out["decider_v11_accuracy_whole"] = fmt.pct(decider["correct"] / snap.total, 0)
-    chat = max((run for run in snap.runs if not snap.decision_model(run)), key=lambda run: run["correct"])
-    out["best_chat_accuracy_whole"] = fmt.pct(chat["correct"] / snap.total, 0)
-
-    # "Decider v1.1 took the most questions off each LLM", then which decision model came second in front of each LLM
-    # and what its own calls cost against Decider's; "accuracy fell in front of each".
-    runners: dict[int, list[str]] = {}
-    for item in seconds_list:
-        ranking = strict_ranking(snap, item["run"])
-        if ranking[0][0] is not decider:
-            raise ValueError(f"Decider v1.1 no longer takes the most questions off {label(item['run'])}")
-        runners.setdefault(ranking[1][0]["run"], []).append(live_name(snap, item["run"]))
-
-    def ratio_text(run: dict[str, Any]) -> str:
-        ratio = per_thousand(run) / per_thousand(decider)
-        return times(ratio) if ratio >= 10 else f"{ratio:.1f}".rstrip("0").rstrip(".")
-
-    second = [(snap.by_id[run_id], llms) for run_id, llms in runners.items()]
-    if len(second) == 1:
-        out["opening_runner_up"] = (f"{RUNNER_UP_NAMES.get(second[0][0]['model'], snap.short(second[0][0]))} came second each "
-                                    f"time, but its own calls cost {ratio_text(second[0][0])} times as much as Decider's.")
-    else:
-        places = [f"{RUNNER_UP_NAMES.get(run['model'], snap.short(run))}{' came second' if index == 0 else ''} in front of "
-                  f"{and_list(llms)}" for index, (run, llms) in enumerate(second)]
-        last = ", and " if len(places) == 2 else "; and "
-        out["opening_runner_up"] = (f"{'; '.join(places[:-1])}{last}{places[-1]}. Their own calls cost "
-                                    f"{and_list([ratio_text(run) for run, _ in second])} times as much as Decider's.")
-    losses = [-item["strict"]["difference"] for item in seconds_list]
-    if min(losses) <= 0:
-        raise ValueError("the opening says accuracy fell in front of every LLM")
-
-    # Why Decider v1.1: the most confident-and-right answers, the best ranking, no changed answers, the step from v1.
-    clean = sorted(
-        (run for run in snap.runs if snap.decision_model(run) and (sure := (run.get("confidence") or {}).get("sure"))
-         and sure["questions"] and sure["questions"] == sure["correct"]),
-        key=lambda run: -run["confidence"]["sure"]["questions"],
-    )
-    if clean[0] is not decider or len(clean) < 3:
-        raise ValueError("Decider v1.1 no longer keeps the most answers with no mistakes at 99%")
-    out["why_sure_others"] = and_list([f"{count(run['confidence']['sure']['questions'])} ({snap.short(run)})" for run in clean[1:3]])
-    decision_aurocs = [run["confidence"]["auroc"] for run in snap.runs if snap.decision_model(run) and run.get("confidence")]
-    if decider["confidence"]["auroc"] < max(decision_aurocs):
-        raise ValueError("Decider v1.1 no longer has the highest ranking score of the decision models")
-    repeats = snap.repeats_by_key["decider_v11"]
-    if repeats["changed_answer"]:
-        raise ValueError("the copy says Decider v1.1 never changed an answer across its repeats")
-    out["decider_v11_repeat_runs"] = in_words(len(repeats["runs"]))
-    v1 = named["decider_v1"]
-    out["v11_gain"] = f"{100 * (decider['correct'] - v1['correct']) / snap.total:.1f}"
-    out["v11_sure_ratio"] = times(decider["confidence"]["sure"]["questions"] / v1["confidence"]["sure"]["questions"])
-    cost_ratio = per_thousand(decider) / per_thousand(v1)
-    v1_price, v11_price = snap.price(v1)["rates"]["input_tokens"], snap.price(decider)["rates"]["input_tokens"]
-    if not 0.45 <= cost_ratio <= 0.55 or not v11_price < v1_price:
-        raise ValueError("the copy says Decider v1.1 costs half as much as v1 because Perplexity cut its price")
-    # GLiDE comes close: in front of Opus it takes less of the work and loses less accuracy.
-    glide_opus = next(item for run, item in strict_ranking(snap, named["opus"]) if run is named["glide"])
-    opus_strict = next(item for item in snap.replay["frontiers"] if item["key"] == "opus")["strict"]
-    if not (glide_opus["held_out"]["answered"] < opus_strict["share"] and -glide_opus["held_out"]["difference"] < -opus_strict["difference"]):
-        raise ValueError("the copy says GLiDE takes less of Opus's work than Decider but loses less accuracy")
-    out["glide_opus_loss"] = f"{-100 * glide_opus['held_out']['difference']:.2f}"
-    out["decider_opus_loss"] = f"{-100 * opus_strict['difference']:.2f}"
-
-    # Speed: GLiDE ran several requests at a time, the others one; sample timings.
-    timed = [named[key] for key, _ in SPEED_ROWS]
-    if any(run["latency"]["concurrency"] != 1 for run in timed if run is not named["glide"]):
-        raise ValueError("the speed section says every model but GLiDE ran one request at a time")
-    sampled = {(len(named[key]["latency"]["runs"]), named[key]["latency"]["questions"]) for key in ("opus", "sonnet_high", "astra")}
-    if len(sampled) != 1 or any(named[key]["latency"]["source"] != "sample" for key in ("opus", "sonnet_high", "astra")):
-        raise ValueError("the speed section says Opus, Sonnet and Astra were timed on the same sample runs")
-    (runs, questions), = sampled
-    out["speed_sample_runs"], out["speed_sample_questions"] = in_words(runs), count(questions)
-    if named["astra"]["single_question_latency"]["questions"] != questions:
-        raise ValueError("the speed section says Astra's one-question test used the same questions")
-
-    # Savings: the most confident quarter on halves; the opening's live test, with the cutoff chosen on half the questions.
-    sonnet = next(item for item in snap.replay["frontiers"] if item["key"] == "sonnet_high")
-    better = sonnet["share"]["held_out"]["better"]
-    out["sonnet_high_surest_held_words"] = "every time" if better == 1 else f"in {fmt.pct(better, 0)} of them"
-    halves = {key: rules["half"] for key, rules in live_tests(snap)["decider"].items()}
-    replayed = {item["key"]: item["strict"]["saving"] for item in snap.replay["frontiers"] if item["strict"]}
-    if any(saving(test["measured"]) >= replayed[key] for key, test in halves.items()):
-        raise ValueError("the opening says the live test's estimated cost fell by less than the replay's")
-    if max(test["measured"]["difference"] for test in halves.values()) > 0 or min(test["measured"]["p"] for test in halves.values()) < 0.05:
-        raise ValueError("the opening says accuracy fell by at most the largest loss and no live test established a change")
-    for key, test in halves.items():
-        out[f"live_{key}_saving_whole"] = fmt.pct(saving(test["measured"]), 0)
-    out["live_questions"] = count(snap.plan["held_out"])
-    out["live_most_lost"] = f"{-100 * min(test['measured']['difference'] for test in halves.values()):.2f}"
-    # The savings note: in how many live tests the saving was smaller than the replay's for the same LLM and rule.
-    rules_replayed = replay_rules(snap)
-    every = [(key, rule, test) for key, rules in live_tests(snap)["decider"].items() for rule, test in rules.items()]
-    smaller = sum(1 for key, rule, test in every if saving(test["measured"]) < rules_replayed[key][rule]["saving"])
-    if not smaller:
-        raise ValueError("the savings note says some live savings were smaller than the replay's")
-    out["live_smaller"] = f"all {in_words(len(every))}" if smaller == len(every) else f"{in_words(smaller)} of the {in_words(len(every))}"
-    # The opening's pointer to the timed test: an accuracy change that test established, with the LLM alone more accurate
-    # there than with batched requests (the case the sentence describes).
-    one = [(key, test) for key, test in live_tests(snap)["timed"].items() if test["measured"]["p"] < 0.05]
-    if not one:
-        out["live_one_question"] = "With one question per request, no test established a change in accuracy either"
-    else:
-        if any(test["measured"]["difference"] > 0 or test["measured"]["frontier_accuracy"] <= halves[key]["measured"]["frontier_accuracy"]
-               for key, test in one):
-            raise ValueError("the opening says one question per request made the LLM alone more accurate and the pair less")
-        names = and_list([live_name(snap, test["frontier"]) for _, test in one])
-        fewer = and_list(["%.2f" % (-100 * test["measured"]["difference"]) for _, test in one])
-        out["live_one_question"] = (f"With one question per request, {names} alone got more answers right, and with Decider first "
-                                    f"{'it' if len(one) == 1 else 'they'} got {fewer} points fewer right")
-    # "Why Opus and Sonnet gain more: they make more mistakes than Astra"; "Sol gets cheaper with no change in accuracy";
-    # "Decider wins on speed and price" over GLiDE.
-    if not (named["opus"]["correct"] < named["astra"]["correct"] and named["sonnet_high"]["correct"] < named["astra"]["correct"]):
-        raise ValueError("the savings notes say Opus and Sonnet make more mistakes than Astra")
-    sol = next(item for item in snap.replay["frontiers"] if item["key"] == "sol")
-    if sol["sure"]["difference"] != 0:
-        raise ValueError("the savings notes say Decider at 99% leaves Sol's accuracy unchanged")
-    glide = named["glide"]
-    if not (latency["median_request_seconds"] < glide["latency"]["median_request_seconds"] and per_thousand(decider) < per_thousand(glide)):
-        raise ValueError("the copy says Decider is faster and cheaper than GLiDE")
-    out["opening_opus_per_request"] = count(named["opus"]["questions_per_request"])
-
-    def mistakes(wrong: int) -> str:
-        return "no mistakes" if not wrong else f"{count(wrong)} mistake{'s' if wrong != 1 else ''}"
-
-    for row in snap.replay["cutoffs"]:
-        tag = cutoff_text(row["cutoff"]).rstrip("%").replace(".", "")
-        out[f"cut_{tag}_cutoff"] = cutoff_text(row["cutoff"])
-        out[f"cut_{tag}_mistakes"] = mistakes(row["wrong"])
-    out["surest_mistakes"] = mistakes(snap.replay["share"]["wrong"])
-
-    # The opening: how many decision models we tested and put in front of an LLM, what GLiDE's calls cost against
-    # Decider's, how many more answers the two-step setups got wrong per 1,000 questions, and that the best decision
-    # models get about two answers in three right.
-    tried, untried = decision_first_models(snap)
-    out["decision_models"] = count(len(tried) + len(untried))
-    out["decision_models_tried"] = count(len(tried))
-    out["opening_llm_count"] = in_words(len(seconds_list))
-    out["opening_more_wrong"] = f"{more_wrong_span(snap)} more answers"
-    best = max(run["correct"] for run in tried + untried) / snap.total
-    if not 0.6 <= best <= 0.72:
-        raise ValueError("the opening says the best decision models get about two answers in three right")
-    return out
-
-
-def decision_first_models(snap: Snapshot) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """The decision models we put in front of an LLM, and those we did not, each in results.json's order."""
-    first = {item["decision"] for item in snap.results["cascades"]}
-    decision = [run for run in snap.runs if snap.decision_model(run)]
-    return [run for run in decision if run["run"] in first], [run for run in decision if run["run"] not in first]
 
 
 def setup_name(item: dict[str, Any]) -> str:
@@ -1305,21 +1069,6 @@ def rerun_frontiers(snap: Snapshot) -> list[dict[str, Any]]:
     if any(item["strict"] is None for item in items):
         raise ValueError("a format rerun in the replay has no routing simulation with the cutoff chosen on half the questions")
     return items
-
-
-def replay_rules(snap: Snapshot) -> dict[str, dict[str, Any]]:
-    """The replay's numbers for each second model, by live test rule (None where the replay has no such rule)."""
-    return {item["key"]: {"share": item["share"], "half": item["strict"], "cutoff": item["sure"]} for item in snap.replay["frontiers"]}
-
-
-def more_wrong_span(snap: Snapshot) -> str:
-    """How many more answers per 1,000 questions the opening's two-step setups got wrong than their LLMs alone, with the
-    cutoff chosen on half the questions, to one decimal: '1.0 to 2.3'. The build stops unless each got more wrong."""
-    more = sorted(-1000 * item["strict"]["difference"] for item in opening_seconds(snap))
-    if more[0] <= 0:
-        raise ValueError("the opening says each two-step setup got more answers wrong per 1,000 questions than its LLM")
-    low, high = f"{more[0]:.1f}", f"{more[-1]:.1f}"
-    return low if low == high else f"{low} to {high}"
 
 
 # ---------------------------------------------------------------- the study's understanding, method and limits (blocks 23 to 36)
@@ -1596,12 +1345,12 @@ def method_paired_figure(snap: Snapshot) -> str:
 # ---------------------------------------------------------------- chart figures
 
 
-def chart_sizes(page: str) -> str:
-    """Give every chart image the width and height of its SVG. In the dark theme the charts load lazily; with their size
-    known, the page keeps its height while they arrive and does not jump."""
+def chart_sizes(page: str, folder: Path = ROOT) -> str:
+    """Give every chart image the width and height of its SVG in folder's charts/. In the dark theme the charts load
+    lazily; with their size known, the page keeps its height while they arrive and does not jump."""
 
     def sized(match: re.Match[str]) -> str:
-        found = SVG_SIZE.search((ROOT / match.group(2)).read_text(encoding="utf-8"))
+        found = SVG_SIZE.search((folder / match.group(2)).read_text(encoding="utf-8"))
         if not found:
             raise ValueError(f"{match.group(2)} has no viewBox")
         width, height = (round(float(value)) for value in found.groups())
@@ -1710,14 +1459,14 @@ def png_size(path: Path) -> tuple[int, int]:
     return int.from_bytes(data[:4], "big"), int.from_bytes(data[4:], "big")
 
 
-def render_images(snap: Snapshot) -> dict[str, dict[str, str]]:
-    """Draw every sharing image in both themes and save it under share/ as <stem>-<theme>-<hash>.png, the hash being
-    the start of the file's SHA-256. Returns the names by image and theme."""
+def render_images(snap: Snapshot, folder: Path = ROOT) -> dict[str, dict[str, str]]:
+    """Draw every sharing image in both themes and save it under folder's share/ as <stem>-<theme>-<hash>.png, the hash
+    being the start of the file's SHA-256. Returns the names by image and theme, relative to folder."""
     chrome = os.environ.get("CHROME", "google-chrome")
     sizes = snap.config["images"]
     pages = {"preview": (lambda theme: accuracy_image(snap, sizes["preview"], theme), sizes["preview"])}
     names: dict[str, dict[str, str]] = {}
-    SHARE.mkdir(parents=True, exist_ok=True)
+    (folder / "share").mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as work:
         for key, stem in IMAGE_STEMS:
             page, size = pages[key]
@@ -1734,10 +1483,10 @@ def render_images(snap: Snapshot) -> dict[str, dict[str, str]]:
                     raise SystemExit(f"{key} ({theme}) is {png_size(shot)}, not {size['width']}x{size['height']}")
                 data = shot.read_bytes()
                 name = f"share/{stem}-{theme}-{hashlib.sha256(data).hexdigest()[:8]}.png"
-                (ROOT / name).write_bytes(data)
-                os.chmod(ROOT / name, 0o644)
+                (folder / name).write_bytes(data)
+                os.chmod(folder / name, 0o644)
                 names.setdefault(key, {})[theme] = name
-                print(f"Wrote {name} ({size['width']}x{size['height']})")
+                print(f"Wrote {(folder / name).relative_to(ROOT)} ({size['width']}x{size['height']})")
     return names
 
 

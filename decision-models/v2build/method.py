@@ -307,9 +307,19 @@ def price_list(snap: bp.Snapshot) -> str:
     return '<ul class="footnote price-list">' + "".join(f"<li>{item}</li>" for item in items) + "</ul>"
 
 
+def gemma_lead(snap: bp.Snapshot) -> None:
+    """What we found says Gemma 4 31B, a chat model, scored higher than every decision model on Reading and on Grammar;
+    the build stops when it no longer does."""
+    decision = [run for run in snap.runs if snap.decision_model(run)]
+    for group in ("reading", "grammar"):
+        if bp.study_share(snap, snap.named["gemma"], group) <= max(bp.study_share(snap, run, group) for run in decision):
+            raise ValueError(f"the study says Gemma beats every decision model on {group}; it does not")
+
+
 def build(site: Site) -> dict[str, str]:
     snap = snapshot(site)
     v = bp.values(snap)
+    gemma_lead(snap)
     cite = Cites()
     pairs = reasoning_pairs(site, snap)
     smaller, live_total = average_cost(snap)

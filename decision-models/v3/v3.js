@@ -1,14 +1,14 @@
 'use strict';
 
 /* The v3 preview's home page: filters, the four leaderboard tabs, the routing diagram and the two charts, drawn from the
-   site's results.json one folder up. Every number is read from it and computed as on the live page (v2.js): accuracy
-   for a part or topic and its 95% interval from the counts it stores, with the Wilson formula, and the routing numbers
-   from the same replays and live tests. The open tab and the Routing choices live in the URL; the filters, the
-   highlighted setup and the chart choices live in the browser's history entry, so Back returns to them. Without
-   JavaScript the page keeps the plain table build_v3.py writes. */
+   preview's own copy of results.json, beside this page. Every number is read from it and computed as on the live page
+   (v2.js): accuracy for a part or topic and its 95% interval from the counts it stores, with the Wilson formula, and the
+   routing numbers from the same replays and live tests. The open tab and the Routing choices live in the URL; the
+   filters, the highlighted setup and the chart choices live in the browser's history entry, so Back returns to them.
+   Without JavaScript the page keeps the plain table build_v3.py writes. */
 
 const SETTINGS = JSON.parse(document.getElementById('v3-settings').textContent);
-const RESULTS_URL = '../results.json';
+const RESULTS_URL = 'results.json';
 
 /* Why a cell has no value. */
 const EMPTY = {
@@ -29,7 +29,7 @@ const CONFIDENCE_NOTE = [
 const ROUTING_NOTES = [
   'Replay: both models’ recorded answers. Live: the decision model’s recorded answers, with new calls to the LLM. Savings are estimates from API prices, and larger at 1 question per request: each question the LLM skips costs more.',
   'In a live test with Sonnet at 1 question per request, accuracy fell 4.73 points: Decider kept 51%, with a cutoff chosen at 16 per request. A cutoff chosen at 1 per request keeps 29%, and accuracy falls 0.16 points (replay). Choose the cutoff in the format you will run.',
-  'SubQ Snap’s place depends on the LLM: second among decision models in front of Sonnet (16 per request), about fifth in front of Opus and Astra. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, GLiDE’s 99.5%.',
+  'SubQ Snap’s place depends on the LLM: third among decision models in front of Sonnet (16 per request), seventh in front of Opus, sixth in front of Astra. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, GLiDE’s 99.5%.',
 ];
 const STABILITY_NOTE = [
   'Only the setups we repeated, five times each. Decision models and two Qwen3.8-27B setups were repeated on all questions; the other chat models on a sample of 200.',

@@ -10,7 +10,7 @@ import json
 import math
 from typing import Any
 
-from v3build.site import V3, Site, esc, rel, up
+from v3build.site import V3, Site, esc, rel
 
 PICKS = V3 / "data" / "picks.json"
 
@@ -115,7 +115,7 @@ def question_view(site: Site) -> str:
     body = f"""    <section class="card" id="question">
       <h1>Question</h1>
       <p class="note" data-question-status hidden>Loading the question…</p>
-      <noscript><p class="note">This page needs JavaScript. Without it, <a href="{up(path, "answers.json")}" download>answers.json</a> holds every setup's answer to every question, and <a href="{rel(path, "questions/")}">Every question</a> lists each question's key and how many setups got it right.</p></noscript>
+      <noscript><p class="note">This page needs JavaScript. Without it, <a href="{rel(path, "answers.json")}" download>answers.json</a> holds every setup's answer to every question, and <a href="{rel(path, "questions/")}">Every question</a> lists each question's key and how many setups got it right.</p></noscript>
       <div data-question hidden></div>
     </section>"""
     return site.page(path, "Question", "One question: its part, topic, page, printed number, answer key and every setup's pick.", body,

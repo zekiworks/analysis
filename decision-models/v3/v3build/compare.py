@@ -1,5 +1,5 @@
 """Compare: two setups side by side, with the exact McNemar test on the questions they answered differently. The page is
-drawn by compare.js from the site's results.json and from data/picks.json (written by v3build.questions)."""
+drawn by compare.js from the preview's results.json and from data/picks.json (written by v3build.questions)."""
 
 from __future__ import annotations
 

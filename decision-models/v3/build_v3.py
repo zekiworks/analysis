@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
-"""Build the v3 redesign preview (v3/, at /analysis/decision-models/v3/) from the site's results.json and answers.json,
-with page_config.json. It writes only inside v3/; the live pages and their files stay as they are.
+"""Build the v3 redesign preview (v3/, at /analysis/decision-models/v3/) from its own copy of the results,
+v3/results.json and v3/answers.json (until the switch), with page_config.json. It writes only inside v3/; the live
+pages and their files stay as they are.
 
+    cargo run --release --manifest-path chart-renderer/Cargo.toml -- v3/results.json /tmp/v3-charts
+    cp /tmp/v3-charts/{coverage,calibration-all,sources,paired}{,-dark}.svg v3/charts/
     python3 v3/build_v3.py
+
+The first two commands draw the four charts the Method page shows from the preview's results. The build needs Chrome
+(CHROME, else google-chrome), as build_page.py does: it draws the link preview image from the preview's results into
+v3/share/ and removes earlier ones there.
 
 The preview copies the live site's build (build_v2.py and v2build/) and scripts, adapted to the redesign. Every page is
 kept out of search engines, and no live page links to it. The home page, v3/index.html, keeps its copy; this script
 rewrites what is inside its <!-- build:name --> markers: the meta tags, the top bar, the intro (its counts from
 results.json), the counters, the results version, the plain table for readers without JavaScript (every setup) and the
 note under it, the settings v3.js reads, the default setup count, the charts' "Show all" label, the topic list and the
-questions in view. v3.js draws everything else in the browser from ../results.json. Every other page is generated whole
-by a module of v3/v3build/ (PAGE_MODULES) and written to v3/<path>index.html; the Method page runs reproduce.py for its
-count of checks.
+questions in view. v3.js draws everything else in the browser from v3/results.json. Every other page is generated
+whole by a module of v3/v3build/ (PAGE_MODULES) and written to v3/<path>index.html; the Method page runs reproduce.py
+on the preview's results for its count of checks.
 
 The home page's fixed copy (the summary lines, the note under the Accuracy table, the notes under the tabs, the meta
 description) quotes numbers and comparisons; copy_checks() tests each against results.json and prints every one that
@@ -49,9 +56,9 @@ INTRO = (
 DESCRIPTION = (
     "We tested {decision} decision models on a reading comprehension and grammar test in native Turkish (not "
     "translated): {questions} questions. "
-    "No model led on every measure. Fastino's GLiDE got the most answers right; Perplexity's Decider v1.1 kept the "
+    "No model led on every measure. Liquid's d1-ultra got the most answers right; Perplexity's Decider v1.1 kept the "
     "most answers at 99% confidence with no mistakes. With every model at 1 question per request, the decision model "
-    "with the largest share took 20% to 29% of each LLM's questions, with accuracy at most 0.18 points lower, in a "
+    "with the largest share took 33% to 46% of each LLM's questions, with accuracy at most 0.32 points lower, in a "
     "replay of recorded answers."
 )
 # The note under the Accuracy table, with and without JavaScript; copy_checks tests both reasons against the run records.
@@ -66,10 +73,10 @@ CHART_DECISION_MODELS = 8
 
 
 class Data:
-    """results.json and page_config.json, with the run lookups the page needs."""
+    """The preview's results.json and page_config.json, with the run lookups the page needs."""
 
     def __init__(self) -> None:
-        self.results = json.loads((ROOT / "results.json").read_text())
+        self.results = json.loads((V3 / "results.json").read_text())
         self.config = json.loads((ROOT / "page_config.json").read_text())
         self.runs: list[dict[str, Any]] = self.results["runs"]
         self.by_id = {run["run"]: run for run in self.runs}
@@ -177,11 +184,23 @@ def counts(data: Data) -> dict[str, str]:
     return {"questions": bp.count(data.results["questions"]), "decision": bp.count(sum(map(data.decision, data.runs)))}
 
 
-def head(data: Data) -> str:
-    """The title, the description and the link preview of the page this preview would replace; kept out of search
-    engines."""
+def share_images(site: Site) -> dict[str, dict[str, str]]:
+    """The link preview image in both themes, drawn from the preview's results into v3/share/ by build_page.py; earlier
+    images there are removed. Its names by image and theme, relative to v3/."""
+    names = bp.render_images(site.snapshot, V3)
+    current = {V3 / name for themes in names.values() for name in themes.values()}
+    for old in (V3 / "share").glob("*.png"):
+        if old not in current:
+            old.unlink()
+            print(f"Removed {old.relative_to(ROOT)}")
+    return names
+
+
+def head(data: Data, image: str) -> str:
+    """The title, the description and the link preview of the page this preview would replace, with the preview's own
+    image (its path inside v3/); kept out of search engines."""
     site = data.config["site_url"]
-    image_url = site + bp.current_images()["preview"]["dark"]
+    image_url = site + "v3/" + image
     size = data.config["images"]["preview"]
     title = f"{TITLE} · Zeki Works"
     text = bp.esc(DESCRIPTION.format(**counts(data)))
@@ -275,7 +294,8 @@ def copy_checks(data: Data) -> list[str]:
     """Each number or comparison the fixed copy states, checked against results.json; the claims that differ."""
     results, runs = data.results, data.runs
     decision = [run for run in runs if data.decision(run)]
-    glide, decider, subq = (data.by_name(model) for model in ("fastino/GLiDE", "pplx-decider-v1.1-27b", "subq-snap-preview"))
+    ultra, glide, decider, subq = (data.by_name(model) for model in
+                                   ("d1-ultra", "fastino/GLiDE", "pplx-decider-v1.1-27b", "subq-snap-preview"))
     cascades = {(item["decision"], item["frontier"]): item for item in results["cascades"]}
     sonnet16, sonnet1 = data.named("sonnet_high", 16), data.named("sonnet_high", 1)
     found = []
@@ -286,20 +306,20 @@ def copy_checks(data: Data) -> list[str]:
 
     check("Stability: every repeated setup ran 5 times", all(len(item["runs"]) == 5 for item in results["repeats"]))
     best = max(decision, key=lambda run: accuracy(run)[0])
-    check("GLiDE got the most answers right (among decision models)", best is glide)
+    check("Liquid's d1-ultra got the most answers right (among decision models)", best is ultra)
     flawless = [run for run in decision if run["confidence"]["sure"]["questions"] == run["confidence"]["sure"]["correct"]]
     check("Decider v1.1 kept the most answers at 99% confidence with no mistakes",
           max(flawless, key=lambda run: run["confidence"]["sure"]["questions"]) is decider)
     # In front of each routing LLM at 1 question per request, the decision model with the largest share of its questions,
-    # with the cutoff chosen on half the questions (GLiDE in front of four, Decider v1.1 in front of Sonnet).
+    # with the cutoff chosen on half the questions (d1-ultra in front of all five).
     best_first = []
     for key, _ in ROUTE_LLMS:
         frontier = data.named(key, 1)["run"]
         best_first.append(max((cascades[(run["run"], frontier)]["held_out"] for run in decision if (run["run"], frontier) in cascades),
                               key=lambda item: item["answered"]))
-    check("the decision model with the largest share took 20% to 29% of each LLM's questions",
-          (round(100 * min(item["answered"] for item in best_first)), round(100 * max(item["answered"] for item in best_first))) == (20, 29))
-    check("accuracy at most 0.18 points lower", round(-100 * min(item["difference"] for item in best_first), 2) == 0.18)
+    check("the decision model with the largest share took 33% to 46% of each LLM's questions",
+          (round(100 * min(item["answered"] for item in best_first)), round(100 * max(item["answered"] for item in best_first))) == (33, 46))
+    check("accuracy at most 0.32 points lower", round(-100 * min(item["difference"] for item in best_first), 2) == 0.32)
     check("every decision model at 1 question per request", all(run["questions_per_request"] == 1 for run in decision))
     # Better than chance: an overall AUROC above 0.5. Laya and Laya multilingual rank below it.
     for run in decision:
@@ -324,14 +344,14 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap second among decision models in front of Sonnet (16 per request)", order.index(subq) == 1)
+    check("SubQ Snap third among decision models in front of Sonnet (16 per request)", order.index(subq) == 2)
     for size in (16, 1):
-        for key in ("opus", "astra"):
+        for key, place, word in (("opus", 7, "seventh"), ("astra", 6, "sixth")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
-            check(f"SubQ Snap about fifth in front of {key} ({size} per request): place {ranked.index(subq) + 1}",
-                  4 <= ranked.index(subq) + 1 <= 6)
+            check(f"SubQ Snap {word} in front of {key} ({size} per request): place {ranked.index(subq) + 1}",
+                  ranked.index(subq) + 1 == place)
     for run, text in ((subq, 98.6), (decider, 99.3), (glide, 99.5)):
         check(f"{run['name']}'s most confident fifth was {text}% right",
               round(100 * run["confidence"]["coverage_accuracy"]["0.20"], 1) == text)
@@ -349,17 +369,24 @@ def copy_checks(data: Data) -> list[str]:
     check("Stability note: the other chat models were repeated on a sample of 200",
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
-    # replayed): GLiDE leads on accuracy and shares a letter with exactly Decider v1.1 and SubQ Snap; Luna through the
-    # Decisions API has the smallest calibration gap; Decider v1.1 gives the biggest estimated saving in 9 of 10 LLM setups.
+    # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model, GLiDE second; Luna
+    # through the Decisions API has the smallest calibration gap; d1-ultra gives the biggest estimated saving in all 10
+    # LLM setups.
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
     luna = next(run for run in decision if run["model"] == "gpt-6-luna")
 
     def shares(first: dict[str, Any], second: dict[str, Any]) -> bool:
         return any(letter in (second.get("group") or "") for letter in (first.get("group") or ""))
 
-    check("Summary: GLiDE has the highest accuracy among decision models", ranked[0] is glide)
-    check("Summary: GLiDE is not clearly ahead of Decider v1.1 and SubQ Snap, and is of every other decision model",
-          {run["run"] for run in decision if run is not glide and shares(glide, run)} == {decider["run"], subq["run"]})
+    def percent(run: dict[str, Any]) -> str:
+        correct, total = accuracy(run)
+        return f"{100 * correct / total:.1f}"
+
+    check("Summary: Liquid d1-ultra has the highest accuracy among decision models, at 77.1%",
+          ranked[0] is ultra and percent(ultra) == "77.1")
+    check("Summary: d1-ultra is clearly ahead: it shares a letter with no other decision model",
+          not any(shares(ultra, run) for run in decision if run is not ultra))
+    check("Summary: GLiDE second at 67.9%", ranked[1] is glide and percent(glide) == "67.9")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])
     check("Summary: Luna (Decisions API) had the smallest calibration gap among decision models", calibrated[0] is luna)
     check("Summary: Jev 1.14 close behind (the second smallest gap, at most 0.5 points more)",
@@ -369,8 +396,8 @@ def copy_checks(data: Data) -> list[str]:
     def best_share(part: str) -> str:
         return f"{100 * max(run['groups'][part]['correct'] / run['groups'][part]['questions'] for run in decision):.1f}"
 
-    check("Summary: decision models got up to 89.0% of the reading questions right", best_share("reading") == "89.0")
-    check("Summary: but at most 59.4% of the grammar questions", best_share("grammar") == "59.4")
+    check("Summary: decision models got up to 92.1% of the reading questions right", best_share("reading") == "92.1")
+    check("Summary: but at most 70.7% of the grammar questions", best_share("grammar") == "70.7")
     # The note under the Accuracy table: no cost for setups on our hardware and for Liquid d1's free tier; no latency for
     # runs made before requests were timed one by one.
     check("Not measured note: every setup without a cost ran on our hardware or on Liquid d1's free tier",
@@ -389,15 +416,15 @@ def copy_checks(data: Data) -> list[str]:
                        for run in decision if (run["run"], frontier["run"]) in cascades]
             winners.append(max(savings)[1])
     leader, times = Counter(winners).most_common(1)[0]
-    check("Summary: Decider v1.1 gave the biggest estimated saving in 9 of 10 LLM setups",
-          len(winners) == 10 and times == 9 and leader == decider["run"])
+    check("Summary: d1-ultra gave the biggest estimated saving in all 10 LLM setups",
+          len(winners) == 10 and times == 10 and leader == ultra["run"])
     return found
 
 
 def main() -> int:
-    data = Data()
+    data, site = Data(), Site()
     blocks = {
-        "head": head(data),
+        "head": head(data, share_images(site)["preview"]["dark"]),
         "intro": bp.esc(INTRO.format(**counts(data))),
         "topbar": topbar(""),
         "stats": stats(data),
@@ -421,7 +448,7 @@ def main() -> int:
     if seen != set(blocks):
         raise ValueError(f"v3/index.html lacks the markers {sorted(set(blocks) - seen)}")
     PAGE.write_text(text)
-    written = write_pages()
+    written = write_pages(site)
     differ = copy_checks(data)
     for claim in differ:
         print(f"copy differs from results.json: {claim}", file=sys.stderr)
@@ -429,9 +456,8 @@ def main() -> int:
     return 1 if differ else 0
 
 
-def write_pages() -> int:
+def write_pages(site: Site) -> int:
     """Every page of PAGE_MODULES, each to v3/<path>index.html; the number of pages written."""
-    site = Site()
     written = 0
     for name in PAGE_MODULES:
         module = importlib.import_module(f"v3build.{name}")

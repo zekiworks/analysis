@@ -1,19 +1,19 @@
 """The Method page (method/): how we ran the test, the request format check, the full study and its limits.
 
-Its numbers come from results.json through build_page.py's Snapshot (the values the earlier page, v1/, showed),
-from page_config.json's method_records, and from answers.json where results.json holds no count. One table is new:
-the reasoning pairs' gains on Reading and Grammar with the 95% interval of their difference, from results.json's
-reasoning. Build checks raise ValueError when the copy no longer fits the data.
+Its numbers come from the preview's results.json through build_page.py's Snapshot (site.snapshot; the values the
+earlier page, v1/, showed), from page_config.json's method_records, and from answers.json where results.json holds no
+count; its charts are the preview's own, in v3/charts/, drawn from the same results. One table is new: the reasoning
+pairs' gains on Reading and Grammar with the 95% interval of their difference, from results.json's reasoning. Build
+checks raise ValueError when the copy no longer fits the data.
 """
 
 from __future__ import annotations
 
-import json
 import re
 from typing import Any
 
 import build_page as bp
-from v3build.site import REPO_URL, Site, esc, rel, up
+from v3build.site import REPO_URL, V3, Site, esc, rel
 
 PATH = "method/"
 TITLE = "Method"
@@ -130,12 +130,6 @@ class Cites:
         return f'<ol class="references">{"".join(items)}</ol>'
 
 
-def snapshot(site: Site) -> bp.Snapshot:
-    """build_page.py's Snapshot over a copy of results.json (it adds request size labels to the runs it holds), with
-    the count of checks from running reproduce.py (bp.reproduce), which stops the build unless every check matches."""
-    return bp.Snapshot(json.loads(json.dumps(site.results)), site.config, bp.reproduce())
-
-
 def signed(points: float) -> str:
     return f"{points:+.1f}".replace("-", "\u2212")
 
@@ -203,14 +197,14 @@ def average_cost(snap: bp.Snapshot) -> tuple[str, str]:
 
 
 def from_here(figure: str) -> str:
-    """A figure built for the site's folder (charts/…), with its links made relative to this page inside v3/."""
-    charts = up(PATH, "charts/")
+    """A figure as build_page.py writes it (links to charts/…), linked from this page to the preview's charts/."""
+    charts = rel(PATH, "charts/")
     return figure.replace('href="charts/', f'href="{charts}').replace('src="charts/', f'src="{charts}')
 
 
 def chart(name: str, alt: str, caption: str) -> str:
-    """A chart in both themes, linked from this page to charts/."""
-    return from_here(bp.chart_sizes(bp.chart_figure(name, alt, caption)))
+    """A chart from the preview's charts/ in both themes, sized from its SVG."""
+    return from_here(bp.chart_sizes(bp.chart_figure(name, alt, caption), V3))
 
 
 def chart_alt(block: str, name: str) -> str:
@@ -308,8 +302,8 @@ def price_list(snap: bp.Snapshot) -> str:
 
 
 def build(site: Site) -> dict[str, str]:
-    snap = snapshot(site)
-    v = bp.values(snap)
+    snap = site.snapshot
+    v = site.values
     cite = Cites()
     pairs = reasoning_pairs(site, snap)
     smaller, live_total = average_cost(snap)
@@ -326,20 +320,18 @@ def build(site: Site) -> dict[str, str]:
             raise ValueError(f"build_page.method_timing no longer says {old!r}")
         timing = timing.replace(old, new)
     link = lambda target, text: f'<a href="{rel(PATH, target)}">{text}</a>'  # noqa: E731
-    results_file = f'<a href="{up(PATH, "results.json")}">results file</a>'
-    answer_file = f'<a href="{up(PATH, "answers.json")}">answer export</a>'
+    results_file = f'<a href="{rel(PATH, "results.json")}">results file</a>'
+    answer_file = f'<a href="{rel(PATH, "answers.json")}">answer export</a>'
     calibration_alt = chart_alt(study["study-calibration"], "calibration-all")
     if "; the table keeps them." not in calibration_alt:
         raise ValueError("the calibration chart's description changed; check what it says about the table")
     calibration_alt = calibration_alt.replace("; the table keeps them.", ".")
-    paired_figure = from_here(bp.chart_sizes(bp.method_paired_figure(snap)))
+    paired_figure = from_here(bp.chart_sizes(bp.method_paired_figure(snap), V3))
 
     sections = [
         ("main-findings", "What we found", f"""
 <p>No model led on every measure: accuracy, ranking answers by confidence and confidence that matches the hit rate are
-separate strengths. Gemma 4 31B, a chat model, scored higher than every decision model on Reading ({v['gemma_reading']})
-and Grammar ({v['gemma_grammar']}), but its confidence matched its hit rate less closely than the best decision models'
-did.</p>
+separate strengths.</p>
 <p>How a model gives its confidence matters. GPT-6 Luna through OpenAI's Decisions API ranked its answers better than Luna
 writing its confidence (ranking score {v['luna_api_auroc']} against {v['luna_stated_auroc']}) but got fewer right
 ({v['luna_api_accuracy']} against {v['luna_stated_accuracy']}), with a different access method and request size. Among

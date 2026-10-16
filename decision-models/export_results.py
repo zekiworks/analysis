@@ -40,14 +40,14 @@ ANSWER_KEYS = {
 # an answer, so they have no reasoning setting. billing: "api" (billed per token), "subscription" (a flat plan;
 # the cost is what the same tokens cost on the API), "free" (a free tier with no published price) or "local" (our
 # GPUs; no dollar cost, only request time). A run's price comes from the report (PRICES in benchmark_ollama.py).
-# A model's "access" in MODELS replaces its provider's.
+# A model's "access" and "billing" in MODELS replace its provider's.
 PROVIDERS: dict[str, dict[str, Any]] = {
     "ollama": {"access": "Ollama, self-hosted", "scoring": False, "billing": "local"},
     "vllm": {"access": "vLLM, self-hosted", "scoring": False, "billing": "local"},
     "jev": {"access": "TypeSafe System One API", "scoring": True, "billing": "api"},
     "open-jev": {"access": "Open-Jev server, self-hosted", "scoring": True, "billing": "local"},
     "perplexity": {"access": "Perplexity Decisions API", "scoring": True, "billing": "api"},
-    "liquid": {"access": "Liquid AI decisions API", "scoring": True, "billing": "free"},
+    "liquid": {"access": "Liquid AI decisions API", "scoring": True, "billing": "api"},
     "fastino": {"access": "Fastino System One API", "scoring": True, "billing": "api"},
     "celeris": {"access": "Celeris System One API", "scoring": True, "billing": "api"},
     "subq": {"access": "SubQ Decisions API (public preview)", "scoring": True, "billing": "api"},
@@ -144,7 +144,8 @@ MODELS: dict[str, dict[str, Any]] = {
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
     "subq-snap-preview": {"name": "SubQ Snap Preview"},
-    "d1:free": {"name": "Liquid d1"},
+    "d1:free": {"name": "Liquid d1", "billing": "free"},
+    "d1-ultra": {"name": "Liquid d1-ultra"},
     "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}", "parameters": 421_293_830},
     "laya-multilingual": {
         "name": "Laya multilingual",
@@ -483,12 +484,13 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         if sum(counts["correct"] for counts in categories.values()) != record["correct"]:
             raise ValueError(f"{label}: unit results do not add up to its score")
         model = MODELS.get(record["model"], {})
+        billing = model.get("billing", provider["billing"])
         cost = record.get("cost_usd")
         if (cost is None) != (record.get("price") is None):
             raise ValueError(f"{label}: a cost needs its price, and a price its cost")
-        if (cost is None) != (provider["billing"] in ("free", "local")):
-            raise ValueError(f"{label}: billed as {provider['billing']!r} with{'out' if cost is None else ''} a price")
-        if provider["billing"] == "local" and "hardware" not in model:
+        if (cost is None) != (billing in ("free", "local")):
+            raise ValueError(f"{label}: billed as {billing!r} with{'out' if cost is None else ''} a price")
+        if billing == "local" and "hardware" not in model:
             raise ValueError(f"{label}: runs on our GPUs; add its hardware to MODELS")
         groups = {
             name: {"questions": record["groups"][name]["questions"], "correct": record["groups"][name]["correct"]}
@@ -522,10 +524,10 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "request_seconds": record.get("timed_seconds"),
                 "median_request_seconds": record.get("median_request_seconds"),
                 "p90_request_seconds": record.get("p90_request_seconds"),
-                "billing": provider["billing"],
+                "billing": billing,
                 # What the run's tokens cost at its model's list price (`prices`); None for free and self-hosted runs.
                 "api_equivalent_usd": cost,
-                "hardware": model.get("hardware") if provider["billing"] == "local" else None,
+                "hardware": model.get("hardware") if billing == "local" else None,
                 **priced(record),
                 "confidence": confidence(record),
                 "previous": previous,
