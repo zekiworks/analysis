@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# The runs of plan steps 5.3, 6.11 and 6.29: repeats, Qwen's vote share, the cascade pipelines (Decider v1's,
-# then Decider v1.1's), cheaper models on the pipelines' held-out half, and one question per request on the
-# repeats' sample.
+# The runs of plan steps 5.3, 6.11, 6.29 and 6.42: repeats, Qwen's vote share, the cascade pipelines (Decider v1's,
+# then Decider v1.1's), cheaper models on the pipelines' held-out half, one question per request on the repeats'
+# sample, and Jev 1.14.0's repeats.
 #
 #   ./run_experiments.sh LANE
 #
@@ -63,6 +63,11 @@ case "${1:-}" in
     JEV_API_KEY="$(cat "$HOME/code/jev/key")"
     export JEV_API_KEY
     repeats "2 3 4 5" jev-1.13.0 --provider jev --data "$DATA" --timeout 30
+    ;;
+  jev-114)
+    JEV_API_KEY="$(cat "$HOME/code/jev/key")"
+    export JEV_API_KEY
+    repeats "2 3 4 5" jev-1.14.0 --provider jev --data "$DATA" --timeout 30
     ;;
   decider) repeats "2 3 4 5" pplx-decider-v1-27b --provider perplexity --data "$DATA" --timeout 30 ;;
   d1) repeats "2 3 4 5" d1:free --provider liquid --data "$DATA" --timeout 30 ;;
