@@ -355,7 +355,8 @@ test over all pairs did not establish a difference from Astra.</p>
 confidence is less reliable on some question types: knowledge and reasoning there, grammar here.</p>"""),
         ("tests", "The questions", f"""
 <p>The test has {v['reading_questions']} Reading and {v['grammar_questions']} Grammar questions in {v['study_units']} topics,
-so {v['grammar_share']} are Grammar. Reading asks about the meaning of words, sentences and passages; Grammar asks about word
+so {v['grammar_share']} are Grammar. These results cover this question bank only. We did not test whether they hold in other
+languages or for other tasks. Reading asks about the meaning of words, sentences and passages; Grammar asks about word
 endings, word types and sentence structure. We report the two separately.</p>
 <p>Topics {v['study_reading_units']} are Reading and {v['study_grammar_units']} Grammar; the {link('topics/', 'Topics page')}
 gives each one's results. Each question has {v['baseline_options']} options: guessing averages {v['baseline_random']}, and

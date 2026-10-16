@@ -6,15 +6,16 @@ with page_config.json. It writes only inside v3/; the live pages and their files
 
 The preview copies the live site's build (build_v2.py and v2build/) and scripts, adapted to the redesign. Every page is
 kept out of search engines, and no live page links to it. The home page, v3/index.html, keeps its copy; this script
-rewrites what is inside its <!-- build:name --> markers: the meta tags, the top bar, the counters, the results version,
-the plain table for readers without JavaScript (every setup), the settings v3.js reads, the default setup count, the
-topic list and the questions in view. v3.js draws everything else in the browser from ../results.json. Every other page
-is generated whole by a module of v3/v3build/ (PAGE_MODULES) and written to v3/<path>index.html; the Method page runs
-reproduce.py for its count of checks.
+rewrites what is inside its <!-- build:name --> markers: the meta tags, the top bar, the intro (its counts from
+results.json), the counters, the results version, the plain table for readers without JavaScript (every setup) and the
+note under it, the settings v3.js reads, the default setup count, the charts' "Show all" label, the topic list and the
+questions in view. v3.js draws everything else in the browser from ../results.json. Every other page is generated whole
+by a module of v3/v3build/ (PAGE_MODULES) and written to v3/<path>index.html; the Method page runs reproduce.py for its
+count of checks.
 
-The home page's fixed copy (the intro, the summary line, the notes under the tabs, the meta description) quotes numbers
-and comparisons; copy_checks() tests each against results.json and prints every one that differs. The pages are still
-written, so they can be reviewed, and the script exits with status 1.
+The home page's fixed copy (the summary lines, the note under the Accuracy table, the notes under the tabs, the meta
+description) quotes numbers and comparisons; copy_checks() tests each against results.json and prints every one that
+differs. The pages are still written, so they can be reviewed, and the script exits with status 1.
 """
 
 from __future__ import annotations
@@ -38,14 +39,25 @@ from v3build.site import NOT_MEASURED, Site, topbar  # noqa: E402
 PAGE = V3 / "index.html"
 # The modules of v3build/ that write pages, in build order: questions writes data/picks.json, which the others read.
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "data", "method")
-TITLE = "When should you trust an AI model to make a decision?"
+TITLE = "When should you trust a decision model?"
+# The intro and the meta description; their counts come from results.json (counts()).
+INTRO = (
+    "Our reading comprehension and grammar test: {questions} questions answered by {decision} decision models, with "
+    "chat models for comparison. A decision model scores each answer option and picks one. Grammar questions test "
+    "whether a model knows a rule and can apply it. Every answer is public."
+)
 DESCRIPTION = (
-    "We tested 19 decision models on a reading comprehension and grammar test in native Turkish (not translated): "
-    "2,198 questions. "
+    "We tested {decision} decision models on a reading comprehension and grammar test in native Turkish (not "
+    "translated): {questions} questions. "
     "No model led on every measure. Fastino's GLiDE got the most answers right; Perplexity's Decider v1.1 kept the "
     "most answers at 99% confidence with no mistakes. With every model at 1 question per request, the decision model "
     "with the largest share took 20% to 29% of each LLM's questions, with accuracy at most 0.18 points lower, in a "
     "replay of recorded answers."
+)
+# The note under the Accuracy table, with and without JavaScript; copy_checks tests both reasons against the run records.
+NOT_MEASURED_NOTE = (
+    "Not measured: cost for setups on our own hardware (no API price) and Liquid d1's free tier (no published price); "
+    "latency for runs made before we timed each request."
 )
 # The LLMs the Routing tab puts behind a decision model, in its order, with the label of its control.
 ROUTE_LLMS = (("opus", "Opus"), ("sonnet_high", "Sonnet"), ("astra", "Astra"), ("sol", "Sol"), ("gemini_low", "Gemini Flash"))
@@ -104,11 +116,31 @@ def percent(fraction: float, digits: int = 1) -> str:
     return f"{100 * fraction:.{digits}f}"
 
 
+def short_detail(run: dict[str, Any]) -> str:
+    """The settings in the short form a phone shows, as v3.js: "1 per request · low reasoning"; a variant keeps its part
+    before a comma."""
+    parts = [f"{bp.count(run['questions_per_request'])} per request"]
+    if run.get("reasoning"):
+        parts.append(bp.reasoning_label(run["reasoning"]))
+    if run.get("variant"):
+        parts.append(run["variant"].split(",")[0])
+    return " · ".join(parts)
+
+
+def table_name(data: Data, run: dict[str, Any]) -> str:
+    """A setup's name in the table, as v3.js: on a phone, the charts' short name where it has one."""
+    short = data.config["short_names"].get(run["model"])
+    if not short or short == run["name"]:
+        return bp.esc(run["name"])
+    return f'<span class="name-long">{bp.esc(run["name"])}</span><span class="name-short">{bp.esc(short)}</span>'
+    return " · ".join(parts)
+
+
 def fallback_table(data: Data) -> str:
     """The Accuracy tab on all questions, every setup, as a plain table: what readers without JavaScript see. Units sit
     in the headers, each column with one number of decimals, as in v3.js. With JavaScript, the chat models' rows are
     hidden from the first paint (html.js), so the page opens as v3.js then draws it, decision models first, without a
-    jump."""
+    jump; the settings line has v3.js's long form and, on a phone, its short form."""
     rows = []
     for run in sorted(data.runs, key=lambda run: -accuracy(run)[0]):
         correct, total = accuracy(run)
@@ -120,8 +152,9 @@ def fallback_table(data: Data) -> str:
         kind = "Decision model" if decision else "Chat model"
         rows.append(
             ("<tr>" if decision else '<tr class="chat">')
-            + f'<td class="model"><a class="model-name" href="models/{run["run"]}/">{bp.esc(run["name"])}</a>'
-            f'<span class="small">{bp.esc(detail(run))} · {kind}</span></td>'
+            + f'<td class="model"><a class="model-name" href="models/{run["run"]}/">{table_name(data, run)}</a>'
+            f'<span class="small settings-long">{bp.esc(detail(run))} · {kind}</span>'
+            f'<span class="small settings-short">{bp.esc(short_detail(run))}{"" if decision else " · chat model"}</span></td>'
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
@@ -133,9 +166,15 @@ def fallback_table(data: Data) -> str:
         '<table class="board fallback"><caption>Accuracy on all '
         f'{bp.count(data.results["questions"])} questions, with its 95% interval</caption>'
         '<thead><tr><th scope="col">Model</th><th scope="col" class="num">Accuracy (%)</th><th scope="col" class="num">Reading (%)</th>'
-        '<th scope="col" class="num">Grammar (%)</th><th scope="col" class="num">Latency (s)</th><th scope="col" class="num">$ per 1,000</th>'
+        '<th scope="col" class="num">Grammar (%)</th><th scope="col" class="num unit-long">Median latency per request (s)</th>'
+        '<th scope="col" class="num unit-long">$ per 1,000 questions</th>'
         f'</tr></thead><tbody>{"".join(rows)}</tbody></table>'
     )
+
+
+def counts(data: Data) -> dict[str, str]:
+    """The counts the intro and the meta description state: questions and decision models, from results.json."""
+    return {"questions": bp.count(data.results["questions"]), "decision": bp.count(sum(map(data.decision, data.runs)))}
 
 
 def head(data: Data) -> str:
@@ -145,7 +184,7 @@ def head(data: Data) -> str:
     image_url = site + bp.current_images()["preview"]["dark"]
     size = data.config["images"]["preview"]
     title = f"{TITLE} · Zeki Works"
-    text = bp.esc(DESCRIPTION)
+    text = bp.esc(DESCRIPTION.format(**counts(data)))
     return (
         f"\n  <title>{bp.esc(title)}</title>\n"
         '  <meta name="robots" content="noindex">\n'
@@ -183,6 +222,12 @@ def setups(data: Data) -> str:
     return f"{bp.count(sum(map(data.decision, data.runs)))} of {bp.count(len(data.runs))} setups"
 
 
+def show_all(data: Data) -> str:
+    """The charts' "Show all" key as the page opens, on the default model type (decision models): every setup it would
+    show. v3.js relabels it for the filters in view and hides it when it would add nothing."""
+    return f"Show all {bp.count(sum(map(data.decision, data.runs)))}"
+
+
 def topics(data: Data) -> str:
     """The Topic menu's options, Reading first, as v3.js draws them."""
     reading = set(data.config["reading_units"])
@@ -207,6 +252,8 @@ def page_settings(data: Data) -> str:
         "chartDecisionModels": CHART_DECISION_MODELS,
         # A saving whose first model has no price: its marker, tooltip and note, by billing.
         "unpricedFirst": {key: value for key, value in data.config["unpriced_first"].items() if key != "about"},
+        # The note under the Accuracy table (NOT_MEASURED_NOTE), also under the plain table.
+        "notMeasuredNote": NOT_MEASURED_NOTE,
         "routeLlms": [
             {"key": key, "label": label, "runs": {str(size): data.named(key, size)["run"] for size in (1, 16)}}
             for key, label in ROUTE_LLMS
@@ -237,10 +284,6 @@ def copy_checks(data: Data) -> list[str]:
         if not holds:
             found.append(claim)
 
-    check("2,198 questions", results["questions"] == 2198)
-    check("20 topics", len(results["units"]) == 20)
-    check("19 decision models", len(decision) == 19)
-    check("44 setups", len(runs) == 44)
     check("Stability: every repeated setup ran 5 times", all(len(item["runs"]) == 5 for item in results["repeats"]))
     best = max(decision, key=lambda run: accuracy(run)[0])
     check("GLiDE got the most answers right (among decision models)", best is glide)
@@ -317,8 +360,26 @@ def copy_checks(data: Data) -> list[str]:
     check("Summary: GLiDE has the highest accuracy among decision models", ranked[0] is glide)
     check("Summary: GLiDE is not clearly ahead of Decider v1.1 and SubQ Snap, and is of every other decision model",
           {run["run"] for run in decision if run is not glide and shares(glide, run)} == {decider["run"], subq["run"]})
-    calibrated = min(decision, key=lambda run: run["confidence"]["ece"])
-    check("Summary: Luna (Decisions API) had the smallest calibration gap among decision models", calibrated is luna)
+    calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])
+    check("Summary: Luna (Decisions API) had the smallest calibration gap among decision models", calibrated[0] is luna)
+    check("Summary: Jev 1.14 close behind (the second smallest gap, at most 0.5 points more)",
+          calibrated[1] is data.by_name("jev-1.14.0")
+          and calibrated[1]["confidence"]["ece"] - calibrated[0]["confidence"]["ece"] <= 0.005)
+
+    def best_share(part: str) -> str:
+        return f"{100 * max(run['groups'][part]['correct'] / run['groups'][part]['questions'] for run in decision):.1f}"
+
+    check("Summary: decision models got up to 89.0% of the reading questions right", best_share("reading") == "89.0")
+    check("Summary: but at most 59.4% of the grammar questions", best_share("grammar") == "59.4")
+    # The note under the Accuracy table: no cost for setups on our hardware and for Liquid d1's free tier; no latency for
+    # runs made before requests were timed one by one.
+    check("Not measured note: every setup without a cost ran on our hardware or on Liquid d1's free tier",
+          any(run["model"] == "d1:free" and run["billing"] == "free" for run in runs)
+          and all(run["billing"] == "local" or (run["billing"] == "free" and run["model"] == "d1:free")
+                  for run in runs if run["api_equivalent_usd"] is None))
+    first_timed = min(run["started"] for run in runs if run["median_request_seconds"] is not None)
+    check("Not measured note: every run without a latency was made before requests were timed one by one",
+          all(run["started"] < first_timed for run in runs if (run.get("latency") or {}).get("median_request_seconds") is None))
     winners = []
     for key, _ in ROUTE_LLMS:
         for size in (1, 16):
@@ -337,14 +398,17 @@ def main() -> int:
     data = Data()
     blocks = {
         "head": head(data),
+        "intro": bp.esc(INTRO.format(**counts(data))),
         "topbar": topbar(""),
         "stats": stats(data),
         "version": version(data),
         "setups": setups(data),
         "topics": topics(data),
+        "show-all": show_all(data),
         "questions": f"{bp.count(data.results['questions'])} questions",
         "board": fallback_table(data),
         "settings": page_settings(data),
+        "board-note": f'<div class="tab-notes"><p>{bp.esc(NOT_MEASURED_NOTE)}</p></div>',
     }
     text = PAGE.read_text()
     seen = set()

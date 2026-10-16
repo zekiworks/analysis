@@ -56,7 +56,7 @@ def heatmap(site: Site) -> str:
       <p class="note">Each cell: the share of the topic's questions the setup got right. Setups by accuracy on all questions; the table scrolls sideways inside its box.</p>
       <div class="table-wrap heatmap-wrap"><table class="heatmap-table"><thead><tr><th scope="col">Setup</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>
     </section>"""
-    return site.page(path, "Topics", "Accuracy by topic for every setup, and a page for each of the 20 topics.", body)
+    return site.page(path, "Topics", f"Accuracy by topic for every setup, and a page for each of the {len(units)} topics.", body)
 
 
 def topic_page(site: Site, unit: dict[str, Any], data: dict[str, Any]) -> str:

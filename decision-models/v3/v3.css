@@ -171,6 +171,8 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .readout-value { font-family: var(--mono); font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .readout-label { color: var(--text-2); font-size: .85rem; }
 .version { margin: 0; color: var(--text-2); font-size: .78rem; }
+/* The language of the questions, under the counters: body text, not secondary. */
+.hero .language { margin: 0 0 .85rem; font-size: 1rem; color: var(--text); }
 /* The summary: a lead line, then one short line per measure; each label opens its tab. */
 .summary { margin: 0; font-size: 1rem; }
 .summary-lead { margin: 0 0 .2rem; }
@@ -183,10 +185,11 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .mini-chart { display: none; }
 @media (min-width: 1024px) {
   .hero { display: grid; grid-template-columns: minmax(0, 76ch) minmax(18rem, 1fr); grid-template-areas: "title ." "intro chart"
-    "readouts chart" "summary chart"; column-gap: 2.5rem; align-items: start; max-width: none; }
+    "readouts chart" "language chart" "summary chart"; column-gap: 2.5rem; align-items: start; max-width: none; }
   .hero h1 { grid-area: title; }
   .hero .intro { grid-area: intro; }
   .hero .readout-row { grid-area: readouts; }
+  .hero .language { grid-area: language; }
   .hero .summary { grid-area: summary; }
   .mini-chart { grid-area: chart; display: block; min-height: 14rem; padding: .6rem .75rem .5rem; color: var(--text); text-decoration: none;
     background: var(--panel); border: 1px solid var(--edge); border-radius: 10px; box-shadow: var(--shadow); }
@@ -195,9 +198,12 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .mini-head { display: flex; justify-content: space-between; gap: .75rem; margin-bottom: .3rem; color: var(--text-2); font-size: .78rem; }
 .mini-head .go { color: var(--link); text-decoration: underline; white-space: nowrap; }
 .mini-chart svg { display: block; }
-.mini-chart svg text { font-family: var(--sans); font-size: 11px; fill: var(--text); }
+.mini-chart svg text { font-family: var(--sans); font-size: 12px; fill: var(--text); }
 .mini-chart .tick { fill: var(--text-2); }
 .mini-chart .grid { stroke: var(--edge); stroke-width: 1; }
+.mini-chart .axis { stroke: var(--text-2); stroke-width: 1; }
+.mini-chart .axis-break { fill: none; stroke: var(--text-2); stroke-width: 1.25; }
+.mini-chart .axis-note { fill: var(--text-2); }
 .mini-chart .whisker { fill: none; stroke: var(--text); stroke-width: 1.25; }
 .mini-chart .dot-decision { fill: var(--data-decision); }
 .mini-chart .dot-chat { fill: var(--data-chat); }
@@ -273,7 +279,7 @@ button.mode[aria-selected="true"]::after { content: ""; position: absolute; left
 .table-frame::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 2.25rem; pointer-events: none;
   background: linear-gradient(to right, transparent, var(--panel)); opacity: 0; transition: opacity .2s; }
 .table-frame.more-right::after { opacity: 1; }
-.swipe-hint { margin: 0 0 .35rem; color: var(--text-2); font-size: .78rem; text-align: right; }
+.swipe-hint { margin: 0 0 .2rem; color: var(--text-2); font-size: .78rem; text-align: right; }
 .swipe-hint.is-done { visibility: hidden; }
 table { width: 100%; border-collapse: collapse; font-size: .875rem; }
 caption { text-align: left; color: var(--text-2); font-size: .85rem; margin-bottom: .5rem; }
@@ -284,6 +290,10 @@ thead th { background: var(--panel); font-weight: 600; vertical-align: bottom; w
 .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 table.board td.num { font-family: var(--mono); font-size: .84rem; }
 .small { display: block; color: var(--text-2); font-size: .78rem; }
+/* The settings line: the long form, and on a phone the short form ("1 per request · low reasoning"). */
+.small.settings-short { display: none; }
+/* A setup's name: in full, and on a phone the charts' short name where it has one. */
+.name-short { display: none; }
 td.num .small { font-family: var(--mono); }
 .small.inline { display: inline; margin-left: .3rem; }
 .muted { color: var(--text-2); }
@@ -379,7 +389,7 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 .chart-box .axis { stroke: var(--control-edge); stroke-width: 1; }
 .chart-box .tick, .chart-box .axis-title { fill: var(--text-2); }
 .chart-box .label, .chart-box .value { fill: var(--text); }
-.chart-box .detail { fill: var(--text-2); font-size: 11px; }
+.chart-box .detail { fill: var(--text-2); font-size: 12px; }
 .chart-box .value.nm { fill: var(--text-2); }
 .chart-box .value { font-family: var(--mono); }
 .chart-box .bar-decision, .chart-box .dot-decision { fill: var(--data-decision); }
@@ -489,7 +499,7 @@ ul.price-list { padding-left: 1.25rem; }
   body { padding: 0 .6rem 1.5rem; }
   /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
-  .topbar { grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem; margin-bottom: .7rem; padding: .45rem 0 .3rem; }
+  .topbar { grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem; margin-bottom: .55rem; padding: .45rem 0 .3rem; }
   .brand { font-size: .66rem; letter-spacing: .04em; }
   .theme-switch { gap: .25rem; }
   .theme-switch .key { min-height: 1.75rem; padding: .15rem .45rem; gap: .3rem; font-size: .78rem; }
@@ -501,28 +511,30 @@ ul.price-list { padding-left: 1.25rem; }
   .nav li { flex: none; }
   .nav a { white-space: nowrap; }
   .panel, .card { padding: .75rem; border-radius: 8px; }
-  .hero { margin-bottom: .75rem; }
-  .hero h1 { font-size: 1.45rem; margin-bottom: .45rem; }
-  .hero .intro { font-size: .95rem; line-height: 1.45; margin-bottom: .55rem; }
-  .readout-row { padding: .3rem 0; margin-bottom: .55rem; }
+  .hero { margin-bottom: .5rem; }
+  .hero h1 { font-size: 1.45rem; margin-bottom: .35rem; }
+  .hero .intro { font-size: .95rem; line-height: 1.36; margin-bottom: .5rem; }
+  .hero .language { font-size: .95rem; line-height: 1.36; margin-bottom: .45rem; }
+  .readout-row { padding: .3rem 0; margin-bottom: .45rem; }
   .readouts { flex-wrap: nowrap; }
   .readout { gap: .2rem; margin-right: .4rem; padding-right: .4rem; white-space: nowrap; }
   .readout-value { font-size: .82rem; }
   .readout-label { font-size: .72rem; }
   .hero .version { display: none; }
   .version-below { display: block; margin-top: .6rem; }
-  .summary { font-size: .9rem; line-height: 1.4; }
+  .summary { font-size: .9rem; line-height: 1.25; }
+  .summary-list li { margin: 0; }
   /* One filter row: the Filters key, the summary of the active filters and Reset; the model type is inside the panel. */
-  .filters { padding: .45rem .6rem; margin-bottom: .75rem; }
+  .filters { padding: .45rem .6rem; margin-bottom: .5rem; }
   .filters-bar { flex-wrap: nowrap; gap: .5rem; }
   .filters .bar-only { display: none; }
   .filters .panel-only { display: flex; }
   .filters-summary { flex: 1 1 auto; min-width: 0; }
   .filters-body { gap: .8rem; }
   /* The leaderboard panel: the Table · Charts switch and the question count, then the four tabs on one row. */
-  .board-panel { padding-top: .6rem; }
-  .modebar { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "view count" "tabs tabs"; gap: .45rem .5rem;
-    margin-bottom: .5rem; padding-bottom: .55rem; }
+  .board-panel { padding-top: .5rem; }
+  .modebar { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "view count" "tabs tabs"; gap: .35rem .5rem;
+    margin-bottom: .4rem; padding-bottom: .45rem; }
   .view-switch { grid-area: view; display: inline-flex; }
   .view-switch .key { min-height: 1.9rem; padding: .15rem .55rem; font-size: .8rem; }
   .modes { grid-area: tabs; display: flex; flex-wrap: wrap; gap: .25rem; }
@@ -538,6 +550,8 @@ ul.price-list { padding-left: 1.25rem; }
   table.board, table.cards, table.overview:not(.setups) { font-size: .82rem; }
   table.board th, table.board td, table.cards th, table.cards td { padding: .45rem .5rem; }
   table.board thead th, table.cards thead th { white-space: normal; min-width: 4.2rem; }
+  /* The unit columns' long labels wrap to two lines instead of six. */
+  table.board thead th.unit-long { min-width: 9rem; }
   table.board th:first-child, table.board td:first-child, table.cards th:first-child, table.cards td:first-child {
     position: sticky; left: 0; z-index: 2; width: min(140px, 40vw); min-width: min(140px, 40vw); max-width: min(140px, 40vw);
     box-shadow: 1px 0 0 var(--edge); overflow-wrap: break-word; white-space: normal; }
@@ -545,7 +559,15 @@ ul.price-list { padding-left: 1.25rem; }
   .compare-pickers label, label.control { display: flex; width: 100%; }
   table.cards tbody td:first-child { background: var(--panel); }
   td.model { min-width: 0; }
+  table.board td.model { padding-left: .4rem; padding-right: .4rem; }
   .model-name { font-size: .86rem; }
+  /* A row at most 72 px: the name in at most two lines (the charts' short name where there is one), then the settings
+     in their short form, at a slightly closer line spacing. */
+  table.board td.model .names, table.board td.model .small { line-height: 1.3; }
+  .name-long { display: none; }
+  .name-short { display: inline; }
+  .small.settings-long { display: none; }
+  .small.settings-short { display: block; }
   button.pick { width: 1.5rem; height: 1.5rem; }
   .who { gap: .3rem; }
   .hint:hover::after, .hint:focus::after { position: fixed; left: .5rem; right: .5rem; bottom: .5rem; top: auto; width: auto; max-width: none; font-size: .85rem; }

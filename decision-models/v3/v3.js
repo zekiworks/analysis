@@ -94,6 +94,18 @@ const reasoningLabel = reasoning => (['off', 'on'].includes(reasoning) ? `reason
 const requestSize = size => `${integer(size)} question${size === 1 ? '' : 's'} per request`;
 const runDetail = run =>
   [run.variant, run.reasoning && reasoningLabel(run.reasoning), requestSize(run.questions_per_request)].filter(Boolean).join(' · ');
+/* The settings in the short form a phone shows: "1 per request · low reasoning"; a variant keeps its part before a
+   comma ("Decisions API" for "Decisions API, beta"). */
+const shortDetail = run =>
+  [`${integer(run.questions_per_request)} per request`, run.reasoning && reasoningLabel(run.reasoning), run.variant?.split(',')[0]]
+    .filter(Boolean).join(' · ');
+/* A setup's name in the table: on a phone, the charts' short name (page_config.json's short_names) where it has one. */
+const tableName = run => {
+  const short = SETTINGS.shortNames[run.model];
+  return short && short !== run.name
+    ? `<span class="name-long">${esc(run.name)}</span><span class="name-short">${esc(short)}</span>`
+    : esc(run.name);
+};
 const isDecision = run => SETTINGS.decisionProviders.includes(run.provider) && !SETTINGS.notDecisionModels.includes(run.model);
 const costPer1000 = run => (run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / run.answered_questions);
 const latencyOf = run => run.latency?.median_request_seconds ?? null;
@@ -203,7 +215,8 @@ function modelCell(run) {
   const name = `${run.name} (${runDetail(run)})`;
   return `<td class="model"><div class="who"><button type="button" class="pick" data-select="${run.run}" aria-pressed="${state.selected === run.run}" ` +
     `aria-label="Highlight ${esc(name)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
-    `<span class="names"><a class="model-name" href="models/${run.run}/">${esc(run.name)}</a><span class="small">${esc(runDetail(run))}</span></span></div></td>`;
+    `<span class="names"><a class="model-name" href="models/${run.run}/">${tableName(run)}</a><span class="small settings-long">${esc(runDetail(run))}</span>` +
+    `<span class="small settings-short">${esc(shortDetail(run))}</span></span></div></td>`;
 }
 
 function accuracyCell(run) {
@@ -218,16 +231,17 @@ function accuracyCell(run) {
 const TABS = {
   accuracy: {
     rows: () => visibleRuns().map(run => ({ run })),
+    note: [SETTINGS.notMeasuredNote],
     columns: [
       { key: 'accuracy', label: 'Accuracy (%)', tip: INTERVAL_TIP, value: accuracyOf, cell: accuracyCell },
       partColumn('reading', 'Reading (%)'),
       partColumn('grammar', 'Grammar (%)'),
       {
-        key: 'latency', label: 'Latency (s)', tip: LATENCY_TIP, low: true, value: latencyOf,
+        key: 'latency', label: 'Median latency per request (s)', className: 'unit-long', tip: LATENCY_TIP, low: true, value: latencyOf,
         cell: run => (latencyOf(run) == null ? NM : latencyOf(run).toFixed(3)),
       },
       {
-        key: 'cost', label: '$ per 1,000', tip: COST_TIP, low: true, value: costPer1000,
+        key: 'cost', label: '$ per 1,000 questions', className: 'unit-long', tip: COST_TIP, low: true, value: costPer1000,
         cell: run => (costPer1000(run) == null ? NM : costPer1000(run).toFixed(3)),
       },
     ],
@@ -354,7 +368,7 @@ const ROUTING_COLUMNS = [
   { key: 'change', label: 'Accuracy change (points)', value: row => row.numbers?.change ?? null,
     cell: row => (row.numbers ? signed(100 * row.numbers.change, 2) : NM) },
   { key: 'saving', label: 'Saving (%)', value: row => row.numbers?.saving ?? null, cell: row => savingCell(row, n => minus(percent(n.saving, 0))) },
-  { key: 'saving-usd', label: 'Saving ($ per 1,000)', value: row => row.numbers?.savingUsd ?? null,
+  { key: 'saving-usd', label: 'Saving ($ per 1,000 questions)', value: row => row.numbers?.savingUsd ?? null,
     cell: row => savingCell(row, n => minus(n.savingUsd.toFixed(3))) },
 ];
 TABS.routing.columns = ROUTING_COLUMNS;
@@ -605,10 +619,10 @@ function resetFilters() {
 
 /* The setups the charts show: by default the decision models with the highest accuracy and the routing LLMs at one
    question per request, with the setups picked or highlighted; "Show all" adds the rest. The type and request-size
-   filters apply. */
-function chartRuns() {
+   filters apply. showAll asks for either set, whichever the charts show. */
+function chartRuns(showAll = state.showAll) {
   let runs;
-  if (state.showAll) runs = data.runs;
+  if (showAll) runs = data.runs;
   else {
     const decision = [...data.runs].filter(isDecision).sort((a, b) => overallAccuracy(b) - overallAccuracy(a));
     const llms = SETTINGS.routeLlms.map(llm => byId.get(llm.runs['1']));
@@ -644,8 +658,8 @@ function chartCondition() {
 
 const MEASURES = {
   accuracy: { label: 'Accuracy', axis: 'Accuracy (%)', value: run => accuracyOf(run), log: false, text: value => percent(value), higher: true },
-  latency: { label: 'Latency', axis: 'Latency per request (s), log scale', value: latencyOf, log: true, text: value => value.toFixed(3), higher: false },
-  cost: { label: 'Cost', axis: 'Cost per 1,000 questions ($), log scale', value: costPer1000, log: true, text: value => value.toFixed(3), higher: false },
+  latency: { label: 'Latency', axis: 'Median latency per request (s), log scale', value: latencyOf, log: true, text: value => value.toFixed(3), higher: false },
+  cost: { label: 'Cost', axis: '$ per 1,000 questions, log scale', value: costPer1000, log: true, text: value => value.toFixed(3), higher: false },
 };
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
 
@@ -658,8 +672,8 @@ const ticksLog = (low, high) => {
   return ticks;
 };
 const logTick = value => (value < 1 ? String(Number(value.toPrecision(1))) : integer(value));
-/* Chart text is 12px in the page's font, a label's settings line 11px; labels are measured with it, so they fit their
-   space and never overlap. */
+/* Chart text, a label's settings line included, is 12px in the page's font; labels are measured with it, so they fit
+   their space and never overlap. */
 const measurer = document.createElement('canvas').getContext('2d');
 function textWidth(text, weight = 400, size = 12) {
   measurer.font = `${weight} ${size}px ${getComputedStyle(document.body).fontFamily}`;
@@ -703,6 +717,22 @@ function scale(domain, range, log) {
   return value => range[0] + (((log ? Math.log10(value) : value) - d0) / (d1 - d0)) * (range[1] - range[0]);
 }
 
+/* The charts scroll inside a box of fixed height (chartMax). A chart taller than its box draws narrower by the
+   scrollbar's width, or by 12 px where scrollbars float over the content, so the scrollbar never covers a value. */
+const chartMax = () => (PHONE.matches ? 300 : 360);
+let scrollbarWidth = null;
+function drawWidth(box, height) {
+  if (height <= chartMax()) return box.clientWidth;
+  if (scrollbarWidth == null) {
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute;top:-9999px;width:100px;height:100px;overflow:scroll';
+    document.body.append(probe);
+    scrollbarWidth = probe.offsetWidth - probe.clientWidth;
+    probe.remove();
+  }
+  return box.clientWidth - Math.max(scrollbarWidth, 12);
+}
+
 const legend = text =>
   `<p class="chart-legend"><span><i class="swatch swatch-decision"></i>Decision model</span> <span><i class="swatch swatch-chat"></i>Chat model</span> <span>${esc(text)}</span></p>`;
 /* Each chart's notes, and the setups it could not label, kept for its downloaded image. */
@@ -723,17 +753,17 @@ function barChart(box) {
   const missing = runs.filter(run => measure.value(run) == null);
   known.sort((a, b) => (measure.higher ? measure.value(b) - measure.value(a) : measure.value(a) - measure.value(b)));
   const ordered = [...known, ...missing];
-  const width = box.clientWidth;
   const phone = PHONE.matches;
   /* Beside the bars, a label with settings takes two lines, as in the table; on a phone each label sits above its bar
      and takes the chart's width. A label is cut short only when even that is too narrow; its tooltip has the full name. */
   const twoLines = ordered.some(run => labels.get(run).detail);
   const row = phone ? 38 : twoLines ? 34 : 24;
-  const labelWidth = phone ? 0 : Math.min(210, Math.round(width * 0.36));
-  const valueWidth = phone ? 62 : 70;
   const top = 6;
   const axis = 40;
   const height = top + ordered.length * row + axis;
+  const width = drawWidth(box, height);
+  const labelWidth = phone ? 0 : Math.min(210, Math.round(width * 0.36));
+  const valueWidth = phone ? 62 : 70;
   const values = known.map(measure.value);
   const domain = !measure.log ? [0, 1] : values.length ? [Math.min(...values) / 1.5, Math.max(...values) * 1.5] : [0.01, 1];
   const left = phone ? 2 : labelWidth + 10;
@@ -760,11 +790,11 @@ function barChart(box) {
     let label;
     if (phone) {
       const first = truncate(name, width - 4, weight);
-      const rest = detail ? truncate(` · ${detail}`, width - 4 - textWidth(first, weight), weight, 11) : '';
+      const rest = detail ? truncate(` · ${detail}`, width - 4 - textWidth(first, weight), weight, 12) : '';
       label = `<text class="${labelClass}" x="2" y="${y + 13}"><title>${esc(full)}</title>${esc(first)}${rest ? `<tspan class="detail">${esc(rest)}</tspan>` : ''}</text>`;
     } else {
       const first = `<tspan x="${labelWidth}" y="${detail ? y + 15 : y + row / 2 + 4}">${esc(truncate(name, labelWidth, weight))}</tspan>`;
-      const second = detail ? `<tspan class="detail" x="${labelWidth}" y="${y + 28}">${esc(truncate(detail, labelWidth, weight, 11))}</tspan>` : '';
+      const second = detail ? `<tspan class="detail" x="${labelWidth}" y="${y + 28}">${esc(truncate(detail, labelWidth, weight, 12))}</tspan>` : '';
       label = `<text class="${labelClass}" text-anchor="end"><title>${esc(full)}</title>${first}${second}</text>`;
     }
     /* The ring spans the row: it shows the focus, and it shades the selected setup's row. */
@@ -790,7 +820,7 @@ function barChart(box) {
   const where = state.measure === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : '';
   chartNotes.measures = { notes: [`${measure.label}${where}.`, measure.log ? 'Log scale.' : 'Lines: 95% interval.'], unlabelled: [] };
   box.innerHTML =
-    `<div class="chart-scroll" style="--chart-max:${phone ? 300 : 360}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
+    `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
     legend([...chartNotes.measures.notes, chartScope(runs)].join(' '));
 }
 
@@ -803,11 +833,11 @@ function scatterChart(box) {
     return;
   }
   const labels = chartLabels(runs);
-  const width = box.clientWidth;
   const phone = PHONE.matches;
   const pad = { left: 52, right: 14, top: 12, bottom: 46 };
   /* The box keeps its height; with more setups than fit, the chart grows taller and scrolls inside it. */
-  const height = Math.max(phone ? 300 : 360, (phone ? 18 : 24) * known.length + pad.top + pad.bottom);
+  const height = Math.max(chartMax(), (phone ? 18 : 24) * known.length + pad.top + pad.bottom);
+  const width = drawWidth(box, height);
   const xs = known.map(across.value);
   const ys = known.map(accuracyOf);
   const xDomain = [Math.min(...xs) / 1.6, Math.max(...xs) * 1.6];
@@ -840,8 +870,8 @@ function scatterChart(box) {
   const sizes = new Map(points.map(({ run }) => {
     const { name, detail } = labels.get(run);
     const first = truncate(name, room, 700);
-    const second = detail ? truncate(detail, room, 700, 11) : '';
-    return [run, { first, second, w: Math.max(textWidth(first, 700), second ? textWidth(second, 700, 11) : 0), h: second ? 28 : 15 }];
+    const second = detail ? truncate(detail, room, 700, 12) : '';
+    return [run, { first, second, w: Math.max(textWidth(first, 700), second ? textWidth(second, 700, 12) : 0), h: second ? 30 : 15 }];
   }));
   const dots = points.map(({ cx, cy }) => ({ x0: cx - 7, x1: cx + 7, y0: cy - 7, y1: cy + 7 }));
   /* Places one label in a layout. A lenient label (the selected setup's, when no place is free) may cover points, never
@@ -899,20 +929,20 @@ function scatterChart(box) {
   placed.forEach(({ first, second, spot: [tx, ty], line }, run) => {
     const selected = state.selected === run.run ? ' is-selected' : '';
     if (line) parts.push(`<line class="leader${selected}" x1="${line[0]}" y1="${line[1]}" x2="${line[2]}" y2="${line[3]}"/>`);
-    parts.push(`<text class="label${selected}" x="${tx}" y="${ty + 12}">${esc(first)}${second ? `<tspan class="detail" x="${tx}" y="${ty + 25}">${esc(second)}</tspan>` : ''}</text>`);
+    parts.push(`<text class="label${selected}" x="${tx}" y="${ty + 12}">${esc(first)}${second ? `<tspan class="detail" x="${tx}" y="${ty + 27}">${esc(second)}</tspan>` : ''}</text>`);
   });
   box.classList.toggle('has-selection', Boolean(chosen));
   const missing = runs.length - known.length;
   const unlabelled = byAccuracy.filter(({ run }) => !placed.has(run)).map(({ run }) => labels.get(run).text);
   const notes = [
-    `Up: accuracy (%) on ${integer(questionsInFilter())} questions. Across: ${state.across === 'cost' ? 'cost per 1,000 questions ($)' : 'latency per request (s)'}, log scale.`,
+    `Up: accuracy (%) on ${integer(questionsInFilter())} questions. Across: ${state.across === 'cost' ? '$ per 1,000 questions' : 'median latency per request (s)'}, log scale.`,
     missing ? `${missing} without a ${NEEDS[state.across]} not shown.` : '',
   ].filter(Boolean);
   chartNotes.tradeoff = { notes, unlabelled };
   const hidden = unlabelled.length;
   const crowded = chosen && !placed.has(chosen.run) ? `Selected: ${labels.get(chosen.run).text}, its label left out so that none overlaps.` : '';
   box.innerHTML =
-    `<div class="chart-scroll" style="--chart-max:${phone ? 300 : 360}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Scatter chart: accuracy against ${state.across} for ${known.length} setups. Log scale across.`)}">${parts.join('')}</svg></div>` +
+    `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Scatter chart: accuracy against ${state.across} for ${known.length} setups. Log scale across.`)}">${parts.join('')}</svg></div>` +
     legend([notes[0], chartScope(runs), ...notes.slice(1), hidden ? `${hidden} label${hidden === 1 ? '' : 's'} left out so that none overlaps; each point's tooltip names it.` : '', crowded].filter(Boolean).join(' '));
 }
 
@@ -921,25 +951,31 @@ function renderCharts() {
     document.querySelectorAll(`[data-control="${name}"] [data-${name}]`).forEach(button => button.setAttribute('aria-pressed', String(button.dataset[name] === current)));
   press('measure', state.measure);
   press('across', state.across);
+  /* "Show all" names how many setups it would show under the filters, and steps aside when that adds none. */
   const button = document.querySelector('[data-control="show-all"]');
+  const every = chartRuns(true).length;
+  button.closest('.chart-more').hidden = every === chartRuns(false).length;
   button.setAttribute('aria-pressed', String(state.showAll));
-  button.lastChild.textContent = state.showAll ? 'Show the default setups' : `Show all ${data.runs.length}`;
+  button.querySelector('[data-show-all-label]').textContent = state.showAll ? 'Show the default setups' : `Show all ${integer(every)}`;
   barChart(document.querySelector('[data-chart="measures"]'));
   scatterChart(document.querySelector('[data-chart="tradeoff"]'));
   miniChart();
 }
 
-/* On a laptop, a small chart beside the intro: accuracy with its 95% interval for the setups the ranking chart shows,
-   following the filters, as one link to the full charts. Its axis fits the intervals in view, each end on a 10% line,
-   so short intervals stay visible. With more setups than fit, the rows narrow and the names give way to the dots; the
-   link's label still counts them. */
+/* On a laptop, a small chart beside the intro: accuracy with its 95% interval for the most accurate setups in view (the
+   filters' setups, as the table counts them), as one link to the full charts. Its axis fits the intervals shown, each
+   end on a 10% line, so short intervals stay visible; where it does not start at 0, a break on the axis and a note under
+   it say so. */
+const MINI_TOP = 8;
 function miniChart() {
   const box = document.querySelector('[data-mini-chart]');
   if (!box || !LAPTOP.matches) return;
   const measure = MEASURES.accuracy;
-  const runs = chartRuns().filter(run => measure.value(run) != null).sort((a, b) => measure.value(b) - measure.value(a));
-  const head = '<span class="mini-head"><span>Accuracy (%), with 95% intervals</span><span class="go">Charts ↓</span></span>';
-  box.setAttribute('aria-label', `Accuracy with 95% intervals for the ${integer(runs.length)} setups in view. Go to the charts.`);
+  const inView = visibleRuns();
+  const runs = [...inView].sort((a, b) => measure.value(b) - measure.value(a)).slice(0, MINI_TOP);
+  const title = `Accuracy (%), top ${integer(runs.length)} of ${integer(inView.length)} setups in view, with 95% intervals`;
+  const head = `<span class="mini-head"><span>${esc(title)}</span><span class="go">Charts ↓</span></span>`;
+  box.setAttribute('aria-label', `${title}. Go to the charts.`);
   box.classList.toggle('has-selection', runs.some(run => run.run === state.selected));
   if (!runs.length) {
     box.innerHTML = `${head}<p class="mini-empty">${esc(emptyReason())}</p>`;
@@ -948,13 +984,11 @@ function miniChart() {
   const labels = chartLabels(runs);
   const style = getComputedStyle(box);
   const width = Math.floor(box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight));
-  const named = runs.length <= 14;
-  const row = named ? 20 : Math.max(5, Math.floor(280 / runs.length));
-  const labelWidth = named ? Math.min(150, Math.round(width * 0.38)) : 0;
-  const valueWidth = named ? 34 : 0;
+  const row = 20;
+  const labelWidth = Math.min(150, Math.round(width * 0.38));
+  const valueWidth = 36;
   const top = 2;
   const base = top + runs.length * row;
-  const height = base + 18;
   const intervals = new Map(runs.map(run => {
     const { correct, questions } = counts(run);
     return [run, wilson(correct, questions)];
@@ -967,22 +1001,28 @@ function miniChart() {
   domain[0] = Math.floor(domain[0] / step + 1e-9) * step;
   const ticks = [];
   for (let tick = domain[0]; tick <= domain[1] + 1e-9; tick += step) ticks.push(tick);
+  const broken = domain[0] > 1e-9;
+  const height = base + (broken ? 36 : 20);
   const x = scale(domain, [labelWidth + 8, width - valueWidth - 6], false);
   const parts = ticks.map(value =>
     `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>` +
-    `<text class="tick" x="${x(value)}" y="${base + 13}" text-anchor="middle">${percent(value, 0)}</text>`);
+    `<text class="tick" x="${x(value)}" y="${base + 14}" text-anchor="middle">${percent(value, 0)}</text>`);
+  parts.push(`<line class="axis" x1="${x(domain[0])}" x2="${x(domain[1])}" y1="${base}" y2="${base}"/>`);
+  if (broken) {
+    const at = x(domain[0]) + 7;
+    parts.push(`<path class="axis-break" d="M${at - 4} ${base + 4}l4 -8M${at} ${base + 4}l4 -8"/>`);
+    parts.push(`<text class="axis-note" x="${labelWidth + 8}" y="${base + 31}">Axis starts at ${percent(domain[0], 0)}%, not 0.</text>`);
+  }
   runs.forEach((run, index) => {
     const mid = top + index * row + row / 2;
     const value = measure.value(run);
     const [low, high] = intervals.get(run);
     const selected = run.run === state.selected;
-    const label = named
-      ? `<text x="${labelWidth}" y="${mid + 4}" text-anchor="end">${esc(truncate(labels.get(run).text, labelWidth, selected ? 700 : 400, 11))}</text>`
-      : '';
-    const figure = named ? `<text class="value" x="${width}" y="${mid + 4}" text-anchor="end">${measure.text(value)}</text>` : '';
-    const whisker = named ? `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6` : `M${x(low)} ${mid}H${x(high)}`;
+    const label = `<text x="${labelWidth}" y="${mid + 4}" text-anchor="end">${esc(truncate(labels.get(run).text, labelWidth, selected ? 700 : 400, 12))}</text>`;
+    const figure = `<text class="value" x="${width}" y="${mid + 4}" text-anchor="end">${measure.text(value)}</text>`;
+    const whisker = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
     parts.push(`<g class="row${selected ? ' is-selected' : ''}">${label}<path class="whisker" d="${whisker}"/>` +
-      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}" cx="${x(value)}" cy="${mid}" r="${named ? 3 : 2}"/>${figure}</g>`);
+      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}" cx="${x(value)}" cy="${mid}" r="3"/>${figure}</g>`);
   });
   box.innerHTML = `${head}<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">${parts.join('')}</svg>`;
 }
