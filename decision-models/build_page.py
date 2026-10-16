@@ -895,24 +895,14 @@ def study_values(snap: Snapshot) -> dict[str, str]:
     out["study_sources_questions"] = count(fixed["questions"])
     for item in fixed["sources"]:
         out[f"study_source_{keys[item['run']]}_auroc"] = f"{item['auroc']:.2f}"
-    # Prices: the date most rates were recorded, and the dated exceptions the copy names; the build stops when a price
-    # recorded on another date is not among them.
+    # Prices: the date most rates were recorded (the Method page's price list gives every rate with its own date), and
+    # the change that makes Gemini 3.8 Flash's price introductory.
     dates = [price["date"] for price in results["prices"]]
-    common = max(set(dates), key=dates.count)
-    out["study_price_date"] = long_date(common)
-    priced = ("decider_v1", "decider_v11", "celeris", "subq", "gemini_low")
-    named_prices = {(named[key]["provider"], named[key]["model"]) for key in priced}
-    unnamed = sorted(f"{price['provider']} {price['model']}" for price in results["prices"]
-                     if price["date"] != common and (price["provider"], price["model"]) not in named_prices)
-    if unnamed:
-        raise ValueError(f"the study's price sentence does not name the prices recorded on another date: {unnamed}")
-    for key in priced:
-        price = snap.price(named[key])
-        assert price is not None
-        out[f"study_price_{key}"] = f"${price['rates']['input_tokens']:.2f}"
-        out[f"study_price_{key}_date"] = long_date(price["date"])
-        if price["change"]:
-            out[f"study_price_{key}_change"] = price["change"]
+    out["study_price_date"] = long_date(max(set(dates), key=dates.count))
+    gemini = snap.price(named["gemini_low"])
+    if gemini is None or not gemini["change"]:
+        raise ValueError("the Method page calls Gemini 3.8 Flash's price introductory, but no price change is recorded")
+    out["study_price_gemini_low_change"] = gemini["change"]
     return out
 
 

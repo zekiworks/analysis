@@ -5,7 +5,7 @@ Turkish exam questions.*
 
 The results site of a benchmark of language models and decision models on 2,198 scored multiple-choice
 questions from a question bank for the Turkish section of the TYT, the first stage of Turkey's university
-entrance exam. The home page ranks every setup, 18 decision models among them, in four tabs (accuracy,
+entrance exam. The home page ranks every setup, 19 decision models among them, in four tabs (accuracy,
 confidence, routing and stability) with two charts. Each setup, topic and question has its own page,
 Compare tests two setups against each other, and the Method page holds the full study.
 

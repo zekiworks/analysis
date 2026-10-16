@@ -283,7 +283,8 @@ impl Results {
         let base = match run.model.as_str() {
             "pplx-decider-v1-27b" => "Decider v1",
             "pplx-decider-v1.1-27b" => "Decider v1.1",
-            "jev-1.13.0" => "Jev",
+            "jev-1.13.0" => "Jev 1.13",
+            "jev-1.14.0" => "Jev 1.14",
             "d1:free" => "Liquid d1",
             "open-jev-27b-v1.1" => "Open Jev",
             "celeris-1-decision" => "Celeris 1",
@@ -377,6 +378,7 @@ fn color(run: &Run) -> Color {
         ("pplx-decider-v1-27b", ..) => rgb(0xea580c),
         ("pplx-decider-v1.1-27b", ..) => rgb(0x9a3412),
         ("jev-1.13.0", ..) => rgb(0xdc2626),
+        ("jev-1.14.0", ..) => rgb(0xf87171),
         ("d1:free", ..) => rgb(0xca8a04),
         ("open-jev-27b-v1.1", ..) => rgb(0x0d9488),
         ("clef", ..) => rgb(0x9333ea),
@@ -1670,7 +1672,7 @@ const UNITS_TITLE: &str = "Which topics cause the most mistakes?";
 /// The runs on the topic chart with their column headings, decision models first.
 const UNIT_RUNS: [(RunKey, &[&str]); 7] = [
     (DECIDER, &["Decider", "v1.1"]),
-    (JEV, &["Jev"]),
+    (JEV, &["Jev", "1.13"]),
     (LAYA, &["Laya"]),
     (ASTRA, &["GPT-6", "Astra"]),
     (DEEPSEEK_ON, &["DeepSeek", "reasoning", "on"]),

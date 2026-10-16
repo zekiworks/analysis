@@ -131,6 +131,7 @@ MODELS: dict[str, dict[str, Any]] = {
     "deepseek-v4-flash:latest": {"name": "DeepSeek V4 Flash"},
     "muse-glimmer:30b": {"name": "Muse Glimmer 30B"},
     "jev-1.13.0": {"name": "Jev 1.13.0"},
+    "jev-1.14.0": {"name": "Jev 1.14.0"},
     "open-jev-27b-v1.1": {
         "name": "Open-Jev 27B v1.1",
         "note": "Fine-tune of Qwen3.8-27B (LoRA and a scoring head)",

@@ -40,7 +40,7 @@ PAGE = V3 / "index.html"
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "data", "method")
 TITLE = "When should you trust an AI model to make a decision?"
 DESCRIPTION = (
-    "We tested 18 decision models on a reading comprehension and grammar test in native Turkish (not translated): "
+    "We tested 19 decision models on a reading comprehension and grammar test in native Turkish (not translated): "
     "2,198 questions. "
     "No model led on every measure. Fastino's GLiDE got the most answers right; Perplexity's Decider v1.1 kept the "
     "most answers at 99% confidence with no mistakes. With every model at 1 question per request, the decision model "
@@ -239,8 +239,8 @@ def copy_checks(data: Data) -> list[str]:
 
     check("2,198 questions", results["questions"] == 2198)
     check("20 topics", len(results["units"]) == 20)
-    check("18 decision models", len(decision) == 18)
-    check("43 setups", len(runs) == 43)
+    check("19 decision models", len(decision) == 19)
+    check("44 setups", len(runs) == 44)
     check("Stability: every repeated setup ran 5 times", all(len(item["runs"]) == 5 for item in results["repeats"]))
     best = max(decision, key=lambda run: accuracy(run)[0])
     check("GLiDE got the most answers right (among decision models)", best is glide)

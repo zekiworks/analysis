@@ -33,7 +33,7 @@ CHARTS = {
 }
 # The rows of the setup table, in build_page.METHOD_SETUPS's order (which runs each row covers comes from there).
 SETUP_TEXTS = (
-    "TypeSafe's hosted decision model; Open Jev compares with it.",
+    "TypeSafe's hosted decision model, versions 1.13 and 1.14; Open Jev compares with 1.13.",
     "Perplexity's Decisions API (two versions) and Liquid's free tier.",
     "Cloudflare's model, on our hardware: it adapts Qwen 3.8 27B and scores all options in one pass.",
     "Cloudflare's smaller model: Qwen 3.5 9B, with Clef's scoring method and release code.",
@@ -379,7 +379,7 @@ label.</p>
 <p>The removal raised most models' accuracy by at most about {v['method_review_rise']} points but mattered more for confident
 mistakes. Among wrong answers at {v['threshold']} or more, it removed {v['method_audit_qwen_yes_no_removed']} of
 {v['method_audit_qwen_yes_no_before']} for Qwen's yes or no scoring, {v['method_audit_astra_removed']} of
-{v['method_audit_astra_before']} for Astra, {v['method_audit_jev_removed']} of {v['method_audit_jev_before']} for Jev and
+{v['method_audit_astra_before']} for Astra, {v['method_audit_jev_removed']} of {v['method_audit_jev_before']} for Jev 1.13 and
 {v['method_audit_d1_removed']} of {v['method_audit_d1_before']} for d1. Later runs did not get this targeted review.</p>
 <p>For models tested on both versions, accuracy on the repaired questions rose {v['method_repair_low']} to
 {v['method_repair_high']} points{v['method_repair_others']}. Removed questions stay out of accuracy and confidence, but their
@@ -470,7 +470,7 @@ more, in points. Zero means a match within the groups, not that every score is r
 fewer than {v['study_calibration_min']} answers.</p>
 {chart("calibration-all", calibration_alt, CHARTS["calibration-all"])}
 <h3 id="sure">What a score of {v['threshold']} or more meant</h3>
-<p>At {v['threshold']} or more, Jev got {v['jev_correct']} of {v['jev_accepted']} right, d1 {v['d1_correct']} of
+<p>At {v['threshold']} or more, Jev 1.13 got {v['jev_correct']} of {v['jev_accepted']} right, d1 {v['d1_correct']} of
 {v['d1_accepted']}, Decider v1 {v['decider_v1_correct']} of {v['decider_v1_accepted']} and GLiDE {v['glide_correct']} of
 {v['glide_accepted']}; Luna got {v['luna_api_correct']} of {v['luna_api_accepted']} through the Decisions API and
 {v['luna_stated_correct']} of {v['luna_stated_accepted']} writing its confidence. Few answers leave wide intervals: the 95%
@@ -566,10 +566,10 @@ which does not settle whether it understands. These tests measure skills models 
 Krakauer discuss meanings of understanding,{cite(1)} and Chollet separates a skill from the ability to learn new
 ones.{cite(2)}</p>
 <p>Reading may draw on patterns shared across languages, and school grammar more on local rules; training, difficulty and
-format could also explain the gap. Confidence changes too: Jev's ranking score fell from {v['method_jev_auroc_reading']} on
+format could also explain the gap. Confidence changes too: Jev 1.13's ranking score fell from {v['method_jev_auroc_reading']} on
 Reading to {v['method_jev_auroc_grammar']} on Grammar, and Open Jev's from {v['method_open_jev_auroc_reading']} to
 {v['method_open_jev_auroc_grammar']}. An <a href="https://arize.com/blog/jev-llm-judge-consistency/">Arize evaluation</a>
-reports a stronger score for Jev on two-label English tasks, a different test.</p>
+reports a stronger score for Jev 1.13 on two-label English tasks, a different test.</p>
 <p>Stronger evidence would change a question's words but not the relationship the answer depends on, then change that
 relationship and check the answer follows (CheckList{cite(9)}; McCoy, Pavlick and Linzen{cite(14)}). Teaching an unfamiliar
 rule would test learning directly. Other work looks inside models{cite(15)} or tests generalisation across wording and
@@ -580,7 +580,7 @@ reasoning problems.{cite(16)}</p>"""),
 {v['batched_configs']} setups with {v['batch_size']} per request {v['method_repeat_times']} times on a fixed
 {v['sample_questions']}-question set.</p>
 <p>On all questions, Open Jev changed {v['method_open_jev_changed_text']}, Decider v1 {v['method_decider_v1_changed_text']}
-and SubQ Snap {v['method_subq_changed_text']}; Jev changed about {v['jev_changed_share']}, d1 {v['d1_changed_share']},
+and SubQ Snap {v['method_subq_changed_text']}; Jev 1.13 changed about {v['jev_changed_share']}, d1 {v['d1_changed_share']},
 Celeris 1 {v['celeris_changed_share']}, Qwen's yes or no scoring {v['qwen_yes_no_changed_share']} and Qwen with written
 confidence {v['qwen_stated_changed']} answers ({v['qwen_stated_changed_share']}). On the {v['sample_questions']}-question
 set, Astra changed {v['method_sample_astra_changed']}, Opus {v['method_sample_opus_changed']} and Sonnet with high reasoning
