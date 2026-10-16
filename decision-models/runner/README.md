@@ -165,14 +165,19 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_perplexity.sh` | Perplexity Decider 27B v1 | `PERPLEXITY_API_KEY` |
 | `run_perplexity_v1_1.sh` | Perplexity Decider 27B v1.1 (add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
+| `run_jev_114.sh` | TypeSafe Jev 1.14.0 (repeats 2–5: the `jev-114` lane of `run_experiments.sh`) | `JEV_API_KEY` |
 | `run_liquid_d1.sh` | Liquid AI d1 | `LIQUID_API_KEY` |
+| `run_d1_ultra.sh` | Liquid AI d1-ultra (add `--repeat N` for repeats 2–5) | `LIQUID_API_KEY` |
 | `run_glide.sh` | Fastino GLiDE, 4 requests at a time (add `--repeat N` for repeats 2–5) | `FASTINO_API_KEY` |
 | `run_celeris.sh` | Celeris-1 Decision (`celeris-1-decision`; add `--repeat N` for repeats 2–5) | `CELERIS_API_KEY` |
+| `run_subq.sh` | SubQ Snap Preview (`subq-snap-preview`, public preview; add `--repeat N` for repeats 2–5) | `SUBQ_API_KEY` |
 | `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
 
-`run_jev.sh` (and the `jev` lane of `run_experiments.sh`) reads the key from `$HOME/code/jev/key`, `run_glide.sh`
-from `$HOME/.config/fastino/key` and `run_celeris.sh` from `$HOME/.config/celeris/key` when their variable is unset;
-put the key there, or run the script's command with the variable set. The decision APIs get one question
+`run_jev.sh` and `run_jev_114.sh` (and the `jev` and `jev-114` lanes of `run_experiments.sh`) read the key from
+`$HOME/code/jev/key`; `run_glide.sh` reads it from `$HOME/.config/fastino/key`, `run_celeris.sh` from
+`$HOME/.config/celeris/key`, `run_subq.sh` from `$HOME/.config/subq/key` and `run_d1_ultra.sh` from
+`$HOME/.config/liquid/key` when their variable is unset; put the key there, or run the script's command with the
+variable set. The decision APIs get one question
 per request: the question and options as `state`, and one `choice` question with the option letters
 as criteria. Rate limits and server errors are retried.
 

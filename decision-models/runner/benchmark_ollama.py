@@ -185,9 +185,9 @@ PRICES: dict[tuple[str, str], Price] = {
     ("jev", "jev-1.13.0"): Price(
         "TypeSafe's System One price", "https://typesafe.ai/blog/introducing-system-one-models-and-jev", "2026-10-08", 0.042
     ),
-    # $0.04 on 4 October 2026, the day of the run (the pricing page as archived that day and the next); $0.02 by 8 October.
-    ("jev", "jev-1.14.0"): Price("TypeSafe's System One price", "https://docs.typesafe.ai/models", "2026-10-16", 0.042),
     # Jev 1.14.0, released 14 October 2026; TypeSafe's model list gives it the same price as 1.13.0.
+    ("jev", "jev-1.14.0"): Price("TypeSafe's System One price", "https://docs.typesafe.ai/models", "2026-10-16", 0.042),
+    # $0.04 on 4 October 2026, the day of the run (the pricing page as archived that day and the next); $0.02 by 8 October.
     ("perplexity", "pplx-decider-v1-27b"): Price(
         "Perplexity's Decisions API price",
         "https://docs.perplexity.ai/docs/getting-started/pricing",
@@ -205,6 +205,8 @@ PRICES: dict[tuple[str, str], Price] = {
     ),
     # Output tokens are free (docs.subq.ai/using-the-api/models); the model is in public preview.
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
+    # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
+    ("liquid", "d1-ultra"): Price("Liquid AI's d1-ultra price", "https://www.liquid.ai/blog/d1-ultra", "2026-10-16", 0.042),
     # No cache or output charges.
     ("openai-decisions", "gpt-6-luna"): Price(
         "OpenAI's Decisions API price",
