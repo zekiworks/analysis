@@ -25,8 +25,8 @@ run() {
     d1-ultra) ./run_d1_ultra.sh "${bank[@]}" ;;
     jev-1.14) JEV_API_KEY="$(cat "$HOME/code/jev/key")" ./benchmark_ollama.py jev-1.14.0 --provider jev --timeout 30 "${bank[@]}" ;;
     glide) ./run_glide.sh "${bank[@]}" ;;
-    decider-v1.2) ./run_perplexity_v1_2.sh "${bank[@]}" ;;
-    decider-flash-v1.2) ./run_perplexity_flash_v1_2.sh "${bank[@]}" ;;
+    decider-v1.2) ./run_pplx_decider_v1_2.sh "${bank[@]}" ;;
+    decider-flash-v1.2) ./run_pplx_decider_flash_v1_2.sh "${bank[@]}" ;;
     *) echo "unknown lane: $1" >&2; exit 2 ;;
   esac
 }

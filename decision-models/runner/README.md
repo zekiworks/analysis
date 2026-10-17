@@ -164,8 +164,6 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_gemini.sh`, `run_gemini_high.sh`, `run_gemini_one.sh` | Gemini 3.8 Flash (low thinking; high with 4 requests at a time; low with one question per request) | `GEMINI_API_KEY` |
 | `run_perplexity.sh` | Perplexity Decider 27B v1 | `PERPLEXITY_API_KEY` |
 | `run_perplexity_v1_1.sh` | Perplexity Decider 27B v1.1 (add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
-| `run_perplexity_v1_2.sh` | Perplexity Decider v1.2 (`pplx-decider-v1.2`; add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
-| `run_perplexity_flash_v1_2.sh` | Perplexity Decider Flash v1.2 (`pplx-decider-flash-v1.2`; add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
 | `run_jev_114.sh` | TypeSafe Jev 1.14.0 (repeats 2–5: the `jev-114` lane of `run_experiments.sh`) | `JEV_API_KEY` |
 | `run_liquid_d1.sh` | Liquid AI d1 | `LIQUID_API_KEY` |
@@ -188,7 +186,8 @@ as criteria. Rate limits and server errors are retried.
 Perplexity's Decisions API now answers requests that name `pplx-decider-v1-27b` or `pplx-decider-v1.1-27b` with v1.2
 (its pricing page and changelog, read 17 October 2026), so `run_perplexity.sh` and `run_perplexity_v1_1.sh` no longer
 reach those models. Every stored answer of their published runs names the model asked for, and the open weights still
-serve both. Through OpenRouter (`run_microsoft_decision_1.sh`, `run_mercury_decide.sh`), the request time includes
+serve both. Decider v1.2 and Decider Flash v1.2 run from their released checkpoints on our GPUs (Self-hosted decision
+servers, below). Through OpenRouter (`run_microsoft_decision_1.sh`, `run_mercury_decide.sh`), the request time includes
 OpenRouter's own time.
 
 ### vLLM and SGLang
@@ -232,6 +231,7 @@ docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=1 \
 | `run_metask.sh` | Metask-Jev 4B | `servers/metask_server.py`: the vendor's `jev_scorer.score` behind a server, port 18092 |
 | `run_clef_flash.sh` | Clef-flash | `servers/clef_flash_server.py`: the Clef server with the Clef-flash release (`Cloudflare/clef-flash` at `fde727a`), port 18095 |
 | `run_strands.sh` | Strands Decider 2B | `servers/strands_server.py`: starts the `strands-decider` package's own System One server (commit `3e94e9d`) with `StrandsAgents/strands-decider-2B-hobson-v21` at `2b52a62`, port 18096 |
+| `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh` | Perplexity Decider v1.2, Decider Flash v1.2 (add `--repeat N` for repeats 2–5) | `servers/pplx_decider_server.py`: the `pplx_decider` package the checkpoints ship, on its reference path, one request at a time, with only the checkpoint's `requirements.txt` installed; `perplexity-ai/pplx-decider-v1.2` at `225c913` and `perplexity-ai/pplx-decider-flash-v1.2` at `6d771ad`, one at a time on spark3, a DGX Spark (GB10) at 192.168.1.139, port 18097 (the scripts pass `--jev-url`) |
 
 Cygnet and Winnow were started as their authors describe:
 
@@ -259,10 +259,10 @@ Every server takes the decision request the hosted decision APIs take, `POST /v1
 
 and must answer `{"answers": {"answer": {"choice": "A", "probabilities": {"A": 0.7, …}}}, "usage":
 {"input_tokens": …, "output_tokens": …}}`. The chosen option's probability is the answer's score.
-Open-Jev and Laya get no `model` field. `servers/` holds the six wrappers used for the published runs,
-each copied next to its model's checkpoint and virtual environment (`model/` beside the script; each
-file's docstring gives its command). They only translate this request for the model; the page's Method
-section describes how each was read out.
+Open-Jev and Laya get no `model` field. `servers/` holds the seven wrappers used for the published runs,
+each copied next to its model's checkpoint and virtual environment (`model/` beside the script, or the checkpoint
+given with `--checkpoint`; each file's docstring gives its command). They only translate this request for the
+model; the page's Method section describes how each was read out.
 
 ### Repeats, routing and the vote share
 

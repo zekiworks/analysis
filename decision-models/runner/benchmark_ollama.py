@@ -112,8 +112,9 @@ SYSTEM_ONE = {
     # ~/code/strands-decider/server.py: Amazon's Strands Decider 2B through its own package, behind the
     # System One format.
     "strands": SystemOneService("Strands Decider", "http://127.0.0.1:18096"),
-    # ~/code/pplx-decider/server.py: Perplexity's pplx-decider-v1.1-27b on our GPUs, through the server code its
-    # checkpoint ships, which takes the same request and returns the same answers.
+    # ~/code/pplx-decider: Perplexity's Decider checkpoints on our GPUs, behind the System One format. v1.1 runs through
+    # the server code its checkpoint ships (server.py there); v1.2 and Flash v1.2 through servers/pplx_decider_server.py
+    # and the pplx_decider package their checkpoints ship. Each takes the same request and returns the same answers.
     "pplx-decider": SystemOneService("Perplexity Decider", "http://127.0.0.1:18097", request_id_header="x-request-id"),
     # OpenAI's Decisions API (public beta), which serves gpt-6-luna. Needs an API key with billing; the
     # Codex-based openai provider never uses one.
@@ -202,14 +203,6 @@ PRICES: dict[tuple[str, str], Price] = {
     ),
     ("perplexity", "pplx-decider-v1.1-27b"): Price(
         "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-09", 0.02
-    ),
-    # Decider v1.2 and Decider Flash v1.2 (Perplexity's changelog: October 2026): input tokens only, no per-request fee.
-    # The same page says requests that name pplx-decider-v1.1-27b or pplx-decider-v1-27b now select v1.2.
-    ("perplexity", "pplx-decider-v1.2"): Price(
-        "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-17", 0.02
-    ),
-    ("perplexity", "pplx-decider-flash-v1.2"): Price(
-        "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-17", 0.01
     ),
     ("fastino", "fastino/GLiDE"): Price("Fastino's GLiDE price", "https://docs.fastino.ai/pricing", "2026-10-08", 0.15),
     # Output tokens are free; cached input costs the same as input.
