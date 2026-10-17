@@ -185,10 +185,11 @@ variable set. The decision APIs get one question
 per request: the question and options as `state`, and one `choice` question with the option letters
 as criteria. Rate limits and server errors are retried.
 
-Since 16 October 2026, Perplexity's Decisions API answers requests that name `pplx-decider-v1-27b` or
-`pplx-decider-v1.1-27b` with v1.2 (its pricing page), so `run_perplexity.sh` and `run_perplexity_v1_1.sh` no longer
-reach those models; their published runs predate the change, and the open weights still serve them. Through OpenRouter
-(`run_microsoft_decision_1.sh`, `run_mercury_decide.sh`), the request time includes OpenRouter's own time.
+Perplexity's Decisions API now answers requests that name `pplx-decider-v1-27b` or `pplx-decider-v1.1-27b` with v1.2
+(its pricing page and changelog, read 17 October 2026), so `run_perplexity.sh` and `run_perplexity_v1_1.sh` no longer
+reach those models. Every stored answer of their published runs names the model asked for, and the open weights still
+serve both. Through OpenRouter (`run_microsoft_decision_1.sh`, `run_mercury_decide.sh`), the request time includes
+OpenRouter's own time.
 
 ### vLLM and SGLang
 
@@ -284,7 +285,7 @@ section describes how each was read out.
 `REPEATS="4 5"` limits a lane to some repeats; `RETRIES` and `RETRY_WAIT` restart a failed run.
 
 `run_swap.sh LANE…` runs the swap test: each question's correct option shows the text of a fixed random wrong
-option (`--replace-key-text`, seed 1, as GPT-6 Astra's run 56), so no option is right and two letters show the same
+option (`--replace-key-text 1`, as GPT-6 Astra's run 56), so no option is right and two letters show the same
 text. Each lane is one model with the settings of its run on the book: `d1-ultra`, `jev-1.14`, `glide`,
 `decider-v1.2` and `decider-flash-v1.2`. The report counts, by kind of option, the picks of the original letter, of
 the twin and of the rest; these runs stay out of the leaderboard.
