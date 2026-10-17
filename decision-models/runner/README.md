@@ -164,6 +164,8 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_gemini.sh`, `run_gemini_high.sh`, `run_gemini_one.sh` | Gemini 3.8 Flash (low thinking; high with 4 requests at a time; low with one question per request) | `GEMINI_API_KEY` |
 | `run_perplexity.sh` | Perplexity Decider 27B v1 | `PERPLEXITY_API_KEY` |
 | `run_perplexity_v1_1.sh` | Perplexity Decider 27B v1.1 (add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
+| `run_perplexity_v1_2.sh` | Perplexity Decider v1.2 (`pplx-decider-v1.2`; add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
+| `run_perplexity_flash_v1_2.sh` | Perplexity Decider Flash v1.2 (`pplx-decider-flash-v1.2`; add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
 | `run_jev_114.sh` | TypeSafe Jev 1.14.0 (repeats 2–5: the `jev-114` lane of `run_experiments.sh`) | `JEV_API_KEY` |
 | `run_liquid_d1.sh` | Liquid AI d1 | `LIQUID_API_KEY` |
@@ -171,6 +173,8 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_glide.sh` | Fastino GLiDE, 4 requests at a time (add `--repeat N` for repeats 2–5) | `FASTINO_API_KEY` |
 | `run_celeris.sh` | Celeris-1 Decision (`celeris-1-decision`; add `--repeat N` for repeats 2–5) | `CELERIS_API_KEY` |
 | `run_subq.sh` | SubQ Snap Preview (`subq-snap-preview`, public preview; add `--repeat N` for repeats 2–5) | `SUBQ_API_KEY` |
+| `run_microsoft_decision_1.sh` | Microsoft-Decision-1 via OpenRouter (`microsoft/microsoft-decision-1`; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
+| `run_mercury_decide.sh` | Inception Mercury Decide via OpenRouter (`inception/mercury-decide`, the paid listing; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
 
 `run_jev.sh` and `run_jev_114.sh` (and the `jev` and `jev-114` lanes of `run_experiments.sh`) read the key from
@@ -180,6 +184,11 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 variable set. The decision APIs get one question
 per request: the question and options as `state`, and one `choice` question with the option letters
 as criteria. Rate limits and server errors are retried.
+
+Since 16 October 2026, Perplexity's Decisions API answers requests that name `pplx-decider-v1-27b` or
+`pplx-decider-v1.1-27b` with v1.2 (its pricing page), so `run_perplexity.sh` and `run_perplexity_v1_1.sh` no longer
+reach those models; their published runs predate the change, and the open weights still serve them. Through OpenRouter
+(`run_microsoft_decision_1.sh`, `run_mercury_decide.sh`), the request time includes OpenRouter's own time.
 
 ### vLLM and SGLang
 
@@ -274,10 +283,17 @@ section describes how each was read out.
 
 `REPEATS="4 5"` limits a lane to some repeats; `RETRIES` and `RETRY_WAIT` restart a failed run.
 
+`run_swap.sh LANE…` runs the swap test: each question's correct option shows the text of a fixed random wrong
+option (`--replace-key-text`, seed 1, as GPT-6 Astra's run 56), so no option is right and two letters show the same
+text. Each lane is one model with the settings of its run on the book: `d1-ultra`, `jev-1.14`, `glide`,
+`decider-v1.2` and `decider-flash-v1.2`. The report counts, by kind of option, the picks of the original letter, of
+the twin and of the rest; these runs stay out of the leaderboard.
+
 ### The 2026 exam check
 
-`run_fresh.sh` runs nine configurations on the 40 Türkçe questions of ÖSYM's 2026 TYT, whose booklet
-and key ÖSYM publishes. The bank is built like the book's, with `osym_bank.py` to merge the sections,
+`run_fresh.sh LANE…` runs configurations on the 40 Türkçe questions of ÖSYM's 2026 TYT, whose booklet and key ÖSYM
+publishes: one per lane, each with the settings of its run on the book (the lanes are listed at the top of the
+script). The bank is built like the book's, with `osym_bank.py` to merge the sections,
 set the question boxes and read the key page:
 
 ```bash
@@ -289,5 +305,5 @@ set the question boxes and read the key page:
 ./repair_questions.py --v2 fresh/tyt-2026.sqlite --work fresh/review transcribe --all --mode direct
 ./repair_questions.py --v2 fresh/tyt-2026.sqlite --work fresh/review sheet
 ./repair_questions.py --v2 fresh/tyt-2026.sqlite --work fresh/review apply DECISIONS.json
-./run_fresh.sh
+./run_fresh.sh d1-ultra jev-1.14 glide decider-v1.2 decider-flash-v1.2
 ```

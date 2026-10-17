@@ -129,6 +129,11 @@ SYSTEM_ONE = {
     # SubQ's subq-snap-preview (public preview) through its Decisions API (docs.subq.ai/endpoints/decisions-api), which
     # takes the same request at the default path and returns the same answers.
     "subq": SystemOneService("SubQ", "https://api.subq.ai", key_vars=("SUBQ_API_KEY",), key_required=True),
+    # OpenRouter's System One route (openrouter.ai/api/v1/systemone) for the decision models it lists, which takes the
+    # same request and returns the same answers. A request names the model with its vendor prefix
+    # (microsoft/microsoft-decision-1, inception/mercury-decide): a bare name is read as typesafe/<name>. Its latency
+    # includes OpenRouter's own time.
+    "openrouter": SystemOneService("OpenRouter", "https://openrouter.ai/api", key_vars=("OPENROUTER_API_KEY",), key_required=True),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -198,6 +203,14 @@ PRICES: dict[tuple[str, str], Price] = {
     ("perplexity", "pplx-decider-v1.1-27b"): Price(
         "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-09", 0.02
     ),
+    # Decider v1.2 and Decider Flash v1.2, released 16 October 2026: input tokens only, no per-request fee. Since then
+    # the same page sends requests that name pplx-decider-v1.1-27b or pplx-decider-v1-27b to v1.2.
+    ("perplexity", "pplx-decider-v1.2"): Price(
+        "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-17", 0.02
+    ),
+    ("perplexity", "pplx-decider-flash-v1.2"): Price(
+        "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-17", 0.01
+    ),
     ("fastino", "fastino/GLiDE"): Price("Fastino's GLiDE price", "https://docs.fastino.ai/pricing", "2026-10-08", 0.15),
     # Output tokens are free; cached input costs the same as input.
     ("celeris", "celeris-1-decision"): Price(
@@ -207,6 +220,14 @@ PRICES: dict[tuple[str, str], Price] = {
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
     # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
     ("liquid", "d1-ultra"): Price("Liquid AI's d1-ultra price", "https://www.liquid.ai/blog/d1-ultra", "2026-10-16", 0.042),
+    # Microsoft-Decision-1 and Inception's Mercury Decide (its paid listing, not inception/mercury-decide:free) via
+    # OpenRouter: input tokens only; the one output token each answer reports is not charged.
+    ("openrouter", "microsoft/microsoft-decision-1"): Price(
+        "OpenRouter's Microsoft-Decision-1 price", "https://openrouter.ai/microsoft/microsoft-decision-1", "2026-10-17", 0.042
+    ),
+    ("openrouter", "inception/mercury-decide"): Price(
+        "OpenRouter's Mercury Decide price", "https://openrouter.ai/inception/mercury-decide", "2026-10-17", 0.02
+    ),
     # No cache or output charges.
     ("openai-decisions", "gpt-6-luna"): Price(
         "OpenAI's Decisions API price",
@@ -326,7 +347,7 @@ TIE_ALPHA = 0.05
 # second. The doubt counts the mistakes of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions", "subq",
+    "openai-decisions", "subq", "openrouter",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
