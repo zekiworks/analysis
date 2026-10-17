@@ -203,8 +203,8 @@ PRICES: dict[tuple[str, str], Price] = {
     ("perplexity", "pplx-decider-v1.1-27b"): Price(
         "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-09", 0.02
     ),
-    # Decider v1.2 and Decider Flash v1.2, released 16 October 2026: input tokens only, no per-request fee. Since then
-    # the same page sends requests that name pplx-decider-v1.1-27b or pplx-decider-v1-27b to v1.2.
+    # Decider v1.2 and Decider Flash v1.2 (Perplexity's changelog: October 2026): input tokens only, no per-request fee.
+    # The same page says requests that name pplx-decider-v1.1-27b or pplx-decider-v1-27b now select v1.2.
     ("perplexity", "pplx-decider-v1.2"): Price(
         "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-17", 0.02
     ),
