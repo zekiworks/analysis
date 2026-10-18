@@ -5,24 +5,23 @@ from __future__ import annotations
 
 from typing import Any
 
+import build_page as bp
 from sitebuild.questions import picks_data, question_link
 from sitebuild.site import Site, esc, interval, pct, rel
 
-# Accuracy 0–100% → red, amber at 50%, green: the earlier page's heat-map scale (v1/app.js heatStyle), in both themes.
-HEAT = {
-    "light": ((254, 226, 226), (254, 243, 199), (187, 247, 208)),
-    "dark": ((76, 29, 36), (74, 59, 16), (19, 78, 46)),
-}
+# The heat map's colours: the ranking scale (page_config.json rank_scale: dark blue, turquoise, green, yellow) over
+# accuracy from 0% to 100%, as tints that keep the cell text readable: mixed with the panel colour of each theme.
+TINT = {"light": ((247, 246, 242), 0.32), "dark": ((26, 26, 24), 0.38)}
 
 
-def heat_style(fraction: float) -> str:
-    share = min(1.0, max(0.0, fraction))
+def heat_style(stops: list[str], fraction: float) -> str:
+    colour = bp.rank_colour(stops, fraction)
 
-    def mix(stops: tuple[tuple[int, int, int], ...]) -> str:
-        low, high, t = (stops[0], stops[1], share / 0.5) if share <= 0.5 else (stops[1], stops[2], (share - 0.5) / 0.5)
-        return "rgb(" + ", ".join(str(round(a + (b - a) * t)) for a, b in zip(low, high)) + ")"
+    def tint(theme: str) -> str:
+        base, weight = TINT[theme]
+        return "rgb(" + ", ".join(str(round(weight * c + (1 - weight) * b)) for c, b in zip(colour, base)) + ")"
 
-    return f"--heat-light: {mix(HEAT['light'])}; --heat-dark: {mix(HEAT['dark'])}"
+    return f"--heat-light: {tint('light')}; --heat-dark: {tint('dark')}"
 
 
 def heatmap(site: Site) -> str:
@@ -33,12 +32,13 @@ def heatmap(site: Site) -> str:
         f'<span class="small">{site.part(unit["number"]).capitalize()} · {unit["questions"]}</span></th>'
         for unit in units
     )
+    stops = site.config["rank_scale"]["stops"]
     rows = []
     for run in site.ranked():
         cells = []
         for position, unit in enumerate(units):
             share = run["units"][position] / unit["questions"]
-            cells.append(f'<td class="heat" style="{heat_style(share)}" title="{esc(run["name"])}, {esc(unit["english"])}: '
+            cells.append(f'<td class="heat" style="{heat_style(stops, share)}" title="{esc(run["name"])}, {esc(unit["english"])}: '
                          f'{run["units"][position]} of {unit["questions"]}">{pct(share, 0)}</td>')
         rows.append(f"<tr>{site.model_cell(path, run)}{''.join(cells)}</tr>")
     listing = "".join(
@@ -53,7 +53,7 @@ def heatmap(site: Site) -> str:
     </section>
     <section class="card" id="heatmap">
       <h2>Accuracy by topic</h2>
-      <p class="note">Each cell: the share of the topic's questions the setup got right. Setups by accuracy on all questions; the table scrolls sideways inside its box.</p>
+      <p class="note">Each cell: the share of the topic's questions the setup got right, coloured from dark blue at 0% through turquoise and green to yellow at 100%. Setups by accuracy on all questions; the table scrolls sideways inside its box.</p>
       <div class="table-wrap heatmap-wrap"><table class="heatmap-table"><thead><tr><th scope="col">Setup</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>
     </section>"""
     return site.page(path, "Topics", f"Accuracy by topic for every setup, and a page for each of the {len(units)} topics.", body)

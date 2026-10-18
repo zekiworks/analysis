@@ -169,6 +169,20 @@ class CascadeTests(unittest.TestCase):
         self.assertEqual(result["in_sample"]["answered"], 0.0)
         self.assertEqual(result["held_out"]["answered"], 0.0)
 
+    def test_held_out_shares_count_the_decision_models_kept_answers(self) -> None:
+        # Right wherever it answers: nothing kept is wrong, and the rest is handed off.
+        right = bm.cascade([0.9, 0.8, 0.7, 0.6], [1, 1, 1, 1], [1, 0, 1, 0], splits=20)["held_out"]
+        self.assertEqual(right["kept_wrong"], 0.0)
+        self.assertAlmostEqual(right["kept_right"], right["answered"])
+        self.assertAlmostEqual(right["handed_off"], 1 - right["answered"])
+        # Wrong everywhere, like the frontier run: whatever is kept is wrong. A cut taken from the other half can only
+        # sit at a score present there, so lower test-half scores are still handed off.
+        wrong = bm.cascade([0.9, 0.8, 0.7, 0.6], [0, 0, 0, 0], [0, 0, 0, 0], splits=20)["held_out"]
+        self.assertGreater(wrong["answered"], 0)
+        self.assertEqual(wrong["kept_right"], 0.0)
+        self.assertAlmostEqual(wrong["kept_wrong"], wrong["answered"])
+        self.assertAlmostEqual(wrong["handed_off"], 1 - wrong["answered"])
+
 
 class ShareRuleTests(unittest.TestCase):
     def test_the_cut_keeps_answers_tied_with_it(self) -> None:

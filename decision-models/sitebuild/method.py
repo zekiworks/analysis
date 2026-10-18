@@ -44,6 +44,8 @@ SETUP_TEXTS = (
     "Fastino's System One API. GLiDE reasons more on uncertain cases, which we could not switch off.",
     "Celeris's System One API: probabilities rounded to whole points, no model size or design published.",
     "SubQ's Decisions API, in public preview, with no model size or design published.",
+    "Microsoft's and Inception's decision models via OpenRouter's System One route (paid); request times include OpenRouter's.",
+    "Perplexity's released v1.2 checkpoints, run on our hardware: additional local setups while API runs are pending.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",
@@ -569,7 +571,7 @@ while answering helps on some problems;{cite(7)} we show it only for these setti
 {v['study_excluded']} questions later removed. We use the token counts services reported, without checking invoices; GPT and
 Claude ran on subscriptions, so we price the same use at API rates. Rates for new, reused and stored input apply
 separately.</p>
-<p>Most rates date from {v['study_price_date']}. Perplexity's price changed between its two Decider runs, so their cost
+<p>Most rates date from {v['study_price_date']}. Perplexity's price changed between its Decider v1 and v1.1 runs, so their cost
 difference is not only a model improvement. Gemini 3.8 Flash's price is introductory: it
 {v['study_price_gemini_low_change']}.</p>
 <p>Models on our own GPUs get no dollar estimate, which does not make them free. Liquid's d1 used a free tier, so its replay
@@ -598,7 +600,10 @@ reasoning problems.{cite(16)}</p>"""),
 <p>On all questions, Open Jev changed {v['method_open_jev_changed_text']}, Decider v1 {v['method_decider_v1_changed_text']}
 and SubQ Snap {v['method_subq_changed_text']}; Jev 1.13 changed about {v['jev_changed_share']}, d1 {v['d1_changed_share']},
 Celeris 1 {v['celeris_changed_share']}, Qwen's yes or no scoring {v['qwen_yes_no_changed_share']} and Qwen with written
-confidence {v['qwen_stated_changed']} answers ({v['qwen_stated_changed_share']}). On the {v['sample_questions']}-question
+confidence {v['qwen_stated_changed']} answers ({v['qwen_stated_changed_share']}). Decider v1.2 (local) changed
+{v['method_decider_v12_changed_text']}, Decider Flash v1.2 (local) {v['method_decider_flash_v12_changed_text']}, Mercury Decide
+about {v['mercury_decide_changed_share']} and Microsoft-Decision-1 about {v['microsoft_decision_1_changed_share']}. On the
+{v['sample_questions']}-question
 set, Astra changed {v['method_sample_astra_changed']}, Opus {v['method_sample_opus_changed']} and Sonnet with high reasoning
 {v['method_sample_sonnet_high_changed']}. A model can repeat the same wrong answer, so stability alone proves little.</p>
 <p>Gemma's stored repeats, in one server session, changed {v['method_sample_gemma_changed']}; an unsaved rerun after a
@@ -615,10 +620,20 @@ time, overlaps counted once. Total run time is the whole run.</p>
 <p>The questions are online, so models may have seen them in training (contamination, which few tests measure{cite(19)});
 turning off web access cannot undo that. On the {v['method_exam_questions']} Turkish questions of Turkey's June 2026
 university entrance exam, public before our October test, {v['method_exam_models']} models got {v['method_exam_lowest']} to
-{v['method_exam_highest']} right.</p>
+{v['method_exam_highest']} right. Of the four we added in October, d1-ultra got {v['method_exam_d1_ultra']}, Jev 1.14
+{v['method_exam_jev_114']}, Decider v1.2 (local) {v['method_exam_decider_v12']} and Decider Flash v1.2 (local)
+{v['method_exam_decider_flash_v12']}. These {v['method_exam_questions']} questions are a separate check, not part of the
+{v['questions']}.</p>
 <p>When we replaced the correct option's text with a copy of a wrong one, Astra chose the original letter
-{v['method_copy_original']} of the time and the copy {v['method_copy_copy']}, with no established preference (p =
-{v['method_copy_p']}). That checks one form of recall, not whether the model knew the question.</p>
+{v['method_copy_original']} of the time and the copy {v['method_copy_copy']} on the {v['method_copy_text_questions']} questions
+whose options are text, with no established preference (p = {v['method_copy_p']}). On the same questions, d1-ultra
+({v['method_copy_d1_ultra_original']} and {v['method_copy_d1_ultra_copy']}), Jev 1.14 ({v['method_copy_jev_114_original']} and
+{v['method_copy_jev_114_copy']}), Decider v1.2 (local; {v['method_copy_decider_v12_original']} and
+{v['method_copy_decider_v12_copy']}) and Decider Flash v1.2 (local; {v['method_copy_decider_flash_v12_original']} and
+{v['method_copy_decider_flash_v12_copy']}) showed no established preference either (p from
+{v['method_copy_added_p_low']} to {v['method_copy_added_p_high']}). On the {v['method_copy_numeral_questions']} questions whose
+options are single numerals, Astra, d1-ultra and Decider v1.2 chose the original letter more often, which the numerals'
+fixed order can explain. That checks one form of recall, not whether the model knew the question.</p>
 <p>Reasoning, sampling, request size, precision, server software and server state can change answers. This is one language
 and one question source; a confidence cutoff for a new task needs its own test.</p>"""),
         ("data", "Download the data and check our calculations", f"""

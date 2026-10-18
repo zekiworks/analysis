@@ -16,10 +16,11 @@ const EMPTY = {
 };
 const INTERVAL_TIP = 'To test two setups against each other, use Compare.';
 const LATENCY_TIP =
-  'Latency: the time from sending one request to receiving its answer, measured from our computer, network and retries included. Median request.';
+  'Latency: the time from sending one request to receiving its answer, measured from our computer, network and retries included. Median request. Local setups ran on our own hardware.';
 const COST_TIP = 'Estimated from API prices and recorded token use, per 1,000 questions.';
 const AUROC_TIP = 'ranking score';
 const SHARE_TIP = 'Share of questions taken: at 16 questions per request, a call still goes out for the rest.';
+const SPLIT_NA_TIP = 'Live tests did not record which kept answers were right, so no bar is shown.';
 /* A saving whose first model has no price (page_config.json unpriced_first): its marker, tooltip and note, by billing. */
 const UNPRICED_FIRST = SETTINGS.unpricedFirst;
 const CONFIDENCE_NOTE = [
@@ -27,8 +28,8 @@ const CONFIDENCE_NOTE = [
 ];
 const ROUTING_NOTES = [
   'Replay: both models’ recorded answers. Live: the decision model’s recorded answers, with new calls to the LLM. Savings are estimates from API prices, and larger at 1 question per request: each question the LLM skips costs more.',
-  'In a live test with Sonnet at 1 question per request, accuracy fell 4.73 points: Decider kept 51%, with a cutoff chosen at 16 per request. A cutoff chosen at 1 per request keeps 29%, and accuracy falls 0.16 points (replay). Choose the cutoff in the format you will run.',
-  'SubQ Snap’s place depends on the LLM: third among decision models in front of Sonnet (16 per request), seventh in front of Opus, sixth in front of Astra. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, GLiDE’s 99.5%.',
+  'In a live test with Sonnet at 1 question per request, accuracy fell 4.73 points: Decider v1.1 kept 51%, with a cutoff chosen at 16 per request. A cutoff chosen at 1 per request keeps 29%, and accuracy falls 0.16 points (replay). Choose the cutoff in the format you will run.',
+  'SubQ Snap’s place depends on the LLM: fourth among decision models in front of Sonnet (16 per request), eighth in front of Opus, seventh in front of Astra. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, GLiDE’s 99.5%.',
 ];
 const STABILITY_NOTE = [
   'Only the setups we repeated, five times each. Decision models and two Qwen3.8-27B setups were repeated on all questions; the other chat models on a sample of 200.',
@@ -341,10 +342,22 @@ function routeNumbers(first) {
   let numbers = null;
   if (state.route.rule === 'half') {
     const item = data.cascades.find(cascade => cascade.decision === first.run && cascade.frontier === frontier.run);
-    if (item) numbers = { share: item.held_out.answered, change: item.held_out.difference, perThousand: item.usd_per_1000 };
+    if (item) {
+      const held = item.held_out;
+      numbers = { share: held.answered, change: held.difference, perThousand: item.usd_per_1000 };
+      if (held.kept_right != null) numbers.split = { right: held.kept_right, wrong: held.kept_wrong, rest: held.handed_off, splits: held.splits };
+    }
   } else if (first.run === data.replay.decision) {
     const item = data.replay.frontiers.find(entry => entry.frontier === frontier.run)?.[state.route.rule];
-    if (item) numbers = { share: item.kept / data.replay.questions, change: item.difference, perThousand: item.usd_per_1000 };
+    if (item) {
+      const total = data.replay.questions;
+      numbers = { share: item.kept / total, change: item.difference, perThousand: item.usd_per_1000 };
+      /* The fixed rules keep the same answers in front of every LLM; their kept and wrong counts are stored once. */
+      const kept = state.route.rule === 'sure' ? data.replay.cutoffs.find(entry => entry.cutoff === data.sure_threshold) : data.replay.share;
+      if (kept && kept.kept === item.kept) {
+        numbers.split = { right: (kept.kept - kept.wrong) / total, wrong: kept.wrong / total, rest: (total - kept.kept) / total, splits: null };
+      }
+    }
   }
   if (!numbers || alone == null) return numbers && { ...numbers, saving: null, savingUsd: null };
   return { ...numbers, saving: 1 - numbers.perThousand / alone, savingUsd: alone - numbers.perThousand };
@@ -363,7 +376,7 @@ function routeTitle() {
 
 const ROUTING_COLUMNS = [
   { key: 'share', label: 'Share of the LLM’s questions taken (%)', tip: SHARE_TIP, value: row => row.numbers?.share ?? null,
-    cell: row => (row.numbers ? percent(row.numbers.share) : NM) },
+    cell: row => shareCell(row) },
   { key: 'change', label: 'Accuracy change (points)', value: row => row.numbers?.change ?? null,
     cell: row => (row.numbers ? signed(100 * row.numbers.change, 2) : NM) },
   { key: 'saving', label: 'Saving (%)', value: row => row.numbers?.saving ?? null, cell: row => savingCell(row, n => minus(percent(n.saving, 0))) },
@@ -376,6 +389,34 @@ function savingCell(row, format) {
   if (!row.numbers || row.numbers.saving == null) return NM;
   const unpriced = UNPRICED_FIRST[row.run.billing];
   return unpriced ? `${tip(unpriced.tip, format(row.numbers))}<span class="mark">${unpriced.mark}</span>` : format(row.numbers);
+}
+
+/* The share taken, with where every question goes under it: a bar of three parts with their values printed, green for
+   kept and right, hatched red for kept but wrong, grey for sent to the LLM. A gap keeps green and red apart; "Not
+   recorded" where no split was stored. The bar sits in the space the column's heading leaves, so the table keeps its
+   width. */
+function shareCell(row) {
+  if (!row.numbers) return NM;
+  const { share, split } = row.numbers;
+  if (!split) return `<span class="share-cell">${percent(share)}${tip(SPLIT_NA_TIP, '<span class="nm">Not recorded</span>')}</span>`;
+  const parts = [['right', split.right, 'kept and right'], ['wrong', split.wrong, 'kept but wrong'], ['rest', split.rest, 'sent to the LLM']];
+  const scope = split.splits ? `means over the replay’s ${integer(split.splits)} splits` : 'shares of all questions';
+  const spoken = `${parts.map(([, value, name]) => `${name} ${percent(value)}%`).join(', ')}; ${scope}`;
+  return `<span class="share-cell">${percent(share)}<span class="split" role="img" aria-label="${esc(spoken)}">` +
+    `<span class="split-bar" aria-hidden="true">${parts.map(([key, value]) => `<span class="split-${key}" style="flex-grow:${value.toFixed(5)}"></span>`).join('')}</span>` +
+    `<span class="split-values" aria-hidden="true">${parts.map(([, value]) => percent(value)).join(' · ')}</span></span></span>`;
+}
+
+/* The Routing table's note on the bars under each share, for the rule and test on screen. */
+function splitNote(rows) {
+  if (!rows.some(row => row.numbers)) return '';
+  if (state.route.mode === 'live') return 'Live tests did not record which kept answers were right, so their shares have no bar.';
+  const splits = rows.map(row => row.numbers?.split).filter(Boolean);
+  if (!splits.length) return '';
+  const bar = 'Bar under each share: kept and right (green), kept but wrong (hatched red) and sent to the LLM (grey), in %';
+  const counts = [...new Set(splits.map(split => split.splits).filter(count => count != null))];
+  if (counts.length) return `${bar}: means over the replay’s ${counts.map(integer).join(' or ')} random splits, each measured on the half of the questions not used to choose the cutoff.`;
+  return `${bar} of all ${integer(data.replay.questions)} questions.`;
 }
 
 /* The path a question takes, drawn as a small static diagram; tags on its two branches mark the current choices. When a
@@ -463,7 +504,8 @@ function renderBoard() {
     .join('');
   const notes = (tab.notes ?? tab.note ?? []).map(text => `<p>${esc(text)}</p>`).join('');
   const board = document.getElementById('board');
-  board.innerHTML = routing + table + marks + (notes ? `<div class="tab-notes">${notes}</div>` : '');
+  const split = state.tab === 'routing' ? splitNote(rows) : '';
+  board.innerHTML = routing + table + (split ? `<p class="table-note">${esc(split)}</p>` : '') + marks + (notes ? `<div class="tab-notes">${notes}</div>` : '');
   board.setAttribute('aria-labelledby', `tab-${state.tab}`);
   board.querySelector('.table-wrap')?.addEventListener('scroll', onTableScroll, { passive: true });
   document.querySelectorAll('[data-setups]').forEach(count => {
@@ -662,6 +704,45 @@ const MEASURES = {
 };
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
 
+/* The ranking scale. In the accuracy, latency and cost charts and the small chart, each decision model's bar or dot
+   takes one colour from a fixed scale (SETTINGS.rankScale): dark blue for the worst decision model, through turquoise
+   and green, to yellow for the best; chat models stay grey. A measure's ends are the worst and best decision models in
+   the published results (accuracy on all questions), set once when the results load, so a filter changes which setups
+   are drawn, never what a colour means; a value beyond an end (a filtered accuracy, say) takes that end's colour.
+   Latency and cost run on a log scale, accuracy on a linear one; lower is better for latency and cost. */
+let rankEnds;
+function setRankEnds() {
+  const decision = data.runs.filter(isDecision);
+  const ends = (value, higher) => {
+    const known = decision.map(value).filter(item => item != null);
+    return higher ? [Math.min(...known), Math.max(...known)] : [Math.max(...known), Math.min(...known)];
+  };
+  rankEnds = { accuracy: ends(overallAccuracy, true), latency: ends(latencyOf, false), cost: ends(costPer1000, false) };
+}
+const channels = hex => [1, 3, 5].map(start => parseInt(hex.slice(start, start + 2), 16));
+function rankColor(name, value) {
+  const [worst, best] = rankEnds[name];
+  const at = MEASURES[name].log ? Math.log10 : item => item;
+  const span = at(best) - at(worst);
+  const share = span ? Math.min(1, Math.max(0, (at(value) - at(worst)) / span)) : 1;
+  const stops = SETTINGS.rankScale;
+  const place = share * (stops.length - 1);
+  const index = Math.min(stops.length - 2, Math.floor(place));
+  const [from, to] = [channels(stops[index]), channels(stops[index + 1])];
+  return `#${from.map((channel, i) => Math.round(channel + (to[i] - channel) * (place - index)).toString(16).padStart(2, '0')).join('')}`;
+}
+/* A scale end as a legend writes it. */
+const endText = (name, value) => (name === 'accuracy' ? `${percent(value)}%` : name === 'latency' ? `${value.toFixed(3)} s` : `$${value.toFixed(3)}`);
+/* The legend of a chart coloured by the scale: the decision models' colours from worst to best with each end's value and
+   which way is better, then the chat models' grey. */
+function scaleLegend(name) {
+  const [worst, best] = rankEnds[name];
+  return `<span class="scale-legend"><span>Decision models: worst ${esc(endText(name, worst))}</span>` +
+    `<i class="ramp" style="background:linear-gradient(to right, ${SETTINGS.rankScale.join(', ')})" aria-hidden="true"></i>` +
+    `<span>best ${esc(endText(name, best))} (${MEASURES[name].higher ? 'higher' : 'lower'} is better)</span></span> ` +
+    '<span><i class="swatch swatch-chat"></i>Chat model</span>';
+}
+
 const ticksLog = (low, high) => {
   const ticks = [];
   for (let power = Math.floor(Math.log10(low)); power <= Math.ceil(Math.log10(high)); power++) {
@@ -732,13 +813,29 @@ function drawWidth(box, height) {
   return box.clientWidth - Math.max(scrollbarWidth, 12);
 }
 
-const legend = text =>
-  `<p class="chart-legend"><span><i class="swatch swatch-decision"></i>Decision model</span> <span><i class="swatch swatch-chat"></i>Chat model</span> <span>${esc(text)}</span></p>`;
+const legend = (name, text) => `<p class="chart-legend">${scaleLegend(name)} <span>${esc(text)}</span></p>`;
 /* Each chart's notes, and the setups it could not label, kept for its downloaded image. */
 const chartNotes = {};
 const markAttributes = (run, text) =>
   `class="mark${state.selected === run.run ? ' is-selected' : ''}" data-select="${run.run}" tabindex="0" role="button" ` +
   `aria-pressed="${state.selected === run.run}" aria-label="${esc(text)}"`;
+/* A setup's label in a horizontal bar chart: beside the bars, right-aligned in labelWidth, with its settings on a second
+   line; on a phone, above its bars across the chart's width. A label is cut short only when even that is too narrow; its
+   tooltip has the full name. */
+function rowLabel(labels, run, y, row, width, labelWidth, full) {
+  const selected = state.selected === run.run;
+  const weight = selected ? 700 : 400;
+  const { name, detail } = labels.get(run);
+  const labelClass = `label${selected ? ' is-selected' : ''}`;
+  if (PHONE.matches) {
+    const first = truncate(name, width - 4, weight);
+    const rest = detail ? truncate(` · ${detail}`, width - 4 - textWidth(first, weight), weight, 12) : '';
+    return `<text class="${labelClass}" x="2" y="${y + 13}"><title>${esc(full)}</title>${esc(first)}${rest ? `<tspan class="detail">${esc(rest)}</tspan>` : ''}</text>`;
+  }
+  const first = `<tspan x="${labelWidth}" y="${detail ? y + 15 : y + row / 2 + 4}">${esc(truncate(name, labelWidth, weight))}</tspan>`;
+  const second = detail ? `<tspan class="detail" x="${labelWidth}" y="${y + 28}">${esc(truncate(detail, labelWidth, weight, 12))}</tspan>` : '';
+  return `<text class="${labelClass}" text-anchor="end"><title>${esc(full)}</title>${first}${second}</text>`;
+}
 
 function barChart(box) {
   const measure = MEASURES[state.measure];
@@ -779,30 +876,18 @@ function barChart(box) {
     const y = top + index * row;
     const value = measure.value(run);
     const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}`;
-    const selected = state.selected === run.run;
-    const weight = selected ? 700 : 400;
-    const { name, detail } = labels.get(run);
     const barTop = phone ? y + 18 : y + (row - 16) / 2;
     const barHeight = phone ? 14 : 16;
     const mid = barTop + barHeight / 2;
-    const labelClass = `label${selected ? ' is-selected' : ''}`;
-    let label;
-    if (phone) {
-      const first = truncate(name, width - 4, weight);
-      const rest = detail ? truncate(` · ${detail}`, width - 4 - textWidth(first, weight), weight, 12) : '';
-      label = `<text class="${labelClass}" x="2" y="${y + 13}"><title>${esc(full)}</title>${esc(first)}${rest ? `<tspan class="detail">${esc(rest)}</tspan>` : ''}</text>`;
-    } else {
-      const first = `<tspan x="${labelWidth}" y="${detail ? y + 15 : y + row / 2 + 4}">${esc(truncate(name, labelWidth, weight))}</tspan>`;
-      const second = detail ? `<tspan class="detail" x="${labelWidth}" y="${y + 28}">${esc(truncate(detail, labelWidth, weight, 12))}</tspan>` : '';
-      label = `<text class="${labelClass}" text-anchor="end"><title>${esc(full)}</title>${first}${second}</text>`;
-    }
+    const label = rowLabel(labels, run, y, row, width, labelWidth, full);
     /* The ring spans the row: it shows the focus, and it shades the selected setup's row. */
     const inner = [`<rect class="ring" x="1" y="${y + 1}" width="${width - 2}" height="${row - 2}" rx="3"/>`, label];
     if (value == null) {
       inner.push(`<text class="value nm" x="${width - 4}" y="${mid + 4}" text-anchor="end">${EMPTY.notMeasured}</text>`);
     } else {
       const start = x(domain[0]);
-      inner.push(`<rect class="${isDecision(run) ? 'bar-decision' : 'bar-chat'}" x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
+      const colour = isDecision(run) ? ` style="fill:${rankColor(state.measure, value)}"` : '';
+      inner.push(`<rect class="${isDecision(run) ? 'bar-decision' : 'bar-chat'}"${colour} x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
       if (state.measure === 'accuracy') {
         const { correct, questions } = counts(run);
         const [low, high] = wilson(correct, questions);
@@ -817,10 +902,11 @@ function barChart(box) {
   const selection = runs.some(run => run.run === state.selected);
   box.classList.toggle('has-selection', selection);
   const where = state.measure === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : '';
-  chartNotes.measures = { notes: [`${measure.label}${where}.`, measure.log ? 'Log scale.' : 'Lines: 95% interval.'], unlabelled: [] };
+  const latencyNote = state.measure === 'latency' ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
+  chartNotes.measures = { notes: [`${measure.label}${where}.`, measure.log ? 'Log scale.' : 'Lines: 95% interval.', ...latencyNote], unlabelled: [] };
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
-    legend([...chartNotes.measures.notes, chartScope(runs)].join(' '));
+    legend(state.measure, [...chartNotes.measures.notes, chartScope(runs)].join(' '));
 }
 
 function scatterChart(box) {
@@ -923,7 +1009,7 @@ function scatterChart(box) {
   [...points].sort((a, b) => (a === chosen) - (b === chosen)).forEach(({ run, cx, cy }) => {
     const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}`;
     parts.push(`<g ${markAttributes(run, tooltip)}><circle class="ring" cx="${cx}" cy="${cy}" r="9"/>` +
-      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}" cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
+      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}"${isDecision(run) ? ` style="fill:${rankColor('accuracy', accuracyOf(run))}"` : ''} cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
   });
   placed.forEach(({ first, second, spot: [tx, ty], line }, run) => {
     const selected = state.selected === run.run ? ' is-selected' : '';
@@ -942,7 +1028,56 @@ function scatterChart(box) {
   const crowded = chosen && !placed.has(chosen.run) ? `Selected: ${labels.get(chosen.run).text}, its label left out so that none overlaps.` : '';
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Scatter chart: accuracy against ${state.across} for ${known.length} setups. Log scale across.`)}">${parts.join('')}</svg></div>` +
-    legend([notes[0], chartScope(runs), ...notes.slice(1), hidden ? `${hidden} label${hidden === 1 ? '' : 's'} left out so that none overlaps; each point's tooltip names it.` : '', crowded].filter(Boolean).join(' '));
+    legend('accuracy', [notes[0], chartScope(runs), ...notes.slice(1), hidden ? `${hidden} label${hidden === 1 ? '' : 's'} left out so that none overlaps; each point's tooltip names it.` : '', crowded].filter(Boolean).join(' '));
+}
+
+/* Reading against grammar: every setup the table lists, in the table's order, with its accuracy on all the reading and
+   all the grammar questions (each part's correct answers over its questions, from results.json) as two bars on one
+   0–100% axis, each bar with its value. The axis's labels sit above the scrolling rows, so they stay in view. */
+function readingGrammarChart(box) {
+  const tab = TABS[state.tab];
+  const runs = sortRows(tab.rows(), tab.columns).map(row => row.run);
+  if (!runs.length) {
+    box.innerHTML = `<p class="note">${esc(emptyReason())}</p>`;
+    return;
+  }
+  const labels = chartLabels(runs);
+  const phone = PHONE.matches;
+  const twoLines = runs.some(run => labels.get(run).detail);
+  const bar = 12;
+  const pair = 2 * bar + 3;
+  const row = phone ? 18 + pair + 6 : Math.max(twoLines ? 34 : 24, pair + 8);
+  const top = 4;
+  const height = top + runs.length * row + 4;
+  const width = drawWidth(box, height);
+  const labelWidth = phone ? 0 : Math.min(210, Math.round(width * 0.36));
+  const left = phone ? 2 : labelWidth + 10;
+  const right = width - (phone ? 50 : 56) - 8;
+  const x = scale([0, 1], [left, right], false);
+  const base = top + runs.length * row;
+  const ticks = [0, 0.25, 0.5, 0.75, 1];
+  const parts = ticks.map(value => `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>`);
+  const axis = ticks.map(value => `<text class="tick" x="${x(value)}" y="14" text-anchor="middle">${percent(value, 0)}</text>`).join('');
+  runs.forEach((run, index) => {
+    const y = top + index * row;
+    const shares = ['reading', 'grammar'].map(part => [part, run.groups[part].correct / run.groups[part].questions]);
+    const full = `${run.name} · ${runDetail(run)}: reading ${percent(shares[0][1])}%, grammar ${percent(shares[1][1])}%`;
+    const barsTop = phone ? y + 18 : y + (row - pair) / 2;
+    const inner = [`<rect class="ring" x="1" y="${y + 1}" width="${width - 2}" height="${row - 2}" rx="3"/>`, rowLabel(labels, run, y, row, width, labelWidth, full)];
+    shares.forEach(([part, share], at) => {
+      const barY = barsTop + at * (bar + 3);
+      inner.push(`<rect class="bar-${part}" x="${left}" y="${barY}" width="${Math.max(1, x(share) - left)}" height="${bar}" rx="2"><title>${esc(full)}</title></rect>`);
+      inner.push(`<text class="value" x="${width - 4}" y="${barY + bar - 2}" text-anchor="end">${percent(share)}</text>`);
+    });
+    parts.push(`<g ${markAttributes(run, full)}>${inner.join('')}</g>`);
+  });
+  box.classList.toggle('has-selection', runs.some(run => run.run === state.selected));
+  const [reading, grammar] = ['reading', 'grammar'].map(part => runs[0].groups[part].questions);
+  const note = `Accuracy (%) on all ${integer(reading)} reading and all ${integer(grammar)} grammar questions. ${integer(runs.length)} setup${runs.length === 1 ? '' : 's'}: the table's, in its order.`;
+  box.innerHTML =
+    `<svg width="${width}" height="20" viewBox="0 0 ${width} 20" aria-hidden="true">${axis}</svg>` +
+    `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of reading and grammar accuracy for ${runs.length} setups.`)}">${parts.join('')}</svg></div>` +
+    `<p class="chart-legend"><span><i class="swatch swatch-reading"></i>Reading</span> <span><i class="swatch swatch-grammar"></i>Grammar</span> <span>${esc(note)}</span></p>`;
 }
 
 function renderCharts() {
@@ -958,6 +1093,7 @@ function renderCharts() {
   button.querySelector('[data-show-all-label]').textContent = state.showAll ? 'Show the default setups' : `Show all ${integer(every)}`;
   barChart(document.querySelector('[data-chart="measures"]'));
   scatterChart(document.querySelector('[data-chart="tradeoff"]'));
+  readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
   miniChart();
 }
 
@@ -1021,9 +1157,10 @@ function miniChart() {
     const figure = `<text class="value" x="${width}" y="${mid + 4}" text-anchor="end">${measure.text(value)}</text>`;
     const whisker = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
     parts.push(`<g class="row${selected ? ' is-selected' : ''}">${label}<path class="whisker" d="${whisker}"/>` +
-      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}" cx="${x(value)}" cy="${mid}" r="3"/>${figure}</g>`);
+      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}"${isDecision(run) ? ` style="fill:${rankColor('accuracy', value)}"` : ''} cx="${x(value)}" cy="${mid}" r="4"/>${figure}</g>`);
   });
-  box.innerHTML = `${head}<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">${parts.join('')}</svg>`;
+  box.innerHTML = `${head}<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">${parts.join('')}</svg>` +
+    `<span class="mini-legend">${scaleLegend('accuracy')}</span>`;
 }
 
 /* A chart as a PNG that keeps what it shows: the condition (measure and filters), the setups, the chart's notes with any
@@ -1057,9 +1194,33 @@ async function downloadChart(name) {
   write(chartScope(chartRuns()), 12, 400, colour('--text-2'));
   const head = y + 12;
   y = head + height + 20;
-  const swatch = (x, token, label) => `<rect x="${x}" y="${y - 10}" width="10" height="10" rx="2" fill="${colour(token)}"/>` +
-    `<text x="${x + 14}" y="${y}" font-family="${font}" font-size="12" fill="${colour('--text-2')}">${label}</text>`;
-  texts.push(swatch(10, '--data-decision', 'Decision model') + swatch(10 + 14 + textWidth('Decision model') + 16, '--data-chat', 'Chat model'));
+  /* The legend, as on the page: the decision models' colours from worst to best with each end's value and which way is
+     better, then the chat models' grey; an item that does not fit on the row starts the next one. */
+  const scaleName = name === 'measures' ? state.measure : 'accuracy';
+  const [worst, best] = rankEnds[scaleName];
+  const stops = SETTINGS.rankScale.map((stop, index, all) => `<stop offset="${index / (all.length - 1)}" stop-color="${stop}"/>`).join('');
+  texts.push(`<defs><linearGradient id="ramp">${stops}</linearGradient></defs>`);
+  let x = 10;
+  const place = itemWidth => {
+    if (x > 10 && x + itemWidth > width - 10) {
+      x = 10;
+      y += 18;
+    }
+    const at = x;
+    x += itemWidth + 8;
+    return at;
+  };
+  const label = text => {
+    const at = place(textWidth(text));
+    texts.push(`<text x="${at}" y="${y}" font-family="${font}" font-size="12" fill="${colour('--text-2')}">${esc(text)}</text>`);
+  };
+  label(`Decision models: worst ${endText(scaleName, worst)}`);
+  const rampAt = place(48);
+  texts.push(`<rect x="${rampAt}" y="${y - 10}" width="48" height="10" rx="2" fill="url(#ramp)" stroke="${colour('--mark-edge')}"/>`);
+  label(`best ${endText(scaleName, best)} (${MEASURES[scaleName].higher ? 'higher' : 'lower'} is better)`);
+  const chatAt = place(14 + textWidth('Chat model'));
+  texts.push(`<rect x="${chatAt}" y="${y - 10}" width="10" height="10" rx="2" fill="${colour('--data-chat')}"/>` +
+    `<text x="${chatAt + 14}" y="${y}" font-family="${font}" font-size="12" fill="${colour('--text-2')}">Chat model</text>`);
   const left = unlabelled.length;
   write([...notes, left ? `${left} label${left === 1 ? '' : 's'} left out so that none overlaps: ${unlabelled.join('; ')}.` : ''].filter(Boolean).join(' '), 12, 400, colour('--text-2'));
   y += 6;
@@ -1305,6 +1466,7 @@ async function start() {
     return;
   }
   byId = new Map(data.runs.map(run => [run.run, run]));
+  setRankEnds();
   readUrl();
   state.sort = defaultSort(state.tab);
   restore();

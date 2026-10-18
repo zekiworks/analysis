@@ -52,14 +52,15 @@ INTRO = (
 DESCRIPTION = (
     "We tested {decision} decision models on a reading comprehension and grammar test in native Turkish (not "
     "translated): {questions} questions. "
-    "No model led on every measure. Liquid's d1-ultra got the most answers right; Perplexity's Decider v1.1 kept the "
-    "most answers at 99% confidence with no mistakes. With every model at 1 question per request, the decision model "
+    "No model led on every measure. Liquid's d1-ultra got the most answers right. Of the decision models with no "
+    "observed mistakes at 99% confidence, Perplexity's Decider v1.2, run on our hardware, kept the most answers. With "
+    "every model at 1 question per request, the decision model "
     "with the largest share took 33% to 46% of each LLM's questions, with accuracy at most 0.32 points lower, in a "
     "replay of recorded answers."
 )
 # The note under the Accuracy table, with and without JavaScript; copy_checks tests both reasons against the run records.
 NOT_MEASURED_NOTE = (
-    "Not measured: cost for setups on our own hardware (no API price) and Liquid d1's free tier (no published price); "
+    "Not measured: cost for setups on our own hardware (not priced) and Liquid d1's free tier (no published price); "
     "latency for runs made before we timed each request."
 )
 # The LLMs the Routing tab puts behind a decision model, in its order, with the label of its control.
@@ -272,6 +273,8 @@ def page_settings(data: Data) -> str:
         # A chart label for a setup whose model ID another setup shares, by provider then model.
         "chartLabels": data.config["chart_labels"],
         "chartDecisionModels": CHART_DECISION_MODELS,
+        # The ranking charts' colours for decision models, worst to best (page_config.json rank_scale).
+        "rankScale": data.config["rank_scale"]["stops"],
         # A saving whose first model has no price: its marker, tooltip and note, by billing.
         "unpricedFirst": {key: value for key, value in data.config["unpriced_first"].items() if key != "about"},
         # The note under the Accuracy table (NOT_MEASURED_NOTE), also under the plain table.
@@ -297,8 +300,9 @@ def copy_checks(data: Data) -> list[str]:
     """Each number or comparison the fixed copy states, checked against results.json; the claims that differ."""
     results, runs = data.results, data.runs
     decision = [run for run in runs if data.decision(run)]
-    ultra, glide, decider, subq = (data.by_name(model) for model in
-                                   ("d1-ultra", "fastino/GLiDE", "pplx-decider-v1.1-27b", "subq-snap-preview"))
+    ultra, glide, decider, subq, decider12 = (data.by_name(model) for model in
+                                              ("d1-ultra", "fastino/GLiDE", "pplx-decider-v1.1-27b", "subq-snap-preview",
+                                               "pplx-decider-v1.2"))
     cascades = {(item["decision"], item["frontier"]): item for item in results["cascades"]}
     sonnet16, sonnet1 = data.named("sonnet_high", 16), data.named("sonnet_high", 1)
     found = []
@@ -311,8 +315,10 @@ def copy_checks(data: Data) -> list[str]:
     best = max(decision, key=lambda run: accuracy(run)[0])
     check("Liquid's d1-ultra got the most answers right (among decision models)", best is ultra)
     flawless = [run for run in decision if run["confidence"]["sure"]["questions"] == run["confidence"]["sure"]["correct"]]
-    check("Decider v1.1 kept the most answers at 99% confidence with no mistakes",
-          max(flawless, key=lambda run: run["confidence"]["sure"]["questions"]) is decider)
+    flawless_kept = sorted((run["confidence"]["sure"]["questions"], run["run"]) for run in flawless)
+    check("Of the decision models with no observed mistakes at 99% confidence, Decider v1.2 kept the most answers",
+          flawless_kept[-1][1] == decider12["run"] and flawless_kept[-1][0] > flawless_kept[-2][0])
+    check("Decider v1.2 ran on our hardware (description: run on our hardware)", decider12["billing"] == "local")
     # In front of each routing LLM at 1 question per request, the decision model with the largest share of its questions,
     # with the cutoff chosen on half the questions (d1-ultra in front of all five).
     best_first = []
@@ -337,7 +343,7 @@ def copy_checks(data: Data) -> list[str]:
     if live:
         test = live[0]
         check("accuracy fell 4.73 points", round(-100 * test["measured"]["difference"], 2) == 4.73)
-        check("Decider kept 51%", round(100 * test["routed"] / test["held_out"]) == 51)
+        check("Decider v1.1 kept 51%", round(100 * test["routed"] / test["held_out"]) == 51)
         # The cutoff is the one the same live test chose on 16-per-request answers.
         sixteen = [item["threshold"] for item in results["pipelines"] if item["decision"] == decider["run"]
                    and item["frontier"] == sonnet16["run"] and item["batch_size"] == 16 and item["rule"] == "half"]
@@ -347,9 +353,9 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap third among decision models in front of Sonnet (16 per request)", order.index(subq) == 2)
+    check("SubQ Snap fourth among decision models in front of Sonnet (16 per request)", order.index(subq) == 3)
     for size in (16, 1):
-        for key, place, word in (("opus", 7, "seventh"), ("astra", 6, "sixth")):
+        for key, place, word in (("opus", 8, "eighth"), ("astra", 7, "seventh")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])

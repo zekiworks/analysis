@@ -523,9 +523,14 @@ def check_replays(results: dict[str, Any], answers: dict[str, Any], scored: list
         second, _ = outcomes(item["frontier"])
         again = bm.cascade(scores, correct, second, clusters=clusters)
         check(f"{name}, threshold in sample", item["in_sample"]["threshold"], again["in_sample"]["threshold"])
-        for part, keys in (("in_sample", ("answered", "accuracy")), ("held_out", ("answered", "difference", "worse"))):
+        held = ("answered", "difference", "worse", "kept_right", "kept_wrong", "handed_off")
+        for part, keys in (("in_sample", ("answered", "accuracy")), ("held_out", held)):
             for key in keys:
                 check(f"{name}, {key} {part.replace('_', ' ')}", item[part][key], again[part][key], "metric")
+        shares = item["held_out"]
+        check(f"{name}, held-out shares add up", True,
+              close(shares["kept_right"] + shares["kept_wrong"], shares["answered"], METRIC_TOLERANCE)
+              and close(shares["answered"] + shares["handed_off"], 1.0, METRIC_TOLERANCE))
         check(f"{name}, curve", item["curve"], again["curve"])
 
     lead = results["replay"]

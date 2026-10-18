@@ -28,8 +28,9 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// Each light colour the figures use and its dark-theme counterpart. Text and series colours keep at
 /// least 4.5:1 contrast against [`DARK_BACKGROUND`], guide lines at least 3:1; gridlines stay subtle.
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
-/// Text, guides, gridlines, reading and grammar follow the page's dark tokens.
-const DARK: [(&str, &str); 58] = [
+/// Text, guides, gridlines, reading and grammar follow the page's dark tokens. No run colour is red: red marks
+/// kept-but-wrong answers only.
+const DARK: [(&str, &str); 59] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -47,8 +48,8 @@ const DARK: [(&str, &str); 58] = [
     ("#60a5fa", "#dbeafe"),
     ("#3f6212", "#a3e635"),
     ("#65a30d", "#d9f99d"),
-    ("#e11d48", "#fb7185"),
-    ("#fda4af", "#fecdd3"),
+    ("#6d28d9", "#a78bfa"),
+    ("#a78bfa", "#ddd6fe"),
     ("#7c3aed", "#a78bfa"),
     ("#db2777", "#f472b6"),
     ("#f472b6", "#fbcfe8"),
@@ -58,9 +59,6 @@ const DARK: [(&str, &str); 58] = [
     ("#854d0e", "#fde68a"),
     ("#713f12", "#eab308"),
     ("#9a3412", "#fed7aa"),
-    ("#dc2626", "#f87171"),
-    // Jev 1.14: a 300, not a 200, so it also stays apart from Cygnet's pale grey in the panel they share.
-    ("#f87171", "#fca5a5"),
     ("#ca8a04", "#facc15"),
     ("#059669", "#34d399"),
     ("#0d9488", "#2dd4bf"),
@@ -68,7 +66,6 @@ const DARK: [(&str, &str); 58] = [
     ("#c084fc", "#d8b4fe"),
     ("#1e40af", "#60a5fa"),
     ("#27272a", "#d6d3cc"),
-    ("#be185d", "#f472b6"),
     ("#1d4ed8", "#60a5fa"),
     ("#4d7c0f", "#bef264"),
     ("#a21caf", "#f0abfc"),
@@ -81,11 +78,15 @@ const DARK: [(&str, &str); 58] = [
     ("#475569", "#d6d3cc"),
     // Format reruns (`fn color`): a hue apart from their setup's first run in every panel they share.
     ("#c2410c", "#fdba74"),
-    ("#be123c", "#fda4af"),
     ("#7e22ce", "#d8b4fe"),
     ("#0f766e", "#5eead4"),
     ("#b45309", "#fcd34d"),
     ("#6b21a8", "#c4b5fd"),
+    // The setups added in October: Decider v1.2 and Flash v1.2 (local), Microsoft-Decision-1 and Mercury Decide.
+    ("#fb923c", "#ffedd5"),
+    ("#7c2d12", "#fb923c"),
+    ("#155e75", "#67e8f9"),
+    ("#065f46", "#a7f3d0"),
     // Kept and right, kept but wrong: the page's shared palette.
     ("#15803d", "#4ade80"),
     ("#b91c1c", "#fca5a5"),
@@ -98,6 +99,8 @@ const DARK: [(&str, &str); 58] = [
     // Named colours of `hex` not covered above.
     ("#000000", "#ebe9e4"),
     ("#ffffff", "#ffffff"),
+    // Red (`Color::Red`, `Color::LightRed`), which no figure uses for a run.
+    ("#dc2626", "#f87171"),
     ("#c026d3", "#e879f9"),
 ];
 

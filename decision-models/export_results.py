@@ -58,6 +58,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "cygnet": {"access": "Cygnet decision server on vLLM, self-hosted", "scoring": True, "billing": "local"},
     "winnow": {"access": "Winnow server (llama.cpp), self-hosted", "scoring": True, "billing": "local"},
     "strands": {"access": "Strands Decider server, self-hosted", "scoring": True, "billing": "local"},
+    "pplx-decider": {"access": "Perplexity Decider server, self-hosted", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -67,6 +68,8 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "claude": {"access": "Claude Code CLI, Claude subscription", "scoring": False, "billing": "subscription"},
     "openai": {"access": "Codex CLI, ChatGPT subscription", "scoring": False, "billing": "subscription"},
     "openai-decisions": {"access": "OpenAI Decisions API (public beta)", "scoring": True, "billing": "api"},
+    # Other makers' decision models through OpenRouter's System One route; the request time includes OpenRouter's own.
+    "openrouter": {"access": "OpenRouter System One API", "scoring": True, "billing": "api"},
 }
 # The token totals a price applies to (TOKEN_KINDS in benchmark_ollama.py): every prompt token, the cache reads
 # and writes among them, and the output.
@@ -92,8 +95,12 @@ VARIANTS = {
     "vllm-verbal": "stated confidence",
     "vllm-vote": "vote share",
     "openai-decisions": "Decisions API, beta",
+    # The route, wherever a table, chart or model page shows the setup.
+    "openrouter": "via OpenRouter",
+    "pplx-decider": "local",
 }
 GPU = "RTX PRO 6000 Blackwell (96 GB)"
+SPARK = "DGX Spark, GB10 (128 GB unified memory)"
 # Display names, and for models on our GPUs the hardware and precision.
 # parameters: the model's weights, counted from the tensor shapes in each local checkpoint's safetensors
 # files (Open-Jev: Qwen3.8-27B plus its LoRA adapter and scoring head; Clef: the backbone plus its joint
@@ -141,11 +148,36 @@ MODELS: dict[str, dict[str, Any]] = {
     "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B v1", "parameters": 26_085_330_160},
     # Counted from the released checkpoint (perplexity-ai/pplx-decider-v1.1-27b at 5cd25e3), backbone and head.
     "pplx-decider-v1.1-27b": {"name": "Perplexity Decider 27B v1.1", "parameters": 26_086_635_760},
+    # Counted from the released checkpoints (perplexity-ai/pplx-decider-v1.2 at 225c913 and
+    # perplexity-ai/pplx-decider-flash-v1.2 at 6d771ad), backbone and head. Both ran on spark3, a DGX Spark.
+    "pplx-decider-v1.2": {
+        "name": "Perplexity Decider 27B v1.2",
+        "note": "Perplexity's released checkpoint, run on our hardware. An API run is pending; this is an additional local setup.",
+        "hardware": f"1 × {SPARK}; BF16",
+        "parameters": 26_086_635_760,
+    },
+    "pplx-decider-flash-v1.2": {
+        "name": "Perplexity Decider Flash v1.2",
+        "note": "Perplexity's released Flash checkpoint, based on Qwen3.5-4B, run on our hardware. An API run is pending; "
+        "this is an additional local setup.",
+        "hardware": f"1 × {SPARK}; BF16",
+        "parameters": 4_539_918_336,
+    },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
     "subq-snap-preview": {"name": "SubQ Snap Preview"},
     "d1:free": {"name": "Liquid d1", "billing": "free"},
     "d1-ultra": {"name": "Liquid d1-ultra"},
+    # Through OpenRouter's System One route; the variant names the route.
+    "microsoft/microsoft-decision-1": {
+        "name": "Microsoft-Decision-1",
+        "note": "Microsoft's decision model, called through OpenRouter's System One route.",
+    },
+    "inception/mercury-decide": {
+        "name": "Inception Mercury Decide",
+        "note": "Inception's decision model, called through OpenRouter's System One route (paid listing). It returns a "
+        "probability for each option.",
+    },
     "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}", "parameters": 421_293_830},
     "laya-multilingual": {
         "name": "Laya multilingual",

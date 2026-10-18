@@ -1005,12 +1005,12 @@ def savings_table(snap: Snapshot) -> str:
         if numbers is None:
             return "Not run"
         text = f"{fmt.pct(numbers['saving'])} cheaper, {change_text(numbers['difference'])}"
-        return f"Decider takes {fmt.pct(numbers['share'])}: {text}" if takes else text
+        return f"Decider v1.1 takes {fmt.pct(numbers['share'])}: {text}" if takes else text
 
     def row(item: dict[str, Any]) -> str:
         return (
             "<tr>"
-            f'<td data-label="Model behind Decider">{esc(setup_name(item["run"]))}</td>'
+            f'<td data-label="Model behind Decider v1.1">{esc(setup_name(item["run"]))}</td>'
             f'<td class="num" data-label="Its accuracy alone">{fmt.pct(item["accuracy"])}</td>'
             f'<td class="num" data-label="{esc(rule_names[0])}">{rule(item["share"])}</td>'
             f'<td class="num" data-label="{esc(rule_names[1])}">{rule(item["strict"], True)}</td>'
@@ -1028,7 +1028,7 @@ def savings_table(snap: Snapshot) -> str:
         rows.extend(row(item) for item in group)
     head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in rule_names)
     return (
-        '<div class="table-wrap"><table class="overview cards savings"><thead><tr><th scope="col">Model behind Decider</th>'
+        '<div class="table-wrap"><table class="overview cards savings"><thead><tr><th scope="col">Model behind Decider v1.1</th>'
         f'<th scope="col" class="num">Its accuracy alone</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
     )
 
@@ -1213,6 +1213,25 @@ def method_values(snap: Snapshot) -> dict[str, str]:
     out["method_copy_original"] = fmt.pct(copy["original"])
     out["method_copy_copy"] = fmt.pct(copy["copy"])
     out["method_copy_p"] = p_value(copy["p"])
+    # The setups added in October: their exam scores, and on the text-option questions the swap test's original letter
+    # against the copy, with exact sign tests; on the numeral questions, which setups preferred the original letter.
+    for key, model in (("d1_ultra", "d1-ultra"), ("jev_114", "jev-1.14.0"), ("decider_v12", "pplx-decider-v1.2"),
+                       ("decider_flash_v12", "pplx-decider-flash-v1.2")):
+        out[f"method_exam_{key}"] = count(exam["october"][model])
+        swap = copy["october"][model]
+        out[f"method_copy_{key}_original"] = fmt.pct(swap["original"] / copy["text_questions"])
+        out[f"method_copy_{key}_copy"] = fmt.pct(swap["copy"] / copy["text_questions"])
+    added = [bm.sign_test(item["original"], item["copy"]) for item in copy["october"].values()]
+    if min(added) < ALPHA:
+        raise ValueError("Limits says the setups added in October showed no established preference on text options")
+    out["method_copy_added_p_low"], out["method_copy_added_p_high"] = p_value(min(added)), p_value(max(added))
+    out["method_copy_text_questions"] = count(copy["text_questions"])
+    numerals = copy["numerals"]
+    preferring = [model for model, item in numerals["counts"].items()
+                  if item["original"] > item["copy"] and bm.sign_test(item["original"], item["copy"]) < ALPHA]
+    if preferring != numerals["original_more"]:
+        raise ValueError(f"Limits names {numerals['original_more']} as preferring the original numeral; the counts give {preferring}")
+    out["method_copy_numeral_questions"] = count(numerals["questions"])
     out["method_review_cases"] = count(review["cases"])
     out["method_review_confirmed"] = count(review["confirmed"])
     out["method_review_unsettled"] = in_words(review["image_unsettled"])
@@ -1267,6 +1286,8 @@ METHOD_SETUPS: list[tuple[list[dict[str, str]], str]] = [
     ([{"provider": "fastino"}], "We called Fastino's System One API. Fastino says GLiDE makes a first assessment and reasons more on uncertain cases before it returns option probabilities. We did not run a version with that internal reasoning switched off."),
     ([{"provider": "celeris"}], "We called Celeris's System One API. The service returns option probabilities rounded to whole percentage points. Celeris publishes no model size or design for it."),
     ([{"provider": "subq"}], "We called SubQ's Decisions API, in public preview. It returns a probability for each option. SubQ says preview models can change before general availability, and it publishes no model size or design for this one."),
+    ([{"provider": "openrouter"}], "We called Microsoft's and Inception's decision models through OpenRouter's System One route, one question per request, on paid listings. Each returns a probability for each option, and the request time includes OpenRouter's own time. OpenRouter is a different route from each maker's own API."),
+    ([{"provider": "pplx-decider"}], "We ran Perplexity's released Decider v1.2 and Decider Flash v1.2 checkpoints on our own hardware, through the package they ship, one question per request. They are additional local setups: their runs through Perplexity's API are pending, while Decider v1 and v1.1 ran through that API."),
     ([{"provider": "strands"}], "We ran Amazon's released decision model with its own server and probability settings. It adds a small trained adapter and a scoring part to Qwen 3.5 2B Base."),
     ([{"provider": "laya"}], "We ran both released decision models on our own hardware. Each reads the input and scores all options in one pass."),
     ([{"model": "gliner2.5-multi-v1"}], "We ran Fastino's model for extracting and classifying text, with {size} parameters. We gave it the same question and options and asked it to score the options as labels. It shows how a much smaller classifier does."),
@@ -1357,12 +1378,12 @@ def chart_sizes(page: str, folder: Path = ROOT) -> str:
 # ---------------------------------------------------------------- sharing images
 
 # The sharing image's colours: the page's tokens, so the dark image looks like the site and the light one prints well.
-# "bar" is the decision models' colour in the site's charts (style.css --primary).
+# "edge" outlines each decision model's dot, which takes the ranking scale's colour (rank_colour), as on the page.
 IMAGE_THEMES = {
     "dark": {"bg": "#161615", "text": "#ebe9e4", "values": "#ebe9e4", "sub": "#d6d3cc", "muted": "#a8a6a0", "rule": "#34332f",
-             "bar": "#86b9f3"},
+             "edge": "#78746d"},
     "light": {"bg": "#ffffff", "text": "#0f172a", "values": "#1e293b", "sub": "#334155", "muted": "#475569", "rule": "#e2e8f0",
-              "bar": "#2563eb"},
+              "edge": "#7c7871"},
 }
 # The main images are the dark ones, on the page background like the cards of a thread; the light ones are for
 # reports and slides.
@@ -1390,21 +1411,33 @@ def figure_page(size: dict[str, int], scale: dict[str, int], body: str, theme: s
 # The link preview's own layout: a row per decision model on one 0% to 100% scale, the accuracy as a dot, its 95%
 # interval as a line, and the value in a column of its own, so that no label meets a mark.
 ACCURACY_STYLE = """
-.chart { flex: 1; min-height: 0; display: grid; grid-template-columns: 250px 1fr 80px; grid-auto-rows: 1fr;
+.chart { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 1fr 80px; grid-auto-rows: minmax(0, 1fr);
   column-gap: 18px; align-items: center; margin-top: 14px; }
-.name { font-size: 17px; font-weight: 600; text-align: right; white-space: nowrap; }
+.name { font-size: calc(17px * var(--fit)); line-height: 1.1; font-weight: 600; text-align: right; white-space: nowrap; }
 .lane { position: relative; height: 100%; border-right: 1px solid var(--rule);
   background: linear-gradient(to right, var(--rule) 0 1px, transparent 1px) 0 0 / 25% 100% repeat-x; }
 .ci { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); }
 .ci::before, .ci::after { content: ""; position: absolute; top: -5px; width: 2px; height: 12px; background: var(--text); }
 .ci::before { left: -1px; } .ci::after { right: -1px; }
 .dot { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
-  background: var(--bar); box-shadow: 0 0 0 2px var(--bg); }
-.val { font-size: 17px; font-weight: 700; text-align: right; color: var(--values); font-variant-numeric: tabular-nums; }
-.axis { display: grid; grid-template-columns: 250px 1fr 80px; column-gap: 18px; height: 24px; margin-top: 4px; }
+  border: 1.5px solid var(--edge); box-shadow: 0 0 0 2px var(--bg); }
+.val { font-size: calc(17px * var(--fit)); line-height: 1.1; font-weight: 700; text-align: right; color: var(--values);
+  font-variant-numeric: tabular-nums; }
+.axis { display: grid; grid-template-columns: 300px 1fr 80px; column-gap: 18px; height: 24px; margin-top: 4px; }
 .axis .ticks { position: relative; font-size: 14px; color: var(--muted); }
 .axis .ticks span { position: absolute; top: 3px; transform: translateX(-50%); }
+.legend { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 15px; color: var(--muted); }
+.legend .ramp { width: 64px; height: 12px; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--edge); }
 """
+
+
+def rank_colour(stops: list[str], share: float) -> tuple[float, ...]:
+    """The ranking scale's colour (page_config.json rank_scale, worst first) at share, from 0 for the worst to 1 for the
+    best, as RGB channels: the same scale v3.js draws on the page."""
+    channels = [tuple(int(stop[start:start + 2], 16) for start in (1, 3, 5)) for stop in stops]
+    place = min(1.0, max(0.0, share)) * (len(stops) - 1)
+    index = min(len(stops) - 2, int(place))
+    return tuple(a + (b - a) * (place - index) for a, b in zip(channels[index], channels[index + 1]))
 
 
 def chart_label(snap: Snapshot, run: dict[str, Any]) -> str:
@@ -1418,19 +1451,24 @@ def chart_label(snap: Snapshot, run: dict[str, Any]) -> str:
 
 def accuracy_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
     """The link preview: every decision model's accuracy on all questions with its 95% interval (Wilson, as the site's
-    tables), most accurate first, all drawn alike so that no model is singled out. The footer gives the results
-    version, the answer key version and the page address."""
+    tables), most accurate first. Each dot takes the ranking scale's colour, from the least accurate decision model (dark
+    blue) to the most accurate (yellow), as in the page's charts, with a legend giving both ends. The footer gives the
+    results version, the answer key version and the page address."""
     runs = [run for run in snap.runs if snap.decision_model(run)]
     totals = {run["run"]: (run["groups"]["reading"]["correct"] + run["groups"]["grammar"]["correct"],
                            run["groups"]["reading"]["questions"] + run["groups"]["grammar"]["questions"]) for run in runs}
+    shares = {run_id: correct / total for run_id, (correct, total) in totals.items()}
+    worst, best = min(shares.values()), max(shares.values())
+    stops = snap.config["rank_scale"]["stops"]
     rows = []
     for run in sorted(runs, key=lambda run: -totals[run["run"]][0]):
         correct, total = totals[run["run"]]
         low, high = bm.wilson_interval(correct, total)
+        colour = "#" + "".join(f"{round(channel):02x}" for channel in rank_colour(stops, (shares[run["run"]] - worst) / (best - worst)))
         rows.append(
             f'<span class="name">{esc(chart_label(snap, run))}</span>'
             f'<span class="lane"><span class="ci" style="left: {100 * low:.2f}%; width: {100 * (high - low):.2f}%"></span>'
-            f'<span class="dot" style="left: {100 * correct / total:.2f}%"></span></span>'
+            f'<span class="dot" style="left: {100 * correct / total:.2f}%; background: {colour}"></span></span>'
             f'<span class="val">{100 * correct / total:.1f}%</span>'
         )
     results = snap.results
@@ -1440,8 +1478,12 @@ def accuracy_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
         f"<h1>Accuracy of the {count(len(runs))} decision models, with 95% intervals</h1>"
         f'<p class="sub">Our reading comprehension and grammar test: {count(snap.total)} questions in native Turkish (not translated). '
         "Dot: accuracy; line: 95% interval.</p>"
-        f'<div class="chart">{"".join(rows)}</div>'
+        # Rows share the chart's height; past 20 models their text shrinks with them, so every row fits the image.
+        f'<div class="chart" style="--fit: {min(1.0, 20 / len(runs)):.4f}">{"".join(rows)}</div>'
         f'<div class="axis"><span></span><span class="ticks">{ticks}</span><span></span></div>'
+        f'<p class="legend"><span>Decision models: worst {100 * worst:.1f}%</span>'
+        f'<span class="ramp" style="background: linear-gradient(to right, {", ".join(stops)})"></span>'
+        f"<span>best {100 * best:.1f}% (higher is better)</span></p>"
         f'<p class="foot">Results {esc(results["results_version"])} · Answer key version {results["answer_key"]["version"]} · '
         f"{esc(site)}</p>"
     )

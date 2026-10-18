@@ -556,12 +556,17 @@ def cascade(
     chosen = lowest_threshold(range(n))
 
     shares = differences = 0.0
+    right_shares = wrong_shares = handed_shares = 0.0
     worse = 0
     for first, test in halves(n, splits, seed, clusters):
         chosen_level = lowest_threshold(first)
         taken = [item for item in test if level[item] <= chosen_level]
         difference = sum(decision_correct[item] - frontier_correct[item] for item in taken) / len(test)
+        right = sum(1 for item in taken if decision_correct[item])
         shares += len(taken) / len(test)
+        right_shares += right / len(test)
+        wrong_shares += (len(taken) - right) / len(test)
+        handed_shares += (len(test) - len(taken)) / len(test)
         differences += difference
         worse += difference < 0
     return {
@@ -573,11 +578,16 @@ def cascade(
             "answered": sum(count[: chosen + 1]) / n,
             "accuracy": (frontier_total + sum(gain[: chosen + 1])) / n,
         },
+        # Means over the splits of the held-out half: the share kept (answered), split into the kept answers the
+        # decision model got right and wrong, and the share handed off to the frontier run. Shares, not counts.
         "held_out": {
             "splits": splits,
             "answered": shares / splits,
             "difference": differences / splits,
             "worse": worse / splits,
+            "kept_right": right_shares / splits,
+            "kept_wrong": wrong_shares / splits,
+            "handed_off": handed_shares / splits,
         },
         "curve": thin_curve(curve),
     }

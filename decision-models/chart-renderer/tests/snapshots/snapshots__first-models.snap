@@ -3,37 +3,45 @@ source: tests/snapshots.rs
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How many questions can each model handle before Astra?
-We replayed recorded answers on the 2,198 questions. The first model answers the
-questions it is most confident about; GPT-6 Astra (low reasoning) answers the
-rest. We choose the cutoff on half the questions and test it on the other half;
-bars show the average over 300 splits.
+We replayed recorded answers on the 2,198 questions. The first model answers the questions
+it is most confident about; GPT-6 Astra (low reasoning) answers the rest. We choose the
+cutoff on half the questions and test it on the other half; bars show the average over 300
+splits.
 
-                                                                Accuracy change
-                                                                vs Astra alone
+                                                                            Accuracy change
+                                                                            vs Astra alone
 Decision models
-            Liquid d1-ultra ███████████████████████████▍ 34.2%  −0.06 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-               Decider v1.1 ████████████████▊ 20.9% ▏   ▏       −0.13 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-              Fastino GLiDE ████████████████▏ 20.1% ▏   ▏       −0.09 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-                 Decider v1 ██████████████▉ 18.6%   ▏   ▏       −0.10 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-                  Celeris 1 ████████████▊ 15.9% ▏   ▏   ▏       −0.13 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-                  SubQ Snap ████████████▋ 15.8% ▏   ▏   ▏       −0.09 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-                   Jev 1.13 ████████████▎ 15.3% ▏   ▏   ▏       −0.11 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-                  Liquid d1 ███████████▍ 14.3%  ▏   ▏   ▏       −0.12 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-                   Jev 1.14 █████████▌ 11.8%    ▏   ▏   ▏       −0.09 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-  GPT-6 Luna, Decisions API ██████▋ 8.2%    ▏   ▏   ▏   ▏       −0.09 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-Chat model for comparison
-                Gemma 4 31B ███████████▉ 14.9%  ▏   ▏   ▏       −0.09 points
-                            ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
-          GPT-6 Astra alone 0%: Astra answers every question    baseline
-                           0%  5%  10% 15% 20% 25% 30% 35%
+                        Liquid d1-ultra ███████████████████████████▍ 34.2%  −0.06 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                           Decider v1.1 ████████████████▊ 20.9% ▏   ▏       −0.13 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                          Fastino GLiDE ████████████████▏ 20.1% ▏   ▏       −0.09 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                             Decider v1 ██████████████▉ 18.6%   ▏   ▏       −0.10 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                              Celeris 1 ████████████▊ 15.9% ▏   ▏   ▏       −0.13 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                              SubQ Snap ████████████▋ 15.8% ▏   ▏   ▏       −0.09 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                               Jev 1.13 ████████████▎ 15.3% ▏   ▏   ▏       −0.11 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                              Liquid d1 ███████████▍ 14.3%  ▏   ▏   ▏       −0.12 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                               Jev 1.14 █████████▌ 11.8%    ▏   ▏   ▏       −0.09 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+              GPT-6 Luna, Decisions API ██████▋ 8.2%    ▏   ▏   ▏   ▏       −0.09 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+Chat models for comparison
+                   Decider v1.2 (local) ███████████████▋ 19.5%  ▏   ▏       −0.11 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                            Gemma 4 31B ███████████▉ 14.9%  ▏   ▏   ▏       −0.09 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+        Mercury Decide (via OpenRouter) ███████▉ 9.9%   ▏   ▏   ▏   ▏       −0.11 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+             Decider Flash v1.2 (local) ██████▎ 7.8%    ▏   ▏   ▏   ▏       −0.14 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+  Microsoft-Decision-1 (via OpenRouter) █▍ 1.8% ▏   ▏   ▏   ▏   ▏   ▏       −0.08 points
+                                        ▏   ▏   ▏   ▏   ▏   ▏   ▏   ▏
+                      GPT-6 Astra alone 0%: Astra answers every question    baseline
+                                       0%  5%  10% 15% 20% 25% 30% 35%
 Share of final answers supplied by the first model

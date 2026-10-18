@@ -283,6 +283,9 @@ impl Results {
         let base = match run.model.as_str() {
             "pplx-decider-v1-27b" => "Decider v1",
             "pplx-decider-v1.1-27b" => "Decider v1.1",
+            "pplx-decider-v1.2" => "Decider v1.2",
+            "pplx-decider-flash-v1.2" => "Decider Flash v1.2",
+            "inception/mercury-decide" => "Mercury Decide",
             "jev-1.13.0" => "Jev 1.13",
             "jev-1.14.0" => "Jev 1.14",
             "d1:free" => "Liquid d1",
@@ -343,14 +346,15 @@ fn cost(run: &Run) -> Option<f64> {
     run.api_equivalent_usd.map(|usd| 1000.0 * usd / f64::from(run.answered_questions))
 }
 
-/// Each run's colour, the same in every figure and distinct within each panel.
+/// Each run's colour, the same in every figure and distinct within each panel. None is red: in the figures red marks
+/// kept-but-wrong answers only (WRONG).
 fn color(run: &Run) -> Color {
     let rgb = |code: u32| Color::Rgb((code >> 16) as u8, (code >> 8) as u8, code as u8);
     // A format rerun gets its own colour, distinct from its setup's first run in every panel they share.
     if run.format_of.is_some() {
         return match run.model.as_str() {
             "gpt-6-astra" => rgb(0xc2410c),
-            "gpt-6.1-sol" => rgb(0xbe123c),
+            "gpt-6.1-sol" => rgb(0x92400e),
             "gemini-3.8-flash" => rgb(0x7e22ce),
             "claude-opus-5-5" => rgb(0x0f766e),
             "claude-sonnet-5-5" => rgb(0xb45309),
@@ -365,8 +369,8 @@ fn color(run: &Run) -> Color {
         ("gpt-6-luna", ..) => rgb(0x60a5fa),
         ("gemini-3.8-flash", Some("high"), _) => rgb(0x3f6212),
         ("gemini-3.8-flash", ..) => rgb(0x65a30d),
-        ("erk-14b", ..) => rgb(0xe11d48),
-        ("qwen3-14b", ..) => rgb(0xfda4af),
+        ("erk-14b", ..) => rgb(0x6d28d9),
+        ("qwen3-14b", ..) => rgb(0xa78bfa),
         ("claude-opus-5-5", ..) => rgb(0x7c3aed),
         ("claude-sonnet-5-5", Some("high"), _) => rgb(0xdb2777),
         ("claude-sonnet-5-5", ..) => rgb(0xf472b6),
@@ -377,8 +381,8 @@ fn color(run: &Run) -> Color {
         ("glm-5.3-flash", ..) => rgb(0x854d0e),
         ("pplx-decider-v1-27b", ..) => rgb(0xea580c),
         ("pplx-decider-v1.1-27b", ..) => rgb(0x9a3412),
-        ("jev-1.13.0", ..) => rgb(0xdc2626),
-        ("jev-1.14.0", ..) => rgb(0xf87171),
+        ("jev-1.13.0", ..) => rgb(0x0e7490),
+        ("jev-1.14.0", ..) => rgb(0x06b6d4),
         ("d1:free", ..) => rgb(0xca8a04),
         ("d1-ultra", ..) => rgb(0x059669),
         ("open-jev-27b-v1.1", ..) => rgb(0x0d9488),
@@ -386,10 +390,14 @@ fn color(run: &Run) -> Color {
         ("clef-flash", ..) => rgb(0xc084fc),
         ("metask-jev-4b-policy-mix", ..) => rgb(0x1e40af),
         ("cygnet", ..) => rgb(0x27272a),
-        ("winnow-12b", ..) => rgb(0xbe185d),
+        ("winnow-12b", ..) => rgb(0xa16207),
         ("fastino/GLiDE", ..) => rgb(0x1d4ed8),
         ("celeris-1-decision", ..) => rgb(0x4d7c0f),
         ("subq-snap-preview", ..) => rgb(0xa21caf),
+        ("pplx-decider-v1.2", ..) => rgb(0xfb923c),
+        ("pplx-decider-flash-v1.2", ..) => rgb(0x7c2d12),
+        ("microsoft/microsoft-decision-1", ..) => rgb(0x155e75),
+        ("inception/mercury-decide", ..) => rgb(0x065f46),
         ("strands-decider-2b", ..) => rgb(0xf97316),
         ("qwen38-27b-bf16", _, Some("stated confidence")) => rgb(0x78716c),
         ("qwen38-27b-bf16", _, Some("vote share")) => rgb(0x4f46e5),
