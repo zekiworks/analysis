@@ -167,10 +167,18 @@ def cost(site: Site, run: dict[str, Any]) -> str:
     billing = site.config["billing"][run["billing"]]
     price = next((item for item in site.results["prices"] if item["provider"] == run["provider"] and item["model"] == run["model"]), None)
     tokens = (lambda key: f"{run[key] / run['answered_questions']:,.0f}" if run.get(key) is not None else None)
+    # A setup on our hardware priced at its maker's list price, and a free-tier run priced at the list price of the
+    # model it called, say so; the others take their billing's basis.
+    if run.get("cost_basis") == "maker":
+        basis = f"Estimated at {price['basis']}; our hardware cost is not measured."
+    elif run.get("cost_basis") == "free tier":
+        basis = f"The run used the free tier ({run['model']}); its cost is now estimated at {price['basis']}."
+    else:
+        basis = billing["cost_basis"]
     return facts([
         ("$ per 1,000 questions", bp.usd(per) if per is not None else NOT_MEASURED),
         ("Whole run", bp.usd(run["api_equivalent_usd"]) if run.get("api_equivalent_usd") is not None else None),
-        ("Basis", esc(billing["cost_basis"])),
+        ("Basis", esc(basis)),
         ("Price", f'{esc(price["text"])} (<a href="{esc(price["source"])}">source</a>, {esc(price["date"])})' if price else None),
         ("Input tokens per question", tokens("input_tokens")),
         ("Output tokens per question", tokens("output_tokens")),
@@ -180,7 +188,8 @@ def cost(site: Site, run: dict[str, Any]) -> str:
 def routing(site: Site, run: dict[str, Any]) -> str | None:
     """What this first model took off each LLM in the replay with the cutoff chosen on half the questions."""
     path = site.model_path(run)
-    unpriced = site.config["unpriced_first"].get(run["billing"])
+    marks = site.config["first_cost_marks"]
+    unpriced = marks["maker"] if run.get("cost_basis") == "maker" else marks.get(run["billing"]) if run.get("api_equivalent_usd") is None else None
     marked = False
     rows = []
     for item in site.results["cascades"]:
@@ -200,7 +209,7 @@ def routing(site: Site, run: dict[str, Any]) -> str | None:
         )
     if not rows:
         return None
-    # The note for the † or ‡, only when the marker is in the table.
+    # The note for the † or §, only when the marker is in the table.
     note = f'<p class="table-note">{esc(unpriced["mark"])} {esc(unpriced["note"])}</p>' if marked else ""
     return ('<p class="note">Replay of recorded answers, cutoff chosen on half the questions, averaged over the splits. '
             f'Savings are estimates from API prices; the <a href="{rel(path, "method/")}#average-cost">Method page</a> explains how.</p>'

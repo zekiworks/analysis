@@ -179,7 +179,8 @@ def and_list(items: list[str]) -> str:
 
 
 def per_thousand(run: dict[str, Any]) -> float | None:
-    """A run's estimated API cost per 1,000 questions asked; None for free tiers and self-hosted runs."""
+    """A run's estimated cost per 1,000 questions asked; None for a run on our hardware whose maker lists no price for
+    the same model."""
     return None if run.get("api_equivalent_usd") is None else 1000 * run["api_equivalent_usd"] / run["answered_questions"]
 
 

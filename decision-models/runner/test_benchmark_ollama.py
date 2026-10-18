@@ -157,6 +157,14 @@ class ClaudeCostTests(unittest.TestCase):
         self.assertTrue(math.isclose(PRICES["claude", "claude-sonnet-5-5"].cost(tokens), expected, rel_tol=1e-12))
 
 
+class MakerPriceTests(unittest.TestCase):
+    def test_perplexity_bills_three_input_tokens_per_request_beyond_our_count(self) -> None:
+        # Our server counted 846,752 input tokens over Decider v1.2's 2,198 requests (run 217); Perplexity's API billed
+        # 853,346 for Decider v1.1 on the same questions (run 145), 3 more per request.
+        price = PRICES["pplx-decider", "pplx-decider-v1.2"]
+        self.assertTrue(math.isclose(price.cost({"input_tokens": 846_752}, requests=2198), 853_346 * 0.02 / 1_000_000, rel_tol=1e-12))
+
+
 class ShuffleOptionsTests(unittest.TestCase):
     def test_maps_every_shown_letter_back_to_the_same_option(self) -> None:
         original = tuple(Option(label, f"option {label}") for label in "ABCDE")

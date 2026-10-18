@@ -60,8 +60,13 @@ pub struct Run {
     pub provider: String,
     /// How the run was paid for: "api", "subscription", "free" or "local".
     pub billing: String,
-    /// The run's estimated cost in US dollars; None for free tiers and self-hosted runs.
+    /// The run's estimated cost in US dollars at the list price `cost_basis` names; None for a run on our hardware
+    /// whose maker lists no price for the same model.
     pub api_equivalent_usd: Option<f64>,
+    /// Whose list price the cost uses: "api", "subscription", "free tier" or "maker" (the maker's list price for the
+    /// same model, for a run on our hardware); None without a cost.
+    #[serde(default)]
+    pub cost_basis: Option<String>,
     pub answered_questions: u32,
     pub questions_per_request: u32,
     /// Correct answers among the scored questions.
@@ -1367,6 +1372,8 @@ struct CostRow<'a> {
     decider: bool,
     /// The cost per 1,000 questions, or why there is none.
     cost: Result<f64, &'static str>,
+    /// The cost is the maker's list price for the same model (a run on our hardware, whose own cost is not measured).
+    maker: bool,
     median: f64,
     p90: f64,
     concurrency: u32,
@@ -1383,6 +1390,7 @@ fn cost_groups<'a>(results: &'a Results, all: bool) -> Vec<(String, Vec<CostRow<
             "free" => "Free tier used",
             _ => "No dollar estimate",
         }),
+        maker: run.cost_basis.as_deref() == Some("maker"),
         median: latency.median_request_seconds,
         p90: latency.p90_request_seconds,
         concurrency: latency.concurrency,
@@ -1432,6 +1440,7 @@ fn cost_groups<'a>(results: &'a Results, all: bool) -> Vec<(String, Vec<CostRow<
                     label: results.setup_label(run),
                     decider: results.is_decider(run),
                     cost: Err("Not measured in this test"),
+                    maker: false,
                     median: single.median_request_seconds,
                     p90: single.p90_request_seconds,
                     concurrency: 1,
@@ -1457,7 +1466,7 @@ fn draw_cost(buf: &mut Buffer, x: u16, y: u16, axis: &Axis, row: &CostRow) {
         Ok(value) => {
             let fill = if row.decider { ACCENT } else { GUIDE };
             let end = bar(buf, x, y, axis.cells, 100.0 * axis.fraction(value), fill);
-            let text = Line::from(format!(" {}", usd(value)));
+            let text = Line::from(format!(" {}{}", usd(value), if row.maker { " §" } else { "" }));
             buf.set_line(end, y, &if row.decider { text.bold() } else { text }, 11);
         }
         Err(reason) => {
@@ -1545,6 +1554,9 @@ fn cost_time(results: &Results, all: bool) -> Option<Figure<'_>> {
     if !repeats.is_empty() {
         let list: Vec<String> = repeats.iter().map(|run| results.label(run)).collect();
         footnotes.extend(notes(&format!("Times for {} come from later repeat runs on all questions.", and_list(&list)), width));
+    }
+    if rows().any(|row| row.maker && row.cost.is_ok()) {
+        footnotes.extend(notes("§ Estimated at the maker's list price for the same model; our hardware cost is not measured.", width));
     }
     let subtitle = notes(
         &format!(

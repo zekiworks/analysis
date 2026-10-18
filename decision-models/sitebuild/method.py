@@ -33,7 +33,7 @@ CHARTS = {
 # The rows of the setup table, in build_page.METHOD_SETUPS's order (which runs each row covers comes from there).
 SETUP_TEXTS = (
     "TypeSafe's hosted decision model, versions 1.13 and 1.14; Open Jev compares with 1.13.",
-    "Perplexity's Decisions API (two versions) and Liquid's free tier.",
+    "Perplexity's Decisions API (two versions) and Liquid's free tier, whose cost is estimated at Liquid's list price.",
     "Cloudflare's model, on our hardware: it adapts Qwen 3.8 27B and scores all options in one pass.",
     "Cloudflare's smaller model: Qwen 3.5 9B, with Clef's scoring method and release code.",
     "It adapts Qwen 3.5 4B and lists Turkish among its training languages.",
@@ -290,16 +290,40 @@ def price_list(snap: bp.Snapshot) -> str:
     for price in snap.results["prices"]:
         runs = [run for run in snap.runs if run["provider"] == price["provider"] and run["model"] == price["model"]]
         change = f" Provider update: {esc(price['change'])}." if price.get("change") else ""
+        extra = price.get("extra_input_per_request") or 0
+        billed = f" Billed input: {extra} tokens per request more than our count, which we add." if extra else ""
         items.append(f"{esc(names(runs) or price['model'])}. Prices recorded {bp.long_date(price['date'])}. "
                      f"Per one million tokens: {esc('; '.join(rate_parts(price)))}. Source: "
-                     f'<a href="{esc(price["source"])}">{esc(price["basis"])}</a>.{change}')
-    free = [run for run in snap.runs if run["billing"] == "free"]
-    local = [run for run in snap.runs if run["billing"] == "local"]
+                     f'<a href="{esc(price["source"])}">{esc(price["basis"])}</a>.{change}{esc(billed)}')
+    free = [run for run in snap.runs if run["billing"] == "free" and run["api_equivalent_usd"] is None]
+    local = [run for run in snap.runs if run["billing"] == "local" and run["api_equivalent_usd"] is None]
     if free:
         items.append(esc(f"{names(free)}. {FREE_RATE}"))
     if local:
         items.append(esc(f"{names(local)}. {NO_COST_LOCAL}."))
     return '<ul class="footnote price-list">' + "".join(f"<li>{item}</li>" for item in items) + "</ul>"
+
+
+def maker_priced(snap: bp.Snapshot) -> str:
+    """The setups on our hardware estimated at their maker's list price for the same model, by maker ("Perplexity for A
+    and B; Cloudflare for C"), then the makers that bill input tokens per request beyond our count."""
+    prices = {(price["provider"], price["model"]): price for price in snap.results["prices"]}
+    makers: dict[str, list[str]] = {}
+    extra: dict[str, int] = {}
+    for run in snap.runs:
+        if run.get("cost_basis") != "maker":
+            continue
+        price = prices[(run["provider"], run["model"])]
+        maker = price["basis"].removesuffix("'s list price for the same model")
+        makers.setdefault(maker, [])
+        if snap.short(run) not in makers[maker]:
+            makers[maker].append(snap.short(run))
+        if price.get("extra_input_per_request"):
+            extra[maker] = price["extra_input_per_request"]
+    groups = [f"{maker} for {bp.and_list(names)}" for maker, names in makers.items()]
+    listed = groups[0] if len(groups) == 1 else "; ".join(groups[:-1]) + "; and " + groups[-1]
+    billed = "".join(f" {maker} bills {count} input tokens per request more than our servers count, so we add them." for maker, count in extra.items())
+    return f"{listed}.{billed}"
 
 
 def gemma_lead(snap: bp.Snapshot) -> None:
@@ -574,9 +598,11 @@ separately.</p>
 <p>Most rates date from {v['study_price_date']}. Perplexity's price changed between its Decider v1 and v1.1 runs, so their cost
 difference is not only a model improvement. Gemini 3.8 Flash's price is introductory: it
 {v['study_price_gemini_low_change']}.</p>
-<p>Models on our own GPUs get no dollar estimate, which does not make them free. Liquid's d1 used a free tier, so its replay
-counts d1's charge as zero. Fixed output token charges of some decision services follow pricing rules, not written
-reasoning.</p>
+<p>Models on our own GPUs get a dollar estimate only where the model's maker lists a price for the same model:
+{esc(maker_priced(snap))} Each is estimated at its maker's list price for the same model, from our recorded tokens; our
+hardware cost is not measured. The other models on our GPUs get no estimate, which does not make them free. Liquid d1:
+the run used the free tier (d1:free); its cost is now estimated at Liquid's list price for the same model. Fixed output
+token charges of some decision services follow pricing rules, not written reasoning.</p>
 {price_list(snap)}"""),
         ("understanding", "What can these results tell us about understanding?", f"""
 <p>A model may answer a passage question correctly and miss a grammar rule in the same language: performance changes by task,

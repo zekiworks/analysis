@@ -17,12 +17,19 @@ const EMPTY = {
 const INTERVAL_TIP = 'To test two setups against each other, use Compare.';
 const LATENCY_TIP =
   'Latency: the time from sending one request to receiving its answer, measured from our computer, network and retries included. Median request. Local setups ran on our own hardware.';
-const COST_TIP = 'Estimated from API prices and recorded token use, per 1,000 questions.';
+const COST_TIP =
+  'Estimated from list prices and recorded token use, per 1,000 questions. § marks a setup on our own hardware, estimated at its maker’s list price for the same model; our hardware cost is not measured.';
 const AUROC_TIP = 'ranking score';
 const SHARE_TIP = 'Share of questions taken: at 16 questions per request, a call still goes out for the rest.';
 const SPLIT_NA_TIP = 'Live tests did not record which kept answers were right, so no bar is shown.';
-/* A saving whose first model has no price (page_config.json unpriced_first): its marker, tooltip and note, by billing. */
-const UNPRICED_FIRST = SETTINGS.unpricedFirst;
+/* A first model's cost marker (page_config.json first_cost_marks): § where its cost is its maker's list price for the
+   same model, † where it ran on our hardware without one; each with its tooltip and note. */
+const FIRST_COST_MARKS = SETTINGS.firstCostMarks;
+const firstCostMark = run => (run.cost_basis === 'maker' ? FIRST_COST_MARKS.maker : run.api_equivalent_usd == null ? FIRST_COST_MARKS[run.billing] ?? null : null);
+/* What a setup on our hardware priced at its maker's list price says beside its cost. */
+const makerCostTip = run =>
+  `Estimated at ${data.prices.find(price => price.provider === run.provider && price.model === run.model)?.basis ?? 'its maker’s list price for the same model'}; our hardware cost is not measured.`;
+const MAKER_COST_NOTE = `${SETTINGS.firstCostMarks.maker.mark} Estimated at the maker’s list price for the same model; our hardware cost is not measured.`;
 const CONFIDENCE_NOTE = [
   'Every decision model that ranks its answers better than chance ranks them less well on grammar than on reading. A probability from an API is not calibrated by itself. Luna’s two setups also differ in request format (1 against 16 questions).',
 ];
@@ -242,7 +249,7 @@ const TABS = {
       },
       {
         key: 'cost', label: '$ per 1,000 questions', className: 'unit-long', tip: COST_TIP, low: true, value: costPer1000,
-        cell: run => (costPer1000(run) == null ? NM : costPer1000(run).toFixed(3)),
+        cell: run => costCell(run),
       },
     ],
   },
@@ -387,8 +394,15 @@ TABS.routing.columns = ROUTING_COLUMNS;
 
 function savingCell(row, format) {
   if (!row.numbers || row.numbers.saving == null) return NM;
-  const unpriced = UNPRICED_FIRST[row.run.billing];
-  return unpriced ? `${tip(unpriced.tip, format(row.numbers))}<span class="mark">${unpriced.mark}</span>` : format(row.numbers);
+  const mark = firstCostMark(row.run);
+  return mark ? `${tip(mark.tip, format(row.numbers))}<span class="mark">${mark.mark}</span>` : format(row.numbers);
+}
+
+/* A setup's cost per 1,000 questions; one on our hardware at its maker's list price carries § and its label. */
+function costCell(run) {
+  const value = costPer1000(run);
+  if (value == null) return NM;
+  return run.cost_basis === 'maker' ? `${tip(makerCostTip(run), value.toFixed(3))}<span class="mark">${FIRST_COST_MARKS.maker.mark}</span>` : value.toFixed(3);
 }
 
 /* The share taken, with where every question goes under it: a bar of three parts with their values printed, green for
@@ -496,11 +510,11 @@ function renderBoard() {
       ? `<h3 class="tab-title">Can a cheap model go first?</h3>${routingControls()}${routeMap()}<p class="table-title">${esc(routeTitle())}</p>` +
         `<p class="scope">All ${integer(data.questions)} questions</p>`
       : '';
-  /* The note for a † or ‡, each only when its marker is in the table. */
-  const marked = new Set(rows.filter(row => row.numbers?.saving != null && UNPRICED_FIRST[row.run.billing]).map(row => row.run.billing));
-  const marks = Object.entries(UNPRICED_FIRST)
-    .filter(([billing]) => marked.has(billing))
-    .map(([, item]) => `<p class="table-note">${esc(`${item.mark} ${item.note}`)}</p>`)
+  /* The note for a † or §, each only when its marker is in the table. */
+  const marked = new Set(rows.filter(row => row.numbers?.saving != null).map(row => firstCostMark(row.run)).filter(Boolean));
+  const marks = Object.values(FIRST_COST_MARKS)
+    .filter(item => marked.has(item))
+    .map(item => `<p class="table-note">${esc(`${item.mark} ${item.note}`)}</p>`)
     .join('');
   const notes = (tab.notes ?? tab.note ?? []).map(text => `<p>${esc(text)}</p>`).join('');
   const board = document.getElementById('board');
@@ -875,7 +889,8 @@ function barChart(box) {
   ordered.forEach((run, index) => {
     const y = top + index * row;
     const value = measure.value(run);
-    const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}`;
+    const maker = state.measure === 'cost' && run.cost_basis === 'maker' && value != null;
+    const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}`;
     const barTop = phone ? y + 18 : y + (row - 16) / 2;
     const barHeight = phone ? 14 : 16;
     const mid = barTop + barHeight / 2;
@@ -895,7 +910,7 @@ function barChart(box) {
         const path = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
         inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
       }
-      inner.push(`<text class="value" x="${width - 4}" y="${mid + 4}" text-anchor="end">${measure.text(value)}</text>`);
+      inner.push(`<text class="value" x="${width - 4}" y="${mid + 4}" text-anchor="end">${measure.text(value)}${maker ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}</text>`);
     }
     parts.push(`<g ${markAttributes(run, full)}>${inner.join('')}</g>`);
   });
@@ -903,7 +918,8 @@ function barChart(box) {
   box.classList.toggle('has-selection', selection);
   const where = state.measure === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : '';
   const latencyNote = state.measure === 'latency' ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
-  chartNotes.measures = { notes: [`${measure.label}${where}.`, measure.log ? 'Log scale.' : 'Lines: 95% interval.', ...latencyNote], unlabelled: [] };
+  const makerNote = state.measure === 'cost' && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
+  chartNotes.measures = { notes: [`${measure.label}${where}.`, measure.log ? 'Log scale.' : 'Lines: 95% interval.', ...latencyNote, ...makerNote], unlabelled: [] };
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
     legend(state.measure, [...chartNotes.measures.notes, chartScope(runs)].join(' '));
@@ -1007,7 +1023,8 @@ function scatterChart(box) {
   const { placed } = layout;
   /* The selected point is drawn larger and last, so no neighbour covers it. */
   [...points].sort((a, b) => (a === chosen) - (b === chosen)).forEach(({ run, cx, cy }) => {
-    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}`;
+    const maker = state.across === 'cost' && run.cost_basis === 'maker';
+    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}${maker ? ` (${makerCostTip(run)})` : ''}`;
     parts.push(`<g ${markAttributes(run, tooltip)}><circle class="ring" cx="${cx}" cy="${cy}" r="9"/>` +
       `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}"${isDecision(run) ? ` style="fill:${rankColor('accuracy', accuracyOf(run))}"` : ''} cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
   });
@@ -1022,6 +1039,7 @@ function scatterChart(box) {
   const notes = [
     `Up: accuracy (%) on ${integer(questionsInFilter())} questions. Across: ${state.across === 'cost' ? '$ per 1,000 questions' : 'median latency per request (s)'}, log scale.`,
     missing ? `${missing} without a ${NEEDS[state.across]} not shown.` : '',
+    state.across === 'cost' && known.some(run => run.cost_basis === 'maker') ? MAKER_COST_NOTE : '',
   ].filter(Boolean);
   chartNotes.tradeoff = { notes, unlabelled };
   const hidden = unlabelled.length;

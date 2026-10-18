@@ -60,11 +60,18 @@ DESCRIPTION = (
     "with the largest share took 33% to 46% of each LLM's questions, with accuracy at most 0.32 points lower, in a "
     "replay of recorded answers."
 )
-# The note under the Accuracy table, with and without JavaScript; copy_checks tests both reasons against the run records.
-NOT_MEASURED_NOTE = (
-    "Not measured: cost for setups on our own hardware (not priced) and Liquid d1's free tier (no published price); "
-    "latency for runs made before we timed each request."
-)
+
+
+def not_measured_note(data: Data) -> str:
+    """The note under the Accuracy table, with and without JavaScript; copy_checks tests its reasons and the § note
+    against the run records."""
+    untimed = sum(1 for run in data.runs if (run.get("latency") or {}).get("median_request_seconds") is None)
+    latency = f"; latency for {bp.count(untimed)} run{'' if untimed == 1 else 's'} made before we timed each request" if untimed else ""
+    return (f"Not measured: cost for setups on our own hardware whose maker lists no price for the same model{latency}. "
+            f"{data.config['first_cost_marks']['maker']['mark']} Estimated at the maker's list price for the same model; our "
+            "hardware cost is not measured.")
+
+
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
 SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; GLiDE and Deciders v1.1 and v1.2 near 67%."
@@ -157,6 +164,7 @@ def fallback_table(data: Data) -> str:
         reading, grammar = run["groups"]["reading"], run["groups"]["grammar"]
         latency = (run.get("latency") or {}).get("median_request_seconds")
         cost = bp.per_thousand(run)
+        maker_mark = f'<span class="mark">{bp.esc(data.config["first_cost_marks"]["maker"]["mark"])}</span>'
         decision = data.decision(run)
         kind = "Decision model" if decision else "Chat model"
         rows.append(
@@ -168,7 +176,7 @@ def fallback_table(data: Data) -> str:
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
             f'<td class="num">{f"{latency:.3f}" if latency is not None else NOT_MEASURED}</td>'
-            f'<td class="num">{f"{cost:.3f}" if cost is not None else NOT_MEASURED}</td>'
+            f'<td class="num">{f"{cost:.3f}" if cost is not None else NOT_MEASURED}{maker_mark if run["cost_basis"] == "maker" else ""}</td>'
             "</tr>"
         )
     return (
@@ -281,10 +289,10 @@ def page_settings(data: Data) -> str:
         "chartDecisionModels": CHART_DECISION_MODELS,
         # The ranking charts' colours for decision models, worst to best (page_config.json rank_scale).
         "rankScale": data.config["rank_scale"]["stops"],
-        # A saving whose first model has no price: its marker, tooltip and note, by billing.
-        "unpricedFirst": {key: value for key, value in data.config["unpriced_first"].items() if key != "about"},
-        # The note under the Accuracy table (NOT_MEASURED_NOTE), also under the plain table.
-        "notMeasuredNote": NOT_MEASURED_NOTE,
+        # A saving whose first model ran on our own hardware: its marker, tooltip and note, by how its cost was counted.
+        "firstCostMarks": {key: value for key, value in data.config["first_cost_marks"].items() if key != "about"},
+        # The note under the Accuracy table (not_measured_note), also under the plain table.
+        "notMeasuredNote": not_measured_note(data),
         "routeLlms": [
             {"key": key, "label": label, "runs": {str(size): data.named(key, size)["run"] for size in (1, 16)}}
             for key, label in ROUTE_LLMS
@@ -421,12 +429,20 @@ def copy_checks(data: Data) -> list[str]:
 
     check("Summary: decision models got up to 92.1% of the reading questions right", best_share("reading") == "92.1")
     check("Summary: but at most 70.7% of the grammar questions", best_share("grammar") == "70.7")
-    # The note under the Accuracy table: no cost for setups on our hardware and for Liquid d1's free tier; no latency for
-    # runs made before requests were timed one by one.
-    check("Not measured note: every setup without a cost ran on our hardware or on Liquid d1's free tier",
-          any(run["model"] == "d1:free" and run["billing"] == "free" for run in runs)
-          and all(run["billing"] == "local" or (run["billing"] == "free" and run["model"] == "d1:free")
-                  for run in runs if run["api_equivalent_usd"] is None))
+    # The note under the Accuracy table: a setup without a cost runs on our hardware, and its maker lists no price for
+    # the same model; every other cost of a setup on our hardware is at its maker's list price (§); Liquid d1 is
+    # estimated at Liquid's list price; no latency for runs made before requests were timed one by one.
+    prices = {(price["provider"], price["model"]): price for price in results["prices"]}
+    check("Not measured note: every setup without a cost runs on our hardware, with no maker's price for the same model",
+          all(run["billing"] == "local" and run["cost_basis"] is None for run in runs if run["api_equivalent_usd"] is None))
+    check("§ note: every cost of a setup on our hardware is at its maker's list price for the same model",
+          all(run["cost_basis"] == "maker" and prices[(run["provider"], run["model"])]["applies_to"] == "maker"
+              and prices[(run["provider"], run["model"])]["basis"].endswith("'s list price for the same model")
+              for run in runs if run["billing"] == "local" and run["api_equivalent_usd"] is not None))
+    d1 = data.by_name("d1:free")
+    check("Liquid d1's run used the free tier and is estimated at Liquid's list price for the same model",
+          d1["billing"] == "free" and d1["cost_basis"] == "free tier"
+          and prices[(d1["provider"], d1["model"])]["basis"] == "Liquid's list price for the same model")
     first_timed = min(run["started"] for run in runs if run["median_request_seconds"] is not None)
     check("Not measured note: every run without a latency was made before requests were timed one by one",
           all(run["started"] < first_timed for run in runs if (run.get("latency") or {}).get("median_request_seconds") is None))
@@ -488,7 +504,7 @@ def main() -> int:
         "questions": f"{bp.count(data.results['questions'])} questions",
         "board": fallback_table(data),
         "settings": page_settings(data),
-        "board-note": f'<div class="tab-notes"><p>{bp.esc(NOT_MEASURED_NOTE)}</p></div>',
+        "board-note": f'<div class="tab-notes"><p>{bp.esc(not_measured_note(data))}</p></div>',
     }
     text = PAGE.read_text()
     seen = set()

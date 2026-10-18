@@ -122,15 +122,15 @@
   "billing": {
     "api": {"access": "Provider service", "cost_basis": "Estimated from published prices and recorded token usage"},
     "subscription": {"access": "Subscription", "cost_basis": "Subscription run priced as if we had used the API"},
-    "free": {"access": "Free tier used", "cost_basis": "Free tier used; no paid price in this record"},
+    "free": {"access": "Free tier used", "cost_basis": "Free tier used; estimated at the list price for the same model"},
     "local": {"access": "Our own hardware", "cost_basis": "No dollar estimate; see hardware and time"}
   },
-  "unpriced_first": {
-    "about": "A saving whose first model has no price, by billing: the marker after the saving, its tooltip, and the note under the table (shown after the marker, and only when the marker is in the table).",
+  "first_cost_marks": {
+    "about": "A saving whose first model ran on our own hardware, by how its cost was counted: 'local' (no maker's price; the cost is left out) and 'maker' (the maker's list price for the same model). The marker after the saving, its tooltip, and the note under the table (shown after the marker, and only when the marker is in the table). The 'maker' marker also follows such a model's own cost.",
     "local": {"mark": "†", "tip": "Leaves out the first model’s hardware cost, which we have not estimated.",
               "note": "Leaves out the first model’s hardware cost, which we have not estimated."},
-    "free": {"mark": "‡", "tip": "The first model used a free tier; this assumes no charge for it.",
-             "note": "The first model ran on a free tier, and we counted no charge for it. The saving holds only under the free tier’s terms."}
+    "maker": {"mark": "§", "tip": "Counts the first model at its maker’s list price for the same model; our hardware cost is not measured.",
+              "note": "Counts the first model at its maker’s list price for the same model; our hardware cost is not measured."}
   },
   "rank_scale": {
     "about": "The colours of a decision model's bar or dot in the ranking charts (accuracy, latency, cost and the small chart), from the worst decision model to the best: dark blue, turquoise, green, yellow. Each measure's ends are the worst and best decision models in the published results; chat models stay grey. The Topics heat map and the link preview use the same colours.",

@@ -648,9 +648,14 @@ def check_live_tests(results: dict[str, Any], answers: dict[str, Any], scored: l
     return mismatches
 
 
+# The cost basis results.json gives a priced run, by billing, and the price's applies_to it needs.
+COST_BASES = {"api": ("api", "billed"), "subscription": ("subscription", "billed"), "free": ("free tier", "free tier"),
+              "local": ("maker", "maker")}
+
+
 def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
     """Check every cost results.json publishes against its parts; returns a line per mismatch."""
-    prices = {(price["provider"], price["model"]): price["rates"] for price in results["prices"]}
+    prices = {(price["provider"], price["model"]): price for price in results["prices"]}
     runs = {run["run"]: run for run in results["runs"]}
     mismatches: list[str] = []
 
@@ -667,15 +672,26 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
         return None if cost is None else 1000 * cost / run["answered_questions"]
 
     for run in results["runs"]:
-        rates = prices.get((run["provider"], run["model"]))
-        if rates is None:
-            # A run without a price must say why: a free tier, or our own GPUs.
-            matched = run["api_equivalent_usd"] is None and run["billing"] in ("free", "local")
-            cell = checks.cell(matched, f"no price ({run['billing']})", f"{run['api_equivalent_usd']} ({run['billing']})")
+        price = prices.get((run["provider"], run["model"]))
+        if price is None:
+            # A run without a price must say why: our own GPUs, and no maker's price for the same model.
+            matched = run["api_equivalent_usd"] is None and run["billing"] == "local" and run["cost_basis"] is None
+            cell = checks.cell(matched, "no price (local)", f"{run['api_equivalent_usd']} ({run['billing']}, {run['cost_basis']})")
             if "≠" in cell:
                 mismatches.append(f"  run {run['run']} ({label(run)}): {cell}")
-        else:
-            check(f"run {run['run']} ({label(run)})", run["api_equivalent_usd"], token_cost(tokens(run), rates))
+            continue
+        basis, applies = COST_BASES[run["billing"]]
+        cell = checks.cell(
+            (run["cost_basis"], price.get("applies_to", "billed")) == (basis, applies),
+            f"{basis} ({applies})",
+            f"{run['cost_basis']} ({price.get('applies_to')})",
+        )
+        if "≠" in cell:
+            mismatches.append(f"  run {run['run']} ({label(run)}), cost basis: {cell}")
+        # The input tokens the provider bills per request beyond our count, as the price states.
+        billed = tokens(run)
+        billed["input_tokens"] += price.get("extra_input_per_request", 0) * (run["requests"] or 0)
+        check(f"run {run['run']} ({label(run)})", run["api_equivalent_usd"], token_cost(billed, price["rates"]))
     for item in results["cascades"]:
         first, frontier = runs[item["decision"]], runs[item["frontier"]]
         frontier_cost = per_thousand(frontier)
@@ -688,7 +704,7 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
         if not measured:
             continue
         decision, frontier = runs[item["decision"]], runs[item["frontier"]]
-        rates = prices[(frontier["provider"], frontier["model"])]
+        rates = prices[(frontier["provider"], frontier["model"])]["rates"]
         name = f"routing test {label(decision)} → {label(frontier)}"
         share = decision["api_equivalent_usd"] * item["held_out"] / decision["answered_questions"]
         check(f"{name}, decision model's share", measured["decision_cost_usd"], share)
@@ -698,7 +714,7 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
             check(
                 f"{name}, {alternative['name']} alone",
                 alternative["cost_usd"],
-                token_cost(alternative["tokens"], prices[(alternative["provider"], alternative["model"])]),
+                token_cost(alternative["tokens"], prices[(alternative["provider"], alternative["model"])]["rates"]),
             )
     return mismatches
 

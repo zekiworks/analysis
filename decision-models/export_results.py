@@ -25,7 +25,7 @@ import benchmark_metrics as bm  # noqa: E402
 RESULT_PATTERN = re.compile(r"<!-- benchmark-result: (\{.*?\}) -->")
 ANALYSIS_PATTERN = re.compile(r"<!-- benchmark-analysis: (\{.*?\}) -->")
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "results.json"
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 # The frozen answer keys, by version (key-changelog.md): the question bank's SHA-256 and the fingerprint of its key as
 # scored (bm.answer_key_fingerprint). An export graded against any other key stops: record the change in
 # key-changelog.md, add the new key here as the next version and export again, which rescores every run.
@@ -38,9 +38,14 @@ ANSWER_KEYS = {
 
 # How each provider was reached and paid for. Scoring providers rate the supplied options instead of generating
 # an answer, so they have no reasoning setting. billing: "api" (billed per token), "subscription" (a flat plan;
-# the cost is what the same tokens cost on the API), "free" (a free tier with no published price) or "local" (our
-# GPUs; no dollar cost, only request time). A run's price comes from the report (PRICES in benchmark_ollama.py).
-# A model's "access" and "billing" in MODELS replace its provider's.
+# the cost is what the same tokens cost on the API), "free" (a free tier) or "local" (our GPUs). A run's price comes
+# from the report (PRICES in benchmark_ollama.py), and its cost basis from the price: a free-tier run is estimated at
+# the list price of the model it called, and a local run at its maker's list price for the same model where one
+# exists (our hardware cost is not measured); a local run without one has no cost. A model's "access" and "billing"
+# in MODELS replace its provider's.
+# The cost basis each billing needs of a priced run (the price's applies_to), and the basis results.json gives it.
+COST_BASES = {"api": ("billed", "api"), "subscription": ("billed", "subscription"), "free": ("free tier", "free tier"),
+              "local": ("maker", "maker")}
 PROVIDERS: dict[str, dict[str, Any]] = {
     "ollama": {"access": "Ollama, self-hosted", "scoring": False, "billing": "local"},
     "vllm": {"access": "vLLM, self-hosted", "scoring": False, "billing": "local"},
@@ -520,8 +525,11 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         cost = record.get("cost_usd")
         if (cost is None) != (record.get("price") is None):
             raise ValueError(f"{label}: a cost needs its price, and a price its cost")
-        if (cost is None) != (billing in ("free", "local")):
-            raise ValueError(f"{label}: billed as {billing!r} with{'out' if cost is None else ''} a price")
+        if cost is None and billing != "local":
+            raise ValueError(f"{label}: billed as {billing!r} without a price")
+        applies, cost_basis = COST_BASES[billing]
+        if cost is not None and record["price"].get("applies_to", "billed") != applies:
+            raise ValueError(f"{label}: billed as {billing!r}, but its price applies to {record['price'].get('applies_to')!r}")
         if billing == "local" and "hardware" not in model:
             raise ValueError(f"{label}: runs on our GPUs; add its hardware to MODELS")
         groups = {
@@ -557,8 +565,13 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "median_request_seconds": record.get("median_request_seconds"),
                 "p90_request_seconds": record.get("p90_request_seconds"),
                 "billing": billing,
-                # What the run's tokens cost at its model's list price (`prices`); None for free and self-hosted runs.
+                # What the run's tokens cost at the list price in `prices`: the service's own, the list price of the
+                # model a free-tier run called, or for a local run its maker's list price for the same model; None for
+                # a local run whose maker lists none. cost_basis says which ("api", "subscription", "free tier",
+                # "maker" or None); requests counts the run's requests, for a price that bills tokens per request.
                 "api_equivalent_usd": cost,
+                "cost_basis": None if cost is None else cost_basis,
+                "requests": record.get("requests"),
                 "hardware": model.get("hardware") if billing == "local" else None,
                 **priced(record),
                 "confidence": confidence(record),

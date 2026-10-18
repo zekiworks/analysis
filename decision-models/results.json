@@ -1,6 +1,6 @@
 {
-  "schema_version": 4,
-  "results_version": "6a4d26c7",
+  "schema_version": 5,
+  "results_version": "631d2925",
   "updated": "2026-10-17T20:41:22Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -175,6 +175,8 @@
       "source": "https://docs.celeris.ai/pricing",
       "date": "2026-10-10",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.04,
         "cached_input_tokens": 0.04,
@@ -191,6 +193,8 @@
       "source": "https://platform.claude.com/docs/en/about-claude/pricing",
       "date": "2026-10-08",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 4.0,
         "cached_input_tokens": 0.2,
@@ -207,6 +211,8 @@
       "source": "https://platform.claude.com/docs/en/about-claude/pricing",
       "date": "2026-10-08",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 2.0,
         "cached_input_tokens": 0.1,
@@ -217,12 +223,50 @@
       "text": "$2 input, $0.10 cached input, $2.50 5-minute cache writes, $4 1-hour cache writes, $10 output per 1M tokens"
     },
     {
+      "provider": "clef",
+      "model": "clef",
+      "basis": "Cloudflare's list price for the same model",
+      "source": "https://developers.cloudflare.com/workers-ai/models/clef/",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "rates": {
+        "input_tokens": 0.24,
+        "cached_input_tokens": 0.24,
+        "cache_write_input_tokens": 0.24,
+        "cache_write_1h_input_tokens": 0.24,
+        "output_tokens": 0.0
+      },
+      "text": "$0.24 input, output free per 1M tokens"
+    },
+    {
+      "provider": "clef",
+      "model": "clef-flash",
+      "basis": "Cloudflare's list price for the same model",
+      "source": "https://developers.cloudflare.com/workers-ai/models/clef-flash/",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "rates": {
+        "input_tokens": 0.038,
+        "cached_input_tokens": 0.038,
+        "cache_write_input_tokens": 0.038,
+        "cache_write_1h_input_tokens": 0.038,
+        "output_tokens": 0.0
+      },
+      "text": "$0.038 input, output free per 1M tokens"
+    },
+    {
       "provider": "fastino",
       "model": "fastino/GLiDE",
       "basis": "Fastino's GLiDE price",
       "source": "https://docs.fastino.ai/pricing",
       "date": "2026-10-08",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.15,
         "cached_input_tokens": 0.15,
@@ -239,6 +283,8 @@
       "source": "https://ai.google.dev/gemini-api/docs/pricing",
       "date": "2026-10-08",
       "change": "doubles on 1 January 2027, to $1.50 input and $7.50 output per 1M tokens",
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.75,
         "cached_input_tokens": 0.075,
@@ -255,6 +301,8 @@
       "source": "https://typesafe.ai/blog/introducing-system-one-models-and-jev",
       "date": "2026-10-08",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.042,
         "cached_input_tokens": 0.042,
@@ -271,6 +319,8 @@
       "source": "https://docs.typesafe.ai/models",
       "date": "2026-10-16",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.042,
         "cached_input_tokens": 0.042,
@@ -287,6 +337,8 @@
       "source": "https://www.liquid.ai/blog/d1-ultra",
       "date": "2026-10-16",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.042,
         "cached_input_tokens": 0.042,
@@ -297,12 +349,32 @@
       "text": "$0.042 input, output free per 1M tokens"
     },
     {
+      "provider": "liquid",
+      "model": "d1:free",
+      "basis": "Liquid's list price for the same model",
+      "source": "https://www.liquid.ai/pricing",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "free tier",
+      "extra_input_per_request": 0,
+      "rates": {
+        "input_tokens": 0.02,
+        "cached_input_tokens": 0.02,
+        "cache_write_input_tokens": 0.02,
+        "cache_write_1h_input_tokens": 0.02,
+        "output_tokens": 0.0
+      },
+      "text": "$0.02 input, output free per 1M tokens"
+    },
+    {
       "provider": "openai",
       "model": "gpt-6-astra",
       "basis": "OpenAI's API list price",
       "source": "https://developers.openai.com/api/docs/pricing",
       "date": "2026-10-08",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 10.0,
         "cached_input_tokens": 1.0,
@@ -319,6 +391,8 @@
       "source": "https://developers.openai.com/api/docs/pricing",
       "date": "2026-10-08",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.1,
         "cached_input_tokens": 0.01,
@@ -335,6 +409,8 @@
       "source": "https://developers.openai.com/api/docs/pricing",
       "date": "2026-10-08",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 2.0,
         "cached_input_tokens": 0.1,
@@ -351,6 +427,8 @@
       "source": "https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability",
       "date": "2026-10-08",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.1,
         "cached_input_tokens": 0.1,
@@ -367,6 +445,8 @@
       "source": "https://openrouter.ai/inception/mercury-decide",
       "date": "2026-10-17",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.02,
         "cached_input_tokens": 0.02,
@@ -383,6 +463,8 @@
       "source": "https://openrouter.ai/microsoft/microsoft-decision-1",
       "date": "2026-10-17",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.042,
         "cached_input_tokens": 0.042,
@@ -399,6 +481,8 @@
       "source": "https://docs.perplexity.ai/docs/getting-started/pricing",
       "date": "2026-10-04",
       "change": "$0.02 per 1M input tokens since, as listed on 8 October 2026",
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.04,
         "cached_input_tokens": 0.04,
@@ -415,6 +499,8 @@
       "source": "https://docs.perplexity.ai/docs/getting-started/pricing",
       "date": "2026-10-09",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.02,
         "cached_input_tokens": 0.02,
@@ -425,12 +511,50 @@
       "text": "$0.02 input, output free per 1M tokens"
     },
     {
+      "provider": "pplx-decider",
+      "model": "pplx-decider-flash-v1.2",
+      "basis": "Perplexity's list price for the same model",
+      "source": "https://docs.perplexity.ai/docs/getting-started/pricing",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 3,
+      "rates": {
+        "input_tokens": 0.01,
+        "cached_input_tokens": 0.01,
+        "cache_write_input_tokens": 0.01,
+        "cache_write_1h_input_tokens": 0.01,
+        "output_tokens": 0.0
+      },
+      "text": "$0.01 input, output free per 1M tokens, plus 3 billed input tokens per request"
+    },
+    {
+      "provider": "pplx-decider",
+      "model": "pplx-decider-v1.2",
+      "basis": "Perplexity's list price for the same model",
+      "source": "https://docs.perplexity.ai/docs/getting-started/pricing",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 3,
+      "rates": {
+        "input_tokens": 0.02,
+        "cached_input_tokens": 0.02,
+        "cache_write_input_tokens": 0.02,
+        "cache_write_1h_input_tokens": 0.02,
+        "output_tokens": 0.0
+      },
+      "text": "$0.02 input, output free per 1M tokens, plus 3 billed input tokens per request"
+    },
+    {
       "provider": "subq",
       "model": "subq-snap-preview",
       "basis": "SubQ's Decisions API price",
       "source": "https://docs.subq.ai/using-the-api/models/",
       "date": "2026-10-13",
       "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
       "rates": {
         "input_tokens": 0.05,
         "cached_input_tokens": 0.05,
@@ -439,6 +563,60 @@
         "output_tokens": 0.0
       },
       "text": "$0.05 input, output free per 1M tokens"
+    },
+    {
+      "provider": "vllm-verbal",
+      "model": "qwen38-27b-bf16",
+      "basis": "Alibaba's list price for the same model",
+      "source": "https://www.alibabacloud.com/help/en/model-studio/qwen3-8-27b",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "rates": {
+        "input_tokens": 0.5,
+        "cached_input_tokens": 0.1,
+        "cache_write_input_tokens": 0.5,
+        "cache_write_1h_input_tokens": 0.5,
+        "output_tokens": 3.0
+      },
+      "text": "$0.50 input, $0.10 cached input, $3 output per 1M tokens"
+    },
+    {
+      "provider": "vllm-vote",
+      "model": "qwen38-27b-bf16",
+      "basis": "Alibaba's list price for the same model",
+      "source": "https://www.alibabacloud.com/help/en/model-studio/qwen3-8-27b",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "rates": {
+        "input_tokens": 0.5,
+        "cached_input_tokens": 0.1,
+        "cache_write_input_tokens": 0.5,
+        "cache_write_1h_input_tokens": 0.5,
+        "output_tokens": 3.0
+      },
+      "text": "$0.50 input, $0.10 cached input, $3 output per 1M tokens"
+    },
+    {
+      "provider": "vllm-yes-no",
+      "model": "qwen38-27b-bf16",
+      "basis": "Alibaba's list price for the same model",
+      "source": "https://www.alibabacloud.com/help/en/model-studio/qwen3-8-27b",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "rates": {
+        "input_tokens": 0.5,
+        "cached_input_tokens": 0.1,
+        "cache_write_input_tokens": 0.5,
+        "cache_write_1h_input_tokens": 0.5,
+        "output_tokens": 3.0
+      },
+      "text": "$0.50 input, $0.10 cached input, $3 output per 1M tokens"
     }
   ],
   "runs": [
@@ -479,6 +657,8 @@
       "p90_request_seconds": 134.23365150109166,
       "billing": "api",
       "api_equivalent_usd": 5.31718875,
+      "cost_basis": "api",
+      "requests": 138,
       "hardware": null,
       "input_tokens": 483830,
       "cached_input_tokens": 0,
@@ -924,6 +1104,8 @@
       "p90_request_seconds": null,
       "billing": "subscription",
       "api_equivalent_usd": 11.88588,
+      "cost_basis": "subscription",
+      "requests": 139,
       "hardware": null,
       "input_tokens": 1167698,
       "cached_input_tokens": 240000,
@@ -1419,6 +1601,8 @@
       "p90_request_seconds": 9.219829414092237,
       "billing": "subscription",
       "api_equivalent_usd": 58.769456,
+      "cost_basis": "subscription",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 10201437,
       "cached_input_tokens": 5527296,
@@ -1864,6 +2048,8 @@
       "p90_request_seconds": 4.674682790008956,
       "billing": "api",
       "api_equivalent_usd": 2.11764075,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 680631,
       "cached_input_tokens": 0,
@@ -2309,6 +2495,8 @@
       "p90_request_seconds": 9.831893868802581,
       "billing": "subscription",
       "api_equivalent_usd": 12.2396048,
+      "cost_basis": "subscription",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 10202072,
       "cached_input_tokens": 5136768,
@@ -2754,6 +2942,8 @@
       "p90_request_seconds": 24.609638098091818,
       "billing": "subscription",
       "api_equivalent_usd": 2.48456,
+      "cost_basis": "subscription",
+      "requests": 138,
       "hardware": null,
       "input_tokens": 1159990,
       "cached_input_tokens": 198400,
@@ -3199,6 +3389,8 @@
       "p90_request_seconds": 5.883561807710794,
       "billing": "subscription",
       "api_equivalent_usd": 25.5178246,
+      "cost_basis": "subscription",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 3481382,
       "cached_input_tokens": 1403883,
@@ -3644,6 +3836,8 @@
       "p90_request_seconds": 2.6911692536843477,
       "billing": "api",
       "api_equivalent_usd": 0.5903475,
+      "cost_basis": "api",
+      "requests": 138,
       "hardware": null,
       "input_tokens": 483830,
       "cached_input_tokens": 0,
@@ -4092,6 +4286,8 @@
       "p90_request_seconds": 686.8833388963016,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 138,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers",
       "input_tokens": 669316,
       "cached_input_tokens": 0,
@@ -4534,6 +4730,8 @@
       "p90_request_seconds": null,
       "billing": "subscription",
       "api_equivalent_usd": 10.896595,
+      "cost_basis": "subscription",
+      "requests": 139,
       "hardware": null,
       "input_tokens": 1248840,
       "cached_input_tokens": 328215,
@@ -5018,6 +5216,8 @@
       "p90_request_seconds": 8.381210892091621,
       "billing": "subscription",
       "api_equivalent_usd": 17.0292028,
+      "cost_basis": "subscription",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 3285774,
       "cached_input_tokens": 1200108,
@@ -5460,6 +5660,8 @@
       "p90_request_seconds": null,
       "billing": "subscription",
       "api_equivalent_usd": 8.0760773,
+      "cost_basis": "subscription",
+      "requests": 139,
       "hardware": null,
       "input_tokens": 1215038,
       "cached_input_tokens": 301633,
@@ -5946,6 +6148,8 @@
       "p90_request_seconds": 639.2771307083002,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 138,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); EXL3 4-bit experts, FP8 dense layers and KV cache",
       "input_tokens": 557949,
       "cached_input_tokens": 0,
@@ -6391,6 +6595,8 @@
       "p90_request_seconds": 0.350752345994988,
       "billing": "api",
       "api_equivalent_usd": 0.031515876,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 750378,
       "cached_input_tokens": 0,
@@ -6836,6 +7042,8 @@
       "p90_request_seconds": 4.256375251116697,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 138,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 weights and KV cache",
       "input_tokens": 489825,
       "cached_input_tokens": 0,
@@ -7286,6 +7494,8 @@
       "p90_request_seconds": 11.16688626020914,
       "billing": "subscription",
       "api_equivalent_usd": 0.10553408,
+      "cost_basis": "subscription",
+      "requests": 138,
       "hardware": null,
       "input_tokens": 1197871,
       "cached_input_tokens": 316928,
@@ -7731,6 +7941,8 @@
       "p90_request_seconds": 2.2788841759203935,
       "billing": "api",
       "api_equivalent_usd": 0.35185395,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 2345693,
       "cached_input_tokens": 0,
@@ -8175,7 +8387,9 @@
       "median_request_seconds": 0.5795541804982349,
       "p90_request_seconds": 0.7866766697028652,
       "billing": "local",
-      "api_equivalent_usd": null,
+      "api_equivalent_usd": 0.017066920000000003,
+      "cost_basis": "maker",
+      "requests": 2198,
       "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
       "input_tokens": 846752,
       "cached_input_tokens": 0,
@@ -8621,6 +8835,8 @@
       "p90_request_seconds": 0.29029369752388445,
       "billing": "api",
       "api_equivalent_usd": 0.017066920000000003,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 853346,
       "cached_input_tokens": 0,
@@ -9066,6 +9282,8 @@
       "p90_request_seconds": 0.3055964823171962,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 weights and KV cache",
       "input_tokens": 698986,
       "cached_input_tokens": 0,
@@ -9514,6 +9732,8 @@
       "p90_request_seconds": 7.860654652415542,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 138,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers",
       "input_tokens": 665866,
       "cached_input_tokens": 0,
@@ -9959,6 +10179,8 @@
       "p90_request_seconds": 0.4138357652031118,
       "billing": "api",
       "api_equivalent_usd": 0.042667300000000005,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 853346,
       "cached_input_tokens": 0,
@@ -10401,6 +10623,8 @@
       "p90_request_seconds": 0.24994003138272092,
       "billing": "api",
       "api_equivalent_usd": 0.08887830000000001,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 888783,
       "cached_input_tokens": 0,
@@ -10846,6 +11070,8 @@
       "p90_request_seconds": null,
       "billing": "subscription",
       "api_equivalent_usd": 4.1900397,
+      "cost_basis": "subscription",
+      "requests": 139,
       "hardware": null,
       "input_tokens": 1215056,
       "cached_input_tokens": 298797,
@@ -11310,6 +11536,8 @@
       "p90_request_seconds": 0.4175183980994916,
       "billing": "api",
       "api_equivalent_usd": 0.033577800000000005,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 839445,
       "cached_input_tokens": 0,
@@ -11752,6 +11980,8 @@
       "p90_request_seconds": null,
       "billing": "api",
       "api_equivalent_usd": 0.034337480000000004,
+      "cost_basis": "api",
+      "requests": 2210,
       "hardware": null,
       "input_tokens": 858437,
       "cached_input_tokens": 0,
@@ -12240,6 +12470,8 @@
       "p90_request_seconds": 0.2774909528983699,
       "billing": "api",
       "api_equivalent_usd": 0.063384972,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 1509166,
       "cached_input_tokens": 0,
@@ -12685,6 +12917,8 @@
       "p90_request_seconds": 0.7718596629958483,
       "billing": "api",
       "api_equivalent_usd": 0.01694982,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 847491,
       "cached_input_tokens": 0,
@@ -13132,6 +13366,8 @@
       "p90_request_seconds": 1.2150850257999992,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 138,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); EXL3 4-bit experts, FP8 dense layers and KV cache",
       "input_tokens": 557121,
       "cached_input_tokens": 0,
@@ -13577,6 +13813,8 @@
       "p90_request_seconds": null,
       "billing": "api",
       "api_equivalent_usd": 0.06375499200000001,
+      "cost_basis": "api",
+      "requests": 2210,
       "hardware": null,
       "input_tokens": 1517976,
       "cached_input_tokens": 0,
@@ -14064,7 +14302,9 @@
       "median_request_seconds": 0.20457697298843414,
       "p90_request_seconds": 0.24825825718580746,
       "billing": "local",
-      "api_equivalent_usd": null,
+      "api_equivalent_usd": 0.24108839999999998,
+      "cost_basis": "maker",
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 1004535,
       "cached_input_tokens": 0,
@@ -14506,7 +14746,9 @@
       "median_request_seconds": null,
       "p90_request_seconds": null,
       "billing": "free",
-      "api_equivalent_usd": null,
+      "api_equivalent_usd": 0.016426200000000002,
+      "cost_basis": "free tier",
+      "requests": 2210,
       "hardware": null,
       "input_tokens": 821310,
       "cached_input_tokens": 0,
@@ -14995,6 +15237,8 @@
       "p90_request_seconds": 0.04518266418017447,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 859227,
       "cached_input_tokens": 0,
@@ -15440,6 +15684,8 @@
       "p90_request_seconds": null,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2210,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 3043367,
       "cached_input_tokens": 0,
@@ -15922,6 +16168,8 @@
       "p90_request_seconds": 0.0698976724059321,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); Q8_0",
       "input_tokens": 887137,
       "cached_input_tokens": 0,
@@ -16366,7 +16614,9 @@
       "median_request_seconds": 1.6220232204941567,
       "p90_request_seconds": 1.8360200999944936,
       "billing": "local",
-      "api_equivalent_usd": null,
+      "api_equivalent_usd": 1.814203,
+      "cost_basis": "maker",
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 737600,
       "cached_input_tokens": 0,
@@ -16811,7 +17061,9 @@
       "median_request_seconds": null,
       "p90_request_seconds": null,
       "billing": "local",
-      "api_equivalent_usd": null,
+      "api_equivalent_usd": 0.516798,
+      "cost_basis": "maker",
+      "requests": 2210,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 741942,
       "cached_input_tokens": 0,
@@ -17299,7 +17551,9 @@
       "median_request_seconds": null,
       "p90_request_seconds": null,
       "billing": "local",
-      "api_equivalent_usd": null,
+      "api_equivalent_usd": 1.5548335,
+      "cost_basis": "maker",
+      "requests": 2210,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 3043367,
       "cached_input_tokens": 0,
@@ -17787,7 +18041,9 @@
       "median_request_seconds": 0.13165274250059156,
       "p90_request_seconds": 0.186934632298653,
       "billing": "local",
-      "api_equivalent_usd": null,
+      "api_equivalent_usd": 0.008533460000000001,
+      "cost_basis": "maker",
+      "requests": 2198,
       "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
       "input_tokens": 846752,
       "cached_input_tokens": 0,
@@ -18230,6 +18486,8 @@
       "p90_request_seconds": 0.3269303315973957,
       "billing": "api",
       "api_equivalent_usd": 0.030368352,
+      "cost_basis": "api",
+      "requests": 2198,
       "hardware": null,
       "input_tokens": 723056,
       "cached_input_tokens": 0,
@@ -18674,7 +18932,9 @@
       "median_request_seconds": 0.07536213693674654,
       "p90_request_seconds": 0.08099431772716344,
       "billing": "local",
-      "api_equivalent_usd": null,
+      "api_equivalent_usd": 0.038172330000000004,
+      "cost_basis": "maker",
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 1004535,
       "cached_input_tokens": 0,
@@ -19117,6 +19377,8 @@
       "p90_request_seconds": 3.1145364760770464,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 138,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 556424,
       "cached_input_tokens": 0,
@@ -19562,6 +19824,8 @@
       "p90_request_seconds": 2.662659723334946,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 138,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 556424,
       "cached_input_tokens": 0,
@@ -20007,6 +20271,8 @@
       "p90_request_seconds": 0.09815078696701676,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 1137590,
       "cached_input_tokens": 0,
@@ -20449,6 +20715,8 @@
       "p90_request_seconds": 0.0304201258928515,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 789516,
       "cached_input_tokens": 0,
@@ -20891,6 +21159,8 @@
       "p90_request_seconds": 0.010334555187728255,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP16",
       "input_tokens": 431150,
       "cached_input_tokens": 0,
@@ -21333,6 +21603,8 @@
       "p90_request_seconds": null,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2210,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB)",
       "input_tokens": 891078,
       "cached_input_tokens": 0,
@@ -21797,6 +22069,8 @@
       "p90_request_seconds": null,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2210,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB)",
       "input_tokens": 676255,
       "cached_input_tokens": 0,
@@ -22267,6 +22541,8 @@
       "p90_request_seconds": 0.03576318579725921,
       "billing": "local",
       "api_equivalent_usd": null,
+      "cost_basis": null,
+      "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP16",
       "input_tokens": 431150,
       "cached_input_tokens": 0,
@@ -36505,7 +36781,7 @@
         "kept_wrong": 0.0012037213573100132,
         "handed_off": 0.805162235071132
       },
-      "usd_per_1000": 4.330344663614148
+      "usd_per_1000": 4.338109413386668
     },
     {
       "decision": 217,
@@ -36931,7 +37207,7 @@
         "kept_wrong": 0.0009428474285446228,
         "handed_off": 0.8092785344764283
       },
-      "usd_per_1000": 21.63824350484847
+      "usd_per_1000": 21.64600825462099
     },
     {
       "decision": 217,
@@ -37357,7 +37633,7 @@
         "kept_wrong": 0.0010278147199700512,
         "handed_off": 0.8081829729393003
       },
-      "usd_per_1000": 0.7786356674032803
+      "usd_per_1000": 0.7864004171758008
     },
     {
       "decision": 217,
@@ -37783,7 +38059,7 @@
         "kept_wrong": 0.0013310025069929912,
         "handed_off": 0.8038229856358176
       },
-      "usd_per_1000": 4.476103582046626
+      "usd_per_1000": 4.483868331819147
     },
     {
       "decision": 217,
@@ -38209,7 +38485,7 @@
         "kept_wrong": 0.0012037213573100132,
         "handed_off": 0.805162235071132
       },
-      "usd_per_1000": 0.9101337046261747
+      "usd_per_1000": 0.9178984543986952
     },
     {
       "decision": 217,
@@ -38635,7 +38911,7 @@
         "kept_wrong": 0.0014037713406014963,
         "handed_off": 0.8025072279056098
       },
-      "usd_per_1000": 9.31676009186878
+      "usd_per_1000": 9.324524841641301
     },
     {
       "decision": 217,
@@ -39061,7 +39337,7 @@
         "kept_wrong": 0.001412867834799367,
         "handed_off": 0.8031592340107396
       },
-      "usd_per_1000": 0.21571567147413798
+      "usd_per_1000": 0.22348042124665846
     },
     {
       "decision": 217,
@@ -39487,7 +39763,7 @@
         "kept_wrong": 0.004113786552433795,
         "handed_off": 0.7537670795382377
       },
-      "usd_per_1000": 3.716513389167855
+      "usd_per_1000": 3.724278138940375
     },
     {
       "decision": 217,
@@ -39913,7 +40189,7 @@
         "kept_wrong": 0.005838767089053649,
         "handed_off": 0.7285962038887471
       },
-      "usd_per_1000": 5.644864656656786
+      "usd_per_1000": 5.652629406429306
     },
     {
       "decision": 217,
@@ -40339,7 +40615,7 @@
         "kept_wrong": 0.04615845304166024,
         "handed_off": 0.5058165681192592
       },
-      "usd_per_1000": 1.848422490385454
+      "usd_per_1000": 1.8561872401579744
     },
     {
       "decision": 145,
@@ -68117,7 +68393,7 @@
         "kept_wrong": 0.0016159448094163562,
         "handed_off": 0.8882659405847768
       },
-      "usd_per_1000": 4.777295193609859
+      "usd_per_1000": 4.88698054392833
     },
     {
       "decision": 125,
@@ -68535,7 +68811,7 @@
         "kept_wrong": 0.001109621620188422,
         "handed_off": 0.9053136743691497
       },
-      "usd_per_1000": 24.206001889006405
+      "usd_per_1000": 24.315687239324877
     },
     {
       "decision": 125,
@@ -68953,7 +69229,7 @@
         "kept_wrong": 0.002173830040111483,
         "handed_off": 0.8691812005498576
       },
-      "usd_per_1000": 0.837403789544268
+      "usd_per_1000": 0.9470891398627393
     },
     {
       "decision": 125,
@@ -69371,7 +69647,7 @@
         "kept_wrong": 0.0027285580702723663,
         "handed_off": 0.8566316111115448
       },
-      "usd_per_1000": 4.770169417285074
+      "usd_per_1000": 4.879854767603545
     },
     {
       "decision": 125,
@@ -69789,7 +70065,7 @@
         "kept_wrong": 0.0016159448094163562,
         "handed_off": 0.8882659405847768
       },
-      "usd_per_1000": 1.0040718950588323
+      "usd_per_1000": 1.1137572453773037
     },
     {
       "decision": 125,
@@ -70207,7 +70483,7 @@
         "kept_wrong": 0.0016644987021750212,
         "handed_off": 0.8906754921230343
       },
-      "usd_per_1000": 10.340355315520593
+      "usd_per_1000": 10.450040665839065
     },
     {
       "decision": 125,
@@ -70625,7 +70901,7 @@
         "kept_wrong": 0.0015584573572551845,
         "handed_off": 0.892350181987995
       },
-      "usd_per_1000": 0.23967092768933476
+      "usd_per_1000": 0.3493562780078061
     },
     {
       "decision": 125,
@@ -71043,7 +71319,7 @@
         "kept_wrong": 0.001973451834084465,
         "handed_off": 0.8804530186850763
       },
-      "usd_per_1000": 4.341149303682676
+      "usd_per_1000": 4.450834654001147
     },
     {
       "decision": 125,
@@ -71461,7 +71737,7 @@
         "kept_wrong": 0.002780051067191389,
         "handed_off": 0.864371085934878
       },
-      "usd_per_1000": 6.696792773813133
+      "usd_per_1000": 6.806478124131604
     },
     {
       "decision": 125,
@@ -71879,7 +72155,7 @@
         "kept_wrong": 0.011657691659928299,
         "handed_off": 0.7716241457974795
       },
-      "usd_per_1000": 2.819772057921679
+      "usd_per_1000": 2.9294574082401503
     },
     {
       "decision": 52,
@@ -72305,7 +72581,7 @@
         "kept_wrong": 0.0015033600389630709,
         "handed_off": 0.8573770879693745
       },
-      "usd_per_1000": 4.611167955816032
+      "usd_per_1000": 4.6186006254992895
     },
     {
       "decision": 52,
@@ -72731,7 +73007,7 @@
         "kept_wrong": 0.0015033600389630709,
         "handed_off": 0.8573770879693745
       },
-      "usd_per_1000": 22.924288010384114
+      "usd_per_1000": 22.93172068006737
     },
     {
       "decision": 52,
@@ -73157,7 +73433,7 @@
         "kept_wrong": 0.0023524583343178837,
         "handed_off": 0.8296666267801814
       },
-      "usd_per_1000": 0.7993338752432906
+      "usd_per_1000": 0.8067665449265485
     },
     {
       "decision": 52,
@@ -73583,7 +73859,7 @@
         "kept_wrong": 0.0027614228264874504,
         "handed_off": 0.8345856721784363
       },
-      "usd_per_1000": 4.64740618708208
+      "usd_per_1000": 4.654838856765338
     },
     {
       "decision": 52,
@@ -74009,7 +74285,7 @@
         "kept_wrong": 0.0018003659520467571,
         "handed_off": 0.8506063232913608
       },
-      "usd_per_1000": 0.9615024779785176
+      "usd_per_1000": 0.9689351476617756
     },
     {
       "decision": 52,
@@ -74435,7 +74711,7 @@
         "kept_wrong": 0.0018336992853800905,
         "handed_off": 0.8503972323822698
       },
-      "usd_per_1000": 9.87274222759608
+      "usd_per_1000": 9.880174897279337
     },
     {
       "decision": 52,
@@ -74861,7 +75137,7 @@
         "kept_wrong": 0.0030982447571998345,
         "handed_off": 0.8218571010191718
       },
-      "usd_per_1000": 0.22073761826383792
+      "usd_per_1000": 0.22817028794709585
     },
     {
       "decision": 52,
@@ -75287,7 +75563,7 @@
         "kept_wrong": 0.002046005710726281,
         "handed_off": 0.8485285804815764
       },
-      "usd_per_1000": 4.183743116485358
+      "usd_per_1000": 4.191175786168616
     },
     {
       "decision": 52,
@@ -75713,7 +75989,7 @@
         "kept_wrong": 0.003828614484634503,
         "handed_off": 0.8212857344934528
       },
-      "usd_per_1000": 6.3629851362311
+      "usd_per_1000": 6.370417805914358
     },
     {
       "decision": 52,
@@ -76139,7 +76415,7 @@
         "kept_wrong": 0.02352836997362297,
         "handed_off": 0.7074833349112586
       },
-      "usd_per_1000": 2.585380136291906
+      "usd_per_1000": 2.592812805975164
     },
     {
       "decision": 45,
@@ -89345,7 +89621,7 @@
         "kept_wrong": 0.0014279447791959356,
         "handed_off": 0.9217331096751261
       },
-      "usd_per_1000": 4.957289200735469
+      "usd_per_1000": 4.96117157562173
     },
     {
       "decision": 223,
@@ -89771,7 +90047,7 @@
         "kept_wrong": 0.0008760594234234772,
         "handed_off": 0.9269721126833453
       },
-      "usd_per_1000": 24.785098630378016
+      "usd_per_1000": 24.788981005264276
     },
     {
       "decision": 223,
@@ -90197,7 +90473,7 @@
         "kept_wrong": 0.0008760594234234772,
         "handed_off": 0.9269721126833453
       },
-      "usd_per_1000": 0.8930818562019304
+      "usd_per_1000": 0.8969642310881906
     },
     {
       "decision": 223,
@@ -90623,7 +90899,7 @@
         "kept_wrong": 0.0010731507736194707,
         "handed_off": 0.9256045723052648
       },
-      "usd_per_1000": 5.154246663371003
+      "usd_per_1000": 5.158129038257264
     },
     {
       "decision": 223,
@@ -91049,7 +91325,7 @@
         "kept_wrong": 0.0014279447791959356,
         "handed_off": 0.9217331096751261
       },
-      "usd_per_1000": 1.0419022816080215
+      "usd_per_1000": 1.0457846564942817
     },
     {
       "decision": 223,
@@ -91475,7 +91751,7 @@
         "kept_wrong": 0.0014279447791959356,
         "handed_off": 0.9217331096751261
       },
-      "usd_per_1000": 10.700920755551605
+      "usd_per_1000": 10.704803130437865
     },
     {
       "decision": 223,
@@ -91901,7 +92177,7 @@
         "kept_wrong": 0.0013126331935019284,
         "handed_off": 0.9225432743286239
       },
-      "usd_per_1000": 0.24778030738931633
+      "usd_per_1000": 0.2516626822755766
     },
     {
       "decision": 223,
@@ -92327,7 +92603,7 @@
         "kept_wrong": 0.0014279447791959356,
         "handed_off": 0.9217331096751261
       },
-      "usd_per_1000": 4.544684341276212
+      "usd_per_1000": 4.5485667161624725
     },
     {
       "decision": 223,
@@ -92753,7 +93029,7 @@
         "kept_wrong": 0.0019099896136919273,
         "handed_off": 0.9143778938961132
       },
-      "usd_per_1000": 7.084225018650495
+      "usd_per_1000": 7.088107393536756
     },
     {
       "decision": 223,
@@ -93179,7 +93455,7 @@
         "kept_wrong": 0.005529664371441976,
         "handed_off": 0.8828857915059746
       },
-      "usd_per_1000": 3.2263592304406954
+      "usd_per_1000": 3.2302416053269556
     },
     {
       "decision": 205,
@@ -97861,7 +98137,7 @@
         "kept_wrong": 0.0009003817050785319,
         "handed_off": 0.9908118086761342
       },
-      "usd_per_1000": 5.328810072627816
+      "usd_per_1000": 5.346176919761573
     },
     {
       "decision": 139,
@@ -98283,7 +98559,7 @@
         "kept_wrong": 0.0014825482690831707,
         "handed_off": 0.9850939489793605
       },
-      "usd_per_1000": 26.339142625299683
+      "usd_per_1000": 26.35650947243344
     },
     {
       "decision": 139,
@@ -98705,7 +98981,7 @@
         "kept_wrong": 0.0008094339515323756,
         "handed_off": 0.9913968781825578
       },
-      "usd_per_1000": 0.9551512414295575
+      "usd_per_1000": 0.9725180885633155
     },
     {
       "decision": 139,
@@ -99127,7 +99403,7 @@
         "kept_wrong": 0.001558339007999661,
         "handed_off": 0.9844389973843438
       },
-      "usd_per_1000": 5.4818672782950815
+      "usd_per_1000": 5.499234125428839
     },
     {
       "decision": 139,
@@ -99549,7 +99825,7 @@
         "kept_wrong": 0.001485581329441072,
         "handed_off": 0.985039373179185
       },
-      "usd_per_1000": 1.1134619768089506
+      "usd_per_1000": 1.1308288239427087
     },
     {
       "decision": 139,
@@ -99971,7 +100247,7 @@
         "kept_wrong": 0.0013945449793000293,
         "handed_off": 0.9856221042242712
       },
-      "usd_per_1000": 11.442644211773358
+      "usd_per_1000": 11.460011058907115
     },
     {
       "decision": 139,
@@ -100393,7 +100669,7 @@
         "kept_wrong": 0.000903414765436433,
         "handed_off": 0.9907905800109563
       },
-      "usd_per_1000": 0.2661104376401353
+      "usd_per_1000": 0.2834772847738933
     },
     {
       "decision": 139,
@@ -100815,7 +101091,7 @@
         "kept_wrong": 0.0016433033961295006,
         "handed_off": 0.9836715497713093
       },
-      "usd_per_1000": 4.8500771451947005
+      "usd_per_1000": 4.867443992328458
     },
     {
       "decision": 139,
@@ -101237,7 +101513,7 @@
         "kept_wrong": 0.0016038928726450762,
         "handed_off": 0.983977696140354
       },
-      "usd_per_1000": 7.623455749886644
+      "usd_per_1000": 7.640822597020402
     },
     {
       "decision": 139,
@@ -101659,7 +101935,7 @@
         "kept_wrong": 0.001961659277194475,
         "handed_off": 0.981191071079515
       },
-      "usd_per_1000": 3.585599518600881
+      "usd_per_1000": 3.602966365734639
     },
     {
       "decision": 126,

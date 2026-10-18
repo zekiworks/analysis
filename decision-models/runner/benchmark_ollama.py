@@ -164,6 +164,11 @@ class Price:
     cache_write: float | None = None
     cache_write_1h: float | None = None
     change: str | None = None  # a known change after `date`
+    # Whose price this is: "billed" (the service we called; for a subscription, the same tokens at its API rates),
+    # "maker" (the maker's list price for the same model, run on our own hardware) or "free tier" (the list price of
+    # the model we called on its free tier).
+    applies_to: str = "billed"
+    extra_input_per_request: int = 0  # input tokens the provider bills per request beyond those our records count
 
     def rates(self) -> dict[str, float]:
         """USD per 1M tokens of each of TOKEN_KINDS; the input rate applies to the prompt tokens outside the cache."""
@@ -175,18 +180,21 @@ class Price:
             "output_tokens": self.output,
         }
 
-    def cost(self, tokens: dict[str, int]) -> float:
+    def cost(self, tokens: dict[str, int], requests: int = 0) -> float:
+        """The tokens' cost in USD; `requests` (the run's requests) adds extra_input_per_request input tokens each."""
         rates = self.rates()
-        uncached = tokens.get("input_tokens", 0) - sum(tokens.get(kind, 0) for kind in CACHE_KINDS)
+        uncached = (
+            tokens.get("input_tokens", 0) + self.extra_input_per_request * requests - sum(tokens.get(kind, 0) for kind in CACHE_KINDS)
+        )
         return (uncached * rates["input_tokens"] + sum(tokens.get(kind, 0) * rates[kind] for kind in TOKEN_KINDS[1:])) / 1_000_000
 
 
 ANTHROPIC_PRICING = "https://platform.claude.com/docs/en/about-claude/pricing"
 GEMINI_PRICING = "https://ai.google.dev/gemini-api/docs/pricing"
 OPENAI_PRICING = "https://developers.openai.com/api/docs/pricing"
-# List prices by (provider, model). A run without one has no cost: models on our GPUs, and d1, which Liquid AI
-# serves on a free tier with no published price. Claude and OpenAI runs use subscriptions, so their costs are what
-# the same tokens would cost on the API.
+# List prices by (provider, model). Claude and OpenAI runs use subscriptions, so their costs are what the same tokens
+# would cost on the API. A run on our own hardware has a cost only where the model's maker lists a price for the same
+# model (applies_to "maker"; our hardware cost is not measured); the others have none.
 PRICES: dict[tuple[str, str], Price] = {
     ("jev", "jev-1.13.0"): Price(
         "TypeSafe's System One price", "https://typesafe.ai/blog/introducing-system-one-models-and-jev", "2026-10-08", 0.042
@@ -260,6 +268,40 @@ PRICES: dict[tuple[str, str], Price] = {
     ("openai", "gpt-6-luna"): Price(
         "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 0.10, 0.50, cached_input=0.01, cache_write=0.125
     ),
+    # Our own hardware, at the maker's list price for the same model (read 18 October 2026). Perplexity bills 3 input
+    # tokens per request more than our server counts: its API billed 853,346 input tokens for Decider v1.1's 2,198
+    # requests (run 145), where our server counted 846,752 for Decider v1.2 on the same questions (run 217).
+    ("pplx-decider", "pplx-decider-v1.2"): Price(
+        "Perplexity's list price for the same model", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-18",
+        0.02, applies_to="maker", extra_input_per_request=3,
+    ),
+    ("pplx-decider", "pplx-decider-flash-v1.2"): Price(
+        "Perplexity's list price for the same model", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-18",
+        0.01, applies_to="maker", extra_input_per_request=3,
+    ),
+    # Cloudflare's Workers AI bills input tokens only; it cut Clef-flash's price on 9 October 2026.
+    ("clef", "clef"): Price(
+        "Cloudflare's list price for the same model", "https://developers.cloudflare.com/workers-ai/models/clef/", "2026-10-18",
+        0.24, applies_to="maker",
+    ),
+    ("clef", "clef-flash"): Price(
+        "Cloudflare's list price for the same model", "https://developers.cloudflare.com/workers-ai/models/clef-flash/",
+        "2026-10-18", 0.038, applies_to="maker",
+    ),
+    # Alibaba Cloud Model Studio's international (Singapore) price for qwen3.8-27b, implicit cache reads included; the
+    # page shows no promotions. The three Qwen3.8-27B setups differ only in how they ask.
+    **{
+        (provider, "qwen38-27b-bf16"): Price(
+            "Alibaba's list price for the same model", "https://www.alibabacloud.com/help/en/model-studio/qwen3-8-27b",
+            "2026-10-18", 0.50, 3.00, cached_input=0.10, applies_to="maker",
+        )
+        for provider in ("vllm-yes-no", "vllm-verbal", "vllm-vote")
+    },
+    # d1 ran on Liquid's free tier (d1:free); its cost is estimated at Liquid's list price for the same model, input
+    # tokens only.
+    ("liquid", "d1:free"): Price(
+        "Liquid's list price for the same model", "https://www.liquid.ai/pricing", "2026-10-18", 0.02, applies_to="free tier"
+    ),
 }
 
 
@@ -282,7 +324,10 @@ def price_text(price: Price) -> str:
         if rates[kind] != rates["input_tokens"]:
             parts.append(f"{usd_rate(rates[kind])} {words}")
     parts.append(f"{usd_rate(rates['output_tokens'])} output" if rates["output_tokens"] else "output free")
-    return ", ".join(parts) + " per 1M tokens"
+    text = ", ".join(parts) + " per 1M tokens"
+    if price.extra_input_per_request:
+        text += f", plus {price.extra_input_per_request} billed input tokens per request"
+    return text
 
 
 def questions_asked(result: dict[str, Any]) -> int:
@@ -3414,9 +3459,10 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         "its current keys. The Dataset column names the bank version the run used.",
         "",
         "Questions/min counts request time only. Cost: a run's tokens at its model's list price, with cache "
-        "reads and writes at their own rates where the provider lists them; runs on local weights have none, "
-        "nor does d1, which Liquid AI serves on a free tier with no published price. Claude and OpenAI runs use "
-        "subscriptions, so their costs are what the same tokens would cost on the API. Prices: "
+        "reads and writes at their own rates where the provider lists them; a run on local weights is estimated at its "
+        "maker's list price for the same model where one exists (our hardware cost is not measured) and has none "
+        "otherwise. d1 ran on Liquid's free tier; its cost is estimated at Liquid's list price for the same model. Claude "
+        "and OpenAI runs use subscriptions, so their costs are what the same tokens would cost on the API. Prices: "
         + "; ".join(
             f"{provider} {model}: {price_text(price)} ({price.basis}, {price.date}"
             + (f"; {price.change}" if price.change else "")
@@ -3695,7 +3741,9 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     }
     totals = dict.fromkeys(TOKEN_KINDS, 0)
     request_seconds: list[float] = []
+    requests = 0
     for row in run_requests(connection, run["id"], run["batch_size"]):
+        requests += 1
         for key, count in answer_usage(provider, row["question_id"], row["raw_response"])[0].items():
             totals[key] += count
         if row["request_seconds"] is not None:
@@ -3777,14 +3825,17 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     metrics["groups"] = groups
     metrics.update(latency_summary(request_seconds))
     metrics.update(totals)
+    metrics["requests"] = requests
     price = PRICES.get((provider, run["model"]))
     if price is not None:
-        metrics["cost_usd"] = price.cost(totals)
+        metrics["cost_usd"] = price.cost(totals, requests)
         metrics["price"] = {
             "basis": price.basis,
             "source": price.source,
             "date": price.date,
             "change": price.change,
+            "applies_to": price.applies_to,
+            "extra_input_per_request": price.extra_input_per_request,
             "rates": price.rates(),
             "text": price_text(price),
         }

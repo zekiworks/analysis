@@ -55,8 +55,9 @@ python3 -m http.server 8000                                # preview at http://1
   the answer-key baselines; every live test (the questions the first model kept, against its cutoff,
   the pair's and the second model's accuracy, the paired change with its 95% interval and exact McNemar
   p and, with one question per request, each question's wait); and the costs: each priced run's from its
-  token counts at the rates in `results.json`'s `prices`, every run without a price shown as a free tier
-  or self-hosted, each routing simulation's and replay's cost per 1,000 questions from its runs, and the
+  token counts at the rates in `results.json`'s `prices` (with any input tokens a provider bills per request
+  beyond our count) and its cost basis against its billing, every run without a price shown as self-hosted,
+  each routing simulation's and replay's cost per 1,000 questions from its runs, and the
   routing tests' costs from their parts. It prints one row per run and exits with status 1 when a value
   differs from
   `results.json`: counts and group letters must match exactly, AUROC, ECE, shares and accuracies within
@@ -189,5 +190,6 @@ except those listed in it as behind no published run, and prints the list.
 A new provider needs an entry in `PROVIDERS` (its access route and how it is paid for); the script
 stops until it has one. A new model is shown by its ID unless `MODELS` gives it a display name, and a
 model on our GPUs needs its hardware there. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
-the export takes each run's price from the report, and stops when a paid run has none or a free or
-self-hosted run has one.
+the export takes each run's price from the report, and stops when a paid or free-tier run has none or a
+price applies to another kind of run: a self-hosted run may only take its maker's list price for the same
+model (our hardware cost is not measured), and a free-tier run the list price of the model it called.
