@@ -245,7 +245,7 @@ const TABS = {
       partColumn('grammar', 'Grammar (%)'),
       {
         key: 'latency', label: 'Median latency per request (s)', className: 'unit-long', tip: LATENCY_TIP, low: true, value: latencyOf,
-        cell: run => (latencyOf(run) == null ? NM : latencyOf(run).toFixed(3)),
+        cell: run => latencyCell(run),
       },
       {
         key: 'cost', label: '$ per 1,000 questions', className: 'unit-long', tip: COST_TIP, low: true, value: costPer1000,
@@ -403,6 +403,19 @@ function costCell(run) {
   const value = costPer1000(run);
   if (value == null) return NM;
   return run.cost_basis === 'maker' ? `${tip(makerCostTip(run), value.toFixed(3))}<span class="mark">${FIRST_COST_MARKS.maker.mark}</span>` : value.toFixed(3);
+}
+
+/* A latency measured on a sample of the questions (latency.source "sample", the repeats of the setup on a fixed
+   sample): its marker, its label, and the note under a chart that shows one. */
+const SAMPLE_MARK = '*';
+const sampleLabel = run => (run.latency?.source === 'sample' ? `Measured on a sample (${integer(run.latency.questions)} questions)` : null);
+const sampleNotes = runs => [...new Set(runs.map(run => latencyOf(run) != null && sampleLabel(run)).filter(Boolean))].map(label => `${SAMPLE_MARK} ${label}.`);
+
+function latencyCell(run) {
+  const value = latencyOf(run);
+  if (value == null) return NM;
+  const label = sampleLabel(run);
+  return label ? `${tip(label, value.toFixed(3))}<span class="mark">${SAMPLE_MARK}</span>` : value.toFixed(3);
 }
 
 /* The share taken, with where every question goes under it: a bar of three parts with their values printed, green for
@@ -890,7 +903,8 @@ function barChart(box) {
     const y = top + index * row;
     const value = measure.value(run);
     const maker = state.measure === 'cost' && run.cost_basis === 'maker' && value != null;
-    const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}`;
+    const sample = state.measure === 'latency' && value != null && sampleLabel(run);
+    const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}`;
     const barTop = phone ? y + 18 : y + (row - 16) / 2;
     const barHeight = phone ? 14 : 16;
     const mid = barTop + barHeight / 2;
@@ -910,7 +924,7 @@ function barChart(box) {
         const path = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
         inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
       }
-      inner.push(`<text class="value" x="${width - 4}" y="${mid + 4}" text-anchor="end">${measure.text(value)}${maker ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}</text>`);
+      inner.push(`<text class="value" x="${width - 4}" y="${mid + 4}" text-anchor="end">${measure.text(value)}${maker ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
     }
     parts.push(`<g ${markAttributes(run, full)}>${inner.join('')}</g>`);
   });
@@ -919,7 +933,8 @@ function barChart(box) {
   const where = state.measure === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : '';
   const latencyNote = state.measure === 'latency' ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
   const makerNote = state.measure === 'cost' && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
-  chartNotes.measures = { notes: [`${measure.label}${where}.`, measure.log ? 'Log scale.' : 'Lines: 95% interval.', ...latencyNote, ...makerNote], unlabelled: [] };
+  const sampleNote = state.measure === 'latency' ? sampleNotes(ordered) : [];
+  chartNotes.measures = { notes: [`${measure.label}${where}.`, measure.log ? 'Log scale.' : 'Lines: 95% interval.', ...latencyNote, ...makerNote, ...sampleNote], unlabelled: [] };
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
     legend(state.measure, [...chartNotes.measures.notes, chartScope(runs)].join(' '));
@@ -1024,7 +1039,8 @@ function scatterChart(box) {
   /* The selected point is drawn larger and last, so no neighbour covers it. */
   [...points].sort((a, b) => (a === chosen) - (b === chosen)).forEach(({ run, cx, cy }) => {
     const maker = state.across === 'cost' && run.cost_basis === 'maker';
-    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}${maker ? ` (${makerCostTip(run)})` : ''}`;
+    const sample = state.across === 'latency' && sampleLabel(run);
+    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}`;
     parts.push(`<g ${markAttributes(run, tooltip)}><circle class="ring" cx="${cx}" cy="${cy}" r="9"/>` +
       `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}"${isDecision(run) ? ` style="fill:${rankColor('accuracy', accuracyOf(run))}"` : ''} cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
   });
@@ -1040,6 +1056,7 @@ function scatterChart(box) {
     `Up: accuracy (%) on ${integer(questionsInFilter())} questions. Across: ${state.across === 'cost' ? '$ per 1,000 questions' : 'median latency per request (s)'}, log scale.`,
     missing ? `${missing} without a ${NEEDS[state.across]} not shown.` : '',
     state.across === 'cost' && known.some(run => run.cost_basis === 'maker') ? MAKER_COST_NOTE : '',
+    ...(state.across === 'latency' ? sampleNotes(known) : []),
   ].filter(Boolean);
   chartNotes.tradeoff = { notes, unlabelled };
   const hidden = unlabelled.length;

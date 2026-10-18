@@ -62,14 +62,24 @@ DESCRIPTION = (
 )
 
 
+SAMPLE_MARK = "*"  # a latency measured on a sample of the questions (v3.js SAMPLE_MARK)
+
+
+def sample_label(run: dict[str, Any]) -> str | None:
+    """"Measured on a sample (N questions)" for a latency taken from the setup's repeats on a fixed sample, else None."""
+    latency = run.get("latency") or {}
+    return f"Measured on a sample ({bp.count(latency['questions'])} questions)" if latency.get("source") == "sample" else None
+
+
 def not_measured_note(data: Data) -> str:
     """The note under the Accuracy table, with and without JavaScript; copy_checks tests its reasons and the § note
     against the run records."""
     untimed = sum(1 for run in data.runs if (run.get("latency") or {}).get("median_request_seconds") is None)
     latency = f"; latency for {bp.count(untimed)} run{'' if untimed == 1 else 's'} made before we timed each request" if untimed else ""
+    samples = sorted({label for run in data.runs if (label := sample_label(run))})
     return (f"Not measured: cost for setups on our own hardware whose maker lists no price for the same model{latency}. "
             f"{data.config['first_cost_marks']['maker']['mark']} Estimated at the maker's list price for the same model; our "
-            "hardware cost is not measured.")
+            "hardware cost is not measured." + "".join(f" {SAMPLE_MARK} {label}." for label in samples))
 
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
@@ -165,6 +175,7 @@ def fallback_table(data: Data) -> str:
         latency = (run.get("latency") or {}).get("median_request_seconds")
         cost = bp.per_thousand(run)
         maker_mark = f'<span class="mark">{bp.esc(data.config["first_cost_marks"]["maker"]["mark"])}</span>'
+        sample_mark = f'<span class="mark">{SAMPLE_MARK}</span>' if latency is not None and sample_label(run) else ""
         decision = data.decision(run)
         kind = "Decision model" if decision else "Chat model"
         rows.append(
@@ -175,7 +186,7 @@ def fallback_table(data: Data) -> str:
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
-            f'<td class="num">{f"{latency:.3f}" if latency is not None else NOT_MEASURED}</td>'
+            f'<td class="num">{f"{latency:.3f}" if latency is not None else NOT_MEASURED}{sample_mark}</td>'
             f'<td class="num">{f"{cost:.3f}" if cost is not None else NOT_MEASURED}{maker_mark if run["cost_basis"] == "maker" else ""}</td>'
             "</tr>"
         )

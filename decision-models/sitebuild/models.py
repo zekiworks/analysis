@@ -149,10 +149,16 @@ def repeats(site: Site, run: dict[str, Any]) -> str:
 
 def latency(run: dict[str, Any]) -> str:
     item = run.get("latency")
-    source = {"run": "this run", "sample": "its repeated runs on a sample", "repeats": "its repeated runs"}
+    source = {"run": "this run", "repeats": "its repeated runs"}
     single = run.get("single_question_latency")
+    if not item:
+        median = NOT_MEASURED
+    elif item["source"] == "sample":
+        median = f"{latency_text(item['median_request_seconds'])}, measured on a sample ({item['questions']:,} questions) over {len(item['runs'])} runs"
+    else:
+        median = f"{latency_text(item['median_request_seconds'])} ({source.get(item['source'], item['source'])})"
     return facts([
-        ("Latency, median request", f"{latency_text(item['median_request_seconds'])} ({source.get(item['source'], item['source'])})" if item else NOT_MEASURED),
+        ("Latency, median request", median),
         ("Latency, 90th percentile", latency_text(item.get("p90_request_seconds")) if item and item.get("p90_request_seconds") else None),
         ("Latency at 1 question per request",
          f"{latency_text(single['median_request_seconds'])} median, on {single['questions']:,} questions" if single else None),

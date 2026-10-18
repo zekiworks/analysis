@@ -1542,10 +1542,10 @@ fn cost_time(results: &Results, all: bool) -> Option<Figure<'_>> {
         let list: Vec<String> = sample.iter().map(|run| results.label(run)).collect();
         footnotes.extend(notes(
             &format!(
-                "Times for {} come from {} repeat tests on {} questions.",
+                "Times for {} were measured on a sample ({} questions), over {} repeat runs.",
                 and_list(&list),
-                latency.runs.len(),
-                thousands(latency.questions.unwrap_or(0))
+                thousands(latency.questions.unwrap_or(0)),
+                latency.runs.len()
             ),
             width,
         ));
