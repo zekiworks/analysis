@@ -1,6 +1,6 @@
 {
   "schema_version": 5,
-  "results_version": "631d2925",
+  "results_version": "44d26882",
   "updated": "2026-10-17T20:41:22Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -11496,7 +11496,27 @@
       "updated": "2026-10-04T09:11:41Z",
       "format_of": null,
       "group": "klm",
-      "latency": null,
+      "latency": {
+        "source": "sample",
+        "runs": [
+          229,
+          230,
+          231,
+          232,
+          233
+        ],
+        "repeats": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "questions": 200,
+        "concurrency": 1,
+        "median_request_seconds": 3.873064635001356,
+        "p90_request_seconds": 5.84579606440384
+      },
       "single_question_latency": null
     },
     {
@@ -111808,6 +111828,57 @@
         "requests": 65,
         "median_request_seconds": 3.5819392279954627,
         "p90_request_seconds": 3.9002420175937003
+      }
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "name": "Claude Sonnet 5.5",
+      "variant": null,
+      "reasoning": "low",
+      "provider": "claude",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        229,
+        230,
+        231,
+        232,
+        233
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.7,
+        0.655,
+        0.68,
+        0.68,
+        0.685
+      ],
+      "changed_answer": 72,
+      "wrong_any": 92,
+      "wrong_every_run_same": 20,
+      "scored": 200,
+      "score_spread_median": 0.09999999999999998,
+      "score_identical": 40,
+      "sure_wrong": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0,
+      "latency": {
+        "runs": [
+          229,
+          230,
+          231,
+          232,
+          233
+        ],
+        "concurrency": 1,
+        "requests": 65,
+        "median_request_seconds": 3.873064635001356,
+        "p90_request_seconds": 5.84579606440384
       }
     },
     {

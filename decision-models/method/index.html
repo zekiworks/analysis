@@ -314,7 +314,7 @@ reasoning problems.<sup class="cite"><a id="cite-16-a" href="#ref-16">16</a></su
 </section>
 <section class="card prose" id="repeats-section" aria-labelledby="repeats-section-title"><h2 id="repeats-section-title">What changed when we repeated the same questions?</h2>
 <p>We ran 15 of the 34 one-question-per-request setups
-five times on all 2,198 questions, and 6 of the
+five times on all 2,198 questions, and 7 of the
 15 setups with 16 per request five times on a fixed
 200-question set.</p>
 <p>On all questions, Open Jev changed no answers, Decider v1 two answers
@@ -333,7 +333,7 @@ restart changed some. The Gemma and DeepSeek repeats have no confidence scores.<
 <p>Latency is the time from sending one request to receiving its answer, measured from our computer, network and retries
 included; a request holds one question or 16. Throughput is answered questions per minute of active request
 time, overlaps counted once. Total run time is the whole run.</p>
-<p>DeepSeek-V4.1-Flash (reasoning on) and GLM-5.3-Flash (reasoning on) sent eight requests at a time. Gemini 3.8 Flash (high reasoning), Fastino GLiDE and GPT-6 Luna (Decisions API, beta) sent four requests at a time. These choices, along with hardware, network conditions and service limits, affect the measured throughput.</p><p>Some early runs recorded the total time but not the time of each request. For those, we take latencies from later runs of the same setup. Perplexity Decider 27B v1, Jev 1.13.0, Liquid d1, Open-Jev 27B v1.1, Qwen3.8-27B (stated confidence, reasoning off) and Qwen3.8-27B (yes/no scoring) use their four later repeat runs on all 2,198 questions. With 16 questions per request, GPT-6 Astra (low reasoning), Claude Opus 5.5 (low reasoning) and Claude Sonnet 5.5 (high reasoning) use their five repeat runs on the same 200 questions. Claude Sonnet 5.5 (low reasoning), Laya and Laya multilingual have no recorded latencies.</p>
+<p>DeepSeek-V4.1-Flash (reasoning on) and GLM-5.3-Flash (reasoning on) sent eight requests at a time. Gemini 3.8 Flash (high reasoning), Fastino GLiDE and GPT-6 Luna (Decisions API, beta) sent four requests at a time. These choices, along with hardware, network conditions and service limits, affect the measured throughput.</p><p>Some early runs recorded the total time but not the time of each request. For those, we take latencies from later runs of the same setup. Perplexity Decider 27B v1, Jev 1.13.0, Liquid d1, Open-Jev 27B v1.1, Qwen3.8-27B (stated confidence, reasoning off) and Qwen3.8-27B (yes/no scoring) use their four later repeat runs on all 2,198 questions. With 16 questions per request, GPT-6 Astra (low reasoning), Claude Opus 5.5 (low reasoning), Claude Sonnet 5.5 (high reasoning) and Claude Sonnet 5.5 (low reasoning) use their five repeat runs on the same 200 questions. Laya and Laya multilingual have no recorded latencies.</p>
 <p>Astra's typical latency is 13.04 seconds for 16 questions (from the
 200-question repeats) and 6.14 for one; Gemma's is 3.97 and
 0.29 seconds.</p>
@@ -360,19 +360,19 @@ fixed order can explain. That checks one form of recall, not whether the model k
 and one question source; a confidence cutoff for a new task needs its own test.</p>
 </section>
 <section class="card prose" id="data" aria-labelledby="data-title"><h2 id="data-title">Download the data and check our calculations</h2>
-<p class="versions">Results updated 17 October 2026 · Results snapshot 631d2925 · Question set
+<p class="versions">Results updated 17 October 2026 · Results snapshot 44d26882 · Question set
 questions-v2.sqlite (797ad6c8) · Answer key version 2</p>
 <p>The <a href="../results.json">results file</a> holds the summary numbers; the <a href="../answers.json">answer export</a> holds the recorded choices, confidence scores, settings,
 prompt templates and question IDs, without the copyrighted questions. The
 <a href="https://github.com/zekiworks/analysis/blob/main/decision-models/benchmark_metrics.py">metric code</a> computes each statistic; the
 <a href="../data/">Data page</a> describes the files.</p>
-<p>This snapshot holds 49 main setups, 90 extra repeat runs, 20 runs from
+<p>This snapshot holds 49 main setups, 95 extra repeat runs, 20 runs from
 the 14 live tests, two cheaper models tested alone and
 two more runs with one question per request on 200 questions.</p>
 <p>From the <a href="https://github.com/zekiworks/analysis/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
 setup's accuracy, ranking score, calibration gap and answers at 99% or more (before and after the key review),
 the 48 selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
-replays with their 300 splits and live tests: all 5,191 checks match. It does not yet check the
+replays with their 300 splits and live tests: all 5,206 checks match. It does not yet check the
 bootstrap intervals of the ranking score and the accuracy of kept answers.</p>
 <p>The 40 exam questions stay private, and the raw replies behind token counts are not exported.
 The <code>runner</code> folder holds the test code, run scripts and server wrappers.</p>
@@ -382,7 +382,7 @@ The <code>runner</code> folder holds the test code, run scripts and server wrapp
   </main>
   <footer class="footer">
     <p>Download: <a href="../results.json" download>results.json</a> · <a href="../answers.json" download>answers.json</a></p>
-    <p>Results 631d2925, updated 17 October 2026; answer key version 2.</p>
+    <p>Results 44d26882, updated 17 October 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>
