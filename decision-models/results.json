@@ -1,6 +1,6 @@
 {
   "schema_version": 5,
-  "results_version": "44d26882",
+  "results_version": "e7bde62b",
   "updated": "2026-10-17T20:41:22Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -22049,7 +22049,25 @@
       "updated": "2026-10-04T08:46:34Z",
       "format_of": null,
       "group": "w",
-      "latency": null,
+      "latency": {
+        "source": "repeats",
+        "runs": [
+          234,
+          235,
+          236,
+          237
+        ],
+        "repeats": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "questions": 2198,
+        "concurrency": 1,
+        "median_request_seconds": 0.011380975003703497,
+        "p90_request_seconds": 0.012440272996900602
+      },
       "single_question_latency": null
     },
     {
@@ -22521,7 +22539,25 @@
       "updated": "2026-10-04T08:31:44Z",
       "format_of": null,
       "group": "w",
-      "latency": null,
+      "latency": {
+        "source": "repeats",
+        "runs": [
+          238,
+          239,
+          240,
+          241
+        ],
+        "repeats": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "questions": 2198,
+        "concurrency": 1,
+        "median_request_seconds": 0.009499495485215448,
+        "p90_request_seconds": 0.010441777898813598
+      },
       "single_question_latency": null
     },
     {
@@ -112689,6 +112725,106 @@
         "requests": 10990,
         "median_request_seconds": 0.28970416450465564,
         "p90_request_seconds": 0.33072930260095745
+      }
+    },
+    {
+      "model": "laya",
+      "name": "Laya",
+      "variant": null,
+      "reasoning": null,
+      "provider": "laya",
+      "questions_per_request": 1,
+      "whole_bank": true,
+      "runs": [
+        51,
+        234,
+        235,
+        236,
+        237
+      ],
+      "questions": 2198,
+      "accuracy": [
+        0.19017288444040037,
+        0.19017288444040037,
+        0.19017288444040037,
+        0.19017288444040037,
+        0.19017288444040037
+      ],
+      "changed_answer": 0,
+      "wrong_any": 1780,
+      "wrong_every_run_same": 1780,
+      "scored": 2198,
+      "score_spread_median": 0.0,
+      "score_identical": 2198,
+      "sure_wrong": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0,
+      "latency": {
+        "runs": [
+          234,
+          235,
+          236,
+          237
+        ],
+        "concurrency": 1,
+        "requests": 8792,
+        "median_request_seconds": 0.011380975003703497,
+        "p90_request_seconds": 0.012440272996900602
+      }
+    },
+    {
+      "model": "laya-multilingual",
+      "name": "Laya multilingual",
+      "variant": null,
+      "reasoning": null,
+      "provider": "laya",
+      "questions_per_request": 1,
+      "whole_bank": true,
+      "runs": [
+        46,
+        238,
+        239,
+        240,
+        241
+      ],
+      "questions": 2198,
+      "accuracy": [
+        0.17879890809827115,
+        0.17879890809827115,
+        0.17879890809827115,
+        0.17879890809827115,
+        0.17879890809827115
+      ],
+      "changed_answer": 0,
+      "wrong_any": 1805,
+      "wrong_every_run_same": 1805,
+      "scored": 2198,
+      "score_spread_median": 0.0,
+      "score_identical": 2198,
+      "sure_wrong": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "sure_wrong_every_run": 1,
+      "latency": {
+        "runs": [
+          238,
+          239,
+          240,
+          241
+        ],
+        "concurrency": 1,
+        "requests": 8792,
+        "median_request_seconds": 0.009499495485215448,
+        "p90_request_seconds": 0.010441777898813598
       }
     }
   ],
