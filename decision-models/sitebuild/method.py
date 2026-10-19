@@ -44,6 +44,8 @@ SETUP_TEXTS = (
     "Fastino's System One API. GLiDE reasons more on uncertain cases, which we could not switch off.",
     "Celeris's System One API: probabilities rounded to whole points, no model size or design published.",
     "SubQ's Decisions API, in public preview, with no model size or design published.",
+    "meraGPT's System One API: its own model, with no size or design published; the name serves meraGPT's current "
+    "version, here the one of 19 October 2026.",
     "Microsoft's and Inception's decision models via OpenRouter's System One route (paid); request times include OpenRouter's.",
     "Perplexity's released v1.2 checkpoints, run on our hardware: additional local setups while API runs are pending.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",

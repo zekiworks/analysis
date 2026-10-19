@@ -220,9 +220,9 @@ const DEEPSEEK_OFF: RunKey = ("vllm", "deepseek-v4.1-flash", Some("off"));
 
 /// Providers whose runs are decision models (the page's `decision_model_providers`), and the
 /// models of those providers that are not.
-const DECISION_PROVIDERS: [&str; 15] = [
-    "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "subq", "clef", "cygnet", "open-jev", "winnow",
-    "metask", "strands", "gliner", "laya",
+const DECISION_PROVIDERS: [&str; 16] = [
+    "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "subq", "meragpt", "clef", "cygnet", "open-jev",
+    "winnow", "metask", "strands", "gliner", "laya",
 ];
 const NOT_DECISION_MODELS: [&str; 1] = ["gliner2.5-multi-v1"];
 
@@ -411,6 +411,7 @@ fn color(run: &Run) -> Color {
         ("laya-multilingual", ..) => rgb(0xf59e0b),
         ("gliner2.5-multi-v1", ..) => rgb(0x475569),
         ("gliner2.5-multi-decide", ..) => rgb(0x2563eb),
+        ("decider-1", ..) => rgb(0x0369a1),
         _ => GUIDE,
     }
 }

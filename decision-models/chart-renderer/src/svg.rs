@@ -30,7 +30,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens. No run colour is red: red marks
 /// kept-but-wrong answers only.
-const DARK: [(&str, &str); 59] = [
+const DARK: [(&str, &str); 60] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -82,11 +82,13 @@ const DARK: [(&str, &str); 59] = [
     ("#0f766e", "#5eead4"),
     ("#b45309", "#fcd34d"),
     ("#6b21a8", "#c4b5fd"),
-    // The setups added in October: Decider v1.2 and Flash v1.2 (local), Microsoft-Decision-1 and Mercury Decide.
+    // The setups added in October: Decider v1.2 and Flash v1.2 (local), Microsoft-Decision-1, Mercury Decide and meraGPT
+    // Decider 1 (a darker sky than GPT-6 Luna's Decisions API run, and a 500 against its 300 in the dark theme).
     ("#fb923c", "#ffedd5"),
     ("#7c2d12", "#fb923c"),
     ("#155e75", "#67e8f9"),
     ("#065f46", "#a7f3d0"),
+    ("#0369a1", "#0ea5e9"),
     // Kept and right, kept but wrong: the page's shared palette.
     ("#15803d", "#4ade80"),
     ("#b91c1c", "#fca5a5"),

@@ -56,6 +56,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "fastino": {"access": "Fastino System One API", "scoring": True, "billing": "api"},
     "celeris": {"access": "Celeris System One API", "scoring": True, "billing": "api"},
     "subq": {"access": "SubQ Decisions API (public preview)", "scoring": True, "billing": "api"},
+    "meragpt": {"access": "meraGPT System One API", "scoring": True, "billing": "api"},
     "laya": {"access": "Laya server, self-hosted", "scoring": True, "billing": "local"},
     "gliner": {"access": "GLiNER2 server, self-hosted", "scoring": True, "billing": "local"},
     "clef": {"access": "Clef server, self-hosted", "scoring": True, "billing": "local"},
@@ -171,6 +172,7 @@ MODELS: dict[str, dict[str, Any]] = {
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
     "subq-snap-preview": {"name": "SubQ Snap Preview"},
+    "decider-1": {"name": "meraGPT Decider 1", "note": "Hosted decision model; meraGPT serves its current version under this name"},
     "d1:free": {"name": "Liquid d1", "billing": "free"},
     "d1-ultra": {"name": "Liquid d1-ultra"},
     # Through OpenRouter's System One route; the variant names the route.
