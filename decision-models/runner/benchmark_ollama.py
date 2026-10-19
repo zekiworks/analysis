@@ -130,6 +130,12 @@ SYSTEM_ONE = {
     # SubQ's subq-snap-preview (public preview) through its Decisions API (docs.subq.ai/endpoints/decisions-api), which
     # takes the same request at the default path and returns the same answers.
     "subq": SystemOneService("SubQ", "https://api.subq.ai", key_vars=("SUBQ_API_KEY",), key_required=True),
+    # meraGPT's Decider 1 (decider-1) through its System One endpoint (meragpt.com/docs/decider), which takes the same
+    # request at the default path and returns the same answers. A request, state and questions together, holds at most
+    # 4,096 tokens; while capacity starts the service answers 429 with Retry-After.
+    "meragpt": SystemOneService(
+        "meraGPT", "https://meragpt.com", key_vars=("MERAGPT_API_KEY",), key_required=True, request_id_header="x-request-id"
+    ),
     # OpenRouter's System One route (openrouter.ai/api/v1/systemone) for the decision models it lists, which takes the
     # same request and returns the same answers. A request names the model with its vendor prefix
     # (microsoft/microsoft-decision-1, inception/mercury-decide): a bare name is read as typesafe/<name>. Its latency
@@ -219,6 +225,8 @@ PRICES: dict[tuple[str, str], Price] = {
     ),
     # Output tokens are free (docs.subq.ai/using-the-api/models); the model is in public preview.
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
+    # Nothing is generated, so output is never billed (meragpt.com/docs/models).
+    ("meragpt", "decider-1"): Price("meraGPT's Decider 1 price", "https://meragpt.com/docs/models", "2026-10-19", 0.04),
     # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
     ("liquid", "d1-ultra"): Price("Liquid AI's d1-ultra price", "https://www.liquid.ai/blog/d1-ultra", "2026-10-16", 0.042),
     # Microsoft-Decision-1 and Inception's Mercury Decide (its paid listing, not inception/mercury-decide:free) via
@@ -385,7 +393,7 @@ TIE_ALPHA = 0.05
 # second. The doubt counts the mistakes of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions", "subq", "openrouter", "pplx-decider",
+    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
