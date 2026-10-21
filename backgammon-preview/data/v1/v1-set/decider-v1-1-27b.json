@@ -1,0 +1,202 @@
+{
+ "dataset": "v1-set",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 31.187076134370365,
+   "n": 291,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 47.92416910330454,
+   "n": 300,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 20.38673794211269,
+   "n": 409,
+   "too_few": false
+  }
+ },
+ "name": "Decider v1.1 27B",
+ "options": {
+  "11–15": {
+   "error_rate": 39.82337271528585,
+   "n": 168,
+   "too_few": true
+  },
+  "16–25": {
+   "error_rate": 44.51713896413364,
+   "n": 213,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": null,
+   "n": 0,
+   "too_few": true
+  },
+  "2–5": {
+   "error_rate": 19.002879169080163,
+   "n": 385,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 35.47982909740546,
+   "n": 234,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 1.1422614256540935,
+   "n": 60,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 41.24284555406169,
+   "n": 641,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 14.072473347187042,
+   "n": 20,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 21.70049039633958,
+   "n": 143,
+   "too_few": true
+  },
+  "race": {
+   "error_rate": 13.97828253753045,
+   "n": 136,
+   "too_few": true
+  }
+ },
+ "quality": {
+  "auroc": 0.7355224788092372,
+  "best_share": 0.497,
+  "blunder_share": 0.227,
+  "brier": 0.214226386938692,
+  "clusters": 1000,
+  "confidence_n": 1000,
+  "confident_badly_wrong": 0.004,
+  "cost_coverage": 0.0,
+  "decisions": 1000,
+  "ece": 0.08261933840466422,
+  "engine_scored": 1000,
+  "error_hi": 36.32371401675045,
+  "error_lo": 27.804249258339404,
+  "error_rate": 31.79086570441723,
+  "group_sizes": [],
+  "grouped": 0,
+  "invalid": 0,
+  "mean_confidence": 0.5796193384046642,
+  "over_budget": 0.0,
+  "p95_loss": 0.30202765166759477,
+  "probability_source": "probabilities",
+  "scored": 1000,
+  "time_median": 0.819,
+  "time_p90": 1.352,
+  "too_few": false,
+  "very_confident": 0.097,
+  "worst_mean": 0.5203842782974243
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.505526045723859,
+    "mean_loss": 0.13949849557232213,
+    "n": 185,
+    "share": 0.255524861878453
+   },
+   "risk_took": {
+    "confidence": 0.46445242509835194,
+    "mean_loss": 0.08075301734840169,
+    "n": 170,
+    "share": 0.23480662983425415
+   },
+   "safety_safe": {
+    "confidence": 0.6311496928625966,
+    "mean_loss": 0.02036846239850452,
+    "n": 311,
+    "share": 0.42955801104972374
+   },
+   "safety_took": {
+    "confidence": 0.46175403164704626,
+    "mean_loss": 0.20108383637050103,
+    "n": 58,
+    "share": 0.08011049723756906
+   }
+  },
+  "decisions": 724,
+  "needless_risk": 0.15718157181571815,
+  "no_risk_choice": 276,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.16455696202531644,
+    "risk_pays": 250,
+    "risk_too_few": false,
+    "safety_pays": 316,
+    "safety_too_few": false,
+    "takes_risk": 0.412
+   },
+   "holding": {
+    "needless_risk": 0.16666666666666666,
+    "risk_pays": 5,
+    "risk_too_few": true,
+    "safety_pays": 12,
+    "safety_too_few": true,
+    "takes_risk": 0.4
+   },
+   "opening": {
+    "needless_risk": 0.0975609756097561,
+    "risk_pays": 100,
+    "risk_too_few": true,
+    "safety_pays": 41,
+    "safety_too_few": true,
+    "takes_risk": 0.65
+   }
+  },
+  "risk_pays": 355,
+  "risk_too_few": false,
+  "safety_pays": 369,
+  "safety_too_few": false,
+  "takes_risk": 0.4788732394366197,
+  "too_few": false
+ },
+ "slug": "decider-v1-1-27b",
+ "status": "Earlier version",
+ "tags": {
+  "back game": {
+   "error_rate": 29.825512568155926,
+   "n": 30,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 44.67024534315496,
+   "n": 143,
+   "too_few": true
+  },
+  "holding": {
+   "error_rate": 14.072473347187042,
+   "n": 20,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 44.495892045753344,
+   "n": 168,
+   "too_few": true
+  },
+  "other": {
+   "error_rate": 31.4354637494454,
+   "n": 65,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 41.00186609207316,
+   "n": 235,
+   "too_few": false
+  }
+ },
+ "version": "v1"
+}

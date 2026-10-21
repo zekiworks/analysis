@@ -1,0 +1,202 @@
+{
+ "dataset": "v1-set",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 24.457876829756906,
+   "n": 291,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 35.45448342959086,
+   "n": 300,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 14.120687373110018,
+   "n": 409,
+   "too_few": false
+  }
+ },
+ "name": "Gemma 4 31B",
+ "options": {
+  "11–15": {
+   "error_rate": 28.404144570231438,
+   "n": 168,
+   "too_few": true
+  },
+  "16–25": {
+   "error_rate": 32.4027569780887,
+   "n": 213,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": null,
+   "n": 0,
+   "too_few": true
+  },
+  "2–5": {
+   "error_rate": 16.414340866076483,
+   "n": 385,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 23.657023779347412,
+   "n": 234,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 0.02714494864145915,
+   "n": 60,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 29.022166583913723,
+   "n": 641,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 12.35676109790802,
+   "n": 20,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 22.029335994820496,
+   "n": 143,
+   "too_few": true
+  },
+  "race": {
+   "error_rate": 11.226327761131174,
+   "n": 136,
+   "too_few": true
+  }
+ },
+ "quality": {
+  "auroc": 0.6825093524251806,
+  "best_share": 0.544,
+  "blunder_share": 0.175,
+  "brier": 0.3249878607590163,
+  "clusters": 1000,
+  "confidence_n": 1000,
+  "confident_badly_wrong": 0.055,
+  "cost_coverage": 0.0,
+  "decisions": 1000,
+  "ece": 0.310866873121154,
+  "engine_scored": 1000,
+  "error_hi": 26.904490073025222,
+  "error_lo": 20.149029610678554,
+  "error_rate": 23.528948321938515,
+  "group_sizes": [],
+  "grouped": 0,
+  "invalid": 0,
+  "mean_confidence": 0.8533698398583212,
+  "over_budget": 0.0,
+  "p95_loss": 0.2511010169982909,
+  "probability_source": "probabilities",
+  "scored": 1000,
+  "time_median": 0.593,
+  "time_p90": 0.871,
+  "too_few": false,
+  "very_confident": 0.486,
+  "worst_mean": 0.4114864468574524
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.8277799921331566,
+    "mean_loss": 0.1346789402241754,
+    "n": 202,
+    "share": 0.27900552486187846
+   },
+   "risk_took": {
+    "confidence": 0.8171358205823382,
+    "mean_loss": 0.05101085741535511,
+    "n": 153,
+    "share": 0.21132596685082872
+   },
+   "safety_safe": {
+    "confidence": 0.8592473654499599,
+    "mean_loss": 0.012345235805969697,
+    "n": 333,
+    "share": 0.4599447513812155
+   },
+   "safety_took": {
+    "confidence": 0.7949222946226353,
+    "mean_loss": 0.09341742181115681,
+    "n": 36,
+    "share": 0.049723756906077346
+   }
+  },
+  "decisions": 724,
+  "needless_risk": 0.0975609756097561,
+  "no_risk_choice": 276,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.10126582278481013,
+    "risk_pays": 250,
+    "risk_too_few": false,
+    "safety_pays": 316,
+    "safety_too_few": false,
+    "takes_risk": 0.352
+   },
+   "holding": {
+    "needless_risk": 0.0,
+    "risk_pays": 5,
+    "risk_too_few": true,
+    "safety_pays": 12,
+    "safety_too_few": true,
+    "takes_risk": 0.4
+   },
+   "opening": {
+    "needless_risk": 0.0975609756097561,
+    "risk_pays": 100,
+    "risk_too_few": true,
+    "safety_pays": 41,
+    "safety_too_few": true,
+    "takes_risk": 0.63
+   }
+  },
+  "risk_pays": 355,
+  "risk_too_few": false,
+  "safety_pays": 369,
+  "safety_too_few": false,
+  "takes_risk": 0.4309859154929577,
+  "too_few": false
+ },
+ "slug": "gemma-4-31b",
+ "status": "Earlier version",
+ "tags": {
+  "back game": {
+   "error_rate": 19.523513317108154,
+   "n": 30,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 26.598597114736382,
+   "n": 143,
+   "too_few": true
+  },
+  "holding": {
+   "error_rate": 12.35676109790802,
+   "n": 20,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 34.99888673069931,
+   "n": 168,
+   "too_few": true
+  },
+  "other": {
+   "error_rate": 26.76938886825855,
+   "n": 65,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 28.05991806882493,
+   "n": 235,
+   "too_few": false
+  }
+ },
+ "version": "v1"
+}

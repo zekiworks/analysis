@@ -1,0 +1,208 @@
+{
+ "dataset": "league-1",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 35.05102053307676,
+   "n": 647,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 45.88489487357096,
+   "n": 654,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 18.362439005605637,
+   "n": 775,
+   "too_few": false
+  }
+ },
+ "name": "Celeris-1 Decision",
+ "options": {
+  "11–15": {
+   "error_rate": 35.95735982009575,
+   "n": 293,
+   "too_few": false
+  },
+  "16–25": {
+   "error_rate": 44.41158364662963,
+   "n": 356,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": 62.31708910349196,
+   "n": 226,
+   "too_few": false
+  },
+  "2–5": {
+   "error_rate": 14.419401966816306,
+   "n": 706,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 32.945114404264125,
+   "n": 495,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 14.707662405506257,
+   "n": 124,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 37.5734877859329,
+   "n": 1332,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 38.90904006750687,
+   "n": 69,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 27.49456209514794,
+   "n": 303,
+   "too_few": false
+  },
+  "race": {
+   "error_rate": 16.25165247148083,
+   "n": 248,
+   "too_few": false
+  }
+ },
+ "quality": {
+  "auroc": 0.6610465008180871,
+  "best_share": 0.4797687861271676,
+  "blunder_share": 0.2418111753371869,
+  "brier": 0.2768455202312139,
+  "clusters": 102,
+  "confidence_n": 2076,
+  "confident_badly_wrong": 0.026493256262042388,
+  "cost_coverage": 1.0,
+  "decisions": 2076,
+  "ece": 0.19679672447013488,
+  "engine_scored": 2076,
+  "error_hi": 35.52869910089613,
+  "error_lo": 28.875330180370455,
+  "error_rate": 32.23392185046264,
+  "first_date": "2026-10-19",
+  "group_sizes": [],
+  "grouped": 0,
+  "invalid": 0,
+  "last_date": "2026-10-20",
+  "mean_confidence": 0.6740992292870905,
+  "over_budget": 0.0,
+  "p95_loss": 0.30135586857795715,
+  "probability_source": "decision",
+  "retry_mean": 0.0,
+  "scored": 2076,
+  "time_median": 0.166,
+  "time_p90": 0.2845,
+  "tokens_in": 3705.2880539499038,
+  "tokens_out": 0.0,
+  "too_few": false,
+  "usd_per_1000": 0.14821152215799616,
+  "very_confident": 0.21579961464354527,
+  "worst_mean": 0.49102369667245793
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.6924346076458753,
+    "mean_loss": 0.15742235326431167,
+    "n": 497,
+    "share": 0.31257861635220124
+   },
+   "risk_took": {
+    "confidence": 0.5720512820512821,
+    "mean_loss": 0.06426511564825335,
+    "n": 234,
+    "share": 0.1471698113207547
+   },
+   "safety_safe": {
+    "confidence": 0.7178807106598984,
+    "mean_loss": 0.023103966401313163,
+    "n": 788,
+    "share": 0.49559748427672956
+   },
+   "safety_took": {
+    "confidence": 0.5776056338028168,
+    "mean_loss": 0.11383748348330108,
+    "n": 71,
+    "share": 0.04465408805031446
+   }
+  },
+  "decisions": 1590,
+  "needless_risk": 0.08265424912689173,
+  "no_risk_choice": 486,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.08789625360230548,
+    "risk_pays": 533,
+    "risk_too_few": false,
+    "safety_pays": 694,
+    "safety_too_few": false,
+    "takes_risk": 0.28893058161350843
+   },
+   "holding": {
+    "needless_risk": 0.0625,
+    "risk_pays": 14,
+    "risk_too_few": true,
+    "safety_pays": 48,
+    "safety_too_few": true,
+    "takes_risk": 0.21428571428571427
+   },
+   "opening": {
+    "needless_risk": 0.05982905982905983,
+    "risk_pays": 184,
+    "risk_too_few": true,
+    "safety_pays": 117,
+    "safety_too_few": true,
+    "takes_risk": 0.41847826086956524
+   }
+  },
+  "risk_pays": 731,
+  "risk_too_few": false,
+  "safety_pays": 859,
+  "safety_too_few": false,
+  "takes_risk": 0.320109439124487,
+  "too_few": false
+ },
+ "slug": "celeris-1-decision",
+ "status": "Published",
+ "tags": {
+  "back game": {
+   "error_rate": 20.149945108978837,
+   "n": 27,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 25.224719709820217,
+   "n": 225,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 38.90904006750687,
+   "n": 69,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 51.62533442489803,
+   "n": 512,
+   "too_few": false
+  },
+  "other": {
+   "error_rate": 37.321852896943945,
+   "n": 173,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 27.69474304175075,
+   "n": 395,
+   "too_few": false
+  }
+ },
+ "version": "v3"
+}

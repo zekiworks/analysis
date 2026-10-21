@@ -1,0 +1,202 @@
+{
+ "dataset": "v1-set",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 33.41917150823521,
+   "n": 291,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 52.31707567969958,
+   "n": 300,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 23.43829074523851,
+   "n": 409,
+   "too_few": false
+  }
+ },
+ "name": "GPT-6 Luna",
+ "options": {
+  "11–15": {
+   "error_rate": 47.00082318768615,
+   "n": 168,
+   "too_few": true
+  },
+  "16–25": {
+   "error_rate": 48.53790914508659,
+   "n": 213,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": null,
+   "n": 0,
+   "too_few": true
+  },
+  "2–5": {
+   "error_rate": 18.0849486744249,
+   "n": 385,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 41.91856557487423,
+   "n": 234,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 8.547959725062052,
+   "n": 60,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 40.472890350636376,
+   "n": 641,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 25.568173825740814,
+   "n": 20,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 37.755881989752496,
+   "n": 143,
+   "too_few": true
+  },
+  "race": {
+   "error_rate": 19.41108550218975,
+   "n": 136,
+   "too_few": true
+  }
+ },
+ "quality": {
+  "auroc": 0.6902418949382896,
+  "best_share": 0.442,
+  "blunder_share": 0.253,
+  "brier": 0.2350481,
+  "clusters": 1000,
+  "confidence_n": 1000,
+  "confident_badly_wrong": 0.006,
+  "cost_coverage": 0.0,
+  "decisions": 1000,
+  "ece": 0.11765,
+  "engine_scored": 1000,
+  "error_hi": 39.43374410457909,
+  "error_lo": 30.975438740476967,
+  "error_rate": 35.00636252760887,
+  "group_sizes": [],
+  "grouped": 0,
+  "invalid": 0,
+  "mean_confidence": 0.55965,
+  "over_budget": 0.0,
+  "p95_loss": 0.31597265601158137,
+  "probability_source": "probabilities",
+  "scored": 1000,
+  "time_median": 0.2205,
+  "time_p90": 0.27,
+  "too_few": false,
+  "very_confident": 0.058,
+  "worst_mean": 0.5406100326776504
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.5264940239043825,
+    "mean_loss": 0.1465915572120849,
+    "n": 251,
+    "share": 0.34668508287292815
+   },
+   "risk_took": {
+    "confidence": 0.44567307692307695,
+    "mean_loss": 0.11217336843793209,
+    "n": 104,
+    "share": 0.143646408839779
+   },
+   "safety_safe": {
+    "confidence": 0.6190214067278287,
+    "mean_loss": 0.016310372666116884,
+    "n": 327,
+    "share": 0.4516574585635359
+   },
+   "safety_took": {
+    "confidence": 0.4657142857142857,
+    "mean_loss": 0.19950486577692486,
+    "n": 42,
+    "share": 0.058011049723756904
+   }
+  },
+  "decisions": 724,
+  "needless_risk": 0.11382113821138211,
+  "no_risk_choice": 276,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.11708860759493671,
+    "risk_pays": 250,
+    "risk_too_few": false,
+    "safety_pays": 316,
+    "safety_too_few": false,
+    "takes_risk": 0.276
+   },
+   "holding": {
+    "needless_risk": 0.08333333333333333,
+    "risk_pays": 5,
+    "risk_too_few": true,
+    "safety_pays": 12,
+    "safety_too_few": true,
+    "takes_risk": 0.2
+   },
+   "opening": {
+    "needless_risk": 0.0975609756097561,
+    "risk_pays": 100,
+    "risk_too_few": true,
+    "safety_pays": 41,
+    "safety_too_few": true,
+    "takes_risk": 0.34
+   }
+  },
+  "risk_pays": 355,
+  "risk_too_few": false,
+  "safety_pays": 369,
+  "safety_too_few": false,
+  "takes_risk": 0.29295774647887324,
+  "too_few": false
+ },
+ "slug": "gpt-6-luna",
+ "status": "Earlier version",
+ "tags": {
+  "back game": {
+   "error_rate": 51.124305526415505,
+   "n": 30,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 37.63506264536531,
+   "n": 143,
+   "too_few": true
+  },
+  "holding": {
+   "error_rate": 25.568173825740814,
+   "n": 20,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 43.6784972747167,
+   "n": 168,
+   "too_few": true
+  },
+  "other": {
+   "error_rate": 44.02375106628124,
+   "n": 65,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 37.566162677521405,
+   "n": 235,
+   "too_few": false
+  }
+ },
+ "version": "v1"
+}

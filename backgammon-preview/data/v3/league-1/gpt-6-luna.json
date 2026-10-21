@@ -1,0 +1,208 @@
+{
+ "dataset": "league-1",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 46.02239024983783,
+   "n": 588,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 60.53613535857761,
+   "n": 553,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 25.63969686439295,
+   "n": 713,
+   "too_few": false
+  }
+ },
+ "name": "GPT-6 Luna",
+ "options": {
+  "11–15": {
+   "error_rate": 48.35141150326264,
+   "n": 328,
+   "too_few": false
+  },
+  "16–25": {
+   "error_rate": 61.68166750280308,
+   "n": 291,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": 63.540332836489526,
+   "n": 155,
+   "too_few": true
+  },
+  "2–5": {
+   "error_rate": 19.78382569874904,
+   "n": 645,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 51.49610299488594,
+   "n": 435,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 19.434378590694692,
+   "n": 129,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 49.668939609398606,
+   "n": 1183,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 67.07922220230103,
+   "n": 25,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 40.78797335531695,
+   "n": 282,
+   "too_few": false
+  },
+  "race": {
+   "error_rate": 18.613501051638988,
+   "n": 235,
+   "too_few": false
+  }
+ },
+ "quality": {
+  "auroc": 0.657166318570485,
+  "best_share": 0.4255663430420712,
+  "blunder_share": 0.2815533980582524,
+  "brier": 0.24989741100323623,
+  "clusters": 94,
+  "confidence_n": 1854,
+  "confident_badly_wrong": 0.005393743257820928,
+  "cost_coverage": 1.0,
+  "decisions": 1854,
+  "ece": 0.13635382955771305,
+  "engine_scored": 1854,
+  "error_hi": 46.517043116414335,
+  "error_lo": 38.79875992814315,
+  "error_rate": 42.51281131850606,
+  "first_date": "2026-10-19",
+  "group_sizes": [],
+  "grouped": 0,
+  "invalid": 0,
+  "last_date": "2026-10-20",
+  "mean_confidence": 0.5612837108953613,
+  "over_budget": 0.0,
+  "p95_loss": 0.40679314732551536,
+  "probability_source": "decision",
+  "retry_mean": 0.00482200647249191,
+  "scored": 1854,
+  "time_median": 0.223,
+  "time_p90": 0.283,
+  "tokens_in": 3375.4719525350592,
+  "tokens_out": 0.0,
+  "too_few": false,
+  "usd_per_1000": 0.33754719525350596,
+  "very_confident": 0.0593311758360302,
+  "worst_mean": 0.618910466150571
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.555089108910891,
+    "mean_loss": 0.18459380493305697,
+    "n": 505,
+    "share": 0.37658463832960476
+   },
+   "risk_took": {
+    "confidence": 0.45391534391534394,
+    "mean_loss": 0.1055080166884831,
+    "n": 189,
+    "share": 0.14093959731543623
+   },
+   "safety_safe": {
+    "confidence": 0.610034843205575,
+    "mean_loss": 0.026610452850521233,
+    "n": 574,
+    "share": 0.4280387770320656
+   },
+   "safety_took": {
+    "confidence": 0.4508219178082191,
+    "mean_loss": 0.18296599673898253,
+    "n": 73,
+    "share": 0.054436987322893364
+   }
+  },
+  "decisions": 1341,
+  "needless_risk": 0.11282843894899536,
+  "no_risk_choice": 513,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.12290502793296089,
+    "risk_pays": 499,
+    "risk_too_few": false,
+    "safety_pays": 537,
+    "safety_too_few": false,
+    "takes_risk": 0.27655310621242485
+   },
+   "holding": {
+    "needless_risk": 0.14285714285714285,
+    "risk_pays": 9,
+    "risk_too_few": true,
+    "safety_pays": 14,
+    "safety_too_few": true,
+    "takes_risk": 0.2222222222222222
+   },
+   "opening": {
+    "needless_risk": 0.052083333333333336,
+    "risk_pays": 186,
+    "risk_too_few": true,
+    "safety_pays": 96,
+    "safety_too_few": true,
+    "takes_risk": 0.26344086021505375
+   }
+  },
+  "risk_pays": 694,
+  "risk_too_few": false,
+  "safety_pays": 647,
+  "safety_too_few": false,
+  "takes_risk": 0.2723342939481268,
+  "too_few": false
+ },
+ "slug": "gpt-6-luna",
+ "status": "Published",
+ "tags": {
+  "back game": {
+   "error_rate": 56.57605691389604,
+   "n": 11,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 45.711155784757516,
+   "n": 152,
+   "too_few": true
+  },
+  "holding": {
+   "error_rate": 67.07922220230103,
+   "n": 25,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 60.104495206893965,
+   "n": 484,
+   "too_few": false
+  },
+  "other": {
+   "error_rate": 35.77020853757858,
+   "n": 100,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 42.4778135749725,
+   "n": 436,
+   "too_few": false
+  }
+ },
+ "version": "v3"
+}

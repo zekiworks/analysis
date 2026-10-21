@@ -1,0 +1,361 @@
+{
+ "_about": "Status of every analysis in the plan (A1-A13), the 'When does high hurt?' set and 'Is the risk worth it?' (brief B6), with the data file it comes from and whether it waits for the running leagues. Shared positions: no setup has answered them yet (no new model requests, brief B12), so every shared-position analysis is Analysis pending. 'League' numbers stay inside their league; League 2 is Provisional until it finishes.",
+ "analyses": [
+  {
+   "id": "A1",
+   "name": "Decision quality: error rate, best-play share, blunder rate, intervals",
+   "parts": [
+    {
+     "data": "data/v3/shared.json",
+     "scope": "Shared positions (main table)",
+     "status": "Analysis pending",
+     "waits_for": "shared-position answers",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "data/v3/league-N.json, data/v3/league-N/<setup>.json",
+     "scope": "League decisions, per league",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    },
+    {
+     "data": "data/v1/v1-set.json",
+     "scope": "v1 set",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A2",
+   "name": "Effect of the information given to the model (notation only / consequences / history)",
+   "parts": [
+    {
+     "data": "none yet",
+     "scope": "Shared positions, 6 setups x 3 prompts",
+     "status": "Analysis pending",
+     "waits_for": "ablation answers",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A3",
+   "name": "Return on more reasoning (paired low vs high, off vs on)",
+   "parts": [
+    {
+     "data": "data/v3/shared.json",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for": "shared-position answers (league games give each setting different positions: not paired)",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "data/v1/v1-set.json (reasoning), data/v1/compare.json",
+     "scope": "v1 set: DeepSeek V4.1 Flash off vs thinking",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A4",
+   "name": "Where models fail: phase, strategy tag, number of options, gap between the two best plays",
+   "parts": [
+    {
+     "data": "data/v3/shared.json",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "data/v3/league-N/<setup>.json (phases, tags, options, gaps)",
+     "scope": "League decisions, per league",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    },
+    {
+     "data": "data/v1/v1-set/<setup>.json",
+     "scope": "v1 set",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A5",
+   "name": "Reliability of confidence: AUROC, ECE, Brier, risk-coverage, letter-position bias",
+   "parts": [
+    {
+     "data": "data/v3/shared.json",
+     "scope": "Shared positions (setups with probabilities)",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "data/v1/v1-set/<setup>.json (quality.auroc, ece, brier)",
+     "scope": "v1 set (setups with probabilities)",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "none yet",
+     "scope": "Risk-coverage curves, letter-position bias",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A6",
+   "name": "Routing from a cheap model to a strong one",
+   "parts": [
+    {
+     "data": "none yet",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for": "shared-position answers",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A7",
+   "name": "Teams: can a team beat its best member? (oracle as upper bound only)",
+   "parts": [
+    {
+     "data": "none yet",
+     "scope": "Shared positions / per league",
+     "status": "Analysis pending",
+     "waits_for_leagues": true
+    },
+    {
+     "data": "content/archive (earlier page section, moved to Leagues)",
+     "scope": "v1 set, earlier report",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A8",
+   "name": "Repeatability: 200 positions asked 5 times",
+   "parts": [
+    {
+     "data": "none yet",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for": "repeat answers",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A9",
+   "name": "Time and cost: $ per 1,000 decisions, median and P90 time, request vs retry time",
+   "parts": [
+    {
+     "data": "data/v3/shared.json",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "data/v3/league-N.json (quality.time_*, usd_per_1000, cost_coverage)",
+     "scope": "League decisions, per league",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    },
+    {
+     "data": "data/v1/v1-set.json",
+     "scope": "v1 set (time, tokens; cost not measured)",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A10",
+   "name": "League results: standings, W-D-L, games, gammons; safest-play share and hitting rolls",
+   "parts": [
+    {
+     "data": "data/v3/league-N.json (standings)",
+     "scope": "Standings per league",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    },
+    {
+     "data": "data/v3/league-N.json (risk)",
+     "scope": "Safest-play share in play (risk 2x2 per league)",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    }
+   ]
+  },
+  {
+   "id": "A11",
+   "name": "Doubling cube (optional track)",
+   "parts": [
+    {
+     "data": "none",
+     "scope": "-",
+     "status": "Not measured",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A12",
+   "name": "Known opening knowledge: opening table on/off, Nackgammon",
+   "parts": [
+    {
+     "data": "data/v3/shared.json (set sizes only)",
+     "scope": "Nackgammon 500 + opening control 200",
+     "status": "Analysis pending",
+     "waits_for": "answers on these sets",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "A13",
+   "name": "Does the shared-position score predict league results?",
+   "parts": [
+    {
+     "data": "none yet",
+     "scope": "Shared positions + finished leagues",
+     "status": "Analysis pending",
+     "waits_for": "shared-position answers and League 2 finishing",
+     "waits_for_leagues": true
+    }
+   ]
+  },
+  {
+   "id": "High 1",
+   "name": "When does high hurt? Decisions that high fixes and breaks (counts and loss sizes)",
+   "parts": [
+    {
+     "data": "none yet",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "data/v1/compare.json (fixed, broken, fixed_loss, broken_loss)",
+     "scope": "v1 set: DeepSeek V4.1 Flash off vs thinking",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "High 2",
+   "name": "When does high hurt? Risk in the worst decisions: P95 loss, mean of the worst 5%, blunder rate",
+   "parts": [
+    {
+     "data": "none yet",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "data/v3/league-N.json (quality.p95_loss, worst_mean, blunder_share)",
+     "scope": "League decisions, per league",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    },
+    {
+     "data": "data/v1/v1-set.json",
+     "scope": "v1 set",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "High 3",
+   "name": "When does high hurt? Confident and badly wrong",
+   "parts": [
+    {
+     "data": "data/v3/league-N.json (quality.confident_badly_wrong)",
+     "scope": "League decisions, setups with probabilities, per league",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    },
+    {
+     "data": "data/v1/v1-set.json",
+     "scope": "v1 set",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "none yet",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "High 4",
+   "name": "When does high hurt? Going over a time budget",
+   "parts": [
+    {
+     "data": "data/v3/league-N.json (quality.over_budget)",
+     "note": "the v3 leagues had no clock, so the risk of losing on time was not measured",
+     "scope": "League decisions: share of request times over the budget",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    }
+   ]
+  },
+  {
+   "id": "High 5",
+   "name": "When does high hurt? High only when needed (switching rule on held-out positions)",
+   "parts": [
+    {
+     "data": "none yet",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "Risk",
+   "name": "Is the risk worth it? Risk pays / Safety pays x took the risk / played safe",
+   "parts": [
+    {
+     "data": "data/v3/league-N.json (risk), data/v3/league-N/<setup>.json (risk.phases)",
+     "scope": "League decisions, per league",
+     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
+     "waits_for_leagues": true
+    },
+    {
+     "data": "data/v1/v1-set.json (risk)",
+     "scope": "v1 set",
+     "status": "Earlier version",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "none yet",
+     "scope": "Shared positions",
+     "status": "Analysis pending",
+     "waits_for_leagues": false
+    }
+   ]
+  },
+  {
+   "id": "L",
+   "name": "Learning from experience",
+   "parts": [
+    {
+     "data": "none",
+     "scope": "-",
+     "status": "Not measured",
+     "waits_for_leagues": false
+    }
+   ]
+  }
+ ]
+}

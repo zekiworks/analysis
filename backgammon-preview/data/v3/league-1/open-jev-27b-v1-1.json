@@ -1,0 +1,207 @@
+{
+ "dataset": "league-1",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 65.66374441284445,
+   "n": 603,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 106.18266114940891,
+   "n": 539,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 38.96571628238056,
+   "n": 816,
+   "too_few": false
+  }
+ },
+ "name": "Open-Jev 27B v1.1",
+ "options": {
+  "11–15": {
+   "error_rate": 61.9996360793019,
+   "n": 302,
+   "too_few": false
+  },
+  "16–25": {
+   "error_rate": 88.16560966237569,
+   "n": 349,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": 130.24804844624467,
+   "n": 216,
+   "too_few": false
+  },
+  "2–5": {
+   "error_rate": 33.57749312888575,
+   "n": 655,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 66.52108347470607,
+   "n": 436,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 11.304619432497425,
+   "n": 119,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 86.58714091649831,
+   "n": 1211,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 83.61909911036491,
+   "n": 48,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 35.0330114258942,
+   "n": 282,
+   "too_few": false
+  },
+  "race": {
+   "error_rate": 28.618836862928916,
+   "n": 298,
+   "too_few": false
+  }
+ },
+ "quality": {
+  "auroc": 0.7201544401544402,
+  "best_share": 0.3575076608784474,
+  "blunder_share": 0.38661899897854957,
+  "brier": 0.219447796503671,
+  "clusters": 96,
+  "confidence_n": 1958,
+  "confident_badly_wrong": 0.0,
+  "cost_coverage": 0.0,
+  "decisions": 1958,
+  "ece": 0.14672435165908937,
+  "engine_scored": 1958,
+  "error_hi": 71.99951682486406,
+  "error_lo": 59.664540272401204,
+  "error_rate": 65.69137728646534,
+  "first_date": "2026-10-15",
+  "group_sizes": [],
+  "grouped": 0,
+  "invalid": 0,
+  "last_date": "2026-10-20",
+  "mean_confidence": 0.210783309219358,
+  "over_budget": 0.0,
+  "p95_loss": 0.5915781617164609,
+  "probability_source": "decision",
+  "retry_mean": 2.4229816138917264,
+  "scored": 1958,
+  "time_median": 1.6275,
+  "time_p90": 3.6908999999999996,
+  "tokens_in": 35885.725740551585,
+  "tokens_out": 0.0,
+  "too_few": false,
+  "very_confident": 0.0,
+  "worst_mean": 0.8237851858139038
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.15659877076744838,
+    "mean_loss": 0.20310114758221184,
+    "n": 254,
+    "share": 0.17663421418636996
+   },
+   "risk_took": {
+    "confidence": 0.13117791681824229,
+    "mean_loss": 0.17210325069965854,
+    "n": 434,
+    "share": 0.30180806675938804
+   },
+   "safety_safe": {
+    "confidence": 0.20261836562563626,
+    "mean_loss": 0.04875459412733714,
+    "n": 450,
+    "share": 0.3129346314325452
+   },
+   "safety_took": {
+    "confidence": 0.17150259043721283,
+    "mean_loss": 0.2836310467123985,
+    "n": 300,
+    "share": 0.2086230876216968
+   }
+  },
+  "decisions": 1438,
+  "needless_risk": 0.4,
+  "no_risk_choice": 520,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.4278688524590164,
+    "risk_pays": 505,
+    "risk_too_few": false,
+    "safety_pays": 610,
+    "safety_too_few": false,
+    "takes_risk": 0.5782178217821782
+   },
+   "holding": {
+    "needless_risk": 0.2222222222222222,
+    "risk_pays": 8,
+    "risk_too_few": true,
+    "safety_pays": 36,
+    "safety_too_few": true,
+    "takes_risk": 0.5
+   },
+   "opening": {
+    "needless_risk": 0.2980769230769231,
+    "risk_pays": 175,
+    "risk_too_few": true,
+    "safety_pays": 104,
+    "safety_too_few": true,
+    "takes_risk": 0.7885714285714286
+   }
+  },
+  "risk_pays": 688,
+  "risk_too_few": false,
+  "safety_pays": 750,
+  "safety_too_few": false,
+  "takes_risk": 0.6308139534883721,
+  "too_few": false
+ },
+ "slug": "open-jev-27b-v1-1",
+ "status": "Published",
+ "tags": {
+  "back game": {
+   "error_rate": 98.25206051270168,
+   "n": 12,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 67.77444994077086,
+   "n": 192,
+   "too_few": true
+  },
+  "holding": {
+   "error_rate": 83.61909911036491,
+   "n": 48,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 81.01502869456326,
+   "n": 481,
+   "too_few": false
+  },
+  "other": {
+   "error_rate": 104.60462387617643,
+   "n": 222,
+   "too_few": false
+  },
+  "priming": {
+   "error_rate": 93.66728037007545,
+   "n": 304,
+   "too_few": false
+  }
+ },
+ "version": "v3"
+}

@@ -1,0 +1,202 @@
+{
+ "dataset": "v1-set",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 28.406846513043565,
+   "n": 291,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 40.106170028448105,
+   "n": 300,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 17.52068182512717,
+   "n": 409,
+   "too_few": false
+  }
+ },
+ "name": "DeepSeek V4.1 Flash",
+ "options": {
+  "11–15": {
+   "error_rate": 39.648429180185,
+   "n": 168,
+   "too_few": true
+  },
+  "16–25": {
+   "error_rate": 36.967507060704655,
+   "n": 213,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": null,
+   "n": 0,
+   "too_few": true
+  },
+  "2–5": {
+   "error_rate": 14.453165291191695,
+   "n": 385,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 31.47315584186815,
+   "n": 234,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 0.2993851900100708,
+   "n": 60,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 33.73031797070585,
+   "n": 641,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 23.510733246803284,
+   "n": 20,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 25.138066365168644,
+   "n": 143,
+   "too_few": true
+  },
+  "race": {
+   "error_rate": 12.942258268594742,
+   "n": 136,
+   "too_few": true
+  }
+ },
+ "quality": {
+  "auroc": 0.710205078125,
+  "best_share": 0.512,
+  "blunder_share": 0.194,
+  "brier": 0.3555767564921455,
+  "clusters": 1000,
+  "confidence_n": 1000,
+  "confident_badly_wrong": 0.079,
+  "cost_coverage": 0.0,
+  "decisions": 1000,
+  "ece": 0.35480949391775896,
+  "engine_scored": 1000,
+  "error_hi": 31.25760471709072,
+  "error_lo": 23.68678450137377,
+  "error_rate": 27.46420221030712,
+  "group_sizes": [],
+  "grouped": 0,
+  "invalid": 0,
+  "mean_confidence": 0.866809493917759,
+  "over_budget": 0.0,
+  "p95_loss": 0.2816593050956726,
+  "probability_source": "probabilities",
+  "scored": 1000,
+  "time_median": 0.568,
+  "time_p90": 0.983,
+  "too_few": false,
+  "very_confident": 0.613,
+  "worst_mean": 0.48188515603542326
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.8402680340286276,
+    "mean_loss": 0.13574014818883157,
+    "n": 222,
+    "share": 0.30662983425414364
+   },
+   "risk_took": {
+    "confidence": 0.7638944644200748,
+    "mean_loss": 0.0720145225076747,
+    "n": 133,
+    "share": 0.18370165745856354
+   },
+   "safety_safe": {
+    "confidence": 0.9099873234990108,
+    "mean_loss": 0.01410740383324169,
+    "n": 336,
+    "share": 0.46408839779005523
+   },
+   "safety_took": {
+    "confidence": 0.7776650311724803,
+    "mean_loss": 0.16577050270456256,
+    "n": 33,
+    "share": 0.04558011049723757
+   }
+  },
+  "decisions": 724,
+  "needless_risk": 0.08943089430894309,
+  "no_risk_choice": 276,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.0949367088607595,
+    "risk_pays": 250,
+    "risk_too_few": false,
+    "safety_pays": 316,
+    "safety_too_few": false,
+    "takes_risk": 0.328
+   },
+   "holding": {
+    "needless_risk": 0.0,
+    "risk_pays": 5,
+    "risk_too_few": true,
+    "safety_pays": 12,
+    "safety_too_few": true,
+    "takes_risk": 0.2
+   },
+   "opening": {
+    "needless_risk": 0.07317073170731707,
+    "risk_pays": 100,
+    "risk_too_few": true,
+    "safety_pays": 41,
+    "safety_too_few": true,
+    "takes_risk": 0.5
+   }
+  },
+  "risk_pays": 355,
+  "risk_too_few": false,
+  "safety_pays": 369,
+  "safety_too_few": false,
+  "takes_risk": 0.37464788732394366,
+  "too_few": false
+ },
+ "slug": "deepseek-v4-1-flash",
+ "status": "Earlier version",
+ "tags": {
+  "back game": {
+   "error_rate": 32.244688272476196,
+   "n": 30,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 31.59679107732706,
+   "n": 143,
+   "too_few": true
+  },
+  "holding": {
+   "error_rate": 23.510733246803284,
+   "n": 20,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 37.526736745522136,
+   "n": 168,
+   "too_few": true
+  },
+  "other": {
+   "error_rate": 29.627848817751957,
+   "n": 65,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 33.638936598250204,
+   "n": 235,
+   "too_few": false
+  }
+ },
+ "version": "v1"
+}

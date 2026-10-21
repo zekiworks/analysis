@@ -1,0 +1,222 @@
+{
+ "dataset": "league-2",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 22.609506093431264,
+   "n": 512,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 21.265815792561593,
+   "n": 469,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 12.318384284672499,
+   "n": 682,
+   "too_few": false
+  }
+ },
+ "name": "DeepSeek V4.1 Flash (on)",
+ "options": {
+  "11–15": {
+   "error_rate": 23.059724133983,
+   "n": 293,
+   "too_few": false
+  },
+  "16–25": {
+   "error_rate": 24.611261376941744,
+   "n": 352,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": 25.496767050000877,
+   "n": 221,
+   "too_few": false
+  },
+  "2–5": {
+   "error_rate": 7.931827647345407,
+   "n": 455,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 15.460358289947287,
+   "n": 342,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 0.8723296008063751,
+   "n": 103,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 23.18480853026957,
+   "n": 1046,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 14.631341119388958,
+   "n": 91,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 16.05797973636803,
+   "n": 239,
+   "too_few": false
+  },
+  "race": {
+   "error_rate": 2.3934996646383535,
+   "n": 184,
+   "too_few": true
+  }
+ },
+ "quality": {
+  "auroc": 0.5205607592427396,
+  "best_share": 0.6223692122669874,
+  "blunder_share": 0.14010823812387252,
+  "brier": 0.35202826135051807,
+  "clusters": 82,
+  "confidence_n": 1457,
+  "confident_badly_wrong": 0.12834591626630062,
+  "cost_coverage": 1.0,
+  "decisions": 1681,
+  "ece": 0.3520067136048719,
+  "engine_scored": 1681,
+  "error_hi": 20.38945624846952,
+  "error_lo": 15.67635503555005,
+  "error_rate": 18.010146006431054,
+  "first_date": "2026-10-19",
+  "group_sizes": [
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26
+  ],
+  "grouped": 215,
+  "invalid": 18,
+  "last_date": "2026-10-21",
+  "mean_confidence": 0.9999133711203146,
+  "over_budget": 0.6957306073361396,
+  "p95_loss": 0.19229984879493683,
+  "probability_source": "logprobs",
+  "retry_mean": 3.4607626412849495,
+  "scored": 1663,
+  "time_median": 64.795,
+  "time_p90": 220.7324,
+  "tokens_in": 4420.345627602617,
+  "tokens_out": 9663.69244497323,
+  "too_few": false,
+  "usd_per_1000": 12.61743934086853,
+  "very_confident": 1.0,
+  "worst_mean": 0.35058095440807113
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.9999043493405552,
+    "mean_loss": 0.11012634937476395,
+    "n": 266,
+    "share": 0.2094488188976378
+   },
+   "risk_took": {
+    "confidence": 0.9998960011579111,
+    "mean_loss": 0.04504074188678161,
+    "n": 276,
+    "share": 0.2173228346456693
+   },
+   "safety_safe": {
+    "confidence": 0.9999322362144552,
+    "mean_loss": 0.014070188868654906,
+    "n": 685,
+    "share": 0.5393700787401575
+   },
+   "safety_took": {
+    "confidence": 0.9999192914038468,
+    "mean_loss": 0.1514846897402475,
+    "n": 43,
+    "share": 0.03385826771653543
+   }
+  },
+  "decisions": 1270,
+  "needless_risk": 0.059065934065934064,
+  "no_risk_choice": 393,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.059027777777777776,
+    "risk_pays": 386,
+    "risk_too_few": false,
+    "safety_pays": 576,
+    "safety_too_few": false,
+    "takes_risk": 0.42487046632124353
+   },
+   "holding": {
+    "needless_risk": 0.06349206349206349,
+    "risk_pays": 9,
+    "risk_too_few": true,
+    "safety_pays": 63,
+    "safety_too_few": true,
+    "takes_risk": 0.1111111111111111
+   },
+   "opening": {
+    "needless_risk": 0.056179775280898875,
+    "risk_pays": 147,
+    "risk_too_few": true,
+    "safety_pays": 89,
+    "safety_too_few": true,
+    "takes_risk": 0.7551020408163265
+   }
+  },
+  "risk_pays": 542,
+  "risk_too_few": false,
+  "safety_pays": 728,
+  "safety_too_few": false,
+  "takes_risk": 0.5092250922509225,
+  "too_few": false
+ },
+ "slug": "deepseek-v4-1-flash-on",
+ "status": "Provisional",
+ "tags": {
+  "back game": {
+   "error_rate": 21.727578738067724,
+   "n": 79,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 23.35528317572815,
+   "n": 224,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 14.631341119388958,
+   "n": 91,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 27.910598780054496,
+   "n": 251,
+   "too_few": false
+  },
+  "other": {
+   "error_rate": 30.931176215994594,
+   "n": 102,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 18.31463411068305,
+   "n": 390,
+   "too_few": false
+  }
+ },
+ "version": "v3"
+}

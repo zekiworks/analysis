@@ -1,0 +1,228 @@
+{
+ "dataset": "league-1",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 52.18734547346332,
+   "n": 598,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 75.44482275303723,
+   "n": 552,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 24.86821982979453,
+   "n": 742,
+   "too_few": false
+  }
+ },
+ "name": "Winnow-12B",
+ "options": {
+  "11–15": {
+   "error_rate": 51.302532813731275,
+   "n": 314,
+   "too_few": false
+  },
+  "16–25": {
+   "error_rate": 64.66583211593867,
+   "n": 319,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": 72.16079212152042,
+   "n": 195,
+   "too_few": true
+  },
+  "2–5": {
+   "error_rate": 26.691589690444935,
+   "n": 621,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 53.99902134662826,
+   "n": 443,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 17.606417338053387,
+   "n": 105,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 59.79269728956059,
+   "n": 1170,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 49.66162289342573,
+   "n": 62,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 38.584745688871905,
+   "n": 275,
+   "too_few": false
+  },
+  "race": {
+   "error_rate": 20.749423333576747,
+   "n": 280,
+   "too_few": false
+  }
+ },
+ "quality": {
+  "auroc": 0.6780088360755637,
+  "best_share": 0.3858350951374207,
+  "blunder_share": 0.32082452431289643,
+  "brier": 0.25992653485136447,
+  "clusters": 92,
+  "confidence_n": 1814,
+  "confident_badly_wrong": 0.017089305402425578,
+  "cost_coverage": 0.0,
+  "decisions": 1892,
+  "ece": 0.19384235736607652,
+  "engine_scored": 1892,
+  "error_hi": 51.99760038007164,
+  "error_lo": 44.48711959021659,
+  "error_rate": 48.258876250800824,
+  "first_date": "2026-10-19",
+  "group_sizes": [
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40
+  ],
+  "grouped": 78,
+  "invalid": 0,
+  "last_date": "2026-10-20",
+  "mean_confidence": 0.5907552570353157,
+  "over_budget": 0.0010570824524312897,
+  "p95_loss": 0.44801294207572934,
+  "probability_source": "decision",
+  "retry_mean": 0.0,
+  "scored": 1892,
+  "time_median": 3.0755,
+  "time_p90": 5.544300000000001,
+  "tokens_in": 4079.4334038054967,
+  "tokens_out": 0.0,
+  "too_few": false,
+  "very_confident": 0.11356119073869901,
+  "worst_mean": 0.6829891013471704
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.5909431528704212,
+    "mean_loss": 0.18735127567604024,
+    "n": 372,
+    "share": 0.26571428571428574
+   },
+   "risk_took": {
+    "confidence": 0.5319688563192869,
+    "mean_loss": 0.11265892423583833,
+    "n": 353,
+    "share": 0.25214285714285717
+   },
+   "safety_safe": {
+    "confidence": 0.6722585736512925,
+    "mean_loss": 0.0333100657634698,
+    "n": 514,
+    "share": 0.36714285714285716
+   },
+   "safety_took": {
+    "confidence": 0.48774178989901107,
+    "mean_loss": 0.22901923926720708,
+    "n": 161,
+    "share": 0.115
+   }
+  },
+  "decisions": 1400,
+  "needless_risk": 0.23851851851851852,
+  "no_risk_choice": 492,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.2541436464088398,
+    "risk_pays": 529,
+    "risk_too_few": false,
+    "safety_pays": 543,
+    "safety_too_few": false,
+    "takes_risk": 0.46502835538752363
+   },
+   "holding": {
+    "needless_risk": 0.20512820512820512,
+    "risk_pays": 14,
+    "risk_too_few": true,
+    "safety_pays": 39,
+    "safety_too_few": true,
+    "takes_risk": 0.21428571428571427
+   },
+   "opening": {
+    "needless_risk": 0.16129032258064516,
+    "risk_pays": 182,
+    "risk_too_few": true,
+    "safety_pays": 93,
+    "safety_too_few": true,
+    "takes_risk": 0.5714285714285714
+   }
+  },
+  "risk_pays": 725,
+  "risk_too_few": false,
+  "safety_pays": 675,
+  "safety_too_few": false,
+  "takes_risk": 0.4868965517241379,
+  "too_few": false
+ },
+ "slug": "winnow-12b",
+ "status": "Published",
+ "tags": {
+  "back game": {
+   "error_rate": 33.874209537062534,
+   "n": 43,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 48.63050606753259,
+   "n": 223,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 49.66162289342573,
+   "n": 62,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 58.75441615664682,
+   "n": 430,
+   "too_few": false
+  },
+  "other": {
+   "error_rate": 67.26189263879436,
+   "n": 146,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 68.81593503966565,
+   "n": 328,
+   "too_few": false
+  }
+ },
+ "version": "v3"
+}

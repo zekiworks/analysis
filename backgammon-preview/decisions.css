@@ -1,0 +1,122 @@
+/* Every decision (decisions/index.html): the board and the decision cards. Everything else comes from site.css. */
+
+:root {
+  --bd-frame: #8a6a48;
+  --bd-felt: #e9e1cf;
+  --bd-a: #b9a07c;
+  --bd-b: #6f8a7a;
+  --bd-tray: #d6ccb8;
+  --bd-num: #4b4944;
+  --bd-me: #fbfaf6;
+  --bd-me-edge: #4b4944;
+  --bd-opp: #2b2a27;
+  --bd-opp-edge: #0e0e0d;
+  --bd-die: #fbfaf6;
+  --bd-die-edge: #4b4944;
+  --bd-pip: #23221f;
+  --dec-chosen: #e2dfd8;
+}
+@media screen {
+  :root:not([data-theme="light"]) {
+    --bd-frame: #3d3226;
+    --bd-felt: #23221f;
+    --bd-a: #6b5a43;
+    --bd-b: #3f5549;
+    --bd-tray: #1a1a18;
+    --bd-num: #bab7b0;
+    --bd-me: #ebe9e4;
+    --bd-me-edge: #0e0e0d;
+    --bd-opp: #9a3b2e;
+    --bd-opp-edge: #f0b8ad;
+    --bd-die: #ebe9e4;
+    --bd-die-edge: #0e0e0d;
+    --bd-pip: #1a1a18;
+    --dec-chosen: #2c2b28;
+  }
+}
+
+.dec-controls .filters-bar { flex-wrap: wrap; align-items: flex-end; }
+.dec-controls .group { flex-direction: column; align-items: flex-start; min-width: 0; max-width: 100%; }
+.dec-controls select { width: 22rem; max-width: 100%; }
+.dec-note { margin: .5rem 0 0; }
+.dec-pager { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-top: .65rem; }
+.dec-pager:empty { display: none; }
+.dec-page { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; }
+.dec-page input { width: 4.5rem; min-height: 2rem; padding: .25rem .45rem; font: inherit; font-size: .85rem; color: var(--text);
+  background: var(--sunk); border: 1px solid var(--control-edge); border-radius: 6px; }
+.dec-pager .in-view { margin-left: auto; }
+#dec-pager-bottom { margin: 0 0 1rem; }
+
+.dec-card { overflow-wrap: anywhere; }
+.dec-card:target { border-color: var(--text); }
+.dec-head h2 { margin: 0; padding: 0; border: 0; }
+.dec-head h2 a { color: inherit; text-decoration: none; }
+.dec-head h2 a:hover { text-decoration: underline; }
+.dec-head { margin: 0 0 .75rem; padding-bottom: .5rem; border-bottom: 1px solid var(--edge); }
+.dec-card h3 { font-size: 1rem; margin: 1rem 0 .5rem; }
+.dec-request { font-size: .9rem; margin: .9rem 0 .35rem; }
+.dec-flag { margin: 0 0 .75rem; padding: .5rem .8rem; color: var(--error-text); background: var(--error-bg); border: 1px solid var(--error-border);
+  border-radius: 6px; font-weight: 600; }
+
+/* The board beside its facts; under them on a narrow screen. It never grows past ~520 px and fits a 360 px screen. */
+.dec-top { display: grid; grid-template-columns: minmax(0, 520px) minmax(14rem, 1fr); gap: 1rem 1.5rem; align-items: start; }
+@media (max-width: 860px) { .dec-top { grid-template-columns: minmax(0, 1fr); } }
+.dec-board { margin: 0; min-width: 0; }
+svg.bd { display: block; width: 100%; max-width: 520px; height: auto; }
+.bd-frame { fill: var(--bd-frame); }
+.bd-felt { fill: var(--bd-felt); }
+.bd-tray { fill: var(--bd-tray); stroke: var(--bd-frame); stroke-width: 2; }
+.bd-a { fill: var(--bd-a); }
+.bd-b { fill: var(--bd-b); }
+svg.bd text { font-family: var(--sans); text-anchor: middle; }
+.bd-num { fill: var(--bd-num); font-size: 12px; }
+.bd-label { fill: var(--text); font-size: 12px; }
+.bd-label.bd-side { fill: var(--bd-num); font-size: 11px; }
+.ck { stroke-width: 1.5; }
+.ck-me { fill: var(--bd-me); stroke: var(--bd-me-edge); }
+.ck-opp { fill: var(--bd-opp); stroke: var(--bd-opp-edge); }
+.ck-off { stroke-width: 1; }
+.ck-count { font-size: 13px; font-weight: 700; }
+.ck-me-text { fill: var(--bd-me-edge); }
+.ck-opp-text { fill: var(--bd-me); }
+.die { fill: var(--bd-die); stroke: var(--bd-die-edge); stroke-width: 1.5; }
+.pip { fill: var(--bd-pip); }
+.dec-facts { margin: 0; font-size: .9rem; }
+
+/* As the model saw it: the stored text, its whitespace kept; long texts scroll inside their box. */
+.dec-pre { margin: 0 0 .6rem; padding: .6rem .75rem; max-height: 22rem; overflow: auto; background: var(--sunk); border: 1px solid var(--edge);
+  border-radius: 6px; font-family: var(--mono); font-size: .78rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dec-label { margin: .6rem 0 .25rem; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.dec-seen details { margin: 0 0 .5rem; }
+.dec-seen details > summary { color: var(--link); font-size: .875rem; margin-bottom: .35rem; }
+.dec-options { max-height: 22rem; overflow: auto; margin: 0 0 .6rem; padding: .5rem .75rem .5rem 2.5rem; background: var(--sunk);
+  border: 1px solid var(--edge); border-radius: 6px; font-size: .8rem; }
+.dec-options li { margin: .15rem 0; }
+
+/* The legal plays: every play, scrolling inside its box; the header stays in view. */
+.dec-plays-wrap { max-height: 30rem; overflow: auto; border: 1px solid var(--edge); border-radius: 6px; }
+table.dec-plays { margin: 0; }
+table.dec-plays caption { padding: .5rem .65rem 0; }
+table.dec-plays thead th { position: sticky; top: 0; z-index: 1; }
+table.dec-plays td.num { font-family: var(--mono); font-size: .84rem; }
+table.dec-plays tbody td { background: var(--panel); }
+table.dec-plays tr.is-chosen td { background: var(--dec-chosen); }
+table.dec-plays tr.is-chosen td:first-child { box-shadow: inset 3px 0 0 var(--text); }
+.dec-letter { font-family: var(--mono); font-weight: 700; }
+.dec-play { white-space: nowrap; }
+.dec-play code { font-size: .85rem; }
+.dec-marks { display: block; margin-top: .2rem; }
+.dec-desc { min-width: 28rem; color: var(--text-2); font-size: .8rem; }
+.dec-tag { display: inline-block; padding: 0 .4rem; border: 1px solid var(--control-edge); border-radius: 999px; font-size: .72rem;
+  font-weight: 600; white-space: nowrap; }
+.dec-tag-chosen { color: var(--text); background: var(--key); }
+.dec-tag-best { color: var(--accepted); border-color: currentColor; }
+.dec-tag-random { color: var(--error-text); background: var(--error-bg); border-color: var(--error-border); }
+
+@media (max-width: 640px) {
+  .dec-pager .in-view { margin-left: 0; flex-basis: 100%; }
+  .dec-controls .group { flex: 1 1 9rem; }
+  .dec-controls .status { flex-basis: 100%; }
+  .dec-desc { min-width: 24rem; }
+  .dec-pre { font-size: .72rem; }
+}

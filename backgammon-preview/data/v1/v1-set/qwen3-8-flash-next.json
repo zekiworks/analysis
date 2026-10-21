@@ -1,0 +1,202 @@
+{
+ "dataset": "v1-set",
+ "gaps": {
+  "0.02 to 0.08": {
+   "error_rate": 28.974339570786125,
+   "n": 291,
+   "too_few": false
+  },
+  "over 0.08": {
+   "error_rate": 47.20701331893603,
+   "n": 300,
+   "too_few": false
+  },
+  "under 0.02": {
+   "error_rate": 20.755938584472265,
+   "n": 409,
+   "too_few": false
+  }
+ },
+ "name": "Qwen3.8 Flash Next",
+ "options": {
+  "11–15": {
+   "error_rate": 40.988043748906684,
+   "n": 168,
+   "too_few": true
+  },
+  "16–25": {
+   "error_rate": 41.81073130296429,
+   "n": 213,
+   "too_few": false
+  },
+  "26+": {
+   "error_rate": null,
+   "n": 0,
+   "too_few": true
+  },
+  "2–5": {
+   "error_rate": 17.38175753649179,
+   "n": 385,
+   "too_few": false
+  },
+  "6–10": {
+   "error_rate": 36.74855522620372,
+   "n": 234,
+   "too_few": false
+  }
+ },
+ "phases": {
+  "bear-off": {
+   "error_rate": 7.577239473660787,
+   "n": 60,
+   "too_few": true
+  },
+  "contact": {
+   "error_rate": 37.906760986249274,
+   "n": 641,
+   "too_few": false
+  },
+  "holding": {
+   "error_rate": 26.283280551433563,
+   "n": 20,
+   "too_few": true
+  },
+  "opening": {
+   "error_rate": 27.127318865769393,
+   "n": 143,
+   "too_few": true
+  },
+  "race": {
+   "error_rate": 14.154965605805902,
+   "n": 136,
+   "too_few": true
+  }
+ },
+ "quality": {
+  "auroc": 0.6889188874758797,
+  "best_share": 0.473,
+  "blunder_share": 0.23,
+  "brier": 0.2549611385565867,
+  "clusters": 1000,
+  "confidence_n": 1000,
+  "confident_badly_wrong": 0.007,
+  "cost_coverage": 0.0,
+  "decisions": 1000,
+  "ece": 0.17741886845417404,
+  "engine_scored": 1000,
+  "error_hi": 35.22088271752,
+  "error_lo": 27.297761173918843,
+  "error_rate": 31.082815691828728,
+  "group_sizes": [],
+  "grouped": 0,
+  "invalid": 0,
+  "mean_confidence": 0.650418868454174,
+  "over_budget": 0.0,
+  "p95_loss": 0.28357931375503526,
+  "probability_source": "probabilities",
+  "scored": 1000,
+  "time_median": 0.464,
+  "time_p90": 0.7085000000000001,
+  "too_few": false,
+  "very_confident": 0.126,
+  "worst_mean": 0.4877886861562729
+ },
+ "risk": {
+  "cells": {
+   "risk_safe": {
+    "confidence": 0.6374546698644483,
+    "mean_loss": 0.15669611954818602,
+    "n": 184,
+    "share": 0.2541436464088398
+   },
+   "risk_took": {
+    "confidence": 0.5321485446818333,
+    "mean_loss": 0.07754939254264386,
+    "n": 171,
+    "share": 0.2361878453038674
+   },
+   "safety_safe": {
+    "confidence": 0.7139367041140237,
+    "mean_loss": 0.013588538652733911,
+    "n": 316,
+    "share": 0.43646408839779005
+   },
+   "safety_took": {
+    "confidence": 0.5013190108677561,
+    "mean_loss": 0.17131542765869284,
+    "n": 53,
+    "share": 0.07320441988950276
+   }
+  },
+  "decisions": 724,
+  "needless_risk": 0.14363143631436315,
+  "no_risk_choice": 276,
+  "phases": {
+   "contact": {
+    "needless_risk": 0.14240506329113925,
+    "risk_pays": 250,
+    "risk_too_few": false,
+    "safety_pays": 316,
+    "safety_too_few": false,
+    "takes_risk": 0.404
+   },
+   "holding": {
+    "needless_risk": 0.16666666666666666,
+    "risk_pays": 5,
+    "risk_too_few": true,
+    "safety_pays": 12,
+    "safety_too_few": true,
+    "takes_risk": 0.2
+   },
+   "opening": {
+    "needless_risk": 0.14634146341463414,
+    "risk_pays": 100,
+    "risk_too_few": true,
+    "safety_pays": 41,
+    "safety_too_few": true,
+    "takes_risk": 0.69
+   }
+  },
+  "risk_pays": 355,
+  "risk_too_few": false,
+  "safety_pays": 369,
+  "safety_too_few": false,
+  "takes_risk": 0.48169014084507045,
+  "too_few": false
+ },
+ "slug": "qwen3-8-flash-next",
+ "status": "Earlier version",
+ "tags": {
+  "back game": {
+   "error_rate": 35.84285179773966,
+   "n": 30,
+   "too_few": true
+  },
+  "blitz": {
+   "error_rate": 33.167149428721075,
+   "n": 143,
+   "too_few": true
+  },
+  "holding": {
+   "error_rate": 26.283280551433563,
+   "n": 20,
+   "too_few": true
+  },
+  "low-anchor": {
+   "error_rate": 43.018436414145285,
+   "n": 168,
+   "too_few": true
+  },
+  "other": {
+   "error_rate": 46.6088205575943,
+   "n": 65,
+   "too_few": true
+  },
+  "priming": {
+   "error_rate": 34.99308602606997,
+   "n": 235,
+   "too_few": false
+  }
+ },
+ "version": "v1"
+}

@@ -1,0 +1,47 @@
+/* Backgammon benchmark additions to the shared design system (site.css). */
+
+main > section + section, main > .card + .card, main > section + .card, main > .card + section { margin-top: 1rem; }
+.status { display: inline-block; margin: 0 .4rem .15rem 0; padding: .05rem .45rem; border: 1px solid var(--control-edge); border-radius: 999px;
+  font-family: var(--sans); font-size: .72rem; font-weight: 600; letter-spacing: .02em; color: var(--text-2); background: var(--sunk);
+  white-space: nowrap; vertical-align: middle; }
+.status-published { color: var(--accepted); border-color: var(--accepted); }
+.status-provisional { color: var(--grammar-text); border-color: var(--grammar-text); }
+.status-earlier-version { color: var(--reading-text); border-color: var(--reading-text); }
+.status-running, .status-stopped { color: var(--grammar-text); border-color: var(--grammar-text); }
+.status-finished { color: var(--accepted); border-color: var(--accepted); }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .75rem; }
+.section-head h2, .section-head h3 { margin: 0; }
+.card h3 { font-size: 1rem; margin: 1.1rem 0 .5rem; }
+.block { margin: 1rem 0 0; padding-top: .75rem; border-top: 1px dashed var(--edge); }
+.block:first-of-type { border-top: 0; padding-top: 0; }
+.pending { margin: .5rem 0; padding: .6rem .8rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 6px; color: var(--text-2); }
+.pending strong { color: var(--text); }
+.findings-wait { font-weight: 600; }
+.cols-list { margin: .35rem 0 0; padding-left: 1.1rem; color: var(--text-2); font-size: .85rem; }
+.tabpanel[hidden] { display: none; }
+.subnav { display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin: .5rem 0 0; padding: 0; list-style: none; font-size: .9rem; }
+.verdict { font-weight: 600; }
+.diff-row td { font-family: var(--mono); }
+tr.oracle td { font-style: italic; color: var(--text-2); }
+.chart-status { margin: .25rem 0 0; }
+.version-line { margin: .25rem 0 0; color: var(--text-2); font-size: .8rem; }
+details.more { margin: .75rem 0 0; }
+details.more > summary { cursor: pointer; font-weight: 600; }
+.compare-pick { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; margin: .5rem 0 1rem; }
+.compare-pick select { max-width: 100%; }
+.chart-svg { width: 100%; height: auto; max-width: 760px; display: block; }
+.chart-svg text { fill: var(--text); font-family: var(--sans); font-size: 11px; }
+.chart-svg .axis { stroke: var(--control-edge); }
+.chart-svg .grid { stroke: var(--edge); }
+.chart-svg .dot { fill: var(--reading); }
+.chart-svg .whisker { stroke: var(--reading); }
+.chart-svg .muted { fill: var(--text-2); }
+/* Only the home page has the hero grid (no mini chart here); other pages stack eyebrow, title, intro, version. */
+@media (min-width: 1024px) {
+  body:not(.home) .hero { display: block; max-width: 76ch; }
+  .home .hero { grid-template-areas: "title ." "intro ." "readouts ." "summary ."; }
+}
+@media (max-width: 720px) {
+  .swipe-hint { display: block; }
+  .readouts { flex-wrap: wrap; row-gap: .25rem; }
+}

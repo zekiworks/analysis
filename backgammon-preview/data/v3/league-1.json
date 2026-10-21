@@ -1,0 +1,1664 @@
+{
+ "dataset": "league-1",
+ "decisions": 33255,
+ "finished": "2026-10-20T20:41:52.870Z",
+ "games": 808,
+ "id": 1,
+ "matches": 153,
+ "matches_done": 153,
+ "metric_status": "Published",
+ "scored": 33255,
+ "setups": {
+  "Celeris-1 Decision": {
+   "quality": {
+    "auroc": 0.6610465008180871,
+    "best_share": 0.4797687861271676,
+    "blunder_share": 0.2418111753371869,
+    "brier": 0.2768455202312139,
+    "clusters": 102,
+    "confidence_n": 2076,
+    "confident_badly_wrong": 0.026493256262042388,
+    "cost_coverage": 1.0,
+    "decisions": 2076,
+    "ece": 0.19679672447013488,
+    "engine_scored": 2076,
+    "error_hi": 35.52869910089613,
+    "error_lo": 28.875330180370455,
+    "error_rate": 32.23392185046264,
+    "first_date": "2026-10-19",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.6740992292870905,
+    "over_budget": 0.0,
+    "p95_loss": 0.30135586857795715,
+    "probability_source": "decision",
+    "retry_mean": 0.0,
+    "scored": 2076,
+    "time_median": 0.166,
+    "time_p90": 0.2845,
+    "tokens_in": 3705.2880539499038,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "usd_per_1000": 0.14821152215799616,
+    "very_confident": 0.21579961464354527,
+    "worst_mean": 0.49102369667245793
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.6924346076458753,
+      "mean_loss": 0.15742235326431167,
+      "n": 497,
+      "share": 0.31257861635220124
+     },
+     "risk_took": {
+      "confidence": 0.5720512820512821,
+      "mean_loss": 0.06426511564825335,
+      "n": 234,
+      "share": 0.1471698113207547
+     },
+     "safety_safe": {
+      "confidence": 0.7178807106598984,
+      "mean_loss": 0.023103966401313163,
+      "n": 788,
+      "share": 0.49559748427672956
+     },
+     "safety_took": {
+      "confidence": 0.5776056338028168,
+      "mean_loss": 0.11383748348330108,
+      "n": 71,
+      "share": 0.04465408805031446
+     }
+    },
+    "decisions": 1590,
+    "needless_risk": 0.08265424912689173,
+    "no_risk_choice": 486,
+    "risk_pays": 731,
+    "risk_too_few": false,
+    "safety_pays": 859,
+    "safety_too_few": false,
+    "takes_risk": 0.320109439124487,
+    "too_few": false
+   },
+   "slug": "celeris-1-decision"
+  },
+  "Clef": {
+   "quality": {
+    "auroc": 0.7133834144204001,
+    "best_share": 0.45067385444743935,
+    "blunder_share": 0.2733153638814016,
+    "brier": 0.2453275635035307,
+    "clusters": 86,
+    "confidence_n": 1841,
+    "confident_badly_wrong": 0.0,
+    "cost_coverage": 0.0,
+    "decisions": 1855,
+    "ece": 0.1808959804454101,
+    "engine_scored": 1855,
+    "error_hi": 41.34299714057318,
+    "error_lo": 33.37347719238361,
+    "error_rate": 37.27126201047409,
+    "first_date": "2026-10-15",
+    "group_sizes": [
+     56,
+     57,
+     63,
+     66,
+     67,
+     73,
+     77,
+     78,
+     85,
+     96
+    ],
+    "grouped": 14,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.2721186854970125,
+    "over_budget": 0.005390835579514825,
+    "p95_loss": 0.34246652722358695,
+    "probability_source": "decision",
+    "retry_mean": 7.225933692722372,
+    "scored": 1855,
+    "time_median": 4.373,
+    "time_p90": 8.265600000000004,
+    "tokens_in": 4039.1504043126683,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "very_confident": 0.0,
+    "worst_mean": 0.5723799255586439
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.2103,
+      "mean_loss": 0.15280382276978344,
+      "n": 256,
+      "share": 0.1797752808988764
+     },
+     "risk_took": {
+      "confidence": 0.1935354609929078,
+      "mean_loss": 0.09846936275491196,
+      "n": 423,
+      "share": 0.2970505617977528
+     },
+     "safety_safe": {
+      "confidence": 0.2865149362477231,
+      "mean_loss": 0.025788422870722843,
+      "n": 549,
+      "share": 0.38553370786516855
+     },
+     "safety_took": {
+      "confidence": 0.25136938775510204,
+      "mean_loss": 0.1844338964746923,
+      "n": 196,
+      "share": 0.13764044943820225
+     }
+    },
+    "decisions": 1424,
+    "needless_risk": 0.26308724832214764,
+    "no_risk_choice": 431,
+    "risk_pays": 679,
+    "risk_too_few": false,
+    "safety_pays": 745,
+    "safety_too_few": false,
+    "takes_risk": 0.6229749631811488,
+    "too_few": false
+   },
+   "slug": "clef"
+  },
+  "Cygnet (Gemma 4 12B)": {
+   "quality": {
+    "auroc": 0.6630276516163505,
+    "best_share": 0.4256,
+    "blunder_share": 0.28426666666666667,
+    "brier": 0.2835593070956846,
+    "clusters": 94,
+    "confidence_n": 1745,
+    "confident_badly_wrong": 0.009742120343839542,
+    "cost_coverage": 0.0,
+    "decisions": 1875,
+    "ece": 0.23493548811549744,
+    "engine_scored": 1875,
+    "error_hi": 43.21471648353533,
+    "error_lo": 36.37871004598664,
+    "error_rate": 39.563546355565386,
+    "first_date": "2026-10-15",
+    "group_sizes": [
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26
+    ],
+    "grouped": 130,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.6688641445684272,
+    "over_budget": 0.0005333333333333334,
+    "p95_loss": 0.35825602412223806,
+    "probability_source": "decision",
+    "retry_mean": 0.0,
+    "scored": 1875,
+    "time_median": 0.695,
+    "time_p90": 3.2546,
+    "tokens_in": 4734.263466666666,
+    "tokens_out": 1.4922666666666666,
+    "too_few": false,
+    "very_confident": 0.08424068767908309,
+    "worst_mean": 0.5801941850718032
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.6575594906962658,
+      "mean_loss": 0.16828407086920008,
+      "n": 458,
+      "share": 0.32574679943101
+     },
+     "risk_took": {
+      "confidence": 0.5846361039415549,
+      "mean_loss": 0.09060674758107813,
+      "n": 222,
+      "share": 0.15789473684210525
+     },
+     "safety_safe": {
+      "confidence": 0.7109306010648815,
+      "mean_loss": 0.02948469584792994,
+      "n": 631,
+      "share": 0.4487908961593172
+     },
+     "safety_took": {
+      "confidence": 0.5766825692268218,
+      "mean_loss": 0.1707296885942158,
+      "n": 95,
+      "share": 0.06756756756756757
+     }
+    },
+    "decisions": 1406,
+    "needless_risk": 0.13085399449035812,
+    "no_risk_choice": 469,
+    "risk_pays": 680,
+    "risk_too_few": false,
+    "safety_pays": 726,
+    "safety_too_few": false,
+    "takes_risk": 0.3264705882352941,
+    "too_few": false
+   },
+   "slug": "cygnet-gemma-4-12b"
+  },
+  "Decider Flash v1.2": {
+   "quality": {
+    "auroc": 0.7274880165781148,
+    "best_share": 0.36164229471316084,
+    "blunder_share": 0.37851518560179975,
+    "brier": 0.20155360425876417,
+    "clusters": 88,
+    "confidence_n": 1586,
+    "confident_badly_wrong": 0.0,
+    "cost_coverage": 1.0,
+    "decisions": 1778,
+    "ece": 0.02927405771383982,
+    "engine_scored": 1778,
+    "error_hi": 64.08378863305883,
+    "error_lo": 53.65079369449825,
+    "error_rate": 58.434757551741946,
+    "first_date": "2026-10-19",
+    "group_sizes": [
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "grouped": 192,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.3696819385199416,
+    "over_budget": 0.0,
+    "p95_loss": 0.5286806434392924,
+    "probability_source": "decision",
+    "retry_mean": 0.8186822272215972,
+    "scored": 1778,
+    "time_median": 0.568,
+    "time_p90": 0.9451999999999998,
+    "tokens_in": 4429.407199100113,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "usd_per_1000": 0.04429407199100112,
+    "very_confident": 0.0018915510718789407,
+    "worst_mean": 0.7561329619938069
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.35292763600374677,
+      "mean_loss": 0.17069309402940872,
+      "n": 267,
+      "share": 0.2036613272311213
+     },
+     "risk_took": {
+      "confidence": 0.31663904219950584,
+      "mean_loss": 0.16806825524454871,
+      "n": 367,
+      "share": 0.2799389778794813
+     },
+     "safety_safe": {
+      "confidence": 0.43064406327023513,
+      "mean_loss": 0.0455876264679298,
+      "n": 445,
+      "share": 0.33943554538520215
+     },
+     "safety_took": {
+      "confidence": 0.346120601726018,
+      "mean_loss": 0.2479656221794671,
+      "n": 232,
+      "share": 0.17696414950419528
+     }
+    },
+    "decisions": 1311,
+    "needless_risk": 0.34268833087149186,
+    "no_risk_choice": 467,
+    "risk_pays": 634,
+    "risk_too_few": false,
+    "safety_pays": 677,
+    "safety_too_few": false,
+    "takes_risk": 0.5788643533123028,
+    "too_few": false
+   },
+   "slug": "decider-flash-v1-2"
+  },
+  "Decider v1.1 27B": {
+   "quality": {
+    "auroc": 0.7457294455600179,
+    "best_share": 0.466070489216202,
+    "blunder_share": 0.27038400841662286,
+    "brier": 0.21251650775464015,
+    "clusters": 92,
+    "confidence_n": 1694,
+    "confident_badly_wrong": 0.004722550177095631,
+    "cost_coverage": 1.0,
+    "decisions": 1901,
+    "ece": 0.09758628458992816,
+    "engine_scored": 1901,
+    "error_hi": 41.25737155349943,
+    "error_lo": 34.631769875205144,
+    "error_rate": 37.99800154631041,
+    "first_date": "2026-10-15",
+    "group_sizes": [
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "grouped": 207,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.5835610587158108,
+    "over_budget": 0.008942661756970016,
+    "p95_loss": 0.37686705589294434,
+    "probability_source": "decision",
+    "retry_mean": 4.944177801157285,
+    "scored": 1901,
+    "time_median": 3.102,
+    "time_p90": 9.317,
+    "tokens_in": 4450.358232509206,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "usd_per_1000": 0.08900716465018411,
+    "very_confident": 0.1050767414403778,
+    "worst_mean": 0.5459746000013853
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.5531215186131162,
+      "mean_loss": 0.1794321229380946,
+      "n": 372,
+      "share": 0.2612359550561798
+     },
+     "risk_took": {
+      "confidence": 0.5199627675356984,
+      "mean_loss": 0.07434031037347658,
+      "n": 280,
+      "share": 0.19662921348314608
+     },
+     "safety_safe": {
+      "confidence": 0.6454163447967,
+      "mean_loss": 0.022787568937753133,
+      "n": 621,
+      "share": 0.43609550561797755
+     },
+     "safety_took": {
+      "confidence": 0.4843620194120007,
+      "mean_loss": 0.20073766700479367,
+      "n": 151,
+      "share": 0.10603932584269662
+     }
+    },
+    "decisions": 1424,
+    "needless_risk": 0.1955958549222798,
+    "no_risk_choice": 477,
+    "risk_pays": 652,
+    "risk_too_few": false,
+    "safety_pays": 772,
+    "safety_too_few": false,
+    "takes_risk": 0.4294478527607362,
+    "too_few": false
+   },
+   "slug": "decider-v1-1-27b"
+  },
+  "Decider v1.2 27B": {
+   "quality": {
+    "auroc": 0.7378415102150511,
+    "best_share": 0.47168709865732633,
+    "blunder_share": 0.2825452422650321,
+    "brier": 0.20790377994932815,
+    "clusters": 84,
+    "confidence_n": 1548,
+    "confident_badly_wrong": 0.0,
+    "cost_coverage": 1.0,
+    "decisions": 1713,
+    "ece": 0.029704080477119914,
+    "engine_scored": 1713,
+    "error_hi": 40.449554803010535,
+    "error_lo": 33.84459916009099,
+    "error_rate": 37.084507328059615,
+    "first_date": "2026-10-20",
+    "group_sizes": [
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "grouped": 165,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.47023826390715334,
+    "over_budget": 0.0,
+    "p95_loss": 0.3349610328674314,
+    "probability_source": "decision",
+    "retry_mean": 2.5148972562755403,
+    "scored": 1713,
+    "time_median": 0.912,
+    "time_p90": 2.097999999999997,
+    "tokens_in": 4300.155866900175,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "usd_per_1000": 0.0860031173380035,
+    "very_confident": 0.02260981912144703,
+    "worst_mean": 0.49811754462330843
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.45267379225801,
+      "mean_loss": 0.15763672487127467,
+      "n": 341,
+      "share": 0.2579425113464448
+     },
+     "risk_took": {
+      "confidence": 0.3890687712858852,
+      "mean_loss": 0.07064489624463022,
+      "n": 256,
+      "share": 0.19364599092284418
+     },
+     "safety_safe": {
+      "confidence": 0.513822018770039,
+      "mean_loss": 0.03164634316121761,
+      "n": 603,
+      "share": 0.45612708018154313
+     },
+     "safety_took": {
+      "confidence": 0.39987063319035904,
+      "mean_loss": 0.1828615286799728,
+      "n": 122,
+      "share": 0.09228441754916793
+     }
+    },
+    "decisions": 1322,
+    "needless_risk": 0.16827586206896553,
+    "no_risk_choice": 391,
+    "risk_pays": 597,
+    "risk_too_few": false,
+    "safety_pays": 725,
+    "safety_too_few": false,
+    "takes_risk": 0.4288107202680067,
+    "too_few": false
+   },
+   "slug": "decider-v1-2-27b"
+  },
+  "Fastino GLiDE": {
+   "quality": {
+    "auroc": 0.7368873541513205,
+    "best_share": 0.46030150753768845,
+    "blunder_share": 0.271356783919598,
+    "brier": 0.20640205013648946,
+    "clusters": 92,
+    "confidence_n": 1989,
+    "confident_badly_wrong": 0.0,
+    "cost_coverage": 0.0,
+    "decisions": 1990,
+    "ece": 0.01732798917144525,
+    "engine_scored": 1990,
+    "error_hi": 40.68968057362841,
+    "error_lo": 33.5324222570203,
+    "error_rate": 37.133424875125215,
+    "first_date": "2026-10-20",
+    "group_sizes": [
+     152
+    ],
+    "grouped": 1,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.47490652939334155,
+    "over_budget": 0.0,
+    "p95_loss": 0.35805087536573404,
+    "probability_source": "decision",
+    "retry_mean": 0.0,
+    "scored": 1990,
+    "time_median": 0.425,
+    "time_p90": 0.7,
+    "tokens_in": 3880.5155778894473,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "very_confident": 0.013071895424836602,
+    "worst_mean": 0.52452038615942
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.4253565146266325,
+      "mean_loss": 0.142535516934997,
+      "n": 293,
+      "share": 0.19263642340565418
+     },
+     "risk_took": {
+      "confidence": 0.3937668877687412,
+      "mean_loss": 0.09421379402021025,
+      "n": 403,
+      "share": 0.26495726495726496
+     },
+     "safety_safe": {
+      "confidence": 0.5204618265022626,
+      "mean_loss": 0.02520528033231999,
+      "n": 622,
+      "share": 0.4089414858645628
+     },
+     "safety_took": {
+      "confidence": 0.3783158591202102,
+      "mean_loss": 0.20076068369625824,
+      "n": 203,
+      "share": 0.1334648257725181
+     }
+    },
+    "decisions": 1521,
+    "needless_risk": 0.24606060606060606,
+    "no_risk_choice": 469,
+    "risk_pays": 696,
+    "risk_too_few": false,
+    "safety_pays": 825,
+    "safety_too_few": false,
+    "takes_risk": 0.5790229885057471,
+    "too_few": false
+   },
+   "slug": "fastino-glide"
+  },
+  "GNUbg weak": {
+   "quality": {
+    "best_share": 0.4906726964386659,
+    "blunder_share": 0.21594120972300734,
+    "clusters": 76,
+    "cost_coverage": 0.0,
+    "decisions": 1769,
+    "engine_scored": 1769,
+    "error_hi": 27.024259931018584,
+    "error_lo": 20.888839598181796,
+    "error_rate": 23.799138875449696,
+    "first_date": "2026-10-16",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "over_budget": 0.0,
+    "p95_loss": 0.22836965322494499,
+    "probability_source": null,
+    "retry_mean": 1.695873374788016e-05,
+    "scored": 1769,
+    "time_median": 0.01,
+    "time_p90": 0.01,
+    "too_few": false,
+    "worst_mean": 0.3244337226179513
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": null,
+      "mean_loss": 0.07284209929721457,
+      "n": 71,
+      "share": 0.04951185495118549
+     },
+     "risk_took": {
+      "confidence": null,
+      "mean_loss": 0.057910666604277114,
+      "n": 568,
+      "share": 0.39609483960948394
+     },
+     "safety_safe": {
+      "confidence": null,
+      "mean_loss": 0.012162753571414579,
+      "n": 518,
+      "share": 0.3612273361227336
+     },
+     "safety_took": {
+      "confidence": null,
+      "mean_loss": 0.12583071897176198,
+      "n": 277,
+      "share": 0.19316596931659694
+     }
+    },
+    "decisions": 1434,
+    "needless_risk": 0.3484276729559748,
+    "no_risk_choice": 335,
+    "risk_pays": 639,
+    "risk_too_few": false,
+    "safety_pays": 795,
+    "safety_too_few": false,
+    "takes_risk": 0.8888888888888888,
+    "too_few": false
+   },
+   "slug": "gnubg-weak"
+  },
+  "GPT-6 Luna": {
+   "quality": {
+    "auroc": 0.657166318570485,
+    "best_share": 0.4255663430420712,
+    "blunder_share": 0.2815533980582524,
+    "brier": 0.24989741100323623,
+    "clusters": 94,
+    "confidence_n": 1854,
+    "confident_badly_wrong": 0.005393743257820928,
+    "cost_coverage": 1.0,
+    "decisions": 1854,
+    "ece": 0.13635382955771305,
+    "engine_scored": 1854,
+    "error_hi": 46.517043116414335,
+    "error_lo": 38.79875992814315,
+    "error_rate": 42.51281131850606,
+    "first_date": "2026-10-19",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.5612837108953613,
+    "over_budget": 0.0,
+    "p95_loss": 0.40679314732551536,
+    "probability_source": "decision",
+    "retry_mean": 0.00482200647249191,
+    "scored": 1854,
+    "time_median": 0.223,
+    "time_p90": 0.283,
+    "tokens_in": 3375.4719525350592,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "usd_per_1000": 0.33754719525350596,
+    "very_confident": 0.0593311758360302,
+    "worst_mean": 0.618910466150571
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.555089108910891,
+      "mean_loss": 0.18459380493305697,
+      "n": 505,
+      "share": 0.37658463832960476
+     },
+     "risk_took": {
+      "confidence": 0.45391534391534394,
+      "mean_loss": 0.1055080166884831,
+      "n": 189,
+      "share": 0.14093959731543623
+     },
+     "safety_safe": {
+      "confidence": 0.610034843205575,
+      "mean_loss": 0.026610452850521233,
+      "n": 574,
+      "share": 0.4280387770320656
+     },
+     "safety_took": {
+      "confidence": 0.4508219178082191,
+      "mean_loss": 0.18296599673898253,
+      "n": 73,
+      "share": 0.054436987322893364
+     }
+    },
+    "decisions": 1341,
+    "needless_risk": 0.11282843894899536,
+    "no_risk_choice": 513,
+    "risk_pays": 694,
+    "risk_too_few": false,
+    "safety_pays": 647,
+    "safety_too_few": false,
+    "takes_risk": 0.2723342939481268,
+    "too_few": false
+   },
+   "slug": "gpt-6-luna"
+  },
+  "Jev 1.13.0": {
+   "quality": {
+    "auroc": 0.7152431323234897,
+    "best_share": 0.5073142188414277,
+    "blunder_share": 0.25629022820362785,
+    "brier": 0.21751018139262726,
+    "clusters": 84,
+    "confidence_n": 1709,
+    "confident_badly_wrong": 0.004095962551199532,
+    "cost_coverage": 1.0,
+    "decisions": 1709,
+    "ece": 0.05411936805149208,
+    "engine_scored": 1709,
+    "error_hi": 38.34334459096691,
+    "error_lo": 31.197060519305023,
+    "error_rate": 34.789315828668784,
+    "first_date": "2026-10-19",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.5611176126389702,
+    "over_budget": 0.0,
+    "p95_loss": 0.35099081993103004,
+    "probability_source": "decision",
+    "retry_mean": 0.0,
+    "scored": 1709,
+    "time_median": 0.221,
+    "time_p90": 0.259,
+    "tokens_in": 3958.3007606787596,
+    "tokens_out": 259.43768285547105,
+    "too_few": false,
+    "usd_per_1000": 0.16624863194850792,
+    "very_confident": 0.05032182562902282,
+    "worst_mean": 0.5232507674133077
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.5179434447300771,
+      "mean_loss": 0.18400369243634085,
+      "n": 389,
+      "share": 0.29581749049429656
+     },
+     "risk_took": {
+      "confidence": 0.4316589861751152,
+      "mean_loss": 0.08373372483363349,
+      "n": 217,
+      "share": 0.1650190114068441
+     },
+     "safety_safe": {
+      "confidence": 0.6132093023255814,
+      "mean_loss": 0.01526096315346947,
+      "n": 645,
+      "share": 0.49049429657794674
+     },
+     "safety_took": {
+      "confidence": 0.44625,
+      "mean_loss": 0.1320426920428872,
+      "n": 64,
+      "share": 0.048669201520912544
+     }
+    },
+    "decisions": 1315,
+    "needless_risk": 0.09026798307475317,
+    "no_risk_choice": 394,
+    "risk_pays": 606,
+    "risk_too_few": false,
+    "safety_pays": 709,
+    "safety_too_few": false,
+    "takes_risk": 0.3580858085808581,
+    "too_few": false
+   },
+   "slug": "jev-1-13-0"
+  },
+  "Jev 1.14.0": {
+   "quality": {
+    "auroc": 0.7441643029730014,
+    "best_share": 0.46017222820236814,
+    "blunder_share": 0.25780409041980623,
+    "brier": 0.20885121163166398,
+    "clusters": 88,
+    "confidence_n": 1857,
+    "confident_badly_wrong": 0.0005385029617662897,
+    "cost_coverage": 1.0,
+    "decisions": 1858,
+    "ece": 0.07575121163166401,
+    "engine_scored": 1858,
+    "error_hi": 39.447345022198206,
+    "error_lo": 31.696849502481463,
+    "error_rate": 35.29669090993181,
+    "first_date": "2026-10-19",
+    "group_sizes": [
+     139
+    ],
+    "grouped": 1,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.5361712439418417,
+    "over_budget": 0.0,
+    "p95_loss": 0.3287806153297421,
+    "probability_source": "decision",
+    "retry_mean": 0.00015069967707212058,
+    "scored": 1858,
+    "time_median": 0.219,
+    "time_p90": 0.28929999999999995,
+    "tokens_in": 4015.5796555435954,
+    "tokens_out": 268.9903121636168,
+    "too_few": false,
+    "usd_per_1000": 0.168654345532831,
+    "very_confident": 0.029079159935379646,
+    "worst_mean": 0.5103494967183759
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.4920704845814978,
+      "mean_loss": 0.15793261391475863,
+      "n": 454,
+      "share": 0.3174825174825175
+     },
+     "risk_took": {
+      "confidence": 0.4172357723577236,
+      "mean_loss": 0.06871981276729243,
+      "n": 246,
+      "share": 0.17202797202797201
+     },
+     "safety_safe": {
+      "confidence": 0.5986356589147287,
+      "mean_loss": 0.02033630336901938,
+      "n": 645,
+      "share": 0.45104895104895104
+     },
+     "safety_took": {
+      "confidence": 0.4011764705882353,
+      "mean_loss": 0.17778127228512483,
+      "n": 85,
+      "share": 0.05944055944055944
+     }
+    },
+    "decisions": 1430,
+    "needless_risk": 0.11643835616438356,
+    "no_risk_choice": 428,
+    "risk_pays": 700,
+    "risk_too_few": false,
+    "safety_pays": 730,
+    "safety_too_few": false,
+    "takes_risk": 0.3514285714285714,
+    "too_few": false
+   },
+   "slug": "jev-1-14-0"
+  },
+  "Liquid d1-ultra": {
+   "quality": {
+    "auroc": 0.7533354004252303,
+    "best_share": 0.5057015369360436,
+    "blunder_share": 0.2240951908775409,
+    "brier": 0.20955622819272876,
+    "clusters": 96,
+    "confidence_n": 2016,
+    "confident_badly_wrong": 0.0,
+    "cost_coverage": 1.0,
+    "decisions": 2017,
+    "ece": 0.08385422053923093,
+    "engine_scored": 2017,
+    "error_hi": 32.81959665178216,
+    "error_lo": 26.997022967800838,
+    "error_rate": 29.807513872467176,
+    "first_date": "2026-10-19",
+    "group_sizes": [
+     155
+    ],
+    "grouped": 1,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.42209816041315,
+    "over_budget": 0.0,
+    "p95_loss": 0.2950166821479782,
+    "probability_source": "decision",
+    "retry_mean": 0.0022895389191869113,
+    "scored": 2017,
+    "time_median": 0.27,
+    "time_p90": 0.7482000000000003,
+    "tokens_in": 3342.2647496281606,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "usd_per_1000": 0.14037511948438275,
+    "very_confident": 0.01488095238095238,
+    "worst_mean": 0.47983348930236136
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.3625325577166265,
+      "mean_loss": 0.15630975820388066,
+      "n": 367,
+      "share": 0.23754045307443367
+     },
+     "risk_took": {
+      "confidence": 0.36236758199338726,
+      "mean_loss": 0.06050285912421813,
+      "n": 332,
+      "share": 0.21488673139158576
+     },
+     "safety_safe": {
+      "confidence": 0.4736548686680631,
+      "mean_loss": 0.019696723125854472,
+      "n": 726,
+      "share": 0.46990291262135925
+     },
+     "safety_took": {
+      "confidence": 0.31987168085109957,
+      "mean_loss": 0.11828366766373316,
+      "n": 120,
+      "share": 0.07766990291262135
+     }
+    },
+    "decisions": 1545,
+    "needless_risk": 0.14184397163120568,
+    "no_risk_choice": 472,
+    "risk_pays": 699,
+    "risk_too_few": false,
+    "safety_pays": 846,
+    "safety_too_few": false,
+    "takes_risk": 0.474964234620887,
+    "too_few": false
+   },
+   "slug": "liquid-d1-ultra"
+  },
+  "Mercury Decide": {
+   "quality": {
+    "auroc": 0.6601392174002468,
+    "best_share": 0.41834451901565994,
+    "blunder_share": 0.2958612975391499,
+    "brier": 0.39921542249823144,
+    "clusters": 92,
+    "confidence_n": 1788,
+    "confident_badly_wrong": 0.1331096196868009,
+    "cost_coverage": 1.0,
+    "decisions": 1788,
+    "ece": 0.40728982707122363,
+    "engine_scored": 1788,
+    "error_hi": 51.85472482149494,
+    "error_lo": 42.017866137313746,
+    "error_rate": 46.758959832407484,
+    "first_date": "2026-10-20",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.8256343460868836,
+    "over_budget": 0.0,
+    "p95_loss": 0.4517417311668394,
+    "probability_source": "decision",
+    "retry_mean": 0.024074944071588368,
+    "scored": 1788,
+    "time_median": 0.473,
+    "time_p90": 0.6693,
+    "tokens_in": 3570.499440715884,
+    "tokens_out": 1.0,
+    "too_few": false,
+    "usd_per_1000": 0.07140998881431768,
+    "very_confident": 0.5318791946308725,
+    "worst_mean": 0.7095929655466187
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.8398491512179612,
+      "mean_loss": 0.20444557407889705,
+      "n": 495,
+      "share": 0.38854003139717425
+     },
+     "risk_took": {
+      "confidence": 0.753890782500065,
+      "mean_loss": 0.10108239160981147,
+      "n": 157,
+      "share": 0.12323390894819466
+     },
+     "safety_safe": {
+      "confidence": 0.8575335477731358,
+      "mean_loss": 0.02716877899386666,
+      "n": 550,
+      "share": 0.4317111459968603
+     },
+     "safety_took": {
+      "confidence": 0.7562975472152655,
+      "mean_loss": 0.23548201305998695,
+      "n": 72,
+      "share": 0.0565149136577708
+     }
+    },
+    "decisions": 1274,
+    "needless_risk": 0.1157556270096463,
+    "no_risk_choice": 514,
+    "risk_pays": 652,
+    "risk_too_few": false,
+    "safety_pays": 622,
+    "safety_too_few": false,
+    "takes_risk": 0.24079754601226994,
+    "too_few": false
+   },
+   "slug": "mercury-decide"
+  },
+  "Open-Jev 27B v1.1": {
+   "quality": {
+    "auroc": 0.7201544401544402,
+    "best_share": 0.3575076608784474,
+    "blunder_share": 0.38661899897854957,
+    "brier": 0.219447796503671,
+    "clusters": 96,
+    "confidence_n": 1958,
+    "confident_badly_wrong": 0.0,
+    "cost_coverage": 0.0,
+    "decisions": 1958,
+    "ece": 0.14672435165908937,
+    "engine_scored": 1958,
+    "error_hi": 71.99951682486406,
+    "error_lo": 59.664540272401204,
+    "error_rate": 65.69137728646534,
+    "first_date": "2026-10-15",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.210783309219358,
+    "over_budget": 0.0,
+    "p95_loss": 0.5915781617164609,
+    "probability_source": "decision",
+    "retry_mean": 2.4229816138917264,
+    "scored": 1958,
+    "time_median": 1.6275,
+    "time_p90": 3.6908999999999996,
+    "tokens_in": 35885.725740551585,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "very_confident": 0.0,
+    "worst_mean": 0.8237851858139038
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.15659877076744838,
+      "mean_loss": 0.20310114758221184,
+      "n": 254,
+      "share": 0.17663421418636996
+     },
+     "risk_took": {
+      "confidence": 0.13117791681824229,
+      "mean_loss": 0.17210325069965854,
+      "n": 434,
+      "share": 0.30180806675938804
+     },
+     "safety_safe": {
+      "confidence": 0.20261836562563626,
+      "mean_loss": 0.04875459412733714,
+      "n": 450,
+      "share": 0.3129346314325452
+     },
+     "safety_took": {
+      "confidence": 0.17150259043721283,
+      "mean_loss": 0.2836310467123985,
+      "n": 300,
+      "share": 0.2086230876216968
+     }
+    },
+    "decisions": 1438,
+    "needless_risk": 0.4,
+    "no_risk_choice": 520,
+    "risk_pays": 688,
+    "risk_too_few": false,
+    "safety_pays": 750,
+    "safety_too_few": false,
+    "takes_risk": 0.6308139534883721,
+    "too_few": false
+   },
+   "slug": "open-jev-27b-v1-1"
+  },
+  "Random": {
+   "quality": {
+    "best_share": 0.1642512077294686,
+    "blunder_share": 0.6038647342995169,
+    "clusters": 60,
+    "cost_coverage": 0.0,
+    "decisions": 1242,
+    "engine_scored": 1242,
+    "error_hi": 127.55672014959414,
+    "error_lo": 109.37066619230531,
+    "error_rate": 118.45622126510946,
+    "first_date": "2026-10-15",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "over_budget": 0.0,
+    "p95_loss": 0.8501751333475114,
+    "probability_source": null,
+    "retry_mean": 0.0,
+    "scored": 1242,
+    "time_median": 0.0,
+    "time_p90": 0.0,
+    "too_few": false,
+    "worst_mean": 1.0657782506558202
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": null,
+      "mean_loss": 0.2576929615749108,
+      "n": 91,
+      "share": 0.1047180667433832
+     },
+     "risk_took": {
+      "confidence": null,
+      "mean_loss": 0.30142173090253965,
+      "n": 332,
+      "share": 0.38204833141542005
+     },
+     "safety_safe": {
+      "confidence": null,
+      "mean_loss": 0.08718778637417576,
+      "n": 114,
+      "share": 0.13118527042577677
+     },
+     "safety_took": {
+      "confidence": null,
+      "mean_loss": 0.37813221546540776,
+      "n": 332,
+      "share": 0.38204833141542005
+     }
+    },
+    "decisions": 869,
+    "needless_risk": 0.7443946188340808,
+    "no_risk_choice": 373,
+    "risk_pays": 423,
+    "risk_too_few": false,
+    "safety_pays": 446,
+    "safety_too_few": false,
+    "takes_risk": 0.7848699763593381,
+    "too_few": false
+   },
+   "slug": "random"
+  },
+  "Safest": {
+   "quality": {
+    "best_share": 0.38238238238238237,
+    "blunder_share": 0.3538538538538539,
+    "clusters": 104,
+    "cost_coverage": 0.0,
+    "decisions": 1998,
+    "engine_scored": 1998,
+    "error_hi": 56.03785900048792,
+    "error_lo": 47.54619467739255,
+    "error_rate": 51.74509924393636,
+    "first_date": "2026-10-15",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "over_budget": 0.0,
+    "p95_loss": 0.4529208540916439,
+    "probability_source": null,
+    "retry_mean": 0.0,
+    "scored": 1998,
+    "time_median": 0.0,
+    "time_p90": 0.003,
+    "too_few": false,
+    "worst_mean": 0.661982175707817
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": null,
+      "mean_loss": 0.18714049204866937,
+      "n": 752,
+      "share": 0.5087956698240866
+     },
+     "risk_took": {
+      "confidence": null,
+      "mean_loss": null,
+      "n": 0,
+      "share": 0.0
+     },
+     "safety_safe": {
+      "confidence": null,
+      "mean_loss": 0.05015386595870509,
+      "n": 726,
+      "share": 0.4912043301759134
+     },
+     "safety_took": {
+      "confidence": null,
+      "mean_loss": null,
+      "n": 0,
+      "share": 0.0
+     }
+    },
+    "decisions": 1478,
+    "needless_risk": 0.0,
+    "no_risk_choice": 520,
+    "risk_pays": 752,
+    "risk_too_few": false,
+    "safety_pays": 726,
+    "safety_too_few": false,
+    "takes_risk": 0.0,
+    "too_few": false
+   },
+   "slug": "safest"
+  },
+  "SubQ Snap Preview": {
+   "quality": {
+    "auroc": 0.7314311689736201,
+    "best_share": 0.40817356205852673,
+    "blunder_share": 0.32996972754793136,
+    "brier": 0.20637241977003204,
+    "clusters": 96,
+    "confidence_n": 1981,
+    "confident_badly_wrong": 0.0,
+    "cost_coverage": 1.0,
+    "decisions": 1982,
+    "ece": 0.058541470150388505,
+    "engine_scored": 1982,
+    "error_hi": 52.662717622680425,
+    "error_lo": 42.44655157494875,
+    "error_rate": 47.469241490097026,
+    "first_date": "2026-10-15",
+    "group_sizes": [
+     178
+    ],
+    "grouped": 1,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.46323608910003916,
+    "over_budget": 0.0,
+    "p95_loss": 0.43347959518432594,
+    "probability_source": "decision",
+    "retry_mean": 0.0,
+    "scored": 1982,
+    "time_median": 0.232,
+    "time_p90": 0.28790000000000004,
+    "tokens_in": 3858.71190716448,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "usd_per_1000": 0.19293559535822402,
+    "very_confident": 0.011610297829379102,
+    "worst_mean": 0.6811961718279906
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.43215505537674104,
+      "mean_loss": 0.18446304863947302,
+      "n": 326,
+      "share": 0.2180602006688963
+     },
+     "risk_took": {
+      "confidence": 0.380711022586106,
+      "mean_loss": 0.1273956892496728,
+      "n": 376,
+      "share": 0.25150501672240805
+     },
+     "safety_safe": {
+      "confidence": 0.510517843067646,
+      "mean_loss": 0.030978093013681214,
+      "n": 580,
+      "share": 0.3879598662207358
+     },
+     "safety_took": {
+      "confidence": 0.3857618349608681,
+      "mean_loss": 0.21287251568176377,
+      "n": 213,
+      "share": 0.14247491638795987
+     }
+    },
+    "decisions": 1495,
+    "needless_risk": 0.2686002522068096,
+    "no_risk_choice": 487,
+    "risk_pays": 702,
+    "risk_too_few": false,
+    "safety_pays": 793,
+    "safety_too_few": false,
+    "takes_risk": 0.5356125356125356,
+    "too_few": false
+   },
+   "slug": "subq-snap-preview"
+  },
+  "Winnow-12B": {
+   "quality": {
+    "auroc": 0.6780088360755637,
+    "best_share": 0.3858350951374207,
+    "blunder_share": 0.32082452431289643,
+    "brier": 0.25992653485136447,
+    "clusters": 92,
+    "confidence_n": 1814,
+    "confident_badly_wrong": 0.017089305402425578,
+    "cost_coverage": 0.0,
+    "decisions": 1892,
+    "ece": 0.19384235736607652,
+    "engine_scored": 1892,
+    "error_hi": 51.99760038007164,
+    "error_lo": 44.48711959021659,
+    "error_rate": 48.258876250800824,
+    "first_date": "2026-10-19",
+    "group_sizes": [
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40
+    ],
+    "grouped": 78,
+    "invalid": 0,
+    "last_date": "2026-10-20",
+    "mean_confidence": 0.5907552570353157,
+    "over_budget": 0.0010570824524312897,
+    "p95_loss": 0.44801294207572934,
+    "probability_source": "decision",
+    "retry_mean": 0.0,
+    "scored": 1892,
+    "time_median": 3.0755,
+    "time_p90": 5.544300000000001,
+    "tokens_in": 4079.4334038054967,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "very_confident": 0.11356119073869901,
+    "worst_mean": 0.6829891013471704
+   },
+   "risk": {
+    "cells": {
+     "risk_safe": {
+      "confidence": 0.5909431528704212,
+      "mean_loss": 0.18735127567604024,
+      "n": 372,
+      "share": 0.26571428571428574
+     },
+     "risk_took": {
+      "confidence": 0.5319688563192869,
+      "mean_loss": 0.11265892423583833,
+      "n": 353,
+      "share": 0.25214285714285717
+     },
+     "safety_safe": {
+      "confidence": 0.6722585736512925,
+      "mean_loss": 0.0333100657634698,
+      "n": 514,
+      "share": 0.36714285714285716
+     },
+     "safety_took": {
+      "confidence": 0.48774178989901107,
+      "mean_loss": 0.22901923926720708,
+      "n": 161,
+      "share": 0.115
+     }
+    },
+    "decisions": 1400,
+    "needless_risk": 0.23851851851851852,
+    "no_risk_choice": 492,
+    "risk_pays": 725,
+    "risk_too_few": false,
+    "safety_pays": 675,
+    "safety_too_few": false,
+    "takes_risk": 0.4868965517241379,
+    "too_few": false
+   },
+   "slug": "winnow-12b"
+  }
+ },
+ "standings": [
+  {
+   "drawn": 0,
+   "games_lost": 33,
+   "games_won": 63,
+   "gammons_won": 20,
+   "lost": 2,
+   "name": "Liquid d1-ultra",
+   "place": 1,
+   "played": 17,
+   "points": 45,
+   "to_play": 0,
+   "won": 15
+  },
+  {
+   "drawn": 0,
+   "games_lost": 26,
+   "games_won": 50,
+   "gammons_won": 33,
+   "lost": 2,
+   "name": "GNUbg weak",
+   "place": 2,
+   "played": 17,
+   "points": 45,
+   "to_play": 0,
+   "won": 15
+  },
+  {
+   "drawn": 0,
+   "games_lost": 34,
+   "games_won": 54,
+   "gammons_won": 18,
+   "lost": 5,
+   "name": "Jev 1.14.0",
+   "place": 3,
+   "played": 17,
+   "points": 36,
+   "to_play": 0,
+   "won": 12
+  },
+  {
+   "drawn": 0,
+   "games_lost": 32,
+   "games_won": 52,
+   "gammons_won": 23,
+   "lost": 5,
+   "name": "Jev 1.13.0",
+   "place": 4,
+   "played": 17,
+   "points": 36,
+   "to_play": 0,
+   "won": 12
+  },
+  {
+   "drawn": 1,
+   "games_lost": 38,
+   "games_won": 54,
+   "gammons_won": 14,
+   "lost": 5,
+   "name": "Fastino GLiDE",
+   "place": 5,
+   "played": 17,
+   "points": 34,
+   "to_play": 0,
+   "won": 11
+  },
+  {
+   "drawn": 0,
+   "games_lost": 28,
+   "games_won": 56,
+   "gammons_won": 20,
+   "lost": 6,
+   "name": "Decider v1.2 27B",
+   "place": 6,
+   "played": 17,
+   "points": 33,
+   "to_play": 0,
+   "won": 11
+  },
+  {
+   "drawn": 1,
+   "games_lost": 41,
+   "games_won": 53,
+   "gammons_won": 13,
+   "lost": 6,
+   "name": "Cygnet (Gemma 4 12B)",
+   "place": 7,
+   "played": 17,
+   "points": 31,
+   "to_play": 0,
+   "won": 10
+  },
+  {
+   "drawn": 3,
+   "games_lost": 45,
+   "games_won": 57,
+   "gammons_won": 14,
+   "lost": 5,
+   "name": "Celeris-1 Decision",
+   "place": 8,
+   "played": 17,
+   "points": 30,
+   "to_play": 0,
+   "won": 9
+  },
+  {
+   "drawn": 2,
+   "games_lost": 43,
+   "games_won": 43,
+   "gammons_won": 16,
+   "lost": 6,
+   "name": "Clef",
+   "place": 9,
+   "played": 17,
+   "points": 29,
+   "to_play": 0,
+   "won": 9
+  },
+  {
+   "drawn": 0,
+   "games_lost": 47,
+   "games_won": 45,
+   "gammons_won": 16,
+   "lost": 8,
+   "name": "Decider v1.1 27B",
+   "place": 10,
+   "played": 17,
+   "points": 27,
+   "to_play": 0,
+   "won": 9
+  },
+  {
+   "drawn": 1,
+   "games_lost": 42,
+   "games_won": 54,
+   "gammons_won": 14,
+   "lost": 8,
+   "name": "SubQ Snap Preview",
+   "place": 11,
+   "played": 17,
+   "points": 25,
+   "to_play": 0,
+   "won": 8
+  },
+  {
+   "drawn": 0,
+   "games_lost": 48,
+   "games_won": 46,
+   "gammons_won": 9,
+   "lost": 9,
+   "name": "GPT-6 Luna",
+   "place": 12,
+   "played": 17,
+   "points": 24,
+   "to_play": 0,
+   "won": 8
+  },
+  {
+   "drawn": 1,
+   "games_lost": 53,
+   "games_won": 39,
+   "gammons_won": 9,
+   "lost": 10,
+   "name": "Mercury Decide",
+   "place": 13,
+   "played": 17,
+   "points": 19,
+   "to_play": 0,
+   "won": 6
+  },
+  {
+   "drawn": 0,
+   "games_lost": 52,
+   "games_won": 40,
+   "gammons_won": 9,
+   "lost": 13,
+   "name": "Winnow-12B",
+   "place": 14,
+   "played": 17,
+   "points": 12,
+   "to_play": 0,
+   "won": 4
+  },
+  {
+   "drawn": 3,
+   "games_lost": 65,
+   "games_won": 39,
+   "gammons_won": 9,
+   "lost": 11,
+   "name": "Safest",
+   "place": 15,
+   "played": 17,
+   "points": 12,
+   "to_play": 0,
+   "won": 3
+  },
+  {
+   "drawn": 2,
+   "games_lost": 67,
+   "games_won": 29,
+   "gammons_won": 5,
+   "lost": 13,
+   "name": "Open-Jev 27B v1.1",
+   "place": 16,
+   "played": 17,
+   "points": 8,
+   "to_play": 0,
+   "won": 2
+  },
+  {
+   "drawn": 0,
+   "games_lost": 60,
+   "games_won": 28,
+   "gammons_won": 6,
+   "lost": 15,
+   "name": "Decider Flash v1.2",
+   "place": 17,
+   "played": 17,
+   "points": 6,
+   "to_play": 0,
+   "won": 2
+  },
+  {
+   "drawn": 0,
+   "games_lost": 54,
+   "games_won": 6,
+   "gammons_won": 0,
+   "lost": 17,
+   "name": "Random",
+   "place": 18,
+   "played": 17,
+   "points": 0,
+   "to_play": 0,
+   "won": 0
+  }
+ ],
+ "started": "2026-10-15T10:44:36.288Z",
+ "state": "finished",
+ "status": "Finished",
+ "version": "v3"
+}
