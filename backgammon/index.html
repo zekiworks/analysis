@@ -115,8 +115,8 @@
   <main>
     <section id="v3" aria-labelledby="v3-title">
       <h2 id="v3-title">v3 leagues (in progress)</h2>
-      <p class="note"><strong id="v3-live"><!-- v3:live -->Live: data as of 21 October 2026, 13:45 UTC · updates every 15 minutes<!-- /v3:live --></strong>.
-        <span id="v3-status"><!-- v3:status -->League 1 has finished; League 2 has 5 of 136 matches to play (3 playing); League 3 has 1 of 55 matches to play (1 playing).<!-- /v3:status --></span></p>
+      <p class="note"><strong id="v3-live"><!-- v3:live -->Live: data as of 21 October 2026, 13:49 UTC · updates every 15 minutes<!-- /v3:live --></strong>.
+        <span id="v3-status"><!-- v3:status -->League 1 has finished; League 2 has 5 of 136 matches to play (3 playing); League 3 has finished.<!-- /v3:status --></span></p>
       <p>v3 keeps the v1 match rules (rounds of two games with the same dice, 3 rounds, 300-turn limit, no cube) and changes
         how the models are asked:</p>
       <ul>
@@ -136,7 +136,7 @@
           anchor.</li>
       </ul>
       <p>Every model decision in the matches that count was scored with GNU Backgammon, as in v1 (see
-        <a href="#error-rate">Error rate</a> for the method and the human scale): all <span id="v3-scored"><!-- v3:scored -->76,834<!-- /v3:scored --></span>
+        <a href="#error-rate">Error rate</a> for the method and the human scale): all <span id="v3-scored"><!-- v3:scored -->76,836<!-- /v3:scored --></span>
         decisions, none skipped.</p>
       <h3 id="v3-l1">League 1: decision models</h3>
       <p class="muted" id="v3-progress1"><!-- v3:progress1 -->153 of 153 matches finished, 808 games<!-- /v3:progress1 --></p>
@@ -293,7 +293,7 @@
           and Qwen3.8-27B (on), whose thinking decisions take 17 to 33 minutes each on a DGX Spark.</li>
       </ul>
       <h3 id="v3-l3">League 3: frontier chat models on subscriptions (in progress)</h3>
-      <p class="muted" id="v3-progress3"><!-- v3:progress3 -->54 of 55 matches finished, 337 games<!-- /v3:progress3 --></p>
+      <p class="muted" id="v3-progress3"><!-- v3:progress3 -->55 of 55 matches finished, 338 games<!-- /v3:progress3 --></p>
       <p>Each model plays at two settings, all through the maker's subscription (ChatGPT, Claude, Google Antigravity,
         SuperGrok), with the same prompt and one answer letter. "On" is the model's default reasoning setting; "off" is its
         lowest, since none of these models accepts reasoning turned off entirely:</p>
@@ -310,27 +310,19 @@
       <div id="v3-league3"><!-- v3:league3 -->
       <div class="table-wrap">
         <table>
-          <thead><tr><th class="l">Match not finished</th><th class="l">State</th><th>Rounds played</th><th>Score</th><th>Last move (UTC)</th></tr></thead>
-          <tbody>
-            <tr><td class="l">GNUbg weak v Grok 4.7 (on)</td><td class="l"><span class="live">playing</span></td><td>3 of 3</td><td>4-4</td><td>21 Oct 13:45</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="table-wrap">
-        <table>
           <thead><tr><th>#</th><th class="l">Setup</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>Games</th><th>To play</th><th>Error rate (95%)</th><th>Engine's best play</th><th>Blunders</th></tr></thead>
           <tbody>
             <tr><td>1</td><td class="l">GPT-6 Astra (on)</td><td>10</td><td>8</td><td class="zero">0</td><td>2</td><td><strong>24</strong></td><td>33-23</td><td class="zero">0</td><td><strong>12.5</strong> <span class="muted">10.6–14.5</span></td><td>64%</td><td>10%</td></tr>
             <tr><td>2</td><td class="l">Claude Fable 5.1 (on)</td><td>10</td><td>7</td><td class="zero">0</td><td>3</td><td><strong>21</strong></td><td>33-23</td><td class="zero">0</td><td><strong>12.8</strong> <span class="muted">10.5–14.9</span></td><td>65%</td><td>11%</td></tr>
             <tr><td>3</td><td class="l">Claude Opus 5.5 (on)</td><td>10</td><td>6</td><td class="zero">0</td><td>4</td><td><strong>18</strong></td><td>37-27</td><td class="zero">0</td><td><strong>14.3</strong> <span class="muted">11.8–17.0</span></td><td>65%</td><td>11%</td></tr>
             <tr><td>4</td><td class="l">Gemini 4 Argon (on)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>30-32</td><td class="zero">0</td><td><strong>12.6</strong> <span class="muted">10.4–14.8</span></td><td>65%</td><td>9%</td></tr>
-            <tr><td>5</td><td class="l">Gemini 4 Argon (off)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>29-37</td><td class="zero">0</td><td><strong>17.4</strong> <span class="muted">14.6–20.6</span></td><td>60%</td><td>14%</td></tr>
-            <tr><td>6</td><td class="l">Grok 4.7 (on)</td><td>9</td><td>5</td><td class="zero">0</td><td>4</td><td><strong>15</strong></td><td>26-28</td><td>1 <span class="live">(1 playing)</span></td><td><strong>15.1</strong> <span class="muted">13.2–17.1</span></td><td>64%</td><td>12%</td></tr>
+            <tr><td>5</td><td class="l">Grok 4.7 (on)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>30-32</td><td class="zero">0</td><td><strong>15.1</strong> <span class="muted">13.1–17.2</span></td><td>64%</td><td>12%</td></tr>
+            <tr><td>6</td><td class="l">Gemini 4 Argon (off)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>29-37</td><td class="zero">0</td><td><strong>17.4</strong> <span class="muted">14.5–20.5</span></td><td>60%</td><td>14%</td></tr>
             <tr><td>7</td><td class="l">GPT-6 Astra (off)</td><td>10</td><td>4</td><td>2</td><td>4</td><td><strong>14</strong></td><td>33-27</td><td class="zero">0</td><td><strong>11.5</strong> <span class="muted">9.5–13.9</span></td><td>66%</td><td>9%</td></tr>
             <tr><td>8</td><td class="l">Claude Opus 5.5 (off)</td><td>10</td><td>4</td><td class="zero">0</td><td>6</td><td><strong>12</strong></td><td>30-30</td><td class="zero">0</td><td><strong>16.2</strong> <span class="muted">13.6–19.2</span></td><td>61%</td><td>14%</td></tr>
             <tr><td>9</td><td class="l">Grok 4.7 (off)</td><td>10</td><td>3</td><td class="zero">0</td><td>7</td><td><strong>9</strong></td><td>26-34</td><td class="zero">0</td><td><strong>19.0</strong> <span class="muted">16.4–21.7</span></td><td>61%</td><td>15%</td></tr>
-            <tr><td>10</td><td class="l">Claude Fable 5.1 (off)</td><td>10</td><td>2</td><td>1</td><td>7</td><td><strong>7</strong></td><td>32-36</td><td class="zero">0</td><td><strong>17.8</strong> <span class="muted">15.4–20.5</span></td><td>61%</td><td>14%</td></tr>
-            <tr><td>11</td><td class="l">GNUbg weak</td><td>9</td><td>2</td><td>1</td><td>6</td><td><strong>7</strong></td><td>21-33</td><td>1 <span class="live">(1 playing)</span></td><td><strong>28.0</strong> <span class="muted">24.8–31.4</span></td><td>44%</td><td>23%</td></tr>
+            <tr><td>10</td><td class="l">GNUbg weak</td><td>10</td><td>2</td><td>2</td><td>6</td><td><strong>8</strong></td><td>25-37</td><td class="zero">0</td><td><strong>28.0</strong> <span class="muted">24.6–31.3</span></td><td>44%</td><td>23%</td></tr>
+            <tr><td>11</td><td class="l">Claude Fable 5.1 (off)</td><td>10</td><td>2</td><td>1</td><td>7</td><td><strong>7</strong></td><td>32-36</td><td class="zero">0</td><td><strong>17.8</strong> <span class="muted">15.3–20.4</span></td><td>61%</td><td>14%</td></tr>
           </tbody>
         </table>
       </div>
@@ -342,13 +334,13 @@
             <tr><td class="l">Claude Fable 5.1 (on)</td><td>1,203</td><td class="l">one letter</td><td class="zero">0.0%</td><td>19.36 s</td><td>$127.74</td><td class="l wrap">Claude subscription</td></tr>
             <tr><td class="l">Claude Opus 5.5 (on)</td><td>1,384</td><td class="l">one letter</td><td class="zero">0.0%</td><td>9.29 s</td><td>$36.38</td><td class="l wrap">Claude subscription</td></tr>
             <tr><td class="l">Gemini 4 Argon (on)</td><td>1,294</td><td class="l">one letter</td><td class="zero">0.0%</td><td>43.88 s</td><td>$41.37</td><td class="l wrap">Google Antigravity subscription</td></tr>
+            <tr><td class="l">Grok 4.7 (on)</td><td>1,243</td><td class="l">one letter</td><td class="zero">0.0%</td><td>226.64 s</td><td>$113.12</td><td class="l wrap">xAI subscription (SuperGrok)</td></tr>
             <tr><td class="l">Gemini 4 Argon (off)</td><td>1,406</td><td class="l">one letter</td><td class="zero">0.0%</td><td>6.13 s</td><td>$10.22</td><td class="l wrap">Google Antigravity subscription</td></tr>
-            <tr><td class="l">Grok 4.7 (on)</td><td>1,241</td><td class="l">one letter</td><td class="zero">0.0%</td><td>226.81 s</td><td>$113.20</td><td class="l wrap">xAI subscription (SuperGrok)</td></tr>
             <tr><td class="l">GPT-6 Astra (off)</td><td>1,310</td><td class="l">one letter</td><td class="zero">0.0%</td><td>6.25 s</td><td>$50.44</td><td class="l wrap">ChatGPT subscription</td></tr>
             <tr><td class="l">Claude Opus 5.5 (off)</td><td>1,261</td><td class="l">one letter</td><td class="zero">0.0%</td><td>5.06 s</td><td>$28.21</td><td class="l wrap">Claude subscription</td></tr>
             <tr><td class="l">Grok 4.7 (off)</td><td>1,247</td><td class="l">one letter</td><td class="zero">0.0%</td><td>44.57 s</td><td>$31.55</td><td class="l wrap">xAI subscription (SuperGrok)</td></tr>
-            <tr><td class="l">Claude Fable 5.1 (off)</td><td>1,457</td><td class="l">one letter</td><td class="zero">0.0%</td><td>3.66 s</td><td>$66.50</td><td class="l wrap">Claude subscription</td></tr>
             <tr><td class="l">GNUbg weak</td><td>1,443</td><td class="l">–</td><td class="zero">0.0%</td><td>0.01 s</td><td>–</td><td class="l wrap">GNU Backgammon 1.08, Beginner level (0-ply, noise 0.060), x86-64 build (see About the anchor)</td></tr>
+            <tr><td class="l">Claude Fable 5.1 (off)</td><td>1,457</td><td class="l">one letter</td><td class="zero">0.0%</td><td>3.66 s</td><td>$66.50</td><td class="l wrap">Claude subscription</td></tr>
           </tbody>
         </table>
       </div>
