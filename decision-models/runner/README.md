@@ -233,6 +233,7 @@ docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=1 \
 | `run_clef_flash.sh` | Clef-flash | `servers/clef_flash_server.py`: the Clef server with the Clef-flash release (`Cloudflare/clef-flash` at `fde727a`), port 18095 |
 | `run_strands.sh` | Strands Decider 2B | `servers/strands_server.py`: starts the `strands-decider` package's own System One server (commit `3e94e9d`) with `StrandsAgents/strands-decider-2B-hobson-v21` at `2b52a62`, port 18096 |
 | `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh` | Perplexity Decider v1.2, Decider Flash v1.2 (add `--repeat N` for repeats 2–5) | `servers/pplx_decider_server.py`: the `pplx_decider` package the checkpoints ship, on its reference path, one request at a time, with only the checkpoint's `requirements.txt` installed; `perplexity-ai/pplx-decider-v1.2` at `225c913` and `perplexity-ai/pplx-decider-flash-v1.2` at `6d771ad`, one at a time on spark3, a DGX Spark (GB10) at 192.168.1.139, port 18097 (the scripts pass `--jev-url`) |
+| `run_glide_v1_2.sh` | Fastino GLiDE v1.2 (add `--repeat N` for repeats 2–5) | the server its checkpoint ships (`python -m glide.server`), `fastino/GLiDE` at `a7e4589`, in a `vllm/vllm-openai:v0.30.0` container with `flash-linear-attention==0.5.2`, one request at a time on spark3 at 192.168.1.139, port 8888 (the script passes `--jev-url`) |
 
 Cygnet and Winnow were started as their authors describe:
 

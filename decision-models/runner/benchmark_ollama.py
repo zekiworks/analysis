@@ -116,6 +116,10 @@ SYSTEM_ONE = {
     # the server code its checkpoint ships (server.py there); v1.2 and Flash v1.2 through servers/pplx_decider_server.py
     # and the pplx_decider package their checkpoints ship. Each takes the same request and returns the same answers.
     "pplx-decider": SystemOneService("Perplexity Decider", "http://127.0.0.1:18097", request_id_header="x-request-id"),
+    # Fastino's released GLiDE v1.2 checkpoint (fastino/GLiDE) behind the server its repository ships (python -m
+    # glide.server), which takes the same request at the default path, ignores the model field and returns the same
+    # answers.
+    "glide": SystemOneService("GLiDE", "http://127.0.0.1:8888"),
     # OpenAI's Decisions API (public beta), which serves gpt-6-luna. Needs an API key with billing; the
     # Codex-based openai provider never uses one.
     "openai-decisions": SystemOneService(
@@ -218,7 +222,18 @@ PRICES: dict[tuple[str, str], Price] = {
     ("perplexity", "pplx-decider-v1.1-27b"): Price(
         "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-09", 0.02
     ),
-    ("fastino", "fastino/GLiDE"): Price("Fastino's GLiDE price", "https://docs.fastino.ai/pricing", "2026-10-08", 0.15),
+    ("fastino", "fastino/GLiDE"): Price(
+        "Fastino's GLiDE price",
+        "https://docs.fastino.ai/pricing",
+        "2026-10-08",
+        0.15,
+        change="$0.04 per 1M input tokens since, as listed on 22 October 2026",
+    ),
+    # GLiDE v1.2 on our hardware, at Fastino's list price for GLiDE (input only; output free): its hosted engine
+    # (glide_v2) gave the same answers on 20 questions, with probabilities within 0.006, on 22 October 2026.
+    ("glide", "glide-v1.2"): Price(
+        "Fastino's GLiDE price", "https://docs.fastino.ai/pricing", "2026-10-22", 0.04, applies_to="maker"
+    ),
     # Output tokens are free; cached input costs the same as input.
     ("celeris", "celeris-1-decision"): Price(
         "Celeris's decision model price", "https://docs.celeris.ai/pricing", "2026-10-10", 0.04
@@ -393,7 +408,7 @@ TIE_ALPHA = 0.05
 # second. The doubt counts the mistakes of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider",
+    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
