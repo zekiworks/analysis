@@ -37,20 +37,23 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .chart-svg .whisker { stroke: var(--reading); }
 .chart-svg .muted { fill: var(--text-2); }
 
-/* --- Dashboard look: slate palette in both themes, a centred header, pill controls, tables first. ---------- */
+/* --- Dashboard look: slate palette in both themes, a centred header, pill controls, tables first. The accent is
+   backgammon felt green (teal), the sibling's own colour; data colours are unchanged. ------------------------ */
 :root {
   --bg: #f8fafc; --panel: #ffffff; --sunk: #f1f5f9; --key: #ffffff; --edge: #e2e8f0; --control-edge: #cbd5e1;
-  --text: #1e293b; --text-2: #64748b; --focus: #2563eb; --lamp-off: #cbd5e1; --lamp-on: #2563eb; --lamp-glow: transparent;
-  --row-hover: #eef2f7; --row-selected: #e2e8f0; --link: #2563eb; --accent: #2563eb; --accent-soft: #eff6ff; --zebra: #f8fafc;
+  --text: #1e293b; --text-2: #64748b; --focus: #0f766e; --lamp-off: #cbd5e1; --lamp-on: #0f766e; --lamp-glow: transparent;
+  --row-hover: #eef2f7; --row-selected: #e2e8f0; --link: #0f766e; --accent: #0f766e; --accent-soft: #f0fdfa; --zebra: #f8fafc;
   --tip-bg: #1e293b; --tip-text: #ffffff; --shadow: 0 1px 3px rgba(15, 23, 42, .08); --key-shadow: none; --key-inset: none;
+  --good: #0f766e; --good-soft: rgba(15, 118, 110, .14); --bad: #b91c1c; --bad-soft: rgba(185, 28, 28, .12);
 }
 @media screen {
   :root:not([data-theme="light"]) {
     --bg: #0f172a; --panel: #1e293b; --sunk: #162032; --key: #1e293b; --edge: #334155; --control-edge: #475569;
-    --text: #e2e8f0; --text-2: #94a3b8; --focus: #93c5fd; --lamp-off: #475569; --lamp-on: #60a5fa;
-    --lamp-glow: rgba(96, 165, 250, .45); --row-hover: #273449; --row-selected: #334155; --link: #60a5fa; --accent: #60a5fa;
-    --accent-soft: rgba(96, 165, 250, .16); --zebra: #1a2436; --tip-bg: #e2e8f0; --tip-text: #0f172a;
+    --text: #e2e8f0; --text-2: #94a3b8; --focus: #5eead4; --lamp-off: #475569; --lamp-on: #2dd4bf;
+    --lamp-glow: rgba(45, 212, 191, .45); --row-hover: #273449; --row-selected: #334155; --link: #2dd4bf; --accent: #2dd4bf;
+    --accent-soft: rgba(45, 212, 191, .14); --zebra: #1a2436; --tip-bg: #e2e8f0; --tip-text: #0f172a;
     --shadow: 0 1px 3px rgba(0, 0, 0, .5); --key-shadow: none; --key-inset: none;
+    --good: #2dd4bf; --good-soft: rgba(45, 212, 191, .16); --bad: #f87171; --bad-soft: rgba(248, 113, 113, .14);
   }
 }
 .card, .panel { border-radius: 8px; }
@@ -109,3 +112,59 @@ main > details.about { max-width: 1100px; margin: 1rem auto 0; padding: 0 .25rem
 /* The four questions of the findings on one line under the waiting note. */
 .hero .summary-list { display: flex; flex-wrap: wrap; justify-content: center; gap: .1rem 1.2rem; font-size: .92rem; }
 .hero .summary-lead { margin: 0 0 .15rem; }
+
+/* --- v6: hero with the board (the visual signature), threads, league selector, the risk 2x2 wall. ----------- */
+body.home .hero.hero-split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1.5rem 2rem;
+  align-items: center; max-width: 1180px; text-align: left; }
+.hero-split .readout-row, .hero-split .readouts { justify-content: flex-start; }
+.hero .subtitle { font-size: 1.08rem; margin: 0 0 .6rem; }
+.hero-links { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .6rem; }
+.hero-links .key { text-decoration: none; padding: .3rem .8rem; border: 1px solid var(--control-edge); color: var(--text); font-size: .85rem; }
+.hero-links .key:hover { border-color: var(--accent); color: var(--accent); }
+.hero-board { margin: 0; }
+.hero-board svg.hero-bd { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+.hero-board figcaption { color: var(--text-2); font-size: .82rem; margin-top: .4rem; }
+@media (max-width: 860px) { body.home .hero.hero-split { grid-template-columns: minmax(0, 1fr); } }
+#findings { max-width: 1180px; margin: 0 auto 1rem; }
+#findings .summary-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .5rem; }
+#findings .summary-list li { padding: .55rem .7rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
+.thread { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin-right: .4rem; }
+#findings .thread { display: block; margin-bottom: .15rem; }
+.section-lead { color: var(--text-2); margin: .25rem 0 .75rem; }
+.lead-finding { font-size: 1.02rem; margin: .25rem 0 .75rem; }
+.league-pick .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
+.card > .league-pick { margin: .25rem 0 .5rem; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .75rem; }
+.js [data-league-view][data-off] { display: none; }
+tr.reference > td { font-style: italic; }
+.risk-limit { font-weight: 600; }
+
+/* The 2x2: rows Risk pays / Safety pays, columns took a risk / played safe. Green = good call, red = costly call;
+   the fill grows with the share of the row, so the wall reads at a glance. */
+.r2-key { display: flex; flex-wrap: wrap; gap: .3rem .9rem; font-size: .78rem; color: var(--text-2); margin: .25rem 0 .5rem; }
+.r2-key .r2-good::before, .r2-key .r2-bad::before { content: ""; display: inline-block; width: .8rem; height: .8rem; border-radius: 3px; margin-right: .3rem; vertical-align: -.1rem; }
+.r2-key .r2-good::before { background: var(--good); }
+.r2-key .r2-bad::before { background: var(--bad); }
+.r2-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: .75rem; }
+.r2 { margin: 0; padding: .55rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
+.r2[hidden] { display: none; }
+.r2 figcaption { font-size: .85rem; font-weight: 600; margin-bottom: .35rem; display: flex; flex-direction: column; }
+.r2 figcaption a { color: var(--text); }
+.r2 figcaption .small { font-weight: 400; color: var(--text-2); font-size: .72rem; }
+.r2-ref { font-weight: 400; font-size: .72rem; color: var(--accent); }
+.r2-grid { display: grid; grid-template-columns: 4.6rem 1fr 1fr; gap: 3px; font-size: .72rem; }
+.r2-col { text-align: center; color: var(--text-2); }
+.r2-row { display: flex; flex-direction: column; justify-content: center; color: var(--text-2); font-weight: 600; }
+.r2-row small { font-weight: 400; }
+.r2-cell { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 4.4rem;
+  border-radius: 5px; overflow: hidden; background: var(--sunk); font-variant-numeric: tabular-nums; z-index: 0; }
+.r2-cell::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: calc(.12 + .88 * var(--share)); }
+.r2-good::before { background: var(--good-soft); box-shadow: inset 0 0 0 999px var(--good-soft); }
+.r2-bad::before { background: var(--bad-soft); box-shadow: inset 0 0 0 999px var(--bad-soft); }
+.r2-cell b { font-size: 1.3rem; line-height: 1.1; }
+.r2-good b { color: var(--good); }
+.r2-bad b { color: var(--bad); }
+.r2-n, .r2-loss { color: var(--text-2); font-size: .68rem; }
+.r2-image { font-size: .82rem; margin: .5rem 0 0; }
+.charts .league-view .block { margin-top: 0; }
+ul.league-notes { margin: .25rem 0 .75rem; padding-left: 1.1rem; }
+.also-league { color: var(--accent); }

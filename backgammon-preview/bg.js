@@ -1,8 +1,32 @@
 'use strict';
 
-/* Home page: metric tabs (stable addresses ?tab=<name>#board), the Table / Charts switch on a phone, and the
-   filters (model type, weights, runs on, reasoning setting), which hide setup rows in every table. The swipe hint
-   goes once a wide table has been scrolled. Compare page: two setups of the v1 set, paired, from compare.json. */
+/* Home page: metric tabs (stable addresses ?tab=<name>#board), the Table / Charts switch, the league selector
+   (?league=<dataset>: one league at a time, never merged; every selector on the page moves together), and the
+   filters (model type, weights, runs on, reasoning setting), which hide setup rows and 2x2 tiles everywhere. The
+   swipe hint goes once a wide table has been scrolled. Compare page: two setups of the v1 set, paired, from
+   compare.json. */
+
+(function leagues() {
+  const picks = [...document.querySelectorAll('[data-league-pick]')];
+  if (!picks.length) return;
+  const known = new Set(picks.map(b => b.dataset.leaguePick));
+  const show = key => {
+    if (!known.has(key)) return;
+    picks.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.leaguePick === key)));
+    document.querySelectorAll('[data-league-view]').forEach(v => {
+      v.toggleAttribute('data-off', v.dataset.leagueView !== key);
+    });
+  };
+  const set = key => {
+    show(key);
+    const url = new URL(location.href);
+    url.searchParams.set('league', key);
+    history.replaceState(null, '', url);
+  };
+  show(new URLSearchParams(location.search).get('league'));
+  picks.forEach(b => b.addEventListener('click', () => set(b.dataset.leaguePick)));
+  document.querySelectorAll('[data-league-goto]').forEach(a => a.addEventListener('click', () => set(a.dataset.leagueGoto)));
+})();
 
 (function tabs() {
   const tablist = document.querySelector('.modes[role="tablist"]');
@@ -47,6 +71,7 @@
     keys.forEach(x => x.setAttribute('aria-pressed', String((x.dataset.view === 'charts') === charts)));
   };
   keys.forEach(k => k.addEventListener('click', () => show(k.dataset.view === 'charts')));
+  document.querySelectorAll('[data-view-goto]').forEach(a => a.addEventListener('click', () => show(a.dataset.viewGoto === 'charts')));
   if (location.hash.startsWith('#chart')) show(true);
 })();
 
@@ -57,7 +82,7 @@
   const state = Object.fromEntries(groups.map(g => [g, 'all']));
   const summary = box.querySelector('[data-summary]');
   const apply = () => {
-    document.querySelectorAll('tr[data-type]').forEach(row => {
+    document.querySelectorAll('tr[data-type], figure.r2[data-type]').forEach(row => {
       row.hidden = groups.some(g => state[g] !== 'all' && row.dataset[g] !== state[g]);
     });
     const on = groups.filter(g => state[g] !== 'all').map(g => state[g]);

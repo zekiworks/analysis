@@ -2729,6 +2729,78 @@
   }
  ],
  "metric_status": "Provisional",
+ "reasoning": [
+  {
+   "extra_cost": 6.540548001216353,
+   "extra_time_median": 4.808,
+   "high": "Claude Sonnet 5.5 (high)",
+   "high_setting": "high",
+   "low": "Claude Sonnet 5.5 (low)",
+   "low_setting": "low",
+   "model": "Claude Sonnet 5.5",
+   "reading": "lower error rate in league play"
+  },
+  {
+   "extra_cost": 11.7072866404095,
+   "extra_time_median": 61.048,
+   "high": "DeepSeek V4.1 Flash (on)",
+   "high_setting": "on",
+   "low": "DeepSeek V4.1 Flash (off)",
+   "low_setting": "off",
+   "model": "DeepSeek V4.1 Flash",
+   "reading": "lower error rate in league play"
+  },
+  {
+   "extra_cost": 3.6823051527445685,
+   "extra_time_median": 4.888999999999999,
+   "high": "GPT-6.1 Sol (high)",
+   "high_setting": "high",
+   "low": "GPT-6.1 Sol (low)",
+   "low_setting": "low",
+   "model": "GPT-6.1 Sol",
+   "reading": "no clear difference in league play"
+  },
+  {
+   "extra_cost": 19.001638868887373,
+   "extra_time_median": 7.636000000000001,
+   "high": "Gemini 3.8 Flash (high)",
+   "high_setting": "high",
+   "low": "Gemini 3.8 Flash (low)",
+   "low_setting": "low",
+   "model": "Gemini 3.8 Flash",
+   "reading": "no clear difference in league play"
+  },
+  {
+   "extra_cost": null,
+   "extra_time_median": 132.445,
+   "high": "Gemma 4 31B (on)",
+   "high_setting": "on",
+   "low": "Gemma 4 31B (off)",
+   "low_setting": "off",
+   "model": "Gemma 4 31B",
+   "reading": "no clear difference in league play"
+  },
+  {
+   "extra_cost": null,
+   "extra_time_median": 313.664,
+   "high": "LFM2.5-24B-A2B (on)",
+   "high_setting": "on",
+   "low": "LFM2.5-24B-A2B (off)",
+   "low_setting": "off",
+   "model": "LFM2.5-24B-A2B",
+   "reading": "lower error rate in league play"
+  },
+  {
+   "extra_cost": null,
+   "extra_time_median": 183.3295,
+   "high": "Qwen3.8-27B (on)",
+   "high_setting": "on",
+   "low": "Qwen3.8-27B (off)",
+   "low_setting": "off",
+   "model": "Qwen3.8-27B",
+   "reading": "lower error rate in league play"
+  }
+ ],
  "scored": 29285,
  "setups": {
   "Claude Sonnet 5.5 (high)": {
@@ -2778,38 +2850,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 634,
       "mean_loss": 0.11274179747931254,
       "n": 349,
-      "share": 0.23709239130434784
+      "share": 0.5504731861198738
      },
      "risk_took": {
       "confidence": null,
+      "den": 634,
       "mean_loss": 0.027668654186683787,
       "n": 285,
-      "share": 0.19361413043478262
+      "share": 0.44952681388012616
      },
      "safety_safe": {
       "confidence": null,
+      "den": 838,
       "mean_loss": 0.008494951545375667,
       "n": 803,
-      "share": 0.545516304347826
+      "share": 0.9582338902147971
      },
      "safety_took": {
       "confidence": null,
+      "den": 838,
       "mean_loss": 0.09442680052348545,
       "n": 35,
-      "share": 0.02377717391304348
+      "share": 0.041766109785202864
      }
     },
     "decisions": 1472,
     "needless_risk": 0.041766109785202864,
     "no_risk_choice": 507,
     "risk_pays": 634,
-    "risk_too_few": false,
     "safety_pays": 838,
-    "safety_too_few": false,
     "takes_risk": 0.44952681388012616,
-    "too_few": false
+    "took_needless": 35,
+    "took_when_pays": 285
    },
    "slug": "claude-sonnet-5-5-high"
   },
@@ -2860,38 +2935,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 580,
       "mean_loss": 0.12049474493059188,
       "n": 382,
-      "share": 0.28108903605592345
+      "share": 0.6586206896551724
      },
      "risk_took": {
       "confidence": null,
+      "den": 580,
       "mean_loss": 0.0361461333855234,
       "n": 198,
-      "share": 0.1456953642384106
+      "share": 0.3413793103448276
      },
      "safety_safe": {
       "confidence": null,
+      "den": 779,
       "mean_loss": 0.01300534790489587,
       "n": 743,
-      "share": 0.5467255334805003
+      "share": 0.9537869062901155
      },
      "safety_took": {
       "confidence": null,
+      "den": 779,
       "mean_loss": 0.14119300246238708,
       "n": 36,
-      "share": 0.026490066225165563
+      "share": 0.04621309370988447
      }
     },
     "decisions": 1359,
     "needless_risk": 0.04621309370988447,
     "no_risk_choice": 429,
     "risk_pays": 580,
-    "risk_too_few": false,
     "safety_pays": 779,
-    "safety_too_few": false,
     "takes_risk": 0.3413793103448276,
-    "too_few": false
+    "took_needless": 36,
+    "took_when_pays": 198
    },
    "slug": "claude-sonnet-5-5-low"
   },
@@ -2949,38 +3027,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.7342203105720859,
+      "den": 581,
       "mean_loss": 0.1593900453713205,
       "n": 360,
-      "share": 0.29580936729663104
+      "share": 0.6196213425129088
      },
      "risk_took": {
       "confidence": 0.6906619235893644,
+      "den": 581,
       "mean_loss": 0.07565517528024734,
       "n": 221,
-      "share": 0.18159408381265407
+      "share": 0.3803786574870912
      },
      "safety_safe": {
       "confidence": 0.7907216855819623,
+      "den": 636,
       "mean_loss": 0.02842336768905322,
       "n": 576,
-      "share": 0.4732949876746097
+      "share": 0.9056603773584906
      },
      "safety_took": {
       "confidence": 0.6448311832308027,
+      "den": 636,
       "mean_loss": 0.17382039725780488,
       "n": 60,
-      "share": 0.049301561216105176
+      "share": 0.09433962264150944
      }
     },
     "decisions": 1217,
     "needless_risk": 0.09433962264150944,
     "no_risk_choice": 518,
     "risk_pays": 581,
-    "risk_too_few": false,
     "safety_pays": 636,
-    "safety_too_few": false,
     "takes_risk": 0.3803786574870912,
-    "too_few": false
+    "took_needless": 60,
+    "took_when_pays": 221
    },
    "slug": "deepseek-v4-1-flash-off"
   },
@@ -3038,38 +3119,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.9999046497311408,
+      "den": 574,
       "mean_loss": 0.1074402129060388,
       "n": 283,
-      "share": 0.21150971599402094
+      "share": 0.4930313588850174
      },
      "risk_took": {
       "confidence": 0.9998963488619542,
+      "den": 574,
       "mean_loss": 0.04332098078072276,
       "n": 291,
-      "share": 0.21748878923766815
+      "share": 0.5069686411149826
      },
      "safety_safe": {
       "confidence": 0.9999317087214095,
+      "den": 764,
       "mean_loss": 0.013777870312333107,
       "n": 720,
-      "share": 0.5381165919282511
+      "share": 0.9424083769633508
      },
      "safety_took": {
       "confidence": 0.999917947916844,
+      "den": 764,
       "mean_loss": 0.15302676436575977,
       "n": 44,
-      "share": 0.03288490284005979
+      "share": 0.05759162303664921
      }
     },
     "decisions": 1338,
     "needless_risk": 0.05759162303664921,
     "no_risk_choice": 409,
     "risk_pays": 574,
-    "risk_too_few": false,
     "safety_pays": 764,
-    "safety_too_few": false,
     "takes_risk": 0.5069686411149826,
-    "too_few": false
+    "took_needless": 44,
+    "took_when_pays": 291
    },
    "slug": "deepseek-v4-1-flash-on"
   },
@@ -3127,38 +3211,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.8971048341203476,
+      "den": 535,
       "mean_loss": 0.15727663074614684,
       "n": 346,
-      "share": 0.2885738115095913
+      "share": 0.6467289719626168
      },
      "risk_took": {
       "confidence": 0.8955878438775052,
+      "den": 535,
       "mean_loss": 0.05394524761608669,
       "n": 189,
-      "share": 0.15763135946622187
+      "share": 0.3532710280373832
      },
      "safety_safe": {
       "confidence": 0.9257125808142169,
+      "den": 664,
       "mean_loss": 0.022456500594313058,
       "n": 614,
-      "share": 0.51209341117598
+      "share": 0.9246987951807228
      },
      "safety_took": {
       "confidence": 0.7988131985143295,
+      "den": 664,
       "mean_loss": 0.1251799315214157,
       "n": 50,
-      "share": 0.041701417848206836
+      "share": 0.07530120481927711
      }
     },
     "decisions": 1199,
     "needless_risk": 0.07530120481927711,
     "no_risk_choice": 471,
     "risk_pays": 535,
-    "risk_too_few": false,
     "safety_pays": 664,
-    "safety_too_few": false,
     "takes_risk": 0.3532710280373832,
-    "too_few": false
+    "took_needless": 50,
+    "took_when_pays": 189
    },
    "slug": "glm-5-3-on"
   },
@@ -3192,38 +3279,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 559,
       "mean_loss": 0.07744615666923069,
       "n": 84,
-      "share": 0.06471494607087827
+      "share": 0.15026833631484796
      },
      "risk_took": {
       "confidence": null,
+      "den": 559,
       "mean_loss": 0.05304441828476755,
       "n": 475,
-      "share": 0.3659476117103236
+      "share": 0.8497316636851521
      },
      "safety_safe": {
       "confidence": null,
+      "den": 739,
       "mean_loss": 0.013396631290272968,
       "n": 492,
-      "share": 0.3790446841294299
+      "share": 0.6657645466847091
      },
      "safety_took": {
       "confidence": null,
+      "den": 739,
       "mean_loss": 0.14208907311261906,
       "n": 247,
-      "share": 0.19029275808936827
+      "share": 0.3342354533152909
      }
     },
     "decisions": 1298,
     "needless_risk": 0.3342354533152909,
     "no_risk_choice": 362,
     "risk_pays": 559,
-    "risk_too_few": false,
     "safety_pays": 739,
-    "safety_too_few": false,
     "takes_risk": 0.8497316636851521,
-    "too_few": false
+    "took_needless": 247,
+    "took_when_pays": 475
    },
    "slug": "gnubg-weak"
   },
@@ -3274,38 +3364,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 581,
       "mean_loss": 0.08283228580913847,
       "n": 252,
-      "share": 0.19062027231467474
+      "share": 0.43373493975903615
      },
      "risk_took": {
       "confidence": null,
+      "den": 581,
       "mean_loss": 0.025393127670404036,
       "n": 329,
-      "share": 0.24886535552193645
+      "share": 0.5662650602409639
      },
      "safety_safe": {
       "confidence": null,
+      "den": 741,
       "mean_loss": 0.007652944241251265,
       "n": 700,
-      "share": 0.529500756429652
+      "share": 0.9446693657219973
      },
      "safety_took": {
       "confidence": null,
+      "den": 741,
       "mean_loss": 0.05365152620687717,
       "n": 41,
-      "share": 0.031013615733736764
+      "share": 0.0553306342780027
      }
     },
     "decisions": 1322,
     "needless_risk": 0.0553306342780027,
     "no_risk_choice": 438,
     "risk_pays": 581,
-    "risk_too_few": false,
     "safety_pays": 741,
-    "safety_too_few": false,
     "takes_risk": 0.5662650602409639,
-    "too_few": false
+    "took_needless": 41,
+    "took_when_pays": 329
    },
    "slug": "gpt-6-1-sol-high"
   },
@@ -3356,38 +3449,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 544,
       "mean_loss": 0.07778428196907043,
       "n": 255,
-      "share": 0.1875
+      "share": 0.46875
      },
      "risk_took": {
       "confidence": null,
+      "den": 544,
       "mean_loss": 0.024463927353954647,
       "n": 289,
-      "share": 0.2125
+      "share": 0.53125
      },
      "safety_safe": {
       "confidence": null,
+      "den": 816,
       "mean_loss": 0.006676418440682548,
       "n": 763,
-      "share": 0.5610294117647059
+      "share": 0.9350490196078431
      },
      "safety_took": {
       "confidence": null,
+      "den": 816,
       "mean_loss": 0.08276284022151299,
       "n": 53,
-      "share": 0.03897058823529412
+      "share": 0.06495098039215687
      }
     },
     "decisions": 1360,
     "needless_risk": 0.06495098039215687,
     "no_risk_choice": 427,
     "risk_pays": 544,
-    "risk_too_few": false,
     "safety_pays": 816,
-    "safety_too_few": false,
     "takes_risk": 0.53125,
-    "too_few": false
+    "took_needless": 53,
+    "took_when_pays": 289
    },
    "slug": "gpt-6-1-sol-low"
   },
@@ -3438,38 +3534,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 676,
       "mean_loss": 0.10153802955784083,
       "n": 414,
-      "share": 0.26658081133290407
+      "share": 0.6124260355029586
      },
      "risk_took": {
       "confidence": null,
+      "den": 676,
       "mean_loss": 0.026692217429175633,
       "n": 262,
-      "share": 0.16870573084352866
+      "share": 0.3875739644970414
      },
      "safety_safe": {
       "confidence": null,
+      "den": 877,
       "mean_loss": 0.008456759631841924,
       "n": 859,
-      "share": 0.553122987765615
+      "share": 0.9794754846066135
      },
      "safety_took": {
       "confidence": null,
+      "den": 877,
       "mean_loss": 0.07103880908754137,
       "n": 18,
-      "share": 0.01159047005795235
+      "share": 0.020524515393386546
      }
     },
     "decisions": 1553,
     "needless_risk": 0.020524515393386546,
     "no_risk_choice": 475,
     "risk_pays": 676,
-    "risk_too_few": false,
     "safety_pays": 877,
-    "safety_too_few": false,
     "takes_risk": 0.3875739644970414,
-    "too_few": false
+    "took_needless": 18,
+    "took_when_pays": 262
    },
    "slug": "gemini-3-8-flash-high"
   },
@@ -3520,38 +3619,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 529,
       "mean_loss": 0.11099061649565822,
       "n": 341,
-      "share": 0.2734562951082598
+      "share": 0.6446124763705104
      },
      "risk_took": {
       "confidence": null,
+      "den": 529,
       "mean_loss": 0.019978021053557702,
       "n": 188,
-      "share": 0.1507618283881315
+      "share": 0.3553875236294896
      },
      "safety_safe": {
       "confidence": null,
+      "den": 718,
       "mean_loss": 0.010794336869882022,
       "n": 692,
-      "share": 0.5549318364073778
+      "share": 0.9637883008356546
      },
      "safety_took": {
       "confidence": null,
+      "den": 718,
       "mean_loss": 0.13328671226134667,
       "n": 26,
-      "share": 0.020850040096230954
+      "share": 0.036211699164345405
      }
     },
     "decisions": 1247,
     "needless_risk": 0.036211699164345405,
     "no_risk_choice": 452,
     "risk_pays": 529,
-    "risk_too_few": false,
     "safety_pays": 718,
-    "safety_too_few": false,
     "takes_risk": 0.3553875236294896,
-    "too_few": false
+    "took_needless": 26,
+    "took_when_pays": 188
    },
    "slug": "gemini-3-8-flash-low"
   },
@@ -3608,38 +3710,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.9741160520640564,
+      "den": 493,
       "mean_loss": 0.11498145837532847,
       "n": 285,
-      "share": 0.24193548387096775
+      "share": 0.5780933062880325
      },
      "risk_took": {
       "confidence": 0.957684754684802,
+      "den": 493,
       "mean_loss": 0.04705866053700447,
       "n": 208,
-      "share": 0.1765704584040747
+      "share": 0.42190669371196754
      },
      "safety_safe": {
       "confidence": 0.9816959029082877,
+      "den": 685,
       "mean_loss": 0.016082503209038385,
       "n": 630,
-      "share": 0.534804753820034
+      "share": 0.9197080291970803
      },
      "safety_took": {
       "confidence": 0.946398252997831,
+      "den": 685,
       "mean_loss": 0.1438510553403334,
       "n": 55,
-      "share": 0.0466893039049236
+      "share": 0.08029197080291971
      }
     },
     "decisions": 1178,
     "needless_risk": 0.08029197080291971,
     "no_risk_choice": 397,
     "risk_pays": 493,
-    "risk_too_few": false,
     "safety_pays": 685,
-    "safety_too_few": false,
     "takes_risk": 0.42190669371196754,
-    "too_few": false
+    "took_needless": 55,
+    "took_when_pays": 208
    },
    "slug": "gemma-4-31b-off"
   },
@@ -3696,38 +3801,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.9989957615795683,
+      "den": 589,
       "mean_loss": 0.11601686221134813,
       "n": 395,
-      "share": 0.2801418439716312
+      "share": 0.6706281833616299
      },
      "risk_took": {
       "confidence": 0.9998067567131012,
+      "den": 589,
       "mean_loss": 0.030222949600711313,
       "n": 194,
-      "share": 0.1375886524822695
+      "share": 0.3293718166383701
      },
      "safety_safe": {
       "confidence": 0.9989162928030547,
+      "den": 821,
       "mean_loss": 0.012821270909699254,
       "n": 795,
-      "share": 0.5638297872340425
+      "share": 0.9683313032886723
      },
      "safety_took": {
       "confidence": 0.996916129259067,
+      "den": 821,
       "mean_loss": 0.08482409899051373,
       "n": 26,
-      "share": 0.018439716312056736
+      "share": 0.031668696711327646
      }
     },
     "decisions": 1410,
     "needless_risk": 0.031668696711327646,
     "no_risk_choice": 392,
     "risk_pays": 589,
-    "risk_too_few": false,
     "safety_pays": 821,
-    "safety_too_few": false,
     "takes_risk": 0.3293718166383701,
-    "too_few": false
+    "took_needless": 26,
+    "took_when_pays": 194
    },
    "slug": "gemma-4-31b-on"
   },
@@ -3784,38 +3892,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.41677736532182436,
+      "den": 459,
       "mean_loss": 0.1905326653494794,
       "n": 234,
-      "share": 0.2508038585209003
+      "share": 0.5098039215686274
      },
      "risk_took": {
       "confidence": 0.3902968783238109,
+      "den": 459,
       "mean_loss": 0.1483475747373369,
       "n": 225,
-      "share": 0.24115755627009647
+      "share": 0.49019607843137253
      },
      "safety_safe": {
       "confidence": 0.46932097228169123,
+      "den": 474,
       "mean_loss": 0.0475110953414677,
       "n": 302,
-      "share": 0.3236870310825295
+      "share": 0.6371308016877637
      },
      "safety_took": {
       "confidence": 0.41144195877055034,
+      "den": 474,
       "mean_loss": 0.25633288452098535,
       "n": 172,
-      "share": 0.18435155412647375
+      "share": 0.3628691983122363
      }
     },
     "decisions": 933,
     "needless_risk": 0.3628691983122363,
     "no_risk_choice": 369,
     "risk_pays": 459,
-    "risk_too_few": false,
     "safety_pays": 474,
-    "safety_too_few": false,
     "takes_risk": 0.49019607843137253,
-    "too_few": false
+    "took_needless": 172,
+    "took_when_pays": 225
    },
    "slug": "lfm2-5-24b-a2b-off"
   },
@@ -3872,38 +3983,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.9997911834408412,
+      "den": 541,
       "mean_loss": 0.1395373852813945,
       "n": 255,
-      "share": 0.22097053726169844
+      "share": 0.4713493530499076
      },
      "risk_took": {
       "confidence": 0.9993976241202254,
+      "den": 541,
       "mean_loss": 0.1269950402991755,
       "n": 286,
-      "share": 0.24783362218370883
+      "share": 0.5286506469500925
      },
      "safety_safe": {
       "confidence": 0.9985324444922514,
+      "den": 613,
       "mean_loss": 0.03834183628226186,
       "n": 444,
-      "share": 0.3847487001733102
+      "share": 0.7243066884176182
      },
      "safety_took": {
       "confidence": 0.9985796967896752,
+      "den": 613,
       "mean_loss": 0.25133740496353285,
       "n": 169,
-      "share": 0.1464471403812825
+      "share": 0.27569331158238175
      }
     },
     "decisions": 1154,
     "needless_risk": 0.27569331158238175,
     "no_risk_choice": 423,
     "risk_pays": 541,
-    "risk_too_few": false,
     "safety_pays": 613,
-    "safety_too_few": false,
     "takes_risk": 0.5286506469500925,
-    "too_few": false
+    "took_needless": 169,
+    "took_when_pays": 286
    },
    "slug": "lfm2-5-24b-a2b-on"
   },
@@ -3961,38 +4075,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.557611552378885,
+      "den": 608,
       "mean_loss": 0.16110399634723205,
       "n": 332,
-      "share": 0.2575640031031808
+      "share": 0.5460526315789473
      },
      "risk_took": {
       "confidence": 0.52003122686211,
+      "den": 608,
       "mean_loss": 0.09284332999284717,
       "n": 276,
-      "share": 0.21411947245927077
+      "share": 0.45394736842105265
      },
      "safety_safe": {
       "confidence": 0.6103271081037,
+      "den": 681,
       "mean_loss": 0.021542297347885982,
       "n": 573,
-      "share": 0.44453064391000774
+      "share": 0.8414096916299559
      },
      "safety_took": {
       "confidence": 0.48521665814832665,
+      "den": 681,
       "mean_loss": 0.16144337670670617,
       "n": 108,
-      "share": 0.08378588052754073
+      "share": 0.15859030837004406
      }
     },
     "decisions": 1289,
     "needless_risk": 0.15859030837004406,
     "no_risk_choice": 517,
     "risk_pays": 608,
-    "risk_too_few": false,
     "safety_pays": 681,
-    "safety_too_few": false,
     "takes_risk": 0.45394736842105265,
-    "too_few": false
+    "took_needless": 108,
+    "took_when_pays": 276
    },
    "slug": "qwen3-8-flash-off"
   },
@@ -4049,38 +4166,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.6980131270553938,
+      "den": 570,
       "mean_loss": 0.1826465919075242,
       "n": 415,
-      "share": 0.352891156462585
+      "share": 0.7280701754385965
      },
      "risk_took": {
       "confidence": 0.6066590419317085,
+      "den": 570,
       "mean_loss": 0.0901031207653784,
       "n": 155,
-      "share": 0.13180272108843538
+      "share": 0.2719298245614035
      },
      "safety_safe": {
       "confidence": 0.7287864169807696,
+      "den": 606,
       "mean_loss": 0.03315229308497798,
       "n": 555,
-      "share": 0.4719387755102041
+      "share": 0.9158415841584159
      },
      "safety_took": {
       "confidence": 0.5509668961132588,
+      "den": 606,
       "mean_loss": 0.19230205872479608,
       "n": 51,
-      "share": 0.04336734693877551
+      "share": 0.08415841584158416
      }
     },
     "decisions": 1176,
     "needless_risk": 0.08415841584158416,
     "no_risk_choice": 473,
     "risk_pays": 570,
-    "risk_too_few": false,
     "safety_pays": 606,
-    "safety_too_few": false,
     "takes_risk": 0.2719298245614035,
-    "too_few": false
+    "took_needless": 51,
+    "took_when_pays": 155
    },
    "slug": "qwen3-8-27b-off"
   },
@@ -4137,38 +4257,41 @@
     "cells": {
      "risk_safe": {
       "confidence": 0.999742093041278,
+      "den": 572,
       "mean_loss": 0.15471697275693705,
       "n": 346,
-      "share": 0.27903225806451615
+      "share": 0.6048951048951049
      },
      "risk_took": {
       "confidence": 0.9997414616546665,
+      "den": 572,
       "mean_loss": 0.06887728068153415,
       "n": 226,
-      "share": 0.18225806451612903
+      "share": 0.3951048951048951
      },
      "safety_safe": {
       "confidence": 0.9998031653849085,
+      "den": 668,
       "mean_loss": 0.02142499783115742,
       "n": 591,
-      "share": 0.47661290322580646
+      "share": 0.8847305389221557
      },
      "safety_took": {
       "confidence": 0.999724144722704,
+      "den": 668,
       "mean_loss": 0.17759182042889782,
       "n": 77,
-      "share": 0.062096774193548386
+      "share": 0.11526946107784432
      }
     },
     "decisions": 1240,
     "needless_risk": 0.11526946107784432,
     "no_risk_choice": 462,
     "risk_pays": 572,
-    "risk_too_few": false,
     "safety_pays": 668,
-    "safety_too_few": false,
     "takes_risk": 0.3951048951048951,
-    "too_few": false
+    "took_needless": 77,
+    "took_when_pays": 226
    },
    "slug": "qwen3-8-27b-on"
   }

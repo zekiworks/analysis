@@ -213,6 +213,7 @@
         (chosen.loss === null ? '' : `, equity lost ${fixed(chosen.loss, 3)}`));
     }
     if (d.best !== null) add("Engine's best", `<code>${esc(d.plays[d.best].notation)}</code>`);
+    add('Is the risk worth it?', riskText(d));
     if (!d.program) {
       add('Option groups', d.group_size
         ? `split into groups of ${count(d.group_size)}; the group winners were compared`
@@ -226,11 +227,19 @@
     return `<dl class="facts dec-facts">${rows.join('')}</dl>`;
   }
 
+  const KIND = { risk: 'Risk pays', safety: 'Safety pays', none: 'No hit-risk trade-off' };
+  function riskText(d) {
+    if (!d.risk) return nm(d.invalid ? 'invalid answer: not classified' : 'not scored');
+    const kind = `<span class="dec-tag dec-kind dec-kind-${d.risk.class}">${KIND[d.risk.class]}</span>`;
+    if (d.risk.class === 'none') return `${kind} every legal play leaves the same number of hitting rolls`;
+    return `${kind} ${d.risk.took ? 'took a risk' : 'played safe'}`;
+  }
+
   function card(d, dataset) {
     const where = d.league === null
       ? `${esc(dataset.label)} \u00b7 position ${esc(d.id)} \u00b7 turn ${d.turn_no}`
       : `${esc(dataset.label)} \u00b7 game ${d.game} \u00b7 turn ${d.turn_no}`;
-    const link = `${linkFor(view)}#d${encodeURIComponent(d.id)}`;
+    const link = `${linkFor({ ...view, p: d._page || view.p, r: 'all', t: 'all' })}#d${encodeURIComponent(d.id)}`;
     const flag = d.invalid
       ? `<p class="dec-flag">${d.chosen === null ? "Invalid answer: no play was chosen; it does not count as the model's choice."
         : "Invalid answer: the runner played a random legal play; it does not count as the model's choice."}</p>` : '';
@@ -245,41 +254,70 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
   /* State and URL. */
   function readURL() {
     const q = new URLSearchParams(location.search);
-    return { d: q.get('d'), s: q.get('s'), p: Number.parseInt(q.get('p'), 10) || 1 };
+    return { d: q.get('d'), s: q.get('s'), p: Number.parseInt(q.get('p'), 10) || 1, r: q.get('r') || 'all', t: q.get('t') || 'all' };
   }
 
   function linkFor(v) {
-    return `?${new URLSearchParams({ d: v.d, s: v.s, p: String(v.p) })}`;
+    const q = { d: v.d, s: v.s, p: String(v.p) };
+    if (v.r && v.r !== 'all') q.r = v.r;
+    if (v.t && v.t !== 'all') q.t = v.t;
+    return `?${new URLSearchParams(q)}`;
   }
 
   function resolve(wanted) {
     const dataset = index.datasets.find(x => x.id === wanted.d) || index.datasets[0];
     const setups = dataset.setups;
     const setup = setups.find(x => x.slug === wanted.s) || setups.find(x => x.decisions > 0) || setups[0];
-    const p = setup ? Math.min(Math.max(1, wanted.p), Math.max(1, setup.pages)) : 1;
-    return { d: dataset.id, s: setup ? setup.slug : '', p, dataset, setup };
+    const r = ['risk', 'safety', 'none'].includes(wanted.r) ? wanted.r : 'all';
+    const t = r !== 'none' && ['took', 'safe'].includes(wanted.t) ? wanted.t : 'all';
+    return { d: dataset.id, s: setup ? setup.slug : '', p: Math.max(1, wanted.p || 1), r, t, dataset, setup };
+  }
+
+  const filtered = v => v.r !== 'all' || v.t !== 'all';
+
+  /* The B6 class of every decision of a setup, [page, id, class r/s/n or null, took a risk], for the filters. */
+  const riskIndexes = new Map();
+  function loadRiskIndex(dataset, slug) {
+    const url = `${encodeURIComponent(dataset)}/${encodeURIComponent(slug)}/risk.json.gz`;
+    if (!riskIndexes.has(url)) riskIndexes.set(url, fetchJSON(url).catch(error => { riskIndexes.delete(url); throw error; }));
+    return riskIndexes.get(url);
+  }
+
+  function matches(rows, v) {
+    const code = { risk: 'r', safety: 's', none: 'n' }[v.r];
+    return rows.filter(([, , c, took]) => c !== null && (!code || c === code) &&
+      (v.t === 'all' || (c !== 'n' && took === (v.t === 'took'))));
   }
 
   function pager(v) {
-    const total = v.setup ? v.setup.pages : 0;
+    const total = v.pages || 0;
     if (!total) return '';
-    const first = (v.p - 1) * index.page_size + 1, last = Math.min(v.p * index.page_size, v.setup.decisions);
+    const first = (v.p - 1) * index.page_size + 1, last = Math.min(v.p * index.page_size, v.total);
     return `<button type="button" class="key" data-step="-1"${v.p <= 1 ? ' aria-disabled="true"' : ''}>\u2190 Previous</button>
 <label class="dec-page">Page <input type="number" inputmode="numeric" min="1" max="${total}" value="${v.p}" aria-label="Page number"> of ${count(total)}</label>
 <button type="button" class="key" data-step="1"${v.p >= total ? ' aria-disabled="true"' : ''}>Next \u2192</button>
-<span class="in-view">decisions ${count(first)}\u2013${count(last)} of ${count(v.setup.decisions)}</span>`;
+<span class="in-view">decisions ${count(first)}\u2013${count(last)} of ${count(v.total)}${filtered(v) ? ' (filtered)' : ''}</span>`;
   }
 
   function renderControls(v) {
     const datasetOptions = index.datasets.map(x => `<option value="${esc(x.id)}"${x.id === v.d ? ' selected' : ''}>${esc(x.label)}</option>`).join('');
     const setupOptions = v.dataset.setups.map(x => `<option value="${esc(x.slug)}"${x.slug === v.s ? ' selected' : ''}>` +
       `${esc(x.name)} (${x.decisions ? plural(x.decisions, 'decision') : 'none scored yet'})</option>`).join('');
+    const rc = (v.setup && v.setup.risk) || {};
+    const kindOptions = [['all', 'All decisions'], ['risk', `Risk pays (${count(rc.risk || 0)})`],
+      ['safety', `Safety pays (${count(rc.safety || 0)})`], ['none', `No hit-risk trade-off (${count(rc.none || 0)})`]]
+      .map(([k, l]) => `<option value="${k}"${k === v.r ? ' selected' : ''}>${esc(l)}</option>`).join('');
+    const tookOptions = [['all', 'Either'], ['took', 'Took a risk'], ['safe', 'Played safe']]
+      .map(([k, l]) => `<option value="${k}"${k === v.t ? ' selected' : ''}>${esc(l)}</option>`).join('');
     const statusClass = v.dataset.status.split(/[ (:]/)[0].toLowerCase();
     controls.innerHTML = `<div class="filters-bar">
 <label class="group"><span class="group-label">Dataset</span><select id="dec-dataset">${datasetOptions}</select></label>
 <label class="group"><span class="group-label">Setup</span><select id="dec-setup">${setupOptions}</select></label>
+<label class="group"><span class="group-label">Decision kind</span><select id="dec-kind">${kindOptions}</select></label>
+<label class="group"><span class="group-label">The model</span><select id="dec-took"${v.r === 'none' ? ' disabled' : ''}>${tookOptions}</select></label>
 <span class="status status-${esc(statusClass)}">${esc(v.dataset.badge)}</span></div>
 ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
+<p class="note dec-note">Decision kinds (Method, Is the risk worth it?): hit risk only; gammon risk and priming are not in it.</p>
 <nav class="dec-pager" aria-label="Pages">${pager(v)}</nav>`;
     controls.hidden = false;
     pagerBottom.innerHTML = pager(v);
@@ -289,10 +327,9 @@ ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
   async function show(wanted, how) {
     const v = resolve(wanted);
     view = v;
-    if (how === 'push') history.pushState(null, '', linkFor(v));
-    else if (how === 'replace') history.replaceState(null, '', linkFor(v) + location.hash);
-    renderControls(v);
     if (!v.setup || !v.setup.decisions) {
+      v.total = 0; v.pages = 0;
+      renderControls(v);
       list.innerHTML = '';
       status.innerHTML = `${nm('Analysis pending')} No decision of this setup has been scored yet.`;
       return;
@@ -300,12 +337,33 @@ ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
     status.textContent = 'Loading\u2026';
     list.setAttribute('aria-busy', 'true');
     try {
-      const page = await loadPage(v.d, v.s, v.p);
+      let decisions;
+      if (filtered(v)) {
+        const hits = matches(await loadRiskIndex(v.d, v.s), v);
+        if (view !== v) return;
+        v.total = hits.length;
+        v.pages = Math.ceil(hits.length / index.page_size);
+        v.p = Math.min(v.p, Math.max(1, v.pages));
+        const slice = hits.slice((v.p - 1) * index.page_size, v.p * index.page_size);
+        const wantedPages = [...new Set(slice.map(([pg]) => pg))];
+        const loaded = new Map((await Promise.all(wantedPages.map(pg => loadPage(v.d, v.s, pg))))
+          .flatMap((doc, k) => doc.decisions.map(d => [String(d.id), { ...d, _page: wantedPages[k] }])));
+        decisions = slice.map(([, id]) => loaded.get(String(id))).filter(Boolean);
+      } else {
+        v.total = v.setup.decisions;
+        v.pages = v.setup.pages;
+        v.p = Math.min(v.p, Math.max(1, v.pages));
+        decisions = (await loadPage(v.d, v.s, v.p)).decisions;
+      }
       if (view !== v) return;
-      list.innerHTML = page.decisions.map(d => card(d, v.dataset)).join('');
-      const invalid = page.decisions.filter(d => d.invalid).length;
-      status.textContent = `${v.setup.name}: page ${count(v.p)} of ${count(v.setup.pages)}, ` +
-        `${plural(page.decisions.length, 'decision')}, ${plural(invalid, 'invalid answer')} on this page ` +
+      if (how === 'push') history.pushState(null, '', linkFor(v));
+      else if (how === 'replace') history.replaceState(null, '', linkFor(v) + location.hash);
+      renderControls(v);
+      list.innerHTML = decisions.map(d => card(d, v.dataset)).join('');
+      const invalid = decisions.filter(d => d.invalid).length;
+      status.textContent = v.total === 0 ? `${v.setup.name}: no decision matches these filters.`
+        : `${v.setup.name}: page ${count(v.p)} of ${count(v.pages)}, ` +
+        `${plural(decisions.length, 'decision')}, ${plural(invalid, 'invalid answer')} on this page ` +
         `(${plural(v.setup.invalid, 'invalid answer')} in all ${count(v.setup.decisions)}).`;
       updateFrames();
       const target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
@@ -313,6 +371,8 @@ ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
       else if (how === 'push') controls.scrollIntoView({ block: 'start' });
     } catch (error) {
       if (view !== v) return;
+      v.total = v.total || 0; v.pages = v.pages || 0;
+      renderControls(v);
       list.innerHTML = '';
       status.innerHTML = `<span class="load-error">Could not load this page of decisions (${esc(error.message)}).</span>`;
     } finally {
@@ -352,20 +412,22 @@ ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
   function onPagerClick(event) {
     const button = event.target.closest('button[data-step]');
     if (!button || button.getAttribute('aria-disabled') === 'true') return;
-    show({ d: view.d, s: view.s, p: view.p + Number(button.dataset.step) }, 'push');
+    show({ d: view.d, s: view.s, p: view.p + Number(button.dataset.step), r: view.r, t: view.t }, 'push');
   }
 
   function onPagerChange(event) {
     if (!event.target.matches('.dec-page input')) return;
     const p = Number.parseInt(event.target.value, 10);
-    if (p) show({ d: view.d, s: view.s, p }, 'push');
+    if (p) show({ d: view.d, s: view.s, p, r: view.r, t: view.t }, 'push');
   }
 
   controls.addEventListener('click', onPagerClick);
   pagerBottom.addEventListener('click', onPagerClick);
   controls.addEventListener('change', event => {
-    if (event.target.id === 'dec-dataset') show({ d: event.target.value, s: null, p: 1 }, 'push');
-    else if (event.target.id === 'dec-setup') show({ d: view.d, s: event.target.value, p: 1 }, 'push');
+    if (event.target.id === 'dec-dataset') show({ d: event.target.value, s: null, p: 1, r: view.r, t: view.t }, 'push');
+    else if (event.target.id === 'dec-setup') show({ d: view.d, s: event.target.value, p: 1, r: view.r, t: view.t }, 'push');
+    else if (event.target.id === 'dec-kind') show({ d: view.d, s: view.s, p: 1, r: event.target.value, t: view.t }, 'push');
+    else if (event.target.id === 'dec-took') show({ d: view.d, s: view.s, p: 1, r: view.r, t: event.target.value }, 'push');
     else onPagerChange(event);
   });
   pagerBottom.addEventListener('change', onPagerChange);

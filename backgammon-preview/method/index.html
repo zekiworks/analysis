@@ -6,11 +6,11 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Method · Zeki Works</title>
   <link rel="canonical" href="https://zekiworks.github.io/analysis/backgammon-preview/method/">
-  <meta name="description" content="We compare move quality, reasoning, confidence and cost using engine-scored backgammon decisions. 77,044 league decisions scored by GNUbg so far (League 1 finished; League 2 stopped (paused; 132 / 136 matches); League 3 finished). Shared-position results: analysis pending.">
-  <meta property="og:title" content="Method · Zeki Works"><meta property="og:description" content="We compare move quality, reasoning, confidence and cost using engine-scored backgammon decisions. 77,044 league decisions scored by GNUbg so far (League 1 finished; League 2 stopped (paused; 132 / 136 matches); League 3 finished). Shared-position results: analysis pending.">
+  <meta name="description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,044 decisions scored by GNU Backgammon so far (League 1 finished; League 2 stopped (paused; 132 / 136 matches); League 3 finished). Every decision is public.">
+  <meta property="og:title" content="Method · Zeki Works"><meta property="og:description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,044 decisions scored by GNU Backgammon so far (League 1 finished; League 2 stopped (paused; 132 / 136 matches); League 3 finished). Every decision is public.">
   <meta property="og:type" content="website"><meta property="og:url" content="https://zekiworks.github.io/analysis/backgammon-preview/method/">
-  <meta name="twitter:title" content="Method · Zeki Works"><meta name="twitter:description" content="We compare move quality, reasoning, confidence and cost using engine-scored backgammon decisions. 77,044 league decisions scored by GNUbg so far (League 1 finished; League 2 stopped (paused; 132 / 136 matches); League 3 finished). Shared-position results: analysis pending.">
-  <meta property="og:image" content="https://zekiworks.github.io/analysis/backgammon-preview/share/preview-d454bcb6.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://zekiworks.github.io/analysis/backgammon-preview/share/preview-d454bcb6.png">
+  <meta name="twitter:title" content="Method · Zeki Works"><meta name="twitter:description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,044 decisions scored by GNU Backgammon so far (League 1 finished; League 2 stopped (paused; 132 / 136 matches); League 3 finished). Every decision is public.">
+  <meta property="og:image" content="https://zekiworks.github.io/analysis/backgammon-preview/share/preview-c06138bf.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://zekiworks.github.io/analysis/backgammon-preview/share/preview-c06138bf.png">
   <meta name="color-scheme" content="dark light">
   <script>document.documentElement.classList.add("js"); try { var t = localStorage.getItem("theme") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"); if (t === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
   <link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../bg.css">
@@ -29,7 +29,7 @@
 <p>How the games are played, what the models are shown, how every decision is scored, and the rules for intervals and verdicts. The thresholds below were fixed before any number on this site was computed.</p>
 </section>
 
-<nav class="toc" aria-label="On this page"><ul><li><a href="#setup">Setup</a></li><li><a href="#shared-positions">Shared positions</a></li><li><a href="#prompt">The prompt</a></li><li><a href="#v1-why">Why it looks like this</a></li><li><a href="#error-rate">Error rate</a></li><li><a href="#human-scale">Human scale</a></li><li><a href="#risk">Is the risk worth it?</a></li><li><a href="#statistics">Statistics and verdicts</a></li><li><a href="#thresholds">Fixed thresholds</a></li><li><a href="#status">Status labels</a></li><li><a href="#versions">Versions and play order</a></li><li><a href="#confidence">Confidence</a></li><li><a href="#cost">Cost</a></li><li><a href="#time">Time</a></li><li><a href="#limits">Limits</a></li><li><a href="#experiments">Method experiments</a></li></ul></nav>
+<nav class="toc" aria-label="On this page"><ul><li><a href="#setup">Setup</a></li><li><a href="#shared-positions">Shared positions</a></li><li><a href="#prompt">The prompt</a></li><li><a href="#v1-why">Why it looks like this</a></li><li><a href="#error-rate">Error rate</a></li><li><a href="#human-scale">Human scale</a></li><li><a href="#risk">Is the risk worth it?</a></li><li><a href="#statistics">Statistics and verdicts</a></li><li><a href="#thresholds">Fixed thresholds</a></li><li><a href="#status">Status labels</a></li><li><a href="#versions">Versions and play order</a></li><li><a href="#confidence">Confidence</a></li><li><a href="#cost">Cost</a></li><li><a href="#time">Time</a></li><li><a href="#limits">Limits</a></li><li><a href="#v3-changes">Runner changes during the leagues</a></li><li><a href="#v3-anchor">The anchor</a></li><li><a href="#experiments">Method experiments</a></li></ul></nav>
 <section class="card" id="setup" aria-labelledby="setup-title">
 <h2 id="setup-title">Setup</h2>
 
@@ -313,21 +313,27 @@ Which of the following moves makes a point in front of the opponent's checkers, 
 <section class="card" id="risk" aria-labelledby="risk-title">
 <h2 id="risk-title">Is the risk worth it? Definitions</h2>
 
-<p>This is the main research question: can a model tell when a risk is worth taking?</p>
+<p>The core question: can a model tell when a risk is worth taking? Every scored decision gets exactly one class.</p>
 <dl class="facts">
   <dt>Hitting rolls</dt><dd>How many of the opponent's 36 rolls hit a blot after a play, as the model was shown it next
     to that play. The program counts them by generating the opponent's legal plays for each roll.</dd>
-  <dt>Safest play</dt><dd>The legal play that leaves the fewest hitting rolls. Several plays can tie.</dd>
-  <dt>Safety pays</dt><dd>A safest play is the engine's best play, or loses less than 0.001
-    equity.</dd>
-  <dt>Risk pays</dt><dd>Otherwise: the engine's best play leaves more hitting rolls than the safest play.</dd>
-  <dt>Took the risk</dt><dd>The play made leaves more hitting rolls than the safest play.</dd>
-  <dt>Played safe</dt><dd>The play made is one of the safest plays.</dd>
-  <dt>Left out</dt><dd>Decisions where every legal play leaves the same number of hitting rolls. They are not risk
-    decisions.</dd>
+  <dt>Minimum risk</dt><dd>The fewest hitting rolls any legal play leaves in that position.</dd>
+  <dt>Best safe play</dt><dd>Among the plays that leave the minimum, the one the engine rates best.</dd>
+  <dt>No hit-risk trade-off</dt><dd>Every legal play leaves the same number of hitting rolls: the model has no risk
+    choice. These decisions are counted and left out of every risk share.</dd>
+  <dt>Safety pays</dt><dd>The best safe play loses less than 0.001 equity against the
+    engine's best play.</dd>
+  <dt>Risk pays</dt><dd>The best safe play loses 0.001 equity or more against the
+    engine's best play.</dd>
+  <dt>Took a risk</dt><dd>The play made leaves more hitting rolls than the minimum.</dd>
+  <dt>Played safe</dt><dd>The play made leaves the minimum.</dd>
 </dl>
-<p>Two headline numbers per setup: in Risk pays decisions, how often it takes the risk; in Safety pays decisions, how
-  often it takes a needless risk.</p>
+<p>Each 2×2 cell shows its raw count, its share of the row and its mean equity lost. The denominator of a share is the
+  number of decisions in that row's class (Risk pays or Safety pays). Two headline numbers per setup: in Risk pays
+  decisions, the share where it took a risk; in Safety pays decisions, the share where it took a needless risk; each
+  with its count and denominator. A cell with no decisions shows 0 and no mean. The Safest program, which never takes
+  a risk, is the reference row: it shows what pure caution costs. The 0.001 threshold
+  was fixed before any result was computed.</p>
 <p class="note">Limit: this measures one kind of risk, being hit. Gammon risk and priming are not in it.</p>
 </section>
 
@@ -341,19 +347,24 @@ Which of the following moves makes a point in front of the opponent's checkers, 
   <li><strong>Shared positions</strong> resample positions.</li>
   <li><strong>Comparisons</strong> of two setups on the same positions are always paired: the interval is of the
     per-position difference in loss.</li>
-  <li><strong>Minimum sample:</strong> a cell with fewer than 200 decisions shows
-    "Too few decisions" instead of a value.</li>
+  <li><strong>League comparisons are not paired.</strong> League games give each setup different positions. Between
+    league setups we write only "no clear difference in league play" or "lower/higher error rate in league play",
+    never a verdict label.</li>
+  <li><strong>Minimum sample:</strong> an average (error rate, mean equity lost, a calibration metric) over fewer than
+    200 decisions shows "Too few decisions" instead of a value. Raw counts are always
+    shown, and a share is always shown with its count and denominator. Exception: the 50-position error rates on New
+    models: first look are shown with their intervals.</li>
   <li><strong>League placings</strong> are descriptive. Middle places move between leagues with the dice.</li>
 </ul>
 <h3 id="verdicts">Verdicts</h3>
-<p>For reasoning (low against high, off against on) and any comparison of A against B:</p>
+<p>For reasoning (low against high, off against on) and any comparison of A against B on the same positions:</p>
 <div class="table-wrap">
 <table class="board">
 <thead><tr><th scope="col">Verdict</th><th scope="col">Rule</th></tr></thead>
 <tbody>
 <tr><td><strong>High helps</strong></td><td>The paired 95% interval of the error difference (high minus low, or B minus A) lies entirely below zero.</td></tr>
 <tr><td><strong>High hurts</strong></td><td>The interval lies entirely above zero.</td></tr>
-<tr><td><strong>No clear benefit</strong></td><td>The interval includes zero. This does not mean the two are the same.</td></tr>
+<tr><td><strong>No clear benefit</strong></td><td>The interval includes zero. Never read as &quot;the same&quot;, &quot;level&quot; or &quot;gains nothing&quot;.</td></tr>
 <tr><td><strong>Depends on the position</strong></td><td>Phase-level effects point in different directions, each with an interval that excludes zero.</td></tr>
 </tbody>
 </table>
@@ -421,7 +432,7 @@ Which of the following moves makes a point in front of the opponent's checkers, 
 </tbody>
 </table>
 </div>
-<p>A cell below the minimum sample shows "Too few decisions".</p>
+<p>An average below the minimum sample shows "Too few decisions".</p>
 </section>
 
 <section class="card" id="versions" aria-labelledby="versions-title">
@@ -463,6 +474,8 @@ Which of the following moves makes a point in front of the opponent's checkers, 
   <dt>API-equivalent (subscription)</dt><dd>A setup played through a subscription, which is not billed per token,
     priced at the API list price × the tokens reported. Not money paid.</dd>
   <dt>Own hardware</dt><dd>A setup run on our own GPUs. It has no per-request price; no dollar figure is shown.</dd>
+  <dt>List-price estimate; runs on our GPUs</dt><dd>A model that runs on our GPUs but has a maker's list price,
+    priced at that list price × the tokens reported. Not money paid.</dd>
 </dl>
 <p>Every view shows how many of its decisions have a cost (cost coverage).</p>
 </section>
@@ -509,6 +522,70 @@ Which of the following moves makes a point in front of the opponent's checkers, 
 </ul>
 </section>
 
+<!-- Archived from the earlier live page: zekiworks/analysis, backgammon/index.html at commit 3eca8e4.
+     Sections: "Changes during the leagues" and "About the anchor" (both h3 in the v3 section, here h2). Text and numbers unchanged; markup adapted to site.css (classes, ids, links),
+     the generated "anchor-stats" list (filled from v3-results.json by the page script) is left out.
+     Shown on the Method page (brief v6 B5: the anchor note and the runner changes during the leagues).
+     -->
+<section class="card" id="v3-changes" aria-labelledby="v3-changes-title">
+  <h2 id="v3-changes-title">Runner changes during the leagues</h2>
+  <ul>
+    <li><strong>Voided matches.</strong> The first matches of LFM2.5-24B-A2B (off, on) and Qwen3.8 Flash (off) were voided
+      on 19 October and replay from scratch with the same dice. The runner had read the letter probabilities from the wrong
+      token: for LFM2.5, Liquid's API returns probabilities for the reasoning tokens too, so every decision read a letter
+      from the reasoning; for Qwen3.8 Flash, some decisions read the "c" of a split "choice" key. It now reads them
+      at the reply's letter and counts a mismatch as invalid. LFM2.5 now runs on our GPU from Liquid's bf16 checkpoint,
+      with the letter read after a prefilled "Answer:".</li>
+    <li><strong>Qwen3.8-27B (off) replayed.</strong> On our vLLM server the list of token probabilities ends with an
+      end-of-message token after the letter, so the runner found no letter and played the letter Qwen had sampled
+      instead of its most likely one, in every one of its decisions there. The runner now skips such trailing tokens;
+      Qwen3.8-27B (off)'s affected matches were voided on 20 October and replayed with the same dice. No other setup
+      was affected.</li>
+    <li><strong>Withdrawn.</strong> Qwen3.8 Flash Next (off, on): with reasoning on it took many minutes per decision
+      on a DGX Spark. Its matches are removed from the league. Qwen3.8 Flash (off), through OpenRouter, joined instead.</li>
+    <li><strong>Moved.</strong> On 19 October League 1 became decision models only: Gemma 4 31B (off, on) and
+      Qwen3.8-27B (off, on) moved to League 2, and their League 1 matches no longer count. GPT-6 Luna's first
+      entry, through the ChatGPT subscription as a chat model, was removed; it plays through OpenAI's Decisions API.
+      The other new decision models joined League 1 the same day; Fastino GLiDE and Decider v1.2 27B joined on 20 October.</li>
+    <li><strong>Hardware.</strong> Clef, Cygnet and Decider v1.1 27B moved from our RTX PRO 6000 cards to DGX Spark (GB10)
+      machines on 16 October, with the same checkpoints and settings (replayed requests: the same play in all). Open-Jev
+      stayed, because on a DGX Spark it sometimes chose another play. Gemma 4 31B ran on a DGX Spark from 19 October
+      18:36 to 22:26 UTC, then on an RTX PRO 6000 again (the same play in all replayed requests). Qwen3.8-27B started on
+      Cerebras through OpenRouter, where it finished no match, and then moved to our GPU in fp16 (the same top letter in
+      most replayed requests). From 20 October 21:10 UTC Gemma 4 31B, LFM2.5-24B-A2B and Qwen3.8-27B played on DGX Sparks
+      with the same checkpoints and settings (the same top letter in all replayed requests), so that DeepSeek V4.1 Flash
+      could have all of our RTX PRO 6000 cards; on 21 October 01:25-05:00 UTC they played their last non-DeepSeek matches
+      on the RTX PRO 6000 cards again (LFM2.5 is not deterministic, so its replays agree less often).</li>
+    <li><strong>DeepSeek V4.1 Flash on our GPUs.</strong> From 20 October 21:56 UTC, DeepSeek V4.1 Flash (off, on) plays
+      on our own SGLang server instead of Fireworks through OpenRouter: the 17 October revision of the published weights
+      (FP4 routed experts, FP8/BF16 elsewhere); Fireworks does not say which revision it serves. On stored Fireworks
+      requests our server usually chose the same top letter, but not always; it is not deterministic, and Fireworks
+      replaying its own stored answers did not always agree either.</li>
+    <li><strong>Gemini by subscription.</strong> With no Gemini API key, Gemini 3.8 Flash (low, high) plays through
+      the Google Antigravity subscription from 19 October 12:46 UTC: the same model, prompt, thinking levels and
+      constrained letter. On the smoke positions it nearly always chose the same play as the API.</li>
+    <li><strong>Paused matches.</strong> A match that fails on a provider error (OpenRouter credit or rate limits, a
+      server restart) waits and resumes later from its last stored turn; the other matches go on.</li>
+  </ul>
+</section>
+
+<section class="card" id="v3-anchor" aria-labelledby="v3-anchor-title">
+  <h2 id="v3-anchor-title">The anchor</h2>
+  <p>The anchor, GNU Backgammon 1.08 at its Beginner level (0-ply, deterministic noise 0.06), ran on one x86-64 build
+    only, and on x86-64 it is not the Beginner that GNU Backgammon intends. Its deterministic-noise code sums the hash
+    bytes as <code>char</code>, which is signed on x86-64, but subtracts the mean of unsigned bytes, so every noise draw
+    is shifted by about −7 standard deviations. The anchor understates its own winning chances and plays for gammons.</p>
+  <ul>
+    <li><strong>Another build plays differently.</strong> On the 1,000 v1 positions, the x86-64 and ARM builds of the same
+      package choose different plays in 659; with the noise off, in 6, all exact ties. Error rate 21.8 on x86-64 against
+      16.8 on ARM.</li>
+    <li><strong>Gammons in self-play.</strong> 72% of games end in a gammon or backgammon on x86-64, 40% on ARM and
+      about 30% without noise.</li>
+  </ul>
+  <p>So v3's anchor is "GNUbg 1.08 Beginner, x86-64 build", and its results are reproducible on x86-64 only: a replay
+    there gives the recorded plays. Later releases of the benchmark use a corrected build.</p>
+</section>
+
 <section class="card" id="experiments" aria-labelledby="experiments-title">
 <h2 id="experiments-title">Method experiments</h2>
 
@@ -552,13 +629,13 @@ Which of the following moves makes a point in front of the opponent's checkers, 
     gammon or backgammon on x86-64, 40.3% on ARM, 30.0% without noise.</li>
 </ul>
 <p>So the v3 anchor is "GNU Backgammon 1.08 Beginner, x86-64 build". It is a fixed reference, not GNU Backgammon's
-  Beginner as published elsewhere. See also <a href="../leagues/#v3-anchor">About the anchor</a>.</p>
+  Beginner as published elsewhere. See also <a href="#v3-anchor">The anchor</a>.</p>
 </section>
 
   </main>
   <footer class="footer">
-    <p>Download: <a href="../data/">data files</a> · <a href="../data/manifest.json">manifest.json</a></p>
-    <p>Results aa7874ad, data as of 22 October 2026, 06:42 UTC.</p>
+    <p>Download: <a href="../data/results.json">results (JSON)</a> · <a href="../decisions/index.json">decisions (JSON index)</a> · <a href="../data/">every data file</a> · <a href="../data/manifest.json">manifest.json</a></p>
+    <p>Results aae4be33, updated 22 October 2026, 14:05 UTC.</p>
   </footer>
 </body>
 </html>

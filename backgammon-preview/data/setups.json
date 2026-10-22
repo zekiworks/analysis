@@ -16,7 +16,7 @@
    "price": {
     "date": null,
     "input_per_mtok": 0.02,
-    "label": "list-price estimate (runs on our GPUs)",
+    "label": "list-price estimate; runs on our GPUs",
     "output_per_mtok": 0.0
    },
    "provider": "our GPUs, bf16; DGX Spark from 16 Oct",
@@ -446,7 +446,7 @@
    "price": {
     "date": "2026-10-18",
     "input_per_mtok": 0.01,
-    "label": "list-price estimate (runs on our GPUs)",
+    "label": "list-price estimate; runs on our GPUs",
     "output_per_mtok": 0.0
    },
    "provider": "our GPU, bf16",
@@ -582,7 +582,7 @@
    "price": {
     "date": "2026-10-18",
     "input_per_mtok": 0.02,
-    "label": "list-price estimate (runs on our GPUs)",
+    "label": "list-price estimate; runs on our GPUs",
     "output_per_mtok": 0.0
    },
    "provider": "our GPU, bf16",
@@ -1713,7 +1713,7 @@
    "price": {
     "date": null,
     "input_per_mtok": 0.02,
-    "label": "list-price estimate (runs on our GPUs)",
+    "label": "list-price estimate; runs on our GPUs",
     "output_per_mtok": 0.0
    },
    "provider": "our GPUs (released checkpoint, its own server code)",
@@ -2210,6 +2210,7 @@
    "name": "Gemini 4 Argon (shuffled)",
    "notes": "the same setup with the options in a seeded random order per position, to measure the effect of the v1 play order",
    "option_groups": null,
+   "play_order": "shuffled (replay of the v1 set with the plays in a seeded random order)",
    "price": {
     "date": null,
     "input_per_mtok": 2.0,
@@ -2221,7 +2222,7 @@
    "rules_text": "short (the v1 rules text; the same stored request text for every model)",
    "runs_on": "API",
    "sampling": "temperature 1.0",
-   "setting": "shuffled",
+   "setting": null,
    "slug": "v1-gemini-4-argon-shuffled",
    "sources": [
     "tools/replay.py",

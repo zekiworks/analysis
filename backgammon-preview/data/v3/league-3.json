@@ -1109,6 +1109,58 @@
   }
  ],
  "metric_status": "Published",
+ "reasoning": [
+  {
+   "extra_cost": 61.24259553016337,
+   "extra_time_median": 9.779,
+   "high": "Claude Fable 5.1 (on)",
+   "high_setting": "on",
+   "low": "Claude Fable 5.1 (off)",
+   "low_setting": "off",
+   "model": "Claude Fable 5.1",
+   "reading": "lower error rate in league play"
+  },
+  {
+   "extra_cost": 8.170069982993589,
+   "extra_time_median": 2.5829999999999993,
+   "high": "Claude Opus 5.5 (on)",
+   "high_setting": "on",
+   "low": "Claude Opus 5.5 (off)",
+   "low_setting": "off",
+   "model": "Claude Opus 5.5",
+   "reading": "no clear difference in league play"
+  },
+  {
+   "extra_cost": 0.39047145913357184,
+   "extra_time_median": 0.19199999999999973,
+   "high": "GPT-6 Astra (on)",
+   "high_setting": "on",
+   "low": "GPT-6 Astra (off)",
+   "low_setting": "off",
+   "model": "GPT-6 Astra",
+   "reading": "no clear difference in league play"
+  },
+  {
+   "extra_cost": 31.14390128638359,
+   "extra_time_median": 20.875500000000002,
+   "high": "Gemini 4 Argon (on)",
+   "high_setting": "on",
+   "low": "Gemini 4 Argon (off)",
+   "low_setting": "off",
+   "model": "Gemini 4 Argon",
+   "reading": "no clear difference in league play"
+  },
+  {
+   "extra_cost": 81.56586763147081,
+   "extra_time_median": 92.963,
+   "high": "Grok 4.7 (on)",
+   "high_setting": "on",
+   "low": "Grok 4.7 (off)",
+   "low_setting": "off",
+   "model": "Grok 4.7",
+   "reading": "no clear difference in league play"
+  }
+ ],
  "scored": 14504,
  "setups": {
   "Claude Fable 5.1 (off)": {
@@ -1158,38 +1210,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 433,
       "mean_loss": 0.11432945975443212,
       "n": 205,
-      "share": 0.19321394910461828
+      "share": 0.47344110854503463
      },
      "risk_took": {
       "confidence": null,
+      "den": 433,
       "mean_loss": 0.044539052666279305,
       "n": 228,
-      "share": 0.21489161168708765
+      "share": 0.5265588914549654
      },
      "safety_safe": {
       "confidence": null,
+      "den": 628,
       "mean_loss": 0.014367571663568262,
       "n": 579,
-      "share": 0.5457115928369463
+      "share": 0.9219745222929936
      },
      "safety_took": {
       "confidence": null,
+      "den": 628,
       "mean_loss": 0.15232492527183222,
       "n": 49,
-      "share": 0.046182846371347785
+      "share": 0.07802547770700637
      }
     },
     "decisions": 1061,
     "needless_risk": 0.07802547770700637,
     "no_risk_choice": 396,
     "risk_pays": 433,
-    "risk_too_few": false,
     "safety_pays": 628,
-    "safety_too_few": false,
     "takes_risk": 0.5265588914549654,
-    "too_few": false
+    "took_needless": 49,
+    "took_when_pays": 228
    },
    "slug": "claude-fable-5-1-off"
   },
@@ -1240,38 +1295,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 387,
       "mean_loss": 0.08708526729220185,
       "n": 181,
-      "share": 0.18972746331236898
+      "share": 0.46770025839793283
      },
      "risk_took": {
       "confidence": null,
+      "den": 387,
       "mean_loss": 0.02347922137061369,
       "n": 206,
-      "share": 0.21593291404612158
+      "share": 0.5322997416020672
      },
      "safety_safe": {
       "confidence": null,
+      "den": 567,
       "mean_loss": 0.009524037049950732,
       "n": 534,
-      "share": 0.559748427672956
+      "share": 0.9417989417989417
      },
      "safety_took": {
       "confidence": null,
+      "den": 567,
       "mean_loss": 0.10603958910161798,
       "n": 33,
-      "share": 0.03459119496855346
+      "share": 0.0582010582010582
      }
     },
     "decisions": 954,
     "needless_risk": 0.0582010582010582,
     "no_risk_choice": 249,
     "risk_pays": 387,
-    "risk_too_few": false,
     "safety_pays": 567,
-    "safety_too_few": false,
     "takes_risk": 0.5322997416020672,
-    "too_few": false
+    "took_needless": 33,
+    "took_when_pays": 206
    },
    "slug": "claude-fable-5-1-on"
   },
@@ -1322,38 +1380,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 442,
       "mean_loss": 0.10064968431279772,
       "n": 252,
-      "share": 0.27184466019417475
+      "share": 0.5701357466063348
      },
      "risk_took": {
       "confidence": null,
+      "den": 442,
       "mean_loss": 0.03314458994488967,
       "n": 190,
-      "share": 0.20496224379719524
+      "share": 0.4298642533936652
      },
      "safety_safe": {
       "confidence": null,
+      "den": 485,
       "mean_loss": 0.009558082529992767,
       "n": 462,
-      "share": 0.49838187702265374
+      "share": 0.9525773195876288
      },
      "safety_took": {
       "confidence": null,
+      "den": 485,
       "mean_loss": 0.140162978483283,
       "n": 23,
-      "share": 0.02481121898597627
+      "share": 0.04742268041237113
      }
     },
     "decisions": 927,
     "needless_risk": 0.04742268041237113,
     "no_risk_choice": 334,
     "risk_pays": 442,
-    "risk_too_few": false,
     "safety_pays": 485,
-    "safety_too_few": false,
     "takes_risk": 0.4298642533936652,
-    "too_few": false
+    "took_needless": 23,
+    "took_when_pays": 190
    },
    "slug": "claude-opus-5-5-off"
   },
@@ -1404,38 +1465,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 439,
       "mean_loss": 0.10541433676824731,
       "n": 236,
-      "share": 0.22670509125840538
+      "share": 0.5375854214123007
      },
      "risk_took": {
       "confidence": null,
+      "den": 439,
       "mean_loss": 0.03447251308140496,
       "n": 203,
-      "share": 0.19500480307396734
+      "share": 0.4624145785876993
      },
      "safety_safe": {
       "confidence": null,
+      "den": 602,
       "mean_loss": 0.007538331653477796,
       "n": 586,
-      "share": 0.5629202689721422
+      "share": 0.973421926910299
      },
      "safety_took": {
       "confidence": null,
+      "den": 602,
       "mean_loss": 0.09214799292385578,
       "n": 16,
-      "share": 0.01536983669548511
+      "share": 0.026578073089700997
      }
     },
     "decisions": 1041,
     "needless_risk": 0.026578073089700997,
     "no_risk_choice": 343,
     "risk_pays": 439,
-    "risk_too_few": false,
     "safety_pays": 602,
-    "safety_too_few": false,
     "takes_risk": 0.4624145785876993,
-    "too_few": false
+    "took_needless": 16,
+    "took_when_pays": 203
    },
    "slug": "claude-opus-5-5-on"
   },
@@ -1469,38 +1533,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 513,
       "mean_loss": 0.08053314408590627,
       "n": 86,
-      "share": 0.07825295723384895
+      "share": 0.16764132553606237
      },
      "risk_took": {
       "confidence": null,
+      "den": 513,
       "mean_loss": 0.0695289117251403,
       "n": 427,
-      "share": 0.3885350318471338
+      "share": 0.8323586744639376
      },
      "safety_safe": {
       "confidence": null,
+      "den": 586,
       "mean_loss": 0.017601734240849813,
       "n": 375,
-      "share": 0.34121929026387626
+      "share": 0.6399317406143344
      },
      "safety_took": {
       "confidence": null,
+      "den": 586,
       "mean_loss": 0.14852156359437518,
       "n": 211,
-      "share": 0.19199272065514103
+      "share": 0.36006825938566556
      }
     },
     "decisions": 1099,
     "needless_risk": 0.36006825938566556,
     "no_risk_choice": 344,
     "risk_pays": 513,
-    "risk_too_few": false,
     "safety_pays": 586,
-    "safety_too_few": false,
     "takes_risk": 0.8323586744639376,
-    "too_few": false
+    "took_needless": 211,
+    "took_when_pays": 427
    },
    "slug": "gnubg-weak"
   },
@@ -1551,38 +1618,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 419,
       "mean_loss": 0.09594349445921652,
       "n": 178,
-      "share": 0.1831275720164609
+      "share": 0.42482100238663484
      },
      "risk_took": {
       "confidence": null,
+      "den": 419,
       "mean_loss": 0.027186123661975148,
       "n": 241,
-      "share": 0.24794238683127573
+      "share": 0.5751789976133651
      },
      "safety_safe": {
       "confidence": null,
+      "den": 553,
       "mean_loss": 0.005327642817078656,
       "n": 524,
-      "share": 0.5390946502057613
+      "share": 0.9475587703435805
      },
      "safety_took": {
       "confidence": null,
+      "den": 553,
       "mean_loss": 0.04908505904263463,
       "n": 29,
-      "share": 0.029835390946502057
+      "share": 0.05244122965641953
      }
     },
     "decisions": 972,
     "needless_risk": 0.05244122965641953,
     "no_risk_choice": 338,
     "risk_pays": 419,
-    "risk_too_few": false,
     "safety_pays": 553,
-    "safety_too_few": false,
     "takes_risk": 0.5751789976133651,
-    "too_few": false
+    "took_needless": 29,
+    "took_when_pays": 241
    },
    "slug": "gpt-6-astra-off"
   },
@@ -1633,38 +1703,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 422,
       "mean_loss": 0.09486313660939534,
       "n": 186,
-      "share": 0.19314641744548286
+      "share": 0.44075829383886256
      },
      "risk_took": {
       "confidence": null,
+      "den": 422,
       "mean_loss": 0.026057314443386208,
       "n": 236,
-      "share": 0.245067497403946
+      "share": 0.5592417061611374
      },
      "safety_safe": {
       "confidence": null,
+      "den": 541,
       "mean_loss": 0.006786158348482882,
       "n": 511,
-      "share": 0.5306334371754933
+      "share": 0.944547134935305
      },
      "safety_took": {
       "confidence": null,
+      "den": 541,
       "mean_loss": 0.08004930913448334,
       "n": 30,
-      "share": 0.03115264797507788
+      "share": 0.05545286506469501
      }
     },
     "decisions": 963,
     "needless_risk": 0.05545286506469501,
     "no_risk_choice": 293,
     "risk_pays": 422,
-    "risk_too_few": false,
     "safety_pays": 541,
-    "safety_too_few": false,
     "takes_risk": 0.5592417061611374,
-    "too_few": false
+    "took_needless": 30,
+    "took_when_pays": 236
    },
    "slug": "gpt-6-astra-on"
   },
@@ -1715,38 +1788,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 435,
       "mean_loss": 0.12370032601267378,
       "n": 214,
-      "share": 0.21314741035856574
+      "share": 0.49195402298850577
      },
      "risk_took": {
       "confidence": null,
+      "den": 435,
       "mean_loss": 0.032122721769151645,
       "n": 221,
-      "share": 0.2201195219123506
+      "share": 0.5080459770114942
      },
      "safety_safe": {
       "confidence": null,
+      "den": 569,
       "mean_loss": 0.014206694944422374,
       "n": 516,
-      "share": 0.5139442231075697
+      "share": 0.9068541300527241
      },
      "safety_took": {
       "confidence": null,
+      "den": 569,
       "mean_loss": 0.1139408844821858,
       "n": 53,
-      "share": 0.052788844621513946
+      "share": 0.09314586994727592
      }
     },
     "decisions": 1004,
     "needless_risk": 0.09314586994727592,
     "no_risk_choice": 402,
     "risk_pays": 435,
-    "risk_too_few": false,
     "safety_pays": 569,
-    "safety_too_few": false,
     "takes_risk": 0.5080459770114942,
-    "too_few": false
+    "took_needless": 53,
+    "took_when_pays": 221
    },
    "slug": "gemini-4-argon-off"
   },
@@ -1797,38 +1873,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 397,
       "mean_loss": 0.10878229412165555,
       "n": 187,
-      "share": 0.20326086956521738
+      "share": 0.47103274559193953
      },
      "risk_took": {
       "confidence": null,
+      "den": 397,
       "mean_loss": 0.02706927132038843,
       "n": 210,
-      "share": 0.22826086956521738
+      "share": 0.5289672544080605
      },
      "safety_safe": {
       "confidence": null,
+      "den": 523,
       "mean_loss": 0.008145130219300276,
       "n": 509,
-      "share": 0.5532608695652174
+      "share": 0.9732313575525813
      },
      "safety_took": {
       "confidence": null,
+      "den": 523,
       "mean_loss": 0.04614111355372837,
       "n": 14,
-      "share": 0.015217391304347827
+      "share": 0.02676864244741874
      }
     },
     "decisions": 920,
     "needless_risk": 0.02676864244741874,
     "no_risk_choice": 374,
     "risk_pays": 397,
-    "risk_too_few": false,
     "safety_pays": 523,
-    "safety_too_few": false,
     "takes_risk": 0.5289672544080605,
-    "too_few": false
+    "took_needless": 14,
+    "took_when_pays": 210
    },
    "slug": "gemini-4-argon-on"
   },
@@ -1879,38 +1958,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 382,
       "mean_loss": 0.12049062684178352,
       "n": 200,
-      "share": 0.22148394241417496
+      "share": 0.5235602094240838
      },
      "risk_took": {
       "confidence": null,
+      "den": 382,
       "mean_loss": 0.04487632231397943,
       "n": 182,
-      "share": 0.20155038759689922
+      "share": 0.47643979057591623
      },
      "safety_safe": {
       "confidence": null,
+      "den": 521,
       "mean_loss": 0.012698246379983699,
       "n": 479,
-      "share": 0.530454042081949
+      "share": 0.9193857965451055
      },
      "safety_took": {
       "confidence": null,
+      "den": 521,
       "mean_loss": 0.17641627930459522,
       "n": 42,
-      "share": 0.046511627906976744
+      "share": 0.08061420345489444
      }
     },
     "decisions": 903,
     "needless_risk": 0.08061420345489444,
     "no_risk_choice": 344,
     "risk_pays": 382,
-    "risk_too_few": false,
     "safety_pays": 521,
-    "safety_too_few": false,
     "takes_risk": 0.47643979057591623,
-    "too_few": false
+    "took_needless": 42,
+    "took_when_pays": 182
    },
    "slug": "grok-4-7-off"
   },
@@ -1961,38 +2043,41 @@
     "cells": {
      "risk_safe": {
       "confidence": null,
+      "den": 396,
       "mean_loss": 0.10079864032712638,
       "n": 204,
-      "share": 0.23638470451911936
+      "share": 0.5151515151515151
      },
      "risk_took": {
       "confidence": null,
+      "den": 396,
       "mean_loss": 0.049277739909787975,
       "n": 192,
-      "share": 0.22247972190034762
+      "share": 0.48484848484848486
      },
      "safety_safe": {
       "confidence": null,
+      "den": 467,
       "mean_loss": 0.008572429694511273,
       "n": 432,
-      "share": 0.5005793742757821
+      "share": 0.9250535331905781
      },
      "safety_took": {
       "confidence": null,
+      "den": 467,
       "mean_loss": 0.07556357128279549,
       "n": 35,
-      "share": 0.04055619930475087
+      "share": 0.07494646680942184
      }
     },
     "decisions": 863,
     "needless_risk": 0.07494646680942184,
     "no_risk_choice": 380,
     "risk_pays": 396,
-    "risk_too_few": false,
     "safety_pays": 467,
-    "safety_too_few": false,
     "takes_risk": 0.48484848484848486,
-    "too_few": false
+    "took_needless": 35,
+    "took_when_pays": 192
    },
    "slug": "grok-4-7-on"
   }
