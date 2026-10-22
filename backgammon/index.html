@@ -74,8 +74,8 @@
     <p class="lede">Seven decision models play full backgammon leagues against each other. A decision model does not write
       moves: it is given a description of the position and the complete list of legal plays, and it picks one. We changed
       what that description contains several times and watched how the games changed.</p>
-    <p class="byline">Updated 21 October 2026 · v1: 12 leagues run, 4 finished with the current prompt · v3:
-      <span id="v3-byline"><!-- v3:byline -->Leagues 1 and 3 finished; League 2: 132 of 136 matches, paused<!-- /v3:byline --></span> · every decision scored by GNU Backgammon</p>
+    <p class="byline">Updated <span id="v3-updated"><!-- v3:updated -->22 October 2026<!-- /v3:updated --></span> · v1: 12 leagues run, 4 finished with the current prompt · v3:
+      <span id="v3-byline"><!-- v3:byline -->Leagues 1 and 3 finished; League 2: 132 of 136 matches, in progress, last move 505 min ago<!-- /v3:byline --></span> · every decision scored by GNU Backgammon</p>
     <div class="finding">
       <p class="finding-label">Finding</p>
       <p>Describing, for every legal play, what the position looks like after it (blots left, how many of the opponent's
@@ -91,11 +91,11 @@
         Gemini 4 Argon (16.9) and Claude Opus 5.5 (17.3), both intermediate, ahead of every decision model. They are also the
         slowest and, at API prices, the most expensive (see <a href="#speed-cost">Speed and cost</a>).</p>
       <p><strong>v3</strong> shuffles the options and runs three leagues (live tables below):
-        <span id="v3-summary"><!-- v3:summary -->decision models (finished: Liquid d1-ultra first, and the weak GNU Backgammon anchor plays better than every decision model), workhorse chat models closed and open (paused: GPT-6.1 Sol (low) leads; lowest error rate GPT-6.1 Sol (low), 10.8), and frontier chat models on subscriptions, each with reasoning off and on (finished: GPT-6 Astra (on) first)<!-- /v3:summary --></span>. See <a href="#v3">v3 leagues</a>.</p>
+        <span id="v3-summary"><!-- v3:summary -->decision models (finished: Liquid d1-ultra first, and the weak GNU Backgammon anchor plays better than every decision model), workhorse chat models closed and open (in progress: GPT-6.1 Sol (low) leads; lowest error rate GPT-6.1 Sol (low), 10.8), and frontier chat models on subscriptions, each with reasoning off and on (finished: GPT-6 Astra (on) first)<!-- /v3:summary --></span>. See <a href="#v3">v3 leagues</a>.</p>
     </div>
     <nav class="toc" aria-label="Sections">
       <ul>
-        <li><a href="#v3" id="v3-toc"><!-- v3:toc -->v3 leagues (paused)<!-- /v3:toc --></a></li>
+        <li><a href="#v3" id="v3-toc"><!-- v3:toc -->v3 leagues (in progress)<!-- /v3:toc --></a></li>
         <li><a href="#setup">The setup</a></li>
         <li><a href="#models">Models</a></li>
         <li><a href="#prompt">The prompt</a></li>
@@ -111,9 +111,9 @@
 
   <main>
     <section id="v3" aria-labelledby="v3-title">
-      <h2 id="v3-title"><!-- v3:title -->v3 leagues (paused)<!-- /v3:title --></h2>
+      <h2 id="v3-title"><!-- v3:title -->v3 leagues (in progress)<!-- /v3:title --></h2>
       <p class="note"><strong id="v3-live"><!-- v3:live -->Live: data as of 22 October 2026, 06:13 UTC · updates every 15 minutes<!-- /v3:live --></strong>.
-        <span id="v3-status"><!-- v3:status -->League 1 has finished; League 2 has 4 of 136 matches to play; League 3 has finished.<!-- /v3:status --></span></p>
+        <span id="v3-status"><!-- v3:status -->League 1 has finished; League 2 has 4 of 136 matches to play (4 thinking, last move 505 min ago); League 3 has finished.<!-- /v3:status --></span></p>
       <p>v3 keeps the v1 match rules (rounds of two games with the same dice, 3 rounds, 300-turn limit, no cube) and changes
         how the models are asked:</p>
       <ul>
@@ -196,17 +196,17 @@
         <li><strong>The 6 v1 decision models against their v1 error rates</strong>: 4 higher, 2 lower or equal: Jev 1.13.0 34.8 (v1: 35.7), Clef 37.3 (v1: 35.8), Decider v1.1 27B 38.0 (v1: 32.7), Cygnet (Gemma 4 12B) 39.6 (v1: 43.2), GPT-6 Luna 42.5 (v1: 39.4), Open-Jev 27B v1.1 65.7 (v1: 59.6). The games, opponents and option order differ, so this is not a paired comparison.</li>
         <li><strong>New versions</strong>: Jev 1.14.0 35.3 (36 points) against Jev 1.13.0 34.8 (36 points): no clear difference in league play; Decider v1.2 27B 37.1 (33 points) against Decider v1.1 27B 38.0 (27 points): no clear difference in league play.</li>
         <li><strong>The hosted decision services</strong> (8) take 0.2 s to 0.5 s per decision; the 7 with a price cost $0.07 to $0.34 per 1,000 decisions.</li><!-- /v3:notes1 --></ul>
-      <h3 id="v3-l2"><span id="v3-head2"><!-- v3:head2 -->League 2: workhorse chat models, closed and open (paused)<!-- /v3:head2 --></span></h3>
+      <h3 id="v3-l2"><span id="v3-head2"><!-- v3:head2 -->League 2: workhorse chat models, closed and open (in progress, last move 505 min ago)<!-- /v3:head2 --></span></h3>
       <p class="muted" id="v3-progress2"><!-- v3:progress2 -->132 of 136 matches finished, 711 games<!-- /v3:progress2 --></p>
       <div id="v3-league2"><!-- v3:league2 -->
       <div class="table-wrap">
         <table>
           <thead><tr><th class="l">Match not finished</th><th class="l">State</th><th>Rounds played</th><th>Score</th><th>Last move (UTC)</th></tr></thead>
           <tbody>
-            <tr><td class="l">DeepSeek V4.1 Flash (off) v LFM2.5-24B-A2B (on)</td><td class="l">paused</td><td>1 of 3</td><td>1-1</td><td>22 Oct 04:50</td></tr>
-            <tr><td class="l">DeepSeek V4.1 Flash (on) v LFM2.5-24B-A2B (on)</td><td class="l">paused</td><td>0 of 3</td><td>0-0</td><td>22 Oct 05:53</td></tr>
-            <tr><td class="l">Gemma 4 31B (on) v DeepSeek V4.1 Flash (on)</td><td class="l">paused</td><td>0 of 3</td><td>0-0</td><td>22 Oct 05:42</td></tr>
-            <tr><td class="l">DeepSeek V4.1 Flash (on) v Qwen3.8-27B (on)</td><td class="l">paused</td><td>1 of 3</td><td>2-0</td><td>22 Oct 06:13</td></tr>
+            <tr><td class="l">DeepSeek V4.1 Flash (off) v LFM2.5-24B-A2B (on)</td><td class="l"><span class="live">thinking</span>, last move 587 min ago</td><td>1 of 3</td><td>1-1</td><td>22 Oct 04:50</td></tr>
+            <tr><td class="l">DeepSeek V4.1 Flash (on) v LFM2.5-24B-A2B (on)</td><td class="l"><span class="live">thinking</span>, last move 525 min ago</td><td>0 of 3</td><td>0-0</td><td>22 Oct 05:53</td></tr>
+            <tr><td class="l">Gemma 4 31B (on) v DeepSeek V4.1 Flash (on)</td><td class="l"><span class="live">thinking</span>, last move 535 min ago</td><td>0 of 3</td><td>0-0</td><td>22 Oct 05:42</td></tr>
+            <tr><td class="l">DeepSeek V4.1 Flash (on) v Qwen3.8-27B (on)</td><td class="l"><span class="live">thinking</span>, last move 505 min ago</td><td>1 of 3</td><td>2-0</td><td>22 Oct 06:13</td></tr>
           </tbody>
         </table>
       </div>
@@ -215,21 +215,21 @@
           <thead><tr><th>#</th><th class="l">Setup</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>Games</th><th>To play</th><th>Error rate (95%)</th><th>Engine's best play</th><th>Blunders</th></tr></thead>
           <tbody>
             <tr><td>1</td><td class="l">GPT-6.1 Sol (low)</td><td>16</td><td>15</td><td class="zero">0</td><td>1</td><td><strong>45</strong></td><td>61-27</td><td class="zero">0</td><td><strong>10.8</strong> <span class="muted">9.3–12.3</span></td><td>67%</td><td>9%</td></tr>
-            <tr><td>2</td><td class="l">Gemma 4 31B (on)</td><td>15</td><td>12</td><td class="zero">0</td><td>3</td><td><strong>36</strong></td><td>57-29</td><td>1</td><td><strong>18.8</strong> <span class="muted">16.6–21.1</span></td><td>59%</td><td>15%</td></tr>
+            <tr><td>2</td><td class="l">Gemma 4 31B (on)</td><td>15</td><td>12</td><td class="zero">0</td><td>3</td><td><strong>36</strong></td><td>57-29</td><td>1 <span class="live">(1 thinking)</span></td><td><strong>18.8</strong> <span class="muted">16.6–21.1</span></td><td>59%</td><td>15%</td></tr>
             <tr><td>3</td><td class="l">GPT-6.1 Sol (high)</td><td>16</td><td>12</td><td class="zero">0</td><td>4</td><td><strong>36</strong></td><td>52-30</td><td class="zero">0</td><td><strong>11.0</strong> <span class="muted">9.7–12.5</span></td><td>65%</td><td>9%</td></tr>
             <tr><td>4</td><td class="l">Gemini 3.8 Flash (low)</td><td>16</td><td>11</td><td>1</td><td>4</td><td><strong>34</strong></td><td>50-34</td><td class="zero">0</td><td><strong>16.6</strong> <span class="muted">14.8–18.6</span></td><td>59%</td><td>14%</td></tr>
             <tr><td>5</td><td class="l">Claude Sonnet 5.5 (high)</td><td>16</td><td>11</td><td class="zero">0</td><td>5</td><td><strong>33</strong></td><td>60-36</td><td class="zero">0</td><td><strong>15.2</strong> <span class="muted">13.1–17.5</span></td><td>64%</td><td>12%</td></tr>
             <tr><td>6</td><td class="l">Gemini 3.8 Flash (high)</td><td>16</td><td>11</td><td class="zero">0</td><td>5</td><td><strong>33</strong></td><td>55-39</td><td class="zero">0</td><td><strong>14.6</strong> <span class="muted">12.9–16.3</span></td><td>63%</td><td>11%</td></tr>
             <tr><td>7</td><td class="l">Claude Sonnet 5.5 (low)</td><td>16</td><td>10</td><td>1</td><td>5</td><td><strong>31</strong></td><td>55-33</td><td class="zero">0</td><td><strong>20.2</strong> <span class="muted">17.6–23.0</span></td><td>59%</td><td>16%</td></tr>
-            <tr><td>8</td><td class="l">DeepSeek V4.1 Flash (on)</td><td>13</td><td>8</td><td class="zero">0</td><td>5</td><td><strong>24</strong></td><td>41-35</td><td>3</td><td><strong>18.2</strong> <span class="muted">15.8–20.6</span></td><td>62%</td><td>14%</td></tr>
+            <tr><td>8</td><td class="l">DeepSeek V4.1 Flash (on)</td><td>13</td><td>8</td><td class="zero">0</td><td>5</td><td><strong>24</strong></td><td>41-35</td><td>3 <span class="live">(3 thinking)</span></td><td><strong>18.2</strong> <span class="muted">15.8–20.6</span></td><td>62%</td><td>14%</td></tr>
             <tr><td>9</td><td class="l">GNUbg weak</td><td>16</td><td>8</td><td class="zero">0</td><td>8</td><td><strong>24</strong></td><td>37-37</td><td class="zero">0</td><td><strong>23.4</strong> <span class="muted">20.5–26.4</span></td><td>51%</td><td>19%</td></tr>
-            <tr><td>10</td><td class="l">Qwen3.8-27B (on)</td><td>15</td><td>8</td><td class="zero">0</td><td>7</td><td><strong>24</strong></td><td>35-43</td><td>1</td><td><strong>31.1</strong> <span class="muted">27.8–34.5</span></td><td>53%</td><td>23%</td></tr>
+            <tr><td>10</td><td class="l">Qwen3.8-27B (on)</td><td>15</td><td>8</td><td class="zero">0</td><td>7</td><td><strong>24</strong></td><td>35-43</td><td>1 <span class="live">(1 thinking)</span></td><td><strong>31.1</strong> <span class="muted">27.8–34.5</span></td><td>53%</td><td>23%</td></tr>
             <tr><td>11</td><td class="l">Gemma 4 31B (off)</td><td>16</td><td>6</td><td>1</td><td>9</td><td><strong>19</strong></td><td>40-42</td><td class="zero">0</td><td><strong>22.3</strong> <span class="muted">19.5–25.4</span></td><td>55%</td><td>18%</td></tr>
             <tr><td>12</td><td class="l">GLM-5.3 (on)</td><td>16</td><td>6</td><td class="zero">0</td><td>10</td><td><strong>18</strong></td><td>33-51</td><td class="zero">0</td><td><strong>29.5</strong> <span class="muted">26.5–32.6</span></td><td>50%</td><td>22%</td></tr>
             <tr><td>13</td><td class="l">Qwen3.8 Flash (off)</td><td>16</td><td>5</td><td class="zero">0</td><td>11</td><td><strong>15</strong></td><td>36-54</td><td class="zero">0</td><td><strong>34.0</strong> <span class="muted">30.8–37.3</span></td><td>44%</td><td>25%</td></tr>
-            <tr><td>14</td><td class="l">DeepSeek V4.1 Flash (off)</td><td>15</td><td>3</td><td>1</td><td>11</td><td><strong>10</strong></td><td>36-52</td><td>1</td><td><strong>33.0</strong> <span class="muted">30.2–35.9</span></td><td>48%</td><td>24%</td></tr>
+            <tr><td>14</td><td class="l">DeepSeek V4.1 Flash (off)</td><td>15</td><td>3</td><td>1</td><td>11</td><td><strong>10</strong></td><td>36-52</td><td>1 <span class="live">(1 thinking)</span></td><td><strong>33.0</strong> <span class="muted">30.2–35.9</span></td><td>48%</td><td>24%</td></tr>
             <tr><td>15</td><td class="l">Qwen3.8-27B (off)</td><td>16</td><td>3</td><td class="zero">0</td><td>13</td><td><strong>9</strong></td><td>29-59</td><td class="zero">0</td><td><strong>40.7</strong> <span class="muted">36.6–45.2</span></td><td>43%</td><td>27%</td></tr>
-            <tr><td>16</td><td class="l">LFM2.5-24B-A2B (on)</td><td>14</td><td>1</td><td class="zero">0</td><td>13</td><td><strong>3</strong></td><td>19-53</td><td>2</td><td><strong>46.8</strong> <span class="muted">42.5–51.3</span></td><td>39%</td><td>32%</td></tr>
+            <tr><td>16</td><td class="l">LFM2.5-24B-A2B (on)</td><td>14</td><td>1</td><td class="zero">0</td><td>13</td><td><strong>3</strong></td><td>19-53</td><td>2 <span class="live">(2 thinking)</span></td><td><strong>46.8</strong> <span class="muted">42.5–51.3</span></td><td>39%</td><td>32%</td></tr>
             <tr><td>17</td><td class="l">LFM2.5-24B-A2B (off)</td><td>16</td><td>0</td><td class="zero">0</td><td>16</td><td><strong>0</strong></td><td>10-52</td><td class="zero">0</td><td><strong>63.0</strong> <span class="muted">56.8–69.5</span></td><td>31%</td><td>42%</td></tr>
           </tbody>
         </table>
@@ -264,7 +264,7 @@
         <li><strong>The best open setup is 7.4 points behind the best closed one</strong>: DeepSeek V4.1 Flash (on) at 18.2, against GPT-6.1 Sol (low) at 10.8.</li>
         <li><strong>The weak GNU Backgammon anchor</strong> (23.4): 6 of 6 closed setups have a lower error rate; of the 10 open setups, DeepSeek V4.1 Flash (on) (18.2), Gemma 4 31B (on) (18.8) and Gemma 4 31B (off) (22.3) do.</li>
         <li><strong>Invalid answers</strong>: 18 from DeepSeek V4.1 Flash (on) (1.0% of its decisions), 1 from GLM-5.3 (on) (0.1% of its decisions); none from any other setup.</li>
-        <li><strong>Still to play</strong>: 4 of 136 matches (4 paused; listed above the table).</li><!-- /v3:notes2 --></ul>
+        <li><strong>Still to play</strong>: 4 of 136 matches (4 thinking, last move 505 min ago; listed above the table).</li><!-- /v3:notes2 --></ul>
       <h3 id="v3-l3"><span id="v3-head3"><!-- v3:head3 -->League 3: frontier chat models on subscriptions<!-- /v3:head3 --></span></h3>
       <p class="muted" id="v3-progress3"><!-- v3:progress3 -->55 of 55 matches finished, 338 games<!-- /v3:progress3 --></p>
       <p>Each model plays at two settings, all through the maker's subscription (ChatGPT, Claude, Google Antigravity,
@@ -797,12 +797,12 @@ Which of the following moves makes a point in front of the opponent's checkers, 
           card, and answers in about 0.6 s.</li>
         <li><strong>The best players cost most and are slowest.</strong> GPT-6 Astra makes the fewest errors by far, but at
           API prices it costs about a hundred times as much per decision as GPT-6 Luna, and one decision in ten takes 11
-          seconds or more. Gemini 4 Argon and Claude Opus 5.5 are level (16.9 against 17.3; difference 0.3, 95% interval
-          −1.9 to 2.5), with Argon about a third of Opus's price; Gemini 3.8 Flash (18.3) is close behind at half Argon's
-          price. Even asking Astra, Opus and Gemini 3.8 Flash together and taking the majority answer is worse than Astra
-          alone (14.4).</li>
+          seconds or more. Between Gemini 4 Argon and Claude Opus 5.5 there is no clear difference (16.9 against 17.3;
+          difference 0.3, 95% interval −1.9 to 2.5, which includes zero), with Argon about a third of Opus's price; Gemini 3.8
+          Flash scores 18.3 at half Argon's price. Even asking Astra, Opus and Gemini 3.8 Flash together and taking the
+          majority answer is worse than Astra alone (14.4).</li>
         <li><strong>Reasoning helps an open model a lot, at a steep time cost.</strong> With reasoning on, DeepSeek V4.1
-          Flash's error rate falls from 27.5 to 18.1 (95% interval of the gain 6.1 to 12.7), level with Opus, but a decision
+          Flash's error rate falls from 27.5 to 18.1 (95% interval of the gain 6.1 to 12.7), against Opus's 17.3, but a decision
           takes about 100 seconds instead of half a second.</li>
         <li><strong>The hosted decision services are fastest and cheapest per decision</strong>, at about 0.2 s and well
           under a dollar per 1,000 decisions, but they play worse than Gemma 4 31B.</li>
@@ -858,13 +858,17 @@ Which of the following moves makes a point in front of the opponent's checkers, 
         </table>
       </div>`;
 
+      // Match states (page_v3.py league()): thinking, paused (after an error), stopped, to play.
+      const STATE_TEXT = { thinking: "thinking", paused: "paused after an error", stopped: "stopped", "to play": "to play" };
+
       function pending(lg) {
         if (!lg.pending.length) return "";
         const rows = lg.pending.map((p) => {
-          const started = p.state !== "to play";
+          const started = p.last_move != null;
           return "<tr>" + [
             cell(`${esc(p.model1)} v ${esc(p.model2)}`, "l"),
-            cell(p.state === "playing" ? '<span class="live">playing</span>' : p.state, "l"),
+            cell(p.state === "thinking" ? `<span class="live">thinking</span>, last move ${p.minutes_since_move} min ago`
+              : STATE_TEXT[p.state], "l"),
             cell(started ? `${p.rounds_played} of ${p.rounds_planned}` : "–"),
             cell(started ? `${p.score1}-${p.score2}` : "–"),
             cell(p.last_move ? shortDate(p.last_move) : "–"),
@@ -880,7 +884,7 @@ Which of the following moves makes a point in front of the opponent's checkers, 
           const name = esc(m.name);
           const er = m.error_rate == null ? "–" : `<strong>${m.error_rate.toFixed(1)}</strong> ` +
             `<span class="muted">${m.error_rate_lo.toFixed(1)}–${m.error_rate_hi.toFixed(1)}</span>`;
-          const toPlay = `${m.to_play}` + (m.playing ? ` <span class="live">(${m.playing} playing)</span>` : "");
+          const toPlay = `${m.to_play}` + (m.thinking ? ` <span class="live">(${m.thinking} thinking)</span>` : "");
           rows.push("<tr>" + [
             cell(`${m.place}`), cell(name, "l"), cell(`${m.played}`), cell(`${m.won}`),
             cell(`${m.drawn}`, m.drawn ? "" : "zero"), cell(`${m.lost}`),
@@ -904,12 +908,22 @@ Which of the following moves makes a point in front of the opponent's checkers, 
             '<th>Time per<br>decision</th><th>$ per 1,000<br>decisions</th><th class="l">Runs on</th>', setup);
       }
 
+      function groups(lg) {
+        const out = [];
+        for (const s of ["thinking", "paused", "stopped"]) {
+          const ps = lg.pending.filter((p) => p.state === s);
+          if (ps.length) out.push(`${ps.length} ${STATE_TEXT[s]}` + (s === "thinking"
+            ? `, last move ${Math.min(...ps.map((p) => p.minutes_since_move))} min ago` : ""));
+        }
+        return out;
+      }
+
       function status(data) {
         return data.leagues.map((lg) => {
           if (lg.status === "finished") return `League ${lg.id} has finished`;
-          const playing = lg.pending.filter((p) => p.state === "playing").length;
+          const started = groups(lg);
           return `League ${lg.id} has ${lg.pending.length} of ${lg.matches} matches to play` +
-            (playing ? ` (${playing} playing)` : "");
+            (started.length ? ` (${started.join("; ")})` : "");
         }).join("; ") + ".";
       }
 
