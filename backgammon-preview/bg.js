@@ -42,22 +42,17 @@
   const panel = document.querySelector('.board-panel');
   const keys = document.querySelectorAll('[data-view]');
   if (!panel || !keys.length) return;
-  keys.forEach(k => k.addEventListener('click', () => {
-    const charts = k.dataset.view === 'charts';
+  const show = charts => {
     panel.classList.toggle('shows-charts', charts);
-    keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
-  }));
+    keys.forEach(x => x.setAttribute('aria-pressed', String((x.dataset.view === 'charts') === charts)));
+  };
+  keys.forEach(k => k.addEventListener('click', () => show(k.dataset.view === 'charts')));
+  if (location.hash.startsWith('#chart')) show(true);
 })();
 
 (function filters() {
   const box = document.getElementById('filters');
   if (!box) return;
-  const toggle = box.querySelector('[data-control="filters"]');
-  toggle.addEventListener('click', () => {
-    const open = !box.classList.contains('is-open');
-    box.classList.toggle('is-open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-  });
   const groups = ['type', 'weights', 'runs', 'setting'];
   const state = Object.fromEntries(groups.map(g => [g, 'all']));
   const summary = box.querySelector('[data-summary]');

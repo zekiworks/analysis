@@ -36,12 +36,76 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .chart-svg .dot { fill: var(--reading); }
 .chart-svg .whisker { stroke: var(--reading); }
 .chart-svg .muted { fill: var(--text-2); }
-/* Only the home page has the hero grid (no mini chart here); other pages stack eyebrow, title, intro, version. */
-@media (min-width: 1024px) {
-  body:not(.home) .hero { display: block; max-width: 76ch; }
-  .home .hero { grid-template-areas: "title ." "intro ." "readouts ." "summary ."; }
+
+/* --- Dashboard look: slate palette in both themes, a centred header, pill controls, tables first. ---------- */
+:root {
+  --bg: #f8fafc; --panel: #ffffff; --sunk: #f1f5f9; --key: #ffffff; --edge: #e2e8f0; --control-edge: #cbd5e1;
+  --text: #1e293b; --text-2: #64748b; --focus: #2563eb; --lamp-off: #cbd5e1; --lamp-on: #2563eb; --lamp-glow: transparent;
+  --row-hover: #eef2f7; --row-selected: #e2e8f0; --link: #2563eb; --accent: #2563eb; --accent-soft: #eff6ff; --zebra: #f8fafc;
+  --tip-bg: #1e293b; --tip-text: #ffffff; --shadow: 0 1px 3px rgba(15, 23, 42, .08); --key-shadow: none; --key-inset: none;
 }
+@media screen {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a; --panel: #1e293b; --sunk: #162032; --key: #1e293b; --edge: #334155; --control-edge: #475569;
+    --text: #e2e8f0; --text-2: #94a3b8; --focus: #93c5fd; --lamp-off: #475569; --lamp-on: #60a5fa;
+    --lamp-glow: rgba(96, 165, 250, .45); --row-hover: #273449; --row-selected: #334155; --link: #60a5fa; --accent: #60a5fa;
+    --accent-soft: rgba(96, 165, 250, .16); --zebra: #1a2436; --tip-bg: #e2e8f0; --tip-text: #0f172a;
+    --shadow: 0 1px 3px rgba(0, 0, 0, .5); --key-shadow: none; --key-inset: none;
+  }
+}
+.card, .panel { border-radius: 8px; }
+
+/* Header: centred title, muted subtitle, the status line under it. */
+.hero, body:not(.home) .hero { display: block; max-width: 80ch; margin: 0 auto 1.5rem; text-align: center; }
+.hero h1 { font-size: 1.85rem; margin: 0 0 .4rem; }
+.hero .intro { color: var(--text-2); font-size: 1rem; margin: 0 0 .6rem; }
+.hero .eyebrow { margin: 0 0 .2rem; }
+.hero .readout-row { justify-content: center; border: 0; }
+.hero .readouts { justify-content: center; }
+.hero .summary-list li { margin: .1rem 0; }
+@media (min-width: 1024px) { .hero { display: block; } }
+
+/* Pills: filters, theme switch, Table / Charts and the tabs. */
+.key, button.mode { border-radius: 999px; box-shadow: none; background: transparent; }
+.key[aria-pressed="true"], button.mode[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); box-shadow: none; }
+button.mode[aria-selected="true"]::after { display: none; }
+.filters-body { margin-top: 0; padding-top: 0; border-top: 0; gap: .6rem 1.5rem; }
+.filters-body > .group { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.board-panel .view-switch { display: inline-flex; }
+.js .board-panel:not(.shows-charts) > .charts { display: none; }
+.board-panel > .version-line { margin: -.25rem 0 .6rem; }
+
+/* Tables: sticky header and first column, zebra rows, hover, click to sort, click a row to open it. */
+.table-wrap { max-height: 72vh; overflow: auto; border: 1px solid var(--edge); border-radius: 6px; }
+.table-wrap > table > caption { padding: .5rem .65rem 0; }
+.table-wrap thead th { position: sticky; top: 0; z-index: 2; background: var(--sunk); border-bottom: 0;
+  box-shadow: inset 0 -1px 0 var(--control-edge); cursor: pointer; user-select: none; }
+.table-wrap thead th:hover { color: var(--accent); }
+.table-wrap thead th[aria-sort="ascending"]::after { content: " \25B2"; font-size: .7rem; color: var(--accent); }
+.table-wrap thead th[aria-sort="descending"]::after { content: " \25BC"; font-size: .7rem; color: var(--accent); }
+.table-wrap tbody td, table.board tbody tr > td { background: var(--panel); }
+.table-wrap tbody tr:nth-child(even) > td, table.board tbody tr:nth-child(even) > td { background: var(--zebra); }
+.table-wrap tbody tr:hover > td, table.board tbody tr:hover > td { background: var(--row-hover); }
+.table-wrap th:first-child, .table-wrap td:first-child { position: sticky; left: 0; z-index: 1; }
+.table-wrap thead th:first-child { z-index: 3; }
+.table-wrap td:first-child { box-shadow: inset -1px 0 0 var(--edge); }
+tbody tr[data-href], tbody tr:has(a[href]) { cursor: pointer; }
+.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.table-note { color: var(--text-2); font-size: .82rem; margin: .45rem 0 0; }
+
+/* Explanations sit under the tables, collapsed. */
+details.about { margin: .9rem 0 0; color: var(--text-2); font-size: .9rem; }
+details.about > summary { cursor: pointer; color: var(--link); font-weight: 600; font-size: .85rem; }
+details.about[open] > summary { margin-bottom: .4rem; }
+main > details.about { max-width: 1100px; margin: 1rem auto 0; padding: 0 .25rem; }
+
 @media (max-width: 720px) {
   .swipe-hint { display: block; }
   .readouts { flex-wrap: wrap; row-gap: .25rem; }
+  .hero h1 { font-size: 1.45rem; }
+  .table-wrap { max-height: 78vh; }
+  td.model { min-width: 9.5rem; }
 }
+/* The four questions of the findings on one line under the waiting note. */
+.hero .summary-list { display: flex; flex-wrap: wrap; justify-content: center; gap: .1rem 1.2rem; font-size: .92rem; }
+.hero .summary-lead { margin: 0 0 .15rem; }

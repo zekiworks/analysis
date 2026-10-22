@@ -237,8 +237,8 @@
     return `<article class="card dec-card" id="d${esc(d.id)}">
 <header class="dec-head"><h2><a href="${esc(link)}">Decision ${esc(d.id)}</a></h2><p class="small">${where}</p></header>
 ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${facts(d, dataset)}</div>
-<section class="dec-seen"><h3>Position as the model saw it</h3>${promptView(d)}</section>
 <section class="dec-legal"><h3>Legal plays</h3>${playsTable(d)}</section>
+<details class="dec-seen about"><summary>Position as the model saw it</summary>${promptView(d)}</details>
 </article>`;
   }
 
