@@ -1217,7 +1217,7 @@ def method_values(snap: Snapshot) -> dict[str, str]:
     # The setups added in October: their exam scores, and on the text-option questions the swap test's original letter
     # against the copy, with exact sign tests; on the numeral questions, which setups preferred the original letter.
     for key, model in (("d1_ultra", "d1-ultra"), ("jev_114", "jev-1.14.0"), ("decider_v12", "pplx-decider-v1.2"),
-                       ("decider_flash_v12", "pplx-decider-flash-v1.2")):
+                       ("decider_flash_v12", "pplx-decider-flash-v1.2"), ("glide_v12", "glide-v1.2")):
         out[f"method_exam_{key}"] = count(exam["october"][model])
         swap = copy["october"][model]
         out[f"method_copy_{key}_original"] = fmt.pct(swap["original"] / copy["text_questions"])
@@ -1290,6 +1290,7 @@ METHOD_SETUPS: list[tuple[list[dict[str, str]], str]] = [
     ([{"provider": "meragpt"}], "We called meraGPT's System One API, one question per request. It returns a probability for each option. meraGPT says Decider 1 is its own model and publishes no size or design for it. The name always serves meraGPT's current version, so our runs describe the version it served on 19 October 2026."),
     ([{"provider": "openrouter"}], "We called Microsoft's and Inception's decision models through OpenRouter's System One route, one question per request, on paid listings. Each returns a probability for each option, and the request time includes OpenRouter's own time. OpenRouter is a different route from each maker's own API."),
     ([{"provider": "pplx-decider"}], "We ran Perplexity's released Decider v1.2 and Decider Flash v1.2 checkpoints on our own hardware, through the package they ship, one question per request. They are additional local setups: their runs through Perplexity's API are pending, while Decider v1 and v1.1 ran through that API."),
+    ([{"provider": "glide"}], "We ran Fastino's released GLiDE v1.2 checkpoint on our own hardware, through the server its repository ships, one question per request. It reads each option's probability from a 255-way readout in one pass per question and generates nothing. On 22 October 2026 Fastino's hosted GLiDE gave the same answers on 20 sample questions; the other GLiDE row is the hosted model as it answered on 6 October 2026, before a change on Fastino's side."),
     ([{"provider": "strands"}], "We ran Amazon's released decision model with its own server and probability settings. It adds a small trained adapter and a scoring part to Qwen 3.5 2B Base."),
     ([{"provider": "laya"}], "We ran both released decision models on our own hardware. Each reads the input and scores all options in one pass."),
     ([{"model": "gliner2.5-multi-v1"}], "We ran Fastino's model for extracting and classifying text, with {size} parameters. We gave it the same question and options and asked it to score the options as labels. It shows how a much smaller classifier does."),

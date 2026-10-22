@@ -65,6 +65,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "winnow": {"access": "Winnow server (llama.cpp), self-hosted", "scoring": True, "billing": "local"},
     "strands": {"access": "Strands Decider server, self-hosted", "scoring": True, "billing": "local"},
     "pplx-decider": {"access": "Perplexity Decider server, self-hosted", "scoring": True, "billing": "local"},
+    "glide": {"access": "GLiDE server (Fastino's release code), self-hosted", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -104,6 +105,7 @@ VARIANTS = {
     # The route, wherever a table, chart or model page shows the setup.
     "openrouter": "via OpenRouter",
     "pplx-decider": "local",
+    "glide": "local",
 }
 GPU = "RTX PRO 6000 Blackwell (96 GB)"
 SPARK = "DGX Spark, GB10 (128 GB unified memory)"
@@ -168,6 +170,16 @@ MODELS: dict[str, dict[str, Any]] = {
         "this is an additional local setup.",
         "hardware": f"1 × {SPARK}; BF16",
         "parameters": 4_539_918_336,
+    },
+    # Counted from the released checkpoint (fastino/GLiDE at a7e4589): language model, vision encoder and readout. It ran
+    # on spark3, a DGX Spark.
+    "glide-v1.2": {
+        "name": "Fastino GLiDE v1.2",
+        "note": "Fastino's released checkpoint, a modified Qwen3.8-27B, run on our hardware through the server it ships. "
+        "Fastino's hosted GLiDE gave the same answers on 20 sample questions on 22 October 2026; the other GLiDE row is "
+        "the hosted model as it answered on 6 October 2026, before a change on Fastino's side.",
+        "hardware": f"1 × {SPARK}; BF16",
+        "parameters": 26_086_635_760,
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},

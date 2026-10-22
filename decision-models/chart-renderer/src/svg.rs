@@ -30,7 +30,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens. No run colour is red: red marks
 /// kept-but-wrong answers only.
-const DARK: [(&str, &str); 60] = [
+const DARK: [(&str, &str); 61] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -44,7 +44,8 @@ const DARK: [(&str, &str); 60] = [
     // Run colours (`fn color` in lib.rs), lighter shades of the same hues. Two runs of one hue in a
     // panel keep their distance: the darker light shade becomes a 400 or 500, the lighter one a 100 or 200.
     ("#0891b2", "#22d3ee"),
-    ("#0ea5e9", "#7dd3fc"),
+    // GPT-6 Luna through the Decisions API: an indigo, apart from the Jev runs' cyans it shares a confidence panel with.
+    ("#4338ca", "#a5b4fc"),
     ("#60a5fa", "#dbeafe"),
     ("#3f6212", "#a3e635"),
     ("#65a30d", "#d9f99d"),
@@ -85,12 +86,15 @@ const DARK: [(&str, &str); 60] = [
     ("#6b21a8", "#c4b5fd"),
     // The setups added in October: Decider v1.2 and Flash v1.2 (local), Microsoft-Decision-1, Mercury Decide and meraGPT
     // Decider 1. Decider v1.2 shares a confidence panel with Decider v1.1, whose accent keeps its 200, so it takes a 500;
-    // meraGPT Decider 1, a darker sky than GPT-6 Luna's Decisions API run, takes a 200 apart from Metask Jev 4B's blue.
+    // meraGPT Decider 1 takes an emerald, apart from Microsoft-Decision-1's cyan and Metask Jev 4B's blue.
     ("#fb923c", "#f97316"),
     ("#7c2d12", "#fb923c"),
     ("#155e75", "#67e8f9"),
     ("#065f46", "#a7f3d0"),
-    ("#0369a1", "#bae6fd"),
+    ("#047857", "#10b981"),
+    // GLiDE v1.2 (local), a lighter blue than the hosted GLiDE it shares a confidence panel with: the hosted run's
+    // darker shade becomes a 400 (#60a5fa above), this one a 200.
+    ("#3b82f6", "#bfdbfe"),
     // Kept and right, kept but wrong: the page's shared palette.
     ("#15803d", "#4ade80"),
     ("#b91c1c", "#fca5a5"),

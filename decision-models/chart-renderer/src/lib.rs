@@ -385,7 +385,7 @@ fn color(run: &Run) -> Color {
     match (run.model.as_str(), run.reasoning.as_deref(), run.variant.as_deref()) {
         ("gpt-6-astra", ..) => rgb(0x2563eb),
         ("gpt-6.1-sol", ..) => rgb(0x0891b2),
-        ("gpt-6-luna", _, Some(_)) => rgb(0x0ea5e9),
+        ("gpt-6-luna", _, Some(_)) => rgb(0x4338ca),
         ("gpt-6-luna", ..) => rgb(0x60a5fa),
         ("gemini-3.8-flash", Some("high"), _) => rgb(0x3f6212),
         ("gemini-3.8-flash", ..) => rgb(0x65a30d),
@@ -412,6 +412,7 @@ fn color(run: &Run) -> Color {
         ("cygnet", ..) => rgb(0x27272a),
         ("winnow-12b", ..) => rgb(0xa16207),
         ("fastino/GLiDE", ..) => rgb(0x1d4ed8),
+        ("glide-v1.2", ..) => rgb(0x3b82f6),
         ("celeris-1-decision", ..) => rgb(0x4d7c0f),
         ("subq-snap-preview", ..) => rgb(0xa21caf),
         ("pplx-decider-v1.2", ..) => rgb(0xfb923c),
@@ -426,7 +427,7 @@ fn color(run: &Run) -> Color {
         ("laya-multilingual", ..) => rgb(0xf59e0b),
         ("gliner2.5-multi-v1", ..) => rgb(0x475569),
         ("gliner2.5-multi-decide", ..) => rgb(0x2563eb),
-        ("decider-1", ..) => rgb(0x0369a1),
+        ("decider-1", ..) => rgb(0x047857),
         _ => GUIDE,
     }
 }

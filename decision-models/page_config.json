@@ -8,7 +8,7 @@
   "reading_units": [1, 2, 3, 4, 5, 6],
   "decision_model_providers": [
     "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "subq", "meragpt", "clef", "cygnet", "open-jev",
-    "winnow", "metask", "strands", "gliner", "laya", "openrouter", "pplx-decider"
+    "winnow", "metask", "strands", "gliner", "laya", "openrouter", "pplx-decider", "glide"
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
   "mixed_providers": {"openrouter": ["inception/mercury-decide", "microsoft/microsoft-decision-1"]},
@@ -104,6 +104,7 @@
     "pplx-decider-flash-v1.2": "Decider Flash v1.2",
     "pplx-decider-v1-27b": "Decider v1",
     "fastino/GLiDE": "GLiDE",
+    "glide-v1.2": "GLiDE v1.2",
     "open-jev-27b-v1.1": "Open-Jev",
     "jev-1.13.0": "Jev 1.13",
     "jev-1.14.0": "Jev 1.14",
@@ -116,8 +117,8 @@
     "about": "Numbers the method and limits sections state that neither results.json nor answers.json holds. Each group names where it was recorded; build_page.py checks the key review against results.json's excluded questions.",
     "extraction": {"source": "the extraction and repair log of question set version 2", "underline_questions": 229, "underline_lost": 196, "numbers_lost": 186, "text_or_key_changed": 375},
     "recalibration_v1": {"source": "the separate cross-validated temperature refit of Open-Jev on question set version 1", "ece_before": 0.228, "ece_after": 0.030, "auroc_before": 0.8193, "auroc_after": 0.8191},
-    "exam_check": {"source": "the check on the June 2026 TYT exam's Turkish questions (kept private; only the scores are recorded): exam runs 1 to 13, each with the settings of the setup's run on the book; october holds the four setups added in October (runs 10 to 13)", "models": 13, "lowest": 24, "highest": 40, "october": {"d1-ultra": 34, "jev-1.14.0": 31, "pplx-decider-v1.2": 31, "pplx-decider-flash-v1.2": 28}},
-    "copy_check": {"source": "the check that replaced the correct option's text with a copy of a wrong option, on all 2,198 questions: GPT-6 Astra (run 56); in October d1-ultra (run 208), Jev 1.14 (run 207), Decider v1.2 (run 222) and Decider Flash v1.2 (run 228), the last two on our hardware. original and copy count picks of the original letter and of the copy; the benchmark report's 'Correct option replaced' table holds every count", "original": 0.310, "copy": 0.284, "p": 0.19, "text_questions": 1660, "october": {"d1-ultra": {"original": 202, "copy": 198}, "jev-1.14.0": {"original": 140, "copy": 154}, "pplx-decider-v1.2": {"original": 187, "copy": 186}, "pplx-decider-flash-v1.2": {"original": 143, "copy": 119}}, "numerals": {"questions": 328, "counts": {"gpt-6-astra": {"original": 282, "copy": 11}, "d1-ultra": {"original": 93, "copy": 27}, "pplx-decider-v1.2": {"original": 70, "copy": 30}, "jev-1.14.0": {"original": 37, "copy": 29}, "pplx-decider-flash-v1.2": {"original": 50, "copy": 37}}, "original_more": ["gpt-6-astra", "d1-ultra", "pplx-decider-v1.2"]}},
+    "exam_check": {"source": "the check on the June 2026 TYT exam's Turkish questions (kept private; only the scores are recorded): exam runs 1 to 14, each with the settings of the setup's run on the book; october holds the five setups added in October and checked this way (runs 10 to 14)", "models": 14, "lowest": 24, "highest": 40, "october": {"d1-ultra": 34, "jev-1.14.0": 31, "pplx-decider-v1.2": 31, "pplx-decider-flash-v1.2": 28, "glide-v1.2": 33}},
+    "copy_check": {"source": "the check that replaced the correct option's text with a copy of a wrong option, on all 2,198 questions: GPT-6 Astra (run 56); in October d1-ultra (run 208), Jev 1.14 (run 207), Decider v1.2 (run 222), Decider Flash v1.2 (run 228) and GLiDE v1.2 (run 249), the last three on our hardware. original and copy count picks of the original letter and of the copy; the benchmark report's 'Correct option replaced' table holds every count", "original": 0.310, "copy": 0.284, "p": 0.19, "text_questions": 1660, "october": {"d1-ultra": {"original": 202, "copy": 198}, "jev-1.14.0": {"original": 140, "copy": 154}, "pplx-decider-v1.2": {"original": 187, "copy": 186}, "pplx-decider-flash-v1.2": {"original": 143, "copy": 119}, "glide-v1.2": {"original": 152, "copy": 133}}, "numerals": {"questions": 328, "counts": {"gpt-6-astra": {"original": 282, "copy": 11}, "d1-ultra": {"original": 93, "copy": 27}, "pplx-decider-v1.2": {"original": 70, "copy": 30}, "jev-1.14.0": {"original": 37, "copy": 29}, "pplx-decider-flash-v1.2": {"original": 50, "copy": 37}, "glide-v1.2": {"original": 53, "copy": 52}}, "original_more": ["gpt-6-astra", "d1-ultra", "pplx-decider-v1.2"]}},
     "key_review": {"source": "the targeted answer key review", "cases": 25, "confirmed": 13, "image_unsettled": 6, "key_disputed": 6, "largest_rise_points": 0.5}
   },
   "billing": {

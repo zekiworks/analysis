@@ -232,7 +232,7 @@ PRICES: dict[tuple[str, str], Price] = {
     # GLiDE v1.2 on our hardware, at Fastino's list price for GLiDE (input only; output free): its hosted engine
     # (glide_v2) gave the same answers on 20 questions, with probabilities within 0.006, on 22 October 2026.
     ("glide", "glide-v1.2"): Price(
-        "Fastino's GLiDE price", "https://docs.fastino.ai/pricing", "2026-10-22", 0.04, applies_to="maker"
+        "Fastino's list price for the same model", "https://docs.fastino.ai/pricing", "2026-10-22", 0.04, applies_to="maker"
     ),
     # Output tokens are free; cached input costs the same as input.
     ("celeris", "celeris-1-decision"): Price(

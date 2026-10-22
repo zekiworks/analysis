@@ -48,6 +48,9 @@ SETUP_TEXTS = (
     "version, here the one of 19 October 2026.",
     "Microsoft's and Inception's decision models via OpenRouter's System One route (paid); request times include OpenRouter's.",
     "Perplexity's released v1.2 checkpoints, run on our hardware: additional local setups while API runs are pending.",
+    "Fastino's released v1.2 checkpoint on our hardware, with the server it ships: one pass per question, nothing "
+    "generated. The hosted GLiDE gave the same answers on 20 sample questions on 22 October; the other GLiDE row is the "
+    "hosted model of 6 October.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",
@@ -648,17 +651,19 @@ time, overlaps counted once. Total run time is the whole run.</p>
 <p>The questions are online, so models may have seen them in training (contamination, which few tests measure{cite(19)});
 turning off web access cannot undo that. On the {v['method_exam_questions']} Turkish questions of Turkey's June 2026
 university entrance exam, public before our October test, {v['method_exam_models']} models got {v['method_exam_lowest']} to
-{v['method_exam_highest']} right. Of the four we added in October, d1-ultra got {v['method_exam_d1_ultra']}, Jev 1.14
-{v['method_exam_jev_114']}, Decider v1.2 (local) {v['method_exam_decider_v12']} and Decider Flash v1.2 (local)
-{v['method_exam_decider_flash_v12']}. These {v['method_exam_questions']} questions are a separate check, not part of the
+{v['method_exam_highest']} right. Of the five we added in October and checked this way, d1-ultra got
+{v['method_exam_d1_ultra']}, Jev 1.14 {v['method_exam_jev_114']}, Decider v1.2 (local) {v['method_exam_decider_v12']},
+Decider Flash v1.2 (local) {v['method_exam_decider_flash_v12']} and GLiDE v1.2 (local) {v['method_exam_glide_v12']}. These
+{v['method_exam_questions']} questions are a separate check, not part of the
 {v['questions']}.</p>
 <p>When we replaced the correct option's text with a copy of a wrong one, Astra chose the original letter
 {v['method_copy_original']} of the time and the copy {v['method_copy_copy']} on the {v['method_copy_text_questions']} questions
 whose options are text, with no established preference (p = {v['method_copy_p']}). On the same questions, d1-ultra
 ({v['method_copy_d1_ultra_original']} and {v['method_copy_d1_ultra_copy']}), Jev 1.14 ({v['method_copy_jev_114_original']} and
 {v['method_copy_jev_114_copy']}), Decider v1.2 (local; {v['method_copy_decider_v12_original']} and
-{v['method_copy_decider_v12_copy']}) and Decider Flash v1.2 (local; {v['method_copy_decider_flash_v12_original']} and
-{v['method_copy_decider_flash_v12_copy']}) showed no established preference either (p from
+{v['method_copy_decider_v12_copy']}), Decider Flash v1.2 (local; {v['method_copy_decider_flash_v12_original']} and
+{v['method_copy_decider_flash_v12_copy']}) and GLiDE v1.2 (local; {v['method_copy_glide_v12_original']} and
+{v['method_copy_glide_v12_copy']}) showed no established preference either (p from
 {v['method_copy_added_p_low']} to {v['method_copy_added_p_high']}). On the {v['method_copy_numeral_questions']} questions whose
 options are single numerals, Astra, d1-ultra and Decider v1.2 chose the original letter more often, which the numerals'
 fixed order can explain. That checks one form of recall, not whether the model knew the question.</p>
