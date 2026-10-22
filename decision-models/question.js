@@ -43,7 +43,7 @@ async function start() {
   const [common, commonCount] = Object.entries(others).sort((a, b) => b[1] - a[1])[0] ?? [];
   const decisionRight = right.filter(row => row.run.decision).length;
   const decisionTotal = rows.filter(row => row.run.decision).length;
-  document.title = `Question ${id} · Zeki Works`;
+  document.title = `Question ${id} · Hilde`;
   const facts = [
     ['ID', id],
     ['Part', unit.part === 'reading' ? 'Reading' : 'Grammar'],

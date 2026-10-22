@@ -973,7 +973,7 @@ def study_gap(run: dict[str, Any]) -> str:
 
 
 # The page's title and the link preview's (the headline on the page is the h1 in index.html).
-TITLE = "When should you trust an AI model to make a decision? · Zeki Works"
+TITLE = "When should you trust an AI model to make a decision? · Hilde"
 # The three LLMs the opening puts Decider in front of, by named-run key; the opening orders them by saving.
 OPENING_SECONDS = ("sonnet_high", "opus", "astra")
 
@@ -1566,12 +1566,12 @@ def citation(snap: Snapshot, numbers: dict[str, str]) -> str:
         "cff-version: 1.2.0",
         'message: "If you use these results, please cite them with the results version, the answer key version and the '
         'commit of zekiworks/analysis you used."',
-        f'title: "{TITLE.removesuffix(" · Zeki Works")}"',
+        f'title: "{TITLE.removesuffix(" · Hilde")}"',
         f'abstract: "We tested {numbers["models"]} models, {numbers["decision_models"]} of them decision models, on a reading '
         f'comprehension and grammar test in native Turkish (not translated): {numbers["questions"]} questions."',
         "type: dataset",
         "authors:",
-        '  - name: "Zeki Works"',
+        '  - name: "Hilde"',
         f'version: "results {results["results_version"]}, answer key version {results["answer_key"]["version"]}"',
         f'date-released: "{results["updated"][:10]}"',
         f'url: "{config["site_url"]}"',

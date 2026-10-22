@@ -277,7 +277,7 @@ def head(data: Data, image: str) -> str:
     site = data.config["site_url"]
     image_url = site + image
     size = data.config["images"]["preview"]
-    title = f"{TITLE} · Zeki Works"
+    title = f"{TITLE} · Hilde"
     text = bp.esc(DESCRIPTION.format(**counts(data)))
     return (
         f"\n  <title>{bp.esc(title)}</title>\n"

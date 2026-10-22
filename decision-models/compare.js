@@ -137,7 +137,7 @@ function render() {
     `<tbody>${scopes}</tbody></table></div>`;
   document.querySelector('[data-compare-status]')?.remove();
   document.querySelector('[data-compare]').hidden = false;
-  document.title = `${a.name} against ${b.name} · Zeki Works`;
+  document.title = `${a.name} against ${b.name} · Hilde`;
 }
 
 function choose() {

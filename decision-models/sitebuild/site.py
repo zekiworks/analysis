@@ -15,7 +15,7 @@ import build_page as bp
 
 # The site's folder: the data, page_config.json, key-changelog.md and every page.
 ROOT = Path(__file__).resolve().parent.parent
-KICKER = "Zeki Works · Decision models · answer key v2"
+KICKER = "Hilde · Decision models · answer key v2"
 ISSUE_URL = "https://github.com/zekiworks/analysis/issues/new?template="
 REPO_URL = "https://github.com/zekiworks/analysis"
 esc = html.escape
@@ -176,7 +176,7 @@ class Site:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{esc(title)} · Zeki Works</title>
+  <title>{esc(title)} · Hilde</title>
   <link rel="canonical" href="{esc(self.config['site_url'] + path)}">
   <meta name="description" content="{esc(description)}">
   <script>document.documentElement.classList.add("js"); try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; }} catch (e) {{}}</script>
