@@ -366,6 +366,12 @@
           (FP4 routed experts, FP8/BF16 elsewhere); Fireworks does not say which revision it serves. On stored Fireworks
           requests our server usually chose the same top letter, but not always; it is not deterministic, and Fireworks
           replaying its own stored answers did not always agree either.</li>
+        <li><strong>DeepSeek V4.1 Flash back on Fireworks.</strong> From 22 October 15:37 UTC, for League 2's last four
+          matches, DeepSeek V4.1 Flash (off, on) plays on Fireworks through OpenRouter again, with the provider pinned to
+          Fireworks and fallbacks off, as before 20 October 21:56 UTC; Gemma 4 31B, LFM2.5-24B-A2B and Qwen3.8-27B moved
+          from the DGX Sparks back to our RTX PRO 6000 cards (same checkpoints and settings; replayed requests: the same top
+          letter in 20 of 20 for Gemma and Qwen, 17 of 20 for LFM2.5, which is not deterministic). Matches under way keep
+          their stored turns; every decision records its provider, so it shows which turns ran where.</li>
         <li><strong>Gemini by subscription.</strong> With no Gemini API key, Gemini 3.8 Flash (low, high) plays through
           the Google Antigravity subscription from 19 October 12:46 UTC: the same model, prompt, thinking levels and
           constrained letter. On the smoke positions it nearly always chose the same play as the API.</li>
