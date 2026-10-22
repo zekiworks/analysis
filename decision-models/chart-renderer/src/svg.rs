@@ -59,7 +59,8 @@ const DARK: [(&str, &str); 60] = [
     ("#854d0e", "#fde68a"),
     ("#713f12", "#eab308"),
     ("#9a3412", "#fed7aa"),
-    ("#ca8a04", "#facc15"),
+    // Liquid d1 shares a confidence panel with Winnow 12B (#fde047): a 100 keeps them apart.
+    ("#ca8a04", "#fef9c3"),
     ("#059669", "#34d399"),
     ("#0d9488", "#2dd4bf"),
     ("#9333ea", "#c084fc"),
@@ -83,12 +84,13 @@ const DARK: [(&str, &str); 60] = [
     ("#b45309", "#fcd34d"),
     ("#6b21a8", "#c4b5fd"),
     // The setups added in October: Decider v1.2 and Flash v1.2 (local), Microsoft-Decision-1, Mercury Decide and meraGPT
-    // Decider 1 (a darker sky than GPT-6 Luna's Decisions API run, and a 500 against its 300 in the dark theme).
-    ("#fb923c", "#ffedd5"),
+    // Decider 1. Decider v1.2 shares a confidence panel with Decider v1.1, whose accent keeps its 200, so it takes a 500;
+    // meraGPT Decider 1, a darker sky than GPT-6 Luna's Decisions API run, takes a 200 apart from Metask Jev 4B's blue.
+    ("#fb923c", "#f97316"),
     ("#7c2d12", "#fb923c"),
     ("#155e75", "#67e8f9"),
     ("#065f46", "#a7f3d0"),
-    ("#0369a1", "#0ea5e9"),
+    ("#0369a1", "#bae6fd"),
     // Kept and right, kept but wrong: the page's shared palette.
     ("#15803d", "#4ade80"),
     ("#b91c1c", "#fca5a5"),

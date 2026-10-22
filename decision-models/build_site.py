@@ -5,9 +5,11 @@ one step:
     python3 build_site.py               # charts, link preview image, CITATION.cff and every page
     python3 build_site.py --no-images   # the same, keeping the current link preview image (no Chrome needed)
 
-It runs reproduce.py first and stops unless every check matches. Then it draws the charts with chart-renderer (cargo),
-the link preview image in both themes with headless Chrome (CHROME, else google-chrome) and CITATION.cff, both from
-build_page.py, and writes the pages.
+It runs reproduce.py first and stops unless every check matches. It also stops when a provider that serves both decision
+and chat models has a run of a model whose type we have not decided (provider_checks), and when chart-renderer's figures
+give a run another type than the tables do (type_checks). Then it draws the charts with chart-renderer (cargo), the link
+preview image in both themes with headless Chrome (CHROME, else google-chrome) and CITATION.cff, both from build_page.py,
+and writes the pages.
 
 The home page, index.html, keeps its copy; this script rewrites what is inside its <!-- build:name --> markers: the meta
 tags, the top bar, the intro (its counts from results.json), the counters, the results version, the plain table for
@@ -205,14 +207,58 @@ def counts(data: Data) -> dict[str, str]:
     return {"questions": bp.count(data.results["questions"]), "decision": bp.count(sum(map(data.decision, data.runs)))}
 
 
-def charts() -> None:
-    """Every chart in both themes, drawn from results.json into charts/ by chart-renderer."""
-    command = ["cargo", "run", "--release", "--quiet", "--manifest-path", "chart-renderer/Cargo.toml", "--", "results.json", "charts"]
-    done = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
+# chart-renderer, run through cargo: it draws the charts and reports each run's type in them (charts --types).
+RENDERER = ("cargo", "run", "--release", "--quiet", "--manifest-path", "chart-renderer/Cargo.toml", "--")
+
+
+def renderer(*args: str) -> str:
+    """chart-renderer's standard output for args; the build stops when it fails."""
+    done = subprocess.run([*RENDERER, *args], cwd=ROOT, capture_output=True, text=True)
     if done.returncode:
         sys.stderr.write(done.stdout[-2000:] + done.stderr[-2000:])
         raise SystemExit("chart-renderer failed")
-    print(f"Wrote {sum(line.startswith('Wrote ') for line in done.stdout.splitlines())} charts to charts/")
+    return done.stdout
+
+
+def charts() -> None:
+    """Every chart in both themes, drawn from results.json into charts/ by chart-renderer, which takes the decision
+    model lists from page_config.json."""
+    out = renderer("results.json", "page_config.json", "charts")
+    print(f"Wrote {sum(line.startswith('Wrote ') for line in out.splitlines())} charts to charts/")
+
+
+def provider_checks(data: Data) -> None:
+    """Stops the build when a provider that serves both decision and chat models (page_config.json's mixed_providers,
+    each with the models whose type we have decided) has a run of another model. The rule stays as it is: a run is a
+    decision model when its provider is one of decision_model_providers and its model not one of not_decision_models.
+    Decide each new model, list it under its provider, and add it to not_decision_models when it is not a decision
+    model."""
+    mixed = data.config["mixed_providers"]
+    new = sorted({(run["provider"], run["model"]) for run in data.runs
+                  if run["provider"] in mixed and run["model"] not in mixed[run["provider"]]})
+    if new:
+        raise SystemExit(
+            "decide whether each of these is a decision model, then list it under its provider in page_config.json's "
+            "mixed_providers (and in not_decision_models when it is not): "
+            + ", ".join(f"{model} (provider {provider}, which serves both kinds)" for provider, model in new))
+
+
+def type_checks(data: Data, site: Site, snap: bp.Snapshot) -> None:
+    """Stops the build unless the figures give every run the type the tables give it. chart-renderer reports each run's
+    type in the figures (charts --types); the tables' types come from build_site.py (the home page's plain table and
+    counts), sitebuild (the model, compare and data pages) and build_page.py (the Method page). All of them read
+    page_config.json's decision_model_providers and not_decision_models."""
+    figures = {int(run): kind for run, kind in json.loads(renderer("--types", "results.json", "page_config.json")).items()}
+    differ = []
+    for run in data.runs:
+        tables = sorted({"decision" if decide(run) else "chat" for decide in (data.decision, site.decision, snap.decision_model)})
+        drawn = figures.pop(run["run"], "missing")
+        if tables != [drawn]:
+            differ.append(f"run {run['run']} ({run['name']}): figures {drawn}, tables {' and '.join(tables)}")
+    differ += [f"run {run}: in the figures but not in results.json" for run in sorted(figures)]
+    if differ:
+        raise SystemExit("the figures and the tables give runs different types:\n  " + "\n  ".join(differ))
+    print(f"Run types: the figures and the tables agree on all {len(data.runs)} runs")
 
 
 def images(site: Site, keep: bool) -> dict[str, dict[str, str]]:
@@ -498,7 +544,9 @@ def main() -> int:
     parser.add_argument("--no-images", action="store_true", help="keep the current link preview image (no Chrome needed)")
     args = parser.parse_args()
     data, site = Data(), Site()
+    provider_checks(data)
     snap = site.snapshot  # runs reproduce.py: the build stops here unless every check matches
+    type_checks(data, site, snap)
     charts()
     names = images(site, args.no_images)
     bp.CITATION.write_text(bp.citation(snap, site.values), encoding="utf-8")

@@ -63,12 +63,19 @@ python3 -m http.server 8000                                # preview at http://1
   `results.json`: counts and group letters must match exactly, AUROC, ECE, shares and accuracies within
   10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals of AUROC and of the kept
   answers' accuracy, and the other tables, are not recomputed.
-- **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json` (see below).
+- **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
+  lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
   matches. With the constants in `page_config.json` (the 99% cutoff, the runs the copy names, display
   precision and the image size), it draws the graphs with `chart-renderer/`, the link preview image and
   `CITATION.cff` with `build_page.py`, and writes the pages. `build_page.py`'s `Snapshot`, `values()` and
   table and figure code also build the Method page.
+  - **Run types:** a run is a decision model when its provider is one of `page_config.json`'s
+    `decision_model_providers` and its model not one of `not_decision_models`. The tables, `v3.js`'s charts
+    and the graphs read these two lists. The build stops when the graphs give a run another type than the
+    tables (`chart-renderer`'s `--types` output against the build's own), and when a provider that serves
+    both decision and chat models (`mixed_providers`: OpenRouter) has a run of a model not listed under it,
+    so that its type is decided first.
   - **Link preview:** every decision model's accuracy with its 95% interval, all drawn alike, with the
     results version, the answer key version and the page address in its footer. Drawn with headless
     Chrome in both themes (`share/`, named with the theme and a short hash of the file, for example
@@ -129,7 +136,8 @@ decision servers. The questions themselves cannot be shared.
 
 ## Graphs
 
-`chart-renderer/` draws the graphs from `results.json`. It uses ratatui's `Chart`, `BarChart`
+`chart-renderer/` draws the graphs from `results.json`, and takes which runs are decision models from
+`page_config.json`. It uses ratatui's `Chart`, `BarChart`
 and `Canvas` widgets, rendered into ratatui's test backend, so each graph is a buffer of terminal cells.
 The Method page shows some of them as SVGs next to their tables, from `charts/`: `<name>.svg` in the light
 theme and `<name>-dark.svg` in the dark one, written from the same buffer. `v1/charts/` keeps the copies the
@@ -188,7 +196,9 @@ The last command must find nothing; its pattern is written so that it does not m
 except those listed in it as behind no published run, and prints the list.
 
 A new provider needs an entry in `PROVIDERS` (its access route and how it is paid for); the script
-stops until it has one. A new model is shown by its ID unless `MODELS` gives it a display name, and a
+stops until it has one. A decision model's provider also goes in `page_config.json`'s
+`decision_model_providers`, and a new model of a provider in its `mixed_providers` stops the build until it
+is listed there. A new model is shown by its ID unless `MODELS` gives it a display name, and a
 model on our GPUs needs its hardware there. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
 the export takes each run's price from the report, and stops when a paid or free-tier run has none or a
 price applies to another kind of run: a self-hosted run may only take its maker's list price for the same

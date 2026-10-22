@@ -4,8 +4,9 @@
 //! text is the figure's insta snapshot (`tests/snapshots.rs`), and [`svg::buffer_to_svg`] turns the
 //! same buffer into the light and dark SVGs the page shows (`src/main.rs`). The sharing images come from `build_page.py`.
 //!
-//! Every number a figure prints comes from `results.json`; the code holds only the run lists, the
-//! wording and the layout.
+//! Every number a figure prints comes from `results.json`, and which runs are decision models from the page's
+//! `page_config.json` (the lists its tables and charts read); the code holds only the run lists, the wording and the
+//! layout.
 
 pub mod svg;
 
@@ -40,6 +41,18 @@ pub struct Results {
     pub cascades: Vec<Cascade>,
     pub sources: Vec<SourceSet>,
     pub replay: Replay,
+    /// Which runs are decision models: the page's lists, from `page_config.json` ([`load`]).
+    #[serde(skip)]
+    decision_lists: DecisionLists,
+}
+
+/// The two lists in the page's `page_config.json` that say which runs are decision models: the providers whose runs
+/// are, and the models of those providers that are not. The page's tables and its charts (v3.js) read the same lists,
+/// so a run has one type everywhere; `build_site.py` compares each run's type here (`charts --types`) with the tables'.
+#[derive(Debug, Default, Deserialize)]
+struct DecisionLists {
+    decision_model_providers: Vec<String>,
+    not_decision_models: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -195,8 +208,15 @@ pub struct Share {
     pub wrong: u32,
 }
 
-pub fn load(path: &Path) -> Result<Results, Box<dyn Error>> {
-    Ok(serde_json::from_str(&std::fs::read_to_string(path)?)?)
+/// The page's `results.json` and, from its `page_config.json`, which runs are decision models.
+pub fn load(results: &Path, config: &Path) -> Result<Results, Box<dyn Error>> {
+    fn parse<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T, Box<dyn Error>> {
+        let text = std::fs::read_to_string(path).map_err(|error| format!("{}: {error}", path.display()))?;
+        Ok(serde_json::from_str(&text).map_err(|error| format!("{}: {error}", path.display()))?)
+    }
+    let mut loaded: Results = parse(results)?;
+    loaded.decision_lists = parse(config)?;
+    Ok(loaded)
 }
 
 /// A run by (provider, model, reasoning setting).
@@ -217,14 +237,6 @@ const OPUS: RunKey = ("claude", "claude-opus-5-5", Some("low"));
 const SONNET_HIGH: RunKey = ("claude", "claude-sonnet-5-5", Some("high"));
 const DEEPSEEK_ON: RunKey = ("vllm", "deepseek-v4.1-flash", Some("on"));
 const DEEPSEEK_OFF: RunKey = ("vllm", "deepseek-v4.1-flash", Some("off"));
-
-/// Providers whose runs are decision models (the page's `decision_model_providers`), and the
-/// models of those providers that are not.
-const DECISION_PROVIDERS: [&str; 16] = [
-    "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "subq", "meragpt", "clef", "cygnet", "open-jev",
-    "winnow", "metask", "strands", "gliner", "laya",
-];
-const NOT_DECISION_MODELS: [&str; 1] = ["gliner2.5-multi-v1"];
 
 /// Models that answer near chance on this bank; their runs share a panel in the confidence figures.
 const CHANCE_MODELS: [&str; 4] = ["laya", "laya-multilingual", "gliner2.5-multi-v1", "gliner2.5-multi-decide"];
@@ -340,10 +352,13 @@ impl Results {
     fn is_decider(&self, run: &Run) -> bool {
         self.find(DECIDER).is_some_and(|decider| decider.run == run.run)
     }
-}
 
-fn is_decision(run: &Run) -> bool {
-    DECISION_PROVIDERS.contains(&run.provider.as_str()) && !NOT_DECISION_MODELS.contains(&run.model.as_str())
+    /// A decision model by the page's lists: its provider is one of `decision_model_providers` and its model not one
+    /// of `not_decision_models`.
+    pub fn is_decision(&self, run: &Run) -> bool {
+        let lists = &self.decision_lists;
+        lists.decision_model_providers.contains(&run.provider) && !lists.not_decision_models.contains(&run.model)
+    }
 }
 
 /// A run's estimated cost per 1,000 questions in US dollars, if it has one.
@@ -1224,7 +1239,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
     let mut chat: Vec<(&Run, &Cascade)> = Vec::new();
     for cascade in results.cascades.iter().filter(|cascade| cascade.frontier == astra.run) {
         let Some(run) = results.run(cascade.decision) else { continue };
-        if !is_decision(run) {
+        if !results.is_decision(run) {
             chat.push((run, cascade));
         } else if all || matches!(run.billing.as_str(), "api" | "free") {
             decision.push((run, cascade));
@@ -1286,7 +1301,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
                 for (run, cascade) in rows {
                     let label = results.setup_label(run);
                     let decider = results.is_decider(run);
-                    let fill = if decider { ACCENT } else if is_decision(run) { GUIDE } else { MUTED };
+                    let fill = if decider { ACCENT } else if results.is_decision(run) { GUIDE } else { MUTED };
                     let start = x + 2 + label_width - label.chars().count() as u16;
                     let label = if decider { Line::from(label).bold().fg(ACCENT) } else { Line::from(label) };
                     buf.set_line(start, y, &label, label_width);
@@ -1399,7 +1414,7 @@ fn cost_groups<'a>(results: &'a Results, all: bool) -> Vec<(String, Vec<CostRow<
     let runs: Vec<&Run> = if all {
         let mut runs: Vec<&Run> = results.runs.iter().filter(|run| run.latency.is_some()).collect();
         runs.sort_by(|first, second| {
-            let key = |run: &Run| (run.questions_per_request, !results.is_decider(run), !is_decision(run));
+            let key = |run: &Run| (run.questions_per_request, !results.is_decider(run), !results.is_decision(run));
             key(first).cmp(&key(second)).then(
                 first.latency.as_ref().map(|latency| latency.median_request_seconds).unwrap_or(0.0).total_cmp(
                     &second.latency.as_ref().map(|latency| latency.median_request_seconds).unwrap_or(0.0),
@@ -1713,7 +1728,7 @@ fn heat(rounded: f64) -> Color {
 
 fn units(results: &Results) -> Figure<'_> {
     let columns: Vec<(&Run, &[&str])> = UNIT_RUNS.iter().filter_map(|(key, header)| Some((results.find(*key)?, *header))).collect();
-    let decision_columns = columns.iter().filter(|(run, _)| is_decision(run)).count() as u16;
+    let decision_columns = columns.iter().filter(|(run, _)| results.is_decision(run)).count() as u16;
     let header_rows = columns.iter().map(|(_, header)| header.len() as u16).max().unwrap_or(1);
     let (reading_questions, grammar_questions) = results.part_questions();
     let sections = [
@@ -1838,10 +1853,10 @@ const FAMILIES: [&str; 6] = [
 ];
 
 /// Which of [`FAMILIES`] a run belongs to.
-fn family(run: &Run) -> usize {
+fn family(results: &Results, run: &Run) -> usize {
     if CHANCE_MODELS.contains(&run.model.as_str()) {
         5
-    } else if is_decision(run) {
+    } else if results.is_decision(run) {
         0
     } else if matches!(run.provider.as_str(), "openai" | "gemini") {
         1
@@ -1863,7 +1878,7 @@ fn families(results: &Results) -> Vec<(String, Vec<&Run>)> {
     FAMILIES
         .iter()
         .enumerate()
-        .flat_map(|(index, name)| split(name, runs.iter().copied().filter(|run| family(run) == index).collect(), MAX_SERIES))
+        .flat_map(|(index, name)| split(name, runs.iter().copied().filter(|run| family(results, run) == index).collect(), MAX_SERIES))
         .map(|(title, runs)| {
             let sources: Vec<&str> =
                 runs.iter().filter_map(|run| run.confidence.as_ref()).map(|confidence| confidence.label.as_str()).collect();
