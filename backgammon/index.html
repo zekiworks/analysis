@@ -75,7 +75,7 @@
       moves: it is given a description of the position and the complete list of legal plays, and it picks one. We changed
       what that description contains several times and watched how the games changed.</p>
     <p class="byline">Updated <span id="v3-updated"><!-- v3:updated -->22 October 2026<!-- /v3:updated --></span> · v1: 12 leagues run, 4 finished with the current prompt · v3:
-      <span id="v3-byline"><!-- v3:byline -->League 3 finished; League 1: 167 of 171 matches, in progress; League 2: 133 of 136 matches, in progress, last move 0 min ago<!-- /v3:byline --></span> · every decision scored by GNU Backgammon</p>
+      <span id="v3-byline"><!-- v3:byline -->Leagues 1 and 3 finished; League 2: 133 of 136 matches, in progress, last move 0 min ago<!-- /v3:byline --></span> · every decision scored by GNU Backgammon</p>
     <div class="finding">
       <p class="finding-label">Finding</p>
       <p>Describing, for every legal play, what the position looks like after it (blots left, how many of the opponent's
@@ -91,7 +91,7 @@
         Gemini 4 Argon (16.9) and Claude Opus 5.5 (17.3), both intermediate, ahead of every decision model. They are also the
         slowest and, at API prices, the most expensive (see <a href="#speed-cost">Speed and cost</a>).</p>
       <p><strong>v3</strong> shuffles the options and runs three leagues (live tables below):
-        <span id="v3-summary"><!-- v3:summary -->decision models (in progress: Liquid d1-ultra leads, and the weak GNU Backgammon anchor plays better than every decision model), workhorse chat models closed and open (in progress: GPT-6.1 Sol (low) leads; lowest error rate GPT-6.1 Sol (low), 10.8), and frontier chat models on subscriptions, each with reasoning off and on (finished: GPT-6 Astra (on) first)<!-- /v3:summary --></span>. See <a href="#v3">v3 leagues</a>.</p>
+        <span id="v3-summary"><!-- v3:summary -->decision models (finished: Liquid d1-ultra first, and the weak GNU Backgammon anchor plays better than every decision model), workhorse chat models closed and open (in progress: GPT-6.1 Sol (low) leads; lowest error rate GPT-6.1 Sol (low), 10.8), and frontier chat models on subscriptions, each with reasoning off and on (finished: GPT-6 Astra (on) first)<!-- /v3:summary --></span>. See <a href="#v3">v3 leagues</a>.</p>
     </div>
     <nav class="toc" aria-label="Sections">
       <ul>
@@ -112,8 +112,8 @@
   <main>
     <section id="v3" aria-labelledby="v3-title">
       <h2 id="v3-title"><!-- v3:title -->v3 leagues (in progress)<!-- /v3:title --></h2>
-      <p class="note"><strong id="v3-live"><!-- v3:live -->Live: data as of 22 October 2026, 22:45 UTC · updates every 15 minutes<!-- /v3:live --></strong>.
-        <span id="v3-status"><!-- v3:status -->League 1 has 4 of 171 matches to play (4 paused after an error); League 2 has 3 of 136 matches to play (2 thinking, last move 0 min ago; 1 paused after an error); League 3 has finished.<!-- /v3:status --></span></p>
+      <p class="note"><strong id="v3-live"><!-- v3:live -->Live: data as of 22 October 2026, 22:59 UTC · updates every 15 minutes<!-- /v3:live --></strong>.
+        <span id="v3-status"><!-- v3:status -->League 1 has finished; League 2 has 3 of 136 matches to play (2 thinking, last move 0 min ago; 1 paused after an error); League 3 has finished.<!-- /v3:status --></span></p>
       <p>v3 keeps the v1 match rules (rounds of two games with the same dice, 3 rounds, 300-turn limit, no cube) and changes
         how the models are asked:</p>
       <ul>
@@ -133,45 +133,34 @@
           anchor.</li>
       </ul>
       <p>Every model decision in the matches that count was scored with GNU Backgammon, as in v1 (see
-        <a href="#error-rate">Error rate</a> for the method and the human scale): all <span id="v3-scored"><!-- v3:scored -->80,614<!-- /v3:scored --></span>
+        <a href="#error-rate">Error rate</a> for the method and the human scale): all <span id="v3-scored"><!-- v3:scored -->81,057<!-- /v3:scored --></span>
         decisions, none skipped.</p>
-      <h3 id="v3-l1"><span id="v3-head1"><!-- v3:head1 -->League 1: decision models (in progress)<!-- /v3:head1 --></span></h3>
-      <p class="muted" id="v3-progress1"><!-- v3:progress1 -->167 of 171 matches finished, 891 games<!-- /v3:progress1 --></p>
+      <h3 id="v3-l1"><span id="v3-head1"><!-- v3:head1 -->League 1: decision models<!-- /v3:head1 --></span></h3>
+      <p class="muted" id="v3-progress1"><!-- v3:progress1 -->171 of 171 matches finished, 904 games<!-- /v3:progress1 --></p>
       <div id="v3-league1"><!-- v3:league1 -->
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th class="l">Match not finished</th><th class="l">State</th><th>Rounds played</th><th>Score</th><th>Last move (UTC)</th></tr></thead>
-          <tbody>
-            <tr><td class="l">Fastino GLiDE v1.2 (local) v Decider v1.1 27B</td><td class="l">paused after an error</td><td>1 of 3</td><td>3-0</td><td>22 Oct 17:22</td></tr>
-            <tr><td class="l">Fastino GLiDE v1.2 (local) v Winnow-12B</td><td class="l">paused after an error</td><td>3 of 3</td><td>4-2</td><td>22 Oct 22:41</td></tr>
-            <tr><td class="l">Fastino GLiDE v1.2 (local) v Fastino GLiDE</td><td class="l">paused after an error</td><td>2 of 3</td><td>2-2</td><td>22 Oct 22:41</td></tr>
-            <tr><td class="l">Fastino GLiDE v1.2 (local) v Decider v1.2 27B</td><td class="l">paused after an error</td><td>1 of 3</td><td>0-1</td><td>22 Oct 22:41</td></tr>
-          </tbody>
-        </table>
-      </div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>#</th><th class="l">Setup</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>Games</th><th>To play</th><th>Error rate (95%)</th><th>Engine's best play</th><th>Blunders</th></tr></thead>
           <tbody>
             <tr><td>1</td><td class="l">Liquid d1-ultra</td><td>18</td><td>16</td><td class="zero">0</td><td>2</td><td><strong>48</strong></td><td>67-35</td><td class="zero">0</td><td><strong>30.0</strong> <span class="muted">27.2–32.7</span></td><td>51%</td><td>23%</td></tr>
             <tr><td>2</td><td class="l">GNUbg weak</td><td>18</td><td>16</td><td class="zero">0</td><td>2</td><td><strong>48</strong></td><td>55-27</td><td class="zero">0</td><td><strong>23.4</strong> <span class="muted">20.7–26.4</span></td><td>50%</td><td>21%</td></tr>
-            <tr><td>3</td><td class="l">Jev 1.14.0</td><td>18</td><td>12</td><td class="zero">0</td><td>6</td><td><strong>36</strong></td><td>56-38</td><td class="zero">0</td><td><strong>35.2</strong> <span class="muted">31.6–39.0</span></td><td>46%</td><td>26%</td></tr>
-            <tr><td>4</td><td class="l">Jev 1.13.0</td><td>18</td><td>12</td><td class="zero">0</td><td>6</td><td><strong>36</strong></td><td>53-37</td><td class="zero">0</td><td><strong>34.8</strong> <span class="muted">31.3–38.4</span></td><td>51%</td><td>25%</td></tr>
-            <tr><td>5</td><td class="l">Cygnet (Gemma 4 12B)</td><td>18</td><td>11</td><td>1</td><td>6</td><td><strong>34</strong></td><td>56-44</td><td class="zero">0</td><td><strong>39.1</strong> <span class="muted">35.9–42.2</span></td><td>42%</td><td>29%</td></tr>
-            <tr><td>6</td><td class="l">Fastino GLiDE</td><td>17</td><td>11</td><td>1</td><td>5</td><td><strong>34</strong></td><td>54-38</td><td>1</td><td><strong>37.3</strong> <span class="muted">33.9–41.0</span></td><td>46%</td><td>27%</td></tr>
-            <tr><td>7</td><td class="l">Decider v1.2 27B</td><td>17</td><td>11</td><td class="zero">0</td><td>6</td><td><strong>33</strong></td><td>56-28</td><td>1</td><td><strong>37.1</strong> <span class="muted">33.9–40.3</span></td><td>47%</td><td>28%</td></tr>
-            <tr><td>8</td><td class="l">Clef</td><td>18</td><td>10</td><td>2</td><td>6</td><td><strong>32</strong></td><td>46-44</td><td class="zero">0</td><td><strong>37.3</strong> <span class="muted">33.6–41.2</span></td><td>45%</td><td>27%</td></tr>
-            <tr><td>9</td><td class="l">Celeris-1 Decision</td><td>18</td><td>9</td><td>3</td><td>6</td><td><strong>30</strong></td><td>58-48</td><td class="zero">0</td><td><strong>32.5</strong> <span class="muted">29.4–35.9</span></td><td>47%</td><td>24%</td></tr>
-            <tr><td>10</td><td class="l">SubQ Snap Preview</td><td>18</td><td>9</td><td>1</td><td>8</td><td><strong>28</strong></td><td>58-44</td><td class="zero">0</td><td><strong>46.6</strong> <span class="muted">41.9–51.4</span></td><td>41%</td><td>33%</td></tr>
-            <tr><td>11</td><td class="l">GPT-6 Luna</td><td>18</td><td>9</td><td class="zero">0</td><td>9</td><td><strong>27</strong></td><td>49-51</td><td class="zero">0</td><td><strong>41.9</strong> <span class="muted">38.1–45.6</span></td><td>43%</td><td>28%</td></tr>
-            <tr><td>12</td><td class="l">Decider v1.1 27B</td><td>17</td><td>9</td><td class="zero">0</td><td>8</td><td><strong>27</strong></td><td>45-47</td><td>1</td><td><strong>37.8</strong> <span class="muted">34.8–41.2</span></td><td>47%</td><td>27%</td></tr>
-            <tr><td>13</td><td class="l">Fastino GLiDE v1.2 (local)</td><td>14</td><td>8</td><td class="zero">0</td><td>6</td><td><strong>24</strong></td><td>43-29</td><td>4</td><td><strong>34.8</strong> <span class="muted">30.9–39.1</span></td><td>46%</td><td>25%</td></tr>
-            <tr><td>14</td><td class="l">Mercury Decide</td><td>18</td><td>6</td><td>1</td><td>11</td><td><strong>19</strong></td><td>39-55</td><td class="zero">0</td><td><strong>47.1</strong> <span class="muted">42.1–52.1</span></td><td>42%</td><td>30%</td></tr>
-            <tr><td>15</td><td class="l">Winnow-12B</td><td>17</td><td>4</td><td class="zero">0</td><td>13</td><td><strong>12</strong></td><td>40-52</td><td>1</td><td><strong>48.6</strong> <span class="muted">45.0–52.2</span></td><td>39%</td><td>32%</td></tr>
-            <tr><td>16</td><td class="l">Safest</td><td>18</td><td>3</td><td>3</td><td>12</td><td><strong>12</strong></td><td>40-70</td><td class="zero">0</td><td><strong>51.1</strong> <span class="muted">47.2–55.1</span></td><td>38%</td><td>35%</td></tr>
-            <tr><td>17</td><td class="l">Open-Jev 27B v1.1</td><td>18</td><td>2</td><td>2</td><td>14</td><td><strong>8</strong></td><td>31-71</td><td class="zero">0</td><td><strong>64.7</strong> <span class="muted">59.0–71.1</span></td><td>36%</td><td>38%</td></tr>
-            <tr><td>18</td><td class="l">Decider Flash v1.2</td><td>18</td><td>2</td><td class="zero">0</td><td>16</td><td><strong>6</strong></td><td>28-64</td><td class="zero">0</td><td><strong>58.2</strong> <span class="muted">53.3–62.9</span></td><td>36%</td><td>38%</td></tr>
-            <tr><td>19</td><td class="l">Random</td><td>18</td><td>0</td><td class="zero">0</td><td>18</td><td><strong>0</strong></td><td>6-58</td><td class="zero">0</td><td><strong>118.5</strong> <span class="muted">110.1–126.8</span></td><td>16%</td><td>60%</td></tr>
+            <tr><td>3</td><td class="l">Fastino GLiDE</td><td>18</td><td>12</td><td>1</td><td>5</td><td><strong>37</strong></td><td>57-41</td><td class="zero">0</td><td><strong>37.1</strong> <span class="muted">33.7–40.8</span></td><td>46%</td><td>27%</td></tr>
+            <tr><td>4</td><td class="l">Decider v1.2 27B</td><td>18</td><td>12</td><td class="zero">0</td><td>6</td><td><strong>36</strong></td><td>60-30</td><td class="zero">0</td><td><strong>37.0</strong> <span class="muted">33.9–40.2</span></td><td>47%</td><td>28%</td></tr>
+            <tr><td>5</td><td class="l">Jev 1.14.0</td><td>18</td><td>12</td><td class="zero">0</td><td>6</td><td><strong>36</strong></td><td>56-38</td><td class="zero">0</td><td><strong>35.2</strong> <span class="muted">31.5–39.4</span></td><td>46%</td><td>26%</td></tr>
+            <tr><td>6</td><td class="l">Jev 1.13.0</td><td>18</td><td>12</td><td class="zero">0</td><td>6</td><td><strong>36</strong></td><td>53-37</td><td class="zero">0</td><td><strong>34.8</strong> <span class="muted">31.3–38.5</span></td><td>51%</td><td>25%</td></tr>
+            <tr><td>7</td><td class="l">Cygnet (Gemma 4 12B)</td><td>18</td><td>11</td><td>1</td><td>6</td><td><strong>34</strong></td><td>56-44</td><td class="zero">0</td><td><strong>39.1</strong> <span class="muted">35.8–42.3</span></td><td>42%</td><td>29%</td></tr>
+            <tr><td>8</td><td class="l">Clef</td><td>18</td><td>10</td><td>2</td><td>6</td><td><strong>32</strong></td><td>46-44</td><td class="zero">0</td><td><strong>37.3</strong> <span class="muted">33.5–41.1</span></td><td>45%</td><td>27%</td></tr>
+            <tr><td>9</td><td class="l">Celeris-1 Decision</td><td>18</td><td>9</td><td>3</td><td>6</td><td><strong>30</strong></td><td>58-48</td><td class="zero">0</td><td><strong>32.5</strong> <span class="muted">29.2–36.0</span></td><td>47%</td><td>24%</td></tr>
+            <tr><td>10</td><td class="l">Fastino GLiDE v1.2 (local)</td><td>18</td><td>10</td><td class="zero">0</td><td>8</td><td><strong>30</strong></td><td>55-41</td><td class="zero">0</td><td><strong>35.6</strong> <span class="muted">32.0–39.5</span></td><td>45%</td><td>26%</td></tr>
+            <tr><td>11</td><td class="l">SubQ Snap Preview</td><td>18</td><td>9</td><td>1</td><td>8</td><td><strong>28</strong></td><td>58-44</td><td class="zero">0</td><td><strong>46.6</strong> <span class="muted">41.7–52.0</span></td><td>41%</td><td>33%</td></tr>
+            <tr><td>12</td><td class="l">GPT-6 Luna</td><td>18</td><td>9</td><td class="zero">0</td><td>9</td><td><strong>27</strong></td><td>49-51</td><td class="zero">0</td><td><strong>41.9</strong> <span class="muted">38.2–45.4</span></td><td>43%</td><td>28%</td></tr>
+            <tr><td>13</td><td class="l">Decider v1.1 27B</td><td>18</td><td>9</td><td class="zero">0</td><td>9</td><td><strong>27</strong></td><td>48-50</td><td class="zero">0</td><td><strong>37.7</strong> <span class="muted">34.3–41.1</span></td><td>46%</td><td>27%</td></tr>
+            <tr><td>14</td><td class="l">Mercury Decide</td><td>18</td><td>6</td><td>1</td><td>11</td><td><strong>19</strong></td><td>39-55</td><td class="zero">0</td><td><strong>47.1</strong> <span class="muted">42.2–52.1</span></td><td>42%</td><td>30%</td></tr>
+            <tr><td>15</td><td class="l">Winnow-12B</td><td>18</td><td>4</td><td class="zero">0</td><td>14</td><td><strong>12</strong></td><td>42-56</td><td class="zero">0</td><td><strong>48.4</strong> <span class="muted">44.9–52.0</span></td><td>39%</td><td>32%</td></tr>
+            <tr><td>16</td><td class="l">Safest</td><td>18</td><td>3</td><td>3</td><td>12</td><td><strong>12</strong></td><td>40-70</td><td class="zero">0</td><td><strong>51.1</strong> <span class="muted">47.1–55.2</span></td><td>38%</td><td>35%</td></tr>
+            <tr><td>17</td><td class="l">Open-Jev 27B v1.1</td><td>18</td><td>2</td><td>2</td><td>14</td><td><strong>8</strong></td><td>31-71</td><td class="zero">0</td><td><strong>64.7</strong> <span class="muted">59.1–71.0</span></td><td>36%</td><td>38%</td></tr>
+            <tr><td>18</td><td class="l">Decider Flash v1.2</td><td>18</td><td>2</td><td class="zero">0</td><td>16</td><td><strong>6</strong></td><td>28-64</td><td class="zero">0</td><td><strong>58.2</strong> <span class="muted">53.2–62.9</span></td><td>36%</td><td>38%</td></tr>
+            <tr><td>19</td><td class="l">Random</td><td>18</td><td>0</td><td class="zero">0</td><td>18</td><td><strong>0</strong></td><td>6-58</td><td class="zero">0</td><td><strong>118.5</strong> <span class="muted">110.0–126.9</span></td><td>16%</td><td>60%</td></tr>
           </tbody>
         </table>
       </div>
@@ -181,19 +170,19 @@
           <tbody>
             <tr><td class="l">Liquid d1-ultra</td><td>2,143</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.41 s</td><td>$0.14</td><td class="l wrap">Liquid AI decisions API</td></tr>
             <tr><td class="l">GNUbg weak</td><td>1,893</td><td class="l">–</td><td class="zero">0.0%</td><td>0.01 s</td><td>–</td><td class="l wrap">GNU Backgammon 1.08, Beginner level (0-ply, noise 0.060), x86-64 build (see About the anchor)</td></tr>
+            <tr><td class="l">Fastino GLiDE</td><td>2,109</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.50 s</td><td>–</td><td class="l wrap">Fastino API (responses name the model glide_v2)</td></tr>
+            <tr><td class="l">Decider v1.2 27B</td><td>1,849</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>1.24 s</td><td>$0.09<br><span class="muted">list-price estimate; runs on our GPUs</span></td><td class="l wrap">our GPU, bf16</td></tr>
             <tr><td class="l">Jev 1.14.0</td><td>1,980</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.24 s</td><td>$0.17</td><td class="l wrap">TypeSafe API</td></tr>
             <tr><td class="l">Jev 1.13.0</td><td>1,823</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.23 s</td><td>$0.17</td><td class="l wrap">TypeSafe API</td></tr>
             <tr><td class="l">Cygnet (Gemma 4 12B)</td><td>1,996</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>1.50 s</td><td>–</td><td class="l wrap">our GPUs, bf16; DGX Spark from 16 Oct</td></tr>
-            <tr><td class="l">Fastino GLiDE</td><td>2,068</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.50 s</td><td>–</td><td class="l wrap">Fastino API (responses name the model glide_v2)</td></tr>
-            <tr><td class="l">Decider v1.2 27B</td><td>1,758</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>1.24 s</td><td>$0.09<br><span class="muted">list-price estimate; runs on our GPUs</span></td><td class="l wrap">our GPU, bf16</td></tr>
             <tr><td class="l">Clef</td><td>1,933</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>4.61 s</td><td>–</td><td class="l wrap">our GPUs, bf16; DGX Spark from 16 Oct</td></tr>
             <tr><td class="l">Celeris-1 Decision</td><td>2,157</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.19 s</td><td>$0.15</td><td class="l wrap">Celeris API (probabilities rounded to 2 decimals)</td></tr>
+            <tr><td class="l">Fastino GLiDE v1.2 (local)</td><td>1,931</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>2.03 s</td><td>–</td><td class="l wrap">our GPU, bf16, Fastino&#x27;s released weights and server</td></tr>
             <tr><td class="l">SubQ Snap Preview</td><td>2,129</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.25 s</td><td>$0.19</td><td class="l wrap">SubQ API</td></tr>
             <tr><td class="l">GPT-6 Luna</td><td>1,957</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.21 s</td><td>$0.34</td><td class="l wrap">OpenAI Decisions API</td></tr>
-            <tr><td class="l">Decider v1.1 27B</td><td>1,941</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>4.38 s</td><td>$0.09<br><span class="muted">list-price estimate; runs on our GPUs</span></td><td class="l wrap">our GPUs, bf16; DGX Spark from 16 Oct</td></tr>
-            <tr><td class="l">Fastino GLiDE v1.2 (local)</td><td>1,731</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>2.03 s</td><td>–</td><td class="l wrap">our GPU, bf16, Fastino&#x27;s released weights and server</td></tr>
+            <tr><td class="l">Decider v1.1 27B</td><td>2,011</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>4.26 s</td><td>$0.09<br><span class="muted">list-price estimate; runs on our GPUs</span></td><td class="l wrap">our GPUs, bf16; DGX Spark from 16 Oct</td></tr>
             <tr><td class="l">Mercury Decide</td><td>1,822</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.52 s</td><td>$0.07</td><td class="l wrap">OpenRouter (Inception)</td></tr>
-            <tr><td class="l">Winnow-12B</td><td>2,000</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>3.06 s</td><td>–</td><td class="l wrap">our GPU, Q8_0 GGUF, author&#x27;s server</td></tr>
+            <tr><td class="l">Winnow-12B</td><td>2,008</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>3.05 s</td><td>–</td><td class="l wrap">our GPU, Q8_0 GGUF, author&#x27;s server</td></tr>
             <tr><td class="l">Safest</td><td>2,119</td><td class="l">–</td><td class="zero">0.0%</td><td>0.00 s</td><td>–</td><td class="l wrap">program: fewest hitting rolls</td></tr>
             <tr><td class="l">Open-Jev 27B v1.1</td><td>2,083</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>2.02 s</td><td>–</td><td class="l wrap">our GPU, bf16</td></tr>
             <tr><td class="l">Decider Flash v1.2</td><td>1,850</td><td class="l">option probabilities</td><td class="zero">0.0%</td><td>0.71 s</td><td>$0.04<br><span class="muted">list-price estimate; runs on our GPUs</span></td><td class="l wrap">our GPU, bf16</td></tr>
@@ -202,22 +191,22 @@
         </table>
       </div>
       <!-- /v3:league1 --></div>
-      <ul id="v3-notes1"><!-- v3:notes1 --><li><strong>Standing</strong>: 1. Liquid d1-ultra (48 points), 2. GNUbg weak (48 points), 3. Jev 1.14.0 (36 points), 4. Jev 1.13.0 (36 points), 5. Cygnet (Gemma 4 12B) (34 points); Random last, with 0 matches won.</li>
+      <ul id="v3-notes1"><!-- v3:notes1 --><li><strong>Final ranking</strong>: 1. Liquid d1-ultra (48 points), 2. GNUbg weak (48 points), 3. Fastino GLiDE (37 points), 4. Decider v1.2 27B (36 points), 5. Jev 1.14.0 (36 points); Random last, with 0 matches won.</li>
         <li><strong>Liquid d1-ultra has the lowest error rate of the decision models</strong>, 30.0. Celeris-1 Decision (32.5) is within its interval; every other decision model is at 34.8 or higher.</li>
         <li><strong>The weak GNU Backgammon anchor plays better than every decision model</strong> by error rate (23.4); its match wins come with many gammons (see <a href="#v3-anchor">About the anchor</a>).</li>
-        <li><strong>2 decision models play worse than the Safest program</strong> by error rate: Decider Flash v1.2 (58.2) and Open-Jev 27B v1.1 (64.7), against 51.1. Winnow-12B (48.6) within Safest's interval. Random scores 118.5.</li>
-        <li><strong>The 6 v1 decision models against their v1 error rates</strong>: 4 higher, 2 lower or equal: Jev 1.13.0 34.8 (v1: 35.7), Clef 37.3 (v1: 35.8), Decider v1.1 27B 37.8 (v1: 32.7), Cygnet (Gemma 4 12B) 39.1 (v1: 43.2), GPT-6 Luna 41.9 (v1: 39.4), Open-Jev 27B v1.1 64.7 (v1: 59.6). The games, opponents and option order differ, so this is not a paired comparison.</li>
-        <li><strong>New versions</strong>: Jev 1.14.0 35.2 (36 points) against Jev 1.13.0 34.8 (36 points): no clear difference in league play; Decider v1.2 27B 37.1 (33 points) against Decider v1.1 27B 37.8 (27 points): no clear difference in league play.</li>
+        <li><strong>2 decision models play worse than the Safest program</strong> by error rate: Decider Flash v1.2 (58.2) and Open-Jev 27B v1.1 (64.7), against 51.1. Mercury Decide (47.1) and Winnow-12B (48.4) within Safest's interval. Random scores 118.5.</li>
+        <li><strong>The 6 v1 decision models against their v1 error rates</strong>: 4 higher, 2 lower or equal: Jev 1.13.0 34.8 (v1: 35.7), Clef 37.3 (v1: 35.8), Decider v1.1 27B 37.7 (v1: 32.7), Cygnet (Gemma 4 12B) 39.1 (v1: 43.2), GPT-6 Luna 41.9 (v1: 39.4), Open-Jev 27B v1.1 64.7 (v1: 59.6). The games, opponents and option order differ, so this is not a paired comparison.</li>
+        <li><strong>New versions</strong>: Jev 1.14.0 35.2 (36 points) against Jev 1.13.0 34.8 (36 points): no clear difference in league play; Decider v1.2 27B 37.0 (36 points) against Decider v1.1 27B 37.7 (27 points): no clear difference in league play.</li>
         <li><strong>The hosted decision services</strong> (8) take 0.2 s to 0.5 s per decision; the 7 with a price cost $0.07 to $0.34 per 1,000 decisions.</li><!-- /v3:notes1 --></ul>
       <h3 id="v3-l2"><span id="v3-head2"><!-- v3:head2 -->League 2: workhorse chat models, closed and open (in progress, last move 0 min ago)<!-- /v3:head2 --></span></h3>
-      <p class="muted" id="v3-progress2"><!-- v3:progress2 -->133 of 136 matches finished, 715 games<!-- /v3:progress2 --></p>
+      <p class="muted" id="v3-progress2"><!-- v3:progress2 -->133 of 136 matches finished, 718 games<!-- /v3:progress2 --></p>
       <div id="v3-league2"><!-- v3:league2 -->
       <div class="table-wrap">
         <table>
           <thead><tr><th class="l">Match not finished</th><th class="l">State</th><th>Rounds played</th><th>Score</th><th>Last move (UTC)</th></tr></thead>
           <tbody>
-            <tr><td class="l">DeepSeek V4.1 Flash (off) v LFM2.5-24B-A2B (on)</td><td class="l"><span class="live">thinking</span>, last move 0 min ago</td><td>1 of 3</td><td>1-1</td><td>22 Oct 22:45</td></tr>
-            <tr><td class="l">DeepSeek V4.1 Flash (on) v LFM2.5-24B-A2B (on)</td><td class="l"><span class="live">thinking</span>, last move 2 min ago</td><td>0 of 3</td><td>0-0</td><td>22 Oct 22:42</td></tr>
+            <tr><td class="l">DeepSeek V4.1 Flash (off) v LFM2.5-24B-A2B (on)</td><td class="l"><span class="live">thinking</span>, last move 0 min ago</td><td>2 of 3</td><td>2-3</td><td>22 Oct 22:59</td></tr>
+            <tr><td class="l">DeepSeek V4.1 Flash (on) v LFM2.5-24B-A2B (on)</td><td class="l"><span class="live">thinking</span>, last move 1 min ago</td><td>1 of 3</td><td>4-0</td><td>22 Oct 22:59</td></tr>
             <tr><td class="l">Gemma 4 31B (on) v DeepSeek V4.1 Flash (on)</td><td class="l">paused after an error</td><td>1 of 3</td><td>1-1</td><td>22 Oct 16:20</td></tr>
           </tbody>
         </table>
@@ -227,22 +216,22 @@
           <thead><tr><th>#</th><th class="l">Setup</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>Games</th><th>To play</th><th>Error rate (95%)</th><th>Engine's best play</th><th>Blunders</th></tr></thead>
           <tbody>
             <tr><td>1</td><td class="l">GPT-6.1 Sol (low)</td><td>16</td><td>15</td><td class="zero">0</td><td>1</td><td><strong>45</strong></td><td>61-27</td><td class="zero">0</td><td><strong>10.8</strong> <span class="muted">9.3–12.3</span></td><td>67%</td><td>9%</td></tr>
-            <tr><td>2</td><td class="l">Gemma 4 31B (on)</td><td>15</td><td>12</td><td class="zero">0</td><td>3</td><td><strong>36</strong></td><td>57-29</td><td>1</td><td><strong>18.8</strong> <span class="muted">16.5–21.1</span></td><td>59%</td><td>15%</td></tr>
-            <tr><td>3</td><td class="l">GPT-6.1 Sol (high)</td><td>16</td><td>12</td><td class="zero">0</td><td>4</td><td><strong>36</strong></td><td>52-30</td><td class="zero">0</td><td><strong>11.0</strong> <span class="muted">9.7–12.4</span></td><td>65%</td><td>9%</td></tr>
-            <tr><td>4</td><td class="l">Gemini 3.8 Flash (low)</td><td>16</td><td>11</td><td>1</td><td>4</td><td><strong>34</strong></td><td>50-34</td><td class="zero">0</td><td><strong>16.6</strong> <span class="muted">14.7–18.6</span></td><td>59%</td><td>14%</td></tr>
-            <tr><td>5</td><td class="l">Claude Sonnet 5.5 (high)</td><td>16</td><td>11</td><td class="zero">0</td><td>5</td><td><strong>33</strong></td><td>60-36</td><td class="zero">0</td><td><strong>15.2</strong> <span class="muted">13.2–17.5</span></td><td>64%</td><td>12%</td></tr>
+            <tr><td>2</td><td class="l">Gemma 4 31B (on)</td><td>15</td><td>12</td><td class="zero">0</td><td>3</td><td><strong>36</strong></td><td>57-29</td><td>1</td><td><strong>18.8</strong> <span class="muted">16.6–21.1</span></td><td>59%</td><td>15%</td></tr>
+            <tr><td>3</td><td class="l">GPT-6.1 Sol (high)</td><td>16</td><td>12</td><td class="zero">0</td><td>4</td><td><strong>36</strong></td><td>52-30</td><td class="zero">0</td><td><strong>11.0</strong> <span class="muted">9.7–12.5</span></td><td>65%</td><td>9%</td></tr>
+            <tr><td>4</td><td class="l">Gemini 3.8 Flash (low)</td><td>16</td><td>11</td><td>1</td><td>4</td><td><strong>34</strong></td><td>50-34</td><td class="zero">0</td><td><strong>16.6</strong> <span class="muted">14.7–18.5</span></td><td>59%</td><td>14%</td></tr>
+            <tr><td>5</td><td class="l">Claude Sonnet 5.5 (high)</td><td>16</td><td>11</td><td class="zero">0</td><td>5</td><td><strong>33</strong></td><td>60-36</td><td class="zero">0</td><td><strong>15.2</strong> <span class="muted">13.2–17.4</span></td><td>64%</td><td>12%</td></tr>
             <tr><td>6</td><td class="l">Gemini 3.8 Flash (high)</td><td>16</td><td>11</td><td class="zero">0</td><td>5</td><td><strong>33</strong></td><td>55-39</td><td class="zero">0</td><td><strong>14.6</strong> <span class="muted">12.9–16.5</span></td><td>63%</td><td>11%</td></tr>
-            <tr><td>7</td><td class="l">Claude Sonnet 5.5 (low)</td><td>16</td><td>10</td><td>1</td><td>5</td><td><strong>31</strong></td><td>55-33</td><td class="zero">0</td><td><strong>20.2</strong> <span class="muted">17.6–22.9</span></td><td>59%</td><td>16%</td></tr>
-            <tr><td>8</td><td class="l">DeepSeek V4.1 Flash (on)</td><td>14</td><td>9</td><td class="zero">0</td><td>5</td><td><strong>27</strong></td><td>44-36</td><td>2 <span class="live">(1 thinking)</span></td><td><strong>18.3</strong> <span class="muted">15.8–20.7</span></td><td>62%</td><td>14%</td></tr>
-            <tr><td>9</td><td class="l">GNUbg weak</td><td>16</td><td>8</td><td class="zero">0</td><td>8</td><td><strong>24</strong></td><td>37-37</td><td class="zero">0</td><td><strong>23.4</strong> <span class="muted">20.4–26.8</span></td><td>51%</td><td>19%</td></tr>
-            <tr><td>10</td><td class="l">Qwen3.8-27B (on)</td><td>16</td><td>8</td><td class="zero">0</td><td>8</td><td><strong>24</strong></td><td>36-46</td><td class="zero">0</td><td><strong>31.1</strong> <span class="muted">28.1–34.4</span></td><td>53%</td><td>23%</td></tr>
-            <tr><td>11</td><td class="l">Gemma 4 31B (off)</td><td>16</td><td>6</td><td>1</td><td>9</td><td><strong>19</strong></td><td>40-42</td><td class="zero">0</td><td><strong>22.3</strong> <span class="muted">19.4–25.2</span></td><td>55%</td><td>18%</td></tr>
-            <tr><td>12</td><td class="l">GLM-5.3 (on)</td><td>16</td><td>6</td><td class="zero">0</td><td>10</td><td><strong>18</strong></td><td>33-51</td><td class="zero">0</td><td><strong>29.5</strong> <span class="muted">26.6–32.7</span></td><td>50%</td><td>22%</td></tr>
-            <tr><td>13</td><td class="l">Qwen3.8 Flash (off)</td><td>16</td><td>5</td><td class="zero">0</td><td>11</td><td><strong>15</strong></td><td>36-54</td><td class="zero">0</td><td><strong>34.0</strong> <span class="muted">30.8–37.6</span></td><td>44%</td><td>25%</td></tr>
+            <tr><td>7</td><td class="l">Claude Sonnet 5.5 (low)</td><td>16</td><td>10</td><td>1</td><td>5</td><td><strong>31</strong></td><td>55-33</td><td class="zero">0</td><td><strong>20.2</strong> <span class="muted">17.6–23.0</span></td><td>59%</td><td>16%</td></tr>
+            <tr><td>8</td><td class="l">DeepSeek V4.1 Flash (on)</td><td>14</td><td>9</td><td class="zero">0</td><td>5</td><td><strong>27</strong></td><td>44-36</td><td>2 <span class="live">(1 thinking)</span></td><td><strong>18.2</strong> <span class="muted">15.8–20.7</span></td><td>62%</td><td>14%</td></tr>
+            <tr><td>9</td><td class="l">GNUbg weak</td><td>16</td><td>8</td><td class="zero">0</td><td>8</td><td><strong>24</strong></td><td>37-37</td><td class="zero">0</td><td><strong>23.4</strong> <span class="muted">20.5–26.6</span></td><td>51%</td><td>19%</td></tr>
+            <tr><td>10</td><td class="l">Qwen3.8-27B (on)</td><td>16</td><td>8</td><td class="zero">0</td><td>8</td><td><strong>24</strong></td><td>36-46</td><td class="zero">0</td><td><strong>31.1</strong> <span class="muted">27.9–34.3</span></td><td>53%</td><td>23%</td></tr>
+            <tr><td>11</td><td class="l">Gemma 4 31B (off)</td><td>16</td><td>6</td><td>1</td><td>9</td><td><strong>19</strong></td><td>40-42</td><td class="zero">0</td><td><strong>22.3</strong> <span class="muted">19.4–25.4</span></td><td>55%</td><td>18%</td></tr>
+            <tr><td>12</td><td class="l">GLM-5.3 (on)</td><td>16</td><td>6</td><td class="zero">0</td><td>10</td><td><strong>18</strong></td><td>33-51</td><td class="zero">0</td><td><strong>29.5</strong> <span class="muted">26.6–32.8</span></td><td>50%</td><td>22%</td></tr>
+            <tr><td>13</td><td class="l">Qwen3.8 Flash (off)</td><td>16</td><td>5</td><td class="zero">0</td><td>11</td><td><strong>15</strong></td><td>36-54</td><td class="zero">0</td><td><strong>34.0</strong> <span class="muted">30.7–37.5</span></td><td>44%</td><td>25%</td></tr>
             <tr><td>14</td><td class="l">DeepSeek V4.1 Flash (off)</td><td>15</td><td>3</td><td>1</td><td>11</td><td><strong>10</strong></td><td>36-52</td><td>1 <span class="live">(1 thinking)</span></td><td><strong>33.3</strong> <span class="muted">30.6–36.1</span></td><td>48%</td><td>24%</td></tr>
-            <tr><td>15</td><td class="l">Qwen3.8-27B (off)</td><td>16</td><td>3</td><td class="zero">0</td><td>13</td><td><strong>9</strong></td><td>29-59</td><td class="zero">0</td><td><strong>40.7</strong> <span class="muted">36.3–45.1</span></td><td>43%</td><td>27%</td></tr>
-            <tr><td>16</td><td class="l">LFM2.5-24B-A2B (on)</td><td>14</td><td>1</td><td class="zero">0</td><td>13</td><td><strong>3</strong></td><td>19-53</td><td>2 <span class="live">(2 thinking)</span></td><td><strong>46.8</strong> <span class="muted">42.2–51.2</span></td><td>39%</td><td>32%</td></tr>
-            <tr><td>17</td><td class="l">LFM2.5-24B-A2B (off)</td><td>16</td><td>0</td><td class="zero">0</td><td>16</td><td><strong>0</strong></td><td>10-52</td><td class="zero">0</td><td><strong>63.0</strong> <span class="muted">57.1–69.1</span></td><td>31%</td><td>42%</td></tr>
+            <tr><td>15</td><td class="l">Qwen3.8-27B (off)</td><td>16</td><td>3</td><td class="zero">0</td><td>13</td><td><strong>9</strong></td><td>29-59</td><td class="zero">0</td><td><strong>40.7</strong> <span class="muted">36.3–45.4</span></td><td>43%</td><td>27%</td></tr>
+            <tr><td>16</td><td class="l">LFM2.5-24B-A2B (on)</td><td>14</td><td>1</td><td class="zero">0</td><td>13</td><td><strong>3</strong></td><td>19-53</td><td>2 <span class="live">(2 thinking)</span></td><td><strong>46.5</strong> <span class="muted">42.2–50.9</span></td><td>39%</td><td>32%</td></tr>
+            <tr><td>17</td><td class="l">LFM2.5-24B-A2B (off)</td><td>16</td><td>0</td><td class="zero">0</td><td>16</td><td><strong>0</strong></td><td>10-52</td><td class="zero">0</td><td><strong>63.0</strong> <span class="muted">56.5–69.5</span></td><td>31%</td><td>42%</td></tr>
           </tbody>
         </table>
       </div>
@@ -257,24 +246,24 @@
             <tr><td class="l">Claude Sonnet 5.5 (high)</td><td>1,979</td><td class="l">one letter</td><td class="zero">0.0%</td><td>8.62 s</td><td>$20.05</td><td class="l wrap">Claude subscription</td></tr>
             <tr><td class="l">Gemini 3.8 Flash (high)</td><td>2,028</td><td class="l">one letter</td><td class="zero">0.0%</td><td>19.46 s</td><td>$23.05</td><td class="l wrap">Google Antigravity subscription</td></tr>
             <tr><td class="l">Claude Sonnet 5.5 (low)</td><td>1,788</td><td class="l">one letter</td><td class="zero">0.0%</td><td>3.56 s</td><td>$13.51</td><td class="l wrap">Claude subscription</td></tr>
-            <tr><td class="l">DeepSeek V4.1 Flash (on)</td><td>1,799</td><td class="l">letter probabilities</td><td>1.2%</td><td>101.48 s</td><td>$12.30</td><td class="l wrap">Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then our four GPUs (SGLang, published FP4/FP8 weights, 17 Oct revision)</td></tr>
+            <tr><td class="l">DeepSeek V4.1 Flash (on)</td><td>1,806</td><td class="l">letter probabilities</td><td>1.2%</td><td>101.24 s</td><td>$12.29</td><td class="l wrap">Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then our four GPUs (SGLang, published FP4/FP8 weights, 17 Oct revision)</td></tr>
             <tr><td class="l">GNUbg weak</td><td>1,660</td><td class="l">–</td><td class="zero">0.0%</td><td>0.01 s</td><td>–</td><td class="l wrap">GNU Backgammon 1.08, Beginner level (0-ply, noise 0.060), x86-64 build (see About the anchor)</td></tr>
             <tr><td class="l">Qwen3.8-27B (on)</td><td>1,704</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>314.13 s</td><td>–</td><td class="l wrap">our GPU, fp16 (vLLM); first decisions on Cerebras via OpenRouter; DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)</td></tr>
             <tr><td class="l">Gemma 4 31B (off)</td><td>1,575</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>3.55 s</td><td>–</td><td class="l wrap">our GPU, fp8 (vLLM); DGX Spark 19 Oct 18:36-22:26 UTC and from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)</td></tr>
             <tr><td class="l">GLM-5.3 (on)</td><td>1,671</td><td class="l">letter probabilities</td><td>0.1%</td><td>4.51 s</td><td>$3.42</td><td class="l wrap">Fireworks via OpenRouter, quantization not published</td></tr>
             <tr><td class="l">Qwen3.8 Flash (off)</td><td>1,806</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>3.68 s</td><td>$0.28</td><td class="l wrap">Alibaba via OpenRouter, quantization not published</td></tr>
-            <tr><td class="l">DeepSeek V4.1 Flash (off)</td><td>1,760</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>2.22 s</td><td>$0.65</td><td class="l wrap">Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then our four GPUs (SGLang, published FP4/FP8 weights, 17 Oct revision)</td></tr>
+            <tr><td class="l">DeepSeek V4.1 Flash (off)</td><td>1,772</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>2.21 s</td><td>$0.65</td><td class="l wrap">Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then our four GPUs (SGLang, published FP4/FP8 weights, 17 Oct revision)</td></tr>
             <tr><td class="l">Qwen3.8-27B (off)</td><td>1,649</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>1.92 s</td><td>–</td><td class="l wrap">our GPU, fp16 (vLLM); first decisions on Cerebras via OpenRouter; DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)</td></tr>
-            <tr><td class="l">LFM2.5-24B-A2B (on)</td><td>1,617</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>417.25 s</td><td>–</td><td class="l wrap">our GPU, bf16 (vLLM); first decisions on Liquid AI&#x27;s API (voided); DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)</td></tr>
+            <tr><td class="l">LFM2.5-24B-A2B (on)</td><td>1,631</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>415.12 s</td><td>–</td><td class="l wrap">our GPU, bf16 (vLLM); first decisions on Liquid AI&#x27;s API (voided); DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)</td></tr>
             <tr><td class="l">LFM2.5-24B-A2B (off)</td><td>1,302</td><td class="l">letter probabilities</td><td class="zero">0.0%</td><td>0.27 s</td><td>–</td><td class="l wrap">our GPU, bf16 (vLLM); DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)</td></tr>
           </tbody>
         </table>
       </div>
       <!-- /v3:league2 --></div>
       <ul id="v3-notes2"><!-- v3:notes2 --><li><strong>GPT-6.1 Sol (low) leads with 15 wins in 16 matches</strong>. The lowest error rate is GPT-6.1 Sol (low)'s, 10.8.</li>
-        <li><strong>Reasoning, lower and higher setting</strong> (error rate; a difference counts only when the 95% intervals do not overlap): GPT-6.1 Sol 10.8 (low) and 11.0 (high): no clear difference in league play; 6.2 s and 15.5 s per decision; Gemma 4 31B 22.3 (off) and 18.8 (on): no clear difference in league play; 3.5 s and 232.6 s per decision; Gemini 3.8 Flash 16.6 (low) and 14.6 (high): no clear difference in league play; 4.4 s and 19.5 s per decision; Claude Sonnet 5.5 20.2 (low) and 15.2 (high): lower, and the intervals do not overlap; 3.6 s and 8.6 s per decision; DeepSeek V4.1 Flash 33.3 (off) and 18.3 (on): lower, and the intervals do not overlap; 2.2 s and 101.5 s per decision; Qwen3.8-27B 40.7 (off) and 31.1 (on): lower, and the intervals do not overlap; 1.9 s and 314.1 s per decision; LFM2.5-24B-A2B 63.0 (off) and 46.8 (on): lower, and the intervals do not overlap; 0.3 s and 417.2 s per decision. League games are not the same positions, so these are not paired comparisons.</li>
-        <li><strong>The best open setup is 7.5 points behind the best closed one</strong>: DeepSeek V4.1 Flash (on) at 18.3, against GPT-6.1 Sol (low) at 10.8.</li>
-        <li><strong>The weak GNU Backgammon anchor</strong> (23.4): 6 of 6 closed setups have a lower error rate; of the 10 open setups, DeepSeek V4.1 Flash (on) (18.3), Gemma 4 31B (on) (18.8) and Gemma 4 31B (off) (22.3) do.</li>
+        <li><strong>Reasoning, lower and higher setting</strong> (error rate; a difference counts only when the 95% intervals do not overlap): GPT-6.1 Sol 10.8 (low) and 11.0 (high): no clear difference in league play; 6.2 s and 15.5 s per decision; Gemma 4 31B 22.3 (off) and 18.8 (on): no clear difference in league play; 3.5 s and 232.6 s per decision; Gemini 3.8 Flash 16.6 (low) and 14.6 (high): no clear difference in league play; 4.4 s and 19.5 s per decision; Claude Sonnet 5.5 20.2 (low) and 15.2 (high): lower, and the intervals do not overlap; 3.6 s and 8.6 s per decision; DeepSeek V4.1 Flash 33.3 (off) and 18.2 (on): lower, and the intervals do not overlap; 2.2 s and 101.2 s per decision; Qwen3.8-27B 40.7 (off) and 31.1 (on): lower, and the intervals do not overlap; 1.9 s and 314.1 s per decision; LFM2.5-24B-A2B 63.0 (off) and 46.5 (on): lower, and the intervals do not overlap; 0.3 s and 415.1 s per decision. League games are not the same positions, so these are not paired comparisons.</li>
+        <li><strong>The best open setup is 7.4 points behind the best closed one</strong>: DeepSeek V4.1 Flash (on) at 18.2, against GPT-6.1 Sol (low) at 10.8.</li>
+        <li><strong>The weak GNU Backgammon anchor</strong> (23.4): 6 of 6 closed setups have a lower error rate; of the 10 open setups, DeepSeek V4.1 Flash (on) (18.2), Gemma 4 31B (on) (18.8) and Gemma 4 31B (off) (22.3) do.</li>
         <li><strong>Invalid answers</strong>: 21 from DeepSeek V4.1 Flash (on) (1.2% of its decisions), 1 from GLM-5.3 (on) (0.1% of its decisions); none from any other setup.</li>
         <li><strong>Still to play</strong>: 3 of 136 matches (2 thinking, last move 0 min ago, 1 paused after an error; listed above the table).</li><!-- /v3:notes2 --></ul>
       <h3 id="v3-l3"><span id="v3-head3"><!-- v3:head3 -->League 3: frontier chat models on subscriptions<!-- /v3:head3 --></span></h3>
@@ -297,17 +286,17 @@
         <table>
           <thead><tr><th>#</th><th class="l">Setup</th><th>P</th><th>W</th><th>D</th><th>L</th><th>Pts</th><th>Games</th><th>To play</th><th>Error rate (95%)</th><th>Engine's best play</th><th>Blunders</th></tr></thead>
           <tbody>
-            <tr><td>1</td><td class="l">GPT-6 Astra (on)</td><td>10</td><td>8</td><td class="zero">0</td><td>2</td><td><strong>24</strong></td><td>33-23</td><td class="zero">0</td><td><strong>12.5</strong> <span class="muted">10.6–14.5</span></td><td>64%</td><td>10%</td></tr>
-            <tr><td>2</td><td class="l">Claude Fable 5.1 (on)</td><td>10</td><td>7</td><td class="zero">0</td><td>3</td><td><strong>21</strong></td><td>33-23</td><td class="zero">0</td><td><strong>12.8</strong> <span class="muted">10.6–15.0</span></td><td>65%</td><td>11%</td></tr>
+            <tr><td>1</td><td class="l">GPT-6 Astra (on)</td><td>10</td><td>8</td><td class="zero">0</td><td>2</td><td><strong>24</strong></td><td>33-23</td><td class="zero">0</td><td><strong>12.5</strong> <span class="muted">10.5–14.5</span></td><td>64%</td><td>10%</td></tr>
+            <tr><td>2</td><td class="l">Claude Fable 5.1 (on)</td><td>10</td><td>7</td><td class="zero">0</td><td>3</td><td><strong>21</strong></td><td>33-23</td><td class="zero">0</td><td><strong>12.8</strong> <span class="muted">10.7–15.0</span></td><td>65%</td><td>11%</td></tr>
             <tr><td>3</td><td class="l">Claude Opus 5.5 (on)</td><td>10</td><td>6</td><td class="zero">0</td><td>4</td><td><strong>18</strong></td><td>37-27</td><td class="zero">0</td><td><strong>14.3</strong> <span class="muted">11.8–17.1</span></td><td>65%</td><td>11%</td></tr>
-            <tr><td>4</td><td class="l">Gemini 4 Argon (on)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>30-32</td><td class="zero">0</td><td><strong>12.6</strong> <span class="muted">10.3–14.6</span></td><td>65%</td><td>9%</td></tr>
-            <tr><td>5</td><td class="l">Grok 4.7 (on)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>30-32</td><td class="zero">0</td><td><strong>15.1</strong> <span class="muted">13.0–17.2</span></td><td>64%</td><td>12%</td></tr>
-            <tr><td>6</td><td class="l">Gemini 4 Argon (off)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>29-37</td><td class="zero">0</td><td><strong>17.4</strong> <span class="muted">14.5–20.5</span></td><td>60%</td><td>14%</td></tr>
-            <tr><td>7</td><td class="l">GPT-6 Astra (off)</td><td>10</td><td>4</td><td>2</td><td>4</td><td><strong>14</strong></td><td>33-27</td><td class="zero">0</td><td><strong>11.5</strong> <span class="muted">9.4–13.9</span></td><td>66%</td><td>9%</td></tr>
-            <tr><td>8</td><td class="l">Claude Opus 5.5 (off)</td><td>10</td><td>4</td><td class="zero">0</td><td>6</td><td><strong>12</strong></td><td>30-30</td><td class="zero">0</td><td><strong>16.2</strong> <span class="muted">13.8–19.1</span></td><td>61%</td><td>14%</td></tr>
-            <tr><td>9</td><td class="l">Grok 4.7 (off)</td><td>10</td><td>3</td><td class="zero">0</td><td>7</td><td><strong>9</strong></td><td>26-34</td><td class="zero">0</td><td><strong>19.0</strong> <span class="muted">16.6–21.7</span></td><td>61%</td><td>15%</td></tr>
-            <tr><td>10</td><td class="l">GNUbg weak</td><td>10</td><td>2</td><td>2</td><td>6</td><td><strong>8</strong></td><td>25-37</td><td class="zero">0</td><td><strong>28.0</strong> <span class="muted">24.7–31.5</span></td><td>44%</td><td>23%</td></tr>
-            <tr><td>11</td><td class="l">Claude Fable 5.1 (off)</td><td>10</td><td>2</td><td>1</td><td>7</td><td><strong>7</strong></td><td>32-36</td><td class="zero">0</td><td><strong>17.8</strong> <span class="muted">15.3–20.3</span></td><td>61%</td><td>14%</td></tr>
+            <tr><td>4</td><td class="l">Gemini 4 Argon (on)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>30-32</td><td class="zero">0</td><td><strong>12.6</strong> <span class="muted">10.4–14.9</span></td><td>65%</td><td>9%</td></tr>
+            <tr><td>5</td><td class="l">Grok 4.7 (on)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>30-32</td><td class="zero">0</td><td><strong>15.1</strong> <span class="muted">13.1–17.2</span></td><td>64%</td><td>12%</td></tr>
+            <tr><td>6</td><td class="l">Gemini 4 Argon (off)</td><td>10</td><td>5</td><td>1</td><td>4</td><td><strong>16</strong></td><td>29-37</td><td class="zero">0</td><td><strong>17.4</strong> <span class="muted">14.6–20.6</span></td><td>60%</td><td>14%</td></tr>
+            <tr><td>7</td><td class="l">GPT-6 Astra (off)</td><td>10</td><td>4</td><td>2</td><td>4</td><td><strong>14</strong></td><td>33-27</td><td class="zero">0</td><td><strong>11.5</strong> <span class="muted">9.3–13.9</span></td><td>66%</td><td>9%</td></tr>
+            <tr><td>8</td><td class="l">Claude Opus 5.5 (off)</td><td>10</td><td>4</td><td class="zero">0</td><td>6</td><td><strong>12</strong></td><td>30-30</td><td class="zero">0</td><td><strong>16.2</strong> <span class="muted">13.7–19.2</span></td><td>61%</td><td>14%</td></tr>
+            <tr><td>9</td><td class="l">Grok 4.7 (off)</td><td>10</td><td>3</td><td class="zero">0</td><td>7</td><td><strong>9</strong></td><td>26-34</td><td class="zero">0</td><td><strong>19.0</strong> <span class="muted">16.3–21.7</span></td><td>61%</td><td>15%</td></tr>
+            <tr><td>10</td><td class="l">GNUbg weak</td><td>10</td><td>2</td><td>2</td><td>6</td><td><strong>8</strong></td><td>25-37</td><td class="zero">0</td><td><strong>28.0</strong> <span class="muted">24.7–31.3</span></td><td>44%</td><td>23%</td></tr>
+            <tr><td>11</td><td class="l">Claude Fable 5.1 (off)</td><td>10</td><td>2</td><td>1</td><td>7</td><td><strong>7</strong></td><td>32-36</td><td class="zero">0</td><td><strong>17.8</strong> <span class="muted">15.3–20.2</span></td><td>61%</td><td>14%</td></tr>
           </tbody>
         </table>
       </div>
