@@ -6,11 +6,11 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Method · Zeki Works</title>
   <link rel="canonical" href="https://zekiworks.github.io/analysis/backgammon-preview/method/">
-  <meta name="description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,049 decisions scored by GNU Backgammon so far (League 1 finished; League 2 stopped (paused; 133 / 136 matches); League 3 finished). Every decision is public.">
-  <meta property="og:title" content="Method · Zeki Works"><meta property="og:description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,049 decisions scored by GNU Backgammon so far (League 1 finished; League 2 stopped (paused; 133 / 136 matches); League 3 finished). Every decision is public.">
+  <meta name="description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,051 decisions scored by GNU Backgammon so far (League 1 finished; League 2 running (133 / 136 matches); League 3 finished). Every decision is public.">
+  <meta property="og:title" content="Method · Zeki Works"><meta property="og:description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,051 decisions scored by GNU Backgammon so far (League 1 finished; League 2 running (133 / 136 matches); League 3 finished). Every decision is public.">
   <meta property="og:type" content="website"><meta property="og:url" content="https://zekiworks.github.io/analysis/backgammon-preview/method/">
-  <meta name="twitter:title" content="Method · Zeki Works"><meta name="twitter:description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,049 decisions scored by GNU Backgammon so far (League 1 finished; League 2 stopped (paused; 133 / 136 matches); League 3 finished). Every decision is public.">
-  <meta property="og:image" content="https://zekiworks.github.io/analysis/backgammon-preview/share/preview-4f964566.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://zekiworks.github.io/analysis/backgammon-preview/share/preview-4f964566.png">
+  <meta name="twitter:title" content="Method · Zeki Works"><meta name="twitter:description" content="We score every backgammon decision with an engine and compare decision quality, what the input adds, confidence and cost across 41 model setups. 77,051 decisions scored by GNU Backgammon so far (League 1 finished; League 2 running (133 / 136 matches); League 3 finished). Every decision is public.">
+  <meta property="og:image" content="https://zekiworks.github.io/analysis/backgammon-preview/share/preview-63daa282.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://zekiworks.github.io/analysis/backgammon-preview/share/preview-63daa282.png">
   <meta name="color-scheme" content="dark light">
   <script>document.documentElement.classList.add("js"); try { var t = localStorage.getItem("theme") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"); if (t === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
   <link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../bg.css">
@@ -561,6 +561,12 @@ Which of the following moves makes a point in front of the opponent's checkers, 
       (FP4 routed experts, FP8/BF16 elsewhere); Fireworks does not say which revision it serves. On stored Fireworks
       requests our server usually chose the same top letter, but not always; it is not deterministic, and Fireworks
       replaying its own stored answers did not always agree either.</li>
+    <li><strong>DeepSeek V4.1 Flash back on Fireworks.</strong> From 22 October 15:37 UTC, for League 2's last four
+      matches, DeepSeek V4.1 Flash (off, on) plays on Fireworks through OpenRouter again, with the provider pinned to
+      Fireworks and fallbacks off, as before 20 October 21:56 UTC; Gemma 4 31B, LFM2.5-24B-A2B and Qwen3.8-27B moved
+      from the DGX Sparks back to our RTX PRO 6000 cards (same checkpoints and settings; replayed requests: the same top
+      letter in 20 of 20 for Gemma and Qwen, 17 of 20 for LFM2.5, which is not deterministic). Matches under way keep
+      their stored turns; every decision records its provider, so it shows which turns ran where.</li>
     <li><strong>Gemini by subscription.</strong> With no Gemini API key, Gemini 3.8 Flash (low, high) plays through
       the Google Antigravity subscription from 19 October 12:46 UTC: the same model, prompt, thinking levels and
       constrained letter. On the smoke positions it nearly always chose the same play as the API.</li>
@@ -635,7 +641,7 @@ Which of the following moves makes a point in front of the opponent's checkers, 
   </main>
   <footer class="footer">
     <p>Download: <a href="../data/results.json">results (JSON)</a> · <a href="../decisions/index.json">decisions (JSON index)</a> · <a href="../data/">every data file</a> · <a href="../data/manifest.json">manifest.json</a></p>
-    <p>Results d7259e0d, updated 22 October 2026, 15:35 UTC.</p>
+    <p>Results bfad70b0, updated 22 October 2026, 15:41 UTC.</p>
   </footer>
 </body>
 </html>
