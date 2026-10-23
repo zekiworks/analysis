@@ -344,7 +344,7 @@ th button.sort.directed { display: inline-grid; grid-template-columns: auto auto
   justify-content: end; align-items: baseline; column-gap: .3rem; }
 th button.sort.directed .label { grid-area: label; }
 th button.sort.directed .sort-mark { grid-area: mark; }
-th button.sort.directed .direction { grid-area: direction; justify-self: end; font-weight: 400; white-space: nowrap; }
+th button.sort.directed .direction { grid-area: direction; justify-self: end; font-weight: 400; }
 th button.sort.directed:hover { text-decoration: none; }
 th button.sort.directed:hover .label { text-decoration: underline; }
 /* A header with a tooltip: dotted underline, the tip on hover and on keyboard focus. */
@@ -380,6 +380,11 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 .scope { color: var(--text-2); font-size: .85rem; margin: 0 0 .5rem; }
 .tab-notes { color: var(--text-2); font-size: .875rem; max-width: 80ch; }
 .tab-notes p { margin: .5rem 0 0; }
+/* The Confidence tab's guide above the table: a short heading, then each term with what it means. */
+.tab-guide { max-width: 80ch; margin: 0 0 .9rem; font-size: .875rem; }
+.tab-guide h3 { margin: 0 0 .3rem; font-size: .95rem; }
+.tab-guide ul { margin: 0; padding-left: 1.1rem; }
+.tab-guide li { margin: .15rem 0; }
 .route-map { display: grid; grid-template-columns: max-content 2.25rem max-content 1fr; align-items: center; margin: 0 0 .9rem;
   padding: .75rem .9rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 8px; font-size: .85rem; }
 .rm-node { display: inline-block; padding: .3rem .6rem; background: var(--panel); border: 1px solid var(--text); border-radius: 6px; font-weight: 600; }

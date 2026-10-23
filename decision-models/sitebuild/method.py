@@ -8,9 +8,11 @@ difference, from results.json's reasoning. Build checks raise ValueError when th
 
 from __future__ import annotations
 
+import math
 import re
 from typing import Any
 
+import benchmark_metrics as bm
 import build_page as bp
 from sitebuild.site import REPO_URL, Site, esc, rel
 
@@ -256,8 +258,8 @@ def setups_table(site: Site, snap: bp.Snapshot) -> str:
 
 
 def refit_table(site: Site, snap: bp.Snapshot) -> str:
-    """Calibration after the refit for every setup with a confidence score, the most useful confidence first: the
-    calibration gap as shipped and after the refit, both Brier scores and Better than a flat guess. The page shows the
+    """Calibration after the refit for every setup with a confidence score, by Better than a flat guess, highest first:
+    the calibration gap as shipped and after the refit, both Brier scores and Better than a flat guess. The page shows the
     gap after refit here only."""
     heads = ("Setup", "Calibration gap (points)", "Gap after refit (points)", "Brier after refit", "Brier of the flat guess",
              "Better than a flat guess (%)")
@@ -279,19 +281,97 @@ def refit_table(site: Site, snap: bp.Snapshot) -> str:
         )
     head = "".join(f'<th scope="col"{"" if index == 0 else " class=\"num\""}>{text}</th>' for index, text in enumerate(heads))
     return (f'<div class="table-wrap"><table class="overview cards"><caption>Calibration before and after the refit, every '
-            f'setup, the most useful confidence first</caption><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody>'
-            "</table></div>")
+            f'setup, by Better than a flat guess, highest first</caption><thead><tr>{head}</tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table></div>')
 
 
-def flat_guess_limit(snap: bp.Snapshot) -> tuple[str, str, str]:
-    """The setup the flat guess's limit names, the most accurate one: its name with its reasoning, its accuracy and its
-    Better than a flat guess, both in percent with one decimal."""
+# The three questions the Calibration section separates: what each asks, its column and which direction is better.
+CALIBRATION_QUESTIONS = (
+    ("Does the confidence put right answers above wrong ones?", "Ranking score", "Higher"),
+    ("Do the probabilities match the hit rate, as shipped?", "Calibration gap", "Lower"),
+    ("After a refit, do the probabilities beat one fixed probability for every answer?", "Better than a flat guess", "Higher"),
+)
+
+
+def calibration_questions() -> str:
+    heads = ("Question", "Column", "Better")
+    rows = "".join(
+        "<tr>" + "".join(f'<td data-label="{head}">{esc(text)}</td>' for head, text in zip(heads, row)) + "</tr>"
+        for row in CALIBRATION_QUESTIONS
+    )
+    head = "".join(f'<th scope="col">{text}</th>' for text in heads)
+    return f'<div class="table-wrap"><table class="overview cards"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
+
+
+def share_text(value: float) -> str:
+    """A share in percent with one decimal, and 100% without one."""
+    text = f"{100 * value:.1f}"
+    return "100%" if text == "100.0" else f"{text}%"
+
+
+def refit_example(site: Site, snap: bp.Snapshot) -> dict[str, str]:
+    """The worked refit: Open-Jev 27B v1.1 fitted on all its scored answers with a score (bm.platt_fit, as each fold is
+    fitted), its ranking score, stretch and shift, a table of its answers by raw score band (answers, average raw score,
+    average after the refit, share right), and from results.json the range of its five held-out stretches and its
+    calibration gap before and after the refit. The build stops unless its probabilities were too low in every band and
+    the bands hold every answer, as the text says."""
+    run = snap.named["open_jev"]
+    answer = next(item for item in site.answers["runs"] if item["run"] == run["run"])
+    pairs = [(float(answer["score"][index]), int(answer["correct"][index])) for index in site.scored if answer["score"][index] is not None]
+    clipped = [min(max(score, bm.REFIT_SCORE_CLIP), 1 - bm.REFIT_SCORE_CLIP) for score, _ in pairs]
+    features = [math.log(value / (1 - value)) for value in clipped]
+    stretch, shift, converged = bm.platt_fit(features, [correct for _, correct in pairs])
+    if not converged or stretch <= 0:
+        raise ValueError("the refit example needs Open-Jev's fit on all questions to converge with a positive stretch")
+    bands: dict[int, list[tuple[float, int, float]]] = {}
+    for (score, correct), feature in zip(pairs, features):
+        bands.setdefault(min(int(10 * score), 9), []).append((score, correct, bm.sigmoid(stretch * feature + shift)))
+    heads = ("Raw score", "Answers", "Raw average", "Average after refit", "Actually right")
+    rows = []
+    for band, members in sorted(bands.items()):
+        raw, right = sum(item[0] for item in members) / len(members), sum(item[1] for item in members) / len(members)
+        if raw >= right:
+            raise ValueError("the refit example says Open-Jev's probabilities were too low in every band")
+        cells = (f"{10 * band}–{10 * band + 10}%", bp.count(len(members)), share_text(raw),
+                 share_text(sum(item[2] for item in members) / len(members)), share_text(right))
+        rows.append("<tr>" + "".join(f'<td{"" if index == 0 else " class=\"num\""} data-label="{head}">{cell}</td>'
+                                     for index, (head, cell) in enumerate(zip(heads, cells))) + "</tr>")
+    if sum(len(members) for members in bands.values()) != run["confidence"]["refit_questions"]:
+        raise ValueError("the refit example's bands must hold every answer the refit used")
+    slopes = [slope for slope in run["confidence"]["refit_slopes"] if slope is not None]
+    head = "".join(f'<th scope="col"{"" if index == 0 else " class=\"num\""}>{text}</th>' for index, text in enumerate(heads))
+    return {
+        "auroc": f"{run['confidence']['auroc']:.2f}",
+        "stretch": f"{stretch:.2f}",
+        "shift": f"{shift:.2f}",
+        "table": f'<div class="table-wrap"><table class="overview cards"><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>',
+        "fold_low": f"{min(slopes):.2f}",
+        "fold_high": f"{max(slopes):.2f}",
+        "gap": f"{100 * run['confidence']['ece']:.1f}",
+        "gap_after": f"{100 * run['confidence']['ece_refit']:.1f}",
+    }
+
+
+def flat_guess_examples(snap: bp.Snapshot) -> dict[str, str]:
+    """The numbers the paragraph on high accuracy cites: GPT-6 Astra (its first setup) and Gemini 3.8 Flash at high
+    reasoning, each one's accuracy and Better than a flat guess, and Gemini's wrong answers out of the questions its refit
+    used. The build stops unless Gemini is the more accurate and Astra scores higher, as the paragraph says."""
     total = snap.results["questions"]
-    best = max(snap.runs, key=lambda run: run["correct"])
-    if not best.get("confidence") or sum(run["correct"] == best["correct"] for run in snap.runs) != 1:
-        raise ValueError("the flat guess's limit names the one most accurate setup, with a confidence score")
-    name = best["name"] + (f" with {bp.reasoning_label(best['reasoning'])}" if best.get("reasoning") else "")
-    return name, f"{100 * best['correct'] / total:.1f}", f"{bp.flat_gain(best):.1f}"
+    astra, gemini = snap.named["astra"], snap.named["gemini_high"]
+    if (astra["name"], gemini["name"], gemini.get("reasoning")) != ("GPT-6 Astra", "Gemini 3.8 Flash", "high"):
+        raise ValueError("the paragraph on high accuracy names GPT-6 Astra and Gemini 3.8 Flash at high reasoning")
+    if not (gemini["correct"] > astra["correct"] and bp.flat_gain(astra) > bp.flat_gain(gemini)):
+        raise ValueError("the paragraph on high accuracy says Gemini 3.8 Flash is the more accurate and GPT-6 Astra scores higher")
+    if gemini["confidence"]["refit_questions"] != total:
+        raise ValueError("the paragraph on high accuracy counts Gemini's wrong answers out of every question")
+    return {
+        "astra_accuracy": f"{100 * astra['correct'] / total:.1f}",
+        "astra_gain": f"{bp.flat_gain(astra):.1f}",
+        "gemini_accuracy": f"{100 * gemini['correct'] / total:.1f}",
+        "gemini_gain": f"{bp.flat_gain(gemini):.1f}",
+        "gemini_wrong": bp.count(total - gemini["correct"]),
+        "questions": bp.count(total),
+    }
 
 
 def display_name(run: dict[str, Any]) -> str:
@@ -417,7 +497,10 @@ def build(site: Site) -> dict[str, str]:
         raise ValueError("the calibration chart's description changed; check what it says about the table")
     calibration_alt = calibration_alt.replace("; the table keeps them.", ".")
     paired_figure = from_here(bp.chart_sizes(bp.method_paired_figure(snap)))
-    limit_name, limit_accuracy, limit_gain = flat_guess_limit(snap)
+    refit = refit_example(site, snap)
+    flat = flat_guess_examples(snap)
+    if bm.REFIT_FOLDS != 5:
+        raise ValueError("the Method page describes the refit's five parts")
 
     sections = [
         ("main-findings", "What we found", f"""
@@ -552,26 +635,55 @@ answer has higher confidence than a randomly chosen wrong one, with half credit 
 {v['study_coverage_first']} takes that share of answers with the highest scores and checks how many are right; the
 {v['study_coverage_rest']} shares work the same way. They describe the kept answers only.</p>
 {chart("coverage", chart_alt(study["study-coverage"], "coverage"), CHARTS["coverage"])}
+<h3 id="calibration">Calibration</h3>
+<p>Calibration means that a model's confidence matches how often its answers are right. When a calibrated model says 80%,
+it is right about 80% of the time. Calibration matters when someone uses the number itself, for example to decide how
+much to risk on an answer.</p>
+<p>Calibration is separate from accuracy: a model can be right often and still give probabilities that are too high or too
+low. It is also separate from ranking: a model can usually put right answers above wrong ones and still give
+probabilities of the wrong size.</p>
+{calibration_questions()}
 <p>Calibration asks whether the percentages match the hit rate: of 100 answers scored near 80%, about 80 should be right.
 The calibration gap (ECE){cite(11)} sorts answers into {v['study_confidence_groups']} confidence groups (0% to below 10%, and
 so on) and compares each group's average confidence with its share right. It averages these gaps, weighting larger groups
 more, in points. Zero means a match within the groups, not that every score is right; the chart leaves out groups with
 fewer than {v['study_calibration_min']} answers.</p>
 {chart("calibration-all", calibration_alt, CHARTS["calibration-all"])}
-<p>How useful is each model's confidence? We refit it with two numbers, a slope and an intercept on the log-odds of the
-score (Platt scaling{cite(21)}), fitted on four fifths of the passages and measured on the other fifth, in 5 folds by
-passage. Every model uses the same folds, drawn once (a question without a passage is its own group), and questions
-without a score are left out, as in the calibration gap. The flat guess gives every answer in a fold the same
-probability: the model's hit rate on the other four folds. The Brier score is the mean squared difference between a
-confidence and the outcome (1 if right, 0 if wrong), and Better than a flat guess = 100 × (1 − Brier after refit ÷ Brier
-of the flat guess); 0% means the confidence adds nothing to the hit rate. A slope of zero or below in any fold means
-higher confidence went with lower accuracy, and the Confidence tab and the table below mark those models reversed. Hamel
-Husain's <a href="https://hamel.dev/blog/posts/decision-model-evals/">post on decision models</a> also found that
-calibration did not improve every model.</p>
-<p>The score compares each model with its own hit rate, so models that are almost always right have little room to gain.
-{limit_name} is right {limit_accuracy}% of the time and scores {limit_gain}%. For those models, read the ranking
-score.</p>
+<h3 id="refit">What a refit is</h3>
+<p>A refit changes the confidence scores, not the model's answers. The published ranking score still uses the original
+scores.</p>
+<p>The refit has three steps. Before the conversion, probabilities are clipped to between {bm.REFIT_SCORE_CLIP:.6f} and
+{1 - bm.REFIT_SCORE_CLIP:.6f}. First, each confidence p becomes log-odds: ln(p / (1 − p)). Second, the new log-odds are a
+stretch times the old log-odds, plus a shift. Third, the result becomes a probability again. This is Platt
+scaling.{cite(21)} Logistic regression chooses the stretch and the shift. With a positive stretch, the refit keeps the order
+of the scores it is applied to. With a negative stretch, it flips that order; these models are marked "reversed".</p>
+<p>Example: Open-Jev 27B v1.1. Its confidence usually ranked right answers above wrong ones (ranking score
+{refit['auroc']}), but its probabilities were too low. Fitted on all questions, its stretch is {refit['stretch']} and its
+shift is {refit['shift']}. The table refits each answer, then averages within each band:</p>
+{refit['table']}
+<p>This table illustrates a fit on all questions. The published results come from a different calculation. We divide the
+questions into five parts, keeping questions from the same passage together; each question without a shared passage
+forms its own group. We fit on four parts and measure on the fifth, and rotate until each part has been measured once.
+Each part has its own stretch and shift; for Open-Jev the stretch ranges from {refit['fold_low']} to {refit['fold_high']}.
+On those held-out questions, Open-Jev's calibration gap falls from {refit['gap']} to {refit['gap_after']} points.</p>
+<p>A refit cannot raise accuracy.</p>
+<h3 id="flat-guess">Better than a flat guess</h3>
+<p>Better than a flat guess compares two probability errors on those held-out questions (5 folds by passage). The Brier
+score is the mean squared difference between a probability and the outcome (1 if right, 0 if wrong); lower is better.
+The flat guess gives every answer the same probability: the model's accuracy on the questions used for fitting. Better
+than a flat guess = 100 × (1 − Brier after refit ÷ Brier of the flat guess), so 0% means no improvement over the flat
+guess and below 0% means worse. Every model uses the same five parts, and questions without a score are left out, as in
+the calibration gap. Hamel Husain's <a href="https://hamel.dev/blog/posts/decision-model-evals/">post on decision
+models</a> also found that calibration did not improve every model.</p>
+<p>High accuracy does not by itself force this score to be low. The score measures how much the refitted probabilities
+reduce Brier error compared with the model's own flat baseline. Example: GPT-6 Astra is right {flat['astra_accuracy']}% of
+the time and scores {flat['astra_gain']}%, while Gemini 3.8 Flash at high reasoning is right {flat['gemini_accuracy']}% of
+the time and scores {flat['gemini_gain']}%. For models with few wrong answers, the score rests on few cases (Gemini 3.8
+Flash: {flat['gemini_wrong']} of {flat['questions']}), so it can vary more between test sets. A score near 0% means this
+refit gave no improvement in this test. It does not prove that no method could make the confidence useful.</p>
+<details class="show-table"><summary>All calibration results</summary>
 {refit_table(site, snap)}
+</details>
 <h3 id="sure">What a score of {v['threshold']} or more meant</h3>
 <p>At {v['threshold']} or more, Jev 1.13 got {v['jev_correct']} of {v['jev_accepted']} right, d1 {v['d1_correct']} of
 {v['d1_accepted']}, Decider v1 {v['decider_v1_correct']} of {v['decider_v1_accepted']} and GLiDE {v['glide_correct']} of

@@ -451,8 +451,8 @@ def copy_checks(data: Data) -> list[str]:
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
     # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model; then GLiDE v1.2,
     # GLiDE and Deciders v1.1 and v1.2, in that order, at 66.9% to 68.5%; Luna through the Decisions API has the
-    # smallest calibration gap without refit, and the refit lowers the gap for many setups; Open-Jev 27B v1.1 and Decider
-    # v1.1 score highest on Better than a flat guess; d1-ultra gives the biggest estimated saving in all 10 LLM setups.
+    # smallest calibration gap as shipped; Open-Jev 27B v1.1 and Decider v1.1 score highest on Better than a flat guess;
+    # d1-ultra gives the biggest estimated saving in all 10 LLM setups.
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
     luna = next(run for run in decision if run["model"] == "gpt-6-luna")
 
@@ -473,16 +473,12 @@ def copy_checks(data: Data) -> list[str]:
     check("Summary: at 66.9% to 68.5%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.5")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])
-    check("Summary: Luna (Decisions API) had the smallest gap among decision models, without refit", calibrated[0] is luna)
-    # A refit whose slope came out at zero or below in a fold reversed the confidence order; its gap is left out.
-    ordered = [run for run in runs if run["confidence"] and not bp.reversed_refit(run)]
-    fell = [run for run in ordered if run["confidence"]["ece_refit"] < run["confidence"]["ece"]]
-    check("Summary: with a refit, the measured gap fell for many models (more than half of the setups whose refit kept the order)",
-          2 * len(fell) > len(ordered))
-    useful = sorted(decision, key=lambda run: -bp.flat_gain(run))
-    check("Summary: most useful confidence among decision models: Open-Jev 27B v1.1 (31.9%) and Perplexity Decider 27B v1.1 (31.5%)",
-          useful[0] is data.by_name("open-jev-27b-v1.1") and useful[1] is data.by_name("pplx-decider-v1.1-27b")
-          and [f"{bp.flat_gain(run):.1f}" for run in useful[:2]] == ["31.9", "31.5"])
+    check("Summary: calibration gap, as shipped: Luna (Decisions API) had the smallest gap among decision models", calibrated[0] is luna)
+    flat = sorted(decision, key=lambda run: -bp.flat_gain(run))
+    check("Summary: better than a flat guess, after refit: Open-Jev 27B v1.1 (31.9%) and Perplexity Decider 27B v1.1 (31.5%), "
+          "the two highest among decision models",
+          flat[0] is data.by_name("open-jev-27b-v1.1") and flat[1] is data.by_name("pplx-decider-v1.1-27b")
+          and [f"{bp.flat_gain(run):.1f}" for run in flat[:2]] == ["31.9", "31.5"])
 
     def best_share(part: str) -> str:
         return f"{100 * max(run['groups'][part]['correct'] / run['groups'][part]['questions'] for run in decision):.1f}"

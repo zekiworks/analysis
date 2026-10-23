@@ -23,7 +23,9 @@ const AUROC_TIP = 'ranking score';
 const GAP_TIP =
   'How far the model’s confidence is from how often it is right, as shipped. Example: answers scored 80% that are right 70% of the time add a 10-point gap. Lower is better.';
 const FLAT_TIP =
-  'How much better the model’s confidence predicts which of its answers are right than one flat guess at its hit rate. Measured after a two-number refit fitted on other passages. 0% means the confidence adds nothing. Higher is better.';
+  'How much lower the probability error (Brier score) is for the refitted confidence than for a flat guess. The flat guess gives every answer the same probability: the model’s accuracy on the questions used for fitting. Measured on held-out questions. 0% means no improvement over the flat guess in this test, with this refit method; below 0% means worse. Higher is better.';
+const RANKING_TIP =
+  'How often a right answer receives higher confidence than a wrong answer. 0.50 is chance; 1.00 is perfect. Uses the original scores.';
 const REVERSED_TIP = 'Higher confidence went with lower accuracy for this model.';
 const SHARE_TIP = 'Share of questions taken: at 16 questions per request, a call still goes out for the rest.';
 const SPLIT_NA_TIP = 'Live tests did not record which kept answers were right, so no bar is shown.';
@@ -243,9 +245,23 @@ function accuracyCell(run) {
 const flatGain = run => 100 * (1 - run.confidence.brier_refit / run.confidence.brier_base);
 const reversedRefit = run => run.confidence.refit_slopes.some(slope => slope != null && slope <= 0);
 
+/* The Confidence tab's guide above the table: each term, then what it means. */
+const CONFIDENCE_GUIDE = [
+  ['Confidence', 'the probability a model gives to its own answer.'],
+  ['Calibration', 'whether that probability matches how often the model is right. Of 100 answers scored 80%, about 80 should be right.'],
+  [`Kept at ${pct(SETTINGS.threshold, 0)} (wrong)`, `answers scored ${pct(SETTINGS.threshold, 0)} or more, and how many of them were wrong.`],
+  ['Ranking score', 'how often a right answer receives higher confidence than a wrong answer. 0.50 is chance; 1.00 is perfect. Higher is better.'],
+  ['Calibration gap', 'how far the probabilities are from the real hit rate, in points, as shipped. Lower is better.'],
+  [
+    'Better than a flat guess (after refit)',
+    'how much lower the probability error is for the refitted confidence than for the flat baseline. 0% means no improvement in this test. Higher is better.',
+  ],
+];
+
 /* Each tab's columns: label (with its unit), header tooltip, the value it sorts by (null sorts last), and the cell, one
    number of decimals per column. "low" marks the columns where a lower value is better, so their first click sorts
-   upwards. */
+   upwards; with a tab's "directions", "qualifier" goes before the column's direction line. A tab's "guide" goes above
+   its table. */
 const TABS = {
   accuracy: {
     rows: () => visibleRuns().map(run => ({ run })),
@@ -267,6 +283,7 @@ const TABS = {
   confidence: {
     rows: () => visibleRuns().map(run => ({ run })),
     note: CONFIDENCE_NOTE,
+    guide: CONFIDENCE_GUIDE,
     /* Each header says under its label which direction is better, from the column's "low" flag. */
     directions: true,
     /* Long labels: the headers wrap on a wide screen too, so every column fits beside the names. */
@@ -282,12 +299,17 @@ const TABS = {
         },
       },
       {
+        key: 'auroc', label: 'Ranking score', tip: RANKING_TIP,
+        value: run => (filtered() ? null : run.confidence.auroc),
+        cell: run => (filtered() ? MISSING : run.confidence.auroc.toFixed(3)),
+      },
+      {
         key: 'gap', label: 'Calibration gap (points)', tip: GAP_TIP, low: true,
         value: run => (filtered() ? null : run.confidence.ece),
         cell: run => (filtered() ? MISSING : (100 * run.confidence.ece).toFixed(1)),
       },
       {
-        key: 'flat', label: 'Better than a flat guess (%)', tip: FLAT_TIP,
+        key: 'flat', label: 'Better than a flat guess (%)', tip: FLAT_TIP, qualifier: 'after refit',
         value: run => (filtered() ? null : flatGain(run)),
         cell: run => {
           if (filtered()) return MISSING;
@@ -506,13 +528,17 @@ function sortRows(rows, columns) {
 }
 
 /* A sortable header: ⇅ when another column sorts the table, ▲ or ▼ when this one does. With directions, a muted line
-   under the label says which way is better, from the column's "low" flag, in words, as the arrows mean sorting. */
+   under the label says which way is better, from the column's "low" flag, in words, as the arrows mean sorting; a
+   qualifier ("after refit") goes first. Each phrase keeps its words together, so a narrow column breaks only after "·". */
 function header(column, directions = false) {
   const sorted = state.sort.key === column.key;
   const aria = sorted ? ` aria-sort="${state.sort.descending ? 'descending' : 'ascending'}"` : '';
   const mark = sorted ? (state.sort.descending ? '▼' : '▲') : '⇅';
   const hint = column.tip ? ` data-tip="${esc(column.tip)}"` : '';
-  const direction = directions ? `<span class="small direction">${column.low ? 'lower is better' : 'higher is better'}</span>` : '';
+  const phrases = [column.qualifier, column.low ? 'lower is better' : 'higher is better'].filter(Boolean);
+  const direction = directions
+    ? `<span class="small direction">${phrases.map(text => esc(text).replaceAll(' ', '\u00a0')).join('\u00a0· ')}</span>`
+    : '';
   return `<th scope="col" class="num ${column.className ?? ''}"${aria}><button type="button" class="sort${directions ? ' directed' : ''}" data-sort="${column.key}"${hint}>` +
     `<span class="label">${esc(column.label)}</span><span class="sort-mark" aria-hidden="true">${mark}</span>${direction}</button></th>`;
 }
@@ -556,9 +582,12 @@ function renderBoard() {
     .map(item => `<p class="table-note">${esc(`${item.mark} ${item.note}`)}</p>`)
     .join('');
   const notes = (tab.notes ?? tab.note ?? []).map(text => `<p>${esc(text)}</p>`).join('');
+  const guide = tab.guide
+    ? `<div class="tab-guide"><h3>How to read this tab</h3><ul>${tab.guide.map(([term, text]) => `<li><strong>${esc(term)}</strong>: ${esc(text)}</li>`).join('')}</ul></div>`
+    : '';
   const board = document.getElementById('board');
   const split = state.tab === 'routing' ? splitNote(rows) : '';
-  board.innerHTML = routing + table + (split ? `<p class="table-note">${esc(split)}</p>` : '') + marks + (notes ? `<div class="tab-notes">${notes}</div>` : '');
+  board.innerHTML = routing + guide + table + (split ? `<p class="table-note">${esc(split)}</p>` : '') + marks + (notes ? `<div class="tab-notes">${notes}</div>` : '');
   board.setAttribute('aria-labelledby', `tab-${state.tab}`);
   board.querySelector('.table-wrap')?.addEventListener('scroll', onTableScroll, { passive: true });
   document.querySelectorAll('[data-setups]').forEach(count => {
