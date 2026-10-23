@@ -354,19 +354,28 @@ def refit_example(site: Site, snap: bp.Snapshot) -> dict[str, str]:
 
 def flat_guess_examples(snap: bp.Snapshot) -> dict[str, str]:
     """The numbers the paragraph on high accuracy cites: GPT-6 Astra (its first setup) and Gemini 3.8 Flash at high
-    reasoning, each one's accuracy and Better than a flat guess, and Gemini's wrong answers out of the questions its refit
-    used. The build stops unless Gemini is the more accurate and Astra scores higher, as the paragraph says."""
+    reasoning, each one's settings (reasoning and questions per request), accuracy and Better than a flat guess, and
+    Gemini's wrong answers out of the questions its refit used. The build stops unless Gemini is the more accurate and
+    Astra scores higher, as the paragraph says."""
     total = snap.results["questions"]
     astra, gemini = snap.named["astra"], snap.named["gemini_high"]
-    if (astra["name"], gemini["name"], gemini.get("reasoning")) != ("GPT-6 Astra", "Gemini 3.8 Flash", "high"):
-        raise ValueError("the paragraph on high accuracy names GPT-6 Astra and Gemini 3.8 Flash at high reasoning")
+    if (astra["name"], gemini["name"]) != ("GPT-6 Astra", "Gemini 3.8 Flash"):
+        raise ValueError("the paragraph on high accuracy names GPT-6 Astra and Gemini 3.8 Flash")
+
+    def setting(run: dict[str, Any]) -> str:
+        size = run["questions_per_request"]
+        parts = [bp.reasoning_label(run["reasoning"])] if run.get("reasoning") else []
+        return ", ".join([*parts, f"{bp.count(size)} question{'' if size == 1 else 's'} per request"])
+
     if not (gemini["correct"] > astra["correct"] and bp.flat_gain(astra) > bp.flat_gain(gemini)):
         raise ValueError("the paragraph on high accuracy says Gemini 3.8 Flash is the more accurate and GPT-6 Astra scores higher")
     if gemini["confidence"]["refit_questions"] != total:
         raise ValueError("the paragraph on high accuracy counts Gemini's wrong answers out of every question")
     return {
+        "astra_setting": setting(astra),
         "astra_accuracy": f"{100 * astra['correct'] / total:.1f}",
         "astra_gain": f"{bp.flat_gain(astra):.1f}",
+        "gemini_setting": setting(gemini),
         "gemini_accuracy": f"{100 * gemini['correct'] / total:.1f}",
         "gemini_gain": f"{bp.flat_gain(gemini):.1f}",
         "gemini_wrong": bp.count(total - gemini["correct"]),
@@ -676,11 +685,12 @@ guess and below 0% means worse. Every model uses the same five parts, and questi
 the calibration gap. Hamel Husain's <a href="https://hamel.dev/blog/posts/decision-model-evals/">post on decision
 models</a> also found that calibration did not improve every model.</p>
 <p>High accuracy does not by itself force this score to be low. The score measures how much the refitted probabilities
-reduce Brier error compared with the model's own flat baseline. Example: GPT-6 Astra is right {flat['astra_accuracy']}% of
-the time and scores {flat['astra_gain']}%, while Gemini 3.8 Flash at high reasoning is right {flat['gemini_accuracy']}% of
-the time and scores {flat['gemini_gain']}%. For models with few wrong answers, the score rests on few cases (Gemini 3.8
-Flash: {flat['gemini_wrong']} of {flat['questions']}), so it can vary more between test sets. A score near 0% means this
-refit gave no improvement in this test. It does not prove that no method could make the confidence useful.</p>
+reduce Brier error compared with the model's own flat baseline. Example: GPT-6 Astra ({flat['astra_setting']}) is right
+{flat['astra_accuracy']}% of the time and scores {flat['astra_gain']}%, while Gemini 3.8 Flash ({flat['gemini_setting']}) is
+right {flat['gemini_accuracy']}% of the time and scores {flat['gemini_gain']}%. For models with few wrong answers, the score
+rests on few cases (Gemini 3.8 Flash: {flat['gemini_wrong']} of {flat['questions']}), so it can vary more between test sets.
+A score near 0% means this refit gave no improvement in this test. It does not prove that no method could make the
+confidence useful.</p>
 <details class="show-table"><summary>All calibration results</summary>
 {refit_table(site, snap)}
 </details>
