@@ -288,6 +288,19 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
 
   const filtered = v => v.r !== 'all' || v.c !== 'all' || v.b !== 'all';
 
+  /* The dataset, setup, filters and page in view, for the table and page PNGs (png.js). */
+  const STAKE_BAND = { s: 'small (below 0.02)', m: 'medium (0.02 to 0.08)', b: 'big (above 0.08)' };
+  window.pngView = () => {
+    if (!view || !view.dataset) return {};
+    const call = Object.keys(CALL_CODE).find(k => CALL_CODE[k] === view.c);
+    return {
+      league: view.dataset.label,
+      filters: [`Setup: ${view.setup ? view.setup.name : ''}`, view.r !== 'all' && `Position class: ${KIND[view.r]}`,
+        call && `Risk call: ${CALL[call]}`, view.b !== 'all' && `Stake, or equity lost by a needless risk: ${STAKE_BAND[view.b]}`,
+        view.pages && `page ${count(view.p)} of ${count(view.pages)}`].filter(Boolean),
+    };
+  };
+
   /* The B6.1 marks of every decision of a setup, [page, id, class r/s/n, call rr/wr/nr/mr/rs, band s/m/b], for the
      filters. The band is the stake for Risk pays decisions and the equity lost for needless risks (B6.3). */
   const riskIndexes = new Map();
@@ -324,7 +337,7 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
       .map(([k, l]) => `<option value="${k}"${k === v.r ? ' selected' : ''}>${esc(l)}</option>`).join('');
     const callOptions = [['all', 'Any risk call'], ...Object.entries(CALL_CODE).map(([k, c]) => [c, `${CALL[k]} (${count(calls[k] || 0)})`])]
       .map(([k, l]) => `<option value="${k}"${k === v.c ? ' selected' : ''}>${esc(l)}</option>`).join('');
-    const bandOptions = [['all', 'Any size'], ['s', 'small (below 0.02)'], ['m', 'medium (0.02 to 0.08)'], ['b', 'big (above 0.08)']]
+    const bandOptions = [['all', 'Any size'], ...Object.entries(STAKE_BAND)]
       .map(([k, l]) => `<option value="${k}"${k === v.b ? ' selected' : ''}>${esc(l)}</option>`).join('');
     const statusClass = v.dataset.status.split(/[ (:]/)[0].toLowerCase();
     controls.innerHTML = `<div class="filters-bar">

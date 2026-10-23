@@ -284,6 +284,11 @@ button.mode[aria-selected="true"]::after { content: ""; position: absolute; left
 .table-frame.more-right::after { opacity: 1; }
 .swipe-hint { margin: 0 0 .2rem; color: var(--text-2); font-size: .78rem; text-align: right; }
 .swipe-hint.is-done { visibility: hidden; }
+/* "Download PNG" under every table (assets/png.js). While a table is drawn, its cells stop sticking, so each is read where
+   it sits in the table and not where the scroll box holds it. */
+.table-png { margin: .35rem 0 0; text-align: right; }
+.table-png .key { min-height: 1.6rem; padding: .1rem .6rem; font-size: .78rem; }
+table.png-capture th, table.png-capture td { position: static !important; }
 table { width: 100%; border-collapse: collapse; font-size: .875rem; }
 caption { text-align: left; color: var(--text-2); font-size: .85rem; margin-bottom: .5rem; }
 th, td { padding: .5rem .65rem; border-bottom: 1px solid var(--edge); text-align: left; vertical-align: top; }
@@ -607,3 +612,16 @@ ul.price-list { padding-left: 1.25rem; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* TEMPORARY (pages.EXPORT_PAGE_PNG): "Export page as PNG" in the top bar, and while the page is drawn the scrolling boxes
+   show all their rows. */
+.page-png { grid-area: png; }
+.page-png[hidden] { display: none; }
+.js .page-png[hidden] { display: inline-flex; }
+.topbar:has(.page-png) { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "brand png theme" "nav nav nav"; }
+.topbar .page-png { min-height: 1.75rem; padding: .15rem .6rem; font-size: .78rem; }
+@media (max-width: 640px) {
+  .topbar:has(.page-png) { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav" "png png"; }
+  .topbar .page-png { justify-self: start; }
+}
+html.png-page :is(.table-wrap, .dec-pre, .dec-options, .chart-scroll) { max-height: none !important; }

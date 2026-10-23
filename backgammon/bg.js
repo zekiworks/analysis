@@ -48,6 +48,9 @@ function activeFilters() {
   return on;
 }
 
+/* The filters in view, for the table and page PNGs (png.js). */
+window.pngView = () => ({ filters: activeFilters() });
+
 /* Rows of a chart: the filters decide which can show; without "Show all", the first TOP_N model setups in the chart's
    order plus the reference rows. Visible rows are stacked again so no gap is left. */
 function layoutChart(svg) {
