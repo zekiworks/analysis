@@ -291,6 +291,9 @@ th, td { padding: .5rem .65rem; border-bottom: 1px solid var(--edge); text-align
    under them separates them from the rows. */
 thead th { background: var(--panel); font-weight: 600; vertical-align: bottom; white-space: nowrap; border-bottom: 1px solid var(--control-edge); }
 .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* A tab whose columns would not fit (wrapHeaders in v3.js) wraps its headers on a wide screen too; on a phone every header
+   wraps already. */
+@media (min-width: 641px) { table.board.wrap-headers thead th:not(:first-child) { white-space: normal; min-width: 5.5rem; } }
 table.board td.num { font-family: var(--mono); font-size: .84rem; }
 .small { display: block; color: var(--text-2); font-size: .78rem; }
 /* The settings line: the long form, and on a phone the short form ("1 per request · low reasoning"). */

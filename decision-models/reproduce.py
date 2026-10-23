@@ -10,7 +10,9 @@ and the key, AUROC, expected calibration error, the answers scored 0.99 or more 
 of their accuracy (the counts also before the key audit, when results.json has them), and the
 leaderboard's tied groups (every pair of runs tested, exact McNemar, Holm over all pairs, alpha 0.05),
 including that two runs share a letter exactly when that test does not tell them apart. Then the listed
-paired comparisons: exact McNemar and Holm over the listed pairs. Then the grading of every other
+paired comparisons: exact McNemar and Holm over the listed pairs. Then each main run's calibration after
+refit (bm.refit_calibration, 5 folds by passage): the gap and Brier score after refit, the constant guess's
+Brier score, the five slopes, the questions used and whether every fit converged. Then the grading of every other
 exported run (repeats, routing tests, request sizes) against the same key. Then each format rerun (a
 setup's later main run with another number of questions per request) against its setup's first run:
 exact McNemar and Holm over those comparisons. Then the reasoning pairs (N3): each model's gains from a lower
@@ -306,6 +308,16 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    refit_mismatches = check_refits(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nCalibration after refit ({bm.REFIT_METHOD}, the same folds for every run, questions without a score left out; "
+        f"gaps, Brier scores and slopes within {METRIC_TOLERANCE:g}): {checked - len(refit_mismatches)} of {checked} match"
+    )
+    for line in refit_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     grading_mismatches = check_grading(answers, keys, scored, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -391,6 +403,51 @@ def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[
         differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
         if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
             mismatches.append(f"  run {run['run']} ({label(run)}): {differ} of {len(given)} answers are not graded on the key")
+    return mismatches
+
+
+def check_refits(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute each run's calibration after refit (confidence.ece_refit, brier_refit, brier_base, refit_slopes,
+    refit_questions and refit_converged) from the exported answers: bm.refit_calibration on the run's scored questions
+    that have a score, in bm.refit_folds' folds of every scored question, each passage's questions one cluster and a
+    question without a passage its own. Returns a line per run that differs."""
+    questions = answers["questions"]
+    clusters = {
+        index: f"passage {questions['passage'][index]}" if questions["passage"][index] is not None else f"question {questions['id'][index]}"
+        for index in scored
+    }
+    fold_of = bm.refit_folds(clusters.values())
+    exported = {run["run"]: run for run in answers["runs"]}
+    mismatches = []
+    for run in results["runs"]:
+        confidence = run.get("confidence")
+        if confidence is None:
+            continue
+        answer = exported[run["run"]]
+        kept = [index for index in scored if answer["score"][index] is not None]
+        again = bm.refit_calibration(
+            [(float(answer["score"][index]), int(answer["correct"][index])) for index in kept],
+            [fold_of[clusters[index]] for index in kept],
+        )
+        published_slopes = confidence.get("refit_slopes") or []
+        cells = [
+            checks.metric(confidence.get("ece_refit"), again["ece_refit"]),
+            checks.metric(confidence.get("brier_refit"), again["brier_refit"]),
+            checks.metric(confidence.get("brier_base"), again["brier_base"]),
+            checks.cell(
+                len(published_slopes) == len(again["slopes"])
+                and all(close(published, recomputed, METRIC_TOLERANCE) for published, recomputed in zip(published_slopes, again["slopes"])),
+                "slopes " + " ".join(number(slope, 3) for slope in again["slopes"]),
+                "slopes " + " ".join(number(slope, 3) for slope in published_slopes),
+            ),
+            checks.cell(
+                (confidence.get("refit_questions"), confidence.get("refit_converged")) == (again["questions"], again["converged"]),
+                f"{again['questions']} questions, converged {again['converged']}",
+                f"{confidence.get('refit_questions')} questions, converged {confidence.get('refit_converged')}",
+            ),
+        ]
+        if any("≠" in cell for cell in cells):
+            mismatches.append(f"  run {run['run']} ({label(run)}): " + ", ".join(cells))
     return mismatches
 
 

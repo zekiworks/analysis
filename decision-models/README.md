@@ -42,7 +42,8 @@ python3 -m http.server 8000                                # preview at http://1
 - **`reproduce.py`** (Python 3.10 or newer, standard library and `benchmark_metrics.py`) recomputes,
   from `answers.json`, each main run's correct answers on the scored questions (the 12 the key
   audit excluded are skipped), AUROC, expected calibration error and the answers scored 0.99 or more,
-  before and after the key audit; the leaderboard's comparison groups (every pair of runs, exact
+  before and after the key audit, and the calibration after refit (5 folds by passage: gap, Brier
+  scores, slopes); the leaderboard's comparison groups (every pair of runs, exact
   McNemar, Holm over all pairs, alpha 0.05), including that two runs share a letter exactly when that
   test does not tell them apart; the listed paired comparisons (exact McNemar, Holm over the listed
   pairs and over all pairs); each format rerun against its setup's first run on the same questions (exact
@@ -60,7 +61,7 @@ python3 -m http.server 8000                                # preview at http://1
   each routing simulation's and replay's cost per 1,000 questions from its runs, and the
   routing tests' costs from their parts. It prints one row per run and exits with status 1 when a value
   differs from
-  `results.json`: counts and group letters must match exactly, AUROC, ECE, shares and accuracies within
+  `results.json`: counts and group letters must match exactly, AUROC, ECE, the refit's gaps, Brier scores and slopes, shares and accuracies within
   10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals of AUROC and of the kept
   answers' accuracy, and the other tables, are not recomputed.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model

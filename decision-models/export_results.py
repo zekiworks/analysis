@@ -911,6 +911,39 @@ def replay(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, Any
     }
 
 
+def refit(runs: list[dict[str, Any]], answers: dict[str, Any]) -> None:
+    """Give each run with a confidence score its calibration after refit (bm.refit_calibration, bm.REFIT_METHOD), from
+    the exported answers: confidence.ece_refit, brier_refit, brier_base, refit_slopes, refit_questions and
+    refit_converged. The folds come once from every scored question, each passage's questions one cluster and a
+    question without a passage its own, and every run uses them; a run's questions without a score are left out, as
+    in its calibration gap. Nothing else in results.json uses the refit."""
+    questions = answers["questions"]
+    scored = [index for index, status in enumerate(questions["status"]) if status != "excluded"]
+    clusters = {
+        index: f"passage {questions['passage'][index]}" if questions["passage"][index] is not None else f"question {questions['id'][index]}"
+        for index in scored
+    }
+    fold_of = bm.refit_folds(clusters.values())
+    exported = {run["run"]: run for run in answers["runs"]}
+    for run in runs:
+        if run["confidence"] is None:
+            continue
+        answer = exported[run["run"]]
+        kept = [index for index in scored if answer["score"][index] is not None]
+        result = bm.refit_calibration(
+            [(float(answer["score"][index]), int(answer["correct"][index])) for index in kept],
+            [fold_of[clusters[index]] for index in kept],
+        )
+        run["confidence"].update(
+            ece_refit=result["ece_refit"],
+            brier_refit=result["brier_refit"],
+            brier_base=result["brier_base"],
+            refit_slopes=result["slopes"],
+            refit_questions=result["questions"],
+            refit_converged=result["converged"],
+        )
+
+
 def formats(runs: list[dict[str, Any]], answers: dict[str, Any]) -> list[dict[str, Any]]:
     """Each format rerun against its setup's first run on the scored questions: the paired accuracy test (exact McNemar,
     bm.paired_comparison; first the rerun, second the first run), with Holm's correction over these comparisons."""
@@ -1060,6 +1093,7 @@ def main() -> int:
         data["formats"] = formats(data["runs"], answers)
         data["reasoning"] = reasoning(data["runs"], answers)
         data["replay"] = replay(data["runs"], answers)
+        refit(data["runs"], answers)
         holm_over_all_pairs(data["paired"], data["runs"], answers)
         data["baselines"] = baselines(answers, data["replay"]["decision"])
     except (OSError, ValueError, KeyError) as exc:

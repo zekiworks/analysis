@@ -20,6 +20,10 @@ const LATENCY_TIP =
 const COST_TIP =
   'Estimated from list prices and recorded token use, per 1,000 questions. § marks a setup on our own hardware, estimated at its maker’s list price for the same model; our hardware cost is not measured.';
 const AUROC_TIP = 'ranking score';
+const REFIT_GAP_TIP =
+  'Calibration gap after a two-number refit (Platt scaling), fitted on 4/5 of the passages and measured on the other 1/5. A small gap here does not show that the confidence is useful. Compare Brier after refit with the constant guess, and read the ranking score.';
+const REVERSED_TIP =
+  'The refit reversed this model’s confidence order: higher confidence went with lower accuracy. Its refit gap is not a calibration result.';
 const SHARE_TIP = 'Share of questions taken: at 16 questions per request, a call still goes out for the rest.';
 const SPLIT_NA_TIP = 'Live tests did not record which kept answers were right, so no bar is shown.';
 /* A first model's cost marker (page_config.json first_cost_marks): § where its cost is its maker's list price for the
@@ -232,6 +236,11 @@ function accuracyCell(run) {
   return `${percent(correct / questions)}<span class="small">${percent(low)} to ${percent(high)}</span>`;
 }
 
+/* Calibration after refit: a slope of zero or below in any fold means the refit reversed the confidence order, so the
+   gap and Brier score after refit read "reversed" instead of a number and sort last. */
+const reversedRefit = run => run.confidence.refit_slopes.some(slope => slope != null && slope <= 0);
+const refitCell = (run, text) => (filtered() ? MISSING : reversedRefit(run) ? tip(REVERSED_TIP, 'reversed') : text);
+
 /* Each tab's columns: label (with its unit), header tooltip, the value it sorts by (null sorts last), and the cell, one
    number of decimals per column. "low" marks the columns where a lower value is better, so their first click sorts
    upwards. */
@@ -256,6 +265,8 @@ const TABS = {
   confidence: {
     rows: () => visibleRuns().map(run => ({ run })),
     note: CONFIDENCE_NOTE,
+    /* Eight columns: the headers wrap on a wide screen too, so every column fits beside the names. */
+    wrapHeaders: true,
     columns: [
       {
         key: 'kept', label: `Kept at ${pct(SETTINGS.threshold, 0)} (wrong)`,
@@ -270,6 +281,21 @@ const TABS = {
         key: 'gap', label: 'Calibration gap (points)', low: true,
         value: run => (filtered() ? null : run.confidence.ece),
         cell: run => (filtered() ? MISSING : (100 * run.confidence.ece).toFixed(1)),
+      },
+      {
+        key: 'gap-refit', label: 'Gap after refit (points)', tip: REFIT_GAP_TIP, low: true,
+        value: run => (filtered() || reversedRefit(run) ? null : run.confidence.ece_refit),
+        cell: run => refitCell(run, (100 * run.confidence.ece_refit).toFixed(1)),
+      },
+      {
+        key: 'brier-refit', label: 'Brier after refit', low: true,
+        value: run => (filtered() || reversedRefit(run) ? null : run.confidence.brier_refit),
+        cell: run => refitCell(run, run.confidence.brier_refit.toFixed(3)),
+      },
+      {
+        key: 'brier-base', label: 'Brier, constant guess',
+        value: run => (filtered() ? null : run.confidence.brier_base),
+        cell: run => (filtered() ? MISSING : run.confidence.brier_base.toFixed(3)),
       },
       aurocColumn('reading', 'meaning', 'AUROC reading'),
       aurocColumn('grammar', 'form', 'AUROC grammar'),
@@ -515,7 +541,7 @@ function renderBoard() {
       `${tab.columns.map(column => `<td class="num">${column.cell(row)}</td>`).join('')}</tr>`)
     .join('');
   const table = rows.length
-    ? `<div class="table-frame"><div class="table-wrap"><table class="board"><thead><tr><th scope="col">Model</th>${tab.columns.map(header).join('')}</tr></thead><tbody>${body}</tbody></table></div></div>`
+    ? `<div class="table-frame"><div class="table-wrap"><table class="board${tab.wrapHeaders ? ' wrap-headers' : ''}"><thead><tr><th scope="col">Model</th>${tab.columns.map(header).join('')}</tr></thead><tbody>${body}</tbody></table></div></div>`
     : `<div class="empty-state" role="status"><p><span class="icon" aria-hidden="true">⚠</span> ${esc(emptyReason())}</p>` +
       '<button type="button" class="key" data-control="reset">Reset filters</button></div>';
   const routing =

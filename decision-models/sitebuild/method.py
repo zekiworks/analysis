@@ -109,6 +109,8 @@ REFERENCES = (
      "Benchmark. Findings of EMNLP 2023.", "https://arxiv.org/abs/2310.18018"),
     ("Northcutt, C. G., Athalye, A., &amp; Mueller, J. (2021). Pervasive Label Errors in Test Sets Destabilize Machine "
      "Learning Benchmarks. NeurIPS 2021 Datasets and Benchmarks Track.", "https://arxiv.org/abs/2103.14749"),
+    ("Platt, J. (1999). Probabilistic Outputs for Support Vector Machines and Comparisons to Regularized Likelihood "
+     "Methods. In Advances in Large Margin Classifiers, MIT Press.", "https://doi.org/10.7551/mitpress/1113.003.0008"),
 )
 # The earlier page's price list texts (v1/app.js): the reuse note and the lines for free and self-hosted runs.
 REUSE_EXPLAINED = "A service may save input so a later call can reuse it. It may charge one rate to save it and another to read it again."
@@ -516,6 +518,15 @@ so on) and compares each group's average confidence with its share right. It ave
 more, in points. Zero means a match within the groups, not that every score is right; the chart leaves out groups with
 fewer than {v['study_calibration_min']} answers.</p>
 {chart("calibration-all", calibration_alt, CHARTS["calibration-all"])}
+<p>The Confidence tab also shows each gap after a refit: a slope and an intercept on the log-odds of the score (Platt
+scaling{cite(21)}), fitted on four fifths of the passages and measured on the other fifth, in 5 folds by passage. Every
+model uses the same folds, drawn once (a question without a passage is its own group), and questions without a score
+are left out, as in the gap itself. The baseline is a constant guess, the training folds' accuracy: the refit tells
+more than that rate only if its Brier score (the mean squared difference between confidence and outcome, lower is
+better) beats the guess's. A slope of zero or below in any fold means higher confidence went with lower accuracy; the
+tab marks those refits reversed. Hamel Husain's
+<a href="https://hamel.dev/blog/posts/decision-model-evals/">post on decision models</a> also found that calibration did
+not improve every model.</p>
 <h3 id="sure">What a score of {v['threshold']} or more meant</h3>
 <p>At {v['threshold']} or more, Jev 1.13 got {v['jev_correct']} of {v['jev_accepted']} right, d1 {v['d1_correct']} of
 {v['d1_accepted']}, Decider v1 {v['decider_v1_correct']} of {v['decider_v1_accepted']} and GLiDE {v['glide_correct']} of

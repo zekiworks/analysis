@@ -1,4 +1,5 @@
 import itertools
+import math
 import random
 import unittest
 
@@ -36,6 +37,35 @@ class CalibrationTests(unittest.TestCase):
         # Bin 0.9–1.0: three answers at 0.95, two right (gap 0.95 - 2/3); bin 0.2–0.3: one at 0.25, wrong.
         result = bm.calibration([(0.95, 1), (0.95, 1), (0.95, 0), (0.25, 0)])
         self.assertAlmostEqual(result["ece"], 0.75 * (0.95 - 2 / 3) + 0.25 * 0.25)
+
+
+class RefitTests(unittest.TestCase):
+    def test_platt_fit_reaches_the_penalized_likelihood_minimum(self) -> None:
+        # At the minimum of the summed log loss plus REFIT_L2 × slope², both partial derivatives are zero.
+        rng = random.Random(3)
+        features = [rng.uniform(-4, 4) for _ in range(300)]
+        outcomes = [int(rng.random() < 1 / (1 + math.exp(0.5 - 1.5 * feature))) for feature in features]
+        slope, intercept, converged = bm.platt_fit(features, outcomes)
+        self.assertTrue(converged)
+        residuals = [bm.sigmoid(slope * feature + intercept) - outcome for feature, outcome in zip(features, outcomes)]
+        self.assertAlmostEqual(sum(r * f for r, f in zip(residuals, features)) + 2 * bm.REFIT_L2 * slope, 0.0, places=9)
+        self.assertAlmostEqual(sum(residuals), 0.0, places=9)
+
+    def test_a_training_part_with_one_outcome_gives_that_constant(self) -> None:
+        # Fold 1, all right, is fold 0's training part: fold 0 gets 1.0 from the refit and from the constant guess,
+        # and no slope. Fold 1 gets the accuracy of fold 0, 0.5, as its constant guess.
+        scored = [(0.2, 0), (0.6, 0), (0.4, 1), (0.8, 1), (0.7, 1), (0.9, 1)]
+        result = bm.refit_calibration(scored, [0, 0, 0, 0, 1, 1], count=2)
+        self.assertIsNone(result["slopes"][0])
+        self.assertGreater(result["slopes"][1], 0)
+        self.assertAlmostEqual(result["brier_base"], (1 + 1 + 0 + 0 + 0.25 + 0.25) / 6)
+        self.assertEqual(result["questions"], 6)
+
+    def test_folds_deal_the_clusters_evenly_whatever_the_question_order(self) -> None:
+        clusters = [f"passage {n % 7}" for n in range(30)] + [f"question {n}" for n in range(13)]
+        folds = bm.refit_folds(clusters)
+        self.assertEqual(folds, bm.refit_folds(reversed(clusters)))
+        self.assertEqual(sorted(list(folds.values()).count(fold) for fold in range(bm.REFIT_FOLDS)), [4] * bm.REFIT_FOLDS)
 
 
 class PairedComparisonTests(unittest.TestCase):

@@ -17,7 +17,7 @@ import random
 import statistics
 import string
 from collections import defaultdict
-from typing import Any, Callable, Iterator, Sequence
+from typing import Any, Callable, Iterable, Iterator, Sequence
 
 # Intervals of the report's confidence table. Each includes its lower bound; the last also includes 1.0.
 CONFIDENCE_BINS = ((0.0, 0.25), (0.25, 0.5), (0.5, 0.75), (0.75, 0.9), (0.9, 1.0))
@@ -28,6 +28,14 @@ CURVE_POINTS = 50
 SURE_SCORE = 0.99
 DOUBTFUL_SCORE = 0.70
 BOOTSTRAP_RESAMPLES = 1000
+# Calibration after refit (refit_calibration): the method's name, its folds and their seed, how far scores are clipped
+# from 0 and 1 before their logit, the L2 penalty on the slope and the clip on the linear predictor.
+REFIT_METHOD = "5 folds by passage"
+REFIT_FOLDS = 5
+REFIT_SEED = 0
+REFIT_SCORE_CLIP = 1e-6
+REFIT_L2 = 1e-4
+REFIT_LINEAR_CLIP = 30.0
 
 
 def tie_groups(scored: Sequence[tuple[float, int]]) -> list[tuple[float, int, int]]:
@@ -128,6 +136,115 @@ def calibration(scored: Sequence[tuple[float, int]]) -> dict[str, Any]:
         for index, (count, total, correct) in enumerate(bins)
     ]
     return {"ece": ece, "brier": brier, "reliability": reliability}
+
+
+def refit_folds(clusters: Iterable[Any], folds: int = REFIT_FOLDS, seed: int = REFIT_SEED) -> dict[Any, int]:
+    """Each cluster's fold for refit_calibration: the distinct cluster labels sorted, shuffled with
+    random.Random(seed), and dealt out in turn (fold = position % folds). Built once from every scored question, so
+    every run uses the same folds, whichever scores it lacks."""
+    labels = sorted(set(clusters))
+    random.Random(seed).shuffle(labels)
+    return {label: position % folds for position, label in enumerate(labels)}
+
+
+def sigmoid(value: float) -> float:
+    """The logistic function of a linear predictor clipped to ±REFIT_LINEAR_CLIP."""
+    return 1 / (1 + math.exp(-min(max(value, -REFIT_LINEAR_CLIP), REFIT_LINEAR_CLIP)))
+
+
+def platt_fit(features: Sequence[float], outcomes: Sequence[int], iterations: int = 100) -> tuple[float, float, bool]:
+    """Logistic regression of 0/1 outcomes on features, one slope and an intercept, by penalized likelihood: the summed
+    log loss plus REFIT_L2 times the squared slope, minimized by Newton's method from the constant fit, with the linear
+    predictor clipped to ±REFIT_LINEAR_CLIP and the step halved while the loss rises. The loss is divided by the number
+    of outcomes throughout, which leaves the fit unchanged. Needs right and wrong outcomes. Returns (slope, intercept,
+    converged), converged when half the Newton decrement, the fall in the loss a full step expects, is at most 1e-12;
+    that last step is taken in full, as the loss changes too little by then to judge it."""
+    n = len(features)
+    accuracy = sum(outcomes) / n
+
+    def loss(slope: float, intercept: float) -> float:
+        total = 0.0
+        for feature, outcome in zip(features, outcomes):
+            value = min(max(slope * feature + intercept, -REFIT_LINEAR_CLIP), REFIT_LINEAR_CLIP)
+            total += max(value, 0.0) + math.log1p(math.exp(-abs(value))) - outcome * value
+        return (total + REFIT_L2 * slope * slope) / n
+
+    slope, intercept = 0.0, math.log(accuracy / (1 - accuracy))
+    current = loss(slope, intercept)
+    for _ in range(iterations):
+        gradient_slope = gradient_intercept = curve_slope = curve_both = curve_intercept = 0.0
+        for feature, outcome in zip(features, outcomes):
+            probability = sigmoid(slope * feature + intercept)
+            weight = probability * (1 - probability)
+            gradient_slope += (probability - outcome) * feature
+            gradient_intercept += probability - outcome
+            curve_slope += weight * feature * feature
+            curve_both += weight * feature
+            curve_intercept += weight
+        gradient_slope = (gradient_slope + 2 * REFIT_L2 * slope) / n
+        gradient_intercept /= n
+        curve_slope = (curve_slope + 2 * REFIT_L2) / n
+        curve_both /= n
+        curve_intercept /= n
+        determinant = curve_slope * curve_intercept - curve_both * curve_both
+        if not determinant > 0:
+            return slope, intercept, False
+        step_slope = (curve_intercept * gradient_slope - curve_both * gradient_intercept) / determinant
+        step_intercept = (curve_slope * gradient_intercept - curve_both * gradient_slope) / determinant
+        if (gradient_slope * step_slope + gradient_intercept * step_intercept) / 2 <= 1e-12:
+            return slope - step_slope, intercept - step_intercept, True
+        size = 1.0
+        while True:
+            trial = loss(slope - size * step_slope, intercept - size * step_intercept)
+            if trial <= current:
+                break
+            size /= 2
+            if size < 1e-10:
+                return slope, intercept, False
+        slope, intercept, current = slope - size * step_slope, intercept - size * step_intercept, trial
+    return slope, intercept, False
+
+
+def refit_calibration(scored: Sequence[tuple[float, int]], folds: Sequence[int], count: int = REFIT_FOLDS) -> dict[str, Any]:
+    """Calibration after a two-number refit (Platt scaling) on held-out passages, against a constant guess.
+
+    scored holds a run's (score, correct) pairs without its questions that have no score, and folds each pair's fold
+    from refit_folds ("5 folds by passage"). For each fold, platt_fit on the other folds, with the logit of the score
+    (clipped to REFIT_SCORE_CLIP from 0 and 1) as the feature, gives the fold's questions their refitted confidence; a
+    training part with only right or only wrong answers gives that constant, and no slope. The constant guess gives each
+    fold's questions the training part's accuracy. Both are scored with calibration() over all held-out predictions."""
+    features = [
+        math.log(clipped / (1 - clipped))
+        for clipped in (min(max(score, REFIT_SCORE_CLIP), 1 - REFIT_SCORE_CLIP) for score, _ in scored)
+    ]
+    refitted: list[tuple[float, int]] = []
+    constant: list[tuple[float, int]] = []
+    slopes: list[float | None] = []
+    converged = True
+    for fold in range(count):
+        train = [index for index, item in enumerate(folds) if item != fold]
+        test = [index for index, item in enumerate(folds) if item == fold]
+        if not train:
+            raise ValueError(f"refit_calibration: fold {fold} holds every question")
+        accuracy = sum(scored[index][1] for index in train) / len(train)
+        constant += [(accuracy, scored[index][1]) for index in test]
+        if accuracy in (0.0, 1.0):
+            slopes.append(None)
+            refitted += [(accuracy, scored[index][1]) for index in test]
+            continue
+        slope, intercept, done = platt_fit([features[index] for index in train], [scored[index][1] for index in train])
+        slopes.append(slope)
+        converged = converged and done
+        refitted += [(sigmoid(slope * features[index] + intercept), scored[index][1]) for index in test]
+    after, base = calibration(refitted), calibration(constant)
+    return {
+        "ece_refit": after["ece"],
+        "brier_refit": after["brier"],
+        "brier_base": base["brier"],
+        "slopes": slopes,
+        "questions": len(scored),
+        "converged": converged,
+    }
 
 
 def confidence_bin(value: float) -> int:
