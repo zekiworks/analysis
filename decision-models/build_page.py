@@ -969,6 +969,17 @@ def study_gap(run: dict[str, Any]) -> str:
     return f"{100 * run['confidence']['ece']:.1f}"
 
 
+def flat_gain(run: dict[str, Any]) -> float:
+    """Better than a flat guess, in percent: how much the run's confidence, refitted on other passages, lowers the Brier
+    score of one flat guess at its hit rate (results.json's confidence.brier_refit and brier_base)."""
+    return 100 * (1 - run["confidence"]["brier_refit"] / run["confidence"]["brier_base"])
+
+
+def reversed_refit(run: dict[str, Any]) -> bool:
+    """Whether the refit's slope came out at zero or below in any fold: higher confidence went with lower accuracy."""
+    return any(slope is not None and slope <= 0 for slope in run["confidence"]["refit_slopes"])
+
+
 # ---------------------------------------------------------------- the title and the images
 
 

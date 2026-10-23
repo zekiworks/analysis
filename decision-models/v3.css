@@ -338,6 +338,15 @@ th:not(.num) button.sort { justify-content: flex-start; }
 th button.sort:hover { text-decoration: underline; }
 .sort-mark { color: var(--text-2); font-size: .72rem; }
 th[aria-sort] .sort-mark { color: var(--text); }
+/* A header that says which direction is better (v3.js header, directions): the label with its sort mark, and under the
+   label a muted line in words; on a phone the line sits between the label and the sort mark. */
+th button.sort.directed { display: inline-grid; grid-template-columns: auto auto; grid-template-areas: "label mark" "direction .";
+  justify-content: end; align-items: baseline; column-gap: .3rem; }
+th button.sort.directed .label { grid-area: label; }
+th button.sort.directed .sort-mark { grid-area: mark; }
+th button.sort.directed .direction { grid-area: direction; justify-self: end; font-weight: 400; white-space: nowrap; }
+th button.sort.directed:hover { text-decoration: none; }
+th button.sort.directed:hover .label { text-decoration: underline; }
 /* A header with a tooltip: dotted underline, the tip on hover and on keyboard focus. */
 th button.sort[data-tip] { position: relative; }
 th button.sort[data-tip] .label { text-decoration: underline dotted; text-underline-offset: 3px; }
@@ -577,6 +586,7 @@ ul.price-list { padding-left: 1.25rem; }
   table.board thead th, table.cards thead th { white-space: normal; min-width: 4.2rem; }
   /* The unit columns' long labels wrap to two lines instead of six. */
   table.board thead th.unit-long { min-width: 9rem; }
+  th button.sort.directed { grid-template-columns: auto; grid-template-areas: "label" "direction" "mark"; justify-items: end; }
   table.board th:first-child, table.board td:first-child, table.cards th:first-child, table.cards td:first-child {
     position: sticky; left: 0; z-index: 2; width: min(140px, 40vw); min-width: min(140px, 40vw); max-width: min(140px, 40vw);
     box-shadow: 1px 0 0 var(--edge); overflow-wrap: break-word; white-space: normal; }

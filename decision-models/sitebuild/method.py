@@ -255,6 +255,45 @@ def setups_table(site: Site, snap: bp.Snapshot) -> str:
             f'<th scope="col">Why we included it</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
 
 
+def refit_table(site: Site, snap: bp.Snapshot) -> str:
+    """Calibration after the refit for every setup with a confidence score, the most useful confidence first: the
+    calibration gap as shipped and after the refit, both Brier scores and Better than a flat guess. The page shows the
+    gap after refit here only."""
+    heads = ("Setup", "Calibration gap (points)", "Gap after refit (points)", "Brier after refit", "Brier of the flat guess",
+             "Better than a flat guess (%)")
+    rows = []
+    for run in sorted((run for run in snap.runs if run.get("confidence")), key=lambda run: -bp.flat_gain(run)):
+        confidence = run["confidence"]
+        size = run["questions_per_request"]
+        settings = [run["variant"]] if run.get("variant") else []
+        if run.get("reasoning"):
+            settings.append(bp.reasoning_label(run["reasoning"]))
+        settings.append(f"{bp.count(size)} question{'' if size == 1 else 's'} per request")
+        gain = f"{bp.flat_gain(run):.1f}" + ('<span class="small">reversed</span>' if bp.reversed_refit(run) else "")
+        cells = (f"{100 * confidence['ece']:.1f}", f"{100 * confidence['ece_refit']:.1f}", f"{confidence['brier_refit']:.3f}",
+                 f"{confidence['brier_base']:.3f}", gain)
+        rows.append(
+            f'<tr><td data-label="{heads[0]}"><a href="{rel(PATH, site.model_path(run))}">{esc(run["name"])}</a>'
+            f'<span class="small">{esc(" · ".join(settings))}</span></td>'
+            + "".join(f'<td class="num" data-label="{head}">{cell}</td>' for head, cell in zip(heads[1:], cells)) + "</tr>"
+        )
+    head = "".join(f'<th scope="col"{"" if index == 0 else " class=\"num\""}>{text}</th>' for index, text in enumerate(heads))
+    return (f'<div class="table-wrap"><table class="overview cards"><caption>Calibration before and after the refit, every '
+            f'setup, the most useful confidence first</caption><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody>'
+            "</table></div>")
+
+
+def flat_guess_limit(snap: bp.Snapshot) -> tuple[str, str, str]:
+    """The setup the flat guess's limit names, the most accurate one: its name with its reasoning, its accuracy and its
+    Better than a flat guess, both in percent with one decimal."""
+    total = snap.results["questions"]
+    best = max(snap.runs, key=lambda run: run["correct"])
+    if not best.get("confidence") or sum(run["correct"] == best["correct"] for run in snap.runs) != 1:
+        raise ValueError("the flat guess's limit names the one most accurate setup, with a confidence score")
+    name = best["name"] + (f" with {bp.reasoning_label(best['reasoning'])}" if best.get("reasoning") else "")
+    return name, f"{100 * best['correct'] / total:.1f}", f"{bp.flat_gain(best):.1f}"
+
+
 def display_name(run: dict[str, Any]) -> str:
     details = [item for item in (run.get("variant"), run.get("format")) if item]
     return run["name"] + (f" ({', '.join(details)})" if details else "")
@@ -378,6 +417,7 @@ def build(site: Site) -> dict[str, str]:
         raise ValueError("the calibration chart's description changed; check what it says about the table")
     calibration_alt = calibration_alt.replace("; the table keeps them.", ".")
     paired_figure = from_here(bp.chart_sizes(bp.method_paired_figure(snap)))
+    limit_name, limit_accuracy, limit_gain = flat_guess_limit(snap)
 
     sections = [
         ("main-findings", "What we found", f"""
@@ -518,15 +558,20 @@ so on) and compares each group's average confidence with its share right. It ave
 more, in points. Zero means a match within the groups, not that every score is right; the chart leaves out groups with
 fewer than {v['study_calibration_min']} answers.</p>
 {chart("calibration-all", calibration_alt, CHARTS["calibration-all"])}
-<p>The Confidence tab also shows each gap after a refit: a slope and an intercept on the log-odds of the score (Platt
-scaling{cite(21)}), fitted on four fifths of the passages and measured on the other fifth, in 5 folds by passage. Every
-model uses the same folds, drawn once (a question without a passage is its own group), and questions without a score
-are left out, as in the gap itself. The baseline is a constant guess, the training folds' accuracy: the refit tells
-more than that rate only if its Brier score (the mean squared difference between confidence and outcome, lower is
-better) beats the guess's. A slope of zero or below in any fold means higher confidence went with lower accuracy; the
-tab marks those refits reversed. Hamel Husain's
-<a href="https://hamel.dev/blog/posts/decision-model-evals/">post on decision models</a> also found that calibration did
-not improve every model.</p>
+<p>How useful is each model's confidence? We refit it with two numbers, a slope and an intercept on the log-odds of the
+score (Platt scaling{cite(21)}), fitted on four fifths of the passages and measured on the other fifth, in 5 folds by
+passage. Every model uses the same folds, drawn once (a question without a passage is its own group), and questions
+without a score are left out, as in the calibration gap. The flat guess gives every answer in a fold the same
+probability: the model's hit rate on the other four folds. The Brier score is the mean squared difference between a
+confidence and the outcome (1 if right, 0 if wrong), and Better than a flat guess = 100 × (1 − Brier after refit ÷ Brier
+of the flat guess); 0% means the confidence adds nothing to the hit rate. A slope of zero or below in any fold means
+higher confidence went with lower accuracy, and the Confidence tab and the table below mark those models reversed. Hamel
+Husain's <a href="https://hamel.dev/blog/posts/decision-model-evals/">post on decision models</a> also found that
+calibration did not improve every model.</p>
+<p>The score compares each model with its own hit rate, so models that are almost always right have little room to gain.
+{limit_name} is right {limit_accuracy}% of the time and scores {limit_gain}%. For those models, read the ranking
+score.</p>
+{refit_table(site, snap)}
 <h3 id="sure">What a score of {v['threshold']} or more meant</h3>
 <p>At {v['threshold']} or more, Jev 1.13 got {v['jev_correct']} of {v['jev_accepted']} right, d1 {v['d1_correct']} of
 {v['d1_accepted']}, Decider v1 {v['decider_v1_correct']} of {v['decider_v1_accepted']} and GLiDE {v['glide_correct']} of
@@ -691,7 +736,8 @@ prompt templates and question IDs, without the copyrighted questions. The
 the {v['method_live_tests']} live tests, {v['method_alone_runs']} cheaper models tested alone and
 {v['method_single_runs']} more runs with one question per request on {v['method_single_questions']} questions.</p>
 <p>From the <a href="{REPO_URL}/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
-setup's accuracy, ranking score, calibration gap and answers at {v['threshold']} or more (before and after the key review),
+setup's accuracy, ranking score, calibration gap before and after the refit, Brier scores and answers at {v['threshold']} or
+more (before and after the key review),
 the {v['comparisons']} selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
 replays with their {v['method_splits']} splits and live tests: all {v['checks']} checks match. It does not yet check the
 bootstrap intervals of the ranking score and the accuracy of kept answers.</p>
