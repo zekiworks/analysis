@@ -1,19 +1,34 @@
 {
  "_about": "Fixed thresholds for the backgammon benchmark site (brief B9). Written and committed before any site number was computed; never changed after seeing results. Every value here is shown on the Method page.",
+ "_about_risk": "Brief v10 B6/B9: margin 0.001 (main) and 0.02 (robustness) for Safety pays / Risk pays and for right vs wrong risk; stake bands small < 0.02 <= medium <= 0.08 < big; Confidence-tab cutoffs 0.90 and 0.99; 300 game-level half splits. Fixed and committed before any v10 risk number was computed.",
  "badly_wrong_loss_above": 0.08,
  "best_play_loss_below": 0.001,
  "blunder_loss_above": 0.08,
  "bootstrap_resamples": 2000,
  "bootstrap_seed": 20261021,
+ "confidence_cutoffs": [
+  0.9,
+  0.99
+ ],
+ "cutoff_split_rule": "On one half of the games (a game's decisions together), the lowest probability cutoff whose kept decisions (probability at or above it) hold no blunder; scored on the other half: share kept and blunder rate among kept, averaged over cutoff_split_runs seeded splits.",
+ "cutoff_split_runs": 300,
  "equity_scale": 500,
  "fixed_on": "2026-10-21",
  "gap_buckets": [
   0.02,
   0.08
  ],
+ "hero_stake_range": [
+  0.05,
+  0.15
+ ],
  "interval": 0.95,
  "min_decisions_per_cell": 200,
  "near_tie_gap_below": 0.02,
+ "needless_loss_bands": [
+  0.02,
+  0.08
+ ],
  "option_buckets": [
   [
    2,
@@ -36,7 +51,21 @@
    null
   ]
  ],
- "safety_pays_loss_below": 0.001,
+ "risk_map_diagonals": [
+  50,
+  60,
+  70,
+  80,
+  90
+ ],
+ "risk_margin": 0.001,
+ "risk_margin_robust": 0.02,
+ "risk_thresholds_fixed_on": "2026-10-23",
+ "stake_bands": [
+  0.02,
+  0.08
+ ],
+ "surest_share": 0.25,
  "tail_quantile": 0.95,
  "time_budget_seconds": 30,
  "very_confident_probability_at_least": 0.9,

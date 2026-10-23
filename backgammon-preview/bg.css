@@ -138,33 +138,45 @@ body.home .hero.hero-split { display: grid; grid-template-columns: minmax(0, 1.1
 tr.reference > td { font-style: italic; }
 .risk-limit { font-weight: 600; }
 
-/* The 2x2: rows Risk pays / Safety pays, columns took a risk / played safe. Green = good call, red = costly call;
-   the fill grows with the share of the row, so the wall reads at a glance. */
-.r2-key { display: flex; flex-wrap: wrap; gap: .3rem .9rem; font-size: .78rem; color: var(--text-2); margin: .25rem 0 .5rem; }
-.r2-key .r2-good::before, .r2-key .r2-bad::before { content: ""; display: inline-block; width: .8rem; height: .8rem; border-radius: 3px; margin-right: .3rem; vertical-align: -.1rem; }
-.r2-key .r2-good::before { background: var(--good); }
-.r2-key .r2-bad::before { background: var(--bad); }
-.r2-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: .75rem; }
-.r2 { margin: 0; padding: .55rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
-.r2[hidden] { display: none; }
-.r2 figcaption { font-size: .85rem; font-weight: 600; margin-bottom: .35rem; display: flex; flex-direction: column; }
-.r2 figcaption a { color: var(--text); }
-.r2 figcaption .small { font-weight: 400; color: var(--text-2); font-size: .72rem; }
-.r2-ref { font-weight: 400; font-size: .72rem; color: var(--accent); }
-.r2-grid { display: grid; grid-template-columns: 4.6rem 1fr 1fr; gap: 3px; font-size: .72rem; }
-.r2-col { text-align: center; color: var(--text-2); }
-.r2-row { display: flex; flex-direction: column; justify-content: center; color: var(--text-2); font-weight: 600; }
-.r2-row small { font-weight: 400; }
-.r2-cell { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 4.4rem;
-  border-radius: 5px; overflow: hidden; background: var(--sunk); font-variant-numeric: tabular-nums; z-index: 0; }
-.r2-cell::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: calc(.12 + .88 * var(--share)); }
-.r2-good::before { background: var(--good-soft); box-shadow: inset 0 0 0 999px var(--good-soft); }
-.r2-bad::before { background: var(--bad-soft); box-shadow: inset 0 0 0 999px var(--bad-soft); }
-.r2-cell b { font-size: 1.3rem; line-height: 1.1; }
-.r2-good b { color: var(--good); }
-.r2-bad b { color: var(--bad); }
-.r2-n, .r2-loss { color: var(--text-2); font-size: .68rem; }
-.r2-image { font-size: .82rem; margin: .5rem 0 0; }
+/* --- v12: elements the house style has and the preview did not, in the preview's colours. ------------------- */
+.champions { margin-top: .1rem; }
+.champions > .readout-label { margin-right: .6rem; font-weight: 600; }
+.readout-value.champ { font-family: var(--sans); font-size: .9rem; }
+.filters-title { font-size: 1rem; margin: 0 0 .5rem; }
+.setup-count { font-family: var(--mono); font-size: .85rem; color: var(--text-2); margin-right: .6rem; }
+.reset-why { color: var(--text-2); margin-left: .4rem; }
+.key.reset[aria-disabled="true"] { opacity: .55; cursor: default; }
+.chart-head .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
+.chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; }
+.chart-head h2 { margin: 0; }
+.js .chart-view[hidden] { display: none; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: .25rem .9rem; color: var(--text-2); font-size: .78rem; margin: .35rem 0 0; }
+.swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; margin-right: .3rem; vertical-align: -.1rem; }
+.chart-svg .row[hidden], .chart-svg .pt[hidden] { display: none; }
+.chart-svg .rm-diag { stroke: var(--text-2); stroke-dasharray: 3 4; opacity: .35; }
+.chart-svg .rm-diag-label { fill: var(--text-2); font-size: 10px; opacity: .7; }
+.chart-svg .rm-dot { stroke: var(--panel); stroke-width: 1; }
+.chart-svg .rm-ref { fill: none; stroke: var(--text); stroke-width: 1.5; }
+.chart-svg .rm-name { font-size: 10px; }
+.rm-cautious { background: var(--reading); }
+.rm-wrong { background: var(--wrong); }
+.sp-needless { fill: var(--bad); background: var(--bad); }
+.sp-missed { fill: var(--reading); background: var(--reading); }
+.sp-wrong { fill: var(--grammar); background: var(--grammar); }
+.sp-right { fill: var(--good); background: var(--good); }
+.sp-safety { fill: var(--data-chat); background: var(--data-chat); }
+.sp-none { fill: var(--edge); background: var(--edge); }
+.sp-pays-safe { fill: var(--reading); background: var(--reading); }
+.sp-bar { fill: var(--accent); background: var(--accent); }
+td.heat { background-image: linear-gradient(color-mix(in srgb, var(--good-soft) calc(var(--heat) * 100%), transparent),
+  color-mix(in srgb, var(--good-soft) calc(var(--heat) * 100%), transparent)); }
+.risk-card .cc-big { font-size: 2.6rem; font-weight: 700; margin: .2rem 0 .6rem; }
+.risk-card .cc-big .small { font-size: .85rem; font-weight: 400; margin-left: .6rem; color: var(--text-2); }
+.cc-row { display: flex; align-items: center; gap: .6rem; margin: .25rem 0; font-size: .85rem; }
+.cc-l { width: 8.5rem; text-align: right; color: var(--text-2); }
+.cc-bar { display: inline-block; height: .9rem; border-radius: 3px; min-width: 1px; }
+.cc-n { font-variant-numeric: tabular-nums; }
+.downloads { max-width: 1180px; margin: 1rem auto 0; color: var(--text-2); font-size: .9rem; }
 .charts .league-view .block { margin-top: 0; }
 ul.league-notes { margin: .25rem 0 .75rem; padding-left: 1.1rem; }
 .also-league { color: var(--accent); }

@@ -15,8 +15,8 @@
     {
      "data": "data/v3/league-N.json, data/v3/league-N/<setup>.json",
      "scope": "League decisions, per league",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     },
     {
      "data": "data/v1/v1-set.json",
@@ -71,8 +71,8 @@
     {
      "data": "data/v3/league-N/<setup>.json (phases, tags, options, gaps)",
      "scope": "League decisions, per league",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     },
     {
      "data": "data/v1/v1-set/<setup>.json",
@@ -86,6 +86,12 @@
    "id": "A5",
    "name": "Reliability of confidence: AUROC, ECE, Brier, risk-coverage, letter-position bias",
    "parts": [
+    {
+     "data": "data/v3/league-N.json (confidence)",
+     "scope": "League decisions, per league (Confidence tab: cutoffs 0.90/0.99, surest quarter, AUROC best play and blunder warning, ECE, confident and badly wrong; held-out cutoff in Method)",
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
+    },
     {
      "data": "data/v3/shared.json",
      "scope": "Shared positions (setups with probabilities)",
@@ -127,7 +133,7 @@
      "data": "none yet",
      "scope": "Shared positions / per league",
      "status": "Analysis pending",
-     "waits_for_leagues": true
+     "waits_for_leagues": false
     },
     {
      "data": "content/archive (earlier page section, moved to Leagues)",
@@ -163,8 +169,8 @@
     {
      "data": "data/v3/league-N.json (quality.time_*, usd_per_1000, cost_coverage)",
      "scope": "League decisions, per league",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     },
     {
      "data": "data/v1/v1-set.json",
@@ -181,14 +187,14 @@
     {
      "data": "data/v3/league-N.json (standings)",
      "scope": "Standings per league",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     },
     {
-     "data": "data/v3/league-N.json (risk)",
-     "scope": "Safest-play share in play (risk 2x2 per league)",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "data": "data/v3/league-N.json (risk.main, risk.robust)",
+     "scope": "Risk calls in play (B6, per league)",
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     }
    ]
   },
@@ -225,8 +231,8 @@
      "data": "none yet",
      "scope": "Shared positions + finished leagues",
      "status": "Analysis pending",
-     "waits_for": "shared-position answers and League 2 finishing",
-     "waits_for_leagues": true
+     "waits_for": "shared-position answers",
+     "waits_for_leagues": false
     }
    ]
   },
@@ -261,8 +267,8 @@
     {
      "data": "data/v3/league-N.json (quality.p95_loss, worst_mean, blunder_share)",
      "scope": "League decisions, per league",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     },
     {
      "data": "data/v1/v1-set.json",
@@ -279,8 +285,8 @@
     {
      "data": "data/v3/league-N.json (quality.confident_badly_wrong)",
      "scope": "League decisions, setups with probabilities, per league",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     },
     {
      "data": "data/v1/v1-set.json",
@@ -304,8 +310,8 @@
      "data": "data/v3/league-N.json (quality.over_budget)",
      "note": "the v3 leagues had no clock, so the risk of losing on time was not measured",
      "scope": "League decisions: share of request times over the budget",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     }
    ]
   },
@@ -322,14 +328,26 @@
    ]
   },
   {
-   "id": "Risk",
-   "name": "Is the risk worth it? Risk pays / Safety pays x took the risk / played safe",
+   "id": "B6",
+   "name": "Was it the right risk? Risk judgement, risks found, right safety, good / missed / needless / wrong risks, error rate by risk-call category, stake bands, risk size, confidence on the call, reference rows, at margins 0.001 and 0.02",
    "parts": [
     {
-     "data": "data/v3/league-N.json (risk), data/v3/league-N/<setup>.json (risk.phases)",
-     "scope": "League decisions, per league",
-     "status": "Published (Leagues 1, 3) · Provisional (League 2)",
-     "waits_for_leagues": true
+     "data": "data/v3/league-N.json (risk.main, risk.robust, references), data/v3/league-N/<setup>.json (risk.*.phases)",
+     "scope": "League decisions, per league, both margins",
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "same; share/risk-card-league-N-*.png",
+     "scope": "Risk map, error rate by risk-call category, stake chart, risk call cards (league winners)",
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
+    },
+    {
+     "data": "decisions/<league>/<setup>/risk.json.gz and page files",
+     "scope": "Every decision marks (position class, stake, risk call, best safe play)",
+     "status": "Published (Leagues 1, 2, 3)",
+     "waits_for_leagues": false
     },
     {
      "data": "data/v1/v1-set.json (risk)",
@@ -341,6 +359,7 @@
      "data": "none yet",
      "scope": "Shared positions",
      "status": "Analysis pending",
+     "waits_for": "shared-position answers",
      "waits_for_leagues": false
     }
    ]

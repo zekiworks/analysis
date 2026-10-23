@@ -213,7 +213,12 @@
         (chosen.loss === null ? '' : `, equity lost ${fixed(chosen.loss, 3)}`));
     }
     if (d.best !== null) add("Engine's best", `<code>${esc(d.plays[d.best].notation)}</code>`);
-    add('Is the risk worth it?', riskText(d));
+    if (d.risk && d.risk.best_safe !== null && d.risk.best_safe !== undefined) {
+      const safe = d.plays[d.risk.best_safe];
+      add('Best safe play', `<code>${esc(safe.notation)}</code>, ${count(safe.hitting_rolls)} hitting rolls` +
+        (safe.loss === null ? '' : `, equity lost ${fixed(safe.loss, 3)}`));
+    }
+    add('Risk call', riskText(d));
     if (!d.program) {
       add('Option groups', d.group_size
         ? `split into groups of ${count(d.group_size)}; the group winners were compared`
@@ -227,19 +232,25 @@
     return `<dl class="facts dec-facts">${rows.join('')}</dl>`;
   }
 
-  const KIND = { risk: 'Risk pays', safety: 'Safety pays', none: 'No hit-risk trade-off' };
+  const KIND = { risk: 'Risk pays', safety: 'Safety pays', none: 'No trade-off' };
+  const CALL = { right_risk: 'right risk', wrong_risk: 'wrong risk', needless: 'needless risk', missed: 'missed risk',
+    right_safety: 'right safety' };
+  const CALL_CODE = { right_risk: 'rr', wrong_risk: 'wr', needless: 'nr', missed: 'mr', right_safety: 'rs' };
   function riskText(d) {
     if (!d.risk) return nm(d.invalid ? 'invalid answer: not classified' : 'not scored');
     const kind = `<span class="dec-tag dec-kind dec-kind-${d.risk.class}">${KIND[d.risk.class]}</span>`;
     if (d.risk.class === 'none') return `${kind} every legal play leaves the same number of hitting rolls`;
-    return `${kind} ${d.risk.took ? 'took a risk' : 'played safe'}`;
+    const stake = `stake ${fixed(d.risk.stake, 3)}`;
+    const band = d.risk.band ? (d.risk.class === 'risk' ? ` (${d.risk.band} stake)` : ` (${d.risk.band} equity lost)`) : '';
+    const robust = d.risk.call_robust !== d.risk.call ? `; at the 0.02 margin: ${CALL[d.risk.call_robust] || 'No trade-off'}` : '';
+    return `${kind} ${esc(CALL[d.risk.call])}, ${stake}${band}${esc(robust)}`;
   }
 
   function card(d, dataset) {
     const where = d.league === null
       ? `${esc(dataset.label)} \u00b7 position ${esc(d.id)} \u00b7 turn ${d.turn_no}`
       : `${esc(dataset.label)} \u00b7 game ${d.game} \u00b7 turn ${d.turn_no}`;
-    const link = `${linkFor({ ...view, p: d._page || view.p, r: 'all', t: 'all' })}#d${encodeURIComponent(d.id)}`;
+    const link = `${linkFor({ ...view, p: d._page || view.p, r: 'all', c: 'all', b: 'all' })}#d${encodeURIComponent(d.id)}`;
     const flag = d.invalid
       ? `<p class="dec-flag">${d.chosen === null ? "Invalid answer: no play was chosen; it does not count as the model's choice."
         : "Invalid answer: the runner played a random legal play; it does not count as the model's choice."}</p>` : '';
@@ -254,13 +265,14 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
   /* State and URL. */
   function readURL() {
     const q = new URLSearchParams(location.search);
-    return { d: q.get('d'), s: q.get('s'), p: Number.parseInt(q.get('p'), 10) || 1, r: q.get('r') || 'all', t: q.get('t') || 'all' };
+    return { d: q.get('d'), s: q.get('s'), p: Number.parseInt(q.get('p'), 10) || 1, r: q.get('r') || 'all', c: q.get('c') || 'all', b: q.get('b') || 'all' };
   }
 
   function linkFor(v) {
     const q = { d: v.d, s: v.s, p: String(v.p) };
     if (v.r && v.r !== 'all') q.r = v.r;
-    if (v.t && v.t !== 'all') q.t = v.t;
+    if (v.c && v.c !== 'all') q.c = v.c;
+    if (v.b && v.b !== 'all') q.b = v.b;
     return `?${new URLSearchParams(q)}`;
   }
 
@@ -269,13 +281,15 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
     const setups = dataset.setups;
     const setup = setups.find(x => x.slug === wanted.s) || setups.find(x => x.decisions > 0) || setups[0];
     const r = ['risk', 'safety', 'none'].includes(wanted.r) ? wanted.r : 'all';
-    const t = r !== 'none' && ['took', 'safe'].includes(wanted.t) ? wanted.t : 'all';
-    return { d: dataset.id, s: setup ? setup.slug : '', p: Math.max(1, wanted.p || 1), r, t, dataset, setup };
+    const c = r !== 'none' && Object.values(CALL_CODE).includes(wanted.c) ? wanted.c : 'all';
+    const b = r !== 'none' && ['s', 'm', 'b'].includes(wanted.b) ? wanted.b : 'all';
+    return { d: dataset.id, s: setup ? setup.slug : '', p: Math.max(1, wanted.p || 1), r, c, b, dataset, setup };
   }
 
-  const filtered = v => v.r !== 'all' || v.t !== 'all';
+  const filtered = v => v.r !== 'all' || v.c !== 'all' || v.b !== 'all';
 
-  /* The B6 class of every decision of a setup, [page, id, class r/s/n or null, took a risk], for the filters. */
+  /* The B6.1 marks of every decision of a setup, [page, id, class r/s/n, call rr/wr/nr/mr/rs, band s/m/b], for the
+     filters. The band is the stake for Risk pays decisions and the equity lost for needless risks (B6.3). */
   const riskIndexes = new Map();
   function loadRiskIndex(dataset, slug) {
     const url = `${encodeURIComponent(dataset)}/${encodeURIComponent(slug)}/risk.json.gz`;
@@ -285,8 +299,8 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
 
   function matches(rows, v) {
     const code = { risk: 'r', safety: 's', none: 'n' }[v.r];
-    return rows.filter(([, , c, took]) => c !== null && (!code || c === code) &&
-      (v.t === 'all' || (c !== 'n' && took === (v.t === 'took'))));
+    return rows.filter(([, , cls, call, band]) => cls !== null && (!code || cls === code) &&
+      (v.c === 'all' || call === v.c) && (v.b === 'all' || band === v.b));
   }
 
   function pager(v) {
@@ -304,20 +318,24 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
     const setupOptions = v.dataset.setups.map(x => `<option value="${esc(x.slug)}"${x.slug === v.s ? ' selected' : ''}>` +
       `${esc(x.name)} (${x.decisions ? plural(x.decisions, 'decision') : 'none scored yet'})</option>`).join('');
     const rc = (v.setup && v.setup.risk) || {};
+    const calls = rc.calls || {};
     const kindOptions = [['all', 'All decisions'], ['risk', `Risk pays (${count(rc.risk || 0)})`],
-      ['safety', `Safety pays (${count(rc.safety || 0)})`], ['none', `No hit-risk trade-off (${count(rc.none || 0)})`]]
+      ['safety', `Safety pays (${count(rc.safety || 0)})`], ['none', `No trade-off (${count(rc.none || 0)})`]]
       .map(([k, l]) => `<option value="${k}"${k === v.r ? ' selected' : ''}>${esc(l)}</option>`).join('');
-    const tookOptions = [['all', 'Either'], ['took', 'Took a risk'], ['safe', 'Played safe']]
-      .map(([k, l]) => `<option value="${k}"${k === v.t ? ' selected' : ''}>${esc(l)}</option>`).join('');
+    const callOptions = [['all', 'Any risk call'], ...Object.entries(CALL_CODE).map(([k, c]) => [c, `${CALL[k]} (${count(calls[k] || 0)})`])]
+      .map(([k, l]) => `<option value="${k}"${k === v.c ? ' selected' : ''}>${esc(l)}</option>`).join('');
+    const bandOptions = [['all', 'Any size'], ['s', 'small (below 0.02)'], ['m', 'medium (0.02 to 0.08)'], ['b', 'big (above 0.08)']]
+      .map(([k, l]) => `<option value="${k}"${k === v.b ? ' selected' : ''}>${esc(l)}</option>`).join('');
     const statusClass = v.dataset.status.split(/[ (:]/)[0].toLowerCase();
     controls.innerHTML = `<div class="filters-bar">
 <label class="group"><span class="group-label">Dataset</span><select id="dec-dataset">${datasetOptions}</select></label>
 <label class="group"><span class="group-label">Setup</span><select id="dec-setup">${setupOptions}</select></label>
-<label class="group"><span class="group-label">Decision kind</span><select id="dec-kind">${kindOptions}</select></label>
-<label class="group"><span class="group-label">The model</span><select id="dec-took"${v.r === 'none' ? ' disabled' : ''}>${tookOptions}</select></label>
+<label class="group"><span class="group-label">Position class</span><select id="dec-kind">${kindOptions}</select></label>
+<label class="group"><span class="group-label">Risk call</span><select id="dec-call"${v.r === 'none' ? ' disabled' : ''}>${callOptions}</select></label>
+<label class="group"><span class="group-label">Stake, or equity lost by a needless risk</span><select id="dec-band"${v.r === 'none' ? ' disabled' : ''}>${bandOptions}</select></label>
 <span class="status status-${esc(statusClass)}">${esc(v.dataset.badge)}</span></div>
 ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
-<p class="note dec-note">Decision kinds (Method, Is the risk worth it?): hit risk only; gammon risk and priming are not in it.</p>
+<p class="note dec-note">Position class, stake and risk call as defined in <a href="../method/#risk">Method</a>; hit risk only: gammon risk and priming are not in it.</p>
 <nav class="dec-pager" aria-label="Pages">${pager(v)}</nav>`;
     controls.hidden = false;
     pagerBottom.innerHTML = pager(v);
@@ -412,22 +430,25 @@ ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
   function onPagerClick(event) {
     const button = event.target.closest('button[data-step]');
     if (!button || button.getAttribute('aria-disabled') === 'true') return;
-    show({ d: view.d, s: view.s, p: view.p + Number(button.dataset.step), r: view.r, t: view.t }, 'push');
+    show({ ...pick(view), p: view.p + Number(button.dataset.step) }, 'push');
   }
 
   function onPagerChange(event) {
     if (!event.target.matches('.dec-page input')) return;
     const p = Number.parseInt(event.target.value, 10);
-    if (p) show({ d: view.d, s: view.s, p, r: view.r, t: view.t }, 'push');
+    if (p) show({ ...pick(view), p }, 'push');
   }
+
+  const pick = v => ({ d: v.d, s: v.s, p: v.p, r: v.r, c: v.c, b: v.b });
 
   controls.addEventListener('click', onPagerClick);
   pagerBottom.addEventListener('click', onPagerClick);
   controls.addEventListener('change', event => {
-    if (event.target.id === 'dec-dataset') show({ d: event.target.value, s: null, p: 1, r: view.r, t: view.t }, 'push');
-    else if (event.target.id === 'dec-setup') show({ d: view.d, s: event.target.value, p: 1, r: view.r, t: view.t }, 'push');
-    else if (event.target.id === 'dec-kind') show({ d: view.d, s: view.s, p: 1, r: event.target.value, t: view.t }, 'push');
-    else if (event.target.id === 'dec-took') show({ d: view.d, s: view.s, p: 1, r: view.r, t: event.target.value }, 'push');
+    if (event.target.id === 'dec-dataset') show({ ...pick(view), d: event.target.value, s: null, p: 1 }, 'push');
+    else if (event.target.id === 'dec-setup') show({ ...pick(view), s: event.target.value, p: 1 }, 'push');
+    else if (event.target.id === 'dec-kind') show({ ...pick(view), p: 1, r: event.target.value }, 'push');
+    else if (event.target.id === 'dec-call') show({ ...pick(view), p: 1, c: event.target.value }, 'push');
+    else if (event.target.id === 'dec-band') show({ ...pick(view), p: 1, b: event.target.value }, 'push');
     else onPagerChange(event);
   });
   pagerBottom.addEventListener('change', onPagerChange);

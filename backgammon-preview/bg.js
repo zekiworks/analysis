@@ -1,31 +1,135 @@
 'use strict';
 
-/* Home page: metric tabs (stable addresses ?tab=<name>#board), the Table / Charts switch, the league selector
-   (?league=<dataset>: one league at a time, never merged; every selector on the page moves together), and the
-   filters (model type, weights, runs on, reasoning setting), which hide setup rows and 2x2 tiles everywhere. The
-   swipe hint goes once a wide table has been scrolled. Compare page: two setups of the v1 set, paired, from
-   compare.json. */
+/* Home page (brief v12 B4): one league at a time (?league=, default League 1, never merged), the Risk tab first
+   (?tab=), the Table / Charts switch, the filters (model type, phase, reasoning, runs on, weights) with the setup
+   counter and Reset, the chart panels (small tabs, the margin keys, "Show all", Download PNG with the league, margin,
+   decisions, results version, site address and active filters, in the theme in view). The Phase filter loads that
+   phase's tables and Risk charts of the league from fragments/<league>-<phase>.html. Compare page: two setups of the
+   v1 set, paired, from compare.json. */
 
-(function leagues() {
+const HOME = {
+  league: null,
+  phase: 'all',
+  filters: { kind: 'all', setting: 'all', runs: 'all', weights: 'all' },
+  showAll: false,
+  original: new Map(),
+};
+const FILTER_LABEL = { kind: 'Model type', setting: 'Reasoning', runs: 'Runs on', weights: 'Weights' };
+const TOP_N = 8;
+
+function rowShown(el) {
+  const f = HOME.filters;
+  return el.dataset.kind === 'reference' || Object.keys(f).every(g => f[g] === 'all' || el.dataset[g] === f[g]);
+}
+
+function activeFilters() {
+  const on = Object.keys(HOME.filters).filter(g => HOME.filters[g] !== 'all').map(g => `${FILTER_LABEL[g]}: ${HOME.filters[g]}`);
+  if (HOME.phase !== 'all') on.push(`Phase: ${HOME.phase}`);
+  return on;
+}
+
+/* Rows of a chart: the filters decide which can show; without "Show all", the first TOP_N model setups in the chart's
+   order plus the reference rows. Visible rows are stacked again so no gap is left. */
+function layoutChart(svg) {
+  const top = Number(svg.dataset.top), h = Number(svg.dataset.rowH);
+  let i = 0, models = 0, decisions = 0;
+  svg.querySelectorAll('g.row, g.pt').forEach(g => {
+    let show = rowShown(g);
+    if (show && g.classList.contains('row') && !HOME.showAll && g.dataset.kind !== 'reference') {
+      models += 1;
+      show = models <= TOP_N;
+    }
+    g.toggleAttribute('hidden', !show);
+    if (show) decisions += Number(g.dataset.n || 0);
+    if (show && g.classList.contains('row')) {
+      g.setAttribute('transform', `translate(0 ${top + i * h})`);
+      i += 1;
+    }
+  });
+  if (h) {
+    const height = top + i * h + 6;
+    const w = svg.viewBox.baseVal.width;
+    svg.setAttribute('viewBox', `0 0 ${w} ${height}`);
+    svg.setAttribute('height', height);
+    svg.querySelectorAll('line.vfull').forEach(l => l.setAttribute('y2', top + i * h));
+  }
+  svg.dataset.shown = decisions;
+}
+
+function applyHome() {
+  const lg = HOME.league;
+  document.querySelectorAll('[data-league-view]').forEach(v => v.toggleAttribute('data-off', v.dataset.leagueView !== lg));
+  document.querySelectorAll('[data-league-pick]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.leaguePick === lg)));
+  document.querySelectorAll('tr[data-kind]').forEach(tr => { tr.hidden = !rowShown(tr); });
+  document.querySelectorAll('svg.chart-svg').forEach(layoutChart);
+  document.querySelectorAll('.phase-all').forEach(p => { p.hidden = HOME.phase === 'all'; });
+  const box = document.getElementById('filters');
+  if (!box) return;
+  Object.keys(HOME.filters).forEach(g => box.querySelectorAll(`[data-filter-${g}]`).forEach(b =>
+    b.setAttribute('aria-pressed', String(b.getAttribute(`data-filter-${g}`) === HOME.filters[g]))));
+  const count = box.querySelector('[data-setups]');
+  const totals = JSON.parse(count.dataset.totals);
+  const view = document.querySelector(`#panel-quality [data-league-view="${lg}"]`);
+  const shown = view ? view.querySelectorAll('tbody tr[data-kind]:not([hidden])').length : 0;
+  count.textContent = lg in totals ? `${shown.toLocaleString('en')} of ${totals[lg].toLocaleString('en')} setups` : 'Shared positions: Analysis pending';
+  const idle = HOME.league === HOME.defaultLeague && HOME.phase === 'all' && Object.values(HOME.filters).every(v => v === 'all');
+  const reset = box.querySelector('[data-control="reset"]');
+  reset.setAttribute('aria-disabled', String(idle));
+  box.querySelector('[data-reset-why]').hidden = !idle;
+  const url = new URL(location.href);
+  if (lg === HOME.defaultLeague) url.searchParams.delete('league'); else url.searchParams.set('league', lg);
+  history.replaceState(null, '', url);
+}
+
+async function loadPhase(phase) {
+  HOME.phase = phase;
+  const slots = document.querySelectorAll('.phase-slot[data-slot]');
+  slots.forEach(s => { if (!HOME.original.has(s)) HOME.original.set(s, s.innerHTML); });
+  if (phase === 'all') {
+    slots.forEach(s => { s.innerHTML = HOME.original.get(s); });
+  } else {
+    const leagues = [...new Set([...slots].map(s => s.dataset.dataset))];
+    await Promise.all(leagues.map(async ds => {
+      const res = await fetch(`fragments/${ds}-${phase}.html`);
+      if (!res.ok) throw new Error(`fragments/${ds}-${phase}.html: ${res.status}`);
+      const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+      doc.querySelectorAll('.phase-slot').forEach(src => {
+        document.querySelectorAll(`.phase-slot[data-dataset="${ds}"][data-slot="${src.dataset.slot}"]`).forEach(dst => { dst.innerHTML = src.innerHTML; });
+      });
+    }));
+  }
+  document.querySelectorAll('[data-chart-panel]').forEach(showChartTab);
+  applyHome();
+}
+
+(function home() {
   const picks = [...document.querySelectorAll('[data-league-pick]')];
   if (!picks.length) return;
-  const known = new Set(picks.map(b => b.dataset.leaguePick));
-  const show = key => {
-    if (!known.has(key)) return;
-    picks.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.leaguePick === key)));
-    document.querySelectorAll('[data-league-view]').forEach(v => {
-      v.toggleAttribute('data-off', v.dataset.leagueView !== key);
+  const pressed = picks.find(b => b.getAttribute('aria-pressed') === 'true') || picks[0];
+  HOME.defaultLeague = pressed.dataset.leaguePick;
+  const wanted = new URLSearchParams(location.search).get('league');
+  HOME.league = picks.some(b => b.dataset.leaguePick === wanted) ? wanted : HOME.defaultLeague;
+  picks.forEach(b => b.addEventListener('click', () => { HOME.league = b.dataset.leaguePick; applyHome(); }));
+  const box = document.getElementById('filters');
+  if (box) {
+    Object.keys(HOME.filters).forEach(g => box.querySelectorAll(`[data-filter-${g}]`).forEach(b => b.addEventListener('click', () => {
+      HOME.filters[g] = b.getAttribute(`data-filter-${g}`);
+      applyHome();
+    })));
+    const phase = box.querySelector('[data-control="phase"]');
+    phase.addEventListener('change', () => loadPhase(phase.value).catch(error => {
+      phase.value = HOME.phase;
+      alert(`Could not load this phase (${error.message}).`);
+    }));
+    box.querySelector('[data-control="reset"]').addEventListener('click', event => {
+      if (event.currentTarget.getAttribute('aria-disabled') === 'true') return;
+      Object.keys(HOME.filters).forEach(g => { HOME.filters[g] = 'all'; });
+      HOME.league = HOME.defaultLeague;
+      phase.value = 'all';
+      loadPhase('all');
     });
-  };
-  const set = key => {
-    show(key);
-    const url = new URL(location.href);
-    url.searchParams.set('league', key);
-    history.replaceState(null, '', url);
-  };
-  show(new URLSearchParams(location.search).get('league'));
-  picks.forEach(b => b.addEventListener('click', () => set(b.dataset.leaguePick)));
-  document.querySelectorAll('[data-league-goto]').forEach(a => a.addEventListener('click', () => set(a.dataset.leagueGoto)));
+  }
+  applyHome();
 })();
 
 (function tabs() {
@@ -40,24 +144,20 @@
     if (board) board.setAttribute('aria-labelledby', 'tab-' + name);
     return name;
   };
-  const fromUrl = () => new URLSearchParams(location.search).get('tab');
-  show(fromUrl());
-  tablist.addEventListener('click', event => {
-    const b = event.target.closest('[data-tab]');
-    if (!b) return;
-    const name = show(b.dataset.tab);
+  const setUrl = name => {
     const url = new URL(location.href);
-    url.searchParams.set('tab', name);
+    if (name === buttons[0].dataset.tab) url.searchParams.delete('tab'); else url.searchParams.set('tab', name);
     url.hash = 'board';
     history.replaceState(null, '', url);
+  };
+  show(new URLSearchParams(location.search).get('tab'));
+  tablist.addEventListener('click', event => {
+    const b = event.target.closest('[data-tab]');
+    if (b) setUrl(show(b.dataset.tab));
   });
   document.querySelectorAll('[data-goto-tab]').forEach(a => a.addEventListener('click', event => {
     event.preventDefault();
-    const name = show(a.dataset.gotoTab);
-    const url = new URL(location.href);
-    url.searchParams.set('tab', name);
-    url.hash = 'board';
-    history.replaceState(null, '', url);
+    setUrl(show(a.dataset.gotoTab));
     document.getElementById('board-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }));
 })();
@@ -71,35 +171,102 @@
     keys.forEach(x => x.setAttribute('aria-pressed', String((x.dataset.view === 'charts') === charts)));
   };
   keys.forEach(k => k.addEventListener('click', () => show(k.dataset.view === 'charts')));
-  document.querySelectorAll('[data-view-goto]').forEach(a => a.addEventListener('click', () => show(a.dataset.viewGoto === 'charts')));
   if (location.hash.startsWith('#chart')) show(true);
 })();
 
-(function filters() {
-  const box = document.getElementById('filters');
-  if (!box) return;
-  const groups = ['type', 'weights', 'runs', 'setting'];
-  const state = Object.fromEntries(groups.map(g => [g, 'all']));
-  const summary = box.querySelector('[data-summary]');
-  const apply = () => {
-    document.querySelectorAll('tr[data-type], figure.r2[data-type]').forEach(row => {
-      row.hidden = groups.some(g => state[g] !== 'all' && row.dataset[g] !== state[g]);
-    });
-    const on = groups.filter(g => state[g] !== 'all').map(g => state[g]);
-    summary.textContent = on.length ? on.join(' · ') : 'All setups';
-    groups.forEach(g => box.querySelectorAll(`[data-filter-${g}]`).forEach(b =>
-      b.setAttribute('aria-pressed', String(b.getAttribute(`data-filter-${g}`) === state[g]))));
-  };
-  groups.forEach(g => box.querySelectorAll(`[data-filter-${g}]`).forEach(b => b.addEventListener('click', () => {
-    state[g] = b.getAttribute(`data-filter-${g}`);
-    apply();
-  })));
-  box.querySelector('[data-control="reset"]').addEventListener('click', () => {
-    groups.forEach(g => { state[g] = 'all'; });
-    apply();
+/* Chart panels: the small tabs and margin keys pick one chart; every chart has a stable anchor (#chart-<panel>). */
+function showChartTab(panel) {
+  const tab = panel.querySelector('[data-chart-tab][aria-pressed="true"]');
+  const margin = panel.querySelector('[data-chart-margin][aria-pressed="true"]');
+  panel.querySelectorAll('.chart-view').forEach(v => {
+    v.hidden = (tab && v.dataset.viewChart !== tab.dataset.chartTab) || (margin && v.dataset.viewMargin !== margin.dataset.chartMargin);
   });
-  apply();
+}
+
+(function chartPanels() {
+  document.querySelectorAll('[data-chart-panel]').forEach(panel => {
+    panel.addEventListener('click', event => {
+      const b = event.target.closest('button');
+      if (!b) return;
+      if (b.dataset.chartTab !== undefined || b.dataset.chartMargin !== undefined) {
+        const attr = b.dataset.chartTab !== undefined ? 'data-chart-tab' : 'data-chart-margin';
+        panel.querySelectorAll(`[${attr}]`).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        showChartTab(panel);
+      } else if (b.dataset.showAll !== undefined) {
+        HOME.showAll = !HOME.showAll;
+        document.querySelectorAll('[data-show-all]').forEach(x => {
+          x.setAttribute('aria-pressed', String(HOME.showAll));
+          x.querySelector('[data-show-all-label]').textContent = HOME.showAll ? 'Show the first 8' : 'Show all';
+        });
+        applyHome();
+      } else if (b.dataset.download !== undefined) {
+        downloadChart(panel);
+      }
+    });
+    showChartTab(panel);
+  });
 })();
+
+/* A chart as a PNG that makes sense away from the site (B6.5): the chart in the theme in view, then in small type the
+   league, the margin, the decisions behind the rows shown, the active filters, the results version and the address. */
+async function downloadChart(panel) {
+  const view = [...panel.querySelectorAll('[data-league-view]')].find(v => !v.hasAttribute('data-off'));
+  const svg = view && [...view.querySelectorAll('.chart-view')].find(v => !v.hidden)?.querySelector('svg');
+  if (!svg) return;
+  const box = svg.viewBox.baseVal;
+  const width = box.width, height = box.height;
+  const clone = svg.cloneNode(true);
+  const from = svg.querySelectorAll('*');
+  clone.querySelectorAll('*').forEach((el, i) => {
+    const st = getComputedStyle(from[i]);
+    ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'opacity', 'font-family', 'font-size', 'font-weight', 'display']
+      .forEach(p => el.style.setProperty(p, st.getPropertyValue(p)));
+  });
+  const css = getComputedStyle(document.documentElement);
+  const text = css.getPropertyValue('--text').trim(), text2 = css.getPropertyValue('--text-2').trim();
+  const bg = getComputedStyle(panel).backgroundColor;
+  const font = getComputedStyle(document.body).fontFamily.replace(/"/g, "'");
+  const versionLine = document.querySelector('.hero .version')?.textContent.trim() || '';
+  const margin = svg.dataset.margin === 'robust' ? '0.02' : '0.001';
+  const league = document.querySelector(`[data-league-pick="${HOME.league}"]`)?.textContent.trim() || '';
+  const title = panel.querySelector('h2').textContent.trim() + ': ' + (panel.querySelector('[data-chart-tab][aria-pressed="true"]')?.textContent.trim() || '');
+  const filters = activeFilters();
+  const lines = [
+    `${league} · margin ${margin} · ${Number(svg.dataset.shown || svg.dataset.decisions).toLocaleString('en')} decisions behind the rows shown`,
+    `Filters: ${filters.length ? filters.join(' · ') : 'none (all setups, all phases)'}${HOME.showAll ? '' : ` · first ${TOP_N} model setups`}`,
+    versionLine,
+    location.origin + location.pathname,
+  ];
+  const head = 28, foot = lines.length * 16 + 12;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const markup = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height + head + foot}">` +
+    `<rect width="100%" height="100%" fill="${bg}"/>` +
+    `<text x="10" y="19" font-family="${font}" font-size="14" font-weight="700" fill="${text}">${esc(title)}</text>` +
+    `<g transform="translate(0 ${head})">${clone.innerHTML}</g>` +
+    lines.map((l, i) => `<text x="10" y="${height + head + 16 + i * 16}" font-family="${font}" font-size="11" fill="${text2}">${esc(l)}</text>`).join('') +
+    '</svg>';
+  const url = URL.createObjectURL(new Blob([markup], { type: 'image/svg+xml' }));
+  try {
+    const img = new Image();
+    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = () => reject(new Error('chart could not be drawn')); img.src = url; });
+    const canvas = document.createElement('canvas');
+    canvas.width = 2 * width;
+    canvas.height = 2 * (height + head + foot);
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+    ctx.drawImage(img, 0, 0);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `backgammon-${panel.id}-${HOME.league}-${margin}.png`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 
 (function swipeHints() {
   document.querySelectorAll('[data-swipe-hint]').forEach(hint => {
