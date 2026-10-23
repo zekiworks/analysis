@@ -1,7 +1,7 @@
 {
- "data_as_of": "2026-10-23T01:14Z",
+ "data_as_of": "2026-10-23T01:29Z",
  "gnubg": {
-  "scored": 84566,
+  "scored": 84577,
   "skipped": 0,
   "method": "GNU Backgammon 1.08: 0-ply on every play, 2-ply on the five best and the chosen one"
  },
@@ -565,7 +565,7 @@
      "rounds_planned": 3,
      "score1": 1,
      "score2": 4,
-     "last_move": "2026-10-23T01:14Z",
+     "last_move": "2026-10-23T01:29Z",
      "minutes_since_move": 0
     }
    ],
@@ -611,20 +611,20 @@
      "to_play": 1,
      "thinking": 1,
      "runs_on": "our GPU, fp8 (vLLM); DGX Spark 19 Oct 18:36-22:26 UTC and from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)",
-     "decisions": 1886,
-     "scored": 1886,
+     "decisions": 1890,
+     "scored": 1890,
      "coverage": 1.0,
      "invalid": 0,
      "invalid_share": 0.0,
-     "s_per_decision": 228.54,
+     "s_per_decision": 228.52,
      "usd_per_1000": null,
      "cost_note": null,
      "readout": "letter probabilities",
      "error_rate": 19.1,
      "error_rate_lo": 17.0,
      "error_rate_hi": 21.4,
-     "best_share": 0.5933,
-     "blunder_share": 0.1532
+     "best_share": 0.5931,
+     "blunder_share": 0.1534
     },
     {
      "place": 3,
@@ -779,20 +779,20 @@
      "to_play": 1,
      "thinking": 1,
      "runs_on": "Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then our four GPUs (SGLang, published FP4/FP8 weights, 17 Oct revision)",
-     "decisions": 1906,
-     "scored": 1906,
+     "decisions": 1913,
+     "scored": 1913,
      "coverage": 1.0,
      "invalid": 22,
      "invalid_share": 0.0115,
-     "s_per_decision": 99.16,
-     "usd_per_1000": 12.323,
+     "s_per_decision": 99.26,
+     "usd_per_1000": 12.365,
      "cost_note": null,
      "readout": "letter probabilities",
-     "error_rate": 18.5,
-     "error_rate_lo": 16.2,
-     "error_rate_hi": 20.9,
-     "best_share": 0.6254,
-     "blunder_share": 0.1406
+     "error_rate": 18.6,
+     "error_rate_lo": 16.3,
+     "error_rate_hi": 21.0,
+     "best_share": 0.6242,
+     "blunder_share": 0.1417
     },
     {
      "place": 9,
@@ -1368,7 +1368,7 @@
    ]
   }
  ],
- "scored": 81317,
+ "scored": 81328,
  "anchor": {
   "1": {
    "gammon_share": {
@@ -1408,7 +1408,7 @@
   "summary": "decision models (finished: Liquid d1-ultra first, and the weak GNU Backgammon anchor plays better than every decision model), workhorse chat models closed and open (in progress: GPT-6.1 Sol (low) leads; lowest error rate GPT-6.1 Sol (low), 10.8), and frontier chat models on subscriptions, each with reasoning off and on (finished: GPT-6 Astra (on) first)",
   "anchor-stats": "<li><strong>Gammons in the leagues.</strong> Games with the anchor end in a gammon or backgammon in 54% (League 1), 46% (League 2), 26% (League 3); games between two models in 26% (League 1), 27% (League 2), 18% (League 3); games with Random or Safest in 34%.</li>\n        <li><strong>Match wins.</strong> 26 of the 26 matches the anchor won included a gammon or backgammon by it. Scored at 1 point per game, 10 of those wins are certain (7 in League 1, 2 in League 2, 1 in League 3); the rest would need games that were never played.</li>",
   "notes1": "<li><strong>Final ranking</strong>: 1. Liquid d1-ultra (48 points), 2. GNUbg weak (48 points), 3. Fastino GLiDE (37 points), 4. Decider v1.2 27B (36 points), 5. Jev 1.14.0 (36 points); Random last, with 0 matches won.</li>\n        <li><strong>Liquid d1-ultra has the lowest error rate of the decision models</strong>, 30.0. Celeris-1 Decision (32.5) is within its interval; every other decision model is at 34.8 or higher.</li>\n        <li><strong>The weak GNU Backgammon anchor plays better than every decision model</strong> by error rate (23.4); its match wins come with many gammons (see <a href=\"#v3-anchor\">About the anchor</a>).</li>\n        <li><strong>2 decision models play worse than the Safest program</strong> by error rate: Decider Flash v1.2 (58.2) and Open-Jev 27B v1.1 (64.7), against 51.1. Mercury Decide (47.1) and Winnow-12B (48.4) within Safest's interval. Random scores 118.5.</li>\n        <li><strong>The 6 v1 decision models against their v1 error rates</strong>: 4 higher, 2 lower or equal: Jev 1.13.0 34.8 (v1: 35.7), Clef 37.3 (v1: 35.8), Decider v1.1 27B 37.7 (v1: 32.7), Cygnet (Gemma 4 12B) 39.1 (v1: 43.2), GPT-6 Luna 41.9 (v1: 39.4), Open-Jev 27B v1.1 64.7 (v1: 59.6). The games, opponents and option order differ, so this is not a paired comparison.</li>\n        <li><strong>New versions</strong>: Jev 1.14.0 35.2 (36 points) against Jev 1.13.0 34.8 (36 points): no clear difference in league play; Decider v1.2 27B 37.0 (36 points) against Decider v1.1 27B 37.7 (27 points): no clear difference in league play.</li>\n        <li><strong>The hosted decision services</strong> (8) take 0.2 s to 0.5 s per decision; the 7 with a price cost $0.07 to $0.34 per 1,000 decisions.</li>",
-  "notes2": "<li><strong>GPT-6.1 Sol (low) leads with 15 wins in 16 matches</strong>. The lowest error rate is GPT-6.1 Sol (low)'s, 10.8.</li>\n        <li><strong>Reasoning, lower and higher setting</strong> (error rate; a difference counts only when the 95% intervals do not overlap): GPT-6.1 Sol 10.8 (low) and 11.0 (high): no clear difference in league play; 6.2 s and 15.5 s per decision; Gemma 4 31B 22.3 (off) and 19.1 (on): no clear difference in league play; 3.5 s and 228.5 s per decision; Gemini 3.8 Flash 16.6 (low) and 14.6 (high): no clear difference in league play; 4.4 s and 19.5 s per decision; Claude Sonnet 5.5 20.2 (low) and 15.2 (high): lower, and the intervals do not overlap; 3.6 s and 8.6 s per decision; DeepSeek V4.1 Flash 33.4 (off) and 18.5 (on): lower, and the intervals do not overlap; 2.2 s and 99.2 s per decision; Qwen3.8-27B 40.7 (off) and 31.1 (on): lower, and the intervals do not overlap; 1.9 s and 314.1 s per decision; LFM2.5-24B-A2B 63.0 (off) and 46.5 (on): lower, and the intervals do not overlap; 0.3 s and 405.6 s per decision. League games are not the same positions, so these are not paired comparisons.</li>\n        <li><strong>The best open setup is 7.7 points behind the best closed one</strong>: DeepSeek V4.1 Flash (on) at 18.5, against GPT-6.1 Sol (low) at 10.8.</li>\n        <li><strong>The weak GNU Backgammon anchor</strong> (23.4): 6 of 6 closed setups have a lower error rate; of the 10 open setups, DeepSeek V4.1 Flash (on) (18.5), Gemma 4 31B (on) (19.1) and Gemma 4 31B (off) (22.3) do.</li>\n        <li><strong>Invalid answers</strong>: 22 from DeepSeek V4.1 Flash (on) (1.1% of its decisions), 1 from GLM-5.3 (on) (0.1% of its decisions); none from any other setup.</li>\n        <li><strong>Still to play</strong>: 1 of 136 matches (1 thinking, last move 0 min ago; listed above the table).</li>",
+  "notes2": "<li><strong>GPT-6.1 Sol (low) leads with 15 wins in 16 matches</strong>. The lowest error rate is GPT-6.1 Sol (low)'s, 10.8.</li>\n        <li><strong>Reasoning, lower and higher setting</strong> (error rate; a difference counts only when the 95% intervals do not overlap): GPT-6.1 Sol 10.8 (low) and 11.0 (high): no clear difference in league play; 6.2 s and 15.5 s per decision; Gemma 4 31B 22.3 (off) and 19.1 (on): no clear difference in league play; 3.5 s and 228.5 s per decision; Gemini 3.8 Flash 16.6 (low) and 14.6 (high): no clear difference in league play; 4.4 s and 19.5 s per decision; Claude Sonnet 5.5 20.2 (low) and 15.2 (high): lower, and the intervals do not overlap; 3.6 s and 8.6 s per decision; DeepSeek V4.1 Flash 33.4 (off) and 18.6 (on): lower, and the intervals do not overlap; 2.2 s and 99.3 s per decision; Qwen3.8-27B 40.7 (off) and 31.1 (on): lower, and the intervals do not overlap; 1.9 s and 314.1 s per decision; LFM2.5-24B-A2B 63.0 (off) and 46.5 (on): lower, and the intervals do not overlap; 0.3 s and 405.6 s per decision. League games are not the same positions, so these are not paired comparisons.</li>\n        <li><strong>The best open setup is 7.8 points behind the best closed one</strong>: DeepSeek V4.1 Flash (on) at 18.6, against GPT-6.1 Sol (low) at 10.8.</li>\n        <li><strong>The weak GNU Backgammon anchor</strong> (23.4): 6 of 6 closed setups have a lower error rate; of the 10 open setups, DeepSeek V4.1 Flash (on) (18.6), Gemma 4 31B (on) (19.1) and Gemma 4 31B (off) (22.3) do.</li>\n        <li><strong>Invalid answers</strong>: 22 from DeepSeek V4.1 Flash (on) (1.1% of its decisions), 1 from GLM-5.3 (on) (0.1% of its decisions); none from any other setup.</li>\n        <li><strong>Still to play</strong>: 1 of 136 matches (1 thinking, last move 0 min ago; listed above the table).</li>",
   "notes3": "<li><strong>GPT-6 Astra (on) won with 8 wins in 10 matches</strong>. Lowest error rates: GPT-6 Astra (off) 11.5, GPT-6 Astra (on) 12.5, Gemini 4 Argon (on) 12.6, Claude Fable 5.1 (on) 12.8, with overlapping intervals.</li>\n        <li><strong>Reasoning, lower and higher setting</strong> (error rate; a difference counts only when the 95% intervals do not overlap): GPT-6 Astra 11.5 (off) and 12.5 (on): no clear difference in league play; 6.2 s and 6.7 s per decision; Claude Fable 5.1 17.8 (off) and 12.8 (on): lower, and the intervals do not overlap; 3.7 s and 19.4 s per decision; Claude Opus 5.5 16.2 (off) and 14.3 (on): no clear difference in league play; 5.1 s and 9.3 s per decision; Gemini 4 Argon 17.4 (off) and 12.6 (on): no clear difference in league play; 6.1 s and 43.9 s per decision; Grok 4.7 19.0 (off) and 15.1 (on): no clear difference in league play; 44.6 s and 226.6 s per decision. League games are not the same positions, so these are not paired comparisons.</li>\n        <li><strong>10 of the 10 setups have a lower error rate than the weak GNU Backgammon anchor</strong> (28.0).</li>\n        <li><strong>No invalid answers.</strong></li>\n        <li><strong>Time per decision, reasoning off</strong>: 3.7 s to 44.6 s; slowest Grok 4.7 (off).</li>\n        <li><strong>Time per decision, reasoning on</strong>: 6.7 s to 226.6 s; slowest Grok 4.7 (on).</li>\n        <li><strong>Cost</strong> at API list prices: $10 to $128 per 1,000 decisions.</li>",
   "toc": "v3 leagues (in progress)",
   "head1": "League 1: decision models",
