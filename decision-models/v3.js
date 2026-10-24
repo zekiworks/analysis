@@ -249,7 +249,10 @@ const reversedRefit = run => run.confidence.refit_slopes.some(slope => slope != 
 const CONFIDENCE_GUIDE = [
   ['Confidence', 'the probability a model gives to its own answer.'],
   ['Calibration', 'whether that probability matches how often the model is right. Of 100 answers scored 80%, about 80 should be right.'],
-  [`Kept at ${pct(SETTINGS.threshold, 0)} (wrong)`, `answers scored ${pct(SETTINGS.threshold, 0)} or more, and how many of them were wrong.`],
+  [
+    `Correct answers at ${pct(SETTINGS.threshold, 0)}`,
+    `answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only those questions.`,
+  ],
   ['Ranking score', 'how often a right answer receives higher confidence than a wrong answer. 0.50 is chance; 1.00 is perfect. Higher is better.'],
   ['Calibration gap', 'how far the probabilities are from the real hit rate, in points, as shipped. Lower is better.'],
   [
@@ -290,13 +293,10 @@ const TABS = {
     wrapHeaders: true,
     columns: [
       {
-        key: 'kept', label: `Kept at ${pct(SETTINGS.threshold, 0)} (wrong)`,
-        value: run => (filtered() ? null : run.confidence.sure.questions),
-        cell: run => {
-          if (filtered()) return MISSING;
-          const { questions, correct } = run.confidence.sure;
-          return `${integer(questions)} (${integer(questions - correct)})`;
-        },
+        key: 'sure-correct', label: `Correct answers at ${pct(SETTINGS.threshold, 0)}`,
+        tip: `Answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only the questions it was ${pct(SETTINGS.threshold, 0)} sure of.`,
+        value: run => (filtered() ? null : run.confidence.sure.correct),
+        cell: run => (filtered() ? MISSING : integer(run.confidence.sure.correct)),
       },
       {
         key: 'auroc', label: 'Ranking score', tip: RANKING_TIP,
