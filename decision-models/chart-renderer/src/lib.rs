@@ -405,6 +405,7 @@ fn color(run: &Run) -> Color {
         ("jev-1.14.0", ..) => rgb(0x06b6d4),
         ("d1:free", ..) => rgb(0xca8a04),
         ("d1-ultra", ..) => rgb(0x059669),
+        ("d1.1", ..) => rgb(0xeab308),
         ("open-jev-27b-v1.1", ..) => rgb(0x0d9488),
         ("clef", ..) => rgb(0x9333ea),
         ("clef-flash", ..) => rgb(0xc084fc),

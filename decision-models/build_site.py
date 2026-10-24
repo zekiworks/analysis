@@ -426,7 +426,7 @@ def copy_checks(data: Data) -> list[str]:
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
     check("SubQ Snap fifth among decision models in front of Sonnet (16 per request)", order.index(subq) == 4)
     for size in (16, 1):
-        for key, place, word in (("opus", 9, "ninth"), ("astra", 8, "eighth")):
+        for key, place, word in (("opus", 10, "tenth"), ("astra", 8, "eighth")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
@@ -450,11 +450,10 @@ def copy_checks(data: Data) -> list[str]:
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
     # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model; then GLiDE v1.2,
-    # GLiDE and Deciders v1.1 and v1.2, in that order, at 66.9% to 68.5%; Luna through the Decisions API has the
-    # smallest calibration gap as shipped; Open-Jev 27B v1.1 and Decider v1.1 score highest on Better than a flat guess;
-    # d1-ultra gives the biggest estimated saving in all 10 LLM setups.
+    # GLiDE and Deciders v1.1 and v1.2, in that order, at 66.9% to 68.5%; Liquid d1.1 has the smallest calibration gap as
+    # shipped; Open-Jev 27B v1.1 and Decider v1.1 score highest on Better than a flat guess; d1-ultra gives the biggest
+    # estimated saving in all 10 LLM setups.
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
-    luna = next(run for run in decision if run["model"] == "gpt-6-luna")
 
     def shares(first: dict[str, Any], second: dict[str, Any]) -> bool:
         return any(letter in (second.get("group") or "") for letter in (first.get("group") or ""))
@@ -473,7 +472,8 @@ def copy_checks(data: Data) -> list[str]:
     check("Summary: at 66.9% to 68.5%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.5")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])
-    check("Summary: calibration gap, as shipped: Luna (Decisions API) had the smallest gap among decision models", calibrated[0] is luna)
+    check("Summary: calibration gap, as shipped: Liquid d1.1 had the smallest gap among decision models",
+          calibrated[0] is data.by_name("d1.1"))
     flat = sorted(decision, key=lambda run: -bp.flat_gain(run))
     check("Summary: better than a flat guess, after refit: Open-Jev 27B v1.1 (31.9%) and Perplexity Decider 27B v1.1 (31.5%), "
           "the two highest among decision models",

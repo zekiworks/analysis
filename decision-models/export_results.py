@@ -187,6 +187,7 @@ MODELS: dict[str, dict[str, Any]] = {
     "decider-1": {"name": "meraGPT Decider 1", "note": "Hosted decision model; meraGPT serves its current version under this name"},
     "d1:free": {"name": "Liquid d1", "billing": "free"},
     "d1-ultra": {"name": "Liquid d1-ultra"},
+    "d1.1": {"name": "Liquid d1.1"},
     # Through OpenRouter's System One route; the variant names the route.
     "microsoft/microsoft-decision-1": {
         "name": "Microsoft-Decision-1",

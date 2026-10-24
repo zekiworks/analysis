@@ -750,8 +750,10 @@ def study_checks(snap: Snapshot) -> None:
     """The claims the Method pages make in words; the build stops when the data no longer supports one of them."""
     named, total = snap.named, snap.total
     decision = [run for run in snap.runs if snap.decision_model(run)]
-    if min(decision, key=lambda run: run["confidence"]["ece"]) is not named["luna_api"]:
-        raise ValueError("the study says Luna through the Decisions API has the smallest calibration gap among the decision models")
+    by_gap = sorted(decision, key=lambda run: run["confidence"]["ece"])
+    if by_gap[0] is not named["d1_1"] or by_gap[1] is not named["luna_api"]:
+        raise ValueError("the study says Liquid d1.1 has the smallest calibration gap among the decision models, and Luna "
+                         "through the Decisions API the next")
     deepseek = named["deepseek_on"]["confidence"]["sure"]
     if deepseek["questions"] != total:
         raise ValueError("the study says DeepSeek with reasoning scores every answer letter at 99% or more")
@@ -1287,7 +1289,8 @@ def method_answers_correct(run_id: int) -> list[int]:
 METHOD_SETUPS: list[tuple[list[dict[str, str]], str]] = [
     ([{"provider": "jev"}], "We called TypeSafe's hosted decision model. It gives a probability for each option, and it is the model Open Jev compares with."),
     ([{"provider": "perplexity"}, {"provider": "liquid"}],
-     "We called Perplexity's two decision model versions through its Decisions API, and Liquid d1 through a free tier. "
+     "We called Perplexity's two decision model versions through its Decisions API, and Liquid's d1 (through a free "
+     "tier), d1-ultra and d1.1 through Liquid's API. "
      "Perplexity says v1.1 changes both its training data and how its Qwen base model can use the input. We do not "
      "separate those two changes in this test."),
     ([{"model": "clef"}], "We ran Cloudflare's decision model on our own hardware. It adapts Qwen 3.8 27B and scores all the options in one pass through the model."),

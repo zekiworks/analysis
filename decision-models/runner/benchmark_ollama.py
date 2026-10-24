@@ -244,6 +244,9 @@ PRICES: dict[tuple[str, str], Price] = {
     ("meragpt", "decider-1"): Price("meraGPT's Decider 1 price", "https://meragpt.com/docs/models", "2026-10-19", 0.04),
     # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
     ("liquid", "d1-ultra"): Price("Liquid AI's d1-ultra price", "https://www.liquid.ai/blog/d1-ultra", "2026-10-16", 0.042),
+    # d1.1, Liquid's default hosted decision model (docs.liquid.ai/lfm/models/d1, 24 October 2026): input tokens only,
+    # output free. The rate card still names its row d1; the API's per-request cost bills d1.1 at the same rate.
+    ("liquid", "d1.1"): Price("Liquid AI's price for d1.1, as its API bills it", "https://www.liquid.ai/pricing", "2026-10-24", 0.02),
     # Microsoft-Decision-1 and Inception's Mercury Decide (its paid listing, not inception/mercury-decide:free) via
     # OpenRouter: input tokens only; the one output token each answer reports is not charged.
     ("openrouter", "microsoft/microsoft-decision-1"): Price(

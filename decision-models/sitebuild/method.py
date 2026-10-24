@@ -35,7 +35,8 @@ CHARTS = {
 # The rows of the setup table, in build_page.METHOD_SETUPS's order (which runs each row covers comes from there).
 SETUP_TEXTS = (
     "TypeSafe's hosted decision model, versions 1.13 and 1.14; Open Jev compares with 1.13.",
-    "Perplexity's Decisions API (two versions) and Liquid's free tier, whose cost is estimated at Liquid's list price.",
+    "Perplexity's Decisions API (two versions) and Liquid's API (d1, d1-ultra and d1.1); d1 ran on the free tier, its cost "
+    "estimated at Liquid's list price.",
     "Cloudflare's model, on our hardware: it adapts Qwen 3.8 27B and scores all options in one pass.",
     "Cloudflare's smaller model: Qwen 3.5 9B, with Clef's scoring method and release code.",
     "It adapts Qwen 3.5 4B and lists Turkish among its training languages.",
@@ -520,7 +521,8 @@ best decision models' did.</p>
 <p>How a model gives its confidence matters. GPT-6 Luna through OpenAI's Decisions API ranked its answers better than Luna
 writing its confidence (ranking score {v['luna_api_auroc']} against {v['luna_stated_auroc']}) but got fewer right
 ({v['luna_api_accuracy']} against {v['luna_stated_accuracy']}), with a different access method and request size. Among
-decision models, it had the smallest calibration gap: {v['luna_api_ece_points']} points.</p>
+decision models, its calibration gap ({v['luna_api_ece_points']} points) was second only to Liquid d1.1's
+({v['d1_1_ece_points']} points).</p>
 <p>Cheaper chat models remain alternatives. GPT-6.1 Sol scored {v['sol_accuracy']} at an estimated cost {v['sol_saving']}
 below GPT-6 Astra's ({v['astra_accuracy']}). Gemini 3.8 Flash at high reasoning scored {v['gemini_high_accuracy']}, and the
 test over all pairs did not establish a difference from Astra.</p>

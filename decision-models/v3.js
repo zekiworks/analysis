@@ -43,7 +43,7 @@ const CONFIDENCE_NOTE = [
 const ROUTING_NOTES = [
   'Replay: both models’ recorded answers. Live: the decision model’s recorded answers, with new calls to the LLM. Savings are estimates from API prices, and larger at 1 question per request: each question the LLM skips costs more.',
   'In a live test with Sonnet at 1 question per request, accuracy fell 4.73 points: Decider v1.1 kept 51%, with a cutoff chosen at 16 per request. A cutoff chosen at 1 per request keeps 29%, and accuracy falls 0.16 points (replay). Choose the cutoff in the format you will run.',
-  'SubQ Snap’s place depends on the LLM: fifth among decision models in front of Sonnet (16 per request), ninth in front of Opus, eighth in front of Astra. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, the hosted GLiDE’s 99.5%.',
+  'SubQ Snap’s place depends on the LLM: fifth among decision models in front of Sonnet (16 per request), tenth in front of Opus, eighth in front of Astra. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, the hosted GLiDE’s 99.5%.',
 ];
 const STABILITY_NOTE = [
   'Only the setups we repeated, five times each. Decision models and two Qwen3.8-27B setups were repeated on all questions; the other chat models on a sample of 200.',
