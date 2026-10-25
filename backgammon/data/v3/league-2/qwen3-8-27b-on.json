@@ -6,12 +6,12 @@
    "share": 0.0,
    "small": false
   },
-  "decisions": 1807,
+  "decisions": 1862,
   "definition": "A decision is a close choice when the second most likely play has at least half the probability of the first (internally: split).",
   "eligible": 342,
   "exclusions": {
    "grouped": 163,
-   "not_audited": 180,
+   "not_audited": 235,
    "sparse": 1122
   },
   "groups": {
@@ -376,55 +376,55 @@
   }
  },
  "confidence": {
-  "auroc_best": 0.5593306721355502,
-  "auroc_blunder": 0.5420196459021152,
+  "auroc_best": 0.5589458765628009,
+  "auroc_blunder": 0.5400804902979681,
   "confident_badly_wrong": {
-   "den": 1626,
-   "n": 344,
-   "share": 0.2115621156211562
+   "den": 1675,
+   "n": 354,
+   "share": 0.21134328358208956
   },
   "cutoffs": {
    "0.9": {
     "blunders": {
-     "den": 1626,
-     "n": 344,
-     "share": 0.2115621156211562
+     "den": 1675,
+     "n": 354,
+     "share": 0.21134328358208956
     },
     "kept": {
-     "den": 1626,
-     "n": 1626,
+     "den": 1675,
+     "n": 1675,
      "share": 1.0
     },
-    "mean_loss": 0.05726146522043376,
+    "mean_loss": 0.05686451086357458,
     "too_few": false
    },
    "0.99": {
     "blunders": {
-     "den": 1625,
-     "n": 343,
-     "share": 0.21107692307692308
+     "den": 1674,
+     "n": 353,
+     "share": 0.2108721624850657
     },
     "kept": {
-     "den": 1626,
-     "n": 1625,
-     "share": 0.9993849938499385
+     "den": 1675,
+     "n": 1674,
+     "share": 0.9994029850746269
     },
-    "mean_loss": 0.0572281227845412,
+    "mean_loss": 0.05683190727176917,
     "too_few": false
    }
   },
-  "ece": 0.4536296268481468,
+  "ece": 0.4546796319930626,
   "held_out": {
-   "blunders": 0.7094163483812248,
-   "kept": 0.004707908156677338,
-   "no_cutoff": 155,
+   "blunders": 0.7695370962370964,
+   "kept": 0.0038541846964032997,
+   "no_cutoff": 175,
    "runs": 300
   },
-  "n": 1626,
+  "n": 1675,
   "surest": {
-   "cut": 0.9999092392901857,
-   "error_rate": 26.5866769180251,
-   "n": 407,
+   "cut": 0.9999082980207006,
+   "error_rate": 26.710210452500846,
+   "n": 419,
    "too_few": false
   },
   "too_few": false
@@ -432,91 +432,91 @@
  "dataset": "league-2",
  "gaps": {
   "0.02 to 0.08": {
-   "error_rate": 32.94071951962036,
-   "n": 552,
+   "error_rate": 32.684134797276,
+   "n": 573,
    "too_few": false
   },
   "over 0.08": {
-   "error_rate": 47.86587783666415,
-   "n": 535,
+   "error_rate": 47.38089412287341,
+   "n": 547,
    "too_few": false
   },
   "under 0.02": {
-   "error_rate": 16.52465398526854,
-   "n": 720,
+   "error_rate": 16.515808305489728,
+   "n": 742,
    "too_few": false
   }
  },
  "name": "Qwen3.8-27B (on)",
  "options": {
   "11–15": {
-   "error_rate": 37.89578574391368,
-   "n": 319,
+   "error_rate": 37.59532460561221,
+   "n": 327,
    "too_few": false
   },
   "16–25": {
-   "error_rate": 35.00871712992177,
-   "n": 338,
+   "error_rate": 34.96091740471976,
+   "n": 350,
    "too_few": false
   },
   "26+": {
-   "error_rate": 50.48594119337698,
-   "n": 192,
+   "error_rate": 49.66494689385096,
+   "n": 198,
    "too_few": true
   },
   "2–5": {
-   "error_rate": 17.95793631177062,
-   "n": 547,
+   "error_rate": 17.727765754369916,
+   "n": 561,
    "too_few": false
   },
   "6–10": {
-   "error_rate": 29.808464167761976,
-   "n": 411,
+   "error_rate": 29.556713088857176,
+   "n": 426,
    "too_few": false
   }
  },
  "phases": {
   "bear-off": {
-   "error_rate": 10.042372696539935,
-   "n": 170,
+   "error_rate": 9.925600920998773,
+   "n": 172,
    "too_few": true
   },
   "contact": {
-   "error_rate": 36.4659490368583,
-   "n": 1100,
+   "error_rate": 36.20131917475391,
+   "n": 1133,
    "too_few": false
   },
   "holding": {
-   "error_rate": 17.353168608229836,
-   "n": 81,
+   "error_rate": 17.133036184878577,
+   "n": 84,
    "too_few": true
   },
   "opening": {
-   "error_rate": 35.100214672364785,
-   "n": 259,
+   "error_rate": 34.48314881987042,
+   "n": 270,
    "too_few": false
   },
   "race": {
-   "error_rate": 17.12164025621366,
-   "n": 197,
-   "too_few": true
+   "error_rate": 16.882585627692087,
+   "n": 203,
+   "too_few": false
   }
  },
  "quality": {
-  "auroc": 0.5593306721355502,
-  "best_share": 0.5224128389596016,
-  "blunder_share": 0.23132263420033206,
-  "brier": 0.4536193367166271,
-  "clusters": 88,
-  "confidence_n": 1626,
-  "confident_badly_wrong": 0.2115621156211562,
-  "cost_coverage": 0.0011068068622025456,
-  "decisions": 1807,
-  "ece": 0.4536296268481468,
-  "engine_scored": 1807,
-  "error_hi": 33.900389493855855,
-  "error_lo": 27.823917571098942,
-  "error_rate": 30.81863458043116,
+  "auroc": 0.5589458765628009,
+  "best_share": 0.5214822771213748,
+  "blunder_share": 0.23093447905477982,
+  "brier": 0.4546683541913605,
+  "clusters": 92,
+  "confidence_n": 1675,
+  "confident_badly_wrong": 0.21134328358208956,
+  "cost_coverage": 0.0010741138560687433,
+  "decisions": 1862,
+  "ece": 0.4546796319930626,
+  "engine_scored": 1862,
+  "error_hi": 33.48881761382523,
+  "error_lo": 27.52452017347954,
+  "error_rate": 30.55858651274129,
   "first_date": "2026-10-19",
   "group_sizes": [
    14,
@@ -533,39 +533,39 @@
    25,
    26
   ],
-  "grouped": 181,
+  "grouped": 187,
   "invalid": 0,
   "last_date": "2026-10-25",
-  "mean_confidence": 0.9997550881027594,
-  "over_budget": 0.9806308799114555,
-  "p95_loss": 0.3040182888507843,
+  "mean_confidence": 0.9997542588587343,
+  "over_budget": 0.9806659505907627,
+  "p95_loss": 0.30172046124935104,
   "probability_source": "logprobs",
-  "retry_mean": 40.95582235749862,
-  "scored": 1807,
-  "time_median": 183.493,
-  "time_p90": 678.2076000000002,
-  "tokens_in": 14522.610957387937,
-  "tokens_out": 5675.752628666298,
+  "retry_mean": 39.746063909774435,
+  "scored": 1862,
+  "time_median": 181.45299999999997,
+  "time_p90": 666.2122000000002,
+  "tokens_in": 14485.78678839957,
+  "tokens_out": 5648.551557465092,
   "too_few": false,
   "very_confident": 1.0,
-  "worst_mean": 0.48409776753849454
+  "worst_mean": 0.47907632204794115
  },
  "quality_phases": {
   "bear-off": {
-   "auroc": 0.5585284280936454,
-   "best_share": 0.8588235294117647,
-   "blunder_share": 0.058823529411764705,
-   "brier": 0.1384795686311422,
-   "clusters": 54,
-   "confidence_n": 166,
-   "confident_badly_wrong": 0.060240963855421686,
+   "auroc": 0.5559220389805097,
+   "best_share": 0.8604651162790697,
+   "blunder_share": 0.05813953488372093,
+   "brier": 0.13683100318596778,
+   "clusters": 56,
+   "confidence_n": 168,
+   "confident_badly_wrong": 0.05952380952380952,
    "cost_coverage": 0.0,
-   "decisions": 170,
-   "ece": 0.13826553646484463,
-   "engine_scored": 170,
-   "error_hi": 17.343217422257645,
-   "error_lo": 3.9489950430786664,
-   "error_rate": 10.042372696539935,
+   "decisions": 172,
+   "ece": 0.13661637753682054,
+   "engine_scored": 172,
+   "error_hi": 17.390924176469525,
+   "error_lo": 4.002820594742308,
+   "error_rate": 9.925600920998773,
    "first_date": "2026-10-19",
    "group_sizes": [
     14,
@@ -576,35 +576,35 @@
    "grouped": 4,
    "invalid": 0,
    "last_date": "2026-10-25",
-   "mean_confidence": 0.9997113195973748,
-   "over_budget": 0.9588235294117647,
-   "p95_loss": 0.15495536923408337,
+   "mean_confidence": 0.9997116156320587,
+   "over_budget": 0.9593023255813954,
+   "p95_loss": 0.14499797224998362,
    "probability_source": "logprobs",
-   "retry_mean": 29.10960588235294,
-   "scored": 170,
-   "time_median": 113.039,
-   "time_p90": 513.3729999999995,
-   "tokens_in": 10504.588235294117,
-   "tokens_out": 4308.464705882353,
+   "retry_mean": 28.771122093023255,
+   "scored": 172,
+   "time_median": 112.4195,
+   "time_p90": 502.38590000000005,
+   "tokens_in": 10464.197674418605,
+   "tokens_out": 4275.9941860465115,
    "too_few": true,
    "very_confident": 1.0,
-   "worst_mean": 0.34699972718954086
+   "worst_mean": 0.33064016368654037
   },
   "contact": {
-   "auroc": 0.5707208486090366,
-   "best_share": 0.4763636363636364,
-   "blunder_share": 0.2681818181818182,
-   "brier": 0.5037764850113043,
-   "clusters": 87,
-   "confidence_n": 986,
-   "confident_badly_wrong": 0.2515212981744422,
+   "auroc": 0.5719921868944455,
+   "best_share": 0.4748455428067079,
+   "blunder_share": 0.26831421006178285,
+   "brier": 0.5056269199045288,
+   "clusters": 90,
+   "confidence_n": 1016,
+   "confident_badly_wrong": 0.25098425196850394,
    "cost_coverage": 0.0,
-   "decisions": 1100,
-   "ece": 0.5038245218674587,
-   "engine_scored": 1100,
-   "error_hi": 41.02514367560642,
-   "error_lo": 32.36982890830244,
-   "error_rate": 36.4659490368583,
+   "decisions": 1133,
+   "ece": 0.5056748331026425,
+   "engine_scored": 1133,
+   "error_hi": 40.37877103630408,
+   "error_lo": 32.05796885150145,
+   "error_rate": 36.20131917475391,
    "first_date": "2026-10-19",
    "group_sizes": [
     14,
@@ -621,38 +621,38 @@
     25,
     26
    ],
-   "grouped": 114,
+   "grouped": 117,
    "invalid": 0,
    "last_date": "2026-10-25",
-   "mean_confidence": 0.9997677267356129,
-   "over_budget": 0.990909090909091,
-   "p95_loss": 0.3444304198026652,
+   "mean_confidence": 0.9997693212916189,
+   "over_budget": 0.9902912621359223,
+   "p95_loss": 0.34333305358886707,
    "probability_source": "logprobs",
-   "retry_mean": 31.318592727272726,
-   "scored": 1100,
-   "time_median": 183.63049999999998,
-   "time_p90": 677.4654,
-   "tokens_in": 14849.471818181819,
-   "tokens_out": 5760.605454545454,
+   "retry_mean": 30.406400706090025,
+   "scored": 1133,
+   "time_median": 181.34,
+   "time_p90": 663.5154000000003,
+   "tokens_in": 14770.887025595763,
+   "tokens_out": 5708.488967343336,
    "too_few": false,
    "very_confident": 1.0,
-   "worst_mean": 0.5324373451146213
+   "worst_mean": 0.5264068528225547
   },
   "holding": {
-   "auroc": 0.5953947368421053,
-   "best_share": 0.4444444444444444,
-   "blunder_share": 0.1728395061728395,
-   "brier": 0.5425441457830957,
-   "clusters": 19,
-   "confidence_n": 70,
-   "confident_badly_wrong": 0.15714285714285714,
+   "auroc": 0.5750773993808049,
+   "best_share": 0.4523809523809524,
+   "blunder_share": 0.16666666666666666,
+   "brier": 0.527473493739841,
+   "clusters": 21,
+   "confidence_n": 72,
+   "confident_badly_wrong": 0.1527777777777778,
    "cost_coverage": 0.0,
-   "decisions": 81,
-   "ece": 0.5426178880271937,
-   "engine_scored": 81,
-   "error_hi": 22.74780798286769,
-   "error_lo": 12.312798232618553,
-   "error_rate": 17.353168608229836,
+   "decisions": 84,
+   "ece": 0.5275266168872373,
+   "engine_scored": 84,
+   "error_hi": 22.18820766800366,
+   "error_lo": 12.187957010378856,
+   "error_rate": 17.133036184878577,
    "first_date": "2026-10-19",
    "group_sizes": [
     15,
@@ -665,38 +665,38 @@
     25,
     26
    ],
-   "grouped": 11,
+   "grouped": 12,
    "invalid": 0,
    "last_date": "2026-10-25",
-   "mean_confidence": 0.9997607451700508,
-   "over_budget": 0.9876543209876543,
-   "p95_loss": 0.15266704559326172,
+   "mean_confidence": 0.9997488391094596,
+   "over_budget": 0.9880952380952381,
+   "p95_loss": 0.15216017961502074,
    "probability_source": "logprobs",
-   "retry_mean": 84.95541975308642,
-   "scored": 81,
-   "time_median": 228.174,
-   "time_p90": 643.737,
-   "tokens_in": 15075.481481481482,
-   "tokens_out": 5968.197530864198,
+   "retry_mean": 81.92129761904762,
+   "scored": 84,
+   "time_median": 227.3545,
+   "time_p90": 643.8084,
+   "tokens_in": 15253.82142857143,
+   "tokens_out": 6061.428571428572,
    "too_few": true,
    "very_confident": 1.0,
    "worst_mean": 0.18482019007205963
   },
   "opening": {
-   "auroc": 0.6003571138706274,
-   "best_share": 0.4594594594594595,
-   "blunder_share": 0.305019305019305,
-   "brier": 0.49965720123017654,
-   "clusters": 88,
-   "confidence_n": 222,
-   "confident_badly_wrong": 0.26126126126126126,
-   "cost_coverage": 0.007722007722007722,
-   "decisions": 259,
-   "ece": 0.49972853108931525,
-   "engine_scored": 259,
-   "error_hi": 41.75326429777634,
-   "error_lo": 28.96886234974553,
-   "error_rate": 35.100214672364785,
+   "auroc": 0.5983204518430439,
+   "best_share": 0.46296296296296297,
+   "blunder_share": 0.3,
+   "brier": 0.4996594785375334,
+   "clusters": 92,
+   "confidence_n": 232,
+   "confident_badly_wrong": 0.25862068965517243,
+   "cost_coverage": 0.007407407407407408,
+   "decisions": 270,
+   "ece": 0.49973001391559035,
+   "engine_scored": 270,
+   "error_hi": 40.515174219171854,
+   "error_lo": 28.472033253659713,
+   "error_rate": 34.48314881987042,
    "first_date": "2026-10-19",
    "group_sizes": [
     14,
@@ -713,38 +713,38 @@
     25,
     26
    ],
-   "grouped": 37,
+   "grouped": 38,
    "invalid": 0,
    "last_date": "2026-10-25",
-   "mean_confidence": 0.9997285310893153,
-   "over_budget": 0.9498069498069498,
-   "p95_loss": 0.3125796198844909,
+   "mean_confidence": 0.9997300139155904,
+   "over_budget": 0.9518518518518518,
+   "p95_loss": 0.3083676427602767,
    "probability_source": "logprobs",
-   "retry_mean": 41.52270656370656,
-   "scored": 259,
-   "time_median": 183.559,
-   "time_p90": 683.0956000000008,
-   "tokens_in": 16276.953667953669,
-   "tokens_out": 5805.741312741313,
+   "retry_mean": 39.83104074074074,
+   "scored": 270,
+   "time_median": 181.489,
+   "time_p90": 594.1498999999994,
+   "tokens_in": 16166.559259259258,
+   "tokens_out": 5757.7444444444445,
    "too_few": false,
    "very_confident": 1.0,
-   "worst_mean": 0.3871609431046706
+   "worst_mean": 0.38177030427115305
   },
   "race": {
-   "auroc": 0.465820187251507,
-   "best_share": 0.6040609137055838,
-   "blunder_share": 0.10152284263959391,
-   "brier": 0.37896609895276906,
-   "clusters": 72,
-   "confidence_n": 182,
-   "confident_badly_wrong": 0.09340659340659341,
+   "auroc": 0.47146673142302087,
+   "best_share": 0.6009852216748769,
+   "blunder_share": 0.10344827586206896,
+   "brier": 0.37949648953106274,
+   "clusters": 74,
+   "confidence_n": 187,
+   "confident_badly_wrong": 0.0962566844919786,
    "cost_coverage": 0.0,
-   "decisions": 197,
-   "ece": 0.3788776350377846,
-   "engine_scored": 197,
-   "error_hi": 25.88158226903765,
-   "error_lo": 9.30581999968324,
-   "error_rate": 17.12164025621366,
+   "decisions": 203,
+   "ece": 0.37942204323856277,
+   "engine_scored": 203,
+   "error_hi": 25.987085579308975,
+   "error_lo": 9.344157052524924,
+   "error_rate": 16.882585627692087,
    "first_date": "2026-10-19",
    "group_sizes": [
     14,
@@ -755,20 +755,20 @@
     21,
     24
    ],
-   "grouped": 15,
+   "grouped": 16,
    "invalid": 0,
    "last_date": "2026-10-25",
-   "mean_confidence": 0.9997567559169055,
-   "over_budget": 0.9796954314720813,
-   "p95_loss": 0.16415972709655757,
+   "mean_confidence": 0.9997428988535361,
+   "over_budget": 0.9802955665024631,
+   "p95_loss": 0.16090698242187446,
    "probability_source": "logprobs",
-   "retry_mean": 86.1538883248731,
-   "scored": 197,
+   "retry_mean": 83.60746798029557,
+   "scored": 203,
    "time_median": 218.415,
-   "time_p90": 719.3600000000002,
-   "tokens_in": 13631.035532994923,
-   "tokens_out": 6090.705583756345,
-   "too_few": true,
+   "time_p90": 734.6980000000004,
+   "tokens_in": 13748.699507389163,
+   "tokens_out": 6160.901477832513,
+   "too_few": false,
    "very_confident": 1.0,
    "worst_mean": 0.4323757767677307
   }
@@ -776,83 +776,83 @@
  "risk": {
   "main": {
    "by_call": {
-    "missed": 15.309384293693432,
-    "needless": 3.574548708713048,
-    "none": 3.6641988690940464,
-    "right_risk": 2.3690179097566673,
-    "right_safety": 3.3048729937447323,
-    "wrong_risk": 2.5966118054292315
+    "missed": 15.197728673510342,
+    "needless": 3.653070844397765,
+    "none": 3.610234927670144,
+    "right_risk": 2.2990415482976894,
+    "right_safety": 3.2785977732098064,
+    "wrong_risk": 2.5199127456555432
    },
    "calls": {
-    "missed": 364.0,
-    "needless": 74.0,
-    "right_risk": 208.0,
-    "right_safety": 623.0,
+    "missed": 380.0,
+    "needless": 79.0,
+    "right_risk": 212.0,
+    "right_safety": 643.0,
     "wrong_risk": 47.0
    },
    "confidence": {
-    "auroc_right_risk": 0.5245395668892937,
-    "missed_mean_p": 0.9996937741306025,
-    "missed_n": 310,
+    "auroc_right_risk": 0.5312100705125171,
+    "missed_mean_p": 0.9996997056188417,
+    "missed_n": 324,
     "taken_grouped": 38,
-    "taken_n": 291,
+    "taken_n": 300,
     "taken_other": 0
    },
-   "error_rate": 30.81863458043116,
+   "error_rate": 30.55858651274129,
    "found": {
-    "den": 619.0,
-    "n": 208.0,
-    "share": 0.3360258481421648
+    "den": 639.0,
+    "n": 212.0,
+    "share": 0.3317683881064163
    },
    "good": {
-    "den": 329.0,
-    "n": 208.0,
-    "share": 0.6322188449848024
+    "den": 338.0,
+    "n": 212.0,
+    "share": 0.6272189349112426
    },
-   "judgement": 61.49282755775386,
-   "judgement_hi": 63.68989685420564,
-   "judgement_lo": 59.26811393123235,
+   "judgement": 61.11750527789699,
+   "judgement_hi": 63.29604856404392,
+   "judgement_lo": 59.0987332547175,
    "judgement_na": null,
    "map": {
-    "wrong_share": 0.11435523114355231,
-    "x": 0.6639741518578353,
-    "y": 0.10616929698708752
+    "wrong_share": 0.11007025761124122,
+    "x": 0.6682316118935837,
+    "y": 0.10941828254847645
    },
    "margin": 0.001,
    "missed": {
-    "den": 619.0,
-    "n": 364.0,
-    "share": 0.5880452342487884
+    "den": 639.0,
+    "n": 380.0,
+    "share": 0.594679186228482
    },
    "needless": {
-    "den": 697.0,
-    "n": 74.0,
-    "share": 0.10616929698708752
+    "den": 722.0,
+    "n": 79.0,
+    "share": 0.10941828254847645
    },
    "needless_by_loss": {
     "big": {
-     "den": 697.0,
-     "n": 50.0,
-     "share": 0.07173601147776183
+     "den": 722.0,
+     "n": 52.0,
+     "share": 0.07202216066481995
     },
     "medium": {
-     "den": 697.0,
-     "n": 13.0,
-     "share": 0.018651362984218076
+     "den": 722.0,
+     "n": 15.0,
+     "share": 0.02077562326869806
     },
     "small": {
-     "den": 697.0,
-     "n": 11.0,
-     "share": 0.015781922525107604
+     "den": 722.0,
+     "n": 12.0,
+     "share": 0.01662049861495845
     }
    },
-   "no_trade_off": 491.0,
+   "no_trade_off": 501.0,
    "phases": {
     "bear-off": {
      "by_call": {
       "missed": 0.0,
       "needless": 0.0,
-      "none": 10.042372696539935,
+      "none": 9.925600920998773,
       "right_risk": 0.0,
       "right_safety": 0.0,
       "wrong_risk": 0.0
@@ -865,7 +865,7 @@
       "wrong_risk": 0.0
      },
      "confidence": null,
-     "error_rate": 10.042372696539935,
+     "error_rate": 9.925600920998773,
      "found": {
       "den": 0.0,
       "n": 0.0,
@@ -907,7 +907,7 @@
        "share": null
       }
      },
-     "no_trade_off": 170.0,
+     "no_trade_off": 172.0,
      "reference": null,
      "right_safety": {
       "den": 0.0,
@@ -916,7 +916,7 @@
      },
      "risk_pays": 0.0,
      "safety_pays": 0.0,
-     "scored": 170,
+     "scored": 172,
      "sdt": {
       "aim": {
        "den": 0.0,
@@ -1026,209 +1026,209 @@
     },
     "contact": {
      "by_call": {
-      "missed": 19.639852250164207,
-      "needless": 5.269437364556572,
-      "none": 1.2498628280379556,
-      "right_risk": 2.9716775092211636,
-      "right_safety": 4.0590348162434315,
-      "wrong_risk": 3.2760842686349694
+      "missed": 19.459656101880828,
+      "needless": 5.392634950163926,
+      "none": 1.254807976843084,
+      "right_risk": 2.8851237953603532,
+      "right_safety": 4.0284320120251715,
+      "wrong_risk": 3.180664338480553
      },
      "calls": {
-      "missed": 266.0,
-      "needless": 65.0,
-      "right_risk": 133.0,
-      "right_safety": 491.0,
+      "missed": 278.0,
+      "needless": 69.0,
+      "right_risk": 134.0,
+      "right_safety": 505.0,
       "wrong_risk": 30.0
      },
      "confidence": {
-      "auroc_right_risk": null,
-      "missed_mean_p": 0.9997038999613714,
-      "missed_n": 230,
+      "auroc_right_risk": 0.5234189723320158,
+      "missed_mean_p": 0.9997096531669524,
+      "missed_n": 240,
       "taken_grouped": 30,
-      "taken_n": 198,
+      "taken_n": 203,
       "taken_other": 0
      },
-     "error_rate": 36.4659490368583,
+     "error_rate": 36.20131917475391,
      "found": {
-      "den": 429.0,
-      "n": 133.0,
-      "share": 0.31002331002331
+      "den": 442.0,
+      "n": 134.0,
+      "share": 0.3031674208144796
      },
      "good": {
-      "den": 228.0,
-      "n": 133.0,
-      "share": 0.5833333333333334
+      "den": 233.0,
+      "n": 134.0,
+      "share": 0.575107296137339
      },
-     "judgement": 59.6558417601583,
-     "judgement_hi": 62.16125798296504,
-     "judgement_lo": 57.168844741500614,
+     "judgement": 59.14791807905151,
+     "judgement_hi": 61.480229155582585,
+     "judgement_lo": 56.5371002857668,
      "judgement_na": null,
      "map": {
-      "wrong_share": 0.10135135135135136,
-      "x": 0.6899766899766899,
-      "y": 0.11690647482014388
+      "wrong_share": 0.09740259740259741,
+      "x": 0.6968325791855203,
+      "y": 0.12020905923344948
      },
      "margin": 0.001,
      "missed": {
-      "den": 429.0,
-      "n": 266.0,
-      "share": 0.62004662004662
+      "den": 442.0,
+      "n": 278.0,
+      "share": 0.6289592760180995
      },
      "needless": {
-      "den": 556.0,
-      "n": 65.0,
-      "share": 0.11690647482014388
+      "den": 574.0,
+      "n": 69.0,
+      "share": 0.12020905923344948
      },
      "needless_by_loss": {
       "big": {
-       "den": 556.0,
-       "n": 45.0,
-       "share": 0.08093525179856115
+       "den": 574.0,
+       "n": 47.0,
+       "share": 0.08188153310104529
       },
       "medium": {
-       "den": 556.0,
-       "n": 11.0,
-       "share": 0.019784172661870502
+       "den": 574.0,
+       "n": 12.0,
+       "share": 0.020905923344947737
       },
       "small": {
-       "den": 556.0,
-       "n": 9.0,
-       "share": 0.01618705035971223
+       "den": 574.0,
+       "n": 10.0,
+       "share": 0.017421602787456445
       }
      },
-     "no_trade_off": 115.0,
+     "no_trade_off": 117.0,
      "reference": null,
      "right_safety": {
-      "den": 556.0,
-      "n": 491.0,
-      "share": 0.8830935251798561
+      "den": 574.0,
+      "n": 505.0,
+      "share": 0.8797909407665505
      },
-     "risk_pays": 429.0,
-     "safety_pays": 556.0,
-     "scored": 1100,
+     "risk_pays": 442.0,
+     "safety_pays": 574.0,
+     "scored": 1133,
      "sdt": {
       "aim": {
-       "den": 163.0,
-       "n": 133.0,
-       "share": 0.8159509202453987
+       "den": 164.0,
+       "n": 134.0,
+       "share": 0.8170731707317073
       },
-      "beta": 1.4230226401343453,
-      "caution": 0.7459846118667882,
-      "caution_hi": 0.8641493176651048,
-      "caution_lo": 0.64779665929471,
-      "cstar": 0.39987711929246245,
+      "beta": 1.4499438670179168,
+      "caution": 0.7494894603227785,
+      "caution_hi": 0.8648075155582002,
+      "caution_lo": 0.6474560615920855,
+      "cstar": 0.4410717742629509,
       "cstar_note": "unstable: fewer than 200 needless risks behind a mean cost",
       "cstar_status": "unstable",
-      "dprime": 0.8822290951504359,
-      "dprime_hi": 1.0971233276234063,
-      "dprime_lo": 0.6828591786571291,
+      "dprime": 0.8423228711529667,
+      "dprime_hi": 1.050336127167215,
+      "dprime_lo": 0.6159768473396976,
       "false_alarm": {
-       "den": 556.0,
-       "n": 65.0,
-       "share": 0.11690647482014388
+       "den": 574.0,
+       "n": 69.0,
+       "share": 0.12020905923344948
       },
-      "false_alarm_rate": 0.11759425493716337,
+      "false_alarm_rate": 0.1208695652173913,
       "hit": {
-       "den": 429.0,
-       "n": 163.0,
-       "share": 0.37995337995337997
+       "den": 442.0,
+       "n": 164.0,
+       "share": 0.37104072398190047
       },
-      "hit_rate": 0.3802325581395349,
-      "missed_loss": 0.1624348682344408,
-      "missed_n": 266.0,
+      "hit_rate": 0.37133182844243795,
+      "missed_loss": 0.15861719685921566,
+      "missed_n": 278.0,
       "na": null,
-      "needless_loss": 0.17835018772345324,
-      "needless_n": 65.0
+      "needless_loss": 0.17709725792857184,
+      "needless_n": 69.0
      },
      "size": {
       "bad": {
-       "mean": 8.357894736842105,
-       "n": 95.0,
+       "mean": 8.484848484848484,
+       "n": 99.0,
        "too_few": true
       },
       "right": {
-       "mean": 7.360902255639098,
-       "n": 133.0,
+       "mean": 7.388059701492537,
+       "n": 134.0,
        "too_few": true
       }
      },
      "stake": {
       "big": {
        "found": {
-        "den": 264.0,
-        "n": 107.0,
-        "share": 0.4053030303030303
+        "den": 268.0,
+        "n": 108.0,
+        "share": 0.40298507462686567
        },
        "missed": {
-        "den": 264.0,
-        "n": 143.0,
-        "share": 0.5416666666666666
+        "den": 268.0,
+        "n": 146.0,
+        "share": 0.5447761194029851
        },
-       "risk_pays": 264.0,
+       "risk_pays": 268.0,
        "wrong": {
-        "den": 264.0,
+        "den": 268.0,
         "n": 14.0,
-        "share": 0.05303030303030303
+        "share": 0.05223880597014925
        }
       },
       "medium": {
        "found": {
-        "den": 115.0,
+        "den": 122.0,
         "n": 20.0,
-        "share": 0.17391304347826086
+        "share": 0.16393442622950818
        },
        "missed": {
-        "den": 115.0,
-        "n": 88.0,
-        "share": 0.7652173913043478
+        "den": 122.0,
+        "n": 95.0,
+        "share": 0.7786885245901639
        },
-       "risk_pays": 115.0,
+       "risk_pays": 122.0,
        "wrong": {
-        "den": 115.0,
+        "den": 122.0,
         "n": 7.0,
-        "share": 0.06086956521739131
+        "share": 0.05737704918032787
        }
       },
       "small": {
        "found": {
-        "den": 50.0,
+        "den": 52.0,
         "n": 6.0,
-        "share": 0.12
+        "share": 0.11538461538461539
        },
        "missed": {
-        "den": 50.0,
-        "n": 35.0,
-        "share": 0.7
+        "den": 52.0,
+        "n": 37.0,
+        "share": 0.7115384615384616
        },
-       "risk_pays": 50.0,
+       "risk_pays": 52.0,
        "wrong": {
-        "den": 50.0,
+        "den": 52.0,
         "n": 9.0,
-        "share": 0.18
+        "share": 0.17307692307692307
        }
       }
      },
-     "trade_off": 985.0,
+     "trade_off": 1016.0,
      "wrong": {
-      "den": 429.0,
+      "den": 442.0,
       "n": 30.0,
-      "share": 0.06993006993006994
+      "share": 0.06787330316742081
      }
     },
     "holding": {
      "by_call": {
-      "missed": 6.156432407873648,
-      "needless": 1.2860585142064977,
-      "none": 1.1958976586659749,
+      "missed": 5.936559821878161,
+      "needless": 1.2401278529848372,
+      "none": 1.153187027999333,
       "right_risk": 0.0,
-      "right_safety": 8.714780027483716,
+      "right_safety": 8.803161482016245,
       "wrong_risk": 0.0
      },
      "calls": {
       "missed": 16.0,
       "needless": 2.0,
       "right_risk": 3.0,
-      "right_safety": 54.0,
+      "right_safety": 57.0,
       "wrong_risk": 0.0
      },
      "confidence": {
@@ -1239,7 +1239,7 @@
       "taken_n": 5,
       "taken_other": 0
      },
-     "error_rate": 17.353168608229836,
+     "error_rate": 17.133036184878577,
      "found": {
       "den": 19.0,
       "n": 3.0,
@@ -1250,14 +1250,14 @@
       "n": 3.0,
       "share": 0.6
      },
-     "judgement": 56.109022556390975,
-     "judgement_hi": 65.98107998139967,
-     "judgement_lo": 47.871184088806665,
+     "judgement": 56.19982158786797,
+     "judgement_hi": 66.66666666666666,
+     "judgement_lo": 48.30508474576271,
      "judgement_na": null,
      "map": {
       "wrong_share": 0.0,
       "x": 0.8421052631578947,
-      "y": 0.03571428571428571
+      "y": 0.03389830508474576
      },
      "margin": 0.001,
      "missed": {
@@ -1266,59 +1266,59 @@
       "share": 0.8421052631578947
      },
      "needless": {
-      "den": 56.0,
+      "den": 59.0,
       "n": 2.0,
-      "share": 0.03571428571428571
+      "share": 0.03389830508474576
      },
      "needless_by_loss": {
       "big": {
-       "den": 56.0,
+       "den": 59.0,
        "n": 1.0,
-       "share": 0.017857142857142856
+       "share": 0.01694915254237288
       },
       "medium": {
-       "den": 56.0,
+       "den": 59.0,
        "n": 0.0,
        "share": 0.0
       },
       "small": {
-       "den": 56.0,
+       "den": 59.0,
        "n": 1.0,
-       "share": 0.017857142857142856
+       "share": 0.01694915254237288
       }
      },
      "no_trade_off": 6.0,
      "reference": null,
      "right_safety": {
-      "den": 56.0,
-      "n": 54.0,
-      "share": 0.9642857142857143
+      "den": 59.0,
+      "n": 57.0,
+      "share": 0.9661016949152542
      },
      "risk_pays": 19.0,
-     "safety_pays": 56.0,
-     "scored": 81,
+     "safety_pays": 59.0,
+     "scored": 84,
      "sdt": {
       "aim": {
        "den": 3.0,
        "n": 3.0,
        "share": 1.0
       },
-      "beta": 4.925564679375449,
-      "caution": 1.32107119231657,
-      "caution_hi": 1.8119281616214324,
-      "caution_lo": 1.0083980124133567,
-      "cstar": 2.062760143015685,
+      "beta": 5.189434215770562,
+      "caution": 1.3331268435978627,
+      "caution_hi": 1.8235114361949771,
+      "caution_lo": 1.0411495927221854,
+      "cstar": 2.0658337796563973,
       "cstar_note": "unstable: d′ near zero",
       "cstar_status": "unstable",
-      "dprime": 0.7729638024861797,
-      "dprime_hi": 1.711212566959559,
-      "dprime_lo": -0.1982562179712182,
+      "dprime": 0.7970751050487649,
+      "dprime_hi": 1.7468809273367718,
+      "dprime_lo": -0.16761519665522465,
       "false_alarm": {
-       "den": 56.0,
+       "den": 59.0,
        "n": 2.0,
-       "share": 0.03571428571428571
+       "share": 0.03389830508474576
       },
-      "false_alarm_rate": 0.043859649122807015,
+      "false_alarm_rate": 0.041666666666666664,
       "hit": {
        "den": 19.0,
        "n": 3.0,
@@ -1399,7 +1399,7 @@
        }
       }
      },
-     "trade_off": 75.0,
+     "trade_off": 78.0,
      "wrong": {
       "den": 19.0,
       "n": 0.0,
@@ -1408,200 +1408,200 @@
     },
     "opening": {
      "by_call": {
-      "missed": 21.47316184743491,
-      "needless": 2.156979443944099,
-      "none": 0.2676604107079819,
-      "right_risk": 3.90722047408115,
-      "right_safety": 3.092934438620755,
-      "wrong_risk": 4.2022580575758886
+      "missed": 21.30262741336116,
+      "needless": 2.1777473114154957,
+      "none": 0.25675572730876783,
+      "right_risk": 3.748037417729696,
+      "right_safety": 2.9669259985287986,
+      "wrong_risk": 4.0310549515265
      },
      "calls": {
-      "missed": 82.0,
-      "needless": 7.0,
-      "right_risk": 72.0,
-      "right_safety": 78.0,
+      "missed": 86.0,
+      "needless": 8.0,
+      "right_risk": 75.0,
+      "right_safety": 81.0,
       "wrong_risk": 17.0
      },
      "confidence": {
       "auroc_right_risk": null,
       "missed_mean_p": null,
-      "missed_n": 64,
+      "missed_n": 68,
       "taken_grouped": 8,
-      "taken_n": 88,
+      "taken_n": 92,
       "taken_other": 0
      },
-     "error_rate": 35.100214672364785,
+     "error_rate": 34.48314881987042,
      "found": {
-      "den": 171.0,
-      "n": 72.0,
-      "share": 0.42105263157894735
+      "den": 178.0,
+      "n": 75.0,
+      "share": 0.42134831460674155
      },
      "good": {
-      "den": 96.0,
-      "n": 72.0,
+      "den": 100.0,
+      "n": 75.0,
       "share": 0.75
      },
-     "judgement": 66.93498452012383,
-     "judgement_hi": 71.8502413145641,
-     "judgement_lo": 62.00660752252708,
+     "judgement": 66.57303370786516,
+     "judgement_hi": 71.28397700897627,
+     "judgement_lo": 61.64443631894434,
      "judgement_na": null,
      "map": {
-      "wrong_share": 0.1717171717171717,
-      "x": 0.5789473684210527,
-      "y": 0.08235294117647059
+      "wrong_share": 0.1650485436893204,
+      "x": 0.5786516853932584,
+      "y": 0.0898876404494382
      },
      "margin": 0.001,
      "missed": {
-      "den": 171.0,
-      "n": 82.0,
-      "share": 0.47953216374269003
+      "den": 178.0,
+      "n": 86.0,
+      "share": 0.48314606741573035
      },
      "needless": {
-      "den": 85.0,
-      "n": 7.0,
-      "share": 0.08235294117647059
+      "den": 89.0,
+      "n": 8.0,
+      "share": 0.0898876404494382
      },
      "needless_by_loss": {
       "big": {
-       "den": 85.0,
+       "den": 89.0,
        "n": 4.0,
-       "share": 0.047058823529411764
+       "share": 0.0449438202247191
       },
       "medium": {
-       "den": 85.0,
-       "n": 2.0,
-       "share": 0.023529411764705882
+       "den": 89.0,
+       "n": 3.0,
+       "share": 0.033707865168539325
       },
       "small": {
-       "den": 85.0,
+       "den": 89.0,
        "n": 1.0,
-       "share": 0.011764705882352941
+       "share": 0.011235955056179775
       }
      },
      "no_trade_off": 3.0,
      "reference": null,
      "right_safety": {
-      "den": 85.0,
-      "n": 78.0,
-      "share": 0.9176470588235294
+      "den": 89.0,
+      "n": 81.0,
+      "share": 0.9101123595505618
      },
-     "risk_pays": 171.0,
-     "safety_pays": 85.0,
-     "scored": 259,
+     "risk_pays": 178.0,
+     "safety_pays": 89.0,
+     "scored": 270,
      "sdt": {
       "aim": {
-       "den": 89.0,
-       "n": 72.0,
-       "share": 0.8089887640449438
+       "den": 92.0,
+       "n": 75.0,
+       "share": 0.8152173913043478
       },
-      "beta": 0.5849094479386067,
-      "caution": 0.6535564862991875,
-      "caution_hi": 0.9483124895905886,
-      "caution_lo": 0.45738651876024006,
-      "cstar": -0.38057706372985617,
+      "beta": 0.549481130741487,
+      "caution": 0.6359251377903347,
+      "caution_hi": 0.8916529585317323,
+      "caution_lo": 0.44607810501233414,
+      "cstar": -0.4416126428703627,
       "cstar_note": "unstable: fewer than 200 needless and missed risks behind a mean cost",
       "cstar_status": "unstable",
-      "dprime": 1.4091711894668462,
-      "dprime_hi": 1.9218895297584002,
-      "dprime_lo": 1.0559820795901684,
+      "dprime": 1.3558960649227123,
+      "dprime_hi": 1.8028739020539961,
+      "dprime_lo": 1.0234741787290398,
       "false_alarm": {
-       "den": 85.0,
-       "n": 7.0,
-       "share": 0.08235294117647059
+       "den": 89.0,
+       "n": 8.0,
+       "share": 0.0898876404494382
       },
-      "false_alarm_rate": 0.0872093023255814,
+      "false_alarm_rate": 0.09444444444444444,
       "hit": {
-       "den": 171.0,
-       "n": 89.0,
-       "share": 0.52046783625731
+       "den": 178.0,
+       "n": 92.0,
+       "share": 0.5168539325842697
       },
-      "hit_rate": 0.5203488372093024,
-      "missed_loss": 0.13564753459721077,
-      "missed_n": 82.0,
+      "hit_rate": 0.5167597765363129,
+      "missed_loss": 0.13376068375831426,
+      "missed_n": 86.0,
       "na": null,
-      "needless_loss": 0.1596164788518633,
-      "needless_n": 7.0
+      "needless_loss": 0.14699794352054596,
+      "needless_n": 8.0
      },
      "size": {
       "bad": {
-       "mean": 10.333333333333334,
-       "n": 24.0,
+       "mean": 10.6,
+       "n": 25.0,
        "too_few": true
       },
       "right": {
-       "mean": 15.222222222222221,
-       "n": 72.0,
+       "mean": 15.413333333333334,
+       "n": 75.0,
        "too_few": true
       }
      },
      "stake": {
       "big": {
        "found": {
-        "den": 88.0,
-        "n": 41.0,
-        "share": 0.4659090909090909
+        "den": 91.0,
+        "n": 42.0,
+        "share": 0.46153846153846156
        },
        "missed": {
-        "den": 88.0,
-        "n": 44.0,
-        "share": 0.5
+        "den": 91.0,
+        "n": 46.0,
+        "share": 0.5054945054945055
        },
-       "risk_pays": 88.0,
+       "risk_pays": 91.0,
        "wrong": {
-        "den": 88.0,
+        "den": 91.0,
         "n": 3.0,
-        "share": 0.03409090909090909
+        "share": 0.03296703296703297
        }
       },
       "medium": {
        "found": {
-        "den": 67.0,
+        "den": 69.0,
         "n": 26.0,
-        "share": 0.3880597014925373
+        "share": 0.37681159420289856
        },
        "missed": {
-        "den": 67.0,
-        "n": 28.0,
-        "share": 0.417910447761194
+        "den": 69.0,
+        "n": 30.0,
+        "share": 0.43478260869565216
        },
-       "risk_pays": 67.0,
+       "risk_pays": 69.0,
        "wrong": {
-        "den": 67.0,
+        "den": 69.0,
         "n": 13.0,
-        "share": 0.19402985074626866
+        "share": 0.18840579710144928
        }
       },
       "small": {
        "found": {
-        "den": 16.0,
-        "n": 5.0,
-        "share": 0.3125
+        "den": 18.0,
+        "n": 7.0,
+        "share": 0.3888888888888889
        },
        "missed": {
-        "den": 16.0,
+        "den": 18.0,
         "n": 10.0,
-        "share": 0.625
+        "share": 0.5555555555555556
        },
-       "risk_pays": 16.0,
+       "risk_pays": 18.0,
        "wrong": {
-        "den": 16.0,
+        "den": 18.0,
         "n": 1.0,
-        "share": 0.0625
+        "share": 0.05555555555555555
        }
       }
      },
-     "trade_off": 256.0,
+     "trade_off": 267.0,
      "wrong": {
-      "den": 171.0,
+      "den": 178.0,
       "n": 17.0,
-      "share": 0.09941520467836257
+      "share": 0.09550561797752809
      }
     },
     "race": {
      "by_call": {
       "missed": 0.0,
       "needless": 0.0,
-      "none": 17.12164025621366,
+      "none": 16.882585627692087,
       "right_risk": 0.0,
       "right_safety": 0.0,
       "wrong_risk": 0.0
@@ -1614,7 +1614,7 @@
       "wrong_risk": 0.0
      },
      "confidence": null,
-     "error_rate": 17.12164025621366,
+     "error_rate": 16.882585627692087,
      "found": {
       "den": 0.0,
       "n": 0.0,
@@ -1656,7 +1656,7 @@
        "share": null
       }
      },
-     "no_trade_off": 197.0,
+     "no_trade_off": 203.0,
      "reference": null,
      "right_safety": {
       "den": 0.0,
@@ -1665,7 +1665,7 @@
      },
      "risk_pays": 0.0,
      "safety_pays": 0.0,
-     "scored": 197,
+     "scored": 203,
      "sdt": {
       "aim": {
        "den": 0.0,
@@ -1776,201 +1776,201 @@
    },
    "reference": null,
    "right_safety": {
-    "den": 697.0,
-    "n": 623.0,
-    "share": 0.8938307030129125
+    "den": 722.0,
+    "n": 643.0,
+    "share": 0.8905817174515236
    },
-   "risk_pays": 619.0,
-   "safety_pays": 697.0,
-   "scored": 1807,
+   "risk_pays": 639.0,
+   "safety_pays": 722.0,
+   "scored": 1862,
    "sdt": {
     "aim": {
-     "den": 255.0,
-     "n": 208.0,
-     "share": 0.8156862745098039
+     "den": 259.0,
+     "n": 212.0,
+     "share": 0.8185328185328186
     },
-    "beta": 1.2932285613982752,
-    "caution": 0.7331214657399971,
-    "caution_hi": 0.8338173729330277,
-    "caution_lo": 0.6472087545975761,
-    "cstar": 0.2516228164870414,
+    "beta": 1.306388210958035,
+    "caution": 0.7329827945678968,
+    "caution_hi": 0.8266761312319197,
+    "caution_lo": 0.6522982619458909,
+    "cstar": 0.2706405715908436,
     "cstar_note": "unstable: fewer than 200 needless risks behind a mean cost",
     "cstar_status": "unstable",
-    "dprime": 1.021933765973694,
-    "dprime_hi": 1.207708752319545,
-    "dprime_lo": 0.8504974367284281,
+    "dprime": 0.987532050330636,
+    "dprime_hi": 1.1651436652186584,
+    "dprime_lo": 0.814265495947546,
     "false_alarm": {
-     "den": 697.0,
-     "n": 74.0,
-     "share": 0.10616929698708752
+     "den": 722.0,
+     "n": 79.0,
+     "share": 0.10941828254847645
     },
-    "false_alarm_rate": 0.10673352435530085,
+    "false_alarm_rate": 0.10995850622406639,
     "hit": {
-     "den": 619.0,
-     "n": 255.0,
-     "share": 0.41195476575121165
+     "den": 639.0,
+     "n": 259.0,
+     "share": 0.405320813771518
     },
-    "hit_rate": 0.4120967741935484,
-    "missed_loss": 0.1520003154873848,
-    "missed_n": 364.0,
+    "hit_rate": 0.40546875,
+    "missed_loss": 0.14893774100040136,
+    "missed_n": 380.0,
     "na": null,
-    "needless_loss": 0.17457323017958049,
-    "needless_n": 74.0
+    "needless_loss": 0.17220298512072502,
+    "needless_n": 79.0
    },
    "size": {
     "bad": {
-     "mean": 8.859504132231406,
-     "n": 121.0,
+     "mean": 9.007936507936508,
+     "n": 126.0,
      "too_few": true
     },
     "right": {
-     "mean": 10.129807692307692,
-     "n": 208.0,
+     "mean": 10.273584905660377,
+     "n": 212.0,
      "too_few": false
     }
    },
    "stake": {
     "big": {
      "found": {
-      "den": 362.0,
-      "n": 151.0,
-      "share": 0.4171270718232044
+      "den": 369.0,
+      "n": 153.0,
+      "share": 0.4146341463414634
      },
      "missed": {
-      "den": 362.0,
-      "n": 194.0,
-      "share": 0.5359116022099447
+      "den": 369.0,
+      "n": 199.0,
+      "share": 0.5392953929539296
      },
-     "risk_pays": 362.0,
+     "risk_pays": 369.0,
      "wrong": {
-      "den": 362.0,
+      "den": 369.0,
       "n": 17.0,
-      "share": 0.04696132596685083
+      "share": 0.04607046070460705
      }
     },
     "medium": {
      "found": {
-      "den": 186.0,
+      "den": 195.0,
       "n": 46.0,
-      "share": 0.24731182795698925
+      "share": 0.2358974358974359
      },
      "missed": {
-      "den": 186.0,
-      "n": 120.0,
-      "share": 0.6451612903225806
+      "den": 195.0,
+      "n": 129.0,
+      "share": 0.6615384615384615
      },
-     "risk_pays": 186.0,
+     "risk_pays": 195.0,
      "wrong": {
-      "den": 186.0,
+      "den": 195.0,
       "n": 20.0,
-      "share": 0.10752688172043011
+      "share": 0.10256410256410256
      }
     },
     "small": {
      "found": {
-      "den": 71.0,
-      "n": 11.0,
-      "share": 0.15492957746478872
+      "den": 75.0,
+      "n": 13.0,
+      "share": 0.17333333333333334
      },
      "missed": {
-      "den": 71.0,
-      "n": 50.0,
-      "share": 0.704225352112676
+      "den": 75.0,
+      "n": 52.0,
+      "share": 0.6933333333333334
      },
-     "risk_pays": 71.0,
+     "risk_pays": 75.0,
      "wrong": {
-      "den": 71.0,
+      "den": 75.0,
       "n": 10.0,
-      "share": 0.14084507042253522
+      "share": 0.13333333333333333
      }
     }
    },
-   "trade_off": 1316.0,
+   "trade_off": 1361.0,
    "wrong": {
-    "den": 619.0,
+    "den": 639.0,
     "n": 47.0,
-    "share": 0.07592891760904685
+    "share": 0.07355242566510173
    }
   },
   "robust": {
    "by_call": {
-    "missed": 14.916323607774089,
-    "needless": 3.849835704556472,
-    "none": 3.6641988690940464,
-    "right_risk": 1.964901304403325,
-    "right_safety": 3.6979336796640756,
-    "wrong_risk": 2.72544141493915
+    "missed": 14.807128744594008,
+    "needless": 3.9202263768838375,
+    "none": 3.610234927670144,
+    "right_risk": 1.9068617921894782,
+    "right_safety": 3.6691977021261395,
+    "wrong_risk": 2.644936969277682
    },
    "calls": {
-    "missed": 314.0,
-    "needless": 95.0,
-    "right_risk": 185.0,
-    "right_safety": 673.0,
+    "missed": 328.0,
+    "needless": 102.0,
+    "right_risk": 187.0,
+    "right_safety": 695.0,
     "wrong_risk": 49.0
    },
    "confidence": {
-    "auroc_right_risk": 0.49682539682539684,
-    "missed_mean_p": 0.9997044425673104,
-    "missed_n": 270,
+    "auroc_right_risk": 0.5013281707262167,
+    "missed_mean_p": 0.9997104617554261,
+    "missed_n": 282,
     "taken_grouped": 38,
-    "taken_n": 291,
+    "taken_n": 300,
     "taken_other": 0
    },
-   "error_rate": 30.81863458043116,
+   "error_rate": 30.55858651274129,
    "found": {
-    "den": 548.0,
-    "n": 185.0,
-    "share": 0.3375912408759124
+    "den": 564.0,
+    "n": 187.0,
+    "share": 0.33156028368794327
    },
    "good": {
-    "den": 329.0,
-    "n": 185.0,
-    "share": 0.5623100303951368
+    "den": 338.0,
+    "n": 187.0,
+    "share": 0.5532544378698225
    },
-   "judgement": 60.69466621046229,
-   "judgement_hi": 62.97770265470564,
-   "judgement_lo": 58.360430414216154,
+   "judgement": 60.179017948512595,
+   "judgement_hi": 62.50739008748634,
+   "judgement_lo": 57.90114373877941,
    "judgement_na": null,
    "map": {
-    "wrong_share": 0.1349862258953168,
-    "x": 0.6624087591240876,
-    "y": 0.12369791666666667
+    "wrong_share": 0.129973474801061,
+    "x": 0.6684397163120568,
+    "y": 0.12797992471769135
    },
    "margin": 0.02,
    "missed": {
-    "den": 548.0,
-    "n": 314.0,
-    "share": 0.572992700729927
+    "den": 564.0,
+    "n": 328.0,
+    "share": 0.5815602836879432
    },
    "needless": {
-    "den": 768.0,
-    "n": 95.0,
-    "share": 0.12369791666666667
+    "den": 797.0,
+    "n": 102.0,
+    "share": 0.12797992471769135
    },
    "needless_by_loss": {
     "big": {
-     "den": 768.0,
-     "n": 54.0,
-     "share": 0.0703125
+     "den": 797.0,
+     "n": 56.0,
+     "share": 0.07026348808030113
     },
     "medium": {
-     "den": 768.0,
-     "n": 19.0,
-     "share": 0.024739583333333332
+     "den": 797.0,
+     "n": 21.0,
+     "share": 0.026348808030112924
     },
     "small": {
-     "den": 768.0,
-     "n": 22.0,
-     "share": 0.028645833333333332
+     "den": 797.0,
+     "n": 25.0,
+     "share": 0.03136762860727729
     }
    },
-   "no_trade_off": 491.0,
+   "no_trade_off": 501.0,
    "phases": {
     "bear-off": {
      "by_call": {
       "missed": 0.0,
       "needless": 0.0,
-      "none": 10.042372696539935,
+      "none": 9.925600920998773,
       "right_risk": 0.0,
       "right_safety": 0.0,
       "wrong_risk": 0.0
@@ -1983,7 +1983,7 @@
       "wrong_risk": 0.0
      },
      "confidence": null,
-     "error_rate": 10.042372696539935,
+     "error_rate": 9.925600920998773,
      "found": {
       "den": 0.0,
       "n": 0.0,
@@ -2025,7 +2025,7 @@
        "share": null
       }
      },
-     "no_trade_off": 170.0,
+     "no_trade_off": 172.0,
      "reference": null,
      "right_safety": {
       "den": 0.0,
@@ -2034,7 +2034,7 @@
      },
      "risk_pays": 0.0,
      "safety_pays": 0.0,
-     "scored": 170,
+     "scored": 172,
      "sdt": {
       "aim": {
        "den": 0.0,
@@ -2144,167 +2144,167 @@
     },
     "contact": {
      "by_call": {
-      "missed": 19.08886271444234,
-      "needless": 5.637862411412326,
-      "none": 1.2498628280379556,
-      "right_risk": 2.5267413800412957,
-      "right_safety": 4.610024351965297,
-      "wrong_risk": 3.3525953509590845
+      "missed": 18.90967825767958,
+      "needless": 5.75032917041223,
+      "none": 1.254807976843084,
+      "right_risk": 2.4531469709138793,
+      "right_safety": 4.578409856226417,
+      "wrong_risk": 3.2549469426787225
      },
      "calls": {
-      "missed": 231.0,
-      "needless": 80.0,
-      "right_risk": 119.0,
-      "right_safety": 526.0,
+      "missed": 241.0,
+      "needless": 84.0,
+      "right_risk": 120.0,
+      "right_safety": 542.0,
       "wrong_risk": 29.0
      },
      "confidence": {
-      "auroc_right_risk": null,
-      "missed_mean_p": 0.9996898113915068,
-      "missed_n": 203,
+      "auroc_right_risk": 0.47882672882672883,
+      "missed_mean_p": 0.9996965287358647,
+      "missed_n": 211,
       "taken_grouped": 30,
-      "taken_n": 198,
+      "taken_n": 203,
       "taken_other": 0
      },
-     "error_rate": 36.4659490368583,
+     "error_rate": 36.20131917475391,
      "found": {
-      "den": 379.0,
-      "n": 119.0,
-      "share": 0.31398416886543534
+      "den": 390.0,
+      "n": 120.0,
+      "share": 0.3076923076923077
      },
      "good": {
-      "den": 228.0,
-      "n": 119.0,
-      "share": 0.5219298245614035
+      "den": 233.0,
+      "n": 120.0,
+      "share": 0.5150214592274678
      },
-     "judgement": 59.09854837726516,
-     "judgement_hi": 61.7060325588414,
-     "judgement_lo": 56.61763159972857,
+     "judgement": 58.67535020889654,
+     "judgement_hi": 61.08991166756854,
+     "judgement_lo": 56.1657804562323,
      "judgement_na": null,
      "map": {
-      "wrong_share": 0.11153846153846154,
-      "x": 0.6860158311345647,
-      "y": 0.132013201320132
+      "wrong_share": 0.10740740740740741,
+      "x": 0.6923076923076923,
+      "y": 0.134185303514377
      },
      "margin": 0.02,
      "missed": {
-      "den": 379.0,
-      "n": 231.0,
-      "share": 0.6094986807387863
+      "den": 390.0,
+      "n": 241.0,
+      "share": 0.617948717948718
      },
      "needless": {
-      "den": 606.0,
-      "n": 80.0,
-      "share": 0.132013201320132
+      "den": 626.0,
+      "n": 84.0,
+      "share": 0.134185303514377
      },
      "needless_by_loss": {
       "big": {
-       "den": 606.0,
-       "n": 48.0,
-       "share": 0.07920792079207921
+       "den": 626.0,
+       "n": 50.0,
+       "share": 0.07987220447284345
       },
       "medium": {
-       "den": 606.0,
-       "n": 17.0,
-       "share": 0.028052805280528052
+       "den": 626.0,
+       "n": 18.0,
+       "share": 0.02875399361022364
       },
       "small": {
-       "den": 606.0,
-       "n": 15.0,
-       "share": 0.024752475247524754
+       "den": 626.0,
+       "n": 16.0,
+       "share": 0.025559105431309903
       }
      },
-     "no_trade_off": 115.0,
+     "no_trade_off": 117.0,
      "reference": null,
      "right_safety": {
-      "den": 606.0,
-      "n": 526.0,
-      "share": 0.8679867986798679
+      "den": 626.0,
+      "n": 542.0,
+      "share": 0.865814696485623
      },
-     "risk_pays": 379.0,
-     "safety_pays": 606.0,
-     "scored": 1100,
+     "risk_pays": 390.0,
+     "safety_pays": 626.0,
+     "scored": 1133,
      "sdt": {
       "aim": {
-       "den": 148.0,
-       "n": 119.0,
-       "share": 0.8040540540540541
+       "den": 149.0,
+       "n": 120.0,
+       "share": 0.8053691275167785
       },
-      "beta": 1.3636088949668816,
-      "caution": 0.6956779722184215,
-      "caution_hi": 0.8111771846529384,
-      "caution_lo": 0.5931495588165075,
-      "cstar": 0.37060580113219244,
+      "beta": 1.4004127277326448,
+      "caution": 0.7017176128039158,
+      "caution_hi": 0.8109079379176809,
+      "caution_lo": 0.603250276703241,
+      "cstar": 0.41843693115155955,
       "cstar_note": "unstable: fewer than 200 needless risks behind a mean cost",
       "cstar_status": "unstable",
-      "dprime": 0.8368319747358093,
-      "dprime_hi": 1.036927912050041,
-      "dprime_lo": 0.6257979526015502,
+      "dprime": 0.8048214046764975,
+      "dprime_hi": 0.999648356948859,
+      "dprime_lo": 0.6060529607821995,
       "false_alarm": {
-       "den": 606.0,
-       "n": 80.0,
-       "share": 0.132013201320132
+       "den": 626.0,
+       "n": 84.0,
+       "share": 0.134185303514377
       },
-      "false_alarm_rate": 0.1326194398682043,
+      "false_alarm_rate": 0.13476874003189793,
       "hit": {
-       "den": 379.0,
-       "n": 148.0,
-       "share": 0.39050131926121373
+       "den": 390.0,
+       "n": 149.0,
+       "share": 0.382051282051282
       },
-      "hit_rate": 0.3907894736842105,
-      "missed_loss": 0.18179869251849848,
-      "missed_n": 231.0,
+      "hit_rate": 0.38235294117647056,
+      "missed_loss": 0.17779805365934412,
+      "missed_n": 241.0,
       "na": null,
-      "needless_loss": 0.15504121631383896,
-      "needless_n": 80.0
+      "needless_loss": 0.1551219750018347,
+      "needless_n": 84.0
      },
      "size": {
       "bad": {
-       "mean": 7.89908256880734,
-       "n": 109.0,
+       "mean": 8.026548672566372,
+       "n": 113.0,
        "too_few": true
       },
       "right": {
-       "mean": 7.663865546218488,
-       "n": 119.0,
+       "mean": 7.691666666666666,
+       "n": 120.0,
        "too_few": true
       }
      },
      "stake": {
       "big": {
        "found": {
-        "den": 264.0,
-        "n": 102.0,
-        "share": 0.38636363636363635
+        "den": 268.0,
+        "n": 103.0,
+        "share": 0.3843283582089552
        },
        "missed": {
-        "den": 264.0,
-        "n": 143.0,
-        "share": 0.5416666666666666
+        "den": 268.0,
+        "n": 146.0,
+        "share": 0.5447761194029851
        },
-       "risk_pays": 264.0,
+       "risk_pays": 268.0,
        "wrong": {
-        "den": 264.0,
+        "den": 268.0,
         "n": 19.0,
-        "share": 0.07196969696969698
+        "share": 0.0708955223880597
        }
       },
       "medium": {
        "found": {
-        "den": 115.0,
+        "den": 122.0,
         "n": 17.0,
-        "share": 0.14782608695652175
+        "share": 0.13934426229508196
        },
        "missed": {
-        "den": 115.0,
-        "n": 88.0,
-        "share": 0.7652173913043478
+        "den": 122.0,
+        "n": 95.0,
+        "share": 0.7786885245901639
        },
-       "risk_pays": 115.0,
+       "risk_pays": 122.0,
        "wrong": {
-        "den": 115.0,
+        "den": 122.0,
         "n": 10.0,
-        "share": 0.08695652173913043
+        "share": 0.08196721311475409
        }
       },
       "small": {
@@ -2326,27 +2326,27 @@
        }
       }
      },
-     "trade_off": 985.0,
+     "trade_off": 1016.0,
      "wrong": {
-      "den": 379.0,
+      "den": 390.0,
       "n": 29.0,
-      "share": 0.07651715039577836
+      "share": 0.07435897435897436
      }
     },
     "holding": {
      "by_call": {
-      "missed": 5.9021266154301015,
-      "needless": 1.2860585142064977,
-      "none": 1.1958976586659749,
+      "missed": 5.691336379164741,
+      "needless": 1.2401278529848372,
+      "none": 1.153187027999333,
       "right_risk": 0.0,
-      "right_safety": 8.969085819927262,
+      "right_safety": 9.048384924729666,
       "wrong_risk": 0.0
      },
      "calls": {
       "missed": 11.0,
       "needless": 2.0,
       "right_risk": 3.0,
-      "right_safety": 59.0,
+      "right_safety": 62.0,
       "wrong_risk": 0.0
      },
      "confidence": {
@@ -2357,7 +2357,7 @@
       "taken_n": 5,
       "taken_other": 0
      },
-     "error_rate": 17.353168608229836,
+     "error_rate": 17.133036184878577,
      "found": {
       "den": 14.0,
       "n": 3.0,
@@ -2368,14 +2368,14 @@
       "n": 3.0,
       "share": 0.6
      },
-     "judgement": 59.074941451990625,
-     "judgement_hi": 69.95040446841294,
-     "judgement_lo": 48.148148148148145,
+     "judgement": 59.15178571428571,
+     "judgement_hi": 70.00324675324674,
+     "judgement_lo": 48.35997267759563,
      "judgement_na": null,
      "map": {
       "wrong_share": 0.0,
       "x": 0.7857142857142857,
-      "y": 0.03278688524590164
+      "y": 0.03125
      },
      "margin": 0.02,
      "missed": {
@@ -2384,59 +2384,59 @@
       "share": 0.7857142857142857
      },
      "needless": {
-      "den": 61.0,
+      "den": 64.0,
       "n": 2.0,
-      "share": 0.03278688524590164
+      "share": 0.03125
      },
      "needless_by_loss": {
       "big": {
-       "den": 61.0,
+       "den": 64.0,
        "n": 1.0,
-       "share": 0.01639344262295082
+       "share": 0.015625
       },
       "medium": {
-       "den": 61.0,
+       "den": 64.0,
        "n": 0.0,
        "share": 0.0
       },
       "small": {
-       "den": 61.0,
+       "den": 64.0,
        "n": 1.0,
-       "share": 0.01639344262295082
+       "share": 0.015625
       }
      },
      "no_trade_off": 6.0,
      "reference": null,
      "right_safety": {
-      "den": 61.0,
-      "n": 59.0,
-      "share": 0.9672131147540983
+      "den": 64.0,
+      "n": 62.0,
+      "share": 0.96875
      },
      "risk_pays": 14.0,
-     "safety_pays": 61.0,
-     "scored": 81,
+     "safety_pays": 64.0,
+     "scored": 84,
      "sdt": {
       "aim": {
        "den": 3.0,
        "n": 3.0,
        "share": 1.0
       },
-      "beta": 5.221757459279514,
-      "caution": 1.2374340962214447,
-      "caution_hi": 1.7666094727406203,
-      "caution_lo": 0.9111656440739193,
-      "cstar": 1.6219494924764026,
+      "beta": 5.478565203178507,
+      "caution": 1.248369164700175,
+      "caution_hi": 1.7838236239678251,
+      "caution_lo": 0.9115481613691364,
+      "cstar": 1.6339937043668702,
       "cstar_note": "unstable: fewer than 200 needless and missed risks behind a mean cost",
       "cstar_status": "unstable",
-      "dprime": 1.0190416106796012,
-      "dprime_hi": 1.8932374332582125,
-      "dprime_lo": 0.0883973199020308,
+      "dprime": 1.040911747637062,
+      "dprime_hi": 1.9154443887695956,
+      "dprime_lo": 0.027359536469007587,
       "false_alarm": {
-       "den": 61.0,
+       "den": 64.0,
        "n": 2.0,
-       "share": 0.03278688524590164
+       "share": 0.03125
       },
-      "false_alarm_rate": 0.04032258064516129,
+      "false_alarm_rate": 0.038461538461538464,
       "hit": {
        "den": 14.0,
        "n": 3.0,
@@ -2517,7 +2517,7 @@
        }
       }
      },
-     "trade_off": 75.0,
+     "trade_off": 78.0,
      "wrong": {
       "den": 14.0,
       "n": 0.0,
@@ -2526,167 +2526,167 @@
     },
     "opening": {
      "by_call": {
-      "missed": 21.150484623596014,
-      "needless": 2.5128715286844026,
-      "none": 0.2676604107079819,
-      "right_risk": 2.9774561351790854,
-      "right_safety": 3.4156116624596495,
-      "wrong_risk": 4.77613031173765
+      "missed": 20.99309629864163,
+      "needless": 2.519140088999713,
+      "none": 0.25675572730876783,
+      "right_risk": 2.856152366708826,
+      "right_safety": 3.2764571132483304,
+      "wrong_risk": 4.581547224963153
      },
      "calls": {
-      "missed": 72.0,
-      "needless": 13.0,
-      "right_risk": 63.0,
-      "right_safety": 88.0,
+      "missed": 76.0,
+      "needless": 16.0,
+      "right_risk": 64.0,
+      "right_safety": 91.0,
       "wrong_risk": 20.0
      },
      "confidence": {
       "auroc_right_risk": null,
       "missed_mean_p": null,
-      "missed_n": 56,
+      "missed_n": 60,
       "taken_grouped": 8,
-      "taken_n": 88,
+      "taken_n": 92,
       "taken_other": 0
      },
-     "error_rate": 35.100214672364785,
+     "error_rate": 34.48314881987042,
      "found": {
-      "den": 155.0,
-      "n": 63.0,
-      "share": 0.4064516129032258
+      "den": 160.0,
+      "n": 64.0,
+      "share": 0.4
      },
      "good": {
-      "den": 96.0,
-      "n": 63.0,
-      "share": 0.65625
+      "den": 100.0,
+      "n": 64.0,
+      "share": 0.64
      },
-     "judgement": 63.88693708080485,
-     "judgement_hi": 69.00039934154371,
-     "judgement_lo": 58.90092236558527,
+     "judgement": 62.523364485981304,
+     "judgement_hi": 67.5985540815212,
+     "judgement_lo": 57.322486389300884,
      "judgement_na": null,
      "map": {
-      "wrong_share": 0.21739130434782608,
-      "x": 0.5935483870967742,
-      "y": 0.12871287128712872
+      "wrong_share": 0.20833333333333334,
+      "x": 0.6,
+      "y": 0.14953271028037382
      },
      "margin": 0.02,
      "missed": {
-      "den": 155.0,
-      "n": 72.0,
-      "share": 0.4645161290322581
+      "den": 160.0,
+      "n": 76.0,
+      "share": 0.475
      },
      "needless": {
-      "den": 101.0,
-      "n": 13.0,
-      "share": 0.12871287128712872
+      "den": 107.0,
+      "n": 16.0,
+      "share": 0.14953271028037382
      },
      "needless_by_loss": {
       "big": {
-       "den": 101.0,
+       "den": 107.0,
        "n": 5.0,
-       "share": 0.04950495049504951
+       "share": 0.04672897196261682
       },
       "medium": {
-       "den": 101.0,
-       "n": 2.0,
-       "share": 0.019801980198019802
+       "den": 107.0,
+       "n": 3.0,
+       "share": 0.028037383177570093
       },
       "small": {
-       "den": 101.0,
-       "n": 6.0,
-       "share": 0.0594059405940594
+       "den": 107.0,
+       "n": 8.0,
+       "share": 0.07476635514018691
       }
      },
      "no_trade_off": 3.0,
      "reference": null,
      "right_safety": {
-      "den": 101.0,
-      "n": 88.0,
-      "share": 0.8712871287128713
+      "den": 107.0,
+      "n": 91.0,
+      "share": 0.8504672897196262
      },
-     "risk_pays": 155.0,
-     "safety_pays": 101.0,
-     "scored": 259,
+     "risk_pays": 160.0,
+     "safety_pays": 107.0,
+     "scored": 270,
      "sdt": {
       "aim": {
-       "den": 83.0,
-       "n": 63.0,
-       "share": 0.7590361445783133
+       "den": 84.0,
+       "n": 64.0,
+       "share": 0.7619047619047619
       },
-      "beta": 0.42877433554159017,
-      "caution": 0.5134236458275437,
-      "caution_hi": 0.6986429627537336,
-      "caution_lo": 0.3486869792226434,
-      "cstar": -0.7034434554997843,
+      "beta": 0.38118273860730767,
+      "caution": 0.48113780191667,
+      "caution_hi": 0.6590244418344278,
+      "caution_lo": 0.32324001310112305,
+      "cstar": -0.8873569260346374,
       "cstar_note": "unstable: fewer than 200 needless and missed risks behind a mean cost",
       "cstar_status": "unstable",
-      "dprime": 1.2038274238124849,
-      "dprime_hi": 1.6061470757896978,
-      "dprime_lo": 0.862584821535553,
+      "dprime": 1.0869091812468572,
+      "dprime_hi": 1.4677389914926258,
+      "dprime_lo": 0.7391564131551436,
       "false_alarm": {
-       "den": 101.0,
-       "n": 13.0,
-       "share": 0.12871287128712872
+       "den": 107.0,
+       "n": 16.0,
+       "share": 0.14953271028037382
       },
-      "false_alarm_rate": 0.1323529411764706,
+      "false_alarm_rate": 0.1527777777777778,
       "hit": {
-       "den": 155.0,
-       "n": 83.0,
-       "share": 0.535483870967742
+       "den": 160.0,
+       "n": 84.0,
+       "share": 0.525
       },
-      "hit_rate": 0.5352564102564102,
-      "missed_loss": 0.152165986597538,
-      "missed_n": 72.0,
+      "hit_rate": 0.5248447204968945,
+      "missed_loss": 0.14916147370087474,
+      "missed_n": 76.0,
       "na": null,
-      "needless_loss": 0.1001282655275785,
-      "needless_n": 13.0
+      "needless_loss": 0.08502097800374031,
+      "needless_n": 16.0
      },
      "size": {
       "bad": {
-       "mean": 11.121212121212121,
-       "n": 33.0,
+       "mean": 11.694444444444445,
+       "n": 36.0,
        "too_few": true
       },
       "right": {
-       "mean": 15.507936507936508,
-       "n": 63.0,
+       "mean": 15.625,
+       "n": 64.0,
        "too_few": true
       }
      },
      "stake": {
       "big": {
        "found": {
-        "den": 88.0,
-        "n": 38.0,
-        "share": 0.4318181818181818
+        "den": 91.0,
+        "n": 39.0,
+        "share": 0.42857142857142855
        },
        "missed": {
-        "den": 88.0,
-        "n": 44.0,
-        "share": 0.5
+        "den": 91.0,
+        "n": 46.0,
+        "share": 0.5054945054945055
        },
-       "risk_pays": 88.0,
+       "risk_pays": 91.0,
        "wrong": {
-        "den": 88.0,
+        "den": 91.0,
         "n": 6.0,
-        "share": 0.06818181818181818
+        "share": 0.06593406593406594
        }
       },
       "medium": {
        "found": {
-        "den": 67.0,
+        "den": 69.0,
         "n": 25.0,
-        "share": 0.373134328358209
+        "share": 0.36231884057971014
        },
        "missed": {
-        "den": 67.0,
-        "n": 28.0,
-        "share": 0.417910447761194
+        "den": 69.0,
+        "n": 30.0,
+        "share": 0.43478260869565216
        },
-       "risk_pays": 67.0,
+       "risk_pays": 69.0,
        "wrong": {
-        "den": 67.0,
+        "den": 69.0,
         "n": 14.0,
-        "share": 0.208955223880597
+        "share": 0.2028985507246377
        }
       },
       "small": {
@@ -2708,18 +2708,18 @@
        }
       }
      },
-     "trade_off": 256.0,
+     "trade_off": 267.0,
      "wrong": {
-      "den": 155.0,
+      "den": 160.0,
       "n": 20.0,
-      "share": 0.12903225806451613
+      "share": 0.125
      }
     },
     "race": {
      "by_call": {
       "missed": 0.0,
       "needless": 0.0,
-      "none": 17.12164025621366,
+      "none": 16.882585627692087,
       "right_risk": 0.0,
       "right_safety": 0.0,
       "wrong_risk": 0.0
@@ -2732,7 +2732,7 @@
       "wrong_risk": 0.0
      },
      "confidence": null,
-     "error_rate": 17.12164025621366,
+     "error_rate": 16.882585627692087,
      "found": {
       "den": 0.0,
       "n": 0.0,
@@ -2774,7 +2774,7 @@
        "share": null
       }
      },
-     "no_trade_off": 197.0,
+     "no_trade_off": 203.0,
      "reference": null,
      "right_safety": {
       "den": 0.0,
@@ -2783,7 +2783,7 @@
      },
      "risk_pays": 0.0,
      "safety_pays": 0.0,
-     "scored": 197,
+     "scored": 203,
      "sdt": {
       "aim": {
        "den": 0.0,
@@ -2894,94 +2894,94 @@
    },
    "reference": null,
    "right_safety": {
-    "den": 768.0,
-    "n": 673.0,
-    "share": 0.8763020833333334
+    "den": 797.0,
+    "n": 695.0,
+    "share": 0.8720200752823086
    },
-   "risk_pays": 548.0,
-   "safety_pays": 768.0,
-   "scored": 1807,
+   "risk_pays": 564.0,
+   "safety_pays": 797.0,
+   "scored": 1862,
    "sdt": {
     "aim": {
-     "den": 234.0,
-     "n": 185.0,
-     "share": 0.7905982905982906
+     "den": 236.0,
+     "n": 187.0,
+     "share": 0.7923728813559322
     },
-    "beta": 1.1955482375000537,
-    "caution": 0.668983071000082,
-    "caution_hi": 0.7594063732911189,
-    "caution_lo": 0.5848191856875816,
-    "cstar": 0.18400599217744265,
+    "beta": 1.2030763327765504,
+    "caution": 0.6696421275336257,
+    "caution_hi": 0.7606681244359034,
+    "caution_lo": 0.5844679990840195,
+    "cstar": 0.1991725019049361,
     "cstar_note": "unstable: fewer than 200 needless risks behind a mean cost",
     "cstar_status": "unstable",
-    "dprime": 0.9706469567377465,
-    "dprime_hi": 1.161043186221602,
-    "dprime_lo": 0.7837071597595786,
+    "dprime": 0.9282500607682952,
+    "dprime_hi": 1.1089240894513093,
+    "dprime_lo": 0.7398841926727743,
     "false_alarm": {
-     "den": 768.0,
-     "n": 95.0,
-     "share": 0.12369791666666667
+     "den": 797.0,
+     "n": 102.0,
+     "share": 0.12797992471769135
     },
-    "false_alarm_rate": 0.12418725617685306,
+    "false_alarm_rate": 0.12844611528822056,
     "hit": {
-     "den": 548.0,
-     "n": 234.0,
-     "share": 0.42700729927007297
+     "den": 564.0,
+     "n": 236.0,
+     "share": 0.41843971631205673
     },
-    "hit_rate": 0.42714025500910746,
-    "missed_loss": 0.17168023413533617,
-    "missed_n": 314.0,
+    "hit_rate": 0.41858407079646015,
+    "missed_loss": 0.16811508367337832,
+    "missed_n": 328.0,
     "na": null,
-    "needless_loss": 0.14645585511860096,
-    "needless_n": 95.0
+    "needless_loss": 0.1431266963481903,
+    "needless_n": 102.0
    },
    "size": {
     "bad": {
-     "mean": 8.73611111111111,
-     "n": 144.0,
+     "mean": 8.993377483443709,
+     "n": 151.0,
      "too_few": true
     },
     "right": {
-     "mean": 10.383783783783784,
-     "n": 185.0,
+     "mean": 10.454545454545455,
+     "n": 187.0,
      "too_few": true
     }
    },
    "stake": {
     "big": {
      "found": {
-      "den": 362.0,
-      "n": 143.0,
-      "share": 0.39502762430939226
+      "den": 369.0,
+      "n": 145.0,
+      "share": 0.39295392953929537
      },
      "missed": {
-      "den": 362.0,
-      "n": 194.0,
-      "share": 0.5359116022099447
+      "den": 369.0,
+      "n": 199.0,
+      "share": 0.5392953929539296
      },
-     "risk_pays": 362.0,
+     "risk_pays": 369.0,
      "wrong": {
-      "den": 362.0,
+      "den": 369.0,
       "n": 25.0,
-      "share": 0.06906077348066299
+      "share": 0.06775067750677506
      }
     },
     "medium": {
      "found": {
-      "den": 186.0,
+      "den": 195.0,
       "n": 42.0,
-      "share": 0.22580645161290322
+      "share": 0.2153846153846154
      },
      "missed": {
-      "den": 186.0,
-      "n": 120.0,
-      "share": 0.6451612903225806
+      "den": 195.0,
+      "n": 129.0,
+      "share": 0.6615384615384615
      },
-     "risk_pays": 186.0,
+     "risk_pays": 195.0,
      "wrong": {
-      "den": 186.0,
+      "den": 195.0,
       "n": 24.0,
-      "share": 0.12903225806451613
+      "share": 0.12307692307692308
      }
     },
     "small": {
@@ -3003,11 +3003,11 @@
      }
     }
    },
-   "trade_off": 1316.0,
+   "trade_off": 1361.0,
    "wrong": {
-    "den": 548.0,
+    "den": 564.0,
     "n": 49.0,
-    "share": 0.08941605839416059
+    "share": 0.08687943262411348
    }
   }
  },
@@ -3020,28 +3020,28 @@
    "too_few": true
   },
   "blitz": {
-   "error_rate": 36.278254363641324,
-   "n": 251,
+   "error_rate": 35.62717261481378,
+   "n": 257,
    "too_few": false
   },
   "holding": {
-   "error_rate": 17.353168608229836,
-   "n": 81,
+   "error_rate": 17.133036184878577,
+   "n": 84,
    "too_few": true
   },
   "low-anchor": {
-   "error_rate": 33.888411419144994,
-   "n": 319,
+   "error_rate": 34.21386520364391,
+   "n": 335,
    "too_few": false
   },
   "other": {
-   "error_rate": 49.110450589929826,
-   "n": 131,
+   "error_rate": 47.16532878632093,
+   "n": 137,
    "too_few": true
   },
   "priming": {
-   "error_rate": 33.51259793482679,
-   "n": 358,
+   "error_rate": 33.52974273120733,
+   "n": 363,
    "too_few": false
   }
  },
