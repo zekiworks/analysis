@@ -138,6 +138,7 @@
       if (k === d.chosen) marks.push(d.invalid ? '<span class="dec-tag dec-tag-random">random play (invalid answer)</span>'
         : `<span class="dec-tag dec-tag-chosen">${d.program ? 'played' : "model's choice"}</span>`);
       if (p.loss === 0 || k === d.best) marks.push('<span class="dec-tag dec-tag-best">engine\'s best</span>');
+      if (d.close && (k === d.close.c1 || k === d.close.c2)) marks.push(`<span class="dec-tag dec-tag-close">${k === d.close.c1 ? 'most likely' : 'second most likely'}</span>`);
       const cls = [k === d.chosen ? 'is-chosen' : '', k === d.best ? 'is-best' : ''].filter(Boolean).join(' ');
       const prob = p.probability === null ? nm('\u2014') : `${(100 * p.probability).toFixed(1)}%`;
       return `<tr${cls ? ` class="${cls}"` : ''}><td class="dec-letter">${p.letter === null ? '' : esc(p.letter)}</td>` +
@@ -219,6 +220,7 @@
         (safe.loss === null ? '' : `, equity lost ${fixed(safe.loss, 3)}`));
     }
     add('Risk call', riskText(d));
+    if (!d.program && d.league !== null) add('Close choice', closeText(d));
     if (!d.program) {
       add('Option groups', d.group_size
         ? `split into groups of ${count(d.group_size)}; the group winners were compared`
@@ -246,11 +248,21 @@
     return `${kind} ${esc(CALL[d.risk.call])}, ${stake}${band}${esc(robust)}`;
   }
 
+  /* Close choices (Method spec 2026-10-24 §9): p1, p2 and both candidate plays of an eligible decision. */
+  const CLOSE_LABEL = 'Probabilities over plays, not sampled reasoning.';
+  function closeText(d) {
+    if (!d.close) return nm('N/A: no full probability distribution for this decision');
+    const c = d.close, a = d.plays[c.c1], b = d.plays[c.c2];
+    const play = p => `${p.letter ? `${esc(p.letter)}: ` : ''}<code>${esc(p.notation)}</code>`;
+    return `${c.close ? '<strong>yes</strong>' : 'no'}: p1 ${fixed(c.p1, 4)} (${play(a)}), p2 ${fixed(c.p2, 4)} (${play(b)}); ` +
+      `p1 + p2 ${fixed(c.p1 + c.p2, 4)}. <span class="small">${esc(CLOSE_LABEL)}</span>`;
+  }
+
   function card(d, dataset) {
     const where = d.league === null
       ? `${esc(dataset.label)} \u00b7 position ${esc(d.id)} \u00b7 turn ${d.turn_no}`
       : `${esc(dataset.label)} \u00b7 game ${d.game} \u00b7 turn ${d.turn_no}`;
-    const link = `${linkFor({ ...view, p: d._page || view.p, r: 'all', c: 'all', b: 'all' })}#d${encodeURIComponent(d.id)}`;
+    const link = `${linkFor({ ...view, p: d._page || view.p, r: 'all', c: 'all', b: 'all', k: 'all' })}#d${encodeURIComponent(d.id)}`;
     const flag = d.invalid
       ? `<p class="dec-flag">${d.chosen === null ? "Invalid answer: no play was chosen; it does not count as the model's choice."
         : "Invalid answer: the runner played a random legal play; it does not count as the model's choice."}</p>` : '';
@@ -265,7 +277,7 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
   /* State and URL. */
   function readURL() {
     const q = new URLSearchParams(location.search);
-    return { d: q.get('d'), s: q.get('s'), p: Number.parseInt(q.get('p'), 10) || 1, r: q.get('r') || 'all', c: q.get('c') || 'all', b: q.get('b') || 'all' };
+    return { d: q.get('d'), s: q.get('s'), p: Number.parseInt(q.get('p'), 10) || 1, r: q.get('r') || 'all', c: q.get('c') || 'all', b: q.get('b') || 'all', k: q.get('k') || 'all' };
   }
 
   function linkFor(v) {
@@ -273,6 +285,7 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
     if (v.r && v.r !== 'all') q.r = v.r;
     if (v.c && v.c !== 'all') q.c = v.c;
     if (v.b && v.b !== 'all') q.b = v.b;
+    if (v.k && v.k !== 'all') q.k = v.k;
     return `?${new URLSearchParams(q)}`;
   }
 
@@ -283,10 +296,13 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
     const r = ['risk', 'safety', 'none'].includes(wanted.r) ? wanted.r : 'all';
     const c = r !== 'none' && Object.values(CALL_CODE).includes(wanted.c) ? wanted.c : 'all';
     const b = r !== 'none' && ['s', 'm', 'b'].includes(wanted.b) ? wanted.b : 'all';
-    return { d: dataset.id, s: setup ? setup.slug : '', p: Math.max(1, wanted.p || 1), r, c, b, dataset, setup };
+    const cc = setup && setup.risk && setup.risk.close;
+    const k = cc && cc.close + cc.other > 0 && ['close', 'other'].includes(wanted.k) ? wanted.k : 'all';
+    return { d: dataset.id, s: setup ? setup.slug : '', p: Math.max(1, wanted.p || 1), r, c, b, k, dataset, setup };
   }
 
-  const filtered = v => v.r !== 'all' || v.c !== 'all' || v.b !== 'all';
+  const filtered = v => v.r !== 'all' || v.c !== 'all' || v.b !== 'all' || v.k !== 'all';
+  const CLOSE_FILTER = { close: 'close choices', other: 'not close choices (full distribution)' };
 
   /* The dataset, setup, filters and page in view, for the table and page PNGs (png.js). */
   const STAKE_BAND = { s: 'small (below 0.02)', m: 'medium (0.02 to 0.08)', b: 'big (above 0.08)' };
@@ -297,6 +313,7 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
       league: view.dataset.label,
       filters: [`Setup: ${view.setup ? view.setup.name : ''}`, view.r !== 'all' && `Position class: ${KIND[view.r]}`,
         call && `Risk call: ${CALL[call]}`, view.b !== 'all' && `Stake, or equity lost by a needless risk: ${STAKE_BAND[view.b]}`,
+        view.k !== 'all' && `Close choice: ${CLOSE_FILTER[view.k]}`,
         view.pages && `page ${count(view.p)} of ${count(view.pages)}`].filter(Boolean),
     };
   };
@@ -312,8 +329,9 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
 
   function matches(rows, v) {
     const code = { risk: 'r', safety: 's', none: 'n' }[v.r];
-    return rows.filter(([, , cls, call, band]) => cls !== null && (!code || cls === code) &&
-      (v.c === 'all' || call === v.c) && (v.b === 'all' || band === v.b));
+    const close = { close: 1, other: 0 }[v.k];
+    return rows.filter(([, , cls, call, band, cc]) => cls !== null && (!code || cls === code) &&
+      (v.c === 'all' || call === v.c) && (v.b === 'all' || band === v.b) && (close === undefined || cc === close));
   }
 
   function pager(v) {
@@ -339,6 +357,11 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
       .map(([k, l]) => `<option value="${k}"${k === v.c ? ' selected' : ''}>${esc(l)}</option>`).join('');
     const bandOptions = [['all', 'Any size'], ...Object.entries(STAKE_BAND)]
       .map(([k, l]) => `<option value="${k}"${k === v.b ? ' selected' : ''}>${esc(l)}</option>`).join('');
+    const cc = rc.close || { close: 0, other: 0 };
+    const hasClose = cc.close + cc.other > 0;
+    const closeOptions = (hasClose ? [['all', 'All decisions'], ['close', `Close choices (${count(cc.close)})`],
+      ['other', `Not close choices (${count(cc.other)})`]] : [['all', 'N/A: no full probability distribution']])
+      .map(([k, l]) => `<option value="${k}"${k === v.k ? ' selected' : ''}>${esc(l)}</option>`).join('');
     const statusClass = v.dataset.status.split(/[ (:]/)[0].toLowerCase();
     controls.innerHTML = `<div class="filters-bar">
 <label class="group"><span class="group-label">Dataset</span><select id="dec-dataset">${datasetOptions}</select></label>
@@ -346,9 +369,11 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
 <label class="group"><span class="group-label">Position class</span><select id="dec-kind">${kindOptions}</select></label>
 <label class="group"><span class="group-label">Risk call</span><select id="dec-call"${v.r === 'none' ? ' disabled' : ''}>${callOptions}</select></label>
 <label class="group"><span class="group-label">Stake, or equity lost by a needless risk</span><select id="dec-band"${v.r === 'none' ? ' disabled' : ''}>${bandOptions}</select></label>
+<label class="group"><span class="group-label">Close choice</span><select id="dec-close"${hasClose ? '' : ' disabled'}>${closeOptions}</select></label>
 <span class="status status-${esc(statusClass)}">${esc(v.dataset.badge)}</span></div>
 ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
 <p class="note dec-note">Position class, stake and risk call as defined in <a href="../method/#risk">Method</a>; hit risk only: gammon risk and priming are not in it.</p>
+${v.k !== 'all' ? `<p class="note dec-note">Close choice: the second most likely play has at least half the probability of the first (<a href="../method/#close-choices">Method</a>). Each decision shows p1, p2 and both plays. ${esc(CLOSE_LABEL)}</p>` : ''}
 <nav class="dec-pager" aria-label="Pages">${pager(v)}</nav>`;
     controls.hidden = false;
     pagerBottom.innerHTML = pager(v);
@@ -452,7 +477,7 @@ ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
     if (p) show({ ...pick(view), p }, 'push');
   }
 
-  const pick = v => ({ d: v.d, s: v.s, p: v.p, r: v.r, c: v.c, b: v.b });
+  const pick = v => ({ d: v.d, s: v.s, p: v.p, r: v.r, c: v.c, b: v.b, k: v.k });
 
   controls.addEventListener('click', onPagerClick);
   pagerBottom.addEventListener('click', onPagerClick);
@@ -462,6 +487,7 @@ ${v.dataset.note ? `<p class="note dec-note">${esc(v.dataset.note)}</p>` : ''}
     else if (event.target.id === 'dec-kind') show({ ...pick(view), p: 1, r: event.target.value }, 'push');
     else if (event.target.id === 'dec-call') show({ ...pick(view), p: 1, c: event.target.value }, 'push');
     else if (event.target.id === 'dec-band') show({ ...pick(view), p: 1, b: event.target.value }, 'push');
+    else if (event.target.id === 'dec-close') show({ ...pick(view), p: 1, k: event.target.value }, 'push');
     else onPagerChange(event);
   });
   pagerBottom.addEventListener('change', onPagerChange);

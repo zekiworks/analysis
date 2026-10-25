@@ -118,7 +118,6 @@ main > details.about { max-width: 1100px; margin: 1rem auto 0; padding: 0 .25rem
 body.home .hero.hero-split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-areas: none;
   grid-template-rows: auto; gap: 1.5rem 2rem; align-items: center; max-width: 1180px; margin: 0 auto 1.25rem; text-align: left; }
 .hero-split .readout-row, .hero-split .readouts { justify-content: flex-start; }
-.hero .subtitle { font-size: 1.08rem; margin: 0 0 .6rem; }
 .hero-links { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .6rem; }
 .hero-links .key { text-decoration: none; padding: .3rem .8rem; border: 1px solid var(--control-edge); color: var(--text); font-size: .85rem; }
 .hero-links .key:hover { border-color: var(--accent); color: var(--accent); }
@@ -161,6 +160,18 @@ tr.reference > td { font-style: italic; }
 .chart-svg .rm-name { font-size: 10px; }
 .rm-cautious { background: var(--reading); }
 .rm-wrong { background: var(--wrong); }
+/* Ability and caution (reviewed brief 24 Oct 2026, item 4): the cost-derived SDT reference mark, only where valid. */
+.chart-svg[data-chart="sdt"] .rm-dot { fill: var(--reading); }
+.chart-svg .sdt-ref { stroke: var(--wrong); stroke-width: 2.5; }
+.chart-svg .sdt-link { stroke: var(--wrong); stroke-width: 1; stroke-dasharray: 2 3; opacity: .6; }
+.chart-svg .axis0 { stroke: var(--text-2); opacity: .55; }
+.sdt-swatch { background: var(--wrong); height: .2rem; vertical-align: .2rem; }
+.mini-rel, .mini-hist { display: block; margin-top: .2rem; }
+.mini-rel .rel-diag { stroke: var(--text-2); stroke-dasharray: 2 3; opacity: .5; }
+.mini-rel polyline { fill: none; stroke-width: 1.6; }
+.mini-rel .rel-before { stroke: var(--reading); }
+.mini-rel .rel-after { stroke: var(--wrong); stroke-dasharray: 4 2; }
+.mini-hist .hist-bar { fill: var(--reading); }
 .sp-needless { fill: var(--bad); background: var(--bad); }
 .sp-missed { fill: var(--reading); background: var(--reading); }
 .sp-wrong { fill: var(--grammar); background: var(--grammar); }
@@ -181,3 +192,16 @@ td.heat { background-image: linear-gradient(color-mix(in srgb, var(--good-soft) 
 .charts .league-view .block { margin-top: 0; }
 ul.league-notes { margin: .25rem 0 .75rem; padding-left: 1.1rem; }
 .also-league { color: var(--accent); }
+/* Close choices (Method spec 2026-10-24 §9): neutral colours; a share of close choices is neither good nor bad. */
+.ccs-small { fill: var(--data-chat); background: var(--data-chat); }
+.ccs-medium { fill: var(--reading); background: var(--reading); }
+.ccs-big { fill: var(--grammar); background: var(--grammar); }
+th .th-note { display: block; font-weight: 400; font-size: .72rem; color: var(--text-2); max-width: 14rem; white-space: normal; }
+th[data-nosort] { cursor: default; }
+.cc-list { display: grid; gap: .35rem; margin: .4rem 0 .6rem; }
+details.cc-details { border: 1px solid var(--edge); border-radius: 6px; padding: .35rem .7rem; background: var(--panel); }
+details.cc-details > summary { cursor: pointer; font-size: .9rem; }
+details.cc-details:target, details.cc-details[open] { border-color: var(--accent); }
+.cc-body h4 { margin: .7rem 0 .25rem; font-size: .9rem; }
+.cc-body p { margin: .2rem 0 .4rem; font-size: .88rem; }
+a.cc-open { font-weight: 600; }

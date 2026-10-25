@@ -260,11 +260,14 @@ async function downloadChart(panel) {
     versionLine,
     location.origin + location.pathname,
   ];
-  const head = 28, foot = lines.length * 16 + 12;
+  if (svg.dataset.note) lines.unshift(...svg.dataset.note.split(' | '));
+  const site = `${document.body.dataset.siteTitle || ''} ${document.body.dataset.siteSubtitle || ''}`.trim();
+  const head = site ? 46 : 28, foot = lines.length * 16 + 12;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const markup = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height + head + foot}">` +
     `<rect width="100%" height="100%" fill="${bg}"/>` +
-    `<text x="10" y="19" font-family="${font}" font-size="14" font-weight="700" fill="${text}">${esc(title)}</text>` +
+    (site ? `<text x="10" y="19" font-family="${font}" font-size="13" font-weight="700" fill="${text}">${esc(site)}</text>` : '') +
+    `<text x="10" y="${head - 9}" font-family="${font}" font-size="14" font-weight="700" fill="${text}">${esc(title)}</text>` +
     `<g transform="translate(0 ${head})">${clone.innerHTML}</g>` +
     lines.map((l, i) => `<text x="10" y="${height + head + 16 + i * 16}" font-family="${font}" font-size="11" fill="${text2}">${esc(l)}</text>`).join('') +
     '</svg>';

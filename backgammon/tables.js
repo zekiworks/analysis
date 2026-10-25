@@ -3,7 +3,7 @@
 /* Every page: tables come first and answer clicks.
    - Click (or Enter on) a column header to sort by it: ascending, then descending, then the build's order. Numbers sort
      as numbers (the small second line of a cell, such as an interval, is ignored); status words such as "Too few
-     decisions" or "N/A" always go last.
+     decisions" or "N/A" always go last. A header with data-nosort never sorts (Close choices: never ranked).
    - Click a row to open what it is about: its data-href, else the first link in the row (a setup's page, a decision,
      a league). Clicks on links, buttons and form fields keep their own meaning; Ctrl/Cmd-click opens a new tab.
    - A link to an anchor inside a closed <details> opens it.
@@ -63,7 +63,7 @@
   }
 
   function prepare(root) {
-    root.querySelectorAll('thead th:not([tabindex])').forEach(th => {
+    root.querySelectorAll('thead th:not([tabindex]):not([data-nosort])').forEach(th => {
       th.tabIndex = 0;
       th.title = 'Sort by this column';
     });
@@ -71,7 +71,7 @@
 
   document.addEventListener('click', event => {
     const th = event.target.closest('thead th');
-    if (th) { sortBy(th); return; }
+    if (th) { if (!th.hasAttribute('data-nosort')) sortBy(th); return; }
     const row = event.target.closest('tbody tr');
     if (!row || event.target.closest('a, button, select, input, label, summary')) return;
     if (String(window.getSelection())) return;
@@ -83,7 +83,7 @@
   });
   document.addEventListener('keydown', event => {
     const th = event.target.closest && event.target.closest('thead th');
-    if (th && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); sortBy(th); }
+    if (th && !th.hasAttribute('data-nosort') && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); sortBy(th); }
   });
 
   prepare(document);

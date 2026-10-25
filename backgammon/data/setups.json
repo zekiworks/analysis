@@ -1123,13 +1123,13 @@
    "weights": "open"
   },
   {
-   "confidence_source": "none",
+   "confidence_source": "letter probability",
    "dataset": "league-2",
    "date_run": null,
    "missing": [],
    "model": "Gemma 4 31B",
    "model_id": "gemma-4-31B-it",
-   "model_type": "chat model, one letter",
+   "model_type": "chat model, answer-letter probabilities",
    "name": "Gemma 4 31B (on)",
    "notes": "moved between our GPUs and a DGX Spark during the league with the same image, checkpoint and arguments",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
@@ -1160,13 +1160,13 @@
    "weights": "open"
   },
   {
-   "confidence_source": "none",
+   "confidence_source": "letter probability",
    "dataset": "league-2",
    "date_run": null,
    "missing": [],
    "model": "Gemma 4 31B",
    "model_id": "gemma-4-31B-it",
-   "model_type": "chat model, one letter",
+   "model_type": "chat model, answer-letter probabilities",
    "name": "Gemma 4 31B (off)",
    "notes": "moved between our GPUs and a DGX Spark during the league with the same image, checkpoint and arguments",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
@@ -1197,13 +1197,13 @@
    "weights": "open"
   },
   {
-   "confidence_source": "none",
+   "confidence_source": "letter probability",
    "dataset": "league-2",
    "date_run": null,
    "missing": [],
    "model": "Qwen3.8-27B",
    "model_id": "qwen3.8-27b",
-   "model_type": "chat model, one letter",
+   "model_type": "chat model, answer-letter probabilities",
    "name": "Qwen3.8-27B (off)",
    "notes": "Cerebras via OpenRouter (model ID qwen/qwen3.8-27b, fp16) before 19 Oct 22:26 UTC, where it finished no match; then on our GPU (vLLM, fp16); unconstrained letter",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
@@ -1234,13 +1234,13 @@
    "weights": "open"
   },
   {
-   "confidence_source": "none",
+   "confidence_source": "letter probability",
    "dataset": "league-2",
    "date_run": null,
    "missing": [],
    "model": "Qwen3.8-27B",
    "model_id": "qwen3.8-27b",
-   "model_type": "chat model, one letter",
+   "model_type": "chat model, answer-letter probabilities",
    "name": "Qwen3.8-27B (on)",
    "notes": "Cerebras via OpenRouter (model ID qwen/qwen3.8-27b, fp16) before 19 Oct 22:26 UTC, where it finished no match (its first 4 decisions came from there); then on our GPU (vLLM, fp16); letter read from a prefilled Answer: after the reasoning",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",

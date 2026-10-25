@@ -425,6 +425,8 @@
   const versionLine = () => clean((document.querySelector('.hero .version') || document.querySelector('.footer p:last-child'))?.textContent || '').replace(/\.$/, '');
   const view = () => (typeof window.pngView === 'function' ? window.pngView() : {}) || {};
   const pageTitle = () => clean(document.querySelector('main h1')?.textContent || document.title.replace(/ · Zeki Works$/, ''));
+  /* The site's title and subtitle (pages.TITLE, pages.SUBTITLE), the first header line of every PNG. */
+  const siteHead = () => clean(`${document.body.dataset.siteTitle || ''} ${document.body.dataset.siteSubtitle || ''}`);
 
   function leagueOf(table) {
     const ds = table.closest('[data-league-view]')?.dataset.leagueView || table.dataset.dataset
@@ -545,7 +547,7 @@
     const filters = v.filters || [];
     const where = anchorOf(wrap);
     const crumbs = headings(block);
-    const head = [[pageTitle(), ...crumbs].filter((s, i, a) => s && a.indexOf(s) === i).join(' · ')];
+    const head = [siteHead(), [pageTitle(), ...crumbs].filter((s, i, a) => s && s !== document.body.dataset.siteTitle && a.indexOf(s) === i).join(' · ')].filter(Boolean);
     const foot = [
       [league, margin && `margin ${margin}`, `${c.shown === c.rows ? c.shown.toLocaleString('en') : `${c.shown.toLocaleString('en')} of ${c.rows.toLocaleString('en')}`} rows shown`, c.decisions]
         .filter(Boolean).join(' · '),
@@ -627,7 +629,7 @@
       location.href,
     ];
     const bg = backgroundOf(document.body);
-    const canvases = await compose({ ops, region, bg, foot, pad: 0, minWidth: 0, scale: doc.clientWidth <= 800 ? 2 : 1.5 });
+    const canvases = await compose({ ops, region, bg, head: [siteHead()].filter(Boolean), foot, pad: 0, minWidth: 0, scale: doc.clientWidth <= 800 ? 2 : 1.5 });
     await save(canvases, `backgammon-page-${pageName()}-${theme().split(' ')[0].toLowerCase()}-${doc.clientWidth}px`);
   }
 
