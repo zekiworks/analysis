@@ -205,3 +205,18 @@ details.cc-details:target, details.cc-details[open] { border-color: var(--accent
 .cc-body h4 { margin: .7rem 0 .25rem; font-size: .9rem; }
 .cc-body p { margin: .2rem 0 .4rem; font-size: .88rem; }
 a.cc-open { font-weight: 600; }
+/* Close choices, stage B (home.close_b_section): exact agreement against each team's own shuffled baseline. */
+.chart-svg .ccb-band { fill: color-mix(in srgb, var(--reading) 28%, transparent); }
+.chart-svg .ccb-mean { stroke: var(--text-2); stroke-width: 2; }
+.chart-svg .ccb-dot { stroke: var(--reading); stroke-width: 2; }
+.chart-svg .ccb-above { fill: var(--reading); }
+.chart-svg .ccb-within, .chart-svg .ccb-below { fill: var(--panel); }
+.swatch.ccb-band { background: color-mix(in srgb, var(--reading) 28%, transparent); }
+.swatch.ccb-mean { width: .2rem; background: var(--text-2); }
+.swatch.ccb-dot { border-radius: 50%; box-sizing: border-box; border: 2px solid var(--reading); }
+.swatch.ccb-above { background: var(--reading); }
+.swatch.ccb-within { background: var(--panel); }
+#chart-close-b { margin: 1rem 0 .5rem; }
+#close-b-table tbody th { background: var(--panel); box-shadow: inset -1px 0 0 var(--edge); text-align: left; }
+#close-b-table tbody tr:nth-child(even) > th { background: var(--zebra); }
+#close-b-table thead th[data-nosort] { cursor: default; }

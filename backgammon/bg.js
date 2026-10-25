@@ -236,6 +236,34 @@ async function downloadChart(panel) {
   const view = [...panel.querySelectorAll('[data-league-view]')].find(v => !v.hasAttribute('data-off'));
   const svg = view && [...view.querySelectorAll('.chart-view')].find(v => !v.hidden)?.querySelector('svg');
   if (!svg) return;
+  const versionLine = document.querySelector('.hero .version')?.textContent.trim() || '';
+  const margin = svg.dataset.margin === 'robust' ? '0.02' : '0.001';
+  const league = document.querySelector(`[data-league-pick="${HOME.league}"]`)?.textContent.trim() || '';
+  const title = panel.querySelector('h2').textContent.trim() + ': ' + (panel.querySelector('[data-chart-tab][aria-pressed="true"]')?.textContent.trim() || '');
+  const filters = activeFilters();
+  const lines = [
+    `${league} · margin ${margin} · ${Number(svg.dataset.shown || svg.dataset.decisions).toLocaleString('en')} decisions behind the rows shown`,
+    `Filters: ${filters.length ? filters.join(' · ') : 'none (all setups, all phases)'}${HOME.showAll ? '' : ` · first ${TOP_N} model setups`}`,
+    versionLine,
+    location.origin + location.pathname,
+  ];
+  if (svg.dataset.note) lines.unshift(...svg.dataset.note.split(' | '));
+  await savePng(panel, svg, title, lines, `backgammon-${panel.id}-${HOME.league}-${margin}.png`);
+}
+
+/* A chart outside the league views (Close choices, stage B): one SVG, no league, margin or filters; its note, the
+   results version and the address under it. */
+document.querySelectorAll('[data-static-chart]').forEach(fig => {
+  fig.querySelector('[data-download-static]')?.addEventListener('click', () => {
+    const svg = fig.querySelector('svg.chart-svg');
+    const lines = [...(svg.dataset.note ? svg.dataset.note.split(' | ') : []),
+      document.querySelector('.hero .version')?.textContent.trim() || '', location.origin + location.pathname];
+    savePng(fig, svg, fig.querySelector('h2, h3').textContent.trim(), lines, `backgammon-${fig.id}.png`);
+  });
+});
+
+/* The SVG in the theme in view, the site title and chart title above it, the lines in small type under it. */
+async function savePng(panel, svg, title, lines, filename) {
   const box = svg.viewBox.baseVal;
   const width = box.width, height = box.height;
   const clone = svg.cloneNode(true);
@@ -249,18 +277,6 @@ async function downloadChart(panel) {
   const text = css.getPropertyValue('--text').trim(), text2 = css.getPropertyValue('--text-2').trim();
   const bg = getComputedStyle(panel).backgroundColor;
   const font = getComputedStyle(document.body).fontFamily.replace(/"/g, "'");
-  const versionLine = document.querySelector('.hero .version')?.textContent.trim() || '';
-  const margin = svg.dataset.margin === 'robust' ? '0.02' : '0.001';
-  const league = document.querySelector(`[data-league-pick="${HOME.league}"]`)?.textContent.trim() || '';
-  const title = panel.querySelector('h2').textContent.trim() + ': ' + (panel.querySelector('[data-chart-tab][aria-pressed="true"]')?.textContent.trim() || '');
-  const filters = activeFilters();
-  const lines = [
-    `${league} · margin ${margin} · ${Number(svg.dataset.shown || svg.dataset.decisions).toLocaleString('en')} decisions behind the rows shown`,
-    `Filters: ${filters.length ? filters.join(' · ') : 'none (all setups, all phases)'}${HOME.showAll ? '' : ` · first ${TOP_N} model setups`}`,
-    versionLine,
-    location.origin + location.pathname,
-  ];
-  if (svg.dataset.note) lines.unshift(...svg.dataset.note.split(' | '));
   const site = `${document.body.dataset.siteTitle || ''} ${document.body.dataset.siteSubtitle || ''}`.trim();
   const head = site ? 46 : 28, foot = lines.length * 16 + 12;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -284,7 +300,7 @@ async function downloadChart(panel) {
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `backgammon-${panel.id}-${HOME.league}-${margin}.png`;
+    a.download = filename;
     document.body.append(a);
     a.click();
     a.remove();
