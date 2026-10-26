@@ -424,7 +424,7 @@
   const pageName = () => slug(location.pathname.replace(/^.*?\/backgammon\//, '').replace(/index\.html$/, '')) || 'home';
   const versionLine = () => clean((document.querySelector('.hero .version') || document.querySelector('.footer p:last-child'))?.textContent || '').replace(/\.$/, '');
   const view = () => (typeof window.pngView === 'function' ? window.pngView() : {}) || {};
-  const pageTitle = () => clean(document.querySelector('main h1')?.textContent || document.title.replace(/ · Zeki Works$/, ''));
+  const pageTitle = () => clean(document.querySelector('main h1')?.textContent || document.title.replace(/ · Hilde$/, ''));
   /* The site's title and subtitle (pages.TITLE, pages.SUBTITLE), the first header line of every PNG. */
   const siteHead = () => clean(`${document.body.dataset.siteTitle || ''} ${document.body.dataset.siteSubtitle || ''}`);
 
