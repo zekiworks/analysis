@@ -78,6 +78,11 @@ button.key[aria-pressed="true"] > .lamp, button.mode[aria-selected="true"] > .la
 button.mode[aria-selected="true"]::after { display: none; }
 .filters-body { margin-top: 0; padding-top: 0; border-top: 0; gap: .6rem 1.5rem; }
 .filters-body > .group { flex-direction: row; flex-wrap: wrap; align-items: center; }
+/* More filters: the key that names the active folded filters, then the fold on its own full-width row. */
+.filters-more { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.5rem; }
+.filters-more[hidden] { display: none; }
+.fold-toggle { text-align: left; }
+.fold-summary { color: var(--text-2); font-weight: 400; }
 .board-panel .view-switch { display: inline-flex; }
 .js .board-panel:not(.shows-charts) > .charts { display: none; }
 .board-panel > .version-line { margin: -.25rem 0 .6rem; }
@@ -148,6 +153,7 @@ tr.reference > td { font-style: italic; }
 .filters-title { font-size: 1rem; margin: 0 0 .5rem; }
 .setup-count { font-family: var(--mono); font-size: .85rem; color: var(--text-2); margin-right: .6rem; }
 .reset-why { color: var(--text-2); margin-left: .4rem; }
+.reset-why[hidden] { display: none; }
 .key.reset[aria-disabled="true"] { opacity: .55; cursor: default; }
 .chart-head .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
 .chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; }

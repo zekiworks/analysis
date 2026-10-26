@@ -92,7 +92,7 @@
 /* Images drawn for one theme only (the Method page's charts exist in both). */
 @media screen { :root:not([data-theme="light"]) .theme-light { display: none !important; } }
 :root[data-theme="light"] .theme-dark { display: none !important; }
-@media print { .theme-dark, .theme-switch, .needs-js, .skip { display: none !important; } }
+@media print { .theme-dark, .more-menu, .needs-js, .skip { display: none !important; } }
 /* Controls that need the script stay out of the page without it; the plain table shows every setup instead. */
 html:not(.js) .needs-js { display: none !important; }
 
@@ -123,7 +123,15 @@ h1, h2, h3 { line-height: 1.2; }
 .nav a { display: inline-block; padding: .2rem 0; color: var(--text); font-size: .9rem; text-decoration: none; border-bottom: 2px solid transparent; }
 .nav a:hover { border-bottom-color: var(--text-2); }
 .nav a[aria-current="page"] { border-bottom-color: var(--text); }
-.theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; }
+/* More options: one key at the top right opens the colour theme and the page export below it, over the page. */
+.more-menu { grid-area: theme; position: relative; justify-self: end; }
+.more-pop { position: absolute; right: 0; top: calc(100% + .35rem); z-index: 25; display: flex; flex-direction: column; align-items: flex-start;
+  gap: .45rem; width: max-content; max-width: calc(100vw - 1.2rem); padding: .75rem; background: var(--panel);
+  border: 1px solid var(--control-edge); border-radius: 8px; }
+.more-pop[hidden] { display: none; }
+.more-label { margin: 0; color: var(--text-2); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.theme-switch + .more-label { margin-top: .35rem; }
+.theme-switch { display: inline-flex; gap: .35rem; }
 .theme-switch[hidden] { display: none; }
 /* With the script, the switch shows from the first paint, so nothing moves when site.js wires it. */
 .js .theme-switch[hidden] { display: inline-flex; }
@@ -515,13 +523,14 @@ ul.price-list { padding-left: 1.25rem; }
    inside the table's wrapper; at 375 px at least two number columns show next to it. */
 @media (max-width: 640px) {
   body { padding: 0 .6rem 1.5rem; }
-  /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
+  /* The first screen reaches the results: the site name and the More options key share a row, the navigation is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
   .topbar { grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem; margin-bottom: .55rem; padding: .45rem 0 .3rem; }
   .brand { font-size: .66rem; letter-spacing: .04em; }
   .theme-switch { gap: .25rem; }
-  .theme-switch .key { min-height: 1.75rem; padding: .15rem .45rem; gap: .3rem; font-size: .78rem; }
   .theme-switch .long { display: none; }
+  /* Tap targets of the More options menu and the filters: at least 44 px each way. */
+  .more-menu .key, .filters .key, .filters select { min-height: 2.75rem; min-width: 2.75rem; }
   /* Padding inside the scrolling bar keeps a focused link's outline unclipped; the negative margin keeps the row's size. */
   .nav ul { flex-wrap: nowrap; gap: 1rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
     scroll-padding-inline: .35rem; }
@@ -604,15 +613,8 @@ ul.price-list { padding-left: 1.25rem; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-/* TEMPORARY (pages.EXPORT_PAGE_PNG): "Export page as PNG" in the top bar, and while the page is drawn the scrolling boxes
-   show all their rows. */
-.page-png { grid-area: png; }
+/* TEMPORARY (pages.EXPORT_PAGE_PNG): "Export page as PNG" in the More options menu, and while the page is drawn the
+   scrolling boxes show all their rows. */
 .page-png[hidden] { display: none; }
 .js .page-png[hidden] { display: inline-flex; }
-.topbar:has(.page-png) { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "brand png theme" "nav nav nav"; }
-.topbar .page-png { min-height: 1.75rem; padding: .15rem .6rem; font-size: .78rem; }
-@media (max-width: 640px) {
-  .topbar:has(.page-png) { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav" "png png"; }
-  .topbar .page-png { justify-self: start; }
-}
 html.png-page :is(.table-wrap, .dec-pre, .dec-options, .chart-scroll) { max-height: none !important; }

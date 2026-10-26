@@ -1,11 +1,12 @@
 'use strict';
 
 /* Home page (brief v12 B4): one league at a time (?league=, default League 1, never merged), the Risk tab first
-   (?tab=), the Table / Charts switch, the filters (model type, phase, reasoning, runs on, weights) with the setup
-   counter and Reset, the chart panels (small tabs, the margin keys, "Show all", Download PNG with the league, margin,
-   decisions, results version, site address and active filters, in the theme in view). The Phase filter loads that
-   phase's tables and Risk charts of the league from fragments/<league>-<phase>.html. Compare page: two setups of the
-   v1 set, paired, from compare.json. */
+   (?tab=), the Table / Charts switch, the filters (model type, phase, reasoning, runs on, weights; the last four folded
+   behind "More filters", whose key names the active ones while closed) with the setup counter and Reset, the chart
+   panels (small tabs, the margin keys, "Show all", Download PNG with the league, margin, decisions, results version,
+   site address and active filters, in the theme in view). The Phase filter loads that phase's tables and Risk charts
+   of the league from fragments/<league>-<phase>.html. Compare page: two setups of the v1 set, paired, from
+   compare.json. */
 
 const HOME = {
   league: null,
@@ -15,6 +16,7 @@ const HOME = {
   original: new Map(),
 };
 const FILTER_LABEL = { kind: 'Model type', setting: 'Reasoning', runs: 'Runs on', weights: 'Weights' };
+const FOLDED = ['setting', 'runs', 'weights'];
 const TOP_N = 8;
 
 /* The anchors of the page that was live here before the switch (B2) open where that content lives now. */
@@ -46,6 +48,30 @@ function activeFilters() {
   const on = Object.keys(HOME.filters).filter(g => HOME.filters[g] !== 'all').map(g => `${FILTER_LABEL[g]}: ${HOME.filters[g]}`);
   if (HOME.phase !== 'all') on.push(`Phase: ${HOME.phase}`);
   return on;
+}
+
+/* The folded filters that are not at their default, as shown: "Phase: Race", "Reasoning: High". */
+function foldedActive(box) {
+  const on = [];
+  const phase = box.querySelector('[data-control="phase"]');
+  if (HOME.phase !== 'all') on.push(`Phase: ${phase.selectedOptions[0].textContent.trim()}`);
+  FOLDED.forEach(g => {
+    if (HOME.filters[g] === 'all') return;
+    const key = box.querySelector(`[data-filter-${g}="${CSS.escape(HOME.filters[g])}"]`);
+    on.push(`${FILTER_LABEL[g]}: ${key ? key.textContent.trim() : HOME.filters[g]}`);
+  });
+  return on;
+}
+
+/* The key of the fold: closed, it names the active folded filters and counts them; open, it only counts them. */
+function showFold(box) {
+  const toggle = box.querySelector('[data-more-filters]');
+  if (!toggle) return;
+  const on = foldedActive(box);
+  const count = on.length ? ` (${on.length} active)` : '';
+  const open = toggle.getAttribute('aria-expanded') === 'true';
+  box.querySelector('[data-more-summary]').textContent =
+    open ? count : on.length ? ` · ${on.join(', ')}${count}` : ' · phase, reasoning, runs on, weights';
 }
 
 /* The filters in view, for the table and page PNGs (png.js). */
@@ -99,6 +125,7 @@ function applyHome() {
   const reset = box.querySelector('[data-control="reset"]');
   reset.setAttribute('aria-disabled', String(idle));
   box.querySelector('[data-reset-why]').hidden = !idle;
+  showFold(box);
   const url = new URL(location.href);
   if (lg === HOME.defaultLeague) url.searchParams.delete('league'); else url.searchParams.set('league', lg);
   history.replaceState(null, '', url);
@@ -150,6 +177,27 @@ async function loadPhase(phase) {
       HOME.league = HOME.defaultLeague;
       phase.value = 'all';
       loadPhase('all');
+    });
+    // More filters: the key opens and closes the fold; Escape inside it closes it and gives the focus back to the key.
+    // The fold opens by itself when a folded filter is not at its default as the page shows: the browser keeps the
+    // Phase choice on back / forward and fills it in after this script ran, so the page loads that phase then.
+    const toggle = box.querySelector('[data-more-filters]');
+    const fold = document.getElementById(toggle.getAttribute('aria-controls'));
+    const setFold = open => {
+      toggle.setAttribute('aria-expanded', String(open));
+      fold.hidden = !open;
+      showFold(box);
+    };
+    toggle.addEventListener('click', () => setFold(fold.hidden));
+    fold.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      setFold(false);
+      toggle.focus();
+    });
+    window.addEventListener('pageshow', () => {
+      const kept = phase.value !== HOME.phase ? loadPhase(phase.value) : Promise.resolve();
+      kept.then(() => { if (foldedActive(box).length && fold.hidden) setFold(true); })
+        .catch(() => { phase.value = 'all'; loadPhase('all'); });
     });
   }
   applyHome();
