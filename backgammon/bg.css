@@ -37,22 +37,22 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .chart-svg .whisker { stroke: var(--reading); }
 .chart-svg .muted { fill: var(--text-2); }
 
-/* --- Dashboard look: slate palette in both themes, a centred header, pill controls, tables first. The accent is
-   backgammon felt green (teal), the sibling's own colour; data colours are unchanged. ------------------------ */
+/* --- Dashboard look: slate palette in both themes, a centred header, flat pill controls, tables first. The accent is
+   backgammon felt green (teal), the sibling's own colour; data colours are unchanged. No shadows: thin edges and flat
+   fills. ------------------------------------------------------------------------------------------------------ */
 :root {
   --bg: #f8fafc; --panel: #ffffff; --sunk: #f1f5f9; --key: #ffffff; --edge: #e2e8f0; --control-edge: #cbd5e1;
-  --text: #1e293b; --text-2: #64748b; --focus: #0f766e; --lamp-off: #cbd5e1; --lamp-on: #0f766e; --lamp-glow: transparent;
-  --row-hover: #eef2f7; --row-selected: #e2e8f0; --link: #0f766e; --accent: #0f766e; --accent-soft: #f0fdfa; --zebra: #f8fafc;
-  --tip-bg: #1e293b; --tip-text: #ffffff; --shadow: 0 1px 3px rgba(15, 23, 42, .08); --key-shadow: none; --key-inset: none;
+  --text: #1e293b; --text-2: #64748b; --focus: #0f766e; --lamp-off: #cbd5e1; --lamp-on: #0f766e;
+  --row-hover: #eef2f7; --row-selected: #e2e8f0; --link: #0f766e; --accent: #0f766e; --on-accent: #ffffff; --zebra: #f8fafc;
+  --tip-bg: #1e293b; --tip-text: #ffffff;
   --good: #0f766e; --good-soft: rgba(15, 118, 110, .14); --bad: #b91c1c; --bad-soft: rgba(185, 28, 28, .12);
 }
 @media screen {
   :root:not([data-theme="light"]) {
     --bg: #0f172a; --panel: #1e293b; --sunk: #162032; --key: #1e293b; --edge: #334155; --control-edge: #475569;
     --text: #e2e8f0; --text-2: #94a3b8; --focus: #5eead4; --lamp-off: #475569; --lamp-on: #2dd4bf;
-    --lamp-glow: rgba(45, 212, 191, .45); --row-hover: #273449; --row-selected: #334155; --link: #2dd4bf; --accent: #2dd4bf;
-    --accent-soft: rgba(45, 212, 191, .14); --zebra: #1a2436; --tip-bg: #e2e8f0; --tip-text: #0f172a;
-    --shadow: 0 1px 3px rgba(0, 0, 0, .5); --key-shadow: none; --key-inset: none;
+    --row-hover: #273449; --row-selected: #334155; --link: #2dd4bf; --accent: #2dd4bf; --on-accent: #0f172a;
+    --zebra: #1a2436; --tip-bg: #e2e8f0; --tip-text: #0f172a;
     --good: #2dd4bf; --good-soft: rgba(45, 212, 191, .16); --bad: #f87171; --bad-soft: rgba(248, 113, 113, .14);
   }
 }
@@ -69,9 +69,12 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .hero .summary-list li { margin: .1rem 0; }
 @media (min-width: 1024px) { .hero { display: block; } }
 
-/* Pills: filters, theme switch, Table / Charts and the tabs. */
-.key, button.mode { border-radius: 999px; box-shadow: none; background: transparent; }
-.key[aria-pressed="true"], button.mode[aria-selected="true"] { background: var(--accent-soft); border-color: var(--accent); box-shadow: none; }
+/* Pills: filters, theme switch, Table / Charts and the tabs. Flat, with a thin edge; the selected one is filled with the
+   accent and its lamp takes the colour of its text. */
+.key, button.mode { border-radius: 999px; background: transparent; }
+button.key[aria-pressed="true"], button.mode[aria-selected="true"] { background: var(--accent); border-color: var(--accent);
+  color: var(--on-accent); }
+button.key[aria-pressed="true"] > .lamp, button.mode[aria-selected="true"] > .lamp { background: var(--on-accent); }
 button.mode[aria-selected="true"]::after { display: none; }
 .filters-body { margin-top: 0; padding-top: 0; border-top: 0; gap: .6rem 1.5rem; }
 .filters-body > .group { flex-direction: row; flex-wrap: wrap; align-items: center; }
