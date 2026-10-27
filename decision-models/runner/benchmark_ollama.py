@@ -137,6 +137,11 @@ SYSTEM_ONE = {
     "onejev": SystemOneService(
         "OneJev", "http://127.0.0.1:18111", request_id_header="x-typesafe-request-id", images="media"
     ),
+    # The vLLM Semantic Router's d3-ultra (vllm-sr/d3-ultra) on our GPU behind the server its repository ships
+    # (d3_server.py, on the package's own transformers runtime, as AutoModel loads it in the model card's Quickstart),
+    # which takes the same request at the default path, with images as data URLs, and returns the same answers. vLLM
+    # cannot serve d3-ultra yet: it rejects the checkpoint's attention mode (prefix_bidir).
+    "d3-server": SystemOneService("d3 server", "http://127.0.0.1:18112", images="data-urls"),
     # OpenAI's Decisions API (public beta), which serves gpt-6-luna. Needs an API key with billing; the
     # Codex-based openai provider never uses one.
     "openai-decisions": SystemOneService(
@@ -429,7 +434,7 @@ TIE_ALPHA = 0.05
 # second. The doubt counts the mistakes of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev",
+    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
