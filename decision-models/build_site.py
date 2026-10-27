@@ -86,7 +86,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then GLiDE v1.2, GLiDE and Deciders v1.1 and v1.2, at 66.9% to 68.5%."
+SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then GLiDE v1.2, GLiDE, vLLM-SR d3 and Deciders v1.1 and v1.2, at 66.9% to 68.5%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model, in its order, with the label of its control.
 ROUTE_LLMS = (("opus", "Opus"), ("sonnet_high", "Sonnet"), ("astra", "Astra"), ("sol", "Sol"), ("gemini_low", "Gemini Flash"))
@@ -371,9 +371,9 @@ def copy_checks(data: Data) -> list[str]:
     """Each number or comparison the fixed copy states, checked against results.json; the claims that differ."""
     results, runs = data.results, data.runs
     decision = [run for run in runs if data.decision(run)]
-    ultra, glide, glide12, decider, subq, decider12 = (data.by_name(model) for model in
-                                                       ("d1-ultra", "fastino/GLiDE", "glide-v1.2", "pplx-decider-v1.1-27b",
-                                                        "subq-snap-preview", "pplx-decider-v1.2"))
+    ultra, glide, glide12, d3, decider, subq, decider12 = (data.by_name(model) for model in
+                                                           ("d1-ultra", "fastino/GLiDE", "glide-v1.2", "vllm-sr/d3",
+                                                            "pplx-decider-v1.1-27b", "subq-snap-preview", "pplx-decider-v1.2"))
     cascades = {(item["decision"], item["frontier"]): item for item in results["cascades"]}
     sonnet16, sonnet1 = data.named("sonnet_high", 16), data.named("sonnet_high", 1)
     found = []
@@ -424,9 +424,9 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap fifth among decision models in front of Sonnet (16 per request)", order.index(subq) == 4)
+    check("SubQ Snap sixth among decision models in front of Sonnet (16 per request)", order.index(subq) == 5)
     for size in (16, 1):
-        for key, place, word in (("opus", 10, "tenth"), ("astra", 8, "eighth")):
+        for key, place, word in (("opus", 11, "eleventh"), ("astra", 9, "ninth")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
@@ -450,7 +450,7 @@ def copy_checks(data: Data) -> list[str]:
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
     # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model; then GLiDE v1.2,
-    # GLiDE and Deciders v1.1 and v1.2, in that order, at 66.9% to 68.5%; Liquid d1.1 has the smallest calibration gap as
+    # GLiDE, vLLM-SR d3 and Deciders v1.1 and v1.2, in that order, at 66.9% to 68.5%; Liquid d1.1 has the smallest calibration gap as
     # shipped; Open-Jev 27B v1.1 and Decider v1.1 score highest on Better than a flat guess; d1-ultra gives the biggest
     # estimated saving in all 10 LLM setups.
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
@@ -466,9 +466,10 @@ def copy_checks(data: Data) -> list[str]:
           ranked[0] is ultra and percent(ultra) == "77.1")
     check("Summary: d1-ultra is clearly ahead: it shares a letter with no other decision model",
           not any(shares(ultra, run) for run in decision if run is not ultra))
-    check("Summary: then GLiDE v1.2, GLiDE and Deciders v1.1 and v1.2, in that order",
-          ranked[1] is glide12 and ranked[2] is glide and {run["run"] for run in ranked[3:5]} == {decider["run"], decider12["run"]})
-    near = (glide12, glide, decider, decider12)
+    check("Summary: then GLiDE v1.2, GLiDE, vLLM-SR d3 and Deciders v1.1 and v1.2, in that order",
+          ranked[1] is glide12 and ranked[2] is glide and ranked[3] is d3
+          and {run["run"] for run in ranked[4:6]} == {decider["run"], decider12["run"]})
+    near = (glide12, glide, d3, decider, decider12)
     check("Summary: at 66.9% to 68.5%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.5")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])

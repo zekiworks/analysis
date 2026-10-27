@@ -429,6 +429,7 @@ fn color(run: &Run) -> Color {
         ("gliner2.5-multi-v1", ..) => rgb(0x475569),
         ("gliner2.5-multi-decide", ..) => rgb(0x2563eb),
         ("decider-1", ..) => rgb(0x047857),
+        ("vllm-sr/d3", ..) => rgb(0xbe185d),
         _ => GUIDE,
     }
 }

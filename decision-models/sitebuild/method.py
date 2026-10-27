@@ -54,6 +54,8 @@ SETUP_TEXTS = (
     "Fastino's released v1.2 checkpoint on our hardware, with the server it ships: one pass per question, nothing "
     "generated. The hosted GLiDE gave the same answers on 20 sample questions on 22 October; the other GLiDE row is the "
     "hosted model of 6 October.",
+    "The vLLM Semantic Router's released checkpoint on our hardware, served by a vLLM nightly through its System One "
+    "endpoint (with --max-num-seqs 256, as the default did not fit the GPU at start-up).",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",

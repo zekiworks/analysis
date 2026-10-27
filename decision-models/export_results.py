@@ -66,6 +66,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "strands": {"access": "Strands Decider server, self-hosted", "scoring": True, "billing": "local"},
     "pplx-decider": {"access": "Perplexity Decider server, self-hosted", "scoring": True, "billing": "local"},
     "glide": {"access": "GLiDE server (Fastino's release code), self-hosted", "scoring": True, "billing": "local"},
+    "vllm-sr": {"access": "vLLM System One endpoint (nightly), self-hosted, BF16", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -179,6 +180,16 @@ MODELS: dict[str, dict[str, Any]] = {
         "Fastino's hosted GLiDE gave the same answers on 20 sample questions on 22 October 2026; the other GLiDE row is "
         "the hosted model as it answered on 6 October 2026, before a change on Fastino's side.",
         "hardware": f"1 × {SPARK}; BF16",
+        "parameters": 26_086_635_760,
+    },
+    # Counted from the released checkpoint (vllm-sr/d3 at 20f37b9): backbone and readout. It ran on bariton's GPU 2.
+    "vllm-sr/d3": {
+        "name": "vLLM-SR d3",
+        "note": "The vLLM Semantic Router's released Decision 3.0 checkpoint (vllm-sr/d3 at 20f37b9), fine-tuned from "
+        "Qwen3.8-27B (Qwen3.5 architecture), served on our hardware through vLLM's System One endpoint by a nightly build "
+        "(0.32.1rc1.dev613+g8977b13a1) with --max-num-seqs 256: with the default, vLLM's startup memory check did not fit "
+        "the GPU. One request at a time, as for the other setups.",
+        "hardware": f"1 × {GPU}; BF16",
         "parameters": 26_086_635_760,
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},

@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 51 comparisons (15 pass).
-━━ passes the Holm adjustment across these 51 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 52 comparisons (15 pass).
+━━ passes the Holm adjustment across these 52 comparisons   ━━ does not pass
 
               Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (low reasoning)                     ⠠⡧⡦⠄                                        +0.5
                     GPT-6 Astra (low reasoning) minus GPT-6.1 Sol (low reasoning)                      ⡧⢴⠤                                        +0.9
@@ -21,8 +21,9 @@ establish a difference; the colour shows a related but separate test, adjusted a
                       Fastino GLiDE v1.2 (local) minus GPT-6 Luna (low reasoning)                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.2
                                    GPT-6 Luna (low reasoning) minus Fastino GLiDE                  ⠤⠤⠤⠤⣷⠤⠤⠤⠤⠄                                     +0.4
                        GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)        ⠠⠤⠤⠤⢴⠤⠤⠤⠤     ⡇                                          -4.7
-                                         Fastino GLiDE minus Decider v1.2 (local)                   ⠠⠤⠤⡧⢴⠤⠤⠤⠤                                     +0.8
+                                                   Fastino GLiDE minus vLLM-SR d3                  ⠠⠤⠤⠤⡧⠤⠤⠤                                       +0.1
                                                    Fastino GLiDE minus Decider v1                      ⡇          ⠤⠤⠤⢴⠤⠤⠤⠤                        +7.5
+                                            vLLM-SR d3 minus Decider v1.2 (local)                     ⠤⡧⢼⠤⠤                                       +0.7
                                           Decider v1.2 (local) minus Decider v1.1                   ⠠⠤⠤⡧⠤⠤⠄                                       +0.2
                            Decider v1.1 minus DeepSeek-V4.1-Flash (reasoning off)                   ⠠⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +1.0
                                                     Decider v1.1 minus Decider v1                      ⡇        ⠤⠤⠤⢼⠤⠤⠤⠄                          +6.5
@@ -32,7 +33,7 @@ establish a difference; the colour shows a related but separate test, adjusted a
                               Liquid d1.1 minus Claude Sonnet 5.5 (low reasoning)                 ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.1
                                 Claude Sonnet 5.5 (low reasoning) minus Celeris 1                   ⠤⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +0.9
                                                        Celeris 1 minus Decider v1                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.1
-                                                        Decider v1 minus Jev 1.14                    ⠤⠤⡧⠤⡧⠤⠤⠤⠄                                    +1.2
+                                                        Decider v1 minus Jev 1.14                    ⠒⠒⡗⠒⡗⠒⠒⠒⠂                                    +1.2
                                                         Decider v1 minus Jev 1.13                      ⡇⠐⠒⠒⠒⢺⠒⠒⠒⠒                                 +2.9
                                    Jev 1.14 minus Mercury Decide (via OpenRouter)                   ⠐⠒⠒⡗⢺⠒⠒⠒⠒                                     +0.9
               Mercury Decide (via OpenRouter) minus GLM-5.3-Flash (reasoning off)                  ⠐⠒⠒⠒⡗⡗⠒⠒⠒⠒                                     +0.5
