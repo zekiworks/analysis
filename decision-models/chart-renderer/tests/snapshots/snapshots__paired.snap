@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 52 comparisons (15 pass).
-━━ passes the Holm adjustment across these 52 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 53 comparisons (15 pass).
+━━ passes the Holm adjustment across these 53 comparisons   ━━ does not pass
 
               Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (low reasoning)                     ⠠⡧⡦⠄                                        +0.5
                     GPT-6 Astra (low reasoning) minus GPT-6.1 Sol (low reasoning)                      ⡧⢴⠤                                        +0.9
@@ -23,7 +23,8 @@ establish a difference; the colour shows a related but separate test, adjusted a
                        GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)        ⠠⠤⠤⠤⢴⠤⠤⠤⠤     ⡇                                          -4.7
                                                    Fastino GLiDE minus vLLM-SR d3                  ⠠⠤⠤⠤⡧⠤⠤⠤                                       +0.1
                                                    Fastino GLiDE minus Decider v1                      ⡇          ⠤⠤⠤⢴⠤⠤⠤⠤                        +7.5
-                                            vLLM-SR d3 minus Decider v1.2 (local)                     ⠤⡧⢼⠤⠤                                       +0.7
+                    vLLM-SR d3 minus vLLM-SR d3-ultra (transformers, rev 52ba9e7)                   ⠤⠤⠤⡧⠤⠤                                        +0.0
+          vLLM-SR d3-ultra (transformers, rev 52ba9e7) minus Decider v1.2 (local)                    ⠠⠤⡧⢼⠤⠤⠄                                      +0.7
                                           Decider v1.2 (local) minus Decider v1.1                   ⠠⠤⠤⡧⠤⠤⠄                                       +0.2
                            Decider v1.1 minus DeepSeek-V4.1-Flash (reasoning off)                   ⠠⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +1.0
                                                     Decider v1.1 minus Decider v1                      ⡇        ⠤⠤⠤⢼⠤⠤⠤⠄                          +6.5

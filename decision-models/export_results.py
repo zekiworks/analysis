@@ -67,6 +67,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "pplx-decider": {"access": "Perplexity Decider server, self-hosted", "scoring": True, "billing": "local"},
     "glide": {"access": "GLiDE server (Fastino's release code), self-hosted", "scoring": True, "billing": "local"},
     "vllm-sr": {"access": "vLLM System One endpoint (nightly), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "d3-server": {"access": "d3 package server (transformers, the release code), self-hosted, BF16", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -107,6 +108,8 @@ VARIANTS = {
     "openrouter": "via OpenRouter",
     "pplx-decider": "local",
     "glide": "local",
+    # The engine and the checkpoint revision of the d3 package server's one setup, vLLM-SR d3-ultra.
+    "d3-server": "transformers, rev 52ba9e7",
 }
 GPU = "RTX PRO 6000 Blackwell (96 GB)"
 SPARK = "DGX Spark, GB10 (128 GB unified memory)"
@@ -189,6 +192,17 @@ MODELS: dict[str, dict[str, Any]] = {
         "Qwen3.8-27B (Qwen3.5 architecture), served on our hardware through vLLM's System One endpoint by a nightly build "
         "(0.32.1rc1.dev613+g8977b13a1) with --max-num-seqs 256: with the default, vLLM's startup memory check did not fit "
         "the GPU. One request at a time, as for the other setups.",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 26_086_635_760,
+    },
+    # Counted from the released checkpoint (vllm-sr/d3-ultra at 52ba9e7): backbone, vision encoder and readout. It ran on
+    # bariton's GPU 2.
+    "vllm-sr/d3-ultra": {
+        "name": "vLLM-SR d3-ultra",
+        "note": "The vLLM Semantic Router's released d3-ultra checkpoint (vllm-sr/d3-ultra at 52ba9e7), fine-tuned from "
+        "Qwen3.8-27B (Qwen3.5 architecture), served on our hardware through the server its repository ships (d3_server.py, "
+        "the package's transformers runtime as in the model card's Quickstart; transformers 5.17.0). vLLM cannot serve it "
+        "yet: it rejects the checkpoint's attention mode (prefix_bidir). One request at a time, as for the other setups.",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 26_086_635_760,
     },
