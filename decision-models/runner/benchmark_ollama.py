@@ -120,6 +120,10 @@ SYSTEM_ONE = {
     # glide.server), which takes the same request at the default path, ignores the model field and returns the same
     # answers.
     "glide": SystemOneService("GLiDE", "http://127.0.0.1:8888"),
+    # vLLM's own System One endpoint (/v1/systemone) serving the vLLM Semantic Router's Decision 3.0 checkpoints
+    # (vllm-sr/d3) on our GPU, from a current nightly build (the support is on vLLM's main branch since 14 October 2026),
+    # which takes the same request at the default path and returns the same answers; the model field names the checkpoint.
+    "vllm-sr": SystemOneService("vLLM-SR", "http://127.0.0.1:18110"),
     # OpenAI's Decisions API (public beta), which serves gpt-6-luna. Needs an API key with billing; the
     # Codex-based openai provider never uses one.
     "openai-decisions": SystemOneService(
@@ -411,7 +415,7 @@ TIE_ALPHA = 0.05
 # second. The doubt counts the mistakes of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide",
+    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
