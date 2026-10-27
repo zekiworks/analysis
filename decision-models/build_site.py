@@ -427,7 +427,7 @@ def copy_checks(data: Data) -> list[str]:
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
     check("SubQ Snap seventh among decision models in front of Sonnet (16 per request)", order.index(subq) == 6)
     for size in (16, 1):
-        for key, place, word in (("opus", 12, "twelfth"), ("astra", 10, "tenth")):
+        for key, place, word in (("opus", 13, "thirteenth"), ("astra", 11, "eleventh")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])

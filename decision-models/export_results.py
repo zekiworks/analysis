@@ -68,6 +68,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "glide": {"access": "GLiDE server (Fastino's release code), self-hosted", "scoring": True, "billing": "local"},
     "vllm-sr": {"access": "vLLM System One endpoint (nightly), self-hosted, BF16", "scoring": True, "billing": "local"},
     "d3-server": {"access": "d3 package server (transformers, the release code), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "onejev": {"access": "OneJev server (qev, OmniJev's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -205,6 +206,17 @@ MODELS: dict[str, dict[str, Any]] = {
         "yet: it rejects the checkpoint's attention mode (prefix_bidir). One request at a time, as for the other setups.",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 26_086_635_760,
+    },
+    # Counted from the released checkpoint (OmniJev/OneJev-27B at a5e5f55): language model, vision encoder and readout.
+    # It ran on bariton's GPU 2.
+    "OmniJev/OneJev-27B": {
+        "name": "OneJev 27B",
+        "note": "OmniJev's released OneJev checkpoint (OmniJev/OneJev-27B at a5e5f55), a full fine-tune of Qwen3.8-27B that "
+        "also reads images, served on our hardware through the server its package ships (qev 0.1.4, qev serve) with its "
+        "defaults. One request at a time, as for the other setups. The five runs are identical because decoding is "
+        "deterministic: each run sent all 2,198 questions again as separate requests.",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 27_356_728_560,
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},

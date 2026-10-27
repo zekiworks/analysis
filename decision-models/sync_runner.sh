@@ -25,9 +25,8 @@ python_files=(
 )
 # Run scripts behind no published run: the PEGEM ALES extraction, an Ollama run on the second bank, the
 # two Gemini 3.1 Pro (preview) runs, taken off the page because a preview model can be withdrawn, and
-# Perplexity's Decider v1.1 on our GPUs (the page compares v1.1 with v1 through Perplexity's API), and OneJev 27B,
-# whose runs are not published yet.
-skipped_scripts=(run_generate_questions.sh run_quiz.sh run_gemini_pro.sh run_gemini_pro_high.sh run_pplx_decider.sh run_onejev.sh)
+# Perplexity's Decider v1.1 on our GPUs (the page compares v1.1 with v1 through Perplexity's API).
+skipped_scripts=(run_generate_questions.sh run_quiz.sh run_gemini_pro.sh run_gemini_pro_high.sh run_pplx_decider.sh)
 
 staging=$(mktemp -d "$repo/.runner.XXXXXX")
 trap 'rm -rf "$staging"' EXIT

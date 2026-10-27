@@ -431,6 +431,7 @@ fn color(run: &Run) -> Color {
         ("decider-1", ..) => rgb(0x047857),
         ("vllm-sr/d3", ..) => rgb(0xbe185d),
         ("vllm-sr/d3-ultra", ..) => rgb(0x831843),
+        ("OmniJev/OneJev-27B", ..) => rgb(0x0c4a6e),
         _ => GUIDE,
     }
 }

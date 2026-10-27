@@ -30,7 +30,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens. No run colour is red: red marks
 /// kept-but-wrong answers only.
-const DARK: [(&str, &str); 64] = [
+const DARK: [(&str, &str); 65] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -104,6 +104,9 @@ const DARK: [(&str, &str); 64] = [
     // vLLM-SR d3-ultra, a darker pink beside d3's in the same panels: the darker light shade becomes a 300 in the dark
     // theme, d3's pink a 500.
     ("#831843", "#f9a8d4"),
+    // OneJev 27B, a deep sky blue that turns light in the dark theme: apart from the pinks of d3 and d3-ultra, the Jev
+    // runs' cyans and the GLiDE blues of its panels.
+    ("#0c4a6e", "#bae6fd"),
     // Kept and right, kept but wrong: the page's shared palette.
     ("#15803d", "#4ade80"),
     ("#b91c1c", "#fca5a5"),

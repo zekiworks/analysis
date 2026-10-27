@@ -58,6 +58,7 @@ SETUP_TEXTS = (
     "endpoint (with --max-num-seqs 256, as the default did not fit the GPU at start-up).",
     "The vLLM Semantic Router's released d3-ultra checkpoint on our hardware, through the server its repository ships "
     "(its own Transformers runtime): vLLM does not serve it yet.",
+    "OmniJev's released checkpoint on our hardware, through the server its package ships, with its default settings.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",
