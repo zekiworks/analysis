@@ -103,21 +103,36 @@ python3 -m http.server 8000                                # preview at http://1
   block loading `results.json` from a `file://` page.
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
-  - **Home page** (`index.html`): the script fills its `<!-- build:… -->` blocks (the meta tags, with the
-    link preview from `share/images.json`, the stats row, the leaderboard as a plain table for readers
-    without JavaScript, the settings `v3.js` reads). `v3.js` draws the filters, the four leaderboard tabs
-    and the two charts in the browser from `results.json` alone; accuracy for a part or topic and its
-    Wilson 95% interval come from the counts there. The Routing tab keeps its four choices in the URL. The
-    page's fixed copy quotes numbers; the script checks each against `results.json`, prints every claim
-    that differs and then exits with status 1, after writing the pages.
+  - **Two tabs**: the site's two benchmarks, each with its own address and its own rankings, never combined: Text
+    (the home page, 2,198 questions) and Page images (`vision/`, from `vision.json`). Both pages open with
+    the tab bar (`Site.tabs` in `sitebuild/site.py`).
+  - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
+    with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
+    readers without JavaScript, the settings `v3.js` reads). The leaderboard comes first: the decision models'
+    table, then the other models' (chat and general models), each ranked on its own; the All models switch
+    shows one table. The intro, the counters and the summary follow it. A model ID with runs in both groups
+    gets its route after its name in each row ("GPT-6 Luna (Decisions API)", "GPT-6 Luna (chat API)"; `route_labels`
+    in `sitebuild/site.py`). `v3.js` draws the filters, the four leaderboard tabs and the two charts in the
+    browser from `results.json` alone; accuracy for a part or topic and its Wilson 95% interval come from the
+    counts there. The Routing tab keeps its four choices in the URL. The page's fixed copy quotes numbers; the
+    script checks each against `results.json`, prints every claim that differs and then exits with status 1,
+    after writing the pages.
+  - **Page images** (`vision/`, `sitebuild/vision.py`), marked preliminary: the 763 questions with
+    underlined or numbered words, asked as text (A), as a page image (B), as both (C) and through four OCR
+    models (D). Decision models and other models in separate tables; in each, the image models ranked by B,
+    then the text-only models ranked by their best OCR route. A condition `vision.json` does not hold reads
+    "Not available" with its reason, and a row without the result it is ranked by follows the ranked rows.
+    Below: the models not run, with their reasons, and the OCR models' error rates and kept underlined and
+    numbered words on the human-verified question text. A setup that is condition A there shows its row on
+    its own page.
   - **Other pages**: each module of `sitebuild/` (`PAGE_MODULES` in `build_site.py`) returns whole pages,
     written to `<path>index.html`: one page per setup (`models/<run>/`), every question (`questions/`),
     one page per question (`question/?id=…`, drawn by `question.js`, with a line for readers without
     JavaScript), where models disagree with the key (`disagreements/`: the questions where the chat setups
     in `page_config.json`'s `key_disagreement` agree on another answer, then the questions most setups got
     wrong), topics with the accuracy-by-topic heat map and one page per topic (`topics/`), Compare
-    (`compare/`, drawn by `compare.js`, exact McNemar test as in `benchmark_metrics.py`), Method
-    (`method/`) and Data (`data/`). `sitebuild/site.py` holds the shared page shell.
+    (`compare/`, drawn by `compare.js`, exact McNemar test as in `benchmark_metrics.py`), Page images
+    (`vision/`), Method (`method/`) and Data (`data/`). `sitebuild/site.py` holds the shared page shell.
   - **`data/picks.json`**: each leaderboard setup's pick and score on each scored question, written from
     `answers.json` by `sitebuild/questions.py`, which checks every pick against its grade. Scores are floored
     to four decimals, so a score below the 99% cutoff never reads as 99.00%.

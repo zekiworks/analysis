@@ -79,6 +79,9 @@ def build(site: Site) -> dict[str, str]:
          "Every answer of every run, with its score and option probabilities, and the prompts. No question text."),
         (PICKS, rel(PATH, "data/picks.json"),
          "Built from answers.json for these pages: each leaderboard setup's pick and score on each scored question."),
+        (ROOT / "vision.json", rel(PATH, "vision.json"),
+         "The page-image track: the questions that depend on the printed page, asked as text, as page images and through "
+         "OCR; every number and each answer's pick and option probabilities. No question text, page image or OCR text."),
     )
     downloads = "".join(
         f'<tr><td class="model"><a href="{href}" download>{esc(path.name)}</a></td><td data-label="Contents">{esc(text)}</td>'

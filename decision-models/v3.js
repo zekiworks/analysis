@@ -109,16 +109,20 @@ const requestSize = size => `${integer(size)} question${size === 1 ? '' : 's'} p
 const runDetail = run =>
   [run.variant, run.reasoning && reasoningLabel(run.reasoning), requestSize(run.questions_per_request)].filter(Boolean).join(' · ');
 /* The settings in the short form a phone shows: "1 per request · low reasoning"; a variant keeps its part before a
-   comma ("Decisions API" for "Decisions API, beta"). */
+   comma ("Decisions API" for "Decisions API, beta"), unless the name already carries it as the route. */
 const shortDetail = run =>
-  [`${integer(run.questions_per_request)} per request`, run.reasoning && reasoningLabel(run.reasoning), run.variant?.split(',')[0]]
-    .filter(Boolean).join(' · ');
+  [`${integer(run.questions_per_request)} per request`, run.reasoning && reasoningLabel(run.reasoning),
+    !SETTINGS.routeLabels[run.run] && run.variant?.split(',')[0]].filter(Boolean).join(' · ');
+/* A setup's name in a row, with its route where the same model ID runs as both kinds of model (page_config.json's lists,
+   build_site.py route_labels): "GPT-6 Luna (Decisions API)" and "GPT-6 Luna (chat API)". */
+const routed = (run, name) => (SETTINGS.routeLabels[run.run] ? `${name} (${SETTINGS.routeLabels[run.run]})` : name);
+const rowName = run => routed(run, run.name);
 /* A setup's name in the table: on a phone, the charts' short name (page_config.json's short_names) where it has one. */
 const tableName = run => {
   const short = SETTINGS.shortNames[run.model];
   return short && short !== run.name
-    ? `<span class="name-long">${esc(run.name)}</span><span class="name-short">${esc(short)}</span>`
-    : esc(run.name);
+    ? `<span class="name-long">${esc(rowName(run))}</span><span class="name-short">${esc(routed(run, short))}</span>`
+    : esc(rowName(run));
 };
 const isDecision = run => SETTINGS.decisionProviders.includes(run.provider) && !SETTINGS.notDecisionModels.includes(run.model);
 const costPer1000 = run => (run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / run.answered_questions);
@@ -132,12 +136,12 @@ function chartLabels(runs) {
   const short = run => SETTINGS.shortNames[run.model] ?? run.name;
   // page_config.json's chart_labels name a setup outright; the tooltip keeps its full name.
   const named = run => SETTINGS.chartLabels[run.provider]?.[run.model];
-  const base = run => named(run) ?? (run.variant ? `${short(run)} (${run.variant})` : short(run));
+  const base = run => named(run) ?? (run.variant ? `${short(run)} (${run.variant})` : routed(run, short(run)));
   const labels = new Map();
   runs.forEach(run => {
     const same = runs.filter(other => base(other) === base(run));
     const differs = field => new Set(same.map(other => other[field])).size > 1;
-    const name = named(run) ?? short(run);
+    const name = named(run) ?? (run.variant ? short(run) : routed(run, short(run)));
     const detail = [
       !named(run) && run.variant,
       differs('reasoning') && run.reasoning && reasoningLabel(run.reasoning),
@@ -148,13 +152,16 @@ function chartLabels(runs) {
   return labels;
 }
 
-const DEFAULT_FILTERS = { part: 'all', topic: null, type: 'decision', qpr: 'all' };
+const DEFAULT_FILTERS = { part: 'all', topic: null, qpr: 'all' };
 const state = {
   ...DEFAULT_FILTERS,
   picked: new Set(),
   search: '',
   selected: null,
   filtersOpen: false,
+  /* The leaderboard as two tables, decision models then other models, each ranked on its own ('split'), or as one
+     table of all models ('all', the All models switch). */
+  models: 'split',
   tab: 'accuracy',
   sort: { key: 'accuracy', descending: true },
   route: { llm: 'opus', qpr: 1, rule: 'half', mode: 'replay' },
@@ -217,7 +224,6 @@ function partColumn(part, label) {
 function visibleRuns() {
   return data.runs.filter(
     run =>
-      (state.type === 'all' || (state.type === 'decision') === isDecision(run)) &&
       (state.qpr === 'all' || run.questions_per_request === state.qpr) &&
       (!state.picked.size || state.picked.has(run.run)),
   );
@@ -226,11 +232,13 @@ function visibleRuns() {
 /* ---- Leaderboard ---- */
 
 function modelCell(run) {
-  const name = `${run.name} (${runDetail(run)})`;
+  const name = `${rowName(run)} (${runDetail(run)})`;
+  /* In the one table of all models, a model that is not a decision model says so, as without JavaScript. */
+  const kind = state.models === 'all' && !isDecision(run);
   return `<td class="model"><div class="who"><button type="button" class="pick" data-select="${run.run}" aria-pressed="${state.selected === run.run}" ` +
     `aria-label="Highlight ${esc(name)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
-    `<span class="names"><a class="model-name" href="models/${run.run}/">${tableName(run)}</a><span class="small settings-long">${esc(runDetail(run))}</span>` +
-    `<span class="small settings-short">${esc(shortDetail(run))}</span></span></div></td>`;
+    `<span class="names"><a class="model-name" href="models/${run.run}/">${tableName(run)}</a><span class="small settings-long">${esc(runDetail(run))}${kind ? ' · Chat model' : ''}</span>` +
+    `<span class="small settings-short">${esc(shortDetail(run))}${kind ? ' · chat model' : ''}</span></span></div></td>`;
 }
 
 function accuracyCell(run) {
@@ -546,30 +554,46 @@ function header(column, directions = false) {
 /* Why no row matches, and the way back. */
 function emptyReason() {
   if (!visibleRuns().length) {
-    const kind = { decision: 'a decision model', chat: 'a chat model' }[state.type];
     const size = state.qpr === 'all' ? null : `ran at ${requestSize(state.qpr)}`;
-    if (state.picked.size) {
-      const conditions = [kind && `is ${kind}`, size].filter(Boolean).join(' that ');
-      return `None of the models you picked ${conditions}.`;
-    }
-    return `No ${kind ? kind.slice(2) : 'setup'} ${size ?? 'matches these filters'}.`;
+    if (state.picked.size) return `None of the models you picked ${size ?? 'matches these filters'}.`;
+    return `No setup ${size ?? 'matches these filters'}.`;
   }
   if (state.tab === 'routing') return 'The Routing tab lists only the setups we put in front of an LLM; none of them matches these filters.';
   if (state.tab === 'stability') return 'The Stability tab lists only the setups we repeated; none of them matches these filters.';
   return 'No setup matches these filters.';
 }
 
+/* Why one of the two tables has no row while the other has some. */
+function groupEmpty(group) {
+  const kind = group === 'decision' ? 'decision model' : 'other model';
+  if (state.tab === 'routing' && group === 'other') return 'Only decision models went first in front of an LLM.';
+  if (state.tab === 'stability') return `No ${kind} we repeated matches these filters.`;
+  return `No ${kind} matches these filters.`;
+}
+
+/* The tab's rows as the decision models' table, then the other models' table, each ranked on its own; with the All models
+   switch, one table of all of them. */
 function renderBoard() {
   const tab = TABS[state.tab];
   const rows = sortRows(tab.rows(), tab.columns);
-  const body = rows
-    .map(row => `<tr data-run="${row.run.run}"${state.selected === row.run.run ? ' class="is-selected"' : ''}>${modelCell(row.run)}` +
-      `${tab.columns.map(column => `<td class="num">${column.cell(row)}</td>`).join('')}</tr>`)
-    .join('');
-  const table = rows.length
-    ? `<div class="table-frame"><div class="table-wrap"><table class="board${tab.wrapHeaders ? ' wrap-headers' : ''}"><thead><tr><th scope="col">Model</th>${tab.columns.map(column => header(column, tab.directions)).join('')}</tr></thead><tbody>${body}</tbody></table></div></div>`
-    : `<div class="empty-state" role="status"><p><span class="icon" aria-hidden="true">⚠</span> ${esc(emptyReason())}</p>` +
+  const boardTable = list =>
+    `<div class="table-frame"><div class="table-wrap"><table class="board${tab.wrapHeaders ? ' wrap-headers' : ''}"><thead><tr><th scope="col">Model</th>` +
+    `${tab.columns.map(column => header(column, tab.directions)).join('')}</tr></thead><tbody>` +
+    list.map(row => `<tr data-run="${row.run.run}"${state.selected === row.run.run ? ' class="is-selected"' : ''}>${modelCell(row.run)}` +
+      `${tab.columns.map(column => `<td class="num">${column.cell(row)}</td>`).join('')}</tr>`).join('') +
+    '</tbody></table></div></div>';
+  let table;
+  if (!rows.length) {
+    table = `<div class="empty-state" role="status"><p><span class="icon" aria-hidden="true">⚠</span> ${esc(emptyReason())}</p>` +
       '<button type="button" class="key" data-control="reset">Reset filters</button></div>';
+  } else if (state.models === 'all') {
+    table = `<h3 class="board-group">All models</h3>${boardTable(rows)}`;
+  } else {
+    table = Object.entries(SETTINGS.boardGroups).map(([group, title]) => {
+      const list = rows.filter(row => isDecision(row.run) === (group === 'decision'));
+      return `<h3 class="board-group">${esc(title)}</h3>${list.length ? boardTable(list) : `<p class="note">${esc(groupEmpty(group))}</p>`}`;
+    }).join('');
+  }
   const routing =
     state.tab === 'routing'
       ? `<h3 class="tab-title">Can a cheap model go first?</h3>${routingControls()}${routeMap()}<p class="table-title">${esc(routeTitle())}</p>` +
@@ -589,10 +613,11 @@ function renderBoard() {
   const split = state.tab === 'routing' ? splitNote(rows) : '';
   board.innerHTML = routing + guide + table + (split ? `<p class="table-note">${esc(split)}</p>` : '') + marks + (notes ? `<div class="tab-notes">${notes}</div>` : '');
   board.setAttribute('aria-labelledby', `tab-${state.tab}`);
-  board.querySelector('.table-wrap')?.addEventListener('scroll', onTableScroll, { passive: true });
+  board.querySelectorAll('.table-wrap').forEach(wrap => wrap.addEventListener('scroll', onTableScroll, { passive: true }));
   document.querySelectorAll('[data-setups]').forEach(count => {
     count.textContent = `${integer(rows.length)} of ${integer(data.runs.length)} setups`;
   });
+  document.querySelectorAll('[data-control="all-models"]').forEach(button => button.setAttribute('aria-pressed', String(state.models === 'all')));
 }
 
 /* On a phone the table scrolls sideways inside its frame: a fade on the right edge while columns are hidden there, and a
@@ -602,11 +627,11 @@ function edgeFade(wrap) {
   wrap.parentElement.classList.toggle('more-right', wrap.scrollLeft + wrap.clientWidth < wrap.scrollWidth - 1);
 }
 function updateSwipe() {
-  const wrap = document.querySelector('#board .table-wrap');
+  const wraps = [...document.querySelectorAll('#board .table-wrap')];
   const hint = document.querySelector('[data-swipe-hint]');
   hint.classList.remove('is-done');
-  hint.hidden = swiped || !wrap || wrap.scrollWidth - wrap.clientWidth <= 1;
-  if (wrap) edgeFade(wrap);
+  hint.hidden = swiped || !wraps.some(wrap => wrap.scrollWidth - wrap.clientWidth > 1);
+  wraps.forEach(edgeFade);
 }
 function onTableScroll(event) {
   const wrap = event.currentTarget;
@@ -657,17 +682,16 @@ function routingControls() {
 /* ---- Filters ---- */
 
 function filterSummary() {
-  const parts = [{ all: 'All models', decision: 'Decision models', chat: 'Chat models' }[state.type]];
+  const parts = [];
   if (state.topic != null) parts.push(units().find(unit => unit.number === state.topic).english);
   else if (state.part !== 'all') parts.push(state.part === 'reading' ? 'Reading' : 'Grammar');
   if (state.qpr !== 'all') parts.push(requestSize(state.qpr));
   if (state.picked.size) parts.push(`${integer(state.picked.size)} picked`);
-  return parts.join(' · ');
+  return parts.join(' · ') || 'All setups';
 }
 
 function renderFilters() {
   const press = (selector, test) => document.querySelectorAll(selector).forEach(button => button.setAttribute('aria-pressed', String(test(button))));
-  press('[data-control="type"] [data-type]', button => button.dataset.type === state.type);
   press('[data-control="part"] [data-part]', button => button.dataset.part === state.part);
   press('[data-control="qpr"] [data-qpr]', button => button.dataset.qpr === String(state.qpr));
   const topics = units().filter(unit => state.part === 'all' || unitPart(unit) === state.part);
@@ -707,12 +731,12 @@ function renderPicker() {
   const group = (title, runs) =>
     `<fieldset><legend>${title}</legend>${runs
       .map(run =>
-        `<label data-name="${esc(`${run.name} ${runDetail(run)}`.toLowerCase())}"><input type="checkbox" value="${run.run}"${state.picked.has(run.run) ? ' checked' : ''}> ` +
-        `<span>${esc(run.name)} <span class="detail">${esc(runDetail(run))}</span></span></label>`)
+        `<label data-name="${esc(`${rowName(run)} ${runDetail(run)}`.toLowerCase())}"><input type="checkbox" value="${run.run}"${state.picked.has(run.run) ? ' checked' : ''}> ` +
+        `<span>${esc(rowName(run))} <span class="detail">${esc(runDetail(run))}</span></span></label>`)
       .join('')}</fieldset>`;
   const sorted = [...data.runs].sort((a, b) => overallAccuracy(b) - overallAccuracy(a));
   list.innerHTML =
-    group('Decision models', sorted.filter(isDecision)) + group('Chat models', sorted.filter(run => !isDecision(run))) +
+    group(SETTINGS.boardGroups.decision, sorted.filter(isDecision)) + group(SETTINGS.boardGroups.other, sorted.filter(run => !isDecision(run))) +
     '<p class="none" hidden>No model matches.</p>';
   document.querySelector('[data-control="model-search"]').value = state.search;
   applySearch();
@@ -740,9 +764,10 @@ function resetFilters() {
 
 /* ---- Charts ---- */
 
-/* The setups the charts show: by default the decision models with the highest accuracy and the routing LLMs at one
-   question per request, with the setups picked or highlighted; "Show all" adds the rest. The type and request-size
-   filters apply. showAll asks for either set, whichever the charts show. */
+/* The setups the charts show: by default the decision models with the highest accuracy, with the setups picked or
+   highlighted, and with the All models switch the routing LLMs at one question per request too; "Show all" adds the
+   rest of the decision models, or of all models. The request-size filter applies. showAll asks for either set, whichever
+   the charts show. */
 function chartRuns(showAll = state.showAll) {
   let runs;
   if (showAll) runs = data.runs;
@@ -755,7 +780,7 @@ function chartRuns(showAll = state.showAll) {
   }
   return runs.filter(
     run =>
-      (state.type === 'all' || (state.type === 'decision') === isDecision(run)) &&
+      (state.models === 'all' || isDecision(run)) &&
       (state.qpr === 'all' || run.questions_per_request === state.qpr),
   );
 }
@@ -765,8 +790,8 @@ function chartScope(runs) {
   const head = `${integer(runs.length)} setup${runs.length === 1 ? '' : 's'}`;
   if (state.showAll) return `${head}: every setup the filters allow.`;
   const parts = [];
-  if (state.type !== 'chat') parts.push(`the ${SETTINGS.chartDecisionModels} most accurate decision models`);
-  if (state.type !== 'decision') parts.push('the routing LLMs at 1 question per request');
+  parts.push(`the ${SETTINGS.chartDecisionModels} most accurate decision models`);
+  if (state.models === 'all') parts.push('the routing LLMs at 1 question per request');
   if (state.picked.size || state.selected != null) parts.push('the setups you picked or highlighted');
   return `${head}: ${parts.join(', ')}${state.qpr === 'all' ? '' : `, at ${requestSize(state.qpr)}`}.`;
 }
@@ -1196,9 +1221,11 @@ function miniChart() {
   const box = document.querySelector('[data-mini-chart]');
   if (!box || !LAPTOP.matches) return;
   const measure = MEASURES.accuracy;
-  const inView = visibleRuns();
+  /* With the leaderboard in its two tables, the decision models in view; with the All models switch, every setup. */
+  const inView = visibleRuns().filter(run => state.models === 'all' || isDecision(run));
   const runs = [...inView].sort((a, b) => measure.value(b) - measure.value(a)).slice(0, MINI_TOP);
-  const title = `Accuracy (%), top ${integer(runs.length)} of ${integer(inView.length)} setups in view, with 95% intervals`;
+  const scope = state.models === 'all' ? 'setups' : 'decision models';
+  const title = `Accuracy (%), top ${integer(runs.length)} of ${integer(inView.length)} ${scope} in view, with 95% intervals`;
   const head = `<span class="mini-head"><span>${esc(title)}</span><span class="go">Charts ↓</span></span>`;
   box.setAttribute('aria-label', `${title}. Go to the charts.`);
   box.classList.toggle('has-selection', runs.some(run => run.run === state.selected));
@@ -1370,8 +1397,8 @@ function readUrl() {
 /* The filters, the highlighted setup and the chart choices, kept with the browser's history entry rather than the URL,
    so Back from a model's page returns to the same tab and filters. */
 function remembered() {
-  const { part, topic, type, qpr, search, selected, filtersOpen, sort, measure, across, showAll, view } = state;
-  return { part, topic, type, qpr, picked: [...state.picked], search, selected, filtersOpen, sort, measure, across, showAll, view };
+  const { part, topic, models, qpr, search, selected, filtersOpen, sort, measure, across, showAll, view } = state;
+  return { part, topic, models, qpr, picked: [...state.picked], search, selected, filtersOpen, sort, measure, across, showAll, view };
 }
 
 function restore() {
@@ -1462,7 +1489,7 @@ function onClick(event) {
   else if (dataset.part) {
     state.part = dataset.part;
     if (state.topic != null && state.part !== 'all' && unitPart(units().find(unit => unit.number === state.topic)) !== state.part) state.topic = null;
-  } else if (dataset.type) state.type = dataset.type;
+  } else if (dataset.control === 'all-models') state.models = state.models === 'all' ? 'split' : 'all';
   else if (dataset.qpr) state.qpr = dataset.qpr === 'all' ? 'all' : Number(dataset.qpr);
   else if (dataset.tab) {
     state.tab = dataset.tab;

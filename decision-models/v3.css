@@ -147,7 +147,8 @@ button.key[aria-pressed="true"] { background: var(--sunk); border-color: var(--t
 button.key[aria-disabled="true"] { color: var(--text-2); border-style: dashed; box-shadow: none; cursor: not-allowed; }
 .lamp { display: inline-block; flex: none; width: .5rem; height: .5rem; border-radius: 50%; background: var(--lamp-off);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .3); }
-[aria-pressed="true"] > .lamp, [aria-selected="true"] > .lamp { background: var(--lamp-on); box-shadow: 0 0 0 1px var(--lamp-on), 0 0 5px 1px var(--lamp-glow); }
+[aria-pressed="true"] > .lamp, [aria-selected="true"] > .lamp, [aria-current="page"] > .lamp { background: var(--lamp-on);
+  box-shadow: 0 0 0 1px var(--lamp-on), 0 0 5px 1px var(--lamp-glow); }
 .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
 select, input[type="search"] { min-height: 2rem; padding: .25rem .45rem; font: inherit; font-size: .85rem; color: var(--text);
   background: var(--sunk); border: 1px solid var(--control-edge); border-radius: 6px; }
@@ -159,6 +160,21 @@ input[type="checkbox"] { accent-color: var(--text); width: 1rem; height: 1rem; }
 .card h2 { font-size: 1.15rem; margin: 0 0 .75rem; padding-bottom: .5rem; border-bottom: 1px solid var(--edge); }
 main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .eyebrow { margin: 0 0 .25rem; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+/* A result that is not final: a badge in the eyebrow and a marked line under the title. */
+.badge { display: inline-block; margin-left: .35rem; padding: 0 .4rem; color: var(--text); border: 1px solid var(--text); border-radius: 4px; }
+.preliminary { margin: 0 0 .75rem; padding: .4rem .7rem; background: var(--sunk); border-left: 3px solid var(--text); border-radius: 4px; }
+
+/* The site's two benchmarks, Text and Page images, as tabs above each one's page: links drawn as the leaderboard's tab
+   keys; the current one sinks, lights its lamp and carries a bar under it. */
+.bench-tabs { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 1.1rem; }
+.bench-tab { position: relative; display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: .35rem .85rem;
+  font-weight: 600; color: var(--text); text-decoration: none; background: var(--key); border: 1px solid var(--control-edge);
+  border-radius: 6px; box-shadow: var(--key-shadow); }
+.bench-tab:hover { border-color: var(--text-2); }
+.bench-tab[aria-current="page"] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); }
+.bench-tab[aria-current="page"]::after { content: ""; position: absolute; left: .6rem; right: .6rem; bottom: -.55rem; height: 3px;
+  border-radius: 2px; background: var(--text); }
+.bench-tab .count { color: var(--text-2); font-family: var(--mono); font-size: .78rem; font-weight: 400; }
 .subtitle { color: var(--text-2); margin: 0 0 .75rem; }
 
 /* Header: the question, the intro, the counters as read-only readouts (flat, not keys), the versions, the summary. */
@@ -218,11 +234,11 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .mini-legend { display: block; margin-top: .3rem; color: var(--text-2); font-size: .75rem; }
 
 /* Phone-only parts (shown by the phone rules below): the Table · Charts switch, the swipe label, the versions under the
-   table and the model type inside the filter panel. */
+   table and the setup count inside the filter panel. */
 .view-switch, .swipe-hint, .version-below { display: none; }
 .filters .panel-only { display: none; }
 
-/* Filters: labelled groups; the bar keeps the model type, the count, a summary and Reset in view when the panel is
+/* Filters: labelled groups; the bar keeps the count, a summary and Reset in view when the panel is
    closed. The panel sits in the page's flow, so it never covers the tabs or the table. */
 .filters { padding: .65rem .8rem; }
 .filters-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
@@ -309,7 +325,10 @@ table.board tbody tr > td { background: var(--panel); }
 table.board tbody tr:hover > td { background: var(--row-hover); }
 table.board tbody tr.is-selected > td { background: var(--row-selected); }
 table.board tbody tr.is-selected > td.model { box-shadow: inset 3px 0 0 var(--text); }
-.js table.fallback tr.chat, .js table.fallback caption { display: none; }
+.js table.fallback caption { display: none; }
+/* The leaderboard's tables, each with its heading: the decision models, then the other models (or all models in one). */
+.board-group { font-size: 1.05rem; margin: 0 0 .5rem; }
+* + .board-group { margin-top: 1.5rem; }
 table.board th.reading { color: var(--reading-text); }
 table.board th.grammar { color: var(--grammar-text); }
 /* Not measured reads as words; a value a filter leaves out is a dash with its reason; a true zero is a number. */
@@ -563,17 +582,22 @@ ul.price-list { padding-left: 1.25rem; }
   .version-below { display: block; margin-top: .6rem; }
   .summary { font-size: .9rem; line-height: 1.25; }
   .summary-list li { margin: 0; }
-  /* One filter row: the Filters key, the summary of the active filters and Reset; the model type is inside the panel. */
+  /* One filter row: the Filters key, the summary of the active filters and Reset; the setup count is inside the panel. */
   .filters { padding: .45rem .6rem; margin-bottom: .5rem; }
   .filters-bar { flex-wrap: nowrap; gap: .5rem; }
   .filters .bar-only { display: none; }
   .filters .panel-only { display: flex; }
   .filters-summary { flex: 1 1 auto; min-width: 0; }
   .filters-body { gap: .8rem; }
-  /* The leaderboard panel: the Table · Charts switch and the question count, then the four tabs on one row. */
+  /* The leaderboard panel: the Table · Charts switch and the question count, the All models switch, then the four tabs
+     on one row. */
   .board-panel { padding-top: .5rem; }
-  .modebar { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "view count" "tabs tabs"; gap: .35rem .5rem;
-    margin-bottom: .4rem; padding-bottom: .45rem; }
+  .bench-tabs { flex-wrap: nowrap; gap: .3rem; margin-bottom: .9rem; }
+  .bench-tab { flex: 1 1 0; justify-content: center; flex-wrap: wrap; gap: .1rem .35rem; padding: .3rem .4rem; font-size: .88rem; }
+  .bench-tab .count { flex-basis: 100%; text-align: center; }
+  .modebar { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "view count" "models models" "tabs tabs";
+    gap: .35rem .5rem; margin-bottom: .4rem; padding-bottom: .45rem; }
+  .all-models { grid-area: models; justify-self: start; min-height: 1.9rem; padding: .15rem .55rem; font-size: .8rem; }
   .view-switch { grid-area: view; display: inline-flex; }
   .view-switch .key { min-height: 1.9rem; padding: .15rem .55rem; font-size: .8rem; }
   .modes { grid-area: tabs; display: flex; flex-wrap: wrap; gap: .25rem; }
@@ -619,6 +643,16 @@ ul.price-list { padding-left: 1.25rem; }
   table.setups, table.setups tbody, table.setups tr, table.setups th[scope="row"], table.setups td { display: block; }
   table.setups th[scope="row"] { min-width: 0; border-bottom: none; padding-bottom: .2rem; }
   details.setup-record dl { grid-template-columns: 1fr; }
+  /* The Page images tables, a few rows whose every column matters: each row stacks, each value beside its label (the
+     header with its direction, from data-label). */
+  table.stack thead { display: none; }
+  table.stack, table.stack tbody, table.stack tr, table.stack td { display: block; }
+  table.stack tr { padding: .35rem 0; border-bottom: 1px solid var(--control-edge); }
+  table.board.stack td, table.board.stack td:first-child { position: static; width: auto; min-width: 0; max-width: none; padding: .2rem .25rem;
+    border-bottom: none; box-shadow: none; }
+  table.stack td[data-label] { display: flex; justify-content: space-between; align-items: baseline; gap: .75rem; white-space: normal; }
+  table.stack td[data-label]::before { content: attr(data-label); color: var(--text-2); font-family: var(--sans); font-size: .78rem; text-align: left; }
+  table.stack .cell { flex: none; max-width: 55%; text-align: right; }
 }
 
 /* Motion only traces the routing path once, when its choices change; none at all for readers who ask for less. */

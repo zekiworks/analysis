@@ -8,6 +8,7 @@ from typing import Any
 
 import build_page as bp
 
+from sitebuild import vision
 from sitebuild.site import NOT_MEASURED, REPO_URL, Site, esc, interval, latency_text, pct, rel, request_size
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
@@ -244,6 +245,19 @@ def formats(site: Site, run: dict[str, Any]) -> str | None:
     return None
 
 
+def page_images(site: Site, run: dict[str, Any]) -> str | None:
+    """For a setup that is condition A of a model in the Page images tab: that model's row, as the tab shows it."""
+    found = [model for model in site.vision["models"] if model["a_run"] == run["run"]]
+    if not found:
+        return None
+    path = site.model_path(run)
+    return (f'<p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is '
+            f'condition A of the <a href="{rel(path, vision.PATH)}">Page images tab</a>, which asks the '
+            f'{site.vision["subset"]["questions"]:,} questions with underlined or numbered words as text (A), as a page image (B), '
+            "as both (C) and through OCR models (D); the share answered right, with its 95% interval.</p>"
+            + vision.model_table(site, path, site.vision, found))
+
+
 def model_page(site: Site, run: dict[str, Any]) -> str:
     path = site.model_path(run)
     correct, total = site.accuracy(run)
@@ -255,6 +269,11 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
         section("How we called it", called(site, run), "called"),
         section("Settings", settings(site, run), "settings"),
         section("Results", results(site, run), "results"),
+    ]
+    images = page_images(site, run)
+    if images:
+        parts.append(section("Page images (preliminary)", images, "page-images"))
+    parts += [
         section("Confidence", confidence(site, run), "confidence"),
         section("Repeats", repeats(site, run), "repeats"),
         section("Latency", latency(run), "latency"),

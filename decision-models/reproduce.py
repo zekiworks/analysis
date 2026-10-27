@@ -389,8 +389,77 @@ def main() -> int:
     for line in cost_mismatches:
         print(line)
 
+    before = checks.passed + checks.failed
+    vision_mismatches = check_vision(args.docs, answers, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nPage-image track (vision.json: each condition's right answers, ECE, Brier score, AUROC and answers at 0.99 from "
+        f"its answers, condition A against answers.json, and each paired test's counts and exact McNemar p): "
+        f"{checked - len(vision_mismatches)} of {checked} match"
+    )
+    for line in vision_mismatches:
+        print(line)
+
     print(f"\n{checks.passed} checks match, {checks.failed} differ")
     return 1 if checks.failed else 0
+
+
+def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[str]:
+    """Recompute vision.json's per-condition numbers from its answers (pick, option probabilities, right or not): right
+    answers exactly; ECE, Brier score and AUROC within METRIC_TOLERANCE; the answers at SURE_SCORE or more, right and
+    wrong, exactly. Condition A's answers must be its run's in answers.json, and each paired test's counts and exact
+    McNemar p must follow from the two conditions' answers. The bootstrap intervals are not recomputed. Returns a line
+    per condition or pair that differs."""
+    path = docs / "vision.json"
+    if not path.exists():
+        return []
+    vision = json.loads(path.read_text(encoding="utf-8"))
+    ids = vision["subset"]["question_ids"]
+    position = {question_id: index for index, question_id in enumerate(answers["questions"]["id"])}
+    runs = {run["run"]: run for run in answers["runs"]}
+    mismatches = []
+    for model in vision["models"]:
+        rights: dict[str, list[int]] = {}
+        for label, published in model["conditions"].items():
+            given = vision["answers"][f"{model['provider']}|{model['model']}|{label}"]
+            right = [int(given[str(question_id)][2]) for question_id in ids]
+            rights[label] = right
+            scored = []
+            for question_id in ids:
+                choice, probabilities, correct = given[str(question_id)]
+                if choice is not None and choice in probabilities:
+                    scored.append((probabilities[choice], int(correct)))
+            calibration = bm.calibration(scored)
+            sure = [correct for score, correct in scored if score >= bm.SURE_SCORE]
+            cells = [
+                checks.cell(sum(right) == published["correct"], f"{sum(right)} right", str(published["correct"])),
+                checks.metric(published["ece"], calibration["ece"]),
+                checks.metric(published["brier"], calibration["brier"]),
+                checks.metric(published["auroc"], bm.auroc(scored)),
+                checks.cell([len(sure), sum(sure)] == [published["at_0_99"]["answers"], published["at_0_99"]["right"]],
+                            f"{len(sure)} at 0.99, {sum(sure)} right",
+                            f"{published['at_0_99']['answers']}, {published['at_0_99']['right']} right"),
+            ]
+            # Condition A against its run in answers.json, for the runs the text results hold; a run not yet on the
+            # text leaderboard (a preliminary track) is checked from vision.json alone.
+            run = runs.get(model["a_run"]) if label == "A" else None
+            if run is not None:
+                same = all(int(run["correct"][position[question_id]]) == value for question_id, value in zip(ids, right))
+                cells.append(checks.cell(same, "A as in answers.json", f"run {model['a_run']} in answers.json"))
+            if any("≠" in cell for cell in cells):
+                mismatches.append(f"  {model['name']} {label}: " + ", ".join(cells))
+        for item in model["paired"]:
+            test = bm.paired_comparison(rights[item["first"]], rights[item["second"]])
+            published = item["accuracy"]
+            cells = [
+                checks.cell([test["first_only"], test["second_only"]] == [published["first_only"], published["second_only"]],
+                            f"{test['first_only']} / {test['second_only']}", f"{published['first_only']} / {published['second_only']}"),
+                checks.cell(close(published["mcnemar_p"], test["p"], relative=P_TOLERANCE), f"p {test['p']:.3g}",
+                            f"p {published['mcnemar_p']:.3g}"),
+            ]
+            if any("≠" in cell for cell in cells):
+                mismatches.append(f"  {model['name']} {item['first']} vs {item['second']}: " + ", ".join(cells))
+    return mismatches
 
 
 def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[int], checks: Checks) -> list[str]:

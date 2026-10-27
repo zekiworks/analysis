@@ -11,13 +11,14 @@ give a run another type than the tables do (type_checks). Then it draws the char
 preview image in both themes with headless Chrome (CHROME, else google-chrome) and CITATION.cff, both from build_page.py,
 and writes the pages.
 
-The home page, index.html, keeps its copy; this script rewrites what is inside its <!-- build:name --> markers: the meta
-tags, the top bar, the intro (its counts from results.json), the counters, the results version, the plain table for
-readers without JavaScript (every setup) and the note under it, the settings v3.js reads, the default setup count, the
-charts' "Show all" label, the topic list and the questions in view. v3.js draws everything else in the browser from
-results.json. Every other page is generated whole by a module of sitebuild/ (PAGE_MODULES) and written to
-<path>index.html. v1/ keeps the earlier page as it was on 14 October 2026, and v2/ and v3/ send the preview addresses
-here; nothing rebuilds them.
+The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the Page images tab. index.html keeps its
+copy; this script rewrites what is inside its <!-- build:name --> markers: the meta tags, the top bar, the two tabs, the
+intro (its counts from results.json), the counters, the results version, the plain tables for readers without
+JavaScript (the decision models, then the other models, each ranked on its own) and the note under them, the settings
+v3.js reads, the default setup count, the charts' "Show all" label, the topic list and the questions in view. v3.js
+draws everything else in the browser from results.json. Every other page is generated whole by a module of sitebuild/
+(PAGE_MODULES) and written to <path>index.html. v1/ keeps the earlier page as it was on 14 October 2026, and v2/ and v3/
+send the preview addresses here; nothing rebuilds them.
 
 The home page's fixed copy (the summary lines, the note under the Accuracy table, the notes under the tabs, the meta
 description) quotes numbers and comparisons; copy_checks() tests each against results.json and prints every one that
@@ -41,11 +42,11 @@ sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
-from sitebuild.site import NOT_MEASURED, Site, topbar  # noqa: E402
+from sitebuild.site import NOT_MEASURED, Site, route_labels, topbar  # noqa: E402
 
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
-PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "data", "method")
+PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "data", "method")
 TITLE = "When should you trust a decision model?"
 # The intro and the meta description; their counts come from results.json (counts()).
 INTRO = (
@@ -92,6 +93,9 @@ SUMMARY_WORDS = 150
 ROUTE_LLMS = (("opus", "Opus"), ("sonnet_high", "Sonnet"), ("astra", "Astra"), ("sol", "Sol"), ("gemini_low", "Gemini Flash"))
 # Decision models in the charts by default, next to the routing LLMs at one question per request.
 CHART_DECISION_MODELS = 8
+# The leaderboard's two tables, in order, with their headings (v3.js reads them from the settings): the decision models,
+# then every other model (chat and general models), each ranked on its own; the All models switch shows one table.
+BOARD_GROUPS = {"decision": "Decision models", "other": "Other models: chat and general models"}
 
 
 class Data:
@@ -102,6 +106,8 @@ class Data:
         self.config = json.loads((ROOT / "page_config.json").read_text())
         self.runs: list[dict[str, Any]] = self.results["runs"]
         self.by_id = {run["run"]: run for run in self.runs}
+        # The route of each run whose model ID runs as both kinds of model, by run id (sitebuild.site.route_labels).
+        self.route_labels = route_labels(self.runs, self.decision)
 
     def decision(self, run: dict[str, Any]) -> bool:
         return run["provider"] in self.config["decision_model_providers"] and run["model"] not in self.config["not_decision_models"]
@@ -145,31 +151,34 @@ def percent(fraction: float, digits: int = 1) -> str:
     return f"{100 * fraction:.{digits}f}"
 
 
-def short_detail(run: dict[str, Any]) -> str:
+def short_detail(data: Data, run: dict[str, Any]) -> str:
     """The settings in the short form a phone shows, as v3.js: "1 per request · low reasoning"; a variant keeps its part
-    before a comma."""
+    before a comma, unless the name already carries it as the route (route_labels)."""
     parts = [f"{bp.count(run['questions_per_request'])} per request"]
     if run.get("reasoning"):
         parts.append(bp.reasoning_label(run["reasoning"]))
-    if run.get("variant"):
+    if run.get("variant") and run["run"] not in data.route_labels:
         parts.append(run["variant"].split(",")[0])
     return " · ".join(parts)
 
 
 def table_name(data: Data, run: dict[str, Any]) -> str:
-    """A setup's name in the table, as v3.js: on a phone, the charts' short name where it has one."""
+    """A setup's name in the table, as v3.js: on a phone, the charts' short name where it has one; either with the run's
+    route where the same model ID runs as both kinds of model (route_labels)."""
+    label = data.route_labels.get(run["run"])
+    route = f" ({bp.esc(label)})" if label else ""
     short = data.config["short_names"].get(run["model"])
     if not short or short == run["name"]:
-        return bp.esc(run["name"])
-    return f'<span class="name-long">{bp.esc(run["name"])}</span><span class="name-short">{bp.esc(short)}</span>'
+        return bp.esc(run["name"]) + route
+    return f'<span class="name-long">{bp.esc(run["name"])}{route}</span><span class="name-short">{bp.esc(short)}{route}</span>'
 
 
 def fallback_table(data: Data) -> str:
-    """The Accuracy tab on all questions, every setup, as a plain table: what readers without JavaScript see. Units sit
-    in the headers, each column with one number of decimals, as in v3.js. With JavaScript, the chat models' rows are
-    hidden from the first paint (html.js), so the page opens as v3.js then draws it, decision models first, without a
-    jump; the settings line has v3.js's long form and, on a phone, its short form."""
-    rows = []
+    """The Accuracy tab on all questions as plain tables, as v3.js opens it: the decision models first, then the other
+    models, each table ranked on its own (BOARD_GROUPS). Readers without JavaScript see these; with JavaScript, v3.js
+    replaces them with the same tables, without a jump. Units sit in the headers, each column with one number of
+    decimals, as in v3.js; the settings line has v3.js's long form and, on a phone, its short form."""
+    groups: dict[bool, list[str]] = {True: [], False: []}
     for run in sorted(data.runs, key=lambda run: -accuracy(run)[0]):
         correct, total = accuracy(run)
         low, high = bm.wilson_interval(correct, total)
@@ -180,11 +189,11 @@ def fallback_table(data: Data) -> str:
         sample_mark = f'<span class="mark">{SAMPLE_MARK}</span>' if latency is not None and sample_label(run) else ""
         decision = data.decision(run)
         kind = "Decision model" if decision else "Chat model"
-        rows.append(
-            ("<tr>" if decision else '<tr class="chat">')
-            + f'<td class="model"><a class="model-name" href="models/{run["run"]}/">{table_name(data, run)}</a>'
+        groups[decision].append(
+            "<tr>"
+            f'<td class="model"><a class="model-name" href="models/{run["run"]}/">{table_name(data, run)}</a>'
             f'<span class="small settings-long">{bp.esc(detail(run))} · {kind}</span>'
-            f'<span class="small settings-short">{bp.esc(short_detail(run))}{"" if decision else " · chat model"}</span></td>'
+            f'<span class="small settings-short">{bp.esc(short_detail(data, run))}{"" if decision else " · chat model"}</span></td>'
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
@@ -192,13 +201,15 @@ def fallback_table(data: Data) -> str:
             f'<td class="num">{f"{cost:.3f}" if cost is not None else NOT_MEASURED}{maker_mark if run["cost_basis"] == "maker" else ""}</td>'
             "</tr>"
         )
-    return (
-        '<table class="board fallback"><caption>Accuracy on all '
-        f'{bp.count(data.results["questions"])} questions, with its 95% interval</caption>'
+    questions = bp.count(data.results["questions"])
+    return "".join(
+        f'<h3 class="board-group">{bp.esc(title)}</h3><div class="table-frame"><div class="table-wrap"><table class="board fallback">'
+        f"<caption>Accuracy on all {questions} questions, with its 95% interval</caption>"
         '<thead><tr><th scope="col">Model</th><th scope="col" class="num">Accuracy (%)</th><th scope="col" class="num">Reading (%)</th>'
         '<th scope="col" class="num">Grammar (%)</th><th scope="col" class="num unit-long">Median latency per request (s)</th>'
         '<th scope="col" class="num unit-long">$ per 1,000 questions</th>'
-        f'</tr></thead><tbody>{"".join(rows)}</tbody></table>'
+        f'</tr></thead><tbody>{"".join(groups[key == "decision"])}</tbody></table></div></div>'
+        for key, title in BOARD_GROUPS.items()
     )
 
 
@@ -312,13 +323,13 @@ def stats(data: Data) -> str:
 
 
 def setups(data: Data) -> str:
-    """The setup count the page opens with: the decision models, the default model type, on the Accuracy tab."""
-    return f"{bp.count(sum(map(data.decision, data.runs)))} of {bp.count(len(data.runs))} setups"
+    """The setup count the page opens with: every setup, in its two tables, on the Accuracy tab."""
+    return f"{bp.count(len(data.runs))} of {bp.count(len(data.runs))} setups"
 
 
 def show_all(data: Data) -> str:
-    """The charts' "Show all" key as the page opens, on the default model type (decision models): every setup it would
-    show. v3.js relabels it for the filters in view and hides it when it would add nothing."""
+    """The charts' "Show all" key as the page opens, with the leaderboard in its two tables (the charts then show decision
+    models only): every decision model. v3.js relabels it for the filters in view and hides it when it would add nothing."""
     return f"Show all {bp.count(sum(map(data.decision, data.runs)))}"
 
 
@@ -344,6 +355,9 @@ def page_settings(data: Data) -> str:
         # A chart label for a setup whose model ID another setup shares, by provider then model.
         "chartLabels": data.config["chart_labels"],
         "chartDecisionModels": CHART_DECISION_MODELS,
+        # The leaderboard's two tables and their headings, in order; and each route label, by run id.
+        "boardGroups": BOARD_GROUPS,
+        "routeLabels": data.route_labels,
         # The ranking charts' colours for decision models, worst to best (page_config.json rank_scale).
         "rankScale": data.config["rank_scale"]["stops"],
         # A saving whose first model ran on our own hardware: its marker, tooltip and note, by how its cost was counted.
@@ -557,6 +571,7 @@ def main() -> int:
         "head": head(data, names["preview"]["dark"]),
         "intro": bp.esc(INTRO.format(**counts(data))),
         "topbar": topbar(""),
+        "tabs": site.tabs(""),
         "stats": stats(data),
         "version": version(data),
         "setups": setups(data),

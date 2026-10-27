@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import html
 import json
+from collections.abc import Callable, Iterable
 from functools import cached_property
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,8 @@ MENU = (
     ("method/", "Method"),
     ("data/", "Data"),
 )
+# The site's two benchmarks, each a tab at the top of its page: (path inside the site, label). Text is the home page.
+BENCHMARKS = (("", "Text"), ("vision/", "Page images"))
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
 
@@ -56,6 +59,28 @@ def topbar(path: str) -> str:
         " background</span></button></div>\n"
         "  </header>"
     )
+
+
+def route_labels(runs: Iterable[dict[str, Any]], decision: Callable[[dict[str, Any]], bool]) -> dict[int, str]:
+    """The route of each run whose model ID has runs among the decision models and among the other models, by run id, so
+    that its rows read "GPT-6 Luna (Decisions API)" and "GPT-6 Luna (chat API)": the run's variant up to its first comma,
+    else "chat API" for a run that is not a decision model. decision is page_config.json's rule (Site.decision)."""
+    runs = list(runs)
+    kinds: dict[str, set[bool]] = {}
+    for run in runs:
+        kinds.setdefault(run["model"], set()).add(decision(run))
+    labels = {}
+    for run in runs:
+        if len(kinds[run["model"]]) < 2:
+            continue
+        if run.get("variant"):
+            labels[run["run"]] = run["variant"].split(",")[0]
+        elif not decision(run):
+            labels[run["run"]] = "chat API"
+        else:
+            raise ValueError(f"run {run['run']} ({run['name']}) is a decision model whose model ID also has runs among the "
+                             "other models; give it a variant that names its route")
+    return labels
 
 
 def pct(fraction: float, digits: int = 1) -> str:
@@ -114,6 +139,31 @@ class Site:
     def values(self) -> dict[str, str]:
         """build_page.py's values over the snapshot: the Method page's numbers and the citation's counts."""
         return bp.values(self.snapshot)
+
+    @cached_property
+    def vision(self) -> dict[str, Any]:
+        """vision.json: the Page images benchmark (sitebuild/vision.py), preliminary."""
+        return json.loads((ROOT / "vision.json").read_text(encoding="utf-8"))
+
+    @cached_property
+    def route_labels(self) -> dict[int, str]:
+        return route_labels(self.runs, self.decision)
+
+    def row_name(self, run: dict[str, Any]) -> str:
+        """A setup's name in a leaderboard row, with its route where the same model ID runs as both kinds of model."""
+        label = self.route_labels.get(run["run"])
+        return f"{run['name']} ({label})" if label else run["name"]
+
+    def tabs(self, path: str) -> str:
+        """The two benchmarks' tabs, at the top of the home page (Text) and of vision/ (Page images): each links to its
+        page, the current one marked with aria-current, its number of questions beside its label."""
+        questions = {"": self.total, "vision/": self.vision["subset"]["questions"]}
+        links = "".join(
+            f'<a class="bench-tab" href="{rel(path, target)}"{" aria-current=\"page\"" if path == target else ""}>'
+            f'<span class="lamp" aria-hidden="true"></span>{esc(label)}<span class="count">{bp.count(questions[target])} questions</span></a>'
+            for target, label in BENCHMARKS
+        )
+        return f'<nav class="bench-tabs" aria-label="Benchmarks">{links}</nav>'
 
     def decision(self, run: dict[str, Any]) -> bool:
         return run["provider"] in self.config["decision_model_providers"] and run["model"] not in self.config["not_decision_models"]
