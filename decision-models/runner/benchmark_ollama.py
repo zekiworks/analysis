@@ -59,6 +59,12 @@ class SystemOneService:
     # OpenAI's Decisions API: the same three parts under other names (`input`, a list of named
     # `questions`, `choices` with values and descriptions), and answers listed by name (system_one_answer).
     openai_format: bool = False
+    # How the server takes images with a request (ask_jev's `images`), or None when it takes none: "assets"
+    # (TypeSafe: a top-level map of base64 files, each read where its reference string appears, sent with the
+    # TypeSafe-Danger-Zone-Images header), "data-urls" (a top-level `images` list of data URLs: Liquid, vLLM),
+    # "input-image" (OpenAI: `input_image` parts in the input message) or "media" (OneJev's server: a `media`
+    # list, each item read where its `<image:N>` reference appears).
+    images: str | None = None
 
     def key_help(self) -> str:
         if not self.key_vars:
@@ -74,10 +80,11 @@ SYSTEM_ONE = {
         key_vars=("JEV_API_KEY", "TYPESAFE_API_KEY"),
         key_required=True,
         request_id_header="x-typesafe-request-id",
+        images="assets",
     ),
     "open-jev": SystemOneService("Open-Jev", "http://192.168.1.126:8791", model_field=False),
     "liquid": SystemOneService(
-        "Liquid AI", "https://api.liquid.ai/decisions", key_vars=("LIQUID_API_KEY",), key_required=True
+        "Liquid AI", "https://api.liquid.ai/decisions", key_vars=("LIQUID_API_KEY",), key_required=True, images="data-urls"
     ),
     # ~/code/laya/server.py, which wants LAYA_API_KEY only when it was started with one.
     "laya": SystemOneService(
@@ -123,7 +130,13 @@ SYSTEM_ONE = {
     # vLLM's own System One endpoint (/v1/systemone) serving the vLLM Semantic Router's Decision 3.0 checkpoints
     # (vllm-sr/d3) on our GPU, from a current nightly build (the support is on vLLM's main branch since 14 October 2026),
     # which takes the same request at the default path and returns the same answers; the model field names the checkpoint.
-    "vllm-sr": SystemOneService("vLLM-SR", "http://127.0.0.1:18110"),
+    "vllm-sr": SystemOneService("vLLM-SR", "http://127.0.0.1:18110", images="data-urls"),
+    # OmniJev's OneJev-27B (OmniJev/OneJev-27B) on our GPU behind the server its package ships (`qev serve`,
+    # github.com/OmniJev/OneJev), which takes the same request at the default path, plus a `media` list for images, and
+    # returns the same answers; the model field must name the checkpoint as the server was started (--name).
+    "onejev": SystemOneService(
+        "OneJev", "http://127.0.0.1:18111", request_id_header="x-typesafe-request-id", images="media"
+    ),
     # OpenAI's Decisions API (public beta), which serves gpt-6-luna. Needs an API key with billing; the
     # Codex-based openai provider never uses one.
     "openai-decisions": SystemOneService(
@@ -134,6 +147,7 @@ SYSTEM_ONE = {
         key_required=True,
         request_id_header="x-request-id",
         openai_format=True,
+        images="input-image",
     ),
     # SubQ's subq-snap-preview (public preview) through its Decisions API (docs.subq.ai/endpoints/decisions-api), which
     # takes the same request at the default path and returns the same answers.
@@ -415,7 +429,7 @@ TIE_ALPHA = 0.05
 # second. The doubt counts the mistakes of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr",
+    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
@@ -2362,6 +2376,44 @@ def system_one_answer(response: Any) -> dict[str, Any]:
     return answer
 
 
+def add_images(service: SystemOneService, payload: dict[str, Any], headers: dict[str, str], images: tuple[Path, ...]) -> None:
+    """Put PNG or JPEG files into a System One request in the service's own format (SystemOneService.images), in the
+    order given, after the text of the state (or input); with no text, the images are the whole state."""
+    contents = [path.read_bytes() for path in images]
+    formats = []
+    for path in images:
+        suffix = path.suffix.lower()
+        if suffix not in (".png", ".jpg", ".jpeg"):
+            raise ValueError(f"{path}: images must be PNG or JPEG files")
+        formats.append("png" if suffix == ".png" else "jpg")
+    encoded = [base64.b64encode(content).decode("ascii") for content in contents]
+    urls = [f"data:image/{'png' if fmt == 'png' else 'jpeg'};base64,{data}" for fmt, data in zip(formats, encoded)]
+    if service.images == "data-urls":
+        payload["images"] = urls
+    elif service.images == "input-image":
+        text = payload["input"]
+        payload["input"] = [{
+            "role": "user",
+            "content": ([{"type": "input_text", "text": text}] if text else [])
+            + [{"type": "input_image", "image_url": url} for url in urls],
+        }]
+    elif service.images in ("assets", "media"):
+        if service.images == "assets":
+            # References that cannot occur in the text by accident: each file's SHA-256.
+            references = [f"image-{hashlib.sha256(content).hexdigest()[:16]}" for content in contents]
+            payload["assets"] = {
+                reference: {"type": "image", "format": fmt, "data_base64": data}
+                for reference, fmt, data in zip(references, formats, encoded)
+            }
+            headers["TypeSafe-Danger-Zone-Images"] = "true"
+        else:
+            references = [f"<image:{number}>" for number in range(1, len(images) + 1)]
+            payload["media"] = [{"type": "image", "data": url} for url in urls]
+        payload["state"] = "\n\n".join(([payload["state"]] if payload["state"] else []) + references)
+    else:
+        raise ValueError(f"{service.name} takes no images")
+
+
 def ask_jev(
     service: SystemOneService,
     base_url: str,
@@ -2370,8 +2422,11 @@ def ask_jev(
     question: Question,
     timeout: float,
     verbose_log: TextIO | None,
+    images: tuple[Path, ...] = (),
+    instructions: str = JEV_INSTRUCTIONS,
 ) -> tuple[str | None, str]:
-    """Ask one System One `choice` question; requests carry no key when `api_key` is None."""
+    """Ask one System One `choice` question; requests carry no key when `api_key` is None. `images` go with the
+    question's text (see add_images); without them the request is text only."""
     labels = [option.label for option in question.options]
     # Open-Jev and Laya serve one checkpoint and take no model field, so their model argument is only
     # the report label.
@@ -2383,7 +2438,7 @@ def ask_jev(
                 {
                     "type": "choice",
                     "name": "answer",
-                    "instructions": JEV_INSTRUCTIONS,
+                    "instructions": instructions,
                     "choices": [{"value": option.label, "description": option.text} for option in question.options],
                 }
             ],
@@ -2394,7 +2449,7 @@ def ask_jev(
             questions={
                 "answer": {
                     "type": "choice",
-                    "instructions": JEV_INSTRUCTIONS,
+                    "instructions": instructions,
                     "criteria": {option.label: option.text for option in question.options},
                 }
             },
@@ -2402,6 +2457,8 @@ def ask_jev(
     headers = {"Content-Type": "application/json"}
     if api_key is not None:
         headers["Authorization"] = f"Bearer {api_key}"
+    if images:
+        add_images(service, payload, headers, images)
     result, response_headers = post_json(
         base_url.rstrip("/") + service.path, payload, headers, timeout, verbose_log, service.name
     )
