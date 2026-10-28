@@ -349,8 +349,8 @@ PRICES: dict[tuple[str, str], Price] = {
         "OpenRouter's price for Moonshot AI's endpoint (mxfp4)", "https://openrouter.ai/moonshotai/kimi-k3.1-pro", "2026-10-28",
         2.00, 10.00, cached_input=0.20,
     ),
-    # The pin order ["fireworks"] admits both Fireworks endpoints; OpenRouter billed 135 of the run's 138 requests at
-    # the spot endpoint's rates and 2 at the standard ones ($1.40 input, $4.40 output, $0.26 cached).
+    # The pin order ["fireworks"] admits all of Fireworks' endpoints; OpenRouter billed 135 of the run's 138 requests at
+    # the spot endpoint's rates, 2 at the standard ones ($1.40 input, $4.40 output) and 1 at the fast endpoint's.
     ("openrouter-chat", "z-ai/glm-5.3"): Price(
         "OpenRouter's price for Fireworks' spot endpoint, which served nearly every request", "https://openrouter.ai/z-ai/glm-5.3",
         "2026-10-28", 0.98, 3.08, cached_input=0.182,
