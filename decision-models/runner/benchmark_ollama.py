@@ -744,6 +744,12 @@ def parse_args() -> argparse.Namespace:
         help="let the model think before it answers, for --provider vllm and vllm-stated (default: thinking off)",
     )
     parser.add_argument(
+        "--vllm-reasoning-effort",
+        choices=("low", "medium", "high", "xhigh"),
+        help="the chat template's reasoning_effort with --vllm-thinking (Qwen3.8 reads low, medium and xhigh, its "
+        "default); the run's reasoning setting is then this level",
+    )
+    parser.add_argument(
         "--concurrency",
         type=int,
         default=1,
@@ -879,6 +885,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--image-input=on is currently supported only by --provider ollama")
     if args.vllm_thinking and args.provider not in ("vllm", "vllm-stated"):
         parser.error("--vllm-thinking is only supported by --provider vllm and vllm-stated")
+    if args.vllm_reasoning_effort and not args.vllm_thinking:
+        parser.error("--vllm-reasoning-effort needs --vllm-thinking")
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
     concurrent = ("vllm", "vllm-stated", "gemini", "xai", "antigravity", "openrouter-chat")
@@ -1949,22 +1957,27 @@ def ask_ollama(
 
 
 def vllm_chat_payload(
-    model: str, system: str, prompt: str, schema: dict[str, Any], seed: int, thinking: bool, questions: int
+    model: str, system: str, prompt: str, schema: dict[str, Any], seed: int, thinking: bool | str, questions: int
 ) -> dict[str, Any]:
     """A chat request with an answer schema through vLLM's chat API, which SGLang and TensorFold also serve, with the
     run's seed. Without thinking it decodes greedily (temperature 0); with thinking it samples with the server's
-    defaults, because greedy decoding makes reasoning loop. The answer schema applies to the reply after the thinking."""
+    defaults, because greedy decoding makes reasoning loop. The answer schema applies to the reply after the thinking.
+    `thinking` is a bool, or the chat template's reasoning_effort (--vllm-reasoning-effort), which also turns it on."""
+    enabled = bool(thinking)
+    template = {"enable_thinking": enabled, "thinking": enabled}
+    if isinstance(thinking, str):
+        template["reasoning_effort"] = thinking
     payload: dict[str, Any] = {
         "model": model,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}],
         "seed": seed,
-        "max_tokens": VLLM_THINKING_MAX_TOKENS if thinking else VLLM_TOKENS_PER_ANSWER * questions,
+        "max_tokens": VLLM_THINKING_MAX_TOKENS if enabled else VLLM_TOKENS_PER_ANSWER * questions,
         "response_format": {"type": "json_schema", "json_schema": {"name": "answers", "schema": schema, "strict": True}},
         # Qwen's, Gemma's and GLM's chat templates read enable_thinking, DeepSeek's reads thinking; each ignores the
-        # other.
-        "chat_template_kwargs": {"enable_thinking": thinking, "thinking": thinking},
+        # other. Qwen3.8's also reads reasoning_effort (xhigh when unset).
+        "chat_template_kwargs": template,
     }
-    if not thinking:
+    if not enabled:
         payload["temperature"] = 0
     return payload
 
@@ -1975,7 +1988,7 @@ def ask_vllm(
     batch: list[Question],
     timeout: float,
     seed: int,
-    thinking: bool,
+    thinking: bool | str,
     verbose_log: TextIO | None,
 ) -> tuple[list[str | None], str]:
     """The Ollama request through vLLM's chat API (vllm_chat_payload): the same prompt and answer schema.
@@ -2015,7 +2028,7 @@ def ask_vllm_stated(
     batch: list[Question],
     timeout: float,
     seed: int,
-    thinking: bool,
+    thinking: bool | str,
     verbose_log: TextIO | None,
 ) -> tuple[list[str | None], str]:
     """The hosted models' request through vLLM's chat API (vllm_chat_payload), for a server that returns no token
@@ -4998,7 +5011,7 @@ def main() -> int:
             image_input = False
         elif args.provider in VLLM_PROVIDERS:
             endpoint = require_server_url(args.vllm_url, "--vllm-url")
-            thinking = args.vllm_thinking
+            thinking = args.vllm_reasoning_effort or args.vllm_thinking
             image_input = False
             if args.provider == "vllm-yes-no":
                 args.yes_no_ids = vllm_yes_no_ids(args.vllm_url, args.model, args.timeout)
