@@ -28,7 +28,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterator, TextIO
+from typing import Any, Callable, Iterator, TextIO
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 from uuid import uuid4
@@ -2467,7 +2467,10 @@ def ask_xai(model: str, batch: list[Question], timeout: float, effort: str, verb
         "text": {"format": {"type": "json_schema", "name": "answers", "schema": confidence_schema(batch), "strict": True}},
         "reasoning": {"effort": effort},
     }
-    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {omp_token('xai-oauth')}"}
+    # A fresh token for every attempt: a retry after a 30-minute timeout must not send an expired one.
+    def headers() -> dict[str, str]:
+        return {"Content-Type": "application/json", "Authorization": f"Bearer {omp_token('xai-oauth')}"}
+
     result, _ = post_json(XAI_RESPONSES_URL, payload, headers, timeout, verbose_log, "xAI")
     # The answer is the output_text of the message items; reasoning items carry none.
     text = "".join(
@@ -2529,11 +2532,14 @@ def ask_antigravity(
         "userAgent": "antigravity",
         "requestType": "agent",
     }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {omp_token('google-antigravity')}",
-        "User-Agent": ANTIGRAVITY_USER_AGENT,
-    }
+    # A fresh token for every attempt, as for xAI.
+    def headers() -> dict[str, str]:
+        return {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {omp_token('google-antigravity')}",
+            "User-Agent": ANTIGRAVITY_USER_AGENT,
+        }
+
     for index, base in enumerate(ANTIGRAVITY_URLS):
         try:
             result, _ = post_json(f"{base}/v1internal:generateContent", envelope, headers, timeout, verbose_log, "Antigravity")
@@ -2641,17 +2647,19 @@ def jev_retry_delay(headers: Any, attempt: int) -> float:
 def post_json(
     endpoint: str,
     payload: dict[str, Any],
-    headers: dict[str, str],
+    headers: dict[str, str] | Callable[[], dict[str, str]],
     timeout: float,
     verbose_log: TextIO | None,
     service: str,
 ) -> tuple[Any, Any]:
-    """POST JSON without following redirects; retry 408, 429, 5xx and transport failures."""
+    """POST JSON without following redirects; retry 408, 429, 5xx and transport failures. `headers` may be a function,
+    called for each attempt, so that a retry carries a freshly fetched token."""
     raw_request = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     write_verbose(verbose_log, f"RAW REQUEST POST {endpoint}", raw_request)
     attempt = 0
     while True:
-        request = Request(endpoint, data=raw_request.encode(), headers=headers, method="POST")
+        request_headers = headers() if callable(headers) else headers
+        request = Request(endpoint, data=raw_request.encode(), headers=request_headers, method="POST")
         try:
             with JEV_OPENER.open(request, timeout=timeout) as response:
                 raw_response = response.read().decode("utf-8", errors="replace")
