@@ -349,9 +349,11 @@ PRICES: dict[tuple[str, str], Price] = {
         "OpenRouter's price for Moonshot AI's endpoint (mxfp4)", "https://openrouter.ai/moonshotai/kimi-k3.1-pro", "2026-10-28",
         2.00, 10.00, cached_input=0.20,
     ),
+    # The pin order ["fireworks"] admits both Fireworks endpoints; OpenRouter billed 135 of the run's 138 requests at
+    # the spot endpoint's rates and 2 at the standard ones ($1.40 input, $4.40 output, $0.26 cached).
     ("openrouter-chat", "z-ai/glm-5.3"): Price(
-        "OpenRouter's price for the Fireworks endpoint", "https://openrouter.ai/z-ai/glm-5.3", "2026-10-28",
-        1.40, 4.40, cached_input=0.26,
+        "OpenRouter's price for Fireworks' spot endpoint, which served nearly every request", "https://openrouter.ai/z-ai/glm-5.3",
+        "2026-10-28", 0.98, 3.08, cached_input=0.182,
     ),
     ("openrouter-chat", "deepseek/deepseek-v4.1-flash-1017"): Price(
         "OpenRouter's price for DeepSeek's own endpoint", "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017", "2026-10-28",
@@ -592,6 +594,10 @@ ANTIGRAVITY_URLS = ("https://daily-cloudcode-pa.googleapis.com", "https://daily-
 # The Antigravity app's user agent, as OMP sends it.
 ANTIGRAVITY_USER_AGENT = "antigravity/hub/2.19.1 (aidev_client; os_type=darwin; arch=arm64; cl=963137146)"
 ANTIGRAVITY_THINKING = ("low", "medium", "high")
+# Antigravity stops thinking plus answer at 32,768 tokens unless the request asks for more (the first Argon high run hit
+# that in 5 of its first 29 requests, with no answer left); the Gemini API's default for these models, which the Gemini
+# runs had, is 65,536.
+ANTIGRAVITY_MAX_OUTPUT_TOKENS = 65536
 # OpenRouter's chat completions, each run pinned to one provider endpoint (--openrouter-order) without fallbacks.
 OPENROUTER_CHAT_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_EFFORTS = ("none", "minimal", "low", "medium", "high", "xhigh", "max")
@@ -2495,6 +2501,7 @@ def ask_antigravity(
             "responseMimeType": "application/json",
             "responseSchema": gemini_schema(confidence_schema(batch)),
             "thinkingConfig": {"thinkingLevel": thinking_level},
+            "maxOutputTokens": ANTIGRAVITY_MAX_OUTPUT_TOKENS,
         },
         "sessionId": f"-{random.randrange(9_000_000_000_000_000_000)}",
     }
