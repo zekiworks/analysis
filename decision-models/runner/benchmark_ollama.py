@@ -594,9 +594,10 @@ ANTIGRAVITY_URLS = ("https://daily-cloudcode-pa.googleapis.com", "https://daily-
 # The Antigravity app's user agent, as OMP sends it.
 ANTIGRAVITY_USER_AGENT = "antigravity/hub/2.19.1 (aidev_client; os_type=darwin; arch=arm64; cl=963137146)"
 ANTIGRAVITY_THINKING = ("low", "medium", "high")
-# Antigravity stops thinking plus answer at 32,768 tokens unless the request asks for more (the first Argon high run hit
-# that in 5 of its first 29 requests, with no answer left); the Gemini API's default for these models, which the Gemini
-# runs had, is 65,536.
+# The output limit asked of Antigravity: 65,536 tokens, the Gemini API's default for these models, which the Gemini
+# runs had. Antigravity still ends a reply at 32,768 tokens of thinking plus answer: without the setting the reply
+# ends with finishReason MAX_TOKENS, with it CONTINUATION (a continuation this runner does not request), so a request
+# that needs more comes back without a complete answer either way.
 ANTIGRAVITY_MAX_OUTPUT_TOKENS = 65536
 # OpenRouter's chat completions, each run pinned to one provider endpoint (--openrouter-order) without fallbacks.
 OPENROUTER_CHAT_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -837,6 +838,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-ctx", type=int)
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--restart", action="store_true")
+    parser.add_argument(
+        "--retry-cut",
+        action="store_true",
+        help="with --provider antigravity, after the run's own requests, ask each request Antigravity cut at its output "
+        "limit before a complete answer once more (a stored retry is never asked again)",
+    )
     parser.add_argument("--log-verbose", action="store_true")
     parser.add_argument("--progress-every", type=int, default=10)
     variant = parser.add_mutually_exclusive_group()
@@ -899,6 +906,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--vllm-thinking is only supported by --provider vllm and vllm-stated")
     if args.vllm_reasoning_effort and not args.vllm_thinking:
         parser.error("--vllm-reasoning-effort needs --vllm-thinking")
+    if args.retry_cut and (args.provider != "antigravity" or args.restart):
+        parser.error("--retry-cut is only supported by --provider antigravity, without --restart")
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
     concurrent = ("vllm", "vllm-stated", "gemini", "xai", "antigravity", "openrouter-chat")
@@ -3050,9 +3059,11 @@ def store_answers(
     raw_response: str,
     elapsed: float,
     request_seconds: float,
+    retry: bool = False,
 ) -> None:
     """Store each answer under the question bank's letters, with the options as shown to the model.
-    elapsed is the batch's share of the run's request time; request_seconds its own request's duration."""
+    elapsed is the batch's share of the run's request time; request_seconds its own request's duration. A retry
+    (--retry-cut) replaces answers already counted, so it adds its time to the run but no questions."""
     now = utc_now()
     records = [
         (
@@ -3083,7 +3094,7 @@ def store_answers(
             """,
             records,
         )
-        count = len(records)
+        count = 0 if retry else len(records)
         duration = max(elapsed, 1e-9)
         connection.execute(
             """
@@ -3093,6 +3104,73 @@ def store_answers(
             """,
             (count, duration, count, duration, now, run_id),
         )
+
+
+# The finish reasons with which Antigravity ends a reply at its output limit (CONTINUATION when the request asked for
+# more than Antigravity gives, MAX_TOKENS otherwise).
+CUT_FINISH_REASONS = ("CONTINUATION", "MAX_TOKENS")
+
+
+def cut_requests(connection: sqlite3.Connection, run_id: int) -> list[tuple[list[int], dict[str, Any], float | None]]:
+    """The requests of an Antigravity run whose reply Antigravity cut at its output limit before a complete answer, and
+    that are not themselves retries: each one's ordinals in order, its stored record and its request time."""
+    requests: dict[str, list[sqlite3.Row]] = {}
+    for row in connection.execute(
+        "SELECT ordinal,raw_response,request_seconds FROM answers WHERE run_id=? ORDER BY ordinal", (run_id,)
+    ):
+        requests.setdefault(row["raw_response"], []).append(row)
+    cut = []
+    for raw_response, rows in requests.items():
+        record = json.loads(raw_response)
+        candidates = (record.get("response") or {}).get("candidates") or []
+        finish = candidates[0].get("finishReason") if candidates else None
+        answered = any((answer or {}).get("answer") is not None for answer in (record.get("answers") or {}).values())
+        if "retry" not in record and finish in CUT_FINISH_REASONS and not answered:
+            cut.append(([int(row["ordinal"]) for row in rows], record, rows[0]["request_seconds"]))
+    return cut
+
+
+def retry_cut_requests(
+    selection: Selection,
+    connection: sqlite3.Connection,
+    identity: RunIdentity,
+    args: argparse.Namespace,
+    thinking: bool | str,
+    verbose_log: TextIO | None,
+) -> None:
+    """--retry-cut: ask once more, with the same questions in the same order and the same settings, each request of a
+    finished Antigravity run whose reply Antigravity cut at its output limit before a complete answer (cut_requests).
+    Whatever comes back replaces the cut reply, which the new record keeps under "retry" (with its usage, so the run's
+    tokens and cost count both attempts, and its request time); a reply cut again leaves its questions unanswered. A
+    stored retry is never asked again."""
+    cut = [
+        ([(ordinal, selection.questions[ordinal]) for ordinal in ordinals], record, seconds)
+        for ordinals, record, seconds in cut_requests(connection, identity.run_id)
+    ]
+    print(f"Retrying {len(cut)} cut request(s) once ({sum(len(batch) for batch, _, _ in cut)} questions)", flush=True)
+    if not cut:
+        return
+    harness = harness_commit()
+
+    def request(item: tuple[list[tuple[int, Question]], dict[str, Any], float | None]) -> tuple[Any, list[str | None], str, float, float]:
+        started = time.monotonic()
+        predictions, raw_response = ask_batch(args, [question for _, question in item[0]], thinking, verbose_log)
+        return item, predictions, raw_response, started, time.monotonic()
+
+    covered_until = 0.0
+    with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
+        results = [future.result() for future in [executor.submit(request, item) for item in cut]]
+    for (batch, first, first_seconds), predictions, raw_response, started, finished in sorted(results, key=lambda item: item[4]):
+        record = json.loads(raw_response)
+        record["retry"] = {"harness_commit": harness, "first_attempt": first, "first_request_seconds": first_seconds}
+        elapsed = max(finished - max(started, covered_until), 0.0)
+        covered_until = max(covered_until, finished)
+        store_answers(
+            connection, identity.run_id, batch, predictions,
+            json.dumps(record, ensure_ascii=False, separators=(",", ":")), elapsed, finished - started, retry=True,
+        )
+        answered = sum(prediction is not None for prediction in predictions)
+        print(f"  ordinals {batch[0][0]}-{batch[-1][0]}: {answered} of {len(batch)} answered on the retry", flush=True)
 
 
 def ask_batch(
@@ -4054,12 +4132,14 @@ def answer_usage(
         input_tokens, output_tokens = usage.get("input_tokens"), usage.get("output_tokens")
         cache = {"cached_input_tokens": int((usage.get("input_tokens_details") or {}).get("cached_tokens") or 0)}
     elif provider == "antigravity":
-        # The Gemini response inside Antigravity's envelope: thinking is billed as output.
-        usage = (record.get("response") or {}).get("usageMetadata") or {}
+        # The Gemini response inside Antigravity's envelope: thinking is billed as output. A retried request
+        # (--retry-cut) also counts the tokens of the cut first attempt its record keeps.
+        attempts = [record, (record.get("retry") or {}).get("first_attempt") or {}]
+        usages = [(attempt.get("response") or {}).get("usageMetadata") or {} for attempt in attempts]
         score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
-        input_tokens = usage.get("promptTokenCount")
-        output_tokens = int(usage.get("candidatesTokenCount") or 0) + int(usage.get("thoughtsTokenCount") or 0)
-        cache = {"cached_input_tokens": int(usage.get("cachedContentTokenCount") or 0)}
+        input_tokens = sum(int(usage.get("promptTokenCount") or 0) for usage in usages) if usages[0] else None
+        output_tokens = sum(int(usage.get("candidatesTokenCount") or 0) + int(usage.get("thoughtsTokenCount") or 0) for usage in usages)
+        cache = {"cached_input_tokens": sum(int(usage.get("cachedContentTokenCount") or 0) for usage in usages)}
     elif provider == "openrouter-chat":
         # OpenRouter's usage accounting: completion_tokens includes reasoning.
         usage = (record.get("response") or {}).get("usage") or {}
@@ -5126,6 +5206,9 @@ def main() -> int:
         correct, invalid, categories = evaluate(
             selection, result_connection, identity, args, thinking, verbose_log
         )
+        if args.retry_cut:
+            retry_cut_requests(selection, result_connection, identity, args, thinking, verbose_log)
+            _, correct, invalid, categories = score(result_connection, identity.run_id)
         mark_run(result_connection, identity.run_id, "completed")
         update_report(
             args.output.resolve(),
