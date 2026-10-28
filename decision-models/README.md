@@ -124,7 +124,7 @@ python3 -m http.server 8000                                # preview at http://1
     counts there. The Routing tab keeps its four choices in the URL. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,
     after writing the pages.
-  - **Page images** (`vision/`, `sitebuild/vision.py`), marked preliminary: the 763 questions with
+  - **Page images** (`vision/`, `sitebuild/vision.py`): the 763 questions with
     underlined or numbered words, asked as text (A), as a page image (B), as both (C) and through four OCR
     models (D). Decision models and other models in separate tables; in each, the image models ranked by B,
     then the text-only models ranked by their best OCR route. A condition `vision.json` does not hold reads

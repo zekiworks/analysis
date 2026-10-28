@@ -314,15 +314,10 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 14_768_307_200,
     },
 }
-# Notes on single runs, after their model's note: the five chat setups first run on 28 October 2026 and not repeated.
-FIRST_RUN = "First run of this setup (28 October 2026); not repeated."
+# Notes on single runs, after their model's note.
 RUN_NOTES: dict[int, str] = {
-    274: FIRST_RUN,
-    275: FIRST_RUN,
-    276: FIRST_RUN + " It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for "
-         "the other 406 questions; the usage and cost of the failed request are unknown.",
-    277: FIRST_RUN,
-    278: FIRST_RUN,
+    276: "It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for the other "
+         "406 questions; the usage and cost of the failed request are unknown.",
 }
 # Each unit's plain English label; results.json keeps the printed Turkish title next to it.
 UNITS_EN = {

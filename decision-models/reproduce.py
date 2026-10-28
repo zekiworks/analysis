@@ -442,8 +442,8 @@ def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[st
                             f"{len(sure)} at 0.99, {sum(sure)} right",
                             f"{published['at_0_99']['answers']}, {published['at_0_99']['right']} right"),
             ]
-            # Condition A against its run in answers.json, for the runs the text results hold; a run not yet on the
-            # text leaderboard (a preliminary track) is checked from vision.json alone.
+            # Condition A against its run in answers.json, for the runs the text results hold; a run not on the text
+            # leaderboard is checked from vision.json alone.
             run = runs.get(model["a_run"]) if label == "A" else None
             if run is not None:
                 same = all(int(run["correct"][position[question_id]]) == value for question_id, value in zip(ids, right))

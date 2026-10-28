@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Page images (preliminary) · Hilde</title>
+  <title>Page images · Hilde</title>
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/vision/">
-  <meta name="description" content="Preliminary: 763 questions with underlined or numbered words, asked as text, as a page image, as both and through four OCR models.">
+  <meta name="description" content="763 questions with underlined or numbered words, asked as text, as a page image, as both and through four OCR models.">
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
   <link rel="stylesheet" href="../v3.css">
   <script src="../site.js" defer></script>
@@ -20,9 +20,8 @@
   <main id="main">
     <nav class="bench-tabs" aria-label="Benchmarks"><a class="bench-tab" href="../"><span class="lamp" aria-hidden="true"></span>Text<span class="count">2,198 questions</span></a><a class="bench-tab" href="../vision/" aria-current="page"><span class="lamp" aria-hidden="true"></span>Page images<span class="count">763 questions</span></a></nav>
     <section class="card">
-      <p class="eyebrow">Page images <span class="badge">Preliminary</span></p>
+      <p class="eyebrow">Page images</p>
       <h1>763 questions with underlined or numbered words</h1>
-      <p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change.</p>
       <p>The Page images benchmark contains the 763 questions of the Text tab's 2,198 that point at marked words on the printed page: 229 at underlined words and 543 at numbered words (9 at both). Each model answered them in up to four ways:</p>
       <ul>
         <li><strong>A · text only</strong>: the question as text, as in the Text tab.</li>
@@ -50,6 +49,7 @@
       <h2>How the benchmark was run</h2>
       <h3>Conditions</h3>
       <ul><li><strong>A</strong>: clean text: the published text-track run (the same questions, prompts and options), graded against the bank as it stands now</li><li><strong>B</strong>: the crop(s), passage first, as the whole state; instructions &#x27;Which option is correct?&#x27;; the question&#x27;s own option letters as the choices, each described by its letter only</li><li><strong>C</strong>: condition A&#x27;s text and options, with the crop(s) after the text; A&#x27;s instructions (&#x27;Which option is the correct answer to this Turkish multiple-choice question?&#x27;)</li><li><strong>D</strong>: one OCR model&#x27;s output for the crop(s) (passage first, joined by a blank line) as the state, as its official export gives it, with layout tags removed (Unlimited-OCR-2&#x27;s block boxes and page marks) and markup kept; instructions &#x27;Which option is correct?&#x27;; option letters only, as B</li></ul>
+      <p>Each cell is one run: one pass over the 763 questions, not an average of repeated runs (6 passes were resumed after an interruption; see Models and cost).</p>
       <h3>Pictures of the questions</h3>
       <p>The bank&#x27;s per-question boxes (questions.bbox_json, passages.bbox_json, from its extraction run), on pages rendered from the source PDF with PyMuPDF at zoom 2.5 (180 dpi, 1600 x 1990 px), padded 4 px; on pages that print an answer key, each crop stops 6 px above the top line of the key box; crops under 280 px high are padded with white below, and crops over 1568 px on a side are scaled down to 1568 (TypeSafe&#x27;s image limits; every model gets the same files). 767 images for 763 questions; 129 crops stop above an answer key box, 3 were padded and 1 scaled. Questions per topic: 1: 73, 2: 86, 3: 3, 4: 2, 5: 54, 6: 1, 7: 47, 8: 19, 9: 18, 10: 37, 11: 53, 12: 31, 13: 46, 14: 20, 15: 23, 16: 94, 17: 23, 18: 68, 19: 32, 20: 33.</p>
       <p>We sent every crop at its own size: at most 1568 pixels a side (one crop is 1568; the rest are at most 1169). The input tokens each API reported match its documented billing grid at those sent sizes, on all 763 questions: TypeSafe's Jev, <a href="https://docs.typesafe.ai/images">2 tokens per 28 by 28 pixel cell</a> plus a fixed 354 to 361 tokens (375 to 380 with two crops); Liquid's d1-ultra, 44 plus <a href="https://docs.liquid.ai/lfm/models/d1">1.5 tokens per 32 by 32 pixel patch</a>; OpenAI's GPT-6 Luna through the Decisions API, 130 plus <a href="https://developers.openai.com/api/docs/guides/images-vision">1 token per 32 by 32 pixel patch with the default detail setting</a>. A downscale before counting, to 1024 pixels or less, would have changed these counts. This shows the size at which each API counted and billed an image, not what the model saw inside it. TypeSafe documents that it rejects images outside 280 to 1568 pixels a side instead of resizing them; that is a rule about accepted inputs, not a guarantee about every internal tensor. Liquid's and OpenAI's image dimensions after tokenization are not observable to us.</p>
@@ -66,7 +66,7 @@
   </main>
   <footer class="footer">
     <p>Download: <a href="../results.json" download>results.json</a> · <a href="../answers.json" download>answers.json</a></p>
-    <p>Results cac6e97a, updated 28 October 2026; answer key version 2.</p>
+    <p>Results 456ec1e2, updated 28 October 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

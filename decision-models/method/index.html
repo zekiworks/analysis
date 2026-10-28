@@ -359,7 +359,7 @@ reasoning problems.<sup class="cite"><a id="cite-16-a" href="#ref-16">16</a></su
 </section>
 <section class="card prose" id="repeats-section" aria-labelledby="repeats-section-title"><h2 id="repeats-section-title">What changed when we repeated the same questions?</h2>
 <p>We ran 23 of the 40 one-question-per-request setups
-five times on all 2,198 questions, and 7 of the
+five times on all 2,198 questions, and 12 of the
 20 setups with 16 per request five times on a fixed
 200-question set.</p>
 <p>On all questions, Open Jev changed no answers, Decider v1 two answers
@@ -409,20 +409,20 @@ fixed order can explain. That checks one form of recall, not whether the model k
 and one question source; a confidence cutoff for a new task needs its own test.</p>
 </section>
 <section class="card prose" id="data" aria-labelledby="data-title"><h2 id="data-title">Download the data and check our calculations</h2>
-<p class="versions">Results updated 28 October 2026 · Results snapshot cac6e97a · Question set
+<p class="versions">Results updated 28 October 2026 · Results snapshot 456ec1e2 · Question set
 questions-v2.sqlite (797ad6c8) · Answer key version 2</p>
 <p>The <a href="../results.json">results file</a> holds the summary numbers; the <a href="../answers.json">answer export</a> holds the recorded choices, confidence scores, settings,
 prompt templates and question IDs, without the copyrighted questions. The
 <a href="https://github.com/zekiworks/analysis/blob/main/decision-models/benchmark_metrics.py">metric code</a> computes each statistic; the
 <a href="../data/">Data page</a> describes the files.</p>
-<p>This snapshot holds 60 main setups, 127 extra repeat runs, 20 runs from
+<p>This snapshot holds 60 main setups, 152 extra repeat runs, 20 runs from
 the 14 live tests, two cheaper models tested alone and
 two more runs with one question per request on 200 questions.</p>
 <p>From the <a href="https://github.com/zekiworks/analysis/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
 setup's accuracy, ranking score, calibration gap before and after the refit, Brier scores and answers at 99% or
 more (before and after the key review),
 the 60 selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
-replays with their 300 splits and live tests: all 7,457 checks match. It does not yet check the
+replays with their 300 splits and live tests: all 7,532 checks match. It does not yet check the
 bootstrap intervals of the ranking score and the accuracy of kept answers.</p>
 <p>The 40 exam questions stay private, and the raw replies behind token counts are not exported.
 The <code>runner</code> folder holds the test code, run scripts and server wrappers.</p>
@@ -432,7 +432,7 @@ The <code>runner</code> folder holds the test code, run scripts and server wrapp
   </main>
   <footer class="footer">
     <p>Download: <a href="../results.json" download>results.json</a> · <a href="../answers.json" download>answers.json</a></p>
-    <p>Results cac6e97a, updated 28 October 2026; answer key version 2.</p>
+    <p>Results 456ec1e2, updated 28 October 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

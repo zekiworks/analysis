@@ -142,7 +142,7 @@ class Site:
 
     @cached_property
     def vision(self) -> dict[str, Any]:
-        """vision.json: the Page images benchmark (sitebuild/vision.py), preliminary."""
+        """vision.json: the Page images benchmark (sitebuild/vision.py)."""
         return json.loads((ROOT / "vision.json").read_text(encoding="utf-8"))
 
     @cached_property

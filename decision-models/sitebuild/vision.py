@@ -1,4 +1,4 @@
-"""Page images (vision/), the site's second tab, preliminary: the questions that point at underlined or numbered words on
+"""Page images (vision/), the site's second tab: the questions that point at underlined or numbered words on
 the printed page, asked as text (A), as a picture of the page only (B), as both (C) and as each OCR model's reading of the
 picture (D), from vision.json. vision.json holds aggregate numbers and each answer's pick and option probabilities; no
 question text, picture or OCR text.
@@ -345,9 +345,8 @@ def build(site: Site) -> dict[str, str]:
                    for key, item in data["ocr"]["models"].items()]
     body = f"""    {site.tabs(PATH)}
     <section class="card">
-      <p class="eyebrow">Page images <span class="badge">Preliminary</span></p>
+      <p class="eyebrow">Page images</p>
       <h1>{questions} questions with underlined or numbered words</h1>
-      <p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change.</p>
       <p>The Page images benchmark contains the {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways:</p>
       <ul>
         <li><strong>A · text only</strong>: the question as text, as in the Text tab.</li>
@@ -369,6 +368,7 @@ def build(site: Site) -> dict[str, str]:
       <h2>How the benchmark was run</h2>
       <h3>Conditions</h3>
       {listing([f"<strong>{esc(label)}</strong>: {esc(text)}" for label, text in data["conditions"].items()])}
+      <p>Each cell is one run: one pass over the {questions} questions, not an average of repeated runs ({len(data["requests"]["continued_cells"])} passes were resumed after an interruption; see Models and cost).</p>
       <h3>Pictures of the questions</h3>
       <p>{esc(sentence(crops["method"]))}. {crops["images"]} images for {crops["questions"]} questions; {crops["clipped_at_key"]} crops stop above an answer key box, {crops["padded"]} were padded and {crops["scaled"]} scaled. Questions per topic: {esc(units)}.</p>
       {image_sizes(data)}
@@ -382,6 +382,6 @@ def build(site: Site) -> dict[str, str]:
       {requests_note(site, data)}
       {"<h3>Failures</h3>" + listing(failures) if failures else ""}
     </section>"""
-    return {PATH: site.page(PATH, "Page images (preliminary)",
-                            f"Preliminary: {questions} questions with underlined or numbered words, asked as text, as a page image, "
+    return {PATH: site.page(PATH, "Page images",
+                            f"{questions} questions with underlined or numbered words, asked as text, as a page image, "
                             "as both and through four OCR models.", body)}

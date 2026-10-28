@@ -1,6 +1,6 @@
 {
   "schema_version": 5,
-  "results_version": "cac6e97a",
+  "results_version": "456ec1e2",
   "updated": "2026-10-28T02:12:27Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -1158,7 +1158,7 @@
       "variant": null,
       "reasoning": "high",
       "provider": "openai",
-      "note": "First run of this setup (28 October 2026); not repeated.",
+      "note": null,
       "parameters": null,
       "active_parameters": null,
       "access": "Codex CLI, ChatGPT subscription",
@@ -1617,7 +1617,7 @@
       "variant": null,
       "reasoning": "high",
       "provider": "openai",
-      "note": "First run of this setup (28 October 2026); not repeated. It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for the other 406 questions; the usage and cost of the failed request are unknown.",
+      "note": "It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for the other 406 questions; the usage and cost of the failed request are unknown.",
       "parameters": null,
       "active_parameters": null,
       "access": "Codex CLI, ChatGPT subscription",
@@ -4421,7 +4421,7 @@
       "variant": null,
       "reasoning": "high",
       "provider": "claude",
-      "note": "First run of this setup (28 October 2026); not repeated.",
+      "note": null,
       "parameters": null,
       "active_parameters": null,
       "access": "Claude Code CLI, Claude subscription",
@@ -4877,7 +4877,7 @@
       "variant": null,
       "reasoning": "high",
       "provider": "openai",
-      "note": "First run of this setup (28 October 2026); not repeated.",
+      "note": null,
       "parameters": null,
       "active_parameters": null,
       "access": "Codex CLI, ChatGPT subscription",
@@ -6713,7 +6713,7 @@
       "variant": null,
       "reasoning": "low",
       "provider": "openai",
-      "note": "First run of this setup (28 October 2026); not repeated.",
+      "note": null,
       "parameters": null,
       "active_parameters": null,
       "access": "Codex CLI, ChatGPT subscription",
@@ -143053,6 +143053,108 @@
   ],
   "repeats": [
     {
+      "model": "gpt-6.1-sol",
+      "name": "GPT-6.1 Sol",
+      "variant": null,
+      "reasoning": "high",
+      "provider": "openai",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        281,
+        292,
+        295,
+        299,
+        302
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.985,
+        0.985,
+        0.98,
+        0.98,
+        0.98
+      ],
+      "changed_answer": 1,
+      "wrong_any": 4,
+      "wrong_every_run_same": 3,
+      "scored": 200,
+      "score_spread_median": 0.010000000000000009,
+      "score_identical": 88,
+      "sure_wrong": [
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "sure_wrong_every_run": 0,
+      "latency": {
+        "runs": [
+          281,
+          292,
+          295,
+          299,
+          302
+        ],
+        "concurrency": 1,
+        "requests": 65,
+        "median_request_seconds": 25.495603712974116,
+        "p90_request_seconds": 60.84645333419903
+      }
+    },
+    {
+      "model": "gpt-6-astra",
+      "name": "GPT-6 Astra",
+      "variant": null,
+      "reasoning": "high",
+      "provider": "openai",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        282,
+        297,
+        300,
+        301,
+        303
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.985,
+        0.98,
+        0.975,
+        0.98,
+        0.985
+      ],
+      "changed_answer": 3,
+      "wrong_any": 5,
+      "wrong_every_run_same": 2,
+      "scored": 200,
+      "score_spread_median": 0.0,
+      "score_identical": 105,
+      "sure_wrong": [
+        2,
+        0,
+        1,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0,
+      "latency": {
+        "runs": [
+          282,
+          297,
+          300,
+          301,
+          303
+        ],
+        "concurrency": 1,
+        "requests": 65,
+        "median_request_seconds": 23.566122614982305,
+        "p90_request_seconds": 42.08493875039858
+      }
+    },
+    {
       "model": "gpt-6-astra",
       "name": "GPT-6 Astra",
       "variant": null,
@@ -143107,6 +143209,108 @@
       "model": "claude-opus-5-5",
       "name": "Claude Opus 5.5",
       "variant": null,
+      "reasoning": "high",
+      "provider": "claude",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        283,
+        289,
+        294,
+        296,
+        298
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.985,
+        0.975,
+        0.975,
+        0.97,
+        0.98
+      ],
+      "changed_answer": 5,
+      "wrong_any": 8,
+      "wrong_every_run_same": 3,
+      "scored": 200,
+      "score_spread_median": 0.050000000000000044,
+      "score_identical": 15,
+      "sure_wrong": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sure_wrong_every_run": 0,
+      "latency": {
+        "runs": [
+          283,
+          289,
+          294,
+          296,
+          298
+        ],
+        "concurrency": 1,
+        "requests": 65,
+        "median_request_seconds": 19.52282273999299,
+        "p90_request_seconds": 35.27809036319377
+      }
+    },
+    {
+      "model": "gpt-6.1-terra",
+      "name": "GPT-6.1 Terra",
+      "variant": null,
+      "reasoning": "high",
+      "provider": "openai",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        280,
+        285,
+        288,
+        291,
+        293
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.965,
+        0.97,
+        0.95,
+        0.965,
+        0.955
+      ],
+      "changed_answer": 11,
+      "wrong_any": 16,
+      "wrong_every_run_same": 5,
+      "scored": 200,
+      "score_spread_median": 0.010000000000000009,
+      "score_identical": 83,
+      "sure_wrong": [
+        1,
+        0,
+        2,
+        1,
+        1
+      ],
+      "sure_wrong_every_run": 0,
+      "latency": {
+        "runs": [
+          280,
+          285,
+          288,
+          291,
+          293
+        ],
+        "concurrency": 1,
+        "requests": 65,
+        "median_request_seconds": 8.852608644025167,
+        "p90_request_seconds": 14.96516182362102
+      }
+    },
+    {
+      "model": "claude-opus-5-5",
+      "name": "Claude Opus 5.5",
+      "variant": null,
       "reasoning": "low",
       "provider": "claude",
       "questions_per_request": 16,
@@ -143152,6 +143356,57 @@
         "requests": 65,
         "median_request_seconds": 13.402853598003276,
         "p90_request_seconds": 19.79555194299901
+      }
+    },
+    {
+      "model": "gpt-6.1-terra",
+      "name": "GPT-6.1 Terra",
+      "variant": null,
+      "reasoning": "low",
+      "provider": "openai",
+      "questions_per_request": 16,
+      "whole_bank": false,
+      "runs": [
+        279,
+        284,
+        286,
+        287,
+        290
+      ],
+      "questions": 200,
+      "accuracy": [
+        0.93,
+        0.96,
+        0.96,
+        0.955,
+        0.96
+      ],
+      "changed_answer": 14,
+      "wrong_any": 18,
+      "wrong_every_run_same": 4,
+      "scored": 200,
+      "score_spread_median": 0.010000000000000009,
+      "score_identical": 87,
+      "sure_wrong": [
+        2,
+        0,
+        1,
+        1,
+        1
+      ],
+      "sure_wrong_every_run": 0,
+      "latency": {
+        "runs": [
+          279,
+          284,
+          286,
+          287,
+          290
+        ],
+        "concurrency": 1,
+        "requests": 65,
+        "median_request_seconds": 5.419412001996534,
+        "p90_request_seconds": 6.897614485403755
       }
     },
     {
