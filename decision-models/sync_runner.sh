@@ -27,11 +27,11 @@ python_files=(
 # two Gemini 3.1 Pro (preview) runs, taken off the page because a preview model can be withdrawn, and
 # Perplexity's Decider v1.1 on our GPUs (the page compares v1.1 with v1 through Perplexity's API). Also, until their
 # runs are published: the planned max-reasoning and Gemini API runs, Gemini 4 Argon through Antigravity (held),
-# DeepSeek-V4.1-Flash-1017 (not run) and the Grok 4.7 and Qwen3.8-27B reasoning runs (running or queued).
+# DeepSeek-V4.1-Flash-1017 (not run) and the Qwen3.8-27B reasoning run (queued).
 skipped_scripts=(run_generate_questions.sh run_quiz.sh run_gemini_pro.sh run_gemini_pro_high.sh run_pplx_decider.sh
   run_claude_opus_max.sh run_claude_sonnet_max.sh run_openai_max.sh run_openai_sol_max.sh run_openai_terra_max.sh
   run_gemini_argon.sh run_gemini_argon_high.sh run_antigravity_argon_high.sh run_openrouter_deepseek_1017.sh
-  run_xai_grok_high.sh run_qwen_thinking_low.sh)
+  run_qwen_thinking_low.sh)
 
 staging=$(mktemp -d "$repo/.runner.XXXXXX")
 trap 'rm -rf "$staging"' EXIT

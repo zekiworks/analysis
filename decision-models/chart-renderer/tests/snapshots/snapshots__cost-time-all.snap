@@ -73,6 +73,7 @@ One question per request
   Gemini 3.8 Flash (high reasoning)                   ██████████████████████████████▌ $2.42        ▏
   GLM-5.3-Flash (reasoning on)                        No dollar estimate         ▏        ▏        ▏
   DeepSeek-V4.1-Flash, first release (reasoning on)   No dollar estimate         ▏        ▏        ▏
+  Grok 4.7 (high reasoning)                           █████████████████████████████████████▍ $14.29
 Separate tests: one question per request, on 200 questions
   GPT-6 Astra (low reasoning)                         Not measured in this test  ▏        ▏        ▏
   Gemma 4 31B                                         Not measured in this test  ▏        ▏        ▏
@@ -82,79 +83,80 @@ Waiting time for one request
 Logarithmic scale: equal steps show equal multiples; each labelled step is 10 times the one before.
 ██ typical time (median)
 ━━│ 9 in 10 requests finish within this time (90th percentile)
-                                                   0.001 s  0.01 s    0.1 s     1 s     10 s     100 s   1,000 s
+                                                   0.001 s  0.01 s    0.1 s     1 s     10 s     100 s   1,000 s 10,000 s
 One question per request
-  Decider v1.1                                        █████████████████████▎│  0.233 s · 0.290 s   ▏        ▏
-  GLiNER2.5-multi-Decide                              ████████▌│  0.009 s · 0.010 s       ▏        ▏        ▏
-  Laya multilingual                                   ████████▊│  0.009 s · 0.010 s       ▏        ▏        ▏
-  Laya                                                █████████▌│  0.011 s · 0.012 s      ▏        ▏        ▏
-  Strands Decider 2B                                  ████████████▊│  0.026 s · 0.030 s   ▏        ▏        ▏
-  Cygnet                                              ██████████████━│  0.036 s · 0.045 s ▏        ▏        ▏
-  Winnow 12B                                          ███████████████▉━│▏ 0.059 s · 0.070 s        ▏        ▏
-  Clef flash                                          ████████████████▉│▏ 0.075 s · 0.081 s        ▏        ▏
-  Metask Jev 4B                                       █████████████████▋│  0.090 s · 0.098 s       ▏        ▏
-  vLLM-SR d3                                          █████████████████▊━│  0.092 s · 0.144 s      ▏        ▏
-  OneJev 27B                                          ██████████████████▉━│  0.125 s · 0.189 s     ▏        ▏
-  Decider Flash v1.2 (local)                          ███████████████████▏│  0.132 s · 0.187 s     ▏        ▏
+  Decider v1.1                                        █████████████████████▎│  0.233 s · 0.290 s   ▏        ▏        ▏
+  GLiNER2.5-multi-Decide                              ████████▌│  0.009 s · 0.010 s       ▏        ▏        ▏        ▏
+  Laya multilingual                                   ████████▊│  0.009 s · 0.010 s       ▏        ▏        ▏        ▏
+  Laya                                                █████████▌│  0.011 s · 0.012 s      ▏        ▏        ▏        ▏
+  Strands Decider 2B                                  ████████████▊│  0.026 s · 0.030 s   ▏        ▏        ▏        ▏
+  Cygnet                                              ██████████████━│  0.036 s · 0.045 s ▏        ▏        ▏        ▏
+  Winnow 12B                                          ███████████████▉━│▏ 0.059 s · 0.070 s        ▏        ▏        ▏
+  Clef flash                                          ████████████████▉│▏ 0.075 s · 0.081 s        ▏        ▏        ▏
+  Metask Jev 4B                                       █████████████████▋│  0.090 s · 0.098 s       ▏        ▏        ▏
+  vLLM-SR d3                                          █████████████████▊━│  0.092 s · 0.144 s      ▏        ▏        ▏
+  OneJev 27B                                          ██████████████████▉━│  0.125 s · 0.189 s     ▏        ▏        ▏
+  Decider Flash v1.2 (local)                          ███████████████████▏│  0.132 s · 0.187 s     ▏        ▏        ▏
   GPT-6 Luna, Decisions API                           ████████████████████▌━│  0.191 s · 0.250 s, 4 requests at a time
-  Liquid d1.1                                         ████████████████████▋│  0.195 s · 0.235 s    ▏        ▏
-  Clef                                                ████████████████████▊━│  0.205 s · 0.248 s   ▏        ▏
-  Jev 1.14                                            ████████████████████▉━│  0.211 s · 0.277 s   ▏        ▏
-  Decider v1                                          █████████████████████━│  0.216 s · 0.272 s   ▏        ▏
-  Liquid d1-ultra                                     █████████████████████▏━│  0.223 s · 0.351 s  ▏        ▏
-  Jev 1.13                                            █████████████████████▌│  0.243 s · 0.281 s   ▏        ▏
-  Microsoft-Decision-1 (via OpenRouter)               ██████████████████████▏│  0.286 s · 0.327 s  ▏        ▏
-  Liquid d1                                           ██████████████████████▍━━━│▏ 0.305 s · 0.786 s        ▏
-  Mercury Decide (via OpenRouter)                     ██████████████████████▌━━━│▏ 0.313 s · 0.772 s        ▏
-  vLLM-SR d3-ultra (transformers, rev 52ba9e7)        ██████████████████████▊━│  0.333 s · 0.440 s ▏        ▏
-  meraGPT Decider 1                                   ███████████████████████▎│  0.382 s · 0.417 s ▏        ▏
-  Open Jev                                            ███████████████████████▎━│  0.386 s · 0.573 s         ▏
-  SubQ Snap                                           ███████████████████████▎│  0.389 s · 0.414 s ▏        ▏
-  Celeris 1                                           ███████████████████████▍│  0.401 s · 0.418 s ▏        ▏
-  Fastino GLiDE v1.2 (local)                          ███████████████████████▌│  0.413 s · 0.519 s ▏        ▏
-  Decider v1.2 (local)                                ████████████████████████▉━│▏ 0.580 s · 0.787 s        ▏
+  Liquid d1.1                                         ████████████████████▋│  0.195 s · 0.235 s    ▏        ▏        ▏
+  Clef                                                ████████████████████▊━│  0.205 s · 0.248 s   ▏        ▏        ▏
+  Jev 1.14                                            ████████████████████▉━│  0.211 s · 0.277 s   ▏        ▏        ▏
+  Decider v1                                          █████████████████████━│  0.216 s · 0.272 s   ▏        ▏        ▏
+  Liquid d1-ultra                                     █████████████████████▏━│  0.223 s · 0.351 s  ▏        ▏        ▏
+  Jev 1.13                                            █████████████████████▌│  0.243 s · 0.281 s   ▏        ▏        ▏
+  Microsoft-Decision-1 (via OpenRouter)               ██████████████████████▏│  0.286 s · 0.327 s  ▏        ▏        ▏
+  Liquid d1                                           ██████████████████████▍━━━│▏ 0.305 s · 0.786 s        ▏        ▏
+  Mercury Decide (via OpenRouter)                     ██████████████████████▌━━━│▏ 0.313 s · 0.772 s        ▏        ▏
+  vLLM-SR d3-ultra (transformers, rev 52ba9e7)        ██████████████████████▊━│  0.333 s · 0.440 s ▏        ▏        ▏
+  meraGPT Decider 1                                   ███████████████████████▎│  0.382 s · 0.417 s ▏        ▏        ▏
+  Open Jev                                            ███████████████████████▎━│  0.386 s · 0.573 s         ▏        ▏
+  SubQ Snap                                           ███████████████████████▎│  0.389 s · 0.414 s ▏        ▏        ▏
+  Celeris 1                                           ███████████████████████▍│  0.401 s · 0.418 s ▏        ▏        ▏
+  Fastino GLiDE v1.2 (local)                          ███████████████████████▌│  0.413 s · 0.519 s ▏        ▏        ▏
+  Decider v1.2 (local)                                ████████████████████████▉━│▏ 0.580 s · 0.787 s        ▏        ▏
   Fastino GLiDE                                       █████████████████████████████▉│  2.09 s · 2.28 s, 4 requests at a time
-  GLiNER2.5 Multi (base)                              █████████████▌│  0.032 s · 0.036 s  ▏        ▏        ▏
-  Qwen 3.8 27B (yes/no score)                         ██████████████████████━━│  0.280 s · 0.410 s ▏        ▏
-  Gemma 4 31B                                         ██████████████████████▎│  0.298 s · 0.306 s  ▏        ▏
-  Qwen 3.8 27B (written estimate)                     ███████████████████████▊│  0.433 s · 0.475 s ▏        ▏
-  Qwen 3.8 27B (agreement across ten answers)         ████████████████████████████▉│  1.62 s · 1.84 s       ▏
-  Gemini 3.8 Flash (low reasoning)                    ██████████████████████████████▉━━│  2.72 s · 4.67 s   ▏
-  Claude Opus 5.5 (low reasoning)                     ████████████████████████████████▏━│  3.71 s · 5.88 s  ▏
-  Claude Sonnet 5.5 (high reasoning)                  █████████████████████████████████━━│▏ 4.64 s · 8.38 s ▏
-  GPT-6 Astra (low reasoning)                         ██████████████████████████████████▎━│  6.41 s · 9.22 s
-  GPT-6.1 Sol (low reasoning)                         ██████████████████████████████████▍━│  6.61 s · 9.83 s
+  GLiNER2.5 Multi (base)                              █████████████▌│  0.032 s · 0.036 s  ▏        ▏        ▏        ▏
+  Qwen 3.8 27B (yes/no score)                         ██████████████████████━━│  0.280 s · 0.410 s ▏        ▏        ▏
+  Gemma 4 31B                                         ██████████████████████▎│  0.298 s · 0.306 s  ▏        ▏        ▏
+  Qwen 3.8 27B (written estimate)                     ███████████████████████▊│  0.433 s · 0.475 s ▏        ▏        ▏
+  Qwen 3.8 27B (agreement across ten answers)         ████████████████████████████▉│  1.62 s · 1.84 s       ▏        ▏
+  Gemini 3.8 Flash (low reasoning)                    ██████████████████████████████▉━━│  2.72 s · 4.67 s   ▏        ▏
+  Claude Opus 5.5 (low reasoning)                     ████████████████████████████████▏━│  3.71 s · 5.88 s  ▏        ▏
+  Claude Sonnet 5.5 (high reasoning)                  █████████████████████████████████━━│▏ 4.64 s · 8.38 s ▏        ▏
+  GPT-6 Astra (low reasoning)                         ██████████████████████████████████▎━│  6.41 s · 9.22 s         ▏
+  GPT-6.1 Sol (low reasoning)                         ██████████████████████████████████▍━│  6.61 s · 9.83 s         ▏
 16 questions per request
-  GLM-5.3-Flash (reasoning off)                       ███████████████████████████▎│  1.07 s · 1.22 s        ▏
-  Gemini 3.8 Flash (low reasoning)                    ██████████████████████████████━│  2.19 s · 2.69 s     ▏
-  Erk-14B                                             ██████████████████████████████▍│  2.39 s · 2.66 s     ▏
-  Qwen3-14B                                           ███████████████████████████████▏│  2.85 s · 3.11 s    ▏
-  Claude Sonnet 5.5 (low reasoning)                   ████████████████████████████████▎━│  3.87 s · 5.85 s  ▏
-  Gemma 4 31B                                         ████████████████████████████████▍│  3.97 s · 4.26 s   ▏
-  GPT-6.1 Terra (low reasoning)                       ████████████████████████████████▋━│  4.24 s · 5.36 s  ▏
-  DeepSeek-V4.1-Flash, first release (reasoning off)  ████████████████████████████████▊━━│▏ 4.36 s · 7.86 s ▏
+  GLM-5.3-Flash (reasoning off)                       ███████████████████████████▎│  1.07 s · 1.22 s        ▏        ▏
+  Gemini 3.8 Flash (low reasoning)                    ██████████████████████████████━│  2.19 s · 2.69 s     ▏        ▏
+  Erk-14B                                             ██████████████████████████████▍│  2.39 s · 2.66 s     ▏        ▏
+  Qwen3-14B                                           ███████████████████████████████▏│  2.85 s · 3.11 s    ▏        ▏
+  Claude Sonnet 5.5 (low reasoning)                   ████████████████████████████████▎━│  3.87 s · 5.85 s  ▏        ▏
+  Gemma 4 31B                                         ████████████████████████████████▍│  3.97 s · 4.26 s   ▏        ▏
+  GPT-6.1 Terra (low reasoning)                       ████████████████████████████████▋━│  4.24 s · 5.36 s  ▏        ▏
+  DeepSeek-V4.1-Flash, first release (reasoning off)  ████████████████████████████████▊━━│▏ 4.36 s · 7.86 s ▏        ▏
   Kimi K3.1 Pro                                       █████████████████████████████████▉━│▏ 5.75 s · 7.65 s, 4 requests at a time
-  GPT-6.1 Terra (high reasoning)                      ██████████████████████████████████▋━━│  7.10 s · 12.6 s
-  GPT-6 Luna (low reasoning)                          ███████████████████████████████████━│  7.71 s · 11.2 s
-  GPT-6 Astra (low reasoning)                         █████████████████████████████████████━│  13.0 s · 16.8 s
-  GPT-6.1 Sol (low reasoning)                         █████████████████████████████████████▏━━│  13.3 s · 24.6 s
-  Claude Opus 5.5 (low reasoning)                     █████████████████████████████████████▏━│  13.4 s · 19.8 s
+  GPT-6.1 Terra (high reasoning)                      ██████████████████████████████████▋━━│  7.10 s · 12.6 s        ▏
+  GPT-6 Luna (low reasoning)                          ███████████████████████████████████━│  7.71 s · 11.2 s         ▏
+  GPT-6 Astra (low reasoning)                         █████████████████████████████████████━│  13.0 s · 16.8 s       ▏
+  GPT-6.1 Sol (low reasoning)                         █████████████████████████████████████▏━━│  13.3 s · 24.6 s     ▏
+  Claude Opus 5.5 (low reasoning)                     █████████████████████████████████████▏━│  13.4 s · 19.8 s      ▏
   GLM-5.3 (low reasoning)                             ██████████████████████████████████████▏━━━━│  17.1 s · 54.5 s, 4 requests at a time
-  Claude Sonnet 5.5 (high reasoning)                  ██████████████████████████████████████▊━━│  20.5 s · 37.0 s
-  GPT-6 Astra (high reasoning)                        ███████████████████████████████████████━━━│  21.7 s · 49.6 s
-  Claude Opus 5.5 (high reasoning)                    ███████████████████████████████████████▏━━│  22.1 s · 45.0 s
-  GPT-6.1 Sol (high reasoning)                        ███████████████████████████████████████▌━━━━│▏ 24.7 s · 70.3 s
-  Claude Fable 5.1 (high reasoning)                   ████████████████████████████████████████▍━━│  30.3 s · 64.4 s
+  Claude Sonnet 5.5 (high reasoning)                  ██████████████████████████████████████▊━━│  20.5 s · 37.0 s    ▏
+  GPT-6 Astra (high reasoning)                        ███████████████████████████████████████━━━│  21.7 s · 49.6 s   ▏
+  Claude Opus 5.5 (high reasoning)                    ███████████████████████████████████████▏━━│  22.1 s · 45.0 s   ▏
+  GPT-6.1 Sol (high reasoning)                        ███████████████████████████████████████▌━━━━│▏ 24.7 s · 70.3 s ▏
+  Claude Fable 5.1 (high reasoning)                   ████████████████████████████████████████▍━━│  30.3 s · 64.4 s  ▏
   Gemini 3.8 Flash (high reasoning)                   ██████████████████████████████████████████▋━━━│  53.7 s · 134.2 s, 4 requests at a time
   GLM-5.3-Flash (reasoning on)                        █████████████████████████████████████████████▏━━━━━━│  102.6 s · 639.3 s, 8 requests at a time
-  DeepSeek-V4.1-Flash, first release (reasoning on)   ██████████████████████████████████████████████████━━━│▏ 365.1 s · 686.9 s, 8 requests at a tim
+  DeepSeek-V4.1-Flash, first release (reasoning on)   ██████████████████████████████████████████████████━━━│▏ 365.1 s · 686.9 s, 8 requests at a time
+  Grok 4.7 (high reasoning)                           ██████████████████████████████████████████████████▍━━━━│  401.9 s · 1228.6 s, 4 requests at a time
 Separate tests: one question per request, on 200 questions
-  GPT-6 Astra (low reasoning)                         ██████████████████████████████████▏│▏ 6.14 s · 8.57 s ▏
-  Gemma 4 31B                                         ██████████████████████▎│  0.295 s · 0.301 s  ▏        ▏
-                                                   0.001 s  0.01 s    0.1 s     1 s     10 s     100 s   1,000 s
+  GPT-6 Astra (low reasoning)                         ██████████████████████████████████▏│▏ 6.14 s · 8.57 s ▏        ▏
+  Gemma 4 31B                                         ██████████████████████▎│  0.295 s · 0.301 s  ▏        ▏        ▏
+                                                   0.001 s  0.01 s    0.1 s     1 s     10 s     100 s   1,000 s 10,000 s
 
-Times for Claude Sonnet 5.5 (low reasoning), GPT-6 Astra (low reasoning, 16 per request), Claude Opus 5.5 (low reasoning, 16 per request) and Claude
-Sonnet 5.5 (high reasoning, 16 per request) were measured on a sample (200 questions), over 5 repeat runs.
-Times for Laya multilingual, Laya, Decider v1, Jev 1.13, Liquid d1, Open Jev, Qwen 3.8 27B (yes/no score) and Qwen 3.8 27B (written estimate) come
-from later repeat runs on all questions.
+Times for Claude Sonnet 5.5 (low reasoning), GPT-6 Astra (low reasoning, 16 per request), Claude Opus 5.5 (low reasoning, 16 per request) and Claude Sonnet
+5.5 (high reasoning, 16 per request) were measured on a sample (200 questions), over 5 repeat runs.
+Times for Laya multilingual, Laya, Decider v1, Jev 1.13, Liquid d1, Open Jev, Qwen 3.8 27B (yes/no score) and Qwen 3.8 27B (written estimate) come from later
+repeat runs on all questions.
 § Estimated at the maker's list price for the same model; our hardware cost is not measured.

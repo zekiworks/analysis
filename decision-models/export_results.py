@@ -340,6 +340,10 @@ HELD_RUNS: dict[int, str] = {
 RUN_NOTES: dict[int, str] = {
     276: "It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for the other "
          "406 questions; the usage and cost of the failed request are unknown.",
+    311: "xAI did not answer 31 attempts within the time limit, and the runner sent each such request again. The run "
+         "stopped twice and was resumed from the last answered question: at 1,696 answers, after one request timed out "
+         "six times (the limit then went from 15 to 30 minutes), and at 2,144, when a retry sent an expired sign-in "
+         "token. The usage and cost of the timed-out attempts are unknown.",
     312: "Antigravity ignored the answer schema in the field the Gemini API reads, so it went as responseSchema. We asked "
          "for up to 65,536 output tokens, the limit our other Gemini runs had; Antigravity cut 9 of the 138 requests at "
          "32,768 output tokens, and only those 9 were asked again, once: 5 came back answered and 4 were cut again, so "
