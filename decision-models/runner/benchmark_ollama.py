@@ -806,6 +806,12 @@ def parse_args() -> argparse.Namespace:
         help="send provider.require_parameters true with --provider openrouter-chat",
     )
     parser.add_argument(
+        "--openrouter-json-object",
+        action="store_true",
+        help="with --provider openrouter-chat, ask for JSON mode (response_format json_object) without the answer schema, "
+        "for a pinned endpoint without structured outputs; the answers are then read from the model's own JSON layout",
+    )
+    parser.add_argument(
         "--unit",
         action="append",
         help="Unit number or exact unit title; repeat to select multiple units",
@@ -2544,11 +2550,13 @@ def ask_antigravity(
 
 def ask_openrouter_chat(
     model: str, batch: list[Question], timeout: float, effort: str, order: str, require_parameters: bool,
-    verbose_log: TextIO | None,
+    json_object: bool, verbose_log: TextIO | None,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through OpenRouter's chat completions, pinned to one
     provider endpoint without fallbacks: the prompt, system prompt and schema of the other chat providers, the
-    reasoning effort set, temperature 1.0, OpenRouter's usage accounting (with its billed cost) included."""
+    reasoning effort set, temperature 1.0, OpenRouter's usage accounting (with its billed cost) included. With
+    json_object the request asks for JSON mode without the schema, for an endpoint that lacks structured outputs
+    (DeepSeek's own, which require_parameters would otherwise rule out)."""
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
         raise ValueError("--provider openrouter-chat requires OPENROUTER_API_KEY")
@@ -2564,7 +2572,9 @@ def ask_openrouter_chat(
         "temperature": 1.0,
         "max_tokens": 32768,
         "reasoning_effort": effort,
-        "response_format": {"type": "json_schema", "json_schema": {"name": "answers", "schema": confidence_schema(batch), "strict": True}},
+        "response_format": {"type": "json_object"} if json_object else {
+            "type": "json_schema", "json_schema": {"name": "answers", "schema": confidence_schema(batch), "strict": True}
+        },
         "provider": pin,
         "usage": {"include": True},
     }
@@ -3126,7 +3136,7 @@ def ask_batch(
     if args.provider == "openrouter-chat":
         return ask_openrouter_chat(
             args.model, questions, args.timeout, args.openrouter_reasoning, args.openrouter_order,
-            args.openrouter_require_parameters, verbose_log,
+            args.openrouter_require_parameters, args.openrouter_json_object, verbose_log,
         )
     return ask_ollama(
         args.ollama_url, args.model, questions, args.timeout, args.seed, thinking, args.num_ctx, verbose_log
@@ -5051,6 +5061,8 @@ def main() -> int:
             endpoint = f"{OPENROUTER_CHAT_URL}#provider={args.openrouter_order}"
             if args.openrouter_require_parameters:
                 endpoint += ";require_parameters"
+            if args.openrouter_json_object:
+                endpoint += ";json_object"
             image_input = False
         else:
             endpoint = require_server_url(args.ollama_url, "--ollama-url")
