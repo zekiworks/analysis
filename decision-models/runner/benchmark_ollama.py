@@ -353,6 +353,10 @@ PRICES: dict[tuple[str, str], Price] = {
         "OpenRouter's price for the Fireworks endpoint", "https://openrouter.ai/z-ai/glm-5.3", "2026-10-28",
         1.40, 4.40, cached_input=0.26,
     ),
+    ("openrouter-chat", "deepseek/deepseek-v4.1-flash-1017"): Price(
+        "OpenRouter's price for DeepSeek's own endpoint", "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017", "2026-10-28",
+        0.15, 0.60, cached_input=0.003,
+    ),
     # Prompts up to 272K tokens.
     ("openai", "gpt-6-astra"): Price(
         "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 10.00, 50.00, cached_input=1.00, cache_write=12.50
@@ -2445,19 +2449,38 @@ def ask_xai(model: str, batch: list[Question], timeout: float, effort: str, verb
     return predictions, stored_response
 
 
+def gemini_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """A JSON schema as the Gemini Schema object of responseSchema: upper-case types and the property order given,
+    without additionalProperties, which that format lacks (the listed properties are all required)."""
+    converted: dict[str, Any] = {}
+    for key, value in schema.items():
+        if key == "type":
+            converted["type"] = value.upper()
+        elif key == "properties":
+            converted["properties"] = {name: gemini_schema(item) for name, item in value.items()}
+            converted["propertyOrdering"] = list(value)
+        elif key == "items":
+            converted["items"] = gemini_schema(value)
+        elif key in ("required", "enum", "minimum", "maximum"):
+            converted[key] = value
+    return converted
+
+
 def ask_antigravity(
     model: str, batch: list[Question], timeout: float, thinking_level: str, verbose_log: TextIO | None
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through Google Antigravity (the Google AI Ultra
     subscription, OMP's google-antigravity login): the Gemini API request of ask_gemini inside the Cloud Code Assist
-    envelope the Antigravity app sends. Antigravity names each Gemini model per thinking level (MODEL-LEVEL); the
-    request's thinkingLevel sets it too. The daily endpoint is asked first, then the sandbox one."""
+    envelope the Antigravity app sends. Antigravity ignores responseJsonSchema (it answered in a fenced block with
+    its own keys), so the same schema goes as responseSchema, Gemini's Schema object, which it enforces. Antigravity
+    names each Gemini model per thinking level (MODEL-LEVEL); the request's thinkingLevel sets it too. The daily
+    endpoint is asked first, then the sandbox one."""
     request = {
         "systemInstruction": {"parts": [{"text": CONFIDENCE_SYSTEM_PROMPT}]},
         "contents": [{"role": "user", "parts": [{"text": make_prompt(batch, CONFIDENCE_INSTRUCTION)}]}],
         "generationConfig": {
             "responseMimeType": "application/json",
-            "responseJsonSchema": confidence_schema(batch),
+            "responseSchema": gemini_schema(confidence_schema(batch)),
             "thinkingConfig": {"thinkingLevel": thinking_level},
         },
         "sessionId": f"-{random.randrange(9_000_000_000_000_000_000)}",
