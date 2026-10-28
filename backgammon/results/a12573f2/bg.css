@@ -1,0 +1,232 @@
+/* Backgammon benchmark additions to the shared design system (site.css). */
+
+main > section + section, main > .card + .card, main > section + .card, main > .card + section { margin-top: 1rem; }
+.status { display: inline-block; margin: 0 .4rem .15rem 0; padding: .05rem .45rem; border: 1px solid var(--control-edge); border-radius: 999px;
+  font-family: var(--sans); font-size: .72rem; font-weight: 600; letter-spacing: .02em; color: var(--text-2); background: var(--sunk);
+  white-space: nowrap; vertical-align: middle; }
+.status-published { color: var(--accepted); border-color: var(--accepted); }
+.status-provisional { color: var(--grammar-text); border-color: var(--grammar-text); }
+.status-earlier-version { color: var(--reading-text); border-color: var(--reading-text); }
+.status-running, .status-stopped { color: var(--grammar-text); border-color: var(--grammar-text); }
+.status-finished { color: var(--accepted); border-color: var(--accepted); }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .75rem; }
+.section-head h2, .section-head h3 { margin: 0; }
+.card h3 { font-size: 1rem; margin: 1.1rem 0 .5rem; }
+.block { margin: 1rem 0 0; padding-top: .75rem; border-top: 1px dashed var(--edge); }
+.block:first-of-type { border-top: 0; padding-top: 0; }
+.pending { margin: .5rem 0; padding: .6rem .8rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 6px; color: var(--text-2); }
+.pending strong { color: var(--text); }
+.findings-wait { font-weight: 600; }
+.cols-list { margin: .35rem 0 0; padding-left: 1.1rem; color: var(--text-2); font-size: .85rem; }
+.tabpanel[hidden] { display: none; }
+.subnav { display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin: .5rem 0 0; padding: 0; list-style: none; font-size: .9rem; }
+.verdict { font-weight: 600; }
+.diff-row td { font-family: var(--mono); }
+tr.oracle td { font-style: italic; color: var(--text-2); }
+.chart-status { margin: .25rem 0 0; }
+.version-line { margin: .25rem 0 0; color: var(--text-2); font-size: .8rem; }
+details.more { margin: .75rem 0 0; }
+details.more > summary { cursor: pointer; font-weight: 600; }
+.compare-pick { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; margin: .5rem 0 1rem; }
+.compare-pick select { max-width: 100%; }
+.chart-svg { width: 100%; height: auto; max-width: 760px; display: block; }
+.chart-svg text { fill: var(--text); font-family: var(--sans); font-size: 11px; }
+.chart-svg .axis { stroke: var(--control-edge); }
+.chart-svg .grid { stroke: var(--edge); }
+.chart-svg .dot { fill: var(--reading); }
+.chart-svg .whisker { stroke: var(--reading); }
+.chart-svg .muted { fill: var(--text-2); }
+
+/* --- Dashboard look: slate palette in both themes, a centred header, flat pill controls, tables first. The accent is
+   backgammon felt green (teal), the sibling's own colour; data colours are unchanged. No shadows: thin edges and flat
+   fills. ------------------------------------------------------------------------------------------------------ */
+:root {
+  --bg: #f8fafc; --panel: #ffffff; --sunk: #f1f5f9; --key: #ffffff; --edge: #e2e8f0; --control-edge: #cbd5e1;
+  --text: #1e293b; --text-2: #64748b; --focus: #0f766e; --lamp-off: #cbd5e1; --lamp-on: #0f766e;
+  --row-hover: #eef2f7; --row-selected: #e2e8f0; --link: #0f766e; --accent: #0f766e; --on-accent: #ffffff; --zebra: #f8fafc;
+  --tip-bg: #1e293b; --tip-text: #ffffff;
+  --good: #0f766e; --good-soft: rgba(15, 118, 110, .14); --bad: #b91c1c; --bad-soft: rgba(185, 28, 28, .12);
+}
+@media screen {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a; --panel: #1e293b; --sunk: #162032; --key: #1e293b; --edge: #334155; --control-edge: #475569;
+    --text: #e2e8f0; --text-2: #94a3b8; --focus: #5eead4; --lamp-off: #475569; --lamp-on: #2dd4bf;
+    --row-hover: #273449; --row-selected: #334155; --link: #2dd4bf; --accent: #2dd4bf; --on-accent: #0f172a;
+    --zebra: #1a2436; --tip-bg: #e2e8f0; --tip-text: #0f172a;
+    --good: #2dd4bf; --good-soft: rgba(45, 212, 191, .16); --bad: #f87171; --bad-soft: rgba(248, 113, 113, .14);
+  }
+}
+.card, .panel { border-radius: 8px; }
+
+/* Header: centred title, muted subtitle, the status line under it. */
+.hero, body:not(.home) .hero { display: block; max-width: 80ch; margin: 0 auto 1.5rem; text-align: center; }
+.hero h1 { font-size: 1.85rem; margin: 0 0 .4rem; }
+.hero .intro { color: var(--text-2); font-size: 1rem; margin: 0 0 .6rem; }
+.hero .subtitle { font-size: 1.08rem; margin: 0 0 .6rem; }
+.hero .eyebrow { margin: 0 0 .2rem; }
+.hero .readout-row { justify-content: center; border: 0; }
+.hero .readouts { justify-content: center; }
+.hero .summary-list li { margin: .1rem 0; }
+@media (min-width: 1024px) { .hero { display: block; } }
+
+/* Pills: filters, theme switch, Table / Charts and the tabs. Flat, with a thin edge; the selected one is filled with the
+   accent and its lamp takes the colour of its text. */
+.key, button.mode { border-radius: 999px; background: transparent; }
+button.key[aria-pressed="true"], button.mode[aria-selected="true"] { background: var(--accent); border-color: var(--accent);
+  color: var(--on-accent); }
+button.key[aria-pressed="true"] > .lamp, button.mode[aria-selected="true"] > .lamp { background: var(--on-accent); }
+button.mode[aria-selected="true"]::after { display: none; }
+.filters-body { margin-top: 0; padding-top: 0; border-top: 0; gap: .6rem 1.5rem; }
+.filters-body > .group { flex-direction: row; flex-wrap: wrap; align-items: center; }
+/* More filters: the key that names the active folded filters, then the fold on its own full-width row. */
+.filters-more { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.5rem; }
+.filters-more[hidden] { display: none; }
+.fold-toggle { text-align: left; }
+.fold-summary { color: var(--text-2); font-weight: 400; }
+.board-panel .view-switch { display: inline-flex; }
+.js .board-panel:not(.shows-charts) > .charts { display: none; }
+.board-panel > .version-line { margin: -.25rem 0 .6rem; }
+
+/* Tables: sticky header and first column, zebra rows, hover, click to sort, click a row to open it. */
+.table-wrap { max-height: 72vh; overflow: auto; border: 1px solid var(--edge); border-radius: 6px; }
+.table-wrap > table > caption { padding: .5rem .65rem 0; }
+.table-wrap thead th { position: sticky; top: 0; z-index: 2; background: var(--sunk); border-bottom: 0;
+  box-shadow: inset 0 -1px 0 var(--control-edge); cursor: pointer; user-select: none; }
+.table-wrap thead th:hover { color: var(--accent); }
+.table-wrap thead th[aria-sort="ascending"]::after { content: " \25B2"; font-size: .7rem; color: var(--accent); }
+.table-wrap thead th[aria-sort="descending"]::after { content: " \25BC"; font-size: .7rem; color: var(--accent); }
+.table-wrap tbody td, table.board tbody tr > td { background: var(--panel); }
+.table-wrap tbody tr:nth-child(even) > td, table.board tbody tr:nth-child(even) > td { background: var(--zebra); }
+.table-wrap tbody tr:hover > td, table.board tbody tr:hover > td { background: var(--row-hover); }
+.table-wrap th:first-child, .table-wrap td:first-child { position: sticky; left: 0; z-index: 1; }
+.table-wrap thead th:first-child { z-index: 3; }
+.table-wrap td:first-child { box-shadow: inset -1px 0 0 var(--edge); }
+tbody tr[data-href], tbody tr:has(a[href]) { cursor: pointer; }
+.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.table-note { color: var(--text-2); font-size: .82rem; margin: .45rem 0 0; }
+
+/* Explanations sit under the tables, collapsed. */
+details.about { margin: .9rem 0 0; color: var(--text-2); font-size: .9rem; }
+details.about > summary { cursor: pointer; color: var(--link); font-weight: 600; font-size: .85rem; }
+details.about[open] > summary { margin-bottom: .4rem; }
+main > details.about { max-width: 1100px; margin: 1rem auto 0; padding: 0 .25rem; }
+
+@media (max-width: 720px) {
+  .swipe-hint { display: block; }
+  .readouts { flex-wrap: wrap; row-gap: .25rem; }
+  .hero h1 { font-size: 1.45rem; }
+  .table-wrap { max-height: 78vh; }
+  td.model { min-width: 9.5rem; }
+}
+/* The four questions of the findings on one line under the waiting note. */
+.hero .summary-list { display: flex; flex-wrap: wrap; justify-content: center; gap: .1rem 1.2rem; font-size: .92rem; }
+.hero .summary-lead { margin: 0 0 .15rem; }
+
+/* --- v6: hero with the board (the visual signature), threads, league selector, the risk 2x2 wall. ----------- */
+body.home .hero.hero-split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-areas: none;
+  grid-template-rows: auto; gap: 1.5rem 2rem; align-items: center; max-width: 1180px; margin: 0 auto 1.25rem; text-align: left; }
+.hero-split .readout-row, .hero-split .readouts { justify-content: flex-start; }
+.hero-links { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .6rem; }
+.hero-links .key { text-decoration: none; padding: .3rem .8rem; border: 1px solid var(--control-edge); color: var(--text); font-size: .85rem; }
+.hero-links .key:hover { border-color: var(--accent); color: var(--accent); }
+.hero-board { margin: 0; }
+.hero-board svg.hero-bd { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+.hero-board figcaption { color: var(--text-2); font-size: .82rem; margin-top: .4rem; }
+@media (max-width: 860px) { body.home .hero.hero-split { grid-template-columns: minmax(0, 1fr); } }
+#findings { max-width: 1180px; margin: 0 auto 1rem; }
+#findings .summary-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .5rem; }
+#findings .summary-list li { padding: .55rem .7rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
+.thread { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin-right: .4rem; }
+#findings .thread { display: block; margin-bottom: .15rem; }
+.section-lead { color: var(--text-2); margin: .25rem 0 .75rem; }
+.lead-finding { font-size: 1.02rem; margin: .25rem 0 .75rem; }
+.league-pick .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
+.card > .league-pick { margin: .25rem 0 .5rem; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .75rem; }
+.js [data-league-view][data-off] { display: none; }
+tr.reference > td { font-style: italic; }
+.risk-limit { font-weight: 600; }
+
+/* --- v12: elements the house style has and the preview did not, in the preview's colours. ------------------- */
+.champions { margin-top: .1rem; }
+.champions > .readout-label { margin-right: .6rem; font-weight: 600; }
+.readout-value.champ { font-family: var(--sans); font-size: .9rem; }
+.filters-title { font-size: 1rem; margin: 0 0 .5rem; }
+.setup-count { font-family: var(--mono); font-size: .85rem; color: var(--text-2); margin-right: .6rem; }
+.reset-why { color: var(--text-2); margin-left: .4rem; }
+.reset-why[hidden] { display: none; }
+.key.reset[aria-disabled="true"] { opacity: .55; cursor: default; }
+.chart-head .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
+.chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; }
+.chart-head h2 { margin: 0; }
+.js .chart-view[hidden] { display: none; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: .25rem .9rem; color: var(--text-2); font-size: .78rem; margin: .35rem 0 0; }
+.swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; margin-right: .3rem; vertical-align: -.1rem; }
+.chart-svg .row[hidden], .chart-svg .pt[hidden] { display: none; }
+.chart-svg .rm-diag { stroke: var(--text-2); stroke-dasharray: 3 4; opacity: .35; }
+.chart-svg .rm-diag-label { fill: var(--text-2); font-size: 10px; opacity: .7; }
+.chart-svg .rm-dot { stroke: var(--panel); stroke-width: 1; }
+.chart-svg .rm-ref { fill: none; stroke: var(--text); stroke-width: 1.5; }
+.chart-svg .rm-name { font-size: 10px; }
+.rm-cautious { background: var(--reading); }
+.rm-wrong { background: var(--wrong); }
+/* Ability and caution (reviewed brief 24 Oct 2026, item 4): the cost-derived SDT reference mark, only where valid. */
+.chart-svg[data-chart="sdt"] .rm-dot { fill: var(--reading); }
+.chart-svg .sdt-ref { stroke: var(--wrong); stroke-width: 2.5; }
+.chart-svg .sdt-link { stroke: var(--wrong); stroke-width: 1; stroke-dasharray: 2 3; opacity: .6; }
+.chart-svg .axis0 { stroke: var(--text-2); opacity: .55; }
+.sdt-swatch { background: var(--wrong); height: .2rem; vertical-align: .2rem; }
+.mini-rel, .mini-hist { display: block; margin-top: .2rem; }
+.mini-rel .rel-diag { stroke: var(--text-2); stroke-dasharray: 2 3; opacity: .5; }
+.mini-rel polyline { fill: none; stroke-width: 1.6; }
+.mini-rel .rel-before { stroke: var(--reading); }
+.mini-rel .rel-after { stroke: var(--wrong); stroke-dasharray: 4 2; }
+.mini-hist .hist-bar { fill: var(--reading); }
+.sp-needless { fill: var(--bad); background: var(--bad); }
+.sp-missed { fill: var(--reading); background: var(--reading); }
+.sp-wrong { fill: var(--grammar); background: var(--grammar); }
+.sp-right { fill: var(--good); background: var(--good); }
+.sp-safety { fill: var(--data-chat); background: var(--data-chat); }
+.sp-none { fill: var(--edge); background: var(--edge); }
+.sp-pays-safe { fill: var(--reading); background: var(--reading); }
+.sp-bar { fill: var(--accent); background: var(--accent); }
+td.heat { background-image: linear-gradient(color-mix(in srgb, var(--good-soft) calc(var(--heat) * 100%), transparent),
+  color-mix(in srgb, var(--good-soft) calc(var(--heat) * 100%), transparent)); }
+.risk-card .cc-big { font-size: 2.6rem; font-weight: 700; margin: .2rem 0 .6rem; }
+.risk-card .cc-big .small { font-size: .85rem; font-weight: 400; margin-left: .6rem; color: var(--text-2); }
+.cc-row { display: flex; align-items: center; gap: .6rem; margin: .25rem 0; font-size: .85rem; }
+.cc-l { width: 8.5rem; text-align: right; color: var(--text-2); }
+.cc-bar { display: inline-block; height: .9rem; border-radius: 3px; min-width: 1px; }
+.cc-n { font-variant-numeric: tabular-nums; }
+.downloads { max-width: 1180px; margin: 1rem auto 0; color: var(--text-2); font-size: .9rem; }
+.charts .league-view .block { margin-top: 0; }
+ul.league-notes { margin: .25rem 0 .75rem; padding-left: 1.1rem; }
+.also-league { color: var(--accent); }
+/* Close choices (Method spec 2026-10-24 §9): neutral colours; a share of close choices is neither good nor bad. */
+.ccs-small { fill: var(--data-chat); background: var(--data-chat); }
+.ccs-medium { fill: var(--reading); background: var(--reading); }
+.ccs-big { fill: var(--grammar); background: var(--grammar); }
+th .th-note { display: block; font-weight: 400; font-size: .72rem; color: var(--text-2); max-width: 14rem; white-space: normal; }
+th[data-nosort] { cursor: default; }
+.cc-list { display: grid; gap: .35rem; margin: .4rem 0 .6rem; }
+details.cc-details { border: 1px solid var(--edge); border-radius: 6px; padding: .35rem .7rem; background: var(--panel); }
+details.cc-details > summary { cursor: pointer; font-size: .9rem; }
+details.cc-details:target, details.cc-details[open] { border-color: var(--accent); }
+.cc-body h4 { margin: .7rem 0 .25rem; font-size: .9rem; }
+.cc-body p { margin: .2rem 0 .4rem; font-size: .88rem; }
+a.cc-open { font-weight: 600; }
+/* Close choices, stage B (home.close_b_section): exact agreement against each team's own shuffled baseline. */
+.chart-svg .ccb-band { fill: color-mix(in srgb, var(--reading) 28%, transparent); }
+.chart-svg .ccb-mean { stroke: var(--text-2); stroke-width: 2; }
+.chart-svg .ccb-dot { stroke: var(--reading); stroke-width: 2; }
+.chart-svg .ccb-above { fill: var(--reading); }
+.chart-svg .ccb-within, .chart-svg .ccb-below { fill: var(--panel); }
+.swatch.ccb-band { background: color-mix(in srgb, var(--reading) 28%, transparent); }
+.swatch.ccb-mean { width: .2rem; background: var(--text-2); }
+.swatch.ccb-dot { border-radius: 50%; box-sizing: border-box; border: 2px solid var(--reading); }
+.swatch.ccb-above { background: var(--reading); }
+.swatch.ccb-within { background: var(--panel); }
+#chart-close-b { margin: 1rem 0 .5rem; }
+#close-b-table tbody th { background: var(--panel); box-shadow: inset -1px 0 0 var(--edge); text-align: left; }
+#close-b-table tbody tr:nth-child(even) > th { background: var(--zebra); }
+#close-b-table thead th[data-nosort] { cursor: default; }
+.section-label { margin: .15rem 0 .6rem; font-size: .8rem; color: var(--text-2); }
