@@ -495,6 +495,9 @@ ${v.k !== 'all' ? `<p class="note dec-note">Close choice: the second most likely
 
   fetchJSON('index.json').then(data => {
     index = data;
+    // Fixed snapshot: setup names as relabelled on 28 Oct 2026 (shown only; index.json keeps the data's names).
+    const SHOWN = {"GPT-6 Astra (off)": "GPT-6 Astra (low)", "GPT-6 Astra (on)": "GPT-6 Astra (medium)", "Claude Opus 5.5 (off)": "Claude Opus 5.5 (low)", "Claude Opus 5.5 (on)": "Claude Opus 5.5 (high)", "Claude Fable 5.1 (off)": "Claude Fable 5.1 (low)", "Claude Fable 5.1 (on)": "Claude Fable 5.1 (high)", "Gemini 4 Argon (off)": "Gemini 4 Argon (low)", "Gemini 4 Argon (on)": "Gemini 4 Argon (high)", "Grok 4.7 (off)": "Grok 4.7 (low)", "Grok 4.7 (on)": "Grok 4.7 (high)", "DeepSeek V4.1 Flash (on)": "DeepSeek V4.1 Flash (low)", "DeepSeek V4.1 Flash 1017 (on)": "DeepSeek V4.1 Flash 1017 (low)", "GLM-5.3 (on)": "GLM-5.3 (low)", "Qwen3.8-27B (on)": "Qwen3.8-27B (low)"};
+    index.datasets.forEach(ds => ds.setups.forEach(s => { if (SHOWN[s.name]) s.name = SHOWN[s.name]; }));
     if (!index.datasets.length) {
       status.innerHTML = nm('Analysis pending');
       return;
