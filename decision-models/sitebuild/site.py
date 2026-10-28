@@ -34,6 +34,22 @@ MENU = (
 BENCHMARKS = (("", "Text"), ("vision/", "Page images"))
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
+# The LLMs the home page's Routing tab puts behind a first model, in its order: (key in page_config.json's named_runs,
+# label of its control, slug in the URL, the request sizes we ran it at). Each label names the reasoning level, so
+# neighbouring choices are told apart; the slugs of the first five predate the labels and stay as they are.
+ROUTE_LLMS: tuple[tuple[str, str, str, tuple[int, ...]], ...] = (
+    ("opus", "Opus 5.5 low", "opus", (1, 16)),
+    ("sonnet_high", "Sonnet 5.5 high", "sonnet", (1, 16)),
+    ("astra", "Astra low", "astra", (1, 16)),
+    ("sol", "Sol low", "sol", (1, 16)),
+    ("gemini_low", "Gemini Flash low", "gemini-flash", (1, 16)),
+    ("opus_high", "Opus 5.5 high", "opus-high", (16,)),
+    ("astra_high", "Astra high", "astra-high", (16,)),
+    ("sol_high", "Sol high", "sol-high", (16,)),
+    ("terra_high", "Terra high", "terra-high", (16,)),
+    ("terra_low", "Terra low", "terra-low", (16,)),
+    ("gemini_high", "Gemini Flash high", "gemini-flash-high", (16,)),
+)
 
 
 def rel(origin: str, target: str) -> str:
@@ -93,9 +109,10 @@ def interval(correct: int, total: int) -> str:
 
 
 def latency_text(seconds: float | None) -> str | None:
+    """A latency with its unit, in the site's one format (build_page.seconds): "0.223 s", "7.10 s", "53.7 s"."""
     if seconds is None:
         return None
-    return f"{1000 * seconds:.0f}\u00a0ms" if seconds < 1 else f"{seconds:.{2 if seconds < 10 else 1}f}\u00a0s"
+    return f"{bp.seconds(seconds)}\u00a0s"
 
 
 def request_size(size: int) -> str:

@@ -43,7 +43,7 @@ const CONFIDENCE_NOTE = [
 const ROUTING_NOTES = [
   'Replay: both models’ recorded answers. Live: the decision model’s recorded answers, with new calls to the LLM. Savings are estimates from API prices, and larger at 1 question per request: each question the LLM skips costs more.',
   'In a live test with Sonnet at 1 question per request, accuracy fell 4.73 points: Decider v1.1 kept 51%, with a cutoff chosen at 16 per request. A cutoff chosen at 1 per request keeps 29%, and accuracy falls 0.16 points (replay). Choose the cutoff in the format you will run.',
-  'SubQ Snap’s place depends on the LLM: seventh among decision models in front of Sonnet (16 per request), thirteenth in front of Opus, eleventh in front of Astra. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, the hosted GLiDE’s 99.5%.',
+  'SubQ Snap’s place depends on the LLM: seventh among decision models in front of Sonnet 5.5 high (16 per request), thirteenth in front of Opus 5.5 low, eleventh in front of Astra low. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, the hosted GLiDE’s 99.5%.',
 ];
 const STABILITY_NOTE = [
   'Only the setups we repeated, five times each. Decision models and two Qwen3.8-27B setups were repeated on all questions; the other chat models on a sample of 200.',
@@ -82,8 +82,6 @@ const usd = value => {
   const text = value.toFixed(3);
   return text === '0.000' ? `$${value.toPrecision(2)}` : `$${text}`;
 };
-const duration = seconds =>
-  seconds < 1 ? `${Math.round(1000 * seconds)}\u00a0ms` : `${seconds.toFixed(seconds < 10 ? 2 : 1)}\u00a0s`;
 
 /* 95% Wilson score interval, as benchmark_metrics.wilson_interval. */
 function wilson(correct, total, z = 1.96) {
@@ -104,7 +102,7 @@ const MISSING = tip(EMPTY.allOnly);
 
 /* ---- Runs ---- */
 
-const reasoningLabel = reasoning => (['off', 'on'].includes(reasoning) ? `reasoning ${reasoning}` : `${reasoning} reasoning`);
+const reasoningLabel = reasoning => (['off', 'on', 'none'].includes(reasoning) ? `reasoning ${reasoning}` : `${reasoning} reasoning`);
 const requestSize = size => `${integer(size)} question${size === 1 ? '' : 's'} per request`;
 const runDetail = run =>
   [run.variant, run.reasoning && reasoningLabel(run.reasoning), requestSize(run.questions_per_request)].filter(Boolean).join(' · ');
@@ -380,6 +378,13 @@ const repeatRun = item =>
 
 const routeLlm = () => SETTINGS.routeLlms.find(llm => llm.key === state.route.llm);
 const routeRule = () => ROUTE_RULES.find(rule => rule.key === state.route.rule);
+/* The request sizes we ran an LLM at, smallest first: [1, 16], or [16] for the LLMs run at 16 questions per request only. */
+const routeSizes = llm => Object.keys(llm.runs).map(Number).sort((a, b) => a - b);
+/* An LLM without a run at the chosen request size takes its largest: picking a 16-only LLM on 1 per request moves to 16. */
+const fitRouteSize = () => {
+  const sizes = routeSizes(routeLlm());
+  if (!sizes.includes(state.route.qpr)) state.route.qpr = sizes[sizes.length - 1];
+};
 
 /* The numbers measured for the chosen LLM, request size, rule and test, for one first model; null where that exact
    choice was not measured. */
@@ -433,9 +438,12 @@ function routingRows() {
   return data.runs.filter(run => first.has(run.run) && shown.has(run)).map(run => ({ run, numbers: routeNumbers(run) }));
 }
 
+/* The chosen LLM's run as the Routing tab names it: its name with its reasoning level ("Claude Opus 5.5, high
+   reasoning"), as the same model runs at two levels. */
+const routeLlmName = run => (run.reasoning ? `${run.name}, ${reasoningLabel(run.reasoning)}` : run.name);
 function routeTitle() {
   const llm = byId.get(routeLlm().runs[state.route.qpr]);
-  return [llm.name, requestSize(state.route.qpr), routeRule().label, state.route.mode].join(' · ');
+  return [routeLlmName(llm), requestSize(state.route.qpr), routeRule().label, state.route.mode].join(' · ');
 }
 
 const ROUTING_COLUMNS = [
@@ -472,7 +480,7 @@ function latencyCell(run) {
   const value = latencyOf(run);
   if (value == null) return NM;
   const label = sampleLabel(run);
-  return label ? `${tip(label, value.toFixed(3))}<span class="mark">${SAMPLE_MARK}</span>` : value.toFixed(3);
+  return label ? `${tip(label, secondsText(value))}<span class="mark">${SAMPLE_MARK}</span>` : secondsText(value);
 }
 
 /* The share taken, with where every question goes under it: a bar of three parts with their values printed, green for
@@ -517,7 +525,7 @@ function routeMap() {
     `<figure class="route-map${trace ? ' trace' : ''}">` +
     '<span class="rm-node">Question</span><span class="rm-wire" aria-hidden="true"></span><span class="rm-node">Decision model</span>' +
     `<span class="rm-fork"><span class="rm-branch"><span class="rm-node">Keep its answer</span>${choice(routeRule().label)}</span>` +
-    `<span class="rm-branch"><span class="rm-node">Send the question to the LLM</span>${choice(llm.name)}${choice(requestSize(state.route.qpr))}` +
+    `<span class="rm-branch"><span class="rm-node">Send the question to the LLM</span>${choice(routeLlmName(llm))}${choice(requestSize(state.route.qpr))}` +
     `${choice(test)}</span></span></figure>`
   );
 }
@@ -675,7 +683,7 @@ function routingControls() {
   return (
     '<div class="route-controls">' +
     `<div class="group" role="group" aria-label="LLM"><span class="group-label" aria-hidden="true">LLM</span><span class="keys">${keys('route-llm', SETTINGS.routeLlms.map(item => [item.key, item.label]), llm)}</span></div>` +
-    `<div class="keys" role="group" aria-label="Questions per request">${keys('route-qpr', [[1, '1 per request'], [16, '16 per request']], qpr)}</div>` +
+    `<div class="keys" role="group" aria-label="Questions per request">${keys('route-qpr', routeSizes(routeLlm()).map(size => [size, `${size} per request`]), qpr)}</div>` +
     `<label>Rule <select data-control="route-rule">${ROUTE_RULES.map(item => `<option value="${item.key}"${item.key === rule ? ' selected' : ''}>${esc(item.label)}</option>`).join('')}</select></label>` +
     `<div class="keys" role="group" aria-label="Test">${keys('route-mode', [['replay', 'Replay'], ['live', 'Live']], mode)}</div>` +
     '</div>'
@@ -776,7 +784,8 @@ function chartRuns(showAll = state.showAll) {
   if (showAll) runs = data.runs;
   else {
     const decision = [...data.runs].filter(isDecision).sort((a, b) => overallAccuracy(b) - overallAccuracy(a));
-    const llms = SETTINGS.routeLlms.map(llm => byId.get(llm.runs['1']));
+    /* The routing LLMs at one question per request: those we ran at that size. */
+    const llms = SETTINGS.routeLlms.filter(llm => llm.runs['1'] != null).map(llm => byId.get(llm.runs['1']));
     const extra = [...state.picked, state.selected].filter(id => id != null).map(id => byId.get(id));
     const chosen = new Set([...decision.slice(0, SETTINGS.chartDecisionModels), ...llms, ...extra]);
     runs = data.runs.filter(run => chosen.has(run));
@@ -809,7 +818,7 @@ function chartCondition() {
 
 const MEASURES = {
   accuracy: { label: 'Accuracy', axis: 'Accuracy (%)', value: run => accuracyOf(run), log: false, text: value => percent(value), higher: true },
-  latency: { label: 'Latency', axis: 'Median latency per request (s), log scale', value: latencyOf, log: true, text: value => value.toFixed(3), higher: false },
+  latency: { label: 'Latency', axis: 'Median latency per request (s), log scale', value: latencyOf, log: true, text: secondsText, higher: false },
   cost: { label: 'Cost', axis: '$ per 1,000 questions, log scale', value: costPer1000, log: true, text: value => value.toFixed(3), higher: false },
 };
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
@@ -842,7 +851,7 @@ function rankColor(name, value) {
   return `#${from.map((channel, i) => Math.round(channel + (to[i] - channel) * (place - index)).toString(16).padStart(2, '0')).join('')}`;
 }
 /* A scale end as a legend writes it. */
-const endText = (name, value) => (name === 'accuracy' ? `${percent(value)}%` : name === 'latency' ? `${value.toFixed(3)} s` : `$${value.toFixed(3)}`);
+const endText = (name, value) => (name === 'accuracy' ? `${percent(value)}%` : name === 'latency' ? `${secondsText(value)} s` : `$${value.toFixed(3)}`);
 /* The legend of a chart coloured by the scale: the decision models' colours from worst to best with each end's value and
    which way is better, then the chat models' grey. */
 function scaleLegend(name) {
@@ -1384,7 +1393,7 @@ async function downloadChart(name) {
 
 /* The open tab and, on the Routing tab, its four choices live in the page URL, so a link opens that exact view:
    ?tab=routing&llm=astra&per-request=16&rule=half&test=replay. The filters stay out of the URL. */
-const llmSlug = llm => llm.label.toLowerCase().replace(/\s+/g, '-');
+const llmSlug = llm => llm.slug;
 
 function readUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -1394,6 +1403,7 @@ function readUrl() {
   if (llm) state.route.llm = llm.key;
   if (rule) state.route.rule = rule.key;
   if ([1, 16].includes(size)) state.route.qpr = size;
+  fitRouteSize();
   if (ROUTE_TESTS.includes(params.get('test'))) state.route.mode = params.get('test');
   const routed = llm || rule || params.has('per-request') || params.has('test');
   if (TABS[params.get('tab')]) state.tab = params.get('tab');
@@ -1503,8 +1513,10 @@ function onClick(event) {
   } else if (dataset.sort) {
     const column = TABS[state.tab].columns.find(item => item.key === dataset.sort);
     state.sort = state.sort.key === column.key ? { key: column.key, descending: !state.sort.descending } : { key: column.key, descending: !column.low };
-  } else if (dataset.routeLlm) state.route.llm = dataset.routeLlm;
-  else if (dataset.routeQpr) state.route.qpr = Number(dataset.routeQpr);
+  } else if (dataset.routeLlm) {
+    state.route.llm = dataset.routeLlm;
+    fitRouteSize();
+  } else if (dataset.routeQpr) state.route.qpr = Number(dataset.routeQpr);
   else if (dataset.routeMode) state.route.mode = dataset.routeMode;
   else if (dataset.measure) state.measure = dataset.measure;
   else if (dataset.across) state.across = dataset.across;

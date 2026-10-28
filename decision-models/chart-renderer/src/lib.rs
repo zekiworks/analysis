@@ -469,13 +469,13 @@ fn usd(value: f64) -> String {
     if value >= 0.1 { format!("${value:.2}") } else { format!("${value:.3}") }
 }
 
-/// Seconds with two significant decimals for short times: "0.23 s", "2.09 s", "13.4 s", "365 s".
+/// A latency in seconds, the site's one format (build_page.py's seconds, site.js's secondsText): three decimals below
+/// 1 s, two from 1 s to under 10 s, one from 10 s: "0.223 s", "7.10 s", "53.7 s".
 fn seconds(value: f64) -> String {
     match value {
-        value if value < 0.1 => format!("{value:.3} s"),
+        value if value < 1.0 => format!("{value:.3} s"),
         value if value < 10.0 => format!("{value:.2} s"),
-        value if value < 100.0 => format!("{value:.1} s"),
-        value => format!("{value:.0} s"),
+        value => format!("{value:.1} s"),
     }
 }
 

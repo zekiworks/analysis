@@ -368,7 +368,7 @@ def build(site: Site) -> dict[str, str]:
       <h2>How the benchmark was run</h2>
       <h3>Conditions</h3>
       {listing([f"<strong>{esc(label)}</strong>: {esc(text)}" for label, text in data["conditions"].items()])}
-      <p>Each cell is one run: one pass over the {questions} questions, not an average of repeated runs ({len(data["requests"]["continued_cells"])} passes were resumed after an interruption; see Models and cost).</p>
+      <p>Each cell is one run. It is one pass over the {questions} questions, not an average of repeated runs ({len(data["requests"]["continued_cells"])} passes were resumed after an interruption; see Models and cost).</p>
       <h3>Pictures of the questions</h3>
       <p>{esc(sentence(crops["method"]))}. {crops["images"]} images for {crops["questions"]} questions; {crops["clipped_at_key"]} crops stop above an answer key box, {crops["padded"]} were padded and {crops["scaled"]} scaled. Questions per topic: {esc(units)}.</p>
       {image_sizes(data)}

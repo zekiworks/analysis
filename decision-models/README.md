@@ -124,6 +124,20 @@ python3 -m http.server 8000                                # preview at http://1
     counts there. The Routing tab keeps its four choices in the URL. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,
     after writing the pages.
+  - **Routing LLMs** (`ROUTE_LLMS` in `sitebuild/site.py`, each a key of `page_config.json`'s `named_runs`): Opus 5.5
+    low, Sonnet 5.5 high, Astra low, Sol low and Gemini Flash low at 1 and 16 questions per request; Opus 5.5 high,
+    Astra high, Sol high, Terra high, Terra low and Gemini Flash high at 16 only. The request-size control offers
+    only the sizes the chosen LLM has, so a 16-only LLM (picked, or asked for at 1 per request in the URL) shows 16.
+    Copy and charts about the routing LLMs at 1 question per request cover only the first five; the estimated
+    saving's claim covers all 16 LLM setups. Each LLM's model page links its Routing view.
+  - **Latencies**, everywhere they are shown (tables, tooltips, charts, model pages, Method page, Compare,
+    `chart-renderer`): three decimals below 1 s (0.223), two from 1 s to under 10 s (7.10), one from 10 s (53.7);
+    `build_page.seconds` in Python, `secondsText` in `site.js`, `seconds` in `chart-renderer`. Tables sort on the
+    raw values.
+  - **Reasoning levels**: a level is printed as its provider writes it ("xhigh reasoning", "max reasoning"),
+    never capitalized or rewritten. `page_config.json`'s `reasoning_levels` lists each model's documented levels,
+    default and top level, with its source and the date we read it; each run of such a model shows them in its
+    model page's Settings, with the run's own level.
   - **Page images** (`vision/`, `sitebuild/vision.py`): the 763 questions with
     underlined or numbered words, asked as text (A), as a page image (B), as both (C) and through four OCR
     models (D). Decision models and other models in separate tables; in each, the image models ranked by B,

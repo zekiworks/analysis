@@ -19,8 +19,7 @@ const usd = value => {
   const text = value.toFixed(3);
   return text === '0.000' ? `$${value.toPrecision(2)}` : `$${text}`;
 };
-const duration = seconds =>
-  seconds < 1 ? `${Math.round(1000 * seconds)}\u00a0ms` : `${seconds.toFixed(seconds < 10 ? 2 : 1)}\u00a0s`;
+const duration = seconds => `${secondsText(seconds)}\u00a0s`;
 const NOT_MEASURED = '<span class="hint" tabindex="0" data-tip="Not measured">—</span>';
 const pText = p => (p < 0.0001 ? 'below 0.0001' : p.toPrecision(2));
 
@@ -64,7 +63,7 @@ function paired(a, b) {
   return { n, firstOnly, secondOnly, difference, low: difference - 1.96 * error, high: difference + 1.96 * error, p: signTest(firstOnly, secondOnly) };
 }
 
-const reasoningLabel = reasoning => (['off', 'on'].includes(reasoning) ? `reasoning ${reasoning}` : `${reasoning} reasoning`);
+const reasoningLabel = reasoning => (['off', 'on', 'none'].includes(reasoning) ? `reasoning ${reasoning}` : `${reasoning} reasoning`);
 const detail = run =>
   [run.variant, run.reasoning && reasoningLabel(run.reasoning), `${run.questions_per_request} question${run.questions_per_request === 1 ? '' : 's'} per request`]
     .filter(Boolean)

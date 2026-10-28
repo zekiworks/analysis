@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Any, Iterator, TextIO
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
+from uuid import uuid4
 
 import benchmark_metrics as bm
 
@@ -315,6 +316,49 @@ PRICES: dict[tuple[str, str], Price] = {
     ("gemini", "gemini-3.1-pro-preview"): Price(
         "Google's Gemini API price", GEMINI_PRICING, "2026-10-08", 2.00, 12.00, cached_input=0.20
     ),
+    # Gemini 4 Argon at its regular (paid tier, standard) price, which starts on 1 December 2026; the introductory price
+    # until then is half (read 28 October 2026). Implicit caching only.
+    ("gemini", "gemini-4-argon"): Price(
+        "Google's Gemini API regular price (from 1 December 2026)",
+        GEMINI_PRICING,
+        "2026-10-28",
+        4.00,
+        20.00,
+        cached_input=0.20,
+        change="introductory until 30 November 2026: $2.00 input, $10.00 output and $0.10 cached input per 1M tokens",
+    ),
+    # The same model through Google Antigravity (the Google AI Ultra subscription), priced at the Gemini API's rates.
+    ("antigravity", "gemini-4-argon"): Price(
+        "Google's Gemini API regular price (from 1 December 2026)",
+        GEMINI_PRICING,
+        "2026-10-28",
+        4.00,
+        20.00,
+        cached_input=0.20,
+        change="introductory until 30 November 2026: $2.00 input, $10.00 output and $0.10 cached input per 1M tokens",
+    ),
+    # Read 28 October 2026.
+    ("xai", "grok-4.7"): Price("xAI's API list price", "https://docs.x.ai/docs/models/grok-4.7", "2026-10-28", 2.00, 6.00, cached_input=0.50),
+    ("claude", "claude-fable-5-1"): Price(
+        "Anthropic's API list price", ANTHROPIC_PRICING, "2026-10-28", 10.00, 50.00,
+        cached_input=0.25, cache_write=12.50, cache_write_1h=20.00,
+    ),
+    # OpenRouter's prices for the pinned endpoints (its endpoints API, read 28 October 2026); OpenRouter also reports
+    # each request's billed cost.
+    ("openrouter-chat", "moonshotai/kimi-k3.1-pro"): Price(
+        "OpenRouter's price for Moonshot AI's endpoint (mxfp4)", "https://openrouter.ai/moonshotai/kimi-k3.1-pro", "2026-10-28",
+        2.00, 10.00, cached_input=0.20,
+    ),
+    # The pin order ["fireworks"] admits all of Fireworks' endpoints; OpenRouter billed 135 of the run's 138 requests at
+    # the spot endpoint's rates, 2 at the standard ones ($1.40 input, $4.40 output) and 1 at the fast endpoint's.
+    ("openrouter-chat", "z-ai/glm-5.3"): Price(
+        "OpenRouter's price for Fireworks' spot endpoint, which served nearly every request", "https://openrouter.ai/z-ai/glm-5.3",
+        "2026-10-28", 0.98, 3.08, cached_input=0.182,
+    ),
+    ("openrouter-chat", "deepseek/deepseek-v4.1-flash-1017"): Price(
+        "OpenRouter's price for DeepSeek's own endpoint", "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017", "2026-10-28",
+        0.15, 0.60, cached_input=0.003,
+    ),
     # Prompts up to 272K tokens.
     ("openai", "gpt-6-astra"): Price(
         "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 10.00, 50.00, cached_input=1.00, cache_write=12.50
@@ -420,7 +464,7 @@ VLLM_TOP_LOGPROBS = 10
 # of the chosen option. vllm reads them from the token probabilities of the answer letters it writes.
 # The other providers with a confidence state it with each answer.
 PROBABILITY_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm")
-STATED_CONFIDENCE_PROVIDERS = ("vllm-verbal", "vllm-stated", "claude", "openai", "gemini")
+STATED_CONFIDENCE_PROVIDERS = ("vllm-verbal", "vllm-stated", "claude", "openai", "gemini", "xai", "antigravity", "openrouter-chat")
 READING_UNITS = range(1, 7)  # units 1–6 test reading, units 7–20 grammar
 # Within-unit shuffles behind the p-value of the decision-model doubt analysis.
 DOUBT_SHUFFLES = 200
@@ -443,7 +487,8 @@ TIE_ALPHA = 0.05
 # models: the decision models, and Gemma 4 31B, the most accurate run with option probabilities; each is a
 # provider, or a (provider, model) pair when the provider serves several models. Frontier runs are given
 # as (provider, model, thinking): the LLMs of the live tests, then the other LLMs the routing replays put
-# second. The doubt counts the mistakes of the live tests' LLMs only.
+# second, then the LLM runs of 28 October (16 questions per request only). The doubt counts the mistakes
+# of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
     "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server",
@@ -458,6 +503,12 @@ CASCADE_FRONTIER_RUNS = (
     *DOUBT_FRONTIER_RUNS,
     ("openai", "gpt-6.1-sol", "low"),
     ("gemini", "gemini-3.8-flash", "low"),
+    ("claude", "claude-opus-5-5", "high"),
+    ("openai", "gpt-6-astra", "high"),
+    ("openai", "gpt-6.1-sol", "high"),
+    ("openai", "gpt-6.1-terra", "high"),
+    ("openai", "gpt-6.1-terra", "low"),
+    ("gemini", "gemini-3.8-flash", "high"),
 )
 # Question groups the report scores separately, by label. Missing markup: the question text refers to
 # underlined or numbered words without marking them (see missing_markup).
@@ -534,6 +585,26 @@ CLAUDE_EFFORTS = ("low", "medium", "high", "xhigh", "max")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta"
 # The API key: GEMINI_API_KEY, else this file.
 GEMINI_KEY_FILE = Path("~/.config/gemini/key")
+# xAI's Responses API, which takes the SuperGrok subscription's OAuth token from OMP's xai-oauth login.
+XAI_RESPONSES_URL = "https://api.x.ai/v1/responses"
+XAI_EFFORTS = ("low", "medium", "high", "xhigh")
+# Cloud Code Assist endpoints serving Google Antigravity (the Google AI Ultra subscription, OMP's google-antigravity
+# login), in OMP's order; the production cloudcode-pa host answers Antigravity requests with another quota.
+ANTIGRAVITY_URLS = ("https://daily-cloudcode-pa.googleapis.com", "https://daily-cloudcode-pa.sandbox.googleapis.com")
+# The Antigravity app's user agent, as OMP sends it.
+ANTIGRAVITY_USER_AGENT = "antigravity/hub/2.19.1 (aidev_client; os_type=darwin; arch=arm64; cl=963137146)"
+ANTIGRAVITY_THINKING = ("low", "medium", "high")
+# The output limit asked of Antigravity: 65,536 tokens, the Gemini API's default for these models, which the Gemini
+# runs had. Antigravity still ends a reply at 32,768 tokens of thinking plus answer: without the setting the reply
+# ends with finishReason MAX_TOKENS, with it CONTINUATION (a continuation this runner does not request), so a request
+# that needs more comes back without a complete answer either way.
+ANTIGRAVITY_MAX_OUTPUT_TOKENS = 65536
+# OpenRouter's chat completions, each run pinned to one provider endpoint (--openrouter-order) without fallbacks.
+OPENROUTER_CHAT_URL = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_EFFORTS = ("none", "minimal", "low", "medium", "high", "xhigh", "max")
+# OMP's credential store, opened read-only for a login's stored fields (Antigravity's project id); its tokens come
+# from `omp token PROVIDER`, which refreshes them when due.
+OMP_AGENT_DB = Path("~/.omp/agent/agent.db")
 # Codex features whose tools the OpenAI provider turns off: shell and exec, goals, apps and plugins
 # with their MCP resources, image viewing and generation, and sleep. Web search is turned off through
 # the `web_search` setting. Checked with Codex 0.159.0.
@@ -636,7 +707,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("model", nargs="?", help="Provider model name (not needed with --refresh-report)")
     parser.add_argument(
         "--provider",
-        choices=("ollama", "openai", "claude", "gemini", *SYSTEM_ONE_PROVIDERS, *VLLM_PROVIDERS),
+        choices=("ollama", "openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", *SYSTEM_ONE_PROVIDERS,
+                 *VLLM_PROVIDERS),
         default="ollama",
         help="Inference provider (default: ollama)",
     )
@@ -656,7 +728,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--openai-reasoning",
-        choices=("minimal", "low", "medium", "high", "xhigh"),
+        choices=("minimal", "low", "medium", "high", "xhigh", "max"),
         default="low",
         help="Codex reasoning effort for --provider openai (default: low)",
     )
@@ -677,6 +749,12 @@ def parse_args() -> argparse.Namespace:
         "--vllm-thinking",
         action="store_true",
         help="let the model think before it answers, for --provider vllm and vllm-stated (default: thinking off)",
+    )
+    parser.add_argument(
+        "--vllm-reasoning-effort",
+        choices=("low", "medium", "high", "xhigh"),
+        help="the chat template's reasoning_effort with --vllm-thinking (Qwen3.8 reads low, medium and xhigh, its "
+        "default); the run's reasoning setting is then this level",
     )
     parser.add_argument(
         "--concurrency",
@@ -700,6 +778,39 @@ def parse_args() -> argparse.Namespace:
         choices=("low", "medium", "high"),
         default="low",
         help="Gemini thinking level for --provider gemini (default: low, the lowest Gemini 3.8 Flash supports)",
+    )
+    parser.add_argument(
+        "--xai-reasoning",
+        choices=XAI_EFFORTS,
+        default="low",
+        help="xAI reasoning effort for --provider xai (default: low)",
+    )
+    parser.add_argument(
+        "--antigravity-thinking",
+        choices=ANTIGRAVITY_THINKING,
+        default="low",
+        help="Gemini thinking level for --provider antigravity; it also picks Antigravity's model id (MODEL-LEVEL)",
+    )
+    parser.add_argument(
+        "--openrouter-reasoning",
+        choices=OPENROUTER_EFFORTS,
+        help="reasoning_effort for --provider openrouter-chat (required there)",
+    )
+    parser.add_argument(
+        "--openrouter-order",
+        help="the one OpenRouter provider endpoint a --provider openrouter-chat run is pinned to, fallbacks off "
+        "(for example moonshotai/mxfp4 or fireworks; required there)",
+    )
+    parser.add_argument(
+        "--openrouter-require-parameters",
+        action="store_true",
+        help="send provider.require_parameters true with --provider openrouter-chat",
+    )
+    parser.add_argument(
+        "--openrouter-json-object",
+        action="store_true",
+        help="with --provider openrouter-chat, ask for JSON mode (response_format json_object) without the answer schema, "
+        "for a pinned endpoint without structured outputs; the answers are then read from the model's own JSON layout",
     )
     parser.add_argument(
         "--unit",
@@ -727,6 +838,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-ctx", type=int)
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--restart", action="store_true")
+    parser.add_argument(
+        "--retry-cut",
+        action="store_true",
+        help="with --provider antigravity, after the run's own requests, ask each request Antigravity cut at its output "
+        "limit before a complete answer once more (a stored retry is never asked again)",
+    )
     parser.add_argument("--log-verbose", action="store_true")
     parser.add_argument("--progress-every", type=int, default=10)
     variant = parser.add_mutually_exclusive_group()
@@ -787,10 +904,17 @@ def parse_args() -> argparse.Namespace:
         parser.error("--image-input=on is currently supported only by --provider ollama")
     if args.vllm_thinking and args.provider not in ("vllm", "vllm-stated"):
         parser.error("--vllm-thinking is only supported by --provider vllm and vllm-stated")
+    if args.vllm_reasoning_effort and not args.vllm_thinking:
+        parser.error("--vllm-reasoning-effort needs --vllm-thinking")
+    if args.retry_cut and (args.provider != "antigravity" or args.restart):
+        parser.error("--retry-cut is only supported by --provider antigravity, without --restart")
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
-    if args.concurrency > 1 and args.provider not in ("vllm", "vllm-stated", "gemini") and args.provider not in SYSTEM_ONE:
-        parser.error("--concurrency is only supported by --provider vllm, vllm-stated, gemini and the System One providers")
+    concurrent = ("vllm", "vllm-stated", "gemini", "xai", "antigravity", "openrouter-chat")
+    if args.concurrency > 1 and args.provider not in concurrent and args.provider not in SYSTEM_ONE:
+        parser.error(f"--concurrency is only supported by --provider {', '.join(concurrent)} and the System One providers")
+    if args.provider == "openrouter-chat" and (args.openrouter_reasoning is None or not args.openrouter_order):
+        parser.error("--provider openrouter-chat needs --openrouter-reasoning and --openrouter-order")
     if args.repeat is not None and args.repeat < 2:
         parser.error("--repeat must be at least 2; the first run of a configuration is repeat 1")
     if args.questions is not None and (args.sample is not None or args.limit is not None):
@@ -1854,22 +1978,27 @@ def ask_ollama(
 
 
 def vllm_chat_payload(
-    model: str, system: str, prompt: str, schema: dict[str, Any], seed: int, thinking: bool, questions: int
+    model: str, system: str, prompt: str, schema: dict[str, Any], seed: int, thinking: bool | str, questions: int
 ) -> dict[str, Any]:
     """A chat request with an answer schema through vLLM's chat API, which SGLang and TensorFold also serve, with the
     run's seed. Without thinking it decodes greedily (temperature 0); with thinking it samples with the server's
-    defaults, because greedy decoding makes reasoning loop. The answer schema applies to the reply after the thinking."""
+    defaults, because greedy decoding makes reasoning loop. The answer schema applies to the reply after the thinking.
+    `thinking` is a bool, or the chat template's reasoning_effort (--vllm-reasoning-effort), which also turns it on."""
+    enabled = bool(thinking)
+    template = {"enable_thinking": enabled, "thinking": enabled}
+    if isinstance(thinking, str):
+        template["reasoning_effort"] = thinking
     payload: dict[str, Any] = {
         "model": model,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}],
         "seed": seed,
-        "max_tokens": VLLM_THINKING_MAX_TOKENS if thinking else VLLM_TOKENS_PER_ANSWER * questions,
+        "max_tokens": VLLM_THINKING_MAX_TOKENS if enabled else VLLM_TOKENS_PER_ANSWER * questions,
         "response_format": {"type": "json_schema", "json_schema": {"name": "answers", "schema": schema, "strict": True}},
         # Qwen's, Gemma's and GLM's chat templates read enable_thinking, DeepSeek's reads thinking; each ignores the
-        # other.
-        "chat_template_kwargs": {"enable_thinking": thinking, "thinking": thinking},
+        # other. Qwen3.8's also reads reasoning_effort (xhigh when unset).
+        "chat_template_kwargs": template,
     }
-    if not thinking:
+    if not enabled:
         payload["temperature"] = 0
     return payload
 
@@ -1880,7 +2009,7 @@ def ask_vllm(
     batch: list[Question],
     timeout: float,
     seed: int,
-    thinking: bool,
+    thinking: bool | str,
     verbose_log: TextIO | None,
 ) -> tuple[list[str | None], str]:
     """The Ollama request through vLLM's chat API (vllm_chat_payload): the same prompt and answer schema.
@@ -1920,7 +2049,7 @@ def ask_vllm_stated(
     batch: list[Question],
     timeout: float,
     seed: int,
-    thinking: bool,
+    thinking: bool | str,
     verbose_log: TextIO | None,
 ) -> tuple[list[str | None], str]:
     """The hosted models' request through vLLM's chat API (vllm_chat_payload), for a server that returns no token
@@ -2285,6 +2414,191 @@ def ask_gemini(
     predictions, per_question = confidence_answers(answers, batch)
     if any(prediction is None for prediction in predictions):
         print(f"warning: incomplete Gemini response: {result!r}", file=sys.stderr)
+    stored_response = json.dumps({"answers": per_question, "response": result}, ensure_ascii=False, separators=(",", ":"))
+    return predictions, stored_response
+
+
+def omp_token(provider: str) -> str:
+    """An OAuth access token from OMP's login for `provider` (`omp token PROVIDER`, which refreshes it when due; the
+    binary from OMP_BIN or ~/.local/bin/omp). The token is never logged."""
+    omp = os.environ.get("OMP_BIN") or str(Path("~/.local/bin/omp").expanduser())
+    completed = subprocess.run([omp, "token", provider], capture_output=True, text=True, timeout=60, check=False)
+    token = completed.stdout.strip()
+    if completed.returncode != 0 or not token:
+        raise RuntimeError(f"`omp token {provider}` failed (exit {completed.returncode}); log in to {provider} in OMP first")
+    return token
+
+
+def omp_login_field(provider: str, field: str) -> str:
+    """A stored field of OMP's enabled login for `provider`, such as Antigravity's projectId (OMP's database, opened
+    read-only)."""
+    path = OMP_AGENT_DB.expanduser()
+    connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    try:
+        rows = connection.execute(
+            "SELECT data FROM auth_credentials WHERE provider = ? AND disabled_cause IS NULL", (provider,)
+        ).fetchall()
+    finally:
+        connection.close()
+    for (data,) in rows:
+        value = json.loads(data).get(field)
+        if value:
+            return str(value)
+    raise RuntimeError(f"OMP's {provider} login has no {field}")
+
+
+def json_answers(text: str) -> Any:
+    """The `answers` object of a structured reply; None when the reply is not that JSON."""
+    try:
+        return json.loads(text).get("answers")
+    except (TypeError, AttributeError, json.JSONDecodeError):
+        return None
+
+
+def ask_xai(model: str, batch: list[Question], timeout: float, effort: str, verbose_log: TextIO | None) -> tuple[list[str | None], str]:
+    """Answer a batch with a stated 0-1 confidence per question through xAI's Responses API, with the SuperGrok
+    subscription's token (OMP's xai-oauth login): the prompt, system prompt and schema of the other chat providers,
+    the reasoning effort set, no temperature."""
+    payload = {
+        "model": model,
+        "instructions": CONFIDENCE_SYSTEM_PROMPT,
+        "input": [{"role": "user", "content": make_prompt(batch, CONFIDENCE_INSTRUCTION)}],
+        "store": False,
+        "text": {"format": {"type": "json_schema", "name": "answers", "schema": confidence_schema(batch), "strict": True}},
+        "reasoning": {"effort": effort},
+    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {omp_token('xai-oauth')}"}
+    result, _ = post_json(XAI_RESPONSES_URL, payload, headers, timeout, verbose_log, "xAI")
+    # The answer is the output_text of the message items; reasoning items carry none.
+    text = "".join(
+        part.get("text", "")
+        for item in (result.get("output") or []) if item.get("type") == "message"
+        for part in (item.get("content") or []) if part.get("type") == "output_text"
+    )
+    answers = json_answers(text) if result.get("status") == "completed" else None
+    predictions, per_question = confidence_answers(answers, batch)
+    if any(prediction is None for prediction in predictions):
+        print(f"warning: incomplete xAI response (status {result.get('status')!r})", file=sys.stderr)
+    stored_response = json.dumps({"answers": per_question, "response": result}, ensure_ascii=False, separators=(",", ":"))
+    return predictions, stored_response
+
+
+def gemini_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """A JSON schema as the Gemini Schema object of responseSchema: upper-case types and the property order given,
+    without additionalProperties, which that format lacks (the listed properties are all required)."""
+    converted: dict[str, Any] = {}
+    for key, value in schema.items():
+        if key == "type":
+            converted["type"] = value.upper()
+        elif key == "properties":
+            converted["properties"] = {name: gemini_schema(item) for name, item in value.items()}
+            converted["propertyOrdering"] = list(value)
+        elif key == "items":
+            converted["items"] = gemini_schema(value)
+        elif key in ("required", "enum", "minimum", "maximum"):
+            converted[key] = value
+    return converted
+
+
+def ask_antigravity(
+    model: str, batch: list[Question], timeout: float, thinking_level: str, verbose_log: TextIO | None
+) -> tuple[list[str | None], str]:
+    """Answer a batch with a stated 0-1 confidence per question through Google Antigravity (the Google AI Ultra
+    subscription, OMP's google-antigravity login): the Gemini API request of ask_gemini inside the Cloud Code Assist
+    envelope the Antigravity app sends. Antigravity ignores responseJsonSchema (it answered in a fenced block with
+    its own keys), so the same schema goes as responseSchema, Gemini's Schema object, which it enforces. Antigravity
+    names each Gemini model per thinking level (MODEL-LEVEL); the request's thinkingLevel sets it too. The daily
+    endpoint is asked first, then the sandbox one."""
+    request = {
+        "systemInstruction": {"parts": [{"text": CONFIDENCE_SYSTEM_PROMPT}]},
+        "contents": [{"role": "user", "parts": [{"text": make_prompt(batch, CONFIDENCE_INSTRUCTION)}]}],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "responseSchema": gemini_schema(confidence_schema(batch)),
+            "thinkingConfig": {"thinkingLevel": thinking_level},
+            "maxOutputTokens": ANTIGRAVITY_MAX_OUTPUT_TOKENS,
+        },
+        "sessionId": f"-{random.randrange(9_000_000_000_000_000_000)}",
+    }
+    antigravity_model = model if model.endswith(f"-{thinking_level}") else f"{model}-{thinking_level}"
+    envelope = {
+        "project": omp_login_field("google-antigravity", "projectId"),
+        "requestId": f"agent/{uuid4()}/{int(time.time() * 1000)}/{uuid4()}/2",
+        "request": request,
+        "model": antigravity_model,
+        "userAgent": "antigravity",
+        "requestType": "agent",
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {omp_token('google-antigravity')}",
+        "User-Agent": ANTIGRAVITY_USER_AGENT,
+    }
+    for index, base in enumerate(ANTIGRAVITY_URLS):
+        try:
+            result, _ = post_json(f"{base}/v1internal:generateContent", envelope, headers, timeout, verbose_log, "Antigravity")
+            break
+        except RuntimeError:
+            if index + 1 == len(ANTIGRAVITY_URLS):
+                raise
+    response = result.get("response") or {}
+    try:
+        parts = response["candidates"][0]["content"]["parts"]
+        text = "".join(part.get("text", "") for part in parts if not part.get("thought"))
+    except (KeyError, IndexError, TypeError):
+        text = ""
+    predictions, per_question = confidence_answers(json_answers(text), batch)
+    if any(prediction is None for prediction in predictions):
+        print("warning: incomplete Antigravity response", file=sys.stderr)
+    stored_response = json.dumps(
+        {"answers": per_question, "response": response, "antigravity_model": antigravity_model, "endpoint": base},
+        ensure_ascii=False, separators=(",", ":"),
+    )
+    return predictions, stored_response
+
+
+def ask_openrouter_chat(
+    model: str, batch: list[Question], timeout: float, effort: str, order: str, require_parameters: bool,
+    json_object: bool, verbose_log: TextIO | None,
+) -> tuple[list[str | None], str]:
+    """Answer a batch with a stated 0-1 confidence per question through OpenRouter's chat completions, pinned to one
+    provider endpoint without fallbacks: the prompt, system prompt and schema of the other chat providers, the
+    reasoning effort set, temperature 1.0, OpenRouter's usage accounting (with its billed cost) included. With
+    json_object the request asks for JSON mode without the schema, for an endpoint that lacks structured outputs
+    (DeepSeek's own, which require_parameters would otherwise rule out)."""
+    key = os.environ.get("OPENROUTER_API_KEY", "").strip()
+    if not key:
+        raise ValueError("--provider openrouter-chat requires OPENROUTER_API_KEY")
+    pin: dict[str, Any] = {"order": [order], "allow_fallbacks": False}
+    if require_parameters:
+        pin["require_parameters"] = True
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": CONFIDENCE_SYSTEM_PROMPT},
+            {"role": "user", "content": make_prompt(batch, CONFIDENCE_INSTRUCTION)},
+        ],
+        "temperature": 1.0,
+        "max_tokens": 32768,
+        "reasoning_effort": effort,
+        "response_format": {"type": "json_object"} if json_object else {
+            "type": "json_schema", "json_schema": {"name": "answers", "schema": confidence_schema(batch), "strict": True}
+        },
+        "provider": pin,
+        "usage": {"include": True},
+    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
+    result, _ = post_json(OPENROUTER_CHAT_URL, payload, headers, timeout, verbose_log, "OpenRouter")
+    try:
+        text = result["choices"][0]["message"].get("content") or ""
+    except (KeyError, IndexError, TypeError, AttributeError):
+        text = ""
+    # A reasoning model may put its thinking before the answer, closed by </think>.
+    if "</think>" in text:
+        text = text.split("</think>", 1)[1]
+    predictions, per_question = confidence_answers(json_answers(text.strip()), batch)
+    if any(prediction is None for prediction in predictions):
+        print(f"warning: incomplete OpenRouter response (served by {result.get('provider')!r})", file=sys.stderr)
     stored_response = json.dumps({"answers": per_question, "response": result}, ensure_ascii=False, separators=(",", ":"))
     return predictions, stored_response
 
@@ -2745,9 +3059,11 @@ def store_answers(
     raw_response: str,
     elapsed: float,
     request_seconds: float,
+    retry: bool = False,
 ) -> None:
     """Store each answer under the question bank's letters, with the options as shown to the model.
-    elapsed is the batch's share of the run's request time; request_seconds its own request's duration."""
+    elapsed is the batch's share of the run's request time; request_seconds its own request's duration. A retry
+    (--retry-cut) replaces answers already counted, so it adds its time to the run but no questions."""
     now = utc_now()
     records = [
         (
@@ -2778,7 +3094,7 @@ def store_answers(
             """,
             records,
         )
-        count = len(records)
+        count = 0 if retry else len(records)
         duration = max(elapsed, 1e-9)
         connection.execute(
             """
@@ -2788,6 +3104,73 @@ def store_answers(
             """,
             (count, duration, count, duration, now, run_id),
         )
+
+
+# The finish reasons with which Antigravity ends a reply at its output limit (CONTINUATION when the request asked for
+# more than Antigravity gives, MAX_TOKENS otherwise).
+CUT_FINISH_REASONS = ("CONTINUATION", "MAX_TOKENS")
+
+
+def cut_requests(connection: sqlite3.Connection, run_id: int) -> list[tuple[list[int], dict[str, Any], float | None]]:
+    """The requests of an Antigravity run whose reply Antigravity cut at its output limit before a complete answer, and
+    that are not themselves retries: each one's ordinals in order, its stored record and its request time."""
+    requests: dict[str, list[sqlite3.Row]] = {}
+    for row in connection.execute(
+        "SELECT ordinal,raw_response,request_seconds FROM answers WHERE run_id=? ORDER BY ordinal", (run_id,)
+    ):
+        requests.setdefault(row["raw_response"], []).append(row)
+    cut = []
+    for raw_response, rows in requests.items():
+        record = json.loads(raw_response)
+        candidates = (record.get("response") or {}).get("candidates") or []
+        finish = candidates[0].get("finishReason") if candidates else None
+        answered = any((answer or {}).get("answer") is not None for answer in (record.get("answers") or {}).values())
+        if "retry" not in record and finish in CUT_FINISH_REASONS and not answered:
+            cut.append(([int(row["ordinal"]) for row in rows], record, rows[0]["request_seconds"]))
+    return cut
+
+
+def retry_cut_requests(
+    selection: Selection,
+    connection: sqlite3.Connection,
+    identity: RunIdentity,
+    args: argparse.Namespace,
+    thinking: bool | str,
+    verbose_log: TextIO | None,
+) -> None:
+    """--retry-cut: ask once more, with the same questions in the same order and the same settings, each request of a
+    finished Antigravity run whose reply Antigravity cut at its output limit before a complete answer (cut_requests).
+    Whatever comes back replaces the cut reply, which the new record keeps under "retry" (with its usage, so the run's
+    tokens and cost count both attempts, and its request time); a reply cut again leaves its questions unanswered. A
+    stored retry is never asked again."""
+    cut = [
+        ([(ordinal, selection.questions[ordinal]) for ordinal in ordinals], record, seconds)
+        for ordinals, record, seconds in cut_requests(connection, identity.run_id)
+    ]
+    print(f"Retrying {len(cut)} cut request(s) once ({sum(len(batch) for batch, _, _ in cut)} questions)", flush=True)
+    if not cut:
+        return
+    harness = harness_commit()
+
+    def request(item: tuple[list[tuple[int, Question]], dict[str, Any], float | None]) -> tuple[Any, list[str | None], str, float, float]:
+        started = time.monotonic()
+        predictions, raw_response = ask_batch(args, [question for _, question in item[0]], thinking, verbose_log)
+        return item, predictions, raw_response, started, time.monotonic()
+
+    covered_until = 0.0
+    with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
+        results = [future.result() for future in [executor.submit(request, item) for item in cut]]
+    for (batch, first, first_seconds), predictions, raw_response, started, finished in sorted(results, key=lambda item: item[4]):
+        record = json.loads(raw_response)
+        record["retry"] = {"harness_commit": harness, "first_attempt": first, "first_request_seconds": first_seconds}
+        elapsed = max(finished - max(started, covered_until), 0.0)
+        covered_until = max(covered_until, finished)
+        store_answers(
+            connection, identity.run_id, batch, predictions,
+            json.dumps(record, ensure_ascii=False, separators=(",", ":")), elapsed, finished - started, retry=True,
+        )
+        answered = sum(prediction is not None for prediction in predictions)
+        print(f"  ordinals {batch[0][0]}-{batch[-1][0]}: {answered} of {len(batch)} answered on the retry", flush=True)
 
 
 def ask_batch(
@@ -2824,6 +3207,15 @@ def ask_batch(
         return ask_gemini(args.gemini_api_key, args.model, questions, args.timeout, args.gemini_thinking, verbose_log)
     if args.provider == "claude":
         return ask_claude(args.claude_bin, args.model, questions, args.timeout, args.claude_effort, verbose_log)
+    if args.provider == "xai":
+        return ask_xai(args.model, questions, args.timeout, args.xai_reasoning, verbose_log)
+    if args.provider == "antigravity":
+        return ask_antigravity(args.model, questions, args.timeout, args.antigravity_thinking, verbose_log)
+    if args.provider == "openrouter-chat":
+        return ask_openrouter_chat(
+            args.model, questions, args.timeout, args.openrouter_reasoning, args.openrouter_order,
+            args.openrouter_require_parameters, args.openrouter_json_object, verbose_log,
+        )
     return ask_ollama(
         args.ollama_url, args.model, questions, args.timeout, args.seed, thinking, args.num_ctx, verbose_log
     )
@@ -3733,6 +4125,27 @@ def answer_usage(
         score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
         input_tokens, output_tokens = usage.get("input_tokens"), usage.get("output_tokens")
         cache = {key: int(usage.get(key) or 0) for key in ("cached_input_tokens", "cache_write_input_tokens")}
+    elif provider == "xai":
+        # xAI's Responses API usage, as OpenAI's: output_tokens includes reasoning.
+        usage = (record.get("response") or {}).get("usage") or {}
+        score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
+        input_tokens, output_tokens = usage.get("input_tokens"), usage.get("output_tokens")
+        cache = {"cached_input_tokens": int((usage.get("input_tokens_details") or {}).get("cached_tokens") or 0)}
+    elif provider == "antigravity":
+        # The Gemini response inside Antigravity's envelope: thinking is billed as output. A retried request
+        # (--retry-cut) also counts the tokens of the cut first attempt its record keeps.
+        attempts = [record, (record.get("retry") or {}).get("first_attempt") or {}]
+        usages = [(attempt.get("response") or {}).get("usageMetadata") or {} for attempt in attempts]
+        score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
+        input_tokens = sum(int(usage.get("promptTokenCount") or 0) for usage in usages) if usages[0] else None
+        output_tokens = sum(int(usage.get("candidatesTokenCount") or 0) + int(usage.get("thoughtsTokenCount") or 0) for usage in usages)
+        cache = {"cached_input_tokens": sum(int(usage.get("cachedContentTokenCount") or 0) for usage in usages)}
+    elif provider == "openrouter-chat":
+        # OpenRouter's usage accounting: completion_tokens includes reasoning.
+        usage = (record.get("response") or {}).get("usage") or {}
+        score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
+        input_tokens, output_tokens = usage.get("prompt_tokens"), usage.get("completion_tokens")
+        cache = {"cached_input_tokens": int((usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0)}
     elif provider == "vllm":
         # vLLM's response, stored as it came apart from the token log probabilities (see ask_vllm).
         usage = record.get("usage") or {}
@@ -4695,7 +5108,7 @@ def main() -> int:
             image_input = False
         elif args.provider in VLLM_PROVIDERS:
             endpoint = require_server_url(args.vllm_url, "--vllm-url")
-            thinking = args.vllm_thinking
+            thinking = args.vllm_reasoning_effort or args.vllm_thinking
             image_input = False
             if args.provider == "vllm-yes-no":
                 args.yes_no_ids = vllm_yes_no_ids(args.vllm_url, args.model, args.timeout)
@@ -4708,6 +5121,28 @@ def main() -> int:
             args.claude_bin = require_claude_subscription(args.claude_bin)
             thinking = args.claude_effort
             endpoint = "claude-code-subscription"
+            image_input = False
+        elif args.provider == "xai":
+            omp_token("xai-oauth")  # stops here without a login
+            thinking = args.xai_reasoning
+            endpoint = XAI_RESPONSES_URL
+            image_input = False
+        elif args.provider == "antigravity":
+            omp_token("google-antigravity")
+            omp_login_field("google-antigravity", "projectId")
+            thinking = args.antigravity_thinking
+            endpoint = ANTIGRAVITY_URLS[0]
+            image_input = False
+        elif args.provider == "openrouter-chat":
+            if not os.environ.get("OPENROUTER_API_KEY", "").strip():
+                raise ValueError("--provider openrouter-chat requires OPENROUTER_API_KEY")
+            thinking = args.openrouter_reasoning
+            # The endpoint pin is part of the run's identity: another pin is another setup.
+            endpoint = f"{OPENROUTER_CHAT_URL}#provider={args.openrouter_order}"
+            if args.openrouter_require_parameters:
+                endpoint += ";require_parameters"
+            if args.openrouter_json_object:
+                endpoint += ";json_object"
             image_input = False
         else:
             endpoint = require_server_url(args.ollama_url, "--ollama-url")
@@ -4771,6 +5206,9 @@ def main() -> int:
         correct, invalid, categories = evaluate(
             selection, result_connection, identity, args, thinking, verbose_log
         )
+        if args.retry_cut:
+            retry_cut_requests(selection, result_connection, identity, args, thinking, verbose_log)
+            _, correct, invalid, categories = score(result_connection, identity.run_id)
         mark_run(result_connection, identity.run_id, "completed")
         update_report(
             args.output.resolve(),

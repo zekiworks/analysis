@@ -80,6 +80,10 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "openai-decisions": {"access": "OpenAI Decisions API (public beta)", "scoring": True, "billing": "api"},
     # Other makers' decision models through OpenRouter's System One route; the request time includes OpenRouter's own.
     "openrouter": {"access": "OpenRouter System One API", "scoring": True, "billing": "api"},
+    # The backgammon-paired runs: each model through the route, model ID and reasoning setting of its backgammon setup.
+    "xai": {"access": "xAI Responses API, SuperGrok subscription", "scoring": False, "billing": "subscription"},
+    "antigravity": {"access": "Google Antigravity, Google AI Ultra subscription", "scoring": False, "billing": "subscription"},
+    "openrouter-chat": {"access": "OpenRouter chat API, one provider endpoint, fallbacks off", "scoring": False, "billing": "api"},
 }
 # The token totals a price applies to (TOKEN_KINDS in benchmark_ollama.py): every prompt token, the cache reads
 # and writes among them, and the output.
@@ -135,11 +139,17 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 31_273_088_876,
     },
     "deepseek-v4.1-flash": {
-        "name": "DeepSeek-V4.1-Flash",
-        "access": "SGLang, self-hosted, published mixed precision",
+        # Every DeepSeek-V4.1-Flash run here (58 to 121, 4 and 5 October 2026) served the first release: the server
+        # pinned revision fb2764a until it moved to DeepSeek's minor update DeepSeek-V4.1-Flash-1017 on 17 October.
+        "name": "DeepSeek-V4.1-Flash, first release",
+        "access": "SGLang, self-hosted, published mixed precision; first-release weights (revision fb2764a), not the 1017 update",
         "hardware": f"4 × {GPU}; FP4 experts, FP8 and BF16 layers",
         "parameters": 552_000_000_000,
         "active_parameters": [8_000_000_000, 16_000_000_000],
+    },
+    "deepseek/deepseek-v4.1-flash-1017": {
+        "name": "DeepSeek-V4.1-Flash-1017",
+        "access": "OpenRouter chat API, DeepSeek's own endpoint, fallbacks off",
     },
     "glm-5.3-flash": {
         "name": "GLM-5.3-Flash",
@@ -148,6 +158,14 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 320_000_000_000,
         "active_parameters": [18_000_000_000],
     },
+    "grok-4.7": {"name": "Grok 4.7"},
+    "gemini-4-argon": {"name": "Gemini 4 Argon"},
+    "claude-fable-5-1": {"name": "Claude Fable 5.1"},
+    "moonshotai/kimi-k3.1-pro": {
+        "name": "Kimi K3.1 Pro",
+        "access": "OpenRouter chat API, Moonshot AI's endpoint (mxfp4), fallbacks off",
+    },
+    "z-ai/glm-5.3": {"name": "GLM-5.3", "access": "OpenRouter chat API, Fireworks endpoint, fallbacks off"},
     "gemma4:31b": {"name": "Gemma 4 31B"},
     "deepseek-v4-flash:latest": {"name": "DeepSeek V4 Flash"},
     "muse-glimmer:30b": {"name": "Muse Glimmer 30B"},
@@ -314,10 +332,21 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 14_768_307_200,
     },
 }
+# Finished runs whose publication is held; the export leaves them out, with their answers, until the hold is lifted.
+HELD_RUNS: dict[int, str] = {
+    312: "Gemini 4 Argon (high), after the retry of its 9 cut requests: held by Ümit on 28 October 2026 until approval",
+}
 # Notes on single runs, after their model's note.
 RUN_NOTES: dict[int, str] = {
     276: "It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for the other "
          "406 questions; the usage and cost of the failed request are unknown.",
+    312: "Antigravity ignored the answer schema in the field the Gemini API reads, so it went as responseSchema. We asked "
+         "for up to 65,536 output tokens, the limit our other Gemini runs had; Antigravity cut 9 of the 138 requests at "
+         "32,768 output tokens, and only those 9 were asked again, once: 5 came back answered and 4 were cut again, so "
+         "their 64 questions count as wrong. The first pass scored 92.0%. The cost counts both attempts.",
+    314: "The Fireworks pin admits all of Fireworks' endpoints: OpenRouter billed 135 of the 138 requests at the spot "
+         "endpoint's rates, 2 at the standard rates and 1 at the fast endpoint's rates ($1.82 in all); the cost shown "
+         "uses the spot rates.",
 }
 # Each unit's plain English label; results.json keeps the printed Turkish title next to it.
 UNITS_EN = {
@@ -357,6 +386,16 @@ REPLAY_FRONTIERS = (
     ("openai", "gpt-6-astra", "low"),
     ("openai", "gpt-6.1-sol", "low"),
     ("gemini", "gemini-3.8-flash", "low"),
+)
+# The LLM runs added later (16 questions per request only), placed after REPLAY_FRONTIERS and their format reruns so
+# the earlier entries keep their place.
+REPLAY_FRONTIERS_ADDED = (
+    ("claude", "claude-opus-5-5", "high"),
+    ("openai", "gpt-6-astra", "high"),
+    ("openai", "gpt-6.1-sol", "high"),
+    ("openai", "gpt-6.1-terra", "high"),
+    ("openai", "gpt-6.1-terra", "low"),
+    ("gemini", "gemini-3.8-flash", "high"),
 )
 REPLAY_CUTOFFS = (0.999, 0.995, 0.99, 0.985, 0.98, 0.97, 0.95, 0.9, 0.8)
 REPLAY_SHARE = 0.25
@@ -519,6 +558,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         and record.get("replace_key_text") is None
         and record.get("repeat") is None
         and not record.get("question_list")
+        and record["run_id"] not in HELD_RUNS
     ]
     if not full:
         raise ValueError("the report holds no run over a full question set")
@@ -924,9 +964,11 @@ def replay(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, Any
     cut = bm.share_cut(scores, REPLAY_SHARE)
     surest = bm.kept_answers(scores, correct, cut)
     frontiers = []
-    # Each second run's setup in its first format, then its format reruns, each a second run of its own.
+    # Each second run's setup in its first format, then its format reruns, each a second run of its own; then the runs
+    # added later.
     seconds = [find(spec) for spec in REPLAY_FRONTIERS]
     seconds += [run for base in seconds for run in sorted(runs, key=lambda run: run["run"]) if run.get("format_of") == base["run"]]
+    seconds += [find(spec) for spec in REPLAY_FRONTIERS_ADDED]
     for frontier in seconds:
         if frontier["api_equivalent_usd"] is None:
             raise ValueError(f"replay: run {frontier['run']} ({frontier['model']}) has no cost")

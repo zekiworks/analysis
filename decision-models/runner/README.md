@@ -152,6 +152,7 @@ variables. To repeat a run exactly, check out the commit it names.
 | `run_openai.sh`, `run_openai_sol.sh`, `run_openai_luna.sh` | GPT-6 Astra, GPT-6.1 Sol, GPT-6 Luna, low reasoning |
 | `run_claude_opus.sh`, `run_claude_sonnet.sh`, `run_claude_sonnet_high.sh` | Claude Opus 5.5 low, Sonnet 5.5 low and high effort |
 | `run_openai_one.sh`, `run_openai_sol_one.sh`, `run_claude_opus_one.sh`, `run_claude_sonnet_high_one.sh` | GPT-6 Astra and GPT-6.1 Sol low, Claude Opus 5.5 low, Sonnet 5.5 high, one question per request |
+| `run_claude_fable_high.sh` | Claude Fable 5.1, high effort |
 
 - **OpenAI** runs through the Codex CLI signed in with ChatGPT (`codex login`); the provider refuses
   API-key sign-in and removes `OPENAI_API_KEY` from Codex's environment. Each request replaces Codex's
@@ -181,6 +182,8 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_meragpt.sh` | meraGPT Decider 1 (`decider-1`; add `--repeat N` for repeats 2–5) | `MERAGPT_API_KEY` |
 | `run_microsoft_decision_1.sh` | Microsoft-Decision-1 via OpenRouter (`microsoft/microsoft-decision-1`; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_mercury_decide.sh` | Inception Mercury Decide via OpenRouter (`inception/mercury-decide`, the paid listing; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
+| `run_openrouter_kimi.sh` | Kimi K3.1 Pro via OpenRouter's chat API, pinned to Moonshot AI's endpoint (`moonshotai/mxfp4`), reasoning_effort none | `OPENROUTER_API_KEY` |
+| `run_openrouter_glm.sh` | GLM-5.3 via OpenRouter's chat API, pinned to Fireworks with required parameters, reasoning_effort low | `OPENROUTER_API_KEY` |
 | `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
 
 `run_jev.sh` and `run_jev_114.sh` (and the `jev` and `jev-114` lanes of `run_experiments.sh`) read the key from the
@@ -197,6 +200,10 @@ reach those models. Every stored answer of their published runs names the model 
 serve both. Decider v1.2 and Decider Flash v1.2 run from their released checkpoints on our GPUs (Self-hosted decision
 servers, below). Through OpenRouter (`run_microsoft_decision_1.sh`, `run_mercury_decide.sh`), the request time includes
 OpenRouter's own time.
+
+`--provider openrouter-chat` sends the chat models' prompt and answer schema through OpenRouter's chat completions,
+pinned to the one provider endpoint the run names (`--openrouter-order`) with fallbacks off, temperature 1.0 and
+OpenRouter's usage accounting, which records each request's billed cost.
 
 ### vLLM and SGLang
 

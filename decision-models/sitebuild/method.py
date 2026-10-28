@@ -68,8 +68,7 @@ SETUP_TEXTS = (
     "temperature of 1.",
     "The base model chooses an option and writes its confidence.",
     "Ten sampled answers: the most common one, with the share that agrees as confidence.",
-    "Chat models for comparison; each writes a confidence estimate. Sonnet and Gemini Flash ran with low and with high "
-    "reasoning.",
+    "Chat models for comparison; each writes a confidence estimate. Several ran at more than one reasoning setting.",
     "OpenAI's Decisions API, in beta, {per_request} question per request. The other Luna run writes its confidence "
     "through Codex, {other_per_request} questions per request.",
     "On our hardware, with answer letter probabilities. DeepSeek's reasoning run also samples.",
@@ -601,7 +600,7 @@ request. Earlier trial runs could find the source book online.</p>
 <tr><td>DeepSeek, reasoning on</td><td>Sampling, temperature 1.0, top p 1.0 (greedy decoding made its reasoning loop)</td></tr>
 <tr><td>GLM 5.3 Flash, reasoning on</td><td>Server default: temperature 1.0, top p 0.95 (Z.ai's settings), top k 20; TensorFold's high reasoning</td></tr>
 <tr><td>Qwen, ten answers</td><td>Temperature 0.7, top p 0.8, top k 20, presence penalty 1.5</td></tr>
-<tr><td>GPT, Claude and Gemini</td><td>Lowest reasoning setting, plus high reasoning for Sonnet and Gemini Flash; temperature not always settable; Gemini reported no reasoning tokens at low</td></tr>
+<tr><td>Hosted chat models</td><td>The reasoning setting each setup names, in its provider's words; the provider's own sampling where temperature cannot be set, temperature 1.0 through OpenRouter; Gemini reported no reasoning tokens at low</td></tr>
 </tbody></table></div>
 <p class="table-note">Sampling picks the next token at random by its probability. Temperature sets how strongly it favours
 likely tokens, top p and top k limit the candidates, and a presence penalty discourages repeats.</p>"""),

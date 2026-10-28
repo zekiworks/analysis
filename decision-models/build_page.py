@@ -118,8 +118,9 @@ def change_text(fraction: float) -> str:
 
 
 def seconds(value: float) -> str:
-    """A response time in seconds, two decimals: 0.23."""
-    return f"{value:.2f}"
+    """A latency in seconds, the site's one format: three decimals below 1 s (0.223), two from 1 s to under 10 s (7.10),
+    one from 10 s (53.7). v3.js and compare.js format latencies the same way (site.js secondsText)."""
+    return f"{value:.{3 if value < 1 else 2 if value < 10 else 1}f}"
 
 
 def p_text(p: float) -> str:
@@ -132,7 +133,7 @@ def long_date(iso: str) -> str:
 
 
 def reasoning_label(value: str) -> str:
-    return f"reasoning {value}" if value in ("on", "off") else f"{value} reasoning"
+    return f"reasoning {value}" if value in ("on", "off", "none") else f"{value} reasoning"
 
 
 def setting(item: dict[str, Any]) -> str:
@@ -473,8 +474,8 @@ def values(snap: Snapshot) -> dict[str, str]:
         out[f"{key}_minutes"] = minutes(run["request_seconds"])
         out[f"{key}_concurrency"] = count(run["concurrency"])
         single = run["single_question_latency"]
-        out[f"{key}_single_median"] = f"{single['median_request_seconds']:.2f}" if single else "not measured"
-        out[f"{key}_single_p90"] = f"{single['p90_request_seconds']:.2f}" if single and single.get("p90_request_seconds") else "not measured"
+        out[f"{key}_single_median"] = seconds(single["median_request_seconds"]) if single else "not measured"
+        out[f"{key}_single_p90"] = seconds(single["p90_request_seconds"]) if single and single.get("p90_request_seconds") else "not measured"
         latency = run["latency"]
         out[f"{key}_median"] = seconds(latency["median_request_seconds"]) if latency else "not measured"
         out[f"{key}_p90"] = seconds(latency["p90_request_seconds"]) if latency and latency.get("p90_request_seconds") else "not measured"
@@ -714,9 +715,10 @@ def reasoning_table(snap: Snapshot) -> str:
             )
             in_flight = f", {run['concurrency']} simultaneous requests" if run["concurrency"] > 1 else ""
             grammar = run["groups"]["grammar"]
+            # The level as the provider writes it ("high reasoning", "reasoning on"), never capitalized or rewritten.
             reasoning = reasoning_label(run["reasoning"]) if run["reasoning"] else "Not applicable"
             rows.append(
-                f"<tr><td>{esc(run['name'])}</td><td>{esc(reasoning[0].upper() + reasoning[1:])}</td>"
+                f"<tr><td>{esc(run['name'])}</td><td>{esc(reasoning)}</td>"
                 f'<td class="num">{fmt.pct(run["correct"] / snap.total)}</td><td class="num">{fmt.pct(grammar["correct"] / grammar["questions"])}</td>'
                 f'<td class="num">{count(round(run["output_tokens"] / run["answered_questions"]))}</td><td class="num">{per_thousand}</td>'
                 f'<td class="num">{minutes(run["request_seconds"])} min{in_flight}</td></tr>'
@@ -1320,8 +1322,8 @@ METHOD_SETUPS: list[tuple[list[dict[str, str]], str]] = [
     ([{"provider": "vllm-yes-no"}], "We used the same base model and prompts as Open Jev, without its added trained parts. We scored each proposed answer by the model's preference for Yes over No, then turned the scores into option probabilities, with a calibration temperature of 1. The gap to Open Jev shows what its added parts do together."),
     ([{"provider": "vllm-verbal"}], "We asked the base model to choose an option and write a confidence estimate. We show its estimate as a percentage."),
     ([{"provider": "vllm-vote"}], "We asked the same question ten times with random sampling. We took the most common answer, and the share of answers that agree with it as confidence."),
-    ([{"provider": "openai"}, {"provider": "claude"}, {"provider": "gemini"}],
-     "These chat models give comparisons for accuracy, confidence and cost. Each also writes a confidence estimate when we ask for one. Sonnet and Gemini Flash ran with low and with high reasoning. The technical records keep each provider's exact setting name."),
+    ([{"provider": "openai"}, {"provider": "claude"}, {"provider": "gemini"}, {"provider": "openrouter-chat"}],
+     "These chat models give comparisons for accuracy, confidence and cost. Each also writes a confidence estimate when we ask for one. Several ran at more than one reasoning setting. The technical records keep each provider's exact setting name."),
     ([{"provider": "openai-decisions"}], "We used OpenAI's Decisions API, in beta, to get a probability for each option, {per_request} question per request. The other Luna run writes its confidence, through Codex, with {other_per_request} questions per request. The comparison changes both the access method and the request size."),
     ([{"model": "gemma-4-31B-it"}, {"model": "deepseek-v4.1-flash"}], "We ran these models on our own hardware and recorded the probability of each answer letter. DeepSeek ran with reasoning off and on. The reasoning run also uses sampling, so the pair does not isolate the reasoning setting."),
     ([{"provider": "vllm-stated"}], "We ran Z.ai's model on our own hardware with TensorFold. It has {size} parameters in total and uses about {active} for each token: this design (mixture of experts) uses only selected parts of the model for each token. The server did not return answer letter probabilities, so we asked the model to write its confidence. We ran it with reasoning off and with reasoning on. The technical record lists the checkpoint, the weight and cache precision, and the speculative decoding settings."),

@@ -9,11 +9,12 @@ from typing import Any
 import build_page as bp
 
 from sitebuild import vision
-from sitebuild.site import NOT_MEASURED, REPO_URL, Site, esc, interval, latency_text, pct, rel, request_size
+from sitebuild.site import NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, esc, interval, latency_text, pct, rel, request_size
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
-# The home page's Routing tab LLMs, by their key in page_config.json's named_runs, with the slug of its URL.
-ROUTE_SLUGS = {"opus": "opus", "sonnet_high": "sonnet", "astra": "astra", "sol": "sol", "gemini_low": "gemini-flash"}
+# The documentation page page_config.json's reasoning_levels cite, by its host, as the Settings line names it.
+LEVEL_SOURCES = {"developers.openai.com": "OpenAI's model page", "platform.claude.com": "Anthropic's effort documentation",
+                 "ai.google.dev": "Google's thinking documentation"}
 # What the Settings section shows where a run record holds no value. It never fills in a default.
 NOT_RECORDED = "not recorded"
 
@@ -72,7 +73,27 @@ def settings(site: Site, run: dict[str, Any]) -> str:
         ("Harness seed", recorded("seed")),
         ("Harness commit", recorded("harness_commit", lambda commit: f'<a href="{REPO_URL}/commit/{esc(commit)}"><code>{esc(commit[:12])}</code></a>')),
         ("Prompt version", recorded("prompt_version", lambda prompt: f"<code>{esc(prompt)}</code>")),
-    ])
+    ]) + reasoning_levels(site, run)
+
+
+def reasoning_levels(site: Site, run: dict[str, Any]) -> str:
+    """The model's reasoning levels as its provider documents them (page_config.json's reasoning_levels), in the
+    provider's own term and level names: lowest first, the default marked where the documentation names one, the top
+    level, and this run's. Empty for a model without an entry."""
+    item = site.config["reasoning_levels"]["models"].get(run["model"])
+    if item is None:
+        return ""
+    if run.get("reasoning") not in item["levels"] or item["top"] not in item["levels"] or (
+            item["default"] is not None and item["default"] not in item["levels"]):
+        raise SystemExit(f"page_config.json reasoning_levels: run {run['run']}'s reasoning ({run.get('reasoning')}) or the "
+                         f"default or top level is not one of {run['model']}'s levels")
+    host = item["source"].split("/")[2]
+    if host not in LEVEL_SOURCES:
+        raise SystemExit(f"page_config.json reasoning_levels: name the documentation at {host} in models.LEVEL_SOURCES")
+    term = item["term"].removesuffix(" level")
+    levels = ", ".join(f"{esc(level)} (default)" if level == item["default"] else esc(level) for level in item["levels"])
+    return (f'<p>{esc(term[:1].upper() + term[1:])} levels (<a href="{esc(item["source"])}">{esc(LEVEL_SOURCES[host])}</a>, read '
+            f'{bp.long_date(item["read"])}): {levels}. Top level: {esc(item["top"])}. This run: {esc(run["reasoning"])}.</p>')
 
 
 def results(site: Site, run: dict[str, Any]) -> str:
@@ -231,10 +252,11 @@ def routing(site: Site, run: dict[str, Any]) -> str | None:
 
 
 def routed_llm(site: Site, run: dict[str, Any]) -> str | None:
-    """For a routing LLM: a link to the home page's Routing tab with it chosen."""
-    for key, slug in ROUTE_SLUGS.items():
+    """For a routing LLM at a request size we put it behind first models: a link to the home page's Routing tab with
+    it chosen."""
+    for key, _, slug, sizes in ROUTE_LLMS:
         spec = site.config["named_runs"][key]
-        if all(run.get(field) == value for field, value in spec.items()):
+        if all(run.get(field) == value for field, value in spec.items()) and run["questions_per_request"] in sizes:
             url = f"{rel(site.model_path(run), '')}?tab=routing&llm={slug}&per-request={run['questions_per_request']}&rule=half&test=replay"
             return f'<p>Which decision model can go first in front of it? See the <a href="{url}">Routing tab</a>.</p>'
     return None
@@ -251,12 +273,13 @@ def formats(site: Site, run: dict[str, Any]) -> str | None:
 
 
 def page_images(site: Site, run: dict[str, Any]) -> str | None:
-    """For a setup that is condition A of a model in the Page images tab: that model's row, as the tab shows it."""
+    """For a setup that is condition A of a model in the Page images tab: that model's row, as the tab shows it. Model
+    pages keep the Preliminary caveat and heading; only the tab itself dropped them."""
     found = [model for model in site.vision["models"] if model["a_run"] == run["run"]]
     if not found:
         return None
     path = site.model_path(run)
-    return (f'<p>This setup is '
+    return (f'<p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is '
             f'condition A of the <a href="{rel(path, vision.PATH)}">Page images tab</a>, which asks the '
             f'{site.vision["subset"]["questions"]:,} questions with underlined or numbered words as text (A), as a page image (B), '
             "as both (C) and through OCR models (D); the share answered right, with its 95% interval.</p>"
@@ -277,7 +300,7 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
     ]
     images = page_images(site, run)
     if images:
-        parts.append(section("Page images", images, "page-images"))
+        parts.append(section("Page images (preliminary)", images, "page-images"))
     parts += [
         section("Confidence", confidence(site, run), "confidence"),
         section("Repeats", repeats(site, run), "repeats"),

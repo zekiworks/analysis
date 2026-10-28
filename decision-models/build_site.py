@@ -42,7 +42,7 @@ sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
-from sitebuild.site import NOT_MEASURED, Site, route_labels, topbar  # noqa: E402
+from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, route_labels, topbar  # noqa: E402
 
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
@@ -89,8 +89,9 @@ def not_measured_note(data: Data) -> str:
 # most words the whole block may show; summary_checks tests both on every build.
 SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), and Deciders v1.1 and v1.2, at 66.9% to 68.5%."
 SUMMARY_WORDS = 150
-# The LLMs the Routing tab puts behind a decision model, in its order, with the label of its control.
-ROUTE_LLMS = (("opus", "Opus"), ("sonnet_high", "Sonnet"), ("astra", "Astra"), ("sol", "Sol"), ("gemini_low", "Gemini Flash"))
+# The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
+# Copy about the routing LLMs at one question per request covers only those with a run at that size.
+ONE_PER_REQUEST_LLMS = tuple(key for key, _, _, sizes in ROUTE_LLMS if 1 in sizes)
 # Decision models in the charts by default, next to the routing LLMs at one question per request.
 CHART_DECISION_MODELS = 8
 # The leaderboard's two tables, in order, with their headings (v3.js reads them from the settings): the decision models,
@@ -223,7 +224,7 @@ def fallback_table(data: Data) -> str:
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
-            f'<td class="num">{f"{latency:.3f}" if latency is not None else NOT_MEASURED}{sample_mark}</td>'
+            f'<td class="num">{bp.seconds(latency) if latency is not None else NOT_MEASURED}{sample_mark}</td>'
             f'<td class="num">{f"{cost:.3f}" if cost is not None else NOT_MEASURED}{maker_mark if run["cost_basis"] == "maker" else ""}</td>'
             "</tr>"
         )
@@ -392,9 +393,10 @@ def page_settings(data: Data) -> str:
         "firstCostMarks": {key: value for key, value in data.config["first_cost_marks"].items() if key != "about"},
         # The note under the Accuracy table (not_measured_note), also under the plain table.
         "notMeasuredNote": not_measured_note(data),
+        # The Routing tab's LLMs: each with its URL slug and its run at each request size we ran it at.
         "routeLlms": [
-            {"key": key, "label": label, "runs": {str(size): data.named(key, size)["run"] for size in (1, 16)}}
-            for key, label in ROUTE_LLMS
+            {"key": key, "label": label, "slug": slug, "runs": {str(size): data.named(key, size)["run"] for size in sizes}}
+            for key, label, slug, sizes in ROUTE_LLMS
         ],
         # The address and versions a downloaded chart names.
         "siteAddress": data.config["site_url"].removeprefix("https://").rstrip("/"),
@@ -436,7 +438,7 @@ def copy_checks(data: Data) -> list[str]:
     # In front of each routing LLM at 1 question per request, the decision model with the largest share of its questions,
     # with the cutoff chosen on half the questions (d1-ultra in front of all five).
     best_first = []
-    for key, _ in ROUTE_LLMS:
+    for key in ONE_PER_REQUEST_LLMS:
         frontier = data.named(key, 1)["run"]
         best_first.append(max((cascades[(run["run"], frontier)]["held_out"] for run in decision if (run["run"], frontier) in cascades),
                               key=lambda item: item["answered"]))
@@ -496,7 +498,7 @@ def copy_checks(data: Data) -> list[str]:
     # GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers) and Deciders v1.1 and v1.2, in that order, at 66.9% to 68.5%;
     # Liquid d1.1 has the smallest calibration gap as
     # shipped; Open-Jev 27B v1.1 and Decider v1.1 score highest on Better than a flat guess; d1-ultra gives the biggest
-    # estimated saving in all 10 LLM setups.
+    # estimated saving in all 16 LLM setups (every routing LLM at each request size we ran it at).
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
 
     def shares(first: dict[str, Any], second: dict[str, Any]) -> bool:
@@ -547,17 +549,18 @@ def copy_checks(data: Data) -> list[str]:
     first_timed = min(run["started"] for run in runs if run["median_request_seconds"] is not None)
     check("Not measured note: every run without a latency was made before requests were timed one by one",
           all(run["started"] < first_timed for run in runs if (run.get("latency") or {}).get("median_request_seconds") is None))
+    # The biggest estimated saving in front of every routing LLM setup: each LLM at each request size we ran it at.
     winners = []
-    for key, _ in ROUTE_LLMS:
-        for size in (1, 16):
+    for key, _, _, sizes in ROUTE_LLMS:
+        for size in sizes:
             frontier = data.named(key, size)
             alone = bp.per_thousand(frontier)
             savings = [(1 - cascades[(run["run"], frontier["run"])]["usd_per_1000"] / alone, run["run"])
                        for run in decision if (run["run"], frontier["run"]) in cascades]
             winners.append(max(savings)[1])
     leader, times = Counter(winners).most_common(1)[0]
-    check("Summary: d1-ultra gave the biggest estimated saving in all 10 LLM setups",
-          len(winners) == 10 and times == 10 and leader == ultra["run"])
+    check(f"Summary: d1-ultra gave the biggest estimated saving in all 16 LLM setups ({len(winners)} setups, {times} won by "
+          f"{data.by_id[leader]['name']})", len(winners) == 16 and times == 16 and leader == ultra["run"])
     return found
 
 
