@@ -907,6 +907,9 @@
    "weights": "open"
   },
   {
+   "aliases": [
+    "DeepSeek V4.1 Flash (on)"
+   ],
    "confidence_source": "letter probability",
    "dataset": "league-2",
    "date_run": null,
@@ -916,7 +919,7 @@
    "model": "DeepSeek V4.1 Flash",
    "model_id": "deepseek-v4.1-flash",
    "model_type": "chat model, answer-letter probabilities",
-   "name": "DeepSeek V4.1 Flash (on)",
+   "name": "DeepSeek V4.1 Flash (low)",
    "notes": "Fireworks via OpenRouter (model ID deepseek/deepseek-v4.1-flash, quantization not published) until 20 Oct 21:56 UTC, then the published weights on our GPUs (SGLang); letter probabilities read from the answer after the reasoning; the price stays Fireworks' list price for comparison",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -930,7 +933,7 @@
    "rules_text": "long",
    "runs_on": "API",
    "sampling": "temperature 1.0",
-   "setting": "on",
+   "setting": "low",
    "slug": "deepseek-v4-1-flash-on",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -946,6 +949,9 @@
    "weights": "open"
   },
   {
+   "aliases": [
+    "GLM-5.3 (on)"
+   ],
    "confidence_source": "letter probability",
    "dataset": "league-2",
    "date_run": null,
@@ -955,7 +961,7 @@
    "model": "GLM-5.3",
    "model_id": "z-ai/glm-5.3",
    "model_type": "chat model, answer-letter probabilities",
-   "name": "GLM-5.3 (on)",
+   "name": "GLM-5.3 (low)",
    "notes": "OpenRouter, pinned to Fireworks (no fallbacks); quantization not published",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -969,7 +975,7 @@
    "rules_text": "long",
    "runs_on": "API",
    "sampling": "temperature 1.0",
-   "setting": "on",
+   "setting": "low",
    "slug": "glm-5-3-on",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1234,6 +1240,9 @@
    "weights": "open"
   },
   {
+   "aliases": [
+    "Qwen3.8-27B (on)"
+   ],
    "confidence_source": "letter probability",
    "dataset": "league-2",
    "date_run": null,
@@ -1241,7 +1250,7 @@
    "model": "Qwen3.8-27B",
    "model_id": "qwen3.8-27b",
    "model_type": "chat model, answer-letter probabilities",
-   "name": "Qwen3.8-27B (on)",
+   "name": "Qwen3.8-27B (low)",
    "notes": "Cerebras via OpenRouter (model ID qwen/qwen3.8-27b, fp16) before 19 Oct 22:26 UTC, where it finished no match (its first 4 decisions came from there); then on our GPU (vLLM, fp16); letter read from a prefilled Answer: after the reasoning",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1251,11 +1260,11 @@
     "output_per_mtok": null
    },
    "provider": "our GPU, fp16 (vLLM); first decisions on Cerebras via OpenRouter; DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)",
-   "reasoning": "thinking on, reasoning effort low",
+   "reasoning": "thinking on, reasoning effort low (the chat template's reasoning_effort)",
    "rules_text": "long",
    "runs_on": "our GPUs",
    "sampling": "temperature 1.0",
-   "setting": "on",
+   "setting": "low",
    "slug": "qwen3-8-27b-on",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1271,6 +1280,9 @@
    "weights": "open"
   },
   {
+   "aliases": [
+    "GPT-6 Astra (off)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1280,7 +1292,7 @@
    "model": "GPT-6 Astra",
    "model_id": "gpt-6-astra",
    "model_type": "chat model, one letter",
-   "name": "GPT-6 Astra (off)",
+   "name": "GPT-6 Astra (low)",
    "notes": "ChatGPT subscription (Codex backend)",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1290,11 +1302,11 @@
     "output_per_mtok": 50.0
    },
    "provider": "ChatGPT subscription",
-   "reasoning": "reasoning effort low, the lowest gpt-6-astra accepts (labelled off)",
+   "reasoning": "reasoning effort low, the lowest gpt-6-astra accepts (none and minimal are rejected)",
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "not sent (API default)",
-   "setting": "off",
+   "setting": "low",
    "slug": "gpt-6-astra-off",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1307,6 +1319,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "GPT-6 Astra (on)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1316,7 +1331,7 @@
    "model": "GPT-6 Astra",
    "model_id": "gpt-6-astra",
    "model_type": "chat model, one letter",
-   "name": "GPT-6 Astra (on)",
+   "name": "GPT-6 Astra (medium)",
    "notes": "ChatGPT subscription (Codex backend)",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1330,7 +1345,7 @@
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "not sent (API default)",
-   "setting": "on",
+   "setting": "medium",
    "slug": "gpt-6-astra-on",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1343,6 +1358,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "Claude Opus 5.5 (off)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1352,7 +1370,7 @@
    "model": "Claude Opus 5.5",
    "model_id": "claude-opus-5-5",
    "model_type": "chat model, one letter",
-   "name": "Claude Opus 5.5 (off)",
+   "name": "Claude Opus 5.5 (low)",
    "notes": null,
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1362,11 +1380,11 @@
     "output_per_mtok": 20.0
    },
    "provider": "Claude subscription",
-   "reasoning": "effort low, the lowest Opus 5.5 accepts (adaptive thinking only; labelled off)",
+   "reasoning": "effort low, the lowest Opus 5.5 accepts (adaptive thinking only)",
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "not sent (API default)",
-   "setting": "off",
+   "setting": "low",
    "slug": "claude-opus-5-5-off",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1379,6 +1397,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "Claude Opus 5.5 (on)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1388,7 +1409,7 @@
    "model": "Claude Opus 5.5",
    "model_id": "claude-opus-5-5",
    "model_type": "chat model, one letter",
-   "name": "Claude Opus 5.5 (on)",
+   "name": "Claude Opus 5.5 (high)",
    "notes": null,
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1402,7 +1423,7 @@
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "not sent (API default)",
-   "setting": "on",
+   "setting": "high",
    "slug": "claude-opus-5-5-on",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1415,6 +1436,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "Claude Fable 5.1 (off)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1424,7 +1448,7 @@
    "model": "Claude Fable 5.1",
    "model_id": "claude-fable-5-1",
    "model_type": "chat model, one letter",
-   "name": "Claude Fable 5.1 (off)",
+   "name": "Claude Fable 5.1 (low)",
    "notes": "the newest Fable the subscription serves",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1434,11 +1458,11 @@
     "output_per_mtok": 50.0
    },
    "provider": "Claude subscription",
-   "reasoning": "effort low, the lowest it accepts (adaptive thinking only; labelled off)",
+   "reasoning": "effort low, the lowest it accepts (adaptive thinking only)",
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "not sent (API default)",
-   "setting": "off",
+   "setting": "low",
    "slug": "claude-fable-5-1-off",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1451,6 +1475,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "Claude Fable 5.1 (on)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1460,7 +1487,7 @@
    "model": "Claude Fable 5.1",
    "model_id": "claude-fable-5-1",
    "model_type": "chat model, one letter",
-   "name": "Claude Fable 5.1 (on)",
+   "name": "Claude Fable 5.1 (high)",
    "notes": null,
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1474,7 +1501,7 @@
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "not sent (API default)",
-   "setting": "on",
+   "setting": "high",
    "slug": "claude-fable-5-1-on",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1487,6 +1514,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "Gemini 4 Argon (off)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1496,7 +1526,7 @@
    "model": "Gemini 4 Argon",
    "model_id": "gemini-4-argon-low",
    "model_type": "chat model, one letter",
-   "name": "Gemini 4 Argon (off)",
+   "name": "Gemini 4 Argon (low)",
    "notes": "Antigravity model id gemini-4-argon-low (model version gemini-4-argon); list price $2/$10 per million tokens until 2026-12-01 ($4/$20 after)",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1506,11 +1536,11 @@
     "output_per_mtok": 10.0
    },
    "provider": "Google Antigravity subscription",
-   "reasoning": "thinking level low, the lowest (spends no reasoning tokens; labelled off)",
+   "reasoning": "thinking level low, the lowest",
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "temperature 1.0",
-   "setting": "off",
+   "setting": "low",
    "slug": "gemini-4-argon-off",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1523,6 +1553,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "Gemini 4 Argon (on)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1532,7 +1565,7 @@
    "model": "Gemini 4 Argon",
    "model_id": "gemini-4-argon-high",
    "model_type": "chat model, one letter",
-   "name": "Gemini 4 Argon (on)",
+   "name": "Gemini 4 Argon (high)",
    "notes": "Antigravity model id gemini-4-argon-high (model version gemini-4-argon); list price $2/$10 per million tokens until 2026-12-01 ($4/$20 after)",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1546,7 +1579,7 @@
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "temperature 1.0",
-   "setting": "on",
+   "setting": "high",
    "slug": "gemini-4-argon-on",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1559,6 +1592,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "Grok 4.7 (off)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1568,7 +1604,7 @@
    "model": "Grok 4.7",
    "model_id": "grok-4.7",
    "model_type": "chat model, one letter",
-   "name": "Grok 4.7 (off)",
+   "name": "Grok 4.7 (low)",
    "notes": "letter constrained by a JSON schema",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1578,11 +1614,11 @@
     "output_per_mtok": 6.0
    },
    "provider": "xAI subscription (SuperGrok)",
-   "reasoning": "reasoning effort low, the lowest grok-4.7 takes (labelled off: it still reasons)",
+   "reasoning": "reasoning effort low, the lowest grok-4.7 takes (none is rejected); it still reasons",
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "not sent (API default)",
-   "setting": "off",
+   "setting": "low",
    "slug": "grok-4-7-off",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -1595,6 +1631,9 @@
    "weights": "closed"
   },
   {
+   "aliases": [
+    "Grok 4.7 (on)"
+   ],
    "confidence_source": "none",
    "dataset": "league-3",
    "date_run": null,
@@ -1604,7 +1643,7 @@
    "model": "Grok 4.7",
    "model_id": "grok-4.7",
    "model_type": "chat model, one letter",
-   "name": "Grok 4.7 (on)",
+   "name": "Grok 4.7 (high)",
    "notes": "letter constrained by a JSON schema",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1618,7 +1657,7 @@
    "rules_text": "long",
    "runs_on": "subscription",
    "sampling": "not sent (API default)",
-   "setting": "on",
+   "setting": "high",
    "slug": "grok-4-7-on",
    "sources": [
     "players.settings (snapshot of v3.db)",
@@ -2363,7 +2402,7 @@
    "model_id": "claude-fable-5-1",
    "model_type": "chat model, one letter",
    "name": "Claude Fable 5.1 (low)",
-   "notes": "also in League 3 as (off)",
+   "notes": "also in League 3 at the same effort",
    "option_groups": "one request (no split)",
    "price": {
     "date": "2026-10-21",
@@ -2393,7 +2432,7 @@
    "model_id": "claude-fable-5-1",
    "model_type": "chat model, one letter",
    "name": "Claude Fable 5.1 (high)",
-   "notes": "also in League 3 as (on)",
+   "notes": "also in League 3 at the same effort",
    "option_groups": "one request (no split)",
    "price": {
     "date": "2026-10-21",
@@ -2783,7 +2822,7 @@
    "model_id": "grok-4.7",
    "model_type": "chat model, one letter",
    "name": "Grok 4.7 (low)",
-   "notes": "also in League 3 as (off)",
+   "notes": "also in League 3 at the same effort",
    "option_groups": "one request (no split)",
    "price": {
     "date": "2026-10-21",
@@ -2813,7 +2852,7 @@
    "model_id": "grok-4.7",
    "model_type": "chat model, one letter",
    "name": "Grok 4.7 (high)",
-   "notes": "also in League 3 as (on)",
+   "notes": "also in League 3 at the same effort",
    "option_groups": "one request (no split)",
    "price": {
     "date": "2026-10-21",
