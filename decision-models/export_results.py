@@ -124,6 +124,7 @@ SPARK = "DGX Spark, GB10 (128 GB unified memory)"
 MODELS: dict[str, dict[str, Any]] = {
     "gpt-6-astra": {"name": "GPT-6 Astra"},
     "gpt-6.1-sol": {"name": "GPT-6.1 Sol"},
+    "gpt-6.1-terra": {"name": "GPT-6.1 Terra"},
     "gpt-6-luna": {"name": "GPT-6 Luna"},
     "claude-opus-5-5": {"name": "Claude Opus 5.5"},
     "claude-sonnet-5-5": {"name": "Claude Sonnet 5.5"},
@@ -162,7 +163,7 @@ MODELS: dict[str, dict[str, Any]] = {
     # Counted from the released checkpoint (perplexity-ai/pplx-decider-v1.1-27b at 5cd25e3), backbone and head.
     "pplx-decider-v1.1-27b": {"name": "Perplexity Decider 27B v1.1", "parameters": 26_086_635_760},
     # Counted from the released checkpoints (perplexity-ai/pplx-decider-v1.2 at 225c913 and
-    # perplexity-ai/pplx-decider-flash-v1.2 at 6d771ad), backbone and head. Both ran on spark3, a DGX Spark.
+    # perplexity-ai/pplx-decider-flash-v1.2 at 6d771ad), backbone and head. Both ran on a DGX Spark (GB10).
     "pplx-decider-v1.2": {
         "name": "Perplexity Decider 27B v1.2",
         "note": "Perplexity's released checkpoint, run on our hardware. An API run is pending; this is an additional local setup.",
@@ -177,7 +178,7 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 4_539_918_336,
     },
     # Counted from the released checkpoint (fastino/GLiDE at a7e4589): language model, vision encoder and readout. It ran
-    # on spark3, a DGX Spark.
+    # on a DGX Spark (GB10).
     "glide-v1.2": {
         "name": "Fastino GLiDE v1.2",
         "note": "Fastino's released checkpoint, a modified Qwen3.8-27B, run on our hardware through the server it ships. "
@@ -186,7 +187,8 @@ MODELS: dict[str, dict[str, Any]] = {
         "hardware": f"1 × {SPARK}; BF16",
         "parameters": 26_086_635_760,
     },
-    # Counted from the released checkpoint (vllm-sr/d3 at 20f37b9): backbone and readout. It ran on bariton's GPU 2.
+    # Counted from the released checkpoint (vllm-sr/d3 at 20f37b9): backbone and readout. It ran on one RTX PRO 6000
+    # Blackwell (96 GB).
     "vllm-sr/d3": {
         "name": "vLLM-SR d3",
         "note": "The vLLM Semantic Router's released Decision 3.0 checkpoint (vllm-sr/d3 at 20f37b9), fine-tuned from "
@@ -197,7 +199,7 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 26_086_635_760,
     },
     # Counted from the released checkpoint (vllm-sr/d3-ultra at 52ba9e7): backbone, vision encoder and readout. It ran on
-    # bariton's GPU 2.
+    # one RTX PRO 6000 Blackwell (96 GB).
     "vllm-sr/d3-ultra": {
         "name": "vLLM-SR d3-ultra",
         "note": "The vLLM Semantic Router's released d3-ultra checkpoint (vllm-sr/d3-ultra at 52ba9e7), fine-tuned from "
@@ -208,7 +210,7 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 26_086_635_760,
     },
     # Counted from the released checkpoint (OmniJev/OneJev-27B at a5e5f55): language model, vision encoder and readout.
-    # It ran on bariton's GPU 2.
+    # It ran on one RTX PRO 6000 Blackwell (96 GB).
     "OmniJev/OneJev-27B": {
         "name": "OneJev 27B",
         "note": "OmniJev's released OneJev checkpoint (OmniJev/OneJev-27B at a5e5f55), a full fine-tune of Qwen3.8-27B that "
@@ -311,6 +313,16 @@ MODELS: dict[str, dict[str, Any]] = {
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 14_768_307_200,
     },
+}
+# Notes on single runs, after their model's note: the five chat setups first run on 28 October 2026 and not repeated.
+FIRST_RUN = "First run of this setup (28 October 2026); not repeated."
+RUN_NOTES: dict[int, str] = {
+    274: FIRST_RUN,
+    275: FIRST_RUN,
+    276: FIRST_RUN + " It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for "
+         "the other 406 questions; the usage and cost of the failed request are unknown.",
+    277: FIRST_RUN,
+    278: FIRST_RUN,
 }
 # Each unit's plain English label; results.json keeps the printed Turkish title next to it.
 UNITS_EN = {
@@ -600,7 +612,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             {
                 "run": record["run_id"],
                 **names,
-                "note": model.get("note"),
+                "note": " ".join(note for note in (model.get("note"), RUN_NOTES.get(record["run_id"])) if note) or None,
                 "parameters": model.get("parameters"),
                 "active_parameters": model.get("active_parameters"),
                 "provider": provider_name,

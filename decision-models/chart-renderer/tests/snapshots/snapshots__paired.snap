@@ -4,14 +4,19 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 55 comparisons (15 pass).
-━━ passes the Holm adjustment across these 55 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 60 comparisons (14 pass).
+━━ passes the Holm adjustment across these 60 comparisons   ━━ does not pass
 
-              Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (low reasoning)                     ⠠⡧⡦⠄                                        +0.5
+             Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                     ⠤⡧⠄                                         +0.1
+                  GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                     ⠠⡧⠄                                         +0.2
+                   GPT-6.1 Sol (high reasoning) minus GPT-6 Astra (low reasoning)                     ⠠⡧⠄                                         +0.2
                     GPT-6 Astra (low reasoning) minus GPT-6.1 Sol (low reasoning)                      ⡧⢴⠤                                        +0.9
-               GPT-6.1 Sol (low reasoning) minus Gemini 3.8 Flash (low reasoning)                      ⡇   ⠠⠤⢴⠤⠤                                  +3.4
+               GPT-6.1 Sol (low reasoning) minus Claude Opus 5.5 (high reasoning)                      ⡇⠠⠤⡦⠤⠄                                     +1.7
+            Claude Opus 5.5 (high reasoning) minus GPT-6.1 Terra (high reasoning)                     ⠠⡧⢴⠤⠄                                       +0.7
+            GPT-6.1 Terra (high reasoning) minus Gemini 3.8 Flash (low reasoning)                     ⠠⡧⠤⡦⠤⠄                                      +1.0
         Gemini 3.8 Flash (low reasoning) minus DeepSeek-V4.1-Flash (reasoning on)                      ⡧⠤⢴⠤⠤⠄                                     +1.2
-         DeepSeek-V4.1-Flash (reasoning on) minus Claude Opus 5.5 (low reasoning)                      ⡧⠤⠤⡦⠤⠤                                     +1.6
+           DeepSeek-V4.1-Flash (reasoning on) minus GPT-6.1 Terra (low reasoning)                     ⠠⡧⠤⡦⠤⠤                                      +1.2
+              GPT-6.1 Terra (low reasoning) minus Claude Opus 5.5 (low reasoning)                    ⠤⠤⣷⠤⠤⠤                                       +0.4
          Claude Opus 5.5 (low reasoning) minus Claude Sonnet 5.5 (high reasoning)                      ⡇      ⠠⠤⠤⢴⠤⠤⠤                             +5.4
             Claude Sonnet 5.5 (high reasoning) minus GLM-5.3-Flash (reasoning on)                      ⡇       ⠠⠤⠤⠤⡦⠤⠤⠤⠄                          +6.2
                                GLM-5.3-Flash (reasoning on) minus Liquid d1-ultra                     ⠠⡧⠤⠤⢴⠤⠤⠤⠄                                   +1.7
@@ -20,9 +25,9 @@ establish a difference; the colour shows a related but separate test, adjusted a
                                                   Gemma 4 31B minus Fastino GLiDE                      ⡇     ⠤⠤⠤⠤⡦⠤⠤⠤⠤                            +5.2
                       Fastino GLiDE v1.2 (local) minus GPT-6 Luna (low reasoning)                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.2
                                    GPT-6 Luna (low reasoning) minus Fastino GLiDE                  ⠤⠤⠤⠤⣷⠤⠤⠤⠤⠄                                     +0.4
-                       GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)        ⠠⠤⠤⠤⢴⠤⠤⠤⠤     ⡇                                          -4.7
+                       GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)        ⠠⠤⠤⠤⢼⠤⠤⠤⠤     ⡇                                          -4.7
                                                    Fastino GLiDE minus vLLM-SR d3                  ⠠⠤⠤⠤⡧⠤⠤⠤                                       +0.1
-                                                   Fastino GLiDE minus Decider v1                      ⡇          ⠤⠤⠤⢴⠤⠤⠤⠤                        +7.5
+                                                   Fastino GLiDE minus Decider v1                      ⡇          ⠤⠤⠤⢼⠤⠤⠤⠤                        +7.5
                     vLLM-SR d3 minus vLLM-SR d3-ultra (transformers, rev 52ba9e7)                   ⠤⠤⠤⡧⠤⠤                                        +0.0
           vLLM-SR d3-ultra (transformers, rev 52ba9e7) minus Decider v1.2 (local)                    ⠠⠤⡧⢼⠤⠤⠄                                      +0.7
                                           Decider v1.2 (local) minus Decider v1.1                   ⠠⠤⠤⡧⠤⠤⠄                                       +0.2
@@ -32,9 +37,9 @@ establish a difference; the colour shows a related but separate test, adjusted a
                                         SubQ Snap minus GPT-6 Luna, Decisions API                    ⠠⠤⡧⠤⠤⡧⠤⠤⠤⠤                                   +1.6
                                       GPT-6 Luna, Decisions API minus Liquid d1.1                     ⠠⡧⠤⠤⠤⡧⠤⠤⠤⠤                                  +2.1
                               Liquid d1.1 minus Claude Sonnet 5.5 (low reasoning)                 ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.1
-                                Claude Sonnet 5.5 (low reasoning) minus Celeris 1                   ⠤⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +0.9
-                                                       Celeris 1 minus Decider v1                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.1
-                                                      Decider v1 minus OneJev 27B                    ⠠⠤⡧⢼⠤⠤⠤                                      +0.8
+                                Claude Sonnet 5.5 (low reasoning) minus Celeris 1                   ⠒⠒⠒⡗⢺⠒⠒⠒⠒⠂                                    +0.9
+                                                       Celeris 1 minus Decider v1                  ⠒⠒⠒⠒⡗⠒⠒⠒⠒                                      +0.1
+                                                      Decider v1 minus OneJev 27B                    ⠐⠒⡗⢺⠒⠒⠒                                      +0.8
                                                         Decider v1 minus Jev 1.14                    ⠒⠒⡗⠒⡗⠒⠒⠒⠂                                    +1.2
                                                         Decider v1 minus Jev 1.13                      ⡇⠐⠒⠒⠒⢺⠒⠒⠒⠒                                 +2.9
                                                         OneJev 27B minus Jev 1.14                  ⠐⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.4

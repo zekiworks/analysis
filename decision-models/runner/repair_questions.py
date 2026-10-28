@@ -25,6 +25,7 @@ import concurrent.futures as futures
 import difflib
 import html
 import json
+import os
 import random
 import re
 import sqlite3
@@ -47,7 +48,7 @@ RESULTS = HERE / "benchmark-results.sqlite"
 DPI = 180
 CROP_PADDING = 0.012  # extract_questions_text.crop_question's padding
 ANSWER_BAND = 0.16  # bottom share of a page, where a test's answer-key strip is printed
-DEFAULT_ENDPOINT = "http://127.0.0.1:8010"  # vLLM in the gemma4-31b docker container
+DEFAULT_ENDPOINT = os.environ.get("REPAIR_ENDPOINT", "<set REPAIR_ENDPOINT>")  # a vLLM server serving Gemma 4 31B
 DEFAULT_MODEL = "gemma-4-31B-it"
 PRIMARY_METHOD = f"{DEFAULT_MODEL}/thinking"  # the transcription method the review page proposes
 ALTERNATIVE_METHOD = f"{DEFAULT_MODEL}/direct"  # the one it shows for comparison

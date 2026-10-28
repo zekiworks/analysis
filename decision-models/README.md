@@ -63,7 +63,12 @@ python3 -m http.server 8000                                # preview at http://1
   differs from
   `results.json`: counts and group letters must match exactly, AUROC, ECE, the refit's gaps, Brier scores and slopes, shares and accuracies within
   10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals of AUROC and of the kept
-  answers' accuracy, and the other tables, are not recomputed.
+  answers' accuracy, and the other tables, are not recomputed. For the Page images tab it also recomputes
+  `vision.json`'s per-condition numbers and paired tests from the answers it holds, and checks its `requests`
+  block (one stored answer per question and cell, answers naming an option plus refusals, the continued
+  cells and runs, the lower bound on requests sent) and that its full leak scan covers every OCR output of
+  every crop. Each engine check (`engine_checks`) must hold an answer for every question; its right answers,
+  the table run's, the paired exact McNemar test and the picks that differ are recomputed from the two answer sets.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
@@ -112,7 +117,9 @@ python3 -m http.server 8000                                # preview at http://1
     table, then the other models' (chat and general models), each ranked on its own; the All models switch
     shows one table. The intro, the counters and the summary follow it. A model ID with runs in both groups
     gets its route after its name in each row ("GPT-6 Luna (Decisions API)", "GPT-6 Luna (chat API)"; `route_labels`
-    in `sitebuild/site.py`). `v3.js` draws the filters, the four leaderboard tabs and the two charts in the
+    in `sitebuild/site.py`). A setup with a note in `page_config.json`'s `row_notes` (by run, or by provider and model) shows it under its name in
+    its leaderboard rows; the build stops unless the note is a sentence of that run's note in `results.json`. The
+    Reading vs grammar chart lists the setups in the leaderboard's order, decision models first. `v3.js` draws the filters, the four leaderboard tabs and the two charts in the
     browser from `results.json` alone; accuracy for a part or topic and its Wilson 95% interval come from the
     counts there. The Routing tab keeps its four choices in the URL. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,

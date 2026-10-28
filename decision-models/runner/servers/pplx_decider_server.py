@@ -1,7 +1,7 @@
 """Serve a Perplexity Decider v1.2 checkpoint over HTTP with TypeSafe's System One request and response format.
 
-    .venv-v1.2/bin/python pplx_decider_server.py --checkpoint checkpoint-v1.2 --host 0.0.0.0 --port 18097
-    .venv-v1.2/bin/python pplx_decider_server.py --checkpoint checkpoint-flash-v1.2 --host 0.0.0.0 --port 18097
+    .venv-v1.2/bin/python pplx_decider_server.py --checkpoint checkpoint-v1.2 --host HOST --port PORT
+    .venv-v1.2/bin/python pplx_decider_server.py --checkpoint checkpoint-flash-v1.2 --host HOST --port PORT
 
 --checkpoint is a downloaded perplexity-ai/pplx-decider-v1.2 or perplexity-ai/pplx-decider-flash-v1.2 repository;
 .venv-v1.2 holds only its requirements.txt, so the package runs as Perplexity verified it (no flash-linear-attention).

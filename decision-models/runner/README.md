@@ -93,7 +93,7 @@ questions by page and printed number, which are unique.
    numbered words without the marking, Roman numerals stuck to words, and the suspect keys.
 4. **Repair** into `questions-v2.sqlite` (same question IDs). `transcribe` asks a vision model for a
    corrected transcription of each flagged question from its page crop (default: `gemma-4-31B-it` at
-   `http://127.0.0.1:8010`; `--endpoint`, `--model`). A person then checks every proposal on the review
+   `REPAIR_ENDPOINT`; `--endpoint`, `--model`). A person then checks every proposal on the review
    page against the book, sets each question's status, and downloads the decisions:
 
    ```bash
@@ -124,19 +124,26 @@ when you run from an unchanged checkout of the repository, or else the newest pu
 `HARNESS_REPO` names with an identical copy of the file. A new run stops when neither exists, so publish a
 changed runner before using it. A resumed run keeps its own record and stops when the prompts have changed;
 `--restart` answers it again and records the current ones. `answers.json` gives both fields for each run.
+This folder holds the current runner, which can be newer than the commit a run recorded: since `0fbd97b08`, the commit
+runs 274 to 278 recorded, it has gained GPT-6.1 Terra's list price and takes self-hosted addresses from environment
+variables. To repeat a run exactly, check out the commit it names.
 
-**Addresses.** The code and some scripts default to the author's network (`192.168.1.126`). Override:
+**Addresses.** Self-hosted servers have no built-in address. Each one comes from an environment variable (as
+`http://HOST:PORT`) or a flag; a run whose server is unset stops before its first request and names both.
 
-| Where | Default | Override |
+| Where | Environment variable | Flag |
 |---|---|---|
-| `--provider ollama` | `http://192.168.1.126:11434` | `--ollama-url` |
-| `--provider vllm`, `vllm-yes-no`, `vllm-verbal`, `vllm-vote` | `http://192.168.1.126:8888` | `--vllm-url` |
-| `--provider open-jev` | `http://192.168.1.126:8791` | `--jev-url` |
-| Other decision servers | `http://127.0.0.1:` 18080–18094, 8091 | `--jev-url` |
-| `run_gemma.sh`, `run_gemma_one.sh`, `run_deepseek.sh`, `run_deepseek_thinking.sh` | `--vllm-url http://192.168.1.126:8010` | run the script's command with your `--vllm-url` |
-| `run_experiments.sh` | | `GEMMA_URL`, `DEEPSEEK_URL`, `QWEN_URL`, `OPEN_JEV_URL` |
-| `extract_questions*.py` | `127.0.0.1` | `--base-url` or `LOCAL_LLM_BASE_URL` |
-| `repair_questions.py transcribe` | `http://127.0.0.1:8010` | `--endpoint` |
+| `--provider ollama` | `OLLAMA_URL` | `--ollama-url` |
+| `--provider vllm`, `vllm-stated`, `vllm-yes-no`, `vllm-verbal`, `vllm-vote` | `VLLM_URL` | `--vllm-url` |
+| `--provider open-jev`, `laya`, `gliner`, `clef`, `metask`, `cygnet`, `winnow` | `OPEN_JEV_URL`, `LAYA_URL`, `GLINER_URL`, `CLEF_URL`, `METASK_URL`, `CYGNET_URL`, `WINNOW_URL` | `--jev-url` |
+| `--provider strands`, `pplx-decider`, `glide`, `vllm-sr`, `onejev`, `d3-server` | `STRANDS_URL`, `PPLX_DECIDER_URL`, `GLIDE_URL`, `VLLM_SR_URL`, `ONEJEV_URL`, `D3_SERVER_URL` | `--jev-url` |
+| `run_clef_flash.sh`, `run_gliner_decide.sh`, `run_laya_multilingual.sh` | `CLEF_FLASH_URL`, `GLINER_DECIDE_URL`, `LAYA_MULTILINGUAL_URL` | |
+| `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh`, `run_glide_v1_2.sh` | `PPLX_DECIDER_V1_2_URL`, `GLIDE_V1_2_URL` | |
+| `run_gemma.sh`, `run_gemma_one.sh`, `run_deepseek*.sh`, `run_glm*.sh`, `run_erk.sh`, `run_qwen3_14b.sh` | `GEMMA_URL`, `DEEPSEEK_URL`, `GLM_URL`, `ERK_URL`, `QWEN3_14B_URL` | |
+| `run_experiments.sh`, `run_fresh.sh` | `GEMMA_URL`, `DEEPSEEK_URL`, `QWEN_URL`, `OPEN_JEV_URL`, `ERK_URL`, `QWEN3_14B_URL` | |
+| `run_jev.sh`, `run_jev_114.sh` and the Jev lanes | `JEV_KEY_FILE` (a file holding the key) | |
+| `extract_questions*.py` | `LOCAL_LLM_BASE_URL` (default: the local LM Studio or Ollama port) | `--base-url` |
+| `repair_questions.py transcribe` | `REPAIR_ENDPOINT` | `--endpoint` |
 
 ### Subscription command-line tools
 
@@ -176,8 +183,8 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_mercury_decide.sh` | Inception Mercury Decide via OpenRouter (`inception/mercury-decide`, the paid listing; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
 
-`run_jev.sh` and `run_jev_114.sh` (and the `jev` and `jev-114` lanes of `run_experiments.sh`) read the key from
-`$HOME/code/jev/key`; `run_glide.sh` reads it from `$HOME/.config/fastino/key`, `run_celeris.sh` from
+`run_jev.sh` and `run_jev_114.sh` (and the `jev` and `jev-114` lanes of `run_experiments.sh`) read the key from the
+file `JEV_KEY_FILE` names; `run_glide.sh` reads it from `$HOME/.config/fastino/key`, `run_celeris.sh` from
 `$HOME/.config/celeris/key`, `run_subq.sh` from `$HOME/.config/subq/key`, `run_d1_ultra.sh` from
 `$HOME/.config/liquid/key` and `run_meragpt.sh` from `$HOME/.keys` when their variable is unset; put the key there,
 or run the script's command with the variable set. The decision APIs get one question
@@ -211,41 +218,41 @@ that returns no token probabilities: TensorFold, which serves GLM-5.3-Flash with
 ran in `vllm/vllm-openai:v0.30.0`, pinned to the benchmarked revisions:
 
 ```bash
-docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=1 \
+docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=GPU \
   --entrypoint vllm vllm/vllm-openai:v0.30.0 serve Qwen/Qwen3-14B \
   --revision 40c069824f4251a91eefaf281ebe4c544efd3e18 --served-model-name qwen3-14b \
-  --host 127.0.0.1 --port 8892 --dtype bfloat16 --max-model-len 16384 --gpu-memory-utilization 0.85
-# Erk-14B: the same with ecloudtech/Erk-14B, --revision 8584b14a829d5cc803bc227f44e9012e36e8ad04,
-# --served-model-name erk-14b and --port 8893
+  --host HOST --port PORT --dtype bfloat16 --max-model-len 16384 --gpu-memory-utilization 0.85
+# Erk-14B: the same with ecloudtech/Erk-14B, --revision 8584b14a829d5cc803bc227f44e9012e36e8ad04
+# and --served-model-name erk-14b
 ```
 
 ### Self-hosted decision servers
 
 | Script | Configuration | Server |
 |---|---|---|
-| `run_open_jev.sh` | Open-Jev 27B v1.1 | [Open-Jev](https://github.com/Zefan-Cai/Open-Jev)'s `python -m jev.server`, port 8791, `--batch-size 8` |
-| `run_cygnet.sh` | Cygnet | [cygnet-recipe](https://github.com/blockbrain-ai/cygnet-recipe) `shim/decision_server.py` (port 18093) over vLLM 0.30.0 |
-| `run_winnow.sh` | Winnow-12B, Q8_0 | [winnow-inference](https://github.com/EldanRing/winnow-inference) Docker image (port 8091) |
-| `run_laya.sh`, `run_laya_multilingual.sh` | Laya, Laya multilingual | `servers/laya_server.py` at `/v1/predict`, ports 18080 and 18081 |
-| `run_gliner.sh`, `run_gliner_decide.sh` | GLiNER2.5 Multi (base), GLiNER2.5-multi-Decide | `servers/gliner_server.py`, ports 18090 and 18094 (`--model-dir` and `--model-name` select the Decide checkpoint) |
-| `run_clef.sh` | Clef | `servers/clef_server.py`: Clef's `systemone()` behind a server, port 18091 |
-| `run_metask.sh` | Metask-Jev 4B | `servers/metask_server.py`: the vendor's `jev_scorer.score` behind a server, port 18092 |
-| `run_clef_flash.sh` | Clef-flash | `servers/clef_flash_server.py`: the Clef server with the Clef-flash release (`Cloudflare/clef-flash` at `fde727a`), port 18095 |
-| `run_strands.sh` | Strands Decider 2B | `servers/strands_server.py`: starts the `strands-decider` package's own System One server (commit `3e94e9d`) with `StrandsAgents/strands-decider-2B-hobson-v21` at `2b52a62`, port 18096 |
-| `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh` | Perplexity Decider v1.2, Decider Flash v1.2 (add `--repeat N` for repeats 2–5) | `servers/pplx_decider_server.py`: the `pplx_decider` package the checkpoints ship, on its reference path, one request at a time, with only the checkpoint's `requirements.txt` installed; `perplexity-ai/pplx-decider-v1.2` at `225c913` and `perplexity-ai/pplx-decider-flash-v1.2` at `6d771ad`, one at a time on spark3, a DGX Spark (GB10) at 192.168.1.139, port 18097 (the scripts pass `--jev-url`) |
-| `run_glide_v1_2.sh` | Fastino GLiDE v1.2 (add `--repeat N` for repeats 2–5) | the server its checkpoint ships (`python -m glide.server`), `fastino/GLiDE` at `a7e4589`, in a `vllm/vllm-openai:v0.30.0` container with `flash-linear-attention==0.5.2`, one request at a time on spark3 at 192.168.1.139, port 8888 (the script passes `--jev-url`) |
+| `run_open_jev.sh` | Open-Jev 27B v1.1 | [Open-Jev](https://github.com/Zefan-Cai/Open-Jev)'s `python -m jev.server`, `--batch-size 8` |
+| `run_cygnet.sh` | Cygnet | [cygnet-recipe](https://github.com/blockbrain-ai/cygnet-recipe) `shim/decision_server.py` over vLLM 0.30.0 |
+| `run_winnow.sh` | Winnow-12B, Q8_0 | [winnow-inference](https://github.com/EldanRing/winnow-inference) Docker image |
+| `run_laya.sh`, `run_laya_multilingual.sh` | Laya, Laya multilingual | `servers/laya_server.py` at `/v1/predict`, one server each |
+| `run_gliner.sh`, `run_gliner_decide.sh` | GLiNER2.5 Multi (base), GLiNER2.5-multi-Decide | `servers/gliner_server.py`, one server each (`--model-dir` and `--model-name` select the Decide checkpoint) |
+| `run_clef.sh` | Clef | `servers/clef_server.py`: Clef's `systemone()` behind a server |
+| `run_metask.sh` | Metask-Jev 4B | `servers/metask_server.py`: the vendor's `jev_scorer.score` behind a server |
+| `run_clef_flash.sh` | Clef-flash | `servers/clef_flash_server.py`: the Clef server with the Clef-flash release (`Cloudflare/clef-flash` at `fde727a`) |
+| `run_strands.sh` | Strands Decider 2B | `servers/strands_server.py`: starts the `strands-decider` package's own System One server (commit `3e94e9d`) with `StrandsAgents/strands-decider-2B-hobson-v21` at `2b52a62` |
+| `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh` | Perplexity Decider v1.2, Decider Flash v1.2 (add `--repeat N` for repeats 2–5) | `servers/pplx_decider_server.py`: the `pplx_decider` package the checkpoints ship, on its reference path, one request at a time, with only the checkpoint's `requirements.txt` installed; `perplexity-ai/pplx-decider-v1.2` at `225c913` and `perplexity-ai/pplx-decider-flash-v1.2` at `6d771ad`, one at a time on a DGX Spark (GB10) (the scripts pass `--jev-url`) |
+| `run_glide_v1_2.sh` | Fastino GLiDE v1.2 (add `--repeat N` for repeats 2–5) | the server its checkpoint ships (`python -m glide.server`), `fastino/GLiDE` at `a7e4589`, in a `vllm/vllm-openai:v0.30.0` container with `flash-linear-attention==0.5.2`, one request at a time on a DGX Spark (GB10) (the script passes `--jev-url`) |
 
 Cygnet and Winnow were started as their authors describe:
 
 ```bash
-docker run -d --name cygnet-vllm --network host --ipc host --gpus device=2 \
+docker run -d --name cygnet-vllm --network host --ipc host --gpus device=GPU \
   --entrypoint vllm vllm/vllm-openai:v0.30.0 serve google/gemma-4-12B-it \
   --revision 707f0a3b8a3c7ad586ed01e27eafbad8a27dd0f7 --served-model-name cygnet \
-  --host 127.0.0.1 --port 8892 --max-model-len 16384 --gpu-memory-utilization 0.90
-SHIM_VLLM=http://127.0.0.1:8892/v1/chat/completions SHIM_MODEL=cygnet SHIM_TEMPERATURE=3.4 \
-  CYGNET_PORT=18093 python3 shim/decision_server.py          # in the cygnet-recipe checkout (3cf591c)
+  --host HOST --port PORT --max-model-len 16384 --gpu-memory-utilization 0.90
+SHIM_VLLM=http://HOST:PORT/v1/chat/completions SHIM_MODEL=cygnet SHIM_TEMPERATURE=3.4 \
+  CYGNET_PORT=SHIM_PORT python3 shim/decision_server.py      # in the cygnet-recipe checkout (3cf591c)
 # image built with the Dockerfile of winnow-inference at d4631fb; models/ holds the Q8_0 GGUF it pins
-docker run -d --name winnow --gpus device=3 -p 127.0.0.1:8091:8091 -v "$PWD/models:/models:ro" \
+docker run -d --name winnow --gpus device=GPU -p HOST:PORT:PORT -v "$PWD/models:/models:ro" \
   winnow-inference:d4631fb --target q8 --text-only --context 8192 --decision-context 8192 \
   --decision-parallel 4 --chat-parallel 1 --cache q8_0 --head selected --pipeline optimized \
   --memory auto --alias winnow-12b
@@ -301,7 +308,7 @@ set the question boxes and read the key page:
 
 ```bash
 ./extract_questions.py fresh/yks_tyt_2026_kitapcik.pdf --db fresh/tyt-2026-extracted.sqlite \
-  --base-url http://HOST:8010/v1 --model gemma-4-31B-it --pages 3-16 -v
+  --base-url http://HOST:PORT/v1 --model gemma-4-31B-it --pages 3-16 -v
 ./osym_bank.py fresh/tyt-2026-extracted.sqlite --title "2026-TYT Türkçe Testi" --key-page 45 --test TÜRKÇE
 ./repair_questions.py --v2 fresh/tyt-2026.sqlite --work fresh/review init --v1 fresh/tyt-2026-extracted.sqlite
 ./repair_questions.py --v2 fresh/tyt-2026.sqlite --work fresh/review transcribe --all --propose --max-tokens 16384

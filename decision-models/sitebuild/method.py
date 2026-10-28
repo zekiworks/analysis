@@ -726,13 +726,13 @@ asks whether that split is too uneven for equal accuracy. Holm's method adjusts 
 {v['comparisons']} selected comparisons, and across all {v['pairs']} pairs for the comparison groups (setups sharing a
 letter). A result from one set does not carry over to the other.</p>
 <p>Astra scored {v['pair_astra_sol_difference']} points above Sol: of {v['method_pair_astra_sol_split']} questions only one
-got right, Astra had {v['pair_astra_sol_first_only']} and Sol {v['pair_astra_sol_second_only']}. The adjusted p was
-{v['pair_astra_sol_p_holm']} among the selected comparisons and {v['pair_astra_sol_p_holm_all']} across all pairs, below and
-above {v['method_alpha']}. A p value says how unusual so uneven a split would be at equal accuracy, not the chance that the
-models are equal.</p>
-<p>DeepSeek with reasoning scored {v['pair_deepseek_on_opus_difference']} points above Opus with low reasoning (adjusted p
-{v['pair_deepseek_on_opus_p_holm']}). Not establishing a difference does not show equal accuracy: many language comparisons
-have too few questions to detect gaps this small.{cite(18)}</p>
+got right, Astra had {v['pair_astra_sol_first_only']} and Sol {v['pair_astra_sol_second_only']}. The p value was
+{v['pair_astra_sol_p']} before adjustment; adjusted, it was {v['pair_astra_sol_p_holm']} among the selected comparisons and
+{v['pair_astra_sol_p_holm_all']} across all pairs, {v['method_pair_astra_sol_relation']} {v['method_alpha']}. A p value says
+how unusual so uneven a split would be at equal accuracy, not the chance that the models are equal.</p>
+<p>DeepSeek with reasoning scored {v['pair_deepseek_on_terra_low_difference']} points above GPT-6.1 Terra with low reasoning
+(adjusted p {v['pair_deepseek_on_terra_low_p_holm']}). Not establishing a difference does not show equal accuracy: many
+language comparisons have too few questions to detect gaps this small.{cite(18)}</p>
 {paired_figure}"""),
         ("statistical-methods", "How we measure uncertainty", f"""
 <p>A result from one question set is an estimate. For the ranking score and the accuracy of kept answers, we draw
@@ -766,7 +766,7 @@ on the task and the loss you accept.</p>
 Weakly: its most uncertain {v['study_doubt_random']} of questions held {v['study_doubt_found']} of those where Opus, Sonnet or
 Astra erred, against about {v['study_doubt_random']} by chance.</p>"""),
         ("cost-section", "Cost and reasoning", f"""
-<p>We report output tokens, total run time and money separately. Services charge by tokens, but token counts of different
+<p>We report output tokens, request time and money separately. Services charge by tokens, but token counts of different
 models do not stand for equal computation.</p>
 <h3 id="reasoning">What changes when a model does more reasoning?</h3>
 {bp.reasoning_table(snap)}
@@ -825,9 +825,11 @@ set, Astra changed {v['method_sample_astra_changed']}, Opus {v['method_sample_op
 <p>Gemma's stored repeats, in one server session, changed {v['method_sample_gemma_changed']}; an unsaved rerun after a
 restart changed some. The Gemma and DeepSeek repeats have no confidence scores.</p>"""),
         ("latency", "How we measure latency and throughput", f"""
-<p>Latency is the time from sending one request to receiving its answer, measured from our computer, network and retries
-included; a request holds one question or {v['batch_size']}. Throughput is answered questions per minute of active request
-time, overlaps counted once. Total run time is the whole run.</p>
+<p>Latency is the time from sending one request to receiving its answer, measured from our computer, network and any retries
+within the request included; a request holds one question or {v['batch_size']}. Request time is the time at least one
+request was in flight, over the requests whose answers were kept, overlaps counted once. It is not a run's elapsed time: it
+leaves out requests that failed and any pause before a run was resumed. Throughput is answered questions per minute of
+request time.</p>
 {timing}
 <p>Astra's typical latency is {v['astra_median']} seconds for {v['batch_size']} questions (from the
 {v['sample_questions']}-question repeats) and {v['astra_single_median']} for one; Gemma's is {v['gemma_median']} and

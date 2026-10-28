@@ -164,9 +164,14 @@ def latency(run: dict[str, Any]) -> str:
         ("Latency at 1 question per request",
          f"{latency_text(single['median_request_seconds'])} median, on {single['questions']:,} questions" if single else None),
         ("Requests at once", str(item["concurrency"]) if item else None),
-        ("Throughput", f"{run['questions_per_minute']:.1f} questions per minute" if run.get("questions_per_minute") else None),
-        ("Total run time", f"{run['request_seconds'] / 60:.1f} minutes" if run.get("request_seconds") else None),
-    ]) + '<p class="note">Latency: the time from sending one request to receiving its answer, measured from our computer, network and retries included.</p>'
+        ("Throughput", f"{run['questions_per_minute']:.1f} questions per minute of request time"
+         if run.get("questions_per_minute") else None),
+        ("Request time", f"{run['request_seconds'] / 60:.1f} minutes, over the requests whose answers were kept"
+         if run.get("request_seconds") else None),
+    ]) + ('<p class="note">Latency: the time from sending one request to receiving its answer, measured from our computer, '
+          'network and any retries within the request included. Request time: the time at least one request was in '
+          'flight, over the requests whose answers were kept. It is not the run\'s elapsed time: it leaves out requests '
+          'that failed and any pause before a run was resumed.</p>')
 
 
 def cost(site: Site, run: dict[str, Any]) -> str:

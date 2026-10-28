@@ -394,7 +394,9 @@ def main() -> int:
     checked = checks.passed + checks.failed - before
     print(
         f"\nPage-image track (vision.json: each condition's right answers, ECE, Brier score, AUROC and answers at 0.99 from "
-        f"its answers, condition A against answers.json, and each paired test's counts and exact McNemar p): "
+        f"its answers, condition A against answers.json, each paired test's counts and exact McNemar p, and the stored "
+        f"answers, refusals, continued cells and runs, the requests' lower bound, the full leak scan's coverage and each "
+        f"engine check's right answers, paired test and differing picks): "
         f"{checked - len(vision_mismatches)} of {checked} match"
     )
     for line in vision_mismatches:
@@ -459,7 +461,86 @@ def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[st
             ]
             if any("≠" in cell for cell in cells):
                 mismatches.append(f"  {model['name']} {item['first']} vs {item['second']}: " + ", ".join(cells))
+    mismatches += check_vision_requests(vision, checks)
+    mismatches += check_vision_engines(vision, checks)
     return mismatches
+
+
+def check_vision_engines(vision: dict[str, Any], checks: Checks) -> list[str]:
+    """Each engine check of vision.json against its own answers: the check's answers cover every subset question, its
+    right answers are theirs, the table run's right answers are those of the condition's answers in vision.json, and
+    the paired counts, exact McNemar p and the picks that differ follow from the two answer sets (first: the check,
+    second: the table's run). Returns a line per check that differs."""
+    ids = vision["subset"]["question_ids"]
+    mismatches = []
+    for item in vision.get("engine_checks", []):
+        given = item["answers"]
+        table = vision["answers"][f"{item['row']['provider']}|{item['model']}|{item['condition']}"]
+        covered = sorted(given, key=int) == sorted((str(question_id) for question_id in ids), key=int)
+        cells = [checks.cell(covered and len(given) == len(ids), f"{len(given)} answers", f"{len(ids)} subset questions")]
+        if covered:
+            first = [int(given[str(question_id)][2]) for question_id in ids]
+            second = [int(table[str(question_id)][2]) for question_id in ids]
+            test = bm.paired_comparison(first, second)
+            paired = item["paired"]
+            differ = sum(1 for question_id in ids if given[str(question_id)][0] != table[str(question_id)][0])
+            cells += [
+                checks.cell(sum(first) == item["check"]["correct"], f"check {sum(first)} right", str(item["check"]["correct"])),
+                checks.cell(sum(second) == item["row"]["correct"], f"table run {sum(second)} right", str(item["row"]["correct"])),
+                checks.cell([test["first_only"], test["second_only"]] == [paired["first_only"], paired["second_only"]],
+                            f"{test['first_only']} / {test['second_only']}", f"{paired['first_only']} / {paired['second_only']}"),
+                checks.cell(close(paired["p"], test["p"], relative=P_TOLERANCE), f"p {test['p']:.3g}", f"p {paired['p']:.3g}"),
+                checks.cell(differ == item["picks_differ"], f"{differ} picks differ", str(item["picks_differ"])),
+            ]
+        if any("≠" in cell for cell in cells):
+            mismatches.append(f"  engine check {item['name']} {item['condition']}: " + ", ".join(cells))
+    return mismatches
+
+
+def check_vision_requests(vision: dict[str, Any], checks: Checks) -> list[str]:
+    """vision.json's requests and full leak scan against its own stored answers: one stored answer per question in each
+    cell besides A (requests.retained_answers), split into answers that name an option and refusals (an answer without
+    an option of its own probabilities); the continued cells exactly the cells whose condition lists two runs; the runs
+    those cells name; the lower bound on requests sent, the stored answers plus the logs' retries; and a full scan of
+    every OCR model's output for every crop, none missing or extra. Returns a line per check that differs."""
+    requests = vision["requests"]
+    ids = vision["subset"]["question_ids"]
+    cells = [(model, label) for model in vision["models"] for label in model["conditions"] if label != "A"]
+    stored = [vision["answers"][f"{model['provider']}|{model['model']}|{label}"] for model, label in cells]
+    given = [answer[str(question_id)] for answer in stored for question_id in ids]
+    valid = sum(1 for choice, probabilities, _ in given if choice is not None and choice in probabilities)
+    extra = sum(len(answer) for answer in stored) - len(given)
+    continued = sorted((f"{model['name']} {label}", list(model["conditions"][label]["runs"])) for model, label in cells
+                       if len(model["conditions"][label].get("runs", [])) == 2)
+    named = sorted((item["cell"], list(item["runs"])) for item in requests["continued_cells"])
+    runs = {run for model, label in cells for run in model["conditions"][label].get("runs", [])}
+    retries = requests["recorded_client_retries"]
+    scan = vision["crops"]["leak_check"]["full_scan"]
+    inventories = scan["inventories"]
+    crops = vision["crops"]["images"]
+    lines = {
+        "retained answers": checks.cell(requests["retained_answers"] == len(ids) * len(cells) == len(given) and not extra,
+                                        f"{len(ids)} × {len(cells)} cells = {len(given)} stored", str(requests["retained_answers"])),
+        "cells": checks.cell(requests["cells"] == len(cells), f"{len(cells)} cells", str(requests["cells"])),
+        "valid and refusals": checks.cell([requests["valid_choices"], requests["refusals"]] == [valid, len(given) - valid]
+                                          and requests["valid_choices"] + requests["refusals"] == requests["retained_answers"],
+                                          f"{valid} valid, {len(given) - valid} refusals",
+                                          f"{requests['valid_choices']} valid, {requests['refusals']} refusals"),
+        "continued cells": checks.cell(continued == named, f"{len(continued)} cells with two runs", f"{len(named)} listed"),
+        "runs": checks.cell(requests["runs"] == len(runs), f"{len(runs)} runs", str(requests["runs"])),
+        "lower bound": checks.cell(requests["requests_lower_bound"] == requests["retained_answers"] + retries["total"]
+                                   and retries["total"] == sum(retries["by_run"].values()),
+                                   f"{requests['retained_answers']} + {retries['total']} retries", str(requests["requests_lower_bound"])),
+        "full scan": checks.cell(scan["complete"] and sorted(inventories) == sorted(vision["ocr"]["models"])
+                                 and all(item["outputs"] == crops and not item["missing"] and not item["extra"] for item in inventories.values())
+                                 and sum(item["outputs"] for item in inventories.values()) == len(vision["ocr"]["models"]) * crops,
+                                 f"{len(vision['ocr']['models'])} × {crops} outputs",
+                                 f"{sum(item['outputs'] for item in inventories.values())} scanned"),
+        "scan hits": checks.cell(scan["key_text_hits"] + scan["lone_pair_hits"] == len(scan["hits"])
+                                 and scan["lone_pair_hits"] == sum(hit["kind"] == "lone pair" for hit in scan["hits"]),
+                                 f"{len(scan['hits'])} hits", f"{scan['key_text_hits']} key text, {scan['lone_pair_hits']} lone pairs"),
+    }
+    return [f"  requests, {name}: {cell}" for name, cell in lines.items() if "≠" in cell]
 
 
 def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[int], checks: Checks) -> list[str]:

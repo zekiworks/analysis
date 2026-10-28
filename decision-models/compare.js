@@ -116,14 +116,17 @@ function render() {
   const head = run =>
     `<th scope="col" class="num"><a href="../models/${run.run}/">${esc(run.name)}</a><span class="small">${esc(detail(run))}</span></th>`;
   const measures = MEASURES.map(([label, cell]) => `<tr><th scope="row">${label}</th><td class="num">${cell(a)}</td><td class="num">${cell(b)}</td></tr>`).join('');
+  /* Each scope is its own row group: on a phone, a label row above the numbers (the inline label is hidden there), so no
+     label sits over a number while the table scrolls. */
   const scopes = [['all', 'All questions'], ['reading', 'Reading'], ['grammar', 'Grammar']]
     .map(([scope, label]) => {
       const test = paired(rightAnswers(a.run, scope), rightAnswers(b.run, scope));
       return (
+        `<tbody><tr class="label-row" aria-hidden="true"><th colspan="5">${label}</th></tr>` +
         `<tr><th scope="row">${label}</th><td class="num" data-label="Questions">${test.n.toLocaleString('en-US')}</td>` +
         `<td class="num" data-label="First right, second wrong">${test.firstOnly}</td><td class="num" data-label="Second right, first wrong">${test.secondOnly}</td>` +
         `<td class="num" data-label="Difference">${points(test.difference)} points<span class="small">${points(test.low)} to ${points(test.high)}</span></td>` +
-        `<td class="num" data-label="Exact McNemar p">${pText(test.p)}</td></tr>`
+        `<td class="num" data-label="Exact McNemar p">${pText(test.p)}</td></tr></tbody>`
       );
     })
     .join('');
@@ -133,8 +136,8 @@ function render() {
     `<div class="table-wrap"><table class="compare-table"><thead><tr><th scope="col">Measure</th>${head(a)}${head(b)}</tr></thead><tbody>${measures}</tbody></table></div>` +
     '<h2>On the same questions</h2>' +
     '<p class="note">Only the questions one got right and the other wrong tell two setups apart. The exact McNemar test asks whether that split could be chance. Its p-value is for this one pair; the comparison group letters correct for testing every pair.</p>' +
-    '<div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Questions</th><th scope="col" class="num">Questions</th><th scope="col" class="num">First right, second wrong</th><th scope="col" class="num">Second right, first wrong</th><th scope="col" class="num">Difference, 95% interval</th><th scope="col" class="num">Exact McNemar p</th></tr></thead>' +
-    `<tbody>${scopes}</tbody></table></div>`;
+    '<div class="table-wrap"><table class="board list paired"><thead><tr><th scope="col">Questions</th><th scope="col" class="num">Questions</th><th scope="col" class="num">First right, second wrong</th><th scope="col" class="num">Second right, first wrong</th><th scope="col" class="num">Difference, 95% interval</th><th scope="col" class="num">Exact McNemar p</th></tr></thead>' +
+    `${scopes}</table></div>`;
   document.querySelector('[data-compare-status]')?.remove();
   document.querySelector('[data-compare]').hidden = false;
   document.title = `${a.name} against ${b.name} · Hilde`;

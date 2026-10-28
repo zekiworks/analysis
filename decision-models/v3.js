@@ -16,7 +16,7 @@ const EMPTY = {
 };
 const INTERVAL_TIP = 'To test two setups against each other, use Compare.';
 const LATENCY_TIP =
-  'Latency: the time from sending one request to receiving its answer, measured from our computer, network and retries included. Median request. Local setups ran on our own hardware.';
+  'Latency: the time from sending one request to receiving its answer, measured from our computer, network and any retries within the request included. Median request. Local setups ran on our own hardware.';
 const COST_TIP =
   'Estimated from list prices and recorded token use, per 1,000 questions. § marks a setup on our own hardware, estimated at its maker’s list price for the same model; our hardware cost is not measured.';
 const AUROC_TIP = 'ranking score';
@@ -233,12 +233,15 @@ function visibleRuns() {
 
 function modelCell(run) {
   const name = `${rowName(run)} (${runDetail(run)})`;
-  /* In the one table of all models, a model that is not a decision model says so, as without JavaScript. */
+  /* In the one table of all models, a model that is not a decision model says so, as without JavaScript. A setup with a
+     note in page_config.json's row_notes shows it under its settings, in plain text, so a phone needs no hover. */
   const kind = state.models === 'all' && !isDecision(run);
+  const note = SETTINGS.rowNotes[run.run];
   return `<td class="model"><div class="who"><button type="button" class="pick" data-select="${run.run}" aria-pressed="${state.selected === run.run}" ` +
     `aria-label="Highlight ${esc(name)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
     `<span class="names"><a class="model-name" href="models/${run.run}/">${tableName(run)}</a><span class="small settings-long">${esc(runDetail(run))}${kind ? ' · Chat model' : ''}</span>` +
-    `<span class="small settings-short">${esc(shortDetail(run))}${kind ? ' · chat model' : ''}</span></span></div></td>`;
+    `<span class="small settings-short">${esc(shortDetail(run))}${kind ? ' · chat model' : ''}</span>` +
+    `${note ? `<span class="small row-note">${esc(note)}</span>` : ''}</span></div></td>`;
 }
 
 function accuracyCell(run) {
@@ -1146,12 +1149,14 @@ function scatterChart(box) {
     legend('accuracy', [notes[0], chartScope(runs), ...notes.slice(1), hidden ? `${hidden} label${hidden === 1 ? '' : 's'} left out so that none overlaps; each point's tooltip names it.` : '', crowded].filter(Boolean).join(' '));
 }
 
-/* Reading against grammar: every setup the table lists, in the table's order, with its accuracy on all the reading and
-   all the grammar questions (each part's correct answers over its questions, from results.json) as two bars on one
-   0–100% axis, each bar with its value. The axis's labels sit above the scrolling rows, so they stay in view. */
+/* Reading against grammar: every setup the leaderboard lists, in its order (the decision models' table, then the other
+   models'; with the All models switch, the one table), with its accuracy on all the reading and all the grammar
+   questions (each part's correct answers over its questions, from results.json) as two bars on one 0–100% axis, each
+   bar with its value. The axis's labels sit above the scrolling rows, so they stay in view. */
 function readingGrammarChart(box) {
   const tab = TABS[state.tab];
-  const runs = sortRows(tab.rows(), tab.columns).map(row => row.run);
+  const sorted = sortRows(tab.rows(), tab.columns).map(row => row.run);
+  const runs = state.models === 'all' ? sorted : [...sorted.filter(isDecision), ...sorted.filter(run => !isDecision(run))];
   if (!runs.length) {
     box.innerHTML = `<p class="note">${esc(emptyReason())}</p>`;
     return;
@@ -1188,7 +1193,8 @@ function readingGrammarChart(box) {
   });
   box.classList.toggle('has-selection', runs.some(run => run.run === state.selected));
   const [reading, grammar] = ['reading', 'grammar'].map(part => runs[0].groups[part].questions);
-  const note = `Accuracy (%) on all ${integer(reading)} reading and all ${integer(grammar)} grammar questions. ${integer(runs.length)} setup${runs.length === 1 ? '' : 's'}: the table's, in its order.`;
+  const order = state.models === 'all' ? 'the table’s, in its order' : 'the leaderboard’s, in its order: decision models first, then the other models';
+  const note = `Accuracy (%) on all ${integer(reading)} reading and all ${integer(grammar)} grammar questions. ${integer(runs.length)} setup${runs.length === 1 ? '' : 's'}: ${order}.`;
   box.innerHTML =
     `<svg width="${width}" height="20" viewBox="0 0 ${width} 20" aria-hidden="true">${axis}</svg>` +
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of reading and grammar accuracy for ${runs.length} setups.`)}">${parts.join('')}</svg></div>` +

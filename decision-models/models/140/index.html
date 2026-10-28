@@ -46,7 +46,7 @@
     </section>
     <section class="card" id="latency">
       <h2>Latency</h2>
-      <dl class="facts"><dt>Latency, median request</dt><dd>53.7 s (this run)</dd><dt>Latency, 90th percentile</dt><dd>134.2 s</dd><dt>Requests at once</dt><dd>4</dd><dt>Throughput</dt><dd>51.0 questions per minute</dd><dt>Total run time</dt><dd>43.1 minutes</dd></dl><p class="note">Latency: the time from sending one request to receiving its answer, measured from our computer, network and retries included.</p>
+      <dl class="facts"><dt>Latency, median request</dt><dd>53.7 s (this run)</dd><dt>Latency, 90th percentile</dt><dd>134.2 s</dd><dt>Requests at once</dt><dd>4</dd><dt>Throughput</dt><dd>51.0 questions per minute of request time</dd><dt>Request time</dt><dd>43.1 minutes, over the requests whose answers were kept</dd></dl><p class="note">Latency: the time from sending one request to receiving its answer, measured from our computer, network and any retries within the request included. Request time: the time at least one request was in flight, over the requests whose answers were kept. It is not the run's elapsed time: it leaves out requests that failed and any pause before a run was resumed.</p>
     </section>
     <section class="card" id="cost">
       <h2>Cost</h2>
@@ -55,7 +55,7 @@
   </main>
   <footer class="footer">
     <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
-    <p>Results a89272c2, updated 27 October 2026; answer key version 2.</p>
+    <p>Results cac6e97a, updated 28 October 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

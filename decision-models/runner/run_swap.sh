@@ -12,7 +12,7 @@ swap=(--replace-key-text 1)
 run() {
   case "$1" in
     d1-ultra) ./run_d1_ultra.sh "${swap[@]}" ;;
-    jev-1.14) JEV_API_KEY="$(cat "$HOME/code/jev/key")" ./benchmark_ollama.py jev-1.14.0 --provider jev \
+    jev-1.14) JEV_API_KEY="$(cat "${JEV_KEY_FILE:?set JEV_KEY_FILE to the file holding the Jev API key}")" ./benchmark_ollama.py jev-1.14.0 --provider jev \
       --data questions-v2.sqlite --timeout 30 "${swap[@]}" ;;
     glide) ./run_glide.sh "${swap[@]}" ;;
     decider-v1.2) ./run_pplx_decider_v1_2.sh "${swap[@]}" ;;

@@ -8,7 +8,7 @@ cd "$(dirname "$0")"
   --provider vllm-stated \
   --vllm-thinking \
   --concurrency 8 \
-  --vllm-url http://192.168.1.126:8010 \
+  --vllm-url "${GLM_URL:?set GLM_URL to the GLM TensorFold server, as http://HOST:PORT}" \
   --data questions-v2.sqlite \
   --batch-size 16 \
   --timeout 3600 \

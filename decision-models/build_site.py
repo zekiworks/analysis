@@ -108,6 +108,8 @@ class Data:
         self.by_id = {run["run"]: run for run in self.runs}
         # The route of each run whose model ID runs as both kinds of model, by run id (sitebuild.site.route_labels).
         self.route_labels = route_labels(self.runs, self.decision)
+        # page_config.json's row notes, by run id (row_notes).
+        self.row_notes = row_notes(self)
 
     def decision(self, run: dict[str, Any]) -> bool:
         return run["provider"] in self.config["decision_model_providers"] and run["model"] not in self.config["not_decision_models"]
@@ -127,6 +129,28 @@ class Data:
         if len(found) != 1:
             raise ValueError(f"{model} matches {len(found)} runs")
         return found[0]
+
+
+def row_notes(data: Data) -> dict[int, str]:
+    """page_config.json's row notes by run id: each note with the run it names ("run") or the runs of its provider and
+    model. The build stops when a note matches no run, or when it is not a sentence of the run's own note in
+    results.json."""
+    notes = {}
+    for item in data.config["row_notes"]["rows"]:
+        if "run" in item:
+            runs = [data.by_id[item["run"]]] if item["run"] in data.by_id else []
+            named = f"run {item['run']}"
+        else:
+            runs = [run for run in data.runs if run["provider"] == item["provider"] and run["model"] == item["model"]]
+            named = f"{item['model']} ({item['provider']})"
+        if not runs:
+            raise SystemExit(f"page_config.json row_notes: no run of {named}")
+        for run in runs:
+            if item["note"].removesuffix(".") not in (run.get("note") or ""):
+                raise SystemExit(f"page_config.json row_notes: run {run['run']}'s note in results.json does not say "
+                                 f"{item['note']!r}")
+            notes[run["run"]] = item["note"]
+    return notes
 
 
 def accuracy(run: dict[str, Any]) -> tuple[int, int]:
@@ -193,7 +217,9 @@ def fallback_table(data: Data) -> str:
             "<tr>"
             f'<td class="model"><a class="model-name" href="models/{run["run"]}/">{table_name(data, run)}</a>'
             f'<span class="small settings-long">{bp.esc(detail(run))} · {kind}</span>'
-            f'<span class="small settings-short">{bp.esc(short_detail(data, run))}{"" if decision else " · chat model"}</span></td>'
+            f'<span class="small settings-short">{bp.esc(short_detail(data, run))}{"" if decision else " · chat model"}</span>'
+            + (f'<span class="small row-note">{bp.esc(data.row_notes[run["run"]])}</span>' if run["run"] in data.row_notes else "")
+            + "</td>"
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
@@ -358,6 +384,8 @@ def page_settings(data: Data) -> str:
         # The leaderboard's two tables and their headings, in order; and each route label, by run id.
         "boardGroups": BOARD_GROUPS,
         "routeLabels": data.route_labels,
+        # A short note shown with a setup's rows, by run id (page_config.json's row_notes).
+        "rowNotes": data.row_notes,
         # The ranking charts' colours for decision models, worst to best (page_config.json rank_scale).
         "rankScale": data.config["rank_scale"]["stops"],
         # A saving whose first model ran on our own hardware: its marker, tooltip and note, by how its cost was counted.

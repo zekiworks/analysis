@@ -37,7 +37,14 @@ import benchmark_metrics as bm
 DEFAULT_DATA = Path("questions.sqlite")
 DEFAULT_REPORT = Path("benchmark-results.md")
 DEFAULT_DATABASE = Path("benchmark-results.sqlite")
-DEFAULT_OLLAMA_URL = "http://192.168.1.126:11434"
+
+
+def server_url(variable: str) -> str:
+    """A self-hosted server's base URL: the environment variable `variable`, or the placeholder "<set VARIABLE>", which a run refuses."""
+    return os.environ.get(variable, f"<set {variable}>")
+
+
+DEFAULT_OLLAMA_URL = server_url("OLLAMA_URL")
 
 
 @dataclass(frozen=True)
@@ -82,13 +89,13 @@ SYSTEM_ONE = {
         request_id_header="x-typesafe-request-id",
         images="assets",
     ),
-    "open-jev": SystemOneService("Open-Jev", "http://192.168.1.126:8791", model_field=False),
+    "open-jev": SystemOneService("Open-Jev", server_url("OPEN_JEV_URL"), model_field=False),
     "liquid": SystemOneService(
         "Liquid AI", "https://api.liquid.ai/decisions", key_vars=("LIQUID_API_KEY",), key_required=True, images="data-urls"
     ),
-    # ~/code/laya/server.py, which wants LAYA_API_KEY only when it was started with one.
+    # Laya's server (server.py in its repository), which wants LAYA_API_KEY only when it was started with one.
     "laya": SystemOneService(
-        "Laya", "http://127.0.0.1:18080", path="/v1/predict", key_vars=("LAYA_API_KEY",), model_field=False
+        "Laya", server_url("LAYA_URL"), path="/v1/predict", key_vars=("LAYA_API_KEY",), model_field=False
     ),
     # Perplexity's Decisions API, which takes the same request and returns the same answers.
     "perplexity": SystemOneService(
@@ -99,16 +106,17 @@ SYSTEM_ONE = {
         key_required=True,
         request_id_header="x-request-id",
     ),
-    # ~/code/gliner2.5-multi-v1/server.py: GLiNER2.5 Multi's classifier behind the System One format.
-    "gliner": SystemOneService("GLiNER", "http://127.0.0.1:18090"),
-    # ~/code/clef/server.py: Cloudflare's Clef, whose release code answers System One requests.
-    "clef": SystemOneService("Clef", "http://127.0.0.1:18091"),
-    # ~/code/metask-jev/server.py: Metask-Jev-4B scored by its vendor's code behind the System One format.
-    "metask": SystemOneService("Metask-Jev", "http://127.0.0.1:18092"),
-    # ~/code/cygnet/shim/decision_server.py: Cygnet's own server, reading Gemma 4 12B IT on vLLM by option letter.
-    "cygnet": SystemOneService("Cygnet", "http://127.0.0.1:18093"),
+    # GLiNER2.5 Multi's server (server.py in its repository): its classifier behind the System One format.
+    "gliner": SystemOneService("GLiNER", server_url("GLINER_URL")),
+    # Clef's server (server.py in its repository): Cloudflare's Clef, whose release code answers System One requests.
+    "clef": SystemOneService("Clef", server_url("CLEF_URL")),
+    # Metask-Jev's server (server.py in its repository): Metask-Jev-4B scored by its vendor's code behind the System One format.
+    "metask": SystemOneService("Metask-Jev", server_url("METASK_URL")),
+    # Cygnet's decision server (shim/decision_server.py in its repository): Cygnet's own server, reading Gemma 4 12B IT
+    # on vLLM by option letter.
+    "cygnet": SystemOneService("Cygnet", server_url("CYGNET_URL")),
     # EldanRing/winnow-inference: Winnow-12B's own llama.cpp-based server, in its Docker image.
-    "winnow": SystemOneService("Winnow", "http://127.0.0.1:8091"),
+    "winnow": SystemOneService("Winnow", server_url("WINNOW_URL")),
     # Fastino's hosted GLiDE (model fastino/GLiDE), which takes the same request and returns the same answers.
     "fastino": SystemOneService("Fastino", "https://api.fastino.ai", key_vars=("FASTINO_API_KEY",), key_required=True),
     # Celeris's celeris-1-decision through its System One endpoint (docs.celeris.ai/decisions), which takes the same
@@ -116,32 +124,32 @@ SYSTEM_ONE = {
     "celeris": SystemOneService(
         "Celeris", "https://inference.celeris.ai/celeris-1-decision", key_vars=("CELERIS_API_KEY",), key_required=True
     ),
-    # ~/code/strands-decider/server.py: Amazon's Strands Decider 2B through its own package, behind the
-    # System One format.
-    "strands": SystemOneService("Strands Decider", "http://127.0.0.1:18096"),
-    # ~/code/pplx-decider: Perplexity's Decider checkpoints on our GPUs, behind the System One format. v1.1 runs through
+    # Strands Decider's server (server.py in its repository): Amazon's Strands Decider 2B through its own package, behind
+    # the System One format.
+    "strands": SystemOneService("Strands Decider", server_url("STRANDS_URL")),
+    # Perplexity's Decider checkpoints on our GPUs, behind the System One format. v1.1 runs through
     # the server code its checkpoint ships (server.py there); v1.2 and Flash v1.2 through servers/pplx_decider_server.py
     # and the pplx_decider package their checkpoints ship. Each takes the same request and returns the same answers.
-    "pplx-decider": SystemOneService("Perplexity Decider", "http://127.0.0.1:18097", request_id_header="x-request-id"),
+    "pplx-decider": SystemOneService("Perplexity Decider", server_url("PPLX_DECIDER_URL"), request_id_header="x-request-id"),
     # Fastino's released GLiDE v1.2 checkpoint (fastino/GLiDE) behind the server its repository ships (python -m
     # glide.server), which takes the same request at the default path, ignores the model field and returns the same
     # answers.
-    "glide": SystemOneService("GLiDE", "http://127.0.0.1:8888"),
+    "glide": SystemOneService("GLiDE", server_url("GLIDE_URL")),
     # vLLM's own System One endpoint (/v1/systemone) serving the vLLM Semantic Router's Decision 3.0 checkpoints
     # (vllm-sr/d3) on our GPU, from a current nightly build (the support is on vLLM's main branch since 14 October 2026),
     # which takes the same request at the default path and returns the same answers; the model field names the checkpoint.
-    "vllm-sr": SystemOneService("vLLM-SR", "http://127.0.0.1:18110", images="data-urls"),
+    "vllm-sr": SystemOneService("vLLM-SR", server_url("VLLM_SR_URL"), images="data-urls"),
     # OmniJev's OneJev-27B (OmniJev/OneJev-27B) on our GPU behind the server its package ships (`qev serve`,
     # github.com/OmniJev/OneJev), which takes the same request at the default path, plus a `media` list for images, and
     # returns the same answers; the model field must name the checkpoint as the server was started (--name).
     "onejev": SystemOneService(
-        "OneJev", "http://127.0.0.1:18111", request_id_header="x-typesafe-request-id", images="media"
+        "OneJev", server_url("ONEJEV_URL"), request_id_header="x-typesafe-request-id", images="media"
     ),
     # The vLLM Semantic Router's d3-ultra (vllm-sr/d3-ultra) on our GPU behind the server its repository ships
     # (d3_server.py, on the package's own transformers runtime, as AutoModel loads it in the model card's Quickstart),
     # which takes the same request at the default path, with images as data URLs, and returns the same answers. vLLM
     # cannot serve d3-ultra yet: it rejects the checkpoint's attention mode (prefix_bidir).
-    "d3-server": SystemOneService("d3 server", "http://127.0.0.1:18112", images="data-urls"),
+    "d3-server": SystemOneService("d3 server", server_url("D3_SERVER_URL"), images="data-urls"),
     # OpenAI's Decisions API (public beta), which serves gpt-6-luna. Needs an API key with billing; the
     # Codex-based openai provider never uses one.
     "openai-decisions": SystemOneService(
@@ -314,6 +322,10 @@ PRICES: dict[tuple[str, str], Price] = {
     ("openai", "gpt-6.1-sol"): Price(
         "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 2.00, 10.00, cached_input=0.10, cache_write=2.50
     ),
+    # Cache writes at the 30-minute retention rate, as for Astra and Sol.
+    ("openai", "gpt-6.1-terra"): Price(
+        "OpenAI's API list price", OPENAI_PRICING, "2026-10-28", 1.00, 5.00, cached_input=0.05, cache_write=1.25
+    ),
     ("openai", "gpt-6-luna"): Price(
         "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 0.10, 0.50, cached_input=0.01, cache_write=0.125
     ),
@@ -384,14 +396,14 @@ def questions_asked(result: dict[str, Any]) -> int:
     return result.get("as_run", {}).get("evaluated", result["evaluated"])
 
 
-DEFAULT_VLLM_URL = "http://192.168.1.126:8888"
+DEFAULT_VLLM_URL = server_url("VLLM_URL")
 # vllm sends the Ollama models' prompt, several questions per request, and reads the letters' token probabilities;
 # vllm-stated sends the hosted models' stated-confidence prompt the same way, for a server that returns no token
 # probabilities; vllm-yes-no, vllm-verbal and vllm-vote send one question per request.
 VLLM_PROVIDERS = ("vllm", "vllm-stated", "vllm-yes-no", "vllm-verbal", "vllm-vote")
 SINGLE_QUESTION_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm-verbal", "vllm-vote")
 # --provider vllm-vote: the vllm-verbal request sampled VOTE_SAMPLES times with the instruct sampling
-# settings of Qwen's model card (~/code/Qwen3.8-27B-DGX-Spark-RTX-6000/README.md). The answer is the
+# settings of Qwen's model card (README.md in the Qwen3.8-27B-DGX-Spark-RTX-6000 repository). The answer is the
 # most frequent letter and its score the share of samples that chose it.
 VOTE_SAMPLES = 10
 VOTE_SAMPLING = {"temperature": 0.7, "top_p": 0.8, "top_k": 20, "presence_penalty": 1.5}
@@ -4641,6 +4653,14 @@ def run_record(
     }
 
 
+def require_server_url(url: str, flag: str) -> str:
+    """`url`, or a ValueError naming the variable and `flag` when it is still a server_url placeholder."""
+    if url.startswith("<set "):
+        name = url[len("<set ") : -1]
+        raise ValueError(f"{url}: set {name} or pass {flag}")
+    return url
+
+
 def main() -> int:
     args = parse_args()
     result_connection: sqlite3.Connection | None = None
@@ -4669,13 +4689,13 @@ def main() -> int:
             endpoint = "codex-cli-chatgpt-oauth"
             image_input = False
         elif args.provider in SYSTEM_ONE_PROVIDERS:
+            endpoint = require_server_url(args.jev_url, "--jev-url")
             args.jev_api_key = jev_api_key(args.provider)
             thinking = False
-            endpoint = args.jev_url
             image_input = False
         elif args.provider in VLLM_PROVIDERS:
+            endpoint = require_server_url(args.vllm_url, "--vllm-url")
             thinking = args.vllm_thinking
-            endpoint = args.vllm_url
             image_input = False
             if args.provider == "vllm-yes-no":
                 args.yes_no_ids = vllm_yes_no_ids(args.vllm_url, args.model, args.timeout)
@@ -4690,8 +4710,8 @@ def main() -> int:
             endpoint = "claude-code-subscription"
             image_input = False
         else:
+            endpoint = require_server_url(args.ollama_url, "--ollama-url")
             thinking = resolve_thinking(args.model)
-            endpoint = args.ollama_url
             supports_vision = (
                 ollama_supports_vision(args.ollama_url, args.model, args.timeout)
                 if args.image_input != "off"

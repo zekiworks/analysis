@@ -2,7 +2,7 @@
   --provider vllm \
   --vllm-thinking \
   --concurrency 8 \
-  --vllm-url http://192.168.1.126:8010 \
+  --vllm-url "${DEEPSEEK_URL:?set DEEPSEEK_URL to the DeepSeek vLLM server, as http://HOST:PORT}" \
   --data questions-v2.sqlite \
   --batch-size 16 \
   --timeout 3600

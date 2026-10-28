@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Amazon's Strands Decider 2B (StrandsAgents/strands-decider-2B-hobson-v21 at 2b52a62) through the
-# package's own System One server, ~/code/strands-decider/server.py, on port 18096; start it first.
+# package's own System One server (server.py in the strands-decider repository); start it first and set STRANDS_URL.
 set -euo pipefail
 cd "$(dirname "$0")"
 ./benchmark_ollama.py strands-decider-2b \
