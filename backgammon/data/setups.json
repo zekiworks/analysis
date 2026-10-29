@@ -2941,6 +2941,40 @@
     "src/players/llm.rs"
    ],
    "weights": "open"
+  },
+  {
+   "confidence_source": "none",
+   "dataset": "league-3",
+   "date_run": "24–27 Oct 2026",
+   "missing": [
+    "weights (not verified for K3.1 Pro)"
+   ],
+   "model": "Kimi K3.1 Pro",
+   "model_id": "moonshotai/kimi-k3.1-pro",
+   "model_type": "chat model, one letter",
+   "name": "Kimi K3.1 Pro (off)",
+   "notes": "Moonshot's Kimi K3.1 Pro through OpenRouter, pinned to Moonshot AI's standard endpoint (mxfp4) for every one of its 1,462 league decisions; never on our GPUs. Late entry to League 3 on 24 Oct 2026 (its two missing pairings were played on 27 Oct). Every request sent reasoning_effort \"none\"; all 1,933 responses reported 0 reasoning tokens and carried no reasoning text. The endpoint returned no token probabilities, so it answers with one letter. Prompts are billed at list price; a separate $30 budget cap applied to Kimi.",
+   "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-10-24",
+    "input_per_mtok": 2.0,
+    "label": "API price",
+    "output_per_mtok": 10.0
+   },
+   "provider": "Moonshot AI's standard endpoint via OpenRouter (endpoint tag moonshotai/mxfp4, quantization mxfp4; not the highspeed endpoint), provider pinned, no fallbacks",
+   "reasoning": "reasoning off: every request sent reasoning_effort \"none\" (the lowest effort OpenRouter lists for this model on 2026-10-24); every response reported 0 reasoning tokens",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "temperature 1.0",
+   "setting": "off",
+   "slug": "kimi-k3-1-pro-off",
+   "sources": [
+    "players.settings (snapshot of v3.db)",
+    "turns.provider/quantization (every decision: openrouter:moonshotai/mxfp4, mxfp4)",
+    "exchanges (request reasoning_effort, response usage)",
+    "mailbox/Reviewed brief 2026-10-24 - status.md"
+   ],
+   "weights": null
   }
  ]
 }
