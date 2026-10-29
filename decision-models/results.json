@@ -1,6 +1,6 @@
 {
   "schema_version": 5,
-  "results_version": "a95abb44",
+  "results_version": "5e6fcd1d",
   "updated": "2026-10-29T04:45:15Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -689,6 +689,24 @@
         "output_tokens": 0.0
       },
       "text": "$0.05 input, output free per 1M tokens"
+    },
+    {
+      "provider": "vllm",
+      "model": "qwen38-27b-bf16",
+      "basis": "Alibaba's list price for the same model",
+      "source": "https://www.alibabacloud.com/help/en/model-studio/qwen3-8-27b",
+      "date": "2026-10-18",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "rates": {
+        "input_tokens": 0.5,
+        "cached_input_tokens": 0.1,
+        "cache_write_input_tokens": 0.5,
+        "cache_write_1h_input_tokens": 0.5,
+        "output_tokens": 3.0
+      },
+      "text": "$0.50 input, $0.10 cached input, $3 output per 1M tokens"
     },
     {
       "provider": "vllm-verbal",
@@ -11016,8 +11034,8 @@
       "median_request_seconds": 648.3749564884638,
       "p90_request_seconds": 1337.1598235789686,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 6.4412905,
+      "cost_basis": "maker",
       "requests": 138,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
       "input_tokens": 524063,

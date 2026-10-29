@@ -394,13 +394,14 @@ PRICES: dict[tuple[str, str], Price] = {
         "2026-10-18", 0.038, applies_to="maker",
     ),
     # Alibaba Cloud Model Studio's international (Singapore) price for qwen3.8-27b, implicit cache reads included; the
-    # page shows no promotions. The three Qwen3.8-27B setups differ only in how they ask.
+    # page shows no promotions and one output price, thinking or not (read again 29 October 2026). The four
+    # Qwen3.8-27B setups differ only in how they ask.
     **{
         (provider, "qwen38-27b-bf16"): Price(
             "Alibaba's list price for the same model", "https://www.alibabacloud.com/help/en/model-studio/qwen3-8-27b",
             "2026-10-18", 0.50, 3.00, cached_input=0.10, applies_to="maker",
         )
-        for provider in ("vllm-yes-no", "vllm-verbal", "vllm-vote")
+        for provider in ("vllm-yes-no", "vllm-verbal", "vllm-vote", "vllm")
     },
     # d1 ran on Liquid's free tier (d1:free); its cost is estimated at Liquid's list price for the same model, input
     # tokens only.
