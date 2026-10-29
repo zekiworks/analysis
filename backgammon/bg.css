@@ -229,6 +229,16 @@ a.cc-open { font-weight: 600; }
 #close-b-table tbody th { background: var(--panel); box-shadow: inset -1px 0 0 var(--edge); text-align: left; }
 #close-b-table tbody tr:nth-child(even) > th { background: var(--zebra); }
 #close-b-table thead th[data-nosort] { cursor: default; }
+/* Nackgammon paired test (nack_section.py): standard PR (x) against Nackgammon PR (y). */
+.chart-svg .nack-dm, .swatch.nack-dm { fill: var(--reading); background: var(--reading); }
+.chart-svg .nack-wh, .swatch.nack-wh { fill: var(--good); background: var(--good); }
+.chart-svg .nack-fr, .swatch.nack-fr { fill: var(--bad); background: var(--bad); }
+.chart-svg .nack-ng, .swatch.nack-ng { fill: var(--panel); stroke: var(--text-2); stroke-width: 1.5; background: var(--panel); border: 1.5px solid var(--text-2); box-sizing: border-box; }
+.chart-svg .nack-yard, .swatch.nack-yard { fill: var(--text); background: var(--text); }
+.swatch.nack-dot { border-radius: 50%; }
+#chart-nack { margin: 1rem 0 .5rem; }
+#nackgammon-paired thead th[data-nosort] { cursor: default; }
+#nackgammon-paired ul.lettered { list-style: none; padding-left: 1rem; }
 .section-label { margin: .15rem 0 .6rem; font-size: .8rem; color: var(--text-2); }
 
 /* Hype Cup and Nackgammon knockout brackets (Leagues page) and the Matches page. Rounds side by side on a wide screen,
