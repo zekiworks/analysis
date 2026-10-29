@@ -230,3 +230,37 @@ a.cc-open { font-weight: 600; }
 #close-b-table tbody tr:nth-child(even) > th { background: var(--zebra); }
 #close-b-table thead th[data-nosort] { cursor: default; }
 .section-label { margin: .15rem 0 .6rem; font-size: .8rem; color: var(--text-2); }
+
+/* Hype Cup and Nackgammon knockout brackets (Leagues page) and the Matches page. Rounds side by side on a wide screen,
+   one under the other on a phone; the winner's row in bold with a marked edge; the tie's state as a small label. */
+.status-in-progress { color: var(--grammar-text); border-color: var(--grammar-text); }
+.cup-honesty { margin: .25rem 0 .5rem; }
+.cup-champion { margin: .25rem 0 .75rem; }
+.cup-sub { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--edge); }
+.bracket { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin: .5rem 0 .75rem; }
+.bracket-round h4 { margin: 0 0 .4rem; color: var(--text-2); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.bracket .ties { display: flex; flex-direction: column; justify-content: space-around; gap: .6rem; height: calc(100% - 1.3rem);
+  margin: 0; padding: 0; list-style: none; }
+.tie { padding: .45rem .6rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 6px; }
+.tie-head { display: flex; justify-content: space-between; gap: .5rem; margin: 0 0 .3rem; font-size: .78rem; color: var(--text-2); }
+.tie-name { font-weight: 600; }
+.tie-state { padding: 0 .4rem; border: 1px solid var(--control-edge); border-radius: 999px; font-size: .7rem; font-weight: 600; white-space: nowrap; }
+.state-played { color: var(--accepted); border-color: var(--accepted); }
+.state-stored { color: var(--reading-text); border-color: var(--reading-text); }
+.state-playing { color: var(--grammar-text); border-color: var(--grammar-text); }
+.tie-sides { margin: 0; padding: 0; list-style: none; }
+.side { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr) auto; gap: .4rem; align-items: baseline; padding: .12rem 0 .12rem .35rem;
+  border-left: 3px solid transparent; font-size: .9rem; }
+.side .seed { color: var(--text-2); font-family: var(--mono); font-size: .75rem; text-align: right; }
+.side .score { font-family: var(--mono); font-weight: 600; }
+.side.win { border-left-color: var(--lamp-on); font-weight: 600; }
+.side.tbd .name { color: var(--text-2); font-style: italic; }
+.tie-foot { margin: .3rem 0 0; color: var(--text-2); font-size: .78rem; }
+.tie-to-play, .tie-waits { background: transparent; border-style: dashed; }
+.stage-nav .subnav { margin: 0; }
+tr.late-entry td { color: var(--text-2); }
+td.date { white-space: nowrap; }
+@media (max-width: 720px) {
+  .bracket { grid-template-columns: minmax(0, 1fr); }
+  .bracket .ties { height: auto; }
+}
