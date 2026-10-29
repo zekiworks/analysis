@@ -215,6 +215,7 @@ OpenRouter's usage accounting, which records each request's billed cost.
 | `run_glm.sh`, `run_glm_thinking.sh` | GLM-5.3-Flash on TensorFold (4 GPUs), thinking off and on, stated confidence | `glm-5.3-flash` |
 | `run_qwen3_14b.sh`, `run_erk.sh` | Qwen3-14B and Erk-14B, vLLM, BF16 | `qwen3-14b`, `erk-14b` |
 | `run_qwen_yes_no.sh`, `run_qwen_verbal.sh` | Qwen3.8-27B, vLLM, BF16: yes/no scoring, stated confidence | `qwen38-27b-bf16` |
+| `run_qwen_thinking_low.sh` | Qwen3.8-27B, vLLM, BF16: reasoning on at the chat template's low effort (`--vllm-reasoning-effort low`), 16 questions per request, 4 at a time | `qwen38-27b-bf16` |
 
 The model argument must be the served model name. `--provider vllm` sends 16 questions per request
 with thinking off, temperature 0 and seed 0, and reads each answer letter's probabilities from the

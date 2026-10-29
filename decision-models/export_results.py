@@ -348,6 +348,9 @@ RUN_NOTES: dict[int, str] = {
          "for up to 65,536 output tokens, the limit our other Gemini runs had; Antigravity cut 9 of the 138 requests at "
          "32,768 output tokens, and only those 9 were asked again, once: 5 came back answered and 4 were cut again, so "
          "their 64 questions count as wrong. The first pass scored 92.0%. The cost counts both attempts.",
+    318: "Reasoning on at the chat template's low effort. Five of the 138 replies never left the thinking part, so their "
+         "80 questions have no answer and count as wrong. The GPU was shared with another program during the run, so "
+         "its request times are longer than on a free GPU.",
     314: "The Fireworks pin admits all of Fireworks' endpoints: OpenRouter billed 135 of the 138 requests at the spot "
          "endpoint's rates, 2 at the standard rates and 1 at the fast endpoint's rates ($1.82 in all); the cost shown "
          "uses the spot rates.",

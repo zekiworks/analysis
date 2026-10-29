@@ -71,7 +71,7 @@ SETUP_TEXTS = (
     "Chat models for comparison; each writes a confidence estimate. Several ran at more than one reasoning setting.",
     "OpenAI's Decisions API, in beta, {per_request} question per request. The other Luna run writes its confidence "
     "through Codex, {other_per_request} questions per request.",
-    "On our hardware, with answer letter probabilities. DeepSeek's reasoning run also samples.",
+    "On our hardware, with answer letter probabilities. The DeepSeek and Qwen reasoning runs also sample.",
     "Z.ai's model with TensorFold: {size} parameters, about {active} used per token (a mixture of experts); it writes its "
     "confidence. Mia's AI Lab's EXL3 checkpoint, with DFlash2 speculative decoding.",
     "Erk continues this Qwen model's training on Turkish text; both ran with the same requests and settings.",
@@ -599,6 +599,7 @@ request. Earlier trial runs could find the source book online.</p>
 <tr><td>Chat models on our hardware, reasoning off</td><td>Greedy decoding: the most likely next token</td></tr>
 <tr><td>DeepSeek, reasoning on</td><td>Sampling, temperature 1.0, top p 1.0 (greedy decoding made its reasoning loop)</td></tr>
 <tr><td>GLM 5.3 Flash, reasoning on</td><td>Server default: temperature 1.0, top p 0.95 (Z.ai's settings), top k 20; TensorFold's high reasoning</td></tr>
+<tr><td>Qwen 3.8 27B, reasoning on</td><td>Server default: temperature 1.0, top p 0.95, top k 20 (Qwen's settings); the chat template's low reasoning effort</td></tr>
 <tr><td>Qwen, ten answers</td><td>Temperature 0.7, top p 0.8, top k 20, presence penalty 1.5</td></tr>
 <tr><td>Hosted chat models</td><td>The reasoning setting each setup names, in its provider's words; the provider's own sampling where temperature cannot be set, temperature 1.0 through OpenRouter; Gemini reported no reasoning tokens at low</td></tr>
 </tbody></table></div>

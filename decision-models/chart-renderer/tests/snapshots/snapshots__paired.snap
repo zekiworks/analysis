@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 64 comparisons (12 pass).
-━━ passes the Holm adjustment across these 64 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 65 comparisons (12 pass).
+━━ passes the Holm adjustment across these 65 comparisons   ━━ does not pass
 
                  Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                     ⠤⡧⠄                                         +0.1
                       GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                     ⠠⡧⠄                                         +0.2
@@ -23,10 +23,11 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                 Claude Sonnet 5.5 (high reasoning) minus GLM-5.3-Flash (reasoning on)                      ⡇       ⠠⠤⠤⠤⡦⠤⠤⠤⠄                          +6.2
                                    GLM-5.3-Flash (reasoning on) minus Liquid d1-ultra                     ⠠⡧⠤⠤⢴⠤⠤⠤⠄                                   +1.7
                                         Liquid d1-ultra minus GLM-5.3 (low reasoning)                      ⡇⠤⠤⠤⠤⡦⠤⠤⠤⠄                                 +2.5
-                                            GLM-5.3 (low reasoning) minus Gemma 4 31B                    ⠠⠤⡧⠤⢴⠤⠤⠤⠤⠄                                   +1.4
+                           GLM-5.3 (low reasoning) minus Qwen 3.8 27B (low reasoning)                   ⠤⠤⠤⡧⡦⠤⠤⠤⠄                                     +0.6
+                                       Qwen 3.8 27B (low reasoning) minus Gemma 4 31B                   ⠠⠤⠤⡧⢴⠤⠤⠤⠤                                     +0.8
                                                       Gemma 4 31B minus Kimi K3.1 Pro                   ⠤⠤⠤⣷⠤⠤⠤⠤                                      +0.4
                                                       Gemma 4 31B minus Fastino GLiDE                      ⡇     ⠤⠤⠤⠤⡦⠤⠤⠤⠤                            +5.2
-                                       Kimi K3.1 Pro minus Fastino GLiDE v1.2 (local)                      ⡇   ⠤⠤⠤⠤⡦⠤⠤⠤⠤                              +4.2
+                                       Kimi K3.1 Pro minus Fastino GLiDE v1.2 (local)                      ⡇   ⠤⠤⠤⠤⡧⠤⠤⠤⠤                              +4.2
                           Fastino GLiDE v1.2 (local) minus GPT-6 Luna (low reasoning)                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.2
                                        GPT-6 Luna (low reasoning) minus Fastino GLiDE                  ⠤⠤⠤⠤⣿⠤⠤⠤⠤⠄                                     +0.4
                            GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)        ⠠⠤⠤⠤⢼⠤⠤⠤⠤     ⡇                                          -4.7
@@ -51,7 +52,7 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                   Mercury Decide (via OpenRouter) minus GLM-5.3-Flash (reasoning off)                  ⠐⠒⠒⠒⡗⡗⠒⠒⠒⠒                                     +0.5
                                          GLM-5.3-Flash (reasoning off) minus Jev 1.13                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.3
                                                                   Jev 1.13 minus Clef                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.2
-                                                                 Clef minus Liquid d1                  ⠐⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.3
+                                                                 Clef minus Liquid d1                  ⠐⠒⠒⠒⡿⠒⠒⠒⠒                                      +0.3
                                                              Liquid d1 minus Open Jev                    ⠐⠒⡗⠒⠺⠒⠒⠒⠒                                    +1.3
                                                                 Open Jev minus Cygnet                 ⠐⠒⠒⠒⠒⡗⠒⠒⠒⠂                                      +0.0
                                            Open Jev minus Qwen 3.8 27B (yes/no score)                      ⡇  ⠐⠒⠒⠒⠺⠒⠒⠒⠒                               +3.8
