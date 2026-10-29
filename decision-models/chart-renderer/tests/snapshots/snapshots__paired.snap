@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 65 comparisons (12 pass).
-━━ passes the Holm adjustment across these 65 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 66 comparisons (12 pass).
+━━ passes the Holm adjustment across these 66 comparisons   ━━ does not pass
 
                  Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                     ⠤⡧⠄                                         +0.1
                       GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                     ⠠⡧⠄                                         +0.2
@@ -20,14 +20,15 @@ establish a difference; the colour shows a related but separate test, adjusted a
 DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reasoning)                     ⠠⡧⠤⡦⠤⠤                                      +1.2
                   GPT-6.1 Terra (low reasoning) minus Claude Opus 5.5 (low reasoning)                    ⠤⠤⣷⠤⠤⠤                                       +0.4
              Claude Opus 5.5 (low reasoning) minus Claude Sonnet 5.5 (high reasoning)                      ⡇      ⠠⠤⠤⢴⠤⠤⠤                             +5.4
-                Claude Sonnet 5.5 (high reasoning) minus GLM-5.3-Flash (reasoning on)                      ⡇       ⠠⠤⠤⠤⡦⠤⠤⠤⠄                          +6.2
+               Claude Sonnet 5.5 (high reasoning) minus Kimi K3.1 Pro (low reasoning)                      ⡧⠤⠤⠤⢴⠤⠤⠤⠄                                  +2.3
+                     Kimi K3.1 Pro (low reasoning) minus GLM-5.3-Flash (reasoning on)                      ⡇   ⠤⠤⠤⢴⠤⠤⠤⠤                               +4.0
                                    GLM-5.3-Flash (reasoning on) minus Liquid d1-ultra                     ⠠⡧⠤⠤⢴⠤⠤⠤⠄                                   +1.7
                                         Liquid d1-ultra minus GLM-5.3 (low reasoning)                      ⡇⠤⠤⠤⠤⡦⠤⠤⠤⠄                                 +2.5
                            GLM-5.3 (low reasoning) minus Qwen 3.8 27B (low reasoning)                   ⠤⠤⠤⡧⡦⠤⠤⠤⠄                                     +0.6
                                        Qwen 3.8 27B (low reasoning) minus Gemma 4 31B                   ⠠⠤⠤⡧⢴⠤⠤⠤⠤                                     +0.8
-                                                      Gemma 4 31B minus Kimi K3.1 Pro                   ⠤⠤⠤⣷⠤⠤⠤⠤                                      +0.4
-                                                      Gemma 4 31B minus Fastino GLiDE                      ⡇     ⠤⠤⠤⠤⡦⠤⠤⠤⠤                            +5.2
-                                       Kimi K3.1 Pro minus Fastino GLiDE v1.2 (local)                      ⡇   ⠤⠤⠤⠤⡧⠤⠤⠤⠤                              +4.2
+                                     Gemma 4 31B minus Kimi K3.1 Pro (reasoning none)                   ⠤⠤⠤⣷⠤⠤⠤⠤                                      +0.4
+                                                      Gemma 4 31B minus Fastino GLiDE                      ⡇     ⠤⠤⠤⠤⡧⠤⠤⠤⠤                            +5.2
+                      Kimi K3.1 Pro (reasoning none) minus Fastino GLiDE v1.2 (local)                      ⡇   ⠤⠤⠤⠤⡧⠤⠤⠤⠤                              +4.2
                           Fastino GLiDE v1.2 (local) minus GPT-6 Luna (low reasoning)                  ⠤⠤⠤⠤⡧⠤⠤⠤⠤                                      +0.2
                                        GPT-6 Luna (low reasoning) minus Fastino GLiDE                  ⠤⠤⠤⠤⣿⠤⠤⠤⠤⠄                                     +0.4
                            GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)        ⠠⠤⠤⠤⢼⠤⠤⠤⠤     ⡇                                          -4.7
@@ -39,7 +40,7 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                 Decider v1.1 minus DeepSeek-V4.1-Flash, first release (reasoning off)                   ⠠⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +1.0
                                                         Decider v1.1 minus Decider v1                      ⡇        ⠤⠤⠤⢼⠤⠤⠤⠄                          +6.5
                    DeepSeek-V4.1-Flash, first release (reasoning off) minus SubQ Snap                   ⠤⠤⠤⡧⡧⠤⠤⠤⠤                                     +0.7
-                                            SubQ Snap minus GPT-6 Luna, Decisions API                    ⠠⠤⡧⠤⠤⡧⠤⠤⠤⠤                                   +1.6
+                                            SubQ Snap minus GPT-6 Luna, Decisions API                    ⠐⠒⡗⠒⠒⡗⠒⠒⠒⠒                                   +1.6
                                           GPT-6 Luna, Decisions API minus Liquid d1.1                     ⠐⡗⠒⠒⠒⡗⠒⠒⠒⠒                                  +2.1
                                   Liquid d1.1 minus Claude Sonnet 5.5 (low reasoning)                 ⠐⠒⠒⠒⠒⡗⠒⠒⠒⠒                                      +0.1
                                     Claude Sonnet 5.5 (low reasoning) minus Celeris 1                   ⠒⠒⠒⡗⢺⠒⠒⠒⠒⠂                                    +0.9
