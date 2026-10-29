@@ -2872,6 +2872,75 @@
     "mailbox/Part A smoke tests - results.md"
    ],
    "weights": "closed"
+  },
+  {
+   "confidence_source": "letter probability",
+   "dataset": "league-2",
+   "date_run": "24–28 Oct 2026",
+   "missing": [],
+   "model": "DeepSeek V4.1 Flash 1017",
+   "model_id": "deepseek/deepseek-v4.1-flash-1017",
+   "model_type": "chat model, answer-letter probabilities",
+   "name": "DeepSeek V4.1 Flash 1017 (off)",
+   "notes": "The 17 Oct 2026 snapshot of DeepSeek V4.1 Flash, served by DeepSeek itself through OpenRouter (provider pinned, fallbacks off) for every decision; never on our GPUs. Late entry to League 2 on 24 Oct 2026; its missing pairings were played on 27–28 Oct 2026. No fixed answer format (DeepSeek's endpoint takes no JSON schema): the letter is read from the free-text answer with its probabilities. DeepSeek may train on paid prompts; allowed by Can, 24 Oct 2026.",
+   "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-10-24",
+    "input_per_mtok": 0.15,
+    "label": "API price",
+    "output_per_mtok": 0.6
+   },
+   "provider": "DeepSeek (first party) via OpenRouter, provider pinned, no fallbacks; quantization not published",
+   "reasoning": "thinking off (reasoning disabled)",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "temperature 1.0",
+   "setting": "off",
+   "slug": "deepseek-v4-1-flash-1017-off",
+   "sources": [
+    "players.settings (snapshot of v3.db)",
+    "turns.provider (every decision: openrouter:deepseek)",
+    "mailbox/DeepSeek V4.1 Flash 1017 - log.md",
+    "freeze/league2-additions.json",
+    "src/players/llm.rs"
+   ],
+   "weights": "open"
+  },
+  {
+   "aliases": [
+    "DeepSeek V4.1 Flash 1017 (on)"
+   ],
+   "confidence_source": "letter probability",
+   "dataset": "league-2",
+   "date_run": "24–28 Oct 2026",
+   "missing": [],
+   "model": "DeepSeek V4.1 Flash 1017",
+   "model_id": "deepseek/deepseek-v4.1-flash-1017",
+   "model_type": "chat model, answer-letter probabilities",
+   "name": "DeepSeek V4.1 Flash 1017 (low)",
+   "notes": "The 17 Oct 2026 snapshot of DeepSeek V4.1 Flash, served by DeepSeek itself through OpenRouter (provider pinned, fallbacks off) for every decision; never on our GPUs. Late entry to League 2 on 24 Oct 2026; its missing pairings were played on 27–28 Oct 2026. No fixed answer format (DeepSeek's endpoint takes no JSON schema): the letter is read from the free-text answer with its probabilities. DeepSeek may train on paid prompts; allowed by Can, 24 Oct 2026.",
+   "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-10-24",
+    "input_per_mtok": 0.15,
+    "label": "API price",
+    "output_per_mtok": 0.6
+   },
+   "provider": "DeepSeek (first party) via OpenRouter, provider pinned, no fallbacks; quantization not published",
+   "reasoning": "thinking on, reasoning effort low",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "temperature 1.0",
+   "setting": "low",
+   "slug": "deepseek-v4-1-flash-1017-on",
+   "sources": [
+    "players.settings (snapshot of v3.db)",
+    "turns.provider (every decision: openrouter:deepseek)",
+    "mailbox/DeepSeek V4.1 Flash 1017 - log.md",
+    "freeze/league2-additions.json",
+    "src/players/llm.rs"
+   ],
+   "weights": "open"
   }
  ]
 }
