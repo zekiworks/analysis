@@ -8,10 +8,11 @@
  ],
  "pending": [
   {
-   "blocker": "ChatGPT subscription busy with the season-2 queue (Codex effort sweep); runs once it is free",
-   "what": "Part 2: GPT-6.1 Sol (high)"
+   "blocker": "answers not yet collected",
+   "what": "Part 2: GLM-5.3 (on)"
   }
  ],
+ "scan_as_of": "The scan, its checks and the rollout check are as of results 1082e024 (league games up to then); they are not recomputed with later league games.",
  "sections": [
   {
    "id": "clear-risk-scan",
@@ -2478,16 +2479,16 @@
   {
    "id": "clear-risk-part2",
    "notes": [
-    "Preliminary / partial. Two or four plays shown, not league play.",
+    "Two or four plays shown, not league play.",
     "Positions: the 189 rollout-confirmed sample positions (93 Risk wins, 96 Safety wins). Each question is its own request with no shared context. Not paired across models beyond these shared items, and the league comparison is unpaired (the models played in different leagues on different positions).",
     "Q1: best safe vs best unsafe play, 'Which play is better?'; half the right answers are A (fixed seed). Q2 (board only, 60 items where exactly one option is true of the unsafe play B and not of the safe play A): what does play B do that play A does not; random baseline 25%. Q3: 3 or 4 plays (best safe, best unsafe, best in-between if any, one clear blunder at least 0.10 below the others at 3-ply if any) and their 3-ply values (2 decimals, labelled W-Z); chat models match each value to a play (each play once), decision models get one question per value.",
     "Two versions: with numbers (the league prompt with the computed consequences of each play) and board only (notation only, no pip count or other computed number).",
     "Models at league settings; temperature not sent (provider default) for all. Decision models: the top-probability option is the answer; an exact tie at the top is no answer. Q3 scoring: only pairs 0.04 or more apart at 3-ply; a decision model that puts two values on one play gets the pairs of that play wrong; a chat answer that is not one-to-one counts every pair wrong.",
-    "GPT-6.1 Sol (high): pending, not collected (its subscription was busy with other queued jobs). Its rows are NA, never 0%. This is separate from the Codex effort sweep, whose GPT-6.1 Sol (max) row is a different run.",
+    "GLM-5.3 (on): pending, not collected; its rows are NA, never 0%. GPT-6.1 Sol (high) here is separate from the Codex effort sweep, whose GPT-6.1 Sol (max) row is a different run. Added after the first publication (Zeki / Ümit, 30 Oct): Kimi K3.1 Pro (off) and GLM-5.3 (low) via OpenRouter and Claude Opus 5.5 (high) on the Claude subscription, at league settings, same items and frozen scoring.",
     "Q3 random baselines were added AFTER the first score output: first score 2026-10-30T06:25:29.387Z, baseline edit 2026-10-30T06:25:46.496Z, baseline output 2026-10-30T06:25:50.444Z. Not pre-registered and not exact: a simulation with seed 2026103005, 200 draws per item (4000 // 20), rounded to whole percent. Scoring was not changed.",
     "The cross-table's 'doesn't know the game' uses the board-only Q2 answer for both versions (Q2 was asked board only).",
     "Denominators: expected = items sent per model; recorded = answer rows stored; usable = recorded minus rows with a request error, invalid answers and exact ties. 'Item-level flags' for decision models count Q3 items (position and version) where two values went to one play, not pairs and not failed requests. Answer-row error counts are rows whose request failed after retries, not attempts.",
-    "Cost: hosted decision models at list price (the cash cap was $3; the stored list-price total is about $0.59); Claude Sonnet 5.5 (high) on a subscription, shown as API-equivalent, not money paid."
+    "Cost: hosted decision models at list price (the cash cap was $3; the stored list-price total is about $0.59); OpenRouter models at the cost OpenRouter reports per response (cap $3.00 per model); subscription models shown as API-equivalent, not money paid."
    ],
    "tables": [
     {
@@ -2600,6 +2601,78 @@
        "",
        "54% (102/189)",
        "0"
+      ],
+      [
+       "GPT-6.1 Sol (high)",
+       "with numbers",
+       "44% (41/93)",
+       "98% (94/96)",
+       "56% (52/93)",
+       "2% (2/96)",
+       "+54 pp",
+       "32% (28/88) · 2% (6/334) · +30 pp",
+       "50% (95/189)",
+       "0"
+      ],
+      [
+       "GPT-6.1 Sol (high)",
+       "board only",
+       "77% (72/93)",
+       "81% (78/96)",
+       "23% (21/93)",
+       "19% (18/96)",
+       "+4 pp",
+       "",
+       "46% (86/189)",
+       "0"
+      ],
+      [
+       "Kimi K3.1 Pro (off)",
+       "with numbers",
+       "24% (22/93)",
+       "94% (90/96)",
+       "76% (71/93)",
+       "6% (6/96)",
+       "+70 pp",
+       "46% (39/85) · 2% (5/225) · +44 pp",
+       "49% (92/189)",
+       "0"
+      ],
+      [
+       "Kimi K3.1 Pro (off)",
+       "board only",
+       "70% (65/93)",
+       "45% (43/96)",
+       "30% (28/93)",
+       "55% (53/96)",
+       "-25 pp",
+       "",
+       "65% (122/189)",
+       "0"
+      ],
+      [
+       "Claude Opus 5.5 (high)",
+       "with numbers",
+       "40% (37/93)",
+       "96% (92/96)",
+       "60% (56/93)",
+       "4% (4/96)",
+       "+56 pp",
+       "49% (57/117) · 2% (4/260) · +47 pp",
+       "48% (91/189)",
+       "0"
+      ],
+      [
+       "Claude Opus 5.5 (high)",
+       "board only",
+       "49% (46/93)",
+       "96% (92/96)",
+       "51% (47/93)",
+       "4% (4/96)",
+       "+46 pp",
+       "",
+       "48% (90/189)",
+       "0"
       ]
      ]
     },
@@ -2628,6 +2701,21 @@
       ],
       [
        "Claude Sonnet 5.5 (high)",
+       "100% (60/60)",
+       "25% (4 options, one right)"
+      ],
+      [
+       "GPT-6.1 Sol (high)",
+       "100% (60/60)",
+       "25% (4 options, one right)"
+      ],
+      [
+       "Kimi K3.1 Pro (off)",
+       "92% (55/60)",
+       "25% (4 options, one right)"
+      ],
+      [
+       "Claude Opus 5.5 (high)",
        "100% (60/60)",
        "25% (4 options, one right)"
       ]
@@ -2689,6 +2777,42 @@
        "board only",
        "82% (682/834)",
        "68% (129/189)"
+      ],
+      [
+       "GPT-6.1 Sol (high)",
+       "with numbers",
+       "89% (742/834)",
+       "72% (137/189)"
+      ],
+      [
+       "GPT-6.1 Sol (high)",
+       "board only",
+       "88% (736/834)",
+       "79% (150/189)"
+      ],
+      [
+       "Kimi K3.1 Pro (off)",
+       "with numbers",
+       "75% (622/834)",
+       "55% (104/189)"
+      ],
+      [
+       "Kimi K3.1 Pro (off)",
+       "board only",
+       "55% (458/834)",
+       "54% (103/189)"
+      ],
+      [
+       "Claude Opus 5.5 (high)",
+       "with numbers",
+       "82% (681/834)",
+       "63% (120/189)"
+      ],
+      [
+       "Claude Opus 5.5 (high)",
+       "board only",
+       "83% (691/834)",
+       "70% (132/189)"
       ],
       [
        "random one-to-one mapping (chat-style)",
@@ -2787,11 +2911,65 @@
        "36",
        "51",
        "0 of 17"
+      ],
+      [
+       "GPT-6.1 Sol (high)",
+       "with numbers",
+       "93",
+       "16",
+       "30",
+       "47",
+       "0 of 19"
+      ],
+      [
+       "GPT-6.1 Sol (high)",
+       "board only",
+       "93",
+       "12",
+       "57",
+       "24",
+       "0 of 15"
+      ],
+      [
+       "Kimi K3.1 Pro (off)",
+       "with numbers",
+       "93",
+       "10",
+       "9",
+       "74",
+       "0 of 31"
+      ],
+      [
+       "Kimi K3.1 Pro (off)",
+       "board only",
+       "93",
+       "14",
+       "49",
+       "30",
+       "0 of 14"
+      ],
+      [
+       "Claude Opus 5.5 (high)",
+       "with numbers",
+       "93",
+       "4",
+       "22",
+       "67",
+       "0 of 24"
+      ],
+      [
+       "Claude Opus 5.5 (high)",
+       "board only",
+       "93",
+       "7",
+       "33",
+       "53",
+       "0 of 18"
       ]
      ]
     },
     {
-     "caption": "Denominators, failures and tokens per model (list-price cost, not billed spending, for the hosted models; API-equivalent for Sonnet, not money paid)",
+     "caption": "Denominators, failures and tokens per model (list-price cost for the hosted decision models, provider-reported cost for the OpenRouter models, API-equivalent for subscription models: not money paid; none of these is billed spending checked against an invoice)",
      "head": [
       "model",
       "expected requests",
@@ -2812,7 +2990,7 @@
        "1,782",
        "0",
        "1,756",
-       "Q3 two values on one play (pairs) 333",
+       "333 Q3 items with two values on one play",
        "26",
        "4,759,594",
        "0",
@@ -2825,7 +3003,7 @@
        "1,782",
        "0",
        "1,741",
-       "Q3 two values on one play (pairs) 315",
+       "315 Q3 items with two values on one play",
        "41",
        "5,186,004",
        "140,677",
@@ -2838,7 +3016,7 @@
        "1,782",
        "0",
        "1,683",
-       "Q3 two values on one play (pairs) 287",
+       "287 Q3 items with two values on one play",
        "99",
        "4,364,915",
        "0",
@@ -2860,6 +3038,45 @@
       ],
       [
        "GPT-6.1 Sol (high)",
+       "816",
+       "816",
+       "1",
+       "814",
+       "failed or missing 1",
+       "0",
+       "2,027,910",
+       "447,317",
+       "429,686",
+       "$8.53 API-equiv."
+      ],
+      [
+       "Kimi K3.1 Pro (off)",
+       "816",
+       "816",
+       "0",
+       "816",
+       "0",
+       "0",
+       "2,091,754",
+       "16,300",
+       "0",
+       "$1.39 API-equiv."
+      ],
+      [
+       "Claude Opus 5.5 (high)",
+       "816",
+       "816",
+       "0",
+       "816",
+       "0",
+       "0",
+       "2,845,140",
+       "393,825",
+       "379,806",
+       "$19.26 API-equiv."
+      ],
+      [
+       "GLM-5.3 (low)",
        "816",
        "pending (not collected)",
        "NA",
