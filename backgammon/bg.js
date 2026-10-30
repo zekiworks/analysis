@@ -127,6 +127,9 @@ function applyHome() {
   if (!box) return;
   Object.keys(HOME.filters).forEach(g => box.querySelectorAll(`[data-filter-${g}]`).forEach(b =>
     b.setAttribute('aria-pressed', String(b.getAttribute(`data-filter-${g}`) === HOME.filters[g]))));
+  // Quick view: the model type across every league (League stays All leagues, never the league in view).
+  box.querySelectorAll('[data-quick-view]').forEach(b =>
+    b.setAttribute('aria-pressed', String(lg === 'all' && HOME.filters.kind === b.dataset.quickView)));
   const count = box.querySelector('[data-setups]');
   const totals = JSON.parse(count.dataset.totals);
   // The model setups shown: the Quality rows of the leagues in view (its programs are reference rows, never counted).
@@ -139,6 +142,7 @@ function applyHome() {
   showFold(box);
   const url = new URL(location.href);
   if (lg === HOME.defaultLeague) url.searchParams.delete('league'); else url.searchParams.set('league', lg);
+  if (HOME.filters.kind === 'all') url.searchParams.delete('type'); else url.searchParams.set('type', HOME.filters.kind);
   history.replaceState(null, '', url);
 }
 
@@ -168,9 +172,17 @@ async function loadPhase(phase) {
   if (!picks.length) return;
   const pressed = picks.find(b => b.getAttribute('aria-pressed') === 'true') || picks[0];
   HOME.defaultLeague = pressed.dataset.leaguePick;
-  const wanted = new URLSearchParams(location.search).get('league');
+  const params = new URLSearchParams(location.search);
+  const wanted = params.get('league');
   HOME.league = picks.some(b => b.dataset.leaguePick === wanted) ? wanted : HOME.defaultLeague;
+  // ?type=decision (or chat, program): the Model type filter.
+  if (document.querySelector(`[data-filter-kind="${CSS.escape(params.get('type') || '')}"]`)) HOME.filters.kind = params.get('type');
   picks.forEach(b => b.addEventListener('click', () => { HOME.league = b.dataset.leaguePick; applyHome(); }));
+  document.querySelectorAll('[data-quick-view]').forEach(b => b.addEventListener('click', () => {
+    HOME.league = 'all';
+    HOME.filters.kind = b.dataset.quickView;
+    applyHome();
+  }));
   const box = document.getElementById('filters');
   if (box) {
     Object.keys(HOME.filters).forEach(g => box.querySelectorAll(`[data-filter-${g}]`).forEach(b => b.addEventListener('click', () => {
@@ -254,6 +266,19 @@ async function loadPhase(phase) {
   };
   keys.forEach(k => k.addEventListener('click', () => show(k.dataset.view === 'charts')));
   if (location.hash.startsWith('#chart')) show(true);
+})();
+
+/* Results first: the Risk and Quality tables show their summary columns; All columns adds the advanced measures
+   (bg.css hides them while the board panel has no cols-all class). Nothing is removed from the page. */
+(function columnSwitch() {
+  const panel = document.querySelector('.board-panel');
+  const key = document.querySelector('[data-cols-all]');
+  if (!panel || !key) return;
+  key.addEventListener('click', () => {
+    const all = !panel.classList.contains('cols-all');
+    panel.classList.toggle('cols-all', all);
+    key.setAttribute('aria-pressed', String(all));
+  });
 })();
 
 /* Chart panels: the small tabs and margin keys pick one chart; every chart has a stable anchor (#chart-<panel>). */

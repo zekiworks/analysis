@@ -111,18 +111,21 @@ h1, h2, h3 { line-height: 1.2; }
   border: 1px solid var(--control-edge); border-radius: 6px; }
 .skip:focus { left: 1rem; }
 
-/* Top bar: the brand and the theme switch, then the navigation bar on its own row. Plain text links; the current page is
-   underlined. */
+/* Top bar: the brand and the theme switch, then the navigation bar on its own row, in four labelled groups (Results,
+   Analyses, Leagues and matches, Method and data). Plain text links; the current page is underlined. */
 .topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav"; align-items: center;
   gap: .45rem 1rem; max-width: 1100px; margin: 0 auto 1.25rem; padding: .7rem 0 .55rem; border-bottom: 1px solid var(--edge); }
 .brand { grid-area: brand; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   text-decoration: none; }
 .brand:hover { color: var(--text); }
 .nav { grid-area: nav; }
-.nav ul { display: flex; flex-wrap: wrap; gap: .2rem 1.1rem; list-style: none; margin: 0; padding: 0; }
+.nav > ul { display: flex; flex-wrap: wrap; gap: .3rem 1.6rem; list-style: none; margin: 0; padding: 0; }
+.nav-group { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .65rem; }
+.nav-group-label { color: var(--text-2); font-size: .68rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.nav-group > ul { display: flex; flex-wrap: wrap; gap: .2rem 1rem; list-style: none; margin: 0; padding: 0; }
 .nav a { display: inline-block; padding: .2rem 0; color: var(--text); font-size: .9rem; text-decoration: none; border-bottom: 2px solid transparent; }
 .nav a:hover { border-bottom-color: var(--text-2); }
-.nav a[aria-current="page"] { border-bottom-color: var(--text); }
+.nav a[aria-current="page"] { border-bottom-color: var(--accent, var(--text)); }
 /* More options: one key at the top right opens the colour theme and the page export below it, over the page. */
 .more-menu { grid-area: theme; position: relative; justify-self: end; }
 .more-pop { position: absolute; right: 0; top: calc(100% + .35rem); z-index: 25; display: flex; flex-direction: column; align-items: flex-start;
@@ -532,10 +535,11 @@ ul.price-list { padding-left: 1.25rem; }
   /* Tap targets of the More options menu and the filters: at least 44 px each way. */
   .more-menu .key, .filters .key, .filters select { min-height: 2.75rem; min-width: 2.75rem; }
   /* Padding inside the scrolling bar keeps a focused link's outline unclipped; the negative margin keeps the row's size. */
-  .nav ul { flex-wrap: nowrap; gap: 1rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
+  .nav > ul { flex-wrap: nowrap; gap: 1.2rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
     scroll-padding-inline: .35rem; }
-  .nav ul::-webkit-scrollbar { display: none; }
-  .nav li { flex: none; }
+  .nav > ul::-webkit-scrollbar { display: none; }
+  .nav-group, .nav-group > ul { flex-wrap: nowrap; }
+  .nav li, .nav-group-label { flex: none; white-space: nowrap; }
   .nav a { white-space: nowrap; }
   .panel, .card { padding: .75rem; border-radius: 8px; }
   .hero { margin-bottom: .5rem; }
