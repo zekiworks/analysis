@@ -64,6 +64,8 @@ class SystemOneService:
     model_field: bool = True
     # Response header holding the server's request ID, stored with each answer.
     request_id_header: str | None = None
+    # Or the response body's field holding it, for a server that returns it there (Nace.AI).
+    request_id_field: str | None = None
     # OpenAI's Decisions API: the same three parts under other names (`input`, a list of named
     # `questions`, `choices` with values and descriptions), and answers listed by name (system_one_answer).
     openai_format: bool = False
@@ -177,6 +179,18 @@ SYSTEM_ONE = {
     # (microsoft/microsoft-decision-1, inception/mercury-decide): a bare name is read as typesafe/<name>. Its latency
     # includes OpenRouter's own time.
     "openrouter": SystemOneService("OpenRouter", "https://openrouter.ai/api", key_vars=("OPENROUTER_API_KEY",), key_required=True),
+    # Nace.AI's hosted Drex models through its System One endpoint (console.nace.ai/docs/drex), which takes the same
+    # request at the default path, with images as data URLs in a top-level `images` list (at most 8, in a body of at most
+    # 4 MiB), and returns the same answers, with the request ID in the response body. A request that ends in an error is
+    # not billed; 529 (overloaded, Nace's answer when the model misses its 55-second timeout) is retried.
+    "nace": SystemOneService(
+        "Nace.AI",
+        "https://console.nace.ai",
+        key_vars=("NACE_API_KEY",),
+        key_required=True,
+        request_id_field="request_id",
+        images="data-urls",
+    ),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -274,6 +288,18 @@ PRICES: dict[tuple[str, str], Price] = {
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
     # Nothing is generated, so output is never billed (meragpt.com/docs/models).
     ("meragpt", "decider-1"): Price("meraGPT's Decider 1 price", "https://meragpt.com/docs/models", "2026-10-19", 0.04),
+    # Nace.AI's Drex Max (nace.ai/drex, read 30 October 2026): $0.06 per 1M input tokens list, and $0.03 during the launch
+    # (50% off), which is what Nace bills now (console.nace.ai/docs/drex/reference/pricing lists $0.03 for both ids).
+    # Output is not billed; image tokens count as input. drex-max-v1.1 is the newer checkpoint (no open weights);
+    # drex-max the original Drex Max, whose open weights are nace-ai/drex-max-v1.
+    ("nace", "drex-max-v1.1"): Price(
+        "Nace.AI's list price (launch price $0.03 per 1M input tokens, 50% off, is what Nace bills)",
+        "https://nace.ai/drex", "2026-10-30", 0.06,
+    ),
+    ("nace", "drex-max"): Price(
+        "Nace.AI's list price (launch price $0.03 per 1M input tokens, 50% off, is what Nace bills)",
+        "https://nace.ai/drex", "2026-10-30", 0.06,
+    ),
     # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
     ("liquid", "d1-ultra"): Price("Liquid AI's d1-ultra price", "https://www.liquid.ai/blog/d1-ultra", "2026-10-16", 0.042),
     # d1.1, Liquid's default hosted decision model (docs.liquid.ai/lfm/models/d1, 24 October 2026): input tokens only,
@@ -492,7 +518,7 @@ TIE_ALPHA = 0.05
 # of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server",
+    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server", "nace",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
@@ -2802,7 +2828,10 @@ def ask_jev(
     result, response_headers = post_json(
         base_url.rstrip("/") + service.path, payload, headers, timeout, verbose_log, service.name
     )
-    request_id = response_headers.get(service.request_id_header) if service.request_id_header else None
+    if service.request_id_header:
+        request_id = response_headers.get(service.request_id_header)
+    else:
+        request_id = result.get(service.request_id_field) if service.request_id_field and isinstance(result, dict) else None
     stored_response = json.dumps(
         {"request_id": request_id, "response": result},
         ensure_ascii=False,

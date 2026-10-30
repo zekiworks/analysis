@@ -180,6 +180,7 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_celeris.sh` | Celeris-1 Decision (`celeris-1-decision`; add `--repeat N` for repeats 2–5) | `CELERIS_API_KEY` |
 | `run_subq.sh` | SubQ Snap Preview (`subq-snap-preview`, public preview; add `--repeat N` for repeats 2–5) | `SUBQ_API_KEY` |
 | `run_meragpt.sh` | meraGPT Decider 1 (`decider-1`; add `--repeat N` for repeats 2–5) | `MERAGPT_API_KEY` |
+| `run_drex_max_1_1.sh` | Nace.AI's Drex Max 1.1 (`drex-max-v1.1`; add `--repeat N` for repeats 2–5) | `NACE_API_KEY` |
 | `run_microsoft_decision_1.sh` | Microsoft-Decision-1 via OpenRouter (`microsoft/microsoft-decision-1`; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_mercury_decide.sh` | Inception Mercury Decide via OpenRouter (`inception/mercury-decide`, the paid listing; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_openrouter_kimi.sh` | Kimi K3.1 Pro via OpenRouter's chat API, pinned to Moonshot AI's endpoint (`moonshotai/mxfp4`), reasoning_effort none | `OPENROUTER_API_KEY` |
@@ -191,7 +192,8 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 `run_jev.sh` and `run_jev_114.sh` (and the `jev` and `jev-114` lanes of `run_experiments.sh`) read the key from the
 file `JEV_KEY_FILE` names; `run_glide.sh` reads it from `$HOME/.config/fastino/key`, `run_celeris.sh` from
 `$HOME/.config/celeris/key`, `run_subq.sh` from `$HOME/.config/subq/key`, `run_d1_ultra.sh` from
-`$HOME/.config/liquid/key` and `run_meragpt.sh` from `$HOME/.keys` when their variable is unset; put the key there,
+`$HOME/.config/liquid/key`, `run_meragpt.sh` from `$HOME/.keys` and `run_drex_max_1_1.sh` from `$HOME/.config/nace/key`
+when their variable is unset; put the key there,
 or run the script's command with the variable set. The decision APIs get one question
 per request: the question and options as `state`, and one `choice` question with the option letters
 as criteria. Rate limits and server errors are retried.
