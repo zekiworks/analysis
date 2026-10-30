@@ -37,14 +37,17 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .chart-svg .whisker { stroke: var(--reading); }
 .chart-svg .muted { fill: var(--text-2); }
 
-/* --- Dashboard look: slate palette in both themes, a centred header, flat pill controls, tables first. The accent is
-   backgammon felt green (teal), the sibling's own colour; data colours are unchanged. No shadows: thin edges and flat
+/* --- Dashboard look: a centred header, flat pill controls, tables first; data colours are unchanged. Light: restrained
+   off-white, charcoal text and small matte-copper accents (Ümit, 30 Oct 2026; text pairs checked for WCAG AA: charcoal
+   on off-white 13:1 and more, secondary text 6.1:1 and more, copper links 5.7:1 and more, control edges 3.2:1 and more);
+   the selected key is charcoal with a copper lamp. Dark: slate with the teal accent. No shadows: thin edges and flat
    fills. ------------------------------------------------------------------------------------------------------ */
 :root {
-  --bg: #f8fafc; --panel: #ffffff; --sunk: #f1f5f9; --key: #ffffff; --edge: #e2e8f0; --control-edge: #cbd5e1;
-  --text: #1e293b; --text-2: #64748b; --focus: #0f766e; --lamp-off: #cbd5e1; --lamp-on: #0f766e;
-  --row-hover: #eef2f7; --row-selected: #e2e8f0; --link: #0f766e; --accent: #0f766e; --on-accent: #ffffff; --zebra: #f8fafc;
-  --tip-bg: #1e293b; --tip-text: #ffffff;
+  --bg: #f5f2ec; --panel: #fdfcf9; --sunk: #f0ebe3; --key: #fdfcf9; --edge: #e2dcd2; --control-edge: #8e867a;
+  --text: #2a2927; --text-2: #5b564f; --focus: #8a4a24; --lamp-off: #d3ccc1; --lamp-on: #a2603a;
+  --row-hover: #f2ede5; --row-selected: #e9e1d5; --link: #8a4a24; --accent: #97562f; --on-accent: #fdfcf9; --zebra: #f9f7f2;
+  --tip-bg: #2a2927; --tip-text: #fdfcf9;
+  --select-bg: #2a2927; --select-text: #fdfcf9; --select-lamp: #d29a6e;
   --good: #0f766e; --good-soft: rgba(15, 118, 110, .14); --bad: #b91c1c; --bad-soft: rgba(185, 28, 28, .12);
 }
 @media screen {
@@ -53,6 +56,7 @@ details.more > summary { cursor: pointer; font-weight: 600; }
     --text: #e2e8f0; --text-2: #94a3b8; --focus: #5eead4; --lamp-off: #475569; --lamp-on: #2dd4bf;
     --row-hover: #273449; --row-selected: #334155; --link: #2dd4bf; --accent: #2dd4bf; --on-accent: #0f172a;
     --zebra: #1a2436; --tip-bg: #e2e8f0; --tip-text: #0f172a;
+    --select-bg: #2dd4bf; --select-text: #0f172a; --select-lamp: #0f172a;
     --good: #2dd4bf; --good-soft: rgba(45, 212, 191, .16); --bad: #f87171; --bad-soft: rgba(248, 113, 113, .14);
   }
 }
@@ -69,12 +73,12 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .hero .summary-list li { margin: .1rem 0; }
 @media (min-width: 1024px) { .hero { display: block; } }
 
-/* Pills: filters, theme switch, Table / Charts and the tabs. Flat, with a thin edge; the selected one is filled with the
-   accent and its lamp takes the colour of its text. */
+/* Pills: filters, theme switch, Table / Charts and the tabs. Flat, with a thin edge; the selected one is filled (charcoal
+   in light, the accent in dark) and its lamp is lit. */
 .key, button.mode { border-radius: 999px; background: transparent; }
-button.key[aria-pressed="true"], button.mode[aria-selected="true"] { background: var(--accent); border-color: var(--accent);
-  color: var(--on-accent); }
-button.key[aria-pressed="true"] > .lamp, button.mode[aria-selected="true"] > .lamp { background: var(--on-accent); }
+button.key[aria-pressed="true"], button.mode[aria-selected="true"] { background: var(--select-bg); border-color: var(--select-bg);
+  color: var(--select-text); }
+button.key[aria-pressed="true"] > .lamp, button.mode[aria-selected="true"] > .lamp { background: var(--select-lamp); }
 button.mode[aria-selected="true"]::after { display: none; }
 .filters-body { margin-top: 0; padding-top: 0; border-top: 0; gap: .6rem 1.5rem; }
 .filters-body > .group { flex-direction: row; flex-wrap: wrap; align-items: center; }
@@ -230,3 +234,20 @@ a.cc-open { font-weight: 600; }
 #close-b-table tbody tr:nth-child(even) > th { background: var(--zebra); }
 #close-b-table thead th[data-nosort] { cursor: default; }
 .section-label { margin: .15rem 0 .6rem; font-size: .8rem; color: var(--text-2); }
+
+/* --- Presentation amendment (Ümit, 30 Oct 2026): the risk judgement leaders apart from the match winners, the quick
+   Decision models view, results first (summary columns; All columns adds the advanced measures, nothing removed). --- */
+.leaders { margin-top: .35rem; }
+.leaders > .readout-label { margin-right: .6rem; font-weight: 600; }
+.leaders .readout-value { font-family: var(--sans); font-size: .9rem; }
+.leader-detail { color: var(--text-2); font-family: var(--mono); font-size: .78rem; }
+.leader-view { font-size: .78rem; }
+.champ-note { color: var(--text-2); font-size: .75rem; font-style: italic; }
+.quick-view .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
+.board-panel .col-switch { display: inline-flex; }
+/* Summary columns, by position (home.py RISK_HEAD, ROBUST_HEAD, the Quality head; the All leagues tables have League
+   second). Risk tables, both margins: model, risk judgement, risks found, right safety, missed, needless and wrong risks.
+   Quality: model, error rate, band, engine's best play, blunder rate. */
+.js .board-panel:not(.cols-all) table[data-margin]:not([data-dataset="all"]) :is(th, td):is(:nth-child(5), :nth-child(n+9)),
+.js .board-panel:not(.cols-all) table[data-margin][data-dataset="all"] :is(th, td):is(:nth-child(6), :nth-child(n+10)),
+.js .board-panel:not(.cols-all) .phase-slot[data-slot="quality"] table :is(th, td):nth-child(n+6) { display: none; }
