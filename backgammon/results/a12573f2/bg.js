@@ -1,6 +1,8 @@
 'use strict';
 
-/* Home page (brief v12 B4): one league at a time (?league=, default League 1, never merged), the Risk tab first
+/* Home page (brief v12 B4): All leagues first (?league=all, the default: the Risk tab's own All leagues view, one table
+   of every league's setups with their League; the other tabs and the charts show the league views one under the
+   other) or one league (?league=league-1), the Risk tab first
    (?tab=), the Table / Charts switch, the filters (model type, phase, reasoning, runs on, weights; the last four folded
    behind "More filters", whose key names the active ones while closed) with the setup counter and Reset, the chart
    panels (small tabs, the margin keys, "Show all", Download PNG with the league, margin, decisions, results version,
@@ -105,9 +107,18 @@ function layoutChart(svg) {
   svg.dataset.shown = decisions;
 }
 
+/* The view a league pick shows: its own; under All leagues the All leagues view where a part has one, else every
+   league's view (with its League title). */
+function viewOn(v, lg) {
+  if (lg !== 'all') return v.dataset.leagueView === lg;
+  return v.dataset.leagueView === 'all' || (v.dataset.leagueView.startsWith('league-')
+    && !v.parentElement.querySelector(':scope > [data-league-view="all"]'));
+}
+
 function applyHome() {
   const lg = HOME.league;
-  document.querySelectorAll('[data-league-view]').forEach(v => v.toggleAttribute('data-off', v.dataset.leagueView !== lg));
+  document.querySelectorAll('[data-league-view]').forEach(v => v.toggleAttribute('data-off', !viewOn(v, lg)));
+  document.querySelectorAll('[data-stack-title]').forEach(h => { h.hidden = lg !== 'all'; });
   document.querySelectorAll('[data-league-pick]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.leaguePick === lg)));
   document.querySelectorAll('tr[data-kind]').forEach(tr => { tr.hidden = !rowShown(tr); });
   document.querySelectorAll('svg.chart-svg').forEach(layoutChart);
@@ -118,8 +129,10 @@ function applyHome() {
     b.setAttribute('aria-pressed', String(b.getAttribute(`data-filter-${g}`) === HOME.filters[g]))));
   const count = box.querySelector('[data-setups]');
   const totals = JSON.parse(count.dataset.totals);
-  const view = document.querySelector(`#panel-quality [data-league-view="${lg}"]`);
-  const shown = view ? view.querySelectorAll('tbody tr[data-kind]:not([hidden])').length : 0;
+  // All leagues counts the model setups of its table (its programs are reference rows); a league, its Quality rows.
+  const all = lg === 'all' && document.querySelector('#panel-risk [data-league-view="all"] tbody');
+  const shown = all ? all.querySelectorAll('tr[data-kind]:not([data-kind="reference"]):not([hidden])').length
+    : document.querySelectorAll('#panel-quality [data-league-view]:not([data-off]) tbody tr[data-kind]:not([hidden])').length;
   count.textContent = lg in totals ? `${shown.toLocaleString('en')} of ${totals[lg].toLocaleString('en')} setups` : 'Shared positions: Analysis pending';
   const idle = HOME.league === HOME.defaultLeague && HOME.phase === 'all' && Object.values(HOME.filters).every(v => v === 'all');
   const reset = box.querySelector('[data-control="reset"]');
@@ -286,7 +299,9 @@ async function downloadChart(panel) {
   if (!svg) return;
   const versionLine = document.querySelector('.hero .version')?.textContent.trim() || '';
   const margin = svg.dataset.margin === 'robust' ? '0.02' : '0.001';
-  const league = document.querySelector(`[data-league-pick="${HOME.league}"]`)?.textContent.trim() || '';
+  // Under All leagues a chart panel shows every league's chart; the button saves the first one, named by its league.
+  const lg = view.dataset.leagueView;
+  const league = document.querySelector(`[data-league-pick="${lg}"]`)?.textContent.trim() || '';
   const title = panel.querySelector('h2').textContent.trim() + ': ' + (panel.querySelector('[data-chart-tab][aria-pressed="true"]')?.textContent.trim() || '');
   const filters = activeFilters();
   const lines = [
@@ -296,7 +311,7 @@ async function downloadChart(panel) {
     location.origin + location.pathname,
   ];
   if (svg.dataset.note) lines.unshift(...svg.dataset.note.split(' | '));
-  await savePng(panel, svg, title, lines, `backgammon-${panel.id}-${HOME.league}-${margin}.png`);
+  await savePng(panel, svg, title, lines, `backgammon-${panel.id}-${lg}-${margin}.png`);
 }
 
 /* A chart outside the league views (Close choices, stage B): one SVG, no league, margin or filters; its note, the
