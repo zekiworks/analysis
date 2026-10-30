@@ -129,10 +129,8 @@ function applyHome() {
     b.setAttribute('aria-pressed', String(b.getAttribute(`data-filter-${g}`) === HOME.filters[g]))));
   const count = box.querySelector('[data-setups]');
   const totals = JSON.parse(count.dataset.totals);
-  // All leagues counts the model setups of its table (its programs are reference rows); a league, its Quality rows.
-  const all = lg === 'all' && document.querySelector('#panel-risk [data-league-view="all"] tbody');
-  const shown = all ? all.querySelectorAll('tr[data-kind]:not([data-kind="reference"]):not([hidden])').length
-    : document.querySelectorAll('#panel-quality [data-league-view]:not([data-off]) tbody tr[data-kind]:not([hidden])').length;
+  // The model setups shown: the Quality rows of the leagues in view (its programs are reference rows, never counted).
+  const shown = document.querySelectorAll('#panel-quality [data-league-view]:not([data-off]) tbody tr[data-kind]:not([data-kind="reference"]):not([hidden])').length;
   count.textContent = lg in totals ? `${shown.toLocaleString('en')} of ${totals[lg].toLocaleString('en')} setups` : 'Shared positions: Analysis pending';
   const idle = HOME.league === HOME.defaultLeague && HOME.phase === 'all' && Object.values(HOME.filters).every(v => v === 'all');
   const reset = box.querySelector('[data-control="reset"]');
