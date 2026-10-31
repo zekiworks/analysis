@@ -3,7 +3,9 @@
 /* Every page: tables come first and answer clicks.
    - Click (or Enter on) a column header to sort by it: ascending, then descending, then the build's order. Numbers sort
      as numbers (the small second line of a cell, such as an interval, is ignored); status words such as "Too few
-     decisions" or "N/A" always go last. A header with data-nosort never sorts (Close choices: never ranked).
+     decisions" or "N/A" always go last. A header with data-nosort never sorts (Close choices: never ranked). A header
+     with data-sort-default is the build's own order (it carries aria-sort at load): its clicks switch between the other
+     direction and the build's order, which it marks with its default direction again.
    - Click a row to open what it is about: its data-href, else the first link in the row (a setup's page, a decision,
      a league). Clicks on links, buttons and form fields keep their own meaning; Ctrl/Cmd-click opens a new tab.
    - A link to an anchor inside a closed <details> opens it.
@@ -43,12 +45,17 @@
     if (!body || body.rows.length < 2 || body.querySelector('td[colspan]')) return;
     const col = Array.prototype.indexOf.call(th.parentNode.children, th);
     const state = th.getAttribute('aria-sort');
-    const next = state === 'ascending' ? 'descending' : state === 'descending' ? 'none' : 'ascending';
+    const initial = th.dataset.sortDefault;
+    const next = initial ? (state === initial ? (initial === 'descending' ? 'ascending' : 'descending') : 'none')
+      : state === 'ascending' ? 'descending' : state === 'descending' ? 'none' : 'ascending';
     th.parentNode.querySelectorAll('th').forEach(h => h.removeAttribute('aria-sort'));
     const rows = Array.from(body.rows);
     rows.forEach((r, i) => { if (r.dataset.order === undefined) r.dataset.order = i; });
     if (next === 'none') {
+      // The build's order: a table whose order is a column's default sort shows that column's state again.
       rows.sort((a, b) => a.dataset.order - b.dataset.order);
+      const d = th.parentNode.querySelector('[data-sort-default]');
+      if (d) d.setAttribute('aria-sort', d.dataset.sortDefault);
     } else {
       th.setAttribute('aria-sort', next);
       const sign = next === 'ascending' ? 1 : -1;
