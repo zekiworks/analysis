@@ -200,8 +200,10 @@ as criteria. Rate limits and server errors are retried.
 
 A new decision model's five runs start only after its smoke run passes `./benchmark_ollama.py --check-probabilities RUN`:
 every selected question stored, and each stored answer with a valid choice and a probability from 0 to 1 for every
-option, summing to 1 to 7 decimal places (the test Nace applies to Drex Max's own output). It reads the stored
-responses without changing them, prints what fails and exits 1 if anything does; a valid choice alone does not pass.
+option, summing to 1 to 7 decimal places (the test Nace applies to Drex Max's own output), or, for a model whose API
+rounds its probabilities (`ROUNDED_PROBABILITIES`: Drex 2.0, to 4 places), to 1 within that rounding. It reads the
+stored responses without changing them, prints what fails and exits 1 if anything does; a valid choice alone does not
+pass.
 
 Perplexity's Decisions API now answers requests that name `pplx-decider-v1-27b` or `pplx-decider-v1.1-27b` with v1.2
 (its pricing page and changelog, read 17 October 2026), so `run_perplexity.sh` and `run_perplexity_v1_1.sh` no longer
