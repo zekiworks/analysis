@@ -301,6 +301,9 @@ PRICES: dict[tuple[str, str], Price] = {
         "Nace.AI's list price (launch price $0.03 per 1M input tokens, 50% off, is what Nace bills)",
         "https://nace.ai/drex", "2026-10-30", 0.06,
     ),
+    # Nace.AI's Drex 2.0 (drex-v2.0, released 6 October 2026; console.nace.ai/docs/drex/reference/models and pricing,
+    # read 30 October 2026): $0.06 per 1M input tokens, output not billed; text only (images need Drex Max).
+    ("nace", "drex-v2.0"): Price("Nace.AI's list price", "https://console.nace.ai/docs/drex/reference/pricing", "2026-10-30", 0.06),
     # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
     ("liquid", "d1-ultra"): Price("Liquid AI's d1-ultra price", "https://www.liquid.ai/blog/d1-ultra", "2026-10-16", 0.042),
     # d1.1, Liquid's default hosted decision model (docs.liquid.ai/lfm/models/d1, 24 October 2026): input tokens only,
