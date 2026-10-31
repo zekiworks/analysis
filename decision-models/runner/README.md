@@ -198,6 +198,11 @@ or run the script's command with the variable set. The decision APIs get one que
 per request: the question and options as `state`, and one `choice` question with the option letters
 as criteria. Rate limits and server errors are retried.
 
+A new decision model's five runs start only after its smoke run passes `./benchmark_ollama.py --check-probabilities RUN`:
+every selected question stored, and each stored answer with a valid choice and a probability from 0 to 1 for every
+option, summing to 1 to 7 decimal places (the test Nace applies to Drex Max's own output). It reads the stored
+responses without changing them, prints what fails and exits 1 if anything does; a valid choice alone does not pass.
+
 Perplexity's Decisions API now answers requests that name `pplx-decider-v1-27b` or `pplx-decider-v1.1-27b` with v1.2
 (its pricing page and changelog, read 17 October 2026), so `run_perplexity.sh` and `run_perplexity_v1_1.sh` no longer
 reach those models. Every stored answer of their published runs names the model asked for, and the open weights still

@@ -3,7 +3,9 @@
 # endpoint (console.nace.ai/v1/systemone), under the protocol of the other decision models: one question per request,
 # one request at a time, the same prompts, timeout and retries. The key comes from NACE_API_KEY, or from
 # ~/.config/nace/key when that is unset. A new run records its harness commit, so set HARNESS_REPO to a clone of the
-# published repository when running from a folder outside git. Add --repeat N (2 or more) for a repeat.
+# published repository when running from a folder outside git. Add --repeat N (2 or more) for a repeat. Smoke run first:
+# this script with --sample 100 --seed 0, then ./benchmark_ollama.py --check-probabilities RUN must print PASS before the
+# five full runs (the full bank, then --repeat 2 to 5).
 set -euo pipefail
 cd "$(dirname "$0")"
 if [ -z "${NACE_API_KEY:-}" ]; then

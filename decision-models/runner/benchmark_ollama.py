@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import bisect
+import decimal
 import fcntl
 import functools
 import hashlib
@@ -912,8 +913,15 @@ def parse_args() -> argparse.Namespace:
         metavar="PATH",
         help="write every run in --output with its per-question answers, without question text, to PATH and exit",
     )
+    parser.add_argument(
+        "--check-probabilities",
+        type=int,
+        metavar="RUN",
+        help="check the smoke acceptance of System One run RUN in --database (every selected question stored, each answer "
+        "with a valid choice and a probability for every option summing to 1), print what fails and exit 1 if anything does",
+    )
     args = parser.parse_args()
-    if args.model is None and not args.refresh_report and args.export_answers is None:
+    if args.model is None and not args.refresh_report and args.export_answers is None and args.check_probabilities is None:
         parser.error("the model argument is required")
     for name in ("limit", "sample", "num_ctx"):
         value = getattr(args, name)
@@ -1642,20 +1650,24 @@ def git_output(repo: Path, *arguments: str) -> str | None:
     return completed.stdout.strip() if completed.returncode == 0 else None
 
 
-def harness_commit() -> str:
-    """The published git commit that holds this exact file, recorded with each new run. Run from a git checkout where
-    this file is unchanged, it is that checkout's HEAD. Otherwise HARNESS_REPO must name a clone of the published
-    repository, and it is the newest pushed commit whose copy of this file (HARNESS_PATHS) is identical. Stops when
-    neither finds one."""
-    source = Path(__file__).resolve()
+def harness_commit(source: Path | None = None) -> str:
+    """The published git commit that holds this exact file (`source`, by default this runner), recorded with each new
+    run. Published means pushed: a remote-tracking branch contains the commit. Run from a git checkout where the file is
+    unchanged, it is that checkout's HEAD once pushed. Otherwise HARNESS_REPO must name a clone of the published
+    repository, and it is the newest commit there whose copy of the file (HARNESS_PATHS) is identical, once pushed.
+    Stops when neither finds a pushed commit."""
+    source = (source or Path(__file__)).resolve()
     content = source.read_bytes()
     blob = hashlib.sha1(b"blob %d\0" % len(content) + content).hexdigest()  # git's ID for this file's content
+    unpushed = None
     top = git_output(source.parent, "rev-parse", "--show-toplevel")
     if top is not None:
         relative = Path(os.path.relpath(source, Path(top).resolve())).as_posix()
         head = git_output(Path(top), "rev-parse", "HEAD")
         if head and git_output(Path(top), "rev-parse", f"HEAD:{relative}") == blob:
-            return head
+            if git_output(Path(top), "branch", "--remotes", "--contains", head):
+                return head
+            unpushed = f"commit {head[:12]} in {top} holds this benchmark_ollama.py but is not pushed"
     repo = os.environ.get("HARNESS_REPO")
     if repo:
         clone = Path(repo).expanduser()
@@ -1665,6 +1677,8 @@ def harness_commit() -> str:
                     if git_output(clone, "branch", "--remotes", "--contains", commit):
                         return commit
                     raise ValueError(f"commit {commit[:12]} in {clone} holds this benchmark_ollama.py but is not pushed")
+    if unpushed:
+        raise ValueError(f"{unpushed}: push it first, or set HARNESS_REPO to a clone where a pushed commit holds it")
     raise ValueError(
         "no published commit holds this benchmark_ollama.py: copy it into the published repository (sync_runner.sh), "
         "commit and push, then set HARNESS_REPO to that clone, or run from a checkout of it"
@@ -2740,6 +2754,95 @@ def system_one_answer(response: Any) -> dict[str, Any]:
             },
         }
     return answer
+
+
+def reported_decimals(value: float) -> int:
+    """Decimal places of a number as JSON reports it, its shortest round-trip form: 0.0024 has 4, 3e-05 has 5."""
+    return max(0, -decimal.Decimal(repr(float(value))).as_tuple().exponent)
+
+
+def probability_problems(probabilities: Any, labels: list[str]) -> list[str]:
+    """Why a System One answer's option probabilities fail the smoke acceptance of a decision-model run (a probability
+    for every option, summing close to 1), or [] when they pass. Every offered option needs a probability, no other key
+    may appear, and each value must be a finite number from 0 to 1. The values are read as reported, never normalized.
+    Close to 1 is Nace's own test of Drex Max's output (tests/test_drex_max.py in nace-ai/drex-decision-models at e206b27:
+    assertAlmostEqual(sum, 1.0)): the sum minus 1 rounds to 0 at 7 decimal places."""
+    if not isinstance(probabilities, dict):
+        return ["no probability map"]
+    problems = []
+    missing = [label for label in labels if label not in probabilities]
+    if missing:
+        problems.append("no probability for " + ", ".join(missing))
+    extra = [str(key) for key in probabilities if key not in labels]
+    if extra:
+        problems.append("a probability for options not offered: " + ", ".join(extra))
+    values = []
+    for key, value in probabilities.items():
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+            problems.append(f"an invalid probability for {key}: {value!r}")
+        else:
+            values.append(value)
+    if problems:
+        return problems
+    total = math.fsum(values)
+    if round(total - 1, 7) != 0:
+        problems.append(f"the probabilities sum to {total!r}, not 1 to 7 decimal places")
+    return problems
+
+
+def answer_problems(provider: str, options_json: str, raw_response: str | None) -> list[str]:
+    """Why a stored System One answer fails the smoke acceptance: no stored response, no valid choice, or option
+    probabilities that fail probability_problems against the options the question was asked with. A valid choice alone
+    is not a pass."""
+    if provider not in SYSTEM_ONE_PROVIDERS:
+        return [f"{provider} is not a System One provider"]
+    if not raw_response:
+        return ["no stored response"]
+    labels = [option["label"] for option in json.loads(options_json)]
+    answer = system_one_answer(json.loads(raw_response).get("response"))
+    problems = [] if answer.get("choice") in labels else [f"no valid choice ({answer.get('choice')!r})"]
+    return problems + probability_problems(answer.get("probabilities"), labels)
+
+
+def check_probabilities(connection: sqlite3.Connection, run_id: int) -> tuple[list[str], list[str]]:
+    """The smoke acceptance of a System One run (--check-probabilities): the run finished with every selected question
+    stored, and every stored answer passes answer_problems. Returns summary lines and problem lines; the run passes when
+    there are no problem lines. Stored responses are only read: a failure stays in the database as it came."""
+    run = connection.execute(
+        "SELECT provider, model, status, evaluated_total FROM runs WHERE id=?", (run_id,)
+    ).fetchone()
+    if run is None:
+        return [], [f"no run {run_id}"]
+    rows = connection.execute(
+        "SELECT question_id, options_json, raw_response FROM answers WHERE run_id=? ORDER BY ordinal", (run_id,)
+    ).fetchall()
+    problems = []
+    if run["status"] != "completed":
+        problems.append(f"run {run_id} is {run['status']}, not completed")
+    if len(rows) != run["evaluated_total"]:
+        problems.append(f"run {run_id} stored {len(rows)} of its {run['evaluated_total']} questions")
+    passed, deviations, places = 0, [], []
+    for row in rows:
+        found = answer_problems(run["provider"], row["options_json"], row["raw_response"])
+        problems += [f"question {row['question_id']}: {problem}" for problem in found]
+        passed += not found
+        # How far each map of finite numbers is from summing to 1, passing or not, and how many digits it reports.
+        answer = system_one_answer(json.loads(row["raw_response"]).get("response")) if row["raw_response"] else {}
+        values = list((answer.get("probabilities") or {}).values()) if isinstance(answer.get("probabilities"), dict) else []
+        if values and all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in values):
+            deviations.append(abs(math.fsum(values) - 1))
+            places += [reported_decimals(value) for value in values if isinstance(value, float)]
+    summary = [
+        f"run {run_id}: {run['provider']} {run['model']}, {run['status']}, {len(rows)} of {run['evaluated_total']} "
+        f"questions stored; {passed} answers pass",
+    ]
+    if deviations:
+        summary.append(
+            f"largest |sum - 1| over the {len(deviations)} maps of finite numbers: {max(deviations):.3g}; values reported "
+            f"with up to {max(places, default=0)} decimal places"
+        )
+    return summary, problems
+
 
 
 def add_images(service: SystemOneService, payload: dict[str, Any], headers: dict[str, str], images: tuple[Path, ...]) -> None:
@@ -5120,6 +5223,15 @@ def main() -> int:
     try:
         data_path = args.data.resolve()
         result_path = args.database.resolve()
+        if args.check_probabilities is not None:
+            result_connection = open_result_database(result_path)
+            summary, problems = check_probabilities(result_connection, args.check_probabilities)
+            for line in summary + problems[:50]:
+                print(line)
+            if len(problems) > 50:
+                print(f"... and {len(problems) - 50} more")
+            print("PASS" if not problems else f"FAIL: {len(problems)} problems")
+            return 0 if not problems else 1
         if args.export_answers is not None:
             result_connection = open_result_database(result_path)
             count = export_answers(args.export_answers.resolve(), args.output.resolve(), result_connection)
