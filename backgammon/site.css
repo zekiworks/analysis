@@ -273,13 +273,13 @@ button.key[data-tip]:hover::after, button.key[data-tip]:focus-visible::after { c
 .modebar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin: 0 0 .75rem; padding-bottom: .8rem;
   border-bottom: 1px solid var(--edge); }
 .modes { display: flex; flex-wrap: wrap; gap: .35rem; }
-button.mode { position: relative; display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: .35rem .85rem;
+button.mode, a.mode { position: relative; display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: .35rem .85rem;
   font: inherit; font-weight: 600; color: var(--text); background: var(--key); border: 1px solid var(--control-edge); border-radius: 6px;
-  box-shadow: var(--key-shadow); cursor: pointer; }
-button.mode:hover { border-color: var(--text-2); }
-button.mode:active { box-shadow: var(--key-inset); }
-button.mode[aria-selected="true"] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); }
-button.mode[aria-selected="true"]::after { content: ""; position: absolute; left: .6rem; right: .6rem; bottom: -.55rem; height: 3px;
+  box-shadow: var(--key-shadow); cursor: pointer; text-decoration: none; }
+button.mode:hover, a.mode:hover { border-color: var(--text-2); }
+button.mode:active, a.mode:active { box-shadow: var(--key-inset); }
+button.mode[aria-selected="true"], a.mode[aria-selected="true"] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); }
+button.mode[aria-selected="true"]::after, a.mode[aria-selected="true"]::after { content: ""; position: absolute; left: .6rem; right: .6rem; bottom: -.55rem; height: 3px;
   border-radius: 2px; background: var(--text); }
 .in-view { margin-left: auto; color: var(--text-2); font-family: var(--mono); font-size: .85rem; white-space: nowrap; }
 .charts-link { font-size: .9rem; white-space: nowrap; }
@@ -581,7 +581,7 @@ ul.price-list { padding-left: 1.25rem; }
   .view-switch { grid-area: view; display: inline-flex; }
   .view-switch .key { min-height: 1.9rem; padding: .15rem .55rem; font-size: .8rem; }
   .modes { grid-area: tabs; display: flex; flex-wrap: wrap; gap: .25rem; }
-  button.mode { flex: 1 1 auto; justify-content: center; gap: .25rem; padding: .3rem .2rem; font-size: .78rem; }
+  button.mode, a.mode { flex: 1 1 auto; justify-content: center; gap: .25rem; padding: .3rem .2rem; font-size: .78rem; }
   .in-view { grid-area: count; justify-self: end; margin-left: 0; }
   .charts-link { display: none; }
   .swipe-hint:not([hidden]) { display: block; }

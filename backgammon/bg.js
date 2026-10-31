@@ -227,7 +227,7 @@ async function loadPhase(phase) {
 })();
 
 (function tabs() {
-  const tablist = document.querySelector('.modes[role="tablist"]');
+  const tablist = document.querySelector('.board-panel .modes[role="tablist"]');
   if (!tablist) return;
   const buttons = [...tablist.querySelectorAll('[data-tab]')];
   const show = name => {
@@ -440,4 +440,72 @@ async function savePng(panel, svg, title, lines, filename) {
     b.addEventListener('change', render);
     render();
   });
+})();
+
+/* Leagues page tabs (Can, 31 Oct 2026): link tabs, one section shown at a time, a second level inside Starting groups
+   and After league moves. The URL hash picks the tabs: a tab's own target (#starting-groups, #group-workhorse,
+   #league-2, #nack-knockout …) or any anchor inside a section (#league-3-notes, #cup-qf1 …) opens every tab on its
+   way and scrolls to it; a section's own id opens its first sub-tab. The Hype Cup and Nackgammon knockout tabs share
+   the Cups section and each shows its part of the Cup card. Without the script nothing is hidden. */
+(function leagueTabs() {
+  const bar = document.querySelector('[data-league-tabs]');
+  if (!bar) return;
+  const tabs = [...document.querySelectorAll('a.mode[role="tab"]')];
+  const controls = panel => tabs.filter(t => t.getAttribute('aria-controls') === panel.id);
+  const listOf = t => t.closest('[role="tablist"]');
+  const show = tab => {
+    const list = [...listOf(tab).querySelectorAll('a.mode[role="tab"]')];
+    list.forEach(t => { t.setAttribute('aria-selected', String(t === tab)); t.tabIndex = t === tab ? 0 : -1; });
+    new Set(list.map(t => document.getElementById(t.getAttribute('aria-controls'))))
+      .forEach(p => { p.hidden = !controls(p).includes(tab); });
+    const panel = document.getElementById(tab.getAttribute('aria-controls'));
+    panel.setAttribute('aria-labelledby', tab.id);
+    if (controls(panel).length > 1) {
+      panel.querySelectorAll('[data-tab-part]').forEach(p => { p.hidden = p.dataset.tabPart !== tab.dataset.tab; });
+    }
+  };
+  // The tabs that lead to an element, outermost first (panels of other tab lists, such as the leaderboard's, are
+  // skipped); a tab list on the way that the element does not choose opens its first tab.
+  const route = (el, scroll) => {
+    const path = [];
+    for (let n = el; n && n !== document.body; n = n.parentElement) {
+      const own = n.getAttribute('role') === 'tabpanel' ? controls(n) : [];
+      if (!own.length) continue;
+      const part = el.closest('[data-tab-part]');
+      path.unshift((part && n.contains(part) && own.find(t => t.dataset.tab === part.dataset.tabPart)) || own[0]);
+    }
+    if (!path.length) return false;
+    path.forEach(show);
+    const last = document.getElementById(path[path.length - 1].getAttribute('aria-controls'));
+    last.querySelectorAll('[role="tablist"]').forEach(list => {
+      const inner = [...list.querySelectorAll('a.mode[role="tab"]')];
+      if (!inner.some(t => document.getElementById(t.getAttribute('aria-controls')).contains(el))) show(inner[0]);
+    });
+    if (scroll) el.scrollIntoView();
+    return true;
+  };
+  const fromHash = scroll => {
+    const id = decodeURIComponent(location.hash.slice(1));
+    const el = id && document.getElementById(id);
+    if (!el || !route(el, scroll)) route(document.getElementById(tabs[0].getAttribute('aria-controls')), false);
+  };
+  tabs.forEach(t => t.addEventListener('click', event => {
+    event.preventDefault();
+    history.replaceState(null, '', '#' + t.dataset.tab);
+    route(document.getElementById(t.dataset.tab), false);
+    if (bar.getBoundingClientRect().top < 0) bar.scrollIntoView({ block: 'start' });
+  }));
+  // Arrow keys move along a tab list, Home and End to its ends.
+  tabs.forEach(t => t.addEventListener('keydown', event => {
+    const list = [...listOf(t).querySelectorAll('a.mode[role="tab"]')];
+    const i = list.indexOf(t);
+    const j = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: list.length - 1 }[event.key];
+    if (j === undefined) return;
+    event.preventDefault();
+    const next = list[(j + list.length) % list.length];
+    next.focus();
+    next.click();
+  }));
+  window.addEventListener('hashchange', () => fromHash(true));
+  fromHash(location.hash.length > 1);
 })();
