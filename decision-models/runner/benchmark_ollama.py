@@ -314,7 +314,7 @@ PRICES: dict[tuple[str, str], Price] = {
     # during the launch). Nace's console docs call drex-max the original Drex Max, whose weights these are; nace.ai/drex
     # says Drex Max v1.1 replaced it under the same id. The price is the same for both.
     ("drex-max", "drex-max-v1"): Price(
-        "Nace.AI's list price for the same model (its hosted Drex Max)", "https://nace.ai/drex", "2026-10-30", 0.06,
+        "Nace.AI's list price for the same model", "https://nace.ai/drex", "2026-10-30", 0.06,
         applies_to="maker",
     ),
     # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
