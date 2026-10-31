@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 68 comparisons (12 pass).
-━━ passes the Holm adjustment across these 68 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 69 comparisons (12 pass).
+━━ passes the Holm adjustment across these 69 comparisons   ━━ does not pass
 
                  Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                     ⠤⡧⠄                                         +0.1
                       GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                     ⠠⡧⠄                                         +0.2
@@ -41,7 +41,7 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                                               Decider v1.2 (local) minus Decider v1.1                   ⠠⠤⠤⡧⠤⠤⠄                                       +0.2
                 Decider v1.1 minus DeepSeek-V4.1-Flash, first release (reasoning off)                   ⠠⠤⠤⡧⢼⠤⠤⠤⠤⠄                                    +1.0
                                                         Decider v1.1 minus Decider v1                      ⡇        ⠤⠤⠤⢼⠤⠤⠤⠄                          +6.5
-                   DeepSeek-V4.1-Flash, first release (reasoning off) minus SubQ Snap                   ⠒⠒⠒⡗⡗⠒⠒⠒⠒                                     +0.7
+                   DeepSeek-V4.1-Flash, first release (reasoning off) minus SubQ Snap                   ⠤⠤⠤⡧⡧⠤⠤⠤⠤                                     +0.7
                                             SubQ Snap minus GPT-6 Luna, Decisions API                    ⠐⠒⡗⠒⠒⡗⠒⠒⠒⠒                                   +1.6
                                           GPT-6 Luna, Decisions API minus Liquid d1.1                     ⠐⡗⠒⠒⠒⡗⠒⠒⠒⠒                                  +2.1
                                   Liquid d1.1 minus Claude Sonnet 5.5 (low reasoning)                 ⠐⠒⠒⠒⠒⡗⠒⠒⠒⠒                                      +0.1
@@ -54,9 +54,10 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                                        Jev 1.14 minus Mercury Decide (via OpenRouter)                   ⠐⠒⠒⡗⢺⠒⠒⠒⠒                                     +0.9
                   Mercury Decide (via OpenRouter) minus GLM-5.3-Flash (reasoning off)                  ⠐⠒⠒⠒⡗⡗⠒⠒⠒⠒                                     +0.5
                                          GLM-5.3-Flash (reasoning off) minus Jev 1.13                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.3
-                                                                  Jev 1.13 minus Clef                  ⠒⠒⠒⠒⡿⠒⠒⠒⠒                                      +0.2
+                                                                  Jev 1.13 minus Clef                  ⠒⠒⠒⠒⣿⠒⠒⠒⠒                                      +0.2
                                                                  Clef minus Liquid d1                  ⠐⠒⠒⠒⡿⠒⠒⠒⠒                                      +0.3
-                                                             Liquid d1 minus Open Jev                    ⠐⠒⡗⠒⠺⠒⠒⠒⠒                                    +1.3
+                                                             Liquid d1 minus Drex 2.0                     ⠒⡗⠒⠺⠒⠒⠒⠂                                    +1.3
+                                                              Drex 2.0 minus Open Jev                  ⠒⠒⠒⠒⡗⠒⠒⠒⠂                                      +0.0
                                                                 Open Jev minus Cygnet                 ⠐⠒⠒⠒⠒⡗⠒⠒⠒⠂                                      +0.0
                                            Open Jev minus Qwen 3.8 27B (yes/no score)                      ⡇  ⠐⠒⠒⠒⠺⠒⠒⠒⠒                               +3.8
                                                               Cygnet minus Winnow 12B                   ⠒⠒⠒⡿⠒⠒⠒                                       +0.2
