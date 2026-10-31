@@ -277,3 +277,14 @@ td.date { white-space: nowrap; }
 .js .board-panel:not(.cols-all) table[data-margin]:not([data-dataset="all"]) :is(th, td):is(:nth-child(5), :nth-child(n+9)),
 .js .board-panel:not(.cols-all) table[data-margin][data-dataset="all"] :is(th, td):is(:nth-child(6), :nth-child(n+10)),
 .js .board-panel:not(.cols-all) .phase-slot[data-slot="quality"] table :is(th, td):nth-child(n+6) { display: none; }
+
+/* --- Leagues page, starting groups (Ümit, 31 Oct 2026): two kinds of badge that must not be mistaken for each other. A
+   Cup place is a filled key-coloured tag with a square edge; a league move is an outlined pill with its arrow. --------- */
+.badge { display: inline-block; margin: 0 .35rem .15rem 0; padding: .05rem .45rem; font-size: .75rem; font-weight: 600;
+  line-height: 1.4; white-space: nowrap; }
+.badge-cup { color: var(--text); background: var(--sunk); border: 1px solid var(--text); border-radius: 3px; }
+.badge-move { color: var(--text-2); background: transparent; border: 1px dashed var(--control-edge); border-radius: 999px; }
+.badge-promoted { color: var(--accepted); border-color: var(--accepted); }
+.badge-relegated { color: var(--wrong); border-color: var(--wrong); }
+td.badges { min-width: 12rem; }
+td.badges .small { display: block; white-space: normal; }
