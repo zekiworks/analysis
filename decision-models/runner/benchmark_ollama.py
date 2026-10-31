@@ -192,6 +192,12 @@ SYSTEM_ONE = {
         request_id_field="request_id",
         images="data-urls",
     ),
+    # Nace.AI's open Drex Max v1 weights (nace-ai/drex-max-v1) on our GPU, scored by Nace's own loader (drex_max) behind
+    # servers/drex_max_server.py, which takes the same request at the default path, with images as data URLs, and returns
+    # the same answers; the model field must name the loaded checkpoint (drex-max-v1).
+    "drex-max": SystemOneService(
+        "Drex Max", server_url("DREX_MAX_URL"), request_id_header="x-request-id", images="data-urls"
+    ),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -304,6 +310,13 @@ PRICES: dict[tuple[str, str], Price] = {
     # Nace.AI's Drex 2.0 (drex-v2.0, released 6 October 2026; console.nace.ai/docs/drex/reference/models and pricing,
     # read 30 October 2026): $0.06 per 1M input tokens, output not billed; text only (images need Drex Max).
     ("nace", "drex-v2.0"): Price("Nace.AI's list price", "https://console.nace.ai/docs/drex/reference/pricing", "2026-10-30", 0.06),
+    # Drex Max v1 on our hardware, at Nace's list price for its hosted Drex Max (drex-max; $0.06 per 1M input tokens, $0.03
+    # during the launch). Nace's console docs call drex-max the original Drex Max, whose weights these are; nace.ai/drex
+    # says Drex Max v1.1 replaced it under the same id. The price is the same for both.
+    ("drex-max", "drex-max-v1"): Price(
+        "Nace.AI's list price for the same model (its hosted Drex Max)", "https://nace.ai/drex", "2026-10-30", 0.06,
+        applies_to="maker",
+    ),
     # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
     ("liquid", "d1-ultra"): Price("Liquid AI's d1-ultra price", "https://www.liquid.ai/blog/d1-ultra", "2026-10-16", 0.042),
     # d1.1, Liquid's default hosted decision model (docs.liquid.ai/lfm/models/d1, 24 October 2026): input tokens only,
@@ -523,6 +536,7 @@ TIE_ALPHA = 0.05
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
     "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server", "nace",
+    "drex-max",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
