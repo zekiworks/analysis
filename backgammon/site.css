@@ -1,11 +1,11 @@
-/* The site's stylesheet: a research console, drawn flat. Controls are keys with thin edges and flat fills, and small
-   indicator lamps; data, charts and text stay plain. No shadows. The data colours are the earlier pages' (v1/style.css),
-   unchanged in both themes. Dark on screen unless the reader chose light (data-theme="light", set before the page
-   renders); printing uses light. No web fonts. */
+/* The site's stylesheet: a research console, in the sibling site's look (Ümit, 31 Oct 2026). The hardware feel lives in
+   the controls (raised keys, panel edges, small indicator lamps); data, charts and text stay plain. The data colours are
+   the earlier pages' (v1/style.css), unchanged in both themes. Dark on screen unless the reader chose light
+   (data-theme="light", set before the page renders); printing uses light. No web fonts. */
 
 :root {
   color-scheme: light;
-  /* Light: stone-grey background, off-white panels, dark graphite text, light-grey keys. */
+  /* Light: stone-grey background, off-white panels, dark graphite text, light-grey raised keys. */
   --bg: #dcd9d2;
   --panel: #f7f6f2;
   --sunk: #efede8;
@@ -17,12 +17,16 @@
   --focus: #23221f;
   --lamp-off: #bdb9b1;
   --lamp-on: #c4301d;
+  --lamp-glow: transparent;
   --row-hover: #efede8;
   --row-selected: #e2dfd8;
   /* How far a chart dims the setups that are not selected: the lowest opacity at which the data colours keep 3:1. */
   --dim: .82;
   --tip-bg: #23221f;
   --tip-text: #f7f6f2;
+  --shadow: 0 1px 2px rgba(40, 36, 30, .12), 0 6px 18px rgba(40, 36, 30, .07);
+  --key-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 1px 2px rgba(40, 36, 30, .28);
+  --key-inset: inset 0 2px 3px rgba(40, 36, 30, .32);
   --link: #1d4ed8;
   /* Data colours: chat models grey, reading blue, grammar orange; kept and right green, kept but wrong red. Decision
      models take the ranking scale (page_config.json rank_scale), drawn with an edge that keeps 3:1 against the panel
@@ -63,11 +67,15 @@
     --focus: #f2f0ea;
     --lamp-off: #4b4945;
     --lamp-on: #ff5b4f;
+    --lamp-glow: rgba(255, 91, 79, .45);
     --row-hover: #222220;
     --row-selected: #2c2b28;
     --dim: .56;
     --tip-bg: #ebe9e4;
     --tip-text: #1a1a18;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .55), 0 8px 24px rgba(0, 0, 0, .35);
+    --key-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .65);
+    --key-inset: inset 0 2px 4px rgba(0, 0, 0, .75);
     --link: #86b9f3;
     --mark-edge: #78746d;
     --data-chat: #a8a6a0;
@@ -92,7 +100,7 @@
 /* Images drawn for one theme only (the Method page's charts exist in both). */
 @media screen { :root:not([data-theme="light"]) .theme-light { display: none !important; } }
 :root[data-theme="light"] .theme-dark { display: none !important; }
-@media print { .theme-dark, .more-menu, .needs-js, .skip { display: none !important; } }
+@media print { .theme-dark, .theme-switch, .more-menu, .needs-js, .skip { display: none !important; } }
 /* Controls that need the script stay out of the page without it; the plain table shows every setup instead. */
 html:not(.js) .needs-js { display: none !important; }
 
@@ -111,9 +119,10 @@ h1, h2, h3 { line-height: 1.2; }
   border: 1px solid var(--control-edge); border-radius: 6px; }
 .skip:focus { left: 1rem; }
 
-/* Top bar: the brand and the theme switch, then the navigation bar on its own row, in four labelled groups (Results,
-   Analyses, Leagues and matches, Method and data). Plain text links; the current page is underlined. */
-.topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav"; align-items: center;
+/* Top bar: the brand, the Dark / Light switch and More options (the page export), then the navigation bar on its own
+   row, in four labelled groups (Results, Analyses, Leagues and matches, Method and data). Plain text links; the current
+   page is underlined. */
+.topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "brand theme more" "nav nav nav"; align-items: center;
   gap: .45rem 1rem; max-width: 1100px; margin: 0 auto 1.25rem; padding: .7rem 0 .55rem; border-bottom: 1px solid var(--edge); }
 .brand { grid-area: brand; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   text-decoration: none; }
@@ -125,38 +134,39 @@ h1, h2, h3 { line-height: 1.2; }
 .nav-group > ul { display: flex; flex-wrap: wrap; gap: .2rem 1rem; list-style: none; margin: 0; padding: 0; }
 .nav a { display: inline-block; padding: .2rem 0; color: var(--text); font-size: .9rem; text-decoration: none; border-bottom: 2px solid transparent; }
 .nav a:hover { border-bottom-color: var(--text-2); }
-.nav a[aria-current="page"] { border-bottom-color: var(--accent, var(--text)); }
-/* More options: one key at the top right opens the colour theme and the page export below it, over the page. */
-.more-menu { grid-area: theme; position: relative; justify-self: end; }
+.nav a[aria-current="page"] { border-bottom-color: var(--text); }
+/* More options: one key at the top right opens the page export below it, over the page. */
+.more-menu { grid-area: more; position: relative; justify-self: end; }
 .more-pop { position: absolute; right: 0; top: calc(100% + .35rem); z-index: 25; display: flex; flex-direction: column; align-items: flex-start;
   gap: .45rem; width: max-content; max-width: calc(100vw - 1.2rem); padding: .75rem; background: var(--panel);
   border: 1px solid var(--control-edge); border-radius: 8px; }
 .more-pop[hidden] { display: none; }
 .more-label { margin: 0; color: var(--text-2); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-.theme-switch + .more-label { margin-top: .35rem; }
-.theme-switch { display: inline-flex; gap: .35rem; }
+.theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; }
 .theme-switch[hidden] { display: none; }
 /* With the script, the switch shows from the first paint, so nothing moves when site.js wires it. */
 .js .theme-switch[hidden] { display: inline-flex; }
 
-/* Keys: the only things that look pressable. A pressed key takes a flat fill, a clear edge and lights its lamp; its size
+/* Keys: the only things that look pressable. A pressed key sinks (inset), takes a clear edge and lights its lamp; its size
    never changes, so nothing around it moves. */
 button.key { display: inline-flex; align-items: center; gap: .45rem; min-height: 2rem; padding: .25rem .7rem; margin: 0;
   font: inherit; font-size: .85rem; line-height: 1.2; color: var(--text); background: var(--key); border: 1px solid var(--control-edge);
-  border-radius: 6px; cursor: pointer; }
+  border-radius: 6px; box-shadow: var(--key-shadow); cursor: pointer; }
 button.key:hover { border-color: var(--text-2); }
-button.key:active { background: var(--sunk); }
-button.key[aria-pressed="true"] { background: var(--sunk); border-color: var(--text); }
-button.key[aria-disabled="true"] { color: var(--text-2); border-style: dashed; cursor: not-allowed; }
-.lamp { display: inline-block; flex: none; width: .5rem; height: .5rem; border-radius: 50%; background: var(--lamp-off); }
-[aria-pressed="true"] > .lamp, [aria-selected="true"] > .lamp { background: var(--lamp-on); }
+button.key:active { box-shadow: var(--key-inset); }
+button.key[aria-pressed="true"] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); }
+button.key[aria-disabled="true"] { color: var(--text-2); border-style: dashed; box-shadow: none; cursor: not-allowed; }
+.lamp { display: inline-block; flex: none; width: .5rem; height: .5rem; border-radius: 50%; background: var(--lamp-off);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .3); }
+[aria-pressed="true"] > .lamp, [aria-selected="true"] > .lamp, [aria-current="page"] > .lamp { background: var(--lamp-on);
+  box-shadow: 0 0 0 1px var(--lamp-on), 0 0 5px 1px var(--lamp-glow); }
 .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
 select, input[type="search"] { min-height: 2rem; padding: .25rem .45rem; font: inherit; font-size: .85rem; color: var(--text);
   background: var(--sunk); border: 1px solid var(--control-edge); border-radius: 6px; }
 input[type="checkbox"] { accent-color: var(--text); width: 1rem; height: 1rem; }
 
-/* Panels: thin edges, flat fills. */
-.panel, .card { background: var(--panel); border: 1px solid var(--edge); border-radius: 10px; padding: 1rem 1.25rem;
+/* Panels: thin edges, soft shadows. */
+.panel, .card { background: var(--panel); border: 1px solid var(--edge); border-radius: 10px; box-shadow: var(--shadow); padding: 1rem 1.25rem;
   margin: 0 0 1rem; }
 .card h2 { font-size: 1.15rem; margin: 0 0 .75rem; padding-bottom: .5rem; border-bottom: 1px solid var(--edge); }
 main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
@@ -265,10 +275,10 @@ button.key[data-tip]:hover::after, button.key[data-tip]:focus-visible::after { c
 .modes { display: flex; flex-wrap: wrap; gap: .35rem; }
 button.mode { position: relative; display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: .35rem .85rem;
   font: inherit; font-weight: 600; color: var(--text); background: var(--key); border: 1px solid var(--control-edge); border-radius: 6px;
-  cursor: pointer; }
+  box-shadow: var(--key-shadow); cursor: pointer; }
 button.mode:hover { border-color: var(--text-2); }
-button.mode:active { background: var(--sunk); }
-button.mode[aria-selected="true"] { background: var(--sunk); border-color: var(--text); }
+button.mode:active { box-shadow: var(--key-inset); }
+button.mode[aria-selected="true"] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); }
 button.mode[aria-selected="true"]::after { content: ""; position: absolute; left: .6rem; right: .6rem; bottom: -.55rem; height: 3px;
   border-radius: 2px; background: var(--text); }
 .in-view { margin-left: auto; color: var(--text-2); font-family: var(--mono); font-size: .85rem; white-space: nowrap; }
@@ -526,14 +536,16 @@ ul.price-list { padding-left: 1.25rem; }
    inside the table's wrapper; at 375 px at least two number columns show next to it. */
 @media (max-width: 640px) {
   body { padding: 0 .6rem 1.5rem; }
-  /* The first screen reaches the results: the site name and the More options key share a row, the navigation is one line
-     that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
-  .topbar { grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem; margin-bottom: .55rem; padding: .45rem 0 .3rem; }
+  /* The first screen reaches the results: the site name on its own row, then the Dark / Light switch and the More options
+     key, the navigation is one line that scrolls sideways (the current page's link in view), the title is smaller, the
+     counters take one line and the versions move under the table. */
+  .topbar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand brand" "theme more" "nav nav"; gap: .3rem .6rem;
+    margin-bottom: .55rem; padding: .45rem 0 .3rem; }
   .brand { font-size: .66rem; letter-spacing: .04em; }
-  .theme-switch { gap: .25rem; }
+  .theme-switch { justify-self: start; gap: .25rem; }
   .theme-switch .long { display: none; }
-  /* Tap targets of the More options menu and the filters: at least 44 px each way. */
-  .more-menu .key, .filters .key, .filters select { min-height: 2.75rem; min-width: 2.75rem; }
+  /* Tap targets of the theme switch, the More options menu and the filters: at least 44 px each way. */
+  .theme-switch .key, .more-menu .key, .filters .key, .filters select { min-height: 2.75rem; min-width: 2.75rem; }
   /* Padding inside the scrolling bar keeps a focused link's outline unclipped; the negative margin keeps the row's size. */
   .nav > ul { flex-wrap: nowrap; gap: 1.2rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
     scroll-padding-inline: .35rem; }

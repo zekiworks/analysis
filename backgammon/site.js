@@ -26,9 +26,9 @@
   });
 })();
 
-/* Every page: More options in the top bar opens the colour theme and the page export. Escape closes it and gives the
-   focus back to its key; a click outside it or the focus leaving it closes it too. The page export closes it first, so
-   the PNG shows the page without the open menu (this listener runs before png.js's). */
+/* Every page: More options in the top bar opens the page export (the colour theme has its own keys beside it). Escape
+   closes it and gives the focus back to its key; a click outside it or the focus leaving it closes it too. The page
+   export closes it first, so the PNG shows the page without the open menu (this listener runs before png.js's). */
 (function moreOptions() {
   const toggle = document.querySelector('[data-more-toggle]');
   if (!toggle) return;
@@ -55,9 +55,15 @@
   if (pagePng) pagePng.addEventListener('click', () => { set(false); toggle.focus(); });
 })();
 
-/* On a phone the navigation bar scrolls sideways; a link that takes the keyboard focus is brought fully into view. */
-(function keepFocusedLinkInView() {
+/* On a phone the navigation bar scrolls sideways: the current page's link starts in the middle of the bar, and a link
+   that takes the keyboard focus is brought fully into view. */
+(function keepNavLinksInView() {
   const bar = document.querySelector('.nav ul');
   if (!bar) return;
+  const current = bar.querySelector('[aria-current="page"]');
+  if (current && bar.scrollWidth > bar.clientWidth) {
+    const a = current.getBoundingClientRect(), b = bar.getBoundingClientRect();
+    bar.scrollLeft += a.left - b.left - (b.width - a.width) / 2;
+  }
   bar.addEventListener('focusin', event => event.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
 })();

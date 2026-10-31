@@ -37,30 +37,18 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .chart-svg .whisker { stroke: var(--reading); }
 .chart-svg .muted { fill: var(--text-2); }
 
-/* --- Dashboard look: a centred header, flat pill controls, tables first; data colours are unchanged. Light: restrained
-   off-white, charcoal text and small matte-copper accents (Ümit, 30 Oct 2026; text pairs checked for WCAG AA: charcoal
-   on off-white 13:1 and more, secondary text 6.1:1 and more, copper links 5.7:1 and more, control edges 3.2:1 and more);
-   the selected key is charcoal with a copper lamp. Dark: slate with the teal accent. No shadows: thin edges and flat
-   fills. ------------------------------------------------------------------------------------------------------ */
+/* --- Dashboard layout: a centred header, tables first; data colours are unchanged. Colours, keys, lamps and panels are
+   site.css's, the sibling site's look in both themes (Ümit, 31 Oct 2026); this page's own colour names map onto
+   it: the accent is the link colour, good and bad are the accepted and wrong data colours. ------------------------- */
 :root {
-  --bg: #f5f2ec; --panel: #fdfcf9; --sunk: #f0ebe3; --key: #fdfcf9; --edge: #e2dcd2; --control-edge: #8e867a;
-  --text: #2a2927; --text-2: #5b564f; --focus: #8a4a24; --lamp-off: #d3ccc1; --lamp-on: #a2603a;
-  --row-hover: #f2ede5; --row-selected: #e9e1d5; --link: #8a4a24; --accent: #97562f; --on-accent: #fdfcf9; --zebra: #f9f7f2;
-  --tip-bg: #2a2927; --tip-text: #fdfcf9;
-  --select-bg: #2a2927; --select-text: #fdfcf9; --select-lamp: #d29a6e;
-  --good: #0f766e; --good-soft: rgba(15, 118, 110, .14); --bad: #b91c1c; --bad-soft: rgba(185, 28, 28, .12);
+  --accent: var(--link); --zebra: #f3f1ec;
+  --good: var(--accepted); --good-soft: rgba(21, 128, 61, .14); --bad: var(--wrong); --bad-soft: rgba(185, 28, 28, .12);
 }
 @media screen {
   :root:not([data-theme="light"]) {
-    --bg: #0f172a; --panel: #1e293b; --sunk: #162032; --key: #1e293b; --edge: #334155; --control-edge: #475569;
-    --text: #e2e8f0; --text-2: #94a3b8; --focus: #5eead4; --lamp-off: #475569; --lamp-on: #2dd4bf;
-    --row-hover: #273449; --row-selected: #334155; --link: #2dd4bf; --accent: #2dd4bf; --on-accent: #0f172a;
-    --zebra: #1a2436; --tip-bg: #e2e8f0; --tip-text: #0f172a;
-    --select-bg: #2dd4bf; --select-text: #0f172a; --select-lamp: #0f172a;
-    --good: #2dd4bf; --good-soft: rgba(45, 212, 191, .16); --bad: #f87171; --bad-soft: rgba(248, 113, 113, .14);
+    --zebra: #161615; --good-soft: rgba(74, 222, 128, .16); --bad-soft: rgba(252, 165, 165, .14);
   }
 }
-.card, .panel { border-radius: 8px; }
 
 /* Header: centred title, muted subtitle, the status line under it. */
 .hero, body:not(.home) .hero { display: block; max-width: 80ch; margin: 0 auto 1.5rem; text-align: center; }
@@ -73,13 +61,6 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .hero .summary-list li { margin: .1rem 0; }
 @media (min-width: 1024px) { .hero { display: block; } }
 
-/* Pills: filters, theme switch, Table / Charts and the tabs. Flat, with a thin edge; the selected one is filled (charcoal
-   in light, the accent in dark) and its lamp is lit. */
-.key, button.mode { border-radius: 999px; background: transparent; }
-button.key[aria-pressed="true"], button.mode[aria-selected="true"] { background: var(--select-bg); border-color: var(--select-bg);
-  color: var(--select-text); }
-button.key[aria-pressed="true"] > .lamp, button.mode[aria-selected="true"] > .lamp { background: var(--select-lamp); }
-button.mode[aria-selected="true"]::after { display: none; }
 .filters-body { margin-top: 0; padding-top: 0; border-top: 0; gap: .6rem 1.5rem; }
 .filters-body > .group { flex-direction: row; flex-wrap: wrap; align-items: center; }
 /* More filters: the key that names the active folded filters, then the fold on its own full-width row. */
