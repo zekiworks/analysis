@@ -59,6 +59,8 @@ SETUP_TEXTS = (
     "The vLLM Semantic Router's released d3-ultra checkpoint on our hardware, through the server its repository ships "
     "(its own Transformers runtime): vLLM does not serve it yet.",
     "OmniJev's released checkpoint on our hardware, through the server its package ships, with its default settings.",
+    "Nace.AI's hosted Drex Max 1.1, and its released Drex Max v1 on our hardware through Nace's own loader: different "
+    "checkpoints.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",

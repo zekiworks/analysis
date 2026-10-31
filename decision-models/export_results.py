@@ -69,6 +69,8 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "vllm-sr": {"access": "vLLM System One endpoint (nightly), self-hosted, BF16", "scoring": True, "billing": "local"},
     "d3-server": {"access": "d3 package server (transformers, the release code), self-hosted, BF16", "scoring": True, "billing": "local"},
     "onejev": {"access": "OneJev server (qev, OmniJev's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "nace": {"access": "Nace.AI System One API", "scoring": True, "billing": "api"},
+    "drex-max": {"access": "Drex Max server (Nace's loader, drex_max), self-hosted, BF16", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -237,6 +239,34 @@ MODELS: dict[str, dict[str, Any]] = {
         "deterministic: each run sent all 2,198 questions again as separate requests.",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 27_356_728_560,
+    },
+    # Nace.AI's hosted Drex Max v1.1 (released 28 October 2026): a newer checkpoint than the open v1; no published
+    # weights or size.
+    "drex-max-v1.1": {
+        "name": "Drex Max 1.1",
+        "note": "Nace.AI's hosted Drex Max v1.1 (drex-max-v1.1, released 28 October 2026), a newer checkpoint than the open "
+        "Drex Max v1 weights; Nace publishes no weights for it. Nace bills $0.03 per million input tokens during its launch, "
+        "half the $0.06 list price the cost here uses.",
+    },
+    # Counted from the released checkpoint (nace-ai/drex-max-v1 at cac65e1): language model, vision encoder and readout.
+    # It ran on one RTX PRO 6000 Blackwell (96 GB).
+    "drex-max-v1": {
+        "name": "Drex Max v1",
+        "note": "Nace.AI's released Drex Max weights (nace-ai/drex-max-v1 at cac65e1), the original Drex Max, a fine-tune "
+        "of Qwen3.8-27B that also reads images. It ran on our hardware through Nace's own loader (drex_max, from "
+        "nace-ai/drex-decision-models at e206b27), which makes 16 of the 64 layers attend non-causally, behind our HTTP "
+        "server (servers/drex_max_server.py). One request at a time, as for the other setups.",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 26_086_635_760,
+    },
+    # Nace.AI's hosted Drex 2.0: a mixture of experts with 35B parameters, about 3B active, as Nace states (its models page
+    # and nace.ai/drex, read 30 October 2026).
+    "drex-v2.0": {
+        "name": "Drex 2.0",
+        "note": "Nace.AI's hosted Drex 2.0 (drex-v2.0, released 6 October 2026), built on Qwen3.6-35B-A3B. It reads text "
+        "only, so it is not on the Page images tab.",
+        "parameters": 35_000_000_000,
+        "active_parameters": [3_000_000_000],
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},

@@ -181,7 +181,6 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_subq.sh` | SubQ Snap Preview (`subq-snap-preview`, public preview; add `--repeat N` for repeats 2–5) | `SUBQ_API_KEY` |
 | `run_meragpt.sh` | meraGPT Decider 1 (`decider-1`; add `--repeat N` for repeats 2–5) | `MERAGPT_API_KEY` |
 | `run_drex_max_1_1.sh` | Nace.AI's Drex Max 1.1 (`drex-max-v1.1`; add `--repeat N` for repeats 2–5) | `NACE_API_KEY` |
-| `run_drex_v2_0.sh` | Nace.AI's Drex 2.0 (`drex-v2.0`, text only; add `--repeat N` for repeats 2–5) | `NACE_API_KEY` |
 | `run_microsoft_decision_1.sh` | Microsoft-Decision-1 via OpenRouter (`microsoft/microsoft-decision-1`; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_mercury_decide.sh` | Inception Mercury Decide via OpenRouter (`inception/mercury-decide`, the paid listing; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_openrouter_kimi.sh` | Kimi K3.1 Pro via OpenRouter's chat API, pinned to Moonshot AI's endpoint (`moonshotai/mxfp4`), reasoning_effort none | `OPENROUTER_API_KEY` |
