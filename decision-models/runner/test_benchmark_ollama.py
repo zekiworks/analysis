@@ -1,16 +1,26 @@
+import copy
 import json
 import math
+import os
+import shutil
 import sqlite3
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 from benchmark_ollama import (
     PRICES,
     Option,
     Question,
+    answer_problems,
     answer_usage,
+    harness_commit,
     letter_probabilities,
     option_probabilities,
     parse_ollama_content,
+    probability_problems,
     regrade,
     replace_key_text,
     run_requests,
@@ -218,6 +228,119 @@ class RunRequestsTests(unittest.TestCase):
 
     def test_a_batch_counts_its_shared_response_once(self) -> None:
         self.assertEqual([row["request_seconds"] for row in run_requests(self.connection, 2, 16)], [3.0])
+
+
+class ProbabilityAcceptanceTests(unittest.TestCase):
+    LABELS = ["A", "B", "C", "D", "E"]
+    # A real answer of the Drex Max server: full-precision floats, normalized by Nace's own answer().
+    FULL = {"A": 0.757489677011093, "B": 0.11097449002242932, "C": 0.0184028836801487, "D": 0.049592580369156335,
+            "E": 0.06354036891717257}
+    OPTIONS = json.dumps([{"label": label, "text": f"option {label}"} for label in LABELS])
+
+    def stored(self, answer: dict) -> str:
+        return json.dumps({"request_id": "r1", "response": {"model": "drex-max-v1.1", "answers": {"answer": answer}}})
+
+    def test_full_precision_probabilities_that_sum_to_one_pass(self) -> None:
+        self.assertEqual(probability_problems(self.FULL, self.LABELS), [])
+
+    def test_the_sum_must_equal_one_to_seven_decimal_places_as_nace_tests_it(self) -> None:
+        self.assertEqual(probability_problems({"A": 0.5, "B": 0.50000004}, ["A", "B"]), [])
+        self.assertRegex(probability_problems({"A": 0.5, "B": 0.5000001}, ["A", "B"])[0], "not 1 to 7 decimal places")
+        # Values rounded to four places that miss 1 fail too: rounding is not a reason to pass.
+        self.assertRegex(
+            probability_problems({"A": 0.2, "B": 0.2, "C": 0.2, "D": 0.2, "E": 0.1999}, self.LABELS)[0], r"sum to 0\.9999"
+        )
+
+    def test_a_map_that_does_not_sum_to_one_fails(self) -> None:
+        self.assertRegex(probability_problems({"A": 0.62, "B": 0.48}, ["A", "B"])[0], "sum to 1.1")
+        doubled = {label: 2 * value for label, value in self.FULL.items() if label != "A"} | {"A": 0.0}
+        self.assertEqual(len(probability_problems(doubled, self.LABELS)), 1)
+
+    def test_missing_and_unoffered_options_fail(self) -> None:
+        self.assertEqual(probability_problems({"A": 0.5, "B": 0.5}, self.LABELS), ["no probability for C, D, E"])
+        self.assertEqual(
+            probability_problems({"A": 0.5, "B": 0.25, "F": 0.25}, ["A", "B"]), ["a probability for options not offered: F"]
+        )
+
+    def test_values_that_are_not_finite_numbers_from_zero_to_one_fail(self) -> None:
+        for value in (math.nan, math.inf, -0.1, 1.5, "0.5", True, None):
+            with self.subTest(value=value):
+                problems = probability_problems({"A": value, "B": 1.0}, ["A", "B"])
+                self.assertEqual(problems, [f"an invalid probability for A: {value!r}"])
+
+    def test_the_values_are_checked_as_reported_never_normalized(self) -> None:
+        unnormalized = {"A": 0.5, "B": 0.25, "C": 0.125, "D": 0.0625, "E": 0.03125}
+        kept = copy.deepcopy(unnormalized)
+        self.assertEqual(len(probability_problems(unnormalized, self.LABELS)), 1)
+        self.assertEqual(unnormalized, kept)
+
+    def test_a_valid_choice_alone_is_not_a_pass(self) -> None:
+        good = {"type": "choice", "choice": "A", "probabilities": self.FULL}
+        self.assertEqual(answer_problems("nace", self.OPTIONS, self.stored(good)), [])
+        self.assertEqual(answer_problems("nace", self.OPTIONS, self.stored({"type": "choice", "choice": "A"})),
+                         ["no probability map"])
+        self.assertEqual(
+            answer_problems("nace", self.OPTIONS, self.stored({"choice": "A", "probabilities": {"A": 1.0}})),
+            ["no probability for B, C, D, E"],
+        )
+
+    def test_a_missing_or_unoffered_choice_fails_even_with_good_probabilities(self) -> None:
+        for choice in (None, "F"):
+            with self.subTest(choice=choice):
+                stored = self.stored({"choice": choice, "probabilities": self.FULL})
+                self.assertEqual(answer_problems("nace", self.OPTIONS, stored), [f"no valid choice ({choice!r})"])
+        self.assertEqual(answer_problems("nace", self.OPTIONS, None), ["no stored response"])
+
+
+def git(cwd: Path, *arguments: str) -> str:
+    """A git command in `cwd` with a fixed identity and no signing, independent of the user's configuration."""
+    completed = subprocess.run(
+        ["git", "-c", "user.name=test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false",
+         "-c", "init.defaultBranch=main", "-c", "core.hooksPath=/dev/null", *arguments],
+        cwd=cwd, check=True, capture_output=True, text=True,
+    )
+    return completed.stdout.strip()
+
+
+class HarnessCommitTests(unittest.TestCase):
+    """A run's runner must be published: pushed, so that a remote-tracking branch holds the commit, on every path."""
+
+    def setUp(self) -> None:
+        self.root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.root)
+        git(self.root, "init", "--bare", "remote.git")
+        git(self.root, "clone", "remote.git", "work")
+        self.work = self.root / "work"
+        self.runner = self.work / "decision-models" / "runner" / "benchmark_ollama.py"
+        self.runner.parent.mkdir(parents=True)
+        self.runner.write_text("print('runner')\n")
+        git(self.work, "add", ".")
+        git(self.work, "commit", "-m", "runner")
+        self.head = git(self.work, "rev-parse", "HEAD")
+        self.outside = self.root / "outside" / "benchmark_ollama.py"  # a copy outside any checkout
+        self.outside.parent.mkdir()
+        self.outside.write_bytes(self.runner.read_bytes())
+
+    def test_an_unpushed_checkout_is_refused_and_a_pushed_one_gives_its_head(self) -> None:
+        with mock.patch.dict(os.environ, {"HARNESS_REPO": ""}):
+            with self.assertRaisesRegex(ValueError, f"commit {self.head[:12]} .* is not pushed"):
+                harness_commit(self.runner)
+            git(self.work, "push", "origin", "HEAD:main")
+            self.assertEqual(harness_commit(self.runner), self.head)
+
+    def test_a_copy_outside_git_needs_a_pushed_commit_in_harness_repo(self) -> None:
+        with mock.patch.dict(os.environ, {"HARNESS_REPO": str(self.work)}):
+            with self.assertRaisesRegex(ValueError, "is not pushed"):
+                harness_commit(self.outside)
+            git(self.work, "push", "origin", "HEAD:main")
+            self.assertEqual(harness_commit(self.outside), self.head)
+
+    def test_a_changed_copy_has_no_published_commit(self) -> None:
+        git(self.work, "push", "origin", "HEAD:main")
+        self.outside.write_text("print('changed')\n")
+        with mock.patch.dict(os.environ, {"HARNESS_REPO": str(self.work)}):
+            with self.assertRaisesRegex(ValueError, "no published commit holds"):
+                harness_commit(self.outside)
 
 
 

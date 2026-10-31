@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import bisect
+import decimal
 import fcntl
 import functools
 import hashlib
@@ -64,6 +65,8 @@ class SystemOneService:
     model_field: bool = True
     # Response header holding the server's request ID, stored with each answer.
     request_id_header: str | None = None
+    # Or the response body's field holding it, for a server that returns it there (Nace.AI).
+    request_id_field: str | None = None
     # OpenAI's Decisions API: the same three parts under other names (`input`, a list of named
     # `questions`, `choices` with values and descriptions), and answers listed by name (system_one_answer).
     openai_format: bool = False
@@ -177,6 +180,24 @@ SYSTEM_ONE = {
     # (microsoft/microsoft-decision-1, inception/mercury-decide): a bare name is read as typesafe/<name>. Its latency
     # includes OpenRouter's own time.
     "openrouter": SystemOneService("OpenRouter", "https://openrouter.ai/api", key_vars=("OPENROUTER_API_KEY",), key_required=True),
+    # Nace.AI's hosted Drex models through its System One endpoint (console.nace.ai/docs/drex), which takes the same
+    # request at the default path, with images as data URLs in a top-level `images` list (at most 8, in a body of at most
+    # 4 MiB), and returns the same answers, with the request ID in the response body. A request that ends in an error is
+    # not billed; 529 (overloaded, Nace's answer when the model misses its 55-second timeout) is retried.
+    "nace": SystemOneService(
+        "Nace.AI",
+        "https://console.nace.ai",
+        key_vars=("NACE_API_KEY",),
+        key_required=True,
+        request_id_field="request_id",
+        images="data-urls",
+    ),
+    # Nace.AI's open Drex Max v1 weights (nace-ai/drex-max-v1) on our GPU, scored by Nace's own loader (drex_max) behind
+    # servers/drex_max_server.py, which takes the same request at the default path, with images as data URLs, and returns
+    # the same answers; the model field must name the loaded checkpoint (drex-max-v1).
+    "drex-max": SystemOneService(
+        "Drex Max", server_url("DREX_MAX_URL"), request_id_header="x-request-id", images="data-urls"
+    ),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -274,6 +295,28 @@ PRICES: dict[tuple[str, str], Price] = {
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
     # Nothing is generated, so output is never billed (meragpt.com/docs/models).
     ("meragpt", "decider-1"): Price("meraGPT's Decider 1 price", "https://meragpt.com/docs/models", "2026-10-19", 0.04),
+    # Nace.AI's Drex Max (nace.ai/drex, read 30 October 2026): $0.06 per 1M input tokens list, and $0.03 during the launch
+    # (50% off), which is what Nace bills now (console.nace.ai/docs/drex/reference/pricing lists $0.03 for both ids).
+    # Output is not billed; image tokens count as input. drex-max-v1.1 is the newer checkpoint (no open weights);
+    # drex-max the original Drex Max, whose open weights are nace-ai/drex-max-v1.
+    ("nace", "drex-max-v1.1"): Price(
+        "Nace.AI's list price (launch price $0.03 per 1M input tokens, 50% off, is what Nace bills)",
+        "https://nace.ai/drex", "2026-10-30", 0.06,
+    ),
+    ("nace", "drex-max"): Price(
+        "Nace.AI's list price (launch price $0.03 per 1M input tokens, 50% off, is what Nace bills)",
+        "https://nace.ai/drex", "2026-10-30", 0.06,
+    ),
+    # Nace.AI's Drex 2.0 (drex-v2.0, released 6 October 2026; console.nace.ai/docs/drex/reference/models and pricing,
+    # read 30 October 2026): $0.06 per 1M input tokens, output not billed; text only (images need Drex Max).
+    ("nace", "drex-v2.0"): Price("Nace.AI's list price", "https://console.nace.ai/docs/drex/reference/pricing", "2026-10-30", 0.06),
+    # Drex Max v1 on our hardware, at Nace's list price for its hosted Drex Max (drex-max; $0.06 per 1M input tokens, $0.03
+    # during the launch). Nace's console docs call drex-max the original Drex Max, whose weights these are; nace.ai/drex
+    # says Drex Max v1.1 replaced it under the same id. The price is the same for both.
+    ("drex-max", "drex-max-v1"): Price(
+        "Nace.AI's list price for the same model", "https://nace.ai/drex", "2026-10-30", 0.06,
+        applies_to="maker",
+    ),
     # d1-ultra, released 15 October 2026: input tokens only, each question billed as its own prompt.
     ("liquid", "d1-ultra"): Price("Liquid AI's d1-ultra price", "https://www.liquid.ai/blog/d1-ultra", "2026-10-16", 0.042),
     # d1.1, Liquid's default hosted decision model (docs.liquid.ai/lfm/models/d1, 24 October 2026): input tokens only,
@@ -492,7 +535,8 @@ TIE_ALPHA = 0.05
 # of the live tests' LLMs only.
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
-    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server",
+    "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server", "nace",
+    "drex-max",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
@@ -886,8 +930,15 @@ def parse_args() -> argparse.Namespace:
         metavar="PATH",
         help="write every run in --output with its per-question answers, without question text, to PATH and exit",
     )
+    parser.add_argument(
+        "--check-probabilities",
+        type=int,
+        metavar="RUN",
+        help="check the smoke acceptance of System One run RUN in --database (every selected question stored, each answer "
+        "with a valid choice and a probability for every option summing to 1), print what fails and exit 1 if anything does",
+    )
     args = parser.parse_args()
-    if args.model is None and not args.refresh_report and args.export_answers is None:
+    if args.model is None and not args.refresh_report and args.export_answers is None and args.check_probabilities is None:
         parser.error("the model argument is required")
     for name in ("limit", "sample", "num_ctx"):
         value = getattr(args, name)
@@ -1616,20 +1667,24 @@ def git_output(repo: Path, *arguments: str) -> str | None:
     return completed.stdout.strip() if completed.returncode == 0 else None
 
 
-def harness_commit() -> str:
-    """The published git commit that holds this exact file, recorded with each new run. Run from a git checkout where
-    this file is unchanged, it is that checkout's HEAD. Otherwise HARNESS_REPO must name a clone of the published
-    repository, and it is the newest pushed commit whose copy of this file (HARNESS_PATHS) is identical. Stops when
-    neither finds one."""
-    source = Path(__file__).resolve()
+def harness_commit(source: Path | None = None) -> str:
+    """The published git commit that holds this exact file (`source`, by default this runner), recorded with each new
+    run. Published means pushed: a remote-tracking branch contains the commit. Run from a git checkout where the file is
+    unchanged, it is that checkout's HEAD once pushed. Otherwise HARNESS_REPO must name a clone of the published
+    repository, and it is the newest commit there whose copy of the file (HARNESS_PATHS) is identical, once pushed.
+    Stops when neither finds a pushed commit."""
+    source = (source or Path(__file__)).resolve()
     content = source.read_bytes()
     blob = hashlib.sha1(b"blob %d\0" % len(content) + content).hexdigest()  # git's ID for this file's content
+    unpushed = None
     top = git_output(source.parent, "rev-parse", "--show-toplevel")
     if top is not None:
         relative = Path(os.path.relpath(source, Path(top).resolve())).as_posix()
         head = git_output(Path(top), "rev-parse", "HEAD")
         if head and git_output(Path(top), "rev-parse", f"HEAD:{relative}") == blob:
-            return head
+            if git_output(Path(top), "branch", "--remotes", "--contains", head):
+                return head
+            unpushed = f"commit {head[:12]} in {top} holds this benchmark_ollama.py but is not pushed"
     repo = os.environ.get("HARNESS_REPO")
     if repo:
         clone = Path(repo).expanduser()
@@ -1639,6 +1694,8 @@ def harness_commit() -> str:
                     if git_output(clone, "branch", "--remotes", "--contains", commit):
                         return commit
                     raise ValueError(f"commit {commit[:12]} in {clone} holds this benchmark_ollama.py but is not pushed")
+    if unpushed:
+        raise ValueError(f"{unpushed}: push it first, or set HARNESS_REPO to a clone where a pushed commit holds it")
     raise ValueError(
         "no published commit holds this benchmark_ollama.py: copy it into the published repository (sync_runner.sh), "
         "commit and push, then set HARNESS_REPO to that clone, or run from a checkout of it"
@@ -2716,6 +2773,95 @@ def system_one_answer(response: Any) -> dict[str, Any]:
     return answer
 
 
+def reported_decimals(value: float) -> int:
+    """Decimal places of a number as JSON reports it, its shortest round-trip form: 0.0024 has 4, 3e-05 has 5."""
+    return max(0, -decimal.Decimal(repr(float(value))).as_tuple().exponent)
+
+
+def probability_problems(probabilities: Any, labels: list[str]) -> list[str]:
+    """Why a System One answer's option probabilities fail the smoke acceptance of a decision-model run (a probability
+    for every option, summing close to 1), or [] when they pass. Every offered option needs a probability, no other key
+    may appear, and each value must be a finite number from 0 to 1. The values are read as reported, never normalized.
+    Close to 1 is Nace's own test of Drex Max's output (tests/test_drex_max.py in nace-ai/drex-decision-models at e206b27:
+    assertAlmostEqual(sum, 1.0)): the sum minus 1 rounds to 0 at 7 decimal places."""
+    if not isinstance(probabilities, dict):
+        return ["no probability map"]
+    problems = []
+    missing = [label for label in labels if label not in probabilities]
+    if missing:
+        problems.append("no probability for " + ", ".join(missing))
+    extra = [str(key) for key in probabilities if key not in labels]
+    if extra:
+        problems.append("a probability for options not offered: " + ", ".join(extra))
+    values = []
+    for key, value in probabilities.items():
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+            problems.append(f"an invalid probability for {key}: {value!r}")
+        else:
+            values.append(value)
+    if problems:
+        return problems
+    total = math.fsum(values)
+    if round(total - 1, 7) != 0:
+        problems.append(f"the probabilities sum to {total!r}, not 1 to 7 decimal places")
+    return problems
+
+
+def answer_problems(provider: str, options_json: str, raw_response: str | None) -> list[str]:
+    """Why a stored System One answer fails the smoke acceptance: no stored response, no valid choice, or option
+    probabilities that fail probability_problems against the options the question was asked with. A valid choice alone
+    is not a pass."""
+    if provider not in SYSTEM_ONE_PROVIDERS:
+        return [f"{provider} is not a System One provider"]
+    if not raw_response:
+        return ["no stored response"]
+    labels = [option["label"] for option in json.loads(options_json)]
+    answer = system_one_answer(json.loads(raw_response).get("response"))
+    problems = [] if answer.get("choice") in labels else [f"no valid choice ({answer.get('choice')!r})"]
+    return problems + probability_problems(answer.get("probabilities"), labels)
+
+
+def check_probabilities(connection: sqlite3.Connection, run_id: int) -> tuple[list[str], list[str]]:
+    """The smoke acceptance of a System One run (--check-probabilities): the run finished with every selected question
+    stored, and every stored answer passes answer_problems. Returns summary lines and problem lines; the run passes when
+    there are no problem lines. Stored responses are only read: a failure stays in the database as it came."""
+    run = connection.execute(
+        "SELECT provider, model, status, evaluated_total FROM runs WHERE id=?", (run_id,)
+    ).fetchone()
+    if run is None:
+        return [], [f"no run {run_id}"]
+    rows = connection.execute(
+        "SELECT question_id, options_json, raw_response FROM answers WHERE run_id=? ORDER BY ordinal", (run_id,)
+    ).fetchall()
+    problems = []
+    if run["status"] != "completed":
+        problems.append(f"run {run_id} is {run['status']}, not completed")
+    if len(rows) != run["evaluated_total"]:
+        problems.append(f"run {run_id} stored {len(rows)} of its {run['evaluated_total']} questions")
+    passed, deviations, places = 0, [], []
+    for row in rows:
+        found = answer_problems(run["provider"], row["options_json"], row["raw_response"])
+        problems += [f"question {row['question_id']}: {problem}" for problem in found]
+        passed += not found
+        # How far each map of finite numbers is from summing to 1, passing or not, and how many digits it reports.
+        answer = system_one_answer(json.loads(row["raw_response"]).get("response")) if row["raw_response"] else {}
+        values = list((answer.get("probabilities") or {}).values()) if isinstance(answer.get("probabilities"), dict) else []
+        if values and all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in values):
+            deviations.append(abs(math.fsum(values) - 1))
+            places += [reported_decimals(value) for value in values if isinstance(value, float)]
+    summary = [
+        f"run {run_id}: {run['provider']} {run['model']}, {run['status']}, {len(rows)} of {run['evaluated_total']} "
+        f"questions stored; {passed} answers pass",
+    ]
+    if deviations:
+        summary.append(
+            f"largest |sum - 1| over the {len(deviations)} maps of finite numbers: {max(deviations):.3g}; values reported "
+            f"with up to {max(places, default=0)} decimal places"
+        )
+    return summary, problems
+
+
+
 def add_images(service: SystemOneService, payload: dict[str, Any], headers: dict[str, str], images: tuple[Path, ...]) -> None:
     """Put PNG or JPEG files into a System One request in the service's own format (SystemOneService.images), in the
     order given, after the text of the state (or input); with no text, the images are the whole state."""
@@ -2802,7 +2948,10 @@ def ask_jev(
     result, response_headers = post_json(
         base_url.rstrip("/") + service.path, payload, headers, timeout, verbose_log, service.name
     )
-    request_id = response_headers.get(service.request_id_header) if service.request_id_header else None
+    if service.request_id_header:
+        request_id = response_headers.get(service.request_id_header)
+    else:
+        request_id = result.get(service.request_id_field) if service.request_id_field and isinstance(result, dict) else None
     stored_response = json.dumps(
         {"request_id": request_id, "response": result},
         ensure_ascii=False,
@@ -5091,6 +5240,15 @@ def main() -> int:
     try:
         data_path = args.data.resolve()
         result_path = args.database.resolve()
+        if args.check_probabilities is not None:
+            result_connection = open_result_database(result_path)
+            summary, problems = check_probabilities(result_connection, args.check_probabilities)
+            for line in summary + problems[:50]:
+                print(line)
+            if len(problems) > 50:
+                print(f"... and {len(problems) - 50} more")
+            print("PASS" if not problems else f"FAIL: {len(problems)} problems")
+            return 0 if not problems else 1
         if args.export_answers is not None:
             result_connection = open_result_database(result_path)
             count = export_answers(args.export_answers.resolve(), args.output.resolve(), result_connection)
