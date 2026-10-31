@@ -181,7 +181,6 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_subq.sh` | SubQ Snap Preview (`subq-snap-preview`, public preview; add `--repeat N` for repeats 2–5) | `SUBQ_API_KEY` |
 | `run_meragpt.sh` | meraGPT Decider 1 (`decider-1`; add `--repeat N` for repeats 2–5) | `MERAGPT_API_KEY` |
 | `run_drex_max_1_1.sh` | Nace.AI's Drex Max 1.1 (`drex-max-v1.1`; add `--repeat N` for repeats 2–5) | `NACE_API_KEY` |
-| `run_drex_v2_0.sh` | Nace.AI's Drex 2.0 (`drex-v2.0`, text only; add `--repeat N` for repeats 2–5) | `NACE_API_KEY` |
 | `run_microsoft_decision_1.sh` | Microsoft-Decision-1 via OpenRouter (`microsoft/microsoft-decision-1`; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_mercury_decide.sh` | Inception Mercury Decide via OpenRouter (`inception/mercury-decide`, the paid listing; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_openrouter_kimi.sh` | Kimi K3.1 Pro via OpenRouter's chat API, pinned to Moonshot AI's endpoint (`moonshotai/mxfp4`), reasoning_effort none | `OPENROUTER_API_KEY` |
@@ -201,8 +200,10 @@ as criteria. Rate limits and server errors are retried.
 
 A new decision model's five runs start only after its smoke run passes `./benchmark_ollama.py --check-probabilities RUN`:
 every selected question stored, and each stored answer with a valid choice and a probability from 0 to 1 for every
-option, summing to 1 to 7 decimal places (the test Nace applies to Drex Max's own output). It reads the stored
-responses without changing them, prints what fails and exits 1 if anything does; a valid choice alone does not pass.
+option, summing to 1 to 7 decimal places (the test Nace applies to Drex Max's own output), or, for a model whose API
+rounds its probabilities (`ROUNDED_PROBABILITIES`: Drex 2.0, to 4 places), to 1 within that rounding. It reads the
+stored responses without changing them, prints what fails and exits 1 if anything does; a valid choice alone does not
+pass.
 
 Perplexity's Decisions API now answers requests that name `pplx-decider-v1-27b` or `pplx-decider-v1.1-27b` with v1.2
 (its pricing page and changelog, read 17 October 2026), so `run_perplexity.sh` and `run_perplexity_v1_1.sh` no longer

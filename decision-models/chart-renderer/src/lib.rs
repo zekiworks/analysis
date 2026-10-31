@@ -432,6 +432,9 @@ fn color(run: &Run) -> Color {
         ("vllm-sr/d3", ..) => rgb(0xbe185d),
         ("vllm-sr/d3-ultra", ..) => rgb(0x831843),
         ("OmniJev/OneJev-27B", ..) => rgb(0x0c4a6e),
+        ("drex-max-v1.1", ..) => rgb(0x115e59),
+        ("drex-max-v1", ..) => rgb(0x14b8a6),
+        ("drex-v2.0", ..) => rgb(0x134e4a),
         _ => GUIDE,
     }
 }

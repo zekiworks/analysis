@@ -87,7 +87,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), and Deciders v1.1 and v1.2, at 66.9% to 68.5%."
+SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, and Deciders v1.1 and v1.2, at 66.9% to 68.5%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -415,10 +415,10 @@ def copy_checks(data: Data) -> list[str]:
     """Each number or comparison the fixed copy states, checked against results.json; the claims that differ."""
     results, runs = data.results, data.runs
     decision = [run for run in runs if data.decision(run)]
-    ultra, glide, glide12, d3, d3_ultra, decider, subq, decider12 = (data.by_name(model) for model in
-                                                                     ("d1-ultra", "fastino/GLiDE", "glide-v1.2", "vllm-sr/d3",
-                                                                      "vllm-sr/d3-ultra", "pplx-decider-v1.1-27b",
-                                                                      "subq-snap-preview", "pplx-decider-v1.2"))
+    ultra, glide, glide12, d3, d3_ultra, decider, subq, decider12, drex_v1, drex_11 = (
+        data.by_name(model) for model in ("d1-ultra", "fastino/GLiDE", "glide-v1.2", "vllm-sr/d3", "vllm-sr/d3-ultra",
+                                          "pplx-decider-v1.1-27b", "subq-snap-preview", "pplx-decider-v1.2", "drex-max-v1",
+                                          "drex-max-v1.1"))
     cascades = {(item["decision"], item["frontier"]): item for item in results["cascades"]}
     sonnet16, sonnet1 = data.named("sonnet_high", 16), data.named("sonnet_high", 1)
     found = []
@@ -469,9 +469,9 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap seventh among decision models in front of Sonnet (16 per request)", order.index(subq) == 6)
+    check("SubQ Snap ninth among decision models in front of Sonnet (16 per request)", order.index(subq) == 8)
     for size in (16, 1):
-        for key, place, word in (("opus", 13, "thirteenth"), ("astra", 11, "eleventh")):
+        for key, place, word in (("opus", 15, "fifteenth"), ("astra", 13, "thirteenth")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
@@ -495,7 +495,8 @@ def copy_checks(data: Data) -> list[str]:
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
     # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model; then GLiDE v1.2,
-    # GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers) and Deciders v1.1 and v1.2, in that order, at 66.9% to 68.5%;
+    # GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex Max v1 and 1.1, and Deciders v1.1 and v1.2, in that
+    # order, at 66.9% to 68.5%;
     # Liquid d1.1 has the smallest calibration gap as
     # shipped; Open-Jev 27B v1.1 and Decider v1.1 score highest on Better than a flat guess; d1-ultra gives the biggest
     # estimated saving in all 16 LLM setups (every routing LLM at each request size we ran it at).
@@ -512,10 +513,12 @@ def copy_checks(data: Data) -> list[str]:
           ranked[0] is ultra and percent(ultra) == "77.1")
     check("Summary: d1-ultra is clearly ahead: it shares a letter with no other decision model",
           not any(shares(ultra, run) for run in decision if run is not ultra))
-    check("Summary: then GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), and Deciders v1.1 and v1.2, in that order",
+    check("Summary: then GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, and Deciders v1.1 and v1.2, "
+          "in that order",
           ranked[1] is glide12 and ranked[2] is glide and {run["run"] for run in ranked[3:5]} == {d3["run"], d3_ultra["run"]}
-          and accuracy(d3) == accuracy(d3_ultra) and {run["run"] for run in ranked[5:7]} == {decider["run"], decider12["run"]})
-    near = (glide12, glide, d3, d3_ultra, decider, decider12)
+          and accuracy(d3) == accuracy(d3_ultra) and ranked[5] is drex_v1 and ranked[6] is drex_11
+          and {run["run"] for run in ranked[7:9]} == {decider["run"], decider12["run"]})
+    near = (glide12, glide, d3, d3_ultra, drex_v1, drex_11, decider, decider12)
     check("Summary: at 66.9% to 68.5%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.5")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])

@@ -2778,12 +2778,21 @@ def reported_decimals(value: float) -> int:
     return max(0, -decimal.Decimal(repr(float(value))).as_tuple().exponent)
 
 
-def probability_problems(probabilities: Any, labels: list[str]) -> list[str]:
+# Hosted models whose API reports each option's probability rounded to a fixed number of decimal places, so that the
+# probabilities sum to 1 only within that rounding: Nace.AI's Drex 2.0 reports 4 (smoke run 333, 31 October 2026). Their
+# smoke acceptance allows the sum to miss 1 by half a unit in that place per option (Ümit's decision, 31 October 2026);
+# every other run must sum to 1 to 7 decimal places.
+ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {("nace", "drex-v2.0"): 4}
+
+
+def probability_problems(probabilities: Any, labels: list[str], rounded_to: int | None = None) -> list[str]:
     """Why a System One answer's option probabilities fail the smoke acceptance of a decision-model run (a probability
     for every option, summing close to 1), or [] when they pass. Every offered option needs a probability, no other key
     may appear, and each value must be a finite number from 0 to 1. The values are read as reported, never normalized.
     Close to 1 is Nace's own test of Drex Max's output (tests/test_drex_max.py in nace-ai/drex-decision-models at e206b27:
-    assertAlmostEqual(sum, 1.0)): the sum minus 1 rounds to 0 at 7 decimal places."""
+    assertAlmostEqual(sum, 1.0)): the sum minus 1 rounds to 0 at 7 decimal places. With `rounded_to` (a model in
+    ROUNDED_PROBABILITIES) and every value reported with at most that many decimal places, the sum may instead miss 1 by
+    what that rounding explains: half a unit in that place per value, plus a machine epsilon each."""
     if not isinstance(probabilities, dict):
         return ["no probability map"]
     problems = []
@@ -2802,15 +2811,20 @@ def probability_problems(probabilities: Any, labels: list[str]) -> list[str]:
     if problems:
         return problems
     total = math.fsum(values)
-    if round(total - 1, 7) != 0:
+    if rounded_to is not None and all(reported_decimals(value) <= rounded_to for value in values):
+        allowance = len(values) * (0.5 * 10.0 ** -rounded_to + sys.float_info.epsilon)
+        if abs(total - 1) > allowance:
+            problems.append(f"the probabilities sum to {total!r}, not 1 within the rounding of {len(values)} values to "
+                            f"{rounded_to} decimal places")
+    elif round(total - 1, 7) != 0:
         problems.append(f"the probabilities sum to {total!r}, not 1 to 7 decimal places")
     return problems
 
 
-def answer_problems(provider: str, options_json: str, raw_response: str | None) -> list[str]:
+def answer_problems(provider: str, options_json: str, raw_response: str | None, rounded_to: int | None = None) -> list[str]:
     """Why a stored System One answer fails the smoke acceptance: no stored response, no valid choice, or option
-    probabilities that fail probability_problems against the options the question was asked with. A valid choice alone
-    is not a pass."""
+    probabilities that fail probability_problems against the options the question was asked with (`rounded_to` as there).
+    A valid choice alone is not a pass."""
     if provider not in SYSTEM_ONE_PROVIDERS:
         return [f"{provider} is not a System One provider"]
     if not raw_response:
@@ -2818,7 +2832,7 @@ def answer_problems(provider: str, options_json: str, raw_response: str | None) 
     labels = [option["label"] for option in json.loads(options_json)]
     answer = system_one_answer(json.loads(raw_response).get("response"))
     problems = [] if answer.get("choice") in labels else [f"no valid choice ({answer.get('choice')!r})"]
-    return problems + probability_problems(answer.get("probabilities"), labels)
+    return problems + probability_problems(answer.get("probabilities"), labels, rounded_to)
 
 
 def check_probabilities(connection: sqlite3.Connection, run_id: int) -> tuple[list[str], list[str]]:
@@ -2839,8 +2853,9 @@ def check_probabilities(connection: sqlite3.Connection, run_id: int) -> tuple[li
     if len(rows) != run["evaluated_total"]:
         problems.append(f"run {run_id} stored {len(rows)} of its {run['evaluated_total']} questions")
     passed, deviations, places = 0, [], []
+    rounded_to = ROUNDED_PROBABILITIES.get((run["provider"], run["model"]))
     for row in rows:
-        found = answer_problems(run["provider"], row["options_json"], row["raw_response"])
+        found = answer_problems(run["provider"], row["options_json"], row["raw_response"], rounded_to)
         problems += [f"question {row['question_id']}: {problem}" for problem in found]
         passed += not found
         # How far each map of finite numbers is from summing to 1, passing or not, and how many digits it reports.
@@ -2858,6 +2873,9 @@ def check_probabilities(connection: sqlite3.Connection, run_id: int) -> tuple[li
             f"largest |sum - 1| over the {len(deviations)} maps of finite numbers: {max(deviations):.3g}; values reported "
             f"with up to {max(places, default=0)} decimal places"
         )
+    if rounded_to is not None:
+        summary.append(f"sums checked within the rounding of each value to {rounded_to} decimal places "
+                       "(ROUNDED_PROBABILITIES)")
     return summary, problems
 
 

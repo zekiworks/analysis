@@ -293,14 +293,31 @@ def requests_note(site: Site, data: dict[str, Any]) -> str:
             "unknown, not zero.</p>")
 
 
+def run_span(runs: list[int]) -> str:
+    """Run numbers as text, consecutive ones as a range: 'run 9', 'runs 56 and 57', 'runs 1 to 28'."""
+    spans: list[list[int]] = []
+    for run in runs:
+        if spans and run == spans[-1][1] + 1:
+            spans[-1][1] = run
+        else:
+            spans.append([run, run])
+    texts = [str(first) if first == last else f"{first} and {last}" if last == first + 1 else f"{first} to {last}"
+             for first, last in spans]
+    return ("run " if len(runs) == 1 else "runs ") + ", ".join(texts)
+
+
 def harness(data: dict[str, Any]) -> str:
-    """The runner's commit and, once pushed, where it was merged into the published branch."""
-    item = data["harness"]
-    if not item.get("pushed") or not item.get("merged_in"):
-        return f" (commit {esc(item['commit'][:7])}, not yet published)"
-    same = "; runner file identical at the merge" if item.get("runner_file_at_merge") else ""
-    return (f" (commit {esc(item['commit'][:7])}, merged into the published {esc(item['published_branch'])} in "
-            f"{esc(item['merged_in'][:8])}{same})")
+    """The runner commits the runs recorded (vision.json's run_commits), each with where it was merged into the published
+    branch, or that it sits on it."""
+    def where(item: dict[str, Any]) -> str:
+        if not item.get("merged_in"):
+            return "not yet published"
+        if item["merged_in"] == item["commit"]:
+            return "on the published main"
+        return f"merged into the published main in {esc(item['merged_in'][:8])}"
+
+    parts = [f"{esc(item['commit'][:7])} for {run_span(item['runs'])}, {where(item)}" for item in data["run_commits"]]
+    return " (the runs record its commit: " + "; ".join(parts) + ")"
 
 
 def engine_check(site: Site, data: dict[str, Any]) -> str:

@@ -246,10 +246,21 @@ class ProbabilityAcceptanceTests(unittest.TestCase):
     def test_the_sum_must_equal_one_to_seven_decimal_places_as_nace_tests_it(self) -> None:
         self.assertEqual(probability_problems({"A": 0.5, "B": 0.50000004}, ["A", "B"]), [])
         self.assertRegex(probability_problems({"A": 0.5, "B": 0.5000001}, ["A", "B"])[0], "not 1 to 7 decimal places")
-        # Values rounded to four places that miss 1 fail too: rounding is not a reason to pass.
+        # Values rounded to four places that miss 1 fail too, unless the model is listed as rounding (next test).
         self.assertRegex(
             probability_problems({"A": 0.2, "B": 0.2, "C": 0.2, "D": 0.2, "E": 0.1999}, self.LABELS)[0], r"sum to 0\.9999"
         )
+
+    def test_a_model_listed_as_rounding_may_miss_one_by_its_rounding_only(self) -> None:
+        # Drex 2.0 reports four decimal places: five values may miss 1 by up to 5 × 0.00005 together, and no more.
+        within = {"A": 0.2001, "B": 0.2, "C": 0.2, "D": 0.2, "E": 0.2001}
+        self.assertEqual(probability_problems(within, self.LABELS, rounded_to=4), [])
+        self.assertRegex(probability_problems(within, self.LABELS)[0], "not 1 to 7 decimal places")
+        beyond = {"A": 0.2002, "B": 0.2, "C": 0.2, "D": 0.2, "E": 0.2001}
+        self.assertRegex(probability_problems(beyond, self.LABELS, rounded_to=4)[0], "within the rounding of 5 values to 4")
+        # A value reported with more places than the model rounds to gets the strict test.
+        finer = {"A": 0.20001, "B": 0.2, "C": 0.2, "D": 0.2, "E": 0.2}
+        self.assertRegex(probability_problems(finer, self.LABELS, rounded_to=4)[0], "not 1 to 7 decimal places")
 
     def test_a_map_that_does_not_sum_to_one_fails(self) -> None:
         self.assertRegex(probability_problems({"A": 0.62, "B": 0.48}, ["A", "B"])[0], "sum to 1.1")

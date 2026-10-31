@@ -30,7 +30,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens. No run colour is red: red marks
 /// kept-but-wrong answers only.
-const DARK: [(&str, &str); 65] = [
+const DARK: [(&str, &str); 68] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -107,6 +107,12 @@ const DARK: [(&str, &str); 65] = [
     // OneJev 27B, a deep sky blue that turns light in the dark theme: apart from the pinks of d3 and d3-ultra, the Jev
     // runs' cyans and the GLiDE blues of its panels.
     ("#0c4a6e", "#bae6fd"),
+    // Drex Max 1.1 (hosted) and Drex Max v1 (open weights), teals apart from the orange, fuchsia, indigo and yellow runs of
+    // their confidence panel: the hosted run's darker light shade becomes a 400 in the dark theme, the open one's a 200.
+    // Drex 2.0, a deeper teal, a 300.
+    ("#115e59", "#2dd4bf"),
+    ("#14b8a6", "#99f6e4"),
+    ("#134e4a", "#5eead4"),
     // Kept and right, kept but wrong: the page's shared palette.
     ("#15803d", "#4ade80"),
     ("#b91c1c", "#fca5a5"),
