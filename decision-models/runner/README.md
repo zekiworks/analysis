@@ -136,7 +136,7 @@ variables. To repeat a run exactly, check out the commit it names.
 | `--provider ollama` | `OLLAMA_URL` | `--ollama-url` |
 | `--provider vllm`, `vllm-stated`, `vllm-yes-no`, `vllm-verbal`, `vllm-vote` | `VLLM_URL` | `--vllm-url` |
 | `--provider open-jev`, `laya`, `gliner`, `clef`, `metask`, `cygnet`, `winnow` | `OPEN_JEV_URL`, `LAYA_URL`, `GLINER_URL`, `CLEF_URL`, `METASK_URL`, `CYGNET_URL`, `WINNOW_URL` | `--jev-url` |
-| `--provider strands`, `pplx-decider`, `glide`, `vllm-sr`, `onejev`, `d3-server`, `drex-max`, `d1-server` | `STRANDS_URL`, `PPLX_DECIDER_URL`, `GLIDE_URL`, `VLLM_SR_URL`, `ONEJEV_URL`, `D3_SERVER_URL`, `DREX_MAX_URL`, `D1_SERVER_URL` | `--jev-url` |
+| `--provider strands`, `pplx-decider`, `glide`, `vllm-sr`, `onejev`, `d3-server`, `drex-max`, `d1-server`, `baselabs` | `STRANDS_URL`, `PPLX_DECIDER_URL`, `GLIDE_URL`, `VLLM_SR_URL`, `ONEJEV_URL`, `D3_SERVER_URL`, `DREX_MAX_URL`, `D1_SERVER_URL`, `BASELABS_URL` | `--jev-url` |
 | `run_clef_flash.sh`, `run_gliner_decide.sh`, `run_laya_multilingual.sh` | `CLEF_FLASH_URL`, `GLINER_DECIDE_URL`, `LAYA_MULTILINGUAL_URL` | |
 | `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh`, `run_glide_v1_2.sh` | `PPLX_DECIDER_V1_2_URL`, `GLIDE_V1_2_URL` | |
 | `run_gemma.sh`, `run_gemma_one.sh`, `run_deepseek*.sh`, `run_glm*.sh`, `run_erk.sh`, `run_qwen3_14b.sh` | `GEMMA_URL`, `DEEPSEEK_URL`, `GLM_URL`, `ERK_URL`, `QWEN3_14B_URL` | |
@@ -263,6 +263,7 @@ docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=GPU 
 | `run_glide_v1_2.sh` | Fastino GLiDE v1.2 (add `--repeat N` for repeats 2–5) | the server its checkpoint ships (`python -m glide.server`), `fastino/GLiDE` at `a7e4589`, in a `vllm/vllm-openai:v0.30.0` container with `flash-linear-attention==0.5.2`, one request at a time on a DGX Spark (GB10) (the script passes `--jev-url`) |
 | `run_drex_max_v1.sh` | Nace.AI's Drex Max v1 (add `--repeat N` for repeats 2–5) | `servers/drex_max_server.py`: Nace's own loader (`drex_max` from [drex-decision-models](https://github.com/nace-ai/drex-decision-models) at `e206b27`, with only its `models/drex-max-v1/requirements.txt` installed) and `nace-ai/drex-max-v1` at `cac65e1` in BF16, one request at a time on one RTX PRO 6000 Blackwell (96 GB) (the script passes `--jev-url`) |
 | `run_d1_2b.sh` | Liquid AI's d1-2B, open weights (add `--repeat N` for repeats 2–5) | `servers/d1_server.py`: the model card's call (`model.system_one`, Liquid's own model code through transformers with `trust_remote_code=True`, with only the card's requirements installed) and `LiquidAI/d1-2B` at `10e7671` in BF16, one request at a time on one RTX PRO 6000 Blackwell (96 GB) (the script passes `--jev-url`) |
+| `run_elephant_1.sh`, `run_mammoth_1.sh` | Base Labs' elephant-1 and mammoth-1 (add `--repeat N` for repeats 2–5) | `servers/baselabs_server.py`: the model card's loader (qev's `DecisionEngine` from [OneJev](https://github.com/OmniJev/OneJev) at `81ce62f` with the checkpoint's `serve.patch`, installed by the card's `setup.sh` in `pytorch/pytorch:2.8.0-cuda12.8-cudnn9-devel`) served by qev's own app, text only; `baselabs/elephant-1` at `b3f8a93` and `baselabs/mammoth-1` at `61cec44` in BF16, one request at a time on one RTX PRO 6000 Blackwell (96 GB) (the script passes `--jev-url`) |
 
 Cygnet and Winnow were started as their authors describe:
 
@@ -320,6 +321,13 @@ option (`--replace-key-text 1`, as GPT-6 Astra's run 56), so no option is right 
 text. Each lane is one model with the settings of its run on the book: `d1-ultra`, `jev-1.14`, `glide`,
 `decider-v1.2` and `decider-flash-v1.2`. The report counts, by kind of option, the picks of the original letter, of
 the twin and of the rest; these runs stay out of the leaderboard.
+
+`run_dont_know.sh LANE…` runs the "I don't know" track: every question gets the option "Bilmiyorum" after its five,
+never shuffled and never correct, and the System One instructions end with "If you do not know the answer, choose
+Bilmiyorum." (`--dont-know`). Each lane is one decision model through the script of its text runs, with the same
+settings; `REPEAT=N` makes the run repeat N. The report counts right, wrong and "Bilmiyorum" answers and the mean
+probability of "Bilmiyorum", and derives the same rates from the model's first full run without the option at the
+confidence cut-off with the same attempt rate; these runs stay out of the leaderboard.
 
 ### The 2026 exam check
 

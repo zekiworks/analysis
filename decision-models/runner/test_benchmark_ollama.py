@@ -11,14 +11,19 @@ from pathlib import Path
 from unittest import mock
 
 from benchmark_ollama import (
+    DONT_KNOW_OPTION,
     PRICES,
     Option,
     Question,
     answer_problems,
     answer_usage,
+    derived_abstention,
     harness_commit,
+    in_main_tables,
     letter_probabilities,
+    load_questions,
     option_probabilities,
+    parse_args,
     parse_ollama_content,
     probability_problems,
     regrade,
@@ -209,6 +214,70 @@ class ReplaceKeyTextTests(unittest.TestCase):
             self.assertEqual([o for o in shown if o.label != "C"], [o for o in original if o.label != "C"])
             self.assertEqual(replace_key_text(original, "C", 1, question_id), (shown, twin))
         self.assertEqual(twins, {"A", "B", "D", "E"})
+
+
+class DontKnowTests(unittest.TestCase):
+    """The "I don't know" variant: one more option the key never names, kept out of the main tables."""
+
+    def bank(self) -> Path:
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root)
+        path = root / "bank.sqlite"
+        connection = sqlite3.connect(path)
+        connection.execute(
+            "CREATE TABLE q (question_id INTEGER, unit_number TEXT, unit_title TEXT, section_title TEXT, test_type TEXT, "
+            "test_number TEXT, question_number TEXT, question TEXT, choices_json TEXT, answer TEXT, complete INTEGER, "
+            "status TEXT, source_page_start INTEGER, passage_text TEXT, passage_description TEXT, passage_markdown TEXT, "
+            "visuals_json TEXT)"
+        )
+        for question_id, answer in ((1, "B"), (2, "E")):
+            choices = json.dumps([{"label": label, "text": f"option {label}"} for label in "ABCDE"])
+            connection.execute(
+                "INSERT INTO q VALUES (?, '1', 'Unit', '', '', '', ?, ?, ?, ?, 1, NULL, 1, NULL, NULL, NULL, '[]')",
+                (question_id, str(question_id), f"Question {question_id}?", choices, answer),
+            )
+        connection.execute("CREATE VIEW benchmark_questions AS SELECT * FROM q")
+        connection.commit()
+        connection.close()
+        return path
+
+    def test_every_question_ends_with_the_option_and_keeps_its_key(self) -> None:
+        path = self.bank()
+        plain = load_questions(path, None, None, None, 0).questions
+        variant = load_questions(path, None, None, None, 0, dont_know=True).questions
+        for before, after in zip(plain, variant, strict=True):
+            self.assertEqual(after.options, (*before.options, Option("F", DONT_KNOW_OPTION)))
+            self.assertEqual(after.answer, before.answer)
+            self.assertTrue(after.prompt.endswith(f"E. option E\nF. {DONT_KNOW_OPTION}"))
+
+    def test_the_cut_off_meets_the_attempt_rate_and_the_higher_one_wins_a_tie(self) -> None:
+        answers = [(0.9, 1), (0.8, 0), (0.7, 1), (0.6, 0)]
+        half = derived_abstention(answers, 0.5)
+        self.assertEqual((half["cut_off"], half["right"], half["wrong"], half["abstained"]), (0.8, 1, 1, 2))
+        self.assertEqual(half["non_hallucination"], 2 / 3)
+        # 3/8 lies as far from one attempt in four as from two: the higher cut-off, fewer attempts, wins.
+        self.assertEqual(derived_abstention(answers, 0.375)["cut_off"], 0.9)
+        none = derived_abstention(answers, 0.0)
+        self.assertEqual((none["cut_off"], none["abstained"], none["non_hallucination"]), (None, 4, 1.0))
+
+    def test_a_cut_off_admits_every_answer_with_its_score_and_never_an_unscored_one(self) -> None:
+        answers = [(0.9, 1), (0.9, 0), (0.5, 1), (None, 1)]
+        one = derived_abstention(answers, 0.4)
+        self.assertEqual((one["cut_off"], one["right"], one["wrong"]), (0.9, 1, 1))
+        everything = derived_abstention(answers, 1.0)
+        self.assertEqual((everything["cut_off"], everything["abstained"], everything["attempt_rate"]), (0.5, 1, 0.75))
+
+    def test_its_runs_stay_out_of_the_main_tables(self) -> None:
+        run = {"replace_key_text": None, "repeat": None, "evaluated": 2198, "eligible_total": 2198}
+        self.assertTrue(in_main_tables(run))
+        self.assertFalse(in_main_tables({**run, "dont_know": True}))
+
+    def test_only_system_one_providers_take_it(self) -> None:
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "llama3", "--provider", "ollama", "--dont-know"]), \
+                mock.patch("sys.stderr"), self.assertRaises(SystemExit):
+            parse_args()
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "subq-snap-1.1", "--provider", "subq", "--dont-know"]):
+            self.assertTrue(parse_args().dont_know)
 
 
 class RunRequestsTests(unittest.TestCase):
