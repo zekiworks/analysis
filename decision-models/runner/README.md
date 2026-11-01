@@ -179,6 +179,7 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_glide.sh` | Fastino GLiDE, 4 requests at a time (add `--repeat N` for repeats 2–5) | `FASTINO_API_KEY` |
 | `run_celeris.sh` | Celeris-1 Decision (`celeris-1-decision`; add `--repeat N` for repeats 2–5) | `CELERIS_API_KEY` |
 | `run_subq.sh` | SubQ Snap Preview (`subq-snap-preview`, public preview; add `--repeat N` for repeats 2–5) | `SUBQ_API_KEY` |
+| `run_subq_1_1.sh` | SubQ Snap 1.1 (`subq-snap-1.1`, public preview, with page images on the Page images tab; add `--repeat N` for repeats 2–5) | `SUBQ_API_KEY` |
 | `run_meragpt.sh` | meraGPT Decider 1 (`decider-1`; add `--repeat N` for repeats 2–5) | `MERAGPT_API_KEY` |
 | `run_drex_max_1_1.sh` | Nace.AI's Drex Max 1.1 (`drex-max-v1.1`; add `--repeat N` for repeats 2–5) | `NACE_API_KEY` |
 | `run_drex_v2_0.sh` | Nace.AI's Drex 2.0 (`drex-v2.0`, text only; add `--repeat N` for repeats 2–5) | `NACE_API_KEY` |
@@ -192,7 +193,7 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 
 `run_jev.sh` and `run_jev_114.sh` (and the `jev` and `jev-114` lanes of `run_experiments.sh`) read the key from the
 file `JEV_KEY_FILE` names; `run_glide.sh` reads it from `$HOME/.config/fastino/key`, `run_celeris.sh` from
-`$HOME/.config/celeris/key`, `run_subq.sh` from `$HOME/.config/subq/key`, `run_d1_ultra.sh` from
+`$HOME/.config/celeris/key`, `run_subq.sh` and `run_subq_1_1.sh` from `$HOME/.config/subq/key`, `run_d1_ultra.sh` from
 `$HOME/.config/liquid/key`, `run_meragpt.sh` from `$HOME/.keys` and `run_drex_max_1_1.sh` from `$HOME/.config/nace/key`
 when their variable is unset; put the key there,
 or run the script's command with the variable set. The decision APIs get one question
@@ -203,9 +204,9 @@ A new decision model's five runs start only after its smoke run passes `./benchm
 every selected question stored, and each stored answer with a valid choice and a probability from 0 to 1 for every
 option, summing to 1 to 7 decimal places (the test Nace applies to Drex Max's own output), or, for a model whose output
 rounds its probabilities (`ROUNDED_PROBABILITIES`: Drex 2.0, to 4 places; Elephant-1 and Mammoth-1, to 6 by their model
-card's loader), to 1 within that rounding. It reads the
-stored responses without changing them, prints what fails and exits 1 if anything does; a valid choice alone does not
-pass.
+card's loader), to 1 within that rounding, or reports them as 32-bit floats (`FLOAT32_PROBABILITIES`: SubQ Snap 1.1), to
+1 within 32-bit rounding when every value is an exact 32-bit float. It reads the stored responses without changing them,
+prints what fails and exits 1 if anything does; a valid choice alone does not pass.
 
 Perplexity's Decisions API now answers requests that name `pplx-decider-v1-27b` or `pplx-decider-v1.1-27b` with v1.2
 (its pricing page and changelog, read 17 October 2026), so `run_perplexity.sh` and `run_perplexity_v1_1.sh` no longer
