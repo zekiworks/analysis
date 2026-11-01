@@ -198,6 +198,12 @@ SYSTEM_ONE = {
     "drex-max": SystemOneService(
         "Drex Max", server_url("DREX_MAX_URL"), request_id_header="x-request-id", images="data-urls"
     ),
+    # Liquid AI's open d1-2B weights (LiquidAI/d1-2B) on our GPU, answered by the model card's call (model.system_one, with
+    # Liquid's own model code through transformers) behind servers/d1_server.py, which takes the same request at the
+    # default path, with images as data URLs, and returns the same answers; the model field must name the loaded model.
+    "d1-server": SystemOneService(
+        "d1 server", server_url("D1_SERVER_URL"), request_id_header="x-request-id", images="data-urls"
+    ),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -536,7 +542,7 @@ TIE_ALPHA = 0.05
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
     "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server", "nace",
-    "drex-max",
+    "drex-max", "d1-server",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
