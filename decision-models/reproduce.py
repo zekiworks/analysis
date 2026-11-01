@@ -396,7 +396,8 @@ def main() -> int:
         f"\nPage-image track (vision.json: each condition's right answers, ECE, Brier score, AUROC and answers at 0.99 from "
         f"its answers, condition A against answers.json, each paired test's counts and exact McNemar p, and the stored "
         f"answers, refusals, continued cells and runs, the requests' lower bound, the full leak scan's coverage and each "
-        f"engine check's right answers, paired test and differing picks): "
+        f"engine check's right answers, paired test and differing picks; vision-repeats.json: each repeat pass's right "
+        f"answers and its picks and option probabilities against the table's cell): "
         f"{checked - len(vision_mismatches)} of {checked} match"
     )
     for line in vision_mismatches:
@@ -463,6 +464,47 @@ def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[st
                 mismatches.append(f"  {model['name']} {item['first']} vs {item['second']}: " + ", ".join(cells))
     mismatches += check_vision_requests(vision, checks)
     mismatches += check_vision_engines(vision, checks)
+    mismatches += check_vision_repeats(docs, vision, checks)
+    return mismatches
+
+
+def check_vision_repeats(docs: Path, vision: dict[str, Any], checks: Checks) -> list[str]:
+    """vision-repeats.json against vision.json: each cell's first pass is the table's (its runs and right answers), and
+    each repeat pass covers the subset, has the right answers its answers give, and differs from the table's answers in
+    the picks, option-probability sets and largest probability difference it states. Returns a line per pass that
+    differs."""
+    path = docs / "vision-repeats.json"
+    if not path.exists():
+        return []
+    repeats = json.loads(path.read_text(encoding="utf-8"))
+    ids = [str(question_id) for question_id in vision["subset"]["question_ids"]]
+    mismatches = []
+    for cell in repeats["cells"]:
+        model = next(item for item in vision["models"] if item["provider"] == cell["provider"] and item["model"] == cell["model"])
+        table = model["conditions"][cell["condition"]]
+        first = vision["answers"][f"{cell['provider']}|{cell['model']}|{cell['condition']}"]
+        same = cell["first_pass"]["runs"] == table["runs"] and cell["first_pass"]["right"] == table["correct"]
+        first_pass = checks.cell(same, f"runs {table['runs']}, {table['correct']} right",
+                                 f"runs {cell['first_pass']['runs']}, {cell['first_pass']['right']} right")
+        if "≠" in first_pass:
+            mismatches.append(f"  {cell['name']} {cell['condition']} first pass: {first_pass}")
+        for passed in cell["passes"]:
+            given = passed["answers"]
+            covers = sorted(given) == sorted(ids)
+            right = sum(int(given[qid][2]) for qid in ids if qid in given)
+            picks = sum(given[qid][0] != first[qid][0] for qid in ids if qid in given)
+            sets = sum(given[qid][1] != first[qid][1] for qid in ids if qid in given)
+            largest = max((abs(given[qid][1].get(label, 0.0) - value) for qid in ids if qid in given
+                           for label, value in first[qid][1].items()), default=0.0)
+            cells = [
+                checks.cell(covers, f"{len(given)} questions", f"{len(ids)}"),
+                checks.cell(right == passed["right"], f"{right} right", str(passed["right"])),
+                checks.cell([picks, sets] == [passed["picks_differ"], passed["probabilities_differ"]],
+                            f"{picks} picks, {sets} sets differ", f"{passed['picks_differ']}, {passed['probabilities_differ']}"),
+                checks.metric(passed["largest_difference"], largest),
+            ]
+            if any("≠" in item for item in cells):
+                mismatches.append(f"  {cell['name']} {cell['condition']} pass {passed['pass']}: " + ", ".join(cells))
     return mismatches
 
 

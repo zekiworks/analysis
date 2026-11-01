@@ -10,12 +10,13 @@ the ranked rows, in vision.json's order. model_table() also gives a model page i
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import Site, esc, interval, pct, rel
+from sitebuild.site import ROOT, Site, esc, interval, pct, rel
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -201,6 +202,40 @@ def words(count: int) -> str:
 
 def joined(items: list[str]) -> str:
     return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def repeats_note(data: dict[str, Any]) -> str:
+    """vision-repeats.json's repeat passes, kept outside the table: for each model, the cells asked again with the same
+    inputs and runner, and whether their picks and option probabilities match the table's first pass. Stops the build
+    when a repeat's first pass is not the table's cell (its runs and its answers)."""
+    path = ROOT / "vision-repeats.json"
+    if not path.exists():
+        return ""
+    repeats = json.loads(path.read_text(encoding="utf-8"))
+    by_model: dict[str, list[dict[str, Any]]] = {}
+    for cell in repeats["cells"]:
+        model = next(item for item in data["models"] if item["provider"] == cell["provider"] and item["model"] == cell["model"])
+        table = model["conditions"][cell["condition"]]
+        answers = data["answers"][f"{cell['provider']}|{cell['model']}|{cell['condition']}"]
+        if cell["first_pass"]["runs"] != table["runs"] or cell["first_pass"]["right"] != table["correct"] or any(
+                passed["answers"].keys() != answers.keys() for passed in cell["passes"]):
+            raise SystemExit(f"vision-repeats.json: {cell['name']} {cell['condition']} is not the table's cell")
+        by_model.setdefault(cell["name"], []).append(cell)
+    sentences = []
+    for name, cells in by_model.items():
+        passes = sorted({passed["pass"] for cell in cells for passed in cell["passes"]})
+        differ = sum(passed["picks_differ"] + passed["probabilities_differ"] for cell in cells for passed in cell["passes"])
+        runs = joined([str(run) for cell in cells for run in cell["first_pass"]["runs"]])
+        outcome = (f"every pass gave the same picks and option probabilities as the table's runs {runs}" if not differ else
+                   f"{sum(passed['picks_differ'] for cell in cells for passed in cell['passes']):,} picks and "
+                   f"{sum(passed['probabilities_differ'] for cell in cells for passed in cell['passes']):,} sets of option "
+                   f"probabilities differ from the table's runs {runs}")
+        sentences.append(
+            f"{esc(name)} answered conditions {joined([cell['condition'] for cell in cells])} {bp.in_words(len(passes))} more "
+            f"times with the same inputs and runner (passes {passes[0]} to {passes[-1]}, in "
+            f'<a href="{rel(PATH, "vision-repeats.json")}">vision-repeats.json</a>); {outcome}. The table shows the first '
+            "pass, chosen as the cell before the runs.")
+    return f"<p>{' '.join(sentences)}</p>"
 
 
 # The image documentation of each API the image models were called through.
@@ -397,6 +432,7 @@ def build(site: Site) -> dict[str, str]:
       <p>Every request went through the benchmark's runner{harness(data)}, one question per request; the images went in each API's own format. Self-hosted models ran on {esc("; ".join(hardware)) if hardware else "our GPU"}. The API image runs (B and C) cost ${cost["image_runs_usd"]:.2f} and the API runs of condition D ${cost["d_runs_usd"]:.2f}, at the prices in results.json.</p>
       {engine_check(site, data)}
       {requests_note(site, data)}
+      {repeats_note(data)}
       {"<h3>Failures</h3>" + listing(failures) if failures else ""}
     </section>"""
     return {PATH: site.page(PATH, "Page images",

@@ -397,6 +397,10 @@ RUN_NOTES: dict[int, str] = {
     314: "The Fireworks pin admits all of Fireworks' endpoints: OpenRouter billed 135 of the 138 requests at the spot "
          "endpoint's rates, 2 at the standard rates and 1 at the fast endpoint's rates ($1.82 in all); the cost shown "
          "uses the spot rates.",
+    340: "Its request times come from one GPU with no other known work while its runs took place, though the GPU was not "
+         "monitored throughout. Only this model's server showed on it at 11:55 UTC on 1 November 2026, before the runs, and "
+         "nothing at 12:35 UTC, after them; the one other project with a claim on that GPU confirmed it ran nothing there "
+         "in between.",
 }
 # Each unit's plain English label; results.json keeps the printed Turkish title next to it.
 UNITS_EN = {

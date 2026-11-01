@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Data · Hilde</title>
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/data/">
-  <meta name="description" content="Downloads, the answer key changelog, how to cite and the licences.">
+  <meta name="description" content="Downloads, the results and answer key changelogs, how to cite and the licences.">
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
   <link rel="stylesheet" href="../v3.css">
   <script src="../site.js" defer></script>
@@ -21,8 +21,16 @@
     <section class="card">
       <h1>Data</h1>
       <p>Everything the pages show comes from these files. They hold aggregate numbers and every answer, but not the questions: the publisher owns them.</p>
-      <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">File</th><th scope="col">Contents</th><th scope="col" class="num">Size</th></tr></thead><tbody><tr><td class="model"><a href="../results.json" download>results.json</a></td><td data-label="Contents">Every published number: each setup&#x27;s accuracy, confidence, latency and cost, and the routing replays and live tests.</td><td class="num" data-label="Size">3.9 MB</td></tr><tr><td class="model"><a href="../answers.json" download>answers.json</a></td><td data-label="Contents">Every answer of every run, with its score and option probabilities, and the prompts. No question text.</td><td class="num" data-label="Size">48.1 MB</td></tr><tr><td class="model"><a href="../data/picks.json" download>picks.json</a></td><td data-label="Contents">Built from answers.json for these pages: each leaderboard setup&#x27;s pick and score on each scored question.</td><td class="num" data-label="Size">1.1 MB</td></tr><tr><td class="model"><a href="../vision.json" download>vision.json</a></td><td data-label="Contents">The page-image track: the questions that depend on the printed page, asked as text, as page images and through OCR; every number and each answer&#x27;s pick and option probabilities. No question text, page image or OCR text.</td><td class="num" data-label="Size">9.3 MB</td></tr></tbody></table></div>
-      <p class="note">Results version 0eb1e828; picks.json f0c6a12228a8. The code that ran the benchmark and rebuilds these files is in the <a href="https://github.com/zekiworks/analysis/tree/main/decision-models">repository</a>; its runner README explains how someone who owns the book rebuilds the question bank.</p>
+      <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">File</th><th scope="col">Contents</th><th scope="col" class="num">Size</th></tr></thead><tbody><tr><td class="model"><a href="../results.json" download>results.json</a></td><td data-label="Contents">Every published number: each setup&#x27;s accuracy, confidence, latency and cost, and the routing replays and live tests.</td><td class="num" data-label="Size">3.9 MB</td></tr><tr><td class="model"><a href="../answers.json" download>answers.json</a></td><td data-label="Contents">Every answer of every run, with its score and option probabilities, and the prompts. No question text.</td><td class="num" data-label="Size">48.1 MB</td></tr><tr><td class="model"><a href="../data/picks.json" download>picks.json</a></td><td data-label="Contents">Built from answers.json for these pages: each leaderboard setup&#x27;s pick and score on each scored question.</td><td class="num" data-label="Size">1.1 MB</td></tr><tr><td class="model"><a href="../vision.json" download>vision.json</a></td><td data-label="Contents">The page-image track: the questions that depend on the printed page, asked as text, as page images and through OCR; every number and each answer&#x27;s pick and option probabilities. No question text, page image or OCR text.</td><td class="num" data-label="Size">9.3 MB</td></tr><tr><td class="model"><a href="../vision-repeats.json" download>vision-repeats.json</a></td><td data-label="Contents">The page-image track&#x27;s repeat passes, kept outside its table: each pass&#x27;s run records and answers, compared with the table&#x27;s first pass.</td><td class="num" data-label="Size">1.4 MB</td></tr></tbody></table></div>
+      <p class="note">Results version 25290875 (what changed: the <a href="#results-changelog">results changelog</a>); picks.json f0c6a12228a8. The code that ran the benchmark and rebuilds these files is in the <a href="https://github.com/zekiworks/analysis/tree/main/decision-models">repository</a>; its runner README explains how someone who owns the book rebuilds the question bank.</p>
+    </section>
+    <section class="card" id="results-changelog">
+      <h2>Results changelog</h2>
+      <p>What changed in each results version that went live (<code>results_version</code> in <code>results.json</code>), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.</p>
+<h3>Results 25290875 (1 November 2026)</h3>
+<ul><li>Liquid d1-2B (open weights): a note beside its row on how its request times were measured (one GPU with no other known work while its runs took place, not monitored throughout), and its four extra Page images passes in each of conditions B and C, identical to the table's runs 60 and 61, published in <code>vision-repeats.json</code> and described on the Page images page. No number changed.</li></ul>
+<h3>Results 0eb1e828 (1 November 2026)</h3>
+<ul><li>Added Liquid d1-2B (open weights): <code>LiquidAI/d1-2B</code> at <code>10e7671</code> on our GPU, through its model card's own call. Text: five runs over the 2,198 scored questions (runs 340 to 344), 29.4% right, 29th of 34 decision models, the five runs identical. Page images: conditions B and C over the 763 page-image questions (runs 60 and 61). Its cost is not measured (†).</li></ul>
     </section>
     <section class="card" id="key-changelog">
       <h2>Answer key changelog</h2>
@@ -54,7 +62,7 @@ abstract: &quot;We tested 51 models, 34 of them decision models, on a reading co
 type: dataset
 authors:
   - name: &quot;Hilde&quot;
-version: &quot;results 0eb1e828, answer key version 2&quot;
+version: &quot;results 25290875, answer key version 2&quot;
 date-released: &quot;2026-11-01&quot;
 url: &quot;https://zekiworks.github.io/analysis/decision-models/&quot;
 repository-code: &quot;https://github.com/zekiworks/analysis/tree/main/decision-models&quot;
@@ -76,7 +84,7 @@ keywords:
   </main>
   <footer class="footer">
     <p>Download: <a href="../results.json" download>results.json</a> · <a href="../answers.json" download>answers.json</a></p>
-    <p>Results 0eb1e828, updated 1 November 2026; answer key version 2.</p>
+    <p>Results 25290875, updated 1 November 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

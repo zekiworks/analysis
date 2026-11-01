@@ -25,8 +25,9 @@ shows. The preview addresses, `v2/` and `v3/`, and the page's first address,
 
 `CONTRIBUTING.md` says how to report a wrong answer key, ask us to test a model or send a dataset.
 `key-changelog.md` lists every change to the answer key, and `results.json` names the key version every run is
-scored on (`answer_key`). `CITATION.cff`, which `build_site.py` writes, gives the results version and the key
-version to cite.
+scored on (`answer_key`). `results-changelog.md` says what changed in each results version that went live, from
+results 0eb1e828 on; add a section for every new one. `CITATION.cff`, which `build_site.py` writes, gives the results
+version and the key version to cite.
 
 ## From a clean copy
 
@@ -69,6 +70,8 @@ python3 -m http.server 8000                                # preview at http://1
   cells and runs, the lower bound on requests sent) and that its full leak scan covers every OCR output of
   every crop. Each engine check (`engine_checks`) must hold an answer for every question; its right answers,
   the table run's, the paired exact McNemar test and the picks that differ are recomputed from the two answer sets.
+  `vision-repeats.json` holds repeat passes kept outside the table: each pass's first-pass runs must be its cell's,
+  and its right answers and the picks and option probabilities that differ from the cell are recomputed.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check

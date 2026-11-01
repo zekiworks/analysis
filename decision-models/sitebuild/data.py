@@ -1,5 +1,5 @@
-"""Data: the downloads, the answer key changelog (rendered from key-changelog.md), how to cite (build_page.py's
-CITATION.cff text) and the licences."""
+"""Data: the downloads, the results changelog (rendered from results-changelog.md), the answer key changelog (rendered
+from key-changelog.md), how to cite (build_page.py's CITATION.cff text) and the licences."""
 
 from __future__ import annotations
 
@@ -82,6 +82,9 @@ def build(site: Site) -> dict[str, str]:
         (ROOT / "vision.json", rel(PATH, "vision.json"),
          "The page-image track: the questions that depend on the printed page, asked as text, as page images and through "
          "OCR; every number and each answer's pick and option probabilities. No question text, page image or OCR text."),
+        (ROOT / "vision-repeats.json", rel(PATH, "vision-repeats.json"),
+         "The page-image track's repeat passes, kept outside its table: each pass's run records and answers, compared with "
+         "the table's first pass."),
     )
     downloads = "".join(
         f'<tr><td class="model"><a href="{href}" download>{esc(path.name)}</a></td><td data-label="Contents">{esc(text)}</td>'
@@ -95,7 +98,11 @@ def build(site: Site) -> dict[str, str]:
       <h1>Data</h1>
       <p>Everything the pages show comes from these files. They hold aggregate numbers and every answer, but not the questions: the publisher owns them.</p>
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">File</th><th scope="col">Contents</th><th scope="col" class="num">Size</th></tr></thead><tbody>{downloads}</tbody></table></div>
-      <p class="note">Results version {esc(results["results_version"])}; picks.json {picks_hash}. The code that ran the benchmark and rebuilds these files is in the <a href="{CODE_URL}">repository</a>; its runner README explains how someone who owns the book rebuilds the question bank.</p>
+      <p class="note">Results version {esc(results["results_version"])} (what changed: the <a href="#results-changelog">results changelog</a>); picks.json {picks_hash}. The code that ran the benchmark and rebuilds these files is in the <a href="{CODE_URL}">repository</a>; its runner README explains how someone who owns the book rebuilds the question bank.</p>
+    </section>
+    <section class="card" id="results-changelog">
+      <h2>Results changelog</h2>
+      {markdown((ROOT / "results-changelog.md").read_text())}
     </section>
     <section class="card" id="key-changelog">
       <h2>Answer key changelog</h2>
@@ -115,4 +122,5 @@ def build(site: Site) -> dict[str, str]:
         <li>The questions: owned by the book's publisher and not published. Question IDs, pages and printed numbers locate each one in the book.</li>
       </ul>
     </section>"""
-    return {PATH: site.page(PATH, "Data", "Downloads, the answer key changelog, how to cite and the licences.", body)}
+    return {PATH: site.page(PATH, "Data", "Downloads, the results and answer key changelogs, how to cite and the licences.",
+                            body)}
