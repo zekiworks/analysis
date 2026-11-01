@@ -287,12 +287,16 @@ class DontKnowTests(unittest.TestCase):
         self.addCleanup(connection.close)
         spread = self.spread
         # The keys are B, E and C. Without the option: right at 0.6, wrong at 0.9, right at 0.8.
-        self.store_run(connection, path, False, {1: ("B", spread("B", 0.6, "ABCDE")), 2: ("A", spread("A", 0.9, "ABCDE")),
-                                                 3: ("C", spread("C", 0.8, "ABCDE"))})
+        plain = self.store_run(connection, path, False, {1: ("B", spread("B", 0.6, "ABCDE")),
+                                                         2: ("A", spread("A", 0.9, "ABCDE")), 3: ("C", spread("C", 0.8, "ABCDE"))})
         with_option = self.store_run(connection, path, True, {1: ("F", spread("F", 0.7, "ABCDEF")),
                                                               2: ("A", spread("A", 0.5, "ABCDEF")),
                                                               3: ("C", spread("C", 0.75, "ABCDEF"))})
-        data = run_metrics(connection, with_option["run_key"], path.parent)["dont_know_answers"]
+        # The record's flag comes from the run, so a refreshed record keeps the run out of the main tables.
+        self.assertNotIn("dont_know", run_metrics(connection, plain["run_key"], path.parent))
+        metrics = run_metrics(connection, with_option["run_key"], path.parent)
+        self.assertIs(metrics["dont_know"], True)
+        data = metrics["dont_know_answers"]
         self.assertEqual((data["right"], data["wrong"], data["dont_know"], data["invalid"]), (1, 1, 1, 0))
         self.assertEqual((data["attempt_rate"], data["non_hallucination"]), (2 / 3, 1 / 2))
         self.assertAlmostEqual(data["mean_option_probability"], (0.7 + 0.1 + 0.05) / 3)

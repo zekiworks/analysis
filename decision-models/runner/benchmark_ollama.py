@@ -4641,6 +4641,8 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     if run["replace_key_text"] is not None:
         metrics["key_replacement"] = key_replacement(connection, run, graded, search_dir)
     if run["dont_know"]:
+        # The flag comes from the run itself, so a report refresh sets it on records written without it.
+        metrics["dont_know"] = True
         metrics["dont_know_answers"] = dont_know_answers(connection, run, graded, search_dir)
     return metrics
 
@@ -5443,6 +5445,7 @@ def run_record(
         "concurrency": args.concurrency,
         "repeat": args.repeat,
         "question_list": args.questions.name if args.questions else None,
+        "dont_know": True if args.dont_know else None,
     }
 
 
