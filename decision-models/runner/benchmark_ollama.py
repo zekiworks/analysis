@@ -4526,7 +4526,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     every request the run made; everything else is graded against the question bank as it stands now
     (graded_answers), including the run's totals and units."""
     run = connection.execute(
-        "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,thinking_mode,batch_size,"
+        "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,dont_know,thinking_mode,batch_size,"
         "dataset,dataset_sha256,selection_sha256,created_at FROM runs WHERE run_key=?",
         (run_key,),
     ).fetchone()

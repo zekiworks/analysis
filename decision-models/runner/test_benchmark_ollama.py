@@ -22,14 +22,19 @@ from benchmark_ollama import (
     in_main_tables,
     letter_probabilities,
     load_questions,
+    mark_run,
+    open_result_database,
     option_probabilities,
     parse_args,
     parse_ollama_content,
     probability_problems,
     regrade,
     replace_key_text,
+    run_metrics,
     run_requests,
     shuffle_options,
+    start_run,
+    store_answers,
 )
 
 
@@ -230,7 +235,9 @@ class DontKnowTests(unittest.TestCase):
             "status TEXT, source_page_start INTEGER, passage_text TEXT, passage_description TEXT, passage_markdown TEXT, "
             "visuals_json TEXT)"
         )
-        for question_id, answer in ((1, "B"), (2, "E")):
+        connection.execute("CREATE TABLE questions (id INTEGER, printed_number TEXT, passage_id INTEGER, answer TEXT)")
+        for question_id, answer in ((1, "B"), (2, "E"), (3, "C")):
+            connection.execute("INSERT INTO questions VALUES (?, ?, NULL, ?)", (question_id, str(question_id), answer))
             choices = json.dumps([{"label": label, "text": f"option {label}"} for label in "ABCDE"])
             connection.execute(
                 "INSERT INTO q VALUES (?, '1', 'Unit', '', '', '', ?, ?, ?, ?, 1, NULL, 1, NULL, NULL, NULL, '[]')",
@@ -249,6 +256,40 @@ class DontKnowTests(unittest.TestCase):
             self.assertEqual(after.options, (*before.options, Option("F", DONT_KNOW_OPTION)))
             self.assertEqual(after.answer, before.answer)
             self.assertTrue(after.prompt.endswith(f"E. option E\nF. {DONT_KNOW_OPTION}"))
+
+    def test_the_report_counts_its_answers_and_derives_them_from_the_first_run_without_it(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+
+        def run(dont_know: bool, answers: dict[int, tuple[str, dict[str, float]]]) -> str:
+            selection = load_questions(path, None, None, None, 0, dont_know=dont_know)
+            with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+                identity = start_run(connection, selection, "m", path, "subq", "http://localhost", 0, 1, False, None, False,
+                                     None, None, dont_know, None, False)
+            for ordinal, question in enumerate(selection.questions):
+                choice, probabilities = answers[question.question_id]
+                raw = json.dumps({"request_id": None, "response": {
+                    "answers": {"answer": {"choice": choice, "probabilities": probabilities}}, "usage": {"input_tokens": 10}}})
+                store_answers(connection, identity.run_id, [(ordinal, question)], [choice], raw, 0.1, 0.1)
+            mark_run(connection, identity.run_id, "completed")
+            return identity.run_key
+
+        def spread(choice: str, p: float, labels: str) -> dict[str, float]:
+            rest = (1 - p) / (len(labels) - 1)
+            return {label: p if label == choice else rest for label in labels}
+
+        # The keys are B, E and C. Without the option: right at 0.6, wrong at 0.9, right at 0.8.
+        run(False, {1: ("B", spread("B", 0.6, "ABCDE")), 2: ("A", spread("A", 0.9, "ABCDE")), 3: ("C", spread("C", 0.8, "ABCDE"))})
+        with_option = run(True, {1: ("F", spread("F", 0.7, "ABCDEF")), 2: ("A", spread("A", 0.5, "ABCDEF")),
+                                 3: ("C", spread("C", 0.75, "ABCDEF"))})
+        data = run_metrics(connection, with_option, path.parent)["dont_know_answers"]
+        self.assertEqual((data["right"], data["wrong"], data["dont_know"], data["invalid"]), (1, 1, 1, 0))
+        self.assertEqual((data["attempt_rate"], data["non_hallucination"]), (2 / 3, 1 / 2))
+        self.assertAlmostEqual(data["mean_option_probability"], (0.7 + 0.1 + 0.05) / 3)
+        # Two attempts in three without the option: the cut-off 0.8 keeps the wrong 0.9 and the right 0.8.
+        derived = data["derived"]
+        self.assertEqual((derived["cut_off"], derived["right"], derived["wrong"], derived["abstained"]), (0.8, 1, 1, 1))
 
     def test_the_cut_off_meets_the_attempt_rate_and_the_higher_one_wins_a_tie(self) -> None:
         answers = [(0.9, 1), (0.8, 0), (0.7, 1), (0.6, 0)]
