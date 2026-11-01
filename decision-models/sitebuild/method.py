@@ -61,6 +61,8 @@ SETUP_TEXTS = (
     "OmniJev's released checkpoint on our hardware, through the server its package ships, with its default settings.",
     "Nace.AI's hosted Drex Max 1.1 and Drex 2.0, and its released Drex Max v1 on our hardware through Nace's own loader; "
     "Drex Max 1.1 and v1 are different checkpoints.",
+    "Liquid AI's released d1-2B on our hardware, through its model card's own call; Turkish is not among the languages "
+    "Liquid lists for it.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",

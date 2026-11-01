@@ -71,6 +71,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "onejev": {"access": "OneJev server (qev, OmniJev's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
     "nace": {"access": "Nace.AI System One API", "scoring": True, "billing": "api"},
     "drex-max": {"access": "Drex Max server (Nace's loader, drex_max), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "d1-server": {"access": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -268,6 +269,17 @@ MODELS: dict[str, dict[str, Any]] = {
         "so they sum to 1 only within that rounding; the check before its runs allowed for it.",
         "parameters": 35_000_000_000,
         "active_parameters": [3_000_000_000],
+    },
+    # Counted from the released checkpoint (LiquidAI/d1-2B at 10e7671): language model and readout 1,728,801,536, vision
+    # encoder 164,206,336, projector 25,174,016. It ran on one RTX PRO 6000 Blackwell (96 GB).
+    "LiquidAI/d1-2B": {
+        "name": "Liquid d1-2B (open weights)",
+        "note": "Liquid AI's released d1-2B weights (LiquidAI/d1-2B at 10e7671), a decision model built on LFM3-VL-2B that "
+        "also reads images. It ran on our hardware through its model card's own call (model.system_one, Liquid's model code "
+        "in Transformers) behind our HTTP server (servers/d1_server.py), one request at a time. Liquid lists 16 languages "
+        "for it; Turkish is not among them.",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 1_918_181_888,
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
