@@ -204,6 +204,11 @@ SYSTEM_ONE = {
     "d1-server": SystemOneService(
         "d1 server", server_url("D1_SERVER_URL"), request_id_header="x-request-id", images="data-urls"
     ),
+    # Base Labs' elephant-1 and mammoth-1 (baselabs/elephant-1, baselabs/mammoth-1) on our GPU, answered by the model card's
+    # loader (qev's DecisionEngine from OneJev at 81ce62f with the checkpoint's serve.patch, the runtime its setup.sh
+    # installs) behind servers/baselabs_server.py, which serves it with qev's own app: it takes the same request at the
+    # default path, text only, and returns the same answers; the model field must name the loaded checkpoint.
+    "baselabs": SystemOneService("Base Labs", server_url("BASELABS_URL"), request_id_header="x-typesafe-request-id"),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -457,6 +462,16 @@ PRICES: dict[tuple[str, str], Price] = {
     ("liquid", "d1:free"): Price(
         "Liquid's list price for the same model", "https://www.liquid.ai/pricing", "2026-10-18", 0.02, applies_to="free tier"
     ),
+    # elephant-1 and mammoth-1 on our hardware, at Baseten's Model API list prices for the same models (input only; output
+    # free).
+    ("baselabs", "baselabs/elephant-1"): Price(
+        "Baseten's list price for the same model", "https://www.baseten.co/library/elephant-1/", "2026-11-01", 0.035,
+        applies_to="maker",
+    ),
+    ("baselabs", "baselabs/mammoth-1"): Price(
+        "Baseten's list price for the same model", "https://www.baseten.co/library/mammoth-1/", "2026-11-01", 0.10,
+        applies_to="maker",
+    ),
 }
 
 
@@ -542,7 +557,7 @@ TIE_ALPHA = 0.05
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
     "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server", "nace",
-    "drex-max", "d1-server",
+    "drex-max", "d1-server", "baselabs",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
@@ -579,7 +594,7 @@ RESULT_FIELDS = (
     "run_key", "run_id", "model", "provider", "dataset", "database", "dataset_sha256", "selection_sha256",
     "eligible_total", "evaluated", "correct", "invalid", "skipped", "batch_size", "thinking", "num_ctx",
     "image_input", "shuffle_options", "replace_key_text", "categories", "updated", "concurrency", "as_run",
-    "repeat", "question_list",
+    "repeat", "question_list", "dont_know",
 )
 JEV_INSTRUCTIONS = "Which option is the correct answer to this Turkish multiple-choice question?"
 # Open-Jev's per-option prompt (jev/api.py candidate_prompts), used by --provider vllm-yes-no.
@@ -629,6 +644,17 @@ PROMPTS = {
 }
 PROMPT_VERSION = hashlib.sha256(
     json.dumps(PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()[:12]
+# The "I don't know" variant (--dont-know): every question gets the option DONT_KNOW_OPTION after its own options, never
+# shuffled and never correct, and the System One instructions end with DONT_KNOW_SENTENCE. Its prompts are PROMPTS with
+# those instructions and the option's text; DONT_KNOW_PROMPT_VERSION identifies them in such a run's record, computed as
+# PROMPT_VERSION is, so the main runs keep PROMPT_VERSION.
+DONT_KNOW_OPTION = "Bilmiyorum"
+DONT_KNOW_SENTENCE = f"If you do not know the answer, choose {DONT_KNOW_OPTION}."
+DONT_KNOW_INSTRUCTIONS = f"{JEV_INSTRUCTIONS} {DONT_KNOW_SENTENCE}"
+DONT_KNOW_PROMPTS = {**PROMPTS, "system_one_instructions": DONT_KNOW_INSTRUCTIONS, "dont_know_option": DONT_KNOW_OPTION}
+DONT_KNOW_PROMPT_VERSION = hashlib.sha256(
+    json.dumps(DONT_KNOW_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
 ).hexdigest()[:12]
 # Where a clone of the published repository (HARNESS_REPO, see harness_commit) keeps this file.
 HARNESS_PATHS = ("decision-models/runner/benchmark_ollama.py", "runner/benchmark_ollama.py")
@@ -912,6 +938,13 @@ def parse_args() -> argparse.Namespace:
         help="give each question's correct option the text of a fixed random wrong option for this seed, so "
         "no option is right; the report counts how often the model still picks the original letter",
     )
+    variant.add_argument(
+        "--dont-know",
+        action="store_true",
+        help=f'add the option "{DONT_KNOW_OPTION}" (I don\'t know) after each question\'s own options, never shuffled and '
+        f'never correct, and end the System One instructions with "{DONT_KNOW_SENTENCE}"; the report counts how often '
+        "the model chose it",
+    )
     parser.add_argument(
         "--repeat",
         type=int,
@@ -979,6 +1012,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--questions cannot be combined with --sample or --limit")
     if args.provider in SINGLE_QUESTION_PROVIDERS and args.batch_size != 1:
         parser.error(f"--provider {args.provider} sends one question per request; use --batch-size 1")
+    if args.dont_know and (args.provider not in SYSTEM_ONE or args.batch_size != 1):
+        parser.error("--dont-know is only supported by the System One providers, with one question per request")
     if args.jev_url is None and args.provider in SYSTEM_ONE:
         args.jev_url = SYSTEM_ONE[args.provider].url
     return args
@@ -1257,11 +1292,13 @@ def load_questions(
     allow_images: bool = False,
     shuffle_seed: int | None = None,
     replace_key_seed: int | None = None,
+    dont_know: bool = False,
     include_excluded: bool = False,
     question_ids: frozenset[int] | None = None,
 ) -> Selection:
     """The benchmark questions, without those marked `excluded` unless `include_excluded` is set, and only
-    those in `question_ids` when given."""
+    those in `question_ids` when given. With `dont_know`, each question's options end with DONT_KNOW_OPTION, lettered
+    after its own."""
     if not path.is_file():
         raise ValueError(f"question database does not exist: {path}")
     connection = sqlite3.connect(path)
@@ -1365,6 +1402,8 @@ def load_questions(
         original_labels: tuple[str, ...] = ()
         if shuffle_seed is not None:
             options, answer, original_labels = shuffle_options(options, answer, shuffle_seed, int(row["question_id"]))
+        if dont_know:
+            options = (*options, Option(chr(ord(options[-1].label) + 1), DONT_KNOW_OPTION))
         unit_number = str(row["unit_number"] or "?")
         unit_title = str(row["unit_title"] or "Bilinmeyen Ünite")
         prompt = compose_prompt(row, options)
@@ -1551,6 +1590,7 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                 "replace_key_text": result.get("replace_key_text"),
                 "repeat": result.get("repeat"),
                 "question_list": result.get("question_list"),
+                "dont_know": result.get("dont_know"),
                 "answers": answers,
             }
         )
@@ -1587,6 +1627,8 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
     document = {
         "schema_version": 2,
         "prompts": dict(PROMPTS),
+        # The prompts of the "I don't know" variant, when one of its runs is exported.
+        **({"dont_know_prompts": dict(DONT_KNOW_PROMPTS)} if any(result.get("dont_know") for result in results) else {}),
         "datasets": output,
     }
     path.write_text(json.dumps(document, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
@@ -1616,6 +1658,7 @@ def open_result_database(path: Path) -> sqlite3.Connection:
             num_ctx INTEGER,
             shuffle_options INTEGER,
             replace_key_text INTEGER,
+            dont_know INTEGER,
             thinking_mode TEXT NOT NULL,
             selected_total INTEGER NOT NULL,
             evaluated_total INTEGER NOT NULL,
@@ -1656,6 +1699,7 @@ def open_result_database(path: Path) -> sqlite3.Connection:
         ("runs", "repeat", "INTEGER"),
         ("runs", "harness_commit", "TEXT"),
         ("runs", "prompt_version", "TEXT"),
+        ("runs", "dont_know", "INTEGER"),
     ):
         columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})")}
         if column not in columns:
@@ -1722,6 +1766,7 @@ def start_run(
     image_input: bool,
     shuffle_seed: int | None,
     replace_key_seed: int | None,
+    dont_know: bool,
     repeat: int | None,
     restart: bool,
 ) -> RunIdentity:
@@ -1753,6 +1798,8 @@ def start_run(
         identity_config["shuffle_options"] = shuffle_seed
     if replace_key_seed is not None:
         identity_config["replace_key_text"] = replace_key_seed
+    if dont_know:
+        identity_config["dont_know"] = True
     if repeat is not None:
         identity_config["repeat"] = repeat
     identity = json.dumps(
@@ -1762,10 +1809,11 @@ def start_run(
     )
     run_key = hashlib.sha256(identity.encode()).hexdigest()
     now = utc_now()
+    prompt_version = DONT_KNOW_PROMPT_VERSION if dont_know else PROMPT_VERSION
     existing = connection.execute("SELECT prompt_version FROM runs WHERE run_key=?", (run_key,)).fetchone()
-    if existing is not None and not restart and existing["prompt_version"] not in (None, PROMPT_VERSION):
+    if existing is not None and not restart and existing["prompt_version"] not in (None, prompt_version):
         raise ValueError(
-            f"this run started with prompt version {existing['prompt_version']}, not {PROMPT_VERSION}: add --restart to "
+            f"this run started with prompt version {existing['prompt_version']}, not {prompt_version}: add --restart to "
             "answer it again with the current prompts"
         )
     # A new run, or one answered again, records the code and the prompts that answer it; a resumed run keeps its own.
@@ -1775,9 +1823,9 @@ def start_run(
             """
             INSERT OR IGNORE INTO runs (
                 run_key, model, provider, dataset, dataset_sha256, selection_sha256,
-                ollama_url, seed, batch_size, num_ctx, shuffle_options, replace_key_text, repeat, thinking_mode,
+                ollama_url, seed, batch_size, num_ctx, shuffle_options, replace_key_text, dont_know, repeat, thinking_mode,
                 selected_total, evaluated_total, skipped_json, status, created_at, updated_at, harness_commit, prompt_version
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
             """,
             (
                 run_key,
@@ -1792,6 +1840,7 @@ def start_run(
                 num_ctx,
                 shuffle_seed,
                 replace_key_seed,
+                1 if dont_know else None,
                 repeat,
                 thinking_label(thinking),
                 selection.eligible_total,
@@ -1800,7 +1849,7 @@ def start_run(
                 now,
                 now,
                 harness,
-                PROMPT_VERSION,
+                prompt_version,
             ),
         )
         row = connection.execute("SELECT id FROM runs WHERE run_key=?", (run_key,)).fetchone()
@@ -1812,7 +1861,7 @@ def start_run(
             connection.execute(
                 "UPDATE runs SET timed_questions=0,timed_seconds=0,questions_per_minute=NULL,harness_commit=?,"
                 "prompt_version=? WHERE id=?",
-                (harness, PROMPT_VERSION, run_id),
+                (harness, prompt_version, run_id),
             )
         connection.execute(
             "UPDATE runs SET status='running',updated_at=? WHERE id=?", (now, run_id)
@@ -2784,11 +2833,14 @@ def reported_decimals(value: float) -> int:
     return max(0, -decimal.Decimal(repr(float(value))).as_tuple().exponent)
 
 
-# Hosted models whose API reports each option's probability rounded to a fixed number of decimal places, so that the
-# probabilities sum to 1 only within that rounding: Nace.AI's Drex 2.0 reports 4 (smoke run 333, 31 October 2026). Their
-# smoke acceptance allows the sum to miss 1 by half a unit in that place per option (Ümit's decision, 31 October 2026);
-# every other run must sum to 1 to 7 decimal places.
-ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {("nace", "drex-v2.0"): 4}
+# Models whose output reports each option's probability rounded to a fixed number of decimal places, so that the
+# probabilities sum to 1 only within that rounding: Nace.AI's Drex 2.0 API reports 4 (smoke run 333; Ümit's decision, 31
+# October 2026), and Base Labs' elephant-1 and mammoth-1 report 6, rounded by their model card's loader (qev's answers.py;
+# smoke runs 356 and 359; the user's decision, 1 November 2026). Their smoke acceptance allows the sum to miss 1 by half a
+# unit in that place per option; every other run must sum to 1 to 7 decimal places.
+ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
+    ("nace", "drex-v2.0"): 4, ("baselabs", "baselabs/elephant-1"): 6, ("baselabs", "baselabs/mammoth-1"): 6,
+}
 
 
 def probability_problems(probabilities: Any, labels: list[str], rounded_to: int | None = None) -> list[str]:
@@ -3363,7 +3415,8 @@ def ask_batch(
         return ask_openai(args.codex_bin, args.model, questions, args.timeout, str(thinking), verbose_log)
     if args.provider in SYSTEM_ONE_PROVIDERS:
         prediction, raw_response = ask_jev(
-            SYSTEM_ONE[args.provider], args.jev_url, args.jev_api_key, args.model, questions[0], args.timeout, verbose_log
+            SYSTEM_ONE[args.provider], args.jev_url, args.jev_api_key, args.model, questions[0], args.timeout, verbose_log,
+            instructions=DONT_KNOW_INSTRUCTIONS if args.dont_know else JEV_INSTRUCTIONS,
         )
         return [prediction], raw_response
     if args.provider == "vllm-yes-no":
@@ -3524,6 +3577,8 @@ def variant_note(result: dict[str, Any]) -> str:
         notes.append(f"correct option's text replaced (seed {result['replace_key_text']})")
     if result.get("question_list"):
         notes.append(f"questions from {result['question_list']}")
+    if result.get("dont_know"):
+        notes.append(f'"{DONT_KNOW_OPTION}" option added')
     if result.get("repeat") is not None:
         notes.append(f"repeat {result['repeat']}")
     return "".join(f", {note}" for note in notes)
@@ -4086,6 +4141,49 @@ def key_replacement_lines(replaced: list[dict[str, Any]]) -> list[str]:
     return lines
 
 
+def dont_know_lines(runs: list[dict[str, Any]]) -> list[str]:
+    def cut(value: float | None) -> str:
+        return "none" if value is None else f"{value:.6f}"
+
+    lines = [
+        "",
+        f'## "{DONT_KNOW_OPTION}" option',
+        "",
+        f'Runs with `--dont-know`: each question gets the option "{DONT_KNOW_OPTION}" (I don\'t know) after its own, never '
+        f'shuffled and never correct, and the System One instructions end with "{DONT_KNOW_SENTENCE}" The questions, the '
+        "key and the requests are otherwise those of the main runs, whose accuracy, confidence, paired and cascade "
+        "tables leave these runs out. Out of all questions: Accuracy, right answers (higher is better); Attempt rate, "
+        "right and wrong answers (higher means fewer abstentions, neither better nor worse alone); Non-hallucination, "
+        f'"{DONT_KNOW_OPTION}" answers over those and the wrong ones (higher is better); Mean probability, the '
+        f'probability the model gave "{DONT_KNOW_OPTION}", averaged over the answers with option probabilities. An '
+        "invalid answer is neither right, wrong nor an abstention. Derived: the configuration's first full run without "
+        "the option (Original), answering only where its score reaches the cut-off whose attempt rate comes nearest this "
+        "run's (the higher cut-off on a tie; none: no answer reaches it) and abstaining on the rest.",
+        "",
+        f"| Run | Questions | Right | Wrong | {DONT_KNOW_OPTION} | Invalid | Accuracy | Attempt rate | Non-hallucination | "
+        "Mean probability | Original | Cut-off | Derived attempt rate | Derived non-hallucination |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|",
+    ]
+    for result in runs:
+        data = result["dont_know_answers"]
+        derived = data["derived"]
+        derived_cells = (
+            "— | — | — | —"
+            if derived is None
+            else f"run {data['original_run']} | {cut(derived['cut_off'])} | "
+            f"{percent(derived['right'] + derived['wrong'], derived['questions'])} | "
+            f"{percent(derived['abstained'], derived['abstained'] + derived['wrong'])}"
+        )
+        lines.append(
+            f"| {run_label(result)} | {data['questions']} | {data['right']} | {data['wrong']} | {data['dont_know']} | "
+            f"{data['invalid']} | {percent(data['right'], data['questions'])} | "
+            f"{percent(data['right'] + data['wrong'], data['questions'])} | "
+            f"{percent(data['dont_know'], data['dont_know'] + data['wrong'])} | "
+            f"{format_score(data['mean_option_probability'])} | {derived_cells} |"
+        )
+    return lines
+
+
 def version_lines(versions: list[dict[str, Any]], results: dict[str, dict[str, Any]]) -> list[str]:
     lines = [
         "",
@@ -4164,6 +4262,7 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
     # Runs with a replaced key have no right option to score; they get their own table. Repeats and runs
     # on part of the questions have their own sections too.
     replaced = [result for result in results.values() if result.get("replace_key_text") is not None]
+    dont_know_runs = [result for result in results.values() if result.get("dont_know")]
     ranked = sorted(
         (result for result in results.values() if in_main_tables(result)),
         key=lambda item: (-item["correct"] / item["evaluated"], item["run_id"]),
@@ -4194,6 +4293,8 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         lines.extend(batching_lines(comparisons["batching"], results))
     if replaced:
         lines.extend(key_replacement_lines(sorted(replaced, key=lambda item: item["run_id"])))
+    if dont_know_runs:
+        lines.extend(dont_know_lines(sorted(dont_know_runs, key=lambda item: item["run_id"])))
     for result in ordered:
         details = [f"Invalid model responses: {result['invalid']}"]
         if result.get("questions_per_minute"):
@@ -4226,6 +4327,8 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         options = [] if result.get("shuffle_options") is None else [f"Options: shuffled with seed {result['shuffle_options']}  "]
         if result.get("replace_key_text") is not None:
             options.append(f"Correct option: shows a random wrong option's text, seed {result['replace_key_text']}  ")
+        if result.get("dont_know"):
+            options.append(f'Options: "{DONT_KNOW_OPTION}" added after each question\'s own, never correct  ')
         lines.extend(
             [
                 "",
@@ -4426,7 +4529,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     every request the run made; everything else is graded against the question bank as it stands now
     (graded_answers), including the run's totals and units."""
     run = connection.execute(
-        "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,thinking_mode,batch_size,"
+        "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,dont_know,thinking_mode,batch_size,"
         "dataset,dataset_sha256,selection_sha256,created_at FROM runs WHERE run_key=?",
         (run_key,),
     ).fetchone()
@@ -4540,6 +4643,10 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
         }
     if run["replace_key_text"] is not None:
         metrics["key_replacement"] = key_replacement(connection, run, graded, search_dir)
+    if run["dont_know"]:
+        # The flag comes from the run itself, so a report refresh sets it on records written without it.
+        metrics["dont_know"] = True
+        metrics["dont_know_answers"] = dont_know_answers(connection, run, graded, search_dir)
     return metrics
 
 
@@ -4554,7 +4661,8 @@ def key_replacement(
     unchanged = connection.execute(
         """
         SELECT id, run_key, dataset FROM runs WHERE provider=? AND model=? AND thinking_mode=? AND batch_size=? AND dataset_sha256=?
-            AND selection_sha256=? AND replace_key_text IS NULL AND shuffle_options IS NULL AND status='completed'
+            AND selection_sha256=? AND replace_key_text IS NULL AND shuffle_options IS NULL AND dont_know IS NULL
+            AND status='completed'
         ORDER BY id DESC LIMIT 1
         """,
         (run["provider"], run["model"], run["thinking_mode"], run["batch_size"], run["dataset_sha256"], run["selection_sha256"]),
@@ -4609,6 +4717,100 @@ def key_replacement(
             }
             for shape, picks in counts.items()
         },
+    }
+
+
+def dont_know_answers(
+    connection: sqlite3.Connection, run: sqlite3.Row, graded: list[dict[str, Any]], search_dir: Path
+) -> dict[str, Any]:
+    """For a --dont-know run, out of its graded questions: right, wrong and DONT_KNOW_OPTION answers (an invalid answer
+    is none of these); accuracy (right over all), attempt rate (right and wrong over all), non-hallucination rate (the
+    option over the option and wrong) and the mean probability the model gave the option, over the answers that report
+    option probabilities. Next to them derived_abstention on the configuration's first full run without the option
+    (original_run), over the same questions, at this run's attempt rate. `graded` holds the run's graded answers
+    (graded_answers)."""
+    provider = run["provider"]
+    counts = {"right": 0, "wrong": 0, "dont_know": 0, "invalid": 0}
+    probabilities: list[float] = []
+    for row in graded:
+        option = json.loads(row["options_json"])[-1]
+        if option["text"] != DONT_KNOW_OPTION:
+            raise ValueError(f"run {run['id']}, question {row['question_id']}: the last option is not {DONT_KNOW_OPTION!r}")
+        prediction = row["predicted_answer"]
+        if prediction is None:
+            counts["invalid"] += 1
+        elif prediction == option["label"]:
+            counts["dont_know"] += 1
+        elif int(row["correct"]):
+            counts["right"] += 1
+        else:
+            counts["wrong"] += 1
+        shown = option_probabilities(provider, row["raw_response"], int(row["question_id"]))
+        if shown and option["label"] in shown:
+            probabilities.append(float(shown[option["label"]]))
+    questions = len(graded)
+    attempts = counts["right"] + counts["wrong"]
+    original = connection.execute(
+        """
+        SELECT id, run_key, dataset FROM runs WHERE provider=? AND model=? AND thinking_mode=? AND batch_size=?
+            AND replace_key_text IS NULL AND shuffle_options IS NULL AND dont_know IS NULL AND repeat IS NULL
+            AND evaluated_total=selected_total AND status='completed'
+        ORDER BY id LIMIT 1
+        """,
+        (provider, run["model"], run["thinking_mode"], run["batch_size"]),
+    ).fetchone()
+    derived = None
+    if original is not None and questions:
+        asked = {int(row["question_id"]) for row in graded}
+        scored = [
+            (answer_usage(provider, int(row["question_id"]), row["raw_response"])[1], int(row["correct"]))
+            for row in graded_answers(connection, original["run_key"], original["dataset"], search_dir)
+            if int(row["question_id"]) in asked
+        ]
+        derived = derived_abstention(scored, attempts / questions)
+    return {
+        "questions": questions,
+        **counts,
+        "accuracy": counts["right"] / questions if questions else None,
+        "attempt_rate": attempts / questions if questions else None,
+        "non_hallucination": (
+            counts["dont_know"] / (counts["dont_know"] + counts["wrong"]) if counts["dont_know"] + counts["wrong"] else None
+        ),
+        "mean_option_probability": sum(probabilities) / len(probabilities) if probabilities else None,
+        "probability_answers": len(probabilities),
+        "original_run": original["id"] if original is not None else None,
+        "derived": derived,
+    }
+
+
+def derived_abstention(answers: list[tuple[float | None, int]], target: float) -> dict[str, Any]:
+    """Abstention derived from scores, for comparison with a run that offered DONT_KNOW_OPTION: answer only where the
+    score reaches the cut-off whose attempt rate (answers at or above it, over all) comes nearest `target`, the higher
+    cut-off on a tie, and abstain on the rest; an answer without a score is never an attempt. `answers` holds each
+    question's (score, correct). The cut-off is None when no answer is an attempt."""
+    total = len(answers)
+    ranked = sorted(((score, correct) for score, correct in answers if score is not None), key=lambda item: -item[0])
+    best: tuple[float, float | None, int, int] = (target, None, 0, 0)  # (distance from target, cut-off, attempts, right)
+    attempts = right = 0
+    for index, (score, correct) in enumerate(ranked):
+        attempts += 1
+        right += correct
+        if index + 1 < len(ranked) and ranked[index + 1][0] == score:
+            continue  # a cut-off admits every answer with its score
+        distance = abs(attempts / total - target)
+        if distance < best[0]:
+            best = (distance, score, attempts, right)
+    _, cut_off, attempts, right = best
+    wrong, abstained = attempts - right, total - attempts
+    return {
+        "questions": total,
+        "cut_off": cut_off,
+        "right": right,
+        "wrong": wrong,
+        "abstained": abstained,
+        "accuracy": right / total if total else None,
+        "attempt_rate": attempts / total if total else None,
+        "non_hallucination": abstained / (abstained + wrong) if abstained + wrong else None,
     }
 
 
@@ -4691,9 +4893,10 @@ def run_doubt(
 
 def in_main_tables(result: dict[str, Any]) -> bool:
     """Whether a run belongs in the report's main tables: a run over its question bank's whole question
-    set, neither a repeat nor a run with a replaced correct option."""
+    set, neither a repeat nor a run with a replaced correct option or the "I don't know" option."""
     return (
         result.get("replace_key_text") is None
+        and not result.get("dont_know")
         and result.get("repeat") is None
         and result["evaluated"] == result["eligible_total"]
     )
@@ -4864,7 +5067,7 @@ def run_comparisons(
 def run_repeats(connection: sqlite3.Connection, results: dict[str, dict[str, Any]], search_dir: Path) -> list[dict[str, Any]]:
     """Each configuration with repeats (--repeat): its runs on the same question bank and the same
     questions (the whole set, or one sample), and how their answers agree (bm.repeat_stability) on the
-    questions every run was asked identically."""
+    questions every run was asked identically. Runs with the "I don't know" option form configurations of their own."""
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
     for result in results.values():
         if result.get("replace_key_text") is not None or result.get("question_list"):
@@ -4872,7 +5075,7 @@ def run_repeats(connection: sqlite3.Connection, results: dict[str, dict[str, Any
         selection = "whole" if result["evaluated"] == result["eligible_total"] else result["selection_sha256"]
         key = (
             Path(result["dataset"]).name, result.get("provider", "ollama"), result["model"], result["thinking"],
-            result["batch_size"], result.get("shuffle_options"), selection,
+            result["batch_size"], result.get("shuffle_options"), bool(result.get("dont_know")), selection,
         )
         groups.setdefault(key, []).append(result)
     found = []
@@ -5050,7 +5253,7 @@ def run_batching(connection: sqlite3.Connection, results: dict[str, dict[str, An
         return (run.get("provider", "ollama"), run["model"], run["thinking"])
 
     def plain(run: dict[str, Any]) -> bool:
-        return run.get("replace_key_text") is None and run.get("shuffle_options") is None
+        return run.get("replace_key_text") is None and run.get("shuffle_options") is None and not run.get("dont_know")
 
     reruns = format_reruns(results)
     main = {
@@ -5245,6 +5448,7 @@ def run_record(
         "concurrency": args.concurrency,
         "repeat": args.repeat,
         "question_list": args.questions.name if args.questions else None,
+        "dont_know": True if args.dont_know else None,
     }
 
 
@@ -5358,6 +5562,7 @@ def main() -> int:
             allow_images=image_input,
             shuffle_seed=args.shuffle_options,
             replace_key_seed=args.replace_key_text,
+            dont_know=args.dont_know,
             question_ids=read_question_ids(args.questions) if args.questions else None,
         )
         print(
@@ -5381,6 +5586,7 @@ def main() -> int:
             image_input,
             args.shuffle_options,
             args.replace_key_text,
+            args.dont_know,
             args.repeat,
             args.restart,
         )
@@ -5392,7 +5598,7 @@ def main() -> int:
             f"{len(selection.questions)} question(s) "
             f"(batch={args.batch_size}, thinking={thinking_label(thinking)}, "
             f"image_input={'on' if image_input else 'off'}, shuffle_options={args.shuffle_options}, "
-            f"replace_key_text={args.replace_key_text}, run={identity.run_id})"
+            f"replace_key_text={args.replace_key_text}, dont_know={args.dont_know}, run={identity.run_id})"
         )
         correct, invalid, categories = evaluate(
             selection, result_connection, identity, args, thinking, verbose_log

@@ -11,20 +11,31 @@ from pathlib import Path
 from unittest import mock
 
 from benchmark_ollama import (
+    DONT_KNOW_OPTION,
     PRICES,
     Option,
     Question,
     answer_problems,
     answer_usage,
+    derived_abstention,
     harness_commit,
+    in_main_tables,
     letter_probabilities,
+    load_questions,
+    mark_run,
+    open_result_database,
     option_probabilities,
+    parse_args,
     parse_ollama_content,
     probability_problems,
     regrade,
     replace_key_text,
+    run_metrics,
+    run_repeats,
     run_requests,
     shuffle_options,
+    start_run,
+    store_answers,
 )
 
 
@@ -209,6 +220,134 @@ class ReplaceKeyTextTests(unittest.TestCase):
             self.assertEqual([o for o in shown if o.label != "C"], [o for o in original if o.label != "C"])
             self.assertEqual(replace_key_text(original, "C", 1, question_id), (shown, twin))
         self.assertEqual(twins, {"A", "B", "D", "E"})
+
+
+class DontKnowTests(unittest.TestCase):
+    """The "I don't know" variant: one more option the key never names, kept out of the main tables."""
+
+    def bank(self) -> Path:
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root)
+        path = root / "bank.sqlite"
+        connection = sqlite3.connect(path)
+        connection.execute(
+            "CREATE TABLE q (question_id INTEGER, unit_number TEXT, unit_title TEXT, section_title TEXT, test_type TEXT, "
+            "test_number TEXT, question_number TEXT, question TEXT, choices_json TEXT, answer TEXT, complete INTEGER, "
+            "status TEXT, source_page_start INTEGER, passage_text TEXT, passage_description TEXT, passage_markdown TEXT, "
+            "visuals_json TEXT)"
+        )
+        connection.execute("CREATE TABLE questions (id INTEGER, printed_number TEXT, passage_id INTEGER, answer TEXT)")
+        for question_id, answer in ((1, "B"), (2, "E"), (3, "C")):
+            connection.execute("INSERT INTO questions VALUES (?, ?, NULL, ?)", (question_id, str(question_id), answer))
+            choices = json.dumps([{"label": label, "text": f"option {label}"} for label in "ABCDE"])
+            connection.execute(
+                "INSERT INTO q VALUES (?, '1', 'Unit', '', '', '', ?, ?, ?, ?, 1, NULL, 1, NULL, NULL, NULL, '[]')",
+                (question_id, str(question_id), f"Question {question_id}?", choices, answer),
+            )
+        connection.execute("CREATE VIEW benchmark_questions AS SELECT * FROM q")
+        connection.commit()
+        connection.close()
+        return path
+
+    def test_every_question_ends_with_the_option_and_keeps_its_key(self) -> None:
+        path = self.bank()
+        plain = load_questions(path, None, None, None, 0).questions
+        variant = load_questions(path, None, None, None, 0, dont_know=True).questions
+        for before, after in zip(plain, variant, strict=True):
+            self.assertEqual(after.options, (*before.options, Option("F", DONT_KNOW_OPTION)))
+            self.assertEqual(after.answer, before.answer)
+            self.assertTrue(after.prompt.endswith(f"E. option E\nF. {DONT_KNOW_OPTION}"))
+
+    @staticmethod
+    def spread(choice: str, p: float, labels: str) -> dict[str, float]:
+        rest = (1 - p) / (len(labels) - 1)
+        return {label: p if label == choice else rest for label in labels}
+
+    @staticmethod
+    def store_run(connection: sqlite3.Connection, path: Path, dont_know: bool,
+                  answers: dict[int, tuple[str, dict[str, float]]], repeat: int | None = None) -> dict:
+        """A completed run of model "m" through subq with these answers, as its report record."""
+        selection = load_questions(path, None, None, None, 0, dont_know=dont_know)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, "subq", "http://localhost", 0, 1, False, None, False,
+                                 None, None, dont_know, repeat, False)
+        for ordinal, question in enumerate(selection.questions):
+            choice, probabilities = answers[question.question_id]
+            raw = json.dumps({"request_id": None, "response": {
+                "answers": {"answer": {"choice": choice, "probabilities": probabilities}}, "usage": {"input_tokens": 10}}})
+            store_answers(connection, identity.run_id, [(ordinal, question)], [choice], raw, 0.1, 0.1)
+        mark_run(connection, identity.run_id, "completed")
+        return {"run_key": identity.run_key, "run_id": identity.run_id, "dataset": str(path), "provider": "subq", "model": "m",
+                "thinking": "off", "batch_size": 1, "evaluated": 3, "eligible_total": 3,
+                "selection_sha256": identity.selection_sha256, "repeat": repeat, "dont_know": dont_know or None}
+
+    def test_the_report_counts_its_answers_and_derives_them_from_the_first_run_without_it(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        spread = self.spread
+        # The keys are B, E and C. Without the option: right at 0.6, wrong at 0.9, right at 0.8.
+        plain = self.store_run(connection, path, False, {1: ("B", spread("B", 0.6, "ABCDE")),
+                                                         2: ("A", spread("A", 0.9, "ABCDE")), 3: ("C", spread("C", 0.8, "ABCDE"))})
+        with_option = self.store_run(connection, path, True, {1: ("F", spread("F", 0.7, "ABCDEF")),
+                                                              2: ("A", spread("A", 0.5, "ABCDEF")),
+                                                              3: ("C", spread("C", 0.75, "ABCDEF"))})
+        # The record's flag comes from the run, so a refreshed record keeps the run out of the main tables.
+        self.assertNotIn("dont_know", run_metrics(connection, plain["run_key"], path.parent))
+        metrics = run_metrics(connection, with_option["run_key"], path.parent)
+        self.assertIs(metrics["dont_know"], True)
+        data = metrics["dont_know_answers"]
+        self.assertEqual((data["right"], data["wrong"], data["dont_know"], data["invalid"]), (1, 1, 1, 0))
+        self.assertEqual((data["attempt_rate"], data["non_hallucination"]), (2 / 3, 1 / 2))
+        self.assertAlmostEqual(data["mean_option_probability"], (0.7 + 0.1 + 0.05) / 3)
+        # Two attempts in three without the option: the cut-off 0.8 keeps the wrong 0.9 and the right 0.8.
+        derived = data["derived"]
+        self.assertEqual((derived["cut_off"], derived["right"], derived["wrong"], derived["abstained"]), (0.8, 1, 1, 1))
+
+    def test_its_repeats_never_join_the_repeats_of_the_main_runs(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        plain = {1: ("B", self.spread("B", 0.6, "ABCDE")), 2: ("A", self.spread("A", 0.9, "ABCDE")),
+                 3: ("C", self.spread("C", 0.8, "ABCDE"))}
+        variant = {1: ("F", self.spread("F", 0.7, "ABCDEF")), 2: ("A", self.spread("A", 0.5, "ABCDEF")),
+                   3: ("C", self.spread("C", 0.75, "ABCDEF"))}
+        records = [self.store_run(connection, path, False, plain), self.store_run(connection, path, False, plain, 2),
+                   self.store_run(connection, path, True, variant), self.store_run(connection, path, True, variant, 2)]
+        sets = run_repeats(connection, {record["run_key"]: record for record in records}, path.parent)
+        self.assertEqual(sorted(item["run_keys"] for item in sets),
+                         sorted([[records[0]["run_key"], records[1]["run_key"]], [records[2]["run_key"], records[3]["run_key"]]]))
+        # Each set compares all three questions: none is asked differently inside a set.
+        self.assertEqual([item["questions"] for item in sets], [3, 3])
+
+    def test_the_cut_off_meets_the_attempt_rate_and_the_higher_one_wins_a_tie(self) -> None:
+        answers = [(0.9, 1), (0.8, 0), (0.7, 1), (0.6, 0)]
+        half = derived_abstention(answers, 0.5)
+        self.assertEqual((half["cut_off"], half["right"], half["wrong"], half["abstained"]), (0.8, 1, 1, 2))
+        self.assertEqual(half["non_hallucination"], 2 / 3)
+        # 3/8 lies as far from one attempt in four as from two: the higher cut-off, fewer attempts, wins.
+        self.assertEqual(derived_abstention(answers, 0.375)["cut_off"], 0.9)
+        none = derived_abstention(answers, 0.0)
+        self.assertEqual((none["cut_off"], none["abstained"], none["non_hallucination"]), (None, 4, 1.0))
+
+    def test_a_cut_off_admits_every_answer_with_its_score_and_never_an_unscored_one(self) -> None:
+        answers = [(0.9, 1), (0.9, 0), (0.5, 1), (None, 1)]
+        one = derived_abstention(answers, 0.4)
+        self.assertEqual((one["cut_off"], one["right"], one["wrong"]), (0.9, 1, 1))
+        everything = derived_abstention(answers, 1.0)
+        self.assertEqual((everything["cut_off"], everything["abstained"], everything["attempt_rate"]), (0.5, 1, 0.75))
+
+    def test_its_runs_stay_out_of_the_main_tables(self) -> None:
+        run = {"replace_key_text": None, "repeat": None, "evaluated": 2198, "eligible_total": 2198}
+        self.assertTrue(in_main_tables(run))
+        self.assertFalse(in_main_tables({**run, "dont_know": True}))
+
+    def test_only_system_one_providers_take_it(self) -> None:
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "llama3", "--provider", "ollama", "--dont-know"]), \
+                mock.patch("sys.stderr"), self.assertRaises(SystemExit):
+            parse_args()
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "subq-snap-1.1", "--provider", "subq", "--dont-know"]):
+            self.assertTrue(parse_args().dont_know)
 
 
 class RunRequestsTests(unittest.TestCase):
