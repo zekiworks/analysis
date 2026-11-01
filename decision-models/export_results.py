@@ -264,7 +264,8 @@ MODELS: dict[str, dict[str, Any]] = {
     "drex-v2.0": {
         "name": "Drex 2.0",
         "note": "Nace.AI's hosted Drex 2.0 (drex-v2.0, released 6 October 2026), built on Qwen3.6-35B-A3B. It reads text "
-        "only, so it is not on the Page images tab.",
+        "only, so it is not on the Page images tab. Nace's API gives its option probabilities rounded to 4 decimal places, "
+        "so they sum to 1 only within that rounding; the check before its runs allowed for it.",
         "parameters": 35_000_000_000,
         "active_parameters": [3_000_000_000],
     },
