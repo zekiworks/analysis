@@ -135,9 +135,9 @@ class Data:
 
 def row_notes(data: Data) -> dict[int, str]:
     """page_config.json's row notes by run id: each note with the run it names ("run") or the runs of its provider and
-    model. The build stops when a note matches no run, or when it is not a sentence of the run's own note in
-    results.json."""
-    notes = {}
+    model; a run with several notes shows them in page_config.json's order. The build stops when a note matches no run,
+    or when it is not a sentence of the run's own note in results.json."""
+    notes: dict[int, str] = {}
     for item in data.config["row_notes"]["rows"]:
         if "run" in item:
             runs = [data.by_id[item["run"]]] if item["run"] in data.by_id else []
@@ -151,7 +151,7 @@ def row_notes(data: Data) -> dict[int, str]:
             if item["note"].removesuffix(".") not in (run.get("note") or ""):
                 raise SystemExit(f"page_config.json row_notes: run {run['run']}'s note in results.json does not say "
                                  f"{item['note']!r}")
-            notes[run["run"]] = item["note"]
+            notes[run["run"]] = f"{notes[run['run']]} {item['note']}" if run["run"] in notes else item["note"]
     return notes
 
 
