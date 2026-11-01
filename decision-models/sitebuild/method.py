@@ -46,7 +46,8 @@ SETUP_TEXTS = (
     "on its author's llama.cpp-based server.",
     "Fastino's System One API. GLiDE reasons more on uncertain cases, which we could not switch off.",
     "Celeris's System One API: probabilities rounded to whole points, no model size or design published.",
-    "SubQ's Decisions API, in public preview, with no model size or design published.",
+    "SubQ's Decisions API, in public preview, with no model size or design published; Snap 1.1's 32-bit probabilities "
+    "passed our check within 32-bit rounding, an experimental rule of ours.",
     "meraGPT's System One API: its own model, with no size or design published; the name serves meraGPT's current "
     "version, here the one of 19 October 2026.",
     "Microsoft's and Inception's decision models via OpenRouter's System One route (paid); request times include OpenRouter's.",
@@ -820,7 +821,7 @@ reasoning problems.{cite(16)}</p>"""),
 {v['batched_configs']} setups with {v['batch_size']} per request {v['method_repeat_times']} times on a fixed
 {v['sample_questions']}-question set.</p>
 <p>On all questions, Open Jev changed {v['method_open_jev_changed_text']}, Decider v1 {v['method_decider_v1_changed_text']}
-and SubQ Snap {v['method_subq_changed_text']}; Jev 1.13 changed about {v['jev_changed_share']}, d1 {v['d1_changed_share']},
+and SubQ Snap Preview {v['method_subq_changed_text']}; Jev 1.13 changed about {v['jev_changed_share']}, d1 {v['d1_changed_share']},
 Celeris 1 {v['celeris_changed_share']}, Qwen's yes or no scoring {v['qwen_yes_no_changed_share']} and Qwen with written
 confidence {v['qwen_stated_changed']} answers ({v['qwen_stated_changed_share']}). Decider v1.2 (local) changed
 {v['method_decider_v12_changed_text']}, Decider Flash v1.2 (local) {v['method_decider_flash_v12_changed_text']}, Mercury Decide

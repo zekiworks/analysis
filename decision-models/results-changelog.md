@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 2c430f54 (1 November 2026)
+
+- Added SubQ Snap 1.1 (`subq-snap-1.1`, public preview) through SubQ's Decisions API. Text: five runs over the 2,198 scored questions (runs 346, 387, 388, 389 and 390), 63.9% right, 12th of 37 decision models, the five runs identical. Page images: condition A from run 346 (58.1%), B (45.7%), C (62.9%) and D with each of the four OCR models (49.7% to 54.3%), over the 763 page-image questions (runs 62 to 67). Its probabilities arrive as 32-bit floats. As an experimental rule of ours for this model only, the check before its runs accepted sums within 32-bit rounding. Run 346 was paused twice while that rule's approval was confirmed; its note gives the effect on its request times. The SubQ Snap Preview rows are unchanged.
+- "I don't know option" tab: SubQ Snap 1.1 added (run 392).
+- From the new row: the summary's "Better than a flat guess" line now names SubQ Snap 1.1 with Perplexity Decider 27B v1.1 (31.5% each) after Open-Jev 27B v1.1. SubQ Snap Preview's places on the Routing tab move down one in front of Opus 5.5 low (seventeenth) and Astra low (fifteenth). One neighbour pair is replaced by two, and 16 comparisons have new Holm-adjusted p-values, because the correction now covers 2,628 pairs of runs instead of 2,556. Comparison letters gain the new row's letter where it joins a group; no tie between existing rows changed. The short chart labels now read "Snap Preview" and "Snap 1.1". No other existing number changed.
+
 ## Results 74c13f91 (1 November 2026)
 
 - Added Base Labs' Elephant-1 and Mammoth-1 (open weights): `baselabs/elephant-1` at `b3f8a93` and `baselabs/mammoth-1` at `61cec44` on our GPU, through their model cards' loader (qev's DecisionEngine with the checkpoints' serve.patch). Text: five runs each over the 2,198 scored questions, each model's five runs identical. Mammoth-1 (runs 374, 377, 380, 383, 384): 67.1% right, 8th of 36 decision models. Elephant-1 (runs 373, 375, 376, 378, 379): 52.4% right, 26th of 36. Their loader rounds probabilities to 6 decimals, and the check before their runs allowed for it. Their cost is at Baseten's list prices for the same models. They are not on the Page images tab: their runtime reads images only through an engine without the attention the models were trained with.

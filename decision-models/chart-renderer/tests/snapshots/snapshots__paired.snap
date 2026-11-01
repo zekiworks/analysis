@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 72 comparisons (12 pass).
-━━ passes the Holm adjustment across these 72 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 73 comparisons (11 pass).
+━━ passes the Holm adjustment across these 73 comparisons   ━━ does not pass
 
                  Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                         ⠤⡧⠤                                     +0.1
                       GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                         ⠠⡧⠄                                     +0.2
@@ -42,8 +42,9 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                                               Decider v1.2 (local) minus Decider v1.1                       ⠤⠤⠤⡧⠤⠤⠤                                   +0.2
                 Decider v1.1 minus DeepSeek-V4.1-Flash, first release (reasoning off)                       ⠤⠤⠤⡧⠤⡧⠤⠤⠤⠤⠄                               +1.0
                                                         Decider v1.1 minus Decider v1                          ⡇          ⠤⠤⠤⠤⢼⠤⠤⠤⠤                   +6.5
-                   DeepSeek-V4.1-Flash, first release (reasoning off) minus SubQ Snap                      ⠠⠤⠤⠤⡧⢼⠤⠤⠤⠤⠤                                +0.7
-                                            SubQ Snap minus GPT-6 Luna, Decisions API                        ⠐⠒⡗⠒⠒⢺⠒⠒⠒⠒⠒⠂                             +1.6
+                DeepSeek-V4.1-Flash, first release (reasoning off) minus Snap Preview                      ⠠⠤⠤⠤⡧⢼⠤⠤⠤⠤⠤                                +0.7
+                                                          Snap Preview minus Snap 1.1                         ⠤⡧⠤⠤⡧⠤⠤⠤⠄                               +1.4
+                                             Snap 1.1 minus GPT-6 Luna, Decisions API                     ⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠂                                +0.3
                                           GPT-6 Luna, Decisions API minus Liquid d1.1                         ⠐⡗⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                            +2.1
                                   Liquid d1.1 minus Claude Sonnet 5.5 (low reasoning)                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒                                 +0.1
                                     Claude Sonnet 5.5 (low reasoning) minus Celeris 1                      ⠐⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠒                               +0.9

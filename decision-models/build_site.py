@@ -470,13 +470,13 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap tenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 9)
+    check("SubQ Snap Preview tenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 9)
     for size in (16, 1):
-        for key, place, word in (("opus", 16, "sixteenth"), ("astra", 14, "fourteenth")):
+        for key, place, word in (("opus", 17, "seventeenth"), ("astra", 15, "fifteenth")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
-            check(f"SubQ Snap {word} in front of {key} ({size} per request): place {ranked.index(subq) + 1}",
+            check(f"SubQ Snap Preview {word} in front of {key} ({size} per request): place {ranked.index(subq) + 1}",
                   ranked.index(subq) + 1 == place)
     for run, text in ((subq, 98.6), (decider, 99.3), (glide, 99.5)):
         check(f"{run['name']}'s most confident fifth was {text}% right",
@@ -499,8 +499,9 @@ def copy_checks(data: Data) -> list[str]:
     # GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2,
     # in that order, at 66.9% to 68.5%;
     # Liquid d1.1 has the smallest calibration gap as
-    # shipped; Open-Jev 27B v1.1 and Decider v1.1 score highest on Better than a flat guess; d1-ultra gives the biggest
-    # estimated saving in all 16 LLM setups (every routing LLM at each request size we ran it at).
+    # shipped; Open-Jev 27B v1.1 scores highest on Better than a flat guess, then SubQ Snap 1.1 and Decider v1.1 (equal to one
+    # decimal); d1-ultra gives the biggest estimated saving in all 16 LLM setups (every routing LLM at each request size
+    # we ran it at).
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
 
     def shares(first: dict[str, Any], second: dict[str, Any]) -> bool:
@@ -526,10 +527,11 @@ def copy_checks(data: Data) -> list[str]:
     check("Summary: calibration gap, as shipped: Liquid d1.1 had the smallest gap among decision models",
           calibrated[0] is data.by_name("d1.1"))
     flat = sorted(decision, key=lambda run: -bp.flat_gain(run))
-    check("Summary: better than a flat guess, after refit: Open-Jev 27B v1.1 (31.9%) and Perplexity Decider 27B v1.1 (31.5%), "
-          "the two highest among decision models",
-          flat[0] is data.by_name("open-jev-27b-v1.1") and flat[1] is data.by_name("pplx-decider-v1.1-27b")
-          and [f"{bp.flat_gain(run):.1f}" for run in flat[:2]] == ["31.9", "31.5"])
+    check("Summary: better than a flat guess, after refit: Open-Jev 27B v1.1 (31.9%), then SubQ Snap 1.1 and Perplexity "
+          "Decider 27B v1.1 (31.5% each), the three highest among decision models",
+          flat[0] is data.by_name("open-jev-27b-v1.1")
+          and {run["run"] for run in flat[1:3]} == {data.by_name("subq-snap-1.1")["run"], data.by_name("pplx-decider-v1.1-27b")["run"]}
+          and [f"{bp.flat_gain(run):.1f}" for run in flat[:3]] == ["31.9", "31.5", "31.5"])
 
     def best_share(part: str) -> str:
         return f"{100 * max(run['groups'][part]['correct'] / run['groups'][part]['questions'] for run in decision):.1f}"

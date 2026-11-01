@@ -315,6 +315,16 @@ MODELS: dict[str, dict[str, Any]] = {
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
     "subq-snap-preview": {"name": "SubQ Snap Preview"},
+    # SubQ's subq-snap-1.1 through its Decisions API, in public preview; it also reads images (Page images tab). Its
+    # option probabilities arrive as 32-bit floats.
+    "subq-snap-1.1": {
+        "name": "SubQ Snap 1.1",
+        "note": "SubQ's subq-snap-1.1, in public preview, through its Decisions API, which also takes images. Its option "
+        "probabilities arrive as 32-bit floats, so they sum to 1 only within 32-bit rounding. As an experimental rule of ours "
+        "for this model only, the check before its runs accepted a sum within one 32-bit epsilon (2^-23) per option when "
+        "every value is an exact 32-bit float, instead of 7 decimal places; this is our tolerance, not an error bound SubQ "
+        "states. The values are stored as SubQ returned them.",
+    },
     "decider-1": {"name": "meraGPT Decider 1", "note": "Hosted decision model; meraGPT serves its current version under this name"},
     "d1:free": {"name": "Liquid d1", "billing": "free"},
     "d1-ultra": {"name": "Liquid d1-ultra"},
@@ -432,6 +442,11 @@ RUN_NOTES: dict[int, str] = {
          "monitored throughout. Only this model's server showed on it at 11:55 UTC on 1 November 2026, before the runs, and "
          "nothing at 12:35 UTC, after them; the one other project with a claim on that GPU confirmed it ran nothing there "
          "in between.",
+    346: "It was paused twice while the approval of its probability check was confirmed, for 11 minutes and then for 3 "
+         "hours 24 minutes, and resumed from its stored answers. The two requests in flight count those pauses in their "
+         "times (706 and 12,236 seconds; the second after one retry, when SubQ had closed the connection), so the run's total "
+         "request time and questions per minute include them. Its median and 90th-percentile request times are the same "
+         "with or without them.",
 }
 # Each unit's plain English label; results.json keeps the printed Turkish title next to it.
 UNITS_EN = {

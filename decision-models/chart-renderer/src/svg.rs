@@ -30,7 +30,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens. No run colour is red: red marks
 /// kept-but-wrong answers only.
-const DARK: [(&str, &str); 71] = [
+const DARK: [(&str, &str); 72] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -71,6 +71,8 @@ const DARK: [(&str, &str); 71] = [
     ("#1d4ed8", "#60a5fa"),
     ("#4d7c0f", "#bef264"),
     ("#a21caf", "#f0abfc"),
+    // SubQ Snap 1.1, a darker fuchsia beside Snap Preview's, a 200 in the dark theme beside Preview's 300.
+    ("#701a75", "#f5d0fe"),
     // Strands Decider 2B shares a confidence panel with Decider Flash v1.2 (#fb923c): a 100 keeps them apart.
     ("#f97316", "#ffedd5"),
     ("#78716c", "#a8a29e"),
