@@ -73,8 +73,9 @@ class SystemOneService:
     # How the server takes images with a request (ask_jev's `images`), or None when it takes none: "assets"
     # (TypeSafe: a top-level map of base64 files, each read where its reference string appears, sent with the
     # TypeSafe-Danger-Zone-Images header), "data-urls" (a top-level `images` list of data URLs: Liquid, vLLM),
-    # "input-image" (OpenAI: `input_image` parts in the input message) or "media" (OneJev's server: a `media`
-    # list, each item read where its `<image:N>` reference appears).
+    # "input-image" (OpenAI: `input_image` parts in the input message), "media" (OneJev's server: a `media`
+    # list, each item read where its `<image:N>` reference appears) or "media-type" (SubQ: a top-level `images` list of
+    # {mediaType, base64} objects, the base64 without a data: prefix).
     images: str | None = None
 
     def key_help(self) -> str:
@@ -166,9 +167,12 @@ SYSTEM_ONE = {
         openai_format=True,
         images="input-image",
     ),
-    # SubQ's subq-snap-preview (public preview) through its Decisions API (docs.subq.ai/endpoints/decisions-api), which
-    # takes the same request at the default path and returns the same answers.
-    "subq": SystemOneService("SubQ", "https://api.subq.ai", key_vars=("SUBQ_API_KEY",), key_required=True),
+    # SubQ's decision models (subq-snap-preview, subq-snap-1.1) through its Decisions API (docs.subq.ai/endpoints/
+    # decisions-api), which takes the same request at the default path and returns the same answers; images as a
+    # top-level list of {mediaType, base64} objects (at most 4, each at most 4 MiB decoded).
+    "subq": SystemOneService(
+        "SubQ", "https://api.subq.ai", key_vars=("SUBQ_API_KEY",), key_required=True, images="media-type"
+    ),
     # meraGPT's Decider 1 (decider-1) through its System One endpoint (meragpt.com/docs/decider), which takes the same
     # request at the default path and returns the same answers. A request, state and questions together, holds at most
     # 4,096 tokens; while capacity starts the service answers 429 with Retry-After.
@@ -299,6 +303,9 @@ PRICES: dict[tuple[str, str], Price] = {
     ),
     # Output tokens are free (docs.subq.ai/using-the-api/models); the model is in public preview.
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
+    # SubQ Snap 1.1, SubQ's default decision model since it replaced Snap Preview (docs.subq.ai/using-the-api/models, read
+    # 1 November 2026): input tokens only, output free.
+    ("subq", "subq-snap-1.1"): Price("SubQ's list price", "https://docs.subq.ai/using-the-api/models/", "2026-11-01", 0.04),
     # Nothing is generated, so output is never billed (meragpt.com/docs/models).
     ("meragpt", "decider-1"): Price("meraGPT's Decider 1 price", "https://meragpt.com/docs/models", "2026-10-19", 0.04),
     # Nace.AI's Drex Max (nace.ai/drex, read 30 October 2026): $0.06 per 1M input tokens list, and $0.03 during the launch
@@ -2900,6 +2907,9 @@ def add_images(service: SystemOneService, payload: dict[str, Any], headers: dict
     urls = [f"data:image/{'png' if fmt == 'png' else 'jpeg'};base64,{data}" for fmt, data in zip(formats, encoded)]
     if service.images == "data-urls":
         payload["images"] = urls
+    elif service.images == "media-type":
+        payload["images"] = [{"mediaType": f"image/{'png' if fmt == 'png' else 'jpeg'}", "base64": data}
+                             for fmt, data in zip(formats, encoded)]
     elif service.images == "input-image":
         text = payload["input"]
         payload["input"] = [{
