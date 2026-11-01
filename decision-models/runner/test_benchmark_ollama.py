@@ -4,6 +4,7 @@ import math
 import os
 import shutil
 import sqlite3
+import struct
 import subprocess
 import tempfile
 import unittest
@@ -261,6 +262,19 @@ class ProbabilityAcceptanceTests(unittest.TestCase):
         # A value reported with more places than the model rounds to gets the strict test.
         finer = {"A": 0.20001, "B": 0.2, "C": 0.2, "D": 0.2, "E": 0.2}
         self.assertRegex(probability_problems(finer, self.LABELS, rounded_to=4)[0], "not 1 to 7 decimal places")
+
+    def test_a_model_listed_as_32_bit_may_miss_one_by_32_bit_rounding_only(self) -> None:
+        # SubQ Snap 1.1 reports exact 32-bit floats: five of them may miss 1 by up to 5 × 2^-23 (6e-7) together, and no
+        # more. These miss it by about 2e-7: too much for 7 decimal places, within 32-bit rounding.
+        within = {"A": 0.2, "B": 0.2, "C": 0.2, "D": 0.2, "E": 0.2000002}
+        within = {key: struct.unpack("f", struct.pack("f", value))[0] for key, value in within.items()}
+        self.assertEqual(probability_problems(within, self.LABELS, float32=True), [])
+        self.assertRegex(probability_problems(within, self.LABELS)[0], "not 1 to 7 decimal places")
+        beyond = dict(within, E=struct.unpack("f", struct.pack("f", 0.200002))[0])
+        self.assertRegex(probability_problems(beyond, self.LABELS, float32=True)[0], "within the 32-bit rounding of 5")
+        # A value that is not an exact 32-bit float gets the strict test.
+        not_float32 = dict(within, E=0.2000002)
+        self.assertRegex(probability_problems(not_float32, self.LABELS, float32=True)[0], "not 1 to 7 decimal places")
 
     def test_a_map_that_does_not_sum_to_one_fails(self) -> None:
         self.assertRegex(probability_problems({"A": 0.62, "B": 0.48}, ["A", "B"])[0], "sum to 1.1")
