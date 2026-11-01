@@ -19,6 +19,7 @@ import re
 import shutil
 import sqlite3
 import statistics
+import struct
 import subprocess
 import sys
 import tempfile
@@ -73,8 +74,9 @@ class SystemOneService:
     # How the server takes images with a request (ask_jev's `images`), or None when it takes none: "assets"
     # (TypeSafe: a top-level map of base64 files, each read where its reference string appears, sent with the
     # TypeSafe-Danger-Zone-Images header), "data-urls" (a top-level `images` list of data URLs: Liquid, vLLM),
-    # "input-image" (OpenAI: `input_image` parts in the input message) or "media" (OneJev's server: a `media`
-    # list, each item read where its `<image:N>` reference appears).
+    # "input-image" (OpenAI: `input_image` parts in the input message), "media" (OneJev's server: a `media`
+    # list, each item read where its `<image:N>` reference appears) or "media-type" (SubQ: a top-level `images` list of
+    # {mediaType, base64} objects, the base64 without a data: prefix).
     images: str | None = None
 
     def key_help(self) -> str:
@@ -166,9 +168,12 @@ SYSTEM_ONE = {
         openai_format=True,
         images="input-image",
     ),
-    # SubQ's subq-snap-preview (public preview) through its Decisions API (docs.subq.ai/endpoints/decisions-api), which
-    # takes the same request at the default path and returns the same answers.
-    "subq": SystemOneService("SubQ", "https://api.subq.ai", key_vars=("SUBQ_API_KEY",), key_required=True),
+    # SubQ's decision models (subq-snap-preview, subq-snap-1.1) through its Decisions API (docs.subq.ai/endpoints/
+    # decisions-api), which takes the same request at the default path and returns the same answers; images as a
+    # top-level list of {mediaType, base64} objects (at most 4, each at most 4 MiB decoded).
+    "subq": SystemOneService(
+        "SubQ", "https://api.subq.ai", key_vars=("SUBQ_API_KEY",), key_required=True, images="media-type"
+    ),
     # meraGPT's Decider 1 (decider-1) through its System One endpoint (meragpt.com/docs/decider), which takes the same
     # request at the default path and returns the same answers. A request, state and questions together, holds at most
     # 4,096 tokens; while capacity starts the service answers 429 with Retry-After.
@@ -304,6 +309,9 @@ PRICES: dict[tuple[str, str], Price] = {
     ),
     # Output tokens are free (docs.subq.ai/using-the-api/models); the model is in public preview.
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
+    # SubQ Snap 1.1, SubQ's default decision model since it replaced Snap Preview (docs.subq.ai/using-the-api/models, read
+    # 1 November 2026): input tokens only, output free.
+    ("subq", "subq-snap-1.1"): Price("SubQ's list price", "https://docs.subq.ai/using-the-api/models/", "2026-11-01", 0.04),
     # Nothing is generated, so output is never billed (meragpt.com/docs/models).
     ("meragpt", "decider-1"): Price("meraGPT's Decider 1 price", "https://meragpt.com/docs/models", "2026-10-19", 0.04),
     # Nace.AI's Drex Max (nace.ai/drex, read 30 October 2026): $0.06 per 1M input tokens list, and $0.03 during the launch
@@ -2841,16 +2849,29 @@ def reported_decimals(value: float) -> int:
 ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     ("nace", "drex-v2.0"): 4, ("baselabs", "baselabs/elephant-1"): 6, ("baselabs", "baselabs/mammoth-1"): 6,
 }
+# Hosted models whose API reports each option's probability as a 32-bit float, so that the probabilities sum to 1 only
+# within 32-bit rounding: SubQ Snap 1.1 (smoke run 345, 1 November 2026; every value an exact 32-bit float). Their smoke
+# acceptance allows the sum to miss 1 by one 32-bit machine epsilon (2^-23) per option when every value is an exact
+# 32-bit float (the user's decision, 1 November 2026).
+FLOAT32_PROBABILITIES: set[tuple[str, str]] = {("subq", "subq-snap-1.1")}
 
 
-def probability_problems(probabilities: Any, labels: list[str], rounded_to: int | None = None) -> list[str]:
+def is_float32(value: float) -> bool:
+    """Whether a number is exactly a 32-bit float, as an API that computes in 32 bits reports it."""
+    return struct.unpack("f", struct.pack("f", value))[0] == value
+
+
+def probability_problems(probabilities: Any, labels: list[str], rounded_to: int | None = None,
+                         float32: bool = False) -> list[str]:
     """Why a System One answer's option probabilities fail the smoke acceptance of a decision-model run (a probability
     for every option, summing close to 1), or [] when they pass. Every offered option needs a probability, no other key
     may appear, and each value must be a finite number from 0 to 1. The values are read as reported, never normalized.
     Close to 1 is Nace's own test of Drex Max's output (tests/test_drex_max.py in nace-ai/drex-decision-models at e206b27:
     assertAlmostEqual(sum, 1.0)): the sum minus 1 rounds to 0 at 7 decimal places. With `rounded_to` (a model in
     ROUNDED_PROBABILITIES) and every value reported with at most that many decimal places, the sum may instead miss 1 by
-    what that rounding explains: half a unit in that place per value, plus a machine epsilon each."""
+    what that rounding explains: half a unit in that place per value, plus a machine epsilon each. With `float32` (a model
+    in FLOAT32_PROBABILITIES) and every value an exact 32-bit float, it may miss 1 by one 32-bit epsilon (2^-23) per
+    value."""
     if not isinstance(probabilities, dict):
         return ["no probability map"]
     problems = []
@@ -2874,15 +2895,19 @@ def probability_problems(probabilities: Any, labels: list[str], rounded_to: int 
         if abs(total - 1) > allowance:
             problems.append(f"the probabilities sum to {total!r}, not 1 within the rounding of {len(values)} values to "
                             f"{rounded_to} decimal places")
+    elif float32 and all(is_float32(float(value)) for value in values):
+        if abs(total - 1) > len(values) * 2.0 ** -23:
+            problems.append(f"the probabilities sum to {total!r}, not 1 within the 32-bit rounding of {len(values)} values")
     elif round(total - 1, 7) != 0:
         problems.append(f"the probabilities sum to {total!r}, not 1 to 7 decimal places")
     return problems
 
 
-def answer_problems(provider: str, options_json: str, raw_response: str | None, rounded_to: int | None = None) -> list[str]:
+def answer_problems(provider: str, options_json: str, raw_response: str | None, rounded_to: int | None = None,
+                    float32: bool = False) -> list[str]:
     """Why a stored System One answer fails the smoke acceptance: no stored response, no valid choice, or option
-    probabilities that fail probability_problems against the options the question was asked with (`rounded_to` as there).
-    A valid choice alone is not a pass."""
+    probabilities that fail probability_problems against the options the question was asked with (`rounded_to` and
+    `float32` as there). A valid choice alone is not a pass."""
     if provider not in SYSTEM_ONE_PROVIDERS:
         return [f"{provider} is not a System One provider"]
     if not raw_response:
@@ -2890,7 +2915,7 @@ def answer_problems(provider: str, options_json: str, raw_response: str | None, 
     labels = [option["label"] for option in json.loads(options_json)]
     answer = system_one_answer(json.loads(raw_response).get("response"))
     problems = [] if answer.get("choice") in labels else [f"no valid choice ({answer.get('choice')!r})"]
-    return problems + probability_problems(answer.get("probabilities"), labels, rounded_to)
+    return problems + probability_problems(answer.get("probabilities"), labels, rounded_to, float32)
 
 
 def check_probabilities(connection: sqlite3.Connection, run_id: int) -> tuple[list[str], list[str]]:
@@ -2912,8 +2937,9 @@ def check_probabilities(connection: sqlite3.Connection, run_id: int) -> tuple[li
         problems.append(f"run {run_id} stored {len(rows)} of its {run['evaluated_total']} questions")
     passed, deviations, places = 0, [], []
     rounded_to = ROUNDED_PROBABILITIES.get((run["provider"], run["model"]))
+    float32 = (run["provider"], run["model"]) in FLOAT32_PROBABILITIES
     for row in rows:
-        found = answer_problems(run["provider"], row["options_json"], row["raw_response"], rounded_to)
+        found = answer_problems(run["provider"], row["options_json"], row["raw_response"], rounded_to, float32)
         problems += [f"question {row['question_id']}: {problem}" for problem in found]
         passed += not found
         # How far each map of finite numbers is from summing to 1, passing or not, and how many digits it reports.
@@ -2934,6 +2960,8 @@ def check_probabilities(connection: sqlite3.Connection, run_id: int) -> tuple[li
     if rounded_to is not None:
         summary.append(f"sums checked within the rounding of each value to {rounded_to} decimal places "
                        "(ROUNDED_PROBABILITIES)")
+    if float32:
+        summary.append("sums checked within 32-bit rounding when every value is an exact 32-bit float (FLOAT32_PROBABILITIES)")
     return summary, problems
 
 
@@ -2952,6 +2980,9 @@ def add_images(service: SystemOneService, payload: dict[str, Any], headers: dict
     urls = [f"data:image/{'png' if fmt == 'png' else 'jpeg'};base64,{data}" for fmt, data in zip(formats, encoded)]
     if service.images == "data-urls":
         payload["images"] = urls
+    elif service.images == "media-type":
+        payload["images"] = [{"mediaType": f"image/{'png' if fmt == 'png' else 'jpeg'}", "base64": data}
+                             for fmt, data in zip(formats, encoded)]
     elif service.images == "input-image":
         text = payload["input"]
         payload["input"] = [{
