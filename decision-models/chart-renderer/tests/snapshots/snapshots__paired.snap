@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 70 comparisons (12 pass).
-━━ passes the Holm adjustment across these 70 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 72 comparisons (12 pass).
+━━ passes the Holm adjustment across these 72 comparisons   ━━ does not pass
 
                  Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                         ⠤⡧⠤                                     +0.1
                       GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                         ⠠⡧⠄                                     +0.2
@@ -28,7 +28,7 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                                        Qwen 3.8 27B (low reasoning) minus Gemma 4 31B                       ⠤⠤⠤⡧⢴⠤⠤⠤⠤⠤                                +0.8
                                      Gemma 4 31B minus Kimi K3.1 Pro (reasoning none)                      ⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤                                 +0.4
                                                       Gemma 4 31B minus Fastino GLiDE                          ⡇      ⠤⠤⠤⠤⠤⢴⠤⠤⠤⠤⠤                     +5.2
-                      Kimi K3.1 Pro (reasoning none) minus Fastino GLiDE v1.2 (local)                          ⡇    ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤                        +4.2
+                      Kimi K3.1 Pro (reasoning none) minus Fastino GLiDE v1.2 (local)                          ⡇    ⠤⠤⠤⠤⠤⡦⠤⠤⠤⠤                        +4.2
                           Fastino GLiDE v1.2 (local) minus GPT-6 Luna (low reasoning)                     ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.2
                                        GPT-6 Luna (low reasoning) minus Fastino GLiDE                     ⠠⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠄                                +0.4
                            GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)          ⠤⠤⠤⠤⢼⠤⠤⠤⠤⠄      ⡇                                      -4.7
@@ -37,7 +37,8 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                         vLLM-SR d3 minus vLLM-SR d3-ultra (transformers, rev 52ba9e7)                      ⠠⠤⠤⠤⡧⠤⠤⠄                                   +0.0
                        vLLM-SR d3-ultra (transformers, rev 52ba9e7) minus Drex Max v1                      ⠠⠤⠤⠤⡧⠤⠤⠤                                   +0.0
                                                        Drex Max v1 minus Drex Max 1.1                       ⠠⠤⠤⣿⠤⠤⠤⠄                                  +0.4
-                                              Drex Max 1.1 minus Decider v1.2 (local)                       ⠠⠤⠤⣿⠤⠤⠤⠄                                  +0.3
+                                                         Drex Max 1.1 minus Mammoth-1                      ⠤⠤⠤⠤⣿⠤⠤⠤⠤⠄                                 +0.3
+                                                 Mammoth-1 minus Decider v1.2 (local)                     ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠄                                  +0.0
                                               Decider v1.2 (local) minus Decider v1.1                       ⠤⠤⠤⡧⠤⠤⠤                                   +0.2
                 Decider v1.1 minus DeepSeek-V4.1-Flash, first release (reasoning off)                       ⠤⠤⠤⡧⠤⡧⠤⠤⠤⠤⠄                               +1.0
                                                         Decider v1.1 minus Decider v1                          ⡇          ⠤⠤⠤⠤⢼⠤⠤⠤⠤                   +6.5
@@ -63,7 +64,8 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                                                               Cygnet minus Winnow 12B                      ⠐⠒⠒⠒⡿⠒⠒⠒⠒                                  +0.2
                          Winnow 12B minus Qwen 3.8 27B (agreement across ten answers)                       ⠐⠒⠒⡗⠒⠺⠒⠒⠒⠒⠒                               +1.1
     Qwen 3.8 27B (agreement across ten answers) minus Qwen 3.8 27B (written estimate)                       ⠒⠒⠒⡗⠒⠒⠂                                   +0.1
-                    Qwen 3.8 27B (written estimate) minus Qwen 3.8 27B (yes/no score)                          ⡗⠒⠒⠒⠒⠗⠒⠒⠒⠒⠂                            +2.3
+                                     Qwen 3.8 27B (written estimate) minus Elephant-1                         ⠒⡗⠒⠒⠒⠗⠒⠒⠒⠒⠒                             +1.8
+                                         Elephant-1 minus Qwen 3.8 27B (yes/no score)                     ⠐⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠂                                +0.5
                          Qwen 3.8 27B (yes/no score) minus Decider Flash v1.2 (local)                          ⡇   ⠒⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠒                       +4.1
                Decider Flash v1.2 (local) minus Microsoft-Decision-1 (via OpenRouter)                       ⠐⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒                              +1.3
                                 Microsoft-Decision-1 (via OpenRouter) minus Qwen3-14B                      ⠒⠒⠒⠒⡗⠺⠒⠒⠒⠒⠒⠂                               +0.7

@@ -436,6 +436,8 @@ fn color(run: &Run) -> Color {
         ("drex-max-v1", ..) => rgb(0x14b8a6),
         ("drex-v2.0", ..) => rgb(0x134e4a),
         ("LiquidAI/d1-2B", ..) => rgb(0xd97706),
+        ("baselabs/elephant-1", ..) => rgb(0x334155),
+        ("baselabs/mammoth-1", ..) => rgb(0x78350f),
         _ => GUIDE,
     }
 }

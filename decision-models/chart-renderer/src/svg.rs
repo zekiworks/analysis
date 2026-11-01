@@ -30,7 +30,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens. No run colour is red: red marks
 /// kept-but-wrong answers only.
-const DARK: [(&str, &str); 69] = [
+const DARK: [(&str, &str); 71] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -116,6 +116,9 @@ const DARK: [(&str, &str); 69] = [
     // Liquid d1-2B (open weights), an amber beside the other Liquid rows' yellows and apart from the orange, cyan, purple
     // and blue runs of its confidence panel; a 300 in the dark theme, as the Sonnet format rerun's amber in another panel.
     ("#d97706", "#fcd34d"),
+    // Base Labs' Elephant-1 and Mammoth-1: a cool slate and a warm brown no other row uses, light in the dark theme.
+    ("#334155", "#cbd5e1"),
+    ("#78350f", "#fcd9b6"),
     // Kept and right, kept but wrong: the page's shared palette.
     ("#15803d", "#4ade80"),
     ("#b91c1c", "#fca5a5"),

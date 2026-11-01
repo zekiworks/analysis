@@ -9,7 +9,7 @@
   "decision_model_providers": [
     "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "subq", "meragpt", "clef", "cygnet", "open-jev",
     "winnow", "metask", "strands", "gliner", "laya", "openrouter", "pplx-decider", "glide", "vllm-sr", "d3-server", "onejev",
-    "nace", "drex-max", "d1-server"
+    "nace", "drex-max", "d1-server", "baselabs"
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
   "mixed_providers": {"openrouter": ["inception/mercury-decide", "microsoft/microsoft-decision-1"]},
@@ -110,7 +110,9 @@
     "rows": [
       {"provider": "onejev", "model": "OmniJev/OneJev-27B", "note": "The five runs are identical because decoding is deterministic."},
       {"run": 276, "note": "It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for the other 406 questions; the usage and cost of the failed request are unknown."},
-      {"run": 340, "note": "Its request times come from one GPU with no other known work while its runs took place, though the GPU was not monitored throughout."}
+      {"run": 340, "note": "Its request times come from one GPU with no other known work while its runs took place, though the GPU was not monitored throughout."},
+      {"provider": "baselabs", "model": "baselabs/elephant-1", "note": "It reports probabilities rounded to 6 decimals by the model's own loader, so they sum to 1 only within that rounding; the check before its runs allowed for it."},
+      {"provider": "baselabs", "model": "baselabs/mammoth-1", "note": "It reports probabilities rounded to 6 decimals by the model's own loader, so they sum to 1 only within that rounding; the check before its runs allowed for it."}
     ]
   },
   "reasoning_levels": {"about": "Each model's reasoning levels as its provider's documentation lists them, lowest first, with its default and top level; shown on the model pages.", "models": {
@@ -142,7 +144,9 @@
     "drex-max-v1.1": "Drex Max 1.1",
     "drex-max-v1": "Drex Max v1",
     "drex-v2.0": "Drex 2.0",
-    "LiquidAI/d1-2B": "d1-2B"
+    "LiquidAI/d1-2B": "d1-2B",
+    "baselabs/elephant-1": "Elephant-1",
+    "baselabs/mammoth-1": "Mammoth-1"
   },
   "method_records": {
     "about": "Numbers the method and limits sections state that neither results.json nor answers.json holds. Each group names where it was recorded; build_page.py checks the key review against results.json's excluded questions.",
@@ -171,5 +175,11 @@
   },
   "images": {
     "preview": {"width": 1200, "height": 630}
+  },
+  "dont_know": {
+    "not_run": [
+      {"name": "Perplexity Decider 27B v1.1", "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
+      {"name": "SubQ Snap Preview", "reason": "Not run yet: SubQ's API returns its probabilities in 32-bit precision, so their sums miss our 7-decimal check, and a decision on allowing for that is pending."}
+    ]
   }
 }

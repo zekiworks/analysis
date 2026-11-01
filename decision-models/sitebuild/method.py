@@ -63,6 +63,8 @@ SETUP_TEXTS = (
     "Drex Max 1.1 and v1 are different checkpoints.",
     "Liquid AI's released d1-2B on our hardware, through its model card's own call; Turkish is not among the languages "
     "Liquid lists for it.",
+    "Base Labs' released elephant-1 and mammoth-1 on our hardware, through their model cards' loader, text only; their "
+    "cards list English only.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",

@@ -4,7 +4,8 @@
 The report (benchmark-results.md) embeds one JSON record per run and one with the comparisons between
 runs. Only runs over a full question set are exported, those on the question bank of the most recently
 finished full run, without runs whose correct option was replaced, and only aggregate numbers: no
-question text, prompts, answers or local paths.
+question text, prompts, answers or local paths. Runs with the "I don't know" option (--dont-know) enter
+only their own section, `dont_know`, and answers.json's `dont_know_runs`.
 """
 
 from __future__ import annotations
@@ -72,6 +73,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "nace": {"access": "Nace.AI System One API", "scoring": True, "billing": "api"},
     "drex-max": {"access": "Drex Max server (Nace's loader, drex_max), self-hosted, BF16", "scoring": True, "billing": "local"},
     "d1-server": {"access": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "baselabs": {"access": "Base Labs server (qev, the model card's loader), self-hosted, BF16", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -280,6 +282,35 @@ MODELS: dict[str, dict[str, Any]] = {
         "for it; Turkish is not among them.",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 1_918_181_888,
+    },
+    # Counted from the released checkpoints: elephant-1 (baselabs/elephant-1 at b3f8a93), language model 8,953,803,264 and
+    # vision encoder 456,010,480; mammoth-1 (baselabs/mammoth-1 at 61cec44), language model 26,895,998,464 and vision
+    # encoder 460,730,096. Each ran on one RTX PRO 6000 Blackwell (96 GB).
+    "baselabs/elephant-1": {
+        "name": "Elephant-1",
+        "note": "Base Labs' released elephant-1 weights (baselabs/elephant-1 at b3f8a93), a decision model post-trained from "
+        "Qwen3.5-9B that also reads images. It ran on our hardware through its model card's loader (qev's DecisionEngine from "
+        "OneJev at 81ce62f with the checkpoint's serve.patch, as the card's setup.sh installs it) behind our HTTP server "
+        "(servers/baselabs_server.py), one request at a time. That runtime reads images only through an engine the patch "
+        "leaves without the attention the model was trained with, so it is not on the Page images tab. The card mentions a "
+        "trained \"I don't know\" option, but its answers have no such output, and our questions offer five options. It "
+        "reports probabilities rounded to 6 decimals by the model's own loader, so they sum to 1 only within that rounding; "
+        "the check before its runs allowed for it. Its card lists English only.",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 9_409_813_744,
+    },
+    "baselabs/mammoth-1": {
+        "name": "Mammoth-1",
+        "note": "Base Labs' released mammoth-1 weights (baselabs/mammoth-1 at 61cec44), a decision model post-trained from "
+        "Qwen3.5-27B that also reads images. It ran on our hardware through its model card's loader (qev's DecisionEngine from "
+        "OneJev at 81ce62f with the checkpoint's serve.patch, as the card's setup.sh installs it) behind our HTTP server "
+        "(servers/baselabs_server.py), one request at a time. That runtime reads images only through an engine the patch "
+        "leaves without the attention the model was trained with, so it is not on the Page images tab. The card mentions a "
+        "trained \"I don't know\" option, but its answers have no such output, and our questions offer five options. It "
+        "reports probabilities rounded to 6 decimals by the model's own loader, so they sum to 1 only within that rounding; "
+        "the check before its runs allowed for it. Its card lists English only.",
+        "hardware": f"1 × {GPU}; BF16",
+        "parameters": 27_356_728_560,
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
@@ -1153,9 +1184,123 @@ def reasoning(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, 
     return {"reading_units": list(READING_UNITS), "seed": REASONING_SEED, "resamples": bm.BOOTSTRAP_RESAMPLES, "pairs": pairs}
 
 
-def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
+def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
+    """The "I don't know option" tab (results.json `dont_know`) from the report's records of runs with the option
+    (`dont_know_answers`), on the exported bank's full question set: one entry per setup (provider, model, reasoning,
+    questions per request), from its first full run, with the range over all its full runs. Each setup's original run
+    (its first full run without the option) must be its model's run on the Text tab. None without such runs. The prompt
+    texts and answers_changed come from the answers (dont_know_answers_part)."""
+    graded = data["dataset"]["graded_sha256"] or data["dataset"]["sha256"]
+    full = [
+        record
+        for record in records
+        if record["evaluated"] == record["eligible_total"] == data["questions"]
+        and record.get("replace_key_text") is None
+        and not record.get("question_list")
+        and record["run_id"] not in HELD_RUNS
+        and (record.get("graded_sha256") or record["dataset_sha256"]) == graded
+    ]
+    if not full:
+        return None
+    setups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
+    for record in sorted(full, key=lambda record: record["run_id"]):
+        key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"])
+        setups.setdefault(key, []).append(record)
+    by_id = {run["run"]: run for run in data["runs"]}
+    metrics = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
+    models = []
+    for (provider, model, _, batch_size), found in setups.items():
+        label = f"{model} ({provider}), \"I don't know\" runs {[record['run_id'] for record in found]}"
+        first = [record for record in found if record.get("repeat") is None]
+        if len(first) != 1:
+            raise ValueError(f"{label}: needs exactly one full run without a repeat number")
+        found.sort(key=lambda record: (record.get("repeat") is not None, record["run_id"]))
+        values = []
+        for record in found:
+            got = record["dont_know_answers"]
+            if got["questions"] != data["questions"] or sum(got[key] for key in ("right", "wrong", "dont_know", "invalid")) != got["questions"]:
+                raise ValueError(f"{label}: run {record['run_id']} does not count {data['questions']} questions")
+            values.append({**got, "mean_dont_know_probability": got["mean_option_probability"]})
+        head = values[0]
+        original = head["original_run"]
+        if any(value["original_run"] != original for value in values):
+            raise ValueError(f"{label}: its runs name different original runs")
+        primary = min(
+            (run["run"] for run in data["runs"]
+             if (run["provider"], run["model"], run["questions_per_request"]) == (provider, model, batch_size)),
+            default=None,
+        )
+        if original is None or original != primary:
+            raise ValueError(f"{label}: its original run {original} is not the model's run on the Text tab ({primary})")
+        if head["derived"] is None:
+            raise ValueError(f"{label}: no derived abstention")
+        models.append(
+            {
+                "name": by_id[original]["name"],
+                "model": model,
+                "provider": provider,
+                "run": found[0]["run_id"],
+                "runs": [record["run_id"] for record in found],
+                **{key: head[key] for key in ("right", "wrong", "dont_know", "invalid")},
+                **{key: head[key] for key in metrics},
+                "spread": None
+                if len(values) == 1
+                else {
+                    key: None
+                    if any(value[key] is None for value in values)
+                    else [min(value[key] for value in values), max(value[key] for value in values)]
+                    for key in metrics
+                },
+                "answers_changed": None,
+                "original_run": original,
+                "original_accuracy": by_id[original]["correct"] / data["questions"],
+                "derived": {
+                    key: head["derived"][key] for key in ("cut_off", "attempt_rate", "non_hallucination", "right", "wrong", "abstained")
+                },
+            }
+        )
+    models.sort(key=lambda item: (-item["accuracy"], item["name"].casefold(), item["run"]))
+    return {"questions": data["questions"], "models": models}
+
+
+def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any]) -> dict[str, Any]:
+    """The `dont_know` section with what comes from the answers file: the option, the instructions with their added
+    sentence and the prompt version (DONT_KNOW_PROMPTS, hashed as the runner hashes them; every run must carry that
+    version), and per setup with more than one run the scored questions whose answer differs across its runs."""
+    prompts = document.get("dont_know_prompts")
+    if prompts is None:
+        raise ValueError('the answers file has "I don\'t know" runs but no dont_know_prompts')
+    option, instructions = prompts["dont_know_option"], prompts["system_one_instructions"]
+    sentence = f"If you do not know the answer, choose {option}."
+    if instructions != f"{document['prompts']['system_one_instructions']} {sentence}":
+        raise ValueError(f"dont_know_prompts: the instructions are not the System One instructions plus {sentence!r}")
+    version = hashlib.sha256(
+        json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:12]
+    by_id = {run["run"]: run for run in answers["dont_know_runs"]}
+    wrong = sorted(run for run, item in by_id.items() if item["prompt_version"] != version)
+    if wrong:
+        raise ValueError(f"\"I don't know\" runs {wrong} were not run with prompt version {version}")
+    scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
+    for model in section["models"]:
+        if len(model["runs"]) > 1:
+            choices = [by_id[run]["choice"] for run in model["runs"]]
+            answered = [index for index in scored if all(choice[index] is not None for choice in choices)]
+            model["answers_changed"] = sum(1 for index in answered if len({choice[index] for choice in choices}) > 1)
+    return {
+        "option": option,
+        "option_en": "I don't know",
+        "sentence": sentence,
+        "instructions": instructions,
+        "prompt_version": version,
+        **section,
+    }
+
+
+def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_section: dict[str, Any] | None = None) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
-    runs, the repeats of each repeated configuration and the runs of each measured routing pipeline."""
+    runs, the repeats of each repeated configuration, the runs of each measured routing pipeline, and the runs with
+    the "I don't know" option (`dont_know_section`), which no other list holds."""
     dataset = next(
         (item for item in document["datasets"] if item["graded_sha256"] == data["dataset"]["graded_sha256"]), None
     )
@@ -1185,13 +1330,18 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
         for item in data.get("batching", [])
     }
     by_id = {run["run"]: run for run in dataset["runs"]}
-    missing = (main | set(repeats) | set(pipelines) | set(batching)) - set(by_id)
+    dont_know_sets = {run: model["runs"] for model in (dont_know_section or {}).get("models", []) for run in model["runs"]}
+    missing = (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets)) - set(by_id)
     if missing:
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
+    mixed = sorted(run for run in main | set(repeats) | set(pipelines) | set(batching) if by_id[run].get("dont_know"))
+    if mixed or any(not by_id[run].get("dont_know") for run in dont_know_sets):
+        raise ValueError(f"runs {mixed or sorted(dont_know_sets)}: the \"I don't know\" runs and the others are mixed up")
     return {
         "schema_version": document["schema_version"],
         "dataset": {"name": dataset["name"], "graded_sha256": dataset["graded_sha256"]},
         "prompts": document["prompts"],
+        **({"dont_know_prompts": document["dont_know_prompts"]} if dont_know_sets else {}),
         "questions": dataset["questions"],
         "runs": [by_id[run] for run in sorted(main)],
         # Each repeat lists the runs of its configuration's repeat set (results.json `repeats`).
@@ -1199,6 +1349,8 @@ def export_answers(document: dict[str, Any], data: dict[str, Any]) -> dict[str, 
         "pipeline_runs": [{**by_id[run], "pipelines": roles} for run, roles in sorted(pipelines.items())],
         # Runs of a configuration with another number of questions per request (results.json `batching`).
         "batching_runs": [{**by_id[run], "batching": batch} for run, batch in sorted(batching.items())],
+        # Runs with the "I don't know" option, each with the runs of its setup (results.json `dont_know`).
+        "dont_know_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(dont_know_sets.items())],
     }
 
 
@@ -1225,11 +1377,17 @@ def main() -> int:
     try:
         text = args.report.read_text(encoding="utf-8")
         analysis = ANALYSIS_PATTERN.search(text)
+        records = [json.loads(match.group(1)) for match in RESULT_PATTERN.finditer(text)]
+        # The runs with the "I don't know" option enter only their own section, `dont_know`.
         data = export(
-            [json.loads(match.group(1)) for match in RESULT_PATTERN.finditer(text)],
+            [record for record in records if not record.get("dont_know")],
             json.loads(analysis.group(1)) if analysis else {},
         )
-        answers = export_answers(json.loads(args.answers.read_text(encoding="utf-8")), data)
+        section = dont_know([record for record in records if record.get("dont_know")], data)
+        document = json.loads(args.answers.read_text(encoding="utf-8"))
+        answers = export_answers(document, data, section)
+        if section is not None:
+            data["dont_know"] = dont_know_answers_part(section, document, answers)
         data["answer_key"] = answer_key(answers)
         data["formats"] = formats(data["runs"], answers)
         data["reasoning"] = reasoning(data["runs"], answers)

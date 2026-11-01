@@ -27,7 +27,10 @@ test's kept questions (the decision run's scores against its cutoff), the pair's
 accuracy, the paired change with its 95% interval and exact McNemar p and, with one question per
 request, each question's wait. Then the costs: each priced run's from its token counts at the published
 rates, every run without a price shown as a free tier or self-hosted, each routing simulation's and
-replay's cost per 1,000 questions from its runs, and the routing tests' costs from their parts. Uses only
+replay's cost per 1,000 questions from its runs, and the routing tests' costs from their parts. After the
+page-image track, the "I don't know" option (`dont_know`): each model's counts, rates and mean probability of the
+option from its runs' answers (dont_know_runs), their range and changed answers, and the derived abstention from its
+original run. Uses only
 the standard library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with
 status 1 when anything differs beyond the tolerances printed.
 """
@@ -321,7 +324,7 @@ def main() -> int:
     grading_mismatches = check_grading(answers, keys, scored, checks)
     checked = checks.passed + checks.failed - before
     print(
-        f"\nGrading (every repeat, routing-test and request-size run, each answer against answer key version "
+        f"\nGrading (every repeat, routing-test, request-size and \"I don't know\" run, each answer against answer key version "
         f"{key.get('version')}): {checked - len(grading_mismatches)} of {checked} runs match"
     )
     for line in grading_mismatches:
@@ -401,6 +404,18 @@ def main() -> int:
         f"{checked - len(vision_mismatches)} of {checked} match"
     )
     for line in vision_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    dont_know_mismatches = check_dont_know(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    models = len((results.get("dont_know") or {}).get("models", []))
+    print(
+        f"\nI don't know option ({models} model{'' if models == 1 else 's'}, from their runs' exported "
+        f"answers: counts exact, rates, mean probabilities and the derived abstention within {METRIC_TOLERANCE:g}): "
+        f"{checked - len(dont_know_mismatches)} of {checked} match"
+    )
+    for line in dont_know_mismatches:
         print(line)
 
     print(f"\n{checks.passed} checks match, {checks.failed} differ")
@@ -590,11 +605,130 @@ def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[
     the published key: each answer it gave on a scored question is correct exactly when its option is the key's.
     Returns a line per run that differs."""
     mismatches = []
-    for run in answers.get("repeat_runs", []) + answers.get("pipeline_runs", []) + answers.get("batching_runs", []):
+    for run in (answers.get("repeat_runs", []) + answers.get("pipeline_runs", []) + answers.get("batching_runs", [])
+                + answers.get("dont_know_runs", [])):
         given = [index for index in scored if run["correct"][index] is not None and keys[index] is not None]
         differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
         if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
             mismatches.append(f"  run {run['run']} ({label(run)}): {differ} of {len(given)} answers are not graded on the key")
+    return mismatches
+
+
+# The "I don't know" option's letter: it follows each question's five options (DONT_KNOW_OPTION in benchmark_ollama.py).
+DONT_KNOW_LETTER = "F"
+
+
+def derived_abstention(answers: list[tuple[float | None, int]], target: float) -> dict[str, Any]:
+    """Answer only where the score reaches the cut-off whose attempt rate comes nearest `target` (the higher cut-off on a
+    tie; an answer without a score is never an attempt) and abstain on the rest; `answers` holds (score, correct)."""
+    total = len(answers)
+    ranked = sorted((score for score, _ in answers if score is not None), reverse=True)
+    best: tuple[float, float | None] = (target, None)
+    for index, score in enumerate(ranked):
+        if index + 1 < len(ranked) and ranked[index + 1] == score:
+            continue
+        distance = abs((index + 1) / total - target)
+        if distance < best[0]:
+            best = (distance, score)
+    cut_off = best[1]
+    attempted = [right for score, right in answers if cut_off is not None and score is not None and score >= cut_off]
+    right, wrong = sum(attempted), len(attempted) - sum(attempted)
+    abstained = total - len(attempted)
+    return {
+        "cut_off": cut_off,
+        "right": right,
+        "wrong": wrong,
+        "abstained": abstained,
+        "attempt_rate": len(attempted) / total,
+        "non_hallucination": abstained / (abstained + wrong) if abstained + wrong else None,
+    }
+
+
+def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute results.json's `dont_know` from answers.json's `dont_know_runs` on the scored questions: each model's
+    right, wrong, "Bilmiyorum" (the letter DONT_KNOW_LETTER, which must be the last label of every answer's option
+    probabilities) and invalid answers, accuracy, attempt rate, non-hallucination rate and mean probability of the
+    option, from its first run; the range of the rates over its runs and the answers that differ between them; its
+    original run's accuracy; and the derived abstention on that run at the first run's attempt rate. Every run must be
+    listed once and in no other list. Returns a line per model that differs."""
+    section = results.get("dont_know")
+    runs = {run["run"]: run for run in answers.get("dont_know_runs", [])}
+    listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
+    others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs") for run in answers.get(key, [])}
+    if sorted(listed) != sorted(runs) or set(listed) & others or (section is not None and section["questions"] != len(scored)):
+        checks.failed += 1
+        return [f"  runs: results.json lists {sorted(listed)}, answers.json's dont_know_runs {sorted(runs)}, also elsewhere "
+                f"{sorted(set(listed) & others)}"]
+    if section is None:
+        return []
+    main = {run["run"]: run for run in answers["runs"]}
+    total = len(scored)
+    rates = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
+    mismatches = []
+    for model in section["models"]:
+        cells = []
+        found = []
+        for run_id in model["runs"]:
+            run = runs[run_id]
+            counts = {"right": 0, "wrong": 0, "dont_know": 0, "invalid": 0}
+            shown, unlabelled = [], 0
+            for index in scored:
+                choice, probabilities = run["choice"][index], run["probabilities"][index]
+                if probabilities:
+                    if max(probabilities) != DONT_KNOW_LETTER:
+                        unlabelled += 1
+                    else:
+                        shown.append(probabilities[DONT_KNOW_LETTER])
+                if choice is None:
+                    counts["invalid"] += 1
+                elif choice == DONT_KNOW_LETTER:
+                    counts["dont_know"] += 1
+                elif run["correct"][index]:
+                    counts["right"] += 1
+                else:
+                    counts["wrong"] += 1
+            cells.append(checks.cell(not unlabelled and run["repeat_set"] == model["runs"], f"run {run_id}",
+                                     f"{unlabelled} answers without {DONT_KNOW_LETTER} last, repeat set {run['repeat_set']}"))
+            found.append({
+                **counts,
+                "accuracy": counts["right"] / total,
+                "attempt_rate": (counts["right"] + counts["wrong"]) / total,
+                "non_hallucination": counts["dont_know"] / (counts["dont_know"] + counts["wrong"]) if counts["dont_know"] + counts["wrong"] else None,
+                "mean_dont_know_probability": sum(shown) / len(shown) if shown else None,
+            })
+        first = found[0]
+        cells += [checks.cell(first[key] == model[key], f"{key} {first[key]}", str(model[key])) for key in ("right", "wrong", "dont_know", "invalid")]
+        cells += [checks.cell(close(model[key], first[key], METRIC_TOLERANCE), f"{key} {number(first[key])}", number(model[key])) for key in rates]
+        if len(found) == 1:
+            cells.append(checks.cell(model["spread"] is None and model["answers_changed"] is None, "one run", "a spread"))
+        else:
+            for key in rates:
+                values = [item[key] for item in found]
+                spread = None if None in values else [min(values), max(values)]
+                published = model["spread"][key]
+                matched = (spread is None) == (published is None) and all(close(a, b, METRIC_TOLERANCE) for a, b in zip(spread or [], published or []))
+                cells.append(checks.cell(matched, f"{key} range {spread}", str(published)))
+            choices = [runs[run_id]["choice"] for run_id in model["runs"]]
+            changed = sum(1 for index in scored if all(choice[index] is not None for choice in choices)
+                          and len({choice[index] for choice in choices}) > 1)
+            cells.append(checks.cell(changed == model["answers_changed"], f"answers changed {changed}", str(model["answers_changed"])))
+        original = main.get(model["original_run"])
+        if original is None:
+            checks.failed += 1
+            mismatches.append(f"  {label(model)}: its original run {model['original_run']} is not a main run")
+            continue
+        accuracy = sum(int(original["correct"][index]) for index in scored) / total
+        cells.append(checks.cell(close(model["original_accuracy"], accuracy, METRIC_TOLERANCE), f"original accuracy {number(accuracy)}", number(model["original_accuracy"])))
+        derived = derived_abstention(
+            [(None if original["score"][index] is None else float(original["score"][index]), int(original["correct"][index])) for index in scored],
+            first["attempt_rate"],
+        )
+        for key, value in derived.items():
+            published = model["derived"][key]
+            matched = published == value if key in ("right", "wrong", "abstained") else close(published, value, METRIC_TOLERANCE)
+            cells.append(checks.cell(matched, f"derived {key} {value}", str(published)))
+        if any("≠" in cell for cell in cells):
+            mismatches.append(f"  {label(model)}: " + ", ".join(cell for cell in cells if "≠" in cell))
     return mismatches
 
 

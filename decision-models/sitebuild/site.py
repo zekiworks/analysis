@@ -30,8 +30,8 @@ MENU = (
     ("method/", "Method"),
     ("data/", "Data"),
 )
-# The site's two benchmarks, each a tab at the top of its page: (path inside the site, label). Text is the home page.
-BENCHMARKS = (("", "Text"), ("vision/", "Page images"))
+# The site's three benchmarks, each a tab at the top of its page: (path inside the site, label). Text is the home page.
+BENCHMARKS = (("", "Text"), ("vision/", "Page images"), ("dont-know/", "I don't know option"))
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
 # The LLMs the home page's Routing tab puts behind a first model, in its order: (key in page_config.json's named_runs,
@@ -172,9 +172,10 @@ class Site:
         return f"{run['name']} ({label})" if label else run["name"]
 
     def tabs(self, path: str) -> str:
-        """The two benchmarks' tabs, at the top of the home page (Text) and of vision/ (Page images): each links to its
-        page, the current one marked with aria-current, its number of questions beside its label."""
-        questions = {"": self.total, "vision/": self.vision["subset"]["questions"]}
+        """The benchmarks' tabs, at the top of the home page (Text), of vision/ (Page images) and of dont-know/ (I don't
+        know option): each links to its page, the current one marked with aria-current, its number of questions beside
+        its label."""
+        questions = {"": self.total, "vision/": self.vision["subset"]["questions"], "dont-know/": self.results["dont_know"]["questions"]}
         links = "".join(
             f'<a class="bench-tab" href="{rel(path, target)}"{" aria-current=\"page\"" if path == target else ""}>'
             f'<span class="lamp" aria-hidden="true"></span>{esc(label)}<span class="count">{bp.count(questions[target])} questions</span></a>'

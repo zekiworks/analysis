@@ -162,7 +162,7 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .eyebrow { margin: 0 0 .25rem; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 /* A result that is not final: a marked line at the top of a model page's Page images section. */
 .preliminary { margin: 0 0 .75rem; padding: .4rem .7rem; background: var(--sunk); border-left: 3px solid var(--text); border-radius: 4px; }
-/* The site's two benchmarks, Text and Page images, as tabs above each one's page: links drawn as the leaderboard's tab
+/* The site's three benchmarks, Text, Page images and I don't know option, as tabs above each one's page: links drawn as the leaderboard's tab
    keys; the current one sinks, lights its lamp and carries a bar under it. */
 .bench-tabs { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 1.1rem; }
 .bench-tab { position: relative; display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: .35rem .85rem;
@@ -308,6 +308,9 @@ thead th { background: var(--panel); font-weight: 600; vertical-align: bottom; w
 /* A tab whose columns would not fit (wrapHeaders in v3.js) wraps its headers on a wide screen too; on a phone every header
    wraps already. */
 @media (min-width: 641px) { table.board.wrap-headers thead th:not(:first-child) { white-space: normal; min-width: 5.5rem; } }
+/* The I don't know option table: seven columns, each number with its counts under it, so its cells wrap too. */
+@media (min-width: 641px) { table.board.idk thead th:not(:first-child), table.board.idk td.num { white-space: normal; min-width: 6.5rem; }
+  table.board.idk td.num:last-child { min-width: 8.5rem; } }
 table.board td.num { font-family: var(--mono); font-size: .84rem; }
 .small { display: block; color: var(--text-2); font-size: .78rem; }
 /* The settings line: the long form, and on a phone the short form ("1 per request · low reasoning"). */
@@ -658,7 +661,7 @@ ul.price-list { padding-left: 1.25rem; }
   table.setups, table.setups tbody, table.setups tr, table.setups th[scope="row"], table.setups td { display: block; }
   table.setups th[scope="row"] { min-width: 0; border-bottom: none; padding-bottom: .2rem; }
   details.setup-record dl { grid-template-columns: 1fr; }
-  /* The Page images tables, a few rows whose every column matters: each row stacks, each value beside its label (the
+  /* The Page images and I don't know option tables, a few rows whose every column matters: each row stacks, each value beside its label (the
      header with its direction, from data-label). */
   table.stack thead { display: none; }
   table.stack, table.stack tbody, table.stack tr, table.stack td { display: block; }

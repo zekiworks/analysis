@@ -72,6 +72,9 @@ python3 -m http.server 8000                                # preview at http://1
   the table run's, the paired exact McNemar test and the picks that differ are recomputed from the two answer sets.
   `vision-repeats.json` holds repeat passes kept outside the table: each pass's first-pass runs must be its cell's,
   and its right answers and the picks and option probabilities that differ from the cell are recomputed.
+  For the I don't know option tab it recomputes each run's right, wrong, "Bilmiyorum" and invalid answers, its
+  rates and mean "Bilmiyorum" probability, the derived abstention from its Text tab run and the answers changed
+  across a model's runs, from `answers.json`'s `dont_know_runs`.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
@@ -111,9 +114,10 @@ python3 -m http.server 8000                                # preview at http://1
   block loading `results.json` from a `file://` page.
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
-  - **Two tabs**: the site's two benchmarks, each with its own address and its own rankings, never combined: Text
-    (the home page, 2,198 questions) and Page images (`vision/`, from `vision.json`). Both pages open with
-    the tab bar (`Site.tabs` in `sitebuild/site.py`).
+  - **Three tabs**: the site's three benchmarks, each with its own address and its own rankings, never combined: Text
+    (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`) and I don't know option
+    (`dont-know/`, from `results.json`'s `dont_know` and `page_config.json`'s `dont_know`, built by
+    `sitebuild/dont_know.py`). Each page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`).
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads). The leaderboard comes first: the decision models'
