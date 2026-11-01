@@ -136,7 +136,7 @@ variables. To repeat a run exactly, check out the commit it names.
 | `--provider ollama` | `OLLAMA_URL` | `--ollama-url` |
 | `--provider vllm`, `vllm-stated`, `vllm-yes-no`, `vllm-verbal`, `vllm-vote` | `VLLM_URL` | `--vllm-url` |
 | `--provider open-jev`, `laya`, `gliner`, `clef`, `metask`, `cygnet`, `winnow` | `OPEN_JEV_URL`, `LAYA_URL`, `GLINER_URL`, `CLEF_URL`, `METASK_URL`, `CYGNET_URL`, `WINNOW_URL` | `--jev-url` |
-| `--provider strands`, `pplx-decider`, `glide`, `vllm-sr`, `onejev`, `d3-server`, `drex-max` | `STRANDS_URL`, `PPLX_DECIDER_URL`, `GLIDE_URL`, `VLLM_SR_URL`, `ONEJEV_URL`, `D3_SERVER_URL`, `DREX_MAX_URL` | `--jev-url` |
+| `--provider strands`, `pplx-decider`, `glide`, `vllm-sr`, `onejev`, `d3-server`, `drex-max`, `d1-server` | `STRANDS_URL`, `PPLX_DECIDER_URL`, `GLIDE_URL`, `VLLM_SR_URL`, `ONEJEV_URL`, `D3_SERVER_URL`, `DREX_MAX_URL`, `D1_SERVER_URL` | `--jev-url` |
 | `run_clef_flash.sh`, `run_gliner_decide.sh`, `run_laya_multilingual.sh` | `CLEF_FLASH_URL`, `GLINER_DECIDE_URL`, `LAYA_MULTILINGUAL_URL` | |
 | `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh`, `run_glide_v1_2.sh` | `PPLX_DECIDER_V1_2_URL`, `GLIDE_V1_2_URL` | |
 | `run_gemma.sh`, `run_gemma_one.sh`, `run_deepseek*.sh`, `run_glm*.sh`, `run_erk.sh`, `run_qwen3_14b.sh` | `GEMMA_URL`, `DEEPSEEK_URL`, `GLM_URL`, `ERK_URL`, `QWEN3_14B_URL` | |
@@ -262,6 +262,7 @@ docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=GPU 
 | `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh` | Perplexity Decider v1.2, Decider Flash v1.2 (add `--repeat N` for repeats 2–5) | `servers/pplx_decider_server.py`: the `pplx_decider` package the checkpoints ship, on its reference path, one request at a time, with only the checkpoint's `requirements.txt` installed; `perplexity-ai/pplx-decider-v1.2` at `225c913` and `perplexity-ai/pplx-decider-flash-v1.2` at `6d771ad`, one at a time on a DGX Spark (GB10) (the scripts pass `--jev-url`) |
 | `run_glide_v1_2.sh` | Fastino GLiDE v1.2 (add `--repeat N` for repeats 2–5) | the server its checkpoint ships (`python -m glide.server`), `fastino/GLiDE` at `a7e4589`, in a `vllm/vllm-openai:v0.30.0` container with `flash-linear-attention==0.5.2`, one request at a time on a DGX Spark (GB10) (the script passes `--jev-url`) |
 | `run_drex_max_v1.sh` | Nace.AI's Drex Max v1 (add `--repeat N` for repeats 2–5) | `servers/drex_max_server.py`: Nace's own loader (`drex_max` from [drex-decision-models](https://github.com/nace-ai/drex-decision-models) at `e206b27`, with only its `models/drex-max-v1/requirements.txt` installed) and `nace-ai/drex-max-v1` at `cac65e1` in BF16, one request at a time on one RTX PRO 6000 Blackwell (96 GB) (the script passes `--jev-url`) |
+| `run_d1_2b.sh` | Liquid AI's d1-2B, open weights (add `--repeat N` for repeats 2–5) | `servers/d1_server.py`: the model card's call (`model.system_one`, Liquid's own model code through transformers with `trust_remote_code=True`, with only the card's requirements installed) and `LiquidAI/d1-2B` at `10e7671` in BF16, one request at a time on one RTX PRO 6000 Blackwell (96 GB) (the script passes `--jev-url`) |
 
 Cygnet and Winnow were started as their authors describe:
 
@@ -289,7 +290,7 @@ Every server takes the decision request the hosted decision APIs take, `POST /v1
 
 and must answer `{"answers": {"answer": {"choice": "A", "probabilities": {"A": 0.7, …}}}, "usage":
 {"input_tokens": …, "output_tokens": …}}`. The chosen option's probability is the answer's score.
-Open-Jev and Laya get no `model` field. `servers/` holds the eight wrappers used for the published runs,
+Open-Jev and Laya get no `model` field. `servers/` holds the nine wrappers used for the published runs,
 each copied next to its model's checkpoint and virtual environment (`model/` beside the script, or the checkpoint
 given with `--checkpoint`; each file's docstring gives its command). They only translate this request for the
 model; the page's Method section describes how each was read out.
