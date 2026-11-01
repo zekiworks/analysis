@@ -5062,7 +5062,7 @@ def run_comparisons(
 def run_repeats(connection: sqlite3.Connection, results: dict[str, dict[str, Any]], search_dir: Path) -> list[dict[str, Any]]:
     """Each configuration with repeats (--repeat): its runs on the same question bank and the same
     questions (the whole set, or one sample), and how their answers agree (bm.repeat_stability) on the
-    questions every run was asked identically."""
+    questions every run was asked identically. Runs with the "I don't know" option form configurations of their own."""
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
     for result in results.values():
         if result.get("replace_key_text") is not None or result.get("question_list"):
@@ -5070,7 +5070,7 @@ def run_repeats(connection: sqlite3.Connection, results: dict[str, dict[str, Any
         selection = "whole" if result["evaluated"] == result["eligible_total"] else result["selection_sha256"]
         key = (
             Path(result["dataset"]).name, result.get("provider", "ollama"), result["model"], result["thinking"],
-            result["batch_size"], result.get("shuffle_options"), selection,
+            result["batch_size"], result.get("shuffle_options"), bool(result.get("dont_know")), selection,
         )
         groups.setdefault(key, []).append(result)
     found = []
