@@ -3,7 +3,7 @@
 # Blackwell (96 GB), answered by the model card's loader (qev's DecisionEngine from OneJev at 81ce62f with the
 # checkpoint's serve.patch, as the card's setup.sh installs it in pytorch/pytorch:2.8.0-cuda12.8-cudnn9-devel) behind
 # servers/baselabs_server.py:
-#   docker run --rm --gpus device=GPU -p 127.0.0.1:PORT:PORT -v ~/.cache/huggingface/hub:/hf:ro \
+#   docker run --rm --runtime nvidia --gpus device=GPU -p 127.0.0.1:PORT:PORT -v ~/.cache/huggingface/hub:/hf:ro \
 #     -v "$PWD/servers:/servers:ro" baselabs-serve:81ce62f python /servers/baselabs_server.py \
 #     --checkpoint <the baselabs/elephant-1 snapshot at b3f8a93> --name baselabs/elephant-1 --host 0.0.0.0 --port PORT
 # One question per request, one request at a time, with the timeout of the other System One runs. A new run records its

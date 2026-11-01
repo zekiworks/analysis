@@ -1,6 +1,6 @@
 """Serve Base Labs' elephant-1 or mammoth-1 over HTTP with TypeSafe's System One format, through qev's own server.
 
-    docker run --rm --gpus device=GPU -p 127.0.0.1:PORT:PORT -v ~/.cache/huggingface/hub:/hf:ro \
+    docker run --rm --runtime nvidia --gpus device=GPU -p 127.0.0.1:PORT:PORT -v ~/.cache/huggingface/hub:/hf:ro \
         -v "$PWD/servers:/servers:ro" baselabs-serve:81ce62f \
         python /servers/baselabs_server.py --checkpoint SNAPSHOT --name baselabs/elephant-1 --host 0.0.0.0 --port PORT
 

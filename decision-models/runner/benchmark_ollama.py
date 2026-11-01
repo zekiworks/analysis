@@ -2833,11 +2833,14 @@ def reported_decimals(value: float) -> int:
     return max(0, -decimal.Decimal(repr(float(value))).as_tuple().exponent)
 
 
-# Hosted models whose API reports each option's probability rounded to a fixed number of decimal places, so that the
-# probabilities sum to 1 only within that rounding: Nace.AI's Drex 2.0 reports 4 (smoke run 333, 31 October 2026). Their
-# smoke acceptance allows the sum to miss 1 by half a unit in that place per option (Ümit's decision, 31 October 2026);
-# every other run must sum to 1 to 7 decimal places.
-ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {("nace", "drex-v2.0"): 4}
+# Models whose output reports each option's probability rounded to a fixed number of decimal places, so that the
+# probabilities sum to 1 only within that rounding: Nace.AI's Drex 2.0 API reports 4 (smoke run 333; Ümit's decision, 31
+# October 2026), and Base Labs' elephant-1 and mammoth-1 report 6, rounded by their model card's loader (qev's answers.py;
+# smoke runs 356 and 359; the user's decision, 1 November 2026). Their smoke acceptance allows the sum to miss 1 by half a
+# unit in that place per option; every other run must sum to 1 to 7 decimal places.
+ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
+    ("nace", "drex-v2.0"): 4, ("baselabs", "baselabs/elephant-1"): 6, ("baselabs", "baselabs/mammoth-1"): 6,
+}
 
 
 def probability_problems(probabilities: Any, labels: list[str], rounded_to: int | None = None) -> list[str]:
