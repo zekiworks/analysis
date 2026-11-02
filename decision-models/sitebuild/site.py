@@ -83,13 +83,15 @@ def scale_legend(stops: list[str], worst: str, best: str, higher: bool = True) -
             f'<span>best {esc(best)} ({"higher" if higher else "lower"} is better)</span></span>')
 
 
-def hbars(rows: list[dict[str, Any]], top: float = 1.0) -> str:
+def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], str] | None = None) -> str:
     """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
     readable at any width and in both themes. Each row: label, href (optional), bars (each a value from 0 to top, with a
     colour or a kind, a CSS class), marker (optional, a value drawn as a line), text (the value as shown) and title (the
-    tooltip). The axis runs from 0 to top, with a tick at each quarter, in percent."""
+    tooltip). The axis runs from 0 to top, with a tick at each quarter, in percent unless tick writes a value its way
+    (aa-decision-index/ writes dollars)."""
     place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
-    ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / 4)}">{100 * top * index / 4:.0f}%</span>'
+    write = tick or (lambda value: f"{100 * value:.0f}%")
+    ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / 4)}">{esc(write(top * index / 4))}</span>'
                     for index in range(5))
     items = []
     for row in rows:

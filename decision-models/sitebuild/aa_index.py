@@ -6,6 +6,7 @@ vision.json's, as the Text, Page images and Hallucination tabs show it."""
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import build_page as bp
@@ -41,6 +42,11 @@ def share(run: dict[str, Any], part: str | None = None) -> tuple[int, int]:
 
 def cost_per_1000(run: dict[str, Any]) -> float | None:
     return None if run["api_equivalent_usd"] is None else 1000 * run["api_equivalent_usd"] / run["answered_questions"]
+
+
+def per_million(cost: float) -> float:
+    """Dollars per 1M questions: the cost per 1,000 questions as the site rounds it, times 1,000."""
+    return round(cost, 3) * 1000
 
 
 def route(run: dict[str, Any]) -> str:
@@ -79,10 +85,20 @@ def build(site: Site) -> dict[str, str]:
                   "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {model['dont_know']:,} “{option}” of {model['dont_know'] + model['wrong']:,} not right"}
                  for name, run, model in ran]
     not_held = [site.row_name(run) for _, run in pairs if run["run"] not in held]
+    priced = sorted(((name, run, per_million(cost_per_1000(run))) for name, run in pairs if cost_per_1000(run) is not None),
+                    key=lambda item: (cost_per_1000(item[1]), item[1]["name"].casefold()))
+    dollars = [value for _, _, value in priced]
+    # A tick at each quarter of the axis, the quarter a round number of dollars that fits the dearest model.
+    quarter = math.ceil(max(dollars) / 40) * 10 if max(dollars) >= 40 else max(1, math.ceil(max(dollars) / 4))
+    cost_rows = [{"label": site.row_name(run), "href": href(run),
+                  "text": f"${value:,.0f}{' ' + maker_mark if run['cost_basis'] == 'maker' else ''}",
+                  "bars": [{"value": value, "colour": rank_fill(stops, value, max(dollars), min(dollars))}],
+                  "title": f"{site.row_name(run)} (Artificial Analysis: {name}): ${cost_per_1000(run):.3f} per 1,000 questions, ${value:,.0f} per 1M"}
+                 for name, run, value in priced]
 
-    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str) -> str:
+    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, **axis: Any) -> str:
         return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
-                f'<p class="chart-sub">{sub}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
+                f'<p class="chart-sub">{sub}</p></div>{hbars(rows, **axis)}<p class="chart-legend">{legend}</p></figure>')
 
     charts = (
         card("chart-accuracy", "Accuracy", f"Share of the Text tab's {total:,} questions answered right · higher is better", accuracy_rows,
@@ -91,7 +107,14 @@ def build(site: Site) -> dict[str, str]:
                f"“{esc(option)}” among the answers that were not right, with it offered as a sixth option (the Hallucination tab) · higher is better",
                rate_rows,
                scale_legend(stops, pct(min(rates), digits), pct(max(rates), digits))
-               + f" <span>Not run with “{esc(option)}”: {esc(joined(not_held))}.</span>"))
+               + f" <span>Not run with “{esc(option)}”: {esc(joined(not_held))}.</span>")
+        + card("chart-cost", "Cost per 1M questions",
+               "Estimated from list prices and the token use recorded in each run, in US dollars per 1 million questions (the "
+               "Text tab gives it per 1,000 questions) · lower is better",
+               cost_rows,
+               scale_legend(stops, f"${max(dollars):,.0f}", f"${min(dollars):,.0f}", higher=False)
+               + f" <span>{maker_mark} On our GPU, priced at its maker's list price for the same model; our hardware cost is not measured.</span>",
+               top=4 * quarter, tick=lambda value: f"${value:,.0f}"))
 
     heads = [("Accuracy", f"{total:,} questions; higher is better"), ("Reading", f"{reading_n:,} questions; higher is better"),
              ("Grammar", f"{grammar_n:,} questions; higher is better"), ("Page images, picture alone", f"{pages_n:,} questions; higher is better"),
@@ -116,7 +139,7 @@ def build(site: Site) -> dict[str, str]:
             NOT_RUN if model is None else f'{pct(model["non_hallucination"], digits)}<span class="small">{model["dont_know"]:,} “{esc(option)}” of {model["dont_know"] + model["wrong"]:,} not right</span>',
             NOT_RUN if model is None else f'{pct(model["attempt_rate"], digits)}<span class="small">{model["right"] + model["wrong"]:,} of {total:,} answered</span>',
             NOT_MEASURED if cost is None else f"${cost:.3f}{mark}",
-            NOT_MEASURED if cost is None else f"${round(cost, 3) * 1000:,.0f}{mark}",
+            NOT_MEASURED if cost is None else f"${per_million(cost):,.0f}{mark}",
         ]
         model_cell = (f'<td class="model"><a class="model-name" href="{href(run)}">{esc(site.row_name(run))}</a>'
                       f'<span class="small">Artificial Analysis: {esc(name)}</span>'
@@ -141,7 +164,7 @@ def build(site: Site) -> dict[str, str]:
       <p class="eyebrow">Compared with Artificial Analysis</p>
       <h1>{esc(TITLE)}</h1>
       <p>Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard; {esc(joined(absent))} {"is" if len(absent) == 1 else "are"} not. This page gathers our numbers for those {len(pairs)}, from our published results: the numbers of our four charts in reply to that post come from here. Our tests are different from Artificial Analysis's, so the two rank different things. This page ranks nothing new and changes no number on the other pages.</p>
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#table">Every number</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#table">Every number</a></nav>
     </section>
     <section class="charts" aria-label="Charts">{charts}</section>
     <section class="card" id="table">
