@@ -76,7 +76,10 @@ python3 -m http.server 8000                                # preview at http://1
   rates and mean "Bilmiyorum" probability, the derived abstention from its Text tab run, the answers changed
   across a model's runs, and the exact McNemar test of its wrong answers with "Bilmiyorum" against its Text tab run
   held back by confidence (Holm over the models that chose it on at least 1% of the questions), from `answers.json`'s
-  `dont_know_runs`.
+  `dont_know_runs`. For the English reading tab it recomputes, on the kept questions of `english-reading.json`, each
+  model's right, wrong and invalid answers in its first English run and its Text tab run, the difference, the range
+  and the answers changed over each side's runs, and the exact McNemar test of the two (Holm over the compared
+  models), from `answers.json`'s `english_runs`, after checking each pairing against the Text tab's runs and repeats.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
@@ -121,17 +124,23 @@ python3 -m http.server 8000                                # preview at http://1
   block loading `results.json` from a `file://` page.
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
-  - **Three tabs**: the site's three benchmarks, each with its own address and its own rankings, never combined: Text
-    (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`) and Hallucination
+  - **Four tabs**: the site's four benchmarks, each with its own address and its own rankings, never combined: Text
+    (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know` and `page_config.json`'s `dont_know`, built by
-    `sitebuild/dont_know.py`). Each page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`). Each tab's face
+    `sitebuild/dont_know.py`) and English reading (`english-reading/`, from `results.json`'s `english_reading`,
+    `english-reading.json` and `page_config.json`'s `english_reading`, built by `sitebuild/english_reading.py`). Each
+    page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`). Each tab's face
     is charts, each card with a line saying which way is better; its tables and notes are under Info, a details element
-    closed by default that `site.js` opens for a link into it (`dont-know/#method`). The Page images and Hallucination
-    faces are HTML bars (`hbars` in `sitebuild/site.py`, coloured by the ranking scale), so they need no script:
-    Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the marks
-    each OCR model kept; Hallucination shows the non-hallucination rate, that rate against the same model held back by
-    its confidence, the paired test of the two (the wrong answers only one of them made, with Holm-adjusted p and the
-    models outside the test named) and accuracy with the option against accuracy with five options.
+    closed by default that `site.js` opens for a link into it (`dont-know/#method`). The Page images, Hallucination and
+    English reading faces are HTML bars (`hbars` in `sitebuild/site.py`, coloured by the ranking scale), so they need no
+    script: Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the
+    marks each OCR model kept; Hallucination shows the non-hallucination rate, that rate against the same model held back
+    by its confidence, the paired test of the two (the wrong answers only one of them made, with Holm-adjusted p and the
+    models outside the test named) and accuracy with the option against accuracy with five options; English reading
+    shows accuracy in Turkish and in English and the paired test of the two (the questions only one of them got right,
+    with Holm-adjusted p). `english-reading.json` is the English reading track's public record, written by
+    `runner/translate_reading.py publish`: the translator, both prompts, each reading question's flag reasons, whether it
+    is kept and the SHA-256 of its English text. Like every file here, it holds no question text.
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads). Its face, after the intro and the filters, is one chart
@@ -261,9 +270,12 @@ question text, prompts, answers or local paths. The comparisons between runs com
 `--answers` names the benchmark's per-question export. The export takes from it the Decider v1.1 replay
 (`replay`), each listed comparison's Holm p-value over all pairs (`p_holm_all`) and the
 answer-key baselines (`baselines`), and writes `answers.json`: the main runs, the repeats of each
-repeated configuration (`repeat_runs`) and the runs of each measured live test (`pipeline_runs`; a run
+repeated configuration (`repeat_runs`), the runs of each measured live test (`pipeline_runs`; a run
 that serves several tests, such as a second model alone on the shared test half, lists every role it
-has), with scores and option probabilities at full precision. Then refresh `runner/` and
+has), the runs with the "I don't know" option (`dont_know_runs`) and the English reading runs (`english_runs`), with
+scores and option probabilities at full precision. The English reading section needs `english-reading.json` in this
+folder: the export stops unless every English run carries its translations hash and was asked exactly its kept
+questions. Then refresh `runner/` and
 the metric code, and check the result:
 
 ```bash

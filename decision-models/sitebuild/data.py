@@ -85,6 +85,9 @@ def build(site: Site) -> dict[str, str]:
         (ROOT / "vision-repeats.json", rel(PATH, "vision-repeats.json"),
          "The page-image track's repeat passes, kept outside its table: each pass's run records and answers, compared with "
          "the table's first pass."),
+        (ROOT / "english-reading.json", rel(PATH, "english-reading.json"),
+         "The English reading track's record: the translator, its two prompts, each reading question's flags and the "
+         "SHA-256 of its English text. No question text."),
     )
     downloads = "".join(
         f'<tr><td class="model"><a href="{href}" download>{esc(path.name)}</a></td><td data-label="Contents">{esc(text)}</td>'

@@ -173,6 +173,15 @@
       {"name": "SubQ Snap Preview", "reason": "Not run: SubQ's API returns its probabilities in 32-bit precision, so their sums miss our 7-decimal check, and we decided not to run it with an allowance for that."}
     ]
   },
+  "english_reading": {
+    "not_compared": [
+      {"run": 129, "reason": "Not compared: since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model. On 20 questions glide_v2 gave the same answers as Fastino GLiDE v1.2, which runs on our GPU."},
+      {"run": 145, "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
+      {"run": 150, "reason": "Not run: no Celeris API key is available."}
+    ],
+    "pending": [373, 374, 217, 223, 125, 248, 259, 269, 322],
+    "pending_reason": "Not run yet: these models run on our own GPUs."
+  },
   "aa_decision_index": {
     "about": "Artificial Analysis's Decision Index v1.0 as its post of 22 October 2026 lists it: its models in its order, each with our Text tab setup by run id (null: not in our benchmark). sitebuild/aa_index.py builds aa-decision-index/ from it.",
     "post": "https://x.com/ArtificialAnlys/status/2113360449156890662",

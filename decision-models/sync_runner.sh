@@ -21,6 +21,7 @@ repo=$(cd "$(dirname "$0")" && pwd)
 python_files=(
   benchmark_ollama.py benchmark_metrics.py cascade_pipeline.py
   audit_questions.py extract_questions.py extract_questions_text.py vision_ocr.py osym_bank.py repair_questions.py
+  translate_reading.py
   test_benchmark_metrics.py test_benchmark_ollama.py
 )
 # Run scripts behind no published run: the PEGEM ALES extraction, an Ollama run on the second bank, the

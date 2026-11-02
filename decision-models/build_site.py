@@ -11,11 +11,12 @@ give a run another type than the tables do (type_checks). Then it draws the char
 preview image in both themes with headless Chrome (CHROME, else google-chrome) and CITATION.cff, both from build_page.py,
 the reply charts of aa-decision-index/ with the same Chrome (aa_cards.py), and writes the pages.
 
-The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the Page images tab and dont-know/
-(sitebuild/dont_know.py) the Hallucination tab. index.html keeps its
-copy; this script rewrites what is inside its <!-- build:name --> markers: the meta tags, the top bar, the three tabs, the
-intro (its counts from results.json), the counters, the results version, the plain tables for readers without
-JavaScript (the decision models, then the other models, each ranked on its own) and the note under them, the settings
+The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the Page images tab, dont-know/
+(sitebuild/dont_know.py) the Hallucination tab and english-reading/ (sitebuild/english_reading.py) the English reading
+tab. index.html keeps its copy; this script rewrites what is inside its <!-- build:name --> markers: the meta tags, the
+top bar, the tabs, the intro (its counts from results.json), the counters, the results version, the plain tables for
+readers without JavaScript (the decision models, then the other models, each ranked on its own) and the note under
+them, the settings
 v3.js reads, the default setup count, the charts' "Show all" label, the topic list and the questions in view. v3.js
 draws everything else in the browser from results.json. Every other page is generated whole by a module of sitebuild/
 (PAGE_MODULES) and written to <path>index.html. v1/ keeps the earlier page as it was on 14 October 2026, and v2/ and v3/
@@ -48,7 +49,8 @@ from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, asset, route_labels, 
 
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
-PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know", "aa_index", "data", "method")
+PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
+                                 "english_reading", "aa_index", "data", "method")
 TITLE = "When should you trust a decision model?"
 # The intro and the meta description; their counts come from results.json (counts()).
 INTRO = (
