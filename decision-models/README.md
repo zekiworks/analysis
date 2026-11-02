@@ -124,9 +124,9 @@ python3 -m http.server 8000                                # preview at http://1
     table, then the other models' (chat and general models), each ranked on its own; the All models switch
     shows one table. The intro, the counters and the summary follow it. A model ID with runs in both groups
     gets its route after its name in each row ("GPT-6 Luna (Decisions API)", "GPT-6 Luna (chat API)"; `route_labels`
-    in `sitebuild/site.py`). A setup with a note in `page_config.json`'s `row_notes` (by run, or by provider and model) shows it under its name in
-    its leaderboard rows; the build stops unless the note is a sentence of that run's note in `results.json`. The
-    Reading vs grammar chart lists the setups in the leaderboard's order, decision models first. `v3.js` draws the filters, the four leaderboard tabs and the two charts in the
+    in `sitebuild/site.py`). The leaderboard rows carry no notes: a setup's notes are on its model page (How we
+    called it), which its name links to. The Reading vs grammar chart lists the setups in the leaderboard's order,
+    decision models first. `v3.js` draws the filters, the four leaderboard tabs and the two charts in the
     browser from `results.json` alone; accuracy for a part or topic and its Wilson 95% interval come from the
     counts there. The Routing tab keeps its four choices in the URL. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,

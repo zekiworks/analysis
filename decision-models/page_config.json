@@ -105,17 +105,6 @@
   },
   "subq_release": {"date": "2026-10-12", "context": "384K", "source": "https://subq.ai/introducing-subq-snap"},
   "chart_labels": {"openai-decisions": {"gpt-6-luna": "Luna (Decisions API)"}},
-  "row_notes": {
-    "about": "A short note shown with a setup's own rows in the home page's leaderboard (every tab where the row shows), by run (\"run\") or by provider and model, linked to the full note on that run's page (How we called it); a row with several notes shows them in this list's order. Each note must be a sentence of that run's note in results.json; the build stops otherwise.",
-    "rows": [
-      {"provider": "onejev", "model": "OmniJev/OneJev-27B", "note": "The five runs are identical because decoding is deterministic."},
-      {"run": 276, "note": "It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for the other 406 questions; the usage and cost of the failed request are unknown."},
-      {"run": 340, "note": "Its request times come from one GPU with no other known work while its runs took place, though the GPU was not monitored throughout."},
-      {"provider": "baselabs", "model": "baselabs/elephant-1", "note": "Probabilities rounded to 6 decimals by the model's own loader."},
-      {"provider": "baselabs", "model": "baselabs/mammoth-1", "note": "Probabilities rounded to 6 decimals by the model's own loader."},
-      {"provider": "subq", "model": "subq-snap-1.1", "note": "Its probability check used an experimental 32-bit rule of ours."}
-    ]
-  },
   "reasoning_levels": {"about": "Each model's reasoning levels as its provider's documentation lists them, lowest first, with its default and top level; shown on the model pages.", "models": {
     "gpt-6.1-terra": {"term": "reasoning effort", "levels": ["none","low","medium","high","xhigh","max"], "default": "medium", "top": "max", "source": "https://developers.openai.com/api/docs/models/gpt-6.1-terra", "read": "2026-10-28"},
     "gpt-6-astra": {"term": "reasoning effort", "levels": ["low","medium","high","xhigh","max"], "default": null, "top": "max", "source": "https://developers.openai.com/api/docs/models/gpt-6-astra", "read": "2026-10-28"},
