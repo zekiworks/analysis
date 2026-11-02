@@ -416,7 +416,7 @@ def build(site: Site) -> dict[str, str]:
       <p class="note">The error rates and counts use only human-verified question text: {esc(data["ocr"]["verified"].removeprefix("the human-verified subset: "))}. Each OCR model's text is compared with that text. Character error rate: edits over the reference's characters, summed over the {verified} crops. Turkish letter error rate: edits of the same alignment whose reference or OCR character is one of ı İ ş Ş ğ Ğ ç Ç ö Ö ü Ü, over the reference's count of those letters. Kept: an underlined word still marked, or a numbered word's numeral still there, in the text the models received.</p>
       {ocr_table(data)}
     </section>
-    <section class="card method-notes">
+    <section class="card method-notes" id="method">
       <h2>How the benchmark was run</h2>
       <h3>Conditions</h3>
       {listing([f"<strong>{esc(label)}</strong>: {esc(text)}" for label, text in data["conditions"].items()])}

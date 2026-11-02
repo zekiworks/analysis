@@ -104,25 +104,34 @@ def build(site: Site) -> dict[str, str]:
     <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
-      <p>Every question of the Text tab gets one more option after its five answers: F, “{option}”, Turkish for “{esc(data["option_en"])}”. It is always the last option, it is never shuffled and it is never correct. The System One instructions get one added sentence: “{esc(data["sentence"])}” Everything else is as on the Text tab: the same {total} scored questions and answer key, one question per request, and each model's own settings from its text run.</p>
+      <p>Every question of the Text tab gets one more option after its five answers: F, “{option}”, Turkish for “{esc(data["option_en"])}”. It is always the last option, it is never shuffled and it is never correct. The System One instructions get one added sentence: “{esc(data["sentence"])}” Everything else is as on the Text tab: the same {total} scored questions and answer key, one question per request, and each model's own settings from its text run. A wrong answer counts as a hallucination, since the model could have chosen “{option}” instead; <a href="#method">our method</a>, below the results, gives each rate's formula and how to read it.</p>
       <p>This tab is separate from the leaderboard. It ranks nothing on the Text tab and changes none of its numbers.</p>
       <p>The models: {esc(SELECTION)}. Each has one full run; a model whose repeated text runs changed answers gets five.</p>
       <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (every number on this page, under <code>dont_know</code>) and <a href="{rel(PATH, "answers.json")}" download>answers.json</a> (each run's answers, under <code>dont_know_runs</code>).</p>
     </section>
     <section class="card" id="results">
       <h2>Results</h2>
-      <p class="note">Ranked by accuracy, highest first. Each row shows the model's first run{"; under Runs, a model with more than one run (" + esc(joined(several)) + ") shows the range over its runs and how many answers changed between them" if several else ""}. Out of all {total} questions: accuracy counts the right answers; the attempt rate counts the right and wrong answers; the non-hallucination rate is the share of “{option}” among the answers that were not right (“{option}” plus wrong).</p>
+      <p class="note">Ranked by accuracy, highest first. Each row shows the model's first run{"; under Runs, a model with more than one run (" + esc(joined(several)) + ") shows the range over its runs and how many answers changed between them" if several else ""}. Out of all {total} questions: accuracy counts the right answers; the attempt rate counts the right and wrong answers; the non-hallucination rate is the share of “{option}” among the answers that were not right (“{option}” plus wrong). Formulas and how to read them: <a href="#method">Our method</a>.</p>
       {table(site, data)}
       {not_run(site.config["dont_know"]["not_run"])}
     </section>
-    <section class="card method-notes">
-      <h2>How it was run</h2>
+    <section class="card method-notes" id="method">
+      <h2>Our method</h2>
+      <p>We measure hallucination by offering a way out. Every question gets “{option}” (“{esc(data["option_en"])}”) as a sixth option, and the instructions tell the model to choose it when it does not know the answer. A hallucination is then a wrong answer: the model chose one of the question's own options, not the key, when it could have said it did not know. Everything else is the Text tab's: the questions, the answer key and each model's settings.</p>
+      <h3>The rates</h3>
+      <p>Each answer is right, wrong, “{option}” or invalid; an invalid answer counts as none of the others. Out of all {total} questions:</p>
+      <ul>
+        <li><strong>Accuracy</strong> = right / {total}.</li>
+        <li><strong>Attempt rate</strong> = (right + wrong) / {total}: how often the model chose one of the question's own options.</li>
+        <li><strong>Non-hallucination rate</strong> = “{option}” / (“{option}” + wrong): among the answers that were wrong or “{option}”, the share where the model said it did not know. The hallucination rate is its complement, wrong / (“{option}” + wrong).</li>
+        <li><strong>Mean probability of “{option}”</strong>: the probability the model gave that option, averaged over its answers that report option probabilities.</li>
+      </ul>
+      <h3>How to read them</h3>
+      <p>The non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know. Read it with accuracy and the attempt rate: a model that always chose “{option}” would reach 100% with no right answers, and one that never chose it would reach 0% whatever its accuracy.</p>
       <h3>The option and the instructions</h3>
       <p>The added option's exact text is “{option}”. It is lettered after the question's own options, and the answer key is unchanged. The full System One instructions:</p>
       <blockquote><p>{esc(data["instructions"])}</p></blockquote>
       <p>Prompt version {esc(data["prompt_version"])} (a hash of the prompts with these instructions and this option, computed as for the Text tab's prompt version).</p>
-      <h3>Counts</h3>
-      <p>An answer is right, wrong, “{option}” or invalid. An invalid answer counts as neither right, wrong nor “{option}”. The mean probability of “{option}” is the probability the model gave that option, averaged over its answers that report option probabilities.</p>
       <h3>Derived non-hallucination rate</h3>
       <p>For comparison, each model's run with five options (its run on the Text tab, on the same questions) is made to abstain by its own confidence: it answers only where its score reaches a cut-off and abstains on the rest. The cut-off is the one whose attempt rate comes nearest the attempt rate of the run with “{option}”; on a tie, the higher cut-off. An answer without a score never counts as an attempt. The derived non-hallucination rate is then the abstentions over the abstentions plus the wrong answers. The table shows the cut-off and the attempt rate it reached.</p>
       <h3>Repeats</h3>

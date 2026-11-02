@@ -924,6 +924,9 @@ so the test cannot say which change helped.</p>
 (not translated): {v['questions']} questions. A setup is one model with one set of settings. We measured four things: how often
 each was right, whether its confidence found the answers worth keeping, whether it answered the same way again, and its
 cost and time.</p>
+<p class="intro">This page covers the Text tab. The other two tabs explain their own methods on their pages: Page images under
+<a href="{rel(PATH, 'vision/')}#method">How the benchmark was run</a> and Hallucination under
+<a href="{rel(PATH, 'dont-know/')}#method">Our method</a>.</p>
 <nav class="toc" aria-label="Sections of this page"><ul>{toc}<li><a href="#references">Sources</a></li></ul></nav>
 </header>
 {example}
