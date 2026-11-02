@@ -8,6 +8,7 @@ method. It needs no JavaScript. The tab ranks nothing on the Text tab and change
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import build_page as bp
@@ -217,8 +218,9 @@ def headline(data: dict[str, Any]) -> str:
 
 
 def face(site: Site, data: dict[str, Any]) -> str:
-    """The tab's face: three chart cards, each with a line saying which way is better, every number from results.json's
-    dont_know. Each bar's colour is the ranking scale between the models' worst and best values on that chart."""
+    """The tab's face: four chart cards, each with a line saying which way is better, every number from results.json's
+    dont_know: the non-hallucination rate, that rate against confidence, the paired test of the two (vs_confidence) and
+    accuracy. A single-series bar takes the ranking scale between the models' worst and best values on its chart."""
     option = esc(data["option"])
     stops = site.config["rank_scale"]["stops"]
     total = data["questions"]
@@ -229,9 +231,9 @@ def face(site: Site, data: dict[str, Any]) -> str:
     models = ranked(data["models"])
     rated = [model for model in models if model["non_hallucination"] is not None]
 
-    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str) -> str:
+    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, **axis: Any) -> str:
         return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
-                f'<p class="chart-sub">{sub}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
+                f'<p class="chart-sub">{sub}</p></div>{hbars(rows, **axis)}<p class="chart-legend">{legend}</p></figure>')
 
     rates = [model["non_hallucination"] for model in rated]
     worst, best = min(rates), max(rates)
@@ -256,6 +258,51 @@ def face(site: Site, data: dict[str, Any]) -> str:
          for model in rated if model["derived"]["non_hallucination"] is not None],
         f'<span><i class="swatch swatch-lead"></i>With “{option}”</span> '
         '<span><i class="swatch swatch-base"></i>Held back by its own confidence (the derived rate)</span>')
+    # The paired test (vs_confidence): for each model in Holm's family, the wrong answers only one side made, most
+    # significant first, with its Holm-adjusted p; the models outside the family are named under it.
+    tested = sorted((model for model in models if model["vs_confidence"]["p_holm"] is not None),
+                    key=lambda model: (model["vs_confidence"]["p_holm"], model["vs_confidence"]["p"], model["name"].casefold()))
+    untested = [label(model) for model in models if model["vs_confidence"]["p_holm"] is None]
+    share = f"{100 * data['vs_confidence_share']:g}%"
+    paired = ""
+    if tested:
+        most = max(max(model["vs_confidence"]["option_only_wrong"], model["vs_confidence"]["confidence_only_wrong"]) for model in tested)
+        # A tick at each quarter of the axis, the quarter a round number of answers that fits the largest count.
+        quarter = math.ceil(most / 40) * 10 if most >= 40 else max(1, math.ceil(most / 4))
+        counts = lambda model: (model["vs_confidence"]["option_only_wrong"], model["vs_confidence"]["confidence_only_wrong"])  # noqa: E731
+        significant = [model for model in tested if model["vs_confidence"]["p_holm"] < 0.05]
+        others = [model for model in tested if model["vs_confidence"]["p_holm"] >= 0.05]
+
+        def adjusted(group: list[dict[str, Any]]) -> str:
+            """The group's Holm-adjusted p values as the site writes p ("each" when they read the same)."""
+            texts = [bp.p_text(model["vs_confidence"]["p_holm"]) for model in group]
+            return f"{texts[0]}{' each' if len(group) > 1 else ''}" if len(set(texts)) == 1 else joined(texts)
+
+        # Each row's text is its two counts (the value column fits about 14 characters); the p values are in the legend
+        # and in each row's tooltip.
+        verdict = ((f"* A significant difference (Holm-adjusted p below 0.05): {esc(joined([label(model) for model in significant]))} "
+                    f"({adjusted(significant)}).") if significant else "No difference is significant (Holm-adjusted p below 0.05).")
+        if others:
+            verdict += f" The other {len(others)}: {adjusted(others)}." if significant else f" Adjusted: {adjusted(others)}."
+        paired = card(
+            "chart-paired", f"Fewer wrong answers: “{data['option']}” or confidence?",
+            f"Each model's first run with “{option}” against its five-option run held back by its own confidence on as many "
+            f"questions: the questions only one of the two got wrong, by the exact McNemar test with p adjusted by Holm's method "
+            f"over the {len(tested)} models that chose “{option}” on at least {share} of the questions · the shorter bar left "
+            "fewer wrong answers",
+            [{"label": label(model), "href": href(model),
+              "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if model['vs_confidence']['p_holm'] < 0.05 else ''}",
+              "bars": [{"value": counts(model)[0], "kind": "lead"}, {"value": counts(model)[1], "kind": "base"}],
+              "title": f"{label(model)}: {counts(model)[0]:,} wrong only with “{data['option']}”, {counts(model)[1]:,} wrong only "
+                       f"when held back by its own confidence; exact McNemar {bp.p_text(model['vs_confidence']['p'])}, "
+                       f"Holm-adjusted {bp.p_text(model['vs_confidence']['p_holm'])}"}
+             for model in tested],
+            f'<span><i class="swatch swatch-lead"></i>Wrong only with “{option}”</span> '
+            '<span><i class="swatch swatch-base"></i>Wrong only when held back by its own confidence</span> '
+            f"<span>{verdict}"
+            + (f" Not in the test, as they chose “{option}” on fewer than {share} of the questions: {esc(joined(untested))}." if untested else "")
+            + "</span>",
+            top=4 * quarter, tick=lambda value: f"{value:,.0f}")
     by_accuracy = sorted(models, key=lambda model: (-model["accuracy"], model["name"].casefold()))
     accuracies = [model["accuracy"] for model in by_accuracy]
     third = card(
@@ -268,7 +315,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
          for model in by_accuracy],
         scale_legend(stops, pct(min(accuracies), digits), pct(max(accuracies), digits))
         + ' <span><i class="swatch swatch-marker"></i>The same model with five options (the Text tab)</span>')
-    return f'<section class="charts" aria-label="Charts">{first}{second}{third}</section>'
+    return f'<section class="charts" aria-label="Charts">{first}{second}{paired}{third}</section>'
 
 
 def build(site: Site) -> dict[str, str]:
@@ -287,7 +334,7 @@ def build(site: Site) -> dict[str, str]:
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-accuracy">Accuracy</a><a href="#info">Info</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a><a href="#info">Info</a></nav>
     </section>
     {face(site, data)}
     <details class="info info-details" id="info">

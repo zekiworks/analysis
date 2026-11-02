@@ -130,7 +130,8 @@ python3 -m http.server 8000                                # preview at http://1
     faces are HTML bars (`hbars` in `sitebuild/site.py`, coloured by the ranking scale), so they need no script:
     Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the marks
     each OCR model kept; Hallucination shows the non-hallucination rate, that rate against the same model held back by
-    its confidence, and accuracy with the option against accuracy with five options.
+    its confidence, the paired test of the two (the wrong answers only one of them made, with Holm-adjusted p and the
+    models outside the test named) and accuracy with the option against accuracy with five options.
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads). Its face, after the intro and the filters, is one chart
