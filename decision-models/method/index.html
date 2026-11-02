@@ -29,8 +29,40 @@ cost and time.</p>
 <p class="intro">This page covers the Text tab. The other two tabs explain their own methods on their pages: Page images under
 <a href="../vision/#method">How the benchmark was run</a> and Hallucination under
 <a href="../dont-know/#method">Our method</a>.</p>
-<nav class="toc" aria-label="Sections of this page"><ul><li><a href="#main-findings">What we found</a></li><li><a href="#tests">The questions</a></li><li><a href="#repair">How we checked the questions and answer key</a></li><li><a href="#setups">Models and setups</a></li><li><a href="#sending">What we sent and which settings we used</a></li><li><a href="#format">Does one question per request change the answers?</a></li><li><a href="#confidence-sources">Where each confidence score comes from</a></li><li><a href="#measures">How we measure accuracy and confidence</a></li><li><a href="#differences">How we tell a score gap from ordinary variation</a></li><li><a href="#statistical-methods">How we measure uncertainty</a></li><li><a href="#routing">How we chose which answers to keep</a></li><li><a href="#cost-section">Cost and reasoning</a></li><li><a href="#understanding">What can these results tell us about understanding?</a></li><li><a href="#repeats-section">What changed when we repeated the same questions?</a></li><li><a href="#latency">How we measure latency and throughput</a></li><li><a href="#limits">What these results do not establish</a></li><li><a href="#data">Download the data and check our calculations</a></li><li><a href="#references">Sources</a></li></ul></nav>
+<nav class="toc" aria-label="Sections of this page"><ul><li><a href="#at-a-glance">At a glance</a></li><li><a href="#main-findings">What we found</a></li><li><a href="#tests">The questions</a></li><li><a href="#repair">How we checked the questions and answer key</a></li><li><a href="#setups">Models and setups</a></li><li><a href="#sending">What we sent and which settings we used</a></li><li><a href="#format">Does one question per request change the answers?</a></li><li><a href="#confidence-sources">Where each confidence score comes from</a></li><li><a href="#measures">How we measure accuracy and confidence</a></li><li><a href="#differences">How we tell a score gap from ordinary variation</a></li><li><a href="#statistical-methods">How we measure uncertainty</a></li><li><a href="#routing">How we chose which answers to keep</a></li><li><a href="#cost-section">Cost and reasoning</a></li><li><a href="#understanding">What can these results tell us about understanding?</a></li><li><a href="#repeats-section">What changed when we repeated the same questions?</a></li><li><a href="#latency">How we measure latency and throughput</a></li><li><a href="#limits">What these results do not establish</a></li><li><a href="#data">Download the data and check our calculations</a></li><li><a href="#references">Sources</a></li></ul></nav>
 </header>
+<section class="card prose" id="at-a-glance" aria-labelledby="at-a-glance-title">
+<h2 id="at-a-glance-title">At a glance</h2>
+<p>Three benchmarks, each on its own tab and ranked on its own; no score combines them.</p>
+<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Benchmark</th><th scope="col" class="num">Questions</th>
+<th scope="col">What it measures</th><th scope="col">Main measure</th></tr></thead><tbody><tr><td data-label="Benchmark"><a href="../">Text</a></td><td class="num" data-label="Questions">2,198</td><td data-label="What it measures">Reading comprehension and grammar, in native Turkish</td><td data-label="Main measure">Accuracy: right answers over the questions</td></tr><tr><td data-label="Benchmark"><a href="../vision/">Page images</a></td><td class="num" data-label="Questions">763</td><td data-label="What it measures">Questions that point at underlined or numbered words: from the text (A), a picture of the page (B), both (C) or an OCR model&#x27;s reading (D)</td><td data-label="Main measure">Accuracy in each condition</td></tr><tr><td data-label="Benchmark"><a href="../dont-know/">Hallucination</a></td><td class="num" data-label="Questions">2,198</td><td data-label="What it measures">The Text tab&#x27;s questions with a sixth option, “Bilmiyorum” (I don&#x27;t know)</td><td data-label="Main measure">Non-hallucination rate: “Bilmiyorum” over “Bilmiyorum” plus wrong answers</td></tr></tbody></table></div>
+<h3>How we ask the models</h3>
+<ul>
+<li><strong>Decision models</strong>: each question goes to the model with its lettered options; we use only its pick and its score for each option (<a href="#setups">Models and setups</a>).</li>
+<li><strong>Chat models</strong>: asked in Turkish for their answer's letter and, where needed, a confidence score, in a structured reply (<a href="#sending">What we sent</a>).</li>
+</ul>
+<h3>Text</h3>
+<ul>
+<li><strong>Measures</strong>: how often each setup was right, whether its confidence found the answers worth keeping, whether it answered the same way again, and its cost and time.</li>
+<li><strong>Questions</strong>: 656 Reading and 1,542 Grammar questions in 20 topics, answer key version 2 (<a href="#tests">The questions</a>).</li>
+<li><strong>Scoring</strong>: accuracy with its 95% interval; the ranking score and the calibration gap for confidence; cost per 1,000 questions at list prices; median latency per request (<a href="#measures">How we measure</a>).</li>
+<li><strong>Details</strong>: the sections below.</li>
+</ul>
+<h3>Page images</h3>
+<ul>
+<li><strong>Questions</strong>: 763 of the Text tab's questions: 229 at underlined words and 543 at numbered words.</li>
+<li><strong>Scoring</strong>: accuracy in each condition over the 763 questions; two conditions of a model compared with the exact McNemar test on the same questions.</li>
+<li><strong>Details</strong>: <a href="../vision/#method">How the benchmark was run</a>, on the tab.</li>
+</ul>
+<h3>Hallucination</h3>
+<ul>
+<li><strong>Questions</strong>: the Text tab's 2,198 questions, each with “Bilmiyorum” as option F, never correct, and one added sentence in the instructions.</li>
+<li><strong>Scoring</strong>: accuracy, attempt rate and the non-hallucination rate; for comparison, the same model's five-option run held back by its own confidence at about the same attempt rate.</li>
+<li><strong>Details</strong>: <a href="../dont-know/#method">Our method</a>, on the tab.</li>
+</ul>
+<h3>Version history</h3>
+<p>Every results version and what changed: the <a href="../data/#results-changelog">results changelog</a>; changes to the answer key: the <a href="../data/#key-changelog">key changelog</a>.</p>
+</section>
 
 <aside class="worked-example" aria-labelledby="worked-example-title">
 <h2 id="worked-example-title">Worked example: Decider v1.1</h2>

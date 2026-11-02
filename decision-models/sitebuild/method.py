@@ -491,6 +491,60 @@ def gemma_lead(snap: bp.Snapshot) -> None:
         raise ValueError("What we found says Gemma's confidence matched its hit rate less closely than the best decision models'")
 
 
+def glance(site: Site) -> str:
+    """At a glance, as Artificial Analysis's methodology page opens: the three benchmarks in one table, how the models are
+    asked, and for each benchmark short items (what it measures, its questions, how it is scored, where the details are);
+    every count from results.json and vision.json. The long sections below are the details."""
+    v = site.values
+    subset = site.vision["subset"]
+    dont_know = site.results["dont_know"]
+    option = esc(dont_know["option"])
+    table_rows = (
+        ("", "Text", v["questions"], "Reading comprehension and grammar, in native Turkish", "Accuracy: right answers over the questions"),
+        ("vision/", "Page images", f"{subset['questions']:,}",
+         "Questions that point at underlined or numbered words: from the text (A), a picture of the page (B), both (C) or an OCR model's reading (D)",
+         "Accuracy in each condition"),
+        ("dont-know/", "Hallucination", f"{dont_know['questions']:,}", f"The Text tab's questions with a sixth option, “{dont_know['option']}” (I don't know)",
+         f"Non-hallucination rate: “{dont_know['option']}” over “{dont_know['option']}” plus wrong answers"),
+    )
+    rows = "".join(
+        f'<tr><td data-label="Benchmark"><a href="{rel(PATH, path)}">{esc(name)}</a></td><td class="num" data-label="Questions">{esc(count)}</td>'
+        f'<td data-label="What it measures">{esc(what)}</td><td data-label="Main measure">{esc(measure)}</td></tr>'
+        for path, name, count, what, measure in table_rows)
+    return f"""<section class="card prose" id="at-a-glance" aria-labelledby="at-a-glance-title">
+<h2 id="at-a-glance-title">At a glance</h2>
+<p>Three benchmarks, each on its own tab and ranked on its own; no score combines them.</p>
+<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Benchmark</th><th scope="col" class="num">Questions</th>
+<th scope="col">What it measures</th><th scope="col">Main measure</th></tr></thead><tbody>{rows}</tbody></table></div>
+<h3>How we ask the models</h3>
+<ul>
+<li><strong>Decision models</strong>: each question goes to the model with its lettered options; we use only its pick and its score for each option (<a href="#setups">Models and setups</a>).</li>
+<li><strong>Chat models</strong>: asked in Turkish for their answer's letter and, where needed, a confidence score, in a structured reply (<a href="#sending">What we sent</a>).</li>
+</ul>
+<h3>Text</h3>
+<ul>
+<li><strong>Measures</strong>: how often each setup was right, whether its confidence found the answers worth keeping, whether it answered the same way again, and its cost and time.</li>
+<li><strong>Questions</strong>: {v['reading_questions']} Reading and {v['grammar_questions']} Grammar questions in {v['study_units']} topics, answer key {v['key_version']} (<a href="#tests">The questions</a>).</li>
+<li><strong>Scoring</strong>: accuracy with its 95% interval; the ranking score and the calibration gap for confidence; cost per 1,000 questions at list prices; median latency per request (<a href="#measures">How we measure</a>).</li>
+<li><strong>Details</strong>: the sections below.</li>
+</ul>
+<h3>Page images</h3>
+<ul>
+<li><strong>Questions</strong>: {subset['questions']:,} of the Text tab's questions: {subset['by_reason']['underline']:,} at underlined words and {subset['by_reason']['numbered']:,} at numbered words.</li>
+<li><strong>Scoring</strong>: accuracy in each condition over the {subset['questions']:,} questions; two conditions of a model compared with the exact McNemar test on the same questions.</li>
+<li><strong>Details</strong>: <a href="{rel(PATH, 'vision/')}#method">How the benchmark was run</a>, on the tab.</li>
+</ul>
+<h3>Hallucination</h3>
+<ul>
+<li><strong>Questions</strong>: the Text tab's {dont_know['questions']:,} questions, each with “{option}” as option F, never correct, and one added sentence in the instructions.</li>
+<li><strong>Scoring</strong>: accuracy, attempt rate and the non-hallucination rate; for comparison, the same model's five-option run held back by its own confidence at about the same attempt rate.</li>
+<li><strong>Details</strong>: <a href="{rel(PATH, 'dont-know/')}#method">Our method</a>, on the tab.</li>
+</ul>
+<h3>Version history</h3>
+<p>Every results version and what changed: the <a href="{rel(PATH, 'data/')}#results-changelog">results changelog</a>; changes to the answer key: the <a href="{rel(PATH, 'data/')}#key-changelog">key changelog</a>.</p>
+</section>"""
+
+
 def build(site: Site) -> dict[str, str]:
     snap = site.snapshot
     v = site.values
@@ -908,7 +962,7 @@ base with <a href="https://blog.cloudflare.com/clef-decision-models/">Clef</a> a
 <a href="https://huggingface.co/perplexity-ai/pplx-decider-v1.1-27b">v1.1</a> changed both training data and input handling,
 so the test cannot say which change helped.</p>
 </aside>"""
-    toc = "".join(f'<li><a href="#{anchor}">{esc(title)}</a></li>' for anchor, title, _ in sections)
+    toc = '<li><a href="#at-a-glance">At a glance</a></li>' + "".join(f'<li><a href="#{anchor}">{esc(title)}</a></li>' for anchor, title, _ in sections)
     cards = "".join(
         f'<section class="card prose" id="{anchor}" aria-labelledby="{anchor}-title"><h2 id="{anchor}-title">{esc(title)}</h2>{body}\n</section>\n'
         for anchor, title, body in sections
@@ -929,6 +983,7 @@ cost and time.</p>
 <a href="{rel(PATH, 'dont-know/')}#method">Our method</a>.</p>
 <nav class="toc" aria-label="Sections of this page"><ul>{toc}<li><a href="#references">Sources</a></li></ul></nav>
 </header>
+{glance(site)}
 {example}
 {cards}{references}
 </div>"""
