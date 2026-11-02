@@ -6,7 +6,8 @@ question text, picture or OCR text.
 The leaderboard keeps decision models and other models apart (page_config.json's rule, Site.decision), and within each,
 the image models ranked by B, then the text-only models ranked by their best OCR route. A condition vision.json does not
 hold reads "Not available" with its reason from the model's "missing"; a row without the result it is ranked by follows
-the ranked rows, in vision.json's order. model_table() also gives a model page its row."""
+the ranked rows, in vision.json's order. model_table() also gives a model page its row. findings() puts the results in
+words, computed from vision.json when the site is built."""
 
 from __future__ import annotations
 
@@ -375,6 +376,123 @@ def engine_check(site: Site, data: dict[str, Any]) -> str:
             f"{item['picks_differ']:,} of {questions} picks differ.</p>")
 
 
+def findings(site: Site, data: dict[str, Any]) -> str:
+    """What we found: the leaderboards' main results in words, every number computed from vision.json, differences taken
+    between accuracies as the tables show them, significance from the paired exact McNemar tests vision.json holds
+    (p below 0.05, one comparison at a time). The sentences assume what they state (each image model has A, B and C and
+    is less accurate with the picture alone, every model's best OCR route is below its text, every OCR route beats the
+    picture alone); the build stops when the data no longer fits them."""
+    shown = lambda value: round(100 * value, 1)  # noqa: E731 - an accuracy as the tables show it, in percent
+    acc = lambda model, label: shown(model["conditions"][label]["accuracy"])  # noqa: E731
+    points = lambda value: f"{value:.1f}"  # noqa: E731
+
+    def name(model: dict[str, Any]) -> str:
+        run = site.by_id.get(model["a_run"])
+        return esc(site.row_name(run) if run else model["name"])
+
+    def p_value(model: dict[str, Any], first: str, second: str) -> float:
+        found = [item["accuracy"]["mcnemar_p"] for item in model["paired"] if item["first"] == first and item["second"] == second]
+        if len(found) != 1:
+            raise SystemExit(f"vision.json findings: {model['name']} has no paired test of {first} against {second}")
+        return found[0]
+
+    image = [model for model in data["models"] if model["kind"] == "image"]
+    if not image or any(label not in model["conditions"] for model in image for label in ("A", "B", "C")):
+        raise SystemExit("vision.json findings: the text expects image models with conditions A, B and C")
+    drop = {model["name"]: acc(model, "A") - acc(model, "B") for model in image}
+    if min(drop.values()) <= 0:
+        raise SystemExit("vision.json findings: an image model was not less accurate with the picture alone")
+    least = min(image, key=lambda model: drop[model["name"]])
+    most = max(image, key=lambda model: drop[model["name"]])
+    weak = [model for model in image if p_value(model, "A", "B") >= 0.05]
+    significance = ("each difference significant" if not weak else
+                    f"significant for {len(image) - len(weak)} of the {len(image)}")
+    first = (f"<p>All {len(image)} image models were less accurate with the picture alone (B) than with the text (A): by "
+             f"{points(drop[least['name']])} points ({name(least)}) to {points(drop[most['name']])} points ({name(most)}), "
+             f"{significance} in the exact McNemar test.</p>")
+
+    change = {model["name"]: acc(model, "C") - acc(model, "A") for model in image}
+    gains = [model for model in image if change[model["name"]] > 0]
+    losses = [model for model in image if change[model["name"]] < 0]
+    second = f"<p>With the picture added to the text (C), {len(gains)} of the {len(image)} were more accurate than with the text alone"
+    if gains:
+        second += (f", by {points(min(change[m['name']] for m in gains))} to "
+                   f"{points(max(change[m['name']] for m in gains))} points")
+        strong = [model for model in gains if p_value(model, "A", "C") < 0.05]
+        if strong and len(strong) < len(gains):
+            second += (f"; the gains of {joined([name(m) for m in strong])} ({points(min(change[m['name']] for m in strong))} to "
+                       f"{points(max(change[m['name']] for m in strong))} points) are significant, the others are not")
+        elif strong:
+            second += ", each gain significant"
+        else:
+            second += ", none significantly"
+    second += "."
+    if losses:
+        strong_losses = [model for model in losses if p_value(model, "A", "C") < 0.05]
+        verb = "was" if len(losses) == 1 else "were"
+        how = ("not significantly" if not strong_losses else
+               "significantly" if len(strong_losses) == len(losses) else
+               f"significantly for {joined([name(m) for m in strong_losses])}")
+        second += (f" {joined([name(m) for m in losses])} {verb} less accurate with the picture "
+                   f"({joined([points(-change[m['name']]) for m in losses])} points), {how}.")
+    second += "</p>"
+
+    routes = [(model, *best_route(data, model)) for model in data["models"] if best_route(data, model)]
+    gap = {model["name"]: acc(model, "A") - shown(metrics["accuracy"]) for model, _, metrics in routes}
+    if not routes or min(gap.values()) <= 0:
+        raise SystemExit("vision.json findings: the text expects every model's best OCR route below its text")
+    third = (f"<p>Through an OCR model (D), each of the {len(routes)} models with an OCR route was less accurate than with the "
+             f"text: its best route was {points(min(gap.values()))} to {points(max(gap.values()))} points below condition "
+             f"A.")
+    best_keys = {label.removeprefix("D ") for _, label, _ in routes}
+    if len(best_keys) == 1:
+        key = next(iter(best_keys))
+        third += f" {esc(OCR_NAMES[key])} gave the best route for all {len(routes)}."
+        verified = {other: item["verified"] for other, item in data["ocr"]["models"].items()}
+        kept = lambda other, kind: verified[other]["marked_in_text_sent"][kind]  # noqa: E731
+        fewest = min(verified, key=lambda other: verified[other]["cer"])
+        if fewest != key and all(kept(key, kind)["marked"] > kept(other, kind)["marked"]
+                                 for other in verified if other != key for kind in ("underlined", "numbered")):
+            underlined, numbered = kept(key, "underlined"), kept(key, "numbered")
+            third += (f" It kept the most of the marks these questions point at ({underlined['marked']:,} of "
+                      f"{underlined['spans']:,} underlined words and {numbered['marked']:,} of {numbered['markers']:,} numbered "
+                      f"words), although {esc(OCR_NAMES[fewest])} read the text with fewer errors (character error rate "
+                      f"{pct(verified[fewest]['cer'], 2)} against {pct(verified[key]['cer'], 2)}).")
+    both = [(model, label, metrics) for model, label, metrics in routes if "B" in model["conditions"]]
+    if both:
+        if any(shown(model["conditions"][label]["accuracy"]) <= acc(model, "B")
+               for model, _, _ in both for label in ocr_labels(data) if label in model["conditions"]):
+            raise SystemExit("vision.json findings: the text expects every OCR route above the picture alone")
+        lift = {model["name"]: shown(metrics["accuracy"]) - acc(model, "B") for model, _, metrics in both}
+        weak_routes = [model for model, label, _ in both if p_value(model, "B", label) >= 0.05]
+        third += (f" For the {len(both)} image models with both, every OCR route was more accurate than the picture alone "
+                  f"(B): the best route by {points(min(lift.values()))} to {points(max(lift.values()))} points, "
+                  + (f"significant for {len(both) - len(weak_routes)} of the {len(both)} (not for "
+                     f"{joined([name(m) for m in weak_routes])})." if weak_routes else "each significant."))
+    third += "</p>"
+
+    tops = {}
+    for label in ("A", "B", "C"):
+        having = [model for model in data["models"] if label in model["conditions"]]
+        tops[label] = max(having, key=lambda model: model["conditions"][label]["accuracy"])
+    best_overall = max(routes, key=lambda item: item[2]["accuracy"])
+    if len({tops[label]["name"] for label in tops} | {best_overall[0]["name"]}) == 1:
+        top = tops["A"]
+        fourth = (f"<p>{name(top)} was the most accurate model in every condition: {pct(top['conditions']['A']['accuracy'])} "
+                  f"with the text, {pct(top['conditions']['B']['accuracy'])} with the picture alone, "
+                  f"{pct(top['conditions']['C']['accuracy'])} with both and {pct(best_overall[2]['accuracy'])} through "
+                  f"{esc(OCR_NAMES[best_overall[1].removeprefix('D ')])}.</p>")
+    else:
+        fourth = ("<p>The most accurate: " + "; ".join(
+            f"{what}, {name(tops[label])} ({pct(tops[label]['conditions'][label]['accuracy'])})"
+            for label, what in (("A", "with the text"), ("B", "with the picture alone"), ("C", "with both")))
+            + f"; through an OCR model, {name(best_overall[0])} ({pct(best_overall[2]['accuracy'])}).</p>")
+    fifth = (f"<p>Each cell is one pass over the {data['subset']['questions']:,} questions. Each test compares two conditions "
+             f"of the same model on the same questions, one comparison at a time, without an adjustment for the number of "
+             f"comparisons; the OCR routes have no paired test against the text (A).</p>")
+    return first + second + third + fourth + fifth
+
+
 def build(site: Site) -> dict[str, str]:
     data = site.vision
     mixed = site.config["mixed_providers"]
@@ -407,6 +525,7 @@ def build(site: Site) -> dict[str, str]:
         <li><strong>D · OCR route</strong>: one OCR model's reading of the picture, as text, for each of {len(OCR_NAMES)} OCR models. The best OCR route is the one with the highest accuracy.</li>
       </ul>
       <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}), with its 95% interval under it. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
+      <p>Below the tables, <a href="#findings">What we found</a> puts the results in words and <a href="#method">How the benchmark was run</a> gives the method.</p>
       <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's pick and option probabilities; no question text, page image or OCR text).</p>
     </section>
 {leaderboard(site, data, True)}
@@ -415,6 +534,10 @@ def build(site: Site) -> dict[str, str]:
       <h2>How well the OCR models read the pages</h2>
       <p class="note">The error rates and counts use only human-verified question text: {esc(data["ocr"]["verified"].removeprefix("the human-verified subset: "))}. Each OCR model's text is compared with that text. Character error rate: edits over the reference's characters, summed over the {verified} crops. Turkish letter error rate: edits of the same alignment whose reference or OCR character is one of ı İ ş Ş ğ Ğ ç Ç ö Ö ü Ü, over the reference's count of those letters. Kept: an underlined word still marked, or a numbered word's numeral still there, in the text the models received.</p>
       {ocr_table(data)}
+    </section>
+    <section class="card" id="findings">
+      <h2>What we found</h2>
+      {findings(site, data)}
     </section>
     <section class="card method-notes" id="method">
       <h2>How the benchmark was run</h2>
