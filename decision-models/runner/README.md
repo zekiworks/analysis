@@ -329,16 +329,6 @@ Bilmiyorum." (`--dont-know`). Each lane is one decision model through the script
 settings; `REPEAT=N` makes the run repeat N. The report counts right, wrong and "Bilmiyorum" answers and the mean
 probability of "Bilmiyorum", and derives the same rates from the model's first full run without the option at the
 confidence cut-off with the same attempt rate; these runs stay out of the leaderboard.
-With `--questions FILE` as well, a "Bilmiyorum" run asks only the listed questions (a subset run); like the full runs it
-stays out of the main tables, the repeats, the routing runs and the batching comparison.
-
-`run_english.sh LANE…` runs the English reading track: the kept reading questions (`ENGLISH_KEPT`) in their English
-translation (`ENGLISH_TRANSLATIONS`, made by `translate_reading.py`), with the options under "Options:" and the System
-One instructions naming English instead of Turkish (`--english`). `DONT_KNOW=1` adds `--dont-know`: the option "I don't
-know" after each question's own and the English instructions ending with "If you do not know the answer, choose I don't
-know.", under a prompt version of their own. The report lists these runs in the "I don't know" section, deriving their
-rates from the model's first English reading run with the same translations and questions, and `--export-answers`
-writes their prompts as `english_dont_know_prompts`. All these runs stay out of the leaderboard.
 
 ### The 2026 exam check
 

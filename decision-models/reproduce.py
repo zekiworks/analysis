@@ -33,7 +33,11 @@ option from its runs' answers (dont_know_runs), their range and changed answers,
 original run. Then the English reading track (`english_reading`): the English prompts and their version, every
 English run's translations and kept questions (english-reading.json), each model's English runs and Text tab runs,
 both sides' counts on the kept questions, their difference, ranges and changed answers, and the paired test with
-Holm's correction. Uses only
+Holm's correction. Then the English reading track with the "I don't know" option (`english_reading.dont_know`): its
+prompts and their version, every run's prompt version and kept questions, each model's English runs with the option
+and its Turkish runs with the option (on the kept questions, or its full-bank runs counted on them), both sides' counts,
+rates and mean probability of the option, their ranges, and the paired test of wrong answers with Holm's correction.
+Uses only
 the standard library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with
 status 1 when anything differs beyond the tolerances printed.
 """
@@ -434,6 +438,19 @@ def main() -> int:
     for line in english_mismatches:
         print(line)
 
+    before = checks.passed + checks.failed
+    english_dont_know_mismatches = check_english_dont_know(args.docs, results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    models = len(((results.get("english_reading") or {}).get("dont_know") or {}).get("models", []))
+    print(
+        f"\nEnglish reading with \"I don't know\" ({models} model{'' if models == 1 else 's'}, from their English and Turkish "
+        f"runs' exported answers on english-reading.json's kept questions: counts exact, rates, mean probabilities and "
+        f"ranges within {METRIC_TOLERANCE:g}, p-values within a relative {P_TOLERANCE:g}): "
+        f"{checked - len(english_dont_know_mismatches)} of {checked} match"
+    )
+    for line in english_dont_know_mismatches:
+        print(line)
+
     print(f"\n{checks.passed} checks match, {checks.failed} differ")
     return 1 if checks.failed else 0
 
@@ -622,7 +639,8 @@ def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[
     Returns a line per run that differs."""
     mismatches = []
     for run in (answers.get("repeat_runs", []) + answers.get("pipeline_runs", []) + answers.get("batching_runs", [])
-                + answers.get("dont_know_runs", []) + answers.get("english_runs", [])):
+                + answers.get("dont_know_runs", []) + answers.get("english_runs", []) + answers.get("english_dont_know_runs", [])
+                + answers.get("english_dont_know_turkish_runs", [])):
         given = [index for index in scored if run["correct"][index] is not None and keys[index] is not None]
         differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
         if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
@@ -672,7 +690,8 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
     section = results.get("dont_know")
     runs = {run["run"]: run for run in answers.get("dont_know_runs", [])}
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
-    others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs") for run in answers.get(key, [])}
+    others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "english_runs",
+                                     "english_dont_know_runs", "english_dont_know_turkish_runs") for run in answers.get(key, [])}
     if sorted(listed) != sorted(runs) or set(listed) & others or (section is not None and section["questions"] != len(scored)):
         checks.failed += 1
         return [f"  runs: results.json lists {sorted(listed)}, answers.json's dont_know_runs {sorted(runs)}, also elsewhere "
@@ -793,8 +812,8 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     section = results.get("english_reading")
     runs = {run["run"]: run for run in answers.get("english_runs", [])}
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
-    others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs")
-              for run in answers.get(key, [])}
+    others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs",
+                                     "english_dont_know_runs", "english_dont_know_turkish_runs") for run in answers.get(key, [])}
     if sorted(listed) != sorted(runs) or set(listed) & others:
         checks.failed += 1
         return [f"  runs: results.json lists {sorted(listed)}, answers.json's english_runs {sorted(runs)}, also elsewhere "
@@ -917,6 +936,211 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
         check(f"{model['name']}, p_holm", model["paired"]["p_holm"], adjusted, p=True)
     order = [model["run"] for model in sorted(section["models"], key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))]
     check("model order", [model["run"] for model in section["models"]], order)
+    return mismatches
+
+
+def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int],
+                            checks: Checks) -> list[str]:
+    """Recompute results.json's `english_reading.dont_know` from answers.json's `english_dont_know_runs`,
+    `english_dont_know_turkish_runs` and `dont_know_runs`, and english-reading.json: the option, its sentence, the
+    instructions (the English instructions plus the sentence) and the prompt version (english_dont_know_prompts, the
+    English prompts besides the instructions and the option, hashed with sorted keys); every English run with the option
+    carries that version and the translations and was asked exactly the kept questions, every Turkish run on the kept
+    questions carries the Turkish "I don't know" version (dont_know_prompts hashed), has a question list and was asked
+    exactly the kept questions. Per setup of English runs (provider, model, reasoning, one question per request; the
+    first run without a repeat number first): its name and Text tab run (as the English reading check finds them), its
+    Turkish side (the same setup's runs on the kept questions in the same order, or else its full-bank runs with the
+    option, the first run without a repeat number first), and on the kept questions per side from the first run: right,
+    wrong, "I don't know" and invalid answers, accuracy, attempt rate, non-hallucination rate (None without "I don't
+    know" or wrong answers) and mean probability of the option (DONT_KNOW_LETTER, the last label of every answer's
+    option probabilities); the ranges over each side's runs (null rules as published); the wrong answers only one first
+    run gave (exact McNemar, Holm over every model); the models in order of English non-hallucination rate (None
+    last), then name. Every run must be listed once and in no other list. Returns a line per mismatch."""
+    section = (results.get("english_reading") or {}).get("dont_know")
+    english_runs = {run["run"]: run for run in answers.get("english_dont_know_runs", [])}
+    subset_runs = {run["run"]: run for run in answers.get("english_dont_know_turkish_runs", [])}
+    full_runs = {run["run"]: run for run in answers.get("dont_know_runs", [])}
+    models = (section or {}).get("models", [])
+    listed_english = [run_id for model in models for run_id in model["english"]["runs"]]
+    listed_subset = [run_id for model in models if model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
+    listed_full = [run_id for model in models if not model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
+    others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs")
+              for run in answers.get(key, [])}
+    if (sorted(listed_english) != sorted(english_runs) or sorted(listed_subset) != sorted(subset_runs)
+            or (set(listed_english) | set(listed_subset)) & others or not set(listed_full) <= set(full_runs)
+            or set(english_runs) & set(subset_runs)):
+        checks.failed += 1
+        return [f"  runs: results.json lists English {sorted(listed_english)} and Turkish on the kept questions "
+                f"{sorted(listed_subset)}, answers.json {sorted(english_runs)} and {sorted(subset_runs)}, also elsewhere "
+                f"{sorted((set(listed_english) | set(listed_subset)) & others)}; full-bank runs not in dont_know_runs "
+                f"{sorted(set(listed_full) - set(full_runs))}"]
+    if section is None:
+        return []
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, metric: bool = False, p: bool = False) -> None:
+        if p:
+            matched = close(published, recomputed, relative=P_TOLERANCE)
+        else:
+            matched = close(published, recomputed, METRIC_TOLERANCE) if metric else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    def hashed(value: dict[str, Any]) -> str:
+        return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
+
+    public = json.loads((docs / "english-reading.json").read_text(encoding="utf-8"))
+    prompts = answers.get("english_dont_know_prompts") or {}
+    english_prompts = answers.get("english_prompts") or {}
+    option = prompts.get("dont_know_option")
+    sentence = f"If you do not know the answer, choose {option}."
+    version, turkish_version = hashed(prompts), hashed(answers.get("dont_know_prompts") or {})
+    check("option", section["option"], option)
+    check("sentence", section["sentence"], sentence)
+    check("instructions", section["instructions"], f"{english_prompts.get('system_one_instructions')} {sentence}")
+    check("instructions in english_dont_know_prompts", section["instructions"], prompts.get("system_one_instructions"))
+    check("the other English prompts", {key: value for key, value in english_prompts.items() if key != "system_one_instructions"},
+          {key: value for key, value in prompts.items() if key not in ("system_one_instructions", "dont_know_option")})
+    check("prompt version", section["prompt_version"], version)
+    position = {question: index for index, question in enumerate(answers["questions"]["id"])}
+    kept = sorted(position[item["question_id"]] for item in public["questions"] if item["kept"] and item["question_id"] in position)
+    total = len(kept)
+    check("questions", [section["questions"], public["kept"]], [total, total])
+    check("kept questions scored", True, set(kept) <= set(scored))
+    for run_id, run in sorted(english_runs.items()):
+        english = run.get("english") or {}
+        asked = [index for index, value in enumerate(run["correct"]) if value is not None]
+        check(f"English \"I don't know\" run {run_id} (option, versions, translations, questions, asked the kept ones)",
+              [True, version, version, public["translations_sha256"], total, True],
+              [bool(run.get("dont_know")), run["prompt_version"], english.get("prompt_version"),
+               english.get("translations_sha256"), english.get("questions"), asked == kept])
+    for run_id, run in sorted(subset_runs.items()):
+        asked = [index for index, value in enumerate(run["correct"]) if value is not None]
+        check(f"Turkish \"I don't know\" run {run_id} on the kept questions (option, English, list, version, asked the kept ones)",
+              [True, None, True, turkish_version, True],
+              [bool(run.get("dont_know")), run.get("english"), bool(run.get("question_list")), run["prompt_version"], asked == kept])
+
+    def setups(runs: dict[int, dict[str, Any]]) -> dict[tuple[Any, ...], list[dict[str, Any]]]:
+        grouped: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
+        for run in runs.values():
+            grouped[(run["provider"], run["model"], run["thinking"], run["questions_per_request"])].append(run)
+        return grouped
+
+    main = {run["run"]: run for run in answers["runs"]}
+    named = {run["run"]: run for run in results["runs"]}
+    subsets = setups(subset_runs)
+    fulls = setups({run_id: run for run_id, run in full_runs.items() if not run.get("question_list")})
+    expected = []
+    for (provider, model, thinking, size), group in setups(english_runs).items():
+        group.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
+        name = f"{model} ({provider})"
+        check(f"{name}, English \"I don't know\" runs", [size, 1], [1, sum(1 for run in group if run["repeat"] is None)])
+        text_model = ENGLISH_TEXT_MODEL.get((provider, model), model)
+        found = sorted(run["run"] for run in main.values()
+                       if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"])
+                       == (provider, text_model, thinking, 1, None))
+        check(f"{name}, Text tab run", 1, len(found))
+        subset, full = subsets.pop((provider, model, thinking, 1), None), fulls.get((provider, model, thinking, 1))
+        check(f"{name}, one Turkish side", 1, int(subset is not None) + int(full is not None))
+        if len(found) != 1 or (subset is None) == (full is None):
+            continue
+        if subset is not None:
+            subset.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
+            check(f"{name}, Turkish runs on the kept questions", 1, sum(1 for run in subset if run["repeat"] is None))
+        else:
+            full.sort(key=lambda run: (run["repeat"] is not None, run["run"]))
+        turkish = subset or full
+        expected.append((
+            {"name": named[found[0]]["name"], "model": model, "provider": provider, "text_run": found[0],
+             "english": {"run": group[0]["run"], "runs": [run["run"] for run in group]},
+             "turkish": {"run": turkish[0]["run"], "runs": [run["run"] for run in turkish], "subset": subset is not None}},
+            {"english": group, "turkish": turkish},
+        ))
+    check("Turkish runs on the kept questions without English runs", [], sorted(run["run"] for group in subsets.values() for run in group))
+    rates = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
+
+    def counted(run: dict[str, Any]) -> dict[str, Any]:
+        found = {"right": 0, "wrong": 0, "dont_know": 0, "invalid": 0}
+        shown, unlabelled = [], 0
+        for index in kept:
+            choice, probabilities = run["choice"][index], run["probabilities"][index]
+            if probabilities:
+                if max(probabilities) != DONT_KNOW_LETTER:
+                    unlabelled += 1
+                else:
+                    shown.append(probabilities[DONT_KNOW_LETTER])
+            if choice is None:
+                found["invalid"] += 1
+            elif choice == DONT_KNOW_LETTER:
+                found["dont_know"] += 1
+            elif run["correct"][index] == 1:
+                found["right"] += 1
+            else:
+                found["wrong"] += 1
+        check(f"run {run['run']}, answers without {DONT_KNOW_LETTER} last", 0, unlabelled)
+        return {
+            **found,
+            "accuracy": found["right"] / total,
+            "attempt_rate": (found["right"] + found["wrong"]) / total,
+            "non_hallucination": found["dont_know"] / (found["dont_know"] + found["wrong"]) if found["dont_know"] + found["wrong"] else None,
+            "mean_dont_know_probability": sum(shown) / len(shown) if shown else None,
+        }
+
+    def wrong(run: dict[str, Any]) -> list[int]:
+        return [int(run["choice"][index] not in (None, DONT_KNOW_LETTER) and run["correct"][index] != 1) for index in kept]
+
+    by_run = {model["english"]["run"]: model for model in models}
+    check("models", sorted(by_run), sorted(item["english"]["run"] for item, _ in expected))
+    tests = []
+    for item, sides in expected:
+        name = f"{item['name']} (English \"I don't know\" run {item['english']['run']})"
+        model = by_run.get(item["english"]["run"])
+        if model is None:
+            continue
+        check(f"{name}, identity",
+              {**{key: model.get(key) for key in ("name", "model", "provider", "text_run")},
+               "english": {key: model["english"].get(key) for key in ("run", "runs")},
+               "turkish": {key: model["turkish"].get(key) for key in ("run", "runs", "subset")}}, item)
+        for side in ("english", "turkish"):
+            check(f"{name}, {side} repeat sets", [item[side]["runs"]] * len(sides[side]), [run["repeat_set"] for run in sides[side]])
+        values = {side: [counted(run) for run in group] for side, group in sides.items()}
+        for side in ("english", "turkish"):
+            first, published = values[side][0], model[side]
+            check(f"{name}, {side} counts", [published.get(key) for key in ("right", "wrong", "dont_know", "invalid")],
+                  [first[key] for key in ("right", "wrong", "dont_know", "invalid")])
+            check(f"{name}, {side} counts add up", total, sum(published.get(key, 0) for key in ("right", "wrong", "dont_know", "invalid")))
+            for key in rates:
+                check(f"{name}, {side} {key}", published.get(key), first[key], metric=True)
+        spread = {
+            side: None if len(found) == 1 else {
+                key: None if any(value[key] is None for value in found) else [min(value[key] for value in found), max(value[key] for value in found)]
+                for key in rates
+            }
+            for side, found in values.items()
+        }
+        published = model["spread"]
+        check(f"{name}, spread null", published is None, all(value is None for value in spread.values()))
+        for side in ("english", "turkish"):
+            given = None if published is None else published.get(side)
+            check(f"{name}, {side} range sides", given is None, spread[side] is None)
+            for key in rates:
+                low_high = None if given is None else given.get(key)
+                computed = None if spread[side] is None else spread[side][key]
+                matched = (low_high is None) == (computed is None) and all(
+                    close(a, b, METRIC_TOLERANCE) for a, b in zip(low_high or [], computed or []))
+                if "≠" in checks.cell(matched, str(computed), str(low_high)):
+                    mismatches.append(f"  {name}, {side} {key} range: {computed} ≠ {low_high}")
+        test = bm.paired_comparison(wrong(sides["english"][0]), wrong(sides["turkish"][0]))
+        paired = model.get("paired") or {}
+        check(f"{name}, wrong only in English, only in Turkish", [paired.get("english_only_wrong"), paired.get("turkish_only_wrong")],
+              [test["first_only"], test["second_only"]])
+        check(f"{name}, p", paired.get("p"), test["p"], p=True)
+        tests.append((model, test["p"]))
+    for (model, _), adjusted in zip(tests, bm.holm([p for _, p in tests])):
+        check(f"{model['name']}, p_holm", model["paired"]["p_holm"], adjusted, p=True)
+    order = [model["english"]["run"] for model in sorted(models, key=lambda item: (
+        item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0), item["name"].casefold(), item["english"]["run"]))]
+    check("model order", [model["english"]["run"] for model in models], order)
     return mismatches
 
 

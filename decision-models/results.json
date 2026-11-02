@@ -1,6 +1,6 @@
 {
   "schema_version": 5,
-  "results_version": "5c638c7d",
+  "results_version": "34bac8a0",
   "updated": "2026-11-01T19:34:16Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -269901,7 +269901,577 @@
           "p_holm": 0.5980466781494247
         }
       }
-    ]
+    ],
+    "dont_know": {
+      "option": "I don't know",
+      "sentence": "If you do not know the answer, choose I don't know.",
+      "instructions": "Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don't know.",
+      "prompt_version": "413d6775fc58",
+      "questions": 547,
+      "models": [
+        {
+          "name": "Liquid d1-ultra",
+          "model": "d1-ultra",
+          "provider": "liquid",
+          "text_run": 199,
+          "english": {
+            "run": 449,
+            "runs": [
+              449,
+              456,
+              462,
+              466,
+              474
+            ],
+            "right": 457,
+            "wrong": 39,
+            "dont_know": 51,
+            "invalid": 0,
+            "accuracy": 0.8354661791590493,
+            "attempt_rate": 0.906764168190128,
+            "non_hallucination": 0.5666666666666667,
+            "mean_dont_know_probability": 0.2527647853971477
+          },
+          "turkish": {
+            "run": 350,
+            "runs": [
+              350,
+              354,
+              360,
+              365,
+              370
+            ],
+            "subset": false,
+            "right": 491,
+            "wrong": 26,
+            "dont_know": 30,
+            "invalid": 0,
+            "accuracy": 0.8976234003656307,
+            "attempt_rate": 0.9451553930530164,
+            "non_hallucination": 0.5357142857142857,
+            "mean_dont_know_probability": 0.2275111857445987
+          },
+          "spread": {
+            "english": {
+              "accuracy": [
+                0.8263254113345521,
+                0.8446069469835467
+              ],
+              "attempt_rate": [
+                0.8957952468007313,
+                0.9140767824497258
+              ],
+              "non_hallucination": [
+                0.5529411764705883,
+                0.6129032258064516
+              ],
+              "mean_dont_know_probability": [
+                0.2527647853971477,
+                0.2564300726801178
+              ]
+            },
+            "turkish": {
+              "accuracy": [
+                0.8921389396709324,
+                0.9012797074954296
+              ],
+              "attempt_rate": [
+                0.9414990859232175,
+                0.9561243144424132
+              ],
+              "non_hallucination": [
+                0.4444444444444444,
+                0.5925925925925926
+              ],
+              "mean_dont_know_probability": [
+                0.22441245809913582,
+                0.23042049881081036
+              ]
+            }
+          },
+          "paired": {
+            "english_only_wrong": 20,
+            "turkish_only_wrong": 7,
+            "p": 0.0191572904586792,
+            "p_holm": 0.1341010332107544
+          }
+        },
+        {
+          "name": "Drex Max 1.1",
+          "model": "drex-max-v1.1",
+          "provider": "nace",
+          "text_run": 326,
+          "english": {
+            "run": 447,
+            "runs": [
+              447
+            ],
+            "right": 463,
+            "wrong": 41,
+            "dont_know": 43,
+            "invalid": 0,
+            "accuracy": 0.8464351005484461,
+            "attempt_rate": 0.9213893967093236,
+            "non_hallucination": 0.5119047619047619,
+            "mean_dont_know_probability": 0.1425561642833011
+          },
+          "turkish": {
+            "run": 352,
+            "runs": [
+              352
+            ],
+            "subset": false,
+            "right": 487,
+            "wrong": 51,
+            "dont_know": 9,
+            "invalid": 0,
+            "accuracy": 0.8903107861060329,
+            "attempt_rate": 0.9835466179159049,
+            "non_hallucination": 0.15,
+            "mean_dont_know_probability": 0.08407015445670117
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 20,
+            "turkish_only_wrong": 30,
+            "p": 0.20263875106454066,
+            "p_holm": 0.8764289722151765
+          }
+        },
+        {
+          "name": "SubQ Snap 1.1",
+          "model": "subq-snap-1.1",
+          "provider": "subq",
+          "text_run": 346,
+          "english": {
+            "run": 448,
+            "runs": [
+              448
+            ],
+            "right": 463,
+            "wrong": 63,
+            "dont_know": 21,
+            "invalid": 0,
+            "accuracy": 0.8464351005484461,
+            "attempt_rate": 0.9616087751371115,
+            "non_hallucination": 0.25,
+            "mean_dont_know_probability": 0.11709256155179708
+          },
+          "turkish": {
+            "run": 392,
+            "runs": [
+              392
+            ],
+            "subset": false,
+            "right": 477,
+            "wrong": 51,
+            "dont_know": 19,
+            "invalid": 0,
+            "accuracy": 0.8720292504570384,
+            "attempt_rate": 0.9652650822669104,
+            "non_hallucination": 0.2714285714285714,
+            "mean_dont_know_probability": 0.08417631924225587
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 39,
+            "turkish_only_wrong": 27,
+            "p": 0.1752857944430353,
+            "p_holm": 0.8764289722151765
+          }
+        },
+        {
+          "name": "Inception Mercury Decide",
+          "model": "inception/mercury-decide",
+          "provider": "openrouter",
+          "text_run": 204,
+          "english": {
+            "run": 450,
+            "runs": [
+              450,
+              460,
+              469,
+              478,
+              484
+            ],
+            "right": 465,
+            "wrong": 71,
+            "dont_know": 11,
+            "invalid": 0,
+            "accuracy": 0.850091407678245,
+            "attempt_rate": 0.979890310786106,
+            "non_hallucination": 0.13414634146341464,
+            "mean_dont_know_probability": 0.031531572744804136
+          },
+          "turkish": {
+            "run": 489,
+            "runs": [
+              489,
+              491,
+              493,
+              495,
+              497
+            ],
+            "subset": true,
+            "right": 468,
+            "wrong": 71,
+            "dont_know": 8,
+            "invalid": 0,
+            "accuracy": 0.8555758683729433,
+            "attempt_rate": 0.9853747714808044,
+            "non_hallucination": 0.10126582278481013,
+            "mean_dont_know_probability": 0.019188870343915032
+          },
+          "spread": {
+            "english": {
+              "accuracy": [
+                0.850091407678245,
+                0.8537477148080439
+              ],
+              "attempt_rate": [
+                0.979890310786106,
+                0.9835466179159049
+              ],
+              "non_hallucination": [
+                0.1111111111111111,
+                0.13414634146341464
+              ],
+              "mean_dont_know_probability": [
+                0.030897669793960476,
+                0.03153736749203556
+              ]
+            },
+            "turkish": {
+              "accuracy": [
+                0.8555758683729433,
+                0.8610603290676416
+              ],
+              "attempt_rate": [
+                0.9853747714808044,
+                0.9853747714808044
+              ],
+              "non_hallucination": [
+                0.10126582278481013,
+                0.10526315789473684
+              ],
+              "mean_dont_know_probability": [
+                0.018941783254423132,
+                0.019928634779118805
+              ]
+            }
+          },
+          "paired": {
+            "english_only_wrong": 29,
+            "turkish_only_wrong": 29,
+            "p": 1.0,
+            "p_holm": 1.0
+          }
+        },
+        {
+          "name": "GPT-6 Luna",
+          "model": "gpt-6-luna",
+          "provider": "openai-decisions",
+          "text_run": 143,
+          "english": {
+            "run": 444,
+            "runs": [
+              444
+            ],
+            "right": 441,
+            "wrong": 96,
+            "dont_know": 10,
+            "invalid": 0,
+            "accuracy": 0.8062157221206582,
+            "attempt_rate": 0.9817184643510055,
+            "non_hallucination": 0.09433962264150944,
+            "mean_dont_know_probability": 0.030073126142595975
+          },
+          "turkish": {
+            "run": 453,
+            "runs": [
+              453
+            ],
+            "subset": true,
+            "right": 463,
+            "wrong": 78,
+            "dont_know": 6,
+            "invalid": 0,
+            "accuracy": 0.8464351005484461,
+            "attempt_rate": 0.9890310786106032,
+            "non_hallucination": 0.07142857142857142,
+            "mean_dont_know_probability": 0.02712979890310786
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 47,
+            "turkish_only_wrong": 29,
+            "p": 0.05045241024721763,
+            "p_holm": 0.3027144614833058
+          }
+        },
+        {
+          "name": "Jev 1.14.0",
+          "model": "jev-1.14.0",
+          "provider": "jev",
+          "text_run": 194,
+          "english": {
+            "run": 446,
+            "runs": [
+              446,
+              454,
+              457,
+              461,
+              464
+            ],
+            "right": 472,
+            "wrong": 72,
+            "dont_know": 3,
+            "invalid": 0,
+            "accuracy": 0.8628884826325411,
+            "attempt_rate": 0.9945155393053017,
+            "non_hallucination": 0.04,
+            "mean_dont_know_probability": 0.015521023765996345
+          },
+          "turkish": {
+            "run": 470,
+            "runs": [
+              470,
+              473,
+              476,
+              480,
+              482
+            ],
+            "subset": true,
+            "right": 475,
+            "wrong": 69,
+            "dont_know": 3,
+            "invalid": 0,
+            "accuracy": 0.8683729433272395,
+            "attempt_rate": 0.9945155393053017,
+            "non_hallucination": 0.041666666666666664,
+            "mean_dont_know_probability": 0.016691042047531995
+          },
+          "spread": {
+            "english": {
+              "accuracy": [
+                0.8592321755027422,
+                0.8665447897623401
+              ],
+              "attempt_rate": [
+                0.9926873857404022,
+                0.9945155393053017
+              ],
+              "non_hallucination": [
+                0.04,
+                0.05194805194805195
+              ],
+              "mean_dont_know_probability": [
+                0.015521023765996345,
+                0.015630712979890313
+              ]
+            },
+            "turkish": {
+              "accuracy": [
+                0.8628884826325411,
+                0.8775137111517367
+              ],
+              "attempt_rate": [
+                0.9945155393053017,
+                0.9945155393053017
+              ],
+              "non_hallucination": [
+                0.04,
+                0.04477611940298507
+              ],
+              "mean_dont_know_probability": [
+                0.01627056672760512,
+                0.016691042047531995
+              ]
+            }
+          },
+          "paired": {
+            "english_only_wrong": 20,
+            "turkish_only_wrong": 17,
+            "p": 0.7428293587290682,
+            "p_holm": 1.0
+          }
+        },
+        {
+          "name": "Microsoft-Decision-1",
+          "model": "microsoft/microsoft-decision-1",
+          "provider": "openrouter",
+          "text_run": 205,
+          "english": {
+            "run": 451,
+            "runs": [
+              451,
+              459,
+              467,
+              477,
+              483
+            ],
+            "right": 467,
+            "wrong": 77,
+            "dont_know": 3,
+            "invalid": 0,
+            "accuracy": 0.8537477148080439,
+            "attempt_rate": 0.9945155393053017,
+            "non_hallucination": 0.0375,
+            "mean_dont_know_probability": 0.03592171404356558
+          },
+          "turkish": {
+            "run": 487,
+            "runs": [
+              487,
+              490,
+              492,
+              494,
+              496
+            ],
+            "subset": true,
+            "right": 457,
+            "wrong": 88,
+            "dont_know": 2,
+            "invalid": 0,
+            "accuracy": 0.8354661791590493,
+            "attempt_rate": 0.9963436928702011,
+            "non_hallucination": 0.022222222222222223,
+            "mean_dont_know_probability": 0.023238344633348
+          },
+          "spread": {
+            "english": {
+              "accuracy": [
+                0.8537477148080439,
+                0.8628884826325411
+              ],
+              "attempt_rate": [
+                0.9945155393053017,
+                0.9945155393053017
+              ],
+              "non_hallucination": [
+                0.0375,
+                0.04
+              ],
+              "mean_dont_know_probability": [
+                0.03576906694841837,
+                0.03594965361105969
+              ]
+            },
+            "turkish": {
+              "accuracy": [
+                0.8281535648994516,
+                0.8354661791590493
+              ],
+              "attempt_rate": [
+                0.9926873857404022,
+                0.9963436928702011
+              ],
+              "non_hallucination": [
+                0.022222222222222223,
+                0.043478260869565216
+              ],
+              "mean_dont_know_probability": [
+                0.023238344633348,
+                0.023497202805421846
+              ]
+            }
+          },
+          "paired": {
+            "english_only_wrong": 24,
+            "turkish_only_wrong": 35,
+            "p": 0.19252645776146274,
+            "p_holm": 0.8764289722151765
+          }
+        },
+        {
+          "name": "Liquid d1",
+          "model": "d1",
+          "provider": "liquid",
+          "text_run": 52,
+          "english": {
+            "run": 445,
+            "runs": [
+              445,
+              455,
+              458,
+              463,
+              465
+            ],
+            "right": 478,
+            "wrong": 67,
+            "dont_know": 2,
+            "invalid": 0,
+            "accuracy": 0.8738574040219378,
+            "attempt_rate": 0.9963436928702011,
+            "non_hallucination": 0.028985507246376812,
+            "mean_dont_know_probability": 0.009200322658382633
+          },
+          "turkish": {
+            "run": 472,
+            "runs": [
+              472,
+              475,
+              479,
+              481,
+              485
+            ],
+            "subset": true,
+            "right": 457,
+            "wrong": 89,
+            "dont_know": 1,
+            "invalid": 0,
+            "accuracy": 0.8354661791590493,
+            "attempt_rate": 0.9981718464351006,
+            "non_hallucination": 0.011111111111111112,
+            "mean_dont_know_probability": 0.012543721557333359
+          },
+          "spread": {
+            "english": {
+              "accuracy": [
+                0.8592321755027422,
+                0.8738574040219378
+              ],
+              "attempt_rate": [
+                0.9963436928702011,
+                0.9963436928702011
+              ],
+              "non_hallucination": [
+                0.025974025974025976,
+                0.028985507246376812
+              ],
+              "mean_dont_know_probability": [
+                0.009001428730236674,
+                0.010092346863690762
+              ]
+            },
+            "turkish": {
+              "accuracy": [
+                0.829981718464351,
+                0.850091407678245
+              ],
+              "attempt_rate": [
+                0.9981718464351006,
+                1.0
+              ],
+              "non_hallucination": [
+                0.0,
+                0.011111111111111112
+              ],
+              "mean_dont_know_probability": [
+                0.011311550737785406,
+                0.012813937215386527
+              ]
+            }
+          },
+          "paired": {
+            "english_only_wrong": 21,
+            "turkish_only_wrong": 43,
+            "p": 0.008146902228698568,
+            "p_holm": 0.06517521782958854
+          }
+        }
+      ]
+    }
   },
   "answer_key": {
     "version": 2,

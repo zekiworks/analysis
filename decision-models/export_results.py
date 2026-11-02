@@ -6,7 +6,9 @@ runs. Only runs over a full question set are exported, those on the question ban
 finished full run, without runs whose correct option was replaced, and only aggregate numbers: no
 question text, prompts, answers or local paths. Runs with the "I don't know" option (--dont-know) enter
 only their own section, `dont_know`, and answers.json's `dont_know_runs`; runs in English (--english) only
-theirs, `english_reading`, and answers.json's `english_runs`.
+theirs, `english_reading`, and answers.json's `english_runs`; runs in English with the option, and the Turkish runs
+with the option on the English track's kept questions, only `english_reading.dont_know` and answers.json's
+`english_dont_know_runs` and `english_dont_know_turkish_runs`.
 """
 
 from __future__ import annotations
@@ -1396,6 +1398,22 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
     return {"models": models, "records": {record["run_id"]: record for record in records}}
 
 
+def kept_questions(answers: dict[str, Any], public: dict[str, Any]) -> list[int]:
+    """The positions in the answers of the English reading track's kept questions (english-reading.json), after
+    checking that its question list gives its counts and holds only scored questions of their units."""
+    questions = answers["questions"]
+    index_of = {question: index for index, question in enumerate(questions["id"])}
+    listed = public["questions"]
+    kept_ids = [item["question_id"] for item in listed if item["kept"]]
+    if (len(listed) != public["reading_questions"] or len(kept_ids) != public["kept"]
+            or len(listed) - len(kept_ids) != public["flagged"] or len({item["question_id"] for item in listed}) != len(listed)):
+        raise ValueError(f"{ENGLISH_READING_PATH.name}: its question list does not give its counts")
+    if any(item["question_id"] not in index_of or questions["unit"][index_of[item["question_id"]]] != item["unit"]
+           or questions["status"][index_of[item["question_id"]]] == "excluded" for item in listed):
+        raise ValueError(f"{ENGLISH_READING_PATH.name}: a listed question is not a scored question of its unit in the answers")
+    return sorted(index_of[question] for question in kept_ids)
+
+
 def english_reading_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any],
                                  public: dict[str, Any]) -> dict[str, Any]:
     """The `english_reading` section from the answers file and the track's public record (english-reading.json): the
@@ -1416,17 +1434,7 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
         json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()[:12]
     translations = public["translations_sha256"]
-    questions = answers["questions"]
-    index_of = {question: index for index, question in enumerate(questions["id"])}
-    listed = public["questions"]
-    kept_ids = [item["question_id"] for item in listed if item["kept"]]
-    if (len(listed) != public["reading_questions"] or len(kept_ids) != public["kept"]
-            or len(listed) - len(kept_ids) != public["flagged"] or len({item["question_id"] for item in listed}) != len(listed)):
-        raise ValueError(f"{ENGLISH_READING_PATH.name}: its question list does not give its counts")
-    if any(item["question_id"] not in index_of or questions["unit"][index_of[item["question_id"]]] != item["unit"]
-           or questions["status"][index_of[item["question_id"]]] == "excluded" for item in listed):
-        raise ValueError(f"{ENGLISH_READING_PATH.name}: a listed question is not a scored question of its unit in the answers")
-    kept = sorted(index_of[question] for question in kept_ids)
+    kept = kept_questions(answers, public)
     total = len(kept)
     by_id = {run["run"]: run for run in answers["english_runs"]}
     turkish_answers = {run["run"]: run for run in answers["runs"] + answers["repeat_runs"]}
@@ -1495,12 +1503,217 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
     }
 
 
+def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str, Any] | None,
+                      english_section: dict[str, Any] | None) -> dict[str, Any] | None:
+    """The runs of the English "I don't know" comparison (results.json `english_reading.dont_know`) from the report's
+    records of runs with the "I don't know" option: one entry per setup of its runs in English (provider, model,
+    reasoning, one question per request; the first run without a repeat number first, its repeats after it), named
+    after its English reading model (same provider and model), and its Turkish side, the same setup's runs with the
+    option: either its runs on exactly the English runs' questions with a question list (subset runs, same order) or,
+    without those, its full-bank runs on the Hallucination tab, counted on the kept questions. Turkish runs with the
+    option on that many listed questions belong to no other section, so each must pair with an English setup. None
+    without runs in English with the option. The numbers come from the answers (english_dont_know_answers_part)."""
+    english = [record for record in records if record.get("english")]
+    if not english:
+        return None
+    if english_section is None:
+        raise ValueError('the report has runs in English with the "I don\'t know" option but no English reading runs')
+    counts = {record["english"].get("questions") for record in english}
+    if len(counts) != 1:
+        raise ValueError(f'the runs in English with the "I don\'t know" option count different questions {sorted(counts, key=str)}')
+    total = counts.pop()
+
+    def setups(found: list[dict[str, Any]], kind: str) -> dict[tuple[Any, ...], list[dict[str, Any]]]:
+        grouped: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
+        for record in sorted(found, key=lambda record: record["run_id"]):
+            key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"])
+            grouped.setdefault(key, []).append(record)
+        for (provider, model, _, batch_size), group in grouped.items():
+            label = f"{model} ({provider}), {kind} runs {[record['run_id'] for record in group]}"
+            if batch_size != 1:
+                raise ValueError(f"{label}: asked {batch_size} questions per request, not 1")
+            if sum(1 for record in group if record.get("repeat") is None) != 1:
+                raise ValueError(f"{label}: needs exactly one run without a repeat number")
+            group.sort(key=lambda record: (record.get("repeat") or 1, record["run_id"]))
+        return grouped
+
+    subsets = setups([record for record in records if not record.get("english") and record.get("question_list")
+                      and record["evaluated"] == total], 'Turkish "I don\'t know" kept-question')
+    by_record = {record["run_id"]: record for record in records}
+    full = dont_know_section["models"] if dont_know_section else []
+    models = []
+    claimed: list[dict[str, Any]] = []
+    for (provider, model, thinking, _), found in setups(english, 'English "I don\'t know"').items():
+        runs = [record["run_id"] for record in found]
+        label = f"{model} ({provider}), English \"I don't know\" runs {runs}"
+        reading = [item for item in english_section["models"] if (item["provider"], item["model"]) == (provider, model)]
+        if len(reading) != 1:
+            raise ValueError(f"{label}: needs exactly one English reading model of the same provider and model, "
+                             f"found {[item['run'] for item in reading]}")
+        originals = {record["dont_know_answers"]["original_run"] for record in found}
+        if originals != {reading[0]["run"]}:
+            raise ValueError(f"{label}: its original runs {sorted(originals, key=str)} are not its first English reading "
+                             f"run {reading[0]['run']}")
+        subset = subsets.pop((provider, model, thinking, 1), None)
+        hallucination = [item for item in full if (item["provider"], item["model"]) == (provider, model)]
+        if subset is not None and hallucination:
+            raise ValueError(f"{label}: both Turkish runs on the kept questions {[record['run_id'] for record in subset]} "
+                             f"and full-bank runs {[item['runs'] for item in hallucination]} could be its Turkish side")
+        if subset is not None:
+            turkish = [record["run_id"] for record in subset]
+            claimed += subset
+        elif len(hallucination) == 1 and all(
+                (by_record[run]["thinking"], by_record[run]["batch_size"]) == (thinking, 1) for run in hallucination[0]["runs"]):
+            turkish = hallucination[0]["runs"]
+        else:
+            raise ValueError(f"{label}: no Turkish \"I don't know\" runs of the same setup, on the kept questions or on "
+                             f"the Hallucination tab (found {[item['runs'] for item in hallucination]})")
+        models.append(
+            {
+                "name": reading[0]["name"],
+                "model": model,
+                "provider": provider,
+                "text_run": reading[0]["turkish_run"],
+                "english": {"run": runs[0], "runs": runs},
+                "turkish": {"run": turkish[0], "runs": turkish, "subset": subset is not None},
+            }
+        )
+    if subsets:
+        raise ValueError(f"Turkish \"I don't know\" runs on {total} listed questions "
+                         f"{[record['run_id'] for group in subsets.values() for record in group]} have no English "
+                         f"\"I don't know\" runs of the same setup")
+    return {"models": models, "records": {record["run_id"]: record for record in english + claimed}}
+
+
+def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any],
+                                   public: dict[str, Any]) -> dict[str, Any]:
+    """The `english_reading.dont_know` section from the answers file and english-reading.json: the option, its sentence,
+    the English instructions with it and the prompt version (english_dont_know_prompts: the English prompts with the
+    sentence added to the instructions and the option, hashed as the runner hashes them). Every English run with the
+    option must carry that version and the record's translations_sha256, every Turkish run on the kept questions the
+    Turkish "I don't know" version (dont_know_prompts hashed), and both must have been asked exactly the kept questions
+    and count, in their report records, what their answers give. Per model and side, on the kept questions, from its
+    first run: right, wrong, "I don't know" (DONT_KNOW_LETTER) and invalid answers, accuracy, attempt rate,
+    non-hallucination rate (None without "I don't know" or wrong answers) and the mean probability of the option over
+    the answers that report it; the range of those over the side's runs (None for a side with one run, and for both
+    when both have one); and the first runs' wrong answers against each other (exact McNemar, bm.paired_comparison:
+    first English, second Turkish) with Holm's correction over every model. Ordered by English non-hallucination
+    rate, best first and None last, then by name."""
+    prompts = document.get("english_dont_know_prompts")
+    if prompts is None:
+        raise ValueError('the answers file has runs in English with the "I don\'t know" option but no english_dont_know_prompts')
+    english_prompts = document["english_prompts"]
+    option, instructions = prompts["dont_know_option"], prompts["system_one_instructions"]
+    sentence = f"If you do not know the answer, choose {option}."
+    if instructions != f"{english_prompts['system_one_instructions']} {sentence}":
+        raise ValueError(f"english_dont_know_prompts: the instructions are not the English instructions plus {sentence!r}")
+    if ({key: value for key, value in prompts.items() if key not in ("system_one_instructions", "dont_know_option")}
+            != {key: value for key, value in english_prompts.items() if key != "system_one_instructions"}):
+        raise ValueError("english_dont_know_prompts: besides the instructions and the option, not the English prompts")
+
+    def hashed(value: dict[str, Any]) -> str:
+        return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
+
+    version, turkish_version = hashed(prompts), hashed(document["dont_know_prompts"])
+    translations = public["translations_sha256"]
+    kept = kept_questions(answers, public)
+    total = len(kept)
+    english_runs = {run["run"]: run for run in answers["english_dont_know_runs"]}
+    subset_runs = {run["run"]: run for run in answers["english_dont_know_turkish_runs"]}
+    full_runs = {run["run"]: run for run in answers["dont_know_runs"]}
+    for run_id, run in sorted(english_runs.items()):
+        english = section["records"][run_id]["english"]
+        if run["english"] != english:
+            raise ValueError(f"English \"I don't know\" run {run_id}: the answers file and the report give different English records")
+        if english.get("translations_sha256") != translations:
+            raise ValueError(f"English \"I don't know\" run {run_id}: translations {str(english.get('translations_sha256'))[:12]}, "
+                             f"not {ENGLISH_READING_PATH.name}'s {translations[:12]}")
+        if english.get("prompt_version") != version or run["prompt_version"] != version:
+            raise ValueError(f"English \"I don't know\" run {run_id} was not run with prompt version {version}")
+    for run_id, run in sorted(subset_runs.items()):
+        if run["prompt_version"] != turkish_version:
+            raise ValueError(f"Turkish \"I don't know\" run {run_id} on the kept questions was not run with prompt version {turkish_version}")
+    for run_id, run in sorted({**english_runs, **subset_runs}.items()):
+        asked = [index for index, value in enumerate(run["correct"]) if value is not None]
+        if asked != kept or section["records"][run_id]["evaluated"] != total:
+            raise ValueError(f"\"I don't know\" run {run_id} was not asked exactly the {total} kept questions")
+    metrics = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
+
+    def counted(run: dict[str, Any]) -> dict[str, Any]:
+        found = {"right": 0, "wrong": 0, "dont_know": 0, "invalid": 0}
+        shown = []
+        for index in kept:
+            choice, probabilities = run["choice"][index], run["probabilities"][index]
+            if probabilities and DONT_KNOW_LETTER in probabilities:
+                shown.append(float(probabilities[DONT_KNOW_LETTER]))
+            if choice is None:
+                found["invalid"] += 1
+            elif choice == DONT_KNOW_LETTER:
+                found["dont_know"] += 1
+            elif run["correct"][index]:
+                found["right"] += 1
+            else:
+                found["wrong"] += 1
+        record = section["records"].get(run["run"])
+        if record is not None and {key: record["dont_know_answers"][key] for key in found} != found:
+            raise ValueError(f"\"I don't know\" run {run['run']}: its report record does not count what its answers give")
+        return {
+            **found,
+            "accuracy": found["right"] / total,
+            "attempt_rate": (found["right"] + found["wrong"]) / total,
+            "non_hallucination": found["dont_know"] / (found["dont_know"] + found["wrong"]) if found["dont_know"] + found["wrong"] else None,
+            "mean_dont_know_probability": sum(shown) / len(shown) if shown else None,
+        }
+
+    def wrong(run: dict[str, Any]) -> list[int]:
+        return [int(run["choice"][index] not in (None, DONT_KNOW_LETTER) and not run["correct"][index]) for index in kept]
+
+    models = []
+    for model in section["models"]:
+        sides = {"english": [english_runs[run] for run in model["english"]["runs"]],
+                 "turkish": [(subset_runs if model["turkish"]["subset"] else full_runs)[run] for run in model["turkish"]["runs"]]}
+        values = {side: [counted(run) for run in runs] for side, runs in sides.items()}
+        spread = {
+            side: None if len(found) == 1 else {
+                key: None if any(value[key] is None for value in found) else [min(value[key] for value in found), max(value[key] for value in found)]
+                for key in metrics
+            }
+            for side, found in values.items()
+        }
+        test = bm.paired_comparison(wrong(sides["english"][0]), wrong(sides["turkish"][0]))
+        models.append(
+            {
+                **model,
+                "english": {**model["english"], **values["english"][0]},
+                "turkish": {**model["turkish"], **values["turkish"][0]},
+                "spread": None if all(value is None for value in spread.values()) else spread,
+                "paired": {"english_only_wrong": test["first_only"], "turkish_only_wrong": test["second_only"],
+                           "p": test["p"], "p_holm": None},
+            }
+        )
+    for model, adjusted in zip(models, bm.holm([model["paired"]["p"] for model in models])):
+        model["paired"]["p_holm"] = adjusted
+    models.sort(key=lambda item: (item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0),
+                                  item["name"].casefold(), item["english"]["run"]))
+    return {
+        "option": option,
+        "sentence": sentence,
+        "instructions": instructions,
+        "prompt_version": version,
+        "questions": total,
+        "models": models,
+    }
+
+
+
 def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_section: dict[str, Any] | None = None,
-                   english_section: dict[str, Any] | None = None) -> dict[str, Any]:
+                   english_section: dict[str, Any] | None = None,
+                   english_dont_know_section: dict[str, Any] | None = None) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
     runs, the repeats of each repeated configuration, the runs of each measured routing pipeline, the runs with
-    the "I don't know" option (`dont_know_section`) and the runs in English (`english_section`), which no other list
-    holds. A run's answers on questions it was not asked are None, also in `correct`."""
+    the "I don't know" option (`dont_know_section`), the runs in English (`english_section`) and the English "I don't
+    know" comparison's runs in English and its Turkish runs on the kept questions (`english_dont_know_section`), which
+    no other list holds. A run's answers on questions it was not asked are None, also in `correct`."""
     dataset = next(
         (item for item in document["datasets"] if item["graded_sha256"] == data["dataset"]["graded_sha256"]), None
     )
@@ -1532,22 +1745,32 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
     by_id = {run["run"]: run for run in dataset["runs"]}
     dont_know_sets = {run: model["runs"] for model in (dont_know_section or {}).get("models", []) for run in model["runs"]}
     english_sets = {run: model["runs"] for model in (english_section or {}).get("models", []) for run in model["runs"]}
-    missing = (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)) - set(by_id)
+    idk_models = (english_dont_know_section or {}).get("models", [])
+    english_idk_sets = {run: model["english"]["runs"] for model in idk_models for run in model["english"]["runs"]}
+    turkish_idk_sets = {run: model["turkish"]["runs"] for model in idk_models if model["turkish"]["subset"]
+                        for run in model["turkish"]["runs"]}
+    missing = (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
+               | set(english_idk_sets) | set(turkish_idk_sets)) - set(by_id)
     if missing:
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
     others = main | set(repeats) | set(pipelines) | set(batching)
     mixed = sorted(run for run in others | set(english_sets) if by_id[run].get("dont_know"))
-    if mixed or any(not by_id[run].get("dont_know") for run in dont_know_sets):
+    if mixed or any(not by_id[run].get("dont_know") for run in {**dont_know_sets, **english_idk_sets, **turkish_idk_sets}):
         raise ValueError(f"runs {mixed or sorted(dont_know_sets)}: the \"I don't know\" runs and the others are mixed up")
-    mixed = sorted(run for run in others | set(dont_know_sets) if by_id[run].get("english"))
-    if mixed or any(not by_id[run].get("english") for run in english_sets):
+    mixed = sorted(run for run in others | set(dont_know_sets) | set(turkish_idk_sets) if by_id[run].get("english"))
+    if mixed or any(not by_id[run].get("english") for run in {**english_sets, **english_idk_sets}):
         raise ValueError(f"runs {mixed or sorted(english_sets)}: the English runs and the others are mixed up")
+    mixed = sorted(set(dont_know_sets) & set(turkish_idk_sets))
+    if mixed or any(not by_id[run].get("question_list") for run in turkish_idk_sets):
+        raise ValueError(f"runs {mixed or sorted(turkish_idk_sets)}: the Hallucination tab's runs and the Turkish \"I don't "
+                         f"know\" runs on the kept questions are mixed up")
     return {
         "schema_version": document["schema_version"],
         "dataset": {"name": dataset["name"], "graded_sha256": dataset["graded_sha256"]},
         "prompts": document["prompts"],
-        **({"dont_know_prompts": document["dont_know_prompts"]} if dont_know_sets else {}),
+        **({"dont_know_prompts": document["dont_know_prompts"]} if dont_know_sets or turkish_idk_sets else {}),
         **({"english_prompts": document["english_prompts"]} if english_sets else {}),
+        **({"english_dont_know_prompts": document["english_dont_know_prompts"]} if english_idk_sets else {}),
         "questions": dataset["questions"],
         "runs": [by_id[run] for run in sorted(main)],
         # Each repeat lists the runs of its configuration's repeat set (results.json `repeats`).
@@ -1559,6 +1782,12 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         "dont_know_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(dont_know_sets.items())],
         # Runs in English, each with the runs of its setup (results.json `english_reading`).
         "english_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(english_sets.items())],
+        # Runs in English with the "I don't know" option, each with the runs of its setup (results.json
+        # `english_reading.dont_know`, English side).
+        "english_dont_know_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(english_idk_sets.items())],
+        # Runs with the "I don't know" option in Turkish on the kept questions, each with the runs of its setup
+        # (results.json `english_reading.dont_know`, Turkish side where it is not a Hallucination tab run).
+        "english_dont_know_turkish_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(turkish_idk_sets.items())],
     }
 
 
@@ -1586,21 +1815,25 @@ def main() -> int:
         text = args.report.read_text(encoding="utf-8")
         analysis = ANALYSIS_PATTERN.search(text)
         records = [json.loads(match.group(1)) for match in RESULT_PATTERN.finditer(text)]
-        # The runs with the "I don't know" option enter only their own section, `dont_know`, and the runs in English
-        # only theirs, `english_reading`.
+        # The runs with the "I don't know" option enter only their own section, `dont_know` (full-bank runs in
+        # Turkish), the runs in English only theirs, `english_reading`, and the runs with the option in English and
+        # their Turkish counterparts on the kept questions only `english_reading.dont_know`.
         data = export(
             [record for record in records if not record.get("dont_know") and not record.get("english")],
             json.loads(analysis.group(1)) if analysis else {},
         )
-        section = dont_know([record for record in records if record.get("dont_know")], data)
-        english = english_reading([record for record in records if record.get("english")], data)
+        section = dont_know([record for record in records if record.get("dont_know") and not record.get("english")], data)
+        english = english_reading([record for record in records if record.get("english") and not record.get("dont_know")], data)
+        english_idk = english_dont_know([record for record in records if record.get("dont_know")], section, english)
         document = json.loads(args.answers.read_text(encoding="utf-8"))
-        answers = export_answers(document, data, section, english)
+        answers = export_answers(document, data, section, english, english_idk)
         if section is not None:
             data["dont_know"] = dont_know_answers_part(section, document, answers)
         if english is not None:
             public = json.loads(ENGLISH_READING_PATH.read_text(encoding="utf-8"))
             data["english_reading"] = english_reading_answers_part(english, document, answers, public)
+            if english_idk is not None:
+                data["english_reading"]["dont_know"] = english_dont_know_answers_part(english_idk, document, answers, public)
         data["answer_key"] = answer_key(answers)
         data["formats"] = formats(data["runs"], answers)
         data["reasoning"] = reasoning(data["runs"], answers)
