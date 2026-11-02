@@ -73,8 +73,10 @@ python3 -m http.server 8000                                # preview at http://1
   `vision-repeats.json` holds repeat passes kept outside the table: each pass's first-pass runs must be its cell's,
   and its right answers and the picks and option probabilities that differ from the cell are recomputed.
   For the Hallucination tab it recomputes each run's right, wrong, "Bilmiyorum" and invalid answers, its
-  rates and mean "Bilmiyorum" probability, the derived abstention from its Text tab run and the answers changed
-  across a model's runs, from `answers.json`'s `dont_know_runs`.
+  rates and mean "Bilmiyorum" probability, the derived abstention from its Text tab run, the answers changed
+  across a model's runs, and the exact McNemar test of its wrong answers with "Bilmiyorum" against its Text tab run
+  held back by confidence (Holm over the models that chose it on at least 1% of the questions), from `answers.json`'s
+  `dont_know_runs`.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check

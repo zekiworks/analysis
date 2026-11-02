@@ -164,13 +164,48 @@ def findings(site: Site, data: dict[str, Any]) -> str:
         third += f" {joined([name(model) for model in level])} left as many either way."
     low = max(max(shown(model["non_hallucination"]), shown(model["derived"]["non_hallucination"])) for model in rare)
     third += f" For the {len(rare)} that almost never chose it, both rates are {low:.{digits}f}% or less."
-    several = [model for model in models if model["spread"] and model["spread"]["non_hallucination"]]
-    if several:
-        widest = max(several, key=lambda model: model["spread"]["non_hallucination"][1] - model["spread"]["non_hallucination"][0])
-        low_run, high_run = widest["spread"]["non_hallucination"]
-        third += (f" We did not test whether these differences exceed the variation between runs: {name(widest)}'s "
-                  f"{len(widest['runs'])} runs with the option range from {p(low_run)} to {p(high_run)}.")
+    family = [model for model in models if model["vs_confidence"]["p_holm"] is not None]
+    if [model["name"] for model in family] != [model["name"] for model in used]:
+        raise SystemExit("dont_know findings: the models in the test's Holm family are not the models that used the option")
+    significant = [model for model in family if model["vs_confidence"]["p_holm"] < 0.05]
+    by_confidence = [model for model in significant if model["vs_confidence"]["option_only_wrong"] > model["vs_confidence"]["confidence_only_wrong"]]
+    by_option = [model for model in significant if model not in by_confidence]
+
+    def adjusted(group: list[dict[str, Any]]) -> str:
+        """The models, then their Holm-adjusted p values as the site writes p ("each" when they read the same)."""
+        texts = [bp.p_text(model["vs_confidence"]["p_holm"]) for model in group]
+        values = f"adjusted {texts[0]}{' each' if len(group) > 1 else ''}" if len(set(texts)) == 1 else f"adjusted {joined(texts)}"
+        return f"{joined([name(model) for model in group])} ({values})"
+
+    third += f" In the exact McNemar test on each model's first run, with Holm's correction over the {len(family)}, "
+    if not significant:
+        third += "none of these differences is significant: each could be chance."
+    else:
+        parts = []
+        if by_confidence:
+            parts.append(f"confidence left significantly fewer wrong answers for {adjusted(by_confidence)}")
+        if by_option:
+            parts.append(f"“{option}” left significantly fewer for {adjusted(by_option)}")
+        rest = len(family) - len(significant)
+        third += "; ".join(parts) + (f"; for the other {rest}, the difference could be chance." if rest else ".")
     return first + second + third + "</p>"
+
+
+def headline(data: dict[str, Any]) -> str:
+    """One line at the top of the tab, from vs_confidence: the models whose own confidence, holding back on as many
+    questions, left significantly fewer wrong answers than the option (Holm-adjusted p below 0.05); none when there are
+    none."""
+    option = esc(data["option"])
+    family = [model for model in ranked(data["models"]) if model["vs_confidence"]["p_holm"] is not None]
+    better = [model for model in family if model["vs_confidence"]["p_holm"] < 0.05
+              and model["vs_confidence"]["option_only_wrong"] > model["vs_confidence"]["confidence_only_wrong"]]
+    if not better:
+        return ""
+    rest = len(family) - len(better)
+    others = f"; for the other {rest} models that used it, the difference could be chance" if rest else ""
+    return (f"<p><strong>Holding back on as many questions, {joined([esc(model['name']) + '’s' for model in better])} own "
+            f"confidence left significantly fewer wrong answers than “{option}” did</strong>{others} "
+            f'(<a href="#findings">What we found</a>).</p>')
 
 
 def face(site: Site, data: dict[str, Any]) -> str:
@@ -243,6 +278,7 @@ def build(site: Site) -> dict[str, str]:
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
+      {headline(data)}
       <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-accuracy">Accuracy</a><a href="#info">Info</a></nav>
     </section>
     {face(site, data)}

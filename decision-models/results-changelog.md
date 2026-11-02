@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 973d93d3 (2 November 2026)
+
+- Hallucination tab: each model's run with “Bilmiyorum” against its five-option run held back by its own confidence on as many questions, as wrong answers on the same questions (exact McNemar test; Holm's correction over the 7 models that chose “Bilmiyorum” on at least 1% of the questions), in `results.json` (`dont_know.models[].vs_confidence`). Confidence left significantly fewer wrong answers for Liquid d1-ultra and Mammoth-1 (adjusted p = 0.016 each); for the other 5 the difference could be chance. The tab says so at the top and under What we found. SubQ Snap Preview stays not run, now by decision. The charts on the Text tab show the 20 most accurate decision models by default, instead of 8. No other number changed.
+
 ## Results 8cacd512 (2 November 2026)
 
 - Shorter notes under three leaderboard rows. Elephant-1 and Mammoth-1: "Probabilities rounded to 6 decimals by the model's own loader." SubQ Snap 1.1: "Its probability check used an experimental 32-bit rule of ours."; the note on run 346's two pauses is no longer on the leaderboard and stays on that run's page. The three models' full notes keep the same facts, reworded to open with those sentences. No number changed.

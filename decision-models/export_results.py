@@ -1278,10 +1278,21 @@ def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, 
     return {"questions": data["questions"], "models": models}
 
 
+# The "I don't know" option's letter: it follows each question's five options (DONT_KNOW_OPTION in benchmark_ollama.py).
+DONT_KNOW_LETTER = "F"
+# The share of the scored questions on which a model must choose the option for its comparison with confidence to count
+# in the Holm family: below it a model chose the option too seldom for the comparison to say anything.
+VS_CONFIDENCE_SHARE = 0.01
+
+
 def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any]) -> dict[str, Any]:
     """The `dont_know` section with what comes from the answers file: the option, the instructions with their added
     sentence and the prompt version (DONT_KNOW_PROMPTS, hashed as the runner hashes them; every run must carry that
-    version), and per setup with more than one run the scored questions whose answer differs across its runs."""
+    version), per setup with more than one run the scored questions whose answer differs across its runs, and per setup
+    `vs_confidence`: its first run against its original run held back by its own confidence at the derived cut-off, on
+    the scored questions, as wrong answers in each (the exact McNemar test, bm.paired_comparison: first the option,
+    second confidence), with Holm's correction over the setups that chose the option on at least VS_CONFIDENCE_SHARE of
+    the questions (p_holm None for the others)."""
     prompts = document.get("dont_know_prompts")
     if prompts is None:
         raise ValueError('the answers file has "I don\'t know" runs but no dont_know_prompts')
@@ -1302,12 +1313,28 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
             choices = [by_id[run]["choice"] for run in model["runs"]]
             answered = [index for index in scored if all(choice[index] is not None for choice in choices)]
             model["answers_changed"] = sum(1 for index in answered if len({choice[index] for choice in choices}) > 1)
+    main = {run["run"]: run for run in answers["runs"]}
+    family = []
+    for model in section["models"]:
+        run, original, cut_off = by_id[model["runs"][0]], main[model["original_run"]], model["derived"]["cut_off"]
+        option_wrong = [int(run["choice"][index] not in (None, DONT_KNOW_LETTER) and not run["correct"][index]) for index in scored]
+        confidence_wrong = [int(cut_off is not None and original["score"][index] is not None and float(original["score"][index]) >= cut_off
+                                and not original["correct"][index]) for index in scored]
+        if sum(option_wrong) != model["wrong"] or sum(confidence_wrong) != model["derived"]["wrong"]:
+            raise ValueError(f"{model['name']}: its answers do not give its wrong answers with the option or held back by confidence")
+        test = bm.paired_comparison(option_wrong, confidence_wrong)
+        model["vs_confidence"] = {"option_only_wrong": test["first_only"], "confidence_only_wrong": test["second_only"], "p": test["p"], "p_holm": None}
+        if model["dont_know"] >= VS_CONFIDENCE_SHARE * len(scored):
+            family.append(model)
+    for model, adjusted in zip(family, bm.holm([model["vs_confidence"]["p"] for model in family])):
+        model["vs_confidence"]["p_holm"] = adjusted
     return {
         "option": option,
         "option_en": "I don't know",
         "sentence": sentence,
         "instructions": instructions,
         "prompt_version": version,
+        "vs_confidence_share": VS_CONFIDENCE_SHARE,
         **section,
     }
 

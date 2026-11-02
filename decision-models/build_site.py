@@ -94,7 +94,7 @@ SUMMARY_WORDS = 150
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
 ONE_PER_REQUEST_LLMS = tuple(key for key, _, _, sizes in ROUTE_LLMS if 1 in sizes)
 # Decision models in the charts by default, next to the routing LLMs at one question per request.
-CHART_DECISION_MODELS = 8
+CHART_DECISION_MODELS = 20
 # The leaderboard's two tables, in order, with their headings (v3.js reads them from the settings): the decision models,
 # then every other model (chat and general models), each ranked on its own; the All models switch shows one table.
 BOARD_GROUPS = {"decision": "Decision models", "other": "Other models: chat and general models"}

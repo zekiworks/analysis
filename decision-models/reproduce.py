@@ -649,8 +649,10 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
     right, wrong, "Bilmiyorum" (the letter DONT_KNOW_LETTER, which must be the last label of every answer's option
     probabilities) and invalid answers, accuracy, attempt rate, non-hallucination rate and mean probability of the
     option, from its first run; the range of the rates over its runs and the answers that differ between them; its
-    original run's accuracy; and the derived abstention on that run at the first run's attempt rate. Every run must be
-    listed once and in no other list. Returns a line per model that differs."""
+    original run's accuracy; the derived abstention on that run at the first run's attempt rate; and the first run against
+    the original run held back at that cut-off, as wrong answers in each (exact McNemar, Holm over the models that chose
+    the option on at least vs_confidence_share of the questions). Every run must be listed once and in no other list.
+    Returns a line per model that differs."""
     section = results.get("dont_know")
     runs = {run["run"]: run for run in answers.get("dont_know_runs", [])}
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
@@ -665,6 +667,7 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
     total = len(scored)
     rates = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
     mismatches = []
+    tests = []
     for model in section["models"]:
         cells = []
         found = []
@@ -727,8 +730,29 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
             published = model["derived"][key]
             matched = published == value if key in ("right", "wrong", "abstained") else close(published, value, METRIC_TOLERANCE)
             cells.append(checks.cell(matched, f"derived {key} {value}", str(published)))
+        first_run = runs[model["runs"][0]]
+        option_wrong = [int(first_run["choice"][index] not in (None, DONT_KNOW_LETTER) and not first_run["correct"][index]) for index in scored]
+        cut_off = derived["cut_off"]
+        confidence_wrong = [int(cut_off is not None and original["score"][index] is not None and float(original["score"][index]) >= cut_off
+                                and not original["correct"][index]) for index in scored]
+        test = bm.paired_comparison(option_wrong, confidence_wrong)
+        published = model.get("vs_confidence") or {}
+        counts = [test["first_only"], test["second_only"]]
+        cells.append(checks.cell(counts == [published.get("option_only_wrong"), published.get("confidence_only_wrong")],
+                                 f"wrong only with the option, only with confidence {counts}",
+                                 str([published.get("option_only_wrong"), published.get("confidence_only_wrong")])))
+        cells.append(checks.cell(published.get("p") is not None and close(published["p"], test["p"], METRIC_TOLERANCE), f"p {number(test['p'])}", str(published.get("p"))))
+        tests.append((model, test))
         if any("≠" in cell for cell in cells):
             mismatches.append(f"  {label(model)}: " + ", ".join(cell for cell in cells if "≠" in cell))
+    family = [(model, test) for model, test in tests if model["dont_know"] >= section["vs_confidence_share"] * total]
+    adjusted = dict(zip((id(model) for model, _ in family), bm.holm([test["p"] for _, test in family])))
+    for model, _ in tests:
+        expected = adjusted.get(id(model))
+        published = (model.get("vs_confidence") or {}).get("p_holm")
+        matched = published is None if expected is None else published is not None and close(published, expected, METRIC_TOLERANCE)
+        if "≠" in checks.cell(matched, f"{label(model)} p_holm {number(expected) if expected is not None else None}", str(published)):
+            mismatches.append(f"  {label(model)}: Holm-adjusted p {expected} against {published}")
     return mismatches
 
 
