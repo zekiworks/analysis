@@ -135,9 +135,10 @@ python3 -m http.server 8000                                # preview at http://1
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads). Its face, after the intro and the filters, is one chart
-    card per measure, each with a line saying which way is better: Accuracy, with each setup's cost beside its
-    accuracy as the Cost card writes it ($ per 1,000 questions, § at the maker's list price, Not measured where there is
-    no estimate); accuracy against cost or latency, with the Pareto line (the setups in view no other setup in view
+    card per measure, each with a line saying which way is better: Accuracy, with each setup's cost and median latency
+    beside its accuracy as the Cost and Latency cards write them ($ per 1,000 questions, § at the maker's list price;
+    seconds, * for a latency measured on a sample; Not measured where there is no value); accuracy against cost or
+    latency, with the Pareto line (the setups in view no other setup in view
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
     gap, as shipped, on all questions); Latency; Cost. By default the charts show the 20 most accurate decision models
     (`CHART_DECISION_MODELS` in `build_site.py`); "Show all" adds the rest.
@@ -186,9 +187,11 @@ python3 -m http.server 8000                                # preview at http://1
   - **Artificial Analysis's Decision Index models** (`aa-decision-index/`, `sitebuild/aa_index.py`): our numbers
     for the models of Artificial Analysis's Decision Index v1.0 as its post of 22 October 2026 lists them
     (`page_config.json`'s `aa_decision_index`, by run id; a run that is missing or not a decision model stops the
-    build): charts of accuracy, the non-hallucination rate and cost in US dollars per 1M questions (`hbars` with a dollar
-    axis), and one table with accuracy, reading, grammar, page images
-    (picture alone), non-hallucination and attempt rates and cost per 1,000 and per 1M questions, every value from
+    build): charts of accuracy, the non-hallucination rate, cost in US dollars per 1M questions (`hbars` with a dollar
+    axis) and the median latency per request (a seconds axis, with how many requests each model had in flight), and one
+    table with accuracy, reading, grammar, page images
+    (picture alone), non-hallucination and attempt rates, cost per 1,000 and per 1M questions and the median latency per
+    request, every value from
     `results.json` and `vision.json`. It opens with our four reply charts to that post, one per card of Artificial
     Analysis's thread: `aa_cards.py` draws them from the same data with headless Chrome (in every full build, after the
     link preview; `--no-images` keeps them) into `aa-decision-index/card-<n>-<topic>-<hash>.png`, and

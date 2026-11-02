@@ -12,7 +12,7 @@ from typing import Any
 
 import aa_cards
 import build_page as bp
-from sitebuild.site import NOT_MEASURED, ROOT, Site, esc, hbars, pct, rank_fill, rel, scale_legend
+from sitebuild.site import NOT_MEASURED, ROOT, Site, esc, hbars, latency_text, pct, rank_fill, rel, scale_legend
 from sitebuild.vision import NO_IMAGE, NOT_AVAILABLE, cell, joined
 
 PATH = "aa-decision-index/"
@@ -128,6 +128,25 @@ def build(site: Site) -> dict[str, str]:
                   "bars": [{"value": value, "colour": rank_fill(stops, value, max(dollars), min(dollars))}],
                   "title": f"{site.row_name(run)} (Artificial Analysis: {name}): ${cost_per_1000(run):.3f} per 1,000 questions, ${value:,.0f} per 1M"}
                  for name, run, value in priced]
+    latency = lambda run: (run.get("latency") or {}).get("median_request_seconds")  # noqa: E731
+    sample = lambda run: " *" if run["latency"]["source"] == "sample" else ""  # noqa: E731
+    timed = sorted(((name, run) for name, run in pairs if latency(run) is not None),
+                   key=lambda pair: (latency(pair[1]), pair[1]["name"].casefold()))
+    seconds = [latency(run) for _, run in timed]
+    # A tick at each quarter of the axis, the quarter a round number of seconds that fits the slowest model.
+    step = 10 ** math.floor(math.log10(max(seconds) / 4))
+    latency_quarter = round(math.ceil(max(seconds) / 4 / step) * step, 6)
+    latency_rows = [{"label": site.row_name(run), "href": href(run), "text": f"{latency_text(value)}{sample(run)}",
+                     "bars": [{"value": value, "colour": rank_fill(stops, value, max(seconds), min(seconds))}],
+                     "title": f"{site.row_name(run)} (Artificial Analysis: {name}): median {latency_text(value)} per request"}
+                    for (name, run), value in zip(timed, seconds)]
+    flight: dict[int, list[str]] = {}
+    for _, run in timed:
+        flight.setdefault(run["latency"].get("concurrency") or 1, []).append(site.row_name(run))
+    several_at_once = [(count, names) for count, names in sorted(flight.items()) if count > 1]
+    in_flight = "; ".join(f"{esc(joined(names))} sent {count} requests at a time" for count, names in several_at_once)
+    untimed = [site.row_name(run) for _, run in pairs if latency(run) is None]
+    sampled = [run for _, run in timed if run["latency"]["source"] == "sample"]
 
     def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, **axis: Any) -> str:
         return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
@@ -147,12 +166,22 @@ def build(site: Site) -> dict[str, str]:
                cost_rows,
                scale_legend(stops, f"${max(dollars):,.0f}", f"${min(dollars):,.0f}", higher=False)
                + f" <span>{maker_mark} On our GPU, priced at its maker's list price for the same model; our hardware cost is not measured.</span>",
-               top=4 * quarter, tick=lambda value: f"${value:,.0f}"))
+               top=4 * quarter, tick=lambda value: f"${value:,.0f}")
+        + card("chart-latency", "Median latency per request",
+               "Time from sending one request to its answer, measured from our computer: on our GPU for the setups run there, "
+               "through the network for the APIs (with OpenRouter’s time for those via OpenRouter) · lower is better",
+               latency_rows,
+               scale_legend(stops, latency_text(max(seconds)), latency_text(min(seconds)), higher=False)
+               + (f" <span>{in_flight}; the others one.</span>" if in_flight else "")
+               + (f" <span>* Measured on a sample of questions: {esc(joined([site.row_name(run) for run in sampled]))}.</span>" if sampled else "")
+               + (f" <span>No latency recorded: {esc(joined(untimed))}.</span>" if untimed else ""),
+               top=4 * latency_quarter, tick=lambda value: f"{round(value, 2):g} s"))
 
     heads = [("Accuracy", f"{total:,} questions; higher is better"), ("Reading", f"{reading_n:,} questions; higher is better"),
              ("Grammar", f"{grammar_n:,} questions; higher is better"), ("Page images, picture alone", f"{pages_n:,} questions; higher is better"),
              ("Non-hallucination rate", f"with “{option}”; higher is better"), ("Attempt rate", f"with “{option}”; neither better nor worse on its own"),
-             ("Cost per 1,000 questions", "estimated; lower is better"), ("Cost per 1M questions", "the same, × 1,000; lower is better")]
+             ("Cost per 1,000 questions", "estimated; lower is better"), ("Cost per 1M questions", "the same, × 1,000; lower is better"),
+             ("Median latency per request", "seconds; lower is better")]
     labels = [f"{head} ({direction})" for head, direction in heads]
     rows = []
     for name, run in pairs:
@@ -173,6 +202,10 @@ def build(site: Site) -> dict[str, str]:
             NOT_RUN if model is None else f'{pct(model["attempt_rate"], digits)}<span class="small">{model["right"] + model["wrong"]:,} of {total:,} answered</span>',
             NOT_MEASURED if cost is None else f"${cost:.3f}{mark}",
             NOT_MEASURED if cost is None else f"${per_million(cost):,.0f}{mark}",
+            NOT_MEASURED if latency(run) is None else f"{latency_text(latency(run))}{sample(run)}" + (
+                f'<span class="small">{run["latency"]["concurrency"]} in flight</span>' if (run["latency"].get("concurrency") or 1) > 1 else ""
+            ) + ('<span class="small">its repeat runs</span>' if run["latency"]["source"] == "repeats" else
+                 f'<span class="small">Measured on a sample ({run["latency"].get("questions", 0):,} questions)</span>' if run["latency"]["source"] == "sample" else ""),
         ]
         model_cell = (f'<td class="model"><a class="model-name" href="{href(run)}">{esc(site.row_name(run))}</a>'
                       f'<span class="small">Artificial Analysis: {esc(name)}</span>'
@@ -191,6 +224,13 @@ def build(site: Site) -> dict[str, str]:
             notes.append(f"{esc(site.row_name(run))}: its free tier, priced at {esc(price['basis'])}.")
         if price and price.get("change"):
             notes.append(f"{esc(site.row_name(run))}: at the price recorded on {bp.long_date(price['date'])}. Provider update: {esc(price['change'])}.")
+    notes.append("Latency: the median time per request. Local setups ran on our hardware, listed on each setup’s page; "
+                 "API latency includes the network, and via OpenRouter, OpenRouter’s time.")
+    for name, run in timed:
+        if run["latency"]["source"] == "repeats":
+            notes.append(f"{esc(site.row_name(run))}: latency from its repeat runs "
+                         f"(runs {esc(joined([str(number) for number in run['latency']['runs']]))}), "
+                         f"{latency_text(latency(run))} median per request.")
     several = [site.row_name(run) for _, run, model in ran if len(model["runs"]) > 1]
     post = config["post"]
     not_ours = f"; {esc(joined(absent))} {'is' if len(absent) == 1 else 'are'} not" if absent else ""
@@ -198,7 +238,7 @@ def build(site: Site) -> dict[str, str]:
       <p class="eyebrow">Compared with Artificial Analysis</p>
       <h1>{esc(TITLE)}</h1>
       <p>Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard{not_ours}. This page gathers our numbers for those {len(pairs)}, from our published results: the numbers of our four charts in reply to that post come from here. Our tests are different from Artificial Analysis's, so the two rank different things. This page ranks nothing new and changes no number on the other pages.</p>
-      <nav class="face-nav" aria-label="On this page"><a href="#reply-charts">Reply charts</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#table">Every number</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#reply-charts">Reply charts</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#chart-latency">Latency</a><a href="#table">Every number</a></nav>
     </section>
     {reply_cards(site)}
     <section class="charts" aria-label="Charts">{charts}</section>
@@ -210,4 +250,4 @@ def build(site: Site) -> dict[str, str]:
       <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (the Text and Hallucination tabs' numbers) and <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (the Page images tab's).</p>
     </section>"""
     return {PATH: site.page(PATH, TITLE, f"Our numbers for the {len(pairs)} decision models of Artificial Analysis's Decision Index v1.0 that are on "
-                            "our benchmark: accuracy, reading and grammar, page images, non-hallucination and attempt rates, and cost.", body)}
+                            "our benchmark: accuracy, reading and grammar, page images, non-hallucination and attempt rates, cost and latency.", body)}
