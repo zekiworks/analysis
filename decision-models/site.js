@@ -39,3 +39,18 @@ function secondsText(value) {
   if (!bar) return;
   bar.addEventListener('focusin', event => event.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
 })();
+
+/* Pages that keep their details under a closed Info (a details element): a link to a part inside it, in the address or
+   followed later, opens Info first, so the browser can scroll there. */
+(function openInfoForLink() {
+  const open = () => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    const target = id && document.getElementById(id);
+    const details = target && (target.closest('details') ?? target.querySelector(':scope > details'));
+    if (!details || details.open) return;
+    details.open = true;
+    target.scrollIntoView();
+  };
+  open();
+  window.addEventListener('hashchange', open);
+})();

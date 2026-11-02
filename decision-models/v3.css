@@ -442,6 +442,27 @@ i.ramp { display: inline-block; width: 3rem; height: .75rem; border-radius: 2px;
 i.swatch-chat { background: var(--data-chat); }
 i.swatch-quadrant { background: var(--bar); opacity: .8; }
 i.swatch-pareto { width: 1.2rem; height: 0; border-top: 2px dotted var(--text); border-radius: 0; vertical-align: .2rem; }
+i.swatch-lead { background: var(--text); }
+i.swatch-base { background: var(--data-chat); }
+i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
+
+/* Bars in HTML (Site hbars), the face of the tabs without a script: the label, the bars on one axis with a line at each
+   quarter, and the value; on a phone the label takes its own line above the bars. */
+.hbar { display: grid; grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) 7rem; align-items: center; gap: .65rem; }
+.hbars { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.hbar-label { font-size: .85rem; text-align: right; overflow-wrap: anywhere; }
+.hbar-track { position: relative; display: grid; gap: 3px; min-height: 1rem;
+  background-image: linear-gradient(to right, var(--edge) 1px, transparent 1px); background-size: 25% 100%; background-repeat: repeat-x; }
+.hbar-fill { display: block; height: .85rem; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
+.hbar-fill.lead { background: var(--text); }
+.hbar-fill.base { background: var(--data-chat); }
+.hbar-marker { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--text); }
+.hbar-value { font-family: var(--mono); font-size: .82rem; white-space: nowrap; }
+.hbar-axis { margin-bottom: .25rem; }
+.hbar-axis .hbar-track { height: 1rem; background: none; }
+.hbar-tick { position: absolute; transform: translateX(-50%); color: var(--text-2); font-family: var(--mono); font-size: .72rem; }
+.hbar-tick:first-child { transform: none; }
+.hbar-tick:last-child { transform: translateX(-100%); }
 .chart-more { margin: 0; }
 
 /* Info: the tables, the summary and the notes, behind the charts; its summary line opens it like a key. */
@@ -539,6 +560,9 @@ ul.price-list { padding-left: 1.25rem; }
 /* Phones: one compact table instead of stacked cards. The first column stays in view while the numbers scroll beside it
    inside the table's wrapper; at 375 px at least two number columns show next to it. */
 @media (max-width: 640px) {
+  .hbar { grid-template-columns: minmax(0, 1fr) 5.5rem; gap: .15rem .5rem; }
+  .hbar-label { grid-column: 1 / -1; text-align: left; }
+  .hbar-axis > span:first-child { display: none; }
   body { padding: 0 .6rem 1.5rem; }
   /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */

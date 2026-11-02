@@ -17,7 +17,7 @@ from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import ROOT, Site, esc, interval, pct, rel
+from sitebuild.site import ROOT, Site, esc, hbars, interval, pct, rank_fill, rel, scale_legend
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -494,6 +494,74 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     return first + second + third + fourth + fifth
 
 
+def face(site: Site, data: dict[str, Any]) -> str:
+    """The tab's face: four chart cards, each with a line saying which way is better, every number from vision.json: the
+    picture alone (B) against the text (A), the text plus the picture (C) against the text, the best OCR route against the
+    text, and the marks each OCR model kept. Bars of one measure take the ranking scale between its worst and best."""
+    stops = site.config["rank_scale"]["stops"]
+    questions = f"{data['subset']['questions']:,}"
+    acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
+
+    def name(model: dict[str, Any]) -> str:
+        run = site.by_id.get(model["a_run"])
+        return site.row_name(run) if run else model["name"]
+
+    def href(model: dict[str, Any]) -> str | None:
+        run = site.by_id.get(model["a_run"])
+        return rel(PATH, site.model_path(run)) if run else None
+
+    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str) -> str:
+        return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
+                f'<p class="chart-sub">{esc(sub)}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
+
+    marker = ' <span><i class="swatch swatch-marker"></i>The same model with the text (A)</span>'
+    image = [model for model in data["models"] if all(label in model["conditions"] for label in ("A", "B", "C"))]
+    by_b = sorted(image, key=lambda model: -acc(model, "B"))
+    low, high = min(acc(model, "B") for model in image), max(acc(model, "B") for model in image)
+    first = card(
+        "chart-image", "The picture alone (B)", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
+        [{"label": name(model), "href": href(model), "text": pct(acc(model, "B")), "marker": acc(model, "A"),
+          "bars": [{"value": acc(model, "B"), "colour": rank_fill(stops, acc(model, "B"), low, high)}],
+          "title": f"{name(model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text"}
+         for model in by_b],
+        scale_legend(stops, pct(low), pct(high)) + marker)
+    by_c = sorted(image, key=lambda model: -acc(model, "C"))
+    second = card(
+        "chart-both", "The text plus the picture (C)", "Accuracy with the picture after the text, and with the text alone · higher is better",
+        [{"label": name(model), "href": href(model), "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
+          "bars": [{"value": acc(model, "C"), "kind": "lead"}, {"value": acc(model, "A"), "kind": "base"}],
+          "title": f"{name(model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text"}
+         for model in by_c],
+        '<span><i class="swatch swatch-lead"></i>Text plus picture (C)</span> <span><i class="swatch swatch-base"></i>Text (A)</span>')
+    routes = [(model, *best_route(data, model)) for model in data["models"] if best_route(data, model)]
+    routes.sort(key=lambda item: -item[2]["correct"] / item[2]["questions"])
+    shares = [metrics["correct"] / metrics["questions"] for _, _, metrics in routes]
+    best_keys = {label.removeprefix("D ") for _, label, _ in routes}
+    same = (f" <span>The best route is {esc(OCR_NAMES[next(iter(best_keys))])} for every model.</span>"
+            if len(best_keys) == 1 else "")
+    third = card(
+        "chart-ocr-route", "The best OCR route (D)", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
+        [{"label": name(model), "href": href(model), "text": pct(share), "marker": acc(model, "A"),
+          "bars": [{"value": share, "colour": rank_fill(stops, share, min(shares), max(shares))}],
+          "title": f"{name(model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text"}
+         for (model, label, _), share in zip(routes, shares)],
+        scale_legend(stops, pct(min(shares)), pct(max(shares))) + marker + same)
+    kept = []
+    for key, item in data["ocr"]["models"].items():
+        sent = item["verified"]["marked_in_text_sent"]
+        kept.append((key, sent["underlined"]["marked"] / sent["underlined"]["spans"], sent["numbered"]["marked"] / sent["numbered"]["markers"]))
+    kept.sort(key=lambda item: -item[1])
+    fourth = card(
+        "chart-marks", "Marks the OCR models kept",
+        "Share of the underlined and of the numbered words still marked in the text the models received, on the human-verified text · higher is better",
+        [{"label": OCR_NAMES[key], "text": f"{pct(underlined)} · {pct(numbered)}",
+          "bars": [{"value": underlined, "kind": "lead"}, {"value": numbered, "kind": "base"}],
+          "title": f"{OCR_NAMES[key]}: {pct(underlined)} of the underlined words and {pct(numbered)} of the numbered words kept"}
+         for key, underlined, numbered in kept],
+        '<span><i class="swatch swatch-lead"></i>Underlined words</span> <span><i class="swatch swatch-base"></i>Numbered words</span>')
+    return f'<section class="charts" aria-label="Charts">{first}{second}{third}{fourth}</section>'
+
+
 def build(site: Site) -> dict[str, str]:
     data = site.vision
     mixed = site.config["mixed_providers"]
@@ -525,8 +593,14 @@ def build(site: Site) -> dict[str, str]:
         <li><strong>C · text plus image</strong>: A's text with the picture after it.</li>
         <li><strong>D · OCR route</strong>: one OCR model's reading of the picture, as text, for each of {len(OCR_NAMES)} OCR models. The best OCR route is the one with the highest accuracy.</li>
       </ul>
-      <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}), with its 95% interval under it. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
-      <p>Below the tables, <a href="#findings">What we found</a> puts the results in words and <a href="#method">How the benchmark was run</a> gives the method.</p>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#info">Info</a></nav>
+    </section>
+    {face(site, data)}
+    <details class="info info-details" id="info">
+      <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The tables, what we found and how the benchmark was run</span></summary>
+    <section class="card">
+      <h2>About this test</h2>
+      <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}), with its 95% interval under it in the tables. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
       <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's pick and option probabilities; no question text, page image or OCR text).</p>
     </section>
 {leaderboard(site, data, True)}
@@ -558,7 +632,8 @@ def build(site: Site) -> dict[str, str]:
       {requests_note(site, data)}
       {repeats_note(data)}
       {"<h3>Failures</h3>" + listing(failures) if failures else ""}
-    </section>"""
+    </section>
+    </details>"""
     return {PATH: site.page(PATH, "Page images",
                             f"{questions} questions with underlined or numbered words, asked as text, as a page image, "
                             "as both and through four OCR models.", body)}

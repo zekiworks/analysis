@@ -122,7 +122,13 @@ python3 -m http.server 8000                                # preview at http://1
   - **Three tabs**: the site's three benchmarks, each with its own address and its own rankings, never combined: Text
     (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`) and Hallucination
     (`dont-know/`, from `results.json`'s `dont_know` and `page_config.json`'s `dont_know`, built by
-    `sitebuild/dont_know.py`). Each page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`).
+    `sitebuild/dont_know.py`). Each page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`). Each tab's face
+    is charts, each card with a line saying which way is better; its tables and notes are under Info, a details element
+    closed by default that `site.js` opens for a link into it (`dont-know/#method`). The Page images and Hallucination
+    faces are HTML bars (`hbars` in `sitebuild/site.py`, coloured by the ranking scale), so they need no script:
+    Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the marks
+    each OCR model kept; Hallucination shows the non-hallucination rate, that rate against the same model held back by
+    its confidence, and accuracy with the option against accuracy with five options.
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads). Its face, after the intro and the filters, is one chart

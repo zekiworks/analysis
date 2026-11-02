@@ -67,6 +67,43 @@ def asset(target: str) -> str:
     return f"{target}?v={hashlib.sha256((ROOT / target).read_bytes()).hexdigest()[:8]}"
 
 
+def rank_fill(stops: list[str], value: float, worst: float, best: float) -> str:
+    """The ranking scale's colour (page_config.json rank_scale) for value between the worst and best values shown, as a
+    CSS colour; as the home page's charts colour their bars."""
+    share = 1.0 if best == worst else (value - worst) / (best - worst)
+    red, green, blue = bp.rank_colour(stops, share)
+    return f"rgb({red:.0f},{green:.0f},{blue:.0f})"
+
+
+def scale_legend(stops: list[str], worst: str, best: str, higher: bool = True) -> str:
+    """The legend of bars coloured by the ranking scale: the worst value, the scale, the best value and which way is
+    better, as the home page's charts write it."""
+    return (f'<span class="scale-legend"><span>Decision models: worst {esc(worst)}</span>'
+            f'<i class="ramp" style="background:linear-gradient(to right, {", ".join(stops)})" aria-hidden="true"></i>'
+            f'<span>best {esc(best)} ({"higher" if higher else "lower"} is better)</span></span>')
+
+
+def hbars(rows: list[dict[str, Any]], top: float = 1.0) -> str:
+    """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
+    readable at any width and in both themes. Each row: label, href (optional), bars (each a value from 0 to top, with a
+    colour or a kind, a CSS class), marker (optional, a value drawn as a line), text (the value as shown) and title (the
+    tooltip). The axis runs from 0 to top, with a tick at each quarter, in percent."""
+    place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
+    ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / 4)}">{100 * top * index / 4:.0f}%</span>'
+                    for index in range(5))
+    items = []
+    for row in rows:
+        label = f'<a href="{row["href"]}">{esc(row["label"])}</a>' if row.get("href") else esc(row["label"])
+        fills = "".join(
+            f'<span class="hbar-fill{" " + bar["kind"] if bar.get("kind") else ""}" style="width:{place(bar["value"])}'
+            f'{";background:" + bar["colour"] if bar.get("colour") else ""}"></span>' for bar in row["bars"])
+        marker = f'<span class="hbar-marker" style="left:{place(row["marker"])}"></span>' if row.get("marker") is not None else ""
+        items.append(f'<li class="hbar" title="{esc(row["title"])}"><span class="hbar-label">{label}</span>'
+                     f'<span class="hbar-track">{fills}{marker}</span><span class="hbar-value">{esc(row["text"])}</span></li>')
+    return (f'<div class="hbar hbar-axis" aria-hidden="true"><span></span><span class="hbar-track">{ticks}</span><span></span></div>'
+            f'<ol class="hbars">{"".join(items)}</ol>')
+
+
 def topbar(path: str) -> str:
     """The bar at the top of every page: the brand, which links home, the navigation bar and the theme switch."""
     current = ' aria-current="page"'

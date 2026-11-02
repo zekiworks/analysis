@@ -1,16 +1,17 @@
 """Hallucination (dont-know/), the site's third tab: the Text tab's questions with one more option after each
 question's own, "Bilmiyorum" ("I don't know"), from results.json's `dont_know` and page_config.json's `dont_know` (the
-models not run, with their reasons). One row per model, from its first run, ranked by non-hallucination rate (accuracy
-breaks ties), which is the first column; a model with more than one run shows the range over its runs. A plain HTML
-table, as on the Page images tab; it needs no JavaScript. The tab ranks nothing on the Text tab and changes none of its
-numbers."""
+models not run, with their reasons). Its face, as the home page's, is charts (face()): the non-hallucination rate, the
+same rate with the option and held back by confidence, and accuracy with the option against accuracy with five options,
+as HTML bars (Site hbars). Under Info: the table (one row per model, from its first run, ranked by non-hallucination
+rate, accuracy breaking ties; a model with more than one run shows the range over its runs), What we found and Our
+method. It needs no JavaScript. The tab ranks nothing on the Text tab and changes none of its numbers."""
 
 from __future__ import annotations
 
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import Site, esc, pct, rel
+from sitebuild.site import Site, esc, hbars, pct, rank_fill, rel, scale_legend
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "dont-know/"
@@ -172,6 +173,61 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     return first + second + third + "</p>"
 
 
+def face(site: Site, data: dict[str, Any]) -> str:
+    """The tab's face: three chart cards, each with a line saying which way is better, every number from results.json's
+    dont_know. Each bar's colour is the ranking scale between the models' worst and best values on that chart."""
+    option = esc(data["option"])
+    stops = site.config["rank_scale"]["stops"]
+    total = data["questions"]
+    digits = site.config["percent_digits"]
+    run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
+    label = lambda model: site.row_name(run_of(model))  # noqa: E731
+    href = lambda model: rel(PATH, site.model_path(run_of(model)))  # noqa: E731
+    models = ranked(data["models"])
+    rated = [model for model in models if model["non_hallucination"] is not None]
+
+    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str) -> str:
+        return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
+                f'<p class="chart-sub">{sub}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
+
+    rates = [model["non_hallucination"] for model in rated]
+    worst, best = min(rates), max(rates)
+    first = card(
+        "chart-non-hallucination", "Non-hallucination rate",
+        f"“{option}” among the answers that were not right · higher is better",
+        [{"label": label(model), "href": href(model), "text": pct(model["non_hallucination"], digits),
+          "bars": [{"value": model["non_hallucination"], "colour": rank_fill(stops, model["non_hallucination"], worst, best)}],
+          "title": f"{label(model)}: {model['dont_know']:,} “{data['option']}” of {model['dont_know'] + model['wrong']:,} not right"}
+         for model in rated],
+        scale_legend(stops, pct(worst, digits), pct(best, digits))
+        + f" <span>Read it with accuracy, below: a model that always chose “{option}” would rank first with no right answers.</span>")
+    second = card(
+        "chart-confidence", "Saying “I don't know”, or held back by confidence",
+        f"Each model's non-hallucination rate with “{option}”, and its five-option run held back by its own confidence at "
+        "about the same attempt rate · higher is better",
+        [{"label": label(model), "href": href(model),
+          "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['derived']['non_hallucination'], digits)}",
+          "bars": [{"value": model["non_hallucination"], "kind": "lead"}, {"value": model["derived"]["non_hallucination"], "kind": "base"}],
+          "title": f"{label(model)}: {pct(model['non_hallucination'], digits)} with “{data['option']}”, "
+                   f"{pct(model['derived']['non_hallucination'], digits)} held back by confidence"}
+         for model in rated if model["derived"]["non_hallucination"] is not None],
+        f'<span><i class="swatch swatch-lead"></i>With “{option}”</span> '
+        '<span><i class="swatch swatch-base"></i>Held back by its own confidence (the derived rate)</span>')
+    by_accuracy = sorted(models, key=lambda model: (-model["accuracy"], model["name"].casefold()))
+    accuracies = [model["accuracy"] for model in by_accuracy]
+    third = card(
+        "chart-accuracy", f"Accuracy with “{data['option']}”",
+        f"Share of the {total:,} questions answered right with “{option}” on offer · higher is better",
+        [{"label": label(model), "href": href(model), "text": pct(model["accuracy"], digits),
+          "bars": [{"value": model["accuracy"], "colour": rank_fill(stops, model["accuracy"], min(accuracies), max(accuracies))}],
+          "marker": model["original_accuracy"],
+          "title": f"{label(model)}: {model['right']:,} of {total:,} right; {pct(model['original_accuracy'], digits)} with five options"}
+         for model in by_accuracy],
+        scale_legend(stops, pct(min(accuracies), digits), pct(max(accuracies), digits))
+        + ' <span><i class="swatch swatch-marker"></i>The same model with five options (the Text tab)</span>')
+    return f'<section class="charts" aria-label="Charts">{first}{second}{third}</section>'
+
+
 def build(site: Site) -> dict[str, str]:
     data = site.results["dont_know"]
     total = f"{data['questions']:,}"
@@ -186,8 +242,15 @@ def build(site: Site) -> dict[str, str]:
     <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
-      <p>Every question of the Text tab gets one more option after its five answers: F, “{option}”, Turkish for “{esc(data["option_en"])}”. It is always the last option, it is never shuffled and it is never correct. The System One instructions get one added sentence: “{esc(data["sentence"])}” Everything else is as on the Text tab: the same {total} scored questions and answer key, one question per request, and each model's own settings from its text run. A wrong answer counts as a hallucination, since the model could have chosen “{option}” instead. Below the table, <a href="#findings">What we found</a> puts the results in words and <a href="#method">Our method</a> gives each rate's formula and how to read it.</p>
-      <p>This tab is separate from the leaderboard. It ranks nothing on the Text tab and changes none of its numbers.</p>
+      <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-accuracy">Accuracy</a><a href="#info">Info</a></nav>
+    </section>
+    {face(site, data)}
+    <details class="info info-details" id="info">
+      <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, what we found and our method</span></summary>
+    <section class="card">
+      <h2>About this test</h2>
+      <p>Every question of the Text tab gets one more option after its five answers: F, “{option}”, Turkish for “{esc(data["option_en"])}”. It is always the last option, it is never shuffled and it is never correct. The System One instructions get one added sentence: “{esc(data["sentence"])}” Everything else is as on the Text tab: the same {total} scored questions and answer key, one question per request, and each model's own settings from its text run.</p>
       <p>The models: {esc(SELECTION)}. Each has one full run; a model whose repeated text runs changed answers gets five.</p>
       <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (every number on this page, under <code>dont_know</code>) and <a href="{rel(PATH, "answers.json")}" download>answers.json</a> (each run's answers, under <code>dont_know_runs</code>).</p>
     </section>
@@ -224,7 +287,8 @@ def build(site: Site) -> dict[str, str]:
       <p>For comparison, each model's run with five options (its run on the Text tab, on the same questions) is made to abstain by its own confidence: it answers only where its score reaches a cut-off and abstains on the rest. The cut-off is the one whose attempt rate comes nearest the attempt rate of the run with “{option}”; on a tie, the higher cut-off. An answer without a score never counts as an attempt. The derived non-hallucination rate is then the abstentions over the abstentions plus the wrong answers. The table shows the cut-off and the attempt rate it reached.</p>
       <h3>Repeats</h3>
       <p>One full run per model. A model whose repeated text runs changed answers gets five runs with the option. Those runs form a repeat set of their own and are never mixed with the Text tab's runs. The table shows the first run; the range covers all of them, and the changed answers are the scored questions whose answer differs between the runs.</p>
-    </section>"""
+    </section>
+    </details>"""
     return {PATH: site.page(PATH, "Hallucination",
                             f"The Text tab's {total} questions with a sixth option, “{data['option']}” (I don't know): accuracy, "
                             "attempt rate and non-hallucination rate of the most accurate decision models.", body)}
