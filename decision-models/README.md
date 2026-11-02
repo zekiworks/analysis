@@ -136,8 +136,9 @@ python3 -m http.server 8000                                # preview at http://1
   its canonical address on the site.
   - **Four tabs**: the site's four benchmarks, each with its own address and its own rankings, never combined: Text
     (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
-    (`dont-know/`, from `results.json`'s `dont_know` and `page_config.json`'s `dont_know`, built by
-    `sitebuild/dont_know.py`) and Turkish vs English (`turkish-vs-english/`, from `results.json`'s `english_reading`,
+    (`dont-know/`, from `results.json`'s `dont_know`, `dont_know_option_word`, `hosted_glide_rerun` and
+    `english_reading.dont_know` and `page_config.json`'s `dont_know`, built by `sitebuild/dont_know.py`) and Turkish vs
+    English (`turkish-vs-english/`, from `results.json`'s `english_reading`,
     `dont_know_option_word`, `english-reading.json` and `page_config.json`'s `english_reading` and `model_languages`,
     built by `sitebuild/english_reading.py`; its former address `english-reading/` redirects there, fragment kept). Each
     page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`). Each tab's face
@@ -147,7 +148,11 @@ python3 -m http.server 8000                                # preview at http://1
     no script: Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the
     marks each OCR model kept; Hallucination shows the non-hallucination rate, that rate against the same model held back
     by its confidence, the paired test of the two (the wrong answers only one of them made, with Holm-adjusted p and the
-    models outside the test named) and accuracy with the option against accuracy with five options; Turkish vs English
+    models outside the test named) and accuracy with the option against accuracy with five options, then three added
+    comparisons: the Turkish vs English tab's English questions with "I don't know" against "Bilmiyorum" in Turkish (that
+    tab's charts and table, `dont_know_charts` and `dont_know_table` in `sitebuild/english_reading.py`), the option's
+    word ("I don't know" instead of "Bilmiyorum" on the same Turkish questions) and hosted GLiDE against a new
+    five-option run in place of run 129; Turkish vs English
     opens with its main table (accuracy and non-hallucination in Turkish and in English with their differences, the rank
     in each language and the languages each model card lists, Holm-significant differences marked), then accuracy in
     Turkish and in English with the paired test of the two (the questions only one of them got right, with Holm-adjusted
