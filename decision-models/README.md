@@ -84,7 +84,12 @@ python3 -m http.server 8000                                # preview at http://1
   and invalid answers in English and their "Bilmiyorum" counterparts in Turkish (a published full-bank run counted on
   the kept questions, or a run on the kept questions only), the rates, the mean probability of the option, the ranges
   and the exact McNemar test of wrong answers (Holm over the models), from `english_dont_know_runs` and
-  `english_dont_know_turkish_runs`.
+  `english_dont_know_turkish_runs`. For the option-word check (`dont_know_option_word`) it recomputes each model's
+  right, wrong, option and invalid answers, rates and mean option probability with "Bilmiyorum" (its Hallucination
+  tab run) and with "I don't know" (its run in `dont_know_word_runs`, prompt version fb17d583a3af), and the exact
+  McNemar test of their wrong answers (Holm over the models). For the hosted GLiDE rerun (`hosted_glide_rerun`, from
+  `rerun_runs`) it checks the run's setup against the run it replaces, recomputes its counts, and redoes the derived
+  abstention and the comparison with confidence of the model's "I don't know" run with the rerun as its original run.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
@@ -290,9 +295,11 @@ question text, prompts, answers or local paths. The comparisons between runs com
 answer-key baselines (`baselines`), and writes `answers.json`: the main runs, the repeats of each
 repeated configuration (`repeat_runs`), the runs of each measured live test (`pipeline_runs`; a run
 that serves several tests, such as a second model alone on the shared test half, lists every role it
-has), the runs with the "I don't know" option (`dont_know_runs`), the English reading runs (`english_runs`) and the
+has), the runs with the "I don't know" option (`dont_know_runs`), the English reading runs (`english_runs`), the
 English "I don't know" runs with their Turkish counterparts on the kept questions (`english_dont_know_runs`,
-`english_dont_know_turkish_runs`), with scores and option probabilities at full precision. The English reading section needs `english-reading.json` in this
+`english_dont_know_turkish_runs`), the option-word check's runs (`dont_know_word_runs`, with `dont_know_word_prompts`)
+and the hosted GLiDE rerun (`rerun_runs`), with scores and option probabilities at full precision; no run is in two
+lists. The English reading section needs `english-reading.json` in this
 folder: the export stops unless every English run carries its translations hash and was asked exactly its kept
 questions. Then refresh `runner/` and
 the metric code, and check the result:

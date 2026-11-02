@@ -8,7 +8,9 @@ question text, prompts, answers or local paths. Runs with the "I don't know" opt
 only their own section, `dont_know`, and answers.json's `dont_know_runs`; runs in English (--english) only
 theirs, `english_reading`, and answers.json's `english_runs`; runs in English with the option, and the Turkish runs
 with the option on the English track's kept questions, only `english_reading.dont_know` and answers.json's
-`english_dont_know_runs` and `english_dont_know_turkish_runs`.
+`english_dont_know_runs` and `english_dont_know_turkish_runs`. The option-word check's runs (--dont-know-word english)
+enter only `dont_know_option_word` and answers.json's `dont_know_word_runs`, and fresh runs of a setup (--rerun) only
+`hosted_glide_rerun` and answers.json's `rerun_runs`.
 """
 
 from __future__ import annotations
@@ -1344,6 +1346,252 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
     }
 
 
+# The option-word check (results.json `dont_know_option_word`): the Hallucination tab's test with the option's word in
+# English, its prompts' version (DONT_KNOW_WORD_PROMPT_VERSION in benchmark_ollama.py), and the Hallucination tab models
+# without an option-word run by (provider, model), with the reason the page gives.
+OPTION_WORD = "I don't know"
+OPTION_WORD_PROMPT_VERSION = "fb17d583a3af"
+OPTION_WORD_NOT_RUN: dict[tuple[str, str], str] = {}
+# The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
+# five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't
+# know" comparison; the published row stays as it is.
+RERUN_REPLACES = 129
+RERUN_PROMPT_VERSION = "254597b8be16"
+
+
+def full_bank_run(record: dict[str, Any], data: dict[str, Any]) -> bool:
+    """Whether a run was asked every question of the exported bank as it stands, with the options as published."""
+    return (record["evaluated"] == record["eligible_total"] == data["questions"]
+            and (record.get("graded_sha256") or record["dataset_sha256"]) == (data["dataset"]["graded_sha256"] or data["dataset"]["sha256"])
+            and record.get("replace_key_text") is None and record.get("shuffle_options") is None
+            and not record.get("question_list") and record.get("repeat") is None and not record.get("english"))
+
+
+def setup_of(record: dict[str, Any]) -> tuple[Any, ...]:
+    return record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"]
+
+
+def dont_know_option_word(records: list[dict[str, Any]], section: dict[str, Any] | None, data: dict[str, Any],
+                          by_run: dict[int, dict[str, Any]]) -> dict[str, Any] | None:
+    """The option-word check (results.json `dont_know_option_word`) from the report's records of its runs
+    (dont_know_word "english"): for each Hallucination tab model, in the `dont_know` section's order, its first run
+    with "Bilmiyorum" and its one full-bank run of the same setup with "I don't know"; a model without such a run must
+    be in OPTION_WORD_NOT_RUN. None without option-word runs. The prompts, prompt versions and the paired test come from
+    the answers (dont_know_option_word_answers_part)."""
+    records = [record for record in records if record["run_id"] not in HELD_RUNS]
+    if not records:
+        return None
+    if section is None:
+        raise ValueError(f"option-word runs {[record['run_id'] for record in records]}: no Hallucination tab runs to compare them with")
+    by_setup: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
+    for record in sorted(records, key=lambda record: record["run_id"]):
+        label = f"option-word run {record['run_id']} ({record['model']}, {record.get('provider', 'ollama')})"
+        if record.get("dont_know_word") != "english" or not record.get("dont_know") or record.get("rerun") is not None:
+            raise ValueError(f"{label}: not a run with the \"I don't know\" option in Turkish (dont_know_word {record.get('dont_know_word')!r})")
+        if not full_bank_run(record, data) or record["dont_know_answers"]["questions"] != data["questions"]:
+            raise ValueError(f"{label}: not a run over all {data['questions']:,} questions of the exported bank")
+        by_setup.setdefault(setup_of(record), []).append(record)
+    for (provider, model), _ in OPTION_WORD_NOT_RUN.items():
+        if not any((item["provider"], item["model"]) == (provider, model) for item in section["models"]):
+            raise ValueError(f"OPTION_WORD_NOT_RUN: {model} ({provider}) is not a Hallucination tab model")
+
+    def counted(record: dict[str, Any]) -> dict[str, Any]:
+        got = record["dont_know_answers"]
+        if sum(got[key] for key in ("right", "wrong", "dont_know", "invalid")) != data["questions"]:
+            raise ValueError(f"run {record['run_id']}: its answers do not add up to {data['questions']:,} questions")
+        return {
+            "run": record["run_id"],
+            "date": record["started"][:10],
+            "prompt_version": None,
+            **{key: got[key] for key in ("right", "wrong", "dont_know", "invalid", "accuracy", "attempt_rate", "non_hallucination")},
+            "mean_dont_know_probability": got["mean_option_probability"],
+        }
+
+    models, not_run = [], []
+    for item in section["models"]:
+        found = by_setup.pop(setup_of(by_run[item["run"]]), [])
+        reason = OPTION_WORD_NOT_RUN.get((item["provider"], item["model"]))
+        label = f"{item['name']} ({item['provider']})"
+        if reason is not None:
+            if found:
+                raise ValueError(f"{label}: in OPTION_WORD_NOT_RUN but has option-word runs {[record['run_id'] for record in found]}")
+            not_run.append({"name": item["name"], "reason": reason})
+            continue
+        if len(found) != 1:
+            raise ValueError(f"{label}: needs exactly one option-word run of its Hallucination tab setup (run {item['run']}), "
+                             f"found {[record['run_id'] for record in found]}; a model that could not run goes in OPTION_WORD_NOT_RUN")
+        if found[0]["dont_know_answers"]["original_run"] != item["original_run"]:
+            raise ValueError(f"{label}: option-word run {found[0]['run_id']} names original run "
+                             f"{found[0]['dont_know_answers']['original_run']}, its Hallucination tab run {item['original_run']}")
+        models.append({"name": item["name"], "model": item["model"], "provider": item["provider"],
+                       "bilmiyorum": counted(by_run[item["run"]]), "i_dont_know": counted(found[0]), "paired": None})
+    if by_setup:
+        raise ValueError(f"option-word runs {[record['run_id'] for found in by_setup.values() for record in found]}: no "
+                         f"Hallucination tab model of the same setup")
+    return {"questions": data["questions"], "models": models, "not_run": not_run}
+
+
+def dont_know_option_word_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any]) -> dict[str, Any]:
+    """The `dont_know_option_word` section with what comes from the answers file: the option, its sentence, the
+    instructions (the System One instructions plus the sentence) and the prompt version (dont_know_word_prompts, hashed
+    as the runner hashes them, which must be OPTION_WORD_PROMPT_VERSION and every option-word run's version), each run's
+    prompt version, and per model the paired test of wrong answers on the scored questions (exact McNemar,
+    bm.paired_comparison: first "Bilmiyorum", second "I don't know") with Holm's correction over the models compared."""
+    prompts = document.get("dont_know_word_prompts")
+    if prompts is None:
+        raise ValueError("the answers file has option-word runs but no dont_know_word_prompts")
+    option, instructions = prompts["dont_know_option"], prompts["system_one_instructions"]
+    sentence = f"If you do not know the answer, choose {option}."
+    if option != OPTION_WORD or instructions != f"{document['prompts']['system_one_instructions']} {sentence}":
+        raise ValueError(f"dont_know_word_prompts: the option is not {OPTION_WORD!r} or the instructions are not the System One "
+                         f"instructions plus {sentence!r}")
+    version = hashlib.sha256(
+        json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:12]
+    if version != OPTION_WORD_PROMPT_VERSION:
+        raise ValueError(f"dont_know_word_prompts hash to {version}, not {OPTION_WORD_PROMPT_VERSION}")
+    words = {run["run"]: run for run in answers["dont_know_word_runs"]}
+    turkish = {run["run"]: run for run in answers["dont_know_runs"]}
+    wrong_version = sorted(run for run, item in words.items() if item["prompt_version"] != version)
+    if wrong_version:
+        raise ValueError(f"option-word runs {wrong_version} were not run with prompt version {version}")
+    scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
+
+    def wrong(run: dict[str, Any], published: dict[str, Any]) -> list[int]:
+        found = [int(run["choice"][index] not in (None, DONT_KNOW_LETTER) and not run["correct"][index]) for index in scored]
+        if sum(found) != published["wrong"]:
+            raise ValueError(f"run {run['run']}: its answers give {sum(found)} wrong answers, its record {published['wrong']}")
+        return found
+
+    for model in section["models"]:
+        first, second = turkish[model["bilmiyorum"]["run"]], words[model["i_dont_know"]["run"]]
+        model["bilmiyorum"]["prompt_version"] = first["prompt_version"]
+        model["i_dont_know"]["prompt_version"] = second["prompt_version"]
+        test = bm.paired_comparison(wrong(first, model["bilmiyorum"]), wrong(second, model["i_dont_know"]))
+        model["paired"] = {"bilmiyorum_only_wrong": test["first_only"], "i_dont_know_only_wrong": test["second_only"],
+                           "p": test["p"], "p_holm": None}
+    for model, adjusted in zip(section["models"], bm.holm([model["paired"]["p"] for model in section["models"]])):
+        model["paired"]["p_holm"] = adjusted
+    return {"option": option, "sentence": sentence, "instructions": instructions, "prompt_version": version, **section}
+
+
+def derived_abstention(answers: list[tuple[float | None, int]], target: float) -> dict[str, Any]:
+    """derived_abstention in benchmark_ollama.py: answer only where the score reaches the cut-off whose attempt rate
+    (answers at or above it, over all) comes nearest `target`, the higher cut-off on a tie, and abstain on the rest; an
+    answer without a score is never an attempt. `answers` holds each question's (score, correct)."""
+    total = len(answers)
+    ranked = sorted(((score, correct) for score, correct in answers if score is not None), key=lambda item: -item[0])
+    best: tuple[float, float | None, int, int] = (target, None, 0, 0)
+    attempts = right = 0
+    for index, (score, correct) in enumerate(ranked):
+        attempts += 1
+        right += correct
+        if index + 1 < len(ranked) and ranked[index + 1][0] == score:
+            continue
+        distance = abs(attempts / total - target)
+        if distance < best[0]:
+            best = (distance, score, attempts, right)
+    _, cut_off, attempts, right = best
+    wrong, abstained = attempts - right, total - attempts
+    return {
+        "cut_off": cut_off,
+        "attempt_rate": attempts / total,
+        "non_hallucination": abstained / (abstained + wrong) if abstained + wrong else None,
+        "right": right,
+        "wrong": wrong,
+        "abstained": abstained,
+    }
+
+
+def hosted_glide_rerun(records: list[dict[str, Any]], section: dict[str, Any] | None, data: dict[str, Any],
+                       by_run: dict[int, dict[str, Any]]) -> dict[str, Any] | None:
+    """The hosted GLiDE rerun (results.json `hosted_glide_rerun`) from the report's records of fresh runs (rerun set):
+    one full-bank five-option run of run RERUN_REPLACES's setup (provider, model, reasoning, questions per request),
+    whose model's Hallucination tab row names RERUN_REPLACES as its original run. None without fresh runs. The prompt
+    version, the derived abstention and the comparison with confidence come from the answers (hosted_glide_rerun_answers_part)."""
+    records = [record for record in records if record["run_id"] not in HELD_RUNS]
+    if not records:
+        return None
+    if len(records) != 1:
+        raise ValueError(f"fresh runs {[record['run_id'] for record in records]}: the export takes one, the hosted GLiDE rerun")
+    record = records[0]
+    label = f"fresh run {record['run_id']} ({record['model']}, {record.get('provider', 'ollama')})"
+    if record.get("dont_know") or record.get("dont_know_word") or not full_bank_run(record, data):
+        raise ValueError(f"{label}: not a five-option run over all {data['questions']:,} questions of the exported bank")
+    replaced = by_run.get(RERUN_REPLACES)
+    if replaced is None or setup_of(record) != setup_of(replaced):
+        raise ValueError(f"{label}: its setup {setup_of(record)} is not run {RERUN_REPLACES}'s "
+                         f"{None if replaced is None else setup_of(replaced)}")
+    if RERUN_REPLACES not in {run["run"] for run in data["runs"]}:
+        raise ValueError(f"{label}: run {RERUN_REPLACES} is not on the Text tab")
+    rows = [item for item in (section or {}).get("models", []) if item["original_run"] == RERUN_REPLACES]
+    if len(rows) != 1 or (rows[0]["provider"], rows[0]["model"]) != setup_of(record)[:2]:
+        raise ValueError(f"{label}: needs one Hallucination tab row of its model with original run {RERUN_REPLACES}, "
+                         f"found {[item['run'] for item in rows]}")
+    right, invalid = record["correct"], record["invalid"]
+    return {
+        "run": record["run_id"],
+        "rerun": record["rerun"],
+        "date": record["started"][:10],
+        "prompt_version": None,
+        "replaces_run": RERUN_REPLACES,
+        "accuracy": right / data["questions"],
+        "right": right,
+        "wrong": data["questions"] - right - invalid,
+        "invalid": invalid,
+        "dont_know_run": rows[0]["run"],
+        "derived": None,
+        "vs_confidence": None,
+    }
+
+
+def hosted_glide_rerun_answers_part(rerun: dict[str, Any], dont_know_section: dict[str, Any], document: dict[str, Any],
+                                    answers: dict[str, Any]) -> dict[str, Any]:
+    """The `hosted_glide_rerun` section with what comes from the answers file: the run's prompt version (the main
+    prompts hashed, RERUN_PROMPT_VERSION), and as dont_know_answers_part computes them for the published row with the
+    rerun as the original run: the derived abstention at the "I don't know" run's attempt rate, on the scored questions,
+    and `vs_confidence`, the "I don't know" run against the rerun held back by its own confidence at that cut-off, as
+    wrong answers in each (exact McNemar, bm.paired_comparison: first the option, second confidence). The derived
+    abstention is first recomputed for the published row from run RERUN_REPLACES and must match the report's."""
+    version = hashlib.sha256(
+        json.dumps(document["prompts"], ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:12]
+    new = next(run for run in answers["rerun_runs"] if run["run"] == rerun["run"])
+    if not version == new["prompt_version"] == RERUN_PROMPT_VERSION:
+        raise ValueError(f"rerun {rerun['run']}: prompt version {new['prompt_version']}, the main prompts' {version}, "
+                         f"expected {RERUN_PROMPT_VERSION}")
+    scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
+    if sum(int(new["correct"][index]) for index in scored) != rerun["right"]:
+        raise ValueError(f"rerun {rerun['run']}: its answers do not give its {rerun['right']} right answers")
+    row = next(model for model in dont_know_section["models"] if model["run"] == rerun["dont_know_run"])
+    option_run = next(run for run in answers["dont_know_runs"] if run["run"] == row["run"])
+    replaced = next(run for run in answers["runs"] if run["run"] == RERUN_REPLACES)
+
+    def derived(run: dict[str, Any]) -> dict[str, Any]:
+        return derived_abstention(
+            [(None if run["score"][index] is None else float(run["score"][index]), int(run["correct"][index])) for index in scored],
+            row["attempt_rate"],
+        )
+
+    if derived(replaced) != row["derived"]:
+        raise ValueError(f"{row['name']}: the derived abstention recomputed from run {RERUN_REPLACES} {derived(replaced)} is not "
+                         f"the published {row['derived']}")
+    found = derived(new)
+    cut_off = found["cut_off"]
+    option_wrong = [int(option_run["choice"][index] not in (None, DONT_KNOW_LETTER) and not option_run["correct"][index]) for index in scored]
+    confidence_wrong = [int(cut_off is not None and new["score"][index] is not None and float(new["score"][index]) >= cut_off
+                            and not new["correct"][index]) for index in scored]
+    if sum(option_wrong) != row["wrong"] or sum(confidence_wrong) != found["wrong"]:
+        raise ValueError(f"rerun {rerun['run']}: the answers do not give the wrong answers with the option or held back by confidence")
+    test = bm.paired_comparison(option_wrong, confidence_wrong)
+    return {
+        **rerun,
+        "prompt_version": version,
+        "derived": found,
+        "vs_confidence": {"option_only_wrong": test["first_only"], "confidence_only_wrong": test["second_only"], "p": test["p"]},
+    }
+
+
 # The Text tab model of an English run's model, by (provider, model), where the two names differ: Liquid's API no longer
 # serves the d1:free name of d1 (its model list still names d1), so d1's English runs ask for d1 while its Text tab run
 # asked for d1:free.
@@ -1708,12 +1956,15 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
 
 def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_section: dict[str, Any] | None = None,
                    english_section: dict[str, Any] | None = None,
-                   english_dont_know_section: dict[str, Any] | None = None) -> dict[str, Any]:
+                   english_dont_know_section: dict[str, Any] | None = None,
+                   option_word_section: dict[str, Any] | None = None,
+                   rerun_section: dict[str, Any] | None = None) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
     runs, the repeats of each repeated configuration, the runs of each measured routing pipeline, the runs with
-    the "I don't know" option (`dont_know_section`), the runs in English (`english_section`) and the English "I don't
-    know" comparison's runs in English and its Turkish runs on the kept questions (`english_dont_know_section`), which
-    no other list holds. A run's answers on questions it was not asked are None, also in `correct`."""
+    the "I don't know" option (`dont_know_section`), the runs in English (`english_section`), the English "I don't
+    know" comparison's runs in English and its Turkish runs on the kept questions (`english_dont_know_section`), the
+    option-word check's runs (`option_word_section`) and the hosted GLiDE rerun (`rerun_section`), which no other list
+    holds. A run's answers on questions it was not asked are None, also in `correct`."""
     dataset = next(
         (item for item in document["datasets"] if item["graded_sha256"] == data["dataset"]["graded_sha256"]), None
     )
@@ -1749,14 +2000,23 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
     english_idk_sets = {run: model["english"]["runs"] for model in idk_models for run in model["english"]["runs"]}
     turkish_idk_sets = {run: model["turkish"]["runs"] for model in idk_models if model["turkish"]["subset"]
                         for run in model["turkish"]["runs"]}
+    word_runs = {model["i_dont_know"]["run"] for model in (option_word_section or {}).get("models", [])}
+    rerun_runs = {rerun_section["run"]} if rerun_section else set()
     missing = (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
-               | set(english_idk_sets) | set(turkish_idk_sets)) - set(by_id)
+               | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs) - set(by_id)
     if missing:
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
     others = main | set(repeats) | set(pipelines) | set(batching)
-    mixed = sorted(run for run in others | set(english_sets) if by_id[run].get("dont_know"))
+    mixed = sorted(run for run in others | set(english_sets) | rerun_runs if by_id[run].get("dont_know"))
     if mixed or any(not by_id[run].get("dont_know") for run in {**dont_know_sets, **english_idk_sets, **turkish_idk_sets}):
         raise ValueError(f"runs {mixed or sorted(dont_know_sets)}: the \"I don't know\" runs and the others are mixed up")
+    listed = others | set(dont_know_sets) | set(english_sets) | set(english_idk_sets) | set(turkish_idk_sets)
+    mixed = sorted(run for run in listed | rerun_runs if by_id[run].get("dont_know_word"))
+    if mixed or any(by_id[run].get("dont_know_word") != "english" or not by_id[run].get("dont_know") for run in word_runs):
+        raise ValueError(f"runs {mixed or sorted(word_runs)}: the option-word runs and the others are mixed up")
+    mixed = sorted(run for run in listed | word_runs if by_id[run].get("rerun") is not None)
+    if mixed or any(by_id[run].get("rerun") is None for run in rerun_runs):
+        raise ValueError(f"runs {mixed or sorted(rerun_runs)}: the fresh runs and the others are mixed up")
     mixed = sorted(run for run in others | set(dont_know_sets) | set(turkish_idk_sets) if by_id[run].get("english"))
     if mixed or any(not by_id[run].get("english") for run in {**english_sets, **english_idk_sets}):
         raise ValueError(f"runs {mixed or sorted(english_sets)}: the English runs and the others are mixed up")
@@ -1771,6 +2031,7 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         **({"dont_know_prompts": document["dont_know_prompts"]} if dont_know_sets or turkish_idk_sets else {}),
         **({"english_prompts": document["english_prompts"]} if english_sets else {}),
         **({"english_dont_know_prompts": document["english_dont_know_prompts"]} if english_idk_sets else {}),
+        **({"dont_know_word_prompts": document["dont_know_word_prompts"]} if word_runs else {}),
         "questions": dataset["questions"],
         "runs": [by_id[run] for run in sorted(main)],
         # Each repeat lists the runs of its configuration's repeat set (results.json `repeats`).
@@ -1788,6 +2049,10 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         # Runs with the "I don't know" option in Turkish on the kept questions, each with the runs of its setup
         # (results.json `english_reading.dont_know`, Turkish side where it is not a Hallucination tab run).
         "english_dont_know_turkish_runs": [{**by_id[run], "repeat_set": runs} for run, runs in sorted(turkish_idk_sets.items())],
+        # The option-word check's runs, one per model (results.json `dont_know_option_word`).
+        **({"dont_know_word_runs": [by_id[run] for run in sorted(word_runs)]} if word_runs else {}),
+        # The hosted GLiDE rerun (results.json `hosted_glide_rerun`).
+        **({"rerun_runs": [by_id[run] for run in sorted(rerun_runs)]} if rerun_runs else {}),
     }
 
 
@@ -1817,18 +2082,29 @@ def main() -> int:
         records = [json.loads(match.group(1)) for match in RESULT_PATTERN.finditer(text)]
         # The runs with the "I don't know" option enter only their own section, `dont_know` (full-bank runs in
         # Turkish), the runs in English only theirs, `english_reading`, and the runs with the option in English and
-        # their Turkish counterparts on the kept questions only `english_reading.dont_know`.
+        # their Turkish counterparts on the kept questions only `english_reading.dont_know`. The option-word check's runs
+        # enter only `dont_know_option_word` and fresh runs only `hosted_glide_rerun`.
+        words = [record for record in records if record.get("dont_know_word")]
+        reruns = [record for record in records if record.get("rerun") is not None]
+        kept = [record for record in records if not record.get("dont_know_word") and record.get("rerun") is None]
         data = export(
-            [record for record in records if not record.get("dont_know") and not record.get("english")],
+            [record for record in kept if not record.get("dont_know") and not record.get("english")],
             json.loads(analysis.group(1)) if analysis else {},
         )
-        section = dont_know([record for record in records if record.get("dont_know") and not record.get("english")], data)
-        english = english_reading([record for record in records if record.get("english") and not record.get("dont_know")], data)
-        english_idk = english_dont_know([record for record in records if record.get("dont_know")], section, english)
+        section = dont_know([record for record in kept if record.get("dont_know") and not record.get("english")], data)
+        english = english_reading([record for record in kept if record.get("english") and not record.get("dont_know")], data)
+        english_idk = english_dont_know([record for record in kept if record.get("dont_know")], section, english)
+        by_run = {record["run_id"]: record for record in records}
+        option_word = dont_know_option_word(words, section, data, by_run)
+        rerun = hosted_glide_rerun(reruns, section, data, by_run)
         document = json.loads(args.answers.read_text(encoding="utf-8"))
-        answers = export_answers(document, data, section, english, english_idk)
+        answers = export_answers(document, data, section, english, english_idk, option_word, rerun)
         if section is not None:
             data["dont_know"] = dont_know_answers_part(section, document, answers)
+        if option_word is not None:
+            data["dont_know_option_word"] = dont_know_option_word_answers_part(option_word, document, answers)
+        if rerun is not None:
+            data["hosted_glide_rerun"] = hosted_glide_rerun_answers_part(rerun, data["dont_know"], document, answers)
         if english is not None:
             public = json.loads(ENGLISH_READING_PATH.read_text(encoding="utf-8"))
             data["english_reading"] = english_reading_answers_part(english, document, answers, public)

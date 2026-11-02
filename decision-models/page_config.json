@@ -179,10 +179,12 @@
     "not_compared": [
       {"run": 129, "reason": "Not compared: since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
       {"run": 145, "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
-      {"run": 150, "reason": "Not run: no Celeris API key is available."}
+      {"run": 150, "reason": "Not run: no Celeris API key is available."},
+      {"run": 125, "reason": "Not run: Clef's server reports option probabilities rounded to 4 decimal places, so its English smoke run (538) failed our probability check, which needs the probabilities to add up to 1 to 7 decimal places; no allowance for that rounding has been decided."}
     ],
-    "skipped": [374, 217, 223, 125, 248, 259, 269, 322],
-    "skipped_reason": "Not run by decision: these models run on our own GPUs, and we decided not to run them in English."
+    "skipped": [259, 269, 322],
+    "skipped_reason": "Not run by decision: these models run on our own GPUs, and we decided not to run them in English.",
+    "method_notes": ["Perplexity Decider 27B v1.2, Perplexity Decider Flash v1.2 and Fastino GLiDE v1.2 made their Text tab runs on an NVIDIA DGX Spark and their English runs on our RTX PRO 6000 GPU, with the same checkpoint, server code and settings."]
   },
   "aa_decision_index": {
     "about": "Artificial Analysis's Decision Index v1.0 as its post of 22 October 2026 lists it: its models in its order, each with our Text tab setup by run id (null: not in our benchmark). sitebuild/aa_index.py builds aa-decision-index/ from it.",
@@ -205,5 +207,30 @@
       {"name": "GPT-6 Luna (Decisions)", "run": 143},
       {"name": "Clef-Omni", "run": null}
     ]
-  }
+  },
+  "model_languages": {
+ "checked": "2026-11-02",
+ "method": "the model card at the revision we ran (local weights) or the maker's model page and docs (APIs), searched for language statements and the Hugging Face `language:` field (subagent ModelLanguages)",
+ "models": [
+  {"run": 199, "name": "Liquid d1-ultra", "languages": "not stated", "source": "https://docs.liquid.ai/lfm/models/d1"},
+  {"run": 52, "name": "Liquid d1", "languages": "not stated", "source": "https://docs.liquid.ai/lfm/models/decision-models"},
+  {"run": 346, "name": "SubQ Snap 1.1", "languages": "not stated", "source": "https://docs.subq.ai/using-the-api/models/"},
+  {"run": 373, "name": "Elephant-1", "languages": "English (the card's `language: en` tag; its text names no language)", "source": "https://huggingface.co/baselabs/elephant-1/blob/b3f8a93462fb1051a9de031e94a7ff380e254072/README.md"},
+  {"run": 374, "name": "Mammoth-1", "languages": "English (the card's `language: en` tag; its text names no language)", "source": "https://huggingface.co/baselabs/mammoth-1/blob/61cec44c281c693992e3d6ebeb44dd3402dfa186/README.md"},
+  {"run": 248, "name": "Fastino GLiDE v1.2", "languages": "not stated", "source": "https://huggingface.co/fastino/GLiDE/blob/a7e45896be7c96ba3354891da790c5ec99c30b6c/README.md"},
+  {"run": 129, "name": "Fastino GLiDE (hosted)", "languages": "not stated", "source": "https://docs.fastino.ai/inference/systemone"},
+  {"run": 217, "name": "Perplexity Decider 27B v1.2", "languages": "not stated", "source": "https://huggingface.co/perplexity-ai/pplx-decider-v1.2/blob/225c913ddc8761a8264f04f64548e1f97e443eb3/README.md"},
+  {"run": 223, "name": "Perplexity Decider Flash v1.2", "languages": "not stated", "source": "https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.2/blob/6d771ad7b5ecff5e93b8fc7b90d4c5ccc341954d/README.md"},
+  {"run": 194, "name": "Jev 1.14.0", "languages": "\"English is the primary training language and where accuracy is currently best. Other languages, including CJK scripts, are handled but not equally well\"", "source": "https://docs.typesafe.ai/models"},
+  {"run": 205, "name": "Microsoft-Decision-1", "languages": "not stated", "source": "https://openrouter.ai/microsoft/microsoft-decision-1"},
+  {"run": 204, "name": "Inception Mercury Decide", "languages": "not stated", "source": "https://openrouter.ai/inception/mercury-decide"},
+  {"run": 150, "name": "Celeris-1 Decision", "languages": "not stated", "source": "https://docs.celeris.ai/models"},
+  {"run": 125, "name": "Clef", "languages": "not stated", "source": "https://huggingface.co/Cloudflare/clef/blob/2f3de3dd85f379784083b0814d997ab627200f0c/README.md"},
+  {"run": 143, "name": "GPT-6 Luna (Decisions API)", "languages": "not stated", "source": "https://developers.openai.com/api/docs/models/gpt-6-luna"},
+  {"run": 326, "name": "Drex Max 1.1", "languages": "not stated", "source": "https://console.nace.ai/docs/drex/guides/drex-max"},
+  {"run": 322, "name": "Drex Max v1", "languages": "not stated", "source": "https://huggingface.co/nace-ai/drex-max-v1/blob/cac65e1982a0237e996419ba559004522d9a33ac/README.md"},
+  {"run": 259, "name": "vLLM-SR d3", "languages": "not stated", "source": "https://huggingface.co/vllm-sr/d3/blob/20f37b9a892acc13d4b07a4f3c4f11b2518c615c/README.md"},
+  {"run": 269, "name": "vLLM-SR d3-ultra", "languages": "not stated", "source": "https://huggingface.co/vllm-sr/d3-ultra/blob/52ba9e7a00402f9560c7fba8c039608e7ddee7fb/README.md"}
+ ]
+}
 }

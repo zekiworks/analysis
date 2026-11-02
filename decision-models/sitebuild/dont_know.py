@@ -320,6 +320,271 @@ def face(site: Site, data: dict[str, Any]) -> str:
     return f'<section class="charts" aria-label="Charts">{first}{second}{paired}{third}</section>'
 
 
+def check_option_word(site: Site, data: dict[str, Any], word: dict[str, Any]) -> None:
+    """Stop the build when results.json's dont_know_option_word does not fit the tab: the same questions and models, each
+    side's counts adding to the questions, the “Bilmiyorum” side equal to the table's first run and the paired counts
+    consistent with the two sides' wrong answers."""
+    total = data["questions"]
+    fail = lambda text: SystemExit(f"results.json dont_know_option_word: {text}")  # noqa: E731
+    if word["questions"] != total:
+        raise fail(f"{word['questions']} questions, the tab {total}")
+    named = [model["name"] for model in word["models"]] + [item["name"] for item in word["not_run"]]
+    if sorted(named) != sorted(model["name"] for model in data["models"]) or len(set(named)) != len(named):
+        raise fail("the models and not_run are not the tab's models")
+    ran = {model["name"] for model in word["models"]}
+    if [model["name"] for model in word["models"]] != [model["name"] for model in data["models"] if model["name"] in ran]:
+        raise fail("the models are not in the tab's order")
+    first = {model["name"]: model for model in data["models"]}
+    for model in word["models"]:
+        for side in ("bilmiyorum", "i_dont_know"):
+            counts = model[side]
+            if counts["right"] + counts["wrong"] + counts["dont_know"] + counts["invalid"] != total:
+                raise fail(f"{model['name']} {side}: the counts do not add to {total:,}")
+        own = first[model["name"]]
+        if model["bilmiyorum"]["run"] != own["run"] or any(model["bilmiyorum"][key] != own[key] for key in (
+                "right", "wrong", "dont_know", "invalid", "non_hallucination", "mean_dont_know_probability")):
+            raise fail(f"{model['name']}: the “Bilmiyorum” side is not the table's first run")
+        paired, b, e = model["paired"], model["bilmiyorum"], model["i_dont_know"]
+        if (paired["bilmiyorum_only_wrong"] - paired["i_dont_know_only_wrong"] != b["wrong"] - e["wrong"]
+                or paired["bilmiyorum_only_wrong"] > b["wrong"] or paired["i_dont_know_only_wrong"] > e["wrong"]
+                or min(paired["bilmiyorum_only_wrong"], paired["i_dont_know_only_wrong"]) < 0):
+            raise fail(f"{model['name']}: the paired counts do not fit the wrong answers")
+
+
+def option_word_rows(site: Site, data: dict[str, Any], word: dict[str, Any]) -> list[dict[str, Any]]:
+    """The option-word models with the tab's original run, in the tab's ranking order."""
+    order = {model["name"]: index for index, model in enumerate(ranked(data["models"]))}
+    first = {model["name"]: model for model in data["models"]}
+    return [dict(model, original_run=first[model["name"]]["original_run"])
+            for model in sorted(word["models"], key=lambda model: order[model["name"]])]
+
+
+def option_word_summary(site: Site, data: dict[str, Any], word: dict[str, Any]) -> str:
+    """The option-word section's summary, every number from results.json's dont_know_option_word."""
+    digits = site.config["percent_digits"]
+    models = option_word_rows(site, data, word)
+    name = lambda model: esc(model["name"])  # noqa: E731
+    old, new = esc(data["option"]), esc(word["option"])
+    more = [model for model in models if model["i_dont_know"]["dont_know"] > model["bilmiyorum"]["dont_know"]]
+    fewer = [model for model in models if model["i_dont_know"]["dont_know"] < model["bilmiyorum"]["dont_know"]]
+    rated = [model for model in models
+             if model["i_dont_know"]["non_hallucination"] is not None and model["bilmiyorum"]["non_hallucination"] is not None]
+    moves = [100 * (model["i_dont_know"]["non_hallucination"] - model["bilmiyorum"]["non_hallucination"]) for model in rated]
+    text = (f"<p>With “{new}” in place of “{old}”, {len(more)} of the {len(models)} models chose the option more often"
+            + (f" and {len(fewer)} less often" if fewer else "")
+            + (f"; {len(models) - len(more) - len(fewer)} as often" if len(models) > len(more) + len(fewer) else "") + ".")
+    if moves:
+        text += (f" Their non-hallucination rates moved by {min(moves):+.{digits}f} to {max(moves):+.{digits}f} points"
+                 + (f" ({len(models) - len(rated)} without a rate on one side)" if len(rated) < len(models) else "") + ".")
+    family = [model for model in models if model["paired"]["p_holm"] is not None]
+    significant = [model for model in family if model["paired"]["p_holm"] < 0.05]
+    fewer_wrong = [model for model in significant if model["paired"]["bilmiyorum_only_wrong"] > model["paired"]["i_dont_know_only_wrong"]]
+    more_wrong = [model for model in significant if model not in fewer_wrong]
+    if family:
+        text += f" In the exact McNemar test of wrong answers, with Holm's correction over the {len(family)}, "
+        if not significant:
+            text += "no difference is significant: each could be chance."
+        else:
+            parts = []
+            if fewer_wrong:
+                parts.append(f"“{new}” left significantly fewer wrong answers for {joined([name(model) for model in fewer_wrong])}")
+            if more_wrong:
+                parts.append(f"“{old}” left significantly fewer for {joined([name(model) for model in more_wrong])}")
+            rest = len(family) - len(significant)
+            text += "; ".join(parts) + ((f"; for the other {rest}" if rest > 1 else "; for the other model") +
+                                        ", the difference could be chance." if rest else ".")
+    if word["not_run"]:
+        text += f" Not run: {joined([esc(item['name']) for item in word['not_run']])} (<a href=\"#option-word-results\">why</a>)."
+    return text + "</p>"
+
+
+def option_word_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -> str:
+    """The option-word section on the tab's face: its summary and a chart of each model's non-hallucination rate with
+    the Turkish and the English word."""
+    digits = site.config["percent_digits"]
+    old, new = esc(data["option"]), esc(word["option"])
+    run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
+    label = lambda model: site.row_name(run_of(model))  # noqa: E731
+    rows = [model for model in option_word_rows(site, data, word)
+            if model["i_dont_know"]["non_hallucination"] is not None and model["bilmiyorum"]["non_hallucination"] is not None]
+    side = lambda model, key: model[key]  # noqa: E731
+    chart = hbars([
+        {"label": label(model), "href": rel(PATH, site.model_path(run_of(model))),
+         "text": f"{pct(model['i_dont_know']['non_hallucination'], digits)} · {pct(model['bilmiyorum']['non_hallucination'], digits)}",
+         "bars": [{"value": model["i_dont_know"]["non_hallucination"], "kind": "lead"},
+                  {"value": model["bilmiyorum"]["non_hallucination"], "kind": "base"}],
+         "title": f"{label(model)}: {side(model, 'i_dont_know')['dont_know']:,} “{word['option']}” of "
+                  f"{side(model, 'i_dont_know')['dont_know'] + side(model, 'i_dont_know')['wrong']:,} not right; "
+                  f"{side(model, 'bilmiyorum')['dont_know']:,} “{data['option']}” of "
+                  f"{side(model, 'bilmiyorum')['dont_know'] + side(model, 'bilmiyorum')['wrong']:,} not right"}
+        for model in rows])
+    return (f'<section class="card" id="option-word"><h2>The option\'s word: “{new}” instead of “{old}”</h2>'
+            f"{option_word_summary(site, data, word)}"
+            f'<p class="note">The same {word["questions"]:,} Turkish questions, with only the sixth option\'s word and the sentence '
+            f"that names it changed. A model that skipped “{old}” because it did not recognise the Turkish word should choose "
+            f"“{new}” more often. The languages each model's card or docs list are on the English reading tab "
+            f"(<a href=\"{rel(PATH, 'english-reading/')}#languages\">Languages the model cards list</a>). Table and method: "
+            '<a href="#option-word-results">under Info</a>.</p>'
+            f'<figure class="panel chart-card" id="chart-option-word"><div class="chart-head"><h2>Non-hallucination rate by the option\'s word</h2>'
+            f'<p class="chart-sub">Each model\'s first run with “{new}” and with “{old}” · higher is better</p></div>{chart}'
+            f'<p class="chart-legend"><span><i class="swatch swatch-lead"></i>With “{new}”</span> '
+            f'<span><i class="swatch swatch-base"></i>With “{old}” (the table above)</span> '
+            f"<span>Read it with accuracy and the attempt rate, in the table under Info.</span></p></figure></section>")
+
+
+def option_word_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -> str:
+    """Under Info: the option-word table and its method notes."""
+    digits = site.config["percent_digits"]
+    total = word["questions"]
+    old, new = esc(data["option"]), esc(word["option"])
+    percent = lambda value: '<span class="nm">Not measured</span>' if value is None else pct(value, digits)  # noqa: E731
+    sides = (("i_dont_know", new), ("bilmiyorum", old))
+    heads = tuple((f"{head} with “{text}”", direction) for head, direction in (
+        ("Non-hallucination rate", "higher is better"), ("Accuracy", "higher is better"),
+        ("Attempt rate", f"higher means it answers more often; {NEUTRAL}")) for text in (word["option"], data["option"])) + (
+        ("Wrong only with one word", "exact McNemar, Holm-adjusted"), ("Runs", "run, start date and prompt version"))
+    labels = [f"{head} ({direction})" for head, direction in heads]
+    smalls = (
+        ("non_hallucination", lambda counts, option: f"{counts['dont_know']:,} “{option}” of {counts['dont_know'] + counts['wrong']:,} not right"),
+        ("accuracy", lambda counts, option: f"{counts['right']:,} of {total:,} right"),
+        ("attempt_rate", lambda counts, option: f"{counts['right'] + counts['wrong']:,} answered, {counts['dont_know']:,} “{option}”"
+         + (f", {counts['invalid']:,} invalid" if counts["invalid"] else "")),
+    )
+
+    rows = []
+    for model in option_word_rows(site, data, word):
+        paired = model["paired"]
+        test = (f'{paired["i_dont_know_only_wrong"]:,} · {paired["bilmiyorum_only_wrong"]:,}'
+                f'<span class="small">{paired["i_dont_know_only_wrong"]:,} wrong only with “{new}”, '
+                f'{paired["bilmiyorum_only_wrong"]:,} only with “{old}”</span><span class="small">{esc(bp.p_text(paired["p"]))}'
+                + (f", Holm-adjusted {esc(bp.p_text(paired['p_holm']))}{' *' if paired['p_holm'] < 0.05 else ''}" if paired["p_holm"] is not None else ", not in Holm's family")
+                + "</span>")
+        runs = (f'{model["i_dont_know"]["run"]} · {model["bilmiyorum"]["run"]}'
+                + "".join(f'<span class="small">“{text}”: run {model[side]["run"]}, {esc(model[side]["date"])}, '
+                          f'prompt version {esc(model[side]["prompt_version"])}</span>' for side, text in sides))
+        values = [f'{percent(model[side][key])}<span class="small">{small(model[side], text)}</span>'
+                  for key, small in smalls for side, text in sides] + [test, runs]
+        rows.append(f"<tr>{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(labels, values)) + "</tr>")
+    head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(direction)}</span></th>' for name, direction in heads)
+    return f"""
+    <section class="card" id="option-word-results">
+      <h2>Results with “{new}” instead of “{old}”</h2>
+      <p class="note">In the tab's order. Each row shows the model's first run with each word on the same {total:,} questions; the “{old}” run is the one in the table above. Wrong only with one word: the questions only one of the two runs got wrong, by the exact McNemar test, with p adjusted by Holm's method over the models compared; * marks a Holm-adjusted p below 0.05.</p>
+      <div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>
+      {not_run(word["not_run"])}
+    </section>
+    <section class="card method-notes" id="option-word-method">
+      <h2>Our method with “{new}”</h2>
+      <p>Only two things changed from the runs above: the sixth option's word and the sentence of the System One instructions that names it. The option “{old}” became “{new}”, and the sentence “{esc(data["sentence"])}” became “{esc(word["sentence"])}” Everything else is as above: the same {total:,} Turkish questions and answer key, the option always last and never correct, one question per request and each model's own settings. The full instructions:</p>
+      <blockquote><p>{esc(word["instructions"])}</p></blockquote>
+      <p>Prompt version {esc(word["prompt_version"])} with “{new}”, against {esc(data["prompt_version"])} with “{old}”. One full run per model with “{new}”; the table gives each run's ID and start date (UTC).</p>
+      <h3>How to read the comparison</h3>
+      <p>A model that did not recognise the Turkish word and so ignored the option should choose the English one more often, and its non-hallucination rate should rise. A model that chooses both about as often did not skip “{old}” for its word. The rates are those above, and the same limits hold: the non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know; read it with accuracy and the attempt rate, as a model that always chose the option would reach 100% with no right answers. With neither a wrong answer nor the option, the rate is undefined (Not measured).</p>
+    </section>"""
+
+
+def check_rerun(site: Site, data: dict[str, Any], rerun: dict[str, Any]) -> dict[str, Any]:
+    """Stop the build when results.json's hosted_glide_rerun does not fit the tab; return the tab's hosted GLiDE row."""
+    total = data["questions"]
+    fail = lambda text: SystemExit(f"results.json hosted_glide_rerun: {text}")  # noqa: E731
+    rows = [model for model in data["models"] if model["run"] == rerun["dont_know_run"]]
+    if len(rows) != 1 or rows[0]["original_run"] != rerun["replaces_run"]:
+        raise fail("its “I don't know” run or the run it replaces is not a row of the tab")
+    model, derived = rows[0], rerun["derived"]
+    if rerun["right"] + rerun["wrong"] + rerun["invalid"] != total:
+        raise fail(f"the counts do not add to {total:,}")
+    if derived["right"] + derived["wrong"] + derived["abstained"] != total or derived["abstained"] != model["dont_know"]:
+        raise fail("the derived counts do not add up or do not hold back on as many questions as the “I don't know” run")
+    paired = rerun["vs_confidence"]
+    if (paired["option_only_wrong"] - paired["confidence_only_wrong"] != model["wrong"] - derived["wrong"]
+            or paired["option_only_wrong"] > model["wrong"] or paired["confidence_only_wrong"] > derived["wrong"]):
+        raise fail("the paired counts do not fit the wrong answers")
+    return model
+
+
+def rerun_face(site: Site, data: dict[str, Any], rerun: dict[str, Any], model: dict[str, Any]) -> str:
+    """The hosted GLiDE rerun on the tab's face: why, its summary and a chart of the non-hallucination rate with the option,
+    held back by confidence on run 129 (as published) and on the new run."""
+    digits = site.config["percent_digits"]
+    option = esc(data["option"])
+    old = site.by_id[rerun["replaces_run"]]
+    name = esc(site.row_name(old))
+    new_derived, old_derived = rerun["derived"], model["derived"]
+    paired = rerun["vs_confidence"]
+    old_accuracy = model["original_accuracy"]
+    summary = (f"<p>Fastino changed its hosted model after 6 October, so run {old['run']} ({esc(old['started'][:10])}), the "
+               f"five-option run behind {name}'s row in the table, is a different model from the one behind its “{option}” run "
+               f"{model['run']}. A new five-option run, {rerun['run']} ({esc(rerun['date'])}), scored {pct(rerun['accuracy'], digits)} "
+               f"({rerun['right']:,} of {data['questions']:,} right), against {pct(old_accuracy, digits)} for run {old['run']}. Held back "
+               f"by its own confidence on as many questions as run {model['run']} said “{option}” ({new_derived['abstained']:,}), "
+               f"the new run left {new_derived['wrong']:,} wrong answers, against {model['wrong']:,} with “{option}”: a derived "
+               f"non-hallucination rate of {pct(new_derived['non_hallucination'], digits)}, against {pct(model['non_hallucination'], digits)} "
+               f"with the option and {pct(old_derived['non_hallucination'], digits)} from run {old['run']} (exact McNemar test of "
+               f"the wrong answers, {esc(bp.p_text(paired['p']))}, not adjusted). The row in the table under Info is left as "
+               f"published, against run {old['run']}.</p>")
+    rows = [
+        (f"With “{data['option']}”, run {model['run']}", model["non_hallucination"], "lead"),
+        (f"Confidence, new run {rerun['run']}", new_derived["non_hallucination"], "base"),
+        (f"Confidence, run {old['run']} (as published)", old_derived["non_hallucination"], "base"),
+    ]
+    chart = hbars([{"label": label, "text": pct(value, digits), "bars": [{"value": value, "kind": kind}],
+                    "title": f"{site.row_name(old)}: {label}, {pct(value, digits)}"} for label, value, kind in rows if value is not None])
+    return (f'<section class="card" id="hosted-glide-rerun"><h2>Hosted GLiDE against a new five-option run</h2>{summary}'
+            f'<figure class="panel chart-card" id="chart-glide-rerun"><div class="chart-head"><h2>{name}: saying “I don\'t know”, or held back by confidence</h2>'
+            f'<p class="chart-sub">Non-hallucination rate with “{option}”, and with each five-option run held back by its own '
+            f"confidence at about the same attempt rate · higher is better</p></div>{chart}"
+            f'<p class="chart-legend"><span><i class="swatch swatch-lead"></i>With “{option}”</span> '
+            '<span><i class="swatch swatch-base"></i>Held back by its own confidence (the derived rate)</span> '
+            '<span>Table and method: <a href="#hosted-glide-rerun-results">under Info</a>.</span></p></figure></section>')
+
+
+def rerun_info(site: Site, data: dict[str, Any], rerun: dict[str, Any], model: dict[str, Any]) -> str:
+    """Under Info: the hosted GLiDE rerun's table (run 129 as published, then the new run) and its method notes."""
+    digits = site.config["percent_digits"]
+    total = data["questions"]
+    option = esc(data["option"])
+    old = site.by_id[rerun["replaces_run"]]
+    heads = (("Five-option run", "run, date and prompt version"), ("Text accuracy with five options", "higher is better"),
+             ("Derived non-hallucination rate", "higher is better"), ("Wrong only on one side", "exact McNemar"))
+    labels = [f"{head} ({direction})" for head, direction in heads]
+
+    def derived_text(derived: dict[str, Any]) -> str:
+        cut = ("no cut-off (no answer has a score)" if derived["cut_off"] is None else
+               f"cut-off {derived['cut_off']:.4f}: {derived['right']:,} right + {derived['wrong']:,} wrong answered, "
+               f"{derived['abstained']:,} held back")
+        return f'{pct(derived["non_hallucination"], digits)}<span class="small">{cut}, attempt rate {pct(derived["attempt_rate"], digits)}</span>'
+
+    def test_text(paired: dict[str, Any], holm: bool) -> str:
+        return (f'{paired["option_only_wrong"]:,} with “{option}”, {paired["confidence_only_wrong"]:,} by confidence'
+                f'<span class="small">{esc(bp.p_text(paired["p"]))}'
+                + (f", Holm-adjusted {esc(bp.p_text(paired['p_holm']))}" if holm and paired.get("p_holm") is not None else ", not adjusted")
+                + "</span>")
+
+    entries = [
+        (f'<a href="{rel(PATH, site.model_path(old))}">run {old["run"]}</a><span class="small">{esc(old["started"][:10])}, as published</span>',
+         f'{pct(model["original_accuracy"], digits)}<span class="small">{old["correct"]:,} of {total:,} right</span>',
+         derived_text(model["derived"]), test_text(model["vs_confidence"], True)),
+        (f'run {rerun["run"]}<span class="small">{esc(rerun["date"])}, prompt version {esc(rerun["prompt_version"])}</span>',
+         f'{pct(rerun["accuracy"], digits)}<span class="small">{rerun["right"]:,} of {total:,} right'
+         + (f", {rerun['invalid']:,} invalid" if rerun["invalid"] else "") + "</span>",
+         derived_text(rerun["derived"]), test_text(rerun["vs_confidence"], False)),
+    ]
+    rows = "".join("<tr>" + "".join(cell(head, value) for head, value in zip(labels, values)) + "</tr>" for values in entries)
+    head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(direction)}</span></th>' for name, direction in heads)
+    return f"""
+    <section class="card" id="hosted-glide-rerun-results">
+      <h2>Hosted GLiDE: the comparison redone with run {rerun["run"]}</h2>
+      <p class="note">Both against {esc(site.row_name(old))}'s first run with “{option}”, run {model["run"]}. Run {old["run"]} is the Text tab's run and the row in the table above; run {rerun["run"]} is new and replaces it here only.</p>
+      <div class="table-wrap"><table class="board list stack idk"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>
+    </section>
+    <section class="card method-notes" id="hosted-glide-rerun-method">
+      <h2>Our method for the hosted GLiDE rerun</h2>
+      <p>Fastino changed the hosted model behind <code>{esc(old["model"])}</code> after 6 October. Run {old["run"]} was made on {esc(bp.long_date(old["started"]))}, so it is a different model from the one that answered with “{option}” (run {model["run"]}), and the derived rate in the table above compares two models. Run {rerun["run"]} is a new five-option run of the same hosted model, started {esc(bp.long_date(rerun["date"]))}, made as on the Text tab: the same {total:,} questions, one question per request, the main prompt version {esc(rerun["prompt_version"])}. Its derived non-hallucination rate and paired test are computed as above, from run {rerun["run"]} instead of run {old["run"]}; the p value is not adjusted, as it is one test.</p>
+      <p>The row in the table above is left as published, against run {old["run"]}, and run {rerun["run"]} is kept out of the Text tab: its leaderboard, repeats and every other list.</p>
+    </section>"""
+
+
+
 def build(site: Site) -> dict[str, str]:
     data = site.results["dont_know"]
     total = f"{data['questions']:,}"
@@ -330,15 +595,19 @@ def build(site: Site) -> dict[str, str]:
     if data["questions"] != site.total:
         raise SystemExit(f"results.json dont_know: {data['questions']} questions, the Text tab {site.total}")
     several = [model["name"] for model in data["models"] if len(model["runs"]) > 1]
+    word, rerun = site.results.get("dont_know_option_word"), site.results.get("hosted_glide_rerun")
+    if word:
+        check_option_word(site, data, word)
+    glide = check_rerun(site, data, rerun) if rerun else None
     body = f"""    {site.tabs(PATH)}
     <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a><a href="#info">Info</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}<a href="#info">Info</a></nav>
     </section>
-    {face(site, data)}
+    {face(site, data)}{option_word_face(site, data, word) if word else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, what we found and our method</span></summary>
     <section class="card">
@@ -380,7 +649,7 @@ def build(site: Site) -> dict[str, str]:
       <p>For comparison, each model's run with five options (its run on the Text tab, on the same questions) is made to abstain by its own confidence: it answers only where its score reaches a cut-off and abstains on the rest. The cut-off is the one whose attempt rate comes nearest the attempt rate of the run with “{option}”; on a tie, the higher cut-off. An answer without a score never counts as an attempt. The derived non-hallucination rate is then the abstentions over the abstentions plus the wrong answers. The table shows the cut-off and the attempt rate it reached.</p>
       <h3>Repeats</h3>
       <p>One full run per model. A model whose repeated text runs changed answers gets five runs with the option. Those runs form a repeat set of their own and are never mixed with the Text tab's runs. The table shows the first run; the range covers all of them, and the changed answers are the scored questions whose answer differs between the runs.</p>
-    </section>
+    </section>{option_word_info(site, data, word) if word else ""}{rerun_info(site, data, rerun, glide) if rerun else ""}
     </details>"""
     return {PATH: site.page(PATH, "Hallucination",
                             f"The Text tab's {total} questions with a sixth option, “{data['option']}” (I don't know): accuracy, "

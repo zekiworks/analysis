@@ -1,6 +1,6 @@
 {
   "schema_version": 5,
-  "results_version": "7dc0f9c7",
+  "results_version": "3ad29607",
   "updated": "2026-11-01T19:34:16Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -269494,6 +269494,448 @@
       }
     ]
   },
+  "dont_know_option_word": {
+    "option": "I don't know",
+    "sentence": "If you do not know the answer, choose I don't know.",
+    "instructions": "Which option is the correct answer to this Turkish multiple-choice question? If you do not know the answer, choose I don't know.",
+    "prompt_version": "fb17d583a3af",
+    "questions": 2198,
+    "models": [
+      {
+        "name": "Drex Max v1",
+        "model": "drex-max-v1",
+        "provider": "drex-max",
+        "bilmiyorum": {
+          "run": 367,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1485,
+          "wrong": 711,
+          "dont_know": 2,
+          "invalid": 0,
+          "accuracy": 0.675614194722475,
+          "attempt_rate": 0.9990900818926297,
+          "non_hallucination": 0.002805049088359046,
+          "mean_dont_know_probability": 0.015052588128069306
+        },
+        "i_dont_know": {
+          "run": 542,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1484,
+          "wrong": 712,
+          "dont_know": 2,
+          "invalid": 0,
+          "accuracy": 0.6751592356687898,
+          "attempt_rate": 0.9990900818926297,
+          "non_hallucination": 0.0028011204481792717,
+          "mean_dont_know_probability": 0.022460676766798113
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 28,
+          "i_dont_know_only_wrong": 29,
+          "p": 1.0,
+          "p_holm": 1.0
+        }
+      },
+      {
+        "name": "vLLM-SR d3-ultra",
+        "model": "vllm-sr/d3-ultra",
+        "provider": "d3-server",
+        "bilmiyorum": {
+          "run": 363,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1484,
+          "wrong": 704,
+          "dont_know": 10,
+          "invalid": 0,
+          "accuracy": 0.6751592356687898,
+          "attempt_rate": 0.9954504094631483,
+          "non_hallucination": 0.014005602240896359,
+          "mean_dont_know_probability": 0.02463415869057922
+        },
+        "i_dont_know": {
+          "run": 540,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1485,
+          "wrong": 704,
+          "dont_know": 9,
+          "invalid": 0,
+          "accuracy": 0.675614194722475,
+          "attempt_rate": 0.9959053685168335,
+          "non_hallucination": 0.012622720897615708,
+          "mean_dont_know_probability": 0.029017655024615365
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 39,
+          "i_dont_know_only_wrong": 39,
+          "p": 1.0,
+          "p_holm": 1.0
+        }
+      },
+      {
+        "name": "vLLM-SR d3",
+        "model": "vllm-sr/d3",
+        "provider": "vllm-sr",
+        "bilmiyorum": {
+          "run": 358,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1483,
+          "wrong": 715,
+          "dont_know": 0,
+          "invalid": 0,
+          "accuracy": 0.6747042766151047,
+          "attempt_rate": 1.0,
+          "non_hallucination": 0.0,
+          "mean_dont_know_probability": 0.029138429914467894
+        },
+        "i_dont_know": {
+          "run": 544,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1482,
+          "wrong": 714,
+          "dont_know": 2,
+          "invalid": 0,
+          "accuracy": 0.6742493175614195,
+          "attempt_rate": 0.9990900818926297,
+          "non_hallucination": 0.002793296089385475,
+          "mean_dont_know_probability": 0.033758577840294166
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 22,
+          "i_dont_know_only_wrong": 21,
+          "p": 1.0,
+          "p_holm": 1.0
+        }
+      },
+      {
+        "name": "Perplexity Decider 27B v1.2",
+        "model": "pplx-decider-v1.2",
+        "provider": "pplx-decider",
+        "bilmiyorum": {
+          "run": 372,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1479,
+          "wrong": 717,
+          "dont_know": 2,
+          "invalid": 0,
+          "accuracy": 0.672884440400364,
+          "attempt_rate": 0.9990900818926297,
+          "non_hallucination": 0.0027816411682892906,
+          "mean_dont_know_probability": 0.023578840422335552
+        },
+        "i_dont_know": {
+          "run": 531,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1466,
+          "wrong": 728,
+          "dont_know": 4,
+          "invalid": 0,
+          "accuracy": 0.6669699727024567,
+          "attempt_rate": 0.9981801637852593,
+          "non_hallucination": 0.00546448087431694,
+          "mean_dont_know_probability": 0.03379872297063549
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 29,
+          "i_dont_know_only_wrong": 40,
+          "p": 0.22840022535329696,
+          "p_holm": 1.0
+        }
+      },
+      {
+        "name": "Fastino GLiDE v1.2",
+        "model": "glide-v1.2",
+        "provider": "glide",
+        "bilmiyorum": {
+          "run": 369,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1386,
+          "wrong": 491,
+          "dont_know": 321,
+          "invalid": 0,
+          "accuracy": 0.6305732484076433,
+          "attempt_rate": 0.8539581437670609,
+          "non_hallucination": 0.39532019704433496,
+          "mean_dont_know_probability": 0.18583695105631345
+        },
+        "i_dont_know": {
+          "run": 525,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1345,
+          "wrong": 427,
+          "dont_know": 426,
+          "invalid": 0,
+          "accuracy": 0.6119199272065514,
+          "attempt_rate": 0.8061874431301183,
+          "non_hallucination": 0.49941383352872215,
+          "mean_dont_know_probability": 0.2091311634897189
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 83,
+          "i_dont_know_only_wrong": 19,
+          "p": 1.0158259578897715e-10,
+          "p_holm": 9.142433621007943e-10
+        }
+      },
+      {
+        "name": "Liquid d1-ultra",
+        "model": "d1-ultra",
+        "provider": "liquid",
+        "bilmiyorum": {
+          "run": 350,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1376,
+          "wrong": 205,
+          "dont_know": 617,
+          "invalid": 0,
+          "accuracy": 0.6260236578707916,
+          "attempt_rate": 0.7192902638762512,
+          "non_hallucination": 0.7506082725060828,
+          "mean_dont_know_probability": 0.30688419671830985
+        },
+        "i_dont_know": {
+          "run": 511,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1366,
+          "wrong": 216,
+          "dont_know": 616,
+          "invalid": 0,
+          "accuracy": 0.62147406733394,
+          "attempt_rate": 0.7197452229299363,
+          "non_hallucination": 0.7403846153846154,
+          "mean_dont_know_probability": 0.31407871994345526
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 55,
+          "i_dont_know_only_wrong": 66,
+          "p": 0.3633632605480977,
+          "p_holm": 1.0
+        }
+      },
+      {
+        "name": "Drex Max 1.1",
+        "model": "drex-max-v1.1",
+        "provider": "nace",
+        "bilmiyorum": {
+          "run": 352,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1361,
+          "wrong": 517,
+          "dont_know": 320,
+          "invalid": 0,
+          "accuracy": 0.6191992720655141,
+          "attempt_rate": 0.8544131028207461,
+          "non_hallucination": 0.3823178016726404,
+          "mean_dont_know_probability": 0.16972642800384946
+        },
+        "i_dont_know": {
+          "run": 513,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1299,
+          "wrong": 413,
+          "dont_know": 486,
+          "invalid": 0,
+          "accuracy": 0.5909918107370337,
+          "attempt_rate": 0.7788898999090081,
+          "non_hallucination": 0.5406006674082313,
+          "mean_dont_know_probability": 0.20933764122653578
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 144,
+          "i_dont_know_only_wrong": 40,
+          "p": 5.518207697056318e-15,
+          "p_holm": 5.518207697056318e-14
+        }
+      },
+      {
+        "name": "Fastino GLiDE",
+        "model": "fastino/GLiDE",
+        "provider": "fastino",
+        "bilmiyorum": {
+          "run": 351,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1321,
+          "wrong": 356,
+          "dont_know": 521,
+          "invalid": 0,
+          "accuracy": 0.6010009099181074,
+          "attempt_rate": 0.7629663330300273,
+          "non_hallucination": 0.5940706955530216,
+          "mean_dont_know_probability": 0.2201435400931123
+        },
+        "i_dont_know": {
+          "run": 510,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1282,
+          "wrong": 335,
+          "dont_know": 581,
+          "invalid": 0,
+          "accuracy": 0.5832575068243858,
+          "attempt_rate": 0.7356687898089171,
+          "non_hallucination": 0.6342794759825328,
+          "mean_dont_know_probability": 0.22846753147822998
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 73,
+          "i_dont_know_only_wrong": 52,
+          "p": 0.07321432008545255,
+          "p_holm": 0.4392859205127153
+        }
+      },
+      {
+        "name": "SubQ Snap 1.1",
+        "model": "subq-snap-1.1",
+        "provider": "subq",
+        "bilmiyorum": {
+          "run": 392,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1271,
+          "wrong": 490,
+          "dont_know": 437,
+          "invalid": 0,
+          "accuracy": 0.578252957233849,
+          "attempt_rate": 0.8011828935395814,
+          "non_hallucination": 0.4714131607335491,
+          "mean_dont_know_probability": 0.20102079041315762
+        },
+        "i_dont_know": {
+          "run": 512,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1246,
+          "wrong": 454,
+          "dont_know": 498,
+          "invalid": 0,
+          "accuracy": 0.5668789808917197,
+          "attempt_rate": 0.7734303912647862,
+          "non_hallucination": 0.523109243697479,
+          "mean_dont_know_probability": 0.21841116926581552
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 144,
+          "i_dont_know_only_wrong": 108,
+          "p": 0.02727041690722833,
+          "p_holm": 0.1908929183505983
+        }
+      },
+      {
+        "name": "Mammoth-1",
+        "model": "baselabs/mammoth-1",
+        "provider": "baselabs",
+        "bilmiyorum": {
+          "run": 386,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1194,
+          "wrong": 314,
+          "dont_know": 690,
+          "invalid": 0,
+          "accuracy": 0.543221110100091,
+          "attempt_rate": 0.6860782529572339,
+          "non_hallucination": 0.6872509960159362,
+          "mean_dont_know_probability": 0.2445804940855323
+        },
+        "i_dont_know": {
+          "run": 519,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 1169,
+          "wrong": 276,
+          "dont_know": 753,
+          "invalid": 0,
+          "accuracy": 0.5318471337579618,
+          "attempt_rate": 0.6574158325750682,
+          "non_hallucination": 0.7317784256559767,
+          "mean_dont_know_probability": 0.2590707324840764
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 47,
+          "i_dont_know_only_wrong": 9,
+          "p": 2.571572048082338e-07,
+          "p_holm": 2.0572576384658703e-06
+        }
+      },
+      {
+        "name": "Elephant-1",
+        "model": "baselabs/elephant-1",
+        "provider": "baselabs",
+        "bilmiyorum": {
+          "run": 382,
+          "date": "2026-11-01",
+          "prompt_version": "1cdd542b597f",
+          "right": 1035,
+          "wrong": 758,
+          "dont_know": 405,
+          "invalid": 0,
+          "accuracy": 0.4708826205641492,
+          "attempt_rate": 0.8157415832575068,
+          "non_hallucination": 0.3482373172828891,
+          "mean_dont_know_probability": 0.16036186169244768
+        },
+        "i_dont_know": {
+          "run": 515,
+          "date": "2026-11-02",
+          "prompt_version": "fb17d583a3af",
+          "right": 972,
+          "wrong": 622,
+          "dont_know": 604,
+          "invalid": 0,
+          "accuracy": 0.4422202001819836,
+          "attempt_rate": 0.7252047315741583,
+          "non_hallucination": 0.4926590538336052,
+          "mean_dont_know_probability": 0.2117174194722475
+        },
+        "paired": {
+          "bilmiyorum_only_wrong": 154,
+          "i_dont_know_only_wrong": 18,
+          "p": 4.074445781426416e-28,
+          "p_holm": 4.481890359569058e-27
+        }
+      }
+    ],
+    "not_run": []
+  },
+  "hosted_glide_rerun": {
+    "run": 517,
+    "rerun": "2026-11-02",
+    "date": "2026-11-02",
+    "prompt_version": "254597b8be16",
+    "replaces_run": 129,
+    "accuracy": 0.681073703366697,
+    "right": 1497,
+    "wrong": 701,
+    "invalid": 0,
+    "dont_know_run": 351,
+    "derived": {
+      "cut_off": 0.4955913130694101,
+      "attempt_rate": 0.7629663330300273,
+      "non_hallucination": 0.5974770642201835,
+      "right": 1326,
+      "wrong": 351,
+      "abstained": 521
+    },
+    "vs_confidence": {
+      "option_only_wrong": 90,
+      "confidence_only_wrong": 85,
+      "p": 0.7624694402612475
+    }
+  },
   "english_reading": {
     "instructions": "Which option is the correct answer to this English multiple-choice question?",
     "options_heading": "Options:",
@@ -269554,7 +269996,148 @@
           "english_only_right": 8,
           "turkish_only_right": 24,
           "p": 0.0070003666914999485,
-          "p_holm": 0.05600293353199959
+          "p_holm": 0.07700403360649943
+        }
+      },
+      {
+        "name": "Fastino GLiDE v1.2",
+        "model": "glide-v1.2",
+        "provider": "glide",
+        "run": 521,
+        "runs": [
+          521
+        ],
+        "turkish_run": 248,
+        "turkish_runs": [
+          248,
+          250,
+          251,
+          252,
+          253
+        ],
+        "english": {
+          "right": 494,
+          "wrong": 53,
+          "invalid": 0,
+          "accuracy": 0.903107861060329
+        },
+        "turkish": {
+          "right": 495,
+          "wrong": 52,
+          "invalid": 0,
+          "accuracy": 0.9049360146252285
+        },
+        "difference": -0.001828153564899515,
+        "spread": {
+          "english": null,
+          "turkish": {
+            "low": 0.9049360146252285,
+            "high": 0.9049360146252285
+          }
+        },
+        "answers_changed": {
+          "english": null,
+          "turkish": 0
+        },
+        "paired": {
+          "english_only_right": 21,
+          "turkish_only_right": 22,
+          "p": 1.0,
+          "p_holm": 1.0
+        }
+      },
+      {
+        "name": "Mammoth-1",
+        "model": "baselabs/mammoth-1",
+        "provider": "baselabs",
+        "run": 503,
+        "runs": [
+          503
+        ],
+        "turkish_run": 374,
+        "turkish_runs": [
+          374,
+          377,
+          380,
+          383,
+          384
+        ],
+        "english": {
+          "right": 493,
+          "wrong": 54,
+          "invalid": 0,
+          "accuracy": 0.9012797074954296
+        },
+        "turkish": {
+          "right": 508,
+          "wrong": 39,
+          "invalid": 0,
+          "accuracy": 0.9287020109689214
+        },
+        "difference": -0.027422303473491727,
+        "spread": {
+          "english": null,
+          "turkish": {
+            "low": 0.9287020109689214,
+            "high": 0.9287020109689214
+          }
+        },
+        "answers_changed": {
+          "english": null,
+          "turkish": 0
+        },
+        "paired": {
+          "english_only_right": 15,
+          "turkish_only_right": 30,
+          "p": 0.035697803555194696,
+          "p_holm": 0.327657590988232
+        }
+      },
+      {
+        "name": "Perplexity Decider 27B v1.2",
+        "model": "pplx-decider-v1.2",
+        "provider": "pplx-decider",
+        "run": 527,
+        "runs": [
+          527
+        ],
+        "turkish_run": 217,
+        "turkish_runs": [
+          217,
+          218,
+          219,
+          220,
+          221
+        ],
+        "english": {
+          "right": 485,
+          "wrong": 62,
+          "invalid": 0,
+          "accuracy": 0.886654478976234
+        },
+        "turkish": {
+          "right": 500,
+          "wrong": 47,
+          "invalid": 0,
+          "accuracy": 0.9140767824497258
+        },
+        "difference": -0.027422303473491838,
+        "spread": {
+          "english": null,
+          "turkish": {
+            "low": 0.9140767824497258,
+            "high": 0.9140767824497258
+          }
+        },
+        "answers_changed": {
+          "english": null,
+          "turkish": 0
+        },
+        "paired": {
+          "english_only_right": 15,
+          "turkish_only_right": 30,
+          "p": 0.035697803555194696,
+          "p_holm": 0.327657590988232
         }
       },
       {
@@ -269756,7 +270339,7 @@
           "english_only_right": 23,
           "turkish_only_right": 41,
           "p": 0.0327657590988232,
-          "p_holm": 0.22936031369176238
+          "p_holm": 0.327657590988232
         }
       },
       {
@@ -269864,7 +270447,7 @@
           "english_only_right": 74,
           "turkish_only_right": 23,
           "p": 2.027109075312698e-07,
-          "p_holm": 1.8243981677814282e-06
+          "p_holm": 2.6352417979065075e-06
         }
       },
       {
@@ -269945,7 +270528,54 @@
           "english_only_right": 28,
           "turkish_only_right": 42,
           "p": 0.11960933562988493,
-          "p_holm": 0.7176560137793095
+          "p_holm": 0.8372653494091945
+        }
+      },
+      {
+        "name": "Perplexity Decider Flash v1.2",
+        "model": "pplx-decider-flash-v1.2",
+        "provider": "pplx-decider",
+        "run": 533,
+        "runs": [
+          533
+        ],
+        "turkish_run": 223,
+        "turkish_runs": [
+          223,
+          224,
+          225,
+          226,
+          227
+        ],
+        "english": {
+          "right": 448,
+          "wrong": 99,
+          "invalid": 0,
+          "accuracy": 0.8190127970749543
+        },
+        "turkish": {
+          "right": 419,
+          "wrong": 128,
+          "invalid": 0,
+          "accuracy": 0.7659963436928702
+        },
+        "difference": 0.05301645338208416,
+        "spread": {
+          "english": null,
+          "turkish": {
+            "low": 0.7659963436928702,
+            "high": 0.7659963436928702
+          }
+        },
+        "answers_changed": {
+          "english": null,
+          "turkish": 0
+        },
+        "paired": {
+          "english_only_right": 63,
+          "turkish_only_right": 34,
+          "p": 0.00422580392168276,
+          "p_holm": 0.05070964706019312
         }
       }
     ],
@@ -270040,7 +270670,7 @@
             "english_only_wrong": 20,
             "turkish_only_wrong": 7,
             "p": 0.0191572904586792,
-            "p_holm": 0.1532583236694336
+            "p_holm": 0.2107301950454712
           }
         },
         {
@@ -270082,7 +270712,91 @@
             "english_only_wrong": 20,
             "turkish_only_wrong": 30,
             "p": 0.20263875106454066,
-            "p_holm": 0.8764289722151765
+            "p_holm": 1.0
+          }
+        },
+        {
+          "name": "Mammoth-1",
+          "model": "baselabs/mammoth-1",
+          "provider": "baselabs",
+          "text_run": 374,
+          "english": {
+            "run": 505,
+            "runs": [
+              505
+            ],
+            "right": 474,
+            "wrong": 36,
+            "dont_know": 37,
+            "invalid": 0,
+            "accuracy": 0.8665447897623401,
+            "attempt_rate": 0.9323583180987203,
+            "non_hallucination": 0.5068493150684932,
+            "mean_dont_know_probability": 0.09803614442413162
+          },
+          "turkish": {
+            "run": 386,
+            "runs": [
+              386
+            ],
+            "subset": false,
+            "right": 490,
+            "wrong": 33,
+            "dont_know": 24,
+            "invalid": 0,
+            "accuracy": 0.8957952468007313,
+            "attempt_rate": 0.9561243144424132,
+            "non_hallucination": 0.42105263157894735,
+            "mean_dont_know_probability": 0.07447928702010968
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 18,
+            "turkish_only_wrong": 15,
+            "p": 0.7283324808813632,
+            "p_holm": 1.0
+          }
+        },
+        {
+          "name": "Fastino GLiDE v1.2",
+          "model": "glide-v1.2",
+          "provider": "glide",
+          "text_run": 248,
+          "english": {
+            "run": 523,
+            "runs": [
+              523
+            ],
+            "right": 481,
+            "wrong": 36,
+            "dont_know": 30,
+            "invalid": 0,
+            "accuracy": 0.8793418647166362,
+            "attempt_rate": 0.9451553930530164,
+            "non_hallucination": 0.45454545454545453,
+            "mean_dont_know_probability": 0.12485239376322405
+          },
+          "turkish": {
+            "run": 369,
+            "runs": [
+              369
+            ],
+            "subset": false,
+            "right": 494,
+            "wrong": 47,
+            "dont_know": 6,
+            "invalid": 0,
+            "accuracy": 0.903107861060329,
+            "attempt_rate": 0.9890310786106032,
+            "non_hallucination": 0.11320754716981132,
+            "mean_dont_know_probability": 0.08693889552230191
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 16,
+            "turkish_only_wrong": 27,
+            "p": 0.12628947438543037,
+            "p_holm": 0.8840263206980126
           }
         },
         {
@@ -270124,7 +270838,7 @@
             "english_only_wrong": 31,
             "turkish_only_wrong": 46,
             "p": 0.11001559898513336,
-            "p_holm": 0.6600935939108001
+            "p_holm": 0.8801247918810668
           }
         },
         {
@@ -270166,7 +270880,7 @@
             "english_only_wrong": 39,
             "turkish_only_wrong": 27,
             "p": 0.1752857944430353,
-            "p_holm": 0.8764289722151765
+            "p_holm": 1.0
           }
         },
         {
@@ -270295,7 +271009,49 @@
             "english_only_wrong": 47,
             "turkish_only_wrong": 29,
             "p": 0.05045241024721763,
-            "p_holm": 0.3531668717305234
+            "p_holm": 0.48766765904474596
+          }
+        },
+        {
+          "name": "Perplexity Decider Flash v1.2",
+          "model": "pplx-decider-flash-v1.2",
+          "provider": "pplx-decider",
+          "text_run": 223,
+          "english": {
+            "run": 535,
+            "runs": [
+              535
+            ],
+            "right": 442,
+            "wrong": 100,
+            "dont_know": 5,
+            "invalid": 0,
+            "accuracy": 0.8080438756855576,
+            "attempt_rate": 0.9908592321755028,
+            "non_hallucination": 0.047619047619047616,
+            "mean_dont_know_probability": 0.05526566245284184
+          },
+          "turkish": {
+            "run": 537,
+            "runs": [
+              537
+            ],
+            "subset": true,
+            "right": 408,
+            "wrong": 133,
+            "dont_know": 6,
+            "invalid": 0,
+            "accuracy": 0.7458866544789763,
+            "attempt_rate": 0.9890310786106032,
+            "non_hallucination": 0.04316546762589928,
+            "mean_dont_know_probability": 0.06262391641941556
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 36,
+            "turkish_only_wrong": 69,
+            "p": 0.00165902688989955,
+            "p_holm": 0.02156734956869415
           }
         },
         {
@@ -270469,7 +271225,49 @@
             "english_only_wrong": 24,
             "turkish_only_wrong": 35,
             "p": 0.19252645776146274,
-            "p_holm": 0.8764289722151765
+            "p_holm": 1.0
+          }
+        },
+        {
+          "name": "Perplexity Decider 27B v1.2",
+          "model": "pplx-decider-v1.2",
+          "provider": "pplx-decider",
+          "text_run": 217,
+          "english": {
+            "run": 529,
+            "runs": [
+              529
+            ],
+            "right": 481,
+            "wrong": 64,
+            "dont_know": 2,
+            "invalid": 0,
+            "accuracy": 0.8793418647166362,
+            "attempt_rate": 0.9963436928702011,
+            "non_hallucination": 0.030303030303030304,
+            "mean_dont_know_probability": 0.027666686351686155
+          },
+          "turkish": {
+            "run": 372,
+            "runs": [
+              372
+            ],
+            "subset": false,
+            "right": 497,
+            "wrong": 50,
+            "dont_know": 0,
+            "invalid": 0,
+            "accuracy": 0.9085923217550275,
+            "attempt_rate": 1.0,
+            "non_hallucination": 0.0,
+            "mean_dont_know_probability": 0.009278084188072258
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 29,
+            "turkish_only_wrong": 15,
+            "p": 0.048766765904474596,
+            "p_holm": 0.48766765904474596
           }
         },
         {
@@ -270556,7 +271354,7 @@
             "english_only_wrong": 21,
             "turkish_only_wrong": 43,
             "p": 0.008146902228698568,
-            "p_holm": 0.07332212005828712
+            "p_holm": 0.09776282674438282
           }
         }
       ]

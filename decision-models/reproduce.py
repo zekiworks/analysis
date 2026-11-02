@@ -37,7 +37,11 @@ Holm's correction. Then the English reading track with the "I don't know" option
 prompts and their version, every run's prompt version and kept questions, each model's English runs with the option
 and its Turkish runs with the option (on the kept questions, or its full-bank runs counted on them), both sides' counts,
 rates and mean probability of the option, their ranges, and the paired test of wrong answers with Holm's correction.
-Uses only
+Then the option-word check (`dont_know_option_word`): its prompts and their version, every run's setup and prompt
+version, each model's counts, rates and mean probability of the option with "Bilmiyorum" and with "I don't know",
+and the paired test of wrong answers with Holm's correction. Then the hosted GLiDE rerun (`hosted_glide_rerun`): its
+setup and prompt version, its counts, and the derived abstention and comparison with confidence redone with it as
+the original run. Uses only
 the standard library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with
 status 1 when anything differs beyond the tolerances printed.
 """
@@ -427,6 +431,28 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    option_word_mismatches = check_option_word(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    models = len((results.get("dont_know_option_word") or {}).get("models", []))
+    print(
+        f"\nOption word, \"I don't know\" instead of \"Bilmiyorum\" ({models} model{'' if models == 1 else 's'}, from both runs' "
+        f"exported answers: counts exact, rates and mean probabilities within {METRIC_TOLERANCE:g}, p-values within a "
+        f"relative {P_TOLERANCE:g}): {checked - len(option_word_mismatches)} of {checked} match"
+    )
+    for line in option_word_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    rerun_mismatches = check_rerun(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nHosted GLiDE rerun (from its and the \"I don't know\" run's exported answers: counts exact, rates and the cut-off "
+        f"within {METRIC_TOLERANCE:g}, p-values within a relative {P_TOLERANCE:g}): {checked - len(rerun_mismatches)} of {checked} match"
+    )
+    for line in rerun_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     english_mismatches = check_english_reading(args.docs, results, answers, scored, checks)
     checked = checks.passed + checks.failed - before
     models = len((results.get("english_reading") or {}).get("models", []))
@@ -640,7 +666,8 @@ def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[
     mismatches = []
     for run in (answers.get("repeat_runs", []) + answers.get("pipeline_runs", []) + answers.get("batching_runs", [])
                 + answers.get("dont_know_runs", []) + answers.get("english_runs", []) + answers.get("english_dont_know_runs", [])
-                + answers.get("english_dont_know_turkish_runs", [])):
+                + answers.get("english_dont_know_turkish_runs", []) + answers.get("dont_know_word_runs", [])
+                + answers.get("rerun_runs", [])):
         given = [index for index in scored if run["correct"][index] is not None and keys[index] is not None]
         differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
         if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
@@ -691,7 +718,8 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
     runs = {run["run"]: run for run in answers.get("dont_know_runs", [])}
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "english_runs",
-                                     "english_dont_know_runs", "english_dont_know_turkish_runs") for run in answers.get(key, [])}
+                                     "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs",
+                                     "rerun_runs") for run in answers.get(key, [])}
     if sorted(listed) != sorted(runs) or set(listed) & others or (section is not None and section["questions"] != len(scored)):
         checks.failed += 1
         return [f"  runs: results.json lists {sorted(listed)}, answers.json's dont_know_runs {sorted(runs)}, also elsewhere "
@@ -791,6 +819,212 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
     return mismatches
 
 
+def hashed(value: dict[str, Any]) -> str:
+    """A prompt set's version, as the runner computes it: SHA-256 of its JSON with sorted keys, first 12 hex digits."""
+    return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
+
+
+def counted_dont_know(run: dict[str, Any], scored: list[int]) -> dict[str, Any]:
+    """A run with the "I don't know" option on the scored questions: right, wrong, option (DONT_KNOW_LETTER) and invalid
+    answers, the rates, the mean probability of the option, the answers whose probabilities do not end with the option
+    (`unlabelled`) and each question's wrong answer (`wrong_answers`)."""
+    total = len(scored)
+    counts = {"right": 0, "wrong": 0, "dont_know": 0, "invalid": 0}
+    shown, unlabelled = [], 0
+    for index in scored:
+        choice, probabilities = run["choice"][index], run["probabilities"][index]
+        if probabilities:
+            if max(probabilities) != DONT_KNOW_LETTER:
+                unlabelled += 1
+            else:
+                shown.append(probabilities[DONT_KNOW_LETTER])
+        if choice is None:
+            counts["invalid"] += 1
+        elif choice == DONT_KNOW_LETTER:
+            counts["dont_know"] += 1
+        elif run["correct"][index]:
+            counts["right"] += 1
+        else:
+            counts["wrong"] += 1
+    return {
+        **counts,
+        "accuracy": counts["right"] / total,
+        "attempt_rate": (counts["right"] + counts["wrong"]) / total,
+        "non_hallucination": counts["dont_know"] / (counts["dont_know"] + counts["wrong"]) if counts["dont_know"] + counts["wrong"] else None,
+        "mean_dont_know_probability": sum(shown) / len(shown) if shown else None,
+        "unlabelled": unlabelled,
+        "wrong_answers": [int(run["choice"][index] not in (None, DONT_KNOW_LETTER) and not run["correct"][index]) for index in scored],
+    }
+
+
+def listed_elsewhere(answers: dict[str, Any], own: str) -> set[int]:
+    """The runs of every answers.json list but `own`."""
+    keys = ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs", "english_dont_know_runs",
+            "english_dont_know_turkish_runs", "dont_know_word_runs", "rerun_runs")
+    return {run["run"] for key in keys if key != own for run in answers.get(key, [])}
+
+
+def check_option_word(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute results.json's `dont_know_option_word` from answers.json's `dont_know_word_runs` and `dont_know_runs`
+    on the scored questions: the option ("I don't know"), its sentence, the instructions (the System One instructions
+    plus the sentence) and the prompt version (dont_know_word_prompts hashed, the main prompts otherwise); the models,
+    the Hallucination tab's in its order with those in not_run left out; per model its Hallucination tab first run with
+    "Bilmiyorum" and one run of the same setup with "I don't know" over every scored question, with their prompt versions,
+    counts, rates and mean probability of the option, and the paired test of wrong answers (exact McNemar, first
+    "Bilmiyorum") with Holm's correction over the models compared. Every option-word run must be listed once and in no
+    other list. Returns a line per mismatch."""
+    section = results.get("dont_know_option_word")
+    runs = {run["run"]: run for run in answers.get("dont_know_word_runs", [])}
+    listed = [model["i_dont_know"]["run"] for model in (section or {}).get("models", [])]
+    elsewhere = set(listed) & listed_elsewhere(answers, "dont_know_word_runs")
+    if sorted(listed) != sorted(runs) or len(set(listed)) != len(listed) or elsewhere:
+        checks.failed += 1
+        return [f"  runs: results.json lists {sorted(listed)}, answers.json's dont_know_word_runs {sorted(runs)}, also elsewhere "
+                f"{sorted(elsewhere)}"]
+    if section is None:
+        return []
+    checks.passed += 1
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, metric: bool = False, p: bool = False) -> None:
+        if p:
+            matched = close(published, recomputed, relative=P_TOLERANCE)
+        else:
+            matched = close(published, recomputed, METRIC_TOLERANCE) if metric else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    prompts = answers.get("dont_know_word_prompts") or {}
+    option = prompts.get("dont_know_option")
+    sentence = f"If you do not know the answer, choose {option}."
+    version = hashed(prompts)
+    check("option", section["option"], option)
+    check("option is I don't know", "I don't know", option)
+    check("sentence", section["sentence"], sentence)
+    check("instructions", section["instructions"], f"{answers['prompts']['system_one_instructions']} {sentence}")
+    check("instructions in dont_know_word_prompts", section["instructions"], prompts.get("system_one_instructions"))
+    check("the other prompts", {key: value for key, value in answers["prompts"].items() if key != "system_one_instructions"},
+          {key: value for key, value in prompts.items() if key not in ("system_one_instructions", "dont_know_option")})
+    check("prompt version", section["prompt_version"], version)
+    check("questions", section["questions"], len(scored))
+    rows = (results.get("dont_know") or {}).get("models", [])
+    skipped = [item["name"] for item in section["not_run"]]
+    check("not run, all Hallucination tab models", True, set(skipped) <= {row["name"] for row in rows})
+    expected = [row for row in rows if row["name"] not in skipped]
+    check("models", [(row["name"], row["model"], row["provider"]) for row in expected],
+          [(model["name"], model["model"], model["provider"]) for model in section["models"]])
+    if len(expected) != len(section["models"]):
+        return mismatches
+    turkish = {run["run"]: run for run in answers.get("dont_know_runs", [])}
+    keys = ("right", "wrong", "dont_know", "invalid")
+    rates = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
+    tests = []
+    for row, model in zip(expected, section["models"]):
+        name = model["name"]
+        check(f"{name}, Bilmiyorum run", model["bilmiyorum"]["run"], row["run"])
+        first, second = turkish.get(row["run"]), runs[model["i_dont_know"]["run"]]
+        if first is None:
+            check(f"{name}, Bilmiyorum run in dont_know_runs", True, False)
+            continue
+        setup = ("provider", "model", "thinking", "questions_per_request")
+        check(f"{name}, setup", [first[key] for key in setup], [second[key] for key in setup])
+        check(f"{name}, I don't know run kind", [True, "english", None, None, None, None, None, len(scored)],
+              [bool(second.get("dont_know")), second.get("dont_know_word"), second.get("english"), second.get("rerun"),
+               second.get("repeat"), second.get("question_list"), second.get("replace_key_text"),
+               sum(1 for index in scored if second["correct"][index] is not None)])
+        check(f"{name}, prompt versions", [model["bilmiyorum"]["prompt_version"], model["i_dont_know"]["prompt_version"]],
+              [first["prompt_version"], version])
+        check(f"{name}, Bilmiyorum prompt version is the Hallucination tab's", results["dont_know"]["prompt_version"], first["prompt_version"])
+        found = {}
+        for side, run in (("bilmiyorum", first), ("i_dont_know", second)):
+            found[side] = counted_dont_know(run, scored)
+            check(f"{name}, {side} answers without {DONT_KNOW_LETTER} last", 0, found[side]["unlabelled"])
+            check(f"{name}, {side} counts", [model[side][key] for key in keys], [found[side][key] for key in keys])
+            for key in rates:
+                check(f"{name}, {side} {key}", model[side][key], found[side][key], metric=True)
+        test = bm.paired_comparison(found["bilmiyorum"]["wrong_answers"], found["i_dont_know"]["wrong_answers"])
+        paired = model["paired"]
+        check(f"{name}, wrong only with Bilmiyorum, only with I don't know", [paired["bilmiyorum_only_wrong"], paired["i_dont_know_only_wrong"]],
+              [test["first_only"], test["second_only"]])
+        check(f"{name}, p", paired["p"], test["p"], p=True)
+        tests.append((model, test))
+    for (model, _), adjusted in zip(tests, bm.holm([test["p"] for _, test in tests])):
+        check(f"{model['name']}, Holm-adjusted p", model["paired"]["p_holm"], adjusted, p=True)
+    return mismatches
+
+
+def check_rerun(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute results.json's `hosted_glide_rerun` from answers.json's `rerun_runs` on the scored questions: the run
+    has the setup of the run it replaces (provider, model, reasoning, questions per request), which is a main run and
+    the original run of the Hallucination tab row named as its "I don't know" run, is a five-option run over every scored
+    question with the main prompts' version, and has the published counts and accuracy; then, with it as that row's
+    original run, the derived abstention at the "I don't know" run's attempt rate and the comparison with confidence
+    (wrong answers with the option against wrong answers held back at the cut-off, exact McNemar). The rerun must be
+    listed once and in no other list. Returns a line per mismatch."""
+    section = results.get("hosted_glide_rerun")
+    runs = {run["run"]: run for run in answers.get("rerun_runs", [])}
+    listed = [section["run"]] if section else []
+    elsewhere = set(listed) & listed_elsewhere(answers, "rerun_runs")
+    if sorted(listed) != sorted(runs) or elsewhere:
+        checks.failed += 1
+        return [f"  runs: results.json lists {listed}, answers.json's rerun_runs {sorted(runs)}, also elsewhere {sorted(elsewhere)}"]
+    if section is None:
+        return []
+    checks.passed += 1
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, metric: bool = False, p: bool = False) -> None:
+        if p:
+            matched = close(published, recomputed, relative=P_TOLERANCE)
+        else:
+            matched = close(published, recomputed, METRIC_TOLERANCE) if metric else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    run = runs[section["run"]]
+    total = len(scored)
+    main = {item["run"]: item for item in answers["runs"]}
+    replaced = main.get(section["replaces_run"])
+    rows = [row for row in (results.get("dont_know") or {}).get("models", []) if row["original_run"] == section["replaces_run"]]
+    check("replaced run is a main run and one Hallucination tab row's original run", [True, 1], [replaced is not None, len(rows)])
+    if replaced is None or len(rows) != 1:
+        return mismatches
+    row = rows[0]
+    setup = ("provider", "model", "thinking", "questions_per_request")
+    check("setup of the replaced run", [replaced[key] for key in setup], [run[key] for key in setup])
+    check("the Hallucination tab row's model", [replaced["provider"], replaced["model"]], [row["provider"], row["model"]])
+    check("dont_know_run", section["dont_know_run"], row["run"])
+    check("run kind", [section["rerun"], None, None, None, None, None, None, None, total],
+          [run.get("rerun"), run.get("dont_know"), run.get("dont_know_word"), run.get("english"), run.get("repeat"),
+           run.get("question_list"), run.get("replace_key_text"), run.get("shuffle_options"),
+           sum(1 for index in scored if run["correct"][index] is not None)])
+    check("prompt version", [section["prompt_version"], section["prompt_version"]], [run["prompt_version"], hashed(answers["prompts"])])
+    right = sum(int(run["correct"][index]) for index in scored)
+    invalid = sum(1 for index in scored if run["choice"][index] is None)
+    check("counts", [section["right"], section["wrong"], section["invalid"]], [right, total - right - invalid, invalid])
+    check("accuracy", section["accuracy"], right / total, metric=True)
+    option_run = next((item for item in answers.get("dont_know_runs", []) if item["run"] == row["run"]), None)
+    if option_run is None:
+        check("the \"I don't know\" run in dont_know_runs", True, False)
+        return mismatches
+    option = counted_dont_know(option_run, scored)
+    derived = derived_abstention(
+        [(None if run["score"][index] is None else float(run["score"][index]), int(run["correct"][index])) for index in scored],
+        option["attempt_rate"],
+    )
+    for key, value in derived.items():
+        check(f"derived {key}", section["derived"][key], value, metric=key not in ("right", "wrong", "abstained"))
+    cut_off = derived["cut_off"]
+    confidence_wrong = [int(cut_off is not None and run["score"][index] is not None and float(run["score"][index]) >= cut_off
+                            and not run["correct"][index]) for index in scored]
+    test = bm.paired_comparison(option["wrong_answers"], confidence_wrong)
+    published = section["vs_confidence"]
+    check("wrong only with the option, only with confidence", [published["option_only_wrong"], published["confidence_only_wrong"]],
+          [test["first_only"], test["second_only"]])
+    check("p", published["p"], test["p"], p=True)
+    return mismatches
+
+
 # The Text tab model of an English run's model where the names differ, by (provider, model): Liquid's API no longer
 # serves the d1:free name of d1, so d1's English runs asked for d1 and its Text tab run for d1:free.
 ENGLISH_TEXT_MODEL = {("liquid", "d1"): "d1:free"}
@@ -813,7 +1047,8 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     runs = {run["run"]: run for run in answers.get("english_runs", [])}
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs",
-                                     "english_dont_know_runs", "english_dont_know_turkish_runs") for run in answers.get(key, [])}
+                                     "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs",
+                                     "rerun_runs") for run in answers.get(key, [])}
     if sorted(listed) != sorted(runs) or set(listed) & others:
         checks.failed += 1
         return [f"  runs: results.json lists {sorted(listed)}, answers.json's english_runs {sorted(runs)}, also elsewhere "
@@ -964,7 +1199,8 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     listed_english = [run_id for model in models for run_id in model["english"]["runs"]]
     listed_subset = [run_id for model in models if model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
     listed_full = [run_id for model in models if not model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
-    others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs")
+    others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs",
+                                     "dont_know_word_runs", "rerun_runs")
               for run in answers.get(key, [])}
     if (sorted(listed_english) != sorted(english_runs) or sorted(listed_subset) != sorted(subset_runs)
             or (set(listed_english) | set(listed_subset)) & others or not set(listed_full) <= set(full_runs)

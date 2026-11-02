@@ -637,6 +637,42 @@ def dont_know_info(site: Site, idk: dict[str, Any]) -> str:
     </section>"""
 
 
+def languages(site: Site) -> str:
+    """Languages the model cards list: one row per model of page_config.json's model_languages (each card or maker's
+    docs as checked), the model named as the Text tab names its run. The sentence above the table is computed from the
+    entries; the build stops when they no longer fit it."""
+    config = site.config["model_languages"]
+    models = config["models"]
+    stated = [model for model in models if model["languages"] != "not stated"]
+    tagged = [model for model in stated if model["languages"].startswith("English (the card's `language: en` tag")]
+    quoted = [model for model in stated if model["languages"].startswith('"')]
+    primary = [model for model in quoted if "English is the primary" in model["languages"]]
+    if len(tagged) + len(quoted) != len(stated) or primary != quoted or not tagged or not quoted:
+        raise SystemExit("page_config.json model_languages: the sentence expects cards that name English by their tag and "
+                         "docs that call English the primary language, and no other statement")
+    if any("turkish" in model["languages"].casefold() for model in models):
+        raise SystemExit("page_config.json model_languages: the sentence says no card names Turkish")
+    name = lambda model: site.row_name(site.by_id[model["run"]])  # noqa: E731
+    code = lambda text: "<code>".join(esc(text).split("`", 1)).replace("`", "</code>", 1) if text.count("`") == 2 else esc(text)  # noqa: E731
+    rows = "".join(
+        f'<tr><td class="model"><a class="model-name" href="{rel(PATH, site.model_path(site.by_id[model["run"]]))}">'
+        f'{esc(name(model))}</a></td><td data-label="Languages listed">{code(model["languages"])}</td>'
+        f'<td data-label="Source"><a href="{esc(model["source"])}">{esc(model["source"].split("//", 1)[1].split("/", 1)[0])}</a></td>'
+        f'<td data-label="Checked">{esc(config["checked"])}</td></tr>' for model in models)
+    maker = lambda model: esc(name(model).split()[0])  # noqa: E731
+    summary = (f"<p>Of the {len(models)} models whose cards or docs we checked, only "
+               f"{joined([esc(name(model)) for model in tagged])} name a language: English, by the card's "
+               f"<code>language: en</code> tag. {joined([maker(model) for model in quoted])}'s docs call English "
+               f"its primary language. No card names Turkish.</p>")
+    return f"""
+    <section class="card" id="languages">
+      <h2>Languages the model cards list</h2>
+      {summary}
+      <p class="note">Each model's card at the revision we ran (local weights) or its maker's model page and docs (APIs), searched for language statements and the Hugging Face <code>language:</code> field, on {esc(config["checked"])}. “not stated”: neither names a language.</p>
+      <div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th><th scope="col">Languages listed</th><th scope="col">Source</th><th scope="col">Checked</th></tr></thead><tbody>{rows}</tbody></table></div>
+    </section>"""
+
+
 def build(site: Site) -> dict[str, str]:
     if "english_reading" not in site.results:
         return {}
@@ -664,7 +700,7 @@ def build(site: Site) -> dict[str, str]:
       <h1>The Text tab's reading questions, asked in English</h1>
       <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of {bp.in_words(family)} of the {selected} decision models we chose (<a href="#about">which ones</a>) as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(site, data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}<a href="#info">Info</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
     </section>
     {face(site, data)}
     {dont_know_face(site, idk) if idk else ""}
@@ -695,14 +731,14 @@ def build(site: Site) -> dict[str, str]:
       <blockquote><p>{esc(turkish_instructions)}</p></blockquote>
       <p>The English runs' instructions:</p>
       <blockquote><p>{esc(data["instructions"])}</p></blockquote>
-      <p>The options follow the heading “{esc(data["options_heading"])}” instead of “{esc(TURKISH_OPTIONS_HEADING)}”, and the question and its options are the English translation. Prompt version {esc(data["prompt_version"])}; every English run used the translations with SHA-256 <code>{esc(data["translations_sha256"])}</code>.{renamed_text(site, data)}</p>
+      <p>The options follow the heading “{esc(data["options_heading"])}” instead of “{esc(TURKISH_OPTIONS_HEADING)}”, and the question and its options are the English translation. Prompt version {esc(data["prompt_version"])}; every English run used the translations with SHA-256 <code>{esc(data["translations_sha256"])}</code>.{renamed_text(site, data)}{"".join(" " + esc(note) for note in site.config["english_reading"].get("method_notes", []))}</p>
       <h3>Runs</h3>
       <p>One English run per model; five where the model's repeated Turkish runs on the Text tab changed answers. Here: {runs_text(site, data)}. The English runs are kept out of the leaderboard and its repeats.</p>
       <h3>The comparison</h3>
       <p>On the {kept} kept questions only: accuracy is the right answers over {kept} for the first English run and for the Text tab run (an invalid answer counts as not right), and the difference is English minus Turkish. The paired test is the exact McNemar test on the questions only one of the two runs got right, with p adjusted by Holm's method over the {family} model{"" if family == 1 else "s"} compared. Where a side has more than one run, its range is the lowest and highest accuracy over its runs, and its answers changed are the kept questions whose answer differs between them.</p>
       <h3>Why the translations are not published</h3>
       <p>The site never publishes question text, Turkish or English: the publisher owns the questions. {download} holds instead each reading question's ID, unit, whether it was kept, its flag reasons and the SHA-256 of its English text, with the translator and both prompts, so that a copy of these translations can be checked against it. Translating again with {script} need not give the same text word for word.</p>
-    </section>{dont_know_info(site, idk) if idk else ""}
+    </section>{dont_know_info(site, idk) if idk else ""}{languages(site)}
     </details>"""
     return {PATH: site.page(PATH, "English reading",
                             f"The Text tab's {kept} kept reading questions in English: accuracy of {family} decision models "
