@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 07bac50e (2 November 2026)
+
+- SubQ Snap 1.1, run 346: its note corrected. The retry it mentions belonged to the first paused request, not the second. Without the two paused requests, its 90th-percentile request time is 0.387 s, not 0.388 s, while its median stays 0.378 s; the note had called both unchanged. Its first pause now reads 12 minutes (it lasted 11 minutes 44 seconds) instead of 11, rounded like the second. No number changed.
+
 ## Results 2c430f54 (1 November 2026)
 
 - Added SubQ Snap 1.1 (`subq-snap-1.1`, public preview) through SubQ's Decisions API. Text: five runs over the 2,198 scored questions (runs 346, 387, 388, 389 and 390), 63.9% right, 12th of 37 decision models, the five runs identical. Page images: condition A from run 346 (58.1%), B (45.7%), C (62.9%) and D with each of the four OCR models (49.7% to 54.3%), over the 763 page-image questions (runs 62 to 67). Its probabilities arrive as 32-bit floats. As an experimental rule of ours for this model only, the check before its runs accepted sums within 32-bit rounding. Run 346 was paused twice while that rule's approval was confirmed; its note gives the effect on its request times. The SubQ Snap Preview rows are unchanged.

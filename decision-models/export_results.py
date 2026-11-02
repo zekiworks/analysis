@@ -442,11 +442,11 @@ RUN_NOTES: dict[int, str] = {
          "monitored throughout. Only this model's server showed on it at 11:55 UTC on 1 November 2026, before the runs, and "
          "nothing at 12:35 UTC, after them; the one other project with a claim on that GPU confirmed it ran nothing there "
          "in between.",
-    346: "It was paused twice while the approval of its probability check was confirmed, for 11 minutes and then for 3 "
+    346: "It was paused twice while the approval of its probability check was confirmed, for 12 minutes and then for 3 "
          "hours 24 minutes, and resumed from its stored answers. The two requests in flight count those pauses in their "
-         "times (706 and 12,236 seconds; the second after one retry, when SubQ had closed the connection), so the run's total "
-         "request time and questions per minute include them. Its median and 90th-percentile request times are the same "
-         "with or without them.",
+         "times (706 and 12,236 seconds; the first after one retry, when SubQ had closed the connection), so the run's total "
+         "request time and questions per minute include them. Without them, its median request time stays 0.378 s and its "
+         "90th percentile moves from 0.388 s to 0.387 s.",
 }
 # Each unit's plain English label; results.json keeps the printed Turkish title next to it.
 UNITS_EN = {

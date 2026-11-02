@@ -1,6 +1,6 @@
 {
   "schema_version": 5,
-  "results_version": "2c430f54",
+  "results_version": "07bac50e",
   "updated": "2026-11-01T19:34:16Z",
   "sure_threshold": 0.99,
   "dataset": {
@@ -18921,7 +18921,7 @@
       "variant": null,
       "reasoning": null,
       "provider": "subq",
-      "note": "SubQ's subq-snap-1.1, in public preview, through its Decisions API, which also takes images. Its option probabilities arrive as 32-bit floats, so they sum to 1 only within 32-bit rounding. As an experimental rule of ours for this model only, the check before its runs accepted a sum within one 32-bit epsilon (2^-23) per option when every value is an exact 32-bit float, instead of 7 decimal places; this is our tolerance, not an error bound SubQ states. The values are stored as SubQ returned them. It was paused twice while the approval of its probability check was confirmed, for 11 minutes and then for 3 hours 24 minutes, and resumed from its stored answers. The two requests in flight count those pauses in their times (706 and 12,236 seconds; the second after one retry, when SubQ had closed the connection), so the run's total request time and questions per minute include them. Its median and 90th-percentile request times are the same with or without them.",
+      "note": "SubQ's subq-snap-1.1, in public preview, through its Decisions API, which also takes images. Its option probabilities arrive as 32-bit floats, so they sum to 1 only within 32-bit rounding. As an experimental rule of ours for this model only, the check before its runs accepted a sum within one 32-bit epsilon (2^-23) per option when every value is an exact 32-bit float, instead of 7 decimal places; this is our tolerance, not an error bound SubQ states. The values are stored as SubQ returned them. It was paused twice while the approval of its probability check was confirmed, for 12 minutes and then for 3 hours 24 minutes, and resumed from its stored answers. The two requests in flight count those pauses in their times (706 and 12,236 seconds; the first after one retry, when SubQ had closed the connection), so the run's total request time and questions per minute include them. Without them, its median request time stays 0.378 s and its 90th percentile moves from 0.388 s to 0.387 s.",
       "parameters": null,
       "active_parameters": null,
       "access": "SubQ Decisions API (public preview)",

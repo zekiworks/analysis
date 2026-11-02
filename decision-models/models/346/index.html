@@ -26,7 +26,7 @@
     </section>
     <section class="card" id="called">
       <h2>How we called it</h2>
-      <dl class="facts"><dt>Kind</dt><dd>Decision model</dd><dt>Access</dt><dd>SubQ Decisions API (public preview)</dd><dt>Paid as</dt><dd>Provider service</dd><dt>Model ID</dt><dd><code>subq-snap-1.1</code></dd><dt>Note</dt><dd>SubQ&#x27;s subq-snap-1.1, in public preview, through its Decisions API, which also takes images. Its option probabilities arrive as 32-bit floats, so they sum to 1 only within 32-bit rounding. As an experimental rule of ours for this model only, the check before its runs accepted a sum within one 32-bit epsilon (2^-23) per option when every value is an exact 32-bit float, instead of 7 decimal places; this is our tolerance, not an error bound SubQ states. The values are stored as SubQ returned them. It was paused twice while the approval of its probability check was confirmed, for 11 minutes and then for 3 hours 24 minutes, and resumed from its stored answers. The two requests in flight count those pauses in their times (706 and 12,236 seconds; the second after one retry, when SubQ had closed the connection), so the run&#x27;s total request time and questions per minute include them. Its median and 90th-percentile request times are the same with or without them.</dd><dt>Confidence from</dt><dd>Option score</dd><dt>Run</dt><dd>346, 1 November 2026</dd></dl>
+      <dl class="facts"><dt>Kind</dt><dd>Decision model</dd><dt>Access</dt><dd>SubQ Decisions API (public preview)</dd><dt>Paid as</dt><dd>Provider service</dd><dt>Model ID</dt><dd><code>subq-snap-1.1</code></dd><dt>Note</dt><dd>SubQ&#x27;s subq-snap-1.1, in public preview, through its Decisions API, which also takes images. Its option probabilities arrive as 32-bit floats, so they sum to 1 only within 32-bit rounding. As an experimental rule of ours for this model only, the check before its runs accepted a sum within one 32-bit epsilon (2^-23) per option when every value is an exact 32-bit float, instead of 7 decimal places; this is our tolerance, not an error bound SubQ states. The values are stored as SubQ returned them. It was paused twice while the approval of its probability check was confirmed, for 12 minutes and then for 3 hours 24 minutes, and resumed from its stored answers. The two requests in flight count those pauses in their times (706 and 12,236 seconds; the first after one retry, when SubQ had closed the connection), so the run&#x27;s total request time and questions per minute include them. Without them, its median request time stays 0.378 s and its 90th percentile moves from 0.388 s to 0.387 s.</dd><dt>Confidence from</dt><dd>Option score</dd><dt>Run</dt><dd>346, 1 November 2026</dd></dl>
     </section>
     <section class="card" id="settings">
       <h2>Settings</h2>
@@ -63,7 +63,7 @@
   </main>
   <footer class="footer">
     <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
-    <p>Results 2c430f54, updated 1 November 2026; answer key version 2.</p>
+    <p>Results 07bac50e, updated 1 November 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>
