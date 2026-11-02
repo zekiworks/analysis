@@ -125,13 +125,18 @@ python3 -m http.server 8000                                # preview at http://1
     `sitebuild/dont_know.py`). Each page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`).
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
-    readers without JavaScript, the settings `v3.js` reads). The leaderboard comes first: the decision models'
-    table, then the other models' (chat and general models), each ranked on its own; the All models switch
-    shows one table. The intro, the counters and the summary follow it. A model ID with runs in both groups
+    readers without JavaScript, the settings `v3.js` reads). Its face, after the intro and the filters, is one chart
+    card per measure, each with a line saying which way is better: Accuracy; accuracy against cost or latency, with
+    the Pareto line (the setups in view no other setup in view beats on both) and, shaded, the region better than
+    the median setup in view on both; Calibration (the calibration gap, as shipped, on all questions); Latency; Cost.
+    Everything else is under Info, a details element closed by default and opened by a link into it (a leaderboard
+    tab, `#board` or `#info`): the leaderboard, the decision models' table, then the other models' (chat and general
+    models), each ranked on its own (the All models switch shows one table), the counters, the summary and the
+    Reading vs grammar chart. A model ID with runs in both groups
     gets its route after its name in each row ("GPT-6 Luna (Decisions API)", "GPT-6 Luna (chat API)"; `route_labels`
     in `sitebuild/site.py`). The leaderboard rows carry no notes: a setup's notes are on its model page (How we
     called it), which its name links to. The Reading vs grammar chart lists the setups in the leaderboard's order,
-    decision models first. `v3.js` draws the filters, the four leaderboard tabs and the two charts in the
+    decision models first. `v3.js` draws the filters, the charts and the four leaderboard tabs in the
     browser from `results.json` alone; accuracy for a part or topic and its Wilson 95% interval come from the
     counts there. The Routing tab keeps its four choices in the URL. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,

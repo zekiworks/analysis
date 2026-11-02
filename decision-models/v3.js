@@ -66,7 +66,6 @@ const ROUTE_RULES = [
 const ROUTE_TESTS = ['replay', 'live'];
 const PHONE = window.matchMedia('(max-width: 640px)');
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)');
-const LAPTOP = window.matchMedia('(min-width: 1024px)');
 
 /* ---- Numbers ---- */
 
@@ -166,11 +165,10 @@ const state = {
   tab: 'accuracy',
   sort: { key: 'accuracy', descending: true },
   route: { llm: 'opus', qpr: 1, rule: 'half', mode: 'replay' },
-  measure: 'accuracy',
   across: 'cost',
   showAll: false,
-  /* On a phone, the leaderboard panel shows the table or the charts; kept in the history entry, not in the URL. */
-  view: 'table',
+  /* Info (the tables, the summary and Reading vs grammar) open or closed; kept in the history entry, not in the URL. */
+  infoOpen: false,
 };
 /* Each tab's order when it opens: the Routing tab by the share of the LLM's questions taken, the others by accuracy. */
 const DEFAULT_SORTS = { routing: { key: 'share', descending: true } };
@@ -661,18 +659,6 @@ function onTableScroll(event) {
   edgeFade(wrap);
 }
 
-/* On a phone, the Table · Charts switch shows the charts in the table's place, with the same filters and tab; elsewhere
-   the charts stay below the leaderboard. */
-function placeCharts() {
-  const panel = document.querySelector('.board-panel');
-  const charts = document.getElementById('charts');
-  const inPanel = PHONE.matches && state.view === 'charts';
-  if (inPanel && charts.parentElement !== panel) panel.querySelector('.version-below').before(charts);
-  else if (!inPanel && charts.parentElement === panel) panel.after(charts);
-  panel.classList.toggle('shows-charts', inPanel);
-  document.querySelectorAll('[data-view]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === state.view)));
-}
-
 function keys(name, options, current) {
   return options
     .map(([value, label]) =>
@@ -820,9 +806,17 @@ function chartCondition() {
 
 const MEASURES = {
   accuracy: { label: 'Accuracy', axis: 'Accuracy (%)', value: run => accuracyOf(run), log: false, text: value => percent(value), higher: true },
+  /* As in the Confidence tab: on all questions only, in points. */
+  gap: {
+    label: 'Calibration gap', axis: 'Calibration gap, as shipped (points)', value: run => (filtered() ? null : run.confidence?.ece ?? null),
+    log: false, points: true, allOnly: true, text: value => (100 * value).toFixed(1), higher: false,
+  },
   latency: { label: 'Latency', axis: 'Median latency per request (s), log scale', value: latencyOf, log: true, text: secondsText, higher: false },
   cost: { label: 'Cost', axis: '$ per 1,000 questions, log scale', value: costPer1000, log: true, text: value => value.toFixed(3), higher: false },
 };
+/* The bar charts on the page, one card each, in their order: accuracy, then (after the trade-off) calibration, latency
+   and cost. */
+const FACE_MEASURES = ['accuracy', 'gap', 'latency', 'cost'];
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
 
 /* The ranking scale. In the accuracy, latency and cost charts and the small chart, each decision model's bar or dot
@@ -838,7 +832,10 @@ function setRankEnds() {
     const known = decision.map(value).filter(item => item != null);
     return higher ? [Math.min(...known), Math.max(...known)] : [Math.max(...known), Math.min(...known)];
   };
-  rankEnds = { accuracy: ends(overallAccuracy, true), latency: ends(latencyOf, false), cost: ends(costPer1000, false) };
+  rankEnds = {
+    accuracy: ends(overallAccuracy, true), gap: ends(run => run.confidence?.ece ?? null, false), latency: ends(latencyOf, false),
+    cost: ends(costPer1000, false),
+  };
 }
 const channels = hex => [1, 3, 5].map(start => parseInt(hex.slice(start, start + 2), 16));
 function rankColor(name, value) {
@@ -853,7 +850,8 @@ function rankColor(name, value) {
   return `#${from.map((channel, i) => Math.round(channel + (to[i] - channel) * (place - index)).toString(16).padStart(2, '0')).join('')}`;
 }
 /* A scale end as a legend writes it. */
-const endText = (name, value) => (name === 'accuracy' ? `${percent(value)}%` : name === 'latency' ? `${secondsText(value)} s` : `$${value.toFixed(3)}`);
+const endText = (name, value) =>
+  name === 'accuracy' ? `${percent(value)}%` : name === 'gap' ? `${(100 * value).toFixed(1)} points` : name === 'latency' ? `${secondsText(value)} s` : `$${value.toFixed(3)}`;
 /* The legend of a chart coloured by the scale: the decision models' colours from worst to best with each end's value and
    which way is better, then the chat models' grey. */
 function scaleLegend(name) {
@@ -958,11 +956,16 @@ function rowLabel(labels, run, y, row, width, labelWidth, full) {
   return `<text class="${labelClass}" text-anchor="end"><title>${esc(full)}</title>${first}${second}</text>`;
 }
 
-function barChart(box) {
-  const measure = MEASURES[state.measure];
+/* One measure (MEASURES) as horizontal bars, one card on the page: accuracy, the calibration gap, latency or cost. */
+function barChart(box, name) {
+  const measure = MEASURES[name];
   const runs = chartRuns();
   if (!runs.length) {
     box.innerHTML = `<p class="note">${esc(emptyReason())}</p>`;
+    return;
+  }
+  if (measure.allOnly && filtered()) {
+    box.innerHTML = `<p class="note">${esc(`${EMPTY.allOnly}: clear the part and topic filters to see it.`)}</p>`;
     return;
   }
   const labels = chartLabels(runs);
@@ -982,11 +985,16 @@ function barChart(box) {
   const labelWidth = phone ? 0 : Math.min(210, Math.round(width * 0.36));
   const valueWidth = phone ? 62 : 70;
   const values = known.map(measure.value);
-  const domain = !measure.log ? [0, 1] : values.length ? [Math.min(...values) / 1.5, Math.max(...values) * 1.5] : [0.01, 1];
+  /* Accuracy runs from 0 to 100%; the calibration gap from 0 to the next 5 points above the largest; latency and cost on
+     a log scale around their values. */
+  const gapTop = values.length ? Math.max(0.05, Math.ceil(Math.max(...values) / 0.05 - 1e-9) * 0.05) : 0.05;
+  const domain = measure.log ? (values.length ? [Math.min(...values) / 1.5, Math.max(...values) * 1.5] : [0.01, 1]) : measure.points ? [0, gapTop] : [0, 1];
   const left = phone ? 2 : labelWidth + 10;
   const right = width - valueWidth - 8;
   const x = scale(domain, [left, right], measure.log);
-  const ticks = measure.log ? ticksLog(...domain) : [0, 0.25, 0.5, 0.75, 1];
+  const step = domain[1] <= 0.2 + 1e-9 ? 0.05 : 0.1;
+  const ticks = measure.log ? ticksLog(...domain)
+    : measure.points ? Array.from({ length: Math.round(domain[1] / step) + 1 }, (_, index) => index * step) : [0, 0.25, 0.5, 0.75, 1];
   const base = top + ordered.length * row;
   const parts = ticks.map(value =>
     `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>` +
@@ -996,8 +1004,8 @@ function barChart(box) {
   ordered.forEach((run, index) => {
     const y = top + index * row;
     const value = measure.value(run);
-    const maker = state.measure === 'cost' && run.cost_basis === 'maker' && value != null;
-    const sample = state.measure === 'latency' && value != null && sampleLabel(run);
+    const maker = name === 'cost' && run.cost_basis === 'maker' && value != null;
+    const sample = name === 'latency' && value != null && sampleLabel(run);
     const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}`;
     const barTop = phone ? y + 18 : y + (row - 16) / 2;
     const barHeight = phone ? 14 : 16;
@@ -1009,9 +1017,9 @@ function barChart(box) {
       inner.push(`<text class="value nm" x="${width - 4}" y="${mid + 4}" text-anchor="end">${EMPTY.notMeasured}</text>`);
     } else {
       const start = x(domain[0]);
-      const colour = isDecision(run) ? ` style="fill:${rankColor(state.measure, value)}"` : '';
+      const colour = isDecision(run) ? ` style="fill:${rankColor(name, value)}"` : '';
       inner.push(`<rect class="${isDecision(run) ? 'bar-decision' : 'bar-chat'}"${colour} x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
-      if (state.measure === 'accuracy') {
+      if (name === 'accuracy') {
         const { correct, questions } = counts(run);
         const [low, high] = wilson(correct, questions);
         /* A casing in the panel colour keeps the line apart from the bar it crosses, in both themes. */
@@ -1024,14 +1032,15 @@ function barChart(box) {
   });
   const selection = runs.some(run => run.run === state.selected);
   box.classList.toggle('has-selection', selection);
-  const where = state.measure === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : '';
-  const latencyNote = state.measure === 'latency' ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
-  const makerNote = state.measure === 'cost' && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
-  const sampleNote = state.measure === 'latency' ? sampleNotes(ordered) : [];
-  chartNotes.measures = { notes: [`${measure.label}${where}.`, measure.log ? 'Log scale.' : 'Lines: 95% interval.', ...latencyNote, ...makerNote, ...sampleNote], unlabelled: [] };
+  const where = name === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : name === 'gap' ? ' on all questions, as shipped' : '';
+  const latencyNote = name === 'latency' ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
+  const makerNote = name === 'cost' && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
+  const sampleNote = name === 'latency' ? sampleNotes(ordered) : [];
+  const scaleNote = measure.log ? 'Log scale.' : name === 'accuracy' ? 'Lines: 95% interval.' : '';
+  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, ...latencyNote, ...makerNote, ...sampleNote].filter(Boolean), unlabelled: [] };
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
-    legend(state.measure, [...chartNotes.measures.notes, chartScope(runs)].join(' '));
+    legend(name, [...chartNotes[name].notes, chartScope(runs)].join(' '));
 }
 
 function scatterChart(box) {
@@ -1056,6 +1065,25 @@ function scatterChart(box) {
   const x = scale(xDomain, [pad.left, width - pad.right], true);
   const y = scale(yDomain, [height - pad.bottom, pad.top], false);
   const parts = [];
+  /* The shaded region: setups in view better than their median on both, cheaper or faster and more accurate. */
+  const middle = list => {
+    const sorted = [...list].sort((a, b) => a - b);
+    const half = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[half] : (sorted[half - 1] + sorted[half]) / 2;
+  };
+  const [medianAcross, medianAccuracy] = [middle(xs), middle(ys)];
+  parts.push(`<rect class="quadrant" x="${pad.left}" y="${pad.top}" width="${Math.max(0, x(medianAcross) - pad.left)}" height="${Math.max(0, y(medianAccuracy) - pad.top)}"/>`);
+  /* The Pareto line: the setups in view that no other setup in view beats on both accuracy and the measure across (lower
+     is better across), joined as steps from the cheapest or fastest. Labels keep off it. */
+  const frontier = [];
+  [...known].sort((a, b) => across.value(a) - across.value(b) || accuracyOf(b) - accuracyOf(a)).forEach(run => {
+    if (!frontier.length || accuracyOf(run) > accuracyOf(frontier[frontier.length - 1])) frontier.push(run);
+  });
+  const steps = frontier.slice(1).flatMap((run, index) => {
+    const previous = frontier[index];
+    const [x0, y0, x1, y1] = [x(across.value(previous)), y(accuracyOf(previous)), x(across.value(run)), y(accuracyOf(run))];
+    return [[x0, y0, x1, y0], [x1, y0, x1, y1]];
+  });
   ticksLog(...xDomain).forEach(value => {
     parts.push(`<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${pad.top}" y2="${height - pad.bottom}"/>`);
     parts.push(`<text class="tick" x="${x(value)}" y="${height - pad.bottom + 14}" text-anchor="middle">${logTick(value)}</text>`);
@@ -1121,7 +1149,7 @@ function scatterChart(box) {
     layout.placed.set(run, { first, second, spot, line });
     return true;
   };
-  const fresh = () => ({ taken: [...dots], lines: [], placed: new Map() });
+  const fresh = () => ({ taken: [...dots], lines: [...steps], placed: new Map() });
   const byAccuracy = [...points].sort((a, b) => a.cy - b.cy);
   const chosen = points.find(point => point.run.run === state.selected);
   const layout = fresh();
@@ -1130,7 +1158,8 @@ function scatterChart(box) {
      the setup, so selecting never takes another label away. */
   if (chosen && !layout.placed.has(chosen.run) && !fit(layout, chosen)) fit(layout, chosen, true);
   const { placed } = layout;
-  /* The selected point is drawn larger and last, so no neighbour covers it. */
+  /* The selected point is drawn larger and last, so no neighbour covers it; the Pareto line goes under the points. */
+  if (steps.length) parts.push(`<path class="pareto" d="${steps.map(([x0, y0, x1, y1]) => `M${x0} ${y0}L${x1} ${y1}`).join('')}"/>`);
   [...points].sort((a, b) => (a === chosen) - (b === chosen)).forEach(({ run, cx, cy }) => {
     const maker = state.across === 'cost' && run.cost_basis === 'maker';
     const sample = state.across === 'latency' && sampleLabel(run);
@@ -1146,8 +1175,18 @@ function scatterChart(box) {
   box.classList.toggle('has-selection', Boolean(chosen));
   const missing = runs.length - known.length;
   const unlabelled = byAccuracy.filter(({ run }) => !placed.has(run)).map(({ run }) => labels.get(run).text);
+  const better = state.across === 'cost' ? 'cheaper' : 'faster';
+  const regionText = `Shaded: ${better} and more accurate than the median setup in view.`;
+  const what = state.across === 'cost' ? 'cost' : 'latency';
+  /* With one setup on the line (the cheapest or fastest is also the most accurate), there is no line to draw: the note
+     names it. */
+  const paretoText = frontier.length > 1
+    ? `Dotted line (Pareto line): the setups no other setup in view beats on both accuracy and ${what}.`
+    : `Pareto line: ${labels.get(frontier[0]).text} alone, as no other setup in view is ${better} or more accurate.`;
   const notes = [
     `Up: accuracy (%) on ${integer(questionsInFilter())} questions. Across: ${state.across === 'cost' ? '$ per 1,000 questions' : 'median latency per request (s)'}, log scale.`,
+    regionText,
+    paretoText,
     missing ? `${missing} without a ${NEEDS[state.across]} not shown.` : '',
     state.across === 'cost' && known.some(run => run.cost_basis === 'maker') ? MAKER_COST_NOTE : '',
     ...(state.across === 'latency' ? sampleNotes(known) : []),
@@ -1157,7 +1196,9 @@ function scatterChart(box) {
   const crowded = chosen && !placed.has(chosen.run) ? `Selected: ${labels.get(chosen.run).text}, its label left out so that none overlaps.` : '';
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Scatter chart: accuracy against ${state.across} for ${known.length} setups. Log scale across.`)}">${parts.join('')}</svg></div>` +
-    legend('accuracy', [notes[0], chartScope(runs), ...notes.slice(1), hidden ? `${hidden} label${hidden === 1 ? '' : 's'} left out so that none overlaps; each point's tooltip names it.` : '', crowded].filter(Boolean).join(' '));
+    `<p class="chart-legend">${scaleLegend('accuracy')} <span><i class="swatch swatch-quadrant"></i>${esc(`${better[0].toUpperCase()}${better.slice(1)} and more accurate than the median`)}</span> ` +
+    `${steps.length ? '<span><i class="swatch swatch-pareto"></i>Pareto line</span> ' : ''}` +
+    `<span>${esc([notes[0], chartScope(runs), ...notes.slice(1), hidden ? `${hidden} label${hidden === 1 ? '' : 's'} left out so that none overlaps; each point's tooltip names it.` : '', crowded].filter(Boolean).join(' '))}</span></p>`;
 }
 
 /* Reading against grammar: every setup the leaderboard lists, in its order (the decision models' table, then the other
@@ -1215,7 +1256,6 @@ function readingGrammarChart(box) {
 function renderCharts() {
   const press = (name, current) =>
     document.querySelectorAll(`[data-control="${name}"] [data-${name}]`).forEach(button => button.setAttribute('aria-pressed', String(button.dataset[name] === current)));
-  press('measure', state.measure);
   press('across', state.across);
   /* "Show all" names how many setups it would show under the filters, and steps aside when that adds none. */
   const button = document.querySelector('[data-control="show-all"]');
@@ -1223,78 +1263,10 @@ function renderCharts() {
   button.closest('.chart-more').hidden = every === chartRuns(false).length;
   button.setAttribute('aria-pressed', String(state.showAll));
   button.querySelector('[data-show-all-label]').textContent = state.showAll ? 'Show the default setups' : `Show all ${integer(every)}`;
-  barChart(document.querySelector('[data-chart="measures"]'));
+  FACE_MEASURES.forEach(name => barChart(document.querySelector(`[data-chart="${name}"]`), name));
   scatterChart(document.querySelector('[data-chart="tradeoff"]'));
-  readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
-  miniChart();
-}
-
-/* On a laptop, a small chart beside the intro: accuracy with its 95% interval for the most accurate setups in view (the
-   filters' setups, as the table counts them), as one link to the full charts. Its axis fits the intervals shown, each
-   end on a 10% line, so short intervals stay visible; where it does not start at 0, a break on the axis and a note under
-   it say so. */
-const MINI_TOP = 8;
-function miniChart() {
-  const box = document.querySelector('[data-mini-chart]');
-  if (!box || !LAPTOP.matches) return;
-  const measure = MEASURES.accuracy;
-  /* With the leaderboard in its two tables, the decision models in view; with the All models switch, every setup. */
-  const inView = visibleRuns().filter(run => state.models === 'all' || isDecision(run));
-  const runs = [...inView].sort((a, b) => measure.value(b) - measure.value(a)).slice(0, MINI_TOP);
-  const scope = state.models === 'all' ? 'setups' : 'decision models';
-  const title = `Accuracy (%), top ${integer(runs.length)} of ${integer(inView.length)} ${scope} in view, with 95% intervals`;
-  const head = `<span class="mini-head"><span>${esc(title)}</span><span class="go">Charts ↓</span></span>`;
-  box.setAttribute('aria-label', `${title}. Go to the charts.`);
-  box.classList.toggle('has-selection', runs.some(run => run.run === state.selected));
-  if (!runs.length) {
-    box.innerHTML = `${head}<p class="mini-empty">${esc(emptyReason())}</p>`;
-    return;
-  }
-  const labels = chartLabels(runs);
-  const style = getComputedStyle(box);
-  const width = Math.floor(box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight));
-  const row = 20;
-  const labelWidth = Math.min(150, Math.round(width * 0.38));
-  const valueWidth = 36;
-  const top = 2;
-  const base = top + runs.length * row;
-  const intervals = new Map(runs.map(run => {
-    const { correct, questions } = counts(run);
-    return [run, wilson(correct, questions)];
-  }));
-  const ends = [...intervals.values()];
-  const domain = [Math.max(0, Math.floor((Math.min(...ends.map(end => end[0])) - 0.02) * 10) / 10),
-    Math.min(1, Math.ceil((Math.max(...ends.map(end => end[1])) + 0.02) * 10) / 10)];
-  /* Ticks every 10 points, or every 20 over a wider range; the axis starts on a tick. */
-  const step = domain[1] - domain[0] <= 0.5 + 1e-9 ? 0.1 : 0.2;
-  domain[0] = Math.floor(domain[0] / step + 1e-9) * step;
-  const ticks = [];
-  for (let tick = domain[0]; tick <= domain[1] + 1e-9; tick += step) ticks.push(tick);
-  const broken = domain[0] > 1e-9;
-  const height = base + (broken ? 36 : 20);
-  const x = scale(domain, [labelWidth + 8, width - valueWidth - 6], false);
-  const parts = ticks.map(value =>
-    `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>` +
-    `<text class="tick" x="${x(value)}" y="${base + 14}" text-anchor="middle">${percent(value, 0)}</text>`);
-  parts.push(`<line class="axis" x1="${x(domain[0])}" x2="${x(domain[1])}" y1="${base}" y2="${base}"/>`);
-  if (broken) {
-    const at = x(domain[0]) + 7;
-    parts.push(`<path class="axis-break" d="M${at - 4} ${base + 4}l4 -8M${at} ${base + 4}l4 -8"/>`);
-    parts.push(`<text class="axis-note" x="${labelWidth + 8}" y="${base + 31}">Axis starts at ${percent(domain[0], 0)}%, not 0.</text>`);
-  }
-  runs.forEach((run, index) => {
-    const mid = top + index * row + row / 2;
-    const value = measure.value(run);
-    const [low, high] = intervals.get(run);
-    const selected = run.run === state.selected;
-    const label = `<text x="${labelWidth}" y="${mid + 4}" text-anchor="end">${esc(truncate(labels.get(run).text, labelWidth, selected ? 700 : 400, 12))}</text>`;
-    const figure = `<text class="value" x="${width}" y="${mid + 4}" text-anchor="end">${measure.text(value)}</text>`;
-    const whisker = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
-    parts.push(`<g class="row${selected ? ' is-selected' : ''}">${label}<path class="whisker" d="${whisker}"/>` +
-      `<circle class="${isDecision(run) ? 'dot-decision' : 'dot-chat'}"${isDecision(run) ? ` style="fill:${rankColor('accuracy', value)}"` : ''} cx="${x(value)}" cy="${mid}" r="4"/>${figure}</g>`);
-  });
-  box.innerHTML = `${head}<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">${parts.join('')}</svg>` +
-    `<span class="mini-legend">${scaleLegend('accuracy')}</span>`;
+  /* Reading vs grammar sits under Info: it draws when Info is open, at the width it then has. */
+  if (state.infoOpen) readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
 }
 
 /* A chart as a PNG that keeps what it shows: the condition (measure and filters), the setups, the chart's notes with any
@@ -1324,13 +1296,13 @@ async function downloadChart(name) {
     y += Math.round(size * 1.4);
     texts.push(`<text x="10" y="${y}" font-family="${font}" font-size="${size}" font-weight="${weight}" fill="${fill}">${esc(line)}</text>`);
   });
-  write(name === 'measures' ? `${MEASURES[state.measure].label} · ${chartCondition()}` : `Trade-off: accuracy against ${state.across} · ${chartCondition()}`, 14, 700, colour('--text'));
+  write(name === 'tradeoff' ? `Trade-off: accuracy against ${state.across} · ${chartCondition()}` : `${MEASURES[name].label} · ${chartCondition()}`, 14, 700, colour('--text'));
   write(chartScope(chartRuns()), 12, 400, colour('--text-2'));
   const head = y + 12;
   y = head + height + 20;
   /* The legend, as on the page: the decision models' colours from worst to best with each end's value and which way is
      better, then the chat models' grey; an item that does not fit on the row starts the next one. */
-  const scaleName = name === 'measures' ? state.measure : 'accuracy';
+  const scaleName = name === 'tradeoff' ? 'accuracy' : name;
   const [worst, best] = rankEnds[scaleName];
   const stops = SETTINGS.rankScale.map((stop, index, all) => `<stop offset="${index / (all.length - 1)}" stop-color="${stop}"/>`).join('');
   texts.push(`<defs><linearGradient id="ramp">${stops}</linearGradient></defs>`);
@@ -1381,7 +1353,7 @@ async function downloadChart(name) {
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `decision-models-${name === 'measures' ? state.measure : `accuracy-${state.across}`}-${data.results_version}.png`;
+    link.download = `decision-models-${name === 'tradeoff' ? `accuracy-${state.across}` : name}-${data.results_version}.png`;
     document.body.append(link);
     link.click();
     link.remove();
@@ -1410,13 +1382,15 @@ function readUrl() {
   const routed = llm || rule || params.has('per-request') || params.has('test');
   if (TABS[params.get('tab')]) state.tab = params.get('tab');
   else if (routed) state.tab = 'routing';
+  /* A link into the tables (a tab, a routing choice, #board or #info) opens Info. */
+  if (TABS[params.get('tab')] || routed || ['#board', '#info'].includes(window.location.hash)) state.infoOpen = true;
 }
 
-/* The filters, the highlighted setup and the chart choices, kept with the browser's history entry rather than the URL,
-   so Back from a model's page returns to the same tab and filters. */
+/* The filters, the highlighted setup, the chart choices and whether Info is open, kept with the browser's history entry
+   rather than the URL, so Back from a model's page returns to the same tab and filters. */
 function remembered() {
-  const { part, topic, models, qpr, search, selected, filtersOpen, sort, measure, across, showAll, view } = state;
-  return { part, topic, models, qpr, picked: [...state.picked], search, selected, filtersOpen, sort, measure, across, showAll, view };
+  const { part, topic, models, qpr, search, selected, filtersOpen, sort, across, showAll, infoOpen } = state;
+  return { part, topic, models, qpr, picked: [...state.picked], search, selected, filtersOpen, sort, across, showAll, infoOpen };
 }
 
 function restore() {
@@ -1444,9 +1418,9 @@ function render() {
   const definition = document.querySelector('[data-definition]');
   definition.textContent = DEFINITIONS[state.tab] ?? '';
   definition.hidden = !DEFINITIONS[state.tab];
+  document.querySelector('[data-info]').open = state.infoOpen;
   renderFilters();
   renderBoard();
-  placeCharts();
   updateSwipe();
   renderCharts();
   writeUrl();
@@ -1478,7 +1452,7 @@ const toggleSelected = id => {
 function openTab(tab) {
   state.tab = tab;
   state.sort = defaultSort(tab);
-  state.view = 'table';
+  state.infoOpen = true;
   render();
   document.getElementById(`tab-${tab}`).focus({ preventScroll: true });
   document.querySelector('.board-panel').scrollIntoView({ behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth', block: 'start' });
@@ -1490,6 +1464,12 @@ function onClick(event) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     openTab(jump.dataset.gotoTab);
+    return;
+  }
+  /* The Info link in the header opens Info; the browser then follows it there. */
+  if (event.target.closest('a[data-open-info]')) {
+    state.infoOpen = true;
+    render();
     return;
   }
   const button = event.target.closest('button');
@@ -1520,9 +1500,7 @@ function onClick(event) {
     fitRouteSize();
   } else if (dataset.routeQpr) state.route.qpr = Number(dataset.routeQpr);
   else if (dataset.routeMode) state.route.mode = dataset.routeMode;
-  else if (dataset.measure) state.measure = dataset.measure;
   else if (dataset.across) state.across = dataset.across;
-  else if (dataset.view) state.view = dataset.view;
   else if (dataset.control === 'filters') state.filtersOpen = !state.filtersOpen;
   else if (dataset.control === 'reset') {
     if (button.getAttribute('aria-disabled') === 'true') return;
@@ -1610,6 +1588,16 @@ async function start() {
   renderPicker();
   render();
   document.addEventListener('click', onClick);
+  /* Info opens and closes as a details element: the state follows it, and what needs Info's width draws when it opens. */
+  document.querySelector('[data-info]').addEventListener('toggle', event => {
+    if (event.currentTarget.open === state.infoOpen) return;
+    state.infoOpen = event.currentTarget.open;
+    if (state.infoOpen) {
+      updateSwipe();
+      renderCharts();
+    }
+    writeUrl();
+  });
   document.addEventListener('keydown', onKeydown);
   document.addEventListener('change', onChange);
   document.addEventListener('input', onInput);
@@ -1621,7 +1609,6 @@ async function start() {
     renderCharts();
   }).observe(document.body);
   PHONE.addEventListener('change', render);
-  LAPTOP.addEventListener('change', renderCharts);
 }
 
 start();

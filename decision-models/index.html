@@ -20,9 +20,9 @@
   <meta name="twitter:image" content="https://zekiworks.github.io/analysis/decision-models/share/preview-dark-6ad7b5c5.png">
   <!-- /build:head -->
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if (sessionStorage.getItem("v3-swiped") === "1") document.documentElement.classList.add("swiped"); } catch (e) {}</script>
-  <!-- build:assets --><link rel="stylesheet" href="v3.css?v=c5372a35">
+  <!-- build:assets --><link rel="stylesheet" href="v3.css?v=d43d2488">
   <script src="site.js?v=1c6f4c70" defer></script>
-  <script src="v3.js?v=7f46e45e" defer></script><!-- /build:assets -->
+  <script src="v3.js?v=600ffc67" defer></script><!-- /build:assets -->
 </head>
 <body class="v3 home">
   <a class="skip" href="#main">Skip to content</a>
@@ -35,6 +35,10 @@
     <!-- build:tabs --><nav class="bench-tabs" aria-label="Benchmarks"><a class="bench-tab" href="./" aria-current="page"><span class="lamp" aria-hidden="true"></span>Text<span class="count">2,198 questions</span></a><a class="bench-tab" href="vision/"><span class="lamp" aria-hidden="true"></span>Page images<span class="count">763 questions</span></a><a class="bench-tab" href="dont-know/"><span class="lamp" aria-hidden="true"></span>Hallucination<span class="count">2,198 questions</span></a></nav><!-- /build:tabs -->
     <header class="hero">
       <h1>When should you trust a decision model?</h1>
+      <p class="intro"><!-- build:intro -->Our reading comprehension and grammar test: 2,198 questions answered by 37 decision models, with chat models for comparison. A decision model scores each answer option and picks one. Grammar questions test whether a model knows a rule and can apply it. Every answer is public.<!-- /build:intro --></p>
+      <p class="language">The questions are in native Turkish (not translated).</p>
+      <nav class="face-nav needs-js" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-tradeoff">Trade-off</a><a href="#chart-calibration">Calibration</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#info" data-open-info>Info</a></nav>
+      <noscript><p class="note">The charts need JavaScript; the tables are under Info, below.</p></noscript>
     </header>
 
     <section class="panel filters needs-js" id="filters" aria-label="Filters">
@@ -66,10 +70,58 @@
       </div>
     </section>
 
+    <section class="charts needs-js" id="charts" aria-label="Charts" tabindex="-1">
+      <p class="chart-more"><button type="button" class="key" data-control="show-all" aria-pressed="false"><span class="lamp" aria-hidden="true"></span><span data-show-all-label><!-- build:show-all -->Show all 37<!-- /build:show-all --></span></button></p>
+      <figure class="panel chart-card" id="chart-accuracy">
+        <div class="chart-head">
+          <h2>Accuracy</h2>
+          <button type="button" class="key" data-download="accuracy">Download PNG</button>
+          <p class="chart-sub">Share of the questions answered right · higher is better</p>
+        </div>
+        <div class="chart-box" data-chart="accuracy"></div>
+      </figure>
+      <figure class="panel chart-card" id="chart-tradeoff">
+        <div class="chart-head">
+          <h2>Accuracy against cost or latency</h2>
+          <span class="keys" role="group" aria-label="Across" data-control="across"><button type="button" class="key" data-across="cost" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>Cost</button><button type="button" class="key" data-across="latency" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Latency</button></span>
+          <button type="button" class="key" data-download="tradeoff">Download PNG</button>
+          <p class="chart-sub">Up: accuracy, higher is better · across: cost or latency, lower is better</p>
+        </div>
+        <div class="chart-box" data-chart="tradeoff"></div>
+      </figure>
+      <figure class="panel chart-card" id="chart-calibration">
+        <div class="chart-head">
+          <h2>Calibration</h2>
+          <button type="button" class="key" data-download="gap">Download PNG</button>
+          <p class="chart-sub">How far a model’s confidence is from how often it is right, as shipped · lower is better</p>
+        </div>
+        <div class="chart-box" data-chart="gap"></div>
+      </figure>
+      <figure class="panel chart-card" id="chart-latency">
+        <div class="chart-head">
+          <h2>Latency</h2>
+          <button type="button" class="key" data-download="latency">Download PNG</button>
+          <p class="chart-sub">Median time per request · lower is better</p>
+        </div>
+        <div class="chart-box" data-chart="latency"></div>
+      </figure>
+      <figure class="panel chart-card" id="chart-cost">
+        <div class="chart-head">
+          <h2>Cost</h2>
+          <button type="button" class="key" data-download="cost">Download PNG</button>
+          <p class="chart-sub">Estimated dollars per 1,000 questions · lower is better</p>
+        </div>
+        <div class="chart-box" data-chart="cost"></div>
+      </figure>
+    </section>
+
+    <section class="info" id="info" aria-label="Info">
+      <details class="info-details" data-info>
+        <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The tables, the summary and the notes behind the charts</span></summary>
+
     <section class="panel board-panel" aria-labelledby="board-title">
       <h2 id="board-title" class="visually-hidden">Leaderboard</h2>
       <div class="modebar needs-js">
-        <div class="keys view-switch" role="group" aria-label="Show the results as"><button type="button" class="key" data-view="table" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>Table</button><button type="button" class="key" data-view="charts" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Charts</button></div>
         <div class="modes" role="tablist" aria-label="Leaderboard">
           <button type="button" role="tab" id="tab-accuracy" class="mode" aria-controls="board" aria-selected="true" data-tab="accuracy"><span class="lamp" aria-hidden="true"></span>Accuracy</button>
           <button type="button" role="tab" id="tab-confidence" class="mode" aria-controls="board" aria-selected="false" data-tab="confidence"><span class="lamp" aria-hidden="true"></span>Confidence</button>
@@ -78,7 +130,6 @@
         </div>
         <button type="button" class="key all-models" data-control="all-models" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>All models</button>
         <span class="in-view" data-count aria-live="polite"><!-- build:questions -->2,198 questions<!-- /build:questions --></span>
-        <a class="charts-link" href="#charts">Charts</a>
       </div>
       <p class="definition needs-js" data-definition hidden></p>
       <p class="swipe-hint needs-js" data-swipe-hint>Swipe for more columns →</p>
@@ -89,13 +140,11 @@
       <p class="version version-below"><!-- build:version -->Results 8cacd512, updated 1 November 2026; answer key version 2.<!-- /build:version --></p>
     </section>
 
-    <section class="hero about" aria-label="About the Text benchmark">
-      <p class="intro"><!-- build:intro -->Our reading comprehension and grammar test: 2,198 questions answered by 37 decision models, with chat models for comparison. A decision model scores each answer option and picks one. Grammar questions test whether a model knows a rule and can apply it. Every answer is public.<!-- /build:intro --></p>
+    <section class="about" aria-label="About the Text benchmark">
       <div class="readout-row">
         <ul class="readouts"><!-- build:stats --><li class="readout"><span class="readout-value">2,198</span> <span class="readout-label">questions</span></li><li class="readout"><span class="readout-value">20</span> <span class="readout-label">topics</span></li><li class="readout"><span class="readout-value">37</span> <span class="readout-label">decision models</span></li><li class="readout"><span class="readout-value">73</span> <span class="readout-label">setups</span></li><!-- /build:stats --></ul>
         <p class="version"><!-- build:version -->Results 8cacd512, updated 1 November 2026; answer key version 2.<!-- /build:version --></p>
       </div>
-      <p class="language">The questions are in native Turkish (not translated).</p>
       <div class="summary">
         <p class="summary-lead">Among decision models, none led on every measure:</p>
         <ul class="summary-list">
@@ -106,33 +155,14 @@
           <li><a href="?tab=accuracy#board" data-goto-tab="accuracy">Reading vs grammar</a>: decision models got up to 92.1% of the reading questions right, but at most 70.7% of the grammar questions.</li>
         </ul>
       </div>
-      <a class="mini-chart needs-js" href="#charts" data-mini-chart aria-label="Accuracy with 95% intervals for the setups in view. Go to the charts."></a>
     </section>
-
-    <section class="charts needs-js" id="charts" aria-label="Charts" tabindex="-1">
-      <figure class="panel chart-card" id="chart-measures">
-        <div class="chart-head">
-          <h2>Accuracy, latency and cost</h2>
-          <span class="keys" role="group" aria-label="Measure" data-control="measure"><button type="button" class="key" data-measure="accuracy" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>Accuracy</button><button type="button" class="key" data-measure="latency" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Latency</button><button type="button" class="key" data-measure="cost" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Cost</button></span>
-          <button type="button" class="key" data-download="measures">Download PNG</button>
-        </div>
-        <div class="chart-box" data-chart="measures"></div>
-      </figure>
-      <figure class="panel chart-card" id="chart-tradeoff">
-        <div class="chart-head">
-          <h2>Trade-off</h2>
-          <span class="keys" role="group" aria-label="Across" data-control="across"><button type="button" class="key" data-across="cost" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>Cost</button><button type="button" class="key" data-across="latency" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Latency</button></span>
-          <button type="button" class="key" data-download="tradeoff">Download PNG</button>
-        </div>
-        <div class="chart-box" data-chart="tradeoff"></div>
-      </figure>
-      <p class="chart-more"><button type="button" class="key" data-control="show-all" aria-pressed="false"><span class="lamp" aria-hidden="true"></span><span data-show-all-label><!-- build:show-all -->Show all 37<!-- /build:show-all --></span></button></p>
-      <figure class="panel chart-card chart-wide" id="chart-reading-grammar">
+      <figure class="panel chart-card needs-js" id="chart-reading-grammar">
         <div class="chart-head">
           <h2>Reading vs grammar</h2>
         </div>
         <div class="chart-box" data-chart="reading-grammar"></div>
       </figure>
+      </details>
     </section>
   </main>
 
