@@ -27,7 +27,7 @@ import threading
 import time
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterator, TextIO
@@ -602,7 +602,7 @@ RESULT_FIELDS = (
     "run_key", "run_id", "model", "provider", "dataset", "database", "dataset_sha256", "selection_sha256",
     "eligible_total", "evaluated", "correct", "invalid", "skipped", "batch_size", "thinking", "num_ctx",
     "image_input", "shuffle_options", "replace_key_text", "categories", "updated", "concurrency", "as_run",
-    "repeat", "question_list", "dont_know",
+    "repeat", "question_list", "dont_know", "english",
 )
 JEV_INSTRUCTIONS = "Which option is the correct answer to this Turkish multiple-choice question?"
 # Open-Jev's per-option prompt (jev/api.py candidate_prompts), used by --provider vllm-yes-no.
@@ -663,6 +663,17 @@ DONT_KNOW_INSTRUCTIONS = f"{JEV_INSTRUCTIONS} {DONT_KNOW_SENTENCE}"
 DONT_KNOW_PROMPTS = {**PROMPTS, "system_one_instructions": DONT_KNOW_INSTRUCTIONS, "dont_know_option": DONT_KNOW_OPTION}
 DONT_KNOW_PROMPT_VERSION = hashlib.sha256(
     json.dumps(DONT_KNOW_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()[:12]
+# English reading (--english): the kept reading questions in English translation (a JSONL file of question_id and
+# english {body, options}), asked as the main runs ask them, with the System One instructions naming English instead of
+# Turkish and the options under ENGLISH_OPTIONS_HEADING. ENGLISH_PROMPT_VERSION identifies these prompts in such a
+# run's record, computed as PROMPT_VERSION is.
+assert JEV_INSTRUCTIONS.count("Turkish") == 1
+ENGLISH_INSTRUCTIONS = JEV_INSTRUCTIONS.replace("Turkish", "English")
+ENGLISH_OPTIONS_HEADING = "Options:\n"
+ENGLISH_PROMPTS = {**PROMPTS, "system_one_instructions": ENGLISH_INSTRUCTIONS, "options_heading": ENGLISH_OPTIONS_HEADING}
+ENGLISH_PROMPT_VERSION = hashlib.sha256(
+    json.dumps(ENGLISH_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
 ).hexdigest()[:12]
 # Where a clone of the published repository (HARNESS_REPO, see harness_commit) keeps this file.
 HARNESS_PATHS = ("decision-models/runner/benchmark_ollama.py", "runner/benchmark_ollama.py")
@@ -953,6 +964,14 @@ def parse_args() -> argparse.Namespace:
         f'never correct, and end the System One instructions with "{DONT_KNOW_SENTENCE}"; the report counts how often '
         "the model chose it",
     )
+    variant.add_argument(
+        "--english",
+        type=Path,
+        metavar="PATH",
+        help="ask the questions listed with --questions in their English translation from PATH (JSONL: question_id and "
+        "english {body, options}), with the options under an English heading and the instructions naming English "
+        "instead of Turkish; kept out of the main tables",
+    )
     parser.add_argument(
         "--repeat",
         type=int,
@@ -1022,6 +1041,13 @@ def parse_args() -> argparse.Namespace:
         parser.error(f"--provider {args.provider} sends one question per request; use --batch-size 1")
     if args.dont_know and (args.provider not in SYSTEM_ONE or args.batch_size != 1):
         parser.error("--dont-know is only supported by the System One providers, with one question per request")
+    if args.english is not None:
+        if args.provider not in (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no"):
+            parser.error("--english is only supported by the System One providers and --provider vllm-yes-no")
+        if args.questions is None:
+            parser.error("--english needs --questions, the kept question IDs")
+        if args.repeat is not None:
+            parser.error("--english cannot be combined with --repeat")
     if args.jev_url is None and args.provider in SYSTEM_ONE:
         args.jev_url = SYSTEM_ONE[args.provider].url
     return args
@@ -1464,6 +1490,43 @@ def load_questions(
     )
 
 
+def english_selection(selection: Selection, path: Path) -> Selection:
+    """The selection with each question in its English translation from `path` (--english), a JSONL file of objects
+    {"question_id": int, "english": {"body": str, "options": {letter: str}}}: the English options under the bank's
+    letters, in the bank's order, and a prompt composed as compose_prompt composes one, the English body (everything
+    before the options) followed by the options under ENGLISH_OPTIONS_HEADING. Every selected question needs a
+    translation with the same option letters as the bank and no empty text."""
+    translations: dict[int, dict[str, Any]] = {}
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        record = json.loads(line)
+        question_id = int(record["question_id"])
+        if question_id in translations:
+            raise ValueError(f"{path}:{number}: question {question_id} is translated twice")
+        translations[question_id] = record["english"]
+    questions = []
+    for question in selection.questions:
+        english = translations.get(question.question_id)
+        if english is None:
+            raise ValueError(f"{path}: question {question.question_id} has no English translation")
+        if question.requires_image:
+            raise ValueError(f"question {question.question_id} needs its source image, which English runs do not send")
+        labels = [option.label for option in question.options]
+        if list(english["options"]) != labels:
+            raise ValueError(
+                f"{path}: question {question.question_id} has the option letters {list(english['options'])}, "
+                f"the bank {labels}"
+            )
+        body = str(english["body"]).strip()
+        options = tuple(Option(label, str(text).strip()) for label, text in english["options"].items())
+        if not body or not all(option.text for option in options):
+            raise ValueError(f"{path}: question {question.question_id} has an empty English text")
+        choices = "\n".join(f"{option.label}. {option.text}" for option in options)
+        questions.append(replace(question, prompt=f"{body}\n\n{ENGLISH_OPTIONS_HEADING}{choices}", options=options))
+    return replace(selection, questions=tuple(questions))
+
+
 @functools.lru_cache(maxsize=None)
 def current_bank(dataset: str, search_dir: str) -> tuple[str, dict[int, dict[str, Any]]] | None:
     """The question bank a run used, as it stands now: its SHA-256, and each question's printed number,
@@ -1599,6 +1662,7 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                 "repeat": result.get("repeat"),
                 "question_list": result.get("question_list"),
                 "dont_know": result.get("dont_know"),
+                "english": result.get("english"),
                 "answers": answers,
             }
         )
@@ -1637,6 +1701,8 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
         "prompts": dict(PROMPTS),
         # The prompts of the "I don't know" variant, when one of its runs is exported.
         **({"dont_know_prompts": dict(DONT_KNOW_PROMPTS)} if any(result.get("dont_know") for result in results) else {}),
+        # The prompts of English reading (--english), when one of its runs is exported.
+        **({"english_prompts": dict(ENGLISH_PROMPTS)} if any(result.get("english") for result in results) else {}),
         "datasets": output,
     }
     path.write_text(json.dumps(document, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
@@ -1708,6 +1774,8 @@ def open_result_database(path: Path) -> sqlite3.Connection:
         ("runs", "harness_commit", "TEXT"),
         ("runs", "prompt_version", "TEXT"),
         ("runs", "dont_know", "INTEGER"),
+        # --english: the SHA-256 of the translations file.
+        ("runs", "english", "TEXT"),
     ):
         columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})")}
         if column not in columns:
@@ -1777,6 +1845,7 @@ def start_run(
     dont_know: bool,
     repeat: int | None,
     restart: bool,
+    english: str | None = None,
 ) -> RunIdentity:
     dataset_hash = file_sha256(data_path)
     selection_text = "\n".join(str(question.question_id) for question in selection.questions)
@@ -1808,6 +1877,8 @@ def start_run(
         identity_config["replace_key_text"] = replace_key_seed
     if dont_know:
         identity_config["dont_know"] = True
+    if english is not None:
+        identity_config["english"] = english
     if repeat is not None:
         identity_config["repeat"] = repeat
     identity = json.dumps(
@@ -1817,7 +1888,9 @@ def start_run(
     )
     run_key = hashlib.sha256(identity.encode()).hexdigest()
     now = utc_now()
-    prompt_version = DONT_KNOW_PROMPT_VERSION if dont_know else PROMPT_VERSION
+    prompt_version = (
+        ENGLISH_PROMPT_VERSION if english is not None else DONT_KNOW_PROMPT_VERSION if dont_know else PROMPT_VERSION
+    )
     existing = connection.execute("SELECT prompt_version FROM runs WHERE run_key=?", (run_key,)).fetchone()
     if existing is not None and not restart and existing["prompt_version"] not in (None, prompt_version):
         raise ValueError(
@@ -1831,9 +1904,10 @@ def start_run(
             """
             INSERT OR IGNORE INTO runs (
                 run_key, model, provider, dataset, dataset_sha256, selection_sha256,
-                ollama_url, seed, batch_size, num_ctx, shuffle_options, replace_key_text, dont_know, repeat, thinking_mode,
-                selected_total, evaluated_total, skipped_json, status, created_at, updated_at, harness_commit, prompt_version
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
+                ollama_url, seed, batch_size, num_ctx, shuffle_options, replace_key_text, dont_know, english, repeat,
+                thinking_mode, selected_total, evaluated_total, skipped_json, status, created_at, updated_at, harness_commit,
+                prompt_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
             """,
             (
                 run_key,
@@ -1849,6 +1923,7 @@ def start_run(
                 shuffle_seed,
                 replace_key_seed,
                 1 if dont_know else None,
+                english,
                 repeat,
                 thinking_label(thinking),
                 selection.eligible_total,
@@ -3104,6 +3179,7 @@ def ask_vllm_yes_no(
     timeout: float,
     verbose_log: TextIO | None,
     yes_no_ids: tuple[int, int],
+    instructions: str = JEV_INSTRUCTIONS,
 ) -> tuple[str | None, str]:
     """Score each option with Open-Jev's yes/no prompt: log P(Yes) - log P(No) at the answer."""
     base = base_url.rstrip("/")
@@ -3111,7 +3187,7 @@ def ask_vllm_yes_no(
     prompts = []
     for option in question.options:
         content = YES_NO_PROMPT.format(
-            state=question.prompt, question=JEV_INSTRUCTIONS, label=option.label, text=option.text
+            state=question.prompt, question=instructions, label=option.label, text=option.text
         )
         tokenized, _ = post_json(
             f"{base}/tokenize",
@@ -3438,6 +3514,13 @@ def retry_cut_requests(
         print(f"  ordinals {batch[0][0]}-{batch[-1][0]}: {answered} of {len(batch)} answered on the retry", flush=True)
 
 
+def decision_instructions(args: argparse.Namespace) -> str:
+    """The instructions the decision-model requests carry (System One `choice` and Open-Jev's yes/no prompt)."""
+    if args.english is not None:
+        return ENGLISH_INSTRUCTIONS
+    return DONT_KNOW_INSTRUCTIONS if args.dont_know else JEV_INSTRUCTIONS
+
+
 def ask_batch(
     args: argparse.Namespace, questions: list[Question], thinking: bool | str, verbose_log: TextIO | None
 ) -> tuple[list[str | None], str]:
@@ -3447,12 +3530,13 @@ def ask_batch(
     if args.provider in SYSTEM_ONE_PROVIDERS:
         prediction, raw_response = ask_jev(
             SYSTEM_ONE[args.provider], args.jev_url, args.jev_api_key, args.model, questions[0], args.timeout, verbose_log,
-            instructions=DONT_KNOW_INSTRUCTIONS if args.dont_know else JEV_INSTRUCTIONS,
+            instructions=decision_instructions(args),
         )
         return [prediction], raw_response
     if args.provider == "vllm-yes-no":
         prediction, raw_response = ask_vllm_yes_no(
-            args.vllm_url, args.model, questions[0], args.timeout, verbose_log, args.yes_no_ids
+            args.vllm_url, args.model, questions[0], args.timeout, verbose_log, args.yes_no_ids,
+            instructions=decision_instructions(args),
         )
         return [prediction], raw_response
     if args.provider == "vllm":
@@ -3610,6 +3694,8 @@ def variant_note(result: dict[str, Any]) -> str:
         notes.append(f"questions from {result['question_list']}")
     if result.get("dont_know"):
         notes.append(f'"{DONT_KNOW_OPTION}" option added')
+    if result.get("english"):
+        notes.append("in English")
     if result.get("repeat") is not None:
         notes.append(f"repeat {result['repeat']}")
     return "".join(f", {note}" for note in notes)
@@ -4215,6 +4301,29 @@ def dont_know_lines(runs: list[dict[str, Any]]) -> list[str]:
     return lines
 
 
+def english_lines(runs: list[dict[str, Any]]) -> list[str]:
+    lines = [
+        "",
+        "## English reading",
+        "",
+        "Runs with `--english`: the kept reading questions in English translation, the options under "
+        f'"{ENGLISH_OPTIONS_HEADING.strip()}" and the System One instructions "{ENGLISH_INSTRUCTIONS}" The key, '
+        "the option letters and the requests are otherwise those of the main runs, whose accuracy, confidence, paired "
+        "and cascade tables leave these runs out. Translations: the first 12 hex digits of the translations file's SHA-256.",
+        "",
+        "| Run | Questions | Right | Invalid | Accuracy | Translations | Prompt version |",
+        "|---|---:|---:|---:|---:|---|---|",
+    ]
+    for result in runs:
+        english = result["english"]
+        lines.append(
+            f"| {run_label(result)} | {result['evaluated']} | {result['correct']} | {result['invalid']} | "
+            f"{percent(result['correct'], result['evaluated'])} | {english['translations_sha256'][:12]} | "
+            f"{english['prompt_version']} |"
+        )
+    return lines
+
+
 def version_lines(versions: list[dict[str, Any]], results: dict[str, dict[str, Any]]) -> list[str]:
     lines = [
         "",
@@ -4294,6 +4403,7 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
     # on part of the questions have their own sections too.
     replaced = [result for result in results.values() if result.get("replace_key_text") is not None]
     dont_know_runs = [result for result in results.values() if result.get("dont_know")]
+    english_runs = [result for result in results.values() if result.get("english")]
     ranked = sorted(
         (result for result in results.values() if in_main_tables(result)),
         key=lambda item: (-item["correct"] / item["evaluated"], item["run_id"]),
@@ -4326,6 +4436,8 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         lines.extend(key_replacement_lines(sorted(replaced, key=lambda item: item["run_id"])))
     if dont_know_runs:
         lines.extend(dont_know_lines(sorted(dont_know_runs, key=lambda item: item["run_id"])))
+    if english_runs:
+        lines.extend(english_lines(sorted(english_runs, key=lambda item: item["run_id"])))
     for result in ordered:
         details = [f"Invalid model responses: {result['invalid']}"]
         if result.get("questions_per_minute"):
@@ -4360,6 +4472,8 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
             options.append(f"Correct option: shows a random wrong option's text, seed {result['replace_key_text']}  ")
         if result.get("dont_know"):
             options.append(f'Options: "{DONT_KNOW_OPTION}" added after each question\'s own, never correct  ')
+        if result.get("english"):
+            options.append(f"Questions: in English, translations {result['english']['translations_sha256'][:12]}  ")
         lines.extend(
             [
                 "",
@@ -4560,8 +4674,8 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     every request the run made; everything else is graded against the question bank as it stands now
     (graded_answers), including the run's totals and units."""
     run = connection.execute(
-        "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,dont_know,thinking_mode,batch_size,"
-        "dataset,dataset_sha256,selection_sha256,created_at FROM runs WHERE run_key=?",
+        "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,dont_know,english,prompt_version,"
+        "evaluated_total,thinking_mode,batch_size,dataset,dataset_sha256,selection_sha256,created_at FROM runs WHERE run_key=?",
         (run_key,),
     ).fetchone()
     if run is None:
@@ -4678,6 +4792,13 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
         # The flag comes from the run itself, so a report refresh sets it on records written without it.
         metrics["dont_know"] = True
         metrics["dont_know_answers"] = dont_know_answers(connection, run, graded, search_dir)
+    if run["english"]:
+        # As with dont_know, the facts come from the run itself, so a refreshed record keeps them.
+        metrics["english"] = {
+            "translations_sha256": run["english"],
+            "questions": run["evaluated_total"],
+            "prompt_version": run["prompt_version"],
+        }
     return metrics
 
 
@@ -4693,6 +4814,7 @@ def key_replacement(
         """
         SELECT id, run_key, dataset FROM runs WHERE provider=? AND model=? AND thinking_mode=? AND batch_size=? AND dataset_sha256=?
             AND selection_sha256=? AND replace_key_text IS NULL AND shuffle_options IS NULL AND dont_know IS NULL
+            AND english IS NULL
             AND status='completed'
         ORDER BY id DESC LIMIT 1
         """,
@@ -4784,7 +4906,8 @@ def dont_know_answers(
     original = connection.execute(
         """
         SELECT id, run_key, dataset FROM runs WHERE provider=? AND model=? AND thinking_mode=? AND batch_size=?
-            AND replace_key_text IS NULL AND shuffle_options IS NULL AND dont_know IS NULL AND repeat IS NULL
+            AND replace_key_text IS NULL AND shuffle_options IS NULL AND dont_know IS NULL AND english IS NULL
+            AND repeat IS NULL
             AND evaluated_total=selected_total AND status='completed'
         ORDER BY id LIMIT 1
         """,
@@ -4924,10 +5047,11 @@ def run_doubt(
 
 def in_main_tables(result: dict[str, Any]) -> bool:
     """Whether a run belongs in the report's main tables: a run over its question bank's whole question
-    set, neither a repeat nor a run with a replaced correct option or the "I don't know" option."""
+    set, neither a repeat nor a run with a replaced correct option, the "I don't know" option or in English."""
     return (
         result.get("replace_key_text") is None
         and not result.get("dont_know")
+        and not result.get("english")
         and result.get("repeat") is None
         and result["evaluated"] == result["eligible_total"]
     )
@@ -5098,10 +5222,11 @@ def run_comparisons(
 def run_repeats(connection: sqlite3.Connection, results: dict[str, dict[str, Any]], search_dir: Path) -> list[dict[str, Any]]:
     """Each configuration with repeats (--repeat): its runs on the same question bank and the same
     questions (the whole set, or one sample), and how their answers agree (bm.repeat_stability) on the
-    questions every run was asked identically. Runs with the "I don't know" option form configurations of their own."""
+    questions every run was asked identically. Runs with the "I don't know" option form configurations of their own;
+    runs in English (--english) are left out."""
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
     for result in results.values():
-        if result.get("replace_key_text") is not None or result.get("question_list"):
+        if result.get("replace_key_text") is not None or result.get("question_list") or result.get("english"):
             continue
         selection = "whole" if result["evaluated"] == result["eligible_total"] else result["selection_sha256"]
         key = (
@@ -5200,7 +5325,7 @@ def run_pipelines(connection: sqlite3.Connection, results: dict[str, dict[str, A
         wanted = configuration(frontier)[:3] + (item["batch_size"],)
         made: dict[str, dict[str, Any]] = {}
         for run in results.values():
-            if run.get("question_list") and configuration(run) == wanted:
+            if run.get("question_list") and not run.get("english") and configuration(run) == wanted:
                 answered = frozenset(run_outcomes(connection, run, search_dir))
                 if answered == passed:
                     made["pipeline"] = run
@@ -5250,7 +5375,8 @@ def run_pipelines(connection: sqlite3.Connection, results: dict[str, dict[str, A
             # frontier run alone.
             alternatives = []
             for run in results.values():
-                if not run.get("question_list") or run["batch_size"] != item["batch_size"] or configuration(run) == wanted:
+                if (not run.get("question_list") or run.get("english") or run["batch_size"] != item["batch_size"]
+                        or configuration(run) == wanted):
                     continue
                 answers = run_outcomes(connection, run, search_dir)
                 if frozenset(answers) != held_out:
@@ -5284,7 +5410,8 @@ def run_batching(connection: sqlite3.Connection, results: dict[str, dict[str, An
         return (run.get("provider", "ollama"), run["model"], run["thinking"])
 
     def plain(run: dict[str, Any]) -> bool:
-        return run.get("replace_key_text") is None and run.get("shuffle_options") is None and not run.get("dont_know")
+        return (run.get("replace_key_text") is None and run.get("shuffle_options") is None and not run.get("dont_know")
+                and not run.get("english"))
 
     reruns = format_reruns(results)
     main = {
@@ -5480,6 +5607,11 @@ def run_record(
         "repeat": args.repeat,
         "question_list": args.questions.name if args.questions else None,
         "dont_know": True if args.dont_know else None,
+        "english": None if args.english is None else {
+            "translations_sha256": args.english_sha256,
+            "questions": len(selection.questions),
+            "prompt_version": ENGLISH_PROMPT_VERSION,
+        },
     }
 
 
@@ -5596,6 +5728,10 @@ def main() -> int:
             dont_know=args.dont_know,
             question_ids=read_question_ids(args.questions) if args.questions else None,
         )
+        args.english_sha256 = None
+        if args.english is not None:
+            args.english_sha256 = file_sha256(args.english)
+            selection = english_selection(selection, args.english)
         print(
             f"Extraction validation: source={selection.source_total}, "
             f"filtered={selection.filtered_total}, eligible={selection.eligible_total}, "
@@ -5620,6 +5756,7 @@ def main() -> int:
             args.dont_know,
             args.repeat,
             args.restart,
+            english=args.english_sha256,
         )
         if args.log_verbose:
             verbose_log, log_path = open_verbose_log(args.model)
@@ -5629,7 +5766,8 @@ def main() -> int:
             f"{len(selection.questions)} question(s) "
             f"(batch={args.batch_size}, thinking={thinking_label(thinking)}, "
             f"image_input={'on' if image_input else 'off'}, shuffle_options={args.shuffle_options}, "
-            f"replace_key_text={args.replace_key_text}, dont_know={args.dont_know}, run={identity.run_id})"
+            f"replace_key_text={args.replace_key_text}, dont_know={args.dont_know}, "
+            f"english={args.english_sha256 and args.english_sha256[:12]}, run={identity.run_id})"
         )
         correct, invalid, categories = evaluate(
             selection, result_connection, identity, args, thinking, verbose_log
