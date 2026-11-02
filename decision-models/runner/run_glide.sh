@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Fastino's GLiDE through its hosted System One API, 4 requests at a time. The key comes from FASTINO_API_KEY, or from
-# ~/.config/fastino/key when that is unset. Add --repeat N (2 or more) for a repeat.
+# ~/.config/fastino/key when that is unset. Add --repeat N (2 or more) for a repeat, or --rerun TAG for a fresh run of
+# its own.
 set -euo pipefail
 cd "$(dirname "$0")"
 if [ -z "${FASTINO_API_KEY:-}" ]; then

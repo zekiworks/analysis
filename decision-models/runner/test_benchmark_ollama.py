@@ -16,6 +16,11 @@ from unittest import mock
 from benchmark_ollama import (
     DONT_KNOW_OPTION,
     DONT_KNOW_PROMPT_VERSION,
+    DONT_KNOW_PROMPTS,
+    DONT_KNOW_WORD_INSTRUCTIONS,
+    DONT_KNOW_WORD_OPTION,
+    DONT_KNOW_WORD_PROMPT_VERSION,
+    DONT_KNOW_WORD_PROMPTS,
     ENGLISH_DONT_KNOW_INSTRUCTIONS,
     ENGLISH_DONT_KNOW_OPTION,
     ENGLISH_DONT_KNOW_PROMPT_VERSION,
@@ -35,6 +40,7 @@ from benchmark_ollama import (
     dont_know_lines,
     english_lines,
     english_selection,
+    export_answers,
     harness_commit,
     in_main_tables,
     letter_probabilities,
@@ -47,8 +53,10 @@ from benchmark_ollama import (
     probability_problems,
     regrade,
     replace_key_text,
+    run_label,
     run_metrics,
     run_repeats,
+    run_batching,
     run_requests,
     shuffle_options,
     start_run,
@@ -422,7 +430,7 @@ class EnglishTests(unittest.TestCase):
                 raise RuntimeError("stop")
             return {"answers": {"answer": {"choice": "A"}}}, {}
 
-        common = {"model": "m", "timeout": 1, "dont_know": False, "english": Path("t.jsonl")}
+        common = {"model": "m", "timeout": 1, "dont_know": False, "dont_know_word": "turkish", "english": Path("t.jsonl")}
         with mock.patch("benchmark_ollama.post_json", side_effect=post):
             args = argparse.Namespace(provider="subq", jev_url="http://localhost", jev_api_key=None, **common)
             self.assertEqual(ask_batch(args, [question_], False, None)[0], ["A"])
@@ -489,6 +497,182 @@ class EnglishTests(unittest.TestCase):
         with mock.patch("sys.argv", [*base, "--provider", "subq", "--repeat", "2"]):
             args = parse_args()
             self.assertEqual((args.english, args.repeat), (Path("t.jsonl"), 2))
+
+
+class OptionWordTests(unittest.TestCase):
+    """The option-word check (--dont-know --dont-know-word english): the Turkish "I don't know" runs with only the
+    option word in English, in runs of their own."""
+
+    bank = DontKnowTests.bank
+    spread = staticmethod(DontKnowTests.spread)
+
+    def store(self, connection: sqlite3.Connection, path: Path, answers: dict[int, tuple[str, dict[str, float]]], *,
+              dont_know: bool = False, word: str | None = None, repeat: int | None = None) -> dict:
+        """A completed run of model "m" through subq with these answers, as its report record."""
+        selection = load_questions(path, None, None, None, 0, dont_know=dont_know, dont_know_word=word)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, "subq", "http://localhost", 0, 1, False, None, False,
+                                 None, None, dont_know, repeat, False, dont_know_word=word)
+        for ordinal, question_ in enumerate(selection.questions):
+            choice, probabilities = answers[question_.question_id]
+            raw = json.dumps({"request_id": None, "response": {
+                "answers": {"answer": {"choice": choice, "probabilities": probabilities}}, "usage": {"input_tokens": 10}}})
+            store_answers(connection, identity.run_id, [(ordinal, question_)], [choice], raw, 0.1, 0.1)
+        mark_run(connection, identity.run_id, "completed")
+        metrics = run_metrics(connection, identity.run_key, path.parent)
+        return {"run_key": identity.run_key, "run_id": identity.run_id, "dataset": str(path),
+                "dataset_sha256": identity.dataset_sha256, "provider": "subq", "model": "m", "thinking": "off",
+                "batch_size": 1, "evaluated": 3, "eligible_total": 3, "selection_sha256": identity.selection_sha256,
+                "replace_key_text": None, "repeat": repeat, "dont_know": metrics.get("dont_know"),
+                "dont_know_word": metrics.get("dont_know_word"), "metrics": metrics}
+
+    def test_only_the_option_word_changes(self) -> None:
+        self.assertEqual(DONT_KNOW_WORD_OPTION, "I don't know")
+        self.assertEqual(DONT_KNOW_WORD_INSTRUCTIONS, "Which option is the correct answer to this Turkish multiple-choice "
+                                                      "question? If you do not know the answer, choose I don't know.")
+        self.assertEqual(DONT_KNOW_WORD_PROMPTS, {**DONT_KNOW_PROMPTS, "system_one_instructions": DONT_KNOW_WORD_INSTRUCTIONS,
+                                                  "dont_know_option": DONT_KNOW_WORD_OPTION})
+        path = self.bank()
+        turkish = load_questions(path, None, None, None, 0, dont_know=True).questions
+        english = load_questions(path, None, None, None, 0, dont_know=True, dont_know_word="english").questions
+        for before, after in zip(turkish, english, strict=True):
+            self.assertEqual(after.options, (*before.options[:-1], Option("F", "I don't know")))
+            self.assertEqual(after.prompt, before.prompt.replace("F. Bilmiyorum", "F. I don't know"))
+            self.assertIn("Seçenekler:", after.prompt)
+            self.assertEqual(after.answer, before.answer)
+        self.assertTrue(english[0].prompt.endswith("E. option E\nF. I don't know"))
+        sent = []
+
+        def post(endpoint, payload, *rest):
+            sent.append(payload)
+            return {"answers": {"answer": {"choice": "F"}}}, {}
+
+        args = argparse.Namespace(provider="subq", jev_url="http://localhost", jev_api_key=None, model="m", timeout=1,
+                                  dont_know=True, english=None, dont_know_word="english")
+        with mock.patch("benchmark_ollama.post_json", side_effect=post):
+            self.assertEqual(ask_batch(args, [english[0]], False, None)[0], ["F"])
+        self.assertEqual(sent[-1]["questions"]["answer"]["instructions"], DONT_KNOW_WORD_INSTRUCTIONS)
+        self.assertEqual(sent[-1]["state"], english[0].prompt)
+
+    def test_its_prompts_have_their_own_version_and_the_others_keep_theirs(self) -> None:
+        self.assertEqual(PROMPT_VERSION, "254597b8be16")
+        self.assertEqual(DONT_KNOW_PROMPT_VERSION, "1cdd542b597f")
+        self.assertEqual(ENGLISH_PROMPT_VERSION, "47f5776e71db")
+        self.assertEqual(ENGLISH_DONT_KNOW_PROMPT_VERSION, "413d6775fc58")
+        compact = json.dumps(DONT_KNOW_WORD_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        self.assertEqual(DONT_KNOW_WORD_PROMPT_VERSION, hashlib.sha256(compact.encode("utf-8")).hexdigest()[:12])
+        self.assertEqual(len({DONT_KNOW_WORD_PROMPT_VERSION, PROMPT_VERSION, DONT_KNOW_PROMPT_VERSION,
+                              ENGLISH_PROMPT_VERSION, ENGLISH_DONT_KNOW_PROMPT_VERSION}), 5)
+
+    def test_its_runs_are_their_own_record_the_word_and_derive_from_the_first_main_run(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        spread = self.spread
+        plain = self.store(connection, path, {1: ("B", spread("B", 0.6, "ABCDE")), 2: ("A", spread("A", 0.9, "ABCDE")),
+                                              3: ("C", spread("C", 0.8, "ABCDE"))})
+        variant = {1: ("F", spread("F", 0.7, "ABCDEF")), 2: ("A", spread("A", 0.5, "ABCDEF")),
+                   3: ("C", spread("C", 0.75, "ABCDEF"))}
+        turkish = self.store(connection, path, variant, dont_know=True)
+        word = self.store(connection, path, variant, dont_know=True, word="english")
+        word_repeat = self.store(connection, path, variant, dont_know=True, word="english", repeat=2)
+        self.assertEqual(len({plain["run_key"], turkish["run_key"], word["run_key"], word_repeat["run_key"]}), 4)
+        rows = {row["id"]: row for row in connection.execute("SELECT id, prompt_version, dont_know_word FROM runs")}
+        self.assertEqual(tuple(rows[turkish["run_id"]])[1:], (DONT_KNOW_PROMPT_VERSION, None))
+        self.assertEqual(tuple(rows[word["run_id"]])[1:], (DONT_KNOW_WORD_PROMPT_VERSION, "english"))
+        self.assertNotIn("dont_know_word", turkish["metrics"])
+        self.assertEqual(word["metrics"]["dont_know_word"], "english")
+        # Counted with the English word, and derived from the setup's first full main run.
+        data = word["metrics"]["dont_know_answers"]
+        self.assertEqual((data["right"], data["wrong"], data["dont_know"]), (1, 1, 1))
+        self.assertEqual(data["derived"], turkish["metrics"]["dont_know_answers"]["derived"])
+        self.assertIsNotNone(data["derived"])
+        self.assertFalse(in_main_tables(word))
+        records = [plain, turkish, word, word_repeat]
+        self.assertEqual(run_repeats(connection, {record["run_key"]: record for record in records}, path.parent), [])
+        self.assertEqual(run_batching(connection, {record["run_key"]: record for record in records}, path.parent), [])
+        # Exported with the word, and with its prompts.
+        report = path.parent / "report.md"
+        report.write_text("".join(f"<!-- benchmark-result: {json.dumps({**record, 'metrics': None})} -->\n"
+                                  for record in (plain, word)), encoding="utf-8")
+        export_answers(path.parent / "answers.json", report, connection)
+        document = json.loads((path.parent / "answers.json").read_text(encoding="utf-8"))
+        self.assertEqual(document["dont_know_word_prompts"], DONT_KNOW_WORD_PROMPTS)
+        self.assertNotIn("dont_know_prompts", document)
+        self.assertEqual([run["dont_know_word"] for run in document["datasets"][0]["runs"]], [None, "english"])
+
+    def test_it_needs_dont_know_and_refuses_english(self) -> None:
+        base = ["benchmark_ollama.py", "subq-snap-1.1", "--provider", "subq"]
+        with mock.patch("sys.argv", [*base, "--dont-know", "--dont-know-word", "english"]):
+            self.assertEqual(parse_args().dont_know_word, "english")
+        with mock.patch("sys.argv", [*base, "--dont-know"]):
+            self.assertEqual(parse_args().dont_know_word, "turkish")
+        for extra in (["--dont-know-word", "english"],
+                      ["--dont-know", "--dont-know-word", "english", "--english", "t.jsonl", "--questions", "kept.txt"]):
+            with self.subTest(extra=extra), mock.patch("sys.argv", [*base, *extra]), mock.patch("sys.stderr"), \
+                    self.assertRaises(SystemExit):
+                parse_args()
+
+
+class RerunTests(unittest.TestCase):
+    """A fresh run of an existing setup (--rerun TAG), in a run of its own."""
+
+    bank = DontKnowTests.bank
+
+    def store(self, connection: sqlite3.Connection, path: Path, rerun: str | None = None, repeat: int | None = None,
+              batch_size: int = 1) -> dict:
+        selection = load_questions(path, None, None, None, 0)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "fastino/GLiDE", path, "fastino", "http://localhost", 0,
+                                 batch_size, False, None, False, None, None, False, repeat, False, rerun=rerun)
+        for ordinal, question_ in enumerate(selection.questions):
+            raw = json.dumps({"request_id": None, "response": {
+                "answers": {"answer": {"choice": "B", "probabilities": {label: 0.2 for label in "ABCDE"}}}}})
+            store_answers(connection, identity.run_id, [(ordinal, question_)], ["B"], raw, 0.1, 0.1)
+        mark_run(connection, identity.run_id, "completed")
+        metrics = run_metrics(connection, identity.run_key, path.parent)
+        return {"run_key": identity.run_key, "run_id": identity.run_id, "dataset": str(path),
+                "dataset_sha256": identity.dataset_sha256, "provider": "fastino", "model": "fastino/GLiDE",
+                "thinking": "off", "batch_size": batch_size, "evaluated": 3, "eligible_total": 3,
+                "selection_sha256": identity.selection_sha256, "replace_key_text": None, "repeat": repeat,
+                "rerun": metrics.get("rerun"), "metrics": metrics}
+
+    def test_a_rerun_is_its_own_run_out_of_the_main_tables_repeats_and_batching(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        first = self.store(connection, path)
+        repeat = self.store(connection, path, repeat=2)
+        fresh = self.store(connection, path, rerun="2026-11")
+        other_size = self.store(connection, path, rerun="2026-11-b", batch_size=5)
+        self.assertEqual(len({first["run_key"], repeat["run_key"], fresh["run_key"], other_size["run_key"]}), 4)
+        self.assertEqual(tuple(connection.execute("SELECT rerun, prompt_version FROM runs WHERE id=?",
+                                                  (fresh["run_id"],)).fetchone()), ("2026-11", PROMPT_VERSION))
+        self.assertNotIn("rerun", first["metrics"])
+        self.assertEqual(fresh["metrics"]["rerun"], "2026-11")
+        self.assertTrue(in_main_tables(first))
+        self.assertFalse(in_main_tables(fresh))
+        records = {record["run_key"]: record for record in (first, repeat, fresh, other_size)}
+        sets = run_repeats(connection, records, path.parent)
+        self.assertEqual([item["run_keys"] for item in sets], [[first["run_key"], repeat["run_key"]]])
+        self.assertEqual(run_batching(connection, records, path.parent), [])
+        self.assertIn("rerun 2026-11", run_label(fresh))
+        report = path.parent / "report.md"
+        report.write_text("".join(f"<!-- benchmark-result: {json.dumps({**record, 'metrics': None})} -->\n"
+                                  for record in (first, fresh)), encoding="utf-8")
+        export_answers(path.parent / "answers.json", report, connection)
+        document = json.loads((path.parent / "answers.json").read_text(encoding="utf-8"))
+        self.assertEqual([run["rerun"] for run in document["datasets"][0]["runs"]], [None, "2026-11"])
+
+    def test_rerun_takes_a_tag_and_never_a_repeat(self) -> None:
+        base = ["benchmark_ollama.py", "fastino/GLiDE", "--provider", "fastino"]
+        with mock.patch("sys.argv", [*base, "--rerun", "2026-11"]):
+            self.assertEqual(parse_args().rerun, "2026-11")
+        for extra in (["--rerun", " "], ["--rerun", "x", "--repeat", "2"]):
+            with self.subTest(extra=extra), mock.patch("sys.argv", [*base, *extra]), mock.patch("sys.stderr"), \
+                    self.assertRaises(SystemExit):
+                parse_args()
+
 
 
 class EnglishDontKnowTests(unittest.TestCase):

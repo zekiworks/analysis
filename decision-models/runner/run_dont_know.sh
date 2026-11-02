@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # The "I don't know" track: every question gets the option "Bilmiyorum" after its five, never shuffled and never correct,
 # and the System One instructions end with "If you do not know the answer, choose Bilmiyorum." (--dont-know). Each lane
-# runs one decision model through the script of its text runs, with the same settings; REPEAT=N makes it repeat N.
+# runs one decision model through the script of its text runs, with the same settings; REPEAT=N makes it repeat N, and
+# DONT_KNOW_WORD=english asks with the option "I don't know" instead (--dont-know-word english, the option-word check).
 # These runs stay out of the leaderboard (export_results.py).
 # Lanes: d1-ultra glide-v1.2 glide d3 d3-ultra drex-max-v1 drex-max-1.1 decider-v1.2 subq-preview subq-1.1 elephant-1
 # mammoth-1
 set -euo pipefail
 cd "$(dirname "$0")"
 
-variant=(--dont-know ${REPEAT:+--repeat "$REPEAT"})
+variant=(--dont-know ${DONT_KNOW_WORD:+--dont-know-word "$DONT_KNOW_WORD"} ${REPEAT:+--repeat "$REPEAT"})
 
 run() {
   case "$1" in
@@ -29,7 +30,7 @@ run() {
 }
 
 if [ "$#" -eq 0 ]; then
-  sed -n '2,7p' "$0" >&2
+  sed -n '2,8p' "$0" >&2
   exit 2
 fi
 for lane in "$@"; do run "$lane"; done

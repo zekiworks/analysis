@@ -332,6 +332,20 @@ confidence cut-off with the same attempt rate; these runs stay out of the leader
 With `--questions FILE` as well, a "Bilmiyorum" run asks only the listed questions (a subset run); like the full runs it
 stays out of the main tables, the repeats, the routing runs and the batching comparison.
 
+`DONT_KNOW_WORD=english ./run_dont_know.sh LANE…` runs the option-word check (`--dont-know --dont-know-word english`):
+the Turkish "Bilmiyorum" runs with only the option word in English, the option "I don't know" and the instructions
+ending with "If you do not know the answer, choose I don't know."; the instructions' start, the heading "Seçenekler:"
+and the questions stay as they are. Its prompts have a version of their own, the word is part of the run's identity and
+record (`dont_know_word`), and the report derives its rates from the model's first full run without the option, as
+for the "Bilmiyorum" runs; `--export-answers` writes its prompts as `dont_know_word_prompts`. It does not combine with
+`--english`, and these runs stay out of the main tables, the repeats, the routing runs and the batching comparison.
+
+`--rerun TAG` runs a configuration afresh in a run of its own, for instance `./run_glide.sh --rerun 2026-11` for a
+new five-option whole-bank run of hosted GLiDE: the tag is part of the run's identity and record (`rerun`), so the run
+never resumes the configuration's earlier runs and is not one of its repeats (it does not combine with `--repeat`).
+Such runs stay out of the main tables, the repeats, the routing runs and the batching comparison, and
+`--export-answers` carries them with their tag.
+
 `run_english.sh LANE…` runs the English reading track: the kept reading questions (`ENGLISH_KEPT`) in their English
 translation (`ENGLISH_TRANSLATIONS`, made by `translate_reading.py`), with the options under "Options:" and the System
 One instructions naming English instead of Turkish (`--english`). `DONT_KNOW=1` adds `--dont-know`: the option "I don't
