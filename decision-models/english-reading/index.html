@@ -22,7 +22,7 @@
     <section class="card">
       <p class="eyebrow">English reading</p>
       <h1>The Text tab's reading questions, asked in English</h1>
-      <p>547 of the Text tab's 656 reading questions, translated into English by a model, asked of the decision models as on the Text tab and compared with the same models' Turkish runs on the same questions. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
+      <p>547 of the Text tab's 656 reading questions, translated into English by a model, asked of the decision models as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       <p><strong>Two of the eight models compared scored higher on the English translation than on the Turkish original</strong>; six scored lower; two of the eight differences are significant after Holm's correction: Liquid d1-ultra (higher in Turkish) and Microsoft-Decision-1 (higher in English) (<a href="#chart-paired">Paired test</a>).</p>
       <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a><a href="#info">Info</a></nav>
     </section>
@@ -47,7 +47,7 @@
       <h3>The flags</h3>
       <p>In a separate request, the same model was shown each Turkish question, its English translation and the keyed option, and asked whether answering it correctly depends on Turkish wording, with the reasons (flag prompt version 08a5c70222aa). It flagged 109 of the 656 questions; they are left out, and 547 are kept. By reason, as a flagged question can have several:</p>
       <ul><li>word or phrase meaning: 76</li><li>idiom: 44</li><li>sound: 5</li><li>marked words: 55</li><li>other: 13</li></ul>
-      <p>No person checked the translations or the flags. Both prompts in full are in <a href="../english-reading.json" download>english-reading.json</a> and <a href="https://github.com/zekiworks/analysis/blob/main/decision-models/runner/translate_reading.py"><code>runner/translate_reading.py</code></a>.</p>
+      <p>No person checked the translations or the flags, and this is a limit of the method: a translation error, or a question whose answer still depends on Turkish wording that the model did not flag, would stay among the 547 kept questions and could move a model's accuracy in English. Both prompts in full are in <a href="../english-reading.json" download>english-reading.json</a> and <a href="https://github.com/zekiworks/analysis/blob/main/decision-models/runner/translate_reading.py"><code>runner/translate_reading.py</code></a>.</p>
       <h3>Asking the decision models</h3>
       <p>Each model is asked exactly as on the Text tab, with its own settings, one question per request, and with its option probabilities, except for one word of the System One instructions, the options heading and the question itself. The Text tab's instructions:</p>
       <blockquote><p>Which option is the correct answer to this Turkish multiple-choice question?</p></blockquote>

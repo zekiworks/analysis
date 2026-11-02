@@ -334,7 +334,7 @@ def build(site: Site) -> dict[str, str]:
     <section class="card">
       <p class="eyebrow">English reading</p>
       <h1>The Text tab's reading questions, asked in English</h1>
-      <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of the decision models as on the Text tab and compared with the same models' Turkish runs on the same questions. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
+      <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of the decision models as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(site, data)}
       <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a><a href="#info">Info</a></nav>
     </section>
@@ -359,7 +359,7 @@ def build(site: Site) -> dict[str, str]:
       <h3>The flags</h3>
       <p>In a separate request, the same model was shown each Turkish question, its English translation and the keyed option, and asked whether answering it correctly depends on Turkish wording, with the reasons (flag prompt version {esc(prompts["flag"]["version"])}). It flagged {flagged} of the {reading} questions; they are left out, and {kept} are kept. By reason, as a flagged question can have several:</p>
       <ul>{reasons}</ul>
-      <p>No person checked the translations or the flags. Both prompts in full are in {download} and {script}.</p>
+      <p>No person checked the translations or the flags, and this is a limit of the method: a translation error, or a question whose answer still depends on Turkish wording that the model did not flag, would stay among the {kept} kept questions and could move a model's accuracy in English. Both prompts in full are in {download} and {script}.</p>
       <h3>Asking the decision models</h3>
       <p>Each model is asked exactly as on the Text tab, with its own settings, one question per request, and with its option probabilities, except for one word of the System One instructions, the options heading and the question itself. The Text tab's instructions:</p>
       <blockquote><p>{esc(turkish_instructions)}</p></blockquote>
