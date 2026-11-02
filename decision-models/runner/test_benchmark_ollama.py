@@ -453,6 +453,16 @@ class EnglishTests(unittest.TestCase):
         self.assertTrue(in_main_tables({**record, "english": None}))
         self.assertFalse(in_main_tables(record))
         self.assertEqual(run_repeats(connection, {identity.run_key: record, "other": {**record, "run_key": "other"}}, path.parent), [])
+        # A repeat is a run of its own, with its number in its identity, and stays out as well.
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            repeat = start_run(connection, selection, "m", path, "subq", "http://localhost", 0, 1, False, None, False,
+                               None, None, False, 2, False, english="ab" * 32)
+        self.assertNotEqual(repeat.run_key, identity.run_key)
+        row = connection.execute("SELECT repeat, prompt_version, english FROM runs WHERE id=?", (repeat.run_id,)).fetchone()
+        self.assertEqual(tuple(row), (2, ENGLISH_PROMPT_VERSION, "ab" * 32))
+        repeated = {**record, "run_key": repeat.run_key, "run_id": repeat.run_id, "repeat": 2}
+        self.assertFalse(in_main_tables(repeated))
+        self.assertEqual(run_repeats(connection, {identity.run_key: record, repeat.run_key: repeated}, path.parent), [])
         # Its report lines form a section of their own.
         lines = english_lines([{**record, "correct": 1, "invalid": 0}])
         self.assertIn("## English reading", lines)
@@ -463,12 +473,15 @@ class EnglishTests(unittest.TestCase):
         base = ["benchmark_ollama.py", "subq-snap-1.1", "--english", "t.jsonl", "--questions", "kept.txt"]
         for argv in ([*base[:2], "--provider", "ollama", *base[2:]], [*base, "--provider", "subq", "--dont-know"],
                      [*base, "--provider", "subq", "--shuffle-options", "1"], [*base[:4], "--provider", "subq"],
-                     [*base, "--provider", "subq", "--repeat", "2"], [*base, "--provider", "vllm"]):
+                     [*base, "--provider", "vllm"]):
             with self.subTest(argv=argv), mock.patch("sys.argv", argv), mock.patch("sys.stderr"), self.assertRaises(SystemExit):
                 parse_args()
         for provider in ("subq", "vllm-yes-no"):
             with mock.patch("sys.argv", [*base, "--provider", provider]):
                 self.assertEqual(parse_args().english, Path("t.jsonl"))
+        with mock.patch("sys.argv", [*base, "--provider", "subq", "--repeat", "2"]):
+            args = parse_args()
+            self.assertEqual((args.english, args.repeat), (Path("t.jsonl"), 2))
 
 
 class RunRequestsTests(unittest.TestCase):

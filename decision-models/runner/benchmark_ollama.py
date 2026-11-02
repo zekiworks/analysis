@@ -1046,8 +1046,6 @@ def parse_args() -> argparse.Namespace:
             parser.error("--english is only supported by the System One providers and --provider vllm-yes-no")
         if args.questions is None:
             parser.error("--english needs --questions, the kept question IDs")
-        if args.repeat is not None:
-            parser.error("--english cannot be combined with --repeat")
     if args.jev_url is None and args.provider in SYSTEM_ONE:
         args.jev_url = SYSTEM_ONE[args.provider].url
     return args
@@ -4437,7 +4435,11 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
     if dont_know_runs:
         lines.extend(dont_know_lines(sorted(dont_know_runs, key=lambda item: item["run_id"])))
     if english_runs:
-        lines.extend(english_lines(sorted(english_runs, key=lambda item: item["run_id"])))
+        # Each configuration's runs together, its first run before its repeats.
+        lines.extend(english_lines(sorted(english_runs, key=lambda item: (
+            item.get("provider", "ollama"), item["model"], item["thinking"], item["batch_size"],
+            item["english"]["translations_sha256"], item.get("repeat") or 1, item["run_id"],
+        ))))
     for result in ordered:
         details = [f"Invalid model responses: {result['invalid']}"]
         if result.get("questions_per_minute"):
