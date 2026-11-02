@@ -258,7 +258,7 @@ const reversedRefit = run => run.confidence.refit_slopes.some(slope => slope != 
    a run); null without confidence scores. */
 const sureCounts = run => {
   const sure = run.confidence?.sure;
-  return sure ? { right: sure.correct, kept: sure.questions, skipped: data.questions - sure.questions } : null;
+  return sure ? { right: sure.correct, kept: sure.questions, skipped: data.questions - sure.questions, invalid: run.invalid || 0 } : null;
 };
 
 /* The Confidence tab's guide above the table: each term, then what it means. */
@@ -267,7 +267,7 @@ const CONFIDENCE_GUIDE = [
   ['Calibration', 'whether that probability matches how often the model is right. Of 100 answers scored 80%, about 80 should be right.'],
   [
     `Correct answers at ${pct(SETTINGS.threshold, 0)}`,
-    `answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only those questions. Kept: the questions it answered at that confidence; skipped: the questions it would leave out because it was less sure.`,
+    `answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only those questions. Kept: the questions it answered at that confidence; skipped: the questions not kept, answered with less than ${pct(SETTINGS.threshold, 0)} confidence or without a valid answer.`,
   ],
   ['Ranking score', 'how often a right answer receives higher confidence than a wrong answer. 0.50 is chance; 1.00 is perfect. Higher is better.'],
   ['Calibration gap', 'how far the probabilities are from the real hit rate, in points, as shipped. Lower is better.'],
@@ -315,7 +315,7 @@ const TABS = {
         cell: run => {
           if (filtered()) return MISSING;
           const sure = sureCounts(run);
-          return `${integer(sure.right)} of ${integer(sure.kept)} kept<span class="small">${integer(sure.skipped)} skipped</span>`;
+          return `${integer(sure.right)} of ${integer(sure.kept)} kept<span class="small">${integer(sure.skipped)} skipped${sure.invalid ? `, ${integer(sure.invalid)} without a valid answer` : ''}</span>`;
         },
       },
       {
@@ -413,7 +413,7 @@ function routeNumbers(first) {
     const { measured } = test;
     return {
       share: test.routed / test.held_out,
-      taken: state.route.rule === 'sure' ? { kept: test.routed, total: test.held_out } : null,
+      taken: { kept: test.routed, total: test.held_out },
       change: measured.difference,
       saving: 1 - measured.cost_usd / measured.frontier_cost_usd,
       savingUsd: (1000 * (measured.frontier_cost_usd - measured.cost_usd)) / test.held_out,
@@ -432,7 +432,7 @@ function routeNumbers(first) {
     const item = data.replay.frontiers.find(entry => entry.frontier === frontier.run)?.[state.route.rule];
     if (item) {
       const total = data.replay.questions;
-      numbers = { share: item.kept / total, taken: state.route.rule === 'sure' ? { kept: item.kept, total } : null, change: item.difference, perThousand: item.usd_per_1000 };
+      numbers = { share: item.kept / total, taken: { kept: item.kept, total }, change: item.difference, perThousand: item.usd_per_1000 };
       /* The fixed rules keep the same answers in front of every LLM; their kept and wrong counts are stored once. */
       const kept = state.route.rule === 'sure' ? data.replay.cutoffs.find(entry => entry.cutoff === data.sure_threshold) : data.replay.share;
       if (kept && kept.kept === item.kept) {
@@ -502,7 +502,8 @@ function latencyCell(run) {
 function shareCell(row) {
   if (!row.numbers) return NM;
   const { share, split, taken } = row.numbers;
-  /* At the fixed 99% cutoff the share is a whole count of questions over a stored total, given under it. */
+  /* Where the share is a whole count of questions over a stored total (all but the replay's half rule, a mean over
+     its splits), the count is given under it. */
   const count = taken ? `<span class="small">${integer(taken.kept)} of ${integer(taken.total)} kept · ${integer(taken.total - taken.kept)} to the LLM</span>` : '';
   if (!split) return `<span class="share-cell">${percent(share)}${tip(SPLIT_NA_TIP, '<span class="nm">Not recorded</span>')}${count}</span>`;
   const parts = [['right', split.right, 'kept and right'], ['wrong', split.wrong, 'kept but wrong'], ['rest', split.rest, 'sent to the LLM']];
@@ -1344,14 +1345,14 @@ function costTable(box) {
       `<td class="num">${cost == null ? '' : timesText(cost / costPer1000(cheapest))}</td>` +
       `<td class="num">${percent(overallAccuracy(run))}</td>` +
       `<td class="num">${latencyOf(run) == null ? NM : esc(latencyText(run))}</td>` +
-      `<td class="num">${counts ? `${integer(counts.right)} right of ${integer(counts.kept)} kept, ${integer(counts.skipped)} skipped` : NM}</td>` +
+      `<td class="num">${counts ? `${integer(counts.right)} right of ${integer(counts.kept)} kept, ${integer(counts.skipped)} skipped${counts.invalid ? ` (${integer(counts.invalid)} without a valid answer)` : ''}` : NM}</td>` +
       `<td class="num">${held ? `<a href="dont-know/">${pct(held.non_hallucination)}, attempt rate ${pct(held.attempt_rate)}</a>` : 'Not run'}</td></tr>`;
   };
   const notes = [
     `${integer(data.runs.length)} setups, ${integer(priced.length)} with a cost. ${SETTINGS.notMeasuredNote}`,
     `× cheapest: a setup’s cost over the cheapest setup’s (${labels.get(cheapest).text}, ${priceText(cheapest)}), from the unrounded costs; empty where the cost is not measured.`,
     'Pareto: no other setup with a cost is both at most as costly and at least as accurate, one of them strictly; the Trade-off chart’s dotted line when it shows all setups by cost.',
-    `Kept at ${sure}: the answers given with at least ${sure} confidence, how many of them were right, and how many questions were skipped because the model was less sure.`,
+    `Kept at ${sure}: the answers given with at least ${sure} confidence, how many of them were right, and how many questions were skipped: those not kept, answered with less than ${sure} confidence or without a valid answer.`,
     'Non-hallucination: from the Hallucination tab’s runs with the “Bilmiyorum” (I don’t know) option; read it with its attempt rate. The Hallucination tab has the method and its limits.',
   ];
   box.innerHTML =

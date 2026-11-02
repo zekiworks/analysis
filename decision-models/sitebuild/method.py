@@ -771,7 +771,8 @@ confidence useful.</p>
 ({v['luna_stated_skipped']} skipped). Few answers leave wide intervals: the 95%
 interval for the error rate is {v['decider_v1_error_span']} for Decider v1 and {v['glide_error_span']} for GLiDE.</p>
 <p>Gemma's letter probability reached {v['threshold']} on {v['study_gemma_sure_kept']} answers, {v['study_gemma_sure_correct']}
-of them right (about {v['study_gemma_sure_accuracy']}), and fell short on {v['study_gemma_sure_skipped']}, which it skipped.
+of them right (about {v['study_gemma_sure_accuracy']}), and fell short of it on {v['study_gemma_sure_skipped']}, which the
+{v['threshold']} cutoff skips.
 DeepSeek with reasoning gave every answer at least {v['threshold']} ({v['study_deepseek_on_sure_kept']} kept,
 {v['study_deepseek_on_sure_skipped']} skipped), and about {v['study_deepseek_on_sure_accuracy']} were right.</p>
 <h3 id="sources">Can another confidence method make the same answers easier to judge?</h3>

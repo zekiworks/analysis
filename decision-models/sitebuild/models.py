@@ -130,9 +130,17 @@ def confidence(site: Site, run: dict[str, Any]) -> str:
     sure = item["sure"]
     threshold = pct(site.config["threshold"], 0)
     skipped = site.results["questions"] - sure["questions"]
+    if run["invalid"]:
+        unsure = sum(entry["questions"] for entry in item["bins"]) - sure["questions"]
+        if unsure + run["invalid"] != skipped:
+            raise SystemExit(f"run {run['run']}: {unsure} unsure + {run['invalid']} invalid is not {skipped} skipped")
+        skipped_text = (f"; {skipped:,} skipped: {unsure:,} with the model less than {threshold} sure"
+                        f" and {run['invalid']:,} without a valid answer")
+    else:
+        skipped_text = f"; {skipped:,} skipped, the model less than {threshold} sure"
     sure_text = (f"{sure['questions']:,}, of which {sure['questions'] - sure['correct']:,} wrong"
                  + (f" (share right: {interval(sure['correct'], sure['questions'])}, 95% interval)" if sure["questions"] else "")
-                 + f"; {skipped:,} skipped, the model less than {threshold} sure")
+                 + skipped_text)
     parts = item["parts"]
 
     def auroc(entry: dict[str, Any]) -> str:

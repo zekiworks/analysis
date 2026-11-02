@@ -29,8 +29,8 @@ TRANSLATORS = {"claude-opus-5-5": "Claude Opus 5.5"}
 # A model asked in English under another model ID than its Turkish run: (provider, Turkish model ID, English model ID)
 # with the reason, a clause after "because".
 RENAMED = {
-    ("liquid", "d1:free", "d1"): "Liquid's API no longer serves the d1:free name its Turkish runs used; its model list "
-                                 "still names d1, released 29 September 2026",
+    ("liquid", "d1:free", "d1"): "Liquid's API no longer serves that name; its model list still names d1, released "
+                                 "29 September 2026",
 }
 SIGNIFICANT = 0.05
 
@@ -88,6 +88,15 @@ def check(site: Site, data: dict[str, Any], record: dict[str, Any]) -> None:
         problems.append(f"page_config.json english_reading: run {run} is compared and also listed as not compared or skipped")
     if set(not_compared) & set(config["skipped"]):
         problems.append("page_config.json english_reading: a run is both not compared and skipped")
+    selected = config["selected"]
+    if len(selected) != 20 or len(set(selected)) != len(selected):
+        problems.append("page_config.json english_reading: selected does not list 20 runs once each")
+    if set(selected) != compared | set(not_compared) | set(config["skipped"]):
+        problems.append("page_config.json english_reading: selected is not the compared, not compared and skipped runs")
+    for model in site.config["aa_decision_index"]["models"]:
+        if model["run"] is not None and model["run"] not in selected:
+            problems.append(f"page_config.json english_reading: {model['name']} (run {model['run']}) of the Decision "
+                            "Index is not selected")
     if problems:
         raise SystemExit("english_reading:\n  " + "\n  ".join(problems))
 
@@ -243,8 +252,8 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
         f"{100 * model['difference']:+.{digits}f}",
         f"{paired['english_only_right']:,}",
         f"{paired['turkish_only_right']:,}",
-        esc(bp.p_text(paired["p"]).removeprefix("p = ")),
-        esc(bp.p_text(paired["p_holm"]).removeprefix("p = ")) + (" *" if significant(model) else ""),
+        esc(bp.p_text(paired["p"]).removeprefix("p = ").removeprefix("p ")),
+        esc(bp.p_text(paired["p_holm"]).removeprefix("p = ").removeprefix("p ")) + (" *" if significant(model) else ""),
     ]
     heads = [f"{head} ({note})" for head, note in columns(data)]
     run = site.by_id[model["turkish_run"]]
@@ -325,6 +334,9 @@ def build(site: Site) -> dict[str, str]:
     translator, prompts = record["translator"], record["prompts"]
     translator_name = TRANSLATORS[translator["model"]]
     family = len(data["models"])
+    selected = len(site.config["english_reading"]["selected"])
+    selection = (f"{esc(site.config['english_reading']['selection'])} {bp.in_words(family).capitalize()} of them are "
+                 f"compared here; the other {bp.in_words(selected - family)} are listed under the results with their reasons.")
     turkish_instructions = site.answers["prompts"]["system_one_instructions"]
     enum = prompts["flag"]["schema"]["properties"]["reasons"]["items"]["enum"]
     reasons = "".join(f"<li>{esc(reason_name(key))}: {record['reasons'][key]:,}</li>" for key in enum if key in record["reasons"])
@@ -334,17 +346,18 @@ def build(site: Site) -> dict[str, str]:
     <section class="card">
       <p class="eyebrow">English reading</p>
       <h1>The Text tab's reading questions, asked in English</h1>
-      <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of the decision models as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
+      <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of {bp.in_words(family)} of the {selected} decision models we chose (<a href="#about">which ones</a>) as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(site, data)}
       <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a><a href="#info">Info</a></nav>
     </section>
     {face(site, data)}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, the models not compared and our method</span></summary>
-    <section class="card">
+    <section class="card" id="about">
       <h2>About this test</h2>
-      <p>The Text tab's reading questions ({esc(units_text(record))}; the grammar questions are left out) were translated into English by {esc(translator_name)}. The same model flagged the questions whose answer depends on Turkish wording; the {flagged} flagged questions are left out and the other {kept} kept. Each decision model answered the kept questions in English and is compared with its own Text tab run on the same {kept} questions.</p>
-      <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (every number on this page, under <code>english_reading</code>), <a href="{rel(PATH, "answers.json")}" download>answers.json</a> (each English run's answers, under <code>english_runs</code>) and {download} (the translator, its prompts, the flags and each question's hash of its English text; no question text).</p>
+      <p>{selection}</p>
+      <p>The Text tab's reading questions ({esc(units_text(record))}; the grammar questions are left out) were translated into English by {esc(translator_name)}. The same model flagged the questions whose answer depends on Turkish wording; the {flagged} flagged questions are left out and the other {kept} kept. Each of the {bp.in_words(family)} compared models answered the kept questions in English and is compared with its own Text tab run on the same {kept} questions.</p>
+      <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (the comparison's numbers, under <code>english_reading</code>), <a href="{rel(PATH, "answers.json")}" download>answers.json</a> (each English run's answers, under <code>english_runs</code>) and {download} (the translator, its prompts, the flags, the question units and each question's hash of its English text; no question text).</p>
     </section>
     <section class="card" id="results">
       <h2>Results</h2>
@@ -375,5 +388,5 @@ def build(site: Site) -> dict[str, str]:
     </section>
     </details>"""
     return {PATH: site.page(PATH, "English reading",
-                            f"The Text tab's {kept} kept reading questions in English: accuracy of the decision models in "
-                            "English against Turkish, with a paired test.", body)}
+                            f"The Text tab's {kept} kept reading questions in English: accuracy of {family} decision models "
+                            "in English against Turkish, with a paired test.", body)}

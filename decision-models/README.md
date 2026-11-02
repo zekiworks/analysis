@@ -155,12 +155,14 @@ python3 -m http.server 8000                                # preview at http://1
     `results.json`, whatever the filters, the model selection, the charts' default and the All models switch: cheapest
     first (setups without a cost last, by accuracy), with $ per 1,000 questions as the Cost card writes it, its cost over
     the cheapest setup's (× cheapest, empty where the cost is not measured), accuracy, median latency, the answers kept at
-    the 99% cutoff (right of kept, and the questions skipped: the scored total minus the kept), the non-hallucination rate
+    the 99% cutoff (right of kept, and the questions skipped: the scored total minus the kept, that is the answers below
+    99% confidence plus any invalid answers, which the cell counts where there are some), the non-hallucination rate
     with its attempt rate where the Hallucination tab has the model (Not run otherwise), and a Pareto tag for the setups
     the trade-off chart's rule puts on its dotted line among all setups with a cost. No score combines these columns.
-    Every cutoff figure on the site gives its kept (answered) and skipped counts: the leaderboard's Confidence tab, the
-    Routing tab's fixed 99% rule (exact counts from the replay and the live tests), the model pages, the Method page and
-    the Hallucination tab's derived cut-off (answered and held back).
+    Kept and skipped counts stand beside the cutoff figures: the leaderboard's Confidence tab; the Routing tab wherever
+    `results.json` stores whole counts (the fixed 99% rule and the most confident quarter in the replay and in the live
+    tests, the half rule in the live tests; the half rule's replay figures are means over 300 splits, so they stay
+    shares); the model pages; the Method page; and the Hallucination tab's derived cut-off (answered and held back).
     Everything else is under Info, a details element closed by default and opened by a link into it (a leaderboard
     tab, `#board` or `#info`): the leaderboard, the decision models' table, then the other models' (chat and general
     models), each ranked on its own (the All models switch shows one table), the counters, the summary and the

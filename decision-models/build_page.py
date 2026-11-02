@@ -1024,10 +1024,13 @@ def savings_table(snap: Snapshot) -> str:
     place = {item["run"]["run"]: index for index, item in enumerate(items)}
     rule_names = ("Most confident quarter", "Cutoff chosen on half the questions", f"Fixed {snap.cutoff} rule")
 
-    def rule(numbers: dict[str, Any] | None, takes: bool = False) -> str:
+    def rule(numbers: dict[str, Any] | None, takes: bool = False, keeps: bool = False) -> str:
         if numbers is None:
             return "Not run"
         text = f"{fmt.pct(numbers['saving'])} cheaper, {change_text(numbers['difference'])}"
+        if keeps:
+            passed = snap.replay["questions"] - numbers["kept"]
+            return f"Decider v1.1 keeps {count(numbers['kept'])} and passes on {count(passed)}: {text}"
         return f"Decider v1.1 takes {fmt.pct(numbers['share'])}: {text}" if takes else text
 
     def row(item: dict[str, Any]) -> str:
@@ -1035,9 +1038,9 @@ def savings_table(snap: Snapshot) -> str:
             "<tr>"
             f'<td data-label="Model behind Decider v1.1">{esc(setup_name(item["run"]))}</td>'
             f'<td class="num" data-label="Its accuracy alone">{fmt.pct(item["accuracy"])}</td>'
-            f'<td class="num" data-label="{esc(rule_names[0])}">{rule(item["share"])}</td>'
+            f'<td class="num" data-label="{esc(rule_names[0])}">{rule(item["share"], keeps=True)}</td>'
             f'<td class="num" data-label="{esc(rule_names[1])}">{rule(item["strict"], True)}</td>'
-            f'<td class="num" data-label="{esc(rule_names[2])}">{rule(item["sure"])}</td>'
+            f'<td class="num" data-label="{esc(rule_names[2])}">{rule(item["sure"], keeps=True)}</td>'
             "</tr>"
         )
 
