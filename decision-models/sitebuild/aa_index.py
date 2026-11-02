@@ -6,11 +6,12 @@ vision.json's, as the Text, Page images and Hallucination tabs show it."""
 
 from __future__ import annotations
 
+import json
 import math
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import NOT_MEASURED, Site, esc, hbars, pct, rank_fill, rel, scale_legend
+from sitebuild.site import NOT_MEASURED, ROOT, Site, esc, hbars, pct, rank_fill, rel, scale_legend
 from sitebuild.vision import NO_IMAGE, NOT_AVAILABLE, cell, joined
 
 PATH = "aa-decision-index/"
@@ -51,6 +52,31 @@ def per_million(cost: float) -> float:
 
 def route(run: dict[str, Any]) -> str:
     return {"local": "on our GPU, from the released weights", "free": "its API's free tier"}.get(run["billing"], "its API")
+
+
+def reply_cards(site: Site) -> str:
+    """Our four reply charts (aa_cards.py), each opening its PNG. The build stops when cards.json is missing, names a file
+    that is not there or was drawn from other results than the site's."""
+    redraw = "draw them again (python3 aa_cards.py, or build_site.py without --no-images)"
+    path = ROOT / PATH / "cards.json"
+    if not path.is_file():
+        raise SystemExit(f"{PATH}cards.json is missing: {redraw}")
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    version = site.results["results_version"]
+    if manifest["results_version"] != version:
+        raise SystemExit(f"{PATH}cards.json: the reply charts are from results {manifest['results_version']}, the site from {version}: {redraw}")
+    missing = [card["file"] for card in manifest["cards"] if not (ROOT / PATH / card["file"]).is_file()]
+    if missing:
+        raise SystemExit(f"{PATH}cards.json names files that are not there ({', '.join(missing)}): {redraw}")
+    width, height = manifest["width"], manifest["height"]
+    figures = "".join(
+        f'<figure class="reply-card" style="margin:0 0 1.25rem"><a href="{esc(card["file"])}"><img src="{esc(card["file"])}" width="{width}" height="{height}" '
+        f'loading="lazy" alt="{esc(card["title"])}: the numbers of this page" style="display:block;width:100%;height:auto"></a>'
+        f'<figcaption class="note">{index}. In reply to Artificial Analysis\'s “{esc(card["answers"])}” · PNG, {width:,} × {height:,}</figcaption></figure>'
+        for index, card in enumerate(manifest["cards"], 1))
+    return (f'<section class="card" id="reply-charts"><h2>Our four reply charts</h2><p class="note">One for each card of Artificial '
+            f"Analysis's thread, drawn from this page's numbers (results {esc(version)}); each opens as an image to download.</p>"
+            f"{figures}</section>")
 
 
 def build(site: Site) -> dict[str, str]:
@@ -164,8 +190,9 @@ def build(site: Site) -> dict[str, str]:
       <p class="eyebrow">Compared with Artificial Analysis</p>
       <h1>{esc(TITLE)}</h1>
       <p>Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard; {esc(joined(absent))} {"is" if len(absent) == 1 else "are"} not. This page gathers our numbers for those {len(pairs)}, from our published results: the numbers of our four charts in reply to that post come from here. Our tests are different from Artificial Analysis's, so the two rank different things. This page ranks nothing new and changes no number on the other pages.</p>
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#table">Every number</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#reply-charts">Reply charts</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#table">Every number</a></nav>
     </section>
+    {reply_cards(site)}
     <section class="charts" aria-label="Charts">{charts}</section>
     <section class="card" id="table">
       <h2>Every number, model by model</h2>

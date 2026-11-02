@@ -188,8 +188,12 @@ python3 -m http.server 8000                                # preview at http://1
     build): charts of accuracy, the non-hallucination rate and cost in US dollars per 1M questions (`hbars` with a dollar
     axis), and one table with accuracy, reading, grammar, page images
     (picture alone), non-hallucination and attempt rates and cost per 1,000 and per 1M questions, every value from
-    `results.json` and `vision.json`. It is the source of our four charts in reply to that post; nothing links it from
-    the navigation bar.
+    `results.json` and `vision.json`. It opens with our four reply charts to that post, one per card of Artificial
+    Analysis's thread: `aa_cards.py` draws them from the same data with headless Chrome (in every full build, after the
+    link preview; `--no-images` keeps them) into `aa-decision-index/card-<n>-<topic>-<hash>.png`, and
+    `aa-decision-index/cards.json` names them with the results version they were drawn from. The build stops when that
+    is not the site's results version, so the charts never show other numbers than the page. `aa_cards.py` needs Pillow
+    and the Noto Sans font (fontconfig, or `CARD_FONT`). Nothing links the page from the navigation bar.
   - **`data/picks.json`**: each leaderboard setup's pick and score on each scored question, written from
     `answers.json` by `sitebuild/questions.py`, which checks every pick against its grade. Scores are floored
     to four decimals, so a score below the 99% cutoff never reads as 99.00%.

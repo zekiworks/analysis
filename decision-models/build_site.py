@@ -2,14 +2,14 @@
 """Build the site (this folder, at /analysis/decision-models/) from results.json, answers.json and page_config.json, in
 one step:
 
-    python3 build_site.py               # charts, link preview image, CITATION.cff and every page
-    python3 build_site.py --no-images   # the same, keeping the current link preview image (no Chrome needed)
+    python3 build_site.py               # charts, link preview image, reply charts, CITATION.cff and every page
+    python3 build_site.py --no-images   # the same, keeping the current link preview image and reply charts (no Chrome needed)
 
 It runs reproduce.py first and stops unless every check matches. It also stops when a provider that serves both decision
 and chat models has a run of a model whose type we have not decided (provider_checks), and when chart-renderer's figures
 give a run another type than the tables do (type_checks). Then it draws the charts with chart-renderer (cargo), the link
 preview image in both themes with headless Chrome (CHROME, else google-chrome) and CITATION.cff, both from build_page.py,
-and writes the pages.
+the reply charts of aa-decision-index/ with the same Chrome (aa_cards.py), and writes the pages.
 
 The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the Page images tab and dont-know/
 (sitebuild/dont_know.py) the Hallucination tab. index.html keeps its
@@ -41,6 +41,7 @@ from typing import Any
 
 sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 ROOT = Path(__file__).resolve().parent
+import aa_cards  # noqa: E402
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
 from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, asset, route_labels, topbar  # noqa: E402
@@ -569,7 +570,7 @@ def summary_checks(page: str) -> tuple[list[str], int]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--no-images", action="store_true", help="keep the current link preview image (no Chrome needed)")
+    parser.add_argument("--no-images", action="store_true", help="keep the current link preview image and reply charts (no Chrome needed)")
     args = parser.parse_args()
     data, site = Data(), Site()
     provider_checks(data)
@@ -577,6 +578,8 @@ def main() -> int:
     type_checks(data, site, snap)
     charts()
     names = images(site, args.no_images)
+    if not args.no_images:
+        aa_cards.draw()  # the reply charts on aa-decision-index/, which that page shows only for these results
     bp.CITATION.write_text(bp.citation(snap, site.values), encoding="utf-8")
     print(f"Wrote {bp.CITATION.relative_to(ROOT)}")
     blocks = {
