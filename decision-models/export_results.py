@@ -293,9 +293,9 @@ MODELS: dict[str, dict[str, Any]] = {
         "OneJev at 81ce62f with the checkpoint's serve.patch, as the card's setup.sh installs it) behind our HTTP server "
         "(servers/baselabs_server.py), one request at a time. That runtime reads images only through an engine the patch "
         "leaves without the attention the model was trained with, so it is not on the Page images tab. The card mentions a "
-        "trained \"I don't know\" option, but its answers have no such output, and our questions offer five options. It "
-        "reports probabilities rounded to 6 decimals by the model's own loader, so they sum to 1 only within that rounding; "
-        "the check before its runs allowed for it. Its card lists English only.",
+        "trained \"I don't know\" option, but its answers have no such output, and our questions offer five options. "
+        "Probabilities rounded to 6 decimals by the model's own loader. They sum to 1 only within that rounding, and the "
+        "check before its runs allowed for it. Its card lists English only.",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 9_409_813_744,
     },
@@ -306,9 +306,9 @@ MODELS: dict[str, dict[str, Any]] = {
         "OneJev at 81ce62f with the checkpoint's serve.patch, as the card's setup.sh installs it) behind our HTTP server "
         "(servers/baselabs_server.py), one request at a time. That runtime reads images only through an engine the patch "
         "leaves without the attention the model was trained with, so it is not on the Page images tab. The card mentions a "
-        "trained \"I don't know\" option, but its answers have no such output, and our questions offer five options. It "
-        "reports probabilities rounded to 6 decimals by the model's own loader, so they sum to 1 only within that rounding; "
-        "the check before its runs allowed for it. Its card lists English only.",
+        "trained \"I don't know\" option, but its answers have no such output, and our questions offer five options. "
+        "Probabilities rounded to 6 decimals by the model's own loader. They sum to 1 only within that rounding, and the "
+        "check before its runs allowed for it. Its card lists English only.",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 27_356_728_560,
     },
@@ -320,10 +320,10 @@ MODELS: dict[str, dict[str, Any]] = {
     "subq-snap-1.1": {
         "name": "SubQ Snap 1.1",
         "note": "SubQ's subq-snap-1.1, in public preview, through its Decisions API, which also takes images. Its option "
-        "probabilities arrive as 32-bit floats, so they sum to 1 only within 32-bit rounding. As an experimental rule of ours "
-        "for this model only, the check before its runs accepted a sum within one 32-bit epsilon (2^-23) per option when "
-        "every value is an exact 32-bit float, instead of 7 decimal places; this is our tolerance, not an error bound SubQ "
-        "states. The values are stored as SubQ returned them.",
+        "probabilities arrive as 32-bit floats, so they sum to 1 only within 32-bit rounding. Its probability check used an "
+        "experimental 32-bit rule of ours. For this model only, the check before its runs accepted a sum within one 32-bit "
+        "epsilon (2^-23) per option when every value is an exact 32-bit float, instead of 7 decimal places; this is our "
+        "tolerance, not an error bound SubQ states. The values are stored as SubQ returned them.",
     },
     "decider-1": {"name": "meraGPT Decider 1", "note": "Hosted decision model; meraGPT serves its current version under this name"},
     "d1:free": {"name": "Liquid d1", "billing": "free"},

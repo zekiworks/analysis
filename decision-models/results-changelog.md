@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 8cacd512 (2 November 2026)
+
+- Shorter notes under three leaderboard rows. Elephant-1 and Mammoth-1: "Probabilities rounded to 6 decimals by the model's own loader." SubQ Snap 1.1: "Its probability check used an experimental 32-bit rule of ours."; the note on run 346's two pauses is no longer on the leaderboard and stays on that run's page. The three models' full notes keep the same facts, reworded to open with those sentences. No number changed.
+
 ## Results 07bac50e (2 November 2026)
 
 - SubQ Snap 1.1, run 346: its note corrected. The retry it mentions belonged to the first paused request, not the second. Without the two paused requests, its 90th-percentile request time is 0.387 s, not 0.388 s, while its median stays 0.378 s; the note had called both unchanged. Its first pause now reads 12 minutes (it lasted 11 minutes 44 seconds) instead of 11, rounded like the second. No number changed.

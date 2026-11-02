@@ -111,10 +111,9 @@
       {"provider": "onejev", "model": "OmniJev/OneJev-27B", "note": "The five runs are identical because decoding is deterministic."},
       {"run": 276, "note": "It stopped after 1,792 answers when the service reported the model at capacity, and was resumed for the other 406 questions; the usage and cost of the failed request are unknown."},
       {"run": 340, "note": "Its request times come from one GPU with no other known work while its runs took place, though the GPU was not monitored throughout."},
-      {"provider": "baselabs", "model": "baselabs/elephant-1", "note": "It reports probabilities rounded to 6 decimals by the model's own loader, so they sum to 1 only within that rounding; the check before its runs allowed for it."},
-      {"provider": "baselabs", "model": "baselabs/mammoth-1", "note": "It reports probabilities rounded to 6 decimals by the model's own loader, so they sum to 1 only within that rounding; the check before its runs allowed for it."},
-      {"provider": "subq", "model": "subq-snap-1.1", "note": "As an experimental rule of ours for this model only, the check before its runs accepted a sum within one 32-bit epsilon (2^-23) per option when every value is an exact 32-bit float, instead of 7 decimal places; this is our tolerance, not an error bound SubQ states."},
-      {"run": 346, "note": "It was paused twice while the approval of its probability check was confirmed, for 12 minutes and then for 3 hours 24 minutes, and resumed from its stored answers."}
+      {"provider": "baselabs", "model": "baselabs/elephant-1", "note": "Probabilities rounded to 6 decimals by the model's own loader."},
+      {"provider": "baselabs", "model": "baselabs/mammoth-1", "note": "Probabilities rounded to 6 decimals by the model's own loader."},
+      {"provider": "subq", "model": "subq-snap-1.1", "note": "Its probability check used an experimental 32-bit rule of ours."}
     ]
   },
   "reasoning_levels": {"about": "Each model's reasoning levels as its provider's documentation lists them, lowest first, with its default and top level; shown on the model pages.", "models": {
