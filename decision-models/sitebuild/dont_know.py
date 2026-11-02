@@ -1,4 +1,4 @@
-"""I don't know option (dont-know/), the site's third tab: the Text tab's questions with one more option after each
+"""Hallucination (dont-know/), the site's third tab: the Text tab's questions with one more option after each
 question's own, "Bilmiyorum" ("I don't know"), from results.json's `dont_know` and page_config.json's `dont_know` (the
 models not run, with their reasons). One row per model, from its first run, ranked by accuracy; a model with more than
 one run shows the range over its runs. A plain HTML table, as on the Page images tab; it needs no JavaScript. The tab
@@ -102,7 +102,7 @@ def build(site: Site) -> dict[str, str]:
     several = [model["name"] for model in data["models"] if len(model["runs"]) > 1]
     body = f"""    {site.tabs(PATH)}
     <section class="card">
-      <p class="eyebrow">I don't know option</p>
+      <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>Every question of the Text tab gets one more option after its five answers: F, “{option}”, Turkish for “{esc(data["option_en"])}”. It is always the last option, it is never shuffled and it is never correct. The System One instructions get one added sentence: “{esc(data["sentence"])}” Everything else is as on the Text tab: the same {total} scored questions and answer key, one question per request, and each model's own settings from its text run.</p>
       <p>This tab is separate from the leaderboard. It ranks nothing on the Text tab and changes none of its numbers.</p>
@@ -128,6 +128,6 @@ def build(site: Site) -> dict[str, str]:
       <h3>Repeats</h3>
       <p>One full run per model. A model whose repeated text runs changed answers gets five runs with the option. Those runs form a repeat set of their own and are never mixed with the Text tab's runs. The table shows the first run; the range covers all of them, and the changed answers are the scored questions whose answer differs between the runs.</p>
     </section>"""
-    return {PATH: site.page(PATH, "I don't know option",
+    return {PATH: site.page(PATH, "Hallucination",
                             f"The Text tab's {total} questions with a sixth option, “{data['option']}” (I don't know): accuracy, "
                             "attempt rate and non-hallucination rate of the most accurate decision models.", body)}

@@ -411,7 +411,7 @@ def main() -> int:
     checked = checks.passed + checks.failed - before
     models = len((results.get("dont_know") or {}).get("models", []))
     print(
-        f"\nI don't know option ({models} model{'' if models == 1 else 's'}, from their runs' exported "
+        f"\nHallucination tab ({models} model{'' if models == 1 else 's'}, from their runs' exported "
         f"answers: counts exact, rates, mean probabilities and the derived abstention within {METRIC_TOLERANCE:g}): "
         f"{checked - len(dont_know_mismatches)} of {checked} match"
     )

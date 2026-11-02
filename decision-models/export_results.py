@@ -1200,7 +1200,7 @@ def reasoning(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, 
 
 
 def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
-    """The "I don't know option" tab (results.json `dont_know`) from the report's records of runs with the option
+    """The Hallucination tab (results.json `dont_know`) from the report's records of runs with the "I don't know" option
     (`dont_know_answers`), on the exported bank's full question set: one entry per setup (provider, model, reasoning,
     questions per request), from its first full run, with the range over all its full runs. Each setup's original run
     (its first full run without the option) must be its model's run on the Text tab. None without such runs. The prompt

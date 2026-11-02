@@ -31,7 +31,7 @@ MENU = (
     ("data/", "Data"),
 )
 # The site's three benchmarks, each a tab at the top of its page: (path inside the site, label). Text is the home page.
-BENCHMARKS = (("", "Text"), ("vision/", "Page images"), ("dont-know/", "I don't know option"))
+BENCHMARKS = (("", "Text"), ("vision/", "Page images"), ("dont-know/", "Hallucination"))
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
 # The LLMs the home page's Routing tab puts behind a first model, in its order: (key in page_config.json's named_runs,

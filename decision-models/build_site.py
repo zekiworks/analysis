@@ -12,7 +12,7 @@ preview image in both themes with headless Chrome (CHROME, else google-chrome) a
 and writes the pages.
 
 The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the Page images tab and dont-know/
-(sitebuild/dont_know.py) the I don't know option tab. index.html keeps its
+(sitebuild/dont_know.py) the Hallucination tab. index.html keeps its
 copy; this script rewrites what is inside its <!-- build:name --> markers: the meta tags, the top bar, the three tabs, the
 intro (its counts from results.json), the counters, the results version, the plain tables for readers without
 JavaScript (the decision models, then the other models, each ranked on its own) and the note under them, the settings
