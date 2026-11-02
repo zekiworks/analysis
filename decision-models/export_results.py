@@ -1596,6 +1596,11 @@ def hosted_glide_rerun_answers_part(rerun: dict[str, Any], dont_know_section: di
 # serves the d1:free name of d1 (its model list still names d1), so d1's English runs ask for d1 while its Text tab run
 # asked for d1:free.
 ENGLISH_TEXT_MODEL = {("liquid", "d1"): "d1:free"}
+# Ümit's English "I don't know" comparison of four models (results.json `dont_know_english_option`), by Text tab run in
+# this order, with Holm's correction over these four alone.
+ENGLISH_OPTION_FOUR = (199, 346, 373, 374)
+ENGLISH_OPTION_FOUR_SOURCE = ("Ümit's follow-up of 2 November 2026, step 2: the English “I don't know” comparison for "
+                              "Liquid d1-ultra, SubQ Snap 1.1, Elephant-1 and Mammoth-1, with Holm's correction over these four")
 
 
 def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
@@ -1953,6 +1958,22 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
     }
 
 
+def dont_know_english_option(section: dict[str, Any]) -> dict[str, Any]:
+    """Ümit's four-model comparison (results.json `dont_know_english_option`) from `english_reading.dont_know`: per
+    ENGLISH_OPTION_FOUR Text tab run, in that order, its entry's wrong answers only in English and only in Turkish and
+    exact McNemar p, with Holm's correction over these four. Stops unless every listed run has exactly one entry."""
+    models = []
+    for text_run in ENGLISH_OPTION_FOUR:
+        found = [model for model in section["models"] if model["text_run"] == text_run]
+        if len(found) != 1:
+            raise ValueError(f"English \"I don't know\" comparison of four: Text tab run {text_run} has {len(found)} entries, not one")
+        paired = found[0]["paired"]
+        models.append({"name": found[0]["name"], "text_run": text_run, "english_only_wrong": paired["english_only_wrong"],
+                       "turkish_only_wrong": paired["turkish_only_wrong"], "p": paired["p"], "p_holm": None})
+    for model, adjusted in zip(models, bm.holm([model["p"] for model in models])):
+        model["p_holm"] = adjusted
+    return {"source": ENGLISH_OPTION_FOUR_SOURCE, "questions": section["questions"], "models": models}
+
 
 def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_section: dict[str, Any] | None = None,
                    english_section: dict[str, Any] | None = None,
@@ -2110,6 +2131,7 @@ def main() -> int:
             data["english_reading"] = english_reading_answers_part(english, document, answers, public)
             if english_idk is not None:
                 data["english_reading"]["dont_know"] = english_dont_know_answers_part(english_idk, document, answers, public)
+                data["dont_know_english_option"] = dont_know_english_option(data["english_reading"]["dont_know"])
         data["answer_key"] = answer_key(answers)
         data["formats"] = formats(data["runs"], answers)
         data["reasoning"] = reasoning(data["runs"], answers)

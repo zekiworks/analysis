@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 47420478 (2 November 2026)
+
+- Hallucination tab, English-option section: the four models of Ümit's follow-up (Liquid d1-ultra, SubQ Snap 1.1, Elephant-1 and Mammoth-1) with Holm's correction over these four, in `results.json` (`dont_know_english_option`). The same first runs and the same exact McNemar test of wrong answers as the comparison of all 13 models; only the correction's family differs. None of the four differences is significant over the four either: the smallest adjusted p is Liquid d1-ultra's, 0.077 (0.21 over the 13). The comparison of the 13 models is unchanged. No other number changed.
+
 ## Results 3ad29607 (2 November 2026)
 
 - English reading: four more models on our GPUs, each run as its Text tab run (the same loader, checkpoint and settings): Mammoth-1, Fastino GLiDE v1.2, Perplexity Decider 27B v1.2 and Perplexity Decider Flash v1.2, with one English reading run and one English “I don't know” run each (and, for Decider Flash v1.2, which has no Hallucination tab run, one Turkish “Bilmiyorum” run on the kept questions). With 13 models in Holm's correction, only Microsoft-Decision-1's accuracy difference is significant (higher in English); in the “I don't know” comparison only Perplexity Decider Flash v1.2's difference in wrong answers is (more wrong answers in Turkish). The three Perplexity and Fastino models made their Text tab runs on a DGX Spark and their English runs on our RTX PRO 6000 GPU; the page says so. Not run: Clef (its server reports probabilities rounded to 4 decimal places, so its English smoke run failed our probability check, and no allowance for that rounding has been decided) and Celeris-1 Decision (no key).

@@ -585,10 +585,86 @@ def rerun_info(site: Site, data: dict[str, Any], rerun: dict[str, Any], model: d
 
 
 
-def english_option_face(site: Site, idk: dict[str, Any]) -> str:
+def check_english_four(idk: dict[str, Any], four: dict[str, Any]) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """Stops the build unless each of the four models' counts and p equal its entry in english_reading.dont_know; returns
+    the pairs (the four's entry, the comparison's entry) in the four's order."""
+    def fail(text: str) -> SystemExit:
+        return SystemExit(f"results.json dont_know_english_option: {text}")
+
+    if four["questions"] != idk["questions"]:
+        raise fail(f"{four['questions']} questions, english_reading.dont_know {idk['questions']}")
+    pairs = []
+    for model in four["models"]:
+        found = [entry for entry in idk["models"] if entry["text_run"] == model["text_run"]]
+        if len(found) != 1:
+            raise fail(f"text run {model['text_run']} is not exactly one entry of english_reading.dont_know")
+        paired = found[0]["paired"]
+        if (model["name"], model["english_only_wrong"], model["turkish_only_wrong"], model["p"]) != (
+                found[0]["name"], paired["english_only_wrong"], paired["turkish_only_wrong"], paired["p"]):
+            raise fail(f"{model['name']}: the counts or p differ from english_reading.dont_know")
+        pairs.append((model, found[0]))
+    return pairs
+
+
+def english_four_card(site: Site, idk: dict[str, Any], four: dict[str, Any]) -> str:
+    """The four models of Ümit's follow-up with Holm's correction over the four (results.json dont_know_english_option),
+    their rates and counts from the same first runs as english_reading.dont_know."""
+    from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
+    pairs = check_english_four(idk, four)
+    digits = site.config["percent_digits"]
+    option = idk["option"]
+    count = len(pairs)
+    heads = (("Turkish non-hallucination rate", "with “Bilmiyorum”: right / wrong / option"),
+             ("English non-hallucination rate", f"with “{option}”: right / wrong / option"),
+             ("Wrong only in English", "questions the English run got wrong and the Turkish run did not"),
+             ("Wrong only in Turkish", "questions the Turkish run got wrong and the English run did not"),
+             ("p", "exact McNemar"), ("Holm p", f"adjusted over the {count} models"))
+
+    def rate(counts: dict[str, Any]) -> str:
+        return (f"{er.rate_text(counts['non_hallucination'], digits)}<span class=\"small\">{counts['right']:,} / "
+                f"{counts['wrong']:,} / {counts['dont_know']:,}</span>")
+
+    def p(value: float) -> str:
+        return esc(bp.p_text(value).removeprefix("p = ").removeprefix("p "))
+
+    rows = ""
+    for model, entry in pairs:
+        run = site.by_id[model["text_run"]]
+        values = [rate(entry["turkish"]), rate(entry["english"]), f"{model['english_only_wrong']:,}",
+                  f"{model['turkish_only_wrong']:,}", p(model["p"]),
+                  p(model["p_holm"]) + (" *" if model["p_holm"] < 0.05 else "")]
+        rows += (f'<tr><td class="model"><a class="model-name" href="{er.idk_href(site, entry)}">{esc(er.idk_label(site, entry))}</a>'
+                 f'<span class="small">{esc(site.detail(run))}</span></td>'
+                 + "".join(cell(f"{head} ({note})", item) for (head, note), item in zip(heads, values)) + "</tr>")
+    head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
+    significant = [entry for model, entry in pairs if model["p_holm"] < 0.05]
+    smallest = min(pairs, key=lambda pair: (pair[0]["p_holm"], pair[0]["p"]))
+    words = bp.in_words(count)
+    if significant:
+        verdict = (f"{bp.in_words(len(significant)).capitalize()} of the {words} differences in wrong answers "
+                   f"{'is' if len(significant) == 1 else 'are'} significant with Holm's correction over the {words} "
+                   f"(adjusted p below 0.05): {joined([esc(er.idk_label(site, entry)) for entry in significant])}.")
+    else:
+        verdict = (f"None of the {words} differences in wrong answers is significant with Holm's correction over the "
+                   f"{words} (adjusted p below 0.05); the smallest adjusted p is "
+                   f"{esc(er.idk_label(site, smallest[1]))}'s, {esc(bp.p_text(smallest[0]['p_holm']))}.")
+    return (f'<section class="card" id="english-option-four"><h2>The four models of the request: Holm\'s correction over '
+            f"the four</h2><p>{joined([esc(er.idk_label(site, entry)) for _, entry in pairs])}, as Ümit's follow-up of "
+            f"2 November 2026 asked: each model's first run in English with “{esc(option)}” and in Turkish with "
+            f"“Bilmiyorum” on the {four['questions']:,} kept questions, and the exact McNemar test of wrong answers, with p "
+            f"adjusted by Holm's method over these {words}. {verdict} The charts below and the "
+            f'<a href="{rel(PATH, "turkish-vs-english/")}#dont-know">Turkish vs English tab</a> correct over all '
+            f"{len(idk['models'])} compared models.</p>"
+            f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr>'
+            f'</thead><tbody>{rows}</tbody></table></div><p class="note">* marks a Holm-adjusted p below 0.05 over the '
+            f"{words}.</p></section>")
+
+
+def english_option_face(site: Site, idk: dict[str, Any], four: dict[str, Any] | None) -> str:
     """The English-option comparison on this tab's face: the Turkish vs English tab's kept reading questions in English
-    with “I don't know” against the same models' “Bilmiyorum” answers in Turkish, its summary and its two charts as that
-    tab draws them (sitebuild/english_reading.py), every number from results.json's english_reading.dont_know."""
+    with “I don't know” against the same models' “Bilmiyorum” answers in Turkish, its summary, the four models of Ümit's
+    follow-up with Holm over the four (when results.json has dont_know_english_option) and its two charts as that tab
+    draws them (sitebuild/english_reading.py), every number from results.json."""
     from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
     option, total = esc(idk["option"]), idk["questions"]
     return (f'<section class="card" id="english-option"><h2>The English questions: “{option}” in English against “Bilmiyorum” '
@@ -598,7 +674,8 @@ def english_option_face(site: Site, idk: dict[str, Any]) -> str:
             "counted on those questions, or runs on those questions only). Counts and the paired test: "
             '<a href="#english-option-results">under Info</a>; how the questions were translated and kept: '
             f'<a href="{rel(PATH, "turkish-vs-english/")}#method">Turkish vs English, Our method</a>.</p>'
-            f"{er.dont_know_summary(site, idk)}</section>{er.dont_know_charts(site, idk)}")
+            f"{er.dont_know_summary(site, idk)}</section>{english_four_card(site, idk, four) if four else ''}"
+            f"{er.dont_know_charts(site, idk)}")
 
 
 def english_option_info(site: Site, idk: dict[str, Any]) -> str:
@@ -636,7 +713,7 @@ def build(site: Site) -> dict[str, str]:
       {headline(data)}
       <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}<a href="#info">Info</a></nav>
     </section>
-    {face(site, data)}{english_option_face(site, english) if english else ""}{option_word_face(site, data, word) if word else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}
+    {face(site, data)}{english_option_face(site, english, site.results.get("dont_know_english_option")) if english else ""}{option_word_face(site, data, word) if word else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, what we found and our method</span></summary>
     <section class="card">

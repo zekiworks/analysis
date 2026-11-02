@@ -41,7 +41,8 @@ Then the option-word check (`dont_know_option_word`): its prompts and their vers
 version, each model's counts, rates and mean probability of the option with "Bilmiyorum" and with "I don't know",
 and the paired test of wrong answers with Holm's correction. Then the hosted GLiDE rerun (`hosted_glide_rerun`): its
 setup and prompt version, its counts, and the derived abstention and comparison with confidence redone with it as
-the original run. Uses only
+the original run. Last, the four models of Ümit's English "I don't know" comparison (`dont_know_english_option`): their
+counts and paired tests from the first runs, with Holm's correction over the four. Uses only
 the standard library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with
 status 1 when anything differs beyond the tolerances printed.
 """
@@ -465,7 +466,8 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
-    english_dont_know_mismatches = check_english_dont_know(args.docs, results, answers, scored, checks)
+    tests_by_text_run: dict[int, dict[str, Any]] = {}
+    english_dont_know_mismatches = check_english_dont_know(args.docs, results, answers, scored, checks, tests_by_text_run)
     checked = checks.passed + checks.failed - before
     models = len(((results.get("english_reading") or {}).get("dont_know") or {}).get("models", []))
     print(
@@ -475,6 +477,17 @@ def main() -> int:
         f"{checked - len(english_dont_know_mismatches)} of {checked} match"
     )
     for line in english_dont_know_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    four_mismatches = check_english_option_four(results, tests_by_text_run, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nEnglish \"I don't know\", the four models of Ümit's request with Holm's correction over the four (from the first "
+        f"runs' exported answers: counts exact, p-values within a relative {P_TOLERANCE:g}): "
+        f"{checked - len(four_mismatches)} of {checked} match"
+    )
+    for line in four_mismatches:
         print(line)
 
     print(f"\n{checks.passed} checks match, {checks.failed} differ")
@@ -1175,7 +1188,7 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
 
 
 def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int],
-                            checks: Checks) -> list[str]:
+                            checks: Checks, tests_by_text_run: dict[int, dict[str, Any]] | None = None) -> list[str]:
     """Recompute results.json's `english_reading.dont_know` from answers.json's `english_dont_know_runs`,
     `english_dont_know_turkish_runs` and `dont_know_runs`, and english-reading.json: the option, its sentence, the
     instructions (the English instructions plus the sentence) and the prompt version (english_dont_know_prompts, the
@@ -1189,8 +1202,8 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     wrong, "I don't know" and invalid answers, accuracy, attempt rate, non-hallucination rate (None without "I don't
     know" or wrong answers) and mean probability of the option (DONT_KNOW_LETTER, the last label of every answer's
     option probabilities); the ranges over each side's runs (null rules as published); the wrong answers only one first
-    run gave (exact McNemar, Holm over every model); the models in order of English non-hallucination rate (None
-    last), then name. Every run must be listed once and in no other list. Returns a line per mismatch."""
+    last), then name. Every run must be listed once and in no other list. Each setup's recomputed paired test goes into
+    `tests_by_text_run` under its Text tab run. Returns a line per mismatch."""
     section = (results.get("english_reading") or {}).get("dont_know")
     english_runs = {run["run"]: run for run in answers.get("english_dont_know_runs", [])}
     subset_runs = {run["run"]: run for run in answers.get("english_dont_know_turkish_runs", [])}
@@ -1330,6 +1343,9 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     tests = []
     for item, sides in expected:
         name = f"{item['name']} (English \"I don't know\" run {item['english']['run']})"
+        test = bm.paired_comparison(wrong(sides["english"][0]), wrong(sides["turkish"][0]))
+        if tests_by_text_run is not None:
+            tests_by_text_run[item["text_run"]] = test
         model = by_run.get(item["english"]["run"])
         if model is None:
             continue
@@ -1366,7 +1382,6 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
                     close(a, b, METRIC_TOLERANCE) for a, b in zip(low_high or [], computed or []))
                 if "≠" in checks.cell(matched, str(computed), str(low_high)):
                     mismatches.append(f"  {name}, {side} {key} range: {computed} ≠ {low_high}")
-        test = bm.paired_comparison(wrong(sides["english"][0]), wrong(sides["turkish"][0]))
         paired = model.get("paired") or {}
         check(f"{name}, wrong only in English, only in Turkish", [paired.get("english_only_wrong"), paired.get("turkish_only_wrong")],
               [test["first_only"], test["second_only"]])
@@ -1377,6 +1392,45 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     order = [model["english"]["run"] for model in sorted(models, key=lambda item: (
         item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0), item["name"].casefold(), item["english"]["run"]))]
     check("model order", [model["english"]["run"] for model in models], order)
+    return mismatches
+
+
+ENGLISH_OPTION_FOUR = (199, 346, 373, 374)
+
+
+def check_english_option_four(results: dict[str, Any], tests_by_text_run: dict[int, dict[str, Any]], checks: Checks) -> list[str]:
+    """Recompute results.json's `dont_know_english_option`, Ümit's four-model English "I don't know" comparison: the
+    Text tab runs ENGLISH_OPTION_FOUR in that order with their Text tab names, the kept questions, and per model the
+    wrong answers only in English and only in Turkish of the first runs and the exact McNemar p (as recomputed by
+    check_english_dont_know from the answers), with Holm's correction over these four. Returns a line per mismatch."""
+    section = results.get("dont_know_english_option")
+    if section is None:
+        checks.failed += 1
+        return ["  dont_know_english_option: missing from results.json"]
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, p: bool = False) -> None:
+        matched = close(published, recomputed, relative=P_TOLERANCE) if p else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    named = {run["run"]: run["name"] for run in results["runs"]}
+    models = section.get("models", [])
+    check("models", [model.get("text_run") for model in models], list(ENGLISH_OPTION_FOUR))
+    check("questions", section.get("questions"), ((results.get("english_reading") or {}).get("dont_know") or {}).get("questions"))
+    check("Text tab runs recomputed", sorted(set(ENGLISH_OPTION_FOUR) - set(tests_by_text_run)), [])
+    tests = [(model, tests_by_text_run.get(model.get("text_run"))) for model in models]
+    for model, test in tests:
+        name = f"{model.get('name')} (Text tab run {model.get('text_run')})"
+        check(f"{name}, name", model.get("name"), named.get(model.get("text_run")))
+        if test is None:
+            continue
+        check(f"{name}, wrong only in English, only in Turkish", [model.get("english_only_wrong"), model.get("turkish_only_wrong")],
+              [test["first_only"], test["second_only"]])
+        check(f"{name}, p", model.get("p"), test["p"], p=True)
+    if all(test is not None for _, test in tests):
+        for (model, _), adjusted in zip(tests, bm.holm([test["p"] for _, test in tests])):
+            check(f"{model.get('name')}, p_holm over the four", model.get("p_holm"), adjusted, p=True)
     return mismatches
 
 
