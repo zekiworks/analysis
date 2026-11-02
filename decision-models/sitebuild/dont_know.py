@@ -55,7 +55,9 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
     percent = lambda value: '<span class="nm">Not measured</span>' if value is None else pct(value, digits)  # noqa: E731
     heads = [f"{head} ({direction})" for head, direction in columns(option)]
     derived = model["derived"]
-    cut = "no cut-off (no answer has a score)" if derived["cut_off"] is None else f"cut-off {derived['cut_off']:.4f}"
+    cut = ("no cut-off (no answer has a score)" if derived["cut_off"] is None else
+           f"cut-off {derived['cut_off']:.4f}: {derived['right']:,} right + {derived['wrong']:,} wrong answered, "
+           f"{derived['abstained']:,} held back")
     invalid = f", {model['invalid']:,} invalid" if model["invalid"] else ""
     run = site.by_id[model["original_run"]]
     spread = model["spread"]

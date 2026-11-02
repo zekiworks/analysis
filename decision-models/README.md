@@ -151,6 +151,16 @@ python3 -m http.server 8000                                # preview at http://1
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
     gap, as shipped, on all questions); Latency; Cost. By default the charts show the 20 most accurate decision models
     (`CHART_DECISION_MODELS` in `build_site.py`); "Show all" adds the rest.
+    After the Cost chart, Cost of every setup (`#cost-table`, `costTable` in `v3.js`) is one table of every setup in
+    `results.json`, whatever the filters, the model selection, the charts' default and the All models switch: cheapest
+    first (setups without a cost last, by accuracy), with $ per 1,000 questions as the Cost card writes it, its cost over
+    the cheapest setup's (× cheapest, empty where the cost is not measured), accuracy, median latency, the answers kept at
+    the 99% cutoff (right of kept, and the questions skipped: the scored total minus the kept), the non-hallucination rate
+    with its attempt rate where the Hallucination tab has the model (Not run otherwise), and a Pareto tag for the setups
+    the trade-off chart's rule puts on its dotted line among all setups with a cost. No score combines these columns.
+    Every cutoff figure on the site gives its kept (answered) and skipped counts: the leaderboard's Confidence tab, the
+    Routing tab's fixed 99% rule (exact counts from the replay and the live tests), the model pages, the Method page and
+    the Hallucination tab's derived cut-off (answered and held back).
     Everything else is under Info, a details element closed by default and opened by a link into it (a leaderboard
     tab, `#board` or `#info`): the leaderboard, the decision models' table, then the other models' (chat and general
     models), each ranked on its own (the All models switch shows one table), the counters, the summary and the

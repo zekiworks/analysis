@@ -253,6 +253,13 @@ function accuracyCell(run) {
    carries a "reversed" marker. */
 const flatGain = run => 100 * (1 - run.confidence.brier_refit / run.confidence.brier_base);
 const reversedRefit = run => run.confidence.refit_slopes.some(slope => slope != null && slope <= 0);
+/* A run's answers at the sure threshold: how many were right, how many it kept (answered at that confidence or more)
+   and how many it skipped (the other scored questions; confidence counts only the scored ones, not those excluded since
+   a run); null without confidence scores. */
+const sureCounts = run => {
+  const sure = run.confidence?.sure;
+  return sure ? { right: sure.correct, kept: sure.questions, skipped: data.questions - sure.questions } : null;
+};
 
 /* The Confidence tab's guide above the table: each term, then what it means. */
 const CONFIDENCE_GUIDE = [
@@ -260,7 +267,7 @@ const CONFIDENCE_GUIDE = [
   ['Calibration', 'whether that probability matches how often the model is right. Of 100 answers scored 80%, about 80 should be right.'],
   [
     `Correct answers at ${pct(SETTINGS.threshold, 0)}`,
-    `answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only those questions.`,
+    `answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only those questions. Kept: the questions it answered at that confidence; skipped: the questions it would leave out because it was less sure.`,
   ],
   ['Ranking score', 'how often a right answer receives higher confidence than a wrong answer. 0.50 is chance; 1.00 is perfect. Higher is better.'],
   ['Calibration gap', 'how far the probabilities are from the real hit rate, in points, as shipped. Lower is better.'],
@@ -305,7 +312,11 @@ const TABS = {
         key: 'sure-correct', label: `Correct answers at ${pct(SETTINGS.threshold, 0)}`,
         tip: `Answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only the questions it was ${pct(SETTINGS.threshold, 0)} sure of.`,
         value: run => (filtered() ? null : run.confidence.sure.correct),
-        cell: run => (filtered() ? MISSING : integer(run.confidence.sure.correct)),
+        cell: run => {
+          if (filtered()) return MISSING;
+          const sure = sureCounts(run);
+          return `${integer(sure.right)} of ${integer(sure.kept)} kept<span class="small">${integer(sure.skipped)} skipped</span>`;
+        },
       },
       {
         key: 'auroc', label: 'Ranking score', tip: RANKING_TIP,
@@ -402,6 +413,7 @@ function routeNumbers(first) {
     const { measured } = test;
     return {
       share: test.routed / test.held_out,
+      taken: state.route.rule === 'sure' ? { kept: test.routed, total: test.held_out } : null,
       change: measured.difference,
       saving: 1 - measured.cost_usd / measured.frontier_cost_usd,
       savingUsd: (1000 * (measured.frontier_cost_usd - measured.cost_usd)) / test.held_out,
@@ -420,7 +432,7 @@ function routeNumbers(first) {
     const item = data.replay.frontiers.find(entry => entry.frontier === frontier.run)?.[state.route.rule];
     if (item) {
       const total = data.replay.questions;
-      numbers = { share: item.kept / total, change: item.difference, perThousand: item.usd_per_1000 };
+      numbers = { share: item.kept / total, taken: state.route.rule === 'sure' ? { kept: item.kept, total } : null, change: item.difference, perThousand: item.usd_per_1000 };
       /* The fixed rules keep the same answers in front of every LLM; their kept and wrong counts are stored once. */
       const kept = state.route.rule === 'sure' ? data.replay.cutoffs.find(entry => entry.cutoff === data.sure_threshold) : data.replay.share;
       if (kept && kept.kept === item.kept) {
@@ -489,14 +501,16 @@ function latencyCell(run) {
    width. */
 function shareCell(row) {
   if (!row.numbers) return NM;
-  const { share, split } = row.numbers;
-  if (!split) return `<span class="share-cell">${percent(share)}${tip(SPLIT_NA_TIP, '<span class="nm">Not recorded</span>')}</span>`;
+  const { share, split, taken } = row.numbers;
+  /* At the fixed 99% cutoff the share is a whole count of questions over a stored total, given under it. */
+  const count = taken ? `<span class="small">${integer(taken.kept)} of ${integer(taken.total)} kept · ${integer(taken.total - taken.kept)} to the LLM</span>` : '';
+  if (!split) return `<span class="share-cell">${percent(share)}${tip(SPLIT_NA_TIP, '<span class="nm">Not recorded</span>')}${count}</span>`;
   const parts = [['right', split.right, 'kept and right'], ['wrong', split.wrong, 'kept but wrong'], ['rest', split.rest, 'sent to the LLM']];
   const scope = split.splits ? `means over the replay’s ${integer(split.splits)} splits` : 'shares of all questions';
   const spoken = `${parts.map(([, value, name]) => `${name} ${percent(value)}%`).join(', ')}; ${scope}`;
   return `<span class="share-cell">${percent(share)}<span class="split" role="img" aria-label="${esc(spoken)}">` +
     `<span class="split-bar" aria-hidden="true">${parts.map(([key, value]) => `<span class="split-${key}" style="flex-grow:${value.toFixed(5)}"></span>`).join('')}</span>` +
-    `<span class="split-values" aria-hidden="true">${parts.map(([, value]) => percent(value)).join(' · ')}</span></span></span>`;
+    `<span class="split-values" aria-hidden="true">${parts.map(([, value]) => percent(value)).join(' · ')}</span></span>${count}</span>`;
 }
 
 /* The Routing table's note on the bars under each share, for the rule and test on screen. */
@@ -1297,6 +1311,57 @@ function renderCharts() {
   if (state.infoOpen) readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
 }
 
+/* The cost of every setup: one table of all the runs in results.json, whatever the filters, the model selection, the
+   charts' default and the All models switch, so cheap alternatives sit beside accuracy and latency. Cheapest first by
+   costPer1000, ties by higher accuracy; setups without a cost last, by accuracy. "× cheapest" is a cost over the
+   cheapest priced setup's, from the unrounded values, to 2 significant figures. Pareto: the trade-off chart's rule over
+   every priced setup, on accuracy on all questions. Drawn once, as nothing on the page changes it. */
+const timesText = ratio => `×${ratio.toLocaleString('en-US', { maximumSignificantDigits: 2 })}`;
+function costTable(box) {
+  const labels = chartLabels(data.runs);
+  const priced = data.runs.filter(run => costPer1000(run) != null)
+    .sort((a, b) => costPer1000(a) - costPer1000(b) || overallAccuracy(b) - overallAccuracy(a));
+  const unpriced = data.runs.filter(run => costPer1000(run) == null).sort((a, b) => overallAccuracy(b) - overallAccuracy(a));
+  const pareto = new Set();
+  let best = -Infinity;
+  priced.forEach(run => {
+    if (overallAccuracy(run) > best) {
+      pareto.add(run);
+      best = overallAccuracy(run);
+    }
+  });
+  const cheapest = priced[0];
+  const sure = pct(SETTINGS.threshold, 0);
+  const idk = new Map(data.dont_know.models.map(item => [item.original_run, item]));
+  const row = run => {
+    const cost = costPer1000(run);
+    const counts = sureCounts(run);
+    const held = idk.get(run.run);
+    const chat = isDecision(run) ? '' : '<span class="small"><i class="swatch swatch-chat"></i>Chat model</span>';
+    const tag = pareto.has(run) ? ' <span class="pareto-tag">Pareto</span>' : '';
+    return `<tr><td class="model"><a class="model-name" href="models/${run.run}/">${esc(labels.get(run).text)}</a>${tag}${chat}</td>` +
+      `<td class="num">${cost == null ? NM : esc(priceText(run))}</td>` +
+      `<td class="num">${cost == null ? '' : timesText(cost / costPer1000(cheapest))}</td>` +
+      `<td class="num">${percent(overallAccuracy(run))}</td>` +
+      `<td class="num">${latencyOf(run) == null ? NM : esc(latencyText(run))}</td>` +
+      `<td class="num">${counts ? `${integer(counts.right)} right of ${integer(counts.kept)} kept, ${integer(counts.skipped)} skipped` : NM}</td>` +
+      `<td class="num">${held ? `<a href="dont-know/">${pct(held.non_hallucination)}, attempt rate ${pct(held.attempt_rate)}</a>` : 'Not run'}</td></tr>`;
+  };
+  const notes = [
+    `${integer(data.runs.length)} setups, ${integer(priced.length)} with a cost. ${SETTINGS.notMeasuredNote}`,
+    `× cheapest: a setup’s cost over the cheapest setup’s (${labels.get(cheapest).text}, ${priceText(cheapest)}), from the unrounded costs; empty where the cost is not measured.`,
+    'Pareto: no other setup with a cost is both at most as costly and at least as accurate, one of them strictly; the Trade-off chart’s dotted line when it shows all setups by cost.',
+    `Kept at ${sure}: the answers given with at least ${sure} confidence, how many of them were right, and how many questions were skipped because the model was less sure.`,
+    'Non-hallucination: from the Hallucination tab’s runs with the “Bilmiyorum” (I don’t know) option; read it with its attempt rate. The Hallucination tab has the method and its limits.',
+  ];
+  box.innerHTML =
+    '<div class="table-frame"><div class="table-wrap cost-scroll" tabindex="0"><table class="board wrap-headers cost-table"><thead><tr>' +
+    ['Setup', '$ per 1,000 questions', '× cheapest', 'Accuracy (%)', 'Median latency per request', `Kept at ${sure}`, 'Non-hallucination']
+      .map((label, index) => `<th scope="col"${index ? ' class="num"' : ''}>${esc(label)}</th>`).join('') +
+    `</tr></thead><tbody>${[...priced, ...unpriced].map(row).join('')}</tbody></table></div></div>` +
+    notes.map(note => `<p class="chart-legend">${esc(note)}</p>`).join('');
+}
+
 /* A chart as a PNG that keeps what it shows: the condition (measure and filters), the setups, the chart's notes with any
    setup it could not label, and the results version, with the page's address. Text is wrapped to the chart's width;
    colours and type are copied from the page, so it matches the theme in view. */
@@ -1610,6 +1675,7 @@ async function start() {
   }
   byId = new Map(data.runs.map(run => [run.run, run]));
   setRankEnds();
+  costTable(document.querySelector('[data-cost-table]'));
   readUrl();
   state.sort = defaultSort(state.tab);
   restore();

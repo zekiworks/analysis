@@ -763,14 +763,17 @@ confidence useful.</p>
 {refit_table(site, snap)}
 </details>
 <h3 id="sure">What a score of {v['threshold']} or more meant</h3>
-<p>At {v['threshold']} or more, Jev 1.13 got {v['jev_correct']} of {v['jev_accepted']} right, d1 {v['d1_correct']} of
-{v['d1_accepted']}, Decider v1 {v['decider_v1_correct']} of {v['decider_v1_accepted']} and GLiDE {v['glide_correct']} of
-{v['glide_accepted']}; Luna got {v['luna_api_correct']} of {v['luna_api_accepted']} through the Decisions API and
-{v['luna_stated_correct']} of {v['luna_stated_accepted']} writing its confidence. Few answers leave wide intervals: the 95%
+<p>At {v['threshold']} or more, Jev 1.13 got {v['jev_correct']} of {v['jev_accepted']} right ({v['jev_skipped']} skipped), d1
+{v['d1_correct']} of {v['d1_accepted']} ({v['d1_skipped']} skipped), Decider v1 {v['decider_v1_correct']} of
+{v['decider_v1_accepted']} ({v['decider_v1_skipped']} skipped) and GLiDE {v['glide_correct']} of {v['glide_accepted']}
+({v['glide_skipped']} skipped); Luna got {v['luna_api_correct']} of {v['luna_api_accepted']} through the Decisions API
+({v['luna_api_skipped']} skipped) and {v['luna_stated_correct']} of {v['luna_stated_accepted']} writing its confidence
+({v['luna_stated_skipped']} skipped). Few answers leave wide intervals: the 95%
 interval for the error rate is {v['decider_v1_error_span']} for Decider v1 and {v['glide_error_span']} for GLiDE.</p>
 <p>Gemma's letter probability reached {v['threshold']} on {v['study_gemma_sure_kept']} answers, {v['study_gemma_sure_correct']}
-of them right (about {v['study_gemma_sure_accuracy']}). DeepSeek with reasoning gave every answer at least
-{v['threshold']}, and about {v['study_deepseek_on_sure_accuracy']} were right.</p>
+of them right (about {v['study_gemma_sure_accuracy']}), and fell short on {v['study_gemma_sure_skipped']}, which it skipped.
+DeepSeek with reasoning gave every answer at least {v['threshold']} ({v['study_deepseek_on_sure_kept']} kept,
+{v['study_deepseek_on_sure_skipped']} skipped), and about {v['study_deepseek_on_sure_accuracy']} were right.</p>
 <h3 id="sources">Can another confidence method make the same answers easier to judge?</h3>
 <p>We scored one fixed set of Qwen 3.8 27B answers, {v['study_sources_correct']} right of {v['study_sources_questions']},
 four ways. The ranking score was about {v['study_source_qwen_stated_auroc']} for written confidence,
@@ -942,9 +945,10 @@ The <code>runner</code> folder holds the test code, run scripts and server wrapp
 <p>Perplexity's Decider v1.1 is a decision model; this box follows it through the two-step setup. Its typical latency was
 {v['decider_v11_median']} seconds, at {v['decider_v11_cost']} per 1,000 questions, against {v['opus_cost']} for Claude Opus
 5.5 alone.</p>
-<p>At {v['threshold']}, it kept {v['cut_99_kept']} answers with {v['cut_99_wrong']} wrong (error rate interval
-{v['decider_v11_error_span']}), and none of the {v['method_suspect']} uncertain questions reached that confidence. Its most
-confident quarter held {v['surest_correct']} right answers of {v['surest_kept']}.</p>
+<p>At {v['threshold']}, it kept {v['cut_99_kept']} answers with {v['cut_99_wrong']} wrong and passed {v['cut_99_passed']} to
+the second model (error rate interval {v['decider_v11_error_span']}), and none of the {v['method_suspect']} uncertain
+questions reached that confidence. Its most confident quarter held {v['surest_correct']} right answers of
+{v['surest_kept']} and passed {v['surest_passed']}.</p>
 <p>The table replays recorded answers, Decider v1.1 first and each LLM second. With one question per request, no cutoff
 chosen on half the questions loses more than the {limit:g}-point limit set before the live tests.</p>
 {bp.savings_table(snap)}

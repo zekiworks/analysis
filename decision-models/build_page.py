@@ -452,6 +452,7 @@ def values(snap: Snapshot) -> dict[str, str]:
     for row in snap.thresholds:
         if row["key"]:
             out[f"{row['key']}_accepted"] = count(row["accepted"])
+            out[f"{row['key']}_skipped"] = count(snap.total - row["accepted"])
             out[f"{row['key']}_coverage"] = fmt.pct(row["coverage"])
             out[f"{row['key']}_correct"] = count(row["correct"])
             out[f"{row['key']}_errors"] = count(row["errors"])
@@ -512,6 +513,7 @@ def replay_values(snap: Snapshot) -> dict[str, str]:
     for row in replay["cutoffs"]:
         tag = cutoff_text(row["cutoff"]).rstrip("%").replace(".", "")
         out[f"cut_{tag}_kept"] = count(row["kept"])
+        out[f"cut_{tag}_passed"] = count(replay["questions"] - row["kept"])
         out[f"cut_{tag}_share"] = fmt.pct(row["kept"] / snap.total)
         out[f"cut_{tag}_share_whole"] = fmt.pct(row["kept"] / snap.total, 0)
         out[f"cut_{tag}_wrong"] = count(row["wrong"])
@@ -519,6 +521,7 @@ def replay_values(snap: Snapshot) -> dict[str, str]:
     out["surest_rule"] = fmt.pct(share["share"], 0)
     out["surest_cut"] = cutoff_text(share["cut"])
     out["surest_kept"] = count(share["kept"])
+    out["surest_passed"] = count(replay["questions"] - share["kept"])
     out["surest_correct"] = count(share["kept"] - share["wrong"])
     out["surest_wrong"] = count(share["wrong"])
     out["surest_coverage"] = fmt.pct(share["kept"] / snap.total)
@@ -829,6 +832,7 @@ def study_values(snap: Snapshot) -> dict[str, str]:
     for key in ("gemma", "qwen_votes", "deepseek_on"):
         sure = named[key]["confidence"]["sure"]
         out[f"study_{key}_sure_kept"] = count(sure["questions"])
+        out[f"study_{key}_sure_skipped"] = count(snap.total - sure["questions"])
         out[f"study_{key}_sure_correct"] = count(sure["correct"])
         out[f"study_{key}_sure_accuracy"] = fmt.pct(sure["correct"] / sure["questions"], 0)
     # Four confidence sources on one fixed set of Qwen answers.

@@ -20,9 +20,9 @@
   <meta name="twitter:image" content="https://zekiworks.github.io/analysis/decision-models/share/preview-dark-69f8395c.png">
   <!-- /build:head -->
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if (sessionStorage.getItem("v3-swiped") === "1") document.documentElement.classList.add("swiped"); } catch (e) {}</script>
-  <!-- build:assets --><link rel="stylesheet" href="v3.css?v=98ee5b88">
+  <!-- build:assets --><link rel="stylesheet" href="v3.css?v=2d409229">
   <script src="site.js?v=9995fd76" defer></script>
-  <script src="v3.js?v=19b0bda7" defer></script><!-- /build:assets -->
+  <script src="v3.js?v=17737ee3" defer></script><!-- /build:assets -->
 </head>
 <body class="v3 home">
   <a class="skip" href="#main">Skip to content</a>
@@ -37,7 +37,7 @@
       <h1>When should you trust a decision model?</h1>
       <p class="intro"><!-- build:intro -->Our reading comprehension and grammar test: 2,198 questions answered by 37 decision models, with chat models for comparison. A decision model scores each answer option and picks one. Grammar questions test whether a model knows a rule and can apply it. Every answer is public.<!-- /build:intro --></p>
       <p class="language">The questions are in native Turkish (not translated).</p>
-      <nav class="face-nav needs-js" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-tradeoff">Trade-off</a><a href="#chart-calibration">Calibration</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#info" data-open-info>Info</a></nav>
+      <nav class="face-nav needs-js" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-tradeoff">Trade-off</a><a href="#chart-calibration">Calibration</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#cost-table">Cost of every setup</a><a href="#info" data-open-info>Info</a></nav>
       <noscript><p class="note">The charts need JavaScript; the tables are under Info, below.</p></noscript>
     </header>
 
@@ -112,6 +112,13 @@
           <p class="chart-sub">Estimated dollars per 1,000 questions · lower is better</p>
         </div>
         <div class="chart-box" data-chart="cost"></div>
+      </figure>
+      <figure class="panel chart-card" id="cost-table">
+        <div class="chart-head">
+          <h2>Cost of every setup</h2>
+          <p class="chart-sub">Every setup we ran, whatever the filters, the model selection or the charts’ default · cheapest first, with accuracy, latency, the confidence cutoff and hallucination beside the cost · lower cost is better</p>
+        </div>
+        <div class="cost-box" data-cost-table></div>
       </figure>
     </section>
 

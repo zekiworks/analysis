@@ -7,7 +7,7 @@
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/53/">
   <meta name="description" content="Qwen3.8-27B · stated confidence · reasoning off · 1 question per request: how we called it, results, confidence, latency and cost.">
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
-  <link rel="stylesheet" href="../../v3.css?v=98ee5b88">
+  <link rel="stylesheet" href="../../v3.css?v=2d409229">
   <script src="../../site.js?v=9995fd76" defer></script>
 </head>
 <body class="v3">
@@ -38,7 +38,7 @@
     </section>
     <section class="card" id="confidence">
       <h2>Confidence</h2>
-      <dl class="facts"><dt>Answers kept at 99% or more</dt><dd>8, of which 1 wrong (share right: 52.9% to 97.8%, 95% interval)</dd><dt>Calibration gap</dt><dd>40.8 points</dd><dt><span class="hint" tabindex="0" data-tip="ranking score">AUROC</span>, all questions</dt><dd>0.51 <span class="small inline">0.51 to 0.52</span></dd><dt>AUROC, reading</dt><dd>0.54 <span class="small inline">0.52 to 0.56</span></dd><dt>AUROC, grammar</dt><dd>0.50 <span class="small inline">0.50 to 0.51</span></dd><dt>Brier score</dt><dd>0.415</dd><dt>Accuracy of its surest answers</dt><dd>most confident fifth: 57.0% right; most confident half: 54.9% right; most confident four fifths: 54.4% right</dd><dt>Typical score of a right answer</dt><dd>95.0%</dd><dt>Typical score of a wrong answer</dt><dd>95.0%</dd></dl>
+      <dl class="facts"><dt>Answers kept at 99% or more</dt><dd>8, of which 1 wrong (share right: 52.9% to 97.8%, 95% interval); 2,190 skipped, the model less than 99% sure</dd><dt>Calibration gap</dt><dd>40.8 points</dd><dt><span class="hint" tabindex="0" data-tip="ranking score">AUROC</span>, all questions</dt><dd>0.51 <span class="small inline">0.51 to 0.52</span></dd><dt>AUROC, reading</dt><dd>0.54 <span class="small inline">0.52 to 0.56</span></dd><dt>AUROC, grammar</dt><dd>0.50 <span class="small inline">0.50 to 0.51</span></dd><dt>Brier score</dt><dd>0.415</dd><dt>Accuracy of its surest answers</dt><dd>most confident fifth: 57.0% right; most confident half: 54.9% right; most confident four fifths: 54.4% right</dd><dt>Typical score of a right answer</dt><dd>95.0%</dd><dt>Typical score of a wrong answer</dt><dd>95.0%</dd></dl>
     </section>
     <section class="card" id="repeats">
       <h2>Repeats</h2>

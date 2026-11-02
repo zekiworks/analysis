@@ -129,8 +129,10 @@ def confidence(site: Site, run: dict[str, Any]) -> str:
     item = run["confidence"]
     sure = item["sure"]
     threshold = pct(site.config["threshold"], 0)
+    skipped = site.results["questions"] - sure["questions"]
     sure_text = (f"{sure['questions']:,}, of which {sure['questions'] - sure['correct']:,} wrong"
-                 + (f" (share right: {interval(sure['correct'], sure['questions'])}, 95% interval)" if sure["questions"] else ""))
+                 + (f" (share right: {interval(sure['correct'], sure['questions'])}, 95% interval)" if sure["questions"] else "")
+                 + f"; {skipped:,} skipped, the model less than {threshold} sure")
     parts = item["parts"]
 
     def auroc(entry: dict[str, Any]) -> str:

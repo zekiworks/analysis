@@ -7,7 +7,7 @@
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/124/">
   <meta name="description" content="GPT-6.1 Sol · low reasoning · 16 questions per request: how we called it, results, confidence, latency and cost.">
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
-  <link rel="stylesheet" href="../../v3.css?v=98ee5b88">
+  <link rel="stylesheet" href="../../v3.css?v=2d409229">
   <script src="../../site.js?v=9995fd76" defer></script>
 </head>
 <body class="v3">
@@ -38,7 +38,7 @@
     </section>
     <section class="card" id="confidence">
       <h2>Confidence</h2>
-      <dl class="facts"><dt>Answers kept at 99% or more</dt><dd>1,610, of which 13 wrong (share right: 98.6% to 99.5%, 95% interval)</dd><dt>Calibration gap</dt><dd>1.5 points</dd><dt><span class="hint" tabindex="0" data-tip="ranking score">AUROC</span>, all questions</dt><dd>0.86 <span class="small inline">0.81 to 0.90</span></dd><dt>AUROC, reading</dt><dd>0.97 <span class="small inline">0.95 to 0.98</span></dd><dt>AUROC, grammar</dt><dd>0.80 <span class="small inline">0.74 to 0.86</span></dd><dt>Brier score</dt><dd>0.029</dd><dt>Accuracy of its surest answers</dt><dd>most confident fifth: 99.8% right; most confident half: 99.3% right; most confident four fifths: 98.9% right</dd><dt>Typical score of a right answer</dt><dd>99.0%</dd><dt>Typical score of a wrong answer</dt><dd>94.0%</dd></dl>
+      <dl class="facts"><dt>Answers kept at 99% or more</dt><dd>1,610, of which 13 wrong (share right: 98.6% to 99.5%, 95% interval); 588 skipped, the model less than 99% sure</dd><dt>Calibration gap</dt><dd>1.5 points</dd><dt><span class="hint" tabindex="0" data-tip="ranking score">AUROC</span>, all questions</dt><dd>0.86 <span class="small inline">0.81 to 0.90</span></dd><dt>AUROC, reading</dt><dd>0.97 <span class="small inline">0.95 to 0.98</span></dd><dt>AUROC, grammar</dt><dd>0.80 <span class="small inline">0.74 to 0.86</span></dd><dt>Brier score</dt><dd>0.029</dd><dt>Accuracy of its surest answers</dt><dd>most confident fifth: 99.8% right; most confident half: 99.3% right; most confident four fifths: 98.9% right</dd><dt>Typical score of a right answer</dt><dd>99.0%</dd><dt>Typical score of a wrong answer</dt><dd>94.0%</dd></dl>
     </section>
     <section class="card" id="repeats">
       <h2>Repeats</h2>
