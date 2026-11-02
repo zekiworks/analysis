@@ -2,7 +2,7 @@
 asked of the decision models as on the Text tab, against the same models' Turkish runs on the same questions. From
 results.json's `english_reading` (every number), english-reading.json (the track's public record: the translator, its
 prompts, the flags and each question's hash of its English text) and page_config.json's `english_reading` (the models
-not compared or not run yet, with their reasons). Its face, as the Hallucination tab's, is charts in HTML (Site hbars):
+not compared or not run, with their reasons). Its face, as the Hallucination tab's, is charts in HTML (Site hbars):
 accuracy in both languages and the paired test. Under Info: the table, the models not compared and Our method. The
 question text, Turkish or English, is never published. The tab ranks nothing on the Text tab and changes none of its
 numbers."""
@@ -81,13 +81,13 @@ def check(site: Site, data: dict[str, Any], record: dict[str, Any]) -> None:
     config = site.config["english_reading"]
     compared = {model["turkish_run"] for model in data["models"]}
     not_compared = [item["run"] for item in config["not_compared"]]
-    for run in not_compared + config["pending"]:
+    for run in not_compared + config["skipped"]:
         if run not in site.by_id:
             problems.append(f"page_config.json english_reading: run {run} is not on the Text tab")
-    for run in sorted(compared & (set(not_compared) | set(config["pending"]))):
-        problems.append(f"page_config.json english_reading: run {run} is compared and also listed as not compared or pending")
-    if set(not_compared) & set(config["pending"]):
-        problems.append("page_config.json english_reading: a run is both not compared and pending")
+    for run in sorted(compared & (set(not_compared) | set(config["skipped"]))):
+        problems.append(f"page_config.json english_reading: run {run} is compared and also listed as not compared or skipped")
+    if set(not_compared) & set(config["skipped"]):
+        problems.append("page_config.json english_reading: a run is both not compared and skipped")
     if problems:
         raise SystemExit("english_reading:\n  " + "\n  ".join(problems))
 
@@ -264,7 +264,7 @@ def table(site: Site, data: dict[str, Any]) -> str:
 def not_compared(site: Site) -> str:
     """The Text tab models without an English comparison (page_config.json's english_reading): each group under the
     label its reasons open with ("Not compared", "Not run"), each model with the rest of its reason; then the models not
-    run yet, under pending_reason's label, with its reason once. Names are the Text tab's."""
+    run by decision, under skipped_reason's label, with its reason once. Names are the Text tab's."""
     config = site.config["english_reading"]
     groups: dict[str, list[str]] = {}
     for item in config["not_compared"]:
@@ -272,9 +272,9 @@ def not_compared(site: Site) -> str:
         groups.setdefault(head, []).append(
             f"<li><strong>{esc(site.row_name(site.by_id[item['run']]))}</strong>: {esc(reason)}</li>")
     out = "".join(f'<h3 class="board-group">{esc(head)}</h3><ul>{"".join(lines)}</ul>' for head, lines in groups.items())
-    if config["pending"]:
-        head, reason = config["pending_reason"].split(": ", 1)
-        names = joined([esc(site.row_name(site.by_id[run])) for run in config["pending"]])
+    if config["skipped"]:
+        head, reason = config["skipped_reason"].split(": ", 1)
+        names = joined([esc(site.row_name(site.by_id[run])) for run in config["skipped"]])
         out += f'<h3 class="board-group">{esc(head)}</h3><p>{names}: {esc(reason)}</p>'
     return out
 
