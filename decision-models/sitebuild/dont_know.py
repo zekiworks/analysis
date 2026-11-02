@@ -585,6 +585,34 @@ def rerun_info(site: Site, data: dict[str, Any], rerun: dict[str, Any], model: d
 
 
 
+def english_option_face(site: Site, idk: dict[str, Any]) -> str:
+    """The English-option comparison on this tab's face: the Turkish vs English tab's kept reading questions in English
+    with “I don't know” against the same models' “Bilmiyorum” answers in Turkish, its summary and its two charts as that
+    tab draws them (sitebuild/english_reading.py), every number from results.json's english_reading.dont_know."""
+    from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
+    option, total = esc(idk["option"]), idk["questions"]
+    return (f'<section class="card" id="english-option"><h2>The English questions: “{option}” in English against “Bilmiyorum” '
+            f"in Turkish</h2><p>The {total:,} reading questions of the "
+            f'<a href="{rel(PATH, "turkish-vs-english/")}">Turkish vs English tab</a>, in English with a sixth option, '
+            f"“{option}”, against the same models' “Bilmiyorum” answers on the same questions in Turkish (this tab's runs "
+            "counted on those questions, or runs on those questions only). Counts and the paired test: "
+            '<a href="#english-option-results">under Info</a>; how the questions were translated and kept: '
+            f'<a href="{rel(PATH, "turkish-vs-english/")}#method">Turkish vs English, Our method</a>.</p>'
+            f"{er.dont_know_summary(site, idk)}</section>{er.dont_know_charts(site, idk)}")
+
+
+def english_option_info(site: Site, idk: dict[str, Any]) -> str:
+    """Under Info: the English-option comparison's table, as the Turkish vs English tab shows it."""
+    from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
+    option = esc(idk["option"])
+    return f"""
+    <section class="card" id="english-option-results">
+      <h2>Results on the English questions with “{option}”</h2>
+      <p class="note">Each model's first run in English with “{option}” and in Turkish with “Bilmiyorum”, on the {idk["questions"]:,} kept reading questions: the counts, the rates and the exact McNemar test of wrong answers, with p adjusted by Holm's method over the {len(idk["models"])} models; * marks a Holm-adjusted p below 0.05. The same table is on the <a href="{rel(PATH, "turkish-vs-english/")}#dont-know">Turkish vs English tab</a>.</p>
+      {er.dont_know_table(site, idk)}
+    </section>"""
+
+
 def build(site: Site) -> dict[str, str]:
     data = site.results["dont_know"]
     total = f"{data['questions']:,}"
@@ -596,6 +624,7 @@ def build(site: Site) -> dict[str, str]:
         raise SystemExit(f"results.json dont_know: {data['questions']} questions, the Text tab {site.total}")
     several = [model["name"] for model in data["models"] if len(model["runs"]) > 1]
     word, rerun = site.results.get("dont_know_option_word"), site.results.get("hosted_glide_rerun")
+    english = (site.results.get("english_reading") or {}).get("dont_know")
     if word:
         check_option_word(site, data, word)
     glide = check_rerun(site, data, rerun) if rerun else None
@@ -605,9 +634,9 @@ def build(site: Site) -> dict[str, str]:
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}<a href="#info">Info</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}<a href="#info">Info</a></nav>
     </section>
-    {face(site, data)}{option_word_face(site, data, word) if word else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}
+    {face(site, data)}{english_option_face(site, english) if english else ""}{option_word_face(site, data, word) if word else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, what we found and our method</span></summary>
     <section class="card">
@@ -649,7 +678,7 @@ def build(site: Site) -> dict[str, str]:
       <p>For comparison, each model's run with five options (its run on the Text tab, on the same questions) is made to abstain by its own confidence: it answers only where its score reaches a cut-off and abstains on the rest. The cut-off is the one whose attempt rate comes nearest the attempt rate of the run with “{option}”; on a tie, the higher cut-off. An answer without a score never counts as an attempt. The derived non-hallucination rate is then the abstentions over the abstentions plus the wrong answers. The table shows the cut-off and the attempt rate it reached.</p>
       <h3>Repeats</h3>
       <p>One full run per model. A model whose repeated text runs changed answers gets five runs with the option. Those runs form a repeat set of their own and are never mixed with the Text tab's runs. The table shows the first run; the range covers all of them, and the changed answers are the scored questions whose answer differs between the runs.</p>
-    </section>{option_word_info(site, data, word) if word else ""}{rerun_info(site, data, rerun, glide) if rerun else ""}
+    </section>{english_option_info(site, english) if english else ""}{option_word_info(site, data, word) if word else ""}{rerun_info(site, data, rerun, glide) if rerun else ""}
     </details>"""
     return {PATH: site.page(PATH, "Hallucination",
                             f"The Text tab's {total} questions with a sixth option, “{data['option']}” (I don't know): accuracy, "

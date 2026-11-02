@@ -504,12 +504,11 @@ def dont_know_summary(site: Site, idk: dict[str, Any]) -> str:
             "attempt rate: a model that always chose the option would reach 100%.</p>")
 
 
-def dont_know_face(site: Site, idk: dict[str, Any]) -> str:
-    """The section's face: a heading and summary, then two chart cards: the non-hallucination rate in English and in
-    Turkish (attempt rates in the text and tooltip) and the paired test of wrong answers (as the Hallucination tab's
-    #chart-paired), every number from results.json's english_reading.dont_know."""
+def dont_know_charts(site: Site, idk: dict[str, Any]) -> str:
+    """The section's two chart cards: the non-hallucination rate in Turkish and in English (attempt rates in the text and
+    tooltip) and the paired test of wrong answers (as the Hallucination tab's #chart-paired), every number from
+    results.json's english_reading.dont_know. The Hallucination tab shows them too (sitebuild/dont_know.py)."""
     digits = site.config["percent_digits"]
-    option = esc(idk["option"])
     total = idk["questions"]
     models = idk["models"]
 
@@ -573,11 +572,18 @@ def dont_know_face(site: Site, idk: dict[str, Any]) -> str:
         '<span><i class="swatch swatch-base"></i>Wrong only in Turkish</span> '
         f"<span>{verdict}</span>",
         top=4 * quarter, tick=lambda value: f"{value:,.0f}")
+    return f'<section class="charts" aria-label="Charts with “I don\'t know”">{rates}{paired}</section>'
+
+
+def dont_know_face(site: Site, idk: dict[str, Any]) -> str:
+    """The section's face: a heading and summary, then its two chart cards (dont_know_charts)."""
+    option = esc(idk["option"])
+    total = idk["questions"]
     return (f'<section class="card" id="dont-know"><h2>With an “I don\'t know” option</h2>'
             f"<p>The same {total:,} kept questions with a sixth option, “{option}” in English and “Bilmiyorum” in Turkish, as "
             f'on the <a href="{rel(PATH, "dont-know/")}">Hallucination tab</a>, asked of the same models '
             f'(<a href="#dont-know-method">how</a>).</p>{dont_know_summary(site, idk)}</section>'
-            f'<section class="charts" aria-label="Charts with “I don\'t know”">{rates}{paired}</section>')
+            f"{dont_know_charts(site, idk)}")
 
 
 def dont_know_columns(idk: dict[str, Any]) -> tuple[tuple[str, str], ...]:
