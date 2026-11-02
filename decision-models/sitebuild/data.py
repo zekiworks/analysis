@@ -78,7 +78,8 @@ def build(site: Site) -> dict[str, str]:
         (ROOT / "answers.json", rel(PATH, "answers.json"),
          "Every answer of every run, with its score and option probabilities, and the prompts. No question text."),
         (PICKS, rel(PATH, "data/picks.json"),
-         "Built from answers.json for these pages: each leaderboard setup's pick and score on each scored question."),
+         "Built from answers.json for these pages: each leaderboard setup's pick and score on each scored question, and "
+         "each Turkish vs English model's English pick and score on each kept reading question."),
         (ROOT / "vision.json", rel(PATH, "vision.json"),
          "The page-image track: the questions that depend on the printed page, asked as text, as page images and through "
          "OCR; every number and each answer's pick and option probabilities. No question text, page image or OCR text."),
@@ -86,7 +87,7 @@ def build(site: Site) -> dict[str, str]:
          "The page-image track's repeat passes, kept outside its table: each pass's run records and answers, compared with "
          "the table's first pass."),
         (ROOT / "english-reading.json", rel(PATH, "english-reading.json"),
-         "The English reading track's record: the translator, its two prompts, each reading question's flags and the "
+         "The Turkish vs English track's record: the translator, its two prompts, each reading question's flags and the "
          "SHA-256 of its English text. No question text."),
     )
     downloads = "".join(

@@ -137,21 +137,27 @@ python3 -m http.server 8000                                # preview at http://1
   - **Four tabs**: the site's four benchmarks, each with its own address and its own rankings, never combined: Text
     (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know` and `page_config.json`'s `dont_know`, built by
-    `sitebuild/dont_know.py`) and English reading (`english-reading/`, from `results.json`'s `english_reading`,
-    `english-reading.json` and `page_config.json`'s `english_reading`, built by `sitebuild/english_reading.py`). Each
+    `sitebuild/dont_know.py`) and Turkish vs English (`turkish-vs-english/`, from `results.json`'s `english_reading`,
+    `dont_know_option_word`, `english-reading.json` and `page_config.json`'s `english_reading` and `model_languages`,
+    built by `sitebuild/english_reading.py`; its former address `english-reading/` redirects there, fragment kept). Each
     page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`). Each tab's face
     is charts, each card with a line saying which way is better; its tables and notes are under Info, a details element
     closed by default that `site.js` opens for a link into it (`dont-know/#method`). The Page images, Hallucination and
-    English reading faces are HTML bars (`hbars` in `sitebuild/site.py`, coloured by the ranking scale), so they need no
-    script: Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the
+    Turkish vs English faces are HTML bars (`hbars` in `sitebuild/site.py`, coloured by the ranking scale), so they need
+    no script: Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the
     marks each OCR model kept; Hallucination shows the non-hallucination rate, that rate against the same model held back
     by its confidence, the paired test of the two (the wrong answers only one of them made, with Holm-adjusted p and the
-    models outside the test named) and accuracy with the option against accuracy with five options; English reading
-    shows accuracy in Turkish and in English and the paired test of the two (the questions only one of them got right,
-    with Holm-adjusted p), then, with an "I don't know" option, the non-hallucination rate in English and in Turkish with
-    the attempt rates, and the paired test of wrong answers. `english-reading.json` is the English reading track's public record, written by
+    models outside the test named) and accuracy with the option against accuracy with five options; Turkish vs English
+    opens with its main table (accuracy and non-hallucination in Turkish and in English with their differences, the rank
+    in each language and the languages each model card lists, Holm-significant differences marked), then accuracy in
+    Turkish and in English with the paired test of the two (the questions only one of them got right, with Holm-adjusted
+    p), the non-hallucination rate with an "I don't know" option in both languages with the attempt rates and the paired
+    test of wrong answers, and the option-word check. The build writes `turkish-vs-english/kept-question-ids.txt` (the
+    547 kept IDs) from `english-reading.json`, the track's public record, written by
     `runner/translate_reading.py publish`: the translator, both prompts, each reading question's flag reasons, whether it
-    is kept and the SHA-256 of its English text. Like every file here, it holds no question text.
+    is kept and the SHA-256 of its English text. Like every file here, it holds no question text. The question page
+    (`question/?id=`) shows, for each kept reading question, every compared model's answer and its probability in Turkish
+    and in English side by side (`picks.json`'s `english`).
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads). Its face, after the intro and the filters, is one chart

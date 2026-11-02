@@ -1,9 +1,11 @@
 'use strict';
 
 /* One question's page, question/?id=…: its ID, part, topic, page, printed number, answer key and every setup's pick
-   with its probability or score, from ../data/picks.json. Never the question's text: the publisher owns it. */
+   with its probability or score, then, from the Turkish vs English tab, each compared model's answer in Turkish and in
+   English, all from ../data/picks.json. Never the question's text, Turkish or English: the publisher owns it. */
 
 const PICKS_URL = '../data/picks.json';
+const TAB_URL = '../turkish-vs-english/';
 const CORRECTION_URL = 'https://github.com/zekiworks/analysis/issues/new?template=answer-key-correction.md';
 
 const esc = text =>
@@ -14,6 +16,60 @@ const scoreCell = (score, source) =>
   score == null
     ? '<span class="hint" tabindex="0" data-tip="Not measured">—</span>'
     : `<span class="hint" tabindex="0" data-tip="${esc(source)}">${(100 * score).toFixed(2)}%</span>`;
+
+/* A pick with its right mark, as in Every setup's pick; "Invalid" where the run gave no valid answer. */
+const pickCell = (pick, key) =>
+  pick === '-'
+    ? '<span class="hint" tabindex="0" data-tip="No valid answer; counts as wrong">Invalid</span>'
+    : `${esc(pick)}${pick === key ? ' <span class="small inline">right</span>' : ''}`;
+
+/* The Turkish and English panel: for a reading question kept on the Turkish vs English tab, each compared model's
+   answer and its probability in Turkish (its Text tab run, among data.runs) and in English (its first English run);
+   for a flagged reading question, the flag's reasons; for a grammar question, why it is not compared. */
+function englishPanel(data, id, key, unit) {
+  const english = data.english;
+  if (!english) return '';
+  const head = '<h2 id="turkish-and-english">Turkish and English</h2>';
+  const tab = `<a href="${TAB_URL}">Turkish vs English</a>`;
+  if (unit.part !== 'reading')
+    return `${head}<p class="note">Not in the ${tab} comparison: it is a grammar question, and the comparison asks the reading questions only.</p>`;
+  const position = english.questions.indexOf(id);
+  if (position < 0) {
+    const flag = english.flagged.find(([flagged]) => flagged === id);
+    const reasons = flag ? ` (reasons: ${flag[1].map(esc).join(', ')})` : '';
+    return (
+      `${head}<p class="note">Not in the ${tab} comparison: the model that translated the reading questions flagged it as depending on Turkish wording${reasons}. ` +
+      `Flagged questions are left out (<a href="${TAB_URL}#method">how the flags were made</a>).</p>`
+    );
+  }
+  const turkishRuns = new Map(data.runs.map(run => [run.run, run]));
+  const turkishPosition = data.questions.findIndex(question => question[0] === id);
+  const rows = english.runs.map(model => {
+    const turkish = turkishRuns.get(model.turkish_run);
+    return {
+      model,
+      source: turkish.score,
+      turkish: { pick: turkish.picks[turkishPosition], score: turkish.scores[turkishPosition] },
+      english: { pick: model.picks[position], score: model.scores[position] },
+    };
+  });
+  const right = side => rows.filter(row => row[side].pick === key).length;
+  const table = rows
+    .map(
+      ({ model, source, turkish, english: answer }) =>
+        `<tr><td class="model"><a class="model-name" href="../models/${model.turkish_run}/">${esc(model.name)}</a></td>` +
+        `<td class="num" data-label="Turkish">${pickCell(turkish.pick, key)}</td>` +
+        `<td class="num" data-label="Turkish probability">${scoreCell(turkish.score, source)}</td>` +
+        `<td class="num" data-label="English">${pickCell(answer.pick, key)}</td>` +
+        `<td class="num" data-label="English probability">${scoreCell(answer.score, source)}</td></tr>`,
+    )
+    .join('');
+  return (
+    head +
+    `<p class="note">One of the ${english.questions.length} reading questions kept on the ${tab} tab. Each compared model’s answer in Turkish (its Text tab run) and in English (its first English run, on a model translation), with its probability or score for that answer; the tooltip names its source. Models by accuracy in English, highest first. Right in Turkish: ${right('turkish')} of ${rows.length}; in English: ${right('english')} of ${rows.length}.</p>` +
+    `<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th><th scope="col" class="num">Turkish</th><th scope="col" class="num">Probability</th><th scope="col" class="num">English</th><th scope="col" class="num">Probability</th></tr></thead><tbody>${table}</tbody></table></div>`
+  );
+}
 
 async function start() {
   const status = document.querySelector('[data-question-status]');
@@ -66,6 +122,7 @@ async function start() {
   box.innerHTML =
     `<dl class="facts">${facts.map(([term, value]) => `<dt>${term}</dt><dd>${value}</dd>`).join('')}</dl>` +
     `<p>The question's text stays unpublished: the publisher owns it; its page and printed number find it in the book. Think the key is wrong? <a href="${CORRECTION_URL}">Report an answer key correction</a>.</p>` +
+    englishPanel(data, id, key, unit) +
     '<h2>Every setup’s pick</h2>' +
     '<p class="note">Setups by accuracy on all questions. Probability: the setup’s probability or score for its own pick; the tooltip names its source.</p>' +
     `<div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Setup</th><th scope="col" class="num">Pick</th><th scope="col" class="num">Probability</th></tr></thead><tbody>${table}</tbody></table></div>`;

@@ -184,7 +184,8 @@
     ],
     "skipped": [259, 269, 322],
     "skipped_reason": "Not run by decision: these models run on our own GPUs, and we decided not to run them in English.",
-    "method_notes": ["Perplexity Decider 27B v1.2, Perplexity Decider Flash v1.2 and Fastino GLiDE v1.2 made their Text tab runs on an NVIDIA DGX Spark and their English runs on our RTX PRO 6000 GPU, with the same checkpoint, server code and settings."]
+    "method_notes": ["Perplexity Decider 27B v1.2, Perplexity Decider Flash v1.2 and Fastino GLiDE v1.2 made their Text tab runs on an NVIDIA DGX Spark and their English runs on our RTX PRO 6000 GPU, with the same checkpoint, server code and settings."],
+    "structural_check": {"about": "runner/translate_reading.py check on the final translations: the questions with a problem (a missing translation, the option letters, an empty text or the underline markup) and the number of warnings (numbering, numbers, Turkish letters, length). The build stops unless every problem question is flagged.", "problem_questions": [3043], "warnings": 159}
   },
   "aa_decision_index": {
     "about": "Artificial Analysis's Decision Index v1.0 as its post of 22 October 2026 lists it: its models in its order, each with our Text tab setup by run id (null: not in our benchmark). sitebuild/aa_index.py builds aa-decision-index/ from it.",

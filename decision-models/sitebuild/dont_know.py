@@ -422,8 +422,8 @@ def option_word_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -> 
             f"{option_word_summary(site, data, word)}"
             f'<p class="note">The same {word["questions"]:,} Turkish questions, with only the sixth option\'s word and the sentence '
             f"that names it changed. A model that skipped “{old}” because it did not recognise the Turkish word should choose "
-            f"“{new}” more often. The languages each model's card or docs list are on the English reading tab "
-            f"(<a href=\"{rel(PATH, 'english-reading/')}#languages\">Languages the model cards list</a>). Table and method: "
+            f"“{new}” more often. The languages each model's card or docs list are on the Turkish vs English tab "
+            f"(<a href=\"{rel(PATH, 'turkish-vs-english/')}#languages\">Languages the model cards list</a>). Table and method: "
             '<a href="#option-word-results">under Info</a>.</p>'
             f'<figure class="panel chart-card" id="chart-option-word"><div class="chart-head"><h2>Non-hallucination rate by the option\'s word</h2>'
             f'<p class="chart-sub">Each model\'s first run with “{new}” and with “{old}” · higher is better</p></div>{chart}'

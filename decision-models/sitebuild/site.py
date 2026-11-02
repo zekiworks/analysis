@@ -33,7 +33,7 @@ MENU = (
 )
 # The site's benchmarks, each a tab at the top of its page: (path inside the site, label). Text is the home page.
 BENCHMARKS = (("", "Text"), ("vision/", "Page images"), ("dont-know/", "Hallucination"),
-              ("english-reading/", "English reading"))
+              ("turkish-vs-english/", "Turkish vs English"))
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
 # The LLMs the home page's Routing tab puts behind a first model, in its order: (key in page_config.json's named_runs,
@@ -222,11 +222,12 @@ class Site:
 
     def tabs(self, path: str) -> str:
         """The benchmarks' tabs, at the top of the home page (Text), of vision/ (Page images), of dont-know/ (I don't
-        know option) and of english-reading/ (the reading questions in English, when results.json has english_reading):
-        each links to its page, the current one marked with aria-current, its number of questions beside its label."""
+        know option) and of turkish-vs-english/ (the reading questions in Turkish and in English, when results.json has
+        english_reading): each links to its page, the current one marked with aria-current, its number of questions
+        beside its label."""
         questions = {"": self.total, "vision/": self.vision["subset"]["questions"], "dont-know/": self.results["dont_know"]["questions"]}
         if "english_reading" in self.results:
-            questions["english-reading/"] = self.results["english_reading"]["questions"]
+            questions["turkish-vs-english/"] = self.results["english_reading"]["questions"]
         links = "".join(
             f'<a class="bench-tab" href="{rel(path, target)}"{" aria-current=\"page\"" if path == target else ""}>'
             f'<span class="lamp" aria-hidden="true"></span>{esc(label)}<span class="count">{bp.count(questions[target])} questions</span></a>'

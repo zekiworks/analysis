@@ -1,8 +1,10 @@
 """Every question: the list of the scored questions, one page per question (question/?id=…, drawn by question.js)
-and the compact per-question data it, the Compare page and the topic pages read (data/picks.json).
+and the compact per-question data it, the Compare page and the topic pages read (data/picks.json). The question page
+also shows, for each reading question kept on the Turkish vs English tab, every compared model's answer in Turkish and
+in English (picks.json's `english`), and for a flagged reading question the flag's reasons.
 
-The question text is never published: the publisher owns it. A question is identified by its ID, its part and topic,
-and its page and printed number in the book."""
+The question text is never published, Turkish or English: the publisher owns it. A question is identified by its ID,
+its part and topic, and its page and printed number in the book."""
 
 from __future__ import annotations
 
@@ -21,22 +23,74 @@ def score_text(score: float | None) -> float | None:
     return None if score is None else math.floor(score * 10000) / 10000
 
 
+def pick_letters(answers: dict[str, Any], indices: list[int], keys: list[str], label: str, ids: list[int]) -> str:
+    """A run's picks on the given question indices, one letter each, "-" where it gave no valid answer. A pick that
+    matches the key is a right answer: checked here against answers.json's grading."""
+    letters = []
+    for index in indices:
+        choice = answers["choice"][index]
+        letter = choice if isinstance(choice, str) and len(choice) == 1 else "-"
+        if (letter == keys[index]) != bool(answers["correct"][index]):
+            raise ValueError(f"{label}: pick {choice!r} and its grade disagree on question {ids[index]}")
+        letters.append(letter)
+    return "".join(letters)
+
+
+def english(site: Site) -> dict[str, Any] | None:
+    """The Turkish vs English tab's answers for the question page: the kept questions' IDs, the flagged questions'
+    reasons, and for each compared model (results.json english_reading.models, in its order) its first English run's
+    picks and probabilities on the kept questions. Its Turkish side is its Text tab run (turkish_run), already among
+    picks.json's runs. Each side's right, wrong and invalid counts are checked against results.json."""
+    if "english_reading" not in site.results:
+        return None
+    # Imported here: sitebuild.english_reading imports sitebuild.data, which imports this module.
+    from sitebuild.english_reading import RECORD, reason_name
+
+    data = site.results["english_reading"]
+    record = json.loads(RECORD.read_text(encoding="utf-8"))
+    questions = site.answers["questions"]
+    ids, keys = questions["id"], questions["key"]
+    position = {question_id: index for index, question_id in enumerate(ids)}
+    kept = [question["question_id"] for question in record["questions"] if question["kept"]]
+    indices = [position[question_id] for question_id in kept]
+    english_runs = {item["run"]: item for item in site.answers["english_runs"]}
+    runs = []
+    for model in data["models"]:
+        answers = english_runs[model["run"]]
+        if [index for index, grade in enumerate(answers["correct"]) if grade is not None] != sorted(indices):
+            raise ValueError(f"English run {model['run']}: its questions are not the kept questions")
+        letters = pick_letters(answers, indices, keys, f"English run {model['run']}", ids)
+        turkish = pick_letters(site.answer_runs[model["turkish_run"]], indices, keys, f"run {model['turkish_run']}", ids)
+        for side, side_letters in (("english", letters), ("turkish", turkish)):
+            right = sum(letter == keys[index] for letter, index in zip(side_letters, indices))
+            invalid = side_letters.count("-")
+            counts = model[side]
+            if (right, len(indices) - right - invalid, invalid) != (counts["right"], counts["wrong"], counts["invalid"]):
+                raise ValueError(f"{model['name']}: picks.json would not reproduce its {side} counts")
+        runs.append({
+            "run": model["run"],
+            "turkish_run": model["turkish_run"],
+            "name": site.row_name(site.by_id[model["turkish_run"]]),
+            "picks": letters,
+            "scores": [score_text(answers["score"][index]) for index in indices],
+        })
+    return {
+        "questions": kept,
+        "flagged": [[question["question_id"], [reason_name(reason) for reason in question["reasons"]]]
+                    for question in record["questions"] if not question["kept"]],
+        "runs": runs,
+    }
+
+
 def picks(site: Site) -> dict[str, Any]:
     """Every leaderboard setup's pick and its probability or score on each scored question, in question order, with
-    the question's ID, topic, page, printed number and key. A pick that matches the key is a right answer: checked
-    here against answers.json's grading."""
+    the question's ID, topic, page, printed number and key, then the Turkish vs English tab's answers (english())."""
     questions = site.answers["questions"]
     order = site.scored
     runs: list[dict[str, Any]] = []
     for run in site.ranked():
         answers = site.answer_runs[run["run"]]
-        letters = []
-        for index in order:
-            choice = answers["choice"][index]
-            letter = choice if isinstance(choice, str) and len(choice) == 1 else "-"
-            if (letter == questions["key"][index]) != bool(answers["correct"][index]):
-                raise ValueError(f"run {run['run']}: pick {choice!r} and its grade disagree on question {questions['id'][index]}")
-            letters.append(letter)
+        letters = pick_letters(answers, order, questions["key"], f"run {run['run']}", questions["id"])
         if sum(letter == questions["key"][index] for letter, index in zip(letters, order)) != run["correct"]:
             raise ValueError(f"run {run['run']}: picks.json would not reproduce its {run['correct']} right answers")
         runs.append({
@@ -45,10 +99,10 @@ def picks(site: Site) -> dict[str, Any]:
             "detail": site.detail(run),
             "decision": site.decision(run),
             "score": run["confidence"]["label"],
-            "picks": "".join(letters),
+            "picks": letters,
             "scores": [score_text(answers["score"][index]) for index in order],
         })
-    return {
+    out = {
         "units": [{"number": unit["number"], "name": unit["english"], "part": site.part(unit["number"])} for unit in site.units],
         "questions": [
             [questions["id"][index], questions["unit"][index], questions["page"][index], questions["number"][index], questions["key"][index]]
@@ -56,6 +110,10 @@ def picks(site: Site) -> dict[str, Any]:
         ],
         "runs": runs,
     }
+    comparison = english(site)
+    if comparison:
+        out["english"] = comparison
+    return out
 
 
 def picks_data(site: Site) -> dict[str, Any]:

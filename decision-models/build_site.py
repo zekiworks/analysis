@@ -12,8 +12,9 @@ preview image in both themes with headless Chrome (CHROME, else google-chrome) a
 the reply charts of aa-decision-index/ with the same Chrome (aa_cards.py), and writes the pages.
 
 The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the Page images tab, dont-know/
-(sitebuild/dont_know.py) the Hallucination tab and english-reading/ (sitebuild/english_reading.py) the English reading
-tab. index.html keeps its copy; this script rewrites what is inside its <!-- build:name --> markers: the meta tags, the
+(sitebuild/dont_know.py) the Hallucination tab and turkish-vs-english/ (sitebuild/english_reading.py) the Turkish vs
+English tab, with a redirect at its earlier address english-reading/. index.html keeps its copy; this script rewrites
+what is inside its <!-- build:name --> markers: the meta tags, the
 top bar, the tabs, the intro (its counts from results.json), the counters, the results version, the plain tables for
 readers without JavaScript (the decision models, then the other models, each ranked on its own) and the note under
 them, the settings
@@ -624,15 +625,17 @@ def main() -> int:
 
 
 def write_pages(site: Site) -> int:
-    """Every page of PAGE_MODULES, each to <path>index.html; the number of pages written."""
+    """Every page of PAGE_MODULES, each to <path>index.html, and the plain files they return under a path that does not
+    end in "/" (as turkish-vs-english/kept-question-ids.txt); the number of pages written."""
     written = 0
     for name in PAGE_MODULES:
         module = importlib.import_module(f"sitebuild.{name}")
         for path, text in module.build(site).items():
-            target = ROOT / path / "index.html"
+            page = not path or path.endswith("/")
+            target = ROOT / path / "index.html" if page else ROOT / path
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(text)
-            written += 1
+            written += page
     return written
 
 
