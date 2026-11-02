@@ -1,8 +1,9 @@
 """Hallucination (dont-know/), the site's third tab: the Text tab's questions with one more option after each
 question's own, "Bilmiyorum" ("I don't know"), from results.json's `dont_know` and page_config.json's `dont_know` (the
-models not run, with their reasons). One row per model, from its first run, ranked by accuracy; a model with more than
-one run shows the range over its runs. A plain HTML table, as on the Page images tab; it needs no JavaScript. The tab
-ranks nothing on the Text tab and changes none of its numbers."""
+models not run, with their reasons). One row per model, from its first run, ranked by non-hallucination rate (accuracy
+breaks ties), which is the first column; a model with more than one run shows the range over its runs. A plain HTML
+table, as on the Page images tab; it needs no JavaScript. The tab ranks nothing on the Text tab and changes none of its
+numbers."""
 
 from __future__ import annotations
 
@@ -22,14 +23,21 @@ NEUTRAL = "neither better nor worse on its own"
 def columns(option: str) -> tuple[tuple[str, str], ...]:
     """The table's columns after the model: header and which direction is better."""
     return (
-        ("Accuracy", "higher is better"),
-        ("Attempt rate", f"higher means it answers more often; {NEUTRAL}"),
         ("Non-hallucination rate", "higher is better"),
         ("Derived non-hallucination rate", "from the 5-option text run; higher is better"),
+        ("Accuracy", "higher is better"),
+        ("Attempt rate", f"higher means it answers more often; {NEUTRAL}"),
         (f"Mean probability of “{option}”", f"higher means more probability on “I don't know”; {NEUTRAL}"),
         ("Text accuracy with five options", "the Text tab's number; higher is better"),
         ("Runs", "range over the runs where more than one"),
     )
+
+
+def ranked(models: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The tab's leaderboard order: non-hallucination rate, highest first (a model without one last), then accuracy, then
+    name. results.json keeps the models in its own order."""
+    return sorted(models, key=lambda model: (model["non_hallucination"] is None, -(model["non_hallucination"] or 0),
+                                             -model["accuracy"], model["name"].casefold()))
 
 
 def model_cell(site: Site, model: dict[str, Any]) -> str:
@@ -54,19 +62,19 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
     else:
         ranges = [
             f"{name} {percent(spread[key][0])} to {percent(spread[key][1])}" if spread[key] else f"{name} not measured"
-            for key, name in (("accuracy", "Accuracy"), ("attempt_rate", "Attempt rate"),
-                              ("non_hallucination", "Non-hallucination"), ("mean_dont_know_probability", "Mean probability"))
+            for key, name in (("non_hallucination", "Non-hallucination"), ("accuracy", "Accuracy"),
+                              ("attempt_rate", "Attempt rate"), ("mean_dont_know_probability", "Mean probability"))
         ]
         changed = model["answers_changed"]
         ranges.append(f"{changed:,} answer{'' if changed == 1 else 's'} changed between runs")
         runs_text = run_span(model["runs"]) + "".join(f'<span class="small">{item}</span>' for item in ranges)
     values = [
-        f'{percent(model["accuracy"])}<span class="small">{model["right"]:,} of {total:,} right</span>',
-        f'{percent(model["attempt_rate"])}<span class="small">{model["right"] + model["wrong"]:,} answered, '
-        f'{model["dont_know"]:,} “{esc(option)}”{invalid}</span>',
         f'{percent(model["non_hallucination"])}<span class="small">{model["dont_know"]:,} “{esc(option)}” of '
         f'{model["dont_know"] + model["wrong"]:,} not right</span>',
         f'{percent(derived["non_hallucination"])}<span class="small">{cut}, attempt rate {percent(derived["attempt_rate"])}</span>',
+        f'{percent(model["accuracy"])}<span class="small">{model["right"]:,} of {total:,} right</span>',
+        f'{percent(model["attempt_rate"])}<span class="small">{model["right"] + model["wrong"]:,} answered, '
+        f'{model["dont_know"]:,} “{esc(option)}”{invalid}</span>',
         percent(model["mean_dont_know_probability"]),
         f'{percent(model["original_accuracy"])}<span class="small"><a href="{rel(PATH, site.model_path(run))}">run {run["run"]}</a></span>',
         runs_text,
@@ -77,7 +85,7 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
 def table(site: Site, data: dict[str, Any]) -> str:
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(direction)}</span></th>'
                    for name, direction in columns(data["option"]))
-    rows = "".join(row(site, data, model) for model in data["models"])
+    rows = "".join(row(site, data, model) for model in ranked(data["models"]))
     return (f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr>'
             f"</thead><tbody>{rows}</tbody></table></div>")
 
@@ -111,7 +119,7 @@ def build(site: Site) -> dict[str, str]:
     </section>
     <section class="card" id="results">
       <h2>Results</h2>
-      <p class="note">Ranked by accuracy, highest first. Each row shows the model's first run{"; under Runs, a model with more than one run (" + esc(joined(several)) + ") shows the range over its runs and how many answers changed between them" if several else ""}. Out of all {total} questions: accuracy counts the right answers; the attempt rate counts the right and wrong answers; the non-hallucination rate is the share of “{option}” among the answers that were not right (“{option}” plus wrong). Formulas and how to read them: <a href="#method">Our method</a>.</p>
+      <p class="note">Ranked by non-hallucination rate, highest first: the share of “{option}” among the answers that were not right (“{option}” plus wrong), so the first model is the one that most often said it did not know instead of answering wrongly. Read the ranking with accuracy and the attempt rate: a model that always chose “{option}” would rank first with no right answers. Each row shows the model's first run{"; under Runs, a model with more than one run (" + esc(joined(several)) + ") shows the range over its runs and how many answers changed between them" if several else ""}. Out of all {total} questions: accuracy counts the right answers; the attempt rate counts the right and wrong answers. Formulas and how to read them: <a href="#method">Our method</a>.</p>
       {table(site, data)}
       {not_run(site.config["dont_know"]["not_run"])}
     </section>
