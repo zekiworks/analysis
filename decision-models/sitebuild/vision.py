@@ -377,13 +377,14 @@ def engine_check(site: Site, data: dict[str, Any]) -> str:
 
 
 def findings(site: Site, data: dict[str, Any]) -> str:
-    """What we found: the leaderboards' main results in words, every number computed from vision.json, differences taken
-    between accuracies as the tables show them, significance from the paired exact McNemar tests vision.json holds
-    (p below 0.05, one comparison at a time). The sentences assume what they state (each image model has A, B and C and
-    is less accurate with the picture alone, every model's best OCR route is below its text, every OCR route beats the
-    picture alone); the build stops when the data no longer fits them."""
-    shown = lambda value: round(100 * value, 1)  # noqa: E731 - an accuracy as the tables show it, in percent
-    acc = lambda model, label: shown(model["conditions"][label]["accuracy"])  # noqa: E731
+    """What we found: the leaderboards' main results in words, every number computed from vision.json; each difference is
+    taken between accuracies computed from the right-answer counts and rounded only when shown (not between the tables'
+    rounded percentages); significance from the paired exact McNemar tests vision.json holds (p below 0.05, one
+    comparison at a time). The sentences assume what they state (each image model has A, B and C and is less accurate
+    with the picture alone, every model's best OCR route is below its text, every OCR route beats the picture alone);
+    the build stops when the data no longer fits them."""
+    exact = lambda result: 100 * result["correct"] / result["questions"]  # noqa: E731 - an accuracy in percent, unrounded
+    acc = lambda model, label: exact(model["conditions"][label])  # noqa: E731
     points = lambda value: f"{value:.1f}"  # noqa: E731
 
     def name(model: dict[str, Any]) -> str:
@@ -438,7 +439,7 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     second += "</p>"
 
     routes = [(model, *best_route(data, model)) for model in data["models"] if best_route(data, model)]
-    gap = {model["name"]: acc(model, "A") - shown(metrics["accuracy"]) for model, _, metrics in routes}
+    gap = {model["name"]: acc(model, "A") - exact(metrics) for model, _, metrics in routes}
     if not routes or min(gap.values()) <= 0:
         raise SystemExit("vision.json findings: the text expects every model's best OCR route below its text")
     third = (f"<p>Through an OCR model (D), each of the {len(routes)} models with an OCR route was less accurate than with the "
@@ -460,10 +461,10 @@ def findings(site: Site, data: dict[str, Any]) -> str:
                       f"{pct(verified[fewest]['cer'], 2)} against {pct(verified[key]['cer'], 2)}).")
     both = [(model, label, metrics) for model, label, metrics in routes if "B" in model["conditions"]]
     if both:
-        if any(shown(model["conditions"][label]["accuracy"]) <= acc(model, "B")
+        if any(acc(model, label) <= acc(model, "B")
                for model, _, _ in both for label in ocr_labels(data) if label in model["conditions"]):
             raise SystemExit("vision.json findings: the text expects every OCR route above the picture alone")
-        lift = {model["name"]: shown(metrics["accuracy"]) - acc(model, "B") for model, _, metrics in both}
+        lift = {model["name"]: exact(metrics) - acc(model, "B") for model, _, metrics in both}
         weak_routes = [model for model, label, _ in both if p_value(model, "B", label) >= 0.05]
         third += (f" For the {len(both)} image models with both, every OCR route was more accurate than the picture alone "
                   f"(B): the best route by {points(min(lift.values()))} to {points(max(lift.values()))} points, "

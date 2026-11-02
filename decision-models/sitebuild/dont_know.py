@@ -149,7 +149,8 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     if not fewer:
         raise SystemExit("dont_know findings: the text expects the derived rate to leave fewer wrong answers for some model")
     saved = [model["wrong"] - model["derived"]["wrong"] for model in fewer]
-    gaps = [shown(model["derived"]["non_hallucination"]) - shown(model["non_hallucination"]) for model in fewer]
+    # Differences between the unrounded rates, rounded only when shown (not between the table's rounded rates).
+    gaps = [100 * (model["derived"]["non_hallucination"] - model["non_hallucination"]) for model in fewer]
     third = (f"<p>For {len(fewer)} of the {len(used)}, the model's own confidence on its five-option run, holding back on as "
              f"many questions, left fewer wrong answers than “{option}” did: {min(saved):,} to {max(saved):,} fewer, a "
              f"non-hallucination rate {min(gaps):.{digits}f} to {max(gaps):.{digits}f} points higher (the derived rate in "
