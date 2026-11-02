@@ -51,7 +51,7 @@
         <li><strong>Mean probability of “Bilmiyorum”</strong>: the probability the model gave that option, averaged over its answers that report option probabilities.</li>
       </ul>
       <h3>How to read them</h3>
-      <p>The non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know. Read it with accuracy and the attempt rate: a model that always chose “Bilmiyorum” would reach 100% with no right answers, and one that never chose it would reach 0% whatever its accuracy.</p>
+      <p>The non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know. Read it with accuracy and the attempt rate: a model that always chose “Bilmiyorum” would reach 100% with no right answers, and one that never chose it would reach 0% as soon as it answered one question wrongly. With neither a wrong answer nor “Bilmiyorum”, there is nothing to divide by and the rate is undefined (the table shows Not measured).</p>
       <h3>The option and the instructions</h3>
       <p>The added option's exact text is “Bilmiyorum”. It is lettered after the question's own options, and the answer key is unchanged. The full System One instructions:</p>
       <blockquote><p>Which option is the correct answer to this Turkish multiple-choice question? If you do not know the answer, choose Bilmiyorum.</p></blockquote>

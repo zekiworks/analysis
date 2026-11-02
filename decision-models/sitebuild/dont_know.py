@@ -116,6 +116,9 @@ def findings(site: Site, data: dict[str, Any]) -> str:
                          "first, and some that almost never chose it")
     if any(model["invalid"] or not model["mean_dont_know_probability"] for model in models):
         raise SystemExit("dont_know findings: the text assumes no invalid answers and some probability on the option")
+    if any(model["non_hallucination"] is None or model["derived"]["non_hallucination"] is None for model in models):
+        raise SystemExit("dont_know findings: the text assumes every rate is defined (each model has a wrong or "
+                         "“Bilmiyorum” answer)")
     if any(model["derived"]["abstained"] != model["dont_know"] for model in models):
         raise SystemExit("dont_know findings: a derived rate does not hold back on as many questions as its run")
     shares = [model["dont_know"] / total for model in used]
@@ -211,7 +214,7 @@ def build(site: Site) -> dict[str, str]:
         <li><strong>Mean probability of “{option}”</strong>: the probability the model gave that option, averaged over its answers that report option probabilities.</li>
       </ul>
       <h3>How to read them</h3>
-      <p>The non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know. Read it with accuracy and the attempt rate: a model that always chose “{option}” would reach 100% with no right answers, and one that never chose it would reach 0% whatever its accuracy.</p>
+      <p>The non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know. Read it with accuracy and the attempt rate: a model that always chose “{option}” would reach 100% with no right answers, and one that never chose it would reach 0% as soon as it answered one question wrongly. With neither a wrong answer nor “{option}”, there is nothing to divide by and the rate is undefined (the table shows Not measured).</p>
       <h3>The option and the instructions</h3>
       <p>The added option's exact text is “{option}”. It is lettered after the question's own options, and the answer key is unchanged. The full System One instructions:</p>
       <blockquote><p>{esc(data["instructions"])}</p></blockquote>
