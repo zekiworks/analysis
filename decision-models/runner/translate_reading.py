@@ -9,13 +9,15 @@ flagged questions are left out of the track.
     translate_reading.py flag TRANSLATIONS.jsonl OUT.jsonl [--workers 4]
     translate_reading.py check TRANSLATIONS.jsonl
     translate_reading.py review TRANSLATIONS.jsonl FLAGS.jsonl OUT.html [--sample 50] [--seed 20261102]
+    translate_reading.py publish TRANSLATIONS.jsonl FLAGS.jsonl KEPT OUT.json
 
 translate and flag append to OUT and skip the questions already in it, so an interrupted pass resumes. The Turkish of
 each question is exactly what the runner shows a model (benchmark_ollama.load_questions and compose_prompt): its body,
 everything before the options block, and each option by letter. Each record keeps the model, effort, Claude Code version,
 prompt version (a hash of the system prompt, the template and the JSON schema), this file's published commit, timing and
 the CLI's own output. check makes the structural checks (letters, empty texts, markup, numbers); review writes the page
-Ümit or Can checks before any model run: a fixed random sample of the unflagged questions and every flagged one.
+Ümit or Can checks before any model run: a fixed random sample of the unflagged questions and every flagged one. publish
+writes the track's public record, without question text (publish()).
 """
 
 from __future__ import annotations
@@ -32,6 +34,7 @@ import sys
 import tempfile
 import threading
 import time
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -328,6 +331,66 @@ def review(translations: Path, flags: Path, out: Path, sample: int, seed: int) -
     print(f"wrote {out} and {out.with_suffix('.tsv')}: {len(picked)} random, {len(marked)} flagged")
 
 
+def publish(translations: Path, flags: Path, kept: Path, out: Path) -> None:
+    """The track's public record, without question text (the publisher owns it): the translating model and its route,
+    both prompts with their versions and the commit each pass ran, the SHA-256 of the translations file as the runs
+    record it (--english) and of the flags file, and per reading question its unit, whether the track keeps it, the
+    flag's reasons and the SHA-256 of its English text (english_sha256). Stops unless every reading question has exactly
+    one translation and one flag, each pass from one model, route and prompt version, and KEPT (the runs' --questions)
+    holds exactly the unflagged questions."""
+    ids = sorted(item["question_id"] for item in reading_questions())
+    passes = {}
+    for name, path, version in (("translate", translations, TRANSLATE_VERSION), ("flag", flags, FLAG_VERSION)):
+        records = load_jsonl(path)
+        lines = sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
+        if sorted(records) != ids or lines != len(ids):
+            raise SystemExit(f"{path}: {lines} records for {len(records)} questions, not one for each of the {len(ids)} reading questions")
+        made = {(record["model"], record["effort"], record["route"], record["claude_code"], record["prompt_version"],
+                 record["harness_commit"]) for record in records.values()}
+        if len(made) != 1 or next(iter(made))[4] != version:
+            raise SystemExit(f"{path}: not all from one model, route and prompt version {version}: {sorted(made)}")
+        passes[name] = (records, next(iter(made)))
+    texts, marks = passes["translate"][0], passes["flag"][0]
+    keep = set(bo.read_question_ids(kept))
+    unflagged = {question_id for question_id, mark in marks.items() if not mark["depends_on_turkish"]}
+    if keep != unflagged:
+        raise SystemExit(f"{kept}: {len(keep - unflagged)} flagged or unknown questions kept, {len(unflagged - keep)} unflagged left out")
+    model, effort, route, claude_code, _, _ = passes["translate"][1]
+    if passes["flag"][1][:4] != (model, effort, route, claude_code):
+        raise SystemExit("the translations and the flags come from different models or routes")
+    reasons = Counter(reason for mark in marks.values() if mark["depends_on_turkish"] for reason in mark["reasons"])
+    document = {
+        "translator": {"model": model, "effort": effort, "route": route, "claude_code": claude_code},
+        "prompts": {
+            "translate": {"version": TRANSLATE_VERSION, "harness_commit": passes["translate"][1][5], "system": TRANSLATE_SYSTEM,
+                          "template": TRANSLATE_TEMPLATE, "schema": translate_schema(list("ABCDE"))},
+            "flag": {"version": FLAG_VERSION, "harness_commit": passes["flag"][1][5], "system": FLAG_SYSTEM,
+                     "template": FLAG_TEMPLATE, "schema": FLAG_SCHEMA},
+        },
+        "translations_sha256": hashlib.sha256(translations.read_bytes()).hexdigest(),
+        "flags_sha256": hashlib.sha256(flags.read_bytes()).hexdigest(),
+        "english_sha256": "each question's `english` object (body and options) as JSON with sorted keys, no spaces and "
+                          "non-ASCII characters kept, hashed with SHA-256",
+        "reading_questions": len(ids),
+        "kept": len(keep),
+        "flagged": len(ids) - len(keep),
+        "reasons": {reason: reasons[reason] for reason in FLAG_REASONS if reasons[reason]},
+        "questions": [
+            {
+                "question_id": question_id,
+                "unit": texts[question_id]["unit"],
+                "kept": question_id in keep,
+                "reasons": marks[question_id]["reasons"] if marks[question_id]["depends_on_turkish"] else [],
+                "english_sha256": hashlib.sha256(json.dumps(texts[question_id]["english"], ensure_ascii=False, sort_keys=True,
+                                                            separators=(",", ":")).encode("utf-8")).hexdigest(),
+            }
+            for question_id in ids
+        ],
+    }
+    out.write_text(json.dumps(document, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"{out}: {len(ids)} reading questions, {len(keep)} kept, {len(ids) - len(keep)} flagged")
+
+
 def main() -> int:
     global CLAUDE_CODE, COMMIT
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -348,11 +411,19 @@ def main() -> int:
     four.add_argument("out", type=Path)
     four.add_argument("--sample", type=int, default=50)
     four.add_argument("--seed", type=int, default=20261102)
+    five = sub.add_parser("publish")
+    five.add_argument("translations", type=Path)
+    five.add_argument("flags", type=Path)
+    five.add_argument("kept", type=Path)
+    five.add_argument("out", type=Path)
     args = parser.parse_args()
     if args.command == "check":
         return 1 if check(args.translations) else 0
     if args.command == "review":
         review(args.translations, args.flags, args.out, args.sample, args.seed)
+        return 0
+    if args.command == "publish":
+        publish(args.translations, args.flags, args.kept, args.out)
         return 0
     COMMIT = bo.harness_commit(Path(__file__).resolve())  # stops unless this file is committed and pushed
     CLAUDE_CODE = claude_version()
