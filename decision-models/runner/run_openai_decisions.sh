@@ -7,4 +7,5 @@ cd "$(dirname "$0")"
   --provider openai-decisions \
   --data questions-v2.sqlite \
   --timeout 60 \
-  --concurrency 4
+  --concurrency 4 \
+  "$@"
