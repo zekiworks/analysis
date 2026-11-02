@@ -30,7 +30,9 @@ run() {
     ms-decision-1) ./run_microsoft_decision_1.sh "${variant[@]}" ;;
     mercury-decide) ./run_mercury_decide.sh "${variant[@]}" ;;
     celeris) ./run_celeris.sh "${variant[@]}" ;;
-    d1) ./run_liquid_d1.sh "${variant[@]}" ;;
+    # Liquid's API no longer serves d1:free, the free-tier name of d1 that run_liquid_d1.sh asks for (HTTP 404 "does not
+    # exist", 2 November 2026); its model list still names d1 (released 29 September 2026). The text runs' settings.
+    d1) ./benchmark_ollama.py d1 --provider liquid --data questions-v2.sqlite --timeout 30 "${variant[@]}" ;;
     clef) ./run_clef.sh "${variant[@]}" ;;
     luna) ./run_openai_decisions.sh "${variant[@]}" ;;
     d3) ./run_vllm_sr_d3.sh "${variant[@]}" ;;
