@@ -7,7 +7,10 @@
    history entry, so Back returns to them. Without JavaScript the page keeps the plain table build_site.py writes. */
 
 const SETTINGS = JSON.parse(document.getElementById('v3-settings').textContent);
-const RESULTS_URL = 'results.json';
+/* results.json's address as the page gives it, with its content's version (Site asset in sitebuild/site.py), so a cached
+   file of another build is never paired with this page. A page cached from before versioned addresses gives none and
+   loads this script unversioned; it gets the plain address. */
+const RESULTS_URL = SETTINGS.resultsUrl || 'results.json';
 
 /* Why a cell has no value. */
 const EMPTY = {

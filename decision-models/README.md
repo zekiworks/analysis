@@ -110,6 +110,11 @@ python3 -m http.server 8000                                # preview at http://1
 
   Every page's footer gives the results snapshot (a hash of `results.json`), its update date and the
   answer key version.
+- **Versioned addresses:** every page links its stylesheet and scripts, and the scripts fetch `results.json` and
+  `data/picks.json`, with the file's content version in the query (`v3.js?v=1a2b3c4d`, the start of its SHA-256;
+  `asset` in `sitebuild/site.py`). Browsers and the CDN cache each file for 10 minutes on its own, so unversioned
+  links could pair a new page with an old cached script for a while after a release; with the version, a page always
+  gets the files it was built with.
 - **The local preview** needs a server: opening `index.html` from disk does not work, because browsers
   block loading `results.json` from a `file://` page.
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names

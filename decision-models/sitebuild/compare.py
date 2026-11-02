@@ -1,9 +1,10 @@
 """Compare: two setups side by side, with the exact McNemar test on the questions they answered differently. The page is
-drawn by compare.js from the site's results.json and from data/picks.json (written by sitebuild.questions)."""
+drawn by compare.js from the site's results.json and from data/picks.json (written by sitebuild.questions), at the
+versioned addresses the page gives it (Site asset)."""
 
 from __future__ import annotations
 
-from sitebuild.site import Site, esc, rel
+from sitebuild.site import Site, asset, esc, rel
 
 PATH = "compare/"
 
@@ -13,7 +14,7 @@ def build(site: Site) -> dict[str, str]:
     options = "".join(f'<option value="{run["run"]}">{esc(site.full_name(run))}</option>' for run in ranked)
     first = next(run for run in ranked if site.decision(run))
     second = ranked[0]
-    body = f"""    <section class="card" id="compare" data-default-a="{first["run"]}" data-default-b="{second["run"]}">
+    body = f"""    <section class="card" id="compare" data-default-a="{first["run"]}" data-default-b="{second["run"]}" data-results="{rel(PATH, asset("results.json"))}" data-picks="{rel(PATH, asset("data/picks.json"))}">
       <h1>Compare two setups</h1>
       <div class="compare-pickers">
         <label class="control">First <select data-pick="a">{options}</select></label>

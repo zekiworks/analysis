@@ -4,8 +4,11 @@
    same questions (../data/picks.json) how many each got right that the other got wrong, the paired difference with its
    95% interval and the exact McNemar test, as benchmark_metrics.paired_comparison computes them. */
 
-const RESULTS_URL = '../results.json';
-const PICKS_URL = '../data/picks.json';
+/* The data's addresses as the page gives them, each with its content's version (Site asset in sitebuild/site.py), so a
+   cached file of another build is never paired with this page. A page cached from before versioned addresses gives none
+   and loads this script unversioned; it gets the plain addresses. */
+const RESULTS_URL = document.getElementById('compare').dataset.results || '../results.json';
+const PICKS_URL = document.getElementById('compare').dataset.picks || '../data/picks.json';
 
 const esc = text =>
   String(text).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);

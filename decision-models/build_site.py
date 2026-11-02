@@ -43,7 +43,7 @@ sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
-from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, route_labels, topbar  # noqa: E402
+from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, asset, route_labels, topbar  # noqa: E402
 
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
@@ -348,8 +348,10 @@ def topics(data: Data) -> str:
 
 
 def page_settings(data: Data) -> str:
-    """What v3.js needs beyond results.json: which runs are decision models, the topics' parts, the routing LLMs."""
+    """What v3.js needs beyond results.json: results.json's versioned address, which runs are decision models, the topics'
+    parts, the routing LLMs."""
     settings = {
+        "resultsUrl": asset("results.json"),
         "decisionProviders": data.config["decision_model_providers"],
         "notDecisionModels": data.config["not_decision_models"],
         "readingUnits": data.config["reading_units"],
@@ -579,6 +581,9 @@ def main() -> int:
     print(f"Wrote {bp.CITATION.relative_to(ROOT)}")
     blocks = {
         "head": head(data, names["preview"]["dark"]),
+        # The stylesheet and scripts at versioned addresses (asset), so a page and its scripts always come from one build.
+        "assets": (f'<link rel="stylesheet" href="{asset("v3.css")}">\n  <script src="{asset("site.js")}" defer></script>\n'
+                   f'  <script src="{asset("v3.js")}" defer></script>'),
         "intro": bp.esc(INTRO.format(**counts(data))),
         "topbar": topbar(""),
         "tabs": site.tabs(""),

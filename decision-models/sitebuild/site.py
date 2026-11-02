@@ -4,6 +4,7 @@ from the results."""
 
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 from collections.abc import Callable, Iterable
@@ -56,6 +57,14 @@ def rel(origin: str, target: str) -> str:
     """A relative link from the page at origin to target, both inside the site ('' is the home page, 'models/145/')."""
     up = "../" * origin.count("/")
     return (up + target) or "./"
+
+
+def asset(target: str) -> str:
+    """A file inside the site ('v3.js', 'data/picks.json') with its content's version in the query, the start of its
+    SHA-256 ('v3.js?v=1a2b3c4d'). A page links its scripts and stylesheet, and its scripts fetch their data, this way,
+    so a page always gets the files it was built with: a browser or the CDN caches each file for 10 minutes on its own,
+    and an unversioned link could pair a new page with an old cached script."""
+    return f"{target}?v={hashlib.sha256((ROOT / target).read_bytes()).hexdigest()[:8]}"
 
 
 def topbar(path: str) -> str:
@@ -238,7 +247,7 @@ class Site:
         """A whole page at path (inside the site): head with its canonical address, top bar with the navigation bar,
         body, footer."""
         root = rel(path, "")
-        extra = "".join(f'\n  <script src="{rel(path, script)}" defer></script>' for script in scripts)
+        extra = "".join(f'\n  <script src="{rel(path, asset(script))}" defer></script>' for script in scripts)
         return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -248,8 +257,8 @@ class Site:
   <link rel="canonical" href="{esc(self.config['site_url'] + path)}">
   <meta name="description" content="{esc(description)}">
   <script>document.documentElement.classList.add("js"); try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; }} catch (e) {{}}</script>
-  <link rel="stylesheet" href="{root}v3.css">
-  <script src="{root}site.js" defer></script>{extra}
+  <link rel="stylesheet" href="{root}{asset("v3.css")}">
+  <script src="{root}{asset("site.js")}" defer></script>{extra}
 </head>
 <body class="v3">
   <a class="skip" href="#main">Skip to content</a>
