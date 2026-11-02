@@ -881,8 +881,8 @@ const logTick = value => (value < 1 ? String(Number(value.toPrecision(1))) : int
 /* Chart text, a label's settings line included, is 12px in the page's font; labels are measured with it, so they fit
    their space and never overlap. */
 const measurer = document.createElement('canvas').getContext('2d');
-function textWidth(text, weight = 400, size = 12) {
-  measurer.font = `${weight} ${size}px ${getComputedStyle(document.body).fontFamily}`;
+function textWidth(text, weight = 400, size = 12, family = getComputedStyle(document.body).fontFamily) {
+  measurer.font = `${weight} ${size}px ${family}`;
   return measurer.measureText(text).width;
 }
 function truncate(text, width, weight = 400, size = 12) {
@@ -994,7 +994,8 @@ function barChart(box, name) {
   /* The accuracy chart also gives each setup's cost (priceText) in a column of its own at the right, as wide as its
      longest entry. */
   const priced = name === 'accuracy';
-  const priceWidth = priced ? Math.ceil(Math.max(...ordered.map(run => textWidth(priceText(run))))) + 24 : 0;
+  const mono = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim() || 'monospace';
+  const priceWidth = priced ? Math.ceil(Math.max(...ordered.map(run => textWidth(priceText(run), 400, 12, mono)))) + 24 : 0;
   const values = known.map(measure.value);
   /* Accuracy runs from 0 to 100%; the calibration gap from 0 to the next 5 points above the largest; latency and cost on
      a log scale around their values. */

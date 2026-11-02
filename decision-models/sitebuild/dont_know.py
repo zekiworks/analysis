@@ -201,8 +201,16 @@ def headline(data: dict[str, Any]) -> str:
               and model["vs_confidence"]["option_only_wrong"] > model["vs_confidence"]["confidence_only_wrong"]]
     if not better:
         return ""
-    rest = len(family) - len(better)
-    others = f"; for the other {rest} models that used it, the difference could be chance" if rest else ""
+    worse = [model for model in family if model["vs_confidence"]["p_holm"] < 0.05
+             and model["vs_confidence"]["option_only_wrong"] < model["vs_confidence"]["confidence_only_wrong"]]
+    rest = sum(1 for model in family if model["vs_confidence"]["p_holm"] >= 0.05)
+    others = ""
+    if worse:
+        others += (f"; for {joined([esc(model['name']) for model in worse])}, “{option}” left significantly fewer wrong "
+                   "answers")
+    if rest:
+        others += ("; for the other model that used it" if rest == 1 else f"; for the other {rest} models that used it") + \
+            ", the difference could be chance"
     return (f"<p><strong>Holding back on as many questions, {joined([esc(model['name']) + '’s' for model in better])} own "
             f"confidence left significantly fewer wrong answers than “{option}” did</strong>{others} "
             f'(<a href="#findings">What we found</a>).</p>')

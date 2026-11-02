@@ -10,6 +10,7 @@ import json
 import math
 from typing import Any
 
+import aa_cards
 import build_page as bp
 from sitebuild.site import NOT_MEASURED, ROOT, Site, esc, hbars, pct, rank_fill, rel, scale_legend
 from sitebuild.vision import NO_IMAGE, NOT_AVAILABLE, cell, joined
@@ -21,7 +22,7 @@ NOT_RUN = '<span class="nm">Not run</span>'
 
 def entries(site: Site) -> tuple[list[tuple[str, dict[str, Any]]], list[str]]:
     """AA's models with our setup for each, and the names of those not in our benchmark; the build stops when a run is
-    missing, is not a decision model or comes twice."""
+    missing, is not a decision model, comes twice or asks more than one question per request (the page says one)."""
     pairs, absent, seen = [], [], set()
     for item in site.config["aa_decision_index"]["models"]:
         if item["run"] is None:
@@ -30,6 +31,9 @@ def entries(site: Site) -> tuple[list[tuple[str, dict[str, Any]]], list[str]]:
         run = site.by_id.get(item["run"])
         if run is None or not site.decision(run) or item["run"] in seen:
             raise SystemExit(f"page_config.json aa_decision_index: run {item['run']} ({item['name']}) is missing, not a decision model or listed twice")
+        if run["questions_per_request"] != 1:
+            raise SystemExit(f"page_config.json aa_decision_index: run {item['run']} ({item['name']}) asks {run['questions_per_request']} "
+                             "questions per request, and the page says one")
         seen.add(item["run"])
         pairs.append((item["name"], run))
     return pairs, absent
@@ -56,7 +60,7 @@ def route(run: dict[str, Any]) -> str:
 
 def reply_cards(site: Site) -> str:
     """Our four reply charts (aa_cards.py), each opening its PNG. The build stops when cards.json is missing, names a file
-    that is not there or was drawn from other results than the site's."""
+    that is not there or was drawn from other results or other inputs (aa_cards.inputs_digest) than the site's."""
     redraw = "draw them again (python3 aa_cards.py, or build_site.py without --no-images)"
     path = ROOT / PATH / "cards.json"
     if not path.is_file():
@@ -65,6 +69,9 @@ def reply_cards(site: Site) -> str:
     version = site.results["results_version"]
     if manifest["results_version"] != version:
         raise SystemExit(f"{PATH}cards.json: the reply charts are from results {manifest['results_version']}, the site from {version}: {redraw}")
+    if manifest.get("inputs_digest") != aa_cards.inputs_digest():
+        raise SystemExit(f"{PATH}cards.json: the reply charts were drawn from other inputs (vision.json, page_config.json or aa_cards.py "
+                         f"changed since): {redraw}")
     missing = [card["file"] for card in manifest["cards"] if not (ROOT / PATH / card["file"]).is_file()]
     if missing:
         raise SystemExit(f"{PATH}cards.json names files that are not there ({', '.join(missing)}): {redraw}")
@@ -133,7 +140,7 @@ def build(site: Site) -> dict[str, str]:
                f"“{esc(option)}” among the answers that were not right, with it offered as a sixth option (the Hallucination tab) · higher is better",
                rate_rows,
                scale_legend(stops, pct(min(rates), digits), pct(max(rates), digits))
-               + f" <span>Not run with “{esc(option)}”: {esc(joined(not_held))}.</span>")
+               + (f" <span>Not run with “{esc(option)}”: {esc(joined(not_held))}.</span>" if not_held else ""))
         + card("chart-cost", "Cost per 1M questions",
                "Estimated from list prices and the token use recorded in each run, in US dollars per 1 million questions (the "
                "Text tab gives it per 1,000 questions) · lower is better",
@@ -186,10 +193,11 @@ def build(site: Site) -> dict[str, str]:
             notes.append(f"{esc(site.row_name(run))}: at the price recorded on {bp.long_date(price['date'])}. Provider update: {esc(price['change'])}.")
     several = [site.row_name(run) for _, run, model in ran if len(model["runs"]) > 1]
     post = config["post"]
+    not_ours = f"; {esc(joined(absent))} {'is' if len(absent) == 1 else 'are'} not" if absent else ""
     body = f"""    <section class="card">
       <p class="eyebrow">Compared with Artificial Analysis</p>
       <h1>{esc(TITLE)}</h1>
-      <p>Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard; {esc(joined(absent))} {"is" if len(absent) == 1 else "are"} not. This page gathers our numbers for those {len(pairs)}, from our published results: the numbers of our four charts in reply to that post come from here. Our tests are different from Artificial Analysis's, so the two rank different things. This page ranks nothing new and changes no number on the other pages.</p>
+      <p>Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard{not_ours}. This page gathers our numbers for those {len(pairs)}, from our published results: the numbers of our four charts in reply to that post come from here. Our tests are different from Artificial Analysis's, so the two rank different things. This page ranks nothing new and changes no number on the other pages.</p>
       <nav class="face-nav" aria-label="On this page"><a href="#reply-charts">Reply charts</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#table">Every number</a></nav>
     </section>
     {reply_cards(site)}

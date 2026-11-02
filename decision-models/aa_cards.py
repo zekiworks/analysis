@@ -11,9 +11,10 @@ aa_decision_index (Artificial Analysis's models, by run id).
 The numbers are written as the page writes them: percentages to one decimal, and the cost per 1,000 questions as the site
 rounds it, times 1,000. Each card is an SVG that headless Chrome (CHROME, else google-chrome, as build_page.py draws the
 link preview) turns into aa-decision-index/card-<n>-<topic>-<hash>.png at 2048 × 912; aa-decision-index/cards.json names
-the files with the results version they were drawn from, and the page shows them only at that version (the build stops
-otherwise). build_site.py draws them with the link preview; without Chrome, `build_site.py --no-images` keeps them.
-Text is measured with Pillow in the cards' first font, Noto Sans (found by fontconfig; CARD_FONT overrides).
+the files with the results version they were drawn from and a digest of every input of the cards (inputs_digest), and
+the page shows them only when both match (the build stops otherwise). build_site.py draws them with the link preview;
+without Chrome, `build_site.py --no-images` keeps them. Text is measured with Pillow in the cards' first font, Noto Sans
+(found by fontconfig; CARD_FONT overrides); importing this module does not need Pillow.
 
 Usage: python3 aa_cards.py"""
 
@@ -29,8 +30,6 @@ from functools import cache
 from math import log10
 from pathlib import Path
 from typing import Any
-
-from PIL import ImageFont
 
 import build_page as bp
 
@@ -57,12 +56,13 @@ esc = html.escape
 def data() -> dict[str, Any]:
     """The results, the page images and page_config.json, with the lookups the cards use."""
     results = json.loads((ROOT / "results.json").read_text())
-    vision = json.loads((ROOT / "vision.json").read_text(encoding="utf-8"))
+    vision_bytes = (ROOT / "vision.json").read_bytes()
+    vision = json.loads(vision_bytes.decode("utf-8"))
     config = json.loads((ROOT / "page_config.json").read_text())
     by_id = {run["run"]: run for run in results["runs"]}
     models = config["aa_decision_index"]["models"]
     return {
-        "results": results, "config": config, "scale": config["rank_scale"]["stops"],
+        "results": results, "vision_bytes": vision_bytes, "config": config, "scale": config["rank_scale"]["stops"],
         "decision": [run for run in results["runs"]
                      if run["provider"] in config["decision_model_providers"] and run["model"] not in config["not_decision_models"]],
         "ours": [by_id[item["run"]] for item in models if item["run"] is not None],
@@ -70,21 +70,44 @@ def data() -> dict[str, Any]:
         "absent": [item["name"] for item in models if item["run"] is None],
         "held": {model["original_run"]: model for model in results["dont_know"]["models"]},
         "pages": {(model["provider"], model["model"]): model for model in vision["models"]},
+        "page_questions": vision["subset"]["questions"],
         "prices": {(price["provider"], price["model"]): price for price in results["prices"]},
         "maker": config["first_cost_marks"]["maker"]["mark"],
     }
 
 
+# The parts of page_config.json the cards read.
+CONFIG_KEYS = ("aa_decision_index", "rank_scale", "first_cost_marks", "decision_model_providers", "not_decision_models")
+
+
+def inputs_digest() -> str:
+    """A sha256 digest of everything the cards are drawn from: the results version, vision.json, the parts of
+    page_config.json they read and this file. cards.json records it, and the page shows the cards only when it matches."""
+    d = data()
+    config = json.dumps({key: d["config"][key] for key in CONFIG_KEYS}, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    digest = hashlib.sha256()
+    for part_bytes in (d["results"]["results_version"].encode("utf-8"), d["vision_bytes"], config, Path(__file__).resolve().read_bytes()):
+        digest.update(hashlib.sha256(part_bytes).digest())
+    return digest.hexdigest()
+
+
 @cache
 def font() -> str:
-    found = os.environ.get("CARD_FONT") or subprocess.run(["fc-match", "-f", "%{file}", "Noto Sans:style=Regular"],
-                                                          capture_output=True, text=True, check=True).stdout
-    if not found or not Path(found).is_file():
-        raise SystemExit("aa_cards.py: no Noto Sans font file (install it, or set CARD_FONT to a font file)")
+    """The Noto Sans font file: CARD_FONT, else the one fontconfig finds for Noto Sans (and not a stand-in for it)."""
+    found = os.environ.get("CARD_FONT")
+    if not found:
+        family, _, found = subprocess.run(["fc-match", "-f", "%{family}\n%{file}", "Noto Sans:style=Regular"],
+                                          capture_output=True, text=True, check=True).stdout.partition("\n")
+        if "Noto Sans" not in family.split(","):
+            raise SystemExit(f"aa_cards.py: fontconfig has no Noto Sans (it offers {family or 'nothing'}): install Noto Sans, or set CARD_FONT to a font file")
+    if not Path(found).is_file():
+        raise SystemExit(f"aa_cards.py: no Noto Sans font file at {found or '(none)'}: install Noto Sans, or set CARD_FONT to a font file")
     return found
 
 
 def text_width(text: str, size: float) -> float:
+    from PIL import ImageFont  # Only drawing needs Pillow; the site build imports this module for inputs_digest.
+
     return ImageFont.truetype(font(), size).getlength(text)
 
 
@@ -192,8 +215,9 @@ def card_accuracy() -> str:
     d = data()
     decision = [accuracy(run) for run in d["decision"]]
     worst, best = min(decision), max(decision)
-    rows = sorted(((name(run, gpu(run)), round(100 * accuracy(run), 1), rank_color(accuracy(run), worst, best)) for run in d["ours"]),
-                  key=lambda row: -row[1])
+    # Highest first by the exact accuracy, as the page ranks them.
+    ours = sorted(d["ours"], key=lambda run: (-accuracy(run), run["name"].casefold()))
+    rows = [(name(run, gpu(run)), round(100 * accuracy(run), 1), rank_color(accuracy(run), worst, best)) for run in ours]
     total = d["results"]["questions"]
     glide = [run for run in d["ours"] if run["provider"] == "fastino"]
     hosted = [f"{name(run)}: Fastino's hosted model as it answered on {bp.long_date(run['started'][:10])}." for run in glide]
@@ -206,18 +230,20 @@ def card_accuracy() -> str:
 
 def card_non_hallucination() -> str:
     d = data()
-    ran = sorted((run for run in d["ours"] if run["run"] in d["held"]), key=lambda run: -d["held"][run["run"]]["non_hallucination"])
-    values = [d["held"][run["run"]]["non_hallucination"] for run in ran]
+    rate = lambda run: d["held"][run["run"]]["non_hallucination"]  # noqa: E731
+    ran = sorted((run for run in d["ours"] if run["run"] in d["held"] and rate(run) is not None), key=lambda run: -rate(run))
+    values = [rate(run) for run in ran]
     rows = [(name(run, gpu(run)), round(100 * value, 1), rank_color(value, min(values), max(values))) for run, value in zip(ran, values)]
-    not_run = [d["aa_name"][run["run"]] for run in d["ours"] if run["run"] not in d["held"]]
+    not_run = [name(run) for run in d["ours"] if run["run"] not in d["held"]]
     several = [name(run) for run in ran if len(d["held"][run["run"]]["runs"]) > 1]
     option = d["results"]["dont_know"]["option"]
     return frame("Turkish Question Bank: Non-Hallucination Rate",
                  [f"Share of “{option}” (“I don't know”) among the answers that were not right, with it offered as a",
                   "sixth option · Higher is better"],
                  bars(rows, 112, 100, lambda value: f"{value:.1f}"),
-                 [f"The {len(ran)} of AA's models we ran with the option. Not run with it: {', '.join(not_run)}. {absent_note()} "
-                  f"{GPU} Run on our GPU from the released weights."
+                 [" ".join(filter(None, [f"The {len(ran)} of AA's models we ran with the option.",
+                                         f"Not run with it: {joined(not_run)}." if not_run else "", absent_note(),
+                                         f"{GPU} Run on our GPU from the released weights."]))
                   + (f" {joined(several)}: the first of their five runs, as on our site." if several else "")])
 
 
@@ -271,10 +297,10 @@ def card_parts() -> str:
         legend.append(f'<circle cx="{x + 6}" cy="113" r="6" fill="{color}"/><text x="{x + 18}" y="118" class="legend">{esc(text)}</text>')
         x += 18 + text_width(text, 13) + 28
     paged = sum(picture_alone(run) is not None for run in ours)
-    held = sum(run["run"] in d["held"] for run in ours)
+    held = sum(run["run"] in d["held"] and d["held"][run["run"]]["non_hallucination"] is not None for run in ours)
     text_only = [name(run) for run in ours if (page_entry(run) or {}).get("kind") == "text"]
     groups = d["results"]["runs"][0]["groups"]
-    pictures = next(iter(d["pages"].values()))["conditions"]["A"]["questions"]
+    pictures = d["page_questions"]
     return frame("Turkish Question Bank: Score by Part",
                  [f"Accuracy on the reading ({groups['reading']['questions']:,}) and grammar ({groups['grammar']['questions']:,}) questions and on page images from the picture alone",
                   f"({pictures:,}), and the non-hallucination rate with “{d['results']['dont_know']['option']}” · Higher is better"],
@@ -332,8 +358,8 @@ def draw() -> None:
         path.write_bytes(entry.pop("image"))
         os.chmod(path, 0o644)
         print(f"Wrote {path.relative_to(ROOT)} ({W * ZOOM}x{H * ZOOM})")
-    MANIFEST.write_text(json.dumps({"results_version": data()["results"]["results_version"], "width": W * ZOOM, "height": H * ZOOM,
-                                    "cards": entries}, indent=2, ensure_ascii=False) + "\n")
+    MANIFEST.write_text(json.dumps({"results_version": data()["results"]["results_version"], "inputs_digest": inputs_digest(),
+                                    "width": W * ZOOM, "height": H * ZOOM, "cards": entries}, indent=2, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":
