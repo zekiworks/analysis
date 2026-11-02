@@ -207,6 +207,58 @@ def face(site: Site, data: dict[str, Any]) -> str:
     return f'<section class="charts" aria-label="Charts">{accuracy}{paired}</section>'
 
 
+def side_by_side(site: Site, data: dict[str, Any]) -> str:
+    """A face card: each compared model's Turkish and English numbers in one row, Turkish first, ordered by Turkish
+    accuracy: accuracy and its paired test, then with “I don't know” the non-hallucination rate (attempt rates in small
+    text) and its paired test, every number from results.json's english_reading and english_reading.dont_know."""
+    digits = site.config["percent_digits"]
+    idk = data.get("dont_know") or {}
+    matched = {(model["provider"], model["model"]): model for model in idk.get("models", [])}
+    models = sorted(data["models"], key=lambda model: (-model["turkish"]["accuracy"], label(site, model).casefold()))
+    p_cell = lambda p: esc(bp.p_text(p).removeprefix("p = ").removeprefix("p "))  # noqa: E731
+    heads = ("Turkish accuracy", "English accuracy", "Accuracy difference (points)", "Accuracy Holm p",
+             "Turkish non-hallucination", "English non-hallucination", "Non-hallucination difference (points)",
+             "Non-hallucination Holm p")
+
+    def rate(counts: dict[str, Any]) -> str:
+        value = counts["non_hallucination"]
+        shown = '<span class="nm">Not measured</span>' if value is None else pct(value, digits)
+        return f'{shown}<span class="small">attempt rate {rate_text(counts["attempt_rate"], digits)}</span>'
+
+    rows = []
+    for model in models:
+        values = [pct(model["turkish"]["accuracy"], digits), pct(model["english"]["accuracy"], digits),
+                  f"{100 * model['difference']:+.{digits}f}",
+                  p_cell(model["paired"]["p_holm"]) + (" *" if significant(model) else "")]
+        other = matched.get((model["provider"], model["model"]))
+        if other is None:
+            values += ['<span class="nm">Not run</span>'] * 4
+        else:
+            tr, en = other["turkish"]["non_hallucination"], other["english"]["non_hallucination"]
+            values += [rate(other["turkish"]), rate(other["english"]),
+                       '<span class="nm">Not measured</span>' if tr is None or en is None else f"{100 * (en - tr):+.{digits}f}",
+                       p_cell(other["paired"]["p_holm"]) + (" *" if idk_significant(other) else "")]
+        name = f'<td class="model"><a class="model-name" href="{href(site, model)}">{esc(label(site, model))}</a></td>'
+        rows.append(f"<tr>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
+    short = "".join(f'<th scope="col" class="num">{name}</th>'
+                    for name in ("Turkish", "English", "Difference (points)", "Holm p") * 2)
+    head = ('<tr><th scope="col" rowspan="2">Model</th><th scope="colgroup" colspan="4">Accuracy</th>'
+            '<th scope="colgroup" colspan="4">Non-hallucination with “I don\'t know”</th></tr>'
+            f"<tr>{short}</tr>")
+    links = ' (<a href="#dont-know">With “I don\'t know”</a>)' if idk else ""
+    return (f'<section class="card" id="side-by-side"><h2>Turkish and English side by side</h2>'
+            f'<div class="table-wrap"><table class="board list stack idk"><thead>{head}'
+            f'</thead><tbody>{"".join(rows)}</tbody></table></div>'
+            f'<p class="note">Ordered by Turkish accuracy, highest first. Accuracy: right answers over the {data["questions"]:,} '
+            "kept reading questions, the first English run against the Text tab run; the difference is English minus "
+            f"Turkish in points; Holm p is the exact McNemar test with Holm's correction (<a href=\"#chart-accuracy\">Accuracy</a>, "
+            f"<a href=\"#chart-paired\">Paired test</a>); * marks a Holm-adjusted p below {SIGNIFICANT:g}. Non-hallucination: "
+            "“I don't know” / (“I don't know” + wrong) on the first runs with the option, read with the attempt rate under "
+            f"it; its Holm p is the paired test of wrong answers{links}. The full tables are under "
+            '<a href="#info">Info</a>.</p></section>')
+
+
+
 def columns(data: dict[str, Any]) -> tuple[tuple[str, str], ...]:
     """The table's columns after the model: header and what it holds."""
     family = len(data["models"])
@@ -700,8 +752,9 @@ def build(site: Site) -> dict[str, str]:
       <h1>The Text tab's reading questions, asked in English</h1>
       <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of {bp.in_words(family)} of the {selected} decision models we chose (<a href="#about">which ones</a>) as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(site, data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#side-by-side">Side by side</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
     </section>
+    {side_by_side(site, data)}
     {face(site, data)}
     {dont_know_face(site, idk) if idk else ""}
     <details class="info info-details" id="info">
