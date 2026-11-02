@@ -5,4 +5,5 @@ cd "$(dirname "$0")"
 ./benchmark_ollama.py clef \
   --provider clef \
   --data questions-v2.sqlite \
-  --timeout 120
+  --timeout 120 \
+  "$@"
