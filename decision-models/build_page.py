@@ -839,9 +839,12 @@ def study_values(snap: Snapshot) -> dict[str, str]:
     for item in fixed["sources"]:
         out[f"study_source_{keys[item['run']]}_auroc"] = f"{item['auroc']:.2f}"
     # Prices: the date most rates were recorded (the Method page's price list gives every rate with its own date), and
-    # the change that makes Gemini 3.8 Flash's price introductory.
+    # the change that makes Gemini 3.8 Flash's price introductory. Dates tied for the most rates are each named, earliest
+    # first: picking one of them in a set's order would change with Python's string hashing from one build to the next.
     dates = [price["date"] for price in results["prices"]]
-    out["study_price_date"] = long_date(max(set(dates), key=dates.count))
+    most = max(map(dates.count, dates))
+    tied = sorted({date for date in dates if dates.count(date) == most})
+    out["study_price_date"] = " and ".join(long_date(date) for date in tied)
     gemini = snap.price(named["gemini_low"])
     if gemini is None or not gemini["change"]:
         raise ValueError("the Method page calls Gemini 3.8 Flash's price introductory, but no price change is recorded")

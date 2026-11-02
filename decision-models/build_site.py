@@ -220,7 +220,8 @@ def fallback_table(data: Data) -> str:
             f'<td class="model"><a class="model-name" href="models/{run["run"]}/">{table_name(data, run)}</a>'
             f'<span class="small settings-long">{bp.esc(detail(run))} · {kind}</span>'
             f'<span class="small settings-short">{bp.esc(short_detail(data, run))}{"" if decision else " · chat model"}</span>'
-            + (f'<span class="small row-note">{bp.esc(data.row_notes[run["run"]])}</span>' if run["run"] in data.row_notes else "")
+            + (f'<a class="small row-note" href="models/{run["run"]}/#called">{bp.esc(data.row_notes[run["run"]])}</a>'
+               if run["run"] in data.row_notes else "")
             + "</td>"
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'

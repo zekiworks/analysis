@@ -232,14 +232,15 @@ function visibleRuns() {
 function modelCell(run) {
   const name = `${rowName(run)} (${runDetail(run)})`;
   /* In the one table of all models, a model that is not a decision model says so, as without JavaScript. A setup with a
-     note in page_config.json's row_notes shows it under its settings, in plain text, so a phone needs no hover. */
+     note in page_config.json's row_notes shows it under its settings, in plain text, so a phone needs no hover; the note
+     links to the full note on the setup's page (How we called it). */
   const kind = state.models === 'all' && !isDecision(run);
   const note = SETTINGS.rowNotes[run.run];
   return `<td class="model"><div class="who"><button type="button" class="pick" data-select="${run.run}" aria-pressed="${state.selected === run.run}" ` +
     `aria-label="Highlight ${esc(name)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
     `<span class="names"><a class="model-name" href="models/${run.run}/">${tableName(run)}</a><span class="small settings-long">${esc(runDetail(run))}${kind ? ' · Chat model' : ''}</span>` +
     `<span class="small settings-short">${esc(shortDetail(run))}${kind ? ' · chat model' : ''}</span>` +
-    `${note ? `<span class="small row-note">${esc(note)}</span>` : ''}</span></div></td>`;
+    `${note ? `<a class="small row-note" href="models/${run.run}/#called">${esc(note)}</a>` : ''}</span></div></td>`;
 }
 
 function accuracyCell(run) {
