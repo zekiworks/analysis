@@ -2,8 +2,10 @@
 # The English reading track (approved by Ümit, 2 November 2026): the kept reading questions in English translation
 # (translate_reading.py), asked as the text runs ask them, with the System One instructions naming English instead of
 # Turkish (--english). Each lane runs one decision model through the script of its text runs, with the same settings,
-# on the kept questions; REPEAT=N makes it repeat N. ENGLISH_TRANSLATIONS names the translations (JSONL) and
-# ENGLISH_KEPT the kept question IDs, one per line. These runs stay out of the leaderboard (export_results.py).
+# on the kept questions; REPEAT=N makes it repeat N. DONT_KNOW=1 runs English "I don't know" (--dont-know as well): the
+# option "I don't know" after each question's own and the instructions ending with "If you do not know the answer,
+# choose I don't know." ENGLISH_TRANSLATIONS names the translations (JSONL) and ENGLISH_KEPT the kept question IDs, one
+# per line. These runs stay out of the leaderboard (export_results.py).
 # Lanes: d1-ultra subq-1.1 elephant-1 mammoth-1 jev-1.14 decider-v1.2 decider-flash-v1.2 decider-v1.1 glide glide-v1.2
 # ms-decision-1 mercury-decide celeris d1 clef luna d3 d3-ultra drex-max-v1 drex-max-1.1
 set -euo pipefail
@@ -13,6 +15,7 @@ variant=(
   --english "${ENGLISH_TRANSLATIONS:?set ENGLISH_TRANSLATIONS to the translations (JSONL)}"
   --questions "${ENGLISH_KEPT:?set ENGLISH_KEPT to the file of kept question IDs}"
   ${REPEAT:+--repeat "$REPEAT"}
+  ${DONT_KNOW:+--dont-know}
 )
 
 run() {
@@ -44,7 +47,7 @@ run() {
 }
 
 if [ "$#" -eq 0 ]; then
-  sed -n '2,8p' "$0" >&2
+  sed -n '2,10p' "$0" >&2
   exit 2
 fi
 for lane in "$@"; do run "$lane"; done

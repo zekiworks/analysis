@@ -1,5 +1,6 @@
 import argparse
 import copy
+import hashlib
 import json
 import math
 import os
@@ -15,8 +16,13 @@ from unittest import mock
 from benchmark_ollama import (
     DONT_KNOW_OPTION,
     DONT_KNOW_PROMPT_VERSION,
+    ENGLISH_DONT_KNOW_INSTRUCTIONS,
+    ENGLISH_DONT_KNOW_OPTION,
+    ENGLISH_DONT_KNOW_PROMPT_VERSION,
+    ENGLISH_DONT_KNOW_PROMPTS,
     ENGLISH_INSTRUCTIONS,
     ENGLISH_PROMPT_VERSION,
+    ENGLISH_PROMPTS,
     JEV_INSTRUCTIONS,
     PROMPT_VERSION,
     PRICES,
@@ -26,6 +32,7 @@ from benchmark_ollama import (
     answer_usage,
     ask_batch,
     derived_abstention,
+    dont_know_lines,
     english_lines,
     english_selection,
     harness_commit,
@@ -471,9 +478,9 @@ class EnglishTests(unittest.TestCase):
 
     def test_only_decision_models_on_listed_questions_take_it_and_never_with_another_variant(self) -> None:
         base = ["benchmark_ollama.py", "subq-snap-1.1", "--english", "t.jsonl", "--questions", "kept.txt"]
-        for argv in ([*base[:2], "--provider", "ollama", *base[2:]], [*base, "--provider", "subq", "--dont-know"],
+        for argv in ([*base[:2], "--provider", "ollama", *base[2:]], [*base, "--provider", "subq", "--replace-key-text", "1"],
                      [*base, "--provider", "subq", "--shuffle-options", "1"], [*base[:4], "--provider", "subq"],
-                     [*base, "--provider", "vllm"]):
+                     [*base, "--provider", "vllm"], [*base, "--provider", "vllm-yes-no", "--dont-know"]):
             with self.subTest(argv=argv), mock.patch("sys.argv", argv), mock.patch("sys.stderr"), self.assertRaises(SystemExit):
                 parse_args()
         for provider in ("subq", "vllm-yes-no"):
@@ -482,6 +489,160 @@ class EnglishTests(unittest.TestCase):
         with mock.patch("sys.argv", [*base, "--provider", "subq", "--repeat", "2"]):
             args = parse_args()
             self.assertEqual((args.english, args.repeat), (Path("t.jsonl"), 2))
+
+
+class EnglishDontKnowTests(unittest.TestCase):
+    """English "I don't know": the English reading questions with the option "I don't know", kept out of the main tables."""
+
+    bank = DontKnowTests.bank
+    translations = EnglishTests.translations
+    record = staticmethod(EnglishTests.record)
+    spread = staticmethod(DontKnowTests.spread)
+
+    def store(self, connection: sqlite3.Connection, path: Path, answers: dict[int, tuple[str, dict[str, float]]], *,
+              dont_know: bool = False, english: str | None = None, ids: frozenset[int] | None = None,
+              repeat: int | None = None, question_list: str | None = None) -> dict:
+        """A completed run of model "m" through subq with these answers, as its report record."""
+        selection = load_questions(path, None, None, None, 0, dont_know=dont_know, question_ids=ids)
+        if english is not None:
+            records = [self.record(question_id) for question_id in (1, 2, 3)]
+            selection = english_selection(selection, self.translations(path.parent, records), dont_know)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, "subq", "http://localhost", 0, 1, False, None, False,
+                                 None, None, dont_know, repeat, False, english=english)
+        for ordinal, question_ in enumerate(selection.questions):
+            choice, probabilities = answers[question_.question_id]
+            raw = json.dumps({"request_id": None, "response": {
+                "answers": {"answer": {"choice": choice, "probabilities": probabilities}}, "usage": {"input_tokens": 10}}})
+            store_answers(connection, identity.run_id, [(ordinal, question_)], [choice], raw, 0.1, 0.1)
+        mark_run(connection, identity.run_id, "completed")
+        metrics = run_metrics(connection, identity.run_key, path.parent)
+        return {"run_key": identity.run_key, "run_id": identity.run_id, "dataset": str(path), "provider": "subq",
+                "model": "m", "thinking": "off", "batch_size": 1, "evaluated": len(selection.questions), "eligible_total": 3,
+                "selection_sha256": identity.selection_sha256, "replace_key_text": None, "repeat": repeat,
+                "question_list": question_list, "dont_know": metrics.get("dont_know"), "english": metrics.get("english"),
+                "metrics": metrics}
+
+    def test_the_prompt_is_the_english_one_with_the_option_last_under_the_english_heading(self) -> None:
+        self.assertEqual(ENGLISH_DONT_KNOW_OPTION, "I don't know")
+        self.assertEqual(ENGLISH_DONT_KNOW_INSTRUCTIONS, "Which option is the correct answer to this English multiple-choice "
+                                                         "question? If you do not know the answer, choose I don't know.")
+        path = self.bank()
+        translations = self.translations(path.parent, [self.record(1), self.record(2), self.record(3)])
+        selection = load_questions(path, None, None, None, 0, dont_know=True, question_ids=frozenset({1, 3}))
+        english = english_selection(selection, translations, True)
+        for before, after in zip(selection.questions, english.questions, strict=True):
+            self.assertEqual(after.options, (*(Option(label, f"English {label}") for label in "ABCDE"),
+                                             Option("F", ENGLISH_DONT_KNOW_OPTION)))
+            self.assertEqual(after.answer, before.answer)
+            self.assertEqual(after.prompt, f"English question {after.question_id}?\n\nOptions:\nA. English A\nB. English B\n"
+                                           "C. English C\nD. English D\nE. English E\nF. I don't know")
+        # A selection with the option needs the flag here too: its letters are not the translation's.
+        with self.assertRaises(ValueError):
+            english_selection(selection, translations)
+        sent = []
+
+        def post(endpoint, payload, *rest):
+            sent.append(payload)
+            return {"answers": {"answer": {"choice": "F"}}}, {}
+
+        args = argparse.Namespace(provider="subq", jev_url="http://localhost", jev_api_key=None, model="m", timeout=1,
+                                  dont_know=True, english=Path("t.jsonl"))
+        with mock.patch("benchmark_ollama.post_json", side_effect=post):
+            self.assertEqual(ask_batch(args, [english.questions[0]], False, None)[0], ["F"])
+        self.assertEqual(sent[-1]["questions"]["answer"]["instructions"], ENGLISH_DONT_KNOW_INSTRUCTIONS)
+        self.assertEqual(sent[-1]["state"], english.questions[0].prompt)
+
+    def test_its_prompts_have_their_own_version_and_the_others_keep_theirs(self) -> None:
+        self.assertEqual(DONT_KNOW_PROMPT_VERSION, "1cdd542b597f")
+        self.assertEqual(ENGLISH_PROMPT_VERSION, "47f5776e71db")
+        self.assertEqual(ENGLISH_DONT_KNOW_PROMPTS, {**ENGLISH_PROMPTS, "system_one_instructions": ENGLISH_DONT_KNOW_INSTRUCTIONS,
+                                                     "dont_know_option": ENGLISH_DONT_KNOW_OPTION})
+        compact = json.dumps(ENGLISH_DONT_KNOW_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        self.assertEqual(ENGLISH_DONT_KNOW_PROMPT_VERSION, hashlib.sha256(compact.encode("utf-8")).hexdigest()[:12])
+        self.assertEqual(len({ENGLISH_DONT_KNOW_PROMPT_VERSION, ENGLISH_PROMPT_VERSION, DONT_KNOW_PROMPT_VERSION,
+                              PROMPT_VERSION}), 4)
+
+    def test_english_takes_dont_know_and_dont_know_takes_a_question_list(self) -> None:
+        base = ["benchmark_ollama.py", "subq-snap-1.1", "--provider", "subq", "--questions", "kept.txt"]
+        with mock.patch("sys.argv", [*base, "--english", "t.jsonl", "--dont-know", "--repeat", "2"]):
+            args = parse_args()
+        self.assertEqual((args.english, args.dont_know, args.repeat), (Path("t.jsonl"), True, 2))
+        with mock.patch("sys.argv", [*base, "--dont-know"]):
+            args = parse_args()
+        self.assertEqual((args.english, args.dont_know, args.questions), (None, True, Path("kept.txt")))
+        for extra in (["--dont-know", "--shuffle-options", "1"], ["--dont-know", "--replace-key-text", "1"]):
+            with self.subTest(extra=extra), mock.patch("sys.argv", [*base, *extra]), mock.patch("sys.stderr"), \
+                    self.assertRaises(SystemExit):
+                parse_args()
+
+    def test_its_original_is_the_first_english_reading_run_with_the_same_translations_and_questions(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        spread = self.spread
+        # The keys are B, E and C. Without the option: right at 0.6, wrong at 0.9, right at 0.8.
+        plain = {1: ("B", spread("B", 0.6, "ABCDE")), 2: ("A", spread("A", 0.9, "ABCDE")), 3: ("C", spread("C", 0.8, "ABCDE"))}
+        turkish = self.store(connection, path, plain)
+        self.store(connection, path, plain, english="cd" * 32)
+        self.store(connection, path, plain, english="ab" * 32, ids=frozenset({1, 2}))
+        original = self.store(connection, path, plain, english="ab" * 32)
+        self.store(connection, path, plain, english="ab" * 32, repeat=2)
+        variant = {1: ("F", spread("F", 0.7, "ABCDEF")), 2: ("A", spread("A", 0.5, "ABCDEF")),
+                   3: ("C", spread("C", 0.75, "ABCDEF"))}
+        run = self.store(connection, path, variant, dont_know=True, english="ab" * 32, question_list="kept.txt")
+        row = connection.execute("SELECT prompt_version FROM runs WHERE id=?", (run["run_id"],)).fetchone()
+        self.assertEqual(row["prompt_version"], ENGLISH_DONT_KNOW_PROMPT_VERSION)
+        metrics = run["metrics"]
+        self.assertIs(metrics["dont_know"], True)
+        self.assertEqual(metrics["english"], {"translations_sha256": "ab" * 32, "questions": 3,
+                                              "prompt_version": ENGLISH_DONT_KNOW_PROMPT_VERSION})
+        data = metrics["dont_know_answers"]
+        self.assertEqual((data["right"], data["wrong"], data["dont_know"], data["invalid"]), (1, 1, 1, 0))
+        self.assertEqual(data["original_run"], original["run_id"])
+        derived = data["derived"]
+        self.assertEqual((derived["cut_off"], derived["right"], derived["wrong"], derived["abstained"]), (0.8, 1, 1, 1))
+        # A Turkish "I don't know" run still takes the first full Turkish run.
+        turkish_variant = self.store(connection, path, variant, dont_know=True)
+        self.assertEqual(turkish_variant["metrics"]["dont_know_answers"]["original_run"], turkish["run_id"])
+        # Out of the main tables and the repeats, its section is the "I don't know" one, labelled in English.
+        self.assertFalse(in_main_tables(run))
+        repeat = self.store(connection, path, variant, dont_know=True, english="ab" * 32, repeat=2, question_list="kept.txt")
+        self.assertEqual(run_repeats(connection, {item["run_key"]: item for item in (run, repeat)}, path.parent), [])
+        lines = dont_know_lines([{**run, "dont_know_answers": data}])
+        self.assertTrue(lines[-1].startswith(f'| subq m, questions from kept.txt, "{ENGLISH_DONT_KNOW_OPTION}" option added, '
+                                             f"in English, run {run['run_id']} | 3 | 1 | 1 | 1 | 0 |"))
+
+    def test_without_an_english_reading_run_there_is_no_original(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        plain = {1: ("B", self.spread("B", 0.6, "ABCDE")), 2: ("A", self.spread("A", 0.9, "ABCDE")),
+                 3: ("C", self.spread("C", 0.8, "ABCDE"))}
+        self.store(connection, path, plain)
+        variant = {question_id: ("F", self.spread("F", 0.7, "ABCDEF")) for question_id in (1, 2, 3)}
+        data = self.store(connection, path, variant, dont_know=True, english="ab" * 32)["metrics"]["dont_know_answers"]
+        self.assertEqual((data["dont_know"], data["original_run"], data["derived"]), (3, None, None))
+
+    def test_a_turkish_run_on_listed_questions_stays_out_of_the_main_tables_and_repeats(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        plain = {1: ("B", self.spread("B", 0.6, "ABCDE")), 2: ("A", self.spread("A", 0.9, "ABCDE")),
+                 3: ("C", self.spread("C", 0.8, "ABCDE"))}
+        full = self.store(connection, path, plain)
+        variant = {1: ("F", self.spread("F", 0.7, "ABCDEF")), 3: ("C", self.spread("C", 0.75, "ABCDEF"))}
+        kept = frozenset({1, 3})
+        runs = [self.store(connection, path, variant, dont_know=True, ids=kept, question_list="kept.txt", repeat=repeat)
+                for repeat in (None, 2)]
+        row = connection.execute("SELECT prompt_version FROM runs WHERE id=?", (runs[0]["run_id"],)).fetchone()
+        self.assertEqual(row["prompt_version"], DONT_KNOW_PROMPT_VERSION)
+        data = runs[0]["metrics"]["dont_know_answers"]
+        self.assertEqual((data["questions"], data["right"], data["dont_know"], data["original_run"]), (2, 1, 1, full["run_id"]))
+        self.assertIsNone(runs[0]["english"])
+        for run in runs:
+            self.assertFalse(in_main_tables(run))
+        self.assertEqual(run_repeats(connection, {run["run_key"]: run for run in runs}, path.parent), [])
 
 
 class RunRequestsTests(unittest.TestCase):
