@@ -1,3 +1,4 @@
+import argparse
 import copy
 import json
 import math
@@ -13,12 +14,20 @@ from unittest import mock
 
 from benchmark_ollama import (
     DONT_KNOW_OPTION,
+    DONT_KNOW_PROMPT_VERSION,
+    ENGLISH_INSTRUCTIONS,
+    ENGLISH_PROMPT_VERSION,
+    JEV_INSTRUCTIONS,
+    PROMPT_VERSION,
     PRICES,
     Option,
     Question,
     answer_problems,
     answer_usage,
+    ask_batch,
     derived_abstention,
+    english_lines,
+    english_selection,
     harness_commit,
     in_main_tables,
     letter_probabilities,
@@ -349,6 +358,130 @@ class DontKnowTests(unittest.TestCase):
             parse_args()
         with mock.patch("sys.argv", ["benchmark_ollama.py", "subq-snap-1.1", "--provider", "subq", "--dont-know"]):
             self.assertTrue(parse_args().dont_know)
+
+
+class EnglishTests(unittest.TestCase):
+    """English reading: the kept questions in English translation, with English instructions, kept out of the main tables."""
+
+    bank = DontKnowTests.bank
+
+    def translations(self, root: Path, records: list[dict]) -> Path:
+        path = root / "translations.jsonl"
+        path.write_text("".join(json.dumps(record) + "\n" for record in records), encoding="utf-8")
+        return path
+
+    @staticmethod
+    def record(question_id: int, labels: str = "ABCDE", **overrides: str) -> dict:
+        options = {label: overrides.get(label, f"English {label}") for label in labels}
+        return {"question_id": question_id, "turkish": "ignored",
+                "english": {"body": overrides.get("body", f"English question {question_id}?"), "options": options}}
+
+    def test_the_questions_get_the_english_prompt_and_options_under_the_bank_letters(self) -> None:
+        path = self.bank()
+        selection = load_questions(path, None, None, None, 0, question_ids=frozenset({1, 3}))
+        english = english_selection(selection, self.translations(path.parent, [self.record(1), self.record(2), self.record(3)]))
+        self.assertEqual([question.question_id for question in english.questions], [1, 3])
+        for before, after in zip(selection.questions, english.questions, strict=True):
+            self.assertEqual(after.options, tuple(Option(label, f"English {label}") for label in "ABCDE"))
+            self.assertEqual(after.answer, before.answer)
+            self.assertEqual(
+                after.prompt,
+                f"English question {after.question_id}?\n\nOptions:\nA. English A\nB. English B\nC. English C\n"
+                "D. English D\nE. English E",
+            )
+        self.assertEqual(english.eligible_total, selection.eligible_total)
+
+    def test_other_letters_a_missing_translation_or_an_empty_text_stop_the_run(self) -> None:
+        path = self.bank()
+        selection = load_questions(path, None, None, None, 0, question_ids=frozenset({1, 2}))
+        for records in ([self.record(1), self.record(2, "ABCD")], [self.record(1), self.record(2, "ABCDF")],
+                        [self.record(1)], [self.record(1), self.record(2, C=" ")], [self.record(1), self.record(2, body="")],
+                        [self.record(1), self.record(1), self.record(2)]):
+            with self.subTest(records=records), self.assertRaises(ValueError):
+                english_selection(selection, self.translations(path.parent, records))
+
+    def test_its_prompts_have_their_own_version_and_name_english(self) -> None:
+        self.assertEqual(ENGLISH_INSTRUCTIONS, "Which option is the correct answer to this English multiple-choice question?")
+        self.assertEqual(ENGLISH_INSTRUCTIONS, JEV_INSTRUCTIONS.replace("Turkish", "English"))
+        self.assertEqual(len({ENGLISH_PROMPT_VERSION, PROMPT_VERSION, DONT_KNOW_PROMPT_VERSION}), 3)
+
+    def test_the_decision_models_get_the_english_instructions(self) -> None:
+        question_ = question(1)
+        sent = []
+
+        def post(endpoint, payload, *rest):
+            sent.append(payload)
+            if endpoint.endswith("/tokenize"):
+                raise RuntimeError("stop")
+            return {"answers": {"answer": {"choice": "A"}}}, {}
+
+        common = {"model": "m", "timeout": 1, "dont_know": False, "english": Path("t.jsonl")}
+        with mock.patch("benchmark_ollama.post_json", side_effect=post):
+            args = argparse.Namespace(provider="subq", jev_url="http://localhost", jev_api_key=None, **common)
+            self.assertEqual(ask_batch(args, [question_], False, None)[0], ["A"])
+            self.assertEqual(sent[-1]["questions"]["answer"]["instructions"], ENGLISH_INSTRUCTIONS)
+            self.assertEqual(sent[-1]["state"], question_.prompt)
+            args = argparse.Namespace(provider="vllm-yes-no", vllm_url="http://localhost", yes_no_ids=(1, 2), **common)
+            with self.assertRaises(RuntimeError):
+                ask_batch(args, [question_], False, None)
+            self.assertIn(f"Question: {ENGLISH_INSTRUCTIONS}\n", sent[-1]["messages"][0]["content"])
+            # Without --english the Turkish instructions stay.
+            args = argparse.Namespace(provider="subq", jev_url="http://localhost", jev_api_key=None, **{**common, "english": None})
+            ask_batch(args, [question_], False, None)
+            self.assertEqual(sent[-1]["questions"]["answer"]["instructions"], JEV_INSTRUCTIONS)
+
+    def test_its_run_records_its_facts_and_stays_out_of_the_main_tables_and_repeats(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        translations = self.translations(path.parent, [self.record(1), self.record(2), self.record(3)])
+        selection = english_selection(load_questions(path, None, None, None, 0), translations)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, "subq", "http://localhost", 0, 1, False, None, False,
+                                 None, None, False, None, False, english="ab" * 32)
+        row = connection.execute("SELECT prompt_version, english FROM runs WHERE id=?", (identity.run_id,)).fetchone()
+        self.assertEqual((row["prompt_version"], row["english"]), (ENGLISH_PROMPT_VERSION, "ab" * 32))
+        for ordinal, question_ in enumerate(selection.questions):
+            raw = json.dumps({"request_id": None, "response": {"answers": {"answer": {"choice": "B"}}, "usage": {"input_tokens": 10}}})
+            store_answers(connection, identity.run_id, [(ordinal, question_)], ["B"], raw, 0.1, 0.1)
+        mark_run(connection, identity.run_id, "completed")
+        metrics = run_metrics(connection, identity.run_key, path.parent)
+        self.assertEqual(metrics["english"], {"translations_sha256": "ab" * 32, "questions": 3, "prompt_version": ENGLISH_PROMPT_VERSION})
+        record = {"run_key": identity.run_key, "run_id": identity.run_id, "dataset": str(path), "provider": "subq", "model": "m",
+                  "thinking": "off", "batch_size": 1, "evaluated": 3, "eligible_total": 3, "replace_key_text": None,
+                  "repeat": None, "selection_sha256": identity.selection_sha256, "english": metrics["english"]}
+        self.assertTrue(in_main_tables({**record, "english": None}))
+        self.assertFalse(in_main_tables(record))
+        self.assertEqual(run_repeats(connection, {identity.run_key: record, "other": {**record, "run_key": "other"}}, path.parent), [])
+        # A repeat is a run of its own, with its number in its identity, and stays out as well.
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            repeat = start_run(connection, selection, "m", path, "subq", "http://localhost", 0, 1, False, None, False,
+                               None, None, False, 2, False, english="ab" * 32)
+        self.assertNotEqual(repeat.run_key, identity.run_key)
+        row = connection.execute("SELECT repeat, prompt_version, english FROM runs WHERE id=?", (repeat.run_id,)).fetchone()
+        self.assertEqual(tuple(row), (2, ENGLISH_PROMPT_VERSION, "ab" * 32))
+        repeated = {**record, "run_key": repeat.run_key, "run_id": repeat.run_id, "repeat": 2}
+        self.assertFalse(in_main_tables(repeated))
+        self.assertEqual(run_repeats(connection, {identity.run_key: record, repeat.run_key: repeated}, path.parent), [])
+        # Its report lines form a section of their own.
+        lines = english_lines([{**record, "correct": 1, "invalid": 0}])
+        self.assertIn("## English reading", lines)
+        self.assertEqual(lines[-1], f"| subq m, in English, run {identity.run_id} | 3 | 1 | 0 | 33.33% | abababababab | "
+                                    f"{ENGLISH_PROMPT_VERSION} |")
+
+    def test_only_decision_models_on_listed_questions_take_it_and_never_with_another_variant(self) -> None:
+        base = ["benchmark_ollama.py", "subq-snap-1.1", "--english", "t.jsonl", "--questions", "kept.txt"]
+        for argv in ([*base[:2], "--provider", "ollama", *base[2:]], [*base, "--provider", "subq", "--dont-know"],
+                     [*base, "--provider", "subq", "--shuffle-options", "1"], [*base[:4], "--provider", "subq"],
+                     [*base, "--provider", "vllm"]):
+            with self.subTest(argv=argv), mock.patch("sys.argv", argv), mock.patch("sys.stderr"), self.assertRaises(SystemExit):
+                parse_args()
+        for provider in ("subq", "vllm-yes-no"):
+            with mock.patch("sys.argv", [*base, "--provider", provider]):
+                self.assertEqual(parse_args().english, Path("t.jsonl"))
+        with mock.patch("sys.argv", [*base, "--provider", "subq", "--repeat", "2"]):
+            args = parse_args()
+            self.assertEqual((args.english, args.repeat), (Path("t.jsonl"), 2))
 
 
 class RunRequestsTests(unittest.TestCase):
