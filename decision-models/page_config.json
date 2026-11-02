@@ -172,5 +172,27 @@
       {"name": "Perplexity Decider 27B v1.1", "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
       {"name": "SubQ Snap Preview", "reason": "Not run: SubQ's API returns its probabilities in 32-bit precision, so their sums miss our 7-decimal check, and we decided not to run it with an allowance for that."}
     ]
+  },
+  "aa_decision_index": {
+    "about": "Artificial Analysis's Decision Index v1.0 as its post of 22 October 2026 lists it: its models in its order, each with our Text tab setup by run id (null: not in our benchmark). sitebuild/aa_index.py builds aa-decision-index/ from it.",
+    "post": "https://x.com/ArtificialAnlys/status/2113360449156890662",
+    "date": "2026-10-22",
+    "evaluations": "AA-Omniscience-Decision, HLE-MultiChoice, When2Call and WildGuardTest",
+    "models": [
+      {"name": "d1-ultra", "run": 199},
+      {"name": "SubQ Snap 1.1", "run": 346},
+      {"name": "Elephant 9B", "run": 373},
+      {"name": "Jev 1.14", "run": 194},
+      {"name": "Decider v1.2", "run": 217},
+      {"name": "GLiDE", "run": 129},
+      {"name": "Microsoft-Decision-1", "run": 205},
+      {"name": "Mercury Decide", "run": 204},
+      {"name": "Celeris-1 Decision", "run": 150},
+      {"name": "d1", "run": 52},
+      {"name": "Decider Flash v1.2", "run": 223},
+      {"name": "Clef", "run": 125},
+      {"name": "GPT-6 Luna (Decisions)", "run": 143},
+      {"name": "Clef-Omni", "run": null}
+    ]
   }
 }

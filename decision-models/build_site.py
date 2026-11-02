@@ -47,7 +47,7 @@ from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, asset, route_labels, 
 
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
-PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know", "data", "method")
+PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know", "aa_index", "data", "method")
 TITLE = "When should you trust a decision model?"
 # The intro and the meta description; their counts come from results.json (counts()).
 INTRO = (

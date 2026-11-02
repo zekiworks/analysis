@@ -182,6 +182,13 @@ python3 -m http.server 8000                                # preview at http://1
     wrong), topics with the accuracy-by-topic heat map and one page per topic (`topics/`), Compare
     (`compare/`, drawn by `compare.js`, exact McNemar test as in `benchmark_metrics.py`), Page images
     (`vision/`), Method (`method/`) and Data (`data/`). `sitebuild/site.py` holds the shared page shell.
+  - **Artificial Analysis's Decision Index models** (`aa-decision-index/`, `sitebuild/aa_index.py`): our numbers
+    for the models of Artificial Analysis's Decision Index v1.0 as its post of 22 October 2026 lists them
+    (`page_config.json`'s `aa_decision_index`, by run id; a run that is missing or not a decision model stops the
+    build): accuracy and non-hallucination charts and one table with accuracy, reading, grammar, page images
+    (picture alone), non-hallucination and attempt rates and cost per 1,000 and per 1M questions, every value from
+    `results.json` and `vision.json`. It is the source of our four charts in reply to that post; nothing links it from
+    the navigation bar.
   - **`data/picks.json`**: each leaderboard setup's pick and score on each scored question, written from
     `answers.json` by `sitebuild/questions.py`, which checks every pick against its grade. Scores are floored
     to four decimals, so a score below the 99% cutoff never reads as 99.00%.
