@@ -818,6 +818,13 @@ const MEASURES = {
    and cost. */
 const FACE_MEASURES = ['accuracy', 'gap', 'latency', 'cost'];
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
+/* A setup's cost as the Cost chart writes it, with its $: per 1,000 questions, § at its maker's list price, or Not
+   measured where there is no estimate (never a zero). The accuracy chart gives it beside each setup's accuracy. */
+const priceText = run => {
+  const value = costPer1000(run);
+  return value == null ? EMPTY.notMeasured : `$${MEASURES.cost.text(value)}${run.cost_basis === 'maker' ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}`;
+};
+const PRICE_NOTE = 'Beside each bar: accuracy (%), then cost in $ per 1,000 questions, estimated from list prices and recorded token use, as in the Cost chart.';
 
 /* The ranking scale. In the accuracy, latency and cost charts and the small chart, each decision model's bar or dot
    takes one colour from a fixed scale (SETTINGS.rankScale): dark blue for the worst decision model, through turquoise
@@ -984,13 +991,17 @@ function barChart(box, name) {
   const width = drawWidth(box, height);
   const labelWidth = phone ? 0 : Math.min(210, Math.round(width * 0.36));
   const valueWidth = phone ? 62 : 70;
+  /* The accuracy chart also gives each setup's cost (priceText) in a column of its own at the right, as wide as its
+     longest entry. */
+  const priced = name === 'accuracy';
+  const priceWidth = priced ? Math.ceil(Math.max(...ordered.map(run => textWidth(priceText(run))))) + 24 : 0;
   const values = known.map(measure.value);
   /* Accuracy runs from 0 to 100%; the calibration gap from 0 to the next 5 points above the largest; latency and cost on
      a log scale around their values. */
   const gapTop = values.length ? Math.max(0.05, Math.ceil(Math.max(...values) / 0.05 - 1e-9) * 0.05) : 0.05;
   const domain = measure.log ? (values.length ? [Math.min(...values) / 1.5, Math.max(...values) * 1.5] : [0.01, 1]) : measure.points ? [0, gapTop] : [0, 1];
   const left = phone ? 2 : labelWidth + 10;
-  const right = width - valueWidth - 8;
+  const right = width - valueWidth - priceWidth - 8;
   const x = scale(domain, [left, right], measure.log);
   const step = domain[1] <= 0.2 + 1e-9 ? 0.05 : 0.1;
   const ticks = measure.log ? ticksLog(...domain)
@@ -1006,7 +1017,9 @@ function barChart(box, name) {
     const value = measure.value(run);
     const maker = name === 'cost' && run.cost_basis === 'maker' && value != null;
     const sample = name === 'latency' && value != null && sampleLabel(run);
-    const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}`;
+    const priceMaker = priced && run.cost_basis === 'maker' && costPer1000(run) != null;
+    const price = priced ? `; cost per 1,000 questions: ${priceText(run)}${priceMaker ? ` (${makerCostTip(run)})` : ''}` : '';
+    const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}`;
     const barTop = phone ? y + 18 : y + (row - 16) / 2;
     const barHeight = phone ? 14 : 16;
     const mid = barTop + barHeight / 2;
@@ -1014,7 +1027,7 @@ function barChart(box, name) {
     /* The ring spans the row: it shows the focus, and it shades the selected setup's row. */
     const inner = [`<rect class="ring" x="1" y="${y + 1}" width="${width - 2}" height="${row - 2}" rx="3"/>`, label];
     if (value == null) {
-      inner.push(`<text class="value nm" x="${width - 4}" y="${mid + 4}" text-anchor="end">${EMPTY.notMeasured}</text>`);
+      inner.push(`<text class="value nm" x="${width - 4 - priceWidth}" y="${mid + 4}" text-anchor="end">${EMPTY.notMeasured}</text>`);
     } else {
       const start = x(domain[0]);
       const colour = isDecision(run) ? ` style="fill:${rankColor(name, value)}"` : '';
@@ -1026,18 +1039,19 @@ function barChart(box, name) {
         const path = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
         inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
       }
-      inner.push(`<text class="value" x="${width - 4}" y="${mid + 4}" text-anchor="end">${measure.text(value)}${maker ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
+      inner.push(`<text class="value" x="${width - 4 - priceWidth}" y="${mid + 4}" text-anchor="end">${measure.text(value)}${maker ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
     }
+    if (priced) inner.push(`<text class="value${costPer1000(run) == null ? ' nm' : ''}" x="${width - 4}" y="${mid + 4}" text-anchor="end">${esc(priceText(run))}</text>`);
     parts.push(`<g ${markAttributes(run, full)}>${inner.join('')}</g>`);
   });
   const selection = runs.some(run => run.run === state.selected);
   box.classList.toggle('has-selection', selection);
   const where = name === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : name === 'gap' ? ' on all questions, as shipped' : '';
   const latencyNote = name === 'latency' ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
-  const makerNote = name === 'cost' && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
+  const makerNote = (name === 'cost' || priced) && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
   const sampleNote = name === 'latency' ? sampleNotes(ordered) : [];
   const scaleNote = measure.log ? 'Log scale.' : name === 'accuracy' ? 'Lines: 95% interval.' : '';
-  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, ...latencyNote, ...makerNote, ...sampleNote].filter(Boolean), unlabelled: [] };
+  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, priced ? PRICE_NOTE : '', ...latencyNote, ...makerNote, ...sampleNote].filter(Boolean), unlabelled: [] };
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
     legend(name, [...chartNotes[name].notes, chartScope(runs)].join(' '));
