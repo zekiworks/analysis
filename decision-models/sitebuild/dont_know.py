@@ -988,57 +988,37 @@ SAME_NAMED_FEWER = 3
 
 
 def same_wrong_text(wrong: float) -> str:
-    """A wrong count of the k answers: whole, or with one decimal when tied scores share the k-th place."""
-    return f"{wrong:,.0f}" if float(wrong).is_integer() else f"{wrong:,.1f}"
-
-
-def same_wrong_at(curve: list[tuple[int, int]], k: int) -> float | None:
-    """The expected wrong count of a run's k most confident answers from its curve (answered, wrong per distinct score,
-    highest first), by the tie rule: wrong_above + (k - taken_above) * wrong_tied / taken_tied; None below k answers."""
-    taken_above = wrong_above = 0
-    for answered, wrong in curve:
-        if answered >= k:
-            return wrong_above + (k - taken_above) * (wrong - wrong_above) / (answered - taken_above)
-        taken_above, wrong_above = answered, wrong
-    return None
+    """A wrong count of the k answers, a whole number (check_same_answers stops the build otherwise)."""
+    return f"{wrong:,.0f}"
 
 
 def same_families(site: Site, same: dict[str, Any]) -> list[dict[str, Any]]:
     """dont_know_same_answers' two families with their language, each model marked as the reference or not and with its
-    curve as (answered, wrong) points: in Turkish from the key, only for the models with runs with the option (None for
-    the rest, which have no points either); in English from english_reading.coverage (the model's English curve). The
-    Turkish reference is the setup of the tab's row named as the reference; the English one, the model of that name."""
-    cov = {model["text_run"]: model for model in site.results["english_reading"]["coverage"]["models"]}
+    curve as (answered, wrong) points, one per k from 1 to the run's scored answers: in Turkish only for the models with
+    runs with the option (None for the rest, which have no points either), in English for every model. The Turkish
+    reference is the setup of the tab's row named as the reference; the English one, the model of that name."""
     tab = {model["name"]: model["original_run"] for model in site.results["dont_know"]["models"]}
     families = []
     for key, language in (("turkish", "Turkish"), ("english", "English")):
         family = dict(same[key], key=key, language=language, models=[])
         for model in same[key]["models"]:
-            if key == "turkish":
-                reference = model["text_run"] == tab.get(same["reference"])
-                curve = [tuple(point) for point in model["curve"]] if "curve" in model else None
-                curve_run = model["five_option_run"] if curve else None
-            else:
-                reference = model["name"] == same["reference"]
-                found = [curve for curve in cov[model["text_run"]]["curves"] if curve["language"] == language] \
-                    if model["text_run"] in cov else []
-                if len(found) != 1:
-                    raise SystemExit(f"results.json dont_know_same_answers: {model['name']} has no English curve in "
-                                     "english_reading.coverage")
-                curve, curve_run = [(point[2], point[3]) for point in found[0]["points"]], found[0]["run"]
-            family["models"].append(dict(model, reference=reference, curve=curve, curve_run=curve_run,
-                                         points=model.get("points")))
+            reference = (model["text_run"] == tab.get(same["reference"]) if key == "turkish"
+                         else model["name"] == same["reference"])
+            curve = [tuple(point) for point in model["curve"]] if "curve" in model else None
+            family["models"].append(dict(model, reference=reference, curve=curve, points=model.get("points"),
+                                         replaces_run=model.get("replaces_run")))
         families.append(family)
     return families
 
 
-def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | None, rerun: dict[str, Any] | None,
-                       families: list[dict[str, Any]], reference: str) -> None:
+def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | None, families: list[dict[str, Any]],
+                       reference: str) -> None:
     """Stop the build when dont_know_same_answers does not fit the tab: the Turkish family is every main run of the Text
-    tab in results.json's order (hosted GLiDE through hosted_glide_rerun's run), with curves and markers exactly for the
-    tab's models; the English family is its section's models; k is the reference's run with the option's answered count
-    there, the markers are those sections' counts, each curve ends at its run's scored answers and gives the published
-    wrong count by the tie rule, every five-option run has k scored answers, and the differences and p values fit."""
+    tab in results.json's order, each through that run (hosted GLiDE too), with curves and markers exactly for the tab's
+    models; the English family is its section's models, each through its first English run and with a curve; k is the
+    reference's run with the option's answered count there; the markers are those sections' counts; every count is
+    whole; each curve has one point per k from 1 to its run's scored answers, adding at most one wrong answer a step, and
+    its point at k is the published wrong count; and the differences and p values fit."""
     from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
     fail = lambda text: SystemExit(f"results.json dont_know_same_answers: {text}")  # noqa: E731
     english = site.results["english_reading"]
@@ -1083,20 +1063,14 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
                     raise fail(f"{name}: a curve and markers belong to the tab's models only")
                 if row and name != row["name"]:
                     raise fail(f"{name}: not the tab's name {row['name']} for run {model['text_run']}")
-                if model["replaces_run"] is None:
-                    if model["five_option_run"] != model["text_run"]:
-                        raise fail(f"{name}: the five-option run is not the Text tab's run {model['text_run']}")
-                elif (model["replaces_run"] != model["text_run"] or not rerun or rerun["replaces_run"] != model["text_run"]
-                      or model["five_option_run"] != rerun["run"]):
-                    raise fail(f"{name}: the five-option run does not replace the Text tab's run as hosted_glide_rerun does")
-                if rerun and model["text_run"] == rerun["replaces_run"] and model["replaces_run"] is None:
-                    raise fail(f"{name}: not through hosted_glide_rerun's run {rerun['run']}")
+                if model["replaces_run"] is not None or model["five_option_run"] != model["text_run"]:
+                    raise fail(f"{name}: the five-option run is not the Text tab's run {model['text_run']}")
                 sides = [] if row is None else \
                     [(data["option"], row)] + ([(word["option"], own[name]["i_dont_know"])] if name in own else [])
             else:
                 section = english["models"][[item["name"] for item in models].index(name)]
-                if model["five_option_run"] != section["run"] or model["curve_run"] != section["run"]:
-                    raise fail(f"{name}: the five-option run or its English curve is not the first English run {section['run']}")
+                if model["five_option_run"] != section["run"] or model["curve"] is None:
+                    raise fail(f"{name}: the five-option run is not the first English run {section['run']}, or no curve")
                 entry = by_text.get(model["text_run"])
                 if not entry:
                     raise fail(f"{name}: no first English run with “{wording}”")
@@ -1110,18 +1084,17 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
                                                   if run["score"][index] is not None and run["choice"][index] is not None)
             if scored is None or scored < k:
                 raise fail(f"{name} {key}: run {model['five_option_run']} has fewer than k = {k:,} scored answers")
-            if abs(model["wrong"] / k - model["wrong_of_answers"]) > 1e-12 or not 0 <= model["wrong"] <= k:
-                raise fail(f"{name} {key}: the wrong of answers is not wrong / k")
+            if not float(model["wrong"]).is_integer() or not 0 <= model["wrong"] <= k \
+                    or abs(model["wrong"] / k - model["wrong_of_answers"]) > 1e-12:
+                raise fail(f"{name} {key}: the wrong count is not a whole number of the k, or the rate not wrong / k")
             curve = model["curve"]
             if curve is not None:
-                if not curve or any(b[0] <= a[0] or b[1] < a[1] for a, b in zip(curve, curve[1:])) \
-                        or any(wrong > answered for answered, wrong in curve):
-                    raise fail(f"{name} {key}: the curve does not grow")
-                if curve[-1][0] != scored:
-                    raise fail(f"{name} {key}: the curve does not end at run {model['five_option_run']}'s scored answers")
-                wrong = same_wrong_at(curve, k)
-                if wrong is None or abs(wrong - model["wrong"]) > 1e-9:
-                    raise fail(f"{name} {key}: the wrong count is not the curve's at k = {k:,}")
+                if len(curve) != scored or any(answered != index + 1 for index, (answered, _) in enumerate(curve)) \
+                        or curve[0][1] not in (0, 1) or any(b[1] - a[1] not in (0, 1) for a, b in zip(curve, curve[1:])):
+                    raise fail(f"{name} {key}: the curve is not one point per k from 1 to run {model['five_option_run']}'s "
+                               f"{scored:,} scored answers")
+                if curve[k - 1][1] != model["wrong"]:
+                    raise fail(f"{name} {key}: the curve's point at k = {k:,} is not the published wrong count")
             if model["reference"]:
                 if any(model[field] is not None for field in ("difference", "interval", "p", "p_holm")):
                     raise fail(f"{key}: the reference row has a difference or p")
@@ -1266,9 +1239,18 @@ def same_plotted(family: dict[str, Any]) -> list[dict[str, Any]]:
     return [model for model in family["models"] if model["curve"] is not None]
 
 
+def same_engine(site: Site, family: dict[str, Any], model: dict[str, Any]) -> str:
+    """For hosted GLiDE in Turkish (hosted_glide_rerun's replaced run), where its runs with the option and its five-option
+    run come from different engines, the words that say so; otherwise empty."""
+    rerun = site.results.get("hosted_glide_rerun")
+    if family["key"] != "turkish" or not rerun or model["text_run"] != rerun["replaces_run"]:
+        return ""
+    return f"made with Fastino's engine glide_v2, not run {model['five_option_run']}'s glide"
+
+
 def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours: dict[str, tuple[str, str | None]]) -> str:
-    """One family's risk-coverage plot: each model's five-option curve as a line (flat from 0% coverage to its first
-    point), its own runs with the option as markers and a dashed guide at k."""
+    """One family's risk-coverage plot: each model's five-option curve as a line from its first point (1 answer) to its
+    last (its run's scored answers), its own runs with the option as markers and a dashed guide at k."""
     from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
     digits = site.config["percent_digits"]
     total, k, language, reference = family["questions"], family["k"], family["language"], same["reference"]
@@ -1286,23 +1268,25 @@ def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours:
             if index in (at_k, len(curve) - 1) or (curve[index][0] - last) / total >= SAME_MIN_STEP:
                 drawn.append(index)
                 last = curve[index][0]
-        line = [(0.0, curve[0][1] / curve[0][0], "")] + [(curve[index][0] / total, curve[index][1] / curve[index][0], "")
-                                                         for index in drawn]
-        replaced = f", in place of run {model['replaces_run']}" if model.get("replaces_run") else ""
+        line = [(curve[index][0] / total, curve[index][1] / curve[index][0], "") for index in drawn]
         series.append({"colour": colour, "dash": dash, "line": True, "points": line,
-                       "title": f"{name}: five options, run {model['five_option_run']}{replaced}, held back by confidence; "
-                                f"its {k:,} most confident answers: {same_wrong_text(model['wrong'])} wrong "
-                                f"({pct(model['wrong_of_answers'], digits)})"})
+                       "title": f"{name}: five options, run {model['five_option_run']}, held back by confidence, from 1 to "
+                                f"{curve[-1][0]:,} answers; its {k:,} most confident answers: "
+                                f"{same_wrong_text(model['wrong'])} wrong ({pct(model['wrong_of_answers'], digits)})"})
         keys = [f"{legend_mark(colour, dash=dash)} five options, run {model['five_option_run']}"]
+        engine = same_engine(site, family, model)
+        engine = f"; {engine}" if engine else ""
         for point in model["points"]:
             shape = er.SHAPES[point["wording"]]
             tip = (f"{name}: “{point['wording']}”, run {point['run']}: {point['answered']:,} answered "
                    f"({pct(point['answered'] / total, digits)}), {point['wrong']:,} wrong "
-                   f"({'not measured' if not point['answered'] else pct(point['wrong'] / point['answered'], digits)})")
+                   f"({'not measured' if not point['answered'] else pct(point['wrong'] / point['answered'], digits)}){engine}")
             series.append({"colour": colour, "shape": shape, "title": tip,
                            "points": [(point["answered"] / total, point["wrong"] / point["answered"] if point["answered"] else 0, tip)]})
             keys.append(f"{legend_mark(colour, shape)} “{esc(point['wording'])}”, run {point['run']}")
-        legend.append(f"<li><b>{esc(name)}</b>: {' · '.join(keys)}</li>")
+        legend.append(f"<li><b>{esc(name)}</b>: {' · '.join(keys)}"
+                      + (f" (runs {joined([str(point['run']) for point in model['points']])}{esc(engine.removeprefix(';'))})"
+                         if engine else "") + "</li>")
     shapes = " ".join(f"{legend_mark('var(--text-2)', er.SHAPES[wording])} “{esc(wording)}”"
                       for wording in dict.fromkeys(point["wording"] for model in plotted for point in model["points"]))
     dash = ('<svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true" style="vertical-align:middle">'
@@ -1384,9 +1368,7 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
         head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
 
         def row(model: dict[str, Any]) -> str:
-            five = (f"{model['five_option_run']}"
-                    + (f'<span class="small">in place of the Text tab\'s run {model["replaces_run"]}</span>'
-                       if model.get("replaces_run") else ""))
+            five = f"{model['five_option_run']}"
             wrong = (f'{pct(model["wrong_of_answers"], digits)}<span class="small">{same_wrong_text(model["wrong"])} of '
                      f"{k:,}</span>")
             if not model["points"]:
@@ -1398,6 +1380,9 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
                                      + (f"{pct(point['wrong'] / point['answered'], digits)} wrong ({point['wrong']:,})"
                                         if point["answered"] else "wrong of answers not measured") + "</span>"
                                      for point in model["points"]))
+                engine = same_engine(site, family, model)
+                if engine:
+                    context += f'<span class="small">{esc(engine[0].upper() + engine[1:])}</span>'
             if model["reference"]:
                 own = next(point for point in model["points"] if point["run"] == family["k_run"])
                 values = [five, wrong,
@@ -1434,13 +1419,13 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
     turkish, english = families
     resamples = same["resamples"]
     tail = round(0.025 * resamples)
-    glide = [model for model in turkish["models"] if model.get("replaces_run")]
+    glide = [model for model in turkish["models"] if same_engine(site, turkish, model)]
     glide_text = "".join(
-        f" For {esc(same_label(site, model))}, the Turkish five-option run is {model['five_option_run']}, not the Text "
-        f"tab's run {model['replaces_run']}: Fastino changed its hosted model after 6 October, so run "
-        f"{model['replaces_run']} is a different model from the one behind its runs with the option, and run "
-        f"{model['five_option_run']} is a five-option run of the same hosted model "
-        '(<a href="#hosted-glide-rerun-method">Our method for the hosted GLiDE rerun</a>).' for model in glide)
+        f" For {esc(same_label(site, model))}, the Turkish five-option run is the Text tab's run {model['five_option_run']}, "
+        f"made with Fastino's engine glide; its runs with the option, {joined([str(point['run']) for point in model['points']])}, "
+        "answered with glide_v2, a different hosted model "
+        '(<a href="#hosted-glide-rerun-method">Our method for the hosted GLiDE rerun</a>), so its line and its markers '
+        "come from two models, as the legend and the table say." for model in glide)
     refs = {family["key"]: next(model for model in family["models"] if model["reference"]) for family in families}
     plotted = len(same_plotted(turkish))
     owns = {key: next(point for point in model["points"] if point["run"] == families[index]["k_run"])
@@ -1448,16 +1433,16 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
     return f"""
     <section class="card" id="same-answers-results">
       <h2>Results: the same number of answers</h2>
-      <p class="note">One table per language, ordered by wrong of the k answers, fewest first; the Turkish one has every main run of the Text tab ({len(turkish["models"])} setups), grouped as its leaderboard groups them and labelled as it labels them. Each row: the model's five-option run held to its k most confident answers, its wrong answers among them (one decimal where tied scores share the k-th place), the difference from {esc(reference)} in points with its 95% bootstrap interval, p and Holm p (* marks a Holm-adjusted p below 0.05), and for context the model's own runs with the option (answered = right + wrong, and wrong of answers = wrong / answered), which are not part of the test; a setup without one reads none.</p>
+      <p class="note">One table per language, ordered by wrong of the k answers, fewest first; the Turkish one has every main run of the Text tab ({len(turkish["models"])} setups), grouped as its leaderboard groups them and labelled as it labels them. Each row: the model's five-option run held to its k most confident answers, its wrong answers among them, the difference from {esc(reference)} in points with its 95% bootstrap interval, p and Holm p (* marks a Holm-adjusted p below 0.05), and for context the model's own runs with the option (answered = right + wrong, and wrong of answers = wrong / answered), which are not part of the test; a setup without one reads none.</p>
       {tables}
     </section>
     <section class="card method-notes" id="same-answers-method">
       <h2>Our method for the same number of answers</h2>
       <p>Each model's five-option run answers only its k most confident questions, by its score (the probability it gave the option it picked), and holds back on the rest; we count its wrong answers among the k. Wrong of the k answers = wrong / k. k is the number of questions {esc(reference)} answered (right + wrong) with the option on offer: {turkish["k"]:,} in its run {turkish["k_run"]} with “{esc(turkish["k_wording"])}” on the {turkish["questions"]:,} Turkish questions (the option's word, above), and {english["k"]:,} in its run {english["k_run"]}, its first English run with “{esc(english["k_wording"])}”, on the {english["questions"]:,} kept reading questions. Every model in a language is held to the same k.</p>
-      <p>The answers are ranked by score, highest first; an answer without a score or a valid choice is never kept. When the k-th place falls inside a group of equal scores, the group counts in proportion: with taken and wrong the answers above the group, and tied and tied wrong those in it, the wrong count is wrong + (k - taken) × tied wrong / tied, the expectation over a random order of the tied answers. Without a tie at k the count is a whole number.</p>
-      <p>The difference is a model's wrong of the k answers minus {esc(reference)}'s, in points. Its uncertainty comes from a paired bootstrap over questions: {resamples:,} resamples of the questions with replacement (seed {same["seed"]}, a new generator for each language), the same resample for every model, a question drawn twice counting twice and k fixed; in each resample every run's drawn answers are ranked and counted again by the same rule. Two-sided p = min(1, 2 × min(1 + the resamples with a difference of 0 or less, 1 + those with 0 or more) / {resamples + 1:,}). Its floor is 2/{resamples + 1:,} (p = {esc(bp.p_text(2 / (resamples + 1)).removeprefix("p = "))}), when no resample falls on the other side of zero: a p at the floor says the difference held in every resample, not that p is exactly that value. The 95% interval runs from the {tail:,}th smallest to the {tail:,}th largest of the {resamples:,} resampled differences.</p>
+      <p>The answers are ranked by score, highest first, and equal scores by question ID, lowest first (never by whether the answer is right); the first k are kept, so the wrong count is always a whole number. An answer without a score or a valid choice is never kept.</p>
+      <p>The difference is a model's wrong of the k answers minus {esc(reference)}'s, in points. Its uncertainty comes from a paired bootstrap over questions: {resamples:,} resamples of the questions with replacement, from a new random generator with the numeric seed {same["seed"]} for each language, the same resample for every model, a question drawn twice counting twice and k fixed. In each resample every run's drawn answers are ranked again by score and question ID, the copies of a drawn question sitting together, and the first k kept, so the count stays whole. Two-sided p = min(1, 2 × min(1 + #{{d ≤ 0}}, 1 + #{{d ≥ 0}}) / {resamples + 1:,}), where #{{d ≤ 0}} is the number of resamples whose difference d is 0 or less and #{{d ≥ 0}} the number whose difference is 0 or more. Its floor is 2/{resamples + 1:,} (p = {esc(bp.p_text(2 / (resamples + 1)).removeprefix("p = "))}), when no resample falls on the other side of zero: a p at the floor says the difference held in every resample, not that p is exactly that value. The 95% interval is the percentile interval: from the {tail:,}th smallest to the {tail:,}th largest of the {resamples:,} resampled differences.</p>
       <p>Holm's method adjusts p over the other {len(turkish["models"]) - 1} setups in Turkish (every main run of the Text tab, decision models and chat and general models alike) and the other {len(english["models"]) - 1} models in English, each language a family of its own, separate from the tab's other comparisons. The resamples do not depend on which models are compared, so a model's p is the same in any family; only Holm's adjustment grows with the family.{glide_text}</p>
-      <p>The plots show every number of answers, not only k. Each line is a five-option run's risk-coverage curve, one point per distinct score (answering where the score is at least that score): answered / questions across, wrong / answered up. The Turkish plot draws the {plotted} setups with runs with the option, from the curves of their runs in the table; the English curves are the Turkish vs English tab's (<a href="{rel(PATH, "turkish-vs-english/")}#coverage">Risk and coverage</a>), the same first English runs. Under the tie rule, the share wrong below a curve's first point is that point's, so each line starts flat at 0% coverage. A line skips vertices closer than {100 * SAME_MIN_STEP:g}% of coverage to the previous one drawn, always keeping the first, the last and the point at k, so every vertex drawn after the flat start is a curve point; the y axis fits the markers and every curve point at 1% coverage or more, and anything higher is drawn at the top edge. The markers are each model's own runs with the option: in Turkish its first run with “{esc(site.results["dont_know"]["option"])}” (the table above) and its run with “{esc(turkish["k_wording"])}” (the option's word); in English its first English run with “{esc(english["k_wording"])}”.</p>
+      <p>The plots show every number of answers, not only k. Each line is a five-option run under the same selection, one point per number of answers from 1 to the run's scored answers: answered / questions across, wrong / answered up. There is no point at 0 answers, where the share wrong is undefined, and a line ends at its run's scored answers, without being extended to 100%. The Turkish plot draws the {plotted} setups with runs with the option; the English curves come from this comparison too, so they can differ slightly from those of the Turkish vs English tab (<a href="{rel(PATH, "turkish-vs-english/")}#coverage">Risk and coverage</a>), where answers with equal scores enter together. A line skips vertices closer than {100 * SAME_MIN_STEP:g}% of coverage to the previous one drawn, always keeping the first, the last and the point at k, so every vertex drawn is a curve point; the y axis fits the markers and every curve point at 1% coverage or more, and anything higher (the first few answers, where one wrong answer is a large share) is drawn at the top edge. The markers are each model's own runs with the option: in Turkish its first run with “{esc(site.results["dont_know"]["option"])}” (the table above) and its run with “{esc(turkish["k_wording"])}” (the option's word); in English its first English run with “{esc(english["k_wording"])}”.</p>
       <p>Limits: k comes from one model, {esc(reference)}, and a different k gives different numbers (the plots show them all). The k answers kept are each model's own most confident ones, so the models are counted on different questions. {esc(reference)}'s own runs with the option made {owns["turkish"]["wrong"]:,} wrong of {owns["turkish"]["answered"]:,} in Turkish and {owns["english"]["wrong"]:,} of {owns["english"]["answered"]:,} in English, against {same_wrong_text(refs["turkish"]["wrong"])} and {same_wrong_text(refs["english"]["wrong"])} for its five-option run held to the same k: the comparison is between five-option runs held back by confidence, not between runs with the option.</p>
     </section>"""
 
@@ -1483,7 +1468,7 @@ def build(site: Site) -> dict[str, str]:
     same = site.results.get("dont_know_same_answers")
     families = same_families(site, same) if same else []
     if same:
-        check_same_answers(site, data, word, rerun, families, same["reference"])
+        check_same_answers(site, data, word, families, same["reference"])
     body = f"""    {site.tabs(PATH)}
     <section class="card">
       <p class="eyebrow">Hallucination</p>

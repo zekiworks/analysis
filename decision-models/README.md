@@ -93,10 +93,10 @@ python3 -m http.server 8000                                # preview at http://1
   For the option-word runs against confidence (`dont_know_option_word.vs_confidence`) it redoes each derived cut-off
   with its neighbouring cut-offs and the paired test of wrong answers, with Holm over the eligible family; for risk and
   coverage on the kept reading questions (`english_reading.coverage`) every native point and every curve point; and
-  for the same number of answers (`dont_know_same_answers`) each model's wrong answers among its k most confident
-  five-option answers (tied scores shared in proportion), the differences from Liquid d1-ultra with the paired bootstrap
-  (10,000 resamples, seed 20261103) and Holm (over every other Text tab setup in Turkish, the other 13 English reading
-  models in English), the Turkish curves and the markers of the runs with the option.
+  for the same number of answers (`dont_know_same_answers`) each model's wrong answers among exactly its k most
+  confident five-option answers (equal scores taken in question-id order), the differences from Liquid d1-ultra with
+  the paired bootstrap (10,000 resamples, seed 20261103) and Holm (over every other Text tab setup in Turkish, the
+  other 13 English reading models in English), the curves and the markers of the runs with the option.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
