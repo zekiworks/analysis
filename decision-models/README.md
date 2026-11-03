@@ -84,7 +84,9 @@ python3 -m http.server 8000                                # preview at http://1
   and invalid answers in English and their "Bilmiyorum" counterparts in Turkish (a published full-bank run counted on
   the kept questions, or a run on the kept questions only), the rates, the mean probability of the option, the ranges
   and the exact McNemar test of wrong answers (Holm over the models), from `english_dont_know_runs` and
-  `english_dont_know_turkish_runs`. For the option-word check (`dont_know_option_word`) it recomputes each model's
+  `english_dont_know_turkish_runs`, and the same with "I don't know" in both languages
+  (`english_reading.dont_know_word`: the English runs against the option-word runs counted on the kept questions,
+  Holm over the models with both). For the option-word check (`dont_know_option_word`) it recomputes each model's
   right, wrong, option and invalid answers, rates and mean option probability with "Bilmiyorum" (its Hallucination
   tab run) and with "I don't know" (its run in `dont_know_word_runs`, prompt version fb17d583a3af), and the exact
   McNemar test of their wrong answers (Holm over the models). For the hosted GLiDE rerun (`hosted_glide_rerun`, from
@@ -169,13 +171,17 @@ python3 -m http.server 8000                                # preview at http://1
     Turkish setup shows every setup's curve against Liquid d1-ultra's; inline
     SVG by `line_plot` in `sitebuild/site.py`). Every "I don't know" table leads with Answered
     ((right + wrong) / questions) and Wrong of answers (wrong / (right + wrong)), the non-hallucination rate after them.
-    Turkish vs English opens with its main table (accuracy and non-hallucination in Turkish and in English with their
-    differences, the rank in each language and the languages each model card lists, Holm-significant differences marked),
-    then accuracy in Turkish and in English with the paired test of the two (the questions only one of them got right,
-    with Holm-adjusted p), the non-hallucination rate with an "I don't know" option in both languages with the answered
-    shares and the paired test of wrong answers, risk and coverage on the kept questions (native points and confidence
-    curves per language), and the option-word check. The build writes `turkish-vs-english/kept-question-ids.txt` (the
-    547 kept IDs) from `english-reading.json`, the track's public record, written by
+    Turkish vs English opens with its main table (accuracy in Turkish and in English with the difference; with "I don't
+    know" written the same in both languages, the Turkish runs being the option-word check's, Answered, Wrong of answers
+    and non-hallucination with the difference, then the Turkish "Bilmiyorum" runs in a column of their own; the rank in
+    each language and the languages each model card lists; Holm-significant differences marked), then accuracy in
+    Turkish and in English with the paired test of the two (the questions only one of them got right, with Holm-adjusted
+    p), the non-hallucination rate with an "I don't know" option in English against "Bilmiyorum" in Turkish with the
+    answered shares and the paired test of wrong answers, the same with "I don't know" in both languages (only the
+    language differs; `english_reading.dont_know_word`), risk and coverage on the kept questions (native points and
+    confidence curves per language), and the option-word check. The build writes
+    `turkish-vs-english/kept-question-ids.txt` (the 547 kept IDs) from `english-reading.json`, the track's public
+    record, written by
     `runner/translate_reading.py publish`: the translator, both prompts, each reading question's flag reasons, whether it
     is kept and the SHA-256 of its English text. Like every file here, it holds no question text. The question page
     (`question/?id=`) shows, for each kept reading question, every compared model's answer and its probability in Turkish

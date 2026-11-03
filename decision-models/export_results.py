@@ -2175,6 +2175,92 @@ def english_coverage(reading: dict[str, Any], option_word: dict[str, Any] | None
     return {"questions": total, "definitions": COVERAGE_DEFINITIONS, "models": models}
 
 
+def english_dont_know_word(reading: dict[str, Any], option_word: dict[str, Any], dont_know_section: dict[str, Any],
+                           answers: dict[str, Any], public: dict[str, Any]) -> dict[str, Any]:
+    """`english_reading.dont_know_word`, Ümit's request relayed by Zeki #963 (3 November 2026): "I don't know" in both
+    languages on the kept questions, so only the language differs. Per English reading model, in that order: the English
+    side, its first English run with "I don't know" (`english_reading.dont_know` models or english_only), and the
+    Turkish side, the option-word run of its Hallucination tab row (`dont_know_option_word`, asked every Turkish
+    question with option F written "I don't know"), each counted on the kept questions (right, wrong, "I don't know",
+    invalid, accuracy, attempt rate, non-hallucination rate (None without "I don't know" or wrong answers) and the mean
+    probability of the option over the answers that report it); None for a side without a run. Each side must equal its
+    source (English: `english_reading.dont_know`; Turkish: `english_reading.coverage`'s Turkish "I don't know" point)
+    and add to the kept questions. Where both sides exist, their wrong answers against each other (exact McNemar,
+    bm.paired_comparison: first English, second Turkish) with Holm's correction over those models, a family of its own."""
+    kept = kept_questions(answers, public)
+    total = len(kept)
+    idk = reading["dont_know"]
+    english_sides = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])}
+    english_runs = {run["run"]: run for run in answers["english_dont_know_runs"]}
+    word_runs = {run["run"]: run for run in answers["dont_know_word_runs"]}
+    original = {row["run"]: row["original_run"] for row in dont_know_section["models"]}
+    word_by_text: dict[int, int] = {}
+    for model in option_word["models"]:
+        bilmiyorum = model["bilmiyorum"]["run"]
+        if bilmiyorum not in original:
+            raise ValueError(f"dont_know_word: option-word run {model['i_dont_know']['run']} ({model['name']}) has no "
+                             f"Hallucination tab row with \"Bilmiyorum\" run {bilmiyorum}")
+        word_by_text[original[bilmiyorum]] = model["i_dont_know"]["run"]
+    coverage = {model["text_run"]: model["native"] for model in reading["coverage"]["models"]}
+    keys = ("right", "wrong", "dont_know", "invalid")
+
+    def counted(run: dict[str, Any], label: str) -> dict[str, Any]:
+        found = {key: 0 for key in keys}
+        shown = []
+        for index in kept:
+            choice, probabilities = run["choice"][index], run["probabilities"][index]
+            if run["correct"][index] is None:
+                raise ValueError(f"dont_know_word: {label} run {run['run']} was not asked every kept question")
+            if probabilities and DONT_KNOW_LETTER in probabilities:
+                shown.append(float(probabilities[DONT_KNOW_LETTER]))
+            if choice is None:
+                found["invalid"] += 1
+            elif choice == DONT_KNOW_LETTER:
+                found["dont_know"] += 1
+            elif run["correct"][index]:
+                found["right"] += 1
+            else:
+                found["wrong"] += 1
+        if sum(found.values()) != total:
+            raise ValueError(f"dont_know_word: {label} run {run['run']} counts {sum(found.values())} answers, not {total}")
+        return {
+            "run": run["run"],
+            **found,
+            "accuracy": found["right"] / total,
+            "attempt_rate": (found["right"] + found["wrong"]) / total,
+            "non_hallucination": found["dont_know"] / (found["dont_know"] + found["wrong"]) if found["dont_know"] + found["wrong"] else None,
+            "mean_dont_know_probability": sum(shown) / len(shown) if shown else None,
+        }
+
+    def wrong(run: dict[str, Any]) -> list[int]:
+        return [int(run["choice"][index] not in (None, DONT_KNOW_LETTER) and not run["correct"][index]) for index in kept]
+
+    models, family = [], []
+    for model in reading["models"]:
+        text_run = model["turkish_run"]
+        source = english_sides.get(text_run)
+        english = None if source is None else counted(english_runs[source["run"]], f"{model['name']} English")
+        if english is not None and {key: english[key] for key in ("run", *keys)} != {key: source[key] for key in ("run", *keys)}:
+            raise ValueError(f"dont_know_word: {model['name']} English counts differ from english_reading.dont_know's")
+        word = word_by_text.get(text_run)
+        turkish = None if word is None else counted(word_runs[word], f"{model['name']} Turkish")
+        point = next(item for item in coverage[text_run] if item["language"] == "Turkish" and item["wording"] == "I don't know")
+        if (None if turkish is None else [turkish["run"], *(turkish[key] for key in keys)]) != (
+                None if point["run"] is None else [point["run"], point["right"], point["wrong"], point["abstained"], point["invalid"]]):
+            raise ValueError(f"dont_know_word: {model['name']} Turkish counts differ from english_reading.coverage's "
+                             "Turkish \"I don't know\" point")
+        paired = None
+        if english is not None and turkish is not None:
+            test = bm.paired_comparison(wrong(english_runs[english["run"]]), wrong(word_runs[turkish["run"]]))
+            paired = {"english_only_wrong": test["first_only"], "turkish_only_wrong": test["second_only"], "p": test["p"], "p_holm": None}
+            family.append(paired)
+        models.append({"name": model["name"], "text_run": text_run, "english": english, "turkish": turkish, "paired": paired})
+    for paired, adjusted in zip(family, bm.holm([paired["p"] for paired in family])):
+        paired["p_holm"] = adjusted
+    return {"questions": total, "option": option_word["option"], "sentence": option_word["sentence"], "models": models}
+
+
+
 # The same number of answers (results.json `dont_know_same_answers`), Ümit's #915 of 3 November 2026 with Zeki's
 # corrections (#934): every model's five-option run keeps exactly k answers, its most confident, k being the
 # reference's answered count with "I don't know", and each model's wrong answers among them are set against the
@@ -2567,6 +2653,9 @@ def main() -> int:
                 data["dont_know_english_option"] = dont_know_english_option(data["english_reading"]["dont_know"])
             data["english_reading"]["coverage"] = english_coverage(data["english_reading"], data.get("dont_know_option_word"),
                                                                    data.get("dont_know"), answers, public)
+            if english_idk is not None and option_word is not None and section is not None:
+                data["english_reading"]["dont_know_word"] = english_dont_know_word(
+                    data["english_reading"], data["dont_know_option_word"], data["dont_know"], answers, public)
         if option_word is not None:
             if rerun is None:
                 raise ValueError("vs_confidence: the option-word comparison needs the hosted GLiDE rerun")

@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "6cc17354",
-  "updated": "2026-11-03T13:06:39Z",
+  "results_version": "8f69ed8d",
+  "updated": "2026-11-03T13:59:55Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -367046,6 +367046,407 @@
               ]
             }
           ]
+        }
+      ]
+    },
+    "dont_know_word": {
+      "questions": 547,
+      "option": "I don't know",
+      "sentence": "If you do not know the answer, choose I don't know.",
+      "models": [
+        {
+          "name": "Liquid d1-ultra",
+          "text_run": 199,
+          "english": {
+            "run": 449,
+            "right": 457,
+            "wrong": 39,
+            "dont_know": 51,
+            "invalid": 0,
+            "accuracy": 0.8354661791590493,
+            "attempt_rate": 0.906764168190128,
+            "non_hallucination": 0.5666666666666667,
+            "mean_dont_know_probability": 0.2527647853971477
+          },
+          "turkish": {
+            "run": 511,
+            "right": 492,
+            "wrong": 28,
+            "dont_know": 27,
+            "invalid": 0,
+            "accuracy": 0.8994515539305301,
+            "attempt_rate": 0.9506398537477148,
+            "non_hallucination": 0.4909090909090909,
+            "mean_dont_know_probability": 0.2317269341077451
+          },
+          "paired": {
+            "english_only_wrong": 18,
+            "turkish_only_wrong": 7,
+            "p": 0.043285250663757324,
+            "p_holm": 0.25971150398254395
+          }
+        },
+        {
+          "name": "Fastino GLiDE v1.2",
+          "text_run": 248,
+          "english": {
+            "run": 523,
+            "right": 481,
+            "wrong": 36,
+            "dont_know": 30,
+            "invalid": 0,
+            "accuracy": 0.8793418647166362,
+            "attempt_rate": 0.9451553930530164,
+            "non_hallucination": 0.45454545454545453,
+            "mean_dont_know_probability": 0.12485239376322405
+          },
+          "turkish": {
+            "run": 525,
+            "right": 491,
+            "wrong": 47,
+            "dont_know": 9,
+            "invalid": 0,
+            "accuracy": 0.8976234003656307,
+            "attempt_rate": 0.9835466179159049,
+            "non_hallucination": 0.16071428571428573,
+            "mean_dont_know_probability": 0.09828773071658943
+          },
+          "paired": {
+            "english_only_wrong": 16,
+            "turkish_only_wrong": 27,
+            "p": 0.12628947438543037,
+            "p_holm": 0.4400623959405334
+          }
+        },
+        {
+          "name": "Mammoth-1",
+          "text_run": 374,
+          "english": {
+            "run": 505,
+            "right": 474,
+            "wrong": 36,
+            "dont_know": 37,
+            "invalid": 0,
+            "accuracy": 0.8665447897623401,
+            "attempt_rate": 0.9323583180987203,
+            "non_hallucination": 0.5068493150684932,
+            "mean_dont_know_probability": 0.09803614442413162
+          },
+          "turkish": {
+            "run": 519,
+            "right": 490,
+            "wrong": 32,
+            "dont_know": 25,
+            "invalid": 0,
+            "accuracy": 0.8957952468007313,
+            "attempt_rate": 0.9542961608775137,
+            "non_hallucination": 0.43859649122807015,
+            "mean_dont_know_probability": 0.07410430347349178
+          },
+          "paired": {
+            "english_only_wrong": 19,
+            "turkish_only_wrong": 15,
+            "p": 0.6075913612730801,
+            "p_holm": 0.7633867953264257
+          }
+        },
+        {
+          "name": "vLLM-SR d3",
+          "text_run": 259,
+          "english": null,
+          "turkish": {
+            "run": 544,
+            "right": 495,
+            "wrong": 52,
+            "dont_know": 0,
+            "invalid": 0,
+            "accuracy": 0.9049360146252285,
+            "attempt_rate": 1.0,
+            "non_hallucination": 0.0,
+            "mean_dont_know_probability": 0.013720586834477463
+          },
+          "paired": null
+        },
+        {
+          "name": "Drex Max v1",
+          "text_run": 322,
+          "english": null,
+          "turkish": {
+            "run": 542,
+            "right": 497,
+            "wrong": 49,
+            "dont_know": 1,
+            "invalid": 0,
+            "accuracy": 0.9085923217550275,
+            "attempt_rate": 0.9981718464351006,
+            "non_hallucination": 0.02,
+            "mean_dont_know_probability": 0.009298918512398528
+          },
+          "paired": null
+        },
+        {
+          "name": "vLLM-SR d3-ultra",
+          "text_run": 269,
+          "english": null,
+          "turkish": {
+            "run": 540,
+            "right": 494,
+            "wrong": 51,
+            "dont_know": 2,
+            "invalid": 0,
+            "accuracy": 0.903107861060329,
+            "attempt_rate": 0.9963436928702011,
+            "non_hallucination": 0.03773584905660377,
+            "mean_dont_know_probability": 0.013052245597998327
+          },
+          "paired": null
+        },
+        {
+          "name": "Perplexity Decider 27B v1.2",
+          "text_run": 217,
+          "english": {
+            "run": 529,
+            "right": 481,
+            "wrong": 64,
+            "dont_know": 2,
+            "invalid": 0,
+            "accuracy": 0.8793418647166362,
+            "attempt_rate": 0.9963436928702011,
+            "non_hallucination": 0.030303030303030304,
+            "mean_dont_know_probability": 0.027666686351686155
+          },
+          "turkish": {
+            "run": 531,
+            "right": 495,
+            "wrong": 51,
+            "dont_know": 1,
+            "invalid": 0,
+            "accuracy": 0.9049360146252285,
+            "attempt_rate": 0.9981718464351006,
+            "non_hallucination": 0.019230769230769232,
+            "mean_dont_know_probability": 0.01355389901351757
+          },
+          "paired": {
+            "english_only_wrong": 29,
+            "turkish_only_wrong": 16,
+            "p": 0.07245426016254441,
+            "p_holm": 0.3622713008127221
+          }
+        },
+        {
+          "name": "Drex Max 1.1",
+          "text_run": 326,
+          "english": {
+            "run": 447,
+            "right": 463,
+            "wrong": 41,
+            "dont_know": 43,
+            "invalid": 0,
+            "accuracy": 0.8464351005484461,
+            "attempt_rate": 0.9213893967093236,
+            "non_hallucination": 0.5119047619047619,
+            "mean_dont_know_probability": 0.1425561642833011
+          },
+          "turkish": {
+            "run": 513,
+            "right": 481,
+            "wrong": 48,
+            "dont_know": 18,
+            "invalid": 0,
+            "accuracy": 0.8793418647166362,
+            "attempt_rate": 0.9670932358318098,
+            "non_hallucination": 0.2727272727272727,
+            "mean_dont_know_probability": 0.10160692670378244
+          },
+          "paired": {
+            "english_only_wrong": 20,
+            "turkish_only_wrong": 27,
+            "p": 0.38169339766321286,
+            "p_holm": 0.7633867953264257
+          }
+        },
+        {
+          "name": "Liquid d1",
+          "text_run": 52,
+          "english": {
+            "run": 445,
+            "right": 478,
+            "wrong": 67,
+            "dont_know": 2,
+            "invalid": 0,
+            "accuracy": 0.8738574040219378,
+            "attempt_rate": 0.9963436928702011,
+            "non_hallucination": 0.028985507246376812,
+            "mean_dont_know_probability": 0.009200322658382633
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
+          "name": "Jev 1.14.0",
+          "text_run": 194,
+          "english": {
+            "run": 446,
+            "right": 472,
+            "wrong": 72,
+            "dont_know": 3,
+            "invalid": 0,
+            "accuracy": 0.8628884826325411,
+            "attempt_rate": 0.9945155393053017,
+            "non_hallucination": 0.04,
+            "mean_dont_know_probability": 0.015521023765996345
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
+          "name": "SubQ Snap 1.1",
+          "text_run": 346,
+          "english": {
+            "run": 448,
+            "right": 463,
+            "wrong": 63,
+            "dont_know": 21,
+            "invalid": 0,
+            "accuracy": 0.8464351005484461,
+            "attempt_rate": 0.9616087751371115,
+            "non_hallucination": 0.25,
+            "mean_dont_know_probability": 0.11709256155179708
+          },
+          "turkish": {
+            "run": 512,
+            "right": 483,
+            "wrong": 45,
+            "dont_know": 19,
+            "invalid": 0,
+            "accuracy": 0.8829981718464351,
+            "attempt_rate": 0.9652650822669104,
+            "non_hallucination": 0.296875,
+            "mean_dont_know_probability": 0.0887675601039831
+          },
+          "paired": {
+            "english_only_wrong": 40,
+            "turkish_only_wrong": 22,
+            "p": 0.030015864349067292,
+            "p_holm": 0.21011105044347106
+          }
+        },
+        {
+          "name": "Inception Mercury Decide",
+          "text_run": 204,
+          "english": {
+            "run": 450,
+            "right": 465,
+            "wrong": 71,
+            "dont_know": 11,
+            "invalid": 0,
+            "accuracy": 0.850091407678245,
+            "attempt_rate": 0.979890310786106,
+            "non_hallucination": 0.13414634146341464,
+            "mean_dont_know_probability": 0.031531572744804136
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
+          "name": "Microsoft-Decision-1",
+          "text_run": 205,
+          "english": {
+            "run": 451,
+            "right": 467,
+            "wrong": 77,
+            "dont_know": 3,
+            "invalid": 0,
+            "accuracy": 0.8537477148080439,
+            "attempt_rate": 0.9945155393053017,
+            "non_hallucination": 0.0375,
+            "mean_dont_know_probability": 0.03592171404356558
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
+          "name": "Elephant-1",
+          "text_run": 373,
+          "english": {
+            "run": 501,
+            "right": 457,
+            "wrong": 67,
+            "dont_know": 23,
+            "invalid": 0,
+            "accuracy": 0.8354661791590493,
+            "attempt_rate": 0.9579524680073126,
+            "non_hallucination": 0.25555555555555554,
+            "mean_dont_know_probability": 0.06769455393053016
+          },
+          "turkish": {
+            "run": 515,
+            "right": 441,
+            "wrong": 82,
+            "dont_know": 24,
+            "invalid": 0,
+            "accuracy": 0.8062157221206582,
+            "attempt_rate": 0.9561243144424132,
+            "non_hallucination": 0.22641509433962265,
+            "mean_dont_know_probability": 0.07318174954296161
+          },
+          "paired": {
+            "english_only_wrong": 31,
+            "turkish_only_wrong": 46,
+            "p": 0.11001559898513336,
+            "p_holm": 0.4400623959405334
+          }
+        },
+        {
+          "name": "Celeris-1 Decision",
+          "text_run": 150,
+          "english": {
+            "run": 548,
+            "right": 418,
+            "wrong": 37,
+            "dont_know": 92,
+            "invalid": 0,
+            "accuracy": 0.7641681901279708,
+            "attempt_rate": 0.8318098720292505,
+            "non_hallucination": 0.7131782945736435,
+            "mean_dont_know_probability": 0.12687385740402193
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
+          "name": "GPT-6 Luna",
+          "text_run": 143,
+          "english": {
+            "run": 444,
+            "right": 441,
+            "wrong": 96,
+            "dont_know": 10,
+            "invalid": 0,
+            "accuracy": 0.8062157221206582,
+            "attempt_rate": 0.9817184643510055,
+            "non_hallucination": 0.09433962264150944,
+            "mean_dont_know_probability": 0.030073126142595975
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
+          "name": "Perplexity Decider Flash v1.2",
+          "text_run": 223,
+          "english": {
+            "run": 535,
+            "right": 442,
+            "wrong": 100,
+            "dont_know": 5,
+            "invalid": 0,
+            "accuracy": 0.8080438756855576,
+            "attempt_rate": 0.9908592321755028,
+            "non_hallucination": 0.047619047619047616,
+            "mean_dont_know_probability": 0.05526566245284184
+          },
+          "turkish": null,
+          "paired": null
         }
       ]
     }

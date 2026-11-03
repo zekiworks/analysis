@@ -47,7 +47,10 @@ the option written "I don't know" (`dont_know_option_word.vs_confidence`): each 
 its five-option run's derived cut-off with the neighbouring cut-offs and their answered counts, the achieved counts,
 the paired test of wrong answers and Holm's correction over the eligible family. Then Turkish and English coverage and
 risk on the kept reading questions (`english_reading.coverage`): every native abstention point and every point of every
-confidence curve. Then the same number of answers (`dont_know_same_answers`, Turkish: every main run; English: the
+confidence curve. Then "I don't know" in both languages (`english_reading.dont_know_word`): per English reading model
+the English first run with the option and the Turkish option-word run on the kept questions, their counts, rates and
+mean probability of the option, and where both exist the paired test of wrong answers with Holm's correction over
+those models. Then the same number of answers (`dont_know_same_answers`, Turkish: every main run; English: the
 English reading models): k from the reference's run with "I don't know", each model's wrong answers among exactly its
 first k (equal scores by question id), the difference from the reference with its paired bootstrap interval, p
 and Holm's p (the published seed and resamples), every entry's answers in the selection order (wrong_by_rank) and the
@@ -531,6 +534,18 @@ def main() -> int:
         f"{checked - len(coverage_mismatches)} of {checked} match"
     )
     for line in coverage_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    word_mismatches = check_dont_know_word(args.docs, results, answers, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\n\"I don't know\" in both languages on the kept reading questions (the English first run with the option and "
+        f"the Turkish option-word run, from their exported answers: counts exact, rates and mean probabilities within "
+        f"{METRIC_TOLERANCE:g}, p-values within a relative {P_TOLERANCE:g}, Holm over the models with both): "
+        f"{checked - len(word_mismatches)} of {checked} match"
+    )
+    for line in word_mismatches:
         print(line)
 
     before = checks.passed + checks.failed
@@ -1255,6 +1270,84 @@ def check_coverage(docs: Path, results: dict[str, Any], answers: dict[str, Any],
                            and close(published[1], recomputed[1], METRIC_TOLERANCE))
                 if "≠" in checks.cell(matched, str(recomputed), str(published)):
                     mismatches.append(f"  {label} point {index}: {recomputed} ≠ {published}")
+    return mismatches
+
+
+def check_dont_know_word(docs: Path, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
+    """Recompute `english_reading.dont_know_word` ("I don't know" in both languages) from answers.json on
+    english-reading.json's kept questions: per English reading model, in that order, the English side (the first
+    English run with "I don't know" of `english_reading.dont_know`, also in english_only) and the Turkish side (the
+    option-word run of its Hallucination tab row, from dont_know_word_runs), null where there is none, each with right,
+    wrong, "I don't know", invalid (adding to the kept questions), accuracy, attempt rate, non-hallucination rate (null
+    without "I don't know" or wrong answers) and mean probability of the option; paired exactly where both sides exist:
+    wrong answers only in English and only in Turkish, exact McNemar p and Holm's correction over those models.
+    Returns a line per mismatch."""
+    section = (results.get("english_reading") or {}).get("dont_know_word")
+    if section is None:
+        return []
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, metric: bool = False, p: bool = False) -> None:
+        if p:
+            matched = close(published, recomputed, relative=P_TOLERANCE)
+        else:
+            matched = close(published, recomputed, METRIC_TOLERANCE) if metric else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    public = json.loads((docs / "english-reading.json").read_text(encoding="utf-8"))
+    position = {question: index for index, question in enumerate(answers["questions"]["id"])}
+    kept = [position[item["question_id"]] for item in public["questions"] if item["kept"]]
+    total = len(kept)
+    check("questions", [section["questions"], public["kept"]], [total, total])
+    option = "I don't know"
+    check("option and sentence", [section.get("option"), section.get("sentence")],
+          [option, f"If you do not know the answer, choose {option}."])
+    reading = results["english_reading"]
+    idk = reading.get("dont_know") or {}
+    english_run = {model["text_run"]: model["english"]["run"] for model in idk.get("models", []) + idk.get("english_only", [])}
+    original = {row["run"]: row["original_run"] for row in (results.get("dont_know") or {}).get("models", [])}
+    word_run = {original[model["bilmiyorum"]["run"]]: model["i_dont_know"]["run"]
+                for model in (results.get("dont_know_option_word") or {}).get("models", [])}
+    lists = {"english": {run["run"]: run for run in answers.get("english_dont_know_runs", [])},
+             "turkish": {run["run"]: run for run in answers.get("dont_know_word_runs", [])}}
+    check("models", [(model["name"], model["text_run"]) for model in section["models"]],
+          [(model["name"], model["turkish_run"]) for model in reading["models"]])
+    tests = []
+    for model, entry in zip(reading["models"], section["models"]):
+        name, text_run = model["name"], model["turkish_run"]
+        wrong_answers = {}
+        for side, run_id in (("english", english_run.get(text_run)), ("turkish", word_run.get(text_run))):
+            label, item = f"{name} {side}", entry.get(side)
+            if run_id is None:
+                check(f"{label} not measured", item, None)
+                continue
+            if item is None:
+                check(f"{label} measured", None, run_id)
+                continue
+            run = lists[side][run_id]
+            check(f"{label} asked every kept question", True, all(run["correct"][index] is not None for index in kept))
+            found = counted_dont_know(run, kept)
+            counts = [run_id, found["right"], found["wrong"], found["dont_know"], found["invalid"]]
+            check(f"{label} run and counts", [item.get(key) for key in ("run", "right", "wrong", "dont_know", "invalid")], counts)
+            check(f"{label} counts add to {total}", sum(counts[1:]), total)
+            for key in ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability"):
+                check(f"{label} {key}", item.get(key), found[key], metric=True)
+            wrong_answers[side] = found["wrong_answers"]
+        if len(wrong_answers) == 2:
+            test = bm.paired_comparison(wrong_answers["english"], wrong_answers["turkish"])
+            tests.append((name, entry.get("paired"), test))
+        else:
+            check(f"{name} paired", entry.get("paired"), None)
+    adjusted = bm.holm([test["p"] for _, _, test in tests])
+    for (name, paired, test), p_holm in zip(tests, adjusted):
+        if paired is None:
+            check(f"{name} paired", None, "present")
+            continue
+        check(f"{name} paired counts", [paired.get("english_only_wrong"), paired.get("turkish_only_wrong")],
+              [test["first_only"], test["second_only"]])
+        check(f"{name} p", paired.get("p"), test["p"], p=True)
+        check(f"{name} p_holm", paired.get("p_holm"), p_holm, p=True)
     return mismatches
 
 
