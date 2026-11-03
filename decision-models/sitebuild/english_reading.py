@@ -921,19 +921,25 @@ def redirect(site: Site) -> str:
 
 
 def option_word(site: Site) -> str:
-    """The option's word on this tab: for each model of results.json's dont_know_option_word, the non-hallucination
-    rate with “Bilmiyorum” and with “I don't know” on the Hallucination tab's Turkish questions, with the counts, the
-    difference and the paired test's Holm-adjusted p; checked and ordered as the Hallucination tab does."""
+    """The option's word on this tab: for each model of results.json's dont_know_option_word, Answered and Wrong of
+    answers with “Bilmiyorum” and with “I don't know” on the Hallucination tab's Turkish questions, then the
+    non-hallucination rates with the counts, the difference and the paired test's Holm-adjusted p; checked and ordered
+    as the Hallucination tab does."""
     data, word = site.results["dont_know"], site.results.get("dont_know_option_word")
     if not word:
         return ""
     check_option_word(site, data, word)
-    digits = site.config["percent_digits"]
+    digits, total = site.config["percent_digits"], word["questions"]
     old, new = data["option"], word["option"]
-    note = "the option / (the option + wrong); higher is better"
-    heads = (f"Non-hallucination with “{old}” ({note})", f"Non-hallucination with “{new}” ({note})",
-             f"Difference (“{new}” minus “{old}”, in points; positive = higher with the English word)",
-             "Holm-adjusted p (exact McNemar test of wrong answers)")
+    heads = tuple(f"Answered with “{text}” ((right + wrong) / questions; higher is better)" for text in (old, new)) + tuple(
+        f"Wrong of answers with “{text}” (wrong / (right + wrong); lower is better)" for text in (old, new)) + tuple(
+        f"Non-hallucination with “{text}” (“{text}” / (“{text}” + wrong); higher is better)" for text in (old, new)) + (
+        f"Difference (“{new}” minus “{old}” in non-hallucination, in points; positive = higher with the English word)",
+        "Holm-adjusted p (exact McNemar test of wrong answers)")
+
+    def answered(counts: dict[str, Any]) -> str:
+        count = counts["right"] + counts["wrong"]
+        return f'{pct(count / total, digits)}<span class="small">{count:,} of {total:,} answered</span>'
 
     def rate(counts: dict[str, Any], option: str) -> str:
         value = counts["non_hallucination"]
@@ -951,7 +957,8 @@ def option_word(site: Site) -> str:
         run = site.by_id[model["original_run"]]
         name = (f'<td class="model"><a class="model-name" href="{rel(PATH, site.model_path(run))}">'
                 f'{esc(site.row_name(run))}</a></td>')
-        values = (rate(b, old), rate(e, new), difference, holm)
+        values = (answered(b), answered(e), wrong_of_answers(b, digits), wrong_of_answers(e, digits), rate(b, old),
+                  rate(e, new), difference, holm)
         rows.append(f"<tr>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text.split(" (")[0])}<span class="small">{esc(text.split(" (", 1)[1][:-1])}</span></th>'
                    for text in heads)
@@ -963,9 +970,11 @@ def option_word(site: Site) -> str:
             f'method are on the <a href="{rel(PATH, "dont-know/")}#option-word">Hallucination tab</a>.</p>'
             f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr>'
             f'</thead><tbody>{"".join(rows)}</tbody></table></div>'
-            f'<p class="note">Counts: of the {word["questions"]:,} questions, the right answers, the wrong ones and the '
-            "option. * marks a difference whose paired test (the exact McNemar test on the questions only one of the two "
-            f"runs got wrong, with p adjusted by Holm's method over the models) has a Holm-adjusted p below {SIGNIFICANT:g}.</p>"
+            f'<p class="note">Answered: (right + wrong) / {total:,} questions. Wrong of answers: wrong / (right + wrong). '
+            f"Both are worked out from the published counts; under each non-hallucination rate, of the {total:,} questions, "
+            "the right answers, the wrong ones and the option. * marks a difference whose paired test (the exact McNemar "
+            "test on the questions only one of the two runs got wrong, with p adjusted by Holm's method over the models) "
+            f"has a Holm-adjusted p below {SIGNIFICANT:g}.</p>"
             "</section>")
 
 
