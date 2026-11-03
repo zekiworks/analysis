@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 64cea0e4 (3 November 2026)
+
+- Hallucination tab, new section: the same number of answers, in `results.json` (`dont_know_same_answers`), from runs already published. Each model's five-option run keeps its k most confident answers, k being Liquid d1-ultra's answered count with “I don't know” (1,582 of the 2,198 Turkish questions, run 511; 496 of the 547 kept English questions, run 449), and tied scores at the k-th answer count in proportion. In Turkish, Liquid d1-ultra's five-option run keeps 167 wrong of 1,582 (10.6%), and all 10 other models keep significantly more, 7.7 to 26.5 points more (paired bootstrap over questions with 10,000 resamples, Holm's correction over the 10; hosted GLiDE with its five-option run 517). In English, it keeps 29 wrong of 496 (5.8%); 6 of the 13 others keep significantly more (Inception Mercury Decide, Microsoft-Decision-1, Elephant-1, Celeris-1 Decision, GPT-6 Luna and Perplexity Decider Flash v1.2) and none significantly fewer. Each model's curve of wrong of answers against answered is drawn with its runs with the option marked.
+- Every “I don't know” table (the Hallucination tab's, the option word's, the English questions' on both tabs and the four models') now leads with Answered ((right + wrong) / questions; higher is better) and Wrong of answers (wrong / (right + wrong); lower is better), worked out from the published counts; the non-hallucination rate follows with its formula. No other number changed.
+
 ## Results ce52c83e (3 November 2026)
 
 Analyses of the existing runs only, approved by Ümit; no new run, and no published measurement changed.

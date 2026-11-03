@@ -47,23 +47,28 @@ the option written "I don't know" (`dont_know_option_word.vs_confidence`): each 
 its five-option run's derived cut-off with the neighbouring cut-offs and their answered counts, the achieved counts,
 the paired test of wrong answers and Holm's correction over the eligible family. Then Turkish and English coverage and
 risk on the kept reading questions (`english_reading.coverage`): every native abstention point and every point of every
-confidence curve. Last the footer date (`updated`, when results with this content first went out): never older than a
-published run's date, and with --report never older than the newest `updated` of the runs answers.json publishes. Uses only
-the standard library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with
-status 1 when anything differs beyond the tolerances printed.
+confidence curve. Then the same number of answers (`dont_know_same_answers`): k from the reference's run with "I don't
+know", each model's expected wrong answers among its k most confident (ties at k in proportion), the difference from
+the reference with its paired bootstrap interval, p and Holm's p (the published seed and resamples), each Turkish curve
+and each model's runs with the option. Last the footer date (`updated`, when results with this content first went
+out): never older than a published run's date, and with --report never older than the newest `updated` of the runs
+answers.json publishes. Uses only the standard library and benchmark_metrics.py, the metric code the benchmark report
+uses. Exits with status 1 when anything differs beyond the tolerances printed.
 """
 
 from __future__ import annotations
 
 import argparse
+import bisect
 import hashlib
 import itertools
 import json
 import math
+import random
 import re
 import statistics
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -525,6 +530,17 @@ def main() -> int:
         f"{checked - len(coverage_mismatches)} of {checked} match"
     )
     for line in coverage_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    same_mismatches = check_same_answers(args.docs, results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nThe same number of answers (each model's k most confident answers, from the five-option and option runs' "
+        f"exported answers: k, wrong answers, differences, curves and option points exact, bootstrap p and Holm's p within "
+        f"a relative {P_TOLERANCE:g}, intervals within {INTERVAL_TOLERANCE:g}): {checked - len(same_mismatches)} of {checked} match"
+    )
+    for line in same_mismatches:
         print(line)
 
     before = checks.passed + checks.failed
@@ -1237,6 +1253,195 @@ def check_coverage(docs: Path, results: dict[str, Any], answers: dict[str, Any],
                            and close(published[1], recomputed[1], METRIC_TOLERANCE))
                 if "≠" in checks.cell(matched, str(recomputed), str(published)):
                     mismatches.append(f"  {label} point {index}: {recomputed} ≠ {published}")
+    return mismatches
+
+
+# The same number of answers (results.json `dont_know_same_answers`): its reference, bootstrap resamples and seed, the
+# interval's tail (the 250th smallest and largest resampled difference) and the interval's tolerance (absolute).
+SAME_ANSWERS = {"reference": "Liquid d1-ultra", "resamples": 10000, "seed": 20261103}
+SAME_ANSWERS_TAIL = 250
+INTERVAL_TOLERANCE = 1e-12
+
+
+def kept_ranking(run: dict[str, Any], positions: list[int]) -> tuple[list[float], list[int], list[int]]:
+    """A run's scored answers (score and choice not null) on the questions at `positions`, highest score first: the
+    negated scores, the question positions (indices into `positions`) and 1 for a wrong answer, 0 for a right one."""
+    ranked = sorted((-float(run["score"][index]), position, int(not run["correct"][index]))
+                    for position, index in enumerate(positions) if run["score"][index] is not None and run["choice"][index] is not None)
+    return [item[0] for item in ranked], [item[1] for item in ranked], [item[2] for item in ranked]
+
+
+def expected_wrong(ranking: tuple[list[float], list[int], list[int]], weights: list[int], k: int) -> float | None:
+    """The expected wrong answers among the k most confident of a ranking (kept_ranking), each answer counting `weights`
+    of its question position times, with the group of equal scores at the k-th place counted in proportion; None when
+    the weighted answers are fewer than k."""
+    negated, order, wrong = ranking
+    counts = [weights[position] for position in order]
+    taken = list(itertools.accumulate(counts))
+    if not taken or taken[-1] < k:
+        return None
+    errors = list(itertools.accumulate(count * flag for count, flag in zip(counts, wrong)))
+    at = bisect.bisect_left(taken, k)
+    start, end = bisect.bisect_left(negated, negated[at]), bisect.bisect_right(negated, negated[at])
+    taken_above = taken[start - 1] if start else 0
+    wrong_above = errors[start - 1] if start else 0
+    taken_tied, wrong_tied = taken[end - 1] - taken_above, errors[end - 1] - wrong_above
+    return wrong_above + (k - taken_above) * wrong_tied / taken_tied
+
+
+def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute `dont_know_same_answers` from answers.json: per family (Turkish: the Hallucination tab's models on the
+    scored questions, each with its original run or the hosted GLiDE rerun for the run it replaces; English: the English
+    reading models on english-reading.json's kept questions in answers.json order, each with its first English run) k
+    and its run (the reference's answered count with "I don't know"), each model's expected wrong answers among its k
+    most confident (ties at k in proportion), wrong of answers and difference from the reference (exact), the paired
+    bootstrap over questions with the published seed and resamples (p within a relative P_TOLERANCE, interval within
+    INTERVAL_TOLERANCE), Holm's correction over the non-reference models, each Turkish curve (exact), each English curve's
+    run in `english_reading.coverage`, and each model's runs with the option (answered and wrong, exact). Returns a line
+    per mismatch."""
+    section = results.get("dont_know_same_answers")
+    if section is None:
+        return []
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, p: bool = False, interval: bool = False) -> None:
+        if p:
+            matched = close(published, recomputed, relative=P_TOLERANCE)
+        elif interval:
+            matched = (published is None and recomputed is None) or (
+                published is not None and recomputed is not None and len(published) == len(recomputed) == 2
+                and all(close(a, b, INTERVAL_TOLERANCE) for a, b in zip(published, recomputed)))
+        else:
+            matched = published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    check("reference, resamples, seed", [section.get(key) for key in SAME_ANSWERS], list(SAME_ANSWERS.values()))
+    reference, resamples = SAME_ANSWERS["reference"], SAME_ANSWERS["resamples"]
+    lists = {key: {run["run"]: run for run in found} for key, found in answers.items() if key.endswith("runs")}
+
+    def option_counts(run: dict[str, Any] | None, positions: list[int]) -> tuple[int, int] | None:
+        if run is None or any(run["correct"][index] is None for index in positions):
+            return None
+        answered = [index for index in positions if run["choice"][index] not in (None, DONT_KNOW_LETTER)]
+        return len(answered), sum(1 for index in answered if not run["correct"][index])
+
+    def family(label: str, published: dict[str, Any], positions: list[int], expected: list[dict[str, Any]]) -> None:
+        """`expected`: per model its name, text_run, five-option run, replaces_run (Turkish only), the list its
+        five-option run is in, and its runs with the option as (wording, list, run)."""
+        check(f"{label} questions", published["questions"], len(positions))
+        check(f"{label} models", [model["name"] for model in published["models"]], [item["name"] for item in expected])
+        points = []
+        for item in expected:
+            found = []
+            for wording, key, run_id in item["points"]:
+                counts = option_counts(lists.get(key, {}).get(run_id), positions)
+                found.append(None if counts is None else {"wording": wording, "run": run_id, "answered": counts[0], "wrong": counts[1]})
+            points.append(found)
+        names = [item["name"] for item in expected]
+        if reference not in names:
+            check(f"{label} reference among the models", True, False)
+            return
+        at = names.index(reference)
+        k_point = next((point for point in points[at] if point is not None and point["wording"] == "I don't know"), None)
+        k, k_run = (None, None) if k_point is None else (k_point["answered"], k_point["run"])
+        check(f"{label} k, k_run, k_wording", [published["k"], published["k_run"], published["k_wording"]], [k, k_run, "I don't know"])
+        if k is None:
+            return
+        rankings = []
+        for item, model, found in zip(expected, published["models"], points):
+            name = f"{label} {item['name']}"
+            keys = ["text_run", "five_option_run"] + (["replaces_run"] if "replaces_run" in item else [])
+            check(f"{name} runs", [model.get(key) for key in keys], [item[key] for key in keys])
+            check(f"{name} points", model["points"], found)
+            run = lists.get(item["list"], {}).get(item["five_option_run"])
+            if run is None or any(run["correct"][index] is None for index in positions):
+                check(f"{name} five-option run in answers.json, asked every question", True, False)
+                return
+            ranking = kept_ranking(run, positions)
+            rankings.append(ranking)
+            wrong = expected_wrong(ranking, [1] * len(positions), k)
+            check(f"{name} wrong", model["wrong"], wrong)
+            check(f"{name} wrong_of_answers", model["wrong_of_answers"], None if wrong is None else wrong / k)
+            if wrong is None:
+                return
+            if "curve" in item:
+                distinct = Counter(ranking[0])
+                errors = Counter(score for score, flag in zip(ranking[0], ranking[2]) if flag)
+                curve, answered, wrong_so_far = [], 0, 0
+                for score in sorted(distinct):
+                    answered += distinct[score]
+                    wrong_so_far += errors[score]
+                    curve.append([answered, wrong_so_far])
+                check(f"{name} curve ({len(curve)} points)", model.get("curve"), curve)
+            else:
+                check(f"{name} no curve of its own", "curve" in model, False)
+                check(f"{name} English curve's run", item["coverage_run"], item["five_option_run"])
+        reference_rate = published["models"][at]["wrong_of_answers"]
+        rng = random.Random(SAME_ANSWERS["seed"])
+        drawn: list[list[float]] = [[] for _ in rankings]
+        short = None
+        for resample in range(resamples):
+            times = Counter(rng.choices(range(len(positions)), k=len(positions)))
+            weights = [times[position] for position in range(len(positions))]
+            rates = [expected_wrong(ranking, weights, k) for ranking in rankings]
+            if None in rates:
+                short = resample + 1
+                break
+            for index, rate in enumerate(rates):
+                drawn[index].append(rate / k - rates[at] / k)
+        check(f"{label} every resample keeps k answers of every model", short, None)
+        if short is not None:
+            return
+        others = [index for index in range(len(rankings)) if index != at]
+        p_values = {}
+        for index in range(len(rankings)):
+            model, name = published["models"][index], f"{label} {expected[index]['name']}"
+            if index == at:
+                check(f"{name} (reference) difference, interval, p, p_holm",
+                      [model["difference"], model["interval"], model["p"], model["p_holm"]], [None, None, None, None])
+                continue
+            differences = sorted(drawn[index])
+            check(f"{name} difference", model["difference"], model["wrong_of_answers"] - reference_rate)
+            check(f"{name} interval", model["interval"],
+                  [differences[SAME_ANSWERS_TAIL - 1], differences[resamples - SAME_ANSWERS_TAIL]], interval=True)
+            low = sum(1 for value in differences if value <= 0)
+            high = sum(1 for value in differences if value >= 0)
+            p_values[index] = min(1, 2 * min(1 + low, 1 + high) / (resamples + 1))
+            check(f"{name} p", model["p"], p_values[index], p=True)
+        for index, adjusted in zip(others, bm.holm([p_values[index] for index in others])):
+            check(f"{label} {expected[index]['name']} p_holm", published["models"][index]["p_holm"], adjusted, p=True)
+
+    rerun = results.get("hosted_glide_rerun") or {}
+    words = {model["bilmiyorum"]["run"]: model["i_dont_know"]["run"]
+             for model in (results.get("dont_know_option_word") or {}).get("models", [])}
+    turkish = []
+    for row in results["dont_know"]["models"]:
+        replaced = row["original_run"] == rerun.get("replaces_run")
+        option_runs = [("Bilmiyorum", "dont_know_runs", row["run"])]
+        if row["run"] in words:
+            option_runs.append(("I don't know", "dont_know_word_runs", words[row["run"]]))
+        turkish.append({"name": row["name"], "text_run": row["original_run"],
+                        "five_option_run": rerun["run"] if replaced else row["original_run"],
+                        "replaces_run": row["original_run"] if replaced else None,
+                        "list": "rerun_runs" if replaced else "runs", "points": option_runs, "curve": True})
+    family("Turkish", section["turkish"], scored, turkish)
+
+    public = json.loads((docs / "english-reading.json").read_text(encoding="utf-8"))
+    position = {question: index for index, question in enumerate(answers["questions"]["id"])}
+    kept = sorted(position[item["question_id"]] for item in public["questions"] if item["kept"])
+    reading = results["english_reading"]
+    idk = reading.get("dont_know") or {}
+    first_english = {model["text_run"]: model["english"]["run"] for model in idk.get("models", []) + idk.get("english_only", [])}
+    coverage_runs = {model["text_run"]: next((curve["run"] for curve in model["curves"] if curve["language"] == "English"), None)
+                     for model in reading["coverage"]["models"]}
+    english = []
+    for model in reading["models"]:
+        text_run = model["turkish_run"]
+        option_runs = [("I don't know", "english_dont_know_runs", first_english[text_run])] if text_run in first_english else []
+        english.append({"name": model["name"], "text_run": text_run, "five_option_run": model["run"], "list": "english_runs",
+                        "points": option_runs, "coverage_run": coverage_runs.get(text_run)})
+    family("English", section["english"], kept, english)
     return mismatches
 
 

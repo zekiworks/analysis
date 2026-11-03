@@ -119,11 +119,14 @@ def marker_path(shape: str, x: float, y: float) -> str:
     return f'<path transform="translate({x:.1f} {y:.1f})" d="{MARKERS[shape]}"/>'
 
 
-def line_plot(series: list[dict[str, Any]], x_title: str, y_title: str, y_top: float, label: str) -> str:
+def line_plot(series: list[dict[str, Any]], x_title: str, y_title: str, y_top: float, label: str,
+              guides: tuple[tuple[float, str, str], ...] = ()) -> str:
     """An inline SVG plot without a script, readable in both themes (axes and text in the site's CSS variables, inside
     .chart-box): x from 0 to 1 and y from 0 to y_top, both in percent, a tick at each fifth of x and each quarter of y.
     Each series: colour, title (its tooltip), points [(x, y, tooltip)], and either line=True (drawn as a line through
-    its points in order) or shape (a MARKERS key, one marker per point, each with its own tooltip)."""
+    its points in order, dashed by its optional dash, an SVG stroke-dasharray) or shape (a MARKERS key, one marker per
+    point, each with its own tooltip). A value above y_top is drawn at the top edge. Each guide: (x, short label,
+    tooltip), a dashed vertical line with its label at the top."""
     width, height, left, right, top, bottom = 440, 340, 54, 16, 12, 48
     plot_w, plot_h = width - left - right, height - top - bottom
     px = lambda value: left + plot_w * min(max(value, 0.0), 1.0)  # noqa: E731
@@ -142,9 +145,15 @@ def line_plot(series: list[dict[str, Any]], x_title: str, y_title: str, y_top: f
                  f'<text class="axis-title" x="{left + plot_w / 2:.1f}" y="{height - 8}" text-anchor="middle">{esc(x_title)}</text>'
                  f'<text class="axis-title" transform="translate(14 {top + plot_h / 2:.1f}) rotate(-90)" '
                  f'text-anchor="middle">{esc(y_title)}</text>')
+    for x, text, tip in guides:
+        anchor, shift = ("end", -4) if x > 0.75 else ("start", 4)
+        parts.append(f'<g><title>{esc(tip)}</title><line x1="{px(x):.1f}" y1="{top}" x2="{px(x):.1f}" y2="{top + plot_h}" '
+                     'stroke="var(--text-2)" stroke-width="1.2" stroke-dasharray="5 4"/>'
+                     f'<text class="tick" x="{px(x) + shift:.1f}" y="{top + 12}" text-anchor="{anchor}">{esc(text)}</text></g>')
     for item in (item for item in series if item.get("line")):
         points = " ".join(f"{px(x):.1f},{py(y):.1f}" for x, y, _ in item["points"])
-        parts.append(f'<polyline fill="none" stroke="{item["colour"]}" stroke-width="1.8" stroke-linejoin="round" '
+        dash = f' stroke-dasharray="{item["dash"]}"' if item.get("dash") else ""
+        parts.append(f'<polyline fill="none" stroke="{item["colour"]}" stroke-width="1.8" stroke-linejoin="round"{dash} '
                      f'points="{points}"><title>{esc(item["title"])}</title></polyline>')
     for item in (item for item in series if not item.get("line")):
         marks = "".join(f'<g><title>{esc(tip)}</title>{marker_path(item["shape"], px(x), py(y))}</g>'
@@ -154,9 +163,11 @@ def line_plot(series: list[dict[str, Any]], x_title: str, y_title: str, y_top: f
             f'preserveAspectRatio="xMidYMid meet">{"".join(parts)}</svg>')
 
 
-def legend_mark(colour: str, shape: str | None = None) -> str:
-    """A line_plot() legend key: a short line, or a marker of that shape, in the series' colour."""
-    inner = (f'<line x1="1" y1="7" x2="19" y2="7" stroke="{colour}" stroke-width="2.5"/>' if shape is None
+def legend_mark(colour: str, shape: str | None = None, dash: str | None = None) -> str:
+    """A line_plot() legend key: a short line (dashed when dash is given), or a marker of that shape, in the series'
+    colour."""
+    dashed = f' stroke-dasharray="{dash}"' if dash else ""
+    inner = (f'<line x1="1" y1="7" x2="19" y2="7" stroke="{colour}" stroke-width="2.5"{dashed}/>' if shape is None
              else f'<g fill="{colour}">{marker_path(shape, 10, 7)}</g>')
     return f'<svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true" style="vertical-align:middle">{inner}</svg>'
 

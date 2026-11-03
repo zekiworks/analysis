@@ -642,10 +642,12 @@ def dont_know_columns(idk: dict[str, Any]) -> tuple[tuple[str, str], ...]:
     return (
         ("English runs", "with “I don't know”; the first is compared"),
         ("Turkish runs", "with “Bilmiyorum”; the first is compared"),
-        ("English non-hallucination", f"“{option}” / (“{option}” + wrong); higher is better, read with the attempt rate"),
-        ("Turkish non-hallucination", "“Bilmiyorum” / (“Bilmiyorum” + wrong); higher is better, read with the attempt rate"),
-        ("English attempt rate", f"(right + wrong) / {idk['questions']:,}"),
-        ("Turkish attempt rate", f"(right + wrong) / {idk['questions']:,}"),
+        ("English answered", f"(right + wrong) / {idk['questions']:,}; higher is better"),
+        ("Turkish answered", f"(right + wrong) / {idk['questions']:,}; higher is better"),
+        ("English wrong of answers", "wrong / (right + wrong); lower is better"),
+        ("Turkish wrong of answers", "wrong / (right + wrong); lower is better"),
+        ("English non-hallucination", f"“{option}” / (“{option}” + wrong); higher is better, read with the answered share"),
+        ("Turkish non-hallucination", "“Bilmiyorum” / (“Bilmiyorum” + wrong); higher is better, read with the answered share"),
         ("English accuracy", "higher is better"),
         ("Turkish accuracy", "higher is better"),
         ("English mean probability", f"of “{option}”"),
@@ -655,6 +657,14 @@ def dont_know_columns(idk: dict[str, Any]) -> tuple[tuple[str, str], ...]:
         ("p", "exact McNemar"),
         ("Holm p", f"adjusted over the {family} model{'' if family == 1 else 's'}"),
     )
+
+
+def wrong_of_answers(counts: dict[str, Any], digits: int) -> str:
+    """Wrong / (right + wrong) with its counts, from the published counts; Not measured with no answer."""
+    answered = counts["right"] + counts["wrong"]
+    if not answered:
+        return '<span class="nm">Not measured</span><span class="small">no answers</span>'
+    return f'{pct(counts["wrong"] / answered, digits)}<span class="small">{counts["wrong"]:,} of {answered:,}</span>'
 
 
 def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str:
@@ -695,13 +705,18 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
     def answered(side: str) -> str:
         counts = model[side]
         invalid = f", {counts['invalid']:,} invalid" if counts["invalid"] else ""
-        return f"{counts['right'] + counts['wrong']:,} answered, {counts['dont_know']:,} “{esc(option(side))}”{invalid}"
+        return (f"{counts['right'] + counts['wrong']:,} of {total:,} answered, {counts['dont_know']:,} "
+                f"“{esc(option(side))}”{invalid}")
+
+    def wrong_of(side: str) -> str:
+        return wrong_of_answers(model[side], digits)
 
     paired = model["paired"]
     values = [
         runs("english"), runs("turkish"),
-        value("english", "non_hallucination", not_right("english")), value("turkish", "non_hallucination", not_right("turkish")),
         value("english", "attempt_rate", answered("english")), value("turkish", "attempt_rate", answered("turkish")),
+        wrong_of("english"), wrong_of("turkish"),
+        value("english", "non_hallucination", not_right("english")), value("turkish", "non_hallucination", not_right("turkish")),
         value("english", "accuracy", f"{model['english']['right']:,} of {total:,} right"),
         value("turkish", "accuracy", f"{model['turkish']['right']:,} of {total:,} right"),
         value("english", "mean_dont_know_probability", ""), value("turkish", "mean_dont_know_probability", ""),
@@ -733,9 +748,10 @@ def english_only_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> 
     values = [
         run_span(counts["runs"]) + f'<span class="small">{"new runs" if len(counts["runs"]) > 1 else "a new run"}</span>',
         not_measured,
-        value("non_hallucination", f"{counts['dont_know']:,} “{option}” of {counts['dont_know'] + counts['wrong']:,} not right"),
+        value("attempt_rate", f"{counts['right'] + counts['wrong']:,} of {total:,} answered, {counts['dont_know']:,} “{option}”{invalid}"),
         not_measured,
-        value("attempt_rate", f"{counts['right'] + counts['wrong']:,} answered, {counts['dont_know']:,} “{option}”{invalid}"),
+        wrong_of_answers(counts, digits), not_measured,
+        value("non_hallucination", f"{counts['dont_know']:,} “{option}” of {counts['dont_know'] + counts['wrong']:,} not right"),
         not_measured,
         value("accuracy", f"{counts['right']:,} of {total:,} right"), not_measured,
         value("mean_dont_know_probability", ""), not_measured,
@@ -825,7 +841,7 @@ def dont_know_info(site: Site, idk: dict[str, Any]) -> str:
       <h3>Runs</h3>
       <p>{dont_know_runs(site, idk)}. These runs are kept out of the leaderboard, its repeats, the Hallucination tab and the accuracy comparison above.</p>
       <h3>The rates and how to read them</h3>
-      <p>Each answer is right, wrong, the option or invalid. Out of the {total} kept questions, accuracy is right / {total}, the attempt rate is (right + wrong) / {total}, and the non-hallucination rate is the option / (the option + wrong): among the answers that were not right, the share where the model said it did not know. As the Hallucination tab says, it is not a direct measure of what the model does not know: a model that always chose the option would reach 100% with no right answers, so read it with the attempt rate. With neither a wrong answer nor the option, the rate is undefined (Not measured). The mean probability is the probability the model gave the option, averaged over its answers that report option probabilities. The paired test is the exact McNemar test on the questions only one of the two first runs got wrong, with p adjusted by Holm's method over the {family} model{"" if family == 1 else "s"}. No new combined score is made from these rates.</p>
+      <p>Each answer is right, wrong, the option or invalid. Out of the {total} kept questions, accuracy is right / {total}; Answered is (right + wrong) / {total}, the share of questions the model answered (the attempt rate), higher is better; Wrong of answers is wrong / (right + wrong), the share of its answers that were wrong, lower is better, and Not measured when it answered none. These two lead the table, with their counts under them. The non-hallucination rate, after them, is the option / (the option + wrong): among the answers that were not right, the share where the model said it did not know. As the Hallucination tab says, it is not a direct measure of what the model does not know: a model that always chose the option would reach 100% with no right answers, so read it with the attempt rate. With neither a wrong answer nor the option, the rate is undefined (Not measured). The mean probability is the probability the model gave the option, averaged over its answers that report option probabilities. The paired test is the exact McNemar test on the questions only one of the two first runs got wrong, with p adjusted by Holm's method over the {family} model{"" if family == 1 else "s"}. No new combined score is made from these rates.</p>
     </section>"""
 
 
