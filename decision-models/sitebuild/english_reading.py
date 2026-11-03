@@ -236,6 +236,7 @@ def main_table(site: Site, data: dict[str, Any]) -> str:
     digits = site.config["percent_digits"]
     idk = data.get("dont_know") or {}
     matched = {(model["provider"], model["model"]): model for model in idk.get("models", [])}
+    alone = {(model["provider"], model["model"]): model for model in english_only(idk)}
     listed = {model["run"]: model for model in site.config["model_languages"]["models"]}
     missing = [model["name"] for model in data["models"] if model["turkish_run"] not in listed]
     if missing:
@@ -260,7 +261,10 @@ def main_table(site: Site, data: dict[str, Any]) -> str:
         values = [pct(model["turkish"]["accuracy"], digits), pct(model["english"]["accuracy"], digits),
                   f"{100 * model['difference']:+.{digits}f}{' *' if significant(model) else ''}"]
         other = matched.get((model["provider"], model["model"]))
-        if other is None:
+        single = alone.get((model["provider"], model["model"]))
+        if single is not None:
+            values += ['<span class="nm">Not run</span>', rate(single["english"]), '<span class="nm">Not measured</span>']
+        elif other is None:
             values += ['<span class="nm">Not run</span>'] * 3
         else:
             tr, en = other["turkish"]["non_hallucination"], other["english"]["non_hallucination"]
@@ -453,8 +457,35 @@ def check_dont_know(site: Site, data: dict[str, Any], idk: dict[str, Any]) -> No
             problems.append(f"{name}: p {paired['p']} and Holm p {paired['p_holm']} do not fit")
         if model["english"].get("subset"):
             problems.append(f"{name}: the English side is marked as a subset run")
+    paired_keys = {(model["provider"], model["model"]) for model in idk["models"]}
+    for model in english_only(idk):
+        name, counts = model["name"], model["english"]
+        other = compared.get(model["text_run"])
+        if other is None or name != other["name"] or model["provider"] != other["provider"] or model["model"] != other["model"]:
+            problems.append(f"{name}: English only, but not the model of an accuracy comparison entry (Text tab run {model['text_run']})")
+        if (model["provider"], model["model"]) in paired_keys:
+            problems.append(f"{name}: English only, but also among the paired models")
+        if counts["right"] + counts["wrong"] + counts["dont_know"] + counts["invalid"] != total:
+            problems.append(f"{name}: its English answers do not add up to {total}")
+        if not close(counts["accuracy"], counts["right"] / total) or \
+                not close(counts["attempt_rate"], (counts["right"] + counts["wrong"]) / total):
+            problems.append(f"{name}: its English accuracy or attempt rate is not its counts")
+        unsure = counts["dont_know"] + counts["wrong"]
+        if (counts["non_hallucination"] is None) != (unsure == 0) or \
+                (unsure and not close(counts["non_hallucination"], counts["dont_know"] / unsure)):
+            problems.append(f"{name}: its English non-hallucination rate is not its counts")
+        if not counts["runs"] or counts["runs"][0] != counts["run"]:
+            problems.append(f"{name}: the first English run is not the one shown")
+        if not model.get("reason"):
+            problems.append(f"{name}: English only without a reason")
     if problems:
         raise SystemExit("english_reading dont_know:\n  " + "\n  ".join(problems))
+
+
+def english_only(idk: dict[str, Any]) -> list[dict[str, Any]]:
+    """results.json's english_reading.dont_know.english_only: models with English "I don't know" runs and no Turkish run
+    with “Bilmiyorum” on the kept questions, so in no paired test or Holm family."""
+    return idk.get("english_only") or []
 
 
 def idk_label(site: Site, model: dict[str, Any]) -> str:
@@ -476,6 +507,7 @@ def rate_text(value: float | None, digits: int) -> str:
 def dont_know_summary(site: Site, idk: dict[str, Any]) -> str:
     """One paragraph from the data: how many models had the higher non-hallucination rate in English, and which paired
     differences in wrong answers are significant after Holm's correction."""
+    digits = site.config["percent_digits"]
     models = idk["models"]
     total = len(models)
     rated = [model for model in models
@@ -500,7 +532,14 @@ def dont_know_summary(site: Site, idk: dict[str, Any]) -> str:
                         for model in found])
         verdict = (f"{bp.in_words(len(found))} of the {bp.in_words(total)} differences in wrong answers "
                    f"{'is' if len(found) == 1 else 'are'} significant after Holm's correction: {named}")
-    return (f"<p>{'; '.join(parts)}; {verdict} (<a href=\"#chart-idk-paired\">Paired test</a>). Read each rate with its "
+    alone = ""
+    for model in english_only(idk):
+        counts = model["english"]
+        alone += (f" {esc(idk_label(site, model))} has an English rate of {rate_text(counts['non_hallucination'], digits)} "
+                  f"({counts['dont_know']:,} “{esc(idk['option'])}” of {counts['dont_know'] + counts['wrong']:,} not right) "
+                  f"with an attempt rate of {pct(counts['attempt_rate'], digits)} ({counts['right'] + counts['wrong']:,} "
+                  f"answered) but no Turkish run with “Bilmiyorum” on these questions, so no comparison or test.")
+    return (f"<p>{'; '.join(parts)}; {verdict} (<a href=\"#chart-idk-paired\">Paired test</a>).{alone} Read each rate with its "
             "attempt rate: a model that always chose the option would reach 100%.</p>")
 
 
@@ -521,6 +560,9 @@ def dont_know_charts(site: Site, idk: dict[str, Any]) -> str:
         return (f"{language} {rate_text(counts['non_hallucination'], digits)} ({counts['dont_know']:,} “{word}” "
                 f"of {counts['dont_know'] + counts['wrong']:,} not right), attempt rate {pct(counts['attempt_rate'], digits)}")
 
+    alone = [esc(idk_label(site, model)) for model in english_only(idk)]
+    not_charted = (f" <span>Not charted, with no Turkish run with “Bilmiyorum” on these questions: {joined(alone)} (in "
+                   "the table under Info).</span>") if alone else ""
     rates = card(
         "chart-idk-rates", "Non-hallucination rate in Turkish and in English",
         f"The option among the answers that were not right, on the {total:,} kept questions: each model's first run in each "
@@ -539,7 +581,7 @@ def dont_know_charts(site: Site, idk: dict[str, Any]) -> str:
         "<span>Attempt rate, Turkish · English: "
         + esc("; ".join(f"{idk_label(site, model)} {pct(model['turkish']['attempt_rate'], digits)} · "
                         f"{pct(model['english']['attempt_rate'], digits)}" for model in models))
-        + ". A model that always chose the option would reach 100% with no right answers.</span>")
+        + ". A model that always chose the option would reach 100% with no right answers.</span>" + not_charted)
     tested = sorted(models, key=lambda model: (model["paired"]["p_holm"], model["paired"]["p"], idk_label(site, model).casefold()))
     counts = lambda model: (model["paired"]["english_only_wrong"], model["paired"]["turkish_only_wrong"])  # noqa: E731
     most = max(max(counts(model)) for model in tested)
@@ -570,7 +612,7 @@ def dont_know_charts(site: Site, idk: dict[str, Any]) -> str:
          for model in tested],
         '<span><i class="swatch swatch-lead"></i>Wrong only in English</span> '
         '<span><i class="swatch swatch-base"></i>Wrong only in Turkish</span> '
-        f"<span>{verdict}</span>",
+        f"<span>{verdict}</span>" + not_charted,
         top=4 * quarter, tick=lambda value: f"{value:,.0f}")
     return f'<section class="charts" aria-label="Charts with “I don\'t know”">{rates}{paired}</section>'
 
@@ -666,12 +708,59 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
     return f"<tr>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
 
 
+def english_only_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str:
+    """A row of the table for an english_only entry: the English columns filled, the Turkish ones Not run, the paired
+    ones Not measured."""
+    digits = site.config["percent_digits"]
+    total = idk["questions"]
+    counts = model["english"]
+    option = esc(idk["option"])
+    not_run, not_measured = '<span class="nm">Not run</span>', '<span class="nm">Not measured</span>'
+
+    def value(key: str, note: str) -> str:
+        number = counts[key]
+        return f'{not_measured if number is None else pct(number, digits)}<span class="small">{note}</span>'
+
+    invalid = f", {counts['invalid']:,} invalid" if counts["invalid"] else ""
+    values = [
+        run_span(counts["runs"]) + f'<span class="small">{"new runs" if len(counts["runs"]) > 1 else "a new run"}</span>',
+        not_run,
+        value("non_hallucination", f"{counts['dont_know']:,} “{option}” of {counts['dont_know'] + counts['wrong']:,} not right"),
+        not_run,
+        value("attempt_rate", f"{counts['right'] + counts['wrong']:,} answered, {counts['dont_know']:,} “{option}”{invalid}"),
+        not_run,
+        value("accuracy", f"{counts['right']:,} of {total:,} right"), not_run,
+        value("mean_dont_know_probability", ""), not_run,
+        not_measured, not_measured, not_measured, not_measured,
+    ]
+    heads = [f"{head} ({note})" for head, note in dont_know_columns(idk)]
+    run = site.by_id[model["text_run"]]
+    name = (f'<td class="model"><a class="model-name" href="{idk_href(site, model)}">{esc(idk_label(site, model))}</a>'
+            f'<span class="small">{esc(site.detail(run))}</span></td>')
+    return f"<tr>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
+
+
 def dont_know_table(site: Site, idk: dict[str, Any]) -> str:
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>'
                    for name, note in dont_know_columns(idk))
-    rows = "".join(dont_know_row(site, idk, model) for model in idk["models"])
+    # The english_only rows go before the first paired row with a lower English rate, the paired order unchanged.
+    rows, alone = [], list(english_only(idk))
+    for model in idk["models"]:
+        rate = model["english"]["non_hallucination"]
+        ahead = [single for single in alone if single["english"]["non_hallucination"] is not None
+                 and (rate is None or single["english"]["non_hallucination"] > rate)]
+        rows += [english_only_row(site, idk, single) for single in ahead] + [dont_know_row(site, idk, model)]
+        alone = [single for single in alone if single not in ahead]
+    rows = "".join(rows + [english_only_row(site, idk, single) for single in alone])
     return (f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr>'
             f"</thead><tbody>{rows}</tbody></table></div>")
+
+
+def english_only_text(site: Site, idk: dict[str, Any]) -> str:
+    """The method sentence on the english_only entries, each with its reason from results.json."""
+    return "".join(f"<p>{esc(idk_label(site, model))} is shown in English only ({run_span(model['english']['runs'])}): "
+                   f"{esc(model['reason'])}. Its Turkish columns read Not run and its paired columns Not measured; it is "
+                   "in no paired test and no Holm adjustment.</p>" for model in english_only(idk))
 
 
 def dont_know_sources(site: Site, idk: dict[str, Any]) -> str:
@@ -724,7 +813,7 @@ def dont_know_info(site: Site, idk: dict[str, Any]) -> str:
       <blockquote><p>{esc(idk["instructions"])}</p></blockquote>
       <p>Prompt version {esc(idk["prompt_version"])}. The question and its options are the English translation, as in the accuracy comparison above; no person checked the translations. The Turkish side uses the Hallucination tab's prompts unchanged.</p>
       <h3>The Turkish side</h3>
-      {dont_know_sources(site, idk)}
+      {dont_know_sources(site, idk)}{english_only_text(site, idk)}
       <h3>Runs</h3>
       <p>{dont_know_runs(site, idk)}. These runs are kept out of the leaderboard, its repeats, the Hallucination tab and the accuracy comparison above.</p>
       <h3>The rates and how to read them</h3>

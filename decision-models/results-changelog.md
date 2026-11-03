@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 612d3cdf (3 November 2026)
+
+- Turkish vs English tab and the Hallucination tab's English-option section: Celeris-1 Decision's English run with “I don't know” (548), in `results.json` (`english_reading.dont_know.english_only`): 418 right, 37 wrong and 92 “I don't know” of the 547 kept questions (non-hallucination rate 71.3%, attempt rate 83.2%). It has no Turkish run with “Bilmiyorum” on these questions, so its Turkish side reads Not run and the paired difference and test Not measured; it is in no Holm family. The comparison of the 13 models with runs in both languages and the four-model comparison are unchanged. No other number changed.
+
 ## Results aa79451f (3 November 2026)
 
 - Turkish vs English tab: Celeris-1 Decision added, at Ümit's request. One English run on the 547 kept questions (546), through the same API and settings as its Text tab run 150, whose responses name the same model, `celeris-1-decision`: 87.4% right in Turkish against 84.1% in English (42 right only in Turkish, 24 only in English; exact McNemar p = 0.036, adjusted p = 0.36 with Holm's correction over the 14 compared models). Its repeated Turkish runs changed answers, so the five-run rule would give it five English runs; it has one, as the tab says. With 14 models in the correction instead of 13, the other adjusted p-values rise; only Microsoft-Decision-1's difference is significant, as before. Earlier entries (5c638c7d, 3ad29607) gave a missing key as the reason Celeris-1 Decision was not run: that was our error, as the key was there.

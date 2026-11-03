@@ -469,9 +469,11 @@ def main() -> int:
     tests_by_text_run: dict[int, dict[str, Any]] = {}
     english_dont_know_mismatches = check_english_dont_know(args.docs, results, answers, scored, checks, tests_by_text_run)
     checked = checks.passed + checks.failed - before
-    models = len(((results.get("english_reading") or {}).get("dont_know") or {}).get("models", []))
+    english_idk = (results.get("english_reading") or {}).get("dont_know") or {}
+    models, alone = len(english_idk.get("models", [])), len(english_idk.get("english_only", []))
     print(
-        f"\nEnglish reading with \"I don't know\" ({models} model{'' if models == 1 else 's'}, from their English and Turkish "
+        f"\nEnglish reading with \"I don't know\" ({models} model{'' if models == 1 else 's'}"
+        f"{f' and {alone} in English only' if alone else ''}, from their English and Turkish "
         f"runs' exported answers on english-reading.json's kept questions: counts exact, rates, mean probabilities and "
         f"ranges within {METRIC_TOLERANCE:g}, p-values within a relative {P_TOLERANCE:g}): "
         f"{checked - len(english_dont_know_mismatches)} of {checked} match"
@@ -1209,7 +1211,8 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     subset_runs = {run["run"]: run for run in answers.get("english_dont_know_turkish_runs", [])}
     full_runs = {run["run"]: run for run in answers.get("dont_know_runs", [])}
     models = (section or {}).get("models", [])
-    listed_english = [run_id for model in models for run_id in model["english"]["runs"]]
+    english_only = (section or {}).get("english_only", [])
+    listed_english = [run_id for model in models + english_only for run_id in model["english"]["runs"]]
     listed_subset = [run_id for model in models if model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
     listed_full = [run_id for model in models if not model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs",
@@ -1280,6 +1283,8 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     subsets = setups(subset_runs)
     fulls = setups({run_id: run for run_id, run in full_runs.items() if not run.get("question_list")})
     expected = []
+    expected_only = []
+    only_setups = {(item["provider"], item["model"]) for item in english_only}
     for (provider, model, thinking, size), group in setups(english_runs).items():
         group.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
         name = f"{model} ({provider})"
@@ -1290,8 +1295,14 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
                        == (provider, text_model, thinking, 1, None))
         check(f"{name}, Text tab run", 1, len(found))
         subset, full = subsets.pop((provider, model, thinking, 1), None), fulls.get((provider, model, thinking, 1))
-        check(f"{name}, one Turkish side", 1, int(subset is not None) + int(full is not None))
-        if len(found) != 1 or (subset is None) == (full is None):
+        alone = (provider, model) in only_setups
+        check(f"{name}, Turkish sides{' (published without one)' if alone else ''}", 0 if alone else 1,
+              int(subset is not None) + int(full is not None))
+        if len(found) == 1 and alone and subset is None and full is None:
+            expected_only.append(({"name": named[found[0]]["name"], "model": model, "provider": provider, "text_run": found[0],
+                                   "english": {"run": group[0]["run"], "runs": [run["run"] for run in group]}}, group))
+            continue
+        if len(found) != 1 or alone or (subset is None) == (full is None):
             continue
         if subset is not None:
             subset.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
@@ -1392,6 +1403,32 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     order = [model["english"]["run"] for model in sorted(models, key=lambda item: (
         item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0), item["name"].casefold(), item["english"]["run"]))]
     check("model order", [model["english"]["run"] for model in models], order)
+    # English-only entries: the English first run's numbers, no Turkish run, in no Holm family.
+    by_only = {model["english"]["run"]: model for model in english_only}
+    check("English-only models", sorted(by_only), sorted(item["english"]["run"] for item, _ in expected_only))
+    check("English-only models not among the paired ones", [], sorted(set(by_only) & set(by_run)))
+    four = {item["text_run"] for item in (results.get("dont_know_english_option") or {}).get("models", [])}
+    for item, group in expected_only:
+        model = by_only.get(item["english"]["run"])
+        if model is None:
+            continue
+        name = f"{item['name']} (English \"I don't know\" run {item['english']['run']}, English only)"
+        check(f"{name}, identity",
+              {**{key: model.get(key) for key in ("name", "model", "provider", "text_run")},
+               "english": {key: model["english"].get(key) for key in ("run", "runs")}}, item)
+        check(f"{name}, reason given", True, bool(model.get("reason")))
+        check(f"{name}, no Turkish side, no test, in no Holm family", [None, None, None, False],
+              [model.get("turkish"), model.get("paired"), model.get("spread"), item["text_run"] in four])
+        check(f"{name}, repeat sets", [item["english"]["runs"]] * len(group), [run["repeat_set"] for run in group])
+        first, published = counted(group[0]), model["english"]
+        check(f"{name}, counts", [published.get(key) for key in ("right", "wrong", "dont_know", "invalid")],
+              [first[key] for key in ("right", "wrong", "dont_know", "invalid")])
+        check(f"{name}, counts add up", total, sum(published.get(key, 0) for key in ("right", "wrong", "dont_know", "invalid")))
+        for key in rates:
+            check(f"{name}, {key}", published.get(key), first[key], metric=True)
+    order = [model["english"]["run"] for model in sorted(english_only, key=lambda item: (
+        item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0), item["name"].casefold(), item["english"]["run"]))]
+    check("English-only model order", [model["english"]["run"] for model in english_only], order)
     return mismatches
 
 

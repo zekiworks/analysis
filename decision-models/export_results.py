@@ -1602,6 +1602,14 @@ ENGLISH_OPTION_FOUR = (199, 346, 373, 374)
 ENGLISH_OPTION_FOUR_SOURCE = ("Ümit's follow-up of 2 November 2026, step 2: the English “I don't know” comparison for "
                               "Liquid d1-ultra, SubQ Snap 1.1, Elephant-1 and Mammoth-1, with Holm's correction over these four")
 
+# English "I don't know" setups published without a Turkish side (results.json `english_reading.dont_know.english_only`),
+# by (provider, model), with the reason shown: Zeki's #883 of 3 November 2026. Any other setup without a Turkish side
+# stops the export, and so does a listed setup that has one.
+ENGLISH_DONT_KNOW_ENGLISH_ONLY = {
+    ("celeris", "celeris-1-decision"): ("no Turkish run with “Bilmiyorum” on these questions; new Turkish runs were "
+                                        "outside the request of 3 November 2026"),
+}
+
 
 def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
     """The runs of the English reading track (results.json `english_reading`) from the report's records of runs in
@@ -1795,6 +1803,7 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
     by_record = {record["run_id"]: record for record in records}
     full = dont_know_section["models"] if dont_know_section else []
     models = []
+    english_only = []
     claimed: list[dict[str, Any]] = []
     for (provider, model, thinking, _), found in setups(english, 'English "I don\'t know"').items():
         runs = [record["run_id"] for record in found]
@@ -1812,6 +1821,15 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         if subset is not None and hallucination:
             raise ValueError(f"{label}: both Turkish runs on the kept questions {[record['run_id'] for record in subset]} "
                              f"and full-bank runs {[item['runs'] for item in hallucination]} could be its Turkish side")
+        reason = ENGLISH_DONT_KNOW_ENGLISH_ONLY.get((provider, model))
+        if reason is not None:
+            if subset is not None or hallucination:
+                raise ValueError(f"{label}: listed in ENGLISH_DONT_KNOW_ENGLISH_ONLY but has Turkish \"I don't know\" runs "
+                                 f"{[record['run_id'] for record in subset or []] or [item['runs'] for item in hallucination]}")
+            english_only.append({"name": reading[0]["name"], "model": model, "provider": provider,
+                                 "text_run": reading[0]["turkish_run"], "reason": reason,
+                                 "english": {"run": runs[0], "runs": runs}})
+            continue
         if subset is not None:
             turkish = [record["run_id"] for record in subset]
             claimed += subset
@@ -1820,7 +1838,8 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
             turkish = hallucination[0]["runs"]
         else:
             raise ValueError(f"{label}: no Turkish \"I don't know\" runs of the same setup, on the kept questions or on "
-                             f"the Hallucination tab (found {[item['runs'] for item in hallucination]})")
+                             f"the Hallucination tab (found {[item['runs'] for item in hallucination]}); a setup published "
+                             f"without a Turkish side must be listed in ENGLISH_DONT_KNOW_ENGLISH_ONLY")
         models.append(
             {
                 "name": reading[0]["name"],
@@ -1835,7 +1854,8 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         raise ValueError(f"Turkish \"I don't know\" runs on {total} listed questions "
                          f"{[record['run_id'] for group in subsets.values() for record in group]} have no English "
                          f"\"I don't know\" runs of the same setup")
-    return {"models": models, "records": {record["run_id"]: record for record in english + claimed}}
+    return {"models": models, "english_only": english_only,
+            "records": {record["run_id"]: record for record in english + claimed}}
 
 
 def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any],
@@ -1948,6 +1968,11 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
         model["paired"]["p_holm"] = adjusted
     models.sort(key=lambda item: (item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0),
                                   item["name"].casefold(), item["english"]["run"]))
+    # Setups without a Turkish side (ENGLISH_DONT_KNOW_ENGLISH_ONLY): the English first run's numbers only, in no Holm family.
+    english_only = [{**model, "english": {**model["english"], **counted(english_runs[model["english"]["run"]])}}
+                    for model in section["english_only"]]
+    english_only.sort(key=lambda item: (item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0),
+                                        item["name"].casefold(), item["english"]["run"]))
     return {
         "option": option,
         "sentence": sentence,
@@ -1955,6 +1980,7 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
         "prompt_version": version,
         "questions": total,
         "models": models,
+        **({"english_only": english_only} if english_only else {}),
     }
 
 
@@ -2018,7 +2044,8 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
     dont_know_sets = {run: model["runs"] for model in (dont_know_section or {}).get("models", []) for run in model["runs"]}
     english_sets = {run: model["runs"] for model in (english_section or {}).get("models", []) for run in model["runs"]}
     idk_models = (english_dont_know_section or {}).get("models", [])
-    english_idk_sets = {run: model["english"]["runs"] for model in idk_models for run in model["english"]["runs"]}
+    english_idk_sets = {run: model["english"]["runs"] for model in idk_models + (english_dont_know_section or {}).get("english_only", [])
+                        for run in model["english"]["runs"]}
     turkish_idk_sets = {run: model["turkish"]["runs"] for model in idk_models if model["turkish"]["subset"]
                         for run in model["turkish"]["runs"]}
     word_runs = {model["i_dont_know"]["run"] for model in (option_word_section or {}).get("models", [])}
