@@ -2236,9 +2236,10 @@ def kept_wrong(ranked: dict[str, list[int]], weights: list[int], k: int) -> int 
     return wrong_before + (k - before) * ranked["wrong"][at]
 
 
-def kept_curve(ranked: dict[str, list[int]]) -> list[list[int]]:
-    """A run's curve: [answered, wrong] for each k from 1 to its scored answers (ranked_answers)."""
-    return [[answered, wrong] for answered, wrong in enumerate(itertools.accumulate(ranked["wrong"]), start=1)]
+def wrong_by_rank(ranked: dict[str, list[int]]) -> str:
+    """A run's scored answers in the selection order (ranked_answers) as one character each, "1" wrong and "0" right: the
+    curve point at k is (k, the "1"s among the first k characters)."""
+    return "".join("1" if wrong else "0" for wrong in ranked["wrong"])
 
 
 def same_answers_compare(family: str, models: list[dict[str, Any]], ranked: list[dict[str, list[int]]], questions: int,
@@ -2284,11 +2285,12 @@ def same_answers_compare(family: str, models: list[dict[str, Any]], ranked: list
 def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public: dict[str, Any] | None) -> dict[str, Any]:
     """The same number of answers (results.json `dont_know_same_answers`, SAME_ANSWERS_RULE). Turkish: every main run
     (`runs`, in its order) on the scored questions as its own five-option run, named as the run and keyed by its Text tab
-    run; the Hallucination tab's models also with their curve and their runs with the option as points ("Bilmiyorum"
-    and the option-word run); k from the reference's option-word run. English: the models of `english_reading` on the
-    kept questions, each with its first English run, its curve and its first English "I don't know" run as its point;
-    k from the reference's English "I don't know" run. Stops when a needed section or run is missing, a Hallucination
-    tab model is not a main run or a run's answers do not give its published counts."""
+    run, with its answers in the selection order (wrong_by_rank); the Hallucination tab's models also with their runs
+    with the option as points ("Bilmiyorum" and the option-word run); k from the reference's option-word run. English:
+    the models of `english_reading` on the kept questions, each with its first English run, its answers in the selection
+    order and its first English "I don't know" run as its point; k from the reference's English "I don't know" run.
+    Stops when a needed section or run is missing, a Hallucination tab model is not a main run or a run's answers do not
+    give its published counts."""
     section, option_word = data.get("dont_know"), data.get("dont_know_option_word")
     reading = data.get("english_reading") or {}
     if section is None or option_word is None or public is None or "dont_know" not in reading:
@@ -2338,8 +2340,8 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
         five = run_in("runs", text_run, f"{label}'s five-option")
         ranked = ranked_answers(five, scored, ids, label)
         turkish_ranked.append(ranked)
-        entry = {"name": name, "text_run": text_run, "five_option_run": five["run"],
-                 "wrong": None, "wrong_of_answers": None, "difference": None, "interval": None, "p": None, "p_holm": None}
+        entry = {"name": name, "text_run": text_run, "five_option_run": five["run"], "wrong": None, "wrong_of_answers": None,
+                 "difference": None, "interval": None, "p": None, "p_holm": None, "wrong_by_rank": wrong_by_rank(ranked)}
         row = option_rows.get(text_run)
         if row is not None:
             points = [option_point("Bilmiyorum", run_in("dont_know_runs", row["run"], f"{label}'s “Bilmiyorum”"), scored, row,
@@ -2350,7 +2352,6 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
                                            scored, word, f"{label}'s “{OPTION_WORD}”"))
             elif row["name"] not in not_run:
                 raise ValueError(f"same answers: {row['name']} has no run with “{OPTION_WORD}” in `dont_know_option_word`")
-            entry["curve"] = kept_curve(ranked)
             entry["points"] = points
         turkish.append(entry)
     turkish_reference = next(index for index, model in enumerate(turkish) if model["text_run"] == reference_runs[0])
@@ -2371,7 +2372,7 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
                          found, f"{name}'s English “{OPTION_WORD}”")]
         english_ranked.append(ranked)
         english.append({"name": name, "text_run": text_run, "five_option_run": five["run"], "wrong": None, "wrong_of_answers": None,
-                        "difference": None, "interval": None, "p": None, "p_holm": None, "curve": kept_curve(ranked),
+                        "difference": None, "interval": None, "p": None, "p_holm": None, "wrong_by_rank": wrong_by_rank(ranked),
                         "points": points})
     english_references = [index for index, model in enumerate(english) if model["name"] == SAME_ANSWERS_REFERENCE]
     if len(english_references) != 1:

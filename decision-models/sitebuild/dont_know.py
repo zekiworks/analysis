@@ -11,11 +11,12 @@ nothing on the Text tab and changes none of its numbers."""
 from __future__ import annotations
 
 import json
+import itertools
 import math
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import Site, esc, hbars, legend_mark, line_plot, pct, rank_fill, rel, scale_legend
+from sitebuild.site import Site, esc, hbars, legend_mark, line_plot, marker_path, pct, rank_fill, rel, scale_legend
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "dont-know/"
@@ -985,6 +986,12 @@ SAME_MIN_STEP = 0.0025
 # wrong answers than the reference without a significant difference up to SAME_NAMED_FEWER.
 SAME_NAMED = 6
 SAME_NAMED_FEWER = 3
+# The small plots of every setup's curve (same_curves): each one's size and margins in SVG units (width, height, left,
+# right, top, bottom), the one colour of every setup's line and markers there (the reference's line is dashed grey),
+# and their thinning step, one vertex per 1% of coverage.
+SAME_SMALL = (240, 160, 34, 8, 8, 22)
+SAME_SMALL_COLOUR = "#d9622b"
+SAME_SMALL_STEP = 0.01
 
 
 def same_wrong_text(wrong: float) -> str:
@@ -994,8 +1001,8 @@ def same_wrong_text(wrong: float) -> str:
 
 def same_families(site: Site, same: dict[str, Any]) -> list[dict[str, Any]]:
     """dont_know_same_answers' two families with their language, each model marked as the reference or not and with its
-    curve as (answered, wrong) points, one per k from 1 to the run's scored answers: in Turkish only for the models with
-    runs with the option (None for the rest, which have no points either), in English for every model. The Turkish
+    curve as (answered, wrong) points, one per k from 1 to the run's scored answers, from its wrong_by_rank (one
+    character per answer in selection order, "1" wrong): the point at k counts the "1" in the first k. The Turkish
     reference is the setup of the tab's row named as the reference; the English one, the model of that name."""
     tab = {model["name"]: model["original_run"] for model in site.results["dont_know"]["models"]}
     families = []
@@ -1004,7 +1011,7 @@ def same_families(site: Site, same: dict[str, Any]) -> list[dict[str, Any]]:
         for model in same[key]["models"]:
             reference = (model["text_run"] == tab.get(same["reference"]) if key == "turkish"
                          else model["name"] == same["reference"])
-            curve = [tuple(point) for point in model["curve"]] if "curve" in model else None
+            curve = list(enumerate(itertools.accumulate(int(mark == "1") for mark in model["wrong_by_rank"]), 1))
             family["models"].append(dict(model, reference=reference, curve=curve, points=model.get("points"),
                                          replaces_run=model.get("replaces_run")))
         families.append(family)
@@ -1014,11 +1021,11 @@ def same_families(site: Site, same: dict[str, Any]) -> list[dict[str, Any]]:
 def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | None, families: list[dict[str, Any]],
                        reference: str) -> None:
     """Stop the build when dont_know_same_answers does not fit the tab: the Turkish family is every main run of the Text
-    tab in results.json's order, each through that run (hosted GLiDE too), with curves and markers exactly for the tab's
-    models; the English family is its section's models, each through its first English run and with a curve; k is the
-    reference's run with the option's answered count there; the markers are those sections' counts; every count is
-    whole; each curve has one point per k from 1 to its run's scored answers, adding at most one wrong answer a step, and
-    its point at k is the published wrong count; and the differences and p values fit."""
+    tab in results.json's order, each through that run (hosted GLiDE too), with markers exactly for the tab's models;
+    the English family is its section's models, each through its first English run; k is the reference's run with the
+    option's answered count there; the markers are those sections' counts; every count is whole; each wrong_by_rank has
+    one 0 or 1 per scored answer of its run and counts the published wrong in its first k; and the differences and p
+    values fit."""
     from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
     fail = lambda text: SystemExit(f"results.json dont_know_same_answers: {text}")  # noqa: E731
     english = site.results["english_reading"]
@@ -1059,8 +1066,8 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
             name = model["name"]
             if key == "turkish":
                 row = tab.get(model["text_run"])
-                if (model["curve"] is None) != (row is None) or (model["points"] is None) != (row is None):
-                    raise fail(f"{name}: a curve and markers belong to the tab's models only")
+                if (model["points"] is None) != (row is None):
+                    raise fail(f"{name}: markers belong to the tab's models only")
                 if row and name != row["name"]:
                     raise fail(f"{name}: not the tab's name {row['name']} for run {model['text_run']}")
                 if model["replaces_run"] is not None or model["five_option_run"] != model["text_run"]:
@@ -1069,8 +1076,8 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
                     [(data["option"], row)] + ([(word["option"], own[name]["i_dont_know"])] if name in own else [])
             else:
                 section = english["models"][[item["name"] for item in models].index(name)]
-                if model["five_option_run"] != section["run"] or model["curve"] is None:
-                    raise fail(f"{name}: the five-option run is not the first English run {section['run']}, or no curve")
+                if model["five_option_run"] != section["run"]:
+                    raise fail(f"{name}: the five-option run is not the first English run {section['run']}")
                 entry = by_text.get(model["text_run"])
                 if not entry:
                     raise fail(f"{name}: no first English run with “{wording}”")
@@ -1087,14 +1094,12 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
             if not float(model["wrong"]).is_integer() or not 0 <= model["wrong"] <= k \
                     or abs(model["wrong"] / k - model["wrong_of_answers"]) > 1e-12:
                 raise fail(f"{name} {key}: the wrong count is not a whole number of the k, or the rate not wrong / k")
-            curve = model["curve"]
-            if curve is not None:
-                if len(curve) != scored or any(answered != index + 1 for index, (answered, _) in enumerate(curve)) \
-                        or curve[0][1] not in (0, 1) or any(b[1] - a[1] not in (0, 1) for a, b in zip(curve, curve[1:])):
-                    raise fail(f"{name} {key}: the curve is not one point per k from 1 to run {model['five_option_run']}'s "
-                               f"{scored:,} scored answers")
-                if curve[k - 1][1] != model["wrong"]:
-                    raise fail(f"{name} {key}: the curve's point at k = {k:,} is not the published wrong count")
+            ranks = model["wrong_by_rank"]
+            if len(ranks) != scored or set(ranks) - {"0", "1"}:
+                raise fail(f"{name} {key}: wrong_by_rank is not one 0 or 1 per scored answer of run "
+                           f"{model['five_option_run']} ({scored:,})")
+            if ranks[:k].count("1") != model["wrong"]:
+                raise fail(f"{name} {key}: wrong_by_rank's count at k = {k:,} is not the published wrong count")
             if model["reference"]:
                 if any(model[field] is not None for field in ("difference", "interval", "p", "p_holm")):
                     raise fail(f"{key}: the reference row has a difference or p")
@@ -1235,8 +1240,21 @@ def same_colours(site: Site, families: list[dict[str, Any]]) -> dict[str, tuple[
 
 
 def same_plotted(family: dict[str, Any]) -> list[dict[str, Any]]:
-    """The family's models drawn in its plot: those with a curve (in Turkish, the tab's models with runs with the option)."""
-    return [model for model in family["models"] if model["curve"] is not None]
+    """The family's models drawn in its plot: in Turkish the tab's models (those with runs with the option), in English
+    all."""
+    return [model for model in family["models"] if family["key"] != "turkish" or model["points"] is not None]
+
+
+def same_drawn(curve: list[tuple[int, int]], k: int, total: int, step: float) -> list[tuple[int, int]]:
+    """The curve's vertices to draw: the first, the last and the point at k, and between them each point at least step
+    of coverage (a share of total) past the previous one drawn; every vertex is a curve point."""
+    at_k = next(index for index, (answered, _) in enumerate(curve) if answered >= k)
+    drawn, last = [0], curve[0][0]
+    for index in range(1, len(curve)):
+        if index in (at_k, len(curve) - 1) or (curve[index][0] - last) / total >= step:
+            drawn.append(index)
+            last = curve[index][0]
+    return [curve[index] for index in drawn]
 
 
 def same_engine(site: Site, family: dict[str, Any], model: dict[str, Any]) -> str:
@@ -1262,13 +1280,7 @@ def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours:
     series, legend = [], []
     for model in plotted:
         (colour, dash), name, curve = colours[model["name"]], same_label(site, model), model["curve"]
-        at_k = next(index for index, (answered, _) in enumerate(curve) if answered >= k)
-        drawn, last = [0], curve[0][0]
-        for index in range(1, len(curve)):
-            if index in (at_k, len(curve) - 1) or (curve[index][0] - last) / total >= SAME_MIN_STEP:
-                drawn.append(index)
-                last = curve[index][0]
-        line = [(curve[index][0] / total, curve[index][1] / curve[index][0], "") for index in drawn]
+        line = [(answered / total, wrong / answered, "") for answered, wrong in same_drawn(curve, k, total, SAME_MIN_STEP)]
         series.append({"colour": colour, "dash": dash, "line": True, "points": line,
                        "title": f"{name}: five options, run {model['five_option_run']}, held back by confidence, from 1 to "
                                 f"{curve[-1][0]:,} answers; its {k:,} most confident answers: "
@@ -1297,7 +1309,8 @@ def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours:
             f'<h2>{esc(title)}</h2><p class="chart-sub">The {total:,} {where} in {language}: each model\'s five-option run '
             f"answering only its most confident answers (the line), and its own runs with the option (the marker: {shapes})"
             + (f"; the table under Info has all {len(family['models'])} {same_unit(family, len(family['models']))}, the plot "
-               f"the {len(plotted)} with runs with the option" if len(plotted) < len(family["models"]) else "")
+               f"the {len(plotted)} with runs with the option (<a href=\"#same-answers-curves\">every setup's curve under "
+               "Info</a>)" if len(plotted) < len(family["models"]) else "")
             + " · lower is better at the same coverage</p></div>"
             f'<div class="chart-box" style="min-height:0;overflow-x:auto">'
             + line_plot(series, f"Answered (coverage, of {total:,})", "Wrong of answers", y_top,
@@ -1351,6 +1364,108 @@ def same_finding(site: Site, same: dict[str, Any], families: list[dict[str, Any]
             '(<a href="#same-answers">The same number of answers</a>).</p>')
 
 
+def same_board_groups(site: Site, family: dict[str, Any]) -> list[tuple[str, list[dict[str, Any]]]]:
+    """The family's models as its table and small plots show them: in Turkish grouped as the Text tab's leaderboard
+    groups its setups (decision models, then chat and general models), in English one group without a title; each by
+    wrong of the k answers, fewest first."""
+    def order(models: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        return sorted(models, key=lambda model: (model["wrong_of_answers"], same_label(site, model).casefold(), model["text_run"]))
+
+    if family["key"] != "turkish":
+        return [("", order(family["models"]))]
+    groups = []
+    for title, decision in (("Decision models", True), ("Other models: chat and general models", False)):
+        members = [model for model in family["models"] if site.decision(site.by_id[model["text_run"]]) == decision]
+        if members:
+            groups.append((title, order(members)))
+    return groups
+
+
+def same_curves(site: Site, same: dict[str, Any], family: dict[str, Any]) -> str:
+    """Under Info: one small static plot per setup of the family, on the same axes, each with its curve (thinned to one
+    vertex per SAME_SMALL_STEP of coverage, every vertex a curve point), the reference's curve dashed (one polyline
+    defined once and reused), the guide at k and its runs with the option as markers, with a caption of its numbers."""
+    from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
+    digits = site.config["percent_digits"]
+    width, height, left, right, top, bottom = SAME_SMALL
+    plot_w, plot_h = width - left - right, height - top - bottom
+    total, k, key, reference = family["questions"], family["k"], family["key"], same["reference"]
+    ref = next(model for model in family["models"] if model["reference"])
+    values = [wrong / answered for model in family["models"] for answered, wrong in model["curve"] if answered / total >= 0.01]
+    values += [point["wrong"] / point["answered"] for model in family["models"] for point in model["points"] or []
+               if point["answered"]]
+    # The same y axis in every small plot: up to the largest share wrong shown, rounded up to a multiple of 4 points.
+    y_top = max(0.04, math.ceil(100 * max(values) / 4 - 1e-9) * 4 / 100)
+    px = lambda x: left + plot_w * min(max(x, 0.0), 1.0)  # noqa: E731
+    py = lambda y: top + plot_h * (1 - min(max(y, 0.0), y_top) / y_top)  # noqa: E731
+    points = lambda curve: " ".join(f"{px(answered / total):.1f},{py(wrong / answered):.1f}"  # noqa: E731
+                                    for answered, wrong in same_drawn(curve, k, total, SAME_SMALL_STEP))
+    text = 'style="font:10px var(--sans);fill:var(--text-2)"'
+    frame = "".join(
+        f'<line x1="{px(x):.1f}" y1="{top}" x2="{px(x):.1f}" y2="{top + plot_h}" stroke="var(--edge)"/>'
+        f'<text x="{px(x):.1f}" y="{height - 6}" text-anchor="{anchor}" {text}>{100 * x:.0f}%</text>'
+        for x, anchor in ((0.0, "start"), (0.5, "middle"), (1.0, "end")))
+    frame += "".join(
+        f'<line x1="{left}" y1="{py(y):.1f}" x2="{left + plot_w}" y2="{py(y):.1f}" stroke="var(--edge)"/>'
+        f'<text x="{left - 4}" y="{py(y) + 3.5:.1f}" text-anchor="end" {text}>{100 * y:.4g}%</text>'
+        for y in (0.0, y_top / 2, y_top))
+    frame += (f'<line x1="{px(k / total):.1f}" y1="{top}" x2="{px(k / total):.1f}" y2="{top + plot_h}" stroke="var(--text-2)" '
+              'stroke-width="1" stroke-dasharray="4 3"/>')
+    defs = (f'<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>'
+            f'<g id="same-frame-{key}">{frame}</g><polyline id="same-ref-{key}" points="{points(ref["curve"])}"/></defs></svg>')
+    shapes = " ".join(f"{legend_mark('var(--text-2)', er.SHAPES[wording])} “{esc(wording)}”"
+                      for wording in dict.fromkeys(point["wording"] for model in family["models"] for point in model["points"] or []))
+
+    def card(model: dict[str, Any]) -> str:
+        run = site.by_id[model["text_run"]]
+        name = site.row_name(run)
+        engine = same_engine(site, family, model)
+        marks = ""
+        for point in model["points"] or []:
+            tip = (f"{name}: “{point['wording']}”, run {point['run']}: {point['answered']:,} answered, {point['wrong']:,} wrong"
+                   + (f"; {engine}" if engine else ""))
+            share = point["wrong"] / point["answered"] if point["answered"] else 0
+            marks += (f'<g><title>{esc(tip)}</title>'
+                      f'{marker_path(er.SHAPES[point["wording"]], px(point["answered"] / total), py(share))}</g>')
+        wrong = f"{same_wrong_text(model['wrong'])} ({pct(model['wrong_of_answers'], digits)})"
+        versus = ("the reference, dashed in every plot" if model["reference"] else
+                  f"{100 * model['difference']:+.{digits}f} points against {esc(reference)}, Holm "
+                  f"{esc(bp.p_text(model['p_holm']))}{' *' if model['p_holm'] < 0.05 else ''}")
+        if model["points"]:
+            option = ("Runs with the option: " + joined([
+                f"“{esc(point['wording'])}” run {point['run']}, "
+                + (f"{pct(point['wrong'] / point['answered'], digits)} wrong of {point['answered']:,}" if point["answered"]
+                   else "no answer") for point in model["points"]]) + (f" ({esc(engine)})" if engine else ""))
+        else:
+            option = 'Runs with the option: <span class="nm">Not measured</span>'
+        svg = (f'<svg viewBox="0 0 {width} {height}" width="100%" role="img" aria-label="{esc(name)}: wrong of answers '
+               f'against answered, with {esc(reference)}\'s curve dashed"><use href="#same-frame-{key}"/>'
+               f'<use href="#same-ref-{key}" fill="none" stroke="var(--text-2)" stroke-width="1.3" stroke-dasharray="4 3"/>'
+               f'<polyline fill="none" stroke="{SAME_SMALL_COLOUR}" stroke-width="1.6" stroke-linejoin="round" '
+               f'points="{points(model["curve"])}"><title>{esc(name)}: five options, run {model["five_option_run"]}, from 1 to '
+               f'{model["curve"][-1][0]:,} answers; {same_wrong_text(model["wrong"])} wrong of its {k:,} most confident</title>'
+               f'</polyline><g fill="{SAME_SMALL_COLOUR}" stroke="var(--panel)" stroke-width="1">{marks}</g></svg>')
+        return (f'<li><figure style="margin:0">{svg}<figcaption class="note" style="margin:.25rem 0 0">'
+                f'<a class="model-name" href="{rel(PATH, site.model_path(run))}">{esc(name)}</a> '
+                f'<span class="small">{esc(site.detail(run))}</span>Wrong of the {k:,} answers: {wrong}, {versus}<br>'
+                f"{option}</figcaption></figure></li>")
+
+    grid = ('<ul style="list-style:none;padding:0;margin:0 0 1rem;display:grid;'
+            'grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:1rem 1.25rem">')
+    groups = "".join((f'<h3 class="board-group">{title}</h3>' if title else "") + grid + "".join(card(model) for model in models)
+                     + "</ul>" for title, models in same_board_groups(site, family))
+    count = len(family["models"])
+    return (f'<section class="card" id="same-answers-curves"><h2>Every setup\'s curve in {family["language"]}</h2>'
+            f'<p class="note">One small plot per setup, all {count}, grouped and ordered as the {family["language"]} table above, '
+            f"on the same axes: answered across (0 to 100% of the {total:,} questions), wrong of answers up (0 to "
+            f"{100 * y_top:.4g}%; anything higher is drawn at the top edge). The line is the setup's five-option run held back "
+            f"by its own confidence, from 1 answer to its scored answers; the dashed line is {esc(reference)}'s (run "
+            f"{ref['five_option_run']}) in every plot, and the dashed vertical line is k = {k:,}. The markers are the setup's "
+            f"runs with the option ({shapes}). Each line is thinned to one vertex per {100 * SAME_SMALL_STEP:g}% of coverage, "
+            f"always keeping the first, the last and the point at k; every vertex is a curve point.</p>{defs}{groups}</section>")
+
+
+
 def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) -> str:
     """Under Info: one table per family and the method notes."""
     digits = site.config["percent_digits"]
@@ -1399,23 +1514,17 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
                     + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
 
         def board(models: list[dict[str, Any]]) -> str:
-            """The models' table, by wrong of the k answers, fewest first."""
-            rows = sorted(models, key=lambda model: (model["wrong_of_answers"], same_label(site, model).casefold(),
-                                                     model["text_run"]))
+            """The models' table, in the order same_board_groups gives."""
             return (f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}'
-                    f'</tr></thead><tbody>{"".join(row(model) for model in rows)}</tbody></table></div>')
+                    f'</tr></thead><tbody>{"".join(row(model) for model in models)}</tbody></table></div>')
 
         where = "questions" if family["key"] == "turkish" else "kept reading questions"
         tables += f"<h3>{family['language']}: k = {k:,} of the {total:,} {where}</h3>"
         if family["key"] == "turkish":
-            # Grouped as the Text tab's leaderboard groups its setups: decision models, then chat and general models.
-            groups = (("Decision models", True), ("Other models: chat and general models", False))
-            for title, decision in groups:
-                members = [model for model in family["models"] if site.decision(site.by_id[model["text_run"]]) == decision]
-                if members:
-                    tables += f'<h4 class="board-group">{title}</h4>{board(members)}'
-        else:
-            tables += board(family["models"])
+            tables += ('<p class="note">Each setup\'s curve over every number of answers: '
+                       '<a href="#same-answers-curves">Every setup\'s curve in Turkish</a>, below.</p>')
+        for title, models in same_board_groups(site, family):
+            tables += (f'<h4 class="board-group">{title}</h4>' if title else "") + board(models)
     turkish, english = families
     resamples = same["resamples"]
     tail = round(0.025 * resamples)
@@ -1436,6 +1545,7 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
       <p class="note">One table per language, ordered by wrong of the k answers, fewest first; the Turkish one has every main run of the Text tab ({len(turkish["models"])} setups), grouped as its leaderboard groups them and labelled as it labels them. Each row: the model's five-option run held to its k most confident answers, its wrong answers among them, the difference from {esc(reference)} in points with its 95% bootstrap interval, p and Holm p (* marks a Holm-adjusted p below 0.05), and for context the model's own runs with the option (answered = right + wrong, and wrong of answers = wrong / answered), which are not part of the test; a setup without one reads none.</p>
       {tables}
     </section>
+    {same_curves(site, same, turkish)}
     <section class="card method-notes" id="same-answers-method">
       <h2>Our method for the same number of answers</h2>
       <p>Each model's five-option run answers only its k most confident questions, by its score (the probability it gave the option it picked), and holds back on the rest; we count its wrong answers among the k. Wrong of the k answers = wrong / k. k is the number of questions {esc(reference)} answered (right + wrong) with the option on offer: {turkish["k"]:,} in its run {turkish["k_run"]} with “{esc(turkish["k_wording"])}” on the {turkish["questions"]:,} Turkish questions (the option's word, above), and {english["k"]:,} in its run {english["k_run"]}, its first English run with “{esc(english["k_wording"])}”, on the {english["questions"]:,} kept reading questions. Every model in a language is held to the same k.</p>

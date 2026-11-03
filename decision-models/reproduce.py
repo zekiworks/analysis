@@ -50,11 +50,11 @@ risk on the kept reading questions (`english_reading.coverage`): every native ab
 confidence curve. Then the same number of answers (`dont_know_same_answers`, Turkish: every main run; English: the
 English reading models): k from the reference's run with "I don't know", each model's wrong answers among exactly its
 first k (equal scores by question id), the difference from the reference with its paired bootstrap interval, p
-and Holm's p (the published seed and resamples), and the curve and runs with the option of each Hallucination tab and
-English model. Last the footer date (`updated`, when results with this content first went
-out): never older than a published run's date, and with --report never older than the newest `updated` of the runs
-answers.json publishes. Uses only the standard library and benchmark_metrics.py, the metric code the benchmark report
-uses. Exits with status 1 when anything differs beyond the tolerances printed.
+and Holm's p (the published seed and resamples), every entry's answers in the selection order (wrong_by_rank) and the
+runs with the option of each Hallucination tab and English model. Last the footer date (`updated`, when results with
+this content first went out): never older than a published run's date, and with --report never older than the newest
+`updated` of the runs answers.json publishes. Uses only the standard library and benchmark_metrics.py, the metric code
+the benchmark report uses. Exits with status 1 when anything differs beyond the tolerances printed.
 """
 
 from __future__ import annotations
@@ -538,8 +538,8 @@ def main() -> int:
     checked = checks.passed + checks.failed - before
     print(
         f"\nThe same number of answers (exactly k answers per model, equal scores by question id, from the five-option "
-        f"and option runs' exported answers: k, wrong answers, differences, curves and option points exact, bootstrap p "
-        f"and Holm's p within a relative {P_TOLERANCE:g}, intervals within {INTERVAL_TOLERANCE:g}): "
+        f"and option runs' exported answers: k, wrong answers, differences, wrong_by_rank and option points exact, "
+        f"bootstrap p and Holm's p within a relative {P_TOLERANCE:g}, intervals within {INTERVAL_TOLERANCE:g}): "
         f"{checked - len(same_mismatches)} of {checked} match"
     )
     for line in same_mismatches:
@@ -1295,9 +1295,10 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
     with "I don't know"), each model's wrong answers among exactly its first k (by score, highest first, equal scores by
     question id ascending; a whole number), wrong of answers and difference from the reference (exact), the paired
     bootstrap over questions with the published seed and resamples (p within a relative P_TOLERANCE, interval within
-    INTERVAL_TOLERANCE), Holm's correction over the non-reference models, the curve ([answered, wrong] for every k from
-    1 to the run's scored answers, exact) and runs with the option of each Hallucination tab model and each English
-    model (and no curve or points for any other main run). Returns a line per mismatch."""
+    INTERVAL_TOLERANCE), Holm's correction over the non-reference models, each entry's wrong_by_rank (its scored answers
+    in the selection order, "1" wrong and "0" right: rebuilt exactly, as long as the run's scored answers, with wrong the
+    "1"s among its first k characters), no curve pairs, and the runs with the option of each Hallucination tab model and
+    each English model (and no points for any other main run). Returns a line per mismatch."""
     section = results.get("dont_know_same_answers")
     if section is None:
         return []
@@ -1327,8 +1328,8 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
 
     def family(label: str, published: dict[str, Any], positions: list[int], expected: list[dict[str, Any]]) -> None:
         """`expected`: per model its name, text_run, five-option run, the list its five-option run is in, whether it is
-        the reference, whether it has a curve and points (`option`: a Hallucination tab model or an English model; other
-        main runs have neither) and its runs with the option as (wording, list, run)."""
+        the reference, whether it has points (`option`: a Hallucination tab model or an English model; other main runs
+        have none) and its runs with the option as (wording, list, run)."""
         check(f"{label} questions", published["questions"], len(positions))
         check(f"{label} models", [[model["name"], model["text_run"]] for model in published["models"]],
               [[item["name"], item["text_run"]] for item in expected])
@@ -1365,12 +1366,16 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
             check(f"{name} wrong_of_answers", model["wrong_of_answers"], None if wrong is None else wrong / k)
             if wrong is None:
                 return
+            ranks = model.get("wrong_by_rank")
+            scored_answers = sum(1 for index in positions if run["score"][index] is not None and run["choice"][index] is not None)
+            check(f"{name} wrong_by_rank", ranks, "".join(map(str, ranking[1])))
+            check(f"{name} wrong_by_rank length, wrong among its first k, no curve pairs",
+                  [len(ranks) if isinstance(ranks, str) else None, ranks[:k].count("1") if isinstance(ranks, str) else None,
+                   "curve" in model], [scored_answers, model["wrong"], False])
             if item["option"]:
                 check(f"{name} points", model.get("points"), found)
-                curve = [[answered + 1, errors] for answered, errors in enumerate(itertools.accumulate(ranking[1]))]
-                check(f"{name} curve ({len(curve)} points)", model.get("curve"), curve)
             else:
-                check(f"{name} neither curve nor points", ["curve" in model, "points" in model], [False, False])
+                check(f"{name} no points", "points" in model, False)
         reference_rate = published["models"][at]["wrong_of_answers"]
         rng = random.Random(SAME_ANSWERS["seed"])
         drawn: list[list[float]] = [[] for _ in rankings]

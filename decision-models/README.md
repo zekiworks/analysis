@@ -96,7 +96,8 @@ python3 -m http.server 8000                                # preview at http://1
   for the same number of answers (`dont_know_same_answers`) each model's wrong answers among exactly its k most
   confident five-option answers (equal scores taken in question-id order), the differences from Liquid d1-ultra with
   the paired bootstrap (10,000 resamples, seed 20261103) and Holm (over every other Text tab setup in Turkish, the
-  other 13 English reading models in English), the curves and the markers of the runs with the option.
+  other 13 English reading models in English), each setup's answers in selection order (`wrong_by_rank`, from which
+  every curve is drawn) and the markers of the runs with the option.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
@@ -164,7 +165,8 @@ python3 -m http.server 8000                                # preview at http://1
     keeping its k most confident answers, k being Liquid d1-ultra's answered count with "I don't know", against Liquid
     d1-ultra by a paired bootstrap: in Turkish every setup of the Text tab, in English the 14 English reading models; the
     plots draw each model with runs with the option, its curve of wrong of answers against answered and those runs
-    marked; inline SVG by `line_plot` in `sitebuild/site.py`). Every "I don't know" table leads with Answered
+    marked, and under Info a small plot per Turkish setup shows every setup's curve against Liquid d1-ultra's; inline
+    SVG by `line_plot` in `sitebuild/site.py`). Every "I don't know" table leads with Answered
     ((right + wrong) / questions) and Wrong of answers (wrong / (right + wrong)), the non-hallucination rate after them.
     Turkish vs English opens with its main table (accuracy and non-hallucination in Turkish and in English with their
     differences, the rank in each language and the languages each model card lists, Holm-significant differences marked),
