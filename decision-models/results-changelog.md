@@ -12,7 +12,7 @@ Analyses of the existing runs only, approved by Ümit; no new run, and no publis
 
 ## Results 612d3cdf (3 November 2026)
 
-- Turkish vs English tab and the Hallucination tab's English-option section: Celeris-1 Decision's English run with “I don't know” (548), in `results.json` (`english_reading.dont_know.english_only`): 418 right, 37 wrong and 92 “I don't know” of the 547 kept questions (non-hallucination rate 71.3%, attempt rate 83.2%). It has no Turkish run with “Bilmiyorum” on these questions, so its Turkish side reads Not run and the paired difference and test Not measured; it is in no Holm family. The comparison of the 13 models with runs in both languages and the four-model comparison are unchanged. No other number changed.
+- Turkish vs English tab and the Hallucination tab's English-option section: Celeris-1 Decision's English run with “I don't know” (548), in `results.json` (`english_reading.dont_know.english_only`): 418 right, 37 wrong and 92 “I don't know” of the 547 kept questions (non-hallucination rate 71.3%, attempt rate 83.2%). It has no Turkish run with “Bilmiyorum” on these questions, so its Turkish side, the paired difference and the test read Not measured; it is in no Holm family. The comparison of the 13 models with runs in both languages and the four-model comparison are unchanged. No other number changed.
 
 ## Results aa79451f (3 November 2026)
 

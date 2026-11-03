@@ -271,7 +271,7 @@ def main_table(site: Site, data: dict[str, Any]) -> str:
         other = matched.get((model["provider"], model["model"]))
         single = alone.get((model["provider"], model["model"]))
         if single is not None:
-            values += ['<span class="nm">Not run</span>', rate(single["english"]), '<span class="nm">Not measured</span>']
+            values += ['<span class="nm">Not measured</span>', rate(single["english"]), '<span class="nm">Not measured</span>']
         elif other is None:
             values += ['<span class="nm">Not run</span>'] * 3
         else:
@@ -717,13 +717,13 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
 
 
 def english_only_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str:
-    """A row of the table for an english_only entry: the English columns filled, the Turkish ones Not run, the paired
-    ones Not measured."""
+    """A row of the table for an english_only entry: the English columns filled, the Turkish and paired ones Not
+    measured."""
     digits = site.config["percent_digits"]
     total = idk["questions"]
     counts = model["english"]
     option = esc(idk["option"])
-    not_run, not_measured = '<span class="nm">Not run</span>', '<span class="nm">Not measured</span>'
+    not_measured = '<span class="nm">Not measured</span>'
 
     def value(key: str, note: str) -> str:
         number = counts[key]
@@ -732,13 +732,13 @@ def english_only_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> 
     invalid = f", {counts['invalid']:,} invalid" if counts["invalid"] else ""
     values = [
         run_span(counts["runs"]) + f'<span class="small">{"new runs" if len(counts["runs"]) > 1 else "a new run"}</span>',
-        not_run,
+        not_measured,
         value("non_hallucination", f"{counts['dont_know']:,} “{option}” of {counts['dont_know'] + counts['wrong']:,} not right"),
-        not_run,
+        not_measured,
         value("attempt_rate", f"{counts['right'] + counts['wrong']:,} answered, {counts['dont_know']:,} “{option}”{invalid}"),
-        not_run,
-        value("accuracy", f"{counts['right']:,} of {total:,} right"), not_run,
-        value("mean_dont_know_probability", ""), not_run,
+        not_measured,
+        value("accuracy", f"{counts['right']:,} of {total:,} right"), not_measured,
+        value("mean_dont_know_probability", ""), not_measured,
         not_measured, not_measured, not_measured, not_measured,
     ]
     heads = [f"{head} ({note})" for head, note in dont_know_columns(idk)]
@@ -767,8 +767,8 @@ def dont_know_table(site: Site, idk: dict[str, Any]) -> str:
 def english_only_text(site: Site, idk: dict[str, Any]) -> str:
     """The method sentence on the english_only entries, each with its reason from results.json."""
     return "".join(f"<p>{esc(idk_label(site, model))} is shown in English only ({run_span(model['english']['runs'])}): "
-                   f"{esc(model['reason'])}. Its Turkish columns read Not run and its paired columns Not measured; it is "
-                   "in no paired test and no Holm adjustment.</p>" for model in english_only(idk))
+                   f"{esc(model['reason'])}. Its Turkish and paired columns read Not measured; it is in no paired test "
+                   "and no Holm adjustment.</p>" for model in english_only(idk))
 
 
 def dont_know_sources(site: Site, idk: dict[str, Any]) -> str:
