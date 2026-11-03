@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results aa79451f (3 November 2026)
+
+- Turkish vs English tab: Celeris-1 Decision added, at Ümit's request. One English run on the 547 kept questions (546), through the same API and settings as its Text tab run 150, whose responses name the same model, `celeris-1-decision`: 87.4% right in Turkish against 84.1% in English (42 right only in Turkish, 24 only in English; exact McNemar p = 0.036, adjusted p = 0.36 with Holm's correction over the 14 compared models). Its repeated Turkish runs changed answers, so the five-run rule would give it five English runs; it has one, as the tab says. With 14 models in the correction instead of 13, the other adjusted p-values rise; only Microsoft-Decision-1's difference is significant, as before. Earlier entries (5c638c7d, 3ad29607) gave a missing key as the reason Celeris-1 Decision was not run: that was our error, as the key was there.
+- Clef is still not run: its own model code rounds each option's probability to 4 decimal places, and an allowance that would let its runs pass our probability check awaits a decision. Apart from the adjusted p-values above, no number changed.
+
 ## Results 47420478 (2 November 2026)
 
 - Hallucination tab, English-option section: the four models of Ümit's follow-up (Liquid d1-ultra, SubQ Snap 1.1, Elephant-1 and Mammoth-1) with Holm's correction over these four, in `results.json` (`dont_know_english_option`). The same first runs and the same exact McNemar test of wrong answers as the comparison of all 13 models; only the correction's family differs. None of the four differences is significant over the four either: the smallest adjusted p is Liquid d1-ultra's, 0.077 (0.21 over the 13). The comparison of the 13 models is unchanged. No other number changed.

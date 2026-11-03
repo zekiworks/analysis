@@ -179,12 +179,11 @@
     "not_compared": [
       {"run": 129, "reason": "Not compared: since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
       {"run": 145, "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
-      {"run": 150, "reason": "Not run: no Celeris API key is available."},
-      {"run": 125, "reason": "Not run: Clef's server reports option probabilities rounded to 4 decimal places, so its English smoke run (538) failed our probability check, which needs the probabilities to add up to 1 to 7 decimal places; no allowance for that rounding has been decided."}
+      {"run": 125, "reason": "Not run: Clef's own model code rounds each option's probability to 4 decimal places, so its English smoke run (538) failed our probability check, which needs the probabilities to add up to 1 to 7 decimal places; an allowance for that rounding, like the ones for Drex 2.0 and Base Labs' models, awaits a decision."}
     ],
     "skipped": [259, 269, 322],
     "skipped_reason": "Not run by decision: these models run on our own GPUs, and we decided not to run them in English.",
-    "method_notes": ["Perplexity Decider 27B v1.2, Perplexity Decider Flash v1.2 and Fastino GLiDE v1.2 made their Text tab runs on an NVIDIA DGX Spark and their English runs on our RTX PRO 6000 GPU, with the same checkpoint, server code and settings."],
+    "method_notes": ["Perplexity Decider 27B v1.2, Perplexity Decider Flash v1.2 and Fastino GLiDE v1.2 made their Text tab runs on an NVIDIA DGX Spark and their English runs on our RTX PRO 6000 GPU, with the same checkpoint, server code and settings.", "Celeris-1 Decision was added on 3 November 2026 with one English run, although its repeated Turkish runs changed answers, for which the rule under Runs gives five."],
     "structural_check": {"about": "runner/translate_reading.py check on the final translations: the questions with a problem (a missing translation, the option letters, an empty text or the underline markup) and the number of warnings (numbering, numbers, Turkish letters, length). The build stops unless every problem question is flagged.", "problem_questions": [3043], "warnings": 159}
   },
   "aa_decision_index": {
