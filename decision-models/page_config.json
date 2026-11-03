@@ -190,6 +190,17 @@
     "post": "https://x.com/ArtificialAnlys/status/2113360449156890662",
     "date": "2026-10-22",
     "evaluations": "AA-Omniscience-Decision, HLE-MultiChoice, When2Call and WildGuardTest",
+    "thread": {
+      "results": "8f69ed8d",
+      "note": "Artificial Analysis does not name its GLiDE version. The rest of this page uses Fastino's hosted GLiDE; the cards show GLiDE v1.2, which we ran on our GPU.",
+      "cards": [
+        {"file": "d1-english.png", "alt": "Column chart, English reading: % right of 17 decision models, highest first. d1-ultra 90.7%, GLiDE v1.2 90.3%, Mammoth-1 90.1%, vLLM-SR d3 89.8%, Drex Max v1 89.6%, d3-ultra 89.4%, Decider v1.2 88.7%, Drex Max 1.1 88.5%, d1 86.8%, Jev 1.14 86.1%, SubQ Snap 1.1 85.9%, Mercury Decide 85.7%, Microsoft-Decision-1 85.7%, Elephant-1 85.4%, Celeris-1 84.1%, GPT-6 Luna 84.1%, Decider Flash v1.2 81.9%."},
+        {"file": "d2-turkish.png", "alt": "Column chart, Turkish reading and grammar: % right of the same 17 decision models, highest first. d1-ultra 77.1%, GLiDE v1.2 68.5%, vLLM-SR d3 and d3-ultra 67.8%, Drex Max v1 67.7%, Drex Max 1.1 67.4%, Mammoth-1 and Decider v1.2 67.1%, SubQ Snap 1.1 63.9%, GPT-6 Luna 63.6%, Celeris-1 60.5%, Jev 1.14 59.2%, Mercury Decide 58.3%, d1 57.0%, Elephant-1 52.4%, Decider Flash v1.2 47.8%, Microsoft-Decision-1 46.5%."},
+        {"file": "d3-non-hallucination.png", "alt": "Two column charts, Turkish and English, on the same 547 reading questions: non-hallucination rate of 7 models, with the share of questions each answered. Turkish: d1-ultra 49.1%, Mammoth-1 43.9%, SubQ Snap 1.1 29.7%, Drex Max 1.1 27.3%, Elephant-1 22.6%, GLiDE v1.2 16.1%, Decider v1.2 1.9%. English: d1-ultra 56.7%, Drex Max 1.1 51.2%, Mammoth-1 50.7%, GLiDE v1.2 45.5%, Elephant-1 25.6%, SubQ Snap 1.1 25.0%, Decider v1.2 3.0%."},
+        {"file": "d4-cost.png", "alt": "Scatter chart, our Turkish questions: % right against US$ per 1 million questions (log scale) for AA's three tied models and ten other decision models. d1-ultra 77.1% at $14.3, GLiDE v1.2 68.5% at $14.4, Decider v1.2 67.1% at $7.8, SubQ Snap 1.1 63.9% at $15.4, GPT-6 Luna 63.6% at $40.4, Celeris-1 60.5% at $15.3, Jev 1.14 59.2% at $28.8, Mercury Decide 58.3% at $7.7, Clef 57.3% at $110, d1 57.0% at $7.4, Elephant-1 52.4% at $13.9, Decider Flash v1.2 47.8% at $3.9, Microsoft-Decision-1 46.5% at $13.8."},
+        {"file": "d5-confidence.png", "alt": "Column chart: for 17 decision models, the answers each gave with at least 95% probability on 2,198 Turkish questions, and the % of those that were wrong. d1-ultra kept 549, none wrong; Celeris-1 kept 123, none wrong; SubQ Snap 1.1 kept 665, 2.7% wrong; Elephant-1 kept 393, 3.3% wrong; Mercury Decide kept 775, 8.6% wrong."}
+      ]
+    },
     "models": [
       {"name": "d1-ultra", "run": 199},
       {"name": "SubQ Snap 1.1", "run": 346},

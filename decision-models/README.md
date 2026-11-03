@@ -268,14 +268,10 @@ python3 -m http.server 8000                                # preview at http://1
     table with accuracy, reading, grammar, page images
     (picture alone), non-hallucination and attempt rates, cost per 1,000 and per 1M questions and the median latency per
     request, every value from
-    `results.json` and `vision.json`. It opens with our four reply charts to that post, one per card of Artificial
-    Analysis's thread: `aa_cards.py` draws them from the same data with headless Chrome (in every full build, after the
-    link preview; `--no-images` keeps them) into `aa-decision-index/card-<n>-<topic>-<hash>.png`, and
-    `aa-decision-index/cards.json` names them with the results version they were drawn from and a digest of the cards'
-    inputs (the results version, `vision.json`, the parts of `page_config.json` they read and `aa_cards.py` itself). The
-    build stops when either is not the site's, so the charts never show other numbers than the page. `aa_cards.py`
-    needs Pillow to draw (not to build the site with `--no-images`) and the Noto Sans font (fontconfig, or
-    `CARD_FONT`). Nothing links the page from the navigation bar.
+    `results.json` and `vision.json`. It opens with the cards of our thread on X, as made for the thread and never
+    redrawn (PNG files in `aa-decision-index/`), in the thread's order, each with its alt text from the thread, the
+    thread's results version and a note (`page_config.json`'s `aa_decision_index.thread`); the build stops when a
+    card's file is missing or not a PNG, or its alt text is empty. Nothing links the page from the navigation bar.
   - **`data/picks.json`**: each leaderboard setup's pick and score on each scored question, written from
     `answers.json` by `sitebuild/questions.py`, which checks every pick against its grade. Scores are floored
     to four decimals, so a score below the 99% cutoff never reads as 99.00%.

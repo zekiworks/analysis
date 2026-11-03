@@ -1,16 +1,14 @@
 """Artificial Analysis's Decision Index models on our benchmark (aa-decision-index/): our numbers for the decision models
 of Artificial Analysis's Decision Index v1.0, as its post of 22 October 2026 lists them (page_config.json's
-aa_decision_index), in two charts and one table. It is the source of the four charts we made in reply to that post. It
+aa_decision_index), in two charts and one table, after the cards of our thread on X (aa_decision_index.thread). It
 needs no JavaScript, ranks nothing new and changes no number of the other pages: every value is results.json's or
 vision.json's, as the Text, Page images and Hallucination tabs show it."""
 
 from __future__ import annotations
 
-import json
 import math
 from typing import Any
 
-import aa_cards
 import build_page as bp
 from sitebuild.site import NOT_MEASURED, ROOT, Site, esc, hbars, latency_text, pct, rank_fill, rel, scale_legend
 from sitebuild.vision import NO_IMAGE, NOT_AVAILABLE, cell, joined
@@ -59,31 +57,26 @@ def route(run: dict[str, Any]) -> str:
 
 
 def reply_cards(site: Site) -> str:
-    """Our four reply charts (aa_cards.py), each opening its PNG. The build stops when cards.json is missing, names a file
-    that is not there or was drawn from other results or other inputs (aa_cards.inputs_digest) than the site's."""
-    redraw = "draw them again (python3 aa_cards.py, or build_site.py without --no-images)"
-    path = ROOT / PATH / "cards.json"
-    if not path.is_file():
-        raise SystemExit(f"{PATH}cards.json is missing: {redraw}")
-    manifest = json.loads(path.read_text(encoding="utf-8"))
-    version = site.results["results_version"]
-    if manifest["results_version"] != version:
-        raise SystemExit(f"{PATH}cards.json: the reply charts are from results {manifest['results_version']}, the site from {version}: {redraw}")
-    if manifest.get("inputs_digest") != aa_cards.inputs_digest():
-        raise SystemExit(f"{PATH}cards.json: the reply charts were drawn from other inputs (vision.json, page_config.json or aa_cards.py "
-                         f"changed since): {redraw}")
-    missing = [card["file"] for card in manifest["cards"] if not (ROOT / PATH / card["file"]).is_file()]
-    if missing:
-        raise SystemExit(f"{PATH}cards.json names files that are not there ({', '.join(missing)}): {redraw}")
-    width, height = manifest["width"], manifest["height"]
-    figures = "".join(
-        f'<figure class="reply-card" style="margin:0 0 1.25rem"><a href="{esc(card["file"])}"><img src="{esc(card["file"])}" width="{width}" height="{height}" '
-        f'loading="lazy" alt="{esc(card["title"])}: the numbers of this page" style="display:block;width:100%;height:auto"></a>'
-        f'<figcaption class="note">{index}. In reply to Artificial Analysis\'s “{esc(card["answers"])}” · PNG, {width:,} × {height:,}</figcaption></figure>'
-        for index, card in enumerate(manifest["cards"], 1))
-    return (f'<section class="card" id="reply-charts"><h2>Our four reply charts</h2><p class="note">One for each card of Artificial '
-            f"Analysis's thread, drawn from this page's numbers (results {esc(version)}); each opens as an image to download.</p>"
-            f"{figures}</section>")
+    """Our reply charts: the cards of our thread on X in reply to Artificial Analysis's post (page_config.json's
+    aa_decision_index.thread: each card's file in aa-decision-index/ and its alt text), in the thread's order, each
+    opening its PNG, never redrawn. The build stops when a card's file is missing or not a PNG, or its alt text is empty."""
+    thread = site.config["aa_decision_index"]["thread"]
+    figures = []
+    for index, card in enumerate(thread["cards"], 1):
+        path = ROOT / PATH / card["file"]
+        if not path.is_file() or path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
+            raise SystemExit(f"page_config.json aa_decision_index.thread: {PATH}{card['file']} is missing or not a PNG")
+        if not card["alt"].strip():
+            raise SystemExit(f"page_config.json aa_decision_index.thread: {card['file']} has no alt text")
+        width, height = bp.png_size(path)
+        figures.append(
+            f'<figure class="reply-card" style="margin:0 0 1.25rem"><a href="{esc(card["file"])}"><img src="{esc(card["file"])}" '
+            f'width="{width}" height="{height}" loading="lazy" alt="{esc(card["alt"])}" style="display:block;width:100%;height:auto"></a>'
+            f'<figcaption class="note">Card {index} of {len(thread["cards"])} · PNG, {width:,} × {height:,}</figcaption></figure>')
+    return (f"<section class=\"card\" id=\"reply-charts\"><h2>Our {bp.in_words(len(thread['cards']))} reply charts</h2>"
+            f"<p class=\"note\">The cards of our thread on X in reply to Artificial Analysis's post, in the thread's order "
+            f"(results {esc(thread['results'])}); each opens as an image.</p>"
+            f"{''.join(figures)}<p class=\"note\">{esc(thread['note'])}</p></section>")
 
 
 def build(site: Site) -> dict[str, str]:
@@ -237,7 +230,7 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Compared with Artificial Analysis</p>
       <h1>{esc(TITLE)}</h1>
-      <p>Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard{not_ours}. This page gathers our numbers for those {len(pairs)}, from our published results: the numbers of our four charts in reply to that post come from here. Our tests are different from Artificial Analysis's, so the two rank different things. This page ranks nothing new and changes no number on the other pages.</p>
+      <p>Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard{not_ours}. This page gathers our numbers for those {len(pairs)}, from our published results, and opens with our reply charts. Our tests are different from Artificial Analysis's, so the two rank different things. This page ranks nothing new and changes no number on the other pages.</p>
       <nav class="face-nav" aria-label="On this page"><a href="#reply-charts">Reply charts</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#chart-latency">Latency</a><a href="#table">Every number</a></nav>
     </section>
     {reply_cards(site)}
