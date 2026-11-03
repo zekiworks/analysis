@@ -1,17 +1,19 @@
 ---
 source: tests/snapshots.rs
+assertion_line: 17
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not
-establish a difference; the colour shows a related but separate test, adjusted across these 73 comparisons (11 pass).
-━━ passes the Holm adjustment across these 73 comparisons   ━━ does not pass
+establish a difference; the colour shows a related but separate test, adjusted across these 74 comparisons (11 pass).
+━━ passes the Holm adjustment across these 74 comparisons   ━━ does not pass
 
                  Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                         ⠤⡧⠤                                     +0.1
                       GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                         ⠠⡧⠄                                     +0.2
                        GPT-6.1 Sol (high reasoning) minus GPT-6 Astra (low reasoning)                         ⠤⡧⠤                                     +0.2
                         GPT-6 Astra (low reasoning) minus GPT-6.1 Sol (low reasoning)                          ⡧⠤⡦⠄                                   +0.9
-                  GPT-6.1 Sol (low reasoning) minus Claude Fable 5.1 (high reasoning)                         ⠠⡧⡦⠤⠄                                   +0.5
+                     GPT-6.1 Sol (low reasoning) minus Gemini 4 Argon (low reasoning)                        ⠠⠤⣷⠤⠤                                    +0.3
+               Gemini 4 Argon (low reasoning) minus Claude Fable 5.1 (high reasoning)                        ⠠⠤⣷⠤⠤                                    +0.2
              Claude Fable 5.1 (high reasoning) minus Claude Opus 5.5 (high reasoning)                          ⡧⠤⢴⠤⠤                                  +1.1
                 Claude Opus 5.5 (high reasoning) minus GPT-6.1 Terra (high reasoning)                         ⠠⡧⢴⠤⠤⠄                                  +0.7
                 GPT-6.1 Terra (high reasoning) minus Gemini 3.8 Flash (low reasoning)                         ⠠⡧⠤⡦⠤⠤⠄                                 +1.0
@@ -43,7 +45,7 @@ DeepSeek-V4.1-Flash, first release (reasoning on) minus GPT-6.1 Terra (low reaso
                 Decider v1.1 minus DeepSeek-V4.1-Flash, first release (reasoning off)                       ⠤⠤⠤⡧⠤⡧⠤⠤⠤⠤⠄                               +1.0
                                                         Decider v1.1 minus Decider v1                          ⡇          ⠤⠤⠤⠤⢼⠤⠤⠤⠤                   +6.5
                 DeepSeek-V4.1-Flash, first release (reasoning off) minus Snap Preview                      ⠠⠤⠤⠤⡧⢼⠤⠤⠤⠤⠤                                +0.7
-                                                          Snap Preview minus Snap 1.1                         ⠤⡧⠤⠤⡧⠤⠤⠤⠄                               +1.4
+                                                          Snap Preview minus Snap 1.1                         ⠒⡗⠒⠒⡗⠒⠒⠒⠂                               +1.4
                                              Snap 1.1 minus GPT-6 Luna, Decisions API                     ⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠂                                +0.3
                                           GPT-6 Luna, Decisions API minus Liquid d1.1                         ⠐⡗⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                            +2.1
                                   Liquid d1.1 minus Claude Sonnet 5.5 (low reasoning)                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒                                 +0.1

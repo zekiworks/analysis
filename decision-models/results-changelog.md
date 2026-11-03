@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 0bdaa447 (3 November 2026)
+
+- Text tab: Gemini 4 Argon at thinking level low, added at Ümit's request, the setting it played the backgammon paired test with: one run over the 2,198 scored questions through the Gemini API, 16 questions per request, the current prompt (run 557): 2,118 right (96.4%), 0 invalid. Its cost, $3.93, is at Google's regular price ($4 input, $20 output per 1M tokens; introductory $2 and $10 until 30 November 2026). A chat model: the decision-model lists are unchanged.
+- Following from one more Text tab setup: the paired test of neighbouring setups compares 74 pairs (Holm over 74; still 11 pass), and the comparisons over every Text tab setup include it: answers at 95%+ confidence, and the same number of answers in Turkish (Holm over 73 instead of 72; each model's own p unchanged). No other run changed.
+
 ## Results fb40b559 (3 November 2026)
 
 - Hallucination tab, new section “Answers at 95%+ confidence” (`results.json` `high_confidence`), from runs already published: each decision model's Text tab run, keeping only the answers whose chosen option has a probability of at least 95% (an answer without a score never counts), with the wrong ones among them. Liquid d1-ultra keeps 549 answers with none wrong (run 199), and 538, 542, 534 and 550 with none wrong in its repeat runs 200 to 203; SubQ Snap 1.1 keeps 665 with 18 wrong (run 346), Elephant-1 393 with 13 (run 373) and Celeris-1 Decision 123 with none. For the three models Artificial Analysis's Decision Index puts level at 65, the share wrong in each of their five runs at 50%, 70%, 80%, 90%, 95% and 99%: at every whole-percent cutoff up to 98%, d1-ultra's worst run has a lower share wrong than the best run of SubQ Snap 1.1 and of Elephant-1; at 99% all three are at or near 0. In English, at 95%, d1-ultra has 1 wrong answer in each of its 5 runs, question 280 each time.
