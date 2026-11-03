@@ -2001,6 +2001,176 @@ def dont_know_english_option(section: dict[str, Any]) -> dict[str, Any]:
     return {"source": ENGLISH_OPTION_FOUR_SOURCE, "questions": section["questions"], "models": models}
 
 
+def option_word_vs_confidence(option_word: dict[str, Any], dont_know_section: dict[str, Any], answers: dict[str, Any]) -> dict[str, Any]:
+    """`dont_know_option_word.vs_confidence`: per option-word model, in the section's order, its option-word run (the
+    option written "I don't know") against its five-option run held back by its own confidence at the derived cut-off
+    (derived_abstention at the option-word run's attempt rate, on the scored questions), as wrong answers in each (exact
+    McNemar, bm.paired_comparison: first the option, second confidence), with Holm's correction over the models whose
+    option-word run chose the option on at least VS_CONFIDENCE_SHARE of the scored questions. The five-option run is the
+    Hallucination tab row's original run, except the hosted GLiDE rerun for RERUN_REPLACES. "below" and "above" name the
+    neighbouring candidate cut-offs (the next lower and next higher distinct scores) with their answered counts. Stops
+    unless the family is the Hallucination tab's own vs_confidence family."""
+    scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
+    words = {run["run"]: run for run in answers["dont_know_word_runs"]}
+    main = {run["run"]: run for run in answers["runs"]}
+    reruns = {run["run"]: run for run in answers.get("rerun_runs", [])}
+    rows = {row["run"]: row for row in dont_know_section["models"]}
+    if len(reruns) != 1:
+        raise ValueError(f"vs_confidence: needs the one hosted GLiDE rerun, found runs {sorted(reruns)}")
+    rerun_id = next(iter(reruns))
+    models, family = [], []
+    for model in option_word["models"]:
+        row = rows[model["bilmiyorum"]["run"]]
+        option_run = words[model["i_dont_know"]["run"]]
+        replaces = row["original_run"] if row["original_run"] == RERUN_REPLACES else None
+        five = reruns[rerun_id] if replaces is not None else main[row["original_run"]]
+        published = model["i_dont_know"]
+        option_wrong = [int(option_run["choice"][index] not in (None, DONT_KNOW_LETTER) and not option_run["correct"][index]) for index in scored]
+        option_right = sum(1 for index in scored if option_run["choice"][index] not in (None, DONT_KNOW_LETTER) and option_run["correct"][index])
+        option_dont_know = sum(1 for index in scored if option_run["choice"][index] == DONT_KNOW_LETTER)
+        if (sum(option_wrong), option_right, option_dont_know) != (published["wrong"], published["right"], published["dont_know"]):
+            raise ValueError(f"{model['name']}: option-word run {option_run['run']}'s answers do not give its published counts")
+        pairs = [(None if five["score"][index] is None else float(five["score"][index]), int(five["correct"][index])) for index in scored]
+        found = derived_abstention(pairs, published["attempt_rate"])
+        cut_off = found["cut_off"]
+        if cut_off is None:
+            raise ValueError(f"{model['name']}: five-option run {five['run']} has no scores to derive a cut-off from")
+        distinct = sorted({score for score, _ in pairs if score is not None})
+        position = distinct.index(cut_off)
+
+        def neighbour(at: int) -> dict[str, Any]:
+            if not 0 <= at < len(distinct):
+                return {"cut_off": None, "answered": None}
+            return {"cut_off": distinct[at], "answered": sum(1 for score, _ in pairs if score is not None and score >= distinct[at])}
+
+        confidence_wrong = [int(five["score"][index] is not None and float(five["score"][index]) >= cut_off and not five["correct"][index])
+                            for index in scored]
+        if sum(confidence_wrong) != found["wrong"]:
+            raise ValueError(f"{model['name']}: run {five['run']}'s answers held back at {cut_off} do not give {found['wrong']} wrong answers")
+        test = bm.paired_comparison(option_wrong, confidence_wrong)
+        entry = {
+            "name": model["name"],
+            "option_run": option_run["run"],
+            "five_option_run": five["run"],
+            "replaces_run": replaces,
+            "option": {"answered": published["right"] + published["wrong"], "attempt_rate": published["attempt_rate"],
+                       "right": published["right"], "wrong": published["wrong"], "dont_know": published["dont_know"]},
+            "derived": {"cut_off": cut_off, "answered": found["right"] + found["wrong"], "attempt_rate": found["attempt_rate"],
+                        "right": found["right"], "wrong": found["wrong"], "abstained": found["abstained"],
+                        "below": neighbour(position - 1), "above": neighbour(position + 1)},
+            "option_only_wrong": test["first_only"],
+            "confidence_only_wrong": test["second_only"],
+            "p": test["p"],
+            "p_holm": None,
+        }
+        models.append(entry)
+        if published["dont_know"] >= VS_CONFIDENCE_SHARE * len(scored):
+            family.append(entry)
+    if [entry for entry in models if entry["replaces_run"] is not None] != [entry for entry in models if entry["five_option_run"] == rerun_id] \
+            or sum(1 for entry in models if entry["five_option_run"] == rerun_id) != 1:
+        raise ValueError(f"vs_confidence: run {rerun_id} must be the five-option run of exactly the model whose original run was {RERUN_REPLACES}")
+    existing = {row["name"] for row in dont_know_section["models"] if row["vs_confidence"]["p_holm"] is not None}
+    if {entry["name"] for entry in family} != existing or len(family) != len(existing):
+        raise ValueError(f"vs_confidence: the eligible family {sorted(entry['name'] for entry in family)} is not the Hallucination "
+                         f"tab's {sorted(existing)}")
+    for entry, adjusted in zip(family, bm.holm([entry["p"] for entry in family])):
+        entry["p_holm"] = adjusted
+    return {"share": VS_CONFIDENCE_SHARE, "family": [entry["name"] for entry in family], "models": models}
+
+
+COVERAGE_DEFINITIONS = (
+    "All series are counted on the same kept reading questions; a full-bank run is restricted to them; first runs only. "
+    "Answered = right + wrong (an invalid answer or one without a score is never answered). Coverage = answered / kept "
+    "questions. Risk = error rate among answered = wrong / answered. Abstained: for a native point, the times the model "
+    "chose the option; for a curve point, kept questions - answered - invalid. A native point is the run with its "
+    "abstention option (Turkish \"Bilmiyorum\", Turkish \"I don't know\" as the wording control, English \"I don't "
+    "know\"); a missing one is Not measured. A curve is one five-option run held back by its recorded score (the "
+    "probability of the chosen option): one point per distinct score s, answering when the score is at least s; "
+    "answers with equal scores enter together, so coverage moves in jumps and every point is an achieved one; all "
+    "distinct points kept, ordered by coverage."
+)
+
+
+def english_coverage(reading: dict[str, Any], option_word: dict[str, Any] | None, dont_know_section: dict[str, Any] | None,
+                     answers: dict[str, Any], public: dict[str, Any]) -> dict[str, Any]:
+    """`english_reading.coverage`: per model of `english_reading`, on the kept questions only, its native abstention
+    points (Turkish "Bilmiyorum" from `english_reading.dont_know`'s Turkish side, Turkish "I don't know" from the
+    option-word run of its Hallucination tab row, English "I don't know" from `english_reading.dont_know` including
+    english_only; run None where not measured) and its confidence-derived risk-coverage curves (the Text tab run in
+    Turkish, the first English run) from their recorded scores (COVERAGE_DEFINITIONS)."""
+    kept = kept_questions(answers, public)
+    total = len(kept)
+    if total != public["kept"]:
+        raise ValueError(f"coverage: {total} kept questions, english-reading.json says {public['kept']}")
+    lists = {name: {run["run"]: run for run in answers.get(name, [])} for name in
+             ("runs", "english_runs", "dont_know_runs", "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs")}
+    idk = reading.get("dont_know") or {"models": []}
+    bilmiyorum = {model["text_run"]: model["turkish"] for model in idk["models"]}
+    english_idk = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])}
+    word_by_text: dict[int, int] = {}
+    if option_word is not None:
+        original = {row["run"]: row["original_run"] for row in dont_know_section["models"]}
+        word_by_text = {original[model["bilmiyorum"]["run"]]: model["i_dont_know"]["run"] for model in option_word["models"]}
+
+    def asked_all(run: dict[str, Any]) -> bool:
+        return all(run["correct"][index] is not None for index in kept)
+
+    def native(language: str, wording: str, run: dict[str, Any] | None, full_bank: bool) -> dict[str, Any]:
+        if run is None:
+            return {"language": language, "wording": wording, "run": None}
+        if not asked_all(run):
+            raise ValueError(f"coverage: run {run['run']} was not asked every kept question")
+        found = {"right": 0, "wrong": 0, "abstained": 0, "invalid": 0}
+        for index in kept:
+            choice = run["choice"][index]
+            key = "invalid" if choice is None else "abstained" if choice == DONT_KNOW_LETTER else "right" if run["correct"][index] else "wrong"
+            found[key] += 1
+        answered = found["right"] + found["wrong"]
+        return {"language": language, "wording": wording, "run": run["run"], "full_bank_restricted": full_bank, **found,
+                "coverage": answered / total, "risk": found["wrong"] / answered if answered else None}
+
+    def curve(language: str, run: dict[str, Any]) -> dict[str, Any]:
+        if not asked_all(run):
+            raise ValueError(f"coverage: run {run['run']} was not asked every kept question")
+        ranked = sorted(((float(run["score"][index]), bool(run["correct"][index])) for index in kept
+                         if run["choice"][index] is not None and run["score"][index] is not None), key=lambda item: -item[0])
+        points, answered, wrong = [], 0, 0
+        for position, (score, correct) in enumerate(ranked):
+            answered += 1
+            wrong += not correct
+            if position + 1 < len(ranked) and ranked[position + 1][0] == score:
+                continue
+            points.append([answered / total, wrong / answered, answered, wrong])
+        return {"language": language, "run": run["run"], "points": points}
+
+    models = []
+    for model in reading["models"]:
+        text_run = model["turkish_run"]
+        turkish = bilmiyorum.get(text_run)
+        if turkish is None:
+            first_turkish = None
+        elif turkish["subset"]:
+            first_turkish = native("Turkish", "Bilmiyorum", lists["english_dont_know_turkish_runs"][turkish["run"]], False)
+        else:
+            first_turkish = native("Turkish", "Bilmiyorum", lists["dont_know_runs"][turkish["run"]], True)
+        word = word_by_text.get(text_run)
+        english = english_idk.get(text_run)
+        models.append({
+            "name": model["name"],
+            "text_run": text_run,
+            "native": [
+                first_turkish or native("Turkish", "Bilmiyorum", None, False),
+                native("Turkish", "I don't know", None if word is None else lists["dont_know_word_runs"][word], True),
+                native("English", "I don't know", None if english is None else lists["english_dont_know_runs"][english["run"]], False),
+            ],
+            "curves": [curve("Turkish", lists["runs"][text_run]), curve("English", lists["english_runs"][model["run"]])],
+        })
+    unmatched = (set(bilmiyorum) | set(english_idk)) - {model["turkish_run"] for model in reading["models"]}
+    if unmatched:
+        raise ValueError(f"coverage: \"I don't know\" setups of Text tab runs {sorted(unmatched)} have no English reading model")
+    return {"questions": total, "definitions": COVERAGE_DEFINITIONS, "models": models}
+
+
 def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_section: dict[str, Any] | None = None,
                    english_section: dict[str, Any] | None = None,
                    english_dont_know_section: dict[str, Any] | None = None,
@@ -2159,6 +2329,12 @@ def main() -> int:
             if english_idk is not None:
                 data["english_reading"]["dont_know"] = english_dont_know_answers_part(english_idk, document, answers, public)
                 data["dont_know_english_option"] = dont_know_english_option(data["english_reading"]["dont_know"])
+            data["english_reading"]["coverage"] = english_coverage(data["english_reading"], data.get("dont_know_option_word"),
+                                                                   data.get("dont_know"), answers, public)
+        if option_word is not None:
+            if rerun is None:
+                raise ValueError("vs_confidence: the option-word comparison needs the hosted GLiDE rerun")
+            data["dont_know_option_word"]["vs_confidence"] = option_word_vs_confidence(data["dont_know_option_word"], data["dont_know"], answers)
         data["answer_key"] = answer_key(answers)
         data["formats"] = formats(data["runs"], answers)
         data["reasoning"] = reasoning(data["runs"], answers)
@@ -2166,6 +2342,10 @@ def main() -> int:
         refit(data["runs"], answers)
         holm_over_all_pairs(data["paired"], data["runs"], answers)
         data["baselines"] = baselines(answers, data["replay"]["decision"])
+        # The footer date: the newest `updated` of any run a section publishes (every run in the answers file), from
+        # the report's records, so results_version stays a pure content hash.
+        published = {run["run"] for key, runs in answers.items() if key.endswith("runs") for run in runs}
+        data["updated"] = max(by_run[run]["updated"] for run in published)
     except (OSError, ValueError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

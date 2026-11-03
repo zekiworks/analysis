@@ -107,6 +107,60 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
             f'<ol class="hbars">{"".join(items)}</ol>')
 
 
+# The marker shapes of line_plot(), each a path around (0, 0) about 10 pixels across.
+MARKERS = {
+    "circle": "M -5 0 A 5 5 0 1 0 5 0 A 5 5 0 1 0 -5 0 Z",
+    "square": "M -4.5 -4.5 H 4.5 V 4.5 H -4.5 Z",
+    "triangle": "M 0 -6 L 5.5 4 H -5.5 Z",
+}
+
+
+def marker_path(shape: str, x: float, y: float) -> str:
+    return f'<path transform="translate({x:.1f} {y:.1f})" d="{MARKERS[shape]}"/>'
+
+
+def line_plot(series: list[dict[str, Any]], x_title: str, y_title: str, y_top: float, label: str) -> str:
+    """An inline SVG plot without a script, readable in both themes (axes and text in the site's CSS variables, inside
+    .chart-box): x from 0 to 1 and y from 0 to y_top, both in percent, a tick at each fifth of x and each quarter of y.
+    Each series: colour, title (its tooltip), points [(x, y, tooltip)], and either line=True (drawn as a line through
+    its points in order) or shape (a MARKERS key, one marker per point, each with its own tooltip)."""
+    width, height, left, right, top, bottom = 440, 340, 54, 16, 12, 48
+    plot_w, plot_h = width - left - right, height - top - bottom
+    px = lambda value: left + plot_w * min(max(value, 0.0), 1.0)  # noqa: E731
+    py = lambda value: top + plot_h * (1 - min(max(value, 0.0), y_top) / y_top)  # noqa: E731
+    parts = []
+    for index in range(6):
+        x = px(index / 5)
+        parts.append(f'<line class="grid" x1="{x:.1f}" y1="{top}" x2="{x:.1f}" y2="{top + plot_h}"/>'
+                     f'<text class="tick" x="{x:.1f}" y="{top + plot_h + 16}" text-anchor="middle">{100 * index / 5:.0f}%</text>')
+    for index in range(5):
+        y = py(y_top * index / 4)
+        parts.append(f'<line class="grid" x1="{left}" y1="{y:.1f}" x2="{left + plot_w}" y2="{y:.1f}"/>'
+                     f'<text class="tick" x="{left - 6}" y="{y + 4:.1f}" text-anchor="end">{100 * y_top * index / 4:.4g}%</text>')
+    parts.append(f'<line class="axis" x1="{left}" y1="{top + plot_h}" x2="{left + plot_w}" y2="{top + plot_h}"/>'
+                 f'<line class="axis" x1="{left}" y1="{top}" x2="{left}" y2="{top + plot_h}"/>'
+                 f'<text class="axis-title" x="{left + plot_w / 2:.1f}" y="{height - 8}" text-anchor="middle">{esc(x_title)}</text>'
+                 f'<text class="axis-title" transform="translate(14 {top + plot_h / 2:.1f}) rotate(-90)" '
+                 f'text-anchor="middle">{esc(y_title)}</text>')
+    for item in (item for item in series if item.get("line")):
+        points = " ".join(f"{px(x):.1f},{py(y):.1f}" for x, y, _ in item["points"])
+        parts.append(f'<polyline fill="none" stroke="{item["colour"]}" stroke-width="1.8" stroke-linejoin="round" '
+                     f'points="{points}"><title>{esc(item["title"])}</title></polyline>')
+    for item in (item for item in series if not item.get("line")):
+        marks = "".join(f'<g><title>{esc(tip)}</title>{marker_path(item["shape"], px(x), py(y))}</g>'
+                        for x, y, tip in item["points"])
+        parts.append(f'<g fill="{item["colour"]}" stroke="var(--panel)" stroke-width="1.2">{marks}</g>')
+    return (f'<svg viewBox="0 0 {width} {height}" width="100%" style="max-width:600px" role="img" aria-label="{esc(label)}" '
+            f'preserveAspectRatio="xMidYMid meet">{"".join(parts)}</svg>')
+
+
+def legend_mark(colour: str, shape: str | None = None) -> str:
+    """A line_plot() legend key: a short line, or a marker of that shape, in the series' colour."""
+    inner = (f'<line x1="1" y1="7" x2="19" y2="7" stroke="{colour}" stroke-width="2.5"/>' if shape is None
+             else f'<g fill="{colour}">{marker_path(shape, 10, 7)}</g>')
+    return f'<svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true" style="vertical-align:middle">{inner}</svg>'
+
+
 def topbar(path: str) -> str:
     """The bar at the top of every page: the brand, which links home, the navigation bar and the theme switch."""
     current = ' aria-current="page"'

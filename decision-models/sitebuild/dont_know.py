@@ -102,7 +102,7 @@ def not_run(items: list[dict[str, Any]]) -> str:
     return f'<h3 class="board-group">Not run</h3><ul>{lines}</ul>'
 
 
-def findings(site: Site, data: dict[str, Any]) -> str:
+def findings(site: Site, data: dict[str, Any], word: dict[str, Any] | None = None) -> str:
     """What we found: the table's main results in words, every number computed from results.json's dont_know. The
     sentences assume what they say (some models used the option and lost accuracy, the rest almost never chose it, each
     derived rate holds back on as many questions as its run said “Bilmiyorum”); the build stops when the data no longer
@@ -191,32 +191,61 @@ def findings(site: Site, data: dict[str, Any]) -> str:
             parts.append(f"“{option}” left significantly fewer for {adjusted(by_option)}")
         rest = len(family) - len(significant)
         third += "; ".join(parts) + (f"; for the other {rest}, the difference could be chance." if rest else ".")
-    return first + second + third + "</p>"
+    fourth = ""
+    if word and word.get("vs_confidence"):
+        # check_vs_confidence has already stopped the build unless Holm's family is this comparison's family.
+        fourth = f"<p>{vs_confidence_text(site, data, word, False)}</p>"
+    return first + second + third + "</p>" + fourth
 
 
-def headline(data: dict[str, Any]) -> str:
-    """One line at the top of the tab, from vs_confidence: the models whose own confidence, holding back on as many
-    questions, left significantly fewer wrong answers than the option (Holm-adjusted p below 0.05); none when there are
-    none."""
-    option = esc(data["option"])
-    family = [model for model in ranked(data["models"]) if model["vs_confidence"]["p_holm"] is not None]
-    better = [model for model in family if model["vs_confidence"]["p_holm"] < 0.05
-              and model["vs_confidence"]["option_only_wrong"] > model["vs_confidence"]["confidence_only_wrong"]]
-    if not better:
+def headline(data: dict[str, Any], word: dict[str, Any] | None = None) -> str:
+    """One line at the top of the tab, from vs_confidence (and, when results.json has it, dont_know_option_word's
+    vs_confidence, the same comparison with “I don't know”): the models whose own confidence, holding back on about as
+    many questions, left significantly fewer wrong answers than the option (Holm-adjusted p below 0.05); none when there
+    are none with either word."""
+    def verdicts(family: list[dict[str, Any]], counts: Any) -> tuple[list[str], list[str], int]:
+        """The family's names where confidence, then the option, left significantly fewer; how many could be chance."""
+        better = [esc(model["name"]) for model in family if model["p_holm"] < 0.05 and counts(model)[0] > counts(model)[1]]
+        worse = [esc(model["name"]) for model in family if model["p_holm"] < 0.05 and counts(model)[0] < counts(model)[1]]
+        return better, worse, sum(1 for model in family if model["p_holm"] >= 0.05)
+
+    def others(option: str, worse: list[str], rest: int) -> str:
+        text = f"; for {joined(worse)}, “{option}” left significantly fewer wrong answers" if worse else ""
+        if rest:
+            text += ("; for the other model that used it" if rest == 1 else f"; for the other {rest} models that used it") + \
+                ", the difference could be chance"
+        return text
+
+    def sentence(lead: str, option: str, family: list[dict[str, Any]], strong: bool) -> str:
+        """One word's verdict, without its full stop; empty when no difference is significant."""
+        better, worse, rest = verdicts(family, lambda model: (model["option_only_wrong"], model["confidence_only_wrong"]))
+        if better:
+            text = (f"{lead}{joined([name + '’s' for name in better])} own confidence left significantly fewer wrong answers "
+                    f"than “{option}” did")
+            return (f"<strong>{text}</strong>" if strong else text) + others(option, worse, rest)
+        if worse:
+            return f"{lead}{others(option, worse, rest).removeprefix('; ')}"
         return ""
-    worse = [model for model in family if model["vs_confidence"]["p_holm"] < 0.05
-             and model["vs_confidence"]["option_only_wrong"] < model["vs_confidence"]["confidence_only_wrong"]]
-    rest = sum(1 for model in family if model["vs_confidence"]["p_holm"] >= 0.05)
-    others = ""
-    if worse:
-        others += (f"; for {joined([esc(model['name']) for model in worse])}, “{option}” left significantly fewer wrong "
-                   "answers")
-    if rest:
-        others += ("; for the other model that used it" if rest == 1 else f"; for the other {rest} models that used it") + \
-            ", the difference could be chance"
-    return (f"<p><strong>Holding back on as many questions, {joined([esc(model['name']) + '’s' for model in better])} own "
-            f"confidence left significantly fewer wrong answers than “{option}” did</strong>{others} "
-            f'(<a href="#findings">What we found</a>).</p>')
+
+    option = esc(data["option"])
+    family = [dict(model["vs_confidence"], name=model["name"]) for model in ranked(data["models"])
+              if model["vs_confidence"]["p_holm"] is not None]
+    texts = [sentence("Holding back on as many questions, ", option, family, True)]
+    vs = (word or {}).get("vs_confidence")
+    if vs:
+        order = {model["name"]: index for index, model in enumerate(ranked(data["models"]))}
+        new = esc(word["option"])
+        others_family = sorted((model for model in vs["models"] if model["p_holm"] is not None), key=lambda model: order[model["name"]])
+        texts.append(sentence(f"With “{new}” in place of “{option}”, ", new, others_family, False))
+        if not texts[0] and texts[1]:
+            texts[0] = f"With “{option}”, no difference in wrong answers between the option and confidence is significant"
+        elif texts[0] and not texts[1]:
+            texts[1] = (f"with “{new}” in place of “{option}”, no difference is significant for the {len(others_family)} "
+                        "models that used it")
+            texts = [f"{texts[0]}; {texts[1]}"]
+    if not any(texts):
+        return ""
+    return f'<p>{". ".join(text for text in texts if text)} (<a href="#findings">What we found</a>).</p>'
 
 
 def face(site: Site, data: dict[str, Any]) -> str:
@@ -483,6 +512,229 @@ def option_word_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -> 
     </section>"""
 
 
+def check_vs_confidence(site: Site, data: dict[str, Any], word: dict[str, Any], rerun: dict[str, Any] | None) -> None:
+    """Stop the build when results.json's dont_know_option_word.vs_confidence does not fit the tab: one entry per
+    option-word model, its option side equal to that model's “I don't know” run, its five-option run the Text tab's run
+    (hosted GLiDE's new run in place of the one it replaces), the derived counts adding up, the chosen cut-off between its
+    neighbours, the paired counts consistent with the wrong answers and Holm's family the same models as the tab's own
+    comparison with confidence."""
+    total = word["questions"]
+    fail = lambda text: SystemExit(f"results.json dont_know_option_word.vs_confidence: {text}")  # noqa: E731
+    vs = word["vs_confidence"]
+    own = {model["name"]: model for model in word["models"]}
+    first = {model["name"]: model for model in data["models"]}
+    if sorted(model["name"] for model in vs["models"]) != sorted(own) or len(vs["models"]) != len(own):
+        raise fail("the models are not the option-word models")
+    for model in vs["models"]:
+        name, option, derived = model["name"], model["option"], model["derived"]
+        side, original = own[name]["i_dont_know"], first[name]["original_run"]
+        if model["option_run"] != side["run"] or any(option[key] != side[key] for key in ("right", "wrong", "dont_know")) \
+                or option["answered"] != option["right"] + option["wrong"]:
+            raise fail(f"{name}: the option side is not its run with “{word['option']}”")
+        if model["replaces_run"] is None:
+            if model["five_option_run"] != original:
+                raise fail(f"{name}: the five-option run is not the Text tab's run {original}")
+        elif model["replaces_run"] != original or not rerun or rerun["replaces_run"] != original \
+                or model["five_option_run"] != rerun["run"]:
+            raise fail(f"{name}: the five-option run does not replace the Text tab's run as hosted_glide_rerun does")
+        if derived["right"] + derived["wrong"] != derived["answered"] or derived["answered"] + derived["abstained"] > total:
+            raise fail(f"{name}: the derived counts do not add up")
+        below, above = derived["below"], derived["above"]
+        if derived["cut_off"] is not None and (
+                (below["cut_off"] is not None and not below["cut_off"] < derived["cut_off"])
+                or (above["cut_off"] is not None and not above["cut_off"] > derived["cut_off"])):
+            raise fail(f"{name}: the neighbouring cut-offs are not either side of the chosen one")
+        if (model["option_only_wrong"] - model["confidence_only_wrong"] != option["wrong"] - derived["wrong"]
+                or model["option_only_wrong"] > option["wrong"] or model["confidence_only_wrong"] > derived["wrong"]
+                or min(model["option_only_wrong"], model["confidence_only_wrong"]) < 0):
+            raise fail(f"{name}: the paired counts do not fit the wrong answers")
+    family = sorted(model["name"] for model in vs["models"] if model["p_holm"] is not None)
+    if family != sorted(vs["family"]) or family != sorted(model["name"] for model in data["models"]
+                                                          if model["vs_confidence"]["p_holm"] is not None):
+        raise fail("Holm's family is not the models of the tab's own comparison with confidence")
+
+
+def vs_confidence_rows(site: Site, data: dict[str, Any], word: dict[str, Any]) -> list[dict[str, Any]]:
+    """vs_confidence's models with the tab's original run, in the tab's ranking order."""
+    order = {model["name"]: index for index, model in enumerate(ranked(data["models"]))}
+    first = {model["name"]: model for model in data["models"]}
+    return [dict(model, original_run=first[model["name"]]["original_run"])
+            for model in sorted(word["vs_confidence"]["models"], key=lambda model: order[model["name"]])]
+
+
+def vs_confidence_text(site: Site, data: dict[str, Any], word: dict[str, Any], link: bool) -> str:
+    """The option-word runs against confidence in words, every number from vs_confidence: which side left fewer wrong
+    answers, how near the cut-offs came to the option runs' answered counts, and the paired test with Holm."""
+    digits = site.config["percent_digits"]
+    total = word["questions"]
+    new, old = esc(word["option"]), esc(data["option"])
+    models = vs_confidence_rows(site, data, word)
+    name = lambda model: esc(model["name"])  # noqa: E731
+    family = [model for model in models if model["p_holm"] is not None]
+    share = f"{100 * word['vs_confidence']['share']:g}%"
+    fewer = [model for model in family if model["derived"]["wrong"] < model["option"]["wrong"]]
+    more = [model for model in family if model["derived"]["wrong"] > model["option"]["wrong"]]
+    level = [model for model in family if model["derived"]["wrong"] == model["option"]["wrong"]]
+    gaps = [100 * abs(model["derived"]["answered"] - model["option"]["answered"]) / total for model in family]
+    reach = (f"at the same attempt rate (each cut-off reached the option run's answered count exactly for the {len(family)} "
+             f"that chose “{new}” on at least {share} of the questions)" if not any(gaps) else
+             f"at the nearest attempt rate the cut-offs allow (within {max(gaps):.{digits}f} points of the option run for the "
+             f"{len(family)} that chose “{new}” on at least {share} of the questions)")
+    text = (f"With “{new}” in place of “{old}”, we compared each model's first run with “{new}” against its five-option run "
+            f"held back by its own confidence {reach}. ")
+    if fewer:
+        saved = [model["option"]["wrong"] - model["derived"]["wrong"] for model in fewer]
+        text += (f"Confidence left fewer wrong answers for "
+                 + (f"all {len(family)}" if len(fewer) == len(family) else f"{len(fewer)} of the {len(family)}")
+                 + (f", {min(saved):,} to {max(saved):,} fewer" if len(fewer) > 1 else f", {saved[0]:,} fewer") + ".")
+    if more:
+        extra = [model["derived"]["wrong"] - model["option"]["wrong"] for model in more]
+        text += (f" “{new}” left fewer for {joined([name(model) for model in more])} "
+                 f"({joined([f'{value:,}' for value in extra])} fewer).")
+    if level:
+        text += f" {joined([name(model) for model in level])} left as many either way."
+    significant = [model for model in family if model["p_holm"] < 0.05]
+    by_confidence = [model for model in significant if model["option_only_wrong"] > model["confidence_only_wrong"]]
+    by_option = [model for model in significant if model not in by_confidence]
+
+    def adjusted(group: list[dict[str, Any]]) -> str:
+        """The models with their wrong answers each way and Holm-adjusted p, as the site writes p."""
+        return joined([f"{name(model)} ({model['option']['wrong']:,} wrong with “{new}”, {model['derived']['wrong']:,} by "
+                       f"confidence; adjusted {esc(bp.p_text(model['p_holm']))})" for model in group])
+
+    text += f" In the exact McNemar test of wrong answers, with Holm's correction over the {len(family)}, "
+    if not significant:
+        text += "none of these differences is significant: each could be chance."
+    else:
+        parts = []
+        if by_confidence:
+            parts.append(f"confidence left significantly fewer for {adjusted(by_confidence)}")
+        if by_option:
+            parts.append(f"“{new}” left significantly fewer for {adjusted(by_option)}")
+        rest = len(family) - len(significant)
+        text += "; ".join(parts) + ((f"; for the other {rest}" if rest > 1 else "; for the other model")
+                                    + ", the difference could be chance." if rest else ".")
+    glide = [model for model in models if model["replaces_run"] is not None]
+    if glide:
+        text += (f" {joined([name(model) for model in glide])} is compared with its new five-option run "
+                 f"{joined([str(model['five_option_run']) for model in glide])}, not run "
+                 f"{joined([str(model['replaces_run']) for model in glide])}"
+                 + (' (<a href="#hosted-glide-rerun">why</a>)' if link else "") + ".")
+    return text
+
+
+def vs_confidence_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -> str:
+    """The option-word runs against confidence on the tab's face: the summary and a chart of the wrong answers only one
+    side made, drawn as the paired test's chart."""
+    new, old = esc(word["option"]), esc(data["option"])
+    run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
+    label = lambda model: site.row_name(run_of(model))  # noqa: E731
+    models = vs_confidence_rows(site, data, word)
+    tested = sorted((model for model in models if model["p_holm"] is not None),
+                    key=lambda model: (model["p_holm"], model["p"], model["name"].casefold()))
+    untested = [label(model) for model in models if model["p_holm"] is None]
+    share = f"{100 * word['vs_confidence']['share']:g}%"
+    most = max(max(model["option_only_wrong"], model["confidence_only_wrong"]) for model in tested)
+    quarter = math.ceil(most / 40) * 10 if most >= 40 else max(1, math.ceil(most / 4))
+    significant = [model for model in tested if model["p_holm"] < 0.05]
+    others = [model for model in tested if model["p_holm"] >= 0.05]
+
+    def adjusted(group: list[dict[str, Any]]) -> str:
+        texts = [bp.p_text(model["p_holm"]) for model in group]
+        return f"{texts[0]}{' each' if len(group) > 1 else ''}" if len(set(texts)) == 1 else joined(texts)
+
+    verdict = ((f"* A significant difference (Holm-adjusted p below 0.05): {esc(joined([label(model) for model in significant]))} "
+                f"({adjusted(significant)}).") if significant else "No difference is significant (Holm-adjusted p below 0.05).")
+    if others:
+        verdict += f" The other {len(others)}: {adjusted(others)}." if significant else f" Adjusted: {adjusted(others)}."
+    chart = hbars(
+        [{"label": label(model), "href": rel(PATH, site.model_path(run_of(model))),
+          "text": f"{model['option_only_wrong']:,} · {model['confidence_only_wrong']:,}{' *' if model['p_holm'] < 0.05 else ''}",
+          "bars": [{"value": model["option_only_wrong"], "kind": "lead"}, {"value": model["confidence_only_wrong"], "kind": "base"}],
+          "title": f"{label(model)}: {model['option_only_wrong']:,} wrong only with “{word['option']}” (run {model['option_run']}), "
+                   f"{model['confidence_only_wrong']:,} wrong only when run {model['five_option_run']} is held back by its own "
+                   f"confidence; exact McNemar {bp.p_text(model['p'])}, Holm-adjusted {bp.p_text(model['p_holm'])}"}
+         for model in tested],
+        top=4 * quarter, tick=lambda value: f"{value:,.0f}")
+    return (f'<section class="card" id="option-word-confidence"><h2>“{new}” against confidence</h2>'
+            f"<p>{vs_confidence_text(site, data, word, True)}</p>"
+            f'<p class="note">A family of its own: the paired test with “{old}” is the chart '
+            f'<a href="#chart-paired">Fewer wrong answers</a> above, and neither changes the other. Table and method: '
+            '<a href="#option-word-confidence-results">under Info</a>.</p>'
+            f'<figure class="panel chart-card" id="chart-option-word-confidence"><div class="chart-head">'
+            f"<h2>Fewer wrong answers: “{new}” or confidence?</h2>"
+            f"<p class=\"chart-sub\">Each model's first run with “{new}” against its five-option run held back by its own "
+            f"confidence at about the same attempt rate: the questions only one of the two got wrong, by the exact McNemar "
+            f"test with p adjusted by Holm's method over the {len(tested)} models that chose “{new}” on at least {share} of "
+            f"the questions · the shorter bar left fewer wrong answers</p></div>{chart}"
+            f'<p class="chart-legend"><span><i class="swatch swatch-lead"></i>Wrong only with “{new}”</span> '
+            '<span><i class="swatch swatch-base"></i>Wrong only when held back by its own confidence</span> '
+            f"<span>{verdict}"
+            + (f" Not in the test, as they chose “{new}” on fewer than {share} of the questions: {esc(joined(untested))}." if untested else "")
+            + "</span></p></figure></section>")
+
+
+def vs_confidence_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -> str:
+    """Under Info: the option-word runs against confidence, one row per model, and the method notes."""
+    digits = site.config["percent_digits"]
+    total = word["questions"]
+    new, old = esc(word["option"]), esc(data["option"])
+    share = f"{100 * word['vs_confidence']['share']:g}%"
+    coverage = lambda answered: f"{answered:,} ({pct(answered / total, digits)})"  # noqa: E731
+    cut = lambda value: "none" if value is None else f"{value:.4f}"  # noqa: E731
+    heads = (("Runs", f"with “{word['option']}” · five options"),
+             ("Cut-off", "and its neighbouring candidates"),
+             ("Answered", "target with the option · achieved by confidence (coverage)"),
+             ("Wrong", f"with “{word['option']}” · by confidence; lower is better"),
+             ("Wrong only on one side", f"with “{word['option']}” · by confidence"),
+             ("p", "exact McNemar"), ("Holm p", "adjusted over the family"))
+    labels = [f"{head} ({note})" for head, note in heads]
+    rows = []
+    for model in vs_confidence_rows(site, data, word):
+        option, derived = model["option"], model["derived"]
+        runs = (f"{model['option_run']} · {model['five_option_run']}"
+                + (f'<span class="small">run {model["five_option_run"]} in place of the Text tab\'s run {model["replaces_run"]}</span>'
+                   if model["replaces_run"] is not None else ""))
+        below, above = derived["below"], derived["above"]
+        neighbours = (f'<span class="small">next lower {cut(below["cut_off"])}'
+                      + (f": {below['answered']:,} answered" if below["cut_off"] is not None else "")
+                      + f'</span><span class="small">next higher {cut(above["cut_off"])}'
+                      + (f": {above['answered']:,} answered" if above["cut_off"] is not None else "") + "</span>")
+        answered = (f"{option['answered']:,} · {derived['answered']:,}<span class=\"small\">target {coverage(option['answered'])}, "
+                    f"{option['dont_know']:,} “{new}”</span><span class=\"small\">achieved {coverage(derived['answered'])}, "
+                    f"{derived['abstained']:,} held back</span>")
+        values = [runs, cut(derived["cut_off"]) + neighbours, answered,
+                  f"{option['wrong']:,} · {derived['wrong']:,}",
+                  f"{model['option_only_wrong']:,} · {model['confidence_only_wrong']:,}",
+                  esc(bp.p_text(model["p"]).removeprefix("p = ").removeprefix("p ")),
+                  "not in the family" if model["p_holm"] is None else
+                  esc(bp.p_text(model["p_holm"]).removeprefix("p = ").removeprefix("p ")) + (" *" if model["p_holm"] < 0.05 else "")]
+        rows.append(f"<tr>{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(labels, values)) + "</tr>")
+    head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
+    family = word["vs_confidence"]["family"]
+    outside = [model["name"] for model in vs_confidence_rows(site, data, word) if model["p_holm"] is None]
+    glide = [model for model in word["vs_confidence"]["models"] if model["replaces_run"] is not None]
+    glide_text = "".join(
+        f" For {esc(model['name'])}, the five-option run is {model['five_option_run']}, not the Text tab's run "
+        f"{model['replaces_run']}: Fastino changed its hosted model after 6 October, so run {model['replaces_run']} is a "
+        f"different model from the one behind run {model['option_run']}, and run {model['five_option_run']} is a new "
+        f'five-option run of the same hosted model (<a href="#hosted-glide-rerun-method">Our method for the hosted GLiDE '
+        "rerun</a>)." for model in glide)
+    return f"""
+    <section class="card" id="option-word-confidence-results">
+      <h2>Results: “{new}” against confidence</h2>
+      <p class="note">In the tab's order. Each row: the model's first run with “{new}” and its five-option run held back by its own confidence on the same {total:,} questions. Answered = right + wrong; coverage = answered / {total:,}. Wrong only on one side: the questions only one of the two got wrong, by the exact McNemar test, with p adjusted by Holm's method over the {len(family)} models that chose “{new}” on at least {share} of the questions; * marks a Holm-adjusted p below 0.05. Not in the family: {esc(joined(outside))}.</p>
+      <div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>
+    </section>
+    <section class="card method-notes" id="option-word-confidence-method">
+      <h2>Our method for “{new}” against confidence</h2>
+      <p>The derived method above, applied to the runs with “{new}”: each model's five-option run answers only where its score reaches a cut-off and abstains on the rest. The candidate cut-offs are the run's distinct scores; the one chosen is the one whose attempt rate comes nearest the attempt rate of the run with “{new}”, and on a tie the higher cut-off. An answer without a score never counts as an attempt. Answers with equal scores enter together, so the achieved answered count can differ from the target; the table shows the chosen cut-off with the next lower and next higher candidates and the answers each would give.</p>
+      <p>The five-option run is each model's run on the Text tab, as in the table above.{glide_text}</p>
+      <p>The paired test is the exact McNemar test of wrong answers, the run with “{new}” first and confidence second, as for “{old}”. Holm's correction runs over the models that chose “{new}” on at least {share} of the scored questions: {esc(joined(family))}. The others, {esc(joined(outside))}, chose it too rarely for the two sides to differ by more than a few answers; their p is shown and not adjusted.</p>
+      <p>This is a family of its own, from runs already published: it changes none of the numbers above, and it is separate from the comparisons with Holm over 4, 13 and 11 models (the four models of the request, the English questions and the option's word).</p>
+    </section>"""
+
+
 def check_rerun(site: Site, data: dict[str, Any], rerun: dict[str, Any]) -> dict[str, Any]:
     """Stop the build when results.json's hosted_glide_rerun does not fit the tab; return the tab's hosted GLiDE row."""
     total = data["questions"]
@@ -706,15 +958,18 @@ def build(site: Site) -> dict[str, str]:
     if word:
         check_option_word(site, data, word)
     glide = check_rerun(site, data, rerun) if rerun else None
+    against = word if word and word.get("vs_confidence") else None
+    if against:
+        check_vs_confidence(site, data, against, rerun)
     body = f"""    {site.tabs(PATH)}
     <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
-      {headline(data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}<a href="#info">Info</a></nav>
+      {headline(data, against)}
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#option-word-confidence">“I don&#x27;t know” against confidence</a>' if against else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}<a href="#info">Info</a></nav>
     </section>
-    {face(site, data)}{english_option_face(site, english, site.results.get("dont_know_english_option")) if english else ""}{option_word_face(site, data, word) if word else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}
+    {face(site, data)}{english_option_face(site, english, site.results.get("dont_know_english_option")) if english else ""}{option_word_face(site, data, word) if word else ""}{vs_confidence_face(site, data, against) if against else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, what we found and our method</span></summary>
     <section class="card">
@@ -731,7 +986,7 @@ def build(site: Site) -> dict[str, str]:
     </section>
     <section class="card" id="findings">
       <h2>What we found</h2>
-      {findings(site, data)}
+      {findings(site, data, against)}
     </section>
     <section class="card method-notes" id="method">
       <h2>Our method</h2>
@@ -756,7 +1011,7 @@ def build(site: Site) -> dict[str, str]:
       <p>For comparison, each model's run with five options (its run on the Text tab, on the same questions) is made to abstain by its own confidence: it answers only where its score reaches a cut-off and abstains on the rest. The cut-off is the one whose attempt rate comes nearest the attempt rate of the run with “{option}”; on a tie, the higher cut-off. An answer without a score never counts as an attempt. The derived non-hallucination rate is then the abstentions over the abstentions plus the wrong answers. The table shows the cut-off and the attempt rate it reached.</p>
       <h3>Repeats</h3>
       <p>One full run per model. A model whose repeated text runs changed answers gets five runs with the option. Those runs form a repeat set of their own and are never mixed with the Text tab's runs. The table shows the first run; the range covers all of them, and the changed answers are the scored questions whose answer differs between the runs.</p>
-    </section>{english_option_info(site, english) if english else ""}{option_word_info(site, data, word) if word else ""}{rerun_info(site, data, rerun, glide) if rerun else ""}
+    </section>{english_option_info(site, english) if english else ""}{option_word_info(site, data, word) if word else ""}{vs_confidence_info(site, data, against) if against else ""}{rerun_info(site, data, rerun, glide) if rerun else ""}
     </details>"""
     return {PATH: site.page(PATH, "Hallucination",
                             f"The Text tab's {total} questions with a sixth option, “{data['option']}” (I don't know): accuracy, "

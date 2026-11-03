@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Recompute the published numbers from answers.json and check them against results.json.
 
-    python3 reproduce.py [--docs FOLDER]
+    python3 reproduce.py [--docs FOLDER] [--report BENCHMARK_RESULTS_MD]
 
 First the answer key: answers.json's keys and exclusions must give the fingerprint of the frozen key
 version results.json names (bm.answer_key_fingerprint). For every main run: the correct answers on the
@@ -41,8 +41,14 @@ Then the option-word check (`dont_know_option_word`): its prompts and their vers
 version, each model's counts, rates and mean probability of the option with "Bilmiyorum" and with "I don't know",
 and the paired test of wrong answers with Holm's correction. Then the hosted GLiDE rerun (`hosted_glide_rerun`): its
 setup and prompt version, its counts, and the derived abstention and comparison with confidence redone with it as
-the original run. Last, the four models of Ümit's English "I don't know" comparison (`dont_know_english_option`): their
-counts and paired tests from the first runs, with Holm's correction over the four. Uses only
+the original run. Then the four models of Ümit's English "I don't know" comparison (`dont_know_english_option`): their
+counts and paired tests from the first runs, with Holm's correction over the four. Then the confidence cut-off against
+the option written "I don't know" (`dont_know_option_word.vs_confidence`): each option-word run's target attempt rate,
+its five-option run's derived cut-off with the neighbouring cut-offs and their answered counts, the achieved counts,
+the paired test of wrong answers and Holm's correction over the eligible family. Then Turkish and English coverage and
+risk on the kept reading questions (`english_reading.coverage`): every native abstention point and every point of every
+confidence curve. Last the footer date (`updated`): never older than a published run's date, and with --report exactly
+the newest `updated` of the runs answers.json publishes. Uses only
 the standard library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with
 status 1 when anything differs beyond the tolerances printed.
 """
@@ -54,6 +60,7 @@ import hashlib
 import itertools
 import json
 import math
+import re
 import statistics
 import sys
 from collections import defaultdict
@@ -127,6 +134,12 @@ def main() -> int:
         type=Path,
         default=Path(__file__).resolve().parent,
         help="folder with results.json and answers.json (default: this script's folder)",
+    )
+    parser.add_argument(
+        "--report",
+        type=Path,
+        default=None,
+        help="the benchmark report (benchmark-results.md), to check the footer date exactly (default: only its lower bound)",
     )
     args = parser.parse_args()
     results = json.loads((args.docs / "results.json").read_text(encoding="utf-8"))
@@ -490,6 +503,38 @@ def main() -> int:
         f"{checked - len(four_mismatches)} of {checked} match"
     )
     for line in four_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    vs_mismatches = check_vs_confidence(results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nConfidence cut-off against the option written \"I don't know\" (from the option-word and five-option runs' "
+        f"exported answers: counts exact, cut-offs and rates within {METRIC_TOLERANCE:g}, p-values within a relative "
+        f"{P_TOLERANCE:g}): {checked - len(vs_mismatches)} of {checked} match"
+    )
+    for line in vs_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    coverage_mismatches = check_coverage(args.docs, results, answers, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nTurkish and English coverage and risk on the kept reading questions (native points and every curve point, from "
+        f"the runs' exported answers: counts exact, coverage and risk within {METRIC_TOLERANCE:g}): "
+        f"{checked - len(coverage_mismatches)} of {checked} match"
+    )
+    for line in coverage_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    updated_mismatches = check_updated(args.report, results, answers, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nFooter date {results['updated']} ({'exact, from the report' if args.report else 'lower bound only; --report for the exact check'}): "
+        f"{checked - len(updated_mismatches)} of {checked} match"
+    )
+    for line in updated_mismatches:
         print(line)
 
     print(f"\n{checks.passed} checks match, {checks.failed} differ")
@@ -1037,6 +1082,187 @@ def check_rerun(results: dict[str, Any], answers: dict[str, Any], scored: list[i
     check("wrong only with the option, only with confidence", [published["option_only_wrong"], published["confidence_only_wrong"]],
           [test["first_only"], test["second_only"]])
     check("p", published["p"], test["p"], p=True)
+    return mismatches
+
+
+def check_vs_confidence(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+    """Recompute `dont_know_option_word.vs_confidence` from answers.json: per option-word model, its option-word run
+    (dont_know_word_runs) against its five-option run (the Hallucination tab row's original run, or the hosted GLiDE
+    rerun where that run is the one it replaces) held back by confidence at the derived cut-off on the scored questions:
+    the target (the option run's answered count and attempt rate), the cut-off and its neighbouring distinct scores with
+    their answered counts, the achieved answered count and rate, right, wrong and abstained, the wrong answers only with
+    the option and only with confidence, exact McNemar p, and Holm's correction over the models whose option run chose
+    the option on at least `share` of the scored questions (which must be the Hallucination tab's family). Returns a line
+    per mismatch."""
+    section = (results.get("dont_know_option_word") or {}).get("vs_confidence")
+    if section is None:
+        return []
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, metric: bool = False, p: bool = False) -> None:
+        if p:
+            matched = close(published, recomputed, relative=P_TOLERANCE)
+        else:
+            matched = close(published, recomputed, METRIC_TOLERANCE) if metric else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    total = len(scored)
+    words = {run["run"]: run for run in answers.get("dont_know_word_runs", [])}
+    main = {run["run"]: run for run in answers["runs"]}
+    reruns = {run["run"]: run for run in answers.get("rerun_runs", [])}
+    rerun = results.get("hosted_glide_rerun") or {}
+    rows = {row["run"]: row for row in results["dont_know"]["models"]}
+    sections = results["dont_know_option_word"]["models"]
+    check("share", section["share"], 0.01)
+    check("models", [entry["name"] for entry in section["models"]], [model["name"] for model in sections])
+    family = []
+    for model, entry in zip(sections, section["models"]):
+        name = model["name"]
+        row = rows[model["bilmiyorum"]["run"]]
+        replaces = row["original_run"] if row["original_run"] == rerun.get("replaces_run") else None
+        five_id = rerun["run"] if replaces is not None else row["original_run"]
+        check(f"{name} runs", [entry["option_run"], entry["five_option_run"], entry["replaces_run"]],
+              [model["i_dont_know"]["run"], five_id, replaces])
+        option_run, five = words.get(entry["option_run"]), (reruns if replaces is not None else main).get(five_id)
+        if option_run is None or five is None:
+            check(f"{name} runs in answers.json", True, False)
+            continue
+        option = counted_dont_know(option_run, scored)
+        answered = option["right"] + option["wrong"]
+        check(f"{name} target", [entry["option"][key] for key in ("answered", "right", "wrong", "dont_know")],
+              [answered, option["right"], option["wrong"], option["dont_know"]])
+        check(f"{name} target attempt rate", entry["option"]["attempt_rate"], answered / total, metric=True)
+        pairs = [(None if five["score"][index] is None else float(five["score"][index]), int(five["correct"][index])) for index in scored]
+        derived = derived_abstention(pairs, answered / total)
+        cut_off = derived["cut_off"]
+        published = entry["derived"]
+        check(f"{name} cut-off", published["cut_off"], cut_off, metric=True)
+        if cut_off is None:
+            continue
+        scores = [score for score, _ in pairs if score is not None]
+        lower = max((score for score in scores if score < cut_off), default=None)
+        higher = min((score for score in scores if score > cut_off), default=None)
+        for side, value in (("below", lower), ("above", higher)):
+            check(f"{name} {side} cut-off", published[side]["cut_off"], value, metric=True)
+            check(f"{name} {side} answered", published[side]["answered"],
+                  None if value is None else sum(1 for score in scores if score >= value))
+        check(f"{name} achieved", [published[key] for key in ("answered", "right", "wrong", "abstained")],
+              [derived["right"] + derived["wrong"], derived["right"], derived["wrong"], derived["abstained"]])
+        check(f"{name} achieved attempt rate", published["attempt_rate"], derived["attempt_rate"], metric=True)
+        confidence_wrong = [int(score is not None and score >= cut_off and not correct) for score, correct in pairs]
+        test = bm.paired_comparison(option["wrong_answers"], confidence_wrong)
+        check(f"{name} wrong only with the option, only with confidence", [entry["option_only_wrong"], entry["confidence_only_wrong"]],
+              [test["first_only"], test["second_only"]])
+        check(f"{name} p", entry["p"], test["p"], p=True)
+        if option["dont_know"] >= section["share"] * total:
+            family.append((entry, test["p"]))
+    check("family", section["family"], [entry["name"] for entry, _ in family])
+    check("family is the Hallucination tab's", sorted(section["family"]),
+          sorted(row["name"] for row in results["dont_know"]["models"] if row["vs_confidence"]["p_holm"] is not None))
+    adjusted = dict(zip((id(entry) for entry, _ in family), bm.holm([p for _, p in family])))
+    for entry in section["models"]:
+        check(f"{entry['name']} p_holm", entry["p_holm"], adjusted.get(id(entry)), p=True)
+    return mismatches
+
+
+def check_coverage(docs: Path, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
+    """Recompute `english_reading.coverage` from answers.json on english-reading.json's kept questions: per English
+    reading model, its native points (Turkish "Bilmiyorum": `english_reading.dont_know`'s Turkish first run; Turkish "I
+    don't know": the option-word run of its Hallucination tab row; English "I don't know": the English first run, also
+    in english_only; run null where there is none) with right, wrong, abstained (the option), invalid, coverage and risk,
+    and its two curves (the Text tab run and the first English run): for every distinct score s among answered kept
+    questions, the answers with a score of at least s, as [coverage, risk, answered, wrong], ordered by coverage.
+    Returns a line per mismatch."""
+    section = (results.get("english_reading") or {}).get("coverage")
+    if section is None:
+        return []
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, metric: bool = False) -> None:
+        matched = close(published, recomputed, METRIC_TOLERANCE) if metric else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    public = json.loads((docs / "english-reading.json").read_text(encoding="utf-8"))
+    position = {question: index for index, question in enumerate(answers["questions"]["id"])}
+    kept = [position[item["question_id"]] for item in public["questions"] if item["kept"]]
+    total = len(kept)
+    check("questions", [section["questions"], public["kept"]], [total, total])
+    runs = {run["run"]: run for key, found in answers.items() if key.endswith("runs") for run in found}
+    reading = results["english_reading"]
+    idk = reading.get("dont_know") or {}
+    turkish = {model["text_run"]: model["turkish"]["run"] for model in idk.get("models", [])}
+    english = {model["text_run"]: model["english"]["run"] for model in idk.get("models", []) + idk.get("english_only", [])}
+    original = {row["run"]: row["original_run"] for row in (results.get("dont_know") or {}).get("models", [])}
+    word = {original[model["bilmiyorum"]["run"]]: model["i_dont_know"]["run"]
+            for model in (results.get("dont_know_option_word") or {}).get("models", [])}
+    full_bank = {run["run"] for key in ("dont_know_runs", "dont_know_word_runs") for run in answers.get(key, [])}
+    check("models", [model["name"] for model in section["models"]], [model["name"] for model in reading["models"]])
+    for model, entry in zip(reading["models"], section["models"]):
+        name, text_run = model["name"], model["turkish_run"]
+        check(f"{name} text_run", entry["text_run"], text_run)
+        expected = [("Turkish", "Bilmiyorum", turkish.get(text_run)), ("Turkish", "I don't know", word.get(text_run)),
+                    ("English", "I don't know", english.get(text_run))]
+        check(f"{name} native series", [(item["language"], item["wording"], item["run"]) for item in entry["native"]], expected)
+        for (language, wording, run_id), item in zip(expected, entry["native"]):
+            label = f"{name} {language} {wording}"
+            if run_id is None:
+                check(f"{label} not measured", item, {"language": language, "wording": wording, "run": None})
+                continue
+            run = runs[run_id]
+            choices = [run["choice"][index] for index in kept]
+            check(f"{label} asked every kept question", True, all(run["correct"][index] is not None for index in kept))
+            right = sum(1 for index in kept if run["choice"][index] not in (None, DONT_KNOW_LETTER) and run["correct"][index])
+            wrong = sum(1 for index in kept if run["choice"][index] not in (None, DONT_KNOW_LETTER) and not run["correct"][index])
+            counts = [right, wrong, choices.count(DONT_KNOW_LETTER), choices.count(None), run_id in full_bank]
+            check(f"{label} counts", [item.get(key) for key in ("right", "wrong", "abstained", "invalid", "full_bank_restricted")], counts)
+            check(f"{label} coverage", item.get("coverage"), (right + wrong) / total, metric=True)
+            check(f"{label} risk", item.get("risk"), wrong / (right + wrong) if right + wrong else None, metric=True)
+        for language, run_id, curve in zip(("Turkish", "English"), (text_run, model["run"]), entry["curves"]):
+            label = f"{name} {language} curve"
+            check(f"{label} series", [curve["language"], curve["run"]], [language, run_id])
+            run = runs[run_id]
+            check(f"{label} asked every kept question", True, all(run["correct"][index] is not None for index in kept))
+            answerable = [(float(run["score"][index]), bool(run["correct"][index])) for index in kept
+                          if run["choice"][index] is not None and run["score"][index] is not None]
+            expected_points = []
+            for threshold in sorted({score for score, _ in answerable}, reverse=True):
+                taken = [correct for score, correct in answerable if score >= threshold]
+                errors = taken.count(False)
+                expected_points.append([len(taken) / total, errors / len(taken), len(taken), errors])
+            check(f"{label} points", len(curve["points"]), len(expected_points))
+            for index, (published, recomputed) in enumerate(zip(curve["points"], expected_points)):
+                matched = (published[2:] == recomputed[2:] and close(published[0], recomputed[0], METRIC_TOLERANCE)
+                           and close(published[1], recomputed[1], METRIC_TOLERANCE))
+                if "≠" in checks.cell(matched, str(recomputed), str(published)):
+                    mismatches.append(f"  {label} point {index}: {recomputed} ≠ {published}")
+    return mismatches
+
+
+def check_updated(report: Path | None, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
+    """The footer date (results.json `updated`): never older than any main run's `updated` or any published run date;
+    with the benchmark report (--report), exactly the newest `updated` of the report's records of the runs answers.json
+    publishes. Returns a line per mismatch."""
+    mismatches = []
+    updated = results["updated"]
+    dates = [run["updated"] for run in results["runs"]]
+    dates += [model[side]["date"] + "T00:00:00Z" for model in (results.get("dont_know_option_word") or {}).get("models", [])
+              for side in ("bilmiyorum", "i_dont_know")]
+    if results.get("hosted_glide_rerun"):
+        dates.append(results["hosted_glide_rerun"]["date"] + "T00:00:00Z")
+    if "≠" in checks.cell(updated >= max(dates), f"at least {max(dates)}", updated):
+        mismatches.append(f"  updated {updated} is older than {max(dates)}")
+    if report is not None:
+        records = {}
+        for match in re.finditer(r"<!-- benchmark-result: (\{.*?\}) -->", report.read_text(encoding="utf-8")):
+            record = json.loads(match.group(1))
+            records[record["run_id"]] = record
+        published = {run["run"] for key, found in answers.items() if key.endswith("runs") for run in found}
+        missing = sorted(published - set(records))
+        newest = max((records[run]["updated"] for run in published if run in records), default=None)
+        if "≠" in checks.cell(not missing and newest == updated, str(newest), updated):
+            mismatches.append(f"  updated: the newest published run's is {newest}, results.json {updated}, runs without a record {missing}")
     return mismatches
 
 

@@ -21,7 +21,7 @@ from typing import Any
 import build_page as bp
 from sitebuild.data import BLOB_URL
 from sitebuild.dont_know import check_option_word, option_word_rows
-from sitebuild.site import ROOT, Site, esc, hbars, pct, rel
+from sitebuild.site import ROOT, Site, esc, hbars, legend_mark, line_plot, pct, rel
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "turkish-vs-english/"
@@ -42,6 +42,14 @@ RENAMED = {
                                  "29 September 2026",
 }
 SIGNIFICANT = 0.05
+# The native points of english_reading.coverage, in the table's and the legends' order: (language, wording), with each
+# wording's marker shape in the plots.
+NATIVE = (("Turkish", "Bilmiyorum"), ("Turkish", "I don't know"), ("English", "I don't know"))
+SHAPES = {"Bilmiyorum": "circle", "I don't know": "square"}
+# One colour per model, the same in both plots, in english_reading.coverage's order; mid lightness, readable on both
+# themes' panels.
+COLOURS = ("#2f6fd6", "#d9622b", "#2e9e5b", "#c23b8a", "#8a6bd1", "#b8901a", "#1f9eb3", "#d13c3c", "#6d8a1f",
+           "#9a5a33", "#5b7fa8", "#e0739f", "#3fae99", "#7c7871")
 
 
 def check(site: Site, data: dict[str, Any], record: dict[str, Any]) -> None:
@@ -964,6 +972,116 @@ def instructions(site: Site, data: dict[str, Any]) -> str:
             + "".join(f"<h3>{esc(title)}</h3>{quote(text)}" for title, text in parts) + "</section>")
 
 
+def coverage_native(model: dict[str, Any]) -> list[dict[str, Any]]:
+    """A model's native points in NATIVE's order; english_reading.coverage must give each exactly once."""
+    found = {(point["language"], point["wording"]): point for point in model["native"]}
+    if sorted(found) != sorted(NATIVE) or len(model["native"]) != len(NATIVE):
+        raise SystemExit(f"english_reading.coverage: {model['name']} does not have one native point per wording")
+    return [found[key] for key in NATIVE]
+
+
+def coverage(site: Site, data: dict[str, Any]) -> str:
+    """Risk and coverage on the kept questions (results.json english_reading.coverage): the definitions, the native
+    abstention points of each model (Turkish with “Bilmiyorum”, Turkish with “I don't know”, English with “I don't know”)
+    and two risk-coverage plots, Turkish and English, each with the confidence curves of the model's five-option run as
+    lines and its native points as markers."""
+    cov = data.get("coverage")
+    if not cov:
+        return ""
+    digits = site.config["percent_digits"]
+    total = cov["questions"]
+    if total != data["questions"] or [model["name"] for model in cov["models"]] != [model["name"] for model in data["models"]]:
+        raise SystemExit("english_reading.coverage: not the comparison's questions or models")
+    if len(cov["models"]) > len(COLOURS):
+        raise SystemExit("english_reading.coverage: more models than colours")
+    name = lambda model: site.row_name(site.by_id[model["text_run"]])  # noqa: E731
+    risk = lambda value: pct(value, digits)  # noqa: E731
+
+    def series_name(point: dict[str, Any]) -> str:
+        return f"{point['language']} with “{point['wording']}”, run {point['run']}"
+
+    def native_text(point: dict[str, Any]) -> str:
+        restricted = " (its full-bank run, restricted to these questions)" if point["full_bank_restricted"] else ""
+        return (f"{series_name(point)}{restricted}: coverage {pct(point['coverage'], digits)}, error rate among answered "
+                f"{risk(point['risk'])}; {point['right']:,} right, {point['wrong']:,} wrong, {point['abstained']:,} "
+                f"abstained, {point['invalid']:,} invalid")
+
+    heads = [f"{language} with “{wording}”" for language, wording in NATIVE]
+    rows = []
+    for model in cov["models"]:
+        cells = []
+        for head, point in zip(heads, coverage_native(model)):
+            if point["run"] is None:
+                cells.append(cell(head, '<span class="nm">Not measured</span>'))
+                continue
+            restricted = ", full bank restricted" if point["full_bank_restricted"] else ""
+            cells.append(cell(head, f"{pct(point['coverage'], digits)} · {risk(point['risk'])}"
+                                    f'<span class="small">{point["right"]:,} right, {point["wrong"]:,} wrong, '
+                                    f'{point["abstained"]:,} abstained · run {point["run"]}{restricted}</span>'))
+        run = site.by_id[model["text_run"]]
+        rows.append(f'<tr><td class="model"><a class="model-name" href="{rel(PATH, site.model_path(run))}">'
+                    f'{esc(name(model))}</a></td>{"".join(cells)}</tr>')
+    head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">coverage · error rate among answered</span></th>'
+                   for text in heads)
+    table_html = (f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}'
+                  f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
+
+    values = [point["risk"] for model in cov["models"] for point in model["native"] if point["run"] is not None]
+    values += [point[1] for model in cov["models"] for curve in model["curves"] for point in curve["points"]]
+    # The same y axis in both plots: up to the largest error rate, rounded up to a multiple of 4 points.
+    y_top = max(0.04, math.ceil(100 * max(values, default=0.04) / 4 - 1e-9) * 4 / 100)
+
+    def plot(language: str) -> str:
+        series, legend = [], []
+        for colour, model in zip(COLOURS, cov["models"]):
+            keys = []
+            for curve in (curve for curve in model["curves"] if curve["language"] == language):
+                title = (f"{name(model)}: {language}, five options, held back by confidence, run {curve['run']} "
+                         f"({len(curve['points']):,} points)")
+                series.append({"colour": colour, "line": True, "title": title,
+                               "points": [(x, y, "") for x, y, _, _ in curve["points"]]})
+                keys.append(f"{legend_mark(colour)} confidence, run {curve['run']}")
+            for point in coverage_native(model):
+                if point["language"] != language or point["run"] is None:
+                    continue
+                shape = SHAPES[point["wording"]]
+                series.append({"colour": colour, "shape": shape, "title": series_name(point),
+                               "points": [(point["coverage"], point["risk"], f"{name(model)}: {native_text(point)}")]})
+                keys.append(f"{legend_mark(colour, shape)} “{esc(point['wording'])}”, run {point['run']}")
+            legend.append(f"<li><b>{esc(name(model))}</b>: {' · '.join(keys)}</li>")
+        shapes = " ".join(f"{legend_mark('var(--text-2)', SHAPES[wording])} “{esc(wording)}”"
+                          for wording in dict.fromkeys(wording for lang, wording in NATIVE if lang == language))
+        title = f"Risk and coverage in {language}"
+        return (f'<figure class="panel chart-card" id="chart-coverage-{language.lower()}"><div class="chart-head">'
+                f'<h2>{esc(title)}</h2><p class="chart-sub">The {total:,} kept questions in {language}: each model\'s '
+                f"five-option run answering only at or above a confidence score (the line), and its run with the option "
+                f"(the marker: {shapes}) · lower is better at the same coverage</p></div>"
+                f'<div class="chart-box" style="min-height:0;overflow-x:auto">'
+                + line_plot(series, "Coverage (answered / " + f"{total:,})", "Error rate among answered", y_top,
+                            f"{title}: coverage against error rate among answered")
+                + f'</div><ul class="chart-legend" style="list-style:none;padding:0">{"".join(legend)}</ul></figure>')
+
+    return (f'<section class="card" id="coverage"><h2>Risk and coverage</h2>'
+            f"<p>How often each model answers and how often its answers are wrong, on the same {total:,} kept questions in "
+            "both languages: with the option, as the model chose it, and without it, by holding back the answers below a "
+            "confidence score.</p>"
+            "<h3>Method</h3>"
+            f"<p>Answered = right + wrong (an invalid answer or one without a score is never answered). Coverage = answered / "
+            f"{total:,}. Error rate among answered (risk) = wrong / answered. Abstained: for a run with the option, the "
+            f"times it chose the option; for a confidence point, {total:,} minus answered minus invalid. Each confidence "
+            "curve has one point per distinct score of the run on these questions (answer when the score, the recorded "
+            "probability of the chosen option, is at least that score): answers with equal scores enter together, so "
+            "coverage moves in jumps and every point is one the run achieved; a model that reports its probabilities with "
+            "few decimals has many equal scores, so its curve has fewer points, moves in larger steps and can start well "
+            "above 0% coverage (each curve is drawn from its first point). Every series counts these questions only "
+            "(a run on the full bank is restricted to them) and is each model's first run. Turkish curves: the Text tab "
+            "run; English curves: the first English run. Turkish with “I don't know” is the option's word control on the "
+            "Hallucination tab's questions, restricted to these; a model without such a run is Not measured.</p>"
+            f'<p class="note">{esc(cov["definitions"])}</p>'
+            f"{table_html}"
+            '<p class="note">Each cell: coverage · error rate among answered, then the counts and the run.</p></section>'
+            f'<section class="charts" aria-label="Risk-coverage plots">{plot("Turkish")}{plot("English")}</section>')
+
 
 def build(site: Site) -> dict[str, str]:
     if "english_reading" not in site.results:
@@ -1003,12 +1121,12 @@ def build(site: Site) -> dict[str, str]:
       <h1>The Text tab's reading questions, in Turkish and in English</h1>
       <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of {bp.in_words(family)} of the {selected} decision models we chose (<a href="#about">which ones</a>) as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(site, data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#main-table">Turkish vs English</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}{'<a href="#option-word">The option&#x27;s word</a>' if site.results.get("dont_know_option_word") else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#main-table">Turkish vs English</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}{'<a href="#option-word">The option&#x27;s word</a>' if site.results.get("dont_know_option_word") else ""}{'<a href="#coverage">Risk and coverage</a>' if data.get("coverage") else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
     </section>
     {main_table(site, data)}
     {face(site, data)}
     {dont_know_face(site, idk) if idk else ""}
-    {option_word(site)}
+    {option_word(site)}{coverage(site, data)}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, the models not compared and our method{", then the same with “I don't know”" if idk else ""}</span></summary>
     <section class="card" id="about">
