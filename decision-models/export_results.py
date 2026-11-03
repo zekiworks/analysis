@@ -2184,19 +2184,20 @@ SAME_ANSWERS_SEED = 20261103
 # The 95% interval: the SAME_ANSWERS_TAIL-th smallest and the SAME_ANSWERS_TAIL-th largest resampled difference.
 SAME_ANSWERS_TAIL = 250
 SAME_ANSWERS_RULE = (
-    "Each model's five-option run (Turkish: its Hallucination tab row's original run, the hosted GLiDE rerun in place of "
-    "the run it replaces; English: its first English run) keeps its k most confident answers, k being the reference's "
-    "answered count (right + wrong) in its run with \"I don't know\". A run's scored answers (score and choice not null; "
-    "any other answer is never kept) are ranked by score, highest first. When the k-th place falls inside a group of "
-    "equal scores, the group counts in proportion: expected wrong = wrong_above + (k - taken_above) * wrong_tied / "
-    "taken_tied, with taken_above and wrong_above the answers above the group and taken_tied and wrong_tied the group's "
-    "(the expectation over a random order of the tied answers). wrong_of_answers = expected wrong / k; difference = a "
-    "model's wrong_of_answers - the reference's. Paired bootstrap over questions: per family a new "
+    "Each model's five-option run (Turkish: every main run on the Text tab, all its setups, the hosted GLiDE rerun in "
+    "place of the run it replaces; English: its first English run) keeps its k most confident answers, k being the "
+    "reference's answered count (right + wrong) in its run with \"I don't know\". A run's scored answers (score and "
+    "choice not null; any other answer is never kept) are ranked by score, highest first. When the k-th place falls "
+    "inside a group of equal scores, the group counts in proportion: expected wrong = wrong_above + (k - taken_above) * "
+    "wrong_tied / taken_tied, with taken_above and wrong_above the answers above the group and taken_tied and "
+    "wrong_tied the group's (the expectation over a random order of the tied answers). wrong_of_answers = expected "
+    "wrong / k; difference = a model's wrong_of_answers - the reference's. Paired bootstrap over questions: per family a new "
     "random.Random(seed), Turkish first, English second; resamples times rng.choices(range(n), k=n) over the family's n "
     "question positions in answers.json order, each question counting as often as it was drawn (k stays fixed); the "
     "same rule with weighted counts gives each model's rate, and d = its rate - the reference's. Two-sided p = min(1, 2 "
     "* min(1 + #{d <= 0}, 1 + #{d >= 0}) / (resamples + 1)); the 95% interval is the 250th smallest and the 250th "
-    "largest d. Holm's correction over the non-reference models' p within each family, in its order."
+    "largest d. Holm's correction within each family over the models other than the reference (Turkish: the other main "
+    "runs; English: the other English reading models), in the family's order."
 )
 
 
@@ -2244,17 +2245,17 @@ def kept_wrong(ranked: dict[str, list[int]], weights: list[int], k: int) -> floa
 
 
 def same_answers_compare(family: str, models: list[dict[str, Any]], ranked: list[dict[str, list[int]]], questions: int,
-                         k: int) -> None:
+                         k: int, reference: int) -> None:
     """Fill in each model's wrong answers among its k most confident (`wrong`, `wrong_of_answers`) and, for every model
-    but the reference, the difference from the reference with its paired bootstrap interval, p and Holm's p over the
-    family (SAME_ANSWERS_RULE). Stops when a model has fewer than k scored answers, or a resample leaves it fewer."""
-    reference = next(index for index, model in enumerate(models) if model["name"] == SAME_ANSWERS_REFERENCE)
+    but the reference (`models[reference]`), the difference from the reference with its paired bootstrap interval, p and
+    Holm's p over the family (SAME_ANSWERS_RULE). Stops when a model has fewer than k scored answers, or a resample
+    leaves it fewer."""
     ones = [1] * questions
     for model, found in zip(models, ranked):
         wrong = kept_wrong(found, ones, k)
         if wrong is None:
-            raise ValueError(f"same answers, {family}: {model['name']}'s run {model['five_option_run']} has "
-                             f"{len(found['order'])} scored answers, fewer than k = {k}")
+            raise ValueError(f"same answers, {family}: {model['name']} (Text tab run {model['text_run']})'s five-option run "
+                             f"{model['five_option_run']} has {len(found['order'])} scored answers, fewer than k = {k}")
         model["wrong"] = wrong
         model["wrong_of_answers"] = wrong / k
     others = [index for index in range(len(models)) if index != reference]
@@ -2268,8 +2269,8 @@ def same_answers_compare(family: str, models: list[dict[str, Any]], ranked: list
         for model, found in zip(models, ranked):
             wrong = kept_wrong(found, weights, k)
             if wrong is None:
-                raise ValueError(f"same answers, {family}: resample {resample + 1} leaves {model['name']} fewer than k = {k} "
-                                 f"weighted scored answers")
+                raise ValueError(f"same answers, {family}: resample {resample + 1} leaves {model['name']} (Text tab run "
+                                 f"{model['text_run']}) fewer than k = {k} weighted scored answers")
             rates.append(wrong / k)
         for index in others:
             differences[index].append(rates[index] - rates[reference])
@@ -2284,14 +2285,15 @@ def same_answers_compare(family: str, models: list[dict[str, Any]], ranked: list
 
 
 def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public: dict[str, Any] | None) -> dict[str, Any]:
-    """The same number of answers (results.json `dont_know_same_answers`, SAME_ANSWERS_RULE). Turkish: the Hallucination
-    tab's models in its order on the scored questions, each with its original run (the hosted GLiDE rerun for the run it
-    replaces) as its five-option run, its curve ([answered, wrong] at each distinct score, highest first) and its runs
-    with the option as points ("Bilmiyorum" and the option-word run); k from the reference's option-word run. English:
-    the models of `english_reading` on the kept questions, each with its first English run (whose curve
-    `english_reading.coverage` holds) and its first English "I don't know" run as its point; k from the reference's
-    English "I don't know" run. Stops when a needed section or run is missing, a run's answers do not give its published
-    counts, or an English curve is not of the model's five-option run."""
+    """The same number of answers (results.json `dont_know_same_answers`, SAME_ANSWERS_RULE). Turkish: every main run
+    (`runs`, in its order) on the scored questions as its five-option run (the hosted GLiDE rerun for the run it
+    replaces), named as the run and keyed by its Text tab run; the Hallucination tab's models also with their curve
+    ([answered, wrong] at each distinct score, highest first) and their runs with the option as points ("Bilmiyorum" and
+    the option-word run); k from the reference's option-word run. English: the models of `english_reading` on the kept
+    questions, each with its first English run (whose curve `english_reading.coverage` holds) and its first English "I
+    don't know" run as its point; k from the reference's English "I don't know" run. Stops when a needed section or run
+    is missing, a Hallucination tab model is not a main run, a run's answers do not give its published counts, or an
+    English curve is not of the model's five-option run."""
     section, option_word, rerun = data.get("dont_know"), data.get("dont_know_option_word"), data.get("hosted_glide_rerun")
     reading = data.get("english_reading") or {}
     if section is None or option_word is None or rerun is None or public is None or "dont_know" not in reading or "coverage" not in reading:
@@ -2315,9 +2317,8 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
             raise ValueError(f"same answers: {label} run {run['run']}'s answers do not give its published counts")
         return {"wording": wording, "run": run["run"], "answered": len(answered), "wrong": wrong}
 
-    def k_of(family: str, models: list[dict[str, Any]], wording: str) -> dict[str, int]:
-        reference = next((model for model in models if model["name"] == SAME_ANSWERS_REFERENCE), None)
-        point = None if reference is None else next((item for item in reference["points"] if item["wording"] == wording), None)
+    def k_of(family: str, reference: dict[str, Any], wording: str) -> dict[str, int]:
+        point = next((item for item in reference.get("points", []) if item["wording"] == wording), None)
         if point is None:
             raise ValueError(f"same answers, {family}: {SAME_ANSWERS_REFERENCE} has no run with “{wording}” to take k from")
         return {"k": point["answered"], "k_run": point["run"]}
@@ -2327,30 +2328,43 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
         raise ValueError(f"same answers: {len(scored)} scored questions in the answers, results {data['questions']}")
     words = {model["bilmiyorum"]["run"]: model["i_dont_know"] for model in option_word["models"]}
     not_run = {item["name"] for item in option_word["not_run"]}
+    option_rows = {row["original_run"]: row for row in section["models"]}
+    missing = sorted(set(option_rows) - {run["run"] for run in data["runs"]})
+    if missing:
+        raise ValueError(f"same answers: the Hallucination tab models of Text tab runs {missing} are not main runs")
+    reference_runs = [row["original_run"] for row in section["models"] if row["name"] == SAME_ANSWERS_REFERENCE]
+    if len(reference_runs) != 1:
+        raise ValueError(f"same answers: needs exactly one Hallucination tab model {SAME_ANSWERS_REFERENCE}, found {len(reference_runs)}")
     turkish, turkish_ranked = [], []
-    for row in section["models"]:
-        name = row["name"]
-        replaces = row["original_run"] if row["original_run"] == rerun["replaces_run"] else None
-        five = (run_in("rerun_runs", rerun["run"], f"{name}'s five-option") if replaces is not None
-                else run_in("runs", row["original_run"], f"{name}'s five-option"))
-        points = [option_point("Bilmiyorum", run_in("dont_know_runs", row["run"], f"{name}'s “Bilmiyorum”"), scored, row,
-                               f"{name}'s “Bilmiyorum”")]
-        word = words.get(row["run"])
-        if word is not None:
-            points.append(option_point(OPTION_WORD, run_in("dont_know_word_runs", word["run"], f"{name}'s “{OPTION_WORD}”"),
-                                       scored, word, f"{name}'s “{OPTION_WORD}”"))
-        elif name not in not_run:
-            raise ValueError(f"same answers: {name} has no run with “{OPTION_WORD}” in `dont_know_option_word`")
-        ranked = ranked_answers(five, scored, name)
+    for main_run in data["runs"]:
+        name, text_run = main_run["name"], main_run["run"]
+        label = f"{name} (run {text_run})"
+        replaces = text_run if text_run == rerun["replaces_run"] else None
+        five = (run_in("rerun_runs", rerun["run"], f"{label}'s five-option") if replaces is not None
+                else run_in("runs", text_run, f"{label}'s five-option"))
+        ranked = ranked_answers(five, scored, label)
         turkish_ranked.append(ranked)
-        turkish.append({"name": name, "text_run": row["original_run"], "five_option_run": five["run"], "replaces_run": replaces,
-                        "wrong": None, "wrong_of_answers": None, "difference": None, "interval": None, "p": None, "p_holm": None,
-                        "curve": [[end, wrong] for end, wrong in zip(ranked["ends"], ranked["wrong_ends"])], "points": points})
+        entry = {"name": name, "text_run": text_run, "five_option_run": five["run"], "replaces_run": replaces,
+                 "wrong": None, "wrong_of_answers": None, "difference": None, "interval": None, "p": None, "p_holm": None}
+        row = option_rows.get(text_run)
+        if row is not None:
+            points = [option_point("Bilmiyorum", run_in("dont_know_runs", row["run"], f"{label}'s “Bilmiyorum”"), scored, row,
+                                   f"{label}'s “Bilmiyorum”")]
+            word = words.get(row["run"])
+            if word is not None:
+                points.append(option_point(OPTION_WORD, run_in("dont_know_word_runs", word["run"], f"{label}'s “{OPTION_WORD}”"),
+                                           scored, word, f"{label}'s “{OPTION_WORD}”"))
+            elif row["name"] not in not_run:
+                raise ValueError(f"same answers: {row['name']} has no run with “{OPTION_WORD}” in `dont_know_option_word`")
+            entry["curve"] = [[end, wrong] for end, wrong in zip(ranked["ends"], ranked["wrong_ends"])]
+            entry["points"] = points
+        turkish.append(entry)
     if sum(1 for model in turkish if model["replaces_run"] is not None) != 1:
-        raise ValueError(f"same answers: run {rerun['run']} must be the five-option run of exactly one model, the one whose "
-                         f"original run was {rerun['replaces_run']}")
-    turkish_k = k_of("Turkish", turkish, OPTION_WORD)
-    same_answers_compare("Turkish", turkish, turkish_ranked, len(scored), turkish_k["k"])
+        raise ValueError(f"same answers: run {rerun['run']} must be the five-option run of exactly one main run, run "
+                         f"{rerun['replaces_run']}")
+    turkish_reference = next(index for index, model in enumerate(turkish) if model["text_run"] == reference_runs[0])
+    turkish_k = k_of("Turkish", turkish[turkish_reference], OPTION_WORD)
+    same_answers_compare("Turkish", turkish, turkish_ranked, len(scored), turkish_k["k"], turkish_reference)
 
     kept = kept_questions(answers, public)
     idk = reading["dont_know"]
@@ -2373,8 +2387,11 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
         english_ranked.append(ranked)
         english.append({"name": name, "text_run": text_run, "five_option_run": five["run"], "wrong": None, "wrong_of_answers": None,
                         "difference": None, "interval": None, "p": None, "p_holm": None, "points": points})
-    english_k = k_of("English", english, OPTION_WORD)
-    same_answers_compare("English", english, english_ranked, len(kept), english_k["k"])
+    english_references = [index for index, model in enumerate(english) if model["name"] == SAME_ANSWERS_REFERENCE]
+    if len(english_references) != 1:
+        raise ValueError(f"same answers: needs exactly one English reading model {SAME_ANSWERS_REFERENCE}, found {len(english_references)}")
+    english_k = k_of("English", english[english_references[0]], OPTION_WORD)
+    same_answers_compare("English", english, english_ranked, len(kept), english_k["k"], english_references[0])
     return {
         "reference": SAME_ANSWERS_REFERENCE,
         "resamples": SAME_ANSWERS_RESAMPLES,
