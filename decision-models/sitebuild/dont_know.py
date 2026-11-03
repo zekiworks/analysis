@@ -1555,6 +1555,145 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
     </section>"""
 
 
+def high_rate(kept: int, wrong: int, digits: int) -> str:
+    """% wrong of the answers kept, with "wrong of kept" small; Not measured with none kept."""
+    if not kept:
+        return f'Not measured<span class="small">none of {kept:,} kept</span>'
+    return f'{pct(wrong / kept, digits)}<span class="small">{wrong:,} of {kept:,}</span>'
+
+
+def high_check_text(high: dict[str, Any], digits: int) -> str:
+    """The sentence under the cutoff table, from `check` and the table: whether Liquid d1-ultra's worst run stays below
+    the best run of each other model at every whole-percent cutoff up to 98%, and where it does not."""
+    cuts, (ref, *others) = high["cutoffs"]["cutoffs"], high["cutoffs"]["models"]
+    rates = lambda model, index: [run["wrong"][index] / run["kept"][index] for run in model["runs"]]  # noqa: E731
+    names = " and of ".join(esc(model["name"]) for model in others)
+    top = cuts.index(0.99)
+    highest = max(rate for model in high["cutoffs"]["models"] for rate in rates(model, top))
+    if high["cutoffs"]["check"]["holds"]:
+        return (f"At every cutoff up to 98% (each whole percent), {esc(ref['name'])}'s worst run has a lower % wrong than "
+                f"the best run of {names}; at 99%, all three are at or near 0 (highest: {pct(highest, digits)}).")
+    failing = [f"{100 * cut:g}%" for index, cut in enumerate(cuts) if cut < 0.99
+               and not all(max(rates(ref, index)) < min(rates(model, index)) for model in others)]
+    where = (f"in the table it fails at {joined(failing)}" if failing
+             else "it fails at one or more whole-percent cutoffs between the table's columns")
+    return (f"Not at every cutoff up to 98% (each whole percent) does {esc(ref['name'])}'s worst run have a lower % wrong "
+            f"than the best run of {names}: {where}.")
+
+
+def check_high_confidence(site: Site, high: dict[str, Any]) -> None:
+    """Stop the build when high_confidence does not fit: wrong above kept, a cutoff table whose runs are not the repeat
+    sets, d1-ultra's repeats not its repeat set, an English wrong-question list of another length, or a check that the
+    table's own columns contradict."""
+    def fail(text: str) -> SystemExit:
+        return SystemExit(f"results.json high_confidence: {text}")
+
+    pairs = [(model["name"], model["kept"], model["wrong"]) for model in high["models"]]
+    pairs += [(f"run {run['run']}", run["kept"], run["wrong"]) for entry in high["repeats"] for run in entry["runs"]]
+    pairs += [(f"English run {run['run']}", run["kept"], run["wrong"]) for run in high["english"]["runs"]]
+    pairs += [(f"run {run['run']} at {cut:g}", kept, wrong) for model in high["cutoffs"]["models"] for run in model["runs"]
+              for cut, kept, wrong in zip(high["cutoffs"]["cutoffs"], run["kept"], run["wrong"], strict=True)]
+    for name, kept, wrong in pairs:
+        if not 0 <= wrong <= kept:
+            raise fail(f"{name}: {wrong} wrong of {kept} kept")
+    if high["threshold"] not in high["cutoffs"]["cutoffs"] or 0.99 not in high["cutoffs"]["cutoffs"]:
+        raise fail("the cutoff table has no column at the threshold or at 99%")
+    sets = {entry["name"]: entry["runs"] for entry in site.results["repeats"] if entry["variant"] is None}
+    for model in high["cutoffs"]["models"]:
+        runs = [run["run"] for run in model["runs"]]
+        if sets.get(model["name"]) != runs or runs[0] != model["text_run"]:
+            raise fail(f"{model['name']}: cutoff table runs {runs} are not its repeat set {sets.get(model['name'])}")
+    for entry in high["repeats"]:
+        if [entry["text_run"]] + [run["run"] for run in entry["runs"]] != sets.get(entry["name"]):
+            raise fail(f"{entry['name']}: repeats are not its repeat set")
+    for run in high["english"]["runs"]:
+        if len(run["wrong_questions"]) != run["wrong"] or run["wrong_questions"] != sorted(run["wrong_questions"]):
+            raise fail(f"English run {run['run']}: wrong_questions do not fit the wrong count")
+    if high["cutoffs"]["check"]["holds"] and "Not at every" in high_check_text(high, 1):
+        raise fail("check holds, but the table's columns say otherwise")
+    if not high["cutoffs"]["check"]["holds"] and "Not at every" not in high_check_text(high, 1):
+        raise fail("the sentence does not match check")
+
+
+def high_face(site: Site, high: dict[str, Any]) -> str:
+    """The section on the tab's face: the rule, every decision setup's answers at the threshold, d1-ultra's repeats, the
+    three models Artificial Analysis ties at 65 across cutoffs, and d1-ultra in English."""
+    from sitebuild.questions import question_link
+    digits = site.config["percent_digits"]
+    threshold = f"{100 * high['threshold']:g}%"
+
+    def board(heads: tuple[str, ...], rows: list[tuple[str, list[str]]]) -> str:
+        head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in heads[1:])
+        body = "".join(f"<tr>{first}" + "".join(cell(label, value) for label, value in zip(heads[1:], values)) + "</tr>"
+                       for first, values in rows)
+        return (f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">{esc(heads[0])}</th>'
+                f"{head}</tr></thead><tbody>{body}</tbody></table></div>")
+
+    def name_cell(run_id: int, note: str) -> str:
+        run = site.by_id[run_id]
+        return (f'<td class="model"><a class="model-name" href="{rel(PATH, site.model_path(run))}">{esc(site.row_name(run))}</a>'
+                f'<span class="small">{esc(note)}</span></td>')
+
+    run_note = lambda run, text_run: f"run {run}, " + ("Text tab run" if run == text_run else "repeat run")  # noqa: E731
+    decision = [model for model in high["models"] if site.decision(site.by_id[model["text_run"]])]
+    decision.sort(key=lambda model: (not model["kept"], model["wrong"] / model["kept"] if model["kept"] else 0,
+                                     -model["kept"], model["name"]))
+    heads = ("Model", "Run", f"Answers kept (at {threshold}+)", "Wrong", "% wrong")
+    main = board(heads, [(model_cell(site, {"original_run": model["text_run"]}),
+                          [str(model["text_run"]), f"{model['kept']:,}", f"{model['wrong']:,}",
+                           high_rate(model["kept"], model["wrong"], digits)]) for model in decision])
+    repeats = ""
+    for entry in high["repeats"]:
+        first = next(model for model in high["models"] if model["text_run"] == entry["text_run"])
+        runs = [{"run": entry["text_run"], "kept": first["kept"], "wrong": first["wrong"]}] + entry["runs"]
+        repeats += (f"<h3>{esc(entry['name'])}'s repeat runs</h3>"
+                    f'<p class="note">The same questions and settings, run again; run {entry["text_run"]} is the Text tab '
+                    "run above, shown for context.</p>"
+                    + board(("Run", "Answers kept", "Wrong", "% wrong"),
+                            [(name_cell(entry["text_run"], run_note(run["run"], entry["text_run"])),
+                              [f"{run['kept']:,}", f"{run['wrong']:,}", high_rate(run["kept"], run["wrong"], digits)])
+                             for run in runs]))
+    cuts = high["cutoffs"]["cutoffs"]
+    cut_heads = ("Model and run",) + tuple(f"{100 * cut:g}%" for cut in cuts)
+    cut_rows = [(name_cell(model["text_run"], run_note(run["run"], model["text_run"])),
+                 [high_rate(kept, wrong, digits) for kept, wrong in zip(run["kept"], run["wrong"])])
+                for model in high["cutoffs"]["models"] for run in model["runs"]]
+    english = high["english"]
+    eruns = english["runs"]
+    count = len(eruns)
+    kept = sorted(run["kept"] for run in eruns)
+    kept_text = f"{kept[0]:,}" if kept[0] == kept[-1] else f"{kept[0]:,} to {kept[-1]:,}"
+    links = lambda ids: joined([question_link(PATH, qid) for qid in ids])  # noqa: E731
+    if all(run["wrong"] == eruns[0]["wrong"] and run["wrong_questions"] == eruns[0]["wrong_questions"] for run in eruns):
+        wrong = eruns[0]["wrong"]
+        noun = "answer" if wrong == 1 else "answers"
+        tail = (f", always question {links(eruns[0]['wrong_questions'])}" if wrong == 1
+                else f", always questions {links(eruns[0]['wrong_questions'])}" if wrong else "")
+        result = f"has {wrong:,} wrong {noun} in each of its {count} runs{tail}"
+    else:
+        result = f"has, over its {count} runs, " + joined(
+            [f"{run['wrong']:,} wrong in run {run['run']}" + (f" (question {links(run['wrong_questions'])})" if run["wrong"] else "")
+             for run in eruns])
+    note = (f'<p class="note">In English (the {english["questions"]:,} kept reading questions of the '
+            f'<a href="{rel(PATH, "turkish-vs-english/")}">Turkish vs English tab</a>), at {threshold}, {esc(english["name"])} '
+            f"{result}; each run keeps {kept_text} answers (runs {joined([str(run['run']) for run in eruns])}).</p>")
+    return (f'<section class="card" id="high-confidence"><h2>Answers at {threshold}+ confidence</h2>'
+            f"<p>{esc(high['rule'])} Each decision model is counted on its Text tab run (its first five-option Turkish run, "
+            f"the run the site already uses), on the Text tab's {site.total:,} questions, keeping the answers whose chosen "
+            f"option has a probability of at least {threshold}. These runs have no “I don't know” option.</p>"
+            f"<h3>Every decision setup</h3>"
+            f'<p class="note">Ordered by % wrong (wrong / answers kept), then by answers kept, more first; a setup with no '
+            "answer kept is last, Not measured.</p>"
+            f"{main}{repeats}"
+            f"<h3>The three models Artificial Analysis ties at 65</h3>"
+            f'<p class="note">The three models its Decision Index v1.0 puts level at 65 (<a href="'
+            f'{esc(site.config["aa_decision_index"]["post"])}">its post</a>), each with its Text tab run and its repeat runs, '
+            "one row per run. Each column is a cutoff: % wrong of the answers kept at that probability or higher, with "
+            "wrong of kept below.</p>"
+            f"{board(cut_heads, cut_rows)}"
+            f"<p>{high_check_text(high, digits)}</p>{note}</section>")
+
+
 def build(site: Site) -> dict[str, str]:
     data = site.results["dont_know"]
     total = f"{data['questions']:,}"
@@ -1577,15 +1716,18 @@ def build(site: Site) -> dict[str, str]:
     families = same_families(site, same) if same else []
     if same:
         check_same_answers(site, data, word, families, same["reference"])
+    high = site.results.get("high_confidence")
+    if high:
+        check_high_confidence(site, high)
     body = f"""    {site.tabs(PATH)}
     <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(data, against)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#option-word-confidence">“I don&#x27;t know” against confidence</a>' if against else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}{'<a href="#same-answers">The same number of answers</a>' if same else ""}<a href="#info">Info</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#option-word-confidence">“I don&#x27;t know” against confidence</a>' if against else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}{'<a href="#same-answers">The same number of answers</a>' if same else ""}{'<a href="#high-confidence">Answers at 95%+ confidence</a>' if high else ""}<a href="#info">Info</a></nav>
     </section>
-    {face(site, data)}{english_option_face(site, english, site.results.get("dont_know_english_option")) if english else ""}{option_word_face(site, data, word) if word else ""}{vs_confidence_face(site, data, against) if against else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}{same_face(site, same, families) if same else ""}
+    {face(site, data)}{english_option_face(site, english, site.results.get("dont_know_english_option")) if english else ""}{option_word_face(site, data, word) if word else ""}{vs_confidence_face(site, data, against) if against else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}{same_face(site, same, families) if same else ""}{high_face(site, high) if high else ""}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, what we found and our method</span></summary>
     <section class="card">

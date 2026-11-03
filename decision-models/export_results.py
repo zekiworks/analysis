@@ -2481,6 +2481,113 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
     }
 
 
+# The three models Artificial Analysis's Decision Index v1.0 puts level at 65 (page_config `aa_decision_index`), each with
+# its Text tab run and its repeat runs (results.json `repeats`, variant null), in that order.
+HIGH_CONFIDENCE_FAMILY = (
+    ("Liquid d1-ultra", 199, (200, 201, 202, 203)),
+    ("SubQ Snap 1.1", 346, (387, 388, 389, 390)),
+    ("Elephant-1", 373, (375, 376, 378, 379)),
+)
+HIGH_CONFIDENCE_THRESHOLD = 0.95
+HIGH_CONFIDENCE_CUTOFFS = (0.5, 0.7, 0.8, 0.9, 0.95, 0.99)
+
+
+def confident(run: dict[str, Any], positions: list[int], cutoff: float) -> tuple[int, list[int]]:
+    """The answers of `run` on `positions` whose chosen option has probability at least `cutoff` (an answer without a
+    score or without a valid choice never counts): how many, and the positions of those that are not right."""
+    counted = [index for index in positions if run["score"][index] is not None and run["choice"][index] is not None
+               and run["score"][index] >= cutoff]
+    return len(counted), [index for index in counted if run["correct"][index] != 1]
+
+
+def high_confidence(data: dict[str, Any], answers: dict[str, Any], public: dict[str, Any]) -> dict[str, Any]:
+    """`high_confidence`: per main run, on the scored questions, the answers kept at HIGH_CONFIDENCE_THRESHOLD and the
+    wrong ones among them; Liquid d1-ultra's repeat runs at the threshold; the three-model family's runs at each of
+    HIGH_CONFIDENCE_CUTOFFS, with the check that at every whole percent from 0% to 98% d1-ultra's highest wrong share
+    is lower than the lowest of each other model; and d1-ultra's English runs on the English track's kept questions."""
+    questions = answers["questions"]
+    scored = [index for index, status in enumerate(questions["status"]) if status != "excluded"]
+    lists = {run["run"]: run for run in answers["runs"] + answers["repeat_runs"]}
+    threshold = HIGH_CONFIDENCE_THRESHOLD
+    models = []
+    for run in data["runs"]:
+        kept, wrong = confident(lists[run["run"]], scored, threshold)
+        models.append({"name": run["name"], "text_run": run["run"], "kept": kept, "wrong": len(wrong)})
+    repeat_sets = {item["runs"][0]: item["runs"] for item in data["repeats"] if item["variant"] is None}
+    family = []
+    for name, text_run, repeats in HIGH_CONFIDENCE_FAMILY:
+        runs = [text_run, *repeats]
+        if repeat_sets.get(text_run) != runs or next(run["name"] for run in data["runs"] if run["run"] == text_run) != name:
+            raise ValueError(f"high_confidence: {name}'s runs {runs} are not its repeat set in results.json `repeats`")
+        family.append((name, text_run, runs))
+    name, text_run, runs = family[0]
+    repeats = {"name": name, "text_run": text_run, "runs": []}
+    for run in runs[1:]:
+        kept, wrong = confident(lists[run], scored, threshold)
+        repeats["runs"].append({"run": run, "kept": kept, "wrong": len(wrong)})
+
+    def shares(runs: list[int], cutoff: float, label: str) -> list[float]:
+        found = []
+        for run in runs:
+            kept, wrong = confident(lists[run], scored, cutoff)
+            if kept == 0:
+                raise ValueError(f"high_confidence: {label} run {run} keeps no answer at {cutoff:.2f}")
+            found.append(len(wrong) / kept)
+        return found
+
+    holds = all(max(shares(family[0][2], k / 100, family[0][0]))
+                < min(min(shares(runs, k / 100, name)) for name, _, runs in family[1:]) for k in range(99))
+    cutoff_models = []
+    for name, text_run, runs in family:
+        rows = []
+        for run in runs:
+            counts = [confident(lists[run], scored, cutoff) for cutoff in HIGH_CONFIDENCE_CUTOFFS]
+            rows.append({"run": run, "kept": [kept for kept, _ in counts], "wrong": [len(wrong) for _, wrong in counts]})
+        cutoff_models.append({"name": name, "text_run": text_run, "runs": rows})
+    reference = next(model for model in data["english_reading"]["models"] if model["turkish_run"] == family[0][1])
+    kept_positions = kept_questions(answers, public)
+    english_lists = {run["run"]: run for run in answers["english_runs"]}
+    english = {"name": reference["name"], "questions": len(kept_positions), "runs": []}
+    for run in reference["runs"]:
+        kept, wrong = confident(english_lists[run], kept_positions, threshold)
+        english["runs"].append({"run": run, "kept": kept, "wrong": len(wrong),
+                                "wrong_questions": sorted(questions["id"][index] for index in wrong)})
+    return {
+        "threshold": threshold,
+        "rule": "An answer counts when its chosen option has probability at least the cutoff; an answer without a score "
+                "or without a valid choice never counts; wrong is a counted answer that is not right.",
+        "models": models,
+        "repeats": [repeats],
+        "cutoffs": {"cutoffs": list(HIGH_CONFIDENCE_CUTOFFS), "models": cutoff_models,
+                    "check": {"cutoffs": "every whole percent from 0% to 98%", "holds": holds}},
+        "english": english,
+    }
+
+
+def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: dict[str, Any]) -> dict[str, Any]:
+    """`english_reading.against_reference`: Liquid d1-ultra's first English run against each other model's first English
+    run, on the kept questions, as right answers in each (exact McNemar, bm.paired_comparison: first d1-ultra), with
+    Holm's correction over those models; models in `english_reading.models` order."""
+    reference_name = HIGH_CONFIDENCE_FAMILY[0][0]
+    kept = kept_questions(answers, public)
+    lists = {run["run"]: run for run in answers["english_runs"]}
+
+    def right(run: int) -> list[int]:
+        return [int(lists[run]["correct"][index] == 1) for index in kept]
+
+    reference = next(model for model in reading["models"] if model["name"] == reference_name)
+    models = []
+    for model in reading["models"]:
+        if model is reference:
+            continue
+        test = bm.paired_comparison(right(reference["run"]), right(model["run"]))
+        models.append({"name": model["name"], "run": model["run"], "reference_only_right": test["first_only"],
+                       "other_only_right": test["second_only"], "p": test["p"], "p_holm": None})
+    for model, adjusted in zip(models, bm.holm([model["p"] for model in models])):
+        model["p_holm"] = adjusted
+    return {"reference": reference_name, "reference_run": reference["run"], "questions": len(kept), "models": models}
+
+
 def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_section: dict[str, Any] | None = None,
                    english_section: dict[str, Any] | None = None,
                    english_dont_know_section: dict[str, Any] | None = None,
@@ -2674,6 +2781,10 @@ def main() -> int:
         data["replay"] = replay(data["runs"], answers)
         refit(data["runs"], answers)
         holm_over_all_pairs(data["paired"], data["runs"], answers)
+        if public is None:
+            raise ValueError("high_confidence: needs `english_reading`")
+        data["high_confidence"] = high_confidence(data, answers, public)
+        data["english_reading"]["against_reference"] = against_reference(data["english_reading"], answers, public)
         data["baselines"] = baselines(answers, data["replay"]["decision"])
         # The footer date: when results with this content first went out, never older than the newest `updated` of any
         # run a section publishes (every run in the answers file, from the report's records).

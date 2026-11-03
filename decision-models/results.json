@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "8d77fddf",
-  "updated": "2026-11-03T14:21:39Z",
+  "results_version": "fb40b559",
+  "updated": "2026-11-03T16:08:35Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -367470,6 +367470,141 @@
           "paired": null
         }
       ]
+    },
+    "against_reference": {
+      "reference": "Liquid d1-ultra",
+      "reference_run": 411,
+      "questions": 547,
+      "models": [
+        {
+          "name": "Fastino GLiDE v1.2",
+          "run": 521,
+          "reference_only_right": 27,
+          "other_only_right": 25,
+          "p": 0.8898839652765371,
+          "p_holm": 1.0
+        },
+        {
+          "name": "Mammoth-1",
+          "run": 503,
+          "reference_only_right": 23,
+          "other_only_right": 20,
+          "p": 0.7607916425613439,
+          "p_holm": 1.0
+        },
+        {
+          "name": "vLLM-SR d3",
+          "run": 554,
+          "reference_only_right": 23,
+          "other_only_right": 18,
+          "p": 0.5327092552361137,
+          "p_holm": 1.0
+        },
+        {
+          "name": "Drex Max v1",
+          "run": 552,
+          "reference_only_right": 27,
+          "other_only_right": 21,
+          "p": 0.4708790136217118,
+          "p_holm": 1.0
+        },
+        {
+          "name": "vLLM-SR d3-ultra",
+          "run": 550,
+          "reference_only_right": 31,
+          "other_only_right": 24,
+          "p": 0.41875418826901556,
+          "p_holm": 1.0
+        },
+        {
+          "name": "Perplexity Decider 27B v1.2",
+          "run": 527,
+          "reference_only_right": 29,
+          "other_only_right": 18,
+          "p": 0.14386508844054902,
+          "p_holm": 1.0
+        },
+        {
+          "name": "Drex Max 1.1",
+          "run": 399,
+          "reference_only_right": 36,
+          "other_only_right": 24,
+          "p": 0.1550019040032606,
+          "p_holm": 1.0
+        },
+        {
+          "name": "Liquid d1",
+          "run": 430,
+          "reference_only_right": 40,
+          "other_only_right": 19,
+          "p": 0.008641499683281734,
+          "p_holm": 0.06913199746625387
+        },
+        {
+          "name": "Jev 1.14.0",
+          "run": 410,
+          "reference_only_right": 44,
+          "other_only_right": 19,
+          "p": 0.0022275315109880345,
+          "p_holm": 0.02004778359889231
+        },
+        {
+          "name": "SubQ Snap 1.1",
+          "run": 413,
+          "reference_only_right": 42,
+          "other_only_right": 16,
+          "p": 0.0008617822405421263,
+          "p_holm": 0.010341386886505516
+        },
+        {
+          "name": "Inception Mercury Decide",
+          "run": 398,
+          "reference_only_right": 46,
+          "other_only_right": 19,
+          "p": 0.0010900838044475788,
+          "p_holm": 0.011990921848923367
+        },
+        {
+          "name": "Microsoft-Decision-1",
+          "run": 412,
+          "reference_only_right": 46,
+          "other_only_right": 19,
+          "p": 0.0010900838044475788,
+          "p_holm": 0.011990921848923367
+        },
+        {
+          "name": "Elephant-1",
+          "run": 499,
+          "reference_only_right": 49,
+          "other_only_right": 20,
+          "p": 0.0006361729964503618,
+          "p_holm": 0.008270248953854704
+        },
+        {
+          "name": "Celeris-1 Decision",
+          "run": 546,
+          "reference_only_right": 50,
+          "other_only_right": 14,
+          "p": 7.069487542545679e-06,
+          "p_holm": 0.00010604231313818518
+        },
+        {
+          "name": "GPT-6 Luna",
+          "run": 397,
+          "reference_only_right": 54,
+          "other_only_right": 18,
+          "p": 2.568720337924735e-05,
+          "p_holm": 0.0003596208473094629
+        },
+        {
+          "name": "Perplexity Decider Flash v1.2",
+          "run": 533,
+          "reference_only_right": 64,
+          "other_only_right": 16,
+          "p": 5.871330414596199e-08,
+          "p_holm": 9.394128663353918e-07
+        }
+      ]
     }
   },
   "dont_know_english_option": {
@@ -369766,6 +369901,843 @@
         }
       }
     ]
+  },
+  "high_confidence": {
+    "threshold": 0.95,
+    "rule": "An answer counts when its chosen option has probability at least the cutoff; an answer without a score or without a valid choice never counts; wrong is a counted answer that is not right.",
+    "models": [
+      {
+        "name": "Gemini 3.8 Flash",
+        "text_run": 140,
+        "kept": 2170,
+        "wrong": 28
+      },
+      {
+        "name": "GPT-6 Astra",
+        "text_run": 277,
+        "kept": 2122,
+        "wrong": 27
+      },
+      {
+        "name": "GPT-6.1 Sol",
+        "text_run": 276,
+        "kept": 2120,
+        "wrong": 28
+      },
+      {
+        "name": "GPT-6 Astra",
+        "text_run": 48,
+        "kept": 2097,
+        "wrong": 23
+      },
+      {
+        "name": "GPT-6 Astra",
+        "text_run": 191,
+        "kept": 2134,
+        "wrong": 35
+      },
+      {
+        "name": "Gemini 3.8 Flash",
+        "text_run": 188,
+        "kept": 2134,
+        "wrong": 38
+      },
+      {
+        "name": "GPT-6.1 Sol",
+        "text_run": 190,
+        "kept": 2123,
+        "wrong": 45
+      },
+      {
+        "name": "GPT-6.1 Sol",
+        "text_run": 124,
+        "kept": 2078,
+        "wrong": 36
+      },
+      {
+        "name": "Claude Fable 5.1",
+        "text_run": 310,
+        "kept": 379,
+        "wrong": 0
+      },
+      {
+        "name": "Claude Opus 5.5",
+        "text_run": 278,
+        "kept": 129,
+        "wrong": 1
+      },
+      {
+        "name": "GPT-6.1 Terra",
+        "text_run": 275,
+        "kept": 1921,
+        "wrong": 62
+      },
+      {
+        "name": "Claude Opus 5.5",
+        "text_run": 192,
+        "kept": 297,
+        "wrong": 0
+      },
+      {
+        "name": "Gemini 3.8 Flash",
+        "text_run": 123,
+        "kept": 1954,
+        "wrong": 86
+      },
+      {
+        "name": "Grok 4.7",
+        "text_run": 311,
+        "kept": 210,
+        "wrong": 0
+      },
+      {
+        "name": "DeepSeek-V4.1-Flash, first release",
+        "text_run": 121,
+        "kept": 2198,
+        "wrong": 175
+      },
+      {
+        "name": "GPT-6.1 Terra",
+        "text_run": 274,
+        "kept": 1872,
+        "wrong": 95
+      },
+      {
+        "name": "Claude Opus 5.5",
+        "text_run": 47,
+        "kept": 89,
+        "wrong": 1
+      },
+      {
+        "name": "Claude Sonnet 5.5",
+        "text_run": 193,
+        "kept": 166,
+        "wrong": 1
+      },
+      {
+        "name": "Claude Sonnet 5.5",
+        "text_run": 55,
+        "kept": 38,
+        "wrong": 0
+      },
+      {
+        "name": "Kimi K3.1 Pro",
+        "text_run": 320,
+        "kept": 1973,
+        "wrong": 253
+      },
+      {
+        "name": "GLM-5.3-Flash",
+        "text_run": 160,
+        "kept": 332,
+        "wrong": 5
+      },
+      {
+        "name": "Liquid d1-ultra",
+        "text_run": 199,
+        "kept": 549,
+        "wrong": 0
+      },
+      {
+        "name": "GLM-5.3",
+        "text_run": 314,
+        "kept": 129,
+        "wrong": 5
+      },
+      {
+        "name": "Qwen3.8-27B",
+        "text_run": 318,
+        "kept": 2117,
+        "wrong": 493
+      },
+      {
+        "name": "Gemma 4 31B",
+        "text_run": 119,
+        "kept": 1956,
+        "wrong": 435
+      },
+      {
+        "name": "Kimi K3.1 Pro",
+        "text_run": 315,
+        "kept": 1402,
+        "wrong": 228
+      },
+      {
+        "name": "Fastino GLiDE v1.2",
+        "text_run": 248,
+        "kept": 485,
+        "wrong": 2
+      },
+      {
+        "name": "GPT-6 Luna",
+        "text_run": 133,
+        "kept": 1493,
+        "wrong": 361
+      },
+      {
+        "name": "Fastino GLiDE",
+        "text_run": 129,
+        "kept": 302,
+        "wrong": 0
+      },
+      {
+        "name": "vLLM-SR d3",
+        "text_run": 259,
+        "kept": 503,
+        "wrong": 4
+      },
+      {
+        "name": "vLLM-SR d3-ultra",
+        "text_run": 269,
+        "kept": 833,
+        "wrong": 30
+      },
+      {
+        "name": "Drex Max v1",
+        "text_run": 322,
+        "kept": 736,
+        "wrong": 24
+      },
+      {
+        "name": "Drex Max 1.1",
+        "text_run": 326,
+        "kept": 493,
+        "wrong": 3
+      },
+      {
+        "name": "Mammoth-1",
+        "text_run": 374,
+        "kept": 667,
+        "wrong": 9
+      },
+      {
+        "name": "Perplexity Decider 27B v1.2",
+        "text_run": 217,
+        "kept": 633,
+        "wrong": 11
+      },
+      {
+        "name": "Perplexity Decider 27B v1.1",
+        "text_run": 145,
+        "kept": 589,
+        "wrong": 6
+      },
+      {
+        "name": "Gemma 4 31B",
+        "text_run": 189,
+        "kept": 2006,
+        "wrong": 593
+      },
+      {
+        "name": "DeepSeek-V4.1-Flash, first release",
+        "text_run": 120,
+        "kept": 869,
+        "wrong": 49
+      },
+      {
+        "name": "SubQ Snap Preview",
+        "text_run": 177,
+        "kept": 339,
+        "wrong": 1
+      },
+      {
+        "name": "SubQ Snap 1.1",
+        "text_run": 346,
+        "kept": 665,
+        "wrong": 18
+      },
+      {
+        "name": "GPT-6 Luna",
+        "text_run": 143,
+        "kept": 542,
+        "wrong": 15
+      },
+      {
+        "name": "Liquid d1.1",
+        "text_run": 254,
+        "kept": 336,
+        "wrong": 2
+      },
+      {
+        "name": "Claude Sonnet 5.5",
+        "text_run": 54,
+        "kept": 9,
+        "wrong": 0
+      },
+      {
+        "name": "Celeris-1 Decision",
+        "text_run": 150,
+        "kept": 123,
+        "wrong": 0
+      },
+      {
+        "name": "Perplexity Decider 27B v1",
+        "text_run": 44,
+        "kept": 293,
+        "wrong": 0
+      },
+      {
+        "name": "OneJev 27B",
+        "text_run": 264,
+        "kept": 166,
+        "wrong": 0
+      },
+      {
+        "name": "Jev 1.14.0",
+        "text_run": 194,
+        "kept": 390,
+        "wrong": 4
+      },
+      {
+        "name": "Inception Mercury Decide",
+        "text_run": 204,
+        "kept": 775,
+        "wrong": 67
+      },
+      {
+        "name": "GLM-5.3-Flash",
+        "text_run": 159,
+        "kept": 268,
+        "wrong": 25
+      },
+      {
+        "name": "Jev 1.13.0",
+        "text_run": 49,
+        "kept": 440,
+        "wrong": 8
+      },
+      {
+        "name": "Clef",
+        "text_run": 125,
+        "kept": 348,
+        "wrong": 5
+      },
+      {
+        "name": "Liquid d1",
+        "text_run": 52,
+        "kept": 502,
+        "wrong": 20
+      },
+      {
+        "name": "Drex 2.0",
+        "text_run": 334,
+        "kept": 180,
+        "wrong": 0
+      },
+      {
+        "name": "Cygnet",
+        "text_run": 127,
+        "kept": 335,
+        "wrong": 4
+      },
+      {
+        "name": "Open-Jev 27B v1.1",
+        "text_run": 45,
+        "kept": 0,
+        "wrong": 0
+      },
+      {
+        "name": "Winnow-12B",
+        "text_run": 128,
+        "kept": 641,
+        "wrong": 55
+      },
+      {
+        "name": "Qwen3.8-27B",
+        "text_run": 83,
+        "kept": 875,
+        "wrong": 129
+      },
+      {
+        "name": "Qwen3.8-27B",
+        "text_run": 53,
+        "kept": 2194,
+        "wrong": 1004
+      },
+      {
+        "name": "Elephant-1",
+        "text_run": 373,
+        "kept": 393,
+        "wrong": 13
+      },
+      {
+        "name": "Qwen3.8-27B",
+        "text_run": 50,
+        "kept": 434,
+        "wrong": 17
+      },
+      {
+        "name": "Perplexity Decider Flash v1.2",
+        "text_run": 223,
+        "kept": 154,
+        "wrong": 1
+      },
+      {
+        "name": "Microsoft-Decision-1",
+        "text_run": 205,
+        "kept": 378,
+        "wrong": 29
+      },
+      {
+        "name": "Clef-flash",
+        "text_run": 139,
+        "kept": 56,
+        "wrong": 4
+      },
+      {
+        "name": "Qwen3-14B",
+        "text_run": 131,
+        "kept": 1236,
+        "wrong": 505
+      },
+      {
+        "name": "Erk-14B",
+        "text_run": 132,
+        "kept": 302,
+        "wrong": 27
+      },
+      {
+        "name": "Metask-Jev 4B",
+        "text_run": 126,
+        "kept": 32,
+        "wrong": 1
+      },
+      {
+        "name": "Liquid d1-2B (open weights)",
+        "text_run": 340,
+        "kept": 4,
+        "wrong": 0
+      },
+      {
+        "name": "Strands Decider 2B",
+        "text_run": 141,
+        "kept": 10,
+        "wrong": 1
+      },
+      {
+        "name": "meraGPT Decider 1",
+        "text_run": 243,
+        "kept": 1,
+        "wrong": 0
+      },
+      {
+        "name": "GLiNER2.5-multi-Decide",
+        "text_run": 135,
+        "kept": 0,
+        "wrong": 0
+      },
+      {
+        "name": "Laya",
+        "text_run": 51,
+        "kept": 0,
+        "wrong": 0
+      },
+      {
+        "name": "Laya multilingual",
+        "text_run": 46,
+        "kept": 14,
+        "wrong": 11
+      },
+      {
+        "name": "GLiNER2.5 Multi (base)",
+        "text_run": 122,
+        "kept": 1,
+        "wrong": 1
+      }
+    ],
+    "repeats": [
+      {
+        "name": "Liquid d1-ultra",
+        "text_run": 199,
+        "runs": [
+          {
+            "run": 200,
+            "kept": 538,
+            "wrong": 0
+          },
+          {
+            "run": 201,
+            "kept": 542,
+            "wrong": 0
+          },
+          {
+            "run": 202,
+            "kept": 534,
+            "wrong": 0
+          },
+          {
+            "run": 203,
+            "kept": 550,
+            "wrong": 0
+          }
+        ]
+      }
+    ],
+    "cutoffs": {
+      "cutoffs": [
+        0.5,
+        0.7,
+        0.8,
+        0.9,
+        0.95,
+        0.99
+      ],
+      "models": [
+        {
+          "name": "Liquid d1-ultra",
+          "text_run": 199,
+          "runs": [
+            {
+              "run": 199,
+              "kept": [
+                1712,
+                1335,
+                1094,
+                802,
+                549,
+                90
+              ],
+              "wrong": [
+                224,
+                99,
+                46,
+                8,
+                0,
+                0
+              ]
+            },
+            {
+              "run": 200,
+              "kept": [
+                1705,
+                1320,
+                1089,
+                795,
+                538,
+                86
+              ],
+              "wrong": [
+                229,
+                93,
+                39,
+                6,
+                0,
+                0
+              ]
+            },
+            {
+              "run": 201,
+              "kept": [
+                1719,
+                1313,
+                1091,
+                794,
+                542,
+                96
+              ],
+              "wrong": [
+                241,
+                96,
+                47,
+                10,
+                0,
+                0
+              ]
+            },
+            {
+              "run": 202,
+              "kept": [
+                1713,
+                1315,
+                1088,
+                796,
+                534,
+                91
+              ],
+              "wrong": [
+                228,
+                84,
+                49,
+                8,
+                0,
+                0
+              ]
+            },
+            {
+              "run": 203,
+              "kept": [
+                1706,
+                1324,
+                1080,
+                803,
+                550,
+                90
+              ],
+              "wrong": [
+                233,
+                97,
+                43,
+                9,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "name": "SubQ Snap 1.1",
+          "text_run": 346,
+          "runs": [
+            {
+              "run": 346,
+              "kept": [
+                1791,
+                1323,
+                1117,
+                839,
+                665,
+                299
+              ],
+              "wrong": [
+                499,
+                229,
+                138,
+                52,
+                18,
+                1
+              ]
+            },
+            {
+              "run": 387,
+              "kept": [
+                1791,
+                1323,
+                1117,
+                839,
+                665,
+                299
+              ],
+              "wrong": [
+                499,
+                229,
+                138,
+                52,
+                18,
+                1
+              ]
+            },
+            {
+              "run": 388,
+              "kept": [
+                1791,
+                1323,
+                1117,
+                839,
+                665,
+                299
+              ],
+              "wrong": [
+                499,
+                229,
+                138,
+                52,
+                18,
+                1
+              ]
+            },
+            {
+              "run": 389,
+              "kept": [
+                1791,
+                1323,
+                1117,
+                839,
+                665,
+                299
+              ],
+              "wrong": [
+                499,
+                229,
+                138,
+                52,
+                18,
+                1
+              ]
+            },
+            {
+              "run": 390,
+              "kept": [
+                1791,
+                1323,
+                1117,
+                839,
+                665,
+                299
+              ],
+              "wrong": [
+                499,
+                229,
+                138,
+                52,
+                18,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Elephant-1",
+          "text_run": 373,
+          "runs": [
+            {
+              "run": 373,
+              "kept": [
+                1370,
+                917,
+                726,
+                510,
+                393,
+                155
+              ],
+              "wrong": [
+                455,
+                195,
+                102,
+                35,
+                13,
+                0
+              ]
+            },
+            {
+              "run": 375,
+              "kept": [
+                1370,
+                917,
+                726,
+                510,
+                393,
+                155
+              ],
+              "wrong": [
+                455,
+                195,
+                102,
+                35,
+                13,
+                0
+              ]
+            },
+            {
+              "run": 376,
+              "kept": [
+                1370,
+                917,
+                726,
+                510,
+                393,
+                155
+              ],
+              "wrong": [
+                455,
+                195,
+                102,
+                35,
+                13,
+                0
+              ]
+            },
+            {
+              "run": 378,
+              "kept": [
+                1370,
+                917,
+                726,
+                510,
+                393,
+                155
+              ],
+              "wrong": [
+                455,
+                195,
+                102,
+                35,
+                13,
+                0
+              ]
+            },
+            {
+              "run": 379,
+              "kept": [
+                1370,
+                917,
+                726,
+                510,
+                393,
+                155
+              ],
+              "wrong": [
+                455,
+                195,
+                102,
+                35,
+                13,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "check": {
+        "cutoffs": "every whole percent from 0% to 98%",
+        "holds": true
+      }
+    },
+    "english": {
+      "name": "Liquid d1-ultra",
+      "questions": 547,
+      "runs": [
+        {
+          "run": 411,
+          "kept": 234,
+          "wrong": 1,
+          "wrong_questions": [
+            280
+          ]
+        },
+        {
+          "run": 418,
+          "kept": 237,
+          "wrong": 1,
+          "wrong_questions": [
+            280
+          ]
+        },
+        {
+          "run": 422,
+          "kept": 235,
+          "wrong": 1,
+          "wrong_questions": [
+            280
+          ]
+        },
+        {
+          "run": 426,
+          "kept": 230,
+          "wrong": 1,
+          "wrong_questions": [
+            280
+          ]
+        },
+        {
+          "run": 428,
+          "kept": 235,
+          "wrong": 1,
+          "wrong_questions": [
+            280
+          ]
+        }
+      ]
+    }
   },
   "baselines": {
     "options": 5,

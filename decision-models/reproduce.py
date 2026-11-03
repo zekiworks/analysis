@@ -561,6 +561,27 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    high_mismatches = check_high_confidence(args.docs, results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nAnswers at 95%+ confidence (every main run, d1-ultra's repeats, the three models' runs at each cutoff, the check "
+        f"over every whole percent to 98% and d1-ultra's English runs, from their exported answers: counts exact): "
+        f"{checked - len(high_mismatches)} of {checked} match"
+    )
+    for line in high_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
+    against_mismatches = check_against_reference(args.docs, results, answers, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nLiquid d1-ultra against each model in English (first English runs on the kept questions: counts exact, p and "
+        f"Holm's p within a relative {P_TOLERANCE:g}): {checked - len(against_mismatches)} of {checked} match"
+    )
+    for line in against_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     updated_mismatches = check_updated(args.report, results, answers, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -1566,6 +1587,128 @@ def check_updated(report: Path | None, results: dict[str, Any], answers: dict[st
         newest = max((records[run]["updated"] for run in published if run in records), default=None)
         if "≠" in checks.cell(not missing and newest is not None and updated >= newest, f"at least {newest}", updated):
             mismatches.append(f"  updated {updated} is older than the newest published run's {newest}, or runs lack a record: {missing}")
+    return mismatches
+
+
+HIGH_CONFIDENCE = {"Liquid d1-ultra": [199, 200, 201, 202, 203], "SubQ Snap 1.1": [346, 387, 388, 389, 390],
+                   "Elephant-1": [373, 375, 376, 378, 379]}  # the three models AA's Decision Index v1.0 ties at 65
+HIGH_CONFIDENCE_CUTOFFS = [0.5, 0.7, 0.8, 0.9, 0.95, 0.99]
+
+
+def kept_at(run: dict[str, Any], positions: list[int], cutoff: float) -> tuple[int, list[int]]:
+    """Answers on `positions` with a valid choice and a score at least `cutoff`: how many, and the positions not right."""
+    kept = [index for index in positions
+            if run["choice"][index] is not None and run["score"][index] is not None and run["score"][index] >= cutoff]
+    return len(kept), [index for index in kept if run["correct"][index] != 1]
+
+
+def check_high_confidence(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int],
+                          checks: Checks) -> list[str]:
+    """Recompute results.json's `high_confidence` from answers.json: per main run (results.json runs order) the answers
+    kept at the threshold on the scored questions and the wrong ones; d1-ultra's repeat runs; the three models' runs
+    (HIGH_CONFIDENCE, equal to their results.json repeat sets) at each cutoff and the check over k/100, k = 0..98; and
+    d1-ultra's English runs on english-reading.json's kept questions with the wrong question ids. Returns a line per
+    mismatch."""
+    section = results.get("high_confidence")
+    if section is None:
+        checks.failed += 1
+        return ["  high_confidence: missing"]
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any) -> None:
+        if "≠" in checks.cell(published == recomputed, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    by_run = {run["run"]: run for run in answers["runs"] + answers.get("repeat_runs", [])}
+    threshold = 0.95
+    check("threshold", section["threshold"], threshold)
+    expected = []
+    for run in results["runs"]:
+        kept, wrong = kept_at(by_run[run["run"]], scored, threshold)
+        expected.append({"name": run["name"], "text_run": run["run"], "kept": kept, "wrong": len(wrong)})
+    check("models, count and order", [(m["name"], m["text_run"]) for m in section["models"]],
+          [(m["name"], m["text_run"]) for m in expected])
+    for published, found in zip(section["models"], expected):
+        check(f"{found['name']} (run {found['text_run']}) kept, wrong", [published["kept"], published["wrong"]],
+              [found["kept"], found["wrong"]])
+    repeat_sets = {tuple(item["runs"]) for item in results["repeats"] if item["variant"] is None}
+    for name, runs in HIGH_CONFIDENCE.items():
+        check(f"{name} runs are a results.json repeat set", True, tuple(runs) in repeat_sets)
+    d1 = HIGH_CONFIDENCE["Liquid d1-ultra"]
+    repeats = [{"run": run, "kept": kept_at(by_run[run], scored, threshold)[0],
+                "wrong": len(kept_at(by_run[run], scored, threshold)[1])} for run in d1[1:]]
+    check("repeats", section["repeats"], [{"name": "Liquid d1-ultra", "text_run": d1[0], "runs": repeats}])
+    cutoffs = section["cutoffs"]
+    check("cutoffs", cutoffs["cutoffs"], HIGH_CONFIDENCE_CUTOFFS)
+    check("cutoff models", [(m["name"], m["text_run"]) for m in cutoffs["models"]],
+          [(name, runs[0]) for name, runs in HIGH_CONFIDENCE.items()])
+    for published, (name, runs) in zip(cutoffs["models"], HIGH_CONFIDENCE.items()):
+        check(f"{name} cutoff runs", [row["run"] for row in published["runs"]], runs)
+        for row, run in zip(published["runs"], runs):
+            counts = [kept_at(by_run[run], scored, cutoff) for cutoff in HIGH_CONFIDENCE_CUTOFFS]
+            check(f"{name} run {run} kept per cutoff", row["kept"], [kept for kept, _ in counts])
+            check(f"{name} run {run} wrong per cutoff", row["wrong"], [len(wrong) for _, wrong in counts])
+
+    def share(run: int, cutoff: float) -> float:
+        kept, wrong = kept_at(by_run[run], scored, cutoff)
+        return len(wrong) / kept if kept else float("nan")
+
+    holds = True
+    for k in range(99):
+        worst = max(share(run, k / 100) for run in d1)
+        best = [min(share(run, k / 100) for run in runs) for name, runs in HIGH_CONFIDENCE.items() if name != "Liquid d1-ultra"]
+        holds = holds and all(worst < value for value in best)
+    check("check", cutoffs["check"], {"cutoffs": "every whole percent from 0% to 98%", "holds": holds})
+    public = json.loads((docs / "english-reading.json").read_text(encoding="utf-8"))
+    ids = answers["questions"]["id"]
+    position = {question: index for index, question in enumerate(ids)}
+    kept_positions = sorted(position[item["question_id"]] for item in public["questions"] if item["kept"])
+    english = {run["run"]: run for run in answers.get("english_runs", [])}
+    reference = next(m for m in results["english_reading"]["models"] if m["name"] == "Liquid d1-ultra")
+    rows = []
+    for run in reference["runs"]:
+        kept, wrong = kept_at(english[run], kept_positions, threshold)
+        rows.append({"run": run, "kept": kept, "wrong": len(wrong), "wrong_questions": sorted(ids[index] for index in wrong)})
+    check("english", section["english"], {"name": "Liquid d1-ultra", "questions": len(kept_positions), "runs": rows})
+    return mismatches
+
+
+def check_against_reference(docs: Path, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
+    """Recompute `english_reading.against_reference`: Liquid d1-ultra's first English run against each other model's
+    first English run (english_reading.models order) on english-reading.json's kept questions, right answers only one
+    of the two gave (exact McNemar, d1-ultra first), p within a relative P_TOLERANCE, Holm over the others."""
+    section = (results.get("english_reading") or {}).get("against_reference")
+    if section is None:
+        checks.failed += 1
+        return ["  english_reading.against_reference: missing"]
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, p: bool = False) -> None:
+        matched = close(published, recomputed, relative=P_TOLERANCE) if p else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    public = json.loads((docs / "english-reading.json").read_text(encoding="utf-8"))
+    position = {question: index for index, question in enumerate(answers["questions"]["id"])}
+    kept = sorted(position[item["question_id"]] for item in public["questions"] if item["kept"])
+    english = {run["run"]: run for run in answers.get("english_runs", [])}
+    models = results["english_reading"]["models"]
+    reference = next(m for m in models if m["name"] == "Liquid d1-ultra")
+    check("reference", [section["reference"], section["reference_run"], section["questions"]],
+          ["Liquid d1-ultra", reference["run"], len(kept)])
+    others = [m for m in models if m is not reference]
+    check("models", [(m["name"], m["run"]) for m in section["models"]], [(m["name"], m["run"]) for m in others])
+
+    def right(run: int) -> list[int]:
+        return [int(english[run]["correct"][index] == 1) for index in kept]
+
+    tests = [bm.paired_comparison(right(reference["run"]), right(m["run"])) for m in others]
+    for published, model, test in zip(section["models"], others, tests):
+        check(f"{model['name']} only d1-ultra right, only other right",
+              [published["reference_only_right"], published["other_only_right"]], [test["first_only"], test["second_only"]])
+        check(f"{model['name']} p", published["p"], test["p"], p=True)
+    for published, model, adjusted in zip(section["models"], others, bm.holm([test["p"] for test in tests])):
+        check(f"{model['name']} p_holm", published["p_holm"], adjusted, p=True)
     return mismatches
 
 

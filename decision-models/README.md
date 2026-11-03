@@ -99,7 +99,11 @@ python3 -m http.server 8000                                # preview at http://1
   confident five-option answers (equal scores taken in question-id order), the differences from Liquid d1-ultra with
   the paired bootstrap (10,000 resamples, seed 20261103) and Holm (over every other Text tab setup in Turkish, the
   other English reading models in English), each setup's answers in selection order (`wrong_by_rank`, from which
-  every curve is drawn) and the markers of the runs with the option.
+  every curve is drawn) and the markers of the runs with the option; for answers at 95%+ confidence (`high_confidence`)
+  each Text tab run's kept and wrong answers at 95%, Liquid d1-ultra's repeat runs, the three models Artificial Analysis
+  ties at 65 in all their runs at six cutoffs with the check at every whole percent up to 98%, and d1-ultra's English
+  runs with the questions they got wrong; and for Liquid d1-ultra against each English reading model
+  (`english_reading.against_reference`) the paired counts, the exact McNemar test and Holm over the others.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
@@ -169,14 +173,20 @@ python3 -m http.server 8000                                # preview at http://1
     Turkish plot draws each setup with runs with the option and the English plot every English reading model, each curve
     of wrong of answers against answered with the setup's runs with the option marked, and under Info a small plot per
     Turkish setup shows every setup's curve against Liquid d1-ultra's; inline
-    SVG by `line_plot` in `sitebuild/site.py`). Every "I don't know" table leads with Answered
+    SVG by `line_plot` in `sitebuild/site.py`), and answers at 95%+ confidence (each decision model's Text tab run
+    keeping the answers whose chosen option has a probability of at least 95%, with the wrong ones among them; Liquid
+    d1-ultra's repeat runs; the three models Artificial Analysis ties at 65 in all their runs at six cutoffs, with the
+    check that d1-ultra's worst run stays below their best at every whole percent up to 98%; d1-ultra's English runs at
+    95%; `high_confidence`). Every "I don't know" table leads with Answered
     ((right + wrong) / questions) and Wrong of answers (wrong / (right + wrong)), the non-hallucination rate after them.
     Turkish vs English opens with its main table (accuracy in Turkish and in English with the difference; with "I don't
     know" written the same in both languages, the Turkish runs being the option-word check's, Answered, Wrong of answers
     and non-hallucination with the difference, then the Turkish "Bilmiyorum" runs in a column of their own; the rank in
     each language and the languages each model card lists; Holm-significant differences marked), then accuracy in
     Turkish and in English with the paired test of the two (the questions only one of them got right, with Holm-adjusted
-    p), the non-hallucination rate with an "I don't know" option in English against "Bilmiyorum" in Turkish with the
+    p), Liquid d1-ultra against each other model in English (the questions only one of the two got right, the exact
+    McNemar test with Holm over the others and a verdict; `english_reading.against_reference`), the non-hallucination
+    rate with an "I don't know" option in English against "Bilmiyorum" in Turkish with the
     answered shares and the paired test of wrong answers, the same with "I don't know" in both languages (only the
     language differs; `english_reading.dont_know_word`), risk and coverage on the kept questions (native points and
     confidence curves per language), and the option-word check. The build writes

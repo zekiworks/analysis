@@ -227,6 +227,98 @@ def face(site: Site, data: dict[str, Any]) -> str:
     return f'<section class="charts" aria-label="Charts">{accuracy}{paired}</section>'
 
 
+def against_verdict(model: dict[str, Any], reference: str) -> str:
+    """A model's verdict against the reference: too close to call unless its Holm-adjusted p is below SIGNIFICANT, then
+    behind or ahead by which of the two got more questions right that the other did not."""
+    if model["p_holm"] >= SIGNIFICANT:
+        return "too close to call"
+    return f"behind {reference}" if model["reference_only_right"] > model["other_only_right"] else f"ahead of {reference}"
+
+
+def check_against(data: dict[str, Any], against: dict[str, Any]) -> None:
+    """english_reading.against_reference: the reference is the first compared model and its first English run, the
+    others are the other compared models in order with their first English runs, on the kept questions; p fits under
+    its Holm p; each significant row has a side ahead."""
+    problems = []
+    first, others = data["models"][0], data["models"][1:]
+    if (against["reference"], against["reference_run"]) != (first["name"], first["runs"][0]):
+        problems.append("the reference is not the first compared model's first English run")
+    if against["questions"] != data["questions"]:
+        problems.append("the questions are not the kept questions")
+    models = against["models"]
+    if len(models) != 16 or len(models) != len(others):
+        problems.append(f"{len(models)} models, not 16 and the other compared models")
+    if [(model["name"], model["run"]) for model in models] != [(model["name"], model["runs"][0]) for model in others]:
+        problems.append("the models are not the other compared models with their first English runs, in order")
+    for model in models:
+        if not (0 <= model["p"] <= model["p_holm"] <= 1):
+            problems.append(f"{model['name']}: p {model['p']} and Holm p {model['p_holm']} do not fit")
+        if model["reference_only_right"] + model["other_only_right"] > against["questions"]:
+            problems.append(f"{model['name']}: more questions right on one side only than questions")
+        if model["p_holm"] < SIGNIFICANT and model["reference_only_right"] == model["other_only_right"]:
+            problems.append(f"{model['name']}: significant with neither side ahead, outside the verdict rule")
+    if problems:
+        raise SystemExit("english_reading against_reference:\n  " + "\n  ".join(problems))
+
+
+def against_reference(site: Site, data: dict[str, Any]) -> str:
+    """The reference model's first English run against each other compared model's first English run on the kept
+    questions (results.json english_reading.against_reference): the questions only one of the two got right, exact
+    McNemar p, Holm p over the family, the verdict; ordered by p, highest first."""
+    against = data.get("against_reference")
+    if not against:
+        return ""
+    check_against(data, against)
+    by_name = {model["name"]: model for model in data["models"]}
+    reference = against["reference"]
+    short = reference.removeprefix("Liquid ")
+    total, family = against["questions"], len(against["models"])
+    models = sorted(against["models"], key=lambda model: (-model["p"], label(site, by_name[model["name"]]).casefold()))
+    heads = ("Run", f"Only {short} right", "Only the other right", "p", "Holm p", "Verdict")
+    notes = ("first English run", "the other not right", f"{short} not right", "exact McNemar", f"over the {family}",
+             f"by Holm p, {SIGNIFICANT:g}")
+    head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>'
+                   for name, note in zip(heads, notes))
+    labels = [f"{name} ({note})" for name, note in zip(heads, notes)]
+    verdicts = {model["name"]: against_verdict(model, short) for model in models}
+    rows = []
+    for model in models:
+        compared = by_name[model["name"]]
+        run = site.by_id[compared["turkish_run"]]
+        name = (f'<td class="model"><a class="model-name" href="{href(site, compared)}">{esc(label(site, compared))}</a>'
+                f'<span class="small">{esc(site.detail(run))}</span></td>')
+        values = [
+            run_span([model["run"]]),
+            f"{model['reference_only_right']:,}",
+            f"{model['other_only_right']:,}",
+            esc(bp.p_text(model["p"]).removeprefix("p = ").removeprefix("p ")),
+            esc(bp.p_text(model["p_holm"]).removeprefix("p = ").removeprefix("p ")),
+            esc(verdicts[model["name"]]),
+        ]
+        rows.append(f"<tr>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
+    tally = Counter(verdicts.values())
+    close, behind, ahead = (tally["too close to call"], tally[f"behind {short}"], tally[f"ahead of {short}"])
+    parts = [f"{bp.in_words(close)} {'is' if close == 1 else 'are'} too close to call"]
+    if behind:
+        parts.append(f"{bp.in_words(behind)} {'is' if behind == 1 else 'are'} behind it")
+    if ahead:
+        parts.append(f"{bp.in_words(ahead)} {'is' if ahead == 1 else 'are'} ahead of it")
+    summary = (f"<p><strong>In English, against {esc(reference)}, {joined(parts)}</strong> (of the {bp.in_words(family)} "
+               f"other models, after Holm's correction).</p>")
+    return (f'<section class="card" id="against-d1-ultra"><h2>{esc(reference)} against each model in English</h2>'
+            f"{summary}"
+            f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'
+            f'</thead><tbody>{"".join(rows)}</tbody></table></div>'
+            f'<p class="note">Ordered by p, highest first. On the {total:,} kept reading questions, {esc(reference)}\'s '
+            f"first English run (run {against['reference_run']}) against each other model's first English run: the "
+            "exact McNemar test on the questions only one of the two got right, with p adjusted by Holm's method over "
+            f"the {bp.in_words(family)} models. Verdict: too close to call when the Holm-adjusted p is "
+            f"{SIGNIFICANT:g} or more; otherwise behind {esc(short)} when {esc(reference)} has more questions only "
+            "it got right, ahead of it when the other model has more. Each model's name links its Text tab run, as in "
+            'the tables above; <a href="#chart-paired">Paired test</a> compares each model with itself in Turkish.</p>'
+            "</section>")
+
+
 def ranks(models: list[dict[str, Any]], side: str) -> dict[int, int]:
     """Each compared model's rank by right answers in one language (1 = most right), ties sharing the higher rank; by
     Turkish run."""
@@ -1562,10 +1654,10 @@ def build(site: Site) -> dict[str, str]:
       <h1>The Text tab's reading questions, in Turkish and in English</h1>
       <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of {bp.in_words(family)} of the {selected} decision models we chose (<a href="#about">which ones</a>) as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(site, data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#main-table">Turkish vs English</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}{'<a href="#dont-know-word">Only the language differs</a>' if word else ""}{'<a href="#option-word">The option&#x27;s word</a>' if site.results.get("dont_know_option_word") else ""}{'<a href="#coverage">Risk and coverage</a>' if data.get("coverage") else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#main-table">Turkish vs English</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#against-d1-ultra">Against d1-ultra</a>' if data.get("against_reference") else ""}{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}{'<a href="#dont-know-word">Only the language differs</a>' if word else ""}{'<a href="#option-word">The option&#x27;s word</a>' if site.results.get("dont_know_option_word") else ""}{'<a href="#coverage">Risk and coverage</a>' if data.get("coverage") else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
     </section>
     {main_table(site, data)}
-    {face(site, data)}
+    {face(site, data)}{against_reference(site, data)}
     {dont_know_face(site, idk, word) if idk else ""}
     {dont_know_word_face(site, word) if word else ""}
     {option_word(site)}{coverage(site, data)}
