@@ -123,8 +123,9 @@ python3 -m http.server 8000                                # preview at http://1
   a reader's Dark background / Light background choice is stored in `localStorage` and applied by a
   line in `<head>` before the page renders. Printing always uses the light theme.
 
-  Every page's footer gives the results snapshot (a hash of `results.json`), its update date and the
-  answer key version.
+  Every page's footer gives the results snapshot (a hash of `results.json`), its update date (when results with that
+  content first went out: set at export, kept by a re-export that changes nothing, never older than the newest
+  published run) and the answer key version.
 - **Versioned addresses:** every page links its stylesheet and scripts, and the scripts fetch `results.json` and
   `data/picks.json`, with the file's content version in the query (`v3.js?v=1a2b3c4d`, the start of its SHA-256;
   `asset` in `sitebuild/site.py`). Browsers and the CDN cache each file for 10 minutes on its own, so unversioned

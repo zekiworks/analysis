@@ -22,6 +22,7 @@ import json
 import re
 import sys
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -965,7 +966,8 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         "schema_version": SCHEMA_VERSION,
         # Set by main(): a hash of everything else in the file, so each published snapshot has its own version.
         "results_version": None,
-        "updated": max(run["updated"] for run in runs),
+        # Set by main(): when results with this content first went out (published_date).
+        "updated": None,
         # The score at or above which an answer counts as very sure (the 0.99 threshold of the confidence tables).
         "sure_threshold": bm.SURE_SCORE,
         "dataset": {
@@ -2292,6 +2294,23 @@ def answer_key(answers: dict[str, Any]) -> dict[str, Any]:
     return {"version": version, **found, "excluded": [question for question, out in zip(questions["id"], excluded) if out]}
 
 
+def published_date(path: Path, data: dict[str, Any], newest: str) -> str:
+    """The footer date (`updated`): when results with this content first went out. A re-export whose content equals
+    the results.json already at `path` keeps that file's date, so the file and its results_version stay the same; a
+    change of content takes the export time (UTC). Never older than `newest`, the newest published run's date."""
+
+    def content(value: dict[str, Any]) -> str:
+        plain = json.loads(json.dumps(value, ensure_ascii=False))
+        return json.dumps({key: item for key, item in plain.items() if key not in ("results_version", "updated")},
+                          ensure_ascii=False, sort_keys=True)
+
+    if path.exists():
+        previous = json.loads(path.read_text(encoding="utf-8"))
+        if content(previous) == content(data):
+            return previous["updated"]
+    return max(newest, datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+
+
 def main() -> int:
     args = parse_args()
     try:
@@ -2342,10 +2361,10 @@ def main() -> int:
         refit(data["runs"], answers)
         holm_over_all_pairs(data["paired"], data["runs"], answers)
         data["baselines"] = baselines(answers, data["replay"]["decision"])
-        # The footer date: the newest `updated` of any run a section publishes (every run in the answers file), from
-        # the report's records, so results_version stays a pure content hash.
+        # The footer date: when results with this content first went out, never older than the newest `updated` of any
+        # run a section publishes (every run in the answers file, from the report's records).
         published = {run["run"] for key, runs in answers.items() if key.endswith("runs") for run in runs}
-        data["updated"] = max(by_run[run]["updated"] for run in published)
+        data["updated"] = published_date(args.output, data, max(by_run[run]["updated"] for run in published))
     except (OSError, ValueError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

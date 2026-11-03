@@ -47,8 +47,8 @@ the option written "I don't know" (`dont_know_option_word.vs_confidence`): each 
 its five-option run's derived cut-off with the neighbouring cut-offs and their answered counts, the achieved counts,
 the paired test of wrong answers and Holm's correction over the eligible family. Then Turkish and English coverage and
 risk on the kept reading questions (`english_reading.coverage`): every native abstention point and every point of every
-confidence curve. Last the footer date (`updated`): never older than a published run's date, and with --report exactly
-the newest `updated` of the runs answers.json publishes. Uses only
+confidence curve. Last the footer date (`updated`, when results with this content first went out): never older than a
+published run's date, and with --report never older than the newest `updated` of the runs answers.json publishes. Uses only
 the standard library and benchmark_metrics.py, the metric code the benchmark report uses. Exits with
 status 1 when anything differs beyond the tolerances printed.
 """
@@ -531,7 +531,7 @@ def main() -> int:
     updated_mismatches = check_updated(args.report, results, answers, checks)
     checked = checks.passed + checks.failed - before
     print(
-        f"\nFooter date {results['updated']} ({'exact, from the report' if args.report else 'lower bound only; --report for the exact check'}): "
+        f"\nFooter date {results['updated']} ({'lower bound from the report' if args.report else 'lower bound from results.json; --report for every published run'}): "
         f"{checked - len(updated_mismatches)} of {checked} match"
     )
     for line in updated_mismatches:
@@ -1241,9 +1241,9 @@ def check_coverage(docs: Path, results: dict[str, Any], answers: dict[str, Any],
 
 
 def check_updated(report: Path | None, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
-    """The footer date (results.json `updated`): never older than any main run's `updated` or any published run date;
-    with the benchmark report (--report), exactly the newest `updated` of the report's records of the runs answers.json
-    publishes. Returns a line per mismatch."""
+    """The footer date (results.json `updated`, when results with this content first went out): never older than any
+    main run's `updated` or any published run date; with the benchmark report (--report), never older than the newest
+    `updated` of the report's records of the runs answers.json publishes. Returns a line per mismatch."""
     mismatches = []
     updated = results["updated"]
     dates = [run["updated"] for run in results["runs"]]
@@ -1261,8 +1261,8 @@ def check_updated(report: Path | None, results: dict[str, Any], answers: dict[st
         published = {run["run"] for key, found in answers.items() if key.endswith("runs") for run in found}
         missing = sorted(published - set(records))
         newest = max((records[run]["updated"] for run in published if run in records), default=None)
-        if "≠" in checks.cell(not missing and newest == updated, str(newest), updated):
-            mismatches.append(f"  updated: the newest published run's is {newest}, results.json {updated}, runs without a record {missing}")
+        if "≠" in checks.cell(not missing and newest is not None and updated >= newest, f"at least {newest}", updated):
+            mismatches.append(f"  updated {updated} is older than the newest published run's {newest}, or runs lack a record: {missing}")
     return mismatches
 
 
