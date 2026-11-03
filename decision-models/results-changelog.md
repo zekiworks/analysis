@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 8d77fddf (3 November 2026)
+
+- Turkish vs English tab, risk and coverage and the main table's “Bilmiyorum” column: vLLM-SR d3, vLLM-SR d3-ultra and Drex Max v1 have no English run with “I don't know”, so they are outside the comparison with “Bilmiyorum”, but their Hallucination tab runs cover the same 547 kept questions; as Zeki pointed out, their Turkish “Bilmiyorum” points now come from those runs counted on the kept questions instead of reading Not measured: d3 (run 358) 494 right, 53 wrong, 0 “Bilmiyorum”; d3-ultra (363) 500, 46, 1; Drex Max v1 (367) 492, 53, 2 (`english_reading.coverage`, whose definitions say so). Their English points and every comparison of the two stay Not measured. No other number changed.
+
 ## Results 8f69ed8d (3 November 2026)
 
 - Turkish vs English tab, “I don't know” with only the language different, at Ümit's request: on the 547 kept questions, each model's first English run with “I don't know” against its Turkish run with the option also written “I don't know” (the Hallucination tab's option-word run, counted on the kept questions), in `results.json` (`english_reading.dont_know_word`); the two runs' instructions differ only in the word that names the language. Seven models have both runs; none of the seven differences in wrong answers is significant after Holm's correction over the seven (exact McNemar; smallest adjusted p 0.21, SubQ Snap 1.1). The main table's “I don't know” columns now show this comparison, leading with Answered and Wrong of answers, then non-hallucination, with the Turkish “Bilmiyorum” runs in a column of their own; a new section shows it with two charts and a table. The comparison with “Bilmiyorum” stays as published. No other number changed.

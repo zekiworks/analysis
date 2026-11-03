@@ -1201,7 +1201,8 @@ def check_vs_confidence(results: dict[str, Any], answers: dict[str, Any], scored
 
 def check_coverage(docs: Path, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
     """Recompute `english_reading.coverage` from answers.json on english-reading.json's kept questions: per English
-    reading model, its native points (Turkish "Bilmiyorum": `english_reading.dont_know`'s Turkish first run; Turkish "I
+    reading model, its native points (Turkish "Bilmiyorum": `english_reading.dont_know`'s Turkish first run, or for a
+    model outside that comparison its Hallucination tab first run; Turkish "I
     don't know": the option-word run of its Hallucination tab row; English "I don't know": the English first run, also
     in english_only; run null where there is none) with right, wrong, abstained (the option), invalid, coverage and risk,
     and its two curves (the Text tab run and the first English run): for every distinct score s among answered kept
@@ -1226,6 +1227,7 @@ def check_coverage(docs: Path, results: dict[str, Any], answers: dict[str, Any],
     reading = results["english_reading"]
     idk = reading.get("dont_know") or {}
     turkish = {model["text_run"]: model["turkish"]["run"] for model in idk.get("models", [])}
+    hallucination = {row["original_run"]: row["run"] for row in (results.get("dont_know") or {}).get("models", [])}
     english = {model["text_run"]: model["english"]["run"] for model in idk.get("models", []) + idk.get("english_only", [])}
     original = {row["run"]: row["original_run"] for row in (results.get("dont_know") or {}).get("models", [])}
     word = {original[model["bilmiyorum"]["run"]]: model["i_dont_know"]["run"]
@@ -1235,7 +1237,8 @@ def check_coverage(docs: Path, results: dict[str, Any], answers: dict[str, Any],
     for model, entry in zip(reading["models"], section["models"]):
         name, text_run = model["name"], model["turkish_run"]
         check(f"{name} text_run", entry["text_run"], text_run)
-        expected = [("Turkish", "Bilmiyorum", turkish.get(text_run)), ("Turkish", "I don't know", word.get(text_run)),
+        expected = [("Turkish", "Bilmiyorum", turkish.get(text_run, hallucination.get(text_run))),
+                    ("Turkish", "I don't know", word.get(text_run)),
                     ("English", "I don't know", english.get(text_run))]
         check(f"{name} native series", [(item["language"], item["wording"], item["run"]) for item in entry["native"]], expected)
         for (language, wording, run_id), item in zip(expected, entry["native"]):

@@ -2088,7 +2088,9 @@ COVERAGE_DEFINITIONS = (
     "questions. Risk = error rate among answered = wrong / answered. Abstained: for a native point, the times the model "
     "chose the option; for a curve point, kept questions - answered - invalid. A native point is the run with its "
     "abstention option (Turkish \"Bilmiyorum\", Turkish \"I don't know\" as the wording control, English \"I don't "
-    "know\"); a missing one is Not measured. A curve is one five-option run held back by its recorded score (the "
+    "know\"); Turkish \"Bilmiyorum\" is the Turkish side of the English \"I don't know\" comparison or, for a model "
+    "outside it, its Hallucination tab run; a missing one is Not measured. A curve is one five-option run held back "
+    "by its recorded score (the "
     "probability of the chosen option): one point per distinct score s, answering when the score is at least s; "
     "answers with equal scores enter together, so coverage moves in jumps and every point is an achieved one; all "
     "distinct points kept, ordered by coverage."
@@ -2098,7 +2100,8 @@ COVERAGE_DEFINITIONS = (
 def english_coverage(reading: dict[str, Any], option_word: dict[str, Any] | None, dont_know_section: dict[str, Any] | None,
                      answers: dict[str, Any], public: dict[str, Any]) -> dict[str, Any]:
     """`english_reading.coverage`: per model of `english_reading`, on the kept questions only, its native abstention
-    points (Turkish "Bilmiyorum" from `english_reading.dont_know`'s Turkish side, Turkish "I don't know" from the
+    points (Turkish "Bilmiyorum" from `english_reading.dont_know`'s Turkish side, or the Hallucination tab's first run of
+    a model outside that comparison, Turkish "I don't know" from the
     option-word run of its Hallucination tab row, English "I don't know" from `english_reading.dont_know` including
     english_only; run None where not measured) and its confidence-derived risk-coverage curves (the Text tab run in
     Turkish, the first English run) from their recorded scores (COVERAGE_DEFINITIONS)."""
@@ -2115,6 +2118,8 @@ def english_coverage(reading: dict[str, Any], option_word: dict[str, Any] | None
     if option_word is not None:
         original = {row["run"]: row["original_run"] for row in dont_know_section["models"]}
         word_by_text = {original[model["bilmiyorum"]["run"]]: model["i_dont_know"]["run"] for model in option_word["models"]}
+    # A model outside the English "I don't know" comparison: its Hallucination tab first run, by its Text tab run.
+    hallucination = {row["original_run"]: row["run"] for row in (dont_know_section or {}).get("models", [])}
 
     def asked_all(run: dict[str, Any]) -> bool:
         return all(run["correct"][index] is not None for index in kept)
@@ -2152,7 +2157,8 @@ def english_coverage(reading: dict[str, Any], option_word: dict[str, Any] | None
         text_run = model["turkish_run"]
         turkish = bilmiyorum.get(text_run)
         if turkish is None:
-            first_turkish = None
+            first_turkish = None if text_run not in hallucination else \
+                native("Turkish", "Bilmiyorum", lists["dont_know_runs"][hallucination[text_run]], True)
         elif turkish["subset"]:
             first_turkish = native("Turkish", "Bilmiyorum", lists["english_dont_know_turkish_runs"][turkish["run"]], False)
         else:

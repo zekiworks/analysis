@@ -251,6 +251,10 @@ def main_table(site: Site, data: dict[str, Any]) -> str:
     word = data.get("dont_know_word")
     matched = {(model["provider"], model["model"]): model for model in idk.get("models", [])}
     same_word = {model["text_run"]: model for model in (word or {}).get("models", [])}
+    # Turkish "Bilmiyorum" outside the published comparison: coverage's native point (the Hallucination tab run).
+    native_bilmiyorum = {model["text_run"]: next(point for point in model["native"]
+                                                 if point["language"] == "Turkish" and point["wording"] == "Bilmiyorum")
+                         for model in (data.get("coverage") or {}).get("models", [])}
     listed = {model["run"]: model for model in site.config["model_languages"]["models"]}
     missing = [model["name"] for model in data["models"] if model["turkish_run"] not in listed]
     if missing:
@@ -301,13 +305,19 @@ def main_table(site: Site, data: dict[str, Any]) -> str:
             values.append(not_measured if tr is None or en is None else
                           f"{100 * (en - tr):+.{digits}f}{' *' if idk_significant(entry) else ''}")
             other = matched.get((model["provider"], model["model"]))
-            if other is None:
-                values.append(not_measured)
-            else:
+            point = native_bilmiyorum.get(model["turkish_run"])
+            if other is not None:
                 counts = other["turkish"]
                 values.append(f'{wrong_of_answers(counts, digits)}<span class="small">answered '
                               f'{pct(counts["attempt_rate"], digits)}, non-hallucination '
                               f'{rate_text(counts["non_hallucination"], digits)}</span>')
+            elif point is not None and point["run"] is not None:
+                held = point["abstained"] + point["wrong"]
+                values.append(f'{wrong_of_answers(point, digits)}<span class="small">answered '
+                              f'{pct(point["coverage"], digits)}, non-hallucination '
+                              f'{rate_text(point["abstained"] / held if held else None, digits)}</span>')
+            else:
+                values.append(not_measured)
         values += [str(turkish_rank[model["turkish_run"]]), str(english_rank[model["turkish_run"]])]
         entry = listed[model["turkish_run"]]
         source = esc(entry["source"].split("//", 1)[1].split("/", 1)[0])
@@ -333,8 +343,8 @@ def main_table(site: Site, data: dict[str, Any]) -> str:
                     f"{'' if family == 1 else 's'} with both runs. {bilmiyorum}: the Turkish side of the published "
                     "comparison with “Bilmiyorum”"
                     + (' (<a href="#dont-know">With “I don\'t know”</a>)' if idk else "")
-                    + ", its wrong of answers with its answered share and non-hallucination rate under it. Not measured: "
-                    "no such run.")
+                    + " or, for a model outside it, its Hallucination tab run counted on these questions; its wrong of "
+                    "answers with its answered share and non-hallucination rate under it. Not measured: no such run.")
     else:
         idk_text = ""
     return (f'<section class="card" id="main-table"><h2>Turkish vs English</h2>'
@@ -1501,8 +1511,10 @@ def coverage(site: Site, data: dict[str, Any]) -> str:
             "few decimals has many equal scores, so its curve has fewer points, moves in larger steps and can start well "
             "above 0% coverage (each curve is drawn from its first point). Every series counts these questions only "
             "(a run on the full bank is restricted to them) and is each model's first run. Turkish curves: the Text tab "
-            "run; English curves: the first English run. Turkish with “I don't know” is the option's word control on the "
-            "Hallucination tab's questions, restricted to these; a model without such a run is Not measured.</p>"
+            "run; English curves: the first English run. Turkish with “Bilmiyorum” is the Turkish side of the English "
+            "“I don't know” comparison or, for a model outside it, its Hallucination tab run, restricted to these; "
+            "Turkish with “I don't know” is the option's word control on the Hallucination tab's questions, restricted "
+            "to these; a model without such a run is Not measured.</p>"
             f'<p class="note">{esc(cov["definitions"])}</p>'
             f"{table_html}"
             '<p class="note">Each cell: coverage · error rate among answered, then the counts and the run.</p></section>'
