@@ -976,9 +976,9 @@ def english_option_info(site: Site, idk: dict[str, Any]) -> str:
 
 # The same number of answers (results.json dont_know_same_answers): one colour per model in both plots, the Turkish vs
 # English tab's colours for its models (english_reading COLOURS, in english_reading.models' order), then these for the
-# models only in the Turkish family, whose lines are dashed (SAME_EXTRA_DASH) to tell them from the first fourteen;
+# models only in the Turkish family, whose lines are dashed (SAME_EXTRA_DASH) to tell them from the English reading models;
 # mid lightness, readable on both themes' panels.
-SAME_EXTRA_COLOURS = ("#a1478f", "#9bbf1f", "#e3a21a", "#5fb4f0", "#b04a4a", "#2a8f8f")
+SAME_EXTRA_COLOURS = ("#a1478f", "#b04a4a", "#2a8f8f")
 SAME_EXTRA_DASH = "6 3"
 # The drawn polyline skips vertices closer than this share of coverage to the previous one drawn.
 SAME_MIN_STEP = 0.0025
@@ -1079,9 +1079,7 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
                 if model["five_option_run"] != section["run"]:
                     raise fail(f"{name}: the five-option run is not the first English run {section['run']}")
                 entry = by_text.get(model["text_run"])
-                if not entry:
-                    raise fail(f"{name}: no first English run with “{wording}”")
-                sides = [(wording, entry["english"])]
+                sides = [] if entry is None else [(wording, entry["english"])]
             points = [{"wording": text, "run": counts["run"], "answered": counts["right"] + counts["wrong"],
                        "wrong": counts["wrong"]} for text, counts in sides]
             if (model["points"] or []) != points:

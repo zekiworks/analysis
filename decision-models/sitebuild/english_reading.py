@@ -49,7 +49,7 @@ SHAPES = {"Bilmiyorum": "circle", "I don't know": "square"}
 # One colour per model, the same in both plots, in english_reading.coverage's order; mid lightness, readable on both
 # themes' panels.
 COLOURS = ("#2f6fd6", "#d9622b", "#2e9e5b", "#c23b8a", "#8a6bd1", "#b8901a", "#1f9eb3", "#d13c3c", "#6d8a1f",
-           "#9a5a33", "#5b7fa8", "#e0739f", "#3fae99", "#7c7871")
+           "#9a5a33", "#5b7fa8", "#e0739f", "#3fae99", "#7c7871", "#9bbf1f", "#e3a21a", "#5fb4f0")
 
 
 def check(site: Site, data: dict[str, Any], record: dict[str, Any]) -> None:

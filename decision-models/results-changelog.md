@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 6cc17354 (3 November 2026)
+
+- Turkish vs English tab: vLLM-SR d3, vLLM-SR d3-ultra and Drex Max v1 added at Ümit's request, one English run each on the 547 kept questions (554, 550 and 552), with the same server, checkpoint and settings as their Text tab runs (259, 269 and 322) on the same kind of GPU; one run each because their repeated Turkish runs changed no answers. Right in Turkish against English: d3 91.0% against 89.8%, d3-ultra 91.4% against 89.4%, Drex Max v1 91.4% against 89.6% (exact McNemar p 0.32, 0.18 and 0.19; adjusted p 1 each, with Holm's correction now over 17 models). Microsoft-Decision-1's difference stays the only significant one; the other adjusted p-values rise with the family (Liquid d1-ultra from 0.084 to 0.105, Perplexity Decider Flash v1.2 from 0.055 to 0.068). The three leave the list of models not run by decision, which is now empty. They have no English run with “I don't know”, so that comparison and its charts are unchanged; in risk and coverage, each has its Turkish “I don't know” point and its other native points read Not measured.
+- Hallucination tab, the same number of answers in English: the three join the family (17 models, Holm over 16). Of the 496 answers, d3 keeps 29 wrong, d3-ultra 31 and Drex Max v1 28 (Liquid d1-ultra 29); none differs significantly, and the other models' verdicts are unchanged (6 significantly more, the rest could be chance). No other number changed.
+
 ## Results 40598194 (3 November 2026)
 
 - Hallucination tab, the same number of answers: every setup's curve can now be seen, as Zeki asked. Under Info, one small plot per Turkish setup (all 73) shows its curve against Liquid d1-ultra's, with its runs with the option marked, or "Not measured" where it has none; the two main plots are unchanged. In `results.json`, each entry of `dont_know_same_answers` carries `wrong_by_rank` (its five-option run's scored answers in selection order, "1" wrong and "0" right), from which every curve is drawn; it replaces the curves' point pairs, so the file is 1.9 MB smaller. No number changed.
