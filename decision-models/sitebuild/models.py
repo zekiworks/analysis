@@ -327,22 +327,23 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
 
 def index(site: Site) -> str:
     """Every setup of the leaderboard (results.json's runs), each linked to its page: the decision models, then the chat
-    and general models, each group by name, with its details, its share right on the Text tab and its run id."""
+    and general models, each group by accuracy (highest first, as the Text tab ranks them), with its details, its share
+    right on the Text tab and its run id."""
     path = "models/"
     head = ('<thead><tr><th scope="col">Model</th><th scope="col" class="num">Right<span class="small">Text tab</span></th>'
             '<th scope="col" class="num">Run</th></tr></thead>')
     groups = []
     for title, anchor, decision in (("Decision models", "decision", True), ("Chat and general models", "chat", False)):
         runs = sorted((run for run in site.runs if site.decision(run) == decision),
-                      key=lambda run: (run["name"].casefold(), site.detail(run).casefold(), run["run"]))
+                      key=lambda run: (-site.accuracy(run)[0] / site.accuracy(run)[1], run["name"].casefold(), run["run"]))
         rows = "".join(f'<tr>{site.model_cell(path, run)}<td class="num">{pct(correct / total)}</td><td class="num">{run["run"]}</td></tr>'
                        for run in runs for correct, total in [site.accuracy(run)])
         groups.append(f'    <section class="card" id="{anchor}">\n      <h2>{title} ({len(runs)})</h2>\n'
                       f'      <div class="table-wrap"><table class="board list">{head}<tbody>{rows}</tbody></table></div>\n    </section>')
     lead = (f'    <section class="card">\n      <h1>All models</h1>\n      <p>Every setup on the leaderboard, {len(site.runs)} in all, '
             "each linked to its page: how we called it, its settings, results, confidence, latency and cost. A model run "
-            f'with more than one setting has a row for each. The <a href="{rel(path, "")}">Text tab</a> ranks them; this '
-            "list is by name.</p>\n    </section>")
+            "with more than one setting has a row for each. Each group is ranked by accuracy on the "
+            f'<a href="{rel(path, "")}">Text tab</a>, highest first.</p>\n    </section>')
     return site.page(path, "All models", f"Every setup on the leaderboard, {len(site.runs)}, each linked to its page.",
                      "\n".join([lead, *groups]))
 

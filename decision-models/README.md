@@ -254,7 +254,7 @@ python3 -m http.server 8000                                # preview at http://1
     its own page.
   - **Other pages**: each module of `sitebuild/` (`PAGE_MODULES` in `build_site.py`) returns whole pages,
     written to `<path>index.html`: one page per setup (`models/<run>/`) and the list of every setup, first in the
-    navigation bar (`models/`: decision models, then chat and general models, each by name, with its details, its
+    navigation bar (`models/`: decision models, then chat and general models, each by accuracy, with its details, its
     share right on the Text tab and its run id, each linked to its page), every question (`questions/`),
     one page per question (`question/?id=…`, drawn by `question.js`, with a line for readers without
     JavaScript), where models disagree with the key (`disagreements/`: the questions where the chat setups
