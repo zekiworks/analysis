@@ -187,12 +187,12 @@ def face(site: Site, data: dict[str, Any]) -> str:
         "ordered by English accuracy · higher is better",
         [{"label": label(site, model), "href": href(site, model),
           "text": f"{pct(model['turkish']['accuracy'], digits)} · {pct(model['english']['accuracy'], digits)}",
-          "bars": [{"value": model["turkish"]["accuracy"], "kind": "base"}, {"value": model["english"]["accuracy"], "kind": "lead"}],
+          "bars": [{"value": model["turkish"]["accuracy"], "kind": "turkish"}, {"value": model["english"]["accuracy"], "kind": "english"}],
           "title": f"{label(site, model)}: {model['turkish']['right']:,} of {total:,} right in Turkish, "
                    f"{model['english']['right']:,} in English ({100 * model['difference']:+.{digits}f} points)"}
          for model in models],
-        '<span><i class="swatch swatch-base"></i>Turkish (the Text tab run), the upper bar</span> '
-        '<span><i class="swatch swatch-lead"></i>English (first run), the lower bar</span>')
+        '<span><i class="swatch swatch-turkish"></i>Turkish (the Text tab run), the upper bar</span> '
+        '<span><i class="swatch swatch-english"></i>English (first run), the lower bar</span>')
     tested = sorted(models, key=lambda model: (model["paired"]["p_holm"], model["paired"]["p"], label(site, model).casefold()))
     most = max(max(model["paired"]["english_only_right"], model["paired"]["turkish_only_right"]) for model in tested)
     # A tick at each quarter of the axis, the quarter a round number of answers that fits the largest count.
@@ -218,12 +218,12 @@ def face(site: Site, data: dict[str, Any]) -> str:
         f"model{'' if len(tested) == 1 else 's'} · the longer bar is the language with more right answers",
         [{"label": label(site, model), "href": href(site, model),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if significant(model) else ''}",
-          "bars": [{"value": counts(model)[0], "kind": "lead"}, {"value": counts(model)[1], "kind": "base"}],
+          "bars": [{"value": counts(model)[0], "kind": "english"}, {"value": counts(model)[1], "kind": "turkish"}],
           "title": f"{label(site, model)}: {counts(model)[0]:,} right only in English, {counts(model)[1]:,} right only in "
                    f"Turkish; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
          for model in tested],
-        '<span><i class="swatch swatch-lead"></i>Right only in English</span> '
-        '<span><i class="swatch swatch-base"></i>Right only in Turkish</span> '
+        '<span><i class="swatch swatch-english"></i>Right only in English</span> '
+        '<span><i class="swatch swatch-turkish"></i>Right only in Turkish</span> '
         f"<span>{verdict}</span>",
         top=4 * quarter, tick=lambda value: f"{value:,.0f}")
     return f'<section class="charts" aria-label="Charts">{accuracy}{paired}</section>'
@@ -733,13 +733,13 @@ def dont_know_charts(site: Site, idk: dict[str, Any]) -> str:
         [{"label": idk_label(site, model), "href": idk_href(site, model),
           "text": f"{rate_text(model['turkish']['non_hallucination'], digits)} · "
                   f"{rate_text(model['english']['non_hallucination'], digits)}",
-          "bars": [{"value": model["turkish"]["non_hallucination"] or 0, "kind": "base"},
-                   {"value": model["english"]["non_hallucination"] or 0, "kind": "lead"}],
+          "bars": [{"value": model["turkish"]["non_hallucination"] or 0, "kind": "turkish"},
+                   {"value": model["english"]["non_hallucination"] or 0, "kind": "english"}],
           "title": f"{idk_label(site, model)}: {side_title(model, 'turkish', 'Turkish', 'Bilmiyorum')}; "
                    f"{side_title(model, 'english', 'English', idk['option'])}"}
          for model in models],
-        '<span><i class="swatch swatch-base"></i>Turkish, with “Bilmiyorum”, the upper bar</span> '
-        '<span><i class="swatch swatch-lead"></i>English, with “I don\'t know”, the lower bar</span> '
+        '<span><i class="swatch swatch-turkish"></i>Turkish, with “Bilmiyorum”, the upper bar</span> '
+        '<span><i class="swatch swatch-english"></i>English, with “I don\'t know”, the lower bar</span> '
         "<span>Attempt rate, Turkish · English: "
         + esc("; ".join(f"{idk_label(site, model)} {pct(model['turkish']['attempt_rate'], digits)} · "
                         f"{pct(model['english']['attempt_rate'], digits)}" for model in models))
@@ -768,12 +768,12 @@ def dont_know_charts(site: Site, idk: dict[str, Any]) -> str:
         f"model{'' if len(tested) == 1 else 's'} · the shorter bar is the language with fewer wrong answers",
         [{"label": idk_label(site, model), "href": idk_href(site, model),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if idk_significant(model) else ''}",
-          "bars": [{"value": counts(model)[0], "kind": "lead"}, {"value": counts(model)[1], "kind": "base"}],
+          "bars": [{"value": counts(model)[0], "kind": "english"}, {"value": counts(model)[1], "kind": "turkish"}],
           "title": f"{idk_label(site, model)}: {counts(model)[0]:,} wrong only in English, {counts(model)[1]:,} wrong only "
                    f"in Turkish; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
          for model in tested],
-        '<span><i class="swatch swatch-lead"></i>Wrong only in English</span> '
-        '<span><i class="swatch swatch-base"></i>Wrong only in Turkish</span> '
+        '<span><i class="swatch swatch-english"></i>Wrong only in English</span> '
+        '<span><i class="swatch swatch-turkish"></i>Wrong only in Turkish</span> '
         f"<span>{verdict}</span>" + not_charted,
         top=4 * quarter, tick=lambda value: f"{value:,.0f}")
     return f'<section class="charts" aria-label="Charts with “I don\'t know”">{rates}{paired}</section>'
@@ -1185,13 +1185,13 @@ def dont_know_word_charts(site: Site, word: dict[str, Any]) -> str:
         "better, read with the answered share (under the chart and in each bar's tooltip)",
         [{"label": idk_label(site, model), "href": idk_href(site, model),
           "text": f"{share_text(model['turkish'])} · {share_text(model['english'])}",
-          "bars": [{"value": wrong_share(model["turkish"]) or 0, "kind": "base"},
-                   {"value": wrong_share(model["english"]) or 0, "kind": "lead"}],
+          "bars": [{"value": wrong_share(model["turkish"]) or 0, "kind": "turkish"},
+                   {"value": wrong_share(model["english"]) or 0, "kind": "english"}],
           "title": f"{idk_label(site, model)}: {side_title(model['turkish'], 'Turkish')}; "
                    f"{side_title(model['english'], 'English')}"}
          for model in ordered],
-        f'<span><i class="swatch swatch-base"></i>Turkish, with “{esc(option)}”, the upper bar</span> '
-        f'<span><i class="swatch swatch-lead"></i>English, with “{esc(option)}”, the lower bar</span> '
+        f'<span><i class="swatch swatch-turkish"></i>Turkish, with “{esc(option)}”, the upper bar</span> '
+        f'<span><i class="swatch swatch-english"></i>English, with “{esc(option)}”, the lower bar</span> '
         "<span>Answered, Turkish · English: "
         + esc("; ".join(f"{idk_label(site, model)} {pct(model['turkish']['attempt_rate'], digits)} · "
                         f"{pct(model['english']['attempt_rate'], digits)}" for model in ordered))
@@ -1222,12 +1222,12 @@ def dont_know_word_charts(site: Site, word: dict[str, Any]) -> str:
         "language with fewer wrong answers",
         [{"label": idk_label(site, model), "href": idk_href(site, model),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if idk_significant(model) else ''}",
-          "bars": [{"value": counts(model)[0], "kind": "lead"}, {"value": counts(model)[1], "kind": "base"}],
+          "bars": [{"value": counts(model)[0], "kind": "english"}, {"value": counts(model)[1], "kind": "turkish"}],
           "title": f"{idk_label(site, model)}: {counts(model)[0]:,} wrong only in English, {counts(model)[1]:,} wrong only "
                    f"in Turkish; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
          for model in tested],
-        '<span><i class="swatch swatch-lead"></i>Wrong only in English</span> '
-        '<span><i class="swatch swatch-base"></i>Wrong only in Turkish</span> '
+        '<span><i class="swatch swatch-english"></i>Wrong only in English</span> '
+        '<span><i class="swatch swatch-turkish"></i>Wrong only in Turkish</span> '
         f"<span>{verdict}</span>" + not_charted,
         top=4 * quarter, tick=lambda value: f"{value:,.0f}")
     return f'<section class="charts" aria-label="Charts with “{esc(option)}” in both languages">{wrong}{paired}</section>'

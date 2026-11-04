@@ -822,30 +822,46 @@ const latencyText = run => {
    takes one colour from its group's fixed scale: a decision model from SETTINGS.rankScale (dark blue for the worst
    decision model, through turquoise and green, to yellow for the best), a chat or general model from SETTINGS.chatScale
    (purple for the worst chat model, through magenta and red, to orange for the best), so the two groups stay apart in the
-   All models view. A measure's ends are the group's worst and best setups in the published results (accuracy on all
-   questions), set once when the results load, so a filter changes which setups are drawn, never what a colour means; a
-   value beyond an end (a filtered accuracy, say) takes that end's colour. Latency and cost run on a log scale, accuracy
-   on a linear one; lower is better for latency and cost. */
-let rankEnds;
-function setRankEnds() {
-  const ends = (runs, value, higher) => {
-    const known = runs.map(value).filter(item => item != null);
-    return higher ? [Math.min(...known), Math.max(...known)] : [Math.max(...known), Math.min(...known)];
-  };
+   All models view. Colours go by rank: a value's place among its group's setups in the published results (accuracy on
+   all questions), so setups close in value still look apart; equal values share a colour, and a value between two
+   setups' values takes a colour between theirs. The places are set once when the results load, so a filter changes which
+   setups are drawn, never what a colour means; a value beyond an end (a filtered accuracy, say) takes that end's colour.
+   Lower is better for the calibration gap, latency and cost. */
+let rankLadders;
+function setRankLadders() {
+  // A group's published values of a measure, worst first, as keys that grow as the value gets better.
+  const ladder = (runs, value, higher) =>
+    runs.map(value).filter(item => item != null).map(item => (higher ? item : -item)).sort((a, b) => a - b);
   const group = runs => ({
-    accuracy: ends(runs, overallAccuracy, true), gap: ends(runs, run => run.confidence?.ece ?? null, false),
-    latency: ends(runs, latencyOf, false), cost: ends(runs, costPer1000, false),
+    accuracy: ladder(runs, overallAccuracy, true), gap: ladder(runs, run => run.confidence?.ece ?? null, false),
+    latency: ladder(runs, latencyOf, false), cost: ladder(runs, costPer1000, false),
   });
-  rankEnds = { decision: group(data.runs.filter(isDecision)), chat: group(data.runs.filter(run => !isDecision(run))) };
+  rankLadders = { decision: group(data.runs.filter(isDecision)), chat: group(data.runs.filter(run => !isDecision(run))) };
+}
+/* A group's worst and best published values of a measure, as the legends write them. */
+function rankEnds(kind, name) {
+  const ladder = rankLadders[kind][name];
+  const sign = MEASURES[name].higher ? 1 : -1;
+  return [sign * ladder[0], sign * ladder[ladder.length - 1]];
 }
 const kindOf = run => (isDecision(run) ? 'decision' : 'chat');
 const scaleStops = kind => (kind === 'decision' ? SETTINGS.rankScale : SETTINGS.chatScale);
 const channels = hex => [1, 3, 5].map(start => parseInt(hex.slice(start, start + 2), 16));
+/* How far from the worst place (0) to the best (1) a key sits among a ladder's places: equal keys share the middle of
+   their places, a key between two places sits between them. */
+function rankShare(ladder, key) {
+  const last = ladder.length - 1;
+  if (last < 1 || key >= ladder[last]) return 1;
+  if (key <= ladder[0]) return 0;
+  let low = 0;
+  while (ladder[low + 1] <= key) low++;
+  if (ladder[low] !== key) return (low + (key - ladder[low]) / (ladder[low + 1] - ladder[low])) / last;
+  let first = low;
+  while (first > 0 && ladder[first - 1] === key) first--;
+  return (first + low) / 2 / last;
+}
 function rankColor(name, value, kind) {
-  const [worst, best] = rankEnds[kind][name];
-  const at = MEASURES[name].log ? Math.log10 : item => item;
-  const span = at(best) - at(worst);
-  const share = span ? Math.min(1, Math.max(0, (at(value) - at(worst)) / span)) : 1;
+  const share = rankShare(rankLadders[kind][name], MEASURES[name].higher ? value : -value);
   const stops = scaleStops(kind);
   const place = share * (stops.length - 1);
   const index = Math.min(stops.length - 2, Math.floor(place));
@@ -859,8 +875,8 @@ const endText = (name, value) =>
    way is better, decision models then chat models, each when the group in view has them. */
 function scaleLegend(name) {
   const ramp = kind => {
-    const [worst, best] = rankEnds[kind][name];
-    return `<span class="scale-legend"><span>${kind === 'decision' ? 'Decision' : 'Chat'} models: worst ${esc(endText(name, worst))}</span>` +
+    const [worst, best] = rankEnds(kind, name);
+    return `<span class="scale-legend"><span>${kind === 'decision' ? 'Decision' : 'Chat'} models, by rank: worst ${esc(endText(name, worst))}</span>` +
       `<i class="ramp" style="background:linear-gradient(to right, ${scaleStops(kind).join(', ')})" aria-hidden="true"></i>` +
       `<span>best ${esc(endText(name, best))} (${MEASURES[name].higher ? 'higher' : 'lower'} is better)</span></span> `;
   };
@@ -1391,8 +1407,8 @@ async function downloadChart(name) {
     texts.push(`<text x="${at}" y="${y}" font-family="${font}" font-size="12" fill="${colour('--text-2')}">${esc(text)}</text>`);
   };
   kinds.forEach(kind => {
-    const [worst, best] = rankEnds[kind][scaleName];
-    label(`${kind === 'decision' ? 'Decision' : 'Chat'} models: worst ${endText(scaleName, worst)}`);
+    const [worst, best] = rankEnds(kind, scaleName);
+    label(`${kind === 'decision' ? 'Decision' : 'Chat'} models, by rank: worst ${endText(scaleName, worst)}`);
     const rampAt = place(48);
     texts.push(`<rect x="${rampAt}" y="${y - 10}" width="48" height="10" rx="2" fill="url(#ramp-${kind})" stroke="${colour('--mark-edge')}"/>`);
     label(`best ${endText(scaleName, best)} (${MEASURES[scaleName].higher ? 'higher' : 'lower'} is better)`);
@@ -1657,7 +1673,7 @@ async function start() {
     return;
   }
   byId = new Map(data.runs.map(run => [run.run, run]));
-  setRankEnds();
+  setRankLadders();
   readUrl();
   costTable(document.querySelector('[data-cost-table]'));
   state.sort = defaultSort(state.tab);
