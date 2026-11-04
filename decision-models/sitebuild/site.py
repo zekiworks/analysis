@@ -24,6 +24,7 @@ esc = html.escape
 
 # The navigation bar of every page, in order: (path inside the site, label). The brand links to the home page.
 MENU = (
+    ("models/", "All models"),
     ("questions/", "Every question"),
     ("disagreements/", "Where models disagree"),
     ("topics/", "Topics"),
