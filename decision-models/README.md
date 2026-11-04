@@ -262,8 +262,9 @@ python3 -m http.server 8000                                # preview at http://1
     numbered words on the human-verified question text. A setup that is condition A there shows its row on
     its own page.
   - **Other pages**: each module of `sitebuild/` (`PAGE_MODULES` in `build_site.py`) returns whole pages,
-    written to `<path>index.html`: one page per setup (`models/<run>/`), every question (`questions/`),
-    one page per question (`question/?id=…`, drawn by `question.js`, with a line for readers without
+    written to `<path>index.html`: one page per setup (`models/<run>/`; `models/` itself sends the reader to the home
+    page's All models view, which replaced its list of every setup; query and fragment kept), every question
+    (`questions/`), one page per question (`question/?id=…`, drawn by `question.js`, with a line for readers without
     JavaScript), where models disagree with the key (`disagreements/`: the questions where the chat setups
     in `page_config.json`'s `key_disagreement` agree on another answer, then the questions most setups got
     wrong), topics with the accuracy-by-topic heat map and one page per topic (`topics/`), Compare

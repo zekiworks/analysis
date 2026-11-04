@@ -1,5 +1,6 @@
 """One page per setup (models/<run id>/): how we called it, its settings, results, confidence, repeats, latency
-and cost, and, for a first model, what it took off each LLM in the replay."""
+and cost, and, for a first model, what it took off each LLM in the replay; and at models/ itself a page that sends the
+reader to the home page's All models view, which replaced the list of every setup that address held."""
 
 from __future__ import annotations
 
@@ -17,6 +18,8 @@ LEVEL_SOURCES = {"developers.openai.com": "OpenAI's model page", "platform.claud
                  "ai.google.dev": "Google's thinking documentation"}
 # What the Settings section shows where a run record holds no value. It never fills in a default.
 NOT_RECORDED = "not recorded"
+# The address of the former list of every setup, now a page that sends its readers to the All models view (redirect).
+INDEX = "models/"
 
 
 def facts(items: list[tuple[str, str | None]]) -> str:
@@ -324,5 +327,27 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
                      "\n".join(parts))
 
 
+def redirect(site: Site) -> str:
+    """The page at INDEX: sends the reader to the home page's All models view (or the group its query asks for), with
+    the fragment, as english-reading/ does."""
+    target = rel(INDEX, "")
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Moved: All models</title>
+  <link rel="canonical" href="{esc(site.config['site_url'])}">
+  <meta http-equiv="refresh" content="0; url={target}?models=all">
+  <!-- Keeps the address's group and section: the meta refresh alone drops them. -->
+  <script>location.replace("{target}" + (location.search || "?models=all") + location.hash);</script>
+</head>
+<body>
+  <p>The list of every model is now the All models view of the home page: <a href="{target}?models=all">All models</a>.</p>
+</body>
+</html>
+"""
+
+
 def build(site: Site) -> dict[str, str]:
-    return {site.model_path(run): model_page(site, run) for run in site.runs}
+    return {INDEX: redirect(site), **{site.model_path(run): model_page(site, run) for run in site.runs}}
