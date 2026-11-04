@@ -149,6 +149,14 @@ python3 -m http.server 8000                                # preview at http://1
   block loading `results.json` from a `file://` page.
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
+  - **View bar** (`topbar` in `sitebuild/site.py`, first on every page and sticky at the top): row 1 the test (English
+    reading, `english/`; Turkish reading and grammar, the home page; English and Turkish, `turkish-vs-english/`), row 2
+    the models (`?models=all|decision|chat`, all when missing). Each choice opens its page at the top, charts first, then
+    the table. `site.js` marks the current group, keeps it in row 1's links and shows each `data-models` element only
+    for its groups; on any other page row 2 leads to the home page with that group. English reading
+    (`sitebuild/english_view.py`) shows the 17 models on the 547 kept reading questions: accuracy, and non-hallucination
+    with "I don't know" in English, then the table ranked by English accuracy; no chat model was run in English, so its
+    chat view (and the English and Turkish view's) is a note pointing to the Turkish test's chat models.
   - **Four tabs**: the site's four benchmarks, each with its own address and its own rankings, never combined: Text
     (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know`, `dont_know_option_word`, `hosted_glide_rerun` and
@@ -157,7 +165,8 @@ python3 -m http.server 8000                                # preview at http://1
     `dont_know_option_word`, `english-reading.json` and `page_config.json`'s `english_reading` and `model_languages`,
     built by `sitebuild/english_reading.py`; its former address `english-reading/` redirects there, fragment kept). Each
     page opens with the tab bar (`Site.tabs` in `sitebuild/site.py`). Each tab's face
-    is charts, each card with a line saying which way is better; its tables and notes are under Info, a details element
+    is charts, each card with a line saying which way is better; its tables and notes are under Info (except the Text
+    tab's leaderboard, which follows its charts), a details element
     closed by default that `site.js` opens for a link into it (`dont-know/#method`). The Page images, Hallucination and
     Turkish vs English faces are HTML bars (`hbars` in `sitebuild/site.py`, coloured by the ranking scale), so they need
     no script: Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the
@@ -179,14 +188,14 @@ python3 -m http.server 8000                                # preview at http://1
     check that d1-ultra's worst run stays below their best at every whole percent up to 98%; d1-ultra's English runs at
     95%; `high_confidence`). Every "I don't know" table leads with Answered
     ((right + wrong) / questions) and Wrong of answers (wrong / (right + wrong)), the non-hallucination rate after them.
-    Turkish vs English opens with its main table (accuracy in Turkish and in English with the difference; with "I don't
-    know" written the same in both languages, the Turkish runs being the option-word check's, Answered, Wrong of answers
-    and non-hallucination with the difference, then the Turkish "Bilmiyorum" runs in a column of their own; the rank in
-    each language and the languages each model card lists; Holm-significant differences marked), then accuracy in
-    Turkish and in English with the paired test of the two (the questions only one of them got right, with Holm-adjusted
-    p), Liquid d1-ultra against each other model in English (the questions only one of the two got right, the exact
-    McNemar test with Holm over the others and a verdict; `english_reading.against_reference`), the non-hallucination
-    rate with an "I don't know" option in English against "Bilmiyorum" in Turkish with the
+    Turkish vs English opens with its charts, accuracy in Turkish and in English with the paired test of the two (the
+    questions only one of them got right, with Holm-adjusted p), then its main table (accuracy in Turkish and in English
+    with the difference; with "I don't know" written the same in both languages, the Turkish runs being the option-word
+    check's, Answered, Wrong of answers and non-hallucination with the difference, then the Turkish "Bilmiyorum" runs in
+    a column of their own; the rank in each language and the languages each model card lists; Holm-significant
+    differences marked), then Liquid d1-ultra against each other model in English (the questions only one of the two got
+    right, the exact McNemar test with Holm over the others and a verdict; `english_reading.against_reference`), the
+    non-hallucination rate with an "I don't know" option in English against "Bilmiyorum" in Turkish with the
     answered shares and the paired test of wrong answers, the same with "I don't know" in both languages (only the
     language differs; `english_reading.dont_know_word`), risk and coverage on the kept questions (native points and
     confidence curves per language), and the option-word check. The build writes
@@ -204,10 +213,10 @@ python3 -m http.server 8000                                # preview at http://1
     seconds, * for a latency measured on a sample; Not measured where there is no value); accuracy against cost or
     latency, with the Pareto line (the setups in view no other setup in view
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
-    gap, as shipped, on all questions); Latency; Cost. By default the charts show the 20 most accurate decision models
-    (`CHART_DECISION_MODELS` in `build_site.py`); "Show all" adds the rest.
-    After the Cost chart, Cost of every setup (`#cost-table`, `costTable` in `v3.js`) is one table of every setup in
-    `results.json`, whatever the filters, the model selection, the charts' default and the All models switch: cheapest
+    gap, as shipped, on all questions); Latency; Cost. The charts draw every setup of the model group the view bar
+    selects (all 74 setups together, the 37 decision models or the 37 chat and general models), within the filters.
+    After the Cost chart, Cost of every setup (`#cost-table`, `costTable` in `v3.js`) is one table of every setup of that
+    group, whatever the filters and the model selection: cheapest
     first (setups without a cost last, by accuracy), with $ per 1,000 questions as the Cost card writes it, its cost over
     the cheapest setup's (× cheapest, empty where the cost is not measured), accuracy, median latency, the answers kept at
     the 99% cutoff (right of kept, and the questions skipped: the scored total minus the kept, that is the answers below
@@ -218,14 +227,14 @@ python3 -m http.server 8000                                # preview at http://1
     `results.json` stores whole counts (the fixed 99% rule and the most confident quarter in the replay and in the live
     tests, the half rule in the live tests; the half rule's replay figures are means over 300 splits, so they stay
     shares); the model pages; the Method page; and the Hallucination tab's derived cut-off (answered and held back).
-    Everything else is under Info, a details element closed by default and opened by a link into it (a leaderboard
-    tab, `#board` or `#info`): the leaderboard, the decision models' table, then the other models' (chat and general
-    models), each ranked on its own (the All models switch shows one table), the counters, the summary and the
-    Reading vs grammar chart. A model ID with runs in both groups
+    Right after the charts comes the leaderboard with its four tabs: one table for the selected group, ranked by
+    accuracy (in the all view decision and chat models together, each row saying which). Info, a details element closed
+    by default and opened by a link into it (`#info`), holds the counters, the summary, the notes and the Reading vs
+    grammar chart. A model ID with runs in both groups
     gets its route after its name in each row ("GPT-6 Luna (Decisions API)", "GPT-6 Luna (chat API)"; `route_labels`
     in `sitebuild/site.py`). The leaderboard rows carry no notes: a setup's notes are on its model page (How we
-    called it), which its name links to. The Reading vs grammar chart lists the setups in the leaderboard's order,
-    decision models first. `v3.js` draws the filters, the charts and the four leaderboard tabs in the
+    called it), which its name links to. The Reading vs grammar chart lists the setups in the leaderboard's order.
+    `v3.js` draws the filters, the charts and the four leaderboard tabs in the
     browser from `results.json` alone; accuracy for a part or topic and its Wilson 95% interval come from the
     counts there. The Routing tab keeps its four choices in the URL. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,
@@ -253,9 +262,7 @@ python3 -m http.server 8000                                # preview at http://1
     numbered words on the human-verified question text. A setup that is condition A there shows its row on
     its own page.
   - **Other pages**: each module of `sitebuild/` (`PAGE_MODULES` in `build_site.py`) returns whole pages,
-    written to `<path>index.html`: one page per setup (`models/<run>/`) and the list of every setup, first in the
-    navigation bar (`models/`: decision and chat models in one list, ranked by accuracy, each with its details, kind,
-    share right on the Text tab and run id, linked to its page), every question (`questions/`),
+    written to `<path>index.html`: one page per setup (`models/<run>/`), every question (`questions/`),
     one page per question (`question/?id=…`, drawn by `question.js`, with a line for readers without
     JavaScript), where models disagree with the key (`disagreements/`: the questions where the chat setups
     in `page_config.json`'s `key_disagreement` agree on another answer, then the questions most setups got

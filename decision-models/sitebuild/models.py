@@ -1,6 +1,5 @@
 """One page per setup (models/<run id>/): how we called it, its settings, results, confidence, repeats, latency
-and cost, and, for a first model, what it took off each LLM in the replay; and models/, every setup with a link to its
-page."""
+and cost, and, for a first model, what it took off each LLM in the replay."""
 
 from __future__ import annotations
 
@@ -325,24 +324,5 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
                      "\n".join(parts))
 
 
-def index(site: Site) -> str:
-    """Every setup of the leaderboard (results.json's runs) in one table, decision and chat models together, ranked by
-    accuracy on the Text tab (highest first), each with its details and kind, its share right and its run id, linked to
-    its page."""
-    path = "models/"
-    runs = sorted(site.runs, key=lambda run: (-site.accuracy(run)[0] / site.accuracy(run)[1], run["name"].casefold(), run["run"]))
-    rows = "".join(f'<tr>{site.model_cell(path, run, kind=True)}<td class="num">{pct(correct / total)}</td><td class="num">{run["run"]}</td></tr>'
-                   for run in runs for correct, total in [site.accuracy(run)])
-    decision = sum(1 for run in runs if site.decision(run))
-    body = (f'    <section class="card">\n      <h1>All models</h1>\n      <p>Every setup on the leaderboard, {len(runs)} in all '
-            f"({decision} decision models, {len(runs) - decision} chat and general models), in one list ranked by accuracy on "
-            f'the <a href="{rel(path, "")}">Text tab</a>, highest first. A model run with more than one setting has a row for '
-            "each; each name opens its page: how we called it, its settings, results, confidence, latency and cost.</p>\n"
-            '      <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Model</th><th scope="col" '
-            'class="num">Right<span class="small">Text tab</span></th><th scope="col" class="num">Run</th></tr></thead>'
-            f"<tbody>{rows}</tbody></table></div>\n    </section>")
-    return site.page(path, "All models", f"Every setup on the leaderboard, {len(runs)}, decision and chat models in one list.", body)
-
-
 def build(site: Site) -> dict[str, str]:
-    return {"models/": index(site), **{site.model_path(run): model_page(site, run) for run in site.runs}}
+    return {site.model_path(run): model_page(site, run) for run in site.runs}

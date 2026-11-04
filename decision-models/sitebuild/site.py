@@ -24,7 +24,6 @@ esc = html.escape
 
 # The navigation bar of every page, in order: (path inside the site, label). The brand links to the home page.
 MENU = (
-    ("models/", "All models"),
     ("questions/", "Every question"),
     ("disagreements/", "Where models disagree"),
     ("topics/", "Topics"),
@@ -32,6 +31,11 @@ MENU = (
     ("method/", "Method"),
     ("data/", "Data"),
 )
+# The view bar under the top bar of every page. Row 1, the test, picks the page: (path inside the site, label).
+VIEW_TESTS = (("english/", "English reading"), ("", "Turkish reading and grammar"), ("turkish-vs-english/", "English and Turkish"))
+# Row 2, the models, picks the group with ?models= on the page of row 1 (site.js marks the current one and shows each
+# element whose data-models lists it): (value of ?models=, label).
+VIEW_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", "Chat models"))
 # The site's benchmarks, each a tab at the top of its page: (path inside the site, label). Text is the home page.
 BENCHMARKS = (("", "Text"), ("vision/", "Page images"), ("dont-know/", "Hallucination"),
               ("turkish-vs-english/", "Turkish vs English"))
@@ -174,13 +178,28 @@ def legend_mark(colour: str, shape: str | None = None, dash: str | None = None) 
 
 
 def topbar(path: str) -> str:
-    """The bar at the top of every page: the brand, which links home, the navigation bar and the theme switch."""
+    """The top of every page: first the view bar, which stays at the top of the window: row 1 the test (a page, the
+    current one marked here from the path), row 2 the models (?models=, marked by site.js, which also keeps the group in
+    the row 1 links); then the bar with the brand, which links home, the navigation bar and the theme switch, which
+    scrolls away. On a page of row 1 the row 2 links stay on it; on any other page they open the home page with that
+    group."""
     current = ' aria-current="page"'
     links = "".join(
         f'<li><a href="{rel(path, target)}"{current if path.startswith(target) else ""}>{esc(label)}</a></li>' for target, label in MENU
     )
+    tests = "".join(f'<li><a class="view-key" href="{rel(path, target)}" data-view-test{current if path == target else ""}>'
+                    f"{esc(label)}</a></li>" for target, label in VIEW_TESTS)
+    base = "" if path in {target for target, _ in VIEW_TESTS} else rel(path, "")
+    groups = "".join(f'<li><a class="view-key" href="{base}?models={value}" data-view-group="{value}">{esc(label)}</a></li>'
+                     for value, label in VIEW_GROUPS)
     return (
-        '<header class="topbar">\n'
+        '<nav class="view-bar" aria-label="View: test and models"><div class="view-rows">\n'
+        '    <div class="view-row"><span class="view-label" id="view-test">Test</span>'
+        f'<ul aria-labelledby="view-test">{tests}</ul></div>\n'
+        '    <div class="view-row"><span class="view-label" id="view-models">Models</span>'
+        f'<ul aria-labelledby="view-models">{groups}</ul></div>\n'
+        "  </div></nav>\n"
+        '  <header class="topbar">\n'
         f'    <a class="brand" href="{rel(path, "")}">{esc(KICKER)}</a>\n'
         f'    <nav class="nav" aria-label="Pages"><ul>{links}</ul></nav>\n'
         '    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" '

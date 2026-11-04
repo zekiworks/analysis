@@ -33,6 +33,31 @@ function secondsText(value) {
   });
 })();
 
+/* Every page: the view bar's group, from ?models= (all, decision or chat; missing or unknown means all). The bar marks
+   its row 2 choice, the row 1 links keep the group, and each element whose data-models lists other groups only is
+   hidden (and shown again when it lists this one), before the page's own scripts run. <html data-models-view> carries
+   the group for them. The bar's height is kept in --view-bar-h, so the page scrolls links and parts below it. */
+(function setupViewBar() {
+  const asked = new URLSearchParams(window.location.search).get('models');
+  const group = ['all', 'decision', 'chat'].includes(asked) ? asked : 'all';
+  document.documentElement.dataset.modelsView = group;
+  document.querySelectorAll('[data-models]').forEach(element => {
+    element.hidden = !element.dataset.models.split(/\s+/).includes(group);
+  });
+  const bar = document.querySelector('.view-bar');
+  if (!bar) return;
+  bar.querySelectorAll('a[data-view-group]').forEach(link => {
+    if (link.dataset.viewGroup === group) link.setAttribute('aria-current', 'true');
+    else link.removeAttribute('aria-current');
+  });
+  bar.querySelectorAll('a[data-view-test]').forEach(link => {
+    link.setAttribute('href', `${link.getAttribute('href').split('?')[0]}?models=${group}`);
+  });
+  const measure = () => document.documentElement.style.setProperty('--view-bar-h', `${bar.offsetHeight}px`);
+  measure();
+  if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
+})();
+
 /* On a phone the navigation bar scrolls sideways; a link that takes the keyboard focus is brought fully into view. */
 (function keepFocusedLinkInView() {
   const bar = document.querySelector('.nav ul');

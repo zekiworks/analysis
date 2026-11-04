@@ -3,16 +3,18 @@ tab's reading questions translated into English, asked of the decision models as
 models' Turkish runs on the same questions. From results.json's `english_reading` (every number), english-reading.json
 (the track's public record: the translator, its prompts, the flags and each question's hash of its English text) and
 page_config.json's `english_reading` (the models not compared or not run, with their reasons, and the structural check's
-facts) and `model_languages`. Its face: the main table (main_table(): each model's accuracy, its answered share, wrong of
-answers and non-hallucination rate with "I don't know" in both languages, its Turkish side with "Bilmiyorum", the rank
-in both languages and the languages its card lists), then charts in HTML (Site hbars): accuracy in both languages and
-the paired test; then, when results.json has `english_reading.dont_know`, the same questions with an "I don't know"
+facts) and `model_languages`. Its face: charts in HTML (Site hbars): accuracy in both languages and the paired test;
+then the main table (main_table(): each model's accuracy, its answered share, wrong of answers and non-hallucination
+rate with "I don't know" in both languages, its Turkish side with "Bilmiyorum", the rank in both languages and the
+languages its card lists); then, when results.json has `english_reading.dont_know`, the same questions with an "I don't know"
 option in English against the Hallucination tab's "Bilmiyorum" in Turkish (dont_know_face()); with
 `english_reading.dont_know_word`, the same with the option written "I don't know" in Turkish too, so that only the
 language differs (dont_know_word_face()); and the option's
 word on the Turkish questions (results.json `dont_know_option_word`, option_word()). Under Info: the tables, the models
 not compared, Our method and the full instructions of each kind of run. The question text, Turkish or English, is never
-published. The tab ranks nothing on the Text tab and changes none of its numbers."""
+published. The tab ranks nothing on the Text tab and changes none of its numbers. No chat model was run in English, so
+all but the heading is shown for the "all" and "decision" groups of the view bar (data-models, toggled by site.js) and a
+note (chat_note()) for "chat"."""
 
 from __future__ import annotations
 
@@ -514,6 +516,13 @@ def table(site: Site, data: dict[str, Any]) -> str:
     rows = "".join(row(site, data, model) for model in data["models"])
     return (f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr>'
             f"</thead><tbody>{rows}</tbody></table></div>")
+
+
+def chat_note(path: str) -> str:
+    """The note shown, for the view bar's chat group, instead of an English page's charts and tables (data-models,
+    toggled by site.js; hidden without JavaScript, where the page shows the all group)."""
+    return ('<p class="note" data-models="chat" hidden>No chat model was run on the English reading questions: '
+            f'see the <a href="{rel(path, "")}?models=chat">chat models on the Turkish test</a>.</p>')
 
 
 def not_compared(site: Site) -> str:
@@ -1652,12 +1661,16 @@ def build(site: Site) -> dict[str, str]:
     <section class="card">
       <p class="eyebrow">Turkish vs English</p>
       <h1>The Text tab's reading questions, in Turkish and in English</h1>
+      <div data-models="all decision">
       <p>{kept} of the Text tab's {reading} reading questions, translated into English by a model, asked of {bp.in_words(family)} of the {selected} decision models we chose (<a href="#about">which ones</a>) as on the Text tab and compared with the same models' Turkish runs on the same questions. No person checked the translations: a limit of this test (<a href="#method">Our method</a>). This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       {headline(site, data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#main-table">Turkish vs English</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a>{'<a href="#against-d1-ultra">Against d1-ultra</a>' if data.get("against_reference") else ""}{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}{'<a href="#dont-know-word">Only the language differs</a>' if word else ""}{'<a href="#option-word">The option&#x27;s word</a>' if site.results.get("dont_know_option_word") else ""}{'<a href="#coverage">Risk and coverage</a>' if data.get("coverage") else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-paired">Paired test</a><a href="#main-table">Turkish vs English</a>{'<a href="#against-d1-ultra">Against d1-ultra</a>' if data.get("against_reference") else ""}{'<a href="#dont-know">I don&#x27;t know</a>' if idk else ""}{'<a href="#dont-know-word">Only the language differs</a>' if word else ""}{'<a href="#option-word">The option&#x27;s word</a>' if site.results.get("dont_know_option_word") else ""}{'<a href="#coverage">Risk and coverage</a>' if data.get("coverage") else ""}<a href="#info">Info</a><a href="#languages">Languages</a></nav>
+      </div>
+      {chat_note(PATH)}
     </section>
-    {main_table(site, data)}
-    {face(site, data)}{against_reference(site, data)}
+    <div data-models="all decision">
+    {face(site, data)}
+    {main_table(site, data)}{against_reference(site, data)}
     {dont_know_face(site, idk, word) if idk else ""}
     {dont_know_word_face(site, word) if word else ""}
     {option_word(site)}{coverage(site, data)}
@@ -1700,7 +1713,8 @@ def build(site: Site) -> dict[str, str]:
       <h3>Why the translations are not published</h3>
       <p>The site never publishes question text, Turkish or English: the publisher owns the questions. {download} holds instead each reading question's ID, unit, whether it was kept, its flag reasons and the SHA-256 of its English text, with the translator and both prompts, so that a copy of these translations can be checked against it. Translating again with {script} need not give the same text word for word.</p>
     </section>{instructions(site, data)}{dont_know_info(site, idk) if idk else ""}{dont_know_word_info(site, data, word) if word else ""}{languages(site)}
-    </details>"""
+    </details>
+    </div>"""
     return {PATH: site.page(PATH, "Turkish vs English",
                             f"The Text tab's {kept} kept reading questions in Turkish and in English: accuracy and "
                             f"non-hallucination of {family} decision models in both languages, with paired tests.", body),
