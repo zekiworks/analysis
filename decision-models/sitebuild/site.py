@@ -75,7 +75,7 @@ def asset(target: str) -> str:
 
 def rank_fill(stops: list[str], value: float, worst: float, best: float) -> str:
     """The ranking scale's colour (page_config.json rank_scale) for value between the worst and best values shown, as a
-    CSS colour; as the home page's charts colour their bars."""
+    CSS colour, for a chart of one series."""
     share = 1.0 if best == worst else (value - worst) / (best - worst)
     red, green, blue = bp.rank_colour(stops, share)
     return f"rgb({red:.0f},{green:.0f},{blue:.0f})"
@@ -83,18 +83,42 @@ def rank_fill(stops: list[str], value: float, worst: float, best: float) -> str:
 
 def scale_legend(stops: list[str], worst: str, best: str, higher: bool = True) -> str:
     """The legend of bars coloured by the ranking scale: the worst value, the scale, the best value and which way is
-    better, as the home page's charts write it."""
+    better."""
     return (f'<span class="scale-legend"><span>Decision models: worst {esc(worst)}</span>'
             f'<i class="ramp" style="background:linear-gradient(to right, {", ".join(stops)})" aria-hidden="true"></i>'
             f'<span>best {esc(best)} ({"higher" if higher else "lower"} is better)</span></span>')
 
 
+def run_families(config: dict[str, Any], runs: list[dict[str, Any]]) -> dict[int, dict[str, str]]:
+    """Each run's model family (page_config.json model_families), by run id: its name and colour. A family's rule names a
+    provider and, where one provider serves several families, a model. The build stops unless every run belongs to
+    exactly one family."""
+    found, problems = {}, []
+    for run in runs:
+        families = [family for family in config["model_families"]["families"]
+                    if any(rule["provider"] == run["provider"] and rule.get("model", run["model"]) == run["model"]
+                           for rule in family["runs"])]
+        if len(families) == 1:
+            found[run["run"]] = {"name": families[0]["name"], "colour": families[0]["colour"]}
+        else:
+            problems.append(f"run {run['run']} ({run['name']}): in {len(families)} families")
+    if problems:
+        raise SystemExit("page_config.json model_families:\n  " + "\n  ".join(problems))
+    return found
+
+
+def family_legend(families: list[dict[str, str]]) -> str:
+    """The legend of bars in their model family's colour: each family once, in the order given (the chart's)."""
+    named = dict.fromkeys((family["name"], family["colour"]) for family in families)
+    return " ".join(f'<span><i class="swatch" style="background:{colour}"></i>{esc(name)}</span>' for name, colour in named)
+
+
 def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], str] | None = None) -> str:
     """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
     readable at any width and in both themes. Each row: label, href (optional), bars (each a value from 0 to top, with a
-    colour or a kind, a CSS class), marker (optional, a value drawn as a line), text (the value as shown) and title (the
-    tooltip). The axis runs from 0 to top, with a tick at each quarter, in percent unless tick writes a value its way
-    (aa-decision-index/ writes dollars)."""
+    colour, a kind (a CSS class) or both: a kind's pattern, as the English bar's stripes, goes over the colour), marker
+    (optional, a value drawn as a line), text (the value as shown) and title (the tooltip). The axis runs from 0 to top,
+    with a tick at each quarter, in percent unless tick writes a value its way (aa-decision-index/ writes dollars)."""
     place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
     ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / 4)}">{esc(write(top * index / 4))}</span>'
@@ -104,7 +128,7 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
         label = f'<a href="{row["href"]}">{esc(row["label"])}</a>' if row.get("href") else esc(row["label"])
         fills = "".join(
             f'<span class="hbar-fill{" " + bar["kind"] if bar.get("kind") else ""}" style="width:{place(bar["value"])}'
-            f'{";background:" + bar["colour"] if bar.get("colour") else ""}"></span>' for bar in row["bars"])
+            f'{";background-color:" + bar["colour"] if bar.get("colour") else ""}"></span>' for bar in row["bars"])
         marker = f'<span class="hbar-marker" style="left:{place(row["marker"])}"></span>' if row.get("marker") is not None else ""
         items.append(f'<li class="hbar" title="{esc(row["title"])}"><span class="hbar-label">{label}</span>'
                      f'<span class="hbar-track">{fills}{marker}</span><span class="hbar-value">{esc(row["text"])}</span></li>')
@@ -279,6 +303,11 @@ class Site:
     def answer_runs(self) -> dict[int, dict[str, Any]]:
         """Each leaderboard run's per-question answers, by run id."""
         return {item["run"]: item for item in self.answers["runs"]}
+
+    @cached_property
+    def families(self) -> dict[int, dict[str, str]]:
+        """Each leaderboard run's model family, by run id (run_families)."""
+        return run_families(self.config, self.runs)
 
     @cached_property
     def snapshot(self) -> bp.Snapshot:

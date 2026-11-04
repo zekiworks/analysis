@@ -44,7 +44,7 @@ sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
-from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, asset, route_labels, topbar  # noqa: E402
+from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, asset, route_labels, run_families, topbar  # noqa: E402
 
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
@@ -351,10 +351,10 @@ def page_settings(data: Data) -> str:
         "chartLabels": data.config["chart_labels"],
         # Each route label, by run id.
         "routeLabels": data.route_labels,
-        # The ranking charts' colours, worst to best: decision models (page_config.json rank_scale), chat and general
-        # models (chat_scale).
-        "rankScale": data.config["rank_scale"]["stops"],
-        "chatScale": data.config["chat_scale"]["stops"],
+        # The charts' colours: each run's model family by run id, and each family's colour (page_config.json
+        # model_families; run_families stops the build unless every run has exactly one family).
+        "families": {run: family["name"] for run, family in run_families(data.config, data.runs).items()},
+        "familyColours": {family["name"]: family["colour"] for family in data.config["model_families"]["families"]},
         # A saving whose first model ran on our own hardware: its marker, tooltip and note, by how its cost was counted.
         "firstCostMarks": {key: value for key, value in data.config["first_cost_marks"].items() if key != "about"},
         # The note under the Accuracy table (not_measured_note), also under the plain table.

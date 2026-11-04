@@ -1,6 +1,6 @@
 """English reading (english/): the decision models on the Text tab's kept reading questions in English, from results.json's
-english_reading only. Its face, under the view bar: a short lead, then two charts in the site's static style (Site hbars
-coloured by the ranking scale, as aa-decision-index/ draws them): accuracy on the kept questions and the
+english_reading only. Its face, under the view bar: a short lead, then two charts in the site's static style (Site hbars,
+each bar in its model family's colour, as the home page's charts): accuracy on the kept questions and the
 non-hallucination rate with "I don't know" in English (english_reading.dont_know's English sides and english_only);
 then one table ranked by English accuracy. The comparison with Turkish is turkish-vs-english/. No chat model was run in
 English, so the charts and the table are shown for the "all" and "decision" groups (data-models, toggled by site.js) and
@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any
 
 from sitebuild.english_reading import PATH as COMPARISON, chat_note, check_dont_know, english_only
-from sitebuild.site import NOT_MEASURED, Site, esc, hbars, pct, rank_fill, rel, scale_legend
+from sitebuild.site import NOT_MEASURED, Site, esc, family_legend, hbars, pct, rel
 from sitebuild.vision import cell, joined
 
 PATH = "english/"
@@ -62,7 +62,7 @@ def build(site: Site) -> dict[str, str]:
     idk = data["dont_know"]
     check_dont_know(site, data, idk)
     digits = site.config["percent_digits"]
-    stops = site.config["rank_scale"]["stops"]
+    family = lambda model: site.families[model["turkish_run"]]  # noqa: E731
     total, models = data["questions"], data["models"]
     option = idk["option"]
     # English "I don't know": the English side of each paired model, and the models with an English run only.
@@ -77,21 +77,17 @@ def build(site: Site) -> dict[str, str]:
         return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
                 f'<p class="chart-sub">{sub}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
 
-    accuracies = [model["english"]["accuracy"] for model in models]
     accuracy_rows = [{"label": label(site, model), "href": href(site, model),
                       "text": f"{pct(model['english']['accuracy'], digits)} · {model['english']['right']:,}",
-                      "bars": [{"value": model["english"]["accuracy"],
-                                "colour": rank_fill(stops, model["english"]["accuracy"], min(accuracies), max(accuracies))}],
+                      "bars": [{"value": model["english"]["accuracy"], "colour": family(model)["colour"]}],
                       "title": f"{label(site, model)}: {model['english']['right']:,} of {total:,} right in English "
                                f"(run {model['run']})"}
                      for model in models]
     rated = sorted(((by_run[run], counts) for run, counts in english_idk if counts["non_hallucination"] is not None),
                    key=lambda pair: (-pair[1]["non_hallucination"], label(site, pair[0]).casefold()))
-    rates = [counts["non_hallucination"] for _, counts in rated]
     rate_rows = [{"label": label(site, model), "href": href(site, model),
                   "text": f"{pct(counts['non_hallucination'], digits)} · {pct(counts['attempt_rate'], digits)}",
-                  "bars": [{"value": counts["non_hallucination"],
-                            "colour": rank_fill(stops, counts["non_hallucination"], min(rates), max(rates))}],
+                  "bars": [{"value": counts["non_hallucination"], "colour": family(model)["colour"]}],
                   "title": f"{label(site, model)}: {counts['dont_know']:,} “{option}” of "
                            f"{counts['dont_know'] + counts['wrong']:,} not right; {counts['right'] + counts['wrong']:,} of "
                            f"{total:,} answered (run {counts['run']})"}
@@ -101,13 +97,13 @@ def build(site: Site) -> dict[str, str]:
         card("chart-accuracy", f"Accuracy on the {total:,} English questions",
              f"Share of the {total:,} kept reading questions answered right in English, then the right answers of {total:,}: "
              "each model's first English run · higher is better", accuracy_rows,
-             scale_legend(stops, pct(min(accuracies), digits), pct(max(accuracies), digits)))
+             family_legend([family(model) for model in models]))
         + card("chart-non-hallucination", "Non-hallucination rate with “I don't know” in English",
                f"“{esc(option)}” among the answers that were not right, with it offered as a sixth option in English, on the "
                f"{total:,} kept questions, then the answered share (right + wrong of {total:,}): each model's first run with "
                "it · higher is better, read with the answered share",
                rate_rows,
-               scale_legend(stops, pct(min(rates), digits), pct(max(rates), digits))
+               family_legend([family(model) for model, _ in rated])
                + " <span>A model that always chose the option would reach 100% with no right answers.</span>"
                + f" <span>Not run with “{esc(option)}” in English: {esc(joined(unrated))}.</span>"))
 

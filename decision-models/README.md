@@ -168,8 +168,8 @@ python3 -m http.server 8000                                # preview at http://1
     is charts, each card with a line saying which way is better; its tables and notes are under Info (except the Text
     tab's leaderboard, which follows its charts), a details element
     closed by default that `site.js` opens for a link into it (`dont-know/#method`). The Page images, Hallucination and
-    Turkish vs English faces are HTML bars (`hbars` in `sitebuild/site.py`: one series coloured by the ranking scale, the
-    Turkish vs English pairs by language, Turkish red and English blue), so they need
+    Turkish vs English faces are HTML bars (`hbars` in `sitebuild/site.py`: one series coloured by the ranking scale; the
+    Turkish vs English pairs, as English reading's bars, in each model family's colour, the English bar striped), so they need
     no script: Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the
     marks each OCR model kept; Hallucination shows the non-hallucination rate, that rate against the same model held back
     by its confidence, the paired test of the two (the wrong answers only one of them made, with Holm-adjusted p and the
@@ -216,9 +216,9 @@ python3 -m http.server 8000                                # preview at http://1
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
     gap, as shipped, on all questions); Latency; Cost. The charts draw every setup of the model group the view bar
     selects (all 74 setups together, the 37 decision models or the 37 chat and general models), within the filters;
-    each bar or dot takes its group's scale, the colours spread by rank among that group's setups in the published
-    results, so close values still look apart: decision models the ranking scale (`page_config.json` `rank_scale`, dark
-    blue to yellow), chat and general models the chat scale (`chat_scale`, purple to orange).
+    each bar or dot takes its model family's colour (`page_config.json` `model_families`: a maker's line of models shares
+    one colour, in every chart and both groups; `run_families` in `sitebuild/site.py` stops the build unless every run
+    has exactly one family), with the families in view in the legend.
     After the Cost chart, Cost of every setup (`#cost-table`, `costTable` in `v3.js`) is one table of every setup of that
     group, whatever the filters and the model selection: cheapest
     first (setups without a cost last, by accuracy), with $ per 1,000 questions as the Cost card writes it, its cost over

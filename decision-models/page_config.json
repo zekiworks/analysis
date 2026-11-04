@@ -161,12 +161,43 @@
               "note": "Counts the first model at its maker’s list price for the same model; our hardware cost is not measured."}
   },
   "rank_scale": {
-    "about": "The colours of a decision model's bar or dot in the home page's ranking charts (accuracy, calibration, latency, cost and the small chart), from the worst decision model to the best: dark blue, turquoise, green, yellow, spread by rank among the decision models in the published results, so close values still look apart. Chat models take chat_scale. The Topics heat map, the other tabs' bars and the link preview use the same colours by value.",
+    "about": "The colours of a decision model's bar in the single-series charts of the Hallucination, Page images and Artificial Analysis pages, from the worst decision model on the chart to the best: dark blue, turquoise, green, yellow. The Topics heat map and the link preview use the same colours. The home page's charts, English reading and English and Turkish colour each setup by its model family (model_families).",
     "stops": ["#2c4596", "#1a9ea3", "#4dbf68", "#f9e021"]
   },
-  "chat_scale": {
-    "about": "The colours of a chat or general model's bar or dot in the same charts, from the worst chat model to the best: purple, magenta, red, orange, spread by rank among the chat models in the published results, so close values still look apart and the two groups keep apart in the All models view.",
-    "stops": ["#5b2c83", "#a2338c", "#de4a68", "#f68d45"]
+  "model_families": {
+    "about": "Each setup's model family, whose colour its bar or dot takes in the charts of the home page (Turkish reading and grammar, every model group), English reading and English and Turkish: a maker's line of models shares one colour, in every chart and in both model groups. A run belongs to its family by provider and, where one provider serves several families, by model; the build stops unless every run belongs to exactly one. The colours are spread so that families next to each other in the rankings differ.",
+    "families": [
+      {"name": "Gemini", "colour": "#3d7ff0", "runs": [{"provider": "gemini"}]},
+      {"name": "Gemma", "colour": "#dca2ff", "runs": [{"provider": "vllm", "model": "gemma-4-31B-it"}]},
+      {"name": "GPT", "colour": "#18a37a", "runs": [{"provider": "openai"}, {"provider": "openai-decisions"}]},
+      {"name": "Claude", "colour": "#f08a3c", "runs": [{"provider": "claude"}]},
+      {"name": "Grok", "colour": "#8da523", "runs": [{"provider": "xai"}]},
+      {"name": "Qwen", "colour": "#00829a", "runs": [{"provider": "vllm", "model": "qwen3-14b"}, {"provider": "vllm", "model": "qwen38-27b-bf16"}, {"provider": "vllm-verbal"}, {"provider": "vllm-vote"}, {"provider": "vllm-yes-no"}]},
+      {"name": "DeepSeek", "colour": "#b74771", "runs": [{"provider": "vllm", "model": "deepseek-v4.1-flash"}]},
+      {"name": "GLM", "colour": "#7dd67d", "runs": [{"provider": "openrouter-chat", "model": "z-ai/glm-5.3"}, {"provider": "vllm-stated"}]},
+      {"name": "Kimi", "colour": "#14d3f7", "runs": [{"provider": "openrouter-chat", "model": "moonshotai/kimi-k3.1-pro"}]},
+      {"name": "Erk", "colour": "#b77adb", "runs": [{"provider": "vllm", "model": "erk-14b"}]},
+      {"name": "Liquid", "colour": "#f2c12e", "runs": [{"provider": "liquid"}, {"provider": "d1-server"}]},
+      {"name": "Fastino", "colour": "#b85207", "runs": [{"provider": "fastino"}, {"provider": "glide"}, {"provider": "gliner"}]},
+      {"name": "Mammoth", "colour": "#ce8703", "runs": [{"provider": "baselabs", "model": "baselabs/mammoth-1"}]},
+      {"name": "Elephant", "colour": "#1aa2eb", "runs": [{"provider": "baselabs", "model": "baselabs/elephant-1"}]},
+      {"name": "Drex", "colour": "#6b7f09", "runs": [{"provider": "nace"}, {"provider": "drex-max"}]},
+      {"name": "SubQ", "colour": "#fd9cba", "runs": [{"provider": "subq"}]},
+      {"name": "Perplexity", "colour": "#9256b3", "runs": [{"provider": "perplexity"}, {"provider": "pplx-decider"}]},
+      {"name": "vLLM-SR", "colour": "#9587ef", "runs": [{"provider": "vllm-sr"}, {"provider": "d3-server"}]},
+      {"name": "Jev", "colour": "#466fcb", "runs": [{"provider": "jev"}, {"provider": "open-jev"}]},
+      {"name": "OneJev", "colour": "#108968", "runs": [{"provider": "onejev"}]},
+      {"name": "Metask", "colour": "#e66e6a", "runs": [{"provider": "metask"}]},
+      {"name": "Celeris", "colour": "#9dbdff", "runs": [{"provider": "celeris"}]},
+      {"name": "Clef", "colour": "#9f6700", "runs": [{"provider": "clef"}]},
+      {"name": "Cygnet", "colour": "#ffa475", "runs": [{"provider": "cygnet"}]},
+      {"name": "Laya", "colour": "#b2cb52", "runs": [{"provider": "laya"}]},
+      {"name": "meraGPT", "colour": "#06aac7", "runs": [{"provider": "meragpt"}]},
+      {"name": "Strands", "colour": "#7262c6", "runs": [{"provider": "strands"}]},
+      {"name": "Winnow", "colour": "#57b058", "runs": [{"provider": "winnow"}]},
+      {"name": "Inception", "colour": "#d071bb", "runs": [{"provider": "openrouter", "model": "inception/mercury-decide"}]},
+      {"name": "Microsoft", "colour": "#35dcab", "runs": [{"provider": "openrouter", "model": "microsoft/microsoft-decision-1"}]}
+    ]
   },
   "images": {
     "preview": {"width": 1200, "height": 630}

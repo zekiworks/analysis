@@ -818,70 +818,17 @@ const latencyText = run => {
   return value == null ? EMPTY.notMeasured : `${secondsText(value)} s${sampleLabel(run) ? ` ${SAMPLE_MARK}` : ''}`;
 };
 
-/* The ranking scales. In the accuracy, calibration, latency and cost charts and the small chart, each setup's bar or dot
-   takes one colour from its group's fixed scale: a decision model from SETTINGS.rankScale (dark blue for the worst
-   decision model, through turquoise and green, to yellow for the best), a chat or general model from SETTINGS.chatScale
-   (purple for the worst chat model, through magenta and red, to orange for the best), so the two groups stay apart in the
-   All models view. Colours go by rank: a value's place among its group's setups in the published results (accuracy on
-   all questions), so setups close in value still look apart; equal values share a colour, and a value between two
-   setups' values takes a colour between theirs. The places are set once when the results load, so a filter changes which
-   setups are drawn, never what a colour means; a value beyond an end (a filtered accuracy, say) takes that end's colour.
-   Lower is better for the calibration gap, latency and cost. */
-let rankLadders;
-function setRankLadders() {
-  // A group's published values of a measure, worst first, as keys that grow as the value gets better.
-  const ladder = (runs, value, higher) =>
-    runs.map(value).filter(item => item != null).map(item => (higher ? item : -item)).sort((a, b) => a - b);
-  const group = runs => ({
-    accuracy: ladder(runs, overallAccuracy, true), gap: ladder(runs, run => run.confidence?.ece ?? null, false),
-    latency: ladder(runs, latencyOf, false), cost: ladder(runs, costPer1000, false),
-  });
-  rankLadders = { decision: group(data.runs.filter(isDecision)), chat: group(data.runs.filter(run => !isDecision(run))) };
-}
-/* A group's worst and best published values of a measure, as the legends write them. */
-function rankEnds(kind, name) {
-  const ladder = rankLadders[kind][name];
-  const sign = MEASURES[name].higher ? 1 : -1;
-  return [sign * ladder[0], sign * ladder[ladder.length - 1]];
-}
-const kindOf = run => (isDecision(run) ? 'decision' : 'chat');
-const scaleStops = kind => (kind === 'decision' ? SETTINGS.rankScale : SETTINGS.chatScale);
-const channels = hex => [1, 3, 5].map(start => parseInt(hex.slice(start, start + 2), 16));
-/* How far from the worst place (0) to the best (1) a key sits among a ladder's places: equal keys share the middle of
-   their places, a key between two places sits between them. */
-function rankShare(ladder, key) {
-  const last = ladder.length - 1;
-  if (last < 1 || key >= ladder[last]) return 1;
-  if (key <= ladder[0]) return 0;
-  let low = 0;
-  while (ladder[low + 1] <= key) low++;
-  if (ladder[low] !== key) return (low + (key - ladder[low]) / (ladder[low + 1] - ladder[low])) / last;
-  let first = low;
-  while (first > 0 && ladder[first - 1] === key) first--;
-  return (first + low) / 2 / last;
-}
-function rankColor(name, value, kind) {
-  const share = rankShare(rankLadders[kind][name], MEASURES[name].higher ? value : -value);
-  const stops = scaleStops(kind);
-  const place = share * (stops.length - 1);
-  const index = Math.min(stops.length - 2, Math.floor(place));
-  const [from, to] = [channels(stops[index]), channels(stops[index + 1])];
-  return `#${from.map((channel, i) => Math.round(channel + (to[i] - channel) * (place - index)).toString(16).padStart(2, '0')).join('')}`;
-}
-/* A scale end as a legend writes it. */
-const endText = (name, value) =>
-  name === 'accuracy' ? `${percent(value)}%` : name === 'gap' ? `${(100 * value).toFixed(1)} points` : name === 'latency' ? `${secondsText(value)} s` : `$${value.toFixed(3)}`;
-/* The legend of a chart coloured by the scales: each group's colours from worst to best with each end's value and which
-   way is better, decision models then chat models, each when the group in view has them. */
-function scaleLegend(name) {
-  const ramp = kind => {
-    const [worst, best] = rankEnds(kind, name);
-    return `<span class="scale-legend"><span>${kind === 'decision' ? 'Decision' : 'Chat'} models, by rank: worst ${esc(endText(name, worst))}</span>` +
-      `<i class="ramp" style="background:linear-gradient(to right, ${scaleStops(kind).join(', ')})" aria-hidden="true"></i>` +
-      `<span>best ${esc(endText(name, best))} (${MEASURES[name].higher ? 'higher' : 'lower'} is better)</span></span> `;
-  };
-  return state.models === 'decision' ? ramp('decision') : state.models === 'chat' ? ramp('chat') : ramp('decision') + ramp('chat');
-}
+/* Model families. In the accuracy, calibration, latency and cost charts and the small chart, each setup's bar or dot
+   takes its model family's colour (page_config.json model_families, given by run id in SETTINGS.families): a maker's
+   line of models shares one colour, the families differ, and a setup keeps its colour in every chart and in both model
+   groups. */
+const familyOf = run => SETTINGS.families[run.run];
+const familyColour = run => SETTINGS.familyColours[familyOf(run)];
+/* The families among a chart's setups, in the chart's order. */
+const familiesIn = runs => [...new Set(runs.map(familyOf))];
+/* The legend of a chart's colours: each of its families with its colour. */
+const familyLegend = families =>
+  families.map(name => `<span><i class="swatch" style="background:${SETTINGS.familyColours[name]}"></i>${esc(name)}</span>`).join(' ');
 
 const ticksLog = (low, high) => {
   const ticks = [];
@@ -953,7 +900,7 @@ function drawWidth(box, height) {
   return box.clientWidth - Math.max(scrollbarWidth, 12);
 }
 
-const legend = (name, text) => `<p class="chart-legend">${scaleLegend(name)} <span>${esc(text)}</span></p>`;
+const legend = (families, text) => `<p class="chart-legend">${familyLegend(families)} <span>${esc(text)}</span></p>`;
 /* Each chart's notes, and the setups it could not label, kept for its downloaded image. */
 const chartNotes = {};
 const markAttributes = (run, text) =>
@@ -1049,8 +996,7 @@ function barChart(box, name) {
       inner.push(`<text class="value nm" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${EMPTY.notMeasured}</text>`);
     } else {
       const start = x(domain[0]);
-      const kind = kindOf(run);
-      inner.push(`<rect class="bar-${kind}" style="fill:${rankColor(name, value, kind)}" x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
+      inner.push(`<rect class="bar-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
       if (name === 'accuracy') {
         const { correct, questions } = counts(run);
         const [low, high] = wilson(correct, questions);
@@ -1073,10 +1019,11 @@ function barChart(box, name) {
   const makerNote = (name === 'cost' || priced) && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
   const sampleNote = name === 'latency' || priced ? sampleNotes(ordered) : [];
   const scaleNote = measure.log ? 'Log scale.' : name === 'accuracy' ? 'Lines: 95% interval.' : '';
-  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, priced ? PRICE_NOTE : '', ...latencyNote, ...makerNote, ...sampleNote].filter(Boolean), unlabelled: [] };
+  const families = familiesIn(ordered);
+  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, priced ? PRICE_NOTE : '', ...latencyNote, ...makerNote, ...sampleNote].filter(Boolean), unlabelled: [], families };
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
-    legend(name, [...chartNotes[name].notes, chartScope(runs)].join(' '));
+    legend(families, [...chartNotes[name].notes, chartScope(runs)].join(' '));
 }
 
 function scatterChart(box) {
@@ -1200,9 +1147,8 @@ function scatterChart(box) {
     const maker = state.across === 'cost' && run.cost_basis === 'maker';
     const sample = state.across === 'latency' && sampleLabel(run);
     const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}`;
-    const kind = kindOf(run);
     parts.push(`<g ${markAttributes(run, tooltip)}><circle class="ring" cx="${cx}" cy="${cy}" r="9"/>` +
-      `<circle class="dot-${kind}" style="fill:${rankColor('accuracy', accuracyOf(run), kind)}" cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
+      `<circle class="dot-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
   });
   placed.forEach(({ first, second, spot: [tx, ty], line }, run) => {
     const selected = state.selected === run.run ? ' is-selected' : '';
@@ -1228,12 +1174,13 @@ function scatterChart(box) {
     state.across === 'cost' && known.some(run => run.cost_basis === 'maker') ? MAKER_COST_NOTE : '',
     ...(state.across === 'latency' ? sampleNotes(known) : []),
   ].filter(Boolean);
-  chartNotes.tradeoff = { notes, unlabelled };
+  const families = familiesIn([...known].sort((a, b) => accuracyOf(b) - accuracyOf(a)));
+  chartNotes.tradeoff = { notes, unlabelled, families };
   const hidden = unlabelled.length;
   const crowded = chosen && !placed.has(chosen.run) ? `Selected: ${labels.get(chosen.run).text}, its label left out so that none overlaps.` : '';
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Scatter chart: accuracy against ${state.across} for ${known.length} setups. Log scale across.`)}">${parts.join('')}</svg></div>` +
-    `<p class="chart-legend">${scaleLegend('accuracy')} <span><i class="swatch swatch-quadrant"></i>${esc(`${better[0].toUpperCase()}${better.slice(1)} and more accurate than the median`)}</span> ` +
+    `<p class="chart-legend">${familyLegend(families)} <span><i class="swatch swatch-quadrant"></i>${esc(`${better[0].toUpperCase()}${better.slice(1)} and more accurate than the median`)}</span> ` +
     `${steps.length ? '<span><i class="swatch swatch-pareto"></i>Pareto line</span> ' : ''}` +
     `<span>${esc([notes[0], chartScope(runs), ...notes.slice(1), hidden ? `${hidden} label${hidden === 1 ? '' : 's'} left out so that none overlaps; each point's tooltip names it.` : '', crowded].filter(Boolean).join(' '))}</span></p>`;
 }
@@ -1326,7 +1273,7 @@ function costTable(box) {
     const counts = sureCounts(run);
     const held = idk.get(run.run);
     /* With both kinds in one table, a chat model says so. */
-    const chat = state.models === 'all' && !isDecision(run) ? `<span class="small"><i class="swatch" style="background:linear-gradient(to right, ${SETTINGS.chatScale.join(', ')})"></i>Chat model</span>` : '';
+    const chat = state.models === 'all' && !isDecision(run) ? '<span class="small">Chat model</span>' : '';
     const tag = pareto.has(run) ? ' <span class="pareto-tag">Pareto</span>' : '';
     return `<tr><td class="model"><a class="model-name" href="models/${run.run}/">${esc(labels.get(run).text)}</a>${tag}${chat}</td>` +
       `<td class="num">${cost == null ? NM : esc(priceText(run))}</td>` +
@@ -1374,7 +1321,7 @@ async function downloadChart(name) {
   const root = getComputedStyle(document.documentElement);
   const colour = token => root.getPropertyValue(token).trim();
   const font = esc(getComputedStyle(document.body).fontFamily);
-  const { notes, unlabelled } = chartNotes[name];
+  const { notes, unlabelled, families } = chartNotes[name];
   const texts = [];
   let y = 0;
   const write = (content, size, weight, fill) => wrap(content, width - 20, weight, size).forEach(line => {
@@ -1385,33 +1332,18 @@ async function downloadChart(name) {
   write(chartScope(visibleRuns()), 12, 400, colour('--text-2'));
   const head = y + 12;
   y = head + height + 20;
-  /* The legend, as on the page: each group's colours from worst to best with each end's value and which way is better,
-     decision models then chat models, each when the group in view has them; an item that does not fit on the row starts
-     the next one. */
-  const scaleName = name === 'tradeoff' ? 'accuracy' : name;
-  const kinds = state.models === 'decision' ? ['decision'] : state.models === 'chat' ? ['chat'] : ['decision', 'chat'];
-  const gradient = kind => `<linearGradient id="ramp-${kind}">${scaleStops(kind).map((stop, index, all) => `<stop offset="${index / (all.length - 1)}" stop-color="${stop}"/>`).join('')}</linearGradient>`;
-  texts.push(`<defs>${kinds.map(gradient).join('')}</defs>`);
+  /* The legend, as on the page: each family among the chart's setups with its colour; an item that does not fit on the
+     row starts the next one. */
   let x = 10;
-  const place = itemWidth => {
+  families.forEach(family => {
+    const itemWidth = 14 + textWidth(family);
     if (x > 10 && x + itemWidth > width - 10) {
       x = 10;
       y += 18;
     }
-    const at = x;
+    texts.push(`<rect x="${x}" y="${y - 10}" width="10" height="10" rx="2" fill="${SETTINGS.familyColours[family]}" stroke="${colour('--mark-edge')}"/>` +
+      `<text x="${x + 14}" y="${y}" font-family="${font}" font-size="12" fill="${colour('--text-2')}">${esc(family)}</text>`);
     x += itemWidth + 8;
-    return at;
-  };
-  const label = text => {
-    const at = place(textWidth(text));
-    texts.push(`<text x="${at}" y="${y}" font-family="${font}" font-size="12" fill="${colour('--text-2')}">${esc(text)}</text>`);
-  };
-  kinds.forEach(kind => {
-    const [worst, best] = rankEnds(kind, scaleName);
-    label(`${kind === 'decision' ? 'Decision' : 'Chat'} models, by rank: worst ${endText(scaleName, worst)}`);
-    const rampAt = place(48);
-    texts.push(`<rect x="${rampAt}" y="${y - 10}" width="48" height="10" rx="2" fill="url(#ramp-${kind})" stroke="${colour('--mark-edge')}"/>`);
-    label(`best ${endText(scaleName, best)} (${MEASURES[scaleName].higher ? 'higher' : 'lower'} is better)`);
   });
   const left = unlabelled.length;
   write([...notes, left ? `${left} label${left === 1 ? '' : 's'} left out so that none overlaps: ${unlabelled.join('; ')}.` : ''].filter(Boolean).join(' '), 12, 400, colour('--text-2'));
@@ -1673,7 +1605,6 @@ async function start() {
     return;
   }
   byId = new Map(data.runs.map(run => [run.run, run]));
-  setRankLadders();
   readUrl();
   costTable(document.querySelector('[data-cost-table]'));
   state.sort = defaultSort(state.tab);
