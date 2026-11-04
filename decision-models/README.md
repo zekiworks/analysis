@@ -214,7 +214,10 @@ python3 -m http.server 8000                                # preview at http://1
     latency, with the Pareto line (the setups in view no other setup in view
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
     gap, as shipped, on all questions); Latency; Cost. The charts draw every setup of the model group the view bar
-    selects (all 74 setups together, the 37 decision models or the 37 chat and general models), within the filters.
+    selects (all 74 setups together, the 37 decision models or the 37 chat and general models), within the filters;
+    each bar or dot takes its group's scale between that group's worst and best setups: decision models the ranking
+    scale (`page_config.json` `rank_scale`, dark blue to yellow), chat and general models the chat scale (`chat_scale`,
+    purple to orange).
     After the Cost chart, Cost of every setup (`#cost-table`, `costTable` in `v3.js`) is one table of every setup of that
     group, whatever the filters and the model selection: cheapest
     first (setups without a cost last, by accuracy), with $ per 1,000 questions as the Cost card writes it, its cost over

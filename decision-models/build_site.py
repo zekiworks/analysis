@@ -351,8 +351,10 @@ def page_settings(data: Data) -> str:
         "chartLabels": data.config["chart_labels"],
         # Each route label, by run id.
         "routeLabels": data.route_labels,
-        # The ranking charts' colours for decision models, worst to best (page_config.json rank_scale).
+        # The ranking charts' colours, worst to best: decision models (page_config.json rank_scale), chat and general
+        # models (chat_scale).
         "rankScale": data.config["rank_scale"]["stops"],
+        "chatScale": data.config["chat_scale"]["stops"],
         # A saving whose first model ran on our own hardware: its marker, tooltip and note, by how its cost was counted.
         "firstCostMarks": {key: value for key, value in data.config["first_cost_marks"].items() if key != "about"},
         # The note under the Accuracy table (not_measured_note), also under the plain table.
