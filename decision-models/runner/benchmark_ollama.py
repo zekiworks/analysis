@@ -3302,18 +3302,26 @@ def reported_decimals(value: float) -> int:
 # October 2026), Base Labs' elephant-1 and mammoth-1 report 6, rounded by their model card's loader (qev's answers.py;
 # smoke runs 356 and 359; the user's decision, 1 November 2026), and meraGPT's decider-1 API and Clef's own model code
 # (Clef and Clef-flash) report 4 (meraGPT's English smoke run 561, Clef's 538; Ümit's decision through Zeki, bus #1152,
-# 5 November 2026). Their smoke acceptance allows the sum to miss 1 by half a unit in that place per option; every other
-# run must sum to 1 to 7 decimal places.
+# 5 November 2026). The self-hosted Strands, Laya and Laya multilingual servers report 4 and OneJev's 6, as their published
+# Turkish runs (141, 51, 46, 264) show (the project lead's decision through Zeki, bus #1330, 5 November 2026, the rule of
+# #1152). Their smoke acceptance allows the sum to miss 1 by half a unit in that place per option; every other run must
+# sum to 1 to 7 decimal places.
 ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     ("nace", "drex-v2.0"): 4, ("baselabs", "baselabs/elephant-1"): 6, ("baselabs", "baselabs/mammoth-1"): 6,
     ("meragpt", "decider-1"): 4, ("clef", "clef"): 4, ("clef", "clef-flash"): 4,
+    ("strands", "strands-decider-2b"): 4, ("laya", "laya"): 4, ("laya", "laya-multilingual"): 4,
+    ("onejev", "OmniJev/OneJev-27B"): 6,
 }
-# Hosted models whose API reports each option's probability as a 32-bit float, so that the probabilities sum to 1 only
+# Models whose output reports each option's probability as a 32-bit float, so that the probabilities sum to 1 only
 # within 32-bit rounding: SubQ Snap 1.1 (smoke run 345, 1 November 2026; every value an exact 32-bit float; the user's
 # decision, 1 November 2026) and SubQ Snap Preview (English smoke run 562; Ümit's decision through Zeki, bus #1152, 5
-# November 2026). Their smoke acceptance allows the sum to miss 1 by one 32-bit machine epsilon (2^-23) per option when
-# every value is an exact 32-bit float.
-FLOAT32_PROBABILITIES: set[tuple[str, str]] = {("subq", "subq-snap-1.1"), ("subq", "subq-snap-preview")}
+# November 2026), and the self-hosted GLiNER2.5 Multi (decide and base) and Metask servers, as their published Turkish runs
+# (135, 122, 126) show (the project lead's decision through Zeki, bus #1330, 5 November 2026). Their smoke acceptance
+# allows the sum to miss 1 by one 32-bit machine epsilon (2^-23) per option when every value is an exact 32-bit float.
+FLOAT32_PROBABILITIES: set[tuple[str, str]] = {
+    ("subq", "subq-snap-1.1"), ("subq", "subq-snap-preview"), ("gliner", "gliner2.5-multi-decide"),
+    ("gliner", "gliner2.5-multi-v1"), ("metask", "metask-jev-4b-policy-mix"),
+}
 
 
 def is_float32(value: float) -> bool:

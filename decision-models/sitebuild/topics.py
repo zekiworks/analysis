@@ -25,6 +25,8 @@ def heat_style(stops: list[str], fraction: float) -> str:
 
 
 def heatmap(site: Site) -> str:
+    """The heat map: one row per setup (data-run), one column per topic, the colour scale's legend, and the setup choice
+    that topics.js wires (?setups= in the URL); without JavaScript every setup shows and the choice stays hidden."""
     path = "topics/"
     units = site.units
     head = "".join(
@@ -35,18 +37,21 @@ def heatmap(site: Site) -> str:
     stops = site.config["rank_scale"]["stops"]
     rows = []
     shown = site.names(site.runs)
-    for run in site.ranked():
+    ranked = site.ranked()
+    for run in ranked:
         cells = []
         for position, unit in enumerate(units):
             share = run["units"][position] / unit["questions"]
             cells.append(f'<td class="heat" style="{heat_style(stops, share)}" title="{esc(shown[run["run"]])}, {esc(unit["english"])}: '
                          f'{run["units"][position]} of {unit["questions"]}">{pct(share, 0)}</td>')
-        rows.append(f"<tr>{site.model_cell(path, run, name=shown[run['run']])}{''.join(cells)}</tr>")
+        rows.append(f'<tr data-run="{run["run"]}">{site.model_cell(path, run, name=shown[run["run"]])}{"".join(cells)}</tr>')
     listing = "".join(
         f'<li><a href="{rel(path, f"topics/{unit["number"]}/")}">{esc(unit["english"])}</a> '
         f'<span class="muted">{site.part(unit["number"]).capitalize()} · {unit["questions"]} questions</span></li>'
         for unit in units
     )
+    scale = "".join(f'<li class="heat" style="{heat_style(stops, step / 10)}">{step * 10}%</li>' for step in range(11))
+    choices = "".join(f'<label><input type="checkbox" value="{run["run"]}" checked> {esc(shown[run["run"]])}</label>' for run in ranked)
     body = f"""    <section class="card">
       <h1>Topics</h1>
       <p>The {site.total:,} questions fall into {len(units)} topics of the book: {sum(site.part(u["number"]) == "reading" for u in units)} test reading and {sum(site.part(u["number"]) == "grammar" for u in units)} test grammar. Each topic's page lists its questions and every setup's result on it.</p>
@@ -54,10 +59,21 @@ def heatmap(site: Site) -> str:
     </section>
     <section class="card" id="heatmap">
       <h2>Accuracy by topic</h2>
-      <p class="note">Each cell: the share of the topic's questions the setup got right, coloured from dark blue at 0% through turquoise and green to yellow at 100%. Setups by accuracy on all questions; the table scrolls sideways inside its box.</p>
-      <div class="table-wrap heatmap-wrap"><table class="heatmap-table"><thead><tr><th scope="col">Setup</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>
+      <p class="note">Each cell: the share of the topic's questions the setup got right. Setups by accuracy on all questions. The table scrolls inside its box; the topic and setup names stay in view.</p>
+      <figure class="heat-legend">
+        <figcaption>Colour: accuracy on the topic, from dark blue at 0% to yellow at 100%. It does not show the model family.</figcaption>
+        <ol class="heat-scale">{scale}</ol>
+      </figure>
+      <details class="setup-choice" data-setup-choice hidden>
+        <summary>Choose setups <span class="muted" data-setup-count></span></summary>
+        <div class="keys"><button type="button" class="key" data-setups="all">Show all</button><button type="button" class="key" data-setups="none">Clear</button></div>
+        <fieldset class="setup-list"><legend class="visually-hidden">Setups shown in the heat map</legend>{choices}</fieldset>
+      </details>
+      <p class="note" data-setup-none hidden>No setup chosen. Choose at least one above, or press Show all.</p>
+      <div class="table-wrap heatmap-wrap" tabindex="0" role="region" aria-label="Accuracy by topic, scrollable"><table class="heatmap-table"><thead><tr><th scope="col">Setup</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>
     </section>"""
-    return site.page(path, "Topics", f"Accuracy by topic for every setup, and a page for each of the {len(units)} topics.", body)
+    return site.page(path, "Topics", f"Accuracy by topic for every setup, and a page for each of the {len(units)} topics.", body,
+                     scripts=("topics.js",))
 
 
 def topic_page(site: Site, unit: dict[str, Any], data: dict[str, Any]) -> str:

@@ -465,6 +465,21 @@ class Site:
                 labels[run["run"]] = f"{base} ({', '.join(parts)})" if parts else base
         return labels
 
+    def cost_basis_text(self, run: dict[str, Any]) -> str:
+        """How a run's cost was counted, in the model page's "Basis" words: the maker's or the same weights' list price
+        for a setup on our hardware, the GPU-time estimate, the free tier's list price, else its billing's basis."""
+        price = next((item for item in self.results["prices"] if bp.price_key(item) == bp.price_key(run)), None)
+        basis = run.get("cost_basis")
+        if basis == "maker" and price:
+            return f"Estimated at {price['basis']}; our hardware cost is not measured."
+        if basis == "weights" and price:
+            return f"Estimated at {price['basis']}: an API-equivalent estimate; the setup ran on our GPUs, so not measured spending."
+        if basis == "gpu" and "gpu" in self.config["first_cost_marks"]:
+            return self.config["first_cost_marks"]["gpu"]["tip"]
+        if basis == "free tier" and price:
+            return f"The run used the free tier ({run['model']}); its cost is now estimated at {price['basis']}."
+        return self.config["billing"][run["billing"]]["cost_basis"]
+
     def cost_tip(self, run: dict[str, Any]) -> str | None:
         """How a run's cost was counted, for its value's tooltip, where it is not plain API list price: a setup on our own
         hardware priced at its maker's list price for the same model names that price; an upper-bound estimate says so."""

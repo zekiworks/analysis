@@ -2,13 +2,16 @@
 
 /* The Compare page, compare/?a=…&b=…: two setups' measures side by side from results.json (one folder up), and on the
    same questions (../data/picks.json) how many each got right that the other got wrong, the paired difference with its
-   95% interval and the exact McNemar test, as benchmark_metrics.paired_comparison computes them. */
+   95% interval and the exact McNemar test, as benchmark_metrics.paired_comparison computes them. The difference on all
+   questions, its interval and what it means lead the page. compare-settings (sitebuild/compare.py) gives each run's cost
+   basis and list price in the model page's words, and the upper-bound mark. */
 
 /* The data's addresses as the page gives them, each with its content's version (Site asset in sitebuild/site.py), so a
    cached file of another build is never paired with this page. A page cached from before versioned addresses gives none
    and loads this script unversioned; it gets the plain addresses. */
 const RESULTS_URL = document.getElementById('compare').dataset.results || '../results.json';
 const PICKS_URL = document.getElementById('compare').dataset.picks || '../data/picks.json';
+const SETTINGS = JSON.parse(document.getElementById('compare-settings')?.textContent || '{"costs":{}}');
 
 const esc = text =>
   String(text).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
@@ -24,6 +27,15 @@ const usd = value => {
 };
 const duration = seconds => `${secondsText(seconds)}\u00a0s`;
 const NOT_MEASURED = '<span class="hint" tabindex="0" data-tip="Not measured">—</span>';
+/* A cost with no estimate on our own hardware whose maker lists no price reads "No list price" (site.py cost_missing). */
+const costMissing = run => (run.billing === 'local' ? '<span class="nm">No list price</span>' : NOT_MEASURED);
+const upperMark = run => (run.cost_upper_bound && SETTINGS.upper ? `<span class="mark">${esc(SETTINGS.upper.mark)}</span> ` : '');
+const costBasis = run => {
+  const item = SETTINGS.costs[run.run];
+  if (!item) return NOT_MEASURED;
+  const price = item.price ? `<span class="small">${esc(item.price.text)} (<a href="${esc(item.price.source)}">source</a>, ${esc(item.price.date)})</span>` : '';
+  return `${esc(item.basis)}${price}`;
+};
 const pText = p => (p < 0.0001 ? 'below 0.0001' : p.toPrecision(2));
 
 function wilson(correct, total, z = 1.96) {
@@ -84,12 +96,12 @@ const MEASURES = [
   ['Reading', run => pct(share(run.groups.reading))],
   ['Grammar', run => pct(share(run.groups.grammar))],
   ['Median latency per request', run => (run.latency ? duration(run.latency.median_request_seconds) : NOT_MEASURED)],
-  ['$ per 1,000 questions', run => (costPer1000(run) == null ? NOT_MEASURED : usd(costPer1000(run)))],
+  ['$ per 1,000 questions', run => (costPer1000(run) == null ? costMissing(run) : `${upperMark(run)}${usd(costPer1000(run))}`)],
+  ['Cost basis', costBasis],
   ['Kept at 99% (wrong)', run => `${run.confidence.sure.questions.toLocaleString('en-US')} (${run.confidence.sure.questions - run.confidence.sure.correct})`],
   ['Calibration gap', run => `${(100 * run.confidence.ece).toFixed(1)} points`],
   ['AUROC reading', run => run.confidence.parts.meaning.auroc.toFixed(2)],
   ['AUROC grammar', run => run.confidence.parts.form.auroc.toFixed(2)],
-  ['Comparison group', run => esc(run.group)],
 ];
 
 let results;
@@ -102,6 +114,24 @@ function rightAnswers(runId, scope) {
     .map((question, index) => ({ part: parts.get(question[1]), right: item.picks[index] === question[4] }))
     .filter(entry => scope === 'all' || entry.part === scope)
     .map(entry => entry.right);
+}
+
+/* The page's lead: the accuracy difference on all questions, the leader first, its 95% interval in the same direction,
+   and one sentence on what the interval says. */
+function verdict(a, b, label) {
+  if (a.run === b.run) return '<div class="compare-verdict"><p>Both choices are the same setup.</p></div>';
+  const test = paired(rightAnswers(a.run, 'all'), rightAnswers(b.run, 'all'));
+  const ahead = test.difference >= 0;
+  const [more, less] = ahead ? [a, b] : [b, a];
+  const [low, high] = ahead ? [test.low, test.high] : [-test.high, -test.low];
+  const n = test.n.toLocaleString('en-US');
+  const head = test.firstOnly === test.secondOnly
+    ? `<strong>${esc(label(a))}</strong> and <strong>${esc(label(b))}</strong> got the same number of the ${n} questions right.`
+    : `<strong>${esc(label(more))}</strong> is ${Math.abs(100 * test.difference).toFixed(2)} points more accurate than <strong>${esc(label(less))}</strong> on the same ${n} questions.`;
+  const meaning = low > 0
+    ? `The whole interval is above zero, so ${esc(label(more))} is more accurate on this test.`
+    : 'The interval includes zero, so this test cannot tell the two setups apart.';
+  return `<div class="compare-verdict"><p class="verdict-head">${head}</p><p class="verdict-interval">95% interval: ${points(low)} to ${points(high)} points</p><p>${meaning}</p></div>`;
 }
 
 function render() {
@@ -125,7 +155,10 @@ function render() {
   };
   const head = run =>
     `<th scope="col" class="num" title="${esc(detail(run))}"><a href="../models/${run.run}/">${esc(label(run))}</a></th>`;
-  const measures = MEASURES.map(([label, cell]) => `<tr><th scope="row">${label}</th><td class="num">${cell(a)}</td><td class="num">${cell(b)}</td></tr>`).join('');
+  const measures = MEASURES.map(([label, cell]) => {
+    const kind = label === 'Cost basis' ? 'basis' : 'num';
+    return `<tr><th scope="row">${label}</th><td class="${kind}">${cell(a)}</td><td class="${kind}">${cell(b)}</td></tr>`;
+  }).join('');
   /* Each scope is its own row group: on a phone, a label row above the numbers (the inline label is hidden there), so no
      label sits over a number while the table scrolls. */
   const scopes = [['all', 'All questions'], ['reading', 'Reading'], ['grammar', 'Grammar']]
@@ -140,12 +173,13 @@ function render() {
       );
     })
     .join('');
-  const same = a.run === b.run ? '<p class="note">Both choices are the same setup.</p>' : '';
+  const upper = [a, b].some(run => run.cost_upper_bound) && SETTINGS.upper ? `<p class="note">${esc(SETTINGS.upper.mark)} ${esc(SETTINGS.upper.note)}</p>` : '';
   document.querySelector('[data-compare]').innerHTML =
-    same +
+    verdict(a, b, label) +
     `<div class="table-wrap"><table class="compare-table"><thead><tr><th scope="col">Measure</th>${head(a)}${head(b)}</tr></thead><tbody>${measures}</tbody></table></div>` +
+    upper +
     '<h2>On the same questions</h2>' +
-    '<p class="note">Only the questions one got right and the other wrong tell two setups apart. The exact McNemar test asks whether that split could be chance. Its p-value is for this one pair; the comparison group letters correct for testing every pair.</p>' +
+    '<p class="note">Only the questions one got right and the other wrong tell two setups apart. The exact McNemar test asks whether that split could be chance. Each p-value and interval is for this one pair, with no correction for testing many pairs.</p>' +
     '<div class="table-wrap"><table class="board list paired"><thead><tr><th scope="col">Questions</th><th scope="col" class="num">Questions</th><th scope="col" class="num">First right, second wrong</th><th scope="col" class="num">Second right, first wrong</th><th scope="col" class="num">Difference, 95% interval</th><th scope="col" class="num">Exact McNemar p</th></tr></thead>' +
     `${scopes}</table></div>`;
   document.querySelector('[data-compare-status]')?.remove();

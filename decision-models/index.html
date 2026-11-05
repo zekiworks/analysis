@@ -20,9 +20,10 @@
   <meta name="twitter:image" content="https://zekiworks.github.io/analysis/decision-models/share/preview-dark-33f89f9b.png">
   <!-- /build:head -->
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if (sessionStorage.getItem("v3-swiped") === "1") document.documentElement.classList.add("swiped"); } catch (e) {}</script>
-  <!-- build:assets --><link rel="stylesheet" href="v3.css?v=343e1705">
+  <!-- build:assets --><link rel="stylesheet" href="v3.css?v=0af7b908">
+  <link rel="preload" href="data/home.json?v=935e2cdd" as="fetch" crossorigin>
   <script src="site.js?v=c2f48d35" defer></script>
-  <script src="v3.js?v=bf020fb3" defer></script><!-- /build:assets -->
+  <script src="v3.js?v=ac9551ca" defer></script><!-- /build:assets -->
 </head>
 <body class="v3 home">
   <a class="skip" href="#main">Skip to content</a>
@@ -74,7 +75,7 @@
           <button type="button" class="key" data-download="accuracy">Download PNG</button>
           <p class="chart-sub">Share of the questions answered right · higher is better</p>
         </div>
-        <div class="chart-box" data-chart="accuracy"></div>
+        <div class="chart-box" data-chart="accuracy"><p class="note" role="status">Loading charts…</p></div>
       </figure>
       </section>
     <header class="hero">
@@ -92,10 +93,10 @@
           <button type="button" class="key" data-download="cost">Download PNG</button>
           <p class="chart-sub">Estimated dollars per 1,000 questions · lower is better</p>
         </div>
-        <div class="chart-box" data-chart="cost"></div>
+        <div class="chart-box" data-chart="cost"><p class="note" role="status">Loading charts…</p></div>
         <div class="cost-setups" id="cost-table">
           <p class="chart-sub" data-cost-sub>Every setup, decision and chat models together, whatever the filters or the model selection · cheapest first, with accuracy, latency, the confidence cutoff and hallucination beside the cost · lower cost is better</p>
-          <div class="cost-box" data-cost-table></div>
+          <div class="cost-box" data-cost-table><p class="note" role="status">Loading the table…</p></div>
         </div>
       </figure>
       </section>
@@ -106,7 +107,7 @@
           <button type="button" class="key" data-download="latency">Download PNG</button>
           <p class="chart-sub">Median time per request · lower is better</p>
         </div>
-        <div class="chart-box" data-chart="latency"></div>
+        <div class="chart-box" data-chart="latency"><p class="note" role="status">Loading charts…</p></div>
       </figure>
       </section>
       <figure class="panel chart-card needs-js" id="chart-tradeoff">
@@ -116,7 +117,7 @@
           <button type="button" class="key" data-download="tradeoff">Download PNG</button>
           <p class="chart-sub">Up: accuracy, higher is better · across: cost or latency, lower is better</p>
         </div>
-        <div class="chart-box" data-chart="tradeoff"></div>
+        <div class="chart-box" data-chart="tradeoff"><p class="note" role="status">Loading charts…</p></div>
       </figure>
       <figure class="panel chart-card needs-js" id="chart-calibration">
         <div class="chart-head">
@@ -124,7 +125,7 @@
           <button type="button" class="key" data-download="gap">Download PNG</button>
           <p class="chart-sub">How far a model’s confidence is from how often it is right, as shipped · lower is better</p>
         </div>
-        <div class="chart-box" data-chart="gap"></div>
+        <div class="chart-box" data-chart="gap"><p class="note" role="status">Loading charts…</p></div>
       </figure>
     </div>
 
@@ -172,7 +173,7 @@
         <div class="chart-head">
           <h2>Reading vs grammar</h2>
         </div>
-        <div class="chart-box" data-chart="reading-grammar"></div>
+        <div class="chart-box" data-chart="reading-grammar"><p class="note" role="status">Loading charts…</p></div>
       </figure>
       </details>
     </section>
@@ -182,6 +183,6 @@
     <p>Download: <a href="results.json" download>results.json</a> · <a href="answers.json" download>answers.json</a></p>
     <p><!-- build:version -->Results 2522aafa, updated 5 November 2026; answer key version 2.<!-- /build:version --></p>
   </footer>
-  <!-- build:settings --><script type="application/json" id="v3-settings">{"resultsUrl":"results.json?v=e838bdbb","decisionProviders":["jev","perplexity","liquid","fastino","celeris","openai-decisions","subq","meragpt","clef","cygnet","open-jev","winnow","metask","strands","gliner","laya","openrouter","pplx-decider","glide","vllm-sr","d3-server","onejev","nace","drex-max","d1-server","baselabs"],"notDecisionModels":["gliner2.5-multi-v1"],"readingUnits":[1,2,3,4,5,6],"threshold":0.99,"routeLabels":{"133":"chat API","143":"Decisions API"},"families":{"140":"Gemini","277":"GPT","276":"GPT","48":"GPT","610":"GPT","191":"GPT","188":"Gemini","190":"GPT","124":"GPT","557":"Gemini","310":"Claude","278":"Claude","275":"GPT","192":"Claude","123":"Gemini","311":"Grok","121":"DeepSeek","585":"DeepSeek","274":"GPT","47":"Claude","193":"Claude","55":"Claude","320":"Kimi","160":"GLM","199":"Liquid","314":"GLM","318":"Qwen","119":"Gemma","315":"Kimi","640":"Perplexity","248":"Fastino","133":"GPT","129":"Fastino","259":"vLLM-SR","269":"vLLM-SR","322":"Drex","326":"Drex","374":"Mammoth","217":"Perplexity","145":"Perplexity","189":"Gemma","633":"Perplexity","558":"DeepSeek","120":"DeepSeek","177":"SubQ","346":"SubQ","143":"GPT","254":"Liquid","54":"Claude","150":"Celeris","44":"Perplexity","264":"OneJev","194":"Jev","204":"Inception","159":"GLM","49":"Jev","125":"Clef","52":"Liquid","334":"Drex","127":"Cygnet","45":"Jev","128":"Winnow","83":"Qwen","53":"Qwen","373":"Elephant","50":"Qwen","223":"Perplexity","205":"Microsoft","139":"Clef","131":"Qwen","132":"Erk","126":"Metask","340":"Liquid","141":"Strands","243":"meraGPT","135":"Fastino","51":"Laya","46":"Laya","122":"Fastino"},"familyColours":{"Gemini":"#3d7ff0","Gemma":"#dca2ff","GPT":"#18a37a","Claude":"#f08a3c","Grok":"#8da523","Qwen":"#00829a","DeepSeek":"#b74771","GLM":"#7dd67d","Kimi":"#14d3f7","Erk":"#b77adb","Liquid":"#f2c12e","Fastino":"#b85207","Mammoth":"#ce8703","Elephant":"#1aa2eb","Drex":"#6b7f09","SubQ":"#fd9cba","Perplexity":"#9256b3","vLLM-SR":"#9587ef","Jev":"#466fcb","OneJev":"#108968","Metask":"#e66e6a","Celeris":"#9dbdff","Clef":"#9f6700","Cygnet":"#ffa475","Laya":"#b2cb52","meraGPT":"#06aac7","Strands":"#7262c6","Winnow":"#57b058","Inception":"#d071bb","Microsoft":"#35dcab"},"firstCostMarks":{"local":{"mark":"\u2020","tip":"Leaves out the first model\u2019s hardware cost, which we have not estimated.","note":"Leaves out the first model\u2019s hardware cost, which we have not estimated."},"maker":{"mark":"\u00a7","tip":"Counts the first model at its maker\u2019s list price for the same model; our hardware cost is not measured.","note":"Counts the first model at its maker\u2019s list price for the same model; our hardware cost is not measured."},"upper":{"mark":"\u2264","tip":"Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches.","note":"Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches."}},"notMeasuredNote":"* Measured on a sample (200 questions).","routeLlms":[{"key":"opus","label":"Opus 5.5 low","slug":"opus","runs":{"1":192,"16":47}},{"key":"sonnet_high","label":"Sonnet 5.5 high","slug":"sonnet","runs":{"1":193,"16":55}},{"key":"astra","label":"Astra low","slug":"astra","runs":{"1":191,"16":48}},{"key":"sol","label":"Sol low","slug":"sol","runs":{"1":190,"16":124}},{"key":"gemini_low","label":"Gemini Flash low","slug":"gemini-flash","runs":{"1":188,"16":123}},{"key":"opus_high","label":"Opus 5.5 high","slug":"opus-high","runs":{"16":278}},{"key":"astra_high","label":"Astra high","slug":"astra-high","runs":{"16":277}},{"key":"sol_high","label":"Sol high","slug":"sol-high","runs":{"16":276}},{"key":"terra_high","label":"Terra high","slug":"terra-high","runs":{"16":275}},{"key":"terra_low","label":"Terra low","slug":"terra-low","runs":{"16":274}},{"key":"gemini_high","label":"Gemini Flash high","slug":"gemini-flash-high","runs":{"16":140}}],"siteAddress":"zekiworks.github.io/analysis/decision-models","keyVersion":2}</script><!-- /build:settings -->
+  <!-- build:settings --><script type="application/json" id="v3-settings">{"homeUrl":"data/home.json?v=935e2cdd","moreUrl":"data/home-more.json?v=b4422597","decisionProviders":["jev","perplexity","liquid","fastino","celeris","openai-decisions","subq","meragpt","clef","cygnet","open-jev","winnow","metask","strands","gliner","laya","openrouter","pplx-decider","glide","vllm-sr","d3-server","onejev","nace","drex-max","d1-server","baselabs"],"notDecisionModels":["gliner2.5-multi-v1"],"readingUnits":[1,2,3,4,5,6],"threshold":0.99,"routeLabels":{"133":"chat API","143":"Decisions API"},"families":{"140":"Gemini","277":"GPT","276":"GPT","48":"GPT","610":"GPT","191":"GPT","188":"Gemini","190":"GPT","124":"GPT","557":"Gemini","310":"Claude","278":"Claude","275":"GPT","192":"Claude","123":"Gemini","311":"Grok","121":"DeepSeek","585":"DeepSeek","274":"GPT","47":"Claude","193":"Claude","55":"Claude","320":"Kimi","160":"GLM","199":"Liquid","314":"GLM","318":"Qwen","119":"Gemma","315":"Kimi","640":"Perplexity","248":"Fastino","133":"GPT","129":"Fastino","259":"vLLM-SR","269":"vLLM-SR","322":"Drex","326":"Drex","374":"Mammoth","217":"Perplexity","145":"Perplexity","189":"Gemma","633":"Perplexity","558":"DeepSeek","120":"DeepSeek","177":"SubQ","346":"SubQ","143":"GPT","254":"Liquid","54":"Claude","150":"Celeris","44":"Perplexity","264":"OneJev","194":"Jev","204":"Inception","159":"GLM","49":"Jev","125":"Clef","52":"Liquid","334":"Drex","127":"Cygnet","45":"Jev","128":"Winnow","83":"Qwen","53":"Qwen","373":"Elephant","50":"Qwen","223":"Perplexity","205":"Microsoft","139":"Clef","131":"Qwen","132":"Erk","126":"Metask","340":"Liquid","141":"Strands","243":"meraGPT","135":"Fastino","51":"Laya","46":"Laya","122":"Fastino"},"familyColours":{"Gemini":"#3d7ff0","Gemma":"#dca2ff","GPT":"#18a37a","Claude":"#f08a3c","Grok":"#8da523","Qwen":"#00829a","DeepSeek":"#b74771","GLM":"#7dd67d","Kimi":"#14d3f7","Erk":"#b77adb","Liquid":"#f2c12e","Fastino":"#b85207","Mammoth":"#ce8703","Elephant":"#1aa2eb","Drex":"#6b7f09","SubQ":"#fd9cba","Perplexity":"#9256b3","vLLM-SR":"#9587ef","Jev":"#466fcb","OneJev":"#108968","Metask":"#e66e6a","Celeris":"#9dbdff","Clef":"#9f6700","Cygnet":"#ffa475","Laya":"#b2cb52","meraGPT":"#06aac7","Strands":"#7262c6","Winnow":"#57b058","Inception":"#d071bb","Microsoft":"#35dcab"},"firstCostMarks":{"local":{"mark":"\u2020","tip":"Leaves out the first model\u2019s hardware cost, which we have not estimated.","note":"Leaves out the first model\u2019s hardware cost, which we have not estimated."},"maker":{"mark":"\u00a7","tip":"Counts the first model at its maker\u2019s list price for the same model; our hardware cost is not measured.","note":"Counts the first model at its maker\u2019s list price for the same model; our hardware cost is not measured."},"upper":{"mark":"\u2264","tip":"Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches.","note":"Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches."}},"notMeasuredNote":"* Measured on a sample (200 questions).","routeLlms":[{"key":"opus","label":"Opus 5.5 low","slug":"opus","runs":{"1":192,"16":47}},{"key":"sonnet_high","label":"Sonnet 5.5 high","slug":"sonnet","runs":{"1":193,"16":55}},{"key":"astra","label":"Astra low","slug":"astra","runs":{"1":191,"16":48}},{"key":"sol","label":"Sol low","slug":"sol","runs":{"1":190,"16":124}},{"key":"gemini_low","label":"Gemini Flash low","slug":"gemini-flash","runs":{"1":188,"16":123}},{"key":"opus_high","label":"Opus 5.5 high","slug":"opus-high","runs":{"16":278}},{"key":"astra_high","label":"Astra high","slug":"astra-high","runs":{"16":277}},{"key":"sol_high","label":"Sol high","slug":"sol-high","runs":{"16":276}},{"key":"terra_high","label":"Terra high","slug":"terra-high","runs":{"16":275}},{"key":"terra_low","label":"Terra low","slug":"terra-low","runs":{"16":274}},{"key":"gemini_high","label":"Gemini Flash high","slug":"gemini-flash-high","runs":{"16":140}}],"siteAddress":"zekiworks.github.io/analysis/decision-models","keyVersion":2}</script><!-- /build:settings -->
 </body>
 </html>

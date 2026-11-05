@@ -18,7 +18,8 @@ what is inside its <!-- build:name --> markers: the meta tags, the
 top bar, the intro (its counts from results.json), the counters, the results version, the plain table for
 readers without JavaScript (every setup, decision and chat models ranked together, the page's all view) and the note
 under it, the settings v3.js reads, the default setup count, the topic list and the questions in view. v3.js
-draws everything else in the browser from results.json. Every other page is generated whole by a module of sitebuild/
+draws everything else in the browser from data/home.json and data/home-more.json, which this script writes from
+results.json (home_data). Every other page is generated whole by a module of sitebuild/
 (PAGE_MODULES) and written to <path>index.html. v1/ keeps the earlier page as it was on 14 October 2026, and v2/ and v3/
 send the preview addresses here; nothing rebuilds them.
 
@@ -49,6 +50,14 @@ from sitebuild.site import (NOT_MEASURED, ROUTE_LLMS, Site, asset, cost_missing,
                             route_labels, run_families, topbar)
 
 PAGE = ROOT / "index.html"
+# The home page's data, from results.json, which stays the published download: HOME, preloaded, holds what v3.js's
+# first draw reads (HOME_KEYS and the runs, each run's confidence cut to the sure counts the Cost table shows); HOME_MORE
+# the runs' whole confidence and the cascades, which v3.js loads when the Calibration chart nears the view or the
+# Confidence or Routing tab opens. Both are paths inside the site, as asset takes them.
+HOME = "data/home.json"
+HOME_MORE = "data/home-more.json"
+HOME_KEYS = ("results_version", "questions", "sure_threshold", "units", "prices", "dont_know", "pipelines", "repeats",
+             "replay")
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
                                  "english_reading", "english_view", "aa_index", "web_grounding", "pws_decisions", "data",
@@ -322,10 +331,11 @@ def topics(data: Data) -> str:
 
 
 def page_settings(data: Data) -> str:
-    """What v3.js needs beyond results.json: results.json's versioned address, which runs are decision models, the topics'
+    """What v3.js needs beyond its data files: their versioned addresses, which runs are decision models, the topics'
     parts, the routing LLMs."""
     settings = {
-        "resultsUrl": asset("results.json"),
+        "homeUrl": asset(HOME),
+        "moreUrl": asset(HOME_MORE),
         "decisionProviders": data.config["decision_model_providers"],
         "notDecisionModels": data.config["not_decision_models"],
         "readingUnits": data.config["reading_units"],
@@ -350,6 +360,27 @@ def page_settings(data: Data) -> str:
         "keyVersion": data.results["answer_key"]["version"],
     }
     return f'<script type="application/json" id="v3-settings">{json.dumps(settings, separators=(",", ":"))}</script>'
+
+
+def home_data(data: Data) -> None:
+    """Write HOME and HOME_MORE (see there) from results.json, compact. A cascade drops its curve, which v3.js never
+    reads."""
+    results = data.results
+
+    def first(run: dict[str, Any]) -> dict[str, Any]:
+        slim = {key: value for key, value in run.items() if key != "confidence"}
+        sure = (run.get("confidence") or {}).get("sure")
+        if sure is not None:
+            slim["confidence"] = {"sure": sure}
+        return slim
+
+    home = {key: results[key] for key in HOME_KEYS if key in results} | {"runs": [first(run) for run in data.runs]}
+    more = {"confidence": {str(run["run"]): run["confidence"] for run in data.runs if run.get("confidence")},
+            "cascades": [{key: value for key, value in item.items() if key != "curve"} for item in results["cascades"]]}
+    for path, content in ((HOME, home), (HOME_MORE, more)):
+        text = json.dumps(content, ensure_ascii=False, separators=(",", ":")) + "\n"
+        (ROOT / path).write_text(text, encoding="utf-8")
+        print(f"Wrote {path} ({len(text.encode()):,} bytes)")
 
 
 def non_hallucination(site: Site) -> str:
@@ -594,10 +625,14 @@ def main() -> int:
     names = images(site, args.no_images)
     bp.CITATION.write_text(bp.citation(snap, site.values), encoding="utf-8")
     print(f"Wrote {bp.CITATION.relative_to(ROOT)}")
+    home_data(data)
     blocks = {
         "head": head(data, names["preview"]["dark"]),
-        # The stylesheet and scripts at versioned addresses (asset), so a page and its scripts always come from one build.
-        "assets": (f'<link rel="stylesheet" href="{asset("v3.css")}">\n  <script src="{asset("site.js")}" defer></script>\n'
+        # The stylesheet and scripts at versioned addresses (asset), so a page and its scripts always come from one build;
+        # the first data file preloads while the page parses (fetch's own mode, so v3.js's fetch takes it).
+        "assets": (f'<link rel="stylesheet" href="{asset("v3.css")}">\n'
+                   f'  <link rel="preload" href="{asset(HOME)}" as="fetch" crossorigin>\n'
+                   f'  <script src="{asset("site.js")}" defer></script>\n'
                    f'  <script src="{asset("v3.js")}" defer></script>'),
         "intro": bp.esc(INTRO.format(**counts(data))),
         "topbar": topbar(""),

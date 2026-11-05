@@ -1,16 +1,23 @@
 'use strict';
 
-/* The home page: filters, the four leaderboard tabs, the routing diagram and the two charts, drawn from results.json,
-   beside this page. Every number is read from it: accuracy for a part or topic and its 95% interval from the counts it
-   stores, with the Wilson formula, and the routing numbers from the same replays and live tests. The open tab and the
+/* The home page: filters, the four leaderboard tabs, the routing diagram and the two charts, drawn from data/home.json
+   and data/home-more.json, which build_site.py writes from results.json (home_data). Every number is read from them:
+   accuracy for a part or topic and its 95% interval from the counts they store, with the Wilson formula, and the routing
+   numbers from the same replays and live tests. The open tab and the
    Routing choices live in the URL; the filters, the highlighted setup and the chart choices live in the browser's
    history entry, so Back returns to them. Without JavaScript the page keeps the plain table build_site.py writes. */
 
 const SETTINGS = JSON.parse(document.getElementById('v3-settings').textContent);
-/* results.json's address as the page gives it, with its content's version (Site asset in sitebuild/site.py), so a cached
-   file of another build is never paired with this page. A page cached from before versioned addresses gives none and
-   loads this script unversioned; it gets the plain address. */
-const RESULTS_URL = SETTINGS.resultsUrl || 'results.json';
+/* The data files' addresses as the page gives them, with their content's version (Site asset in sitebuild/site.py), so
+   a cached file of another build is never paired with this page: HOME_URL, preloaded by the page, holds what the first
+   draw reads; MORE_URL the runs' whole confidence and the cascades, loaded when a part needs them (loadMore). A page
+   cached from before these files gives neither; it gets their plain addresses. */
+const HOME_URL = SETTINGS.homeUrl || 'data/home.json';
+const MORE_URL = SETTINGS.moreUrl || 'data/home-more.json';
+/* What a chart box shows until it is drawn (index.html's chart boxes start with it), and what a tab waiting for
+   MORE_URL shows, as the Cost table's box starts with. */
+const LOADING = '<p class="note" role="status">Loading charts…</p>';
+const LOADING_TABLE = '<p class="note" role="status">Loading the table…</p>';
 
 /* Why a cell has no value. A cost is missing only for a setup on our own hardware whose maker lists no price for the
    same model (billing 'local'): it reads No list price; a value nobody measured reads Not measured. */
@@ -137,6 +144,44 @@ const latencyOf = run => run.latency?.median_request_seconds ?? null;
 
 let data;
 let byId;
+/* The parts marked `more` (the Calibration chart, the Confidence and Routing tabs) read MORE_URL's runs' confidence or
+   cascades: until it is in they show LOADING, or the error that stopped it. It loads once, when such a tab opens or the
+   Calibration chart comes within a screen of the view (nearView), then the page draws again. When the Calibration
+   chart is above the view, what is in view stays put as the chart takes its height, as browsers with scroll anchoring
+   keep it; this does the same in those without. */
+const more = { promise: null, ready: false, error: null };
+function loadMore() {
+  more.promise ??= fetch(MORE_URL)
+    .then(response => {
+      if (!response.ok) throw new Error(`${MORE_URL}: ${response.status}`);
+      return response.json();
+    })
+    .then(extra => {
+      data.runs.forEach(run => {
+        run.confidence = extra.confidence[run.run];
+      });
+      data.cascades = extra.cascades;
+      more.ready = true;
+    }, error => {
+      more.error = error;
+    })
+    .then(() => {
+      const box = document.querySelector('[data-chart="gap"]');
+      const before = box.getBoundingClientRect();
+      renderKeepingFocus();
+      const after = box.getBoundingClientRect();
+      if (before.bottom <= 0 && after.top === before.top) window.scrollBy(0, after.height - before.height);
+    });
+  return more.promise;
+}
+const waitingForMore = (loading = LOADING) =>
+  more.error ? `<p class="note" role="alert">${esc(`Could not load this part (${more.error.message}).`)}</p>` : loading;
+const nearView = new IntersectionObserver(entries => {
+  if (!entries.some(entry => entry.isIntersecting)) return;
+  nearView.disconnect();
+  loadMore();
+}, { rootMargin: '100% 0px' });
+
 /* Names where setups show together (a chart, a table): each setup's full name (rowName) and, only where two of them
    would read the same, what tells them apart: the variant, the reasoning setting, the request size ("high reasoning,
    16 per request"), as detail, a smaller second line in a chart. Site.names in sitebuild/site.py writes the same. */
@@ -311,6 +356,7 @@ const TABS = {
     ],
   },
   confidence: {
+    more: true,
     rows: () => visibleRuns().map(run => ({ run })),
     note: CONFIDENCE_NOTE,
     guide: CONFIDENCE_GUIDE,
@@ -352,7 +398,7 @@ const TABS = {
       aurocColumn('grammar', 'form', 'AUROC grammar'),
     ],
   },
-  routing: { rows: () => routingRows(), notes: ROUTING_NOTES },
+  routing: { more: true, rows: () => routingRows(), notes: ROUTING_NOTES },
   stability: {
     rows: () => {
       const shown = new Set(visibleRuns());
@@ -607,6 +653,13 @@ function emptyReason() {
    models). */
 function renderBoard() {
   const tab = TABS[state.tab];
+  if (tab.more && !more.ready) {
+    const board = document.getElementById('board');
+    board.innerHTML = waitingForMore(LOADING_TABLE);
+    board.setAttribute('aria-labelledby', `tab-${state.tab}`);
+    loadMore();
+    return;
+  }
   const rows = sortRows(tab.rows(), tab.columns);
   const labels = chartLabels(rows.map(row => row.run));
   const table = rows.length
@@ -800,6 +853,7 @@ const MEASURES = {
   accuracy: { label: 'Accuracy', axis: 'Accuracy (%)', value: run => accuracyOf(run), log: false, text: value => percent(value), higher: true },
   /* As in the Confidence tab: on all questions only, in points. */
   gap: {
+    more: true,
     label: 'Calibration gap', axis: 'Calibration gap, as shipped (points)', value: run => (filtered() ? null : run.confidence?.ece ?? null),
     log: false, points: true, allOnly: true, text: value => (100 * value).toFixed(1), higher: false,
   },
@@ -1229,6 +1283,10 @@ function scatterChart(box) {
    bar with its value. The axis's labels sit above the scrolling rows, so they stay in view. */
 function readingGrammarChart(box) {
   const tab = TABS[state.tab];
+  if (tab.more && !more.ready) {
+    box.innerHTML = waitingForMore();
+    return;
+  }
   const runs = sortRows(tab.rows(), tab.columns).map(row => row.run);
   if (!runs.length) {
     box.innerHTML = `<p class="note">${esc(emptyReason())}</p>`;
@@ -1277,7 +1335,14 @@ function renderCharts() {
   const press = (name, current) =>
     document.querySelectorAll(`[data-control="${name}"] [data-${name}]`).forEach(button => button.setAttribute('aria-pressed', String(button.dataset[name] === current)));
   press('across', state.across);
-  FACE_MEASURES.forEach(name => barChart(document.querySelector(`[data-chart="${name}"]`), name));
+  FACE_MEASURES.forEach(name => {
+    const box = document.querySelector(`[data-chart="${name}"]`);
+    if (!MEASURES[name].more || more.ready) barChart(box, name);
+    else {
+      box.innerHTML = waitingForMore();
+      if (!more.error) nearView.observe(box);
+    }
+  });
   scatterChart(document.querySelector('[data-chart="tradeoff"]'));
   /* Reading vs grammar sits under Info: it draws when Info is open, at the width it then has. */
   if (state.infoOpen) readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
@@ -1524,7 +1589,8 @@ function openTab(tab) {
   state.sort = defaultSort(tab);
   render();
   document.getElementById(`tab-${tab}`).focus({ preventScroll: true });
-  document.querySelector('.board-panel').scrollIntoView({ behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth', block: 'start' });
+  /* The Calibration chart above the leaderboard takes its height with MORE_URL: the scroll waits for it. */
+  loadMore().then(() => document.querySelector('.board-panel').scrollIntoView({ behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth', block: 'start' }));
 }
 
 function onClick(event) {
@@ -1605,8 +1671,8 @@ function onInput(event) {
   writeUrl();
 }
 
-/* The page's own text paints before the results, a large file, start to load: the browser's first contentful paint and
-   one frame more, or 300 ms where that paint is not reported (a background tab, or a browser without paint timing). */
+/* The page's own text paints before the charts draw: the browser's first contentful paint and one frame more, or
+   300 ms where that paint is not reported (a background tab, or a browser without paint timing). */
 const afterFirstPaint = () => new Promise(resolve => {
   const timer = setTimeout(resolve, 300);
   const done = () => {
@@ -1626,11 +1692,15 @@ const afterFirstPaint = () => new Promise(resolve => {
 });
 
 async function start() {
+  /* HOME_URL loads meanwhile (the page preloads it; this fetch takes the preload); an error waits for the paint too. */
+  const home = fetch(HOME_URL).then(response => {
+    if (!response.ok) throw new Error(`${HOME_URL}: ${response.status}`);
+    return response.json();
+  });
+  home.catch(() => {});
   await afterFirstPaint();
   try {
-    const response = await fetch(RESULTS_URL);
-    if (!response.ok) throw new Error(`${RESULTS_URL}: ${response.status}`);
-    data = await response.json();
+    data = await home;
   } catch (error) {
     /* Without the results the controls cannot work: the page shows every setup, as without JavaScript. */
     document.documentElement.classList.remove('js');
@@ -1649,10 +1719,13 @@ async function start() {
   renderPicker();
   render();
   /* The page opens at its top; a link into it (#board, #info, a chart) lands on its target once the charts and the table
-     above it have their height. Back and Forward keep the browser's own scroll position. */
+     above it have their height, with a tab that waits for MORE_URL drawn first. Back and Forward keep the browser's own
+     scroll position. */
   const arrival = performance.getEntriesByType('navigation')[0]?.type;
   if (window.location.hash.length > 1 && arrival !== 'back_forward') {
-    document.getElementById(decodeURIComponent(window.location.hash.slice(1)))?.scrollIntoView({ block: 'start' });
+    const land = () => document.getElementById(decodeURIComponent(window.location.hash.slice(1)))?.scrollIntoView({ block: 'start' });
+    if (TABS[state.tab].more) loadMore().then(land);
+    else land();
   }
   document.addEventListener('click', onClick);
   /* Info opens and closes as a details element: the state follows it, and what needs Info's width draws when it opens. */

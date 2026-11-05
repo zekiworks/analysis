@@ -145,13 +145,13 @@ python3 -m http.server 8000                                # preview at http://1
   Every page's footer gives the results snapshot (a hash of `results.json`), its update date (when results with that
   content first went out: set at export, kept by a re-export that changes nothing, never older than the newest
   published run) and the answer key version.
-- **Versioned addresses:** every page links its stylesheet and scripts, and the scripts fetch `results.json` and
-  `data/picks.json`, with the file's content version in the query (`v3.js?v=1a2b3c4d`, the start of its SHA-256;
+- **Versioned addresses:** every page links its stylesheet and scripts, and the scripts fetch their data files
+  (`data/home.json`, `data/home-more.json`, `results.json`, `data/picks.json`), with the file's content version in the query (`v3.js?v=1a2b3c4d`, the start of its SHA-256;
   `asset` in `sitebuild/site.py`). Browsers and the CDN cache each file for 10 minutes on its own, so unversioned
   links could pair a new page with an old cached script for a while after a release; with the version, a page always
   gets the files it was built with.
 - **The local preview** needs a server: opening `index.html` from disk does not work, because browsers
-  block loading `results.json` from a `file://` page.
+  block loading the data files from a `file://` page.
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
   - **View bar** (`topbar` in `sitebuild/site.py`, first on every page and sticky at the top): row 1 the test (English
@@ -296,8 +296,14 @@ python3 -m http.server 8000                                # preview at http://1
     in `sitebuild/site.py`). The leaderboard rows carry no notes: a setup's notes are on its model page (How we
     called it), which its name links to. The Reading vs grammar chart lists the setups in the leaderboard's order.
     `v3.js` draws the filters, the charts and the four leaderboard tabs in the
-    browser from `results.json` alone; accuracy for a part or topic and its Wilson 95% interval come from the
-    counts there. The Routing tab keeps its four choices in the URL. The page's fixed copy quotes numbers; the
+    browser from two compact files that `build_site.py` writes from `results.json` (`home_data`), which stays the
+    published download: `data/home.json`, preloaded by the page, holds what the first draw reads (the runs, each
+    run's confidence cut to the counts at the sure cutoff that the Cost table shows, and the units, prices, routing
+    replays and live tests, repeats and Hallucination models), and `data/home-more.json` the runs' whole confidence
+    and the cascades without their curves, which `v3.js` loads when the Calibration chart comes within a screen of
+    the view or the Confidence or Routing tab opens; until a chart is drawn its box reads Loading charts…. Accuracy
+    for a part or topic and its Wilson 95% interval come from the counts there. The Routing tab keeps its four
+    choices in the URL. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,
     after writing the pages.
   - **Routing LLMs** (`ROUTE_LLMS` in `sitebuild/site.py`, each a key of `page_config.json`'s `named_runs`): Opus 5.5
@@ -325,11 +331,15 @@ python3 -m http.server 8000                                # preview at http://1
   - **Other pages**: each module of `sitebuild/` (`PAGE_MODULES` in `build_site.py`) returns whole pages,
     written to `<path>index.html`: one page per setup (`models/<run>/`; `models/` itself sends the reader to the home
     page's All models view, which replaced its list of every setup; query and fragment kept), every question
-    (`questions/`), one page per question (`question/?id=…`, drawn by `question.js`, with a line for readers without
-    JavaScript), where models disagree with the key (`disagreements/`: the questions where the chat setups
-    in `page_config.json`'s `key_disagreement` agree on another answer, then the questions most setups got
-    wrong), topics with the accuracy-by-topic heat map and one page per topic (`topics/`), Compare
-    (`compare/`, drawn by `compare.js`, exact McNemar test as in `benchmark_metrics.py`), Page images
+    (`questions/`, with `questions.js`: filters on question ID, book page, topic and difficulty, 100 rows at a time,
+    all kept in the URL; every row shows without JavaScript), one page per question (`question/?id=…`, drawn by
+    `question.js`, with a line for readers without JavaScript), where models disagree with the key (`disagreements/`:
+    the questions where the chat setups in `page_config.json`'s `key_disagreement` agree on another answer, then the
+    questions most setups got wrong), topics with the accuracy-by-topic heat map (its colour scale's legend, headers
+    that stay in view while it scrolls, and a setup choice kept in `?setups=` by `topics.js`) and one page per topic
+    (`topics/`), Compare (`compare/`, drawn by `compare.js`: the accuracy difference on all questions with its 95%
+    interval and one sentence on what it means first, exact McNemar test as in `benchmark_metrics.py`, and each cost
+    with its basis in the model page's words, `Site.cost_basis_text`, passed in `compare-settings`), Page images
     (`vision/`), Method (`method/`) and Data (`data/`). `sitebuild/site.py` holds the shared page shell.
   - **Artificial Analysis's Decision Index models** (`aa-decision-index/`, `sitebuild/aa_index.py`): our numbers
     for the models of Artificial Analysis's Decision Index v1.0 as its post of 22 October 2026 lists them

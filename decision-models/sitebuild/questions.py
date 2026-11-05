@@ -137,17 +137,35 @@ def question_link(origin: str, question_id: int) -> str:
     return f'<a href="{rel(origin, "question/")}?id={question_id}">{question_id}</a>'
 
 
+# The Every question page's difficulty bands, by the share of all setups that got a question right: (key in the URL
+# and the rows' data-difficulty, label). questions.js filters on them.
+DIFFICULTY = (("hard", "Hard: under a third right"), ("medium", "Medium: a third to two thirds right"),
+              ("easy", "Easy: over two thirds right"))
+# Rows the Every question page shows at a time (questions.js reads data-rows).
+ROWS_SHOWN = 100
+
+
+def difficulty(right: int, setups: int) -> str:
+    return "hard" if 3 * right < setups else "easy" if 3 * right > 2 * setups else "medium"
+
+
 def every_question(site: Site, data: dict[str, Any]) -> str:
+    """The list of every scored question, all rows in the page; questions.js adds the filters (question ID, book page,
+    topic, difficulty) and shows the rows ROWS_SHOWN at a time, keeping both in the URL. Without JavaScript every row
+    shows."""
     path = "questions/"
     setups = len(site.runs)
     decision = sum(map(site.decision, site.runs))
     counts = right_counts(site, data)
     rows = []
+    bands = {key: 0 for key, _ in DIFFICULTY}
     for question, (right, decision_right) in zip(data["questions"], counts):
         question_id, unit, page, number, key = question
         part = site.part(unit)
+        band = difficulty(right, setups)
+        bands[band] += 1
         rows.append(
-            "<tr>"
+            f'<tr data-id="{question_id}" data-page="{page}" data-topic="{unit}" data-difficulty="{band}">'
             f'<td class="model">{question_link(path, question_id)}</td>'
             f'<td data-label="Part">{part.capitalize()}</td>'
             f'<td data-label="Topic"><a href="{rel(path, f"topics/{unit}/")}">{esc(site.unit(unit)["english"])}</a></td>'
@@ -158,13 +176,35 @@ def every_question(site: Site, data: dict[str, Any]) -> str:
             f'<td class="num" data-label="Decision models right">{decision_right} of {decision}</td>'
             "</tr>"
         )
-    body = f"""    <section class="card">
+    topics = "".join(
+        f'<optgroup label="{label}">' + "".join(
+            f'<option value="{unit["number"]}">{esc(unit["english"])} ({unit["questions"]})</option>'
+            for unit in site.units if site.part(unit["number"]) == part) + "</optgroup>"
+        for part, label in (("reading", "Reading"), ("grammar", "Grammar")))
+    levels = "".join(f'<option value="{key}">{label} ({bands[key]:,})</option>' for key, label in DIFFICULTY)
+    pager = ('<nav class="q-pager" data-q-pager aria-label="Rows of the list" hidden>'
+             f'<button type="button" class="key" data-step="-1">Previous {ROWS_SHOWN}</button>'
+             '<span class="q-where" data-q-where></span>'
+             f'<button type="button" class="key" data-step="1">Next {ROWS_SHOWN}</button></nav>')
+    body = f"""    <section class="card" id="questions" data-rows="{ROWS_SHOWN}">
       <h1>Every question</h1>
       <p>The {len(data["questions"]):,} scored questions, in the order of the book. Their text stays unpublished: the publisher owns it; the page and printed number find each one in the book. Each ID opens the question's page, with every setup's pick.</p>
+      <form class="q-filters" data-q-filters role="search" aria-label="Filter the questions" hidden>
+        <label class="control">Question ID <input type="search" inputmode="numeric" autocomplete="off" size="6" data-filter="id"></label>
+        <label class="control">Book page <input type="search" inputmode="numeric" autocomplete="off" size="5" data-filter="book-page"></label>
+        <label class="control">Topic <select data-filter="topic"><option value="">All topics</option>{topics}</select></label>
+        <label class="control">Difficulty <select data-filter="difficulty"><option value="">All</option>{levels}</select></label>
+        <button type="button" class="key" data-q-reset>Reset</button>
+      </form>
+      <p class="note" data-q-note hidden>Difficulty: the share of the {setups} setups that got the question right. The filters and the rows shown stay in the address, so a view can be shared.</p>
+      <p class="q-count" data-q-count aria-live="polite"></p>
+      {pager}
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">ID</th><th scope="col">Part</th><th scope="col">Topic</th><th scope="col" class="num">Page</th><th scope="col" class="num">Number</th><th scope="col" class="num">Answer key</th><th scope="col" class="num">Setups right</th><th scope="col" class="num">Decision models right</th></tr></thead>
       <tbody>{"".join(rows)}</tbody></table></div>
+      {pager.replace("data-q-pager", "data-q-pager data-q-bottom")}
     </section>"""
-    return site.page(path, "Every question", f"The {len(data['questions']):,} scored questions, each with every setup's pick.", body)
+    return site.page(path, "Every question", f"The {len(data['questions']):,} scored questions, each with every setup's pick.", body,
+                     scripts=("questions.js",))
 
 
 def question_view(site: Site) -> str:
