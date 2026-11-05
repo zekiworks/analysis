@@ -178,9 +178,10 @@ python3 -m http.server 8000                                # preview at http://1
     write theirs with `costScale` and `costNumber` and redraw on the `costunit` event. The two English pages render, in
     static HTML, one copy per group of every part that depends on the setups shown (`data-models="all"`, shown without
     JavaScript; `decision` and `chat` hidden), with its counts and sentences computed for that group and its setups
-    ranked by English accuracy within it; the parts about decision models only appear once
-    (`data-models="all decision"`) with a note that chat models are not measured yet, as no chat model was asked with
-    an "I don't know" option. A setup that shares its name with another English setup is labelled with the settings
+    ranked by English accuracy within it, the Non-hallucination parts too (decision and chat models with "I don't know"
+    runs ranked together in the all copy; a chat model's side still running reads Running with `page_config.json`'s
+    `dont_know.running`); the parts about decision models only appear once (`data-models="all decision"`), as the
+    option-word check is for decision models only. A setup that shares its name with another English setup is labelled with the settings
     that tell them apart, as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
     (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: under a one-sentence lead
     and the translation check's limit (`limit_note`; neither English page has a links row of its own, row 3 does that),
@@ -312,11 +313,11 @@ python3 -m http.server 8000                                # preview at http://1
     `sitebuild/site.py` and `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured). A run's variant (its
     route or access note) shows beside its name only where it tells it apart from another setup of the same model ID
     (`shownVariant` in `v3.js`, `shown_variant` in `build_site.py`); otherwise it is on the model page only. Non-hallucination
-    (`non_hallucination` in `build_site.py`, static HTML from `results.json`'s `dont_know`: the Hallucination tab's
-    decision models in its order, the rate with "Bilmiyorum", then in columns of their own the share answered (the
-    attempt rate, as that tab writes it) and the error rate among the answers (wrong / answered), bars in family
-    colours, a note that chat models are not measured yet, a link to that tab; one heading, with a note instead of the
-    bars in the chat view); Cost, its chart then the table of every setup in one part; Latency;
+    (`non_hallucination` in `build_site.py`, static HTML from `results.json`'s `dont_know`, one copy per view: the
+    Hallucination tab's rows of that group (decision and chat ranked together under All models) in its order, the rate
+    with "Bilmiyorum", then in columns of their own the share answered (the attempt rate, as that tab writes it) and the
+    error rate among the answers (wrong / answered), bars in family colours, the chat setups whose Turkish run is still
+    running with their reason, a link to that tab; one heading); Cost, its chart then the table of every setup in one part; Latency;
     accuracy against cost or latency, with the Pareto line (the setups in view no other setup in view
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
     gap, as shipped, on all questions). The charts draw every setup of the model group the view bar

@@ -1278,12 +1278,29 @@ def reasoning(runs: list[dict[str, Any]], answers: dict[str, Any]) -> dict[str, 
     return {"reading_units": list(READING_UNITS), "seed": REASONING_SEED, "resamples": bm.BOOTSTRAP_RESAMPLES, "pairs": pairs}
 
 
+def group_of(provider: str, model: str) -> str:
+    """A setup's view bar group by page_config.json's rule (Site.decision): "decision" when its provider is one of
+    decision_model_providers and its model not one of not_decision_models, else "chat"."""
+    config = json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))
+    decision = provider in config["decision_model_providers"] and model not in config["not_decision_models"]
+    return "decision" if decision else "chat"
+
+
+def running_reason() -> str:
+    """The reason shown for a side of a chat model's "I don't know" comparison whose run is still running
+    (page_config.json's dont_know.running)."""
+    return json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))["dont_know"]["running"]
+
+
 def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
     """The Hallucination tab (results.json `dont_know`) from the report's records of runs with the "I don't know" option
     (`dont_know_answers`), on the exported bank's full question set: one entry per setup (provider, model, reasoning,
-    questions per request), from its first full run, with the range over all its full runs. Each setup's original run
-    (its first full run without the option) must be its model's run on the Text tab. None without such runs. The prompt
-    texts and answers_changed come from the answers (dont_know_answers_part)."""
+    questions per request), from its first full run, with the range over all its full runs, and its view bar group
+    (group_of). A decision model's original run (its first full run without the option) must be its model's run on
+    the Text tab; a chat model's Text tab run is the one of the same provider, model, reasoning, questions per request
+    and Perplexity mode (its runner-named original run can be an earlier run), and its derived abstention is computed
+    on that run from the answers (dont_know_answers_part). None without such runs. The prompt texts and
+    answers_changed come from the answers (dont_know_answers_part)."""
     graded = data["dataset"]["graded_sha256"] or data["dataset"]["sha256"]
     full = [
         record
@@ -1303,8 +1320,9 @@ def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, 
     by_id = {run["run"]: run for run in data["runs"]}
     metrics = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
     models = []
-    for (provider, model, _, batch_size, mode), found in setups.items():
+    for (provider, model, thinking, batch_size, mode), found in setups.items():
         label = f"{model} ({provider}), \"I don't know\" runs {[record['run_id'] for record in found]}"
+        group = group_of(provider, model)
         first = [record for record in found if record.get("repeat") is None]
         if len(first) != 1:
             raise ValueError(f"{label}: needs exactly one full run without a repeat number")
@@ -1319,21 +1337,29 @@ def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, 
         original = head["original_run"]
         if any(value["original_run"] != original for value in values):
             raise ValueError(f"{label}: its runs name different original runs")
-        primary = min(
-            (run["run"] for run in data["runs"]
-             if (run["provider"], run["model"], run["questions_per_request"], run["perplexity_mode"]) == (provider, model, batch_size, mode)),
-            default=None,
-        )
-        if original is None or original != primary:
-            raise ValueError(f"{label}: its original run {original} is not the model's run on the Text tab ({primary})")
-        if head["derived"] is None:
-            raise ValueError(f"{label}: no derived abstention")
+        if group == "chat":
+            text = [run["run"] for run in data["runs"] if (run["provider"], run["model"], run["reasoning"], run["questions_per_request"],
+                                                           run["perplexity_mode"]) == (provider, model, thinking, batch_size, mode)]
+            if len(text) != 1:
+                raise ValueError(f"{label}: needs exactly one Text tab run of the same setup, found {text}")
+            original = text[0]
+        else:
+            primary = min(
+                (run["run"] for run in data["runs"]
+                 if (run["provider"], run["model"], run["questions_per_request"], run["perplexity_mode"]) == (provider, model, batch_size, mode)),
+                default=None,
+            )
+            if original is None or original != primary:
+                raise ValueError(f"{label}: its original run {original} is not the model's run on the Text tab ({primary})")
+            if head["derived"] is None:
+                raise ValueError(f"{label}: no derived abstention")
         models.append(
             {
                 "name": by_id[original]["name"],
                 "model": model,
                 "provider": provider,
                 "perplexity_mode": mode,
+                "group": group,
                 "run": found[0]["run_id"],
                 "runs": [record["run_id"] for record in found],
                 **{key: head[key] for key in ("right", "wrong", "dont_know", "invalid")},
@@ -1349,7 +1375,8 @@ def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, 
                 "answers_changed": None,
                 "original_run": original,
                 "original_accuracy": by_id[original]["correct"] / data["questions"],
-                "derived": {
+                # A chat model's derived abstention comes from the answers (dont_know_answers_part).
+                "derived": None if group == "chat" else {
                     key: head["derived"][key] for key in ("cut_off", "attempt_rate", "non_hallucination", "right", "wrong", "abstained")
                 },
             }
@@ -1365,14 +1392,48 @@ DONT_KNOW_LETTER = "F"
 VS_CONFIDENCE_SHARE = 0.01
 
 
+def hashed_prompts(prompts: dict[str, Any]) -> str:
+    """A prompts dict's version, hashed as the runner hashes it (sorted keys, compact)."""
+    return hashlib.sha256(json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
+
+
+# The chat prompts' instructions, each of which a chat model's run with the "I don't know" option ends with the option's
+# sentence (dont_know_chat in benchmark_ollama.py); its system prompts stay those of the five-option runs.
+CHAT_INSTRUCTIONS = ("answer_instruction", "confidence_instruction", "verbal_instruction")
+CHAT_SYSTEMS = ("answer_system", "confidence_system", "verbal_system")
+
+
+def chat_dont_know_prompts(prompts: dict[str, Any] | None, base: dict[str, Any], option: str, name: str) -> dict[str, Any]:
+    """The chat models' prompts with the "I don't know" option (dont_know_chat_prompts or english_dont_know_chat_prompts,
+    `name`), checked against the five-option chat prompts `base`: the option is `option`, each instruction is the base
+    one plus the prompts' own sentence, each system prompt the base one. Returns the published part: the sentence, the
+    confidence system prompt and instruction (the chat models' prompts the site quotes) and the version."""
+    if prompts is None:
+        raise ValueError(f"the answers file has chat models' \"I don't know\" runs but no {name}")
+    sentence = prompts["dont_know_sentence"]
+    if prompts["dont_know_option"] != option:
+        raise ValueError(f"{name}: the option is {prompts['dont_know_option']!r}, not {option!r}")
+    for field in CHAT_INSTRUCTIONS:
+        if prompts[field] != f"{base[field]} {sentence}":
+            raise ValueError(f"{name}: {field} is not the five-option chat prompts' plus {sentence!r}")
+    for field in CHAT_SYSTEMS:
+        if prompts[field] != base[field]:
+            raise ValueError(f"{name}: {field} is not the five-option chat prompts'")
+    return {"sentence": sentence, "confidence_system": prompts["confidence_system"],
+            "confidence_instruction": prompts["confidence_instruction"], "prompt_version": hashed_prompts(prompts)}
+
+
 def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any]) -> dict[str, Any]:
-    """The `dont_know` section with what comes from the answers file: the option, the instructions with their added
-    sentence and the prompt version (DONT_KNOW_PROMPTS, hashed as the runner hashes them; every run must carry that
-    version), per setup with more than one run the scored questions whose answer differs across its runs, and per setup
-    `vs_confidence`: its first run against its original run held back by its own confidence at the derived cut-off, on
-    the scored questions, as wrong answers in each (the exact McNemar test, bm.paired_comparison: first the option,
-    second confidence), with Holm's correction over the setups that chose the option on at least VS_CONFIDENCE_SHARE of
-    the questions (p_holm None for the others)."""
+    """The `dont_know` section with what comes from the answers file: the option, the decision models' instructions with
+    their added sentence and the prompt version (DONT_KNOW_PROMPTS, hashed as the runner hashes them), the chat models'
+    prompts with theirs (`chat`, chat_dont_know_prompts; omitted without a chat model's run); every run must carry its
+    kind's version, decision for a scoring provider and chat for any other. Per setup with more than one run the scored
+    questions whose answer differs across its runs; per chat model the derived abstention on its Text tab run at its
+    first run's attempt rate, on the scored questions; and per decision model `vs_confidence`: its first run against
+    its original run held back by its own confidence at the derived cut-off, on the scored questions, as wrong answers
+    in each (the exact McNemar test, bm.paired_comparison: first the option, second confidence), with Holm's correction
+    over the decision models that chose the option on at least VS_CONFIDENCE_SHARE of the questions (p_holm None for
+    the others; vs_confidence None for a chat model)."""
     prompts = document.get("dont_know_prompts")
     if prompts is None:
         raise ValueError('the answers file has "I don\'t know" runs but no dont_know_prompts')
@@ -1380,13 +1441,15 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
     sentence = f"If you do not know the answer, choose {option}."
     if instructions != f"{document['prompts']['system_one_instructions']} {sentence}":
         raise ValueError(f"dont_know_prompts: the instructions are not the System One instructions plus {sentence!r}")
-    version = hashlib.sha256(
-        json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()[:12]
+    version = hashed_prompts(prompts)
     by_id = {run["run"]: run for run in answers["dont_know_runs"]}
-    wrong = sorted(run for run, item in by_id.items() if item["prompt_version"] != version)
+    chat = None
+    if any(not PROVIDERS[run["provider"]]["scoring"] for run in by_id.values()):
+        chat = chat_dont_know_prompts(document.get("dont_know_chat_prompts"), document["prompts"], option, "dont_know_chat_prompts")
+    wrong = sorted(run for run, item in by_id.items()
+                   if item["prompt_version"] != (version if PROVIDERS[item["provider"]]["scoring"] else chat["prompt_version"]))
     if wrong:
-        raise ValueError(f"\"I don't know\" runs {wrong} were not run with prompt version {version}")
+        raise ValueError(f"\"I don't know\" runs {wrong} were not run with their kind's prompt version")
     scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
     for model in section["models"]:
         if len(model["runs"]) > 1:
@@ -1396,7 +1459,14 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
     main = {run["run"]: run for run in answers["runs"]}
     family = []
     for model in section["models"]:
-        run, original, cut_off = by_id[model["runs"][0]], main[model["original_run"]], model["derived"]["cut_off"]
+        run, original = by_id[model["runs"][0]], main[model["original_run"]]
+        if model["group"] == "chat":
+            pairs = [(None if original["score"][index] is None else float(original["score"][index]), int(original["correct"][index]))
+                     for index in scored]
+            model["derived"] = derived_abstention(pairs, model["attempt_rate"])
+            model["vs_confidence"] = None
+            continue
+        cut_off = model["derived"]["cut_off"]
         option_wrong = [int(run["choice"][index] not in (None, DONT_KNOW_LETTER) and not run["correct"][index]) for index in scored]
         confidence_wrong = [int(cut_off is not None and original["score"][index] is not None and float(original["score"][index]) >= cut_off
                                 and not original["correct"][index]) for index in scored]
@@ -1414,6 +1484,7 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
         "sentence": sentence,
         "instructions": instructions,
         "prompt_version": version,
+        **({"chat": chat} if chat else {}),
         "vs_confidence_share": VS_CONFIDENCE_SHARE,
         **section,
     }
@@ -1429,6 +1500,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
     "option-word check; not asked with “I don't know” yet.",
     ("perplexity", "pplx-decider-v1.2", "web_grounding"): "added to the Hallucination tab on 5 November 2026 (Ümit #1229), "
     "after the option-word check; not asked with “I don't know” yet.",
+    ("clef", "clef-flash", None): "added to the Hallucination tab on 5 November 2026 with the runs on our GPUs, after the "
+    "option-word check; not asked with “I don't know” yet.",
 }
 # The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
 # five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't
@@ -1452,7 +1525,7 @@ def setup_of(record: dict[str, Any]) -> tuple[Any, ...]:
 def dont_know_option_word(records: list[dict[str, Any]], section: dict[str, Any] | None, data: dict[str, Any],
                           by_run: dict[int, dict[str, Any]]) -> dict[str, Any] | None:
     """The option-word check (results.json `dont_know_option_word`) from the report's records of its runs
-    (dont_know_word "english"): for each Hallucination tab model, in the `dont_know` section's order, its first run
+    (dont_know_word "english"): for each decision model of the Hallucination tab, in the `dont_know` section's order, its first run
     with "Bilmiyorum" and its one full-bank run of the same setup with "I don't know"; a model without such a run must
     be in OPTION_WORD_NOT_RUN. None without option-word runs. The prompts, prompt versions and the paired test come from
     the answers (dont_know_option_word_answers_part)."""
@@ -1486,7 +1559,7 @@ def dont_know_option_word(records: list[dict[str, Any]], section: dict[str, Any]
         }
 
     models, not_run = [], []
-    for item in section["models"]:
+    for item in (item for item in section["models"] if item["group"] == "decision"):
         found = by_setup.pop(setup_of(by_run[item["run"]]), [])
         reason = OPTION_WORD_NOT_RUN.get((item["provider"], item["model"], item["perplexity_mode"]))
         label = f"{item['name']} ({item['provider']})"
@@ -2188,12 +2261,17 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
                       english_section: dict[str, Any] | None) -> dict[str, Any] | None:
     """The runs of the English "I don't know" comparison (results.json `english_reading.dont_know`) from the report's
     records of runs with the "I don't know" option: one entry per setup of its runs in English (provider, model,
-    reasoning, one question per request; the first run without a repeat number first, its repeats after it), named
-    after its English reading model (same provider and model), and its Turkish side, the same setup's runs with the
-    option: either its runs on exactly the English runs' questions with a question list (subset runs, same order) or,
-    without those, its full-bank runs on the Hallucination tab, counted on the kept questions. Turkish runs with the
-    option on that many listed questions belong to no other section, so each must pair with an English setup. None
-    without runs in English with the option. The numbers come from the answers (english_dont_know_answers_part)."""
+    reasoning, questions per request as its English reading run's; the first run without a repeat number first, its
+    repeats after it), named after its English reading model (the one whose first English run its runs name as their
+    original run), with its view bar group (group_of), and its Turkish side, the same setup's runs with the option:
+    either its runs on exactly the English runs' questions with a question list (subset runs, same order) or, without
+    those, its full-bank runs on the Hallucination tab (the row of the same Text tab run, provider and model), counted
+    on the kept questions. Turkish runs with the option on that many listed questions belong to no other section, so
+    each must pair with an English setup. A setup without a Turkish side is published in English only
+    (`english_only`): a decision model with its reason from ENGLISH_DONT_KNOW_ENGLISH_ONLY, a chat model with
+    page_config.json's dont_know.running (`running` true). A chat model's Hallucination tab row of an English reading
+    model's Text tab run without English runs with the option is published in Turkish only (`turkish_only`, running).
+    None without runs in English with the option. The numbers come from the answers (english_dont_know_answers_part)."""
     english = [record for record in records if record.get("english")]
     if not english:
         return None
@@ -2209,10 +2287,8 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         for record in sorted(found, key=lambda record: record["run_id"]):
             key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"], record.get("perplexity_mode"))
             grouped.setdefault(key, []).append(record)
-        for (provider, model, _, batch_size, _mode), group in grouped.items():
+        for (provider, model, _, _size, _mode), group in grouped.items():
             label = f"{model} ({provider}), {kind} runs {[record['run_id'] for record in group]}"
-            if batch_size != 1:
-                raise ValueError(f"{label}: asked {batch_size} questions per request, not 1")
             if sum(1 for record in group if record.get("repeat") is None) != 1:
                 raise ValueError(f"{label}: needs exactly one run without a repeat number")
             group.sort(key=lambda record: (record.get("repeat") or 1, record["run_id"]))
@@ -2225,20 +2301,24 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
     models = []
     english_only = []
     claimed: list[dict[str, Any]] = []
-    for (provider, model, thinking, _, mode), found in setups(english, 'English "I don\'t know"').items():
+    paired_rows: set[int] = set()
+    for (provider, model, thinking, size, mode), found in setups(english, 'English "I don\'t know"').items():
         runs = [record["run_id"] for record in found]
         label = f"{model} ({provider}), English \"I don't know\" runs {runs}"
-        reading = [item for item in english_section["models"]
-                   if (item["provider"], item["model"], item["perplexity_mode"]) == (provider, model, mode)]
-        if len(reading) != 1:
-            raise ValueError(f"{label}: needs exactly one English reading model of the same provider and model, "
-                             f"found {[item['run'] for item in reading]}")
         originals = {record["dont_know_answers"]["original_run"] for record in found}
-        if originals != {reading[0]["run"]}:
-            raise ValueError(f"{label}: its original runs {sorted(originals, key=str)} are not its first English reading "
-                             f"run {reading[0]['run']}")
-        subset = subsets.pop((provider, model, thinking, 1, mode), None)
-        hallucination = [item for item in full if (item["provider"], item["model"], item["perplexity_mode"]) == (provider, model, mode)]
+        reading = [item for item in english_section["models"] if item["run"] in originals]
+        if len(originals) != 1 or len(reading) != 1 \
+                or (reading[0]["provider"], reading[0]["model"], reading[0]["perplexity_mode"]) != (provider, model, mode):
+            raise ValueError(f"{label}: its original runs {sorted(originals, key=str)} are not the first English run of one "
+                             f"English reading model of the same provider and model")
+        asked = english_section["records"][reading[0]["run"]]["batch_size"]
+        if size != asked:
+            raise ValueError(f"{label}: asked {size} questions per request, its English reading run {asked}")
+        group = group_of(provider, model)
+        text_run = reading[0]["turkish_run"]
+        subset = subsets.pop((provider, model, thinking, size, mode), None)
+        hallucination = [item for item in full if item["original_run"] == text_run
+                         and (item["provider"], item["model"], item["perplexity_mode"]) == (provider, model, mode)]
         if subset is not None and hallucination:
             raise ValueError(f"{label}: both Turkish runs on the kept questions {[record['run_id'] for record in subset]} "
                              f"and full-bank runs {[item['runs'] for item in hallucination]} could be its Turkish side")
@@ -2247,26 +2327,29 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
             if subset is not None or hallucination:
                 raise ValueError(f"{label}: listed in ENGLISH_DONT_KNOW_ENGLISH_ONLY but has Turkish \"I don't know\" runs "
                                  f"{[record['run_id'] for record in subset or []] or [item['runs'] for item in hallucination]}")
-            english_only.append({"name": reading[0]["name"], "model": model, "provider": provider,
-                                 "text_run": reading[0]["turkish_run"], "reason": reason,
+        if reason is not None or (group == "chat" and subset is None and not hallucination):
+            english_only.append({"name": reading[0]["name"], "model": model, "provider": provider, "group": group,
+                                 "text_run": text_run, "reason": reason or running_reason(), "running": reason is None,
                                  "english": {"run": runs[0], "runs": runs}})
             continue
         if subset is not None:
             turkish = [record["run_id"] for record in subset]
             claimed += subset
         elif len(hallucination) == 1 and all(
-                (by_record[run]["thinking"], by_record[run]["batch_size"]) == (thinking, 1) for run in hallucination[0]["runs"]):
+                (by_record[run]["thinking"], by_record[run]["batch_size"]) == (thinking, size) for run in hallucination[0]["runs"]):
             turkish = hallucination[0]["runs"]
+            paired_rows.add(hallucination[0]["run"])
         else:
             raise ValueError(f"{label}: no Turkish \"I don't know\" runs of the same setup, on the kept questions or on "
-                             f"the Hallucination tab (found {[item['runs'] for item in hallucination]}); a setup published "
-                             f"without a Turkish side must be listed in ENGLISH_DONT_KNOW_ENGLISH_ONLY")
+                             f"the Hallucination tab (found {[item['runs'] for item in hallucination]}); a decision model "
+                             f"published without a Turkish side must be listed in ENGLISH_DONT_KNOW_ENGLISH_ONLY")
         models.append(
             {
                 "name": reading[0]["name"],
                 "model": model,
                 "provider": provider,
-                "text_run": reading[0]["turkish_run"],
+                "group": group,
+                "text_run": text_run,
                 "english": {"run": runs[0], "runs": runs},
                 "turkish": {"run": turkish[0], "runs": turkish, "subset": subset is not None},
             }
@@ -2275,7 +2358,14 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         raise ValueError(f"Turkish \"I don't know\" runs on {total} listed questions "
                          f"{[record['run_id'] for group in subsets.values() for record in group]} have no English "
                          f"\"I don't know\" runs of the same setup")
-    return {"models": models, "english_only": english_only,
+    # A chat model's Hallucination tab row whose English run with the option is still running: Turkish only.
+    reading_by_text = {item["turkish_run"]: item for item in english_section["models"]}
+    turkish_only = [{"name": reading_by_text[row["original_run"]]["name"], "model": row["model"], "provider": row["provider"],
+                     "group": row["group"], "text_run": row["original_run"], "reason": running_reason(), "running": True,
+                     "turkish": {"run": row["run"], "runs": row["runs"], "subset": False}}
+                    for row in full if row["group"] == "chat" and row["run"] not in paired_rows
+                    and row["original_run"] in reading_by_text]
+    return {"models": models, "english_only": english_only, "turkish_only": turkish_only,
             "records": {record["run_id"]: record for record in english + claimed}}
 
 
@@ -2283,16 +2373,19 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
                                    public: dict[str, Any]) -> dict[str, Any]:
     """The `english_reading.dont_know` section from the answers file and english-reading.json: the option, its sentence,
     the English instructions with it and the prompt version (english_dont_know_prompts: the English prompts with the
-    sentence added to the instructions and the option, hashed as the runner hashes them). Every English run with the
-    option must carry that version and the record's translations_sha256, every Turkish run on the kept questions the
-    Turkish "I don't know" version (dont_know_prompts hashed), and both must have been asked exactly the kept questions
-    and count, in their report records, what their answers give. Per model and side, on the kept questions, from its
-    first run: right, wrong, "I don't know" (DONT_KNOW_LETTER) and invalid answers, accuracy, attempt rate,
-    non-hallucination rate (None without "I don't know" or wrong answers) and the mean probability of the option over
-    the answers that report it; the range of those over the side's runs (None for a side with one run, and for both
-    when both have one); and the first runs' wrong answers against each other (exact McNemar, bm.paired_comparison:
-    first English, second Turkish) with Holm's correction over every model. Ordered by English non-hallucination
-    rate, best first and None last, then by name."""
+    sentence added to the instructions and the option, hashed as the runner hashes them), and the chat models' English
+    prompts with theirs (`chat`, chat_dont_know_prompts on english_dont_know_chat_prompts; omitted without a chat
+    model's run). Every English run with the option must carry its kind's version (decision for a scoring provider,
+    chat for any other) and the record's translations_sha256, every Turkish run on the kept questions the Turkish "I
+    don't know" version (dont_know_prompts hashed), and both must have been asked exactly the kept questions and count,
+    in their report records, what their answers give. Per model and side, on the kept questions, from its first run:
+    right, wrong, "I don't know" (DONT_KNOW_LETTER) and invalid answers, accuracy, attempt rate, non-hallucination rate
+    (None without "I don't know" or wrong answers) and the mean probability of the option over the answers that report
+    it; the range of those over the side's runs (None for a side with one run, and for both when both have one); and
+    the first runs' wrong answers against each other (exact McNemar, bm.paired_comparison: first English, second
+    Turkish) with Holm's correction within each group (decision models, chat models). Ordered by English
+    non-hallucination rate, best first and None last, then by name; english_only by its English rate and turkish_only
+    (its Turkish side counted the same way) by its Turkish rate."""
     prompts = document.get("english_dont_know_prompts")
     if prompts is None:
         raise ValueError('the answers file has runs in English with the "I don\'t know" option but no english_dont_know_prompts')
@@ -2315,6 +2408,10 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
     english_runs = {run["run"]: run for run in answers["english_dont_know_runs"]}
     subset_runs = {run["run"]: run for run in answers["english_dont_know_turkish_runs"]}
     full_runs = {run["run"]: run for run in answers["dont_know_runs"]}
+    chat = None
+    if any(not PROVIDERS[run["provider"]]["scoring"] for run in english_runs.values()):
+        chat = chat_dont_know_prompts(document.get("english_dont_know_chat_prompts"), document.get("english_chat_prompts") or {},
+                                      option, "english_dont_know_chat_prompts")
     for run_id, run in sorted(english_runs.items()):
         english = section["records"][run_id]["english"]
         if run["english"] != english:
@@ -2322,8 +2419,9 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
         if english.get("translations_sha256") != translations:
             raise ValueError(f"English \"I don't know\" run {run_id}: translations {str(english.get('translations_sha256'))[:12]}, "
                              f"not {ENGLISH_READING_PATH.name}'s {translations[:12]}")
-        if english.get("prompt_version") != version or run["prompt_version"] != version:
-            raise ValueError(f"English \"I don't know\" run {run_id} was not run with prompt version {version}")
+        expected = version if PROVIDERS[run["provider"]]["scoring"] else chat["prompt_version"]
+        if english.get("prompt_version") != expected or run["prompt_version"] != expected:
+            raise ValueError(f"English \"I don't know\" run {run_id} was not run with its kind's prompt version {expected}")
     for run_id, run in sorted(subset_runs.items()):
         if run["prompt_version"] != turkish_version:
             raise ValueError(f"Turkish \"I don't know\" run {run_id} on the kept questions was not run with prompt version {turkish_version}")
@@ -2385,23 +2483,34 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
                            "p": test["p"], "p_holm": None},
             }
         )
-    for model, adjusted in zip(models, bm.holm([model["paired"]["p"] for model in models])):
-        model["paired"]["p_holm"] = adjusted
+    # Holm's correction within each view bar group: the decision models' family as before, the chat models' its own.
+    for group in ("decision", "chat"):
+        family = [model for model in models if model["group"] == group]
+        for model, adjusted in zip(family, bm.holm([model["paired"]["p"] for model in family])):
+            model["paired"]["p_holm"] = adjusted
     models.sort(key=lambda item: (item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0),
                                   item["name"].casefold(), item["english"]["run"]))
-    # Setups without a Turkish side (ENGLISH_DONT_KNOW_ENGLISH_ONLY): the English first run's numbers only, in no Holm family.
+    # Setups without a Turkish side (ENGLISH_DONT_KNOW_ENGLISH_ONLY, or a chat model's Turkish run still running): the
+    # English first run's numbers only, in no Holm family.
     english_only = [{**model, "english": {**model["english"], **counted(english_runs[model["english"]["run"]])}}
                     for model in section["english_only"]]
     english_only.sort(key=lambda item: (item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0),
                                         item["name"].casefold(), item["english"]["run"]))
+    # A chat model's Hallucination tab run counted on the kept questions while its English run is still running.
+    turkish_only = [{**model, "turkish": {**model["turkish"], **counted(full_runs[model["turkish"]["run"]])}}
+                    for model in section["turkish_only"]]
+    turkish_only.sort(key=lambda item: (item["turkish"]["non_hallucination"] is None, -(item["turkish"]["non_hallucination"] or 0),
+                                        item["name"].casefold(), item["turkish"]["run"]))
     return {
         "option": option,
         "sentence": sentence,
         "instructions": instructions,
         "prompt_version": version,
+        **({"chat": chat} if chat else {}),
         "questions": total,
         "models": models,
         **({"english_only": english_only} if english_only else {}),
+        **({"turkish_only": turkish_only} if turkish_only else {}),
     }
 
 
@@ -2492,7 +2601,8 @@ def option_word_vs_confidence(option_word: dict[str, Any], dont_know_section: di
         raise ValueError(f"vs_confidence: run {rerun_id} must be the five-option run of exactly the model whose original run was {RERUN_REPLACES}")
     # The Hallucination tab's family among the models with an option-word run (OPTION_WORD_NOT_RUN's setups have none).
     asked = {model["name"] for model in option_word["models"]}
-    existing = {row["name"] for row in dont_know_section["models"] if row["vs_confidence"]["p_holm"] is not None and row["name"] in asked}
+    existing = {row["name"] for row in dont_know_section["models"]
+                if row["vs_confidence"] and row["vs_confidence"]["p_holm"] is not None and row["name"] in asked}
     if {entry["name"] for entry in family} != existing or len(family) != len(existing):
         raise ValueError(f"vs_confidence: the eligible family {sorted(entry['name'] for entry in family)} is not the Hallucination "
                          f"tab's among the option-word models, {sorted(existing)}")
@@ -2837,7 +2947,8 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
         raise ValueError(f"same answers: {len(scored)} scored questions in the answers, results {data['questions']}")
     words = {model["bilmiyorum"]["run"]: model["i_dont_know"] for model in option_word["models"]}
     not_run = {item["name"] for item in option_word["not_run"]}
-    option_rows = {row["original_run"]: row for row in section["models"]}
+    # The decision models' rows: the chat models' runs with the option stay out of this comparison.
+    option_rows = {row["original_run"]: row for row in section["models"] if row["group"] == "decision"}
     missing = sorted(set(option_rows) - {run["run"] for run in data["runs"]})
     if missing:
         raise ValueError(f"same answers: the Hallucination tab models of Text tab runs {missing} are not main runs")
@@ -2871,7 +2982,9 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
 
     kept = kept_questions(answers, public)
     idk = reading["dont_know"]
-    first_english = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])}
+    # The decision models' English runs with the option, as in Turkish.
+    first_english = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])
+                     if model["group"] == "decision"}
     english, english_ranked = [], []
     for model in reading["models"]:
         name, text_run = model["name"], model["turkish_run"]
@@ -3097,9 +3210,14 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         "dataset": {"name": dataset["name"], "graded_sha256": dataset["graded_sha256"]},
         "prompts": document["prompts"],
         **({"dont_know_prompts": document["dont_know_prompts"]} if dont_know_sets or turkish_idk_sets else {}),
+        # The chat models' prompts with the option, when one of their runs is published.
+        **({"dont_know_chat_prompts": document["dont_know_chat_prompts"]}
+           if any(not PROVIDERS[by_id[run]["provider"]]["scoring"] for run in dont_know_sets) else {}),
         **({"english_prompts": document["english_prompts"]} if english_sets else {}),
         **({"english_chat_prompts": document["english_chat_prompts"]} if english_sets and "english_chat_prompts" in document else {}),
         **({"english_dont_know_prompts": document["english_dont_know_prompts"]} if english_idk_sets else {}),
+        **({"english_dont_know_chat_prompts": document["english_dont_know_chat_prompts"]}
+           if any(not PROVIDERS[by_id[run]["provider"]]["scoring"] for run in english_idk_sets) else {}),
         **({"dont_know_word_prompts": document["dont_know_word_prompts"]} if word_runs else {}),
         "questions": dataset["questions"],
         "runs": [by_id[run] for run in sorted(main)],

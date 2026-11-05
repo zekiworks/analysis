@@ -78,7 +78,7 @@ import statistics
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 import benchmark_metrics as bm  # noqa: E402
@@ -446,7 +446,7 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
-    dont_know_mismatches = check_dont_know(results, answers, scored, checks)
+    dont_know_mismatches = check_dont_know(args.docs, results, answers, scored, checks)
     checked = checks.passed + checks.failed - before
     models = len((results.get("dont_know") or {}).get("models", []))
     print(
@@ -835,15 +835,60 @@ def derived_abstention(answers: list[tuple[float | None, int]], target: float) -
     }
 
 
-def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
+# The runner's providers asked with the System One instructions (DECISION_PROVIDERS in benchmark_ollama.py): those of
+# page_config.json's decision_model_providers and vLLM's yes/no scoring; every other provider is asked with the chat
+# prompts.
+SYSTEM_ONE_EXTRA = ("vllm-yes-no",)
+
+
+def system_one(docs: Path, provider: str) -> bool:
+    """Whether the runner asks a provider with the System One instructions (decision prompts), not the chat prompts."""
+    config = json.loads((docs / "page_config.json").read_text(encoding="utf-8"))
+    return provider in config["decision_model_providers"] or provider in SYSTEM_ONE_EXTRA
+
+
+def group_of(docs: Path, provider: str, model: str) -> str:
+    """A setup's view bar group by page_config.json's rule (Site.decision): "decision" when its provider is one of
+    decision_model_providers and its model not one of not_decision_models, else "chat"."""
+    config = json.loads((docs / "page_config.json").read_text(encoding="utf-8"))
+    decision = provider in config["decision_model_providers"] and model not in config["not_decision_models"]
+    return "decision" if decision else "chat"
+
+
+def check_chat_prompts(published: dict[str, Any] | None, prompts: dict[str, Any] | None, base: dict[str, Any], option: str,
+                       check: Callable[[str, Any, Any], None]) -> str | None:
+    """Check a section's chat prompts with the "I don't know" option (`chat`) against answers.json's (`prompts`): the
+    option, each instruction the five-option chat prompts' (`base`) plus the sentence, each system prompt the base
+    one, and the published sentence, confidence system prompt and instruction and version (the prompts hashed).
+    Returns that version, or None without such prompts."""
+    if prompts is None:
+        check("chat prompts", published, None)
+        return None
+    sentence = prompts.get("dont_know_sentence")
+    check("chat option", prompts.get("dont_know_option"), option)
+    for field in ("answer_instruction", "confidence_instruction", "verbal_instruction"):
+        check(f"chat {field}", prompts.get(field), f"{base.get(field)} {sentence}")
+    for field in ("answer_system", "confidence_system", "verbal_system"):
+        check(f"chat {field}", prompts.get(field), base.get(field))
+    version = hashed(prompts)
+    check("chat prompts", published, {"sentence": sentence, "confidence_system": prompts.get("confidence_system"),
+                                      "confidence_instruction": prompts.get("confidence_instruction"), "prompt_version": version})
+    return version
+
+
+def check_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
     """Recompute results.json's `dont_know` from answers.json's `dont_know_runs` on the scored questions: each model's
-    right, wrong, "Bilmiyorum" (the letter DONT_KNOW_LETTER, which must be the last label of every answer's option
-    probabilities) and invalid answers, accuracy, attempt rate, non-hallucination rate and mean probability of the
-    option, from its first run; the range of the rates over its runs and the answers that differ between them; its
-    original run's accuracy; the derived abstention on that run at the first run's attempt rate; and the first run against
-    the original run held back at that cut-off, as wrong answers in each (exact McNemar, Holm over the models that chose
-    the option on at least vs_confidence_share of the questions). Every run must be listed once and in no other list.
-    Returns a line per model that differs."""
+    group (group_of), right, wrong, "Bilmiyorum" (the letter DONT_KNOW_LETTER, which must be the last label of every
+    answer's option probabilities) and invalid answers, accuracy, attempt rate, non-hallucination rate and mean
+    probability of the option, from its first run; the range of the rates over its runs and the answers that differ
+    between them; a chat model's original run, the main run of its setup (provider, model, reasoning, questions per
+    request, Perplexity mode); its original run's accuracy; the derived abstention on that run at the first run's attempt
+    rate; and for a decision model the first run against the original run held back at that cut-off, as wrong answers in
+    each (exact McNemar, Holm over the decision models that chose the option on at least vs_confidence_share of the
+    questions; none for a chat model). The prompts: the decision models' version (dont_know_prompts hashed) and the chat
+    models' prompts (check_chat_prompts), each run with its kind's version (a run that reports option probabilities
+    answered with the System One instructions, any other with the chat prompts). Every run must be listed once and in
+    no other list. Returns a line per model that differs."""
     section = results.get("dont_know")
     runs = {run["run"]: run for run in answers.get("dont_know_runs", [])}
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
@@ -860,10 +905,29 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
     total = len(scored)
     rates = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
     mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any) -> None:
+        if "≠" in checks.cell(published == recomputed, f"{name} {recomputed}", str(published)):
+            mismatches.append(f"  {name}: {published} against {recomputed}")
+
+    prompts = answers.get("dont_know_prompts") or {}
+    option = prompts.get("dont_know_option")
+    sentence = f"If you do not know the answer, choose {option}."
+    check("option", section["option"], option)
+    check("sentence", section["sentence"], sentence)
+    check("instructions", [section["instructions"], prompts.get("system_one_instructions")],
+          [f"{answers['prompts']['system_one_instructions']} {sentence}"] * 2)
+    check("prompt version", section["prompt_version"], hashed(prompts))
+    chat_version = check_chat_prompts(section.get("chat"), answers.get("dont_know_chat_prompts"), answers["prompts"], option, check)
+    for run_id, run in sorted(runs.items()):
+        decision = system_one(docs, run["provider"])
+        check(f"run {run_id} prompt version", run["prompt_version"], section["prompt_version"] if decision else chat_version)
     tests = []
     for model in section["models"]:
         cells = []
         found = []
+        group = group_of(docs, model["provider"], model["model"])
+        cells.append(checks.cell(model.get("group") == group, f"group {group}", str(model.get("group"))))
         for run_id in model["runs"]:
             run = runs[run_id]
             counts = {"right": 0, "wrong": 0, "dont_know": 0, "invalid": 0}
@@ -908,6 +972,12 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
             changed = sum(1 for index in scored if all(choice[index] is not None for choice in choices)
                           and len({choice[index] for choice in choices}) > 1)
             cells.append(checks.cell(changed == model["answers_changed"], f"answers changed {changed}", str(model["answers_changed"])))
+        if group == "chat":
+            head = runs[model["runs"][0]]
+            setup = [run["run"] for run in answers["runs"] if [run["provider"], run["model"], run["thinking"], run["questions_per_request"],
+                                                               run.get("perplexity_mode")]
+                     == [head["provider"], head["model"], head["thinking"], head["questions_per_request"], head.get("perplexity_mode")]]
+            cells.append(checks.cell(setup == [model["original_run"]], f"the setup's main runs {setup}", str(model["original_run"])))
         original = main.get(model["original_run"])
         if original is None:
             checks.failed += 1
@@ -923,19 +993,22 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
             published = model["derived"][key]
             matched = published == value if key in ("right", "wrong", "abstained") else close(published, value, METRIC_TOLERANCE)
             cells.append(checks.cell(matched, f"derived {key} {value}", str(published)))
-        first_run = runs[model["runs"][0]]
-        option_wrong = [int(first_run["choice"][index] not in (None, DONT_KNOW_LETTER) and not first_run["correct"][index]) for index in scored]
-        cut_off = derived["cut_off"]
-        confidence_wrong = [int(cut_off is not None and original["score"][index] is not None and float(original["score"][index]) >= cut_off
-                                and not original["correct"][index]) for index in scored]
-        test = bm.paired_comparison(option_wrong, confidence_wrong)
-        published = model.get("vs_confidence") or {}
-        counts = [test["first_only"], test["second_only"]]
-        cells.append(checks.cell(counts == [published.get("option_only_wrong"), published.get("confidence_only_wrong")],
-                                 f"wrong only with the option, only with confidence {counts}",
-                                 str([published.get("option_only_wrong"), published.get("confidence_only_wrong")])))
-        cells.append(checks.cell(published.get("p") is not None and close(published["p"], test["p"], METRIC_TOLERANCE), f"p {number(test['p'])}", str(published.get("p"))))
-        tests.append((model, test))
+        if group == "chat":
+            cells.append(checks.cell(model.get("vs_confidence") is None, "no comparison with confidence", str(model.get("vs_confidence"))))
+        else:
+            first_run = runs[model["runs"][0]]
+            option_wrong = [int(first_run["choice"][index] not in (None, DONT_KNOW_LETTER) and not first_run["correct"][index]) for index in scored]
+            cut_off = derived["cut_off"]
+            confidence_wrong = [int(cut_off is not None and original["score"][index] is not None and float(original["score"][index]) >= cut_off
+                                    and not original["correct"][index]) for index in scored]
+            test = bm.paired_comparison(option_wrong, confidence_wrong)
+            published = model.get("vs_confidence") or {}
+            counts = [test["first_only"], test["second_only"]]
+            cells.append(checks.cell(counts == [published.get("option_only_wrong"), published.get("confidence_only_wrong")],
+                                     f"wrong only with the option, only with confidence {counts}",
+                                     str([published.get("option_only_wrong"), published.get("confidence_only_wrong")])))
+            cells.append(checks.cell(published.get("p") is not None and close(published["p"], test["p"], METRIC_TOLERANCE), f"p {number(test['p'])}", str(published.get("p"))))
+            tests.append((model, test))
         if any("≠" in cell for cell in cells):
             mismatches.append(f"  {label(model)}: " + ", ".join(cell for cell in cells if "≠" in cell))
     family = [(model, test) for model, test in tests if model["dont_know"] >= section["vs_confidence_share"] * total]
@@ -998,7 +1071,7 @@ def check_option_word(results: dict[str, Any], answers: dict[str, Any], scored: 
     """Recompute results.json's `dont_know_option_word` from answers.json's `dont_know_word_runs` and `dont_know_runs`
     on the scored questions: the option ("I don't know"), its sentence, the instructions (the System One instructions
     plus the sentence) and the prompt version (dont_know_word_prompts hashed, the main prompts otherwise); the models,
-    the Hallucination tab's in its order with those in not_run left out; per model its Hallucination tab first run with
+    the Hallucination tab's decision models in its order with those in not_run left out; per model its Hallucination tab first run with
     "Bilmiyorum" and one run of the same setup with "I don't know" over every scored question, with their prompt versions,
     counts, rates and mean probability of the option, and the paired test of wrong answers (exact McNemar, first
     "Bilmiyorum") with Holm's correction over the models compared. Every option-word run must be listed once and in no
@@ -1037,7 +1110,8 @@ def check_option_word(results: dict[str, Any], answers: dict[str, Any], scored: 
           {key: value for key, value in prompts.items() if key not in ("system_one_instructions", "dont_know_option")})
     check("prompt version", section["prompt_version"], version)
     check("questions", section["questions"], len(scored))
-    rows = (results.get("dont_know") or {}).get("models", [])
+    # The Hallucination tab's decision models (each row's group, checked by check_dont_know).
+    rows = [row for row in (results.get("dont_know") or {}).get("models", []) if row["group"] == "decision"]
     skipped = [item["name"] for item in section["not_run"]]
     check("not run, all Hallucination tab models", True, set(skipped) <= {row["name"] for row in rows})
     expected = [row for row in rows if row["name"] not in skipped]
@@ -1229,7 +1303,7 @@ def check_vs_confidence(results: dict[str, Any], answers: dict[str, Any], scored
             family.append((entry, test["p"]))
     check("family", section["family"], [entry["name"] for entry, _ in family])
     check("family is the Hallucination tab's among the option-word models", sorted(section["family"]),
-          sorted(row["name"] for row in results["dont_know"]["models"] if row["vs_confidence"]["p_holm"] is not None
+          sorted(row["name"] for row in results["dont_know"]["models"] if row["vs_confidence"] and row["vs_confidence"]["p_holm"] is not None
                  and row["name"] in {model["name"] for model in sections}))
     adjusted = dict(zip((id(entry) for entry, _ in family), bm.holm([p for _, p in family])))
     for entry in section["models"]:
@@ -1549,7 +1623,8 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
     ids = answers["questions"]["id"]
     words = {model["bilmiyorum"]["run"]: model["i_dont_know"]["run"]
              for model in (results.get("dont_know_option_word") or {}).get("models", [])}
-    option_rows = {row["original_run"]: row for row in results["dont_know"]["models"]}
+    # The decision models' rows (each row's group, checked by check_dont_know): chat models' runs with the option stay out.
+    option_rows = {row["original_run"]: row for row in results["dont_know"]["models"] if row["group"] == "decision"}
     check("Turkish: every Hallucination tab model is a main run", sorted(set(option_rows) - {run["run"] for run in results["runs"]}), [])
     turkish = []
     for main_run in results["runs"]:
@@ -1570,7 +1645,8 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
     kept = sorted(position[item["question_id"]] for item in public["questions"] if item["kept"])
     reading = results["english_reading"]
     idk = reading.get("dont_know") or {}
-    first_english = {model["text_run"]: model["english"]["run"] for model in idk.get("models", []) + idk.get("english_only", [])}
+    first_english = {model["text_run"]: model["english"]["run"] for model in idk.get("models", []) + idk.get("english_only", [])
+                     if model["group"] == "decision"}
     english = []
     for model in reading["models"]:
         text_run = model["turkish_run"]
@@ -1950,8 +2026,8 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     check("instructions in english_prompts", section["instructions"], prompts.get("system_one_instructions"))
     check("options heading", section["options_heading"], (prompts.get("options_heading") or "").strip())
     check("prompt version", section["prompt_version"], version)
-    # The chat models' prompts in English (english_chat_prompts): a run that reports option probabilities answered with
-    # the System One instructions in English, any other with these.
+    # The chat models' prompts in English (english_chat_prompts): a run of a System One provider (system_one) answered
+    # with the System One instructions in English, any other with these.
     chat_prompts = answers.get("english_chat_prompts")
     chat_version = None if chat_prompts is None else hashed(chat_prompts)
     check("chat prompts", [section.get("chat_prompts"), section.get("chat_prompt_version")], [chat_prompts, chat_version])
@@ -1967,7 +2043,7 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     for run_id, run in sorted(runs.items()):
         english = run.get("english") or {}
         asked = [index for index, value in enumerate(run["correct"]) if value is not None]
-        expected = version if any(run["probabilities"][index] for index in asked) else chat_version
+        expected = version if system_one(docs, run["provider"]) else chat_version
         check(f"English run {run_id}", [expected, public["translations_sha256"], len(kept), kept],
               [run["prompt_version"] if run["prompt_version"] == english.get("prompt_version") else None,
                english.get("translations_sha256"), english.get("questions"), asked])
@@ -2121,6 +2197,8 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     check("the other English prompts", {key: value for key, value in english_prompts.items() if key != "system_one_instructions"},
           {key: value for key, value in prompts.items() if key not in ("system_one_instructions", "dont_know_option")})
     check("prompt version", section["prompt_version"], version)
+    chat_version = check_chat_prompts(section.get("chat"), answers.get("english_dont_know_chat_prompts"),
+                                      answers.get("english_chat_prompts") or {}, option, check)
     position = {question: index for index, question in enumerate(answers["questions"]["id"])}
     kept = sorted(position[item["question_id"]] for item in public["questions"] if item["kept"] and item["question_id"] in position)
     total = len(kept)
@@ -2129,8 +2207,10 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     for run_id, run in sorted(english_runs.items()):
         english = run.get("english") or {}
         asked = [index for index, value in enumerate(run["correct"]) if value is not None]
+        # A run of a System One provider (system_one) answered with the System One instructions, any other with the chat prompts.
+        expected_version = version if system_one(docs, run["provider"]) else chat_version
         check(f"English \"I don't know\" run {run_id} (option, versions, translations, questions, asked the kept ones)",
-              [True, version, version, public["translations_sha256"], total, True],
+              [True, expected_version, expected_version, public["translations_sha256"], total, True],
               [bool(run.get("dont_know")), run["prompt_version"], english.get("prompt_version"),
                english.get("translations_sha256"), english.get("questions"), asked == kept])
     for run_id, run in sorted(subset_runs.items()):
@@ -2151,22 +2231,25 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     fulls = setups({run_id: run for run_id, run in full_runs.items() if not run.get("question_list")})
     expected = []
     expected_only = []
-    only_setups = {(item["provider"], item["model"]) for item in english_only}
+    only_runs = {item["text_run"] for item in english_only}
+    reason = json.loads((docs / "page_config.json").read_text(encoding="utf-8"))["dont_know"]["running"]
     for (provider, model, thinking, size, mode), group in setups(english_runs).items():
         group.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
         name = f"{model} ({provider})"
-        check(f"{name}, English \"I don't know\" runs", [size, 1], [1, sum(1 for run in group if run["repeat"] is None)])
+        check(f"{name}, English \"I don't know\" runs without a repeat number", 1, sum(1 for run in group if run["repeat"] is None))
         text_model = ENGLISH_TEXT_MODEL.get((provider, model), model)
         found = sorted(run["run"] for run in main.values()
                        if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"],
-                           run.get("perplexity_mode")) == (provider, text_model, thinking, 1, None, mode))
+                           run.get("perplexity_mode")) == (provider, text_model, thinking, size, None, mode))
         check(f"{name}, Text tab run", 1, len(found))
-        subset, full = subsets.pop((provider, model, thinking, 1, mode), None), fulls.get((provider, model, thinking, 1, mode))
-        alone = (provider, model) in only_setups
+        kind = group_of(docs, provider, model)
+        subset, full = subsets.pop((provider, model, thinking, size, mode), None), fulls.get((provider, model, thinking, size, mode))
+        alone = bool(found) and found[0] in only_runs
         check(f"{name}, Turkish sides{' (published without one)' if alone else ''}", 0 if alone else 1,
               int(subset is not None) + int(full is not None))
         if len(found) == 1 and alone and subset is None and full is None:
-            expected_only.append(({"name": named[found[0]]["name"], "model": model, "provider": provider, "text_run": found[0],
+            expected_only.append(({"name": named[found[0]]["name"], "model": model, "provider": provider, "group": kind,
+                                   "text_run": found[0], "running": kind == "chat",
                                    "english": {"run": group[0]["run"], "runs": [run["run"] for run in group]}}, group))
             continue
         if len(found) != 1 or alone or (subset is None) == (full is None):
@@ -2178,7 +2261,7 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
             full.sort(key=lambda run: (run["repeat"] is not None, run["run"]))
         turkish = subset or full
         expected.append((
-            {"name": named[found[0]]["name"], "model": model, "provider": provider, "text_run": found[0],
+            {"name": named[found[0]]["name"], "model": model, "provider": provider, "group": kind, "text_run": found[0],
              "english": {"run": group[0]["run"], "runs": [run["run"] for run in group]},
              "turkish": {"run": turkish[0]["run"], "runs": [run["run"] for run in turkish], "subset": subset is not None}},
             {"english": group, "turkish": turkish},
@@ -2228,7 +2311,7 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
         if model is None:
             continue
         check(f"{name}, identity",
-              {**{key: model.get(key) for key in ("name", "model", "provider", "text_run")},
+              {**{key: model.get(key) for key in ("name", "model", "provider", "group", "text_run")},
                "english": {key: model["english"].get(key) for key in ("run", "runs")},
                "turkish": {key: model["turkish"].get(key) for key in ("run", "runs", "subset")}}, item)
         for side in ("english", "turkish"):
@@ -2264,9 +2347,12 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
         check(f"{name}, wrong only in English, only in Turkish", [paired.get("english_only_wrong"), paired.get("turkish_only_wrong")],
               [test["first_only"], test["second_only"]])
         check(f"{name}, p", paired.get("p"), test["p"], p=True)
-        tests.append((model, test["p"]))
-    for (model, _), adjusted in zip(tests, bm.holm([p for _, p in tests])):
-        check(f"{model['name']}, p_holm", model["paired"]["p_holm"], adjusted, p=True)
+        tests.append((model, test["p"], item["group"]))
+    # Holm's correction within each group: the decision models' family and the chat models'.
+    for kind in ("decision", "chat"):
+        family = [(model, p) for model, p, group in tests if group == kind]
+        for (model, _), adjusted in zip(family, bm.holm([p for _, p in family])):
+            check(f"{model['name']}, p_holm", model["paired"]["p_holm"], adjusted, p=True)
     order = [model["english"]["run"] for model in sorted(models, key=lambda item: (
         item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0), item["name"].casefold(), item["english"]["run"]))]
     check("model order", [model["english"]["run"] for model in models], order)
@@ -2281,9 +2367,9 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
             continue
         name = f"{item['name']} (English \"I don't know\" run {item['english']['run']}, English only)"
         check(f"{name}, identity",
-              {**{key: model.get(key) for key in ("name", "model", "provider", "text_run")},
+              {**{key: model.get(key) for key in ("name", "model", "provider", "group", "text_run", "running")},
                "english": {key: model["english"].get(key) for key in ("run", "runs")}}, item)
-        check(f"{name}, reason given", True, bool(model.get("reason")))
+        check(f"{name}, reason given", True, bool(model.get("reason")) and (not item["running"] or model["reason"] == reason))
         check(f"{name}, no Turkish side, no test, in no Holm family", [None, None, None, False],
               [model.get("turkish"), model.get("paired"), model.get("spread"), item["text_run"] in four])
         check(f"{name}, repeat sets", [item["english"]["runs"]] * len(group), [run["repeat_set"] for run in group])
@@ -2296,6 +2382,34 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     order = [model["english"]["run"] for model in sorted(english_only, key=lambda item: (
         item["english"]["non_hallucination"] is None, -(item["english"]["non_hallucination"] or 0), item["name"].casefold(), item["english"]["run"]))]
     check("English-only model order", [model["english"]["run"] for model in english_only], order)
+    # Turkish-only entries: a chat model's Hallucination tab row of an English reading model's Text tab run whose English
+    # run with the option is still running, its first run counted on the kept questions, in no Holm family.
+    reading = {model["turkish_run"]: model for model in (results.get("english_reading") or {}).get("models", [])}
+    paired_full = {model["turkish"]["run"] for model in models if not model["turkish"]["subset"]}
+    expected_turkish = [row for row in (results.get("dont_know") or {}).get("models", [])
+                        if group_of(docs, row["provider"], row["model"]) == "chat" and row["original_run"] in reading
+                        and row["run"] not in paired_full]
+    turkish_only = section.get("turkish_only", [])
+    check("Turkish-only models", sorted(model["turkish"]["run"] for model in turkish_only), sorted(row["run"] for row in expected_turkish))
+    by_turkish = {model["turkish"]["run"]: model for model in turkish_only}
+    for row in expected_turkish:
+        model = by_turkish.get(row["run"])
+        if model is None:
+            continue
+        name = f"{row['name']} (Turkish run {row['run']}, Turkish only)"
+        check(f"{name}, identity", {key: model.get(key) for key in ("name", "model", "provider", "group", "text_run", "running", "reason")},
+              {"name": reading[row["original_run"]]["name"], "model": row["model"], "provider": row["provider"], "group": "chat",
+               "text_run": row["original_run"], "running": True, "reason": reason})
+        check(f"{name}, runs", {key: model["turkish"].get(key) for key in ("run", "runs", "subset")},
+              {"run": row["run"], "runs": row["runs"], "subset": False})
+        first, published = counted(full_runs[row["run"]]), model["turkish"]
+        check(f"{name}, counts", [published.get(key) for key in ("right", "wrong", "dont_know", "invalid")],
+              [first[key] for key in ("right", "wrong", "dont_know", "invalid")])
+        for key in rates:
+            check(f"{name}, {key}", published.get(key), first[key], metric=True)
+    order = [model["turkish"]["run"] for model in sorted(turkish_only, key=lambda item: (
+        item["turkish"]["non_hallucination"] is None, -(item["turkish"]["non_hallucination"] or 0), item["name"].casefold(), item["turkish"]["run"]))]
+    check("Turkish-only model order", [model["turkish"]["run"] for model in turkish_only], order)
     return mismatches
 
 
