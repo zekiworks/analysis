@@ -708,7 +708,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
     turkish_rank, english_rank = ranks(group_setups, "turkish"), ranks(group_setups, "english")
     total = data["questions"]
     option = (word or {}).get("option", "")
-    difference_note = "English minus Turkish, in points; positive = higher in English"
+    difference_note = "points higher in English than in Turkish (negative: higher in Turkish)"
     bilmiyorum = "Turkish with “Bilmiyorum”"
     bilmiyorum_note = "wrong of answers, lower is better; answered and non-hallucination under it"
     # (group, its columns, the note under each column); a group of one column without a name spans both header rows.
@@ -720,7 +720,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             (f"Wrong of answers with “{option}”", ("Turkish", "English"), ("wrong / (right + wrong); lower is better",) * 2),
             (f"Non-hallucination with “{option}”", ("Turkish", "English", "Difference"),
              (f"“{option}” / (“{option}” + wrong); higher is better",) * 2
-             + ("English minus Turkish non-hallucination, in points; positive = higher in English",)),
+             + ("non-hallucination points higher in English than in Turkish (negative: higher in Turkish)",)),
             (bilmiyorum, ("",), (bilmiyorum_note,))]
     groups += [("Cost", ("Turkish", "English"), ("$ per 1,000 questions; lower is better",) * 2),
                ("Latency", ("Turkish", "English"), ("median seconds per request; lower is better",) * 2),
@@ -833,7 +833,7 @@ def columns(data: dict[str, Any]) -> tuple[tuple[str, str], ...]:
         ("Turkish runs", "the Text tab run, then its repeats; answers changed between them"),
         ("Turkish accuracy", "the Text tab run on the kept questions; range over its runs; higher is better"),
         ("English accuracy", "the first English run; range over its runs; higher is better"),
-        ("Difference", "English minus Turkish, in points"),
+        ("Difference", "points higher in English than in Turkish"),
         ("Right only in English", "questions the English run got right and the Turkish run did not"),
         ("Right only in Turkish", "questions the Turkish run got right and the English run did not"),
         ("p", "exact McNemar"),
@@ -2154,7 +2154,7 @@ def build(site: Site) -> dict[str, str]:
       <h3>Runs</h3>
       <p>One English run per setup; five where the setup's whole-bank Turkish repeats on the Text tab changed answers{whole_bank}. Here: {runs_text(site, data)}. The English runs are kept out of the leaderboard and its repeats.</p>
       <h3>The comparison</h3>
-      <p>On the {kept} kept questions only: accuracy is the right answers over {kept} for the first English run and for the Text tab run (an invalid answer counts as not right), and the difference is English minus Turkish. The paired test is the exact McNemar test on the questions only one of the two runs got right, with p adjusted by Holm's method over all {family} English {noun("all", family)}, decision and chat alike, whatever the group shown. Where a side has more than one run, its range is the lowest and highest accuracy over its runs, and its answers changed are the kept questions whose answer differs between them.</p>
+      <p>On the {kept} kept questions only: accuracy is the right answers over {kept} for the first English run and for the Text tab run (an invalid answer counts as not right), and the difference is how many points higher the English run scored than the Turkish one (negative where Turkish is higher). The paired test is the exact McNemar test on the questions only one of the two runs got right, with p adjusted by Holm's method over all {family} English {noun("all", family)}, decision and chat alike, whatever the group shown. Where a side has more than one run, its range is the lowest and highest accuracy over its runs, and its answers changed are the kept questions whose answer differs between them.</p>
       <h3>Why the translations are not published</h3>
       <p>The site never publishes question text, Turkish or English: the publisher owns the questions. {download} holds instead each reading question's ID, unit, whether it was kept, its flag reasons and the SHA-256 of its English text, with the translator and both prompts, so that a copy of these translations can be checked against it. Translating again with {script} need not give the same text word for word.</p>
     </section>{instructions(site, data)}<div {DECISION_ONLY}>{dont_know_info(site, idk) if idk else ""}{dont_know_word_info(site, data, word_decision) if word_decision else ""}</div>{languages(site, data)}

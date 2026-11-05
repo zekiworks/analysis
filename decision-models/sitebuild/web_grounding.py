@@ -383,15 +383,16 @@ def method(data: dict[str, Any]) -> str:
 
 
 def pws_section(site: Site, loaded: tuple[dict[str, Any], list[dict[str, Any]]] | None) -> str:
-    """PWS-Decisions' charts of every setup (pws_decisions.py), with its framing and provenance; nothing without
-    pws-decisions.json."""
+    """PWS-Decisions' charts of its decision-model setups (pws_decisions.py), with its framing and provenance; the chat
+    models' rows are on the PWS-Decisions page only. Nothing without pws-decisions.json."""
     if loaded is None:
         return ""
     pws, items = loaded
+    items = [item for item in items if not pws_decisions.chat(item["setup"])]
     return f"""<section class="card" id="pws">
-      <h2>PWS-Decisions: every setup, with and without web</h2>
+      <h2>PWS-Decisions: the decision models, with and without web</h2>
       {pws_decisions.framing(pws)}
-      <p>Each bar is the mean of our {pws['runs_per_setup']} runs per setup; the PWS-Decisions rows of the charts above are our first pair of runs ({esc(long_date(PWS_RUN_DATE))}), one run each. Every number, and what was not run: <a href="{rel(PATH, pws_decisions.PATH)}">PWS-Decisions</a>.</p>
+      <p>Each bar is the mean of our {pws['runs_per_setup']} runs per setup; the PWS-Decisions rows of the charts above are our first pair of runs ({esc(long_date(PWS_RUN_DATE))}), one run each. Chat models, with and without their own web search, and every number: <a href="{rel(PATH, pws_decisions.PATH)}">PWS-Decisions</a>.</p>
       {pws_decisions.provenance(pws)}
     </section>
     <section class="charts" aria-label="PWS-Decisions charts">{pws_decisions.charts(site, pws, items, PATH, "chart-pws-")}</section>"""
@@ -409,7 +410,7 @@ def build(site: Site) -> dict[str, str]:
     upper = site.config["first_cost_marks"]["upper"]
     named = setups(site, data)
     loaded = pws_decisions.load(site)
-    pws_nav = '<a href="#pws">PWS-Decisions, every setup</a>' if loaded else ""
+    pws_nav = '<a href="#pws">PWS-Decisions, decision models</a>' if loaded else ""
     days = sorted(set(data["dates"]) | {PWS_RUN_DATE})
     when = long_date(days[0]) if len(days) == 1 else f"{long_date(days[0])} to {long_date(days[-1])}"
     body = f"""    <section class="card">
