@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 1da8b0da (5 November 2026)
+
+- English reading: the last two OpenAI chat setups in English, at one question per request through Codex CLI on the ChatGPT subscription, as their Text tab runs: GPT-6 Astra at low reasoning (run 622) 95.6% in English against 97.1% in Turkish (exact McNemar p 0.008, adjusted 0.32 with Holm over 46 setups) and GPT-6.1 Sol at low reasoning (623) 95.2% against 95.6%, each with 0 invalid answers; neither difference is significant after the correction, and no other model's result changes. All nine OpenAI chat setups now have an English run, and 46 of the Text tab's 77 setups. The English same number of answers covers the 46 setups. No other run changed.
+
 ## Results 5a5fedaa (5 November 2026)
 
 - English reading: four more OpenAI chat setups in English, as the previous three (Codex CLI on the ChatGPT subscription, their Text tab runs' settings, 16 questions per request): GPT-6.1 Sol at high reasoning (run 618) 95.6% in English against 96.2% in Turkish, GPT-6.1 Sol at low reasoning (619) 95.8% against 95.8%, GPT-6.1 Terra at high reasoning (620) 96.2% against 96.3% and GPT-6.1 Terra at low reasoning (621) 96.2% against 95.6%, each with 0 invalid answers; none of the four differences is significant (Holm over 44 setups), and no other model's result changes. 44 of the Text tab's 77 setups now have an English run; GPT-6 Astra and GPT-6.1 Sol at one question per request are running. GPT-6 Luna's chat setup now reads "GPT-6 Luna (chat API, low reasoning, 16/request)". The English same number of answers covers the 44 setups. No other run changed.
