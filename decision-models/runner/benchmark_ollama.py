@@ -421,6 +421,13 @@ PRICES: dict[tuple[str, str], Price] = {
         "OpenRouter's price for DeepSeek's own endpoint", "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017", "2026-10-28",
         0.15, 0.60, cached_input=0.003,
     ),
+    # DeepSeek-V4.1-Flash 1017 on our GPUs, at DeepSeek's own API price for the same model (deepseek-flash serves
+    # DeepSeek-V4.1-Flash-1017): its regular rate, the peak hours' (01:00-04:00 and 06:00-10:00 UTC on weekdays); the
+    # other hours cost half.
+    ("vllm", "deepseek-v4.1-flash-1017"): Price(
+        "DeepSeek's list price for the same model, peak hours (off-peak is half)",
+        "https://api-docs.deepseek.com/quick_start/pricing", "2026-11-05", 0.30, 1.20, cached_input=0.006, applies_to="maker",
+    ),
     # Prompts up to 272K tokens.
     ("openai", "gpt-6-astra"): Price(
         "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 10.00, 50.00, cached_input=1.00, cache_write=12.50
