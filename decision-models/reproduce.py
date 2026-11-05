@@ -2323,14 +2323,15 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
         kind = group_of(docs, provider, model)
         subset, full = subsets.pop((provider, model, thinking, size, mode), None), fulls.get((provider, model, thinking, size, mode))
         alone = bool(found) and found[0] in only_runs
+        # The Turkish side: the runs on the kept questions where the setup has them, else its full-bank runs.
         check(f"{name}, Turkish sides{' (published without one)' if alone else ''}", 0 if alone else 1,
-              int(subset is not None) + int(full is not None))
+              int(subset is not None or full is not None))
         if len(found) == 1 and alone and subset is None and full is None:
             expected_only.append(({"name": named[found[0]]["name"], "model": model, "provider": provider, "group": kind,
                                    "text_run": found[0], "running": kind == "chat",
                                    "english": {"run": group[0]["run"], "runs": [run["run"] for run in group]}}, group))
             continue
-        if len(found) != 1 or alone or (subset is None) == (full is None):
+        if len(found) != 1 or alone or (subset is None and full is None):
             continue
         if subset is not None:
             subset.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
@@ -2463,10 +2464,14 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     # Turkish-only entries: a chat model's Hallucination tab row of an English reading model's Text tab run whose English
     # run with the option is still running, its first run counted on the kept questions, in no Holm family.
     reading = {model["turkish_run"]: model for model in (results.get("english_reading") or {}).get("models", [])}
+    # A chat row counts as paired when its setup's model has an English side, whether its Turkish side is that row or
+    # its runs on the kept questions.
     paired_full = {model["turkish"]["run"] for model in models if not model["turkish"]["subset"]}
+    paired_subset = {(model["text_run"], model["provider"], model["model"]) for model in models if model["turkish"]["subset"]}
     expected_turkish = [row for row in (results.get("dont_know") or {}).get("models", [])
                         if group_of(docs, row["provider"], row["model"]) == "chat" and row["original_run"] in reading
-                        and row["run"] not in paired_full]
+                        and row["run"] not in paired_full
+                        and (row["original_run"], row["provider"], row["model"]) not in paired_subset]
     turkish_only = section.get("turkish_only", [])
     check("Turkish-only models", sorted(model["turkish"]["run"] for model in turkish_only), sorted(row["run"] for row in expected_turkish))
     by_turkish = {model["turkish"]["run"]: model for model in turkish_only}

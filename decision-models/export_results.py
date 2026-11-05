@@ -1526,7 +1526,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
     **{(provider, model, None): OPTION_WORD_GPU_LATER for provider, model in (
         ("clef", "clef-flash"), ("cygnet", "cygnet"), ("gliner", "gliner2.5-multi-decide"), ("laya", "laya"),
         ("laya", "laya-multilingual"), ("d1-server", "LiquidAI/d1-2B"), ("metask", "metask-jev-4b-policy-mix"),
-        ("strands", "strands-decider-2b"), ("winnow", "winnow-12b"))},
+        ("strands", "strands-decider-2b"), ("winnow", "winnow-12b"), ("clef", "clef"), ("onejev", "OmniJev/OneJev-27B"),
+        ("open-jev", "open-jev-27b-v1.1"), ("pplx-decider", "pplx-decider-flash-v1.2"))},
 }
 # The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
 # five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't
@@ -2389,8 +2390,9 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
     reasoning, questions per request as its English reading run's; the first run without a repeat number first, its
     repeats after it), named after its English reading model (the one whose first English run its runs name as their
     original run), with its view bar group (group_of), and its Turkish side, the same setup's runs with the option:
-    either its runs on exactly the English runs' questions with a question list (subset runs, same order) or, without
-    those, its full-bank runs on the Hallucination tab (the row of the same Text tab run, provider and model), counted
+    its runs on exactly the English runs' questions with a question list (subset runs, same order) where it has them,
+    even with a Hallucination tab row, else its full-bank runs on the Hallucination tab (the row of the same Text tab
+    run, provider and model), counted
     on the kept questions. Turkish runs with the option on that many listed questions belong to no other section, so
     each must pair with an English setup. A setup without a Turkish side is published in English only
     (`english_only`): a decision model with its reason from ENGLISH_DONT_KNOW_ENGLISH_ONLY, a chat model with
@@ -2444,9 +2446,10 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         subset = subsets.pop((provider, model, thinking, size, mode), None)
         hallucination = [item for item in full if item["original_run"] == text_run
                          and (item["provider"], item["model"], item["perplexity_mode"]) == (provider, model, mode)]
+        # A Turkish run on the kept questions is the setup's Turkish side even when the setup also has a full-bank row on
+        # the Hallucination tab (that row stays the tab's); the full-bank runs are the Turkish side only without one.
         if subset is not None and hallucination:
-            raise ValueError(f"{label}: both Turkish runs on the kept questions {[record['run_id'] for record in subset]} "
-                             f"and full-bank runs {[item['runs'] for item in hallucination]} could be its Turkish side")
+            paired_rows.update(item["run"] for item in hallucination)
         reason = ENGLISH_DONT_KNOW_ENGLISH_ONLY.get((provider, model))
         if reason is not None:
             if subset is not None or hallucination:

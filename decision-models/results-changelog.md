@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results d2ac2b4e (5 November 2026)
+
+- English reading and English and Turkish: four more setups from our GPUs in English, 71 English setups in all: Gemma 4 31B at 16 per request 90.5% (Turkish 92.5%) and at 1 per request 89.9% (90.3%), OneJev 27B 86.3% (87.8%) and Qwen3-14B 79.7% (76.8%); none of the differences is significant (Holm over 71 setups). Liquid d1-ultra's English comparison covers 36 decision models; no verdict changed.
+- Hallucination tab: 11 more setups with "Bilmiyorum" over the whole bank, 45 in all (26 decision, 19 chat). Decision models: Perplexity Decider Flash v1.2 14.7% non-hallucination (answering 91.8%), Clef 7.4%, Open-Jev 27B v1.1 1.4%, OneJev 27B 0.1%. Chat setups: Gemini 3.8 Flash at 1 per request 6.2%, Claude Fable 5.1 6.0%, Gemma 4 31B 4.1% at 16 per request and 1.9% at 1 per request, Qwen3-14B 1.9%, GPT-6 Luna 1.0%, Erk-14B 0.3%. English "I don't know" covers 49 setups in both languages (30 decision, 19 chat) and 11 chat setups in English alone. Where a setup has a Turkish "Bilmiyorum" run on the 547 kept questions, that run stays its Turkish side in the English comparison and the whole-bank run is its Hallucination tab row (Perplexity Decider Flash v1.2). No other run changed.
+
 ## Results 85133d23 (5 November 2026)
 
 - English reading and English and Turkish: 12 more setups from our GPUs in English on the 547 kept questions, 67 English setups in all: Open-Jev 27B v1.1 85.4% (Turkish 86.5%), Qwen3.8-27B (yes/no score) 84.8% over five runs (84.6%), Cygnet 83.9% (85.6%), Winnow-12B 83.9% (85.0%), Metask-Jev 4B 77.1% (67.1%), Erk-14B 72.0% (75.3%), Liquid d1-2B 65.6% (41.9%), Strands Decider 2B 45.5% (39.1%), Laya 22.9% (20.5%), GLiNER2.5-multi-Decide 21.2% (20.7%), GLiNER2.5 Multi (base) 16.3% (16.8%) and Laya multilingual 15.4% (17.0%). Two of the new differences are significant after Holm's correction over 67 setups: Metask-Jev 4B and Liquid d1-2B score higher in English. Liquid d1-ultra's English comparison now covers 35 decision models. No earlier verdict changed.
