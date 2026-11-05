@@ -645,4 +645,4 @@ def build(site: Site) -> dict[str, str]:
     </details>"""
     return {PATH: site.page(PATH, "Page images",
                             f"{questions} questions with underlined or numbered words, asked as text, as a page image, "
-                            "as both and through four OCR models.", body)}
+                            "as both and through four OCR models.", body, image="vision")}

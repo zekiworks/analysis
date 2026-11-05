@@ -122,12 +122,14 @@ python3 -m http.server 8000                                # preview at http://1
     tables (`chart-renderer`'s `--types` output against the build's own), and when a provider that serves
     both decision and chat models (`mixed_providers`: OpenRouter) has a run of a model not listed under it,
     so that its type is decided first.
-  - **Link preview:** every decision model's accuracy with its 95% interval, all drawn alike, with the
-    results version, the answer key version and the page address in its footer. Drawn with headless
+  - **Link previews:** the home page's (Turkish reading and grammar), the English reading page's and the
+    Page images page's (picture alone): each the ten most accurate setups of its page in large type, so that it
+    reads on a phone, a line pointing to the full ranking, and the results version, the answer key version and
+    the page address in its footer. Drawn with headless
     Chrome in both themes (`share/`, named with the theme and a short hash of the file, for example
-    `preview-dark-1a2b3c4d.png`, so that a changed image gets a new address and no link preview shows a
-    cached copy); the dark one is the link preview. `share/images.json` names the current images; the home
-    page's link preview reads it, and with `--no-images` the build keeps them. Earlier images are deleted
+    `preview-dark-1a2b3c4d.png`, `preview-english-dark-…` and `preview-vision-dark-…`, so that a changed
+    image gets a new address and no link preview shows a cached copy); the dark one is the link preview. `share/images.json` names the current images; the three
+    pages' link previews read it, and with `--no-images` the build keeps them. Earlier images are deleted
     until `announced` holds the date of the first public post; from then on they are kept, so posted link
     previews keep working.
   - **Generated sentences:** every sentence that compares models or states a trend checks that its
@@ -340,7 +342,8 @@ python3 -m http.server 8000                                # preview at http://1
     (`topics/`), Compare (`compare/`, drawn by `compare.js`: the accuracy difference on all questions with its 95%
     interval and one sentence on what it means first, exact McNemar test as in `benchmark_metrics.py`, and each cost
     with its basis in the model page's words, `Site.cost_basis_text`, passed in `compare-settings`), Page images
-    (`vision/`), Method (`method/`) and Data (`data/`). `sitebuild/site.py` holds the shared page shell.
+    (`vision/`), Method (`method/`: the tests, the view bar's rows and the top links, then the Turkish test's method)
+    and Data (`data/`: the downloads and both changelogs). `sitebuild/site.py` holds the shared page shell.
   - **Artificial Analysis's Decision Index models** (`aa-decision-index/`, `sitebuild/aa_index.py`): our numbers
     for the models of Artificial Analysis's Decision Index v1.0 as its post of 22 October 2026 lists them
     (`page_config.json`'s `aa_decision_index`, by run id; a run that is missing or not a decision model stops the

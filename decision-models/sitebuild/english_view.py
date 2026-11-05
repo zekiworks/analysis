@@ -205,4 +205,5 @@ def build(site: Site) -> dict[str, str]:
     {"".join(table(group) for group in GROUPS if counts[group])}"""
     return {PATH: site.page(PATH, TITLE, f"The Text tab's {total:,} kept reading questions in English: accuracy of "
                             f"{len(models)} setups ({counts['decision']} decision models, {counts['chat']} chat model "
-                            "setups) and the decision models' non-hallucination rate with “I don't know”.", body)}
+                            "setups) and the decision models' non-hallucination rate with “I don't know”.", body,
+                            image="english")}

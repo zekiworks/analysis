@@ -79,20 +79,23 @@ def build(site: Site) -> dict[str, str]:
          "Every answer of every run, with its score and option probabilities, and the prompts. No question text."),
         (PICKS, rel(PATH, "data/picks.json"),
          "Built from answers.json for these pages: each leaderboard setup's pick and score on each scored question, and "
-         "each Turkish vs English model's English pick and score on each kept reading question."),
+         "each English setup's English pick and score on each kept reading question."),
         (ROOT / "vision.json", rel(PATH, "vision.json"),
-         "The page-image track: the questions that depend on the printed page, asked as text, as page images and through "
+         "The Page images test: the questions that depend on the printed page, asked as text, as page images and through "
          "OCR; every number and each answer's pick and option probabilities. No question text, page image or OCR text."),
         (ROOT / "vision-repeats.json", rel(PATH, "vision-repeats.json"),
-         "The page-image track's repeat passes, kept outside its table: each pass's run records and answers, compared with "
+         "The Page images test's repeat passes, kept outside its table: each pass's run records and answers, compared with "
          "the table's first pass."),
         (ROOT / "english-reading.json", rel(PATH, "english-reading.json"),
-         "The Turkish vs English track's record: the translator, its two prompts, each reading question's flags and the "
+         "The record of the English reading and English and Turkish pages: the translator, its two prompts, each reading question's flags and the "
          "SHA-256 of its English text. No question text."),
         (ROOT / "web-grounding.json", rel(PATH, "web-grounding.json"),
-         "The web grounding experiment's inputs beside answers.json: each run's input tokens by group, what the grounded "
+         "The Web grounding page's inputs beside answers.json: each run's input tokens by group, what the grounded "
          "searches returned (sites and source checks, as counts and question IDs) and PWS-Decisions' aggregates. No question "
          "text, page address or snippet."),
+        (ROOT / "pws-decisions.json", rel(PATH, "pws-decisions.json"),
+         "The PWS-Decisions page's totals: each decision model's three runs on Parallel's benchmark of dated web facts, "
+         "with request times, cost and confidence. No question or answer."),
     )
     downloads = "".join(
         f'<tr><td class="model"><a href="{href}" download>{esc(path.name)}</a></td><td data-label="Contents">{esc(text)}</td>'

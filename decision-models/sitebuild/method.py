@@ -8,13 +8,14 @@ difference, from results.json's reasoning. Build checks raise ValueError when th
 
 from __future__ import annotations
 
+import json
 import math
 import re
 from typing import Any
 
 import benchmark_metrics as bm
 import build_page as bp
-from sitebuild.site import REPO_URL, Site, esc, rel
+from sitebuild.site import MENU, REPO_URL, ROOT, VIEW_GROUPS, VIEW_MEASURES, VIEW_TESTS, Site, esc, rel
 
 PATH = "method/"
 TITLE = "Method"
@@ -492,21 +493,36 @@ def gemma_lead(snap: bp.Snapshot) -> None:
         raise ValueError("What we found says Gemma's confidence matched its hit rate less closely than the best decision models'")
 
 
+def and_list(items: tuple[tuple[str, str], ...]) -> str:
+    """The labels of a navigation list (path or value, label), as "a, b and c"."""
+    return esc(bp.and_list([label for _, label in items]))
+
+
 def glance(site: Site) -> str:
-    """At a glance, as Artificial Analysis's methodology page opens: the three benchmarks in one table, how the models are
-    asked, and for each benchmark short items (what it measures, its questions, how it is scored, where the details are);
+    """At a glance, as Artificial Analysis's methodology page opens: the tests in one table, how the site is laid out
+    (the view bar's rows and the top links, from sitebuild/site.py), how the models are asked, and for three tests short items (what it measures, its questions, how it is scored, where the details are);
     every count from results.json and vision.json. The long sections below are the details."""
     v = site.values
     subset = site.vision["subset"]
     dont_know = site.results["dont_know"]
     option = esc(dont_know["option"])
+    english = site.results["english_reading"]["questions"]
+    pws = json.loads((ROOT / "pws-decisions.json").read_text(encoding="utf-8"))
     table_rows = (
-        ("", "Text", v["questions"], "Reading comprehension and grammar, in native Turkish", "Accuracy: right answers over the questions"),
+        ("", "Turkish reading and grammar", v["questions"], "Reading comprehension and grammar, in native Turkish", "Accuracy: right answers over the questions"),
+        ("english/", "English reading", f"{english:,}", "The Turkish test's kept reading questions, translated into English",
+         "Accuracy in English"),
+        ("turkish-vs-english/", "English and Turkish", f"{english:,}", "The same setups on the same reading questions in both languages",
+         "The change in accuracy from Turkish to English"),
         ("vision/", "Page images", f"{subset['questions']:,}",
          "Questions that point at underlined or numbered words: from the text (A), a picture of the page (B), both (C) or an OCR model's reading (D)",
          "Accuracy in each condition"),
-        ("dont-know/", "Hallucination", f"{dont_know['questions']:,}", f"The Text tab's questions with a sixth option, “{dont_know['option']}” (I don't know)",
+        ("dont-know/", "Hallucination", f"{dont_know['questions']:,}", f"The Turkish test's questions with a sixth option, “{dont_know['option']}” (I don't know)",
          f"Non-hallucination rate: “{dont_know['option']}” over “{dont_know['option']}” plus wrong answers"),
+        ("web-grounding/", "Web grounding", v["questions"], "One model with web search off and on",
+         "Accuracy, non-hallucination, latency and cost, off against on"),
+        ("pws-decisions/", "PWS-Decisions", f"{pws['questions']:,}", "Parallel Web Systems' benchmark of dated web facts, asked of the decision models",
+         "Accuracy over three runs per setup; not part of the Turkish ranking"),
     )
     rows = "".join(
         f'<tr><td data-label="Benchmark"><a href="{rel(PATH, path)}">{esc(name)}</a></td><td class="num" data-label="Questions">{esc(count)}</td>'
@@ -514,15 +530,22 @@ def glance(site: Site) -> str:
         for path, name, count, what, measure in table_rows)
     return f"""<section class="card prose" id="at-a-glance" aria-labelledby="at-a-glance-title">
 <h2 id="at-a-glance-title">At a glance</h2>
-<p>Three benchmarks, each on its own tab and ranked on its own; no score combines them.</p>
+<p>Each test has its own page and its own ranking; no score combines them.</p>
 <div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Benchmark</th><th scope="col" class="num">Questions</th>
 <th scope="col">What it measures</th><th scope="col">Main measure</th></tr></thead><tbody>{rows}</tbody></table></div>
+<h3>How the site is laid out</h3>
+<ul>
+<li><strong>The view bar</strong>, under the top bar, has three rows. Test picks the page: {and_list(VIEW_TESTS)}. Models picks the group: {and_list(VIEW_GROUPS)}. Measure goes to a part of the page: {and_list(VIEW_MEASURES)}.</li>
+<li><strong>The top links</strong> lead to {and_list(MENU)}. Page images and Hallucination are tests of their own, each ranked on its own page.</li>
+<li><strong>Web grounding</strong>: <a href="{rel(PATH, 'web-grounding/')}">its page</a> is linked from the home page and from the Perplexity model pages.</li>
+<li><strong>PWS-Decisions</strong>: <a href="{rel(PATH, 'pws-decisions/')}">its own page</a>, linked from the web grounding page and the home page.</li>
+</ul>
 <h3>How we ask the models</h3>
 <ul>
 <li><strong>Decision models</strong>: each question goes to the model with its lettered options; we use only its pick and its score for each option (<a href="#setups">Models and setups</a>).</li>
 <li><strong>Chat models</strong>: asked in Turkish for their answer's letter and, where needed, a confidence score, in a structured reply (<a href="#sending">What we sent</a>).</li>
 </ul>
-<h3>Text</h3>
+<h3>Turkish reading and grammar</h3>
 <ul>
 <li><strong>Measures</strong>: how often each setup was right, whether its confidence found the answers worth keeping, whether it answered the same way again, and its cost and time.</li>
 <li><strong>Questions</strong>: {v['reading_questions']} Reading and {v['grammar_questions']} Grammar questions in {v['study_units']} topics, answer key {v['key_version']} (<a href="#tests">The questions</a>).</li>
@@ -531,15 +554,15 @@ def glance(site: Site) -> str:
 </ul>
 <h3>Page images</h3>
 <ul>
-<li><strong>Questions</strong>: {subset['questions']:,} of the Text tab's questions: {subset['by_reason']['underline']:,} at underlined words and {subset['by_reason']['numbered']:,} at numbered words.</li>
+<li><strong>Questions</strong>: {subset['questions']:,} of the Turkish test's questions: {subset['by_reason']['underline']:,} at underlined words and {subset['by_reason']['numbered']:,} at numbered words.</li>
 <li><strong>Scoring</strong>: accuracy in each condition over the {subset['questions']:,} questions; two conditions of a model compared with the exact McNemar test on the same questions.</li>
-<li><strong>Details</strong>: <a href="{rel(PATH, 'vision/')}#method">How the benchmark was run</a>, on the tab.</li>
+<li><strong>Details</strong>: <a href="{rel(PATH, 'vision/')}#method">How the benchmark was run</a>, on its page.</li>
 </ul>
 <h3>Hallucination</h3>
 <ul>
-<li><strong>Questions</strong>: the Text tab's {dont_know['questions']:,} questions, each with “{option}” as option F, never correct, and one added sentence in the instructions.</li>
+<li><strong>Questions</strong>: the Turkish test's {dont_know['questions']:,} questions, each with “{option}” as option F, never correct, and one added sentence in the instructions.</li>
 <li><strong>Scoring</strong>: accuracy, attempt rate and the non-hallucination rate; for comparison, the same model's five-option run held back by its own confidence at about the same attempt rate.</li>
-<li><strong>Details</strong>: <a href="{rel(PATH, 'dont-know/')}#method">Our method</a>, on the tab.</li>
+<li><strong>Details</strong>: <a href="{rel(PATH, 'dont-know/')}#method">Our method</a>, on its page.</li>
 </ul>
 <h3>Version history</h3>
 <p>Every results version and what changed: the <a href="{rel(PATH, 'data/')}#results-changelog">results changelog</a>; changes to the answer key: the <a href="{rel(PATH, 'data/')}#key-changelog">key changelog</a>.</p>
@@ -985,7 +1008,7 @@ so the test cannot say which change helped.</p>
 (not translated): {v['questions']} questions. A setup is one model with one set of settings. We measured four things: how often
 each was right, whether its confidence found the answers worth keeping, whether it answered the same way again, and its
 cost and time.</p>
-<p class="intro">This page covers the Text tab. The other two tabs explain their own methods on their pages: Page images under
+<p class="intro">This page covers the Turkish reading and grammar test. Page images and Hallucination explain their own methods on their pages: Page images under
 <a href="{rel(PATH, 'vision/')}#method">How the benchmark was run</a> and Hallucination under
 <a href="{rel(PATH, 'dont-know/')}#method">Our method</a>.</p>
 <nav class="toc" aria-label="Sections of this page"><ul>{toc}<li><a href="#references">Sources</a></li></ul></nav>

@@ -550,10 +550,20 @@ class Site:
         return (f"Results {esc(results['results_version'])}, updated {bp.long_date(results['updated'])}; "
                 f"answer key version {results['answer_key']['version']}.")
 
-    def page(self, path: str, title: str, description: str, body: str, scripts: tuple[str, ...] = ()) -> str:
-        """A whole page at path (inside the site): head with its canonical address, top bar with the navigation bar,
-        body, footer."""
+    def page(self, path: str, title: str, description: str, body: str, scripts: tuple[str, ...] = (),
+             image: str | None = None) -> str:
+        """A whole page at path (inside the site): head with its canonical address (and, with image, the key of its
+        share/images.json link preview), top bar with the navigation bar, body, footer."""
         root = rel(path, "")
+        preview = ""
+        if image:
+            url, size = esc(self.config["site_url"] + bp.current_images()[image]["dark"]), self.config["images"]["preview"]
+            preview = "".join(f'\n  <meta {attr}="{name}" content="{value}">' for attr, name, value in (
+                ("property", "og:title", esc(title)), ("property", "og:description", esc(description)),
+                ("property", "og:type", "website"), ("property", "og:url", esc(self.config["site_url"] + path)),
+                ("property", "og:image", url), ("property", "og:image:width", size["width"]),
+                ("property", "og:image:height", size["height"]), ("name", "twitter:card", "summary_large_image"),
+                ("name", "twitter:image", url)))
         extra = "".join(f'\n  <script src="{rel(path, asset(script))}" defer></script>' for script in scripts)
         return f"""<!doctype html>
 <html lang="en">
@@ -562,7 +572,7 @@ class Site:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{esc(title)} · Hilde</title>
   <link rel="canonical" href="{esc(self.config['site_url'] + path)}">
-  <meta name="description" content="{esc(description)}">
+  <meta name="description" content="{esc(description)}">{preview}
   <script>document.documentElement.classList.add("js"); try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; }} catch (e) {{}}</script>
   <link rel="stylesheet" href="{root}{asset("v3.css")}">
   <script src="{root}{asset("site.js")}" defer></script>{extra}

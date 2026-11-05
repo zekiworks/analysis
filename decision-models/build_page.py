@@ -3,10 +3,11 @@ page_config.json. The Method page uses this module's Snapshot, values() and tabl
 link preview image and writes CITATION.cff with it. v1/ keeps the earlier page as it was on 14 October 2026; nothing
 rebuilds it.
 
-The link preview shows every decision model's accuracy with its 95% interval. It is drawn by headless Chrome from
-HTML made here, in both themes, and saved under share/ with a short hash of its content in its name, so that a changed
+The link previews (the home page's, the English reading page's and the Page images page's) each show the ten most
+accurate setups of their page in large type, with the results version and a line pointing to the full ranking. They
+are drawn by headless Chrome from HTML made here, in both themes, and saved under share/ with a short hash of its content in its name, so that a changed
 image gets a new address and no link preview shows a cached copy. share/images.json names the current files, which
-the home page's link preview uses. Earlier images are deleted until "announced" holds the date of the first public
+the pages' link previews use. Earlier images are deleted until "announced" holds the date of the first public
 post, and kept after it, so that earlier link previews keep working. Set CHROME to use another Chrome or Chromium
 binary.
 """
@@ -1434,7 +1435,9 @@ IMAGE_THEMES = {
 # reports and slides.
 THEMES = tuple(IMAGE_THEMES)
 # The sharing images: their key in the code and the start of their file names, which end in a hash of the file.
-IMAGE_STEMS = (("preview", "preview"),)
+IMAGE_STEMS = (("preview", "preview"), ("english", "preview-english"), ("vision", "preview-vision"))
+# How many setups a sharing image ranks: few enough that a phone shows each name and number at a readable size.
+IMAGE_TOP = 10
 FIGURE_STYLE = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: %(width)dpx; height: %(height)dpx; overflow: hidden; background: var(--bg); color: var(--text);
@@ -1453,26 +1456,18 @@ def figure_page(size: dict[str, int], scale: dict[str, int], body: str, theme: s
     return f'<!doctype html><html lang="en"><head><meta charset="utf-8"><style>{css}</style></head><body>{body}</body></html>'
 
 
-# The link preview's own layout: a row per decision model on one 0% to 100% scale, the accuracy as a dot, its 95%
-# interval as a line, and the value in a column of its own, so that no label meets a mark.
-ACCURACY_STYLE = """
-.chart { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 1fr 80px; grid-auto-rows: minmax(0, 1fr);
-  column-gap: 18px; align-items: center; margin-top: 14px; }
-.name { font-size: calc(17px * var(--fit)); line-height: 1.1; font-weight: 600; text-align: right; white-space: nowrap; }
-.lane { position: relative; height: 100%; border-right: 1px solid var(--rule);
-  background: linear-gradient(to right, var(--rule) 0 1px, transparent 1px) 0 0 / 25% 100% repeat-x; }
-.ci { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); }
-.ci::before, .ci::after { content: ""; position: absolute; top: -5px; width: 2px; height: 12px; background: var(--text); }
-.ci::before { left: -1px; } .ci::after { right: -1px; }
-.dot { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
-  border: 1.5px solid var(--edge); box-shadow: 0 0 0 2px var(--bg); }
-.val { font-size: calc(17px * var(--fit)); line-height: 1.1; font-weight: 700; text-align: right; color: var(--values);
+# The sharing images' layout: one row per setup, its name, a bar from 0% to 100% in the ranking scale's colour and its
+# accuracy in large type, so that the image reads on a phone.
+RANKING_STYLE = """
+.chart { flex: 1; min-height: 0; display: grid; grid-template-columns: 560px 1fr 130px; grid-auto-rows: minmax(0, 1fr);
+  column-gap: 20px; align-items: center; margin-top: 16px; }
+.name { font-size: 24px; line-height: 1.1; font-weight: 600; text-align: right; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.lane { position: relative; height: 60%; background: var(--rule); border-radius: 3px; }
+.bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.val { font-size: 32px; line-height: 1; font-weight: 700; text-align: right; color: var(--values);
   font-variant-numeric: tabular-nums; }
-.axis { display: grid; grid-template-columns: 300px 1fr 80px; column-gap: 18px; height: 24px; margin-top: 4px; }
-.axis .ticks { position: relative; font-size: 14px; color: var(--muted); }
-.axis .ticks span { position: absolute; top: 3px; transform: translateX(-50%); }
-.legend { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 15px; color: var(--muted); }
-.legend .ramp { width: 64px; height: 12px; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--edge); }
+.more { font-size: 22px; color: var(--sub); margin-top: 12px; }
 """
 
 
@@ -1494,46 +1489,66 @@ def chart_label(snap: Snapshot, run: dict[str, Any]) -> str:
     return f"{snap.short(run)} ({run['variant']})" if run.get("variant") else snap.short(run)
 
 
-def accuracy_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
-    """The link preview: every decision model's accuracy on all questions with its 95% interval (Wilson, as the site's
-    tables), most accurate first. Each dot takes the ranking scale's colour, from the least accurate decision model (dark
-    blue) to the most accurate (yellow), as in the page's charts, with a legend giving both ends. The footer gives the
-    results version, the answer key version and the page address."""
-    runs = [run for run in snap.runs if snap.decision_model(run)]
-    totals = {run["run"]: (run["groups"]["reading"]["correct"] + run["groups"]["grammar"]["correct"],
-                           run["groups"]["reading"]["questions"] + run["groups"]["grammar"]["questions"]) for run in runs}
-    shares = {run_id: correct / total for run_id, (correct, total) in totals.items()}
-    worst, best = min(shares.values()), max(shares.values())
+def image_label(snap: Snapshot, run: dict[str, Any]) -> str:
+    """A setup's label in the sharing images: its chart label with its reasoning and format, so that two setups of one
+    model differ."""
+    detail = re.sub(r" questions? per request", " per request", setting({**run, "variant": None}))
+    return chart_label(snap, run) + (f" · {detail}" if detail else "")
+
+
+def ranking_image(snap: Snapshot, size: dict[str, int], theme: str, title: str, sub: str,
+                  rows: list[tuple[str, float]], more: str) -> str:
+    """A sharing image: the IMAGE_TOP most accurate of rows (label, accuracy), most accurate first, each bar in the
+    ranking scale's colour between the least and the most accurate of all rows, as on the page; under them the line
+    pointing to the full ranking (more), and a footer with the results version, the answer key version and the site."""
+    ranked = sorted(rows, key=lambda row: -row[1])
+    worst, best = ranked[-1][1], ranked[0][1]
     stops = snap.config["rank_scale"]["stops"]
-    rows = []
-    for run in sorted(runs, key=lambda run: -totals[run["run"]][0]):
-        correct, total = totals[run["run"]]
-        low, high = bm.wilson_interval(correct, total)
-        colour = "#" + "".join(f"{round(channel):02x}" for channel in rank_colour(stops, (shares[run["run"]] - worst) / (best - worst)))
-        rows.append(
-            f'<span class="name">{esc(chart_label(snap, run))}</span>'
-            f'<span class="lane"><span class="ci" style="left: {100 * low:.2f}%; width: {100 * (high - low):.2f}%"></span>'
-            f'<span class="dot" style="left: {100 * correct / total:.2f}%; background: {colour}"></span></span>'
-            f'<span class="val">{100 * correct / total:.1f}%</span>'
-        )
+    marks = []
+    for name, share in ranked[:IMAGE_TOP]:
+        colour = "#" + "".join(f"{round(channel):02x}" for channel in rank_colour(stops, (share - worst) / ((best - worst) or 1)))
+        marks.append(f'<span class="name">{esc(name)}</span>'
+                     f'<span class="lane"><span class="bar" style="width: {100 * share:.2f}%; background: {colour}"></span></span>'
+                     f'<span class="val">{100 * share:.1f}%</span>')
     results = snap.results
     site = snap.config["site_url"].removeprefix("https://").rstrip("/")
-    ticks = "".join(f'<span style="left: {tick}%">{tick}%</span>' for tick in (0, 25, 50, 75, 100))
-    body = (
-        f"<h1>Accuracy of the {count(len(runs))} decision models, with 95% intervals</h1>"
-        f'<p class="sub">Our reading comprehension and grammar test: {count(snap.total)} questions in native Turkish (not translated). '
-        "Dot: accuracy; line: 95% interval.</p>"
-        # Rows share the chart's height; past 20 models their text shrinks with them, so every row fits the image.
-        f'<div class="chart" style="--fit: {min(1.0, 20 / len(runs)):.4f}">{"".join(rows)}</div>'
-        f'<div class="axis"><span></span><span class="ticks">{ticks}</span><span></span></div>'
-        f'<p class="legend"><span>Decision models: worst {100 * worst:.1f}%</span>'
-        f'<span class="ramp" style="background: linear-gradient(to right, {", ".join(stops)})"></span>'
-        f"<span>best {100 * best:.1f}% (higher is better)</span></p>"
-        f'<p class="foot">Results {esc(results["results_version"])} · Answer key version {results["answer_key"]["version"]} · '
-        f"{esc(site)}</p>"
-    )
-    scale = {"pad": 34, "title": 32, "sub": 18, "foot": 15}
-    return figure_page(size, scale, body, theme, ACCURACY_STYLE)
+    body = (f"<h1>{esc(title)}</h1><p class=\"sub\">{esc(sub)}</p>"
+            f'<div class="chart">{"".join(marks)}</div><p class="more">{esc(more)}</p>'
+            f'<p class="foot">Results {esc(results["results_version"])} · Answer key version {results["answer_key"]["version"]} · '
+            f"{esc(site)}</p>")
+    scale = {"pad": 40, "title": 40, "sub": 23, "foot": 19}
+    return figure_page(size, scale, body, theme, RANKING_STYLE)
+
+
+def accuracy_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
+    """The home page's link preview: the most accurate setups on all questions of the Turkish test."""
+    rows = [(image_label(snap, run), (run["groups"]["reading"]["correct"] + run["groups"]["grammar"]["correct"])
+             / (run["groups"]["reading"]["questions"] + run["groups"]["grammar"]["questions"])) for run in snap.runs]
+    return ranking_image(snap, size, theme, f"Turkish reading and grammar: the {IMAGE_TOP} most accurate setups",
+                         f"{count(snap.total)} questions in native Turkish (not translated). Accuracy: right answers.",
+                         rows, f"The full ranking of all {count(len(rows))} setups is on the site.")
+
+
+def english_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
+    """The English reading page's link preview: the most accurate setups on the kept reading questions in English."""
+    data = snap.results["english_reading"]
+    rows = [(image_label(snap, snap.by_id[model["turkish_run"]]), model["english"]["accuracy"]) for model in data["models"]]
+    return ranking_image(snap, size, theme, f"English reading: the {IMAGE_TOP} most accurate setups",
+                         f"{count(data['questions'])} Turkish reading questions, translated into English. Accuracy: right answers.",
+                         rows, f"The full ranking of all {count(len(rows))} setups is on the English reading page.")
+
+
+def vision_image(snap: Snapshot, size: dict[str, int], theme: str, vision: dict[str, Any]) -> str:
+    """The Page images page's link preview: the most accurate models from a picture of the question alone (condition
+    B)."""
+    rows = [(model["name"], model["conditions"]["B"]["accuracy"]) for model in vision["models"]
+            if model["conditions"].get("B", {}).get("accuracy") is not None]
+    title = (f"Page images: the {IMAGE_TOP} most accurate of {count(len(rows))} models" if len(rows) > IMAGE_TOP
+             else f"Page images: all {count(len(rows))} models, from a picture alone")
+    return ranking_image(snap, size, theme, title,
+                         f"{count(vision['subset']['questions'])} questions at underlined or numbered words, "
+                         "asked as a picture of the page alone.",
+                         rows, "The text, text plus picture and OCR conditions are on the Page images page.")
 
 
 def png_size(path: Path) -> tuple[int, int]:
@@ -1546,7 +1561,10 @@ def render_images(snap: Snapshot, folder: Path = ROOT) -> dict[str, dict[str, st
     being the start of the file's SHA-256. Returns the names by image and theme, relative to folder."""
     chrome = os.environ.get("CHROME", "google-chrome")
     sizes = snap.config["images"]
-    pages = {"preview": (lambda theme: accuracy_image(snap, sizes["preview"], theme), sizes["preview"])}
+    vision = json.loads((folder / "vision.json").read_text(encoding="utf-8"))
+    pages = {"preview": (lambda theme: accuracy_image(snap, sizes["preview"], theme), sizes["preview"]),
+             "english": (lambda theme: english_image(snap, sizes["preview"], theme), sizes["preview"]),
+             "vision": (lambda theme: vision_image(snap, sizes["preview"], theme, vision), sizes["preview"])}
     names: dict[str, dict[str, str]] = {}
     (folder / "share").mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as work:
