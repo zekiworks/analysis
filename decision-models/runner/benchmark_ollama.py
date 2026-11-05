@@ -244,8 +244,9 @@ class Price:
     cache_write_1h: float | None = None
     change: str | None = None  # a known change after `date`
     # Whose price this is: "billed" (the service we called; for a subscription, the same tokens at its API rates),
-    # "maker" (the maker's list price for the same model, run on our own hardware) or "free tier" (the list price of
-    # the model we called on its free tier).
+    # "maker" (the maker's list price for the same model, run on our own hardware), "weights" (another public host's
+    # list price for the same weights, run on our own hardware; the basis names any precision difference) or "free tier"
+    # (the list price of the model we called on its free tier).
     applies_to: str = "billed"
     extra_input_per_request: int = 0  # input tokens the provider bills per request beyond those our records count
     per_request: float = 0.0  # USD the provider bills per request beyond tokens (Perplexity's web grounding searches)
@@ -277,8 +278,9 @@ ANTHROPIC_PRICING = "https://platform.claude.com/docs/en/about-claude/pricing"
 GEMINI_PRICING = "https://ai.google.dev/gemini-api/docs/pricing"
 OPENAI_PRICING = "https://developers.openai.com/api/docs/pricing"
 # List prices by (provider, model). Claude and OpenAI runs use subscriptions, so their costs are what the same tokens
-# would cost on the API. A run on our own hardware has a cost only where the model's maker lists a price for the same
-# model (applies_to "maker"; our hardware cost is not measured); the others have none.
+# would cost on the API. A run on our own hardware is estimated at the maker's list price for the same model
+# (applies_to "maker") or, failing that, at a public host's list price for the same weights (applies_to "weights");
+# the others are estimated from their GPU time (GPU_TIME).
 PRICES: dict[tuple[str, str], Price] = {
     ("jev", "jev-1.13.0"): Price(
         "TypeSafe's System One price", "https://typesafe.ai/blog/introducing-system-one-models-and-jev", "2026-10-08", 0.042
@@ -350,6 +352,9 @@ PRICES: dict[tuple[str, str], Price] = {
     # d1.1, Liquid's default hosted decision model (docs.liquid.ai/lfm/models/d1, 24 October 2026): input tokens only,
     # output free. The rate card still names its row d1; the API's per-request cost bills d1.1 at the same rate.
     ("liquid", "d1.1"): Price("Liquid AI's price for d1.1, as its API bills it", "https://www.liquid.ai/pricing", "2026-10-24", 0.02),
+    # d1 itself (the name Liquid's API serves the d1:free model under since): the English runs were billed, and the API's
+    # per-request cost (usage.cost) bills their input tokens at this rate (run 430: $0.00364126 for 182,063 tokens).
+    ("liquid", "d1"): Price("Liquid's price for d1, as its API bills it", "https://www.liquid.ai/pricing", "2026-11-02", 0.02),
     # Microsoft-Decision-1 and Inception's Mercury Decide (its paid listing, not inception/mercury-decide:free) via
     # OpenRouter: input tokens only; the one output token each answer reports is not charged.
     ("openrouter", "microsoft/microsoft-decision-1"): Price(
@@ -496,6 +501,40 @@ PRICES: dict[tuple[str, str], Price] = {
         "Baseten's list price for the same model", "https://www.baseten.co/library/mammoth-1/", "2026-11-01", 0.10,
         applies_to="maker",
     ),
+    # Setups on our GPUs whose weights a public API also serves (read 5 November 2026), at that host's list price for
+    # the same weights. OpenRouter's endpoints API gives each host's price and precision. Gemma 4 31B and Qwen3-14B:
+    # DeepInfra's standard FP8 endpoint, the price OpenRouter's model list gives for each (no cache rate).
+    ("vllm", "gemma-4-31B-it"): Price(
+        "DeepInfra's list price for the same weights (FP8, as ours)", "https://openrouter.ai/google/gemma-4-31b-it",
+        "2026-11-05", 0.20, 0.40, applies_to="weights",
+    ),
+    ("vllm", "qwen3-14b"): Price(
+        "DeepInfra's list price for the same weights (FP8; ours BF16)", "https://openrouter.ai/qwen/qwen3-14b",
+        "2026-11-05", 0.12, 0.24, applies_to="weights",
+    ),
+    # DeepSeek-V4.1-Flash's first release (deepseek-v4.1-flash-20260910): DeepSeek's own API now serves only the 1017
+    # update, so Together's endpoint, at the rate most hosts list (and DeepSeek's own for the update); its precision is
+    # not stated.
+    ("vllm", "deepseek-v4.1-flash"): Price(
+        "Together's list price for the same weights (precision not stated; ours the published mixed precision)",
+        "https://openrouter.ai/deepseek/deepseek-v4.1-flash-20260910", "2026-11-05", 0.30, 1.20, cached_input=0.006,
+        applies_to="weights",
+    ),
+    # GLM-5.3-Flash at its maker's price: Z.ai's own endpoint serves it in FP8; ours is Mia's AI Lab's EXL3 checkpoint.
+    ("vllm-stated", "glm-5.3-flash"): Price(
+        "Z.ai's list price for the same model (FP8; ours EXL3 4-bit experts with FP8 dense layers)",
+        "https://openrouter.ai/z-ai/glm-5.3-flash", "2026-11-05", 0.15, 0.50, cached_input=0.03, applies_to="maker",
+    ),
+    # Cygnet is frozen google/gemma-4-12B-it (revision 707f0a3, BF16, weights unchanged), read out by option letter at
+    # temperature 3.4 by the recipe's shim; SiliconFlow serves google/gemma-4-12B-it (OpenRouter has no endpoint).
+    ("cygnet", "cygnet"): Price(
+        "SiliconFlow's list price for the same weights (Gemma 4 12B IT; precision not stated, ours BF16)",
+        "https://www.siliconflow.com/models/gemma-4-12b-it", "2026-11-05", 0.10, 0.30, applies_to="weights",
+    ),
+    # GLiNER 2.5 Multilingual (fastino/gliner2.5-multi-v1) through Fastino's own API: input tokens only, output free.
+    ("gliner", "gliner2.5-multi-v1"): Price(
+        "Fastino's list price for the same model", "https://docs.fastino.ai/pricing", "2026-11-05", 0.03, applies_to="maker",
+    ),
 }
 # Prices of runs with --perplexity-mode web_grounding, by (provider, model). A grounded request runs one Fast Search per
 # question at $0.001 ("Questions that produce the same search query share one search"; a failed or timed-out search is
@@ -512,6 +551,66 @@ WEB_GROUNDING_PRICES: dict[tuple[str, str], Price] = {
 def run_price(provider: str, model: str, perplexity_mode: str | None) -> Price | None:
     """The list price of a run's requests: WEB_GROUNDING_PRICES for a grounded run, PRICES otherwise."""
     return (WEB_GROUNDING_PRICES if perplexity_mode == "web_grounding" else PRICES).get((provider, model))
+
+
+@dataclass(frozen=True)
+class GpuRate:
+    """A public on-demand cloud price per GPU-hour, where it comes from and the day it was read."""
+
+    gpu: str
+    basis: str
+    source: str
+    date: str
+    usd_per_gpu_hour: float
+
+    def cost(self, seconds: float, gpus: int) -> float:
+        """The cost in USD of `gpus` GPUs held for `seconds`."""
+        return seconds / 3600 * gpus * self.usd_per_gpu_hour
+
+
+# Every GPU of ours is an RTX PRO 6000 Blackwell (96 GB). Runpod's pricing page lists it on demand at $2.49 per hour on
+# Secure Cloud (data-centre hosts) and $1.69 on Community Cloud (updated 4 November 2026, read 5 November 2026).
+GPU_RATE = GpuRate(
+    "RTX PRO 6000 Blackwell (96 GB)", "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+    "https://www.runpod.io/pricing", "2026-11-05", 2.49,
+)
+# Setups on our GPUs with neither a maker's price for the same model nor a public host's for the same weights, by
+# (provider, model): the GPUs their server held. Their cost is a GPU-time estimate at GPU_RATE, not a bill: the run's
+# request time (timed_seconds, the wall-clock span its requests covered, concurrent requests counted once; server
+# start-up, gaps between requests and report writing left out) x these GPUs. Where one GPU held two of our servers (the
+# two Laya servers on GPU 3 on 4 October; d3, d3-ultra and Drex Max v1 on GPU 0 for the English runs of 3 November), the
+# runs took turns, so each run's request time is its own. Erk-14B ran at the same time as Qwen3-14B, on another GPU
+# (each vLLM server reserved 85% of a GPU's memory).
+GPU_TIME: dict[tuple[str, str], int] = {
+    ("open-jev", "open-jev-27b-v1.1"): 1,
+    ("laya", "laya"): 1,
+    ("laya", "laya-multilingual"): 1,
+    ("metask", "metask-jev-4b-policy-mix"): 1,
+    ("winnow", "winnow-12b"): 1,
+    ("vllm", "erk-14b"): 1,
+    ("gliner", "gliner2.5-multi-decide"): 1,
+    ("strands", "strands-decider-2b"): 1,
+    ("vllm-sr", "vllm-sr/d3"): 1,
+    ("onejev", "OmniJev/OneJev-27B"): 1,
+    ("d3-server", "vllm-sr/d3-ultra"): 1,
+    ("d1-server", "LiquidAI/d1-2B"): 1,
+}
+
+
+def gpu_price(gpus: int) -> dict[str, Any]:
+    """A GPU-time estimate's price, as a record carries it (applies_to "gpu"; no token rates)."""
+    return {
+        "basis": GPU_RATE.basis,
+        "source": GPU_RATE.source,
+        "date": GPU_RATE.date,
+        "change": None,
+        "applies_to": "gpu",
+        "gpu": GPU_RATE.gpu,
+        "gpus": gpus,
+        "usd_per_gpu_hour": GPU_RATE.usd_per_gpu_hour,
+        "text": f"{usd_rate(GPU_RATE.usd_per_gpu_hour)} per GPU-hour, {gpus} GPU{'s' if gpus > 1 else ''}, for the run's request time",
+    }
+
 
 
 def usd_rate(value: float) -> str:
@@ -4689,9 +4788,11 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         "its current keys. The Dataset column names the bank version the run used.",
         "",
         "Questions/min counts request time only. Cost: a run's tokens at its model's list price, with cache "
-        "reads and writes at their own rates where the provider lists them; a run on local weights is estimated at its "
-        "maker's list price for the same model where one exists (our hardware cost is not measured) and has none "
-        "otherwise. d1 ran on Liquid's free tier; its cost is estimated at Liquid's list price for the same model. Claude "
+        "reads and writes at their own rates where the provider lists them. A run on local weights is estimated at its "
+        "maker's list price for the same model where one exists, else at a public host's list price for the same weights, "
+        "else from its GPU time: its request time x the GPUs its server held x "
+        f"{usd_rate(GPU_RATE.usd_per_gpu_hour)} per GPU-hour ({GPU_RATE.basis}, {GPU_RATE.date}); these are estimates, not "
+        "what our hardware cost. d1 ran on Liquid's free tier; its cost is estimated at Liquid's list price for the same model. Claude "
         "and OpenAI runs use subscriptions, so their costs are what the same tokens would cost on the API. Prices: "
         + "; ".join(
             f"{provider} {model}: {price_text(price)} ({price.basis}, {price.date}"
@@ -4771,7 +4872,14 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
                 + (f", {result['concurrency']} requests at a time" if result.get("concurrency", 1) > 1 else "")
                 + ")"
             )
-        if result.get("cost_usd") is not None:
+        if result.get("cost_usd") is not None and (result.get("price") or {}).get("applies_to") == "gpu":
+            gpus = result["price"]["gpus"]
+            details.append(
+                f"Cost: {format_cost(result)} estimated for {result['timed_seconds'] / 60:.1f} min of request time on "
+                f"{gpus} GPU{'s' if gpus > 1 else ''} at {usd_rate(result['price']['usd_per_gpu_hour'])} per GPU-hour "
+                f"({result['input_tokens']:,} input and {result['output_tokens']:,} output tokens)"
+            )
+        elif result.get("cost_usd") is not None:
             cache = ", ".join(
                 f"{result[key]:,} {label}"
                 for key, label in (
@@ -5116,6 +5224,10 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
             "rates": price.rates(),
             "text": price_text(price),
         }
+    elif (gpus := GPU_TIME.get((provider, run["model"]))) is not None and metrics["timed_seconds"] > 0:
+        # No public price for the same weights: the run's request time on the GPUs its server held, at GPU_RATE.
+        metrics["cost_usd"] = GPU_RATE.cost(metrics["timed_seconds"], gpus)
+        metrics["price"] = gpu_price(gpus)
     if run["replace_key_text"] is not None:
         metrics["key_replacement"] = key_replacement(connection, run, graded, search_dir)
     if run["dont_know"]:

@@ -40,6 +40,8 @@ from benchmark_ollama import (
     ENGLISH_PROMPTS,
     JEV_INSTRUCTIONS,
     PROMPT_VERSION,
+    GPU_RATE,
+    GPU_TIME,
     PRICES,
     WEB_GROUNDING_PRICES,
     TURKISH_CHAT,
@@ -1316,6 +1318,39 @@ class HarnessCommitTests(unittest.TestCase):
         with mock.patch.dict(os.environ, {"HARNESS_REPO": str(self.work)}):
             with self.assertRaisesRegex(ValueError, "no published commit holds"):
                 harness_commit(self.outside)
+
+
+class LocalCostTests(unittest.TestCase):
+    """Every setup on our GPUs is estimated: a list price for the same model or weights, else its GPU time."""
+
+    store = OptionWordTests.store
+    bank = DontKnowTests.bank
+
+    def test_a_setup_has_one_source_of_its_cost(self) -> None:
+        self.assertEqual(set(GPU_TIME) & set(PRICES), set())
+        for price in PRICES.values():
+            if price.applies_to == "weights":
+                self.assertIn("'s list price for the same weights (", price.basis)
+
+    def test_the_gpu_rate_is_runpods_secure_cloud_price(self) -> None:
+        self.assertEqual((GPU_RATE.usd_per_gpu_hour, GPU_RATE.source, GPU_RATE.date), (2.49, "https://www.runpod.io/pricing", "2026-11-05"))
+        self.assertTrue(math.isclose(GPU_RATE.cost(1800, 2), 2.49, rel_tol=1e-12))
+
+    def test_a_gpu_time_setup_costs_its_request_time_on_its_gpus(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        answers = {1: ("B", OptionWordTests.spread("B", 0.6, "ABCDE")), 2: ("A", OptionWordTests.spread("A", 0.9, "ABCDE")),
+                   3: ("C", OptionWordTests.spread("C", 0.8, "ABCDE"))}
+        plain = self.store(connection, path, answers)["metrics"]
+        self.assertNotIn("cost_usd", plain)
+        with mock.patch.dict("benchmark_ollama.GPU_TIME", {("subq", "m"): 2}):
+            metrics = self.store(connection, path, answers, repeat=2)["metrics"]
+        # Three requests of 0.1 s each, one after another, on two GPUs.
+        self.assertTrue(math.isclose(metrics["timed_seconds"], 0.3, rel_tol=1e-9))
+        self.assertTrue(math.isclose(metrics["cost_usd"], 0.3 / 3600 * 2 * 2.49, rel_tol=1e-9))
+        self.assertEqual((metrics["price"]["applies_to"], metrics["price"]["gpus"], metrics["price"]["usd_per_gpu_hour"]), ("gpu", 2, 2.49))
+        self.assertNotIn("rates", metrics["price"])
 
 
 
