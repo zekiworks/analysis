@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "2522aafa",
-  "updated": "2026-11-05T15:04:25Z",
+  "results_version": "ad41d623",
+  "updated": "2026-11-05T17:05:26Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -329,6 +329,54 @@
       "text": "$0.038 input, output free per 1M tokens"
     },
     {
+      "provider": "cygnet",
+      "model": "cygnet",
+      "perplexity_mode": null,
+      "basis": "SiliconFlow's list price for the same weights (Gemma 4 12B IT; precision not stated, ours BF16)",
+      "source": "https://www.siliconflow.com/models/gemma-4-12b-it",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "weights",
+      "extra_input_per_request": 0,
+      "per_request": 0.0,
+      "rates": {
+        "input_tokens": 0.1,
+        "cached_input_tokens": 0.1,
+        "cache_write_input_tokens": 0.1,
+        "cache_write_1h_input_tokens": 0.1,
+        "output_tokens": 0.3
+      },
+      "text": "$0.10 input, $0.30 output per 1M tokens"
+    },
+    {
+      "provider": "d1-server",
+      "model": "LiquidAI/d1-2B",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
+      "provider": "d3-server",
+      "model": "vllm-sr/d3-ultra",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
       "provider": "drex-max",
       "model": "drex-max-v1",
       "perplexity_mode": null,
@@ -429,6 +477,40 @@
       "text": "$0.04 input, output free per 1M tokens"
     },
     {
+      "provider": "gliner",
+      "model": "gliner2.5-multi-decide",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
+      "provider": "gliner",
+      "model": "gliner2.5-multi-v1",
+      "perplexity_mode": null,
+      "basis": "Fastino's list price for the same model",
+      "source": "https://docs.fastino.ai/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "per_request": 0.0,
+      "rates": {
+        "input_tokens": 0.03,
+        "cached_input_tokens": 0.03,
+        "cache_write_input_tokens": 0.03,
+        "cache_write_1h_input_tokens": 0.03,
+        "output_tokens": 0.0
+      },
+      "text": "$0.03 input, output free per 1M tokens"
+    },
+    {
       "provider": "jev",
       "model": "jev-1.13.0",
       "perplexity_mode": null,
@@ -467,6 +549,34 @@
         "output_tokens": 0.0
       },
       "text": "$0.042 input, output free per 1M tokens"
+    },
+    {
+      "provider": "laya",
+      "model": "laya",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
+      "provider": "laya",
+      "model": "laya-multilingual",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
     },
     {
       "provider": "liquid",
@@ -549,6 +659,20 @@
       "text": "$0.04 input, output free per 1M tokens"
     },
     {
+      "provider": "metask",
+      "model": "metask-jev-4b-policy-mix",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
       "provider": "nace",
       "model": "drex-max-v1.1",
       "perplexity_mode": null,
@@ -587,6 +711,34 @@
         "output_tokens": 0.0
       },
       "text": "$0.06 input, output free per 1M tokens"
+    },
+    {
+      "provider": "onejev",
+      "model": "OmniJev/OneJev-27B",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
+      "provider": "open-jev",
+      "model": "open-jev-27b-v1.1",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
     },
     {
       "provider": "openai",
@@ -889,6 +1041,20 @@
       "text": "$0.02 input, output free per 1M tokens, plus 3 billed input tokens per request"
     },
     {
+      "provider": "strands",
+      "model": "strands-decider-2b",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
       "provider": "subq",
       "model": "subq-snap-1.1",
       "perplexity_mode": null,
@@ -930,6 +1096,26 @@
     },
     {
       "provider": "vllm",
+      "model": "deepseek-v4.1-flash",
+      "perplexity_mode": null,
+      "basis": "Together's list price for the same weights (precision not stated; ours the published mixed precision)",
+      "source": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-20260910",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "weights",
+      "extra_input_per_request": 0,
+      "per_request": 0.0,
+      "rates": {
+        "input_tokens": 0.3,
+        "cached_input_tokens": 0.006,
+        "cache_write_input_tokens": 0.3,
+        "cache_write_1h_input_tokens": 0.3,
+        "output_tokens": 1.2
+      },
+      "text": "$0.30 input, $0.006 cached input, $1.20 output per 1M tokens"
+    },
+    {
+      "provider": "vllm",
       "model": "deepseek-v4.1-flash-1017",
       "perplexity_mode": null,
       "basis": "DeepSeek's list price for the same model",
@@ -950,6 +1136,60 @@
     },
     {
       "provider": "vllm",
+      "model": "erk-14b",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
+      "provider": "vllm",
+      "model": "gemma-4-31B-it",
+      "perplexity_mode": null,
+      "basis": "DeepInfra's list price for the same weights (FP8, as ours)",
+      "source": "https://openrouter.ai/google/gemma-4-31b-it",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "weights",
+      "extra_input_per_request": 0,
+      "per_request": 0.0,
+      "rates": {
+        "input_tokens": 0.2,
+        "cached_input_tokens": 0.2,
+        "cache_write_input_tokens": 0.2,
+        "cache_write_1h_input_tokens": 0.2,
+        "output_tokens": 0.4
+      },
+      "text": "$0.20 input, $0.40 output per 1M tokens"
+    },
+    {
+      "provider": "vllm",
+      "model": "qwen3-14b",
+      "perplexity_mode": null,
+      "basis": "DeepInfra's list price for the same weights (FP8; ours BF16)",
+      "source": "https://openrouter.ai/qwen/qwen3-14b",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "weights",
+      "extra_input_per_request": 0,
+      "per_request": 0.0,
+      "rates": {
+        "input_tokens": 0.12,
+        "cached_input_tokens": 0.12,
+        "cache_write_input_tokens": 0.12,
+        "cache_write_1h_input_tokens": 0.12,
+        "output_tokens": 0.24
+      },
+      "text": "$0.12 input, $0.24 output per 1M tokens"
+    },
+    {
+      "provider": "vllm",
       "model": "qwen38-27b-bf16",
       "perplexity_mode": null,
       "basis": "Alibaba's list price for the same model",
@@ -967,6 +1207,40 @@
         "output_tokens": 3.0
       },
       "text": "$0.50 input, $0.10 cached input, $3 output per 1M tokens"
+    },
+    {
+      "provider": "vllm-sr",
+      "model": "vllm-sr/d3",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
+      "provider": "vllm-stated",
+      "model": "glm-5.3-flash",
+      "perplexity_mode": null,
+      "basis": "Z.ai's list price for the same model (FP8; ours EXL3 4-bit experts with FP8 dense layers)",
+      "source": "https://openrouter.ai/z-ai/glm-5.3-flash",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "per_request": 0.0,
+      "rates": {
+        "input_tokens": 0.15,
+        "cached_input_tokens": 0.03,
+        "cache_write_input_tokens": 0.15,
+        "cache_write_1h_input_tokens": 0.15,
+        "output_tokens": 0.5
+      },
+      "text": "$0.15 input, $0.03 cached input, $0.50 output per 1M tokens"
     },
     {
       "provider": "vllm-verbal",
@@ -1027,6 +1301,20 @@
         "output_tokens": 3.0
       },
       "text": "$0.50 input, $0.10 cached input, $3 output per 1M tokens"
+    },
+    {
+      "provider": "winnow",
+      "model": "winnow-12b",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
     },
     {
       "provider": "xai",
@@ -8507,8 +8795,8 @@
       "median_request_seconds": 365.14285134349484,
       "p90_request_seconds": 686.8833388963016,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 2.8553639999999993,
+      "cost_basis": "weights",
       "cost_upper_bound": false,
       "requests": 138,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers",
@@ -11808,8 +12096,8 @@
       "median_request_seconds": 102.61677862299985,
       "p90_request_seconds": 639.2771307083002,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 1.19315485,
+      "cost_basis": "maker",
       "cost_upper_bound": false,
       "requests": 138,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); EXL3 4-bit experts, FP8 dense layers and KV cache",
@@ -13652,8 +13940,8 @@
       "median_request_seconds": 3.972206312988419,
       "p90_request_seconds": 4.256375251116697,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.10598339999999999,
+      "cost_basis": "weights",
       "cost_upper_bound": false,
       "requests": 138,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 weights and KV cache",
@@ -16423,8 +16711,8 @@
       "median_request_seconds": 0.0924945070000831,
       "p90_request_seconds": 0.14396354870405048,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.15432888439080272,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -16884,8 +17172,8 @@
       "median_request_seconds": 0.3334329740027897,
       "p90_request_seconds": 0.4403526291134767,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.47442381961155966,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -19650,8 +19938,8 @@
       "median_request_seconds": 0.29770804748113733,
       "p90_request_seconds": 0.3055964823171962,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.14987080000000003,
+      "cost_basis": "weights",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 weights and KV cache",
@@ -21039,8 +21327,8 @@
       "median_request_seconds": 4.361823945015203,
       "p90_request_seconds": 7.860654652415542,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.2164134,
+      "cost_basis": "weights",
       "cost_upper_bound": false,
       "requests": 138,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers",
@@ -24803,8 +25091,8 @@
       "median_request_seconds": 0.1249308105034288,
       "p90_request_seconds": 0.1888540582935093,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.21780465771792953,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -26188,8 +26476,8 @@
       "median_request_seconds": 1.065357404999986,
       "p90_request_seconds": 1.2150850257999992,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.10391914999999999,
+      "cost_basis": "maker",
       "cost_upper_bound": false,
       "requests": 138,
       "hardware": "4 × RTX PRO 6000 Blackwell (96 GB); EXL3 4-bit experts, FP8 dense layers and KV cache",
@@ -28578,8 +28866,8 @@
       "median_request_seconds": 0.0359221679973416,
       "p90_request_seconds": 0.04518266418017447,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.08658210000000001,
+      "cost_basis": "weights",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -29039,8 +29327,8 @@
       "median_request_seconds": null,
       "p90_request_seconds": null,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.5978553847069329,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2210,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -29537,8 +29825,8 @@
       "median_request_seconds": 0.05853745195781812,
       "p90_request_seconds": 0.0698976724059321,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.09099781566523309,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); Q8_0",
@@ -33305,8 +33593,8 @@
       "median_request_seconds": 2.8455167649663053,
       "p90_request_seconds": 3.1145364760770464,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.07102272,
+      "cost_basis": "weights",
       "cost_upper_bound": false,
       "requests": 138,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -33766,8 +34054,8 @@
       "median_request_seconds": 2.3896605125046335,
       "p90_request_seconds": 2.662659723334946,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.23228015626617224,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 138,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -34227,8 +34515,8 @@
       "median_request_seconds": 0.08993917948100716,
       "p90_request_seconds": 0.09815078696701676,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.13807423314659004,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -34685,8 +34973,8 @@
       "median_request_seconds": 0.019204194002668373,
       "p90_request_seconds": 0.021930550708202646,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.02895258204114119,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -35143,8 +35431,8 @@
       "median_request_seconds": 0.026102936477400362,
       "p90_request_seconds": 0.0304201258928515,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.044227468308213676,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
@@ -36059,8 +36347,8 @@
       "median_request_seconds": 0.008824052987620234,
       "p90_request_seconds": 0.010334555187728255,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.013787475919365536,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP16",
@@ -36517,8 +36805,8 @@
       "median_request_seconds": null,
       "p90_request_seconds": null,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.01988403882243729,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2210,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB)",
@@ -37015,8 +37303,8 @@
       "median_request_seconds": null,
       "p90_request_seconds": null,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.01709697977393468,
+      "cost_basis": "gpu",
       "cost_upper_bound": false,
       "requests": 2210,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB)",
@@ -37519,8 +37807,8 @@
       "median_request_seconds": 0.03178766701603308,
       "p90_request_seconds": 0.03576318579725921,
       "billing": "local",
-      "api_equivalent_usd": null,
-      "cost_basis": null,
+      "api_equivalent_usd": 0.0129345,
+      "cost_basis": "maker",
       "cost_upper_bound": false,
       "requests": 2198,
       "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP16",
@@ -46212,7 +46500,7 @@
         "kept_wrong": 0.0008791639035235061,
         "handed_off": 0.8522309445372479
       },
-      "usd_per_1000": 2.0616345726548344
+      "usd_per_1000": 2.109852680025171
     },
     {
       "decision": 119,
@@ -46638,7 +46926,7 @@
         "kept_wrong": 0.0009398334278664147,
         "handed_off": 0.8511441760121932
       },
-      "usd_per_1000": 5.162661855127568
+      "usd_per_1000": 5.210879962497905
     },
     {
       "decision": 119,
@@ -47064,7 +47352,7 @@
         "kept_wrong": 0.0009398334278664147,
         "handed_off": 0.8511441760121932
       },
-      "usd_per_1000": 1.3807177180348031
+      "usd_per_1000": 1.4289358254051399
     },
     {
       "decision": 119,
@@ -47490,7 +47778,7 @@
         "kept_wrong": 0.0009398334278664147,
         "handed_off": 0.8511441760121932
       },
-      "usd_per_1000": 4.577645945149231
+      "usd_per_1000": 4.625864052519568
     },
     {
       "decision": 119,
@@ -47916,7 +48204,7 @@
         "kept_wrong": 0.0008670399140395683,
         "handed_off": 0.8538462058572625
       },
-      "usd_per_1000": 22.82988035755018
+      "usd_per_1000": 22.878098464920516
     },
     {
       "decision": 119,
@@ -48342,7 +48630,7 @@
         "kept_wrong": 0.0010823379238206641,
         "handed_off": 0.8480517933054492
       },
-      "usd_per_1000": 0.8170468769855304
+      "usd_per_1000": 0.8652649843558671
     },
     {
       "decision": 119,
@@ -48768,7 +49056,7 @@
         "kept_wrong": 0.001521966702807245,
         "handed_off": 0.8309130254365388
       },
-      "usd_per_1000": 4.626954983856047
+      "usd_per_1000": 4.675173091226384
     },
     {
       "decision": 119,
@@ -49194,7 +49482,7 @@
         "kept_wrong": 0.0009398334278664147,
         "handed_off": 0.8511441760121932
       },
-      "usd_per_1000": 0.9621104522078497
+      "usd_per_1000": 1.0103285595781863
     },
     {
       "decision": 119,
@@ -49620,7 +49908,7 @@
         "kept_wrong": 0.001033687614919337,
         "handed_off": 0.849360732137324
       },
-      "usd_per_1000": 5.528341468663125
+      "usd_per_1000": 5.576559576033462
     },
     {
       "decision": 119,
@@ -50046,7 +50334,7 @@
         "kept_wrong": 0.001718977884841822,
         "handed_off": 0.8241368729426147
       },
-      "usd_per_1000": 0.42402929463639805
+      "usd_per_1000": 0.4722474020067347
     },
     {
       "decision": 119,
@@ -50472,7 +50760,7 @@
         "kept_wrong": 0.0017824242781011679,
         "handed_off": 0.8347950275491909
       },
-      "usd_per_1000": 9.691607411261334
+      "usd_per_1000": 9.73982551863167
     },
     {
       "decision": 119,
@@ -50898,7 +51186,7 @@
         "kept_wrong": 0.0014886773215496052,
         "handed_off": 0.8307063629735222
       },
-      "usd_per_1000": 0.2231143879051463
+      "usd_per_1000": 0.271332495275483
     },
     {
       "decision": 119,
@@ -51324,7 +51612,7 @@
         "kept_wrong": 0.0012520295338470018,
         "handed_off": 0.8455426936727001
       },
-      "usd_per_1000": 0.3604089186486025
+      "usd_per_1000": 0.4086270260189392
     },
     {
       "decision": 119,
@@ -51750,7 +52038,7 @@
         "kept_wrong": 0.0010398059746918175,
         "handed_off": 0.8500443680042632
       },
-      "usd_per_1000": 4.191216837182538
+      "usd_per_1000": 4.239434944552875
     },
     {
       "decision": 119,
@@ -52176,7 +52464,7 @@
         "kept_wrong": 0.009407193537520292,
         "handed_off": 0.7378213117628902
       },
-      "usd_per_1000": 5.716337010087484
+      "usd_per_1000": 5.764555117457821
     },
     {
       "decision": 119,
@@ -52602,7 +52890,7 @@
         "kept_wrong": 0.0644100614445532,
         "handed_off": 0.3914831338228413
       },
-      "usd_per_1000": 1.4306099775563401
+      "usd_per_1000": 1.4788280849266768
     },
     {
       "decision": 640,
@@ -73476,7 +73764,7 @@
         "kept_wrong": 0.0008700923413393802,
         "handed_off": 0.7811348776650442
       },
-      "usd_per_1000": 1.8896458524809834
+      "usd_per_1000": 1.9598591756797108
     },
     {
       "decision": 259,
@@ -73902,7 +74190,7 @@
         "kept_wrong": 0.0014432450059322624,
         "handed_off": 0.7706492135279607
       },
-      "usd_per_1000": 4.674415228928114
+      "usd_per_1000": 4.744628552126841
     },
     {
       "decision": 259,
@@ -74328,7 +74616,7 @@
         "kept_wrong": 0.001995069495289001,
         "handed_off": 0.7565008088884837
       },
-      "usd_per_1000": 1.2271881779580283
+      "usd_per_1000": 1.2974015011567557
     },
     {
       "decision": 259,
@@ -74754,7 +75042,7 @@
         "kept_wrong": 0.001694815419201372,
         "handed_off": 0.7656753510413143
       },
-      "usd_per_1000": 4.117975267617621
+      "usd_per_1000": 4.188188590816348
     },
     {
       "decision": 259,
@@ -75180,7 +75468,7 @@
         "kept_wrong": 0.0008700923413393802,
         "handed_off": 0.7811348776650442
       },
-      "usd_per_1000": 20.885746962238958
+      "usd_per_1000": 20.955960285437687
     },
     {
       "decision": 259,
@@ -75606,7 +75894,7 @@
         "kept_wrong": 0.0014492975557168022,
         "handed_off": 0.7697670134255548
       },
-      "usd_per_1000": 0.7416242018361024
+      "usd_per_1000": 0.8118375250348298
     },
     {
       "decision": 259,
@@ -76032,7 +76320,7 @@
         "kept_wrong": 0.00236777538603237,
         "handed_off": 0.743872979400762
       },
-      "usd_per_1000": 4.14227083224016
+      "usd_per_1000": 4.212484155438887
     },
     {
       "decision": 259,
@@ -76458,7 +76746,7 @@
         "kept_wrong": 0.001694815419201372,
         "handed_off": 0.7656753510413143
       },
-      "usd_per_1000": 0.8654987944418603
+      "usd_per_1000": 0.9357121176405876
     },
     {
       "decision": 259,
@@ -76884,7 +77172,7 @@
         "kept_wrong": 0.002513257378543141,
         "handed_off": 0.7549801484675941
       },
-      "usd_per_1000": 4.914034643781994
+      "usd_per_1000": 4.984247966980721
     },
     {
       "decision": 259,
@@ -77310,7 +77598,7 @@
         "kept_wrong": 0.002116293217222533,
         "handed_off": 0.7575693703409622
       },
-      "usd_per_1000": 0.38977943626869616
+      "usd_per_1000": 0.4599927594674235
     },
     {
       "decision": 259,
@@ -77736,7 +78024,7 @@
         "kept_wrong": 0.003131696686742093,
         "handed_off": 0.7334203266052651
       },
-      "usd_per_1000": 8.514691197628695
+      "usd_per_1000": 8.584904520827422
     },
     {
       "decision": 259,
@@ -78162,7 +78450,7 @@
         "kept_wrong": 0.0027832521499120476,
         "handed_off": 0.7497887061360544
       },
-      "usd_per_1000": 0.201381204820589
+      "usd_per_1000": 0.2715945280193164
     },
     {
       "decision": 259,
@@ -78588,7 +78876,7 @@
         "kept_wrong": 0.0070189628630717244,
         "handed_off": 0.676563444833699
       },
-      "usd_per_1000": 0.2883822441780506
+      "usd_per_1000": 0.35859556737677795
     },
     {
       "decision": 259,
@@ -79014,7 +79302,7 @@
         "kept_wrong": 0.005899861302730712,
         "handed_off": 0.6919044820126197
       },
-      "usd_per_1000": 3.4114945335639386
+      "usd_per_1000": 3.481707856762666
     },
     {
       "decision": 259,
@@ -79440,7 +79728,7 @@
         "kept_wrong": 0.006303264145978417,
         "handed_off": 0.6838898266719023
       },
-      "usd_per_1000": 5.298497976002127
+      "usd_per_1000": 5.3687112992008545
     },
     {
       "decision": 259,
@@ -79866,7 +80154,7 @@
         "kept_wrong": 0.045560605053129734,
         "handed_off": 0.4981890419321247
       },
-      "usd_per_1000": 1.820548965003068
+      "usd_per_1000": 1.8907622882017954
     },
     {
       "decision": 269,
@@ -80292,7 +80580,7 @@
         "kept_wrong": 0.0017371678849310956,
         "handed_off": 0.7731599799799691
       },
-      "usd_per_1000": 1.8703537522746667
+      "usd_per_1000": 2.086197164290845
     },
     {
       "decision": 269,
@@ -80718,7 +81006,7 @@
         "kept_wrong": 0.0023405106087274665,
         "handed_off": 0.7562755315880575
       },
-      "usd_per_1000": 4.587230869849784
+      "usd_per_1000": 4.803074281865962
     },
     {
       "decision": 269,
@@ -81144,7 +81432,7 @@
         "kept_wrong": 0.0033563611990855254,
         "handed_off": 0.7366374938540768
       },
-      "usd_per_1000": 1.194966103508305
+      "usd_per_1000": 1.4108095155244833
     },
     {
       "decision": 269,
@@ -81570,7 +81858,7 @@
         "kept_wrong": 0.00308640170531161,
         "handed_off": 0.7448182385276255
       },
-      "usd_per_1000": 4.005800997715266
+      "usd_per_1000": 4.221644409731444
     },
     {
       "decision": 269,
@@ -81996,7 +82284,7 @@
         "kept_wrong": 0.0019857717053364168,
         "handed_off": 0.7700132109482566
       },
-      "usd_per_1000": 20.58837921758066
+      "usd_per_1000": 20.804222629596836
     },
     {
       "decision": 269,
@@ -82422,7 +82710,7 @@
         "kept_wrong": 0.002968249801525727,
         "handed_off": 0.7485694335921016
       },
-      "usd_per_1000": 0.7212016090896516
+      "usd_per_1000": 0.9370450211058298
     },
     {
       "decision": 269,
@@ -82848,7 +83136,7 @@
         "kept_wrong": 0.0035441465182491426,
         "handed_off": 0.7354604434365052
       },
-      "usd_per_1000": 4.095425465739574
+      "usd_per_1000": 4.311268877755752
     },
     {
       "decision": 269,
@@ -83274,7 +83562,7 @@
         "kept_wrong": 0.003165233786681882,
         "handed_off": 0.7443148466230236
       },
-      "usd_per_1000": 0.8413534555621929
+      "usd_per_1000": 1.0571968675783712
     },
     {
       "decision": 269,
@@ -83700,7 +83988,7 @@
         "kept_wrong": 0.004580891513193941,
         "handed_off": 0.7204660500578828
       },
-      "usd_per_1000": 4.689388372448272
+      "usd_per_1000": 4.90523178446445
     },
     {
       "decision": 269,
@@ -84126,7 +84414,7 @@
         "kept_wrong": 0.0035140087212960705,
         "handed_off": 0.7410391845090833
       },
-      "usd_per_1000": 0.3812744375620211
+      "usd_per_1000": 0.5971178495781994
     },
     {
       "decision": 269,
@@ -84552,7 +84840,7 @@
         "kept_wrong": 0.003443977939406773,
         "handed_off": 0.7346733832109962
       },
-      "usd_per_1000": 8.529238640157779
+      "usd_per_1000": 8.745082052173958
     },
     {
       "decision": 269,
@@ -84978,7 +85266,7 @@
         "kept_wrong": 0.0038682454395324545,
         "handed_off": 0.7356987482607559
       },
-      "usd_per_1000": 0.19759686842077656
+      "usd_per_1000": 0.4134402804369548
     },
     {
       "decision": 269,
@@ -85404,7 +85692,7 @@
         "kept_wrong": 0.007913244731153903,
         "handed_off": 0.6739109128178083
       },
-      "usd_per_1000": 0.28725161387081477
+      "usd_per_1000": 0.503095025886993
     },
     {
       "decision": 269,
@@ -85830,7 +86118,7 @@
         "kept_wrong": 0.009104398288408118,
         "handed_off": 0.6682753517883123
       },
-      "usd_per_1000": 3.2949890755293056
+      "usd_per_1000": 3.5108324875454837
     },
     {
       "decision": 269,
@@ -86256,7 +86544,7 @@
         "kept_wrong": 0.007094262112742262,
         "handed_off": 0.7058892301136819
       },
-      "usd_per_1000": 5.468940333913442
+      "usd_per_1000": 5.68478374592962
     },
     {
       "decision": 269,
@@ -86682,7 +86970,7 @@
         "kept_wrong": 0.05371820028630638,
         "handed_off": 0.47385408789291594
       },
-      "usd_per_1000": 1.7316209243186358
+      "usd_per_1000": 1.947464336334814
     },
     {
       "decision": 322,
@@ -163524,7 +163812,7 @@
         "kept_wrong": 0.0012520352547932376,
         "handed_off": 0.8287397663357021
       },
-      "usd_per_1000": 2.004806989189183
+      "usd_per_1000": 2.103899190152754
     },
     {
       "decision": 264,
@@ -163950,7 +164238,7 @@
         "kept_wrong": 0.0014218040957759176,
         "handed_off": 0.8270995382270475
       },
-      "usd_per_1000": 5.0168177809833665
+      "usd_per_1000": 5.115909981946937
     },
     {
       "decision": 264,
@@ -164376,7 +164664,7 @@
         "kept_wrong": 0.002234339543958837,
         "handed_off": 0.8116913119260256
       },
-      "usd_per_1000": 1.3167176696220768
+      "usd_per_1000": 1.4158098705856481
     },
     {
       "decision": 264,
@@ -164802,7 +165090,7 @@
         "kept_wrong": 0.0014218040957759176,
         "handed_off": 0.8270995382270475
       },
-      "usd_per_1000": 4.448328443177422
+      "usd_per_1000": 4.547420644140993
     },
     {
       "decision": 264,
@@ -165228,7 +165516,7 @@
         "kept_wrong": 0.0012520352547932376,
         "handed_off": 0.8287397663357021
       },
-      "usd_per_1000": 22.158592007787234
+      "usd_per_1000": 22.257684208750806
     },
     {
       "decision": 264,
@@ -165654,7 +165942,7 @@
         "kept_wrong": 0.0015370465224603593,
         "handed_off": 0.8225728837651982
       },
-      "usd_per_1000": 0.7924994806670599
+      "usd_per_1000": 0.8915916816306311
     },
     {
       "decision": 264,
@@ -166080,7 +166368,7 @@
         "kept_wrong": 0.0016097907002507645,
         "handed_off": 0.8248345089006266
       },
-      "usd_per_1000": 4.593106648928916
+      "usd_per_1000": 4.6921988498924865
     },
     {
       "decision": 264,
@@ -166506,7 +166794,7 @@
         "kept_wrong": 0.0014794405698058343,
         "handed_off": 0.8264079391764321
       },
-      "usd_per_1000": 0.9341492763240203
+      "usd_per_1000": 1.0332414772875915
     },
     {
       "decision": 264,
@@ -166932,7 +167220,7 @@
         "kept_wrong": 0.0013339031186506208,
         "handed_off": 0.8277694096621395
       },
-      "usd_per_1000": 5.387807301157559
+      "usd_per_1000": 5.48689950212113
     },
     {
       "decision": 264,
@@ -167358,7 +167646,7 @@
         "kept_wrong": 0.0014218040957759176,
         "handed_off": 0.8270995382270475
       },
-      "usd_per_1000": 0.42555362501408933
+      "usd_per_1000": 0.5246458259776605
     },
     {
       "decision": 264,
@@ -167784,7 +168072,7 @@
         "kept_wrong": 0.0029740548836687873,
         "handed_off": 0.8077059577492149
       },
-      "usd_per_1000": 9.377115085632157
+      "usd_per_1000": 9.476207286595729
     },
     {
       "decision": 264,
@@ -168210,7 +168498,7 @@
         "kept_wrong": 0.0019795403295639847,
         "handed_off": 0.8169751313364606
       },
-      "usd_per_1000": 0.21942639961176122
+      "usd_per_1000": 0.31851860057533243
     },
     {
       "decision": 264,
@@ -168636,7 +168924,7 @@
         "kept_wrong": 0.0034198761088468027,
         "handed_off": 0.7945784546468787
       },
-      "usd_per_1000": 0.338685632036945
+      "usd_per_1000": 0.4377778330005162
     },
     {
       "decision": 264,
@@ -169062,7 +169350,7 @@
         "kept_wrong": 0.002886291196133159,
         "handed_off": 0.8096502780000644
       },
-      "usd_per_1000": 3.9920503036217716
+      "usd_per_1000": 4.091142504585343
     },
     {
       "decision": 264,
@@ -169488,7 +169776,7 @@
         "kept_wrong": 0.004914175494053202,
         "handed_off": 0.7801915593652151
       },
-      "usd_per_1000": 6.04460431632325
+      "usd_per_1000": 6.143696517286821
     },
     {
       "decision": 264,
@@ -169914,7 +170202,7 @@
         "kept_wrong": 0.022539604174429875,
         "handed_off": 0.6634951499230953
       },
-      "usd_per_1000": 2.424632633010862
+      "usd_per_1000": 2.523724833974433
     },
     {
       "decision": 194,
@@ -205668,7 +205956,7 @@
         "kept_wrong": 0.001070246922544378,
         "handed_off": 0.8683942761309033
       },
-      "usd_per_1000": 2.1007353392209422
+      "usd_per_1000": 2.371258137730867
     },
     {
       "decision": 45,
@@ -206094,7 +206382,7 @@
         "kept_wrong": 0.0008762080892580385,
         "handed_off": 0.8756882787002133
       },
-      "usd_per_1000": 5.311535461135725
+      "usd_per_1000": 5.58205825964565
     },
     {
       "decision": 45,
@@ -206520,7 +206808,7 @@
         "kept_wrong": 0.0008610427824460783,
         "handed_off": 0.8758399097046896
       },
-      "usd_per_1000": 1.4207788945429427
+      "usd_per_1000": 1.691301693052867
     },
     {
       "decision": 45,
@@ -206946,7 +207234,7 @@
         "kept_wrong": 0.0008610427824460783,
         "handed_off": 0.8758399097046896
       },
-      "usd_per_1000": 4.710465188217546
+      "usd_per_1000": 4.98098798672747
     },
     {
       "decision": 45,
@@ -207372,7 +207660,7 @@
         "kept_wrong": 0.0008610427824460783,
         "handed_off": 0.8758399097046896
       },
-      "usd_per_1000": 23.417941326857925
+      "usd_per_1000": 23.688464125367847
     },
     {
       "decision": 45,
@@ -207798,7 +208086,7 @@
         "kept_wrong": 0.002255433190133704,
         "handed_off": 0.8478235207133592
       },
-      "usd_per_1000": 0.8168269500778331
+      "usd_per_1000": 1.0873497485877575
     },
     {
       "decision": 45,
@@ -208224,7 +208512,7 @@
         "kept_wrong": 0.0012521123300117832,
         "handed_off": 0.8648990574706268
       },
-      "usd_per_1000": 4.816206849560034
+      "usd_per_1000": 5.086729648069959
     },
     {
       "decision": 45,
@@ -208650,7 +208938,7 @@
         "kept_wrong": 0.0008762080892580385,
         "handed_off": 0.8756882787002133
       },
-      "usd_per_1000": 0.9898544448259334
+      "usd_per_1000": 1.2603772433358578
     },
     {
       "decision": 45,
@@ -209076,7 +209364,7 @@
         "kept_wrong": 0.0011641974358837378,
         "handed_off": 0.8725356268579856
       },
-      "usd_per_1000": 5.679182832842677
+      "usd_per_1000": 5.949705631352602
     },
     {
       "decision": 45,
@@ -209502,7 +209790,7 @@
         "kept_wrong": 0.0008762080892580385,
         "handed_off": 0.8756882787002133
       },
-      "usd_per_1000": 0.4505531730582671
+      "usd_per_1000": 0.7210759715681915
     },
     {
       "decision": 45,
@@ -209928,7 +210216,7 @@
         "kept_wrong": 0.0017492752353924564,
         "handed_off": 0.8595306662634473
       },
-      "usd_per_1000": 9.978777424946216
+      "usd_per_1000": 10.24930022345614
     },
     {
       "decision": 45,
@@ -210354,7 +210642,7 @@
         "kept_wrong": 0.0018220138183597842,
         "handed_off": 0.8525914320429637
       },
-      "usd_per_1000": 0.22899236598179412
+      "usd_per_1000": 0.4995151644917185
     },
     {
       "decision": 45,
@@ -210780,7 +211068,7 @@
         "kept_wrong": 0.00225248063937113,
         "handed_off": 0.8538382441933622
       },
-      "usd_per_1000": 0.3639448612037446
+      "usd_per_1000": 0.6344676597136689
     },
     {
       "decision": 45,
@@ -211206,7 +211494,7 @@
         "kept_wrong": 0.0018887328890446742,
         "handed_off": 0.8653543354075779
       },
-      "usd_per_1000": 4.266703947706122
+      "usd_per_1000": 4.537226746216047
     },
     {
       "decision": 45,
@@ -211632,7 +211920,7 @@
         "kept_wrong": 0.004519871962328211,
         "handed_off": 0.8193633062557127
       },
-      "usd_per_1000": 6.348090950458158
+      "usd_per_1000": 6.618613748968083
     },
     {
       "decision": 45,
@@ -212058,7 +212346,7 @@
         "kept_wrong": 0.016834714208477923,
         "handed_off": 0.727262823129509
       },
-      "usd_per_1000": 2.6576609850724644
+      "usd_per_1000": 2.928183783582389
     },
     {
       "decision": 127,
@@ -212484,7 +212772,7 @@
         "kept_wrong": 0.0008489241270820754,
         "handed_off": 0.8831966323255847
       },
-      "usd_per_1000": 2.1365437658960333
+      "usd_per_1000": 2.1759350761781078
     },
     {
       "decision": 127,
@@ -212910,7 +213198,7 @@
         "kept_wrong": 0.0008489241270820754,
         "handed_off": 0.8831966323255847
       },
-      "usd_per_1000": 5.357077793385622
+      "usd_per_1000": 5.396469103667697
     },
     {
       "decision": 127,
@@ -213336,7 +213624,7 @@
         "kept_wrong": 0.0008489241270820754,
         "handed_off": 0.8831966323255847
       },
-      "usd_per_1000": 1.4327128976831947
+      "usd_per_1000": 1.4721042079652693
     },
     {
       "decision": 127,
@@ -213762,7 +214050,7 @@
         "kept_wrong": 0.0008489241270820754,
         "handed_off": 0.8831966323255847
       },
-      "usd_per_1000": 4.7500313068896
+      "usd_per_1000": 4.789422617171675
     },
     {
       "decision": 127,
@@ -214188,7 +214476,7 @@
         "kept_wrong": 0.0010368581867870514,
         "handed_off": 0.8816446198076374
       },
-      "usd_per_1000": 23.573145901465715
+      "usd_per_1000": 23.61253721174779
     },
     {
       "decision": 127,
@@ -214614,7 +214902,7 @@
         "kept_wrong": 0.0009216845729990876,
         "handed_off": 0.8825298849545451
       },
-      "usd_per_1000": 0.8502644438000707
+      "usd_per_1000": 0.8896557540821454
     },
     {
       "decision": 127,
@@ -215040,7 +215328,7 @@
         "kept_wrong": 0.0016249830139768156,
         "handed_off": 0.8625657243681903
       },
-      "usd_per_1000": 4.803213639805447
+      "usd_per_1000": 4.842604950087522
     },
     {
       "decision": 127,
@@ -215466,7 +215754,7 @@
         "kept_wrong": 0.0010368581867870514,
         "handed_off": 0.8816446198076374
       },
-      "usd_per_1000": 0.9965873323881994
+      "usd_per_1000": 1.035978642670274
     },
     {
       "decision": 127,
@@ -215892,7 +216180,7 @@
         "kept_wrong": 0.001055045519624066,
         "handed_off": 0.8814839668724621
       },
-      "usd_per_1000": 5.737426023640117
+      "usd_per_1000": 5.7768173339221915
     },
     {
       "decision": 127,
@@ -216318,7 +216606,7 @@
         "kept_wrong": 0.001055045519624066,
         "handed_off": 0.8814839668724621
       },
-      "usd_per_1000": 0.45353513109011234
+      "usd_per_1000": 0.49292644137218694
     },
     {
       "decision": 127,
@@ -216744,7 +217032,7 @@
         "kept_wrong": 0.0011095799899380533,
         "handed_off": 0.8808416386155371
       },
-      "usd_per_1000": 10.226188550758804
+      "usd_per_1000": 10.265579861040878
     },
     {
       "decision": 127,
@@ -217170,7 +217458,7 @@
         "kept_wrong": 0.0011157426625000375,
         "handed_off": 0.8807951275491882
       },
-      "usd_per_1000": 0.23656742564187638
+      "usd_per_1000": 0.275958735923951
     },
     {
       "decision": 127,
@@ -217596,7 +217884,7 @@
         "kept_wrong": 0.001955319518202027,
         "handed_off": 0.8598620594963499
       },
-      "usd_per_1000": 0.3665124864410445
+      "usd_per_1000": 0.4059037967231191
     },
     {
       "decision": 127,
@@ -218022,7 +218310,7 @@
         "kept_wrong": 0.001521839454498152,
         "handed_off": 0.8734546763086629
       },
-      "usd_per_1000": 4.3066433749283215
+      "usd_per_1000": 4.346034685210396
     },
     {
       "decision": 127,
@@ -218448,7 +218736,7 @@
         "kept_wrong": 0.0016947077576162002,
         "handed_off": 0.8622591796818274
       },
-      "usd_per_1000": 6.6804305900652725
+      "usd_per_1000": 6.719821900347347
     },
     {
       "decision": 127,
@@ -218874,7 +219162,7 @@
         "kept_wrong": 0.014782572943566073,
         "handed_off": 0.7583184556516548
       },
-      "usd_per_1000": 2.7711486270856938
+      "usd_per_1000": 2.810539937367768
     },
     {
       "decision": 128,
@@ -219300,7 +219588,7 @@
         "kept_wrong": 0.0013975889835037318,
         "handed_off": 0.893651541989087
       },
-      "usd_per_1000": 2.161835270921077
+      "usd_per_1000": 2.203235551023549
     },
     {
       "decision": 128,
@@ -219726,7 +220014,7 @@
         "kept_wrong": 0.0013824402106535065,
         "handed_off": 0.8938122558012848
       },
-      "usd_per_1000": 5.421467441968041
+      "usd_per_1000": 5.462867722070513
     },
     {
       "decision": 128,
@@ -220152,7 +220440,7 @@
         "kept_wrong": 0.0010277426568161116,
         "handed_off": 0.9079342534414188
       },
-      "usd_per_1000": 1.472842023557841
+      "usd_per_1000": 1.5142423036603128
     },
     {
       "decision": 128,
@@ -220578,7 +220866,7 @@
         "kept_wrong": 0.0010277426568161116,
         "handed_off": 0.9079342534414188
       },
-      "usd_per_1000": 4.883075829997419
+      "usd_per_1000": 4.924476110099891
     },
     {
       "decision": 128,
@@ -221004,7 +221292,7 @@
         "kept_wrong": 0.0010277426568161116,
         "handed_off": 0.9079342534414188
       },
-      "usd_per_1000": 24.27607013581362
+      "usd_per_1000": 24.31747041591609
     },
     {
       "decision": 128,
@@ -221430,7 +221718,7 @@
         "kept_wrong": 0.002291981567801134,
         "handed_off": 0.865949496129035
       },
-      "usd_per_1000": 0.834290236781079
+      "usd_per_1000": 0.8756905168835509
     },
     {
       "decision": 128,
@@ -221856,7 +222144,7 @@
         "kept_wrong": 0.0011216876355471595,
         "handed_off": 0.9067277235485826
       },
-      "usd_per_1000": 5.049130572082944
+      "usd_per_1000": 5.090530852185416
     },
     {
       "decision": 128,
@@ -222282,7 +222570,7 @@
         "kept_wrong": 0.0014187708191911994,
         "handed_off": 0.893297572180334
       },
-      "usd_per_1000": 1.0097595158946187
+      "usd_per_1000": 1.0511597959970904
     },
     {
       "decision": 128,
@@ -222708,7 +222996,7 @@
         "kept_wrong": 0.0013824402106535065,
         "handed_off": 0.8938122558012848
       },
-      "usd_per_1000": 5.817668714812536
+      "usd_per_1000": 5.859068994915008
     },
     {
       "decision": 128,
@@ -223134,7 +223422,7 @@
         "kept_wrong": 0.0013824402106535065,
         "handed_off": 0.8938122558012848
       },
-      "usd_per_1000": 0.45987819840112526
+      "usd_per_1000": 0.5012784785035971
     },
     {
       "decision": 128,
@@ -223560,7 +223848,7 @@
         "kept_wrong": 0.0011065885649080645,
         "handed_off": 0.907467329641045
       },
-      "usd_per_1000": 10.535301250232292
+      "usd_per_1000": 10.576701530334764
     },
     {
       "decision": 128,
@@ -223986,7 +224274,7 @@
         "kept_wrong": 0.0013975889835037318,
         "handed_off": 0.8936758064719504
       },
-      "usd_per_1000": 0.24002696913612373
+      "usd_per_1000": 0.2814272492385956
     },
     {
       "decision": 128,
@@ -224412,7 +224700,7 @@
         "kept_wrong": 0.0019370935769759748,
         "handed_off": 0.8818947446162396
       },
-      "usd_per_1000": 0.37590382324568705
+      "usd_per_1000": 0.4173041033481589
     },
     {
       "decision": 128,
@@ -224838,7 +225126,7 @@
         "kept_wrong": 0.003077059738055834,
         "handed_off": 0.8444683892921387
       },
-      "usd_per_1000": 4.163723994759621
+      "usd_per_1000": 4.205124274862094
     },
     {
       "decision": 128,
@@ -225264,7 +225552,7 @@
         "kept_wrong": 0.0016886528411344307,
         "handed_off": 0.8973909829557094
       },
-      "usd_per_1000": 6.952617397472304
+      "usd_per_1000": 6.994017677574776
     },
     {
       "decision": 128,
@@ -225690,7 +225978,7 @@
         "kept_wrong": 0.012181373087700658,
         "handed_off": 0.7683248360827024
       },
-      "usd_per_1000": 2.8077152795084768
+      "usd_per_1000": 2.8491155596109485
     },
     {
       "decision": 373,
@@ -253316,7 +253604,7 @@
         "kept_wrong": 0.001164277222337401,
         "handed_off": 0.9679717864776543
       },
-      "usd_per_1000": 2.3416236093614113
+      "usd_per_1000": 2.4044417318120894
     },
     {
       "decision": 126,
@@ -253742,7 +254030,7 @@
         "kept_wrong": 0.0008913236177816489,
         "handed_off": 0.9709953168725053
       },
-      "usd_per_1000": 5.889625547826548
+      "usd_per_1000": 5.952443670277226
     },
     {
       "decision": 126,
@@ -254168,7 +254456,7 @@
         "kept_wrong": 0.0008913236177816489,
         "handed_off": 0.9709953168725053
       },
-      "usd_per_1000": 1.5751390609473905
+      "usd_per_1000": 1.6379571833980684
     },
     {
       "decision": 126,
@@ -254594,7 +254882,7 @@
         "kept_wrong": 0.0008913236177816489,
         "handed_off": 0.9709953168725053
       },
-      "usd_per_1000": 5.222232496338719
+      "usd_per_1000": 5.2850506187893975
     },
     {
       "decision": 126,
@@ -255020,7 +255308,7 @@
         "kept_wrong": 0.0008913236177816489,
         "handed_off": 0.9709953168725053
       },
-      "usd_per_1000": 25.962177684779224
+      "usd_per_1000": 26.024995807229903
     },
     {
       "decision": 126,
@@ -255446,7 +255734,7 @@
         "kept_wrong": 0.0022526508309346424,
         "handed_off": 0.9500963847224415
       },
-      "usd_per_1000": 0.9153607009626569
+      "usd_per_1000": 0.9781788234133348
     },
     {
       "decision": 126,
@@ -255872,7 +256160,7 @@
         "kept_wrong": 0.0012644235013836705,
         "handed_off": 0.967504170515918
       },
-      "usd_per_1000": 5.3875653728237705
+      "usd_per_1000": 5.4503834952744485
     },
     {
       "decision": 126,
@@ -256298,7 +256586,7 @@
         "kept_wrong": 0.0008913236177816489,
         "handed_off": 0.9709953168725053
       },
-      "usd_per_1000": 1.0975869538165381
+      "usd_per_1000": 1.160405076267216
     },
     {
       "decision": 126,
@@ -256724,7 +257012,7 @@
         "kept_wrong": 0.001422021377685497,
         "handed_off": 0.9649124108343387
       },
-      "usd_per_1000": 6.2804472735863754
+      "usd_per_1000": 6.3432653960370535
     },
     {
       "decision": 126,
@@ -257150,7 +257438,7 @@
         "kept_wrong": 0.001164277222337401,
         "handed_off": 0.9679717864776543
       },
-      "usd_per_1000": 0.49803425538106405
+      "usd_per_1000": 0.560852377831742
     },
     {
       "decision": 126,
@@ -257576,7 +257864,7 @@
         "kept_wrong": 0.0010156764506309183,
         "handed_off": 0.9699762626893814
       },
-      "usd_per_1000": 11.261002792298068
+      "usd_per_1000": 11.323820914748746
     },
     {
       "decision": 126,
@@ -258002,7 +258290,7 @@
         "kept_wrong": 0.001164277222337401,
         "handed_off": 0.9679717864776543
       },
-      "usd_per_1000": 0.25998167616816054
+      "usd_per_1000": 0.32279979861883845
     },
     {
       "decision": 126,
@@ -258428,7 +258716,7 @@
         "kept_wrong": 0.00208594245822798,
         "handed_off": 0.9523639329964045
       },
-      "usd_per_1000": 0.40594101021707735
+      "usd_per_1000": 0.46875913266775526
     },
     {
       "decision": 126,
@@ -258854,7 +259142,7 @@
         "kept_wrong": 0.001422021377685497,
         "handed_off": 0.9649124108343387
       },
-      "usd_per_1000": 4.757583597889317
+      "usd_per_1000": 4.820401720339995
     },
     {
       "decision": 126,
@@ -259280,7 +259568,7 @@
         "kept_wrong": 0.001422021377685497,
         "handed_off": 0.9649124108343387
       },
-      "usd_per_1000": 7.475745736276096
+      "usd_per_1000": 7.538563858726774
     },
     {
       "decision": 126,
@@ -259706,7 +259994,7 @@
         "kept_wrong": 0.004693367907857494,
         "handed_off": 0.9275081249376482
       },
-      "usd_per_1000": 3.3894241236988725
+      "usd_per_1000": 3.4522422461495506
     },
     {
       "decision": 340,
@@ -260132,7 +260420,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 2.399676246448945
+      "usd_per_1000": 2.412848485776125
     },
     {
       "decision": 340,
@@ -260558,7 +260846,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 6.016844839017521
+      "usd_per_1000": 6.0300170783447005
     },
     {
       "decision": 340,
@@ -260984,7 +261272,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 1.609162968449437
+      "usd_per_1000": 1.6223352077766169
     },
     {
       "decision": 340,
@@ -261410,7 +261698,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 5.335035714679798
+      "usd_per_1000": 5.348207954006978
     },
     {
       "decision": 340,
@@ -261836,7 +262124,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 26.522975619386557
+      "usd_per_1000": 26.536147858713736
     },
     {
       "decision": 340,
@@ -262262,7 +262550,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 0.9557028056014243
+      "usd_per_1000": 0.9688750449286041
     },
     {
       "decision": 340,
@@ -262688,7 +262976,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 5.523800317316646
+      "usd_per_1000": 5.536972556643826
     },
     {
       "decision": 340,
@@ -263114,7 +263402,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 1.1212954617940154
+      "usd_per_1000": 1.1344677011211952
     },
     {
       "decision": 340,
@@ -263540,7 +263828,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 6.4565563395003505
+      "usd_per_1000": 6.46972857882753
     },
     {
       "decision": 340,
@@ -263966,7 +264254,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 0.510381330192409
+      "usd_per_1000": 0.5235535695195889
     },
     {
       "decision": 340,
@@ -264392,7 +264680,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 11.516333241634609
+      "usd_per_1000": 11.529505480961788
     },
     {
       "decision": 340,
@@ -264818,7 +265106,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 0.2664270424668523
+      "usd_per_1000": 0.2795992817940321
     },
     {
       "decision": 340,
@@ -265244,7 +265532,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 0.42282265777814637
+      "usd_per_1000": 0.4359948971053262
     },
     {
       "decision": 340,
@@ -265670,7 +265958,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 4.89099027530156
+      "usd_per_1000": 4.904162514628739
     },
     {
       "decision": 340,
@@ -266096,7 +266384,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 7.685371984419751
+      "usd_per_1000": 7.69854422374693
     },
     {
       "decision": 340,
@@ -266522,7 +266810,7 @@
         "kept_wrong": 0.0012489936816342901,
         "handed_off": 0.9919693728560579
       },
-      "usd_per_1000": 3.6249870291484343
+      "usd_per_1000": 3.638159268475614
     },
     {
       "decision": 141,
@@ -266936,7 +267224,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 2.399691000322133
+      "usd_per_1000": 2.4198126874505284
     },
     {
       "decision": 141,
@@ -267350,7 +267638,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 6.016881832243535
+      "usd_per_1000": 6.037003519371931
     },
     {
       "decision": 141,
@@ -267764,7 +268052,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 1.6091728620283772
+      "usd_per_1000": 1.6292945491567727
     },
     {
       "decision": 141,
@@ -268178,7 +268466,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 5.335068515954763
+      "usd_per_1000": 5.355190203083159
     },
     {
       "decision": 141,
@@ -268592,7 +268880,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 26.523138689975525
+      "usd_per_1000": 26.54326037710392
     },
     {
       "decision": 141,
@@ -269006,7 +269294,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 0.9557086815265704
+      "usd_per_1000": 0.9758303686549661
     },
     {
       "decision": 141,
@@ -269420,7 +269708,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 5.52383427916859
+      "usd_per_1000": 5.543955966296986
     },
     {
       "decision": 141,
@@ -269834,7 +270122,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 1.121302355828606
+      "usd_per_1000": 1.1414240429570015
     },
     {
       "decision": 141,
@@ -270248,7 +270536,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 6.45659603619427
+      "usd_per_1000": 6.476717723322666
     },
     {
       "decision": 141,
@@ -270662,7 +270950,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 0.5103844681579718
+      "usd_per_1000": 0.5305061552863675
     },
     {
       "decision": 141,
@@ -271076,7 +271364,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 11.516404047236191
+      "usd_per_1000": 11.536525734364588
     },
     {
       "decision": 141,
@@ -271490,7 +271778,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 0.2664286805339891
+      "usd_per_1000": 0.2865503676623848
     },
     {
       "decision": 141,
@@ -271904,7 +272192,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 0.42282525740877697
+      "usd_per_1000": 0.44294694453717265
     },
     {
       "decision": 141,
@@ -272318,7 +272606,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 4.891020346462364
+      "usd_per_1000": 4.911142033590759
     },
     {
       "decision": 141,
@@ -272732,7 +273020,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 7.685419236212082
+      "usd_per_1000": 7.705540923340478
     },
     {
       "decision": 141,
@@ -273146,7 +273434,7 @@
         "kept_wrong": 0.0009488307284619542,
         "handed_off": 0.9919754717580893
       },
-      "usd_per_1000": 3.6250093165711705
+      "usd_per_1000": 3.645131003699566
     },
     {
       "decision": 243,
@@ -289757,8 +290045,39 @@
           263
         ],
         "cost": {
-          "english": null,
-          "turkish": null
+          "english": {
+            "usd": 0.03027721463910033,
+            "per_1000": 0.05535139787769713,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 217526,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 0
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 43.77428622520529
+          },
+          "turkish": {
+            "usd": 0.15432888439080272,
+            "per_1000": 0.07021332319872736,
+            "basis": "gpu",
+            "upper_bound": false
+          }
         },
         "latency": {
           "english": {
@@ -289927,8 +290246,39 @@
           273
         ],
         "cost": {
-          "english": null,
-          "turkish": null
+          "english": {
+            "usd": 0.05817516324373962,
+            "per_1000": 0.10635313207265013,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 275469,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 0
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 84.10866974998498
+          },
+          "turkish": {
+            "usd": 0.47442381961155966,
+            "per_1000": 0.2158434120161782,
+            "basis": "gpu",
+            "upper_bound": false
+          }
         },
         "latency": {
           "english": {
@@ -290604,7 +290954,38 @@
           108
         ],
         "cost": {
-          "english": null,
+          "english": {
+            "usd": 0.0036412600000000003,
+            "per_1000": 0.006656782449725777,
+            "basis": "api",
+            "billing": "api",
+            "tokens": {
+              "input_tokens": 182063,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 0
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Liquid's price for d1, as its API bills it",
+              "source": "https://www.liquid.ai/pricing",
+              "date": "2026-11-02",
+              "change": null,
+              "applies_to": "billed",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 0.02,
+                "cached_input_tokens": 0.02,
+                "cache_write_input_tokens": 0.02,
+                "cache_write_1h_input_tokens": 0.02,
+                "output_tokens": 0.0
+              },
+              "text": "$0.02 input, output free per 1M tokens"
+            },
+            "upper_bound": false
+          },
           "turkish": {
             "usd": 0.016426200000000002,
             "per_1000": 0.007432669683257919,

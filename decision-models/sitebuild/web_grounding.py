@@ -2,7 +2,8 @@
 results.json's web_grounding: the two hosted setups of the Text tab on the full bank, the 200-question pilot that came
 first, the "Bilmiyorum" pairs, the English pair and PWS-Decisions. Four paired charts (accuracy, non-hallucination,
 latency, cost), the tables, what the search returned and the caveats. The home page's experiments line and the Perplexity
-family's model pages link here."""
+family's model pages link here. Both setups are decision models (the build stops otherwise), so all but the intro shows
+for the view bar's all and decision groups (data-models) and the chat group shows a note instead."""
 
 from __future__ import annotations
 
@@ -10,7 +11,7 @@ import math
 from typing import Any
 
 from build_page import long_date
-from sitebuild.site import Site, dollars_tick, esc, hbars, log_axis, pct, rel
+from sitebuild.site import DECISION_ONLY, Site, chat_note, dollars_tick, esc, hbars, log_axis, pct, rel
 
 PATH = "web-grounding/"
 TITLE = "Web grounding"
@@ -319,16 +320,21 @@ def build(site: Site) -> dict[str, str]:
     if data is None:
         return {}
     check(site, data)
+    if not all(site.decision(site.by_id[run]) for run in data["text_runs"].values()):
+        raise SystemExit("results.json web_grounding: a setup that is not a decision model, which the page shows for the "
+                         "view bar's all and decision groups only")
     digits = site.config["percent_digits"]
     upper = site.config["first_cost_marks"]["upper"]
     link = lambda arm: f'<a href="{rel(PATH, site.model_path(site.by_id[data["text_runs"][arm]]))}">{esc(data["names"][arm])}</a>'  # noqa: E731
     body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
       <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
+      {chat_note("Chat models: none on this page. Both setups are decision models: their charts, tables and method show under All models and Decision models.")}
       <p>Perplexity's Decisions API can search the web for each question and add what it finds as evidence. Both setups are in the ranking: {link('off')} and {link('on')}. This page compares them on the same questions. Every decision model on PWS-Decisions, three runs each: <a href="{rel(PATH, "pws-decisions/")}">PWS-Decisions</a>.</p>
-      {headline(data, digits, upper)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Info</a></nav>
+      <div {DECISION_ONLY}>{headline(data, digits, upper)}
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Info</a></nav></div>
     </section>
+    <div {DECISION_ONLY}>
     <section class="charts" aria-label="Charts">{accuracy_chart(data, digits)}{non_hallucination_chart(data, digits)}{latency_chart(data)}{cost_chart(data, upper)}</section>
     {sources(data)}
     {caveats(data, upper)}
@@ -339,6 +345,7 @@ def build(site: Site) -> dict[str, str]:
       {table(data, digits, upper)}
     </section>
     {method(data)}
-    </details>"""
+    </details>
+    </div>"""
     return {PATH: site.page(PATH, TITLE, f"{data['names']['off']} and {data['names']['on']}: accuracy, non-hallucination, "
                             "time per request and cost on our Turkish and English questions and on PWS-Decisions.", body)}

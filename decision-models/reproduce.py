@@ -2637,9 +2637,25 @@ def check_live_tests(results: dict[str, Any], answers: dict[str, Any], scored: l
     return mismatches
 
 
-# The cost basis results.json gives a priced run, by billing, and the price's applies_to it needs.
-COST_BASES = {"api": ("api", "billed"), "subscription": ("subscription", "billed"), "free": ("free tier", "free tier"),
-              "local": ("maker", "maker")}
+# The cost bases results.json may give a priced run, by billing, keyed by the price's applies_to.
+COST_BASES = {"api": {"billed": "api"}, "subscription": {"billed": "subscription"}, "free": {"free tier": "free tier"},
+              "local": {"maker": "maker", "weights": "weights", "gpu": "gpu"}}
+
+
+def gpu_cost(seconds: float, price: dict[str, Any]) -> float:
+    """A GPU-time estimate (applies_to "gpu"): the request time on the price's GPUs at its rate per GPU-hour."""
+    return seconds / 3600 * price["gpus"] * price["usd_per_gpu_hour"]
+
+
+def billed_cost(price: dict[str, Any], tokens: dict[str, int], requests: int, seconds: float | None) -> float:
+    """A cost from its parts: a GPU-time estimate from its request time, otherwise the tokens at the price's rates, with
+    the input tokens the provider bills per request beyond our count and its fee per request (web grounding's search,
+    counted for every request: the cost is then an upper bound)."""
+    if price.get("applies_to") == "gpu":
+        return gpu_cost(seconds, price)
+    billed = dict(tokens)
+    billed["input_tokens"] += price.get("extra_input_per_request", 0) * requests
+    return token_cost(billed, price["rates"]) + price.get("per_request", 0) * requests
 
 
 def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
@@ -2663,26 +2679,22 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
     for run in results["runs"]:
         price = prices.get((run["provider"], run["model"], run.get("perplexity_mode")))
         if price is None:
-            # A run without a price must say why: our own GPUs, and no maker's price for the same model.
-            matched = run["api_equivalent_usd"] is None and run["billing"] == "local" and run["cost_basis"] is None
-            cell = checks.cell(matched, "no price (local)", f"{run['api_equivalent_usd']} ({run['billing']}, {run['cost_basis']})")
+            # A run without a price must say why: our own GPUs, and no request time to estimate its GPU time from.
+            matched = (run["api_equivalent_usd"] is None and run["billing"] == "local" and run["cost_basis"] is None
+                       and not run["request_seconds"])
+            cell = checks.cell(matched, "no price (local, no request time)",
+                               f"{run['api_equivalent_usd']} ({run['billing']}, {run['cost_basis']})")
             if "≠" in cell:
                 mismatches.append(f"  run {run['run']} ({label(run)}): {cell}")
             continue
-        basis, applies = COST_BASES[run["billing"]]
-        cell = checks.cell(
-            (run["cost_basis"], price.get("applies_to", "billed")) == (basis, applies),
-            f"{basis} ({applies})",
-            f"{run['cost_basis']} ({price.get('applies_to')})",
-        )
+        applies = price.get("applies_to", "billed")
+        basis = COST_BASES[run["billing"]].get(applies)
+        cell = checks.cell(basis is not None and run["cost_basis"] == basis, f"{basis} ({applies})",
+                           f"{run['cost_basis']} ({applies})")
         if "≠" in cell:
             mismatches.append(f"  run {run['run']} ({label(run)}), cost basis: {cell}")
-        # The input tokens the provider bills per request beyond our count, as the price states.
-        billed = tokens(run)
-        billed["input_tokens"] += price.get("extra_input_per_request", 0) * (run["requests"] or 0)
-        # A price's fee per request (web grounding's search) counts for every request: the cost is then an upper bound.
-        fee = price.get("per_request", 0) * (run["requests"] or 0)
-        check(f"run {run['run']} ({label(run)})", run["api_equivalent_usd"], token_cost(billed, price["rates"]) + fee)
+        check(f"run {run['run']} ({label(run)})", run["api_equivalent_usd"],
+              billed_cost(price, tokens(run), run["requests"] or 0, run["request_seconds"]))
         check(f"run {run['run']} ({label(run)}), upper bound", float(run.get("cost_upper_bound", False)),
               float(run.get("perplexity_mode") == "web_grounding" and bool(price.get("per_request"))))
     for item in results["cascades"]:
@@ -2707,8 +2719,8 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
             check(
                 f"{name}, {alternative['name']} alone",
                 alternative["cost_usd"],
-                token_cost(alternative["tokens"], prices[(alternative["provider"], alternative["model"],
-                                                          alternative.get("perplexity_mode"))]["rates"]),
+                billed_cost(prices[(alternative["provider"], alternative["model"], alternative.get("perplexity_mode"))],
+                            alternative["tokens"], 0, alternative["request_seconds"]),
             )
     # The English reading track's costs and times (english_reading.models[].cost and .latency, Ümit via Zeki #1189):
     # the first English run's tokens at the price it carries, its cost per 1,000 of the kept questions and its basis for
@@ -2720,14 +2732,11 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
         side = model["cost"]["english"]
         if side is not None:
             price = side["price"]
-            billed = dict(side["tokens"])
-            billed["input_tokens"] += price.get("extra_input_per_request", 0) * (side["requests"] or 0)
-            fee = price.get("per_request", 0) * (side["requests"] or 0)
-            check(f"{name}, cost", side["usd"], token_cost(billed, price["rates"]) + fee)
+            check(f"{name}, cost", side["usd"], billed_cost(price, side["tokens"], side["requests"] or 0, side.get("request_seconds")))
             check(f"{name}, cost per 1,000 questions", side["per_1000"], 1000 * side["usd"] / english["questions"])
-            basis, applies = COST_BASES[side["billing"]]
-            cell = checks.cell((side["basis"], price.get("applies_to", "billed")) == (basis, applies), f"{basis} ({applies})",
-                               f"{side['basis']} ({price.get('applies_to')})")
+            applies = price.get("applies_to", "billed")
+            basis = COST_BASES[side["billing"]].get(applies)
+            cell = checks.cell(basis is not None and side["basis"] == basis, f"{basis} ({applies})", f"{side['basis']} ({applies})")
             if "≠" in cell:
                 mismatches.append(f"  {name}, cost basis: {cell}")
         expected = None if run["api_equivalent_usd"] is None else {

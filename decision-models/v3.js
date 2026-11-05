@@ -19,8 +19,8 @@ const MORE_URL = SETTINGS.moreUrl || 'data/home-more.json';
 const LOADING = '<p class="note" role="status">Loading charts…</p>';
 const LOADING_TABLE = '<p class="note" role="status">Loading the table…</p>';
 
-/* Why a cell has no value. A cost is missing only for a setup on our own hardware whose maker lists no price for the
-   same model (billing 'local'): it reads No list price; a value nobody measured reads Not measured. */
+/* Why a cell has no value. A cost is missing only for a setup on our own hardware with no estimate (billing 'local',
+   no request time): it reads No list price; a value nobody measured reads Not measured. */
 const EMPTY = {
   notMeasured: 'Not measured',
   noListPrice: 'No list price',
@@ -30,7 +30,7 @@ const INTERVAL_TIP = 'To test two setups against each other, use Compare.';
 const LATENCY_TIP =
   'Latency: the time from sending one request to receiving its answer, measured from our computer, network and any retries within the request included. Median request. Local setups ran on our own hardware.';
 const COST_TIP =
-  'Estimated from list prices and recorded token use, per 1,000 questions. § marks a setup on our own hardware, estimated at its maker’s list price for the same model; our hardware cost is not measured.';
+  'Estimated from list prices and recorded token use. A setup on our own hardware is estimated at its maker’s list price for the same model, else a public host’s for the same weights, else from its GPU time at a public cloud price; these are estimates, not measured spending.';
 const AUROC_TIP = 'ranking score';
 const GAP_TIP =
   'How far the model’s confidence is from how often it is right, as shipped. Example: answers scored 80% that are right 70% of the time add a 10-point gap. Lower is better.';
@@ -46,21 +46,27 @@ const SPLIT_NA_TIP = 'Live tests did not record which kept answers were right, s
    one; each with its tooltip and note. */
 const FIRST_COST_MARKS = SETTINGS.firstCostMarks;
 const firstCostMark = run => (run.cost_basis === 'maker' ? FIRST_COST_MARKS.maker : run.api_equivalent_usd == null ? FIRST_COST_MARKS[run.billing] ?? null : null);
-/* What a setup on our hardware priced at its maker's list price says in its cost's tooltip. */
-const makerCostTip = run =>
-  `Estimated at ${data.prices.find(price => price.provider === run.provider && price.model === run.model)?.basis ?? 'its maker’s list price for the same model'}; our hardware cost is not measured.`;
+/* What a setup on our hardware says in its cost's tooltip: the maker's list price for the same model or a host's for
+   the same weights (named), or its GPU-time estimate (page_config.json first_cost_marks); null for any other cost. */
+const basisCostTip = run => {
+  const price = data.prices.find(item => item.provider === run.provider && item.model === run.model);
+  if (run.cost_basis === 'maker') return `Estimated at ${price?.basis ?? 'its maker’s list price for the same model'}; our hardware cost is not measured.`;
+  if (run.cost_basis === 'weights') return `${FIRST_COST_MARKS.weights.tip} Price: ${price.basis}, read ${price.date}.`;
+  return run.cost_basis === 'gpu' ? FIRST_COST_MARKS.gpu.tip : null;
+};
 /* A cost that is an upper-bound estimate (cost_upper_bound: web grounding's search fee counted for every request): ≤
    before the value, with its tooltip and note (page_config.json first_cost_marks.upper). */
 const UPPER_MARK = FIRST_COST_MARKS.upper;
 const upperPrefix = run => (run.cost_upper_bound ? `${UPPER_MARK.mark} ` : '');
 /* How a cost was counted, for its tooltip, where it is not plain API list price (Site.cost_tip in sitebuild/site.py). */
-const costTip = run => [run.cost_basis === 'maker' ? makerCostTip(run) : null, run.cost_upper_bound ? UPPER_MARK.tip : null].filter(Boolean).join(' ') || null;
+const costTip = run => [basisCostTip(run), run.cost_upper_bound ? UPPER_MARK.tip : null].filter(Boolean).join(' ') || null;
 /* The one line on how the costs were counted, under a chart or table with costs, for the setups it shows: values carry
    no basis mark, so the line names the bases (Site.cost_note in sitebuild/site.py). */
 const costNote = runs => [
-  'Costs: API list prices and recorded token use, per 1,000 questions.',
+  'Costs: API list prices and recorded token use.',
   runs.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? 'Setups on our own GPUs: the maker’s list price for the same model (each value’s tooltip names it); our hardware cost is not measured.' : '',
-  runs.some(run => costPer1000(run) == null && run.billing === 'local') ? 'No list price: on our own GPUs, and the maker lists no price for the same model.' : '',
+  ...['weights', 'gpu'].map(basis => (runs.some(run => run.cost_basis === basis) ? FIRST_COST_MARKS[basis].note : '')),
+  runs.some(run => costPer1000(run) == null && run.billing === 'local') ? 'No list price: on our own GPUs, with no estimate.' : '',
   runs.some(run => run.cost_upper_bound && costPer1000(run) != null) ? `${UPPER_MARK.mark} ${UPPER_MARK.note}` : '',
 ].filter(Boolean).join(' ');
 const CONFIDENCE_NOTE = [
@@ -140,6 +146,12 @@ const routed = (run, name) => (SETTINGS.routeLabels[run.run] ? `${name} (${SETTI
 const rowName = run => routed(run, run.name);
 const isDecision = run => SETTINGS.decisionProviders.includes(run.provider) && !SETTINGS.notDecisionModels.includes(run.model);
 const costPer1000 = run => (run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / run.answered_questions);
+/* A cost in the reader's unit (site.js: per 1,000 or per 1M questions), for the charts and cells that show it; sorting
+   and ratios stay on costPer1000. */
+const costShown = run => {
+  const value = costPer1000(run);
+  return value == null ? null : value * costScale();
+};
 const latencyOf = run => run.latency?.median_request_seconds ?? null;
 
 let data;
@@ -360,7 +372,7 @@ const TABS = {
         cell: run => latencyCell(run),
       },
       {
-        key: 'cost', label: '$ per 1,000 questions', className: 'unit-long', tip: COST_TIP, low: true, value: costPer1000,
+        key: 'cost', get label() { return `$ ${costLabel()}`; }, className: 'unit-long', tip: COST_TIP, low: true, value: costPer1000,
         cell: run => costCell(run),
       },
     ],
@@ -432,7 +444,8 @@ const TABS = {
 
 /* The Accuracy and Confidence columns read a run; their rows are { run }, as in the Routing and Stability tabs. */
 for (const name of ['accuracy', 'confidence']) {
-  TABS[name].columns = TABS[name].columns.map(column => ({ ...column, value: row => column.value(row.run), cell: row => column.cell(row.run) }));
+  /* Object.create keeps a getter, as the cost column's label (its unit follows the reader's choice). */
+  TABS[name].columns = TABS[name].columns.map(column => Object.assign(Object.create(column), { value: row => column.value(row.run), cell: row => column.cell(row.run) }));
 }
 
 /* AUROC exists for all questions and for each part, not for a topic. */
@@ -549,8 +562,8 @@ const ROUTING_COLUMNS = [
   { key: 'change', label: 'Accuracy change (points)', value: row => row.numbers?.change ?? null,
     cell: row => (row.numbers ? signed(100 * row.numbers.change, 2) : NM) },
   { key: 'saving', label: 'Saving (%)', value: row => row.numbers?.saving ?? null, cell: row => savingCell(row, n => minus(percent(n.saving, 0))) },
-  { key: 'saving-usd', label: 'Saving ($ per 1,000 questions)', value: row => row.numbers?.savingUsd ?? null,
-    cell: row => savingCell(row, n => minus(n.savingUsd.toFixed(3))) },
+  { key: 'saving-usd', get label() { return `Saving ($ ${costLabel()})`; }, value: row => row.numbers?.savingUsd ?? null,
+    cell: row => savingCell(row, n => minus((n.savingUsd < 0 ? '-' : '') + costNumber(Math.abs(n.savingUsd) * costScale()))) },
 ];
 TABS.routing.columns = ROUTING_COLUMNS;
 
@@ -561,11 +574,11 @@ function savingCell(row, format) {
   return mark === FIRST_COST_MARKS.maker ? tip(mark.tip, format(row.numbers)) : `${tip(mark.tip, format(row.numbers))}<span class="mark">${mark.mark}</span>`;
 }
 
-/* A setup's cost per 1,000 questions: the value alone (≤ before an upper bound), its basis in its tooltip. */
+/* A setup's cost in the reader's unit: the value alone (≤ before an upper bound), its basis in its tooltip. */
 function costCell(run) {
-  const value = costPer1000(run);
+  const value = costShown(run);
   if (value == null) return `<span class="nm">${costMissing(run)}</span>`;
-  const text = costTip(run) ? tip(costTip(run), value.toFixed(3)) : value.toFixed(3);
+  const text = costTip(run) ? tip(costTip(run), costNumber(value)) : costNumber(value);
   return run.cost_upper_bound ? `<span class="mark">${UPPER_MARK.mark}</span> ${text}` : text;
 }
 
@@ -894,7 +907,7 @@ const MEASURES = {
     log: false, points: true, allOnly: true, text: value => (100 * value).toFixed(1), higher: false,
   },
   latency: { label: 'Latency', axis: 'Median latency per request (s), log scale', value: latencyOf, log: true, text: secondsText, higher: false },
-  cost: { label: 'Cost', axis: '$ per 1,000 questions, log scale', value: costPer1000, log: true, text: value => value.toFixed(3), higher: false },
+  cost: { label: 'Cost', get axis() { return `$ ${costLabel()}, log scale`; }, value: costShown, log: true, text: costNumber, higher: false },
 };
 /* The bar charts on the page, one card each, in the order of the view bar's row 3: accuracy, cost and latency (then,
    after the trade-off, calibration). */
@@ -906,17 +919,17 @@ const COLUMN_HEADS = {
   accuracy: ['Accuracy', 'Acc.'],
   gap: ['Gap (points)', 'Gap'],
   latency: ['Median latency', 'Median'],
-  cost: ['Cost / 1k', '$/1k'],
-  price: ['Cost / 1k', '$/1k'],
+  get cost() { return costUnit() === '1m' ? ['Cost / 1M', '$/1M'] : ['Cost / 1k', '$/1k']; },
+  get price() { return this.cost; },
   speed: ['Latency', 'Latency'],
 };
-/* A setup's cost as the Cost chart writes it, with its $: per 1,000 questions, § at its maker's list price, or No list
-   price where there is no estimate (never a zero). The accuracy chart gives it beside each setup's accuracy. */
+/* A setup's cost as the Cost chart writes it, with its $: in the reader's unit, ≤ before an upper-bound estimate, or No
+   list price where there is no estimate (never a zero). The accuracy chart gives it beside each setup's accuracy. */
 const priceText = run => {
-  const value = costPer1000(run);
+  const value = costShown(run);
   return value == null ? costMissing(run) : `${upperPrefix(run)}$${MEASURES.cost.text(value)}`;
 };
-const PRICE_NOTE = 'Beside each bar: accuracy (%), then cost in $ per 1,000 questions, estimated from list prices and recorded token use, as in the Cost chart, then the median latency per request, as in the Latency chart.';
+const priceNote = () => `Beside each bar: accuracy (%), then cost in $ ${costLabel()}, estimated from list prices and recorded token use, as in the Cost chart, then the median latency per request, as in the Latency chart.`;
 /* The accuracy chart's latency column: the median seconds per request, marked when measured on a sample; Not measured
    where there is none (never a zero). */
 const latencyText = run => {
@@ -940,9 +953,10 @@ const familyIcon = run => familyIconOf(familyOf(run));
 /* The same icon inside a chart's SVG, 14 px with its top-left corner at (x, y). */
 const chartIcon = (run, x, y) =>
   `<use class="fam-icon" href="#${familyIconId(familyOf(run))}" x="${x}" y="${y}" width="14" height="14" aria-hidden="true"/>`;
-/* The legend of a chart's colours: each of its families with its colour and icon. */
+/* The legend of a chart's colours: each of its families with its colour and icon, on one compact line of its own that
+   wraps (v3.css .families). */
 const familyLegend = families =>
-  families.map(name => `<span><i class="swatch" style="background:${SETTINGS.familyColours[name]}"></i>${familyIconOf(name)}${esc(name)}</span>`).join(' ');
+  `<span class="families">${families.map(name => `<span><i class="swatch" style="background:${SETTINGS.familyColours[name]}"></i>${familyIconOf(name)}${esc(name)}</span>`).join(' ')}</span>`;
 
 const ticksLog = (low, high) => {
   const ticks = [];
@@ -998,21 +1012,33 @@ function scale(domain, range, log) {
   return value => range[0] + (((log ? Math.log10(value) : value) - d0) / (d1 - d0)) * (range[1] - range[0]);
 }
 
-/* The charts scroll inside a box of fixed height (chartMax). A chart taller than its box draws narrower by the
-   scrollbar's width, or by 12 px where scrollbars float over the content, so the scrollbar never covers a value. */
-const chartMax = () => (PHONE.matches ? 300 : 360);
-let scrollbarWidth = null;
-function drawWidth(box, height) {
-  if (height <= chartMax()) return box.clientWidth;
-  if (scrollbarWidth == null) {
-    const probe = document.createElement('div');
-    probe.style.cssText = 'position:absolute;top:-9999px;width:100px;height:100px;overflow:scroll';
-    document.body.append(probe);
-    scrollbarWidth = probe.offsetWidth - probe.clientWidth;
-    probe.remove();
-  }
-  return box.clientWidth - Math.max(scrollbarWidth, 12);
+/* The charts never scroll inside their box. A list of setups (a bar chart, Reading vs grammar, the cost table) shows its
+   first TOP_ROWS by default, and its Show all key (showAllKey) opens every row in place and closes them again; the
+   highlighted setup is added after the first TOP_ROWS when it ranks below them. A downloaded image has every row. */
+const TOP_ROWS = 10;
+const expanded = new Set();
+function topRows(name, ordered) {
+  if (expanded.has(name) || ordered.length <= TOP_ROWS) return { rows: ordered, apart: false };
+  const rows = ordered.slice(0, TOP_ROWS);
+  const chosen = ordered.find(run => run.run === state.selected);
+  if (!chosen || rows.includes(chosen)) return { rows, apart: false };
+  return { rows: [...rows, chosen], apart: ordered.indexOf(chosen) > TOP_ROWS };
 }
+const showAllKey = (name, total) => {
+  if (total <= TOP_ROWS) return '';
+  const open = expanded.has(name);
+  return `<button type="button" class="key show-all" data-chart-all="${name}" aria-expanded="${open}">` +
+    `${open ? `Show the top ${TOP_ROWS}` : `Show all ${integer(total)} setups`}</button>`;
+};
+/* What a list shows of its setups, for its notes: the first TOP_ROWS of how many, and where the highlighted one ranks. */
+function shownNote(name, ordered, rows) {
+  if (rows.length === ordered.length) return '';
+  const chosen = rows.length > TOP_ROWS ? rows[TOP_ROWS] : null;
+  return `Showing the top ${TOP_ROWS} of ${integer(ordered.length)}${chosen ? `, then the highlighted setup, ranked ${integer(ordered.indexOf(chosen) + 1)}` : ''}.`;
+}
+/* The space and dotted line between the top rows and a highlighted setup that ranks below them. */
+const APART = 12;
+const apartLine = (y, width) => `<line class="row-apart" x1="4" x2="${width - 4}" y1="${y}" y2="${y}"/>`;
 
 const legend = (families, text) => `<p class="chart-legend">${familyLegend(families)} <span>${esc(text)}</span></p>`;
 /* Each chart's notes, and the setups it could not label, kept for its downloaded image. */
@@ -1066,8 +1092,7 @@ function barChart(box, name) {
   const row = phone ? 38 : twoLines ? 34 : 24;
   const top = 6;
   const axis = 40;
-  const height = top + ordered.length * row + axis;
-  const width = drawWidth(box, height);
+  const width = box.clientWidth;
   const labelWidth = phone ? 0 : Math.min(300, Math.round(width * 0.36));
   /* Each value column is named above it, right-aligned on the column's edge as the values are (COLUMN_HEADS: in full,
      on a phone); a column is as wide as its longest entry or its name. */
@@ -1092,50 +1117,58 @@ function barChart(box, name) {
   const step = domain[1] <= 0.2 + 1e-9 ? 0.05 : 0.1;
   const ticks = measure.log ? ticksLog(...domain)
     : measure.points ? Array.from({ length: Math.round(domain[1] / step) + 1 }, (_, index) => index * step) : [0, 0.25, 0.5, 0.75, 1];
-  const base = top + ordered.length * row;
-  const parts = ticks.map(value =>
-    `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>` +
-    `<text class="tick" x="${x(value)}" y="${base + 14}" text-anchor="middle">${measure.log ? logTick(value) : percent(value, 0)}</text>`);
-  parts.push(`<line class="axis" x1="${x(domain[0])}" x2="${right}" y1="${base}" y2="${base}"/>`);
-  parts.push(`<text class="axis-title" x="${(left + right) / 2}" y="${base + 32}" text-anchor="middle">${esc(measure.axis)}</text>`);
-  ordered.forEach((run, index) => {
-    const y = top + index * row;
-    const value = measure.value(run);
-    const maker = name === 'cost' && run.cost_basis === 'maker' && value != null;
-    const sample = name === 'latency' && value != null && sampleLabel(run);
-    const priceMaker = priced && run.cost_basis === 'maker' && costPer1000(run) != null;
-    const price = priced ? `; cost per 1,000 questions: ${priceText(run)}${priceMaker ? ` (${makerCostTip(run)})` : ''}` : '';
-    const latencyValue = priced ? latencyOf(run) : null;
-    const latency = !priced ? '' : latencyValue == null ? `; median latency per request: ${EMPTY.notMeasured}`
-      : `; median latency per request: ${secondsText(latencyValue)} s${sampleLabel(run) ? ` (${sampleLabel(run)})` : ''}`;
-    const missing = name === 'cost' ? costMissing(run) : EMPTY.notMeasured;
-    const full = `${run.name} · ${runDetail(run)}: ${value == null ? missing : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}${latency}`;
-    const barTop = phone ? y + 18 : y + (row - 16) / 2;
-    const barHeight = phone ? 14 : 16;
-    const mid = barTop + barHeight / 2;
-    const label = rowLabel(labels, run, y, row, width, labelWidth, full);
-    /* The ring spans the row: it shows the focus, and it shades the selected setup's row. */
-    const inner = [`<rect class="ring" x="1" y="${y + 1}" width="${width - 2}" height="${row - 2}" rx="3"/>`, label];
-    if (value == null) {
-      inner.push(`<text class="value nm" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${missing}</text>`);
-    } else {
-      const start = x(domain[0]);
-      inner.push(`<rect class="bar-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
-      if (name === 'accuracy') {
-        const { correct, questions } = counts(run);
-        const [low, high] = wilson(correct, questions);
-        /* A casing in the panel colour keeps the line apart from the bar it crosses, in both themes. */
-        const path = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
-        inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
+  /* The chart drawn for rows (the shown ones on the page, every one in its image): its SVG. */
+  const draw = (rows, apart) => {
+    const yOf = index => top + index * row + (apart && index >= TOP_ROWS ? APART : 0);
+    const base = yOf(rows.length);
+    const height = base + axis;
+    const parts = ticks.map(value =>
+      `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>` +
+      `<text class="tick" x="${x(value)}" y="${base + 14}" text-anchor="middle">${measure.log ? logTick(value) : percent(value, 0)}</text>`);
+    parts.push(`<line class="axis" x1="${x(domain[0])}" x2="${right}" y1="${base}" y2="${base}"/>`);
+    parts.push(`<text class="axis-title" x="${(left + right) / 2}" y="${base + 32}" text-anchor="middle">${esc(measure.axis)}</text>`);
+    if (apart) parts.push(apartLine(yOf(TOP_ROWS) - APART / 2, width));
+    rows.forEach((run, index) => {
+      const y = yOf(index);
+      const value = measure.value(run);
+      const maker = name === 'cost' && value != null && basisCostTip(run);
+      const sample = name === 'latency' && value != null && sampleLabel(run);
+      const priceMaker = priced && costPer1000(run) != null && basisCostTip(run);
+      const price = priced ? `; cost ${costLabel()}: ${priceText(run)}${priceMaker ? ` (${basisCostTip(run)})` : ''}` : '';
+      const latencyValue = priced ? latencyOf(run) : null;
+      const latency = !priced ? '' : latencyValue == null ? `; median latency per request: ${EMPTY.notMeasured}`
+        : `; median latency per request: ${secondsText(latencyValue)} s${sampleLabel(run) ? ` (${sampleLabel(run)})` : ''}`;
+      const missing = name === 'cost' ? costMissing(run) : EMPTY.notMeasured;
+      const full = `${run.name} · ${runDetail(run)}: ${value == null ? missing : measure.text(value)}${maker ? ` (${basisCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}${latency}`;
+      const barTop = phone ? y + 18 : y + (row - 16) / 2;
+      const barHeight = phone ? 14 : 16;
+      const mid = barTop + barHeight / 2;
+      const label = rowLabel(labels, run, y, row, width, labelWidth, full);
+      /* The ring spans the row: it shows the focus, and it shades the selected setup's row. */
+      const inner = [`<rect class="ring" x="1" y="${y + 1}" width="${width - 2}" height="${row - 2}" rx="3"/>`, label];
+      if (value == null) {
+        inner.push(`<text class="value nm" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${missing}</text>`);
+      } else {
+        const start = x(domain[0]);
+        inner.push(`<rect class="bar-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
+        if (name === 'accuracy') {
+          const { correct, questions } = counts(run);
+          const [low, high] = wilson(correct, questions);
+          /* A casing in the panel colour keeps the line apart from the bar it crosses, in both themes. */
+          const path = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
+          inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
+        }
+        inner.push(`<text class="value" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${name === 'cost' ? upperPrefix(run) : ''}${measure.text(value)}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
       }
-      inner.push(`<text class="value" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${name === 'cost' ? upperPrefix(run) : ''}${measure.text(value)}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
-    }
-    if (priced) {
-      inner.push(`<text class="value${costPer1000(run) == null ? ' nm' : ''}" x="${width - 4 - latencyWidth}" y="${mid + 4}" text-anchor="end">${esc(priceText(run))}</text>`);
-      inner.push(`<text class="value${latencyValue == null ? ' nm' : ''}" x="${width - 4}" y="${mid + 4}" text-anchor="end">${esc(latencyText(run))}</text>`);
-    }
-    parts.push(`<g ${markAttributes(run, full)}>${inner.join('')}</g>`);
-  });
+      if (priced) {
+        inner.push(`<text class="value${costPer1000(run) == null ? ' nm' : ''}" x="${width - 4 - latencyWidth}" y="${mid + 4}" text-anchor="end">${esc(priceText(run))}</text>`);
+        inner.push(`<text class="value${latencyValue == null ? ' nm' : ''}" x="${width - 4}" y="${mid + 4}" text-anchor="end">${esc(latencyText(run))}</text>`);
+      }
+      parts.push(`<g ${markAttributes(run, full)}>${inner.join('')}</g>`);
+    });
+    return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${rows.length} of ${ordered.length} setups.`)}">${parts.join('')}</svg>`;
+  };
+  const { rows, apart } = topRows(name, ordered);
   const selection = runs.some(run => run.run === state.selected);
   box.classList.toggle('has-selection', selection);
   const where = name === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : name === 'gap' ? ' on all questions, as shipped' : '';
@@ -1143,15 +1176,18 @@ function barChart(box, name) {
   const costNotes = name === 'cost' || priced ? [costNote(ordered)] : [];
   const sampleNote = name === 'latency' || priced ? sampleNotes(ordered) : [];
   const scaleNote = measure.log ? 'Log scale.' : name === 'accuracy' ? 'Lines: 95% interval.' : '';
-  const families = familiesIn(ordered);
-  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, priced ? PRICE_NOTE : '', ...latencyNote, ...costNotes, ...sampleNote].filter(Boolean), unlabelled: [], families };
+  /* The image has every row, so its notes and legend cover them all; the page's legend names the families shown. */
+  chartNotes[name] = {
+    notes: [`${measure.label}${where}.`, scaleNote, priced ? priceNote() : '', ...latencyNote, ...costNotes, ...sampleNote].filter(Boolean),
+    unlabelled: [], families: familiesIn(ordered), full: () => draw(ordered, false),
+  };
   const heads = [[pick(COLUMN_HEADS[name]), width - 4 - priceWidth - latencyWidth],
     ...(priced ? [[pick(COLUMN_HEADS.price), width - 4 - latencyWidth], [pick(COLUMN_HEADS.speed), width - 4]] : [])];
   box.innerHTML =
     `<svg class="column-heads" width="${width}" height="18" viewBox="0 0 ${width} 18" aria-hidden="true">` +
     `${heads.map(([text, at]) => `<text class="column-head" x="${at}" y="13" text-anchor="end">${esc(text)}</text>`).join('')}</svg>` +
-    `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
-    legend(families, [...chartNotes[name].notes, chartScope(runs)].join(' '));
+    draw(rows, apart) + showAllKey(name, ordered.length) +
+    legend(familiesIn(rows), [...chartNotes[name].notes, chartScope(runs), shownNote(name, ordered, rows)].filter(Boolean).join(' '));
 }
 
 function scatterChart(box) {
@@ -1165,9 +1201,10 @@ function scatterChart(box) {
   const labels = chartLabels(runs);
   const phone = PHONE.matches;
   const pad = { left: 52, right: 14, top: 12, bottom: 46 };
-  /* The box keeps its height; with more setups than fit, the chart grows taller and scrolls inside it. */
-  const height = Math.max(chartMax(), (phone ? 18 : 24) * known.length + pad.top + pad.bottom);
-  const width = drawWidth(box, height);
+  /* A fixed height that never scrolls inside the box; labels that would overlap are left out (each point's tooltip
+     names it, and the image lists them). */
+  const height = phone ? 360 : 440;
+  const width = box.clientWidth;
   const xs = known.map(across.value);
   const ys = known.map(accuracyOf);
   const xDomain = [Math.min(...xs) / 1.6, Math.max(...xs) * 1.6];
@@ -1272,9 +1309,9 @@ function scatterChart(box) {
   /* The selected point is drawn larger and last, so no neighbour covers it; the Pareto line goes under the points. */
   if (steps.length) parts.push(`<path class="pareto" d="${steps.map(([x0, y0, x1, y1]) => `M${x0} ${y0}L${x1} ${y1}`).join('')}"/>`);
   [...points].sort((a, b) => (a === chosen) - (b === chosen)).forEach(({ run, cx, cy }) => {
-    const maker = state.across === 'cost' && run.cost_basis === 'maker';
+    const maker = state.across === 'cost' && basisCostTip(run);
     const sample = state.across === 'latency' && sampleLabel(run);
-    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `${upperPrefix(run)}$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}${maker ? ` (${makerCostTip(run)})` : ''}${state.across === 'cost' && run.cost_upper_bound ? ` (${UPPER_MARK.tip})` : ''}${sample ? ` (${sample})` : ''}`;
+    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `${upperPrefix(run)}$${across.text(across.value(run))} ${costLabel()}` : `${across.text(across.value(run))} s per request`}${maker ? ` (${basisCostTip(run)})` : ''}${state.across === 'cost' && run.cost_upper_bound ? ` (${UPPER_MARK.tip})` : ''}${sample ? ` (${sample})` : ''}`;
     parts.push(`<g ${markAttributes(run, tooltip)}><circle class="ring" cx="${cx}" cy="${cy}" r="9"/>` +
       `<circle class="dot-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
   });
@@ -1295,7 +1332,7 @@ function scatterChart(box) {
     ? `Dotted line (Pareto line): the setups no other setup in view beats on both accuracy and ${what}.`
     : `Pareto line: ${labels.get(frontier[0]).text} alone, as no other setup in view is ${better} or more accurate.`;
   const notes = [
-    `Up: accuracy (%) on ${integer(questionsInFilter())} questions. Across: ${state.across === 'cost' ? '$ per 1,000 questions' : 'median latency per request (s)'}, log scale.`,
+    `Up: accuracy (%) on ${integer(questionsInFilter())} questions. Across: ${state.across === 'cost' ? `$ ${costLabel()}` : 'median latency per request (s)'}, log scale.`,
     regionText,
     paretoText,
     missing ? `${missing} without a ${NEEDS[state.across]} not shown.` : '',
@@ -1307,7 +1344,7 @@ function scatterChart(box) {
   const hidden = unlabelled.length;
   const crowded = chosen && !placed.has(chosen.run) ? `Selected: ${labels.get(chosen.run).text}, its label left out so that none overlaps.` : '';
   box.innerHTML =
-    `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Scatter chart: accuracy against ${state.across} for ${known.length} setups. Log scale across.`)}">${parts.join('')}</svg></div>` +
+    `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Scatter chart: accuracy against ${state.across} for ${known.length} setups. Log scale across.`)}">${parts.join('')}</svg>` +
     `<p class="chart-legend">${familyLegend(families)} <span><i class="swatch swatch-quadrant"></i>${esc(`${better[0].toUpperCase()}${better.slice(1)} and more accurate than the median`)}</span> ` +
     `${steps.length ? '<span><i class="swatch swatch-pareto"></i>Pareto line</span> ' : ''}` +
     `<span>${esc([notes[0], chartScope(runs), ...notes.slice(1), hidden ? `${hidden} label${hidden === 1 ? '' : 's'} left out so that none overlaps; each point's tooltip names it.` : '', crowded].filter(Boolean).join(' '))}</span></p>`;
@@ -1316,7 +1353,7 @@ function scatterChart(box) {
 /* Reading against grammar: every setup the leaderboard lists, in its order (the one table of the group in view), with
    its accuracy on all the reading and all the grammar
    questions (each part's correct answers over its questions, from results.json) as two bars on one 0–100% axis, each
-   bar with its value. The axis's labels sit above the scrolling rows, so they stay in view. */
+   bar with its value; the first TOP_ROWS until its Show all key opens the rest (topRows). */
 function readingGrammarChart(box) {
   const tab = TABS[state.tab];
   if (tab.more && !more.ready) {
@@ -1335,18 +1372,21 @@ function readingGrammarChart(box) {
   const pair = 2 * bar + 3;
   const row = phone ? 18 + pair + 6 : Math.max(twoLines ? 34 : 24, pair + 8);
   const top = 4;
-  const height = top + runs.length * row + 4;
-  const width = drawWidth(box, height);
+  const { rows, apart } = topRows('reading-grammar', runs);
+  const yOf = index => top + index * row + (apart && index >= TOP_ROWS ? APART : 0);
+  const base = yOf(rows.length);
+  const height = base + 4;
+  const width = box.clientWidth;
   const labelWidth = phone ? 0 : Math.min(300, Math.round(width * 0.36));
   const left = phone ? 2 : labelWidth + 10;
   const right = width - (phone ? 50 : 56) - 8;
   const x = scale([0, 1], [left, right], false);
-  const base = top + runs.length * row;
   const ticks = [0, 0.25, 0.5, 0.75, 1];
   const parts = ticks.map(value => `<line class="grid" x1="${x(value)}" x2="${x(value)}" y1="${top}" y2="${base}"/>`);
+  if (apart) parts.push(apartLine(yOf(TOP_ROWS) - APART / 2, width));
   const axis = ticks.map(value => `<text class="tick" x="${x(value)}" y="14" text-anchor="middle">${percent(value, 0)}</text>`).join('');
-  runs.forEach((run, index) => {
-    const y = top + index * row;
+  rows.forEach((run, index) => {
+    const y = yOf(index);
     const shares = ['reading', 'grammar'].map(part => [part, run.groups[part].correct / run.groups[part].questions]);
     const full = `${run.name} · ${runDetail(run)}: reading ${percent(shares[0][1])}%, grammar ${percent(shares[1][1])}%`;
     const barsTop = phone ? y + 18 : y + (row - pair) / 2;
@@ -1360,10 +1400,11 @@ function readingGrammarChart(box) {
   });
   box.classList.toggle('has-selection', runs.some(run => run.run === state.selected));
   const [reading, grammar] = ['reading', 'grammar'].map(part => runs[0].groups[part].questions);
-  const note = `Accuracy (%) on all ${integer(reading)} reading and all ${integer(grammar)} grammar questions. ${integer(runs.length)} setup${runs.length === 1 ? '' : 's'}: the table’s, in its order.`;
+  const note = `Accuracy (%) on all ${integer(reading)} reading and all ${integer(grammar)} grammar questions. ${integer(runs.length)} setup${runs.length === 1 ? '' : 's'}: the table’s, in its order. ${shownNote('reading-grammar', runs, rows)}`.trim();
   box.innerHTML =
     `<svg width="${width}" height="20" viewBox="0 0 ${width} 20" aria-hidden="true">${axis}</svg>` +
-    `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of reading and grammar accuracy for ${runs.length} setups.`)}">${parts.join('')}</svg></div>` +
+    `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of reading and grammar accuracy for ${rows.length} of ${runs.length} setups.`)}">${parts.join('')}</svg>` +
+    showAllKey('reading-grammar', runs.length) +
     `<p class="chart-legend"><span><i class="swatch swatch-reading"></i>Reading</span> <span><i class="swatch swatch-grammar"></i>Grammar</span> <span>${esc(note)}</span></p>`;
 }
 
@@ -1388,7 +1429,8 @@ function renderCharts() {
    selection, so cheap alternatives sit beside accuracy and latency. Cheapest first by costPer1000, ties by higher
    accuracy; setups without a cost last, by accuracy. "× cheapest" is a cost over the cheapest priced setup's in the
    table, from the unrounded values, to 2 significant figures. Pareto: the trade-off chart's rule over every priced setup
-   in the table, on accuracy on all questions. Drawn once, as nothing on the page changes it. */
+   in the table, on accuracy on all questions. The first TOP_ROWS rows until its Show all key opens the rest. Drawn once,
+   and again when that key is pressed, as nothing else on the page changes it. */
 const timesText = ratio => `×${ratio.toLocaleString('en-US', { maximumSignificantDigits: 2 })}`;
 function costTable(box) {
   const runs = groupRuns();
@@ -1429,12 +1471,15 @@ function costTable(box) {
     `Kept at ${sure}: the answers given with at least ${sure} confidence, how many of them were right, and how many questions were skipped: those not kept, answered with less than ${sure} confidence or without a valid answer.`,
     'Non-hallucination: from the Hallucination tab’s runs with the “Bilmiyorum” (I don’t know) option; read it with its attempt rate. The Hallucination tab has the method and its limits.',
   ];
+  const all = [...priced, ...unpriced];
+  const shown = expanded.has('cost-table') ? all : all.slice(0, TOP_ROWS);
   box.innerHTML =
     '<div class="table-frame"><div class="table-wrap cost-scroll" tabindex="0"><table class="board wrap-headers cost-table"><thead><tr>' +
-    ['Setup', '$ per 1,000 questions', '× cheapest', 'Accuracy (%)', 'Median latency per request', `Kept at ${sure}`, 'Non-hallucination']
+    ['Setup', `$ ${costLabel()}`, '× cheapest', 'Accuracy (%)', 'Median latency per request', `Kept at ${sure}`, 'Non-hallucination']
       .map((label, index) => `<th scope="col"${index ? ' class="num"' : ''}>${esc(label)}</th>`).join('') +
-    `</tr></thead><tbody>${[...priced, ...unpriced].map(row).join('')}</tbody></table></div></div>` +
-    notes.map(note => `<p class="chart-legend">${esc(note)}</p>`).join('');
+    `</tr></thead><tbody>${shown.map(row).join('')}</tbody></table></div></div>` +
+    showAllKey('cost-table', all.length) +
+    [shownNote('cost-table', all, shown), ...notes].filter(Boolean).map(note => `<p class="chart-legend">${esc(note)}</p>`).join('');
   const group = MODEL_GROUPS[state.models].every;
   document.querySelector('[data-cost-sub]').textContent = `${group[0].toUpperCase()}${group.slice(1)}, whatever the filters or the model selection · ` +
     'cheapest first, with accuracy, latency, the confidence cutoff and hallucination beside the cost · lower cost is better';
@@ -1446,11 +1491,20 @@ const usedIcons = svg =>
     .map(href => document.querySelector(href)?.outerHTML ?? '').join('')}</defs>`;
 
 /* A chart as a PNG that keeps what it shows: the condition (measure and filters), the setups, the chart's notes with any
-   setup it could not label, and the results version, with the page's address. Text is wrapped to the chart's width;
-   colours and type are copied from the page, so it matches the theme in view. */
+   setup it could not label, and the results version, with the page's address. A bar chart's image has every row of the
+   view, shown or not (chartNotes full): drawn out of sight inside its box, so the page's styles apply. Text is wrapped to
+   the chart's width; colours and type are copied from the page, so it matches the theme in view. */
 async function downloadChart(name) {
   const box = document.querySelector(`[data-chart="${name}"]`);
-  const svg = box.querySelector('svg:not(.column-heads)');
+  const full = box.querySelector('svg:not(.column-heads)') && chartNotes[name]?.full;
+  const stage = full ? document.createElement('div') : null;
+  if (stage) {
+    stage.setAttribute('aria-hidden', 'true');
+    stage.style.cssText = 'position:absolute;left:-100000px;top:0;visibility:hidden';
+    stage.innerHTML = full();
+    box.append(stage);
+  }
+  const svg = (stage ?? box).querySelector('svg:not(.column-heads)');
   if (!svg) return;
   const width = Number(svg.getAttribute('width'));
   const height = Number(svg.getAttribute('height'));
@@ -1462,6 +1516,7 @@ async function downloadChart(name) {
       target.style.setProperty(property, style.getPropertyValue(property));
     }
   });
+  stage?.remove();
   const root = getComputedStyle(document.documentElement);
   const colour = token => root.getPropertyValue(token).trim();
   const font = esc(getComputedStyle(document.body).fontFamily);
@@ -1523,6 +1578,19 @@ async function downloadChart(name) {
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+/* A Show all key: its list opens or closes in place, redrawn alone. On closing, the page scrolls only as far as keeps the
+   key in view, so the reader stays at the list. */
+function toggleRows(name) {
+  const closing = expanded.delete(name);
+  if (!closing) expanded.add(name);
+  if (name === 'cost-table') costTable(document.querySelector('[data-cost-table]'));
+  else if (name === 'reading-grammar') readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
+  else barChart(document.querySelector(`[data-chart="${name}"]`), name);
+  const key = document.querySelector(`button[data-chart-all="${name}"]`);
+  key?.focus({ preventScroll: true });
+  if (closing) key?.scrollIntoView({ block: 'nearest' });
 }
 
 /* ---- Page address and history ---- */
@@ -1618,7 +1686,7 @@ function render() {
 /* ---- Events ---- */
 
 /* Rendering replaces the table and the charts; the control that had the focus gets it back. */
-const FOCUS_KEYS = ['select', 'sort', 'routeLlm', 'routeQpr', 'routeMode', 'control', 'download'];
+const FOCUS_KEYS = ['select', 'sort', 'routeLlm', 'routeQpr', 'routeMode', 'control', 'download', 'chartAll'];
 function focusSelector(element) {
   if (!element || element === document.body) return null;
   const key = FOCUS_KEYS.find(name => element.dataset?.[name] != null);
@@ -1719,6 +1787,9 @@ function onClick(event) {
   } else if (dataset.control === 'clear-picked') {
     state.picked.clear();
     renderPicker();
+  } else if (dataset.chartAll) {
+    toggleRows(dataset.chartAll);
+    return;
   } else if (dataset.download) {
     downloadChart(dataset.download);
     return;
@@ -1797,6 +1868,11 @@ async function start() {
   byId = new Map(data.runs.map(run => [run.run, run]));
   readUrl();
   costTable(document.querySelector('[data-cost-table]'));
+  /* The cost unit changed (site.js): the cost table, the charts and the table redraw in it. */
+  document.addEventListener('costunit', () => {
+    costTable(document.querySelector('[data-cost-table]'));
+    render();
+  });
   state.sort = defaultSort(state.tab);
   restore();
   renderPicker();

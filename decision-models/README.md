@@ -160,21 +160,32 @@ python3 -m http.server 8000                                # preview at http://1
     reading, `english/`; Turkish reading and grammar, the home page; English and Turkish, `turkish-vs-english/`), row 2
     the models (`?models=all|decision|chat`, all when missing; trailing dots, punctuation or spaces are dropped, so
     `?models=all.` reads as all), row 3 the measure (Accuracy, Non-hallucination, Cost,
-    Latency). Each row 1 or row 2 choice opens its page at the top, charts first, then the table. `site.js` marks the
-    current group, keeps it in row 1's links and in the top bar's Page images and Hallucination links, and shows each
-    `data-models` element only for its groups; on any other
-    page row 2 leads to the home page with that group. On the three test pages row 3 links to the page's parts
-    `#accuracy`, `#non-hallucination`, `#cost` and `#latency` (the query, so the group, stays), each landing below the
-    bar (`--view-bar-h`), and `site.js` marks the key of the part in view (or the one just pressed); on any other page
-    row 3 opens that part of the home page with the group in view. The All models view always ranks decision and chat
-    models together in one chart and one table per measure. The two English pages render, in
+    Latency); on a screen wider than 1000 px rows 1 and 2 share the first line and row 3 takes the second, each row's
+    name before its keys (row 2 reads All, Decision, Chat; "models" is added where each row has a line of its own and room for it). Each row 1 or row 2 choice opens
+    its page at the top, charts first, then the table. `site.js` marks the current group, keeps it in row 1's links and
+    in the links marked `data-keep-group` (the top bar's Page images and Hallucination), and shows each `data-models`
+    element only for its groups. On the pages that show their parts by group (`FILTER_PAGES`: the three test pages, Page
+    images, Hallucination and Web grounding) row 2 stays on the page; on any other page it leads to the home page with
+    that group. A row 3 key whose part (`#accuracy`, `#non-hallucination`, `#cost`, `#latency`) is on the page links to
+    it (the query, so the group, stays; the three test pages have all four, Web grounding its Cost), landing below the
+    bar (`--view-bar-h`), and `site.js` marks the key of the part in view (or the one just pressed); a key whose part
+    is not on the page opens that part of the home page with the group in view. The All models view always ranks decision and chat
+    models together in one chart and one table per measure. **Cost unit**: every cost reads per 1,000 questions or per
+    1M questions, one choice for the whole site (the keys in each cost card's head, `cost_switch`; `site.js` keeps it in
+    `?cost-unit=1k|1m` and localStorage `costUnit`, in `<html data-cost-unit>`, which each page's `<head>` sets before
+    it renders). Static values and unit names carry both units (`cost_value`, `cost_per`, `cost_unit_in`, `cost_tick`
+    in `sitebuild/site.py`) and `v3.css` shows the chosen one, per 1,000 without JavaScript; `v3.js` and `compare.js`
+    write theirs with `costScale` and `costNumber` and redraw on the `costunit` event. The two English pages render, in
     static HTML, one copy per group of every part that depends on the setups shown (`data-models="all"`, shown without
     JavaScript; `decision` and `chat` hidden), with its counts and sentences computed for that group and its setups
     ranked by English accuracy within it; the parts about decision models only appear once
     (`data-models="all decision"`) with a note that chat models are not measured yet, as no chat model was asked with
     an "I don't know" option. A setup that shares its name with another English setup is labelled with the settings
     that tell them apart, as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
-    (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: accuracy per group, the
+    (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: under a one-sentence lead
+    and the translation check's limit (`limit_note`; neither English page has a links row of its own, row 3 does that),
+    the language difference per group (English minus Turkish in points, `difference_card`, the first chart of both
+    English pages), accuracy per group, the
     decision models' non-hallucination with "I don't know" in English, cost per 1,000 questions and median latency per
     request of each first English run per group (`english_reading.models[].cost.english` and `.latency.english`, log
     scale, Not measured named in the note; `measure_card` in `sitebuild/english_reading.py`), then the table per group
@@ -192,12 +203,15 @@ python3 -m http.server 8000                                # preview at http://1
     the current page underlined) and the theme switch. Text is the home page (the brand and row 1); Turkish vs English
     is row 1's English and Turkish. Each tab's face
     is charts, each card with a line saying which way is better; its tables and notes are under Info (except the Text
-    tab's leaderboard, which follows its charts), a details element
+    tab's leaderboard and the Page images tables, which follow their charts), a details element
     closed by default that `site.js` opens for a link into it (`dont-know/#method`). The Page images, Hallucination and
     Turkish vs English faces are HTML bars (`hbars` in `sitebuild/site.py`: one series coloured by the ranking scale; the
     Turkish vs English pairs, as English reading's bars, in each model family's colour, the English bar striped), so they need
-    no script: Page images shows the picture alone against the text, the text plus the picture, the best OCR route and the
-    marks each OCR model kept; Hallucination shows the non-hallucination rate, that rate against the same model held back
+    no script: Page images first draws its four inputs on a sample question written for the page (never one of the
+    bank's; `inputs_sample`), then shows the picture alone against the text, the text plus the picture, the best OCR
+    route (both coloured by accuracy, with a legend saying the colour is accuracy, not the model family) and the
+    marks each OCR model kept; Hallucination first shows the answered share, the wrong share of the answers and the
+    non-hallucination rate together, then that rate against the same model held back
     by its confidence, the paired test of the two (the wrong answers only one of them made, with Holm-adjusted p and the
     models outside the test named) and accuracy with the option against accuracy with five options, then the added
     comparisons: the Turkish vs English tab's English questions with "I don't know" against "Bilmiyorum" in Turkish (that
@@ -215,7 +229,8 @@ python3 -m http.server 8000                                # preview at http://1
     check that d1-ultra's worst run stays below their best at every whole percent up to 98%; d1-ultra's English runs at
     95%; `high_confidence`). Every "I don't know" table leads with Answered
     ((right + wrong) / questions) and Wrong of answers (wrong / (right + wrong)), the non-hallucination rate after them.
-    Turkish vs English opens with its charts, accuracy in Turkish and in English with the paired test of the two (the
+    Turkish vs English opens with one sentence, the headline and the translation check's limit, then its charts: the
+    language difference (English minus Turkish, in points), accuracy in Turkish and in English and the paired test of the two (the
     questions only one of them got right, with p adjusted by Holm over every English setup), then its main table (ordered
     by English accuracy: accuracy in Turkish and in English with the difference; for decision models, with "I don't
     know" written the same in both languages, the Turkish runs being the option-word check's, Answered, Wrong of answers
@@ -242,7 +257,8 @@ python3 -m http.server 8000                                # preview at http://1
     (`question/?id=`) shows, for each kept reading question, every compared model's answer and its probability in Turkish
     and in English side by side (`picks.json`'s `english`).
   - **Web grounding** (`web-grounding/`, from `results.json`'s `web_grounding`, built by `sitebuild/web_grounding.py`):
-    comparing the Text tab's two hosted setups, linked from the home page's hero (the `experiments` block) and from the
+    comparing the Text tab's two hosted setups, linked from the home page's hero and both English pages' intros (the
+    experiments line, `experiments` in `sitebuild/site.py`, its links keeping the group) and from the
     model pages of the Perplexity family. Perplexity's Decider v1.2 through its Decisions API off ("Perplexity Decider
     27B v1.2 (API)", run 633) and with web ("... (with web)", run 640) on the full bank, reading and grammar apart; the
     200-question pilot that came first (`--sample 200 --seed 0`, runs 631 and 632); the "Bilmiyorum" pairs (full bank,
@@ -254,21 +270,27 @@ python3 -m http.server 8000                                # preview at http://1
     carries `page_config.json`'s `first_cost_marks.upper` mark (≤) and its note.
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the stats row, the leaderboard as plain tables for
-    readers without JavaScript, the settings `v3.js` reads, and the static Non-hallucination part). Its face starts under
-    the one-line top bar with `#accuracy`, whose head holds the Filters bar (the panel opens under the head), so the
-    Accuracy chart is on the first screen (its top at 206 px at 1280 x 800, 241 px at 390 x 844); the title, the intro and the language
+    readers without JavaScript, the settings `v3.js` reads, the result cards and the static Non-hallucination part).
+    Its face starts under the one-line top bar with three result cards (`result_cards` in `build_site.py`, one set per
+    view bar group, site.js showing the one in view; each names its scope): the highest accuracy, with its setup and
+    right answers of all questions; the most answers kept at the 99% confidence threshold with no observed mistakes,
+    with how many setups kept more but got some wrong; and the lowest cost per 1,000 questions among the setups within
+    1 point of the best accuracy, or, where none of them has a cost, the cheapest overall, saying so (`card_checks`
+    tests the three against `results.json` on every build). Then `#accuracy`, whose head holds the Filters bar (the
+    panel opens under the head), so the Accuracy chart is on the first screen; the title, the intro and the language
     of the questions follow it. The parts follow row 3 of the view bar: `#accuracy`, `#non-hallucination`, `#cost` and
     `#latency`, then the rest (no list of links to the parts: row 3 is that list); each chart card has a line saying
     which way is better, and each bar chart names its value columns above them (`COLUMN_HEADS` in `v3.js`; the static
-    charts through `hbars`' head, as "Non-hallucination · Answered"): Accuracy, with each setup's cost and median
-    latency beside its accuracy as the Cost and Latency cards write them ($ per 1,000 questions, § at the maker's list
-    price, ≤ before an upper-bound estimate; seconds, * for a latency measured on a sample; No list price for a cost of a
-    setup on our own hardware whose maker lists no price for the same model, `cost_missing` in `sitebuild/site.py` and
-    `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured). A run's variant (its
+    charts through `hbars`' head or columns): Accuracy, with each setup's cost and median
+    latency beside its accuracy as the Cost and Latency cards write them ($ in the chosen cost unit, ≤ before an
+    upper-bound estimate, each estimate's basis in its tooltip and the note under the chart; seconds, * for a latency
+    measured on a sample; No list price for a cost of a setup on our own hardware with no estimate, `cost_missing` in
+    `sitebuild/site.py` and `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured). A run's variant (its
     route or access note) shows beside its name only where it tells it apart from another setup of the same model ID
     (`shownVariant` in `v3.js`, `shown_variant` in `build_site.py`); otherwise it is on the model page only. Non-hallucination
     (`non_hallucination` in `build_site.py`, static HTML from `results.json`'s `dont_know`: the Hallucination tab's
-    decision models in its order, the rate with "Bilmiyorum" and the attempt rate as that tab writes them, bars in family
+    decision models in its order, the rate with "Bilmiyorum", then in columns of their own the share answered (the
+    attempt rate, as that tab writes it) and the error rate among the answers (wrong / answered), bars in family
     colours, a note that chat models are not measured yet, a link to that tab; one heading, with a note instead of the
     bars in the chat view); Cost, its chart then the table of every setup in one part; Latency;
     accuracy against cost or latency, with the Pareto line (the setups in view no other setup in view
@@ -277,7 +299,11 @@ python3 -m http.server 8000                                # preview at http://1
     selects (every setup together, the decision models or the chat and general models), within the filters;
     each bar or dot takes its model family's colour (`page_config.json` `model_families`: a maker's line of models shares
     one colour, in every chart and both groups; `run_families` in `sitebuild/site.py` stops the build unless every run
-    has exactly one family), with the families in view in the legend.
+    has exactly one family), with the families shown in the legend, on one compact line of their own that wraps
+    (`.families`, on every page). Nothing scrolls inside a chart box: each bar chart, Reading vs grammar and the table
+    under Cost show their first 10 rows, with a "Show all N setups" key that opens every row in place and closes them
+    again (`topRows` in `v3.js`); a highlighted setup ranked below them is added after them, set apart by a dotted line.
+    The trade-off chart has a fixed height. A downloaded PNG has every row of the view.
     Under the Cost chart, in the same part, the table of every setup (`#cost-table`, `costTable` in `v3.js`) holds every setup of that
     group, whatever the filters and the model selection: cheapest
     first (setups without a cost last, by accuracy), with $ per 1,000 questions as the Cost card writes it, its cost over
@@ -335,9 +361,13 @@ python3 -m http.server 8000                                # preview at http://1
     "Not available" with its reason, and a row without the result it is ranked by follows the ranked rows.
     Below: the models not run, with their reasons, and the OCR models' error rates and kept underlined and
     numbered words on the human-verified question text. A setup that is condition A there shows its row on
-    its own page.
+    its own page. Every model there is a decision model (the build stops otherwise): the models' charts, tables and
+    findings carry `data-models="all decision"` and the chat view shows a note in their place; the OCR models' parts
+    show in every view. Hallucination and Web grounding do the same for their parts.
   - **Other pages**: each module of `sitebuild/` (`PAGE_MODULES` in `build_site.py`) returns whole pages,
-    written to `<path>index.html`: one page per setup (`models/<run>/`; `models/` itself sends the reader to the home
+    written to `<path>index.html`: one page per setup (`models/<run>/`, opening with a summary: accuracy with its 95%
+    interval, the answers kept at 99% confidence with the wrong ones among them, cost and median latency; the run
+    record's harness seed, commit and prompt version folded under Settings; `models/` itself sends the reader to the home
     page's All models view, which replaced its list of every setup; query and fragment kept), every question
     (`questions/`, with `questions.js`: filters on question ID, book page, topic and difficulty, 100 rows at a time,
     all kept in the URL; every row shows without JavaScript), one page per question (`question/?id=…`, drawn by

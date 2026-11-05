@@ -114,7 +114,7 @@ code { font-family: var(--mono); font-size: .85em; }
 h1, h2, h3 { line-height: 1.2; }
 /* The view bar stays at the top of the window: links to a part of a page, and the page's own scrolling, land below it.
    site.js keeps --view-bar-h at the bar's height; the value here holds until it runs. */
-html { --view-bar-h: 9.6rem; scroll-padding-top: var(--view-bar-h); }
+html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
 [id] { scroll-margin-top: 1rem; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
@@ -142,10 +142,11 @@ html { --view-bar-h: 9.6rem; scroll-padding-top: var(--view-bar-h); }
 /* With the script, the switch shows from the first paint, so nothing moves when site.js wires it. */
 .js .theme-switch[hidden] { display: inline-flex; }
 
-/* The view bar, the first thing on every page: the test (row 1, a page) and the models (row 2, ?models=), large keys
-   across the whole width, sticky at the top of the window above every other part of the page; the top bar under it
-   scrolls away. The current choice is filled: in the dark theme white text on blue with a light blue edge, in the light
-   theme white text on near-black navy. */
+/* The view bar, the first thing on every page: the test (row 1, a page), the models (row 2, ?models=) and the measure
+   (row 3, a part of the page), keys across the whole width, sticky at the top of the window above every other part of
+   the page; on a wide screen rows 1 and 2 share the first line and the measure takes the second, each row's name
+   before its keys. The top bar under it scrolls away. The current choice is filled: in the dark theme white text on
+   blue with a light blue edge, in the light theme white text on near-black navy. */
 :root {
   --view-bg: #f7f6f2;
   --view-edge: #7c7871;
@@ -172,25 +173,43 @@ html { --view-bar-h: 9.6rem; scroll-padding-top: var(--view-bar-h); }
     --view-current-text: #ffffff;
   }
 }
-.view-bar { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; padding: .5rem 1rem; background: var(--view-bg);
+.view-bar { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; padding: .35rem 1rem; background: var(--view-bg);
   border-bottom: 2px solid var(--view-edge); box-shadow: var(--shadow); }
-.view-rows { display: grid; gap: .4rem; max-width: 1100px; margin: 0 auto; }
-.view-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: .75rem; }
-.view-label { color: var(--view-label); font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-.view-row ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem; list-style: none; margin: 0; padding: 0; }
+.view-rows { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: .3rem 1.1rem; max-width: 1100px; margin: 0 auto; }
+.view-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .55rem; }
+.view-row.view-measures { grid-column: 1 / -1; }
+.view-label { color: var(--view-label); font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.view-row ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; list-style: none; margin: 0; padding: 0; }
+/* Row 1's middle key, the longest label, takes more room, so each label keeps one line. */
+.view-row.view-tests ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, 1.2fr); }
 .view-row li { display: flex; }
-a.view-key { display: flex; flex: 1; align-items: center; justify-content: center; min-height: 2.6rem; padding: .3rem .75rem;
+a.view-key { display: flex; flex: 1; align-items: center; justify-content: center; min-height: 2.1rem; padding: .15rem .4rem;
   color: var(--view-text); background: var(--view-key); border: 2px solid var(--view-key-edge); border-radius: 7px;
-  font-size: 1.08rem; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none; box-shadow: var(--key-shadow); }
+  font-size: .92rem; font-weight: 700; line-height: 1.15; text-align: center; text-decoration: none; box-shadow: var(--key-shadow); }
 a.view-key:hover { border-color: var(--view-key-hover); }
 a.view-key[aria-current] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge);
-  box-shadow: inset 0 -4px 0 var(--view-current-edge); }
+  box-shadow: inset 0 -3px 0 var(--view-current-edge); }
 /* Row 3, the measure: four keys, a little smaller than rows 1 and 2. */
 .view-row.view-measures ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.view-measures a.view-key { min-height: 2.2rem; padding: .2rem .6rem; font-size: .98rem; }
+.view-measures a.view-key { min-height: 1.95rem; padding: .1rem .5rem; font-size: .9rem; }
+/* Row 2's keys read All, Decision and Chat after the row's name; "models" shows where each row has a line of its own and
+   room for it. Too narrow for rows 1 and 2 side by side: one row each. */
+.view-more { display: none; }
+@media (max-width: 1000px) {
+  .view-rows { grid-template-columns: minmax(0, 1fr); }
+  .view-row { grid-template-columns: 4.6rem minmax(0, 1fr); }
+  .view-more { display: inline; }
+}
 /* Without the script no group is marked: the page shows all models, so that key is the current one. */
 html:not(.js) a.view-key[data-view-group="all"] { color: var(--view-current-text); background: var(--view-current-bg);
-  border-color: var(--view-current-edge); box-shadow: inset 0 -4px 0 var(--view-current-edge); }
+  border-color: var(--view-current-edge); box-shadow: inset 0 -3px 0 var(--view-current-edge); }
+/* The cost unit (site.js): each cost carries both units and the chosen one shows; per 1,000 questions without the
+   script. The keys sit in the head of each chart or table with costs. */
+.cost-1m { display: none; }
+:root[data-cost-unit="1m"] .cost-1k { display: none; }
+:root[data-cost-unit="1m"] .cost-1m { display: inline; }
+.cost-unit { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
+.cost-unit .key { min-height: 1.75rem; padding: .1rem .5rem; font-size: .8rem; }
 /* Parts of a page for some groups only (data-models): site.js hides the others, whatever their display. */
 [data-models][hidden] { display: none !important; }
 
@@ -218,8 +237,10 @@ input[type="checkbox"] { accent-color: var(--text); width: 1rem; height: 1rem; }
 .card h2 { font-size: 1.15rem; margin: 0 0 .75rem; padding-bottom: .5rem; border-bottom: 1px solid var(--edge); }
 main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .eyebrow { margin: 0 0 .25rem; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-/* A result that is not final: a marked line at the top of a model page's Page images section. */
-.preliminary { margin: 0 0 .75rem; padding: .4rem .7rem; background: var(--sunk); border-left: 3px solid var(--text); border-radius: 4px; }
+/* A result that is not final: a marked line at the top of a model page's Page images section; and a test's limit, in
+   the intro of the English pages. */
+.preliminary, .limit { margin: 0 0 .75rem; padding: .4rem .7rem; background: var(--sunk); border-left: 3px solid var(--text); border-radius: 4px; }
+.limit { margin: .5rem 0 0; font-size: .92rem; }
 .subtitle { color: var(--text-2); margin: 0 0 .75rem; }
 
 /* The title, the intro and the language of the questions, under the Accuracy chart. */
@@ -465,24 +486,26 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 .chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-bottom: .5rem; }
 .chart-head h2 { margin: 0 auto 0 0; padding: 0; border: 0; font-size: 1.05rem; }
 .chart-sub { flex-basis: 100%; margin: 0; color: var(--text-2); font-size: .85rem; }
-/* The cost of every setup, under the Cost chart in the same card: the leaderboard's table in a box of fixed height, its
-   header held in view while it scrolls. */
+/* The cost of every setup, under the Cost chart in the same card: the leaderboard's table, its first rows until its Show
+   all key opens the rest; it never scrolls up and down inside the card. */
 .cost-setups { margin-top: 1.25rem; padding-top: .75rem; border-top: 1px solid var(--edge); }
 .cost-setups > .chart-sub { margin-bottom: .5rem; }
-.cost-scroll { max-height: 32rem; overflow: auto; }
-.cost-scroll thead th { position: sticky; top: 0; z-index: 1; }
 .pareto-tag { display: inline-block; margin-left: .35rem; padding: 0 .3rem; border: 1px dashed var(--control-edge); border-radius: 3px;
   color: var(--text-2); font-size: .72rem; vertical-align: .1rem; }
 .cost-box .chart-legend { margin: .4rem 0 0; }
 table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
+/* A chart takes the height of the rows it shows (v3.js topRows) and never scrolls inside its box; room for the first
+   rows is kept before it draws, so the page does not move. */
 .chart-box { min-height: 26rem; min-width: 0; }
-.chart-scroll { max-height: var(--chart-max, 360px); overflow-y: auto; overflow-x: hidden; }
-.chart-scroll svg, .chart-box > svg { display: block; }
+.chart-box > svg { display: block; }
+/* The key under a list that opens every row in place, and closes them again. */
+.key.show-all { margin: .5rem 0 0; }
+.chart-box .row-apart { stroke: var(--control-edge); stroke-width: 1; stroke-dasharray: 2 3; }
 .chart-box svg text { font-family: var(--sans); font-size: 12px; }
 .chart-box .grid { stroke: var(--edge); stroke-width: 1; }
 .chart-box .axis { stroke: var(--control-edge); stroke-width: 1; }
 .chart-box .tick, .chart-box .axis-title { fill: var(--text-2); }
-/* The names of a bar chart's value columns, above its scrolling rows, right-aligned over the values. */
+/* The names of a bar chart's value columns, above its rows, right-aligned over the values. */
 .chart-box .column-heads { display: block; }
 .chart-box .column-head { fill: var(--text-2); font-size: 12px; font-weight: 600; }
 .chart-box .label, .chart-box .value { fill: var(--text); }
@@ -514,6 +537,10 @@ table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
 .chart-box.has-selection .mark:not(.is-selected) .value, .chart-box.has-selection .label:not(.is-selected) { fill: var(--text-2); }
 .chart-legend { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: .5rem 0 0; color: var(--text-2); font-size: .8rem; }
 i.swatch { display: inline-block; width: .75rem; height: .75rem; margin-right: .35rem; border-radius: 2px; vertical-align: -.05rem; }
+/* The model families under a chart: one compact line of their own that wraps, small swatches and icons. */
+.chart-legend .families { display: flex; flex-wrap: wrap; flex-basis: 100%; gap: 0 .6rem; font-size: .72rem; line-height: 1.4; }
+.families i.swatch { width: .5rem; height: .5rem; margin-right: .2rem; vertical-align: .05rem; }
+.families svg.fam-icon { width: 11px; height: 11px; margin-right: .2rem; vertical-align: -1px; }
 /* A model family's icon left of a setup's name (sitebuild/site.py family_sprite): 14 px on the text's baseline, the
    maker's mark in the text's colour; the sprite itself takes no room. */
 .family-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
@@ -545,6 +572,11 @@ i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
 .hbar-fill.english { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
 .hbar-marker { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--text); }
 .hbar-value { font-family: var(--mono); font-size: .82rem; white-space: nowrap; }
+/* One value beside each bar of a row (Site hbars texts), each line as tall as a bar and its gap. */
+.hbar-value.stack { display: grid; gap: 3px; }
+.hbar-value.stack > span { height: .85rem; line-height: .85rem; font-size: .74rem; }
+.hbar-fill.wrong { background: var(--wrong); }
+i.swatch-wrong { background: var(--wrong); }
 .hbar-axis { margin-bottom: .25rem; }
 .hbar-axis .hbar-track { height: 1rem; background: none; }
 .hbar-tick { position: absolute; transform: translateX(-50%); color: var(--text-2); font-family: var(--mono); font-size: .72rem; }
@@ -555,6 +587,18 @@ i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
 .hbar-head { color: var(--text-2); font-size: .72rem; font-weight: 600; white-space: nowrap; }
 .hbar-head .head-short { display: none; }
 .headed .hbar-head, .headed .hbar-value { justify-self: end; text-align: right; }
+/* Several named value columns (.cols, their number in --cols), each of one width so they line up from row to row; a
+   long name wraps in its column. */
+.hbar.cols, .hbars.cols > .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) repeat(var(--cols), 6.5rem); }
+.cols .hbar-head { white-space: normal; line-height: 1.2; }
+
+/* The result cards above the Accuracy chart (build_site.py result_cards): three cards, each with its setup and scope. */
+.result-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.panel.result-card { display: flex; flex-direction: column; gap: .2rem; margin: 0; padding: .7rem .9rem; min-width: 0; }
+.result-card .card-title { margin: 0; padding: 0; border: 0; color: var(--text-2); font-size: .8rem; font-weight: 600; line-height: 1.3; }
+.result-card .card-value { margin: .1rem 0 0; font-family: var(--mono); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.result-card .card-setup { margin: 0; font-size: .92rem; font-weight: 600; overflow-wrap: anywhere; }
+.result-card .card-scope { margin: 0; color: var(--text-2); font-size: .78rem; line-height: 1.35; }
 
 /* Info: the tables, the summary and the notes, behind the charts; its summary line opens it like a key. */
 .info { margin: 1.25rem 0 0; }
@@ -573,6 +617,26 @@ i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
 dl.facts { display: grid; grid-template-columns: minmax(10rem, max-content) 1fr; gap: .35rem 1rem; margin: 0 0 .75rem; }
 dl.facts dt { color: var(--text-2); }
 dl.facts dd { margin: 0; overflow-wrap: anywhere; }
+/* A model page's summary at the top: accuracy, the answers kept at the threshold, cost and latency, each in a box. */
+dl.key-figures { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; margin: .25rem 0 .75rem; }
+dl.key-figures > div { padding: .5rem .7rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 6px; min-width: 0; }
+dl.key-figures dt { color: var(--text-2); font-size: .8rem; }
+dl.key-figures dd { margin: 0; overflow-wrap: anywhere; }
+.key-figure { display: block; font-family: var(--mono); font-size: 1.3rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+/* Page images: the four inputs on a sample question (the text with its markup, the picture in a printed page's colours
+   in both themes, both, and an OCR model's text), and the colour scale of the bars coloured by accuracy. */
+.inputs { margin: .5rem 0 .75rem; }
+.inputs figcaption { margin: 0 0 .45rem; font-size: .88rem; color: var(--text-2); }
+.input-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.input-list > li { display: flex; flex-direction: column; gap: .35rem; min-width: 0; padding: .5rem; border: 1px solid var(--edge); border-radius: 6px; }
+.input-head { margin: 0; font-size: .88rem; }
+pre.input-text { margin: 0; padding: .35rem .5rem; background: var(--sunk); border-radius: 4px; font-size: .72rem; line-height: 1.35;
+  white-space: pre-wrap; overflow-wrap: anywhere; }
+.input-page { padding: .35rem .55rem; background: #fbf9f2; color: #1b1b1b; border: 1px solid #bdb7a6; box-shadow: 2px 2px 0 rgba(0, 0, 0, .14);
+  font-family: Georgia, "Times New Roman", serif; font-size: .76rem; line-height: 1.35; }
+.input-page p { margin: 0; }
+.colour-scale strong { font-weight: 650; }
+i.ramp.wide { width: 6rem; }
 tr.right td.num:nth-child(2) { font-weight: 700; }
 details.show-table, details.all-configs, details.show-more { margin: 1rem 0; }
 details > summary { cursor: pointer; }
@@ -683,6 +747,16 @@ ul.price-list { padding-left: 1.25rem; }
   .hbar-axis.dense .hbar-tick:nth-child(even) { display: none; }
   .hbar-head .head-long { display: none; }
   .hbar-head .head-short { display: inline; }
+  .hbar.cols, .hbars.cols > .hbar { grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 3.2rem); column-gap: .35rem; }
+  .hbar-axis.cols .hbar-tick:nth-child(even) { display: none; }
+  /* On a phone the cards stack, each value beside its setup. */
+  .result-cards { grid-template-columns: minmax(0, 1fr); gap: .4rem; }
+  .panel.result-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: .1rem .6rem; padding: .45rem .7rem; }
+  .result-card :is(.card-title, .card-scope) { grid-column: 1 / -1; }
+  .result-card .card-title { font-size: .76rem; }
+  .result-card .card-value { margin: 0; font-size: 1.1rem; }
+  .result-card .card-setup { font-size: .85rem; }
+  .result-card .card-scope { font-size: .74rem; }
   body { padding: 0 .6rem 1.5rem; }
   /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
@@ -690,19 +764,22 @@ ul.price-list { padding-left: 1.25rem; }
     margin-bottom: .55rem; padding: .35rem 0 .3rem; }
   .brand { grid-area: brand; }
   .nav { grid-area: nav; }
-  /* The view bar on a phone: the row names for screen readers only, three keys per row in rows 1 and 2, whose labels wrap
-     inside them; the middle key, the longest label, takes more room, so every label fits on two lines. */
-  html { --view-bar-h: 9.2rem; }
+  /* The view bar on a phone: one row each, the row names for screen readers only. Row 1's labels wrap inside their keys;
+     the middle key, the longest label, takes more room, so every label fits on two lines. Row 2's keys keep one line
+     (All, Decision, Chat: the row's name says "models"). */
+  html { --view-bar-h: 8.4rem; }
   .view-bar { margin: 0 -.6rem; padding: .35rem .6rem; }
   .view-rows { gap: .3rem; }
   .view-row { display: block; }
   .view-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
     white-space: nowrap; border: 0; }
-  .view-row ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: .3rem; }
-  a.view-key { min-height: 2.65rem; padding: .2rem .25rem; font-size: .93rem; line-height: 1.12; border-radius: 6px; }
+  .view-row ul, .view-row.view-tests ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: .3rem; }
+  a.view-key { min-height: 2.5rem; padding: .15rem .25rem; font-size: .9rem; line-height: 1.12; border-radius: 6px; }
+  .view-groups a.view-key { min-height: 2.1rem; }
+  .view-more { display: none; }
   /* Row 3's four keys share one row: Non-hallucination, the longest label, takes more room and wraps at its hyphen. */
   .view-row.view-measures ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, .8fr) minmax(0, 1fr); }
-  .view-measures a.view-key { min-height: 2.35rem; padding: .15rem .2rem; font-size: .84rem; }
+  .view-measures a.view-key { min-height: 2.25rem; padding: .1rem .2rem; font-size: .84rem; }
   .brand { font-size: .66rem; letter-spacing: .04em; }
   .theme-switch { gap: .25rem; }
   .theme-switch .key { min-height: 1.75rem; padding: .15rem .45rem; gap: .3rem; font-size: .78rem; }
@@ -788,6 +865,11 @@ ul.price-list { padding-left: 1.25rem; }
   .hint:hover::after, .hint:focus::after { position: fixed; left: .5rem; right: .5rem; bottom: .5rem; top: auto; width: auto; max-width: none; font-size: .85rem; }
   dl.facts { grid-template-columns: 1fr; gap: 0; }
   dl.facts dd { margin-bottom: .5rem; }
+  .input-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+  .input-list > li { padding: .35rem; }
+  dl.key-figures { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+  dl.key-figures > div { padding: .4rem .5rem; }
+  .key-figure { font-size: 1.1rem; }
   .heatmap-table td.model, .heatmap-table thead th:first-child { min-width: 7.5rem; max-width: 9rem; }
   .worked-example { padding: .75rem; }
   details.setup-record dl { grid-template-columns: 1fr; }

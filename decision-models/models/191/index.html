@@ -6,15 +6,15 @@
   <title>GPT-6 Astra · low reasoning · 1 question per request · Hilde</title>
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/191/">
   <meta name="description" content="GPT-6 Astra · low reasoning · 1 question per request: how we called it, results, confidence, latency and cost.">
-  <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
-  <link rel="stylesheet" href="../../v3.css?v=b52870ef">
-  <script src="../../site.js?v=c2f48d35" defer></script>
+  <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if ((new URLSearchParams(location.search).get("cost-unit") || localStorage.getItem("costUnit")) === "1m") document.documentElement.dataset.costUnit = "1m"; } catch (e) {}</script>
+  <link rel="stylesheet" href="../../v3.css?v=e8d37e9f">
+  <script src="../../site.js?v=22dcc438" defer></script>
 </head>
 <body class="v3">
   <a class="skip" href="#main">Skip to content</a>
   <nav class="view-bar" aria-label="View: test, models and measure"><div class="view-rows">
-    <div class="view-row"><span class="view-label" id="view-test">Test</span><ul aria-labelledby="view-test"><li><a class="view-key" href="../../english/" data-view-test>English reading</a></li><li><a class="view-key" href="../../" data-view-test>Turkish reading and grammar</a></li><li><a class="view-key" href="../../turkish-vs-english/" data-view-test>English and Turkish</a></li></ul></div>
-    <div class="view-row"><span class="view-label" id="view-models">Models</span><ul aria-labelledby="view-models"><li><a class="view-key" href="../../?models=all" data-view-group="all">All models</a></li><li><a class="view-key" href="../../?models=decision" data-view-group="decision">Decision models</a></li><li><a class="view-key" href="../../?models=chat" data-view-group="chat">Chat models</a></li></ul></div>
+    <div class="view-row view-tests"><span class="view-label" id="view-test">Test</span><ul aria-labelledby="view-test"><li><a class="view-key" href="../../english/" data-view-test>English reading</a></li><li><a class="view-key" href="../../" data-view-test>Turkish reading and grammar</a></li><li><a class="view-key" href="../../turkish-vs-english/" data-view-test>English and Turkish</a></li></ul></div>
+    <div class="view-row view-groups"><span class="view-label" id="view-models">Models</span><ul aria-labelledby="view-models"><li><a class="view-key" href="../../?models=all" data-view-group="all"><span>All<span class="view-more"> models</span></span></a></li><li><a class="view-key" href="../../?models=decision" data-view-group="decision"><span>Decision<span class="view-more"> models</span></span></a></li><li><a class="view-key" href="../../?models=chat" data-view-group="chat"><span>Chat<span class="view-more"> models</span></span></a></li></ul></div>
     <div class="view-row view-measures"><span class="view-label" id="view-measure">Measure</span><ul aria-labelledby="view-measure"><li><a class="view-key" href="../../?models=all#accuracy" data-view-measure="accuracy">Accuracy</a></li><li><a class="view-key" href="../../?models=all#non-hallucination" data-view-measure="non-hallucination">Non-hallucination</a></li><li><a class="view-key" href="../../?models=all#cost" data-view-measure="cost">Cost</a></li><li><a class="view-key" href="../../?models=all#latency" data-view-measure="latency">Latency</a></li></ul></div>
   </div></nav>
   <header class="topbar">
@@ -28,7 +28,7 @@
       <p class="eyebrow">Chat model</p>
       <h1>GPT-6 Astra</h1>
       <p class="subtitle">low reasoning · 1 question per request</p>
-      <p>97.4% of the 2,198 questions right (96.7% to 98.0%, 95% interval). <a href="../../">Back to the leaderboard</a>.</p><p>We also ran this setup at 16 questions per request: <a href="../../models/48/">GPT-6 Astra · low reasoning · 16 questions per request</a>.</p><p>Which decision model can go first in front of it? See the <a href="../../?tab=routing&llm=astra&per-request=1&rule=half&test=replay">Routing tab</a>.</p>
+      <dl class="key-figures"><div><dt>Accuracy, all 2,198 questions</dt><dd><span class="key-figure">97.4%</span><span class="small">96.7% to 98.0%, 95% interval; 2,141 right</span></dd></div><div><dt>Answers kept at 99% confidence</dt><dd><span class="key-figure">1,839 of 2,198</span><span class="small">15 wrong; share right 98.7% to 99.5%, 95% interval</span></dd></div><div><dt>Cost, $ per 1,000 questions</dt><dd><span class="key-figure"><span class="cost-1k">$26.738</span><span class="cost-1m">$26,738</span></span><span class="small"><a href="#cost">Basis and price under Cost</a></span></dd></div><div><dt>Latency</dt><dd><span class="key-figure">6.41 s</span><span class="small">median request, 1 question per request</span></dd></div></dl><p><a href="../../">Back to the leaderboard</a>.</p><p>We also ran this setup at 16 questions per request: <a href="../../models/48/">GPT-6 Astra · low reasoning · 16 questions per request</a>.</p><p>Which decision model can go first in front of it? See the <a href="../../?tab=routing&llm=astra&per-request=1&rule=half&test=replay">Routing tab</a>.</p>
     </section>
     <section class="card" id="called">
       <h2>How we called it</h2>
@@ -36,7 +36,7 @@
     </section>
     <section class="card" id="settings">
       <h2>Settings</h2>
-      <dl class="facts"><dt>Reasoning</dt><dd>low</dd><dt>Request format</dt><dd>1 question per request</dd><dt>Requests at once</dt><dd>1</dd><dt>Temperature</dt><dd>not recorded</dd><dt>Harness seed</dt><dd>0</dd><dt>Harness commit</dt><dd><a href="https://github.com/zekiworks/analysis/commit/54043fd92cd5e6b120d518a920c485c749de962b"><code>54043fd92cd5</code></a></dd><dt>Prompt version</dt><dd><code>254597b8be16</code></dd></dl><p>Reasoning effort levels (<a href="https://developers.openai.com/api/docs/models/gpt-6-astra">OpenAI&#x27;s model page</a>, read 28 October 2026): low, medium, high, xhigh, max. Top level: max. This run: low.</p>
+      <dl class="facts"><dt>Reasoning</dt><dd>low</dd><dt>Request format</dt><dd>1 question per request</dd><dt>Requests at once</dt><dd>1</dd><dt>Temperature</dt><dd>not recorded</dd></dl><p>Reasoning effort levels (<a href="https://developers.openai.com/api/docs/models/gpt-6-astra">OpenAI&#x27;s model page</a>, read 28 October 2026): low, medium, high, xhigh, max. Top level: max. This run: low.</p><details class="setup-record"><summary>Run record: harness seed, harness commit and prompt version</summary><dl class="facts"><dt>Harness seed</dt><dd>0</dd><dt>Harness commit</dt><dd><a href="https://github.com/zekiworks/analysis/commit/54043fd92cd5e6b120d518a920c485c749de962b"><code>54043fd92cd5</code></a></dd><dt>Prompt version</dt><dd><code>254597b8be16</code></dd></dl></details>
     </section>
     <section class="card" id="results">
       <h2>Results</h2>
@@ -56,12 +56,12 @@
     </section>
     <section class="card" id="cost">
       <h2>Cost</h2>
-      <dl class="facts"><dt>$ per 1,000 questions</dt><dd>$26.74</dd><dt>Whole run</dt><dd>$58.77</dd><dt>Basis</dt><dd>Subscription run priced as if we had used the API</dd><dt>Price</dt><dd>$10 input, $1 cached input, $12.50 cache writes, $50 output per 1M tokens (<a href="https://developers.openai.com/api/docs/pricing">source</a>, 2026-10-08)</dd><dt>Input tokens per question</dt><dd>4,641</dd><dt>Output tokens per question</dt><dd>59</dd></dl>
+      <span class="cost-unit needs-js" role="group" aria-label="Cost unit"><button type="button" class="key" data-cost-unit-choice="1k" aria-pressed="true">per 1,000 questions</button><button type="button" class="key" data-cost-unit-choice="1m" aria-pressed="false">per 1M questions</button></span><dl class="facts"><dt>Cost <span class="cost-1k">per 1,000 questions</span><span class="cost-1m">per 1M questions</span></dt><dd><span class="cost-1k">$26.738</span><span class="cost-1m">$26,738</span></dd><dt>Whole run</dt><dd>$58.77</dd><dt>Basis</dt><dd>Subscription run priced as if we had used the API</dd><dt>Price</dt><dd>$10 input, $1 cached input, $12.50 cache writes, $50 output per 1M tokens (<a href="https://developers.openai.com/api/docs/pricing">source</a>, 2026-10-08)</dd><dt>Input tokens per question</dt><dd>4,641</dd><dt>Output tokens per question</dt><dd>59</dd></dl>
     </section>
   </main>
   <footer class="footer">
     <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
-    <p>Results 2522aafa, updated 5 November 2026; answer key version 2.</p>
+    <p>Results ad41d623, updated 5 November 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

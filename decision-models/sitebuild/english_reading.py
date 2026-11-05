@@ -8,12 +8,13 @@ overrides by run, and the structural check's facts) and `model_languages`.
 
 Every part that depends on the setups shown comes once per group of the view bar (GROUPS: all, decision, chat;
 data-models, toggled by site.js; the all group is the one shown without JavaScript), its counts and sentences computed
-for that group, its setups ranked within it: the face's charts (accuracy in both languages and the paired test, Site
-hbars; cost and latency of the Text tab run and the first English run, measure_card(), from english_reading.models[]'s
-cost and latency), the main table (main_table(): accuracy, "I don't know" in both languages, cost and latency, the rank
-in both languages and the languages the model card lists), the risk-coverage plots, the Results table and the setups
-without an English run. The face's parts row 3 of the view bar links to: #accuracy, #non-hallucination, #cost and
-#latency.
+for that group, its setups ranked within it: the face's charts (the language difference first, difference_card(), then
+accuracy in both languages and the paired test, Site hbars; cost and latency of the Text tab run and the first English
+run, measure_card(), from english_reading.models[]'s cost and latency), the main table (main_table(): accuracy, "I don't
+know" in both languages, cost and latency, the rank in both languages and the languages the model card lists), the
+risk-coverage plots, the Results table and the setups without an English run. The intro is one sentence, the headline
+and the translation check's limit (limit_note()); the view bar's row 3 links to the face's parts: #accuracy,
+#non-hallucination, #cost and #latency, so the page has no links row of its own.
 The parts about decision models only (no chat model was asked with an "I don't know" option) come once, for the all and
 decision groups, with one note for the chat group: Liquid d1-ultra against each decision model, the same questions with
 an "I don't know" option in English against the Hallucination tab's "Bilmiyorum" (dont_know_face()), the same with the
@@ -35,9 +36,10 @@ import benchmark_metrics as bm
 import build_page as bp
 from sitebuild.data import BLOB_URL
 from sitebuild.dont_know import check_option_word, option_word_rows
-from sitebuild.site import (NO_LIST_PRICE, NOT_MEASURED, ROOT, VIEW_GROUPS, Site, cost_missing, dollars_tick, esc,
-                            family_legend, hbars, legend_mark,
-                            line_plot, log_axis, pct, rel, request_size, seconds_tick)
+from sitebuild.site import (DECISION_ONLY, GROUPS, NO_LIST_PRICE, NOT_MEASURED, ROOT, Site, chat_note, cost_missing,
+                            cost_per, cost_switch, cost_tick, cost_unit_in, cost_value, cost_words, esc, experiments,
+                            family_legend, hbars, legend_mark, line_plot, log_axis, pct, rel, request_size, seconds_tick,
+                            shown)
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "turkish-vs-english/"
@@ -70,15 +72,6 @@ SHAPES = {"Bilmiyorum": "circle", "I don't know": "square"}
 COLOURS = ("#2f6fd6", "#d9622b", "#2e9e5b", "#c23b8a", "#8a6bd1", "#b8901a", "#1f9eb3", "#d13c3c", "#6d8a1f",
            "#9a5a33", "#5b7fa8", "#e0739f", "#3fae99", "#7c7871", "#9bbf1f", "#e3a21a", "#5fb4f0")
 GOLDEN = 0.381966
-# The view bar's groups (?models=), the first shown without JavaScript.
-GROUPS = tuple(key for key, _ in VIEW_GROUPS)
-# The attribute of a part about decision models only: shown for the all and decision groups, a note for chat.
-DECISION_ONLY = 'data-models="all decision"'
-
-
-def shown(group: str) -> str:
-    """The attributes of a part of one group's copy: the all group's is shown without JavaScript, the others hidden."""
-    return f'data-models="{group}"' + ("" if group == GROUPS[0] else " hidden")
 
 
 def anchor(base: str, group: str) -> str:
@@ -100,11 +93,6 @@ def noun(group: str, count: int) -> str:
     one, many = {"all": ("setup", "setups"), "decision": ("decision model", "decision models"),
                  "chat": ("chat model setup", "chat model setups")}[group]
     return one if count == 1 else many
-
-
-def chat_note(text: str) -> str:
-    """The one note the chat group shows instead of a page's parts about decision models only."""
-    return f'<p class="note" data-models="chat" hidden>{text}</p>'
 
 
 def model_colours(site: Site) -> dict[int, str]:
@@ -247,7 +235,8 @@ def family_bars(site: Site, run: int, *bars: tuple[float, str]) -> list[dict[str
 SIDES = {"turkish": "Turkish", "english": "English"}
 # What a cost's basis (results.json's cost_basis, as english_reading.models[].cost gives it) says under the cost.
 BASIS_WORDS = {"api": "at list prices", "subscription": "subscription, priced as the API", "free tier":
-               "free tier, at the list price", "maker": "at the maker's list price"}
+               "free tier, at the list price", "maker": "at the maker's list price",
+               "weights": "at a host's list price for the same weights", "gpu": "from GPU time"}
 
 
 def measure_value(model: dict[str, Any], measure: str, side: str) -> float | None:
@@ -318,7 +307,7 @@ def measure_cell(site: Site, model: dict[str, Any], measure: str, side: str) -> 
         return missing(site, model, measure)
     entry = model[measure][side]
     if measure == "cost":
-        return (f'<span{cost_title(site, model)}>{esc(upper_mark(site, entry))}{value:.3f}</span>'
+        return (f'<span{cost_title(site, model)}>{cost_value(value, upper_mark(site, entry), dollar=False)}</span>'
                 f'<span class="small">{esc(BASIS_WORDS[entry["basis"]])}</span>')
     flight = entry["concurrency"]
     sample = sample_size(site, model, side)
@@ -376,27 +365,28 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
                                 (measure_value(model, measure, side) is None, measure_value(model, measure, side) or 0)) \
         + (label(site, model).casefold(),)
     ordered = sorted(models, key=order)
-    position, axis = log_axis(values, dollars_tick if cost else seconds_tick) if values else (None, {})
+    position, axis = log_axis(values, cost_tick if cost else seconds_tick) if values else (None, {})
 
     def short(model: dict[str, Any], side: str) -> str:
+        """The value as the chart writes it beside the bars, as HTML: a cost in both units (cost_value)."""
         value = measure_value(model, measure, side)
         if value is None:
             if no_list_price(site, model, measure):
                 return "no list price"
             return "n.m." if paired else "Not measured"
-        text = bp.seconds(value)
-        if not cost and sample_size(site, model, side):
-            text += SAMPLE_MARK
-        if paired:
-            return upper_mark(site, model["cost"][side]) + text if cost else text
-        return f"{upper_mark(site, model['cost'][side])}${text}" if cost else f"{text}\u00a0s"
+        if cost:
+            return cost_value(value, upper_mark(site, model["cost"][side]), dollar=not paired)
+        text = esc(bp.seconds(value))
+        if sample_size(site, model, side):
+            text += esc(SAMPLE_MARK)
+        return text if paired else f"{text}\u00a0s"
 
     def said(model: dict[str, Any], side: str) -> str:
         value, entry = measure_value(model, measure, side), model[measure][side]
         if value is None:
             return f"{'no list price' if no_list_price(site, model, measure) else 'not measured'} in {SIDES[side]}"
         if cost:
-            return (f"{upper_mark(site, entry)}${value:.3f} per 1,000 questions in {SIDES[side]} ({BASIS_WORDS[entry['basis']]}"
+            return (f"{cost_words(value, upper_mark(site, entry))} in {SIDES[side]} ({BASIS_WORDS[entry['basis']]}"
                     f"{', an upper-bound estimate' if entry.get('upper_bound') else ''})")
         return (f"median {bp.seconds(value)} s, 90th percentile {bp.seconds(entry['p90_request_seconds'])} s per request in "
                 f"{SIDES[side]}, {request_size(entry['questions_per_request'])}, {entry['concurrency']:,} in flight"
@@ -409,20 +399,20 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
                 for side in sides if (value := measure_value(model, measure, side)) is not None]
         text = " · ".join(short(model, side) for side in sides)
         tip = site.cost_tip(site.by_id[model["turkish_run"]]) if cost else None
-        rows.append({"label": label(site, model), "family": site.families[model["turkish_run"]]["name"], "href": link(site, model), "bars": bars, "text": text,
+        rows.append({"label": label(site, model), "family": site.families[model["turkish_run"]]["name"], "href": link(site, model), "bars": bars, "html": text,
                      "title": f"{label(site, model)}: " + "; ".join(said(model, side) for side in sides)
                      + (f". {tip}" if tip else "")})
     count = len(models)
     whose = (f"each of the {bp.in_words(count)} {noun(group, count)}' Text tab run and its first English run" if paired else
              f"each of the {bp.in_words(count)} {noun(group, count)}' first English run")
     if cost:
-        title = ("Cost per 1,000 questions in Turkish and in English" if paired else
-                 "Cost per 1,000 English questions")
-        sub = f"Estimated dollars per 1,000 questions: {whose}, ordered by English cost · lower is better"
+        title = (f"Cost {cost_per()} in Turkish and in English" if paired else
+                 f"Cost {cost_per('per 1,000 English questions', 'per 1M English questions')}")
+        sub = f"Estimated dollars {cost_per()}: {whose}, ordered by English cost · lower is better"
         notes = [esc(cost_note(site, models, sides))]
     else:
-        title = ("Median latency per request in Turkish and in English" if paired else
-                 f"Median latency per request on the {total:,} English questions")
+        title = esc("Median latency per request in Turkish and in English" if paired else
+                    f"Median latency per request on the {total:,} English questions")
         sub = f"Median time per request: {whose}, ordered by English latency · lower is better"
         notes = ["Time per request as measured from our computer during each run; API times include the network."]
         for side in sides:
@@ -466,12 +456,12 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
               + NUMBERS + " ") if paired else ""
     legend += family_legend([site.families[model["turkish_run"]] for model in ordered]) + "".join(
         f" <span>{note}</span>" for note in notes)
-    head = TR_EN if paired else ("Cost / 1k", "$/1k") if cost else ("Median latency", "Median")
+    head = TR_EN if paired else ("Cost", "Cost") if cost else ("Median latency", "Median")
     priced = not cost or not all(no_list_price(site, model, measure) for model in models)
     chart = hbars(rows, head=head, **axis) if values else \
         f'<p class="note">{"Not measured" if priced else "No list price"} for any {noun(group, 1)}.</p>'
     return (f'<figure class="panel chart-card" id="{anchor(f"chart-{measure}", group)}" {shown(group)}>'
-            f'<div class="chart-head"><h2>{esc(title)}</h2><p class="chart-sub">{sub}</p></div>{chart}'
+            f'<div class="chart-head"><h2>{title}</h2>{cost_switch() if cost else ""}<p class="chart-sub">{sub}</p></div>{chart}'
             f'<p class="chart-legend">{legend}</p></figure>')
 
 
@@ -514,9 +504,9 @@ def headline(site: Site, data: dict[str, Any], group: str) -> str:
 
 
 def face(site: Site, data: dict[str, Any], group: str) -> str:
-    """A group's copy of the tab's face: two chart cards, accuracy in Turkish and in English, and the paired test of the
-    two (the questions only one side got right, with p adjusted by Holm over every English setup), for the group's
-    setups, every number from results.json's english_reading."""
+    """A group's copy of the tab's face: three chart cards, the language difference (difference_card), accuracy in
+    Turkish and in English, and the paired test of the two (the questions only one side got right, with p adjusted by
+    Holm over every English setup), for the group's setups, every number from results.json's english_reading."""
     digits = site.config["percent_digits"]
     total, family = data["questions"], len(data["models"])
     models = group_models(site, data, group)
@@ -573,7 +563,60 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         + NUMBERS + " " + family_legend([site.families[model["turkish_run"]] for model in tested]) + " "
         f"<span>{verdict}</span>",
         top=4 * quarter, tick=lambda value: f"{value:,.0f}", head=TR_EN)
-    return f'<section class="charts" aria-label="Charts" {shown(group)}>{accuracy}{paired}</section>'
+    return (f'<section class="charts" aria-label="Charts" {shown(group)}>'
+            f"{difference_card(site, data, group, href)}{accuracy}{paired}</section>")
+
+
+def difference_card(site: Site, data: dict[str, Any], group: str, link: Callable[[Site, dict[str, Any]], str],
+                    attributes: str = "") -> str:
+    """A group's chart of the language difference, the first chart of both English pages: each setup's English accuracy
+    minus its Turkish accuracy on the kept questions, in points, as a bar from the middle line (right: higher in
+    English, striped as the English bars), largest first; * marks a difference significant after Holm's correction over
+    every English setup. The axis spans an even number of points each way, so its quarter ticks are whole points."""
+    digits = site.config["percent_digits"]
+    total, family = data["questions"], len(data["models"])
+    models = sorted(group_models(site, data, group), key=lambda model: (-model["difference"], label(site, model).casefold()))
+    half = max(2, 2 * math.ceil(max(100 * abs(model["difference"]) for model in models) / 2))
+    rows = []
+    for model in models:
+        points = 100 * model["difference"]
+        start, end = sorted((half, half + points))
+        rows.append({
+            "label": label(site, model), "family": site.families[model["turkish_run"]]["name"], "href": link(site, model),
+            "text": f"{points:+.{digits}f}{' *' if significant(model) else ''}", "marker": half,
+            "bars": [{"start": start, "value": end, "colour": site.families[model["turkish_run"]]["colour"],
+                      "kind": "english" if points > 0 else ""}],
+            "title": f"{label(site, model)}: {pct(model['english']['accuracy'], digits)} in English, "
+                     f"{pct(model['turkish']['accuracy'], digits)} in Turkish ({points:+.{digits}f} points); exact McNemar "
+                     f"{bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"})
+    found = sum(1 for model in models if significant(model))
+    count = len(models)
+    return (f'<figure class="panel chart-card" id="{anchor("chart-difference", group)}"{" " + attributes if attributes else ""}>'
+            '<div class="chart-head"><h2>English minus Turkish</h2>'
+            f'<p class="chart-sub">Points of accuracy on the {total:,} kept reading questions: each of the {bp.in_words(count)} '
+            f"{noun(group, count)}' first English run minus its Text tab run, largest first · right of the middle line: "
+            "higher in English</p></div>"
+            + hbars(rows, top=2 * half, tick=lambda value: f"{value - half:+.0f}" if value != half else "0",
+                    head=("English − Turkish", "EN − TR"))
+            + '<p class="chart-legend"><span><i class="swatch swatch-english"></i>Higher in English, right of the line, '
+            "striped</span> <span>Higher in Turkish, left of it</span> "
+            f"<span>* Significant after Holm's correction over all {family} English {noun('all', family)} (p below "
+            f"{SIGNIFICANT:g}): {bp.in_words(found)} of these {bp.in_words(count)}.</span> "
+            + family_legend([site.families[model["turkish_run"]] for model in models]) + "</p></figure>")
+
+
+
+def limit_note(translator: str, method: str) -> str:
+    """The translation check's limit, short, in the intro of both English pages (the method gives it in full)."""
+    return (f'<p class="limit"><strong>Limit:</strong> {esc(translator)} translated the questions and flagged those whose '
+            "answer depends on Turkish wording. No person checked the translations or the flags, so an error could move a "
+            f'setup\'s English accuracy (<a href="{method}">Our method</a>).</p>')
+
+
+def experiments_note(site: Site, path: str) -> str:
+    """The experiments line beside the ranking (site.experiments), under the intro of both English pages."""
+    line = experiments(site.results, path)
+    return f'<p class="note experiments">{line}</p>' if line else ""
 
 
 def against_verdict(model: dict[str, Any], reference: str) -> str:
@@ -775,7 +818,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
         name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{href(site, model)}" title="{esc(site.detail(run))}">'
                 f'{esc(label(site, model))}</a></td>')
         rows.append(f"<tr>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
-    short = "".join(f'<th scope="col" class="num">{name}<span class="small">{esc(note)}</span></th>'
+    short = "".join(f'<th scope="col" class="num">{name}<span class="small">{cost_unit_in(esc(note))}</span></th>'
                     for part, names, notes in groups if names != ("",) for name, note in zip(names, notes))
     head = ('<tr><th scope="col" rowspan="2">Model</th>'
             + "".join(f'<th scope="col" rowspan="2" class="num">{esc(part)}<span class="small">{esc(notes[0])}</span></th>'
@@ -811,7 +854,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             f"Accuracy: right answers over the {total:,} kept reading questions, the first English run against the Text "
             f'tab run (<a href="#{anchor("chart-accuracy", group)}">Accuracy</a>, '
             f'<a href="#{anchor("chart-paired", group)}">Paired test</a>).{idk_text} Cost and latency: the Text tab run '
-            "and the first English run, cost in $ per 1,000 questions and the "
+            f"and the first English run, cost in $ {cost_per()} and the "
             "median time per request with the request size and the requests in flight under it "
             f'(<a href="#{anchor("chart-cost", group)}">Cost</a>, <a href="#{anchor("chart-latency", group)}">Latency</a>).'
             + (" " + missing_note(site, models, tuple(SIDES))).rstrip() + " Rank: by accuracy among the "
@@ -2066,35 +2109,14 @@ def build(site: Site) -> dict[str, str]:
         option_word(site)])
 
     def lead(group: str) -> str:
-        """A group's copy of the lead: what was asked of how many of its setups, how many have no English run yet, the
-        headline and the links to its parts."""
-        count, absent = counts[group], missing[group]
-        not_yet = (f"{bp.in_words(absent)} of the Text tab's {text_tab[group]:,} {noun(group, text_tab[group])} "
-                   f"{'has' if absent == 1 else 'have'} no English run yet "
-                   f'(<a href="#{anchor("not-run", group)}">which, and why</a>)') if absent else \
-            f"each of the Text tab's {noun(group, text_tab[group])} has one"
-        rule = f"Since 5 November 2026 every Text tab setup also runs in English; {not_yet}."
+        """A group's copy of the lead: what was asked of how many of its setups, then the headline."""
+        count = counts[group]
         if not count:
-            return f"<div {shown(group)}><p>No {noun(group, 1)} has an English run yet. {rule}</p></div>"
-        links = [("chart-accuracy", "Accuracy"), ("chart-paired", "Paired test"), ("main-table", "Turkish vs English")]
-        links = [(anchor(base, group), text) for base, text in links]
-        if group != "chat":
-            links += [(base, text) for base, text, shown_here in (
-                ("against-d1-ultra", "Against d1-ultra", data.get("against_reference") and counts["decision"]),
-                ("dont-know", "I don't know", idk), ("dont-know-word", "Only the language differs", word_decision),
-                ("option-word", "The option's word", site.results.get("dont_know_option_word"))) if shown_here]
-        links += [(anchor("chart-cost", group), "Cost"), (anchor("chart-latency", group), "Latency")]
-        links += [(base, text) for base, text, shown_here in (
-            ("coverage", "Risk and coverage", data.get("coverage")), ("info", "Info", True), ("languages", "Languages", True))
-            if shown_here]
-        nav = "".join(f'<a href="#{target}">{esc(text)}</a>' for target, text in links)
-        return (f"<div {shown(group)}><p>{kept} of the Text tab's {reading} reading questions, translated into English by a "
-                f"model, asked of {bp.in_words(count)} {noun(group, count)}"
-                + (f" ({split})" if group == "all" else "")
-                + " as on the Text tab, each compared with its own Turkish run on the same questions. "
-                f"{rule} No person checked the translations: a limit of this test (<a href=\"#method\">Our method</a>). "
-                "This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its "
-                f'numbers.</p>{headline(site, data, group)}<nav class="face-nav" aria-label="On this page">{nav}</nav></div>')
+            return (f'<div {shown(group)}><p>No {noun(group, 1)} has an English run yet (<a href="#{anchor("not-run", group)}">'
+                    "which, and why</a>).</p></div>")
+        return (f"<div {shown(group)}><p>{kept} of the Text tab's {reading} reading questions, translated into English, "
+                f"asked of {bp.in_words(count)} {noun(group, count)}" + (f" ({split})" if group == "all" else "")
+                + f", each compared with its own Turkish run.</p>{headline(site, data, group)}</div>")
 
     def copies(render: Callable[[str], str]) -> str:
         return "".join(render(group) for group in GROUPS if counts[group])
@@ -2128,6 +2150,7 @@ def build(site: Site) -> dict[str, str]:
       <p class="eyebrow">Turkish vs English</p>
       <h1>The Text tab's reading questions, in Turkish and in English</h1>
       {"".join(lead(group) for group in GROUPS)}
+      {limit_note(translator_name, method)}{experiments_note(site, PATH)}
     </section>
     <section class="measure" id="accuracy" aria-label="Accuracy">{copies(lambda group: face(site, data, group))}{against_block}</section>
     {copies(lambda group: main_table(site, data, group))}
@@ -2139,7 +2162,7 @@ def build(site: Site) -> dict[str, str]:
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, the setups without an English run and our method{", then the same with “I don't know”" if idk else ""}</span></summary>
     <section class="card" id="about">
       <h2>About this test</h2>
-      <p>Since 5 November 2026 every setup of the Text tab also runs in English, decision models and chat models alike, each with its Text tab run's settings and compared with that run. {bp.opening_count(family)} of the Text tab's {text_tab["all"]:,} setups have an English run so far, {split}; the other {bp.in_words(missing["all"])} are listed under <a href="#results">Results</a> with the reason each has none yet.</p>
+      <p>Since 5 November 2026 every setup of the Text tab also runs in English, decision models and chat models alike, each with its Text tab run's settings and compared with that run. {bp.opening_count(family)} of the Text tab's {text_tab["all"]:,} setups have an English run so far, {split}; the other {bp.in_words(missing["all"])} are listed under <a href="#results">Results</a> with the reason each has none yet. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       <p>The Text tab's reading questions ({esc(units_text(record))}; the grammar questions are left out) were translated into English by {esc(translator_name)}. The same model flagged the questions whose answer depends on Turkish wording; the {flagged} flagged questions are left out and the other {kept} kept. Each of the {bp.in_words(family)} English setups answered the kept questions in English and is compared with its own Text tab run on the same {kept} questions.</p>
       <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (the comparison's numbers, under <code>english_reading</code>), <a href="{rel(PATH, "answers.json")}" download>answers.json</a> (each English run's answers, under <code>english_runs</code>), {download} (the translator, its prompts, the flags, the question units and each question's hash of its English text; no question text) and {ids_download} (the {kept} kept questions' IDs, one per line).</p>
     </section>

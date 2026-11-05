@@ -1,13 +1,16 @@
 """Page images (vision/), the site's second tab: the questions that point at underlined or numbered words on
 the printed page, asked as text (A), as a picture of the page only (B), as both (C) and as each OCR model's reading of the
 picture (D), from vision.json. vision.json holds aggregate numbers and each answer's pick and option probabilities; no
-question text, picture or OCR text.
+question text, picture or OCR text. Under the intro, the four inputs drawn on a sample question written for the page
+(inputs_sample), then the charts, the leaderboards and the OCR models' table; Info holds what we found and the method.
 
 The leaderboard keeps decision models and other models apart (page_config.json's rule, Site.decision), and within each,
 the image models ranked by B, then the text-only models ranked by their best OCR route. A condition vision.json does not
 hold reads "Not available" with its reason from the model's "missing"; a row without the result it is ranked by follows
 the ranked rows, in vision.json's order. model_table() also gives a model page its row. findings() puts the results in
-words, computed from vision.json when the site is built."""
+words, computed from vision.json when the site is built. Every model here is a decision model (the build stops
+otherwise), so the models' charts, tables and findings show for the view bar's all and decision groups (data-models)
+and the chat group shows a note instead; the OCR models' parts show in every group."""
 
 from __future__ import annotations
 
@@ -17,7 +20,7 @@ from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import ROOT, Site, esc, hbars, interval, pct, rank_fill, rel, scale_legend
+from sitebuild.site import DECISION_ONLY, ROOT, Site, chat_note, esc, hbars, interval, pct, rank_fill, rel
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -161,14 +164,18 @@ def not_run(items: list[dict[str, Any]]) -> str:
 
 
 def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
+    """The decision models' leaderboard (shown for the all and decision groups of the view bar), or the other models'
+    (for the all group: the chat group shows the page's chat note instead, as build() stops on any chat model here)."""
     models = [model for model in data["models"] if site.decision(model) == decision]
     skipped = [item for item in data["skipped"] if site.decision(item) == decision]
     title = "Decision models" if decision else "Other models: chat and general models"
+    marks = DECISION_ONLY if decision else 'data-models="all"'
+    start = f'    <section class="card" id="{"decision" if decision else "other"}" {marks}>\n      <h2>{title}</h2>\n      '
     if not models:
         empty = "No chat or general model has been run on the page images yet." if not decision else "No decision model has been run on the page images yet."
-        return f'    <section class="card">\n      <h2>{title}</h2>\n      <p class="note">{empty}</p>{not_run(skipped)}\n    </section>'
+        return f'{start}<p class="note">{empty}</p>{not_run(skipped)}\n    </section>'
     groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
-    return f'    <section class="card" id="{"decision" if decision else "other"}">\n      <h2>{title}</h2>\n      {groups}{not_run(skipped)}\n    </section>'
+    return f"{start}{groups}{not_run(skipped)}\n    </section>"
 
 
 def ocr_table(data: dict[str, Any]) -> str:
@@ -503,6 +510,42 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     return first + second + third + fourth + fifth
 
 
+# A sample question written for the page, never one of the benchmark's (the site publishes no question text; its
+# sentence and stem are in no question of questions-v2.sqlite): an underlined word as the bank marks it (<u>…</u>), the
+# stem and the options; and its English for the caption.
+SAMPLE_LINES = ("Kedimiz pencerenin önünde <u>sessizce</u> uyuyordu.", "Bu cümlede altı çizili sözcüğün türü nedir?",
+                "A) İsim  B) Sıfat  C) Zarf  D) Fiil  E) Zamir")
+SAMPLE_ENGLISH = "“Our cat was sleeping quietly in front of the window.” What word class is the underlined word?"
+
+
+def inputs_sample(data: dict[str, Any]) -> str:
+    """The four inputs (A, B, C, D) drawn on SAMPLE_LINES: the text as the models get it, with its markup; a picture
+    of it as printed (in HTML, a page's colours in both themes); both; and an OCR model's text, its underline kept or
+    lost as the OCR models' kept share of underlined words allows (vision.json, the human-verified text)."""
+    kept = [item["verified"]["marked_in_text_sent"]["underlined"] for item in data["ocr"]["models"].values()]
+    shares = [entry["marked"] / entry["spans"] for entry in kept]
+    lost = min(shares) < 1
+    text = f'<pre class="input-text">{esc(chr(10).join(SAMPLE_LINES))}</pre>'
+    picture = ('<div class="input-page" role="img" aria-label="A picture of the sample question as printed, its word '
+               'sessizce underlined">' + "".join(f"<p>{line}</p>" for line in SAMPLE_LINES) + "</div>")
+    ocr_lines = [line.replace("<u>", "").replace("</u>", "") if lost else line for line in SAMPLE_LINES]
+    ocr = f'<pre class="input-text">{esc(chr(10).join(ocr_lines))}</pre>'
+    low, high = pct(min(shares), 0), pct(max(shares), 0)
+    ocr_note = (f"Here the underline is lost; the OCR models kept {low} to {high} of underlined words."
+                if lost else f"The OCR models kept {low} to {high} of underlined words.")
+    panels = (
+        ("A · text only", "The question as text, as in the Text tab, with the bank's markup.", text),
+        ("B · image only", "A picture of the question cut from the book's page, alone.", picture),
+        ("C · text plus image", "A's text, then the picture.", text + picture),
+        ("D · OCR route", f"One OCR model's text of the picture, for each of {len(OCR_NAMES)} OCR models; the most accurate "
+                          f"is the best OCR route. {ocr_note}", ocr),
+    )
+    items = "".join(f'<li><p class="input-head"><strong>{esc(title)}</strong></p>{content}<p class="small">{esc(note)}</p></li>'
+                    for title, note, content in panels)
+    return ('<figure class="inputs"><figcaption>The four inputs, on a sample question we wrote for this page, not one of '
+            f'the benchmark\'s ({esc(SAMPLE_ENGLISH)})</figcaption><ol class="input-list">{items}</ol></figure>')
+
+
 def face(site: Site, data: dict[str, Any]) -> str:
     """The tab's face: four chart cards, each with a line saying which way is better, every number from vision.json: the
     picture alone (B) against the text (A), the text plus the picture (C) against the text, the best OCR route against the
@@ -520,9 +563,16 @@ def face(site: Site, data: dict[str, Any]) -> str:
         run = site.by_id.get(model["a_run"])
         return rel(PATH, site.model_path(run)) if run else None
 
-    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str) -> str:
-        return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
+    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, marks: str = DECISION_ONLY) -> str:
+        return (f'<figure class="panel chart-card" id="{anchor}" {marks}><div class="chart-head"><h2>{esc(title)}</h2>'
                 f'<p class="chart-sub">{esc(sub)}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
+
+    def colour_scale(low: float, high: float) -> str:
+        """The legend of bars coloured by accuracy (the ranking scale between this chart's lowest and highest), which
+        says that the colour is not the model family, as it is on the home page's charts."""
+        return ('<span class="scale-legend colour-scale"><strong>Colour: accuracy, not the model family.</strong> '
+                f'<span>Lowest {pct(low)}</span><i class="ramp wide" style="background:linear-gradient(to right, '
+                f'{", ".join(stops)})" aria-hidden="true"></i><span>highest {pct(high)} (higher is better)</span></span>')
 
     marker = ' <span><i class="swatch swatch-marker"></i>The same model with the text (A)</span>'
     image = [model for model in data["models"] if all(label in model["conditions"] for label in ("A", "B", "C"))]
@@ -534,7 +584,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
           "bars": [{"value": acc(model, "B"), "colour": rank_fill(stops, acc(model, "B"), low, high)}],
           "title": f"{name(model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text"}
          for model in by_b],
-        scale_legend(stops, pct(low), pct(high)) + marker)
+        colour_scale(low, high) + marker)
     by_c = sorted(image, key=lambda model: -acc(model, "C"))
     second = card(
         "chart-both", "The text plus the picture (C)", "Accuracy with the picture after the text, and with the text alone · higher is better",
@@ -555,7 +605,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
           "bars": [{"value": share, "colour": rank_fill(stops, share, min(shares), max(shares))}],
           "title": f"{name(model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text"}
          for (model, label, _), share in zip(routes, shares)],
-        scale_legend(stops, pct(min(shares)), pct(max(shares))) + marker + same)
+        colour_scale(min(shares), max(shares)) + marker + same)
     kept = []
     for key, item in data["ocr"]["models"].items():
         sent = item["verified"]["marked_in_text_sent"]
@@ -568,7 +618,8 @@ def face(site: Site, data: dict[str, Any]) -> str:
           "bars": [{"value": underlined, "kind": "lead"}, {"value": numbered, "kind": "base"}],
           "title": f"{OCR_NAMES[key]}: {pct(underlined)} of the underlined words and {pct(numbered)} of the numbered words kept"}
          for key, underlined, numbered in kept],
-        '<span><i class="swatch swatch-lead"></i>Underlined words</span> <span><i class="swatch swatch-base"></i>Numbered words</span>')
+        '<span><i class="swatch swatch-lead"></i>Underlined words</span> <span><i class="swatch swatch-base"></i>Numbered words</span>',
+        marks="")
     return f'<section class="charts" aria-label="Charts">{first}{second}{third}{fourth}</section>'
 
 
@@ -580,6 +631,10 @@ def build(site: Site) -> dict[str, str]:
     if undecided:
         raise SystemExit("vision.json: decide whether each of these is a decision model, then list it under its provider in "
                          "page_config.json's mixed_providers: " + ", ".join(f"{model} ({provider})" for provider, model in undecided))
+    chat = [model["name"] for model in data["models"] if not site.decision(model)]
+    if chat:
+        raise SystemExit("vision.json: chat or general models, which the page's charts and the view bar's chat group do not "
+                         "show yet (give the face one copy per group, as english_view.py does): " + ", ".join(chat))
     subset = data["subset"]
     reasons = subset["by_reason"]
     questions = f"{subset['questions']:,}"
@@ -595,23 +650,12 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Page images</p>
       <h1>{questions} questions with underlined or numbered words</h1>
-      <p>The Page images benchmark contains the {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways:</p>
-      <ul>
-        <li><strong>A · text only</strong>: the question as text, as in the Text tab.</li>
-        <li><strong>B · image only</strong>: a picture of the question cut from the book's page, and nothing else.</li>
-        <li><strong>C · text plus image</strong>: A's text with the picture after it.</li>
-        <li><strong>D · OCR route</strong>: one OCR model's reading of the picture, as text, for each of {len(OCR_NAMES)} OCR models. The best OCR route is the one with the highest accuracy.</li>
-      </ul>
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#info">Info</a></nav>
+      {chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
+      <p>The {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
+      {inputs_sample(data)}
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision">Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
     </section>
     {face(site, data)}
-    <details class="info info-details" id="info">
-      <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The tables, what we found and how the benchmark was run</span></summary>
-    <section class="card">
-      <h2>About this test</h2>
-      <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}), with its 95% interval under it in the tables. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
-      <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's pick and option probabilities; no question text, page image or OCR text).</p>
-    </section>
 {leaderboard(site, data, True)}
 {leaderboard(site, data, False)}
     <section class="card" id="ocr">
@@ -619,7 +663,14 @@ def build(site: Site) -> dict[str, str]:
       <p class="note">The error rates and counts use only human-verified question text: {esc(data["ocr"]["verified"].removeprefix("the human-verified subset: "))}. Each OCR model's text is compared with that text. Character error rate: edits over the reference's characters, summed over the {verified} crops. Turkish letter error rate: edits of the same alignment whose reference or OCR character is one of ı İ ş Ş ğ Ğ ç Ç ö Ö ü Ü, over the reference's count of those letters. Kept: an underlined word still marked, or a numbered word's numeral still there, in the text the models received.</p>
       {ocr_table(data)}
     </section>
-    <section class="card" id="findings">
+    <details class="info info-details" id="info">
+      <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">What we found, the measure and how the benchmark was run</span></summary>
+    <section class="card">
+      <h2>About this test</h2>
+      <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}), with its 95% interval under it in the tables.</p>
+      <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's pick and option probabilities; no question text, page image or OCR text).</p>
+    </section>
+    <section class="card" id="findings" {DECISION_ONLY}>
       <h2>What we found</h2>
       {findings(site, data)}
     </section>

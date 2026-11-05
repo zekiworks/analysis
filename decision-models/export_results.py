@@ -56,13 +56,14 @@ ANSWER_KEYS = {
 # How each provider was reached and paid for. Scoring providers rate the supplied options instead of generating
 # an answer, so they have no reasoning setting. billing: "api" (billed per token), "subscription" (a flat plan;
 # the cost is what the same tokens cost on the API), "free" (a free tier) or "local" (our GPUs). A run's price comes
-# from the report (PRICES in benchmark_ollama.py), and its cost basis from the price: a free-tier run is estimated at
-# the list price of the model it called, and a local run at its maker's list price for the same model where one
-# exists (our hardware cost is not measured); a local run without one has no cost. A model's "access" and "billing"
-# in MODELS replace its provider's.
-# The cost basis each billing needs of a priced run (the price's applies_to), and the basis results.json gives it.
-COST_BASES = {"api": ("billed", "api"), "subscription": ("billed", "subscription"), "free": ("free tier", "free tier"),
-              "local": ("maker", "maker")}
+# from the report (PRICES, GPU_RATE and GPU_TIME in benchmark_ollama.py), and its cost basis from the price: a free-tier
+# run is estimated at the list price of the model it called, and a local run at its maker's list price for the same
+# model ("maker"), else at a public host's list price for the same weights ("weights"), else from its GPU time at a
+# public on-demand GPU price ("gpu"); all three are estimates, not what our hardware cost. A local run the runner could
+# not estimate (no request time) has no cost. A model's "access" and "billing" in MODELS replace its provider's.
+# The cost bases each billing allows a priced run, by the price's applies_to: the basis results.json gives it.
+COST_BASES = {"api": {"billed": "api"}, "subscription": {"billed": "subscription"}, "free": {"free tier": "free tier"},
+              "local": {"maker": "maker", "weights": "weights", "gpu": "gpu"}}
 PROVIDERS: dict[str, dict[str, Any]] = {
     "ollama": {"access": "Ollama, self-hosted", "scoring": False, "billing": "local"},
     "vllm": {"access": "vLLM, self-hosted", "scoring": False, "billing": "local"},
@@ -795,11 +796,14 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             raise ValueError(f"{label}: a cost needs its price, and a price its cost")
         if cost is None and billing != "local":
             raise ValueError(f"{label}: billed as {billing!r} without a price")
-        applies, cost_basis = COST_BASES[billing]
-        if cost is not None and record["price"].get("applies_to", "billed") != applies:
-            raise ValueError(f"{label}: billed as {billing!r}, but its price applies to {record['price'].get('applies_to')!r}")
+        applies = None if cost is None else record["price"].get("applies_to", "billed")
+        if cost is not None and applies not in COST_BASES[billing]:
+            raise ValueError(f"{label}: billed as {billing!r}, but its price applies to {applies!r}")
+        cost_basis = None if cost is None else COST_BASES[billing][applies]
         if billing == "local" and "hardware" not in model:
             raise ValueError(f"{label}: runs on our GPUs; add its hardware to MODELS")
+        if applies == "gpu" and not model["hardware"].startswith(f"{record['price']['gpus']} × "):
+            raise ValueError(f"{label}: its GPU-time price counts {record['price']['gpus']} GPUs, its hardware {model['hardware']!r}")
         groups = {
             name: {"questions": record["groups"][name]["questions"], "correct": record["groups"][name]["correct"]}
             for name in GROUPS
@@ -833,12 +837,14 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "median_request_seconds": record.get("median_request_seconds"),
                 "p90_request_seconds": record.get("p90_request_seconds"),
                 "billing": billing,
-                # What the run's tokens cost at the list price in `prices`: the service's own, the list price of the
-                # model a free-tier run called, or for a local run its maker's list price for the same model; None for
-                # a local run whose maker lists none. cost_basis says which ("api", "subscription", "free tier",
-                # "maker" or None); requests counts the run's requests, for a price that bills tokens per request.
+                # The run's estimated cost at the price in `prices`: its tokens at the service's own list price, at the
+                # list price of the model a free-tier run called, or for a local run at its maker's list price for the
+                # same model or a public host's for the same weights; else a local run's request time x its GPUs at a
+                # public GPU-hour price (request_seconds). cost_basis says which ("api", "subscription", "free tier",
+                # "maker", "weights", "gpu"; None only for a local run without a request time); requests counts the
+                # run's requests, for a price that bills tokens per request.
                 "api_equivalent_usd": cost,
-                "cost_basis": None if cost is None else cost_basis,
+                "cost_basis": cost_basis,
                 # An upper-bound estimate (upper_bound_cost): web grounding's search fee counted for every request.
                 "cost_upper_bound": upper_bound_cost(record),
                 "requests": record.get("requests"),
@@ -2007,14 +2013,16 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
         turkish = paired[0]
         first = found[0]
         # Cost and time per request of the first English run, beside its Text tab run's (Ümit via Zeki #1189): the run's
-        # tokens at the price the runner records with it (its cost basis from its billing, as for a main run), and its
+        # tokens at the price the runner records with it (its cost basis from its billing and the price, as for a main
+        # run; a GPU-time estimate also gives the request time it counts), and its
         # median and 90th-percentile time per request as the runner measured it.
         billing = model_info(provider, model, mode).get("billing", PROVIDERS[provider]["billing"])
         cost, price = first.get("cost_usd"), first.get("price")
         if (cost is None) != (price is None):
             raise ValueError(f"{label}: a cost needs its price, and a price its cost")
-        if price is not None and price.get("applies_to", "billed") != COST_BASES[billing][0]:
-            raise ValueError(f"{label}: billed as {billing!r}, but its price applies to {price.get('applies_to')!r}")
+        applies = None if price is None else price.get("applies_to", "billed")
+        if price is not None and applies not in COST_BASES[billing]:
+            raise ValueError(f"{label}: billed as {billing!r}, but its price applies to {applies!r}")
         tokens = {kind: first.get(kind, 0) for kind in TOKEN_KINDS}
         text_cost = turkish["api_equivalent_usd"]
         text_latency = turkish.get("latency")
@@ -2030,9 +2038,10 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
                 "turkish_runs": repeats.get(turkish["run"], [turkish["run"]]),
                 "cost": {
                     "english": None if cost is None else {
-                        "usd": cost, "per_1000": 1000 * cost / first["evaluated"], "basis": COST_BASES[billing][1],
+                        "usd": cost, "per_1000": 1000 * cost / first["evaluated"], "basis": COST_BASES[billing][applies],
                         "billing": billing, "tokens": tokens, "requests": first.get("requests"), "price": price,
                         "upper_bound": upper_bound_cost(first),
+                        **({"request_seconds": first["timed_seconds"]} if applies == "gpu" else {}),
                     },
                     "turkish": None if text_cost is None else {
                         "usd": text_cost, "per_1000": 1000 * text_cost / turkish["answered_questions"], "basis": turkish["cost_basis"],

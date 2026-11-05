@@ -156,13 +156,17 @@
     "local": {"access": "Our own hardware", "cost_basis": "No dollar estimate; see hardware and time"}
   },
   "first_cost_marks": {
-    "about": "A saving whose first model ran on our own hardware, by how its cost was counted: 'local' (no maker's price; the cost is left out) and 'maker' (the maker's list price for the same model). The marker after the saving, its tooltip, and the note under the table (shown after the marker, and only when the marker is in the table). The 'maker' marker also follows such a model's own cost. 'upper' marks, before the value, every cost that is an upper-bound estimate (a run's cost_upper_bound: web grounding's search fee counted for every request), with its note wherever such a cost shows.",
+    "about": "A saving whose first model ran on our own hardware, by how its cost was counted: 'local' (no estimate; the cost is left out) and 'maker' (the maker's list price for the same model). The marker after the saving, its tooltip, and the note under the table (shown after the marker, and only when the marker is in the table). The 'maker' marker also follows such a model's own cost. 'upper' marks, before the value, every cost that is an upper-bound estimate (a run's cost_upper_bound: web grounding's search fee counted for every request), with its note wherever such a cost shows. 'weights' and 'gpu' (no marker) explain the two other estimates of a setup on our hardware, by its cost_basis: a public host's list price for the same weights, and the run's GPU time at a public on-demand price per GPU-hour; a cost tooltip gives the tip, and a list showing such a cost gives the note once.",
     "local": {"mark": "†", "tip": "Leaves out the first model’s hardware cost, which we have not estimated.",
               "note": "Leaves out the first model’s hardware cost, which we have not estimated."},
     "maker": {"mark": "§", "tip": "Counts the first model at its maker’s list price for the same model; our hardware cost is not measured.",
               "note": "Counts the first model at its maker’s list price for the same model; our hardware cost is not measured."},
     "upper": {"mark": "≤", "tip": "Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches.",
-              "note": "Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches."}
+              "note": "Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches."},
+    "weights": {"tip": "Estimated at a public host's list price for the same weights, from our recorded tokens; it ran on our GPUs, so this is an API-equivalent estimate, not what it cost us.",
+                "note": "On our GPUs, estimated at a public host's list price for the same weights (the host, the date read and any precision difference are on each setup's page): an API-equivalent estimate, not measured spending."},
+    "gpu": {"tip": "Estimated from GPU time: the run's request time x the GPUs its server held x Runpod's on-demand price for an RTX PRO 6000, $2.49 per GPU-hour (read 5 November 2026). A cloud-equivalent estimate, not measured spending.",
+            "note": "On our GPUs with no public price for the same weights, estimated from GPU time: the run's request time x the GPUs its server held x Runpod's on-demand price for an RTX PRO 6000, $2.49 per GPU-hour (read 5 November 2026): a cloud-equivalent estimate, not measured spending."}
   },
   "rank_scale": {
     "about": "The colours of a decision model's bar in the single-series charts of the Hallucination, Page images and Artificial Analysis pages, from the worst decision model on the chart to the best: dark blue, turquoise, green, yellow. The Topics heat map and the link preview use the same colours. The home page's charts, English reading and English and Turkish colour each setup by its model family (model_families).",

@@ -1,6 +1,8 @@
 """English reading (english/): the Text tab's setups on its kept reading questions in English, from results.json's
-english_reading only. Its face, under the view bar: a short lead, then the four parts row 3 of the view bar links to:
-Accuracy (#accuracy), Non-hallucination (#non-hallucination), Cost (#cost) and Latency (#latency), each chart in the
+english_reading only. Its face, under the view bar: a one-sentence lead and the translation check's limit (no links row:
+the view bar's row 3 links to the parts), then the four parts row 3 links to: Accuracy (#accuracy, the language
+difference first, as on turkish-vs-english/, then English accuracy), Non-hallucination (#non-hallucination), Cost (#cost)
+and Latency (#latency), each chart in the
 site's static style (Site hbars, each bar in its model family's colour, as the home page's charts), and one table ranked
 by English accuracy with the four measures; the charts and the table come once per group of the view bar (data-models,
 toggled by site.js; the all group is the one shown without JavaScript, every setup ranked together), counts and
@@ -12,12 +14,14 @@ Turkish is turkish-vs-english/. It needs no JavaScript and changes no number of 
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
-from sitebuild.english_reading import (DECISION_ONLY, GROUPS, PATH as COMPARISON, anchor, chat_note, check_dont_know,
-                                       cost_note, english_only, group_models, label, measure_card, measure_cell,
-                                       measure_heads, missing_note, noun, shown)
-from sitebuild.site import NOT_MEASURED, Site, esc, family_legend, hbars, pct, rel
+from sitebuild.english_reading import (PATH as COMPARISON, RECORD, TRANSLATORS, anchor, check_dont_know, cost_note,
+                                       difference_card, english_only, experiments_note, group_models, label, limit_note,
+                                       measure_card, measure_cell, measure_heads, missing_note, noun)
+from sitebuild.site import (DECISION_ONLY, GROUPS, NOT_MEASURED, Site, chat_note, cost_per, cost_unit_in, esc,
+                            family_legend, hbars, pct, rel, shown)
 from sitebuild.vision import cell, joined
 
 PATH = "english/"
@@ -124,7 +128,8 @@ def build(site: Site) -> dict[str, str]:
     def part(key: str, title: str, cards: str) -> str:
         return f'<section class="measure" id="{key}" aria-label="{title}">{cards}</section>'
 
-    charts = (part("accuracy", "Accuracy", "".join(accuracy_card(group) for group in GROUPS if counts[group]))
+    charts = (part("accuracy", "Accuracy", "".join(difference_card(site, data, group, href, shown(group)) + accuracy_card(group)
+                                                   for group in GROUPS if counts[group]))
               + part("non-hallucination", "Non-hallucination", note + rates)
               + "".join(part(key, title, "".join(measure_card(site, data, group, key, ("english",), href, method)
                                                  for group in GROUPS if counts[group]))
@@ -158,7 +163,8 @@ def build(site: Site) -> dict[str, str]:
                     f'title="{esc(" · ".join(filter(None, (site.detail(run), f"English run {model['run']}"))))}">'
                     f'{esc(label(site, model))}</a></td>')
             rows.append(f"<tr>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
-        head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{esc(note)}</span></th>' for text, note in heads)
+        head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{cost_unit_in(esc(note))}</span></th>'
+                       for text, note in heads)
         rate_note = (f" English non-hallucination: “{esc(option)}” among the answers that were not right, in the decision "
                      "model's first English run with it offered as a sixth option; Not measured: no such run"
                      + (", as for every chat model, asked without the option." if group == "all" else ".")) if with_rate else ""
@@ -169,7 +175,7 @@ def build(site: Site) -> dict[str, str]:
                 f'<p class="note">Ranked by English accuracy, highest first: right answers of the {total:,} kept reading '
                 "questions in each setup's first English run (an invalid answer counts as not right). Turkish accuracy: the "
                 f"setup's Text tab run on the same {total:,} questions, for context; the paired comparison is on "
-                f'<a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ per 1,000 questions, with its '
+                f'<a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ {cost_per()}, with its '
                 "basis under it; English latency: the median time per request, with the request size and "
                 "the requests in flight under it, each from the first English run (Cost and Latency above)."
                 + (" " + missing_note(site, group_models(site, data, group), ("english",))).rstrip()
@@ -179,26 +185,21 @@ def build(site: Site) -> dict[str, str]:
     def lead(group: str) -> str:
         count = counts[group]
         if not count:
-            return (f"<div {shown(group)}><p>No {noun(group, 1)} has an English run yet: the comparison with Turkish, and "
-                    f'which setups are still to run, are on <a href="{comparison}">English and Turkish</a>.</p></div>')
+            return (f"<div {shown(group)}><p>No {noun(group, 1)} has an English run yet: the setups still to run are on "
+                    f'<a href="{comparison}">English and Turkish</a>.</p></div>')
         split = (f" ({counts['decision']} {noun('decision', counts['decision'])} and {counts['chat']} "
                  f"{noun('chat', counts['chat'])})") if group == "all" else ""
-        links = [(anchor("chart-accuracy", group), "Accuracy")]
-        if group != "chat":
-            links.append(("chart-non-hallucination", "Non-hallucination"))
-        links += [(anchor("chart-cost", group), "Cost"), (anchor("chart-latency", group), "Latency"),
-                  (anchor("table", group), "The table")]
-        nav = "".join(f'<a href="#{target}">{text}</a>' for target, text in links)
-        return (f"<div {shown(group)}><p>The Text tab's {total:,} kept reading questions, translated into English, answered "
-                f"by {count} {noun(group, count)}{split}: each one's first English run, with its Text tab settings. The "
-                f'comparison with the same setups in Turkish, and the setups still to run, are on <a href="{comparison}">'
-                f'English and Turkish</a>.</p><nav class="face-nav" aria-label="On this page">{nav}</nav></div>')
+        return (f"<div {shown(group)}><p>The Text tab's {total:,} kept reading questions in English, answered by {count} "
+                f"{noun(group, count)}{split} with their Text tab settings. The paired comparison with Turkish is on "
+                f'<a href="{comparison}">English and Turkish</a>.</p></div>')
 
     comparison = rel(PATH, COMPARISON)
+    translator = TRANSLATORS[json.loads(RECORD.read_text(encoding="utf-8"))["translator"]["model"]]
     body = f"""    <section class="card">
       <p class="eyebrow">English reading</p>
       <h1>The reading questions in English</h1>
       {"".join(lead(group) for group in GROUPS)}
+      {limit_note(translator, method)}{experiments_note(site, PATH)}
     </section>
     <div class="charts">{charts}</div>
     <p class="note">Calibration is not measured in English.</p>

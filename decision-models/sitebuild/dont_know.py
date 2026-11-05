@@ -1,12 +1,14 @@
 """Hallucination (dont-know/), the site's third tab: the Text tab's questions with one more option after each
 question's own, "Bilmiyorum" ("I don't know"), from results.json's `dont_know` and page_config.json's `dont_know` (the
-models not run, with their reasons). Its face, as the home page's, is charts (face()): the non-hallucination rate, the
-same rate with the option and held back by confidence, and accuracy with the option against accuracy with five options,
-as HTML bars (Site hbars). Under Info: the table (one row per model, from its first run, Answered and Wrong of answers
-first, ranked by non-hallucination rate, accuracy breaking ties; a model with more than one run shows the range over its
-runs), What we found and Our method. With results.json's `dont_know_same_answers`, a section compares the models held to
-the same number of answers (risk-coverage plots on the face, tables under Info). It needs no JavaScript. The tab ranks
-nothing on the Text tab and changes none of its numbers."""
+models not run, with their reasons). Its face, as the home page's, is charts (face()): first the answered share, the wrong
+share of the answers and the non-hallucination rate together, then the non-hallucination rate with the option and held
+back by confidence, and accuracy with the option against accuracy with five options, as HTML bars (Site hbars). Under
+Info: the table (one row per model, from its first run, Answered and Wrong of answers first, ranked by non-hallucination
+rate, accuracy breaking ties; a model with more than one run shows the range over its runs), What we found and Our
+method. With results.json's `dont_know_same_answers`, a section compares the models held to the same number of answers
+(risk-coverage plots on the face, tables under Info). It needs no JavaScript. The tab ranks nothing on the Text tab and
+changes none of its numbers. Every model here is a decision model (the build stops otherwise), so all but the intro
+shows for the view bar's all and decision groups (data-models) and the chat group shows a note instead."""
 
 from __future__ import annotations
 
@@ -16,7 +18,8 @@ import math
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import Site, esc, hbars, legend_mark, line_plot, marker_path, pct, rank_fill, rel, scale_legend
+from sitebuild.site import (DECISION_ONLY, Site, chat_note, esc, hbars, legend_mark, line_plot, marker_path, pct, rank_fill,
+                            rel, scale_legend)
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "dont-know/"
@@ -272,8 +275,9 @@ def headline(data: dict[str, Any], word: dict[str, Any] | None = None) -> str:
 
 def face(site: Site, data: dict[str, Any]) -> str:
     """The tab's face: four chart cards, each with a line saying which way is better, every number from results.json's
-    dont_know: the non-hallucination rate, that rate against confidence, the paired test of the two (vs_confidence) and
-    accuracy. A single-series bar takes the ranking scale between the models' worst and best values on its chart."""
+    dont_know: the answered share, the wrong share of the answers and the non-hallucination rate together, that rate
+    against confidence, the paired test of the two (vs_confidence) and accuracy. A single-series bar takes the ranking
+    scale between the models' worst and best values on its chart."""
     option = esc(data["option"])
     stops = site.config["rank_scale"]["stops"]
     total = data["questions"]
@@ -289,17 +293,30 @@ def face(site: Site, data: dict[str, Any]) -> str:
         return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
                 f'<p class="chart-sub">{sub}</p></div>{hbars(rows, **axis)}<p class="chart-legend">{legend}</p></figure>')
 
-    rates = [model["non_hallucination"] for model in rated]
-    worst, best = min(rates), max(rates)
+    def wrong_of(model: dict[str, Any]) -> float | None:
+        answered = model["right"] + model["wrong"]
+        return model["wrong"] / answered if answered else None
+
+    def shown_rate(value: float | None) -> str:
+        return "Not measured" if value is None else pct(value, digits)
+
+    measures = (("Answered", "base", lambda model: model["attempt_rate"]), ("Wrong of answers", "wrong", wrong_of),
+                ("Non-hallucination", "lead", lambda model: model["non_hallucination"]))
     first = card(
-        "chart-non-hallucination", "Non-hallucination rate",
-        f"“{option}” among the answers that were not right · higher is better",
-        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model), "text": pct(model["non_hallucination"], digits),
-          "bars": [{"value": model["non_hallucination"], "colour": rank_fill(stops, model["non_hallucination"], worst, best)}],
-          "title": f"{label(model)}: {model['dont_know']:,} “{data['option']}” of {model['dont_know'] + model['wrong']:,} not right"}
-         for model in rated],
-        scale_legend(stops, pct(worst, digits), pct(best, digits))
-        + f" <span>Read it with accuracy, below: a model that always chose “{option}” would rank first with no right answers.</span>")
+        "chart-non-hallucination", "Answered, wrong of answers and non-hallucination",
+        f"Each model's first run with “{option}” on the {total:,} questions: the share it answered with one of the question's "
+        f"own options (right + wrong of {total:,}; higher answers more), the share of those answers that were wrong (wrong / "
+        f"(right + wrong); lower is better) and the non-hallucination rate (“{option}” among the answers that were not "
+        "right; higher is better), in the table's order",
+        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+          "texts": [shown_rate(value(model)) for _, _, value in measures],
+          "bars": [{"value": value(model) or 0.0, "kind": kind} for _, kind, value in measures],
+          "title": f"{label(model)}: {model['right'] + model['wrong']:,} of {total:,} answered, {model['wrong']:,} of them "
+                   f"wrong; {model['dont_know']:,} “{data['option']}” of {model['dont_know'] + model['wrong']:,} not right"}
+         for model in models],
+        "".join(f'<span><i class="swatch swatch-{kind}"></i>{name}</span> ' for name, kind, _ in measures)
+        + f"<span>Read the three together: a model that always chose “{option}” would reach 100% non-hallucination with "
+        "no answers.</span>")
     second = card(
         "chart-confidence", "Saying “I don't know”, or held back by confidence",
         f"Each model's non-hallucination rate with “{option}”, and its five-option run held back by its own confidence at "
@@ -1731,10 +1748,12 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
+      {chat_note(f"Chat models: not measured yet (they were not asked with the “{option}” option). Every model on this tab is a decision model: its charts, table and method show under All models and Decision models.")}
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
-      {headline(data, against)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#option-word-confidence">“I don&#x27;t know” against confidence</a>' if against else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}{'<a href="#same-answers">The same number of answers</a>' if same else ""}{'<a href="#high-confidence">Answers at 95%+ confidence</a>' if high else ""}<a href="#info">Info</a></nav>
+      <div {DECISION_ONLY}>{headline(data, against)}
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Answered and non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#option-word-confidence">“I don&#x27;t know” against confidence</a>' if against else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}{'<a href="#same-answers">The same number of answers</a>' if same else ""}{'<a href="#high-confidence">Answers at 95%+ confidence</a>' if high else ""}<a href="#info">Info</a></nav></div>
     </section>
+    <div {DECISION_ONLY}>
     {face(site, data)}{english_option_face(site, english, site.results.get("dont_know_english_option")) if english else ""}{option_word_face(site, data, word) if word else ""}{vs_confidence_face(site, data, against) if against else ""}{rerun_face(site, data, rerun, glide) if rerun else ""}{same_face(site, same, families) if same else ""}{high_face(site, high) if high else ""}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, what we found and our method</span></summary>
@@ -1779,7 +1798,8 @@ def build(site: Site) -> dict[str, str]:
       <h3>Repeats</h3>
       <p>One full run per model. A model whose repeated text runs changed answers gets five runs with the option. Those runs form a repeat set of their own and are never mixed with the Text tab's runs. The table shows the first run; the range covers all of them, and the changed answers are the scored questions whose answer differs between the runs.</p>
     </section>{english_option_info(site, english) if english else ""}{option_word_info(site, data, word) if word else ""}{vs_confidence_info(site, data, against) if against else ""}{rerun_info(site, data, rerun, glide) if rerun else ""}{same_info(site, same, families) if same else ""}
-    </details>"""
+    </details>
+    </div>"""
     return {PATH: site.page(PATH, "Hallucination",
                             f"The Text tab's {total} questions with a sixth option, “{data['option']}” (I don't know): accuracy, "
                             "attempt rate and non-hallucination rate of the most accurate decision models.", body)}

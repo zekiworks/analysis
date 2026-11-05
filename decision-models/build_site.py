@@ -47,8 +47,8 @@ ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
 from sitebuild.dont_know import ranked as dont_know_ranked  # noqa: E402
-from sitebuild.site import (NOT_MEASURED, ROUTE_LLMS, Site, asset, cost_missing, family_legend, hbars, pct,  # noqa: E402
-                            route_labels, run_families, topbar)
+from sitebuild.site import (NOT_MEASURED, ROUTE_LLMS, Site, asset, cost_missing, cost_unit_in, cost_value, experiments,  # noqa: E402
+                            family_icon, family_legend, hbars, pct, route_labels, run_families, topbar)
 
 PAGE = ROOT / "index.html"
 # The home page's data, from results.json, which stays the published download: HOME, preloaded, holds what v3.js's
@@ -88,18 +88,6 @@ def sample_label(run: dict[str, Any]) -> str | None:
     """"Measured on a sample (N questions)" for a latency taken from the setup's repeats on a fixed sample, else None."""
     latency = run.get("latency") or {}
     return f"Measured on a sample ({bp.count(latency['questions'])} questions)" if latency.get("source") == "sample" else None
-
-
-def experiments(data: Data) -> str:
-    """The home page's line on the experiments beside the ranking: the web grounding page, when results.json has it,
-    and the PWS-Decisions page, when pws-decisions.json is there."""
-    grounding = data.results.get("web_grounding")
-    pws = ('<a href="pws-decisions/">PWS-Decisions</a>, the decision models on Parallel\'s benchmark of dated web facts.'
-           if (ROOT / "pws-decisions.json").exists() else "")
-    if grounding is None:
-        return f"Beside the ranking: {pws}" if pws else ""
-    return (f'Beside the ranking: <a href="web-grounding/">Web grounding</a>, {bp.esc(grounding["names"]["off"])} against '
-            f'{bp.esc(grounding["names"]["on"])}.' + (f" {pws}" if pws else ""))
 
 
 def not_measured_note(data: Data) -> str:
@@ -400,8 +388,10 @@ def home_data(data: Data) -> None:
 def non_hallucination(site: Site) -> str:
     """The home page's Non-hallucination part (#non-hallucination, row 3 of the view bar), in static HTML: the
     Hallucination tab's models (results.json dont_know, decision models only) in that tab's order, each bar its
-    non-hallucination rate with the option in its model family's colour, then its attempt rate, both as that tab writes
-    them; for the chat group, whose models were not asked with the option, a note instead, under the same one heading."""
+    non-hallucination rate with the option in its model family's colour, then in columns of their own its attempt rate
+    (the share of the questions answered, as that tab writes them) and its error rate among its answers (wrong over
+    right + wrong); for the chat group, whose models were not asked with the option, a note instead, under the same one
+    heading."""
     data = site.results["dont_know"]
     digits, option, total = site.config["percent_digits"], data["option"], data["questions"]
     run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
@@ -410,21 +400,27 @@ def non_hallucination(site: Site) -> str:
     models = dont_know_ranked(data["models"])
     rated = [model for model in models if model["non_hallucination"] is not None]
     unrated = [site.row_name(run_of(model)) for model in models if model["non_hallucination"] is None]
+
+    def error(model: dict[str, Any]) -> str:
+        answered = model["right"] + model["wrong"]
+        return pct(model["wrong"] / answered, digits) if answered else NOT_MEASURED
+
     rows = [{"label": site.row_name(run_of(model)), "family": site.families[model["original_run"]]["name"], "href": site.model_path(run_of(model)),
-             "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['attempt_rate'], digits)}",
+             "texts": [pct(model["non_hallucination"], digits), pct(model["attempt_rate"], digits), error(model)],
              "bars": [{"value": model["non_hallucination"], "colour": site.families[model["original_run"]]["colour"]}],
              "title": f"{site.row_name(run_of(model))}: {model['dont_know']:,} “{option}” of "
                       f"{model['dont_know'] + model['wrong']:,} not right; {model['right'] + model['wrong']:,} of {total:,} "
-                      f"answered (run {model['run']})"}
+                      f"answered, {model['wrong']:,} of them wrong (run {model['run']})"}
             for model in rated]
     tab = '<a href="dont-know/">Hallucination tab</a>'
     chat_note = f"Chat models: not measured yet (they were not asked with the “{bp.esc(option)}” option)."
     return ('<figure class="panel chart-card" id="chart-non-hallucination"><div class="chart-head"><h2>Non-hallucination</h2>'
             f'<p class="chart-sub" data-models="all decision">“{bp.esc(option)}” among the answers that were not right, with it '
-            f"offered as a sixth option on the {total:,} questions, then the answered share (right + wrong of {total:,}): each "
-            f"of the {len(models)} decision models' first run with it · higher is better, read with the answered share</p></div>"
+            f"offered as a sixth option on the {total:,} questions; beside it the share answered (right + wrong of {total:,}) "
+            f"and the error rate among the answers (wrong of right + wrong): each of the {len(models)} decision models' first "
+            "run with it · higher non-hallucination is better, read with the share answered</p></div>"
             f'<div data-models="all decision"><p class="note" data-models="all">{chat_note}</p>'
-            f'{hbars(rows, head=("Non-hallucination · Answered", "Non-hall. · Ans."))}'
+            f'{hbars(rows, columns=[("Non-hallucination", "Non-hall."), ("Answered", "Ans."), ("Error rate (wrong / answered)", "Error")])}'
             f'<p class="chart-legend">{family_legend([site.families[model["original_run"]] for model in rated])} '
             "<span>A model that always chose the option would reach 100% with no right answers.</span>"
             + (f" <span>Not measured (neither a wrong answer nor “{bp.esc(option)}”): {bp.esc(', '.join(unrated))}.</span>"
@@ -433,6 +429,127 @@ def non_hallucination(site: Site) -> str:
             "</p></div>"
             f'<p class="note" data-models="chat" hidden>{chat_note} The rate exists for decision models only: see All models '
             f"or Decision models above, or the {tab}.</p></figure>")
+
+
+# The groups of the view bar's row 2 (?models=) the result cards cover, each in the words that name a card's scope.
+CARD_SCOPES = {"all": "all {n} setups", "decision": "the {n} decision-model setups", "chat": "the {n} chat-model setups"}
+
+
+def group_runs(data: Data, group: str) -> list[dict[str, Any]]:
+    """The setups of a view bar group: every setup, the decision models' or the chat models'."""
+    return [run for run in data.runs if group == "all" or data.decision(run) == (group == "decision")]
+
+
+def card_facts(data: Data, runs: list[dict[str, Any]]) -> dict[str, Any]:
+    """The result cards' facts for a group's setups, from results.json: the setups with the most right answers; the setups
+    that kept the most answers at the confidence threshold with none of them wrong, and how many setups kept more but got
+    some wrong; and the cheapest setup per 1,000 questions among those with a cost within 1 point of the best accuracy
+    (near), else among every setup with a cost."""
+    best = max(accuracy(run)[0] for run in runs)
+    kept = lambda run: run["confidence"]["sure"]["questions"]  # noqa: E731
+    sure = [run for run in runs if (run.get("confidence") or {}).get("sure")]
+    flawless = [run for run in sure if kept(run) and kept(run) == run["confidence"]["sure"]["correct"]]
+    most = max(map(kept, flawless), default=0)
+    # Within 1 point: at most 1 percentage point fewer right answers than the best, in whole answers.
+    near = [run for run in runs if 100 * (best - accuracy(run)[0]) <= accuracy(run)[1] and bp.per_thousand(run) is not None]
+    pool = near or [run for run in runs if bp.per_thousand(run) is not None]
+    return {
+        "best": best, "top": [run for run in runs if accuracy(run)[0] == best],
+        "most": most, "keepers": [run for run in flawless if kept(run) == most], "more": [run for run in sure if kept(run) > most],
+        "near": bool(near), "cheapest": min(pool, key=lambda run: (bp.per_thousand(run), -accuracy(run)[0])) if pool else None,
+    }
+
+
+def result_cards(data: Data, site: Site) -> str:
+    """The three result cards above the Accuracy chart, one set per view bar group (data-models; site.js shows the one in
+    view): the highest accuracy, the most answers kept at the confidence threshold with no observed mistakes, and the
+    lowest cost per 1,000 questions within 1 point of the best accuracy (or, if no such setup has a cost, the lowest
+    overall). Each card names its scope. card_checks tests the numbers against results.json."""
+    total, sure = data.results["questions"], pct(data.config["threshold"], 0)
+    sets = []
+    for group, scope in CARD_SCOPES.items():
+        runs = group_runs(data, group)
+        names = site.names(runs)
+        among = scope.format(n=bp.count(len(runs)))
+        facts = card_facts(data, runs)
+
+        def setups(chosen: list[dict[str, Any]]) -> str:
+            return " and ".join(f'{family_icon(site.families[run["run"]]["name"])}<a href="{site.model_path(run)}">'
+                                f'{bp.esc(names[run["run"]])}</a>' for run in chosen)
+
+        def card(title: str, value: str, chosen: str, scope_text: str, tip: str | None = None) -> str:
+            tip_attr = f' title="{bp.esc(tip)}"' if tip else ""
+            return (f'<section class="panel result-card"><h2 class="card-title">{title}</h2>'
+                    f'<p class="card-value"{tip_attr}>{value}</p><p class="card-setup">{chosen}</p>'
+                    f'<p class="card-scope">{scope_text}</p></section>')
+
+        best = facts["best"]
+        cards = [card("Highest accuracy", f"{100 * best / total:.1f}%", setups(facts["top"]),
+                      f"{bp.count(best)} right of {bp.count(total)} questions. Among {among}.")]
+        more = len(facts["more"])
+        caveat = f" {more} setup{'s' if more != 1 else ''} kept more but got some wrong." if more else ""
+        cards.append(card(f"Most answers kept at the {sure} confidence threshold with no observed mistakes",
+                          bp.count(facts["most"]), setups(facts["keepers"]),
+                          f"{bp.count(facts['most'])} of {bp.count(total)} questions kept, all right. Among {among}.{caveat}")
+                     if facts["keepers"] else
+                     card(f"Most answers kept at the {sure} confidence threshold with no observed mistakes", "None", "",
+                          f"Every setup that kept answers at {sure} got some wrong. Among {among}."))
+        cheapest = facts["cheapest"]
+        title = cost_unit_in("Lowest cost per 1,000 questions within 1 point of the best accuracy" if facts["near"]
+                             else "Lowest cost per 1,000 questions overall")
+        if cheapest is None:
+            cards.append(card(title, NOT_MEASURED, "", f"No setup has a cost. Among {among}."))
+        else:
+            upper = data.config["first_cost_marks"]["upper"]["mark"] + " " if cheapest.get("cost_upper_bound") else ""
+            at = f"At {100 * accuracy(cheapest)[0] / total:.1f}% accuracy; the best is {100 * best / total:.1f}%."
+            why = "" if facts["near"] else " No setup within 1 point of the best accuracy has a cost, so this is the cheapest overall."
+            cards.append(card(title, cost_value(bp.per_thousand(cheapest), upper), setups([cheapest]),
+                              f"{at}{why} Among {among}.", site.cost_tip(cheapest)))
+        hidden = "" if group == "all" else " hidden"
+        sets.append(f'<div class="result-cards" data-models="{group}"{hidden}>{"".join(cards)}</div>')
+    return "".join(sets)
+
+
+def card_checks(page: str, data: Data, site: Site) -> list[str]:
+    """The result cards (result_cards) against results.json: for each group, its block on the page states the highest
+    accuracy and its setup, the most answers kept at the threshold with none wrong and that setup, and the cheapest setup
+    near the best accuracy, each computed here anew by sorting the group's setups; the claims that differ."""
+    found = []
+    total = data.results["questions"]
+    for group in CARD_SCOPES:
+        runs = group_runs(data, group)
+        names = site.names(runs)
+        block = re.search(rf'<div class="result-cards" data-models="{group}"[^>]*>(.*?)</div>', page, re.S)
+        if block is None:
+            found.append(f"Result cards ({group}): index.html has the block")
+            continue
+        text = summary_text(block.group(1))
+        claims = []
+        by_right = sorted(runs, key=lambda run: -accuracy(run)[0])
+        top = by_right[0]
+        claims.append((f"Highest accuracy {100 * accuracy(top)[0] / total:.1f}%, {names[top['run']]}, "
+                       f"{bp.count(accuracy(top)[0])} right of {bp.count(total)} questions",
+                       [f"{100 * accuracy(top)[0] / total:.1f}%", names[top["run"]], f"right of {bp.count(total)} questions"]))
+        clean = sorted((run for run in runs if run["confidence"]["sure"]["questions"]
+                        and run["confidence"]["sure"]["correct"] == run["confidence"]["sure"]["questions"]),
+                       key=lambda run: -run["confidence"]["sure"]["questions"])
+        if clean:
+            kept = clean[0]["confidence"]["sure"]["questions"]
+            claims.append((f"Most kept with no observed mistakes: {names[clean[0]['run']]}, {kept}",
+                           [names[clean[0]["run"]], f"{bp.count(kept)} of {bp.count(total)} questions kept, all right"]))
+        best = accuracy(top)[0]
+        priced = sorted((run for run in runs if bp.per_thousand(run) is not None), key=bp.per_thousand)
+        near = [run for run in priced if (best - accuracy(run)[0]) / total <= 0.01]
+        if priced:
+            cheapest = (near or priced)[0]
+            claims.append((f"Lowest cost per 1,000 questions {'within 1 point of the best' if near else 'overall'}: "
+                           f"{names[cheapest['run']]}, ${bp.per_thousand(cheapest):.3f}",
+                           [names[cheapest["run"]], f"${bp.per_thousand(cheapest):.3f}",
+                            "within 1 point of the best accuracy" if near else "the cheapest overall"]))
+        for claim, parts in claims:
+            if not all(part in text for part in parts):
+                found.append(f"Result cards ({group}): {claim}")
+    return found
 
 
 def version(data: Data) -> str:
@@ -573,16 +690,26 @@ def copy_checks(data: Data) -> list[str]:
 
     check("Summary: decision models got up to 92.1% of the reading questions right", best_share("reading") == "92.1")
     check("Summary: but at most 70.7% of the grammar questions", best_share("grammar") == "70.7")
-    # The note under the Accuracy table: a setup without a cost runs on our hardware, and its maker lists no price for
-    # the same model; every other cost of a setup on our hardware is at its maker's list price (§); Liquid d1 is
-    # estimated at Liquid's list price; no latency for runs made before requests were timed one by one.
+    # The cost notes: a setup without a cost runs on our hardware with no request time to estimate it from; every other
+    # cost of a setup on our hardware is at its maker's list price for the same model, a public host's for the same
+    # weights, or its GPU time at the rate and date the gpu note and tip state; Liquid d1 is estimated at Liquid's list
+    # price; no latency for runs made before requests were timed one by one.
     prices = {bp.price_key(price): price for price in results["prices"]}
-    check("No list price note: every setup without a cost runs on our hardware, with no maker's price for the same model",
-          all(run["billing"] == "local" and run["cost_basis"] is None for run in runs if run["api_equivalent_usd"] is None))
-    check("§ note: every cost of a setup on our hardware is at its maker's list price for the same model",
-          all(run["cost_basis"] == "maker" and prices[bp.price_key(run)]["applies_to"] == "maker"
-              and prices[bp.price_key(run)]["basis"].endswith("'s list price for the same model")
+    check("No list price note: every setup without a cost runs on our hardware, with no request time to estimate it from",
+          all(run["billing"] == "local" and run["cost_basis"] is None and not run["request_seconds"]
+              for run in runs if run["api_equivalent_usd"] is None))
+    bases = {"maker": r"'s list price for the same model( \(.+\))?", "weights": r"'s list price for the same weights \(.+\)",
+             "gpu": r".+"}
+    check("Cost notes: every cost of a setup on our hardware is at its maker's list price, a host's for the same weights, "
+          "or its GPU time",
+          all(run["cost_basis"] in bases and prices[bp.price_key(run)]["applies_to"] == run["cost_basis"]
+              and re.search(bases[run["cost_basis"]] + "$", prices[bp.price_key(run)]["basis"])
               for run in runs if run["billing"] == "local" and run["api_equivalent_usd"] is not None))
+    gpu_prices = [price for price in results["prices"] if price["applies_to"] == "gpu"]
+    check("GPU-time note and tip: the rate per GPU-hour and the date read of every GPU-time price",
+          all(f"${price['usd_per_gpu_hour']:.2f} per GPU-hour (read {bp.long_date(price['date'])})" in text
+              for price in gpu_prices for text in (data.config["first_cost_marks"]["gpu"]["tip"],
+                                                   data.config["first_cost_marks"]["gpu"]["note"])))
     d1 = data.by_name("d1:free")
     check("Liquid d1's run used the free tier and is estimated at Liquid's list price for the same model",
           d1["billing"] == "free" and d1["cost_basis"] == "free tier"
@@ -659,8 +786,9 @@ def main() -> int:
         "board": fallback_table(data, site),
         "settings": page_settings(data),
         "board-note": f'<div class="tab-notes"><p>{bp.esc(" ".join(filter(None, [site.cost_note(data.runs), not_measured_note(data)])))}</p></div>',
-        "experiments": experiments(data),
+        "experiments": experiments(data.results, ""),
         "non-hallucination": non_hallucination(site),
+        "cards": result_cards(data, site),
     }
     text = PAGE.read_text()
     seen = set()
@@ -676,7 +804,7 @@ def main() -> int:
     written = write_pages(site)
     summary, words = summary_checks(text)
     print(f"Summary block: {words} words (at most {SUMMARY_WORDS})")
-    differ = copy_checks(data) + summary
+    differ = copy_checks(data) + card_checks(text, data, site) + summary
     for claim in differ:
         print(f"copy differs from results.json: {claim}", file=sys.stderr)
     print(f"wrote index.html and {written} other pages; {len(differ)} copy claims differ from results.json")

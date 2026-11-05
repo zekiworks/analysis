@@ -20,11 +20,6 @@ const points = fraction => {
   const text = Math.abs(100 * fraction).toFixed(2);
   return Number(text) === 0 ? text : `${fraction > 0 ? '+' : '−'}${text}`;
 };
-const usd = value => {
-  if (value >= 0.1 || value === 0) return `$${value.toFixed(2)}`;
-  const text = value.toFixed(3);
-  return text === '0.000' ? `$${value.toPrecision(2)}` : `$${text}`;
-};
 const duration = seconds => `${secondsText(seconds)}\u00a0s`;
 const NOT_MEASURED = '<span class="hint" tabindex="0" data-tip="Not measured">—</span>';
 /* A cost with no estimate on our own hardware whose maker lists no price reads "No list price" (site.py cost_missing). */
@@ -90,13 +85,14 @@ const total = run => ({
   questions: run.groups.reading.questions + run.groups.grammar.questions,
 });
 
-/* Each row: label, then the value for one run as HTML. */
+/* Each row: label (or a function that writes it, as the cost's unit follows the reader's choice, site.js), then the value
+   for one run as HTML. */
 const MEASURES = [
   ['Accuracy', run => `${pct(share(total(run)))}<span class="small">${wilson(total(run).correct, total(run).questions).map(v => pct(v)).join(' to ')}</span>`],
   ['Reading', run => pct(share(run.groups.reading))],
   ['Grammar', run => pct(share(run.groups.grammar))],
   ['Median latency per request', run => (run.latency ? duration(run.latency.median_request_seconds) : NOT_MEASURED)],
-  ['$ per 1,000 questions', run => (costPer1000(run) == null ? costMissing(run) : `${upperMark(run)}${usd(costPer1000(run))}`)],
+  [() => `$ ${costLabel()} ${costSwitch()}`, run => (costPer1000(run) == null ? costMissing(run) : `${upperMark(run)}$${costNumber(costPer1000(run) * costScale())}`)],
   ['Cost basis', costBasis],
   ['Kept at 99% (wrong)', run => `${run.confidence.sure.questions.toLocaleString('en-US')} (${run.confidence.sure.questions - run.confidence.sure.correct})`],
   ['Calibration gap', run => `${(100 * run.confidence.ece).toFixed(1)} points`],
@@ -157,7 +153,7 @@ function render() {
     `<th scope="col" class="num" title="${esc(detail(run))}"><a href="../models/${run.run}/">${esc(label(run))}</a></th>`;
   const measures = MEASURES.map(([label, cell]) => {
     const kind = label === 'Cost basis' ? 'basis' : 'num';
-    return `<tr><th scope="row">${label}</th><td class="${kind}">${cell(a)}</td><td class="${kind}">${cell(b)}</td></tr>`;
+    return `<tr><th scope="row">${typeof label === 'function' ? label() : label}</th><td class="${kind}">${cell(a)}</td><td class="${kind}">${cell(b)}</td></tr>`;
   }).join('');
   /* Each scope is its own row group: on a phone, a label row above the numbers (the inline label is hidden there), so no
      label sits over a number while the table scrolls. */
@@ -206,6 +202,7 @@ async function start() {
   }
   document.querySelectorAll('[data-pick]').forEach(select => select.addEventListener('change', choose));
   render();
+  document.addEventListener('costunit', render);
 }
 
 start();

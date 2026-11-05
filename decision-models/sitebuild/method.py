@@ -434,15 +434,18 @@ def price_list(snap: bp.Snapshot) -> str:
         return ", ".join(dict.fromkeys(display_name(run, snap.runs) for run in runs))
 
     items = []
-    if any(part.startswith(("reused", "saving")) for price in snap.results["prices"] for part in rate_parts(price)):
+    tokens = [price for price in snap.results["prices"] if price["applies_to"] != "gpu"]
+    if any(part.startswith(("reused", "saving")) for price in tokens for part in rate_parts(price)):
         items.append(esc(REUSE_EXPLAINED))
     for price in snap.results["prices"]:
         runs = [run for run in snap.runs if run["provider"] == price["provider"] and run["model"] == price["model"]]
         change = f" Provider update: {esc(price['change'])}." if price.get("change") else ""
         extra = price.get("extra_input_per_request") or 0
         billed = f" Billed input: {extra} tokens per request more than our count, which we add." if extra else ""
+        rates = (f"GPU time: {price['text']}" if price["applies_to"] == "gpu"
+                 else f"Per one million tokens: {'; '.join(rate_parts(price))}")
         items.append(f"{esc(names(runs) or price['model'])}. Prices recorded {bp.long_date(price['date'])}. "
-                     f"Per one million tokens: {esc('; '.join(rate_parts(price)))}. Source: "
+                     f"{esc(rates)}. Source: "
                      f'<a href="{esc(price["source"])}">{esc(price["basis"])}</a>.{change}{esc(billed)}')
     free = [run for run in snap.runs if run["billing"] == "free" and run["api_equivalent_usd"] is None]
     local = [run for run in snap.runs if run["billing"] == "local" and run["api_equivalent_usd"] is None]
@@ -463,7 +466,7 @@ def maker_priced(snap: bp.Snapshot) -> str:
         if run.get("cost_basis") != "maker":
             continue
         price = prices[bp.price_key(run)]
-        maker = price["basis"].removesuffix("'s list price for the same model")
+        maker = price["basis"].split("'s list price for the same model")[0]
         makers.setdefault(maker, [])
         if run["name"] not in makers[maker]:
             makers[maker].append(run["name"])
@@ -473,6 +476,20 @@ def maker_priced(snap: bp.Snapshot) -> str:
     listed = groups[0] if len(groups) == 1 else "; ".join(groups[:-1]) + "; and " + groups[-1]
     billed = "".join(f" {maker} bills {count} input tokens per request more than our servers count, so we add them." for maker, count in extra.items())
     return f"{listed}.{billed}"
+
+
+def local_estimates(snap: bp.Snapshot) -> str:
+    """The setups on our hardware estimated at a public host's list price for the same weights, then those estimated
+    from GPU time (first_cost_marks' gpu tip), each named, or nothing where there are none."""
+    named = {basis: list(dict.fromkeys(run["name"] for run in snap.runs if run.get("cost_basis") == basis))
+             for basis in ("weights", "gpu")}
+    text = ""
+    if named["weights"]:
+        text += (" Where only another public host serves the same weights, we use its list price, with any precision "
+                 f"difference in the price's name: {bp.and_list(named['weights'])}.")
+    if named["gpu"]:
+        text += f" Otherwise ({bp.and_list(named['gpu'])}): {snap.config['first_cost_marks']['gpu']['tip']}"
+    return text
 
 
 def gemma_lead(snap: bp.Snapshot) -> None:
@@ -537,8 +554,8 @@ def glance(site: Site) -> str:
 <ul>
 <li><strong>The view bar</strong>, under the top bar, has three rows. Test picks the page: {and_list(VIEW_TESTS)}. Models picks the group: {and_list(VIEW_GROUPS)}. Measure goes to a part of the page: {and_list(VIEW_MEASURES)}.</li>
 <li><strong>The top links</strong> lead to {and_list(MENU)}. Page images and Hallucination are tests of their own, each ranked on its own page.</li>
-<li><strong>Web grounding</strong>: <a href="{rel(PATH, 'web-grounding/')}">its page</a> is linked from the home page and from the Perplexity model pages.</li>
-<li><strong>PWS-Decisions</strong>: <a href="{rel(PATH, 'pws-decisions/')}">its own page</a>, linked from the web grounding page and the home page.</li>
+<li><strong>Web grounding</strong>: <a href="{rel(PATH, 'web-grounding/')}">its page</a> is linked from the home page, both English pages and the Perplexity model pages.</li>
+<li><strong>PWS-Decisions</strong>: <a href="{rel(PATH, 'pws-decisions/')}">its own page</a>, linked from the web grounding page, the home page and both English pages.</li>
 </ul>
 <h3>How we ask the models</h3>
 <ul>
@@ -878,9 +895,9 @@ separately.</p>
 <p>Most rates date from {v['study_price_date']}. Perplexity's price changed between its Decider v1 and v1.1 runs, so their cost
 difference is not only a model improvement. Gemini 3.8 Flash's price is introductory: it
 {v['study_price_gemini_low_change']}.</p>
-<p>Models on our own GPUs get a dollar estimate only where the model's maker lists a price for the same model:
-{esc(maker_priced(snap))} Each is estimated at its maker's list price for the same model, from our recorded tokens; our
-hardware cost is not measured. The other models on our GPUs get no estimate, which does not make them free. Liquid d1:
+<p>Every cost of a model on our own GPUs is an estimate, not measured spending. Where the model's maker lists a price for the
+same model, the estimate uses it: {esc(maker_priced(snap))} Each is estimated at its maker's list price for the same model,
+from our recorded tokens; our hardware cost is not measured.{esc(local_estimates(snap))} Liquid d1:
 the run used the free tier (d1:free); its cost is now estimated at Liquid's list price for the same model. Fixed output
 token charges of some decision services follow pricing rules, not written reasoning.</p>
 {price_list(snap)}"""),

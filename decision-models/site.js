@@ -7,6 +7,60 @@ function secondsText(value) {
   return value.toFixed(value < 1 ? 3 : value < 10 ? 2 : 1);
 }
 
+/* Every page: the cost unit, one choice for the whole site: costs per 1,000 questions or per 1M questions. The choice
+   comes from ?cost-unit= (1k or 1m), else localStorage ("costUnit"), and sits in <html data-cost-unit>, which a line in
+   each page's <head> sets before it renders. A page's own values carry both units (site.py cost_value) and v3.css shows
+   the chosen one; v3.js and compare.js write theirs with costScale and costNumber and redraw on the "costunit" event.
+   A key with data-cost-unit-choice (site.py cost_switch) changes it everywhere, keeps it in localStorage and in the
+   address (the rest of the address and its history state stay). Without JavaScript costs read per 1,000 questions. */
+const COST_UNITS = { '1k': { label: 'per 1,000 questions', scale: 1 }, '1m': { label: 'per 1M questions', scale: 1000 } };
+const costUnit = () => (document.documentElement.dataset.costUnit === '1m' ? '1m' : '1k');
+/* A cost per 1,000 questions times costScale() is the cost in the chosen unit. */
+const costScale = () => COST_UNITS[costUnit()].scale;
+const costLabel = () => COST_UNITS[costUnit()].label;
+/* A cost in the chosen unit, without its $, as site.py cost_text writes it: per 1,000 questions with three decimals (two
+   significant figures where that reads 0.000); per 1M questions with cents below 100, whole dollars from there. */
+function costNumber(value) {
+  if (costUnit() === '1m') return value.toLocaleString('en-US', value < 100 ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 });
+  const text = value.toFixed(3);
+  return text === '0.000' && value ? value.toPrecision(2) : text;
+}
+/* The cost unit's keys for a script's own markup, the chosen one pressed (site.py cost_switch). */
+const costSwitch = () =>
+  `<span class="cost-unit" role="group" aria-label="Cost unit">${Object.entries(COST_UNITS).map(([unit, { label }]) =>
+    `<button type="button" class="key" data-cost-unit-choice="${unit}" aria-pressed="${unit === costUnit()}">${label}</button>`).join('')}</span>`;
+(function setupCostUnit() {
+  const root = document.documentElement;
+  const press = () => document.querySelectorAll('[data-cost-unit-choice]').forEach(key => {
+    key.setAttribute('aria-pressed', String(key.dataset.costUnitChoice === costUnit()));
+  });
+  const keep = unit => {
+    try {
+      localStorage.setItem('costUnit', unit);
+    } catch (error) {
+      /* Storage may be unavailable; the address still carries the choice. */
+    }
+  };
+  const asked = new URLSearchParams(window.location.search).get('cost-unit');
+  if (asked in COST_UNITS) {
+    root.dataset.costUnit = asked;
+    keep(asked);
+  }
+  press();
+  document.addEventListener('click', event => {
+    const key = event.target.closest('[data-cost-unit-choice]');
+    if (!key || key.dataset.costUnitChoice === costUnit()) return;
+    const unit = key.dataset.costUnitChoice;
+    root.dataset.costUnit = unit;
+    keep(unit);
+    const url = new URL(window.location.href);
+    url.searchParams.set('cost-unit', unit);
+    history.replaceState(history.state, '', url);
+    press();
+    document.dispatchEvent(new CustomEvent('costunit'));
+  });
+})();
+
 /* Every page: the Dark / Light switch, with one memory for the whole site: the choice is kept in localStorage ("theme")
    and applied by a line in each page's <head> before it renders; without JavaScript the page stays dark. */
 (function setupTheme() {
@@ -54,8 +108,9 @@ function secondsText(value) {
   bar.querySelectorAll('a[data-view-test]').forEach(link => {
     link.setAttribute('href', `${link.getAttribute('href').split('?')[0]}?models=${group}`);
   });
-  // The top bar's benchmark links (Page images, Hallucination) keep the group too, so no press loses it.
-  document.querySelectorAll('.nav a[data-keep-group]').forEach(link => {
+  // Links marked data-keep-group (the top bar's Page images and Hallucination, the experiments line) keep the group too,
+  // so no press loses it.
+  document.querySelectorAll('a[data-keep-group]').forEach(link => {
     const [path, fragment] = link.getAttribute('href').split('#');
     link.setAttribute('href', `${path.split('?')[0]}?models=${group}${fragment ? `#${fragment}` : ''}`);
   });
@@ -64,11 +119,12 @@ function secondsText(value) {
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
 })();
 
-/* Every page: the view bar's row 3, the measure. Off the pages of row 1 its links open the home page's part with the
-   group in view. On a page of row 1 they link to the page's parts (#accuracy, #non-hallucination, #cost, #latency; the
-   query, so the group, stays) and the key of the part in view is marked: the part that crosses a line a quarter of the
-   way down the window below the bar, or the key just pressed until the reader scrolls on, as a part at the end of the
-   page may not reach that line. Between parts no key is marked. */
+/* Every page: the view bar's row 3, the measure. A key whose part (#accuracy, #non-hallucination, #cost, #latency) is on
+   the page links to it (the query, so the group, stays): the three test pages, and any other page with a part of that
+   id, as Web grounding's Cost; the others open the home page's part with the group in view. The key of the part in
+   view is marked: the part that crosses a line a quarter of the way down the window below the bar, or the key just
+   pressed until the reader scrolls on, as a part at the end of the page may not reach that line. Between parts no key
+   is marked. */
 (function setupMeasureRow() {
   const bar = document.querySelector('.view-bar');
   if (!bar) return;
@@ -76,12 +132,13 @@ function secondsText(value) {
   const links = [...bar.querySelectorAll('a[data-view-measure]')];
   const parts = [];
   links.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href.startsWith('#')) {
-      const part = document.getElementById(link.dataset.viewMeasure);
-      if (part) parts.push({ link, part });
+    const key = link.dataset.viewMeasure;
+    const part = document.getElementById(key);
+    if (part) {
+      link.setAttribute('href', `#${key}`);
+      parts.push({ link, part });
     } else {
-      link.setAttribute('href', `${href.split(/[?#]/)[0]}?models=${group}#${link.dataset.viewMeasure}`);
+      link.setAttribute('href', `${link.getAttribute('href').split(/[?#]/)[0]}?models=${group}#${key}`);
     }
   });
   if (!parts.length) return;

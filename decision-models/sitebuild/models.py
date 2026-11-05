@@ -1,4 +1,6 @@
-"""One page per setup (models/<run id>/): how we called it, its settings, results, confidence, repeats, latency
+"""One page per setup (models/<run id>/): at the top a summary of its main results (accuracy, the answers kept at the
+threshold, cost and latency); then how we called it, its settings (the run record's harness seed, commit and prompt
+version folded away), results, confidence, repeats, latency
 and cost, and, for a first model, what it took off each LLM in the replay; and at models/ itself a page that sends the
 reader to the home page's All models view, which replaced the list of every setup that address held."""
 
@@ -10,8 +12,8 @@ from typing import Any
 import build_page as bp
 
 from sitebuild import vision
-from sitebuild.site import (NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, esc, interval, latency_text, pct, rel,
-                            request_size)
+from sitebuild.site import (NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per, cost_switch, cost_value, esc,
+                            interval, latency_text, pct, rel, request_size)
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
 # The documentation page page_config.json's reasoning_levels cite, by its host, as the Settings line names it.
@@ -69,15 +71,19 @@ def settings(site: Site, run: dict[str, Any]) -> str:
         value = record.get(key)
         return NOT_RECORDED if value is None else show(value)
 
+    record_facts = facts([
+        ("Harness seed", recorded("seed")),
+        ("Harness commit", recorded("harness_commit", lambda commit: f'<a href="{REPO_URL}/commit/{esc(commit)}"><code>{esc(commit[:12])}</code></a>')),
+        ("Prompt version", recorded("prompt_version", lambda prompt: f"<code>{esc(prompt)}</code>")),
+    ])
     return facts([
         ("Reasoning", recorded("thinking")),
         ("Request format", recorded("questions_per_request", request_size)),
         ("Requests at once", recorded("concurrency")),
         ("Temperature", recorded("temperature")),
-        ("Harness seed", recorded("seed")),
-        ("Harness commit", recorded("harness_commit", lambda commit: f'<a href="{REPO_URL}/commit/{esc(commit)}"><code>{esc(commit[:12])}</code></a>')),
-        ("Prompt version", recorded("prompt_version", lambda prompt: f"<code>{esc(prompt)}</code>")),
-    ]) + reasoning_levels(site, run)
+    ]) + reasoning_levels(site, run) + (
+        '<details class="setup-record"><summary>Run record: harness seed, harness commit and prompt version</summary>'
+        f"{record_facts}</details>")
 
 
 def reasoning_levels(site: Site, run: dict[str, Any]) -> str:
@@ -209,23 +215,23 @@ def latency(run: dict[str, Any]) -> str:
           'that failed and any pause before a run was resumed.</p>')
 
 
-def cost(site: Site, run: dict[str, Any]) -> str:
+def per_thousand_text(site: Site, run: dict[str, Any]) -> str:
+    """The setup's $ per 1,000 questions as the page shows it, in the summary and under Cost: with the upper-bound mark
+    where the cost is an upper bound; No list price or Not measured without one (cost_missing)."""
     per = site.per_thousand(run)
-    billing = site.config["billing"][run["billing"]]
-    price = next((item for item in site.results["prices"] if bp.price_key(item) == bp.price_key(run)), None)
-    tokens = (lambda key: f"{run[key] / run['answered_questions']:,.0f}" if run.get(key) is not None else None)
-    # A setup on our hardware priced at its maker's list price, and a free-tier run priced at the list price of the
-    # model it called, say so; the others take their billing's basis.
-    if run.get("cost_basis") == "maker":
-        basis = f"Estimated at {price['basis']}; our hardware cost is not measured."
-    elif run.get("cost_basis") == "free tier":
-        basis = f"The run used the free tier ({run['model']}); its cost is now estimated at {price['basis']}."
-    else:
-        basis = billing["cost_basis"]
     upper = site.config["first_cost_marks"]["upper"] if run.get("cost_upper_bound") else None
     mark = f'<span class="mark">{esc(upper["mark"])}</span> ' if upper else ""
-    return facts([
-        ("$ per 1,000 questions", f"{mark}{bp.usd(per)}" if per is not None else cost_missing(run)),
+    return f"{mark}{cost_value(per)}" if per is not None else cost_missing(run)
+
+
+def cost(site: Site, run: dict[str, Any]) -> str:
+    price = next((item for item in site.results["prices"] if bp.price_key(item) == bp.price_key(run)), None)
+    tokens = (lambda key: f"{run[key] / run['answered_questions']:,.0f}" if run.get(key) is not None else None)
+    basis = site.cost_basis_text(run)
+    upper = site.config["first_cost_marks"]["upper"] if run.get("cost_upper_bound") else None
+    mark = f'<span class="mark">{esc(upper["mark"])}</span> ' if upper else ""
+    return cost_switch() + facts([
+        (f"Cost {cost_per()}", per_thousand_text(site, run)),
         ("Whole run", f"{mark}{bp.usd(run['api_equivalent_usd'])}" if run.get("api_equivalent_usd") is not None else None),
         ("Basis", esc(basis)),
         ("Price", f'{esc(price["text"])} (<a href="{esc(price["source"])}">source</a>, {esc(price["date"])})' if price else None),
@@ -249,7 +255,7 @@ def routing(site: Site, run: dict[str, Any]) -> str | None:
         held = item["held_out"]
         saving = f"{pct(1 - item['usd_per_1000'] / alone, 0)}" if alone else cost_missing(frontier)
         if unpriced and alone:
-            # The maker-priced basis (§) shows in the tooltip only; the † keeps its mark and note.
+            # The maker-priced basis shows in the tooltip only, with no mark; the † keeps its mark and note.
             saving = f'<span class="hint" tabindex="0" data-tip="{esc(unpriced["tip"])}">{saving}</span>'
             if unpriced is not marks["maker"]:
                 saving += f'<span class="mark">{esc(unpriced["mark"])}</span>'
@@ -319,11 +325,39 @@ def web_grounding(site: Site, run: dict[str, Any]) -> str | None:
             f"compared on {link}.</p>")
 
 
-def model_page(site: Site, run: dict[str, Any]) -> str:
+def summary(site: Site, run: dict[str, Any]) -> str:
+    """The page's main results at the top: accuracy with its 95% interval, the answers kept at the threshold with the
+    wrong ones among them, cost and the median latency, each labelled with what it covers; the sections below give the
+    detail."""
     path = site.model_path(run)
     correct, total = site.accuracy(run)
-    lead = (f"<p>{pct(correct / total)} of the {total:,} questions right ({interval(correct, total)}, 95% interval). "
-            f'<a href="{rel(path, "")}">Back to the leaderboard</a>.</p>')
+    sure = run["confidence"]["sure"]
+    threshold = pct(site.config["threshold"], 0)
+    wrong = sure["questions"] - sure["correct"]
+    kept_detail = f"{wrong:,} wrong" + (f"; share right {interval(sure['correct'], sure['questions'])}, 95% interval"
+                                          if sure["questions"] else "")
+    item = run.get("latency")
+    if item:
+        latency_value = latency_text(item["median_request_seconds"])
+        latency_detail = (f"median request, {request_size(run['questions_per_request'])}"
+                          + (f", on a sample of {item['questions']:,} questions" if item["source"] == "sample" else ""))
+    else:
+        latency_value, latency_detail = NOT_MEASURED, "median request"
+    figures = (
+        (f"Accuracy, all {total:,} questions", pct(correct / total),
+         f"{interval(correct, total)}, 95% interval; {correct:,} right"),
+        (f"Answers kept at {threshold} confidence", f"{sure['questions']:,} of {site.results['questions']:,}", kept_detail),
+        ("Cost, $ per 1,000 questions", per_thousand_text(site, run), '<a href="#cost">Basis and price under Cost</a>'),
+        ("Latency", latency_value, latency_detail),
+    )
+    items = "".join(f'<div><dt>{label}</dt><dd><span class="key-figure">{value}</span><span class="small">{detail}</span></dd></div>'
+                    for label, value, detail in figures)
+    return f'<dl class="key-figures">{items}</dl><p><a href="{rel(path, "")}">Back to the leaderboard</a>.</p>'
+
+
+def model_page(site: Site, run: dict[str, Any]) -> str:
+    path = site.model_path(run)
+    lead = summary(site, run)
     parts = [
         f'    <section class="card">\n      <p class="eyebrow">{site.kind(run)}</p>\n      <h1>{esc(run["name"])}</h1>\n'
         f'      <p class="subtitle">{esc(site.detail(run))}</p>\n      {lead}{formats(site, run) or ""}{routed_llm(site, run) or ""}'
