@@ -790,10 +790,11 @@ mistake.</p>
 asks whether that split is too uneven for equal accuracy. Holm's method adjusts the p values for the number of tests: across
 {v['comparisons']} selected comparisons, and across all {v['pairs']} pairs for the comparison groups (setups sharing a
 letter). A result from one set does not carry over to the other.</p>
-<p>Astra scored {v['pair_astra_sol_difference']} points above Sol: of {v['method_pair_astra_sol_split']} questions only one
-got right, Astra had {v['pair_astra_sol_first_only']} and Sol {v['pair_astra_sol_second_only']}. The p value was
-{v['pair_astra_sol_p']} before adjustment; adjusted, it was {v['pair_astra_sol_p_holm']} among the selected comparisons and
-{v['pair_astra_sol_p_holm_all']} across all pairs, {v['method_pair_astra_sol_relation']} {v['method_alpha']}. A p value says
+<p>GPT-6 Astra with medium reasoning scored {v['pair_astra_medium_sol_difference']} points above GPT-6.1 Sol with low reasoning:
+of {v['method_pair_astra_medium_sol_split']} questions only one got right, Astra had {v['pair_astra_medium_sol_first_only']} and Sol
+{v['pair_astra_medium_sol_second_only']}. The p value was {v['pair_astra_medium_sol_p']} before adjustment; adjusted, it was
+{v['pair_astra_medium_sol_p_holm']} among the selected comparisons and {v['pair_astra_medium_sol_p_holm_all']} across all pairs,
+{v['method_pair_astra_medium_sol_relation']} {v['method_alpha']}. A p value says
 how unusual so uneven a split would be at equal accuracy, not the chance that the models are equal.</p>
 <p>DeepSeek-V4.1-Flash 1017 with reasoning scored {v['pair_deepseek_1017_on_terra_low_difference']} points above GPT-6.1 Terra with low reasoning
 (adjusted p {v['pair_deepseek_1017_on_terra_low_p_holm']}). Not establishing a difference does not show equal accuracy: many

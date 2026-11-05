@@ -38,6 +38,7 @@
   ],
   "named_runs": {
     "astra": {"provider": "openai", "model": "gpt-6-astra", "reasoning": "low"},
+    "astra_medium": {"provider": "openai", "model": "gpt-6-astra", "reasoning": "medium"},
     "sol": {"provider": "openai", "model": "gpt-6.1-sol", "reasoning": "low"},
     "opus": {"provider": "claude", "model": "claude-opus-5-5", "reasoning": "low"},
     "sonnet_low": {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "low"},
@@ -216,7 +217,6 @@
       {"runs": [44], "reason": "no Perplexity API key on the machine that runs the benchmark."},
       {"runs": [145], "reason": "Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
       {"runs": [129], "reason": "since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
-      {"runs": [125, 139], "reason": "Clef's own model code rounds each option's probability to 4 decimal places, which failed our probability check (the probabilities must add up to 1 to 7 decimal places); an allowance for that rounding was approved on 5 November 2026, and both run on our GPUs after the DeepSeek-V4.1-Flash 1017 runs."},
       {"runs": [120, 121], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window; their first-release weights must also be downloaded again, as the server folder now holds the 1017 weights."},
       {"providers": ["vllm", "vllm-stated", "vllm-verbal", "vllm-vote", "vllm-yes-no", "d1-server", "cygnet", "gliner", "laya", "metask", "onejev", "open-jev", "strands", "winnow"], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window."}
     ],
