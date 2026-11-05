@@ -206,16 +206,14 @@
   },
   "dont_know": {
     "not_run": [
-      {"name": "Perplexity Decider 27B v1.1", "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
+      {"name": "Perplexity Decider 27B v1.1", "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1."},
       {"name": "SubQ Snap Preview", "reason": "Not run: SubQ's API returns its probabilities in 32-bit precision, so their sums miss our 7-decimal check. An allowance for that was approved on 5 November 2026 for its English runs; a Turkish run with “Bilmiyorum” was not part of that request."}
     ]
   },
   "english_reading": {
     "not_run": [
-      {"runs": [610], "reason": "added to the Text tab on 5 November 2026; its English run, on the ChatGPT subscription like the other OpenAI setups, is running."},
       {"runs": [315, 320], "reason": "stopped when the OpenRouter account ran out of credit."},
-      {"runs": [44], "reason": "no Perplexity API key on the machine that runs the benchmark."},
-      {"runs": [145], "reason": "Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
+      {"runs": [145], "reason": "Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1."},
       {"runs": [129], "reason": "since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
       {"runs": [120, 121], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window; their first-release weights must also be downloaded again, as the server folder now holds the 1017 weights."},
       {"providers": ["vllm", "vllm-stated", "vllm-verbal", "vllm-vote", "vllm-yes-no", "d1-server", "cygnet", "gliner", "laya", "metask", "onejev", "open-jev", "strands", "winnow"], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window."}

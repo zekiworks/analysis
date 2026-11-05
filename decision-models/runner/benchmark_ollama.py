@@ -248,6 +248,7 @@ class Price:
     # the model we called on its free tier).
     applies_to: str = "billed"
     extra_input_per_request: int = 0  # input tokens the provider bills per request beyond those our records count
+    per_request: float = 0.0  # USD the provider bills per request beyond tokens (Perplexity's web grounding searches)
 
     def rates(self) -> dict[str, float]:
         """USD per 1M tokens of each of TOKEN_KINDS; the input rate applies to the prompt tokens outside the cache."""
@@ -260,12 +261,16 @@ class Price:
         }
 
     def cost(self, tokens: dict[str, int], requests: int = 0) -> float:
-        """The tokens' cost in USD; `requests` (the run's requests) adds extra_input_per_request input tokens each."""
+        """The tokens' cost in USD; `requests` (the run's requests) adds extra_input_per_request input tokens and
+        per_request USD each."""
         rates = self.rates()
         uncached = (
             tokens.get("input_tokens", 0) + self.extra_input_per_request * requests - sum(tokens.get(kind, 0) for kind in CACHE_KINDS)
         )
-        return (uncached * rates["input_tokens"] + sum(tokens.get(kind, 0) * rates[kind] for kind in TOKEN_KINDS[1:])) / 1_000_000
+        return (
+            (uncached * rates["input_tokens"] + sum(tokens.get(kind, 0) * rates[kind] for kind in TOKEN_KINDS[1:])) / 1_000_000
+            + self.per_request * requests
+        )
 
 
 ANTHROPIC_PRICING = "https://platform.claude.com/docs/en/about-claude/pricing"
@@ -290,6 +295,10 @@ PRICES: dict[tuple[str, str], Price] = {
     ),
     ("perplexity", "pplx-decider-v1.1-27b"): Price(
         "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-10-09", 0.02
+    ),
+    # pplx-decider-v1.2 itself through the Decisions API (the pricing page as read on 5 November 2026).
+    ("perplexity", "pplx-decider-v1.2"): Price(
+        "Perplexity's Decisions API price", "https://docs.perplexity.ai/docs/getting-started/pricing", "2026-11-05", 0.02
     ),
     ("fastino", "fastino/GLiDE"): Price(
         "Fastino's GLiDE price",
@@ -488,6 +497,21 @@ PRICES: dict[tuple[str, str], Price] = {
         applies_to="maker",
     ),
 }
+# Prices of runs with --perplexity-mode web_grounding, by (provider, model). A grounded request runs one Fast Search per
+# question at $0.001 ("Questions that produce the same search query share one search"; a failed or timed-out search is
+# not billed), on top of its input tokens, which include the search evidence (usage.input_tokens). The runner sends one
+# question per request, so one search per request: an upper bound, as the response does not say whether a search failed.
+WEB_GROUNDING_PRICES: dict[tuple[str, str], Price] = {
+    ("perplexity", "pplx-decider-v1.2"): Price(
+        "Perplexity's Decisions API price with web grounding", "https://docs.perplexity.ai/docs/getting-started/pricing",
+        "2026-11-05", 0.02, per_request=0.001,
+    ),
+}
+
+
+def run_price(provider: str, model: str, perplexity_mode: str | None) -> Price | None:
+    """The list price of a run's requests: WEB_GROUNDING_PRICES for a grounded run, PRICES otherwise."""
+    return (WEB_GROUNDING_PRICES if perplexity_mode == "web_grounding" else PRICES).get((provider, model))
 
 
 def usd_rate(value: float) -> str:
@@ -512,6 +536,8 @@ def price_text(price: Price) -> str:
     text = ", ".join(parts) + " per 1M tokens"
     if price.extra_input_per_request:
         text += f", plus {price.extra_input_per_request} billed input tokens per request"
+    if price.per_request:
+        text += f", plus {usd_rate(price.per_request)} per request (one web search)"
     return text
 
 
@@ -609,7 +635,7 @@ RESULT_FIELDS = (
     "run_key", "run_id", "model", "provider", "dataset", "database", "dataset_sha256", "selection_sha256",
     "eligible_total", "evaluated", "correct", "invalid", "skipped", "batch_size", "thinking", "num_ctx",
     "image_input", "shuffle_options", "replace_key_text", "categories", "updated", "concurrency", "as_run",
-    "repeat", "question_list", "dont_know", "english", "dont_know_word", "rerun",
+    "repeat", "question_list", "dont_know", "english", "dont_know_word", "rerun", "perplexity_mode",
 )
 JEV_INSTRUCTIONS = "Which option is the correct answer to this Turkish multiple-choice question?"
 # Open-Jev's per-option prompt (jev/api.py candidate_prompts), used by --provider vllm-yes-no.
@@ -768,12 +794,64 @@ ENGLISH_CHAT_PROMPT_VERSION = hashlib.sha256(
 ).hexdigest()[:12]
 
 
-def english_prompt_version(provider: str, dont_know: bool) -> str:
-    """The prompt version of an English reading run (--english): the decision models' (System One providers and
-    vllm-yes-no), with or without "I don't know", or the chat models'."""
+# "I don't know" for the chat models (--dont-know with a chat provider; Ümit, bus #1196): each question gets the option
+# DONT_KNOW_OPTION (ENGLISH_DONT_KNOW_OPTION with --english) after its own, lettered after them as in the decision models'
+# runs, and every instruction of the run's chat prompts ends with one more sentence in the language of those prompts:
+# CHAT_DONT_KNOW_SENTENCE, the decision models' DONT_KNOW_SENTENCE in Turkish, or ENGLISH_DONT_KNOW_SENTENCE. The system
+# prompts, the question headers and the answer schemas' form stay those of the five-option runs; the schemas take the
+# option's letter as they take each listed option's. DONT_KNOW_CHAT_PROMPT_VERSION and ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION
+# identify these prompts in such a run's record, computed as PROMPT_VERSION is.
+CHAT_DONT_KNOW_SENTENCE = f"Cevabı bilmiyorsanız {DONT_KNOW_OPTION} seçeneğini seçin."
+
+
+def dont_know_chat(prompts: ChatPrompts, sentence: str) -> ChatPrompts:
+    """`prompts` with `sentence` ending each instruction."""
+    return replace(
+        prompts,
+        answer_instruction=f"{prompts.answer_instruction} {sentence}",
+        confidence_instruction=f"{prompts.confidence_instruction} {sentence}",
+        verbal_instruction=f"{prompts.verbal_instruction} {sentence}",
+    )
+
+
+DONT_KNOW_CHAT = dont_know_chat(TURKISH_CHAT, CHAT_DONT_KNOW_SENTENCE)
+ENGLISH_DONT_KNOW_CHAT = dont_know_chat(ENGLISH_CHAT, ENGLISH_DONT_KNOW_SENTENCE)
+DONT_KNOW_CHAT_PROMPTS = {**{field: getattr(DONT_KNOW_CHAT, field) for field in ChatPrompts.__dataclass_fields__},
+                          "dont_know_option": DONT_KNOW_OPTION, "dont_know_sentence": CHAT_DONT_KNOW_SENTENCE}
+DONT_KNOW_CHAT_PROMPT_VERSION = hashlib.sha256(
+    json.dumps(DONT_KNOW_CHAT_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()[:12]
+ENGLISH_DONT_KNOW_CHAT_PROMPTS = {**{field: getattr(ENGLISH_DONT_KNOW_CHAT, field) for field in ChatPrompts.__dataclass_fields__},
+                                  "options_heading": ENGLISH_OPTIONS_HEADING, "dont_know_option": ENGLISH_DONT_KNOW_OPTION,
+                                  "dont_know_sentence": ENGLISH_DONT_KNOW_SENTENCE}
+ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION = hashlib.sha256(
+    json.dumps(ENGLISH_DONT_KNOW_CHAT_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()[:12]
+# The decision models: the providers whose requests carry the System One instructions (system_one_instructions); every
+# other provider is a chat provider, asked with ChatPrompts.
+DECISION_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no")
+
+
+def chat_prompts(english: bool, dont_know: bool) -> ChatPrompts:
+    """A chat provider's prompts in a run in English (--english) or Turkish, with or without "I don't know"."""
+    if english:
+        return ENGLISH_DONT_KNOW_CHAT if dont_know else ENGLISH_CHAT
+    return DONT_KNOW_CHAT if dont_know else TURKISH_CHAT
+
+
+def run_prompt_version(provider: str, english: bool, dont_know: bool, dont_know_word: str | None) -> str:
+    """The prompt version a run records: of the decision models' prompts (System One providers and vllm-yes-no) or the
+    chat models', in English (--english) or Turkish, with or without "I don't know" (and its option word)."""
+    decision = provider in DECISION_PROVIDERS
+    if english:
+        if dont_know:
+            return ENGLISH_DONT_KNOW_PROMPT_VERSION if decision else ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION
+        return ENGLISH_PROMPT_VERSION if decision else ENGLISH_CHAT_PROMPT_VERSION
+    if dont_know_word == "english":
+        return DONT_KNOW_WORD_PROMPT_VERSION
     if dont_know:
-        return ENGLISH_DONT_KNOW_PROMPT_VERSION
-    return ENGLISH_PROMPT_VERSION if provider in (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no") else ENGLISH_CHAT_PROMPT_VERSION
+        return DONT_KNOW_PROMPT_VERSION if decision else DONT_KNOW_CHAT_PROMPT_VERSION
+    return PROMPT_VERSION
 
 
 # Where a clone of the published repository (HARNESS_REPO, see harness_commit) keeps this file.
@@ -938,6 +1016,12 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--perplexity-mode",
+        choices=("web_grounding",),
+        help="With --provider perplexity: the Decisions API request's `mode`; web_grounding runs a Perplexity web search "
+        "for each question and adds its results to the state as evidence (default: none, the state alone)",
+    )
+    parser.add_argument(
         "--vllm-url",
         default=DEFAULT_VLLM_URL,
         help=f"vLLM server base URL for --provider {', '.join(VLLM_PROVIDERS)} (default: {DEFAULT_VLLM_URL})",
@@ -1062,8 +1146,8 @@ def parse_args() -> argparse.Namespace:
         "--dont-know",
         action="store_true",
         help=f'add the option "{DONT_KNOW_OPTION}" (I don\'t know) after each question\'s own options, never shuffled and '
-        f'never correct, and end the System One instructions with "{DONT_KNOW_SENTENCE}"; the report counts how often '
-        "the model chose it",
+        f'never correct, and end the System One instructions with "{DONT_KNOW_SENTENCE}", a chat provider\'s instructions '
+        f'with "{CHAT_DONT_KNOW_SENTENCE}"; the report counts how often the model chose it',
     )
     parser.add_argument(
         "--dont-know-word",
@@ -1081,7 +1165,7 @@ def parse_args() -> argparse.Namespace:
         help="ask the questions listed with --questions in their English translation from PATH (JSONL: question_id and "
         "english {body, options}), with the options under an English heading and the instructions naming English "
         f'instead of Turkish; kept out of the main tables. With --dont-know the option is "{ENGLISH_DONT_KNOW_OPTION}" '
-        f'and the instructions end with "{ENGLISH_DONT_KNOW_SENTENCE}"',
+        f'and the instructions (a chat provider\'s each) end with "{ENGLISH_DONT_KNOW_SENTENCE}"',
     )
     parser.add_argument(
         "--repeat",
@@ -1157,8 +1241,10 @@ def parse_args() -> argparse.Namespace:
         parser.error("--questions cannot be combined with --sample or --limit")
     if args.provider in SINGLE_QUESTION_PROVIDERS and args.batch_size != 1:
         parser.error(f"--provider {args.provider} sends one question per request; use --batch-size 1")
-    if args.dont_know and (args.provider not in SYSTEM_ONE or args.batch_size != 1):
-        parser.error("--dont-know is only supported by the System One providers, with one question per request")
+    if args.dont_know and args.provider == "vllm-yes-no":
+        parser.error("--dont-know is not supported by --provider vllm-yes-no")
+    if args.perplexity_mode is not None and args.provider != "perplexity":
+        parser.error("--perplexity-mode is only supported by --provider perplexity")
     if args.english is not None:
         for flag, value in (("--shuffle-options", args.shuffle_options), ("--replace-key-text", args.replace_key_text)):
             if value is not None:
@@ -1170,6 +1256,8 @@ def parse_args() -> argparse.Namespace:
             parser.error("--dont-know-word needs --dont-know")
         if args.english is not None:
             parser.error("argument --dont-know-word: not allowed with argument --english")
+        if args.provider not in SYSTEM_ONE:
+            parser.error("--dont-know-word is only supported by the System One providers")
     if args.rerun is not None:
         if not args.rerun.strip():
             parser.error("--rerun needs a non-empty TAG")
@@ -1801,6 +1889,7 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                 "english": result.get("english"),
                 "dont_know_word": result.get("dont_know_word"),
                 "rerun": result.get("rerun"),
+                "perplexity_mode": result.get("perplexity_mode"),
                 "answers": answers,
             }
         )
@@ -1837,22 +1926,33 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
     document = {
         "schema_version": 2,
         "prompts": dict(PROMPTS),
-        # The prompts of the "I don't know" variant, when one of its (Turkish, Bilmiyorum) runs is exported.
+        # The prompts of the "I don't know" variant, when one of its (Turkish, Bilmiyorum) decision-model runs is exported.
         **({"dont_know_prompts": dict(DONT_KNOW_PROMPTS)}
            if any(result.get("dont_know") and not result.get("english") and not result.get("dont_know_word")
+                  and result.get("provider") in DECISION_PROVIDERS for result in results) else {}),
+        # The prompts of the chat models' "I don't know" (--dont-know with a chat provider), when one of their runs is
+        # exported.
+        **({"dont_know_chat_prompts": dict(DONT_KNOW_CHAT_PROMPTS)}
+           if any(result.get("dont_know") and not result.get("english") and result.get("provider") not in DECISION_PROVIDERS
                   for result in results) else {}),
         # The prompts of English reading (--english), when one of its runs is exported.
         **({"english_prompts": dict(ENGLISH_PROMPTS)}
-           if any(result.get("english") and not result.get("dont_know") and result.get("provider") in (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no")
+           if any(result.get("english") and not result.get("dont_know") and result.get("provider") in DECISION_PROVIDERS
                   for result in results) else {}),
         # The prompts of English reading for the chat models (--english with a chat provider), when one of their runs is
         # exported.
         **({"english_chat_prompts": dict(ENGLISH_CHAT_PROMPTS)}
-           if any(result.get("english") and result.get("provider") not in (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no")
+           if any(result.get("english") and not result.get("dont_know") and result.get("provider") not in DECISION_PROVIDERS
                   for result in results) else {}),
-        # The prompts of English "I don't know" (--english with --dont-know), when one of its runs is exported.
+        # The prompts of English "I don't know" (--english with --dont-know), when one of its decision-model runs is exported.
         **({"english_dont_know_prompts": dict(ENGLISH_DONT_KNOW_PROMPTS)}
-           if any(result.get("english") and result.get("dont_know") for result in results) else {}),
+           if any(result.get("english") and result.get("dont_know") and result.get("provider") in DECISION_PROVIDERS
+                  for result in results) else {}),
+        # The prompts of the chat models' English "I don't know" (--english with --dont-know and a chat provider), when one
+        # of their runs is exported.
+        **({"english_dont_know_chat_prompts": dict(ENGLISH_DONT_KNOW_CHAT_PROMPTS)}
+           if any(result.get("english") and result.get("dont_know") and result.get("provider") not in DECISION_PROVIDERS
+                  for result in results) else {}),
         # The prompts of the option-word check (--dont-know-word english), when one of its runs is exported.
         **({"dont_know_word_prompts": dict(DONT_KNOW_WORD_PROMPTS)}
            if any(result.get("dont_know_word") == "english" for result in results) else {}),
@@ -1933,6 +2033,8 @@ def open_result_database(path: Path) -> sqlite3.Connection:
         ("runs", "dont_know_word", "TEXT"),
         # --rerun: the fresh run's tag.
         ("runs", "rerun", "TEXT"),
+        # --perplexity-mode: the Decisions API request's mode ("web_grounding"), else NULL.
+        ("runs", "perplexity_mode", "TEXT"),
     ):
         columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})")}
         if column not in columns:
@@ -2005,6 +2107,7 @@ def start_run(
     english: str | None = None,
     dont_know_word: str | None = None,
     rerun: str | None = None,
+    perplexity_mode: str | None = None,
 ) -> RunIdentity:
     dataset_hash = file_sha256(data_path)
     selection_text = "\n".join(str(question.question_id) for question in selection.questions)
@@ -2044,6 +2147,9 @@ def start_run(
         identity_config["rerun"] = rerun
     if repeat is not None:
         identity_config["repeat"] = repeat
+    if perplexity_mode is not None:
+        # A grounded run never resumes one answered from the state alone, nor the other way round.
+        identity_config["perplexity_mode"] = perplexity_mode
     identity = json.dumps(
         identity_config,
         sort_keys=True,
@@ -2051,13 +2157,7 @@ def start_run(
     )
     run_key = hashlib.sha256(identity.encode()).hexdigest()
     now = utc_now()
-    if english is not None:
-        prompt_version = english_prompt_version(provider, bool(dont_know))
-    else:
-        prompt_version = (
-            DONT_KNOW_WORD_PROMPT_VERSION if dont_know_word == "english"
-            else DONT_KNOW_PROMPT_VERSION if dont_know else PROMPT_VERSION
-        )
+    prompt_version = run_prompt_version(provider, english is not None, bool(dont_know), dont_know_word)
     existing = connection.execute("SELECT prompt_version FROM runs WHERE run_key=?", (run_key,)).fetchone()
     if existing is not None and not restart and existing["prompt_version"] not in (None, prompt_version):
         raise ValueError(
@@ -2072,10 +2172,10 @@ def start_run(
             INSERT OR IGNORE INTO runs (
                 run_key, model, provider, dataset, dataset_sha256, selection_sha256,
                 ollama_url, seed, batch_size, num_ctx, shuffle_options, replace_key_text, dont_know, english, dont_know_word,
-                rerun, repeat,
+                rerun, repeat, perplexity_mode,
                 thinking_mode, selected_total, evaluated_total, skipped_json, status, created_at, updated_at, harness_commit,
                 prompt_version
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
             """,
             (
                 run_key,
@@ -2095,6 +2195,7 @@ def start_run(
                 dont_know_word,
                 rerun,
                 repeat,
+                perplexity_mode,
                 thinking_label(thinking),
                 selection.eligible_total,
                 len(selection.questions),
@@ -3277,13 +3378,17 @@ def ask_jev(
     verbose_log: TextIO | None,
     images: tuple[Path, ...] = (),
     instructions: str = JEV_INSTRUCTIONS,
+    mode: str | None = None,
 ) -> tuple[str | None, str]:
     """Ask one System One `choice` question; requests carry no key when `api_key` is None. `images` go with the
-    question's text (see add_images); without them the request is text only."""
+    question's text (see add_images); without them the request is text only. `mode` is the request's `mode` field
+    (Perplexity's "web_grounding"); without it the request has none."""
     labels = [option.label for option in question.options]
     # Open-Jev and Laya serve one checkpoint and take no model field, so their model argument is only
     # the report label.
     payload: dict[str, Any] = {"model": model} if service.model_field else {}
+    if mode is not None:
+        payload["mode"] = mode
     if service.openai_format:
         payload.update(
             input=question.prompt,
@@ -3715,14 +3820,14 @@ def ask_batch(
     args: argparse.Namespace, questions: list[Question], thinking: bool | str, verbose_log: TextIO | None
 ) -> tuple[list[str | None], str]:
     """One request to the run's provider: an answer per question, and the raw response to store. A chat provider's
-    request of an English reading run (--english) takes the English chat prompts (ENGLISH_CHAT)."""
-    prompts = ENGLISH_CHAT if args.english is not None else TURKISH_CHAT
+    request takes the chat prompts of the run's language and "I don't know" setting (chat_prompts)."""
+    prompts = chat_prompts(args.english is not None, args.dont_know)
     if args.provider == "openai":
         return ask_openai(args.codex_bin, args.model, questions, args.timeout, str(thinking), verbose_log, prompts)
     if args.provider in SYSTEM_ONE_PROVIDERS:
         prediction, raw_response = ask_jev(
             SYSTEM_ONE[args.provider], args.jev_url, args.jev_api_key, args.model, questions[0], args.timeout, verbose_log,
-            instructions=decision_instructions(args),
+            instructions=decision_instructions(args), mode=args.perplexity_mode,
         )
         return [prediction], raw_response
     if args.provider == "vllm-yes-no":
@@ -3892,6 +3997,8 @@ def variant_note(result: dict[str, Any]) -> str:
         notes.append(f"rerun {result['rerun']}")
     if result.get("repeat") is not None:
         notes.append(f"repeat {result['repeat']}")
+    if result.get("perplexity_mode") == "web_grounding":
+        notes.append("web grounding")
     return "".join(f", {note}" for note in notes)
 
 
@@ -4478,6 +4585,13 @@ def dont_know_lines(runs: list[dict[str, Any]]) -> list[str]:
         "Mean probability | Original | Cut-off | Derived attempt rate | Derived non-hallucination |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|",
     ]
+    if any(result.get("provider", "ollama") not in DECISION_PROVIDERS for result in runs):
+        lines[4:4] = [
+            "",
+            f'A chat model\'s run lists the option last as well and ends each instruction of its runs\' prompts with '
+            f'"{CHAT_DONT_KNOW_SENTENCE}" (prompt version {DONT_KNOW_CHAT_PROMPT_VERSION}), in English with '
+            f'"{ENGLISH_DONT_KNOW_SENTENCE}" (prompt version {ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION}).',
+        ]
     for result in runs:
         data = result["dont_know_answers"]
         derived = data["derived"]
@@ -4585,6 +4699,11 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
             + ")"
             for (provider, model), price in PRICES.items()
         )
+        + "; with web grounding (--perplexity-mode web_grounding): "
+        + "; ".join(
+            f"{provider} {model}: {price_text(price)} ({price.basis}, {price.date})"
+            for (provider, model), price in WEB_GROUNDING_PRICES.items()
+        )
         + ". Dataset: the question bank's file name and the first 8 hex digits of its SHA-256.",
         "",
         "| Provider | Model | Thinking | Dataset | Questions | Score | Correct | Invalid | Batch | Questions/min | Cost (USD) | Updated (UTC) |",
@@ -4680,6 +4799,8 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
             options.append(f'Options: "{option}" added after each question\'s own, never correct  ')
         if result.get("english"):
             options.append(f"Questions: in English, translations {result['english']['translations_sha256'][:12]}  ")
+        if result.get("perplexity_mode") is not None:
+            options.append(f"Requests: mode {result['perplexity_mode']} (a web search per question, its results added as evidence)  ")
         lines.extend(
             [
                 "",
@@ -4881,6 +5002,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     (graded_answers), including the run's totals and units."""
     run = connection.execute(
         "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,dont_know,english,dont_know_word,rerun,"
+        "perplexity_mode,"
         "prompt_version,"
         "evaluated_total,thinking_mode,batch_size,dataset,dataset_sha256,selection_sha256,created_at FROM runs WHERE run_key=?",
         (run_key,),
@@ -4980,7 +5102,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     metrics.update(latency_summary(request_seconds))
     metrics.update(totals)
     metrics["requests"] = requests
-    price = PRICES.get((provider, run["model"]))
+    price = run_price(provider, run["model"], run["perplexity_mode"])
     if price is not None:
         metrics["cost_usd"] = price.cost(totals, requests)
         metrics["price"] = {
@@ -4990,6 +5112,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
             "change": price.change,
             "applies_to": price.applies_to,
             "extra_input_per_request": price.extra_input_per_request,
+            "per_request": price.per_request,
             "rates": price.rates(),
             "text": price_text(price),
         }
@@ -5025,11 +5148,12 @@ def key_replacement(
         """
         SELECT id, run_key, dataset FROM runs WHERE provider=? AND model=? AND thinking_mode=? AND batch_size=? AND dataset_sha256=?
             AND selection_sha256=? AND replace_key_text IS NULL AND shuffle_options IS NULL AND dont_know IS NULL
-            AND english IS NULL AND dont_know_word IS NULL AND rerun IS NULL
+            AND english IS NULL AND dont_know_word IS NULL AND rerun IS NULL AND perplexity_mode IS ?
             AND status='completed'
         ORDER BY id DESC LIMIT 1
         """,
-        (run["provider"], run["model"], run["thinking_mode"], run["batch_size"], run["dataset_sha256"], run["selection_sha256"]),
+        (run["provider"], run["model"], run["thinking_mode"], run["batch_size"], run["dataset_sha256"], run["selection_sha256"],
+         run["perplexity_mode"]),
     ).fetchone()
     unchanged_scores: dict[int, float | None] = {}
     if unchanged is not None:
@@ -5121,22 +5245,23 @@ def dont_know_answers(
             """
             SELECT id, run_key, dataset FROM runs WHERE provider=? AND model=? AND thinking_mode=? AND batch_size=?
                 AND replace_key_text IS NULL AND shuffle_options IS NULL AND dont_know IS NULL AND english=?
-                AND selection_sha256=? AND repeat IS NULL AND rerun IS NULL AND status='completed'
+                AND selection_sha256=? AND repeat IS NULL AND rerun IS NULL AND perplexity_mode IS ? AND status='completed'
             ORDER BY id LIMIT 1
             """,
-            (provider, run["model"], run["thinking_mode"], run["batch_size"], run["english"], run["selection_sha256"]),
+            (provider, run["model"], run["thinking_mode"], run["batch_size"], run["english"], run["selection_sha256"],
+             run["perplexity_mode"]),
         ).fetchone()
     else:
         original = connection.execute(
             """
             SELECT id, run_key, dataset FROM runs WHERE provider=? AND model=? AND thinking_mode=? AND batch_size=?
                 AND replace_key_text IS NULL AND shuffle_options IS NULL AND dont_know IS NULL AND english IS NULL
-                AND dont_know_word IS NULL AND rerun IS NULL
+                AND dont_know_word IS NULL AND rerun IS NULL AND perplexity_mode IS ?
                 AND repeat IS NULL
                 AND evaluated_total=selected_total AND status='completed'
             ORDER BY id LIMIT 1
             """,
-            (provider, run["model"], run["thinking_mode"], run["batch_size"]),
+            (provider, run["model"], run["thinking_mode"], run["batch_size"], run["perplexity_mode"]),
         ).fetchone()
     derived = None
     if original is not None and questions:
@@ -5272,13 +5397,15 @@ def run_doubt(
 
 def in_main_tables(result: dict[str, Any]) -> bool:
     """Whether a run belongs in the report's main tables: a run over its question bank's whole question
-    set, neither a repeat nor a run with a replaced correct option, the "I don't know" option or in English."""
+    set, neither a repeat nor a run with a replaced correct option, the "I don't know" option, in English or with web
+    grounding (whose searches can find the bank's sources)."""
     return (
         result.get("replace_key_text") is None
         and not result.get("dont_know")
         and not result.get("english")
         and result.get("repeat") is None
         and result.get("rerun") is None
+        and result.get("perplexity_mode") is None
         and result["evaluated"] == result["eligible_total"]
     )
 
@@ -5459,6 +5586,7 @@ def run_repeats(connection: sqlite3.Connection, results: dict[str, dict[str, Any
         key = (
             Path(result["dataset"]).name, result.get("provider", "ollama"), result["model"], result["thinking"],
             result["batch_size"], result.get("shuffle_options"), bool(result.get("dont_know")), selection,
+            result.get("perplexity_mode"),
         )
         groups.setdefault(key, []).append(result)
     found = []
@@ -5636,7 +5764,7 @@ def run_batching(connection: sqlite3.Connection, results: dict[str, dict[str, An
     those questions. Runs on listed questions belong to the cascade pipelines, which compare them there."""
 
     def configuration(run: dict[str, Any]) -> tuple[Any, ...]:
-        return (run.get("provider", "ollama"), run["model"], run["thinking"])
+        return (run.get("provider", "ollama"), run["model"], run["thinking"], run.get("perplexity_mode"))
 
     def plain(run: dict[str, Any]) -> bool:
         return (run.get("replace_key_text") is None and run.get("shuffle_options") is None and not run.get("dont_know")
@@ -5838,10 +5966,11 @@ def run_record(
         "dont_know": True if args.dont_know else None,
         "dont_know_word": None if args.dont_know_word == "turkish" else args.dont_know_word,
         "rerun": args.rerun,
+        "perplexity_mode": args.perplexity_mode,
         "english": None if args.english is None else {
             "translations_sha256": args.english_sha256,
             "questions": len(selection.questions),
-            "prompt_version": english_prompt_version(args.provider, bool(args.dont_know)),
+            "prompt_version": run_prompt_version(args.provider, True, bool(args.dont_know), None),
         },
     }
 
@@ -5991,6 +6120,7 @@ def main() -> int:
             english=args.english_sha256,
             dont_know_word=None if args.dont_know_word == "turkish" else args.dont_know_word,
             rerun=args.rerun,
+            perplexity_mode=args.perplexity_mode,
         )
         if args.log_verbose:
             verbose_log, log_path = open_verbose_log(args.model)
@@ -6002,7 +6132,7 @@ def main() -> int:
             f"image_input={'on' if image_input else 'off'}, shuffle_options={args.shuffle_options}, "
             f"replace_key_text={args.replace_key_text}, dont_know={args.dont_know}, "
             f"english={args.english_sha256 and args.english_sha256[:12]}, dont_know_word={args.dont_know_word}, "
-            f"rerun={args.rerun}, run={identity.run_id})"
+            f"rerun={args.rerun}, perplexity_mode={args.perplexity_mode}, run={identity.run_id})"
         )
         correct, invalid, categories = evaluate(
             selection, result_connection, identity, args, thinking, verbose_log

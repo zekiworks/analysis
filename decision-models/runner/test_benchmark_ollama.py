@@ -14,6 +14,10 @@ from pathlib import Path
 from unittest import mock
 
 from benchmark_ollama import (
+    CHAT_DONT_KNOW_SENTENCE,
+    DONT_KNOW_CHAT,
+    DONT_KNOW_CHAT_PROMPT_VERSION,
+    DONT_KNOW_CHAT_PROMPTS,
     DONT_KNOW_OPTION,
     DONT_KNOW_PROMPT_VERSION,
     DONT_KNOW_PROMPTS,
@@ -25,7 +29,11 @@ from benchmark_ollama import (
     ENGLISH_CHAT_PROMPT_VERSION,
     ENGLISH_DONT_KNOW_INSTRUCTIONS,
     ENGLISH_DONT_KNOW_OPTION,
+    ENGLISH_DONT_KNOW_CHAT,
+    ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION,
+    ENGLISH_DONT_KNOW_CHAT_PROMPTS,
     ENGLISH_DONT_KNOW_PROMPT_VERSION,
+    ENGLISH_DONT_KNOW_SENTENCE,
     ENGLISH_DONT_KNOW_PROMPTS,
     ENGLISH_INSTRUCTIONS,
     ENGLISH_PROMPT_VERSION,
@@ -33,12 +41,14 @@ from benchmark_ollama import (
     JEV_INSTRUCTIONS,
     PROMPT_VERSION,
     PRICES,
+    WEB_GROUNDING_PRICES,
     TURKISH_CHAT,
     Option,
     Question,
     answer_problems,
     answer_usage,
     ask_batch,
+    confidence_answers,
     derived_abstention,
     dont_know_lines,
     english_lines,
@@ -370,12 +380,209 @@ class DontKnowTests(unittest.TestCase):
         self.assertTrue(in_main_tables(run))
         self.assertFalse(in_main_tables({**run, "dont_know": True}))
 
-    def test_only_system_one_providers_take_it(self) -> None:
-        with mock.patch("sys.argv", ["benchmark_ollama.py", "llama3", "--provider", "ollama", "--dont-know"]), \
+    def test_every_provider_but_vllm_yes_no_takes_it(self) -> None:
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "m", "--provider", "vllm-yes-no", "--dont-know"]), \
                 mock.patch("sys.stderr"), self.assertRaises(SystemExit):
             parse_args()
         with mock.patch("sys.argv", ["benchmark_ollama.py", "subq-snap-1.1", "--provider", "subq", "--dont-know"]):
             self.assertTrue(parse_args().dont_know)
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "llama3", "--provider", "ollama", "--dont-know"]):
+            self.assertTrue(parse_args().dont_know)
+
+
+class ChatDontKnowTests(unittest.TestCase):
+    """"I don't know" for the chat models (--dont-know with a chat provider): the option last, and one more sentence
+    ending each instruction, in Turkish or English, in runs of their own."""
+
+    bank = DontKnowTests.bank
+
+    def translations(self, root: Path, records: list[dict]) -> Path:
+        return EnglishTests.translations(self, root, records)
+
+    @staticmethod
+    def record(question_id: int) -> dict:
+        return EnglishTests.record(question_id)
+
+    CHAT_PROVIDERS = ("openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", "vllm", "vllm-stated",
+                      "vllm-verbal", "vllm-vote", "ollama")
+
+    @staticmethod
+    def texts(value: object) -> list[str]:
+        """Every string in a captured request, each object and array in it as JSON, with JSON inside a string read too."""
+        if isinstance(value, dict):
+            return [json.dumps(value, ensure_ascii=False), *(text for item in value.values() for text in ChatDontKnowTests.texts(item))]
+        if isinstance(value, (list, tuple)):
+            return [json.dumps(value, ensure_ascii=False, default=str),
+                    *(text for item in value for text in ChatDontKnowTests.texts(item))]
+        if isinstance(value, bytes):
+            value = value.decode("utf-8")
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                return [value]
+            return [value, *ChatDontKnowTests.texts(parsed)] if isinstance(parsed, (dict, list)) else [value]
+        return []
+
+    def request(self, provider: str, batch: list[Question], english: Path | None, dont_know: bool) -> str:
+        """Everything one ask_batch request of `provider` sends: payload, command, stdin and the files it names."""
+        seen: list[object] = []
+
+        class Stop(Exception):
+            pass
+
+        def post(endpoint, payload, *rest, **kw):
+            seen.append(payload)
+            raise Stop
+
+        def run(command, *rest, **kw):
+            seen.extend([command, kw.get("input")])
+            for part in map(str, command):
+                for name in (part, part.split("=", 1)[-1].strip('"')):
+                    try:
+                        seen.append(Path(name).read_text(encoding="utf-8"))
+                    except (OSError, ValueError):
+                        pass
+            raise Stop
+
+        def urlopen(request, *rest, **kw):
+            seen.append(request.data)
+            raise Stop
+
+        args = argparse.Namespace(
+            provider=provider, model="m", timeout=1, seed=0, english=english, dont_know=dont_know, dont_know_word="turkish",
+            codex_bin="codex", claude_bin="claude", gemini_api_key="k", gemini_thinking="low", claude_effort="low",
+            xai_reasoning="low", antigravity_thinking="low", openrouter_reasoning="low", openrouter_order="p",
+            openrouter_require_parameters=True, openrouter_json_object=False, vllm_url="http://localhost",
+            ollama_url="http://localhost", num_ctx=None,
+        )
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), \
+                mock.patch("benchmark_ollama.subprocess.run", side_effect=run), \
+                mock.patch("benchmark_ollama.urlopen", side_effect=urlopen), \
+                mock.patch("benchmark_ollama.omp_token", return_value="t"), \
+                mock.patch("benchmark_ollama.omp_login_field", return_value="p"), \
+                mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "k"}), self.assertRaises(Stop):
+            ask_batch(args, batch, False, None)
+        return "\n".join(self.texts(seen))
+
+    def test_the_sentences_and_the_option_reach_every_chat_providers_request_in_both_languages(self) -> None:
+        self.assertEqual(CHAT_DONT_KNOW_SENTENCE, "Cevabı bilmiyorsanız Bilmiyorum seçeneğini seçin.")
+        self.assertEqual(ENGLISH_DONT_KNOW_SENTENCE, "If you do not know the answer, choose I don't know.")
+        path = self.bank()
+        turkish = load_questions(path, None, None, None, 0, dont_know=True).questions
+        translations = self.translations(path.parent, [self.record(1), self.record(2), self.record(3)])
+        english = english_selection(load_questions(path, None, None, None, 0, dont_know=True), translations, True).questions
+        for provider in self.CHAT_PROVIDERS:
+            batch = list(turkish[:1] if provider in ("vllm-verbal", "vllm-vote") else turkish[:2])
+            english_batch = list(english[:len(batch)])
+            for language, questions, file, prompts, five, option in (
+                    ("turkish", batch, None, DONT_KNOW_CHAT, TURKISH_CHAT, f"F. {DONT_KNOW_OPTION}"),
+                    ("english", english_batch, Path("t.jsonl"), ENGLISH_DONT_KNOW_CHAT, ENGLISH_CHAT, f"F. {ENGLISH_DONT_KNOW_OPTION}")):
+                with self.subTest(provider=provider, language=language):
+                    sent = self.request(provider, questions, file, True)
+                    instruction = (prompts.verbal_instruction if provider in ("vllm-verbal", "vllm-vote")
+                                   else prompts.answer_instruction if provider in ("vllm", "ollama")
+                                   else prompts.confidence_instruction)
+                    self.assertIn(instruction, sent)
+                    self.assertTrue(instruction.endswith(CHAT_DONT_KNOW_SENTENCE if language == "turkish" else ENGLISH_DONT_KNOW_SENTENCE))
+                    self.assertIn(option, sent)
+                    # The answer schema offers the option's letter with the others.
+                    self.assertRegex(sent, r'"enum": ?\[[^\]]*"E", ?"F"\]')
+                    # The system prompts and question headers stay those of the five-option runs.
+                    self.assertIn(five.question_header.split(" ")[0], sent)
+                    self.assertIn(prompts.confidence_system if instruction == prompts.confidence_instruction
+                                  else prompts.answer_system if instruction == prompts.answer_instruction
+                                  else prompts.verbal_system, sent)
+        for field in ("answer_system", "confidence_system", "verbal_system", "question_header", "image_note"):
+            self.assertEqual(getattr(DONT_KNOW_CHAT, field), getattr(TURKISH_CHAT, field))
+            self.assertEqual(getattr(ENGLISH_DONT_KNOW_CHAT, field), getattr(ENGLISH_CHAT, field))
+        self.assertEqual(DONT_KNOW_CHAT.confidence_instruction, f"{TURKISH_CHAT.confidence_instruction} {CHAT_DONT_KNOW_SENTENCE}")
+
+    def test_without_the_flag_the_requests_keep_the_five_option_prompts(self) -> None:
+        path = self.bank()
+        batch = list(load_questions(path, None, None, None, 0).questions[:2])
+        for provider in ("claude", "gemini", "openrouter-chat"):
+            with self.subTest(provider=provider):
+                sent = self.request(provider, batch, None, False)
+                self.assertIn(TURKISH_CHAT.confidence_instruction + "\n\n", sent)
+                self.assertNotIn(CHAT_DONT_KNOW_SENTENCE, sent)
+                self.assertNotIn(DONT_KNOW_OPTION, sent)
+
+    def test_a_reply_choosing_the_option_is_read(self) -> None:
+        batch = list(load_questions(self.bank(), None, None, None, 0, dont_know=True).questions[:2])
+        predictions, _ = confidence_answers({"1": {"answer": "F", "confidence": 0.3}, "2": {"answer": "G", "confidence": 1}}, batch)
+        self.assertEqual(predictions, ["F", None])
+
+    def test_its_prompts_have_their_own_versions_and_its_runs_their_own_keys(self) -> None:
+        for prompts, version, chat, option, sentence in (
+                (DONT_KNOW_CHAT_PROMPTS, DONT_KNOW_CHAT_PROMPT_VERSION, DONT_KNOW_CHAT, DONT_KNOW_OPTION, CHAT_DONT_KNOW_SENTENCE),
+                (ENGLISH_DONT_KNOW_CHAT_PROMPTS, ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION, ENGLISH_DONT_KNOW_CHAT,
+                 ENGLISH_DONT_KNOW_OPTION, ENGLISH_DONT_KNOW_SENTENCE)):
+            compact = json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            self.assertEqual(version, hashlib.sha256(compact.encode("utf-8")).hexdigest()[:12])
+            self.assertEqual((prompts["confidence_instruction"], prompts["dont_know_option"], prompts["dont_know_sentence"]),
+                             (chat.confidence_instruction, option, sentence))
+        versions = {PROMPT_VERSION, DONT_KNOW_PROMPT_VERSION, ENGLISH_PROMPT_VERSION, ENGLISH_CHAT_PROMPT_VERSION,
+                    ENGLISH_DONT_KNOW_PROMPT_VERSION, DONT_KNOW_CHAT_PROMPT_VERSION, ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION}
+        self.assertEqual(len(versions), 7)
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        translations = self.translations(path.parent, [self.record(1), self.record(2), self.record(3)])
+        found = {}
+        for english in (False, True):
+            for dont_know in (False, True):
+                selection = load_questions(path, None, None, None, 0, dont_know=dont_know)
+                if english:
+                    selection = english_selection(selection, translations, dont_know)
+                with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+                    identity = start_run(connection, selection, "m", path, "gemini", "http://localhost", 0, 16, "low", None,
+                                         False, None, None, dont_know, None, False, english="ab" * 32 if english else None)
+                row = connection.execute("SELECT prompt_version, dont_know FROM runs WHERE id=?", (identity.run_id,)).fetchone()
+                found[english, dont_know] = (identity.run_key, row["prompt_version"], row["dont_know"])
+        self.assertEqual(len({key for key, _, _ in found.values()}), 4)
+        self.assertEqual(found[False, False][1:], (PROMPT_VERSION, None))
+        self.assertEqual(found[False, True][1:], (DONT_KNOW_CHAT_PROMPT_VERSION, 1))
+        self.assertEqual(found[True, False][1:], (ENGLISH_CHAT_PROMPT_VERSION, None))
+        self.assertEqual(found[True, True][1:], (ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION, 1))
+
+    def test_chat_providers_take_it_at_any_request_size_and_not_the_option_word(self) -> None:
+        base = ["benchmark_ollama.py", "m", "--batch-size", "16", "--dont-know"]
+        for provider in ("claude", "openai", "gemini", "xai", "vllm", "vllm-stated"):
+            with self.subTest(provider=provider), mock.patch("sys.argv", [*base, "--provider", provider]):
+                self.assertTrue(parse_args().dont_know)
+        with mock.patch("sys.argv", [*base, "--provider", "claude", "--english", "t.jsonl", "--questions", "kept.txt"]):
+            args = parse_args()
+        self.assertEqual((args.dont_know, args.english), (True, Path("t.jsonl")))
+        with mock.patch("sys.argv", [*base, "--provider", "claude", "--dont-know-word", "english"]), \
+                mock.patch("sys.stderr"), self.assertRaises(SystemExit):
+            parse_args()
+
+    def test_answers_json_carries_the_prompts_of_the_runs_it_holds(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        selection = load_questions(path, None, None, None, 0, dont_know=True)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, "gemini", "http://localhost", 0, 16, "low", None, False,
+                                 None, None, True, None, False)
+        raw = json.dumps({"answers": {str(q.question_id): {"answer": "F", "confidence": 0.5} for q in selection.questions}})
+        store_answers(connection, identity.run_id, list(enumerate(selection.questions)), ["F"] * 3, raw, 0.1, 0.1)
+        mark_run(connection, identity.run_id, "completed")
+        record = {"run_key": identity.run_key, "run_id": identity.run_id, "dataset": str(path),
+                  "dataset_sha256": identity.dataset_sha256, "provider": "gemini", "model": "m", "thinking": "low",
+                  "batch_size": 16, "evaluated": 3, "eligible_total": 3, "selection_sha256": identity.selection_sha256,
+                  "replace_key_text": None, "repeat": None, "dont_know": True, "metrics": None}
+        report = path.parent / "report.md"
+        report.write_text(f"<!-- benchmark-result: {json.dumps(record)} -->\n", encoding="utf-8")
+        export_answers(path.parent / "answers.json", report, connection)
+        document = json.loads((path.parent / "answers.json").read_text(encoding="utf-8"))
+        self.assertEqual(document["dont_know_chat_prompts"], DONT_KNOW_CHAT_PROMPTS)
+        for key in ("dont_know_prompts", "english_dont_know_prompts", "english_dont_know_chat_prompts", "english_chat_prompts"):
+            self.assertNotIn(key, document)
+        self.assertIn(CHAT_DONT_KNOW_SENTENCE, "\n".join(dont_know_lines([{**record, "run_id": 1, "dont_know_answers": {
+            "questions": 3, "right": 0, "wrong": 0, "dont_know": 3, "invalid": 0, "mean_option_probability": None,
+            "original_run": None, "derived": None}}])))
 
 
 class EnglishTests(unittest.TestCase):
@@ -433,7 +640,8 @@ class EnglishTests(unittest.TestCase):
                 raise RuntimeError("stop")
             return {"answers": {"answer": {"choice": "A"}}}, {}
 
-        common = {"model": "m", "timeout": 1, "dont_know": False, "dont_know_word": "turkish", "english": Path("t.jsonl")}
+        common = {"model": "m", "timeout": 1, "dont_know": False, "dont_know_word": "turkish", "english": Path("t.jsonl"),
+                  "perplexity_mode": None}
         with mock.patch("benchmark_ollama.post_json", side_effect=post):
             args = argparse.Namespace(provider="subq", jev_url="http://localhost", jev_api_key=None, **common)
             self.assertEqual(ask_batch(args, [question_], False, None)[0], ["A"])
@@ -586,7 +794,7 @@ class OptionWordTests(unittest.TestCase):
             return {"answers": {"answer": {"choice": "F"}}}, {}
 
         args = argparse.Namespace(provider="subq", jev_url="http://localhost", jev_api_key=None, model="m", timeout=1,
-                                  dont_know=True, english=None, dont_know_word="english")
+                                  dont_know=True, english=None, dont_know_word="english", perplexity_mode=None)
         with mock.patch("benchmark_ollama.post_json", side_effect=post):
             self.assertEqual(ask_batch(args, [english[0]], False, None)[0], ["F"])
         self.assertEqual(sent[-1]["questions"]["answer"]["instructions"], DONT_KNOW_WORD_INSTRUCTIONS)
@@ -712,6 +920,91 @@ class RerunTests(unittest.TestCase):
                 parse_args()
 
 
+class WebGroundingTests(unittest.TestCase):
+    """Perplexity's web grounding (--perplexity-mode web_grounding): the request's `mode`, in runs of their own."""
+
+    bank = DontKnowTests.bank
+    GROUNDED = {"answers": {"answer": {"type": "choice", "choice": "B", "probabilities": {label: 0.2 for label in "ABCDE"}}},
+                "usage": {"input_tokens": 1500, "output_tokens": 1},
+                "search_results": [{"title": "t", "url": "https://example.com/a", "snippet": "s"}]}
+
+    def store(self, connection: sqlite3.Connection, path: Path, mode: str | None, repeat: int | None = None) -> dict:
+        selection = load_questions(path, None, None, None, 0)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "pplx-decider-v1.2", path, "perplexity", "https://api.perplexity.ai", 0,
+                                 1, False, None, False, None, None, False, repeat, False, perplexity_mode=mode)
+        for ordinal, question_ in enumerate(selection.questions):
+            raw = json.dumps({"request_id": None, "response": self.GROUNDED})
+            store_answers(connection, identity.run_id, [(ordinal, question_)], ["B"], raw, 0.1, 0.1)
+        mark_run(connection, identity.run_id, "completed")
+        metrics = run_metrics(connection, identity.run_key, path.parent)
+        return {"run_key": identity.run_key, "run_id": identity.run_id, "dataset": str(path),
+                "dataset_sha256": identity.dataset_sha256, "provider": "perplexity", "model": "pplx-decider-v1.2",
+                "thinking": "off", "batch_size": 1, "evaluated": 3, "eligible_total": 3,
+                "selection_sha256": identity.selection_sha256, "replace_key_text": None, "repeat": repeat,
+                "perplexity_mode": mode, "metrics": metrics, **{key: metrics[key] for key in ("cost_usd",)}}
+
+    def test_the_mode_goes_in_the_request_only_when_set(self) -> None:
+        sent = []
+
+        def post(endpoint, payload, *rest):
+            sent.append(payload)
+            return self.GROUNDED, {}
+
+        question_ = load_questions(self.bank(), None, None, None, 0).questions[0]
+        common = {"provider": "perplexity", "jev_url": "https://api.perplexity.ai", "jev_api_key": "k", "model": "pplx-decider-v1.2",
+                  "timeout": 1, "dont_know": False, "dont_know_word": "turkish", "english": None}
+        with mock.patch("benchmark_ollama.post_json", side_effect=post):
+            for mode in (None, "web_grounding"):
+                self.assertEqual(ask_batch(argparse.Namespace(perplexity_mode=mode, **common), [question_], False, None)[0], ["B"])
+        self.assertNotIn("mode", sent[0])
+        self.assertEqual(sent[1], {**sent[0], "mode": "web_grounding"})
+
+    def test_a_grounded_run_is_its_own_run_with_the_search_fee(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        plain = self.store(connection, path, None)
+        grounded = self.store(connection, path, "web_grounding")
+        repeat = self.store(connection, path, "web_grounding", repeat=2)
+        self.assertEqual(len({plain["run_key"], grounded["run_key"], repeat["run_key"]}), 3)
+        self.assertEqual(connection.execute("SELECT perplexity_mode FROM runs WHERE id=?", (grounded["run_id"],)).fetchone()[0],
+                         "web_grounding")
+        # 3 requests of 1,500 input tokens at $0.02 per 1M, and a $0.001 search each when grounded.
+        self.assertTrue(math.isclose(plain["cost_usd"], 4500 * 0.02 / 1_000_000, rel_tol=1e-12))
+        self.assertTrue(math.isclose(grounded["cost_usd"], 4500 * 0.02 / 1_000_000 + 0.003, rel_tol=1e-12))
+        self.assertEqual(grounded["metrics"]["price"]["per_request"], 0.001)
+        self.assertIn("web grounding", run_label(grounded))
+        self.assertNotIn("web grounding", run_label(plain))
+        self.assertTrue(in_main_tables(plain))
+        self.assertFalse(in_main_tables(grounded))
+        records = {record["run_key"]: record for record in (plain, grounded, repeat)}
+        sets = run_repeats(connection, records, path.parent)
+        self.assertEqual([item["run_keys"] for item in sets], [[grounded["run_key"], repeat["run_key"]]])
+        report = path.parent / "report.md"
+        report.write_text("".join(f"<!-- benchmark-result: {json.dumps({**record, 'metrics': None})} -->\n"
+                                  for record in (plain, grounded)), encoding="utf-8")
+        export_answers(path.parent / "answers.json", report, connection)
+        document = json.loads((path.parent / "answers.json").read_text(encoding="utf-8"))
+        self.assertEqual([run["perplexity_mode"] for run in document["datasets"][0]["runs"]], [None, "web_grounding"])
+
+    def test_the_grounded_price_is_perplexitys(self) -> None:
+        price = WEB_GROUNDING_PRICES["perplexity", "pplx-decider-v1.2"]
+        self.assertEqual((price.input, price.per_request, price.source),
+                         (0.02, 0.001, "https://docs.perplexity.ai/docs/getting-started/pricing"))
+        self.assertEqual(PRICES["perplexity", "pplx-decider-v1.2"].per_request, 0.0)
+
+    def test_the_mode_needs_the_perplexity_provider(self) -> None:
+        base = ["benchmark_ollama.py", "pplx-decider-v1.2", "--perplexity-mode", "web_grounding"]
+        with mock.patch("sys.argv", [*base, "--provider", "perplexity"]):
+            self.assertEqual(parse_args().perplexity_mode, "web_grounding")
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "m", "--provider", "perplexity"]):
+            self.assertIsNone(parse_args().perplexity_mode)
+        for provider in ("pplx-decider", "subq"):
+            with self.subTest(provider=provider), mock.patch("sys.argv", [*base, "--provider", provider]), \
+                    mock.patch("sys.stderr"), self.assertRaises(SystemExit):
+                parse_args()
+
 
 class EnglishDontKnowTests(unittest.TestCase):
     """English "I don't know": the English reading questions with the option "I don't know", kept out of the main tables."""
@@ -769,7 +1062,7 @@ class EnglishDontKnowTests(unittest.TestCase):
             return {"answers": {"answer": {"choice": "F"}}}, {}
 
         args = argparse.Namespace(provider="subq", jev_url="http://localhost", jev_api_key=None, model="m", timeout=1,
-                                  dont_know=True, english=Path("t.jsonl"))
+                                  dont_know=True, english=Path("t.jsonl"), perplexity_mode=None)
         with mock.patch("benchmark_ollama.post_json", side_effect=post):
             self.assertEqual(ask_batch(args, [english.questions[0]], False, None)[0], ["F"])
         self.assertEqual(sent[-1]["questions"]["answer"]["instructions"], ENGLISH_DONT_KNOW_INSTRUCTIONS)

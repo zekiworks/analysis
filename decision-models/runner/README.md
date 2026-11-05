@@ -172,6 +172,7 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_gemini.sh`, `run_gemini_high.sh`, `run_gemini_one.sh` | Gemini 3.8 Flash (low thinking; high with 4 requests at a time; low with one question per request) | `GEMINI_API_KEY` |
 | `run_perplexity.sh` | Perplexity Decider 27B v1 | `PERPLEXITY_API_KEY` |
 | `run_perplexity_v1_1.sh` | Perplexity Decider 27B v1.1 (add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
+| `run_perplexity_v1_2.sh` | Perplexity Decider v1.2 through Perplexity's Decisions API (add `--perplexity-mode web_grounding` for web grounding, `--repeat N` for repeats) | `PERPLEXITY_API_KEY` |
 | `run_jev.sh` | TypeSafe Jev 1.13.0 | `JEV_API_KEY` or `TYPESAFE_API_KEY` |
 | `run_jev_114.sh` | TypeSafe Jev 1.14.0 (repeats 2–5: the `jev-114` lane of `run_experiments.sh`) | `JEV_API_KEY` |
 | `run_liquid_d1.sh` | Liquid AI d1 | `LIQUID_API_KEY` |
@@ -346,6 +347,16 @@ never resumes the configuration's earlier runs and is not one of its repeats (it
 Such runs stay out of the main tables, the repeats, the routing runs and the batching comparison, and
 `--export-answers` carries them with their tag.
 
+`--perplexity-mode web_grounding` (with `--provider perplexity`, for instance `./run_perplexity_v1_2.sh
+--perplexity-mode web_grounding --sample 200 --seed 0`) adds `"mode": "web_grounding"` to each Decisions API request:
+before the model answers, Perplexity runs one Fast Search per question (its query is the question's instructions and
+options followed by the start of the state) and adds the top results to the state as evidence; the response lists them
+as `search_results`, stored with each answer. Without the flag the request is unchanged. The mode is part of the run's
+identity and record (`perplexity_mode`), so a grounded run never resumes one without it, and its repeats form a
+configuration of their own. Its cost adds Perplexity's $0.001 per search, one per request, to the input tokens, which
+include the evidence (`WEB_GROUNDING_PRICES`). Grounded runs stay out of the main tables, since their searches can find
+the bank's sources, and `--export-answers` carries their mode.
+
 `run_english.sh LANE…` runs the English reading track: the kept reading questions (`ENGLISH_KEPT`) in their English
 translation (`ENGLISH_TRANSLATIONS`, made by `translate_reading.py`), with the options under "Options:" and the System
 One instructions naming English instead of Turkish (`--english`). `DONT_KNOW=1` adds `--dont-know`: the option "I don't
@@ -353,6 +364,16 @@ know" after each question's own and the English instructions ending with "If you
 know.", under a prompt version of their own. The report lists these runs in the "I don't know" section, deriving their
 rates from the model's first English reading run with the same translations and questions, and `--export-answers`
 writes their prompts as `english_dont_know_prompts`. All these runs stay out of the leaderboard.
+
+A chat provider (Claude, OpenAI, Gemini, xAI, Antigravity, OpenRouter chat, Ollama and the vLLM chat providers; not
+vllm-yes-no) takes `--dont-know` too, at any request size, with or without `--english`: the option "Bilmiyorum" ("I
+don't know" in English) is listed last after each question's own options, under the next letter (F), and every
+instruction of the run's chat prompts ends with one more sentence in the prompts' language, "Cevabı bilmiyorsanız
+Bilmiyorum seçeneğini seçin." or "If you do not know the answer, choose I don't know."; the system prompts, the question
+headers and the request otherwise stay those of the setup's five-option runs, and the answer schema offers the option's
+letter with the others. These prompts have versions of their own, the runs keep the "I don't know" identity and
+section, and `--export-answers` writes their prompts as `dont_know_chat_prompts` and `english_dont_know_chat_prompts`.
+`--dont-know-word` stays with the System One providers.
 
 ### The 2026 exam check
 
