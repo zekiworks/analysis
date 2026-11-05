@@ -53,9 +53,80 @@ function secondsText(value) {
   bar.querySelectorAll('a[data-view-test]').forEach(link => {
     link.setAttribute('href', `${link.getAttribute('href').split('?')[0]}?models=${group}`);
   });
+  // The benchmarks' tabs (Text, Page images, Hallucination, Turkish vs English) keep the group too, so no press loses it.
+  document.querySelectorAll('.bench-tabs a[href]').forEach(link => {
+    const [path, fragment] = link.getAttribute('href').split('#');
+    link.setAttribute('href', `${path.split('?')[0]}?models=${group}${fragment ? `#${fragment}` : ''}`);
+  });
   const measure = () => document.documentElement.style.setProperty('--view-bar-h', `${bar.offsetHeight}px`);
   measure();
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
+})();
+
+/* Every page: the view bar's row 3, the measure. Off the pages of row 1 its links open the home page's part with the
+   group in view. On a page of row 1 they link to the page's parts (#accuracy, #non-hallucination, #cost, #latency; the
+   query, so the group, stays) and the key of the part in view is marked: the part that crosses a line a quarter of the
+   way down the window below the bar, or the key just pressed until the reader scrolls on, as a part at the end of the
+   page may not reach that line. Between parts no key is marked. */
+(function setupMeasureRow() {
+  const bar = document.querySelector('.view-bar');
+  if (!bar) return;
+  const group = document.documentElement.dataset.modelsView;
+  const links = [...bar.querySelectorAll('a[data-view-measure]')];
+  const parts = [];
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href.startsWith('#')) {
+      const part = document.getElementById(link.dataset.viewMeasure);
+      if (part) parts.push({ link, part });
+    } else {
+      link.setAttribute('href', `${href.split(/[?#]/)[0]}?models=${group}#${link.dataset.viewMeasure}`);
+    }
+  });
+  if (!parts.length) return;
+  const mark = key => links.forEach(link => {
+    if (link.dataset.viewMeasure === key) link.setAttribute('aria-current', 'true');
+    else link.removeAttribute('aria-current');
+  });
+  let pressed = null;
+  let pressedAt = 0;
+  const inView = () => {
+    const top = bar.offsetHeight;
+    const line = top + (window.innerHeight - top) / 4;
+    const found = parts.find(({ part }) => {
+      if (!part.offsetParent) return false;
+      const box = part.getBoundingClientRect();
+      return box.top <= line && box.bottom > line;
+    });
+    return found ? found.link.dataset.viewMeasure : null;
+  };
+  const press = key => {
+    pressed = key;
+    mark(key);
+    requestAnimationFrame(() => { pressedAt = window.scrollY; });
+  };
+  let queued = false;
+  window.addEventListener('scroll', () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      if (pressed && Math.abs(window.scrollY - pressedAt) < 48) return;
+      pressed = null;
+      mark(inView());
+    });
+  }, { passive: true });
+  bar.addEventListener('click', event => {
+    const key = event.target.closest('a[data-view-measure]')?.dataset.viewMeasure;
+    if (key && parts.some(({ link }) => link.dataset.viewMeasure === key)) press(key);
+  });
+  const fromHash = () => {
+    const key = decodeURIComponent(window.location.hash.slice(1));
+    if (parts.some(({ link }) => link.dataset.viewMeasure === key)) press(key);
+    else mark(inView());
+  };
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
 })();
 
 /* On a phone the navigation bar scrolls sideways; a link that takes the keyboard focus is brought fully into view. */

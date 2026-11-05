@@ -151,18 +151,26 @@ python3 -m http.server 8000                                # preview at http://1
   its canonical address on the site.
   - **View bar** (`topbar` in `sitebuild/site.py`, first on every page and sticky at the top): row 1 the test (English
     reading, `english/`; Turkish reading and grammar, the home page; English and Turkish, `turkish-vs-english/`), row 2
-    the models (`?models=all|decision|chat`, all when missing). Each choice opens its page at the top, charts first, then
-    the table. `site.js` marks the current group, keeps it in row 1's links and shows each `data-models` element only
-    for its groups; on any other page row 2 leads to the home page with that group. The two English pages render, in
+    the models (`?models=all|decision|chat`, all when missing), row 3 the measure (Accuracy, Non-hallucination, Cost,
+    Latency). Each row 1 or row 2 choice opens its page at the top, charts first, then the table. `site.js` marks the
+    current group, keeps it in row 1's links and shows each `data-models` element only for its groups; on any other
+    page row 2 leads to the home page with that group. On the three test pages row 3 links to the page's parts
+    `#accuracy`, `#non-hallucination`, `#cost` and `#latency` (the query, so the group, stays), each landing below the
+    bar (`--view-bar-h`), and `site.js` marks the key of the part in view (or the one just pressed); on any other page
+    row 3 opens that part of the home page with the group in view. The All models view always ranks decision and chat
+    models together in one chart and one table per measure. The two English pages render, in
     static HTML, one copy per group of every part that depends on the setups shown (`data-models="all"`, shown without
     JavaScript; `decision` and `chat` hidden), with its counts and sentences computed for that group and its setups
     ranked by English accuracy within it; the parts about decision models only appear once
-    (`data-models="all decision"`) with one note for the chat group, as no chat model was asked with an "I don't know"
-    option. A setup that shares its name with another English setup is labelled with the settings that tell them apart,
-    as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
+    (`data-models="all decision"`) with a note that chat models are not measured yet, as no chat model was asked with
+    an "I don't know" option. A setup that shares its name with another English setup is labelled with the settings
+    that tell them apart, as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
     (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: accuracy per group, the
-    decision models' non-hallucination with "I don't know" in English, then the table per group ranked by English
-    accuracy.
+    decision models' non-hallucination with "I don't know" in English, cost per 1,000 questions and median latency per
+    request of each first English run per group (`english_reading.models[].cost.english` and `.latency.english`, log
+    scale, Not measured named in the note; `measure_card` in `sitebuild/english_reading.py`), then the table per group
+    ranked by English accuracy with the four measures. Turkish vs English draws the same Cost and Latency cards as
+    paired bars, the Text tab run (`.turkish`) and the first English run (`.english`), with both in its main table.
   - **Four tabs**: the site's four benchmarks, each with its own address and its own rankings, never combined: Text
     (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know`, `dont_know_option_word`, `hosted_glide_rerun` and
@@ -223,13 +231,17 @@ python3 -m http.server 8000                                # preview at http://1
     and in English side by side (`picks.json`'s `english`).
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
-    readers without JavaScript, the settings `v3.js` reads). Its face, after the intro and the filters, is one chart
-    card per measure, each with a line saying which way is better: Accuracy, with each setup's cost and median latency
-    beside its accuracy as the Cost and Latency cards write them ($ per 1,000 questions, § at the maker's list price;
-    seconds, * for a latency measured on a sample; Not measured where there is no value); accuracy against cost or
-    latency, with the Pareto line (the setups in view no other setup in view
+    readers without JavaScript, the settings `v3.js` reads, and the static Non-hallucination part). Its face, after the
+    intro and the filters, follows row 3 of the view bar: `#accuracy`, `#non-hallucination`, `#cost` and `#latency`,
+    then the rest; each chart card has a line saying which way is better: Accuracy, with each setup's cost and median
+    latency beside its accuracy as the Cost and Latency cards write them ($ per 1,000 questions, § at the maker's list
+    price; seconds, * for a latency measured on a sample; Not measured where there is no value); Non-hallucination
+    (`non_hallucination` in `build_site.py`, static HTML from `results.json`'s `dont_know`: the Hallucination tab's
+    decision models in its order, the rate with "Bilmiyorum" and the attempt rate as that tab writes them, bars in family
+    colours, a note that chat models are not measured yet, a link to that tab); Cost, then Cost of every setup; Latency;
+    accuracy against cost or latency, with the Pareto line (the setups in view no other setup in view
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
-    gap, as shipped, on all questions); Latency; Cost. The charts draw every setup of the model group the view bar
+    gap, as shipped, on all questions). The charts draw every setup of the model group the view bar
     selects (every setup together, the decision models or the chat and general models), within the filters;
     each bar or dot takes its model family's colour (`page_config.json` `model_families`: a maker's line of models shares
     one colour, in every chart and both groups; `run_families` in `sitebuild/site.py` stops the build unless every run

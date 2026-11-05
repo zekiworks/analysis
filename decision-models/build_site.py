@@ -44,7 +44,9 @@ sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
-from sitebuild.site import NOT_MEASURED, ROUTE_LLMS, Site, asset, route_labels, run_families, topbar  # noqa: E402
+from sitebuild.dont_know import ranked as dont_know_ranked  # noqa: E402
+from sitebuild.site import (NOT_MEASURED, ROUTE_LLMS, Site, asset, family_legend, hbars, pct, route_labels,  # noqa: E402
+                            run_families, topbar)
 
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
@@ -371,6 +373,46 @@ def page_settings(data: Data) -> str:
     return f'<script type="application/json" id="v3-settings">{json.dumps(settings, separators=(",", ":"))}</script>'
 
 
+def non_hallucination(site: Site) -> str:
+    """The home page's Non-hallucination part (#non-hallucination, row 3 of the view bar), in static HTML: the
+    Hallucination tab's models (results.json dont_know, decision models only) in that tab's order, each bar its
+    non-hallucination rate with the option in its model family's colour, then its attempt rate, both as that tab writes
+    them; for the chat group, whose models were not asked with the option, a note instead."""
+    data = site.results["dont_know"]
+    digits, option, total = site.config["percent_digits"], data["option"], data["questions"]
+    run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
+    if not all(site.decision(run_of(model)) for model in data["models"]):
+        raise SystemExit("results.json dont_know: a chat model, which the home page's Non-hallucination part leaves out")
+    models = dont_know_ranked(data["models"])
+    rated = [model for model in models if model["non_hallucination"] is not None]
+    unrated = [site.row_name(run_of(model)) for model in models if model["non_hallucination"] is None]
+    rows = [{"label": site.row_name(run_of(model)), "href": site.model_path(run_of(model)),
+             "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['attempt_rate'], digits)}",
+             "bars": [{"value": model["non_hallucination"], "colour": site.families[model["original_run"]]["colour"]}],
+             "title": f"{site.row_name(run_of(model))}: {model['dont_know']:,} “{option}” of "
+                      f"{model['dont_know'] + model['wrong']:,} not right; {model['right'] + model['wrong']:,} of {total:,} "
+                      f"answered (run {model['run']})"}
+            for model in rated]
+    tab = '<a href="dont-know/">Hallucination tab</a>'
+    chat_note = f"Chat models: not measured yet (they were not asked with the “{bp.esc(option)}” option)."
+    return (f'<figure class="panel chart-card" id="chart-non-hallucination" data-models="all decision">'
+            '<div class="chart-head"><h2>Non-hallucination</h2>'
+            f'<p class="chart-sub">“{bp.esc(option)}” among the answers that were not right, with it offered as a sixth '
+            f"option on the {total:,} questions, then the answered share (right + wrong of {total:,}): each of the "
+            f"{len(models)} decision models' first run with it · higher is better, read with the answered share</p></div>"
+            f'<p class="note" data-models="all">{chat_note}</p>'
+            f"{hbars(rows)}"
+            f'<p class="chart-legend">{family_legend([site.families[model["original_run"]] for model in rated])} '
+            "<span>A model that always chose the option would reach 100% with no right answers.</span>"
+            + (f" <span>Not measured (neither a wrong answer nor “{bp.esc(option)}”): {bp.esc(', '.join(unrated))}.</span>"
+               if unrated else "")
+            + f" <span>The {tab} has the full table, the rate against each model's own confidence and the method.</span>"
+            "</p></figure>"
+            '<div class="panel chart-card" data-models="chat" hidden><div class="chart-head"><h2>Non-hallucination</h2></div>'
+            f'<p class="note">{chat_note} The rate exists for decision models only: see All models or Decision models '
+            f"above, or the {tab}.</p></div>")
+
+
 def version(data: Data) -> str:
     results = data.results
     return (f"Results {bp.esc(results['results_version'])}, updated {bp.long_date(results['updated'])}; "
@@ -585,6 +627,7 @@ def main() -> int:
         "board": fallback_table(data),
         "settings": page_settings(data),
         "board-note": f'<div class="tab-notes"><p>{bp.esc(not_measured_note(data))}</p></div>',
+        "non-hallucination": non_hallucination(site),
     }
     text = PAGE.read_text()
     seen = set()

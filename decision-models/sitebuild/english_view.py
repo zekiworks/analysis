@@ -1,18 +1,22 @@
 """English reading (english/): the Text tab's setups on its kept reading questions in English, from results.json's
-english_reading only. Its face, under the view bar: a short lead, the accuracy chart in the site's static style (Site
-hbars, each bar in its model family's colour, as the home page's charts) and one table ranked by English accuracy, each
-once per group of the view bar (data-models, toggled by site.js; the all group is the one shown without JavaScript),
-its counts and sentences computed for that group. The decision models' non-hallucination rate with "I don't know" in
-English (english_reading.dont_know's English sides and english_only) is charted once, for the all and decision groups,
-with one note for the chat group: no chat model was asked with the option. The comparison with Turkish is
-turkish-vs-english/. It needs no JavaScript and changes no number of the other pages."""
+english_reading only. Its face, under the view bar: a short lead, then the four parts row 3 of the view bar links to:
+Accuracy (#accuracy), Non-hallucination (#non-hallucination), Cost (#cost) and Latency (#latency), each chart in the
+site's static style (Site hbars, each bar in its model family's colour, as the home page's charts), and one table ranked
+by English accuracy with the four measures; the charts and the table come once per group of the view bar (data-models,
+toggled by site.js; the all group is the one shown without JavaScript, every setup ranked together), counts and
+sentences computed for that group. The decision models' non-hallucination rate with "I don't know" in English
+(english_reading.dont_know's English sides and english_only) is charted once, for the all and decision groups, with a
+note that chat models are not measured yet (none was asked with the option). Cost and latency are each setup's first
+English run's (english_reading.models[].cost and .latency), on a log scale as on the home page. The comparison with
+Turkish is turkish-vs-english/. It needs no JavaScript and changes no number of the other pages."""
 
 from __future__ import annotations
 
 from typing import Any
 
 from sitebuild.english_reading import (DECISION_ONLY, GROUPS, PATH as COMPARISON, anchor, chat_note, check_dont_know,
-                                       english_only, group_models, label, noun, shown)
+                                       english_only, group_models, label, measure_card, measure_cell, measure_heads, noun,
+                                       shown)
 from sitebuild.site import NOT_MEASURED, Site, esc, family_legend, hbars, pct, rel
 from sitebuild.vision import cell, joined
 
@@ -110,9 +114,19 @@ def build(site: Site) -> dict[str, str]:
         family_legend([family(model) for model, _ in rated])
         + " <span>A model that always chose the option would reach 100% with no right answers.</span>"
         + (f" <span>Decision models not run with “{esc(option)}” in English: {esc(joined(unrated))}.</span>" if unrated else ""))
-    note = chat_note(f"Chat models were asked without an “{esc(option)}” option, so the non-hallucination chart and column "
-                     "are for decision models only.")
-    charts = "".join(accuracy_card(group) for group in GROUPS if counts[group]) + rates + note
+    no_option = f"Chat models: not measured yet (they were asked without an “{esc(option)}” option)."
+    note = (f'<p class="note" data-models="all">{no_option}</p>'
+            + chat_note(f"{no_option} The non-hallucination chart and column are for decision models only."))
+    method = f"{rel(PATH, COMPARISON)}#method"
+
+    def part(key: str, title: str, cards: str) -> str:
+        return f'<section class="measure" id="{key}" aria-label="{title}">{cards}</section>'
+
+    charts = (part("accuracy", "Accuracy", "".join(accuracy_card(group) for group in GROUPS if counts[group]))
+              + part("non-hallucination", "Non-hallucination", note + rates)
+              + "".join(part(key, title, "".join(measure_card(site, data, group, key, ("english",), href, method)
+                                                 for group in GROUPS if counts[group]))
+                        for key, title in (("cost", "Cost"), ("latency", "Latency"))))
 
     def table(group: str) -> str:
         """A group's copy of the table, ranked by English accuracy; the non-hallucination column but for the chat group."""
@@ -121,6 +135,7 @@ def build(site: Site) -> dict[str, str]:
                  ("Turkish accuracy", f"Text tab run, same {total:,}; for context")]
         if with_rate:
             heads.append(("English non-hallucination", f"with “{option}”; higher is better"))
+        heads += measure_heads("cost", ("english",)) + measure_heads("latency", ("english",))
         labels = [f"{head} ({note})" for head, note in heads]
         rows = []
         for model in group_models(site, data, group):
@@ -135,6 +150,7 @@ def build(site: Site) -> dict[str, str]:
                     f'{pct(counts["non_hallucination"], digits)}<span class="small">{counts["dont_know"]:,} “{esc(option)}” of '
                     f'{counts["dont_know"] + counts["wrong"]:,} not right</span>'
                     f'<span class="small">answered {pct(counts["attempt_rate"], digits)}</span>')
+            values += [measure_cell(site, model, "cost", "english"), measure_cell(site, model, "latency", "english")]
             run = site.by_id[model["turkish_run"]]
             name = (f'<td class="model"><a class="model-name" href="{href(site, model)}">{esc(label(site, model))}</a>'
                     f'<span class="small">{esc(site.detail(run))} · English run {model["run"]}</span></td>')
@@ -150,8 +166,11 @@ def build(site: Site) -> dict[str, str]:
                 f'<p class="note">Ranked by English accuracy, highest first: right answers of the {total:,} kept reading '
                 "questions in each setup's first English run (an invalid answer counts as not right). Turkish accuracy: the "
                 f"setup's Text tab run on the same {total:,} questions, for context; the paired comparison is on "
-                f'<a href="{comparison}">English and Turkish</a>.{rate_note} Each name opens its Text tab run; under it, '
-                "its settings and English run.</p></section>")
+                f'<a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ per 1,000 questions at list '
+                "prices, with its basis under it; English latency: the median time per request, with the request size and "
+                "the requests in flight under it, each from the first English run (Cost and Latency above); Not measured: "
+                "no price, or no timing. Each name opens its Text tab run; under it, its settings and English run.</p>"
+                "</section>")
 
     def lead(group: str) -> str:
         count = counts[group]
@@ -163,7 +182,8 @@ def build(site: Site) -> dict[str, str]:
         links = [(anchor("chart-accuracy", group), "Accuracy")]
         if group != "chat":
             links.append(("chart-non-hallucination", "Non-hallucination"))
-        links.append((anchor("table", group), "The table"))
+        links += [(anchor("chart-cost", group), "Cost"), (anchor("chart-latency", group), "Latency"),
+                  (anchor("table", group), "The table")]
         nav = "".join(f'<a href="#{target}">{text}</a>' for target, text in links)
         return (f"<div {shown(group)}><p>The Text tab's {total:,} kept reading questions, translated into English, answered "
                 f"by {count} {noun(group, count)}{split}: each one's first English run, with its Text tab settings. The "
@@ -176,8 +196,8 @@ def build(site: Site) -> dict[str, str]:
       <h1>The reading questions in English</h1>
       {"".join(lead(group) for group in GROUPS)}
     </section>
-    <section class="charts" aria-label="Charts">{charts}</section>
-    <p class="note">Cost, latency and calibration are not measured in English.</p>
+    <div class="charts">{charts}</div>
+    <p class="note">Calibration is not measured in English.</p>
     {"".join(table(group) for group in GROUPS if counts[group])}"""
     return {PATH: site.page(PATH, TITLE, f"The Text tab's {total:,} kept reading questions in English: accuracy of "
                             f"{len(models)} setups ({counts['decision']} decision models, {counts['chat']} chat model "

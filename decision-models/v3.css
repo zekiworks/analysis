@@ -114,7 +114,7 @@ code { font-family: var(--mono); font-size: .85em; }
 h1, h2, h3 { line-height: 1.2; }
 /* The view bar stays at the top of the window: links to a part of a page, and the page's own scrolling, land below it.
    site.js keeps --view-bar-h at the bar's height; the value here holds until it runs. */
-html { --view-bar-h: 6.6rem; scroll-padding-top: var(--view-bar-h); }
+html { --view-bar-h: 9.6rem; scroll-padding-top: var(--view-bar-h); }
 [id] { scroll-margin-top: 1rem; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
@@ -183,6 +183,9 @@ a.view-key { display: flex; flex: 1; align-items: center; justify-content: cente
 a.view-key:hover { border-color: var(--view-key-hover); }
 a.view-key[aria-current] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge);
   box-shadow: inset 0 -4px 0 var(--view-current-edge); }
+/* Row 3, the measure: four keys, a little smaller than rows 1 and 2. */
+.view-row.view-measures ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.view-measures a.view-key { min-height: 2.2rem; padding: .2rem .6rem; font-size: .98rem; }
 /* Without the script no group is marked: the page shows all models, so that key is the current one. */
 html:not(.js) a.view-key[data-view-group="all"] { color: var(--view-current-text); background: var(--view-current-bg);
   border-color: var(--view-current-edge); box-shadow: inset 0 -4px 0 var(--view-current-edge); }
@@ -449,6 +452,10 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 .charts { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1rem 0 0; }
 .charts + .board-panel { margin-top: 1rem; }
 .chart-card { margin: 0; min-width: 0; }
+/* A part of a page that row 3 of the view bar links to (#accuracy, #non-hallucination, #cost, #latency): its cards
+   spaced as the charts around it. */
+.measure { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; }
+.measure > .note { margin: 0; }
 .chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-bottom: .5rem; }
 .chart-head h2 { margin: 0 auto 0 0; padding: 0; border: 0; font-size: 1.05rem; }
 .chart-sub { flex-basis: 100%; margin: 0; color: var(--text-2); font-size: .85rem; }
@@ -630,15 +637,16 @@ ul.price-list { padding-left: 1.25rem; }
   .hbar { grid-template-columns: minmax(0, 1fr) 5.5rem; gap: .15rem .5rem; }
   .hbar-label { grid-column: 1 / -1; text-align: left; }
   .hbar-axis > span:first-child { display: none; }
+  .hbar-axis.dense .hbar-tick:nth-child(even) { display: none; }
   .hbar-head .head-long { display: none; }
   .hbar-head .head-short { display: inline; }
   body { padding: 0 .6rem 1.5rem; }
   /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
   .topbar { grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem; margin-bottom: .55rem; padding: .45rem 0 .3rem; }
-  /* The view bar on a phone: the row names for screen readers only, three keys per row whose labels wrap inside them;
-     the middle key, the longest label, takes more room, so every label fits on two lines. */
-  html { --view-bar-h: 6.4rem; }
+  /* The view bar on a phone: the row names for screen readers only, three keys per row in rows 1 and 2, whose labels wrap
+     inside them; the middle key, the longest label, takes more room, so every label fits on two lines. */
+  html { --view-bar-h: 9.2rem; }
   .view-bar { margin: 0 -.6rem; padding: .35rem .6rem; }
   .view-rows { gap: .3rem; }
   .view-row { display: block; }
@@ -646,6 +654,9 @@ ul.price-list { padding-left: 1.25rem; }
     white-space: nowrap; border: 0; }
   .view-row ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: .3rem; }
   a.view-key { min-height: 2.65rem; padding: .2rem .25rem; font-size: .93rem; line-height: 1.12; border-radius: 6px; }
+  /* Row 3's four keys share one row: Non-hallucination, the longest label, takes more room and wraps at its hyphen. */
+  .view-row.view-measures ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, .8fr) minmax(0, 1fr); }
+  .view-measures a.view-key { min-height: 2.35rem; padding: .15rem .2rem; font-size: .84rem; }
   .brand { font-size: .66rem; letter-spacing: .04em; }
   .theme-switch { gap: .25rem; }
   .theme-switch .key { min-height: 1.75rem; padding: .15rem .45rem; gap: .3rem; font-size: .78rem; }

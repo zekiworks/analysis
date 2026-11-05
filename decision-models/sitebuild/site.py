@@ -7,6 +7,7 @@ from __future__ import annotations
 import hashlib
 import html
 import json
+import math
 from collections.abc import Callable, Iterable
 from functools import cached_property
 from pathlib import Path
@@ -36,6 +37,11 @@ VIEW_TESTS = (("english/", "English reading"), ("", "Turkish reading and grammar
 # Row 2, the models, picks the group with ?models= on the page of row 1 (site.js marks the current one and shows each
 # element whose data-models lists it): (value of ?models=, label).
 VIEW_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", "Chat models"))
+# Row 3, the measure: on each page of row 1 a link to the part of the page with that id, in every group (the query, so
+# the group, stays); on any other page a link to that part of the home page with the group (site.js marks the key of the
+# part in view): (id of the part, label).
+VIEW_MEASURES = (("accuracy", "Accuracy"), ("non-hallucination", "Non-hallucination"), ("cost", "Cost"),
+                 ("latency", "Latency"))
 # The site's benchmarks, each a tab at the top of its page: (path inside the site, label). Text is the home page.
 BENCHMARKS = (("", "Text"), ("vision/", "Page images"), ("dont-know/", "Hallucination"),
               ("turkish-vs-english/", "Turkish vs English"))
@@ -114,17 +120,22 @@ def family_legend(families: list[dict[str, str]]) -> str:
 
 
 def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], str] | None = None,
-          head: tuple[str, str] | None = None) -> str:
+          head: tuple[str, str] | None = None, divisions: int = 4) -> str:
     """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
     readable at any width and in both themes. Each row: label, href (optional), bars (each a value from 0 to top, with a
     colour, a kind (a CSS class) or both: a kind's pattern, as the English bar's stripes, goes over the colour), marker
     (optional, a value drawn as a line), text (the value as shown) and title (the tooltip). The axis runs from 0 to top,
-    with a tick at each quarter, in percent unless tick writes a value its way (aa-decision-index/ writes dollars). head
-    names the value column above it: (in full, on a phone), as ("Turkish · English", "TR · EN")."""
+    with a tick and a line at each quarter (or each of the divisions), in percent unless tick writes a value its way
+    (aa-decision-index/ writes dollars). head names the value column above it: (in full, on a phone), as
+    ("Turkish · English", "TR · EN")."""
     place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
-    ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / 4)}">{esc(write(top * index / 4))}</span>'
-                    for index in range(5))
+    ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / divisions)}">'
+                    f"{esc(write(top * index / divisions))}</span>" for index in range(divisions + 1))
+    # The track's lines are a background a quarter wide (v3.css); other divisions set its width, and past four a phone
+    # labels every second tick (v3.css .dense).
+    lines = "" if divisions == 4 else f' style="background-size:{100 / divisions:.4g}% 100%"'
+    dense = " dense" if divisions > 4 else ""
     items = []
     for row in rows:
         label = f'<a href="{row["href"]}">{esc(row["label"])}</a>' if row.get("href") else esc(row["label"])
@@ -133,13 +144,36 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
             f'{";background-color:" + bar["colour"] if bar.get("colour") else ""}"></span>' for bar in row["bars"])
         marker = f'<span class="hbar-marker" style="left:{place(row["marker"])}"></span>' if row.get("marker") is not None else ""
         items.append(f'<li class="hbar" title="{esc(row["title"])}"><span class="hbar-label">{label}</span>'
-                     f'<span class="hbar-track">{fills}{marker}</span><span class="hbar-value">{esc(row["text"])}</span></li>')
+                     f'<span class="hbar-track"{lines}>{fills}{marker}</span><span class="hbar-value">{esc(row["text"])}</span></li>')
     named = (f'<span class="hbar-head"><span class="head-long">{esc(head[0])}</span><span class="head-short">{esc(head[1])}'
              "</span></span>") if head else "<span></span>"
     # A chart with a named value column right-aligns the name and every value on the column's right edge (v3.css .headed).
     headed = " headed" if head else ""
-    return (f'<div class="hbar hbar-axis{headed}" aria-hidden="true"><span></span><span class="hbar-track">{ticks}</span>{named}</div>'
+    return (f'<div class="hbar hbar-axis{headed}{dense}" aria-hidden="true"><span></span><span class="hbar-track">{ticks}</span>'
+            f"{named}</div>"
             f'<ol class="hbars{headed}">{"".join(items)}</ol>')
+
+
+def log_axis(values: list[float], write: Callable[[float], str]) -> tuple[Callable[[float], float], dict[str, Any]]:
+    """A log scale for hbars, whose axis is linear, as the home page's Cost and Latency charts: the length of a value's
+    bar, and the axis to pass to hbars (top, tick, divisions) with a tick at each power of ten (every second one past six
+    decades), written by write. values: the positive values the chart shows."""
+    low = math.floor(math.log10(min(values)) - 0.1)
+    high = math.ceil(math.log10(max(values)))
+    step = math.ceil((high - low) / 6)
+    divisions = math.ceil((high - low) / step)
+    return (lambda value: math.log10(value) - low,
+            {"top": divisions * step, "divisions": divisions, "tick": lambda offset: write(10.0 ** round(low + offset))})
+
+
+def dollars_tick(value: float) -> str:
+    """A power of ten in dollars, with as many decimals as it needs: $0.01, $1, $100."""
+    return f"${value:,.{max(0, -round(math.log10(value)))}f}"
+
+
+def seconds_tick(value: float) -> str:
+    """A power of ten in seconds, with as many decimals as it needs: 0.1 s, 1 s, 100 s."""
+    return f"{value:,.{max(0, -round(math.log10(value)))}f}\u00a0s"
 
 
 # The marker shapes of line_plot(), each a path around (0, 0) about 10 pixels across.
@@ -210,9 +244,9 @@ def legend_mark(colour: str, shape: str | None = None, dash: str | None = None) 
 def topbar(path: str) -> str:
     """The top of every page: first the view bar, which stays at the top of the window: row 1 the test (a page, the
     current one marked here from the path), row 2 the models (?models=, marked by site.js, which also keeps the group in
-    the row 1 links); then the bar with the brand, which links home, the navigation bar and the theme switch, which
-    scrolls away. On a page of row 1 the row 2 links stay on it; on any other page they open the home page with that
-    group."""
+    the row 1 links), row 3 the measure (a part of the page, marked by site.js); then the bar with the brand, which links
+    home, the navigation bar and the theme switch, which scrolls away. On a page of row 1 the row 2 links stay on it and
+    the row 3 links go to its parts; on any other page both open the home page, with that group or at that part."""
     current = ' aria-current="page"'
     links = "".join(
         f'<li><a href="{rel(path, target)}"{current if path.startswith(target) else ""}>{esc(label)}</a></li>' for target, label in MENU
@@ -222,12 +256,16 @@ def topbar(path: str) -> str:
     base = "" if path in {target for target, _ in VIEW_TESTS} else rel(path, "")
     groups = "".join(f'<li><a class="view-key" href="{base}?models={value}" data-view-group="{value}">{esc(label)}</a></li>'
                      for value, label in VIEW_GROUPS)
+    measures = "".join(f'<li><a class="view-key" href="{base + "?models=all" if base else ""}#{key}" data-view-measure="{key}">'
+                       f"{esc(label)}</a></li>" for key, label in VIEW_MEASURES)
     return (
-        '<nav class="view-bar" aria-label="View: test and models"><div class="view-rows">\n'
+        '<nav class="view-bar" aria-label="View: test, models and measure"><div class="view-rows">\n'
         '    <div class="view-row"><span class="view-label" id="view-test">Test</span>'
         f'<ul aria-labelledby="view-test">{tests}</ul></div>\n'
         '    <div class="view-row"><span class="view-label" id="view-models">Models</span>'
         f'<ul aria-labelledby="view-models">{groups}</ul></div>\n'
+        '    <div class="view-row view-measures"><span class="view-label" id="view-measure">Measure</span>'
+        f'<ul aria-labelledby="view-measure">{measures}</ul></div>\n'
         "  </div></nav>\n"
         '  <header class="topbar">\n'
         f'    <a class="brand" href="{rel(path, "")}">{esc(KICKER)}</a>\n'

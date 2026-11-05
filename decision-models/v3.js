@@ -800,8 +800,8 @@ const MEASURES = {
   latency: { label: 'Latency', axis: 'Median latency per request (s), log scale', value: latencyOf, log: true, text: secondsText, higher: false },
   cost: { label: 'Cost', axis: '$ per 1,000 questions, log scale', value: costPer1000, log: true, text: value => value.toFixed(3), higher: false },
 };
-/* The bar charts on the page, one card each, in their order: accuracy, then (after the trade-off) calibration, latency
-   and cost. */
+/* The bar charts on the page, one card each, in the order of the view bar's row 3: accuracy, cost and latency (then,
+   after the trade-off, calibration). */
 const FACE_MEASURES = ['accuracy', 'gap', 'latency', 'cost'];
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
 /* A setup's cost as the Cost chart writes it, with its $: per 1,000 questions, § at its maker's list price, or Not

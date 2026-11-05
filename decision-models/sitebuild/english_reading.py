@@ -9,8 +9,11 @@ overrides by run, and the structural check's facts) and `model_languages`.
 Every part that depends on the setups shown comes once per group of the view bar (GROUPS: all, decision, chat;
 data-models, toggled by site.js; the all group is the one shown without JavaScript), its counts and sentences computed
 for that group, its setups ranked within it: the face's charts (accuracy in both languages and the paired test, Site
-hbars), the main table (main_table(): accuracy, "I don't know" in both languages, the rank in both languages and the
-languages the model card lists), the risk-coverage plots, the Results table and the setups without an English run.
+hbars; cost and latency of the Text tab run and the first English run, measure_card(), from english_reading.models[]'s
+cost and latency), the main table (main_table(): accuracy, "I don't know" in both languages, cost and latency, the rank
+in both languages and the languages the model card lists), the risk-coverage plots, the Results table and the setups
+without an English run. The face's parts row 3 of the view bar links to: #accuracy, #non-hallucination, #cost and
+#latency.
 The parts about decision models only (no chat model was asked with an "I don't know" option) come once, for the all and
 decision groups, with one note for the chat group: Liquid d1-ultra against each decision model, the same questions with
 an "I don't know" option in English against the Hallucination tab's "Bilmiyorum" (dont_know_face()), the same with the
@@ -32,7 +35,8 @@ import benchmark_metrics as bm
 import build_page as bp
 from sitebuild.data import BLOB_URL
 from sitebuild.dont_know import check_option_word, option_word_rows
-from sitebuild.site import ROOT, VIEW_GROUPS, Site, esc, family_legend, hbars, legend_mark, line_plot, pct, rel
+from sitebuild.site import (NOT_MEASURED, ROOT, VIEW_GROUPS, Site, dollars_tick, esc, family_legend, hbars, legend_mark,
+                            line_plot, log_axis, pct, rel, request_size, seconds_tick)
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "turkish-vs-english/"
@@ -261,6 +265,181 @@ def family_bars(site: Site, run: int, *bars: tuple[float, str]) -> list[dict[str
     language only stripes the English bar (v3.css)."""
     colour = site.families[run]["colour"]
     return [{"value": value, "kind": language, "colour": colour} for value, language in bars]
+
+
+# The two sides of a setup, as english_reading.models[] names them, and how the page names them.
+SIDES = {"turkish": "Turkish", "english": "English"}
+# What a cost's basis (results.json's cost_basis, as english_reading.models[].cost gives it) says under the cost.
+BASIS_WORDS = {"api": "at list prices", "subscription": "subscription, priced as the API", "free tier":
+               "free tier, at the list price", "maker": "at the maker's list price"}
+
+
+def measure_value(model: dict[str, Any], measure: str, side: str) -> float | None:
+    """A setup's cost ($ per 1,000 questions) or latency (median seconds per request) on one side, from
+    english_reading.models[].cost and .latency: the first English run's, or the Text tab run's; None when not measured."""
+    entry = model[measure][side]
+    if entry is None:
+        return None
+    return entry["per_1000"] if measure == "cost" else entry["median_request_seconds"]
+
+
+def maker_mark(site: Site) -> str:
+    return site.config["first_cost_marks"]["maker"]["mark"]
+
+
+def measure_cell(site: Site, model: dict[str, Any], measure: str, side: str) -> str:
+    """A table cell's content: the cost to three decimals (§ at the maker's list price) with its basis under it, or the
+    median latency with the request size and the requests in flight under it; Not measured without a value."""
+    value = measure_value(model, measure, side)
+    if value is None:
+        return NOT_MEASURED
+    entry = model[measure][side]
+    if measure == "cost":
+        mark = f'<span class="mark">{esc(maker_mark(site))}</span>' if entry["basis"] == "maker" else ""
+        return f'{value:.3f}{mark}<span class="small">{esc(BASIS_WORDS[entry["basis"]])}</span>'
+    flight = entry["concurrency"]
+    sample = sample_size(site, model, side)
+    measured = f", measured on a sample ({sample:,} questions)" if sample else ""
+    return (f'{bp.seconds(value)}<span class="small">{esc(request_size(entry["questions_per_request"]))}, '
+            f"{flight:,} in flight{measured}</span>")
+
+
+SAMPLE_MARK = "*"  # a latency measured on a sample of the questions, as on the home page (build_site.SAMPLE_MARK)
+
+
+def sample_size(site: Site, model: dict[str, Any], side: str) -> int | None:
+    """The questions of the sample a side's latency was measured on (the Text tab setup's repeats on a fixed sample, as
+    the home page marks it), or None for a latency of the run itself."""
+    entry = model["latency"][side]
+    if entry is None or entry.get("source") != "sample":
+        return None
+    return site.by_id[model["turkish_run"]]["latency"]["questions"]
+
+
+def measure_heads(measure: str, sides: tuple[str, ...]) -> list[tuple[str, str]]:
+    """The table columns of one measure, one per side: (header, the note under it)."""
+    run = {"turkish": "Text tab run", "english": "first English run"}
+    if measure == "cost":
+        return [(f"{SIDES[side]} cost", f"$ per 1,000 questions, {run[side]}; lower is better") for side in sides]
+    return [(f"{SIDES[side]} latency", f"median seconds per request, {run[side]}; lower is better") for side in sides]
+
+
+def in_flight(requests: int) -> str:
+    return f"{bp.count(requests)} request{'' if requests == 1 else 's'} in flight"
+
+
+def counted(entries: list[dict[str, Any]], key: str, unit: Callable[[int], str]) -> str:
+    """How many runs have each value of key, the most common first: "1 question per request for 24 runs and 16 for
+    20"."""
+    tally = sorted(Counter(entry[key] for entry in entries).items(), key=lambda item: (-item[1], item[0]))
+    return joined([f"{unit(value) if index == 0 else bp.count(value)} for {bp.count(number)}"
+                   + (f" run{'' if number == 1 else 's'}" if index == 0 else "")
+                   for index, (value, number) in enumerate(tally)])
+
+
+def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sides: tuple[str, ...],
+                 link: Callable[[Site, dict[str, Any]], str], method: str) -> str:
+    """A group's Cost or Latency card on the English pages, as the home page's Cost and Latency charts (log scale, lower
+    is better, each bar in its model family's colour): English reading shows the first English run (sides
+    ("english",)), Turkish vs English the Text tab run and the first English run as paired bars, Turkish first, the
+    English one striped. Ordered by the English value, lowest first; a setup without a value reads Not measured and is
+    named in the note. link: a setup's link; method: the link to Our method on the comparison page."""
+    models = group_models(site, data, group)
+    paired = len(sides) == 2
+    total = data["questions"]
+    cost = measure == "cost"
+    mark = maker_mark(site)
+    values = [value for model in models for side in sides if (value := measure_value(model, measure, side)) is not None]
+    order = lambda model: tuple(item for side in reversed(sides) for item in  # noqa: E731
+                                (measure_value(model, measure, side) is None, measure_value(model, measure, side) or 0)) \
+        + (label(site, model).casefold(),)
+    ordered = sorted(models, key=order)
+    position, axis = log_axis(values, dollars_tick if cost else seconds_tick) if values else (None, {})
+
+    def short(model: dict[str, Any], side: str) -> str:
+        value = measure_value(model, measure, side)
+        if value is None:
+            return "n.m." if paired else "Not measured"
+        text = bp.seconds(value)
+        if not cost and sample_size(site, model, side):
+            text += SAMPLE_MARK
+        if paired:
+            return text
+        return f"${text}" + (f" {mark}" if model["cost"][side]["basis"] == "maker" else "") if cost else f"{text}\u00a0s"
+
+    def said(model: dict[str, Any], side: str) -> str:
+        value, entry = measure_value(model, measure, side), model[measure][side]
+        if value is None:
+            return f"not measured in {SIDES[side]}"
+        if cost:
+            return f"${value:.3f} per 1,000 questions in {SIDES[side]} ({BASIS_WORDS[entry['basis']]})"
+        return (f"median {bp.seconds(value)} s, 90th percentile {bp.seconds(entry['p90_request_seconds'])} s per request in "
+                f"{SIDES[side]}, {request_size(entry['questions_per_request'])}, {entry['concurrency']:,} in flight"
+                + (f", measured on a sample ({sample_size(site, model, side):,} questions)" if sample_size(site, model, side) else ""))
+
+    rows = []
+    for model in ordered:
+        colour = site.families[model["turkish_run"]]["colour"]
+        bars = [{"value": position(value), "colour": colour, **({"kind": side} if paired else {})}
+                for side in sides if (value := measure_value(model, measure, side)) is not None]
+        text = " · ".join(short(model, side) for side in sides)
+        if paired and cost and any(model["cost"][side] and model["cost"][side]["basis"] == "maker" for side in sides):
+            text += f" {mark}"
+        rows.append({"label": label(site, model), "href": link(site, model), "bars": bars, "text": text,
+                     "title": f"{label(site, model)}: " + "; ".join(said(model, side) for side in sides)})
+    count = len(models)
+    whose = (f"each of the {bp.in_words(count)} {noun(group, count)}' Text tab run and its first English run" if paired else
+             f"each of the {bp.in_words(count)} {noun(group, count)}' first English run")
+    if cost:
+        title = "Cost in Turkish and in English" if paired else f"Cost on the {total:,} English questions"
+        sub = f"Estimated dollars per 1,000 questions: {whose}, ordered by English cost · lower is better"
+        notes = [f"$ per 1,000 questions at list prices and the tokens each run recorded, as on the Text tab: a subscription "
+                 "run priced as if we had used the API, a free-tier run at the list price for the same model, a run on "
+                 f"our GPUs at its maker's list price for the same model ({mark}) where it lists one."]
+    else:
+        title = "Latency in Turkish and in English" if paired else f"Latency on the {total:,} English questions"
+        sub = f"Median time per request: {whose}, ordered by English latency · lower is better"
+        notes = ["Time per request as measured from our computer during each run; API times include the network."]
+        for side in sides:
+            entries = [model["latency"][side] for model in models if model["latency"][side] is not None]
+            if entries:
+                runs = "Text tab runs" if side == "turkish" else "English runs"
+                notes.append(f"{runs}: {counted(entries, 'questions_per_request', request_size)}; "
+                             f"{counted(entries, 'concurrency', in_flight)}.")
+        local = [model for model in models if site.decision(site.by_id[model["turkish_run"]])
+                 and site.by_id[model["turkish_run"]]["billing"] == "local"
+                 and model["latency"]["english"] is not None]
+        if local:
+            spark = [label(site, model) for model in local if "DGX Spark" in (site.by_id[model["turkish_run"]]["hardware"] or "")]
+            notes.append(f"The English runs of the {bp.in_words(len(local))} self-hosted decision "
+                         f"model{'' if len(local) == 1 else 's'} ran on our RTX PRO 6000 GPU"
+                         + (f"; the Text tab runs of {esc(joined(spark))} ran on an NVIDIA DGX Spark "
+                            f'(<a href="{method}">Our method</a>)' if spark else "") + ".")
+            clef = [label(site, model) for model in local if site.by_id[model["turkish_run"]]["provider"] == "clef"]
+            if len(clef) > 1:
+                notes.append(f"{esc(joined(clef))} ran their English runs at the same time on one GPU.")
+        for side in sides:
+            sampled = sorted({sample_size(site, model, side) for model in models} - {None})
+            if sampled:
+                notes.append(f"{SAMPLE_MARK} Measured on a sample ({joined([f'{size:,}' for size in sampled])} questions): "
+                             f"the {'Text tab' if side == 'turkish' else 'English'} setup's repeats on a fixed sample, as "
+                             "on the home page.")
+    notes.append("Log scale.")
+    for side in sides:
+        missing = [label(site, model) for model in ordered if measure_value(model, measure, side) is None]
+        if missing:
+            notes.append(f"Not measured in {SIDES[side]} (n.m.): {esc(joined(missing))}." if paired
+                         else f"Not measured: {esc(joined(missing))}.")
+    legend = ('<span><i class="swatch swatch-turkish"></i>Turkish (the Text tab run), the upper bar</span> '
+              '<span><i class="swatch swatch-english"></i>English (first run), the lower bar, striped</span> '
+              + NUMBERS + " ") if paired else ""
+    legend += family_legend([site.families[model["turkish_run"]] for model in ordered]) + "".join(
+        f" <span>{note}</span>" for note in notes)
+    chart = hbars(rows, head=TR_EN if paired else None, **axis) if values else \
+        f'<p class="note">Not measured for any {noun(group, 1)}.</p>'
+    return (f'<figure class="panel chart-card" id="{anchor(f"chart-{measure}", group)}" {shown(group)}>'
+            f'<div class="chart-head"><h2>{esc(title)}</h2><p class="chart-sub">{sub}</p></div>{chart}'
+            f'<p class="chart-legend">{legend}</p></figure>')
 
 
 def significant(model: dict[str, Any]) -> bool:
@@ -506,7 +685,9 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
              (f"“{option}” / (“{option}” + wrong); higher is better",) * 2
              + ("English minus Turkish non-hallucination, in points; positive = higher in English",)),
             (bilmiyorum, ("",), (bilmiyorum_note,))]
-    groups.append(("Rank by accuracy", ("Turkish", "English"), (f"among the {len(models)}; lower is better",) * 2))
+    groups += [("Cost", ("Turkish", "English"), ("$ per 1,000 questions; lower is better",) * 2),
+               ("Latency", ("Turkish", "English"), ("median seconds per request; lower is better",) * 2),
+               ("Rank by accuracy", ("Turkish", "English"), (f"among the {len(models)}; lower is better",) * 2)]
     heads = [f"{part} {name} ({note})" if name else f"{part} ({note})"
              for part, names, notes in groups for name, note in zip(names, notes)]
     if with_languages:
@@ -549,6 +730,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
                               f'{rate_text(point["abstained"] / held if held else None, digits)}</span>')
             else:
                 values.append(not_measured)
+        values += [measure_cell(site, model, measure, side) for measure in ("cost", "latency") for side in SIDES]
         values += [str(turkish_rank[model["turkish_run"]]), str(english_rank[model["turkish_run"]])]
         entry = listed.get(model["turkish_run"])
         if with_languages and entry is None:
@@ -595,7 +777,12 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             f"{len(data['models'])} English {noun('all', len(data['models']))}) has a Holm-adjusted p below {SIGNIFICANT:g}. "
             f"Accuracy: right answers over the {total:,} kept reading questions, the first English run against the Text "
             f'tab run (<a href="#{anchor("chart-accuracy", group)}">Accuracy</a>, '
-            f'<a href="#{anchor("chart-paired", group)}">Paired test</a>).{idk_text} Rank: by accuracy among the '
+            f'<a href="#{anchor("chart-paired", group)}">Paired test</a>).{idk_text} Cost and latency: the Text tab run '
+            f"and the first English run, cost in $ per 1,000 questions at list prices ({esc(maker_mark(site))} at the "
+            "maker's list price) and the "
+            "median time per request with the request size and the requests in flight under it "
+            f'(<a href="#{anchor("chart-cost", group)}">Cost</a>, <a href="#{anchor("chart-latency", group)}">Latency</a>); '
+            "Not measured: no price, or no timing. Rank: by accuracy among the "
             f"{len(models)} {noun(group, len(models))} in each language, 1 the most accurate, tied setups sharing a rank."
             f'{languages_note} The full tables are under <a href="#info">Info</a>.</p></section>')
 
@@ -1838,8 +2025,8 @@ def build(site: Site) -> dict[str, str]:
     ids_download = f'<a href="{KEPT_IDS}" download>{KEPT_IDS}</a>'
     split = (f"{bp.in_words(counts['decision'])} {noun('decision', counts['decision'])} and "
              f"{bp.in_words(counts['chat'])} {noun('chat', counts['chat'])}")
-    decision_parts = "".join([
-        against_reference(site, data) if counts["decision"] else "",
+    against = against_reference(site, data) if counts["decision"] else ""
+    idk_parts = "".join([
         dont_know_face(site, idk, word_decision) if idk else "",
         dont_know_word_face(site, word_decision) if word_decision else "",
         option_word(site)])
@@ -1862,6 +2049,7 @@ def build(site: Site) -> dict[str, str]:
                 ("against-d1-ultra", "Against d1-ultra", data.get("against_reference") and counts["decision"]),
                 ("dont-know", "I don't know", idk), ("dont-know-word", "Only the language differs", word_decision),
                 ("option-word", "The option's word", site.results.get("dont_know_option_word"))) if shown_here]
+        links += [(anchor("chart-cost", group), "Cost"), (anchor("chart-latency", group), "Latency")]
         links += [(base, text) for base, text, shown_here in (
             ("coverage", "Risk and coverage", data.get("coverage")), ("info", "Info", True), ("languages", "Languages", True))
             if shown_here]
@@ -1895,19 +2083,24 @@ def build(site: Site) -> dict[str, str]:
                   + (", the translator's own model among them" if own else "") + ".") if maker_chat else ""
     whole_bank = "" if not chat or any(len(model["turkish_runs"]) > 1 for model in chat) else \
         "; no chat setup run in English has whole-bank Turkish repeats, so each has one"
-    decision_block = (f"<div {DECISION_ONLY}>{decision_parts}</div>" + chat_note(
-        "For decision models only, so not shown for chat models: Liquid d1-ultra against each decision model in English, "
-        "and every part with an “I don't know” option, which no chat model was asked with (the two “I don't know” "
-        "sections, the option's word and the native points under Risk and coverage).")) if decision_parts else ""
+    against_block = (f"<div {DECISION_ONLY}>{against}</div>" + chat_note(
+        "Liquid d1-ultra against each decision model in English is for decision models only.")) if against else ""
+    no_option = "Chat models: not measured yet (they were asked without an “I don't know” option)."
+    idk_block = (f'<p class="note" data-models="all">{no_option}</p><div {DECISION_ONLY}>{idk_parts}</div>' + chat_note(
+        f"{no_option} Every part with the option is for decision models only: the two “I don't know” sections, the "
+        "option's word and the native points under Risk and coverage.")) if idk_parts else chat_note(no_option)
+    method = "#method"
     body = f"""    {site.tabs(PATH)}
     <section class="card">
       <p class="eyebrow">Turkish vs English</p>
       <h1>The Text tab's reading questions, in Turkish and in English</h1>
       {"".join(lead(group) for group in GROUPS)}
     </section>
-    {copies(lambda group: face(site, data, group))}
+    <section class="measure" id="accuracy" aria-label="Accuracy">{copies(lambda group: face(site, data, group))}{against_block}</section>
     {copies(lambda group: main_table(site, data, group))}
-    {decision_block}
+    <section class="measure" id="non-hallucination" aria-label="Non-hallucination">{idk_block}</section>
+    <section class="measure" id="cost" aria-label="Cost">{copies(lambda group: measure_card(site, data, group, "cost", tuple(SIDES), href, method))}</section>
+    <section class="measure" id="latency" aria-label="Latency">{copies(lambda group: measure_card(site, data, group, "latency", tuple(SIDES), href, method))}</section>
     {coverage(site, data)}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, the setups without an English run and our method{", then the same with “I don't know”" if idk else ""}</span></summary>

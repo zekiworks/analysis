@@ -2524,6 +2524,35 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
                 alternative["cost_usd"],
                 token_cost(alternative["tokens"], prices[(alternative["provider"], alternative["model"])]["rates"]),
             )
+    # The English reading track's costs and times (english_reading.models[].cost and .latency, Ümit via Zeki #1189):
+    # the first English run's tokens at the price it carries, its cost per 1,000 of the kept questions and its basis for
+    # its billing; the Text tab side as its main run publishes it.
+    english = results.get("english_reading") or {}
+    for model in english.get("models", []):
+        run = runs[model["turkish_run"]]
+        name = f"English run {model['run']} ({model['name']})"
+        side = model["cost"]["english"]
+        if side is not None:
+            price = side["price"]
+            billed = dict(side["tokens"])
+            billed["input_tokens"] += price.get("extra_input_per_request", 0) * (side["requests"] or 0)
+            check(f"{name}, cost", side["usd"], token_cost(billed, price["rates"]))
+            check(f"{name}, cost per 1,000 questions", side["per_1000"], 1000 * side["usd"] / english["questions"])
+            basis, applies = COST_BASES[side["billing"]]
+            cell = checks.cell((side["basis"], price.get("applies_to", "billed")) == (basis, applies), f"{basis} ({applies})",
+                               f"{side['basis']} ({price.get('applies_to')})")
+            if "≠" in cell:
+                mismatches.append(f"  {name}, cost basis: {cell}")
+        expected = None if run["api_equivalent_usd"] is None else {
+            "usd": run["api_equivalent_usd"], "per_1000": per_thousand(run), "basis": run["cost_basis"]}
+        latency = run.get("latency")
+        expected_latency = None if latency is None else {
+            "median_request_seconds": latency["median_request_seconds"], "p90_request_seconds": latency["p90_request_seconds"],
+            "concurrency": latency["concurrency"], "questions_per_request": run["questions_per_request"], "source": latency["source"]}
+        cell = checks.cell([model["cost"]["turkish"], model["latency"]["turkish"]] == [expected, expected_latency],
+                           "the Text tab run's cost and time", "a different cost or time")
+        if "≠" in cell:
+            mismatches.append(f"  {name}, Text tab side: {cell}")
     return mismatches
 
 

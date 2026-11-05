@@ -7,14 +7,15 @@
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/method/">
   <meta name="description" content="How we tested decision models and chat models on a reading comprehension and grammar test in native Turkish (not translated): the questions, the settings, the measures, the routing replays, the limits and the sources.">
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
-  <link rel="stylesheet" href="../v3.css?v=4397fb0c">
-  <script src="../site.js?v=ee902a02" defer></script>
+  <link rel="stylesheet" href="../v3.css?v=01fc592b">
+  <script src="../site.js?v=a9aa6c5e" defer></script>
 </head>
 <body class="v3">
   <a class="skip" href="#main">Skip to content</a>
-  <nav class="view-bar" aria-label="View: test and models"><div class="view-rows">
+  <nav class="view-bar" aria-label="View: test, models and measure"><div class="view-rows">
     <div class="view-row"><span class="view-label" id="view-test">Test</span><ul aria-labelledby="view-test"><li><a class="view-key" href="../english/" data-view-test>English reading</a></li><li><a class="view-key" href="../" data-view-test>Turkish reading and grammar</a></li><li><a class="view-key" href="../turkish-vs-english/" data-view-test>English and Turkish</a></li></ul></div>
     <div class="view-row"><span class="view-label" id="view-models">Models</span><ul aria-labelledby="view-models"><li><a class="view-key" href="../?models=all" data-view-group="all">All models</a></li><li><a class="view-key" href="../?models=decision" data-view-group="decision">Decision models</a></li><li><a class="view-key" href="../?models=chat" data-view-group="chat">Chat models</a></li></ul></div>
+    <div class="view-row view-measures"><span class="view-label" id="view-measure">Measure</span><ul aria-labelledby="view-measure"><li><a class="view-key" href="../?models=all#accuracy" data-view-measure="accuracy">Accuracy</a></li><li><a class="view-key" href="../?models=all#non-hallucination" data-view-measure="non-hallucination">Non-hallucination</a></li><li><a class="view-key" href="../?models=all#cost" data-view-measure="cost">Cost</a></li><li><a class="view-key" href="../?models=all#latency" data-view-measure="latency">Latency</a></li></ul></div>
   </div></nav>
   <header class="topbar">
     <a class="brand" href="../">Hilde · Decision models · answer key v2</a>
@@ -455,7 +456,7 @@ fixed order can explain. That checks one form of recall, not whether the model k
 and one question source; a confidence cutoff for a new task needs its own test.</p>
 </section>
 <section class="card prose" id="data" aria-labelledby="data-title"><h2 id="data-title">Download the data and check our calculations</h2>
-<p class="versions">Results updated 5 November 2026 · Results snapshot 1da8b0da · Question set
+<p class="versions">Results updated 5 November 2026 · Results snapshot 354f34f6 · Question set
 questions-v2.sqlite (797ad6c8) · Answer key version 2</p>
 <p>The <a href="../results.json">results file</a> holds the summary numbers; the <a href="../answers.json">answer export</a> holds the recorded choices, confidence scores, settings,
 prompt templates and question IDs, without the copyrighted questions. The
@@ -468,7 +469,7 @@ two more runs with one question per request on 200 questions.</p>
 setup's accuracy, ranking score, calibration gap before and after the refit, Brier scores and answers at 99% or
 more (before and after the key review),
 the 77 selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
-replays with their 300 splits and live tests: all 40,201 checks match. It does not yet check the
+replays with their 300 splits and live tests: all 41,628 checks match. It does not yet check the
 bootstrap intervals of the ranking score and the accuracy of kept answers.</p>
 <p>The 40 exam questions stay private, and the raw replies behind token counts are not exported.
 The <code>runner</code> folder holds the test code, run scripts and server wrappers.</p>
@@ -478,7 +479,7 @@ The <code>runner</code> folder holds the test code, run scripts and server wrapp
   </main>
   <footer class="footer">
     <p>Download: <a href="../results.json" download>results.json</a> · <a href="../answers.json" download>answers.json</a></p>
-    <p>Results 1da8b0da, updated 5 November 2026; answer key version 2.</p>
+    <p>Results 354f34f6, updated 5 November 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

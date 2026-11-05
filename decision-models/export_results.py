@@ -1660,15 +1660,52 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
             raise ValueError(f"{label}: needs exactly one Text tab run of {text_model} with {batch_size} question"
                              f"{'' if batch_size == 1 else 's'} per request, found {[run['run'] for run in paired]}")
         turkish = paired[0]
+        first = found[0]
+        # Cost and time per request of the first English run, beside its Text tab run's (Ümit via Zeki #1189): the run's
+        # tokens at the price the runner records with it (its cost basis from its billing, as for a main run), and its
+        # median and 90th-percentile time per request as the runner measured it.
+        billing = MODELS.get(model, {}).get("billing", PROVIDERS[provider]["billing"])
+        cost, price = first.get("cost_usd"), first.get("price")
+        if (cost is None) != (price is None):
+            raise ValueError(f"{label}: a cost needs its price, and a price its cost")
+        if price is not None and price.get("applies_to", "billed") != COST_BASES[billing][0]:
+            raise ValueError(f"{label}: billed as {billing!r}, but its price applies to {price.get('applies_to')!r}")
+        tokens = {kind: first.get(kind, 0) for kind in TOKEN_KINDS}
+        text_cost = turkish["api_equivalent_usd"]
+        text_latency = turkish.get("latency")
         models.append(
             {
                 "name": turkish["name"],
                 "model": model,
                 "provider": provider,
-                "run": found[0]["run_id"],
+                "run": first["run_id"],
                 "runs": [record["run_id"] for record in found],
                 "turkish_run": turkish["run"],
                 "turkish_runs": repeats.get(turkish["run"], [turkish["run"]]),
+                "cost": {
+                    "english": None if cost is None else {
+                        "usd": cost, "per_1000": 1000 * cost / first["evaluated"], "basis": COST_BASES[billing][1],
+                        "billing": billing, "tokens": tokens, "requests": first.get("requests"), "price": price,
+                    },
+                    "turkish": None if text_cost is None else {
+                        "usd": text_cost, "per_1000": 1000 * text_cost / turkish["answered_questions"], "basis": turkish["cost_basis"],
+                    },
+                },
+                "latency": {
+                    "english": None if first.get("median_request_seconds") is None else {
+                        "median_request_seconds": first["median_request_seconds"],
+                        "p90_request_seconds": first.get("p90_request_seconds"),
+                        "concurrency": first.get("concurrency"),
+                        "questions_per_request": batch_size,
+                    },
+                    "turkish": None if text_latency is None else {
+                        "median_request_seconds": text_latency["median_request_seconds"],
+                        "p90_request_seconds": text_latency["p90_request_seconds"],
+                        "concurrency": text_latency["concurrency"],
+                        "questions_per_request": turkish["questions_per_request"],
+                        "source": text_latency["source"],
+                    },
+                },
             }
         )
     return {"models": models, "records": {record["run_id"]: record for record in records}}
