@@ -9,8 +9,10 @@ only their own section, `dont_know`, and answers.json's `dont_know_runs`; runs i
 theirs, `english_reading`, and answers.json's `english_runs`; runs in English with the option, and the Turkish runs
 with the option on the English track's kept questions, only `english_reading.dont_know` and answers.json's
 `english_dont_know_runs` and `english_dont_know_turkish_runs`. The option-word check's runs (--dont-know-word english)
-enter only `dont_know_option_word` and answers.json's `dont_know_word_runs`, and fresh runs of a setup (--rerun) only
-`hosted_glide_rerun` and answers.json's `rerun_runs`.
+enter only `dont_know_option_word` and answers.json's `dont_know_word_runs`, fresh runs of a setup (--rerun) only
+`hosted_glide_rerun` and answers.json's `rerun_runs`, and the runs of Perplexity's web grounding test
+(WEB_GROUNDING_RUNS: the 200-question sample with grounding off and on, with "Bilmiyorum" off and on, and the English run
+with grounding on) only `web_grounding` and answers.json's `web_grounding_runs`.
 """
 
 from __future__ import annotations
@@ -20,8 +22,10 @@ import bisect
 import hashlib
 import itertools
 import json
+import math
 import random
 import re
+import statistics
 import sys
 from collections import Counter
 from datetime import datetime, timezone
@@ -211,7 +215,8 @@ MODELS: dict[str, dict[str, Any]] = {
     # perplexity-ai/pplx-decider-flash-v1.2 at 6d771ad), backbone and head. Both ran on a DGX Spark (GB10).
     "pplx-decider-v1.2": {
         "name": "Perplexity Decider 27B v1.2",
-        "note": "Perplexity's released checkpoint, run on our hardware. An API run is pending; this is an additional local setup.",
+        "note": "Perplexity's released checkpoint, run on our hardware. Its run through Perplexity's Decisions API is a "
+        "setup of its own.",
         "hardware": f"1 × {SPARK}; BF16",
         "parameters": 26_086_635_760,
     },
@@ -438,6 +443,47 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 14_768_307_200,
     },
 }
+# Setups whose model ID another setup shares, by (provider, model, Perplexity mode): their entry replaces the model's in
+# MODELS. The hosted Decider v1.2 (Ümit #1138, #1219, #1229) has the self-hosted checkpoint's model ID; with web
+# grounding (--perplexity-mode web_grounding) it is a setup of its own. Their names tell the three apart.
+SETUP_MODELS: dict[tuple[str, str, str | None], dict[str, Any]] = {
+    ("perplexity", "pplx-decider-v1.2", None): {
+        "name": "Perplexity Decider 27B v1.2 (API)",
+        "note": "Perplexity's hosted Decider v1.2 through its Decisions API, web grounding off. The other Decider v1.2 "
+        "rows are Perplexity's released checkpoint on our hardware and this model with web grounding on.",
+        "parameters": 26_086_635_760,
+    },
+    ("perplexity", "pplx-decider-v1.2", "web_grounding"): {
+        "name": "Perplexity Decider 27B v1.2 (with web)",
+        "note": "Perplexity's hosted Decider v1.2 through its Decisions API with web grounding on: a web search per "
+        "question, its results added as evidence. The search sends the question out, and for some questions it returned "
+        "pages of the bank's source book (the Web grounding page). Its cost is an upper-bound estimate: one $0.001 search "
+        "billed per request, while Perplexity bills only completed searches.",
+        "parameters": 26_086_635_760,
+    },
+}
+# The variant a Perplexity mode adds to a setup's name in tables and charts.
+MODE_VARIANTS = {"web_grounding": "with web"}
+
+
+def model_info(provider: str, model: str, mode: str | None = None) -> dict[str, Any]:
+    """A setup's display name, note, size, access, billing and hardware: SETUP_MODELS, else MODELS."""
+    return SETUP_MODELS.get((provider, model, mode), MODELS.get(model, {}))
+
+
+def run_variant(record: dict[str, Any]) -> str | None:
+    """A run's variant: its provider's (VARIANTS), its Perplexity mode's (MODE_VARIANTS) and shuffled options."""
+    variants = [VARIANTS.get(record.get("provider", "ollama")), MODE_VARIANTS.get(record.get("perplexity_mode")),
+                "options shuffled" if record.get("shuffle_options") is not None else None]
+    return ", ".join(variant for variant in variants if variant) or None
+
+
+def upper_bound_cost(record: dict[str, Any]) -> bool:
+    """Whether a run's cost is an upper-bound estimate: with web grounding, the price's fee per request is a fee per
+    completed search, counted here for every request."""
+    return record.get("perplexity_mode") == "web_grounding" and bool((record.get("price") or {}).get("per_request"))
+
+
 # Finished runs whose publication is held; the export leaves them out, with their answers, until the hold is lifted.
 HELD_RUNS: dict[int, str] = {
     312: "Gemini 4 Argon (high), after the retry of its 9 cut requests: held by Ümit on 28 October 2026 until approval",
@@ -612,7 +658,7 @@ def tyt_mix(groups: dict[str, Any]) -> float | None:
 
 # Runs of the same setup: provider, model and setting; a run's time per request may come from another run of its setup
 # with the same number of questions per request.
-SETUP_KEYS = ("provider", "model", "reasoning", "variant")
+SETUP_KEYS = ("provider", "model", "reasoning", "variant", "perplexity_mode")
 
 
 def run_latency(run: dict[str, Any], repeats: list[dict[str, Any]], repeat_of: dict[int, int]) -> dict[str, Any] | None:
@@ -704,23 +750,24 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         provider = PROVIDERS.get(provider_name)
         if provider is None:
             raise ValueError(f"run {record['run_id']} ({record['model']}, {provider_name}): unknown provider; add it to PROVIDERS")
-        variants = [VARIANTS.get(provider_name), "options shuffled" if record.get("shuffle_options") is not None else None]
         return {
             "model": record["model"],
-            "name": MODELS.get(record["model"], {}).get("name", record["model"]),
-            "variant": ", ".join(variant for variant in variants if variant) or None,
+            "name": model_info(provider_name, record["model"], record.get("perplexity_mode")).get("name", record["model"]),
+            "variant": run_variant(record),
             "reasoning": None if provider["scoring"] else record["thinking"],
             "provider": provider_name,
+            "perplexity_mode": record.get("perplexity_mode"),
         }
 
-    # The price of every priced run exported, by provider and model (the report's PRICES).
-    prices: dict[tuple[str, str], dict[str, Any]] = {}
+    # The price of every priced run exported, by provider, model and Perplexity mode (the report's PRICES and
+    # WEB_GROUNDING_PRICES).
+    prices: dict[tuple[str, str, str | None], dict[str, Any]] = {}
 
     def priced(record: dict[str, Any]) -> dict[str, int]:
         """The record's token totals, with its price entered in the price table."""
         price = record.get("price")
         if price is not None:
-            key = (record.get("provider", "ollama"), record["model"])
+            key = (record.get("provider", "ollama"), record["model"], record.get("perplexity_mode"))
             if prices.setdefault(key, price) != price:
                 raise ValueError(f"run {record['run_id']}: its price differs from another run of {key[1]}")
         return {kind: record.get(kind, 0) for kind in TOKEN_KINDS}
@@ -741,7 +788,7 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             raise ValueError(f"{label}: its units differ from the other runs'")
         if sum(counts["correct"] for counts in categories.values()) != record["correct"]:
             raise ValueError(f"{label}: unit results do not add up to its score")
-        model = MODELS.get(record["model"], {})
+        model = model_info(provider_name, record["model"], record.get("perplexity_mode"))
         billing = model.get("billing", provider["billing"])
         cost = record.get("cost_usd")
         if (cost is None) != (record.get("price") is None):
@@ -792,6 +839,8 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 # "maker" or None); requests counts the run's requests, for a price that bills tokens per request.
                 "api_equivalent_usd": cost,
                 "cost_basis": None if cost is None else cost_basis,
+                # An upper-bound estimate (upper_bound_cost): web grounding's search fee counted for every request.
+                "cost_upper_bound": upper_bound_cost(record),
                 "requests": record.get("requests"),
                 "hardware": model.get("hardware") if billing == "local" else None,
                 **priced(record),
@@ -1007,7 +1056,8 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
             }
             for name in unit_names
         ],
-        "prices": [{"provider": provider, "model": model, **price} for (provider, model), price in sorted(prices.items())],
+        "prices": [{"provider": provider, "model": model, "perplexity_mode": mode, **price}
+                   for (provider, model, mode), price in sorted(prices.items(), key=lambda item: (*item[0][:2], item[0][2] or ""))],
         "runs": runs,
         "group_pairs": group_pairs,
         "paired": paired,
@@ -1242,12 +1292,12 @@ def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, 
         return None
     setups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
     for record in sorted(full, key=lambda record: record["run_id"]):
-        key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"])
+        key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"], record.get("perplexity_mode"))
         setups.setdefault(key, []).append(record)
     by_id = {run["run"]: run for run in data["runs"]}
     metrics = ("accuracy", "attempt_rate", "non_hallucination", "mean_dont_know_probability")
     models = []
-    for (provider, model, _, batch_size), found in setups.items():
+    for (provider, model, _, batch_size, mode), found in setups.items():
         label = f"{model} ({provider}), \"I don't know\" runs {[record['run_id'] for record in found]}"
         first = [record for record in found if record.get("repeat") is None]
         if len(first) != 1:
@@ -1265,7 +1315,7 @@ def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, 
             raise ValueError(f"{label}: its runs name different original runs")
         primary = min(
             (run["run"] for run in data["runs"]
-             if (run["provider"], run["model"], run["questions_per_request"]) == (provider, model, batch_size)),
+             if (run["provider"], run["model"], run["questions_per_request"], run["perplexity_mode"]) == (provider, model, batch_size, mode)),
             default=None,
         )
         if original is None or original != primary:
@@ -1277,6 +1327,7 @@ def dont_know(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, 
                 "name": by_id[original]["name"],
                 "model": model,
                 "provider": provider,
+                "perplexity_mode": mode,
                 "run": found[0]["run_id"],
                 "runs": [record["run_id"] for record in found],
                 **{key: head[key] for key in ("right", "wrong", "dont_know", "invalid")},
@@ -1364,10 +1415,15 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
 
 # The option-word check (results.json `dont_know_option_word`): the Hallucination tab's test with the option's word in
 # English, its prompts' version (DONT_KNOW_WORD_PROMPT_VERSION in benchmark_ollama.py), and the Hallucination tab models
-# without an option-word run by (provider, model), with the reason the page gives.
+# without an option-word run by (provider, model, Perplexity mode), with the reason the page gives.
 OPTION_WORD = "I don't know"
 OPTION_WORD_PROMPT_VERSION = "fb17d583a3af"
-OPTION_WORD_NOT_RUN: dict[tuple[str, str], str] = {}
+OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
+    ("perplexity", "pplx-decider-v1.2", None): "added to the Hallucination tab on 5 November 2026 (Ümit #1229), after the "
+    "option-word check; not asked with “I don't know” yet.",
+    ("perplexity", "pplx-decider-v1.2", "web_grounding"): "added to the Hallucination tab on 5 November 2026 (Ümit #1229), "
+    "after the option-word check; not asked with “I don't know” yet.",
+}
 # The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
 # five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't
 # know" comparison; the published row stays as it is.
@@ -1384,7 +1440,7 @@ def full_bank_run(record: dict[str, Any], data: dict[str, Any]) -> bool:
 
 
 def setup_of(record: dict[str, Any]) -> tuple[Any, ...]:
-    return record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"]
+    return record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"], record.get("perplexity_mode")
 
 
 def dont_know_option_word(records: list[dict[str, Any]], section: dict[str, Any] | None, data: dict[str, Any],
@@ -1407,9 +1463,9 @@ def dont_know_option_word(records: list[dict[str, Any]], section: dict[str, Any]
         if not full_bank_run(record, data) or record["dont_know_answers"]["questions"] != data["questions"]:
             raise ValueError(f"{label}: not a run over all {data['questions']:,} questions of the exported bank")
         by_setup.setdefault(setup_of(record), []).append(record)
-    for (provider, model), _ in OPTION_WORD_NOT_RUN.items():
-        if not any((item["provider"], item["model"]) == (provider, model) for item in section["models"]):
-            raise ValueError(f"OPTION_WORD_NOT_RUN: {model} ({provider}) is not a Hallucination tab model")
+    for (provider, model, mode), _ in OPTION_WORD_NOT_RUN.items():
+        if not any((item["provider"], item["model"], item["perplexity_mode"]) == (provider, model, mode) for item in section["models"]):
+            raise ValueError(f"OPTION_WORD_NOT_RUN: {model} ({provider}, {mode}) is not a Hallucination tab model")
 
     def counted(record: dict[str, Any]) -> dict[str, Any]:
         got = record["dont_know_answers"]
@@ -1426,7 +1482,7 @@ def dont_know_option_word(records: list[dict[str, Any]], section: dict[str, Any]
     models, not_run = [], []
     for item in section["models"]:
         found = by_setup.pop(setup_of(by_run[item["run"]]), [])
-        reason = OPTION_WORD_NOT_RUN.get((item["provider"], item["model"]))
+        reason = OPTION_WORD_NOT_RUN.get((item["provider"], item["model"], item["perplexity_mode"]))
         label = f"{item['name']} ({item['provider']})"
         if reason is not None:
             if found:
@@ -1608,6 +1664,294 @@ def hosted_glide_rerun_answers_part(rerun: dict[str, Any], dont_know_section: di
     }
 
 
+# Perplexity's web grounding test (results.json `web_grounding`; Ümit #1138, #1204, #1219, #1229, 5 November 2026): the
+# hosted Decider v1.2 (WEB_GROUNDING_SETUP) through Perplexity's Decisions API, one question per request, with grounding
+# off and on. Since #1229 both modes are setups of the ranking: their Text tab runs (the full bank), English runs (the
+# kept reading questions) and Hallucination tab runs ("Bilmiyorum", the full bank) are each pair's two arms, found by
+# setup. The pilot pairs on the bank's 200-question sample (the runner's --sample 200 --seed 0), on which the protocol's
+# rule was decided, are by run (WEB_GROUNDING_PILOTS) and enter no other section (WEB_GROUNDING_ONLY). web-grounding.json
+# (web_grounding_inputs.py) holds what answers.json cannot: each run's input tokens by group, what the search returned,
+# and PWS-Decisions' aggregates.
+WEB_GROUNDING_SETUP = ("perplexity", "pplx-decider-v1.2")
+WEB_GROUNDING_MODE = "web_grounding"
+WEB_GROUNDING_PILOTS = {"pilot": (631, 632), "pilot_dont_know": (634, 635)}
+WEB_GROUNDING_ONLY = frozenset(run for pair in WEB_GROUNDING_PILOTS.values() for run in pair)
+WEB_GROUNDING_SAMPLE = {"questions": 200, "seed": 0}
+WEB_GROUNDING_PATH = Path(__file__).resolve().parent / "web-grounding.json"
+# Request times: the median and this percentile by nearest rank, as PWS-Decisions' summaries give it.
+WEB_GROUNDING_PERCENTILE = 0.95
+# What Perplexity published about PWS-Decisions (its blog post of 4 November 2026, read 5 November 2026).
+WEB_GROUNDING_REPORTED = {
+    "source": "https://www.perplexity.ai/hub/blog/web-grounding-for-the-decisions-api",
+    "title": "Web grounding for the Decisions API",
+    "published": "2026-11-04",
+    "read": "2026-11-05",
+    # 86 of the 100 public questions with grounding, Perplexity's run of 4 November 2026.
+    "on_correct": 86,
+    # 51 without: the benchmark authors' (Parallel's) leaderboard figure, which Perplexity says its own run matched.
+    "off_correct": 51,
+    # Grounded requests only, from Perplexity's client on the 100 public questions; no time is given without grounding.
+    "on_median_request_seconds": 0.370,
+    "on_p95_request_seconds": 0.685,
+}
+
+
+def nearest_rank(values: list[float], share: float) -> float:
+    """The `share` percentile of `values` by nearest rank."""
+    ordered = sorted(values)
+    return ordered[max(0, math.ceil(share * len(ordered)) - 1)]
+
+
+def web_grounding_runs(by_run: dict[int, dict[str, Any]]) -> frozenset[int]:
+    """The pilot runs of the web grounding test, which answers.json lists under `web_grounding_runs`, after checking each
+    is in the report with its setup and kind: none when the report holds none of them."""
+    if not WEB_GROUNDING_ONLY & set(by_run):
+        return frozenset()
+    if WEB_GROUNDING_ONLY - set(by_run):
+        raise ValueError(f"web_grounding: the report lacks runs {sorted(WEB_GROUNDING_ONLY - set(by_run))}")
+    for part, pair in WEB_GROUNDING_PILOTS.items():
+        for arm, run in zip(("off", "on"), pair):
+            record = by_run[run]
+            kind = {
+                "setup": (record.get("provider", "ollama"), record["model"]),
+                "one question per request": record["batch_size"],
+                "grounding": record.get("perplexity_mode"),
+                "Bilmiyorum": bool(record.get("dont_know")),
+                "English": bool(record.get("english")),
+                "repeat, key change, shuffle, option word, rerun, question list": [record.get(key) for key in (
+                    "repeat", "replace_key_text", "shuffle_options", "dont_know_word", "rerun", "question_list")],
+                "sample": record["evaluated"],
+            }
+            expected = {
+                "setup": WEB_GROUNDING_SETUP,
+                "one question per request": 1,
+                "grounding": WEB_GROUNDING_MODE if arm == "on" else None,
+                "Bilmiyorum": part == "pilot_dont_know",
+                "English": False,
+                "repeat, key change, shuffle, option word, rerun, question list": [None] * 6,
+                "sample": WEB_GROUNDING_SAMPLE["questions"],
+            }
+            for name, value in kind.items():
+                if value != expected[name]:
+                    raise ValueError(f"web_grounding: run {run} ({part}, {arm}): {name} is {value!r}, not {expected[name]!r}")
+    if len({by_run[run]["selection_sha256"] for run in WEB_GROUNDING_ONLY}) != 1:
+        raise ValueError("web_grounding: the pilot runs were asked different questions")
+    return WEB_GROUNDING_ONLY
+
+
+def web_grounding(data: dict[str, Any], by_run: dict[int, dict[str, Any]], answers: dict[str, Any],
+                  inputs: dict[str, Any]) -> dict[str, Any]:
+    """Perplexity's web grounding test (results.json `web_grounding`) from the runs' records and answers and
+    web-grounding.json. The pairs: the two setups' Text tab runs on the full bank (`turkish`), their English runs on the
+    kept reading questions (`english`) and their Hallucination tab runs (`dont_know`), then the pilots on the 200-question
+    sample (`pilot`, `pilot_dont_know`). Per arm the right answers, accuracy, median and WEB_GROUNDING_PERCENTILE request
+    time and cost per 1M questions, overall and for the Turkish runs by group (reading, grammar), and the paired test of
+    right answers (exact McNemar, off only against on only); the "Bilmiyorum" pairs' counts and rates; what the grounded
+    runs' searches returned, with the right answers off and on among the questions of each literal-match and source
+    check; PWS-Decisions' aggregates at the same price, with its paired counts' exact McNemar test, and what Perplexity
+    reported (WEB_GROUNDING_REPORTED). Costs: each request's input tokens at the grounded runs' price, plus its fee per
+    request (one web search each) for every grounded request: an upper bound, as Perplexity bills completed searches."""
+    questions = answers["questions"]
+    scored = [index for index, status in enumerate(questions["status"]) if status != "excluded"]
+    position = {question: index for index, question in enumerate(questions["id"])}
+    exported = {run["run"]: run for key, runs in answers.items() if key.endswith("runs") for run in runs}
+    tokens = {item["run"]: item for item in inputs["runs"]}
+
+    def by_mode(items: list[dict[str, Any]], what: str) -> tuple[Any, Any]:
+        """The off and on entries of the test's setup in a section's list (each with its perplexity_mode)."""
+        found = {mode: [item for item in items if (item["provider"], item["model"]) == WEB_GROUNDING_SETUP
+                        and item["perplexity_mode"] == mode] for mode in (None, WEB_GROUNDING_MODE)}
+        if any(len(entries) != 1 for entries in found.values()):
+            raise ValueError(f"web_grounding: needs one {what} with grounding off and one with it on, found "
+                             f"{ {mode: [entry['run'] for entry in entries] for mode, entries in found.items()} }")
+        return found[None][0], found[WEB_GROUNDING_MODE][0]
+
+    text_off, text_on = by_mode(data["runs"], "Text tab run")
+    english_off, english_on = by_mode([{**model, "perplexity_mode": by_run[model["run"]].get("perplexity_mode")}
+                                       for model in data["english_reading"]["models"]], "English reading model")
+    idk_off, idk_on = by_mode(data["dont_know"]["models"], "Hallucination tab model")
+    # The English "I don't know" pair (Ümit #1219): the setup's first English runs with the option, by their records' mode.
+    english_idk = data["english_reading"].get("dont_know") or {}
+    english_idk_off, english_idk_on = by_mode(
+        [{**model["english"], "text_run": model["text_run"], "provider": by_run[model["english"]["run"]].get("provider", "ollama"),
+          "model": by_run[model["english"]["run"]]["model"], "perplexity_mode": by_run[model["english"]["run"]].get("perplexity_mode")}
+         for model in english_idk.get("models", []) + english_idk.get("english_only", [])], "English \"I don't know\" model")
+    pairs = {"turkish": (text_off["run"], text_on["run"]), "english": (english_off["run"], english_on["run"]),
+             "dont_know": (idk_off["run"], idk_on["run"]),
+             "english_dont_know": (english_idk_off["run"], english_idk_on["run"]), **WEB_GROUNDING_PILOTS}
+    if (english_idk_off["text_run"], english_idk_on["text_run"]) != pairs["turkish"]:
+        raise ValueError("web_grounding: the English \"I don't know\" runs are not those of the two Text tab runs")
+    if (english_off["turkish_run"], english_on["turkish_run"]) != pairs["turkish"]:
+        raise ValueError("web_grounding: the English runs are not those of the two Text tab runs")
+    price = by_run[text_on["run"]]["price"]
+    rates = price["rates"]
+    for run in sorted({run for pair_runs in pairs.values() for run in pair_runs}):
+        record = by_run[run]
+        grounded = record.get("perplexity_mode") is not None
+        if record["price"]["rates"] != rates or record["price"]["per_request"] != (price["per_request"] if grounded else 0):
+            raise ValueError(f"web_grounding: run {run} has another price than the grounded runs' rates")
+        if rates["output_tokens"] or any(record.get(kind) for kind in ("cached_input_tokens", "cache_write_input_tokens",
+                                                                       "cache_write_1h_input_tokens")):
+            raise ValueError(f"web_grounding: run {run}: the cost here counts input tokens and requests only")
+        if run not in tokens:
+            raise ValueError(f"web_grounding: run {run} is not in web-grounding.json; run web_grounding_inputs.py")
+
+    def group_of(index: int) -> str:
+        return "reading" if questions["unit"][index] in READING_UNITS else "grammar"
+
+    def asked(run: int) -> list[int]:
+        return [index for index in scored if exported[run]["correct"][index] is not None]
+
+    def measures(run: int, indices: list[int], input_tokens: int) -> dict[str, Any]:
+        record, answered = by_run[run], exported[run]
+        seconds = [answered["request_seconds"][index] for index in indices]
+        correct = sum(int(answered["correct"][index]) for index in indices)
+        searches = len(indices) if record.get("perplexity_mode") is not None else 0
+        cost = input_tokens * rates["input_tokens"] / 1e6 + searches * price["per_request"]
+        return {
+            "questions": len(indices),
+            "correct": correct,
+            "accuracy": correct / len(indices),
+            "median_request_seconds": statistics.median(seconds),
+            "p95_request_seconds": nearest_rank(seconds, WEB_GROUNDING_PERCENTILE),
+            "input_tokens": input_tokens,
+            "searches": searches,
+            "cost_usd": cost,
+            "cost_per_million_questions": cost / len(indices) * 1e6,
+        }
+
+    def arm(run: int, by_group: bool) -> dict[str, Any]:
+        record, indices = by_run[run], asked(run)
+        groups = tokens[run]["groups"]
+        found = {"run": run, **measures(run, indices, sum(item["input_tokens"] for item in groups.values()))}
+        label = f"web_grounding: run {run}"
+        if (found["questions"], found["correct"]) != (record["evaluated"], record["correct"]):
+            raise ValueError(f"{label}: its answers count {found['correct']} of {found['questions']}, its record "
+                             f"{record['correct']} of {record['evaluated']}")
+        if found["input_tokens"] != record["input_tokens"] or not math.isclose(found["cost_usd"], record["cost_usd"], rel_tol=1e-9):
+            raise ValueError(f"{label}: tokens {found['input_tokens']} and cost {found['cost_usd']} differ from its record's")
+        # answers.json keeps request times to the millisecond, so the median from it is within half a millisecond.
+        if not math.isclose(found["median_request_seconds"], record["median_request_seconds"], abs_tol=0.0005):
+            raise ValueError(f"{label}: the answers' median request time differs from its record's")
+        if by_group:
+            parts = {name: [index for index in indices if group_of(index) == name] for name in ("reading", "grammar")}
+            if any(len(parts[name]) != groups[name]["questions"] for name in parts):
+                raise ValueError(f"{label}: its groups differ from web-grounding.json's")
+            found["groups"] = {name: measures(run, parts[name], groups[name]["input_tokens"]) for name in parts}
+        return found
+
+    def paired(off: int, on: int, indices: list[int]) -> dict[str, Any]:
+        test = bm.paired_comparison([int(exported[off]["correct"][index]) for index in indices],
+                                    [int(exported[on]["correct"][index]) for index in indices])
+        return {"questions": test["questions"], "off_only": test["first_only"], "on_only": test["second_only"], "p": test["p"]}
+
+    def search(off: int, on: int) -> dict[str, Any]:
+        found = tokens[on]["search"]
+
+        def checked(ids: list[int]) -> dict[str, Any]:
+            """A check's questions, the right answers off and on among them, and those right only off (losses with
+            grounding) and only on (gains)."""
+            right = {run: [int(exported[run]["correct"][position[question]]) for question in ids] for run in (off, on)}
+            return {"questions": len(ids), "ids": ids, "right_off": sum(right[off]), "right_on": sum(right[on]),
+                    "off_only": sum(a and not b for a, b in zip(right[off], right[on])),
+                    "on_only": sum(b and not a for a, b in zip(right[off], right[on]))}
+
+        return {
+            "run": on,
+            **{key: found[key] for key in ("pages", "pages_per_question", "sites", "top_domains")},
+            **{key: checked(found[key]) for key in ("shared_words", "publisher", "source_book")},
+        }
+
+    def pair(part: str, by_group: bool) -> dict[str, Any]:
+        off, on = pairs[part]
+        indices = asked(off)
+        if asked(on) != indices:
+            raise ValueError(f"web_grounding: runs {off} and {on} answered different questions")
+        found = {"questions": len(indices), "off": arm(off, by_group), "on": arm(on, by_group), "paired": paired(off, on, indices)}
+        if by_group:
+            found["paired_groups"] = {name: paired(off, on, [index for index in indices if group_of(index) == name])
+                                      for name in ("reading", "grammar")}
+        return {**found, "search": search(off, on)}
+
+    def dont_know_pair(part: str) -> dict[str, Any]:
+        found = {}
+        for name, run in zip(("off", "on"), pairs[part]):
+            got = by_run[run]["dont_know_answers"]
+            answered = got["right"] + got["wrong"]
+            found[name] = {
+                "run": run,
+                **{key: got[key] for key in ("questions", "right", "wrong", "dont_know", "invalid", "accuracy", "non_hallucination")},
+                "answered": answered / got["questions"],
+                "wrong_of_answers": got["wrong"] / answered if answered else None,
+            }
+        if found["off"]["questions"] != found["on"]["questions"]:
+            raise ValueError(f"web_grounding: the {part} runs count different questions")
+        return {"questions": found["off"]["questions"], **found}
+
+    def english_dont_know_pair() -> dict[str, Any]:
+        """The English "I don't know" pair as english_reading.dont_know counts it on the kept questions."""
+        found = {}
+        for name, side in (("off", english_idk_off), ("on", english_idk_on)):
+            answered = side["right"] + side["wrong"]
+            found[name] = {
+                "run": side["run"],
+                "questions": answered + side["dont_know"] + side["invalid"],
+                **{key: side[key] for key in ("right", "wrong", "dont_know", "invalid", "accuracy", "non_hallucination")},
+                "answered": side["attempt_rate"],
+                "wrong_of_answers": side["wrong"] / answered if answered else None,
+            }
+        if found["off"]["questions"] != found["on"]["questions"]:
+            raise ValueError("web_grounding: the English \"I don't know\" runs count different questions")
+        return {"questions": found["off"]["questions"], **found}
+
+    sample = asked(pairs["pilot"][0])
+    if any(asked(run) != sample or exported[run]["seed"] != WEB_GROUNDING_SAMPLE["seed"] for run in WEB_GROUNDING_ONLY):
+        raise ValueError("web_grounding: the pilot runs were not all asked the sample's questions")
+    pws = inputs["pws"]
+
+    def pws_arm(name: str) -> dict[str, Any]:
+        got = pws[name]
+        searches = got["questions"] if name == "on" else 0
+        cost = got["input_tokens"] * rates["input_tokens"] / 1e6 + searches * price["per_request"]
+        return {
+            **{key: got[key] for key in ("questions", "correct", "errors", "median_request_seconds", "p95_request_seconds",
+                                         "input_tokens")},
+            "accuracy": got["correct"] / got["questions"],
+            "searches": searches,
+            "cost_usd": cost,
+            "cost_per_million_questions": cost / got["questions"] * 1e6,
+            **({"search": got["search"]} if "search" in got else {}),
+        }
+
+    return {
+        "provider": WEB_GROUNDING_SETUP[0],
+        "model": WEB_GROUNDING_SETUP[1],
+        "names": {"off": text_off["name"], "on": text_on["name"]},
+        "text_runs": {"off": text_off["run"], "on": text_on["run"]},
+        "dates": sorted({by_run[run]["started"][:10] for pair_runs in pairs.values() for run in pair_runs}),
+        "price": {key: price[key] for key in ("basis", "source", "date", "text")}
+        | {"input_per_million": rates["input_tokens"], "per_search": price["per_request"], "upper_bound": True},
+        "reading_units": list(READING_UNITS),
+        "percentile": WEB_GROUNDING_PERCENTILE,
+        "sample": {**WEB_GROUNDING_SAMPLE, "selection_sha256": by_run[pairs["pilot"][0]]["selection_sha256"]},
+        "rules": inputs["rules"],
+        "turkish": pair("turkish", True),
+        "english": {**pair("english", False), "question_list": by_run[pairs["english"][0]]["question_list"]},
+        "dont_know": dont_know_pair("dont_know"),
+        "english_dont_know": english_dont_know_pair(),
+        "pilot": pair("pilot", True),
+        "pilot_dont_know": dont_know_pair("pilot_dont_know"),
+        "pws": {
+            **{key: pws[key] for key in ("name", "version", "questions_sha256", "language")},
+            "off": pws_arm("off"),
+            "on": pws_arm("on"),
+            "paired": {"questions": pws["on"]["questions"], "off_only": pws["off_only"], "on_only": pws["on_only"],
+                       "p": bm.sign_test(pws["off_only"], pws["on_only"])},
+            "reported": WEB_GROUNDING_REPORTED,
+        },
+    }
+
+
 # The Text tab model of an English run's model, by (provider, model), where the two names differ: Liquid's API no longer
 # serves the d1:free name of d1 (its model list still names d1), so d1's English runs ask for d1 while its Text tab run
 # asked for d1:free.
@@ -1629,20 +1973,21 @@ ENGLISH_DONT_KNOW_ENGLISH_ONLY = {
 
 def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
     """The runs of the English reading track (results.json `english_reading`) from the report's records of runs in
-    English: one entry per setup (provider, model, reasoning, questions per request) with its runs, the first run
-    without a repeat number first and its repeats after it, and its Text tab run (same provider, model as
-    ENGLISH_TEXT_MODEL maps it, reasoning and questions per request) with that run's whole-bank repeats. Decision and chat
+    English: one entry per setup (provider, model, reasoning, questions per request, Perplexity mode) with its runs, the
+    first run without a repeat number first and its repeats after it, and its Text tab run (same provider, model as
+    ENGLISH_TEXT_MODEL maps it, reasoning, variant, questions per request and Perplexity mode) with that run's whole-bank
+    repeats. Decision and chat
     models alike (Ümit via Zeki #1136, 5 November 2026: every Text tab setup in English too). None without such runs. The
     numbers come from the answers (english_reading_answers_part)."""
     if not records:
         return None
     setups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
     for record in sorted(records, key=lambda record: record["run_id"]):
-        key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"])
+        key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"], record.get("perplexity_mode"))
         setups.setdefault(key, []).append(record)
     repeats = {item["runs"][0]: item["runs"] for item in data["repeats"] if item["whole_bank"]}
     models = []
-    for (provider, model, thinking, batch_size), found in setups.items():
+    for (provider, model, thinking, batch_size, mode), found in setups.items():
         label = f"{model} ({provider}), English runs {[record['run_id'] for record in found]}"
         if provider not in PROVIDERS:
             raise ValueError(f"{label}: unknown provider; add it to PROVIDERS")
@@ -1653,8 +1998,8 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
         text_model = ENGLISH_TEXT_MODEL.get((provider, model), model)
         paired = [
             run for run in data["runs"]
-            if (run["provider"], run["model"], run["reasoning"], run["variant"], run["questions_per_request"])
-            == (provider, text_model, reasoning, VARIANTS.get(provider), batch_size)
+            if (run["provider"], run["model"], run["reasoning"], run["variant"], run["questions_per_request"], run["perplexity_mode"])
+            == (provider, text_model, reasoning, run_variant({"provider": provider, "perplexity_mode": mode}), batch_size, mode)
         ]
         if len(paired) != 1:
             raise ValueError(f"{label}: needs exactly one Text tab run of {text_model} with {batch_size} question"
@@ -1664,7 +2009,7 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
         # Cost and time per request of the first English run, beside its Text tab run's (Ümit via Zeki #1189): the run's
         # tokens at the price the runner records with it (its cost basis from its billing, as for a main run), and its
         # median and 90th-percentile time per request as the runner measured it.
-        billing = MODELS.get(model, {}).get("billing", PROVIDERS[provider]["billing"])
+        billing = model_info(provider, model, mode).get("billing", PROVIDERS[provider]["billing"])
         cost, price = first.get("cost_usd"), first.get("price")
         if (cost is None) != (price is None):
             raise ValueError(f"{label}: a cost needs its price, and a price its cost")
@@ -1680,15 +2025,18 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
                 "provider": provider,
                 "run": first["run_id"],
                 "runs": [record["run_id"] for record in found],
+                "perplexity_mode": mode,
                 "turkish_run": turkish["run"],
                 "turkish_runs": repeats.get(turkish["run"], [turkish["run"]]),
                 "cost": {
                     "english": None if cost is None else {
                         "usd": cost, "per_1000": 1000 * cost / first["evaluated"], "basis": COST_BASES[billing][1],
                         "billing": billing, "tokens": tokens, "requests": first.get("requests"), "price": price,
+                        "upper_bound": upper_bound_cost(first),
                     },
                     "turkish": None if text_cost is None else {
                         "usd": text_cost, "per_1000": 1000 * text_cost / turkish["answered_questions"], "basis": turkish["cost_basis"],
+                        "upper_bound": turkish["cost_upper_bound"],
                     },
                 },
                 "latency": {
@@ -1850,9 +2198,9 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
     def setups(found: list[dict[str, Any]], kind: str) -> dict[tuple[Any, ...], list[dict[str, Any]]]:
         grouped: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
         for record in sorted(found, key=lambda record: record["run_id"]):
-            key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"])
+            key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"], record.get("perplexity_mode"))
             grouped.setdefault(key, []).append(record)
-        for (provider, model, _, batch_size), group in grouped.items():
+        for (provider, model, _, batch_size, _mode), group in grouped.items():
             label = f"{model} ({provider}), {kind} runs {[record['run_id'] for record in group]}"
             if batch_size != 1:
                 raise ValueError(f"{label}: asked {batch_size} questions per request, not 1")
@@ -1868,10 +2216,11 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
     models = []
     english_only = []
     claimed: list[dict[str, Any]] = []
-    for (provider, model, thinking, _), found in setups(english, 'English "I don\'t know"').items():
+    for (provider, model, thinking, _, mode), found in setups(english, 'English "I don\'t know"').items():
         runs = [record["run_id"] for record in found]
         label = f"{model} ({provider}), English \"I don't know\" runs {runs}"
-        reading = [item for item in english_section["models"] if (item["provider"], item["model"]) == (provider, model)]
+        reading = [item for item in english_section["models"]
+                   if (item["provider"], item["model"], item["perplexity_mode"]) == (provider, model, mode)]
         if len(reading) != 1:
             raise ValueError(f"{label}: needs exactly one English reading model of the same provider and model, "
                              f"found {[item['run'] for item in reading]}")
@@ -1879,8 +2228,8 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         if originals != {reading[0]["run"]}:
             raise ValueError(f"{label}: its original runs {sorted(originals, key=str)} are not its first English reading "
                              f"run {reading[0]['run']}")
-        subset = subsets.pop((provider, model, thinking, 1), None)
-        hallucination = [item for item in full if (item["provider"], item["model"]) == (provider, model)]
+        subset = subsets.pop((provider, model, thinking, 1, mode), None)
+        hallucination = [item for item in full if (item["provider"], item["model"], item["perplexity_mode"]) == (provider, model, mode)]
         if subset is not None and hallucination:
             raise ValueError(f"{label}: both Turkish runs on the kept questions {[record['run_id'] for record in subset]} "
                              f"and full-bank runs {[item['runs'] for item in hallucination]} could be its Turkish side")
@@ -2132,10 +2481,12 @@ def option_word_vs_confidence(option_word: dict[str, Any], dont_know_section: di
     if [entry for entry in models if entry["replaces_run"] is not None] != [entry for entry in models if entry["five_option_run"] == rerun_id] \
             or sum(1 for entry in models if entry["five_option_run"] == rerun_id) != 1:
         raise ValueError(f"vs_confidence: run {rerun_id} must be the five-option run of exactly the model whose original run was {RERUN_REPLACES}")
-    existing = {row["name"] for row in dont_know_section["models"] if row["vs_confidence"]["p_holm"] is not None}
+    # The Hallucination tab's family among the models with an option-word run (OPTION_WORD_NOT_RUN's setups have none).
+    asked = {model["name"] for model in option_word["models"]}
+    existing = {row["name"] for row in dont_know_section["models"] if row["vs_confidence"]["p_holm"] is not None and row["name"] in asked}
     if {entry["name"] for entry in family} != existing or len(family) != len(existing):
         raise ValueError(f"vs_confidence: the eligible family {sorted(entry['name'] for entry in family)} is not the Hallucination "
-                         f"tab's {sorted(existing)}")
+                         f"tab's among the option-word models, {sorted(existing)}")
     for entry, adjusted in zip(family, bm.holm([entry["p"] for entry in family])):
         entry["p_holm"] = adjusted
     return {"share": VS_CONFIDENCE_SHARE, "family": [entry["name"] for entry in family], "models": models}
@@ -2661,13 +3012,14 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
                    english_section: dict[str, Any] | None = None,
                    english_dont_know_section: dict[str, Any] | None = None,
                    option_word_section: dict[str, Any] | None = None,
-                   rerun_section: dict[str, Any] | None = None) -> dict[str, Any]:
+                   rerun_section: dict[str, Any] | None = None, grounding_runs: frozenset[int] = frozenset()) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
     runs, the repeats of each repeated configuration, the runs of each measured routing pipeline, the runs with
     the "I don't know" option (`dont_know_section`), the runs in English (`english_section`), the English "I don't
     know" comparison's runs in English and its Turkish runs on the kept questions (`english_dont_know_section`), the
-    option-word check's runs (`option_word_section`) and the hosted GLiDE rerun (`rerun_section`), which no other list
-    holds. A run's answers on questions it was not asked are None, also in `correct`."""
+    option-word check's runs (`option_word_section`), the hosted GLiDE rerun (`rerun_section`) and the web grounding
+    test's own runs (`grounding_runs`, web_grounding_runs), which no other list holds. A run's answers on questions it
+    was not asked are None, also in `correct`."""
     dataset = next(
         (item for item in document["datasets"] if item["graded_sha256"] == data["dataset"]["graded_sha256"]), None
     )
@@ -2707,9 +3059,12 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
     word_runs = {model["i_dont_know"]["run"] for model in (option_word_section or {}).get("models", [])}
     rerun_runs = {rerun_section["run"]} if rerun_section else set()
     missing = (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
-               | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs) - set(by_id)
+               | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs) - set(by_id)
     if missing:
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
+    if grounding_runs & (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
+                         | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs):
+        raise ValueError(f"runs {sorted(grounding_runs)}: the web grounding test's pilots and the others are mixed up")
     others = main | set(repeats) | set(pipelines) | set(batching)
     mixed = sorted(run for run in others | set(english_sets) | rerun_runs if by_id[run].get("dont_know"))
     if mixed or any(not by_id[run].get("dont_know") for run in {**dont_know_sets, **english_idk_sets, **turkish_idk_sets}):
@@ -2758,6 +3113,8 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         **({"dont_know_word_runs": [by_id[run] for run in sorted(word_runs)]} if word_runs else {}),
         # The hosted GLiDE rerun (results.json `hosted_glide_rerun`).
         **({"rerun_runs": [by_id[run] for run in sorted(rerun_runs)]} if rerun_runs else {}),
+        # The web grounding test's own runs (results.json `web_grounding`).
+        **({"web_grounding_runs": [by_id[run] for run in sorted(grounding_runs)]} if grounding_runs else {}),
     }
 
 
@@ -2805,10 +3162,12 @@ def main() -> int:
         # The runs with the "I don't know" option enter only their own section, `dont_know` (full-bank runs in
         # Turkish), the runs in English only theirs, `english_reading`, and the runs with the option in English and
         # their Turkish counterparts on the kept questions only `english_reading.dont_know`. The option-word check's runs
-        # enter only `dont_know_option_word` and fresh runs only `hosted_glide_rerun`.
+        # enter only `dont_know_option_word` and fresh runs only `hosted_glide_rerun`. The web grounding test's own runs
+        # (WEB_GROUNDING_ONLY, the web grounding test's pilots) enter only `web_grounding`.
         words = [record for record in records if record.get("dont_know_word")]
         reruns = [record for record in records if record.get("rerun") is not None]
-        kept = [record for record in records if not record.get("dont_know_word") and record.get("rerun") is None]
+        kept = [record for record in records if not record.get("dont_know_word") and record.get("rerun") is None
+                and record["run_id"] not in WEB_GROUNDING_ONLY]
         data = export(
             [record for record in kept if not record.get("dont_know") and not record.get("english")],
             json.loads(analysis.group(1)) if analysis else {},
@@ -2819,8 +3178,9 @@ def main() -> int:
         by_run = {record["run_id"]: record for record in records}
         option_word = dont_know_option_word(words, section, data, by_run)
         rerun = hosted_glide_rerun(reruns, section, data, by_run)
+        grounding = web_grounding_runs(by_run)
         document = json.loads(args.answers.read_text(encoding="utf-8"))
-        answers = export_answers(document, data, section, english, english_idk, option_word, rerun)
+        answers = export_answers(document, data, section, english, english_idk, option_word, rerun, grounding)
         if section is not None:
             data["dont_know"] = dont_know_answers_part(section, document, answers)
         if option_word is not None:
@@ -2856,6 +3216,8 @@ def main() -> int:
         data["high_confidence"] = high_confidence(data, answers, public)
         data["english_reading"]["against_reference"] = against_reference(data["english_reading"], answers, public, data["runs"])
         data["baselines"] = baselines(answers, data["replay"]["decision"])
+        if grounding:
+            data["web_grounding"] = web_grounding(data, by_run, answers, json.loads(WEB_GROUNDING_PATH.read_text(encoding="utf-8")))
         # The footer date: when results with this content first went out, never older than the newest `updated` of any
         # run a section publishes (every run in the answers file, from the report's records).
         published = {run["run"] for key, runs in answers.items() if key.endswith("runs") for run in runs}

@@ -92,6 +92,11 @@ python3 -m http.server 8000                                # preview at http://1
   McNemar test of their wrong answers (Holm over the models). For the hosted GLiDE rerun (`hosted_glide_rerun`, from
   `rerun_runs`) it checks the run's setup against the run it replaces, recomputes its counts, and redoes the derived
   abstention and the comparison with confidence of the model's "I don't know" run with the rerun as its original run.
+  For Perplexity's web grounding test (`web_grounding`, from `web_grounding_runs` with the setup's Text tab run in `runs`
+  and its English run in `english_runs`) it checks each pair's setup, kind and questions, recomputes each arm's right
+  answers, accuracy, median and 95th-percentile request time and cost (overall and, in Turkish, by group), the exact
+  McNemar test of each pair, the "Bilmiyorum" pair's counts and rates and the right answers among each source check's
+  questions, and checks the tokens, sources and PWS-Decisions' aggregates against `web-grounding.json`.
   For the option-word runs against confidence (`dont_know_option_word.vs_confidence`) it redoes each derived cut-off
   with its neighbouring cut-offs and the paired test of wrong answers, with Holm over the eligible family; for risk and
   coverage on the kept reading questions (`english_reading.coverage`) every native point and every curve point; and
@@ -229,13 +234,24 @@ python3 -m http.server 8000                                # preview at http://1
     is kept and the SHA-256 of its English text. Like every file here, it holds no question text. The question page
     (`question/?id=`) shows, for each kept reading question, every compared model's answer and its probability in Turkish
     and in English side by side (`picks.json`'s `english`).
+  - **Web grounding** (`web-grounding/`, from `results.json`'s `web_grounding`, built by `sitebuild/web_grounding.py`):
+    comparing the Text tab's two hosted setups, linked from the home page's hero (the `experiments` block) and from the
+    model pages of the Perplexity family. Perplexity's Decider v1.2 through its Decisions API off ("Perplexity Decider
+    27B v1.2 (API)", run 633) and with web ("... (with web)", run 640) on the full bank, reading and grammar apart; the
+    200-question pilot that came first (`--sample 200 --seed 0`, runs 631 and 632); the "Bilmiyorum" pairs (full bank,
+    and the pilot's 634, 635); our English translations of the kept reading questions (637 and 639) and PWS-Decisions'
+    100 public questions (Parallel's gated dataset: its aggregates only). Four paired charts (accuracy; non-hallucination;
+    median latency; cost per 1M questions, log scale, ≤ on the costs with web), what the search returned (pages and top
+    sites of each grounded run, the literal-match and source checks), the caveats, and under Info the tables and our
+    method. Costs with web are upper-bound estimates (`cost_upper_bound`): every cost of such a run, on every page,
+    carries `page_config.json`'s `first_cost_marks.upper` mark (≤) and its note.
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the tab bar, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads, and the static Non-hallucination part). Its face, after the
     intro and the filters, follows row 3 of the view bar: `#accuracy`, `#non-hallucination`, `#cost` and `#latency`,
     then the rest; each chart card has a line saying which way is better: Accuracy, with each setup's cost and median
     latency beside its accuracy as the Cost and Latency cards write them ($ per 1,000 questions, § at the maker's list
-    price; seconds, * for a latency measured on a sample; Not measured where there is no value); Non-hallucination
+    price, ≤ before an upper-bound estimate; seconds, * for a latency measured on a sample; Not measured where there is no value); Non-hallucination
     (`non_hallucination` in `build_site.py`, static HTML from `results.json`'s `dont_know`: the Hallucination tab's
     decision models in its order, the rate with "Bilmiyorum" and the attempt rate as that tab writes them, bars in family
     colours, a note that chat models are not measured yet, a link to that tab); Cost, then Cost of every setup; Latency;
@@ -379,9 +395,12 @@ that serves several tests, such as a second model alone on the shared test half,
 has), the runs with the "I don't know" option (`dont_know_runs`), the English reading runs (`english_runs`), the
 English "I don't know" runs with their Turkish counterparts on the kept questions (`english_dont_know_runs`,
 `english_dont_know_turkish_runs`), the option-word check's runs (`dont_know_word_runs`, with `dont_know_word_prompts`)
-and the hosted GLiDE rerun (`rerun_runs`), with scores and option probabilities at full precision; no run is in two
-lists. The English reading section needs `english-reading.json` in this
-folder: the export stops unless every English run carries its translations hash and was asked exactly its kept
+and the hosted GLiDE rerun (`rerun_runs`), and the web grounding test's own runs (`web_grounding_runs`), with scores
+and option probabilities at full precision; no run is in two lists. The English reading section needs
+`english-reading.json` in this folder and the web grounding section `web-grounding.json` (each run's input tokens by
+group, what the grounded searches returned and PWS-Decisions' aggregates; written by `web_grounding_inputs.py` from the
+benchmark database and PWS-Decisions' run folder, and committed with the site). The export stops unless every English
+run carries its translations hash and was asked exactly its kept
 questions. Then refresh `runner/` and
 the metric code, and check the result:
 

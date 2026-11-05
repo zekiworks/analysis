@@ -51,7 +51,7 @@ from sitebuild.site import (NOT_MEASURED, ROUTE_LLMS, Site, asset, family_legend
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
-                                 "english_reading", "english_view", "aa_index", "data", "method")
+                                 "english_reading", "english_view", "aa_index", "web_grounding", "data", "method")
 TITLE = "When should you trust a decision model?"
 # The intro and the meta description; their counts come from results.json (counts()).
 INTRO = (
@@ -79,20 +79,31 @@ def sample_label(run: dict[str, Any]) -> str | None:
     return f"Measured on a sample ({bp.count(latency['questions'])} questions)" if latency.get("source") == "sample" else None
 
 
+def experiments(data: Data) -> str:
+    """The home page's line on the experiments beside the ranking: the web grounding page, when results.json has it."""
+    grounding = data.results.get("web_grounding")
+    if grounding is None:
+        return ""
+    return (f'Beside the ranking: <a href="web-grounding/">Web grounding</a>, {bp.esc(grounding["names"]["off"])} against '
+            f'{bp.esc(grounding["names"]["on"])}.')
+
+
 def not_measured_note(data: Data) -> str:
     """The note under the Accuracy table, with and without JavaScript; copy_checks tests its reasons and the § note
     against the run records."""
     untimed = sum(1 for run in data.runs if (run.get("latency") or {}).get("median_request_seconds") is None)
     latency = f"; latency for {bp.count(untimed)} run{'' if untimed == 1 else 's'} made before we timed each request" if untimed else ""
     samples = sorted({label for run in data.runs if (label := sample_label(run))})
+    upper = data.config["first_cost_marks"]["upper"]
+    upper_note = f" {upper['mark']} {upper['note']}" if any(run.get("cost_upper_bound") for run in data.runs) else ""
     return (f"Not measured: cost for setups on our own hardware whose maker lists no price for the same model{latency}. "
             f"{data.config['first_cost_marks']['maker']['mark']} Estimated at the maker's list price for the same model; our "
-            "hardware cost is not measured." + "".join(f" {SAMPLE_MARK} {label}." for label in samples))
+            "hardware cost is not measured." + upper_note + "".join(f" {SAMPLE_MARK} {label}." for label in samples))
 
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2, at 66.9% to 68.5%."
+SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then Decider v1.2 (with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2, at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -123,10 +134,13 @@ class Data:
             raise ValueError(f"{key} at {size} per request matches {len(found)} runs")
         return found[0]
 
-    def by_name(self, model: str) -> dict[str, Any]:
-        found = [run for run in self.runs if run["model"] == model]
+    def by_name(self, model: str, provider: str | None = None, mode: str | None = "any") -> dict[str, Any]:
+        """The one run of `model` (through `provider`, and with the Perplexity `mode`, where other setups share the model
+        ID)."""
+        found = [run for run in self.runs if run["model"] == model and provider in (None, run["provider"])
+                 and mode in ("any", run.get("perplexity_mode"))]
         if len(found) != 1:
-            raise ValueError(f"{model} matches {len(found)} runs")
+            raise ValueError(f"{model} ({provider or 'any provider'}) matches {len(found)} runs")
         return found[0]
 
 
@@ -187,6 +201,7 @@ def fallback_table(data: Data) -> str:
         latency = (run.get("latency") or {}).get("median_request_seconds")
         cost = bp.per_thousand(run)
         maker_mark = f'<span class="mark">{bp.esc(data.config["first_cost_marks"]["maker"]["mark"])}</span>'
+        upper_mark = f'<span class="mark">{bp.esc(data.config["first_cost_marks"]["upper"]["mark"])}</span> '
         sample_mark = f'<span class="mark">{SAMPLE_MARK}</span>' if latency is not None and sample_label(run) else ""
         decision = data.decision(run)
         kind = "Decision model" if decision else "Chat model"
@@ -200,7 +215,8 @@ def fallback_table(data: Data) -> str:
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
             f'<td class="num">{bp.seconds(latency) if latency is not None else NOT_MEASURED}{sample_mark}</td>'
-            f'<td class="num">{f"{cost:.3f}" if cost is not None else NOT_MEASURED}{maker_mark if run["cost_basis"] == "maker" else ""}</td>'
+            f'<td class="num">{upper_mark if run.get("cost_upper_bound") and cost is not None else ""}'
+            f'{f"{cost:.3f}" if cost is not None else NOT_MEASURED}{maker_mark if run["cost_basis"] == "maker" else ""}</td>'
             "</tr>"
         )
     questions = bp.count(data.results["questions"])
@@ -423,10 +439,12 @@ def copy_checks(data: Data) -> list[str]:
     """Each number or comparison the fixed copy states, checked against results.json; the claims that differ."""
     results, runs = data.results, data.runs
     decision = [run for run in runs if data.decision(run)]
+    # Decider v1.2 is the checkpoint on our hardware; the hosted v1.2 shares its model ID.
     ultra, glide, glide12, d3, d3_ultra, decider, subq, decider12, drex_v1, drex_11, mammoth = (
-        data.by_name(model) for model in ("d1-ultra", "fastino/GLiDE", "glide-v1.2", "vllm-sr/d3", "vllm-sr/d3-ultra",
-                                          "pplx-decider-v1.1-27b", "subq-snap-preview", "pplx-decider-v1.2", "drex-max-v1",
-                                          "drex-max-v1.1", "baselabs/mammoth-1"))
+        data.by_name(*spec) for spec in (("d1-ultra",), ("fastino/GLiDE",), ("glide-v1.2",), ("vllm-sr/d3",),
+                                         ("vllm-sr/d3-ultra",), ("pplx-decider-v1.1-27b",), ("subq-snap-preview",),
+                                         ("pplx-decider-v1.2", "pplx-decider"), ("drex-max-v1",), ("drex-max-v1.1",),
+                                         ("baselabs/mammoth-1",)))
     cascades = {(item["decision"], item["frontier"]): item for item in results["cascades"]}
     sonnet16, sonnet1 = data.named("sonnet_high", 16), data.named("sonnet_high", 1)
     found = []
@@ -477,9 +495,9 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap Preview tenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 9)
+    check("SubQ Snap Preview twelfth among decision models in front of Sonnet (16 per request)", order.index(subq) == 11)
     for size in (16, 1):
-        for key, place, word in (("opus", 17, "seventeenth"), ("astra", 15, "fifteenth")):
+        for key, place, word in (("opus", 19, "nineteenth"), ("astra", 17, "seventeenth")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
@@ -502,12 +520,13 @@ def copy_checks(data: Data) -> list[str]:
     check("Stability note: the other chat models were repeated on a sample of 200",
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
-    # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model; then GLiDE v1.2,
-    # GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2,
-    # in that order, at 66.9% to 68.5%;
+    # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model; then Decider v1.2
+    # (with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex Max v1 and 1.1, Mammoth-1, and
+    # Deciders v1.1 and v1.2, in that order, at 66.9% to 68.7%;
     # Liquid d1.1 has the smallest calibration gap as
-    # shipped; Open-Jev 27B v1.1 scores highest on Better than a flat guess, then SubQ Snap 1.1 and Decider v1.1 (equal to one
-    # decimal); d1-ultra gives the biggest estimated saving in all 16 LLM setups (every routing LLM at each request size
+    # shipped; Perplexity Decider 27B v1.2 (API) scores highest on Better than a flat guess, then Open-Jev 27B v1.1, then
+    # SubQ Snap 1.1 and Decider v1.1 (equal to one decimal); d1-ultra gives the biggest estimated saving in all 16 LLM
+    # setups (every routing LLM at each request size
     # we ran it at).
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
 
@@ -522,23 +541,26 @@ def copy_checks(data: Data) -> list[str]:
           ranked[0] is ultra and percent(ultra) == "77.1")
     check("Summary: d1-ultra is clearly ahead: it shares a letter with no other decision model",
           not any(shares(ultra, run) for run in decision if run is not ultra))
-    check("Summary: then GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders "
-          "v1.1 and v1.2, in that order",
-          ranked[1] is glide12 and ranked[2] is glide and {run["run"] for run in ranked[3:5]} == {d3["run"], d3_ultra["run"]}
-          and accuracy(d3) == accuracy(d3_ultra) and ranked[5] is drex_v1 and ranked[6] is drex_11 and ranked[7] is mammoth
-          and {run["run"] for run in ranked[8:10]} == {decider["run"], decider12["run"]})
-    near = (glide12, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
-    check("Summary: at 66.9% to 68.5%",
-          min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.5")
+    with_web = data.by_name("pplx-decider-v1.2", "perplexity", "web_grounding")
+    check("Summary: then Decider v1.2 (with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, "
+          "Mammoth-1, and Deciders v1.1 and v1.2, in that order",
+          ranked[1] is with_web and ranked[2] is glide12 and ranked[3] is glide
+          and {run["run"] for run in ranked[4:6]} == {d3["run"], d3_ultra["run"]}
+          and accuracy(d3) == accuracy(d3_ultra) and ranked[6] is drex_v1 and ranked[7] is drex_11 and ranked[8] is mammoth
+          and {run["run"] for run in ranked[9:11]} == {decider["run"], decider12["run"]})
+    near = (with_web, glide12, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
+    check("Summary: at 66.9% to 68.7%",
+          min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])
     check("Summary: calibration gap, as shipped: Liquid d1.1 had the smallest gap among decision models",
           calibrated[0] is data.by_name("d1.1"))
     flat = sorted(decision, key=lambda run: -bp.flat_gain(run))
-    check("Summary: better than a flat guess, after refit: Open-Jev 27B v1.1 (31.9%), then SubQ Snap 1.1 and Perplexity "
-          "Decider 27B v1.1 (31.5% each), the three highest among decision models",
-          flat[0] is data.by_name("open-jev-27b-v1.1")
-          and {run["run"] for run in flat[1:3]} == {data.by_name("subq-snap-1.1")["run"], data.by_name("pplx-decider-v1.1-27b")["run"]}
-          and [f"{bp.flat_gain(run):.1f}" for run in flat[:3]] == ["31.9", "31.5", "31.5"])
+    check("Summary: better than a flat guess, after refit: Perplexity Decider 27B v1.2 (API) (32.1%), then Open-Jev 27B "
+          "v1.1 (31.9%), then SubQ Snap 1.1 and Perplexity Decider 27B v1.1 (31.5% each), the four highest among decision "
+          "models",
+          flat[0]["run"] == data.by_name("pplx-decider-v1.2", "perplexity", None)["run"] and flat[1] is data.by_name("open-jev-27b-v1.1")
+          and {run["run"] for run in flat[2:4]} == {data.by_name("subq-snap-1.1")["run"], data.by_name("pplx-decider-v1.1-27b")["run"]}
+          and [f"{bp.flat_gain(run):.1f}" for run in flat[:4]] == ["32.1", "31.9", "31.5", "31.5"])
 
     def best_share(part: str) -> str:
         return f"{100 * max(run['groups'][part]['correct'] / run['groups'][part]['questions'] for run in decision):.1f}"
@@ -548,17 +570,17 @@ def copy_checks(data: Data) -> list[str]:
     # The note under the Accuracy table: a setup without a cost runs on our hardware, and its maker lists no price for
     # the same model; every other cost of a setup on our hardware is at its maker's list price (§); Liquid d1 is
     # estimated at Liquid's list price; no latency for runs made before requests were timed one by one.
-    prices = {(price["provider"], price["model"]): price for price in results["prices"]}
+    prices = {bp.price_key(price): price for price in results["prices"]}
     check("Not measured note: every setup without a cost runs on our hardware, with no maker's price for the same model",
           all(run["billing"] == "local" and run["cost_basis"] is None for run in runs if run["api_equivalent_usd"] is None))
     check("§ note: every cost of a setup on our hardware is at its maker's list price for the same model",
-          all(run["cost_basis"] == "maker" and prices[(run["provider"], run["model"])]["applies_to"] == "maker"
-              and prices[(run["provider"], run["model"])]["basis"].endswith("'s list price for the same model")
+          all(run["cost_basis"] == "maker" and prices[bp.price_key(run)]["applies_to"] == "maker"
+              and prices[bp.price_key(run)]["basis"].endswith("'s list price for the same model")
               for run in runs if run["billing"] == "local" and run["api_equivalent_usd"] is not None))
     d1 = data.by_name("d1:free")
     check("Liquid d1's run used the free tier and is estimated at Liquid's list price for the same model",
           d1["billing"] == "free" and d1["cost_basis"] == "free tier"
-          and prices[(d1["provider"], d1["model"])]["basis"] == "Liquid's list price for the same model")
+          and prices[bp.price_key(d1)]["basis"] == "Liquid's list price for the same model")
     first_timed = min(run["started"] for run in runs if run["median_request_seconds"] is not None)
     check("Not measured note: every run without a latency was made before requests were timed one by one",
           all(run["started"] < first_timed for run in runs if (run.get("latency") or {}).get("median_request_seconds") is None))
@@ -627,6 +649,7 @@ def main() -> int:
         "board": fallback_table(data),
         "settings": page_settings(data),
         "board-note": f'<div class="tab-notes"><p>{bp.esc(not_measured_note(data))}</p></div>',
+        "experiments": experiments(data),
         "non-hallucination": non_hallucination(site),
     }
     text = PAGE.read_text()

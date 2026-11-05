@@ -89,6 +89,10 @@ def build(site: Site) -> dict[str, str]:
         (ROOT / "english-reading.json", rel(PATH, "english-reading.json"),
          "The Turkish vs English track's record: the translator, its two prompts, each reading question's flags and the "
          "SHA-256 of its English text. No question text."),
+        (ROOT / "web-grounding.json", rel(PATH, "web-grounding.json"),
+         "The web grounding experiment's inputs beside answers.json: each run's input tokens by group, what the grounded "
+         "searches returned (sites and source checks, as counts and question IDs) and PWS-Decisions' aggregates. No question "
+         "text, page address or snippet."),
     )
     downloads = "".join(
         f'<tr><td class="model"><a href="{href}" download>{esc(path.name)}</a></td><td data-label="Contents">{esc(text)}</td>'

@@ -211,7 +211,7 @@ def latency(run: dict[str, Any]) -> str:
 def cost(site: Site, run: dict[str, Any]) -> str:
     per = site.per_thousand(run)
     billing = site.config["billing"][run["billing"]]
-    price = next((item for item in site.results["prices"] if item["provider"] == run["provider"] and item["model"] == run["model"]), None)
+    price = next((item for item in site.results["prices"] if bp.price_key(item) == bp.price_key(run)), None)
     tokens = (lambda key: f"{run[key] / run['answered_questions']:,.0f}" if run.get(key) is not None else None)
     # A setup on our hardware priced at its maker's list price, and a free-tier run priced at the list price of the
     # model it called, say so; the others take their billing's basis.
@@ -221,14 +221,16 @@ def cost(site: Site, run: dict[str, Any]) -> str:
         basis = f"The run used the free tier ({run['model']}); its cost is now estimated at {price['basis']}."
     else:
         basis = billing["cost_basis"]
+    upper = site.config["first_cost_marks"]["upper"] if run.get("cost_upper_bound") else None
+    mark = f'<span class="mark">{esc(upper["mark"])}</span> ' if upper else ""
     return facts([
-        ("$ per 1,000 questions", bp.usd(per) if per is not None else NOT_MEASURED),
-        ("Whole run", bp.usd(run["api_equivalent_usd"]) if run.get("api_equivalent_usd") is not None else None),
+        ("$ per 1,000 questions", f"{mark}{bp.usd(per)}" if per is not None else NOT_MEASURED),
+        ("Whole run", f"{mark}{bp.usd(run['api_equivalent_usd'])}" if run.get("api_equivalent_usd") is not None else None),
         ("Basis", esc(basis)),
         ("Price", f'{esc(price["text"])} (<a href="{esc(price["source"])}">source</a>, {esc(price["date"])})' if price else None),
         ("Input tokens per question", tokens("input_tokens")),
         ("Output tokens per question", tokens("output_tokens")),
-    ])
+    ]) + (f'<p class="note">{esc(upper["mark"])} {esc(upper["note"])}</p>' if upper else "")
 
 
 def routing(site: Site, run: dict[str, Any]) -> str | None:
@@ -299,6 +301,20 @@ def page_images(site: Site, run: dict[str, Any]) -> str | None:
             + vision.model_table(site, path, site.vision, found))
 
 
+def web_grounding(site: Site, run: dict[str, Any]) -> str | None:
+    """For a setup of the model family of the web grounding test's setup: a link to that experiment's page."""
+    data = site.results.get("web_grounding")
+    if data is None or site.families[run["run"]] != site.families[data["text_runs"]["off"]]:
+        return None
+    link = f'<a href="{rel(site.model_path(run), "web-grounding/")}">Web grounding</a>'
+    arm = next((arm for arm, text_run in data["text_runs"].items() if text_run == run["run"]), None)
+    if arm is not None:
+        other = data["names"]["on" if arm == "off" else "off"]
+        return f"<p>The same model with Perplexity's web search {'on' if arm == 'off' else 'off'} is {esc(other)}: {link} compares the two.</p>"
+    return (f"<p>{esc(data['names']['off'])} and {esc(data['names']['on'])}, with Perplexity's web search off and on, are "
+            f"compared on {link}.</p>")
+
+
 def model_page(site: Site, run: dict[str, Any]) -> str:
     path = site.model_path(run)
     correct, total = site.accuracy(run)
@@ -306,7 +322,8 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
             f'<a href="{rel(path, "")}">Back to the leaderboard</a>.</p>')
     parts = [
         f'    <section class="card">\n      <p class="eyebrow">{site.kind(run)}</p>\n      <h1>{esc(run["name"])}</h1>\n'
-        f'      <p class="subtitle">{esc(site.detail(run))}</p>\n      {lead}{formats(site, run) or ""}{routed_llm(site, run) or ""}\n    </section>',
+        f'      <p class="subtitle">{esc(site.detail(run))}</p>\n      {lead}{formats(site, run) or ""}{routed_llm(site, run) or ""}'
+        f'{web_grounding(site, run) or ""}\n    </section>',
         section("How we called it", called(site, run), "called"),
         section("Settings", settings(site, run), "settings"),
         section("Results", results(site, run), "results"),

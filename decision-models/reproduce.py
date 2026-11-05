@@ -54,8 +54,12 @@ those models. Then the same number of answers (`dont_know_same_answers`, Turkish
 English reading models): k from the reference's run with "I don't know", each model's wrong answers among exactly its
 first k (equal scores by question id), the difference from the reference with its paired bootstrap interval, p
 and Holm's p (the published seed and resamples), every entry's answers in the selection order (wrong_by_rank) and the
-runs with the option of each Hallucination tab and English model. Last the footer date (`updated`, when results with
-this content first went out): never older than a published run's date, and with --report never older than the newest
+runs with the option of each Hallucination tab and English model. Then Perplexity's web grounding test (`web_grounding`):
+each pair's runs (grounding off and on: the 200-question sample, with "Bilmiyorum", and in English), their right answers,
+accuracy, median and 95th-percentile request time and cost overall and by group, the paired tests, the "Bilmiyorum"
+counts, the source checks' right answers, and the tokens, sources and PWS-Decisions' aggregates of web-grounding.json.
+Last the footer date (`updated`, when results with this content first went out): never older than a published run's
+date, and with --report never older than the newest
 `updated` of the runs answers.json publishes. Uses only the standard library and benchmark_metrics.py, the metric code
 the benchmark report uses. Exits with status 1 when anything differs beyond the tolerances printed.
 """
@@ -582,6 +586,18 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    grounding_mismatches = check_web_grounding(args.docs, results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(
+        f"\nPerplexity web grounding (each pair's runs from their exported answers, tokens, sources and PWS-Decisions' "
+        f"aggregates from web-grounding.json: counts exact, rates and request times within {METRIC_TOLERANCE:g}, costs "
+        f"within a relative {COST_TOLERANCE:g}, p-values within a relative {P_TOLERANCE:g}): "
+        f"{checked - len(grounding_mismatches)} of {checked} match"
+    )
+    for line in grounding_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     updated_mismatches = check_updated(args.report, results, answers, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -781,7 +797,7 @@ def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[
     for run in (answers.get("repeat_runs", []) + answers.get("pipeline_runs", []) + answers.get("batching_runs", [])
                 + answers.get("dont_know_runs", []) + answers.get("english_runs", []) + answers.get("english_dont_know_runs", [])
                 + answers.get("english_dont_know_turkish_runs", []) + answers.get("dont_know_word_runs", [])
-                + answers.get("rerun_runs", [])):
+                + answers.get("rerun_runs", []) + answers.get("web_grounding_runs", [])):
         given = [index for index in scored if run["correct"][index] is not None and keys[index] is not None]
         differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
         if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
@@ -833,7 +849,7 @@ def check_dont_know(results: dict[str, Any], answers: dict[str, Any], scored: li
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "english_runs",
                                      "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs",
-                                     "rerun_runs") for run in answers.get(key, [])}
+                                     "rerun_runs", "web_grounding_runs") for run in answers.get(key, [])}
     if sorted(listed) != sorted(runs) or set(listed) & others or (section is not None and section["questions"] != len(scored)):
         checks.failed += 1
         return [f"  runs: results.json lists {sorted(listed)}, answers.json's dont_know_runs {sorted(runs)}, also elsewhere "
@@ -974,7 +990,7 @@ def counted_dont_know(run: dict[str, Any], scored: list[int]) -> dict[str, Any]:
 def listed_elsewhere(answers: dict[str, Any], own: str) -> set[int]:
     """The runs of every answers.json list but `own`."""
     keys = ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs", "english_dont_know_runs",
-            "english_dont_know_turkish_runs", "dont_know_word_runs", "rerun_runs")
+            "english_dont_know_turkish_runs", "dont_know_word_runs", "rerun_runs", "web_grounding_runs")
     return {run["run"] for key in keys if key != own for run in answers.get(key, [])}
 
 
@@ -1212,8 +1228,9 @@ def check_vs_confidence(results: dict[str, Any], answers: dict[str, Any], scored
         if option["dont_know"] >= section["share"] * total:
             family.append((entry, test["p"]))
     check("family", section["family"], [entry["name"] for entry, _ in family])
-    check("family is the Hallucination tab's", sorted(section["family"]),
-          sorted(row["name"] for row in results["dont_know"]["models"] if row["vs_confidence"]["p_holm"] is not None))
+    check("family is the Hallucination tab's among the option-word models", sorted(section["family"]),
+          sorted(row["name"] for row in results["dont_know"]["models"] if row["vs_confidence"]["p_holm"] is not None
+                 and row["name"] in {model["name"] for model in sections}))
     adjusted = dict(zip((id(entry) for entry, _ in family), bm.holm([p for _, p in family])))
     for entry in section["models"]:
         check(f"{entry['name']} p_holm", entry["p_holm"], adjusted.get(id(entry)), p=True)
@@ -1564,6 +1581,170 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
     return mismatches
 
 
+def nearest_rank(values: list[float], share: float) -> float:
+    """The `share` percentile of `values` by nearest rank (export_results.nearest_rank)."""
+    ordered = sorted(values)
+    return ordered[max(0, math.ceil(share * len(ordered)) - 1)]
+
+
+def check_web_grounding(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int],
+                        checks: Checks) -> list[str]:
+    """Recompute results.json's `web_grounding` (Perplexity's web grounding test) from answers.json and
+    web-grounding.json: the pilots' runs are answers.json's `web_grounding_runs`, in no other list; the full-bank pair's
+    runs are main runs, the English pair's `english_runs` runs and the "Bilmiyorum" pair's `dont_know_runs` runs; every
+    run's setup (the section's provider and model, one question per request) and kind (grounding on only in the on runs,
+    "Bilmiyorum" only in its pairs, English only in the English pair, the sample's seed); each pair asked the same
+    questions, and both pilots the same ones; per arm its questions, right answers and accuracy, median and nearest-rank
+    percentile request time, its input tokens (web-grounding.json) and its cost at the section's price (input tokens plus
+    the fee per search, one search per grounded request), overall and for the Turkish runs by group; the paired tests
+    (exact McNemar); the "Bilmiyorum" pairs' counts and rates; per grounded run what the search returned
+    (web-grounding.json) and the right answers off and on among each check's questions; PWS-Decisions' aggregates
+    (web-grounding.json), costs at the same price and its paired test. Returns a line per mismatch."""
+    section = results.get("web_grounding")
+    own = {run["run"]: run for run in answers.get("web_grounding_runs", [])}
+    if section is None:
+        if own:
+            checks.failed += 1
+            return [f"  runs: answers.json's web_grounding_runs {sorted(own)} without a web_grounding section"]
+        return []
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any, metric: bool = False, p: bool = False, cost: bool = False) -> None:
+        if p:
+            matched = close(published, recomputed, relative=P_TOLERANCE)
+        elif cost:
+            matched = close(published, recomputed, relative=COST_TOLERANCE)
+        else:
+            matched = close(published, recomputed, METRIC_TOLERANCE) if metric else published == recomputed
+        if "≠" in checks.cell(matched, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    inputs = json.loads((docs / "web-grounding.json").read_text(encoding="utf-8"))
+    tokens = {item["run"]: item for item in inputs["runs"]}
+    lists = {"turkish": "runs", "english": "english_runs", "dont_know": "dont_know_runs", "pilot": "web_grounding_runs",
+             "pilot_dont_know": "web_grounding_runs", "english_dont_know": "english_dont_know_runs"}
+    parts = {part: (section[part]["off"]["run"], section[part]["on"]["run"]) for part in lists}
+    listed = {*parts["pilot"], *parts["pilot_dont_know"]}
+    check("own runs, none elsewhere", [sorted(listed), []], [sorted(own), sorted(set(own) & listed_elsewhere(answers, "web_grounding_runs"))])
+    in_lists = {part: all(run in {item["run"] for item in answers.get(name, [])} for run in parts[part]) for part, name in lists.items()}
+    check("each pair in its answers.json list", {part: True for part in lists}, in_lists)
+    if not all(in_lists.values()):
+        return mismatches
+    exported = {run["run"]: run for name in set(lists.values()) for run in answers.get(name, [])}
+    price = section["price"]
+    reading = set(section["reading_units"])
+    questions = answers["questions"]
+    position = {question: index for index, question in enumerate(questions["id"])}
+
+    def asked(run: int) -> list[int]:
+        return [index for index in scored if exported[run]["correct"][index] is not None]
+
+    for part, (off, on) in parts.items():
+        for arm, run in (("off", off), ("on", on)):
+            got = exported[run]
+            check(f"{part} {arm} run {run}: setup and kind",
+                  [section["provider"], section["model"], 1, "web_grounding" if arm == "on" else None,
+                   part in ("dont_know", "pilot_dont_know", "english_dont_know"), part in ("english", "english_dont_know"), None],
+                  [got["provider"], got["model"], got["questions_per_request"], got.get("perplexity_mode"), bool(got.get("dont_know")),
+                   bool(got.get("english")), got.get("repeat")])
+        check(f"{part}: both runs asked the same questions", True, asked(off) == asked(on))
+    sample = asked(parts["pilot"][0])
+    check("the sample: size, seed, the same questions in both pilots", [section["sample"]["questions"], section["sample"]["seed"],
+          section["sample"]["seed"], True], [len(sample), exported[parts["pilot"][0]]["seed"], exported[parts["pilot_dont_know"][0]]["seed"],
+          asked(parts["pilot_dont_know"][0]) == sample])
+    check("Text tab runs", [section["text_runs"]["off"], section["text_runs"]["on"]], list(parts["turkish"]))
+
+    def measures(name: str, published: dict[str, Any], run: int, indices: list[int], input_tokens: int) -> None:
+        got = exported[run]
+        seconds = [got["request_seconds"][index] for index in indices]
+        correct = sum(int(got["correct"][index]) for index in indices)
+        searches = len(indices) if got.get("perplexity_mode") is not None else 0
+        cost = input_tokens * price["input_per_million"] / 1e6 + searches * price["per_search"]
+        check(f"{name}: questions, right answers, input tokens, searches",
+              [published["questions"], published["correct"], published["input_tokens"], published["searches"]],
+              [len(indices), correct, input_tokens, searches])
+        check(f"{name}: accuracy", published["accuracy"], correct / len(indices), metric=True)
+        check(f"{name}: median request seconds", published["median_request_seconds"], statistics.median(seconds), metric=True)
+        check(f"{name}: p95 request seconds", published["p95_request_seconds"], nearest_rank(seconds, section["percentile"]), metric=True)
+        check(f"{name}: cost", published["cost_usd"], cost, cost=True)
+        check(f"{name}: cost per 1M questions", published["cost_per_million_questions"], cost / len(indices) * 1e6, cost=True)
+
+    def arm(name: str, published: dict[str, Any], by_group: bool) -> None:
+        run = published["run"]
+        groups = tokens[run]["groups"]
+        indices = asked(run)
+        measures(name, published, run, indices, sum(item["input_tokens"] for item in groups.values()))
+        check(f"{name}: groups", sorted(published.get("groups", {})), ["grammar", "reading"] if by_group else [])
+        for group in published.get("groups", {}):
+            measures(f"{name}, {group}", published["groups"][group], run,
+                     [index for index in indices if (questions["unit"][index] in reading) == (group == "reading")],
+                     groups[group]["input_tokens"])
+
+    def paired(name: str, published: dict[str, Any], off: int, on: int, indices: list[int]) -> None:
+        test = bm.paired_comparison([int(exported[off]["correct"][index]) for index in indices],
+                                    [int(exported[on]["correct"][index]) for index in indices])
+        check(f"{name}: questions, right off only, on only", [published["questions"], published["off_only"], published["on_only"]],
+              [test["questions"], test["first_only"], test["second_only"]])
+        check(f"{name}: p", published["p"], test["p"], p=True)
+
+    def search(name: str, published: dict[str, Any], off: int, on: int) -> None:
+        found = tokens[on]["search"]
+        check(f"{name}: run, pages, pages per question, sites, top domains",
+              [published["run"], published["pages"], published["pages_per_question"], published["sites"], published["top_domains"]],
+              [on, found["pages"], found["pages_per_question"], found["sites"], found["top_domains"]])
+        for key in ("shared_words", "publisher", "source_book"):
+            ids = found[key]
+            right = [[int(exported[run]["correct"][position[question]]) for question in ids] for run in (off, on)]
+            item = published[key]
+            check(f"{name}, {key}: ids, questions, right off, right on, right only off, only on",
+                  [item["ids"], item["questions"], item["right_off"], item["right_on"], item["off_only"], item["on_only"]],
+                  [ids, len(ids), sum(right[0]), sum(right[1]), sum(a and not b for a, b in zip(*right)),
+                   sum(b and not a for a, b in zip(*right))])
+
+    for part in ("turkish", "english", "pilot"):
+        off, on = parts[part]
+        published = section[part]
+        by_group = part != "english"
+        check(f"{part}: questions", published["questions"], len(asked(off)))
+        arm(f"{part} off", published["off"], by_group)
+        arm(f"{part} on", published["on"], by_group)
+        paired(f"{part} paired", published["paired"], off, on, asked(off))
+        if by_group:
+            for group, item in published["paired_groups"].items():
+                paired(f"{part} paired, {group}", item, off, on,
+                       [index for index in asked(off) if (questions["unit"][index] in reading) == (group == "reading")])
+        search(f"{part} search", published["search"], off, on)
+    for part in ("dont_know", "pilot_dont_know", "english_dont_know"):
+        check(f"{part}: questions", section[part]["questions"], len(asked(parts[part][0])))
+        for arm_name, run in zip(("off", "on"), parts[part]):
+            counted = counted_dont_know(exported[run], asked(run))
+            published = section[part][arm_name]
+            check(f"{part} {arm_name}: right, wrong, Bilmiyorum, invalid",
+                  [published[key] for key in ("right", "wrong", "dont_know", "invalid")],
+                  [counted[key] for key in ("right", "wrong", "dont_know", "invalid")])
+            answered = counted["right"] + counted["wrong"]
+            for key, value in (("accuracy", counted["accuracy"]), ("non_hallucination", counted["non_hallucination"]),
+                               ("answered", counted["attempt_rate"]), ("wrong_of_answers", counted["wrong"] / answered if answered else None)):
+                check(f"{part} {arm_name}: {key}", published[key], value, metric=True)
+    pws, found = section["pws"], inputs["pws"]
+    check("PWS-Decisions: name, version, questions", [pws["name"], pws["version"], pws["questions_sha256"], pws["language"]],
+          [found[key] for key in ("name", "version", "questions_sha256", "language")])
+    for arm_name in ("off", "on"):
+        published, got = pws[arm_name], found[arm_name]
+        check(f"PWS-Decisions {arm_name}: aggregates", [published.get(key) for key in got], list(got.values()))
+        searches = got["questions"] if arm_name == "on" else 0
+        cost = got["input_tokens"] * price["input_per_million"] / 1e6 + searches * price["per_search"]
+        check(f"PWS-Decisions {arm_name}: accuracy", published["accuracy"], got["correct"] / got["questions"], metric=True)
+        check(f"PWS-Decisions {arm_name}: searches", published["searches"], searches)
+        check(f"PWS-Decisions {arm_name}: cost", published["cost_usd"], cost, cost=True)
+        check(f"PWS-Decisions {arm_name}: cost per 1M questions", published["cost_per_million_questions"],
+              cost / got["questions"] * 1e6, cost=True)
+    check("PWS-Decisions paired: questions, off only, on only", [pws["paired"][key] for key in ("questions", "off_only", "on_only")],
+          [found["on"]["questions"], found["off_only"], found["on_only"]])
+    check("PWS-Decisions paired: p", pws["paired"]["p"], bm.sign_test(found["off_only"], found["on_only"]), p=True)
+    return mismatches
+
+
 def check_updated(report: Path | None, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
     """The footer date (results.json `updated`, when results with this content first went out): never older than any
     main run's `updated` or any published run date; with the benchmark report (--report), never older than the newest
@@ -1743,7 +1924,7 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs",
                                      "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs",
-                                     "rerun_runs") for run in answers.get(key, [])}
+                                     "rerun_runs", "web_grounding_runs") for run in answers.get(key, [])}
     if sorted(listed) != sorted(runs) or set(listed) & others:
         checks.failed += 1
         return [f"  runs: results.json lists {sorted(listed)}, answers.json's english_runs {sorted(runs)}, also elsewhere "
@@ -1797,7 +1978,7 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     exported = {**main, **{run["run"]: run for run in answers.get("repeat_runs", [])}}
     setups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
     for run in runs.values():
-        setups[(run["provider"], run["model"], run["thinking"], run["questions_per_request"])].append(run)
+        setups[(run["provider"], run["model"], run["thinking"], run["questions_per_request"], run.get("perplexity_mode"))].append(run)
     total = len(kept)
 
     def counts(run: dict[str, Any]) -> dict[str, Any]:
@@ -1806,14 +1987,14 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
         return {"right": right, "wrong": total - right - invalid, "invalid": invalid, "accuracy": right / total}
 
     expected = []
-    for (provider, model, thinking, size), group in setups.items():
+    for (provider, model, thinking, size, mode), group in setups.items():
         group.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
         name = f"{model} ({provider})"
         check(f"{name}, English runs without a repeat number", 1, sum(1 for run in group if run["repeat"] is None))
         text_model = ENGLISH_TEXT_MODEL.get((provider, model), model)
         found = sorted(run["run"] for run in main.values()
-                       if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"])
-                       == (provider, text_model, thinking, size, None))
+                       if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"],
+                           run.get("perplexity_mode")) == (provider, text_model, thinking, size, None, mode))
         check(f"{name}, Text tab run", 1, len(found))
         if len(found) != 1:
             continue
@@ -1902,7 +2083,7 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     listed_subset = [run_id for model in models if model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
     listed_full = [run_id for model in models if not model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs",
-                                     "dont_know_word_runs", "rerun_runs")
+                                     "dont_know_word_runs", "rerun_runs", "web_grounding_runs")
               for run in answers.get(key, [])}
     if (sorted(listed_english) != sorted(english_runs) or sorted(listed_subset) != sorted(subset_runs)
             or (set(listed_english) | set(listed_subset)) & others or not set(listed_full) <= set(full_runs)
@@ -1961,7 +2142,7 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     def setups(runs: dict[int, dict[str, Any]]) -> dict[tuple[Any, ...], list[dict[str, Any]]]:
         grouped: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
         for run in runs.values():
-            grouped[(run["provider"], run["model"], run["thinking"], run["questions_per_request"])].append(run)
+            grouped[(run["provider"], run["model"], run["thinking"], run["questions_per_request"], run.get("perplexity_mode"))].append(run)
         return grouped
 
     main = {run["run"]: run for run in answers["runs"]}
@@ -1971,16 +2152,16 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     expected = []
     expected_only = []
     only_setups = {(item["provider"], item["model"]) for item in english_only}
-    for (provider, model, thinking, size), group in setups(english_runs).items():
+    for (provider, model, thinking, size, mode), group in setups(english_runs).items():
         group.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
         name = f"{model} ({provider})"
         check(f"{name}, English \"I don't know\" runs", [size, 1], [1, sum(1 for run in group if run["repeat"] is None)])
         text_model = ENGLISH_TEXT_MODEL.get((provider, model), model)
         found = sorted(run["run"] for run in main.values()
-                       if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"])
-                       == (provider, text_model, thinking, 1, None))
+                       if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"],
+                           run.get("perplexity_mode")) == (provider, text_model, thinking, 1, None, mode))
         check(f"{name}, Text tab run", 1, len(found))
-        subset, full = subsets.pop((provider, model, thinking, 1), None), fulls.get((provider, model, thinking, 1))
+        subset, full = subsets.pop((provider, model, thinking, 1, mode), None), fulls.get((provider, model, thinking, 1, mode))
         alone = (provider, model) in only_setups
         check(f"{name}, Turkish sides{' (published without one)' if alone else ''}", 0 if alone else 1,
               int(subset is not None) + int(full is not None))
@@ -2463,7 +2644,7 @@ COST_BASES = {"api": ("api", "billed"), "subscription": ("subscription", "billed
 
 def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
     """Check every cost results.json publishes against its parts; returns a line per mismatch."""
-    prices = {(price["provider"], price["model"]): price for price in results["prices"]}
+    prices = {(price["provider"], price["model"], price.get("perplexity_mode")): price for price in results["prices"]}
     runs = {run["run"]: run for run in results["runs"]}
     mismatches: list[str] = []
 
@@ -2480,7 +2661,7 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
         return None if cost is None else 1000 * cost / run["answered_questions"]
 
     for run in results["runs"]:
-        price = prices.get((run["provider"], run["model"]))
+        price = prices.get((run["provider"], run["model"], run.get("perplexity_mode")))
         if price is None:
             # A run without a price must say why: our own GPUs, and no maker's price for the same model.
             matched = run["api_equivalent_usd"] is None and run["billing"] == "local" and run["cost_basis"] is None
@@ -2499,7 +2680,11 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
         # The input tokens the provider bills per request beyond our count, as the price states.
         billed = tokens(run)
         billed["input_tokens"] += price.get("extra_input_per_request", 0) * (run["requests"] or 0)
-        check(f"run {run['run']} ({label(run)})", run["api_equivalent_usd"], token_cost(billed, price["rates"]))
+        # A price's fee per request (web grounding's search) counts for every request: the cost is then an upper bound.
+        fee = price.get("per_request", 0) * (run["requests"] or 0)
+        check(f"run {run['run']} ({label(run)})", run["api_equivalent_usd"], token_cost(billed, price["rates"]) + fee)
+        check(f"run {run['run']} ({label(run)}), upper bound", float(run.get("cost_upper_bound", False)),
+              float(run.get("perplexity_mode") == "web_grounding" and bool(price.get("per_request"))))
     for item in results["cascades"]:
         first, frontier = runs[item["decision"]], runs[item["frontier"]]
         frontier_cost = per_thousand(frontier)
@@ -2512,7 +2697,7 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
         if not measured:
             continue
         decision, frontier = runs[item["decision"]], runs[item["frontier"]]
-        rates = prices[(frontier["provider"], frontier["model"])]["rates"]
+        rates = prices[(frontier["provider"], frontier["model"], frontier.get("perplexity_mode"))]["rates"]
         name = f"routing test {label(decision)} → {label(frontier)}"
         share = decision["api_equivalent_usd"] * item["held_out"] / decision["answered_questions"]
         check(f"{name}, decision model's share", measured["decision_cost_usd"], share)
@@ -2522,7 +2707,8 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
             check(
                 f"{name}, {alternative['name']} alone",
                 alternative["cost_usd"],
-                token_cost(alternative["tokens"], prices[(alternative["provider"], alternative["model"])]["rates"]),
+                token_cost(alternative["tokens"], prices[(alternative["provider"], alternative["model"],
+                                                          alternative.get("perplexity_mode"))]["rates"]),
             )
     # The English reading track's costs and times (english_reading.models[].cost and .latency, Ümit via Zeki #1189):
     # the first English run's tokens at the price it carries, its cost per 1,000 of the kept questions and its basis for
@@ -2536,7 +2722,8 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
             price = side["price"]
             billed = dict(side["tokens"])
             billed["input_tokens"] += price.get("extra_input_per_request", 0) * (side["requests"] or 0)
-            check(f"{name}, cost", side["usd"], token_cost(billed, price["rates"]))
+            fee = price.get("per_request", 0) * (side["requests"] or 0)
+            check(f"{name}, cost", side["usd"], token_cost(billed, price["rates"]) + fee)
             check(f"{name}, cost per 1,000 questions", side["per_1000"], 1000 * side["usd"] / english["questions"])
             basis, applies = COST_BASES[side["billing"]]
             cell = checks.cell((side["basis"], price.get("applies_to", "billed")) == (basis, applies), f"{basis} ({applies})",
@@ -2544,7 +2731,8 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
             if "≠" in cell:
                 mismatches.append(f"  {name}, cost basis: {cell}")
         expected = None if run["api_equivalent_usd"] is None else {
-            "usd": run["api_equivalent_usd"], "per_1000": per_thousand(run), "basis": run["cost_basis"]}
+            "usd": run["api_equivalent_usd"], "per_1000": per_thousand(run), "basis": run["cost_basis"],
+            "upper_bound": run["cost_upper_bound"]}
         latency = run.get("latency")
         expected_latency = None if latency is None else {
             "median_request_seconds": latency["median_request_seconds"], "p90_request_seconds": latency["p90_request_seconds"],

@@ -35,7 +35,7 @@ CHARTS = {
 # The rows of the setup table, in build_page.METHOD_SETUPS's order (which runs each row covers comes from there).
 SETUP_TEXTS = (
     "TypeSafe's hosted decision model, versions 1.13 and 1.14; Open Jev compares with 1.13.",
-    "Perplexity's Decisions API (two versions) and Liquid's API (d1, d1-ultra and d1.1); d1 ran on the free tier, its cost "
+    "Perplexity's Decisions API (three versions) and Liquid's API (d1, d1-ultra and d1.1); d1 ran on the free tier, its cost "
     "estimated at Liquid's list price.",
     "Cloudflare's model, on our hardware: it adapts Qwen 3.8 27B and scores all options in one pass.",
     "Cloudflare's smaller model: Qwen 3.5 9B, with Clef's scoring method and release code.",
@@ -51,7 +51,7 @@ SETUP_TEXTS = (
     "meraGPT's System One API: its own model, with no size or design published; the name serves meraGPT's current "
     "version, here the one of 19 October 2026.",
     "Microsoft's and Inception's decision models via OpenRouter's System One route (paid); request times include OpenRouter's.",
-    "Perplexity's released v1.2 checkpoints, run on our hardware: additional local setups while API runs are pending.",
+    "Perplexity's released v1.2 checkpoints, run on our hardware: additional local setups; v1.2 also ran through the API.",
     "Fastino's released v1.2 checkpoint on our hardware, with the server it ships: one pass per question, nothing "
     "generated. The hosted GLiDE gave the same answers on 20 sample questions on 22 October; the other GLiDE row is the "
     "hosted model of 6 October.",
@@ -454,13 +454,13 @@ def price_list(snap: bp.Snapshot) -> str:
 def maker_priced(snap: bp.Snapshot) -> str:
     """The setups on our hardware estimated at their maker's list price for the same model, by maker ("Perplexity for A
     and B; Cloudflare for C"), then the makers that bill input tokens per request beyond our count."""
-    prices = {(price["provider"], price["model"]): price for price in snap.results["prices"]}
+    prices = {bp.price_key(price): price for price in snap.results["prices"]}
     makers: dict[str, list[str]] = {}
     extra: dict[str, int] = {}
     for run in snap.runs:
         if run.get("cost_basis") != "maker":
             continue
-        price = prices[(run["provider"], run["model"])]
+        price = prices[bp.price_key(run)]
         maker = price["basis"].removesuffix("'s list price for the same model")
         makers.setdefault(maker, [])
         if snap.short(run) not in makers[maker]:

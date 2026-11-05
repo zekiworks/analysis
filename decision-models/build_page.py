@@ -132,6 +132,12 @@ def long_date(iso: str) -> str:
     return f"{day.day} {day:%B} {day.year}"
 
 
+def price_key(item: dict[str, Any]) -> tuple[str, str, str | None]:
+    """A price's or a run's key in results.json's prices: provider, model and Perplexity mode (a grounded run has a
+    price of its own)."""
+    return item["provider"], item["model"], item.get("perplexity_mode")
+
+
 def reasoning_label(value: str) -> str:
     return f"reasoning {value}" if value in ("on", "off", "none") else f"{value} reasoning"
 
@@ -281,7 +287,7 @@ class Snapshot:
             (item for item in results["repeats"] if not item["whole_bank"] and item["questions_per_request"] == per_request),
             key=lambda item: item["changed_answer"],
         )
-        self.prices = {(price["provider"], price["model"]): price for price in results["prices"]}
+        self.prices = {price_key(price): price for price in results["prices"]}
         self.plan, self.costs = self.cost_rows()
         self.cutoff = cutoff_text(config["threshold"])
         self.replay = self.replay_rows()
@@ -365,7 +371,7 @@ class Snapshot:
         return self.config["billing"][run["billing"]]
 
     def price(self, run: dict[str, Any]) -> dict[str, Any] | None:
-        return self.prices.get((run["provider"], run["model"]))
+        return self.prices.get(price_key(run))
 
     def short(self, run: dict[str, Any]) -> str:
         """A configuration's short name, for a second mention in one sentence (page_config.json's short_names)."""
@@ -1305,8 +1311,8 @@ def method_answers_correct(run_id: int) -> list[int]:
 METHOD_SETUPS: list[tuple[list[dict[str, str]], str]] = [
     ([{"provider": "jev"}], "We called TypeSafe's hosted decision model. It gives a probability for each option, and it is the model Open Jev compares with."),
     ([{"provider": "perplexity"}, {"provider": "liquid"}],
-     "We called Perplexity's two decision model versions through its Decisions API, and Liquid's d1 (through a free "
-     "tier), d1-ultra and d1.1 through Liquid's API. "
+     "We called three versions of Perplexity's decision model through its Decisions API (Decider v1, v1.1 and v1.2), "
+     "and Liquid's d1 (through a free tier), d1-ultra and d1.1 through Liquid's API. "
      "Perplexity says v1.1 changes both its training data and how its Qwen base model can use the input. We do not "
      "separate those two changes in this test."),
     ([{"model": "clef"}], "We ran Cloudflare's decision model on our own hardware. It adapts Qwen 3.8 27B and scores all the options in one pass through the model."),
@@ -1319,7 +1325,7 @@ METHOD_SETUPS: list[tuple[list[dict[str, str]], str]] = [
     ([{"provider": "subq"}], "We called SubQ's Decisions API, in public preview, for SubQ Snap Preview and SubQ Snap 1.1, one question per request. Each returns a probability for each option. SubQ Snap 1.1 returns them as 32-bit floats, and for it alone our check accepted sums within 32-bit rounding: an experimental rule of ours, not an error bound SubQ states. SubQ says preview models can change before general availability, and it publishes no model size or design for them."),
     ([{"provider": "meragpt"}], "We called meraGPT's System One API, one question per request. It returns a probability for each option. meraGPT says Decider 1 is its own model and publishes no size or design for it. The name always serves meraGPT's current version, so our runs describe the version it served on 19 October 2026."),
     ([{"provider": "openrouter"}], "We called Microsoft's and Inception's decision models through OpenRouter's System One route, one question per request, on paid listings. Each returns a probability for each option, and the request time includes OpenRouter's own time. OpenRouter is a different route from each maker's own API."),
-    ([{"provider": "pplx-decider"}], "We ran Perplexity's released Decider v1.2 and Decider Flash v1.2 checkpoints on our own hardware, through the package they ship, one question per request. They are additional local setups: their runs through Perplexity's API are pending, while Decider v1 and v1.1 ran through that API."),
+    ([{"provider": "pplx-decider"}], "We ran Perplexity's released Decider v1.2 and Decider Flash v1.2 checkpoints on our own hardware, through the package they ship, one question per request. They are additional local setups: Decider v1, v1.1 and v1.2 also ran through Perplexity's API, Flash v1.2 not yet."),
     ([{"provider": "glide"}], "We ran Fastino's released GLiDE v1.2 checkpoint on our own hardware, through the server its repository ships, one question per request. It reads each option's probability from a 255-way readout in one pass per question and generates nothing. On 22 October 2026 Fastino's hosted GLiDE gave the same answers on 20 sample questions; the other GLiDE row is the hosted model as it answered on 6 October 2026, before a change on Fastino's side."),
     ([{"provider": "vllm-sr"}], "We ran the vLLM Semantic Router's released d3 checkpoint, a fine-tune of Qwen3.8-27B, on our own hardware in BF16, through vLLM's own System One endpoint in a nightly build, one question per request. It reads each option's probability in one pass per question and generates nothing. The build's default settings did not fit the GPU at start-up, so the server ran with fewer request slots (--max-num-seqs 256); requests went one at a time, as for the other setups."),
     ([{"provider": "d3-server"}], "We ran the vLLM Semantic Router's released d3-ultra checkpoint, a fine-tune of Qwen3.8-27B, on our own hardware in BF16, through the server its repository ships (the package's own Transformers runtime, as in its model card), one question per request. vLLM cannot serve it yet: it rejects the checkpoint's attention mode. It reads each option's probability in one pass per question and generates nothing."),

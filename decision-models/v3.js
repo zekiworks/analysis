@@ -40,13 +40,19 @@ const firstCostMark = run => (run.cost_basis === 'maker' ? FIRST_COST_MARKS.make
 const makerCostTip = run =>
   `Estimated at ${data.prices.find(price => price.provider === run.provider && price.model === run.model)?.basis ?? 'its maker’s list price for the same model'}; our hardware cost is not measured.`;
 const MAKER_COST_NOTE = `${SETTINGS.firstCostMarks.maker.mark} Estimated at the maker’s list price for the same model; our hardware cost is not measured.`;
+/* A cost that is an upper-bound estimate (cost_upper_bound: web grounding's search fee counted for every request): ≤
+   before the value, with its tooltip and note (page_config.json first_cost_marks.upper). */
+const UPPER_MARK = FIRST_COST_MARKS.upper;
+const UPPER_COST_NOTE = `${UPPER_MARK.mark} ${UPPER_MARK.note}`;
+const upperPrefix = run => (run.cost_upper_bound ? `${UPPER_MARK.mark} ` : '');
+const upperNote = runs => (runs.some(run => run.cost_upper_bound && costPer1000(run) != null) ? [UPPER_COST_NOTE] : []);
 const CONFIDENCE_NOTE = [
   'Every decision model that ranks its answers better than chance ranks them less well on grammar than on reading. A probability from an API is not calibrated by itself. Luna’s two setups also differ in request format (1 against 16 questions).',
 ];
 const ROUTING_NOTES = [
   'Replay: both models’ recorded answers. Live: the decision model’s recorded answers, with new calls to the LLM. Savings are estimates from API prices, and larger at 1 question per request: each question the LLM skips costs more.',
   'In a live test with Sonnet at 1 question per request, accuracy fell 4.73 points: Decider v1.1 kept 51%, with a cutoff chosen at 16 per request. A cutoff chosen at 1 per request keeps 29%, and accuracy falls 0.16 points (replay). Choose the cutoff in the format you will run.',
-  'SubQ Snap Preview’s place depends on the LLM: tenth among decision models in front of Sonnet 5.5 high (16 per request), seventeenth in front of Opus 5.5 low, fifteenth in front of Astra low. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, the hosted GLiDE’s 99.5%.',
+  'SubQ Snap Preview’s place depends on the LLM: twelfth among decision models in front of Sonnet 5.5 high (16 per request), nineteenth in front of Opus 5.5 low, seventeenth in front of Astra low. Its most confident fifth of answers was 98.6% right; Decider v1.1’s was 99.3%, the hosted GLiDE’s 99.5%.',
 ];
 const STABILITY_NOTE = [
   'Only the setups we repeated, five times each. Decision models and two Qwen3.8-27B setups were repeated on all questions; the other chat models on a sample of 200.',
@@ -490,6 +496,7 @@ function savingCell(row, format) {
 function costCell(run) {
   const value = costPer1000(run);
   if (value == null) return NM;
+  if (run.cost_upper_bound) return `<span class="mark">${UPPER_MARK.mark}</span> ${tip(UPPER_MARK.tip, value.toFixed(3))}`;
   return run.cost_basis === 'maker' ? `${tip(makerCostTip(run), value.toFixed(3))}<span class="mark">${FIRST_COST_MARKS.maker.mark}</span>` : value.toFixed(3);
 }
 
@@ -808,7 +815,7 @@ const NEEDS = { latency: 'latency', cost: 'cost estimate' };
    measured where there is no estimate (never a zero). The accuracy chart gives it beside each setup's accuracy. */
 const priceText = run => {
   const value = costPer1000(run);
-  return value == null ? EMPTY.notMeasured : `$${MEASURES.cost.text(value)}${run.cost_basis === 'maker' ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}`;
+  return value == null ? EMPTY.notMeasured : `${upperPrefix(run)}$${MEASURES.cost.text(value)}${run.cost_basis === 'maker' ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}`;
 };
 const PRICE_NOTE = 'Beside each bar: accuracy (%), then cost in $ per 1,000 questions, estimated from list prices and recorded token use, as in the Cost chart, then the median latency per request, as in the Latency chart.';
 /* The accuracy chart's latency column: the median seconds per request, marked when measured on a sample; Not measured
@@ -1004,7 +1011,7 @@ function barChart(box, name) {
         const path = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
         inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
       }
-      inner.push(`<text class="value" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${measure.text(value)}${maker ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
+      inner.push(`<text class="value" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${name === 'cost' ? upperPrefix(run) : ''}${measure.text(value)}${maker ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
     }
     if (priced) {
       inner.push(`<text class="value${costPer1000(run) == null ? ' nm' : ''}" x="${width - 4 - latencyWidth}" y="${mid + 4}" text-anchor="end">${esc(priceText(run))}</text>`);
@@ -1017,10 +1024,11 @@ function barChart(box, name) {
   const where = name === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : name === 'gap' ? ' on all questions, as shipped' : '';
   const latencyNote = name === 'latency' || priced ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
   const makerNote = (name === 'cost' || priced) && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
+  const upperCostNote = name === 'cost' || priced ? upperNote(ordered) : [];
   const sampleNote = name === 'latency' || priced ? sampleNotes(ordered) : [];
   const scaleNote = measure.log ? 'Log scale.' : name === 'accuracy' ? 'Lines: 95% interval.' : '';
   const families = familiesIn(ordered);
-  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, priced ? PRICE_NOTE : '', ...latencyNote, ...makerNote, ...sampleNote].filter(Boolean), unlabelled: [], families };
+  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, priced ? PRICE_NOTE : '', ...latencyNote, ...makerNote, ...upperCostNote, ...sampleNote].filter(Boolean), unlabelled: [], families };
   box.innerHTML =
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
     legend(families, [...chartNotes[name].notes, chartScope(runs)].join(' '));
@@ -1146,7 +1154,7 @@ function scatterChart(box) {
   [...points].sort((a, b) => (a === chosen) - (b === chosen)).forEach(({ run, cx, cy }) => {
     const maker = state.across === 'cost' && run.cost_basis === 'maker';
     const sample = state.across === 'latency' && sampleLabel(run);
-    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}`;
+    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `${upperPrefix(run)}$${across.text(across.value(run))} per 1,000 questions` : `${across.text(across.value(run))} s per request`}${maker ? ` (${makerCostTip(run)})` : ''}${state.across === 'cost' && run.cost_upper_bound ? ` (${UPPER_MARK.tip})` : ''}${sample ? ` (${sample})` : ''}`;
     parts.push(`<g ${markAttributes(run, tooltip)}><circle class="ring" cx="${cx}" cy="${cy}" r="9"/>` +
       `<circle class="dot-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
   });
@@ -1172,6 +1180,7 @@ function scatterChart(box) {
     paretoText,
     missing ? `${missing} without a ${NEEDS[state.across]} not shown.` : '',
     state.across === 'cost' && known.some(run => run.cost_basis === 'maker') ? MAKER_COST_NOTE : '',
+    ...(state.across === 'cost' ? upperNote(known) : []),
     ...(state.across === 'latency' ? sampleNotes(known) : []),
   ].filter(Boolean);
   const families = familiesIn([...known].sort((a, b) => accuracyOf(b) - accuracyOf(a)));

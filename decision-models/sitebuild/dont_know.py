@@ -572,8 +572,8 @@ def check_vs_confidence(site: Site, data: dict[str, Any], word: dict[str, Any], 
             raise fail(f"{name}: the paired counts do not fit the wrong answers")
     family = sorted(model["name"] for model in vs["models"] if model["p_holm"] is not None)
     if family != sorted(vs["family"]) or family != sorted(model["name"] for model in data["models"]
-                                                          if model["vs_confidence"]["p_holm"] is not None):
-        raise fail("Holm's family is not the models of the tab's own comparison with confidence")
+                                                          if model["vs_confidence"]["p_holm"] is not None and model["name"] in own):
+        raise fail("Holm's family is not the option-word models of the tab's own comparison with confidence")
 
 
 def vs_confidence_rows(site: Site, data: dict[str, Any], word: dict[str, Any]) -> list[dict[str, Any]]:

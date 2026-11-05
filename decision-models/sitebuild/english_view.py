@@ -16,7 +16,7 @@ from typing import Any
 
 from sitebuild.english_reading import (DECISION_ONLY, GROUPS, PATH as COMPARISON, anchor, chat_note, check_dont_know,
                                        english_only, group_models, label, measure_card, measure_cell, measure_heads, noun,
-                                       shown)
+                                       shown, upper_note)
 from sitebuild.site import NOT_MEASURED, Site, esc, family_legend, hbars, pct, rel
 from sitebuild.vision import cell, joined
 
@@ -169,8 +169,9 @@ def build(site: Site) -> dict[str, str]:
                 f'<a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ per 1,000 questions at list '
                 "prices, with its basis under it; English latency: the median time per request, with the request size and "
                 "the requests in flight under it, each from the first English run (Cost and Latency above); Not measured: "
-                "no price, or no timing. Each name opens its Text tab run; under it, its settings and English run.</p>"
-                "</section>")
+                "no price, or no timing. Each name opens its Text tab run; under it, its settings and English run."
+                + "".join(f" {esc(text)}" for text in upper_note(site, group_models(site, data, group), ("english",)))
+                + "</p></section>")
 
     def lead(group: str) -> str:
         count = counts[group]

@@ -156,11 +156,13 @@
     "local": {"access": "Our own hardware", "cost_basis": "No dollar estimate; see hardware and time"}
   },
   "first_cost_marks": {
-    "about": "A saving whose first model ran on our own hardware, by how its cost was counted: 'local' (no maker's price; the cost is left out) and 'maker' (the maker's list price for the same model). The marker after the saving, its tooltip, and the note under the table (shown after the marker, and only when the marker is in the table). The 'maker' marker also follows such a model's own cost.",
+    "about": "A saving whose first model ran on our own hardware, by how its cost was counted: 'local' (no maker's price; the cost is left out) and 'maker' (the maker's list price for the same model). The marker after the saving, its tooltip, and the note under the table (shown after the marker, and only when the marker is in the table). The 'maker' marker also follows such a model's own cost. 'upper' marks, before the value, every cost that is an upper-bound estimate (a run's cost_upper_bound: web grounding's search fee counted for every request), with its note wherever such a cost shows.",
     "local": {"mark": "†", "tip": "Leaves out the first model’s hardware cost, which we have not estimated.",
               "note": "Leaves out the first model’s hardware cost, which we have not estimated."},
     "maker": {"mark": "§", "tip": "Counts the first model at its maker’s list price for the same model; our hardware cost is not measured.",
-              "note": "Counts the first model at its maker’s list price for the same model; our hardware cost is not measured."}
+              "note": "Counts the first model at its maker’s list price for the same model; our hardware cost is not measured."},
+    "upper": {"mark": "≤", "tip": "Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches.",
+              "note": "Upper-bound estimate: one $0.001 web search counted per request; Perplexity bills only completed searches."}
   },
   "rank_scale": {
     "about": "The colours of a decision model's bar in the single-series charts of the Hallucination, Page images and Artificial Analysis pages, from the worst decision model on the chart to the best: dark blue, turquoise, green, yellow. The Topics heat map and the link preview use the same colours. The home page's charts, English reading and English and Turkish colour each setup by its model family (model_families).",
@@ -212,7 +214,6 @@
   },
   "english_reading": {
     "not_run": [
-      {"runs": [315, 320], "reason": "stopped when the OpenRouter account ran out of credit."},
       {"runs": [145], "reason": "Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1."},
       {"runs": [129], "reason": "since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
       {"runs": [120, 121], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window; their first-release weights must also be downloaded again, as the server folder now holds the 1017 weights."},

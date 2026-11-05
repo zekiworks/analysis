@@ -90,7 +90,9 @@ def build(site: Site) -> dict[str, str]:
     held = {model["original_run"]: model for model in dont_know["models"]}
     vision = site.vision
     in_vision = {(model["provider"], model["model"]): model for model in vision["models"]}
-    prices = {(price["provider"], price["model"]): price for price in site.results["prices"]}
+    prices = {bp.price_key(price): price for price in site.results["prices"]}
+    upper_cost = site.config["first_cost_marks"]["upper"]
+    upper = lambda run: f"{upper_cost['mark']} " if run.get("cost_upper_bound") else ""  # noqa: E731
     reading_n, grammar_n = (site.runs[0]["groups"][part]["questions"] for part in ("reading", "grammar"))
     pages_n = vision["subset"]["questions"]
     total = site.total
@@ -117,9 +119,9 @@ def build(site: Site) -> dict[str, str]:
     # A tick at each quarter of the axis, the quarter a round number of dollars that fits the dearest model.
     quarter = math.ceil(max(dollars) / 40) * 10 if max(dollars) >= 40 else max(1, math.ceil(max(dollars) / 4))
     cost_rows = [{"label": site.row_name(run), "href": href(run),
-                  "text": f"${value:,.0f}{' ' + maker_mark if run['cost_basis'] == 'maker' else ''}",
+                  "text": f"{upper(run)}${value:,.0f}{' ' + maker_mark if run['cost_basis'] == 'maker' else ''}",
                   "bars": [{"value": value, "colour": rank_fill(stops, value, max(dollars), min(dollars))}],
-                  "title": f"{site.row_name(run)} (Artificial Analysis: {name}): ${cost_per_1000(run):.3f} per 1,000 questions, ${value:,.0f} per 1M"}
+                  "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {upper(run)}${cost_per_1000(run):.3f} per 1,000 questions, {upper(run)}${value:,.0f} per 1M"}
                  for name, run, value in priced]
     latency = lambda run: (run.get("latency") or {}).get("median_request_seconds")  # noqa: E731
     sample = lambda run: " *" if run["latency"]["source"] == "sample" else ""  # noqa: E731
@@ -193,8 +195,8 @@ def build(site: Site) -> dict[str, str]:
              else f'{pct(picture["accuracy"], digits)}<span class="small">{picture["correct"]:,} of {picture["questions"]:,}</span>'),
             NOT_RUN if model is None else f'{pct(model["non_hallucination"], digits)}<span class="small">{model["dont_know"]:,} “{esc(option)}” of {model["dont_know"] + model["wrong"]:,} not right</span>',
             NOT_RUN if model is None else f'{pct(model["attempt_rate"], digits)}<span class="small">{model["right"] + model["wrong"]:,} of {total:,} answered</span>',
-            NOT_MEASURED if cost is None else f"${cost:.3f}{mark}",
-            NOT_MEASURED if cost is None else f"${per_million(cost):,.0f}{mark}",
+            NOT_MEASURED if cost is None else f"{upper(run)}${cost:.3f}{mark}",
+            NOT_MEASURED if cost is None else f"{upper(run)}${per_million(cost):,.0f}{mark}",
             NOT_MEASURED if latency(run) is None else f"{latency_text(latency(run))}{sample(run)}" + (
                 f'<span class="small">{run["latency"]["concurrency"]} in flight</span>' if (run["latency"].get("concurrency") or 1) > 1 else ""
             ) + ('<span class="small">its repeat runs</span>' if run["latency"]["source"] == "repeats" else
@@ -208,11 +210,13 @@ def build(site: Site) -> dict[str, str]:
     table = (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr></thead>'
              f'<tbody>{"".join(rows)}</tbody></table></div>')
 
-    makers = joined(sorted({prices[(run["provider"], run["model"])]["basis"].split("'s list price")[0]
+    makers = joined(sorted({prices[bp.price_key(run)]["basis"].split("'s list price")[0]
                             for _, run in pairs if run["cost_basis"] == "maker"}))
     notes = [f"{maker_mark} On our GPU, priced at its maker's list price for the same model ({esc(makers)}); our hardware cost is not measured."]
+    if any(run.get("cost_upper_bound") for _, run in pairs):
+        notes.append(f"{esc(upper_cost['mark'])} {esc(upper_cost['note'])}")
     for name, run in pairs:
-        price = prices.get((run["provider"], run["model"]))
+        price = prices.get(bp.price_key(run))
         if run["billing"] == "free":
             notes.append(f"{esc(site.row_name(run))}: its free tier, priced at {esc(price['basis'])}.")
         if price and price.get("change"):

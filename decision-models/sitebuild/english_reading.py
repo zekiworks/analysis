@@ -287,6 +287,18 @@ def maker_mark(site: Site) -> str:
     return site.config["first_cost_marks"]["maker"]["mark"]
 
 
+def upper_mark(site: Site, entry: dict[str, Any] | None) -> str:
+    """≤ before a cost that is an upper-bound estimate (the cost entry's upper_bound), else nothing."""
+    return f"{site.config['first_cost_marks']['upper']['mark']} " if entry and entry.get("upper_bound") else ""
+
+
+def upper_note(site: Site, models: list[dict[str, Any]], sides: tuple[str, ...]) -> list[str]:
+    """The upper-bound note, when one of these setups' costs is marked."""
+    upper = site.config["first_cost_marks"]["upper"]
+    marked = any(upper_mark(site, model["cost"][side]) for model in models for side in sides)
+    return [f"{upper['mark']} {upper['note']}"] if marked else []
+
+
 def measure_cell(site: Site, model: dict[str, Any], measure: str, side: str) -> str:
     """A table cell's content: the cost to three decimals (§ at the maker's list price) with its basis under it, or the
     median latency with the request size and the requests in flight under it; Not measured without a value."""
@@ -296,7 +308,8 @@ def measure_cell(site: Site, model: dict[str, Any], measure: str, side: str) -> 
     entry = model[measure][side]
     if measure == "cost":
         mark = f'<span class="mark">{esc(maker_mark(site))}</span>' if entry["basis"] == "maker" else ""
-        return f'{value:.3f}{mark}<span class="small">{esc(BASIS_WORDS[entry["basis"]])}</span>'
+        return (f'{esc(upper_mark(site, entry))}{value:.3f}{mark}<span class="small">{esc(BASIS_WORDS[entry["basis"]])}'
+                "</span>")
     flight = entry["concurrency"]
     sample = sample_size(site, model, side)
     measured = f", measured on a sample ({sample:,} questions)" if sample else ""
@@ -364,15 +377,16 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
         if not cost and sample_size(site, model, side):
             text += SAMPLE_MARK
         if paired:
-            return text
-        return f"${text}" + (f" {mark}" if model["cost"][side]["basis"] == "maker" else "") if cost else f"{text}\u00a0s"
+            return upper_mark(site, model["cost"][side]) + text if cost else text
+        return f"{upper_mark(site, model['cost'][side])}${text}" + (f" {mark}" if model["cost"][side]["basis"] == "maker" else "") if cost else f"{text}\u00a0s"
 
     def said(model: dict[str, Any], side: str) -> str:
         value, entry = measure_value(model, measure, side), model[measure][side]
         if value is None:
             return f"not measured in {SIDES[side]}"
         if cost:
-            return f"${value:.3f} per 1,000 questions in {SIDES[side]} ({BASIS_WORDS[entry['basis']]})"
+            return (f"{upper_mark(site, entry)}${value:.3f} per 1,000 questions in {SIDES[side]} ({BASIS_WORDS[entry['basis']]}"
+                    f"{', an upper-bound estimate' if entry.get('upper_bound') else ''})")
         return (f"median {bp.seconds(value)} s, 90th percentile {bp.seconds(entry['p90_request_seconds'])} s per request in "
                 f"{SIDES[side]}, {request_size(entry['questions_per_request'])}, {entry['concurrency']:,} in flight"
                 + (f", measured on a sample ({sample_size(site, model, side):,} questions)" if sample_size(site, model, side) else ""))
@@ -395,7 +409,7 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
         sub = f"Estimated dollars per 1,000 questions: {whose}, ordered by English cost · lower is better"
         notes = [f"$ per 1,000 questions at list prices and the tokens each run recorded, as on the Text tab: a subscription "
                  "run priced as if we had used the API, a free-tier run at the list price for the same model, a run on "
-                 f"our GPUs at its maker's list price for the same model ({mark}) where it lists one."]
+                 f"our GPUs at its maker's list price for the same model ({mark}) where it lists one.", *upper_note(site, models, sides)]
     else:
         title = "Latency in Turkish and in English" if paired else f"Latency on the {total:,} English questions"
         sub = f"Median time per request: {whose}, ordered by English latency · lower is better"
@@ -784,7 +798,9 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             f'(<a href="#{anchor("chart-cost", group)}">Cost</a>, <a href="#{anchor("chart-latency", group)}">Latency</a>); '
             "Not measured: no price, or no timing. Rank: by accuracy among the "
             f"{len(models)} {noun(group, len(models))} in each language, 1 the most accurate, tied setups sharing a rank."
-            f'{languages_note} The full tables are under <a href="#info">Info</a>.</p></section>')
+            f'{languages_note} The full tables are under <a href="#info">Info</a>.'
+            + "".join(f" {esc(text)}" for text in upper_note(site, models, tuple(SIDES)))
+            + "</p></section>")
 
 
 def columns(data: dict[str, Any]) -> tuple[tuple[str, str], ...]:
