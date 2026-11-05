@@ -505,6 +505,11 @@ table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
 .chart-box.has-selection .mark:not(.is-selected) .value, .chart-box.has-selection .label:not(.is-selected) { fill: var(--text-2); }
 .chart-legend { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: .5rem 0 0; color: var(--text-2); font-size: .8rem; }
 i.swatch { display: inline-block; width: .75rem; height: .75rem; margin-right: .35rem; border-radius: 2px; vertical-align: -.05rem; }
+/* A model family's icon left of a setup's name (sitebuild/site.py family_sprite): 14 px on the text's baseline, the
+   maker's mark in the text's colour; the sprite itself takes no room. */
+.family-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+svg.fam-icon { display: inline-block; width: 14px; height: 14px; margin-right: .3rem; vertical-align: -2px; fill: currentColor; }
+.chart-box use.fam-icon { fill: var(--text); }
 i.swatch-reading { background: var(--reading); }
 i.swatch-grammar { background: var(--grammar); }
 .scale-legend { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 .35rem; }

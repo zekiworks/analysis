@@ -9,7 +9,7 @@ import html
 import json
 import math
 from collections.abc import Callable, Iterable
-from functools import cached_property
+from functools import cache, cached_property
 from pathlib import Path
 from typing import Any
 
@@ -126,16 +126,50 @@ def run_families(config: dict[str, Any], runs: list[dict[str, Any]]) -> dict[int
     return found
 
 
+def family_icon(name: str) -> str:
+    """A model family's icon (family_sprite) for the left of a setup's name: 14 px, hidden from screen readers, so the
+    name stays the accessible text."""
+    return f'<svg class="fam-icon" aria-hidden="true" focusable="false"><use href="#{icon_id(name)}"/></svg>'
+
+
+def icon_id(name: str) -> str:
+    """The sprite id of a family's icon: 'fi-' and its name in lower-case letters and digits (as v3.js familyIconId)."""
+    return "fi-" + "".join(char for char in name.lower() if char.isalnum())
+
+
+@cache
+def family_sprite() -> str:
+    """Every model family's icon as an SVG symbol, hidden, once on every page (topbar): the maker's official mark
+    (family_icons.MARKS, by its page_config.json icon), drawn in the colour of the text beside it, or otherwise the
+    family's first letter on its colour, the letter dark or white, whichever reads better on it."""
+    from sitebuild.family_icons import MARKS
+
+    symbols = []
+    for family in json.loads((ROOT / "page_config.json").read_text())["model_families"]["families"]:
+        if family.get("icon"):
+            inner = f'<path d="{MARKS[family["icon"]]}"/>'
+        else:
+            red, green, blue = (int(family["colour"][index:index + 2], 16) / 255 for index in (1, 3, 5))
+            ink = "#111" if 0.2126 * red + 0.7152 * green + 0.0722 * blue > 0.45 else "#fff"
+            inner = (f'<rect x="1" y="1" width="22" height="22" rx="5" fill="{family["colour"]}"/>'
+                     f'<text x="12" y="17.5" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" '
+                     f'font-weight="700" fill="{ink}">{esc(family["name"][0].upper())}</text>')
+        symbols.append(f'<symbol id="{icon_id(family["name"])}" viewBox="0 0 24 24">{inner}</symbol>')
+    return f'<svg class="family-sprite" aria-hidden="true" width="0" height="0">{"".join(symbols)}</svg>'
+
+
 def family_legend(families: list[dict[str, str]]) -> str:
-    """The legend of bars in their model family's colour: each family once, in the order given (the chart's)."""
+    """The legend of bars in their model family's colour: each family once, in the order given (the chart's), with its
+    icon."""
     named = dict.fromkeys((family["name"], family["colour"]) for family in families)
-    return " ".join(f'<span><i class="swatch" style="background:{colour}"></i>{esc(name)}</span>' for name, colour in named)
+    return " ".join(f'<span><i class="swatch" style="background:{colour}"></i>{family_icon(name)}{esc(name)}</span>'
+                    for name, colour in named)
 
 
 def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], str] | None = None,
           head: tuple[str, str] | None = None, divisions: int = 4) -> str:
     """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
-    readable at any width and in both themes. Each row: label, href (optional), bars (each a value from 0 to top, with a
+    readable at any width and in both themes. Each row: label, family (optional, whose icon goes before it), href (optional), bars (each a value from 0 to top, with a
     colour, a kind (a CSS class) or both: a kind's pattern, as the English bar's stripes, goes over the colour), marker
     (optional, a value drawn as a line), text (the value as shown) and title (the tooltip). The axis runs from 0 to top,
     with a tick and a line at each quarter (or each of the divisions), in percent unless tick writes a value its way
@@ -152,6 +186,8 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     items = []
     for row in rows:
         label = f'<a href="{row["href"]}">{esc(row["label"])}</a>' if row.get("href") else esc(row["label"])
+        if row.get("family"):
+            label = family_icon(row["family"]) + label
         fills = "".join(
             f'<span class="hbar-fill{" " + bar["kind"] if bar.get("kind") else ""}" style="width:{place(bar["value"])}'
             f'{";background-color:" + bar["colour"] if bar.get("colour") else ""}"></span>' for bar in row["bars"])
@@ -288,7 +324,8 @@ def topbar(path: str) -> str:
         'data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>'
         'Dark</button><button type="button" class="key" data-theme-choice="light" '
         'aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light</button></div>\n'
-        "  </header>"
+        "  </header>\n"
+        f"  {family_sprite()}"
     )
 
 
@@ -365,6 +402,10 @@ class Site:
     def families(self) -> dict[int, dict[str, str]]:
         """Each leaderboard run's model family, by run id (run_families)."""
         return run_families(self.config, self.runs)
+
+    def icon(self, run: dict[str, Any]) -> str:
+        """The icon of a leaderboard run's model family, for the left of its name (family_icon)."""
+        return family_icon(self.families[run["run"]]["name"])
 
     @cached_property
     def snapshot(self) -> bp.Snapshot:

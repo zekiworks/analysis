@@ -382,6 +382,17 @@ INSTA_UPDATE=always cargo test --manifest-path chart-renderer/Cargo.toml   # acc
 
 `cargo insta review` (from `cargo install cargo-insta`) shows the changed snapshots one by one instead.
 
+### Model family icons
+
+On the web pages (not the Rust graphs in `charts/`, which keep text labels), every model name has its family's icon
+on its left, 14 px and hidden from screen readers. A family in `page_config.json` `model_families` names its icon by
+Simple Icons slug; its SVG path is vendored in `sitebuild/family_icons.py` from
+[Simple Icons](https://simpleicons.org) 16.36.0, whose icon data is CC0 1.0 (the marks stay their owners'
+trademarks, used here only to name their models). Official marks: Gemini (Google Gemini), Gemma (Google), GPT
+(OpenAI), Claude, Qwen, DeepSeek, Kimi, Perplexity and Microsoft, drawn in the text colour. A family without a freely
+licensed mark (Grok: Simple Icons has no xAI mark) gets its first letter on its own colour. `family_sprite` in
+`sitebuild/site.py` puts every icon as an SVG symbol once on each page.
+
 ## Updating the results (maintainer)
 
 This needs the benchmark's private files: the report the benchmark script writes

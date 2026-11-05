@@ -173,7 +173,7 @@ def fallback_table(data: Data, site: Site) -> str:
         cost_text = f'<span title="{bp.esc(tip)}">{cost:.3f}</span>' if cost is not None and tip else f"{cost:.3f}" if cost is not None else cost_missing(run)
         rows.append(
             "<tr>"
-            f'<td class="model"><a class="model-name" href="models/{run["run"]}/" title="{bp.esc(about)}">{bp.esc(names[run["run"]])}</a></td>'
+            f'<td class="model">{site.icon(run)}<a class="model-name" href="models/{run["run"]}/" title="{bp.esc(about)}">{bp.esc(names[run["run"]])}</a></td>'
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
@@ -361,7 +361,7 @@ def non_hallucination(site: Site) -> str:
     models = dont_know_ranked(data["models"])
     rated = [model for model in models if model["non_hallucination"] is not None]
     unrated = [site.row_name(run_of(model)) for model in models if model["non_hallucination"] is None]
-    rows = [{"label": site.row_name(run_of(model)), "href": site.model_path(run_of(model)),
+    rows = [{"label": site.row_name(run_of(model)), "family": site.families[model["original_run"]]["name"], "href": site.model_path(run_of(model)),
              "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['attempt_rate'], digits)}",
              "bars": [{"value": model["non_hallucination"], "colour": site.families[model["original_run"]]["colour"]}],
              "title": f"{site.row_name(run_of(model))}: {model['dont_know']:,} “{option}” of "

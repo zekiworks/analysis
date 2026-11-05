@@ -67,7 +67,7 @@ def model_cell(site: Site, model: dict[str, Any], name: str | None = None) -> st
     run = site.by_id[model["original_run"]]
     detail = site.detail(run)
     tip = f' title="{esc(detail)}"' if detail else ""
-    return (f'<td class="model"{tip}><a class="model-name" href="{rel(PATH, site.model_path(run))}">'
+    return (f'<td class="model"{tip}>{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">'
             f'{esc(name or site.row_name(run))}</a></td>')
 
 
@@ -294,7 +294,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
     first = card(
         "chart-non-hallucination", "Non-hallucination rate",
         f"“{option}” among the answers that were not right · higher is better",
-        [{"label": label(model), "href": href(model), "text": pct(model["non_hallucination"], digits),
+        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model), "text": pct(model["non_hallucination"], digits),
           "bars": [{"value": model["non_hallucination"], "colour": rank_fill(stops, model["non_hallucination"], worst, best)}],
           "title": f"{label(model)}: {model['dont_know']:,} “{data['option']}” of {model['dont_know'] + model['wrong']:,} not right"}
          for model in rated],
@@ -304,7 +304,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
         "chart-confidence", "Saying “I don't know”, or held back by confidence",
         f"Each model's non-hallucination rate with “{option}”, and its five-option run held back by its own confidence at "
         "about the same attempt rate · higher is better",
-        [{"label": label(model), "href": href(model),
+        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
           "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['derived']['non_hallucination'], digits)}",
           "bars": [{"value": model["non_hallucination"], "kind": "lead"}, {"value": model["derived"]["non_hallucination"], "kind": "base"}],
           "title": f"{label(model)}: {pct(model['non_hallucination'], digits)} with “{data['option']}”, "
@@ -344,7 +344,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
             f"questions: the questions only one of the two got wrong, by the exact McNemar test with p adjusted by Holm's method "
             f"over the {len(tested)} models that chose “{option}” on at least {share} of the questions · the shorter bar left "
             "fewer wrong answers",
-            [{"label": label(model), "href": href(model),
+            [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
               "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if model['vs_confidence']['p_holm'] < 0.05 else ''}",
               "bars": [{"value": counts(model)[0], "kind": "lead"}, {"value": counts(model)[1], "kind": "base"}],
               "title": f"{label(model)}: {counts(model)[0]:,} wrong only with “{data['option']}”, {counts(model)[1]:,} wrong only "
@@ -362,7 +362,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
     third = card(
         "chart-accuracy", f"Accuracy with “{data['option']}”",
         f"Share of the {total:,} questions answered right with “{option}” on offer · higher is better",
-        [{"label": label(model), "href": href(model), "text": pct(model["accuracy"], digits),
+        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model), "text": pct(model["accuracy"], digits),
           "bars": [{"value": model["accuracy"], "colour": rank_fill(stops, model["accuracy"], min(accuracies), max(accuracies))}],
           "marker": model["original_accuracy"],
           "title": f"{label(model)}: {model['right']:,} of {total:,} right; {pct(model['original_accuracy'], digits)} with five options"}
@@ -462,7 +462,7 @@ def option_word_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -> 
             if model["i_dont_know"]["non_hallucination"] is not None and model["bilmiyorum"]["non_hallucination"] is not None]
     side = lambda model, key: model[key]  # noqa: E731
     chart = hbars([
-        {"label": label(model), "href": rel(PATH, site.model_path(run_of(model))),
+        {"label": label(model), "family": site.families[model["original_run"]]["name"], "href": rel(PATH, site.model_path(run_of(model))),
          "text": f"{pct(model['i_dont_know']['non_hallucination'], digits)} · {pct(model['bilmiyorum']['non_hallucination'], digits)}",
          "bars": [{"value": model["i_dont_know"]["non_hallucination"], "kind": "lead"},
                   {"value": model["bilmiyorum"]["non_hallucination"], "kind": "base"}],
@@ -676,7 +676,7 @@ def vs_confidence_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -
     if others:
         verdict += f" The other {len(others)}: {adjusted(others)}." if significant else f" Adjusted: {adjusted(others)}."
     chart = hbars(
-        [{"label": label(model), "href": rel(PATH, site.model_path(run_of(model))),
+        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": rel(PATH, site.model_path(run_of(model))),
           "text": f"{model['option_only_wrong']:,} · {model['confidence_only_wrong']:,}{' *' if model['p_holm'] < 0.05 else ''}",
           "bars": [{"value": model["option_only_wrong"], "kind": "lead"}, {"value": model["confidence_only_wrong"], "kind": "base"}],
           "title": f"{label(model)}: {model['option_only_wrong']:,} wrong only with “{word['option']}” (run {model['option_run']}), "
@@ -924,7 +924,7 @@ def english_four_card(site: Site, idk: dict[str, Any], four: dict[str, Any]) -> 
                   p(model["p_holm"]) + (" *" if model["p_holm"] < 0.05 else "")]
         detail = site.detail(run)
         tip = f' title="{esc(detail)}"' if detail else ""
-        rows += (f'<tr><td class="model"{tip}><a class="model-name" href="{er.idk_href(site, entry)}">{esc(er.idk_label(site, entry))}</a></td>'
+        rows += (f'<tr><td class="model"{tip}>{site.icon(run)}<a class="model-name" href="{er.idk_href(site, entry)}">{esc(er.idk_label(site, entry))}</a></td>'
                  + "".join(cell(f"{head} ({note})", item) for (head, note), item in zip(heads, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
     significant = [entry for model, entry in pairs if model["p_holm"] < 0.05]
@@ -1451,7 +1451,7 @@ def same_curves(site: Site, same: dict[str, Any], family: dict[str, Any]) -> str
                f'{model["curve"][-1][0]:,} answers; {same_wrong_text(model["wrong"])} wrong of its {k:,} most confident</title>'
                f'</polyline><g fill="{SAME_SMALL_COLOUR}" stroke="var(--panel)" stroke-width="1">{marks}</g></svg>')
         return (f'<li><figure style="margin:0">{svg}<figcaption class="note" style="margin:.25rem 0 0">'
-                f'<a class="model-name" href="{rel(PATH, site.model_path(run))}" title="{esc(site.detail(run))}">{esc(name)}</a> '
+                f'{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" title="{esc(site.detail(run))}">{esc(name)}</a> '
                 f'Wrong of the {k:,} answers: {wrong}, {versus}<br>'
                 f"{option}</figcaption></figure></li>")
 
@@ -1639,7 +1639,7 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
 
     def name_cell(run_id: int, note: str) -> str:
         run = site.by_id[run_id]
-        return (f'<td class="model"><a class="model-name" href="{rel(PATH, site.model_path(run))}">{esc(site.row_name(run))}</a>'
+        return (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">{esc(site.row_name(run))}</a>'
                 f'<span class="small">{esc(note)}</span></td>')
 
     run_note = lambda run, text_run: f"run {run}, " + ("Text tab run" if run == text_run else "repeat run")  # noqa: E731

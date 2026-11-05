@@ -102,14 +102,14 @@ def build(site: Site) -> dict[str, str]:
     date = lambda run: bp.long_date(run["started"][:10])  # noqa: E731
 
     accuracies = [share(run)[0] / share(run)[1] for _, run in pairs]
-    accuracy_rows = [{"label": shown[run["run"]], "href": href(run), "text": pct(value, digits),
+    accuracy_rows = [{"label": shown[run["run"]], "family": site.families[run["run"]]["name"], "href": href(run), "text": pct(value, digits),
                       "bars": [{"value": value, "colour": rank_fill(stops, value, min(accuracies), max(accuracies))}],
                       "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {share(run)[0]:,} of {total:,} right"}
                      for (name, run), value in zip(pairs, accuracies)]
     ran = sorted(((name, run, held[run["run"]]) for name, run in pairs if run["run"] in held and held[run["run"]]["non_hallucination"] is not None),
                  key=lambda item: -item[2]["non_hallucination"])
     rates = [model["non_hallucination"] for _, _, model in ran]
-    rate_rows = [{"label": shown[run["run"]], "href": href(run), "text": pct(model["non_hallucination"], digits),
+    rate_rows = [{"label": shown[run["run"]], "family": site.families[run["run"]]["name"], "href": href(run), "text": pct(model["non_hallucination"], digits),
                   "bars": [{"value": model["non_hallucination"], "colour": rank_fill(stops, model["non_hallucination"], min(rates), max(rates))}],
                   "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {model['dont_know']:,} “{option}” of {model['dont_know'] + model['wrong']:,} not right"}
                  for name, run, model in ran]
@@ -119,7 +119,7 @@ def build(site: Site) -> dict[str, str]:
     dollars = [value for _, _, value in priced]
     # A tick at each quarter of the axis, the quarter a round number of dollars that fits the dearest model.
     quarter = math.ceil(max(dollars) / 40) * 10 if max(dollars) >= 40 else max(1, math.ceil(max(dollars) / 4))
-    cost_rows = [{"label": shown[run["run"]], "href": href(run),
+    cost_rows = [{"label": shown[run["run"]], "family": site.families[run["run"]]["name"], "href": href(run),
                   "text": f"{upper(run)}${value:,.0f}",
                   "bars": [{"value": value, "colour": rank_fill(stops, value, max(dollars), min(dollars))}],
                   "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {upper(run)}${cost_per_1000(run):.3f} per 1,000 questions, "
@@ -133,7 +133,7 @@ def build(site: Site) -> dict[str, str]:
     # A tick at each quarter of the axis, the quarter a round number of seconds that fits the slowest model.
     step = 10 ** math.floor(math.log10(max(seconds) / 4))
     latency_quarter = round(math.ceil(max(seconds) / 4 / step) * step, 6)
-    latency_rows = [{"label": shown[run["run"]], "href": href(run), "text": f"{latency_text(value)}{sample(run)}",
+    latency_rows = [{"label": shown[run["run"]], "family": site.families[run["run"]]["name"], "href": href(run), "text": f"{latency_text(value)}{sample(run)}",
                      "bars": [{"value": value, "colour": rank_fill(stops, value, max(seconds), min(seconds))}],
                      "title": f"{site.row_name(run)} (Artificial Analysis: {name}): median {latency_text(value)} per request"}
                     for (name, run), value in zip(timed, seconds)]

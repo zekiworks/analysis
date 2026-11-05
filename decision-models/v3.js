@@ -251,7 +251,7 @@ function modelCell(run, labels) {
   const about = `${runDetail(run)} · ${isDecision(run) ? 'Decision model' : 'Chat model'}`;
   return `<td class="model"><div class="who"><button type="button" class="pick" data-select="${run.run}" aria-pressed="${state.selected === run.run}" ` +
     `aria-label="Highlight ${esc(text)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
-    `<span class="names"><a class="model-name" href="models/${run.run}/" title="${esc(about)}">${esc(text)}</a></span></div></td>`;
+    `<span class="names">${familyIcon(run)}<a class="model-name" href="models/${run.run}/" title="${esc(about)}">${esc(text)}</a></span></div></td>`;
 }
 
 function accuracyCell(run) {
@@ -842,9 +842,17 @@ const familyOf = run => SETTINGS.families[run.run];
 const familyColour = run => SETTINGS.familyColours[familyOf(run)];
 /* The families among a chart's setups, in the chart's order. */
 const familiesIn = runs => [...new Set(runs.map(familyOf))];
-/* The legend of a chart's colours: each of its families with its colour. */
+/* A family's icon (the page's family sprite, sitebuild/site.py family_sprite), left of a setup's name: the maker's
+   mark or the family's letter, hidden from screen readers, so the name stays the accessible text. */
+const familyIconId = name => `fi-${name.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+const familyIconOf = name => `<svg class="fam-icon" aria-hidden="true" focusable="false"><use href="#${familyIconId(name)}"/></svg>`;
+const familyIcon = run => familyIconOf(familyOf(run));
+/* The same icon inside a chart's SVG, 14 px with its top-left corner at (x, y). */
+const chartIcon = (run, x, y) =>
+  `<use class="fam-icon" href="#${familyIconId(familyOf(run))}" x="${x}" y="${y}" width="14" height="14" aria-hidden="true"/>`;
+/* The legend of a chart's colours: each of its families with its colour and icon. */
 const familyLegend = families =>
-  families.map(name => `<span><i class="swatch" style="background:${SETTINGS.familyColours[name]}"></i>${esc(name)}</span>`).join(' ');
+  families.map(name => `<span><i class="swatch" style="background:${SETTINGS.familyColours[name]}"></i>${familyIconOf(name)}${esc(name)}</span>`).join(' ');
 
 const ticksLog = (low, high) => {
   const ticks = [];
@@ -930,14 +938,18 @@ function rowLabel(labels, run, y, row, width, labelWidth, full) {
   const weight = selected ? 700 : 400;
   const { name, detail } = labels.get(run);
   const labelClass = `label${selected ? ' is-selected' : ''}`;
+  /* The family's icon (chartIcon) goes left of the name, 18 px with its gap, so the name has 18 px less. */
   if (PHONE.matches) {
-    const first = truncate(name, width - 4, weight);
-    const rest = detail ? truncate(` · ${detail}`, width - 4 - textWidth(first, weight), weight, 12) : '';
-    return `<text class="${labelClass}" x="2" y="${y + 13}"><title>${esc(full)}</title>${esc(first)}${rest ? `<tspan class="detail">${esc(rest)}</tspan>` : ''}</text>`;
+    const first = truncate(name, width - 22, weight);
+    const rest = detail ? truncate(` · ${detail}`, width - 22 - textWidth(first, weight), weight, 12) : '';
+    return `${chartIcon(run, 2, y + 2)}<text class="${labelClass}" x="20" y="${y + 13}"><title>${esc(full)}</title>${esc(first)}${rest ? `<tspan class="detail">${esc(rest)}</tspan>` : ''}</text>`;
   }
-  const first = `<tspan x="${labelWidth}" y="${detail ? y + 15 : y + row / 2 + 4}">${esc(truncate(name, labelWidth, weight))}</tspan>`;
+  const shown = truncate(name, labelWidth - 18, weight);
+  const firstY = detail ? y + 15 : y + row / 2 + 4;
+  const first = `<tspan x="${labelWidth}" y="${firstY}">${esc(shown)}</tspan>`;
   const second = detail ? `<tspan class="detail" x="${labelWidth}" y="${y + 28}">${esc(truncate(detail, labelWidth, weight, 12))}</tspan>` : '';
-  return `<text class="${labelClass}" text-anchor="end"><title>${esc(full)}</title>${first}${second}</text>`;
+  return `${chartIcon(run, Math.round(labelWidth - textWidth(shown, weight) - 18), firstY - 11)}` +
+    `<text class="${labelClass}" text-anchor="end"><title>${esc(full)}</title>${first}${second}</text>`;
 }
 
 /* One measure (MEASURES) as horizontal bars, one card on the page: accuracy, the calibration gap, latency or cost. */
@@ -1301,7 +1313,7 @@ function costTable(box) {
     /* With both kinds in one table, a chat model says so. */
     const chat = state.models === 'all' && !isDecision(run) ? '<span class="small">Chat model</span>' : '';
     const tag = pareto.has(run) ? ' <span class="pareto-tag">Pareto</span>' : '';
-    return `<tr><td class="model"><a class="model-name" href="models/${run.run}/">${esc(labels.get(run).text)}</a>${tag}${chat}</td>` +
+    return `<tr><td class="model">${familyIcon(run)}<a class="model-name" href="models/${run.run}/">${esc(labels.get(run).text)}</a>${tag}${chat}</td>` +
       `<td class="num">${cost == null ? `<span class="nm">${costMissing(run)}</span>` : esc(priceText(run))}</td>` +
       `<td class="num">${cost == null ? '' : timesText(cost / costPer1000(cheapest))}</td>` +
       `<td class="num">${percent(overallAccuracy(run))}</td>` +
@@ -1326,6 +1338,11 @@ function costTable(box) {
   document.querySelector('[data-cost-sub]').textContent = `${group[0].toUpperCase()}${group.slice(1)}, whatever the filters or the model selection · ` +
     'cheapest first, with accuracy, latency, the confidence cutoff and hallucination beside the cost · lower cost is better';
 }
+
+/* The family icons a chart's labels use, as symbols to go with it: a downloaded image has no page sprite. */
+const usedIcons = svg =>
+  `<defs>${[...new Set([...svg.querySelectorAll('use.fam-icon')].map(use => use.getAttribute('href')))]
+    .map(href => document.querySelector(href)?.outerHTML ?? '').join('')}</defs>`;
 
 /* A chart as a PNG that keeps what it shows: the condition (measure and filters), the setups, the chart's notes with any
    setup it could not label, and the results version, with the page's address. Text is wrapped to the chart's width;
@@ -1379,7 +1396,7 @@ async function downloadChart(name) {
   const markup =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${total}" viewBox="0 0 ${width} ${total}">` +
     `<rect width="100%" height="100%" fill="${getComputedStyle(box.closest('.panel')).backgroundColor}"/>` +
-    `<g transform="translate(0 ${head})">${clone.innerHTML}</g>${texts.join('')}</svg>`;
+    `<g transform="translate(0 ${head})">${clone.innerHTML}</g>${texts.join('')}${usedIcons(clone)}</svg>`;
   const url = URL.createObjectURL(new Blob([markup], { type: 'image/svg+xml' }));
   try {
     const image = new Image();

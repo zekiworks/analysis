@@ -85,7 +85,7 @@ def build(site: Site) -> dict[str, str]:
 
     def accuracy_card(group: str) -> str:
         members = group_models(site, data, group)
-        rows = [{"label": label(site, model), "href": href(site, model),
+        rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
                  "text": f"{pct(model['english']['accuracy'], digits)} · {model['english']['right']:,}",
                  "bars": [{"value": model["english"]["accuracy"], "colour": family(model)["colour"]}],
                  "title": f"{label(site, model)}: {model['english']['right']:,} of {total:,} right in English "
@@ -98,7 +98,7 @@ def build(site: Site) -> dict[str, str]:
 
     rated = sorted(((by_run[run], counts) for run, counts in english_idk if counts["non_hallucination"] is not None),
                    key=lambda pair: (-pair[1]["non_hallucination"], label(site, pair[0]).casefold()))
-    rate_rows = [{"label": label(site, model), "href": href(site, model),
+    rate_rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
                   "text": f"{pct(counts['non_hallucination'], digits)} · {pct(counts['attempt_rate'], digits)}",
                   "bars": [{"value": counts["non_hallucination"], "colour": family(model)["colour"]}],
                   "title": f"{label(site, model)}: {counts['dont_know']:,} “{option}” of "
@@ -154,7 +154,7 @@ def build(site: Site) -> dict[str, str]:
                     f'<span class="small">answered {pct(counts["attempt_rate"], digits)}</span>')
             values += [measure_cell(site, model, "cost", "english"), measure_cell(site, model, "latency", "english")]
             run = site.by_id[model["turkish_run"]]
-            name = (f'<td class="model"><a class="model-name" href="{href(site, model)}" '
+            name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{href(site, model)}" '
                     f'title="{esc(" · ".join(filter(None, (site.detail(run), f"English run {model['run']}"))))}">'
                     f'{esc(label(site, model))}</a></td>')
             rows.append(f"<tr>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
