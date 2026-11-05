@@ -976,8 +976,10 @@ class WebGroundingTests(unittest.TestCase):
         self.assertEqual(grounded["metrics"]["price"]["per_request"], 0.001)
         self.assertIn("web grounding", run_label(grounded))
         self.assertNotIn("web grounding", run_label(plain))
+        # A whole-bank grounded run is a setup of its own in the main tables; its repeat is not.
         self.assertTrue(in_main_tables(plain))
-        self.assertFalse(in_main_tables(grounded))
+        self.assertTrue(in_main_tables(grounded))
+        self.assertFalse(in_main_tables(repeat))
         records = {record["run_key"]: record for record in (plain, grounded, repeat)}
         sets = run_repeats(connection, records, path.parent)
         self.assertEqual([item["run_keys"] for item in sets], [[grounded["run_key"], repeat["run_key"]]])

@@ -354,8 +354,8 @@ options followed by the start of the state) and adds the top results to the stat
 as `search_results`, stored with each answer. Without the flag the request is unchanged. The mode is part of the run's
 identity and record (`perplexity_mode`), so a grounded run never resumes one without it, and its repeats form a
 configuration of their own. Its cost adds Perplexity's $0.001 per search, one per request, to the input tokens, which
-include the evidence (`WEB_GROUNDING_PRICES`). Grounded runs stay out of the main tables, since their searches can find
-the bank's sources, and `--export-answers` carries their mode.
+include the evidence (`WEB_GROUNDING_PRICES`). A whole-bank grounded run is a setup of its own in the main tables (the
+site reports what its searches found, the bank's sources among them), and `--export-answers` carries its mode.
 
 `run_english.sh LANE…` runs the English reading track: the kept reading questions (`ENGLISH_KEPT`) in their English
 translation (`ENGLISH_TRANSLATIONS`, made by `translate_reading.py`), with the options under "Options:" and the System

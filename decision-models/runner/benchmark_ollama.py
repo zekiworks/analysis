@@ -5397,15 +5397,14 @@ def run_doubt(
 
 def in_main_tables(result: dict[str, Any]) -> bool:
     """Whether a run belongs in the report's main tables: a run over its question bank's whole question
-    set, neither a repeat nor a run with a replaced correct option, the "I don't know" option, in English or with web
-    grounding (whose searches can find the bank's sources)."""
+    set, neither a repeat nor a run with a replaced correct option, the "I don't know" option or in English. A run with
+    web grounding is a setup of its own (its run identity holds the mode)."""
     return (
         result.get("replace_key_text") is None
         and not result.get("dont_know")
         and not result.get("english")
         and result.get("repeat") is None
         and result.get("rerun") is None
-        and result.get("perplexity_mode") is None
         and result["evaluated"] == result["eligible_total"]
     )
 
