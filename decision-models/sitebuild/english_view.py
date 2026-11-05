@@ -18,8 +18,8 @@ import json
 from typing import Any
 
 from sitebuild.english_reading import (PATH as COMPARISON, RECORD, TRANSLATORS, anchor, check_dont_know, cost_note,
-                                       difference_card, english_only, experiments_note, group_models, label, limit_note,
-                                       measure_card, measure_cell, measure_heads, missing_note, noun)
+                                       english_only, experiments_note, group_models, label, limit_note, measure_card,
+                                       measure_cell, measure_heads, missing_note, noun)
 from sitebuild.site import (DECISION_ONLY, GROUPS, NOT_MEASURED, Site, chat_note, cost_per, cost_unit_in, esc,
                             family_legend, hbars, pct, rel, shown)
 from sitebuild.vision import cell, joined
@@ -128,8 +128,7 @@ def build(site: Site) -> dict[str, str]:
     def part(key: str, title: str, cards: str) -> str:
         return f'<section class="measure" id="{key}" aria-label="{title}">{cards}</section>'
 
-    charts = (part("accuracy", "Accuracy", "".join(difference_card(site, data, group, href, shown(group)) + accuracy_card(group)
-                                                   for group in GROUPS if counts[group]))
+    charts = (part("accuracy", "Accuracy", "".join(accuracy_card(group) for group in GROUPS if counts[group]))
               + part("non-hallucination", "Non-hallucination", note + rates)
               + "".join(part(key, title, "".join(measure_card(site, data, group, key, ("english",), href, method)
                                                  for group in GROUPS if counts[group]))

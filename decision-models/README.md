@@ -184,8 +184,7 @@ python3 -m http.server 8000                                # preview at http://1
     that tell them apart, as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
     (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: under a one-sentence lead
     and the translation check's limit (`limit_note`; neither English page has a links row of its own, row 3 does that),
-    the language difference per group (English minus Turkish in points, `difference_card`, the first chart of both
-    English pages), accuracy per group, the
+    accuracy per group first (ranked by English accuracy), the
     decision models' non-hallucination with "I don't know" in English, cost per 1,000 questions and median latency per
     request of each first English run per group (`english_reading.models[].cost.english` and `.latency.english`, log
     scale, Not measured named in the note; `measure_card` in `sitebuild/english_reading.py`), then the table per group
@@ -229,8 +228,8 @@ python3 -m http.server 8000                                # preview at http://1
     check that d1-ultra's worst run stays below their best at every whole percent up to 98%; d1-ultra's English runs at
     95%; `high_confidence`). Every "I don't know" table leads with Answered
     ((right + wrong) / questions) and Wrong of answers (wrong / (right + wrong)), the non-hallucination rate after them.
-    Turkish vs English opens with one sentence, the headline and the translation check's limit, then its charts: the
-    language difference (English minus Turkish, in points), accuracy in Turkish and in English and the paired test of the two (the
+    Turkish vs English opens with one sentence, the headline and the translation check's limit, then its charts: accuracy
+    in Turkish and in English first (ranked by English accuracy), then the paired test of the two (the
     questions only one of them got right, with p adjusted by Holm over every English setup), then its main table (ordered
     by English accuracy: accuracy in Turkish and in English with the difference; for decision models, with "I don't
     know" written the same in both languages, the Turkish runs being the option-word check's, Answered, Wrong of answers

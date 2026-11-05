@@ -8,8 +8,8 @@ overrides by run, and the structural check's facts) and `model_languages`.
 
 Every part that depends on the setups shown comes once per group of the view bar (GROUPS: all, decision, chat;
 data-models, toggled by site.js; the all group is the one shown without JavaScript), its counts and sentences computed
-for that group, its setups ranked within it: the face's charts (the language difference first, difference_card(), then
-accuracy in both languages and the paired test, Site hbars; cost and latency of the Text tab run and the first English
+for that group, its setups ranked within it: the face's charts (accuracy in both languages first, ranked by English
+accuracy, then the paired test, Site hbars; cost and latency of the Text tab run and the first English
 run, measure_card(), from english_reading.models[]'s cost and latency), the main table (main_table(): accuracy, "I don't
 know" in both languages, cost and latency, the rank in both languages and the languages the model card lists), the
 risk-coverage plots, the Results table and the setups without an English run. The intro is one sentence, the headline
@@ -504,9 +504,9 @@ def headline(site: Site, data: dict[str, Any], group: str) -> str:
 
 
 def face(site: Site, data: dict[str, Any], group: str) -> str:
-    """A group's copy of the tab's face: three chart cards, the language difference (difference_card), accuracy in
-    Turkish and in English, and the paired test of the two (the questions only one side got right, with p adjusted by
-    Holm over every English setup), for the group's setups, every number from results.json's english_reading."""
+    """A group's copy of the tab's face: two chart cards, accuracy in Turkish and in English first (ranked by English
+    accuracy), then the paired test of the two (the questions only one side got right, with p adjusted by Holm over every
+    English setup), for the group's setups, every number from results.json's english_reading."""
     digits = site.config["percent_digits"]
     total, family = data["questions"], len(data["models"])
     models = group_models(site, data, group)
@@ -564,46 +564,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         f"<span>{verdict}</span>",
         top=4 * quarter, tick=lambda value: f"{value:,.0f}", head=TR_EN)
     return (f'<section class="charts" aria-label="Charts" {shown(group)}>'
-            f"{difference_card(site, data, group, href)}{accuracy}{paired}</section>")
-
-
-def difference_card(site: Site, data: dict[str, Any], group: str, link: Callable[[Site, dict[str, Any]], str],
-                    attributes: str = "") -> str:
-    """A group's chart of the language difference, the first chart of both English pages: each setup's English accuracy
-    minus its Turkish accuracy on the kept questions, in points, as a bar from the middle line (right: higher in
-    English, striped as the English bars), largest first; * marks a difference significant after Holm's correction over
-    every English setup. The axis spans an even number of points each way, so its quarter ticks are whole points."""
-    digits = site.config["percent_digits"]
-    total, family = data["questions"], len(data["models"])
-    models = sorted(group_models(site, data, group), key=lambda model: (-model["difference"], label(site, model).casefold()))
-    half = max(2, 2 * math.ceil(max(100 * abs(model["difference"]) for model in models) / 2))
-    rows = []
-    for model in models:
-        points = 100 * model["difference"]
-        start, end = sorted((half, half + points))
-        rows.append({
-            "label": label(site, model), "family": site.families[model["turkish_run"]]["name"], "href": link(site, model),
-            "text": f"{points:+.{digits}f}{' *' if significant(model) else ''}", "marker": half,
-            "bars": [{"start": start, "value": end, "colour": site.families[model["turkish_run"]]["colour"],
-                      "kind": "english" if points > 0 else ""}],
-            "title": f"{label(site, model)}: {pct(model['english']['accuracy'], digits)} in English, "
-                     f"{pct(model['turkish']['accuracy'], digits)} in Turkish ({points:+.{digits}f} points); exact McNemar "
-                     f"{bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"})
-    found = sum(1 for model in models if significant(model))
-    count = len(models)
-    return (f'<figure class="panel chart-card" id="{anchor("chart-difference", group)}"{" " + attributes if attributes else ""}>'
-            '<div class="chart-head"><h2>English minus Turkish</h2>'
-            f'<p class="chart-sub">Points of accuracy on the {total:,} kept reading questions: each of the {bp.in_words(count)} '
-            f"{noun(group, count)}' first English run minus its Text tab run, largest first · right of the middle line: "
-            "higher in English</p></div>"
-            + hbars(rows, top=2 * half, tick=lambda value: f"{value - half:+.0f}" if value != half else "0",
-                    head=("English − Turkish", "EN − TR"))
-            + '<p class="chart-legend"><span><i class="swatch swatch-english"></i>Higher in English, right of the line, '
-            "striped</span> <span>Higher in Turkish, left of it</span> "
-            f"<span>* Significant after Holm's correction over all {family} English {noun('all', family)} (p below "
-            f"{SIGNIFICANT:g}): {bp.in_words(found)} of these {bp.in_words(count)}.</span> "
-            + family_legend([site.families[model["turkish_run"]] for model in models]) + "</p></figure>")
-
+            f"{accuracy}{paired}</section>")
 
 
 def limit_note(translator: str, method: str) -> str:

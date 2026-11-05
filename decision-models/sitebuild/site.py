@@ -172,8 +172,10 @@ def icon_id(name: str) -> str:
 @cache
 def family_sprite() -> str:
     """Every model family's icon as an SVG symbol, hidden, once on every page (topbar): the maker's official mark
-    (family_icons.MARKS, by its page_config.json icon), drawn in the colour of the text beside it, or otherwise the
-    family's first letter on its colour, the letter dark or white, whichever reads better on it."""
+    (family_icons.MARKS, by its page_config.json icon), drawn in the colour of the text beside it, or otherwise a plain
+    shape on the family's colour (no letter, so copying a name never picks one up): circle, diamond, triangle or ring,
+    chosen by the family's name so that families of close colours still differ, dark or white, whichever reads better
+    on the colour."""
     from sitebuild.family_icons import MARKS
 
     symbols = []
@@ -183,9 +185,12 @@ def family_sprite() -> str:
         else:
             red, green, blue = (int(family["colour"][index:index + 2], 16) / 255 for index in (1, 3, 5))
             ink = "#111" if 0.2126 * red + 0.7152 * green + 0.0722 * blue > 0.45 else "#fff"
-            inner = (f'<rect x="1" y="1" width="22" height="22" rx="5" fill="{family["colour"]}"/>'
-                     f'<text x="12" y="17.5" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" '
-                     f'font-weight="700" fill="{ink}">{esc(family["name"][0].upper())}</text>')
+            shape = (f'<circle cx="12" cy="12" r="5" fill="{ink}"/>',
+                     f'<polygon points="12,5.5 18.5,12 12,18.5 5.5,12" fill="{ink}"/>',
+                     f'<polygon points="12,6 18.5,17.5 5.5,17.5" fill="{ink}"/>',
+                     f'<circle cx="12" cy="12" r="5" fill="none" stroke="{ink}" stroke-width="2.6"/>')[
+                sum(map(ord, family["name"])) % 4]
+            inner = f'<rect x="1" y="1" width="22" height="22" rx="5" fill="{family["colour"]}"/>{shape}'
         symbols.append(f'<symbol id="{icon_id(family["name"])}" viewBox="0 0 24 24">{inner}</symbol>')
     return f'<svg class="family-sprite" aria-hidden="true" width="0" height="0">{"".join(symbols)}</svg>'
 
@@ -203,8 +208,8 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
           head: tuple[str, str] | None = None, divisions: int = 4, columns: list[tuple[str, str]] | None = None) -> str:
     """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
     readable at any width and in both themes. Each row: label, family (optional, whose icon goes before it), href (optional), bars (each a value from 0 to top, with a
-    colour, a kind (a CSS class) or both: a kind's pattern, as the English bar's stripes, goes over the colour; a bar with
-    a start runs from start to value, as a difference from a middle line), marker (optional, a value drawn as a line),
+    colour, a kind (a CSS class) or both: a kind's pattern, as the English bar's stripes, goes over the colour), marker
+    (optional, a value drawn as a line),
     text (the value as shown; or html, the value as HTML, as a cost in both units) or texts (one value per bar, each
     beside its bar) and title (the tooltip). The axis runs from 0 to top, with a tick and a line at each quarter (or each
     of the divisions), in percent unless tick writes a value its way, as HTML (aa-decision-index/ writes dollars;
@@ -212,8 +217,7 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     "TR · EN"). With columns, several value columns, each named so: a row's texts then give one value per column
     instead. A row's group (optional) heads it and the rows after it of the same group, as a small line across the chart
     (web-grounding/ names each set of questions so)."""
-    share = lambda value: 100 * min(max(value, 0.0), top) / top  # noqa: E731
-    place = lambda value: f"{share(value):.4g}%"  # noqa: E731
+    place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
     ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / divisions)}">'
                     f"{write(top * index / divisions)}</span>" for index in range(divisions + 1))
@@ -231,10 +235,8 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
         if row.get("family"):
             label = family_icon(row["family"]) + label
         fills = "".join(
-            f'<span class="hbar-fill{" " + bar["kind"] if bar.get("kind") else ""}" style="'
-            + (f'margin-left:{place(bar["start"])};width:{share(bar["value"]) - share(bar["start"]):.4g}%' if "start" in bar
-               else f'width:{place(bar["value"])}')
-            + f'{";background-color:" + bar["colour"] if bar.get("colour") else ""}"></span>' for bar in row["bars"])
+            f'<span class="hbar-fill{" " + bar["kind"] if bar.get("kind") else ""}" style="width:{place(bar["value"])}'
+            f'{";background-color:" + bar["colour"] if bar.get("colour") else ""}"></span>' for bar in row["bars"])
         marker = f'<span class="hbar-marker" style="left:{place(row["marker"])}"></span>' if row.get("marker") is not None else ""
         if columns:
             values = "".join(f'<span class="hbar-value">{esc(text)}</span>' for text in row["texts"])
