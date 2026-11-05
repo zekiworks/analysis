@@ -132,7 +132,9 @@ def distinct_labels(site: Site, runs: list[dict[str, Any]]) -> dict[int, str]:
             parts.append(bp.reasoning_label(run["reasoning"]))
         if chat or differs("questions_per_request"):
             parts.append(f"{run['questions_per_request']}/request")
-        labels[run["run"]] = f"{base[run['run']]} ({', '.join(parts)})" if parts else base[run["run"]]
+        # A row name that already ends in a bracket, "GPT-6 Luna (chat API)", takes the settings inside it.
+        name = base[run["run"]]
+        labels[run["run"]] = (f"{name[:-1]}, {', '.join(parts)})" if name.endswith(")") else f"{name} ({', '.join(parts)})") if parts else name
     if len(set(labels.values())) != len(labels):
         raise SystemExit("english_reading: two setups have the same name and settings: "
                          + ", ".join(sorted(label for label in labels.values() if list(labels.values()).count(label) > 1)))
