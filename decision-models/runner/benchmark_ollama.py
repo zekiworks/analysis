@@ -3099,17 +3099,21 @@ def reported_decimals(value: float) -> int:
 
 # Models whose output reports each option's probability rounded to a fixed number of decimal places, so that the
 # probabilities sum to 1 only within that rounding: Nace.AI's Drex 2.0 API reports 4 (smoke run 333; Ümit's decision, 31
-# October 2026), and Base Labs' elephant-1 and mammoth-1 report 6, rounded by their model card's loader (qev's answers.py;
-# smoke runs 356 and 359; the user's decision, 1 November 2026). Their smoke acceptance allows the sum to miss 1 by half a
-# unit in that place per option; every other run must sum to 1 to 7 decimal places.
+# October 2026), Base Labs' elephant-1 and mammoth-1 report 6, rounded by their model card's loader (qev's answers.py;
+# smoke runs 356 and 359; the user's decision, 1 November 2026), and meraGPT's decider-1 API and Clef's own model code
+# (Clef and Clef-flash) report 4 (meraGPT's English smoke run 561, Clef's 538; Ümit's decision through Zeki, bus #1152,
+# 5 November 2026). Their smoke acceptance allows the sum to miss 1 by half a unit in that place per option; every other
+# run must sum to 1 to 7 decimal places.
 ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     ("nace", "drex-v2.0"): 4, ("baselabs", "baselabs/elephant-1"): 6, ("baselabs", "baselabs/mammoth-1"): 6,
+    ("meragpt", "decider-1"): 4, ("clef", "clef"): 4, ("clef", "clef-flash"): 4,
 }
 # Hosted models whose API reports each option's probability as a 32-bit float, so that the probabilities sum to 1 only
-# within 32-bit rounding: SubQ Snap 1.1 (smoke run 345, 1 November 2026; every value an exact 32-bit float). Their smoke
-# acceptance allows the sum to miss 1 by one 32-bit machine epsilon (2^-23) per option when every value is an exact
-# 32-bit float (the user's decision, 1 November 2026).
-FLOAT32_PROBABILITIES: set[tuple[str, str]] = {("subq", "subq-snap-1.1")}
+# within 32-bit rounding: SubQ Snap 1.1 (smoke run 345, 1 November 2026; every value an exact 32-bit float; the user's
+# decision, 1 November 2026) and SubQ Snap Preview (English smoke run 562; Ümit's decision through Zeki, bus #1152, 5
+# November 2026). Their smoke acceptance allows the sum to miss 1 by one 32-bit machine epsilon (2^-23) per option when
+# every value is an exact 32-bit float.
+FLOAT32_PROBABILITIES: set[tuple[str, str]] = {("subq", "subq-snap-1.1"), ("subq", "subq-snap-preview")}
 
 
 def is_float32(value: float) -> bool:
