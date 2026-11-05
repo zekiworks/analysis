@@ -17,7 +17,8 @@ English tab, with a redirect at its earlier address english-reading/. index.html
 what is inside its <!-- build:name --> markers: the meta tags, the
 top bar, the intro (its counts from results.json), the counters, the results version, the plain table for
 readers without JavaScript (every setup, decision and chat models ranked together, the page's all view) and the note
-under it, the settings v3.js reads, the default setup count, the topic list and the questions in view. v3.js
+under it, the settings v3.js reads, the default setup count, the topic list, the part keys with their question counts
+and the questions in view. v3.js
 draws everything else in the browser from data/home.json and data/home-more.json, which this script writes from
 results.json (home_data). Every other page is generated whole by a module of sitebuild/
 (PAGE_MODULES) and written to <path>index.html. v1/ keeps the earlier page as it was on 14 October 2026, and v2/ and v3/
@@ -330,6 +331,19 @@ def topics(data: Data) -> str:
     return '<option value="">All topics</option>' + "".join(groups)
 
 
+def parts(data: Data) -> str:
+    """The part keys above the Accuracy chart, each with its question count (runs[].groups, as v3.js counts them): All,
+    Reading, Grammar. v3.js marks the pressed one."""
+    groups = data.runs[0]["groups"]
+    keys = (("all", "All", groups["reading"]["questions"] + groups["grammar"]["questions"]),
+            ("reading", "Reading", groups["reading"]["questions"]), ("grammar", "Grammar", groups["grammar"]["questions"]))
+    return "".join(
+        f'<button type="button" class="key" data-part="{part}" aria-pressed="{str(part == "all").lower()}">'
+        f'<span class="lamp" aria-hidden="true"></span>{label} <span class="key-count">{bp.count(count)}</span></button>'
+        for part, label, count in keys
+    )
+
+
 def page_settings(data: Data) -> str:
     """What v3.js needs beyond its data files: their versioned addresses, which runs are decision models, the topics'
     parts, the routing LLMs."""
@@ -640,6 +654,7 @@ def main() -> int:
         "version": version(data),
         "setups": setups(data),
         "topics": topics(data),
+        "parts": parts(data),
         "questions": f"{bp.count(data.results['questions'])} questions",
         "board": fallback_table(data, site),
         "settings": page_settings(data),

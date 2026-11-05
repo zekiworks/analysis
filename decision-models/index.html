@@ -20,10 +20,10 @@
   <meta name="twitter:image" content="https://zekiworks.github.io/analysis/decision-models/share/preview-dark-717629ef.png">
   <!-- /build:head -->
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if (sessionStorage.getItem("v3-swiped") === "1") document.documentElement.classList.add("swiped"); } catch (e) {}</script>
-  <!-- build:assets --><link rel="stylesheet" href="v3.css?v=0af7b908">
+  <!-- build:assets --><link rel="stylesheet" href="v3.css?v=b52870ef">
   <link rel="preload" href="data/home.json?v=935e2cdd" as="fetch" crossorigin>
   <script src="site.js?v=c2f48d35" defer></script>
-  <script src="v3.js?v=ac9551ca" defer></script><!-- /build:assets -->
+  <script src="v3.js?v=2db866eb" defer></script><!-- /build:assets -->
 </head>
 <body class="v3 home">
   <a class="skip" href="#main">Skip to content</a>
@@ -50,20 +50,21 @@
         <span class="setup-count bar-only" data-setups aria-live="polite"><!-- build:setups -->79 of 79 setups<!-- /build:setups --></span>
         <p class="filters-summary" data-summary aria-live="polite">All setups</p>
         <button type="button" class="key reset" data-control="reset" aria-disabled="true" data-tip="Nothing to reset: the filters show the defaults." aria-describedby="reset-why">Reset</button>
+        <button type="button" class="key share" data-control="share" aria-live="polite" title="Copy a link to this view: the part, the topic, the request size, the web filter and the models picked">Share view</button>
         <span class="visually-hidden" id="reset-why" data-reset-why>Nothing to reset: the filters show the defaults.</span>
       </div>
       <div class="filters-body" id="filters-body">
         <div class="group panel-only">
           <span class="setup-count" data-setups aria-live="polite"><!-- build:setups -->79 of 79 setups<!-- /build:setups --></span>
         </div>
-        <div class="group" role="group" aria-labelledby="part-label">
-          <span class="group-label" id="part-label">Part</span>
-          <span class="keys" data-control="part"><button type="button" class="key" data-part="all" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>All</button><button type="button" class="key" data-part="reading" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Reading</button><button type="button" class="key" data-part="grammar" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Grammar</button></span>
-        </div>
         <label class="group"><span class="group-label">Topic</span> <select data-control="topic"><!-- build:topics --><option value="">All topics</option><optgroup label="Reading"><option value="1">Word and phrase meanings</option><option value="2">Sentence meanings</option><option value="3">How a writer explains and develops ideas</option><option value="4">Topic and main point of a paragraph</option><option value="5">How a paragraph fits together</option><option value="6">Details that support a paragraph’s main point</option></optgroup><optgroup label="Grammar"><option value="7">Word types, such as nouns and verbs</option><option value="8">Groups of words built around a noun</option><option value="9">Verbs and their forms</option><option value="10">Verb forms used like nouns or modifiers</option><option value="11">Word endings and what they do</option><option value="12">How words are built</option><option value="13">The roles of words and phrases in a sentence</option><option value="14">How verbs show who acts and who receives the action</option><option value="15">Types of sentences</option><option value="16">Questions combining several grammar topics</option><option value="17">Sound patterns and changes</option><option value="18">Spelling</option><option value="19">Punctuation</option><option value="20">Problems in sentence wording</option></optgroup><!-- /build:topics --></select></label>
         <div class="group" role="group" aria-labelledby="qpr-label">
           <span class="group-label" id="qpr-label">Questions per request</span>
           <span class="keys" data-control="qpr"><button type="button" class="key" data-qpr="all" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>Any request size</button><button type="button" class="key" data-qpr="1" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>1 per request</button><button type="button" class="key" data-qpr="16" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>16 per request</button></span>
+        </div>
+        <div class="group" role="group" aria-labelledby="web-label">
+          <span class="group-label" id="web-label">Web</span>
+          <span class="keys" data-control="web"><button type="button" class="key" data-web="all" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>All</button><button type="button" class="key" data-web="with" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>With web</button><button type="button" class="key" data-web="without" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Without</button></span>
         </div>
         <div class="group models">
           <label class="group-label" for="model-search">Models</label>
@@ -75,6 +76,7 @@
           <button type="button" class="key" data-download="accuracy">Download PNG</button>
           <p class="chart-sub">Share of the questions answered right · higher is better</p>
         </div>
+        <div class="part-keys" role="group" aria-label="Part of the test"><span class="keys" data-control="part"><!-- build:parts --><button type="button" class="key" data-part="all" aria-pressed="true"><span class="lamp" aria-hidden="true"></span>All <span class="key-count">2,198</span></button><button type="button" class="key" data-part="reading" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Reading <span class="key-count">656</span></button><button type="button" class="key" data-part="grammar" aria-pressed="false"><span class="lamp" aria-hidden="true"></span>Grammar <span class="key-count">1,542</span></button><!-- /build:parts --></span></div>
         <div class="chart-box" data-chart="accuracy"><p class="note" role="status">Loading charts…</p></div>
       </figure>
       </section>

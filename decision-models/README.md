@@ -304,8 +304,14 @@ python3 -m http.server 8000                                # preview at http://1
     replays and live tests, repeats and Hallucination models), and `data/home-more.json` the runs' whole confidence
     and the cascades without their curves, which `v3.js` loads when the Calibration chart comes within a screen of
     the view or the Confidence or Routing tab opens; until a chart is drawn its box reads Loading charts…. Accuracy
-    for a part or topic and its Wilson 95% interval come from the counts there. The Routing tab keeps its four
-    choices in the URL. The page's fixed copy quotes numbers; the
+    for a part or topic and its Wilson 95% interval come from the counts there. The part keys (All, Reading, Grammar,
+    each with its question count) sit above the Accuracy chart; the Filters panel holds the topic, the request size,
+    the web filter (setups with `perplexity_mode`, which carry a "with web" badge in the lists unless their name already
+    says so, or the others) and the models picked. All of them and the Routing tab's four choices are kept in the URL
+    (`?part=reading&topic=3&size=16&web=with&setups=145,199`), so a reload, Back or a shared link (Share view copies
+    it) opens the same view.
+    The Routing tab's scope line names the questions its numbers cover: a live test's held-out questions
+    (`pipelines[].held_out`), the half rule's held-out half, or all questions. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,
     after writing the pages.
   - **Routing LLMs** (`ROUTE_LLMS` in `sitebuild/site.py`, each a key of `page_config.json`'s `named_runs`): Opus 5.5

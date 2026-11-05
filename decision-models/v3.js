@@ -201,7 +201,9 @@ function chartLabels(runs) {
   return labels;
 }
 
-const DEFAULT_FILTERS = { part: 'all', topic: null, qpr: 'all' };
+/* The filters, each also a key in the page URL (readUrl, writeUrl). web: every setup ('all'), those that searched the
+   web before answering ('with', perplexity_mode) or the others ('without'). */
+const DEFAULT_FILTERS = { part: 'all', topic: null, qpr: 'all', web: 'all' };
 const state = {
   ...DEFAULT_FILTERS,
   picked: new Set(),
@@ -278,11 +280,19 @@ const inGroup = run => state.models === 'all' || isDecision(run) === (state.mode
 /* Every setup of the group in view, whatever the filters. */
 const groupRuns = () => data.runs.filter(inGroup);
 
-/* The group's setups under the request-size filter and the models picked: the table's rows and the charts' setups. */
+/* A setup that searched the web before answering (perplexity_mode), and the small badge beside its displayed name in a
+   list, left out where that name already says "with web". */
+const usesWeb = run => Boolean(run.perplexity_mode);
+const saysWeb = name => /with web/i.test(name);
+const webBadge = (run, name) => (usesWeb(run) && !saysWeb(name) ? ' <span class="web-badge">with web</span>' : '');
+
+/* The group's setups under the request-size and web filters and the models picked: the table's rows and the charts'
+   setups. */
 function visibleRuns() {
   return groupRuns().filter(
     run =>
       (state.qpr === 'all' || run.questions_per_request === state.qpr) &&
+      (state.web === 'all' || usesWeb(run) === (state.web === 'with')) &&
       (!state.picked.size || state.picked.has(run.run)),
   );
 }
@@ -296,7 +306,7 @@ function modelCell(run, labels) {
   const about = `${runDetail(run)} · ${isDecision(run) ? 'Decision model' : 'Chat model'}`;
   return `<td class="model"><div class="who"><button type="button" class="pick" data-select="${run.run}" aria-pressed="${state.selected === run.run}" ` +
     `aria-label="Highlight ${esc(text)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
-    `<span class="names">${familyIcon(run)}<a class="model-name" href="models/${run.run}/" title="${esc(about)}">${esc(text)}</a></span></div></td>`;
+    `<span class="names">${familyIcon(run)}<a class="model-name" href="models/${run.run}/" title="${esc(about)}">${esc(text)}</a>${webBadge(run, text)}</span></div></td>`;
 }
 
 function accuracyCell(run) {
@@ -515,6 +525,24 @@ function routeTitle() {
   return [routeLlmName(llm), requestSize(state.route.qpr), routeRule().label, state.route.mode].join(' · ');
 }
 
+/* The questions the shown numbers cover: a live test's held-out questions (pipelines[].held_out, the chosen LLM, size
+   and rule first); the half rule's replay, the held-out half of each random split (passages stay whole, so its size
+   varies about half the questions); a fixed rule's replay, every question. */
+function routeScope() {
+  if (state.route.mode === 'live') {
+    const llm = routeLlm();
+    const measured = data.pipelines.filter(item => item.measured);
+    const test = measured.find(item => item.frontier === llm.runs['16'] && item.batch_size === state.route.qpr && item.rule === routeRule().live) ?? measured[0];
+    return { count: test.held_out, text: `${integer(test.held_out)} questions: the live test’s held-out half` };
+  }
+  if (state.route.rule === 'half') {
+    const half = Math.floor(data.questions / 2);
+    const splits = data.cascades?.[0]?.held_out.splits;
+    return { count: half, about: true, text: `About ${integer(half)} questions: the held-out half of the ${integer(data.questions)}${splits ? `, means over ${integer(splits)} random splits` : ''}` };
+  }
+  return { count: data.questions, text: `All ${integer(data.questions)} questions` };
+}
+
 const ROUTING_COLUMNS = [
   { key: 'share', label: 'Share of the LLM’s questions taken (%)', tip: SHARE_TIP, value: row => row.numbers?.share ?? null,
     cell: row => shareCell(row) },
@@ -639,7 +667,7 @@ function header(column, directions = false) {
 /* Why no row matches, and the way back. */
 function emptyReason() {
   if (!visibleRuns().length) {
-    const size = state.qpr === 'all' ? null : `ran at ${requestSize(state.qpr)}`;
+    const size = state.qpr === 'all' || state.web !== 'all' ? null : `ran at ${requestSize(state.qpr)}`;
     if (state.picked.size) return `None of the models you picked ${size ?? 'matches these filters'}.`;
     return `No setup ${size ?? 'matches these filters'}.`;
   }
@@ -673,7 +701,7 @@ function renderBoard() {
   const routing =
     state.tab === 'routing'
       ? `<h3 class="tab-title">Can a cheap model go first?</h3>${routingControls()}${routeMap()}<p class="table-title">${esc(routeTitle())}</p>` +
-        `<p class="scope">All ${integer(data.questions)} questions</p>`
+        `<p class="scope">${esc(routeScope().text)}</p>`
       : '';
   /* The note for a first model's cost basis († or the maker's list price), each only when such a saving is in the table;
      a maker's list price has no mark. */
@@ -752,6 +780,7 @@ function filterSummary() {
   if (state.topic != null) parts.push(units().find(unit => unit.number === state.topic).english);
   else if (state.part !== 'all') parts.push(state.part === 'reading' ? 'Reading' : 'Grammar');
   if (state.qpr !== 'all') parts.push(requestSize(state.qpr));
+  if (state.web !== 'all') parts.push(state.web === 'with' ? 'With web' : 'Without web');
   if (state.picked.size) parts.push(`${integer(state.picked.size)} picked`);
   return parts.join(' · ') || 'All setups';
 }
@@ -760,6 +789,7 @@ function renderFilters() {
   const press = (selector, test) => document.querySelectorAll(selector).forEach(button => button.setAttribute('aria-pressed', String(test(button))));
   press('[data-control="part"] [data-part]', button => button.dataset.part === state.part);
   press('[data-control="qpr"] [data-qpr]', button => button.dataset.qpr === String(state.qpr));
+  press('[data-control="web"] [data-web]', button => button.dataset.web === state.web);
   const topics = units().filter(unit => state.part === 'all' || unitPart(unit) === state.part);
   const group = part =>
     topics
@@ -774,8 +804,9 @@ function renderFilters() {
       .map(([part, html]) => `<optgroup label="${part === 'reading' ? 'Reading' : 'Grammar'}">${html}</optgroup>`)
       .join('');
   document.querySelector('[data-summary]').textContent = filterSummary();
-  /* The Routing tab ignores the part and topic filters: its table is computed on every question. */
-  document.querySelector('[data-count]').textContent = `${integer(state.tab === 'routing' ? data.questions : questionsInFilter())} questions`;
+  /* The Routing tab ignores the part and topic filters: its table covers the questions of the test shown (routeScope). */
+  const route = state.tab === 'routing' ? routeScope() : null;
+  document.querySelector('[data-count]').textContent = route ? `${route.about ? 'about ' : ''}${integer(route.count)} questions` : `${integer(questionsInFilter())} questions`;
   const reset = document.querySelector('.filters-bar [data-control="reset"]');
   const idle = atDefaults();
   reset.setAttribute('aria-disabled', String(idle));
@@ -792,13 +823,17 @@ function renderFilters() {
   filters.querySelector('[data-control="filters"]').setAttribute('aria-expanded', String(state.filtersOpen));
 }
 
+/* A picker row's settings (runDetail) without a "with web" its name already says. */
+const pickerDetail = run =>
+  runDetail(run).split(' · ').filter(part => !(saysWeb(rowName(run)) && saysWeb(part))).join(' · ');
+
 function renderPicker() {
   const list = document.querySelector('[data-control="picker"]');
   const group = (title, runs) =>
     `<fieldset><legend>${title}</legend>${runs
       .map(run =>
         `<label data-name="${esc(`${rowName(run)} ${runDetail(run)}`.toLowerCase())}"><input type="checkbox" value="${run.run}"${state.picked.has(run.run) ? ' checked' : ''}> ` +
-        `<span>${esc(rowName(run))} <span class="detail">${esc(runDetail(run))}</span></span></label>`)
+        `<span>${esc(rowName(run))}${webBadge(run, rowName(run))} <span class="detail">${esc(pickerDetail(run))}</span></span></label>`)
       .join('')}</fieldset>`;
   const sorted = groupRuns().sort((a, b) => overallAccuracy(b) - overallAccuracy(a));
   /* The models of the group in view; in the all view, the decision models, then the chat models. */
@@ -836,7 +871,8 @@ function resetFilters() {
 function chartScope(runs) {
   const head = `${integer(runs.length)} setup${runs.length === 1 ? '' : 's'}`;
   const group = MODEL_GROUPS[state.models];
-  const narrowed = [state.qpr === 'all' ? '' : `at ${requestSize(state.qpr)}`, state.picked.size ? 'the models you picked' : ''].filter(Boolean);
+  const web = { all: '', with: 'with web grounding', without: 'without web grounding' }[state.web];
+  const narrowed = [state.qpr === 'all' ? '' : `at ${requestSize(state.qpr)}`, web, state.picked.size ? 'the models you picked' : ''].filter(Boolean);
   if (!narrowed.length) return `${head}: ${group.every}.`;
   return `${head} of ${group.of(integer(groupRuns().length))}: ${narrowed.join(', ')}.`;
 }
@@ -1491,9 +1527,12 @@ async function downloadChart(name) {
 
 /* ---- Page address and history ---- */
 
-/* The open tab and, on the Routing tab, its four choices live in the page URL, so a link opens that exact view:
-   ?tab=routing&llm=astra&per-request=16&rule=half&test=replay. The filters stay out of the URL. */
+/* The open tab, the filters and, on the Routing tab, its four choices live in the page URL, so a link, a reload or Back
+   opens that exact view: ?part=reading&topic=3&size=16&web=with&setups=145,199 for the filters (size, not Routing's
+   per-request; setups, the models picked), ?tab=routing&llm=astra&per-request=16&rule=half&test=replay for Routing. A
+   key at its default is left out; an unknown value is ignored. */
 const llmSlug = llm => llm.slug;
+const FILTER_KEYS = ['part', 'topic', 'size', 'web', 'setups'];
 
 function readUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -1511,31 +1550,46 @@ function readUrl() {
   /* The model group from ?models= (the view bar's second row), as site.js reads it; missing or unknown means all. */
   const models = document.documentElement.dataset.modelsView;
   state.models = Object.hasOwn(MODEL_GROUPS, models ?? '') ? models : 'all';
+  /* The filters: a topic keeps the part it belongs to; the models picked stay those of the group in view. */
+  if (['reading', 'grammar'].includes(params.get('part'))) state.part = params.get('part');
+  const topic = units().find(unit => String(unit.number) === params.get('topic'));
+  if (topic) {
+    state.topic = topic.number;
+    if (state.part !== 'all' && state.part !== unitPart(topic)) state.part = unitPart(topic);
+  }
+  const qpr = Number(params.get('size'));
+  if (data.runs.some(run => run.questions_per_request === qpr)) state.qpr = qpr;
+  if (['with', 'without'].includes(params.get('web'))) state.web = params.get('web');
+  state.picked = new Set((params.get('setups') ?? '').split(',').map(Number).filter(id => byId.get(id) && inGroup(byId.get(id))));
   /* A link to Info (#info) opens it; the tables sit under the charts, outside Info. */
   if (window.location.hash === '#info') state.infoOpen = true;
 }
 
-/* The filters, the highlighted setup, the chart choices and whether Info is open, kept with the browser's history entry
-   rather than the URL, so Back from a model's page returns to the same tab and filters. */
+/* The search, the highlighted setup, the chart choices and whether Info is open, kept with the browser's history entry
+   rather than the URL, so Back from a model's page returns to the same view. */
 function remembered() {
-  const { part, topic, qpr, search, selected, filtersOpen, sort, across, infoOpen } = state;
-  return { part, topic, qpr, picked: [...state.picked], search, selected, filtersOpen, sort, across, infoOpen };
+  const { search, selected, filtersOpen, sort, across, infoOpen } = state;
+  return { search, selected, filtersOpen, sort, across, infoOpen };
 }
 
-/* Only the keys remembered() writes come back, so an entry saved by an earlier version of the page sets nothing else; the
-   models picked stay those of the group in view. */
+/* Only the keys remembered() writes come back, so an entry saved by an earlier version of the page sets nothing else
+   (the filters come from the URL). */
 function restore() {
   const saved = window.history.state?.v3;
   if (!saved) return;
-  ['part', 'topic', 'qpr', 'search', 'selected', 'filtersOpen', 'sort', 'across', 'infoOpen'].forEach(key => {
+  ['search', 'selected', 'filtersOpen', 'sort', 'across', 'infoOpen'].forEach(key => {
     if (saved[key] !== undefined) state[key] = saved[key];
   });
-  state.picked = new Set((saved.picked ?? []).filter(id => byId.get(id) && inGroup(byId.get(id))));
 }
 
 function writeUrl() {
   const params = new URLSearchParams(window.location.search);
-  ['tab', 'llm', 'per-request', 'rule', 'test'].forEach(key => params.delete(key));
+  ['tab', 'llm', 'per-request', 'rule', 'test', ...FILTER_KEYS].forEach(key => params.delete(key));
+  if (state.part !== 'all') params.set('part', state.part);
+  if (state.topic != null) params.set('topic', String(state.topic));
+  if (state.qpr !== 'all') params.set('size', String(state.qpr));
+  if (state.web !== 'all') params.set('web', state.web);
+  if (state.picked.size) params.set('setups', [...state.picked].sort((a, b) => a - b).join(','));
   if (state.tab !== 'accuracy') params.set('tab', state.tab);
   if (state.tab === 'routing') {
     params.set('llm', llmSlug(routeLlm()));
@@ -1543,7 +1597,8 @@ function writeUrl() {
     params.set('rule', routeRule().slug);
     params.set('test', state.route.mode);
   }
-  const query = params.toString();
+  /* The list of setups keeps its commas readable. */
+  const query = params.toString().replace(/%2C/g, ',');
   window.history.replaceState({ ...(window.history.state ?? {}), v3: remembered() }, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
 }
 
@@ -1593,6 +1648,30 @@ function openTab(tab) {
   loadMore().then(() => document.querySelector('.board-panel').scrollIntoView({ behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth', block: 'start' }));
 }
 
+/* Share view: copies the page URL, which holds the view (writeUrl), and says so on the key for two seconds. Where the
+   clipboard API is missing (a page not served over https), a hidden text field is copied instead. */
+let shareTimer = null;
+async function shareView(button) {
+  const url = window.location.href;
+  let copied = true;
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch (error) {
+    const field = Object.assign(document.createElement('textarea'), { value: url, readOnly: true });
+    field.className = 'visually-hidden';
+    document.body.append(field);
+    field.select();
+    copied = document.execCommand('copy');
+    field.remove();
+    button.focus();
+  }
+  button.textContent = copied ? 'Link copied' : 'Copy failed';
+  clearTimeout(shareTimer);
+  shareTimer = setTimeout(() => {
+    button.textContent = 'Share view';
+  }, 2000);
+}
+
 function onClick(event) {
   const jump = event.target.closest('a[data-goto-tab]');
   if (jump) {
@@ -1617,6 +1696,7 @@ function onClick(event) {
     state.part = dataset.part;
     if (state.topic != null && state.part !== 'all' && unitPart(units().find(unit => unit.number === state.topic)) !== state.part) state.topic = null;
   } else if (dataset.qpr) state.qpr = dataset.qpr === 'all' ? 'all' : Number(dataset.qpr);
+  else if (dataset.web) state.web = dataset.web;
   else if (dataset.tab) {
     state.tab = dataset.tab;
     state.sort = defaultSort(state.tab);
@@ -1630,7 +1710,10 @@ function onClick(event) {
   else if (dataset.routeMode) state.route.mode = dataset.routeMode;
   else if (dataset.across) state.across = dataset.across;
   else if (dataset.control === 'filters') state.filtersOpen = !state.filtersOpen;
-  else if (dataset.control === 'reset') {
+  else if (dataset.control === 'share') {
+    shareView(button);
+    return;
+  } else if (dataset.control === 'reset') {
     if (button.getAttribute('aria-disabled') === 'true') return;
     resetFilters();
   } else if (dataset.control === 'clear-picked') {

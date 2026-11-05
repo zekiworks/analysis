@@ -264,6 +264,15 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .group-label { color: var(--text-2); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .setup-count { font-family: var(--mono); font-size: .85rem; white-space: nowrap; }
 .filters-summary { flex: 1 1 12rem; margin: 0; color: var(--text-2); font-size: .85rem; }
+/* Share view keeps its width when it reads "Link copied". */
+.filters-bar .share { min-width: 6.6rem; white-space: nowrap; }
+/* The part keys above the Accuracy chart (All, Reading, Grammar with their question counts); they change the measure
+   charts as the filters do. */
+.part-keys { margin: 0 0 .5rem; }
+.key-count { margin-left: .3rem; font-family: var(--mono); font-size: .8em; color: var(--text-2); }
+/* Beside the name of a setup that searched the web before answering. */
+.web-badge { display: inline-block; margin-left: .35rem; padding: 0 .35rem; border: 1px solid var(--control-edge); border-radius: 999px;
+  color: var(--text-2); font-size: .72rem; font-weight: 600; line-height: 1.4; white-space: nowrap; vertical-align: .05em; }
 .chevron { display: inline-block; width: .7rem; font-size: .8rem; }
 .chevron::before { content: "\25B8"; }
 [aria-expanded="true"] > .chevron::before { content: "\25BE"; }
@@ -724,6 +733,10 @@ ul.price-list { padding-left: 1.25rem; }
   .filters .panel-only { display: flex; }
   .filters-summary { flex: 1 1 auto; min-width: 0; }
   .filters-body { gap: .8rem; }
+  /* The three part keys share one row. */
+  .part-keys .keys { flex-wrap: nowrap; }
+  .part-keys button.key { gap: .3rem; padding: .25rem .45rem; }
+  .key-count { margin-left: .15rem; }
   /* The leaderboard panel: the question count, then the four tabs on one row. */
   .board-panel { padding-top: .5rem; }
   .modebar { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "count" "tabs";
