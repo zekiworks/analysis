@@ -70,21 +70,75 @@ def models(setup: dict[str, Any]) -> str:
     return "all chat" if chat(setup) else "all decision"
 
 
+# The models a CLI handed requests to, as the page names them (pws/bench.py's stand_in).
+STAND_IN_NAMES = {"claude-opus-4-8": "Claude Opus 4.8"}
+
+
+def stand_in_words(setup: dict[str, Any]) -> str | None:
+    """The requests of a setup's runs that another model answered, which the scorer counted as failures."""
+    handed = setup.get("stand_in")
+    if not handed:
+        return None
+    total = sum(handed["requests"])
+    names = " and ".join(STAND_IN_NAMES.get(model, model) for model in handed["models"])
+    return f"{total} {'request' if total == 1 else 'requests'} handed to {names}, counted wrong"
+
+
+def setup_notes(setup: dict[str, Any]) -> str:
+    """A setup's method note (what its CLI adds) and cost note (what its estimate leaves out), as one sentence each."""
+    return " ".join(f"{text[0].upper()}{text[1:]}." for text in (setup.get("method_note"), setup.get("cost_note")) if text)
+
+
+def cost_kind(setup: dict[str, Any]) -> str:
+    """What a setup's cost is: an API usage cost estimate (list price × recorded usage, not the provider's bill), an
+    API-equivalent estimate (a subscription), or a list-price estimate (a model on our GPU)."""
+    return setup.get("cost_kind") or "API usage cost estimate"
+
+
+
 def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
     """Each setup with its run, family, view bar groups (models: "all decision" or "all chat") and chart label: its full
     name, with "chat" for a chat model, its interface where the setup names one (CLI, API: two rows of one model never
-    read the same), its host where the setup names one (Baseten, our GPU) and "with web" for a setup that searched where
-    the name does not say so. Ranked by mean accuracy."""
+    read the same), its host where the setup names one (Baseten, our GPU), "with web" for a setup that searched where
+    the name does not say so, and the requests another model answered (stand_in_words), so a mixed-model run never
+    reads as one model's. Ranked by mean accuracy."""
     out = []
     for setup in data["setups"]:
         run = setup_run(site, setup)
         name = site.row_name(run)
+        # The Text tab's route label ("GPT-6 Luna (chat API)", set apart from the Decisions API row) gives way to the
+        # setup's own interface here, so a row never reads "(chat API) (chat, CLI)".
+        if setup.get("interface") and name.endswith(" (chat API)"):
+            name = name.removesuffix(" (chat API)")
         marks = ((["chat"] if chat(setup) else []) + ([setup["interface"]] if setup.get("interface") else [])
                  + ([f"on {setup['host']}"] if setup.get("host") else [])
                  + (["with web"] if web(setup) and "with web" not in name else []))
+        inside = "; ".join(part for part in (", ".join(marks), stand_in_words(setup)) if part)
+        label = f"{name} ({inside})" if inside else name
         out.append({"setup": setup, "run": run, "family": site.families[run["run"]], "models": models(setup),
-                    "label": f"{name} ({', '.join(marks)})" if marks else name})
+                    "label": label})
     return sorted(out, key=lambda item: (-item["setup"]["accuracy"]["mean"], item["label"].casefold()))
+
+
+def cli_notes(items: list[dict[str, Any]]) -> str:
+    """The method section's notes on the CLI setups: a CLI is not only another way to the same model, so each CLI's
+    additions (method_note) and any requests it handed to another model (stand_in) are named per setup."""
+    lines = []
+    for item in items:
+        setup = item["setup"]
+        if setup.get("interface") != "CLI":
+            continue
+        parts = [f"{setup['method_note'][0].upper()}{setup['method_note'][1:]}"] if setup.get("method_note") else []
+        handed = setup.get("stand_in")
+        if handed:
+            parts.append(f"Claude Code's safety stops passed {sum(handed['requests'])} of its requests "
+                         f"({' + '.join(str(count) for count in handed['requests'])} over the runs, "
+                         f"{handed['questions']} {'question' if handed['questions'] == 1 else 'questions'}) to "
+                         + " and ".join(STAND_IN_NAMES.get(model, model) for model in handed["models"])
+                         + "; the scorer counted each as a failure (a refusal), not with that model's answer")
+        if parts:
+            lines.append(f"<li data-models=\"all chat\"><strong>{esc(item['label'])}.</strong> {esc('. '.join(parts))}.</li>")
+    return "".join(lines)
 
 
 def condition(item: dict[str, Any]) -> str:
@@ -212,7 +266,8 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
                      f"(runs {pct(setup['accuracy']['min'], 0)} to {pct(setup['accuracy']['max'], 0)}"
                      + (f"; 95% interval from the question sample {ci}" if ci else "") + "); "
                      + (f"no price: {no_price(setup)}" if cost is None else cost_words(cost["mean"] / 1000, bound(setup, mark)))
-                     + f"; median request {ms(median)} ms, 95th percentile {ms(p95)} ms"})
+                     + f"; median request {ms(median)} ms, 95th percentile {ms(p95)} ms"
+                     + (f". {setup_notes(setup)}" if setup_notes(setup) else "")})
     chart = hbars(rows, head=("Accuracy | Cost | Median · p95 ms", "Acc | Cost | ms"))
     return (f'<figure class="panel chart-card chart-wide" id="{anchor}"><div class="chart-head"><h2>Accuracy</h2>'
             f'<p class="chart-sub">Share of the {data["questions"]} public questions answered right, the mean of our '
@@ -244,10 +299,13 @@ def cost_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]], or
             "bars": [{"value": place(value / 1000), "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "html": cost_html(setup, value, mark) + esc(fee),
             "title": f"{item['label']}: " + cost_words(value / 1000, bound(setup, mark))
-                     + f"; {fee_words(setup)} ({setup['price']['basis']})"})
+                     + f", {cost_kind(setup)}; {fee_words(setup)} ({setup['price']['basis']})"
+                     + (f". {setup_notes(setup)}" if setup_notes(setup) else "")})
     unpriced = [item for item in items if item["setup"]["cost_per_million_questions"] is None]
     chart = hbars(rows, head=("Cost", "Cost"), tick=lambda offset: cost_tick(write(offset)), **axis)
-    lines = ["Without web: each run's tokens at the setup's list price, no search fee.",
+    lines = ["Every cost is an estimate: the list price × the tokens and searches our runs recorded, not a provider's "
+             "bill; for a subscription run, what the same usage would cost on the API (API-equivalent estimate).",
+             "Without web: each run's tokens at the setup's list price, no search fee.",
              "With web: the same, plus the provider's web search fee (“incl. search”)."]
     if any(upper(item["setup"]) for item in priced):
         lines.append(f"{mark} {note}")
@@ -344,7 +402,7 @@ def table(site: Site, data: dict[str, Any], items: list[dict[str, Any]], mark: s
     heads = [("Accuracy", f"mean of {data['runs_per_setup']} runs; under it the runs' range and the 95% interval from "
                           "the question sample; higher is better"),
              ("Median request", "ms; lower is better"), ("95th percentile request", "ms, nearest rank; lower is better"),
-             ("Cost", f"{cost_per()}, list prices; lower is better"),
+             ("Cost", f"{cost_per()}, estimate at list prices; lower is better"),
              ("Probability of the chosen answer", "mean; neither better nor worse on its own"),
              ("Wrong when sure", f"answers at ≥{pct(sure, 0)}, wrong of all, over the {data['runs_per_setup']} runs; "
                                  "lower is better")]
@@ -360,7 +418,9 @@ def table(site: Site, data: dict[str, Any], items: list[dict[str, Any]], mark: s
             spread(setup["median_request_seconds"], ms),
             spread(setup["p95_request_seconds"], ms),
             f'<span class="nm">No price</span><span class="small">{esc(no_price(setup))}</span>' if cost is None else
-            spread(cost, lambda value: cost_html(setup, value, mark)) + f'<span class="small">{fee}</span>',
+            spread(cost, lambda value: cost_html(setup, value, mark))
+            + f'<span class="small">{esc(cost_kind(setup))}; {fee}'
+            + (f"; {esc(setup['cost_note'])}" if setup.get("cost_note") else "") + "</span>",
         ]
         if "mean_chosen_probability" in setup:
             stated = '<span class="small">stated by the model</span>' if setup.get("confidence_kind") == "stated" else ""
@@ -371,7 +431,10 @@ def table(site: Site, data: dict[str, Any], items: list[dict[str, Any]], mark: s
         access = setup.get("access", run["access"])
         name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" '
                 f'title="{esc(site.detail(run))}">{esc(item["label"])}</a>'
-                f'<span class="small">{esc(access)}; <code>{esc(setup["request_model"])}</code></span></td>')
+                f'<span class="small">{esc(access)}; <code>{esc(setup["request_model"])}</code></span>'
+                + (f'<span class="small">{esc(setup["method_note"][0].upper() + setup["method_note"][1:])}.</span>'
+                   if setup.get("method_note") else "")
+                + "</td>")
         body.append(f'<tr data-models="{item["models"]}">{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{text}<span class="small">{direction}</span></th>'
                    for text, direction in zip(plain, [direction for _, direction in heads]))
@@ -624,7 +687,7 @@ def build(site: Site) -> dict[str, str]:
         {f"<li>{esc(upper_mark['mark'])} {esc(upper_note(items, upper_mark))}</li>" if upper_note(items, upper_mark) else ""}
         {f"<li>{esc(lower_note(items))}</li>" if lower_note(items) else ""}
         <li>{retried_note(items)}</li>
-        <li>Cost: each run's tokens at the runner's list price for the setup, the price the Text tab uses, over its {data['questions']} questions{", plus the web search fee for setups with web" + (" ($" + " or $".join(fees) + " per request for Perplexity)" if fees else "") if searched else ""}.</li>
+        <li>Cost: an estimate, each run's recorded tokens at the runner's list price for the setup, the price the Text tab uses, over its {data['questions']} questions{", plus the web search fee for setups with web" + (" ($" + " or $".join(fees) + " per request for Perplexity)" if fees else "") if searched else ""}. It is not a provider's bill: an API usage cost estimate for a run through an API key, an API-equivalent estimate for a run through a subscription, a list-price estimate for a model on our GPU. Where a fee is missing from the estimate, the setup's row says so.</li>
       </ul>
     </section>
     {dont_know_section(site, data, items)}
@@ -648,7 +711,8 @@ def build(site: Site) -> dict[str, str]:
         <li>Perplexity's own figures: {reported['on_percent']}% with web on these questions, with {ms(reported['on_median_ms'] / 1000)} ms at the median and {ms(reported['on_p95_ms'] / 1000)} ms at the 95th percentile from Perplexity's client (<a href="{esc(reported['source'])}">{esc(reported['title'])}</a>, {esc(long_date(reported['published']))}); the {reported['off_percent']}% without is Parallel's leaderboard figure.</li>
         <li>Parallel's leaderboard (public set, mean of three runs, evaluated {esc(long_date(parallel['evaluated']))}): {leaderboard} (<a href="{esc(parallel['source'])}">the benchmark's repository</a>).</li>
         <li>The questions and answers are Parallel's: {esc(data['name'])} version {esc(data['version'])}, gated, for evaluation only. We publish totals only, never a question, an answer or a per-question result.</li>
-        <li>What the runs cost us at list prices: {dollars(data['run_cost_usd'])}.</li>
+        <li>The runs' API usage cost estimate at list prices (subscription runs as API-equivalent estimates): {dollars(data['run_cost_usd'])}; not a provider's bill.</li>
+        {cli_notes(items)}
         {attempts_note(site, data)}
       </ul>
       <p class="note">Download: <a href="{rel(PATH, "pws-decisions.json")}" download>pws-decisions.json</a> (every number on this page, per run). The adapter is <code>pws/bench.py</code> in the repository.</p>

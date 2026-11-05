@@ -701,6 +701,50 @@ def setup_price(setup: dict[str, Any]) -> runner.Price | None:
 # The API rows' responses in the shape of a runner provider's: OpenAI's Responses API as xAI's, the Messages API's
 # summed usage as Claude Code's.
 USAGE_SHAPES = {"openai-api": "xai", "claude-api": "claude"}
+# Measured on 5 November 2026: the same 62 questions asked once through the Codex CLI (GPT-6.1 Sol, Terra and Luna, no
+# web) and through OpenAI's Responses API (GPT-6.1 Sol, the API row's first attempt) took 4,278 to 4,284 more input
+# tokens through Codex (median 4,280; 257 through the API), the context items Codex adds to every request.
+CODEX_ADDED_INPUT = {"questions": 62, "min": 4278, "median": 4280, "max": 4284, "api_median": 257}
+
+
+def cost_note_fields(setup: dict[str, Any], item: dict[str, Any], paths: list[Path]) -> dict[str, Any]:
+    """What a setup's cost is and leaves out, and how a CLI setup differs from a plain request, for the page:
+    cost_kind ("API usage cost estimate": list price x recorded usage, not the provider's bill; "API-equivalent
+    estimate" for a subscription; "list-price estimate" for a model on our GPU), cost_note (fees missing from the
+    estimate), method_note (a CLI's own additions) and stand_in (requests another model answered, counted as failures)."""
+    if item["cost_per_million_questions"] is None:
+        kind = None
+    elif item.get("host") == "our GPU":
+        kind = "list-price estimate"
+    elif item.get("billing") == "subscription":
+        kind = "API-equivalent estimate"
+    else:
+        kind = "API usage cost estimate"
+    notes, method = [], []
+    if item.get("cost_lower_bound"):
+        notes.append("the search fee is missing: the API reports no search count, so the estimate covers the tokens "
+                     "only")
+    if setup["provider"] == "openai" and setup.get("group") == "chat":
+        method.append(f"the Codex CLI adds its own context items to every request: {CODEX_ADDED_INPUT['min']:,} to "
+                      f"{CODEX_ADDED_INPUT['max']:,} more input tokens than OpenAI's Responses API took for the same "
+                      f"question ({CODEX_ADDED_INPUT['api_median']:,} there; {CODEX_ADDED_INPUT['questions']} questions "
+                      "compared), counted in the cost")
+    if setup["provider"] == "claude" and setup.get("group") == "chat":
+        method.append("Claude Code writes the prompt to its 1-hour cache, counted in the cost")
+        if setup["web"]:
+            method.append("Claude Code runs each web search through a separate Claude Haiku 5.5 call, whose tokens "
+                          "are counted in the cost at Haiku 5.5's list price")
+    fields: dict[str, Any] = {"cost_kind": kind, "cost_note": "; ".join(notes) or None,
+                              "method_note": "; ".join(method) or None}
+    handed = [[row for row in read_jsonl(path) if row.get("answered_by")] for path in paths]
+    if any(handed):
+        models = sorted({row["answered_by"] for rows in handed for row in rows})
+        fields["stand_in"] = {
+            "models": models, "requests": [len(rows) for rows in handed],
+            "questions": len({row["id"] for rows in handed for row in rows}),
+            "scored": "as failures (refusals), not with the other model's answers",
+        }
+    return fields
 
 
 def bootstrap_interval(args: argparse.Namespace, paths: list[Path]) -> dict[str, Any]:
@@ -981,6 +1025,7 @@ def command_summary(args: argparse.Namespace) -> None:
             item["mean_chosen_probability"] = spread([run["confidence"]["mean_chosen_probability"] for run in runs])
             item["sure_wrong"] = spread([run["confidence"]["sure_wrong"] for run in runs])
             item["sure"] = spread([run["confidence"]["sure"] for run in runs])
+        item.update(cost_note_fields(setup, item, paths))
         setups.append(item)
     # Our GPU setups of the chat models without three runs yet: they wait for the GPU queue.
     pending_chat = [{"setup": name, "provider": setup["provider"], "model": setup["model"], "run": setup["run"],
