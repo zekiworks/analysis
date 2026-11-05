@@ -2746,8 +2746,10 @@ def ask_openai(
     reasoning: str,
     verbose_log: TextIO | None,
     prompts: ChatPrompts = TURKISH_CHAT,
+    web: bool = False,
 ) -> tuple[list[str | None], str]:
-    """Answer a batch with a stated 0-1 confidence per question through the Codex CLI."""
+    """Answer a batch with a stated 0-1 confidence per question through the Codex CLI; with `web`, Codex's live web
+    search on (web_search="live", Codex's documented setting), otherwise off."""
     schema = confidence_schema(batch)
     prompt = make_prompt(batch, prompts.confidence_instruction, prompts)
     with tempfile.TemporaryDirectory(prefix="turkce-codex-") as temporary:
@@ -2757,7 +2759,7 @@ def ask_openai(
         output_path = temporary_path / "answer.json"
         instructions_path.write_text(prompts.confidence_system, encoding="utf-8")
         schema_path.write_text(json.dumps(schema), encoding="utf-8")
-        # Replace Codex's agent instructions, turn off web search and the tools that can be switched
+        # Replace Codex's agent instructions, turn off web search (unless `web`) and the tools that can be switched
         # off, and skip user config and rules. The prompt goes through stdin: given a prompt argument,
         # Codex also reads piped stdin and waits for it to close.
         command = [
@@ -2769,7 +2771,7 @@ def ask_openai(
             "-c",
             f'model_instructions_file="{instructions_path}"',
             "-c",
-            'web_search="disabled"',
+            f'web_search="{"live" if web else "disabled"}"',
             "exec",
             "--ephemeral",
             "--skip-git-repo-check",
@@ -2857,12 +2859,14 @@ def ask_claude(
     effort: str,
     verbose_log: TextIO | None,
     prompts: ChatPrompts = TURKISH_CHAT,
+    web: bool = False,
 ) -> tuple[list[str | None], str]:
-    """Answer a batch with a stated 0-1 confidence per question through the Claude Code CLI."""
+    """Answer a batch with a stated 0-1 confidence per question through the Claude Code CLI; with `web`, Claude Code's
+    WebSearch tool is the one tool it has (and is allowed without asking)."""
     schema = confidence_schema(batch)
     prompt = make_prompt(batch, prompts.confidence_instruction, prompts)
-    # Replace Claude Code's agent prompt and drop tools, settings, MCP servers and saved sessions so
-    # only the benchmark prompt reaches the model.
+    # Replace Claude Code's agent prompt and drop tools (all but WebSearch with `web`), settings, MCP servers and saved
+    # sessions so only the benchmark prompt reaches the model.
     command = [
         claude_bin,
         "--print",
@@ -2877,7 +2881,8 @@ def ask_claude(
         "--system-prompt",
         prompts.confidence_system,
         "--tools",
-        "",
+        "WebSearch" if web else "",
+        *(("--allowedTools", "WebSearch") if web else ()),
         "--setting-sources",
         "",
         "--strict-mcp-config",
@@ -2957,10 +2962,12 @@ def ask_gemini(
     thinking_level: str,
     verbose_log: TextIO | None,
     prompts: ChatPrompts = TURKISH_CHAT,
+    web: bool = False,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through the Gemini API's generateContent:
     the prompt, system instruction and schema the Claude and OpenAI providers use. Gemini 3 models take no
-    temperature, top_p or top_k, so the request sends none; the thinking level is set."""
+    temperature, top_p or top_k, so the request sends none; the thinking level is set. With `web`, the google_search
+    tool (Grounding with Google Search) is on."""
     payload = {
         "systemInstruction": {"parts": [{"text": prompts.confidence_system}]},
         "contents": [{"role": "user", "parts": [{"text": make_prompt(batch, prompts.confidence_instruction, prompts)}]}],
@@ -2970,6 +2977,8 @@ def ask_gemini(
             "thinkingConfig": {"thinkingLevel": thinking_level},
         },
     }
+    if web:
+        payload["tools"] = [{"google_search": {}}]
     result, _ = post_json(
         f"{GEMINI_URL}/models/{model}:generateContent",
         payload,
@@ -3030,11 +3039,12 @@ def json_answers(text: str) -> Any:
 
 
 def ask_xai(
-    model: str, batch: list[Question], timeout: float, effort: str, verbose_log: TextIO | None, prompts: ChatPrompts = TURKISH_CHAT
+    model: str, batch: list[Question], timeout: float, effort: str, verbose_log: TextIO | None, prompts: ChatPrompts = TURKISH_CHAT,
+    web: bool = False,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through xAI's Responses API, with the SuperGrok
     subscription's token (OMP's xai-oauth login): the prompt, system prompt and schema of the other chat providers,
-    the reasoning effort set, no temperature."""
+    the reasoning effort set, no temperature. With `web`, xAI's web_search tool is on."""
     payload = {
         "model": model,
         "instructions": prompts.confidence_system,
@@ -3043,6 +3053,8 @@ def ask_xai(
         "text": {"format": {"type": "json_schema", "name": "answers", "schema": confidence_schema(batch), "strict": True}},
         "reasoning": {"effort": effort},
     }
+    if web:
+        payload["tools"] = [{"type": "web_search"}]
     # A fresh token for every attempt: a retry after a 30-minute timeout must not send an expired one.
     def headers() -> dict[str, str]:
         return {"Content-Type": "application/json", "Authorization": f"Bearer {omp_token('xai-oauth')}"}
