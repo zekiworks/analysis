@@ -117,19 +117,20 @@ def model_colours(site: Site) -> dict[int, str]:
 
 
 def distinct_labels(site: Site, runs: list[dict[str, Any]]) -> dict[int, str]:
-    """Each setup's name among these setups, by run: its Text tab row name and, where another of them has that name, the
-    settings that tell them apart, as the home page's charts write them (chartLabels in v3.js): the variant, the
-    reasoning and the request size, "Gemini 3.8 Flash (low reasoning, 16/request)". Stops the build when two still
-    read the same."""
+    """Each setup's name among these setups, by run: its Text tab row name with its settings as the home page's charts
+    write them (chartLabels in v3.js): a chat model always with its reasoning and request size (Ümit via Zeki #1179,
+    "Gemini 4 Argon (low reasoning, 16/request)"), a decision model with the variant, reasoning or request size only
+    where another of these setups has its name. Stops the build when two still read the same."""
     base = {run["run"]: site.row_name(run) for run in runs}
     labels = {}
     for run in runs:
         same = [other for other in runs if base[other["run"]] == base[run["run"]]]
         differs = lambda field: len({other.get(field) for other in same}) > 1  # noqa: E731
+        chat = not site.decision(run)
         parts = [run["variant"]] if run.get("variant") and differs("variant") else []
-        if run.get("reasoning") and differs("reasoning"):
+        if run.get("reasoning") and (chat or differs("reasoning")):
             parts.append(bp.reasoning_label(run["reasoning"]))
-        if differs("questions_per_request"):
+        if chat or differs("questions_per_request"):
             parts.append(f"{run['questions_per_request']}/request")
         labels[run["run"]] = f"{base[run['run']]} ({', '.join(parts)})" if parts else base[run["run"]]
     if len(set(labels.values())) != len(labels):
