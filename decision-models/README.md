@@ -153,10 +153,16 @@ python3 -m http.server 8000                                # preview at http://1
     reading, `english/`; Turkish reading and grammar, the home page; English and Turkish, `turkish-vs-english/`), row 2
     the models (`?models=all|decision|chat`, all when missing). Each choice opens its page at the top, charts first, then
     the table. `site.js` marks the current group, keeps it in row 1's links and shows each `data-models` element only
-    for its groups; on any other page row 2 leads to the home page with that group. English reading
-    (`sitebuild/english_view.py`) shows the 17 models on the 547 kept reading questions: accuracy, and non-hallucination
-    with "I don't know" in English, then the table ranked by English accuracy; no chat model was run in English, so its
-    chat view (and the English and Turkish view's) is a note pointing to the Turkish test's chat models.
+    for its groups; on any other page row 2 leads to the home page with that group. The two English pages render, in
+    static HTML, one copy per group of every part that depends on the setups shown (`data-models="all"`, shown without
+    JavaScript; `decision` and `chat` hidden), with its counts and sentences computed for that group and its setups
+    ranked by English accuracy within it; the parts about decision models only appear once
+    (`data-models="all decision"`) with one note for the chat group, as no chat model was asked with an "I don't know"
+    option. A setup that shares its name with another English setup is labelled with the settings that tell them apart,
+    as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
+    (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: accuracy per group, the
+    decision models' non-hallucination with "I don't know" in English, then the table per group ranked by English
+    accuracy.
   - **Four tabs**: the site's four benchmarks, each with its own address and its own rankings, never combined: Text
     (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know`, `dont_know_option_word`, `hosted_glide_rerun` and
@@ -190,16 +196,25 @@ python3 -m http.server 8000                                # preview at http://1
     95%; `high_confidence`). Every "I don't know" table leads with Answered
     ((right + wrong) / questions) and Wrong of answers (wrong / (right + wrong)), the non-hallucination rate after them.
     Turkish vs English opens with its charts, accuracy in Turkish and in English with the paired test of the two (the
-    questions only one of them got right, with Holm-adjusted p), then its main table (accuracy in Turkish and in English
-    with the difference; with "I don't know" written the same in both languages, the Turkish runs being the option-word
-    check's, Answered, Wrong of answers and non-hallucination with the difference, then the Turkish "Bilmiyorum" runs in
-    a column of their own; the rank in each language and the languages each model card lists; Holm-significant
-    differences marked), then Liquid d1-ultra against each other model in English (the questions only one of the two got
-    right, the exact McNemar test with Holm over the others and a verdict; `english_reading.against_reference`), the
-    non-hallucination rate with an "I don't know" option in English against "Bilmiyorum" in Turkish with the
-    answered shares and the paired test of wrong answers, the same with "I don't know" in both languages (only the
-    language differs; `english_reading.dont_know_word`), risk and coverage on the kept questions (native points and
-    confidence curves per language), and the option-word check. The build writes
+    questions only one of them got right, with p adjusted by Holm over every English setup), then its main table (ordered
+    by English accuracy: accuracy in Turkish and in English with the difference; for decision models, with "I don't
+    know" written the same in both languages, the Turkish runs being the option-word check's, Answered, Wrong of answers
+    and non-hallucination with the difference, then the Turkish "Bilmiyorum" runs in a column of their own; the rank in
+    each language within the group and the languages each model card lists, Not checked without a
+    `model_languages` entry; Holm-significant differences marked), each per group; then, for decision models only,
+    Liquid d1-ultra against each other decision model in English (the questions only one of the two got right, the exact
+    McNemar test with Holm over the others and a verdict; `english_reading.against_reference`), the non-hallucination
+    rate with an "I don't know" option in English against "Bilmiyorum" in Turkish with the answered shares and the paired
+    test of wrong answers, the same with "I don't know" in both languages (only the language differs;
+    `english_reading.dont_know_word`) and the option-word check; then risk and coverage on the kept questions (the
+    decision models' native points once, confidence curves per language and group; a chat model's score is the
+    confidence it stated). Under Info: the Results table per group, the Text tab setups without an English run with
+    their reasons, Our method (with the decision models' System One instructions and the chat models' confidence prompt
+    in English, with its version) and every kind of run's instructions. Since 5 November 2026 every Text tab setup also
+    runs in English: `page_config.json`'s `english_reading.not_run` gives the reason of each setup still without an
+    English run, by provider (`providers`) or by run (`runs`, which takes a setup over from its provider's entry), and the
+    build stops when a Text tab setup has neither an English run nor a reason, or when an entry is stale (a run listed
+    that has an English run, a provider with no setup left to run). The build writes
     `turkish-vs-english/kept-question-ids.txt` (the 547 kept IDs) from `english-reading.json`, the track's public
     record, written by
     `runner/translate_reading.py publish`: the translator, both prompts, each reading question's flag reasons, whether it
@@ -215,7 +230,7 @@ python3 -m http.server 8000                                # preview at http://1
     latency, with the Pareto line (the setups in view no other setup in view
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
     gap, as shipped, on all questions); Latency; Cost. The charts draw every setup of the model group the view bar
-    selects (all 74 setups together, the 37 decision models or the 37 chat and general models), within the filters;
+    selects (every setup together, the decision models or the chat and general models), within the filters;
     each bar or dot takes its model family's colour (`page_config.json` `model_families`: a maker's line of models shares
     one colour, in every chart and both groups; `run_families` in `sitebuild/site.py` stops the build unless every run
     has exactly one family), with the families in view in the legend.

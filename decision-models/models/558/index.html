@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepSeek-V4.1-Flash 1017 · reasoning off · 16 questions per request · Hilde</title>
+  <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/558/">
+  <meta name="description" content="DeepSeek-V4.1-Flash 1017 · reasoning off · 16 questions per request: how we called it, results, confidence, latency and cost.">
+  <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
+  <link rel="stylesheet" href="../../v3.css?v=cd514095">
+  <script src="../../site.js?v=ee902a02" defer></script>
+</head>
+<body class="v3">
+  <a class="skip" href="#main">Skip to content</a>
+  <nav class="view-bar" aria-label="View: test and models"><div class="view-rows">
+    <div class="view-row"><span class="view-label" id="view-test">Test</span><ul aria-labelledby="view-test"><li><a class="view-key" href="../../english/" data-view-test>English reading</a></li><li><a class="view-key" href="../../" data-view-test>Turkish reading and grammar</a></li><li><a class="view-key" href="../../turkish-vs-english/" data-view-test>English and Turkish</a></li></ul></div>
+    <div class="view-row"><span class="view-label" id="view-models">Models</span><ul aria-labelledby="view-models"><li><a class="view-key" href="../../?models=all" data-view-group="all">All models</a></li><li><a class="view-key" href="../../?models=decision" data-view-group="decision">Decision models</a></li><li><a class="view-key" href="../../?models=chat" data-view-group="chat">Chat models</a></li></ul></div>
+  </div></nav>
+  <header class="topbar">
+    <a class="brand" href="../../">Hilde · Decision models · answer key v2</a>
+    <nav class="nav" aria-label="Pages"><ul><li><a href="../../questions/">Every question</a></li><li><a href="../../disagreements/">Where models disagree</a></li><li><a href="../../topics/">Topics</a></li><li><a href="../../compare/">Compare</a></li><li><a href="../../method/">Method</a></li><li><a href="../../data/">Data</a></li></ul></nav>
+    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>Dark<span class="long"> background</span></button><button type="button" class="key" data-theme-choice="light" aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light<span class="long"> background</span></button></div>
+  </header>
+  <main id="main">
+    <section class="card">
+      <p class="eyebrow">Chat model</p>
+      <h1>DeepSeek-V4.1-Flash 1017</h1>
+      <p class="subtitle">reasoning off · 16 questions per request</p>
+      <p>66.0% of the 2,198 questions right (64.0% to 68.0%, 95% interval). <a href="../../">Back to the leaderboard</a>.</p>
+    </section>
+    <section class="card" id="called">
+      <h2>How we called it</h2>
+      <dl class="facts"><dt>Kind</dt><dd>Chat model</dd><dt>Access</dt><dd>SGLang, self-hosted, published mixed precision; 1017 weights (revision 1bae0e1)</dd><dt>Paid as</dt><dd>Our own hardware</dd><dt>Model ID</dt><dd><code>deepseek-v4.1-flash-1017</code></dd><dt>Parameters</dt><dd>552B (8 to 16B active per token)</dd><dt>Hardware</dt><dd>4 × RTX PRO 6000 Blackwell (96 GB); FP4 experts, FP8 and BF16 layers</dd><dt>Confidence from</dt><dd>Answer letter probability</dd><dt>Run</dt><dd>558, 5 November 2026</dd></dl>
+    </section>
+    <section class="card" id="settings">
+      <h2>Settings</h2>
+      <dl class="facts"><dt>Reasoning</dt><dd>off</dd><dt>Request format</dt><dd>16 questions per request</dd><dt>Requests at once</dt><dd>1</dd><dt>Temperature</dt><dd>not recorded</dd><dt>Harness seed</dt><dd>0</dd><dt>Harness commit</dt><dd><a href="https://github.com/zekiworks/analysis/commit/ecf1af0326be73ddba04a160643463903c9dddf3"><code>ecf1af0326be</code></a></dd><dt>Prompt version</dt><dd><code>254597b8be16</code></dd></dl>
+    </section>
+    <section class="card" id="results">
+      <h2>Results</h2>
+      <div class="table-wrap"><table><thead><tr><th scope="col">Questions</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">95% interval</th><th scope="col" class="num">Right</th></tr></thead><tbody><tr><th scope="row">All questions</th><td class="num">66.0%</td><td class="num">64.0% to 68.0%</td><td class="num">1,451 of 2,198</td></tr><tr><th scope="row">Reading</th><td class="num">88.3%</td><td class="num">85.6% to 90.5%</td><td class="num">579 of 656</td></tr><tr><th scope="row">Grammar</th><td class="num">56.5%</td><td class="num">54.1% to 59.0%</td><td class="num">872 of 1,542</td></tr></tbody></table></div><p>Comparison group: <span class="hint" tabindex="0" data-tip="The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."><strong>pqrs</strong></span>. <a href="../../compare/?a=558">Compare with another setup</a>.</p><details class="show-table"><summary>Accuracy by topic</summary><div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Topic</th><th scope="col">Part</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">Right</th></tr></thead><tbody><tr><td><a href="../../topics/1/">Word and phrase meanings</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">84.7%</td><td class="num" data-label="Right">111 of 131</td></tr><tr><td><a href="../../topics/2/">Sentence meanings</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">91.6%</td><td class="num" data-label="Right">141 of 154</td></tr><tr><td><a href="../../topics/3/">How a writer explains and develops ideas</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">78.6%</td><td class="num" data-label="Right">55 of 70</td></tr><tr><td><a href="../../topics/4/">Topic and main point of a paragraph</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">98.0%</td><td class="num" data-label="Right">96 of 98</td></tr><tr><td><a href="../../topics/5/">How a paragraph fits together</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">81.1%</td><td class="num" data-label="Right">86 of 106</td></tr><tr><td><a href="../../topics/6/">Details that support a paragraph’s main point</a></td><td data-label="Part">Reading</td><td class="num" data-label="Accuracy">92.8%</td><td class="num" data-label="Right">90 of 97</td></tr><tr><td><a href="../../topics/7/">Word types, such as nouns and verbs</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">61.4%</td><td class="num" data-label="Right">86 of 140</td></tr><tr><td><a href="../../topics/8/">Groups of words built around a noun</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">53.8%</td><td class="num" data-label="Right">35 of 65</td></tr><tr><td><a href="../../topics/9/">Verbs and their forms</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">65.9%</td><td class="num" data-label="Right">60 of 91</td></tr><tr><td><a href="../../topics/10/">Verb forms used like nouns or modifiers</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">63.9%</td><td class="num" data-label="Right">46 of 72</td></tr><tr><td><a href="../../topics/11/">Word endings and what they do</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">50.6%</td><td class="num" data-label="Right">40 of 79</td></tr><tr><td><a href="../../topics/12/">How words are built</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">43.5%</td><td class="num" data-label="Right">30 of 69</td></tr><tr><td><a href="../../topics/13/">The roles of words and phrases in a sentence</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">49.0%</td><td class="num" data-label="Right">71 of 145</td></tr><tr><td><a href="../../topics/14/">How verbs show who acts and who receives the action</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">71.6%</td><td class="num" data-label="Right">53 of 74</td></tr><tr><td><a href="../../topics/15/">Types of sentences</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">55.3%</td><td class="num" data-label="Right">47 of 85</td></tr><tr><td><a href="../../topics/16/">Questions combining several grammar topics</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">35.0%</td><td class="num" data-label="Right">77 of 220</td></tr><tr><td><a href="../../topics/17/">Sound patterns and changes</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">41.6%</td><td class="num" data-label="Right">32 of 77</td></tr><tr><td><a href="../../topics/18/">Spelling</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">75.9%</td><td class="num" data-label="Right">101 of 133</td></tr><tr><td><a href="../../topics/19/">Punctuation</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">58.1%</td><td class="num" data-label="Right">68 of 117</td></tr><tr><td><a href="../../topics/20/">Problems in sentence wording</a></td><td data-label="Part">Grammar</td><td class="num" data-label="Accuracy">72.0%</td><td class="num" data-label="Right">126 of 175</td></tr></tbody></table></div></details>
+    </section>
+    <section class="card" id="confidence">
+      <h2>Confidence</h2>
+      <dl class="facts"><dt>Answers kept at 99% or more</dt><dd>696, of which 16 wrong (share right: 96.3% to 98.6%, 95% interval); 1,502 skipped, the model less than 99% sure</dd><dt>Calibration gap</dt><dd>16.4 points</dd><dt><span class="hint" tabindex="0" data-tip="ranking score">AUROC</span>, all questions</dt><dd>0.83 <span class="small inline">0.81 to 0.85</span></dd><dt>AUROC, reading</dt><dd>0.89 <span class="small inline">0.86 to 0.92</span></dd><dt>AUROC, grammar</dt><dd>0.77 <span class="small inline">0.75 to 0.79</span></dd><dt>Brier score</dt><dd>0.197</dd><dt>Accuracy of its surest answers</dt><dd>most confident fifth: 99.5% right; most confident half: 89.1% right; most confident four fifths: 74.3% right</dd><dt>Typical score of a right answer</dt><dd>98.5%</dd><dt>Typical score of a wrong answer</dt><dd>68.0%</dd></dl>
+    </section>
+    <section class="card" id="repeats">
+      <h2>Repeats</h2>
+      <p>Run 5 times on a sample of 200 questions.</p><dl class="facts"><dt>Answers changed in 5 runs</dt><dd>10 of 200</dd><dt>Same wrong answer in all 5</dt><dd>68 of 200</dd><dt>Wrong in at least one run</dt><dd>78 of 200</dd><dt>Accuracy in each run</dt><dd>65.0%, 63.0%, 63.5%, 62.5%, 63.5%</dd></dl>
+    </section>
+    <section class="card" id="latency">
+      <h2>Latency</h2>
+      <dl class="facts"><dt>Latency, median request</dt><dd>5.08 s (this run)</dd><dt>Latency, 90th percentile</dt><dd>11.5 s</dd><dt>Requests at once</dt><dd>1</dd><dt>Throughput</dt><dd>147.3 questions per minute of request time</dd><dt>Request time</dt><dd>14.9 minutes, over the requests whose answers were kept</dd></dl><p class="note">Latency: the time from sending one request to receiving its answer, measured from our computer, network and any retries within the request included. Request time: the time at least one request was in flight, over the requests whose answers were kept. It is not the run's elapsed time: it leaves out requests that failed and any pause before a run was resumed.</p>
+    </section>
+    <section class="card" id="cost">
+      <h2>Cost</h2>
+      <dl class="facts"><dt>$ per 1,000 questions</dt><dd>$0.098</dd><dt>Whole run</dt><dd>$0.22</dd><dt>Basis</dt><dd>Estimated at DeepSeek&#x27;s list price for the same model; our hardware cost is not measured.</dd><dt>Price</dt><dd>$0.30 input, $0.006 cached input, $1.20 output per 1M tokens (<a href="https://api-docs.deepseek.com/quick_start/pricing">source</a>, 2026-11-05)</dd><dt>Input tokens per question</dt><dd>303</dd><dt>Output tokens per question</dt><dd>6</dd></dl>
+    </section>
+  </main>
+  <footer class="footer">
+    <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
+    <p>Results 56bd5b61, updated 5 November 2026; answer key version 2.</p>
+  </footer>
+</body>
+</html>

@@ -44,6 +44,7 @@
     "sonnet_high": {"provider": "claude", "model": "claude-sonnet-5-5", "reasoning": "high"},
     "deepseek_off": {"provider": "vllm", "model": "deepseek-v4.1-flash", "reasoning": "off"},
     "deepseek_on": {"provider": "vllm", "model": "deepseek-v4.1-flash", "reasoning": "on"},
+    "deepseek_1017_on": {"provider": "vllm", "model": "deepseek-v4.1-flash-1017", "reasoning": "on"},
     "gemini_low": {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "low"},
     "gemini_high": {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning": "high"},
     "terra_low": {"provider": "openai", "model": "gpt-6.1-terra", "reasoning": "low"},
@@ -173,7 +174,7 @@
       {"name": "Claude", "colour": "#f08a3c", "runs": [{"provider": "claude"}]},
       {"name": "Grok", "colour": "#8da523", "runs": [{"provider": "xai"}]},
       {"name": "Qwen", "colour": "#00829a", "runs": [{"provider": "vllm", "model": "qwen3-14b"}, {"provider": "vllm", "model": "qwen38-27b-bf16"}, {"provider": "vllm-verbal"}, {"provider": "vllm-vote"}, {"provider": "vllm-yes-no"}]},
-      {"name": "DeepSeek", "colour": "#b74771", "runs": [{"provider": "vllm", "model": "deepseek-v4.1-flash"}]},
+      {"name": "DeepSeek", "colour": "#b74771", "runs": [{"provider": "vllm", "model": "deepseek-v4.1-flash"}, {"provider": "vllm", "model": "deepseek-v4.1-flash-1017"}]},
       {"name": "GLM", "colour": "#7dd67d", "runs": [{"provider": "openrouter-chat", "model": "z-ai/glm-5.3"}, {"provider": "vllm-stated"}]},
       {"name": "Kimi", "colour": "#14d3f7", "runs": [{"provider": "openrouter-chat", "model": "moonshotai/kimi-k3.1-pro"}]},
       {"name": "Erk", "colour": "#b77adb", "runs": [{"provider": "vllm", "model": "erk-14b"}]},
@@ -205,18 +206,20 @@
   "dont_know": {
     "not_run": [
       {"name": "Perplexity Decider 27B v1.1", "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
-      {"name": "SubQ Snap Preview", "reason": "Not run: SubQ's API returns its probabilities in 32-bit precision, so their sums miss our 7-decimal check, and we decided not to run it with an allowance for that."}
+      {"name": "SubQ Snap Preview", "reason": "Not run: SubQ's API returns its probabilities in 32-bit precision, so their sums miss our 7-decimal check. An allowance for that was approved on 5 November 2026 for its English runs; a Turkish run with “Bilmiyorum” was not part of that request."}
     ]
   },
   "english_reading": {
-    "selection": "The 13 decision models of Artificial Analysis's Decision Index (its post of 22 October 2026) that we benchmark, and the ten most accurate decision models on the Text tab on 2 November 2026, seven of them not in that index: 20 in all.",
-    "selected": [199, 346, 373, 194, 217, 129, 205, 204, 150, 52, 223, 125, 143, 248, 259, 269, 322, 326, 374, 145],
-    "not_compared": [
-      {"run": 129, "reason": "Not compared: since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
-      {"run": 145, "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
-      {"run": 125, "reason": "Not run: Clef's own model code rounds each option's probability to 4 decimal places, so its English smoke run (538) failed our probability check, which needs the probabilities to add up to 1 to 7 decimal places; an allowance for that rounding, like the ones for Drex 2.0 and Base Labs' models, awaits a decision."}
+    "not_run": [
+      {"providers": ["openai"], "reason": "waits for the ChatGPT subscription's usage limit: they run after the Turkish run of GPT-6 Astra at medium reasoning."},
+      {"runs": [315, 320], "reason": "stopped when the OpenRouter account ran out of credit."},
+      {"runs": [44], "reason": "no Perplexity API key on the machine that runs the benchmark."},
+      {"runs": [145], "reason": "Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1, and no Perplexity API key is available."},
+      {"runs": [129], "reason": "since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
+      {"runs": [125, 139], "reason": "Clef's own model code rounds each option's probability to 4 decimal places, which failed our probability check (the probabilities must add up to 1 to 7 decimal places); an allowance for that rounding was approved on 5 November 2026, and both run on our GPUs after the DeepSeek-V4.1-Flash 1017 runs."},
+      {"runs": [120, 121], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window; their first-release weights must also be downloaded again, as the server folder now holds the 1017 weights."},
+      {"providers": ["vllm", "vllm-stated", "vllm-verbal", "vllm-vote", "vllm-yes-no", "d1-server", "cygnet", "gliner", "laya", "metask", "onejev", "open-jev", "strands", "winnow"], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window."}
     ],
-    "skipped": [],
     "method_notes": ["Perplexity Decider 27B v1.2, Perplexity Decider Flash v1.2 and Fastino GLiDE v1.2 made their Text tab runs on an NVIDIA DGX Spark and their English runs on our RTX PRO 6000 GPU, with the same checkpoint, server code and settings.", "Celeris-1 Decision was added on 3 November 2026 with one English run, although its repeated Turkish runs changed answers, for which the rule under Runs gives five."],
     "structural_check": {"about": "runner/translate_reading.py check on the final translations: the questions with a problem (a missing translation, the option letters, an empty text or the underline markup) and the number of warnings (numbering, numbers, Turkish letters, length). The build stops unless every problem question is flagged.", "problem_questions": [3043], "warnings": 159}
   },

@@ -1674,9 +1674,10 @@ def check_high_confidence(docs: Path, results: dict[str, Any], answers: dict[str
 
 
 def check_against_reference(docs: Path, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
-    """Recompute `english_reading.against_reference`: Liquid d1-ultra's first English run against each other model's
-    first English run (english_reading.models order) on english-reading.json's kept questions, right answers only one
-    of the two gave (exact McNemar, d1-ultra first), p within a relative P_TOLERANCE, Holm over the others."""
+    """Recompute `english_reading.against_reference`: Liquid d1-ultra's first English run against each other decision
+    model's first English run (english_reading.models order; decision models by page_config.json's rule on their Text
+    tab runs) on english-reading.json's kept questions, right answers only one of the two gave (exact McNemar, d1-ultra
+    first), p within a relative P_TOLERANCE, Holm over the others."""
     section = (results.get("english_reading") or {}).get("against_reference")
     if section is None:
         checks.failed += 1
@@ -1696,7 +1697,12 @@ def check_against_reference(docs: Path, results: dict[str, Any], answers: dict[s
     reference = next(m for m in models if m["name"] == "Liquid d1-ultra")
     check("reference", [section["reference"], section["reference_run"], section["questions"]],
           ["Liquid d1-ultra", reference["run"], len(kept)])
-    others = [m for m in models if m is not reference]
+    # The family: the other decision models (page_config.json's rule, Site.decision, on each model's Text tab run).
+    config = json.loads((docs / "page_config.json").read_text(encoding="utf-8"))
+    text_runs = {run["run"]: run for run in results["runs"]}
+    others = [m for m in models if m is not reference
+              and text_runs[m["turkish_run"]]["provider"] in config["decision_model_providers"]
+              and text_runs[m["turkish_run"]]["model"] not in config["not_decision_models"]]
     check("models", [(m["name"], m["run"]) for m in section["models"]], [(m["name"], m["run"]) for m in others])
 
     def right(run: int) -> list[int]:
@@ -1721,11 +1727,13 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
                           checks: Checks) -> list[str]:
     """Recompute results.json's `english_reading` from answers.json's `english_runs`, its Text tab runs and their
     repeats, and english-reading.json: the English prompts (the System One instructions naming English, hashed with
-    sorted keys into the prompt version every English run carries), the translations every English run carries, the
-    question counts, every English run asked exactly the kept questions, and per model: its English runs (one setup of
-    provider, model, reasoning and one question per request, the first run without a repeat number first), its Text
-    tab run (the main run of the same provider, model as ENGLISH_TEXT_MODEL maps it, reasoning and one question per
-    request, without shuffled options) and that run's repeat set, its name, both sides' right, wrong and invalid
+    sorted keys into the prompt version every decision model's English run carries, and the chat models' prompts in
+    English, english_chat_prompts, into the version of every English run that reports no option probabilities), the
+    translations every English run carries, the question counts, every English run asked exactly the kept questions,
+    and per model: its English runs (one setup of provider, model, reasoning and questions per request, the first run
+    without a repeat number first), its Text tab run (the main run of the same provider, model as ENGLISH_TEXT_MODEL
+    maps it, reasoning and questions per request, without shuffled options) and that run's repeat set, its name, both
+    sides' right, wrong and invalid
     answers and accuracy on the kept questions, the difference, the ranges and the answers that differ over each
     side's runs, and the right answers only the first English run or only the Text tab run gave (exact McNemar, Holm
     over every model); the models in order of English accuracy, then name. Every English run must be listed once and
@@ -1761,6 +1769,11 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     check("instructions in english_prompts", section["instructions"], prompts.get("system_one_instructions"))
     check("options heading", section["options_heading"], (prompts.get("options_heading") or "").strip())
     check("prompt version", section["prompt_version"], version)
+    # The chat models' prompts in English (english_chat_prompts): a run that reports option probabilities answered with
+    # the System One instructions in English, any other with these.
+    chat_prompts = answers.get("english_chat_prompts")
+    chat_version = None if chat_prompts is None else hashed(chat_prompts)
+    check("chat prompts", [section.get("chat_prompts"), section.get("chat_prompt_version")], [chat_prompts, chat_version])
     check("translations", section["translations_sha256"], public["translations_sha256"])
     ids = answers["questions"]["id"]
     position = {question: index for index, question in enumerate(ids)}
@@ -1773,7 +1786,8 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     for run_id, run in sorted(runs.items()):
         english = run.get("english") or {}
         asked = [index for index, value in enumerate(run["correct"]) if value is not None]
-        check(f"English run {run_id}", [version, public["translations_sha256"], len(kept), kept],
+        expected = version if any(run["probabilities"][index] for index in asked) else chat_version
+        check(f"English run {run_id}", [expected, public["translations_sha256"], len(kept), kept],
               [run["prompt_version"] if run["prompt_version"] == english.get("prompt_version") else None,
                english.get("translations_sha256"), english.get("questions"), asked])
 
@@ -1795,11 +1809,11 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     for (provider, model, thinking, size), group in setups.items():
         group.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
         name = f"{model} ({provider})"
-        check(f"{name}, English runs", [size, 1], [1, sum(1 for run in group if run["repeat"] is None)])
+        check(f"{name}, English runs without a repeat number", 1, sum(1 for run in group if run["repeat"] is None))
         text_model = ENGLISH_TEXT_MODEL.get((provider, model), model)
         found = sorted(run["run"] for run in main.values()
                        if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"])
-                       == (provider, text_model, thinking, 1, None))
+                       == (provider, text_model, thinking, size, None))
         check(f"{name}, Text tab run", 1, len(found))
         if len(found) != 1:
             continue

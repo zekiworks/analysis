@@ -655,7 +655,7 @@ GLiNER and the Qwen 3.8 setups got one.</p>
 request. Earlier trial runs could find the source book online.</p>
 <p>A missing answer, a refusal or a letter outside the options counts as wrong. The Decisions API declined
 {v['luna_api_unanswered']} questions; GLM 5.3 Flash with reasoning left {v['glm_on_unanswered']} unanswered when it hit the
-65,536-token output limit; DeepSeek's reasoning run had the same limit and left {v['deepseek_on_unanswered']}.</p>
+65,536-token output limit; DeepSeek's first release with reasoning had the same limit and left {v['deepseek_on_unanswered']}.</p>
 <div class="table-wrap"><table class="settings"><thead><tr><th scope="col">Setup</th><th scope="col">How it chose each token</th></tr></thead><tbody>
 <tr><td>Chat models on our hardware, reasoning off</td><td>Greedy decoding: the most likely next token</td></tr>
 <tr><td>DeepSeek, reasoning on</td><td>Sampling, temperature 1.0, top p 1.0 (greedy decoding made its reasoning loop)</td></tr>
@@ -773,7 +773,7 @@ interval for the error rate is {v['decider_v1_error_span']} for Decider v1 and {
 <p>Gemma's letter probability reached {v['threshold']} on {v['study_gemma_sure_kept']} answers, {v['study_gemma_sure_correct']}
 of them right (about {v['study_gemma_sure_accuracy']}), and fell short of it on {v['study_gemma_sure_skipped']}, which the
 {v['threshold']} cutoff skips.
-DeepSeek with reasoning gave every answer at least {v['threshold']} ({v['study_deepseek_on_sure_kept']} kept,
+DeepSeek's first release with reasoning gave every answer at least {v['threshold']} ({v['study_deepseek_on_sure_kept']} kept,
 {v['study_deepseek_on_sure_skipped']} skipped), and about {v['study_deepseek_on_sure_accuracy']} were right.</p>
 <h3 id="sources">Can another confidence method make the same answers easier to judge?</h3>
 <p>We scored one fixed set of Qwen 3.8 27B answers, {v['study_sources_correct']} right of {v['study_sources_questions']},
@@ -795,8 +795,8 @@ got right, Astra had {v['pair_astra_sol_first_only']} and Sol {v['pair_astra_sol
 {v['pair_astra_sol_p']} before adjustment; adjusted, it was {v['pair_astra_sol_p_holm']} among the selected comparisons and
 {v['pair_astra_sol_p_holm_all']} across all pairs, {v['method_pair_astra_sol_relation']} {v['method_alpha']}. A p value says
 how unusual so uneven a split would be at equal accuracy, not the chance that the models are equal.</p>
-<p>DeepSeek with reasoning scored {v['pair_deepseek_on_terra_low_difference']} points above GPT-6.1 Terra with low reasoning
-(adjusted p {v['pair_deepseek_on_terra_low_p_holm']}). Not establishing a difference does not show equal accuracy: many
+<p>DeepSeek-V4.1-Flash 1017 with reasoning scored {v['pair_deepseek_1017_on_terra_low_difference']} points above GPT-6.1 Terra with low reasoning
+(adjusted p {v['pair_deepseek_1017_on_terra_low_p_holm']}). Not establishing a difference does not show equal accuracy: many
 language comparisons have too few questions to detect gaps this small.{cite(18)}</p>
 {paired_figure}"""),
         ("statistical-methods", "How we measure uncertainty", f"""

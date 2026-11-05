@@ -36,6 +36,8 @@ ANALYSIS_PATTERN = re.compile(r"<!-- benchmark-analysis: (\{.*?\}) -->")
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "results.json"
 # The English reading track's public record (runner translate_reading.py publish): flags, per-question hashes, prompts.
 ENGLISH_READING_PATH = Path(__file__).resolve().parent / "english-reading.json"
+# The site's settings: which runs are decision models (decision_model_providers, not_decision_models; Site.decision).
+PAGE_CONFIG_PATH = Path(__file__).resolve().parent / "page_config.json"
 SCHEMA_VERSION = 5
 # The frozen answer keys, by version (key-changelog.md): the question bank's SHA-256 and the fingerprint of its key as
 # scored (bm.answer_key_fingerprint). An export graded against any other key stops: record the change in
@@ -158,6 +160,16 @@ MODELS: dict[str, dict[str, Any]] = {
         # pinned revision fb2764a until it moved to DeepSeek's minor update DeepSeek-V4.1-Flash-1017 on 17 October.
         "name": "DeepSeek-V4.1-Flash, first release",
         "access": "SGLang, self-hosted, published mixed precision; first-release weights (revision fb2764a), not the 1017 update",
+        "hardware": f"4 × {GPU}; FP4 experts, FP8 and BF16 layers",
+        "parameters": 552_000_000_000,
+        "active_parameters": [8_000_000_000, 16_000_000_000],
+    },
+    "deepseek-v4.1-flash-1017": {
+        # DeepSeek's minor update of 17 October 2026 (deepseek-ai/DeepSeek-V4.1-Flash-1017, the same config, tokenizer
+        # and inference code as the first release; every weight shard changed), on the first release's SGLang server
+        # with its arguments, from 5 November 2026.
+        "name": "DeepSeek-V4.1-Flash 1017",
+        "access": "SGLang, self-hosted, published mixed precision; 1017 weights (revision 1bae0e1)",
         "hardware": f"4 × {GPU}; FP4 experts, FP8 and BF16 layers",
         "parameters": 552_000_000_000,
         "active_parameters": [8_000_000_000, 16_000_000_000],
@@ -1617,10 +1629,11 @@ ENGLISH_DONT_KNOW_ENGLISH_ONLY = {
 
 def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
     """The runs of the English reading track (results.json `english_reading`) from the report's records of runs in
-    English: one entry per setup (provider, model, reasoning, one question per request) with its runs, the first run
+    English: one entry per setup (provider, model, reasoning, questions per request) with its runs, the first run
     without a repeat number first and its repeats after it, and its Text tab run (same provider, model as
-    ENGLISH_TEXT_MODEL maps it, reasoning and one question per request) with that run's whole-bank repeats. None without
-    such runs. The numbers come from the answers (english_reading_answers_part)."""
+    ENGLISH_TEXT_MODEL maps it, reasoning and questions per request) with that run's whole-bank repeats. Decision and chat
+    models alike (Ümit via Zeki #1136, 5 November 2026: every Text tab setup in English too). None without such runs. The
+    numbers come from the answers (english_reading_answers_part)."""
     if not records:
         return None
     setups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
@@ -1633,8 +1646,6 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
         label = f"{model} ({provider}), English runs {[record['run_id'] for record in found]}"
         if provider not in PROVIDERS:
             raise ValueError(f"{label}: unknown provider; add it to PROVIDERS")
-        if batch_size != 1:
-            raise ValueError(f"{label}: asked {batch_size} questions per request, not 1")
         if sum(1 for record in found if record.get("repeat") is None) != 1:
             raise ValueError(f"{label}: needs exactly one run without a repeat number")
         found.sort(key=lambda record: (record.get("repeat") or 1, record["run_id"]))
@@ -1643,11 +1654,11 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
         paired = [
             run for run in data["runs"]
             if (run["provider"], run["model"], run["reasoning"], run["variant"], run["questions_per_request"])
-            == (provider, text_model, reasoning, VARIANTS.get(provider), 1)
+            == (provider, text_model, reasoning, VARIANTS.get(provider), batch_size)
         ]
         if len(paired) != 1:
-            raise ValueError(f"{label}: needs exactly one Text tab run of {text_model} with one question per request, "
-                             f"found {[run['run'] for run in paired]}")
+            raise ValueError(f"{label}: needs exactly one Text tab run of {text_model} with {batch_size} question"
+                             f"{'' if batch_size == 1 else 's'} per request, found {[run['run'] for run in paired]}")
         turkish = paired[0]
         models.append(
             {
@@ -1682,22 +1693,30 @@ def kept_questions(answers: dict[str, Any], public: dict[str, Any]) -> list[int]
 def english_reading_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any],
                                  public: dict[str, Any]) -> dict[str, Any]:
     """The `english_reading` section from the answers file and the track's public record (english-reading.json): the
-    English prompts (english_prompts, hashed as the runner hashes them; every English run must carry that version and
-    the record's translations_sha256, and must have been asked exactly its kept questions), and per model, on the kept
-    questions, the right, wrong and invalid answers and accuracy of its first English run and of its Text tab run, the
-    difference, the accuracy range and the questions whose answer differs over each side's runs (None for a side with
-    one run, and for both when both sides have one), and the first English run against the Text tab run as right
-    answers in each (exact McNemar, bm.paired_comparison: first English, second Turkish) with Holm's correction over
-    every model. Ordered by English accuracy, best first, then by name."""
+    English prompts (english_prompts, the decision models' System One instructions naming English, and
+    english_chat_prompts, the chat models' Turkish run prompts in English, each hashed as the runner hashes them; every
+    English run must carry its kind's version, decision for a scoring provider and chat for any other, and the record's
+    translations_sha256, and must have been asked exactly its kept questions), and per model, on the kept questions, the
+    right, wrong and invalid answers and accuracy of its first English run and of its Text tab run, the difference, the
+    accuracy range and the questions whose answer differs over each side's runs (None for a side with one run, and for
+    both when both sides have one), and the first English run against the Text tab run as right answers in each (exact
+    McNemar, bm.paired_comparison: first English, second Turkish) with Holm's correction over every model. Ordered by
+    English accuracy, best first, then by name."""
     prompts = document.get("english_prompts")
     if prompts is None:
         raise ValueError("the answers file has English runs but no english_prompts")
     instructions, heading = prompts["system_one_instructions"], prompts["options_heading"]
     if instructions != document["prompts"]["system_one_instructions"].replace("Turkish", "English"):
         raise ValueError("english_prompts: the instructions are not the System One instructions naming English")
-    version = hashlib.sha256(
-        json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()[:12]
+
+    def hashed(found: dict[str, Any]) -> str:
+        return hashlib.sha256(json.dumps(found, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
+
+    version = hashed(prompts)
+    chat_prompts = document.get("english_chat_prompts")
+    chat_version = None if chat_prompts is None else hashed(chat_prompts)
+    if chat_prompts is not None and chat_prompts["options_heading"] != heading:
+        raise ValueError("english_chat_prompts: the options heading is not the decision models' English one")
     translations = public["translations_sha256"]
     kept = kept_questions(answers, public)
     total = len(kept)
@@ -1710,8 +1729,9 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
         if english.get("translations_sha256") != translations:
             raise ValueError(f"English run {run_id}: translations {str(english.get('translations_sha256'))[:12]}, not "
                              f"{ENGLISH_READING_PATH.name}'s {translations[:12]}")
-        if english.get("prompt_version") != version or run["prompt_version"] != version:
-            raise ValueError(f"English run {run_id} was not run with prompt version {version}")
+        expected = version if PROVIDERS[run["provider"]]["scoring"] else chat_version
+        if expected is None or english.get("prompt_version") != expected or run["prompt_version"] != expected:
+            raise ValueError(f"English run {run_id} ({run['provider']}) was not run with its prompt version {expected}")
         asked = [index for index, value in enumerate(run["correct"]) if value is not None]
         if english.get("questions") != total or asked != kept:
             raise ValueError(f"English run {run_id} was not asked exactly the {total} kept questions")
@@ -1760,6 +1780,8 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
         "instructions": instructions,
         "options_heading": heading.strip(),
         "prompt_version": version,
+        "chat_prompts": chat_prompts,
+        "chat_prompt_version": chat_version,
         "translations_sha256": translations,
         "reading_questions": public["reading_questions"],
         "questions": total,
@@ -2564,13 +2586,23 @@ def high_confidence(data: dict[str, Any], answers: dict[str, Any], public: dict[
     }
 
 
-def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: dict[str, Any]) -> dict[str, Any]:
-    """`english_reading.against_reference`: Liquid d1-ultra's first English run against each other model's first English
-    run, on the kept questions, as right answers in each (exact McNemar, bm.paired_comparison: first d1-ultra), with
-    Holm's correction over those models; models in `english_reading.models` order."""
+def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: dict[str, Any],
+                      runs: list[dict[str, Any]]) -> dict[str, Any]:
+    """`english_reading.against_reference`: Liquid d1-ultra's first English run against each other decision model's first
+    English run, on the kept questions, as right answers in each (exact McNemar, bm.paired_comparison: first d1-ultra),
+    with Holm's correction over those models; models in `english_reading.models` order. A decision model by
+    page_config.json's rule (Site.decision) on its Text tab run: its provider one of decision_model_providers and its
+    model not one of not_decision_models. The chat models' English runs stay out: the comparison is among decision
+    models."""
     reference_name = HIGH_CONFIDENCE_FAMILY[0][0]
     kept = kept_questions(answers, public)
     lists = {run["run"]: run for run in answers["english_runs"]}
+    config = json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))
+    text_runs = {run["run"]: run for run in runs}
+
+    def decision(model: dict[str, Any]) -> bool:
+        run = text_runs[model["turkish_run"]]
+        return run["provider"] in config["decision_model_providers"] and run["model"] not in config["not_decision_models"]
 
     def right(run: int) -> list[int]:
         return [int(lists[run]["correct"][index] == 1) for index in kept]
@@ -2578,7 +2610,7 @@ def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: 
     reference = next(model for model in reading["models"] if model["name"] == reference_name)
     models = []
     for model in reading["models"]:
-        if model is reference:
+        if model is reference or not decision(model):
             continue
         test = bm.paired_comparison(right(reference["run"]), right(model["run"]))
         models.append({"name": model["name"], "run": model["run"], "reference_only_right": test["first_only"],
@@ -2665,6 +2697,7 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         "prompts": document["prompts"],
         **({"dont_know_prompts": document["dont_know_prompts"]} if dont_know_sets or turkish_idk_sets else {}),
         **({"english_prompts": document["english_prompts"]} if english_sets else {}),
+        **({"english_chat_prompts": document["english_chat_prompts"]} if english_sets and "english_chat_prompts" in document else {}),
         **({"english_dont_know_prompts": document["english_dont_know_prompts"]} if english_idk_sets else {}),
         **({"dont_know_word_prompts": document["dont_know_word_prompts"]} if word_runs else {}),
         "questions": dataset["questions"],
@@ -2784,7 +2817,7 @@ def main() -> int:
         if public is None:
             raise ValueError("high_confidence: needs `english_reading`")
         data["high_confidence"] = high_confidence(data, answers, public)
-        data["english_reading"]["against_reference"] = against_reference(data["english_reading"], answers, public)
+        data["english_reading"]["against_reference"] = against_reference(data["english_reading"], answers, public, data["runs"])
         data["baselines"] = baselines(answers, data["replay"]["decision"])
         # The footer date: when results with this content first went out, never older than the newest `updated` of any
         # run a section publishes (every run in the answers file, from the report's records).

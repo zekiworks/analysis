@@ -974,9 +974,9 @@ def english_option_info(site: Site, idk: dict[str, Any]) -> str:
     </section>"""
 
 
-# The same number of answers (results.json dont_know_same_answers): one colour per model in both plots, the Turkish vs
-# English tab's colours for its models (english_reading COLOURS, in english_reading.models' order), then these for the
-# models only in the Turkish family, whose lines are dashed (SAME_EXTRA_DASH) to tell them from the English reading models;
+# The same number of answers (results.json dont_know_same_answers): one colour per setup in both plots, by Text tab run,
+# the Turkish vs English tab's colours for its setups (english_reading model_colours), then these for the models only
+# in the Turkish family, whose lines are dashed (SAME_EXTRA_DASH) to tell them from the English reading setups;
 # mid lightness, readable on both themes' panels.
 SAME_EXTRA_COLOURS = ("#a1478f", "#b04a4a", "#2a8f8f")
 SAME_EXTRA_DASH = "6 3"
@@ -1062,7 +1062,7 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
             raise fail(f"{key}: {family['questions']} questions, its section {questions}")
         if not ref or ref["run"] != family["k_run"] or ref["right"] + ref["wrong"] != k or family["k_wording"] != wording:
             raise fail(f"{key}: k is not the answered count of {reference}'s run {family['k_run']} with “{wording}”")
-        for model in models:
+        for position, model in enumerate(models):
             name = model["name"]
             if key == "turkish":
                 row = tab.get(model["text_run"])
@@ -1075,7 +1075,7 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
                 sides = [] if row is None else \
                     [(data["option"], row)] + ([(word["option"], own[name]["i_dont_know"])] if name in own else [])
             else:
-                section = english["models"][[item["name"] for item in models].index(name)]
+                section = english["models"][position]
                 if model["five_option_run"] != section["run"]:
                     raise fail(f"{name}: the five-option run is not the first English run {section['run']}")
                 entry = by_text.get(model["text_run"])
@@ -1220,20 +1220,19 @@ def same_summary(site: Site, same: dict[str, Any], families: list[dict[str, Any]
             + " ".join(texts) + "</p>")
 
 
-def same_colours(site: Site, families: list[dict[str, Any]]) -> dict[str, tuple[str, str | None]]:
-    """One colour per model name across both plots, with its line's dash: the Turkish vs English tab's colours for its
-    models (solid), then the extra ones (dashed)."""
+def same_colours(site: Site, families: list[dict[str, Any]]) -> dict[int, tuple[str, str | None]]:
+    """One colour per setup across both plots, by Text tab run, with its line's dash: the Turkish vs English tab's
+    colours for its setups (solid), then the extra ones (dashed)."""
     from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
-    colours: dict[str, tuple[str, str | None]] = {
-        model["name"]: (colour, None) for model, colour in zip(site.results["english_reading"]["models"], er.COLOURS)}
+    colours: dict[int, tuple[str, str | None]] = {run: (colour, None) for run, colour in er.model_colours(site).items()}
     extra = iter(SAME_EXTRA_COLOURS)
     for family in families:
         for model in same_plotted(family):
-            if model["name"] not in colours:
+            if model["text_run"] not in colours:
                 colour = next(extra, None)
                 if colour is None:
                     raise SystemExit("results.json dont_know_same_answers: more models than colours")
-                colours[model["name"]] = (colour, SAME_EXTRA_DASH)
+                colours[model["text_run"]] = (colour, SAME_EXTRA_DASH)
     return colours
 
 
@@ -1264,7 +1263,7 @@ def same_engine(site: Site, family: dict[str, Any], model: dict[str, Any]) -> st
     return f"made with Fastino's engine glide_v2, not run {model['five_option_run']}'s glide"
 
 
-def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours: dict[str, tuple[str, str | None]]) -> str:
+def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours: dict[int, tuple[str, str | None]]) -> str:
     """One family's risk-coverage plot: each model's five-option curve as a line from its first point (1 answer) to its
     last (its run's scored answers), its own runs with the option as markers and a dashed guide at k."""
     from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
@@ -1277,7 +1276,7 @@ def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours:
     y_top = max(0.04, math.ceil(100 * max(values, default=0.04) / 4 - 1e-9) * 4 / 100)
     series, legend = [], []
     for model in plotted:
-        (colour, dash), name, curve = colours[model["name"]], same_label(site, model), model["curve"]
+        (colour, dash), name, curve = colours[model["text_run"]], same_label(site, model, family), model["curve"]
         line = [(answered / total, wrong / answered, "") for answered, wrong in same_drawn(curve, k, total, SAME_MIN_STEP)]
         series.append({"colour": colour, "dash": dash, "line": True, "points": line,
                        "title": f"{name}: five options, run {model['five_option_run']}, held back by confidence, from 1 to "
