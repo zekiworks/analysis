@@ -347,7 +347,7 @@ def summary(site: Site, run: dict[str, Any]) -> str:
         (f"Accuracy, all {total:,} questions", pct(correct / total),
          f"{interval(correct, total)}, 95% interval; {correct:,} right"),
         (f"Answers kept at {threshold} confidence", f"{sure['questions']:,} of {site.results['questions']:,}", kept_detail),
-        ("Cost, $ per 1,000 questions", per_thousand_text(site, run), '<a href="#cost">Basis and price under Cost</a>'),
+        (f"Cost, $ {cost_per()}", per_thousand_text(site, run), '<a href="#cost">Basis and price under Cost</a>'),
         ("Latency", latency_value, latency_detail),
     )
     items = "".join(f'<div><dt>{label}</dt><dd><span class="key-figure">{value}</span><span class="small">{detail}</span></dd></div>'
