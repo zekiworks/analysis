@@ -5,6 +5,21 @@
  "questions": 100,
  "language": "English",
  "random_accuracy": 0.44666666666666666,
+ "choice_counts": {
+  "2": 77,
+  "3": 5,
+  "4": 18
+ },
+ "bootstrap": {
+  "resamples": 10000,
+  "seed": 20261105,
+  "unit": "question",
+  "percentiles": [
+   2.5,
+   97.5
+  ],
+  "score": "a question's mean correctness over the setup's runs"
+ },
  "harness": "https://github.com/parallel-web/pws-decisions-benchmark",
  "runs_per_setup": 3,
  "one_question_per_request": true,
@@ -18,13 +33,15 @@
  "dates": [
   "2026-11-05"
  ],
- "run_cost_usd": 0.3533301460000001,
+ "run_cost_usd": 150.055002936,
  "setups": [
   {
    "provider": "perplexity",
    "model": "pplx-decider-v1.2",
    "perplexity_mode": null,
    "request_model": "pplx-decider-v1.2",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "Perplexity's Decisions API price",
     "source": "https://docs.perplexity.ai/docs/getting-started/pricing",
@@ -117,6 +134,10 @@
     "min": 0.5,
     "max": 0.51
    },
+   "accuracy_ci95": {
+    "low": 0.41,
+    "high": 0.6
+   },
    "median_request_seconds": {
     "mean": 0.2437557950227832,
     "min": 0.2401812725001946,
@@ -132,6 +153,7 @@
     "min": 3.9676,
     "max": 3.9676
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.6460170604190153,
     "min": 0.6454122760267808,
@@ -153,6 +175,8 @@
    "model": "pplx-decider-v1.2",
    "perplexity_mode": "web_grounding",
    "request_model": "pplx-decider-v1.2",
+   "group": "decision",
+   "web": true,
    "price": {
     "basis": "Perplexity's Decisions API price with web grounding",
     "source": "https://docs.perplexity.ai/docs/getting-started/pricing",
@@ -245,6 +269,10 @@
     "min": 0.87,
     "max": 0.87
    },
+   "accuracy_ci95": {
+    "low": 0.8,
+    "high": 0.93
+   },
    "median_request_seconds": {
     "mean": 0.48291524936212227,
     "min": 0.47519418550655246,
@@ -260,6 +288,7 @@
     "min": 1040.8888000000002,
     "max": 1041.0966
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.908375383517529,
     "min": 0.9063206230548513,
@@ -281,6 +310,8 @@
    "model": "gpt-6-luna",
    "perplexity_mode": null,
    "request_model": "gpt-6-luna",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "OpenAI's Decisions API price",
     "source": "https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability",
@@ -373,6 +404,10 @@
     "min": 0.42,
     "max": 0.42
    },
+   "accuracy_ci95": {
+    "low": 0.32,
+    "high": 0.52
+   },
    "median_request_seconds": {
     "mean": 0.2851344577114408,
     "min": 0.2783424025401473,
@@ -388,6 +423,7 @@
     "min": 21.925,
     "max": 21.925
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.6879,
     "min": 0.6879,
@@ -409,6 +445,8 @@
    "model": "jev-1.14.0",
    "perplexity_mode": null,
    "request_model": "jev-1.14.0",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "TypeSafe's System One price",
     "source": "https://docs.typesafe.ai/models",
@@ -501,6 +539,10 @@
     "min": 0.34,
     "max": 0.35
    },
+   "accuracy_ci95": {
+    "low": 0.2533333333333333,
+    "high": 0.43666666666666665
+   },
    "median_request_seconds": {
     "mean": 0.16538761466896781,
     "min": 0.16321340802824125,
@@ -516,6 +558,7 @@
     "min": 18.01128,
     "max": 18.01128
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.6620666666666667,
     "min": 0.6594,
@@ -537,6 +580,8 @@
    "model": "jev-1.13.0",
    "perplexity_mode": null,
    "request_model": "jev-1.13.0",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "TypeSafe's System One price",
     "source": "https://typesafe.ai/blog/introducing-system-one-models-and-jev",
@@ -629,6 +674,10 @@
     "min": 0.34,
     "max": 0.36
    },
+   "accuracy_ci95": {
+    "low": 0.25666666666666665,
+    "high": 0.44666666666666666
+   },
    "median_request_seconds": {
     "mean": 0.16973412551063424,
     "min": 0.1670556865283288,
@@ -644,6 +693,7 @@
     "min": 18.01128,
     "max": 18.01128
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.6916,
     "min": 0.6900000000000001,
@@ -665,6 +715,8 @@
    "model": "d1-ultra",
    "perplexity_mode": null,
    "request_model": "d1-ultra",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "Liquid AI's d1-ultra price",
     "source": "https://www.liquid.ai/blog/d1-ultra",
@@ -687,8 +739,8 @@
      "p95_request_seconds": 0.5500040600309148,
      "input_tokens": 14696,
      "output_tokens": 0,
-     "cost_usd": 0.0006172320000000001,
-     "cost_per_million_questions": 6.172320000000001,
+     "cost_usd": 0.000617232,
+     "cost_per_million_questions": 6.17232,
      "served_models": [
       "d1-ultra"
      ],
@@ -713,8 +765,8 @@
      "p95_request_seconds": 0.5672525530681014,
      "input_tokens": 14696,
      "output_tokens": 0,
-     "cost_usd": 0.0006172320000000001,
-     "cost_per_million_questions": 6.172320000000001,
+     "cost_usd": 0.000617232,
+     "cost_per_million_questions": 6.17232,
      "served_models": [
       "d1-ultra"
      ],
@@ -739,8 +791,8 @@
      "p95_request_seconds": 0.5626515010371804,
      "input_tokens": 14696,
      "output_tokens": 0,
-     "cost_usd": 0.0006172320000000001,
-     "cost_per_million_questions": 6.172320000000001,
+     "cost_usd": 0.000617232,
+     "cost_per_million_questions": 6.17232,
      "served_models": [
       "d1-ultra"
      ],
@@ -757,6 +809,10 @@
     "min": 0.56,
     "max": 0.59
    },
+   "accuracy_ci95": {
+    "low": 0.48333333333333334,
+    "high": 0.6666666666666667
+   },
    "median_request_seconds": {
     "mean": 0.21994113050944483,
     "min": 0.21613645704928786,
@@ -768,10 +824,11 @@
     "max": 0.5672525530681014
    },
    "cost_per_million_questions": {
-    "mean": 6.172320000000001,
-    "min": 6.172320000000001,
-    "max": 6.172320000000001
+    "mean": 6.17232,
+    "min": 6.17232,
+    "max": 6.17232
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.6753516417858881,
     "min": 0.6714588762953762,
@@ -793,6 +850,8 @@
    "model": "d1.1",
    "perplexity_mode": null,
    "request_model": "d1.1",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "Liquid AI's price for d1.1, as its API bills it",
     "source": "https://www.liquid.ai/pricing",
@@ -885,6 +944,10 @@
     "min": 0.51,
     "max": 0.56
    },
+   "accuracy_ci95": {
+    "low": 0.44,
+    "high": 0.62
+   },
    "median_request_seconds": {
     "mean": 0.17989362531807274,
     "min": 0.17693206446710974,
@@ -900,6 +963,7 @@
     "min": 2.9392,
     "max": 2.9392
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.6643772036484299,
     "min": 0.6568720471836241,
@@ -921,6 +985,8 @@
    "model": "d1:free",
    "perplexity_mode": null,
    "request_model": "d1",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "Liquid's list price for the same model",
     "source": "https://www.liquid.ai/pricing",
@@ -1013,6 +1079,10 @@
     "min": 0.47,
     "max": 0.49
    },
+   "accuracy_ci95": {
+    "low": 0.38666666666666666,
+    "high": 0.5666666666666667
+   },
    "median_request_seconds": {
     "mean": 0.1848562756398072,
     "min": 0.18305583449546248,
@@ -1028,6 +1098,7 @@
     "min": 2.9392,
     "max": 2.9392
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.68809397525488,
     "min": 0.6822068694761986,
@@ -1049,6 +1120,8 @@
    "model": "celeris-1-decision",
    "perplexity_mode": null,
    "request_model": "celeris-1-decision",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "Celeris's decision model price",
     "source": "https://docs.celeris.ai/pricing",
@@ -1141,6 +1214,10 @@
     "min": 0.33,
     "max": 0.34
    },
+   "accuracy_ci95": {
+    "low": 0.24333333333333332,
+    "high": 0.42666666666666664
+   },
    "median_request_seconds": {
     "mean": 0.38362205350616324,
     "min": 0.38275510648963973,
@@ -1156,6 +1233,7 @@
     "min": 8.4612,
     "max": 8.4612
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.6926333333333333,
     "min": 0.692,
@@ -1177,6 +1255,8 @@
    "model": "subq-snap-1.1",
    "perplexity_mode": null,
    "request_model": "subq-snap-1.1",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "SubQ's list price",
     "source": "https://docs.subq.ai/using-the-api/models/",
@@ -1269,6 +1349,10 @@
     "min": 0.53,
     "max": 0.53
    },
+   "accuracy_ci95": {
+    "low": 0.43,
+    "high": 0.63
+   },
    "median_request_seconds": {
     "mean": 0.37750426317021873,
     "min": 0.3769398934673518,
@@ -1284,6 +1368,7 @@
     "min": 7.9352,
     "max": 7.9352
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.7024527570605278,
     "min": 0.7024527570605278,
@@ -1305,6 +1390,8 @@
    "model": "subq-snap-preview",
    "perplexity_mode": null,
    "request_model": "subq-snap-preview",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "SubQ's Decisions API price",
     "source": "https://docs.subq.ai/using-the-api/models/",
@@ -1397,6 +1484,10 @@
     "min": 0.53,
     "max": 0.53
    },
+   "accuracy_ci95": {
+    "low": 0.43,
+    "high": 0.63
+   },
    "median_request_seconds": {
     "mean": 0.3800293628203993,
     "min": 0.3792807099525817,
@@ -1412,6 +1503,7 @@
     "min": 9.918999999999999,
     "max": 9.918999999999999
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.7024527570605278,
     "min": 0.7024527570605278,
@@ -1433,6 +1525,8 @@
    "model": "decider-1",
    "perplexity_mode": null,
    "request_model": "decider-1",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "meraGPT's Decider 1 price",
     "source": "https://meragpt.com/docs/models",
@@ -1525,6 +1619,10 @@
     "min": 0.5,
     "max": 0.5
    },
+   "accuracy_ci95": {
+    "low": 0.4,
+    "high": 0.6
+   },
    "median_request_seconds": {
     "mean": 0.629252351510028,
     "min": 0.6244177459739149,
@@ -1540,6 +1638,7 @@
     "min": 6.81,
     "max": 6.81
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.60308,
     "min": 0.60308,
@@ -1561,6 +1660,8 @@
    "model": "drex-max-v1.1",
    "perplexity_mode": null,
    "request_model": "drex-max-v1.1",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "Nace.AI's list price (launch price $0.03 per 1M input tokens, 50% off, is what Nace bills)",
     "source": "https://nace.ai/drex",
@@ -1653,6 +1754,10 @@
     "min": 0.47,
     "max": 0.48
    },
+   "accuracy_ci95": {
+    "low": 0.38,
+    "high": 0.5733333333333334
+   },
    "median_request_seconds": {
     "mean": 0.3311157685238868,
     "min": 0.33045578602468595,
@@ -1668,6 +1773,7 @@
     "min": 11.9028,
     "max": 11.9028
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.7167778784189596,
     "min": 0.7162192470805888,
@@ -1689,6 +1795,8 @@
    "model": "drex-v2.0",
    "perplexity_mode": null,
    "request_model": "drex-v2.0",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "Nace.AI's list price",
     "source": "https://console.nace.ai/docs/drex/reference/pricing",
@@ -1781,6 +1889,10 @@
     "min": 0.31,
     "max": 0.31
    },
+   "accuracy_ci95": {
+    "low": 0.22,
+    "high": 0.4
+   },
    "median_request_seconds": {
     "mean": 0.2926406203381096,
     "min": 0.2915091179893352,
@@ -1796,6 +1908,7 @@
     "min": 8.1084,
     "max": 8.1084
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.685149,
     "min": 0.685149,
@@ -1817,6 +1930,8 @@
    "model": "microsoft/microsoft-decision-1",
    "perplexity_mode": null,
    "request_model": "microsoft/microsoft-decision-1",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "OpenRouter's Microsoft-Decision-1 price",
     "source": "https://openrouter.ai/microsoft/microsoft-decision-1",
@@ -1839,8 +1954,8 @@
      "p95_request_seconds": 0.3918567489599809,
      "input_tokens": 14537,
      "output_tokens": 100,
-     "cost_usd": 0.0006105540000000001,
-     "cost_per_million_questions": 6.105540000000001,
+     "cost_usd": 0.000610554,
+     "cost_per_million_questions": 6.10554,
      "served_models": [
       "microsoft/microsoft-decision-1-20261009"
      ],
@@ -1865,8 +1980,8 @@
      "p95_request_seconds": 0.38290938502177596,
      "input_tokens": 14537,
      "output_tokens": 100,
-     "cost_usd": 0.0006105540000000001,
-     "cost_per_million_questions": 6.105540000000001,
+     "cost_usd": 0.000610554,
+     "cost_per_million_questions": 6.10554,
      "served_models": [
       "microsoft/microsoft-decision-1-20261009"
      ],
@@ -1891,8 +2006,8 @@
      "p95_request_seconds": 0.37895343999844044,
      "input_tokens": 14537,
      "output_tokens": 100,
-     "cost_usd": 0.0006105540000000001,
-     "cost_per_million_questions": 6.105540000000001,
+     "cost_usd": 0.000610554,
+     "cost_per_million_questions": 6.10554,
      "served_models": [
       "microsoft/microsoft-decision-1-20261009"
      ],
@@ -1909,6 +2024,10 @@
     "min": 0.49,
     "max": 0.49
    },
+   "accuracy_ci95": {
+    "low": 0.39333333333333337,
+    "high": 0.5866666666666667
+   },
    "median_request_seconds": {
     "mean": 0.316945070012783,
     "min": 0.31402686901856214,
@@ -1920,10 +2039,11 @@
     "max": 0.3918567489599809
    },
    "cost_per_million_questions": {
-    "mean": 6.105540000000001,
-    "min": 6.105540000000001,
-    "max": 6.105540000000001
+    "mean": 6.10554,
+    "min": 6.10554,
+    "max": 6.10554
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.660871827879808,
     "min": 0.6587888362496626,
@@ -1945,6 +2065,8 @@
    "model": "inception/mercury-decide",
    "perplexity_mode": null,
    "request_model": "inception/mercury-decide",
+   "group": "decision",
+   "web": false,
    "price": {
     "basis": "OpenRouter's Mercury Decide price",
     "source": "https://openrouter.ai/inception/mercury-decide",
@@ -2037,6 +2159,10 @@
     "min": 0.53,
     "max": 0.54
    },
+   "accuracy_ci95": {
+    "low": 0.44,
+    "high": 0.6266666666666666
+   },
    "median_request_seconds": {
     "mean": 0.29100281712211046,
     "min": 0.2840292659820989,
@@ -2052,6 +2178,7 @@
     "min": 3.5654000000000003,
     "max": 3.5796
    },
+   "confidence_kind": "probability",
    "mean_chosen_probability": {
     "mean": 0.6501934451372795,
     "min": 0.6470775766114888,
@@ -2066,6 +2193,2007 @@
     "mean": 2,
     "min": 2,
     "max": 2
+   }
+  },
+  {
+   "provider": "baseten",
+   "model": "decision-models/baseten-mammoth-27b-latest",
+   "perplexity_mode": null,
+   "request_model": "decision-models/baseten-mammoth-27b-latest",
+   "group": "decision",
+   "web": false,
+   "price": {
+    "basis": "Baseten's Model API list price",
+    "source": "https://www.baseten.co/library/mammoth-1/",
+    "date": "2026-11-01",
+    "input_per_million": 0.1,
+    "per_request": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:24:10+00:00",
+     "ended": "2026-11-05T16:24:37+00:00",
+     "questions": 100,
+     "correct": 37,
+     "accuracy": 0.37,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.18496603652602062,
+     "p95_request_seconds": 0.3544489030027762,
+     "input_tokens": 20420,
+     "output_tokens": 100,
+     "cost_usd": 0.002042,
+     "cost_per_million_questions": 20.42,
+     "served_models": [
+      "decision-models/baseten-mammoth-27b-latest"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.6994548448408199,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:24:37+00:00",
+     "ended": "2026-11-05T16:24:56+00:00",
+     "questions": 100,
+     "correct": 37,
+     "accuracy": 0.37,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.18387077003717422,
+     "p95_request_seconds": 0.19794775801710784,
+     "input_tokens": 20420,
+     "output_tokens": 100,
+     "cost_usd": 0.002042,
+     "cost_per_million_questions": 20.42,
+     "served_models": [
+      "decision-models/baseten-mammoth-27b-latest"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.6994407568940083,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:24:56+00:00",
+     "ended": "2026-11-05T16:25:17+00:00",
+     "questions": 100,
+     "correct": 37,
+     "accuracy": 0.37,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 3,
+     "median_request_seconds": 0.18425167596433312,
+     "p95_request_seconds": 0.21254337509162724,
+     "input_tokens": 20420,
+     "output_tokens": 100,
+     "cost_usd": 0.002042,
+     "cost_per_million_questions": 20.42,
+     "served_models": [
+      "decision-models/baseten-mammoth-27b-latest"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.6994407568940083,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.37,
+    "min": 0.37,
+    "max": 0.37
+   },
+   "accuracy_ci95": {
+    "low": 0.28,
+    "high": 0.47
+   },
+   "median_request_seconds": {
+    "mean": 0.18436282750917599,
+    "min": 0.18387077003717422,
+    "max": 0.18496603652602062
+   },
+   "p95_request_seconds": {
+    "mean": 0.2549800120371704,
+    "min": 0.19794775801710784,
+    "max": 0.3544489030027762
+   },
+   "cost_per_million_questions": {
+    "mean": 20.42,
+    "min": 20.42,
+    "max": 20.42
+   },
+   "host": "Baseten",
+   "run": 374,
+   "confidence_kind": "probability",
+   "mean_chosen_probability": {
+    "mean": 0.6994454528762788,
+    "min": 0.6994407568940083,
+    "max": 0.6994548448408199
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   }
+  },
+  {
+   "provider": "clef",
+   "model": "clef-flash",
+   "perplexity_mode": null,
+   "request_model": "clef-flash",
+   "group": "decision",
+   "web": false,
+   "price": {
+    "basis": "Cloudflare's list price for the same model",
+    "source": "https://developers.cloudflare.com/workers-ai/models/clef-flash/",
+    "date": "2026-10-18",
+    "input_per_million": 0.038,
+    "per_request": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:16:51+00:00",
+     "ended": "2026-11-05T16:16:57+00:00",
+     "questions": 100,
+     "correct": 48,
+     "accuracy": 0.48,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.06602641200879589,
+     "p95_request_seconds": 0.06978178594727069,
+     "input_tokens": 24334,
+     "output_tokens": 0,
+     "cost_usd": 0.000924692,
+     "cost_per_million_questions": 9.24692,
+     "served_models": [
+      "clef-flash"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.69787,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:16:57+00:00",
+     "ended": "2026-11-05T16:17:05+00:00",
+     "questions": 100,
+     "correct": 48,
+     "accuracy": 0.48,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.06702545995358378,
+     "p95_request_seconds": 0.12130392901599407,
+     "input_tokens": 24334,
+     "output_tokens": 0,
+     "cost_usd": 0.000924692,
+     "cost_per_million_questions": 9.24692,
+     "served_models": [
+      "clef-flash"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.69787,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:17:05+00:00",
+     "ended": "2026-11-05T16:17:17+00:00",
+     "questions": 100,
+     "correct": 48,
+     "accuracy": 0.48,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.12132179143372923,
+     "p95_request_seconds": 0.13657160894945264,
+     "input_tokens": 24334,
+     "output_tokens": 0,
+     "cost_usd": 0.000924692,
+     "cost_per_million_questions": 9.24692,
+     "served_models": [
+      "clef-flash"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.69787,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.48,
+    "min": 0.48,
+    "max": 0.48
+   },
+   "accuracy_ci95": {
+    "low": 0.38,
+    "high": 0.58
+   },
+   "median_request_seconds": {
+    "mean": 0.0847912211320363,
+    "min": 0.06602641200879589,
+    "max": 0.12132179143372923
+   },
+   "p95_request_seconds": {
+    "mean": 0.1092191079709058,
+    "min": 0.06978178594727069,
+    "max": 0.13657160894945264
+   },
+   "cost_per_million_questions": {
+    "mean": 9.24692,
+    "min": 9.24692,
+    "max": 9.24692
+   },
+   "host": "our GPU",
+   "confidence_kind": "probability",
+   "mean_chosen_probability": {
+    "mean": 0.69787,
+    "min": 0.69787,
+    "max": 0.69787
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   }
+  },
+  {
+   "provider": "strands",
+   "model": "strands-decider-2b",
+   "perplexity_mode": null,
+   "request_model": "strands-decider-2b",
+   "group": "decision",
+   "web": false,
+   "price": null,
+   "runs": [
+    {
+     "started": "2026-11-05T16:11:58+00:00",
+     "ended": "2026-11-05T16:12:00+00:00",
+     "questions": 100,
+     "correct": 55,
+     "accuracy": 0.55,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.02471369248814881,
+     "p95_request_seconds": 0.02674832392949611,
+     "input_tokens": 17251,
+     "output_tokens": 100,
+     "cost_usd": null,
+     "cost_per_million_questions": null,
+     "served_models": [
+      "strands-decider-2b"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.706631,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:12:01+00:00",
+     "ended": "2026-11-05T16:12:03+00:00",
+     "questions": 100,
+     "correct": 55,
+     "accuracy": 0.55,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.024118270550388843,
+     "p95_request_seconds": 0.027860549045726657,
+     "input_tokens": 17251,
+     "output_tokens": 100,
+     "cost_usd": null,
+     "cost_per_million_questions": null,
+     "served_models": [
+      "strands-decider-2b"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.706631,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:12:03+00:00",
+     "ended": "2026-11-05T16:12:06+00:00",
+     "questions": 100,
+     "correct": 55,
+     "accuracy": 0.55,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.024142547568771988,
+     "p95_request_seconds": 0.030077217030338943,
+     "input_tokens": 17251,
+     "output_tokens": 100,
+     "cost_usd": null,
+     "cost_per_million_questions": null,
+     "served_models": [
+      "strands-decider-2b"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.706631,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.55,
+    "min": 0.55,
+    "max": 0.55
+   },
+   "accuracy_ci95": {
+    "low": 0.45,
+    "high": 0.65
+   },
+   "median_request_seconds": {
+    "mean": 0.024324836869103212,
+    "min": 0.024118270550388843,
+    "max": 0.02471369248814881
+   },
+   "p95_request_seconds": {
+    "mean": 0.02822869666852057,
+    "min": 0.02674832392949611,
+    "max": 0.030077217030338943
+   },
+   "cost_per_million_questions": null,
+   "host": "our GPU",
+   "confidence_kind": "probability",
+   "mean_chosen_probability": {
+    "mean": 0.706631,
+    "min": 0.706631,
+    "max": 0.706631
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   }
+  },
+  {
+   "provider": "claude",
+   "model": "claude-fable-5-1",
+   "perplexity_mode": null,
+   "request_model": "claude-fable-5-1",
+   "group": "chat",
+   "web": false,
+   "price": {
+    "basis": "Anthropic's API list price",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "date": "2026-10-28",
+    "input_per_million": 10.0,
+    "per_request": 0.0,
+    "output_per_million": 50.0,
+    "applies_to": "billed",
+    "per_search": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:24:11+00:00",
+     "ended": "2026-11-05T16:28:04+00:00",
+     "questions": 100,
+     "correct": 71,
+     "accuracy": 0.71,
+     "missing": 0,
+     "not_success": 2,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 8.668377798516303,
+     "p95_request_seconds": 18.217831404996105,
+     "input_tokens": 156709,
+     "output_tokens": 51025,
+     "cost_usd": 4.443238,
+     "cost_per_million_questions": 44432.38,
+     "served_models": [
+      "claude-fable-5-1",
+      "claude-opus-4-8"
+     ],
+     "stand_in_refusals": 2,
+     "confidence": {
+      "answers": 98,
+      "mean_chosen_probability": 0.7040816326530612,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:28:11+00:00",
+     "ended": "2026-11-05T16:31:56+00:00",
+     "questions": 100,
+     "correct": 76,
+     "accuracy": 0.76,
+     "missing": 0,
+     "not_success": 1,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 7.69301613693824,
+     "p95_request_seconds": 19.320314334938303,
+     "input_tokens": 153363,
+     "output_tokens": 52868,
+     "cost_usd": 3.38721925,
+     "cost_per_million_questions": 33872.1925,
+     "served_models": [
+      "claude-fable-5-1",
+      "claude-opus-4-8"
+     ],
+     "stand_in_refusals": 1,
+     "confidence": {
+      "answers": 99,
+      "mean_chosen_probability": 0.6992929292929293,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:32:01+00:00",
+     "ended": "2026-11-05T16:35:35+00:00",
+     "questions": 100,
+     "correct": 74,
+     "accuracy": 0.74,
+     "missing": 0,
+     "not_success": 2,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 7.277771000051871,
+     "p95_request_seconds": 18.850650737062097,
+     "input_tokens": 156700,
+     "output_tokens": 48881,
+     "cost_usd": 3.20154125,
+     "cost_per_million_questions": 32015.4125,
+     "served_models": [
+      "claude-fable-5-1",
+      "claude-opus-4-8"
+     ],
+     "stand_in_refusals": 2,
+     "confidence": {
+      "answers": 98,
+      "mean_chosen_probability": 0.7037755102040816,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.7366666666666667,
+    "min": 0.71,
+    "max": 0.76
+   },
+   "accuracy_ci95": {
+    "low": 0.66,
+    "high": 0.81
+   },
+   "median_request_seconds": {
+    "mean": 7.879721645168805,
+    "min": 7.277771000051871,
+    "max": 8.668377798516303
+   },
+   "p95_request_seconds": {
+    "mean": 18.796265492332168,
+    "min": 18.217831404996105,
+    "max": 19.320314334938303
+   },
+   "cost_per_million_questions": {
+    "mean": 36773.32833333333,
+    "min": 32015.4125,
+    "max": 44432.38
+   },
+   "run": 310,
+   "reasoning": "high",
+   "access": "Claude Code CLI, Claude subscription",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "mean_chosen_probability": {
+    "mean": 0.7023833573833573,
+    "min": 0.6992929292929293,
+    "max": 0.7040816326530612
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   }
+  },
+  {
+   "provider": "claude",
+   "model": "claude-opus-5-5",
+   "perplexity_mode": null,
+   "request_model": "claude-opus-5-5",
+   "group": "chat",
+   "web": false,
+   "price": {
+    "basis": "Anthropic's API list price",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "date": "2026-10-08",
+    "input_per_million": 4.0,
+    "per_request": 0.0,
+    "output_per_million": 20.0,
+    "applies_to": "billed",
+    "per_search": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:35:47+00:00",
+     "ended": "2026-11-05T16:37:58+00:00",
+     "questions": 100,
+     "correct": 81,
+     "accuracy": 0.81,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 4.9958457665052265,
+     "p95_request_seconds": 9.404322471935302,
+     "input_tokens": 148022,
+     "output_tokens": 32304,
+     "cost_usd": 1.3688504,
+     "cost_per_million_questions": 13688.503999999999,
+     "served_models": [
+      "claude-opus-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7121,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:38:05+00:00",
+     "ended": "2026-11-05T16:40:22+00:00",
+     "questions": 100,
+     "correct": 78,
+     "accuracy": 0.78,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 5.08507604902843,
+     "p95_request_seconds": 9.416104063973762,
+     "input_tokens": 148041,
+     "output_tokens": 33985,
+     "cost_usd": 0.9510258,
+     "cost_per_million_questions": 9510.258,
+     "served_models": [
+      "claude-opus-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7085,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:40:27+00:00",
+     "ended": "2026-11-05T16:42:50+00:00",
+     "questions": 100,
+     "correct": 77,
+     "accuracy": 0.77,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 5.488293179078028,
+     "p95_request_seconds": 9.115376226021908,
+     "input_tokens": 148023,
+     "output_tokens": 34546,
+     "cost_usd": 0.9621018,
+     "cost_per_million_questions": 9621.018,
+     "served_models": [
+      "claude-opus-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7076,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.7866666666666667,
+    "min": 0.77,
+    "max": 0.81
+   },
+   "accuracy_ci95": {
+    "low": 0.7066666666666667,
+    "high": 0.86
+   },
+   "median_request_seconds": {
+    "mean": 5.189738331537228,
+    "min": 4.9958457665052265,
+    "max": 5.488293179078028
+   },
+   "p95_request_seconds": {
+    "mean": 9.311934253976991,
+    "min": 9.115376226021908,
+    "max": 9.416104063973762
+   },
+   "cost_per_million_questions": {
+    "mean": 10939.926666666666,
+    "min": 9510.258,
+    "max": 13688.503999999999
+   },
+   "run": 278,
+   "reasoning": "high",
+   "access": "Claude Code CLI, Claude subscription",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "mean_chosen_probability": {
+    "mean": 0.7094,
+    "min": 0.7076,
+    "max": 0.7121
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   }
+  },
+  {
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "perplexity_mode": null,
+   "request_model": "claude-sonnet-5-5",
+   "group": "chat",
+   "web": false,
+   "price": {
+    "basis": "Anthropic's API list price",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "date": "2026-10-08",
+    "input_per_million": 2.0,
+    "per_request": 0.0,
+    "output_per_million": 10.0,
+    "applies_to": "billed",
+    "per_search": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:42:54+00:00",
+     "ended": "2026-11-05T16:45:26+00:00",
+     "questions": 100,
+     "correct": 77,
+     "accuracy": 0.77,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 5.6496202779817395,
+     "p95_request_seconds": 11.01767991494853,
+     "input_tokens": 148423,
+     "output_tokens": 36398,
+     "cost_usd": 0.7152224,
+     "cost_per_million_questions": 7152.224,
+     "served_models": [
+      "claude-sonnet-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7151,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:45:34+00:00",
+     "ended": "2026-11-05T16:47:48+00:00",
+     "questions": 100,
+     "correct": 80,
+     "accuracy": 0.8,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 5.230450542934705,
+     "p95_request_seconds": 9.277064668014646,
+     "input_tokens": 148416,
+     "output_tokens": 37700,
+     "cost_usd": 0.5141629,
+     "cost_per_million_questions": 5141.629,
+     "served_models": [
+      "claude-sonnet-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.713,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:47:53+00:00",
+     "ended": "2026-11-05T16:50:13+00:00",
+     "questions": 100,
+     "correct": 83,
+     "accuracy": 0.83,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 5.225340876437258,
+     "p95_request_seconds": 9.725356057984754,
+     "input_tokens": 148432,
+     "output_tokens": 36803,
+     "cost_usd": 0.5052569,
+     "cost_per_million_questions": 5052.5689999999995,
+     "served_models": [
+      "claude-sonnet-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7138,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.8,
+    "min": 0.77,
+    "max": 0.83
+   },
+   "accuracy_ci95": {
+    "low": 0.7266666666666667,
+    "high": 0.8666666666666667
+   },
+   "median_request_seconds": {
+    "mean": 5.368470565784567,
+    "min": 5.225340876437258,
+    "max": 5.6496202779817395
+   },
+   "p95_request_seconds": {
+    "mean": 10.00670021364931,
+    "min": 9.277064668014646,
+    "max": 11.01767991494853
+   },
+   "cost_per_million_questions": {
+    "mean": 5782.140666666666,
+    "min": 5052.5689999999995,
+    "max": 7152.224
+   },
+   "run": 193,
+   "reasoning": "high",
+   "access": "Claude Code CLI, Claude subscription",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "mean_chosen_probability": {
+    "mean": 0.7139666666666666,
+    "min": 0.713,
+    "max": 0.7151
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   }
+  },
+  {
+   "provider": "openrouter-chat",
+   "model": "moonshotai/kimi-k3.1-pro",
+   "perplexity_mode": null,
+   "request_model": "moonshotai/kimi-k3.1-pro",
+   "group": "chat",
+   "web": false,
+   "price": {
+    "basis": "OpenRouter's price for Moonshot AI's endpoint (mxfp4)",
+    "source": "https://openrouter.ai/moonshotai/kimi-k3.1-pro",
+    "date": "2026-10-28",
+    "input_per_million": 2.0,
+    "per_request": 0.0,
+    "output_per_million": 10.0,
+    "applies_to": "billed",
+    "per_search": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:24:10+00:00",
+     "ended": "2026-11-05T16:26:39+00:00",
+     "questions": 100,
+     "correct": 66,
+     "accuracy": 0.66,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 5.215241002035327,
+     "p95_request_seconds": 11.651195683982223,
+     "input_tokens": 45148,
+     "output_tokens": 15066,
+     "cost_usd": 0.240956,
+     "cost_per_million_questions": 2409.56,
+     "served_models": [
+      "moonshotai/kimi-k3.1-pro"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9114,
+      "sure": 20,
+      "sure_wrong": 3
+     }
+    },
+    {
+     "started": "2026-11-05T16:26:43+00:00",
+     "ended": "2026-11-05T16:29:16+00:00",
+     "questions": 100,
+     "correct": 66,
+     "accuracy": 0.66,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 5.396328423987143,
+     "p95_request_seconds": 10.802172562922351,
+     "input_tokens": 45148,
+     "output_tokens": 13899,
+     "cost_usd": 0.1786034,
+     "cost_per_million_questions": 1786.0339999999999,
+     "served_models": [
+      "moonshotai/kimi-k3.1-pro"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9234,
+      "sure": 26,
+      "sure_wrong": 7
+     }
+    },
+    {
+     "started": "2026-11-05T16:29:20+00:00",
+     "ended": "2026-11-05T16:31:56+00:00",
+     "questions": 100,
+     "correct": 67,
+     "accuracy": 0.67,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 5.323983088019304,
+     "p95_request_seconds": 11.78730937000364,
+     "input_tokens": 45148,
+     "output_tokens": 13890,
+     "cost_usd": 0.1785134,
+     "cost_per_million_questions": 1785.1339999999998,
+     "served_models": [
+      "moonshotai/kimi-k3.1-pro"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9166,
+      "sure": 23,
+      "sure_wrong": 7
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.6633333333333333,
+    "min": 0.66,
+    "max": 0.67
+   },
+   "accuracy_ci95": {
+    "low": 0.5866666666666667,
+    "high": 0.7366666666666667
+   },
+   "median_request_seconds": {
+    "mean": 5.311850838013925,
+    "min": 5.215241002035327,
+    "max": 5.396328423987143
+   },
+   "p95_request_seconds": {
+    "mean": 11.413559205636071,
+    "min": 10.802172562922351,
+    "max": 11.78730937000364
+   },
+   "cost_per_million_questions": {
+    "mean": 1993.5759999999998,
+    "min": 1785.1339999999998,
+    "max": 2409.56
+   },
+   "run": 320,
+   "reasoning": "low",
+   "access": "OpenRouter chat API, Moonshot AI's endpoint (mxfp4), fallbacks off",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "mean_chosen_probability": {
+    "mean": 0.9171333333333334,
+    "min": 0.9114,
+    "max": 0.9234
+   },
+   "sure_wrong": {
+    "mean": 5.666666666666667,
+    "min": 3,
+    "max": 7
+   },
+   "sure": {
+    "mean": 23,
+    "min": 20,
+    "max": 26
+   }
+  },
+  {
+   "provider": "openrouter-chat",
+   "model": "z-ai/glm-5.3",
+   "perplexity_mode": null,
+   "request_model": "z-ai/glm-5.3",
+   "group": "chat",
+   "web": false,
+   "price": {
+    "basis": "OpenRouter's price for Fireworks' spot endpoint, which served nearly every request",
+    "source": "https://openrouter.ai/z-ai/glm-5.3",
+    "date": "2026-10-28",
+    "input_per_million": 0.98,
+    "per_request": 0.0,
+    "output_per_million": 3.08,
+    "applies_to": "billed",
+    "per_search": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:24:10+00:00",
+     "ended": "2026-11-05T16:24:48+00:00",
+     "questions": 100,
+     "correct": 61,
+     "accuracy": 0.61,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 1.4507736804662272,
+     "p95_request_seconds": 2.3277657569851726,
+     "input_tokens": 22614,
+     "output_tokens": 6780,
+     "cost_usd": 0.035225316,
+     "cost_per_million_questions": 352.25316,
+     "served_models": [
+      "z-ai/glm-5.3"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7053,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:24:50+00:00",
+     "ended": "2026-11-05T16:25:27+00:00",
+     "questions": 100,
+     "correct": 58,
+     "accuracy": 0.58,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 1.397353503445629,
+     "p95_request_seconds": 2.5689726000418887,
+     "input_tokens": 22614,
+     "output_tokens": 6920,
+     "cost_usd": 0.026998216000000002,
+     "cost_per_million_questions": 269.98216,
+     "served_models": [
+      "z-ai/glm-5.3"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7326,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:25:28+00:00",
+     "ended": "2026-11-05T16:26:06+00:00",
+     "questions": 100,
+     "correct": 64,
+     "accuracy": 0.64,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 1.3873360950383358,
+     "p95_request_seconds": 2.503167246002704,
+     "input_tokens": 22614,
+     "output_tokens": 7235,
+     "cost_usd": 0.027523132,
+     "cost_per_million_questions": 275.23132,
+     "served_models": [
+      "z-ai/glm-5.3"
+     ],
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7266,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.61,
+    "min": 0.58,
+    "max": 0.64
+   },
+   "accuracy_ci95": {
+    "low": 0.53,
+    "high": 0.6833333333333332
+   },
+   "median_request_seconds": {
+    "mean": 1.4118210929833974,
+    "min": 1.3873360950383358,
+    "max": 1.4507736804662272
+   },
+   "p95_request_seconds": {
+    "mean": 2.4666352010099217,
+    "min": 2.3277657569851726,
+    "max": 2.5689726000418887
+   },
+   "cost_per_million_questions": {
+    "mean": 299.1555466666667,
+    "min": 269.98216,
+    "max": 352.25316
+   },
+   "run": 314,
+   "reasoning": "low",
+   "access": "OpenRouter chat API, Fireworks endpoint, fallbacks off",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "mean_chosen_probability": {
+    "mean": 0.7215,
+    "min": 0.7053,
+    "max": 0.7326
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   }
+  },
+  {
+   "provider": "openai",
+   "model": "gpt-6.1-sol",
+   "perplexity_mode": null,
+   "request_model": "gpt-6.1-sol",
+   "group": "chat",
+   "web": true,
+   "price": {
+    "basis": "OpenAI's API list price",
+    "source": "https://developers.openai.com/api/docs/pricing",
+    "date": "2026-10-08",
+    "input_per_million": 2.0,
+    "per_request": 0.0,
+    "output_per_million": 10.0,
+    "applies_to": "billed",
+    "per_search": 0.01,
+    "searches": "counted",
+    "search_source": "https://developers.openai.com/api/docs/pricing",
+    "search_note": "$10 per 1,000 web search calls; search content tokens billed at the model's rates"
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:35:33+00:00",
+     "ended": "2026-11-05T16:49:12+00:00",
+     "questions": 100,
+     "correct": 100,
+     "accuracy": 1.0,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 12.829665725526866,
+     "p95_request_seconds": 32.6908755491022,
+     "input_tokens": 3909970,
+     "output_tokens": 16408,
+     "cost_usd": 5.924292,
+     "cost_per_million_questions": 59242.920000000006,
+     "served_models": [],
+     "searches": {
+      "reported": true,
+      "total": 175,
+      "per_question": 1.75,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.99284,
+      "sure": 92,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:49:25+00:00",
+     "ended": "2026-11-05T17:01:38+00:00",
+     "questions": 100,
+     "correct": 100,
+     "accuracy": 1.0,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 12.411790462501813,
+     "p95_request_seconds": 28.351989193004556,
+     "input_tokens": 3603077,
+     "output_tokens": 15723,
+     "cost_usd": 5.2560720000000005,
+     "cost_per_million_questions": 52560.72000000001,
+     "served_models": [],
+     "searches": {
+      "reported": true,
+      "total": 161,
+      "per_question": 1.61,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.99411,
+      "sure": 95,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T17:01:48+00:00",
+     "ended": "2026-11-05T17:14:30+00:00",
+     "questions": 100,
+     "correct": 100,
+     "accuracy": 1.0,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 13.33951168495696,
+     "p95_request_seconds": 28.092054730979726,
+     "input_tokens": 4020063,
+     "output_tokens": 16315,
+     "cost_usd": 5.5263352,
+     "cost_per_million_questions": 55263.352,
+     "served_models": [],
+     "searches": {
+      "reported": true,
+      "total": 176,
+      "per_question": 1.76,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.99397,
+      "sure": 95,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 1.0,
+    "min": 1.0,
+    "max": 1.0
+   },
+   "accuracy_ci95": {
+    "low": 1.0,
+    "high": 1.0
+   },
+   "median_request_seconds": {
+    "mean": 12.860322624328546,
+    "min": 12.411790462501813,
+    "max": 13.33951168495696
+   },
+   "p95_request_seconds": {
+    "mean": 29.711639824362162,
+    "min": 28.092054730979726,
+    "max": 32.6908755491022
+   },
+   "cost_per_million_questions": {
+    "mean": 55688.99733333334,
+    "min": 52560.72000000001,
+    "max": 59242.920000000006
+   },
+   "run": 276,
+   "reasoning": "high",
+   "access": "Codex CLI, ChatGPT subscription",
+   "workers": 2,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "cost_lower_bound": false,
+   "searches_per_question": {
+    "mean": 1.7066666666666668,
+    "min": 1.61,
+    "max": 1.76
+   },
+   "questions_with_search": {
+    "mean": 100,
+    "min": 100,
+    "max": 100
+   },
+   "mean_chosen_probability": {
+    "mean": 0.99364,
+    "min": 0.99284,
+    "max": 0.99411
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 94,
+    "min": 92,
+    "max": 95
+   }
+  },
+  {
+   "provider": "gemini",
+   "model": "gemini-3.8-flash",
+   "perplexity_mode": null,
+   "request_model": "gemini-3.8-flash",
+   "group": "chat",
+   "web": true,
+   "price": {
+    "basis": "Google's Gemini API price, introductory",
+    "source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "date": "2026-10-08",
+    "input_per_million": 0.75,
+    "per_request": 0.0,
+    "output_per_million": 3.75,
+    "applies_to": "billed",
+    "per_search": 0.014,
+    "searches": "not reported",
+    "search_source": "https://ai.google.dev/gemini-api/docs/google-search",
+    "search_note": "Gemini 3 and newer: $14 per 1,000 search queries the model runs, after 5,000 free a month (not deducted here)"
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:24:10+00:00",
+     "ended": "2026-11-05T16:31:24+00:00",
+     "questions": 100,
+     "correct": 98,
+     "accuracy": 0.98,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 11.293122344475705,
+     "p95_request_seconds": 38.792138371034525,
+     "input_tokens": 84245,
+     "output_tokens": 109703,
+     "cost_usd": 0.45120555,
+     "cost_per_million_questions": 4512.0554999999995,
+     "served_models": [
+      "gemini-3.8-flash"
+     ],
+     "searches": {
+      "reported": false,
+      "total": null,
+      "per_question": null,
+      "questions_with_search": null
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9924,
+      "sure": 84,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:31:45+00:00",
+     "ended": "2026-11-05T16:39:14+00:00",
+     "questions": 100,
+     "correct": 98,
+     "accuracy": 0.98,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 11.625887635455001,
+     "p95_request_seconds": 45.708553300006315,
+     "input_tokens": 94028,
+     "output_tokens": 125034,
+     "cost_usd": 0.511328625,
+     "cost_per_million_questions": 5113.28625,
+     "served_models": [
+      "gemini-3.8-flash"
+     ],
+     "searches": {
+      "reported": false,
+      "total": null,
+      "per_question": null,
+      "questions_with_search": null
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9919,
+      "sure": 83,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:39:29+00:00",
+     "ended": "2026-11-05T16:46:55+00:00",
+     "questions": 100,
+     "correct": 99,
+     "accuracy": 0.99,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 11.925346768985037,
+     "p95_request_seconds": 55.20039250492118,
+     "input_tokens": 82551,
+     "output_tokens": 115310,
+     "cost_usd": 0.471731475,
+     "cost_per_million_questions": 4717.31475,
+     "served_models": [
+      "gemini-3.8-flash"
+     ],
+     "searches": {
+      "reported": false,
+      "total": null,
+      "per_question": null,
+      "questions_with_search": null
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9901,
+      "sure": 78,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.9833333333333333,
+    "min": 0.98,
+    "max": 0.99
+   },
+   "accuracy_ci95": {
+    "low": 0.9566666666666667,
+    "high": 1.0
+   },
+   "median_request_seconds": {
+    "mean": 11.614785582971914,
+    "min": 11.293122344475705,
+    "max": 11.925346768985037
+   },
+   "p95_request_seconds": {
+    "mean": 46.56702805865401,
+    "min": 38.792138371034525,
+    "max": 55.20039250492118
+   },
+   "cost_per_million_questions": {
+    "mean": 4780.885499999999,
+    "min": 4512.0554999999995,
+    "max": 5113.28625
+   },
+   "run": 140,
+   "reasoning": "high",
+   "access": "Gemini API",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "cost_lower_bound": true,
+   "searches_per_question": null,
+   "questions_with_search": null,
+   "mean_chosen_probability": {
+    "mean": 0.9914666666666666,
+    "min": 0.9901,
+    "max": 0.9924
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 81.66666666666667,
+    "min": 78,
+    "max": 84
+   }
+  },
+  {
+   "provider": "claude",
+   "model": "claude-fable-5-1",
+   "perplexity_mode": null,
+   "request_model": "claude-fable-5-1",
+   "group": "chat",
+   "web": true,
+   "price": {
+    "basis": "Anthropic's API list price",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "date": "2026-10-28",
+    "input_per_million": 10.0,
+    "per_request": 0.0,
+    "output_per_million": 50.0,
+    "applies_to": "billed",
+    "per_search": 0.01,
+    "searches": "counted",
+    "search_source": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+    "search_note": "$10 per 1,000 searches plus the tokens of the search results"
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:24:11+00:00",
+     "ended": "2026-11-05T16:33:35+00:00",
+     "questions": 100,
+     "correct": 100,
+     "accuracy": 1.0,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 18.512011685001198,
+     "p95_request_seconds": 68.26213914901018,
+     "input_tokens": 4058986,
+     "output_tokens": 251714,
+     "cost_usd": 14.0391549,
+     "cost_per_million_questions": 140391.549,
+     "served_models": [
+      "claude-fable-5-1",
+      "claude-haiku-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "searches": {
+      "reported": true,
+      "total": 224,
+      "per_question": 2.24,
+      "questions_with_search": 94
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.8662,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:33:47+00:00",
+     "ended": "2026-11-05T16:42:06+00:00",
+     "questions": 100,
+     "correct": 99,
+     "accuracy": 0.99,
+     "missing": 0,
+     "not_success": 1,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 18.32121833844576,
+     "p95_request_seconds": 45.28962390997913,
+     "input_tokens": 3536600,
+     "output_tokens": 219042,
+     "cost_usd": 11.299611350000001,
+     "cost_per_million_questions": 112996.1135,
+     "served_models": [
+      "claude-fable-5-1",
+      "claude-haiku-5-5",
+      "claude-opus-4-8"
+     ],
+     "stand_in_refusals": 1,
+     "searches": {
+      "reported": true,
+      "total": 193,
+      "per_question": 1.93,
+      "questions_with_search": 90
+     },
+     "confidence": {
+      "answers": 99,
+      "mean_chosen_probability": 0.8715151515151515,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:42:21+00:00",
+     "ended": "2026-11-05T16:50:36+00:00",
+     "questions": 100,
+     "correct": 98,
+     "accuracy": 0.98,
+     "missing": 0,
+     "not_success": 1,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 15.932620437059086,
+     "p95_request_seconds": 44.185549605987035,
+     "input_tokens": 3386893,
+     "output_tokens": 215664,
+     "cost_usd": 10.96608485,
+     "cost_per_million_questions": 109660.8485,
+     "served_models": [
+      "claude-fable-5-1",
+      "claude-haiku-5-5",
+      "claude-opus-4-8"
+     ],
+     "stand_in_refusals": 1,
+     "searches": {
+      "reported": true,
+      "total": 185,
+      "per_question": 1.85,
+      "questions_with_search": 91
+     },
+     "confidence": {
+      "answers": 99,
+      "mean_chosen_probability": 0.8702020202020202,
+      "sure": 1,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.99,
+    "min": 0.98,
+    "max": 1.0
+   },
+   "accuracy_ci95": {
+    "low": 0.9733333333333333,
+    "high": 1.0
+   },
+   "median_request_seconds": {
+    "mean": 17.58861682016868,
+    "min": 15.932620437059086,
+    "max": 18.512011685001198
+   },
+   "p95_request_seconds": {
+    "mean": 52.57910422165878,
+    "min": 44.185549605987035,
+    "max": 68.26213914901018
+   },
+   "cost_per_million_questions": {
+    "mean": 121016.17033333333,
+    "min": 109660.8485,
+    "max": 140391.549
+   },
+   "run": 310,
+   "reasoning": "high",
+   "access": "Claude Code CLI, Claude subscription",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "cost_lower_bound": false,
+   "searches_per_question": {
+    "mean": 2.006666666666667,
+    "min": 1.85,
+    "max": 2.24
+   },
+   "questions_with_search": {
+    "mean": 91.66666666666667,
+    "min": 90,
+    "max": 94
+   },
+   "mean_chosen_probability": {
+    "mean": 0.8693057239057239,
+    "min": 0.8662,
+    "max": 0.8715151515151515
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0.3333333333333333,
+    "min": 0,
+    "max": 1
+   }
+  },
+  {
+   "provider": "claude",
+   "model": "claude-opus-5-5",
+   "perplexity_mode": null,
+   "request_model": "claude-opus-5-5",
+   "group": "chat",
+   "web": true,
+   "price": {
+    "basis": "Anthropic's API list price",
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "date": "2026-10-08",
+    "input_per_million": 4.0,
+    "per_request": 0.0,
+    "output_per_million": 20.0,
+    "applies_to": "billed",
+    "per_search": 0.01,
+    "searches": "counted",
+    "search_source": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+    "search_note": "$10 per 1,000 searches plus the tokens of the search results"
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:50:48+00:00",
+     "ended": "2026-11-05T16:58:27+00:00",
+     "questions": 100,
+     "correct": 98,
+     "accuracy": 0.98,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 17.027329092961736,
+     "p95_request_seconds": 37.15850880497601,
+     "input_tokens": 3054378,
+     "output_tokens": 191610,
+     "cost_usd": 5.5917777,
+     "cost_per_million_questions": 55917.776999999995,
+     "served_models": [
+      "claude-haiku-5-5",
+      "claude-opus-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "searches": {
+      "reported": true,
+      "total": 162,
+      "per_question": 1.62,
+      "questions_with_search": 86
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.84,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:58:36+00:00",
+     "ended": "2026-11-05T17:06:30+00:00",
+     "questions": 100,
+     "correct": 97,
+     "accuracy": 0.97,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 16.258004982490093,
+     "p95_request_seconds": 40.75289816991426,
+     "input_tokens": 3013809,
+     "output_tokens": 187649,
+     "cost_usd": 5.0029759,
+     "cost_per_million_questions": 50029.759,
+     "served_models": [
+      "claude-haiku-5-5",
+      "claude-opus-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "searches": {
+      "reported": true,
+      "total": 159,
+      "per_question": 1.59,
+      "questions_with_search": 84
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.8449,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T17:06:37+00:00",
+     "ended": "2026-11-05T17:13:42+00:00",
+     "questions": 100,
+     "correct": 99,
+     "accuracy": 0.99,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 15.408668294956442,
+     "p95_request_seconds": 38.86386767192744,
+     "input_tokens": 2744006,
+     "output_tokens": 175853,
+     "cost_usd": 4.646801,
+     "cost_per_million_questions": 46468.009999999995,
+     "served_models": [
+      "claude-haiku-5-5",
+      "claude-opus-5-5"
+     ],
+     "stand_in_refusals": 0,
+     "searches": {
+      "reported": true,
+      "total": 148,
+      "per_question": 1.48,
+      "questions_with_search": 85
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.8543,
+      "sure": 0,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.98,
+    "min": 0.97,
+    "max": 0.99
+   },
+   "accuracy_ci95": {
+    "low": 0.9566666666666667,
+    "high": 0.9966666666666667
+   },
+   "median_request_seconds": {
+    "mean": 16.231334123469424,
+    "min": 15.408668294956442,
+    "max": 17.027329092961736
+   },
+   "p95_request_seconds": {
+    "mean": 38.925091548939236,
+    "min": 37.15850880497601,
+    "max": 40.75289816991426
+   },
+   "cost_per_million_questions": {
+    "mean": 50805.18199999999,
+    "min": 46468.009999999995,
+    "max": 55917.776999999995
+   },
+   "run": 278,
+   "reasoning": "high",
+   "access": "Claude Code CLI, Claude subscription",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "cost_lower_bound": false,
+   "searches_per_question": {
+    "mean": 1.5633333333333335,
+    "min": 1.48,
+    "max": 1.62
+   },
+   "questions_with_search": {
+    "mean": 85,
+    "min": 84,
+    "max": 86
+   },
+   "mean_chosen_probability": {
+    "mean": 0.8463999999999999,
+    "min": 0.84,
+    "max": 0.8543
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   }
+  },
+  {
+   "provider": "xai",
+   "model": "grok-4.7",
+   "perplexity_mode": null,
+   "request_model": "grok-4.7",
+   "group": "chat",
+   "web": true,
+   "price": {
+    "basis": "xAI's API list price",
+    "source": "https://docs.x.ai/docs/models/grok-4.7",
+    "date": "2026-10-28",
+    "input_per_million": 2.0,
+    "per_request": 0.0,
+    "output_per_million": 6.0,
+    "applies_to": "billed",
+    "per_search": 0.005,
+    "searches": "counted",
+    "search_source": "https://docs.x.ai/developers/pricing",
+    "search_note": "$5 per 1,000 web_search calls plus tokens"
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T16:24:10+00:00",
+     "ended": "2026-11-05T16:34:32+00:00",
+     "questions": 100,
+     "correct": 98,
+     "accuracy": 0.98,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 18.246919706987683,
+     "p95_request_seconds": 75.70926408295054,
+     "input_tokens": 17997599,
+     "output_tokens": 155326,
+     "cost_usd": 22.21477,
+     "cost_per_million_questions": 222147.7,
+     "served_models": [
+      "grok-4.7"
+     ],
+     "searches": {
+      "reported": true,
+      "total": 912,
+      "per_question": 9.12,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9395,
+      "sure": 2,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:34:55+00:00",
+     "ended": "2026-11-05T16:44:42+00:00",
+     "questions": 100,
+     "correct": 97,
+     "accuracy": 0.97,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 16.255370325467084,
+     "p95_request_seconds": 70.85813712200616,
+     "input_tokens": 15537494,
+     "output_tokens": 142719,
+     "cost_usd": 20.499541999999998,
+     "cost_per_million_questions": 204995.41999999998,
+     "served_models": [
+      "grok-4.7"
+     ],
+     "searches": {
+      "reported": true,
+      "total": 878,
+      "per_question": 8.78,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.941,
+      "sure": 3,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T16:47:41+00:00",
+     "ended": "2026-11-05T16:56:26+00:00",
+     "questions": 100,
+     "correct": 100,
+     "accuracy": 1.0,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 15.385405455948785,
+     "p95_request_seconds": 57.0305532629136,
+     "input_tokens": 16004060,
+     "output_tokens": 146106,
+     "cost_usd": 20.554652,
+     "cost_per_million_questions": 205546.52000000002,
+     "served_models": [
+      "grok-4.7"
+     ],
+     "searches": {
+      "reported": true,
+      "total": 857,
+      "per_question": 8.57,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9445,
+      "sure": 1,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.9833333333333333,
+    "min": 0.97,
+    "max": 1.0
+   },
+   "accuracy_ci95": {
+    "low": 0.96,
+    "high": 1.0
+   },
+   "median_request_seconds": {
+    "mean": 16.62923182946785,
+    "min": 15.385405455948785,
+    "max": 18.246919706987683
+   },
+   "p95_request_seconds": {
+    "mean": 67.86598482262343,
+    "min": 57.0305532629136,
+    "max": 75.70926408295054
+   },
+   "cost_per_million_questions": {
+    "mean": 210896.54666666666,
+    "min": 204995.41999999998,
+    "max": 222147.7
+   },
+   "run": 311,
+   "reasoning": "high",
+   "access": "xAI Responses API, SuperGrok subscription",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "cost_lower_bound": false,
+   "searches_per_question": {
+    "mean": 8.823333333333332,
+    "min": 8.57,
+    "max": 9.12
+   },
+   "questions_with_search": {
+    "mean": 100,
+    "min": 100,
+    "max": 100
+   },
+   "mean_chosen_probability": {
+    "mean": 0.9416666666666667,
+    "min": 0.9395,
+    "max": 0.9445
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 2,
+    "min": 1,
+    "max": 3
    }
   }
  ],
@@ -2099,8 +4227,131 @@
   }
  },
  "pending": {
-  "parallel": "Parallel's own Decisions API: no key on this machine yet (asked Ümit, #1283).",
-  "gpu": "Runs on our GPUs: waits for a GPU window."
+  "parallel": "Parallel's own Decisions API: no key on this machine yet.",
+  "gpu": "Runs on our GPUs: waits for a GPU window.",
+  "chat_gpu": [
+   {
+    "setup": "gemma-4-31b",
+    "provider": "vllm",
+    "model": "gemma-4-31B-it",
+    "run": 119,
+    "reasoning": "off",
+    "url_var": "GEMMA_URL",
+    "host": "our GPU",
+    "group": "chat",
+    "web": false,
+    "name": "Gemma 4 31B"
+   },
+   {
+    "setup": "qwen3.8-27b",
+    "provider": "vllm",
+    "model": "qwen38-27b-bf16",
+    "run": 318,
+    "reasoning": "low",
+    "url_var": "QWEN_URL",
+    "host": "our GPU",
+    "group": "chat",
+    "web": false,
+    "name": "Qwen3.8-27B"
+   },
+   {
+    "setup": "qwen3-14b",
+    "provider": "vllm",
+    "model": "qwen3-14b",
+    "run": 131,
+    "reasoning": "off",
+    "url_var": "QWEN3_14B_URL",
+    "host": "our GPU",
+    "group": "chat",
+    "web": false,
+    "name": "Qwen3-14B"
+   },
+   {
+    "setup": "erk-14b",
+    "provider": "vllm",
+    "model": "erk-14b",
+    "run": 132,
+    "reasoning": "off",
+    "url_var": "ERK_URL",
+    "host": "our GPU",
+    "group": "chat",
+    "web": false,
+    "name": "Erk-14B"
+   },
+   {
+    "setup": "deepseek-v4.1-flash-1017",
+    "provider": "vllm",
+    "model": "deepseek-v4.1-flash-1017",
+    "run": 585,
+    "reasoning": "on",
+    "url_var": "DEEPSEEK_URL",
+    "host": "our GPU",
+    "group": "chat",
+    "web": false,
+    "name": "DeepSeek-V4.1-Flash 1017"
+   },
+   {
+    "setup": "deepseek-v4.1-flash-1017-off",
+    "provider": "vllm",
+    "model": "deepseek-v4.1-flash-1017",
+    "run": 558,
+    "reasoning": "off",
+    "url_var": "DEEPSEEK_URL",
+    "host": "our GPU",
+    "group": "chat",
+    "web": false,
+    "name": "DeepSeek-V4.1-Flash 1017"
+   }
+  ],
+  "chat_unfinished": [
+   "gpt-6-astra",
+   "gpt-6.1-sol",
+   "gemini-3.8-flash",
+   "gpt-6-astra-web",
+   "gemini-4-argon-web"
+  ]
+ },
+ "chat": {
+  "request": "PWS-Decisions has no chat request of its own, so each question goes out as the benchmark's request (the state, the question's instructions, its choices as lettered options) in the site's English chat prompts, one question per request; the reply is one letter and a 0-1 confidence in JSON, scored with PWS-Decisions' scorer.",
+  "system_prompt": "You are taking an English multiple-choice benchmark. Select exactly one supplied option per question and state your confidence in each answer. Do not explain.",
+  "instruction": "Answer each of the following multiple-choice questions. Without explanation, return for each question the letter of the correct option together with a confidence score between 0 and 1 showing how sure you are that your answer is correct, in the specified JSON format.",
+  "timeout_seconds": 900.0,
+  "setting": "each model's best Text tab setting (highest Turkish accuracy)",
+  "web_search": {
+   "openai": {
+    "how": "Codex CLI with web_search=\"live\" (live web access; the default \"cached\" uses an OpenAI-kept index)",
+    "doc": "https://developers.openai.com/codex/config-reference",
+    "read": "2026-11-05",
+    "price_source": "https://developers.openai.com/api/docs/pricing",
+    "per_search": 0.01,
+    "price_note": "$10 per 1,000 web search calls; search content tokens billed at the model's rates"
+   },
+   "claude": {
+    "how": "Claude Code CLI with its WebSearch tool (the Claude API's web search tool)",
+    "doc": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+    "read": "2026-11-05",
+    "price_source": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+    "per_search": 0.01,
+    "price_note": "$10 per 1,000 searches plus the tokens of the search results"
+   },
+   "gemini": {
+    "how": "Gemini API generateContent with the google_search tool (Grounding with Google Search)",
+    "doc": "https://ai.google.dev/gemini-api/docs/google-search",
+    "read": "2026-11-05",
+    "price_source": "https://ai.google.dev/gemini-api/docs/google-search",
+    "per_search": 0.014,
+    "price_note": "Gemini 3 and newer: $14 per 1,000 search queries the model runs, after 5,000 free a month (not deducted here)"
+   },
+   "xai": {
+    "how": "xAI Responses API with the web_search tool",
+    "doc": "https://docs.x.ai/developers/tools/web-search",
+    "read": "2026-11-05",
+    "price_source": "https://docs.x.ai/developers/pricing",
+    "per_search": 0.005,
+    "price_note": "$5 per 1,000 web_search calls plus tokens"
+   }
+  },
+  "web_not_run": "Kimi K3.1 Pro and GLM-5.3 run through OpenRouter, whose web search is OpenRouter's own plugin, not the makers' search; they run without web only."
  },
  "openai_web": {
   "guide": "https://developers.openai.com/api/docs/guides/decisions",

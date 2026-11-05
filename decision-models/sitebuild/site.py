@@ -210,7 +210,8 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     of the divisions), in percent unless tick writes a value its way, as HTML (aa-decision-index/ writes dollars;
     cost_tick both cost units). head names the value column above it: (in full, on a phone), as ("Turkish · English",
     "TR · EN"). With columns, several value columns, each named so: a row's texts then give one value per column
-    instead."""
+    instead. A row's group (optional) heads it and the rows after it of the same group, as a small line across the chart
+    (web-grounding/ names each set of questions so)."""
     share = lambda value: 100 * min(max(value, 0.0), top) / top  # noqa: E731
     place = lambda value: f"{share(value):.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
@@ -221,7 +222,11 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     lines = "" if divisions == 4 else f' style="background-size:{100 / divisions:.4g}% 100%"'
     dense = " dense" if divisions > 4 else ""
     items = []
+    group = None
     for row in rows:
+        if row.get("group") and row["group"] != group:
+            group = row["group"]
+            items.append(f'<li class="hbar-group">{esc(group)}</li>')
         label = f'<a href="{row["href"]}">{esc(row["label"])}</a>' if row.get("href") else esc(row["label"])
         if row.get("family"):
             label = family_icon(row["family"]) + label

@@ -1,9 +1,13 @@
 """Web grounding (web-grounding/): Perplexity Decider v1.2 through its Decisions API with web search off and with web, from
 results.json's web_grounding: the two hosted setups of the Text tab on the full bank, the 200-question pilot that came
-first, the "Bilmiyorum" pairs, the English pair and PWS-Decisions. Four paired charts (accuracy, non-hallucination,
-latency, cost), the tables, what the search returned and the caveats. The home page's experiments line and the Perplexity
-family's model pages link here. Both setups are decision models (the build stops otherwise), so all but the intro shows
-for the view bar's all and decision groups (data-models) and the chat group shows a note instead."""
+first, the "Bilmiyorum" pairs, the English pair and PWS-Decisions. Three result cards on the first screen (the three main
+comparisons), four charts in the home page's format, each in its Measure section (accuracy, with the full bank by part
+and the pilot folded; non-hallucination; latency; cost: each set of questions a small heading over its two setups, web
+off grey and with web the accent colour), PWS-Decisions' charts of every setup (pws_decisions.py, from
+pws-decisions.json), what the search returned, the caveats, and the detailed tables. The home page's experiments line and
+the Perplexity family's model pages link here. Both compared setups are decision models (the build stops otherwise), so
+the comparison shows for the view bar's all and decision groups (data-models) and the chat group shows a note instead;
+PWS-Decisions, with chat models among its setups, shows in every group."""
 
 from __future__ import annotations
 
@@ -11,17 +15,17 @@ import math
 from typing import Any
 
 from build_page import long_date
-from sitebuild.site import DECISION_ONLY, Site, chat_note, dollars_tick, esc, hbars, log_axis, pct, rel
+from sitebuild import pws_decisions
+from sitebuild.site import (DECISION_ONLY, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value, esc,
+                            family_icon, hbars, log_axis, pct, rel)
 
 PATH = "web-grounding/"
 TITLE = "Web grounding"
-# A paired test's p below this reads as a difference beyond chance.
-SIGNIFICANT = 0.05
 # The protocol's rule on the pilot: a full grounded run only for a gain of more than this many points of accuracy.
 PILOT_RULE_POINTS = 5
 # The day we ran PWS-Decisions' public questions (grounding_test.py), which no run id of ours records.
 PWS_RUN_DATE = "2026-11-05"
-HEAD = ("Off · With web", "Off · With web")
+SIDES = ("off", "on")
 
 
 def check(site: Site, data: dict[str, Any]) -> None:
@@ -45,21 +49,9 @@ def ms(seconds: float) -> str:
     return f"{1000 * seconds:,.0f}"
 
 
-def dollars(value: float) -> str:
-    return f"${value:,.2f}" if value < 100 else f"${value:,.0f}"
-
-
 def p_text(p: float) -> str:
     """An exact McNemar p as the page writes it: below 0.001 as a bound, else to three decimals."""
     return "p < 0.001" if p < 0.001 else f"p = {p:.3f}"
-
-
-def paired_text(item: dict[str, Any]) -> str:
-    """A paired test in words, as HTML: the right answers only off and only with web, its p, and whether it tells them
-    apart."""
-    verdict = "a difference beyond chance" if item["p"] < SIGNIFICANT else "within chance"
-    return esc(f"{item['off_only']:,} right only off, {item['on_only']:,} only with web; exact McNemar {p_text(item['p'])}, "
-               f"{verdict}")
 
 
 def points(pair: dict[str, Any]) -> float:
@@ -86,28 +78,75 @@ def arms(data: dict[str, Any]) -> list[tuple[str, dict[str, Any], dict[str, Any]
     ]
 
 
+def by_label(data: dict[str, Any]) -> dict[str, tuple[str, dict[str, Any], dict[str, Any], dict[str, Any] | None]]:
+    return {row[0].split(",")[0]: row for row in arms(data)}
+
+
 def main_arms(data: dict[str, Any]) -> list[tuple[str, dict[str, Any], dict[str, Any], dict[str, Any] | None]]:
-    """The sets of the latency and cost charts: arms() without the reading and grammar rows."""
-    return [row for row in arms(data) if not row[0].split(",")[0].endswith(("reading", "grammar"))]
+    """The three main comparisons: the Turkish full bank, the English questions and PWS-Decisions (the result cards, the
+    first accuracy chart, latency and cost)."""
+    found = by_label(data)
+    return [found["Turkish"], found["English"], found["PWS-Decisions"]]
 
 
-def card(anchor: str, title: str, sub: str, chart: str, legend: str = "") -> str:
-    return (f'<figure class="panel chart-card" id="{anchor}"><div class="chart-head"><h2>{esc(title)}</h2>'
-            f'<p class="chart-sub">{sub}</p></div>{chart}<p class="chart-legend"><span><i class="swatch swatch-base"></i>'
-            f'Off</span> <span><i class="swatch swatch-lead"></i>With web</span>{legend}</p></figure>')
+def split_arms(data: dict[str, Any]) -> list[tuple[str, dict[str, Any], dict[str, Any], dict[str, Any] | None]]:
+    """The full bank's reading and grammar."""
+    found = by_label(data)
+    return [found["Turkish reading"], found["Turkish grammar"]]
 
 
-def pair_bars(value_off: float, value_on: float) -> list[dict[str, Any]]:
-    return [{"value": value_off, "kind": "base"}, {"value": value_on, "kind": "lead"}]
+def pilot_arms(data: dict[str, Any]) -> list[tuple[str, dict[str, Any], dict[str, Any], dict[str, Any] | None]]:
+    """The 200-question pilot that came first, with its reading and grammar."""
+    found = by_label(data)
+    return [found["Turkish pilot"], found["Pilot reading"], found["Pilot grammar"]]
 
 
-def accuracy_chart(data: dict[str, Any], digits: int) -> str:
-    chart = hbars([
-        {"label": label, "bars": pair_bars(off["accuracy"], on["accuracy"]),
-         "text": f"{pct(off['accuracy'], digits)} · {pct(on['accuracy'], digits)}",
-         "title": f"{label}: {off['correct']:,} right off, {on['correct']:,} with web, of {off['questions']:,}"}
-        for label, off, on, _ in arms(data)], head=HEAD)
-    return card("chart-accuracy", "Accuracy", "Share of questions answered right, off and with web · higher is better", chart)
+def setups(site: Site, data: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """The two setups, off and with web (on): their full names, links from this page and their family."""
+    return {side: {"name": data["names"][side], "href": rel(PATH, site.model_path(site.by_id[data["text_runs"][side]])),
+                   "family": site.families[data["text_runs"][side]]} for side in SIDES}
+
+
+def pair_rows(named: dict[str, dict[str, Any]], group: str, values: dict[str, float], texts: dict[str, str],
+              titles: dict[str, str], markers: dict[str, float] | None = None, html: bool = False) -> list[dict[str, Any]]:
+    """A set of questions' two rows under the set's heading: the setup with web off (grey), then with web (the accent
+    colour, v3.css .web-off and .web-on), each with its family icon and full name."""
+    return [{"group": group, "label": named[side]["name"], "href": named[side]["href"], "family": named[side]["family"]["name"],
+             "bars": [{"value": values[side], "kind": f"web-{side}"}],
+             "html" if html else "text": texts[side], "title": f"{named[side]['name']}, {group}: {titles[side]}",
+             **({"marker": markers[side]} if markers else {})}
+            for side in SIDES]
+
+
+def legend_pair(named: dict[str, dict[str, Any]]) -> str:
+    return (f'<span><i class="swatch swatch-web-off"></i>Web off: {esc(named["off"]["name"])}</span> '
+            f'<span><i class="swatch swatch-web-on"></i>With web: {esc(named["on"]["name"])}</span>')
+
+
+def card(key: str, title: str, sub: str, chart: str, named: dict[str, dict[str, Any]], legend: str = "",
+         switch: str = "", wide: bool = False) -> str:
+    """A chart card in its measure's section (the id the view bar's Measure row links to); wide gives the value column
+    more room."""
+    return (f'<section class="measure" id="{key}" aria-label="{esc(title)}">'
+            f'<figure class="panel chart-card{" chart-wide" if wide else ""}" id="chart-{key}"><div class="chart-head"><h2>{esc(title)}</h2>'
+            f'<p class="chart-sub">{sub}</p>{switch}</div>{chart}<p class="chart-legend">{legend_pair(named)} '
+            f"<span>Each heading names the questions both setups answered.</span>{legend}</p></figure></section>")
+
+
+def accuracy_chart(data: dict[str, Any], named: dict[str, dict[str, Any]], digits: int) -> str:
+    def chart(rows: list[tuple[str, dict[str, Any], dict[str, Any], dict[str, Any] | None]]) -> str:
+        return hbars([row for label, off, on, _ in rows for row in pair_rows(
+            named, f"{label} · {points({'off': off, 'on': on}):+.1f} pt", {"off": off["accuracy"], "on": on["accuracy"]},
+            {side: f"{pct(item['accuracy'], digits)} · {item['correct']:,}" for side, item in (("off", off), ("on", on))},
+            {side: f"{item['correct']:,} of {item['questions']:,} right" for side, item in (("off", off), ("on", on))})],
+            head=("Accuracy · Right", "% · Right"))
+
+    pilot = data["pilot"]
+    body = (chart(main_arms(data)) + '<h3 class="chart-part">The Turkish full bank by part</h3>' + chart(split_arms(data))
+            + f'<details class="chart-more"><summary>The pilot, {pilot["questions"]:,} questions, run first</summary>'
+            + chart(pilot_arms(data)) + "</details>")
+    return card("accuracy", "Accuracy", "Share of questions answered right, then the right answers; beside each set, the "
+                "change with web in percentage points · higher is better", body, named)
 
 
 def dont_know_pairs(data: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
@@ -116,113 +155,140 @@ def dont_know_pairs(data: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
             (f"English, {data['english_dont_know']['questions']:,} kept questions, I don't know", data["english_dont_know"])]
 
 
-def non_hallucination_chart(data: dict[str, Any], digits: int) -> str:
-    def notes(side: dict[str, Any]) -> str:
-        return f"{side['dont_know']:,} of {side['dont_know'] + side['wrong']:,}"
+def non_hallucination_chart(data: dict[str, Any], named: dict[str, dict[str, Any]], digits: int) -> str:
+    def group(label: str, pair: dict[str, Any]) -> str:
+        off, on = pair["off"], pair["on"]
+        right = f"{off['right']:,} right both ways" if off["right"] == on["right"] else f"right {off['right']:,} → {on['right']:,}"
+        return f"{label}: {right}, wrong {off['wrong']:,} → {on['wrong']:,}"
 
-    chart = hbars([
-        {"label": label, "bars": pair_bars(pair["off"]["non_hallucination"], pair["on"]["non_hallucination"]),
-         "text": f"{pct(pair['off']['non_hallucination'], digits)} · {pct(pair['on']['non_hallucination'], digits)}",
-         "title": f"{label}: the option {notes(pair['off'])} not right off, {notes(pair['on'])} with web"}
-        for label, pair in dont_know_pairs(data)], head=HEAD)
-    legend = " ".join(
-        f"<span>{esc(label)}: answered {pct(pair['off']['answered'], digits)} · {pct(pair['on']['answered'], digits)}, "
-        f"wrong of answers {pct(pair['off']['wrong_of_answers'], digits)} · {pct(pair['on']['wrong_of_answers'], digits)}.</span>"
-        for label, pair in dont_know_pairs(data))
-    return card("chart-non-hallucination", "Non-hallucination",
-                "“Bilmiyorum” in Turkish, “I don't know” in English, offered as a sixth option: the option among the "
-                "answers that were not right · higher is better. Not run on PWS-Decisions", chart, " " + legend)
+    def title(side: dict[str, Any]) -> str:
+        return (f"the option {side['dont_know']:,} of {side['dont_know'] + side['wrong']:,} not right; answered "
+                f"{pct(side['answered'], digits)}; wrong of answers {pct(side['wrong_of_answers'], digits)}")
 
-
-def latency_chart(data: dict[str, Any]) -> str:
-    rows = main_arms(data)
-    top = max(0.5, math.ceil(2 * max(side["median_request_seconds"] for _, off, on, _ in rows for side in (off, on))) / 2)
-    chart = hbars([
-        {"label": label, "bars": pair_bars(off["median_request_seconds"] / top, on["median_request_seconds"] / top),
-         "text": f"{ms(off['median_request_seconds'])} · {ms(on['median_request_seconds'])} ms",
-         "title": f"{label}: median {ms(off['median_request_seconds'])} ms off, {ms(on['median_request_seconds'])} ms with web; "
-                  f"95th percentile {ms(off['p95_request_seconds'])} ms off, {ms(on['p95_request_seconds'])} ms with web"}
-        for label, off, on, _ in rows], top=1.0, tick=lambda value: f"{1000 * top * value:,.0f} ms", head=HEAD)
-    p95 = "; ".join(f"{label}: {ms(off['p95_request_seconds'])} · {ms(on['p95_request_seconds'])} ms" for label, off, on, _ in rows)
-    return card("chart-latency", "Latency",
-                "Median time per request, one question per request, from our machine · lower is better", chart,
-                f" <span>95th percentile by nearest rank, off · with web: {esc(p95)}.</span>")
+    rows = [row for label, pair in dont_know_pairs(data) for row in pair_rows(
+        named, group(label, pair), {side: pair[side]["non_hallucination"] for side in SIDES},
+        {side: f"{pct(pair[side]['non_hallucination'], digits)} | {pair[side]['dont_know']:,} · "
+               f"{pct(pair[side]['answered'], digits)} · {pct(pair[side]['wrong_of_answers'], digits)}" for side in SIDES},
+        {side: title(pair[side]) for side in SIDES})]
+    return card("non-hallucination", "Non-hallucination",
+                "“Bilmiyorum” in Turkish, “I don't know” in English, offered as a sixth option: the bar is the option's "
+                "share of the answers that were not right; beside it the times it was chosen, the answered share (right + "
+                "wrong of the questions) and the wrong share of the answers · higher is better, read with the answered "
+                "share. Not run on PWS-Decisions",
+                hbars(rows, head=("Rate | Option · Answered · Wrong", "Rate | Opt · Ans · Wrong")), named,
+                " <span>A setup that always chose the option would reach 100% with no right answers.</span>", wide=True)
 
 
-def cost_chart(data: dict[str, Any], upper: dict[str, str]) -> str:
-    rows = main_arms(data)
-    values = [side["cost_per_million_questions"] for _, off, on, _ in rows for side in (off, on)]
-    place, axis = log_axis(values, dollars_tick)
-    on_text = lambda side: f"{upper['mark']} {dollars(side['cost_per_million_questions'])}"  # noqa: E731
-    chart = hbars([
-        {"label": label, "bars": pair_bars(place(off["cost_per_million_questions"]), place(on["cost_per_million_questions"])),
-         "text": f"{dollars(off['cost_per_million_questions'])} · {on_text(on)}",
-         "title": f"{label}: {dollars(off['cost_per_million_questions'])} per 1M questions off, {on_text(on)} with web"}
-        for label, off, on, _ in rows], head=HEAD, **axis)
+def latency_chart(data: dict[str, Any], named: dict[str, dict[str, Any]]) -> str:
+    arms_shown = main_arms(data)
+    top = max(0.5, math.ceil(2 * max(side["p95_request_seconds"] for _, off, on, _ in arms_shown for side in (off, on))) / 2)
+    rows = [row for label, off, on, _ in arms_shown for row in pair_rows(
+        named, label, {"off": off["median_request_seconds"] / top, "on": on["median_request_seconds"] / top},
+        {side: f"{ms(item['median_request_seconds'])} · {ms(item['p95_request_seconds'])} ms" for side, item in (("off", off), ("on", on))},
+        {side: f"median {ms(item['median_request_seconds'])} ms, 95th percentile {ms(item['p95_request_seconds'])} ms"
+         for side, item in (("off", off), ("on", on))},
+        markers={"off": off["p95_request_seconds"] / top, "on": on["p95_request_seconds"] / top})]
+    return card("latency", "Latency",
+                "Median time per request (the bar) and 95th percentile by nearest rank (the line), one question per "
+                "request, from our machine · lower is better",
+                hbars(rows, top=1.0, tick=lambda value: f"{top * value:g}\u00a0s", head=("Median · p95", "Med · p95")),
+                named, ' <span><i class="swatch swatch-marker"></i>95th percentile</span>')
+
+
+def cost_chart(data: dict[str, Any], named: dict[str, dict[str, Any]], upper: dict[str, str]) -> str:
+    arms_shown = main_arms(data)
+    per_k = lambda side: side["cost_per_million_questions"] / 1000  # noqa: E731
+    place, axis = log_axis([per_k(side) for _, off, on, _ in arms_shown for side in (off, on)], lambda value: value)
+    write = axis.pop("tick")
+    prefix = {"off": "", "on": f"{upper['mark']} "}
+    rows = [row for label, off, on, _ in arms_shown for row in pair_rows(
+        named, label, {"off": place(per_k(off)), "on": place(per_k(on))},
+        {side: cost_value(per_k(item), prefix[side]) + (esc(" incl. search") if side == "on" else "")
+         for side, item in (("off", off), ("on", on))},
+        {side: cost_words(per_k(item), prefix[side]) + ("; includes the search fee" if side == "on" else "; no search fee")
+         for side, item in (("off", off), ("on", on))}, html=True)]
     price = data["price"]
-    return card("chart-cost", "Cost",
-                f"Per 1M questions, log scale: input tokens at ${price['input_per_million']:g} per 1M, plus "
-                f"${price['per_search']:g} per request with web · lower is better", chart,
-                f" <span>{esc(upper['mark'])} {esc(upper['note'])}</span>")
+    return card("cost", "Cost",
+                f"Estimated dollars {cost_per()}, log scale: input tokens at ${price['input_per_million']:g} per 1M, plus "
+                f"${price['per_search']:g} per request with web (incl. search) · lower is better",
+                hbars(rows, head=("Cost", "Cost"), tick=lambda offset: cost_tick(write(offset)), **axis), named,
+                f" <span>{esc(upper['mark'])} {esc(upper['note'])}</span>", cost_switch(), wide=True)
 
 
-def headline(data: dict[str, Any], digits: int, upper: dict[str, str]) -> str:
-    turkish, pilot, english, pws = data["turkish"], data["pilot"], data["english"], data["pws"]
-    acc = lambda pair: f"{pct(pair['off']['accuracy'], digits)} to {pct(pair['on']['accuracy'], digits)}"  # noqa: E731
-    on = turkish["on"]
-    slower = on["median_request_seconds"] / turkish["off"]["median_request_seconds"]
-    return (f"<p>With web, accuracy went from {acc(turkish)} on our full Turkish bank of {turkish['questions']:,} questions "
-            f"({paired_text(turkish['paired'])}), from {acc(pilot)} on the {pilot['questions']:,}-question pilot "
-            f"({paired_text(pilot['paired'])}), from {acc(english)} on our {english['questions']:,} English questions "
-            f"({paired_text(english['paired'])}) and from {acc(pws)} on PWS-Decisions ({paired_text(pws['paired'])}). "
-            f"On the full Turkish bank the median request took {slower:.1f} times as long, and the cost per 1M questions "
-            f"went from {dollars(turkish['off']['cost_per_million_questions'])} to {upper['mark']} "
-            f"{dollars(on['cost_per_million_questions'])}.</p>")
+def result_cards(data: dict[str, Any], digits: int, upper: dict[str, str]) -> str:
+    """The page's first screen: the three main comparisons, each its accuracy off and with web, the change in points,
+    and the cost off and with web (with web an upper-bound estimate, ≤)."""
+    turkish, english, pws = (row[1:3] for row in main_arms(data))
+    names = [f"Turkish, {turkish[0]['questions']:,} questions", f"English reading, {english[0]['questions']:,}",
+             f"PWS-Decisions, {pws[0]['questions']:,}"]
+    cards = []
+    for name, (off, on) in zip(names, (turkish, english, pws)):
+        cost = (f"{cost_value(off['cost_per_million_questions'] / 1000)} vs "
+                f"{cost_value(on['cost_per_million_questions'] / 1000, upper['mark'] + ' ')} {cost_per()}")
+        cards.append(f'<div class="result-card"><h2>{esc(name)}</h2><p class="result-main">{esc(pct(off["accuracy"], digits))} → '
+                     f'{esc(pct(on["accuracy"], digits))} <span class="result-gain">({points({"off": off, "on": on}):+.1f} '
+                     f'points)</span></p><p class="result-cost">{cost}</p></div>')
+    return (f'<div class="result-cards">{"".join(cards)}</div><p class="note">Accuracy with web off → with web; cost web '
+            f"off vs with web. {esc(upper['mark'])} Upper-bound estimate: the search fee counted for every request with "
+            f'web. {cost_switch()}</p>')
 
 
-def table(data: dict[str, Any], digits: int, upper: dict[str, str]) -> str:
-    heads = (("Runs", "off · with web"), ("Right", "off · with web"), ("Accuracy", "off · with web"),
-             ("Median per request", "ms"), ("95th percentile", "ms"), ("Per 1M questions", "off · with web"),
-             ("Right only off · only with web", "exact McNemar p"))
-    head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
+def setup_cell(named: dict[str, dict[str, Any]], side: str, questions: str, run: str) -> str:
+    """A table row's setup: its family icon and full name, linked to its page, with its questions and run under it."""
+    item = named[side]
+    return (f'<td class="model">{family_icon(item["family"]["name"])}<a class="model-name" href="{item["href"]}">'
+            f'{esc(item["name"])}</a><span class="small">{esc(questions)} · {esc(run)}</span></td>')
 
-    def row(label: str, off: dict[str, Any], on: dict[str, Any], test: dict[str, Any] | None) -> str:
-        def cell(name: str, write: Any, on_write: Any = None) -> str:
-            return f'<td class="num" data-label="{esc(name)}">{esc(f"{write(off)} · {(on_write or write)(on)}")}</td>'
 
-        runs = (lambda side: str(side["run"])) if "run" in off else (lambda side: "ours, no run id")
-        return (f'<tr><td class="model"><span class="model-name">{esc(label)}</span></td>'
-                f"{cell(heads[0][0], runs)}{cell(heads[1][0], lambda side: f'{side['correct']:,} of {side['questions']:,}')}"
-                f"{cell(heads[2][0], lambda side: pct(side['accuracy'], digits))}"
-                f"{cell(heads[3][0], lambda side: ms(side['median_request_seconds']))}"
-                f"{cell(heads[4][0], lambda side: ms(side['p95_request_seconds']))}"
-                f"{cell(heads[5][0], lambda side: dollars(side['cost_per_million_questions']), lambda side: f'{upper['mark']} {dollars(side['cost_per_million_questions'])}')}"
-                f'<td class="num" data-label="{esc(heads[6][0])}">'
-                f"{esc('—' if test is None else f'{test['off_only']:,} · {test['on_only']:,} ({p_text(test['p'])})')}</td></tr>")
+def table(data: dict[str, Any], named: dict[str, dict[str, Any]], digits: int, upper: dict[str, str]) -> str:
+    heads = (("Right", "of the questions"), ("Accuracy", "higher is better"), ("Median per request", "ms; lower is better"),
+             ("95th percentile", "ms; lower is better"), ("Cost", "lower is better"),
+             ("Right only with this setup", "exact McNemar p"))
+    head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">'
+                   f'{(cost_per() + "; ") if name == "Cost" else ""}{esc(note)}</span></th>' for name, note in heads)
 
-    rows = "".join(row(label, off, on, test) for label, off, on, test in arms(data))
-    idk_heads = (("Runs", "off · with web"), ("Right · wrong · the option", "off | with web"),
-                 ("Answered", "(right + wrong) / questions"), ("Wrong of answers", "wrong / (right + wrong)"),
-                 ("Non-hallucination", "the option / (the option + wrong)"))
+    def rows(label: str, off: dict[str, Any], on: dict[str, Any], test: dict[str, Any] | None) -> str:
+        out = []
+        for side, item in (("off", off), ("on", on)):
+            run = f"run {item['run']}" if "run" in item else "ours, no run id"
+            prefix = f"{upper['mark']} " if side == "on" else ""
+            only = "—" if test is None else f"{test[f'{side}_only']:,} ({p_text(test['p'])})"
+            cells = [esc(f"{item['correct']:,} of {item['questions']:,}"), esc(pct(item["accuracy"], digits)),
+                     esc(ms(item["median_request_seconds"])), esc(ms(item["p95_request_seconds"])),
+                     cost_value(item["cost_per_million_questions"] / 1000, prefix)
+                     + f'<span class="small">{"incl. search" if side == "on" else "no search fee"}</span>', esc(only)]
+            out.append(f"<tr>{setup_cell(named, side, label, run)}"
+                       + "".join(f'<td class="num" data-label="{esc(name)}">{text}</td>' for (name, _), text in zip(heads, cells))
+                       + "</tr>")
+        return "".join(out)
+
+    idk_heads = (("Right · wrong · the option", "counts"), ("Answered", "(right + wrong) / questions"),
+                 ("Wrong of answers", "wrong / (right + wrong)"),
+                 ("Non-hallucination", "the option / (the option + wrong); higher is better"))
     idk_head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in idk_heads)
-    counts = lambda side: f"{side['right']:,} · {side['wrong']:,} · {side['dont_know']:,}"  # noqa: E731
 
-    def idk_row(label: str, pair: dict[str, Any]) -> str:
-        cells = [f"{pair['off']['run']} · {pair['on']['run']}", f"{counts(pair['off'])} | {counts(pair['on'])}"] + [
-            f"{pct(pair['off'][key], digits)} · {pct(pair['on'][key], digits)}" for key in ("answered", "wrong_of_answers", "non_hallucination")]
-        return (f'<tr><td class="model"><span class="model-name">{esc(label)}</span></td>'
-                + "".join(f'<td class="num" data-label="{esc(name)}">{esc(text)}</td>' for (name, _), text in zip(idk_heads, cells))
-                + "</tr>")
+    def idk_rows(label: str, pair: dict[str, Any]) -> str:
+        out = []
+        for side in SIDES:
+            item = pair[side]
+            cells = [f"{item['right']:,} · {item['wrong']:,} · {item['dont_know']:,}"] + [
+                pct(item[key], digits) for key in ("answered", "wrong_of_answers", "non_hallucination")]
+            out.append(f"<tr>{setup_cell(named, side, label, f'run {item['run']}')}"
+                       + "".join(f'<td class="num" data-label="{esc(name)}">{esc(text)}</td>' for (name, _), text in zip(idk_heads, cells))
+                       + "</tr>")
+        return "".join(out)
 
-    return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Questions</th>{head}</tr></thead>'
-            f"<tbody>{rows}</tbody></table></div>"
-            '<p class="note">Each cell: off · with web. Times: per request from our machine; the 95th percentile by nearest '
-            "rank. Cost: each run's input tokens at the price below, plus the fee per search for every request with web "
-            f"({esc(upper['mark'])} {esc(upper['note'])}) Right only off · only with web: the questions one arm got right and "
-            "the other did not, with the exact McNemar p.</p>"
+    return (f'{cost_switch()}<div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr>'
+            f'<th scope="col">Setup</th>{head}</tr></thead>'
+            f'<tbody>{"".join(rows(*arm) for arm in arms(data))}</tbody></table></div>'
+            '<p class="note">Two rows per set of questions: off, then with web; under each name, its questions and run. Times: '
+            "per request from our machine; the 95th percentile by nearest rank. Cost: each run's input tokens at the price "
+            f"below, plus the fee per search for every request with web ({esc(upper['mark'])} {esc(upper['note'])}) Right "
+            "only with this setup: the questions it got right and the other setup did not, with the exact McNemar p of the "
+            "pair.</p>"
             '<h3 class="board-group">With “Bilmiyorum” (Turkish) or “I don\'t know” (English) as a sixth option</h3>'
-            f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Questions</th>{idk_head}</tr>'
-            f'</thead><tbody>{"".join(idk_row(label, pair) for label, pair in dont_know_pairs(data))}</tbody></table></div>')
+            f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Setup</th>{idk_head}</tr>'
+            f'</thead><tbody>{"".join(idk_rows(label, pair) for label, pair in dont_know_pairs(data))}</tbody></table></div>')
 
 
 def top_sites(search: dict[str, Any]) -> str:
@@ -263,6 +329,7 @@ def sources(data: dict[str, Any]) -> str:
                          "overlap; this does not show where a gain came from.")
     return f"""<section class="card" id="sources">
       <h2>What the search returned</h2>
+      <p><strong>In short.</strong> On the full bank, {turkish['search']['shared_words']['questions']:,} questions had {words}+ consecutive question words in a returned title or snippet, and {turkish['search']['source_book']['questions']:,} got the source book itself. A word match alone does not prove that the answer was found.</p>
       <p>Unit: returned pages, up to 5 per question; each site's count is out of the run's total pages.</p>
       <p><strong>The {words}+ word check.</strong> A literal-match check: runs of {words} or more consecutive words of the question (its body and each option's text, without the option letters) in a returned page's title or snippet. It shows only such matches. Our translations are unpublished, but that does not prove the answer, or equivalent information, cannot be found on the web.</p>
       <h3>Turkish, full bank (run {turkish['on']['run']})</h3>
@@ -288,7 +355,7 @@ def caveats(data: dict[str, Any], upper: dict[str, str]) -> str:
       <h2>Read it with these caveats</h2>
       <ul>
         <li><strong>Grounded searches send the questions to Perplexity's search.</strong> Each question with web went out as a web search.</li>
-        <li><strong>The pilot came first.</strong> Our protocol's first step was {pilot['questions']:,} questions ({pilot['off']['groups']['reading']['questions']:,} reading, {pilot['off']['groups']['grammar']['questions']:,} grammar; runs {pilot['off']['run']} and {pilot['on']['run']}). A full grounded run was due only for a gain of more than {PILOT_RULE_POINTS} points; the pilot gained {gain:+.1f} points. The full grounded run was made anyway, because Ümit asked for the setup in the ranking.</li>
+        <li><strong>The pilot came first.</strong> Our protocol's first step was {pilot['questions']:,} questions ({pilot['off']['groups']['reading']['questions']:,} reading, {pilot['off']['groups']['grammar']['questions']:,} grammar; runs {pilot['off']['run']} and {pilot['on']['run']}). Its rule: a full grounded run only for a gain of more than {PILOT_RULE_POINTS} points. The pilot gained {gain:+.1f} points, short of the rule; the full-bank grounded run was made afterwards so that the setup could be ranked.</li>
         <li><strong>Costs with web are an upper bound.</strong> {esc(upper['mark'])} {esc(upper['note'])} Price: ${price['input_per_million']:g} per 1M input tokens plus ${price['per_search']:g} per completed search (<a href="{esc(price['source'])}">pricing</a>, read {esc(long_date(price['date']))}). Search evidence counts as input tokens.</li>
         <li><strong>One run per arm.</strong> The paired tests compare the two arms on the same questions.</li>
         <li><strong>Perplexity's own figures.</strong> Perplexity reported {reported['on_correct']} of {pws['on']['questions']} PWS-Decisions questions right with grounding (its run of {esc(long_date(reported['published']))}); the {reported['off_correct']}% without is the benchmark authors' (Parallel's) leaderboard figure, which Perplexity's own run matched. Its grounded requests took {ms(reported['on_median_request_seconds'])} ms at the median and {ms(reported['on_p95_request_seconds'])} ms at the 95th percentile, from Perplexity's client (<a href="{esc(reported['source'])}">{esc(reported['title'])}</a>, {esc(long_date(reported['published']))}). Ours are from our machine, run on {esc(long_date(PWS_RUN_DATE))}: {pct(pws['off']['accuracy'], 0)} off, {pct(pws['on']['accuracy'], 0)} with web; {ms(pws['on']['median_request_seconds'])} and {ms(pws['on']['p95_request_seconds'])} ms at the median and 95th percentile with web.</li>
@@ -315,6 +382,21 @@ def method(data: dict[str, Any]) -> str:
     </section>"""
 
 
+def pws_section(site: Site, loaded: tuple[dict[str, Any], list[dict[str, Any]]] | None) -> str:
+    """PWS-Decisions' charts of every setup (pws_decisions.py), with its framing and provenance; nothing without
+    pws-decisions.json."""
+    if loaded is None:
+        return ""
+    pws, items = loaded
+    return f"""<section class="card" id="pws">
+      <h2>PWS-Decisions: every setup, with and without web</h2>
+      {pws_decisions.framing(pws)}
+      <p>Each bar is the mean of our {pws['runs_per_setup']} runs per setup; the PWS-Decisions rows of the charts above are our first pair of runs ({esc(long_date(PWS_RUN_DATE))}), one run each. Every number, and what was not run: <a href="{rel(PATH, pws_decisions.PATH)}">PWS-Decisions</a>.</p>
+      {pws_decisions.provenance(pws)}
+    </section>
+    <section class="charts" aria-label="PWS-Decisions charts">{pws_decisions.charts(site, pws, items, PATH, "chart-pws-")}</section>"""
+
+
 def build(site: Site) -> dict[str, str]:
     data = site.results.get("web_grounding")
     if data is None:
@@ -325,24 +407,30 @@ def build(site: Site) -> dict[str, str]:
                          "view bar's all and decision groups only")
     digits = site.config["percent_digits"]
     upper = site.config["first_cost_marks"]["upper"]
-    link = lambda arm: f'<a href="{rel(PATH, site.model_path(site.by_id[data["text_runs"][arm]]))}">{esc(data["names"][arm])}</a>'  # noqa: E731
+    named = setups(site, data)
+    loaded = pws_decisions.load(site)
+    pws_nav = '<a href="#pws">PWS-Decisions, every setup</a>' if loaded else ""
+    days = sorted(set(data["dates"]) | {PWS_RUN_DATE})
+    when = long_date(days[0]) if len(days) == 1 else f"{long_date(days[0])} to {long_date(days[-1])}"
     body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
       <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
-      {chat_note("Chat models: none on this page. Both setups are decision models: their charts, tables and method show under All models and Decision models.")}
-      <p>Perplexity's Decisions API can search the web for each question and add what it finds as evidence. Both setups are in the ranking: {link('off')} and {link('on')}. This page compares them on the same questions. Every decision model on PWS-Decisions, three runs each: <a href="{rel(PATH, "pws-decisions/")}">PWS-Decisions</a>.</p>
-      <div {DECISION_ONLY}>{headline(data, digits, upper)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Info</a></nav></div>
+      {chat_note("Chat models: the web grounding comparison is of two decision-model setups, so it shows under All models and Decision models. PWS-Decisions, below, includes chat models.")}
+      <div {DECISION_ONLY}>
+      <p class="note"><a href="{named['off']['href']}">{esc(named['off']['name'])}</a> and <a href="{named['on']['href']}">{esc(named['on']['name'])}</a>, Perplexity's Decisions API without and with a web search per question; one run per setting, run on {esc(when)}.</p>
+      {result_cards(data, digits, upper)}
+      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#non-hallucination">Non-hallucination</a><a href="#latency">Latency</a><a href="#cost">Cost</a>{pws_nav}<a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Detailed results</a></nav></div>
     </section>
+    <section class="charts" aria-label="Charts" {DECISION_ONLY}>{accuracy_chart(data, named, digits)}{non_hallucination_chart(data, named, digits)}{latency_chart(data, named)}{cost_chart(data, named, upper)}</section>
+    {pws_section(site, loaded)}
     <div {DECISION_ONLY}>
-    <section class="charts" aria-label="Charts">{accuracy_chart(data, digits)}{non_hallucination_chart(data, digits)}{latency_chart(data)}{cost_chart(data, upper)}</section>
     {sources(data)}
     {caveats(data, upper)}
     <details class="info info-details" id="info">
-      <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The tables and our method</span></summary>
+      <summary class="info-summary"><span class="info-title">Detailed results</span> <span class="info-sub">The tables, with the pilot, the unmatched answers and the paired tests, and our method</span></summary>
     <section class="card" id="results">
-      <h2>Results</h2>
-      {table(data, digits, upper)}
+      <h2>Every number</h2>
+      {table(data, named, digits, upper)}
     </section>
     {method(data)}
     </details>

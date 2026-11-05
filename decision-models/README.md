@@ -263,11 +263,36 @@ python3 -m http.server 8000                                # preview at http://1
     27B v1.2 (API)", run 633) and with web ("... (with web)", run 640) on the full bank, reading and grammar apart; the
     200-question pilot that came first (`--sample 200 --seed 0`, runs 631 and 632); the "Bilmiyorum" pairs (full bank,
     and the pilot's 634, 635); our English translations of the kept reading questions (637 and 639) and PWS-Decisions'
-    100 public questions (Parallel's gated dataset: its aggregates only). Four paired charts (accuracy; non-hallucination;
-    median latency; cost per 1M questions, log scale, ≤ on the costs with web), what the search returned (pages and top
-    sites of each grounded run, the literal-match and source checks), the caveats, and under Info the tables and our
-    method. Costs with web are upper-bound estimates (`cost_upper_bound`): every cost of such a run, on every page,
-    carries `page_config.json`'s `first_cost_marks.upper` mark (≤) and its note.
+    100 public questions (Parallel's gated dataset: its aggregates only). The first screen: one line naming both setups
+    (one run per setting and the run date) and three result cards (the Turkish full bank, English reading and
+    PWS-Decisions: accuracy off → with web, the change in points, the cost off vs ≤ with web). Then four charts in the
+    home page's format, each in a section with the id the view bar's Measure row uses (`accuracy`,
+    `non-hallucination`, `latency`, `cost`): each set of questions a small heading (hbars' row `group`) over its two
+    setups with their family icon and full name, web off a clear grey and with web one accent (`v3.css` `.web-off`,
+    `.web-on`). Accuracy shows the three main sets with the change in points, the full bank by part under them and the
+    pilot folded; Non-hallucination each row's option count, answered share and wrong share of answers; Latency the
+    median with the 95th percentile as a line; Cost on a log scale, ≤ with web. Then PWS-Decisions' Accuracy, Cost and
+    Latency charts of every setup (`sitebuild/pws_decisions.py`, from `pws-decisions.json`, with its framing and
+    provenance), what the search returned (a short summary of the full bank's source checks, then the pages and top
+    sites of each grounded run), the caveats, and under Detailed results the tables (a row per setup, icon and full
+    name, with the pilot, the answers right only one way and the exact McNemar p) and our method. Costs with web are
+    upper-bound estimates (`cost_upper_bound`): every cost of such a run, on every page, carries `page_config.json`'s
+    `first_cost_marks.upper` mark (≤) and its note.
+  - **PWS-Decisions** (`pws-decisions/`, from `pws-decisions.json`, built by `sitebuild/pws_decisions.py`): Parallel Web
+    Systems' 100 public questions, three runs per setup (totals only). Three cards open it (among the decision models:
+    the best with web search, the same model without, the best without search); one sentence frames it (an end-to-end
+    comparison of setups with and without web search on questions Parallel chose for difficulty and its customers'
+    web-fact needs, not a general ranking); the count of setups above the chance line; a provenance list gives the
+    dataset and scorer revisions (`DATASET_REVISION`, `SCORER_REVISION`, from `~/vision-track/pws-grounding/AUDIT.md`),
+    the runs and their dates. Charts, each in its Measure section (`accuracy`, `cost`, `latency`), rows grouped "With web
+    search" then "Without search": Accuracy (with cost and median · p95 beside it, Parallel's 44.67% random-guess
+    baseline as a line, labelled as theirs), Cost ("incl. search" where a web search fee is counted, ≤ where it is an
+    upper bound, "≥ … tokens only" where `cost_lower_bound` says the API reports no search count) and Latency; one bar
+    per setup in its family's colour, with web striped, chat models' names ending in
+    "(chat)" and a named host in "(on Baseten)" (setups' `group`, `web`, `host` and `run`, optional). The table gives each
+    accuracy's run-to-run range and, from the summary step's `accuracy_ci95` (`bootstrap`: questions resampled, seed
+    fixed), its 95% interval from the question sample; "Wrong when sure" as integer totals over the runs. The method
+    notes compute the chance line from `choice_counts`.
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads, the result cards and the static Non-hallucination part).

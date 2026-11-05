@@ -557,6 +557,8 @@ i.swatch-base { background: var(--data-grey); }
 /* The Turkish vs English tab's paired bars take their model family's colour; the English one is striped. */
 i.swatch-turkish { background: var(--text-2); }
 i.swatch-english { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 2px, rgba(0, 0, 0, .12) 2px 4px), var(--text-2); }
+/* With web (web-grounding/, pws-decisions/): the English bar's stripes over the setup's family colour. */
+i.swatch-web { background-color: var(--text-2); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 2px, rgba(0, 0, 0, .12) 2px 4px); }
 i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
 
 /* Bars in HTML (Site hbars), the face of the tabs without a script: the label, the bars on one axis with a line at each
@@ -569,7 +571,29 @@ i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
 .hbar-fill { display: block; height: .85rem; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
 .hbar-fill.lead { background: var(--text); }
 .hbar-fill.base { background: var(--data-grey); }
-.hbar-fill.english { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
+.hbar-fill.english, .hbar-fill.web { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
+/* A set of questions heading its rows (web-grounding/: each pair of setups on the same questions). */
+.hbar-group { margin: .35rem 0 -.1rem; color: var(--text-2); font-size: .78rem; font-weight: 650; }
+.hbar-group:first-child { margin-top: 0; }
+/* web-grounding/'s off and with-web comparisons: web off a clear grey, with web one accent (the Perplexity family's
+   colour), the same in every chart and legend of the page and readable in both themes. */
+.hbar-fill.web-off, i.swatch-web-off { background: var(--data-grey); }
+.hbar-fill.web-on, i.swatch-web-on { background: #9256b3; }
+/* A chart's second and folded parts (web-grounding/ Accuracy: the full bank by part, the pilot). */
+.chart-part { margin: .9rem 0 .35rem; font-size: .9rem; }
+.chart-more { margin-top: .75rem; }
+.chart-more > summary { margin-bottom: .4rem; color: var(--text-2); font-size: .85rem; font-weight: 600; cursor: pointer; }
+/* web-grounding/'s first screen: one card per main comparison (accuracy off → with web, the change, the cost). */
+.result-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .75rem; margin: .85rem 0 .4rem; }
+.result-card { padding: .7rem .9rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 8px; }
+.result-card h2 { margin: 0 0 .3rem; font-size: .9rem; color: var(--text-2); }
+.result-card p { margin: 0; }
+.result-main { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.result-gain { color: var(--text-2); font-size: .95rem; font-weight: 600; }
+.result-card .result-cost { margin-top: .3rem; color: var(--text-2); font-size: .85rem; }
+/* A chart whose values need room (pws-decisions/ Accuracy: accuracy | cost | median · p95; the costs with "≤" and "incl.
+   search"; web-grounding/ Non-hallucination's long head): a wider value column. */
+.chart-wide .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) 15rem; }
 .hbar-marker { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--text); }
 .hbar-value { font-family: var(--mono); font-size: .82rem; white-space: nowrap; }
 /* One value beside each bar of a row (Site hbars texts), each line as tall as a bar and its gap. */
@@ -757,6 +781,9 @@ ul.price-list { padding-left: 1.25rem; }
   .result-card .card-value { margin: 0; font-size: 1.1rem; }
   .result-card .card-setup { font-size: .85rem; }
   .result-card .card-scope { font-size: .74rem; }
+  .chart-wide .hbar { grid-template-columns: minmax(0, 1fr) 11.5rem; }
+  .chart-wide .hbar-value, .chart-wide .hbar-head { font-size: .72rem; }
+  .chart-wide .hbar-axis .hbar-tick:nth-child(even) { display: none; }
   body { padding: 0 .6rem 1.5rem; }
   /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
