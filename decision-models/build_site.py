@@ -51,7 +51,8 @@ from sitebuild.site import (NOT_MEASURED, ROUTE_LLMS, Site, asset, cost_missing,
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
-                                 "english_reading", "english_view", "aa_index", "web_grounding", "data", "method")
+                                 "english_reading", "english_view", "aa_index", "web_grounding", "pws_decisions", "data",
+                                 "method")
 TITLE = "When should you trust a decision model?"
 # The intro and the meta description; their counts come from results.json (counts()).
 INTRO = (
@@ -80,12 +81,15 @@ def sample_label(run: dict[str, Any]) -> str | None:
 
 
 def experiments(data: Data) -> str:
-    """The home page's line on the experiments beside the ranking: the web grounding page, when results.json has it."""
+    """The home page's line on the experiments beside the ranking: the web grounding page, when results.json has it,
+    and the PWS-Decisions page, when pws-decisions.json is there."""
     grounding = data.results.get("web_grounding")
+    pws = ('<a href="pws-decisions/">PWS-Decisions</a>, the decision models on Parallel\'s benchmark of dated web facts.'
+           if (ROOT / "pws-decisions.json").exists() else "")
     if grounding is None:
-        return ""
+        return f"Beside the ranking: {pws}" if pws else ""
     return (f'Beside the ranking: <a href="web-grounding/">Web grounding</a>, {bp.esc(grounding["names"]["off"])} against '
-            f'{bp.esc(grounding["names"]["on"])}.')
+            f'{bp.esc(grounding["names"]["on"])}.' + (f" {pws}" if pws else ""))
 
 
 def not_measured_note(data: Data) -> str:

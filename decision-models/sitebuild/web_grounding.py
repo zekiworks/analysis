@@ -325,7 +325,7 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
       <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
-      <p>Perplexity's Decisions API can search the web for each question and add what it finds as evidence. Both setups are in the ranking: {link('off')} and {link('on')}. This page compares them on the same questions.</p>
+      <p>Perplexity's Decisions API can search the web for each question and add what it finds as evidence. Both setups are in the ranking: {link('off')} and {link('on')}. This page compares them on the same questions. Every decision model on PWS-Decisions, three runs each: <a href="{rel(PATH, "pws-decisions/")}">PWS-Decisions</a>.</p>
       {headline(data, digits, upper)}
       <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Info</a></nav>
     </section>
