@@ -68,6 +68,11 @@ from pws_decisions.__main__ import build_request, load_questions, read_jsonl  # 
 SETUPS: dict[str, dict[str, Any]] = {
     "perplexity-v1.2": {"provider": "perplexity", "model": "pplx-decider-v1.2", "mode": None},
     "perplexity-v1.2-web": {"provider": "perplexity", "model": "pplx-decider-v1.2", "mode": "web_grounding"},
+    # The "I don't know" check (Ümit #1410), kept apart from the scored runs: each question gets the choice
+    # DONT_KNOW_VALUE after its own and its instructions the runner's English sentence asking for it when unsure.
+    "perplexity-v1.2-idk": {"provider": "perplexity", "model": "pplx-decider-v1.2", "mode": None, "dont_know": True},
+    "perplexity-v1.2-web-idk": {"provider": "perplexity", "model": "pplx-decider-v1.2", "mode": "web_grounding",
+                                "dont_know": True},
     "openai-luna": {"provider": "openai-decisions", "model": "gpt-6-luna", "mode": None},
     "jev-1.14": {"provider": "jev", "model": "jev-1.14.0", "mode": None},
     "jev-1.13": {"provider": "jev", "model": "jev-1.13.0", "mode": None},
@@ -166,6 +171,17 @@ CHAT_MODELS: dict[str, dict[str, Any]] = {
     "deepseek-v4.1-flash-1017-off": {"provider": "vllm", "model": "deepseek-v4.1-flash-1017", "reasoning": "off",
                                      "run": 558, "thinking": False, "url_var": "DEEPSEEK_URL", "extra": True,
                                      "priced": True},
+    # Through the makers' APIs with a key, billed (Ümit #1408, #1409): the settings of the CLI rows (same model, effort,
+    # prompts, schema, choice order, one question per request), labelled API next to the CLI rows; `text_provider` names
+    # the provider of the Text tab row. The Anthropic rows wait for an ANTHROPIC_API_KEY.
+    "gpt-6.1-sol-api": {"provider": "openai-api", "text_provider": "openai", "model": "gpt-6.1-sol", "reasoning": "high",
+                        "run": 276, "access": "OpenAI Responses API (API key)"},
+    "claude-fable-5-1-api": {"provider": "claude-api", "text_provider": "claude", "model": "claude-fable-5-1",
+                             "reasoning": "high", "run": 310, "access": "Anthropic Messages API (API key)"},
+    "claude-opus-5-5-api": {"provider": "claude-api", "text_provider": "claude", "model": "claude-opus-5-5",
+                            "reasoning": "high", "run": 278, "access": "Anthropic Messages API (API key)"},
+    "claude-sonnet-5-5-api": {"provider": "claude-api", "text_provider": "claude", "model": "claude-sonnet-5-5",
+                              "reasoning": "high", "run": 193, "access": "Anthropic Messages API (API key)"},
 }
 SELF_HOSTED = ("vllm",)
 CHAT_TIMEOUT = 900.0  # the API Text tab runs' limit per request
@@ -202,6 +218,20 @@ WEB_SEARCH: dict[str, dict[str, Any]] = {
         "doc": "https://docs.x.ai/developers/tools/web-search", "read": "2026-11-05",
         "price_source": "https://docs.x.ai/developers/pricing", "per_search": 0.005,
         "price_note": "$5 per 1,000 web_search calls plus tokens",
+    },
+    "openai-api": {
+        "how": 'Responses API with the {"type": "web_search"} tool (live web access, external_web_access left at its '
+               "default, true)",
+        "doc": "https://developers.openai.com/api/docs/guides/tools-web-search", "read": "2026-11-05",
+        "price_source": "https://developers.openai.com/api/docs/pricing", "per_search": 0.010,
+        "price_note": "$10 per 1,000 web search calls; search content tokens billed at the model's rates",
+    },
+    "claude-api": {
+        "how": 'Messages API with the {"type": "web_search_20260318", "name": "web_search"} tool, no max_uses; a '
+               "pause_turn reply is continued",
+        "doc": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool", "read": "2026-11-05",
+        "price_source": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
+        "per_search": 0.010, "price_note": "$10 per 1,000 searches plus the tokens of the search results",
     },
 }
 SETUPS.update({name: {**setup, "mode": None, "group": "chat", "web": False,
@@ -339,19 +369,93 @@ def chat_question(question: dict[str, Any]) -> runner.Question:
 
 def chat_access(setup: dict[str, Any]) -> dict[str, Any]:
     """What a chat setup's requests need, found once per run: the CLI's path (signed in to the subscription), the
-    Gemini key, or our server's URL."""
+    Gemini, OpenAI or Anthropic key, or our server's URL."""
     if setup["provider"] == "openai":
         return {"bin": runner.require_chatgpt_oauth("codex")}
     if setup["provider"] == "claude":
         return {"bin": runner.require_claude_subscription("claude")}
     if setup["provider"] == "gemini":
         return {"key": runner.gemini_api_key()}
+    for provider, variable in (("openai-api", "OPENAI_API_KEY"), ("claude-api", "ANTHROPIC_API_KEY")):
+        if setup["provider"] == provider:
+            key = os.environ.get(variable, "").strip()
+            if not key:
+                sys.exit(f"{setup['model']} through the API needs {variable}")
+            return {"key": key}
     if setup["provider"] in SELF_HOSTED:
         url = os.environ.get(setup["url_var"], "").strip()
         if not url:
             sys.exit(f"set {setup['url_var']} to the {setup['model']} server, as http://HOST:PORT")
         return {"url": url}
     return {}
+
+
+OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
+ANTHROPIC_MESSAGES_URL = "https://api.anthropic.com/v1/messages"
+ANTHROPIC_VERSION = "2026-10-21"  # the version the Messages API docs send (read 5 November 2026)
+CLAUDE_API_MAX_TOKENS = 64000  # a hard limit on thinking plus reply; the effort docs ask for a large one at high effort
+CLAUDE_API_CONTINUATIONS = 5  # pause_turn replies continued per request, at most
+
+
+def ask_openai_api(key: str, model: str, batch: list[runner.Question], effort: str, web: bool) -> tuple[list[str | None], str]:
+    """The Codex CLI row's request through OpenAI's Responses API: the same system prompt (as `instructions`), user
+    message and answer schema (as text.format json_schema, strict), reasoning.effort set, not stored; with `web`, the
+    web_search tool. Stored like the xAI provider's response (whose usage has the same shape)."""
+    payload: dict[str, Any] = {
+        "model": model, "instructions": CHAT_PROMPTS.confidence_system,
+        "input": [{"role": "user", "content": runner.make_prompt(batch, CHAT_PROMPTS.confidence_instruction, CHAT_PROMPTS)}],
+        "store": False, "reasoning": {"effort": effort},
+        "text": {"format": {"type": "json_schema", "name": "answers", "schema": runner.confidence_schema(batch),
+                            "strict": True}},
+    }
+    if web:
+        payload["tools"] = [{"type": "web_search"}]
+    result, _ = runner.post_json(OPENAI_RESPONSES_URL, payload, {"Content-Type": "application/json",
+                                                                 "Authorization": f"Bearer {key}"}, CHAT_TIMEOUT, None,
+                                 "OpenAI")
+    text = "".join(part.get("text", "") for item in (result.get("output") or []) if item.get("type") == "message"
+                   for part in (item.get("content") or []) if part.get("type") == "output_text")
+    answers = runner.json_answers(text) if result.get("status") == "completed" else None
+    predictions, per_question = runner.confidence_answers(answers, batch)
+    return predictions, json.dumps({"answers": per_question, "response": result}, ensure_ascii=False)
+
+
+def ask_claude_api(key: str, model: str, batch: list[runner.Question], effort: str, web: bool) -> tuple[list[str | None], str]:
+    """The Claude Code row's request through Anthropic's Messages API: the same system prompt, user message and answer
+    schema (output_config.format json_schema), output_config.effort set; with `web`, the web search tool, continuing a
+    pause_turn reply. Stored like the Claude Code provider's response (`output` with the summed usage), so the runner's
+    token counting applies."""
+    payload: dict[str, Any] = {
+        "model": model, "max_tokens": CLAUDE_API_MAX_TOKENS, "system": CHAT_PROMPTS.confidence_system,
+        "messages": [{"role": "user",
+                      "content": runner.make_prompt(batch, CHAT_PROMPTS.confidence_instruction, CHAT_PROMPTS)}],
+        "output_config": {"effort": effort,
+                          "format": {"type": "json_schema", "schema": runner.confidence_schema(batch)}},
+    }
+    if web:
+        payload["tools"] = [{"type": "web_search_20260318", "name": "web_search"}]
+    headers = {"Content-Type": "application/json", "x-api-key": key, "anthropic-version": ANTHROPIC_VERSION}
+    usage: dict[str, Any] = {}
+    replies = []
+    for _ in range(CLAUDE_API_CONTINUATIONS + 1):
+        result, _ = runner.post_json(ANTHROPIC_MESSAGES_URL, payload, headers, CHAT_TIMEOUT, None, "Anthropic")
+        replies.append(result)
+        for kind, value in (result.get("usage") or {}).items():
+            if isinstance(value, int):
+                usage[kind] = usage.get(kind, 0) + value
+            elif kind == "server_tool_use":
+                tools = usage.setdefault(kind, {})
+                for name, count in value.items():
+                    tools[name] = tools.get(name, 0) + int(count or 0)
+        if result.get("stop_reason") != "pause_turn":
+            break
+        payload["messages"] = [*payload["messages"], {"role": "assistant", "content": result.get("content") or []}]
+    text = "".join(part.get("text", "") for part in (replies[-1].get("content") or []) if part.get("type") == "text")
+    predictions, per_question = runner.confidence_answers(runner.json_answers(text), batch)
+    output = {"usage": usage, "stop_reason": replies[-1].get("stop_reason"), "model": replies[-1].get("model"),
+              "replies": replies}
+    return predictions, json.dumps({"provider": "claude-api", "answers": per_question, "output": output},
+                                   ensure_ascii=False)
 
 
 def ask_chat(setup: dict[str, Any], question: dict[str, Any], access: dict[str, Any]) -> dict[str, Any]:
@@ -370,6 +474,10 @@ def ask_chat(setup: dict[str, Any], question: dict[str, Any], access: dict[str, 
                 letters, stored = runner.ask_claude(access["bin"], model, asked, CHAT_TIMEOUT, level, None, CHAT_PROMPTS, web)
             elif provider == "gemini":
                 letters, stored = runner.ask_gemini(access["key"], model, asked, CHAT_TIMEOUT, level, None, CHAT_PROMPTS, web)
+            elif provider == "openai-api":
+                letters, stored = ask_openai_api(access["key"], model, asked, level, web)
+            elif provider == "claude-api":
+                letters, stored = ask_claude_api(access["key"], model, asked, level, web)
             elif provider == "xai":
                 letters, stored = runner.ask_xai(model, asked, CHAT_TIMEOUT, level, None, CHAT_PROMPTS, web)
             elif provider in SELF_HOSTED:
@@ -404,7 +512,7 @@ def searches(provider: str, stored: dict[str, Any]) -> int | None:
     if provider == "openai":
         return sum(event.get("type") == "item.completed" and (event.get("item") or {}).get("type") == "web_search"
                    for event in stored.get("events") or [])
-    if provider == "claude":
+    if provider in ("claude", "claude-api"):
         usage = (stored.get("output") or {}).get("usage") or {}
         found = (usage.get("server_tool_use") or {}).get("web_search_requests")
         models = (stored.get("output") or {}).get("modelUsage") or {}
@@ -418,7 +526,7 @@ def searches(provider: str, stored: dict[str, Any]) -> int | None:
         candidates = (stored.get("response") or {}).get("candidates") or [{}]
         metadata = candidates[0].get("groundingMetadata")
         return None if metadata is None else len(metadata.get("webSearchQueries") or [])
-    if provider == "xai":
+    if provider in ("xai", "openai-api"):
         usage = (stored.get("response") or {}).get("usage") or {}
         details = usage.get("server_side_tool_usage_details") or {}
         if isinstance(details.get("web_search_calls"), int):
@@ -437,8 +545,20 @@ def setup_key(setup: dict[str, Any]) -> str | None:
     return None
 
 
+DONT_KNOW_VALUE = runner.ENGLISH_DONT_KNOW_OPTION  # "I don't know", value and description, as the runner's --dont-know
+
+
+def dont_know_question(question: dict[str, Any]) -> dict[str, Any]:
+    """The question with the "I don't know" choice after its own, and the runner's English sentence asking for it
+    (ENGLISH_DONT_KNOW_SENTENCE) after its instructions."""
+    return {**question, "instructions": f"{question['instructions'].rstrip()} {runner.ENGLISH_DONT_KNOW_SENTENCE}",
+            "choices": [*question["choices"], {"value": DONT_KNOW_VALUE, "description": DONT_KNOW_VALUE}]}
+
+
 def ask(setup: dict[str, Any], question: dict[str, Any], key: str | None) -> dict[str, Any]:
     """One request: PWS-Decisions' prediction record plus the time from our machine, the retries and the response."""
+    if setup.get("dont_know"):
+        question = dont_know_question(question)
     service = SERVICES[setup["provider"]]
     headers = {"Content-Type": "application/json"}
     if key is not None:
@@ -575,7 +695,12 @@ def setup_price(setup: dict[str, Any]) -> runner.Price | None:
         return BASETEN_PRICE
     if setup["provider"] in SELF_HOSTED and not setup.get("priced"):
         return None
-    return runner.run_price(setup["provider"], setup["model"], setup["mode"])
+    return runner.run_price(setup.get("text_provider", setup["provider"]), setup["model"], setup["mode"])
+
+
+# The API rows' responses in the shape of a runner provider's: OpenAI's Responses API as xAI's, the Messages API's
+# summed usage as Claude Code's.
+USAGE_SHAPES = {"openai-api": "xai", "claude-api": "claude"}
 
 
 def bootstrap_interval(args: argparse.Namespace, paths: list[Path]) -> dict[str, Any]:
@@ -632,7 +757,8 @@ def request_usage(setup: dict[str, Any], row: dict[str, Any]) -> tuple[dict[str,
     chosen answer's probability, or for a chat model its stated confidence."""
     provider = setup["provider"]
     if setup.get("group") == "chat":
-        _, score = runner.answer_usage(provider, 0, json.dumps(row["response"]))
+        shape = USAGE_SHAPES.get(provider, provider)
+        _, score = runner.answer_usage(shape, 0, json.dumps(row["response"]))
         if provider == "claude":
             by_model = claude_tokens(row["response"])
             prices = {**{model: price for (maker, model), price in runner.PRICES.items() if maker == "claude"},
@@ -646,7 +772,10 @@ def request_usage(setup: dict[str, Any], row: dict[str, Any]) -> tuple[dict[str,
                 for kind, value in counted.items():
                     tokens[kind] = tokens.get(kind, 0) + value
         else:
-            tokens, _ = runner.answer_usage(provider, 0, json.dumps(row["response"]))
+            tokens, _ = runner.answer_usage(shape, 0, json.dumps(row["response"]))
+            if provider == "openai-api":  # the Responses API also reports cache writes, billed at their own rate
+                details = ((row["response"].get("response") or {}).get("usage") or {}).get("input_tokens_details") or {}
+                tokens["cache_write_input_tokens"] = int(details.get("cache_write_tokens") or 0)
             price = setup_price(setup)
             cost = None if price is None else price.cost(tokens)
         found = searches(provider, row["response"]) if setup["web"] else 0
@@ -674,7 +803,7 @@ def served_models(setup: dict[str, Any], answered: list[dict[str, Any]]) -> list
         elif setup["provider"] == "claude":
             names.update((response.get("output") or {}).get("modelUsage") or {})
         else:
-            inner = response.get("response") or response
+            inner = response.get("response") or response.get("output") or response
             names.add(str(inner.get("model") or inner.get("modelVersion") or ""))
     return sorted(names - {""})
 
@@ -711,6 +840,8 @@ def run_totals(args: argparse.Namespace, setup: dict[str, Any], path: Path, sure
         "input_tokens": tokens.get("input_tokens", 0), "output_tokens": tokens.get("output_tokens", 0),
         "cost_usd": cost, "cost_per_million_questions": None if cost is None else cost / scored["n"] * 1_000_000,
         "served_models": served_models(setup, answered),
+        # Requests asked again after the run's first pass (--retry-errors), their failed rows kept in run-N.errors.jsonl.
+        "re_asked": len(read_jsonl(errors)) if (errors := path.with_suffix(".errors.jsonl")).exists() else 0,
     }
     if setup["provider"] == "claude" and setup.get("group") == "chat":
         if any(claude_stand_in(row["response"], setup["model"]) and row["status"] != "refusal" for row in answered):
@@ -752,8 +883,38 @@ def command_summary(args: argparse.Namespace) -> None:
         own = [run for run in results["runs"] if run["provider"] == provider and run["model"] == model]
         return max(own, key=lambda run: run["correct"] / run["answered_questions"])
 
+    def dont_know_arm(name: str) -> dict[str, Any] | None:
+        """The "I don't know" check's totals of one setup's three runs: right, wrong, "I don't know" and failed
+        requests (errors, refusals, invalid replies) per run, and from them accuracy, answered share, wrong of the
+        answers and non-hallucination ("I don't know" of "I don't know" plus wrong)."""
+        paths = [run_file(name, number) for number in range(1, args.runs + 1)]
+        if not all(path.exists() for path in paths):
+            return None
+        gold = {row["id"]: row["answer"] for row in read_jsonl(args.data / "public-100-answers.jsonl")}
+        per_run = []
+        for path in paths:
+            stored = read_jsonl(path)
+            if {row["id"] for row in stored} != set(gold):
+                return None
+            answered = [row for row in stored if row["status"] == "success" and row["prediction"] != DONT_KNOW_VALUE]
+            right = sum(row["prediction"] == gold[row["id"]] for row in answered)
+            wrong = len(answered) - right
+            unsure = sum(row["status"] == "success" and row["prediction"] == DONT_KNOW_VALUE for row in stored)
+            per_run.append({
+                "started": min(row["utc"] for row in stored), "questions": len(stored), "right": right, "wrong": wrong,
+                "dont_know": unsure, "errors": len(stored) - len(answered) - unsure, "accuracy": right / len(stored),
+                "answered": (right + wrong) / len(stored), "wrong_of_answers": wrong / (right + wrong) if answered else None,
+                "non_hallucination": unsure / (unsure + wrong) if unsure + wrong else None,
+            })
+        arm = {"perplexity_mode": SETUPS[name]["mode"], "runs": per_run}
+        for key in ("right", "wrong", "dont_know", "errors", "accuracy", "answered", "wrong_of_answers", "non_hallucination"):
+            arm[key] = spread([run[key] for run in per_run])
+        return arm
+
     setups, total_cost, dates, unfinished = [], 0.0, set(), []
     for name, setup in SETUPS.items():
+        if setup.get("dont_know"):
+            continue
         paths = [run_file(name, number) for number in range(1, args.runs + 1)]
         if not all(path.exists() for path in paths):
             continue
@@ -782,6 +943,7 @@ def command_summary(args: argparse.Namespace) -> None:
             "runs": runs,
             "accuracy": spread([run["accuracy"] for run in runs]),
             "accuracy_ci95": bootstrap_interval(args, paths),
+            "re_asked": [run["re_asked"] for run in runs],
             "median_request_seconds": spread([run["median_request_seconds"] for run in runs]),
             "p95_request_seconds": spread([run["p95_request_seconds"] for run in runs]),
             "cost_per_million_questions": spread([run["cost_per_million_questions"] for run in runs]),
@@ -792,10 +954,13 @@ def command_summary(args: argparse.Namespace) -> None:
             item["run"] = setup["run"]
         if chat:
             text_run = text_runs[setup["run"]]
-            best = best_run(setup["provider"], setup["model"])
+            best = best_run(setup.get("text_provider", setup["provider"]), setup["model"])
             if text_run["reasoning"] != setup["reasoning"] or (best["run"] != setup["run"] and not setup.get("extra")):
                 sys.exit(f"{name}: the best Text tab run of {setup['model']} is {best['run']} ({best['reasoning']})")
-            item.update(run=setup["run"], reasoning=setup["reasoning"], access=text_run["access"],
+            api = setup["provider"] in USAGE_SHAPES
+            item.update(run=setup["run"], reasoning=setup["reasoning"], access=setup.get("access", text_run["access"]),
+                        interface="API" if api else "CLI" if setup["provider"] in ("openai", "claude") else None,
+                        billing="api" if api else text_run["billing"],
                         workers=setup["workers"], best_setting=not setup.get("extra"),
                         confidence_kind="probability" if setup["provider"] in SELF_HOSTED else "stated")
             if price is not None:
@@ -823,6 +988,7 @@ def command_summary(args: argparse.Namespace) -> None:
                      "group": "chat", "web": False, "name": text_runs[setup["run"]]["name"]}
                     for name, setup in SETUPS.items() if setup["provider"] in SELF_HOSTED
                     and not all(run_file(name, number).exists() for number in range(1, args.runs + 1))]
+    dont_know = {"off": dont_know_arm("perplexity-v1.2-idk"), "on": dont_know_arm("perplexity-v1.2-web-idk")}
     document = {
         "name": "PWS-Decisions", "version": manifest["version"], "questions_sha256": manifest["questions_sha256"],
         "questions": len(rows), "language": "English",
@@ -847,6 +1013,18 @@ def command_summary(args: argparse.Namespace) -> None:
             "web_search": WEB_SEARCH, "web_not_run": CHAT_WEB_NOT_RUN,
         },
         "openai_web": OPENAI_WEB, "reported": REPORTED,
+        # Attempts set aside whole (never merged into a run), with PWS-Decisions' scorer result of each run file.
+        "failed_attempts": [
+            {"setup": score_file.parent.parent.name, "attempt": score_file.parent.name,
+             "run": int(score_file.name.split("-")[1].split(".")[0]), "rows": len(read_jsonl(score_file.with_name(
+                 score_file.name.replace(".score.json", ".jsonl")))),
+             "errors": sum(row["status"] == "error" for row in read_jsonl(score_file.with_name(
+                 score_file.name.replace(".score.json", ".jsonl")))),
+             "correct": json.loads(score_file.read_text(encoding="utf-8"))["correct"]}
+            for score_file in sorted(RUNS.glob("*/attempt-*/run-*.score.json"))],
+        "dont_know": {"option": DONT_KNOW_VALUE, "sentence": runner.ENGLISH_DONT_KNOW_SENTENCE, "provider": "perplexity",
+                      "model": "pplx-decider-v1.2", "dates": sorted({run["started"][:10] for arm in dont_know.values()
+                                                                     if arm for run in arm["runs"]}), **dont_know},
     }
     args.output.write_text(json.dumps(document, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {args.output}: {len(setups)} setups, run cost ${total_cost:.4f}")
