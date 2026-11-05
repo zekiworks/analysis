@@ -136,8 +136,10 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
                      f'<span class="hbar-track">{fills}{marker}</span><span class="hbar-value">{esc(row["text"])}</span></li>')
     named = (f'<span class="hbar-head"><span class="head-long">{esc(head[0])}</span><span class="head-short">{esc(head[1])}'
              "</span></span>") if head else "<span></span>"
-    return (f'<div class="hbar hbar-axis" aria-hidden="true"><span></span><span class="hbar-track">{ticks}</span>{named}</div>'
-            f'<ol class="hbars">{"".join(items)}</ol>')
+    # A chart with a named value column right-aligns the name and every value on the column's right edge (v3.css .headed).
+    headed = " headed" if head else ""
+    return (f'<div class="hbar hbar-axis{headed}" aria-hidden="true"><span></span><span class="hbar-track">{ticks}</span>{named}</div>'
+            f'<ol class="hbars{headed}">{"".join(items)}</ol>')
 
 
 # The marker shapes of line_plot(), each a path around (0, 0) about 10 pixels across.

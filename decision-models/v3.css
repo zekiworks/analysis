@@ -526,9 +526,11 @@ i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
 .hbar-tick { position: absolute; transform: translateX(-50%); color: var(--text-2); font-family: var(--mono); font-size: .72rem; }
 .hbar-tick:first-child { transform: none; }
 .hbar-tick:last-child { transform: translateX(-100%); }
-/* The value column's name above it, in full and on a phone in short ("Turkish · English", "TR · EN"). */
+/* The value column's name above it, in full and on a phone in short ("Turkish · English", "TR · EN"): the name and every
+   value of such a chart (.headed) sit on the column's right edge, so the name stands exactly over the numbers. */
 .hbar-head { color: var(--text-2); font-size: .72rem; font-weight: 600; white-space: nowrap; }
 .hbar-head .head-short { display: none; }
+.headed .hbar-head, .headed .hbar-value { justify-self: end; text-align: right; }
 
 /* Info: the tables, the summary and the notes, behind the charts; its summary line opens it like a key. */
 .info { margin: 1.25rem 0 0; }
