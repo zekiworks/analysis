@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 04e487e3 (5 November 2026)
+
+- English reading: the first three OpenAI chat setups in English (Ümit via Zeki #1179), through Codex CLI on the ChatGPT subscription with their Text tab runs' settings and the Turkish runs' prompts in English: GPT-6 Astra at high reasoning (run 615) 96.2% in English against 96.9% in Turkish, GPT-6 Astra at low reasoning (616) 96.3% against 96.7%, GPT-6 Luna at low reasoning (617) 86.3% against 88.7%, each at 16 questions per request with 0 invalid answers; none of the three differences is significant (Holm over 40 setups), and no other model's result changes. 40 of the Text tab's 77 setups now have an English run; the other OpenAI setups are running. Every chat model's label on both English pages now names its reasoning and request size. The English same number of answers covers the 40 setups. No other run changed.
+
 ## Results 056972d2 (5 November 2026)
 
 - Text tab: GPT-6 Astra at medium reasoning, the setting it played the backgammon paired test with (Ümit #1041): one run over the 2,198 scored questions through Codex CLI on the ChatGPT subscription, 16 questions per request, the current prompt (run 610): 2,143 right (97.5%; reading 97.0%, grammar 97.7%), 0 invalid. Its cost, $11.97 ($5.45 per 1,000 questions), is what its tokens would cost at OpenAI's API list price; the run itself is billed to the subscription. Median time per request: 15.3 s. It lands 0.1 points below Astra at low reasoning (p 0.83) and 0.8 points above GPT-6.1 Sol at low reasoning (p 0.002; 0.14 after Holm). A chat model: the decision-model lists are unchanged.
