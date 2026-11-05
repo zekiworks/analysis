@@ -1,6 +1,7 @@
 """One page per setup (models/<run id>/): at the top a summary of its main results (accuracy, the answers kept at the
 threshold, cost and latency); then how we called it, its settings (the run record's harness seed, commit and prompt
-version folded away), results, confidence, repeats, latency
+version folded away), results, for a setup with an English run its English section (#english, which every setup name
+on the two English pages links to), confidence, repeats, latency
 and cost, and, for a first model, what it took off each LLM in the replay; and at models/ itself a page that sends the
 reader to the home page's All models view, which replaced the list of every setup that address held."""
 
@@ -11,7 +12,9 @@ from typing import Any
 
 import build_page as bp
 
-from sitebuild import vision
+from sitebuild import english_view, vision
+from sitebuild.english_reading import (ENGLISH_ANCHOR, PATH as COMPARISON, english_only, measure_cell, missing_side,
+                                       setup_labels)
 from sitebuild.site import (NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per, cost_switch, cost_value, esc,
                             interval, latency_text, pct, rel, request_size)
 
@@ -325,6 +328,56 @@ def web_grounding(site: Site, run: dict[str, Any]) -> str | None:
             f"compared on {link}.</p>")
 
 
+def english(site: Site, run: dict[str, Any]) -> str | None:
+    """For a setup with an English run (results.json english_reading.models, by its Text tab run): its right answers of
+    the kept reading questions in its first English run and its accuracy (the range over its English runs where it has
+    several), its English non-hallucination rate with “I don't know” where measured (english_reading.dont_know), the
+    first English run's cost and median latency, and the English runs' settings from their records in answers.json."""
+    data = site.results.get("english_reading")
+    if data is None or run["run"] not in setup_labels(site):
+        return None
+    model = next(item for item in data["models"] if item["turkish_run"] == run["run"])
+    path, digits, total = site.model_path(run), site.config["percent_digits"], data["questions"]
+    records = {item["run"]: item for item in site.answers["english_runs"]}
+    held = [records[number] for number in model["runs"]]
+    spread = (model["spread"] or {}).get("english")
+    accuracy = pct(model["english"]["accuracy"], digits) + (
+        f"; {pct(spread['low'], digits)} to {pct(spread['high'], digits)} over its {len(held)} English runs"
+        if spread else "")
+    idk = data["dont_know"]
+    found = next((item["english"] for item in idk["models"] + english_only(idk) if item["text_run"] == run["run"]), None)
+    option = esc(idk["option"])
+    if found is None:
+        rate = missing_side(site, run["run"])
+    else:
+        value = "No rate" if found["non_hallucination"] is None else pct(found["non_hallucination"], digits)
+        rate = (f"{value}: {found['dont_know']:,} “{option}” of {found['dont_know'] + found['wrong']:,} not right; "
+                f"answered {pct(found['attempt_rate'], digits)} (run {found['run']})")
+    # A setting as the English runs' records hold it, each value once.
+    each = lambda show: esc(", ".join(dict.fromkeys(show(record) for record in held)))  # noqa: E731
+    dates = [bp.long_date(day) for day in model["dates"]]
+    timing = model["latency"]["english"]
+    latency_value = NOT_MEASURED if timing is None else (
+        f"{latency_text(timing['median_request_seconds'])}; {timing['concurrency']:,} "
+        f"request{'' if timing['concurrency'] == 1 else 's'} at once")
+    return (f"<p>The Text tab's {total:,} kept reading questions translated into English, asked with this setup's Text "
+            f'tab settings. Every setup: <a href="{rel(path, english_view.PATH)}">English reading</a>; against Turkish: '
+            f'<a href="{rel(path, COMPARISON)}">English and Turkish</a>.</p>'
+            + facts([
+                ("Right answers", f"{model['english']['right']:,} of {total:,}, first English run ({model['run']})"),
+                ("Accuracy", accuracy),
+                (f"Non-hallucination with “{option}”", rate),
+                (f"Cost, $ {cost_per()}, first English run", measure_cell(site, model, "cost", "english")),
+                ("Latency, median request, first English run", latency_value),
+                (f"English run{'s' if len(held) > 1 else ''}", esc(", ".join(map(str, model["runs"])))),
+                (f"Date{'s' if len(dates) > 1 else ''}", esc(", ".join(dates))),
+                ("Request format", each(lambda record: request_size(record["questions_per_request"]))),
+                ("Reasoning", each(lambda record: NOT_RECORDED if record.get("thinking") is None else str(record["thinking"]))),
+                ("Prompt version", "<code>" + each(lambda record: record["english"]["prompt_version"]) + "</code>"),
+                ("Translations, SHA-256", "<code>" + each(lambda record: record["english"]["translations_sha256"]) + "</code>"),
+            ]))
+
+
 def summary(site: Site, run: dict[str, Any]) -> str:
     """The page's main results at the top: accuracy with its 95% interval, the answers kept at the threshold with the
     wrong ones among them, cost and the median latency, each labelled with what it covers; the sections below give the
@@ -369,6 +422,9 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
     images = page_images(site, run)
     if images:
         parts.append(section("Page images (preliminary)", images, "page-images"))
+    english_part = english(site, run)
+    if english_part:
+        parts.append(section("English", english_part, ENGLISH_ANCHOR))
     parts += [
         section("Confidence", confidence(site, run), "confidence"),
         section("Repeats", repeats(site, run), "repeats"),

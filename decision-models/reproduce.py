@@ -56,8 +56,10 @@ first k (equal scores by question id), the difference from the reference with it
 and Holm's p (the published seed and resamples), every entry's answers in the selection order (wrong_by_rank) and the
 runs with the option of each Hallucination tab and English model. Then Perplexity's web grounding test (`web_grounding`):
 each pair's runs (grounding off and on: the 200-question sample, with "Bilmiyorum", and in English), their right answers,
-accuracy, median and 95th-percentile request time and cost overall and by group, the paired tests, the "Bilmiyorum"
-counts, the source checks' right answers, and the tokens, sources and PWS-Decisions' aggregates of web-grounding.json.
+accuracy, median and 95th-percentile request time and cost overall and by group, the paired counts and tests, the
+repeats of the full bank's and the English pair's first runs (each repeat's runs, paired counts and source checks, and
+each arm's mean with its lowest and highest run), the "Bilmiyorum" counts, the source checks' right answers, and the
+tokens, sources and PWS-Decisions' aggregates of web-grounding.json.
 Last the footer date (`updated`, when results with this content first went out): never older than a published run's
 date, and with --report never older than the newest
 `updated` of the runs answers.json publishes. Uses only the standard library and benchmark_metrics.py, the metric code
@@ -935,10 +937,10 @@ def check_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any]
             for index in scored:
                 choice, probabilities = run["choice"][index], run["probabilities"][index]
                 if probabilities:
-                    if max(probabilities) != DONT_KNOW_LETTER:
-                        unlabelled += 1
-                    else:
-                        shown.append(probabilities[DONT_KNOW_LETTER])
+                    last, value = option_last(run, probabilities)
+                    unlabelled += not last
+                    if value is not None:
+                        shown.append(value)
                 if choice is None:
                     counts["invalid"] += 1
                 elif choice == DONT_KNOW_LETTER:
@@ -1027,20 +1029,35 @@ def hashed(value: dict[str, Any]) -> str:
     return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
 
 
+# The runner's providers whose answer "probabilities" are vote shares (VOTE_PROVIDERS in benchmark_ollama.py): the share
+# of the samples that chose each letter, listing only the letters some sample chose, in the order they were first sampled.
+VOTE_PROVIDERS = ("vllm-vote",)
+
+
+def option_last(run: dict[str, Any], probabilities: dict[str, float]) -> tuple[bool, float | None]:
+    """For an answer's option probabilities in a run with the option: whether they fit the option lettered last
+    (DONT_KNOW_LETTER the last label: a full distribution ends with it; vote shares name no letter after it) and the
+    option's probability where the answer reports it (as the runner and the export average it)."""
+    if run["provider"] in VOTE_PROVIDERS:
+        return max(probabilities) <= DONT_KNOW_LETTER, probabilities.get(DONT_KNOW_LETTER)
+    last = max(probabilities) == DONT_KNOW_LETTER
+    return last, probabilities[DONT_KNOW_LETTER] if last else None
+
+
 def counted_dont_know(run: dict[str, Any], scored: list[int]) -> dict[str, Any]:
     """A run with the "I don't know" option on the scored questions: right, wrong, option (DONT_KNOW_LETTER) and invalid
-    answers, the rates, the mean probability of the option, the answers whose probabilities do not end with the option
-    (`unlabelled`) and each question's wrong answer (`wrong_answers`)."""
+    answers, the rates, the mean probability of the option, the answers whose probabilities do not fit the option
+    lettered last (`unlabelled`, option_last) and each question's wrong answer (`wrong_answers`)."""
     total = len(scored)
     counts = {"right": 0, "wrong": 0, "dont_know": 0, "invalid": 0}
     shown, unlabelled = [], 0
     for index in scored:
         choice, probabilities = run["choice"][index], run["probabilities"][index]
         if probabilities:
-            if max(probabilities) != DONT_KNOW_LETTER:
-                unlabelled += 1
-            else:
-                shown.append(probabilities[DONT_KNOW_LETTER])
+            last, value = option_last(run, probabilities)
+            unlabelled += not last
+            if value is not None:
+                shown.append(value)
         if choice is None:
             counts["invalid"] += 1
         elif choice == DONT_KNOW_LETTER:
@@ -1666,14 +1683,16 @@ def nearest_rank(values: list[float], share: float) -> float:
 def check_web_grounding(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int],
                         checks: Checks) -> list[str]:
     """Recompute results.json's `web_grounding` (Perplexity's web grounding test) from answers.json and
-    web-grounding.json: the pilots' runs are answers.json's `web_grounding_runs`, in no other list; the full-bank pair's
-    runs are main runs, the English pair's `english_runs` runs and the "Bilmiyorum" pair's `dont_know_runs` runs; every
+    web-grounding.json: the pilots' runs and the repeats are answers.json's `web_grounding_runs`, in no other list; the
+    full-bank pair's runs are main runs, the English pair's `english_runs` runs and the "Bilmiyorum" pair's
+    `dont_know_runs` runs; each repeat has its first run's setup, mode, language, questions and settings; every
     run's setup (the section's provider and model, one question per request) and kind (grounding on only in the on runs,
     "Bilmiyorum" only in its pairs, English only in the English pair, the sample's seed); each pair asked the same
     questions, and both pilots the same ones; per arm its questions, right answers and accuracy, median and nearest-rank
     percentile request time, its input tokens (web-grounding.json) and its cost at the section's price (input tokens plus
-    the fee per search, one search per grounded request), overall and for the Turkish runs by group; the paired tests
-    (exact McNemar); the "Bilmiyorum" pairs' counts and rates; per grounded run what the search returned
+    the fee per search, one search per grounded request), overall and for the Turkish runs by group; the paired counts
+    and tests (exact McNemar), for each repeat too, and each arm's mean, lowest and highest run; the "Bilmiyorum" pairs'
+    counts and rates; per grounded run what the search returned
     (web-grounding.json) and the right answers off and on among each check's questions; PWS-Decisions' aggregates
     (web-grounding.json), costs at the same price and its paired test. Returns a line per mismatch."""
     section = results.get("web_grounding")
@@ -1700,7 +1719,10 @@ def check_web_grounding(docs: Path, results: dict[str, Any], answers: dict[str, 
     lists = {"turkish": "runs", "english": "english_runs", "dont_know": "dont_know_runs", "pilot": "web_grounding_runs",
              "pilot_dont_know": "web_grounding_runs", "english_dont_know": "english_dont_know_runs"}
     parts = {part: (section[part]["off"]["run"], section[part]["on"]["run"]) for part in lists}
-    listed = {*parts["pilot"], *parts["pilot_dont_know"]}
+    # The repeats of the full bank's and the English pair's first runs, (part, repeat number, off run, on run).
+    repeats = [(part, entry["repeat"], entry["off"]["run"], entry["on"]["run"]) for part in ("turkish", "english")
+               for entry in section[part].get("repeats", [])]
+    listed = {*parts["pilot"], *parts["pilot_dont_know"], *(run for _, _, off, on in repeats for run in (off, on))}
     check("own runs, none elsewhere", [sorted(listed), []], [sorted(own), sorted(set(own) & listed_elsewhere(answers, "web_grounding_runs"))])
     in_lists = {part: all(run in {item["run"] for item in answers.get(name, [])} for run in parts[part]) for part, name in lists.items()}
     check("each pair in its answers.json list", {part: True for part in lists}, in_lists)
@@ -1724,6 +1746,16 @@ def check_web_grounding(docs: Path, results: dict[str, Any], answers: dict[str, 
                   [got["provider"], got["model"], got["questions_per_request"], got.get("perplexity_mode"), bool(got.get("dont_know")),
                    bool(got.get("english")), got.get("repeat")])
         check(f"{part}: both runs asked the same questions", True, asked(off) == asked(on))
+    for part, number, off, on in repeats:
+        first = parts[part]
+        for arm, run, base in (("off", off, first[0]), ("on", on, first[1])):
+            got, ref = exported[run], exported[base]
+            check(f"{part} repeat {number} {arm} run {run}: setup, kind and settings of run {base}",
+                  [section["provider"], section["model"], 1, ref.get("perplexity_mode"), False, ref.get("english"),
+                   ref.get("question_list"), ref["seed"], ref["thinking"], ref["dataset_sha256"], number],
+                  [got["provider"], got["model"], got["questions_per_request"], got.get("perplexity_mode"),
+                   bool(got.get("dont_know")), got.get("english"), got.get("question_list"), got["seed"], got["thinking"],
+                   got["dataset_sha256"], got.get("repeat")])
     sample = asked(parts["pilot"][0])
     check("the sample: size, seed, the same questions in both pilots", [section["sample"]["questions"], section["sample"]["seed"],
           section["sample"]["seed"], True], [len(sample), exported[parts["pilot"][0]]["seed"], exported[parts["pilot_dont_know"][0]]["seed"],
@@ -1757,14 +1789,26 @@ def check_web_grounding(docs: Path, results: dict[str, Any], answers: dict[str, 
                      groups[group]["input_tokens"])
 
     def paired(name: str, published: dict[str, Any], off: int, on: int, indices: list[int]) -> None:
-        test = bm.paired_comparison([int(exported[off]["correct"][index]) for index in indices],
-                                    [int(exported[on]["correct"][index]) for index in indices])
-        check(f"{name}: questions, right off only, on only", [published["questions"], published["off_only"], published["on_only"]],
-              [test["questions"], test["first_only"], test["second_only"]])
+        runs = {"off": off, "on": on}
+        both = [index for index in indices if all(exported[run]["correct"][index] is not None for run in runs.values())]
+        right = [[int(exported[run]["correct"][index]) for index in both] for run in (off, on)]
+        test = bm.paired_comparison(*right)
+        check(f"{name}: questions, both right, right off only, on only, both wrong",
+              [published[key] for key in ("questions", "both_right", "off_only", "on_only", "both_wrong")],
+              [test["questions"], sum(a and b for a, b in zip(*right)), test["first_only"], test["second_only"],
+               sum(not a and not b for a, b in zip(*right))])
+        check(f"{name}: errors, missing", [published["errors"], published["missing"]],
+              [{side: sum(exported[run]["correct"][index] is not None and exported[run]["choice"][index] is None
+                          for index in indices) for side, run in runs.items()},
+               {side: sum(exported[run]["correct"][index] is None for index in indices) for side, run in runs.items()}])
         check(f"{name}: p", published["p"], test["p"], p=True)
 
-    def search(name: str, published: dict[str, Any], off: int, on: int) -> None:
+    def search(name: str, published: dict[str, Any] | None, off: int, on: int) -> None:
         found = tokens[on]["search"]
+        # A run that returned no page has no source checks (None), not zeros.
+        check(f"{name}: no source checks without pages", published is None, not found["pages"])
+        if published is None or not found["pages"]:
+            return
         check(f"{name}: run, pages, pages per question, sites, top domains",
               [published["run"], published["pages"], published["pages_per_question"], published["sites"], published["top_domains"]],
               [on, found["pages"], found["pages_per_question"], found["sites"], found["top_domains"]])
@@ -1777,19 +1821,53 @@ def check_web_grounding(docs: Path, results: dict[str, Any], answers: dict[str, 
                   [ids, len(ids), sum(right[0]), sum(right[1]), sum(a and not b for a, b in zip(*right)),
                    sum(b and not a for a, b in zip(*right))])
 
+    def compared(name: str, published: dict[str, Any], off: int, on: int, indices: list[int], by_group: bool) -> None:
+        """A pair of runs: each arm, the paired counts on the first runs' questions (by group too) and the source checks."""
+        check(f"{name}: runs", [published["off"]["run"], published["on"]["run"]], [off, on])
+        arm(f"{name} off", published["off"], by_group)
+        arm(f"{name} on", published["on"], by_group)
+        paired(f"{name} paired", published["paired"], off, on, indices)
+        if by_group:
+            for group, item in published["paired_groups"].items():
+                paired(f"{name} paired, {group}", item, off, on,
+                       [index for index in indices if (questions["unit"][index] in reading) == (group == "reading")])
+        search(f"{name} search", published["search"], off, on)
+
+    def spread(values: list[float]) -> dict[str, float]:
+        return {"mean": statistics.mean(values), "min": min(values), "max": max(values)}
+
     for part in ("turkish", "english", "pilot"):
         off, on = parts[part]
         published = section[part]
         by_group = part != "english"
         check(f"{part}: questions", published["questions"], len(asked(off)))
-        arm(f"{part} off", published["off"], by_group)
-        arm(f"{part} on", published["on"], by_group)
-        paired(f"{part} paired", published["paired"], off, on, asked(off))
-        if by_group:
-            for group, item in published["paired_groups"].items():
-                paired(f"{part} paired, {group}", item, off, on,
-                       [index for index in asked(off) if (questions["unit"][index] in reading) == (group == "reading")])
-        search(f"{part} search", published["search"], off, on)
+        compared(part, published, off, on, asked(off), by_group)
+        if part == "pilot":
+            check("pilot: no repeats", "repeats" in published or "mean" in published, False)
+            continue
+        numbers = [entry["repeat"] for entry in published.get("repeats", [])]
+        check(f"{part}: repeat numbers, after the first run's 1", numbers, sorted(set(numbers) - {1}))
+        for entry in published.get("repeats", []):
+            compared(f"{part} repeat {entry['repeat']}", entry, entry["off"]["run"], entry["on"]["run"], asked(off), by_group)
+        keys = ("correct", "accuracy", "median_request_seconds", "p95_request_seconds", "cost_per_million_questions")
+        for side in ("off", "on"):
+            items = [published[side], *(entry[side] for entry in published.get("repeats", []))]
+            mean = published["mean"][side]
+            check(f"{part} mean {side}: runs, questions", [mean["runs"], mean["questions"]],
+                  [[item["run"] for item in items], items[0]["questions"]])
+            check(f"{part} mean {side}: one count of questions", len({item["questions"] for item in items}), 1)
+            for key in keys:
+                found = spread([item[key] for item in items])
+                for stat in found:
+                    check(f"{part} mean {side}: {key} {stat}", mean[key][stat], found[stat],
+                          cost=key == "cost_per_million_questions", metric=key != "cost_per_million_questions")
+            for group in mean.get("groups", {}):
+                for key in keys:
+                    found = spread([item["groups"][group][key] for item in items])
+                    for stat in found:
+                        check(f"{part} mean {side}, {group}: {key} {stat}", mean["groups"][group][key][stat], found[stat],
+                              cost=key == "cost_per_million_questions", metric=key != "cost_per_million_questions")
+            check(f"{part} mean {side}: groups", sorted(mean.get("groups", {})), ["grammar", "reading"] if by_group else [])
     for part in ("dont_know", "pilot_dont_know", "english_dont_know"):
         check(f"{part}: questions", section[part]["questions"], len(asked(parts[part][0])))
         for arm_name, run in zip(("off", "on"), parts[part]):
@@ -2275,10 +2353,10 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
         for index in kept:
             choice, probabilities = run["choice"][index], run["probabilities"][index]
             if probabilities:
-                if max(probabilities) != DONT_KNOW_LETTER:
-                    unlabelled += 1
-                else:
-                    shown.append(probabilities[DONT_KNOW_LETTER])
+                last, value = option_last(run, probabilities)
+                unlabelled += not last
+                if value is not None:
+                    shown.append(value)
             if choice is None:
                 found["invalid"] += 1
             elif choice == DONT_KNOW_LETTER:

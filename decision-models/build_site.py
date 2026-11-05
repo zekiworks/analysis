@@ -103,7 +103,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then Decider v1.2 (with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2, at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: Liquid d1-ultra, clearly ahead at 77.1%; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2 (local GPU), at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -479,12 +479,14 @@ def card_facts(data: Data, runs: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def result_cards(data: Data, site: Site) -> str:
-    """The three result cards above the Accuracy chart, one set per view bar group (data-models; site.js shows the one in
-    view): the highest accuracy, the most answers kept at the confidence threshold with no observed mistakes, and the
-    lowest cost per 1,000 questions within 1 point of the best accuracy (or, if no such setup has a cost, the lowest
-    overall). Each card names its scope. card_checks tests the numbers against results.json."""
+    """The three result cards above the Accuracy chart, under a heading naming their scope (the full test and its
+    question count, so the Reading or Grammar choice below them is not read as theirs), one set per view bar group
+    (data-models; site.js shows the one in view): the highest accuracy, the most answers kept at the confidence threshold
+    with no observed mistakes, and the lowest cost per 1,000 questions within 1 point of the best accuracy (or, if no
+    such setup has a cost, the lowest overall). Each card names its scope. card_checks tests the numbers against
+    results.json."""
     total, sure = data.results["questions"], pct(data.config["threshold"], 0)
-    sets = []
+    sets = [f'<h2 class="results-heading">Full test · {bp.count(total)} questions</h2>']
     for group, scope in CARD_SCOPES.items():
         runs = group_runs(data, group)
         names = site.names(runs)
@@ -661,9 +663,9 @@ def copy_checks(data: Data) -> list[str]:
     check("Stability note: the other chat models were repeated on a sample of 200",
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
-    # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model; then Decider v1.2
-    # (with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex Max v1 and 1.1, Mammoth-1, and
-    # Deciders v1.1 and v1.2, in that order, at 66.9% to 68.7%;
+    # replayed): Liquid d1-ultra leads on accuracy and shares a letter with no other decision model; then Decider v1.2 (API,
+    # with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex Max v1 and 1.1, Mammoth-1, and
+    # Deciders v1.1 and v1.2 (local GPU), in that order, at 66.9% to 68.7%;
     # Liquid d1.1 has the smallest calibration gap as
     # shipped; Perplexity Decider 27B v1.2 (API) scores highest on Better than a flat guess, then Open-Jev 27B v1.1, then
     # SubQ Snap 1.1 and Decider v1.1 (equal to one decimal); d1-ultra gives the biggest estimated saving in all 16 LLM
@@ -683,8 +685,9 @@ def copy_checks(data: Data) -> list[str]:
     check("Summary: d1-ultra is clearly ahead: it shares a letter with no other decision model",
           not any(shares(ultra, run) for run in decision if run is not ultra))
     with_web = data.by_name("pplx-decider-v1.2", "perplexity", "web_grounding")
-    check("Summary: then Decider v1.2 (with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, "
-          "Mammoth-1, and Deciders v1.1 and v1.2, in that order",
+    hosted = data.by_name("pplx-decider-v1.2", "perplexity", None)
+    check(f"Summary: then {with_web['name']}, GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, "
+          f"Mammoth-1, and {decider['name']} and {decider12['name']}, in that order",
           ranked[1] is with_web and ranked[2] is glide12 and ranked[3] is glide
           and {run["run"] for run in ranked[4:6]} == {d3["run"], d3_ultra["run"]}
           and accuracy(d3) == accuracy(d3_ultra) and ranked[6] is drex_v1 and ranked[7] is drex_11 and ranked[8] is mammoth
@@ -696,10 +699,9 @@ def copy_checks(data: Data) -> list[str]:
     check("Summary: calibration gap, as shipped: Liquid d1.1 had the smallest gap among decision models",
           calibrated[0] is data.by_name("d1.1"))
     flat = sorted(decision, key=lambda run: -bp.flat_gain(run))
-    check("Summary: better than a flat guess, after refit: Perplexity Decider 27B v1.2 (API) (32.1%), then Open-Jev 27B "
-          "v1.1 (31.9%), then SubQ Snap 1.1 and Perplexity Decider 27B v1.1 (31.5% each), the four highest among decision "
-          "models",
-          flat[0]["run"] == data.by_name("pplx-decider-v1.2", "perplexity", None)["run"] and flat[1] is data.by_name("open-jev-27b-v1.1")
+    check(f"Summary: better than a flat guess, after refit: {hosted['name']} (32.1%), then Open-Jev 27B v1.1 (31.9%), "
+          f"then SubQ Snap 1.1 and {decider['name']} (31.5% each), the four highest among decision models",
+          flat[0] is hosted and flat[1] is data.by_name("open-jev-27b-v1.1")
           and {run["run"] for run in flat[2:4]} == {data.by_name("subq-snap-1.1")["run"], data.by_name("pplx-decider-v1.1-27b")["run"]}
           and [f"{bp.flat_gain(run):.1f}" for run in flat[:4]] == ["32.1", "31.9", "31.5", "31.5"])
 

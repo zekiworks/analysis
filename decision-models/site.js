@@ -187,6 +187,22 @@ const costSwitch = () =>
   fromHash();
 })();
 
+/* Every page: a row 2 key keeps the view. Pressed, it opens its group with the cost unit (?cost-unit=) and the part of
+   row 3's marked key (#cost), so Decision pressed at a page's #cost opens that page's #cost for decision models, in the
+   same unit. With no key marked (between parts) it opens the top of the page. */
+(function keepViewOnGroup() {
+  const bar = document.querySelector('.view-bar');
+  if (!bar) return;
+  bar.addEventListener('click', event => {
+    const link = event.target.closest('a[data-view-group]');
+    if (!link) return;
+    const url = new URL(link.href);
+    url.searchParams.set('cost-unit', costUnit());
+    url.hash = bar.querySelector('a[data-view-measure][aria-current]')?.dataset.viewMeasure ?? '';
+    link.href = url.href;
+  });
+})();
+
 /* On a phone the navigation bar scrolls sideways; a link that takes the keyboard focus is brought fully into view. */
 (function keepFocusedLinkInView() {
   const bar = document.querySelector('.nav ul');

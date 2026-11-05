@@ -20,7 +20,8 @@ from typing import Any
 
 from sitebuild.english_reading import (NO_RATE, NOT_RUN, PATH as COMPARISON, RECORD, RUNNING, TRANSLATORS, anchor,
                                        check_dont_know, cost_note, english_only, experiments_note, group_models, label,
-                                       limit_note, measure_card, measure_cell, measure_heads, missing_note, noun)
+                                       limit_note, measure_card, measure_cell, measure_heads, missing_note, noun,
+                                       setup_href)
 from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, pct, rel, shown
 from sitebuild.vision import cell
 
@@ -56,7 +57,7 @@ def check(site: Site, data: dict[str, Any]) -> None:
 
 
 def href(site: Site, model: dict[str, Any]) -> str:
-    return rel(PATH, site.model_path(site.by_id[model["turkish_run"]]))
+    return setup_href(site, PATH, model["turkish_run"])
 
 
 def build(site: Site) -> dict[str, str]:
@@ -186,7 +187,7 @@ def build(site: Site) -> dict[str, str]:
                 "basis under it; English latency: the median time per request, with the request size and "
                 "the requests in flight under it, each from the first English run (Cost and Latency above)."
                 + (" " + missing_note(site, group_models(site, data, group), ("english",))).rstrip()
-                + " Each name opens its Text tab run; its tooltip gives its settings and English run.</p>"
+                + " Each name opens its model page's English section; its tooltip gives its settings and English run.</p>"
                 f'<p class="note">{esc(cost_note(site, group_models(site, data, group), ("english",)))}</p></section>')
 
     def lead(group: str) -> str:

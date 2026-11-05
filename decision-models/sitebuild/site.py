@@ -48,7 +48,7 @@ VIEW_MEASURES = (("accuracy", "Accuracy"), ("non-hallucination", "Non-hallucinat
 # The pages of the navigation bar that read ?models=: site.js keeps the group in their links, as in the view bar's row 1.
 GROUP_PAGES = ("vision/", "dont-know/")
 # Every page that shows its parts by group (data-models): row 2 of the view bar stays on it.
-FILTER_PAGES = (*(target for target, _ in VIEW_TESTS), *GROUP_PAGES, "web-grounding/")
+FILTER_PAGES = (*(target for target, _ in VIEW_TESTS), *GROUP_PAGES, "web-grounding/", "pws-decisions/")
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
 # A cost with no estimate because the setup ran on our own hardware and its maker lists no price for the same model
@@ -216,7 +216,8 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     cost_tick both cost units). head names the value column above it: (in full, on a phone), as ("Turkish · English",
     "TR · EN"). With columns, several value columns, each named so: a row's texts then give one value per column
     instead. A row's group (optional) heads it and the rows after it of the same group, as a small line across the chart
-    (web-grounding/ names each set of questions so)."""
+    (web-grounding/ names each set of questions so). A row's models (optional, the view bar's groups it shows in, as
+    "all decision") marks it data-models, and its heading with every group of its rows (pws-decisions/)."""
     place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
     ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / divisions)}">'
@@ -227,10 +228,16 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     dense = " dense" if divisions > 4 else ""
     items = []
     group = None
+    # Each heading's groups: those of the rows under it, in the view bar's order.
+    under: dict[str, set[str]] = {}
+    for row in rows:
+        if row.get("group") and row.get("models"):
+            under.setdefault(row["group"], set()).update(row["models"].split())
+    marks = lambda groups: f' data-models="{" ".join(sorted(groups, key=GROUPS.index))}"' if groups else ""  # noqa: E731
     for row in rows:
         if row.get("group") and row["group"] != group:
             group = row["group"]
-            items.append(f'<li class="hbar-group">{esc(group)}</li>')
+            items.append(f'<li class="hbar-group"{marks(under.get(group, set()))}>{esc(group)}</li>')
         label = f'<a href="{row["href"]}">{esc(row["label"])}</a>' if row.get("href") else esc(row["label"])
         if row.get("family"):
             label = family_icon(row["family"]) + label
@@ -244,7 +251,8 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
             values = f'<span class="hbar-value stack">{"".join(f"<span>{esc(text)}</span>" for text in row["texts"])}</span>'
         else:
             values = f'<span class="hbar-value">{row["html"] if "html" in row else esc(row["text"])}</span>'
-        items.append(f'<li class="hbar" title="{esc(row["title"])}"><span class="hbar-label">{label}</span>'
+        items.append(f'<li class="hbar" title="{esc(row["title"])}"{marks(set(row.get("models", "").split()))}>'
+                     f'<span class="hbar-label">{label}</span>'
                      f'<span class="hbar-track"{lines}>{fills}{marker}</span>{values}</li>')
     named = "".join(f'<span class="hbar-head"><span class="head-long">{esc(long)}</span><span class="head-short">{esc(short)}'
                     "</span></span>" for long, short in (columns or ([head] if head else []))) or "<span></span>"

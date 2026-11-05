@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Perplexity Decider 27B v1.2 · local · 1 question per request · Hilde</title>
+  <title>Perplexity Decider 27B v1.2 (local GPU) · local · 1 question per request · Hilde</title>
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/217/">
-  <meta name="description" content="Perplexity Decider 27B v1.2 · local · 1 question per request: how we called it, results, confidence, latency and cost.">
+  <meta name="description" content="Perplexity Decider 27B v1.2 (local GPU) · local · 1 question per request: how we called it, results, confidence, latency and cost.">
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if ((new URLSearchParams(location.search).get("cost-unit") || localStorage.getItem("costUnit")) === "1m") document.documentElement.dataset.costUnit = "1m"; } catch (e) {}</script>
-  <link rel="stylesheet" href="../../v3.css?v=2e745f45">
-  <script src="../../site.js?v=22dcc438" defer></script>
+  <link rel="stylesheet" href="../../v3.css?v=3906764e">
+  <script src="../../site.js?v=8e84509c" defer></script>
 </head>
 <body class="v3">
   <a class="skip" href="#main">Skip to content</a>
@@ -26,9 +26,9 @@
   <main id="main">
     <section class="card">
       <p class="eyebrow">Decision model</p>
-      <h1>Perplexity Decider 27B v1.2</h1>
+      <h1>Perplexity Decider 27B v1.2 (local GPU)</h1>
       <p class="subtitle">local · 1 question per request</p>
-      <dl class="key-figures"><div><dt>Accuracy, all 2,198 questions</dt><dd><span class="key-figure">67.1%</span><span class="small">65.1% to 69.0%, 95% interval; 1,474 right</span></dd></div><div><dt>Answers kept at 99% confidence</dt><dd><span class="key-figure">360 of 2,198</span><span class="small">0 wrong; share right 98.9% to 100.0%, 95% interval</span></dd></div><div><dt>Cost, $ <span class="cost-1k">per 1,000 questions</span><span class="cost-1m">per 1M questions</span></dt><dd><span class="key-figure"><span class="cost-1k">$0.008</span><span class="cost-1m">$7.76</span></span><span class="small"><a href="#cost">Basis and price under Cost</a></span></dd></div><div><dt>Latency</dt><dd><span class="key-figure">0.580 s</span><span class="small">median request, 1 question per request</span></dd></div></dl><p><a href="../../">Back to the leaderboard</a>.</p><p>Perplexity Decider 27B v1.2 (API) and Perplexity Decider 27B v1.2 (with web), with Perplexity's web search off and on, are compared on <a href="../../web-grounding/">Web grounding</a>.</p>
+      <dl class="key-figures"><div><dt>Accuracy, all 2,198 questions</dt><dd><span class="key-figure">67.1%</span><span class="small">65.1% to 69.0%, 95% interval; 1,474 right</span></dd></div><div><dt>Answers kept at 99% confidence</dt><dd><span class="key-figure">360 of 2,198</span><span class="small">0 wrong; share right 98.9% to 100.0%, 95% interval</span></dd></div><div><dt>Cost, $ <span class="cost-1k">per 1,000 questions</span><span class="cost-1m">per 1M questions</span></dt><dd><span class="key-figure"><span class="cost-1k">$0.008</span><span class="cost-1m">$7.76</span></span><span class="small"><a href="#cost">Basis and price under Cost</a></span></dd></div><div><dt>Latency</dt><dd><span class="key-figure">0.580 s</span><span class="small">median request, 1 question per request</span></dd></div></dl><p><a href="../../">Back to the leaderboard</a>.</p><p>Perplexity Decider 27B v1.2 (API) and Perplexity Decider 27B v1.2 (API, with web), with Perplexity's web search off and on, are compared on <a href="../../web-grounding/">Web grounding</a>.</p>
     </section>
     <section class="card" id="called">
       <h2>How we called it</h2>
@@ -44,7 +44,11 @@
     </section>
     <section class="card" id="page-images">
       <h2>Page images (preliminary)</h2>
-      <p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is condition A of the <a href="../../vision/">Page images tab</a>, which asks the 763 questions with underlined or numbered words as text (A), as a page image (B), as both (C) and through OCR models (D); the share answered right, with its 95% interval.</p><div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th><th scope="col" class="num">A · text only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">B · image only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">C · text plus image<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">Best OCR route<span class="small">accuracy, higher is better</span></th></tr></thead><tbody><tr><td class="model" title="local · 1 question per request"><a class="model-name" href="../../models/217/">Perplexity Decider 27B v1.2</a></td><td class="num" data-label="A · text only (accuracy, higher is better)"><span class="cell">62.3%<span class="small">58.8% to 65.6%</span></span></td><td class="num" data-label="B · image only (accuracy, higher is better)"><span class="cell"><span class="nm">No image input</span></span></td><td class="num" data-label="C · text plus image (accuracy, higher is better)"><span class="cell"><span class="nm">No image input</span></span></td><td class="num" data-label="Best OCR route (accuracy, higher is better)"><span class="cell">58.2%<span class="small">via Surya OCR 2</span><span class="small">54.7% to 61.6%</span></span></td></tr></tbody></table></div>
+      <p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is condition A of the <a href="../../vision/">Page images tab</a>, which asks the 763 questions with underlined or numbered words as text (A), as a page image (B), as both (C) and through OCR models (D); the share answered right, with its 95% interval.</p><div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th><th scope="col" class="num">A · text only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">B · image only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">C · text plus image<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">Best OCR route<span class="small">accuracy, higher is better</span></th></tr></thead><tbody><tr><td class="model" title="local · 1 question per request"><a class="model-name" href="../../models/217/">Perplexity Decider 27B v1.2 (local GPU)</a></td><td class="num" data-label="A · text only (accuracy, higher is better)"><span class="cell">62.3%<span class="small">58.8% to 65.6%</span></span></td><td class="num" data-label="B · image only (accuracy, higher is better)"><span class="cell"><span class="nm">No image input</span></span></td><td class="num" data-label="C · text plus image (accuracy, higher is better)"><span class="cell"><span class="nm">No image input</span></span></td><td class="num" data-label="Best OCR route (accuracy, higher is better)"><span class="cell">58.2%<span class="small">via Surya OCR 2</span><span class="small">54.7% to 61.6%</span></span></td></tr></tbody></table></div>
+    </section>
+    <section class="card" id="english">
+      <h2>English</h2>
+      <p>The Text tab's 547 kept reading questions translated into English, asked with this setup's Text tab settings. Every setup: <a href="../../english/">English reading</a>; against Turkish: <a href="../../turkish-vs-english/">English and Turkish</a>.</p><dl class="facts"><dt>Right answers</dt><dd>485 of 547, first English run (527)</dd><dt>Accuracy</dt><dd>88.7%</dd><dt>Non-hallucination with “I don&#x27;t know”</dt><dd>3.0%: 2 “I don&#x27;t know” of 66 not right; answered 99.6% (run 529)</dd><dt>Cost, $ <span class="cost-1k">per 1,000 questions</span><span class="cost-1m">per 1M questions</span>, first English run</dt><dd><span title="Estimated at Perplexity&#x27;s list price for the same model; our hardware cost is not measured."><span class="cost-1k">0.008</span><span class="cost-1m">7.85</span></span><span class="small">at the maker&#x27;s list price</span></dd><dt>Latency, median request, first English run</dt><dd>0.126 s; 1 request at once</dd><dt>English run</dt><dd>527</dd><dt>Date</dt><dd>2 November 2026</dd><dt>Request format</dt><dd>1 question per request</dd><dt>Reasoning</dt><dd>off</dd><dt>Prompt version</dt><dd><code>47f5776e71db</code></dd><dt>Translations, SHA-256</dt><dd><code>bf0d47cd385a93050c65906977e199ef7e45d5848dbbdef2bc8d124f4d5abf68</code></dd></dl>
     </section>
     <section class="card" id="confidence">
       <h2>Confidence</h2>
@@ -69,7 +73,7 @@
   </main>
   <footer class="footer">
     <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
-    <p>Results 2a2d9126, updated 5 November 2026; answer key version 2.</p>
+    <p>Results 85133d23, updated 5 November 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

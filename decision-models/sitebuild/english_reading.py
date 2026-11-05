@@ -221,8 +221,20 @@ def label(site: Site, model: dict[str, Any]) -> str:
     return setup_labels(site)[model["turkish_run"]]
 
 
+# The id of the English section of a setup's model page (models.py english), which every setup name on the two English
+# pages links to.
+ENGLISH_ANCHOR = "english"
+
+
+def setup_href(site: Site, origin: str, run: int) -> str:
+    """A link from the page at origin to the model page of the setup whose Text tab run is run: to its English section
+    where the setup has an English run (english_reading.models), else to the top of the page."""
+    path = rel(origin, site.model_path(site.by_id[run]))
+    return f"{path}#{ENGLISH_ANCHOR}" if run in setup_labels(site) else path
+
+
 def href(site: Site, model: dict[str, Any]) -> str:
-    return rel(PATH, site.model_path(site.by_id[model["turkish_run"]]))
+    return setup_href(site, PATH, model["turkish_run"])
 
 
 def family_bars(site: Site, run: int, *bars: tuple[float, str]) -> list[dict[str, Any]]:
@@ -667,8 +679,9 @@ def against_reference(site: Site, data: dict[str, Any]) -> str:
             "the exact McNemar test on the questions only one of the two got right, with p adjusted by Holm's method over "
             f"the {bp.in_words(family)} decision models. Verdict: too close to call when the Holm-adjusted p is "
             f"{SIGNIFICANT:g} or more; otherwise behind {esc(short)} when {esc(reference)} has more questions only "
-            "it got right, ahead of it when the other model has more. Each model's name links its Text tab run, as in "
-            'the tables above; <a href="#chart-paired">Paired test</a> compares each model with itself in Turkish.</p>'
+            "it got right, ahead of it when the other model has more. Each model's name links its model page's English "
+            'section, as in the tables above; <a href="#chart-paired">Paired test</a> compares each model with itself in '
+            "Turkish.</p>"
             "</section>")
 
 
@@ -899,14 +912,14 @@ def table(site: Site, data: dict[str, Any], group: str) -> str:
 
 def not_run_list(site: Site, data: dict[str, Any], group: str) -> str:
     """A group's copy of the Text tab setups without an English run (not_run): each reason once with its setups, named
-    as site.names names them among all such setups, each linking its Text tab run."""
+    as site.names names them among all such setups, each linking its model page (setup_href: no English section)."""
     entries = [(reason, [run for run in runs if in_group(site, run, group)]) for reason, runs in not_run(site, data)]
     labels = site.names([run for _, runs in not_run(site, data) for run in runs])
     count = sum(len(runs) for _, runs in entries)
     total = sum(1 for run in site.runs if in_group(site, run, group))
     if count:
         items = "".join(
-            "<li>" + joined([f'<a href="{rel(PATH, site.model_path(run))}">{esc(labels[run["run"]])}</a>' for run in runs])
+            "<li>" + joined([f'<a href="{setup_href(site, PATH, run["run"])}">{esc(labels[run["run"]])}</a>' for run in runs])
             + f": {esc(reason)}</li>" for reason, runs in entries if runs)
         text = (f"<p>{bp.opening_count(count)} of the Text tab's {total:,} {noun(group, total)} "
                 f"{'has' if count == 1 else 'have'} no English run yet, each with its reason:</p><ul>{items}</ul>")
@@ -1064,7 +1077,7 @@ def idk_label(site: Site, model: dict[str, Any]) -> str:
 
 
 def idk_href(site: Site, model: dict[str, Any]) -> str:
-    return rel(PATH, site.model_path(site.by_id[model["text_run"]]))
+    return setup_href(site, PATH, model["text_run"])
 
 
 def idk_significant(model: dict[str, Any]) -> bool:
@@ -1857,7 +1870,7 @@ def languages(site: Site, data: dict[str, Any]) -> str:
         raise SystemExit("page_config.json model_languages: the sentence says no card names Turkish")
     name = lambda model: site.row_name(site.by_id[model["run"]])  # noqa: E731
     rows = "".join(
-        f'<tr><td class="model">{site.icon(site.by_id[model["run"]])}<a class="model-name" href="{rel(PATH, site.model_path(site.by_id[model["run"]]))}">'
+        f'<tr><td class="model">{site.icon(site.by_id[model["run"]])}<a class="model-name" href="{setup_href(site, PATH, model["run"])}">'
         f'{esc(name(model))}</a></td><td data-label="Languages listed">{languages_text(model["languages"])}</td>'
         f'<td data-label="Source"><a href="{esc(model["source"])}">{esc(model["source"].split("//", 1)[1].split("/", 1)[0])}</a></td>'
         f'<td data-label="Checked">{esc(config["checked"])}</td></tr>' for model in models)
@@ -1956,7 +1969,7 @@ def option_word(site: Site) -> str:
                       else f"{100 * (e['non_hallucination'] - b['non_hallucination']):+.{digits}f}{' *' if found else ''}")
         holm = "not in Holm's family" if paired["p_holm"] is None else esc(bp.p_text(paired["p_holm"]))
         run = site.by_id[model["original_run"]]
-        name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">'
+        name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{setup_href(site, PATH, run["run"])}">'
                 f'{esc(site.row_name(run))}</a></td>')
         values = (answered(b), answered(e), wrong_of_answers(b, digits), wrong_of_answers(e, digits), rate(b, old),
                   rate(e, new), difference, holm)
@@ -2083,7 +2096,7 @@ def coverage(site: Site, data: dict[str, Any]) -> str:
                                         f'<span class="small">{point["right"]:,} right, {point["wrong"]:,} wrong, '
                                         f'{point["abstained"]:,} abstained · run {point["run"]}{restricted}</span>'))
             run = site.by_id[model["text_run"]]
-            rows.append(f'<tr><td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">'
+            rows.append(f'<tr><td class="model">{site.icon(run)}<a class="model-name" href="{setup_href(site, PATH, run["run"])}">'
                         f'{esc(name(model))}</a></td>{"".join(cells)}</tr>')
         return (f'<div class="table-wrap" {shown(group)}><table class="board list stack idk"><thead><tr><th scope="col">Model</th>'
                 f'{header}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>') if rows else ""

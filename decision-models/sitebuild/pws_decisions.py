@@ -1,18 +1,20 @@
 """PWS-Decisions (pws-decisions/): the site's models on Parallel Web Systems' benchmark of dated web facts, three runs
 each, from pws-decisions.json (totals written by pws/bench.py's summary step). Three charts in the home page's format
 (accuracy with cost and request time beside it, cost, latency: one bar per setup in its family's colour, with web
-striped) and one table, with the framing, the provenance, what was not run and why, and what waits. The charts, the
-framing and the provenance also show on web-grounding/ (charts, framing, provenance). Not part of the Turkish ranking.
+striped) and one table, with the framing, the provenance, the “I don't know” runs when the file has them (dont_know),
+what was not run and why, and what waits. The charts (decision models only), the framing, the provenance and the
+“I don't know” runs also show on web-grounding/. Not part of the Turkish ranking.
 The questions and answers are Parallel's and never published; the JSON holds totals only."""
 
 from __future__ import annotations
 
 import json
+import math
 from typing import Any
 
 from build_page import long_date
-from sitebuild.site import (ROOT, Site, cost_per, cost_switch, cost_tick, cost_words, cost_value, esc, family_legend,
-                            hbars, log_axis, pct, rel, seconds_tick)
+from sitebuild.site import (DECISION_ONLY, ROOT, Site, cost_per, cost_switch, cost_tick, cost_words, cost_value, esc,
+                            family_legend, hbars, log_axis, pct, rel, seconds_tick)
 from sitebuild.vision import cell, joined
 
 PATH = "pws-decisions/"
@@ -63,17 +65,24 @@ def chat(setup: dict[str, Any]) -> bool:
     return setup.get("group", "decision") == "chat"
 
 
+def models(setup: dict[str, Any]) -> str:
+    """The view bar's groups a setup's rows show in (data-models): all, and its own."""
+    return "all chat" if chat(setup) else "all decision"
+
+
 def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
-    """Each setup with its run, family and chart label: its full name, with "chat" for a chat model, its host where the
-    setup names one (Baseten, our GPU) and "with web" for a setup that searched where the name does not say so. Ranked by
-    mean accuracy."""
+    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat") and chart label: its full
+    name, with "chat" for a chat model, its interface where the setup names one (CLI, API: two rows of one model never
+    read the same), its host where the setup names one (Baseten, our GPU) and "with web" for a setup that searched where
+    the name does not say so. Ranked by mean accuracy."""
     out = []
     for setup in data["setups"]:
         run = setup_run(site, setup)
         name = site.row_name(run)
-        marks = ((["chat"] if chat(setup) else []) + ([f"on {setup['host']}"] if setup.get("host") else [])
+        marks = ((["chat"] if chat(setup) else []) + ([setup["interface"]] if setup.get("interface") else [])
+                 + ([f"on {setup['host']}"] if setup.get("host") else [])
                  + (["with web"] if web(setup) and "with web" not in name else []))
-        out.append({"setup": setup, "run": run, "family": site.families[run["run"]],
+        out.append({"setup": setup, "run": run, "family": site.families[run["run"]], "models": models(setup),
                     "label": f"{name} ({', '.join(marks)})" if marks else name})
     return sorted(out, key=lambda item: (-item["setup"]["accuracy"]["mean"], item["label"].casefold()))
 
@@ -110,6 +119,12 @@ def spread(item: dict[str, float], write: Any) -> str:
     if write(item["min"]) == write(item["max"]):
         return f'{write(item["mean"])}<span class="small">each run</span>'
     return f'{write(item["mean"])}<span class="small">{write(item["min"])} to {write(item["max"])}</span>'
+
+
+def no_price(setup: dict[str, Any]) -> str:
+    """Why a setup has no cost: a setup on our GPU is priced only where an API list price exists for its model."""
+    return ("on our GPU, priced only where an API list price exists" if setup.get("host") == "our GPU"
+            else "no list price for this setup")
 
 
 def lower(setup: dict[str, Any]) -> bool:
@@ -169,7 +184,7 @@ def marks_legend(items: list[dict[str, Any]], striped: str) -> str:
     if any(web(item["setup"]) for item in items):
         out += f' <span><i class="swatch swatch-web"></i>{striped}</span>'
     if any(chat(item["setup"]) for item in items):
-        out += (" <span>(chat): a chat model, asked each question in the benchmark's own words, its answer read from its "
+        out += (" <span data-models=\"all chat\">(chat): a chat model, asked each question in the benchmark's own words, its answer read from its "
                 "reply; the other rows are decision models.</span>")
     return out
 
@@ -185,17 +200,18 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
         setup = item["setup"]
         accuracy, cost = setup["accuracy"]["mean"], setup["cost_per_million_questions"]
         median, p95 = setup["median_request_seconds"]["mean"], setup["p95_request_seconds"]["mean"]
-        priced = "n.m." if cost is None else cost_html(setup, cost["mean"], mark)
+        priced = "no price" if cost is None else cost_html(setup, cost["mean"], mark)
         ci = interval(setup, digits)
         rows.append({
             "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
+            "models": item["models"],
             "bars": [{"value": accuracy, "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "marker": random,
             "html": f"{esc(pct(accuracy, digits))} | {priced} | {ms(median)} · {ms(p95)}",
             "title": f"{item['label']}: {pct(accuracy, digits)} mean of {data['runs_per_setup']} runs "
                      f"(runs {pct(setup['accuracy']['min'], 0)} to {pct(setup['accuracy']['max'], 0)}"
                      + (f"; 95% interval from the question sample {ci}" if ci else "") + "); "
-                     + ("cost not measured" if cost is None else cost_words(cost["mean"] / 1000, bound(setup, mark)))
+                     + (f"no price: {no_price(setup)}" if cost is None else cost_words(cost["mean"] / 1000, bound(setup, mark)))
                      + f"; median request {ms(median)} ms, 95th percentile {ms(p95)} ms"})
     chart = hbars(rows, head=("Accuracy | Cost | Median · p95 ms", "Acc | Cost | ms"))
     return (f'<figure class="panel chart-card chart-wide" id="{anchor}"><div class="chart-head"><h2>Accuracy</h2>'
@@ -224,11 +240,12 @@ def cost_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]], or
         fee = " incl. search" if search_fee(setup) else " tokens only" if lower(setup) else ""
         rows.append({
             "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
+            "models": item["models"],
             "bars": [{"value": place(value / 1000), "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "html": cost_html(setup, value, mark) + esc(fee),
             "title": f"{item['label']}: " + cost_words(value / 1000, bound(setup, mark))
                      + f"; {fee_words(setup)} ({setup['price']['basis']})"})
-    unpriced = [item["label"] for item in items if item["setup"]["cost_per_million_questions"] is None]
+    unpriced = [item for item in items if item["setup"]["cost_per_million_questions"] is None]
     chart = hbars(rows, head=("Cost", "Cost"), tick=lambda offset: cost_tick(write(offset)), **axis)
     lines = ["Without web: each run's tokens at the setup's list price, no search fee.",
              "With web: the same, plus the provider's web search fee (“incl. search”)."]
@@ -237,7 +254,7 @@ def cost_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]], or
     if lower_note(priced):
         lines.append(lower_note(priced))
     if unpriced:
-        lines.append(f"Not measured: {joined(unpriced)}.")
+        lines += [f"{item['label']}: no price: {no_price(item['setup'])}." for item in unpriced]
     return (f'<figure class="panel chart-card chart-wide" id="{anchor}"><div class="chart-head"><h2>Cost</h2>'
             f'<p class="chart-sub">Estimated dollars {cost_per()}, the mean of {data["runs_per_setup"]} runs, log scale; '
             f'with web search, then without, each cheapest first · lower is better</p>{cost_switch()}</div>{chart}'
@@ -257,6 +274,7 @@ def latency_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]],
         median, p95 = setup["median_request_seconds"]["mean"], setup["p95_request_seconds"]["mean"]
         rows.append({
             "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
+            "models": item["models"],
             "bars": [{"value": place(median), "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "marker": place(p95), "text": f"{ms(median)} · {ms(p95)} ms",
             "title": f"{item['label']}: median {ms(median)} ms, 95th percentile {ms(p95)} ms per request, the mean of "
@@ -341,7 +359,7 @@ def table(site: Site, data: dict[str, Any], items: list[dict[str, Any]], mark: s
             accuracy_cell(setup, digits),
             spread(setup["median_request_seconds"], ms),
             spread(setup["p95_request_seconds"], ms),
-            '<span class="nm">Not measured</span>' if cost is None else
+            f'<span class="nm">No price</span><span class="small">{esc(no_price(setup))}</span>' if cost is None else
             spread(cost, lambda value: cost_html(setup, value, mark)) + f'<span class="small">{fee}</span>',
         ]
         if "mean_chosen_probability" in setup:
@@ -354,7 +372,7 @@ def table(site: Site, data: dict[str, Any], items: list[dict[str, Any]], mark: s
         name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" '
                 f'title="{esc(site.detail(run))}">{esc(item["label"])}</a>'
                 f'<span class="small">{esc(access)}; <code>{esc(setup["request_model"])}</code></span></td>')
-        body.append(f"<tr>{name}" + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
+        body.append(f'<tr data-models="{item["models"]}">{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{text}<span class="small">{direction}</span></th>'
                    for text, direction in zip(plain, [direction for _, direction in heads]))
     return (f'<div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">Setup</th>{head}'
@@ -411,8 +429,53 @@ def pending(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> st
                    f"{gaps['baselabs/mammoth-1']['largest_gap']:.2f} (Mammoth-1, which chose differently on "
                    f"{check['questions'] - gaps['baselabs/mammoth-1']['same_choice']} of them). They wait with the GPU "
                    "setups.</li>")
+    waiting = unfinished_chat(site, data)
+    chats = (f'<li data-models="all chat">Chat setups without three complete runs yet: {esc(joined(waiting))}; added when '
+             "they have them.</li>" if waiting else "")
     return ("<li>Parallel's own Decisions API: not run, no API key available to us yet.</li>"
-            f"<li>Decision models on our GPUs: running now, added when done ({esc(joined(gpu))}).</li>" + baseten)
+            f"<li>Decision models on our GPUs: running now, added when done ({esc(joined(gpu))}).</li>" + baseten + chats)
+
+
+def setup_name(site: Site, key: str) -> str:
+    """A pws/bench.py setup key's model as the site names it: the name of results.json's runs of that model (the key
+    without "-web" and "-api"), with "(API)" for a key with "-api" and "with web" for a key ending in "-web"."""
+    model, web_key, api = setup_key(key)
+    names = {run["name"] for run in site.runs if run["model"] == model}
+    if len(names) != 1:
+        raise SystemExit(f"pws-decisions.json: setup {key} matches the names {sorted(names)} in results.json")
+    return names.pop() + (" (API)" if api else "") + (" with web" if web_key else "")
+
+
+def setup_key(key: str) -> tuple[str, bool, bool]:
+    """A pws/bench.py setup key's model, whether it searches the web ("-web") and whether it goes through the maker's
+    API with a key ("-api")."""
+    web_key = key.endswith("-web")
+    base = key.removesuffix("-web")
+    return base.removesuffix("-api"), web_key, base.endswith("-api")
+
+
+def unfinished_chat(site: Site, data: dict[str, Any]) -> list[str]:
+    """The chat setups without three complete runs: those the summary step lists as unfinished, and those with attempts
+    set aside (failed_attempts) and no setup of their model and web search among the setups yet."""
+    done = {(setup["model"], web(setup), setup.get("interface") == "API") for setup in data["setups"] if chat(setup)}
+    keys = list(data["pending"].get("chat_unfinished", []))
+    keys += [key for key in dict.fromkeys(row["setup"] for row in data.get("failed_attempts", []))
+             if key not in keys and setup_key(key) not in done]
+    return [setup_name(site, key) for key in keys]
+
+
+def attempts_note(site: Site, data: dict[str, Any]) -> str:
+    """The attempts set aside whole (failed_attempts: never merged into a run), per setup and attempt: its runs, answers,
+    errors and right answers by PWS-Decisions' scorer; nothing without them."""
+    found: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for row in data.get("failed_attempts", []):
+        found.setdefault((row["setup"], row["attempt"]), []).append(row)
+    if not found:
+        return ""
+    parts = [f"{setup_name(site, setup)}, {attempt}: {len(rows)} runs, {sum(row['rows'] for row in rows):,} answers, "
+             f"{sum(row['errors'] for row in rows):,} errors, {sum(row['correct'] for row in rows):,} right"
+             for (setup, attempt), rows in found.items()]
+    return f'<li data-models="all chat">Attempts set aside whole, never merged into a run: {esc("; ".join(parts))}.</li>'
 
 
 def load(site: Site) -> tuple[dict[str, Any], list[dict[str, Any]]] | None:
@@ -423,9 +486,73 @@ def load(site: Site) -> tuple[dict[str, Any], list[dict[str, Any]]] | None:
     return data, entries(site, data)
 
 
+def dont_know_block(data: dict[str, Any]) -> dict[str, Any] | None:
+    """PWS-Decisions with “I don't know” as an extra choice (the summary step's dont_know: Perplexity Decider v1.2's
+    runs off and with web), or None until both arms have their runs."""
+    block = data.get("dont_know")
+    return block if block and block.get("off") and block.get("on") else None
+
+
+def dont_know_item(items: list[dict[str, Any]], block: dict[str, Any], side: str) -> dict[str, Any]:
+    """The setup entry (label, run, family) of one arm of the “I don't know” runs: the same provider, model and mode."""
+    key = (block["provider"], block["model"], block[side]["perplexity_mode"])
+    found = [item for item in items if (item["setup"]["provider"], item["setup"]["model"], item["setup"]["perplexity_mode"]) == key]
+    if len(found) != 1:
+        raise SystemExit(f"pws-decisions.json dont_know: {key} matches {len(found)} setups")
+    return found[0]
+
+
+def count(value: float) -> str:
+    """A count, or a mean of counts over runs: a whole number as one, else to one decimal."""
+    return f"{round(value):,}" if math.isclose(value, round(value), abs_tol=1e-9) else f"{value:,.1f}"
+
+
+def dont_know_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> str:
+    """The “I don't know” runs (dont_know_block): per arm the mean right, wrong and “I don't know” answers, and the
+    accuracy, answered share, wrong share of the answers and non-hallucination rate, each with the lowest and highest
+    run; nothing until both arms have their runs."""
+    block = dont_know_block(data)
+    if block is None:
+        return ""
+    digits = site.config["percent_digits"]
+    option = block["option"]
+    heads = [(f"Right · wrong · {option}", "mean of the runs"), ("Accuracy", "right / questions; higher is better"),
+             ("Answered", "(right + wrong) / questions"), ("Wrong of answers", "wrong / (right + wrong); lower is better"),
+             ("Non-hallucination", f"{option} / ({option} + wrong); higher is better"),
+             ("Errors", "requests without an answer, scored wrong")]
+    labels = [f"{head} ({direction})" for head, direction in heads]
+    rate = lambda value: esc(pct(value, digits))  # noqa: E731
+    body = []
+    for side in ("off", "on"):
+        arm, item = block[side], dont_know_item(items, block, side)
+        values = [esc(" · ".join(count(arm[key]["mean"]) for key in ("right", "wrong", "dont_know")))]
+        values += ['<span class="nm">n/a</span>' if arm[key] is None else spread(arm[key], rate)
+                   for key in ("accuracy", "answered", "wrong_of_answers", "non_hallucination")]
+        values.append(spread(arm["errors"], lambda value: esc(count(value))))
+        name = (f'<td class="model">{site.icon(item["run"])}<a class="model-name" href="{link(site, PATH, item)}">'
+                f'{esc(item["label"])}</a><span class="small">{len(arm["runs"])} runs</span></td>')
+        body.append(f'<tr data-models="{item["models"]}">{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
+    head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{esc(direction)}</span></th>'
+                   for text, direction in heads)
+    dates = sorted(block.get("dates", []))
+    when = "" if not dates else f" Run on {esc(long_date(dates[0]))}" + (
+        f" to {esc(long_date(dates[-1]))}." if dates[-1] != dates[0] else ".")
+    return f"""<section class="card" id="dont-know" {DECISION_ONLY}>
+      <h2>With “{esc(option)}” as an extra choice</h2>
+      <p>{esc(block_name(items, block))}, off and with web, asked the same {data['questions']} questions with “{esc(option)}” offered as an extra choice, {len(block['off']['runs'])} runs each.{when} Non-hallucination: the share of the answers that were not right where the setup chose “{esc(option)}” instead of a wrong answer. Each value is the mean of the runs, with the lowest and highest run under it.</p>
+      <div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">Setup</th>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>
+    </section>"""
+
+
+def block_name(items: list[dict[str, Any]], block: dict[str, Any]) -> str:
+    """The model of the “I don't know” runs, as its setup without web is named."""
+    return dont_know_item(items, block, "off")["label"]
+
+
 def summary_cards(items: list[dict[str, Any]], digits: int) -> str:
-    """The first screen's cards, among the decision models (the chat rows are their own comparison in the charts): the
-    best with web search, the same model without it, and the best without search (nothing without both kinds)."""
+    """The first screen's cards, among the decision models (the chat rows are their own comparison in the charts), under
+    a "Decision models" heading, for the view bar's all and decision groups: the best with web search, the same model
+    without it, and the best without search (nothing without both kinds)."""
     decisions = [item for item in items if not chat(item["setup"])]
     searched = [item for item in decisions if web(item["setup"])]
     unsearched = [item for item in decisions if not web(item["setup"])]
@@ -439,9 +566,9 @@ def summary_cards(items: list[dict[str, Any]], digits: int) -> str:
     if same is not None:
         cards.append(("The same model without web", same["label"], same))
     cards.append(("Best decision model without search", other["label"], other))
-    return '<div class="result-cards">' + "".join(
+    return (f'<div {DECISION_ONLY}><h2 class="board-group">Decision models</h2><div class="result-cards">' + "".join(
         f'<div class="result-card"><h2>{esc(title)}</h2><p class="result-main">{esc(pct(item["setup"]["accuracy"]["mean"], digits))}'
-        f'</p><p class="result-cost">{esc(note)}</p></div>' for title, note, item in cards) + "</div>"
+        f'</p><p class="result-cost">{esc(note)}</p></div>' for title, note, item in cards) + "</div></div>")
 
 
 def chance_method(data: dict[str, Any]) -> str:
@@ -475,6 +602,8 @@ def build(site: Site) -> dict[str, str]:
     who = (f"{decisions} decision model setups" + (f" and {chats} chat model setups" if chats else ""))
     fees = sorted({format(item["setup"]["price"]["per_request"], "g") for item in items
                    if web(item["setup"]) and item["setup"]["price"].get("per_request", 0) > 0})
+    block = dont_know_block(data)
+    idk_nav = f'<a href="#dont-know" {DECISION_ONLY}>{esc(block["option"])}</a>' if block else ""
     body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
       <h1>PWS-Decisions: the site's models on dated web facts</h1>
@@ -483,7 +612,7 @@ def build(site: Site) -> dict[str, str]:
       {framing(data)}
       <p>{above} setups have a mean accuracy above the {pct(data['random_accuracy'], digits)} chance line (Parallel's random-guess baseline, not a run of ours); every accuracy here is the mean of our {data['runs_per_setup']} runs.</p>
       {provenance(data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a><a href="#not-run">Not run</a><a href="#method">Method</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
     </section>
     <section class="charts" aria-label="Charts">{charts(site, data, items, PATH, "chart-", measures=True)}</section>
     <section class="card" id="results">
@@ -498,6 +627,7 @@ def build(site: Site) -> dict[str, str]:
         <li>Cost: each run's tokens at the runner's list price for the setup, the price the Text tab uses, over its {data['questions']} questions{", plus the web search fee for setups with web" + (" ($" + " or $".join(fees) + " per request for Perplexity)" if fees else "") if searched else ""}.</li>
       </ul>
     </section>
+    {dont_know_section(site, data, items)}
     <section class="card" id="not-run">
       <h2>Not run, and why</h2>
       <ul>
@@ -519,6 +649,7 @@ def build(site: Site) -> dict[str, str]:
         <li>Parallel's leaderboard (public set, mean of three runs, evaluated {esc(long_date(parallel['evaluated']))}): {leaderboard} (<a href="{esc(parallel['source'])}">the benchmark's repository</a>).</li>
         <li>The questions and answers are Parallel's: {esc(data['name'])} version {esc(data['version'])}, gated, for evaluation only. We publish totals only, never a question, an answer or a per-question result.</li>
         <li>What the runs cost us at list prices: {dollars(data['run_cost_usd'])}.</li>
+        {attempts_note(site, data)}
       </ul>
       <p class="note">Download: <a href="{rel(PATH, "pws-decisions.json")}" download>pws-decisions.json</a> (every number on this page, per run). The adapter is <code>pws/bench.py</code> in the repository.</p>
     </section>"""

@@ -232,8 +232,10 @@ const state = {
   /* Info (the summary, the notes and Reading vs grammar) open or closed; kept in the history entry, not in the URL. */
   infoOpen: false,
 };
-/* Each tab's order when it opens: the Routing tab by the share of the LLM's questions taken, the others by accuracy. */
-const DEFAULT_SORTS = { routing: { key: 'share', descending: true } };
+/* Each tab's order when it opens: the Routing tab by the share of the LLM's questions taken, the Stability tab by
+   changed answers, most first (ties by the same wrong answer in all five runs, the column's tie, most first), the
+   others by accuracy. */
+const DEFAULT_SORTS = { routing: { key: 'share', descending: true }, stability: { key: 'changed', descending: true } };
 const defaultSort = tab => ({ ...(DEFAULT_SORTS[tab] ?? { key: 'accuracy', descending: true }) });
 const atDefaults = () =>
   Object.entries(DEFAULT_FILTERS).every(([key, value]) => state[key] === value) && !state.picked.size;
@@ -429,7 +431,7 @@ const TABS = {
     note: STABILITY_NOTE,
     columns: [
       {
-        key: 'changed', label: 'Answers changed in 5 runs', low: true,
+        key: 'changed', label: 'Answers changed in 5 runs', low: true, tie: 'same-wrong',
         value: row => (filtered() ? null : row.item.changed_answer / row.item.questions),
         cell: row => (filtered() ? MISSING : `${integer(row.item.changed_answer)} of ${integer(row.item.questions)}`),
       },
@@ -647,18 +649,19 @@ function routeMap() {
 
 /* ---- Rendering the leaderboard ---- */
 
+/* Rows by the sorted column's value; rows it ties ranked by its tie column (its key) in the same direction. */
 function sortRows(rows, columns) {
   const { key, descending } = state.sort;
   const column = columns.find(item => item.key === key);
+  const tie = column?.tie && columns.find(item => item.key === column.tie);
   /* The Routing tab ignores the part and topic filters, so it orders by accuracy on all questions. */
   const fallback = state.tab === 'routing' ? overallAccuracy : accuracyOf;
   const value = column ? row => column.value(row) : row => fallback(row.run);
-  return [...rows].sort((a, b) => {
-    const x = value(a);
-    const y = value(b);
+  const order = (x, y) => {
     if (x == null || y == null) return x == null ? (y == null ? 0 : 1) : -1;
     return descending ? y - x : x - y;
-  });
+  };
+  return [...rows].sort((a, b) => order(value(a), value(b)) || (tie ? order(tie.value(a), tie.value(b)) : 0));
 }
 
 /* A sortable header: ⇅ when another column sorts the table, ▲ or ▼ when this one does. With directions, a muted line

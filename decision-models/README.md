@@ -94,9 +94,12 @@ python3 -m http.server 8000                                # preview at http://1
   abstention and the comparison with confidence of the model's "I don't know" run with the rerun as its original run.
   For Perplexity's web grounding test (`web_grounding`, from `web_grounding_runs` with the setup's Text tab run in `runs`
   and its English run in `english_runs`) it checks each pair's setup, kind and questions, recomputes each arm's right
-  answers, accuracy, median and 95th-percentile request time and cost (overall and, in Turkish, by group), the exact
-  McNemar test of each pair, the "Bilmiyorum" pair's counts and rates and the right answers among each source check's
-  questions, and checks the tokens, sources and PWS-Decisions' aggregates against `web-grounding.json`.
+  answers, accuracy, median and 95th-percentile request time and cost (overall and, in Turkish, by group), each pair's
+  paired counts (both right, right only off, only on, both wrong, errors, missing) and exact McNemar test, each repeat
+  of the full bank's and the English pair's first runs (its setup, mode, language and settings against the first run,
+  then the same measures, paired counts and source checks) and each arm's mean with its lowest and highest run, the
+  "Bilmiyorum" pair's counts and rates and the right answers among each source check's questions, and checks the
+  tokens, sources and PWS-Decisions' aggregates against `web-grounding.json`.
   For the option-word runs against confidence (`dont_know_option_word.vs_confidence`) it redoes each derived cut-off
   with its neighbouring cut-offs and the paired test of wrong answers, with Holm over the eligible family; for risk and
   coverage on the kept reading questions (`english_reading.coverage`) every native point and every curve point; and
@@ -161,8 +164,11 @@ python3 -m http.server 8000                                # preview at http://1
     the models (`?models=all|decision|chat`, all when missing; trailing dots, punctuation or spaces are dropped, so
     `?models=all.` reads as all), row 3 the measure (Accuracy, Non-hallucination, Cost,
     Latency); on a screen wider than 1000 px rows 1 and 2 share the first line and row 3 takes the second, each row's
-    name before its keys (row 2 reads All, Decision, Chat; "models" is added where each row has a line of its own and room for it). Each row 1 or row 2 choice opens
-    its page at the top, charts first, then the table. `site.js` marks the current group, keeps it in row 1's links and
+    name before its keys (row 2 reads All, Decision, Chat; "models" is added where each row has a line of its own and room for it). Each row 1 choice opens
+    its page at the top, charts first, then the table. A row 2 key keeps the view (`keepViewOnGroup` in `site.js`): it
+    opens its group with the chosen cost unit (`?cost-unit=`) and the part of row 3's marked key, so Decision pressed at
+    `#cost` opens that page's `#cost` with `?models=decision` in the same unit (the top of the page when no key is
+    marked). `site.js` marks the current group, keeps it in row 1's links and
     in the links marked `data-keep-group` (the top bar's Page images and Hallucination), and shows each `data-models`
     element only for its groups. On the pages that show their parts by group (`FILTER_PAGES`: the three test pages, Page
     images, Hallucination and Web grounding) row 2 stays on the page; on any other page it leads to the home page with
@@ -191,6 +197,8 @@ python3 -m http.server 8000                                # preview at http://1
     scale, Not measured named in the note; `measure_card` in `sitebuild/english_reading.py`), then the table per group
     ranked by English accuracy with the four measures. Turkish vs English draws the same Cost and Latency cards as
     paired bars, the Text tab run (`.turkish`) and the first English run (`.english`), with both in its main table.
+    Every setup name on both English pages links to its model page's English section (`#english`, `setup_href` in
+    `sitebuild/english_reading.py`; a setup without an English run links to its model page).
   - **Four tabs**: the site's four benchmarks, each with its own address and its own rankings, never combined: Text
     (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know`, `dont_know_option_word`, `hosted_glide_rerun` and
@@ -260,22 +268,33 @@ python3 -m http.server 8000                                # preview at http://1
     comparing the Text tab's two hosted setups, linked from the home page's hero and both English pages' intros (the
     experiments line, `experiments` in `sitebuild/site.py`, its links keeping the group) and from the
     model pages of the Perplexity family. Perplexity's Decider v1.2 through its Decisions API off ("Perplexity Decider
-    27B v1.2 (API)", run 633) and with web ("... (with web)", run 640) on the full bank, reading and grammar apart; the
+    27B v1.2 (API)", run 633) and with web ("... (API, with web)", run 640; the checkpoint on our hardware is "... (local
+    GPU)", run 217) on the full bank, reading and grammar apart; the
     200-question pilot that came first (`--sample 200 --seed 0`, runs 631 and 632); the "Bilmiyorum" pairs (full bank,
     and the pilot's 634, 635); our English translations of the kept reading questions (637 and 639) and PWS-Decisions'
-    100 public questions (Parallel's gated dataset: its aggregates only). The first screen: one line naming both setups
-    (one run per setting and the run date) and three result cards (the Turkish full bank, English reading and
-    PWS-Decisions: accuracy off → with web, the change in points, the cost off vs ≤ with web). Then four charts in the
+    100 public questions (Parallel's gated dataset: its aggregates only). The full bank and the English questions have
+    three runs per mode: the first runs (the ranking's runs, unchanged everywhere else) and their repeats 2 and 3
+    (`--repeat`, the same questions in the same order, key, runner and settings), which enter only `web_grounding`
+    (`repeats`: each repeat's runs, paired counts and source checks; `mean`: each arm's mean with the lowest and highest
+    run) and answers.json's `web_grounding_runs`. PWS-Decisions' rows are the mean of our three runs of the two setups
+    in `pws-decisions.json`, the same numbers as its page, labelled "mean of 3 runs"; its "I don't know" runs
+    (`pws-decisions.json`'s `dont_know`, when present) join the Non-hallucination chart and table. The first screen:
+    one line naming both setups (three runs per setting, the ranking keeping each setup's first run, and the run dates)
+    and three result cards (the Turkish full bank, English reading and PWS-Decisions: mean accuracy off → with web, the
+    change in points, the runs' range, the cost off vs ≤ with web). Then four charts in the
     home page's format, each in a section with the id the view bar's Measure row uses (`accuracy`,
     `non-hallucination`, `latency`, `cost`): each set of questions a small heading (hbars' row `group`) over its two
     setups with their family icon and full name, web off a clear grey and with web one accent (`v3.css` `.web-off`,
-    `.web-on`). Accuracy shows the three main sets with the change in points, the full bank by part under them and the
-    pilot folded; Non-hallucination each row's option count, answered share and wrong share of answers; Latency the
-    median with the 95th percentile as a line; Cost on a log scale, ≤ with web. Then PWS-Decisions' Accuracy, Cost and
-    Latency charts of every setup (`sitebuild/pws_decisions.py`, from `pws-decisions.json`, with its framing and
-    provenance), what the search returned (a short summary of the full bank's source checks, then the pages and top
-    sites of each grounded run), the caveats, and under Detailed results the tables (a row per setup, icon and full
-    name, with the pilot, the answers right only one way and the exact McNemar p) and our method. Costs with web are
+    `.web-on`). Accuracy shows the three main sets (each a mean of its runs, the lowest to highest run under it) with the
+    change in points, the full bank by part under them and the pilot folded; Non-hallucination each row's option count,
+    answered share and wrong share of answers; Latency the median with the 95th percentile as a line; Cost on a log
+    scale, ≤ with web. Then PWS-Decisions' Accuracy, Cost and Latency charts of its decision models
+    (`sitebuild/pws_decisions.py`, with its framing and provenance; the chat rows stay on its page), what the search
+    returned (a short summary of the full bank's source checks, the pages and top sites of each first grounded run, then
+    each grounded run's checks, N/A for a run that returned no page), the caveats, and under Detailed results the tables
+    (a row per setup, icon and full name, with the pilot, the answers right only one way and the exact McNemar p), Each
+    run (every run, and per repeat number both right, right only off, only with web, both wrong, errors, missing and the
+    exact McNemar p) and our method. Costs with web are
     upper-bound estimates (`cost_upper_bound`): every cost of such a run, on every page, carries `page_config.json`'s
     `first_cost_marks.upper` mark (≤) and its note.
   - **PWS-Decisions** (`pws-decisions/`, from `pws-decisions.json`, built by `sitebuild/pws_decisions.py`): Parallel Web
@@ -291,12 +310,23 @@ python3 -m http.server 8000                                # preview at http://1
     per setup in its family's colour, with web striped, chat models' names ending in
     "(chat)" and a named host in "(on Baseten)" (setups' `group`, `web`, `host` and `run`, optional). The table gives each
     accuracy's run-to-run range and, from the summary step's `accuracy_ci95` (`bootstrap`: questions resampled, seed
-    fixed), its 95% interval from the question sample; "Wrong when sure" as integer totals over the runs. The method
-    notes compute the chance line from `choice_counts`.
+    fixed), its 95% interval from the question sample; "Wrong when sure" as integer totals over the runs. With the
+    summary step's `dont_know` block (Perplexity Decider v1.2's "I don't know" runs off and with web, three each; an arm
+    is null until its runs are done), a section gives each arm's mean right, wrong and "I don't know" answers, accuracy,
+    answered share, wrong share of answers, non-hallucination rate and errors, with the lowest and highest run; without
+    it the page has no such section. The method notes compute the chance line from `choice_counts`. Row labels add a
+    setup's `interface` (CLI or API) beside its other marks, so two rows of one model never read the same. The view
+    bar's row 2 filters the page in place (`FILTER_PAGES`): each chart row (hbars' row `models`) and table row carries
+    `data-models` ("all decision" or "all chat"), the three cards sit under a "Decision models" heading in the all and
+    decision views, and the "I don't know" section is a decision-model part. Waiting lists the chat setups without
+    three complete runs (`pending.chat_unfinished`, and setups with `failed_attempts` but no setup yet); the method notes
+    give the attempts set aside whole with their counts.
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads, the result cards and the static Non-hallucination part).
-    Its face starts under the one-line top bar with three result cards (`result_cards` in `build_site.py`, one set per
+    Its face starts under the one-line top bar with a heading naming the cards' scope ("Full test · 2,198 questions",
+    the count from `results.json`, so the Reading or Grammar choice under them is not read as theirs) and three result
+    cards (`result_cards` in `build_site.py`, one set per
     view bar group, site.js showing the one in view; each names its scope): the highest accuracy, with its setup and
     right answers of all questions; the most answers kept at the 99% confidence threshold with no observed mistakes,
     with how many setups kept more but got some wrong; and the lowest cost per 1,000 questions among the setups within
@@ -342,7 +372,9 @@ python3 -m http.server 8000                                # preview at http://1
     tests, the half rule in the live tests; the half rule's replay figures are means over 300 splits, so they stay
     shares); the model pages; the Method page; and the Hallucination tab's derived cut-off (answered and held back).
     Right after the charts comes the leaderboard with its four tabs: one table for the selected group, ranked by
-    accuracy (in the all view decision and chat models together, each row saying which). Info, a details element closed
+    accuracy (in the all view decision and chat models together, each row saying which); the Routing tab opens by the
+    share taken and the Stability tab by changed answers, most first, ties by the same wrong answer in all five runs,
+    most first (`DEFAULT_SORTS` and a column's `tie` in `v3.js`). Info, a details element closed
     by default and opened by a link into it (`#info`), holds the counters, the summary, the notes and the Reading vs
     grammar chart. A model ID with runs in both groups
     gets its route after its name in each row ("GPT-6 Luna (Decisions API)", "GPT-6 Luna (chat API)"; `route_labels`
@@ -392,7 +424,11 @@ python3 -m http.server 8000                                # preview at http://1
   - **Other pages**: each module of `sitebuild/` (`PAGE_MODULES` in `build_site.py`) returns whole pages,
     written to `<path>index.html`: one page per setup (`models/<run>/`, opening with a summary: accuracy with its 95%
     interval, the answers kept at 99% confidence with the wrong ones among them, cost and median latency; the run
-    record's harness seed, commit and prompt version folded under Settings; `models/` itself sends the reader to the home
+    record's harness seed, commit and prompt version folded under Settings; for a setup with an English run, an English
+    section (`#english`): the first English run's right answers of the 547 kept questions, accuracy with its range over
+    several runs, the English "I don't know" non-hallucination rate where measured, the first English run's cost and
+    median latency, and the English runs' ids, dates (`english_reading.models[].dates`), request size, reasoning,
+    prompt version and translations' SHA-256 from their records in `answers.json`; `models/` itself sends the reader to the home
     page's All models view, which replaced its list of every setup; query and fragment kept), every question
     (`questions/`, with `questions.js`: filters on question ID, book page, topic and difficulty, 100 rows at a time,
     all kept in the URL; every row shows without JavaScript), one page per question (`question/?id=…`, drawn by

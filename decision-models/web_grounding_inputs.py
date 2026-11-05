@@ -4,7 +4,8 @@
     python3 web_grounding_inputs.py BENCHMARK_RESULTS_SQLITE PWS_FOLDER RUN... [--output web-grounding.json]
 
 Perplexity's web grounding test (export_results.web_grounding: the runs of both hosted Decider v1.2 setups, with
-grounding off and on, that its pairs hold, and WEB_GROUNDING_PILOTS): Perplexity's Decider v1.2 through its Decisions
+grounding off and on, that its pairs hold, the repeats of its full-bank and English first runs, and WEB_GROUNDING_PILOTS):
+Perplexity's Decider v1.2 through its Decisions
 API with grounding off and on. From the benchmark database (the runner's benchmark-results.sqlite), per run of the test
 and its Text tab run: each group's input tokens (the usage in each answer's stored raw response; a run's cost by group
 follows from them at its price) and, for a run with grounding on, what the search returned (each raw response's
@@ -198,7 +199,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("database", type=Path, help="the runner's benchmark-results.sqlite")
     parser.add_argument("pws", type=Path, help="grounding_test.py's folder (PWS-Decisions' runs, summary and answers)")
-    parser.add_argument("runs", type=int, nargs="+", help="the test's runs (every run of its pairs, the pilots included)")
+    parser.add_argument("runs", type=int, nargs="+", help="the test's runs (every run of its pairs and every repeat, the "
+                        "pilots included)")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help=f"default: {DEFAULT_OUTPUT}")
     args = parser.parse_args()
     database = sqlite3.connect(f"file:{args.database}?mode=ro", uri=True)

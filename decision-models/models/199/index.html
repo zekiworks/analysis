@@ -7,8 +7,8 @@
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/199/">
   <meta name="description" content="Liquid d1-ultra · 1 question per request: how we called it, results, confidence, latency and cost.">
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if ((new URLSearchParams(location.search).get("cost-unit") || localStorage.getItem("costUnit")) === "1m") document.documentElement.dataset.costUnit = "1m"; } catch (e) {}</script>
-  <link rel="stylesheet" href="../../v3.css?v=2e745f45">
-  <script src="../../site.js?v=22dcc438" defer></script>
+  <link rel="stylesheet" href="../../v3.css?v=3906764e">
+  <script src="../../site.js?v=8e84509c" defer></script>
 </head>
 <body class="v3">
   <a class="skip" href="#main">Skip to content</a>
@@ -46,6 +46,10 @@
       <h2>Page images (preliminary)</h2>
       <p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is condition A of the <a href="../../vision/">Page images tab</a>, which asks the 763 questions with underlined or numbered words as text (A), as a page image (B), as both (C) and through OCR models (D); the share answered right, with its 95% interval.</p><div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th><th scope="col" class="num">A · text only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">B · image only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">C · text plus image<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">Best OCR route<span class="small">accuracy, higher is better</span></th></tr></thead><tbody><tr><td class="model" title="1 question per request"><a class="model-name" href="../../models/199/">Liquid d1-ultra</a></td><td class="num" data-label="A · text only (accuracy, higher is better)"><span class="cell">73.5%<span class="small">70.3% to 76.5%</span></span></td><td class="num" data-label="B · image only (accuracy, higher is better)"><span class="cell">50.1%<span class="small">46.5% to 53.6%</span></span></td><td class="num" data-label="C · text plus image (accuracy, higher is better)"><span class="cell">72.1%<span class="small">68.8% to 75.2%</span></span></td><td class="num" data-label="Best OCR route (accuracy, higher is better)"><span class="cell">67.1%<span class="small">via Surya OCR 2</span><span class="small">63.7% to 70.3%</span></span></td></tr></tbody></table></div>
     </section>
+    <section class="card" id="english">
+      <h2>English</h2>
+      <p>The Text tab's 547 kept reading questions translated into English, asked with this setup's Text tab settings. Every setup: <a href="../../english/">English reading</a>; against Turkish: <a href="../../turkish-vs-english/">English and Turkish</a>.</p><dl class="facts"><dt>Right answers</dt><dd>496 of 547, first English run (411)</dd><dt>Accuracy</dt><dd>90.7%; 90.1% to 91.0% over its 5 English runs</dd><dt>Non-hallucination with “I don&#x27;t know”</dt><dd>56.7%: 51 “I don&#x27;t know” of 90 not right; answered 90.7% (run 449)</dd><dt>Cost, $ <span class="cost-1k">per 1,000 questions</span><span class="cost-1m">per 1M questions</span>, first English run</dt><dd><span><span class="cost-1k">0.014</span><span class="cost-1m">13.98</span></span><span class="small">at list prices</span></dd><dt>Latency, median request, first English run</dt><dd>0.220 s; 1 request at once</dd><dt>English runs</dt><dd>411, 418, 422, 426, 428</dd><dt>Date</dt><dd>2 November 2026</dd><dt>Request format</dt><dd>1 question per request</dd><dt>Reasoning</dt><dd>off</dd><dt>Prompt version</dt><dd><code>47f5776e71db</code></dd><dt>Translations, SHA-256</dt><dd><code>bf0d47cd385a93050c65906977e199ef7e45d5848dbbdef2bc8d124f4d5abf68</code></dd></dl>
+    </section>
     <section class="card" id="confidence">
       <h2>Confidence</h2>
       <dl class="facts"><dt>Answers kept at 99% or more</dt><dd>90, of which 0 wrong (share right: 95.9% to 100.0%, 95% interval); 2,108 skipped, the model less than 99% sure</dd><dt>Calibration gap</dt><dd>3.6 points</dd><dt><span class="hint" tabindex="0" data-tip="ranking score">AUROC</span>, all questions</dt><dd>0.85 <span class="small inline">0.83 to 0.87</span></dd><dt>AUROC, reading</dt><dd>0.91 <span class="small inline">0.88 to 0.93</span></dd><dt>AUROC, grammar</dt><dd>0.81 <span class="small inline">0.79 to 0.83</span></dd><dt>Brier score</dt><dd>0.129</dd><dt>Accuracy of its surest answers</dt><dd>most confident fifth: 100.0% right; most confident half: 95.7% right; most confident four fifths: 85.9% right</dd><dt>Typical score of a right answer</dt><dd>88.4%</dd><dt>Typical score of a wrong answer</dt><dd>47.5%</dd></dl>
@@ -69,7 +73,7 @@
   </main>
   <footer class="footer">
     <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
-    <p>Results 2a2d9126, updated 5 November 2026; answer key version 2.</p>
+    <p>Results 85133d23, updated 5 November 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

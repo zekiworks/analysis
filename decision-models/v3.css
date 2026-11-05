@@ -616,7 +616,9 @@ i.swatch-wrong { background: var(--wrong); }
 .hbar.cols, .hbars.cols > .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) repeat(var(--cols), 6.5rem); }
 .cols .hbar-head { white-space: normal; line-height: 1.2; }
 
-/* The result cards above the Accuracy chart (build_site.py result_cards): three cards, each with its setup and scope. */
+/* The result cards above the Accuracy chart (build_site.py result_cards): three cards, each with its setup and scope,
+   under a heading naming their scope, the full test. */
+.results-heading { margin: 0 0 .5rem; font-size: 1.05rem; }
 .result-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
 .panel.result-card { display: flex; flex-direction: column; gap: .2rem; margin: 0; padding: .7rem .9rem; min-width: 0; }
 .result-card .card-title { margin: 0; padding: 0; border: 0; color: var(--text-2); font-size: .8rem; font-weight: 600; line-height: 1.3; }

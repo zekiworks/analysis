@@ -55,10 +55,10 @@ def answered_cell(counts: dict[str, Any], total: int, digits: int, extra: str = 
 
 
 def wrong_cell(counts: dict[str, Any], digits: int) -> str:
-    """The Wrong of answers cell: wrong / (right + wrong) with its counts; Not measured without an answer."""
+    """The Wrong of answers cell: wrong / (right + wrong) with its counts; No answers (undefined) without an answer."""
     answered = counts["right"] + counts["wrong"]
     if not answered:
-        return '<span class="nm">Not measured</span>'
+        return '<span class="nm">No answers</span>'
     return f'{pct(counts["wrong"] / answered, digits)}<span class="small">{counts["wrong"]:,} of {answered:,}</span>'
 
 
@@ -82,7 +82,7 @@ def model_cell(site: Site, model: dict[str, Any], name: str | None = None) -> st
 def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
     digits = site.config["percent_digits"]
     option, total = data["option"], data["questions"]
-    percent = lambda value: '<span class="nm">Not measured</span>' if value is None else pct(value, digits)  # noqa: E731
+    percent = lambda value: '<span class="nm">Undefined</span>' if value is None else pct(value, digits)  # noqa: E731
     heads = [f"{head} ({direction})" for head, direction in columns(option)]
     derived = model["derived"]
     cut = ("no cut-off (no answer has a score)" if derived["cut_off"] is None else
@@ -95,7 +95,7 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
         runs_text = run_span(model["runs"])
     else:
         ranges = [
-            f"{name} {percent(spread[key][0])} to {percent(spread[key][1])}" if spread[key] else f"{name} not measured"
+            f"{name} {percent(spread[key][0])} to {percent(spread[key][1])}" if spread[key] else f"{name} undefined in a run"
             for key, name in (("attempt_rate", "Answered"), ("non_hallucination", "Non-hallucination"),
                               ("accuracy", "Accuracy"), ("mean_dont_know_probability", "Mean probability"))
         ]
@@ -160,8 +160,9 @@ def group_data(data: dict[str, Any], group: str) -> dict[str, Any]:
 def findings(site: Site, data: dict[str, Any], word: dict[str, Any] | None = None) -> str:
     """What we found: the table's main results in words, every number computed from results.json's dont_know. The
     sentences assume what they say (some models used the option and lost accuracy, the rest almost never chose it, each
-    derived rate holds back on as many questions as its run said “Bilmiyorum”); the build stops when the data no longer
-    fits them, so the text is rewritten rather than left wrong."""
+    derived rate holds back on as many questions as its run said “Bilmiyorum”, or, where tied scores at the cut-off
+    allow no such count, on the nearest count, named with both counts); the build stops when the data no longer fits
+    them, so the text is rewritten rather than left wrong."""
     digits = site.config["percent_digits"]
     option, total = esc(data["option"]), data["questions"]
     p = lambda value: pct(value, digits)  # noqa: E731
@@ -178,8 +179,8 @@ def findings(site: Site, data: dict[str, Any], word: dict[str, Any] | None = Non
     if any(model["non_hallucination"] is None or model["derived"]["non_hallucination"] is None for model in models):
         raise SystemExit("dont_know findings: the text assumes every rate is defined (each model has a wrong or "
                          "“Bilmiyorum” answer)")
-    if any(model["derived"]["abstained"] != model["dont_know"] for model in models):
-        raise SystemExit("dont_know findings: a derived rate does not hold back on as many questions as its run")
+    # Where tied scores allow no cut-off with the run's count, derived_abstention takes the nearest; the text names it.
+    apart = [model for model in models if model["derived"]["abstained"] != model["dont_know"]]
     shares = [model["dont_know"] / total for model in used]
     means = {key: [model["mean_dont_know_probability"] for model in group] for key, group in (("used", used), ("rare", rare))}
     first = (f"<p>Of the {len(models)} models, {len(used)} used “{option}”, on {p(min(shares))} to {p(max(shares))} of the "
@@ -210,8 +211,12 @@ def findings(site: Site, data: dict[str, Any], word: dict[str, Any] | None = Non
     saved = [model["wrong"] - model["derived"]["wrong"] for model in fewer]
     # Differences between the unrounded rates, rounded only when shown (not between the table's rounded rates).
     gaps = [100 * (model["derived"]["non_hallucination"] - model["non_hallucination"]) for model in fewer]
+    nearest = [model for model in fewer if model in apart]
+    note = (f" (for {joined([name(model) for model in nearest])}, {joined([format(model['derived']['abstained'], ',') for model in nearest])} "
+            f"against {joined([format(model['dont_know'], ',') for model in nearest])}: tied scores at the cut-off allow "
+            "no nearer count)" if nearest else "")
     third = (f"<p>For {len(fewer)} of the {len(used)}, the model's own confidence on its five-option run, holding back on as "
-             f"many questions, left fewer wrong answers than “{option}” did: {min(saved):,} to {max(saved):,} fewer, a "
+             f"many questions{note}, left fewer wrong answers than “{option}” did: {min(saved):,} to {max(saved):,} fewer, a "
              f"non-hallucination rate {min(gaps):.{digits}f} to {max(gaps):.{digits}f} points higher (the derived rate in "
              f"the table).")
     if more:
@@ -334,7 +339,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         return model["wrong"] / answered if answered else None
 
     def shown_rate(value: float | None) -> str:
-        return "Not measured" if value is None else pct(value, digits)
+        return "undefined" if value is None else pct(value, digits)
 
     measures = (("Answered", "base", lambda model: model["attempt_rate"]), ("Wrong of answers", "wrong", wrong_of),
                 ("Non-hallucination", "lead", lambda model: model["non_hallucination"]))
@@ -545,7 +550,7 @@ def option_word_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -> 
     digits = site.config["percent_digits"]
     total = word["questions"]
     old, new = esc(data["option"]), esc(word["option"])
-    percent = lambda value: '<span class="nm">Not measured</span>' if value is None else pct(value, digits)  # noqa: E731
+    percent = lambda value: '<span class="nm">Undefined</span>' if value is None else pct(value, digits)  # noqa: E731
     sides = (("i_dont_know", new), ("bilmiyorum", old))
     words = (word["option"], data["option"])
     heads = (tuple((f"Answered with “{text}”", "(right + wrong) / questions; higher is better") for text in words)
@@ -590,7 +595,7 @@ def option_word_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -> 
       <blockquote><p>{esc(word["instructions"])}</p></blockquote>
       <p>Prompt version {esc(word["prompt_version"])} with “{new}”, against {esc(data["prompt_version"])} with “{old}”. One full run per model with “{new}”; the table gives each run's ID and start date (UTC).</p>
       <h3>How to read the comparison</h3>
-      <p>A model that did not recognise the Turkish word and so ignored the option should choose the English one more often, and its non-hallucination rate should rise. A model that chooses both about as often did not skip “{old}” for its word. The rates are those above, and the same limits hold: the non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know; read it with accuracy and the attempt rate, as a model that always chose the option would reach 100% with no right answers. With neither a wrong answer nor the option, the rate is undefined (Not measured).</p>
+      <p>A model that did not recognise the Turkish word and so ignored the option should choose the English one more often, and its non-hallucination rate should rise. A model that chooses both about as often did not skip “{old}” for its word. The rates are those above, and the same limits hold: the non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know; read it with accuracy and the attempt rate, as a model that always chose the option would reach 100% with no right answers. With neither a wrong answer nor the option, the rate is undefined.</p>
     </section>"""
 
 
@@ -1352,7 +1357,7 @@ def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours:
             shape = er.SHAPES[point["wording"]]
             tip = (f"{name}: “{point['wording']}”, run {point['run']}: {point['answered']:,} answered "
                    f"({pct(point['answered'] / total, digits)}), {point['wrong']:,} wrong "
-                   f"({'not measured' if not point['answered'] else pct(point['wrong'] / point['answered'], digits)}){engine}")
+                   f"({'undefined, no answers' if not point['answered'] else pct(point['wrong'] / point['answered'], digits)}){engine}")
             series.append({"colour": colour, "shape": shape, "title": tip,
                            "points": [(point["answered"] / total, point["wrong"] / point["answered"] if point["answered"] else 0, tip)]})
             keys.append(f"{legend_mark(colour, shape)} “{esc(point['wording'])}”, run {point['run']}")
@@ -1498,7 +1503,8 @@ def same_curves(site: Site, same: dict[str, Any], family: dict[str, Any]) -> str
                 + (f"{pct(point['wrong'] / point['answered'], digits)} wrong of {point['answered']:,}" if point["answered"]
                    else "no answer") for point in model["points"]]) + (f" ({esc(engine)})" if engine else ""))
         else:
-            option = 'Runs with the option: <span class="nm">Not measured</span>'
+            reason = {item["name"]: item["reason"] for item in site.config["dont_know"]["not_run"]}.get(model["name"])
+            option = "Runs with the option: " + (esc(reason) if reason else "No run with the option yet")
         svg = (f'<svg viewBox="0 0 {width} {height}" width="100%" role="img" aria-label="{esc(name)}: wrong of answers '
                f'against answered, with {esc(reference)}\'s curve dashed"><use href="#same-frame-{key}"/>'
                f'<use href="#same-ref-{key}" fill="none" stroke="var(--text-2)" stroke-width="1.3" stroke-dasharray="4 3"/>'
@@ -1554,7 +1560,7 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
                            + "".join(f'<span class="small">“{esc(point["wording"])}”, run {point["run"]}: {point["answered"]:,} '
                                      f"answered ({pct(point['answered'] / total, digits)}), "
                                      + (f"{pct(point['wrong'] / point['answered'], digits)} wrong ({point['wrong']:,})"
-                                        if point["answered"] else "wrong of answers not measured") + "</span>"
+                                        if point["answered"] else "no answers, so wrong of answers undefined") + "</span>"
                                      for point in model["points"]))
                 engine = same_engine(site, family, model)
                 if engine:
@@ -1620,9 +1626,9 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
 
 
 def high_rate(kept: int, wrong: int, digits: int) -> str:
-    """% wrong of the answers kept, with "wrong of kept" small; Not measured with none kept."""
+    """% wrong of the answers kept, with "wrong of kept" small; No answer kept (undefined) with none kept."""
     if not kept:
-        return f'Not measured<span class="small">none of {kept:,} kept</span>'
+        return '<span class="nm">No answer kept</span><span class="small">0 kept</span>'
     return f'{pct(wrong / kept, digits)}<span class="small">{wrong:,} of {kept:,}</span>'
 
 
@@ -1748,7 +1754,7 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
             f"option has a probability of at least {threshold}. These runs have no “I don't know” option.</p>"
             f"<h3>Every decision setup</h3>"
             f'<p class="note">Ordered by % wrong (wrong / answers kept), then by answers kept, more first; a setup with no '
-            "answer kept is last, Not measured.</p>"
+            "answer kept is last (No answer kept: its % wrong is undefined).</p>"
             f"{main}{repeats}"
             f"<h3>The three models Artificial Analysis ties at 65</h3>"
             f'<p class="note">The three models its Decision Index v1.0 puts level at 65 (<a href="'
@@ -1871,12 +1877,12 @@ def build(site: Site) -> dict[str, str]:
       <ul>
         <li><strong>Accuracy</strong> = right / {total}.</li>
         <li><strong>Answered</strong> (the attempt rate) = (right + wrong) / {total}: how often the model chose one of the question's own options.</li>
-        <li><strong>Wrong of answers</strong> = wrong / (right + wrong): among the answers the model gave, the share that were wrong. With no answer it is undefined (Not measured).</li>
+        <li><strong>Wrong of answers</strong> = wrong / (right + wrong): among the answers the model gave, the share that were wrong. With no answer it is undefined.</li>
         <li><strong>Non-hallucination rate</strong> = “{option}” / (“{option}” + wrong): among the answers that were wrong or “{option}”, the share where the model said it did not know. The hallucination rate is its complement, wrong / (“{option}” + wrong).</li>
         <li><strong>Mean probability of “{option}”</strong>: the probability the model gave that option, averaged over its answers that report option probabilities. A chat model states a confidence and reports no option probabilities.</li>
       </ul>
       <h3>How to read them</h3>
-      <p>The non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know. Read it with accuracy and the attempt rate: a model that always chose “{option}” would reach 100% with no right answers, and one that never chose it would reach 0% as soon as it answered one question wrongly. With neither a wrong answer nor “{option}”, there is nothing to divide by and the rate is undefined (the table shows Not measured).</p>
+      <p>The non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know. Read it with accuracy and the attempt rate: a model that always chose “{option}” would reach 100% with no right answers, and one that never chose it would reach 0% as soon as it answered one question wrongly. With neither a wrong answer nor “{option}”, there is nothing to divide by and the rate is undefined (the table shows Undefined).</p>
       <h3>The option and the instructions</h3>
       <p>The added option's exact text is “{option}”. It is lettered after the question's own options, and the answer key is unchanged. The full System One instructions of a decision model:</p>
       <blockquote><p>{esc(data["instructions"])}</p></blockquote>
