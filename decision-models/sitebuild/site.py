@@ -113,12 +113,14 @@ def family_legend(families: list[dict[str, str]]) -> str:
     return " ".join(f'<span><i class="swatch" style="background:{colour}"></i>{esc(name)}</span>' for name, colour in named)
 
 
-def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], str] | None = None) -> str:
+def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], str] | None = None,
+          head: tuple[str, str] | None = None) -> str:
     """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
     readable at any width and in both themes. Each row: label, href (optional), bars (each a value from 0 to top, with a
     colour, a kind (a CSS class) or both: a kind's pattern, as the English bar's stripes, goes over the colour), marker
     (optional, a value drawn as a line), text (the value as shown) and title (the tooltip). The axis runs from 0 to top,
-    with a tick at each quarter, in percent unless tick writes a value its way (aa-decision-index/ writes dollars)."""
+    with a tick at each quarter, in percent unless tick writes a value its way (aa-decision-index/ writes dollars). head
+    names the value column above it: (in full, on a phone), as ("Turkish · English", "TR · EN")."""
     place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
     ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / 4)}">{esc(write(top * index / 4))}</span>'
@@ -132,7 +134,9 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
         marker = f'<span class="hbar-marker" style="left:{place(row["marker"])}"></span>' if row.get("marker") is not None else ""
         items.append(f'<li class="hbar" title="{esc(row["title"])}"><span class="hbar-label">{label}</span>'
                      f'<span class="hbar-track">{fills}{marker}</span><span class="hbar-value">{esc(row["text"])}</span></li>')
-    return (f'<div class="hbar hbar-axis" aria-hidden="true"><span></span><span class="hbar-track">{ticks}</span><span></span></div>'
+    named = (f'<span class="hbar-head"><span class="head-long">{esc(head[0])}</span><span class="head-short">{esc(head[1])}'
+             "</span></span>") if head else "<span></span>"
+    return (f'<div class="hbar hbar-axis" aria-hidden="true"><span></span><span class="hbar-track">{ticks}</span>{named}</div>'
             f'<ol class="hbars">{"".join(items)}</ol>')
 
 

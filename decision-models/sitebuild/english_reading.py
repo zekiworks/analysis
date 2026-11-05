@@ -31,6 +31,9 @@ from sitebuild.site import ROOT, Site, esc, family_legend, hbars, legend_mark, l
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "turkish-vs-english/"
+# The value column's name in every chart of the two languages, Turkish first: in full and on a phone (hbars head).
+TR_EN = ("Turkish · English", "TR · EN")
+NUMBERS = "<span>Numbers on the right: Turkish · English.</span>"
 # The tab's earlier address, now a page that sends its readers to PATH with their fragment.
 OLD_PATH = "english-reading/"
 # The kept questions' IDs, one per line, written by the build from english-reading.json.
@@ -200,12 +203,12 @@ def face(site: Site, data: dict[str, Any]) -> str:
          for model in models],
         '<span><i class="swatch swatch-turkish"></i>Turkish (the Text tab run), the upper bar</span> '
         '<span><i class="swatch swatch-english"></i>English (first run), the lower bar, striped</span> '
-        + family_legend([site.families[model["turkish_run"]] for model in models]))
+        + NUMBERS + " " + family_legend([site.families[model["turkish_run"]] for model in models]), head=TR_EN)
     tested = sorted(models, key=lambda model: (model["paired"]["p_holm"], model["paired"]["p"], label(site, model).casefold()))
     most = max(max(model["paired"]["english_only_right"], model["paired"]["turkish_only_right"]) for model in tested)
     # A tick at each quarter of the axis, the quarter a round number of answers that fits the largest count.
     quarter = math.ceil(most / 40) * 10 if most >= 40 else max(1, math.ceil(most / 4))
-    counts = lambda model: (model["paired"]["english_only_right"], model["paired"]["turkish_only_right"])  # noqa: E731
+    counts = lambda model: (model["paired"]["turkish_only_right"], model["paired"]["english_only_right"])  # noqa: E731
     found = [model for model in tested if significant(model)]
     others = [model for model in tested if not significant(model)]
 
@@ -220,21 +223,21 @@ def face(site: Site, data: dict[str, Any]) -> str:
     if others:
         verdict += f" The other {len(others)}: {adjusted(others)}." if found else f" Adjusted: {adjusted(others)}."
     paired = card(
-        "chart-paired", "Right only in English, or only in Turkish?",
+        "chart-paired", "Right only in Turkish, or only in English?",
         f"Each model's first English run against its Text tab run on the {total:,} kept questions: the questions only one of "
         f"the two got right, by the exact McNemar test with p adjusted by Holm's method over the {len(tested)} "
         f"model{'' if len(tested) == 1 else 's'} · the longer bar is the language with more right answers",
         [{"label": label(site, model), "href": href(site, model),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if significant(model) else ''}",
-          "bars": family_bars(site, model["turkish_run"], (counts(model)[0], "english"), (counts(model)[1], "turkish")),
-          "title": f"{label(site, model)}: {counts(model)[0]:,} right only in English, {counts(model)[1]:,} right only in "
-                   f"Turkish; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
+          "bars": family_bars(site, model["turkish_run"], (counts(model)[0], "turkish"), (counts(model)[1], "english")),
+          "title": f"{label(site, model)}: {counts(model)[0]:,} right only in Turkish, {counts(model)[1]:,} right only in "
+                   f"English; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
          for model in tested],
-        '<span><i class="swatch swatch-english"></i>Right only in English, striped</span> '
-        '<span><i class="swatch swatch-turkish"></i>Right only in Turkish</span> '
-        + family_legend([site.families[model["turkish_run"]] for model in tested]) + " "
+        '<span><i class="swatch swatch-turkish"></i>Right only in Turkish, the upper bar</span> '
+        '<span><i class="swatch swatch-english"></i>Right only in English, the lower bar, striped</span> '
+        + NUMBERS + " " + family_legend([site.families[model["turkish_run"]] for model in tested]) + " "
         f"<span>{verdict}</span>",
-        top=4 * quarter, tick=lambda value: f"{value:,.0f}")
+        top=4 * quarter, tick=lambda value: f"{value:,.0f}", head=TR_EN)
     return f'<section class="charts" aria-label="Charts">{accuracy}{paired}</section>'
 
 
@@ -749,13 +752,13 @@ def dont_know_charts(site: Site, idk: dict[str, Any]) -> str:
          for model in models],
         '<span><i class="swatch swatch-turkish"></i>Turkish, with “Bilmiyorum”, the upper bar</span> '
         '<span><i class="swatch swatch-english"></i>English, with “I don\'t know”, the lower bar, striped</span> '
-        + family_legend([site.families[model["text_run"]] for model in models]) + " "
+        + NUMBERS + " " + family_legend([site.families[model["text_run"]] for model in models]) + " "
         "<span>Attempt rate, Turkish · English: "
         + esc("; ".join(f"{idk_label(site, model)} {pct(model['turkish']['attempt_rate'], digits)} · "
                         f"{pct(model['english']['attempt_rate'], digits)}" for model in models))
-        + ". A model that always chose the option would reach 100% with no right answers.</span>" + not_charted)
+        + ". A model that always chose the option would reach 100% with no right answers.</span>" + not_charted, head=TR_EN)
     tested = sorted(models, key=lambda model: (model["paired"]["p_holm"], model["paired"]["p"], idk_label(site, model).casefold()))
-    counts = lambda model: (model["paired"]["english_only_wrong"], model["paired"]["turkish_only_wrong"])  # noqa: E731
+    counts = lambda model: (model["paired"]["turkish_only_wrong"], model["paired"]["english_only_wrong"])  # noqa: E731
     most = max(max(counts(model)) for model in tested)
     # A tick at each quarter of the axis, the quarter a round number of answers that fits the largest count.
     quarter = math.ceil(most / 40) * 10 if most >= 40 else max(1, math.ceil(most / 4))
@@ -772,21 +775,21 @@ def dont_know_charts(site: Site, idk: dict[str, Any]) -> str:
     if others:
         verdict += f" The other {len(others)}: {adjusted(others)}." if found else f" Adjusted: {adjusted(others)}."
     paired = card(
-        "chart-idk-paired", "Wrong only in English, or only in Turkish?",
+        "chart-idk-paired", "Wrong only in Turkish, or only in English?",
         f"Each model's first run in each language, both with the option, on the {total:,} kept questions: the questions only "
         f"one of the two got wrong, by the exact McNemar test with p adjusted by Holm's method over the {len(tested)} "
         f"model{'' if len(tested) == 1 else 's'} · the shorter bar is the language with fewer wrong answers",
         [{"label": idk_label(site, model), "href": idk_href(site, model),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if idk_significant(model) else ''}",
-          "bars": family_bars(site, model["text_run"], (counts(model)[0], "english"), (counts(model)[1], "turkish")),
-          "title": f"{idk_label(site, model)}: {counts(model)[0]:,} wrong only in English, {counts(model)[1]:,} wrong only "
-                   f"in Turkish; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
+          "bars": family_bars(site, model["text_run"], (counts(model)[0], "turkish"), (counts(model)[1], "english")),
+          "title": f"{idk_label(site, model)}: {counts(model)[0]:,} wrong only in Turkish, {counts(model)[1]:,} wrong only "
+                   f"in English; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
          for model in tested],
-        '<span><i class="swatch swatch-english"></i>Wrong only in English, striped</span> '
-        '<span><i class="swatch swatch-turkish"></i>Wrong only in Turkish</span> '
-        + family_legend([site.families[model["text_run"]] for model in tested]) + " "
+        '<span><i class="swatch swatch-turkish"></i>Wrong only in Turkish, the upper bar</span> '
+        '<span><i class="swatch swatch-english"></i>Wrong only in English, the lower bar, striped</span> '
+        + NUMBERS + " " + family_legend([site.families[model["text_run"]] for model in tested]) + " "
         f"<span>{verdict}</span>" + not_charted,
-        top=4 * quarter, tick=lambda value: f"{value:,.0f}")
+        top=4 * quarter, tick=lambda value: f"{value:,.0f}", head=TR_EN)
     return f'<section class="charts" aria-label="Charts with “I don\'t know”">{rates}{paired}</section>'
 
 
@@ -1203,14 +1206,14 @@ def dont_know_word_charts(site: Site, word: dict[str, Any]) -> str:
          for model in ordered],
         f'<span><i class="swatch swatch-turkish"></i>Turkish, with “{esc(option)}”, the upper bar</span> '
         f'<span><i class="swatch swatch-english"></i>English, with “{esc(option)}”, the lower bar, striped</span> '
-        + family_legend([site.families[model["text_run"]] for model in ordered]) + " "
+        + NUMBERS + " " + family_legend([site.families[model["text_run"]] for model in ordered]) + " "
         "<span>Answered, Turkish · English: "
         + esc("; ".join(f"{idk_label(site, model)} {pct(model['turkish']['attempt_rate'], digits)} · "
                         f"{pct(model['english']['attempt_rate'], digits)}" for model in ordered))
         + ". A model that answered fewer questions can have fewer wrong answers among them.</span>" + not_charted,
-        top=top)
+        top=top, head=TR_EN)
     tested = sorted(both, key=lambda model: (model["paired"]["p_holm"], model["paired"]["p"], idk_label(site, model).casefold()))
-    counts = lambda model: (model["paired"]["english_only_wrong"], model["paired"]["turkish_only_wrong"])  # noqa: E731
+    counts = lambda model: (model["paired"]["turkish_only_wrong"], model["paired"]["english_only_wrong"])  # noqa: E731
     most = max((max(counts(model)) for model in tested), default=0)
     # A tick at each quarter of the axis, the quarter a round number of answers that fits the largest count.
     quarter = math.ceil(most / 40) * 10 if most >= 40 else max(1, math.ceil(most / 4))
@@ -1227,22 +1230,22 @@ def dont_know_word_charts(site: Site, word: dict[str, Any]) -> str:
     if others:
         verdict += f" The other {len(others)}: {adjusted(others)}." if found else f" Adjusted: {adjusted(others)}."
     paired = card(
-        "chart-word-paired", "Wrong only in English, or only in Turkish?",
+        "chart-word-paired", "Wrong only in Turkish, or only in English?",
         f"Each model's first run in each language, both with the option written “{esc(option)}”, on the {total:,} kept "
         f"questions: the questions only one of the two got wrong, by the exact McNemar test with p adjusted by Holm's "
         f"method over the {len(tested)} model{'' if len(tested) == 1 else 's'} with both runs · the shorter bar is the "
         "language with fewer wrong answers",
         [{"label": idk_label(site, model), "href": idk_href(site, model),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if idk_significant(model) else ''}",
-          "bars": family_bars(site, model["text_run"], (counts(model)[0], "english"), (counts(model)[1], "turkish")),
-          "title": f"{idk_label(site, model)}: {counts(model)[0]:,} wrong only in English, {counts(model)[1]:,} wrong only "
-                   f"in Turkish; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
+          "bars": family_bars(site, model["text_run"], (counts(model)[0], "turkish"), (counts(model)[1], "english")),
+          "title": f"{idk_label(site, model)}: {counts(model)[0]:,} wrong only in Turkish, {counts(model)[1]:,} wrong only "
+                   f"in English; exact McNemar {bp.p_text(model['paired']['p'])}, Holm-adjusted {bp.p_text(model['paired']['p_holm'])}"}
          for model in tested],
-        '<span><i class="swatch swatch-english"></i>Wrong only in English, striped</span> '
-        '<span><i class="swatch swatch-turkish"></i>Wrong only in Turkish</span> '
-        + family_legend([site.families[model["text_run"]] for model in tested]) + " "
+        '<span><i class="swatch swatch-turkish"></i>Wrong only in Turkish, the upper bar</span> '
+        '<span><i class="swatch swatch-english"></i>Wrong only in English, the lower bar, striped</span> '
+        + NUMBERS + " " + family_legend([site.families[model["text_run"]] for model in tested]) + " "
         f"<span>{verdict}</span>" + not_charted,
-        top=4 * quarter, tick=lambda value: f"{value:,.0f}")
+        top=4 * quarter, tick=lambda value: f"{value:,.0f}", head=TR_EN)
     return f'<section class="charts" aria-label="Charts with “{esc(option)}” in both languages">{wrong}{paired}</section>'
 
 
