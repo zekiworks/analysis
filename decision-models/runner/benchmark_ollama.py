@@ -423,9 +423,9 @@ PRICES: dict[tuple[str, str], Price] = {
     ),
     # DeepSeek-V4.1-Flash 1017 on our GPUs, at DeepSeek's own API price for the same model (deepseek-flash serves
     # DeepSeek-V4.1-Flash-1017): its regular rate, the peak hours' (01:00-04:00 and 06:00-10:00 UTC on weekdays); the
-    # other hours cost half.
+    # other hours cost half. The basis keeps the wording every maker's price has (the site names the maker from it).
     ("vllm", "deepseek-v4.1-flash-1017"): Price(
-        "DeepSeek's list price for the same model, peak hours (off-peak is half)",
+        "DeepSeek's list price for the same model",
         "https://api-docs.deepseek.com/quick_start/pricing", "2026-11-05", 0.30, 1.20, cached_input=0.006, applies_to="maker",
     ),
     # Prompts up to 272K tokens.
