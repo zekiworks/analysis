@@ -88,6 +88,7 @@ def picks(site: Site) -> dict[str, Any]:
     questions = site.answers["questions"]
     order = site.scored
     runs: list[dict[str, Any]] = []
+    shown = site.names(site.runs)
     for run in site.ranked():
         answers = site.answer_runs[run["run"]]
         letters = pick_letters(answers, order, questions["key"], f"run {run['run']}", questions["id"])
@@ -95,7 +96,7 @@ def picks(site: Site) -> dict[str, Any]:
             raise ValueError(f"run {run['run']}: picks.json would not reproduce its {run['correct']} right answers")
         runs.append({
             "run": run["run"],
-            "name": run["name"],
+            "name": shown[run["run"]],
             "detail": site.detail(run),
             "decision": site.decision(run),
             "score": run["confidence"]["label"],

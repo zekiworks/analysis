@@ -297,26 +297,8 @@ impl Results {
     }
 
     fn name_with(&self, run: &Run, with_format: bool) -> String {
-        let base = match run.model.as_str() {
-            "pplx-decider-v1-27b" => "Decider v1",
-            "pplx-decider-v1.1-27b" => "Decider v1.1",
-            "pplx-decider-v1.2" => "Decider v1.2",
-            "pplx-decider-flash-v1.2" => "Decider Flash v1.2",
-            "inception/mercury-decide" => "Mercury Decide",
-            "jev-1.13.0" => "Jev 1.13",
-            "jev-1.14.0" => "Jev 1.14",
-            "d1:free" => "Liquid d1",
-            "open-jev-27b-v1.1" => "Open Jev",
-            "celeris-1-decision" => "Celeris 1",
-            "subq-snap-preview" => "Snap Preview",
-            "subq-snap-1.1" => "Snap 1.1",
-            "qwen38-27b-bf16" => "Qwen 3.8 27B",
-            "winnow-12b" => "Winnow 12B",
-            "clef-flash" => "Clef flash",
-            "metask-jev-4b-policy-mix" => "Metask Jev 4B",
-            "gpt-6-luna" if run.provider == "openai-decisions" => "GPT-6 Luna, Decisions API",
-            _ => run.name.as_str(),
-        };
+        // The full display name; the parentheses add only what tells it apart from another run.
+        let base = run.name.as_str();
         let sibling = self
             .runs
             .iter()
@@ -325,8 +307,18 @@ impl Results {
             (Some("stated confidence"), _) => Some("written estimate".to_string()),
             (Some("yes/no scoring"), _) => Some("yes/no score".to_string()),
             (Some("vote share"), _) => Some("agreement across ten answers".to_string()),
+            (Some(_), _) if run.provider == "openai-decisions" && !base.contains("Decisions API") => {
+                Some("Decisions API".to_string())
+            }
             (Some(_), _) if run.provider == "openai-decisions" => None,
-            (Some(variant), _) => Some(variant.to_string()),
+            // A name that already carries its variant ("(with web)") needs no second note.
+            (Some(variant), _) if base.contains(variant) => None,
+            // Another variant (a route or access note) names the setup only where it tells it apart from another run
+            // of the same model ID; a model with one run keeps its note on its model page ("transformers, rev 52ba9e7").
+            (Some(variant), _) if self.runs.iter().any(|other| other.run != run.run && other.model == run.model) => {
+                Some(variant.to_string())
+            }
+            (Some(_), _) => None,
             (None, Some(level @ ("low" | "medium" | "high"))) => Some(format!("{level} reasoning")),
             (None, Some(setting)) if sibling => Some(format!("reasoning {setting}")),
             _ => None,

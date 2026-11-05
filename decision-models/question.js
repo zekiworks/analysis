@@ -114,7 +114,7 @@ async function start() {
   const table = rows
     .map(
       ({ run, pick, score }) =>
-        `<tr${pick === key ? ' class="right"' : ''}><td class="model"><a class="model-name" href="../models/${run.run}/">${esc(run.name)}</a><span class="small">${esc(run.detail)}</span></td>` +
+        `<tr${pick === key ? ' class="right"' : ''}><td class="model"${run.detail ? ` title="${esc(run.detail)}"` : ''}><a class="model-name" href="../models/${run.run}/">${esc(run.name)}</a></td>` +
         `<td class="num" data-label="Pick">${pick === '-' ? '<span class="hint" tabindex="0" data-tip="No valid answer; counts as wrong">—</span>' : esc(pick)}${pick === key ? ' <span class="small inline">right</span>' : ''}</td>` +
         `<td class="num" data-label="Probability">${scoreCell(score, run.score)}</td></tr>`,
     )

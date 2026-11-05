@@ -15,8 +15,8 @@ from __future__ import annotations
 from typing import Any
 
 from sitebuild.english_reading import (DECISION_ONLY, GROUPS, PATH as COMPARISON, anchor, chat_note, check_dont_know,
-                                       english_only, group_models, label, measure_card, measure_cell, measure_heads, noun,
-                                       shown, upper_note)
+                                       cost_note, english_only, group_models, label, measure_card, measure_cell,
+                                       measure_heads, missing_note, noun, shown)
 from sitebuild.site import NOT_MEASURED, Site, esc, family_legend, hbars, pct, rel
 from sitebuild.vision import cell, joined
 
@@ -78,9 +78,10 @@ def build(site: Site) -> dict[str, str]:
         raise SystemExit("english_view: a chat model has an English “I don't know” run, which the page charts for "
                          "decision models only")
 
-    def card(base: str, attributes: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str) -> str:
+    def card(base: str, attributes: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str,
+             head: tuple[str, str]) -> str:
         return (f'<figure class="panel chart-card" id="{base}" {attributes}><div class="chart-head"><h2>{esc(title)}</h2>'
-                f'<p class="chart-sub">{sub}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
+                f'<p class="chart-sub">{sub}</p></div>{hbars(rows, head=head)}<p class="chart-legend">{legend}</p></figure>')
 
     def accuracy_card(group: str) -> str:
         members = group_models(site, data, group)
@@ -93,7 +94,7 @@ def build(site: Site) -> dict[str, str]:
         return card(anchor("chart-accuracy", group), shown(group), f"Accuracy on the {total:,} English questions",
                     f"Share of the {total:,} kept reading questions answered right in English, then the right answers of "
                     f"{total:,}: each of the {len(members)} {noun(group, len(members))}' first English run · higher is better",
-                    rows, family_legend([family(model) for model in members]))
+                    rows, family_legend([family(model) for model in members]), ("Accuracy · Right", "% · Right"))
 
     rated = sorted(((by_run[run], counts) for run, counts in english_idk if counts["non_hallucination"] is not None),
                    key=lambda pair: (-pair[1]["non_hallucination"], label(site, pair[0]).casefold()))
@@ -113,7 +114,8 @@ def build(site: Site) -> dict[str, str]:
         rate_rows,
         family_legend([family(model) for model, _ in rated])
         + " <span>A model that always chose the option would reach 100% with no right answers.</span>"
-        + (f" <span>Decision models not run with “{esc(option)}” in English: {esc(joined(unrated))}.</span>" if unrated else ""))
+        + (f" <span>Decision models not run with “{esc(option)}” in English: {esc(joined(unrated))}.</span>" if unrated else ""),
+        ("Non-hallucination · Answered", "Rate · Ans."))
     no_option = f"Chat models: not measured yet (they were asked without an “{esc(option)}” option)."
     note = (f'<p class="note" data-models="all">{no_option}</p>'
             + chat_note(f"{no_option} The non-hallucination chart and column are for decision models only."))
@@ -152,8 +154,9 @@ def build(site: Site) -> dict[str, str]:
                     f'<span class="small">answered {pct(counts["attempt_rate"], digits)}</span>')
             values += [measure_cell(site, model, "cost", "english"), measure_cell(site, model, "latency", "english")]
             run = site.by_id[model["turkish_run"]]
-            name = (f'<td class="model"><a class="model-name" href="{href(site, model)}">{esc(label(site, model))}</a>'
-                    f'<span class="small">{esc(site.detail(run))} · English run {model["run"]}</span></td>')
+            name = (f'<td class="model"><a class="model-name" href="{href(site, model)}" '
+                    f'title="{esc(" · ".join(filter(None, (site.detail(run), f"English run {model['run']}"))))}">'
+                    f'{esc(label(site, model))}</a></td>')
             rows.append(f"<tr>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
         head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{esc(note)}</span></th>' for text, note in heads)
         rate_note = (f" English non-hallucination: “{esc(option)}” among the answers that were not right, in the decision "
@@ -166,12 +169,12 @@ def build(site: Site) -> dict[str, str]:
                 f'<p class="note">Ranked by English accuracy, highest first: right answers of the {total:,} kept reading '
                 "questions in each setup's first English run (an invalid answer counts as not right). Turkish accuracy: the "
                 f"setup's Text tab run on the same {total:,} questions, for context; the paired comparison is on "
-                f'<a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ per 1,000 questions at list '
-                "prices, with its basis under it; English latency: the median time per request, with the request size and "
-                "the requests in flight under it, each from the first English run (Cost and Latency above); Not measured: "
-                "no price, or no timing. Each name opens its Text tab run; under it, its settings and English run."
-                + "".join(f" {esc(text)}" for text in upper_note(site, group_models(site, data, group), ("english",)))
-                + "</p></section>")
+                f'<a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ per 1,000 questions, with its '
+                "basis under it; English latency: the median time per request, with the request size and "
+                "the requests in flight under it, each from the first English run (Cost and Latency above)."
+                + (" " + missing_note(site, group_models(site, data, group), ("english",))).rstrip()
+                + " Each name opens its Text tab run; its tooltip gives its settings and English run.</p>"
+                f'<p class="note">{esc(cost_note(site, group_models(site, data, group), ("english",)))}</p></section>')
 
     def lead(group: str) -> str:
         count = counts[group]

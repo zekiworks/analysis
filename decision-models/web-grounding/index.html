@@ -7,8 +7,8 @@
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/web-grounding/">
   <meta name="description" content="Perplexity Decider 27B v1.2 (API) and Perplexity Decider 27B v1.2 (with web): accuracy, non-hallucination, time per request and cost on our Turkish and English questions and on PWS-Decisions.">
   <script>document.documentElement.classList.add("js"); try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
-  <link rel="stylesheet" href="../v3.css?v=01fc592b">
-  <script src="../site.js?v=a9aa6c5e" defer></script>
+  <link rel="stylesheet" href="../v3.css?v=7030e40d">
+  <script src="../site.js?v=c2f48d35" defer></script>
 </head>
 <body class="v3">
   <a class="skip" href="#main">Skip to content</a>
@@ -19,14 +19,13 @@
   </div></nav>
   <header class="topbar">
     <a class="brand" href="../">Hilde · Decision models · answer key v2</a>
-    <nav class="nav" aria-label="Pages"><ul><li><a href="../questions/">Every question</a></li><li><a href="../disagreements/">Where models disagree</a></li><li><a href="../topics/">Topics</a></li><li><a href="../compare/">Compare</a></li><li><a href="../method/">Method</a></li><li><a href="../data/">Data</a></li></ul></nav>
-    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>Dark<span class="long"> background</span></button><button type="button" class="key" data-theme-choice="light" aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light<span class="long"> background</span></button></div>
+    <nav class="nav" aria-label="Pages"><ul><li><a href="../vision/" data-keep-group>Page images</a></li><li><a href="../dont-know/" data-keep-group>Hallucination</a></li><li><a href="../questions/">Every question</a></li><li><a href="../disagreements/">Where models disagree</a></li><li><a href="../topics/">Topics</a></li><li><a href="../compare/">Compare</a></li><li><a href="../method/">Method</a></li><li><a href="../data/">Data</a></li></ul></nav>
+    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>Dark</button><button type="button" class="key" data-theme-choice="light" aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light</button></div>
   </header>
   <main id="main">
-    <nav class="bench-tabs" aria-label="Benchmarks"><a class="bench-tab" href="../"><span class="lamp" aria-hidden="true"></span>Text<span class="count">2,198 questions</span></a><a class="bench-tab" href="../vision/"><span class="lamp" aria-hidden="true"></span>Page images<span class="count">763 questions</span></a><a class="bench-tab" href="../dont-know/"><span class="lamp" aria-hidden="true"></span>Hallucination<span class="count">2,198 questions</span></a><a class="bench-tab" href="../turkish-vs-english/"><span class="lamp" aria-hidden="true"></span>Turkish vs English<span class="count">547 questions</span></a></nav>
     <section class="card">
       <p class="eyebrow">Experiment</p>
-      <h1>Web grounding: Perplexity Decider v1.2 off and with web</h1>
+      <h1>Web grounding: Perplexity Decider 27B v1.2 (API) off and with web</h1>
       <p>Perplexity's Decisions API can search the web for each question and add what it finds as evidence. Both setups are in the ranking: <a href="../models/633/">Perplexity Decider 27B v1.2 (API)</a> and <a href="../models/640/">Perplexity Decider 27B v1.2 (with web)</a>. This page compares them on the same questions.</p>
       <p>With web, accuracy went from 66.3% to 68.7% on our full Turkish bank of 2,198 questions (94 right only off, 147 only with web; exact McNemar p &lt; 0.001, a difference beyond chance), from 71.0% to 71.5% on the 200-question pilot (8 right only off, 9 only with web; exact McNemar p = 1.000, within chance), from 88.5% to 90.5% on our 547 English questions (2 right only off, 13 only with web; exact McNemar p = 0.007, a difference beyond chance) and from 51.0% to 87.0% on PWS-Decisions (8 right only off, 44 only with web; exact McNemar p &lt; 0.001, a difference beyond chance). On the full Turkish bank the median request took 1.9 times as long, and the cost per 1M questions went from $7.70 to ≤ $1,034.</p>
       <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Info</a></nav>

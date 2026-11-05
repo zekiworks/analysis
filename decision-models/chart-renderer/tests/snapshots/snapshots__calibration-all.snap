@@ -1,6 +1,5 @@
 ---
 source: tests/snapshots.rs
-assertion_line: 17
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 When a model scores answers at 80%, are about 80% right?
@@ -29,11 +28,12 @@ Correct answers in this group                                                   
     0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
                         Average confidence in this group                                                  Average confidence in this group
 
-━━ Confidence matches accuracy   ━━ Decider v1.1 · Option score                   ━━ Confidence matches accuracy
-━━ Liquid d1-ultra · Option score                                                 ━━ vLLM-SR d3-ultra (transformers, rev 52ba9e7) · Option score
-━━ Decider v1.2 (with web) · Option score                                         ━━ Drex Max v1 · Option score   ━━ Drex Max 1.1 · Option score
-━━ Fastino GLiDE v1.2 (local) · Option score                                      ━━ Mammoth-1 · Option score   ━━ Decider v1.2 (local) · Option score
-━━ Fastino GLiDE · Option score   ━━ vLLM-SR d3 · Option score                    ━━ Decider v1.2 · Option score
+━━ Confidence matches accuracy                                                    ━━ Confidence matches accuracy   ━━ vLLM-SR d3-ultra · Option score
+━━ Perplexity Decider 27B v1.1 · Option score                                     ━━ Drex Max v1 · Option score   ━━ Drex Max 1.1 · Option score
+━━ Liquid d1-ultra · Option score                                                 ━━ Mammoth-1 · Option score
+━━ Perplexity Decider 27B v1.2 (with web) · Option score                          ━━ Perplexity Decider 27B v1.2 (local) · Option score
+━━ Fastino GLiDE v1.2 · Option score   ━━ Fastino GLiDE · Option score            ━━ Perplexity Decider 27B v1.2 (API) · Option score
+━━ vLLM-SR d3 · Option score
 
 Decision models, part 3 of 6 · Option score                                       Decision models, part 4 of 6 · Option score
 Correct answers in this group                                                     Correct answers in this group
@@ -56,11 +56,11 @@ Correct answers in this group                                                   
     0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
                         Average confidence in this group                                                  Average confidence in this group
 
-━━ Confidence matches accuracy   ━━ Snap Preview · Option score                   ━━ Confidence matches accuracy   ━━ OneJev 27B · Option score
-━━ Snap 1.1 · Option score   ━━ GPT-6 Luna, Decisions API · Option score          ━━ Jev 1.14 · Option score
-━━ Liquid d1.1 · Option score   ━━ Celeris 1 · Option score                       ━━ Mercury Decide (via OpenRouter) · Option score
-━━ Decider v1 · Option score                                                      ━━ Jev 1.13 · Option score   ━━ Clef · Option score
-                                                                                  ━━ Liquid d1 · Option score
+━━ Confidence matches accuracy   ━━ SubQ Snap Preview · Option score              ━━ Confidence matches accuracy   ━━ OneJev 27B · Option score
+━━ SubQ Snap 1.1 · Option score                                                   ━━ Jev 1.14.0 · Option score   ━━ Inception Mercury Decide · Option score
+━━ GPT-6 Luna (Decisions API) · Option score                                      ━━ Jev 1.13.0 · Option score   ━━ Clef · Option score
+━━ Liquid d1.1 · Option score   ━━ Celeris-1 Decision · Option score              ━━ Liquid d1 · Option score
+━━ Perplexity Decider 27B v1 · Option score
 
 Decision models, part 5 of 6 · Option score                                       Decision models, part 6 of 6 · Option score
 Correct answers in this group                                                     Correct answers in this group
@@ -83,11 +83,10 @@ Correct answers in this group                                                   
     0%            20%           40%           60%           80%          100%         0%            20%           40%           60%           80%          100%
                         Average confidence in this group                                                  Average confidence in this group
 
-━━ Confidence matches accuracy   ━━ Drex 2.0 · Option score                       ━━ Confidence matches accuracy
-━━ Cygnet · Option score   ━━ Open Jev · Option score                             ━━ Microsoft-Decision-1 (via OpenRouter) · Option score
-━━ Winnow 12B · Option score   ━━ Elephant-1 · Option score                       ━━ Clef flash · Option score   ━━ Metask Jev 4B · Option score
-━━ Decider Flash v1.2 (local) · Option score                                      ━━ Liquid d1-2B (open weights) · Option score
-                                                                                  ━━ Strands Decider 2B · Option score   ━━ meraGPT Decider 1 · Option score
+━━ Confidence matches accuracy   ━━ Drex 2.0 · Option score                       ━━ Confidence matches accuracy   ━━ Microsoft-Decision-1 · Option score
+━━ Cygnet · Option score   ━━ Open-Jev 27B v1.1 · Option score                    ━━ Clef-flash · Option score   ━━ Metask-Jev 4B · Option score
+━━ Winnow-12B · Option score   ━━ Elephant-1 · Option score                       ━━ Liquid d1-2B (open weights) · Option score
+━━ Perplexity Decider Flash v1.2 · Option score                                   ━━ Strands Decider 2B · Option score   ━━ meraGPT Decider 1 · Option score
 
 Chat models from OpenAI and Google, part 1 of 3 · Written estimate                Chat models from OpenAI and Google, part 2 of 3 · Written estimate
 Correct answers in this group                                                     Correct answers in this group
@@ -222,7 +221,7 @@ Correct answers in this group                                                   
                         Average confidence in this group                                                  Average confidence in this group
 
 ━━ Confidence matches accuracy                                                    ━━ Confidence matches accuracy   ━━ GLiNER2.5-multi-Decide · Option score
-━━ Qwen 3.8 27B (low reasoning) · Answer letter probability                       ━━ Laya · Option score   ━━ Laya multilingual · Option score
-━━ Qwen 3.8 27B (agreement across ten answers)                                    ━━ GLiNER2.5 Multi (base) · Option score
-━━ Qwen 3.8 27B (written estimate)
-━━ Qwen 3.8 27B (yes/no score) · Option score
+━━ Qwen3.8-27B (low reasoning) · Answer letter probability                        ━━ Laya · Option score   ━━ Laya multilingual · Option score
+━━ Qwen3.8-27B (agreement across ten answers)                                     ━━ GLiNER2.5 Multi (base) · Option score
+━━ Qwen3.8-27B (written estimate)
+━━ Qwen3.8-27B (yes/no score) · Option score

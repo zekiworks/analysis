@@ -115,8 +115,16 @@ function render() {
   }
   document.querySelector('[data-pick="a"]').value = String(a.run);
   document.querySelector('[data-pick="b"]').value = String(b.run);
+  /* Each name, and only where the two read the same, what tells them apart: variant, reasoning, request size (as
+     site.names). The rest of the settings go in the tooltip. */
+  const differs = field => a.name === b.name && a[field] !== b[field];
+  const label = run => {
+    const parts = [differs('variant') && run.variant, differs('reasoning') && run.reasoning && reasoningLabel(run.reasoning),
+      differs('questions_per_request') && `${run.questions_per_request} per request`].filter(Boolean);
+    return parts.length ? `${run.name} (${parts.join(', ')})` : run.name;
+  };
   const head = run =>
-    `<th scope="col" class="num"><a href="../models/${run.run}/">${esc(run.name)}</a><span class="small">${esc(detail(run))}</span></th>`;
+    `<th scope="col" class="num" title="${esc(detail(run))}"><a href="../models/${run.run}/">${esc(label(run))}</a></th>`;
   const measures = MEASURES.map(([label, cell]) => `<tr><th scope="row">${label}</th><td class="num">${cell(a)}</td><td class="num">${cell(b)}</td></tr>`).join('');
   /* Each scope is its own row group: on a phone, a label row above the numbers (the inline label is hidden there), so no
      label sits over a number while the table scrolls. */

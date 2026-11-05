@@ -92,21 +92,29 @@ def cells(data: dict[str, Any], model: dict[str, Any]) -> str:
     return "".join(out)
 
 
-def model_cell(site: Site, origin: str, model: dict[str, Any]) -> str:
-    """The model, linked to the page of its Text tab setup (condition A's run) when the Text tab has it, with the run's
-    route where the same model ID runs as both kinds of model."""
+def shown_names(site: Site, models: list[dict[str, Any]]) -> dict[int, str]:
+    """The models' names where they show together, by condition A's run (site.names over their Text tab setups)."""
+    return site.names([site.by_id[model["a_run"]] for model in models if model["a_run"] in site.by_id])
+
+
+def model_cell(site: Site, origin: str, model: dict[str, Any], shown: dict[int, str]) -> str:
+    """The model, linked to the page of its Text tab setup (condition A's run) when the Text tab has it, named as shown
+    gives it, its settings in the tooltip."""
     run = site.by_id.get(model["a_run"])
     if run is None:
         return (f'<td class="model"><span class="model-name">{esc(model["name"])}</span>'
                 '<span class="small">Not on the Text tab</span></td>')
-    return (f'<td class="model"><a class="model-name" href="{rel(origin, site.model_path(run))}">{esc(site.row_name(run))}</a>'
-            f'<span class="small">{esc(site.detail(run))}</span></td>')
+    detail = site.detail(run)
+    tip = f' title="{esc(detail)}"' if detail else ""
+    return (f'<td class="model"{tip}><a class="model-name" href="{rel(origin, site.model_path(run))}">'
+            f'{esc(shown[run["run"]])}</a></td>')
 
 
 def model_table(site: Site, origin: str, data: dict[str, Any], models: list[dict[str, Any]]) -> str:
     """The leaderboard's columns for these models, in this order; every header says which way is better."""
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{DIRECTION}</span></th>' for _, name in COLUMNS)
-    rows = "".join(f"<tr>{model_cell(site, origin, model)}{cells(data, model)}</tr>" for model in models)
+    shown = shown_names(site, models)
+    rows = "".join(f"<tr>{model_cell(site, origin, model, shown)}{cells(data, model)}</tr>" for model in models)
     return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr></thead>'
             f"<tbody>{rows}</tbody></table></div>")
 
@@ -313,7 +321,7 @@ def requests_note(site: Site, data: dict[str, Any]) -> str:
     groups: dict[tuple[str, str], list[str]] = {}
     for run, count in retries["by_run"].items():
         model = run_model[int(run)]
-        name = site.config["short_names"].get(model["model"], model["name"])
+        name = model["name"]
         groups.setdefault((name, status[run]), []).append(f"{count} in run {run}")
     parts = [f"{joined(items)}, {'both ' if len(items) == 2 else ''}{esc(name)} after HTTP {code}{' errors' if len(items) > 1 else ''}"
              for (name, code), items in groups.items()]
@@ -365,7 +373,7 @@ def engine_check(site: Site, data: dict[str, Any]) -> str:
     if ("d3_server.py" not in check["hardware"] or "transformers" not in check["hardware"] or "vLLM" not in row["hardware"]
             or round(paired["difference"] * paired["questions"]) != check["correct"] - row["correct"]):
         raise SystemExit("vision.json: engine_checks[0] no longer matches the engines or the order its note states")
-    short = site.config["short_names"].get(server["model"], server["name"])
+    short = server["name"]
     runs = lambda side: " and ".join(f"run {run}" for run in side["runs"])  # noqa: E731
     questions = f"{check['questions']:,}"
     return (f"<p>Engine check: we asked {esc(item['name'])}'s condition {esc(item['condition'])} again through d3_server.py on "
@@ -387,9 +395,10 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     acc = lambda model, label: exact(model["conditions"][label])  # noqa: E731
     points = lambda value: f"{value:.1f}"  # noqa: E731
 
+    shown = shown_names(site, data["models"])
+
     def name(model: dict[str, Any]) -> str:
-        run = site.by_id.get(model["a_run"])
-        return esc(site.row_name(run) if run else model["name"])
+        return esc(shown.get(model["a_run"], model["name"]))
 
     def p_value(model: dict[str, Any], first: str, second: str) -> float:
         found = [item["accuracy"]["mcnemar_p"] for item in model["paired"] if item["first"] == first and item["second"] == second]
@@ -502,9 +511,10 @@ def face(site: Site, data: dict[str, Any]) -> str:
     questions = f"{data['subset']['questions']:,}"
     acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
 
+    shown = shown_names(site, data["models"])
+
     def name(model: dict[str, Any]) -> str:
-        run = site.by_id.get(model["a_run"])
-        return site.row_name(run) if run else model["name"]
+        return shown.get(model["a_run"], model["name"])
 
     def href(model: dict[str, Any]) -> str | None:
         run = site.by_id.get(model["a_run"])
@@ -582,8 +592,7 @@ def build(site: Site) -> dict[str, str]:
     failures = [esc(item) if isinstance(item, str) else esc(str(item)) for item in data["failures"]]
     ocr_methods = [f"<strong>{esc(OCR_NAMES[key])}</strong> ({esc(item['model'])} at {esc(item['revision'][:7])}): {esc(item['method'])}"
                    for key, item in data["ocr"]["models"].items()]
-    body = f"""    {site.tabs(PATH)}
-    <section class="card">
+    body = f"""    <section class="card">
       <p class="eyebrow">Page images</p>
       <h1>{questions} questions with underlined or numbered words</h1>
       <p>The Page images benchmark contains the {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways:</p>

@@ -34,13 +34,14 @@ def heatmap(site: Site) -> str:
     )
     stops = site.config["rank_scale"]["stops"]
     rows = []
+    shown = site.names(site.runs)
     for run in site.ranked():
         cells = []
         for position, unit in enumerate(units):
             share = run["units"][position] / unit["questions"]
-            cells.append(f'<td class="heat" style="{heat_style(stops, share)}" title="{esc(run["name"])}, {esc(unit["english"])}: '
+            cells.append(f'<td class="heat" style="{heat_style(stops, share)}" title="{esc(shown[run["run"]])}, {esc(unit["english"])}: '
                          f'{run["units"][position]} of {unit["questions"]}">{pct(share, 0)}</td>')
-        rows.append(f"<tr>{site.model_cell(path, run)}{''.join(cells)}</tr>")
+        rows.append(f"<tr>{site.model_cell(path, run, name=shown[run['run']])}{''.join(cells)}</tr>")
     listing = "".join(
         f'<li><a href="{rel(path, f"topics/{unit["number"]}/")}">{esc(unit["english"])}</a> '
         f'<span class="muted">{site.part(unit["number"]).capitalize()} · {unit["questions"]} questions</span></li>'
@@ -64,10 +65,11 @@ def topic_page(site: Site, unit: dict[str, Any], data: dict[str, Any]) -> str:
     path = f"topics/{number}/"
     position = site.units.index(unit)
     results = []
+    shown = site.names(site.runs)
     for run in sorted(site.runs, key=lambda run: -run["units"][position]):
         correct = run["units"][position]
         results.append(
-            f"<tr>{site.model_cell(path, run, kind=True)}"
+            f"<tr>{site.model_cell(path, run, kind=True, name=shown[run['run']])}"
             f'<td class="num" data-label="Accuracy">{pct(correct / unit["questions"])}<span class="small">{interval(correct, unit["questions"])}</span></td>'
             f'<td class="num" data-label="Right">{correct} of {unit["questions"]}</td></tr>'
         )

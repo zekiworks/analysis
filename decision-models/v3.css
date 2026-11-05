@@ -123,19 +123,21 @@ html { --view-bar-h: 9.6rem; scroll-padding-top: var(--view-bar-h); }
   border: 1px solid var(--control-edge); border-radius: 6px; }
 .skip:focus { left: 1rem; }
 
-/* Top bar: the brand and the theme switch, then the navigation bar on its own row. Plain text links; the current page is
-   underlined. */
-.topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav"; align-items: center;
-  gap: .45rem 1rem; max-width: 1100px; margin: 0 auto 1.25rem; padding: .7rem 0 .55rem; border-bottom: 1px solid var(--edge); }
-.brand { grid-area: brand; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+/* Top bar: the brand, the navigation bar and the theme switch on one compact line where they fit (they wrap where they
+   do not; at 1280 px they fit). Plain text links; the current page is underlined. The theme keys read Dark and Light,
+   their full names in their labels. */
+.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .9rem; max-width: 1100px; margin: 0 auto .6rem;
+  padding: .3rem 0; border-bottom: 1px solid var(--edge); }
+.brand { flex: none; color: var(--text-2); font-size: .7rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
   text-decoration: none; }
 .brand:hover { color: var(--text); }
-.nav { grid-area: nav; }
-.nav ul { display: flex; flex-wrap: wrap; gap: .2rem 1.1rem; list-style: none; margin: 0; padding: 0; }
-.nav a { display: inline-block; padding: .2rem 0; color: var(--text); font-size: .9rem; text-decoration: none; border-bottom: 2px solid transparent; }
+.nav { flex: 1 1 auto; min-width: 0; }
+.nav ul { display: flex; flex-wrap: wrap; gap: .2rem .7rem; list-style: none; margin: 0; padding: 0; }
+.nav a { display: inline-block; padding: .2rem 0; color: var(--text); font-size: .86rem; text-decoration: none; border-bottom: 2px solid transparent; }
 .nav a:hover { border-bottom-color: var(--text-2); }
 .nav a[aria-current="page"] { border-bottom-color: var(--text); }
-.theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; }
+.theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; margin-left: auto; }
+.topbar .theme-switch .key { min-height: 1.75rem; padding: .1rem .45rem; gap: .3rem; }
 .theme-switch[hidden] { display: none; }
 /* With the script, the switch shows from the first paint, so nothing moves when site.js wires it. */
 .js .theme-switch[hidden] { display: inline-flex; }
@@ -218,21 +220,10 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .eyebrow { margin: 0 0 .25rem; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 /* A result that is not final: a marked line at the top of a model page's Page images section. */
 .preliminary { margin: 0 0 .75rem; padding: .4rem .7rem; background: var(--sunk); border-left: 3px solid var(--text); border-radius: 4px; }
-/* The site's three benchmarks, Text, Page images and Hallucination, as tabs above each one's page: links drawn as the leaderboard's tab
-   keys; the current one sinks, lights its lamp and carries a bar under it. */
-.bench-tabs { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 1.1rem; }
-.bench-tab { position: relative; display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: .35rem .85rem;
-  font-weight: 600; color: var(--text); text-decoration: none; background: var(--key); border: 1px solid var(--control-edge);
-  border-radius: 6px; box-shadow: var(--key-shadow); }
-.bench-tab:hover { border-color: var(--text-2); }
-.bench-tab[aria-current="page"] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); }
-.bench-tab[aria-current="page"]::after { content: ""; position: absolute; left: .6rem; right: .6rem; bottom: -.55rem; height: 3px;
-  border-radius: 2px; background: var(--text); }
-.bench-tab .count { color: var(--text-2); font-family: var(--mono); font-size: .78rem; font-weight: 400; }
 .subtitle { color: var(--text-2); margin: 0 0 .75rem; }
 
-/* Header: the question, the intro, the language of the questions and the links to the charts below. */
-.hero { max-width: 76ch; margin: 0 0 1.25rem; }
+/* The title, the intro and the language of the questions, under the Accuracy chart. */
+.hero { max-width: 76ch; margin: 0; }
 .hero h1 { font-size: 2.25rem; margin: 0 0 .75rem; letter-spacing: -.01em; text-wrap: balance; }
 .hero .intro { font-size: 1.1rem; margin: 0 0 1rem; }
 .readout-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .4rem 1rem; margin: 0 0 .85rem;
@@ -251,7 +242,7 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .summary-list { margin: 0; padding: 0; list-style: none; }
 .summary-list li { margin: .12rem 0; }
 .summary-list a { font-weight: 600; }
-/* The links to the charts and to Info, under the intro. */
+/* The links to the charts and to Info, under the intro of the other pages. */
 .face-nav { display: flex; flex-wrap: wrap; gap: .25rem 1.1rem; margin: 0; font-size: .95rem; }
 
 /* Phone-only parts (shown by the phone rules below): the swipe label, the versions under the table and the setup count
@@ -259,9 +250,15 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .swipe-hint, .version-below { display: none; }
 .filters .panel-only { display: none; }
 
-/* Filters: labelled groups; the bar keeps the count, a summary and Reset in view when the panel is
-   closed. The panel sits in the page's flow, so it never covers the tabs or the table. */
-.filters { padding: .65rem .8rem; }
+/* Filters: labelled groups; the bar keeps the count, a summary and Reset in view when the panel is closed. On the home
+   page the bar sits in the Accuracy chart's head, after its title, and the panel opens under the head, in the page's
+   flow, so it never covers the charts or the table. */
+.chart-head .filters { display: contents; }
+.chart-head .filters-bar { order: 1; flex: 0 1 auto; flex-wrap: nowrap; }
+.chart-head .filters-summary { flex: 0 1 auto; }
+.chart-head > .key { order: 2; }
+.chart-head > .chart-sub { order: 3; }
+.chart-head .filters-body { order: 4; flex: 1 1 100%; margin-top: .2rem; }
 .filters-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
 .group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .35rem .55rem; margin: 0; }
 .group-label { color: var(--text-2); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
@@ -459,7 +456,10 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 .chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-bottom: .5rem; }
 .chart-head h2 { margin: 0 auto 0 0; padding: 0; border: 0; font-size: 1.05rem; }
 .chart-sub { flex-basis: 100%; margin: 0; color: var(--text-2); font-size: .85rem; }
-/* The cost of every setup: the leaderboard's table in a box of fixed height, its header held in view while it scrolls. */
+/* The cost of every setup, under the Cost chart in the same card: the leaderboard's table in a box of fixed height, its
+   header held in view while it scrolls. */
+.cost-setups { margin-top: 1.25rem; padding-top: .75rem; border-top: 1px solid var(--edge); }
+.cost-setups > .chart-sub { margin-bottom: .5rem; }
 .cost-scroll { max-height: 32rem; overflow: auto; }
 .cost-scroll thead th { position: sticky; top: 0; z-index: 1; }
 .pareto-tag { display: inline-block; margin-left: .35rem; padding: 0 .3rem; border: 1px dashed var(--control-edge); border-radius: 3px;
@@ -473,6 +473,9 @@ table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
 .chart-box .grid { stroke: var(--edge); stroke-width: 1; }
 .chart-box .axis { stroke: var(--control-edge); stroke-width: 1; }
 .chart-box .tick, .chart-box .axis-title { fill: var(--text-2); }
+/* The names of a bar chart's value columns, above its scrolling rows, right-aligned over the values. */
+.chart-box .column-heads { display: block; }
+.chart-box .column-head { fill: var(--text-2); font-size: 12px; font-weight: 600; }
 .chart-box .label, .chart-box .value { fill: var(--text); }
 .chart-box .detail { fill: var(--text-2); font-size: 12px; }
 .chart-box .value.nm { fill: var(--text-2); }
@@ -643,7 +646,10 @@ ul.price-list { padding-left: 1.25rem; }
   body { padding: 0 .6rem 1.5rem; }
   /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
-  .topbar { grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem; margin-bottom: .55rem; padding: .45rem 0 .3rem; }
+  .topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem;
+    margin-bottom: .55rem; padding: .35rem 0 .3rem; }
+  .brand { grid-area: brand; }
+  .nav { grid-area: nav; }
   /* The view bar on a phone: the row names for screen readers only, three keys per row in rows 1 and 2, whose labels wrap
      inside them; the middle key, the longest label, takes more room, so every label fits on two lines. */
   html { --view-bar-h: 9.2rem; }
@@ -660,7 +666,6 @@ ul.price-list { padding-left: 1.25rem; }
   .brand { font-size: .66rem; letter-spacing: .04em; }
   .theme-switch { gap: .25rem; }
   .theme-switch .key { min-height: 1.75rem; padding: .15rem .45rem; gap: .3rem; font-size: .78rem; }
-  .theme-switch .long { display: none; }
   /* Padding inside the scrolling bar keeps a focused link's outline unclipped; the negative margin keeps the row's size. */
   .nav ul { flex-wrap: nowrap; gap: 1rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
     scroll-padding-inline: .35rem; }
@@ -668,7 +673,6 @@ ul.price-list { padding-left: 1.25rem; }
   .nav li { flex: none; }
   .nav a { white-space: nowrap; }
   .panel, .card { padding: .75rem; border-radius: 8px; }
-  .hero { margin-bottom: .5rem; }
   .hero h1 { font-size: 1.45rem; margin-bottom: .35rem; }
   .hero .intro { font-size: .95rem; line-height: 1.36; margin-bottom: .5rem; }
   .hero .language { font-size: .95rem; line-height: 1.36; margin-bottom: .45rem; }
@@ -680,8 +684,10 @@ ul.price-list { padding-left: 1.25rem; }
   .version-below { display: block; margin-top: .6rem; }
   .summary { font-size: .9rem; line-height: 1.25; }
   .summary-list li { margin: 0; }
-  /* One filter row: the Filters key, the summary of the active filters and Reset; the setup count is inside the panel. */
-  .filters { padding: .45rem .6rem; margin-bottom: .5rem; }
+  /* One filter row under the Accuracy title: the Filters key, the summary of the active filters and Reset; the setup
+     count is inside the panel. */
+  .chart-head .filters-bar { order: 3; flex: 1 1 100%; }
+  .chart-head > .chart-sub { order: 4; }
   .filters-bar { flex-wrap: nowrap; gap: .5rem; }
   .filters .bar-only { display: none; }
   .filters .panel-only { display: flex; }
@@ -689,9 +695,6 @@ ul.price-list { padding-left: 1.25rem; }
   .filters-body { gap: .8rem; }
   /* The leaderboard panel: the question count, then the four tabs on one row. */
   .board-panel { padding-top: .5rem; }
-  .bench-tabs { flex-wrap: nowrap; gap: .3rem; margin-bottom: .9rem; }
-  .bench-tab { flex: 1 1 0; justify-content: center; flex-wrap: wrap; gap: .1rem .35rem; padding: .3rem .4rem; font-size: .88rem; }
-  .bench-tab .count { flex-basis: 100%; text-align: center; }
   .modebar { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "count" "tabs";
     gap: .35rem .5rem; margin-bottom: .4rem; padding-bottom: .45rem; }
   .modes { grid-area: tabs; display: flex; flex-wrap: wrap; gap: .25rem; }
@@ -743,20 +746,8 @@ ul.price-list { padding-left: 1.25rem; }
   dl.facts dd { margin-bottom: .5rem; }
   .heatmap-table td.model, .heatmap-table thead th:first-child { min-width: 7.5rem; max-width: 9rem; }
   .worked-example { padding: .75rem; }
-  table.setups thead { display: none; }
-  table.setups, table.setups tbody, table.setups tr, table.setups th[scope="row"], table.setups td { display: block; }
-  table.setups th[scope="row"] { min-width: 0; border-bottom: none; padding-bottom: .2rem; }
   details.setup-record dl { grid-template-columns: 1fr; }
-  /* The Page images and Hallucination tables, a few rows whose every column matters: each row stacks, each value beside its label (the
-     header with its direction, from data-label). */
-  table.stack thead { display: none; }
-  table.stack, table.stack tbody, table.stack tr, table.stack td { display: block; }
-  table.stack tr { padding: .35rem 0; border-bottom: 1px solid var(--control-edge); }
-  table.board.stack td, table.board.stack td:first-child { position: static; width: auto; min-width: 0; max-width: none; padding: .2rem .25rem;
-    border-bottom: none; box-shadow: none; }
-  table.stack td[data-label] { display: flex; justify-content: space-between; align-items: baseline; gap: .75rem; white-space: normal; }
-  table.stack td[data-label]::before { content: attr(data-label); color: var(--text-2); font-family: var(--sans); font-size: .78rem; text-align: left; }
-  table.stack .cell { flex: none; max-width: 55%; text-align: right; }
+  /* Every table keeps its header row on a phone and scrolls sideways inside its frame. */
 }
 
 /* Motion only traces the routing path once, when its choices change; none at all for readers who ask for less. */

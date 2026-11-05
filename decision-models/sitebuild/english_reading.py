@@ -35,7 +35,8 @@ import benchmark_metrics as bm
 import build_page as bp
 from sitebuild.data import BLOB_URL
 from sitebuild.dont_know import check_option_word, option_word_rows
-from sitebuild.site import (NOT_MEASURED, ROOT, VIEW_GROUPS, Site, dollars_tick, esc, family_legend, hbars, legend_mark,
+from sitebuild.site import (NO_LIST_PRICE, NOT_MEASURED, ROOT, VIEW_GROUPS, Site, cost_missing, dollars_tick, esc,
+                            family_legend, hbars, legend_mark,
                             line_plot, log_axis, pct, rel, request_size, seconds_tick)
 from sitebuild.vision import cell, joined, run_span
 
@@ -120,36 +121,11 @@ def model_colours(site: Site) -> dict[int, str]:
     return colours
 
 
-def distinct_labels(site: Site, runs: list[dict[str, Any]]) -> dict[int, str]:
-    """Each setup's name among these setups, by run: its Text tab row name with its settings as the home page's charts
-    write them (chartLabels in v3.js): a chat model always with its reasoning and request size (Ümit via Zeki #1179,
-    "Gemini 4 Argon (low reasoning, 16/request)"), a decision model with the variant, reasoning or request size only
-    where another of these setups has its name. Stops the build when two still read the same."""
-    base = {run["run"]: site.row_name(run) for run in runs}
-    labels = {}
-    for run in runs:
-        same = [other for other in runs if base[other["run"]] == base[run["run"]]]
-        differs = lambda field: len({other.get(field) for other in same}) > 1  # noqa: E731
-        chat = not site.decision(run)
-        parts = [run["variant"]] if run.get("variant") and differs("variant") else []
-        if run.get("reasoning") and (chat or differs("reasoning")):
-            parts.append(bp.reasoning_label(run["reasoning"]))
-        if chat or differs("questions_per_request"):
-            parts.append(f"{run['questions_per_request']}/request")
-        # A row name that already ends in a bracket, "GPT-6 Luna (chat API)", takes the settings inside it.
-        name = base[run["run"]]
-        labels[run["run"]] = (f"{name[:-1]}, {', '.join(parts)})" if name.endswith(")") else f"{name} ({', '.join(parts)})") if parts else name
-    if len(set(labels.values())) != len(labels):
-        raise SystemExit("english_reading: two setups have the same name and settings: "
-                         + ", ".join(sorted(label for label in labels.values() if list(labels.values()).count(label) > 1)))
-    return labels
-
-
 @functools.cache
 def setup_labels(site: Site) -> dict[int, str]:
-    """The English setups' names on both English pages, by Text tab run (distinct_labels over all of them, so a setup
-    reads the same in every group)."""
-    return distinct_labels(site, [site.by_id[model["turkish_run"]] for model in site.results["english_reading"]["models"]])
+    """The English setups' names on both English pages, by Text tab run: site.names over all of them (full name, plus
+    only what tells two of the same name apart), so a setup reads the same in every group."""
+    return site.names([site.by_id[model["turkish_run"]] for model in site.results["english_reading"]["models"]])
 
 
 def not_run(site: Site, data: dict[str, Any]) -> list[tuple[str, list[dict[str, Any]]]]:
@@ -283,8 +259,19 @@ def measure_value(model: dict[str, Any], measure: str, side: str) -> float | Non
     return entry["per_1000"] if measure == "cost" else entry["median_request_seconds"]
 
 
-def maker_mark(site: Site) -> str:
-    return site.config["first_cost_marks"]["maker"]["mark"]
+def cost_title(site: Site, model: dict[str, Any]) -> str:
+    """A cost value's tooltip attribute: site.cost_tip of the setup's Text tab run, or nothing for plain API price."""
+    tip = site.cost_tip(site.by_id[model["turkish_run"]])
+    return f' title="{esc(tip)}"' if tip else ""
+
+
+def cost_note(site: Site, models: list[dict[str, Any]], sides: tuple[str, ...]) -> str:
+    """The cost line under a cost chart or table (site.cost_note), with the upper-bound note where an English cost is
+    marked and the Text tab runs' note does not already say it."""
+    note = site.cost_note(site.by_id[model["turkish_run"]] for model in models)
+    upper = upper_note(site, models, sides)
+    return note if not upper or upper[0] in note else f"{note} {upper[0]}"
+
 
 
 def upper_mark(site: Site, entry: dict[str, Any] | None) -> str:
@@ -299,17 +286,40 @@ def upper_note(site: Site, models: list[dict[str, Any]], sides: tuple[str, ...])
     return [f"{upper['mark']} {upper['note']}"] if marked else []
 
 
+def missing(site: Site, model: dict[str, Any], measure: str) -> str:
+    """A missing value's cell: No list price for a cost of a setup on our own hardware whose maker lists no price
+    (cost_missing, from the setup's Text tab run), else Not measured."""
+    return cost_missing(site.by_id[model["turkish_run"]]) if measure == "cost" else NOT_MEASURED
+
+
+def no_list_price(site: Site, model: dict[str, Any], measure: str) -> bool:
+    return missing(site, model, measure) == NO_LIST_PRICE
+
+
+def missing_note(site: Site, models: list[dict[str, Any]], sides: tuple[str, ...]) -> str:
+    """A table note's words for its missing costs and latencies, each only where the table shows one: every cost
+    without an estimate is of a setup on our own hardware (billing 'local'), so Not measured is a missing timing."""
+    gaps = {missing(site, model, measure) for model in models for measure in ("cost", "latency") for side in sides
+            if measure_value(model, measure, side) is None}
+    words = []
+    if NO_LIST_PRICE in gaps:
+        words.append("No list price: a setup on our own hardware whose maker lists no price for the same model.")
+    if NOT_MEASURED in gaps:
+        words.append("Not measured: no timing.")
+    return " ".join(words)
+
+
 def measure_cell(site: Site, model: dict[str, Any], measure: str, side: str) -> str:
-    """A table cell's content: the cost to three decimals (§ at the maker's list price) with its basis under it, or the
-    median latency with the request size and the requests in flight under it; Not measured without a value."""
+    """A table cell's content: the cost to three decimals with its basis under it (site.cost_tip in its tooltip), or the
+    median latency with the request size and the requests in flight under it; without a value, No list price for a
+    cost of a setup on our own hardware whose maker lists no price, else Not measured."""
     value = measure_value(model, measure, side)
     if value is None:
-        return NOT_MEASURED
+        return missing(site, model, measure)
     entry = model[measure][side]
     if measure == "cost":
-        mark = f'<span class="mark">{esc(maker_mark(site))}</span>' if entry["basis"] == "maker" else ""
-        return (f'{esc(upper_mark(site, entry))}{value:.3f}{mark}<span class="small">{esc(BASIS_WORDS[entry["basis"]])}'
-                "</span>")
+        return (f'<span{cost_title(site, model)}>{esc(upper_mark(site, entry))}{value:.3f}</span>'
+                f'<span class="small">{esc(BASIS_WORDS[entry["basis"]])}</span>')
     flight = entry["concurrency"]
     sample = sample_size(site, model, side)
     measured = f", measured on a sample ({sample:,} questions)" if sample else ""
@@ -361,7 +371,6 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
     paired = len(sides) == 2
     total = data["questions"]
     cost = measure == "cost"
-    mark = maker_mark(site)
     values = [value for model in models for side in sides if (value := measure_value(model, measure, side)) is not None]
     order = lambda model: tuple(item for side in reversed(sides) for item in  # noqa: E731
                                 (measure_value(model, measure, side) is None, measure_value(model, measure, side) or 0)) \
@@ -372,18 +381,20 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
     def short(model: dict[str, Any], side: str) -> str:
         value = measure_value(model, measure, side)
         if value is None:
+            if no_list_price(site, model, measure):
+                return "no list price"
             return "n.m." if paired else "Not measured"
         text = bp.seconds(value)
         if not cost and sample_size(site, model, side):
             text += SAMPLE_MARK
         if paired:
             return upper_mark(site, model["cost"][side]) + text if cost else text
-        return f"{upper_mark(site, model['cost'][side])}${text}" + (f" {mark}" if model["cost"][side]["basis"] == "maker" else "") if cost else f"{text}\u00a0s"
+        return f"{upper_mark(site, model['cost'][side])}${text}" if cost else f"{text}\u00a0s"
 
     def said(model: dict[str, Any], side: str) -> str:
         value, entry = measure_value(model, measure, side), model[measure][side]
         if value is None:
-            return f"not measured in {SIDES[side]}"
+            return f"{'no list price' if no_list_price(site, model, measure) else 'not measured'} in {SIDES[side]}"
         if cost:
             return (f"{upper_mark(site, entry)}${value:.3f} per 1,000 questions in {SIDES[side]} ({BASIS_WORDS[entry['basis']]}"
                     f"{', an upper-bound estimate' if entry.get('upper_bound') else ''})")
@@ -397,21 +408,21 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
         bars = [{"value": position(value), "colour": colour, **({"kind": side} if paired else {})}
                 for side in sides if (value := measure_value(model, measure, side)) is not None]
         text = " · ".join(short(model, side) for side in sides)
-        if paired and cost and any(model["cost"][side] and model["cost"][side]["basis"] == "maker" for side in sides):
-            text += f" {mark}"
+        tip = site.cost_tip(site.by_id[model["turkish_run"]]) if cost else None
         rows.append({"label": label(site, model), "href": link(site, model), "bars": bars, "text": text,
-                     "title": f"{label(site, model)}: " + "; ".join(said(model, side) for side in sides)})
+                     "title": f"{label(site, model)}: " + "; ".join(said(model, side) for side in sides)
+                     + (f". {tip}" if tip else "")})
     count = len(models)
     whose = (f"each of the {bp.in_words(count)} {noun(group, count)}' Text tab run and its first English run" if paired else
              f"each of the {bp.in_words(count)} {noun(group, count)}' first English run")
     if cost:
-        title = "Cost in Turkish and in English" if paired else f"Cost on the {total:,} English questions"
+        title = ("Cost per 1,000 questions in Turkish and in English" if paired else
+                 "Cost per 1,000 English questions")
         sub = f"Estimated dollars per 1,000 questions: {whose}, ordered by English cost · lower is better"
-        notes = [f"$ per 1,000 questions at list prices and the tokens each run recorded, as on the Text tab: a subscription "
-                 "run priced as if we had used the API, a free-tier run at the list price for the same model, a run on "
-                 f"our GPUs at its maker's list price for the same model ({mark}) where it lists one.", *upper_note(site, models, sides)]
+        notes = [esc(cost_note(site, models, sides))]
     else:
-        title = "Latency in Turkish and in English" if paired else f"Latency on the {total:,} English questions"
+        title = ("Median latency per request in Turkish and in English" if paired else
+                 f"Median latency per request on the {total:,} English questions")
         sub = f"Median time per request: {whose}, ordered by English latency · lower is better"
         notes = ["Time per request as measured from our computer during each run; API times include the network."]
         for side in sides:
@@ -440,17 +451,25 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
                              "on the home page.")
     notes.append("Log scale.")
     for side in sides:
-        missing = [label(site, model) for model in ordered if measure_value(model, measure, side) is None]
-        if missing:
-            notes.append(f"Not measured in {SIDES[side]} (n.m.): {esc(joined(missing))}." if paired
-                         else f"Not measured: {esc(joined(missing))}.")
+        unpriced = [label(site, model) for model in ordered
+                    if measure_value(model, measure, side) is None and no_list_price(site, model, measure)]
+        unmeasured = [label(site, model) for model in ordered
+                      if measure_value(model, measure, side) is None and not no_list_price(site, model, measure)]
+        where = f" in {SIDES[side]}" if paired else ""
+        if unpriced:
+            notes.append(f"No list price{where}: {esc(joined(unpriced))}, on our own hardware; the maker lists no price "
+                         "for the same model.")
+        if unmeasured:
+            notes.append(f"Not measured{where}{' (n.m.)' if paired else ''}: {esc(joined(unmeasured))}.")
     legend = ('<span><i class="swatch swatch-turkish"></i>Turkish (the Text tab run), the upper bar</span> '
               '<span><i class="swatch swatch-english"></i>English (first run), the lower bar, striped</span> '
               + NUMBERS + " ") if paired else ""
     legend += family_legend([site.families[model["turkish_run"]] for model in ordered]) + "".join(
         f" <span>{note}</span>" for note in notes)
-    chart = hbars(rows, head=TR_EN if paired else None, **axis) if values else \
-        f'<p class="note">Not measured for any {noun(group, 1)}.</p>'
+    head = TR_EN if paired else ("Cost / 1k", "$/1k") if cost else ("Median latency", "Median")
+    priced = not cost or not all(no_list_price(site, model, measure) for model in models)
+    chart = hbars(rows, head=head, **axis) if values else \
+        f'<p class="note">{"Not measured" if priced else "No list price"} for any {noun(group, 1)}.</p>'
     return (f'<figure class="panel chart-card" id="{anchor(f"chart-{measure}", group)}" {shown(group)}>'
             f'<div class="chart-head"><h2>{esc(title)}</h2><p class="chart-sub">{sub}</p></div>{chart}'
             f'<p class="chart-legend">{legend}</p></figure>')
@@ -614,8 +633,8 @@ def against_reference(site: Site, data: dict[str, Any]) -> str:
     for model in models:
         compared = by_run[model["run"]]
         run = site.by_id[compared["turkish_run"]]
-        name = (f'<td class="model"><a class="model-name" href="{href(site, compared)}">{esc(label(site, compared))}</a>'
-                f'<span class="small">{esc(site.detail(run))}</span></td>')
+        name = (f'<td class="model"><a class="model-name" href="{href(site, compared)}" title="{esc(site.detail(run))}">{esc(label(site, compared))}</a>'
+                f'</td>')
         values = [
             run_span([model["run"]]),
             f"{model['reference_only_right']:,}",
@@ -753,8 +772,8 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             source = esc(entry["source"].split("//", 1)[1].split("/", 1)[0])
             values.append(f'{languages_text(entry["languages"])}<span class="small"><a href="{esc(entry["source"])}">{source}</a></span>')
         run = site.by_id[model["turkish_run"]]
-        name = (f'<td class="model"><a class="model-name" href="{href(site, model)}">{esc(label(site, model))}</a>'
-                f'<span class="small">{esc(site.detail(run))}</span></td>')
+        name = (f'<td class="model"><a class="model-name" href="{href(site, model)}" title="{esc(site.detail(run))}">'
+                f'{esc(label(site, model))}</a></td>')
         rows.append(f"<tr>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
     short = "".join(f'<th scope="col" class="num">{name}<span class="small">{esc(note)}</span></th>'
                     for part, names, notes in groups if names != ("",) for name, note in zip(names, notes))
@@ -792,15 +811,14 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             f"Accuracy: right answers over the {total:,} kept reading questions, the first English run against the Text "
             f'tab run (<a href="#{anchor("chart-accuracy", group)}">Accuracy</a>, '
             f'<a href="#{anchor("chart-paired", group)}">Paired test</a>).{idk_text} Cost and latency: the Text tab run '
-            f"and the first English run, cost in $ per 1,000 questions at list prices ({esc(maker_mark(site))} at the "
-            "maker's list price) and the "
+            "and the first English run, cost in $ per 1,000 questions and the "
             "median time per request with the request size and the requests in flight under it "
-            f'(<a href="#{anchor("chart-cost", group)}">Cost</a>, <a href="#{anchor("chart-latency", group)}">Latency</a>); '
-            "Not measured: no price, or no timing. Rank: by accuracy among the "
+            f'(<a href="#{anchor("chart-cost", group)}">Cost</a>, <a href="#{anchor("chart-latency", group)}">Latency</a>).'
+            + (" " + missing_note(site, models, tuple(SIDES))).rstrip() + " Rank: by accuracy among the "
             f"{len(models)} {noun(group, len(models))} in each language, 1 the most accurate, tied setups sharing a rank."
             f'{languages_note} The full tables are under <a href="#info">Info</a>.'
-            + "".join(f" {esc(text)}" for text in upper_note(site, models, tuple(SIDES)))
-            + "</p></section>")
+            + "</p>"
+            f'<p class="note">{esc(cost_note(site, models, tuple(SIDES)))}</p></section>')
 
 
 def columns(data: dict[str, Any]) -> tuple[tuple[str, str], ...]:
@@ -854,8 +872,8 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
     ]
     heads = [f"{head} ({note})" for head, note in columns(data)]
     run = site.by_id[model["turkish_run"]]
-    name = (f'<td class="model"><a class="model-name" href="{href(site, model)}">{esc(label(site, model))}</a>'
-            f'<span class="small">{esc(site.detail(run))}</span></td>')
+    name = (f'<td class="model"><a class="model-name" href="{href(site, model)}" title="{esc(site.detail(run))}">'
+            f'{esc(label(site, model))}</a></td>')
     return f"<tr>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>"
 
 
@@ -870,9 +888,9 @@ def table(site: Site, data: dict[str, Any], group: str) -> str:
 
 def not_run_list(site: Site, data: dict[str, Any], group: str) -> str:
     """A group's copy of the Text tab setups without an English run (not_run): each reason once with its setups, named
-    as distinct_labels names them among all such setups, each linking its Text tab run."""
+    as site.names names them among all such setups, each linking its Text tab run."""
     entries = [(reason, [run for run in runs if in_group(site, run, group)]) for reason, runs in not_run(site, data)]
-    labels = distinct_labels(site, [run for _, runs in not_run(site, data) for run in runs])
+    labels = site.names([run for _, runs in not_run(site, data) for run in runs])
     count = sum(len(runs) for _, runs in entries)
     total = sum(1 for run in site.runs if in_group(site, run, group))
     if count:
@@ -1229,8 +1247,8 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
     ]
     heads = [f"{head} ({note})" for head, note in dont_know_columns(idk)]
     run = site.by_id[model["text_run"]]
-    name = (f'<td class="model"><a class="model-name" href="{idk_href(site, model)}">{esc(idk_label(site, model))}</a>'
-            f'<span class="small">{esc(site.detail(run))}</span></td>')
+    name = (f'<td class="model"><a class="model-name" href="{idk_href(site, model)}" title="{esc(site.detail(run))}">'
+            f'{esc(idk_label(site, model))}</a></td>')
     return f"<tr>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
 
 
@@ -1262,8 +1280,8 @@ def english_only_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> 
     ]
     heads = [f"{head} ({note})" for head, note in dont_know_columns(idk)]
     run = site.by_id[model["text_run"]]
-    name = (f'<td class="model"><a class="model-name" href="{idk_href(site, model)}">{esc(idk_label(site, model))}</a>'
-            f'<span class="small">{esc(site.detail(run))}</span></td>')
+    name = (f'<td class="model"><a class="model-name" href="{idk_href(site, model)}" title="{esc(site.detail(run))}">'
+            f'{esc(idk_label(site, model))}</a></td>')
     return f"<tr>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
 
 
@@ -1654,8 +1672,8 @@ def dont_know_word_row(site: Site, word: dict[str, Any], model: dict[str, Any]) 
                    + (" *" if idk_significant(model) else "")]
     heads = [f"{head} ({note})" for head, note in dont_know_word_columns(word)]
     run = site.by_id[model["text_run"]]
-    name = (f'<td class="model"><a class="model-name" href="{idk_href(site, model)}">{esc(idk_label(site, model))}</a>'
-            f'<span class="small">{esc(site.detail(run))}</span></td>')
+    name = (f'<td class="model"><a class="model-name" href="{idk_href(site, model)}" title="{esc(site.detail(run))}">'
+            f'{esc(idk_label(site, model))}</a></td>')
     return f"<tr>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
 
 
@@ -2106,8 +2124,7 @@ def build(site: Site) -> dict[str, str]:
         f"{no_option} Every part with the option is for decision models only: the two “I don't know” sections, the "
         "option's word and the native points under Risk and coverage.")) if idk_parts else chat_note(no_option)
     method = "#method"
-    body = f"""    {site.tabs(PATH)}
-    <section class="card">
+    body = f"""    <section class="card">
       <p class="eyebrow">Turkish vs English</p>
       <h1>The Text tab's reading questions, in Turkish and in English</h1>
       {"".join(lead(group) for group in GROUPS)}

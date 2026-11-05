@@ -276,19 +276,17 @@ def refit_table(site: Site, snap: bp.Snapshot) -> str:
     heads = ("Setup", "Calibration gap (points)", "Gap after refit (points)", "Brier after refit", "Brier of the flat guess",
              "Better than a flat guess (%)")
     rows = []
-    for run in sorted((run for run in snap.runs if run.get("confidence")), key=lambda run: -bp.flat_gain(run)):
+    scored = sorted((run for run in snap.runs if run.get("confidence")), key=lambda run: -bp.flat_gain(run))
+    shown = site.names(scored)
+    for run in scored:
         confidence = run["confidence"]
-        size = run["questions_per_request"]
-        settings = [run["variant"]] if run.get("variant") else []
-        if run.get("reasoning"):
-            settings.append(bp.reasoning_label(run["reasoning"]))
-        settings.append(f"{bp.count(size)} question{'' if size == 1 else 's'} per request")
+        settings = site.detail(run)
+        tip = f' title="{esc(settings)}"' if settings else ""
         gain = f"{bp.flat_gain(run):.1f}" + ('<span class="small">reversed</span>' if bp.reversed_refit(run) else "")
         cells = (f"{100 * confidence['ece']:.1f}", f"{100 * confidence['ece_refit']:.1f}", f"{confidence['brier_refit']:.3f}",
                  f"{confidence['brier_base']:.3f}", gain)
         rows.append(
-            f'<tr><td data-label="{heads[0]}"><a href="{rel(PATH, site.model_path(run))}">{esc(run["name"])}</a>'
-            f'<span class="small">{esc(" · ".join(settings))}</span></td>'
+            f'<tr><td data-label="{heads[0]}"{tip}><a href="{rel(PATH, site.model_path(run))}">{esc(shown[run["run"]])}</a></td>'
             + "".join(f'<td class="num" data-label="{head}">{cell}</td>' for head, cell in zip(heads[1:], cells)) + "</tr>"
         )
     head = "".join(f'<th scope="col"{"" if index == 0 else " class=\"num\""}>{text}</th>' for index, text in enumerate(heads))
@@ -395,8 +393,11 @@ def flat_guess_examples(snap: bp.Snapshot) -> dict[str, str]:
     }
 
 
-def display_name(run: dict[str, Any]) -> str:
-    details = [item for item in (run.get("variant"), run.get("format")) if item]
+def display_name(run: dict[str, Any], runs: list[dict[str, Any]]) -> str:
+    """A setup's name with its format and, where it tells it apart from another run of the same model ID, its variant (a
+    route or access note; one of a model with one run stays on its model page)."""
+    variant = run.get("variant") if any(other["run"] != run["run"] and other["model"] == run["model"] for other in runs) else None
+    details = [item for item in (variant, run.get("format")) if item]
     return run["name"] + (f" ({', '.join(details)})" if details else "")
 
 
@@ -429,7 +430,7 @@ def rate_parts(price: dict[str, Any]) -> list[str]:
 def price_list(snap: bp.Snapshot) -> str:
     """The price notes as the earlier page's app.js (v1/) drew them under "How we estimate the money cost"."""
     def names(runs: list[dict[str, Any]]) -> str:
-        return ", ".join(dict.fromkeys(display_name(run) for run in runs))
+        return ", ".join(dict.fromkeys(display_name(run, snap.runs) for run in runs))
 
     items = []
     if any(part.startswith(("reused", "saving")) for price in snap.results["prices"] for part in rate_parts(price)):
@@ -463,8 +464,8 @@ def maker_priced(snap: bp.Snapshot) -> str:
         price = prices[bp.price_key(run)]
         maker = price["basis"].removesuffix("'s list price for the same model")
         makers.setdefault(maker, [])
-        if snap.short(run) not in makers[maker]:
-            makers[maker].append(snap.short(run))
+        if run["name"] not in makers[maker]:
+            makers[maker].append(run["name"])
         if price.get("extra_input_per_request"):
             extra[maker] = price["extra_input_per_request"]
     groups = [f"{maker} for {bp.and_list(names)}" for maker, names in makers.items()]

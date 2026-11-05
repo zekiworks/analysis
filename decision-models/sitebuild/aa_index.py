@@ -10,7 +10,8 @@ import math
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import NOT_MEASURED, ROOT, Site, esc, hbars, latency_text, pct, rank_fill, rel, scale_legend
+from sitebuild.site import (NOT_MEASURED, ROOT, Site, cost_missing, esc, hbars, latency_text, pct, rank_fill, rel,
+                            scale_legend)
 from sitebuild.vision import NO_IMAGE, NOT_AVAILABLE, cell, joined
 
 PATH = "aa-decision-index/"
@@ -84,7 +85,7 @@ def build(site: Site) -> dict[str, str]:
     pairs, absent = entries(site)
     digits = site.config["percent_digits"]
     stops = site.config["rank_scale"]["stops"]
-    maker_mark = site.config["first_cost_marks"]["maker"]["mark"]
+    shown = site.names([run for _, run in pairs])
     dont_know = site.results["dont_know"]
     option = dont_know["option"]
     held = {model["original_run"]: model for model in dont_know["models"]}
@@ -101,14 +102,14 @@ def build(site: Site) -> dict[str, str]:
     date = lambda run: bp.long_date(run["started"][:10])  # noqa: E731
 
     accuracies = [share(run)[0] / share(run)[1] for _, run in pairs]
-    accuracy_rows = [{"label": site.row_name(run), "href": href(run), "text": pct(value, digits),
+    accuracy_rows = [{"label": shown[run["run"]], "href": href(run), "text": pct(value, digits),
                       "bars": [{"value": value, "colour": rank_fill(stops, value, min(accuracies), max(accuracies))}],
                       "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {share(run)[0]:,} of {total:,} right"}
                      for (name, run), value in zip(pairs, accuracies)]
     ran = sorted(((name, run, held[run["run"]]) for name, run in pairs if run["run"] in held and held[run["run"]]["non_hallucination"] is not None),
                  key=lambda item: -item[2]["non_hallucination"])
     rates = [model["non_hallucination"] for _, _, model in ran]
-    rate_rows = [{"label": site.row_name(run), "href": href(run), "text": pct(model["non_hallucination"], digits),
+    rate_rows = [{"label": shown[run["run"]], "href": href(run), "text": pct(model["non_hallucination"], digits),
                   "bars": [{"value": model["non_hallucination"], "colour": rank_fill(stops, model["non_hallucination"], min(rates), max(rates))}],
                   "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {model['dont_know']:,} “{option}” of {model['dont_know'] + model['wrong']:,} not right"}
                  for name, run, model in ran]
@@ -118,10 +119,11 @@ def build(site: Site) -> dict[str, str]:
     dollars = [value for _, _, value in priced]
     # A tick at each quarter of the axis, the quarter a round number of dollars that fits the dearest model.
     quarter = math.ceil(max(dollars) / 40) * 10 if max(dollars) >= 40 else max(1, math.ceil(max(dollars) / 4))
-    cost_rows = [{"label": site.row_name(run), "href": href(run),
-                  "text": f"{upper(run)}${value:,.0f}{' ' + maker_mark if run['cost_basis'] == 'maker' else ''}",
+    cost_rows = [{"label": shown[run["run"]], "href": href(run),
+                  "text": f"{upper(run)}${value:,.0f}",
                   "bars": [{"value": value, "colour": rank_fill(stops, value, max(dollars), min(dollars))}],
-                  "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {upper(run)}${cost_per_1000(run):.3f} per 1,000 questions, {upper(run)}${value:,.0f} per 1M"}
+                  "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {upper(run)}${cost_per_1000(run):.3f} per 1,000 questions, "
+                           f"{upper(run)}${value:,.0f} per 1M." + (f" {site.cost_tip(run)}" if site.cost_tip(run) else "")}
                  for name, run, value in priced]
     latency = lambda run: (run.get("latency") or {}).get("median_request_seconds")  # noqa: E731
     sample = lambda run: " *" if run["latency"]["source"] == "sample" else ""  # noqa: E731
@@ -131,7 +133,7 @@ def build(site: Site) -> dict[str, str]:
     # A tick at each quarter of the axis, the quarter a round number of seconds that fits the slowest model.
     step = 10 ** math.floor(math.log10(max(seconds) / 4))
     latency_quarter = round(math.ceil(max(seconds) / 4 / step) * step, 6)
-    latency_rows = [{"label": site.row_name(run), "href": href(run), "text": f"{latency_text(value)}{sample(run)}",
+    latency_rows = [{"label": shown[run["run"]], "href": href(run), "text": f"{latency_text(value)}{sample(run)}",
                      "bars": [{"value": value, "colour": rank_fill(stops, value, max(seconds), min(seconds))}],
                      "title": f"{site.row_name(run)} (Artificial Analysis: {name}): median {latency_text(value)} per request"}
                     for (name, run), value in zip(timed, seconds)]
@@ -160,7 +162,7 @@ def build(site: Site) -> dict[str, str]:
                "Text tab gives it per 1,000 questions) · lower is better",
                cost_rows,
                scale_legend(stops, f"${max(dollars):,.0f}", f"${min(dollars):,.0f}", higher=False)
-               + f" <span>{maker_mark} On our GPU, priced at its maker's list price for the same model; our hardware cost is not measured.</span>",
+               + f" <span>{esc(site.cost_note([run for _, run, _ in priced]))}</span>",
                top=4 * quarter, tick=lambda value: f"${value:,.0f}")
         + card("chart-latency", "Median latency per request",
                "Time from sending one request to its answer, measured from our computer: on our GPU for the setups run there, "
@@ -186,7 +188,8 @@ def build(site: Site) -> dict[str, str]:
         picture = None if entry is None else entry["conditions"].get("B")
         model = held.get(run["run"])
         cost = cost_per_1000(run)
-        mark = f" {maker_mark}" if run["cost_basis"] == "maker" and cost is not None else ""
+        tip = site.cost_tip(run)
+        priced_cell = lambda text: f'<span title="{esc(tip)}">{text}</span>' if tip else text  # noqa: E731
         values = [
             f'{pct(right / questions, digits)}<span class="small">{right:,} of {questions:,}</span>',
             *(f'{pct(got / of, digits)}<span class="small">{got:,} of {of:,}</span>' for got, of in parts),
@@ -195,26 +198,22 @@ def build(site: Site) -> dict[str, str]:
              else f'{pct(picture["accuracy"], digits)}<span class="small">{picture["correct"]:,} of {picture["questions"]:,}</span>'),
             NOT_RUN if model is None else f'{pct(model["non_hallucination"], digits)}<span class="small">{model["dont_know"]:,} “{esc(option)}” of {model["dont_know"] + model["wrong"]:,} not right</span>',
             NOT_RUN if model is None else f'{pct(model["attempt_rate"], digits)}<span class="small">{model["right"] + model["wrong"]:,} of {total:,} answered</span>',
-            NOT_MEASURED if cost is None else f"{upper(run)}${cost:.3f}{mark}",
-            NOT_MEASURED if cost is None else f"{upper(run)}${per_million(cost):,.0f}{mark}",
+            cost_missing(run) if cost is None else priced_cell(f"{upper(run)}${cost:.3f}"),
+            cost_missing(run) if cost is None else priced_cell(f"{upper(run)}${per_million(cost):,.0f}"),
             NOT_MEASURED if latency(run) is None else f"{latency_text(latency(run))}{sample(run)}" + (
                 f'<span class="small">{run["latency"]["concurrency"]} in flight</span>' if (run["latency"].get("concurrency") or 1) > 1 else ""
             ) + ('<span class="small">its repeat runs</span>' if run["latency"]["source"] == "repeats" else
                  f'<span class="small">Measured on a sample ({run["latency"].get("questions", 0):,} questions)</span>' if run["latency"]["source"] == "sample" else ""),
         ]
-        model_cell = (f'<td class="model"><a class="model-name" href="{href(run)}">{esc(site.row_name(run))}</a>'
-                      f'<span class="small">Artificial Analysis: {esc(name)}</span>'
-                      f'<span class="small">run {run["run"]}, {date(run)}; {esc(route(run))}</span></td>')
+        model_cell = (f'<td class="model" title="Run {run["run"]}, {date(run)}; {esc(route(run))}">'
+                      f'<a class="model-name" href="{href(run)}">{esc(shown[run["run"]])}</a>'
+                      f'<span class="small">Artificial Analysis: {esc(name)}</span></td>')
         rows.append(f"<tr>{model_cell}" + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{esc(direction)}</span></th>' for text, direction in heads)
     table = (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr></thead>'
              f'<tbody>{"".join(rows)}</tbody></table></div>')
 
-    makers = joined(sorted({prices[bp.price_key(run)]["basis"].split("'s list price")[0]
-                            for _, run in pairs if run["cost_basis"] == "maker"}))
-    notes = [f"{maker_mark} On our GPU, priced at its maker's list price for the same model ({esc(makers)}); our hardware cost is not measured."]
-    if any(run.get("cost_upper_bound") for _, run in pairs):
-        notes.append(f"{esc(upper_cost['mark'])} {esc(upper_cost['note'])}")
+    notes = [esc(site.cost_note([run for _, run in pairs]))]
     for name, run in pairs:
         price = prices.get(bp.price_key(run))
         if run["billing"] == "free":

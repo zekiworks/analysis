@@ -15,7 +15,7 @@ The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the
 (sitebuild/dont_know.py) the Hallucination tab and turkish-vs-english/ (sitebuild/english_reading.py) the Turkish vs
 English tab, with a redirect at its earlier address english-reading/. index.html keeps its copy; this script rewrites
 what is inside its <!-- build:name --> markers: the meta tags, the
-top bar, the tabs, the intro (its counts from results.json), the counters, the results version, the plain table for
+top bar, the intro (its counts from results.json), the counters, the results version, the plain table for
 readers without JavaScript (every setup, decision and chat models ranked together, the page's all view) and the note
 under it, the settings v3.js reads, the default setup count, the topic list and the questions in view. v3.js
 draws everything else in the browser from results.json. Every other page is generated whole by a module of sitebuild/
@@ -45,8 +45,8 @@ ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
 from sitebuild.dont_know import ranked as dont_know_ranked  # noqa: E402
-from sitebuild.site import (NOT_MEASURED, ROUTE_LLMS, Site, asset, family_legend, hbars, pct, route_labels,  # noqa: E402
-                            run_families, topbar)
+from sitebuild.site import (NOT_MEASURED, ROUTE_LLMS, Site, asset, cost_missing, family_legend, hbars, pct,  # noqa: E402
+                            route_labels, run_families, topbar)
 
 PAGE = ROOT / "index.html"
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
@@ -89,16 +89,14 @@ def experiments(data: Data) -> str:
 
 
 def not_measured_note(data: Data) -> str:
-    """The note under the Accuracy table, with and without JavaScript; copy_checks tests its reasons and the § note
-    against the run records."""
+    """What the Accuracy table leaves unmeasured beyond its costs (Site.cost_note writes the cost line before it), with and
+    without JavaScript: latency for runs made before requests were timed, and the sample marks; copy_checks tests its
+    reasons against the run records."""
     untimed = sum(1 for run in data.runs if (run.get("latency") or {}).get("median_request_seconds") is None)
-    latency = f"; latency for {bp.count(untimed)} run{'' if untimed == 1 else 's'} made before we timed each request" if untimed else ""
+    latency = (f"Not measured: latency for {bp.count(untimed)} run{'' if untimed == 1 else 's'} made before we timed each "
+               "request." if untimed else "")
     samples = sorted({label for run in data.runs if (label := sample_label(run))})
-    upper = data.config["first_cost_marks"]["upper"]
-    upper_note = f" {upper['mark']} {upper['note']}" if any(run.get("cost_upper_bound") for run in data.runs) else ""
-    return (f"Not measured: cost for setups on our own hardware whose maker lists no price for the same model{latency}. "
-            f"{data.config['first_cost_marks']['maker']['mark']} Estimated at the maker's list price for the same model; our "
-            "hardware cost is not measured." + upper_note + "".join(f" {SAMPLE_MARK} {label}." for label in samples))
+    return " ".join([latency, *(f"{SAMPLE_MARK} {label}." for label in samples)]).strip()
 
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
@@ -149,74 +147,38 @@ def accuracy(run: dict[str, Any]) -> tuple[int, int]:
     return groups["reading"]["correct"] + groups["grammar"]["correct"], groups["reading"]["questions"] + groups["grammar"]["questions"]
 
 
-def request_size(size: int) -> str:
-    return f"{bp.count(size)} question{'' if size == 1 else 's'} per request"
-
-
-def detail(run: dict[str, Any]) -> str:
-    parts = [run["variant"]] if run.get("variant") else []
-    if run.get("reasoning"):
-        parts.append(bp.reasoning_label(run["reasoning"]))
-    parts.append(request_size(run["questions_per_request"]))
-    return " · ".join(parts)
-
-
 def percent(fraction: float, digits: int = 1) -> str:
     """A share as a number of percent, for a column whose header names the unit: 98.1."""
     return f"{100 * fraction:.{digits}f}"
 
 
-def short_detail(data: Data, run: dict[str, Any]) -> str:
-    """The settings in the short form a phone shows, as v3.js: "1 per request · low reasoning"; a variant keeps its part
-    before a comma, unless the name already carries it as the route (route_labels)."""
-    parts = [f"{bp.count(run['questions_per_request'])} per request"]
-    if run.get("reasoning"):
-        parts.append(bp.reasoning_label(run["reasoning"]))
-    if run.get("variant") and run["run"] not in data.route_labels:
-        parts.append(run["variant"].split(",")[0])
-    return " · ".join(parts)
-
-
-def table_name(data: Data, run: dict[str, Any]) -> str:
-    """A setup's name in the table, as v3.js: on a phone, the charts' short name where it has one; either with the run's
-    route where the same model ID runs as both kinds of model (route_labels)."""
-    label = data.route_labels.get(run["run"])
-    route = f" ({bp.esc(label)})" if label else ""
-    short = data.config["short_names"].get(run["model"])
-    if not short or short == run["name"]:
-        return bp.esc(run["name"]) + route
-    return f'<span class="name-long">{bp.esc(run["name"])}{route}</span><span class="name-short">{bp.esc(short)}{route}</span>'
-
-
-def fallback_table(data: Data) -> str:
+def fallback_table(data: Data, site: Site) -> str:
     """The Accuracy tab on all questions as one plain table, as v3.js opens the all view (?models=all, the default):
     every setup, decision and chat models ranked together by accuracy. Readers without JavaScript see it; with
     JavaScript, v3.js replaces it with the table of the group in view. Units sit in the headers, each column with one
-    number of decimals, as in v3.js; the settings line has v3.js's long form and, on a phone, its short form."""
+    number of decimals, as in v3.js; each name is the full name with only what tells it apart (Site.names), its
+    settings in its tooltip; a cost carries no basis mark (its tooltip and the note under the table give the basis)."""
     rows: list[str] = []
+    names = site.names(data.runs)
     for run in sorted(data.runs, key=lambda run: -accuracy(run)[0]):
         correct, total = accuracy(run)
         low, high = bm.wilson_interval(correct, total)
         reading, grammar = run["groups"]["reading"], run["groups"]["grammar"]
         latency = (run.get("latency") or {}).get("median_request_seconds")
         cost = bp.per_thousand(run)
-        maker_mark = f'<span class="mark">{bp.esc(data.config["first_cost_marks"]["maker"]["mark"])}</span>'
         upper_mark = f'<span class="mark">{bp.esc(data.config["first_cost_marks"]["upper"]["mark"])}</span> '
         sample_mark = f'<span class="mark">{SAMPLE_MARK}</span>' if latency is not None and sample_label(run) else ""
-        decision = data.decision(run)
-        kind = "Decision model" if decision else "Chat model"
+        about = f"{site.detail(run)} · {'Decision model' if data.decision(run) else 'Chat model'}"
+        tip = site.cost_tip(run)
+        cost_text = f'<span title="{bp.esc(tip)}">{cost:.3f}</span>' if cost is not None and tip else f"{cost:.3f}" if cost is not None else cost_missing(run)
         rows.append(
             "<tr>"
-            f'<td class="model"><a class="model-name" href="models/{run["run"]}/">{table_name(data, run)}</a>'
-            f'<span class="small settings-long">{bp.esc(detail(run))} · {kind}</span>'
-            f'<span class="small settings-short">{bp.esc(short_detail(data, run))}{"" if decision else " · chat model"}</span>'
-            "</td>"
+            f'<td class="model"><a class="model-name" href="models/{run["run"]}/" title="{bp.esc(about)}">{bp.esc(names[run["run"]])}</a></td>'
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
             f'<td class="num">{bp.seconds(latency) if latency is not None else NOT_MEASURED}{sample_mark}</td>'
-            f'<td class="num">{upper_mark if run.get("cost_upper_bound") and cost is not None else ""}'
-            f'{f"{cost:.3f}" if cost is not None else NOT_MEASURED}{maker_mark if run["cost_basis"] == "maker" else ""}</td>'
+            f'<td class="num">{upper_mark if run.get("cost_upper_bound") and cost is not None else ""}{cost_text}</td>'
             "</tr>"
         )
     questions = bp.count(data.results["questions"])
@@ -364,9 +326,6 @@ def page_settings(data: Data) -> str:
         "notDecisionModels": data.config["not_decision_models"],
         "readingUnits": data.config["reading_units"],
         "threshold": data.config["threshold"],
-        "shortNames": data.config["short_names"],
-        # A chart label for a setup whose model ID another setup shares, by provider then model.
-        "chartLabels": data.config["chart_labels"],
         # Each route label, by run id.
         "routeLabels": data.route_labels,
         # The charts' colours: each run's model family by run id, and each family's colour (page_config.json
@@ -393,7 +352,7 @@ def non_hallucination(site: Site) -> str:
     """The home page's Non-hallucination part (#non-hallucination, row 3 of the view bar), in static HTML: the
     Hallucination tab's models (results.json dont_know, decision models only) in that tab's order, each bar its
     non-hallucination rate with the option in its model family's colour, then its attempt rate, both as that tab writes
-    them; for the chat group, whose models were not asked with the option, a note instead."""
+    them; for the chat group, whose models were not asked with the option, a note instead, under the same one heading."""
     data = site.results["dont_know"]
     digits, option, total = site.config["percent_digits"], data["option"], data["questions"]
     run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
@@ -411,22 +370,20 @@ def non_hallucination(site: Site) -> str:
             for model in rated]
     tab = '<a href="dont-know/">Hallucination tab</a>'
     chat_note = f"Chat models: not measured yet (they were not asked with the “{bp.esc(option)}” option)."
-    return (f'<figure class="panel chart-card" id="chart-non-hallucination" data-models="all decision">'
-            '<div class="chart-head"><h2>Non-hallucination</h2>'
-            f'<p class="chart-sub">“{bp.esc(option)}” among the answers that were not right, with it offered as a sixth '
-            f"option on the {total:,} questions, then the answered share (right + wrong of {total:,}): each of the "
-            f"{len(models)} decision models' first run with it · higher is better, read with the answered share</p></div>"
-            f'<p class="note" data-models="all">{chat_note}</p>'
-            f"{hbars(rows)}"
+    return ('<figure class="panel chart-card" id="chart-non-hallucination"><div class="chart-head"><h2>Non-hallucination</h2>'
+            f'<p class="chart-sub" data-models="all decision">“{bp.esc(option)}” among the answers that were not right, with it '
+            f"offered as a sixth option on the {total:,} questions, then the answered share (right + wrong of {total:,}): each "
+            f"of the {len(models)} decision models' first run with it · higher is better, read with the answered share</p></div>"
+            f'<div data-models="all decision"><p class="note" data-models="all">{chat_note}</p>'
+            f'{hbars(rows, head=("Non-hallucination · Answered", "Non-hall. · Ans."))}'
             f'<p class="chart-legend">{family_legend([site.families[model["original_run"]] for model in rated])} '
             "<span>A model that always chose the option would reach 100% with no right answers.</span>"
             + (f" <span>Not measured (neither a wrong answer nor “{bp.esc(option)}”): {bp.esc(', '.join(unrated))}.</span>"
                if unrated else "")
             + f" <span>The {tab} has the full table, the rate against each model's own confidence and the method.</span>"
-            "</p></figure>"
-            '<div class="panel chart-card" data-models="chat" hidden><div class="chart-head"><h2>Non-hallucination</h2></div>'
-            f'<p class="note">{chat_note} The rate exists for decision models only: see All models or Decision models '
-            f"above, or the {tab}.</p></div>")
+            "</p></div>"
+            f'<p class="note" data-models="chat" hidden>{chat_note} The rate exists for decision models only: see All models '
+            f"or Decision models above, or the {tab}.</p></figure>")
 
 
 def version(data: Data) -> str:
@@ -571,7 +528,7 @@ def copy_checks(data: Data) -> list[str]:
     # the same model; every other cost of a setup on our hardware is at its maker's list price (§); Liquid d1 is
     # estimated at Liquid's list price; no latency for runs made before requests were timed one by one.
     prices = {bp.price_key(price): price for price in results["prices"]}
-    check("Not measured note: every setup without a cost runs on our hardware, with no maker's price for the same model",
+    check("No list price note: every setup without a cost runs on our hardware, with no maker's price for the same model",
           all(run["billing"] == "local" and run["cost_basis"] is None for run in runs if run["api_equivalent_usd"] is None))
     check("§ note: every cost of a setup on our hardware is at its maker's list price for the same model",
           all(run["cost_basis"] == "maker" and prices[bp.price_key(run)]["applies_to"] == "maker"
@@ -640,15 +597,14 @@ def main() -> int:
                    f'  <script src="{asset("v3.js")}" defer></script>'),
         "intro": bp.esc(INTRO.format(**counts(data))),
         "topbar": topbar(""),
-        "tabs": site.tabs(""),
         "stats": stats(data),
         "version": version(data),
         "setups": setups(data),
         "topics": topics(data),
         "questions": f"{bp.count(data.results['questions'])} questions",
-        "board": fallback_table(data),
+        "board": fallback_table(data, site),
         "settings": page_settings(data),
-        "board-note": f'<div class="tab-notes"><p>{bp.esc(not_measured_note(data))}</p></div>',
+        "board-note": f'<div class="tab-notes"><p>{bp.esc(" ".join(filter(None, [site.cost_note(data.runs), not_measured_note(data)])))}</p></div>',
         "experiments": experiments(data),
         "non-hallucination": non_hallucination(site),
     }

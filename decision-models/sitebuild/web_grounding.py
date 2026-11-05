@@ -322,10 +322,9 @@ def build(site: Site) -> dict[str, str]:
     digits = site.config["percent_digits"]
     upper = site.config["first_cost_marks"]["upper"]
     link = lambda arm: f'<a href="{rel(PATH, site.model_path(site.by_id[data["text_runs"][arm]]))}">{esc(data["names"][arm])}</a>'  # noqa: E731
-    body = f"""    {site.tabs(PATH)}
-    <section class="card">
+    body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
-      <h1>Web grounding: Perplexity Decider v1.2 off and with web</h1>
+      <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
       <p>Perplexity's Decisions API can search the web for each question and add what it finds as evidence. Both setups are in the ranking: {link('off')} and {link('on')}. This page compares them on the same questions.</p>
       {headline(data, digits, upper)}
       <nav class="face-nav" aria-label="On this page"><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-latency">Latency</a><a href="#chart-cost">Cost</a><a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Info</a></nav>

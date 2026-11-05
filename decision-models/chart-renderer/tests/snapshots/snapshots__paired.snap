@@ -1,6 +1,5 @@
 ---
 source: tests/snapshots.rs
-assertion_line: 17
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
@@ -28,59 +27,59 @@ difference; the colour shows a related but separate test, adjusted across these 
                                  Kimi K3.1 Pro (low reasoning) minus GLM-5.3-Flash (reasoning on)                          ⡇    ⠤⠤⠤⠤⡦⠤⠤⠤⠤                         +4.0
                                                GLM-5.3-Flash (reasoning on) minus Liquid d1-ultra                         ⠤⡧⠤⠤⠤⡦⠤⠤⠤⠤                              +1.7
                                                     Liquid d1-ultra minus GLM-5.3 (low reasoning)                          ⡇⠤⠤⠤⠤⠤⡦⠤⠤⠤⠤⠄                           +2.5
-                                       GLM-5.3 (low reasoning) minus Qwen 3.8 27B (low reasoning)                      ⠠⠤⠤⠤⡧⡦⠤⠤⠤⠤⠄                                +0.6
-                                                   Qwen 3.8 27B (low reasoning) minus Gemma 4 31B                       ⠤⠤⠤⡧⢴⠤⠤⠤⠤⠤                                +0.8
+                                        GLM-5.3 (low reasoning) minus Qwen3.8-27B (low reasoning)                      ⠠⠤⠤⠤⡧⡦⠤⠤⠤⠤⠄                                +0.6
+                                                    Qwen3.8-27B (low reasoning) minus Gemma 4 31B                       ⠤⠤⠤⡧⢴⠤⠤⠤⠤⠤                                +0.8
                                                  Gemma 4 31B minus Kimi K3.1 Pro (reasoning none)                      ⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤                                 +0.4
                                                                   Gemma 4 31B minus Fastino GLiDE                          ⡇      ⠤⠤⠤⠤⠤⢴⠤⠤⠤⠤⠤                     +5.2
-                                     Kimi K3.1 Pro (reasoning none) minus Decider v1.2 (with web)                          ⡇   ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                        +4.0
-                                         Decider v1.2 (with web) minus Fastino GLiDE v1.2 (local)                      ⠠⠤⠤⠤⣿⠤⠤⠤⠄                                  +0.3
-                                      Fastino GLiDE v1.2 (local) minus GPT-6 Luna (low reasoning)                     ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.2
+                      Kimi K3.1 Pro (reasoning none) minus Perplexity Decider 27B v1.2 (with web)                          ⡇   ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                        +4.0
+                                  Perplexity Decider 27B v1.2 (with web) minus Fastino GLiDE v1.2                      ⠠⠤⠤⠤⣿⠤⠤⠤⠄                                  +0.3
+                                              Fastino GLiDE v1.2 minus GPT-6 Luna (low reasoning)                     ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.2
                                                    GPT-6 Luna (low reasoning) minus Fastino GLiDE                     ⠠⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠄                                +0.4
-                                       GPT-6 Luna, Decisions API minus GPT-6 Luna (low reasoning)          ⠤⠤⠤⠤⢼⠤⠤⠤⠤⠄      ⡇                                      -4.7
+                                      GPT-6 Luna (Decisions API) minus GPT-6 Luna (low reasoning)          ⠤⠤⠤⠤⢼⠤⠤⠤⠤⠄      ⡇                                      -4.7
                                                                    Fastino GLiDE minus vLLM-SR d3                     ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤                                  +0.1
-                                                                   Fastino GLiDE minus Decider v1                          ⡇            ⠠⠤⠤⠤⢼⠤⠤⠤⠤⠄                +7.5
-                                    vLLM-SR d3 minus vLLM-SR d3-ultra (transformers, rev 52ba9e7)                      ⠠⠤⠤⠤⡧⠤⠤⠄                                   +0.0
-                                   vLLM-SR d3-ultra (transformers, rev 52ba9e7) minus Drex Max v1                      ⠠⠤⠤⠤⡧⠤⠤⠤                                   +0.0
+                                                    Fastino GLiDE minus Perplexity Decider 27B v1                          ⡇            ⠠⠤⠤⠤⢼⠤⠤⠤⠤⠄                +7.5
+                                                                vLLM-SR d3 minus vLLM-SR d3-ultra                      ⠠⠤⠤⠤⡧⠤⠤⠄                                   +0.0
+                                                               vLLM-SR d3-ultra minus Drex Max v1                      ⠠⠤⠤⠤⡧⠤⠤⠤                                   +0.0
                                                                    Drex Max v1 minus Drex Max 1.1                       ⠠⠤⠤⣿⠤⠤⠤⠄                                  +0.4
                                                                      Drex Max 1.1 minus Mammoth-1                      ⠤⠤⠤⠤⣿⠤⠤⠤⠤⠄                                 +0.3
-                                                             Mammoth-1 minus Decider v1.2 (local)                     ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠄                                  +0.0
-                                                          Decider v1.2 (local) minus Decider v1.1                       ⠤⠤⠤⡧⠤⠤⠤                                   +0.2
-                                                                  Decider v1.1 minus Decider v1.2                        ⠤⠤⡧⡧⠤⠤⠤                                  +0.5
-                                                                    Decider v1.1 minus Decider v1                          ⡇          ⠤⠤⠤⠤⢼⠤⠤⠤⠤                   +6.5
-                                      Decider v1.2 minus DeepSeek-V4.1-Flash 1017 (reasoning off)                     ⠠⠤⠤⠤⠤⣿⠤⠤⠤⠤⠤                                 +0.3
+                                              Mammoth-1 minus Perplexity Decider 27B v1.2 (local)                     ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠄                                  +0.0
+                            Perplexity Decider 27B v1.2 (local) minus Perplexity Decider 27B v1.1                       ⠤⠤⠤⡧⠤⠤⠤                                   +0.2
+                              Perplexity Decider 27B v1.1 minus Perplexity Decider 27B v1.2 (API)                        ⠤⠤⡧⡧⠤⠤⠤                                  +0.5
+                                      Perplexity Decider 27B v1.1 minus Perplexity Decider 27B v1                          ⡇          ⠤⠤⠤⠤⢼⠤⠤⠤⠤                   +6.5
+                 Perplexity Decider 27B v1.2 (API) minus DeepSeek-V4.1-Flash 1017 (reasoning off)                     ⠠⠤⠤⠤⠤⣿⠤⠤⠤⠤⠤                                 +0.3
 DeepSeek-V4.1-Flash 1017 (reasoning off) minus DeepSeek-V4.1-Flash, first release (reasoning off)                       ⠒⠒⠒⡗⠒⠒⠂                                   +0.1
-                            DeepSeek-V4.1-Flash, first release (reasoning off) minus Snap Preview                      ⠐⠒⠒⠒⡗⢺⠒⠒⠒⠒⠒                                +0.7
-                                                                      Snap Preview minus Snap 1.1                         ⠒⡗⠒⠒⡗⠒⠒⠒⠂                               +1.4
-                                                         Snap 1.1 minus GPT-6 Luna, Decisions API                     ⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠂                                +0.3
-                                                      GPT-6 Luna, Decisions API minus Liquid d1.1                         ⠐⡗⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                            +2.1
+                       DeepSeek-V4.1-Flash, first release (reasoning off) minus SubQ Snap Preview                      ⠐⠒⠒⠒⡗⢺⠒⠒⠒⠒⠒                                +0.7
+                                                            SubQ Snap Preview minus SubQ Snap 1.1                         ⠒⡗⠒⠒⡗⠒⠒⠒⠂                               +1.4
+                                                   SubQ Snap 1.1 minus GPT-6 Luna (Decisions API)                     ⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠂                                +0.3
+                                                     GPT-6 Luna (Decisions API) minus Liquid d1.1                         ⠐⡗⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                            +2.1
                                               Liquid d1.1 minus Claude Sonnet 5.5 (low reasoning)                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒                                 +0.1
-                                                Claude Sonnet 5.5 (low reasoning) minus Celeris 1                      ⠐⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠒                               +0.9
-                                                                       Celeris 1 minus Decider v1                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.1
-                                                                      Decider v1 minus OneJev 27B                        ⠒⠒⡗⢺⠒⠒⠒⠂                                 +0.8
-                                                                        Decider v1 minus Jev 1.14                        ⠒⠒⡗⠒⢺⠒⠒⠒⠒⠒                               +1.2
-                                                                        Decider v1 minus Jev 1.13                          ⡇⠐⠒⠒⠒⠒⢺⠒⠒⠒⠒⠒                           +2.9
-                                                                        OneJev 27B minus Jev 1.14                      ⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒                                 +0.4
-                                                   Jev 1.14 minus Mercury Decide (via OpenRouter)                       ⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠂                               +0.9
-                              Mercury Decide (via OpenRouter) minus GLM-5.3-Flash (reasoning off)                     ⠐⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒⠒                                +0.5
-                                                     GLM-5.3-Flash (reasoning off) minus Jev 1.13                     ⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒                                 +0.3
-                                                                              Jev 1.13 minus Clef                     ⠐⠒⠒⠒⠒⡿⠒⠒⠒⠒⠂                                 +0.2
+                                       Claude Sonnet 5.5 (low reasoning) minus Celeris-1 Decision                      ⠐⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠒                               +0.9
+                                               Celeris-1 Decision minus Perplexity Decider 27B v1                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.1
+                                                       Perplexity Decider 27B v1 minus OneJev 27B                        ⠒⠒⡗⢺⠒⠒⠒⠂                                 +0.8
+                                                       Perplexity Decider 27B v1 minus Jev 1.14.0                        ⠒⠒⡗⠒⢺⠒⠒⠒⠒⠒                               +1.2
+                                                       Perplexity Decider 27B v1 minus Jev 1.13.0                          ⡇⠐⠒⠒⠒⠒⢺⠒⠒⠒⠒⠒                           +2.9
+                                                                      OneJev 27B minus Jev 1.14.0                      ⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒                                 +0.4
+                                                        Jev 1.14.0 minus Inception Mercury Decide                       ⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠂                               +0.9
+                                     Inception Mercury Decide minus GLM-5.3-Flash (reasoning off)                     ⠐⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒⠒                                +0.5
+                                                   GLM-5.3-Flash (reasoning off) minus Jev 1.13.0                     ⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒                                 +0.3
+                                                                            Jev 1.13.0 minus Clef                     ⠐⠒⠒⠒⠒⡿⠒⠒⠒⠒⠂                                 +0.2
                                                                              Clef minus Liquid d1                     ⠐⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒                                 +0.3
                                                                          Liquid d1 minus Drex 2.0                        ⠐⠒⡗⠒⠒⠗⠒⠒⠒⠂                               +1.3
-                                                                          Drex 2.0 minus Open Jev                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.0
-                                                                            Open Jev minus Cygnet                    ⠐⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.0
-                                                       Open Jev minus Qwen 3.8 27B (yes/no score)                          ⡇   ⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒                         +3.8
-                                                                          Cygnet minus Winnow 12B                      ⠐⠒⠒⠒⡿⠒⠒⠒⠒                                  +0.2
-                                     Winnow 12B minus Qwen 3.8 27B (agreement across ten answers)                       ⠐⠒⠒⡗⠒⠺⠒⠒⠒⠒⠒                               +1.1
-                Qwen 3.8 27B (agreement across ten answers) minus Qwen 3.8 27B (written estimate)                       ⠒⠒⠒⡗⠒⠒⠂                                   +0.1
-                                                 Qwen 3.8 27B (written estimate) minus Elephant-1                         ⠒⡗⠒⠒⠒⠗⠒⠒⠒⠒⠒                             +1.8
-                                                     Elephant-1 minus Qwen 3.8 27B (yes/no score)                     ⠐⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠂                                +0.5
-                                     Qwen 3.8 27B (yes/no score) minus Decider Flash v1.2 (local)                          ⡇   ⠒⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠒                       +4.1
-                           Decider Flash v1.2 (local) minus Microsoft-Decision-1 (via OpenRouter)                       ⠐⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒                              +1.3
-                                            Microsoft-Decision-1 (via OpenRouter) minus Qwen3-14B                      ⠒⠒⠒⠒⡗⠺⠒⠒⠒⠒⠒⠂                               +0.7
-                                                                       Qwen3-14B minus Clef flash                    ⠐⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.0
-                                                                         Clef flash minus Erk-14B                      ⠒⠒⠒⠒⡗⠺⠒⠒⠒⠒⠒⠂                               +0.7
-                                                                      Erk-14B minus Metask Jev 4B                          ⡇   ⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒                       +4.2
-                                                  Metask Jev 4B minus Liquid d1-2B (open weights)                          ⡇                    ⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠂    +11.4
+                                                                 Drex 2.0 minus Open-Jev 27B v1.1                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.0
+                                                                   Open-Jev 27B v1.1 minus Cygnet                    ⠐⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.0
+                                               Open-Jev 27B v1.1 minus Qwen3.8-27B (yes/no score)                          ⡇   ⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒                         +3.8
+                                                                          Cygnet minus Winnow-12B                      ⠐⠒⠒⠒⡿⠒⠒⠒⠒                                  +0.2
+                                      Winnow-12B minus Qwen3.8-27B (agreement across ten answers)                       ⠐⠒⠒⡗⠒⠺⠒⠒⠒⠒⠒                               +1.1
+                  Qwen3.8-27B (agreement across ten answers) minus Qwen3.8-27B (written estimate)                       ⠒⠒⠒⡗⠒⠒⠂                                   +0.1
+                                                  Qwen3.8-27B (written estimate) minus Elephant-1                         ⠒⡗⠒⠒⠒⠗⠒⠒⠒⠒⠒                             +1.8
+                                                      Elephant-1 minus Qwen3.8-27B (yes/no score)                     ⠐⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠂                                +0.5
+                                   Qwen3.8-27B (yes/no score) minus Perplexity Decider Flash v1.2                          ⡇   ⠒⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠒                       +4.1
+                                         Perplexity Decider Flash v1.2 minus Microsoft-Decision-1                       ⠐⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒                              +1.3
+                                                             Microsoft-Decision-1 minus Qwen3-14B                      ⠒⠒⠒⠒⡗⠺⠒⠒⠒⠒⠒⠂                               +0.7
+                                                                       Qwen3-14B minus Clef-flash                    ⠐⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.0
+                                                                         Clef-flash minus Erk-14B                      ⠒⠒⠒⠒⡗⠺⠒⠒⠒⠒⠒⠂                               +0.7
+                                                                      Erk-14B minus Metask-Jev 4B                          ⡇   ⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒                       +4.2
+                                                  Metask-Jev 4B minus Liquid d1-2B (open weights)                          ⡇                    ⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠂    +11.4
                                              Liquid d1-2B (open weights) minus Strands Decider 2B                        ⠐⠒⡗⠒⠒⠒⠺⠒⠒⠒⠒⠒⠂                            +1.9
                                                        Strands Decider 2B minus meraGPT Decider 1                     ⠒⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠒                                +0.4
                                                    meraGPT Decider 1 minus GLiNER2.5-multi-Decide                          ⡇         ⠐⠒⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠂                +6.9

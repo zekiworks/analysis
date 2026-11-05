@@ -10,7 +10,8 @@ from typing import Any
 import build_page as bp
 
 from sitebuild import vision
-from sitebuild.site import NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, esc, interval, latency_text, pct, rel, request_size
+from sitebuild.site import (NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, esc, interval, latency_text, pct, rel,
+                            request_size)
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
 # The documentation page page_config.json's reasoning_levels cite, by its host, as the Settings line names it.
@@ -224,7 +225,7 @@ def cost(site: Site, run: dict[str, Any]) -> str:
     upper = site.config["first_cost_marks"]["upper"] if run.get("cost_upper_bound") else None
     mark = f'<span class="mark">{esc(upper["mark"])}</span> ' if upper else ""
     return facts([
-        ("$ per 1,000 questions", f"{mark}{bp.usd(per)}" if per is not None else NOT_MEASURED),
+        ("$ per 1,000 questions", f"{mark}{bp.usd(per)}" if per is not None else cost_missing(run)),
         ("Whole run", f"{mark}{bp.usd(run['api_equivalent_usd'])}" if run.get("api_equivalent_usd") is not None else None),
         ("Basis", esc(basis)),
         ("Price", f'{esc(price["text"])} (<a href="{esc(price["source"])}">source</a>, {esc(price["date"])})' if price else None),
@@ -240,24 +241,27 @@ def routing(site: Site, run: dict[str, Any]) -> str | None:
     unpriced = marks["maker"] if run.get("cost_basis") == "maker" else marks.get(run["billing"]) if run.get("api_equivalent_usd") is None else None
     marked = False
     rows = []
-    for item in site.results["cascades"]:
-        if item["decision"] != run["run"]:
-            continue
+    items = [item for item in site.results["cascades"] if item["decision"] == run["run"]]
+    shown = site.names([site.by_id[item["frontier"]] for item in items])
+    for item in items:
         frontier = site.by_id[item["frontier"]]
         alone = site.per_thousand(frontier)
         held = item["held_out"]
-        saving = f"{pct(1 - item['usd_per_1000'] / alone, 0)}" if alone else NOT_MEASURED
+        saving = f"{pct(1 - item['usd_per_1000'] / alone, 0)}" if alone else cost_missing(frontier)
         if unpriced and alone:
-            saving = f'<span class="hint" tabindex="0" data-tip="{esc(unpriced["tip"])}">{saving}</span><span class="mark">{esc(unpriced["mark"])}</span>'
-            marked = True
+            # The maker-priced basis (§) shows in the tooltip only; the † keeps its mark and note.
+            saving = f'<span class="hint" tabindex="0" data-tip="{esc(unpriced["tip"])}">{saving}</span>'
+            if unpriced is not marks["maker"]:
+                saving += f'<span class="mark">{esc(unpriced["mark"])}</span>'
+                marked = True
         rows.append(
-            f"<tr>{site.model_cell(path, frontier)}<td class=\"num\" data-label=\"Share taken\">{pct(held['answered'])}</td>"
+            f"<tr>{site.model_cell(path, frontier, name=shown[frontier['run']])}<td class=\"num\" data-label=\"Share taken\">{pct(held['answered'])}</td>"
             f'<td class="num" data-label="Accuracy change">{bp.points(held["difference"])} points</td>'
             f'<td class="num" data-label="Saving">{saving}</td></tr>'
         )
     if not rows:
         return None
-    # The note for the † or §, only when the marker is in the table.
+    # The note for the †, only when the marker is in the table.
     note = f'<p class="table-note">{esc(unpriced["mark"])} {esc(unpriced["note"])}</p>' if marked else ""
     return ('<p class="note">Replay of recorded answers, cutoff chosen on half the questions, averaged over the splits. '
             f'Savings are estimates from API prices; the <a href="{rel(path, "method/")}#average-cost">Method page</a> explains how.</p>'

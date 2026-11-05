@@ -23,8 +23,11 @@ ISSUE_URL = "https://github.com/zekiworks/analysis/issues/new?template="
 REPO_URL = "https://github.com/zekiworks/analysis"
 esc = html.escape
 
-# The navigation bar of every page, in order: (path inside the site, label). The brand links to the home page.
+# The navigation bar of every page, in order: (path inside the site, label). The brand links to the home page. The two
+# benchmarks beside the Text one (the home page) come first; their links keep the view bar's group (GROUP_PAGES).
 MENU = (
+    ("vision/", "Page images"),
+    ("dont-know/", "Hallucination"),
     ("questions/", "Every question"),
     ("disagreements/", "Where models disagree"),
     ("topics/", "Topics"),
@@ -42,11 +45,21 @@ VIEW_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", 
 # part in view): (id of the part, label).
 VIEW_MEASURES = (("accuracy", "Accuracy"), ("non-hallucination", "Non-hallucination"), ("cost", "Cost"),
                  ("latency", "Latency"))
-# The site's benchmarks, each a tab at the top of its page: (path inside the site, label). Text is the home page.
-BENCHMARKS = (("", "Text"), ("vision/", "Page images"), ("dont-know/", "Hallucination"),
-              ("turkish-vs-english/", "Turkish vs English"))
+# The pages of the navigation bar that read ?models=: site.js keeps the group in their links, as in the view bar's row 1.
+GROUP_PAGES = ("vision/", "dont-know/")
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
+# A cost with no estimate because the setup ran on our own hardware and its maker lists no price for the same model
+# (billing 'local'): "No list price", not "Not measured" (cost_missing).
+NO_LIST_PRICE = '<span class="nm">No list price</span>'
+
+
+def cost_missing(run: dict[str, Any]) -> str:
+    """What a cost cell or cost value shows where a run has no cost: No list price for a run on our own hardware whose
+    maker lists no price (billing 'local'), else Not measured."""
+    return NO_LIST_PRICE if run.get("billing") == "local" else NOT_MEASURED
+
+
 # The LLMs the home page's Routing tab puts behind a first model, in its order: (key in page_config.json's named_runs,
 # label of its control, slug in the URL, the request sizes we ran it at). Each label names the reasoning level, so
 # neighbouring choices are told apart; the slugs of the first five predate the labels and stay as they are.
@@ -249,7 +262,8 @@ def topbar(path: str) -> str:
     the row 3 links go to its parts; on any other page both open the home page, with that group or at that part."""
     current = ' aria-current="page"'
     links = "".join(
-        f'<li><a href="{rel(path, target)}"{current if path.startswith(target) else ""}>{esc(label)}</a></li>' for target, label in MENU
+        f'<li><a href="{rel(path, target)}"{" data-keep-group" if target in GROUP_PAGES else ""}'
+        f'{current if path.startswith(target) else ""}>{esc(label)}</a></li>' for target, label in MENU
     )
     tests = "".join(f'<li><a class="view-key" href="{rel(path, target)}" data-view-test{current if path == target else ""}>'
                     f"{esc(label)}</a></li>" for target, label in VIEW_TESTS)
@@ -272,9 +286,8 @@ def topbar(path: str) -> str:
         f'    <nav class="nav" aria-label="Pages"><ul>{links}</ul></nav>\n'
         '    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" '
         'data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>'
-        'Dark<span class="long"> background</span></button><button type="button" class="key" data-theme-choice="light" '
-        'aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light<span class="long">'
-        " background</span></button></div>\n"
+        'Dark</button><button type="button" class="key" data-theme-choice="light" '
+        'aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light</button></div>\n'
         "  </header>"
     )
 
@@ -378,21 +391,6 @@ class Site:
         label = self.route_labels.get(run["run"])
         return f"{run['name']} ({label})" if label else run["name"]
 
-    def tabs(self, path: str) -> str:
-        """The benchmarks' tabs, at the top of the home page (Text), of vision/ (Page images), of dont-know/ (I don't
-        know option) and of turkish-vs-english/ (the reading questions in Turkish and in English, when results.json has
-        english_reading): each links to its page, the current one marked with aria-current, its number of questions
-        beside its label."""
-        questions = {"": self.total, "vision/": self.vision["subset"]["questions"], "dont-know/": self.results["dont_know"]["questions"]}
-        if "english_reading" in self.results:
-            questions["turkish-vs-english/"] = self.results["english_reading"]["questions"]
-        links = "".join(
-            f'<a class="bench-tab" href="{rel(path, target)}"{" aria-current=\"page\"" if path == target else ""}>'
-            f'<span class="lamp" aria-hidden="true"></span>{esc(label)}<span class="count">{bp.count(questions[target])} questions</span></a>'
-            for target, label in BENCHMARKS if target in questions
-        )
-        return f'<nav class="bench-tabs" aria-label="Benchmarks">{links}</nav>'
-
     def decision(self, run: dict[str, Any]) -> bool:
         return run["provider"] in self.config["decision_model_providers"] and run["model"] not in self.config["not_decision_models"]
 
@@ -405,6 +403,55 @@ class Site:
     def unit(self, number: int) -> dict[str, Any]:
         return next(unit for unit in self.units if unit["number"] == number)
 
+    def names(self, runs: Iterable[dict[str, Any]]) -> dict[int, str]:
+        """Each run's name where runs show together (a chart, a table), by run id: its full name (row_name, with its route
+        where the same model ID runs as both kinds of model), then, only where two of them would read the same, what
+        tells them apart in parentheses: the variant, the reasoning setting, the request size ("Gemini 3.8 Flash (high
+        reasoning, 16 per request)"). The rest of the settings stay on the model page and in tooltips. As v3.js
+        chartLabels."""
+        groups: dict[str, list[dict[str, Any]]] = {}
+        for run in runs:
+            groups.setdefault(self.row_name(run), []).append(run)
+        labels = {}
+        for base, same in groups.items():
+            differs = lambda field: len({other.get(field) for other in same}) > 1  # noqa: E731
+            for run in same:
+                parts = [run["variant"]] if run.get("variant") and differs("variant") else []
+                if run.get("reasoning") and differs("reasoning"):
+                    parts.append(bp.reasoning_label(run["reasoning"]))
+                if differs("questions_per_request"):
+                    parts.append(f"{run['questions_per_request']} per request")
+                labels[run["run"]] = f"{base} ({', '.join(parts)})" if parts else base
+        return labels
+
+    def cost_tip(self, run: dict[str, Any]) -> str | None:
+        """How a run's cost was counted, for its value's tooltip, where it is not plain API list price: a setup on our own
+        hardware priced at its maker's list price for the same model names that price; an upper-bound estimate says so."""
+        parts = []
+        if run.get("cost_basis") == "maker":
+            price = next((item for item in self.results["prices"] if bp.price_key(item) == bp.price_key(run)), None)
+            parts.append(f"Estimated at {price['basis'] if price else 'its maker’s list price for the same model'}; "
+                         "our hardware cost is not measured.")
+        if run.get("cost_upper_bound"):
+            parts.append(self.config["first_cost_marks"]["upper"]["tip"])
+        return " ".join(parts) or None
+
+    def cost_note(self, runs: Iterable[dict[str, Any]]) -> str:
+        """The one line on how the costs were counted, under a cost chart or a table with costs, for the runs it shows:
+        list prices and token use; the maker's list price for a setup on our own hardware (no mark beside the value: its
+        tooltip names the price); No list price where the maker lists none; the upper-bound mark where one shows."""
+        runs = list(runs)
+        note = "Costs: API list prices and recorded token use, per 1,000 questions."
+        if any(run.get("cost_basis") == "maker" and run.get("api_equivalent_usd") is not None for run in runs):
+            note += (" Setups on our own GPUs: the maker's list price for the same model (each value's tooltip names it); "
+                     "our hardware cost is not measured.")
+        if any(run.get("api_equivalent_usd") is None and run.get("billing") == "local" for run in runs):
+            note += " No list price: on our own GPUs, and the maker lists no price for the same model."
+        if any(run.get("cost_upper_bound") for run in runs):
+            upper = self.config["first_cost_marks"]["upper"]
+            note += f" {upper['mark']} {upper['note']}"
+        return note
+
     @staticmethod
     def accuracy(run: dict[str, Any]) -> tuple[int, int]:
         groups = run["groups"]
@@ -414,10 +461,12 @@ class Site:
         """Every setup by accuracy on all questions, highest first."""
         return sorted(self.runs, key=lambda run: -self.accuracy(run)[0])
 
-    @staticmethod
-    def detail(run: dict[str, Any]) -> str:
-        """A setup's variant, reasoning setting and request size: 'low reasoning · 16 questions per request'."""
-        parts = [run["variant"]] if run.get("variant") else []
+    def detail(self, run: dict[str, Any]) -> str:
+        """A setup's variant, reasoning setting and request size: 'low reasoning · 16 questions per request'. The variant
+        (a route or access note) shows only where it tells the setup apart from another run of the same model ID; an
+        access note of a model with one run ("transformers, rev 52ba9e7") stays in its model page's How we called it."""
+        shown = run.get("variant") and any(other["run"] != run["run"] and other["model"] == run["model"] for other in self.runs)
+        parts = [run["variant"]] if shown else []
         if run.get("reasoning"):
             parts.append(bp.reasoning_label(run["reasoning"]))
         parts.append(request_size(run["questions_per_request"]))
@@ -430,11 +479,12 @@ class Site:
     def model_path(run: dict[str, Any]) -> str:
         return f"models/{run['run']}/"
 
-    def model_cell(self, origin: str, run: dict[str, Any], kind: bool = False) -> str:
-        """A table cell naming a setup, linked to its page, with its details under the name."""
-        extra = f" · {self.kind(run)}" if kind else ""
-        return (f'<td class="model"><a class="model-name" href="{rel(origin, self.model_path(run))}">{esc(run["name"])}</a>'
-                f'<span class="small">{esc(self.detail(run))}{extra}</span></td>')
+    def model_cell(self, origin: str, run: dict[str, Any], kind: bool = False, name: str | None = None) -> str:
+        """A table cell naming a setup, linked to its page: its name (name, as Site.names gives it among the table's
+        rows, else its full name), its settings and, with kind, its kind in the link's tooltip."""
+        about = self.detail(run) + (f" · {self.kind(run)}" if kind else "")
+        return (f'<td class="model"><a class="model-name" href="{rel(origin, self.model_path(run))}" title="{esc(about)}">'
+                f'{esc(name or self.row_name(run))}</a></td>')
 
     def per_thousand(self, run: dict[str, Any]) -> float | None:
         return bp.per_thousand(run)

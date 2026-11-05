@@ -12,9 +12,11 @@ const SETTINGS = JSON.parse(document.getElementById('v3-settings').textContent);
    loads this script unversioned; it gets the plain address. */
 const RESULTS_URL = SETTINGS.resultsUrl || 'results.json';
 
-/* Why a cell has no value. */
+/* Why a cell has no value. A cost is missing only for a setup on our own hardware whose maker lists no price for the
+   same model (billing 'local'): it reads No list price; a value nobody measured reads Not measured. */
 const EMPTY = {
   notMeasured: 'Not measured',
+  noListPrice: 'No list price',
   allOnly: 'Computed on all questions only',
 };
 const INTERVAL_TIP = 'To test two setups against each other, use Compare.';
@@ -32,20 +34,28 @@ const RANKING_TIP =
 const REVERSED_TIP = 'Higher confidence went with lower accuracy for this model.';
 const SHARE_TIP = 'Share of questions taken: at 16 questions per request, a call still goes out for the rest.';
 const SPLIT_NA_TIP = 'Live tests did not record which kept answers were right, so no bar is shown.';
-/* A first model's cost marker (page_config.json first_cost_marks): § where its cost is its maker's list price for the
-   same model, † where it ran on our hardware without one; each with its tooltip and note. */
+/* A first model's cost basis in the Routing tab (page_config.json first_cost_marks): its maker's list price for the
+   same model (no mark beside the saving: its tooltip and the note say so), or † where it ran on our hardware without
+   one; each with its tooltip and note. */
 const FIRST_COST_MARKS = SETTINGS.firstCostMarks;
 const firstCostMark = run => (run.cost_basis === 'maker' ? FIRST_COST_MARKS.maker : run.api_equivalent_usd == null ? FIRST_COST_MARKS[run.billing] ?? null : null);
-/* What a setup on our hardware priced at its maker's list price says beside its cost. */
+/* What a setup on our hardware priced at its maker's list price says in its cost's tooltip. */
 const makerCostTip = run =>
   `Estimated at ${data.prices.find(price => price.provider === run.provider && price.model === run.model)?.basis ?? 'its maker’s list price for the same model'}; our hardware cost is not measured.`;
-const MAKER_COST_NOTE = `${SETTINGS.firstCostMarks.maker.mark} Estimated at the maker’s list price for the same model; our hardware cost is not measured.`;
 /* A cost that is an upper-bound estimate (cost_upper_bound: web grounding's search fee counted for every request): ≤
    before the value, with its tooltip and note (page_config.json first_cost_marks.upper). */
 const UPPER_MARK = FIRST_COST_MARKS.upper;
-const UPPER_COST_NOTE = `${UPPER_MARK.mark} ${UPPER_MARK.note}`;
 const upperPrefix = run => (run.cost_upper_bound ? `${UPPER_MARK.mark} ` : '');
-const upperNote = runs => (runs.some(run => run.cost_upper_bound && costPer1000(run) != null) ? [UPPER_COST_NOTE] : []);
+/* How a cost was counted, for its tooltip, where it is not plain API list price (Site.cost_tip in sitebuild/site.py). */
+const costTip = run => [run.cost_basis === 'maker' ? makerCostTip(run) : null, run.cost_upper_bound ? UPPER_MARK.tip : null].filter(Boolean).join(' ') || null;
+/* The one line on how the costs were counted, under a chart or table with costs, for the setups it shows: values carry
+   no basis mark, so the line names the bases (Site.cost_note in sitebuild/site.py). */
+const costNote = runs => [
+  'Costs: API list prices and recorded token use, per 1,000 questions.',
+  runs.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? 'Setups on our own GPUs: the maker’s list price for the same model (each value’s tooltip names it); our hardware cost is not measured.' : '',
+  runs.some(run => costPer1000(run) == null && run.billing === 'local') ? 'No list price: on our own GPUs, and the maker lists no price for the same model.' : '',
+  runs.some(run => run.cost_upper_bound && costPer1000(run) != null) ? `${UPPER_MARK.mark} ${UPPER_MARK.note}` : '',
+].filter(Boolean).join(' ');
 const CONFIDENCE_NOTE = [
   'Every decision model that ranks its answers better than chance ranks them less well on grammar than on reading. A probability from an API is not calibrated by itself. Luna’s two setups also differ in request format (1 against 16 questions).',
 ];
@@ -106,52 +116,40 @@ const esc = text =>
 const tip = (text, content = '—') => `<span class="hint" tabindex="0" data-tip="${esc(text)}">${content}</span>`;
 /* A value nobody measured reads as words; one a filter leaves out is a dash with its reason; a zero is a number. */
 const NM = `<span class="nm">${EMPTY.notMeasured}</span>`;
+const costMissing = run => (run.billing === 'local' ? EMPTY.noListPrice : EMPTY.notMeasured);
 const MISSING = tip(EMPTY.allOnly);
 
 /* ---- Runs ---- */
 
 const reasoningLabel = reasoning => (['off', 'on', 'none'].includes(reasoning) ? `reasoning ${reasoning}` : `${reasoning} reasoning`);
 const requestSize = size => `${integer(size)} question${size === 1 ? '' : 's'} per request`;
+/* A setup's settings, for its tooltips: variant, reasoning and request size. Names in charts and tables carry only what
+   tells two setups apart (chartLabels); the settings stay in tooltips and on the model page. */
 const runDetail = run =>
   [run.variant, run.reasoning && reasoningLabel(run.reasoning), requestSize(run.questions_per_request)].filter(Boolean).join(' · ');
-/* The settings in the short form a phone shows: "1 per request · low reasoning"; a variant keeps its part before a
-   comma ("Decisions API" for "Decisions API, beta"), unless the name already carries it as the route. */
-const shortDetail = run =>
-  [`${integer(run.questions_per_request)} per request`, run.reasoning && reasoningLabel(run.reasoning),
-    !SETTINGS.routeLabels[run.run] && run.variant?.split(',')[0]].filter(Boolean).join(' · ');
 /* A setup's name in a row, with its route where the same model ID runs as both kinds of model (page_config.json's lists,
    build_site.py route_labels): "GPT-6 Luna (Decisions API)" and "GPT-6 Luna (chat API)". */
 const routed = (run, name) => (SETTINGS.routeLabels[run.run] ? `${name} (${SETTINGS.routeLabels[run.run]})` : name);
 const rowName = run => routed(run, run.name);
-/* A setup's name in the table: on a phone, the charts' short name (page_config.json's short_names) where it has one. */
-const tableName = run => {
-  const short = SETTINGS.shortNames[run.model];
-  return short && short !== run.name
-    ? `<span class="name-long">${esc(rowName(run))}</span><span class="name-short">${esc(routed(run, short))}</span>`
-    : esc(rowName(run));
-};
 const isDecision = run => SETTINGS.decisionProviders.includes(run.provider) && !SETTINGS.notDecisionModels.includes(run.model);
 const costPer1000 = run => (run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / run.answered_questions);
 const latencyOf = run => run.latency?.median_request_seconds ?? null;
 
 let data;
 let byId;
-/* Chart labels: a setup's short name (page_config.json's short_names) and, for a smaller second line, its variant and the
-   reasoning or request size that tell it apart from another setup in the same chart with the same name. */
+/* Names where setups show together (a chart, a table): each setup's full name (rowName) and, only where two of them
+   would read the same, what tells them apart: the variant, the reasoning setting, the request size ("high reasoning,
+   16 per request"), as detail, a smaller second line in a chart. Site.names in sitebuild/site.py writes the same. */
 function chartLabels(runs) {
-  const short = run => SETTINGS.shortNames[run.model] ?? run.name;
-  // page_config.json's chart_labels name a setup outright; the tooltip keeps its full name.
-  const named = run => SETTINGS.chartLabels[run.provider]?.[run.model];
-  const base = run => named(run) ?? (run.variant ? `${short(run)} (${run.variant})` : routed(run, short(run)));
   const labels = new Map();
   runs.forEach(run => {
-    const same = runs.filter(other => base(other) === base(run));
+    const name = rowName(run);
+    const same = runs.filter(other => rowName(other) === name);
     const differs = field => new Set(same.map(other => other[field])).size > 1;
-    const name = named(run) ?? (run.variant ? short(run) : routed(run, short(run)));
     const detail = [
-      !named(run) && run.variant,
+      differs('variant') && run.variant,
       differs('reasoning') && run.reasoning && reasoningLabel(run.reasoning),
-      differs('questions_per_request') && `${run.questions_per_request}/request`,
+      differs('questions_per_request') && `${integer(run.questions_per_request)} per request`,
     ].filter(Boolean).join(', ');
     labels.set(run, { name, detail, text: detail ? `${name} (${detail})` : name });
   });
@@ -246,17 +244,14 @@ function visibleRuns() {
 
 /* ---- Leaderboard ---- */
 
-function modelCell(run) {
-  const name = `${rowName(run)} (${runDetail(run)})`;
-  /* In the one table of all models, each row says which kind of model it is, as without JavaScript (on a phone, only a
-     chat model says so). A setup's notes are on its model page, not in the table. */
-  const all = state.models === 'all';
-  const chat = all && !isDecision(run);
+/* A setup's name cell: its name with what tells it apart from the other rows (chartLabels); its settings and kind in
+   the link's tooltip and on its model page. */
+function modelCell(run, labels) {
+  const { text } = labels.get(run);
+  const about = `${runDetail(run)} · ${isDecision(run) ? 'Decision model' : 'Chat model'}`;
   return `<td class="model"><div class="who"><button type="button" class="pick" data-select="${run.run}" aria-pressed="${state.selected === run.run}" ` +
-    `aria-label="Highlight ${esc(name)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
-    `<span class="names"><a class="model-name" href="models/${run.run}/">${tableName(run)}</a><span class="small settings-long">${esc(runDetail(run))}${all ? (chat ? ' · Chat model' : ' · Decision model') : ''}</span>` +
-    `<span class="small settings-short">${esc(shortDetail(run))}${chat ? ' · chat model' : ''}</span>` +
-    `</span></div></td>`;
+    `aria-label="Highlight ${esc(text)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
+    `<span class="names"><a class="model-name" href="models/${run.run}/" title="${esc(about)}">${esc(text)}</a></span></div></td>`;
 }
 
 function accuracyCell(run) {
@@ -301,7 +296,6 @@ const CONFIDENCE_GUIDE = [
 const TABS = {
   accuracy: {
     rows: () => visibleRuns().map(run => ({ run })),
-    note: [SETTINGS.notMeasuredNote],
     columns: [
       { key: 'accuracy', label: 'Accuracy (%)', tip: INTERVAL_TIP, value: accuracyOf, cell: accuracyCell },
       partColumn('reading', 'Reading (%)'),
@@ -489,15 +483,16 @@ TABS.routing.columns = ROUTING_COLUMNS;
 function savingCell(row, format) {
   if (!row.numbers || row.numbers.saving == null) return NM;
   const mark = firstCostMark(row.run);
-  return mark ? `${tip(mark.tip, format(row.numbers))}<span class="mark">${mark.mark}</span>` : format(row.numbers);
+  if (!mark) return format(row.numbers);
+  return mark === FIRST_COST_MARKS.maker ? tip(mark.tip, format(row.numbers)) : `${tip(mark.tip, format(row.numbers))}<span class="mark">${mark.mark}</span>`;
 }
 
-/* A setup's cost per 1,000 questions; one on our hardware at its maker's list price carries § and its label. */
+/* A setup's cost per 1,000 questions: the value alone (≤ before an upper bound), its basis in its tooltip. */
 function costCell(run) {
   const value = costPer1000(run);
-  if (value == null) return NM;
-  if (run.cost_upper_bound) return `<span class="mark">${UPPER_MARK.mark}</span> ${tip(UPPER_MARK.tip, value.toFixed(3))}`;
-  return run.cost_basis === 'maker' ? `${tip(makerCostTip(run), value.toFixed(3))}<span class="mark">${FIRST_COST_MARKS.maker.mark}</span>` : value.toFixed(3);
+  if (value == null) return `<span class="nm">${costMissing(run)}</span>`;
+  const text = costTip(run) ? tip(costTip(run), value.toFixed(3)) : value.toFixed(3);
+  return run.cost_upper_bound ? `<span class="mark">${UPPER_MARK.mark}</span> ${text}` : text;
 }
 
 /* A latency measured on a sample of the questions (latency.source "sample", the repeats of the setup on a fixed
@@ -613,10 +608,11 @@ function emptyReason() {
 function renderBoard() {
   const tab = TABS[state.tab];
   const rows = sortRows(tab.rows(), tab.columns);
+  const labels = chartLabels(rows.map(row => row.run));
   const table = rows.length
     ? `<h3 class="board-group">${esc(MODEL_GROUPS[state.models].title)}</h3><div class="table-frame"><div class="table-wrap"><table class="board${tab.wrapHeaders ? ' wrap-headers' : ''}"><thead><tr><th scope="col">Model</th>` +
       `${tab.columns.map(column => header(column, tab.directions)).join('')}</tr></thead><tbody>` +
-      rows.map(row => `<tr data-run="${row.run.run}"${state.selected === row.run.run ? ' class="is-selected"' : ''}>${modelCell(row.run)}` +
+      rows.map(row => `<tr data-run="${row.run.run}"${state.selected === row.run.run ? ' class="is-selected"' : ''}>${modelCell(row.run, labels)}` +
         `${tab.columns.map(column => `<td class="num">${column.cell(row)}</td>`).join('')}</tr>`).join('') +
       '</tbody></table></div></div>'
     : `<div class="empty-state" role="status"><p><span class="icon" aria-hidden="true">⚠</span> ${esc(emptyReason())}</p>` +
@@ -626,13 +622,16 @@ function renderBoard() {
       ? `<h3 class="tab-title">Can a cheap model go first?</h3>${routingControls()}${routeMap()}<p class="table-title">${esc(routeTitle())}</p>` +
         `<p class="scope">All ${integer(data.questions)} questions</p>`
       : '';
-  /* The note for a † or §, each only when its marker is in the table. */
+  /* The note for a first model's cost basis († or the maker's list price), each only when such a saving is in the table;
+     a maker's list price has no mark. */
   const marked = new Set(rows.filter(row => row.numbers?.saving != null).map(row => firstCostMark(row.run)).filter(Boolean));
   const marks = Object.values(FIRST_COST_MARKS)
     .filter(item => marked.has(item))
-    .map(item => `<p class="table-note">${esc(`${item.mark} ${item.note}`)}</p>`)
+    .map(item => `<p class="table-note">${esc(item === FIRST_COST_MARKS.maker ? item.note : `${item.mark} ${item.note}`)}</p>`)
     .join('');
-  const notes = (tab.notes ?? tab.note ?? []).map(text => `<p>${esc(text)}</p>`).join('');
+  /* The Accuracy tab's cost column: the cost note for its rows, then what is not measured. */
+  const tabNotes = state.tab === 'accuracy' ? [costNote(rows.map(row => row.run)), SETTINGS.notMeasuredNote].filter(Boolean) : tab.notes ?? tab.note ?? [];
+  const notes = tabNotes.map(text => `<p>${esc(text)}</p>`).join('');
   const guide = tab.guide
     ? `<div class="tab-guide"><h3>How to read this tab</h3><ul>${tab.guide.map(([term, text]) => `<li><strong>${esc(term)}</strong>: ${esc(text)}</li>`).join('')}</ul></div>`
     : '';
@@ -811,11 +810,21 @@ const MEASURES = {
    after the trade-off, calibration). */
 const FACE_MEASURES = ['accuracy', 'gap', 'latency', 'cost'];
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
-/* A setup's cost as the Cost chart writes it, with its $: per 1,000 questions, § at its maker's list price, or Not
-   measured where there is no estimate (never a zero). The accuracy chart gives it beside each setup's accuracy. */
+/* The name above each value column of a bar chart, in full and on a phone, as the static charts' headers ("Turkish ·
+   English", "TR · EN"): each chart's own value, then the accuracy chart's cost and latency columns. */
+const COLUMN_HEADS = {
+  accuracy: ['Accuracy', 'Acc.'],
+  gap: ['Gap (points)', 'Gap'],
+  latency: ['Median latency', 'Median'],
+  cost: ['Cost / 1k', '$/1k'],
+  price: ['Cost / 1k', '$/1k'],
+  speed: ['Latency', 'Latency'],
+};
+/* A setup's cost as the Cost chart writes it, with its $: per 1,000 questions, § at its maker's list price, or No list
+   price where there is no estimate (never a zero). The accuracy chart gives it beside each setup's accuracy. */
 const priceText = run => {
   const value = costPer1000(run);
-  return value == null ? EMPTY.notMeasured : `${upperPrefix(run)}$${MEASURES.cost.text(value)}${run.cost_basis === 'maker' ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}`;
+  return value == null ? costMissing(run) : `${upperPrefix(run)}$${MEASURES.cost.text(value)}`;
 };
 const PRICE_NOTE = 'Beside each bar: accuracy (%), then cost in $ per 1,000 questions, estimated from list prices and recorded token use, as in the Cost chart, then the median latency per request, as in the Latency chart.';
 /* The accuracy chart's latency column: the median seconds per request, marked when measured on a sample; Not measured
@@ -957,14 +966,19 @@ function barChart(box, name) {
   const axis = 40;
   const height = top + ordered.length * row + axis;
   const width = drawWidth(box, height);
-  const labelWidth = phone ? 0 : Math.min(210, Math.round(width * 0.36));
-  const valueWidth = phone ? 62 : 70;
-  /* The accuracy chart also gives each setup's cost (priceText) in a column of its own at the right, as wide as its
-     longest entry. */
+  const labelWidth = phone ? 0 : Math.min(300, Math.round(width * 0.36));
+  /* Each value column is named above it, right-aligned on the column's edge as the values are (COLUMN_HEADS: in full,
+     on a phone); a column is as wide as its longest entry or its name. */
+  const pick = ([long, short]) => (phone ? short : long);
+  const headWidth = text => Math.ceil(textWidth(text, 600, 12));
+  const valueWidth = Math.max(phone ? 62 : 70, headWidth(pick(COLUMN_HEADS[name])) + 8);
+  /* The accuracy chart also gives each setup's cost (priceText) and median latency (latencyText) in columns of their own
+     at the right. */
   const priced = name === 'accuracy';
   const mono = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim() || 'monospace';
-  const priceWidth = priced ? Math.ceil(Math.max(...ordered.map(run => textWidth(priceText(run), 400, 12, mono)))) + 24 : 0;
-  const latencyWidth = priced ? Math.ceil(Math.max(...ordered.map(run => textWidth(latencyText(run), 400, 12, mono)))) + 24 : 0;
+  const columnWidth = (text, head) => Math.max(Math.ceil(Math.max(...ordered.map(run => textWidth(text(run), 400, 12, mono)))), headWidth(pick(head))) + 24;
+  const priceWidth = priced ? columnWidth(priceText, COLUMN_HEADS.price) : 0;
+  const latencyWidth = priced ? columnWidth(latencyText, COLUMN_HEADS.speed) : 0;
   const values = known.map(measure.value);
   /* Accuracy runs from 0 to 100%; the calibration gap from 0 to the next 5 points above the largest; latency and cost on
      a log scale around their values. */
@@ -992,7 +1006,8 @@ function barChart(box, name) {
     const latencyValue = priced ? latencyOf(run) : null;
     const latency = !priced ? '' : latencyValue == null ? `; median latency per request: ${EMPTY.notMeasured}`
       : `; median latency per request: ${secondsText(latencyValue)} s${sampleLabel(run) ? ` (${sampleLabel(run)})` : ''}`;
-    const full = `${run.name} · ${runDetail(run)}: ${value == null ? EMPTY.notMeasured : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}${latency}`;
+    const missing = name === 'cost' ? costMissing(run) : EMPTY.notMeasured;
+    const full = `${run.name} · ${runDetail(run)}: ${value == null ? missing : measure.text(value)}${maker ? ` (${makerCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}${latency}`;
     const barTop = phone ? y + 18 : y + (row - 16) / 2;
     const barHeight = phone ? 14 : 16;
     const mid = barTop + barHeight / 2;
@@ -1000,7 +1015,7 @@ function barChart(box, name) {
     /* The ring spans the row: it shows the focus, and it shades the selected setup's row. */
     const inner = [`<rect class="ring" x="1" y="${y + 1}" width="${width - 2}" height="${row - 2}" rx="3"/>`, label];
     if (value == null) {
-      inner.push(`<text class="value nm" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${EMPTY.notMeasured}</text>`);
+      inner.push(`<text class="value nm" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${missing}</text>`);
     } else {
       const start = x(domain[0]);
       inner.push(`<rect class="bar-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
@@ -1011,7 +1026,7 @@ function barChart(box, name) {
         const path = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
         inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
       }
-      inner.push(`<text class="value" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${name === 'cost' ? upperPrefix(run) : ''}${measure.text(value)}${maker ? ` ${FIRST_COST_MARKS.maker.mark}` : ''}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
+      inner.push(`<text class="value" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${name === 'cost' ? upperPrefix(run) : ''}${measure.text(value)}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
     }
     if (priced) {
       inner.push(`<text class="value${costPer1000(run) == null ? ' nm' : ''}" x="${width - 4 - latencyWidth}" y="${mid + 4}" text-anchor="end">${esc(priceText(run))}</text>`);
@@ -1023,13 +1038,16 @@ function barChart(box, name) {
   box.classList.toggle('has-selection', selection);
   const where = name === 'accuracy' ? ` on ${integer(questionsInFilter())} questions` : name === 'gap' ? ' on all questions, as shipped' : '';
   const latencyNote = name === 'latency' || priced ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
-  const makerNote = (name === 'cost' || priced) && ordered.some(run => run.cost_basis === 'maker' && costPer1000(run) != null) ? [MAKER_COST_NOTE] : [];
-  const upperCostNote = name === 'cost' || priced ? upperNote(ordered) : [];
+  const costNotes = name === 'cost' || priced ? [costNote(ordered)] : [];
   const sampleNote = name === 'latency' || priced ? sampleNotes(ordered) : [];
   const scaleNote = measure.log ? 'Log scale.' : name === 'accuracy' ? 'Lines: 95% interval.' : '';
   const families = familiesIn(ordered);
-  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, priced ? PRICE_NOTE : '', ...latencyNote, ...makerNote, ...upperCostNote, ...sampleNote].filter(Boolean), unlabelled: [], families };
+  chartNotes[name] = { notes: [`${measure.label}${where}.`, scaleNote, priced ? PRICE_NOTE : '', ...latencyNote, ...costNotes, ...sampleNote].filter(Boolean), unlabelled: [], families };
+  const heads = [[pick(COLUMN_HEADS[name]), width - 4 - priceWidth - latencyWidth],
+    ...(priced ? [[pick(COLUMN_HEADS.price), width - 4 - latencyWidth], [pick(COLUMN_HEADS.speed), width - 4]] : [])];
   box.innerHTML =
+    `<svg class="column-heads" width="${width}" height="18" viewBox="0 0 ${width} 18" aria-hidden="true">` +
+    `${heads.map(([text, at]) => `<text class="column-head" x="${at}" y="13" text-anchor="end">${esc(text)}</text>`).join('')}</svg>` +
     `<div class="chart-scroll" style="--chart-max:${chartMax()}px"><svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${ordered.length} setups.`)}">${parts.join('')}</svg></div>` +
     legend(families, [...chartNotes[name].notes, chartScope(runs)].join(' '));
 }
@@ -1179,8 +1197,7 @@ function scatterChart(box) {
     regionText,
     paretoText,
     missing ? `${missing} without a ${NEEDS[state.across]} not shown.` : '',
-    state.across === 'cost' && known.some(run => run.cost_basis === 'maker') ? MAKER_COST_NOTE : '',
-    ...(state.across === 'cost' ? upperNote(known) : []),
+    state.across === 'cost' ? costNote(known) : '',
     ...(state.across === 'latency' ? sampleNotes(known) : []),
   ].filter(Boolean);
   const families = familiesIn([...known].sort((a, b) => accuracyOf(b) - accuracyOf(a)));
@@ -1214,7 +1231,7 @@ function readingGrammarChart(box) {
   const top = 4;
   const height = top + runs.length * row + 4;
   const width = drawWidth(box, height);
-  const labelWidth = phone ? 0 : Math.min(210, Math.round(width * 0.36));
+  const labelWidth = phone ? 0 : Math.min(300, Math.round(width * 0.36));
   const left = phone ? 2 : labelWidth + 10;
   const right = width - (phone ? 50 : 56) - 8;
   const x = scale([0, 1], [left, right], false);
@@ -1285,7 +1302,7 @@ function costTable(box) {
     const chat = state.models === 'all' && !isDecision(run) ? '<span class="small">Chat model</span>' : '';
     const tag = pareto.has(run) ? ' <span class="pareto-tag">Pareto</span>' : '';
     return `<tr><td class="model"><a class="model-name" href="models/${run.run}/">${esc(labels.get(run).text)}</a>${tag}${chat}</td>` +
-      `<td class="num">${cost == null ? NM : esc(priceText(run))}</td>` +
+      `<td class="num">${cost == null ? `<span class="nm">${costMissing(run)}</span>` : esc(priceText(run))}</td>` +
       `<td class="num">${cost == null ? '' : timesText(cost / costPer1000(cheapest))}</td>` +
       `<td class="num">${percent(overallAccuracy(run))}</td>` +
       `<td class="num">${latencyOf(run) == null ? NM : esc(latencyText(run))}</td>` +
@@ -1293,8 +1310,8 @@ function costTable(box) {
       `<td class="num">${held ? `<a href="dont-know/">${pct(held.non_hallucination)}, attempt rate ${pct(held.attempt_rate)}</a>` : 'Not run'}</td></tr>`;
   };
   const notes = [
-    `${integer(runs.length)} setups, ${integer(priced.length)} with a cost. ${SETTINGS.notMeasuredNote}`,
-    `× cheapest: a setup’s cost over the cheapest setup’s in this table (${labels.get(cheapest).text}, ${priceText(cheapest)}), from the unrounded costs; empty where the cost is not measured.`,
+    `${integer(runs.length)} setups, ${integer(priced.length)} with a cost. ${costNote(runs)} ${SETTINGS.notMeasuredNote}`.trim(),
+    `× cheapest: a setup’s cost over the cheapest setup’s in this table (${labels.get(cheapest).text}, ${priceText(cheapest)}), from the unrounded costs; empty where there is no list price.`,
     'Pareto: no other setup with a cost in this table is both at most as costly and at least as accurate, one of them strictly; the Trade-off chart’s dotted line by cost when no filter narrows it.',
     `Kept at ${sure}: the answers given with at least ${sure} confidence, how many of them were right, and how many questions were skipped: those not kept, answered with less than ${sure} confidence or without a valid answer.`,
     'Non-hallucination: from the Hallucination tab’s runs with the “Bilmiyorum” (I don’t know) option; read it with its attempt rate. The Hallucination tab has the method and its limits.',
@@ -1315,7 +1332,7 @@ function costTable(box) {
    colours and type are copied from the page, so it matches the theme in view. */
 async function downloadChart(name) {
   const box = document.querySelector(`[data-chart="${name}"]`);
-  const svg = box.querySelector('svg');
+  const svg = box.querySelector('svg:not(.column-heads)');
   if (!svg) return;
   const width = Number(svg.getAttribute('width'));
   const height = Number(svg.getAttribute('height'));
@@ -1409,9 +1426,9 @@ function readUrl() {
   const routed = llm || rule || params.has('per-request') || params.has('test');
   if (TABS[params.get('tab')]) state.tab = params.get('tab');
   else if (routed) state.tab = 'routing';
-  /* The model group from ?models= (the view bar's second row); missing or unknown means all. */
-  const models = params.get('models');
-  state.models = Object.hasOwn(MODEL_GROUPS, models) ? models : 'all';
+  /* The model group from ?models= (the view bar's second row), as site.js reads it; missing or unknown means all. */
+  const models = document.documentElement.dataset.modelsView;
+  state.models = Object.hasOwn(MODEL_GROUPS, models ?? '') ? models : 'all';
   /* A link to Info (#info) opens it; the tables sit under the charts, outside Info. */
   if (window.location.hash === '#info') state.infoOpen = true;
 }
@@ -1499,12 +1516,6 @@ function onClick(event) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     openTab(jump.dataset.gotoTab);
-    return;
-  }
-  /* The Info link in the header opens Info; the browser then follows it there. */
-  if (event.target.closest('a[data-open-info]')) {
-    state.infoOpen = true;
-    render();
     return;
   }
   const button = event.target.closest('button');

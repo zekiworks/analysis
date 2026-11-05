@@ -33,12 +33,13 @@ function secondsText(value) {
   });
 })();
 
-/* Every page: the view bar's group, from ?models= (all, decision or chat; missing or unknown means all). The bar marks
-   its row 2 choice, the row 1 links keep the group, and each element whose data-models lists other groups only is
+/* Every page: the view bar's group, from ?models= (all, decision or chat; missing or unknown means all; trailing dots,
+   punctuation or spaces are dropped, so "all." reads as all). The bar marks its row 2 choice, the row 1 links and the top
+   bar's benchmark links keep the group, and each element whose data-models lists other groups only is
    hidden (and shown again when it lists this one), before the page's own scripts run. <html data-models-view> carries
    the group for them. The bar's height is kept in --view-bar-h, so the page scrolls links and parts below it. */
 (function setupViewBar() {
-  const asked = new URLSearchParams(window.location.search).get('models');
+  const asked = (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, '');
   const group = ['all', 'decision', 'chat'].includes(asked) ? asked : 'all';
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
@@ -53,8 +54,8 @@ function secondsText(value) {
   bar.querySelectorAll('a[data-view-test]').forEach(link => {
     link.setAttribute('href', `${link.getAttribute('href').split('?')[0]}?models=${group}`);
   });
-  // The benchmarks' tabs (Text, Page images, Hallucination, Turkish vs English) keep the group too, so no press loses it.
-  document.querySelectorAll('.bench-tabs a[href]').forEach(link => {
+  // The top bar's benchmark links (Page images, Hallucination) keep the group too, so no press loses it.
+  document.querySelectorAll('.nav a[data-keep-group]').forEach(link => {
     const [path, fragment] = link.getAttribute('href').split('#');
     link.setAttribute('href', `${path.split('?')[0]}?models=${group}${fragment ? `#${fragment}` : ''}`);
   });
