@@ -21,6 +21,8 @@ from benchmark_ollama import (
     DONT_KNOW_WORD_OPTION,
     DONT_KNOW_WORD_PROMPT_VERSION,
     DONT_KNOW_WORD_PROMPTS,
+    ENGLISH_CHAT,
+    ENGLISH_CHAT_PROMPT_VERSION,
     ENGLISH_DONT_KNOW_INSTRUCTIONS,
     ENGLISH_DONT_KNOW_OPTION,
     ENGLISH_DONT_KNOW_PROMPT_VERSION,
@@ -31,6 +33,7 @@ from benchmark_ollama import (
     JEV_INSTRUCTIONS,
     PROMPT_VERSION,
     PRICES,
+    TURKISH_CHAT,
     Option,
     Question,
     answer_problems,
@@ -445,6 +448,29 @@ class EnglishTests(unittest.TestCase):
             ask_batch(args, [question_], False, None)
             self.assertEqual(sent[-1]["questions"]["answer"]["instructions"], JEV_INSTRUCTIONS)
 
+    def test_the_chat_models_get_their_turkish_prompts_in_english_and_keep_them_in_turkish_otherwise(self) -> None:
+        batch = [question(1), question(2)]
+        sent = []
+
+        def post(endpoint, payload, *rest):
+            sent.append(payload)
+            raise RuntimeError("stop")
+
+        common = {"model": "m", "timeout": 1, "seed": 0, "dont_know": False, "dont_know_word": "turkish", "vllm_url": "http://localhost"}
+        with mock.patch("benchmark_ollama.post_json", side_effect=post):
+            for english, prompts, header in ((Path("t.jsonl"), ENGLISH_CHAT, "Question 2 (source page"),
+                                             (None, TURKISH_CHAT, "Soru 2 (kaynak sayfa")):
+                args = argparse.Namespace(provider="vllm-stated", english=english, **common)
+                with self.subTest(english=english), self.assertRaises(RuntimeError):
+                    ask_batch(args, batch, False, None)
+                system, user = sent[-1]["messages"]
+                self.assertEqual(system["content"], prompts.confidence_system)
+                self.assertTrue(user["content"].startswith(prompts.confidence_instruction + "\n\n"))
+                self.assertIn(header, user["content"])
+        # The Turkish runs' prompts stay as published: their version is unchanged.
+        self.assertEqual(PROMPT_VERSION, "254597b8be16")
+        self.assertNotIn("Turkish", ENGLISH_CHAT.confidence_system + ENGLISH_CHAT.answer_system + ENGLISH_CHAT.verbal_system)
+
     def test_its_run_records_its_facts_and_stays_out_of_the_main_tables_and_repeats(self) -> None:
         path = self.bank()
         connection = open_result_database(path.parent / "results.sqlite")
@@ -484,19 +510,31 @@ class EnglishTests(unittest.TestCase):
         self.assertEqual(lines[-1], f"| subq m, in English, run {identity.run_id} | 3 | 1 | 0 | 33.33% | abababababab | "
                                     f"{ENGLISH_PROMPT_VERSION} |")
 
-    def test_only_decision_models_on_listed_questions_take_it_and_never_with_another_variant(self) -> None:
+    def test_listed_questions_take_it_and_never_with_another_variant(self) -> None:
         base = ["benchmark_ollama.py", "subq-snap-1.1", "--english", "t.jsonl", "--questions", "kept.txt"]
-        for argv in ([*base[:2], "--provider", "ollama", *base[2:]], [*base, "--provider", "subq", "--replace-key-text", "1"],
-                     [*base, "--provider", "subq", "--shuffle-options", "1"], [*base[:4], "--provider", "subq"],
-                     [*base, "--provider", "vllm"], [*base, "--provider", "vllm-yes-no", "--dont-know"]):
+        for argv in ([*base, "--provider", "subq", "--replace-key-text", "1"], [*base, "--provider", "subq", "--shuffle-options", "1"],
+                     [*base[:4], "--provider", "subq"], [*base, "--provider", "vllm-yes-no", "--dont-know"]):
             with self.subTest(argv=argv), mock.patch("sys.argv", argv), mock.patch("sys.stderr"), self.assertRaises(SystemExit):
                 parse_args()
-        for provider in ("subq", "vllm-yes-no"):
+        for provider in ("subq", "vllm-yes-no", "vllm", "vllm-stated"):
             with mock.patch("sys.argv", [*base, "--provider", provider]):
                 self.assertEqual(parse_args().english, Path("t.jsonl"))
         with mock.patch("sys.argv", [*base, "--provider", "subq", "--repeat", "2"]):
             args = parse_args()
             self.assertEqual((args.english, args.repeat), (Path("t.jsonl"), 2))
+
+    def test_a_chat_models_run_records_the_english_chat_prompts(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        translations = self.translations(path.parent, [self.record(1), self.record(2), self.record(3)])
+        selection = english_selection(load_questions(path, None, None, None, 0), translations)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, "gemini", "http://localhost", 0, 16, "low", None, False,
+                                 None, None, False, None, False, english="ab" * 32)
+        row = connection.execute("SELECT prompt_version FROM runs WHERE id=?", (identity.run_id,)).fetchone()
+        self.assertEqual(row["prompt_version"], ENGLISH_CHAT_PROMPT_VERSION)
+        self.assertEqual(len({ENGLISH_CHAT_PROMPT_VERSION, ENGLISH_PROMPT_VERSION, PROMPT_VERSION}), 3)
 
 
 class OptionWordTests(unittest.TestCase):

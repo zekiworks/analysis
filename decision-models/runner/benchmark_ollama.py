@@ -710,6 +710,65 @@ ENGLISH_DONT_KNOW_PROMPTS = {
 ENGLISH_DONT_KNOW_PROMPT_VERSION = hashlib.sha256(
     json.dumps(ENGLISH_DONT_KNOW_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
 ).hexdigest()[:12]
+
+
+@dataclass(frozen=True)
+class ChatPrompts:
+    """The prompts of a chat provider's request: the system prompts and instructions of PROMPTS, and how each question
+    is headed (question_header with {index}, {page} and {image}, the image_note with {ordinal} or nothing)."""
+
+    answer_system: str
+    answer_instruction: str
+    confidence_system: str
+    confidence_instruction: str
+    verbal_system: str
+    verbal_instruction: str
+    question_header: str
+    image_note: str
+
+
+TURKISH_CHAT = ChatPrompts(
+    ANSWER_SYSTEM_PROMPT, ANSWER_INSTRUCTION, CONFIDENCE_SYSTEM_PROMPT, CONFIDENCE_INSTRUCTION, VERBAL_SYSTEM_PROMPT,
+    VERBAL_INSTRUCTION, "Soru {index} (kaynak sayfa {page}{image}):", "; ekli görsel {ordinal}",
+)
+# English reading for the chat models (--english with a chat provider; Ümit, bus #1136 and #1146): the kept reading
+# questions in English translation, asked with the Turkish runs' prompts adapted in their language only: each system
+# prompt names an English benchmark instead of a Turkish one, each instruction keeps its meaning in English, the
+# question headers are English and the options stand under ENGLISH_OPTIONS_HEADING (load_english). The questions, key,
+# option order, model, reasoning, request size and access are those of the setup's Turkish runs.
+# ENGLISH_CHAT_PROMPT_VERSION identifies these prompts in such a run's record, computed as PROMPT_VERSION is.
+ENGLISH_CHAT = ChatPrompts(
+    "You are taking an English multiple-choice benchmark. Select exactly one supplied option per question. Do not explain.",
+    "Answer each of the following multiple-choice questions. Without explanation, return only the letter of the correct "
+    "option for each question in the specified JSON format. The attached images are in the same order as the attached "
+    "image numbers in the question texts.",
+    "You are taking an English multiple-choice benchmark. Select exactly one supplied option per question and state your "
+    "confidence in each answer. Do not explain.",
+    "Answer each of the following multiple-choice questions. Without explanation, return for each question the letter of "
+    "the correct option together with a confidence score between 0 and 1 showing how sure you are that your answer is "
+    "correct, in the specified JSON format.",
+    "You are taking an English multiple-choice benchmark. Select exactly one supplied option and state your confidence in "
+    "it. Do not explain.",
+    "Answer the following multiple-choice question. Without explanation, return the letter of the correct option together "
+    "with a confidence score between 0 and 1 showing how sure you are that your answer is correct, in the specified JSON "
+    "format.",
+    "Question {index} (source page {page}{image}):", "; attached image {ordinal}",
+)
+ENGLISH_CHAT_PROMPTS = {**{field: getattr(ENGLISH_CHAT, field) for field in ChatPrompts.__dataclass_fields__},
+                        "options_heading": ENGLISH_OPTIONS_HEADING}
+ENGLISH_CHAT_PROMPT_VERSION = hashlib.sha256(
+    json.dumps(ENGLISH_CHAT_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()[:12]
+
+
+def english_prompt_version(provider: str, dont_know: bool) -> str:
+    """The prompt version of an English reading run (--english): the decision models' (System One providers and
+    vllm-yes-no), with or without "I don't know", or the chat models'."""
+    if dont_know:
+        return ENGLISH_DONT_KNOW_PROMPT_VERSION
+    return ENGLISH_PROMPT_VERSION if provider in (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no") else ENGLISH_CHAT_PROMPT_VERSION
+
+
 # Where a clone of the published repository (HARNESS_REPO, see harness_commit) keeps this file.
 HARNESS_PATHS = ("decision-models/runner/benchmark_ollama.py", "runner/benchmark_ollama.py")
 CLAUDE_EFFORTS = ("low", "medium", "high", "xhigh", "max")
@@ -1097,8 +1156,6 @@ def parse_args() -> argparse.Namespace:
         for flag, value in (("--shuffle-options", args.shuffle_options), ("--replace-key-text", args.replace_key_text)):
             if value is not None:
                 parser.error(f"argument --english: not allowed with argument {flag}")
-        if args.provider not in (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no"):
-            parser.error("--english is only supported by the System One providers and --provider vllm-yes-no")
         if args.questions is None:
             parser.error("--english needs --questions, the kept question IDs")
     if args.dont_know_word != "turkish":
@@ -1779,7 +1836,13 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                   for result in results) else {}),
         # The prompts of English reading (--english), when one of its runs is exported.
         **({"english_prompts": dict(ENGLISH_PROMPTS)}
-           if any(result.get("english") and not result.get("dont_know") for result in results) else {}),
+           if any(result.get("english") and not result.get("dont_know") and result.get("provider") in (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no")
+                  for result in results) else {}),
+        # The prompts of English reading for the chat models (--english with a chat provider), when one of their runs is
+        # exported.
+        **({"english_chat_prompts": dict(ENGLISH_CHAT_PROMPTS)}
+           if any(result.get("english") and result.get("provider") not in (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no")
+                  for result in results) else {}),
         # The prompts of English "I don't know" (--english with --dont-know), when one of its runs is exported.
         **({"english_dont_know_prompts": dict(ENGLISH_DONT_KNOW_PROMPTS)}
            if any(result.get("english") and result.get("dont_know") for result in results) else {}),
@@ -1982,7 +2045,7 @@ def start_run(
     run_key = hashlib.sha256(identity.encode()).hexdigest()
     now = utc_now()
     if english is not None:
-        prompt_version = ENGLISH_DONT_KNOW_PROMPT_VERSION if dont_know else ENGLISH_PROMPT_VERSION
+        prompt_version = english_prompt_version(provider, bool(dont_know))
     else:
         prompt_version = (
             DONT_KNOW_WORD_PROMPT_VERSION if dont_know_word == "english"
@@ -2123,18 +2186,16 @@ def parse_ollama_content(value: str) -> Any:
     return content
 
 
-def make_prompt(batch: list[Question], instruction: str = ANSWER_INSTRUCTION) -> str:
+def make_prompt(batch: list[Question], instruction: str = ANSWER_INSTRUCTION, prompts: ChatPrompts = TURKISH_CHAT) -> str:
+    """The user message of a chat provider's request: the instruction, then each question under its header."""
     rendered = []
     image_ordinal = 0
     for index, question in enumerate(batch, 1):
         image_note = ""
         if question.requires_image:
             image_ordinal += 1
-            image_note = f"; ekli görsel {image_ordinal}"
-        rendered.append(
-            f"Soru {index} (kaynak sayfa {question.source_page}{image_note}):\n"
-            f"{question.prompt}"
-        )
+            image_note = prompts.image_note.format(ordinal=image_ordinal)
+        rendered.append(f"{prompts.question_header.format(index=index, page=question.source_page, image=image_note)}\n{question.prompt}")
     return instruction + "\n\n" + "\n\n---\n\n".join(rendered)
 
 
@@ -2186,6 +2247,7 @@ def ask_ollama(
     thinking: bool | str,
     num_ctx: int | None,
     verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[list[str | None], str]:
     schema = answers_schema(batch)
     options: dict[str, Any] = {"temperature": 0, "seed": seed}
@@ -2212,11 +2274,11 @@ def ask_ollama(
         "messages": [
             {
                 "role": "system",
-                "content": ANSWER_SYSTEM_PROMPT,
+                "content": prompts.answer_system,
             },
             {
                 "role": "user",
-                "content": make_prompt(batch),
+                "content": make_prompt(batch, prompts.answer_instruction, prompts),
                 **({"images": images} if images else {}),
             },
         ],
@@ -2307,13 +2369,17 @@ def ask_vllm(
     seed: int,
     thinking: bool | str,
     verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[list[str | None], str]:
     """The Ollama request through vLLM's chat API (vllm_chat_payload): the same prompt and answer schema.
 
     The server also returns each generated token's log probability and top alternatives. The stored
     response keeps, instead of those, each question's answer and its letter probabilities
     (letter_probabilities), keyed by question ID."""
-    payload = vllm_chat_payload(model, ANSWER_SYSTEM_PROMPT, make_prompt(batch), answers_schema(batch), seed, thinking, len(batch))
+    payload = vllm_chat_payload(
+        model, prompts.answer_system, make_prompt(batch, prompts.answer_instruction, prompts), answers_schema(batch), seed, thinking,
+        len(batch),
+    )
     payload.update(logprobs=True, top_logprobs=VLLM_TOP_LOGPROBS)
     result, _ = post_json(
         f"{base_url.rstrip('/')}/v1/chat/completions",
@@ -2347,12 +2413,14 @@ def ask_vllm_stated(
     seed: int,
     thinking: bool | str,
     verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[list[str | None], str]:
     """The hosted models' request through vLLM's chat API (vllm_chat_payload), for a server that returns no token
     probabilities, such as TensorFold: the prompt, system instruction and schema of the Claude, OpenAI and Gemini
     providers, a letter and a stated 0-1 confidence per question. Stored like the Gemini provider's response."""
     payload = vllm_chat_payload(
-        model, CONFIDENCE_SYSTEM_PROMPT, make_prompt(batch, CONFIDENCE_INSTRUCTION), confidence_schema(batch), seed, thinking, len(batch)
+        model, prompts.confidence_system, make_prompt(batch, prompts.confidence_instruction, prompts), confidence_schema(batch),
+        seed, thinking, len(batch),
     )
     result, _ = post_json(
         f"{base_url.rstrip('/')}/v1/chat/completions",
@@ -2470,16 +2538,17 @@ def ask_openai(
     timeout: float,
     reasoning: str,
     verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through the Codex CLI."""
     schema = confidence_schema(batch)
-    prompt = make_prompt(batch, CONFIDENCE_INSTRUCTION)
+    prompt = make_prompt(batch, prompts.confidence_instruction, prompts)
     with tempfile.TemporaryDirectory(prefix="turkce-codex-") as temporary:
         temporary_path = Path(temporary)
         instructions_path = temporary_path / "instructions.md"
         schema_path = temporary_path / "answer-schema.json"
         output_path = temporary_path / "answer.json"
-        instructions_path.write_text(CONFIDENCE_SYSTEM_PROMPT, encoding="utf-8")
+        instructions_path.write_text(prompts.confidence_system, encoding="utf-8")
         schema_path.write_text(json.dumps(schema), encoding="utf-8")
         # Replace Codex's agent instructions, turn off web search and the tools that can be switched
         # off, and skip user config and rules. The prompt goes through stdin: given a prompt argument,
@@ -2580,10 +2649,11 @@ def ask_claude(
     timeout: float,
     effort: str,
     verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through the Claude Code CLI."""
     schema = confidence_schema(batch)
-    prompt = make_prompt(batch, CONFIDENCE_INSTRUCTION)
+    prompt = make_prompt(batch, prompts.confidence_instruction, prompts)
     # Replace Claude Code's agent prompt and drop tools, settings, MCP servers and saved sessions so
     # only the benchmark prompt reaches the model.
     command = [
@@ -2598,7 +2668,7 @@ def ask_claude(
         "--json-schema",
         json.dumps(schema, ensure_ascii=False),
         "--system-prompt",
-        CONFIDENCE_SYSTEM_PROMPT,
+        prompts.confidence_system,
         "--tools",
         "",
         "--setting-sources",
@@ -2679,13 +2749,14 @@ def ask_gemini(
     timeout: float,
     thinking_level: str,
     verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through the Gemini API's generateContent:
     the prompt, system instruction and schema the Claude and OpenAI providers use. Gemini 3 models take no
     temperature, top_p or top_k, so the request sends none; the thinking level is set."""
     payload = {
-        "systemInstruction": {"parts": [{"text": CONFIDENCE_SYSTEM_PROMPT}]},
-        "contents": [{"role": "user", "parts": [{"text": make_prompt(batch, CONFIDENCE_INSTRUCTION)}]}],
+        "systemInstruction": {"parts": [{"text": prompts.confidence_system}]},
+        "contents": [{"role": "user", "parts": [{"text": make_prompt(batch, prompts.confidence_instruction, prompts)}]}],
         "generationConfig": {
             "responseMimeType": "application/json",
             "responseJsonSchema": confidence_schema(batch),
@@ -2751,14 +2822,16 @@ def json_answers(text: str) -> Any:
         return None
 
 
-def ask_xai(model: str, batch: list[Question], timeout: float, effort: str, verbose_log: TextIO | None) -> tuple[list[str | None], str]:
+def ask_xai(
+    model: str, batch: list[Question], timeout: float, effort: str, verbose_log: TextIO | None, prompts: ChatPrompts = TURKISH_CHAT
+) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through xAI's Responses API, with the SuperGrok
     subscription's token (OMP's xai-oauth login): the prompt, system prompt and schema of the other chat providers,
     the reasoning effort set, no temperature."""
     payload = {
         "model": model,
-        "instructions": CONFIDENCE_SYSTEM_PROMPT,
-        "input": [{"role": "user", "content": make_prompt(batch, CONFIDENCE_INSTRUCTION)}],
+        "instructions": prompts.confidence_system,
+        "input": [{"role": "user", "content": make_prompt(batch, prompts.confidence_instruction, prompts)}],
         "store": False,
         "text": {"format": {"type": "json_schema", "name": "answers", "schema": confidence_schema(batch), "strict": True}},
         "reasoning": {"effort": effort},
@@ -2800,7 +2873,8 @@ def gemini_schema(schema: dict[str, Any]) -> dict[str, Any]:
 
 
 def ask_antigravity(
-    model: str, batch: list[Question], timeout: float, thinking_level: str, verbose_log: TextIO | None
+    model: str, batch: list[Question], timeout: float, thinking_level: str, verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through Google Antigravity (the Google AI Ultra
     subscription, OMP's google-antigravity login): the Gemini API request of ask_gemini inside the Cloud Code Assist
@@ -2809,8 +2883,8 @@ def ask_antigravity(
     names each Gemini model per thinking level (MODEL-LEVEL); the request's thinkingLevel sets it too. The daily
     endpoint is asked first, then the sandbox one."""
     request = {
-        "systemInstruction": {"parts": [{"text": CONFIDENCE_SYSTEM_PROMPT}]},
-        "contents": [{"role": "user", "parts": [{"text": make_prompt(batch, CONFIDENCE_INSTRUCTION)}]}],
+        "systemInstruction": {"parts": [{"text": prompts.confidence_system}]},
+        "contents": [{"role": "user", "parts": [{"text": make_prompt(batch, prompts.confidence_instruction, prompts)}]}],
         "generationConfig": {
             "responseMimeType": "application/json",
             "responseSchema": gemini_schema(confidence_schema(batch)),
@@ -2861,7 +2935,7 @@ def ask_antigravity(
 
 def ask_openrouter_chat(
     model: str, batch: list[Question], timeout: float, effort: str, order: str, require_parameters: bool,
-    json_object: bool, verbose_log: TextIO | None,
+    json_object: bool, verbose_log: TextIO | None, prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through OpenRouter's chat completions, pinned to one
     provider endpoint without fallbacks: the prompt, system prompt and schema of the other chat providers, the
@@ -2877,8 +2951,8 @@ def ask_openrouter_chat(
     payload = {
         "model": model,
         "messages": [
-            {"role": "system", "content": CONFIDENCE_SYSTEM_PROMPT},
-            {"role": "user", "content": make_prompt(batch, CONFIDENCE_INSTRUCTION)},
+            {"role": "system", "content": prompts.confidence_system},
+            {"role": "user", "content": make_prompt(batch, prompts.confidence_instruction, prompts)},
         ],
         "temperature": 1.0,
         "max_tokens": 32768,
@@ -3358,10 +3432,11 @@ def ask_vllm_verbal(
     timeout: float,
     seed: int,
     verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[str | None, str]:
     """Ask for the answer letter and a 0-1 confidence together in one JSON reply."""
     labels = [option.label for option in question.options]
-    payload = verbal_payload(model, question, seed)
+    payload = verbal_payload(model, question, seed, prompts)
     payload.update(temperature=0, max_tokens=64)
     result, _ = post_json(
         f"{base_url.rstrip('/')}/v1/chat/completions",
@@ -3397,7 +3472,7 @@ def ask_vllm_verbal(
     return prediction, json.dumps(record, ensure_ascii=False, separators=(",", ":"))
 
 
-def verbal_payload(model: str, question: Question, seed: int) -> dict[str, Any]:
+def verbal_payload(model: str, question: Question, seed: int, prompts: ChatPrompts = TURKISH_CHAT) -> dict[str, Any]:
     """The vllm-verbal request without sampling settings: the question, and a JSON reply with one of its
     letters and a 0-1 confidence."""
     schema = {
@@ -3412,10 +3487,11 @@ def verbal_payload(model: str, question: Question, seed: int) -> dict[str, Any]:
     return {
         "model": model,
         "messages": [
-            {"role": "system", "content": VERBAL_SYSTEM_PROMPT},
+            {"role": "system", "content": prompts.verbal_system},
             {
                 "role": "user",
-                "content": f"{VERBAL_INSTRUCTION}\n\nSoru 1 (kaynak sayfa {question.source_page}):\n{question.prompt}",
+                "content": f"{prompts.verbal_instruction}\n\n"
+                           f"{prompts.question_header.format(index=1, page=question.source_page, image='')}\n{question.prompt}",
             },
         ],
         "seed": seed,
@@ -3434,11 +3510,12 @@ def ask_vllm_vote(
     timeout: float,
     seed: int,
     verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT,
 ) -> tuple[str | None, str]:
     """The vllm-verbal request sampled VOTE_SAMPLES times with VOTE_SAMPLING. The answer is the most
     frequent letter (a tie goes to the letter sampled first), stored with every sample and the votes."""
     labels = [option.label for option in question.options]
-    payload = verbal_payload(model, question, seed)
+    payload = verbal_payload(model, question, seed, prompts)
     payload.update(VOTE_SAMPLING, n=VOTE_SAMPLES, max_tokens=64)
     result, _ = post_json(
         f"{base_url.rstrip('/')}/v1/chat/completions",
@@ -3626,9 +3703,11 @@ def decision_instructions(args: argparse.Namespace) -> str:
 def ask_batch(
     args: argparse.Namespace, questions: list[Question], thinking: bool | str, verbose_log: TextIO | None
 ) -> tuple[list[str | None], str]:
-    """One request to the run's provider: an answer per question, and the raw response to store."""
+    """One request to the run's provider: an answer per question, and the raw response to store. A chat provider's
+    request of an English reading run (--english) takes the English chat prompts (ENGLISH_CHAT)."""
+    prompts = ENGLISH_CHAT if args.english is not None else TURKISH_CHAT
     if args.provider == "openai":
-        return ask_openai(args.codex_bin, args.model, questions, args.timeout, str(thinking), verbose_log)
+        return ask_openai(args.codex_bin, args.model, questions, args.timeout, str(thinking), verbose_log, prompts)
     if args.provider in SYSTEM_ONE_PROVIDERS:
         prediction, raw_response = ask_jev(
             SYSTEM_ONE[args.provider], args.jev_url, args.jev_api_key, args.model, questions[0], args.timeout, verbose_log,
@@ -3642,34 +3721,34 @@ def ask_batch(
         )
         return [prediction], raw_response
     if args.provider == "vllm":
-        return ask_vllm(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log)
+        return ask_vllm(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log, prompts)
     if args.provider == "vllm-stated":
-        return ask_vllm_stated(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log)
+        return ask_vllm_stated(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log, prompts)
     if args.provider == "vllm-verbal":
         prediction, raw_response = ask_vllm_verbal(
-            args.vllm_url, args.model, questions[0], args.timeout, args.seed, verbose_log
+            args.vllm_url, args.model, questions[0], args.timeout, args.seed, verbose_log, prompts
         )
         return [prediction], raw_response
     if args.provider == "vllm-vote":
         prediction, raw_response = ask_vllm_vote(
-            args.vllm_url, args.model, questions[0], args.timeout, args.seed, verbose_log
+            args.vllm_url, args.model, questions[0], args.timeout, args.seed, verbose_log, prompts
         )
         return [prediction], raw_response
     if args.provider == "gemini":
-        return ask_gemini(args.gemini_api_key, args.model, questions, args.timeout, args.gemini_thinking, verbose_log)
+        return ask_gemini(args.gemini_api_key, args.model, questions, args.timeout, args.gemini_thinking, verbose_log, prompts)
     if args.provider == "claude":
-        return ask_claude(args.claude_bin, args.model, questions, args.timeout, args.claude_effort, verbose_log)
+        return ask_claude(args.claude_bin, args.model, questions, args.timeout, args.claude_effort, verbose_log, prompts)
     if args.provider == "xai":
-        return ask_xai(args.model, questions, args.timeout, args.xai_reasoning, verbose_log)
+        return ask_xai(args.model, questions, args.timeout, args.xai_reasoning, verbose_log, prompts)
     if args.provider == "antigravity":
-        return ask_antigravity(args.model, questions, args.timeout, args.antigravity_thinking, verbose_log)
+        return ask_antigravity(args.model, questions, args.timeout, args.antigravity_thinking, verbose_log, prompts)
     if args.provider == "openrouter-chat":
         return ask_openrouter_chat(
             args.model, questions, args.timeout, args.openrouter_reasoning, args.openrouter_order,
-            args.openrouter_require_parameters, args.openrouter_json_object, verbose_log,
+            args.openrouter_require_parameters, args.openrouter_json_object, verbose_log, prompts,
         )
     return ask_ollama(
-        args.ollama_url, args.model, questions, args.timeout, args.seed, thinking, args.num_ctx, verbose_log
+        args.ollama_url, args.model, questions, args.timeout, args.seed, thinking, args.num_ctx, verbose_log, prompts
     )
 
 
@@ -4414,9 +4493,12 @@ def english_lines(runs: list[dict[str, Any]]) -> list[str]:
         "## English reading",
         "",
         "Runs with `--english`: the kept reading questions in English translation, the options under "
-        f'"{ENGLISH_OPTIONS_HEADING.strip()}" and the System One instructions "{ENGLISH_INSTRUCTIONS}" The key, '
-        "the option letters and the requests are otherwise those of the main runs, whose accuracy, confidence, paired "
-        "and cascade tables leave these runs out. Translations: the first 12 hex digits of the translations file's SHA-256.",
+        f'"{ENGLISH_OPTIONS_HEADING.strip()}" and the System One instructions "{ENGLISH_INSTRUCTIONS}" A chat model\'s '
+        f'run takes its Turkish runs\' prompts in English (prompt version {ENGLISH_CHAT_PROMPT_VERSION}): the system prompt '
+        f'names an English benchmark, the instruction is in English ("{ENGLISH_CHAT.confidence_instruction}" where its '
+        "Turkish runs ask for a confidence) and each question is headed \"Question N\". The key, the option letters and "
+        "the requests are otherwise those of the main runs, whose accuracy, confidence, paired and cascade tables leave "
+        "these runs out. Translations: the first 12 hex digits of the translations file's SHA-256.",
         "",
         "| Run | Questions | Right | Invalid | Accuracy | Translations | Prompt version |",
         "|---|---:|---:|---:|---:|---|---|",
@@ -5748,7 +5830,7 @@ def run_record(
         "english": None if args.english is None else {
             "translations_sha256": args.english_sha256,
             "questions": len(selection.questions),
-            "prompt_version": ENGLISH_DONT_KNOW_PROMPT_VERSION if args.dont_know else ENGLISH_PROMPT_VERSION,
+            "prompt_version": english_prompt_version(args.provider, bool(args.dont_know)),
         },
     }
 
