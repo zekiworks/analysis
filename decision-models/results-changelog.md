@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results eb89c981 (5 November 2026)
+
+- Hallucination tab: six more setups with "Bilmiyorum" over the whole bank, 51 in all (26 decision, 25 chat): GPT-6.1 Sol with high reasoning 15.4% non-hallucination and with low reasoning 9.2%, GPT-6.1 Terra with low reasoning 2.9%, Claude Opus 5.5 with high reasoning 2.7%, Claude Sonnet 5.5 with high reasoning 0.7%, and DeepSeek-V4.1-Flash 1017 with reasoning off 0.0% (it answered every question). English "I don't know" covers 55 setups in both languages (30 decision, 25 chat) and 6 chat setups in English alone.
+- English reading: DeepSeek-V4.1-Flash 1017 with reasoning off in English, on our GPUs: 87.0% against 89.9% in Turkish on the 547 kept questions, not a significant difference (Holm over 72 setups). 72 English setups. No other run changed.
+
 ## Results d2ac2b4e (5 November 2026)
 
 - English reading and English and Turkish: four more setups from our GPUs in English, 71 English setups in all: Gemma 4 31B at 16 per request 90.5% (Turkish 92.5%) and at 1 per request 89.9% (90.3%), OneJev 27B 86.3% (87.8%) and Qwen3-14B 79.7% (76.8%); none of the differences is significant (Holm over 71 setups). Liquid d1-ultra's English comparison covers 36 decision models; no verdict changed.
