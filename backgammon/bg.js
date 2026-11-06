@@ -115,12 +115,27 @@ function viewOn(v, lg) {
     && !v.parentElement.querySelector(':scope > [data-league-view="all"]'));
 }
 
+/* A key in the view bar is a link (it works without the script: ?league=, ?type=): marked with aria-current, not
+   aria-pressed. */
+function markKey(key, on) {
+  if (key.tagName === 'A') {
+    if (on) key.setAttribute('aria-current', 'true'); else key.removeAttribute('aria-current');
+  } else {
+    key.setAttribute('aria-pressed', String(on));
+  }
+}
+
 function applyHome() {
   const lg = HOME.league;
   document.querySelectorAll('[data-league-view]').forEach(v => v.toggleAttribute('data-off', !viewOn(v, lg)));
   document.querySelectorAll('[data-stack-title]').forEach(h => { h.hidden = lg !== 'all'; });
-  document.querySelectorAll('[data-league-pick]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.leaguePick === lg)));
-  document.querySelectorAll('tr[data-kind]').forEach(tr => { tr.hidden = !rowShown(tr); });
+  document.querySelectorAll('[data-league-pick]').forEach(b => markKey(b, b.dataset.leaguePick === lg));
+  document.querySelectorAll('a[data-filter-kind]').forEach(a => markKey(a, a.dataset.filterKind === HOME.filters.kind));
+  document.querySelectorAll('tr[data-kind], li.hbar[data-kind]').forEach(tr => { tr.hidden = !rowShown(tr); });
+  // A chart's group heading shows while one of its rows does.
+  document.querySelectorAll('li.hbar-group').forEach(h => {
+    h.hidden = !h.parentElement.querySelector(`li.hbar[data-group="${h.dataset.group}"]:not([hidden])`);
+  });
   document.querySelectorAll('svg.chart-svg').forEach(layoutChart);
   document.querySelectorAll('.phase-all').forEach(p => { p.hidden = HOME.phase === 'all'; });
   const box = document.getElementById('filters');
@@ -177,7 +192,17 @@ async function loadPhase(phase) {
   HOME.league = picks.some(b => b.dataset.leaguePick === wanted) ? wanted : HOME.defaultLeague;
   // ?type=decision (or chat, program): the Model type filter.
   if (document.querySelector(`[data-filter-kind="${CSS.escape(params.get('type') || '')}"]`)) HOME.filters.kind = params.get('type');
-  picks.forEach(b => b.addEventListener('click', () => { HOME.league = b.dataset.leaguePick; applyHome(); }));
+  // The view bar's League and Models keys are links (?league=, ?type=); with the script they filter in place.
+  picks.forEach(b => b.addEventListener('click', event => {
+    if (b.tagName === 'A') event.preventDefault();
+    HOME.league = b.dataset.leaguePick;
+    applyHome();
+  }));
+  document.querySelectorAll('a[data-filter-kind]').forEach(a => a.addEventListener('click', event => {
+    event.preventDefault();
+    HOME.filters.kind = a.dataset.filterKind;
+    applyHome();
+  }));
   document.querySelectorAll('[data-quick-view]').forEach(b => b.addEventListener('click', () => {
     HOME.league = 'all';
     HOME.filters.kind = b.dataset.quickView;

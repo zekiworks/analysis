@@ -50,16 +50,15 @@ details.more > summary { cursor: pointer; font-weight: 600; }
   }
 }
 
-/* Header: centred title, muted subtitle, the status line under it. */
-.hero, body:not(.home) .hero { display: block; max-width: 80ch; margin: 0 auto 1.5rem; text-align: center; }
-.hero h1 { font-size: 1.85rem; margin: 0 0 .4rem; }
-.hero .intro { color: var(--text-2); font-size: 1rem; margin: 0 0 .6rem; }
-.hero .subtitle { font-size: 1.08rem; margin: 0 0 .6rem; }
-.hero .eyebrow { margin: 0 0 .2rem; }
-.hero .readout-row { justify-content: center; border: 0; }
-.hero .readouts { justify-content: center; }
-.hero .summary-list li { margin: .1rem 0; }
-@media (min-width: 1024px) { .hero { display: block; } }
+/* A page's first card (pages.page_head; the home page's hero_card), as the sibling site's: the eyebrow, the title at its
+   size, the intro, the results version. */
+.hero { max-width: none; margin: 0 0 1rem; }
+main > .card.hero h1 { font-size: 1.6rem; margin: 0 0 .5rem; letter-spacing: 0; }
+.hero .intro { margin: 0 0 .6rem; font-size: 1rem; }
+.hero .subtitle { margin: 0 0 .5rem; color: var(--text-2); font-size: 1.05rem; }
+.hero .readout-row { margin: .5rem 0 0; }
+.hero .framing { margin: .85rem 0 .6rem; }
+.hero dl.facts { margin: .85rem 0 .75rem; }
 
 .filters-body { margin-top: 0; padding-top: 0; border-top: 0; gap: .6rem 1.5rem; }
 .filters-body > .group { flex-direction: row; flex-wrap: wrap; align-items: center; }
@@ -104,21 +103,18 @@ main > details.about { max-width: 1100px; margin: 1rem auto 0; padding: 0 .25rem
   td.model { min-width: 9.5rem; }
 }
 /* The four questions of the findings on one line under the waiting note. */
-.hero .summary-list { display: flex; flex-wrap: wrap; justify-content: center; gap: .1rem 1.2rem; font-size: .92rem; }
 .hero .summary-lead { margin: 0 0 .15rem; }
 
-/* --- v6: hero with the board (the visual signature), threads, league selector, the risk 2x2 wall. ----------- */
-body.home .hero.hero-split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-areas: none;
-  grid-template-rows: auto; gap: 1.5rem 2rem; align-items: center; max-width: 1180px; margin: 0 auto 1.25rem; text-align: left; }
-.hero-split .readout-row, .hero-split .readouts { justify-content: flex-start; }
+/* --- The home page's first card: the text and the board side by side on a wide screen. ------------------------- */
+.hero-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1rem 1.75rem; align-items: start; }
 .hero-links { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .6rem; }
 .hero-links .key { text-decoration: none; padding: .3rem .8rem; border: 1px solid var(--control-edge); color: var(--text); font-size: .85rem; }
 .hero-links .key:hover { border-color: var(--accent); color: var(--accent); }
 .hero-board { margin: 0; }
-.hero-board svg.hero-bd { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+.hero-board svg.hero-bd { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
 .hero-board figcaption { color: var(--text-2); font-size: .82rem; margin-top: .4rem; }
-@media (max-width: 860px) { body.home .hero.hero-split { grid-template-columns: minmax(0, 1fr); } }
-#findings { max-width: 1180px; margin: 0 auto 1rem; }
+@media (max-width: 860px) { .hero-split { grid-template-columns: minmax(0, 1fr); } }
+#findings { margin: 0 0 1rem; }
 #findings .summary-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .5rem; }
 #findings .summary-list li { padding: .55rem .7rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
 .thread { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin-right: .4rem; }
@@ -302,4 +298,111 @@ td.badges .small { display: block; white-space: normal; }
 @media (max-width: 640px) {
   .league-tabs a.mode { min-height: 2.75rem; padding: .35rem .5rem; font-size: .86rem; }
   .modes.sub-tabs a.mode { min-height: 2.75rem; font-size: .8rem; }
+}
+
+/* --- The page bar (Zeki, bus #1878): sticky at the top of the window on every page, the pages row (Home first) and on
+   the home page the view bar's rows under it; the top bar above it holds the site's name, the theme and More options and
+   scrolls away. Anchors land below it (site.js keeps --view-bar-h at its height; site.css scrolls by it). */
+.topbar { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "brand theme more"; margin-bottom: 0; border-bottom: 0; }
+.page-bar { position: sticky; top: 0; z-index: 20; margin: 0 -1rem .9rem; padding: .4rem 1rem; background: var(--view-bg);
+  border-top: 1px solid var(--edge); border-bottom: 2px solid var(--view-edge); box-shadow: var(--shadow); }
+.page-bar-in { max-width: 1100px; margin: 0 auto; }
+.page-bar .view-bar { position: static; margin: .4rem 0 0; padding: .4rem 0 0; background: none; border: 0;
+  border-top: 1px dashed var(--view-edge); box-shadow: none; }
+@media (max-width: 640px) {
+  .topbar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand brand" "theme more"; }
+  .page-bar { margin: 0 -.6rem .6rem; padding: .35rem .6rem; }
+  .hbar-refrow > span:first-child { display: none; }
+  /* The pages row scrolls sideways on a phone; Home stays pinned at its left end. */
+  .page-bar .nav > ul > .nav-group:first-child { position: sticky; left: 0; z-index: 1; padding-right: .45rem;
+    background: var(--view-bg); box-shadow: 6px 0 6px -6px rgba(0, 0, 0, .5); }
+}
+
+/* --- The sibling site's face (Ümit, bus #1831; Zeki #1833, #1834, #1836, #1860). -------------------------------- */
+/* One navigation: the top bar's pages row (site.css, the sibling's keys), in its groups, Home first; group names small
+   before their keys, keys centred on them. */
+.nav-group { align-items: center; }
+/* The view bar, on the home page only: the League and Models rows, which filter, and the Measure row, the parts of
+   the page. */
+.view-rows { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+.view-row, .view-row.view-measures { grid-column: auto; }
+.view-row.view-measures { grid-column: 1 / -1; }
+.view-row.view-leagues ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.view-row.view-groups ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.view-row.view-measures ul { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+/* Three kinds of choice, three looks, in both themes and without hovering (Zeki, bus #1860):
+   - the page in view: the pages row's key filled navy (light) or blue with a light blue edge (dark), site.css;
+   - a part of a page (in-page tabs: the leaderboard's and the leagues' tabs, the part links, the Measure row): keys
+     tinted with the link colour, the one in view filled with it (the sibling's --tab-* colours);
+   - a filter (League, Models, the Filters panel, the cost unit and the other keys that switch a view): rounded keys, the
+     chosen one with a thick edge in the link colour on its tint and a check mark; a filter at its default (All) looks
+     unpressed, as on the sibling site, its lamp still lit. */
+button.mode, a.mode, .view-measures a.view-key { color: var(--tab-text); background: var(--tab-bg); border: 2px solid var(--tab-edge);
+  border-radius: 7px; font-weight: 700; box-shadow: var(--key-shadow); }
+button.mode:hover, a.mode:hover, .view-measures a.view-key:hover { border-color: var(--view-key-hover); }
+button.mode[aria-selected="true"], a.mode[aria-selected="true"], .view-measures a.view-key[aria-current] {
+  color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); box-shadow: none; }
+button.mode[aria-selected="true"]::after, a.mode[aria-selected="true"]::after { background: var(--tab-current-bg); }
+.view-filter a.view-key, #filters button.key, .cost-unit button.key, .view-switch button.key, .col-switch button.key { border-radius: 999px; }
+.view-filter a.view-key[aria-current], button.key[aria-pressed="true"] { color: var(--tab-text); background: var(--tab-bg);
+  border: 2px solid var(--tab-edge); box-shadow: var(--key-inset); font-weight: 700; }
+.view-filter a.view-key[aria-current]::before, button.key[aria-pressed="true"]::before { content: "\2713"; margin-right: .3rem; }
+.view-filter a.view-key[data-league-pick="all"][aria-current], .view-filter a.view-key[data-filter-kind="all"][aria-current],
+#filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
+  [data-filter-runs="all"], [data-filter-weights="all"]) { color: var(--view-text); background: var(--view-key);
+  border: 1px solid var(--view-key-edge); box-shadow: var(--key-shadow); font-weight: 600; }
+#filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
+  [data-filter-runs="all"], [data-filter-weights="all"]) { font-weight: 400; }
+.view-filter a.view-key[aria-current]:is([data-league-pick="all"], [data-filter-kind="all"])::before,
+#filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
+  [data-filter-runs="all"], [data-filter-weights="all"])::before { content: none; }
+.view-filter a.view-key { border-width: 1px; font-weight: 600; }
+/* The theme keys keep the sibling's look: a lit lamp says which theme is on. */
+.theme-switch button.key[aria-pressed="true"] { border-radius: 6px; }
+.theme-switch button.key[aria-pressed="true"]::before { content: none; }
+/* The measures, one chart card each in one column; the leaderboard's own chart panels keep their two columns. */
+.charts.measures { grid-template-columns: minmax(0, 1fr); margin: 0 0 1rem; }
+.board-panel .chart-head h2 { font-size: 1.15rem; }
+/* The bars: a program grey and striped (a reference row, never ranked); a setup without a recorded family grey; the 95%
+   interval a line across the bar; the league beside the name under All leagues. */
+.hbar-fill.program { background-color: var(--data-grey); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
+.hbar-fill.other { background: var(--data-grey); }
+.hbar-track { position: relative; }
+.hbar-interval { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); box-shadow: 0 0 0 1px var(--panel); }
+.hbar-interval::before, .hbar-interval::after { content: ""; position: absolute; top: -4px; width: 2px; height: 10px; background: var(--text); }
+.hbar-interval::before { left: 0; }
+.hbar-interval::after { right: 0; }
+.hbar-where { color: var(--text-2); font-size: .78rem; }
+.hbars li[hidden] { display: none; }
+.hbar-value .nm { font-size: .76rem; }
+i.swatch-program { background-color: var(--data-grey); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 2px, rgba(0, 0, 0, .12) 2px 4px); }
+i.swatch-interval { width: 1rem; height: 2px; background: var(--text); border-radius: 0; vertical-align: .2rem; }
+.measure .table-note { max-width: none; }
+/* The error-rate chart's program lines: dashed across every row, each named on a line of its own above the axis. */
+.hbar-refline { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 2px dashed var(--text-2); }
+.hbar-refrow { margin-bottom: .1rem; }
+.hbar-refrow .hbar-track { display: block; min-height: 0; padding-bottom: .45rem; background: none; }
+.hbar-reftick { position: absolute; bottom: 0; height: .45rem; border-left: 2px dashed var(--text-2); }
+.hbar-reflabel { display: block; width: max-content; max-width: 100%; color: var(--text-2); font-size: .72rem; line-height: 1.2;
+  white-space: normal; }
+i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2); border-radius: 0; }
+.result-unit { color: var(--text-2); font-size: .8rem; font-weight: 600; }
+.cards-note { margin: .4rem 0 .2rem; }
+.unmeasured { margin-top: .6rem; }
+@media (max-width: 1000px) {
+  .view-rows { grid-template-columns: minmax(0, 1fr); }
+  .view-row { grid-template-columns: 4.6rem minmax(0, 1fr); }
+  .view-row.view-measures { grid-column: auto; }
+}
+@media (max-width: 640px) {
+  html { --view-bar-h: 5.5rem; }
+  .view-row.view-groups { grid-column: auto; grid-row: auto; }
+  /* The League and Models rows one line each; the Measure row stays off the phone bar (the first card links the parts). */
+  .view-row.view-filter a.view-key { min-height: 1.9rem; padding: .1rem .2rem; font-size: .8rem; }
+  /* Their keys say what they filter ("League 1", "All models"): the row names are for screen readers only here. */
+  .view-row.view-filter .view-more { display: inline; }
+  .view-row.view-measures { display: none; }
+  /* The pages row scrolls sideways as one line (site.css); the groups' own lists do not scroll inside it. */
+  .nav-group > ul { overflow: visible; margin: 0; padding: 0; }
+  .hbar-where { display: block; }
 }
