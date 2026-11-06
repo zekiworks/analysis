@@ -222,7 +222,7 @@
       {"runs": [145], "reason": "Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1."},
       {"runs": [129], "reason": "since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
       {"runs": [120, 121], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window; their first-release weights must also be downloaded again, as the server folder now holds the 1017 weights."},
-      {"providers": ["vllm", "vllm-stated"], "reason": "they run on our GPUs, which other work holds, and wait for a GPU window."}
+      {"providers": ["vllm-stated"], "reason": "they run on all four of our GPUs at once, which other work holds, and wait for a four-GPU window."}
     ],
     "method_notes": ["Perplexity Decider 27B v1.2 (local GPU), Perplexity Decider Flash v1.2 and Fastino GLiDE v1.2 made their Text tab runs on an NVIDIA DGX Spark and their English runs on our RTX PRO 6000 GPU, with the same checkpoint, server code and settings.", "Celeris-1 Decision was added on 3 November 2026 with one English run, although its repeated Turkish runs changed answers, for which the rule under Runs gives five."],
     "structural_check": {"about": "runner/translate_reading.py check on the final translations: the questions with a problem (a missing translation, the option letters, an empty text or the underline markup) and the number of warnings (numbering, numbers, Turkish letters, length). The build stops unless every problem question is flagged.", "problem_questions": [3043], "warnings": 159}

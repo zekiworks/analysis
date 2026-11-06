@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results fb2a144c (6 November 2026)
+
+- Hallucination tab: two more chat setups with "Bilmiyorum" over the whole bank, 53 in all (26 decision, 27 chat): GPT-6.1 Terra with high reasoning 7.3% non-hallucination, and Claude Opus 5.5 with low reasoning at one question per request 0.7%.
+- English reading: DeepSeek-V4.1-Flash 1017 with reasoning on in English, on our GPUs: 92.5% against 94.5% in Turkish on the 547 kept questions, not a significant difference (Holm over 73 setups). 73 English setups.
+- English "I don't know" covers 57 setups in both languages (30 decision, 27 chat), now with GPT-6.1 Terra with high reasoning (16.7% non-hallucination in English, 20.8% in Turkish) and Claude Opus 5.5 at one question per request (0.0% and 3.8%), neither difference significant. Six chat setups show their English side alone while their Turkish run is still to come: GPT-6 Astra with low and with medium reasoning, Grok 4.7, GPT-6.1 Sol and Claude Sonnet 5.5 at one question per request, and DeepSeek-V4.1-Flash 1017 with reasoning on.
+- The answers download is now two files: answers-repeats.json holds the repeat runs of the repeated setups and answers.json everything else, so each stays under GitHub's file size limit; together they hold the same answers as before. No other run changed.
+
 ## Results eb89c981 (5 November 2026)
 
 - Hallucination tab: six more setups with "Bilmiyorum" over the whole bank, 51 in all (26 decision, 25 chat): GPT-6.1 Sol with high reasoning 15.4% non-hallucination and with low reasoning 9.2%, GPT-6.1 Terra with low reasoning 2.9%, Claude Opus 5.5 with high reasoning 2.7%, Claude Sonnet 5.5 with high reasoning 0.7%, and DeepSeek-V4.1-Flash 1017 with reasoning off 0.0% (it answered every question). English "I don't know" covers 55 setups in both languages (30 decision, 25 chat) and 6 chat setups in English alone.
