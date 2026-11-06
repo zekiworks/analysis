@@ -120,6 +120,12 @@ python3 -m http.server 8000                                # preview at http://1
   precision and the image size), it draws the graphs with `chart-renderer/`, the link preview image and
   `CITATION.cff` with `build_page.py`, and writes the pages. `build_page.py`'s `Snapshot`, `values()` and
   table and figure code also build the Method page.
+  - **`--fast`:** `reproduce.py` takes about five minutes, the rest of the build seconds. A passing run stores
+    its check count outside the site (`~/.cache/decision-models/reproduce/`, or under `XDG_CACHE_HOME`), keyed by
+    a SHA-256 over everything it reads: `reproduce.py`, `benchmark_metrics.py`, every JSON file beside them and
+    the files `answers.json` lists, with the Python version. `--fast` reuses the count stored for the same key
+    and runs `reproduce.py` when there is none; every page and every copy check is still built and run. A
+    page-only change (pages, scripts, styles, `sitebuild/`) keeps the key; a full build stays the default.
   - **Run types:** a run is a decision model when its provider is one of `page_config.json`'s
     `decision_model_providers` and its model not one of `not_decision_models`. The tables, `v3.js`'s charts
     and the graphs read these two lists. The build stops when the graphs give a run another type than the

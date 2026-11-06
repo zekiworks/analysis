@@ -226,15 +226,48 @@ def pick(items: list[dict[str, Any]], spec: dict[str, Any], what: str) -> dict[s
     return found[0] if found else None
 
 
-def reproduce(folder: Path = ROOT) -> int:
-    """Run reproduce.py on folder's results.json and answers.json; the number of checks, all of which must match."""
-    command = [sys.executable, "-B", str(ROOT / "reproduce.py"), "--docs", str(folder)]
+# reproduce.py's passing check counts, each under the key of what it read (reproduce_key), kept outside the site so
+# they are never published and shared by every copy of it: a build that runs reproduce.py stores its count, and a
+# --fast build (build_site.py) reuses it while those inputs are byte for byte the same.
+REPRODUCE_CACHE = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "decision-models" / "reproduce"
+
+
+def reproduce_key() -> str:
+    """SHA-256 over everything reproduce.py reads in this folder: reproduce.py, benchmark_metrics.py, every JSON file
+    beside them (results.json, answers.json, page_config.json, vision.json, english-reading.json and the rest) and the
+    files answers.json lists wherever they sit, with the Python version that runs it."""
+    files = {ROOT / "reproduce.py", ROOT / "benchmark_metrics.py", *ROOT.glob("*.json"),
+             *(ROOT / name for name in method_answers().get("files", {}))}
+    digest = hashlib.sha256(sys.version.encode())
+    for path in sorted(files):
+        digest.update(f"\0{path.relative_to(ROOT)}\0".encode() + hashlib.sha256(path.read_bytes()).digest())
+    return digest.hexdigest()
+
+
+def reproduce(reuse: bool = False) -> int:
+    """Run reproduce.py on this folder's results.json and answers.json; the number of checks, all of which must match.
+    The count is stored under reproduce_key; with reuse, a count stored under the same key is returned without running
+    it."""
+    key = reproduce_key()
+    stored = REPRODUCE_CACHE / f"{key}.json"
+    if reuse and stored.is_file():
+        checks = json.loads(stored.read_text(encoding="utf-8"))["checks"]
+        print(f"reproduce.py: {checks:,} checks match (stored by a run on the same inputs, key {key[:12]})")
+        return checks
+    command = [sys.executable, "-B", str(ROOT / "reproduce.py"), "--docs", str(ROOT)]
     done = subprocess.run(command, capture_output=True, text=True, cwd=ROOT)
     found = CHECKS.search(done.stdout)
     if done.returncode or not found or found.group(2) != "0":
         sys.stderr.write(done.stdout[-2000:] + done.stderr[-2000:])
         raise SystemExit("reproduce.py does not pass; fix the snapshot before building the page")
-    return int(found.group(1))
+    checks = int(found.group(1))
+    if reproduce_key() != key:  # an input changed while it ran: the count is not that of either version
+        return checks
+    REPRODUCE_CACHE.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile("w", dir=REPRODUCE_CACHE, suffix=".tmp", delete=False, encoding="utf-8") as file:
+        json.dump({"checks": checks, "stored": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds")}, file)
+    os.replace(file.name, stored)
+    return checks
 
 
 class Snapshot:

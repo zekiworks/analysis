@@ -527,7 +527,8 @@ class Site:
     """results.json and page_config.json; when a page needs them, answers.json and build_page.py's snapshot and values
     over the results."""
 
-    def __init__(self) -> None:
+    def __init__(self, reuse_checks: bool = False) -> None:
+        self.reuse_checks = reuse_checks  # snapshot: reuse reproduce.py's stored count for the same inputs (bp.reproduce)
         self.results: dict[str, Any] = json.loads((ROOT / "results.json").read_text())
         self.config: dict[str, Any] = json.loads((ROOT / "page_config.json").read_text())
         self.runs: list[dict[str, Any]] = self.results["runs"]
@@ -563,8 +564,9 @@ class Site:
     @cached_property
     def snapshot(self) -> bp.Snapshot:
         """build_page.py's Snapshot over a copy of results.json (it adds request size labels to the runs it holds), with
-        the count of checks from running reproduce.py (bp.reproduce), which stops the build unless every check matches."""
-        return bp.Snapshot(json.loads(json.dumps(self.results)), self.config, bp.reproduce())
+        the count of checks from running reproduce.py (bp.reproduce), which stops the build unless every check matches;
+        with reuse_checks, the count a passing run stored for the same inputs, when there is one."""
+        return bp.Snapshot(json.loads(json.dumps(self.results)), self.config, bp.reproduce(self.reuse_checks))
 
     @cached_property
     def values(self) -> dict[str, str]:

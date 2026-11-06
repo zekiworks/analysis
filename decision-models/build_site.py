@@ -4,12 +4,17 @@ one step:
 
     python3 build_site.py               # charts, link preview image, CITATION.cff and every page
     python3 build_site.py --no-images   # the same, keeping the current link preview image (no Chrome needed)
+    python3 build_site.py --no-images --fast   # the same, reusing reproduce.py's count when its inputs are unchanged
 
-It runs reproduce.py first and stops unless every check matches. It also stops when a provider that serves both decision
-and chat models has a run of a model whose type we have not decided (provider_checks), and when chart-renderer's figures
-give a run another type than the tables do (type_checks). Then it draws the charts with chart-renderer (cargo), the link
-preview image in both themes with headless Chrome (CHROME, else google-chrome) and CITATION.cff, both from build_page.py,
-and writes the pages.
+It runs reproduce.py first and stops unless every check matches. reproduce.py takes about five minutes and the rest of
+the build seconds, so a passing run stores its count under a hash of everything it reads (build_page.reproduce_key:
+reproduce.py, benchmark_metrics.py, results.json, answers.json and every other JSON file beside them, with the Python
+version), outside the site; --fast reuses a stored count for the same hash and runs reproduce.py when there is none.
+Every other step, every page and every copy check runs either way. It also stops when a provider that serves both
+decision and chat models has a run of a model whose type we have not decided (provider_checks), and when chart-renderer's
+figures give a run another type than the tables do (type_checks). Then it draws the charts with chart-renderer (cargo),
+the link preview image in both themes with headless Chrome (CHROME, else google-chrome) and CITATION.cff, both from
+build_page.py, and writes the pages.
 
 The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the Page images tab, dont-know/
 (sitebuild/dont_know.py) the Hallucination tab and turkish-vs-english/ (sitebuild/english_reading.py) the Turkish vs
@@ -777,10 +782,12 @@ def summary_checks(page: str) -> tuple[list[str], int]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--no-images", action="store_true", help="keep the current link preview image (no Chrome needed)")
+    parser.add_argument("--fast", action="store_true",
+                        help="reuse reproduce.py's stored count when everything it reads is unchanged (a page-only change)")
     args = parser.parse_args()
-    data, site = Data(), Site()
+    data, site = Data(), Site(reuse_checks=args.fast)
     provider_checks(data)
-    snap = site.snapshot  # runs reproduce.py: the build stops here unless every check matches
+    snap = site.snapshot  # runs reproduce.py (--fast: unless stored): the build stops here unless every check matches
     type_checks(data, site, snap)
     charts()
     names = images(site, args.no_images)

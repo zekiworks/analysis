@@ -241,18 +241,82 @@ const costSwitch = () =>
   window.addEventListener('hashchange', open);
 })();
 
-/* In-page tab rows (.face-nav): the tab whose part is in the address (just pressed, or opened by a link) is marked, so
-   the reader sees which part they jumped to; with no part in the address none is. */
+/* In-page tab rows (.face-nav): in each row the tab of the part in view is marked, by the measure row's line (a quarter
+   of the way down the window below the bar), or the tab just pressed until the reader scrolls on, as a part at the end
+   of the page may not reach that line. A part that is a heading runs to the next part of any row after it in its
+   section, so a section's tab gives way to a step's tab inside it. Between parts no tab is marked, and a page opened
+   without a part in the address marks none until the reader scrolls or presses a tab. The marked tab pressed opens Home
+   in its default state (the view bar's data-home), as every marked key does. */
 (function markFaceNav() {
-  const links = [...document.querySelectorAll('.face-nav a[href^="#"]')];
-  if (!links.length) return;
-  const mark = () => {
-    const hash = window.location.hash;
-    links.forEach(link => {
-      if (hash && link.getAttribute('href') === hash) link.setAttribute('aria-current', 'location');
-      else link.removeAttribute('aria-current');
+  const bar = document.querySelector('.view-bar');
+  const rows = [...document.querySelectorAll('.face-nav')]
+    .map(row => [...row.querySelectorAll('a[href^="#"]')]
+      .map(link => ({ link, part: document.getElementById(decodeURIComponent(link.getAttribute('href').slice(1))) }))
+      .filter(({ part }) => part))
+    .filter(row => row.length);
+  if (!rows.length) return;
+  const parts = [...new Set(rows.flat().map(({ part }) => part))];
+  const span = part => {
+    const box = part.getBoundingClientRect();
+    if (!/^H[1-6]$/.test(part.tagName)) return [box.top, box.bottom];
+    const section = part.parentElement;
+    let end = section.getBoundingClientRect().bottom;
+    parts.forEach(other => {
+      if (other !== part && section.contains(other) && part.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING) {
+        end = Math.min(end, other.getBoundingClientRect().top);
+      }
+    });
+    return [box.top, end];
+  };
+  const inView = () => {
+    const top = bar ? bar.offsetHeight : 0;
+    const line = top + (window.innerHeight - top) / 4;
+    return rows.map(row => {
+      let best = null;
+      let bestTop = -Infinity;
+      row.forEach(entry => {
+        if (!entry.part.offsetParent) return;
+        const [start, end] = span(entry.part);
+        if (start <= line && end > line && start > bestTop) {
+          best = entry;
+          bestTop = start;
+        }
+      });
+      return best;
     });
   };
-  mark();
-  window.addEventListener('hashchange', mark);
+  const show = chosen => rows.forEach((row, i) => row.forEach(entry => {
+    if (entry === chosen[i]) entry.link.setAttribute('aria-current', 'location');
+    else entry.link.removeAttribute('aria-current');
+  }));
+  let pressed = false;
+  let pressedAt = 0;
+  const press = part => requestAnimationFrame(() => {
+    const now = inView();
+    show(rows.map((row, i) => row.find(entry => entry.part === part) ?? now[i]));
+    pressed = true;
+    pressedAt = window.scrollY;
+  });
+  let queued = false;
+  window.addEventListener('scroll', () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      if (pressed && Math.abs(window.scrollY - pressedAt) < 48) return;
+      pressed = false;
+      show(inView());
+    });
+  }, { passive: true });
+  document.addEventListener('click', event => {
+    const link = event.target.closest('.face-nav a[aria-current]');
+    if (link && bar?.dataset.home) link.href = bar.dataset.home;
+  });
+  const fromHash = opening => {
+    const part = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    if (part && parts.includes(part)) press(part);
+    else show(opening ? [] : inView());
+  };
+  window.addEventListener('hashchange', () => fromHash(false));
+  fromHash(true);
 })();
