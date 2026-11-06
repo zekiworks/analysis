@@ -141,6 +141,13 @@ html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
   color: var(--view-text); background: var(--view-key); border: 2px solid var(--view-key-edge); border-radius: 7px;
   font-size: .86rem; font-weight: 700; line-height: 1.15; text-decoration: none; box-shadow: var(--key-shadow); }
 .nav a:hover, .face-nav a:hover { border-color: var(--view-key-hover); }
+/* In-page tab rows (a page's own parts, the habits steps) are tinted with the link colour, so they stand apart from the
+   page text and from the pages row; the tint keeps the text's contrast in both themes. */
+.face-nav a { color: var(--link); background: var(--view-key); border-color: var(--link); }
+.face-nav a { background: color-mix(in srgb, var(--link) 13%, var(--view-key)); border-color: color-mix(in srgb, var(--link) 65%, var(--view-key-edge)); }
+.face-nav a:hover, .face-nav a:focus-visible { background: color-mix(in srgb, var(--link) 24%, var(--view-key)); border-color: var(--link); }
+/* The tab of the part in the address (just pressed, or opened by a link) is filled with the link colour. */
+.face-nav a[aria-current] { color: var(--panel); background: var(--link); border-color: var(--link); }
 .nav a[aria-current="page"] { color: var(--view-current-text); background: var(--view-current-bg);
   border-color: var(--view-current-edge); box-shadow: inset 0 -3px 0 var(--view-current-edge); }
 .theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; margin-left: auto; }

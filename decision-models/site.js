@@ -240,3 +240,19 @@ const costSwitch = () =>
   open();
   window.addEventListener('hashchange', open);
 })();
+
+/* In-page tab rows (.face-nav): the tab whose part is in the address (just pressed, or opened by a link) is marked, so
+   the reader sees which part they jumped to; with no part in the address none is. */
+(function markFaceNav() {
+  const links = [...document.querySelectorAll('.face-nav a[href^="#"]')];
+  if (!links.length) return;
+  const mark = () => {
+    const hash = window.location.hash;
+    links.forEach(link => {
+      if (hash && link.getAttribute('href') === hash) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  };
+  mark();
+  window.addEventListener('hashchange', mark);
+})();
