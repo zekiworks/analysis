@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "d00f5e26",
-  "updated": "2026-11-06T06:11:29Z",
+  "results_version": "f872e2fd",
+  "updated": "2026-11-06T06:58:47Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -287017,6 +287017,38 @@
         "vs_confidence": null
       },
       {
+        "name": "GLM-5.3-Flash",
+        "model": "glm-5.3-flash",
+        "provider": "vllm-stated",
+        "perplexity_mode": null,
+        "group": "chat",
+        "run": 825,
+        "runs": [
+          825
+        ],
+        "right": 1684,
+        "wrong": 336,
+        "dont_know": 2,
+        "invalid": 176,
+        "accuracy": 0.7661510464058234,
+        "attempt_rate": 0.9190172884440401,
+        "non_hallucination": 0.005917159763313609,
+        "mean_dont_know_probability": null,
+        "spread": null,
+        "answers_changed": null,
+        "original_run": 160,
+        "original_accuracy": 0.7879890809827116,
+        "derived": {
+          "cut_off": 0.45,
+          "attempt_rate": 0.9185623293903549,
+          "non_hallucination": 0.37060041407867494,
+          "right": 1715,
+          "wrong": 304,
+          "abstained": 179
+        },
+        "vs_confidence": null
+      },
+      {
         "name": "GLM-5.3",
         "model": "z-ai/glm-5.3",
         "provider": "openrouter-chat",
@@ -297183,7 +297215,7 @@
             "english_only_wrong": 45,
             "turkish_only_wrong": 95,
             "p": 2.877574547626978e-05,
-            "p_holm": 0.0009783753461931725
+            "p_holm": 0.0010071510916694424
           }
         },
         {
@@ -297873,7 +297905,7 @@
             "english_only_wrong": 9,
             "turkish_only_wrong": 1,
             "p": 0.021484375,
-            "p_holm": 0.708984375
+            "p_holm": 0.73046875
           }
         },
         {
@@ -299474,6 +299506,49 @@
           }
         },
         {
+          "name": "GLM-5.3-Flash",
+          "model": "glm-5.3-flash",
+          "provider": "vllm-stated",
+          "group": "chat",
+          "text_run": 160,
+          "english": {
+            "run": 824,
+            "runs": [
+              824
+            ],
+            "right": 485,
+            "wrong": 61,
+            "dont_know": 1,
+            "invalid": 0,
+            "accuracy": 0.886654478976234,
+            "attempt_rate": 0.9981718464351006,
+            "non_hallucination": 0.016129032258064516,
+            "mean_dont_know_probability": null
+          },
+          "turkish": {
+            "run": 825,
+            "runs": [
+              825
+            ],
+            "subset": false,
+            "right": 490,
+            "wrong": 55,
+            "dont_know": 2,
+            "invalid": 0,
+            "accuracy": 0.8957952468007313,
+            "attempt_rate": 0.9963436928702011,
+            "non_hallucination": 0.03508771929824561,
+            "mean_dont_know_probability": null
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 28,
+            "turkish_only_wrong": 22,
+            "p": 0.47988766169832786,
+            "p_holm": 1.0
+          }
+        },
+        {
           "name": "Metask-Jev 4B",
           "model": "metask-jev-4b-policy-mix",
           "provider": "metask",
@@ -299799,29 +299874,6 @@
             "accuracy": 0.9506398537477148,
             "attempt_rate": 0.9926873857404022,
             "non_hallucination": 0.14814814814814814,
-            "mean_dont_know_probability": null
-          }
-        },
-        {
-          "name": "GLM-5.3-Flash",
-          "model": "glm-5.3-flash",
-          "provider": "vllm-stated",
-          "group": "chat",
-          "text_run": 160,
-          "reason": "Running: the chat models' runs with the option started on 5 November 2026, English first, then Turkish, and are added as each one finishes.",
-          "running": true,
-          "english": {
-            "run": 824,
-            "runs": [
-              824
-            ],
-            "right": 485,
-            "wrong": 61,
-            "dont_know": 1,
-            "invalid": 0,
-            "accuracy": 0.886654478976234,
-            "attempt_rate": 0.9981718464351006,
-            "non_hallucination": 0.016129032258064516,
             "mean_dont_know_probability": null
           }
         }
@@ -365733,7 +365785,14 @@
             {
               "language": "Turkish",
               "wording": "Bilmiyorum",
-              "run": null
+              "run": 825,
+              "full_bank_restricted": true,
+              "right": 490,
+              "wrong": 55,
+              "abstained": 2,
+              "invalid": 0,
+              "coverage": 0.9963436928702011,
+              "risk": 0.10091743119266056
             },
             {
               "language": "Turkish",
