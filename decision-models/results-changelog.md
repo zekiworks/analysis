@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 6f70f7a2 (6 November 2026)
+
+- Hallucination tab: two more chat setups with "Bilmiyorum" over the whole bank, 55 in all (26 decision, 29 chat): GPT-6.1 Sol with low reasoning at one question per request 11.6% non-hallucination, and GPT-6 Astra with low reasoning 10.5%.
+- English "I don't know" covers 59 setups in both languages (30 decision, 29 chat), now with GPT-6 Astra with low reasoning (18.2% non-hallucination in English, 22.2% in Turkish) and GPT-6.1 Sol at one question per request (12.9% and 17.4%), neither difference significant. Six chat setups show their English side alone while their Turkish run is still to come: GPT-6 Astra with medium and with high reasoning and at one question per request, Grok 4.7, Claude Sonnet 5.5 at one question per request, and DeepSeek-V4.1-Flash 1017 with reasoning on. No other run changed.
+
 ## Results fb2a144c (6 November 2026)
 
 - Hallucination tab: two more chat setups with "Bilmiyorum" over the whole bank, 53 in all (26 decision, 27 chat): GPT-6.1 Terra with high reasoning 7.3% non-hallucination, and Claude Opus 5.5 with low reasoning at one question per request 0.7%.

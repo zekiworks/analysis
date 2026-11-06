@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "fb2a144c",
-  "updated": "2026-11-06T00:57:33Z",
+  "results_version": "6f70f7a2",
+  "updated": "2026-11-06T02:45:08Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -286441,6 +286441,38 @@
         "vs_confidence": null
       },
       {
+        "name": "GPT-6 Astra",
+        "model": "gpt-6-astra",
+        "provider": "openai",
+        "perplexity_mode": null,
+        "group": "chat",
+        "run": 816,
+        "runs": [
+          816
+        ],
+        "right": 2141,
+        "wrong": 51,
+        "dont_know": 6,
+        "invalid": 0,
+        "accuracy": 0.9740673339399454,
+        "attempt_rate": 0.997270245677889,
+        "non_hallucination": 0.10526315789473684,
+        "mean_dont_know_probability": null,
+        "spread": null,
+        "answers_changed": null,
+        "original_run": 48,
+        "original_accuracy": 0.9758871701546861,
+        "derived": {
+          "cut_off": 0.5,
+          "attempt_rate": 0.997270245677889,
+          "non_hallucination": 0.10909090909090909,
+          "right": 2143,
+          "wrong": 49,
+          "abstained": 6
+        },
+        "vs_confidence": null
+      },
+      {
         "name": "Gemini 3.8 Flash",
         "model": "gemini-3.8-flash",
         "provider": "gemini",
@@ -286501,6 +286533,38 @@
           "right": 2122,
           "wrong": 70,
           "abstained": 6
+        },
+        "vs_confidence": null
+      },
+      {
+        "name": "GPT-6.1 Sol",
+        "model": "gpt-6.1-sol",
+        "provider": "openai",
+        "perplexity_mode": null,
+        "group": "chat",
+        "run": 810,
+        "runs": [
+          810
+        ],
+        "right": 2129,
+        "wrong": 61,
+        "dont_know": 8,
+        "invalid": 0,
+        "accuracy": 0.9686078252957234,
+        "attempt_rate": 0.9963603275705186,
+        "non_hallucination": 0.11594202898550725,
+        "mean_dont_know_probability": null,
+        "spread": null,
+        "answers_changed": null,
+        "original_run": 190,
+        "original_accuracy": 0.9672429481346679,
+        "derived": {
+          "cut_off": 0.56,
+          "attempt_rate": 0.9963603275705186,
+          "non_hallucination": 0.10526315789473684,
+          "right": 2122,
+          "wrong": 68,
+          "abstained": 8
         },
         "vs_confidence": null
       },
@@ -296773,7 +296837,7 @@
             "english_only_wrong": 45,
             "turkish_only_wrong": 95,
             "p": 2.877574547626978e-05,
-            "p_holm": 0.0007769451278592841
+            "p_holm": 0.0008344966188118236
           }
         },
         {
@@ -296859,6 +296923,49 @@
             "english_only_wrong": 97,
             "turkish_only_wrong": 120,
             "p": 0.13513314138173593,
+            "p_holm": 1.0
+          }
+        },
+        {
+          "name": "GPT-6 Astra",
+          "model": "gpt-6-astra",
+          "provider": "openai",
+          "group": "chat",
+          "text_run": 48,
+          "english": {
+            "run": 647,
+            "runs": [
+              647
+            ],
+            "right": 525,
+            "wrong": 18,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9597806215722121,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.18181818181818182,
+            "mean_dont_know_probability": null
+          },
+          "turkish": {
+            "run": 816,
+            "runs": [
+              816
+            ],
+            "subset": false,
+            "right": 529,
+            "wrong": 14,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9670932358318098,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.2222222222222222,
+            "mean_dont_know_probability": null
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 8,
+            "turkish_only_wrong": 4,
+            "p": 0.3876953125,
             "p_holm": 1.0
           }
         },
@@ -297292,6 +297399,49 @@
             "turkish_only_wrong": 29,
             "p": 1.0,
             "p_holm": 1.0
+          }
+        },
+        {
+          "name": "GPT-6.1 Sol",
+          "model": "gpt-6.1-sol",
+          "provider": "openai",
+          "group": "chat",
+          "text_run": 190,
+          "english": {
+            "run": 769,
+            "runs": [
+              769
+            ],
+            "right": 516,
+            "wrong": 27,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.943327239488117,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.12903225806451613,
+            "mean_dont_know_probability": null
+          },
+          "turkish": {
+            "run": 810,
+            "runs": [
+              810
+            ],
+            "subset": false,
+            "right": 524,
+            "wrong": 19,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9579524680073126,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.17391304347826086,
+            "mean_dont_know_probability": null
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 9,
+            "turkish_only_wrong": 1,
+            "p": 0.021484375,
+            "p_holm": 0.6015625
           }
         },
         {
@@ -299073,21 +299223,21 @@
           "model": "gpt-6-astra",
           "provider": "openai",
           "group": "chat",
-          "text_run": 48,
+          "text_run": 277,
           "reason": "Running: the chat models' runs with the option started on 5 November 2026, English first, then Turkish, and are added as each one finishes.",
           "running": true,
           "english": {
-            "run": 647,
+            "run": 814,
             "runs": [
-              647
+              814
             ],
-            "right": 525,
-            "wrong": 18,
+            "right": 526,
+            "wrong": 17,
             "dont_know": 4,
             "invalid": 0,
-            "accuracy": 0.9597806215722121,
+            "accuracy": 0.9616087751371115,
             "attempt_rate": 0.9926873857404022,
-            "non_hallucination": 0.18181818181818182,
+            "non_hallucination": 0.19047619047619047,
             "mean_dont_know_probability": null
           }
         },
@@ -299115,25 +299265,25 @@
           }
         },
         {
-          "name": "GPT-6.1 Sol",
-          "model": "gpt-6.1-sol",
+          "name": "GPT-6 Astra",
+          "model": "gpt-6-astra",
           "provider": "openai",
           "group": "chat",
-          "text_run": 190,
+          "text_run": 191,
           "reason": "Running: the chat models' runs with the option started on 5 November 2026, English first, then Turkish, and are added as each one finishes.",
           "running": true,
           "english": {
-            "run": 769,
+            "run": 815,
             "runs": [
-              769
+              815
             ],
-            "right": 516,
-            "wrong": 27,
+            "right": 520,
+            "wrong": 23,
             "dont_know": 4,
             "invalid": 0,
-            "accuracy": 0.943327239488117,
+            "accuracy": 0.9506398537477148,
             "attempt_rate": 0.9926873857404022,
-            "non_hallucination": 0.12903225806451613,
+            "non_hallucination": 0.14814814814814814,
             "mean_dont_know_probability": null
           }
         },
@@ -299196,7 +299346,14 @@
             {
               "language": "Turkish",
               "wording": "Bilmiyorum",
-              "run": null
+              "run": 816,
+              "full_bank_restricted": true,
+              "right": 529,
+              "wrong": 14,
+              "abstained": 4,
+              "invalid": 0,
+              "coverage": 0.9926873857404022,
+              "risk": 0.02578268876611418
             },
             {
               "language": "Turkish",
@@ -299566,7 +299723,14 @@
             {
               "language": "English",
               "wording": "I don't know",
-              "run": null
+              "run": 814,
+              "full_bank_restricted": false,
+              "right": 526,
+              "wrong": 17,
+              "abstained": 4,
+              "invalid": 0,
+              "coverage": 0.9926873857404022,
+              "risk": 0.03130755064456722
             }
           ],
           "curves": [
@@ -301965,7 +302129,14 @@
             {
               "language": "English",
               "wording": "I don't know",
-              "run": null
+              "run": 815,
+              "full_bank_restricted": false,
+              "right": 520,
+              "wrong": 23,
+              "abstained": 4,
+              "invalid": 0,
+              "coverage": 0.9926873857404022,
+              "risk": 0.0423572744014733
             }
           ],
           "curves": [
@@ -302778,7 +302949,14 @@
             {
               "language": "Turkish",
               "wording": "Bilmiyorum",
-              "run": null
+              "run": 810,
+              "full_bank_restricted": true,
+              "right": 524,
+              "wrong": 19,
+              "abstained": 4,
+              "invalid": 0,
+              "coverage": 0.9926873857404022,
+              "risk": 0.034990791896869246
             },
             {
               "language": "Turkish",
@@ -583998,7 +584176,17 @@
         {
           "name": "GPT-6 Astra",
           "text_run": 277,
-          "english": null,
+          "english": {
+            "run": 814,
+            "right": 526,
+            "wrong": 17,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9616087751371115,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.19047619047619047,
+            "mean_dont_know_probability": null
+          },
           "turkish": null,
           "paired": null
         },
@@ -584124,7 +584312,17 @@
         {
           "name": "GPT-6 Astra",
           "text_run": 191,
-          "english": null,
+          "english": {
+            "run": 815,
+            "right": 520,
+            "wrong": 23,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9506398537477148,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.14814814814814814,
+            "mean_dont_know_probability": null
+          },
           "turkish": null,
           "paired": null
         },
