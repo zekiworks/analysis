@@ -115,6 +115,7 @@ SETUPS: dict[str, dict[str, Any]] = {
         "laya": ("laya", "laya"),
         "laya-multilingual": ("laya", "laya-multilingual"),
         "onejev": ("onejev", "OmniJev/OneJev-27B"),
+        "reax13": ("reax", "reax13"),
     }.items()},
     # Probed only: setups whose API may no longer serve the site's model.
     "perplexity-v1": {"provider": "perplexity", "model": "pplx-decider-v1-27b", "mode": None},
@@ -340,6 +341,8 @@ WEIGHTS = {
     "laya-multilingual": {"repo": "convaiinnovations/laya", "revision": "c5d7873", "committed": "2026-09-19",
                           "note": "its multilingual/ folder"},
     "onejev": {"repo": "OmniJev/OneJev-27B", "revision": "a5e5f55", "committed": "2026-10-16"},
+    # Committed 2026-11-03 16:04 UTC, after the questions' earliest public record (PUBLIC_RECORDS): its days are negative.
+    "reax13": {"repo": "decisionmodels/REAX-1.3", "revision": "fa4bf7e", "committed": "2026-11-03"},
 }
 PUBLIC_RECORDS = {
     "dataset_created": "2026-11-01T23:49Z", "dataset_commit": "64da0d8", "dataset_committed": "2026-11-02T01:37Z",

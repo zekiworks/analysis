@@ -605,7 +605,7 @@ def main() -> int:
     against_mismatches = check_against_reference(args.docs, results, answers, checks)
     checked = checks.passed + checks.failed - before
     print(
-        f"\nLiquid d1-ultra against each model in English (first English runs on the kept questions: counts exact, p and "
+        f"\nThe most accurate decision model in English against each other one (first English runs on the kept questions: counts exact, p and "
         f"Holm's p within a relative {P_TOLERANCE:g}): {checked - len(against_mismatches)} of {checked} match"
     )
     for line in against_mismatches:
@@ -2033,10 +2033,10 @@ def check_high_confidence(docs: Path, results: dict[str, Any], answers: dict[str
 
 
 def check_against_reference(docs: Path, results: dict[str, Any], answers: dict[str, Any], checks: Checks) -> list[str]:
-    """Recompute `english_reading.against_reference`: Liquid d1-ultra's first English run against each other decision
-    model's first English run (english_reading.models order; decision models by page_config.json's rule on their Text
-    tab runs) on english-reading.json's kept questions, right answers only one of the two gave (exact McNemar, d1-ultra
-    first), p within a relative P_TOLERANCE, Holm over the others."""
+    """Recompute `english_reading.against_reference`: the first decision model's first English run (english_reading.models
+    order, so the most accurate decision model in English; decision models by page_config.json's rule on their Text tab
+    runs) against each other decision model's first English run on english-reading.json's kept questions, right answers
+    only one of the two gave (exact McNemar, the reference first), p within a relative P_TOLERANCE, Holm over the others."""
     section = (results.get("english_reading") or {}).get("against_reference")
     if section is None:
         checks.failed += 1
@@ -2053,15 +2053,14 @@ def check_against_reference(docs: Path, results: dict[str, Any], answers: dict[s
     kept = sorted(position[item["question_id"]] for item in public["questions"] if item["kept"])
     english = {run["run"]: run for run in answers.get("english_runs", [])}
     models = results["english_reading"]["models"]
-    reference = next(m for m in models if m["name"] == "Liquid d1-ultra")
-    check("reference", [section["reference"], section["reference_run"], section["questions"]],
-          ["Liquid d1-ultra", reference["run"], len(kept)])
-    # The family: the other decision models (page_config.json's rule, Site.decision, on each model's Text tab run).
+    # The decision models (page_config.json's rule, Site.decision, on each model's Text tab run); the first is the reference.
     config = json.loads((docs / "page_config.json").read_text(encoding="utf-8"))
     text_runs = {run["run"]: run for run in results["runs"]}
-    others = [m for m in models if m is not reference
-              and text_runs[m["turkish_run"]]["provider"] in config["decision_model_providers"]
-              and text_runs[m["turkish_run"]]["model"] not in config["not_decision_models"]]
+    decision = [m for m in models if text_runs[m["turkish_run"]]["provider"] in config["decision_model_providers"]
+                and text_runs[m["turkish_run"]]["model"] not in config["not_decision_models"]]
+    reference, others = decision[0], decision[1:]
+    check("reference", [section["reference"], section["reference_run"], section["questions"]],
+          [reference["name"], reference["run"], len(kept)])
     check("models", [(m["name"], m["run"]) for m in section["models"]], [(m["name"], m["run"]) for m in others])
 
     def right(run: int) -> list[int]:
@@ -2069,7 +2068,7 @@ def check_against_reference(docs: Path, results: dict[str, Any], answers: dict[s
 
     tests = [bm.paired_comparison(right(reference["run"]), right(m["run"])) for m in others]
     for published, model, test in zip(section["models"], others, tests):
-        check(f"{model['name']} only d1-ultra right, only other right",
+        check(f"{model['name']} only the reference right, only other right",
               [published["reference_only_right"], published["other_only_right"]], [test["first_only"], test["second_only"]])
         check(f"{model['name']} p", published["p"], test["p"], p=True)
     for published, model, adjusted in zip(section["models"], others, bm.holm([test["p"] for test in tests])):

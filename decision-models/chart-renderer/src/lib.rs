@@ -432,6 +432,7 @@ fn color(run: &Run) -> Color {
         ("LiquidAI/d1-2B", ..) => rgb(0xd97706),
         ("baselabs/elephant-1", ..) => rgb(0x334155),
         ("baselabs/mammoth-1", ..) => rgb(0x78350f),
+        ("reax13", ..) => rgb(0x312e81),
         _ => GUIDE,
     }
 }

@@ -703,6 +703,18 @@ def count_tick(value: float) -> str:
     return f"{value:,.0f}"
 
 
+def days_value(days: int) -> str:
+    """Step 6's days from a weights revision to the questions' earliest public record, as shown: a revision committed
+    before it as the plain count, one committed after it as the days after ("1 day after"), never a negative count."""
+    return f"{days:,}" if days >= 0 else f"{-days:,} day{'' if days == -1 else 's'} after"
+
+
+def days_words(days: int) -> str:
+    """The same in a sentence, before or after the questions' earliest public record."""
+    return f"{days:,} days before" if days >= 0 else days_value(days)
+
+
+
 def round_top(value: float, divisions: int = 4) -> float:
     """The axis end for counts: the smallest multiple of `divisions` steps of a round size at or above value."""
     step = max(1, math.ceil(value / divisions))
@@ -804,12 +816,13 @@ def habits_charts(site: Site, data: dict[str, Any], rows: list[dict[str, Any]], 
                     key=lambda item: (-item["setup"]["habits"]["weights"]["days_before"], item["label"].casefold()))
     days = [item["setup"]["habits"]["weights"]["days_before"] for item in opened]
     step6 = [row_of(item, bars=[{"value": weights["days_before"], "colour": item["family"]["colour"]}],
-                    text=f"{weights['days_before']:,}",
+                    text=days_value(weights["days_before"]),
                     title=f"{item['label']}: weights revision committed {weights['committed']}, "
-                          f"{weights['days_before']:,} days before the questions' earliest public record")
+                          f"{days_words(weights['days_before'])} the questions' earliest public record")
              for item in opened for weights in [item["setup"]["habits"]["weights"]]]
+    later = ["A revision committed after that record: the days after it, with no bar"] if min(days) < 0 else []
     charts[6] = habits_figure(6, hbars(step6, top=round_top(max(days)), tick=count_tick, head=("Days before", "Days")), [
-        "Days from each open setup's weights revision to the questions' earliest public record"],
+        "Days from each open setup's weights revision to the questions' earliest public record", *later],
         [item["family"] for item in opened])
     return charts
 
@@ -920,12 +933,24 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
         [(esc(item["label"]), [
             f"<code>{esc(weights['repo'])}</code>" + (f'<span class="small">{esc(weights["note"])}</span>'
                                                       if weights.get("note") else ""),
-            f"<code>{esc(weights['revision'])}</code>", esc(weights["committed"]), str(weights["days_before"])])
+            f"<code>{esc(weights['revision'])}</code>", esc(weights["committed"]), esc(days_value(weights["days_before"]))])
          for item in opened for weights in [item["setup"]["habits"]["weights"]]])
     days = [item["setup"]["habits"]["weights"]["days_before"] for item in opened]
     public = block["public_records"]
     when = lambda stamp: f"{long_date(stamp[:10])} at {stamp[11:16]} UTC"  # noqa: E731
     read = block["weights"]
+    # The dates sentence, from the days: every revision before the questions' earliest public record, or those after it
+    # named with their days after.
+    before = [value for value in days if value >= 0]
+    after = [f"the revision of {esc(item['label'])} was committed {days_value(weights['days_before'])}" for item in opened
+             for weights in [item["setup"]["habits"]["weights"]] if weights["days_before"] < 0]
+    if not after:
+        dated = f"Each open setup's revision was committed {min(days)} to {max(days)} days before"
+    elif before:
+        dated = (f"All but {'one' if len(after) == 1 else len(after)} of the {len(days)} open setups' "
+                 f"revisions were committed {min(before)} to {max(before)} days before; {'; '.join(after)}")
+    else:
+        dated = f"Every open setup's revision was committed after the questions' earliest public record: {'; '.join(after)}"
     charts = habits_charts(site, data, rows, best, mark_words)
     steps = ("Strategies", "Habits", "Hard questions", "Probability", "Reversed", "Dates")
     links = "".join(f'<a href="#habits-{index}">{index}. {name}</a>' for index, name in enumerate(steps, 1))
@@ -959,7 +984,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
       <h3 id="habits-6">6. Weights and question dates</h3>
       {charts[6]}
       {step6}
-      <p class="note">Earliest public records of the questions we can observe: the Hugging Face dataset {esc(DATASET)} was created on {esc(when(public['dataset_created']))}; its only commit, <code>{esc(public['dataset_commit'])}</code>, of {esc(when(public['dataset_committed']))}, holds the questions. The GitHub repository's only commit, <code>{esc(public['repository_commit'])}</code>, of {esc(when(public['repository_committed']))}, holds none. Each open setup's revision was committed {min(days)} to {max(days)} days before (commit dates as the {esc(read['source'])} gave them, read {esc(long_date(read['read']))}; files can be older). These dates do not rule out earlier exposure to the questions or their sources; the API setups' training dates are unknown.</p>
+      <p class="note">Earliest public records of the questions we can observe: the Hugging Face dataset {esc(DATASET)} was created on {esc(when(public['dataset_created']))}; its only commit, <code>{esc(public['dataset_commit'])}</code>, of {esc(when(public['dataset_committed']))}, holds the questions. The GitHub repository's only commit, <code>{esc(public['repository_commit'])}</code>, of {esc(when(public['repository_committed']))}, holds none. {dated} (commit dates as the {esc(read['source'])} gave them, read {esc(long_date(read['read']))}; files can be older). A revision's commit date is not the end of its training, which no maker here states, so the order of these dates shows neither use nor absence of use of the questions. These dates do not rule out earlier exposure to the questions or their sources; the API setups' training dates are unknown.</p>
     </section>
     <section class="card" data-models="chat" hidden>{chat_note("Can a model score here without knowing the facts? That section covers the decision models: see All models or Decision models.")}</section>"""
 

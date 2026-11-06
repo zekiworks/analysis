@@ -30,7 +30,7 @@ const DARK_BACKGROUND: &str = "#1f1e1c";
 /// A colour missing here stops the dark SVG ([`Theme::Dark`] panics), so none keeps its light shade.
 /// Text, guides, gridlines, reading and grammar follow the page's dark tokens. No run colour is red: red marks
 /// kept-but-wrong answers only.
-const DARK: [(&str, &str); 72] = [
+const DARK: [(&str, &str); 73] = [
     // Text: default, muted (also `Color::Gray`).
     (TEXT_COLOR, "#ebe9e4"),
     ("#6b7280", "#a8a6a0"),
@@ -121,6 +121,8 @@ const DARK: [(&str, &str); 72] = [
     // Base Labs' Elephant-1 and Mammoth-1: a cool slate and a warm brown no other row uses, light in the dark theme.
     ("#334155", "#cbd5e1"),
     ("#78350f", "#fcd9b6"),
+    // REAX 1.3: a deep indigo, apart from GPT-6 Luna's lighter indigo, light in the dark theme.
+    ("#312e81", "#c7d2fe"),
     // Kept and right, kept but wrong: the page's shared palette.
     ("#15803d", "#4ade80"),
     ("#b91c1c", "#fca5a5"),

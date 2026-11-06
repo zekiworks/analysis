@@ -98,6 +98,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "drex-max": {"access": "Drex Max server (Nace's loader, drex_max), self-hosted, BF16", "scoring": True, "billing": "local"},
     "d1-server": {"access": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16", "scoring": True, "billing": "local"},
     "baselabs": {"access": "Base Labs server (qev, the model card's loader), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "reax": {"access": "REAX Engine server (reax13 mode, the maker's release code), self-hosted, FP8", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -346,6 +347,23 @@ MODELS: dict[str, dict[str, Any]] = {
         "check before its runs allowed for it. Its card lists English only.",
         "hardware": f"1 × {GPU}; BF16",
         "parameters": 27_356_728_560,
+    },
+    # Counted from the released checkpoint's safetensors headers (decisionmodels/REAX-1.3 at fa4bf7e), both parts, every
+    # tensor as stored (BF16, the readout F32): part G (part-g/) language model 30,697,345,340 and vision encoder with its
+    # projector 575,743,536; part Q (part-q/) language model 25,624,600,064, vision encoder 460,730,096 and readout
+    # (readout.safetensors) 1,305,600. The engine loads both parts in FP8 (block-128) on one RTX PRO 6000 Blackwell
+    # (96 GB), peak reserved memory about 88.5 GiB (the model card).
+    "reax13": {
+        "name": "REAX 1.3",
+        "note": "REAX's released REAX 1.3 weights (decisionmodels/REAX-1.3 at fa4bf7e), a decision model of two parts that "
+        "both score every question; each option's probability is the 50/50 mean of the two parts'. Part G blends "
+        "CharlieBT/gx31-decider (Gemma line, from tattrongvu/Jeffan-31b-1710) with PelaAI/KnowLine-31B-Gen1 (Gemma-4-31B); "
+        "part Q blends gurujustin/sn92-gen-p5 (Qwen3.5-27B line, through baselabs/mammoth-1) with vllm-sr/d3-ultra. The "
+        "model card calls REAX a decentralised lab on Bittensor subnet 92. It ran on our hardware through the maker's engine "
+        "(the reax13 mode of reaxlabs/reax-engine at ff8f595, its own server, serve.py), both parts in FP8 (block-128) on "
+        "one RTX PRO 6000 Blackwell, text only, one request at a time. Its card lists English only.",
+        "hardware": f"1 × {GPU}; FP8 (block-128)",
+        "parameters": 57_359_724_636,
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
@@ -1536,6 +1554,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
         ("laya", "laya-multilingual"), ("d1-server", "LiquidAI/d1-2B"), ("metask", "metask-jev-4b-policy-mix"),
         ("strands", "strands-decider-2b"), ("winnow", "winnow-12b"), ("clef", "clef"), ("onejev", "OmniJev/OneJev-27B"),
         ("open-jev", "open-jev-27b-v1.1"), ("pplx-decider", "pplx-decider-flash-v1.2"))},
+    ("reax", "reax13", None): "added to the Hallucination tab on 6 November 2026 (run on our GPU), after the option-word "
+    "check; not asked with “I don't know” yet.",
 }
 # The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
 # five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't
@@ -3235,13 +3255,12 @@ def high_confidence(data: dict[str, Any], answers: dict[str, Any], public: dict[
 
 def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: dict[str, Any],
                       runs: list[dict[str, Any]]) -> dict[str, Any]:
-    """`english_reading.against_reference`: Liquid d1-ultra's first English run against each other decision model's first
-    English run, on the kept questions, as right answers in each (exact McNemar, bm.paired_comparison: first d1-ultra),
-    with Holm's correction over those models; models in `english_reading.models` order. A decision model by
-    page_config.json's rule (Site.decision) on its Text tab run: its provider one of decision_model_providers and its
-    model not one of not_decision_models. The chat models' English runs stay out: the comparison is among decision
-    models."""
-    reference_name = HIGH_CONFIDENCE_FAMILY[0][0]
+    """`english_reading.against_reference`: the first decision model's first English run (the most accurate decision
+    model in English, `english_reading.models` order) against each other decision model's first English run, on the kept
+    questions, as right answers in each (exact McNemar, bm.paired_comparison: first the reference), with Holm's correction
+    over those models; models in `english_reading.models` order. A decision model by page_config.json's rule
+    (Site.decision) on its Text tab run: its provider one of decision_model_providers and its model not one of
+    not_decision_models. The chat models' English runs stay out: the comparison is among decision models."""
     kept = kept_questions(answers, public)
     lists = {run["run"]: run for run in answers["english_runs"]}
     config = json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))
@@ -3254,7 +3273,8 @@ def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: 
     def right(run: int) -> list[int]:
         return [int(lists[run]["correct"][index] == 1) for index in kept]
 
-    reference = next(model for model in reading["models"] if model["name"] == reference_name)
+    reference = next(model for model in reading["models"] if decision(model))
+    reference_name = reference["name"]
     models = []
     for model in reading["models"]:
         if model is reference or not decision(model):

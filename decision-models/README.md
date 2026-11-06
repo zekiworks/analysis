@@ -349,7 +349,8 @@ python3 -m http.server 8000                                # preview at http://1
     best decision setup without search; accuracy beside the habit baseline, the marked setups with a line under their
     name; hard questions right against uniform guessing; the chosen choice's probability on right and wrong answers
     with the answers at the sure threshold; days from each open setup's weights revision to the questions' earliest
-    public record). The page's link row has "Without the facts" (`#habits`) and "Answering habits" (`#habits-2`),
+    public record, a revision committed after it shown as its days after with no bar, and the note's dates sentence
+    computed from the days). The page's link row has "Without the facts" (`#habits`) and "Answering habits" (`#habits-2`),
     and the experiments line beside the ranking (`experiments`) links "Answering habits" too. Each explained
     setup gets a small second line in the Accuracy chart (hbars' row `note`) and the table: "picks the first choice in
     N of 10 questions; always picking the first choice scores X%"; without the block neither appears. The method notes

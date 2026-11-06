@@ -67,6 +67,8 @@ SETUP_TEXTS = (
     "Liquid lists for it.",
     "Base Labs' released elephant-1 and mammoth-1 on our hardware, through their model cards' loader, text only; their "
     "cards list English only.",
+    "REAX's released REAX 1.3 on our hardware in FP8, through the maker's own engine: the 50/50 mean of two parts' "
+    "option probabilities (Gemma and Qwen lines), text only; its card lists English only.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",
@@ -492,22 +494,25 @@ def local_estimates(snap: bp.Snapshot) -> str:
     return text
 
 
-def gemma_lead(snap: bp.Snapshot) -> None:
-    """What we found says Gemma 4 31B, a chat model, scored higher than every decision model except d1-ultra on Reading
-    and on Grammar (d1-ultra scored higher than Gemma on both), and that its confidence matched its hit rate less closely
-    than the best decision models' did; the build stops when a part no longer holds."""
+def gemma_lead(snap: bp.Snapshot) -> str:
+    """What we found says Gemma 4 31B, a chat model, scored higher than every decision model on Reading and on Grammar
+    except the ones it names, which scored higher than Gemma on both, and that its confidence matched its hit rate less
+    closely than the best decision models' did; returns those decision models' short names, and the build stops when a
+    part no longer holds."""
     decision = [run for run in snap.runs if snap.decision_model(run)]
-    gemma, ultra = snap.named["gemma"], [run for run in decision if run["model"] == "d1-ultra"]
-    if len(ultra) != 1:
-        raise ValueError("What we found names d1-ultra, which is not one decision model in results.json")
-    for group in ("reading", "grammar"):
+    gemma = snap.named["gemma"]
+    groups = ("reading", "grammar")
+    ahead = [run for run in decision if all(bp.study_share(snap, run, group) > bp.study_share(snap, gemma, group)
+                                            for group in groups)]
+    if not ahead:
+        raise ValueError("What we found names the decision models ahead of Gemma; there are none")
+    for group in groups:
         share = bp.study_share(snap, gemma, group)
-        if bp.study_share(snap, ultra[0], group) <= share:
-            raise ValueError(f"What we found says d1-ultra scored higher than Gemma on {group}; it does not")
-        if any(bp.study_share(snap, run, group) >= share for run in decision if run is not ultra[0]):
-            raise ValueError(f"What we found says Gemma beats every decision model but d1-ultra on {group}; it does not")
+        if any(bp.study_share(snap, run, group) >= share for run in decision if run not in ahead):
+            raise ValueError(f"What we found says Gemma beats every other decision model on {group}; it does not")
     if gemma["confidence"]["ece"] <= min(run["confidence"]["ece"] for run in decision):
         raise ValueError("What we found says Gemma's confidence matched its hit rate less closely than the best decision models'")
+    return bp.and_list([run["name"].removeprefix("Liquid ") for run in ahead])
 
 
 def and_list(items: tuple[tuple[str, str], ...]) -> str:
@@ -589,7 +594,7 @@ def glance(site: Site) -> str:
 def build(site: Site) -> dict[str, str]:
     snap = site.snapshot
     v = site.values
-    gemma_lead(snap)
+    gemma_ahead = gemma_lead(snap)
     cite = Cites()
     pairs = reasoning_pairs(site, snap)
     smaller, live_total = average_cost(snap)
@@ -621,7 +626,7 @@ def build(site: Site) -> dict[str, str]:
     sections = [
         ("main-findings", "What we found", f"""
 <p>No model led on every measure: accuracy, ranking answers by confidence and confidence that matches the hit rate are
-separate strengths. Gemma 4 31B, a chat model, scored higher than every decision model except d1-ultra on Reading
+separate strengths. Gemma 4 31B, a chat model, scored higher than every decision model except {esc(gemma_ahead)} on Reading
 ({v['gemma_reading']}) and Grammar ({v['gemma_grammar']}), but its confidence matched its hit rate less closely than the
 best decision models' did.</p>
 <p>How a model gives its confidence matters. GPT-6 Luna through OpenAI's Decisions API ranked its answers better than Luna

@@ -670,7 +670,7 @@ def against_reference(site: Site, data: dict[str, Any]) -> str:
         parts.append(f"{bp.in_words(ahead)} {'is' if ahead == 1 else 'are'} ahead of it")
     summary = (f"<p><strong>In English, against {esc(reference)}, {joined(parts)}</strong> (of the {bp.in_words(family)} "
                f"other decision models, after Holm's correction).</p>")
-    return (f'<section class="card" id="against-d1-ultra"><h2>{esc(reference)} against each decision model in English</h2>'
+    return (f'<section class="card" id="against-reference"><h2>{esc(reference)} against each decision model in English</h2>'
             f"{summary}"
             f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'
             f'</thead><tbody>{"".join(rows)}</tbody></table></div>'
