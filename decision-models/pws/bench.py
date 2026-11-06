@@ -714,6 +714,8 @@ def cost_note_fields(setup: dict[str, Any], item: dict[str, Any], paths: list[Pa
     estimate), method_note (a CLI's own additions) and stand_in (requests another model answered, counted as failures)."""
     if item["cost_per_million_questions"] is None:
         kind = None
+    elif item.get("host") == "our GPU" and setup.get("group") == "chat":
+        kind = "API-equivalent estimate"  # DeepSeek-V4.1-Flash 1017 at DeepSeek's API list price (Zeki #1357)
     elif item.get("host") == "our GPU":
         kind = "list-price estimate"
     elif item.get("billing") == "subscription":

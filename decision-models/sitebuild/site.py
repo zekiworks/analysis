@@ -507,7 +507,8 @@ class Site:
 
     @cached_property
     def answers(self) -> dict[str, Any]:
-        return json.loads((ROOT / "answers.json").read_text())
+        """answers.json with the files of its sections beside it, as reproduce.load_answers merges them (read once)."""
+        return bp.method_answers()
 
     @cached_property
     def scored(self) -> list[int]:

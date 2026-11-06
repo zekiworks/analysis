@@ -13,7 +13,8 @@ Site: <https://zekiworks.github.io/analysis/decision-models/>
 
 The site is this folder, served by GitHub Pages from the `main` branch. It is static. `build_site.py`
 writes the home page's generated parts and every other page from `results.json`, the aggregate results,
-and `answers.json`, which holds every answer of every main, repeat and routing run, with its
+and `answers.json` with `answers-repeats.json` beside it, which hold every answer of every main, repeat and routing
+run (the repeat runs in `answers-repeats.json`), with its
 full-precision score and option probabilities but without the questions' text. `v3.js` draws the home
 page's tabs and charts in the browser; without JavaScript the home page shows the leaderboard as a plain
 table. `benchmark_metrics.py` is the benchmark's metric code, and `runner/` the code that ran the
@@ -534,7 +535,12 @@ has), the runs with the "I don't know" option (`dont_know_runs`), the English re
 English "I don't know" runs with their Turkish counterparts on the kept questions (`english_dont_know_runs`,
 `english_dont_know_turkish_runs`), the option-word check's runs (`dont_know_word_runs`, with `dont_know_word_prompts`)
 and the hosted GLiDE rerun (`rerun_runs`), and the web grounding test's own runs (`web_grounding_runs`), with scores
-and option probabilities at full precision; no run is in two lists. The English reading section needs
+and option probabilities at full precision; no run is in two lists. The sections of `ANSWER_FILES` go to files of
+their own beside `answers.json` (`answers-repeats.json`: `repeat_runs`, the largest section), so that no file nears
+GitHub's 100 MiB limit: each repeats `answers.json`'s `schema_version` and `dataset`, and `answers.json` lists them
+under `files`. The export stops when a file would pass `ANSWERS_LIMIT` (80 MB); then move another section to a file
+of its own. `reproduce.py` (`load_answers`), `build_page.py` and the pages read them merged; the Data page lists each
+file with its size and what it holds. The English reading section needs
 `english-reading.json` in this folder and the web grounding section `web-grounding.json` (each run's input tokens by
 group, what the grounded searches returned and PWS-Decisions' aggregates; written by `web_grounding_inputs.py` from the
 benchmark database and PWS-Decisions' run folder, and committed with the site). The export stops unless every English

@@ -110,7 +110,11 @@ def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
         # setup's own interface here, so a row never reads "(chat API) (chat, CLI)".
         if setup.get("interface") and name.endswith(" (chat API)"):
             name = name.removesuffix(" (chat API)")
+        twins = [other for other in data["setups"] if other is not setup and other["model"] == setup["model"]
+                 and other.get("host") == setup.get("host") and web(other) == web(setup)
+                 and other.get("interface") == setup.get("interface") and other.get("reasoning") != setup.get("reasoning")]
         marks = ((["chat"] if chat(setup) else []) + ([setup["interface"]] if setup.get("interface") else [])
+                 + ([f"reasoning {setup['reasoning']}"] if twins and setup.get("reasoning") else [])
                  + ([f"on {setup['host']}"] if setup.get("host") else [])
                  + (["with web"] if web(setup) and "with web" not in name else []))
         inside = "; ".join(part for part in (", ".join(marks), stand_in_words(setup)) if part)

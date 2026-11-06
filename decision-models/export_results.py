@@ -12,7 +12,8 @@ with the option on the English track's kept questions, only `english_reading.don
 enter only `dont_know_option_word` and answers.json's `dont_know_word_runs`, fresh runs of a setup (--rerun) only
 `hosted_glide_rerun` and answers.json's `rerun_runs`, and the web grounding test's own runs (the pilots,
 WEB_GROUNDING_PILOTS, and the repeats of its first runs, web_grounding_repeat) only `web_grounding` and answers.json's
-`web_grounding_runs`.
+`web_grounding_runs`. The answers' sections in ANSWER_FILES (the repeat runs, `repeat_runs`) are written to files of
+their own beside answers.json, which lists them under `files`, so that no file nears GitHub's 100 MiB limit.
 """
 
 from __future__ import annotations
@@ -38,6 +39,12 @@ import benchmark_metrics as bm  # noqa: E402
 RESULT_PATTERN = re.compile(r"<!-- benchmark-result: (\{.*?\}) -->")
 ANALYSIS_PATTERN = re.compile(r"<!-- benchmark-analysis: (\{.*?\}) -->")
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "results.json"
+# The answers' sections written to files of their own next to answers.json, by file: GitHub takes no file over 100 MiB.
+# Each file carries answers.json's ANSWERS_HEADER so it stands alone, and answers.json lists them under `files`
+# (reproduce.load_answers merges them back). A file over ANSWERS_LIMIT stops the export: move a section out of it here.
+ANSWER_FILES = {"answers-repeats.json": ("repeat_runs",)}
+ANSWERS_HEADER = ("schema_version", "dataset")
+ANSWERS_LIMIT = 80_000_000  # bytes
 # The English reading track's public record (runner translate_reading.py publish): flags, per-question hashes, prompts.
 ENGLISH_READING_PATH = Path(__file__).resolve().parent / "english-reading.json"
 # The site's settings: which runs are decision models (decision_model_providers, not_decision_models; Site.decision).
@@ -591,7 +598,8 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         required=True,
         help="the per-question file from benchmark_ollama.py --export-answers: the replays come from it, and it is "
-        "written as answers.json next to --output with the exported runs only",
+        "written as answers.json next to --output with the exported runs only, ANSWER_FILES' sections in files of "
+        "their own beside it",
     )
     return parser.parse_args()
 
@@ -3408,6 +3416,26 @@ def published_date(path: Path, data: dict[str, Any], newest: str) -> str:
     return max(newest, datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
 
 
+def answer_files(answers: dict[str, Any]) -> dict[str, tuple[str, ...]]:
+    """ANSWER_FILES' files with the sections the answers hold, each file with at least one."""
+    held = {name: tuple(section for section in sections if section in answers) for name, sections in ANSWER_FILES.items()}
+    return {name: sections for name, sections in held.items() if sections}
+
+
+def answer_texts(answers: dict[str, Any]) -> dict[str, str]:
+    """The answers as written, by file name: answers.json (the header, `files`, each other file's name with its
+    sections, then every section kept in it, in the answers' order) and each file of answer_files (the header and its
+    sections), compact JSON."""
+    files = answer_files(answers)
+    moved = {section for sections in files.values() for section in sections}
+    main = {**{key: answers[key] for key in ANSWERS_HEADER}, "files": {name: list(sections) for name, sections in files.items()},
+            **{key: value for key, value in answers.items() if key not in moved and key not in ANSWERS_HEADER}}
+    parts = {"answers.json": main} | {name: {**{key: answers[key] for key in ANSWERS_HEADER},
+                                             **{section: answers[section] for section in sections}}
+                                      for name, sections in files.items()}
+    return {name: json.dumps(part, ensure_ascii=False, separators=(",", ":")) + "\n" for name, part in parts.items()}
+
+
 def main() -> int:
     args = parse_args()
     try:
@@ -3480,14 +3508,21 @@ def main() -> int:
     except (OSError, ValueError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
+    texts = answer_texts(answers)
+    for name, text in texts.items():
+        if (size := len(text.encode("utf-8"))) > ANSWERS_LIMIT:
+            print(f"error: {name} would be {size:,} bytes, over {ANSWERS_LIMIT:,}: move a section of it to a file of its "
+                  "own in ANSWER_FILES", file=sys.stderr)
+            return 1
     args.output.parent.mkdir(parents=True, exist_ok=True)
     content = json.dumps({**data, "results_version": None}, ensure_ascii=False, sort_keys=True)
     data["results_version"] = hashlib.sha256(content.encode("utf-8")).hexdigest()[:8]
     args.output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {len(data['runs'])} runs over {data['questions']:,} questions to {args.output}")
-    path = args.output.parent / "answers.json"
-    path.write_text(json.dumps(answers, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
-    print(f"Wrote the answers of {len(answers['runs'])} runs to {path}")
+    for name, text in texts.items():
+        (args.output.parent / name).write_text(text, encoding="utf-8")
+    moved = "".join(f"; {', '.join(sections)} to {name}" for name, sections in answer_files(answers).items())
+    print(f"Wrote the answers of {len(answers['runs'])} runs to {args.output.parent / 'answers.json'}{moved}")
     return 0
 
 

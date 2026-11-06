@@ -28,6 +28,7 @@ from typing import Any
 
 sys.dont_write_bytecode = True  # no __pycache__ next to the published files
 import benchmark_metrics as bm  # noqa: E402
+from reproduce import load_answers  # noqa: E402  (answers.json with the files of its sections beside it)
 
 # The site and its data sit next to this script: the folder is what GitHub Pages serves.
 ROOT = Path(__file__).resolve().parent
@@ -1107,9 +1108,9 @@ from functools import cache  # noqa: E402  (kept in this zone so the slices merg
 
 @cache
 def method_answers() -> dict[str, Any]:
-    """answers.json, read once per build: the few counts results.json does not hold (score statuses, distinct
-    scores, passages) come from the exported answers."""
-    return json.loads((ROOT / "answers.json").read_text(encoding="utf-8"))
+    """answers.json with the files of its sections beside it (load_answers), read once per build: the few counts
+    results.json does not hold (score statuses, distinct scores, passages) come from the exported answers."""
+    return load_answers(ROOT)
 
 
 def method_scored() -> list[int]:

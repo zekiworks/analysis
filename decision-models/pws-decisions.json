@@ -31,9 +31,10 @@
  "percentile": 0.95,
  "sure_threshold": 0.99,
  "dates": [
-  "2026-11-05"
+  "2026-11-05",
+  "2026-11-06"
  ],
- "run_cost_usd": 192.304090631,
+ "run_cost_usd": 258.433588631,
  "setups": [
   {
    "provider": "perplexity",
@@ -5351,6 +5352,156 @@
   },
   {
    "provider": "openai",
+   "model": "gpt-6-astra",
+   "perplexity_mode": null,
+   "request_model": "gpt-6-astra",
+   "group": "chat",
+   "web": false,
+   "price": {
+    "basis": "OpenAI's API list price",
+    "source": "https://developers.openai.com/api/docs/pricing",
+    "date": "2026-10-08",
+    "input_per_million": 10.0,
+    "per_request": 0.0,
+    "output_per_million": 50.0,
+    "applies_to": "billed",
+    "per_search": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T23:31:03+00:00",
+     "ended": "2026-11-05T23:41:50+00:00",
+     "questions": 100,
+     "correct": 75,
+     "accuracy": 0.75,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 10.253515571472235,
+     "p95_request_seconds": 27.550826746039093,
+     "input_tokens": 455668,
+     "output_tokens": 26524,
+     "cost_usd": 4.55232,
+     "cost_per_million_questions": 45523.2,
+     "served_models": [],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.88169,
+      "sure": 24,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T23:41:58+00:00",
+     "ended": "2026-11-05T23:52:20+00:00",
+     "questions": 100,
+     "correct": 74,
+     "accuracy": 0.74,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 10.430041794548742,
+     "p95_request_seconds": 26.58903404395096,
+     "input_tokens": 455678,
+     "output_tokens": 24429,
+     "cost_usd": 3.988022,
+     "cost_per_million_questions": 39880.22,
+     "served_models": [],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.88596,
+      "sure": 27,
+      "sure_wrong": 1
+     }
+    },
+    {
+     "started": "2026-11-05T23:52:30+00:00",
+     "ended": "2026-11-06T00:02:59+00:00",
+     "questions": 100,
+     "correct": 77,
+     "accuracy": 0.77,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 10.004314572550356,
+     "p95_request_seconds": 25.395156476064585,
+     "input_tokens": 455656,
+     "output_tokens": 25212,
+     "cost_usd": 3.905992,
+     "cost_per_million_questions": 39059.92,
+     "served_models": [],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.87338,
+      "sure": 23,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.7533333333333333,
+    "min": 0.74,
+    "max": 0.77
+   },
+   "accuracy_ci95": {
+    "low": 0.6733333333333333,
+    "high": 0.83
+   },
+   "re_asked": [
+    0,
+    0,
+    0
+   ],
+   "median_request_seconds": {
+    "mean": 10.229290646190444,
+    "min": 10.004314572550356,
+    "max": 10.430041794548742
+   },
+   "p95_request_seconds": {
+    "mean": 26.51167242201821,
+    "min": 25.395156476064585,
+    "max": 27.550826746039093
+   },
+   "cost_per_million_questions": {
+    "mean": 41487.78,
+    "min": 39059.92,
+    "max": 45523.2
+   },
+   "run": 277,
+   "reasoning": "high",
+   "access": "Codex CLI, ChatGPT subscription",
+   "interface": "CLI",
+   "billing": "subscription",
+   "workers": 2,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "mean_chosen_probability": {
+    "mean": 0.8803433333333334,
+    "min": 0.87338,
+    "max": 0.88596
+   },
+   "sure_wrong": {
+    "mean": 0.3333333333333333,
+    "min": 0,
+    "max": 1
+   },
+   "sure": {
+    "mean": 24.666666666666668,
+    "min": 23,
+    "max": 27
+   },
+   "cost_kind": "API-equivalent estimate",
+   "cost_note": null,
+   "method_note": "the Codex CLI adds its own context items to every request: 4,278 to 4,284 more input tokens than OpenAI's Responses API took for the same question (257 there; 62 questions compared), counted in the cost"
+  },
+  {
+   "provider": "openai",
    "model": "gpt-6.1-sol",
    "perplexity_mode": null,
    "request_model": "gpt-6.1-sol",
@@ -7648,6 +7799,502 @@
    "method_note": null
   },
   {
+   "provider": "vllm",
+   "model": "deepseek-v4.1-flash-1017",
+   "perplexity_mode": null,
+   "request_model": "deepseek-v4.1-flash-1017",
+   "group": "chat",
+   "web": false,
+   "price": {
+    "basis": "DeepSeek's list price for the same model",
+    "source": "https://api-docs.deepseek.com/quick_start/pricing",
+    "date": "2026-11-05",
+    "input_per_million": 0.3,
+    "per_request": 0.0,
+    "output_per_million": 1.2,
+    "applies_to": "maker",
+    "per_search": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T23:28:41+00:00",
+     "ended": "2026-11-05T23:39:23+00:00",
+     "questions": 100,
+     "correct": 63,
+     "accuracy": 0.63,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 18.741823738033418,
+     "p95_request_seconds": 64.2766059130663,
+     "input_tokens": 23548,
+     "output_tokens": 101474,
+     "cost_usd": 0.1288332,
+     "cost_per_million_questions": 1288.332,
+     "served_models": [
+      "deepseek-v4.1-flash-1017"
+     ],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9987798592538969,
+      "sure": 99,
+      "sure_wrong": 37
+     }
+    },
+    {
+     "started": "2026-11-05T23:39:40+00:00",
+     "ended": "2026-11-05T23:50:13+00:00",
+     "questions": 100,
+     "correct": 58,
+     "accuracy": 0.58,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 15.595324341964442,
+     "p95_request_seconds": 71.95856384502258,
+     "input_tokens": 23548,
+     "output_tokens": 109285,
+     "cost_usd": 0.13820639999999998,
+     "cost_per_million_questions": 1382.0639999999996,
+     "served_models": [
+      "deepseek-v4.1-flash-1017"
+     ],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9997219382752126,
+      "sure": 100,
+      "sure_wrong": 42
+     }
+    },
+    {
+     "started": "2026-11-05T23:50:45+00:00",
+     "ended": "2026-11-06T00:01:25+00:00",
+     "questions": 100,
+     "correct": 57,
+     "accuracy": 0.57,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 15.085872479947284,
+     "p95_request_seconds": 74.065677969018,
+     "input_tokens": 23548,
+     "output_tokens": 113588,
+     "cost_usd": 0.14337,
+     "cost_per_million_questions": 1433.7,
+     "served_models": [
+      "deepseek-v4.1-flash-1017"
+     ],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9989019175991835,
+      "sure": 97,
+      "sure_wrong": 42
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.5933333333333333,
+    "min": 0.57,
+    "max": 0.63
+   },
+   "accuracy_ci95": {
+    "low": 0.51,
+    "high": 0.6733333333333333
+   },
+   "re_asked": [
+    0,
+    0,
+    0
+   ],
+   "median_request_seconds": {
+    "mean": 16.47434018664838,
+    "min": 15.085872479947284,
+    "max": 18.741823738033418
+   },
+   "p95_request_seconds": {
+    "mean": 70.1002825757023,
+    "min": 64.2766059130663,
+    "max": 74.065677969018
+   },
+   "cost_per_million_questions": {
+    "mean": 1368.032,
+    "min": 1288.332,
+    "max": 1433.7
+   },
+   "host": "our GPU",
+   "run": 585,
+   "reasoning": "on",
+   "access": "SGLang, self-hosted, published mixed precision; 1017 weights (revision 1bae0e1)",
+   "interface": null,
+   "billing": "local",
+   "workers": 4,
+   "best_setting": true,
+   "confidence_kind": "probability",
+   "mean_chosen_probability": {
+    "mean": 0.999134571709431,
+    "min": 0.9987798592538969,
+    "max": 0.9997219382752126
+   },
+   "sure_wrong": {
+    "mean": 40.333333333333336,
+    "min": 37,
+    "max": 42
+   },
+   "sure": {
+    "mean": 98.66666666666667,
+    "min": 97,
+    "max": 100
+   },
+   "cost_kind": "API-equivalent estimate",
+   "cost_note": null,
+   "method_note": null
+  },
+  {
+   "provider": "vllm",
+   "model": "deepseek-v4.1-flash-1017",
+   "perplexity_mode": null,
+   "request_model": "deepseek-v4.1-flash-1017",
+   "group": "chat",
+   "web": false,
+   "price": {
+    "basis": "DeepSeek's list price for the same model",
+    "source": "https://api-docs.deepseek.com/quick_start/pricing",
+    "date": "2026-11-05",
+    "input_per_million": 0.3,
+    "per_request": 0.0,
+    "output_per_million": 1.2,
+    "applies_to": "maker",
+    "per_search": 0.0
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T22:38:28+00:00",
+     "ended": "2026-11-05T22:39:02+00:00",
+     "questions": 100,
+     "correct": 43,
+     "accuracy": 0.43,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 1.3391794560011476,
+     "p95_request_seconds": 1.9018267400097102,
+     "input_tokens": 21048,
+     "output_tokens": 1198,
+     "cost_usd": 0.007751999999999999,
+     "cost_per_million_questions": 77.52,
+     "served_models": [
+      "deepseek-v4.1-flash-1017"
+     ],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7825622311122692,
+      "sure": 7,
+      "sure_wrong": 3
+     }
+    },
+    {
+     "started": "2026-11-05T22:39:03+00:00",
+     "ended": "2026-11-05T22:39:21+00:00",
+     "questions": 100,
+     "correct": 43,
+     "accuracy": 0.43,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.7353282429976389,
+     "p95_request_seconds": 0.9614140560152009,
+     "input_tokens": 21048,
+     "output_tokens": 1200,
+     "cost_usd": 0.0077544,
+     "cost_per_million_questions": 77.544,
+     "served_models": [
+      "deepseek-v4.1-flash-1017"
+     ],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7822242802271628,
+      "sure": 8,
+      "sure_wrong": 3
+     }
+    },
+    {
+     "started": "2026-11-05T22:39:21+00:00",
+     "ended": "2026-11-05T22:39:40+00:00",
+     "questions": 100,
+     "correct": 45,
+     "accuracy": 0.45,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 0.7575958344968967,
+     "p95_request_seconds": 0.9463316969340667,
+     "input_tokens": 21048,
+     "output_tokens": 1198,
+     "cost_usd": 0.007751999999999999,
+     "cost_per_million_questions": 77.52,
+     "served_models": [
+      "deepseek-v4.1-flash-1017"
+     ],
+     "re_asked": 0,
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.7824386489469506,
+      "sure": 6,
+      "sure_wrong": 2
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.43666666666666665,
+    "min": 0.43,
+    "max": 0.45
+   },
+   "accuracy_ci95": {
+    "low": 0.3433333333333334,
+    "high": 0.5333333333333333
+   },
+   "re_asked": [
+    0,
+    0,
+    0
+   ],
+   "median_request_seconds": {
+    "mean": 0.9440345111652277,
+    "min": 0.7353282429976389,
+    "max": 1.3391794560011476
+   },
+   "p95_request_seconds": {
+    "mean": 1.2698574976529926,
+    "min": 0.9463316969340667,
+    "max": 1.9018267400097102
+   },
+   "cost_per_million_questions": {
+    "mean": 77.52799999999999,
+    "min": 77.52,
+    "max": 77.544
+   },
+   "host": "our GPU",
+   "run": 558,
+   "reasoning": "off",
+   "access": "SGLang, self-hosted, published mixed precision; 1017 weights (revision 1bae0e1)",
+   "interface": null,
+   "billing": "local",
+   "workers": 4,
+   "best_setting": false,
+   "confidence_kind": "probability",
+   "mean_chosen_probability": {
+    "mean": 0.7824083867621275,
+    "min": 0.7822242802271628,
+    "max": 0.7825622311122692
+   },
+   "sure_wrong": {
+    "mean": 2.6666666666666665,
+    "min": 2,
+    "max": 3
+   },
+   "sure": {
+    "mean": 7,
+    "min": 6,
+    "max": 8
+   },
+   "cost_kind": "API-equivalent estimate",
+   "cost_note": null,
+   "method_note": null
+  },
+  {
+   "provider": "openai",
+   "model": "gpt-6-astra",
+   "perplexity_mode": null,
+   "request_model": "gpt-6-astra",
+   "group": "chat",
+   "web": true,
+   "price": {
+    "basis": "OpenAI's API list price",
+    "source": "https://developers.openai.com/api/docs/pricing",
+    "date": "2026-10-08",
+    "input_per_million": 10.0,
+    "per_request": 0.0,
+    "output_per_million": 50.0,
+    "applies_to": "billed",
+    "per_search": 0.01,
+    "searches": "counted",
+    "search_source": "https://developers.openai.com/api/docs/pricing",
+    "search_note": "$10 per 1,000 web search calls; search content tokens billed at the model's rates"
+   },
+   "runs": [
+    {
+     "started": "2026-11-05T23:31:03+00:00",
+     "ended": "2026-11-05T23:40:58+00:00",
+     "questions": 100,
+     "correct": 100,
+     "accuracy": 1.0,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 9.38164432294434,
+     "p95_request_seconds": 23.130375129985623,
+     "input_tokens": 3402423,
+     "output_tokens": 12012,
+     "cost_usd": 18.899534,
+     "cost_per_million_questions": 188995.34,
+     "served_models": [],
+     "re_asked": 0,
+     "searches": {
+      "reported": true,
+      "total": 161,
+      "per_question": 1.61,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.99275,
+      "sure": 94,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T23:41:06+00:00",
+     "ended": "2026-11-05T23:50:39+00:00",
+     "questions": 100,
+     "correct": 99,
+     "accuracy": 0.99,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 9.349891752470285,
+     "p95_request_seconds": 21.83097423997242,
+     "input_tokens": 3215830,
+     "output_tokens": 11485,
+     "cost_usd": 17.264374,
+     "cost_per_million_questions": 172643.74,
+     "served_models": [],
+     "re_asked": 0,
+     "searches": {
+      "reported": true,
+      "total": 151,
+      "per_question": 1.51,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.99178,
+      "sure": 91,
+      "sure_wrong": 0
+     }
+    },
+    {
+     "started": "2026-11-05T23:50:47+00:00",
+     "ended": "2026-11-06T00:00:37+00:00",
+     "questions": 100,
+     "correct": 100,
+     "accuracy": 1.0,
+     "missing": 0,
+     "not_success": 0,
+     "errors": 0,
+     "retries": 0,
+     "median_request_seconds": 9.713032957457472,
+     "p95_request_seconds": 22.68322641996201,
+     "input_tokens": 3331114,
+     "output_tokens": 11800,
+     "cost_usd": 17.085588,
+     "cost_per_million_questions": 170855.88,
+     "served_models": [],
+     "re_asked": 0,
+     "searches": {
+      "reported": true,
+      "total": 156,
+      "per_question": 1.56,
+      "questions_with_search": 100
+     },
+     "confidence": {
+      "answers": 100,
+      "mean_chosen_probability": 0.9905,
+      "sure": 90,
+      "sure_wrong": 0
+     }
+    }
+   ],
+   "accuracy": {
+    "mean": 0.9966666666666667,
+    "min": 0.99,
+    "max": 1.0
+   },
+   "accuracy_ci95": {
+    "low": 0.99,
+    "high": 1.0
+   },
+   "re_asked": [
+    0,
+    0,
+    0
+   ],
+   "median_request_seconds": {
+    "mean": 9.481523010957366,
+    "min": 9.349891752470285,
+    "max": 9.713032957457472
+   },
+   "p95_request_seconds": {
+    "mean": 22.548191929973353,
+    "min": 21.83097423997242,
+    "max": 23.130375129985623
+   },
+   "cost_per_million_questions": {
+    "mean": 177498.32,
+    "min": 170855.88,
+    "max": 188995.34
+   },
+   "run": 277,
+   "reasoning": "high",
+   "access": "Codex CLI, ChatGPT subscription",
+   "interface": "CLI",
+   "billing": "subscription",
+   "workers": 2,
+   "best_setting": true,
+   "confidence_kind": "stated",
+   "cost_lower_bound": false,
+   "searches_per_question": {
+    "mean": 1.56,
+    "min": 1.51,
+    "max": 1.61
+   },
+   "questions_with_search": {
+    "mean": 100,
+    "min": 100,
+    "max": 100
+   },
+   "mean_chosen_probability": {
+    "mean": 0.9916766666666667,
+    "min": 0.9905,
+    "max": 0.99275
+   },
+   "sure_wrong": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "sure": {
+    "mean": 91.66666666666667,
+    "min": 90,
+    "max": 94
+   },
+   "cost_kind": "API-equivalent estimate",
+   "cost_note": null,
+   "method_note": "the Codex CLI adds its own context items to every request: 4,278 to 4,284 more input tokens than OpenAI's Responses API took for the same question (257 there; 62 questions compared), counted in the cost"
+  },
+  {
    "provider": "openai",
    "model": "gpt-6.1-sol",
    "perplexity_mode": null,
@@ -9370,32 +10017,7 @@
  "pending": {
   "parallel": "Parallel's own Decisions API: no key on this machine yet.",
   "gpu": "Runs on our GPUs: waits for a GPU window.",
-  "chat_gpu": [
-   {
-    "setup": "deepseek-v4.1-flash-1017",
-    "provider": "vllm",
-    "model": "deepseek-v4.1-flash-1017",
-    "run": 585,
-    "reasoning": "on",
-    "url_var": "DEEPSEEK_URL",
-    "host": "our GPU",
-    "group": "chat",
-    "web": false,
-    "name": "DeepSeek-V4.1-Flash 1017"
-   },
-   {
-    "setup": "deepseek-v4.1-flash-1017-off",
-    "provider": "vllm",
-    "model": "deepseek-v4.1-flash-1017",
-    "run": 558,
-    "reasoning": "off",
-    "url_var": "DEEPSEEK_URL",
-    "host": "our GPU",
-    "group": "chat",
-    "web": false,
-    "name": "DeepSeek-V4.1-Flash 1017"
-   }
-  ],
+  "chat_gpu": [],
   "chat_unfinished": []
  },
  "chat": {

@@ -9,6 +9,7 @@ import re
 import build_page as bp
 from sitebuild.questions import PICKS
 from sitebuild.site import ROOT, Site, esc, rel
+from sitebuild.vision import joined
 
 PATH = "data/"
 CODE_URL = "https://github.com/zekiworks/analysis/tree/main/decision-models"
@@ -70,13 +71,29 @@ def size(path) -> str:
     return f"{megabytes:.1f} MB" if megabytes >= 1 else f"{path.stat().st_size / 1e3:.0f} kB"
 
 
+# What each section that answers.json keeps in a file of its own holds, for that file's line (answers.json `files`).
+SECTION_WORDS = {"repeat_runs": "the repeat runs of each repeated setup (the Stability tab's), each with its repeat set"}
+
+
 def build(site: Site) -> dict[str, str]:
     results = site.results
+    parts = site.answers.get("files", {})
+    unknown = sorted({section for sections in parts.values() for section in sections} - SECTION_WORDS.keys())
+    if unknown:
+        raise SystemExit(f"data.py: name what {', '.join(unknown)} holds in SECTION_WORDS")
+    elsewhere = joined([f"{'; '.join(SECTION_WORDS[section] for section in sections)}, are in {name}"
+                        for name, sections in parts.items()]) if parts else ""
     files = (
         (ROOT / "results.json", rel(PATH, "results.json"),
          "Every published number: each setup's accuracy, confidence, latency and cost, and the routing replays and live tests."),
         (ROOT / "answers.json", rel(PATH, "answers.json"),
-         "Every answer of every run, with its score and option probabilities, and the prompts. No question text."),
+         "Every answer of every run, with its score and option probabilities, and the prompts. No question text."
+         + (f" {elsewhere[:1].upper()}{elsewhere[1:]}, which it lists under files; reproduce.py reads them together."
+            if parts else "")),
+        *((ROOT / name, rel(PATH, name),
+           f"The part of answers.json kept in a file of its own, under GitHub's file size limit: "
+           f"{'; '.join(SECTION_WORDS[section] for section in sections)} ({', '.join(sections)}), with answers.json's "
+           "schema version and dataset, so it reads on its own.") for name, sections in parts.items()),
         (PICKS, rel(PATH, "data/picks.json"),
          "Built from answers.json for these pages: each leaderboard setup's pick and score on each scored question, and "
          "each English setup's English pick and score on each kept reading question."),

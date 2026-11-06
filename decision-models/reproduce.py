@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Recompute the published numbers from answers.json and check them against results.json.
+"""Recompute the published numbers from answers.json and the files beside it and check them against results.json.
 
     python3 reproduce.py [--docs FOLDER] [--report BENCHMARK_RESULTS_MD]
 
@@ -62,7 +62,10 @@ each arm's mean with its lowest and highest run), the "Bilmiyorum" counts, the s
 tokens, sources and PWS-Decisions' aggregates of web-grounding.json.
 Last the footer date (`updated`, when results with this content first went out): never older than a published run's
 date, and with --report never older than the newest
-`updated` of the runs answers.json publishes. Uses only the standard library and benchmark_metrics.py, the metric code
+`updated` of the runs answers.json publishes. answers.json keeps some sections in files of their own beside it (its
+`files`: answers-repeats.json holds `repeat_runs`), each with answers.json's schema_version and dataset; load_answers
+reads every file and merges them, and stops when a file's header or sections are not the ones answers.json lists.
+Uses only the standard library and benchmark_metrics.py, the metric code
 the benchmark report uses. Exits with status 1 when anything differs beyond the tolerances printed.
 """
 
@@ -142,13 +145,33 @@ class Checks:
         return self.cell(matched, number(recomputed, digits), number(published, digits))
 
 
+ANSWERS = "answers.json"
+# What each file of answers.json's `files` repeats from it, so that it stands alone.
+ANSWERS_HEADER = ("schema_version", "dataset")
+
+
+def load_answers(folder: Path) -> dict[str, Any]:
+    """answers.json with the sections it keeps in files of their own beside it (its `files`: each file's name and
+    sections), merged into the one document the export wrote (`files` kept). Stops unless each file holds exactly
+    answers.json's header and its listed sections, none of them also in answers.json."""
+    answers = json.loads((folder / ANSWERS).read_text(encoding="utf-8"))
+    for name, sections in answers.get("files", {}).items():
+        part = json.loads((folder / name).read_text(encoding="utf-8"))
+        if (sorted(part) != sorted([*ANSWERS_HEADER, *sections]) or any(part[key] != answers[key] for key in ANSWERS_HEADER)
+                or any(section in answers for section in sections)):
+            raise SystemExit(f"{folder / name}: not the part of {ANSWERS} it lists (header {', '.join(ANSWERS_HEADER)} "
+                             f"and sections {', '.join(sections)}, none of them in {ANSWERS} itself)")
+        answers.update({section: part[section] for section in sections})
+    return answers
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "--docs",
         type=Path,
         default=Path(__file__).resolve().parent,
-        help="folder with results.json and answers.json (default: this script's folder)",
+        help="folder with results.json, answers.json and the files answers.json lists (default: this script's folder)",
     )
     parser.add_argument(
         "--report",
@@ -158,14 +181,15 @@ def main() -> int:
     )
     args = parser.parse_args()
     results = json.loads((args.docs / "results.json").read_text(encoding="utf-8"))
-    answers = json.loads((args.docs / "answers.json").read_text(encoding="utf-8"))
+    answers = load_answers(args.docs)
     checks = Checks()
 
     status = answers["questions"]["status"]
     keys = answers["questions"]["key"]
     scored = [index for index, value in enumerate(status) if value != "excluded"]
     excluded = [index for index, value in enumerate(status) if value == "excluded"]
-    print(f"{args.docs / 'answers.json'}: {len(status)} questions, {len(excluded)} excluded by the key audit, {len(scored)} scored")
+    parts = "".join(f" and {name} ({', '.join(sections)})" for name, sections in answers.get("files", {}).items())
+    print(f"{args.docs / ANSWERS}{parts}: {len(status)} questions, {len(excluded)} excluded by the key audit, {len(scored)} scored")
     if len(scored) != results["questions"]:
         checks.failed += 1
         print(f"MISMATCH: results.json scores {results['questions']} questions, answers.json {len(scored)}")
