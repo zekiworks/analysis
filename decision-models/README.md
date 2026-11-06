@@ -166,16 +166,21 @@ python3 -m http.server 8000                                # preview at http://1
     `?models=all.` reads as all), row 3 the measure (Accuracy, Non-hallucination, Cost,
     Latency); on a screen wider than 1000 px rows 1 and 2 share the first line and row 3 takes the second, each row's
     name before its keys (row 2 reads All, Decision, Chat; "models" is added where each row has a line of its own and room for it). Each row 1 choice opens
-    its page at the top, charts first, then the table. A row 2 key keeps the view (`keepViewOnGroup` in `site.js`): it
+    its page at the top, charts first, then the table. Every marked key (row 1's open test, row 2's group, row 3's
+    measure, and the navigation bar's entry of the page in view) opens Home, the root index, in its default state
+    (`HOME_STATE`: `?models=all`, no part in the address, so no row 3 key marked; the view bar's `data-home`); on Home
+    row 1 marks Turkish reading and grammar and row 2 All. A row 2 key keeps the view (`keepViewOnGroup` in `site.js`): it
     opens its group with the chosen cost unit (`?cost-unit=`) and the part of row 3's marked key, so Decision pressed at
     `#cost` opens that page's `#cost` with `?models=decision` in the same unit (the top of the page when no key is
     marked). `site.js` marks the current group, keeps it in row 1's links and
-    in the links marked `data-keep-group` (the top bar's Page images and Hallucination), and shows each `data-models`
-    element only for its groups. On the pages that show their parts by group (`FILTER_PAGES`: the three test pages, Page
-    images, Hallucination and Web grounding) row 2 stays on the page; on any other page it leads to the home page with
+    in the links marked `data-keep-group` (the top bar's Page images, Hallucination, Web grounding and PWS-Decisions),
+    and shows each `data-models` element only for its groups. On the pages that show their parts by group
+    (`FILTER_PAGES`: the three test pages, Page images, Hallucination, Web grounding and PWS-Decisions) row 2 stays on
+    the page; on any other page it leads to the home page with
     that group. A row 3 key whose part (`#accuracy`, `#non-hallucination`, `#cost`, `#latency`) is on the page links to
     it (the query, so the group, stays; the three test pages have all four, Web grounding its Cost), landing below the
-    bar (`--view-bar-h`), and `site.js` marks the key of the part in view (or the one just pressed); a key whose part
+    bar (`--view-bar-h`), and `site.js` marks the key of the part in view (or the one just pressed); a page opened
+    without a part in the address marks no key until the reader scrolls or presses a key. A key whose part
     is not on the page opens that part of the home page with the group in view. The All models view always ranks decision and chat
     models together in one chart and one table per measure. **Cost unit**: every cost reads per 1,000 questions or per
     1M questions, one choice for the whole site (the keys in each cost card's head, `cost_switch`; `site.js` keeps it in
@@ -208,8 +213,10 @@ python3 -m http.server 8000                                # preview at http://1
     `dont_know_option_word`, `english-reading.json` and `page_config.json`'s `english_reading` and `model_languages`,
     built by `sitebuild/english_reading.py`; its former address `english-reading/` redirects there, fragment kept). The
     top bar under the view bar (`topbar` in `sitebuild/site.py`) is one line where it fits: the brand, the navigation
-    bar (Page images and Hallucination first, then Every question, Where models disagree, Topics, Compare, Method, Data;
-    the current page underlined) and the theme switch. Text is the home page (the brand and row 1); Turkish vs English
+    bar (Home first, the root index in its default state; Page images and Hallucination, then the web experiments Web
+    grounding and PWS-Decisions, each one click from every page, then Every question, Where models disagree, Topics,
+    Compare, Method, Data; the current page underlined, its entry opening Home) and the theme switch. Text is the home
+    page (the brand, Home and row 1); Turkish vs English
     is row 1's English and Turkish. Each tab's face
     is charts, each card with a line saying which way is better; its tables and notes are under Info (except the Text
     tab's leaderboard and the Page images tables, which follow their charts), a details element

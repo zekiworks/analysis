@@ -23,11 +23,16 @@ ISSUE_URL = "https://github.com/zekiworks/analysis/issues/new?template="
 REPO_URL = "https://github.com/zekiworks/analysis"
 esc = html.escape
 
-# The navigation bar of every page, in order: (path inside the site, label). The brand links to the home page. The two
-# benchmarks beside the Text one (the home page) come first; their links keep the view bar's group (GROUP_PAGES).
+# The navigation bar of every page, in order: (path inside the site, label). Home first: the root index, the Turkish
+# ranking, in its default state (HOME_STATE). The brand links to the home page too. The two benchmarks beside the Text
+# one come next, then the two web experiments (web grounding and PWS-Decisions); their links keep the view bar's group
+# (GROUP_PAGES).
 MENU = (
+    ("", "Home"),
     ("vision/", "Page images"),
     ("dont-know/", "Hallucination"),
+    ("web-grounding/", "Web grounding"),
+    ("pws-decisions/", "PWS-Decisions"),
     ("questions/", "Every question"),
     ("disagreements/", "Where models disagree"),
     ("topics/", "Topics"),
@@ -46,9 +51,11 @@ VIEW_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", 
 VIEW_MEASURES = (("accuracy", "Accuracy"), ("non-hallucination", "Non-hallucination"), ("cost", "Cost"),
                  ("latency", "Latency"))
 # The pages of the navigation bar that read ?models=: site.js keeps the group in their links, as in the view bar's row 1.
-GROUP_PAGES = ("vision/", "dont-know/")
+GROUP_PAGES = ("vision/", "dont-know/", "web-grounding/", "pws-decisions/")
 # Every page that shows its parts by group (data-models): row 2 of the view bar stays on it.
-FILTER_PAGES = (*(target for target, _ in VIEW_TESTS), *GROUP_PAGES, "web-grounding/", "pws-decisions/")
+FILTER_PAGES = (*(target for target, _ in VIEW_TESTS), *GROUP_PAGES)
+# Home's default state, the address every marked key opens (on the root index): All models, no part.
+HOME_STATE = "?models=all"
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
 # A cost with no estimate because the setup ran on our own hardware and its maker lists no price for the same model
@@ -362,14 +369,21 @@ def topbar(path: str) -> str:
     the row 1 links), row 3 the measure (a part of the page, marked by site.js); then the bar with the brand, which links
     home, the navigation bar and the theme switch, which scrolls away. On a page that shows its parts by group
     (FILTER_PAGES) the row 2 links stay on it, elsewhere they open the home page with that group; on a page of row 1 the
-    row 3 links go to its parts, elsewhere to the home page's. On a wide screen rows 1 and 2 share a line (v3.css)."""
+    row 3 links go to its parts, elsewhere to the home page's. On a wide screen rows 1 and 2 share a line (v3.css).
+    Every marked key opens Home in its default state (the root index with HOME_STATE: All models, no part in the
+    address): the open test of row 1 and the navigation bar's entry of the page in view here, row 2's group and row 3's
+    measure in site.js (the view bar's data-home)."""
     current = ' aria-current="page"'
+    home = f"{rel(path, '')}{HOME_STATE}"
     links = "".join(
-        f'<li><a href="{rel(path, target)}"{" data-keep-group" if target in GROUP_PAGES else ""}'
-        f'{current if path.startswith(target) else ""}>{esc(label)}</a></li>' for target, label in MENU
+        f'<li><a href="{home}"{current}>{esc(label)}</a></li>' if (path == target if not target else path.startswith(target))
+        else f'<li><a href="{home if not target else rel(path, target)}"'
+             f'{" data-keep-group" if target in GROUP_PAGES else ""}>{esc(label)}</a></li>'
+        for target, label in MENU
     )
-    tests = "".join(f'<li><a class="view-key" href="{rel(path, target)}" data-view-test{current if path == target else ""}>'
-                    f"{esc(label)}</a></li>" for target, label in VIEW_TESTS)
+    tests = "".join(f'<li><a class="view-key" href="{home}"{current}>{esc(label)}</a></li>' if path == target else
+                    f'<li><a class="view-key" href="{rel(path, target)}" data-view-test>{esc(label)}</a></li>'
+                    for target, label in VIEW_TESTS)
     base = "" if path in {target for target, _ in VIEW_TESTS} else rel(path, "")
     # Row 2's keys add the word "models" only where each row has a line of its own and room for it (v3.css .view-more).
     groups = "".join(f'<li><a class="view-key" href="{"" if path in FILTER_PAGES else rel(path, "")}?models={value}" '
@@ -378,7 +392,7 @@ def topbar(path: str) -> str:
     measures = "".join(f'<li><a class="view-key" href="{base + "?models=all" if base else ""}#{key}" data-view-measure="{key}">'
                        f"{esc(label)}</a></li>" for key, label in VIEW_MEASURES)
     return (
-        '<nav class="view-bar" aria-label="View: test, models and measure"><div class="view-rows">\n'
+        f'<nav class="view-bar" aria-label="View: test, models and measure" data-home="{home}"><div class="view-rows">\n'
         '    <div class="view-row view-tests"><span class="view-label" id="view-test">Test</span>'
         f'<ul aria-labelledby="view-test">{tests}</ul></div>\n'
         '    <div class="view-row view-groups"><span class="view-label" id="view-models">Models</span>'

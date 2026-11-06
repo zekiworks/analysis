@@ -108,7 +108,8 @@ const costSwitch = () =>
   bar.querySelectorAll('a[data-view-test]').forEach(link => {
     link.setAttribute('href', `${link.getAttribute('href').split('?')[0]}?models=${group}`);
   });
-  // Links marked data-keep-group (the top bar's Page images and Hallucination, the experiments line) keep the group too,
+  // Links marked data-keep-group (the top bar's Page images, Hallucination, Web grounding and PWS-Decisions, the
+  // experiments line) keep the group too,
   // so no press loses it.
   document.querySelectorAll('a[data-keep-group]').forEach(link => {
     const [path, fragment] = link.getAttribute('href').split('#');
@@ -124,7 +125,9 @@ const costSwitch = () =>
    id, as Web grounding's Cost; the others open the home page's part with the group in view. The key of the part in
    view is marked: the part that crosses a line a quarter of the way down the window below the bar, or the key just
    pressed until the reader scrolls on, as a part at the end of the page may not reach that line. Between parts no key
-   is marked. */
+   is marked. A page opened without a part in the address marks no key until the reader scrolls or presses a key; with
+   one, its key is marked. The marked key pressed opens Home in its default state (the view bar's data-home), as every
+   marked key of the view bar and the navigation bar does. */
 (function setupMeasureRow() {
   const bar = document.querySelector('.view-bar');
   if (!bar) return;
@@ -175,27 +178,39 @@ const costSwitch = () =>
     });
   }, { passive: true });
   bar.addEventListener('click', event => {
-    const key = event.target.closest('a[data-view-measure]')?.dataset.viewMeasure;
-    if (key && parts.some(({ link }) => link.dataset.viewMeasure === key)) press(key);
+    const link = event.target.closest('a[data-view-measure]');
+    const key = link?.dataset.viewMeasure;
+    if (!key || !parts.some(found => found.link.dataset.viewMeasure === key)) return;
+    if (link.hasAttribute('aria-current')) {
+      link.href = bar.dataset.home;
+      return;
+    }
+    press(key);
   });
-  const fromHash = () => {
+  const fromHash = opening => {
     const key = decodeURIComponent(window.location.hash.slice(1));
     if (parts.some(({ link }) => link.dataset.viewMeasure === key)) press(key);
-    else mark(inView());
+    else mark(opening ? null : inView());
   };
-  window.addEventListener('hashchange', fromHash);
-  fromHash();
+  window.addEventListener('hashchange', () => fromHash(false));
+  // A page opened without a part in the address marks no key until the reader scrolls or presses a key.
+  fromHash(true);
 })();
 
 /* Every page: a row 2 key keeps the view. Pressed, it opens its group with the cost unit (?cost-unit=) and the part of
    row 3's marked key (#cost), so Decision pressed at a page's #cost opens that page's #cost for decision models, in the
-   same unit. With no key marked (between parts) it opens the top of the page. */
+   same unit. With no key marked (between parts) it opens the top of the page. The marked group pressed opens Home in
+   its default state (the view bar's data-home). */
 (function keepViewOnGroup() {
   const bar = document.querySelector('.view-bar');
   if (!bar) return;
   bar.addEventListener('click', event => {
     const link = event.target.closest('a[data-view-group]');
     if (!link) return;
+    if (link.hasAttribute('aria-current')) {
+      link.href = bar.dataset.home;
+      return;
+    }
     const url = new URL(link.href);
     url.searchParams.set('cost-unit', costUnit());
     url.hash = bar.querySelector('a[data-view-measure][aria-current]')?.dataset.viewMeasure ?? '';
