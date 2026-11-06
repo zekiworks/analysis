@@ -2975,6 +2975,271 @@
     "mailbox/Reviewed brief 2026-10-24 - status.md"
    ],
    "weights": null
+  },
+  {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "2 Nov 2026",
+   "missing": [],
+   "model": "SubQ Snap 1.1",
+   "model_id": "subq-snap-1.1 (SubQ's default decision model, public preview; it replaced SubQ Snap Preview)",
+   "model_type": "decision model",
+   "name": "SubQ Snap 1.1",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 2 Nov 2026. Probabilities arrive as 32-bit floats and are stored as returned (they sum to 1 only within 32-bit rounding).",
+   "option_groups": "up to 255 options per request (as SubQ Snap Preview); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-01",
+    "input_per_mtok": 0.04,
+    "label": "API price (billed); output free",
+    "output_per_mtok": 0.0,
+    "source": "docs.subq.ai/using-the-api/models"
+   },
+   "provider": "SubQ Decisions API (api.subq.ai/v1/systemone), direct",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "subq-snap-1-1",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries 3 - plan 2026-11-02.md",
+    "mailbox/Late entries 3 - status 2026-11-02.md"
+   ],
+   "weights": "closed"
+  },
+  {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "2 Nov 2026",
+   "missing": [],
+   "model": "Base Labs Elephant-1",
+   "model_id": "baselabs/elephant-1 @ b3f8a93462fb1051a9de031e94a7ff380e254072 (Hugging Face; post-trained from Qwen3.5-9B)",
+   "model_type": "decision model",
+   "name": "Base Labs Elephant-1",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 2 Nov 2026. Probabilities come rounded to 6 decimals by the loader and are stored as returned.",
+   "option_groups": "up to 120 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-01",
+    "input_per_mtok": 0.035,
+    "label": "Baseten list price for the hosted model, not billed",
+    "output_per_mtok": 0.0,
+    "source": "Baseten Model API list price for the same model"
+   },
+   "provider": "our GPU, bf16, through its model card's loader (qev's DecisionEngine from OneJev 81ce62f with the checkpoint's serve.patch) behind our HTTP server, one request at a time",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "our GPUs",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "base-labs-elephant-1",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/quantization/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries 3 - plan 2026-11-02.md",
+    "mailbox/Late entries 3 - status 2026-11-02.md"
+   ],
+   "weights": "open"
+  },
+  {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "2 Nov 2026",
+   "missing": [],
+   "model": "Base Labs Mammoth-1",
+   "model_id": "baselabs/mammoth-1 @ 61cec44c281c693992e3d6ebeb44dd3402dfa186 (Hugging Face; post-trained from Qwen3.5-27B)",
+   "model_type": "decision model",
+   "name": "Base Labs Mammoth-1",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 2 Nov 2026. Probabilities come rounded to 6 decimals by the loader and are stored as returned.",
+   "option_groups": "up to 120 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-01",
+    "input_per_mtok": 0.1,
+    "label": "Baseten list price for the hosted model, not billed",
+    "output_per_mtok": 0.0,
+    "source": "Baseten Model API list price for the same model"
+   },
+   "provider": "our GPU, bf16, through its model card's loader (qev's DecisionEngine from OneJev 81ce62f with the checkpoint's serve.patch) behind our HTTP server, one request at a time",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "our GPUs",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "base-labs-mammoth-1",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/quantization/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries 3 - plan 2026-11-02.md",
+    "mailbox/Late entries 3 - status 2026-11-02.md"
+   ],
+   "weights": "open"
+  },
+  {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "6 Nov 2026",
+   "missing": [],
+   "model": "Drex Max 1.1",
+   "model_id": "drex-max-v1.1 (Nace.AI, released 28 Oct 2026; no open weights)",
+   "model_type": "decision model",
+   "name": "Drex Max 1.1",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.",
+   "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "billed_input_per_mtok": 0.03,
+    "billed_label": "billed at Nace's launch price",
+    "date": "2026-11-05",
+    "input_per_mtok": 0.06,
+    "label": "list price; output not billed",
+    "output_per_mtok": 0.0,
+    "source": "nace.ai/drex and console.nace.ai/docs/drex/reference/pricing"
+   },
+   "provider": "Nace.AI's hosted System One endpoint (console.nace.ai/v1/systemone), direct",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "drex-max-1-1",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries Drex - plan 2026-11-05.md",
+    "mailbox/Late entries Drex - status 2026-11-06.md"
+   ],
+   "weights": "closed"
+  },
+  {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "6 Nov 2026",
+   "missing": [],
+   "model": "Drex 2.0",
+   "model_id": "drex-v2.0 (Nace.AI, pinned id, released 6 Oct 2026)",
+   "model_type": "decision model",
+   "name": "Drex 2.0",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities come rounded to 4 decimals by Nace's API and are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.",
+   "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-05",
+    "input_per_mtok": 0.06,
+    "label": "list price (billed); output not billed",
+    "output_per_mtok": 0.0,
+    "source": "console.nace.ai/docs/drex/reference/pricing"
+   },
+   "provider": "Nace.AI's hosted System One endpoint (console.nace.ai/v1/systemone), direct",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "drex-2-0",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries Drex - plan 2026-11-05.md",
+    "mailbox/Late entries Drex - status 2026-11-06.md"
+   ],
+   "weights": "open"
+  },
+  {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "6 Nov 2026",
+   "missing": [],
+   "model": "Drex Max v1",
+   "model_id": "nace-ai/drex-max-v1 @ cac65e1982a0237e996419ba559004522d9a33ac (Hugging Face; Qwen3.8-27B backbone)",
+   "model_type": "decision model",
+   "name": "Drex Max v1",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.",
+   "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-05",
+    "input_per_mtok": 0.06,
+    "label": "list price for the hosted model, not billed",
+    "output_per_mtok": 0.0,
+    "source": "nace.ai/drex (Nace's list price for hosted Drex Max)"
+   },
+   "provider": "our GPU, bf16, through Nace's own drex_max loader (Nace's public GitHub repository, commit e206b27) behind our HTTP server, one request at a time",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "our GPUs",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "drex-max-v1",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/quantization/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries Drex - plan 2026-11-05.md",
+    "mailbox/Late entries Drex - status 2026-11-06.md"
+   ],
+   "weights": "open"
+  },
+  {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "6 Nov 2026",
+   "missing": [],
+   "model": "Drex 2.0",
+   "model_id": "nace-ai/drex-v2.0 @ e646674476744e3826caf62b834054151e2aba51 (Hugging Face; 35B total, about 3B active)",
+   "model_type": "decision model",
+   "name": "Drex 2.0 (local)",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities come rounded to 4 decimals by that server and are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.",
+   "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-05",
+    "input_per_mtok": 0.06,
+    "label": "list price for the hosted model, not billed",
+    "output_per_mtok": 0.0,
+    "source": "console.nace.ai/docs/drex/reference/pricing (Nace's list price for hosted Drex 2.0)"
+   },
+   "provider": "our GPU, bf16, through the serve.py and kev loader its checkpoint ships, one request at a time",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "our GPUs",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "drex-2-0-local",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/quantization/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries Drex - plan 2026-11-05.md",
+    "mailbox/Late entries Drex - status 2026-11-06.md"
+   ],
+   "weights": "open"
+  },
+  {
+   "confidence_source": "none",
+   "dataset": "late-entry",
+   "date_run": null,
+   "missing": [
+    "price.date"
+   ],
+   "model": "GPT-6 Astra",
+   "model_id": "gpt-6-astra",
+   "model_type": "chat model, one letter",
+   "name": "GPT-6 Astra (high)",
+   "notes": "ChatGPT subscription (Codex backend). Late entry to the original League 3 table (not in standings).",
+   "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": null,
+    "input_per_mtok": 10.0,
+    "label": "API-equivalent (subscription)",
+    "output_per_mtok": 50.0
+   },
+   "provider": "ChatGPT subscription",
+   "reasoning": "reasoning effort high (GPT-6 Astra (medium) sent the model's default, medium)",
+   "rules_text": "long",
+   "runs_on": "subscription",
+   "sampling": "not sent (API default)",
+   "setting": "high",
+   "slug": "gpt-6-astra-high",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "the GPT-6 Astra entries of League 3"
+   ],
+   "weights": "closed"
   }
  ]
 }
