@@ -4,10 +4,12 @@
 # Gemma-4-31B line; part Q: gurujustin/sn92-gen-p5 blended with vllm-sr/d3-ultra, Qwen 27B line), each option's
 # probability the 50/50 mean of the two parts'. Served by the REAX Engine's own server, as the model card runs it: the
 # reax13 mode of github.com/reaxlabs/reax-engine at ff8f595f149abdd50ea914455eadc74cf97a277f (images reax13-base from
-# reax13/Dockerfile and reax13-runtime from reax13/Dockerfile.conv; the Decision Index kit at
-# 25c6ec7b6b5f44a216c63c3a700de3a9c6d6699d mounted at /kit), bound to 127.0.0.1:
-#   docker run --rm --gpus device=GPU -p 127.0.0.1:PORT:8080 --read-only --user "$(id -u):$(id -g)" --cap-drop ALL \
-#     --security-opt no-new-privileges --shm-size 8g --tmpfs /tmp:rw,exec,size=8g -v MODEL_REPO:/model:ro \
+# reax13/Dockerfile and reax13-runtime from reax13/Dockerfile.conv, built from the engine files alone; the Decision Index
+# kit at 25c6ec7b6b5f44a216c63c3a700de3a9c6d6699d mounted at /kit), bound to 127.0.0.1. The card's command with two host
+# differences that leave the model and its answers alone: the GPU through the NVIDIA runtime (our Docker refuses --gpus
+# without it), and no --security-opt no-new-privileges (with our AppArmor profile it makes every exec fail):
+#   docker run -d --runtime nvidia --gpus device=GPU -p 127.0.0.1:PORT:8080 --read-only --user "$(id -u):$(id -g)" \
+#     --cap-drop ALL --shm-size 8g --tmpfs /tmp:rw,exec,size=8g -v MODEL_REPO:/model:ro \
 #     -v DECISION_INDEX/decision_index:/kit/decision_index:ro --entrypoint env reax13-runtime -i \
 #     PATH=/usr/local/bin:/usr/bin:/bin HOME=/tmp PYTHONPATH=/engine:/kit DUO_ISOLATED=1 HF_HUB_OFFLINE=1 \
 #     TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 HF_HOME=/tmp/hf KERNELS_CACHE=/opt/kernels \
