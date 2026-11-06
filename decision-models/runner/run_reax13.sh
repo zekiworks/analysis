@@ -6,8 +6,10 @@
 # reax13 mode of github.com/reaxlabs/reax-engine at ff8f595f149abdd50ea914455eadc74cf97a277f (images reax13-base from
 # reax13/Dockerfile and reax13-runtime from reax13/Dockerfile.conv, built from the engine files alone; the Decision Index
 # kit at 25c6ec7b6b5f44a216c63c3a700de3a9c6d6699d mounted at /kit), bound to 127.0.0.1. The card's command with two host
-# differences that leave the model and its answers alone: the GPU through the NVIDIA runtime (our Docker refuses --gpus
-# without it), and no --security-opt no-new-privileges (with our AppArmor profile it makes every exec fail):
+# differences: the GPU through the NVIDIA runtime (our Docker refuses --gpus without it), and no --security-opt
+# no-new-privileges, because with it every exec in the container failed here with EPERM (cause not established). Neither
+# changes the model or its answers, but the second is a security deviation of the runs of 6 November 2026 (not equivalent
+# protection; outbound network was also open), not a default for other runs:
 #   docker run -d --runtime nvidia --gpus device=GPU -p 127.0.0.1:PORT:8080 --read-only --user "$(id -u):$(id -g)" \
 #     --cap-drop ALL --shm-size 8g --tmpfs /tmp:rw,exec,size=8g -v MODEL_REPO:/model:ro \
 #     -v DECISION_INDEX/decision_index:/kit/decision_index:ro --entrypoint env reax13-runtime -i \
