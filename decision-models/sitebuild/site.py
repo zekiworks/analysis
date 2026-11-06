@@ -87,12 +87,16 @@ def chat_note(text: str) -> str:
 
 def experiments(results: dict[str, Any], path: str) -> str:
     """The line on the experiments beside the ranking, on the home page and both English pages: the web grounding page,
-    when results.json has it, and the PWS-Decisions page, when pws-decisions.json is there; each link keeps the view
-    bar's group (data-keep-group, site.js)."""
+    when results.json has it, and the PWS-Decisions page, when pws-decisions.json is there, with its Answering habits
+    step (#habits-2) when the file has the habits block; each link keeps the view bar's group (data-keep-group,
+    site.js)."""
     link = lambda target, text: f'<a href="{rel(path, target)}" data-keep-group>{text}</a>'  # noqa: E731
     grounding = results.get("web_grounding")
-    pws = (f"{link('pws-decisions/', 'PWS-Decisions')}, the decision models on Parallel's benchmark of dated web facts."
-           if (ROOT / "pws-decisions.json").exists() else "")
+    pws_file = ROOT / "pws-decisions.json"
+    habits = pws_file.exists() and json.loads(pws_file.read_text(encoding="utf-8")).get("habits")
+    pws = (f"{link('pws-decisions/', 'PWS-Decisions')}, the decision models on Parallel's benchmark of dated web facts"
+           + (f" (its {link('pws-decisions/#habits-2', 'Answering habits')})" if habits else "") + "."
+           if pws_file.exists() else "")
     if grounding is None:
         return f"Beside the ranking: {pws}" if pws else ""
     return (f"Beside the ranking: {link('web-grounding/', 'Web grounding')}, {esc(grounding['names']['off'])} against "

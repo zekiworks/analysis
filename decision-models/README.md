@@ -329,7 +329,13 @@ python3 -m http.server 8000                                # preview at http://1
     `explained_margin` above, hard-question counts per run, the chosen choice's probability on right and wrong answers,
     `weights` dates for the open setups and the reversed-choices status), a section "Can a model score here without
     knowing the facts?" (`#habits`, a decision-model part: the chat view shows a one-line note in its place) gives a
-    two-sentence summary and one table per step (1 to 6), and each explained
+    two-sentence summary, a link row to the steps (`#habits-1` to `#habits-6`), and per step a table, steps 1 to 4 and
+    6 each with an hbars chart before it (`habits_charts`: the no-reading strategies against uniform guessing and the
+    best decision setup without search; accuracy beside the habit baseline, the marked setups with a line under their
+    name; hard questions right against uniform guessing; the chosen choice's probability on right and wrong answers
+    with the answers at the sure threshold; days from each open setup's weights revision to the questions' earliest
+    public record). The page's link row has "Without the facts" (`#habits`) and "Answering habits" (`#habits-2`),
+    and the experiments line beside the ranking (`experiments`) links "Answering habits" too. Each explained
     setup gets a small second line in the Accuracy chart (hbars' row `note`) and the table: "picks the first choice in
     N of 10 questions; always picking the first choice scores X%"; without the block neither appears. The method notes
     compute the chance line from `choice_counts`. Row labels add a

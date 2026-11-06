@@ -692,12 +692,135 @@ def habits_table(heads: list[tuple[str, str]], rows: list[tuple[str, list[str]]]
             f"{head}</tr></thead><tbody>{body}</tbody></table></div>")
 
 
+def habits_figure(step: int, chart: str, legend: list[str], families: list[dict[str, str]]) -> str:
+    """A step's chart in the site's chart format, with its legend: the families shown, then what each mark means."""
+    return (f'<figure class="chart-card habits-chart" id="habits-chart-{step}">{chart}<p class="chart-legend">'
+            f'{family_legend(families) if families else ""}{" ".join(f"<span>{line}</span>" for line in legend)}</p></figure>')
+
+
+def count_tick(value: float) -> str:
+    """An axis tick of a count (questions, days): a whole number."""
+    return f"{value:,.0f}"
+
+
+def round_top(value: float, divisions: int = 4) -> float:
+    """The axis end for counts: the smallest multiple of `divisions` steps of a round size at or above value."""
+    step = max(1, math.ceil(value / divisions))
+    size = next(size for size in (1, 2, 3, 5, 10, 20, 25, 30, 40, 50, 100) if size >= step)
+    return size * divisions
+
+
+def habits_charts(site: Site, data: dict[str, Any], rows: list[dict[str, Any]], best: dict[str, Any],
+                  mark_words: str) -> dict[int, str]:
+    """The charts of steps 1, 2, 3, 4 and 6 (hbars: one row per setup, its family's icon and colour, value columns
+    right), each placed before its step's table: the no-reading strategies against uniform guessing and the best
+    decision setup without search; accuracy beside the habit baseline; hard questions right against uniform guessing;
+    the chosen choice's probability on right and wrong answers; the days between each open setup's weights revision
+    and the questions' earliest public record."""
+    block = data["habits"]
+    digits = site.config["percent_digits"]
+    lazy, n, runs = block["lazy"], block["questions"], data["runs_per_setup"]
+    random = lazy["random"]
+    yes_n = lazy["always_yes"]["questions"]
+    ordinals = ["first", "second", "third", "fourth", "fifth", "sixth"]
+    row_of = lambda item, **fields: {"label": item["label"], "family": item["family"]["name"],  # noqa: E731
+                                     "href": link(site, PATH, item), "models": item["models"], **fields}
+    strategies = [
+        ("Always the first choice", lazy["always_first"], random, n),
+        ("Always the last choice", lazy["always_last"], random, n),
+        (f"Always the position most often right (the {ordinals[lazy['most_often']['position'] - 1]})",
+         lazy["most_often"]["score"], random, n),
+        (f'Always "yes"/"true" on the {yes_n} yes/no and true/false questions', lazy["always_yes"]["right"] / yes_n,
+         0.5, yes_n),
+        (f'Always "yes"/"true" on those {yes_n}, uniform guess on the rest', lazy["yes_then_uniform"], random, n)]
+    step1 = [{"label": label, "group": "Never reading the question", "bars": [{"value": score, "kind": "base"}],
+              "marker": chance, "text": whole(score) + ("" if of == n else f" of {of}"),
+              "title": f"{label}: {whole(score)} on {of} questions; uniform random guessing {whole(chance)}"}
+             for label, score, chance, of in strategies]
+    accuracy = best["setup"]["accuracy"]["mean"]
+    step1.append(row_of(best, group="Best decision setup without search",
+                        bars=[{"value": accuracy, "colour": best["family"]["colour"]}], marker=random,
+                        text=pct(accuracy, digits),
+                        title=f"{best['label']}: {pct(accuracy, digits)}, the mean of {runs} runs"))
+    marker = '<i class="swatch swatch-marker"></i>'
+    charts = {1: habits_figure(1, hbars(step1, head=("Score", "Score")), [
+        '<i class="swatch swatch-base"></i>A strategy that never reads the question',
+        f"{marker}Uniform random guessing on the same questions ({esc(pct(random, digits))} on all {n}; 50% on the "
+        f"{yes_n} yes/no and true/false questions)"], [best["family"]])}
+    step2 = []
+    for item in rows:
+        setup, habits = item["setup"], item["setup"]["habits"]
+        mean = setup["accuracy"]["mean"]
+        step2.append(row_of(
+            item, group=condition(item),
+            bars=[{"value": mean, "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})},
+                  {"value": habits["baseline"], "kind": "base"}],
+            texts=[pct(mean, digits), pct(habits["baseline"], digits), signed(habits["above"])],
+            **({"note": mark_words} if habits["explained"] else {}),
+            title=f"{item['label']}: accuracy {pct(mean, digits)}, habit baseline {pct(habits['baseline'], digits)}, "
+                  f"{signed(habits['above'])} points" + (f"; {mark_words}" if habits["explained"] else "")))
+    charts[2] = habits_figure(2, hbars(step2, columns=[("Accuracy", "Acc"), ("Habit baseline", "Base"),
+                                                       ("Above", "Above")]), [
+        "The upper bar: accuracy, the mean of the runs, in the family's colour",
+        '<i class="swatch swatch-base"></i>The lower bar: the habit baseline, the score of the same habits without '
+        "reading the question",
+        f"A line under a name: {esc(mark_words)}"], [item["family"] for item in rows])
+    hard = block["hard"]
+    top = round_top(hard["questions"])
+    step3 = []
+    for item in rows:
+        right = item["setup"]["habits"]["hard_right"]
+        mean = statistics.mean(right)
+        step3.append(row_of(item, group=condition(item),
+                            bars=[{"value": mean, "colour": item["family"]["colour"],
+                                   **({"kind": "web"} if web(item["setup"]) else {})}],
+                            marker=hard["uniform_expected"], text=f"{mean:.2f} of {hard['questions']}",
+                            title=f"{item['label']}: {mean:.2f} of the {hard['questions']} hard questions right, the "
+                                  f"mean of {runs} runs; uniform random guessing expects {hard['uniform_expected']:.2f}"))
+    charts[3] = habits_figure(3, hbars(step3, top=top, tick=count_tick, head=(f"Right of {hard['questions']}", "Right")), [
+        f"{marker}Uniform random guessing: {hard['uniform_expected']:.2f} of the {hard['questions']} expected right"],
+        [item["family"] for item in rows])
+    sure = data["sure_threshold"]
+    step4 = []
+    shown = [item for item in rows if item["setup"]["habits"].get("confidence")]
+    for item in shown:
+        confidence = item["setup"]["habits"]["confidence"]
+        value = lambda share: "none" if share is None else pct(share, digits)  # noqa: E731
+        step4.append(row_of(
+            item, group=condition(item),
+            bars=[{"value": confidence["mean_right"] or 0.0, "colour": item["family"]["colour"]},
+                  {"value": confidence["mean_wrong"] or 0.0, "kind": "wrong"}],
+            texts=[value(confidence["mean_right"]), value(confidence["mean_wrong"]), f"{confidence['sure']:,}"],
+            title=f"{item['label']}: mean probability of the chosen choice {value(confidence['mean_right'])} on right "
+                  f"answers, {value(confidence['mean_wrong'])} on wrong answers; {confidence['sure']:,} answers at "
+                  f"≥{pct(sure, 0)} over {runs} runs"))
+    charts[4] = habits_figure(4, hbars(step4, columns=[("Right answers", "Right"), ("Wrong answers", "Wrong"),
+                                                       (f"At ≥{pct(sure, 0)}", f"≥{pct(sure, 0)}")]), [
+        "The upper bar: the mean probability of the chosen choice on right answers, in the family's colour",
+        '<i class="swatch swatch-wrong"></i>The lower bar: the same on wrong answers',
+        f"At ≥{pct(sure, 0)}: answers at that probability or more, over the {runs} runs"],
+        [item["family"] for item in shown])
+    opened = sorted((item for item in rows if "weights" in item["setup"]["habits"]),
+                    key=lambda item: (-item["setup"]["habits"]["weights"]["days_before"], item["label"].casefold()))
+    days = [item["setup"]["habits"]["weights"]["days_before"] for item in opened]
+    step6 = [row_of(item, bars=[{"value": weights["days_before"], "colour": item["family"]["colour"]}],
+                    text=f"{weights['days_before']:,}",
+                    title=f"{item['label']}: weights revision committed {weights['committed']}, "
+                          f"{weights['days_before']:,} days before the questions' earliest public record")
+             for item in opened for weights in [item["setup"]["habits"]["weights"]]]
+    charts[6] = habits_figure(6, hbars(step6, top=round_top(max(days)), tick=count_tick, head=("Days before", "Days")), [
+        "Days from each open setup's weights revision to the questions' earliest public record"],
+        [item["family"] for item in opened])
+    return charts
+
+
 def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> str:
-    """Can a model score here without knowing the facts (the summary step's habits block): a summary, then one table
-    per step: strategies that never read the question, each decision setup's habits and habit baseline, the hard
-    questions, the probability of the chosen choice, the reversed-choices run's status, and the open setups' weights
-    dates against the questions' earliest public records. A decision-model part (DECISION_ONLY): the chat group shows
-    a one-line note in its place. Nothing without the block."""
+    """Can a model score here without knowing the facts (the summary step's habits block): a summary and a link row to
+    the steps (habits-1 to habits-6), then per step a chart (habits_charts; none for step 5) and a table: strategies
+    that never read the question, each decision setup's habits and habit baseline, the hard questions, the probability
+    of the chosen choice, the reversed-choices run's status, and the open setups' weights dates against the questions'
+    earliest public records. A decision-model part (DECISION_ONLY): the chat group shows a one-line note in its place.
+    Nothing without the block."""
     block = data.get("habits")
     if not block:
         return ""
@@ -807,30 +930,39 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
     public = block["public_records"]
     when = lambda stamp: f"{long_date(stamp[:10])} at {stamp[11:16]} UTC"  # noqa: E731
     read = block["weights"]
+    charts = habits_charts(site, data, rows, best, mark_words)
+    steps = ("Strategies", "Habits", "Hard questions", "Probability", "Reversed", "Dates")
+    links = "".join(f'<a href="#habits-{index}">{index}. {name}</a>' for index, name in enumerate(steps, 1))
     return f"""<section class="card" id="habits" {DECISION_ONLY}>
       <h2>Can a model score here without knowing the facts?</h2>
       <p><strong>{esc(summary)}</strong></p>
       <p>{esc(key_words)} The checks below use only totals: the answer key's positions, each decision setup's answers over its {runs} runs, and public dates.</p>
-      <h3>1. Strategies that never read the question</h3>
+      <nav class="face-nav" aria-label="Steps">{links}</nav>
+      <h3 id="habits-1">1. Strategies that never read the question</h3>
+      {charts[1]}
       {step1}
       <p class="note">No decision setup without search reaches the {whole(first)} of always picking the first choice; the best, {esc(best['label'])}, scores {esc(pct(best['setup']['accuracy']['mean'], digits))}. {above_random} of the {len(plain)} score above uniform random guessing ({esc(pct(random, digits))}).</p>
-      <h3>2. Answering habits</h3>
+      <h3 id="habits-2">2. Answering habits</h3>
+      {charts[2]}
       {step2}
       <ul class="note">
         <li>Shares are of each setup's answers over its {runs} runs. The habit baseline is the score of a strategy that never reads the question but has the setup's habits, by number of choices: on the {yes_n} yes/no and true/false questions it says "yes" or "true" as often as the setup does there; on the other {two_other} two-choice questions it picks the first choice as often as the setup does on them; on three- and four-choice questions it picks each position as often as the setup does on questions of that size. "Above the habits" is accuracy minus that baseline.</li>
         <li>The p values are exploratory, not a validated test: the one-sided chance that the habit strategy, answering each question independently, scores at least the setup's mean accuracy, by a normal approximation with the variance of one run of {n} questions (the habits come from the same answers and are treated as known; the {runs} runs of the same questions are not independent). Holm's correction over the {len(plain)} setups without search: lowest adjusted p {lowest_holm:.2f}. Across those {len(plain)}, the share of first-choice answers and accuracy correlate at r = {block['first_share_accuracy_r']:.2f}.</li>
         <li>"{within.capitalize()}" marks the {len(explained)} setups whose accuracy is below their habit baseline or at most {margin:g} point above it (a one-sided rule: no lower limit). It is a descriptive threshold: a score at or below that line is consistent with the habits, not proof that they cause it. The setup with web search never gets the mark. The ranking's note beside these setups gives their first-choice share over all {n} questions; {'since "yes" or "true" is always the first choice, that share mixes the "yes" habit with a pure position habit' if block['positive_first'] else 'that share mixes the "yes" habit with a pure position habit'}. The two columns before the baseline separate them.</li>
       </ul>
-      <h3>3. Hard questions</h3>
+      <h3 id="habits-3">3. Hard questions</h3>
+      {charts[3]}
       {step3}
       <p class="note">Hard: answered right by at most {pct(hard['share'], 0)} of the {len(plain)} decision setups without search (each setup's mean over its runs). {hard['questions']} questions ({sizes}); uniform random guessing expects {hard['uniform_expected']:.2f} of them right, and the right answer is the first choice on {hard['first_right']} of them. The hard set comes from the same setups' answers, so it is no independent contamination test.</p>
-      <h3>4. Probability of the chosen choice</h3>
+      <h3 id="habits-4">4. Probability of the chosen choice</h3>
+      {charts[4]}
       {step4}
       <p class="note">The probability each setup's output gave its chosen choice, from the per-choice probabilities recorded in its runs (not the providers' own "confidence" field, which differs from setup to setup). The answers at ≥{pct(sure, 0)} are the “sure” answers of the table above.</p>
-      <h3>5. Reversed choices</h3>
+      <h3 id="habits-5">5. Reversed choices</h3>
       {step5}
       <p class="note">Left out: no number from this run is used or shown.</p>
-      <h3>6. Weights and question dates</h3>
+      <h3 id="habits-6">6. Weights and question dates</h3>
+      {charts[6]}
       {step6}
       <p class="note">Earliest public records of the questions we can observe: the Hugging Face dataset {esc(DATASET)} was created on {esc(when(public['dataset_created']))}; its only commit, <code>{esc(public['dataset_commit'])}</code>, of {esc(when(public['dataset_committed']))}, holds the questions. The GitHub repository's only commit, <code>{esc(public['repository_commit'])}</code>, of {esc(when(public['repository_committed']))}, holds none. Each open setup's revision was committed {min(days)} to {max(days)} days before (commit dates as the {esc(read['source'])} gave them, read {esc(long_date(read['read']))}; files can be older). These dates do not rule out earlier exposure to the questions or their sources; the API setups' training dates are unknown.</p>
     </section>
@@ -878,7 +1010,7 @@ def build(site: Site) -> dict[str, str]:
       {framing(data)}
       <p>{above} setups have a mean accuracy above the {pct(data['random_accuracy'], digits)} chance line (Parallel's random-guess baseline, not a run of ours); every accuracy here is the mean of our {data['runs_per_setup']} runs.</p>
       {provenance(data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{f'<a href="#habits" {DECISION_ONLY}>Without the facts</a>' if data.get("habits") else ""}{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{f'<a href="#habits" {DECISION_ONLY}>Without the facts</a><a href="#habits-2" {DECISION_ONLY}>Answering habits</a>' if data.get("habits") else ""}{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
     </section>
     <section class="charts" aria-label="Charts">{charts(site, data, items, PATH, "chart-", measures=True)}</section>
     <section class="card" id="results">
