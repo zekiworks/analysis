@@ -256,7 +256,7 @@ def accuracy_chart(rows: list[Any], named: dict[str, dict[str, Any]], digits: in
             + chart(pilot_arms(rows)) + "</details>")
     return card("accuracy", "Accuracy", "Share of questions answered right, then the right answers; for a mean of several "
                 "runs, the lowest to highest run under it; beside each set, the change with web in percentage points · "
-                "higher is better", body, named)
+                "higher is better", body, named, wide=True)
 
 
 def dont_know_pairs(data: dict[str, Any], pws_idk: dict[str, Any] | None) -> list[tuple[str, dict[str, Any]]]:
