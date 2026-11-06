@@ -334,9 +334,11 @@ python3 -m http.server 8000                                # preview at http://1
     the public dates; each decision setup's own `habits`: position, "yes"/"true" and other-question first-choice
     shares, habit baseline, points above it, exploratory p and Holm-adjusted p, `explained` when at most
     `explained_margin` above, hard-question counts per run, the chosen choice's probability on right and wrong answers,
-    `weights` dates for the open setups and the reversed-choices status), a section "Can a model score here without
+    `weights` dates for the open setups, and `reversed`: the run with the choices reversed from `runs/reversed/` against
+    published runs 1 and 2, or `not_run` with the reason), a section "Can a model score here without
     knowing the facts?" (`#habits`, a decision-model part: the chat view shows a one-line note in its place) gives a
-    two-sentence summary, a link row to the steps (`#habits-1` to `#habits-6`), and per step a table, steps 1 to 4 and
+    two-sentence summary, a link row to the steps (`#habits-1` to `#habits-6`), and per step a table, step 5 with its
+    computed sentences and chart (`reversed_step`: run 1 and the reversed run per setup), steps 1 to 4 and
     6 each with an hbars chart before it (`habits_charts`: the no-reading strategies against uniform guessing and the
     best decision setup without search; accuracy beside the habit baseline, the marked setups with a line under their
     name; hard questions right against uniform guessing; the chosen choice's probability on right and wrong answers

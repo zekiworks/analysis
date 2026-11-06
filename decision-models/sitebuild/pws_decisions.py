@@ -816,11 +816,11 @@ def habits_charts(site: Site, data: dict[str, Any], rows: list[dict[str, Any]], 
 
 def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> str:
     """Can a model score here without knowing the facts (the summary step's habits block): a summary and a link row to
-    the steps (habits-1 to habits-6), then per step a chart (habits_charts; none for step 5) and a table: strategies
-    that never read the question, each decision setup's habits and habit baseline, the hard questions, the probability
-    of the chosen choice, the reversed-choices run's status, and the open setups' weights dates against the questions'
-    earliest public records. A decision-model part (DECISION_ONLY): the chat group shows a one-line note in its place.
-    Nothing without the block."""
+    the steps (habits-1 to habits-6), then per step a chart (habits_charts; step 5's in reversed_step) and a table:
+    strategies that never read the question, each decision setup's habits and habit baseline, the hard questions, the
+    probability of the chosen choice, the run with the choices reversed, and the open setups' weights dates against the
+    questions' earliest public records. A decision-model part (DECISION_ONLY): the chat group shows a one-line note in
+    its place. Nothing without the block."""
     block = data.get("habits")
     if not block:
         return ""
@@ -911,11 +911,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
     step4 = habits_table(
         [("Right answers", "mean probability of the chosen choice"), ("Wrong answers", "the same"),
          (f"At ≥{pct(sure, 0)}", f"answers over the {runs} runs"), ("Of them wrong", "")], step4_rows)
-    reversed_words = {"run, excluded": "Run once with the choices reversed; excluded, because the dataset terms do not "
-                                       "explicitly allow changing the order of a question's choices",
-                      "not run": "Not run (no API credit)"}
-    step5 = habits_table([("Status", "")], [(esc(item["label"]), [esc(reversed_words[item["setup"]["habits"]["reversed"]])])
-                                            for item in rows if "reversed" in item["setup"]["habits"]])
+    step5 = reversed_step(site, data, rows)
     opened = sorted((item for item in rows if "weights" in item["setup"]["habits"]),
                     key=lambda item: (-item["setup"]["habits"]["weights"]["days_before"], item["label"].casefold()))
     step6 = habits_table(
@@ -960,13 +956,75 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
       <p class="note">The probability each setup's output gave its chosen choice, from the per-choice probabilities recorded in its runs (not the providers' own "confidence" field, which differs from setup to setup). The answers at ≥{pct(sure, 0)} are the “sure” answers of the table above.</p>
       <h3 id="habits-5">5. Reversed choices</h3>
       {step5}
-      <p class="note">Left out: no number from this run is used or shown.</p>
       <h3 id="habits-6">6. Weights and question dates</h3>
       {charts[6]}
       {step6}
       <p class="note">Earliest public records of the questions we can observe: the Hugging Face dataset {esc(DATASET)} was created on {esc(when(public['dataset_created']))}; its only commit, <code>{esc(public['dataset_commit'])}</code>, of {esc(when(public['dataset_committed']))}, holds the questions. The GitHub repository's only commit, <code>{esc(public['repository_commit'])}</code>, of {esc(when(public['repository_committed']))}, holds none. Each open setup's revision was committed {min(days)} to {max(days)} days before (commit dates as the {esc(read['source'])} gave them, read {esc(long_date(read['read']))}; files can be older). These dates do not rule out earlier exposure to the questions or their sources; the API setups' training dates are unknown.</p>
     </section>
     <section class="card" data-models="chat" hidden>{chat_note("Can a model score here without knowing the facts? That section covers the decision models: see All models or Decision models.")}</section>"""
+
+
+# A setup kept its score with the choices reversed when the reversed run is within this many points of its run 1.
+REVERSED_MARGIN = 0.03
+
+
+def reversed_step(site: Site, data: dict[str, Any], rows: list[dict[str, Any]]) -> str:
+    """Step 5, the run with each question's choices reversed (the summary step's habits reversed, totals only): one or
+    two computed sentences (which setups stayed within REVERSED_MARGIN of run 1 and which changed more), a chart of run
+    1 and the reversed run per setup, the table (run 1, reversed, change, same choice as run 1, runs 1 and 2 agreeing,
+    the mean of the normal runs, errors and missing answers) and the setups not run with their reason."""
+    digits = site.config["percent_digits"]
+    runs, n = data["runs_per_setup"], data["questions"]
+    done = sorted((item for item in rows if "accuracy" in item["setup"]["habits"].get("reversed", {})),
+                  key=lambda item: (item["setup"]["habits"]["reversed"]["change"], item["label"].casefold()))
+    not_run = [item for item in rows if "not_run" in item["setup"]["habits"].get("reversed", {})]
+    if not done:
+        return ""
+    turned = lambda item: item["setup"]["habits"]["reversed"]  # noqa: E731
+    named = lambda items: joined([f"{item['label']} ({signed(turned(item)['change'])})" for item in items])  # noqa: E731
+    kept = sum(abs(turned(item)["change"]) <= REVERSED_MARGIN for item in done)
+    lost = [item for item in done if turned(item)["change"] < -REVERSED_MARGIN]
+    gained = [item for item in done if turned(item)["change"] > REVERSED_MARGIN]
+    margin = f"{100 * REVERSED_MARGIN:g}"
+    moved = ([f"{named(lost)} scored more than {margin} points lower"] if lost else []) + (
+        [f"{named(gained)} {'' if lost else 'scored '}more than {margin} points higher"] if gained else [])
+    words = (f"{len(done)} decision setups without search answered the {n} questions once more with each question's "
+             "choices in reverse order, each answer mapped back to the original choice before scoring; the main scores "
+             f"and the ranking are unchanged. {kept} of the {len(done)} scored within {margin} points of their run 1"
+             + (f"; {joined(moved)}" + (", consistent with sensitivity to the position of the choices" if lost else "")
+                if moved else "") + ".")
+    chart_rows = [{"label": item["label"], "family": item["family"]["name"], "href": link(site, PATH, item),
+                   "models": item["models"],
+                   "bars": [{"value": turned(item)["run_1_accuracy"], "colour": item["family"]["colour"]},
+                            {"value": turned(item)["accuracy"], "kind": "base"}],
+                   "texts": [whole(turned(item)["run_1_accuracy"]), whole(turned(item)["accuracy"]),
+                             signed(turned(item)["change"]), whole(turned(item)["same_choice_as_run_1"])],
+                   "title": f"{item['label']}: run 1 {whole(turned(item)['run_1_accuracy'])}, reversed "
+                            f"{whole(turned(item)['accuracy'])}, {signed(turned(item)['change'])} points; the same "
+                            f"choice as run 1 on {whole(turned(item)['same_choice_as_run_1'])} of the questions"}
+                  for item in done]
+    chart = habits_figure(5, hbars(chart_rows, columns=[("Run 1", "Run 1"), ("Reversed", "Rev"), ("Change", "Chg"),
+                                                        ("Same choice", "Same")]), [
+        "The upper bar: run 1 in the normal order, in the family's colour",
+        '<i class="swatch swatch-base"></i>The lower bar: the run with the choices reversed',
+        "Change: reversed minus run 1, in points; same choice: the share of the questions where both chose the same "
+        "original choice"], [item["family"] for item in done])
+    table_rows = [(esc(item["label"]), [
+        esc(whole(turned(item)["run_1_accuracy"])), esc(whole(turned(item)["accuracy"])), esc(signed(turned(item)["change"])),
+        esc(whole(turned(item)["same_choice_as_run_1"])), esc(whole(turned(item)["runs_1_2_agree"])),
+        esc(pct(item["setup"]["accuracy"]["mean"], digits)), f"{turned(item)['errors']} / {turned(item)['missing']}"])
+        for item in done]
+    table_rows += [(esc(item["label"]), [f'<span class="nm">Not run: {esc(turned(item)["not_run"])}</span>', *[""] * 6])
+                   for item in not_run]
+    table = habits_table(
+        [("Normal order", "run 1"), ("Reversed", "one run"), ("Change", "points"), ("Same choice as run 1", "share"),
+         ("Runs 1 and 2 agree", "same choice, share"), (f"Mean of {runs} normal runs", "the published score"),
+         ("Errors / missing", "reversed run")], table_rows)
+    return f"""<p>{esc(words)}</p>
+      {chart}
+      {table}
+      <p class="note">Each figure is a total over the {n} questions. The reversed order is a single run; "Runs 1 and 2 agree" is the share of the questions where the published runs 1 and 2 chose the same choice, shown in its own column. The mean of the {runs} normal runs is the published score, also in its own column. Errors: reversed requests without a successful answer; missing: questions with no answer in the reversed run.</p>"""
+
 
 
 def chance_method(data: dict[str, Any]) -> str:

@@ -345,12 +345,11 @@ PUBLIC_RECORDS = {
     "dataset_created": "2026-11-01T23:49Z", "dataset_commit": "64da0d8", "dataset_committed": "2026-11-02T01:37Z",
     "repository_commit": "0f403cf", "repository_committed": "2026-11-02T17:33Z",
 }
-# The setups named for a run with each question's choices reversed: run once for these ten, its results not used (the
-# dataset's terms do not explicitly allow changing the order of a question's choices); the reference, Perplexity Decider
-# 27B v1.2 through its API without search, not run (no API credit).
-REVERSED_RUN = ("metask", "decider-flash-v1.2", "d3", "d1-ultra", "laya", "decider-v1.2-local", "strands", "d3-ultra",
-                "laya-multilingual", "d1-2b")
-REVERSED_NOT_RUN = ("perplexity-v1.2",)
+# The run with each question's choices reversed (project lead #1740: published, totals only): one run per decision
+# setup in REVERSED/<setup>/run-1.jsonl, each record's prediction already mapped back to the original choice value. The
+# reference, Perplexity Decider 27B v1.2 through its API with web and without, is not run, with the reason.
+REVERSED = HOME / "runs/reversed"
+REVERSED_NOT_RUN = {"perplexity-v1.2": "no API credit", "perplexity-v1.2-web": "no API credit"}
 
 
 def utc_now() -> str:
@@ -1042,13 +1041,40 @@ def setup_habits(setup: dict[str, Any], stored: list[list[dict[str, Any]]], key:
     return habits, right_runs
 
 
+def reversed_totals(path: Path, stored: list[list[dict[str, Any]]], gold: dict[str, str],
+                    runs: list[dict[str, Any]]) -> dict[str, Any]:
+    """A decision setup's run with the choices reversed against its published runs (totals only; no question or answer
+    leaves this function): accuracy of published run 1 and of the reversed run by the answer key, the change in points,
+    the share of the questions where the reversed run chose the same original choice as run 1 and where runs 1 and 2
+    chose the same, and the reversed run's errors (status not success) and missing answers (no record, or no
+    prediction on a success). Stops when run 1's accuracy differs from the scorer's."""
+    rows = read_jsonl(path)
+    if not all(row.get("reversed") is True for row in rows) or len({row["id"] for row in rows}) != len(rows):
+        sys.exit(f"{path}: not one reversed record per question")
+    choice = lambda run_rows: {row["id"]: row.get("prediction") if row["status"] == "success" else None  # noqa: E731
+                               for row in run_rows}
+    first, second, turned = choice(stored[0]), choice(stored[1]), choice(rows)
+    accuracy = lambda chosen: sum(chosen.get(qid) == answer for qid, answer in gold.items()) / len(gold)  # noqa: E731
+    same = lambda a, b: sum(a.get(qid) is not None and a.get(qid) == b.get(qid) for qid in gold) / len(gold)  # noqa: E731
+    normal = accuracy(first)
+    if not math.isclose(normal, runs[0]["accuracy"], abs_tol=1e-9):
+        sys.exit(f"{path}: run 1 accuracy by the key differs from the scorer's")
+    reversed_accuracy = accuracy(turned)
+    # The change rounded past float noise (a difference of whole questions), so a 3-point change compares as 3 points.
+    return {"run_1_accuracy": normal, "accuracy": reversed_accuracy, "change": round(reversed_accuracy - normal, 9),
+            "same_choice_as_run_1": same(turned, first), "runs_1_2_agree": same(first, second),
+            "errors": sum(row["status"] != "success" for row in rows),
+            "missing": len(gold.keys() - turned.keys())
+            + sum(row["status"] == "success" and row.get("prediction") is None for row in rows)}
+
+
 def habits_block(key: dict[str, dict[str, Any]], found: list[tuple[str, dict[str, Any], list[set[str]]]]) -> dict[str, Any]:
     """The habits block of the summary (totals only) from the answer key and each decision setup's habits (found: its
     setup key, item with its habits, and each run's questions answered right): the key's position and yes/no
     distribution, the scores of strategies that never read the question, Holm's adjustment of the p values over the
     setups without search, which setups' scores the habits explain, the hard questions (by count only) and each
     setup's right answers on them, the correlation of first-choice share and accuracy, the weights and public dates and
-    the reversed-choices run's status. Writes each setup's habits into its item."""
+    the reversed-choices run's status where it was not run. Writes each setup's habits into its item."""
     questions = len(key)
     rights = [0] * max(item["choices"] for item in key.values())
     for item in key.values():
@@ -1075,10 +1101,8 @@ def habits_block(key: dict[str, dict[str, Any]], found: list[tuple[str, dict[str
             weights = WEIGHTS[name]
             habits["weights"] = {**weights, "days_before": (datetime.date.fromisoformat(
                 PUBLIC_RECORDS["dataset_committed"][:10]) - datetime.date.fromisoformat(weights["committed"])).days}
-        if name in REVERSED_RUN:
-            habits["reversed"] = "run, excluded"
         if name in REVERSED_NOT_RUN:
-            habits["reversed"] = "not run"
+            habits["reversed"] = {"not_run": REVERSED_NOT_RUN[name]}
     yes_right = sum(item["right"] == item["positive"] for item in yes_no)
     return {
         "questions": questions,
@@ -1119,7 +1143,8 @@ def command_summary(args: argparse.Namespace) -> None:
         sys.exit("public-100.jsonl does not match the manifest's checksum")
     rows = load_questions(dataset)
     text_runs = {run["run"]: run for run in results["runs"]}
-    key = answer_key(rows, {row["id"]: row["answer"] for row in read_jsonl(args.data / "public-100-answers.jsonl")})
+    gold = {row["id"]: row["answer"] for row in read_jsonl(args.data / "public-100-answers.jsonl")}
+    key = answer_key(rows, gold)
     habits_found: list[tuple[str, dict[str, Any], list[set[str]]]] = []
 
     def best_run(provider: str, model: str) -> dict[str, Any]:
@@ -1228,6 +1253,9 @@ def command_summary(args: argparse.Namespace) -> None:
         item.update(cost_note_fields(setup, item, paths))
         if not chat:
             item["habits"], right_runs = setup_habits(setup, stored, key, item["accuracy"]["mean"], sure)
+            turned = REVERSED / name / "run-1.jsonl"
+            if turned.exists():
+                item["habits"]["reversed"] = reversed_totals(turned, stored, gold, runs)
             habits_found.append((name, item, right_runs))
         setups.append(item)
     # Our GPU setups of the chat models without three runs yet: they wait for the GPU queue.
