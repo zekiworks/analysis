@@ -739,6 +739,8 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
     above_random = sum(item["setup"]["accuracy"]["mean"] > random for item in plain)
     two_other = block["two_choice_other"]
     margin = round(100 * block["explained_margin"], 1)
+    # The mark's rule is one-sided: accuracy at or below the habit baseline + margin (no lower limit).
+    mark_words = f"at or below habit baseline + {margin:g} pt"
     key_row = ("<strong>Answer key</strong>", ["", *(whole(count / n) for count in rights), whole(yes_right / yes_n),
                                               whole(block["first_right_other"] / others), "", "", "", ""])
     step2_rows = [key_row]
@@ -746,7 +748,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
         setup = item["setup"]
         habits = setup["habits"]
         shares = habits["positions"] + [0.0] * (len(rights) - len(habits["positions"]))
-        explained = f'<span class="small">within {margin:g} point</span>' if habits["explained"] else ""
+        explained = f'<span class="small">{esc(mark_words)}</span>' if habits["explained"] else ""
         step2_rows.append((esc(item["label"]), [
             esc(pct(setup["accuracy"]["mean"], digits)), *(esc(pct(share, digits)) for share in shares),
             esc(pct(habits["yes_share"], digits)), esc(pct(habits["first_share_other"], digits)),
@@ -761,7 +763,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
          ("p, Holm", f"over the {len(plain)} without search")], step2_rows)
     lowest_holm = min(item["setup"]["habits"]["p_holm"] for item in plain)
     explained = [item for item in plain if item["setup"]["habits"]["explained"]]
-    within = f"within {margin:g} point"
+    within = mark_words
     hard = block["hard"]
     sizes = " and ".join(f"{count} with {choices} choices" for choices, count in hard["by_choices"].items())
     step3 = habits_table(
@@ -817,7 +819,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
       <ul class="note">
         <li>Shares are of each setup's answers over its {runs} runs. The habit baseline is the score of a strategy that never reads the question but has the setup's habits, by number of choices: on the {yes_n} yes/no and true/false questions it says "yes" or "true" as often as the setup does there; on the other {two_other} two-choice questions it picks the first choice as often as the setup does on them; on three- and four-choice questions it picks each position as often as the setup does on questions of that size. "Above the habits" is accuracy minus that baseline.</li>
         <li>The p values are exploratory, not a validated test: the one-sided chance that the habit strategy, answering each question independently, scores at least the setup's mean accuracy, by a normal approximation with the variance of one run of {n} questions (the habits come from the same answers and are treated as known; the {runs} runs of the same questions are not independent). Holm's correction over the {len(plain)} setups without search: lowest adjusted p {lowest_holm:.2f}. Across those {len(plain)}, the share of first-choice answers and accuracy correlate at r = {block['first_share_accuracy_r']:.2f}.</li>
-        <li>"{within.capitalize()}" marks the {len(explained)} setups whose accuracy is at most {margin:g} point above their habit baseline. It is a descriptive threshold: a score close to its habit baseline is consistent with the habits, not proof that they cause it. The setup with web search never gets the mark. The ranking's note beside these setups gives their first-choice share over all {n} questions; {'since "yes" or "true" is always the first choice, that share mixes the "yes" habit with a pure position habit' if block['positive_first'] else 'that share mixes the "yes" habit with a pure position habit'}. The two columns before the baseline separate them.</li>
+        <li>"{within.capitalize()}" marks the {len(explained)} setups whose accuracy is below their habit baseline or at most {margin:g} point above it (a one-sided rule: no lower limit). It is a descriptive threshold: a score at or below that line is consistent with the habits, not proof that they cause it. The setup with web search never gets the mark. The ranking's note beside these setups gives their first-choice share over all {n} questions; {'since "yes" or "true" is always the first choice, that share mixes the "yes" habit with a pure position habit' if block['positive_first'] else 'that share mixes the "yes" habit with a pure position habit'}. The two columns before the baseline separate them.</li>
       </ul>
       <h3>3. Hard questions</h3>
       {step3}
