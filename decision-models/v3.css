@@ -123,19 +123,26 @@ html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
   border: 1px solid var(--control-edge); border-radius: 6px; }
 .skip:focus { left: 1rem; }
 
-/* Top bar: the brand, the navigation bar and the theme switch on one compact line where they fit (they wrap where they
-   do not; at 1280 px they fit). Plain text links; the current page is underlined. The theme keys read Dark and Light,
-   their full names in their labels. */
-.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .9rem; max-width: 1100px; margin: 0 auto .6rem;
-  padding: .3rem 0; border-bottom: 1px solid var(--edge); }
-.brand { flex: none; color: var(--text-2); font-size: .7rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
-  text-decoration: none; }
+/* Top bar: the brand and the theme switch on the first line, the pages row under them: keys in the view bar's style
+   after a small PAGES label, the current page filled like a selected key; they wrap where they do not fit (on a phone
+   they keep one line that scrolls sideways). The theme keys read Dark and Light, their full names in their labels. */
+.topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav";
+  align-items: center; gap: .35rem .9rem; max-width: 1100px; margin: 0 auto .6rem; padding: .3rem 0 .45rem;
+  border-bottom: 1px solid var(--edge); }
+.brand { grid-area: brand; flex: none; color: var(--text-2); font-size: .7rem; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; text-decoration: none; }
 .brand:hover { color: var(--text); }
-.nav { flex: 1 1 auto; min-width: 0; }
-.nav ul { display: flex; flex-wrap: wrap; gap: .2rem .7rem; list-style: none; margin: 0; padding: 0; }
-.nav a { display: inline-block; padding: .2rem 0; color: var(--text); font-size: .86rem; text-decoration: none; border-bottom: 2px solid transparent; }
-.nav a:hover { border-bottom-color: var(--text-2); }
-.nav a[aria-current="page"] { border-bottom-color: var(--text); }
+.nav { grid-area: nav; display: flex; align-items: center; gap: .55rem; min-width: 0; }
+.nav-label { flex: none; }
+.nav ul { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: .35rem; min-width: 0; list-style: none; margin: 0; padding: 0; }
+/* The pages row's keys and the in-page link rows that work as tabs (.face-nav: a page's own parts, the habits steps):
+   bordered keys a little smaller than the view bar's, the current page filled as a selected key. */
+.nav a, .face-nav a { display: inline-flex; align-items: center; min-height: 1.85rem; padding: .15rem .6rem;
+  color: var(--view-text); background: var(--view-key); border: 2px solid var(--view-key-edge); border-radius: 7px;
+  font-size: .86rem; font-weight: 700; line-height: 1.15; text-decoration: none; box-shadow: var(--key-shadow); }
+.nav a:hover, .face-nav a:hover { border-color: var(--view-key-hover); }
+.nav a[aria-current="page"] { color: var(--view-current-text); background: var(--view-current-bg);
+  border-color: var(--view-current-edge); box-shadow: inset 0 -3px 0 var(--view-current-edge); }
 .theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; margin-left: auto; }
 .topbar .theme-switch .key { min-height: 1.75rem; padding: .1rem .45rem; gap: .3rem; }
 .theme-switch[hidden] { display: none; }
@@ -175,9 +182,13 @@ html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
 }
 .view-bar { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; padding: .35rem 1rem; background: var(--view-bg);
   border-bottom: 2px solid var(--view-edge); box-shadow: var(--shadow); }
-.view-rows { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: .3rem 1.1rem; max-width: 1100px; margin: 0 auto; }
+/* The Home key (marked on the root index, the page it opens) comes first: before row 1 on a wide screen and up to
+   1000 px, beside row 2's three short keys on a phone, so the bar keeps its height. */
+.view-rows { display: grid; grid-template-columns: auto minmax(0, 1.8fr) minmax(0, 1fr); gap: .3rem 1.1rem; max-width: 1100px; margin: 0 auto; }
 .view-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .55rem; }
-.view-row.view-measures { grid-column: 1 / -1; }
+.view-row.view-measures { grid-column: 2 / -1; }
+a.view-key.view-home { grid-column: 1; grid-row: 1; gap: .3rem; padding: .15rem .6rem; white-space: nowrap; }
+.home-mark { width: .95rem; height: .95rem; flex: none; fill: currentColor; }
 .view-label { color: var(--view-label); font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .view-row ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; list-style: none; margin: 0; padding: 0; }
 /* Row 1's middle key, the longest label, takes more room, so each label keeps one line. */
@@ -196,13 +207,16 @@ a.view-key[aria-current] { color: var(--view-current-text); background: var(--vi
    room for it. Too narrow for rows 1 and 2 side by side: one row each. */
 .view-more { display: none; }
 @media (max-width: 1000px) {
-  .view-rows { grid-template-columns: minmax(0, 1fr); }
+  .view-rows { grid-template-columns: auto minmax(0, 1fr); }
+  .view-row, .view-row.view-measures { grid-column: 2; }
   .view-row { grid-template-columns: 4.6rem minmax(0, 1fr); }
   .view-more { display: inline; }
 }
-/* Without the script no group is marked: the page shows all models, so that key is the current one. */
-html:not(.js) a.view-key[data-view-group="all"] { color: var(--view-current-text); background: var(--view-current-bg);
-  border-color: var(--view-current-edge); box-shadow: inset 0 -3px 0 var(--view-current-edge); }
+/* One active tab: a filter looks active only away from its default. All, the default group, keeps its aria-current for
+   screen readers but looks like an unpressed key; Decision or Chat, when chosen, is filled. */
+a.view-key[data-view-group="all"][aria-current] { color: var(--view-text); background: var(--view-key);
+  border-color: var(--view-key-edge); box-shadow: var(--key-shadow); }
+a.view-key[data-view-group="all"][aria-current]:hover { border-color: var(--view-key-hover); }
 /* The cost unit (site.js): each cost carries both units and the chosen one shows; per 1,000 questions without the
    script. The keys sit in the head of each chart or table with costs. */
 .cost-1m { display: none; }
@@ -596,10 +610,12 @@ i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
    search"; web-grounding/ Non-hallucination's long head): a wider value column. */
 .chart-wide .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) 15rem; }
 .hbar-marker { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--text); }
-.hbar-value { font-family: var(--mono); font-size: .82rem; white-space: nowrap; }
+/* A value wraps at its spaces where it is longer than its column (pws-decisions/ Accuracy: accuracy | cost | median ·
+   p95; Latency: median · p95 ms), so no bar ever covers the start of a value. */
+.hbar-value { font-family: var(--mono); font-size: .82rem; white-space: normal; }
 /* One value beside each bar of a row (Site hbars texts), each line as tall as a bar and its gap. */
 .hbar-value.stack { display: grid; gap: 3px; }
-.hbar-value.stack > span { height: .85rem; line-height: .85rem; font-size: .74rem; }
+.hbar-value.stack > span { height: .85rem; line-height: .85rem; font-size: .74rem; white-space: nowrap; }
 .hbar-fill.wrong { background: var(--wrong); }
 i.swatch-wrong { background: var(--wrong); }
 .hbar-axis { margin-bottom: .25rem; }
@@ -788,12 +804,9 @@ ul.price-list { padding-left: 1.25rem; }
   .chart-wide .hbar-value, .chart-wide .hbar-head { font-size: .72rem; }
   .chart-wide .hbar-axis .hbar-tick:nth-child(even) { display: none; }
   body { padding: 0 .6rem 1.5rem; }
-  /* The first screen reaches the results: the site name and the theme switch share a row, the navigation is one line
+  /* The first screen reaches the results: the site name and the theme switch share a row, the pages row is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
-  .topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav"; gap: .3rem .6rem;
-    margin-bottom: .55rem; padding: .35rem 0 .3rem; }
-  .brand { grid-area: brand; }
-  .nav { grid-area: nav; }
+  .topbar { gap: .3rem .6rem; margin-bottom: .55rem; padding: .35rem 0 .3rem; }
   /* The view bar on a phone: one row each, the row names for screen readers only. Row 1's labels wrap inside their keys;
      the middle key, the longest label, takes more room, so every label fits on two lines. Row 2's keys keep one line
      (All, Decision, Chat: the row's name says "models"). */
@@ -801,6 +814,10 @@ ul.price-list { padding-left: 1.25rem; }
   .view-bar { margin: 0 -.6rem; padding: .35rem .6rem; }
   .view-rows { gap: .3rem; }
   .view-row { display: block; }
+  /* Row 1 across the width; the Home key and row 2 share the second line; row 3 across the width. */
+  .view-row.view-tests, .view-row.view-measures { grid-column: 1 / -1; }
+  a.view-key.view-home { grid-column: 1; grid-row: 2; min-height: 2.1rem; padding: .15rem .5rem; }
+  .view-row.view-groups { grid-column: 2; grid-row: 2; }
   .view-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
     white-space: nowrap; border: 0; }
   .view-row ul, .view-row.view-tests ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: .3rem; }
@@ -814,7 +831,7 @@ ul.price-list { padding-left: 1.25rem; }
   .theme-switch { gap: .25rem; }
   .theme-switch .key { min-height: 1.75rem; padding: .15rem .45rem; gap: .3rem; font-size: .78rem; }
   /* Padding inside the scrolling bar keeps a focused link's outline unclipped; the negative margin keeps the row's size. */
-  .nav ul { flex-wrap: nowrap; gap: 1rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
+  .nav ul { flex-wrap: nowrap; gap: .35rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
     scroll-padding-inline: .35rem; }
   .nav ul::-webkit-scrollbar { display: none; }
   .nav li { flex: none; }

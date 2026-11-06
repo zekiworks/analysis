@@ -199,15 +199,16 @@ const costSwitch = () =>
 
 /* Every page: a row 2 key keeps the view. Pressed, it opens its group with the cost unit (?cost-unit=) and the part of
    row 3's marked key (#cost), so Decision pressed at a page's #cost opens that page's #cost for decision models, in the
-   same unit. With no key marked (between parts) it opens the top of the page. The marked group pressed opens Home in
-   its default state (the view bar's data-home). */
+   same unit. With no key marked (between parts) it opens the top of the page. The chosen Decision or Chat (the
+   active-looking group) pressed opens Home in its default state (the view bar's data-home); All, the default, looks
+   unpressed and pressed does its normal job. */
 (function keepViewOnGroup() {
   const bar = document.querySelector('.view-bar');
   if (!bar) return;
   bar.addEventListener('click', event => {
     const link = event.target.closest('a[data-view-group]');
     if (!link) return;
-    if (link.hasAttribute('aria-current')) {
+    if (link.hasAttribute('aria-current') && link.dataset.viewGroup !== 'all') {
       link.href = bar.dataset.home;
       return;
     }

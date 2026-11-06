@@ -160,16 +160,21 @@ python3 -m http.server 8000                                # preview at http://1
   block loading the data files from a `file://` page.
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
-  - **View bar** (`topbar` in `sitebuild/site.py`, first on every page and sticky at the top): row 1 the test (English
+  - **View bar** (`topbar` in `sitebuild/site.py`, first on every page and sticky at the top): the Home key first (a
+    house mark and "Home", opening the root index in its default state and marked on it; before row 1 on a wide
+    screen, beside row 2 on a phone, so the bar keeps its height), row 1 the test (English
     reading, `english/`; Turkish reading and grammar, the home page; English and Turkish, `turkish-vs-english/`), row 2
     the models (`?models=all|decision|chat`, all when missing; trailing dots, punctuation or spaces are dropped, so
     `?models=all.` reads as all), row 3 the measure (Accuracy, Non-hallucination, Cost,
     Latency); on a screen wider than 1000 px rows 1 and 2 share the first line and row 3 takes the second, each row's
     name before its keys (row 2 reads All, Decision, Chat; "models" is added where each row has a line of its own and room for it). Each row 1 choice opens
-    its page at the top, charts first, then the table. Every marked key (row 1's open test, row 2's group, row 3's
-    measure, and the navigation bar's entry of the page in view) opens Home, the root index, in its default state
-    (`HOME_STATE`: `?models=all`, no part in the address, so no row 3 key marked; the view bar's `data-home`); on Home
-    row 1 marks Turkish reading and grammar and row 2 All. A row 2 key keeps the view (`keepViewOnGroup` in `site.js`): it
+    its page at the top, charts first, then the table. One active tab: only the page in view looks active (Home on the
+    root index, whose own test key stays plain; the test key on `english/` and `turkish-vs-english/`; the pages-row
+    entry on the other pages), and a filter only away from its default (Decision or Chat; All keeps its `aria-current`
+    but looks unpressed); a row 3 key looks active when pressed or scrolled into. Every active-looking key (the Home
+    key, the open test, Decision or Chat, the marked measure and the pages row's entry of the page in view) opens Home,
+    the root index, in its default state (`HOME_STATE`: `?models=all`, no part in the address, so no row 3 key marked;
+    the view bar's `data-home`); a plain key does its normal job. A row 2 key keeps the view (`keepViewOnGroup` in `site.js`): it
     opens its group with the chosen cost unit (`?cost-unit=`) and the part of row 3's marked key, so Decision pressed at
     `#cost` opens that page's `#cost` with `?models=decision` in the same unit (the top of the page when no key is
     marked). `site.js` marks the current group, keeps it in row 1's links and
@@ -212,10 +217,12 @@ python3 -m http.server 8000                                # preview at http://1
     English (`turkish-vs-english/`, from `results.json`'s `english_reading`,
     `dont_know_option_word`, `english-reading.json` and `page_config.json`'s `english_reading` and `model_languages`,
     built by `sitebuild/english_reading.py`; its former address `english-reading/` redirects there, fragment kept). The
-    top bar under the view bar (`topbar` in `sitebuild/site.py`) is one line where it fits: the brand, the navigation
-    bar (Home first, the root index in its default state; Page images and Hallucination, then the web experiments Web
-    grounding and PWS-Decisions, each one click from every page, then Every question, Where models disagree, Topics,
-    Compare, Method, Data; the current page underlined, its entry opening Home) and the theme switch. Text is the home
+    top bar under the view bar (`topbar` in `sitebuild/site.py`): the brand and the theme switch, then the pages row,
+    keys in the view bar's style after a small PAGES label (Home first, the root index in its default state; Page
+    images and Hallucination, then the web experiments Web grounding and PWS-Decisions, each one click from every page,
+    then Every question, Where models disagree, Topics, Compare, Method, Data; the current page filled as a selected key,
+    its entry opening Home; on a phone one line that scrolls sideways). The in-page link rows that work as tabs
+    (`.face-nav`: a page's own parts, the habits steps) use the same keys. Text is the home
     page (the brand, Home and row 1); Turkish vs English
     is row 1's English and Turkish. Each tab's face
     is charts, each card with a line saying which way is better; its tables and notes are under Info (except the Text

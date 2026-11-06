@@ -56,6 +56,9 @@ GROUP_PAGES = ("vision/", "dont-know/", "web-grounding/", "pws-decisions/")
 FILTER_PAGES = (*(target for target, _ in VIEW_TESTS), *GROUP_PAGES)
 # Home's default state, the address every marked key opens (on the root index): All models, no part.
 HOME_STATE = "?models=all"
+# The house mark before the view bar's Home key, in the key's text colour.
+HOME_MARK = ('<svg class="home-mark" viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
+             '<path d="M8 1.6 1 7.6h2v6.8h3.8v-4.2h2.4v4.2H13V7.6h2z"/></svg>')
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
 # A cost with no estimate because the setup ran on our own hardware and its maker lists no price for the same model
@@ -368,15 +371,18 @@ def legend_mark(colour: str, shape: str | None = None, dash: str | None = None) 
 
 
 def topbar(path: str) -> str:
-    """The top of every page: first the view bar, which stays at the top of the window: row 1 the test (a page, the
-    current one marked here from the path), row 2 the models (?models=, marked by site.js, which also keeps the group in
-    the row 1 links), row 3 the measure (a part of the page, marked by site.js); then the bar with the brand, which links
-    home, the navigation bar and the theme switch, which scrolls away. On a page that shows its parts by group
+    """The top of every page: first the view bar, which stays at the top of the window: the Home key (HOME_MARK, the
+    root index in its default state, marked as the current page there), row 1 the test (a page, the current one marked
+    here from the path; on the root index Home is the page, so no test is marked), row 2 the models (?models=, marked by
+    site.js, which also keeps the group in the row 1 links; All, the default, looks unpressed, v3.css), row 3 the
+    measure (a part of the page, marked by site.js); then the bar with the brand, which links home, the pages row (keys
+    after a PAGES label) and the theme switch, which scrolls away. On a page that shows its parts by group
     (FILTER_PAGES) the row 2 links stay on it, elsewhere they open the home page with that group; on a page of row 1 the
     row 3 links go to its parts, elsewhere to the home page's. On a wide screen rows 1 and 2 share a line (v3.css).
-    Every marked key opens Home in its default state (the root index with HOME_STATE: All models, no part in the
-    address): the open test of row 1 and the navigation bar's entry of the page in view here, row 2's group and row 3's
-    measure in site.js (the view bar's data-home)."""
+    One active tab: only the page in view (Home, a test or a pages-row entry) and a chosen filter look active, and every
+    active-looking key opens Home in its default state (the root index with HOME_STATE: All models, no part in the
+    address): the Home key, the open test and the pages row's entry of the page in view here, Decision or Chat and the
+    marked measure in site.js (the view bar's data-home)."""
     current = ' aria-current="page"'
     home = f"{rel(path, '')}{HOME_STATE}"
     links = "".join(
@@ -385,7 +391,8 @@ def topbar(path: str) -> str:
              f'{" data-keep-group" if target in GROUP_PAGES else ""}>{esc(label)}</a></li>'
         for target, label in MENU
     )
-    tests = "".join(f'<li><a class="view-key" href="{home}"{current}>{esc(label)}</a></li>' if path == target else
+    # One active tab: on the root index Home is the current page, so its test key (the same page) stays a plain key.
+    tests = "".join(f'<li><a class="view-key" href="{home}"{current}>{esc(label)}</a></li>' if path == target and path else
                     f'<li><a class="view-key" href="{rel(path, target)}" data-view-test>{esc(label)}</a></li>'
                     for target, label in VIEW_TESTS)
     base = "" if path in {target for target, _ in VIEW_TESTS} else rel(path, "")
@@ -397,6 +404,7 @@ def topbar(path: str) -> str:
                        f"{esc(label)}</a></li>" for key, label in VIEW_MEASURES)
     return (
         f'<nav class="view-bar" aria-label="View: test, models and measure" data-home="{home}"><div class="view-rows">\n'
+        f'    <a class="view-key view-home" href="{home}" data-view-home{current if not path else ""}>{HOME_MARK}Home</a>\n'
         '    <div class="view-row view-tests"><span class="view-label" id="view-test">Test</span>'
         f'<ul aria-labelledby="view-test">{tests}</ul></div>\n'
         '    <div class="view-row view-groups"><span class="view-label" id="view-models">Models</span>'
@@ -406,7 +414,8 @@ def topbar(path: str) -> str:
         "  </div></nav>\n"
         '  <header class="topbar">\n'
         f'    <a class="brand" href="{rel(path, "")}">{esc(KICKER)}</a>\n'
-        f'    <nav class="nav" aria-label="Pages"><ul>{links}</ul></nav>\n'
+        '    <nav class="nav" aria-label="Pages"><span class="view-label nav-label" aria-hidden="true">Pages</span>'
+        f'<ul>{links}</ul></nav>\n'
         '    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" '
         'data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>'
         'Dark</button><button type="button" class="key" data-theme-choice="light" '
