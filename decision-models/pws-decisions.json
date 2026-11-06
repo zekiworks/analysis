@@ -10020,6 +10020,64 @@
   "chat_gpu": [],
   "chat_unfinished": []
  },
+ "blocked": [
+  {
+   "setup": "gpt-6.1-sol-api",
+   "model": "gpt-6.1-sol",
+   "web": false,
+   "interface": "API",
+   "reason": "waiting for OpenAI API credit (the first attempt failed when the credit ran out and is kept apart)"
+  },
+  {
+   "setup": "claude-fable-5-1-api",
+   "model": "claude-fable-5-1",
+   "web": false,
+   "interface": "API",
+   "reason": "not run: no Anthropic API key on our machine"
+  },
+  {
+   "setup": "claude-opus-5-5-api",
+   "model": "claude-opus-5-5",
+   "web": false,
+   "interface": "API",
+   "reason": "not run: no Anthropic API key on our machine"
+  },
+  {
+   "setup": "claude-sonnet-5-5-api",
+   "model": "claude-sonnet-5-5",
+   "web": false,
+   "interface": "API",
+   "reason": "not run: no Anthropic API key on our machine"
+  },
+  {
+   "setup": "gpt-6.1-sol-api-web",
+   "model": "gpt-6.1-sol",
+   "web": true,
+   "interface": "API",
+   "reason": "waiting for OpenAI API credit (the first attempt failed when the credit ran out and is kept apart)"
+  },
+  {
+   "setup": "claude-fable-5-1-api-web",
+   "model": "claude-fable-5-1",
+   "web": true,
+   "interface": "API",
+   "reason": "not run: no Anthropic API key on our machine"
+  },
+  {
+   "setup": "claude-opus-5-5-api-web",
+   "model": "claude-opus-5-5",
+   "web": true,
+   "interface": "API",
+   "reason": "not run: no Anthropic API key on our machine"
+  },
+  {
+   "setup": "claude-sonnet-5-5-api-web",
+   "model": "claude-sonnet-5-5",
+   "web": true,
+   "interface": "API",
+   "reason": "not run: no Anthropic API key on our machine"
+  }
+ ],
  "chat": {
   "request": "PWS-Decisions has no chat request of its own, so each question goes out as the benchmark's request (the state, the question's instructions, its choices as lettered options) in the site's English chat prompts, one question per request; the reply is one letter and a 0-1 confidence in JSON, scored with PWS-Decisions' scorer.",
   "system_prompt": "You are taking an English multiple-choice benchmark. Select exactly one supplied option per question and state your confidence in each answer. Do not explain.",

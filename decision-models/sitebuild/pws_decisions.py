@@ -479,16 +479,21 @@ def retried_note(items: list[dict[str, Any]]) -> str:
 
 
 def pending(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> str:
-    """The setups that wait: Parallel's own API, and the decision models that run on our GPUs (results.json), with what
-    Baseten's Base Labs models gave (Mammoth-1 leaves the list once its Baseten setup is in)."""
-    gpu = [site.row_name(run) for run in site.ranked() if site.decision(run) and run["hardware"] is not None]
+    """The setups that wait: Parallel's own API, the decision models on our GPUs (results.json) that have no setup on the
+    page yet (no line when none is missing), the API setups that are blocked (pws-decisions.json's blocked, each with
+    its reason), with what Baseten's Base Labs models gave (Mammoth-1 leaves the list once its Baseten setup is in)."""
+    shown = {(item["setup"]["provider"], item["setup"]["model"]) for item in items}
+    gpu = [site.row_name(run) for run in site.ranked()
+           if site.decision(run) and run["hardware"] is not None and (run["provider"], run["model"]) not in shown]
     check = data["baseten_check"]
     gaps = {model: check[model] for model in ("baselabs/elephant-1", "baselabs/mammoth-1")}
     when = f'on the first {check["questions"]} Turkish questions ({esc(long_date(check["date"]))})'
     if any(item["setup"].get("host") == "Baseten" for item in items):
+        elephant_on_gpu = ("baselabs", "baselabs/elephant-1") in shown
         baseten = (f"<li>Base Labs' Elephant-1 is also on Baseten's Model API, but not shown to be the same weights: {when} "
                    f"Baseten's probabilities differed from our runs by up to {gaps['baselabs/elephant-1']['largest_gap']:.2f}. "
-                   "It waits with the GPU setups.</li>")
+                   + ("Not run on Baseten; our GPU run is on the page.</li>" if elephant_on_gpu
+                      else "It waits with the GPU setups.</li>"))
     else:
         baseten = (f"<li>Base Labs' Elephant-1 and Mammoth-1 are also on Baseten's Model API, but not shown to be the same "
                    f"weights: {when} Baseten's probabilities differed from our runs by up to "
@@ -496,11 +501,15 @@ def pending(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> st
                    f"{gaps['baselabs/mammoth-1']['largest_gap']:.2f} (Mammoth-1, which chose differently on "
                    f"{check['questions'] - gaps['baselabs/mammoth-1']['same_choice']} of them). They wait with the GPU "
                    "setups.</li>")
-    waiting = unfinished_chat(site, data)
+    blocked_keys = {row["setup"] for row in data.get("blocked", [])}
+    waiting = unfinished_chat(site, data, blocked_keys)
     chats = (f'<li data-models="all chat">Chat setups without three complete runs yet: {esc(joined(waiting))}; added when '
              "they have them.</li>" if waiting else "")
+    blocked = "".join(f'<li data-models="all chat">{esc(setup_name(site, row["setup"]))}: {esc(row["reason"])}.</li>'
+                      for row in data.get("blocked", []))
     return ("<li>Parallel's own Decisions API: not run, no API key available to us yet.</li>"
-            f"<li>Decision models on our GPUs: running now, added when done ({esc(joined(gpu))}).</li>" + baseten + chats)
+            + (f"<li>Decision models on our GPUs: running now, added when done ({esc(joined(gpu))}).</li>" if gpu else "")
+            + blocked + baseten + chats)
 
 
 def setup_name(site: Site, key: str) -> str:
@@ -521,13 +530,14 @@ def setup_key(key: str) -> tuple[str, bool, bool]:
     return base.removesuffix("-api"), web_key, base.endswith("-api")
 
 
-def unfinished_chat(site: Site, data: dict[str, Any]) -> list[str]:
+def unfinished_chat(site: Site, data: dict[str, Any], blocked: set[str] = frozenset()) -> list[str]:
     """The chat setups without three complete runs: those the summary step lists as unfinished, and those with attempts
-    set aside (failed_attempts) and no setup of their model and web search among the setups yet."""
+    set aside (failed_attempts) and no setup of their model and web search among the setups yet; the blocked setups
+    (listed with their reason instead) left out."""
     done = {(setup["model"], web(setup), setup.get("interface") == "API") for setup in data["setups"] if chat(setup)}
-    keys = list(data["pending"].get("chat_unfinished", []))
+    keys = [key for key in data["pending"].get("chat_unfinished", []) if key not in blocked]
     keys += [key for key in dict.fromkeys(row["setup"] for row in data.get("failed_attempts", []))
-             if key not in keys and setup_key(key) not in done]
+             if key not in keys and key not in blocked and setup_key(key) not in done]
     return [setup_name(site, key) for key in keys]
 
 

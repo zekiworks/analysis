@@ -240,6 +240,11 @@ SETUPS.update({name: {**setup, "mode": None, "group": "chat", "web": False,
 SETUPS.update({f"{name}-web": {**setup, "mode": None, "group": "chat", "web": True,
                                "workers": CHAT_WORKERS.get(setup["provider"], 4)}
                for name, setup in CHAT_MODELS.items() if setup["provider"] in WEB_SEARCH})
+# What blocks each API setup that has no three complete runs (shown on the page as written).
+API_BLOCKED = {
+    "openai-api": "waiting for OpenAI API credit (the first attempt failed when the credit ran out and is kept apart)",
+    "claude-api": "not run: no Anthropic API key on our machine",
+}
 CHAT_WEB_NOT_RUN = ("Kimi K3.1 Pro and GLM-5.3 run through OpenRouter, whose web search is OpenRouter's own plugin, not "
                     "the makers' search; they run without web only.")
 # Setups of the site not run, with the reason, keyed like SETUPS (the page names them from results.json).
@@ -1050,6 +1055,11 @@ def command_summary(args: argparse.Namespace) -> None:
         "percentile": PERCENTILE, "sure_threshold": sure, "dates": sorted(dates), "run_cost_usd": total_cost,
         "setups": setups, "not_run": NOT_RUN, "baseten_check": BASETEN_CHECK,
         "pending": {"parallel": PENDING_PARALLEL, "gpu": PENDING_GPU, "chat_gpu": pending_chat, "chat_unfinished": unfinished},
+        # The API setups (Ümit #1408, #1409) without three complete runs, each with what blocks it.
+        "blocked": [{"setup": name, "model": setup["model"], "web": setup["web"], "interface": "API",
+                     "reason": API_BLOCKED[setup["provider"]]}
+                    for name, setup in SETUPS.items() if setup["provider"] in API_BLOCKED
+                    and not all(run_file(name, number).exists() for number in range(1, args.runs + 1))],
         "chat": {
             "request": "PWS-Decisions has no chat request of its own, so each question goes out as the benchmark's "
                        "request (the state, the question's instructions, its choices as lettered options) in the "
