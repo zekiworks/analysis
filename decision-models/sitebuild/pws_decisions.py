@@ -679,15 +679,16 @@ def signed(value: float) -> str:
     return f"{100 * value:+.1f}"
 
 
-def habits_table(heads: list[tuple[str, str]], rows: list[tuple[str, list[str]]]) -> str:
-    """One step's table: a Setup column, then the heads (name, what it is), each row its label and its cells (HTML)."""
+def habits_table(heads: list[tuple[str, str]], rows: list[tuple[str, list[str]]], first: str = "Setup") -> str:
+    """One step's table: a first column (first: Setup, or Strategy for step 1), then the heads (name, what it is), each
+    row its label and its cells (HTML)."""
     labels = [f"{head} ({what})" if what else head for head, what in heads]
     head = "".join(f'<th scope="col" class="num">{esc(text)}' + (f'<span class="small">{esc(what)}</span>' if what else "")
                    + "</th>" for text, what in heads)
     body = "".join(f'<tr><td class="model">{label}</td>'
                    + "".join(cell(name, value) for name, value in zip(labels, values)) + "</tr>"
                    for label, values in rows)
-    return (f'<div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">Setup</th>'
+    return (f'<div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">{esc(first)}</th>'
             f"{head}</tr></thead><tbody>{body}</tbody></table></div>")
 
 
@@ -734,7 +735,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
          (f'Always "yes" or "true" on the {yes_n} yes/no and true/false questions',
           [f"{yes_right} of {yes_n} right ({whole(yes_right / yes_n)})", "50% on them"]),
          (f'Always "yes" or "true" on those {yes_n}, a uniform random guess on the other {others}',
-          [whole(lazy["yes_then_uniform"]), whole(random)])])
+          [whole(lazy["yes_then_uniform"]), whole(random)])], first="Strategy")
     above_random = sum(item["setup"]["accuracy"]["mean"] > random for item in plain)
     two_other = block["two_choice_other"]
     margin = round(100 * block["explained_margin"], 1)
