@@ -315,7 +315,17 @@ python3 -m http.server 8000                                # preview at http://1
     summary step's `dont_know` block (Perplexity Decider v1.2's "I don't know" runs off and with web, three each; an arm
     is null until its runs are done), a section gives each arm's mean right, wrong and "I don't know" answers, accuracy,
     answered share, wrong share of answers, non-hallucination rate and errors, with the lowest and highest run; without
-    it the page has no such section. The method notes compute the chance line from `choice_counts`. Row labels add a
+    it the page has no such section. With the summary step's `habits` block (answer-key position and yes/no totals, the
+    scores of strategies that never read the question, the hard-question count, the first-choice/accuracy correlation,
+    the public dates; each decision setup's own `habits`: position, "yes"/"true" and other-question first-choice
+    shares, habit baseline, points above it, exploratory p and Holm-adjusted p, `explained` when at most
+    `explained_margin` above, hard-question counts per run, the chosen choice's probability on right and wrong answers,
+    `weights` dates for the open setups and the reversed-choices status), a section "Can a model score here without
+    knowing the facts?" (`#habits`, a decision-model part: the chat view shows a one-line note in its place) gives a
+    two-sentence summary and one table per step (1 to 6), and each explained
+    setup gets a small second line in the Accuracy chart (hbars' row `note`) and the table: "picks the first choice in
+    N of 10 questions; always picking the first choice scores X%"; without the block neither appears. The method notes
+    compute the chance line from `choice_counts`. Row labels add a
     setup's `interface` (CLI or API) beside its other marks, so two rows of one model never read the same. The view
     bar's row 2 filters the page in place (`FILTER_PAGES`): each chart row (hbars' row `models`) and table row carries
     `data-models` ("all decision" or "all chat"), the three cards sit under a "Decision models" heading in the all and

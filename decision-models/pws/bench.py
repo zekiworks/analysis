@@ -304,6 +304,54 @@ REPORTED = {
     },
 }
 
+# Can a model score without knowing the facts (the summary step's habits block): the threshold under which a setup's
+# score counts as explained by its answering habits (accuracy at most 1 point above its habit baseline, a descriptive
+# cut, not a test), and what makes a question hard (at most 20% of the setups without search answer it right).
+EXPLAINED_MARGIN = 0.01
+HARD_SHARE = 0.20
+YES_NO = ({"yes", "no"}, {"true", "false"})
+# The weights revision each open setup ran and its Hugging Face commit date (Hugging Face API, read 6 November 2026),
+# and the earliest public records of the questions.
+WEIGHTS_SOURCE = {"source": "Hugging Face API", "read": "2026-11-06"}
+WEIGHTS = {
+    "elephant-1": {"repo": "baselabs/elephant-1", "revision": "b3f8a93", "committed": "2026-10-22"},
+    "mammoth-1": {"repo": "baselabs/mammoth-1", "revision": "61cec44", "committed": "2026-10-22"},
+    "decider-v1.2-local": {"repo": "perplexity-ai/pplx-decider-v1.2", "revision": "225c913", "committed": "2026-10-16"},
+    "decider-flash-v1.2": {"repo": "perplexity-ai/pplx-decider-flash-v1.2", "revision": "6d771ad",
+                           "committed": "2026-10-16"},
+    "glide-v1.2": {"repo": "fastino/GLiDE", "revision": "a7e4589", "committed": "2026-10-22"},
+    "d3": {"repo": "vllm-sr/d3", "revision": "20f37b9", "committed": "2026-10-22"},
+    "d3-ultra": {"repo": "vllm-sr/d3-ultra", "revision": "52ba9e7", "committed": "2026-10-26"},
+    "drex-max-v1": {"repo": "nace-ai/drex-max-v1", "revision": "cac65e1", "committed": "2026-10-30"},
+    "clef": {"repo": "Cloudflare/clef", "revision": "2f3de3d", "committed": "2026-10-01"},
+    "clef-flash": {"repo": "Cloudflare/clef-flash", "revision": "fde727a", "committed": "2026-10-07",
+                   "note": "weights 2026-09-30"},
+    "cygnet": {"repo": "google/gemma-4-12B-it", "revision": "707f0a3", "committed": "2026-07-20",
+               "note": "Cygnet runs it unchanged, with its own sampling recipe"},
+    "open-jev": {"repo": "ZefanCai/Open-Jev-27B-v1.1", "revision": "28cf730", "committed": "2026-09-23",
+                 "note": "on Qwen/Qwen3.8-27B at 1d4bf0f, 2026-08-14"},
+    "winnow": {"repo": "EldanRing/Winnow-12B", "revision": "b2b1421", "committed": "2026-09-21",
+               "note": "Q8_0 GGUF; revision from its manifest, file hash not checked"},
+    "metask": {"repo": "wayfind/metask-jev-4b-policy-mix", "revision": "ea20fe8", "committed": "2026-09-22"},
+    "d1-2b": {"repo": "LiquidAI/d1-2B", "revision": "10e7671", "committed": "2026-10-29"},
+    "strands": {"repo": "StrandsAgents/strands-decider-2B-hobson-v21", "revision": "2b52a62", "committed": "2026-10-05"},
+    "gliner-decide": {"repo": "fastino/GLiNER2.5-multi-Decide", "revision": "a35a0cd", "committed": "2026-09-28"},
+    "laya": {"repo": "convaiinnovations/laya", "revision": "c5d7873", "committed": "2026-09-19"},
+    "laya-multilingual": {"repo": "convaiinnovations/laya", "revision": "c5d7873", "committed": "2026-09-19",
+                          "note": "its multilingual/ folder"},
+    "onejev": {"repo": "OmniJev/OneJev-27B", "revision": "a5e5f55", "committed": "2026-10-16"},
+}
+PUBLIC_RECORDS = {
+    "dataset_created": "2026-11-01T23:49Z", "dataset_commit": "64da0d8", "dataset_committed": "2026-11-02T01:37Z",
+    "repository_commit": "0f403cf", "repository_committed": "2026-11-02T17:33Z",
+}
+# The setups named for a run with each question's choices reversed: run once for these ten, its results not used (the
+# dataset's terms do not explicitly allow changing the order of a question's choices); the reference, Perplexity Decider
+# 27B v1.2 through its API without search, not run (no API credit).
+REVERSED_RUN = ("metask", "decider-flash-v1.2", "d3", "d1-ultra", "laya", "decider-v1.2-local", "strands", "d3-ultra",
+                "laya-multilingual", "d1-2b")
+REVERSED_NOT_RUN = ("perplexity-v1.2",)
+
 
 def utc_now() -> str:
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
@@ -919,6 +967,149 @@ def spread(values: list[float | None]) -> dict[str, float] | None:
     return {"mean": statistics.mean(values), "min": min(values), "max": max(values)}
 
 
+def answer_key(rows: list[dict[str, Any]], gold: dict[str, str]) -> dict[str, dict[str, Any]]:
+    """Per question (kept in memory, never written): its number of choices, the position (1 = first) of the right choice,
+    and for a yes/no or true/false question its kind ("yes" or "true") and the position of "yes" or "true"."""
+    key = {}
+    for row in rows:
+        values = [choice["value"] for choice in row["choices"]]
+        folded = [value.strip().casefold() for value in values]
+        kind = next((pair for pair in YES_NO if set(folded) == pair and len(folded) == 2), None)
+        positive = None if kind is None else ("yes" if "yes" in kind else "true")
+        key[row["id"]] = {"choices": len(values), "values": values, "right": values.index(gold[row["id"]]) + 1,
+                          "kind": positive, "positive": None if kind is None else folded.index(positive) + 1}
+    return key
+
+
+def setup_habits(setup: dict[str, Any], stored: list[list[dict[str, Any]]], key: dict[str, dict[str, Any]],
+                 accuracy: float, sure: float) -> tuple[dict[str, Any], list[set[str]]]:
+    """A decision setup's answering habits over its runs (totals only): the share of its answers at each position, its
+    "yes"/"true" share on the yes/no and true/false questions, its first-choice share on the other questions, the
+    habit baseline (the expected score of a strategy that never reads the question but answers with the setup's habits,
+    conditioned on the number of choices), how far its accuracy is above it with an exploratory one-sided p, and the
+    recorded probability of the chosen choice on right and wrong answers. Also each run's questions answered right."""
+    positions = [0] * max(item["choices"] for item in key.values())
+    yes, yes_of, first_other, other_of = 0, 0, 0, 0
+    by_size: dict[int, list[int]] = {}
+    right_runs: list[set[str]] = []
+    chosen: list[tuple[float, bool]] = []
+    for run_rows in stored:
+        right_runs.append(set())
+        for row in run_rows:
+            item = key[row["id"]]
+            if row["prediction"] not in item["values"]:
+                sys.exit(f"{setup['model']}: an answer is not one of its question's choices")
+            position = item["values"].index(row["prediction"]) + 1
+            positions[position - 1] += 1
+            if item["kind"]:
+                yes_of += 1
+                yes += position == item["positive"]
+            else:
+                other_of += 1
+                first_other += position == 1
+                by_size.setdefault(item["choices"], [0] * item["choices"])[position - 1] += 1
+            if position == item["right"]:
+                right_runs[-1].add(row["id"])
+            _, _, probability = request_usage(setup, row)
+            if row["status"] == "success" and probability is not None:
+                chosen.append((probability, position == item["right"]))
+    answers = sum(positions)
+    yes_share = yes / yes_of
+    sizes = {size: [count / sum(counts) for count in counts] for size, counts in by_size.items()}
+    chances = []
+    for item in key.values():
+        if item["kind"]:
+            chances.append(yes_share if item["right"] == item["positive"] else 1 - yes_share)
+        else:
+            chances.append(sizes[item["choices"]][item["right"] - 1])
+    baseline = statistics.mean(chances)
+    deviation = math.sqrt(sum(p * (1 - p) for p in chances)) / len(chances)
+    habits: dict[str, Any] = {
+        "positions": [count / answers for count in positions], "answers": answers,
+        "yes_share": yes_share, "first_share_other": first_other / other_of,
+        "baseline": baseline, "above": accuracy - baseline,
+        "p": 1 - statistics.NormalDist().cdf((accuracy - baseline) / deviation),
+    }
+    habits["first_in_10"] = math.floor(10 * habits["positions"][0] + 0.5 + 1e-9)
+    if chosen:
+        right = [p for p, ok in chosen if ok]
+        wrong = [p for p, ok in chosen if not ok]
+        habits["confidence"] = {
+            "answers": len(chosen), "mean_right": statistics.mean(right) if right else None,
+            "mean_wrong": statistics.mean(wrong) if wrong else None,
+            "sure": sum(p >= sure for p, _ in chosen), "sure_wrong": sum(p >= sure and not ok for p, ok in chosen),
+        }
+    return habits, right_runs
+
+
+def habits_block(key: dict[str, dict[str, Any]], found: list[tuple[str, dict[str, Any], list[set[str]]]]) -> dict[str, Any]:
+    """The habits block of the summary (totals only) from the answer key and each decision setup's habits (found: its
+    setup key, item with its habits, and each run's questions answered right): the key's position and yes/no
+    distribution, the scores of strategies that never read the question, Holm's adjustment of the p values over the
+    setups without search, which setups' scores the habits explain, the hard questions (by count only) and each
+    setup's right answers on them, the correlation of first-choice share and accuracy, the weights and public dates and
+    the reversed-choices run's status. Writes each setup's habits into its item."""
+    questions = len(key)
+    rights = [0] * max(item["choices"] for item in key.values())
+    for item in key.values():
+        rights[item["right"] - 1] += 1
+    kinds = {kind: [item for item in key.values() if item["kind"] == kind] for kind in ("yes", "true")}
+    yes_no = [item for item in key.values() if item["kind"]]
+    top = rights.index(max(rights)) + 1
+    plain = [item for item in found if not item[1]["web"]]
+    # Holm's step-down adjustment over the setups without search.
+    ordered = sorted(plain, key=lambda item: item[1]["habits"]["p"])
+    adjusted = 0.0
+    for rank, (_, item, _) in enumerate(ordered):
+        adjusted = max(adjusted, min(1.0, (len(ordered) - rank) * item["habits"]["p"]))
+        item["habits"]["p_holm"] = adjusted
+    # Hard: questions at most HARD_SHARE of the setups without search answer right (each setup's mean over its runs).
+    share = {qid: statistics.mean(statistics.mean(qid in run for run in runs) for _, _, runs in plain) for qid in key}
+    hard = {qid for qid, value in share.items() if value <= HARD_SHARE + 1e-12}
+    for name, item, runs in found:
+        habits = item["habits"]
+        habits["explained"] = not item["web"] and habits["above"] <= EXPLAINED_MARGIN + 1e-12
+        habits["hard_right"] = [len(run & hard) for run in runs]
+        habits["hard_right_all_runs"] = len(hard.intersection(*runs))
+        if name in WEIGHTS:
+            weights = WEIGHTS[name]
+            habits["weights"] = {**weights, "days_before": (datetime.date.fromisoformat(
+                PUBLIC_RECORDS["dataset_committed"][:10]) - datetime.date.fromisoformat(weights["committed"])).days}
+        if name in REVERSED_RUN:
+            habits["reversed"] = "run, excluded"
+        if name in REVERSED_NOT_RUN:
+            habits["reversed"] = "not run"
+    yes_right = sum(item["right"] == item["positive"] for item in yes_no)
+    return {
+        "questions": questions,
+        "right_positions": rights,
+        "yes_no": {kind: {"questions": len(items), "right": sum(item["right"] == item["positive"] for item in items)}
+                   for kind, items in kinds.items()},
+        "positive_first": all(item["positive"] == 1 for item in yes_no),
+        "two_choice_other": sum(item["choices"] == 2 and not item["kind"] for item in key.values()),
+        "first_right_other": sum(item["right"] == 1 and not item["kind"] for item in key.values()),
+        "lazy": {
+            "always_first": rights[0] / questions,
+            "always_last": sum(item["right"] == item["choices"] for item in key.values()) / questions,
+            "most_often": {"position": top, "score": sum(item["right"] == min(top, item["choices"])
+                                                         for item in key.values()) / questions},
+            "always_yes": {"right": yes_right, "questions": len(yes_no)},
+            "yes_then_uniform": (yes_right + sum(1 / item["choices"] for item in key.values() if not item["kind"]))
+                                / questions,
+            "random": statistics.mean(1 / item["choices"] for item in key.values()),
+        },
+        "explained_margin": EXPLAINED_MARGIN,
+        "hard": {"share": HARD_SHARE, "questions": len(hard),
+                 "by_choices": {str(k): sum(key[qid]["choices"] == k for qid in hard)
+                                for k in sorted({key[qid]["choices"] for qid in hard})},
+                 "first_right": sum(key[qid]["right"] == 1 for qid in hard),
+                 "uniform_expected": sum(1 / key[qid]["choices"] for qid in hard)},
+        "first_share_accuracy_r": statistics.correlation([item["habits"]["positions"][0] for _, item, _ in plain],
+                                                         [item["accuracy"]["mean"] for _, item, _ in plain]),
+        "weights": WEIGHTS_SOURCE, "public_records": PUBLIC_RECORDS,
+    }
+
+
 def command_summary(args: argparse.Namespace) -> None:
     results = json.loads((ROOT / "results.json").read_text(encoding="utf-8"))
     sure = results["sure_threshold"]
@@ -928,6 +1119,8 @@ def command_summary(args: argparse.Namespace) -> None:
         sys.exit("public-100.jsonl does not match the manifest's checksum")
     rows = load_questions(dataset)
     text_runs = {run["run"]: run for run in results["runs"]}
+    key = answer_key(rows, {row["id"]: row["answer"] for row in read_jsonl(args.data / "public-100-answers.jsonl")})
+    habits_found: list[tuple[str, dict[str, Any], list[set[str]]]] = []
 
     def best_run(provider: str, model: str) -> dict[str, Any]:
         """The model's Text tab run with the highest Turkish accuracy."""
@@ -1033,6 +1226,9 @@ def command_summary(args: argparse.Namespace) -> None:
             item["sure_wrong"] = spread([run["confidence"]["sure_wrong"] for run in runs])
             item["sure"] = spread([run["confidence"]["sure"] for run in runs])
         item.update(cost_note_fields(setup, item, paths))
+        if not chat:
+            item["habits"], right_runs = setup_habits(setup, stored, key, item["accuracy"]["mean"], sure)
+            habits_found.append((name, item, right_runs))
         setups.append(item)
     # Our GPU setups of the chat models without three runs yet: they wait for the GPU queue.
     pending_chat = [{"setup": name, "provider": setup["provider"], "model": setup["model"], "run": setup["run"],
@@ -1054,6 +1250,8 @@ def command_summary(args: argparse.Namespace) -> None:
         "retries": {"statuses": "408, 425, 429 and 5xx, and transport failures", "max": runner.JEV_MAX_RETRIES},
         "percentile": PERCENTILE, "sure_threshold": sure, "dates": sorted(dates), "run_cost_usd": total_cost,
         "setups": setups, "not_run": NOT_RUN, "baseten_check": BASETEN_CHECK,
+        # Can a model score without knowing the facts: totals over the decision setups (each setup's own in its habits).
+        "habits": habits_block(key, habits_found) if habits_found else None,
         "pending": {"parallel": PENDING_PARALLEL, "gpu": PENDING_GPU, "chat_gpu": pending_chat, "chat_unfinished": unfinished},
         # The API setups (Ümit #1408, #1409) without three complete runs, each with what blocks it.
         "blocked": [{"setup": name, "model": setup["model"], "web": setup["web"], "interface": "API",

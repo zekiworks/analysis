@@ -1,7 +1,8 @@
 """PWS-Decisions (pws-decisions/): the site's models on Parallel Web Systems' benchmark of dated web facts, three runs
 each, from pws-decisions.json (totals written by pws/bench.py's summary step). Three charts in the home page's format
 (accuracy with cost and request time beside it, cost, latency: one bar per setup in its family's colour, with web
-striped) and one table, with the framing, the provenance, the “I don't know” runs when the file has them (dont_know),
+striped) and one table, with the framing, the provenance, whether a setup could score without knowing the facts (habits,
+when the file has it, with a note beside each setup its habits explain), the “I don't know” runs when the file has them (dont_know),
 what was not run and why, and what waits. The charts (decision models only), the framing, the provenance and the
 “I don't know” runs also show on web-grounding/. Not part of the Turkish ranking.
 The questions and answers are Parallel's and never published; the JSON holds totals only."""
@@ -10,11 +11,12 @@ from __future__ import annotations
 
 import json
 import math
+import statistics
 from typing import Any
 
 from build_page import long_date
-from sitebuild.site import (DECISION_ONLY, ROOT, Site, cost_per, cost_switch, cost_tick, cost_words, cost_value, esc,
-                            family_legend, hbars, log_axis, pct, rel, seconds_tick)
+from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value,
+                            esc, family_legend, hbars, log_axis, pct, rel, seconds_tick)
 from sitebuild.vision import cell, joined
 
 PATH = "pws-decisions/"
@@ -248,9 +250,9 @@ def marks_legend(items: list[dict[str, Any]], striped: str) -> str:
 
 
 def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]], origin: str, anchor: str,
-                   mark: str) -> str:
+                   mark: str, notes: bool = False) -> str:
     """Accuracy, one bar per setup in its family's colour (with web striped), the random-guess line on each, and the
-    setup's cost and request times beside it."""
+    setup's cost and request times beside it; with notes, the habits note (habits_note) under a setup's name."""
     digits = site.config["percent_digits"]
     random = data["random_accuracy"]
     rows = []
@@ -260,9 +262,10 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
         median, p95 = setup["median_request_seconds"]["mean"], setup["p95_request_seconds"]["mean"]
         priced = "no price" if cost is None else cost_html(setup, cost["mean"], mark)
         ci = interval(setup, digits)
+        note = habits_note(data, setup) if notes else None
         rows.append({
             "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
-            "models": item["models"],
+            "models": item["models"], **({"note": note} if note else {}),
             "bars": [{"value": accuracy, "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "marker": random,
             "html": f"{esc(pct(accuracy, digits))} | {priced} | {ms(median)} · {ms(p95)}",
@@ -271,7 +274,8 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
                      + (f"; 95% interval from the question sample {ci}" if ci else "") + "); "
                      + (f"no price: {no_price(setup)}" if cost is None else cost_words(cost["mean"] / 1000, bound(setup, mark)))
                      + f"; median request {ms(median)} ms, 95th percentile {ms(p95)} ms"
-                     + (f". {setup_notes(setup)}" if setup_notes(setup) else "")})
+                     + (f". {setup_notes(setup)}" if setup_notes(setup) else "")
+                     + (f". Habits: {note}" if note else "")})
     chart = hbars(rows, head=("Accuracy | Cost | Median · p95 ms", "Acc | Cost | ms"))
     return (f'<figure class="panel chart-card chart-wide" id="{anchor}"><div class="chart-head"><h2>Accuracy</h2>'
             f'<p class="chart-sub">Share of the {data["questions"]} public questions answered right, the mean of our '
@@ -281,7 +285,11 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
             f'{marks_legend(items, "With web: the setup searched the web for each question (striped)")} '
             f'<span><i class="swatch swatch-marker"></i>The chance line: Parallel\'s random-guess baseline, {pct(random, 2)} '
             f'(<a href="{BASELINE_SOURCE}">the benchmark\'s README</a>), uniform guessing over each question\'s choices, a '
-            f"property of the questions, not a run of ours.</span></p></figure>")
+            f"property of the questions, not a run of ours.</span>"
+            + (f' <span {DECISION_ONLY}>A line under a setup\'s name: its score is at most {round(100 * data["habits"]["explained_margin"], 1):g} '
+               f'point above what its answering habits alone would score (<a href="#habits">without knowing the facts</a>).</span>'
+               if any("note" in row for row in rows) else "")
+            + "</p></figure>")
 
 
 def cost_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]], origin: str, anchor: str, mark: str,
@@ -355,9 +363,10 @@ def latency_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]],
 def charts(site: Site, data: dict[str, Any], items: list[dict[str, Any]], origin: str, prefix: str,
            measures: bool = False) -> str:
     """Accuracy, Cost and Latency; with measures, each in its Measure section (the id the view bar's Measure row links
-    to: pws-decisions/, where these are the page's own charts)."""
+    to: pws-decisions/, where these are the page's own charts) and the Accuracy rows with their habits notes."""
     upper_mark = site.config["first_cost_marks"]["upper"]
-    cards = [("accuracy", "Accuracy", accuracy_chart(site, data, items, origin, f"{prefix}accuracy", upper_mark["mark"])),
+    cards = [("accuracy", "Accuracy", accuracy_chart(site, data, items, origin, f"{prefix}accuracy", upper_mark["mark"],
+                                                     notes=measures)),
              ("cost", "Cost", cost_chart(site, data, items, origin, f"{prefix}cost", upper_mark["mark"],
                                          upper_note(items, upper_mark))),
              ("latency", "Latency", latency_chart(site, data, items, origin, f"{prefix}latency"))]
@@ -438,6 +447,7 @@ def table(site: Site, data: dict[str, Any], items: list[dict[str, Any]], mark: s
                 f'<span class="small">{esc(access)}; <code>{esc(setup["request_model"])}</code></span>'
                 + (f'<span class="small">{esc(setup["method_note"][0].upper() + setup["method_note"][1:])}.</span>'
                    if setup.get("method_note") else "")
+                + (f'<span class="small habits-note">{esc(note)}</span>' if (note := habits_note(data, setup)) else "")
                 + "</td>")
         body.append(f'<tr data-models="{item["models"]}">{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{text}<span class="small">{direction}</span></th>'
@@ -648,6 +658,182 @@ def summary_cards(items: list[dict[str, Any]], digits: int) -> str:
         f'</p><p class="result-cost">{esc(note)}</p></div>' for title, note, item in cards) + "</div></div>")
 
 
+def whole(fraction: float) -> str:
+    """A share as a percentage without needless decimals (0.68 as 68%, 0.6267 as 62.7%)."""
+    return f"{round(100 * fraction, 1):g}%"
+
+
+def habits_note(data: dict[str, Any], setup: dict[str, Any]) -> str | None:
+    """The ranking's note beside a setup whose score its habits explain (the summary step's habits: accuracy at most
+    explained_margin above its habit baseline; never a setup with web search), in the project lead's words; None
+    otherwise or without the habits block."""
+    block, habits = data.get("habits"), setup.get("habits")
+    if not block or not habits or not habits.get("explained") or web(setup):
+        return None
+    return (f"picks the first choice in {habits['first_in_10']} of 10 questions; always picking the first choice scores "
+            f"{whole(block['lazy']['always_first'])}")
+
+
+def signed(value: float) -> str:
+    """A difference in points, signed."""
+    return f"{100 * value:+.1f}"
+
+
+def habits_table(heads: list[tuple[str, str]], rows: list[tuple[str, list[str]]]) -> str:
+    """One step's table: a Setup column, then the heads (name, what it is), each row its label and its cells (HTML)."""
+    labels = [f"{head} ({what})" if what else head for head, what in heads]
+    head = "".join(f'<th scope="col" class="num">{esc(text)}' + (f'<span class="small">{esc(what)}</span>' if what else "")
+                   + "</th>" for text, what in heads)
+    body = "".join(f'<tr><td class="model">{label}</td>'
+                   + "".join(cell(name, value) for name, value in zip(labels, values)) + "</tr>"
+                   for label, values in rows)
+    return (f'<div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">Setup</th>'
+            f"{head}</tr></thead><tbody>{body}</tbody></table></div>")
+
+
+def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> str:
+    """Can a model score here without knowing the facts (the summary step's habits block): a summary, then one table
+    per step: strategies that never read the question, each decision setup's habits and habit baseline, the hard
+    questions, the probability of the chosen choice, the reversed-choices run's status, and the open setups' weights
+    dates against the questions' earliest public records. A decision-model part (DECISION_ONLY): the chat group shows
+    a one-line note in its place. Nothing without the block."""
+    block = data.get("habits")
+    if not block:
+        return ""
+    digits = site.config["percent_digits"]
+    rows = [item for item in items if "habits" in item["setup"]]
+    plain = [item for item in rows if not web(item["setup"])]
+    lazy, n, runs = block["lazy"], block["questions"], data["runs_per_setup"]
+    first = lazy["always_first"]
+    best = max(plain, key=lambda item: item["setup"]["accuracy"]["mean"])
+    reached = sum(item["setup"]["accuracy"]["mean"] >= first for item in plain)
+    where = ("above every decision setup without search here" if not reached else
+             f"as much as or more than {reached} of the {len(plain)} decision setups without search here")
+    summary = (f"Always choosing the first option scores {whole(first)}, {where}. Answer-position and yes/true imbalances "
+               "complicate the ranking; these checks cannot establish whether a model has seen the questions.")
+    rights, yes = block["right_positions"], block["yes_no"]
+    yes_n = yes["yes"]["questions"] + yes["true"]["questions"]
+    yes_right = lazy["always_yes"]["right"]
+    ordinals = ["first", "second", "third", "fourth", "fifth", "sixth"]
+    said = [f"the {ordinals[index]} on {count}" for index, count in enumerate(rights)]
+    said[0] = f"the first choice on {rights[0]} questions"
+    positions = ", ".join(said[:-1]) + f" and {said[-1]}"
+    key_words = (f"The right answer is {positions}. {yes_n} questions are yes/no ({yes['yes']['questions']}) or true/false "
+                 f"({yes['true']['questions']}); "
+                 + ('on every one "yes" or "true" is the first choice, and ' if block["positive_first"] else "")
+                 + f'"yes" or "true" is right on {yes_right} of them ({yes["yes"]["right"]} of {yes["yes"]["questions"]} '
+                 f'and {yes["true"]["right"]} of {yes["true"]["questions"]}).')
+    random = lazy["random"]
+    others = n - yes_n
+    step1 = habits_table(
+        [("Score", f"on the {n} questions"), ("Uniform random guessing", "the same questions")],
+        [("Always the first choice", [whole(first), whole(random)]),
+         ("Always the last choice", [whole(lazy["always_last"]), whole(random)]),
+         (f"Always the position most often right in the key (the {ordinals[lazy['most_often']['position'] - 1]})",
+          [whole(lazy["most_often"]["score"]), whole(random)]),
+         (f'Always "yes" or "true" on the {yes_n} yes/no and true/false questions',
+          [f"{yes_right} of {yes_n} right ({whole(yes_right / yes_n)})", "50% on them"]),
+         (f'Always "yes" or "true" on those {yes_n}, a uniform random guess on the other {others}',
+          [whole(lazy["yes_then_uniform"]), whole(random)])])
+    above_random = sum(item["setup"]["accuracy"]["mean"] > random for item in plain)
+    two_other = block["two_choice_other"]
+    margin = round(100 * block["explained_margin"], 1)
+    key_row = ("<strong>Answer key</strong>", ["", *(whole(count / n) for count in rights), whole(yes_right / yes_n),
+                                              whole(block["first_right_other"] / others), "", "", "", ""])
+    step2_rows = [key_row]
+    for item in rows:
+        setup = item["setup"]
+        habits = setup["habits"]
+        shares = habits["positions"] + [0.0] * (len(rights) - len(habits["positions"]))
+        explained = f'<span class="small">within {margin:g} point</span>' if habits["explained"] else ""
+        step2_rows.append((esc(item["label"]), [
+            esc(pct(setup["accuracy"]["mean"], digits)), *(esc(pct(share, digits)) for share in shares),
+            esc(pct(habits["yes_share"], digits)), esc(pct(habits["first_share_other"], digits)),
+            esc(pct(habits["baseline"], digits)), f"{esc(signed(habits['above']))}{explained}",
+            f"{habits['p']:.3f}", f"{habits['p_holm']:.3f}" if "p_holm" in habits else "with search: not tested"]))
+    step2 = habits_table(
+        [("Accuracy", f"mean of {runs} runs"), *((f"{ordinals[index].capitalize()} choice", "share of answers")
+                                                 for index in range(len(rights))),
+         ('"Yes" or "true"', f"share on the {yes_n} yes/no and true/false questions"),
+         ("First choice, other questions", f"share on the other {others}"),
+         ("Same habits, no reading", "habit baseline"), ("Above the habits", "points"), ("p", "one-sided, exploratory"),
+         ("p, Holm", f"over the {len(plain)} without search")], step2_rows)
+    lowest_holm = min(item["setup"]["habits"]["p_holm"] for item in plain)
+    explained = [item for item in plain if item["setup"]["habits"]["explained"]]
+    within = f"within {margin:g} point"
+    hard = block["hard"]
+    sizes = " and ".join(f"{count} with {choices} choices" for choices, count in hard["by_choices"].items())
+    step3 = habits_table(
+        [("Right, runs " + " / ".join(str(index + 1) for index in range(runs)), f"of {hard['questions']}"),
+         ("Mean", "of the runs"), (f"Right in all {runs} runs", "")],
+        [(esc(item["label"]), [" / ".join(str(value) for value in item["setup"]["habits"]["hard_right"]),
+                               f"{statistics.mean(item['setup']['habits']['hard_right']):.2f}",
+                               str(item["setup"]["habits"]["hard_right_all_runs"])]) for item in rows])
+    sure = data["sure_threshold"]
+    step4_rows = []
+    for item in rows:
+        confidence = item["setup"]["habits"].get("confidence")
+        if not confidence:
+            step4_rows.append((esc(item["label"]), ['<span class="nm">No probabilities</span>'] * 4))
+            continue
+        per_run = [run["confidence"]["sure"] for run in item["setup"]["runs"]]
+        mean = lambda value: "none" if value is None else esc(pct(value, digits))  # noqa: E731
+        step4_rows.append((esc(item["label"]), [
+            mean(confidence["mean_right"]), mean(confidence["mean_wrong"]),
+            f"{confidence['sure']:,}<span class=\"small\">runs {' / '.join(str(value) for value in per_run)}</span>",
+            f"{confidence['sure_wrong']:,}"]))
+    step4 = habits_table(
+        [("Right answers", "mean probability of the chosen choice"), ("Wrong answers", "the same"),
+         (f"At ≥{pct(sure, 0)}", f"answers over the {runs} runs"), ("Of them wrong", "")], step4_rows)
+    reversed_words = {"run, excluded": "Run once with the choices reversed; excluded, because the dataset terms do not "
+                                       "explicitly allow changing the order of a question's choices",
+                      "not run": "Not run (no API credit)"}
+    step5 = habits_table([("Status", "")], [(esc(item["label"]), [esc(reversed_words[item["setup"]["habits"]["reversed"]])])
+                                            for item in rows if "reversed" in item["setup"]["habits"]])
+    opened = sorted((item for item in rows if "weights" in item["setup"]["habits"]),
+                    key=lambda item: (-item["setup"]["habits"]["weights"]["days_before"], item["label"].casefold()))
+    step6 = habits_table(
+        [("Hugging Face repository", ""), ("Revision we ran", ""), ("Revision committed", "UTC"),
+         ("Days before the questions were public", "")],
+        [(esc(item["label"]), [
+            f"<code>{esc(weights['repo'])}</code>" + (f'<span class="small">{esc(weights["note"])}</span>'
+                                                      if weights.get("note") else ""),
+            f"<code>{esc(weights['revision'])}</code>", esc(weights["committed"]), str(weights["days_before"])])
+         for item in opened for weights in [item["setup"]["habits"]["weights"]]])
+    days = [item["setup"]["habits"]["weights"]["days_before"] for item in opened]
+    public = block["public_records"]
+    when = lambda stamp: f"{long_date(stamp[:10])} at {stamp[11:16]} UTC"  # noqa: E731
+    read = block["weights"]
+    return f"""<section class="card" id="habits" {DECISION_ONLY}>
+      <h2>Can a model score here without knowing the facts?</h2>
+      <p><strong>{esc(summary)}</strong></p>
+      <p>{esc(key_words)} The checks below use only totals: the answer key's positions, each decision setup's answers over its {runs} runs, and public dates.</p>
+      <h3>1. Strategies that never read the question</h3>
+      {step1}
+      <p class="note">No decision setup without search reaches the {whole(first)} of always picking the first choice; the best, {esc(best['label'])}, scores {esc(pct(best['setup']['accuracy']['mean'], digits))}. {above_random} of the {len(plain)} score above uniform random guessing ({esc(pct(random, digits))}).</p>
+      <h3>2. Answering habits</h3>
+      {step2}
+      <ul class="note">
+        <li>Shares are of each setup's answers over its {runs} runs. The habit baseline is the score of a strategy that never reads the question but has the setup's habits, by number of choices: on the {yes_n} yes/no and true/false questions it says "yes" or "true" as often as the setup does there; on the other {two_other} two-choice questions it picks the first choice as often as the setup does on them; on three- and four-choice questions it picks each position as often as the setup does on questions of that size. "Above the habits" is accuracy minus that baseline.</li>
+        <li>The p values are exploratory, not a validated test: the one-sided chance that the habit strategy, answering each question independently, scores at least the setup's mean accuracy, by a normal approximation with the variance of one run of {n} questions (the habits come from the same answers and are treated as known; the {runs} runs of the same questions are not independent). Holm's correction over the {len(plain)} setups without search: lowest adjusted p {lowest_holm:.2f}. Across those {len(plain)}, the share of first-choice answers and accuracy correlate at r = {block['first_share_accuracy_r']:.2f}.</li>
+        <li>"{within.capitalize()}" marks the {len(explained)} setups whose accuracy is at most {margin:g} point above their habit baseline. It is a descriptive threshold: a score close to its habit baseline is consistent with the habits, not proof that they cause it. The setup with web search never gets the mark. The ranking's note beside these setups gives their first-choice share over all {n} questions; {'since "yes" or "true" is always the first choice, that share mixes the "yes" habit with a pure position habit' if block['positive_first'] else 'that share mixes the "yes" habit with a pure position habit'}. The two columns before the baseline separate them.</li>
+      </ul>
+      <h3>3. Hard questions</h3>
+      {step3}
+      <p class="note">Hard: answered right by at most {pct(hard['share'], 0)} of the {len(plain)} decision setups without search (each setup's mean over its runs). {hard['questions']} questions ({sizes}); uniform random guessing expects {hard['uniform_expected']:.2f} of them right, and the right answer is the first choice on {hard['first_right']} of them. The hard set comes from the same setups' answers, so it is no independent contamination test.</p>
+      <h3>4. Probability of the chosen choice</h3>
+      {step4}
+      <p class="note">The probability each setup's output gave its chosen choice, from the per-choice probabilities recorded in its runs (not the providers' own "confidence" field, which differs from setup to setup). The answers at ≥{pct(sure, 0)} are the “sure” answers of the table above.</p>
+      <h3>5. Reversed choices</h3>
+      {step5}
+      <p class="note">Left out: no number from this run is used or shown.</p>
+      <h3>6. Weights and question dates</h3>
+      {step6}
+      <p class="note">Earliest public records of the questions we can observe: the Hugging Face dataset {esc(DATASET)} was created on {esc(when(public['dataset_created']))}; its only commit, <code>{esc(public['dataset_commit'])}</code>, of {esc(when(public['dataset_committed']))}, holds the questions. The GitHub repository's only commit, <code>{esc(public['repository_commit'])}</code>, of {esc(when(public['repository_committed']))}, holds none. Each open setup's revision was committed {min(days)} to {max(days)} days before (commit dates as the {esc(read['source'])} gave them, read {esc(long_date(read['read']))}; files can be older). These dates do not rule out earlier exposure to the questions or their sources; the API setups' training dates are unknown.</p>
+    </section>
+    <section class="card" data-models="chat" hidden>{chat_note("Can a model score here without knowing the facts? That section covers the decision models: see All models or Decision models.")}</section>"""
+
+
 def chance_method(data: dict[str, Any]) -> str:
     """How the random-guess baseline is computed: from the questions' choice counts where the totals file has them."""
     counts = data.get("choice_counts")
@@ -689,7 +875,7 @@ def build(site: Site) -> dict[str, str]:
       {framing(data)}
       <p>{above} setups have a mean accuracy above the {pct(data['random_accuracy'], digits)} chance line (Parallel's random-guess baseline, not a run of ours); every accuracy here is the mean of our {data['runs_per_setup']} runs.</p>
       {provenance(data)}
-      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{f'<a href="#habits" {DECISION_ONLY}>Without the facts</a>' if data.get("habits") else ""}{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
     </section>
     <section class="charts" aria-label="Charts">{charts(site, data, items, PATH, "chart-", measures=True)}</section>
     <section class="card" id="results">
@@ -702,8 +888,10 @@ def build(site: Site) -> dict[str, str]:
         {f"<li>{esc(lower_note(items))}</li>" if lower_note(items) else ""}
         <li>{retried_note(items)}</li>
         <li>Cost: an estimate, each run's recorded tokens at the runner's list price for the setup, the price the Text tab uses, over its {data['questions']} questions{", plus the web search fee for setups with web" + (" ($" + " or $".join(fees) + " per request for Perplexity)" if fees else "") if searched else ""}. It is not a provider's bill: an API usage cost estimate for a run through an API key, an API-equivalent estimate for a run through a subscription, a list-price estimate for a model on our GPU. Where a fee is missing from the estimate, the setup's row says so.</li>
+        {f'<li {DECISION_ONLY}>A line under a name, “picks the first choice in N of 10 questions; …”: that setup scores at most {round(100 * data["habits"]["explained_margin"], 1):g} point above what its answering habits alone would score (<a href="#habits">without knowing the facts</a>).</li>' if any(habits_note(data, item["setup"]) for item in items) else ""}
       </ul>
     </section>
+    {habits_section(site, data, items)}
     {dont_know_section(site, data, items)}
     <section class="card" id="not-run">
       <h2>Not run, and why</h2>

@@ -215,8 +215,9 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     of the divisions), in percent unless tick writes a value its way, as HTML (aa-decision-index/ writes dollars;
     cost_tick both cost units). head names the value column above it: (in full, on a phone), as ("Turkish · English",
     "TR · EN"). With columns, several value columns, each named so: a row's texts then give one value per column
-    instead. A row's group (optional) heads it and the rows after it of the same group, as a small line across the chart
-    (web-grounding/ names each set of questions so). A row's models (optional, the view bar's groups it shows in, as
+    instead. A row's note (optional) is a small second line under its label. A row's group (optional) heads it and the
+    rows after it of the same group, as a small line across the chart (web-grounding/ names each set of questions so).
+    A row's models (optional, the view bar's groups it shows in, as
     "all decision") marks it data-models, and its heading with every group of its rows (pws-decisions/)."""
     place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
@@ -241,6 +242,8 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
         label = f'<a href="{row["href"]}">{esc(row["label"])}</a>' if row.get("href") else esc(row["label"])
         if row.get("family"):
             label = family_icon(row["family"]) + label
+        if row.get("note"):
+            label += f'<span class="hbar-note">{esc(row["note"])}</span>'
         fills = "".join(
             f'<span class="hbar-fill{" " + bar["kind"] if bar.get("kind") else ""}" style="width:{place(bar["value"])}'
             f'{";background-color:" + bar["colour"] if bar.get("colour") else ""}"></span>' for bar in row["bars"])
