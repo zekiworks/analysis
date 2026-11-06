@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results dbd50ea5 (6 November 2026)
+
+- No run and no number changed. Wording on the English pages: a setup without a run with “I don't know” reads Not run, never Running when nothing runs; Qwen3.8-27B with yes/no scoring says why (yes/no scoring cannot offer the option, so it has no such run). A rate with nothing to count reads Undefined, a setup whose answers report no probabilities reads No probabilities, and the definitions under the risk and coverage section say a missing point reads Not run. No value on the English pages reads Not measured any more.
+
 ## Results 6d6c9dbd (6 November 2026)
 
 - Hallucination tab: Grok 4.7 with high reasoning, with "Bilmiyorum" over the whole bank: 29.9% non-hallucination (56 "Bilmiyorum", 131 wrong), the highest of the chat models. 63 setups in all (26 decision, 37 chat).

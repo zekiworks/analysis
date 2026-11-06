@@ -18,10 +18,10 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from sitebuild.english_reading import (NO_RATE, NOT_RUN, PATH as COMPARISON, RECORD, RUNNING, TRANSLATORS, anchor,
+from sitebuild.english_reading import (NO_OPTION, NO_RATE, PATH as COMPARISON, RECORD, TRANSLATORS, anchor,
                                        check_dont_know, cost_note, english_only, experiments_note, group_models, label,
-                                       limit_note, measure_card, measure_cell, measure_heads, missing_note, noun,
-                                       setup_href)
+                                       limit_note, measure_card, measure_cell, measure_heads, missing_note, missing_side,
+                                       noun, setup_href)
 from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, pct, rel, shown
 from sitebuild.vision import cell
 
@@ -101,15 +101,18 @@ def build(site: Site) -> dict[str, str]:
 
     def rates_card(group: str) -> str:
         """A group's chart of the English non-hallucination rate: its setups with an English run with the option, by
-        the rate; under it the setups whose run is still running (chat) or not run (decision)."""
+        the rate; under it the setups whose run is still running (chat), not run (decision) or not possible (NO_OPTION)."""
         members = group_models(site, data, group)
         rated = sorted(((model, held[model["turkish_run"]]) for model in members
                         if model["turkish_run"] in held and held[model["turkish_run"]]["non_hallucination"] is not None),
                        key=lambda pair: (-pair[1]["non_hallucination"], label(site, pair[0]).casefold()))
         undefined = [label(site, model) for model in members
                      if model["turkish_run"] in held and held[model["turkish_run"]]["non_hallucination"] is None]
+        provider = lambda model: site.by_id[model["turkish_run"]]["provider"]  # noqa: E731
+        no_option = [(label(site, model), NO_OPTION[provider(model)]) for model in members
+                     if model["turkish_run"] not in held and provider(model) in NO_OPTION]
         running = [label(site, model) for model in members if model["turkish_run"] not in held
-                   and not site.decision(site.by_id[model["turkish_run"]])]
+                   and not site.decision(site.by_id[model["turkish_run"]]) and provider(model) not in NO_OPTION]
         unrun = [label(site, model) for model in members if model["turkish_run"] not in held
                  and site.decision(site.by_id[model["turkish_run"]])]
         rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
@@ -126,7 +129,8 @@ def build(site: Site) -> dict[str, str]:
                   + (f" <span>{esc(running_reason.removesuffix('.'))}; still running in English: {esc(', '.join(running))}.</span>"
                      if running else "")
                   + (f" <span>Decision models not run with “{esc(option)}” in English yet: {esc(', '.join(unrun))}.</span>"
-                     if unrun else ""))
+                     if unrun else "")
+                  + "".join(f" <span>Not run, as {esc(reason)}: {esc(name)}.</span>" for name, reason in no_option))
         return card(
             anchor("chart-non-hallucination", group), shown(group), "Non-hallucination rate with “I don't know” in English",
             f"“{esc(option)}” among the answers that were not right, with it offered as a sixth option in English, on the "
@@ -160,7 +164,7 @@ def build(site: Site) -> dict[str, str]:
             ]
             counts = held.get(model["turkish_run"])
             values.append(
-                (RUNNING if not site.decision(site.by_id[model["turkish_run"]]) else NOT_RUN) if counts is None else
+                missing_side(site, model["turkish_run"]) if counts is None else
                 f'{NO_RATE if counts["non_hallucination"] is None else pct(counts["non_hallucination"], digits)}'
                 f'<span class="small">{counts["dont_know"]:,} “{esc(option)}” of '
                 f'{counts["dont_know"] + counts["wrong"]:,} not right</span>'

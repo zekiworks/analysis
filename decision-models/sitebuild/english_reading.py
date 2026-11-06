@@ -1061,15 +1061,24 @@ def idk_group(idk: dict[str, Any], group: str) -> dict[str, Any]:
     return {**idk, "models": keep(idk["models"]), "english_only": keep(english_only(idk)), "turkish_only": keep(turkish_only(idk))}
 
 
-# A side without a run: a chat model's run still running (page_config.json's dont_know.running), or Not run for a
-# decision model (its reason in the text around it).
+# A side without a run: Not run for a decision model, or for a setup whose scoring cannot offer the option (with why);
+# else Running, a chat model's run still running (page_config.json's dont_know.running).
 RUNNING = '<span class="nm">Running</span>'
 NOT_RUN = '<span class="nm">Not run</span>'
+UNDEFINED = '<span class="nm">Undefined</span>'
+NO_PROBABILITIES = '<span class="nm">No probabilities</span>'
+# Providers whose scoring cannot offer an "I don't know" option: yes/no scoring asks about each option on its own, and
+# the runner refuses --dont-know with it, so such a setup never has a run with the option.
+NO_OPTION = {"vllm-yes-no": "yes/no scoring cannot offer it"}
 
 
 def missing_side(site: Site, text_run: int) -> str:
-    """What a missing side with the option reads: Running for a chat model, Not run for a decision model."""
-    return NOT_RUN if site.decision(site.by_id[text_run]) else RUNNING
+    """What a missing side with the option reads: Not run for a decision model or for a setup whose scoring cannot
+    offer the option (NO_OPTION, with why), else Running (a chat model's run still running)."""
+    run = site.by_id[text_run]
+    if run["provider"] in NO_OPTION:
+        return f'{NOT_RUN}<span class="small">{esc(NO_OPTION[run["provider"]])}</span>'
+    return NOT_RUN if site.decision(run) else RUNNING
 
 
 def idk_label(site: Site, model: dict[str, Any]) -> str:
@@ -1280,10 +1289,10 @@ def dont_know_columns(idk: dict[str, Any]) -> tuple[tuple[str, str], ...]:
 
 
 def wrong_of_answers(counts: dict[str, Any], digits: int) -> str:
-    """Wrong / (right + wrong) with its counts, from the published counts; Not measured with no answer."""
+    """Wrong / (right + wrong) with its counts, from the published counts; Undefined with no answer."""
     answered = counts["right"] + counts["wrong"]
     if not answered:
-        return '<span class="nm">Not measured</span><span class="small">no answers</span>'
+        return f'{UNDEFINED}<span class="small">no answers</span>'
     return f'{pct(counts["wrong"] / answered, digits)}<span class="small">{counts["wrong"]:,} of {answered:,}</span>'
 
 
@@ -1492,7 +1501,7 @@ def dont_know_info(site: Site, idk: dict[str, Any], tables: str | None = None) -
       <h3>Runs</h3>
       <p>{dont_know_runs(site, idk)}. These runs are kept out of the leaderboard, its repeats, the Hallucination tab and the accuracy comparison above.</p>
       <h3>The rates and how to read them</h3>
-      <p>Each answer is right, wrong, the option or invalid. Out of the {total} kept questions, accuracy is right / {total}; Answered is (right + wrong) / {total}, the share of questions the model answered (the attempt rate), higher is better; Wrong of answers is wrong / (right + wrong), the share of its answers that were wrong, lower is better, and Not measured when it answered none. These two lead the table, with their counts under them. The non-hallucination rate, after them, is the option / (the option + wrong): among the answers that were not right, the share where the model said it did not know. As the Hallucination tab says, it is not a direct measure of what the model does not know: a model that always chose the option would reach 100% with no right answers, so read it with the attempt rate. With neither a wrong answer nor the option, the rate is undefined (No rate). The mean probability is the probability the model gave the option, averaged over its answers that report option probabilities; a chat model reports none. The paired test is the exact McNemar test on the questions only one of the two first runs got wrong, with p adjusted by Holm's method {holm_text}. No new combined score is made from these rates.</p>
+      <p>Each answer is right, wrong, the option or invalid. Out of the {total} kept questions, accuracy is right / {total}; Answered is (right + wrong) / {total}, the share of questions the model answered (the attempt rate), higher is better; Wrong of answers is wrong / (right + wrong), the share of its answers that were wrong, lower is better, and Undefined when it answered none. These two lead the table, with their counts under them. The non-hallucination rate, after them, is the option / (the option + wrong): among the answers that were not right, the share where the model said it did not know. As the Hallucination tab says, it is not a direct measure of what the model does not know: a model that always chose the option would reach 100% with no right answers, so read it with the attempt rate. With neither a wrong answer nor the option, the rate is undefined (No rate). The mean probability is the probability the model gave the option, averaged over its answers that report option probabilities; a chat model reports none. The paired test is the exact McNemar test on the questions only one of the two first runs got wrong, with p adjusted by Holm's method {holm_text}. No new combined score is made from these rates.</p>
     </section>"""
 
 
@@ -1771,14 +1780,13 @@ def dont_know_word_row(site: Site, word: dict[str, Any], model: dict[str, Any]) 
     digits = site.config["percent_digits"]
     total = word["questions"]
     option = esc(word["option"])
-    not_measured = '<span class="nm">Not measured</span>'
     sides = (model["turkish"], model["english"])
 
     def value(counts: dict[str, Any] | None, key: str, note: str) -> str:
         if counts is None:
-            return not_measured
+            return NOT_RUN
         number = counts[key]
-        return f'{not_measured if number is None else pct(number, digits)}<span class="small">{note}</span>'
+        return f'{UNDEFINED if number is None else pct(number, digits)}<span class="small">{note}</span>'
 
     def answered(counts: dict[str, Any]) -> str:
         invalid = f", {counts['invalid']:,} invalid" if counts["invalid"] else ""
@@ -1786,15 +1794,17 @@ def dont_know_word_row(site: Site, word: dict[str, Any], model: dict[str, Any]) 
 
     paired = model["paired"]
     values = [value(counts, "attempt_rate", "" if counts is None else answered(counts)) for counts in sides]
-    values += [not_measured if counts is None else wrong_of_answers(counts, digits) for counts in sides]
+    values += [NOT_RUN if counts is None else wrong_of_answers(counts, digits) for counts in sides]
     values += [value(counts, "non_hallucination", "" if counts is None else
                      f"{counts['dont_know']:,} “{option}” of {counts['dont_know'] + counts['wrong']:,} not right")
                for counts in sides]
     values += [value(counts, "accuracy", "" if counts is None else f"{counts['right']:,} of {total:,} right") for counts in sides]
-    values += [value(counts, "mean_dont_know_probability", "") for counts in sides]
-    values += [not_measured if counts is None else run_span([counts["run"]]) for counts in sides]
+    values += [NOT_RUN if counts is None else
+               NO_PROBABILITIES if counts["mean_dont_know_probability"] is None else pct(counts["mean_dont_know_probability"], digits)
+               for counts in sides]
+    values += [NOT_RUN if counts is None else run_span([counts["run"]]) for counts in sides]
     if paired is None:
-        values += [not_measured] * 4
+        values += [NOT_RUN] * 4
     else:
         values += [f"{paired['english_only_wrong']:,}", f"{paired['turkish_only_wrong']:,}",
                    esc(bp.p_text(paired["p"]).removeprefix("p = ").removeprefix("p ")),
@@ -1828,12 +1838,12 @@ def dont_know_word_info(site: Site, data: dict[str, Any], word: dict[str, Any]) 
     if word_only(word, "english"):
         alone.append(f"English only, with no Turkish run with the option written “{option}”: "
                      + joined([esc(idk_label(site, model)) for model in word_only(word, "english")]))
-    alone_text = (f"<p>{'. '.join(alone)}. Their other side and paired columns read Not measured; they are in no paired "
+    alone_text = (f"<p>{'. '.join(alone)}. Their other side and paired columns read Not run; they are in no paired "
                   "test and no Holm adjustment.</p>") if alone else ""
     return f"""
     <section class="card" id="dont-know-word-results">
       <h2>Results with “{option}” in both languages</h2>
-      <p class="note">In the order of the Results table above. Each row compares the model's first English run with “{option}” with its Turkish run with the option also written “{option}”, out of the {total} kept questions. The paired counts, p and the Holm-adjusted p (over the {family} model{"" if family == 1 else "s"} with both runs) are those of the exact McNemar test on wrong answers; * marks a Holm-adjusted p below {SIGNIFICANT:g}. Not measured: no such run.</p>
+      <p class="note">In the order of the Results table above. Each row compares the model's first English run with “{option}” with its Turkish run with the option also written “{option}”, out of the {total} kept questions. The paired counts, p and the Holm-adjusted p (over the {family} model{"" if family == 1 else "s"} with both runs) are those of the exact McNemar test on wrong answers; * marks a Holm-adjusted p below {SIGNIFICANT:g}. Not run: no such run; Undefined: a rate with nothing to count.</p>
       <div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr></thead><tbody>{rows}</tbody></table></div>
     </section>
     <section class="card method-notes" id="dont-know-word-method">
@@ -1957,7 +1967,7 @@ def option_word(site: Site) -> str:
 
     def rate(counts: dict[str, Any], option: str) -> str:
         value = counts["non_hallucination"]
-        shown = '<span class="nm">Not measured</span>' if value is None else pct(value, digits)
+        shown = UNDEFINED if value is None else pct(value, digits)
         return (f'{shown}<span class="small">{counts["right"]:,} right, {counts["wrong"]:,} wrong, '
                 f'{counts["dont_know"]:,} “{esc(option)}”</span>')
 
@@ -1965,7 +1975,7 @@ def option_word(site: Site) -> str:
     for model in option_word_rows(site, data, word):
         b, e, paired = model["bilmiyorum"], model["i_dont_know"], model["paired"]
         found = paired["p_holm"] is not None and paired["p_holm"] < SIGNIFICANT
-        difference = ('<span class="nm">Not measured</span>' if b["non_hallucination"] is None or e["non_hallucination"] is None
+        difference = (UNDEFINED if b["non_hallucination"] is None or e["non_hallucination"] is None
                       else f"{100 * (e['non_hallucination'] - b['non_hallucination']):+.{digits}f}{' *' if found else ''}")
         holm = "not in Holm's family" if paired["p_holm"] is None else esc(bp.p_text(paired["p_holm"]))
         run = site.by_id[model["original_run"]]
