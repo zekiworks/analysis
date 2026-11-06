@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 6d6c9dbd (6 November 2026)
+
+- Hallucination tab: Grok 4.7 with high reasoning, with "Bilmiyorum" over the whole bank: 29.9% non-hallucination (56 "Bilmiyorum", 131 wrong), the highest of the chat models. 63 setups in all (26 decision, 37 chat).
+- English "I don't know" covers 67 setups in both languages (30 decision, 37 chat), now with Grok 4.7 (27.9% non-hallucination in English, 27.6% in Turkish), not a significant difference; no chat setup is left with its English side alone. No other run changed.
+
 ## Results 7899a84b (6 November 2026)
 
 - Hallucination tab: GPT-6 Astra with low reasoning at one question per request, with "Bilmiyorum" over the whole bank: 11.9% non-hallucination (7 "Bilmiyorum", 52 wrong). 62 setups in all (26 decision, 36 chat).
