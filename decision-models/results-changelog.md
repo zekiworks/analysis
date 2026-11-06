@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results d00f5e26 (6 November 2026)
+
+- Hallucination tab: two more chat setups with "Bilmiyorum" over the whole bank, run on our four GPUs, 60 in all (26 decision, 34 chat): DeepSeek-V4.1-Flash 1017 with reasoning on 1.3% non-hallucination, and GLM-5.3-Flash with reasoning off 0.3%.
+- English reading: GLM-5.3-Flash in English on our GPUs, with reasoning on 89.6% against 90.1% in Turkish and with reasoning off 87.2% against 84.3%, on the 547 kept questions; neither difference significant (Holm over 75 setups). 75 English setups. DeepSeek-V4.1-Flash's first release is still not run in English, now because its weights are no longer on our disk.
+- English "I don't know" covers 64 setups in both languages (30 decision, 34 chat), now with DeepSeek-V4.1-Flash 1017 with reasoning on (7.1% non-hallucination in English, 2.6% in Turkish) and GLM-5.3-Flash with reasoning off (5.6% and 3.5%), neither difference significant. Three chat setups show their English side alone while their Turkish run is still to come: GPT-6 Astra at one question per request, Grok 4.7 and GLM-5.3-Flash with reasoning on. No other run changed.
+
 ## Results ef9b419f (6 November 2026)
 
 - Hallucination tab: three more chat setups with "Bilmiyorum" over the whole bank, 58 in all (26 decision, 32 chat): GPT-6 Astra with high reasoning 14.3% non-hallucination and with medium reasoning 12.7%, and Claude Sonnet 5.5 with high reasoning at one question per request 0.8%.
