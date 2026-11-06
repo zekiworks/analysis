@@ -141,13 +141,13 @@ html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
   color: var(--view-text); background: var(--view-key); border: 2px solid var(--view-key-edge); border-radius: 7px;
   font-size: .86rem; font-weight: 700; line-height: 1.15; text-decoration: none; box-shadow: var(--key-shadow); }
 .nav a:hover, .face-nav a:hover { border-color: var(--view-key-hover); }
-/* In-page tab rows (a page's own parts, the habits steps) are tinted with the link colour, so they stand apart from the
-   page text and from the pages row; the tint keeps the text's contrast in both themes. */
-.face-nav a { color: var(--link); background: var(--view-key); border-color: var(--link); }
-.face-nav a { background: color-mix(in srgb, var(--link) 13%, var(--view-key)); border-color: color-mix(in srgb, var(--link) 65%, var(--view-key-edge)); }
-.face-nav a:hover, .face-nav a:focus-visible { background: color-mix(in srgb, var(--link) 24%, var(--view-key)); border-color: var(--link); }
-/* The tab of the part in the address (just pressed, or opened by a link) is filled with the link colour. */
-.face-nav a[aria-current] { color: var(--panel); background: var(--link); border-color: var(--link); }
+/* In-page tab rows (a page's own parts, the habits steps) are tinted and edged with the link colour, so they stand apart
+   from the page text and from the pages row. Each theme sets its own tab colours (--tab-*) so the text keeps its
+   contrast: a light blue tint with blue text in the light theme, a dark blue with near-white text in the dark one. */
+.face-nav a { color: var(--tab-text); background: var(--tab-bg); border-color: var(--tab-edge); }
+.face-nav a:focus-visible { border-color: var(--view-key-hover); }
+/* The tab of the part in the address (just pressed, or opened by a link) is filled. */
+.face-nav a[aria-current] { color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); }
 .nav a[aria-current="page"] { color: var(--view-current-text); background: var(--view-current-bg);
   border-color: var(--view-current-edge); box-shadow: inset 0 -3px 0 var(--view-current-edge); }
 .theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; margin-left: auto; }
@@ -172,19 +172,31 @@ html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
   --view-current-bg: #14213d;
   --view-current-edge: #14213d;
   --view-current-text: #ffffff;
+  --tab-text: #1d4ed8;
+  --tab-bg: #d0d5e3;
+  --tab-edge: #1d4ed8;
+  --tab-current-bg: #1d4ed8;
+  --tab-current-text: #ffffff;
 }
 @media screen {
+  /* Dark theme: keys lighter than the bar and with a light edge, so each key reads as a key without hovering (the
+     project lead, bus #1819); in-page tabs dark blue with a light blue edge, the marked one filled light blue. */
   :root:not([data-theme="light"]) {
     --view-bg: #1a1a18;
     --view-edge: #4b4945;
     --view-text: #f2f0ea;
     --view-label: #d6d3cc;
-    --view-key: #272624;
-    --view-key-edge: #78746d;
+    --view-key: #34322e;
+    --view-key-edge: #a29d93;
     --view-key-hover: #f2f0ea;
     --view-current-bg: #24508f;
     --view-current-edge: #9cc8ff;
     --view-current-text: #ffffff;
+    --tab-text: #d6e8ff;
+    --tab-bg: #1f3a5f;
+    --tab-edge: #86b9f3;
+    --tab-current-bg: #86b9f3;
+    --tab-current-text: #10161f;
   }
 }
 .view-bar { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; padding: .35rem 1rem; background: var(--view-bg);
