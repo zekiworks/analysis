@@ -214,6 +214,11 @@ SYSTEM_ONE = {
     # installs) behind servers/baselabs_server.py, which serves it with qev's own app: it takes the same request at the
     # default path, text only, and returns the same answers; the model field must name the loaded checkpoint.
     "baselabs": SystemOneService("Base Labs", server_url("BASELABS_URL"), request_id_header="x-typesafe-request-id"),
+    # REAX 1.3 (decisionmodels/REAX-1.3 at fa4bf7e) on our GPU behind the REAX Engine's own server (reax13/serve.py of
+    # github.com/reaxlabs/reax-engine at ff8f595, in the images its Dockerfiles build): two parts on one GPU in FP8, each
+    # option's probability the 50/50 mean of the two parts'. It takes the same request at the default path, text only,
+    # and returns the same answers; the model field, when sent, must be reax13.
+    "reax": SystemOneService("REAX", server_url("REAX_URL")),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -594,6 +599,7 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("onejev", "OmniJev/OneJev-27B"): 1,
     ("d3-server", "vllm-sr/d3-ultra"): 1,
     ("d1-server", "LiquidAI/d1-2B"): 1,
+    ("reax", "reax13"): 1,
 }
 
 
@@ -697,7 +703,7 @@ TIE_ALPHA = 0.05
 CASCADE_FIRST_CONFIGURATIONS: tuple[str | tuple[str, str], ...] = (
     "perplexity", "jev", "open-jev", "liquid", "clef", "metask", "cygnet", "winnow", "fastino", "celeris", "strands",
     "openai-decisions", "subq", "meragpt", "openrouter", "pplx-decider", "glide", "vllm-sr", "onejev", "d3-server", "nace",
-    "drex-max", "d1-server", "baselabs",
+    "drex-max", "d1-server", "baselabs", "reax",
     ("vllm", "gemma-4-31B-it"),
 )
 DOUBT_FRONTIER_RUNS = (
