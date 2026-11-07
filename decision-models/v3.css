@@ -650,11 +650,17 @@ i.swatch-wrong { background: var(--wrong); }
 .hold-side > h3 { margin: 0 0 .2rem; font-size: .98rem; }
 .hold-block { margin-top: .9rem; }
 .hold-block > h4 { margin: 0 0 .1rem; font-size: .88rem; }
+/* A block straight in a chart card or a section (the Hallucination tab's other charts and its table). */
+.hold-block > h3 { margin: 0 0 .35rem; font-size: .95rem; }
+/* A reference set apart under the two sides (english/: the Turkish Text tab runs, as confidence is not measured in
+   English): below a rule, in smaller and muted text. */
+.hold-reference { margin-top: 1.25rem; padding-top: .75rem; border-top: 1px dashed var(--edge); font-size: .92em; }
+.hold-reference .hold-side > h3 { font-size: .88rem; color: var(--text-2); }
 .hold-kind { margin: 0 0 .45rem; color: var(--text-2); font-size: .78rem; }
 .hold-rare { margin: .5rem 0 0; font-size: .8rem; }
 @media (min-width: 1000px) {
   .hold-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hold-pair .hbar, .hold-pair .hbars > .hbar { grid-template-columns: minmax(5.5rem, 9rem) minmax(0, 1fr) 6rem; gap: .5rem; }
+  .hold-pair .hbar, .hold-pair .hbars > .hbar { grid-template-columns: minmax(5.5rem, 9rem) minmax(0, 1fr) 7.5rem; gap: .5rem; }
   .hold-pair .hbar.cols, .hold-pair .hbars.cols > .hbar {
     grid-template-columns: minmax(5.5rem, 9rem) minmax(0, 1fr) repeat(var(--cols), 3.3rem); column-gap: .4rem; }
   .hold-pair .hbar-head .head-long { display: none; }

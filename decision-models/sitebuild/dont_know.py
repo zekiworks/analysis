@@ -3,13 +3,13 @@ question's own, "Bilmiyorum" ("I don't know"), from results.json's `dont_know` a
 models not run, with their reasons, and the reason of a chat model's run still running). Its face, as the home page's,
 is charts (face()): first holding back two ways side by side (sitebuild/holding_back.py), by confidence at the threshold
 (each model's Text tab run) and with the option (the answered share, the wrong share of the answers and the
-non-hallucination rate together), each with decision and chat models in blocks of their own, never one ranking;
-then the non-hallucination rate with the option and held back by confidence, and accuracy with the option against
-accuracy with five options, as HTML bars (Site hbars). The charts and the table (one row per model, from its first run,
-Answered and Wrong of answers first, ranked by non-hallucination rate, accuracy breaking ties; a model with more than one
-run shows the range over its runs) come once per group of the view bar (data-models, toggled by site.js; the all group,
-shown without JavaScript, ranks decision and chat models together but in the first chart), each row in its group by its
-`group` field, which must be the Text tab's (Site.decision). The chat setups whose Turkish run with the option is still running are listed
+non-hallucination rate together); then the non-hallucination rate with the option and held back by confidence, and
+accuracy with the option against accuracy with five options, as HTML bars (Site hbars). The charts and the table (one row
+per model, from its first run, Answered and Wrong of answers first, ranked by non-hallucination rate, accuracy breaking
+ties; a model with more than one run shows the range over its runs) come once per group of the view bar (data-models,
+toggled by site.js; the all group shown without JavaScript), each chart and the table with decision and chat models in
+blocks of their own, each its own ranking under its heading (holding_back.kinds: both under all), never one mixed list;
+each row in its group by its `group` field, which must be the Text tab's (Site.decision). The chat setups whose Turkish run with the option is still running are listed
 with their reason for the all and chat groups (running_setups). The parts about decision models only come for the all
 and decision groups (DECISION_ONLY): the headline, the paired test against confidence, the English questions, the
 option's word, the hosted GLiDE rerun, the same number of answers (risk-coverage plots on the face, tables under Info)
@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import itertools
 import math
-from typing import Any
+from typing import Any, Callable
 
 import build_page as bp
 from sitebuild import holding_back as hold
@@ -121,12 +121,16 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
 
 
 def table(site: Site, data: dict[str, Any], group: str) -> str:
-    """A group's copy of the table, its rows ranked (ranked)."""
+    """A group's copy of the table: a decision and a chat block (holding_back.kinds: both under all), each with its
+    heading and its rows ranked (ranked)."""
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(direction)}</span></th>'
                    for name, direction in columns(data["option"]))
-    rows = "".join(row(site, data, model) for model in ranked(group_data(data, group)["models"]))
-    return (f'<div class="table-wrap" {shown(group)}><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}</tr>'
-            f"</thead><tbody>{rows}</tbody></table></div>")
+    models = ranked(group_data(data, group)["models"])
+    blocks = "".join(
+        hold.block(heading, '<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>'
+                   f'{head}</tr></thead><tbody>{"".join(row(site, data, model) for model in mine)}</tbody></table></div>', 3)
+        for kind, heading in hold.kinds(group) if (mine := [model for model in models if model["group"] == kind]))
+    return f"<div {shown(group)}>{blocks}</div>"
 
 
 def not_run(items: list[dict[str, Any]]) -> str:
@@ -339,6 +343,17 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         return (f'<figure class="panel chart-card" id="{anchor(base, group)}"><div class="chart-head"><h2>{esc(title)}</h2>'
                 f'<p class="chart-sub">{sub}</p></div>{hbars(rows, **axis)}<p class="chart-legend">{legend}</p></figure>')
 
+    def split_card(base: str, title: str, sub: str, picked: list[dict[str, Any]],
+                   rows_of: Callable[[list[dict[str, Any]]], list[dict[str, Any]]],
+                   legend_of: Callable[[list[dict[str, Any]], str], str], **axis: Any) -> str:
+        """A chart card whose models (picked, in the card's order) show as a decision and a chat block, each its own
+        ranking under its heading (holding_back.kinds: both under all); a kind without a model has no block."""
+        blocks = "".join(hold.block(heading, f'{hbars(rows_of(mine), **axis)}<p class="chart-legend">{legend_of(mine, heading)}</p>', 3)
+                         for kind, heading in hold.kinds(group)
+                         if (mine := [model for model in picked if model["group"] == kind]))
+        return (f'<figure class="panel chart-card" id="{anchor(base, group)}"><div class="chart-head"><h2>{esc(title)}</h2>'
+                f'<p class="chart-sub">{sub}</p></div>{blocks}</figure>')
+
     def wrong_of(model: dict[str, Any]) -> float | None:
         answered = model["right"] + model["wrong"]
         return model["wrong"] / answered if answered else None
@@ -379,18 +394,20 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
                                       ", in its five-option run on the Text tab")
     first = (f'<figure class="panel chart-card" id="{anchor("chart-non-hallucination", group)}"><div class="chart-head">'
              f'<h2>Answered, wrong of answers and non-hallucination</h2></div>{hold.pair(confidence, with_option)}</figure>')
-    second = card(
+    second = split_card(
         "chart-confidence", "Saying “I don't know”, or held back by confidence",
         f"Each model's non-hallucination rate with “{option}”, and its five-option run held back by its own confidence at "
         "about the same attempt rate · higher is better",
-        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
-          "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['derived']['non_hallucination'], digits)}",
-          "bars": [{"value": model["non_hallucination"], "kind": "lead"}, {"value": model["derived"]["non_hallucination"], "kind": "base"}],
-          "title": f"{label(model)}: {pct(model['non_hallucination'], digits)} with “{data['option']}”, "
-                   f"{pct(model['derived']['non_hallucination'], digits)} held back by confidence"}
-         for model in rated if model["derived"]["non_hallucination"] is not None],
-        f'<span><i class="swatch swatch-lead"></i>With “{option}”</span> '
-        '<span><i class="swatch swatch-base"></i>Held back by its own confidence (the derived rate)</span>')
+        [model for model in rated if model["derived"]["non_hallucination"] is not None],
+        lambda mine: [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+                       "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['derived']['non_hallucination'], digits)}",
+                       "bars": [{"value": model["non_hallucination"], "kind": "lead"},
+                                {"value": model["derived"]["non_hallucination"], "kind": "base"}],
+                       "title": f"{label(model)}: {pct(model['non_hallucination'], digits)} with “{data['option']}”, "
+                                f"{pct(model['derived']['non_hallucination'], digits)} held back by confidence"}
+                      for model in mine],
+        lambda mine, heading: f'<span><i class="swatch swatch-lead"></i>With “{option}”</span> '
+                              '<span><i class="swatch swatch-base"></i>Held back by its own confidence (the derived rate)</span>')
     # The paired test (vs_confidence, decision models only): for each model in Holm's family, the wrong answers only one
     # side made, most significant first, with its Holm-adjusted p; the decision models outside the family are named under it.
     decision = [model for model in models if model["vs_confidence"] is not None]
@@ -439,17 +456,24 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
             + "</span>",
             top=4 * quarter, tick=lambda value: f"{value:,.0f}")
     by_accuracy = sorted(models, key=lambda model: (-model["accuracy"], model["name"].casefold()))
-    accuracies = [model["accuracy"] for model in by_accuracy]
-    third = card(
-        "chart-accuracy", f"Accuracy with “{data['option']}”",
-        f"Share of the {total:,} questions answered right with “{option}” on offer · higher is better",
-        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model), "text": pct(model["accuracy"], digits),
-          "bars": [{"value": model["accuracy"], "colour": rank_fill(stops, model["accuracy"], min(accuracies), max(accuracies))}],
-          "marker": model["original_accuracy"],
-          "title": f"{label(model)}: {model['right']:,} of {total:,} right; {pct(model['original_accuracy'], digits)} with five options"}
-         for model in by_accuracy],
-        scale_legend(stops, pct(min(accuracies), digits), pct(max(accuracies), digits))
-        + ' <span><i class="swatch swatch-marker"></i>The same model with five options (the Text tab)</span>')
+
+    def accuracy_rows(mine: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        accuracies = [model["accuracy"] for model in mine]
+        return [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+                 "text": pct(model["accuracy"], digits),
+                 "bars": [{"value": model["accuracy"], "colour": rank_fill(stops, model["accuracy"], min(accuracies), max(accuracies))}],
+                 "marker": model["original_accuracy"],
+                 "title": f"{label(model)}: {model['right']:,} of {total:,} right; {pct(model['original_accuracy'], digits)} with five options"}
+                for model in mine]
+
+    def accuracy_legend(mine: list[dict[str, Any]], heading: str) -> str:
+        accuracies = [model["accuracy"] for model in mine]
+        return (scale_legend(stops, pct(min(accuracies), digits), pct(max(accuracies), digits), who=heading)
+                + ' <span><i class="swatch swatch-marker"></i>The same model with five options (the Text tab)</span>')
+
+    third = split_card("chart-accuracy", f"Accuracy with “{data['option']}”",
+                       f"Share of the {total:,} questions answered right with “{option}” on offer · higher is better",
+                       by_accuracy, accuracy_rows, accuracy_legend)
     return f'<section class="charts" aria-label="Charts" {shown(group)}>{first}{second}{paired}{third}</section>'
 
 

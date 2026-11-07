@@ -32,9 +32,10 @@ def kind_of(site: Site, run: dict[str, Any]) -> str:
     return "decision" if site.decision(run) else "chat"
 
 
-def block(title: str, body: str) -> str:
-    """One group's block of a side: its heading, then its chart, notes and legend."""
-    return f'<div class="hold-block"><h4>{esc(title)}</h4>{body}</div>'
+def block(title: str, body: str, level: int = 4) -> str:
+    """One group's block: its heading (h4 inside a side, h3 directly in a chart card or a section), then its chart,
+    notes and legend."""
+    return f'<div class="hold-block"><h{level}>{esc(title)}</h{level}>{body}</div>'
 
 
 def side(title: str, sub: str, blocks: str) -> str:
@@ -57,7 +58,8 @@ def sure_of(run: dict[str, Any]) -> dict[str, Any] | None:
     return (run.get("confidence") or {}).get("sure")
 
 
-def confidence_side(site: Site, setups: list[tuple[dict[str, Any], str, str]], group: str, scope: str) -> str:
+def confidence_side(site: Site, setups: list[tuple[dict[str, Any], str, str]], group: str, scope: str,
+                    title: str = "Holding back by confidence") -> str:
     """(A) for a group's setups, each (Text tab run, label, href): per block, the answers at the threshold or more (the
     bar, as a share of the questions, and the count), the wrong ones among them and the ranking score; no wrong answer at
     the threshold first, by answers kept, then the others by the share wrong among the kept answers. Each block says its
@@ -105,12 +107,20 @@ def confidence_side(site: Site, setups: list[tuple[dict[str, Any], str, str]], g
            "questions; how many of them were wrong; and its ranking score (AUROC: how often a right answer has higher "
            f"confidence than a wrong one, 0.5 chance, 1 perfect). No wrong answer at {sure} first, by answers kept, then "
            "by the share wrong among the kept answers · more kept and fewer wrong is better")
-    return side("Holding back by confidence", sub, "".join(blocks))
+    return side(title, sub, "".join(blocks))
 
 
-def rare_note(chosen: list[tuple[str, int, float | None]], total: int, share: float, option: str, digits: int) -> str:
+def not_measured_side(group: str, language: str) -> str:
+    """(A) where confidence is not measured in the page's language: the side and one line per block saying so."""
+    return side("Holding back by confidence", f"Confidence at the threshold is not measured in {language}.",
+                "".join(block(heading, f'<p class="note">Not measured in {esc(language)}.</p>') for _, heading in kinds(group)))
+
+
+def rare_note(chosen: list[tuple[str, int, float | None]], total: int, share: float, option: str, digits: int,
+              pointer: str = "the part Holding back by confidence shows how their confidence holds back wrong answers") -> str:
     """The note under the decision models' option rates: each decision model (label, times it chose the option, its
-    rate) that chose the option on fewer than share of the total questions, how often, and where its confidence shows."""
+    rate) that chose the option on fewer than share of the total questions, how often, and where its confidence shows
+    (pointer)."""
     rare = [item for item in chosen if item[1] < share * total]
     if not rare:
         return ""
@@ -119,4 +129,4 @@ def rare_note(chosen: list[tuple[str, int, float | None]], total: int, share: fl
     named = "; ".join(f"{label}, {count:,} time{'' if count == 1 else 's'}" for label, count, _ in rare)
     return (f'<p class="note hold-rare">Chose “{esc(option)}” on fewer than {100 * share:g}% of the {total:,} questions: '
             f"{esc(named)}. Their rate here is {level} ({pct(highest, digits)} or less) because they almost never chose the "
-            "option; the part Holding back by confidence shows how their confidence holds back wrong answers.</p>")
+            f"option; {esc(pointer)}.</p>")

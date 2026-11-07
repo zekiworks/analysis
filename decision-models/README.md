@@ -219,7 +219,9 @@ python3 -m http.server 8000                                # preview at http://1
     (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: under a one-sentence lead
     and the translation check's limit (`limit_note`; neither English page has a links row of its own, row 3 does that),
     accuracy per group first (ranked by English accuracy), the
-    Non-hallucination part (holding back by confidence beside holding back with "I don't know" in English, as below), cost per 1,000 questions and median latency per
+    Non-hallucination part (holding back by confidence, which reads Not measured in English in each block, beside holding
+    back with "I don't know" in English, as below; under them, set apart, the Turkish reference: each setup's Text tab run
+    at the threshold), cost per 1,000 questions and median latency per
     request of each first English run per group (`english_reading.models[].cost.english` and `.latency.english`, log
     scale, Not measured named in the note; `measure_card` in `sitebuild/english_reading.py`), then the table per group
     ranked by English accuracy with the four measures. Turkish vs English draws the same Cost and Latency cards as
@@ -395,8 +397,10 @@ python3 -m http.server 8000                                # preview at http://1
     `sitebuild/site.py` and `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured). A run's variant (its
     route or access note) shows beside its name only where it tells it apart from another setup of the same model ID
     (`shownVariant` in `v3.js`, `shown_variant` in `build_site.py`); otherwise it is on the model page only. Non-hallucination
-    (`non_hallucination` in `build_site.py`, static HTML, one copy per view; the same two sides on english/ and on the
-    Hallucination tab, `sitebuild/holding_back.py`) shows two kinds of holding back side by side, each with Decision
+    (`non_hallucination` in `build_site.py`, static HTML, one copy per view; the same two sides on the Hallucination tab,
+    and on english/ with confidence Not measured in English and the Turkish reference apart, `sitebuild/holding_back.py`;
+    on the Hallucination tab its other charts and its table also show Decision models and Chat models as separate
+    blocks, the paired test being decision models only) shows two kinds of holding back side by side, each with Decision
     models and Chat models as separate blocks with their own heading and ranking (both under All models, never one mixed
     list): Holding back by confidence, each setup's Text tab run at the 99% threshold (`runs[].confidence.sure`: the
     answers kept, the bar their share of the questions, the wrong ones among them, and the ranking score

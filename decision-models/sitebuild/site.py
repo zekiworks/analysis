@@ -163,10 +163,10 @@ def rank_fill(stops: list[str], value: float, worst: float, best: float) -> str:
     return f"rgb({red:.0f},{green:.0f},{blue:.0f})"
 
 
-def scale_legend(stops: list[str], worst: str, best: str, higher: bool = True) -> str:
-    """The legend of bars coloured by the ranking scale: the worst value, the scale, the best value and which way is
-    better."""
-    return (f'<span class="scale-legend"><span>Decision models: worst {esc(worst)}</span>'
+def scale_legend(stops: list[str], worst: str, best: str, higher: bool = True, who: str = "Decision models") -> str:
+    """The legend of bars coloured by the ranking scale: whose values (who), the worst value, the scale, the best value
+    and which way is better."""
+    return (f'<span class="scale-legend"><span>{esc(who)}: worst {esc(worst)}</span>'
             f'<i class="ramp" style="background:linear-gradient(to right, {", ".join(stops)})" aria-hidden="true"></i>'
             f'<span>best {esc(best)} ({"higher" if higher else "lower"} is better)</span></span>')
 

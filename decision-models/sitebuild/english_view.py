@@ -7,9 +7,10 @@ site's static style (Site hbars, each bar in its model family's colour, as the h
 by English accuracy with the four measures; the charts and the table come once per group of the view bar (data-models,
 toggled by site.js; the all group is the one shown without JavaScript, every setup ranked together), counts and
 sentences computed for that group. Non-hallucination holds back two ways side by side (sitebuild/holding_back.py), each
-with decision and chat models in blocks of their own, never one ranking: by confidence at the threshold (each setup's
-Text tab run; confidence is not measured in English) and with "I don't know" in English (english_reading.dont_know's
-English sides and english_only, the rate; under the decision block the models that almost never chose it); a
+with decision and chat models in blocks of their own, never one ranking: by confidence, Not measured in English in each
+block, and with "I don't know" in English (english_reading.dont_know's English sides and english_only, the rate; under
+the decision block the models that almost never chose it); under the two, set apart, the Turkish reference (each setup's
+Text tab run at the threshold); a
 setup without an English run with the option reads Running (a chat model's run still running, page_config.json's
 dont_know.running) or Not run (a decision model not run with it yet). Cost and latency are each
 setup's first English run's (english_reading.models[].cost and .latency), on a log scale as on the home page. The
@@ -104,15 +105,17 @@ def build(site: Site) -> dict[str, str]:
 
     def rates_card(group: str) -> str:
         """A group's Non-hallucination card, held back two ways side by side (holding_back), each with decision and chat
-        models as separate blocks: (A) by confidence, each setup's Text tab run at the threshold (calibration is not
-        measured in English), and (B) the English non-hallucination rate with the option, the setups with an English run
-        with it by the rate; under each block the setups whose run is still running (chat), not run (decision) or not
-        possible (NO_OPTION), and under the decision block the models that almost never chose the option."""
+        models as separate blocks: (A) by confidence, Not measured in English in each block (no English run has a
+        confidence at the threshold), and (B) the English non-hallucination rate with the option, the setups with an
+        English run with it by the rate; under each block the setups whose run is still running (chat), not run
+        (decision) or not possible (NO_OPTION), and under the decision block the models that almost never chose the
+        option. Under the two, set apart and smaller, the Turkish reference: each setup's Text tab run at the threshold."""
         members = group_models(site, data, group)
         provider = lambda model: site.by_id[model["turkish_run"]]["provider"]  # noqa: E731
-        confidence = hold.confidence_side(
+        confidence = hold.not_measured_side(group, "English")
+        reference = hold.confidence_side(
             site, [(site.by_id[model["turkish_run"]], label(site, model), href(site, model)) for model in members], group,
-            ", in its Text tab run on the Turkish questions (confidence is not measured in English)")
+            ", in its Text tab run on the Turkish questions, for reference", title="Turkish reference (the Text tab runs)")
 
         def option_block(kind: str, heading: str) -> str:
             mine = [model for model in members if hold.kind_of(site, site.by_id[model["turkish_run"]]) == kind]
@@ -135,7 +138,9 @@ def build(site: Site) -> dict[str, str]:
                     for model, counts in rated]
             rare = hold.rare_note([(label(site, model), held[model["turkish_run"]]["dont_know"],
                                     held[model["turkish_run"]]["non_hallucination"]) for model in mine if model["turkish_run"] in held],
-                                  total, site.results["dont_know"]["vs_confidence_share"], option, digits) \
+                                  total, site.results["dont_know"]["vs_confidence_share"], option, digits,
+                                  "confidence is not measured in English; the Turkish reference below shows their Text "
+                                  "tab runs at the threshold") \
                 if kind == "decision" else ""
             legend = (family_legend([family(model) for model, _ in rated])
                       + (f" <span>No rate (neither a wrong answer nor “{esc(option)}”): {esc(', '.join(undefined))}.</span>"
@@ -157,7 +162,8 @@ def build(site: Site) -> dict[str, str]:
             "answered share; a model that always chose the option would reach 100% with no right answers",
             "".join(option_block(kind, heading) for kind, heading in hold.kinds(group)))
         return (f'<figure class="panel chart-card" id="{anchor("chart-non-hallucination", group)}" {shown(group)}>'
-                f'<div class="chart-head"><h2>Non-hallucination</h2></div>{hold.pair(confidence, with_option)}</figure>')
+                f'<div class="chart-head"><h2>Non-hallucination</h2></div>{hold.pair(confidence, with_option)}'
+                f'<div class="hold-reference">{reference}</div></figure>')
 
     method = f"{rel(PATH, COMPARISON)}#method"
 
