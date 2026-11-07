@@ -219,7 +219,7 @@ python3 -m http.server 8000                                # preview at http://1
     (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: under a one-sentence lead
     and the translation check's limit (`limit_note`; neither English page has a links row of its own, row 3 does that),
     accuracy per group first (ranked by English accuracy), the
-    decision models' non-hallucination with "I don't know" in English, cost per 1,000 questions and median latency per
+    Non-hallucination part (holding back by confidence beside holding back with "I don't know" in English, as below), cost per 1,000 questions and median latency per
     request of each first English run per group (`english_reading.models[].cost.english` and `.latency.english`, log
     scale, Not measured named in the note; `measure_card` in `sitebuild/english_reading.py`), then the table per group
     ranked by English accuracy with the four measures. Turkish vs English draws the same Cost and Latency cards as
@@ -250,8 +250,9 @@ python3 -m http.server 8000                                # preview at http://1
     no script: Page images first draws its four inputs on a sample question written for the page (never one of the
     bank's; `inputs_sample`), then shows the picture alone against the text, the text plus the picture, the best OCR
     route (both coloured by accuracy, with a legend saying the colour is accuracy, not the model family) and the
-    marks each OCR model kept; Hallucination first shows the answered share, the wrong share of the answers and the
-    non-hallucination rate together, then that rate against the same model held back
+    marks each OCR model kept; Hallucination first shows holding back by confidence beside holding back with the option
+    (the answered share, the wrong share of the answers and the non-hallucination rate together; both as below), then
+    that rate against the same model held back
     by its confidence, the paired test of the two (the wrong answers only one of them made, with Holm-adjusted p and the
     models outside the test named) and accuracy with the option against accuracy with five options, then the added
     comparisons: the Turkish vs English tab's English questions with "I don't know" against "Bilmiyorum" in Turkish (that
@@ -394,11 +395,19 @@ python3 -m http.server 8000                                # preview at http://1
     `sitebuild/site.py` and `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured). A run's variant (its
     route or access note) shows beside its name only where it tells it apart from another setup of the same model ID
     (`shownVariant` in `v3.js`, `shown_variant` in `build_site.py`); otherwise it is on the model page only. Non-hallucination
-    (`non_hallucination` in `build_site.py`, static HTML from `results.json`'s `dont_know`, one copy per view: the
-    Hallucination tab's rows of that group (decision and chat ranked together under All models) in its order, the rate
-    with "Bilmiyorum", then in columns of their own the share answered (the attempt rate, as that tab writes it) and the
-    error rate among the answers (wrong / answered), bars in family colours, the chat setups whose Turkish run is still
-    running with their reason, a link to that tab; one heading); Cost, its chart then the table of every setup in one part; Latency;
+    (`non_hallucination` in `build_site.py`, static HTML, one copy per view; the same two sides on english/ and on the
+    Hallucination tab, `sitebuild/holding_back.py`) shows two kinds of holding back side by side, each with Decision
+    models and Chat models as separate blocks with their own heading and ranking (both under All models, never one mixed
+    list): Holding back by confidence, each setup's Text tab run at the 99% threshold (`runs[].confidence.sure`: the
+    answers kept, the bar their share of the questions, the wrong ones among them, and the ranking score
+    `confidence.auroc`; no wrong answer first by answers kept, then by the share wrong; each block names its kind of
+    confidence, a setup without one reads No confidence reported), and Holding back with a "Bilmiyorum" option, the
+    Hallucination tab's rows of that group (`results.json`'s `dont_know`) in its order, the rate with "Bilmiyorum", then
+    in columns of their own the share answered (the attempt rate, as that tab writes it) and the error rate among the
+    answers (wrong / answered), bars in family colours; under the decision block the decision models that chose the
+    option on fewer than `dont_know.vs_confidence_share` of the questions, with how often each did (`rare_note`), under the
+    chat block the chat setups whose Turkish run is still running with their reason, a link to that tab; one heading);
+    Cost, its chart then the table of every setup in one part; Latency;
     accuracy against cost or latency, with the Pareto line (the setups in view no other setup in view
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
     gap, as shipped, on all questions). The charts draw every setup of the model group the view bar

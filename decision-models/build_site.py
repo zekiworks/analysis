@@ -52,6 +52,7 @@ ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
 from sitebuild.dont_know import ranked as dont_know_ranked, running_setups  # noqa: E402
+from sitebuild import holding_back as hold  # noqa: E402
 from sitebuild.site import (GROUPS, NOT_MEASURED, ROUTE_LLMS, SUITE_CSS, Site, asset, cost_missing, cost_unit_in, cost_value,  # noqa: E402
                             experiments, family_icon, family_legend, hbars, pct, route_labels, run_families, shown, topbar)
 
@@ -390,19 +391,20 @@ def home_data(data: Data) -> None:
         print(f"Wrote {path} ({len(text.encode()):,} bytes)")
 
 
-# What a view bar group's members are called on the home page's Non-hallucination part, one and several.
-NON_HALLUCINATION_NOUNS = {"all": ("setup", "setups"), "decision": ("decision model", "decision models"),
-                           "chat": ("chat model setup", "chat model setups")}
+# What a block's members are called on the home page's Non-hallucination part, one and several.
+NON_HALLUCINATION_NOUNS = {"decision": ("decision model", "decision models"), "chat": ("chat model setup", "chat model setups")}
 
 
 def non_hallucination(site: Site) -> str:
     """The home page's Non-hallucination part (#non-hallucination, row 3 of the view bar), in static HTML, once per group
-    of the view bar (data-models, toggled by site.js; the all group shown without JavaScript): the group's Hallucination
-    tab rows (results.json dont_know, each row's group; all: decision and chat models ranked together) in that tab's
-    order, each bar its non-hallucination rate with the option in its model family's colour, then in columns of their
-    own its attempt rate (the share of the questions answered, as that tab writes them) and its error rate among its
-    answers (wrong over right + wrong); under the chart the group's chat setups whose Turkish run with the option is
-    still running (running_setups), with page_config.json's reason, under the same one heading."""
+    of the view bar (data-models, toggled by site.js; the all group shown without JavaScript): the Hallucination tab's
+    setups of the group (results.json dont_know, each row's group), held back two ways side by side (holding_back): (A)
+    by confidence, each setup's Text tab run at the threshold, and (B) with the option, the tab's rows in its order, each
+    bar its non-hallucination rate with the option in its model family's colour, then in columns of their own its attempt
+    rate (the share of the questions answered, as that tab writes them) and its error rate among its answers (wrong over
+    right + wrong). Each side shows decision and chat models as separate blocks, never one ranking (both under all); under
+    the decision block the models that almost never chose the option (holding_back.rare_note), under the chat block the
+    chat setups whose Turkish run with the option is still running (running_setups), with page_config.json's reason."""
     data = site.results["dont_know"]
     digits, option, total = site.config["percent_digits"], data["option"], data["questions"]
     run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
@@ -410,19 +412,24 @@ def non_hallucination(site: Site) -> str:
         if model["group"] != ("decision" if site.decision(run_of(model)) else "chat"):
             raise SystemExit(f"results.json dont_know: {model['name']} (run {model['run']}) is not in group {model['group']} on the Text tab")
     tab = '<a href="dont-know/">Hallucination tab</a>'
+    runs = running_setups(site)
+    names = site.names(runs)
 
     def error(model: dict[str, Any]) -> str:
         answered = model["right"] + model["wrong"]
         return pct(model["wrong"] / answered, digits) if answered else NOT_MEASURED
 
-    def copy(group: str) -> str:
-        models = dont_know_ranked([model for model in data["models"] if group == "all" or model["group"] == group])
+    def option_block(kind: str, heading: str) -> str:
+        models = dont_know_ranked([model for model in data["models"] if model["group"] == kind])
         rated = [model for model in models if model["non_hallucination"] is not None]
         undefined = [site.row_name(run_of(model)) for model in models if model["non_hallucination"] is None]
-        runs = [run for run in running_setups(site) if group != "decision" and not site.decision(run)]
-        names = site.names(runs)
-        running = [names[run["run"]] for run in runs]
-        one, many = NON_HALLUCINATION_NOUNS[group]
+        running = [names[run["run"]] for run in runs if kind == "chat" and not site.decision(run)]
+        one, many = NON_HALLUCINATION_NOUNS[kind]
+        running_note = (f" <span>{bp.esc(site.config['dont_know']['running'].removesuffix('.'))}; still running in Turkish: "
+                        f"{bp.esc(', '.join(running))}.</span>") if running else ""
+        if not models:
+            return (hold.block(heading, f'<p class="note">No {one} has a run with “{bp.esc(option)}” yet.{running_note}</p>')
+                    if running else "")
         rows = [{"label": site.row_name(run_of(model)), "family": site.families[model["original_run"]]["name"],
                  "href": site.model_path(run_of(model)),
                  "texts": [pct(model["non_hallucination"], digits), pct(model["attempt_rate"], digits), error(model)],
@@ -431,24 +438,30 @@ def non_hallucination(site: Site) -> str:
                           f"{model['dont_know'] + model['wrong']:,} not right; {model['right'] + model['wrong']:,} of {total:,} "
                           f"answered, {model['wrong']:,} of them wrong (run {model['run']})"}
                 for model in rated]
-        running_note = (f" <span>{bp.esc(site.config['dont_know']['running'].removesuffix('.'))}; still running in Turkish: "
-                        f"{bp.esc(', '.join(running))}.</span>") if running else ""
-        if not models:
-            return (f'<div {shown(group)}><p class="note">No {one} has a run with “{bp.esc(option)}” yet.{running_note}</p>'
-                    "</div>")
-        return (f'<div {shown(group)}><p class="chart-sub">“{bp.esc(option)}” among the answers that were not right, with it '
-                f"offered as a sixth option on the {total:,} questions; beside it the share answered (right + wrong of {total:,}) "
-                f"and the error rate among the answers (wrong of right + wrong): each of the {len(models)} "
-                f"{one if len(models) == 1 else many}' first run with it · higher non-hallucination is better, read with the "
-                "share answered</p>"
-                f'{hbars(rows, columns=[("Non-hallucination", "Non-hall."), ("Answered", "Ans."), ("Error rate (wrong / answered)", "Error")])}'
-                f'<p class="chart-legend">{family_legend([site.families[model["original_run"]] for model in rated])} '
-                "<span>A model that always chose the option would reach 100% with no right answers.</span>"
-                + (f" <span>No rate (neither a wrong answer nor “{bp.esc(option)}”): {bp.esc(', '.join(undefined))}.</span>"
-                   if undefined else "")
-                + running_note
-                + f" <span>The {tab} has the full table, the rate against each model's own confidence and the method.</span>"
-                "</p></div>")
+        rare = hold.rare_note([(site.row_name(run_of(model)), model["dont_know"], model["non_hallucination"]) for model in models],
+                              total, data["vs_confidence_share"], option, digits) if kind == "decision" else ""
+        return hold.block(heading, (
+            f'<p class="hold-kind">Each of the {len(models)} {one if len(models) == 1 else many}\' first run with it.</p>'
+            f'{hbars(rows, columns=[("Non-hallucination", "Non-hall."), ("Answered", "Ans."), ("Error rate (wrong / answered)", "Error")])}'
+            f"{rare}"
+            f'<p class="chart-legend">{family_legend([site.families[model["original_run"]] for model in rated])}'
+            + (f" <span>No rate (neither a wrong answer nor “{bp.esc(option)}”): {bp.esc(', '.join(undefined))}.</span>"
+               if undefined else "")
+            + running_note + "</p>"))
+
+    def copy(group: str) -> str:
+        members = dont_know_ranked([model for model in data["models"] if group == "all" or model["group"] == group])
+        setups = [(run_of(model), site.row_name(run_of(model)), site.model_path(run_of(model))) for model in members]
+        confidence = hold.confidence_side(site, setups, group, ", in its Text tab run") if setups else ""
+        with_option = hold.side(
+            hold.option_title(option),
+            f"“{bp.esc(option)}” among the answers that were not right, with it offered as a sixth option on the {total:,} "
+            f"questions; beside it the share answered (right + wrong of {total:,}) and the error rate among the answers "
+            "(wrong of right + wrong) · higher non-hallucination is better, read with the share answered; a model that "
+            "always chose the option would reach 100% with no right answers",
+            "".join(option_block(kind, heading) for kind, heading in hold.kinds(group)))
+        return (f'<div {shown(group)}>{hold.pair(confidence, with_option)}<p class="chart-legend"><span>The {tab} has '
+                "the full table, the option's rate against each model's own confidence and the method.</span></p></div>")
 
     return ('<figure class="panel chart-card" id="chart-non-hallucination"><div class="chart-head"><h2>Non-hallucination</h2>'
             "</div>" + "".join(copy(group) for group in GROUPS) + "</figure>")

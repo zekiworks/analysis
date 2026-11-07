@@ -642,6 +642,24 @@ i.swatch-wrong { background: var(--wrong); }
    long name wraps in its column. */
 .hbar.cols, .hbars.cols > .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) repeat(var(--cols), 6.5rem); }
 .cols .hbar-head { white-space: normal; line-height: 1.2; }
+/* The Non-hallucination parts' two kinds of holding back (sitebuild/holding_back.py): by confidence and with the option,
+   side by side on a wide screen, one under the other below it; each side's decision and chat models in blocks of their
+   own, each with its heading. Side by side, each chart keeps a narrower name and short column names. */
+.hold-pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem 1.5rem; }
+.hold-side { min-width: 0; }
+.hold-side > h3 { margin: 0 0 .2rem; font-size: .98rem; }
+.hold-block { margin-top: .9rem; }
+.hold-block > h4 { margin: 0 0 .1rem; font-size: .88rem; }
+.hold-kind { margin: 0 0 .45rem; color: var(--text-2); font-size: .78rem; }
+.hold-rare { margin: .5rem 0 0; font-size: .8rem; }
+@media (min-width: 1000px) {
+  .hold-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hold-pair .hbar, .hold-pair .hbars > .hbar { grid-template-columns: minmax(5.5rem, 9rem) minmax(0, 1fr) 6rem; gap: .5rem; }
+  .hold-pair .hbar.cols, .hold-pair .hbars.cols > .hbar {
+    grid-template-columns: minmax(5.5rem, 9rem) minmax(0, 1fr) repeat(var(--cols), 3.3rem); column-gap: .4rem; }
+  .hold-pair .hbar-head .head-long { display: none; }
+  .hold-pair .hbar-head .head-short { display: inline; }
+}
 
 /* The result cards above the Accuracy chart (build_site.py result_cards): three cards, each with its setup and scope,
    under a heading naming their scope, the full test. */

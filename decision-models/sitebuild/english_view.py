@@ -6,8 +6,10 @@ and Latency (#latency), each chart in the
 site's static style (Site hbars, each bar in its model family's colour, as the home page's charts), and one table ranked
 by English accuracy with the four measures; the charts and the table come once per group of the view bar (data-models,
 toggled by site.js; the all group is the one shown without JavaScript, every setup ranked together), counts and
-sentences computed for that group. The non-hallucination rate with "I don't know" in English (english_reading.dont_know's
-English sides and english_only) is charted for each group, decision and chat models ranked together in the all group; a
+sentences computed for that group. Non-hallucination holds back two ways side by side (sitebuild/holding_back.py), each
+with decision and chat models in blocks of their own, never one ranking: by confidence at the threshold (each setup's
+Text tab run; confidence is not measured in English) and with "I don't know" in English (english_reading.dont_know's
+English sides and english_only, the rate; under the decision block the models that almost never chose it); a
 setup without an English run with the option reads Running (a chat model's run still running, page_config.json's
 dont_know.running) or Not run (a decision model not run with it yet). Cost and latency are each
 setup's first English run's (english_reading.models[].cost and .latency), on a log scale as on the home page. The
@@ -22,6 +24,7 @@ from sitebuild.english_reading import (NO_OPTION, NO_RATE, PATH as COMPARISON, R
                                        check_dont_know, cost_note, english_only, experiments_note, group_models, label,
                                        limit_note, measure_card, measure_cell, measure_heads, missing_note, missing_side,
                                        noun, setup_href)
+from sitebuild import holding_back as hold
 from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, pct, rel, shown
 from sitebuild.vision import cell
 
@@ -100,43 +103,61 @@ def build(site: Site) -> dict[str, str]:
                     rows, family_legend([family(model) for model in members]), ("Accuracy · Right", "% · Right"))
 
     def rates_card(group: str) -> str:
-        """A group's chart of the English non-hallucination rate: its setups with an English run with the option, by
-        the rate; under it the setups whose run is still running (chat), not run (decision) or not possible (NO_OPTION)."""
+        """A group's Non-hallucination card, held back two ways side by side (holding_back), each with decision and chat
+        models as separate blocks: (A) by confidence, each setup's Text tab run at the threshold (calibration is not
+        measured in English), and (B) the English non-hallucination rate with the option, the setups with an English run
+        with it by the rate; under each block the setups whose run is still running (chat), not run (decision) or not
+        possible (NO_OPTION), and under the decision block the models that almost never chose the option."""
         members = group_models(site, data, group)
-        rated = sorted(((model, held[model["turkish_run"]]) for model in members
-                        if model["turkish_run"] in held and held[model["turkish_run"]]["non_hallucination"] is not None),
-                       key=lambda pair: (-pair[1]["non_hallucination"], label(site, pair[0]).casefold()))
-        undefined = [label(site, model) for model in members
-                     if model["turkish_run"] in held and held[model["turkish_run"]]["non_hallucination"] is None]
         provider = lambda model: site.by_id[model["turkish_run"]]["provider"]  # noqa: E731
-        no_option = [(label(site, model), NO_OPTION[provider(model)]) for model in members
-                     if model["turkish_run"] not in held and provider(model) in NO_OPTION]
-        running = [label(site, model) for model in members if model["turkish_run"] not in held
-                   and not site.decision(site.by_id[model["turkish_run"]]) and provider(model) not in NO_OPTION]
-        unrun = [label(site, model) for model in members if model["turkish_run"] not in held
-                 and site.decision(site.by_id[model["turkish_run"]])]
-        rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
-                 "text": f"{pct(counts['non_hallucination'], digits)} · {pct(counts['attempt_rate'], digits)}",
-                 "bars": [{"value": counts["non_hallucination"], "colour": family(model)["colour"]}],
-                 "title": f"{label(site, model)}: {counts['dont_know']:,} “{option}” of "
-                          f"{counts['dont_know'] + counts['wrong']:,} not right; {counts['right'] + counts['wrong']:,} of "
-                          f"{total:,} answered (run {counts['run']})"}
-                for model, counts in rated]
-        legend = (family_legend([family(model) for model, _ in rated])
-                  + " <span>A model that always chose the option would reach 100% with no right answers.</span>"
-                  + (f" <span>No rate (neither a wrong answer nor “{esc(option)}”): {esc(', '.join(undefined))}.</span>"
-                     if undefined else "")
-                  + (f" <span>{esc(running_reason.removesuffix('.'))}; still running in English: {esc(', '.join(running))}.</span>"
-                     if running else "")
-                  + (f" <span>Decision models not run with “{esc(option)}” in English yet: {esc(', '.join(unrun))}.</span>"
-                     if unrun else "")
-                  + "".join(f" <span>Not run, as {esc(reason)}: {esc(name)}.</span>" for name, reason in no_option))
-        return card(
-            anchor("chart-non-hallucination", group), shown(group), "Non-hallucination rate with “I don't know” in English",
+        confidence = hold.confidence_side(
+            site, [(site.by_id[model["turkish_run"]], label(site, model), href(site, model)) for model in members], group,
+            ", in its Text tab run on the Turkish questions (confidence is not measured in English)")
+
+        def option_block(kind: str, heading: str) -> str:
+            mine = [model for model in members if hold.kind_of(site, site.by_id[model["turkish_run"]]) == kind]
+            if not mine:
+                return ""
+            rated = sorted(((model, held[model["turkish_run"]]) for model in mine
+                            if model["turkish_run"] in held and held[model["turkish_run"]]["non_hallucination"] is not None),
+                           key=lambda pair: (-pair[1]["non_hallucination"], label(site, pair[0]).casefold()))
+            undefined = [label(site, model) for model in mine
+                         if model["turkish_run"] in held and held[model["turkish_run"]]["non_hallucination"] is None]
+            no_option = [(label(site, model), NO_OPTION[provider(model)]) for model in mine
+                         if model["turkish_run"] not in held and provider(model) in NO_OPTION]
+            waiting = [label(site, model) for model in mine if model["turkish_run"] not in held and provider(model) not in NO_OPTION]
+            rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
+                     "text": f"{pct(counts['non_hallucination'], digits)} · {pct(counts['attempt_rate'], digits)}",
+                     "bars": [{"value": counts["non_hallucination"], "colour": family(model)["colour"]}],
+                     "title": f"{label(site, model)}: {counts['dont_know']:,} “{option}” of "
+                              f"{counts['dont_know'] + counts['wrong']:,} not right; {counts['right'] + counts['wrong']:,} of "
+                              f"{total:,} answered (run {counts['run']})"}
+                    for model, counts in rated]
+            rare = hold.rare_note([(label(site, model), held[model["turkish_run"]]["dont_know"],
+                                    held[model["turkish_run"]]["non_hallucination"]) for model in mine if model["turkish_run"] in held],
+                                  total, site.results["dont_know"]["vs_confidence_share"], option, digits) \
+                if kind == "decision" else ""
+            legend = (family_legend([family(model) for model, _ in rated])
+                      + (f" <span>No rate (neither a wrong answer nor “{esc(option)}”): {esc(', '.join(undefined))}.</span>"
+                         if undefined else "")
+                      + ((f" <span>Decision models not run with “{esc(option)}” in English yet: {esc(', '.join(waiting))}.</span>"
+                          if kind == "decision" else
+                          f" <span>{esc(running_reason.removesuffix('.'))}; still running in English: {esc(', '.join(waiting))}.</span>")
+                         if waiting else "")
+                      + "".join(f" <span>Not run, as {esc(reason)}: {esc(name)}.</span>" for name, reason in no_option))
+            line = (f'<p class="hold-kind">Each of the {len(rated)} {noun(kind, len(rated))}\' first English run with it.</p>'
+                    if rated else "")
+            return hold.block(heading, f'{line}{hbars(rows, head=("Non-hallucination · Answered", "Rate · Ans.")) if rows else ""}'
+                                       f'{rare}<p class="chart-legend">{legend}</p>')
+
+        with_option = hold.side(
+            hold.option_title(option) + " in English",
             f"“{esc(option)}” among the answers that were not right, with it offered as a sixth option in English, on the "
-            f"{total:,} kept questions, then the answered share (right + wrong of {total:,}): each of the {len(rated)} "
-            f"{noun(group, len(rated))}' first run with it · higher is better, read with the answered share",
-            rows, legend, ("Non-hallucination · Answered", "Rate · Ans."))
+            f"{total:,} kept questions, then the answered share (right + wrong of {total:,}) · higher is better, read with the "
+            "answered share; a model that always chose the option would reach 100% with no right answers",
+            "".join(option_block(kind, heading) for kind, heading in hold.kinds(group)))
+        return (f'<figure class="panel chart-card" id="{anchor("chart-non-hallucination", group)}" {shown(group)}>'
+                f'<div class="chart-head"><h2>Non-hallucination</h2></div>{hold.pair(confidence, with_option)}</figure>')
 
     method = f"{rel(PATH, COMPARISON)}#method"
 

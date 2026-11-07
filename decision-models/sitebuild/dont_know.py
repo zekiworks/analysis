@@ -1,13 +1,15 @@
 """Hallucination (dont-know/), the site's third tab: the Text tab's questions with one more option after each
 question's own, "Bilmiyorum" ("I don't know"), from results.json's `dont_know` and page_config.json's `dont_know` (the
 models not run, with their reasons, and the reason of a chat model's run still running). Its face, as the home page's,
-is charts (face()): first the answered share, the wrong share of the answers and the non-hallucination rate together,
+is charts (face()): first holding back two ways side by side (sitebuild/holding_back.py), by confidence at the threshold
+(each model's Text tab run) and with the option (the answered share, the wrong share of the answers and the
+non-hallucination rate together), each with decision and chat models in blocks of their own, never one ranking;
 then the non-hallucination rate with the option and held back by confidence, and accuracy with the option against
 accuracy with five options, as HTML bars (Site hbars). The charts and the table (one row per model, from its first run,
 Answered and Wrong of answers first, ranked by non-hallucination rate, accuracy breaking ties; a model with more than one
 run shows the range over its runs) come once per group of the view bar (data-models, toggled by site.js; the all group,
-shown without JavaScript, ranks decision and chat models together), each row in its group by its `group` field, which
-must be the Text tab's (Site.decision). The chat setups whose Turkish run with the option is still running are listed
+shown without JavaScript, ranks decision and chat models together but in the first chart), each row in its group by its
+`group` field, which must be the Text tab's (Site.decision). The chat setups whose Turkish run with the option is still running are listed
 with their reason for the all and chat groups (running_setups). The parts about decision models only come for the all
 and decision groups (DECISION_ONLY): the headline, the paired test against confidence, the English questions, the
 option's word, the hosted GLiDE rerun, the same number of answers (risk-coverage plots on the face, tables under Info)
@@ -23,6 +25,7 @@ import math
 from typing import Any
 
 import build_page as bp
+from sitebuild import holding_back as hold
 from sitebuild.site import (DECISION_ONLY, GROUPS, Site, esc, hbars, legend_mark, line_plot, marker_path, pct, rank_fill, rel,
                             scale_legend, shown)
 from sitebuild.vision import cell, joined, run_span
@@ -315,10 +318,12 @@ def anchor(base: str, group: str) -> str:
 
 def face(site: Site, data: dict[str, Any], group: str) -> str:
     """A group's copy of the tab's face: four chart cards, each with a line saying which way is better, every number
-    from results.json's dont_know: the answered share, the wrong share of the answers and the non-hallucination rate
-    together, that rate against confidence, the paired test of the two (vs_confidence, the decision models only: for
-    the all and decision groups) and accuracy. A single-series bar takes the ranking scale between the models' worst
-    and best values on its chart."""
+    from results.json: holding back by confidence (each model's Text tab run at the threshold, runs[].confidence) beside
+    holding back with the option (dont_know: the answered share, the wrong share of the answers and the non-hallucination
+    rate together), each in a decision and a chat block (holding_back; under the decision block the models that almost
+    never chose the option), then that rate against confidence, the paired test of the two (vs_confidence, the decision
+    models only: for the all and decision groups) and accuracy. A single-series bar takes the ranking scale between the
+    models' worst and best values on its chart."""
     option = esc(data["option"])
     stops = site.config["rank_scale"]["stops"]
     total = data["questions"]
@@ -343,21 +348,37 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
 
     measures = (("Answered", "base", lambda model: model["attempt_rate"]), ("Wrong of answers", "wrong", wrong_of),
                 ("Non-hallucination", "lead", lambda model: model["non_hallucination"]))
-    first = card(
-        "chart-non-hallucination", "Answered, wrong of answers and non-hallucination",
+
+    def option_block(who: str, heading: str) -> str:
+        """(B)'s block of one kind of model (who: decision or chat): its rows in the table's order, the measures' legend
+        and, for the decision models, the ones that almost never chose the option (holding_back.rare_note)."""
+        mine = [model for model in models if model["group"] == who]
+        if not mine:
+            return ""
+        rows = [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+                 "texts": [shown_rate(value(model)) for _, _, value in measures],
+                 "bars": [{"value": value(model) or 0.0, "kind": kind} for _, kind, value in measures],
+                 "title": f"{label(model)}: {model['right'] + model['wrong']:,} of {total:,} answered, {model['wrong']:,} of them "
+                          f"wrong; {model['dont_know']:,} “{data['option']}” of {model['dont_know'] + model['wrong']:,} not right"}
+                for model in mine]
+        rare = hold.rare_note([(label(model), model["dont_know"], model["non_hallucination"]) for model in mine], total,
+                              data["vs_confidence_share"], data["option"], digits) if who == "decision" else ""
+        return hold.block(heading, hbars(rows) + rare + '<p class="chart-legend">'
+                          + "".join(f'<span><i class="swatch swatch-{kind}"></i>{name}</span> ' for name, kind, _ in measures)
+                          + "</p>")
+
+    with_option = hold.side(
+        hold.option_title(data["option"]),
         f"Each model's first run with “{option}” on the {total:,} questions: the share it answered with one of the question's "
         f"own options (right + wrong of {total:,}; higher answers more), the share of those answers that were wrong (wrong / "
         f"(right + wrong); lower is better) and the non-hallucination rate (“{option}” among the answers that were not "
-        "right; higher is better), in the table's order",
-        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
-          "texts": [shown_rate(value(model)) for _, _, value in measures],
-          "bars": [{"value": value(model) or 0.0, "kind": kind} for _, kind, value in measures],
-          "title": f"{label(model)}: {model['right'] + model['wrong']:,} of {total:,} answered, {model['wrong']:,} of them "
-                   f"wrong; {model['dont_know']:,} “{data['option']}” of {model['dont_know'] + model['wrong']:,} not right"}
-         for model in models],
-        "".join(f'<span><i class="swatch swatch-{kind}"></i>{name}</span> ' for name, kind, _ in measures)
-        + f"<span>Read the three together: a model that always chose “{option}” would reach 100% non-hallucination with "
-        "no answers.</span>")
+        f"right; higher is better), in the table's order. Read the three together: a model that always chose “{option}” "
+        "would reach 100% non-hallucination with no answers",
+        "".join(option_block(who, heading) for who, heading in hold.kinds(group)))
+    confidence = hold.confidence_side(site, [(run_of(model), label(model), href(model)) for model in models], group,
+                                      ", in its five-option run on the Text tab")
+    first = (f'<figure class="panel chart-card" id="{anchor("chart-non-hallucination", group)}"><div class="chart-head">'
+             f'<h2>Answered, wrong of answers and non-hallucination</h2></div>{hold.pair(confidence, with_option)}</figure>')
     second = card(
         "chart-confidence", "Saying “I don't know”, or held back by confidence",
         f"Each model's non-hallucination rate with “{option}”, and its five-option run held back by its own confidence at "
