@@ -300,36 +300,27 @@ td.badges .small { display: block; white-space: normal; }
   .modes.sub-tabs a.mode { min-height: 2.75rem; font-size: .8rem; }
 }
 
-/* --- The page bar (Zeki, bus #1878): sticky at the top of the window on every page, the pages row (Home first) and on
-   the home page the view bar's rows under it; the top bar above it holds the site's name, the theme and More options and
-   scrolls away. Anchors land below it (site.js keeps --view-bar-h at its height; site.css scrolls by it). */
-.topbar { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "brand theme more"; margin-bottom: 0; border-bottom: 0; }
-.page-bar { position: sticky; top: 0; z-index: 20; margin: 0 -1rem .9rem; padding: .4rem 1rem; background: var(--view-bg);
-  border-top: 1px solid var(--edge); border-bottom: 2px solid var(--view-edge); box-shadow: var(--shadow); }
-.page-bar-in { max-width: 1100px; margin: 0 auto; }
-.page-bar .view-bar { position: static; margin: .4rem 0 0; padding: .4rem 0 0; background: none; border: 0;
-  border-top: 1px dashed var(--view-edge); box-shadow: none; }
+/* The error-rate chart's program-line rows on a phone: their track in the plot area, as the axis's. */
 @media (max-width: 640px) {
-  .topbar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand brand" "theme more"; }
-  .page-bar { margin: 0 -.6rem .6rem; padding: .35rem .6rem; }
   .hbar-refrow > span:first-child { display: none; }
-  /* The pages row scrolls sideways on a phone; Home stays pinned at its left end. */
-  .page-bar .nav > ul > .nav-group:first-child { position: sticky; left: 0; z-index: 1; padding-right: .45rem;
-    background: var(--view-bg); box-shadow: 6px 0 6px -6px rgba(0, 0, 0, .5); }
 }
 
 /* --- The sibling site's face (Ümit, bus #1831; Zeki #1833, #1834, #1836, #1860). -------------------------------- */
 /* One navigation: the top bar's pages row (site.css, the sibling's keys), in its groups, Home first; group names small
    before their keys, keys centred on them. */
 .nav-group { align-items: center; }
-/* The view bar, on the home page only: the League and Models rows, which filter, and the Measure row, the parts of
-   the page. */
-.view-rows { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
-.view-row, .view-row.view-measures { grid-column: auto; }
-.view-row.view-measures { grid-column: 1 / -1; }
-.view-row.view-leagues ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.view-row.view-groups ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.view-row.view-measures ul { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+/* The view bar (site.css: the sibling's compact sticky header, one line at 1280 px): Home on every page; on the home page
+   the League and Models rows, which filter, and the Measure row, the parts of the page. The League keys read All, 1, 2,
+   3 after the row's name; on a phone, where the names are for screen readers only, they read All leagues, League 1 … */
+.view-more { display: none; }
+/* The title strip under the header, as the sibling's: the theme keys read Dark and Light (their full names in their
+   labels) and More options takes their size; the pages row keeps one line at 1280 px, its groups apart by spacing and
+   their names for screen readers only (the row's PAGES label is the visible one). */
+.theme-switch .long { display: none; }
+.topbar .more-menu .key { min-height: 24px; padding: 1px 8px; gap: 5px; font-size: 12px; }
+.nav-group { position: relative; }
+.nav-group-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0; }
 /* Three kinds of choice, three looks, in both themes and without hovering (Zeki, bus #1860):
    - the page in view: the pages row's key filled navy (light) or blue with a light blue edge (dark), site.css;
    - a part of a page (in-page tabs: the leaderboard's and the leagues' tabs, the part links, the Measure row): keys
@@ -339,6 +330,9 @@ td.badges .small { display: block; white-space: normal; }
      unpressed, as on the sibling site, its lamp still lit. */
 button.mode, a.mode, .view-measures a.view-key { color: var(--tab-text); background: var(--tab-bg); border: 2px solid var(--tab-edge);
   border-radius: 7px; font-weight: 700; box-shadow: var(--key-shadow); }
+/* In the compact view bar every key keeps the bar's 1.5 px edge and 6 px corners (filters stay round). */
+.view-bar a.view-key, .view-bar .view-filter a.view-key[aria-current] { border-width: 1.5px; }
+.view-measures a.view-key { border-radius: 6px; }
 button.mode:hover, a.mode:hover, .view-measures a.view-key:hover { border-color: var(--view-key-hover); }
 button.mode[aria-selected="true"], a.mode[aria-selected="true"], .view-measures a.view-key[aria-current] {
   color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); box-shadow: none; }
@@ -350,13 +344,13 @@ button.mode[aria-selected="true"]::after, a.mode[aria-selected="true"]::after { 
 .view-filter a.view-key[data-league-pick="all"][aria-current], .view-filter a.view-key[data-filter-kind="all"][aria-current],
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
   [data-filter-runs="all"], [data-filter-weights="all"]) { color: var(--view-text); background: var(--view-key);
-  border: 1px solid var(--view-key-edge); box-shadow: var(--key-shadow); font-weight: 600; }
+  border: 1.5px solid var(--view-key-edge); box-shadow: var(--key-shadow); font-weight: 700; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
-  [data-filter-runs="all"], [data-filter-weights="all"]) { font-weight: 400; }
+  [data-filter-runs="all"], [data-filter-weights="all"]) { border-width: 1px; font-weight: 400; }
 .view-filter a.view-key[aria-current]:is([data-league-pick="all"], [data-filter-kind="all"])::before,
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
   [data-filter-runs="all"], [data-filter-weights="all"])::before { content: none; }
-.view-filter a.view-key { border-width: 1px; font-weight: 600; }
+.view-filter a.view-key { font-weight: 700; }
 /* The theme keys keep the sibling's look: a lit lamp says which theme is on. */
 .theme-switch button.key[aria-pressed="true"] { border-radius: 6px; }
 .theme-switch button.key[aria-pressed="true"]::before { content: none; }
@@ -389,19 +383,13 @@ i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2
 .result-unit { color: var(--text-2); font-size: .8rem; font-weight: 600; }
 .cards-note { margin: .4rem 0 .2rem; }
 .unmeasured { margin-top: .6rem; }
-@media (max-width: 1000px) {
-  .view-rows { grid-template-columns: minmax(0, 1fr); }
-  .view-row { grid-template-columns: 4.6rem minmax(0, 1fr); }
-  .view-row.view-measures { grid-column: auto; }
-}
 @media (max-width: 640px) {
-  html { --view-bar-h: 5.5rem; }
-  .view-row.view-groups { grid-column: auto; grid-row: auto; }
-  /* The League and Models rows one line each; the Measure row stays off the phone bar (the first card links the parts). */
-  .view-row.view-filter a.view-key { min-height: 1.9rem; padding: .1rem .2rem; font-size: .8rem; }
-  /* Their keys say what they filter ("League 1", "All models"): the row names are for screen readers only here. */
-  .view-row.view-filter .view-more { display: inline; }
-  .view-row.view-measures { display: none; }
+  /* The view bar on a phone, as the sibling's three short rows (site.css): the leagues across the width, the Home key
+     beside All, Decision and Chat, the measures across the width. */
+  .view-row.view-leagues { grid-column: 1 / -1; }
+  .view-row.view-leagues ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .view-row.view-leagues .view-more { display: inline; }
+  .view-row.view-measures ul { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr) minmax(0, .7fr) minmax(0, .7fr) minmax(0, 1.35fr); }
   /* The pages row scrolls sideways as one line (site.css); the groups' own lists do not scroll inside it. */
   .nav-group > ul { overflow: visible; margin: 0; padding: 0; }
   .hbar-where { display: block; }

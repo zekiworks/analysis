@@ -1,9 +1,10 @@
-/* The site's stylesheet: the sibling Decision models site's stylesheet (its v3.css as of 6 Nov 2026, with its pages-row and tab fixes), taken as it is so
-   the two sites read the same (Ümit, bus #1831, "make it the same, as much as possible"; Zeki #1836: colours, font
-   sizes, spacing, key and tab shapes and the chart layout from that page). A research console: the hardware feel lives
-   in the controls (raised keys, panel edges, small indicator lamps); data, charts and text stay plain. Dark on screen
-   unless the reader chose light (data-theme="light", set before the page renders); printing uses light. No web fonts.
-   The backgammon pages' own rules follow it, at the end of this file; bg.css adds the rest. */
+/* The site's stylesheet: the sibling Decision models site's stylesheet (its v3.css as of 7 Nov 2026: the pages-row and
+   tab fixes and the compact sticky header of the suite), taken as it is so the two sites read the same (Ümit, bus #1831,
+   "make it the same, as much as possible"; Zeki #1836: colours, font sizes, spacing, key and tab shapes and the chart
+   layout from that page; the suite header, #2270, #2290). A research console: the hardware feel lives in the controls
+   (raised keys, panel edges, small indicator lamps); data, charts and text stay plain. Dark on screen unless the reader
+   chose light (data-theme on <html>, set before the page renders); printing uses light. No web fonts. The backgammon
+   pages' own rules follow it, at the end of this file; bg.css adds the rest; suite-bar.css is the suite's shared strip. */
 
 :root {
   color-scheme: light;
@@ -114,9 +115,10 @@ main, .footer { max-width: 1100px; margin: 0 auto; }
 a { color: var(--link); text-underline-offset: 2px; }
 code { font-family: var(--mono); font-size: .85em; }
 h1, h2, h3 { line-height: 1.2; }
-/* The view bar stays at the top of the window: links to a part of a page, and the page's own scrolling, land below it.
-   site.js keeps --view-bar-h at the bar's height; the value here holds until it runs. */
-html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
+/* The sticky header (the suite strip and the view bar) stays at the top of the window: links to a part of a page, and
+   the page's own scrolling, land below it. site.js keeps --view-bar-h at the header's height; the value here holds
+   until it runs. */
+html { --view-bar-h: 63px; scroll-padding-top: var(--view-bar-h); }
 [id] { scroll-margin-top: 1rem; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
@@ -125,21 +127,26 @@ html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
   border: 1px solid var(--control-edge); border-radius: 6px; }
 .skip:focus { left: 1rem; }
 
-/* Top bar: the brand and the theme switch on the first line, the pages row under them: keys in the view bar's style
-   after a small PAGES label, the current page filled like a selected key; they wrap where they do not fit (on a phone
-   they keep one line that scrolls sideways). The theme keys read Dark and Light, their full names in their labels. */
+/* Title strip, under the sticky header, scrolling away: the site's crumb and the theme switch on one short line, the
+   pages row under them: compact keys in the view bar's style after a small PAGES label, the current page filled like a
+   selected key, on one line at 1280 px (on a phone one line that scrolls sideways). The theme keys read Dark and Light,
+   their full names in their labels. */
 .topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav";
-  align-items: center; gap: .35rem .9rem; max-width: 1100px; margin: 0 auto .6rem; padding: .3rem 0 .45rem;
+  align-items: center; gap: 4px .9rem; max-width: 1100px; margin: 0 auto .6rem; padding: 5px 0 6px;
   border-bottom: 1px solid var(--edge); }
-.brand { grid-area: brand; flex: none; color: var(--text-2); font-size: .7rem; font-weight: 600; letter-spacing: .04em;
+.brand { grid-area: brand; flex: none; color: var(--text-2); font-size: 11px; font-weight: 600; letter-spacing: .04em;
   text-transform: uppercase; text-decoration: none; }
 .brand:hover { color: var(--text); }
-.nav { grid-area: nav; display: flex; align-items: center; gap: .55rem; min-width: 0; }
+.nav { grid-area: nav; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .nav-label { flex: none; }
-.nav ul { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: .35rem; min-width: 0; list-style: none; margin: 0; padding: 0; }
-/* The pages row's keys and the in-page link rows that work as tabs (.face-nav: a page's own parts, the habits steps):
-   bordered keys a little smaller than the view bar's, the current page filled as a selected key. */
-.nav a, .face-nav a { display: inline-flex; align-items: center; min-height: 1.85rem; padding: .15rem .6rem;
+.nav ul { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 4px; min-width: 0; list-style: none; margin: 0; padding: 0; }
+/* The pages row's keys: the view bar's compact key size. */
+.nav a { display: inline-flex; align-items: center; min-height: 26px; padding: 2px 8px; color: var(--view-text);
+  background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 6px; font-size: 12.5px;
+  font-weight: 700; line-height: 1.1; white-space: nowrap; text-decoration: none; box-shadow: var(--key-shadow); }
+/* The in-page link rows that work as tabs (.face-nav: a page's own parts, the habits steps): bordered keys a little
+   larger than the bars' keys. */
+.face-nav a { display: inline-flex; align-items: center; min-height: 1.85rem; padding: .15rem .6rem;
   color: var(--view-text); background: var(--view-key); border: 2px solid var(--view-key-edge); border-radius: 7px;
   font-size: .86rem; font-weight: 700; line-height: 1.15; text-decoration: none; box-shadow: var(--key-shadow); }
 .nav a:hover, .face-nav a:hover { border-color: var(--view-key-hover); }
@@ -151,18 +158,18 @@ html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
 /* The tab of the part in the address (just pressed, or opened by a link) is filled. */
 .face-nav a[aria-current] { color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); }
 .nav a[aria-current="page"] { color: var(--view-current-text); background: var(--view-current-bg);
-  border-color: var(--view-current-edge); box-shadow: inset 0 -3px 0 var(--view-current-edge); }
-.theme-switch { grid-area: theme; display: inline-flex; gap: .35rem; margin-left: auto; }
-.topbar .theme-switch .key { min-height: 1.75rem; padding: .1rem .45rem; gap: .3rem; }
+  border-color: var(--view-current-edge); box-shadow: inset 0 -2px 0 var(--view-current-edge); }
+.theme-switch { grid-area: theme; display: inline-flex; gap: 4px; margin-left: auto; }
+.topbar .theme-switch .key { min-height: 24px; padding: 1px 8px; gap: 5px; font-size: 12px; }
 .theme-switch[hidden] { display: none; }
 /* With the script, the switch shows from the first paint, so nothing moves when site.js wires it. */
 .js .theme-switch[hidden] { display: inline-flex; }
 
-/* The view bar, the first thing on every page: the test (row 1, a page), the models (row 2, ?models=) and the measure
-   (row 3, a part of the page), keys across the whole width, sticky at the top of the window above every other part of
-   the page; on a wide screen rows 1 and 2 share the first line and the measure takes the second, each row's name
-   before its keys. The top bar under it scrolls away. The current choice is filled: in the dark theme white text on
-   blue with a light blue edge, in the light theme white text on near-black navy. */
+/* The sticky header, the first thing on every page: the suite strip (suite-bar.css), then the view bar: the Home key,
+   the test (a page), the models (?models=) and the measure (a part of the page), each group's small name before its
+   compact keys, the groups set apart by spacing, on one line across the window at 1280 px (wrapping onto a second line
+   where they do not fit). The title strip under it scrolls away. The current choice is filled: in the dark theme white
+   text on blue with a light blue edge, in the light theme white text on near-black navy. */
 :root {
   --view-bg: #f7f6f2;
   --view-edge: #7c7871;
@@ -201,38 +208,23 @@ html { --view-bar-h: 5.3rem; scroll-padding-top: var(--view-bar-h); }
     --tab-current-text: #10161f;
   }
 }
-.view-bar { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; padding: .35rem 1rem; background: var(--view-bg);
-  border-bottom: 2px solid var(--view-edge); box-shadow: var(--shadow); }
-/* The Home key (marked on the root index, the page it opens) comes first: before row 1 on a wide screen and up to
-   1000 px, beside row 2's three short keys on a phone, so the bar keeps its height. */
-.view-rows { display: grid; grid-template-columns: auto minmax(0, 1.8fr) minmax(0, 1fr); gap: .3rem 1.1rem; max-width: 1100px; margin: 0 auto; }
-.view-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .55rem; }
-.view-row.view-measures { grid-column: 2 / -1; }
-a.view-key.view-home { grid-column: 1; grid-row: 1; gap: .3rem; padding: .15rem .6rem; white-space: nowrap; }
-.home-mark { width: .95rem; height: .95rem; flex: none; fill: currentColor; }
-.view-label { color: var(--view-label); font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-.view-row ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; list-style: none; margin: 0; padding: 0; }
-/* Row 1's middle key, the longest label, takes more room, so each label keeps one line. */
-.view-row.view-tests ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, 1.2fr); }
+.site-header { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; box-shadow: var(--shadow); }
+.view-bar { padding: 4px 1rem; background: var(--view-bg); border-bottom: 2px solid var(--view-edge); }
+.view-rows { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; max-width: 1248px; margin: 0 auto; }
+.view-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.view-label { color: var(--view-label); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.view-row ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
 .view-row li { display: flex; }
-a.view-key { display: flex; flex: 1; align-items: center; justify-content: center; min-height: 2.1rem; padding: .15rem .4rem;
-  color: var(--view-text); background: var(--view-key); border: 2px solid var(--view-key-edge); border-radius: 7px;
-  font-size: .92rem; font-weight: 700; line-height: 1.15; text-align: center; text-decoration: none; box-shadow: var(--key-shadow); }
+a.view-key { display: flex; align-items: center; justify-content: center; min-height: 26px; padding: 2px 8px;
+  color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 6px;
+  font-size: 12.5px; font-weight: 700; line-height: 1.1; text-align: center; white-space: nowrap; text-decoration: none;
+  box-shadow: var(--key-shadow); }
 a.view-key:hover { border-color: var(--view-key-hover); }
 a.view-key[aria-current] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge);
-  box-shadow: inset 0 -3px 0 var(--view-current-edge); }
-/* Row 3, the measure: four keys, a little smaller than rows 1 and 2. */
-.view-row.view-measures ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.view-measures a.view-key { min-height: 1.95rem; padding: .1rem .5rem; font-size: .9rem; }
-/* Row 2's keys read All, Decision and Chat after the row's name; "models" shows where each row has a line of its own and
-   room for it. Too narrow for rows 1 and 2 side by side: one row each. */
-.view-more { display: none; }
-@media (max-width: 1000px) {
-  .view-rows { grid-template-columns: auto minmax(0, 1fr); }
-  .view-row, .view-row.view-measures { grid-column: 2; }
-  .view-row { grid-template-columns: 4.6rem minmax(0, 1fr); }
-  .view-more { display: inline; }
-}
+  box-shadow: inset 0 -2px 0 var(--view-current-edge); }
+/* The Home key comes first, with a house mark (marked on the root index, the page it opens). */
+a.view-key.view-home { gap: 4px; }
+.home-mark { width: 12px; height: 12px; flex: none; fill: currentColor; }
 /* One active tab: a filter looks active only away from its default. All, the default group, keeps its aria-current for
    screen readers but looks like an unpressed key; Decision or Chat, when chosen, is filled. */
 a.view-key[data-view-group="all"][aria-current] { color: var(--view-text); background: var(--view-key);
@@ -827,32 +819,32 @@ ul.price-list { padding-left: 1.25rem; }
   body { padding: 0 .6rem 1.5rem; }
   /* The first screen reaches the results: the site name and the theme switch share a row, the pages row is one line
      that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
-  .topbar { gap: .3rem .6rem; margin-bottom: .55rem; padding: .35rem 0 .3rem; }
-  /* The view bar on a phone: one row each, the row names for screen readers only. Row 1's labels wrap inside their keys;
-     the middle key, the longest label, takes more room, so every label fits on two lines. Row 2's keys keep one line
-     (All, Decision, Chat: the row's name says "models"). */
-  html { --view-bar-h: 8.4rem; }
-  .view-bar { margin: 0 -.6rem; padding: .35rem .6rem; }
-  .view-rows { gap: .3rem; }
+  .topbar { gap: 4px .6rem; margin-bottom: .55rem; padding: 5px 0 5px; }
+  /* The view bar on a phone: three short rows, the group names for screen readers only: the tests across the width
+     (their labels may wrap onto two tight lines inside their keys), the Home key beside All, Decision and Chat, the
+     measures across the width. */
+  html { --view-bar-h: 112px; }
+  .site-header { margin: 0 -.6rem; }
+  .view-bar { padding: 2px .6rem; }
+  .view-rows { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 4px; }
   .view-row { display: block; }
-  /* Row 1 across the width; the Home key and row 2 share the second line; row 3 across the width. */
   .view-row.view-tests, .view-row.view-measures { grid-column: 1 / -1; }
-  a.view-key.view-home { grid-column: 1; grid-row: 2; min-height: 2.1rem; padding: .15rem .5rem; }
+  a.view-key.view-home { grid-column: 1; grid-row: 2; padding: 1px 8px; }
   .view-row.view-groups { grid-column: 2; grid-row: 2; }
   .view-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
     white-space: nowrap; border: 0; }
-  .view-row ul, .view-row.view-tests ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: .3rem; }
-  a.view-key { min-height: 2.5rem; padding: .15rem .25rem; font-size: .9rem; line-height: 1.12; border-radius: 6px; }
-  .view-groups a.view-key { min-height: 2.1rem; }
-  .view-more { display: none; }
-  /* Row 3's four keys share one row: Non-hallucination, the longest label, takes more room and wraps at its hyphen. */
+  .view-row ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+  .view-row.view-tests ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); }
+  .view-row li { min-width: 0; }
+  a.view-key { flex: 1; min-height: 24px; padding: 1px 4px; font-size: 12px; line-height: 1.1; white-space: normal; }
+  .view-tests a.view-key { font-size: 11px; line-height: 1.05; }
+  /* The measures' four keys share one row: Non-hallucination, the longest label, takes more room. */
   .view-row.view-measures ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, .8fr) minmax(0, 1fr); }
-  .view-measures a.view-key { min-height: 2.25rem; padding: .1rem .2rem; font-size: .84rem; }
-  .brand { font-size: .66rem; letter-spacing: .04em; }
-  .theme-switch { gap: .25rem; }
-  .theme-switch .key { min-height: 1.75rem; padding: .15rem .45rem; gap: .3rem; font-size: .78rem; }
+  .brand { font-size: 10.5px; letter-spacing: .04em; }
+  .theme-switch { gap: 4px; }
+  .theme-switch .key { min-height: 24px; padding: 1px 7px; gap: 5px; font-size: 11.5px; }
   /* Padding inside the scrolling bar keeps a focused link's outline unclipped; the negative margin keeps the row's size. */
-  .nav ul { flex-wrap: nowrap; gap: .35rem; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
+  .nav ul { flex-wrap: nowrap; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
     scroll-padding-inline: .35rem; }
   .nav ul::-webkit-scrollbar { display: none; }
   .nav li { flex: none; }
@@ -956,10 +948,10 @@ ul.price-list { padding-left: 1.25rem; }
 @media print {
   .theme-dark, .theme-switch, .more-menu, .needs-js, .skip { display: none !important; }
 }
-.nav > ul { display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; list-style: none; margin: 0; padding: 0; }
-.nav-group { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .65rem; }
-.nav-group-label { color: var(--text-2); font-size: .68rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-.nav-group > ul { display: flex; flex-wrap: wrap; gap: .35rem; list-style: none; margin: 0; padding: 0; }
+.nav > ul { display: flex; flex-wrap: wrap; gap: 4px 18px; list-style: none; margin: 0; padding: 0; }
+.nav-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.nav-group-label { color: var(--view-label); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.nav-group > ul { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0; padding: 0; }
 .more-menu { grid-area: more; position: relative; justify-self: end; }
 .topbar { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "brand theme more" "nav nav nav"; }
 .more-pop { position: absolute; right: 0; top: calc(100% + .35rem); z-index: 25; display: flex; flex-direction: column; align-items: flex-start; gap: .45rem; width: max-content; max-width: calc(100vw - 1.2rem); padding: .75rem; background: var(--panel); border: 1px solid var(--control-edge); border-radius: 8px; }
