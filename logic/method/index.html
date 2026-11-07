@@ -49,7 +49,7 @@
         <li><strong>Confidence</strong> (option probabilities): answers <em>kept</em> at the 99% threshold, those whose chosen option had probability ≥ 99%, counted right and wrong; the result card names the setup that kept the most answers with no wrong one. AUROC: the probability that a right answer's confidence is higher than a wrong one's (ties count half; 0.5 is no signal), over all questions and by topic.</li>
         <li><strong>Cost</strong>: the run's recorded cost (runs.cost_usd) over the questions it answered, per 1,000 and per 1M questions, always with its <em>basis</em>: “API bill” (what the provider charged), “maker's list price” (the maker's published per-token or per-request price applied to the run's usage), “estimated cloud-equivalent” and so on. Chat runs carry an estimated cloud-equivalent cost, not a bill: the wall-clock minutes in which the run was storing answers (from its answer timestamps, not the sum of concurrent request times), with a minute shared equally among runs answering on the same GPU, priced at Runpod's on-demand rate for an RTX PRO 6000 (96 GB, Secure Cloud), $2.49 per GPU hour (runpod.io/pricing, 5 November 2026), the same card as ours. A run without a recorded cost reads “not measured”. The third result card is the cheapest setup within 1 point of the best accuracy; the Accuracy-across-Cost chart's dashed line is the Pareto front.</li>
         <li><strong>Latency</strong>: wall time per request from our machine, the median and the 90th percentile (nearest rank) in milliseconds, and throughput in questions per minute from the run's first to its last stored answer (it depends on how many requests were in flight). The Accuracy-across-Latency chart uses the median.</li>
-        <li><strong>Together</strong>: Logic and Math pooled, 3,288 questions. Every measure is computed on the pooled answers (accuracy = right / all pooled questions; kept at 99%, AUROC and “I don't know” over the pooled answers; latency over all pooled requests, questions per minute over the two runs' time; cost per 1,000 questions = the two runs' costs over the pooled answers). Only setups with a complete English run on both benchmarks are pooled; the others are listed as not in Together yet. Its by-topic table shows each benchmark as a whole, then the topics of both.</li>
+        <li><strong>Logic and Math</strong> (the third test): Logic and Math pooled, 3,288 questions. Every measure is computed on the pooled answers (accuracy = right / all pooled questions; kept at 99%, AUROC and “I don't know” over the pooled answers; latency over all pooled requests, questions per minute over the two runs' time; cost per 1,000 questions = the two runs' costs over the pooled answers). Only setups with a complete English run on both benchmarks are pooled; the others are listed as not in Logic and Math yet. Its by-topic table shows each benchmark as a whole, then the topics of both.</li>
       </ul>
     </section>
     <section class="card prose" id="sources">
@@ -6265,7 +6265,7 @@
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 16:21 UTC from the logic and math benchmark.db files (131,694 graded answers in 82 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 16:22 UTC from the logic and math benchmark.db files (131,694 graded answers in 82 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
