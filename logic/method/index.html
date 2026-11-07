@@ -6736,12 +6736,160 @@
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
 
-{question}</pre></dd></dl></section>
+{question}</pre></dd></dl></section><section class="run-record" id="run-math-reax13_en"><h3>Math · reax13_en</h3><dl class="facts"><dt>Setup</dt><dd>REAX 1.3 · decision model</dd><dt>Model</dt><dd><code>reax13</code> · provider reax</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.2947 for the run · local GPU time: Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud, $2.49/GPU-hour × 1 GPU × request time</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19100</code></dd><dt>Started</dt><dd>7 Nov 2026 17:12 UTC; last answer 7 Nov 2026 17:19 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup REAX 1.3 (site run 827); runner ffc307cb7; Docker with the model card&#x27;s protections; the published run dropped no-new-privileges (an approved exception): servers.sh refuses to start it without the protections</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;reax13&quot;,
+    &quot;--provider&quot;,
+    &quot;reax&quot;,
+    &quot;--timeout&quot;,
+    &quot;1800&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;reax13&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;reax&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 426.1396214560026,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/reax13__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;42a587dd2c9ddcd2e581b6b5698143a95bf24e67095e90edab83900a10c247d7&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 827,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 1800.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 0,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19100/v1/systemone
+{
+ &quot;model&quot;: &quot;reax13&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-reax13_en_dontknow"><h3>Math · reax13_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>REAX 1.3 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>reax13</code> · provider reax</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.2885 for the run · local GPU time: Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud, $2.49/GPU-hour × 1 GPU × request time</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19100</code></dd><dt>Started</dt><dd>7 Nov 2026 17:20 UTC; last answer 7 Nov 2026 17:27 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup REAX 1.3 (site run 827); runner ffc307cb7; Docker with the model card&#x27;s protections; the published run dropped no-new-privileges (an approved exception): servers.sh refuses to start it without the protections</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;reax13&quot;,
+    &quot;--provider&quot;,
+    &quot;reax&quot;,
+    &quot;--timeout&quot;,
+    &quot;1800&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;reax13&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;reax&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 417.0931140640032,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/reax13__math_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;0980d329514e1705cb8f5c2a4ffffca0526570426a01e7bd9eb1a4c59acbfe21&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 827,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 1800.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 0,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19100/v1/systemone
+{
+ &quot;model&quot;: &quot;reax13&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 17:19 UTC from the logic and math benchmark.db files (141,558 graded answers in 88 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 17:27 UTC from the logic and math benchmark.db files (145,884 graded answers in 90 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
