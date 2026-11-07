@@ -430,9 +430,11 @@ td.hl-release { white-space: nowrap; }
 .section-caveat { margin-top: .6rem; }
 .hbar-fill.q1-board, i.swatch-q1-board { background-color: var(--data-grey); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
 /* The Risk calls part's compact filter row (home.filters; Ümit, bus #2570 item 1): league, models, the parts of the page,
-   More filters, the setup count and Reset on one line where they fit, in the view bar's compact key size. */
+   More filters, the setup count and Reset on one line where they fit, in the view bar's compact key size. The row is
+   always open: its body's selector outranks site.css's `.filters:not(.is-open) .filters-body { display: none }`
+   (the collapsible filter panel, which this row is not), which had hidden the whole row. */
 .filter-row { padding: 6px 10px; }
-.filter-row .filters-body { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin: 0; padding: 0; border: 0; }
+nav.filters.filter-row .filters-body { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin: 0; padding: 0; border: 0; }
 .filter-row .group { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .filter-row .group-label { color: var(--view-label); font-size: 10px; font-weight: 700; }
 .filter-row .key { min-height: 26px; padding: 2px 8px; gap: 5px; font-size: 12.5px; }
