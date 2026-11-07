@@ -378,17 +378,29 @@ python3 -m http.server 8000                                # preview at http://1
   - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
     with the link preview from `share/images.json`, the stats row, the leaderboard as plain tables for
     readers without JavaScript, the settings `v3.js` reads, the result cards and the static Non-hallucination part).
-    Its face starts under the one-line top bar with a heading naming the cards' scope ("Full test · 2,198 questions",
-    the count from `results.json`, so the Reading or Grammar choice under them is not read as theirs) and three result
+    Its face starts under the one-line top bar with the hero: the title, the intro, the language of the questions, the
+    experiments line and a row of large links (`hero_links`: How the scores work on this page, then Method, Every question
+    and Where models disagree, each keeping the group). Then `#headline` ("The models, each at its best setting",
+    `headline` in `build_site.py`, one copy per view bar group): one row per model, each row one setup, the model's setup
+    with the most right answers on all questions (`headline_rows`: ties go to the earlier run, and a setup with web search
+    is its own row), every cell from that setup (rank, name, kind and setting, accuracy, reading, grammar,
+    non-hallucination, cost with its basis); the selection rule above it, the first 10 rows and a Show all key, and under
+    it the ranks line (`RANKS_NOTE`, also under the leaderboard) and a link to the full ranking (`#board`). Then
+    `#how-scores` (`how_scores`): five plain bullets, their numbers from `results.json`. Then a heading naming the cards'
+    scope ("Full test · 2,198 questions", the count from `results.json`, so the Reading or Grammar choice under them is
+    not read as theirs) and three result
     cards (`result_cards` in `build_site.py`, one set per
     view bar group, site.js showing the one in view; each names its scope): the highest accuracy, with its setup and
     right answers of all questions; the most answers kept at the 99% confidence threshold with no observed mistakes,
     with how many setups kept more but got some wrong; and the lowest cost per 1,000 questions among the setups within
     1 point of the best accuracy, or, where none of them has a cost, the cheapest overall, saying so (`card_checks`
     tests the three against `results.json` on every build). Then `#accuracy`, whose head holds the Filters bar (the
-    panel opens under the head), so the Accuracy chart is on the first screen; the title, the intro and the language
-    of the questions follow it. The parts follow row 3 of the view bar: `#accuracy`, `#non-hallucination`, `#cost` and
-    `#latency`, then the rest (no list of links to the parts: row 3 is that list); each chart card has a line saying
+    panel opens under the head). The parts follow row 3 of the view bar: `#accuracy`, `#non-hallucination`, `#cost` and
+    `#latency`, then the rest (no list of links to the parts: row 3 is that list). Each part's heading states a finding
+    (`findings` and `finding_html` in `build_site.py`): a claim with its numbers computed from `results.json`, under a
+    small label with the measure's name, shown only while it holds, else the measure's name (`findings_checks` checks
+    the headings against `results.json` on every build); each part has one caveat line, linking to the Method page's
+    notes behind the home page charts (`method/#home-notes`), which hold the rest; each chart card has a line saying
     which way is better, and each bar chart names its value columns above them (`COLUMN_HEADS` in `v3.js`; the static
     charts through `hbars`' head or columns): Accuracy, with each setup's cost and median
     latency beside its accuracy as the Cost and Latency cards write them ($ in the chosen cost unit, ≤ before an
