@@ -727,7 +727,7 @@ function renderBoard() {
     .map(item => `<p class="table-note">${esc(item === FIRST_COST_MARKS.maker ? item.note : `${item.mark} ${item.note}`)}</p>`)
     .join('');
   /* The Accuracy tab's cost column: the cost note for its rows, then what is not measured. */
-  const tabNotes = state.tab === 'accuracy' ? [costNote(rows.map(row => row.run)), SETTINGS.notMeasuredNote].filter(Boolean) : tab.notes ?? tab.note ?? [];
+  const tabNotes = state.tab === 'accuracy' ? [SETTINGS.ranksNote, costNote(rows.map(row => row.run)), SETTINGS.notMeasuredNote].filter(Boolean) : tab.notes ?? tab.note ?? [];
   const notes = tabNotes.map(text => `<p>${esc(text)}</p>`).join('');
   const guide = tab.guide
     ? `<div class="tab-guide"><h3>How to read this tab</h3><ul>${tab.guide.map(([term, text]) => `<li><strong>${esc(term)}</strong>: ${esc(text)}</li>`).join('')}</ul></div>`
@@ -1044,6 +1044,16 @@ const APART = 12;
 const apartLine = (y, width) => `<line class="row-apart" x1="4" x2="${width - 4}" y1="${y}" y2="${y}"/>`;
 
 const legend = (families, text) => `<p class="chart-legend">${familyLegend(families)} <span>${esc(text)}</span></p>`;
+/* The home parts' one caveat line under each chart on the page; the rest of their notes is on the Method page
+   (METHOD_NOTES), and a downloaded image keeps every note. */
+const METHOD_NOTES = 'method/#home-notes';
+const PAGE_CAVEATS = {
+  accuracy: 'Beside each bar its cost and latency, as in their charts.',
+  cost: 'Log scale. Estimates, not bills: each value’s tooltip says how it was counted.',
+  latency: 'Log scale. Times from our machine; API times include the network.',
+};
+const caveatLine = text => `<p class="caveat">${esc(text)} ` +
+  `<a href="${METHOD_NOTES.replace('#', `?models=${state.models}#`)}">More in the method</a>.</p>`;
 /* Each chart's notes, and the setups it could not label, kept for its downloaded image. */
 const chartNotes = {};
 const markAttributes = (run, text) =>
@@ -1154,13 +1164,6 @@ function barChart(box, name) {
       } else {
         const start = x(domain[0]);
         inner.push(`<rect class="bar-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
-        if (name === 'accuracy') {
-          const { correct, questions } = counts(run);
-          const [low, high] = wilson(correct, questions);
-          /* A casing in the panel colour keeps the line apart from the bar it crosses, in both themes. */
-          const path = `M${x(low)} ${mid - 3}v6M${x(low)} ${mid}H${x(high)}M${x(high)} ${mid - 3}v6`;
-          inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
-        }
         inner.push(`<text class="value" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${name === 'cost' ? upperPrefix(run) : ''}${measure.text(value)}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
       }
       if (priced) {
@@ -1178,7 +1181,7 @@ function barChart(box, name) {
   const latencyNote = name === 'latency' || priced ? ['Local setups ran on our hardware, listed on each setup’s page; API latency includes the network, and via OpenRouter, OpenRouter’s time.'] : [];
   const costNotes = name === 'cost' || priced ? [costNote(ordered)] : [];
   const sampleNote = name === 'latency' || priced ? sampleNotes(ordered) : [];
-  const scaleNote = measure.log ? 'Log scale.' : name === 'accuracy' ? 'Lines: 95% interval.' : '';
+  const scaleNote = measure.log ? 'Log scale.' : '';
   /* The image has every row, so its notes and legend cover them all; the page's legend names the families shown. */
   chartNotes[name] = {
     notes: [`${measure.label}${where}.`, scaleNote, priced ? priceNote() : '', ...latencyNote, ...costNotes, ...sampleNote].filter(Boolean),
@@ -1190,7 +1193,10 @@ function barChart(box, name) {
     `<svg class="column-heads" width="${width}" height="18" viewBox="0 0 ${width} 18" aria-hidden="true">` +
     `${heads.map(([text, at]) => `<text class="column-head" x="${at}" y="13" text-anchor="end">${esc(text)}</text>`).join('')}</svg>` +
     draw(rows, apart) + showAllKey(name, ordered.length) +
-    legend(familiesIn(rows), [...chartNotes[name].notes, chartScope(runs), shownNote(name, ordered, rows)].filter(Boolean).join(' '));
+    (PAGE_CAVEATS[name]
+      ? legend(familiesIn(rows), [chartScope(runs), shownNote(name, ordered, rows), ...sampleNote].filter(Boolean).join(' ')) +
+        caveatLine(PAGE_CAVEATS[name])
+      : legend(familiesIn(rows), [...chartNotes[name].notes, chartScope(runs), shownNote(name, ordered, rows)].filter(Boolean).join(' ')));
 }
 
 function scatterChart(box) {
@@ -1467,13 +1473,9 @@ function costTable(box) {
       `<td class="num">${counts ? `${integer(counts.right)} right of ${integer(counts.kept)} kept, ${integer(counts.skipped)} skipped${counts.invalid ? ` (${integer(counts.invalid)} without a valid answer)` : ''}` : NM}</td>` +
       `<td class="num">${held ? `<a href="dont-know/">${pct(held.non_hallucination)}, attempt rate ${pct(held.attempt_rate)}</a>` : 'Not run'}</td></tr>`;
   };
-  const notes = [
-    `${integer(runs.length)} setups, ${integer(priced.length)} with a cost. ${costNote(runs)} ${SETTINGS.notMeasuredNote}`.trim(),
-    `× cheapest: a setup’s cost over the cheapest setup’s in this table (${labels.get(cheapest).text}, ${priceText(cheapest)}), from the unrounded costs; empty where there is no list price.`,
-    'Pareto: no other setup with a cost in this table is both at most as costly and at least as accurate, one of them strictly; the Trade-off chart’s dotted line by cost when no filter narrows it.',
-    `Kept at ${sure}: the answers given with at least ${sure} confidence, how many of them were right, and how many questions were skipped: those not kept, answered with less than ${sure} confidence or without a valid answer.`,
-    'Non-hallucination: from the Hallucination tab’s runs with the “Bilmiyorum” (I don’t know) option; read it with its attempt rate. The Hallucination tab has the method and its limits.',
-  ];
+  /* The section's one caveat line is under the Cost chart; the columns (× cheapest, Pareto, Kept at, Non-hallucination)
+     are explained on the Method page with the cost bases. */
+  const notes = [`${integer(runs.length)} setups, ${integer(priced.length)} with a cost.`];
   const all = [...priced, ...unpriced];
   const shown = expanded.has('cost-table') ? all : all.slice(0, TOP_ROWS);
   box.innerHTML =

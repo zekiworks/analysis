@@ -1014,6 +1014,31 @@ base with <a href="https://blog.cloudflare.com/clef-decision-models/">Clef</a> a
 <a href="https://huggingface.co/perplexity-ai/pplx-decider-v1.1-27b">v1.1</a> changed both training data and input handling,
 so the test cannot say which change helped.</p>
 </aside>"""
+    # The notes behind the home page's charts and cost table, which the home page folds into one caveat line per part
+    # and links here (build_site.py METHOD_NOTES).
+    marks = site.config["first_cost_marks"]
+    sure = f"{100 * site.results['sure_threshold']:g}%"
+    sections.append(("home-notes", "Notes behind the home page charts", f"""
+<ul>
+<li><strong>Accuracy.</strong> Each bar is a setup's share of the questions answered right, with the filters in force;
+beside it the setup's cost and median latency, as in the Cost and Latency charts. Ranks show observed scores; small gaps
+need not be meaningful. The paired tests behind the ranking's letters are described above.</li>
+<li><strong>Cost.</strong> An estimate in dollars, not a bill, on a log scale. API setups: list prices and recorded
+token use. Setups on our own GPUs: the maker's list price for the same model (each value's tooltip names it; our
+hardware cost is not measured). {esc(marks['weights']['note'])} {esc(marks['gpu']['note'])} No list price: on our own
+GPUs, with no estimate. {esc(marks['upper']['mark'])} {esc(marks['upper']['note'])}</li>
+<li><strong>The cost table.</strong> × cheapest: a setup's cost over the cheapest setup's in the table, from the
+unrounded costs; empty where there is no list price. Pareto: no other setup with a cost in the table is both at most as
+costly and at least as accurate, one of them strictly. Kept at {sure}: the answers given with at least {sure} confidence,
+how many of them were right, and how many questions were skipped. Non-hallucination: from the Hallucination tab's runs
+with the “Bilmiyorum” option; read it with its attempt rate.</li>
+<li><strong>Latency.</strong> The median time per request, from our machine, on a log scale. Local setups ran on our
+hardware, listed on each setup's page; API latency includes the network, and through OpenRouter, OpenRouter's time. A
+latency measured on a sample of the questions carries a mark that names the sample.</li>
+<li><strong>Non-hallucination.</strong> “Bilmiyorum” among the answers that were not right, with it offered as a sixth
+option; read it with the share answered. The <a href="{rel(PATH, 'dont-know/')}">Hallucination tab</a> has the full
+table and its method.</li>
+</ul>"""))
     toc = '<li><a href="#at-a-glance">At a glance</a></li>' + "".join(f'<li><a href="#{anchor}">{esc(title)}</a></li>' for anchor, title, _ in sections)
     cards = "".join(
         f'<section class="card prose" id="{anchor}" aria-labelledby="{anchor}-title"><h2 id="{anchor}-title">{esc(title)}</h2>{body}\n</section>\n'

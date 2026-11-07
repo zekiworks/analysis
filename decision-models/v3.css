@@ -271,6 +271,29 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .hero { max-width: 76ch; margin: 0; }
 .hero h1 { font-size: 2.25rem; margin: 0 0 .75rem; letter-spacing: -.01em; text-wrap: balance; }
 .hero .intro { font-size: 1.1rem; margin: 0 0 1rem; }
+/* The hero's row of large links: in-page tab keys, larger (How the scores work, Method, Every question, Where models
+   disagree); they wrap on a phone. */
+.hero-links { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
+.hero-links a { display: inline-flex; align-items: center; min-height: 2.4rem; padding: .3rem .9rem; color: var(--tab-text);
+  background: var(--tab-bg); border: 2px solid var(--tab-edge); border-radius: 8px; font-size: 1rem; font-weight: 700;
+  text-decoration: none; box-shadow: var(--key-shadow); }
+.hero-links a:hover { border-color: var(--view-key-hover); }
+/* A home part's finding: a small label with the measure's name, the heading that states what the data shows, one or two
+   plain sentences. */
+.finding { margin: 0 0 .6rem; }
+.finding-label { margin: 0 0 .15rem; color: var(--text-2); font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; }
+.finding-title { margin: 0 0 .3rem; font-size: 1.3rem; text-wrap: balance; }
+.finding-text { margin: 0; color: var(--text-2); font-size: .92rem; max-width: 80ch; }
+/* The headline table and the How the scores work box. Past the top rows, the headline rows wait for Show all (site.js);
+   without the script every row shows. */
+.headline, .how-scores { min-width: 0; margin: 0 0 1rem; }
+.headline h2, .how-scores h2 { margin: 0 0 .3rem; font-size: 1.3rem; }
+.headline-table td.rank { width: 2.5rem; }
+.headline-table td.model .swatch { width: .6rem; height: .6rem; margin-right: .3rem; }
+.js .headline-copy:not(.rows-open) tr.beyond-top { display: none; }
+.how-scores ul { margin: .4rem 0 0; padding-left: 1.2rem; }
+.how-scores li { margin: 0 0 .35rem; max-width: 90ch; }
 .readout-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .4rem 1rem; margin: 0 0 .85rem;
   padding: .45rem 0; border-top: 1px solid var(--edge); border-bottom: 1px solid var(--edge); }
 .readouts { display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; }
@@ -500,7 +523,7 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 
 /* The charts, the page's face: one card per measure, stacked in one column, each with a title and a line saying which
    way is better. Room is kept for each before it draws, so the page does not move. */
-.charts { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1rem 0 0; }
+.charts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 1rem 0 0; }
 .charts + .board-panel { margin-top: 1rem; }
 .chart-card { margin: 0; min-width: 0; }
 /* A part of a page that row 3 of the view bar links to (#accuracy, #non-hallucination, #cost, #latency): its cards
@@ -539,8 +562,6 @@ table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
 .chart-box :is(.bar-decision, .bar-chat, .dot-decision, .dot-chat) { stroke: var(--mark-edge); stroke-width: 1; }
 .chart-box .bar-reading { fill: var(--reading); }
 .chart-box .bar-grammar { fill: var(--grammar); }
-.chart-box .whisker-case { fill: none; stroke: var(--panel); stroke-width: 4.5; }
-.chart-box .whisker { fill: none; stroke: var(--text); stroke-width: 1.5; }
 .chart-box .leader { stroke: var(--text-2); stroke-width: 1; }
 /* The trade-off chart's shaded region (better than the median on both) and its Pareto line. */
 .chart-box .quadrant { fill: var(--bar); fill-opacity: .6; }
@@ -556,10 +577,12 @@ table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
 .chart-box text.label.is-selected { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
 /* With a setup selected, the others dim; nothing disappears. Dimmed shapes keep 3:1 against the panel, and dimmed text
    turns secondary, which keeps 4.5:1. */
-.chart-box.has-selection .mark:not(.is-selected) :is(.bar-decision, .bar-chat, .bar-reading, .bar-grammar, .dot-decision, .dot-chat, .whisker, .whisker-case),
+.chart-box.has-selection .mark:not(.is-selected) :is(.bar-decision, .bar-chat, .bar-reading, .bar-grammar, .dot-decision, .dot-chat),
 .chart-box.has-selection .leader:not(.is-selected) { opacity: var(--dim); }
 .chart-box.has-selection .mark:not(.is-selected) .value, .chart-box.has-selection .label:not(.is-selected) { fill: var(--text-2); }
 .chart-legend { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: .5rem 0 0; color: var(--text-2); font-size: .8rem; }
+/* A home part's one caveat line, with its link to the rest on the Method page. */
+.caveat { margin: .5rem 0 0; color: var(--text-2); font-size: .8rem; }
 i.swatch { display: inline-block; width: .75rem; height: .75rem; margin-right: .35rem; border-radius: 2px; vertical-align: -.05rem; }
 /* The model families under a chart: one compact line of their own that wraps, small swatches and icons. */
 .chart-legend .families { display: flex; flex-wrap: wrap; flex-basis: 100%; gap: 0 .6rem; font-size: .72rem; line-height: 1.4; }

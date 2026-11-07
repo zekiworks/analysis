@@ -323,3 +323,17 @@ const costSwitch = () =>
   window.addEventListener('hashchange', () => fromHash(false));
   fromHash(true);
 })();
+
+/* Home page: the headline table's Show all key opens every row in place and closes them again, as the charts' Show all
+   keys do (v3.js); the rows past the top carry beyond-top (v3.css hides them while the table is closed). */
+(function headlineRows() {
+  document.addEventListener('click', event => {
+    const key = event.target.closest('button[data-rows-all]');
+    if (!key) return;
+    const open = key.getAttribute('aria-expanded') !== 'true';
+    key.setAttribute('aria-expanded', String(open));
+    key.closest('.headline-copy').classList.toggle('rows-open', open);
+    key.textContent = open ? `Show the top ${key.dataset.top}` : `Show all ${key.dataset.total} models`;
+    if (!open) key.scrollIntoView({ block: 'nearest' });
+  });
+})();
