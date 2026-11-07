@@ -92,8 +92,8 @@
   });
 })();
 
-/* Every question: filter the rows by ID, source, topic, English text status and a run's outcome; the filters live in the
-   address (?source=aker&run=0&outcome=wrong) so a view can be shared. */
+/* Every question: filter the rows by ID, topic, English text status and a run's outcome; the filters live in the
+   address (?topic=Decimals&run=0&outcome=wrong) so a view can be shared. */
 (function setupQuestionFilters() {
   const form = document.querySelector('[data-q-filters]');
   if (!form) return;
@@ -112,7 +112,6 @@
     let shown = 0;
     for (const row of rows) {
       let keep = (!id || row.dataset.id.toLowerCase().includes(id))
-        && (!wanted.source || row.dataset.source === wanted.source)
         && (!wanted.topic || row.dataset.topic === wanted.topic)
         && (!wanted.en || row.dataset.en === wanted.en);
       if (keep && wanted.outcome) {
