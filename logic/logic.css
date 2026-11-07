@@ -76,6 +76,9 @@ td.probs span { white-space: nowrap; }
 .bad { color: var(--wrong); font-weight: 650; }
 @media screen { :root:not([data-theme="light"]) .ok { color: #4ade80; } :root:not([data-theme="light"]) .bad { color: #f87171; } }
 .small.inline { display: inline; }
+/* Home leaderboard: long subheaders wrap, short columns keep their natural width. */
+@media (min-width: 641px) { table.board.headline.wrap-headers thead th:not(:first-child) { min-width: 0; } }
+.cost-mark { font-size: .78rem; color: var(--text-2); white-space: nowrap; }
 
 /* Current work. */
 .progress { display: block; width: 100%; min-width: 8rem; height: .7rem; margin: .2rem 0 .15rem; background: var(--sunk);

@@ -8,7 +8,7 @@
   <script>document.documentElement.classList.add("js"); document.documentElement.dataset.theme = "dark"; try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if (localStorage.getItem("costUnit") === "1m") document.documentElement.dataset.costUnit = "1m"; } catch (e) {}</script>
   <link rel="stylesheet" href="../v3.css?v=d32cd42b">
   <link rel="stylesheet" href="../suite-bar.css?v=0ebf1077">
-  <link rel="stylesheet" href="../logic.css?v=68ab9b28">
+  <link rel="stylesheet" href="../logic.css?v=6e21dbbd">
   <script src="../site.js?v=9cd1bd26" defer></script>
 </head>
 <body class="v3">
@@ -38,7 +38,9 @@
         <li><strong>Chat models</strong> (group Chat) write a reply that ends with an answer letter; they return no option probabilities, so their confidence is “not measured”. Gemma 4 31B and Qwen3.8-27B, run on our own GPU, are chat setups.</li>
         <li><strong>The “I don't know” variant</strong> (runs with mode dont_know) asks the same questions with a sixth option F, “I don't know”. A setup's standard run gives its accuracy; its dont_know run gives its non-hallucination. Chat setups have no dont_know run yet.</li>
         <li>The view bar's MODELS row picks Decision (the default), Chat or All; every chart, card, table and tie group is computed within the chosen group.</li>
+        <li><strong>One row for the same answers</strong>: two complete setups of one group that gave the same letter on every common question and identical option probabilities on at least 99% of them are one model behind two names; they are ranked once, as one row, chart bar and tie-group member.</li>
       </ul>
+      <p>Setups shown once (merged into the first in accuracy order, named “first = second”, with the first's numbers; both stay in the database and under All setups on Home):</p><ul><li>Logic: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 1,125 of 1,125); shown once.</li><li>Math: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 2,151 of 2,163); shown once.</li></ul>
     </section>
     <section class="card prose" id="measures">
       <h2>Measures</h2>
@@ -47,7 +49,7 @@
         <li><strong>Tie groups</strong>: every pair of setups in the group compared on the questions both answered with the exact McNemar test, p-values Holm-corrected over all pairs; two setups share a letter unless the corrected p &lt; 0.05 (a compact letter display, tb-next's <code>tied_groups</code>).</li>
         <li><strong>Non-hallucination</strong> (dont_know runs): I don't know / (I don't know + wrong), the share of the answers that were not right that were an honest “I don't know”; beside it the attempt rate (right + wrong) / N and the accuracy when answering right / (right + wrong). A setup that always chose F would reach 100% with no right answers, so read it with the attempt rate. The Non-hallucination view keeps this apart from (a) the probabilistic confidence of the standard runs (answers kept at 99%, right / wrong, AUROC), so a setup that works with probabilities is not ranked down for rarely choosing F; beside its F rate it shows tb-next's derived rate: the same setup's five-option run answering only where its chosen option's probability reaches the cut-off that keeps about the same attempt rate, the rest held back. With All chosen, this view shows the decision setups and the chat setups in separate sections, never in one chart.</li>
         <li><strong>Confidence</strong> (option probabilities): answers <em>kept</em> at the 99% threshold, those whose chosen option had probability ≥ 99%, counted right and wrong; the result card names the setup that kept the most answers with no wrong one. AUROC: the probability that a right answer's confidence is higher than a wrong one's (ties count half; 0.5 is no signal), over all questions and by topic.</li>
-        <li><strong>Cost</strong>: the run's recorded cost (runs.cost_usd) over the questions it answered, per 1,000 and per 1M questions, always with its <em>basis</em>: “API bill” (what the provider charged), “maker's list price” (the maker's published per-token or per-request price applied to the run's usage), “estimated cloud-equivalent” and so on. Chat runs carry an estimated cloud-equivalent cost, not a bill: the wall-clock minutes in which the run was storing answers (from its answer timestamps, not the sum of concurrent request times), with a minute shared equally among runs answering on the same GPU, priced at Runpod's on-demand rate for an RTX PRO 6000 (96 GB, Secure Cloud), $2.49 per GPU hour (runpod.io/pricing, 5 November 2026), the same card as ours. A run without a recorded cost reads “not measured”. The third result card is the cheapest setup within 1 point of the best accuracy; the Accuracy-across-Cost chart's dashed line is the Pareto front.</li>
+        <li><strong>Cost</strong>: the run's recorded cost (runs.cost_usd) over the questions it answered, per 1,000 and per 1M questions, always with its <em>basis</em>: “provider price × reported usage” (the provider's published price applied to the usage its API reported; not an invoice), “maker's list price” (the maker's published per-token or per-request price applied to the run's usage), “estimated cloud-equivalent” and so on. Chat runs carry an estimated cloud-equivalent cost, not a bill: the wall-clock minutes in which the run was storing answers (from its answer timestamps, not the sum of concurrent request times), with a minute shared equally among runs answering on the same GPU, priced at Runpod's on-demand rate for an RTX PRO 6000 (96 GB, Secure Cloud), $2.49 per GPU hour (runpod.io/pricing, 5 November 2026), the same card as ours. In the tables and charts a cost that is not a bill carries a mark after it: “est.” for an estimated cloud-equivalent GPU cost (our GPU time × $2.49/h, Runpod RTX PRO 6000; local setups and the chat runs), “list” for the maker's list price × our token counts; an unmarked cost is the provider's price × the usage the API reported. A run without a recorded cost reads “—”. The third result card is the cheapest setup within 1 point of the best accuracy; the Accuracy-across-Cost chart's dashed line is the Pareto front.</li>
         <li><strong>Latency</strong>: wall time per request from our machine, the median and the 90th percentile (nearest rank) in milliseconds, and throughput in questions per minute from the run's first to its last stored answer (it depends on how many requests were in flight). The Accuracy-across-Latency chart uses the median.</li>
         <li><strong>Logic and Math</strong> (the third test): Logic and Math pooled, 3,288 questions. Every measure is computed on the pooled answers (accuracy = right / all pooled questions; kept at 99%, AUROC and “I don't know” over the pooled answers; latency over all pooled requests, questions per minute over the two runs' time; cost per 1,000 questions = the two runs' costs over the pooled answers). Only setups with a complete English run on both benchmarks are pooled; the others are listed as not in Logic and Math yet. Its by-topic table shows each benchmark as a whole, then the topics of both.</li>
       </ul>
@@ -1197,7 +1199,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-glide_en"><h3>Logic · glide_en</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.05854 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:50 UTC; last answer 7 Nov 2026 14:51 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-glide_en"><h3>Logic · glide_en</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.05854 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:50 UTC; last answer 7 Nov 2026 14:51 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -1277,7 +1279,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-glide_en_dontknow"><h3>Logic · glide_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0636 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:51 UTC; last answer 7 Nov 2026 14:53 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-glide_en_dontknow"><h3>Logic · glide_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0636 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:51 UTC; last answer 7 Nov 2026 14:53 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -1359,7 +1361,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.14_en"><h3>Logic · jev-1.14_en</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02885 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:54 UTC; last answer 7 Nov 2026 14:57 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.14_en"><h3>Logic · jev-1.14_en</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02885 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:54 UTC; last answer 7 Nov 2026 14:57 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -1437,7 +1439,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1-ultra_en"><h3>Logic · d1-ultra_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01422 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 14:56 UTC; last answer 7 Nov 2026 15:01 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1-ultra_en"><h3>Logic · d1-ultra_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01422 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 14:56 UTC; last answer 7 Nov 2026 15:01 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -1515,7 +1517,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.14_en_dontknow"><h3>Logic · jev-1.14_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.03054 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:57 UTC; last answer 7 Nov 2026 15:01 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.14_en_dontknow"><h3>Logic · jev-1.14_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.03054 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:57 UTC; last answer 7 Nov 2026 15:01 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -1746,7 +1748,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1-ultra_en_dontknow"><h3>Logic · d1-ultra_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0155 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:01 UTC; last answer 7 Nov 2026 15:06 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1-ultra_en_dontknow"><h3>Logic · d1-ultra_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0155 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:01 UTC; last answer 7 Nov 2026 15:06 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -1826,7 +1828,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-subq-1.1_en"><h3>Logic · subq-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01678 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:02 UTC; last answer 7 Nov 2026 15:09 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-subq-1.1_en"><h3>Logic · subq-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01678 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:02 UTC; last answer 7 Nov 2026 15:09 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -1904,7 +1906,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-celeris_en"><h3>Logic · celeris_en</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01733 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:02 UTC; last answer 7 Nov 2026 15:10 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-celeris_en"><h3>Logic · celeris_en</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01733 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:02 UTC; last answer 7 Nov 2026 15:10 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -1982,7 +1984,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-mercury-decide_en"><h3>Logic · mercury-decide_en</h3><dl class="facts"><dt>Setup</dt><dd>Inception Mercury Decide · decision model</dd><dt>Model</dt><dd><code>inception/mercury-decide</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.008459 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:03 UTC; last answer 7 Nov 2026 15:09 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Inception Mercury Decide (site run 204); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-mercury-decide_en"><h3>Logic · mercury-decide_en</h3><dl class="facts"><dt>Setup</dt><dd>Inception Mercury Decide · decision model</dd><dt>Model</dt><dd><code>inception/mercury-decide</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.008459 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:03 UTC; last answer 7 Nov 2026 15:09 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Inception Mercury Decide (site run 204); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2135,7 +2137,87 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-drex-max-1.1_en"><h3>Logic · drex-max-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>Drex Max 1.1 · decision model</dd><dt>Model</dt><dd><code>drex-max-v1.1</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02517 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:07 UTC; last answer 7 Nov 2026 15:16 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex Max 1.1 (site run 326); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-mammoth-1_en_dontknow"><h3>Logic · mammoth-1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Mammoth-1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>baselabs/mammoth-1</code> · provider baselabs</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.04679 for the run · maker&#x27;s list price</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19150</code></dd><dt>Started</dt><dd>7 Nov 2026 15:03 UTC; last answer 7 Nov 2026 17:31 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Mammoth-1 (site run 374); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;baselabs/mammoth-1&quot;,
+    &quot;--provider&quot;,
+    &quot;baselabs&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;baselabs/mammoth-1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;maker&quot;,
+    &quot;basis&quot;: &quot;Baseten&#x27;s list price for the same model&quot;,
+    &quot;date&quot;: &quot;2026-11-01&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.1,
+      &quot;cache_write_input_tokens&quot;: 0.1,
+      &quot;cached_input_tokens&quot;: 0.1,
+      &quot;input_tokens&quot;: 0.1,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://www.baseten.co/library/mammoth-1/&quot;,
+    &quot;text&quot;: &quot;$0.10 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;baselabs&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 188.99958430129027,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/mammoth-1__logic_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;240304eb024333779b2a84b2c8b76f05f66ac8c947fca940d69c0ad342a07e1e&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 374,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 467882,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19150/v1/systemone
+{
+ &quot;model&quot;: &quot;baselabs/mammoth-1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-drex-max-1.1_en"><h3>Logic · drex-max-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>Drex Max 1.1 · decision model</dd><dt>Model</dt><dd><code>drex-max-v1.1</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02517 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:07 UTC; last answer 7 Nov 2026 15:16 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex Max 1.1 (site run 326); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2213,7 +2295,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-mercury-decide_en_dontknow"><h3>Logic · mercury-decide_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Inception Mercury Decide · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>inception/mercury-decide</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.009317 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:09 UTC; last answer 7 Nov 2026 15:15 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Inception Mercury Decide (site run 204); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-mercury-decide_en_dontknow"><h3>Logic · mercury-decide_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Inception Mercury Decide · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>inception/mercury-decide</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.009317 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:09 UTC; last answer 7 Nov 2026 15:15 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Inception Mercury Decide (site run 204); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2293,7 +2375,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-subq-1.1_en_dontknow"><h3>Logic · subq-1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01813 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:10 UTC; last answer 7 Nov 2026 15:17 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-subq-1.1_en_dontknow"><h3>Logic · subq-1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01813 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:10 UTC; last answer 7 Nov 2026 15:17 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2373,7 +2455,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-celeris_en_dontknow"><h3>Logic · celeris_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01886 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:10 UTC; last answer 7 Nov 2026 15:17 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-celeris_en_dontknow"><h3>Logic · celeris_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01886 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:10 UTC; last answer 7 Nov 2026 15:17 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2453,7 +2535,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-drex-max-1.1_en_dontknow"><h3>Logic · drex-max-1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Drex Max 1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>drex-max-v1.1</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0272 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:16 UTC; last answer 7 Nov 2026 15:26 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex Max 1.1 (site run 326); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-drex-max-1.1_en_dontknow"><h3>Logic · drex-max-1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Drex Max 1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>drex-max-v1.1</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0272 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:16 UTC; last answer 7 Nov 2026 15:26 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex Max 1.1 (site run 326); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2533,7 +2615,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.13_en"><h3>Logic · jev-1.13_en</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02885 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:26 UTC; last answer 7 Nov 2026 15:30 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.13_en"><h3>Logic · jev-1.13_en</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02885 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:26 UTC; last answer 7 Nov 2026 15:30 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2611,7 +2693,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.13_en_dontknow"><h3>Logic · jev-1.13_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.03054 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:30 UTC; last answer 7 Nov 2026 15:33 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.13_en_dontknow"><h3>Logic · jev-1.13_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.03054 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:30 UTC; last answer 7 Nov 2026 15:33 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2691,7 +2773,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1.1_en"><h3>Logic · d1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1.1 · decision model</dd><dt>Model</dt><dd><code>d1.1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006773 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:38 UTC; last answer 7 Nov 2026 15:42 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.1 (site run 254); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1.1_en"><h3>Logic · d1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1.1 · decision model</dd><dt>Model</dt><dd><code>d1.1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006773 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:38 UTC; last answer 7 Nov 2026 15:42 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.1 (site run 254); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2769,7 +2851,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1.1_en_dontknow"><h3>Logic · d1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1.1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.007379 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:42 UTC; last answer 7 Nov 2026 15:46 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.1 (site run 254); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1.1_en_dontknow"><h3>Logic · d1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1.1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.007379 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:42 UTC; last answer 7 Nov 2026 15:46 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.1 (site run 254); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2849,7 +2931,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-ms-decision-1_en"><h3>Logic · ms-decision-1_en</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0151 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:42 UTC; last answer 7 Nov 2026 15:48 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-ms-decision-1_en"><h3>Logic · ms-decision-1_en</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0151 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:42 UTC; last answer 7 Nov 2026 15:48 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -2927,7 +3009,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-subq-preview_en"><h3>Logic · subq-preview_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02098 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:48 UTC; last answer 7 Nov 2026 15:55 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-subq-preview_en"><h3>Logic · subq-preview_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02098 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:48 UTC; last answer 7 Nov 2026 15:55 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -3005,7 +3087,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-ms-decision-1_en_dontknow"><h3>Logic · ms-decision-1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01638 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:48 UTC; last answer 7 Nov 2026 15:55 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-ms-decision-1_en_dontknow"><h3>Logic · ms-decision-1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01638 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:48 UTC; last answer 7 Nov 2026 15:55 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -3085,7 +3167,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-subq-preview_en_dontknow"><h3>Logic · subq-preview_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02266 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:55 UTC; last answer 7 Nov 2026 16:02 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-subq-preview_en_dontknow"><h3>Logic · subq-preview_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02266 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:55 UTC; last answer 7 Nov 2026 16:02 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -3165,7 +3247,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1_en"><h3>Logic · d1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006773 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:02 UTC; last answer 7 Nov 2026 16:06 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1_en"><h3>Logic · d1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006773 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:02 UTC; last answer 7 Nov 2026 16:06 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -3243,7 +3325,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-drex-2.0_en"><h3>Logic · drex-2.0_en</h3><dl class="facts"><dt>Setup</dt><dd>Drex 2.0 · decision model</dd><dt>Model</dt><dd><code>drex-v2.0</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02072 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:03 UTC; last answer 7 Nov 2026 16:12 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex 2.0 (site run 334); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-drex-2.0_en"><h3>Logic · drex-2.0_en</h3><dl class="facts"><dt>Setup</dt><dd>Drex 2.0 · decision model</dd><dt>Model</dt><dd><code>drex-v2.0</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02072 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:03 UTC; last answer 7 Nov 2026 16:12 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex 2.0 (site run 334); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -3321,7 +3403,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1_en_dontknow"><h3>Logic · d1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.007379 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:06 UTC; last answer 7 Nov 2026 16:11 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d1_en_dontknow"><h3>Logic · d1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.007379 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:06 UTC; last answer 7 Nov 2026 16:11 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -3401,7 +3483,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-drex-2.0_en_dontknow"><h3>Logic · drex-2.0_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Drex 2.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>drex-v2.0</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02267 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:13 UTC; last answer 7 Nov 2026 16:22 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex 2.0 (site run 334); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-drex-2.0_en_dontknow"><h3>Logic · drex-2.0_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Drex 2.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>drex-v2.0</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02267 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:13 UTC; last answer 7 Nov 2026 16:22 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex 2.0 (site run 334); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -3481,7 +3563,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-deepseek-v4-flash_en_t0"><h3>Logic · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer –</dd><dt>Progress</dt><dd>0 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-deepseek-v4-flash_en_t0"><h3>Logic · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 17:46 UTC</dd><dt>Progress</dt><dd>39 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>[Turkish wording, not shown]</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;max_tokens&quot;: 8192,
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
@@ -3630,6 +3712,243 @@
     &quot;D&quot;: &quot;{option_D}&quot;,
     &quot;E&quot;: &quot;{option_E}&quot;,
     &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-decider-v1.2-web_en"><h3>Logic · decider-v1.2-web_en</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 · decision model</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$1.158 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:21 UTC; last answer 7 Nov 2026 17:32 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;pplx-decider-v1.2&quot;,
+    &quot;--provider&quot;,
+    &quot;perplexity&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--perplexity-mode&quot;,
+    &quot;web_grounding&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;pplx-decider-v1.2&quot;,
+  &quot;perplexity_mode&quot;: &quot;web_grounding&quot;,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;Perplexity&#x27;s Decisions API price with web grounding&quot;,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.001,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.02,
+      &quot;cache_write_input_tokens&quot;: 0.02,
+      &quot;cached_input_tokens&quot;: 0.02,
+      &quot;input_tokens&quot;: 0.02,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://docs.perplexity.ai/docs/getting-started/pricing&quot;,
+    &quot;text&quot;: &quot;$0.02 input, output free per 1M tokens, plus $0.001 per request (one web search)&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;perplexity&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 618.0730732509935,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/decider-v1.2-web__logic_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;cf3770cb9288b573b4c1aea137fbedebb3bacaf7eadbea8479c5e1776b7c45b0&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 640,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 1663650,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://api.perplexity.ai/v1/decisions
+{
+ &quot;model&quot;: &quot;pplx-decider-v1.2&quot;,
+ &quot;mode&quot;: &quot;web_grounding&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-decider-v1.2-web_en_dontknow"><h3>Logic · decider-v1.2-web_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$1.153 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:32 UTC; last answer 7 Nov 2026 17:43 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;pplx-decider-v1.2&quot;,
+    &quot;--provider&quot;,
+    &quot;perplexity&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--perplexity-mode&quot;,
+    &quot;web_grounding&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;pplx-decider-v1.2&quot;,
+  &quot;perplexity_mode&quot;: &quot;web_grounding&quot;,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;Perplexity&#x27;s Decisions API price with web grounding&quot;,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.001,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.02,
+      &quot;cache_write_input_tokens&quot;: 0.02,
+      &quot;cached_input_tokens&quot;: 0.02,
+      &quot;input_tokens&quot;: 0.02,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://docs.perplexity.ai/docs/getting-started/pricing&quot;,
+    &quot;text&quot;: &quot;$0.02 input, output free per 1M tokens, plus $0.001 per request (one web search)&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;perplexity&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 566.5075323920066,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/decider-v1.2-web__logic_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;2067aaed809f35ea96d79c925a8a72631ef79a92947e569be011354189cec1f6&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 640,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 1410565,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://api.perplexity.ai/v1/decisions
+{
+ &quot;model&quot;: &quot;pplx-decider-v1.2&quot;,
+ &quot;mode&quot;: &quot;web_grounding&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d3_en"><h3>Logic · d3_en</h3><dl class="facts"><dt>Setup</dt><dd>vLLM-SR d3 · decision model</dd><dt>Model</dt><dd><code>vllm-sr/d3</code> · provider vllm-sr</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.0621 for the run · local GPU time: Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud, $2.49/GPU-hour × 1 GPU × request time</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19120</code></dd><dt>Started</dt><dd>7 Nov 2026 17:44 UTC; last answer 7 Nov 2026 17:45 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup vLLM-SR d3 (site run 259); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;vllm-sr/d3&quot;,
+    &quot;--provider&quot;,
+    &quot;vllm-sr&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;vllm-sr/d3&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;vllm-sr&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 89.77727661399695,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/d3__logic_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;a5f04a7c50d89f6db10e30cb1751d77588c8de1ecbc3cef9f825705f6b6f8edf&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 259,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 428507,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19120/v1/systemone
+{
+ &quot;model&quot;: &quot;vllm-sr/d3&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
    }
   }
  }
@@ -4753,7 +5072,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-glide_en"><h3>Math · glide_en</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0612 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:58 UTC; last answer 7 Nov 2026 15:00 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-glide_en"><h3>Math · glide_en</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0612 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:58 UTC; last answer 7 Nov 2026 15:00 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -4833,7 +5152,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-glide_en_dontknow"><h3>Math · glide_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.07094 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:00 UTC; last answer 7 Nov 2026 15:03 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-glide_en_dontknow"><h3>Math · glide_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.07094 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:00 UTC; last answer 7 Nov 2026 15:03 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -4915,7 +5234,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.14_en"><h3>Math · jev-1.14_en</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04108 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:13 UTC; last answer 7 Nov 2026 15:20 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.14_en"><h3>Math · jev-1.14_en</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04108 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:13 UTC; last answer 7 Nov 2026 15:20 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -4993,7 +5312,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1-ultra_en"><h3>Math · d1-ultra_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01328 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:28 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1-ultra_en"><h3>Math · d1-ultra_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01328 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:28 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5071,7 +5390,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-mercury-decide_en"><h3>Math · mercury-decide_en</h3><dl class="facts"><dt>Setup</dt><dd>Inception Mercury Decide · decision model</dd><dt>Model</dt><dd><code>inception/mercury-decide</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.009483 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:30 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Inception Mercury Decide (site run 204); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-mercury-decide_en"><h3>Math · mercury-decide_en</h3><dl class="facts"><dt>Setup</dt><dd>Inception Mercury Decide · decision model</dd><dt>Model</dt><dd><code>inception/mercury-decide</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.009483 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:30 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Inception Mercury Decide (site run 204); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5149,7 +5468,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-celeris_en"><h3>Math · celeris_en</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01968 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:34 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-celeris_en"><h3>Math · celeris_en</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01968 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:34 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5227,7 +5546,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-1.1_en"><h3>Math · subq-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01857 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:33 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-1.1_en"><h3>Math · subq-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01857 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:33 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5305,7 +5624,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.14_en_dontknow"><h3>Math · jev-1.14_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04434 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:20 UTC; last answer 7 Nov 2026 15:26 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.14_en_dontknow"><h3>Math · jev-1.14_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04434 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:20 UTC; last answer 7 Nov 2026 15:26 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5385,7 +5704,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-drex-max-1.1_en"><h3>Math · drex-max-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>Drex Max 1.1 · decision model</dd><dt>Model</dt><dd><code>drex-max-v1.1</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02786 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:26 UTC; last answer 7 Nov 2026 15:44 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex Max 1.1 (site run 326); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-drex-max-1.1_en"><h3>Math · drex-max-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>Drex Max 1.1 · decision model</dd><dt>Model</dt><dd><code>drex-max-v1.1</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02786 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:26 UTC; last answer 7 Nov 2026 15:44 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex Max 1.1 (site run 326); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5463,7 +5782,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1-ultra_en_dontknow"><h3>Math · d1-ultra_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01569 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:28 UTC; last answer 7 Nov 2026 15:38 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1-ultra_en_dontknow"><h3>Math · d1-ultra_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01569 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:28 UTC; last answer 7 Nov 2026 15:38 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5543,7 +5862,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-mercury-decide_en_dontknow"><h3>Math · mercury-decide_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Inception Mercury Decide · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>inception/mercury-decide</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01114 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:31 UTC; last answer 7 Nov 2026 15:42 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Inception Mercury Decide (site run 204); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-mercury-decide_en_dontknow"><h3>Math · mercury-decide_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Inception Mercury Decide · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>inception/mercury-decide</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01114 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:31 UTC; last answer 7 Nov 2026 15:42 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Inception Mercury Decide (site run 204); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5623,7 +5942,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.13_en"><h3>Math · jev-1.13_en</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04108 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:33 UTC; last answer 7 Nov 2026 15:40 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.13_en"><h3>Math · jev-1.13_en</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04108 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:33 UTC; last answer 7 Nov 2026 15:40 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5701,7 +6020,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-1.1_en_dontknow"><h3>Math · subq-1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02117 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:34 UTC; last answer 7 Nov 2026 15:48 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-1.1_en_dontknow"><h3>Math · subq-1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02117 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:34 UTC; last answer 7 Nov 2026 15:48 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5781,7 +6100,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-celeris_en_dontknow"><h3>Math · celeris_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02262 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:34 UTC; last answer 7 Nov 2026 15:48 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-celeris_en_dontknow"><h3>Math · celeris_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02262 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:34 UTC; last answer 7 Nov 2026 15:48 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5861,7 +6180,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.13_en_dontknow"><h3>Math · jev-1.13_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04434 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:40 UTC; last answer 7 Nov 2026 15:46 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.13_en_dontknow"><h3>Math · jev-1.13_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04434 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:40 UTC; last answer 7 Nov 2026 15:46 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -5941,7 +6260,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-drex-max-1.1_en_dontknow"><h3>Math · drex-max-1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Drex Max 1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>drex-max-v1.1</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.03175 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:45 UTC; last answer 7 Nov 2026 16:03 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex Max 1.1 (site run 326); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-drex-max-1.1_en_dontknow"><h3>Math · drex-max-1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Drex Max 1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>drex-max-v1.1</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.03175 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:45 UTC; last answer 7 Nov 2026 16:03 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex Max 1.1 (site run 326); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6021,7 +6340,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1.1_en"><h3>Math · d1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1.1 · decision model</dd><dt>Model</dt><dd><code>d1.1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006325 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:46 UTC; last answer 7 Nov 2026 15:53 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.1 (site run 254); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1.1_en"><h3>Math · d1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1.1 · decision model</dd><dt>Model</dt><dd><code>d1.1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006325 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:46 UTC; last answer 7 Nov 2026 15:53 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.1 (site run 254); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6099,7 +6418,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1.1_en_dontknow"><h3>Math · d1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1.1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.007471 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:54 UTC; last answer 7 Nov 2026 16:02 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.1 (site run 254); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1.1_en_dontknow"><h3>Math · d1.1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1.1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.007471 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:54 UTC; last answer 7 Nov 2026 16:02 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.1 (site run 254); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6179,7 +6498,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-ms-decision-1_en"><h3>Math · ms-decision-1_en</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01472 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:55 UTC; last answer 7 Nov 2026 16:06 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-ms-decision-1_en"><h3>Math · ms-decision-1_en</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01472 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 15:55 UTC; last answer 7 Nov 2026 16:06 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6257,7 +6576,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-preview_en"><h3>Math · subq-preview_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02321 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:03 UTC; last answer 7 Nov 2026 16:17 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-preview_en"><h3>Math · subq-preview_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02321 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:03 UTC; last answer 7 Nov 2026 16:17 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6335,7 +6654,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-ms-decision-1_en_dontknow"><h3>Math · ms-decision-1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0172 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 16:07 UTC; last answer 7 Nov 2026 16:18 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-ms-decision-1_en_dontknow"><h3>Math · ms-decision-1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0172 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 16:07 UTC; last answer 7 Nov 2026 16:18 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6415,7 +6734,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1_en"><h3>Math · d1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006325 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:11 UTC; last answer 7 Nov 2026 16:19 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1_en"><h3>Math · d1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006325 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:11 UTC; last answer 7 Nov 2026 16:19 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6493,7 +6812,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-preview_en_dontknow"><h3>Math · subq-preview_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02646 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:17 UTC; last answer 7 Nov 2026 16:31 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-preview_en_dontknow"><h3>Math · subq-preview_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02646 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:17 UTC; last answer 7 Nov 2026 16:31 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6573,7 +6892,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1_en_dontknow"><h3>Math · d1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.007471 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:19 UTC; last answer 7 Nov 2026 16:26 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1_en_dontknow"><h3>Math · d1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.007471 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:19 UTC; last answer 7 Nov 2026 16:26 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6653,7 +6972,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-drex-2.0_en"><h3>Math · drex-2.0_en</h3><dl class="facts"><dt>Setup</dt><dd>Drex 2.0 · decision model</dd><dt>Model</dt><dd><code>drex-v2.0</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01929 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:22 UTC; last answer 7 Nov 2026 17:09 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex 2.0 (site run 334); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-drex-2.0_en"><h3>Math · drex-2.0_en</h3><dl class="facts"><dt>Setup</dt><dd>Drex 2.0 · decision model</dd><dt>Model</dt><dd><code>drex-v2.0</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01929 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:22 UTC; last answer 7 Nov 2026 17:09 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex 2.0 (site run 334); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6731,12 +7050,12 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-deepseek-v4-flash_en_t0"><h3>Math · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer –</dd><dt>Progress</dt><dd>0 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-deepseek-v4-flash_en_t0"><h3>Math · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 17:46 UTC</dd><dt>Progress</dt><dd>200 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations | INCIDENT 2026-11-07 17:01-17:30 UTC: after the reboot the runner could not store answers (responses had a new probs_json column; run_eval.py inserted without column names), so the answers generated in that window were discarded; not recoverable (vLLM logs keep no reply text). spark2 vLLM log: 362 completed chat requests from bariton (192.168.1.126) in 17:00-17:30, an upper bound since other bariton users share that address. Restarted 17:30 with the same settings; every stored answer is from that restart.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;max_tokens&quot;: 8192,
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
 
-{question}</pre></dd></dl></section><section class="run-record" id="run-math-drex-2.0_en_dontknow"><h3>Math · drex-2.0_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Drex 2.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>drex-v2.0</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02305 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:09 UTC; last answer 7 Nov 2026 17:28 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex 2.0 (site run 334); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+{question}</pre></dd></dl></section><section class="run-record" id="run-math-drex-2.0_en_dontknow"><h3>Math · drex-2.0_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Drex 2.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>drex-v2.0</code> · provider nace</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02305 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://console.nace.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:09 UTC; last answer 7 Nov 2026 17:28 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Drex 2.0 (site run 334); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -6964,12 +7283,170 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-mammoth-1_en"><h3>Math · mammoth-1_en</h3><dl class="facts"><dt>Setup</dt><dd>Mammoth-1 · decision model</dd><dt>Model</dt><dd><code>baselabs/mammoth-1</code> · provider baselabs</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.0488 for the run · maker&#x27;s list price</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19150</code></dd><dt>Started</dt><dd>7 Nov 2026 17:31 UTC; last answer 7 Nov 2026 17:37 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Mammoth-1 (site run 374); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;baselabs/mammoth-1&quot;,
+    &quot;--provider&quot;,
+    &quot;baselabs&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;baselabs/mammoth-1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;maker&quot;,
+    &quot;basis&quot;: &quot;Baseten&#x27;s list price for the same model&quot;,
+    &quot;date&quot;: &quot;2026-11-01&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.1,
+      &quot;cache_write_input_tokens&quot;: 0.1,
+      &quot;cached_input_tokens&quot;: 0.1,
+      &quot;input_tokens&quot;: 0.1,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://www.baseten.co/library/mammoth-1/&quot;,
+    &quot;text&quot;: &quot;$0.10 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;baselabs&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 317.69227257799616,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/mammoth-1__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;6b47ec283c6dd07c7f8bebfd2c61469cea4a316aa0eddb1855d51e1fb2e61c10&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 374,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 488047,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19150/v1/systemone
+{
+ &quot;model&quot;: &quot;baselabs/mammoth-1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-mammoth-1_en_dontknow"><h3>Math · mammoth-1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Mammoth-1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>baselabs/mammoth-1</code> · provider baselabs</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.05573 for the run · maker&#x27;s list price</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19150</code></dd><dt>Started</dt><dd>7 Nov 2026 17:37 UTC; last answer 7 Nov 2026 17:42 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Mammoth-1 (site run 374); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;baselabs/mammoth-1&quot;,
+    &quot;--provider&quot;,
+    &quot;baselabs&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;baselabs/mammoth-1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;maker&quot;,
+    &quot;basis&quot;: &quot;Baseten&#x27;s list price for the same model&quot;,
+    &quot;date&quot;: &quot;2026-11-01&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.1,
+      &quot;cache_write_input_tokens&quot;: 0.1,
+      &quot;cached_input_tokens&quot;: 0.1,
+      &quot;input_tokens&quot;: 0.1,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://www.baseten.co/library/mammoth-1/&quot;,
+    &quot;text&quot;: &quot;$0.10 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;baselabs&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 298.6905725330048,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/mammoth-1__math_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;8ae1cae02b50e2fb73a7573ec2cb1957dd4382e8ecb3da43c15c4ae8e42cc7d6&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 374,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 557263,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19150/v1/systemone
+{
+ &quot;model&quot;: &quot;baselabs/mammoth-1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 17:28 UTC from the logic and math benchmark.db files (148,047 graded answers in 91 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 17:46 UTC from the logic and math benchmark.db files (157,112 graded answers in 99 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
