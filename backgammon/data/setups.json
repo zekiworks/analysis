@@ -3210,6 +3210,38 @@
    "weights": "open"
   },
   {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "7 Nov 2026",
+   "missing": [],
+   "model": "REAX 1.3",
+   "model_id": "decisionmodels/REAX-1.3 @ fa4bf7ee3bb56a8bc421dad090631be1c5845c2d (Hugging Face, Apache-2.0; two parts in FP8 on one GPU)",
+   "model_type": "decision model",
+   "name": "REAX 1.3",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 7 Nov 2026. Each option's probability is the 50/50 mean of the two parts' probabilities, stored as returned; in the smoke test before the run every probability sum was 1.000000. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit. Run note: the server's container ran without Docker's no-new-privileges setting, approved for this run only (the host's Docker refused every container with it); every other protection was kept: all capabilities dropped, read-only root filesystem, non-root user, weights mounted read-only, no outside network.",
+   "option_groups": "up to 255 options per request (the server's limit, from the model card); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-07",
+    "input_per_mtok": null,
+    "label": "no price (our GPU)",
+    "output_per_mtok": null,
+    "source": "no list price published for REAX 1.3"
+   },
+   "provider": "our GPU, in Docker, through reax-engine (github.com/reaxlabs/reax-engine @ ff8f595f149abdd50ea914455eadc74cf97a277f, reax13 mode, its serve.py), one request at a time, no outside network",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "our GPUs",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "reax-1-3",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries REAX - status 2026-11-07.md"
+   ],
+   "weights": "open"
+  },
+  {
    "confidence_source": "none",
    "dataset": "late-entry",
    "date_run": null,

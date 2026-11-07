@@ -157,6 +157,14 @@ html { --view-bar-h: 63px; scroll-padding-top: var(--view-bar-h); }
 .face-nav a:focus-visible { border-color: var(--view-key-hover); }
 /* The tab of the part in the address (just pressed, or opened by a link) is filled. */
 .face-nav a[aria-current] { color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); }
+/* The home page's main links under the title (Ümit #2564): the four ways in, larger than the in-page tabs. */
+.hero-links { display: flex; flex-wrap: wrap; gap: .5rem; margin: .7rem 0 .9rem; }
+.hero-links a { display: inline-flex; align-items: center; min-height: 2.3rem; padding: .3rem .9rem; color: var(--tab-text);
+  background: var(--tab-bg); border: 2px solid var(--tab-edge); border-radius: 8px; font-size: 1rem; font-weight: 700;
+  line-height: 1.15; text-decoration: none; box-shadow: var(--key-shadow); }
+.hero-links a:hover, .hero-links a:focus-visible { border-color: var(--view-key-hover); }
+.how-numbers ul { margin: .4rem 0 .6rem; padding-left: 1.2rem; }
+.how-numbers li { max-width: 92ch; margin: .3rem 0; }
 .nav a[aria-current="page"] { color: var(--view-current-text); background: var(--view-current-bg);
   border-color: var(--view-current-edge); box-shadow: inset 0 -2px 0 var(--view-current-edge); }
 .theme-switch { grid-area: theme; display: inline-flex; gap: 4px; margin-left: auto; }
@@ -740,6 +748,8 @@ table.paired tr.label-row { display: none; }
 .heatmap-table thead th:first-child { z-index: 3; box-shadow: 1px 0 0 var(--edge), inset 0 -1px 0 var(--control-edge); }
 pre.citation { overflow-x: auto; padding: .75rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 6px; font-size: .8rem;
   white-space: pre-wrap; overflow-wrap: anywhere; }
+blockquote { margin: .75rem 0; padding: .5rem .9rem; border-left: 3px solid var(--edge); background: var(--sunk); border-radius: 0 6px 6px 0; }
+blockquote > :first-child { margin-top: 0; } blockquote > :last-child { margin-bottom: 0; }
 body.v3 p code, body.v3 td code, body.v3 li code { overflow-wrap: anywhere; word-break: break-all; }
 .prose p, .prose li { max-width: 80ch; }
 .prose ul { padding-left: 1.25rem; }
@@ -835,6 +845,8 @@ ul.price-list { padding-left: 1.25rem; }
     white-space: nowrap; border: 0; }
   .view-row ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
   .view-row.view-tests ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); }
+  .view-row.view-parts ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero-links a { min-height: 2.1rem; padding: .25rem .7rem; font-size: .92rem; }
   .view-row li { min-width: 0; }
   a.view-key { flex: 1; min-height: 24px; padding: 1px 4px; font-size: 12px; line-height: 1.1; white-space: normal; }
   .view-tests a.view-key { font-size: 11px; line-height: 1.05; }
