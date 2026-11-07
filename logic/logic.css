@@ -144,3 +144,34 @@ td.answers { white-space: nowrap; font-size: .82rem; }
 .finished-jobs > summary { cursor: pointer; color: var(--text-2); font-size: .88rem; font-weight: 600; }
 .result-card .card-setup a { font-weight: 600; }
 td[data-label="GPU"] { white-space: nowrap; }
+
+/* The 95% interval across an accuracy bar: a line with end caps in the text colour (shell.hbars whisker). */
+.hbar-whisker { position: absolute; top: 50%; height: 0; border-top: 1.5px solid var(--text); pointer-events: none; }
+.hbar-whisker::before, .hbar-whisker::after { content: ""; position: absolute; top: -5px; height: 8px; border-left: 1.5px solid var(--text); }
+.hbar-whisker::before { left: 0; }
+.hbar-whisker::after { right: 0; }
+.whisker-note { display: block; margin-top: .3rem; }
+/* Home: the large links under the intro, four in a row (two by two on a phone). */
+.home-links { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; margin: 1rem 0 .2rem; }
+.home-links a { display: flex; align-items: center; justify-content: center; min-height: 3.2rem; padding: .5rem .8rem;
+  color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 8px;
+  font-size: 1rem; font-weight: 700; text-align: center; text-decoration: none; box-shadow: var(--key-shadow); }
+.home-links a:hover { border-color: var(--view-key-hover); }
+.home-links a:first-child { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
+@media (max-width: 640px) { .home-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } .home-links a { min-height: 2.8rem; font-size: .92rem; } }
+.versus-icon { fill: var(--text); }
+.how-scores ul { margin: .4rem 0 .6rem; padding-left: 1.2rem; }
+.how-scores li { margin: .3rem 0; }
+/* Home's story: one finding per section, its chart or table, one caveat line. */
+.story > h2 { font-size: 1.2rem; line-height: 1.3; }
+.story > p { max-width: 62rem; }
+.section-caveat { margin: .5rem 0 0; color: var(--text-2); font-size: .85rem; }
+.cellbar { position: relative; display: block; min-width: 7rem; height: .9rem; background: var(--sunk); border-radius: 2px; }
+.cellbar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
+.cellbar-whisker { position: absolute; top: 50%; height: 0; border-top: 1.5px solid var(--text); }
+.cellbar-whisker::before, .cellbar-whisker::after { content: ""; position: absolute; top: -5px; height: 8px; border-left: 1.5px solid var(--text); }
+.cellbar-whisker::before { left: 0; }
+.cellbar-whisker::after { right: 0; }
+table.headline td.bar-cell { width: 30%; min-width: 8rem; }
+.all-setups { margin-top: .8rem; }
+.all-setups > summary { cursor: pointer; font-weight: 650; }
