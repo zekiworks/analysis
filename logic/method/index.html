@@ -1199,6 +1199,79 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-winnow_en"><h3>Logic · winnow_en</h3><dl class="facts"><dt>Setup</dt><dd>Winnow-12B · decision model</dd><dt>Model</dt><dd><code>winnow-12b</code> · provider winnow</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$11.77 for the run, at most · our GPU time, first to last answer × $2.49/h</dd><dt>GPU time</dt><dd>run winnow_en · first answer 2026-11-07 14:49:42 UTC · last answer 2026-11-07 19:33:18 UTC · span 17016.0 s, pauses included · active 84.0 s in 2 blocks (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $11.7694 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19240</code></dd><dt>Started</dt><dd>7 Nov 2026 14:49 UTC; last answer 7 Nov 2026 19:33 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Winnow-12B (site run 128); runner ffc307cb7; server context 8,192 tokens</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;winnow-12b&quot;,
+    &quot;--provider&quot;,
+    &quot;winnow&quot;,
+    &quot;--timeout&quot;,
+    &quot;180&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;winnow-12b&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;winnow&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 80.02928273492944,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/winnow__logic_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;2d57383fc8edbe69fad587211cdb32142f8535ccce0939ec2e2d8e57b983a167&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 128,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 180.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 508275,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19240/v1/systemone
+{
+ &quot;model&quot;: &quot;winnow-12b&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-glide_en"><h3>Logic · glide_en</h3><dl class="facts"><dt>Setup</dt><dd>Fastino GLiDE · decision model</dd><dt>Model</dt><dd><code>fastino/GLiDE</code> · provider fastino</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.05854 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run glide_en · first answer 2026-11-07 14:50:19 UTC · last answer 2026-11-07 14:51:38 UTC · span 79.0 s, pauses included · active 79.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 4.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.fastino.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 14:50 UTC; last answer 7 Nov 2026 14:51 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Fastino GLiDE (site run 129); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
@@ -3716,7 +3789,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-decider-v1.2-web_en"><h3>Logic · decider-v1.2-web_en</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 · decision model</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$1.158 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run decider-v1.2-web_en · first answer 2026-11-07 17:21:42 UTC · last answer 2026-11-07 17:32:09 UTC · span 627.0 s, pauses included · active 627.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:21 UTC; last answer 7 Nov 2026 17:32 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-decider-v1.2-web_en"><h3>Logic · decider-v1.2-web_en</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 with web · decision model</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$1.158 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run decider-v1.2-web_en · first answer 2026-11-07 17:21:42 UTC · last answer 2026-11-07 17:32:09 UTC · span 627.0 s, pauses included · active 627.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:21 UTC; last answer 7 Nov 2026 17:32 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 with web (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -3797,7 +3870,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-decider-v1.2-web_en_dontknow"><h3>Logic · decider-v1.2-web_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$1.153 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run decider-v1.2-web_en_dontknow · first answer 2026-11-07 17:32:24 UTC · last answer 2026-11-07 17:43:47 UTC · span 683.0 s, pauses included · active 683.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 0.8 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:32 UTC; last answer 7 Nov 2026 17:43 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-decider-v1.2-web_en_dontknow"><h3>Logic · decider-v1.2-web_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 with web · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$1.153 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run decider-v1.2-web_en_dontknow · first answer 2026-11-07 17:32:24 UTC · last answer 2026-11-07 17:43:47 UTC · span 683.0 s, pauses included · active 683.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 0.8 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:32 UTC; last answer 7 Nov 2026 17:43 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 with web (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
   &quot;batch_size&quot;: 1,
@@ -4780,6 +4853,397 @@
   }
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19230/v1/systemone
 {
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-cygnet_en"><h3>Logic · cygnet_en</h3><dl class="facts"><dt>Setup</dt><dd>Cygnet · decision model</dd><dt>Model</dt><dd><code>cygnet</code> · provider cygnet</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.04468 for the run, list · public host&#x27;s list price (same weights); GPU time, at most: $0.03458 (our GPU time, first to last answer × $2.49/h)</dd><dt>GPU time</dt><dd>run cygnet_en · first answer 2026-11-07 19:27:06 UTC · last answer 2026-11-07 19:27:56 UTC · span 50.0 s, pauses included · active 50.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0346 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19220</code></dd><dt>Started</dt><dd>7 Nov 2026 19:27 UTC; last answer 7 Nov 2026 19:27 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Cygnet (site run 127); runner ffc307cb7; vLLM 0.30.0 container (port + 5) and cygnet-recipe&#x27;s shim</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;cygnet&quot;,
+    &quot;--provider&quot;,
+    &quot;cygnet&quot;,
+    &quot;--timeout&quot;,
+    &quot;180&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;cygnet&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;weights&quot;,
+    &quot;basis&quot;: &quot;SiliconFlow&#x27;s list price for the same weights (Gemma 4 12B IT; precision not stated, ours BF16)&quot;,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.1,
+      &quot;cache_write_input_tokens&quot;: 0.1,
+      &quot;cached_input_tokens&quot;: 0.1,
+      &quot;input_tokens&quot;: 0.1,
+      &quot;output_tokens&quot;: 0.3
+    },
+    &quot;source&quot;: &quot;https://www.siliconflow.com/models/gemma-4-12b-it&quot;,
+    &quot;text&quot;: &quot;$0.10 input, $0.30 output per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;cygnet&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 46.42101441999512,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/cygnet__logic_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;f8c81568cd57056cbb8c59b6225d60cf2ff99ddc79762f68b0ca0aa2dc20349a&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 127,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 180.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 443384,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19220/v1/systemone
+{
+ &quot;model&quot;: &quot;cygnet&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-cygnet_en_dontknow"><h3>Logic · cygnet_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Cygnet · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>cygnet</code> · provider cygnet</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.04816 for the run, list · public host&#x27;s list price (same weights); GPU time, at most: $0.03528 (our GPU time, first to last answer × $2.49/h)</dd><dt>GPU time</dt><dd>run cygnet_en_dontknow · first answer 2026-11-07 19:27:59 UTC · last answer 2026-11-07 19:28:50 UTC · span 51.0 s, pauses included · active 51.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0353 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19220</code></dd><dt>Started</dt><dd>7 Nov 2026 19:27 UTC; last answer 7 Nov 2026 19:28 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Cygnet (site run 127); runner ffc307cb7; vLLM 0.30.0 container (port + 5) and cygnet-recipe&#x27;s shim</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;cygnet&quot;,
+    &quot;--provider&quot;,
+    &quot;cygnet&quot;,
+    &quot;--timeout&quot;,
+    &quot;180&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;cygnet&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;weights&quot;,
+    &quot;basis&quot;: &quot;SiliconFlow&#x27;s list price for the same weights (Gemma 4 12B IT; precision not stated, ours BF16)&quot;,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.1,
+      &quot;cache_write_input_tokens&quot;: 0.1,
+      &quot;cached_input_tokens&quot;: 0.1,
+      &quot;input_tokens&quot;: 0.1,
+      &quot;output_tokens&quot;: 0.3
+    },
+    &quot;source&quot;: &quot;https://www.siliconflow.com/models/gemma-4-12b-it&quot;,
+    &quot;text&quot;: &quot;$0.10 input, $0.30 output per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;cygnet&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 48.38162024001758,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/cygnet__logic_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;5ba4e68bd4997ba6ce760ab9a693d8b804be54707cb59980c1e165f91cdb919c&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 127,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 180.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 478259,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19220/v1/systemone
+{
+ &quot;model&quot;: &quot;cygnet&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-winnow_en_dontknow"><h3>Logic · winnow_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Winnow-12B · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>winnow-12b</code> · provider winnow</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.06087 for the run, at most · our GPU time, first to last answer × $2.49/h</dd><dt>GPU time</dt><dd>run winnow_en_dontknow · first answer 2026-11-07 19:33:22 UTC · last answer 2026-11-07 19:34:50 UTC · span 88.0 s, pauses included · active 88.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0609 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19240</code></dd><dt>Started</dt><dd>7 Nov 2026 19:33 UTC; last answer 7 Nov 2026 19:34 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Winnow-12B (site run 128); runner ffc307cb7; server context 8,192 tokens</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;winnow-12b&quot;,
+    &quot;--provider&quot;,
+    &quot;winnow&quot;,
+    &quot;--timeout&quot;,
+    &quot;180&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;winnow-12b&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;winnow&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 84.56830128500951,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/winnow__logic_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;603dfef675488829ca8b9a41d1cba8dca09b2235e08ad9f454d7ea233d52b30d&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 128,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 180.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 548751,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19240/v1/systemone
+{
+ &quot;model&quot;: &quot;winnow-12b&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-clef-flash_en"><h3>Logic · clef-flash_en</h3><dl class="facts"><dt>Setup</dt><dd>Clef-flash · decision model</dd><dt>Model</dt><dd><code>clef-flash</code> · provider clef</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.01894 for the run, list · maker&#x27;s list price; GPU time, at most: $0.0913 (our GPU time, first to last answer × $2.49/h)</dd><dt>GPU time</dt><dd>run clef-flash_en · first answer 2026-11-07 19:39:27 UTC · last answer 2026-11-07 19:41:39 UTC · span 132.0 s, pauses included · active 132.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0913 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19210</code></dd><dt>Started</dt><dd>7 Nov 2026 19:39 UTC; last answer 7 Nov 2026 19:41 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Clef-flash (site run 139); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;clef-flash&quot;,
+    &quot;--provider&quot;,
+    &quot;clef&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;clef-flash&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;maker&quot;,
+    &quot;basis&quot;: &quot;Cloudflare&#x27;s list price for the same model&quot;,
+    &quot;date&quot;: &quot;2026-10-18&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.038,
+      &quot;cache_write_input_tokens&quot;: 0.038,
+      &quot;cached_input_tokens&quot;: 0.038,
+      &quot;input_tokens&quot;: 0.038,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://developers.cloudflare.com/workers-ai/models/clef-flash/&quot;,
+    &quot;text&quot;: &quot;$0.038 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;clef&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 123.11124927998571,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/clef-flash__logic_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;900a59a69facb8efdbd7aabfdfbac8e603193f4658b2a38ec77f6373f02d3ce6&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 139,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 498331,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19210/v1/systemone
+{
+ &quot;model&quot;: &quot;clef-flash&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-clef-flash_en_dontknow"><h3>Logic · clef-flash_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Clef-flash · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>clef-flash</code> · provider clef</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.02065 for the run, list · maker&#x27;s list price; GPU time, at most: $0.09061 (our GPU time, first to last answer × $2.49/h)</dd><dt>GPU time</dt><dd>run clef-flash_en_dontknow · first answer 2026-11-07 19:41:43 UTC · last answer 2026-11-07 19:43:54 UTC · span 131.0 s, pauses included · active 131.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0906 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19210</code></dd><dt>Started</dt><dd>7 Nov 2026 19:41 UTC; last answer 7 Nov 2026 19:43 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Clef-flash (site run 139); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;clef-flash&quot;,
+    &quot;--provider&quot;,
+    &quot;clef&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;clef-flash&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;maker&quot;,
+    &quot;basis&quot;: &quot;Cloudflare&#x27;s list price for the same model&quot;,
+    &quot;date&quot;: &quot;2026-10-18&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.038,
+      &quot;cache_write_input_tokens&quot;: 0.038,
+      &quot;cached_input_tokens&quot;: 0.038,
+      &quot;input_tokens&quot;: 0.038,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://developers.cloudflare.com/workers-ai/models/clef-flash/&quot;,
+    &quot;text&quot;: &quot;$0.038 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;clef&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 123.32337547702264,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/clef-flash__logic_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;7b0b6f4682833840615f8a9d06ebf81be87f6c3b05322fbea442e788ae4557c3&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 139,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 543331,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19210/v1/systemone
+{
+ &quot;model&quot;: &quot;clef-flash&quot;,
  &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
  &quot;questions&quot;: {
   &quot;answer&quot;: {
@@ -7966,7 +8430,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-deepseek-v4-flash_en_t0"><h3>Math · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not measured</dd><dt>Answer time</dt><dd>run deepseek-v4-flash_en_t0 · first answer 2026-11-07 17:28:52 UTC · last answer 2026-11-07 19:25:10 UTC · span 6978.0 s, pauses included · active 6978.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 2.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 19:25 UTC</dd><dt>Progress</dt><dd>1,391 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations | INCIDENT 2026-11-07 17:01-17:30 UTC: after the reboot the runner could not store answers (responses had a new probs_json column; run_eval.py inserted without column names), so the answers generated in that window were discarded; not recoverable (vLLM logs keep no reply text). spark2 vLLM log: 362 completed chat requests from bariton (192.168.1.126) in 17:00-17:30, an upper bound since other bariton users share that address. Restarted 17:30 with the same settings; every stored answer is from that restart.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-deepseek-v4-flash_en_t0"><h3>Math · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not measured</dd><dt>Answer time</dt><dd>run deepseek-v4-flash_en_t0 · first answer 2026-11-07 17:28:52 UTC · last answer 2026-11-07 20:28:39 UTC · span 10787.0 s, pauses included · active 10787.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 2.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 20:28 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations | INCIDENT 2026-11-07 17:01-17:30 UTC: after the reboot the runner could not store answers (responses had a new probs_json column; run_eval.py inserted without column names), so the answers generated in that window were discarded; not recoverable (vLLM logs keep no reply text). spark2 vLLM log: 362 completed chat requests from bariton (192.168.1.126) in 17:00-17:30, an upper bound since other bariton users share that address. Restarted 17:30 with the same settings; every stored answer is from that restart.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;max_tokens&quot;: 8192,
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
@@ -8357,7 +8821,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-decider-v1.2-web_en"><h3>Math · decider-v1.2-web_en</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 · decision model</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$2.212 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run decider-v1.2-web_en · first answer 2026-11-07 17:41:03 UTC · last answer 2026-11-07 18:01:36 UTC · span 1233.0 s, pauses included · active 1233.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:41 UTC; last answer 7 Nov 2026 18:01 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-decider-v1.2-web_en"><h3>Math · decider-v1.2-web_en</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 with web · decision model</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$2.212 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run decider-v1.2-web_en · first answer 2026-11-07 17:41:03 UTC · last answer 2026-11-07 18:01:36 UTC · span 1233.0 s, pauses included · active 1233.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:41 UTC; last answer 7 Nov 2026 18:01 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 with web (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -8661,7 +9125,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-decider-v1.2-web_en_dontknow"><h3>Math · decider-v1.2-web_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$2.211 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run decider-v1.2-web_en_dontknow · first answer 2026-11-07 18:01:44 UTC · last answer 2026-11-07 18:21:49 UTC · span 1205.0 s, pauses included · active 1205.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 18:01 UTC; last answer 7 Nov 2026 18:21 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-decider-v1.2-web_en_dontknow"><h3>Math · decider-v1.2-web_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 with web · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$2.211 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run decider-v1.2-web_en_dontknow · first answer 2026-11-07 18:01:44 UTC · last answer 2026-11-07 18:21:49 UTC · span 1205.0 s, pauses included · active 1205.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 18:01 UTC; last answer 7 Nov 2026 18:21 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 with web (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
   &quot;batch_size&quot;: 1,
@@ -9512,12 +9976,476 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-cygnet_en"><h3>Math · cygnet_en</h3><dl class="facts"><dt>Setup</dt><dd>Cygnet · decision model</dd><dt>Model</dt><dd><code>cygnet</code> · provider cygnet</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.05179 for the run, list · public host&#x27;s list price (same weights); GPU time, at most: $0.05948 (our GPU time, first to last answer × $2.49/h)</dd><dt>GPU time</dt><dd>run cygnet_en · first answer 2026-11-07 19:28:53 UTC · last answer 2026-11-07 19:30:19 UTC · span 86.0 s, pauses included · active 86.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0595 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19220</code></dd><dt>Started</dt><dd>7 Nov 2026 19:28 UTC; last answer 7 Nov 2026 19:30 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Cygnet (site run 127); runner ffc307cb7; vLLM 0.30.0 container (port + 5) and cygnet-recipe&#x27;s shim</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;cygnet&quot;,
+    &quot;--provider&quot;,
+    &quot;cygnet&quot;,
+    &quot;--timeout&quot;,
+    &quot;180&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;cygnet&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;weights&quot;,
+    &quot;basis&quot;: &quot;SiliconFlow&#x27;s list price for the same weights (Gemma 4 12B IT; precision not stated, ours BF16)&quot;,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.1,
+      &quot;cache_write_input_tokens&quot;: 0.1,
+      &quot;cached_input_tokens&quot;: 0.1,
+      &quot;input_tokens&quot;: 0.1,
+      &quot;output_tokens&quot;: 0.3
+    },
+    &quot;source&quot;: &quot;https://www.siliconflow.com/models/gemma-4-12b-it&quot;,
+    &quot;text&quot;: &quot;$0.10 input, $0.30 output per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;cygnet&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 80.81341893093486,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/cygnet__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;87919baae3619df887805282fe363e83427318f3a4b26075520b5160fe0c78e0&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 127,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 180.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 511422,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19220/v1/systemone
+{
+ &quot;model&quot;: &quot;cygnet&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-cygnet_en_dontknow"><h3>Math · cygnet_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Cygnet · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>cygnet</code> · provider cygnet</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.0585 for the run, list · public host&#x27;s list price (same weights); GPU time, at most: $0.06087 (our GPU time, first to last answer × $2.49/h)</dd><dt>GPU time</dt><dd>run cygnet_en_dontknow · first answer 2026-11-07 19:30:23 UTC · last answer 2026-11-07 19:31:51 UTC · span 88.0 s, pauses included · active 88.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0609 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19220</code></dd><dt>Started</dt><dd>7 Nov 2026 19:30 UTC; last answer 7 Nov 2026 19:31 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Cygnet (site run 127); runner ffc307cb7; vLLM 0.30.0 container (port + 5) and cygnet-recipe&#x27;s shim</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;cygnet&quot;,
+    &quot;--provider&quot;,
+    &quot;cygnet&quot;,
+    &quot;--timeout&quot;,
+    &quot;180&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;cygnet&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;weights&quot;,
+    &quot;basis&quot;: &quot;SiliconFlow&#x27;s list price for the same weights (Gemma 4 12B IT; precision not stated, ours BF16)&quot;,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.1,
+      &quot;cache_write_input_tokens&quot;: 0.1,
+      &quot;cached_input_tokens&quot;: 0.1,
+      &quot;input_tokens&quot;: 0.1,
+      &quot;output_tokens&quot;: 0.3
+    },
+    &quot;source&quot;: &quot;https://www.siliconflow.com/models/gemma-4-12b-it&quot;,
+    &quot;text&quot;: &quot;$0.10 input, $0.30 output per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;cygnet&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 83.26958296496923,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/cygnet__math_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;528442b64c52197ee50a81521fbdb7a88144258b7b9275ba0b62c836405c630f&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 127,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 180.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 578475,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19220/v1/systemone
+{
+ &quot;model&quot;: &quot;cygnet&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-winnow_en"><h3>Math · winnow_en</h3><dl class="facts"><dt>Setup</dt><dd>Winnow-12B · decision model</dd><dt>Model</dt><dd><code>winnow-12b</code> · provider winnow</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.083 for the run, at most · our GPU time, first to last answer × $2.49/h</dd><dt>GPU time</dt><dd>run winnow_en · first answer 2026-11-07 19:34:53 UTC · last answer 2026-11-07 19:36:53 UTC · span 120.0 s, pauses included · active 120.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0830 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19240</code></dd><dt>Started</dt><dd>7 Nov 2026 19:34 UTC; last answer 7 Nov 2026 19:36 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Winnow-12B (site run 128); runner ffc307cb7; server context 8,192 tokens</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;winnow-12b&quot;,
+    &quot;--provider&quot;,
+    &quot;winnow&quot;,
+    &quot;--timeout&quot;,
+    &quot;180&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;winnow-12b&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;winnow&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 115.08058561700636,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/winnow__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;e8d76f1ee2b779328b82b43ab3610f26b23a81e36ddd37eaf4c8b394912efa58&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 128,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 180.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 548554,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19240/v1/systemone
+{
+ &quot;model&quot;: &quot;winnow-12b&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-winnow_en_dontknow"><h3>Math · winnow_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Winnow-12B · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>winnow-12b</code> · provider winnow</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.08853 for the run, at most · our GPU time, first to last answer × $2.49/h</dd><dt>GPU time</dt><dd>run winnow_en_dontknow · first answer 2026-11-07 19:36:57 UTC · last answer 2026-11-07 19:39:05 UTC · span 128.0 s, pauses included · active 128.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.0885 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19240</code></dd><dt>Started</dt><dd>7 Nov 2026 19:36 UTC; last answer 7 Nov 2026 19:39 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Winnow-12B (site run 128); runner ffc307cb7; server context 8,192 tokens</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;winnow-12b&quot;,
+    &quot;--provider&quot;,
+    &quot;winnow&quot;,
+    &quot;--timeout&quot;,
+    &quot;180&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;winnow-12b&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;winnow&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 123.55064278500322,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/winnow__math_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;3aba2a8f0f3910b9fe96fb0e736a016cb180b8f43fa554e9e966248a9b51ecca&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 128,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 180.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 625976,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19240/v1/systemone
+{
+ &quot;model&quot;: &quot;winnow-12b&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-clef-flash_en"><h3>Math · clef-flash_en</h3><dl class="facts"><dt>Setup</dt><dd>Clef-flash · decision model</dd><dt>Model</dt><dd><code>clef-flash</code> · provider clef</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.02347 for the run, list · maker&#x27;s list price; GPU time, at most: $0.1556 (our GPU time, first to last answer × $2.49/h)</dd><dt>GPU time</dt><dd>run clef-flash_en · first answer 2026-11-07 19:43:58 UTC · last answer 2026-11-07 19:47:43 UTC · span 225.0 s, pauses included · active 225.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.1556 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19210</code></dd><dt>Started</dt><dd>7 Nov 2026 19:43 UTC; last answer 7 Nov 2026 19:47 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Clef-flash (site run 139); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;clef-flash&quot;,
+    &quot;--provider&quot;,
+    &quot;clef&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;clef-flash&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;maker&quot;,
+    &quot;basis&quot;: &quot;Cloudflare&#x27;s list price for the same model&quot;,
+    &quot;date&quot;: &quot;2026-10-18&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.038,
+      &quot;cache_write_input_tokens&quot;: 0.038,
+      &quot;cached_input_tokens&quot;: 0.038,
+      &quot;input_tokens&quot;: 0.038,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://developers.cloudflare.com/workers-ai/models/clef-flash/&quot;,
+    &quot;text&quot;: &quot;$0.038 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;clef&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 220.3990778950556,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/clef-flash__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;09acd031605cbf1aac613e430635473bae03202766f37995c98e65e641b29ab6&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 139,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 617719,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19210/v1/systemone
+{
+ &quot;model&quot;: &quot;clef-flash&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-clef-flash_en_dontknow"><h3>Math · clef-flash_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Clef-flash · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>clef-flash</code> · provider clef</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.02676 for the run, list · maker&#x27;s list price; GPU time, at most: $0.1549 (our GPU time, first to last answer × $2.49/h)</dd><dt>GPU time</dt><dd>run clef-flash_en_dontknow · first answer 2026-11-07 19:47:48 UTC · last answer 2026-11-07 19:51:32 UTC · span 224.0 s, pauses included · active 224.0 s in 1 block (gaps of more than 10 minutes between answers left out; not used for the cost) · GPU-time cost $0.1549 for the run (span × $2.49/GPU-hour × 1 GPU, at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19210</code></dd><dt>Started</dt><dd>7 Nov 2026 19:47 UTC; last answer 7 Nov 2026 19:51 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Clef-flash (site run 139); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;clef-flash&quot;,
+    &quot;--provider&quot;,
+    &quot;clef&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;clef-flash&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;maker&quot;,
+    &quot;basis&quot;: &quot;Cloudflare&#x27;s list price for the same model&quot;,
+    &quot;date&quot;: &quot;2026-10-18&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.038,
+      &quot;cache_write_input_tokens&quot;: 0.038,
+      &quot;cached_input_tokens&quot;: 0.038,
+      &quot;input_tokens&quot;: 0.038,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://developers.cloudflare.com/workers-ai/models/clef-flash/&quot;,
+    &quot;text&quot;: &quot;$0.038 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;clef&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 213.65449710295798,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/clef-flash__math_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;ec65c4fb5c147688ad3f6d194f0793b1fb672146457dec46ebc4336c69d45a04&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 139,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 704239,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19210/v1/systemone
+{
+ &quot;model&quot;: &quot;clef-flash&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 19:25 UTC from the logic and math benchmark.db files (205,564 graded answers in 126 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 20:32 UTC from the logic and math benchmark.db files (226,064 graded answers in 138 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
