@@ -6024,12 +6024,170 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-preview_en"><h3>Math · subq-preview_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap Preview · decision model</dd><dt>Model</dt><dd><code>subq-snap-preview</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.02321 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 16:03 UTC; last answer 7 Nov 2026 16:17 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap Preview (site run 177); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;subq-snap-preview&quot;,
+    &quot;--provider&quot;,
+    &quot;subq&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;subq-snap-preview&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;SubQ&#x27;s Decisions API price&quot;,
+    &quot;date&quot;: &quot;2026-10-13&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.05,
+      &quot;cache_write_input_tokens&quot;: 0.05,
+      &quot;cached_input_tokens&quot;: 0.05,
+      &quot;input_tokens&quot;: 0.05,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://docs.subq.ai/using-the-api/models/&quot;,
+    &quot;text&quot;: &quot;$0.05 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;subq&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 837.6735406697262,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/subq-preview__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;0ded5a1be905d6b8928ed916e653e46815fae41ee87115467d33e890ad991929&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 177,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 464254,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://api.subq.ai/v1/systemone
+{
+ &quot;model&quot;: &quot;subq-snap-preview&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-ms-decision-1_en_dontknow"><h3>Math · ms-decision-1_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Microsoft-Decision-1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.0172 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>7 Nov 2026 16:07 UTC; last answer 7 Nov 2026 16:18 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1 (site run 205); runner ffc307cb7; via OpenRouter; latency includes OpenRouter&#x27;s time</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;microsoft/microsoft-decision-1&quot;,
+    &quot;--provider&quot;,
+    &quot;openrouter&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;microsoft/microsoft-decision-1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;OpenRouter&#x27;s Microsoft-Decision-1 price&quot;,
+    &quot;date&quot;: &quot;2026-10-17&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.042,
+      &quot;cache_write_input_tokens&quot;: 0.042,
+      &quot;cached_input_tokens&quot;: 0.042,
+      &quot;input_tokens&quot;: 0.042,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://openrouter.ai/microsoft/microsoft-decision-1&quot;,
+    &quot;text&quot;: &quot;$0.042 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 685.2481700479984,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/ms-decision-1__math_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;a4ae1ca120f541f59c8ecd00097992d993c96f822cf414c38c00e684ab8217f1&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 205,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 409448,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://openrouter.ai/api/v1/systemone
+{
+ &quot;model&quot;: &quot;microsoft/microsoft-decision-1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 16:17 UTC from the logic and math benchmark.db files (125,205 graded answers in 79 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 16:18 UTC from the logic and math benchmark.db files (129,531 graded answers in 81 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
