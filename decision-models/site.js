@@ -76,8 +76,9 @@ const costSwitch = () =>
   control.addEventListener('click', event => {
     const choice = event.target.closest('button')?.dataset.themeChoice;
     if (!choice) return;
-    if (choice === 'light') document.documentElement.dataset.theme = 'light';
-    else delete document.documentElement.dataset.theme;
+    // The theme is always explicit on <html> (data-theme "light" or "dark"), so the suite strip (suite-bar.css), which
+    // follows the system setting without it, matches the page.
+    document.documentElement.dataset.theme = choice === 'light' ? 'light' : 'dark';
     try {
       localStorage.setItem('theme', choice);
     } catch (error) {
@@ -91,7 +92,8 @@ const costSwitch = () =>
    punctuation or spaces are dropped, so "all." reads as all). The bar marks its row 2 choice, the row 1 links and the top
    bar's benchmark links keep the group, and each element whose data-models lists other groups only is
    hidden (and shown again when it lists this one), before the page's own scripts run. <html data-models-view> carries
-   the group for them. The bar's height is kept in --view-bar-h, so the page scrolls links and parts below it. */
+   the group for them. The sticky header's height (the suite strip and the view bar) is kept in --view-bar-h, so the
+   page scrolls links and parts below it. */
 (function setupViewBar() {
   const asked = (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, '');
   const group = ['all', 'decision', 'chat'].includes(asked) ? asked : 'all';
@@ -115,9 +117,10 @@ const costSwitch = () =>
     const [path, fragment] = link.getAttribute('href').split('#');
     link.setAttribute('href', `${path.split('?')[0]}?models=${group}${fragment ? `#${fragment}` : ''}`);
   });
-  const measure = () => document.documentElement.style.setProperty('--view-bar-h', `${bar.offsetHeight}px`);
+  const header = bar.closest('.site-header') ?? bar;
+  const measure = () => document.documentElement.style.setProperty('--view-bar-h', `${header.offsetHeight}px`);
   measure();
-  if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
+  if ('ResizeObserver' in window) new ResizeObserver(measure).observe(header);
 })();
 
 /* Every page: the view bar's row 3, the measure. A key whose part (#accuracy, #non-hallucination, #cost, #latency) is on
@@ -152,7 +155,7 @@ const costSwitch = () =>
   let pressed = null;
   let pressedAt = 0;
   const inView = () => {
-    const top = bar.offsetHeight;
+    const top = (bar.closest('.site-header') ?? bar).offsetHeight;
     const line = top + (window.innerHeight - top) / 4;
     const found = parts.find(({ part }) => {
       if (!part.offsetParent) return false;

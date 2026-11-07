@@ -8,6 +8,7 @@ import hashlib
 import html
 import json
 import math
+import re
 from collections.abc import Callable, Iterable
 from functools import cache, cached_property
 from pathlib import Path
@@ -59,6 +60,11 @@ HOME_STATE = "?models=all"
 # The house mark before the view bar's Home key, in the key's text colour.
 HOME_MARK = ('<svg class="home-mark" viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
              '<path d="M8 1.6 1 7.6h2v6.8h3.8v-4.2h2.4v4.2H13V7.6h2z"/></svg>')
+# The suite strip shared by the three benchmark sites (decision-models, logic, backgammon): its stylesheet and snippet,
+# files of the site published as they are, which the other two sites copy; this site's link is the marked one.
+SUITE_CSS = "suite-bar.css"
+SUITE_HTML = "suite-bar.html"
+SUITE_HERE = "/analysis/decision-models/"
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
 # A cost with no estimate because the setup ran on our own hardware and its maker lists no price for the same model
@@ -70,6 +76,17 @@ def cost_missing(run: dict[str, Any]) -> str:
     """What a cost cell or cost value shows where a run has no cost: No list price for a run on our own hardware whose
     maker lists no price (billing 'local'), else Not measured."""
     return NO_LIST_PRICE if run.get("billing") == "local" else NOT_MEASURED
+
+
+@cache
+def suite_bar() -> str:
+    """The suite strip as suite-bar.html gives it (its leading comment dropped), this site's link marked as the current
+    one (aria-current="page"), inlined at the top of the sticky header of every page."""
+    snippet = re.sub(r"<!--.*?-->", "", (ROOT / SUITE_HTML).read_text(encoding="utf-8"), flags=re.S).strip()
+    here = f'<a href="{SUITE_HERE}">'
+    if snippet.count(here) != 1:
+        raise SystemExit(f"{SUITE_HTML}: no single link to {SUITE_HERE}")
+    return snippet.replace(here, f'<a href="{SUITE_HERE}" aria-current="page">')
 
 
 # The view bar's groups (?models=), the first shown without JavaScript.
@@ -371,14 +388,15 @@ def legend_mark(colour: str, shape: str | None = None, dash: str | None = None) 
 
 
 def topbar(path: str) -> str:
-    """The top of every page: first the view bar, which stays at the top of the window: the Home key (HOME_MARK, the
-    root index in its default state, marked as the current page there), row 1 the test (a page, the current one marked
-    here from the path; on the root index Home is the page, so no test is marked), row 2 the models (?models=, marked by
-    site.js, which also keeps the group in the row 1 links; All, the default, looks unpressed, v3.css), row 3 the
-    measure (a part of the page, marked by site.js); then the bar with the brand, which links home, the pages row (keys
-    after a PAGES label) and the theme switch, which scrolls away. On a page that shows its parts by group
-    (FILTER_PAGES) the row 2 links stay on it, elsewhere they open the home page with that group; on a page of row 1 the
-    row 3 links go to its parts, elsewhere to the home page's. On a wide screen rows 1 and 2 share a line (v3.css).
+    """The top of every page: first the sticky header, which stays at the top of the window: the suite strip
+    (suite_bar, linking the three benchmark sites), then the view bar: the Home key (HOME_MARK, the root index in its
+    default state, marked as the current page there), the test (a page, the current one marked here from the path; on
+    the root index Home is the page, so no test is marked), the models (?models=, marked by site.js, which also keeps
+    the group in the test links; All, the default, looks unpressed, v3.css) and the measure (a part of the page, marked
+    by site.js), on one line at 1280 px (v3.css); then the title strip with the brand, which links home, the theme
+    switch and the pages row (keys after a PAGES label), which scrolls away. On a page that shows its parts by group
+    (FILTER_PAGES) the group links stay on it, elsewhere they open the home page with that group; on a test's page the
+    measure links go to its parts, elsewhere to the home page's.
     One active tab: only the page in view (Home, a test or a pages-row entry) and a chosen filter look active, and every
     active-looking key opens Home in its default state (the root index with HOME_STATE: All models, no part in the
     address): the Home key, the open test and the pages row's entry of the page in view here, Decision or Chat and the
@@ -396,14 +414,15 @@ def topbar(path: str) -> str:
                     f'<li><a class="view-key" href="{rel(path, target)}" data-view-test>{esc(label)}</a></li>'
                     for target, label in VIEW_TESTS)
     base = "" if path in {target for target, _ in VIEW_TESTS} else rel(path, "")
-    # Row 2's keys add the word "models" only where each row has a line of its own and room for it (v3.css .view-more).
+    # Row 2's keys read All, Decision and Chat after the group's name, Models.
     groups = "".join(f'<li><a class="view-key" href="{"" if path in FILTER_PAGES else rel(path, "")}?models={value}" '
-                     f'data-view-group="{value}"><span>{esc(label.removesuffix(" models"))}<span class="view-more"> models</span></span></a></li>'
+                     f'data-view-group="{value}">{esc(label.removesuffix(" models"))}</a></li>'
                      for value, label in VIEW_GROUPS)
     measures = "".join(f'<li><a class="view-key" href="{base + "?models=all" if base else ""}#{key}" data-view-measure="{key}">'
                        f"{esc(label)}</a></li>" for key, label in VIEW_MEASURES)
     return (
-        f'<nav class="view-bar" aria-label="View: test, models and measure" data-home="{home}"><div class="view-rows">\n'
+        f'<div class="site-header">\n  {suite_bar()}\n'
+        f'  <nav class="view-bar" aria-label="View: test, models and measure" data-home="{home}"><div class="view-rows">\n'
         f'    <a class="view-key view-home" href="{home}" data-view-home{current if not path else ""}>{HOME_MARK}Home</a>\n'
         '    <div class="view-row view-tests"><span class="view-label" id="view-test">Test</span>'
         f'<ul aria-labelledby="view-test">{tests}</ul></div>\n'
@@ -412,6 +431,7 @@ def topbar(path: str) -> str:
         '    <div class="view-row view-measures"><span class="view-label" id="view-measure">Measure</span>'
         f'<ul aria-labelledby="view-measure">{measures}</ul></div>\n'
         "  </div></nav>\n"
+        "  </div>\n"
         '  <header class="topbar">\n'
         f'    <a class="brand" href="{rel(path, "")}">{esc(KICKER)}</a>\n'
         '    <nav class="nav" aria-label="Pages"><span class="view-label nav-label" aria-hidden="true">Pages</span>'
@@ -738,7 +758,8 @@ class Site:
   <title>{esc(title)} · Hilde</title>
   <link rel="canonical" href="{esc(self.config['site_url'] + path)}">
   <meta name="description" content="{esc(description)}">{preview}
-  <script>document.documentElement.classList.add("js"); try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if ((new URLSearchParams(location.search).get("cost-unit") || localStorage.getItem("costUnit")) === "1m") document.documentElement.dataset.costUnit = "1m"; }} catch (e) {{}}</script>
+  <script>document.documentElement.classList.add("js"); document.documentElement.dataset.theme = "dark"; try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if ((new URLSearchParams(location.search).get("cost-unit") || localStorage.getItem("costUnit")) === "1m") document.documentElement.dataset.costUnit = "1m"; }} catch (e) {{}}</script>
+  <link rel="stylesheet" href="{root}{asset(SUITE_CSS)}">
   <link rel="stylesheet" href="{root}{asset("v3.css")}">
   <script src="{root}{asset("site.js")}" defer></script>{extra}
 </head>

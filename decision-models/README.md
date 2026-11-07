@@ -166,14 +166,24 @@ python3 -m http.server 8000                                # preview at http://1
   block loading the data files from a `file://` page.
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
-  - **View bar** (`topbar` in `sitebuild/site.py`, first on every page and sticky at the top): the Home key first (a
-    house mark and "Home", opening the root index in its default state and marked on it; before row 1 on a wide
-    screen, beside row 2 on a phone, so the bar keeps its height), row 1 the test (English
+  - **Suite strip** (`suite-bar.css`, `suite-bar.html`, published with the site as they are; `suite_bar` in
+    `sitebuild/site.py` inlines the snippet with this site's link marked `aria-current="page"`): one 27 px line of
+    links to the three benchmark sites, English & Turkish Reading (`/analysis/decision-models/`), Logic & Math
+    (`/analysis/logic/`) and Backgammon (`/analysis/backgammon/`), the current one filled; the first row of the sticky
+    header on every page, identical on the three sites, which copy both files. Its stylesheet is self-contained (its own
+    `--suite-*` colours, light and dark by `data-theme` on `<html>`, else the system setting); our pages always set
+    `data-theme` ("light" or "dark") so it matches the page.
+  - **View bar** (`topbar` in `sitebuild/site.py`, under the suite strip in the sticky header `.site-header` on every
+    page; `--view-bar-h` is the header's height, kept by `site.js`): the Home key first (a
+    house mark and "Home", opening the root index in its default state and marked on it; beside All, Decision and Chat
+    on a phone), row 1 the test (English
     reading, `english/`; Turkish reading and grammar, the home page; English and Turkish, `turkish-vs-english/`), row 2
     the models (`?models=all|decision|chat`, all when missing; trailing dots, punctuation or spaces are dropped, so
     `?models=all.` reads as all), row 3 the measure (Accuracy, Non-hallucination, Cost,
-    Latency); on a screen wider than 1000 px rows 1 and 2 share the first line and row 3 takes the second, each row's
-    name before its keys (row 2 reads All, Decision, Chat; "models" is added where each row has a line of its own and room for it). Each row 1 choice opens
+    Latency); compact keys (12.5 px bold text, 26 px tall, 4 px apart, 10 px group names), the groups set apart by
+    spacing, on one line at 1280 px (63 px sticky header with the suite strip), on two at 1024 px; on a phone three
+    short rows, the group names for screen readers only (112 px with the suite strip). Row 2 reads All, Decision,
+    Chat. Each row 1 choice opens
     its page at the top, charts first, then the table. One active tab: only the page in view looks active (Home on the
     root index, whose own test key stays plain; the test key on `english/` and `turkish-vs-english/`; the pages-row
     entry on the other pages), and a filter only away from its default (Decision or Chat; All keeps its `aria-current`
@@ -223,8 +233,9 @@ python3 -m http.server 8000                                # preview at http://1
     English (`turkish-vs-english/`, from `results.json`'s `english_reading`,
     `dont_know_option_word`, `english-reading.json` and `page_config.json`'s `english_reading` and `model_languages`,
     built by `sitebuild/english_reading.py`; its former address `english-reading/` redirects there, fragment kept). The
-    top bar under the view bar (`topbar` in `sitebuild/site.py`): the brand and the theme switch, then the pages row,
-    keys in the view bar's style after a small PAGES label (Home first, the root index in its default state; Page
+    title strip under the sticky header (`topbar` in `sitebuild/site.py`, scrolling away): the brand and the theme
+    switch on one short line, then the pages row, compact keys in the view bar's style after a small PAGES label, on
+    one line at 1280 px (Home first, the root index in its default state; Page
     images and Hallucination, then the web experiments Web grounding and PWS-Decisions, each one click from every page,
     then Every question, Where models disagree, Topics, Compare, Method, Data; the current page filled as a selected key,
     its entry opening Home; on a phone one line that scrolls sideways). The in-page link rows that work as tabs

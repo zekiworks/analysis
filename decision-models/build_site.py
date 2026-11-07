@@ -52,8 +52,8 @@ ROOT = Path(__file__).resolve().parent
 import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
 from sitebuild.dont_know import ranked as dont_know_ranked, running_setups  # noqa: E402
-from sitebuild.site import (GROUPS, NOT_MEASURED, ROUTE_LLMS, Site, asset, cost_missing, cost_unit_in, cost_value, experiments,  # noqa: E402
-                            family_icon, family_legend, hbars, pct, route_labels, run_families, shown, topbar)
+from sitebuild.site import (GROUPS, NOT_MEASURED, ROUTE_LLMS, SUITE_CSS, Site, asset, cost_missing, cost_unit_in, cost_value,  # noqa: E402
+                            experiments, family_icon, family_legend, hbars, pct, route_labels, run_families, shown, topbar)
 
 PAGE = ROOT / "index.html"
 # The home page's data, from results.json, which stays the published download: HOME, preloaded, holds what v3.js's
@@ -799,9 +799,11 @@ def main() -> int:
     home_data(data)
     blocks = {
         "head": head(data, names["preview"]["dark"]),
-        # The stylesheet and scripts at versioned addresses (asset), so a page and its scripts always come from one build;
-        # the first data file preloads while the page parses (fetch's own mode, so v3.js's fetch takes it).
-        "assets": (f'<link rel="stylesheet" href="{asset("v3.css")}">\n'
+        # The stylesheets and scripts at versioned addresses (asset), so a page and its scripts always come from one build
+        # (the suite strip's own stylesheet first); the first data file preloads while the page parses (fetch's own mode,
+        # so v3.js's fetch takes it).
+        "assets": (f'<link rel="stylesheet" href="{asset(SUITE_CSS)}">\n'
+                   f'  <link rel="stylesheet" href="{asset("v3.css")}">\n'
                    f'  <link rel="preload" href="{asset(HOME)}" as="fetch" crossorigin>\n'
                    f'  <script src="{asset("site.js")}" defer></script>\n'
                    f'  <script src="{asset("v3.js")}" defer></script>'),
