@@ -46,6 +46,10 @@ function rowShown(el) {
   return el.dataset.kind === 'reference' || Object.keys(f).every(g => f[g] === 'all' || el.dataset[g] === f[g]);
 }
 
+/* Parts of the home page the filter row does not govern (bus #2718): the leaderboard is fixed (all leagues, all phases,
+   every setup) and the Nackgammon section has its own Decision / Chat / All and per-model keys. */
+const OWN_SCOPE = '#leaderboard, #nackgammon-paired';
+
 function activeFilters() {
   const on = Object.keys(HOME.filters).filter(g => HOME.filters[g] !== 'all').map(g => `${FILTER_LABEL[g]}: ${HOME.filters[g]}`);
   if (HOME.phase !== 'all') on.push(`Phase: ${HOME.phase}`);
@@ -115,28 +119,19 @@ function viewOn(v, lg) {
     && !v.parentElement.querySelector(':scope > [data-league-view="all"]'));
 }
 
-/* A key in the view bar is a link (it works without the script: ?league=, ?type=): marked with aria-current, not
-   aria-pressed. */
-function markKey(key, on) {
-  if (key.tagName === 'A') {
-    if (on) key.setAttribute('aria-current', 'true'); else key.removeAttribute('aria-current');
-  } else {
-    key.setAttribute('aria-pressed', String(on));
-  }
-}
-
 function applyHome() {
   const lg = HOME.league;
   document.querySelectorAll('[data-league-view]').forEach(v => v.toggleAttribute('data-off', !viewOn(v, lg)));
   document.querySelectorAll('[data-stack-title]').forEach(h => { h.hidden = lg !== 'all'; });
-  document.querySelectorAll('[data-league-pick]').forEach(b => markKey(b, b.dataset.leaguePick === lg));
-  document.querySelectorAll('a[data-filter-kind]').forEach(a => markKey(a, a.dataset.filterKind === HOME.filters.kind));
-  document.querySelectorAll('tr[data-kind], li.hbar[data-kind]').forEach(tr => { tr.hidden = !rowShown(tr); });
+  document.querySelectorAll('[data-league-pick]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.leaguePick === lg)));
+  // The leaderboard (a fixed global table) and the Nackgammon section (its own keys) are outside the filters' scope.
+  const filtered = el => !el.closest(OWN_SCOPE);
+  document.querySelectorAll('tr[data-kind], li.hbar[data-kind]').forEach(tr => { if (filtered(tr)) tr.hidden = !rowShown(tr); });
   // A chart's group heading shows while one of its rows does.
   document.querySelectorAll('li.hbar-group').forEach(h => {
     h.hidden = !h.parentElement.querySelector(`li.hbar[data-group="${h.dataset.group}"]:not([hidden])`);
   });
-  document.querySelectorAll('svg.chart-svg').forEach(layoutChart);
+  document.querySelectorAll('svg.chart-svg').forEach(svg => { if (filtered(svg)) layoutChart(svg); });
   document.querySelectorAll('.phase-all').forEach(p => { p.hidden = HOME.phase === 'all'; });
   const box = document.getElementById('filters');
   if (!box) return;
@@ -192,15 +187,8 @@ async function loadPhase(phase) {
   HOME.league = picks.some(b => b.dataset.leaguePick === wanted) ? wanted : HOME.defaultLeague;
   // ?type=decision (or chat, program): the Model type filter.
   if (document.querySelector(`[data-filter-kind="${CSS.escape(params.get('type') || '')}"]`)) HOME.filters.kind = params.get('type');
-  // The view bar's League and Models keys are links (?league=, ?type=); with the script they filter in place.
-  picks.forEach(b => b.addEventListener('click', event => {
-    if (b.tagName === 'A') event.preventDefault();
+  picks.forEach(b => b.addEventListener('click', () => {
     HOME.league = b.dataset.leaguePick;
-    applyHome();
-  }));
-  document.querySelectorAll('a[data-filter-kind]').forEach(a => a.addEventListener('click', event => {
-    event.preventDefault();
-    HOME.filters.kind = a.dataset.filterKind;
     applyHome();
   }));
   document.querySelectorAll('[data-quick-view]').forEach(b => b.addEventListener('click', () => {
@@ -533,4 +521,39 @@ async function savePng(panel, svg, title, lines, filename) {
   }));
   window.addEventListener('hashchange', () => fromHash(true));
   fromHash(location.hash.length > 1);
+})();
+
+/* Home page: the headline table's two views (story.py): the best setting per model, or every setup (the All leagues risk
+   table). */
+(function headlineViews() {
+  const keys = [...document.querySelectorAll('[data-headline-view]')];
+  if (!keys.length) return;
+  const show = view => {
+    keys.forEach(k => k.setAttribute('aria-pressed', String(k.dataset.headlineView === view)));
+    document.querySelectorAll('[data-headline-panel]').forEach(p => { p.hidden = p.dataset.headlinePanel !== view; });
+  };
+  keys.forEach(k => k.addEventListener('click', () => show(k.dataset.headlineView)));
+})();
+
+/* Home page: the Nackgammon summary table's keys (nack_section.py; Ümit #2647, #2651): Decision / Chat / All by model
+   type, and One setting per model / All settings. Programs (the yardsticks) are always shown; the notes and every
+   table below the summary keep every setup. */
+(function nackViews() {
+  const sec = document.getElementById('nackgammon-paired');
+  const table = sec && sec.querySelector('#nack-summary');
+  if (!table) return;
+  const kinds = JSON.parse(sec.dataset.nackKinds);
+  const chosen = new Set(JSON.parse(sec.dataset.nackChosen));
+  const state = { kind: 'all', view: 'model' };
+  const apply = () => {
+    sec.querySelectorAll('[data-nack-kind-pick]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.nackKindPick === state.kind)));
+    sec.querySelectorAll('[data-nack-view]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.nackView === state.view)));
+    table.querySelectorAll('tbody tr[data-row]').forEach(tr => {
+      const k = kinds[tr.dataset.row];
+      tr.hidden = k !== 'program' && ((state.kind !== 'all' && k !== state.kind) || (state.view === 'model' && !chosen.has(tr.dataset.row)));
+    });
+  };
+  sec.querySelectorAll('[data-nack-kind-pick]').forEach(k => k.addEventListener('click', () => { state.kind = k.dataset.nackKindPick; apply(); }));
+  sec.querySelectorAll('[data-nack-view]').forEach(k => k.addEventListener('click', () => { state.view = k.dataset.nackView; apply(); }));
+  apply();
 })();

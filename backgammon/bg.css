@@ -231,6 +231,10 @@ a.cc-open { font-weight: 600; }
 #chart-nack { margin: 1rem 0 .5rem; }
 #nackgammon-paired thead th[data-nosort] { cursor: default; }
 #nackgammon-paired ul.lettered { list-style: none; padding-left: 1rem; }
+#nackgammon-paired .section-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1rem; }
+#nackgammon-paired .section-head .eyebrow { flex-basis: 100%; margin: 0; }
+#nackgammon-paired .section-head .keys { margin-left: auto; }
+#nackgammon-paired tr.nack-yardstick, #nackgammon-paired tr.nack-yardstick a { color: var(--text-2); }
 .section-label { margin: .15rem 0 .6rem; font-size: .8rem; color: var(--text-2); }
 
 /* Hype Cup and Nackgammon knockout brackets (Leagues page) and the Matches page. Rounds side by side on a wide screen,
@@ -404,4 +408,42 @@ i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2
   /* The pages row scrolls sideways as one line (site.css); the groups' own lists do not scroll inside it. */
   .nav-group > ul { overflow: visible; margin: 0; padding: 0; }
   .hbar-where { display: block; }
+}
+
+/* --- The home page as a story (Ümit, bus #2570; story.py): the headline table and the finding sections. --------------- */
+.headline .chart-head .keys { margin-left: auto; }
+table.headline td.model { min-width: 15rem; }
+table.headline td.model .swatch { margin-right: .3rem; }
+td.hl-judgement { min-width: 13rem; }
+.hl-bar { position: relative; display: block; height: .8rem; margin: .2rem 0 .25rem; background: var(--sunk);
+  border-radius: 2px; box-shadow: inset 0 0 0 1px var(--edge); }
+.hl-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
+.hl-fill.other { background: var(--data-grey); }
+.hl-int { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); box-shadow: 0 0 0 1px var(--panel); }
+.hl-safe { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--text-2); }
+.hl-val { font-family: var(--mono); font-size: .84rem; }
+td.hl-release { white-space: nowrap; }
+.js [data-headline-panel][hidden] { display: none; }
+.finding h2 { font-size: 1.25rem; }
+.finding-text { max-width: 80ch; margin: 0 0 .75rem; }
+.finding-chart { margin: 0; }
+.section-caveat { margin-top: .6rem; }
+.hbar-fill.q1-board, i.swatch-q1-board { background-color: var(--data-grey); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
+/* The Risk calls part's compact filter row (home.filters; Ümit, bus #2570 item 1): league, models, the parts of the page,
+   More filters, the setup count and Reset on one line where they fit, in the view bar's compact key size. */
+.filter-row { padding: 6px 10px; }
+.filter-row .filters-body { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin: 0; padding: 0; border: 0; }
+.filter-row .group { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.filter-row .group-label { color: var(--view-label); font-size: 10px; font-weight: 700; }
+.filter-row .key { min-height: 26px; padding: 2px 8px; gap: 5px; font-size: 12.5px; }
+.filter-row .face-nav { gap: 4px; }
+.filter-row .face-nav a { min-height: 26px; padding: 2px 8px; border-width: 1.5px; border-radius: 6px; font-size: 12.5px; }
+.filter-row .filters-more { flex: 1 1 100%; gap: 4px 18px; padding-top: 4px; border-top: 1px dashed var(--edge); }
+.filter-row .filters-count { margin-left: auto; }
+.filter-row .reset-why { display: none; }
+@media (max-width: 640px) {
+  .filter-row .group-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .filter-row .key { min-height: 24px; padding: 1px 7px; font-size: 12px; }
+  .filter-row .part-links .face-nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .filter-row .filters-count { margin-left: 0; }
 }
