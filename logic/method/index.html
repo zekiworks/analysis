@@ -55,12 +55,12 @@
     <section class="card prose" id="sources">
       <h2>Sources</h2>
       <h3>Logic: 1,125 questions</h3>
-      <p>English translations of questions from a private question bank: numerical reasoning, verbal reasoning and formal logic; set problems and every question that needs a figure are left out.</p>
-      <div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Source</th><th scope="col" class=num>Parsed<span class="small">questions parsed</span></th><th scope="col" class=num>Set problems<span class="small">excluded</span></th><th scope="col" class=num>With figures<span class="small">excluded</span></th><th scope="col" class=num>In the benchmark</th></tr></thead><tbody><tr><td class="model">The private question bank</td><td class="num" data-label="Parsed">1,809</td><td class="num" data-label="Set problems">378</td><td class="num" data-label="With figures">306</td><td class="num" data-label="In the benchmark">1,125</td></tr></tbody></table></div>
+      <p>English translations of questions from a published question bank (not named here): numerical reasoning, verbal reasoning and formal logic; set problems and every question that needs a figure are left out.</p>
+      <div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Source</th><th scope="col" class=num>Parsed<span class="small">questions parsed</span></th><th scope="col" class=num>Set problems<span class="small">excluded</span></th><th scope="col" class=num>With figures<span class="small">excluded</span></th><th scope="col" class=num>In the benchmark</th></tr></thead><tbody><tr><td class="model">The question bank (published, not named here)</td><td class="num" data-label="Parsed">1,809</td><td class="num" data-label="Set problems">378</td><td class="num" data-label="With figures">306</td><td class="num" data-label="In the benchmark">1,125</td></tr></tbody></table></div>
       <h3>Math: 2,163 questions</h3>
-      <p>English translations of the text-only math questions of a private question bank, in 13 topics: Basic concepts, Digits and place value, Number bases, Division and divisibility, Prime factorisation and GCD/LCM, Rational numbers, Decimals, Ordering, Simple inequalities, Absolute value, Exponents, Radicals, Factorisation.</p>
-      <div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Source</th><th scope="col" class=num>Parsed<span class="small">questions parsed</span></th><th scope="col" class=num>Set problems<span class="small">excluded</span></th><th scope="col" class=num>With figures<span class="small">excluded</span></th><th scope="col" class=num>In the benchmark</th></tr></thead><tbody><tr><td class="model">The private question bank</td><td class="num" data-label="Parsed">–</td><td class="num" data-label="Set problems">–</td><td class="num" data-label="With figures">–</td><td class="num" data-label="In the benchmark">2,163</td></tr></tbody></table></div>
-      <p>The question text is private; these pages show aggregate results only.</p>
+      <p>English translations of the text-only math questions of a published question bank (not named here), in 13 topics: Basic concepts, Digits and place value, Number bases, Division and divisibility, Prime factorisation and GCD/LCM, Rational numbers, Decimals, Ordering, Simple inequalities, Absolute value, Exponents, Radicals, Factorisation.</p>
+      <div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Source</th><th scope="col" class=num>Parsed<span class="small">questions parsed</span></th><th scope="col" class=num>Set problems<span class="small">excluded</span></th><th scope="col" class=num>With figures<span class="small">excluded</span></th><th scope="col" class=num>In the benchmark</th></tr></thead><tbody><tr><td class="model">The question bank (published, not named here)</td><td class="num" data-label="Parsed">–</td><td class="num" data-label="Set problems">–</td><td class="num" data-label="With figures">–</td><td class="num" data-label="In the benchmark">2,163</td></tr></tbody></table></div>
+      <p>The question text is not shown; these pages show aggregate results only.</p>
     </section>
     <section class="card prose" id="scoring">
       <h2>Scoring</h2>
@@ -72,7 +72,7 @@
     </section>
     <section class="card prose" id="translation">
       <h2>The English questions</h2>
-      <p>Every question is asked in English. The English texts were translated from the private question bank by a model, with automatic checks (option keys, digits, LaTeX, tables, labels, leftover untranslated words); a text that still failed after one retry, or a question that depends on the original language's words or letters, is <em>flagged</em> and not asked. The answer key is the answer key of the private question bank.</p>
+      <p>Every question is asked in English. The English texts were translated from the question bank by a model, with automatic checks (option keys, digits, LaTeX, tables, labels, leftover untranslated words); a text that still failed after one retry, or a question that depends on the original language's words or letters, is <em>flagged</em> and not asked. The answer key is the question bank's answer key.</p>
       <h3>Logic</h3><div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Status</th><th scope="col">Producer<span class="small">translating model</span></th><th scope="col" class=num>Questions</th></tr></thead><tbody><tr><td>ok</td><td><code>deepseek-v4-flash-dspark</code></td><td class="num">991</td></tr><tr><td>ok</td><td><code>deepseek-v4-flash-dspark+review</code></td><td class="num">134</td></tr></tbody></table></div>
       <h3>Math</h3><div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Status</th><th scope="col">Producer<span class="small">translating model</span></th><th scope="col" class=num>Questions</th></tr></thead><tbody><tr><td>ok</td><td><code>deepseek-v4-flash-dspark</code></td><td class="num">2,071</td></tr><tr><td>ok</td><td><code>deepseek-v4-flash-dspark+review</code></td><td class="num">92</td></tr></tbody></table></div>
     </section>
@@ -2611,6 +2611,86 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-jev-1.13_en_dontknow"><h3>Logic · jev-1.13_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.13.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.13.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.03054 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:30 UTC; last answer 7 Nov 2026 15:33 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.13.0 (site run 49); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;jev-1.13.0&quot;,
+    &quot;--provider&quot;,
+    &quot;jev&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;jev-1.13.0&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;TypeSafe&#x27;s System One price&quot;,
+    &quot;date&quot;: &quot;2026-10-08&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.042,
+      &quot;cache_write_input_tokens&quot;: 0.042,
+      &quot;cached_input_tokens&quot;: 0.042,
+      &quot;input_tokens&quot;: 0.042,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://typesafe.ai/blog/introducing-system-one-models-and-jev&quot;,
+    &quot;text&quot;: &quot;$0.042 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;jev&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 195.99619163922034,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/jev-1.13__logic_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;d47dc357962aa4639f9a26e38815b186200c8fa42385f597f81996b383bd73ab&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 49,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 727057,
+    &quot;output_tokens&quot;: 66375
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://api.typesafe.ai/v1/systemone
+{
+ &quot;model&quot;: &quot;jev-1.13.0&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-qwen3.8-27b-bf16_en_low"><h3>Math · qwen3.8-27b-bf16_en_low</h3><dl class="facts"><dt>Setup</dt><dd>Qwen3.8-27B · chat model</dd><dt>Model</dt><dd><code>qwen38-27b-bf16</code> · provider vllm</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.7678 for the run · estimated cloud-equivalent: GPU minutes in which the run was answering (from its answer timestamps; minutes shared equally among runs on the same GPU) × $2.49/GPU-hour, Runpod on-demand RTX PRO 6000 96 GB, runpod.io/pricing, 2026-11-05</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:8022/v1/chat/completions</code></dd><dt>Started</dt><dd>6 Nov 2026 21:41 UTC; last answer 6 Nov 2026 22:15 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Qwen3.8-27B BF16 (vLLM v0.30.0, MTP, bariton GPU 1), thinking on at reasoning_effort low, model generation config sampling (1.0/0.95/20, seed 0), JSON answer schema; English translations (DeepSeek + review)</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: true,
@@ -4126,6 +4206,162 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-subq-1.1_en"><h3>Math · subq-1.1_en</h3><dl class="facts"><dt>Setup</dt><dd>SubQ Snap 1.1 · decision model</dd><dt>Model</dt><dd><code>subq-snap-1.1</code> · provider subq</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01857 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.subq.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:33 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup SubQ Snap 1.1 (site run 346); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;subq-snap-1.1&quot;,
+    &quot;--provider&quot;,
+    &quot;subq&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;subq-snap-1.1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;SubQ&#x27;s list price&quot;,
+    &quot;date&quot;: &quot;2026-11-01&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.04,
+      &quot;cache_write_input_tokens&quot;: 0.04,
+      &quot;cached_input_tokens&quot;: 0.04,
+      &quot;input_tokens&quot;: 0.04,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://docs.subq.ai/using-the-api/models/&quot;,
+    &quot;text&quot;: &quot;$0.04 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;subq&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 827.4245663249167,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/subq-1.1__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;92f226627e80c646fe5d34d8df12dc82c7a22071c20905feff9a542ca6ada002&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 346,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 464254,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://api.subq.ai/v1/systemone
+{
+ &quot;model&quot;: &quot;subq-snap-1.1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-celeris_en"><h3>Math · celeris_en</h3><dl class="facts"><dt>Setup</dt><dd>Celeris-1 Decision · decision model</dd><dt>Model</dt><dd><code>celeris-1-decision</code> · provider celeris</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01968 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://inference.celeris.ai/celeris-1-decision</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:34 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Celeris-1 Decision (site run 150); runner ffc307cb7; probabilities come rounded to two decimals</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;celeris-1-decision&quot;,
+    &quot;--provider&quot;,
+    &quot;celeris&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;celeris-1-decision&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;Celeris&#x27;s decision model price&quot;,
+    &quot;date&quot;: &quot;2026-10-10&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.04,
+      &quot;cache_write_input_tokens&quot;: 0.04,
+      &quot;cached_input_tokens&quot;: 0.04,
+      &quot;input_tokens&quot;: 0.04,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://docs.celeris.ai/pricing&quot;,
+    &quot;text&quot;: &quot;$0.04 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;celeris&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 837.7112978210207,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/celeris__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;883a34e093ecfbbbab667bd30194d1bed2f75b06724b120c6d8d50567ec4a370&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 150,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 491901,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://inference.celeris.ai/celeris-1-decision/v1/systemone
+{
+ &quot;model&quot;: &quot;celeris-1-decision&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-jev-1.14_en_dontknow"><h3>Math · jev-1.14_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>Jev 1.14.0 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>jev-1.14.0</code> · provider jev</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.04434 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.typesafe.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 15:20 UTC; last answer 7 Nov 2026 15:26 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Jev 1.14.0 (site run 194); runner ffc307cb7; the run script reads the key from JEV_KEY_FILE; run_setup.sh takes JEV_API_KEY from the environment only</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
@@ -4211,7 +4447,7 @@
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 15:33 UTC from the logic and math benchmark.db files (85,836 graded answers in 56 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 15:34 UTC from the logic and math benchmark.db files (91,287 graded answers in 59 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
