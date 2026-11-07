@@ -1,0 +1,89 @@
+/* The suite strip: one thin row of links to the three benchmark sites (English & Turkish Reading, Logic & Math,
+   Backgammon), identical on every page of all three. Self-contained: it needs no other stylesheet. The snippet is
+   suite-bar.html; put it as the first row of the page's sticky header (or at the very top of <body>).
+
+   Theme: it follows data-theme on <html> ("light" or "dark"), as the sites' own stylesheets do; without the attribute
+   it follows the reader's system setting (prefers-color-scheme). The current site's link carries aria-current="page"
+   and is filled like a selected key; the others are plain links. About 27 px tall, one line; on a narrow screen the
+   links scroll sideways inside the strip, never the page. */
+.suite-bar {
+  --suite-bg: #ecebe6;
+  --suite-edge: #c9c6bf;
+  --suite-text: #23221f;
+  --suite-hover: #000000;
+  --suite-current-bg: #14213d;
+  --suite-current-edge: #14213d;
+  --suite-current-text: #ffffff;
+  --suite-focus: #1f5fbf;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .suite-bar {
+    --suite-bg: #111110;
+    --suite-edge: #3a3935;
+    --suite-text: #dedbd4;
+    --suite-hover: #ffffff;
+    --suite-current-bg: #24508f;
+    --suite-current-edge: #9cc8ff;
+    --suite-current-text: #ffffff;
+    --suite-focus: #9cc8ff;
+  }
+}
+:root[data-theme="dark"] .suite-bar {
+  --suite-bg: #111110;
+  --suite-edge: #3a3935;
+  --suite-text: #dedbd4;
+  --suite-hover: #ffffff;
+  --suite-current-bg: #24508f;
+  --suite-current-edge: #9cc8ff;
+  --suite-current-text: #ffffff;
+  --suite-focus: #9cc8ff;
+}
+.suite-bar {
+  box-sizing: border-box;
+  display: block;
+  height: 27px;
+  margin: 0;
+  padding: 0 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  background: var(--suite-bg);
+  border-bottom: 1px solid var(--suite-edge);
+  font: 600 12px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: 0;
+}
+.suite-bar::-webkit-scrollbar { display: none; }
+.suite-bar ul {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  max-width: 1248px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.suite-bar li { flex: none; margin: 0; padding: 0; }
+.suite-bar a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 21px;
+  padding: 0 8px;
+  color: var(--suite-text);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.suite-bar a:hover { color: var(--suite-hover); border-color: var(--suite-edge); }
+.suite-bar a:focus-visible { outline: 2px solid var(--suite-focus); outline-offset: 1px; }
+.suite-bar a[aria-current="page"] {
+  color: var(--suite-current-text);
+  background: var(--suite-current-bg);
+  border-color: var(--suite-current-edge);
+  text-decoration: none;
+}
+@media print { .suite-bar { display: none; } }

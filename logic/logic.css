@@ -1,0 +1,148 @@
+/* The logic & math site's additions to tb-next's v3.css (copied unchanged beside this file): the compact sticky header
+   (the suite bar slot and the view bar, in v3.css's design tokens), the Current work panel, the question pages, the
+   question index's filters and outcome marks. */
+
+:root { --vkey-h: 26px; --vkey-font: 12.5px; --vkey-gap: 4px; --vkey-pad-x: 6px; --vbar-pad-y: 4px; --vrow-gap: 18px; }
+html { --view-bar-h: 64px; scroll-padding-top: calc(var(--view-bar-h) + 8px); }
+.head-sticky { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; padding: 0; background: var(--view-bg);
+  border-bottom: 1px solid var(--view-edge); box-shadow: var(--shadow); }
+.vbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--vkey-gap) var(--vrow-gap); max-width: 1280px;
+  margin: 0 auto; padding: var(--vbar-pad-y) 1rem; }
+.vrow { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.vrow li { display: flex; align-items: center; height: var(--vkey-h); }
+.vrow ul { height: var(--vkey-h); display: flex; align-items: center; gap: var(--vkey-gap); margin: 0; padding: 0; list-style: none; }
+.vlabel, .topbar .nav-label { color: var(--view-label); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.vbench { color: var(--view-label); font-size: 11.5px; font-weight: 700; padding: 0 1px 0 4px; }
+.vbench:first-child { padding-left: 0; }
+a.vkey { display: inline-flex; align-items: center; gap: 4px; height: var(--vkey-h); padding: 0 var(--vkey-pad-x);
+  color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 6px;
+  font-size: var(--vkey-font); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; }
+a.vkey:hover { border-color: var(--view-key-hover); }
+a.vkey[aria-current] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge);
+  box-shadow: inset 0 -2px 0 var(--view-current-edge); }
+.vkey .home-mark { width: 12px; height: 12px; fill: currentColor; }
+.vshort, .tshort { display: none; }
+.hv-sub { color: var(--text-2); }
+td.probs span { white-space: nowrap; }
+@media (max-width: 1340px) { .vlong { display: none; } .vshort { display: inline; } }
+/* A wide value column (accuracy with its interval and letters, costs in both units) that never wraps. */
+.chart-wide .hbar:not(.cols), .chart-wide .hbars:not(.cols) > .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) 15rem; }
+.chart-wide .hbar-value { white-space: nowrap; }
+.chart-wide .hbar.cols, .chart-wide .hbars.cols > .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) repeat(var(--cols), 7.5rem); }
+.chart-wide .cols .hbar-value { white-space: normal; }
+/* The pages row (not sticky) in the same compact key size. */
+.topbar { gap: 4px 12px; margin-bottom: .5rem; padding: 6px 0; }
+.nav ul { gap: var(--vkey-gap); }
+.nav a { min-height: var(--vkey-h); height: var(--vkey-h); padding: 0 var(--vkey-pad-x); border-width: 1.5px; border-radius: 6px;
+  font-size: var(--vkey-font); }
+.topbar .theme-switch .key { min-height: 24px; font-size: 12px; }
+@media (max-width: 640px) {
+  :root { --vkey-h: 24px; --vkey-font: 12px; --vkey-pad-x: 6px; --vbar-pad-y: 4px; }
+  .head-sticky { margin: 0 -.6rem; }
+  .vbar { padding: var(--vbar-pad-y) .6rem; }
+  .topbar .nav-label { display: none; }
+  .vbar { display: grid; grid-template-columns: auto minmax(0, 1fr); row-gap: 2px; column-gap: 6px; }
+  .vlabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .vhome { grid-column: 1; grid-row: 1; }
+  .vgroups { grid-column: 2; grid-row: 1; }
+  .vtests { grid-column: 1 / -1; grid-row: 2; }
+  .vmeasures { grid-column: 1 / -1; grid-row: 3; }
+  .vrow, .vrow ul { min-width: 0; }
+  .vtests ul, .vmeasures ul { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .vbench { font-size: 11px; padding-left: 3px; }
+  .vlong { display: none; }
+  .vshort, .tshort { display: inline; }
+  .tlong { display: none; }
+  .nav ul { flex-wrap: nowrap; overflow-x: auto; }
+  .chart-wide .hbar:not(.cols), .chart-wide .hbars:not(.cols) > .hbar { grid-template-columns: minmax(0, 1fr) 12.5rem; }
+  .chart-wide .hbar-value { font-size: .74rem; }
+  .chart-wide .hbar.cols, .chart-wide .hbars.cols > .hbar { grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 3.7rem); column-gap: .35rem; }
+}
+
+/* Result cards, empty states and charts of the test pages. */
+.empty-state { padding: .8rem 1rem; color: var(--text-2); background: var(--sunk); border: 1px dashed var(--edge); border-radius: 8px; }
+.letters { font-family: var(--mono); color: var(--text-2); }
+.chart-box { overflow-x: auto; }
+.chart-box svg .grid { stroke: var(--edge); stroke-width: 1; }
+.chart-box svg .axis { stroke: var(--text-2); stroke-width: 1.2; }
+.chart-box svg .tick { fill: var(--text-2); font-size: 11px; font-family: var(--mono); }
+.chart-box svg .axis-title { fill: var(--text); font-size: 12px; font-weight: 600; }
+.charts > * + * { margin-top: 1rem; }
+.hbar-fill.kept-wrong { background: var(--wrong); }
+@media (max-width: 760px) { .result-cards { grid-template-columns: minmax(0, 1fr); } }
+.result-cards { margin-bottom: 1rem; }
+.group-copy > section, .group-copy > .result-cards { margin-bottom: 1rem; }
+.footer .internal { color: var(--text); }
+.card .face-nav { margin: .4rem 0 .75rem; }
+.card .face-nav:last-child { margin-bottom: 0; }
+.ok { color: var(--accepted); font-weight: 650; }
+.bad { color: var(--wrong); font-weight: 650; }
+@media screen { :root:not([data-theme="light"]) .ok { color: #4ade80; } :root:not([data-theme="light"]) .bad { color: #f87171; } }
+.small.inline { display: inline; }
+
+/* Current work. */
+.progress { display: block; width: 100%; min-width: 8rem; height: .7rem; margin: .2rem 0 .15rem; background: var(--sunk);
+  border: 1px solid var(--edge); border-radius: 4px; overflow: hidden; }
+.progress > span { display: block; height: 100%; background: var(--data-grey); }
+.job-running .progress > span { background: var(--accepted); }
+.job-finished .progress > span { background: var(--text-2); }
+.job-stalled .progress > span { background: var(--grammar); }
+td.progress-cell { min-width: 12rem; width: 35%; }
+.state { display: inline-flex; align-items: center; gap: .35rem; font-weight: 650; }
+.state-running .lamp { background: var(--accepted); box-shadow: 0 0 0 1px var(--accepted), 0 0 5px 1px var(--accepted); }
+.state-stalled .lamp { background: var(--lamp-on); box-shadow: 0 0 0 1px var(--lamp-on), 0 0 5px 1px var(--lamp-glow); }
+.state-stalled { color: var(--grammar-text); }
+@media screen { :root:not([data-theme="light"]) .state-stalled { color: #fb923c; } }
+
+/* Question pages: the texts side by side, one column on a phone. */
+.qtexts { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1.25rem; }
+.qtext { min-width: 0; }
+.qtext h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem; }
+.qcontext { padding: .5rem .75rem; margin: 0 0 .75rem; background: var(--sunk); border-left: 3px solid var(--edge); border-radius: 4px; }
+.qcontext p, .qstem p { margin: 0 0 .6rem; }
+.qcontext p:last-child, .qstem p:last-child { margin-bottom: 0; }
+.qstem { font-weight: 600; margin: 0 0 .6rem; }
+.qoptions { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }
+.qoptions li { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr) auto; align-items: baseline; gap: .4rem;
+  padding: .25rem .5rem; border: 1px solid transparent; border-radius: 6px; }
+.qoptions li.is-key { border-color: var(--accepted); background: var(--sunk); }
+.opt-letter { font-family: var(--mono); font-weight: 700; }
+.opt-text p { margin: 0 0 .3rem; }
+.key-mark { color: var(--accepted); font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+@media screen { :root:not([data-theme="light"]) .key-mark { color: #4ade80; } }
+.key-letter { font-family: var(--mono); font-size: 1.1rem; }
+code.tex { padding: 0 .2rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 3px; white-space: pre-wrap; overflow-wrap: anywhere; }
+code.tex-block { display: block; margin: .3rem 0; padding: .3rem .5rem; }
+table.qtable { width: auto; margin: .4rem 0; font-size: .85rem; }
+table.qtable td, table.qtable th { padding: .25rem .5rem; border: 1px solid var(--edge); }
+.reply { margin: 1rem 0 0; padding-top: .75rem; border-top: 1px solid var(--edge); }
+.reply h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .45rem; margin: 0 0 .5rem; font-size: 1rem; }
+.reply details { margin: .35rem 0; }
+.reply summary { cursor: pointer; color: var(--text-2); font-size: .88rem; font-weight: 600; }
+pre.reply-text { margin: .4rem 0 0; padding: .6rem .75rem; max-height: 40rem; overflow: auto; background: var(--sunk); border: 1px solid var(--edge);
+  border-radius: 6px; font-family: var(--mono); font-size: .78rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.run-record { margin: 0 0 1.25rem; padding-top: .75rem; border-top: 1px solid var(--edge); }
+.run-record h3 { margin: 0 0 .5rem; font-family: var(--mono); font-size: .95rem; }
+.run-record pre.input-text { white-space: pre-wrap; }
+
+/* The question index. */
+.q-filters { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem .75rem; margin: .5rem 0; }
+.q-filters .control { display: inline-flex; flex-direction: column; align-items: flex-start; gap: .15rem; font-size: .78rem; color: var(--text-2); }
+.q-filters input[type="search"] { width: 12rem; }
+.q-filters[hidden] { display: none; }
+.q-count { font-family: var(--mono); font-size: .85rem; color: var(--text-2); }
+table.q-index td, table.q-index th { padding: .3rem .45rem; }
+table.q-index td.model { min-width: 11rem; }
+td.answers { white-space: nowrap; font-size: .82rem; }
+.charts { margin: 0 0 1rem; }
+
+/* The Non-hallucination view: a heading per model group (All shows Decision, then Chat) and the two sub-sections. */
+.group-section { margin: 0 0 1.5rem; }
+.group-heading { margin: 1.25rem 0 .6rem; padding: .35rem .7rem; font-size: 1.15rem; background: var(--view-bg);
+  border-left: 4px solid var(--view-current-edge); border-radius: 4px; }
+.nh-part { margin-bottom: .75rem; }
+.nh-part h2 { margin: 0 0 .3rem; font-size: 1.05rem; }
+.nh-part .note { margin: 0; }
+.finished-jobs { margin-top: .6rem; }
+.finished-jobs > summary { cursor: pointer; color: var(--text-2); font-size: .88rem; font-weight: 600; }
+.result-card .card-setup a { font-weight: 600; }
