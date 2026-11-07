@@ -38,9 +38,9 @@
         <li><strong>Chat models</strong> (group Chat) write a reply that ends with an answer letter; they return no option probabilities, so their confidence is “not measured”. Gemma 4 31B and Qwen3.8-27B, run on our own GPU, are chat setups.</li>
         <li><strong>The “I don't know” variant</strong> (runs with mode dont_know) asks the same questions with a sixth option F, “I don't know”. A setup's standard run gives its accuracy; its dont_know run gives its non-hallucination. Chat setups have no dont_know run yet.</li>
         <li>The view bar's MODELS row picks Decision (the default), Chat or All; every chart, card, table and tie group is computed within the chosen group.</li>
-        <li><strong>One row for the same answers</strong>: two complete setups of one group that gave the same letter on every common question and identical option probabilities on at least 99% of them are one model behind two names; they are ranked once, as one row, chart bar and tie-group member.</li>
+        <li><strong>One row for the same answers</strong>: a named list of setup pairs that are one model behind two names (SubQ Snap 1.1 with SubQ Snap Preview) is ranked once, as one row, chart bar and tie-group member, with every number from the first. A pair is merged only while it still holds: both runs complete, the same letter on every common question in the standard and the “I don't know” runs, and identical option probabilities on at least 99% of them; otherwise both rows are shown.</li>
       </ul>
-      <p>Setups shown once (merged into the first in accuracy order, named “first = second”, with the first's numbers; both stay in the database and under All setups on Home):</p><ul><li>Logic: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 1,125 of 1,125); shown once.</li><li>Math: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 2,151 of 2,163); shown once.</li></ul>
+      <p>Setups shown once (named “first = second”, with the first's numbers; both stay in the database and under All setups on Home):</p><ul><li>Logic: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 1,125 of 1,125); shown once.</li><li>Math: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 2,151 of 2,163); shown once.</li></ul>
     </section>
     <section class="card prose" id="measures">
       <h2>Measures</h2>
@@ -3563,7 +3563,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-deepseek-v4-flash_en_t0"><h3>Logic · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 17:46 UTC</dd><dt>Progress</dt><dd>39 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>[Turkish wording, not shown]</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-deepseek-v4-flash_en_t0"><h3>Logic · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 17:49 UTC</dd><dt>Progress</dt><dd>45 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>[Turkish wording, not shown]</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;max_tokens&quot;: 8192,
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
@@ -3949,6 +3949,81 @@
     &quot;C&quot;: &quot;{option_C}&quot;,
     &quot;D&quot;: &quot;{option_D}&quot;,
     &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-d3_en_dontknow"><h3>Logic · d3_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>vLLM-SR d3 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>vllm-sr/d3</code> · provider vllm-sr</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.06715 for the run · local GPU time: Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud, $2.49/GPU-hour × 1 GPU × request time</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19120</code></dd><dt>Started</dt><dd>7 Nov 2026 17:46 UTC; last answer 7 Nov 2026 17:47 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup vLLM-SR d3 (site run 259); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;vllm-sr/d3&quot;,
+    &quot;--provider&quot;,
+    &quot;vllm-sr&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;vllm-sr/d3&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;vllm-sr&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 97.08732003800378,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/d3__logic_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;5d0d395b822834851227ebc924390a04327e1c414613b2a05c6a26ae795951bc&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: 259,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 462257,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19120/v1/systemone
+{
+ &quot;model&quot;: &quot;vllm-sr/d3&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
    }
   }
  }
@@ -7050,7 +7125,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-deepseek-v4-flash_en_t0"><h3>Math · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 17:46 UTC</dd><dt>Progress</dt><dd>200 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations | INCIDENT 2026-11-07 17:01-17:30 UTC: after the reboot the runner could not store answers (responses had a new probs_json column; run_eval.py inserted without column names), so the answers generated in that window were discarded; not recoverable (vLLM logs keep no reply text). spark2 vLLM log: 362 completed chat requests from bariton (192.168.1.126) in 17:00-17:30, an upper bound since other bariton users share that address. Restarted 17:30 with the same settings; every stored answer is from that restart.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-deepseek-v4-flash_en_t0"><h3>Math · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 17:49 UTC</dd><dt>Progress</dt><dd>233 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations | INCIDENT 2026-11-07 17:01-17:30 UTC: after the reboot the runner could not store answers (responses had a new probs_json column; run_eval.py inserted without column names), so the answers generated in that window were discarded; not recoverable (vLLM logs keep no reply text). spark2 vLLM log: 362 completed chat requests from bariton (192.168.1.126) in 17:00-17:30, an upper bound since other bariton users share that address. Restarted 17:30 with the same settings; every stored answer is from that restart.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;max_tokens&quot;: 8192,
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
@@ -7446,7 +7521,7 @@
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 17:46 UTC from the logic and math benchmark.db files (157,112 graded answers in 99 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 17:49 UTC from the logic and math benchmark.db files (158,276 graded answers in 100 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
