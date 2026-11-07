@@ -3563,7 +3563,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-deepseek-v4-flash_en_t0"><h3>Logic · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 17:49 UTC</dd><dt>Progress</dt><dd>45 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>[Turkish wording, not shown]</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-deepseek-v4-flash_en_t0"><h3>Logic · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 18:02 UTC</dd><dt>Progress</dt><dd>78 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>[Turkish wording, not shown]</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;max_tokens&quot;: 8192,
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
@@ -5387,6 +5387,79 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d3-ultra_en"><h3>Math · d3-ultra_en</h3><dl class="facts"><dt>Setup</dt><dd>vLLM-SR d3-ultra · decision model</dd><dt>Model</dt><dd><code>vllm-sr/d3-ultra</code> · provider d3-server</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.1865 for the run · local GPU time: Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud, $2.49/GPU-hour × 1 GPU × request time</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19130</code></dd><dt>Started</dt><dd>7 Nov 2026 15:16 UTC; last answer 7 Nov 2026 17:55 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup vLLM-SR d3-ultra (site run 269); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;vllm-sr/d3-ultra&quot;,
+    &quot;--provider&quot;,
+    &quot;d3-server&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;vllm-sr/d3-ultra&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;d3-server&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 269.67673703091486,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/d3-ultra__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;6ca58457ad77dfd2d16b1b2767fc51af7efffd1843b11d6a810711af89fabe65&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 269,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 636084,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19130/v1/systemone
+{
+ &quot;model&quot;: &quot;vllm-sr/d3-ultra&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1-ultra_en"><h3>Math · d1-ultra_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1-ultra · decision model</dd><dt>Model</dt><dd><code>d1-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01328 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 15:19 UTC; last answer 7 Nov 2026 15:28 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1-ultra (site run 199); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;bank&quot;: &quot;math_en.sqlite&quot;,
   &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
@@ -7125,7 +7198,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-deepseek-v4-flash_en_t0"><h3>Math · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 17:49 UTC</dd><dt>Progress</dt><dd>233 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations | INCIDENT 2026-11-07 17:01-17:30 UTC: after the reboot the runner could not store answers (responses had a new probs_json column; run_eval.py inserted without column names), so the answers generated in that window were discarded; not recoverable (vLLM logs keep no reply text). spark2 vLLM log: 362 completed chat requests from bariton (192.168.1.126) in 17:00-17:30, an upper bound since other bariton users share that address. Restarted 17:30 with the same settings; every stored answer is from that restart.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-deepseek-v4-flash_en_t0"><h3>Math · deepseek-v4-flash_en_t0</h3><dl class="facts"><dt>Setup</dt><dd>deepseek-v4-flash-dspark · chat model</dd><dt>Model</dt><dd><code>deepseek-v4-flash-dspark</code></dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not recorded</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://192.168.1.131:8888/v1/chat/completions</code></dd><dt>Started</dt><dd>7 Nov 2026 17:01 UTC; last answer 7 Nov 2026 18:03 UTC</dd><dt>Progress</dt><dd>336 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>DeepSeek-V4-Flash (shared vLLM service on spark/spark2, not ours), thinking off (server default), temperature 0, English translations | INCIDENT 2026-11-07 17:01-17:30 UTC: after the reboot the runner could not store answers (responses had a new probs_json column; run_eval.py inserted without column names), so the answers generated in that window were discarded; not recoverable (vLLM logs keep no reply text). spark2 vLLM log: 362 completed chat requests from bariton (192.168.1.126) in 17:00-17:30, an upper bound since other bariton users share that address. Restarted 17:30 with the same settings; every stored answer is from that restart.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;max_tokens&quot;: 8192,
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
@@ -7516,12 +7589,316 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-decider-v1.2-web_en"><h3>Math · decider-v1.2-web_en</h3><dl class="facts"><dt>Setup</dt><dd>Perplexity Decider 27B v1.2 · decision model</dd><dt>Model</dt><dd><code>pplx-decider-v1.2</code> · provider perplexity</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$2.212 for the run · provider price × reported usage</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.perplexity.ai</code></dd><dt>Started</dt><dd>7 Nov 2026 17:41 UTC; last answer 7 Nov 2026 18:01 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Perplexity Decider 27B v1.2 (site run 640); runner ffc307cb7; web grounding: one Perplexity search per question ($0.001 each)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;pplx-decider-v1.2&quot;,
+    &quot;--provider&quot;,
+    &quot;perplexity&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--perplexity-mode&quot;,
+    &quot;web_grounding&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;pplx-decider-v1.2&quot;,
+  &quot;perplexity_mode&quot;: &quot;web_grounding&quot;,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;Perplexity&#x27;s Decisions API price with web grounding&quot;,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.001,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.02,
+      &quot;cache_write_input_tokens&quot;: 0.02,
+      &quot;cached_input_tokens&quot;: 0.02,
+      &quot;input_tokens&quot;: 0.02,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://docs.perplexity.ai/docs/getting-started/pricing&quot;,
+    &quot;text&quot;: &quot;$0.02 input, output free per 1M tokens, plus $0.001 per request (one web search)&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;perplexity&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 1067.403302654996,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/decider-v1.2-web__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;b4958d731cc8f41e897707afb64380f6d6bc774f1905fecad30e3dd3b57c8967&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 640,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 2465070,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://api.perplexity.ai/v1/decisions
+{
+ &quot;model&quot;: &quot;pplx-decider-v1.2&quot;,
+ &quot;mode&quot;: &quot;web_grounding&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d3_en"><h3>Math · d3_en</h3><dl class="facts"><dt>Setup</dt><dd>vLLM-SR d3 · decision model</dd><dt>Model</dt><dd><code>vllm-sr/d3</code> · provider vllm-sr</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.08411 for the run · local GPU time: Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud, $2.49/GPU-hour × 1 GPU × request time</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19120</code></dd><dt>Started</dt><dd>7 Nov 2026 17:47 UTC; last answer 7 Nov 2026 17:49 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup vLLM-SR d3 (site run 259); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;vllm-sr/d3&quot;,
+    &quot;--provider&quot;,
+    &quot;vllm-sr&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;vllm-sr/d3&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;vllm-sr&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 121.60685011798978,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/d3__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;311e26255dc2b2856dee8d35cbe20818423e8b81401a588878e32bf84eb62e52&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 259,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 481558,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19120/v1/systemone
+{
+ &quot;model&quot;: &quot;vllm-sr/d3&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d3_en_dontknow"><h3>Math · d3_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>vLLM-SR d3 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>vllm-sr/d3</code> · provider vllm-sr</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.08974 for the run · local GPU time: Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud, $2.49/GPU-hour × 1 GPU × request time</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19120</code></dd><dt>Started</dt><dd>7 Nov 2026 17:49 UTC; last answer 7 Nov 2026 17:52 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup vLLM-SR d3 (site run 259); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;vllm-sr/d3&quot;,
+    &quot;--provider&quot;,
+    &quot;vllm-sr&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;vllm-sr/d3&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;vllm-sr&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 129.7481250770079,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/d3__math_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;2d854146c0b0b41b451e78294132ce47b73db6f4e97c0bbc67afb0ba2bc46ad4&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 259,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 546448,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19120/v1/systemone
+{
+ &quot;model&quot;: &quot;vllm-sr/d3&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d3-ultra_en_dontknow"><h3>Math · d3-ultra_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>vLLM-SR d3-ultra · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>vllm-sr/d3-ultra</code> · provider d3-server</dd><dt>GPU</dt><dd>1× RTX PRO 6000</dd><dt>Cost</dt><dd>$0.1909 for the run · local GPU time: Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud, $2.49/GPU-hour × 1 GPU × request time</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19130</code></dd><dt>Started</dt><dd>7 Nov 2026 17:55 UTC; last answer 7 Nov 2026 18:00 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup vLLM-SR d3-ultra (site run 269); runner ffc307cb7</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;vllm-sr/d3-ultra&quot;,
+    &quot;--provider&quot;,
+    &quot;d3-server&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;vllm-sr/d3-ultra&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;gpu&quot;,
+    &quot;basis&quot;: &quot;Runpod&#x27;s on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud&quot;,
+    &quot;change&quot;: null,
+    &quot;date&quot;: &quot;2026-11-05&quot;,
+    &quot;gpu&quot;: &quot;RTX PRO 6000 Blackwell (96 GB)&quot;,
+    &quot;gpus&quot;: 1,
+    &quot;source&quot;: &quot;https://www.runpod.io/pricing&quot;,
+    &quot;text&quot;: &quot;$2.49 per GPU-hour, 1 GPU, for the run&#x27;s request time&quot;,
+    &quot;usd_per_gpu_hour&quot;: 2.49
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;d3-server&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 276.0074641920164,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/d3-ultra__math_en_dont_know.sqlite&quot;,
+  &quot;run_key&quot;: &quot;861af6f2981507d1e3355bc96aa248f64ea79bb72ae91f9997feef7bb016a53d&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 269,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 750723,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://127.0.0.1:19130/v1/systemone
+{
+ &quot;model&quot;: &quot;vllm-sr/d3-ultra&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 17:49 UTC from the logic and math benchmark.db files (158,276 graded answers in 100 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 18:03 UTC from the logic and math benchmark.db files (169,227 graded answers in 105 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
