@@ -16,7 +16,7 @@
   <div class="head-sticky">
     <!-- Suite bar slot: turkce's shared suite-bar.html (static/), unchanged. -->
     <nav class="suite-bar" aria-label="Benchmarks"><ul><li><a href="/analysis/decision-models/">English &amp; Turkish Reading</a></li><li><a href="/analysis/logic/" aria-current="page">Logic &amp; Math</a></li><li><a href="/analysis/backgammon/">Backgammon</a></li></ul></nav>
-    <nav class="vbar" aria-label="View: test, models and measure" data-home="../?models=decision"><a class="vkey vhome" href="../?models=decision"><svg class="home-mark" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.6 1 7.6h2v6.8h3.8v-4.2h2.4v4.2H13V7.6h2z"/></svg>Home</a><div class="vrow vtests"><span class="vlabel" id="v-test">Test</span><ul aria-labelledby="v-test"><li><a class="vkey" href="../logic/?models=decision" data-keep-group>Logic</a></li><li><a class="vkey" href="../math/?models=decision" data-keep-group>Math</a></li><li><a class="vkey" href="../together/?models=decision" data-keep-group>Together</a></li></ul></div><div class="vrow vgroups"><span class="vlabel" id="v-models">Models</span><ul aria-labelledby="v-models"><li><a class="vkey" href="?models=all" data-view-group="all">All</a></li><li><a class="vkey" href="?models=decision" data-view-group="decision">Decision</a></li><li><a class="vkey" href="?models=chat" data-view-group="chat">Chat</a></li></ul></div><div class="vrow vmeasures"><span class="vlabel" id="v-measure">Measure</span><ul aria-labelledby="v-measure"><li><a class="vkey" href="../logic/?models=decision" data-keep-group><span class="tlong">Accuracy</span><span class="tshort">Acc.</span></a></li><li><a class="vkey" href="../logic/non-hallucination/?models=decision" data-keep-group><span class="vlong">Non-hallucination</span><span class="vshort">Non-hall.</span></a></li><li><a class="vkey" href="../logic/cost/?models=decision" data-keep-group>Cost</a></li><li><a class="vkey" href="../logic/latency/?models=decision" data-keep-group>Latency</a></li><li><a class="vkey" href="../logic/i-dont-know/?models=decision" data-keep-group><span class="tlong">I don't know</span><span class="tshort">IDK</span></a></li><li><a class="vkey" href="../logic/confidence/?models=decision" data-keep-group><span class="tlong">Confidence</span><span class="tshort">Conf.</span></a></li></ul></div></nav>
+    <nav class="vbar" aria-label="View: test, models and measure" data-home="../?models=decision"><a class="vkey vhome" href="../?models=decision"><svg class="home-mark" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.6 1 7.6h2v6.8h3.8v-4.2h2.4v4.2H13V7.6h2z"/></svg>Home</a><div class="vrow vtests"><span class="vlabel" id="v-test">Test</span><ul aria-labelledby="v-test"><li><a class="vkey" href="../logic/?models=decision" data-keep-group>Logic</a></li><li><a class="vkey" href="../math/?models=decision" data-keep-group>Math</a></li><li><a class="vkey" href="../together/?models=decision" data-keep-group>Logic and Math</a></li></ul></div><div class="vrow vgroups"><span class="vlabel" id="v-models">Models</span><ul aria-labelledby="v-models"><li><a class="vkey" href="?models=all" data-view-group="all">All</a></li><li><a class="vkey" href="?models=decision" data-view-group="decision">Decision</a></li><li><a class="vkey" href="?models=chat" data-view-group="chat">Chat</a></li></ul></div><div class="vrow vmeasures"><span class="vlabel" id="v-measure">Measure</span><ul aria-labelledby="v-measure"><li><a class="vkey" href="../logic/?models=decision" data-keep-group><span class="tlong">Accuracy</span><span class="tshort">Acc.</span></a></li><li><a class="vkey" href="../logic/non-hallucination/?models=decision" data-keep-group><span class="vlong">Non-hallucination</span><span class="vshort">Non-hall.</span></a></li><li><a class="vkey" href="../logic/cost/?models=decision" data-keep-group>Cost</a></li><li><a class="vkey" href="../logic/latency/?models=decision" data-keep-group>Latency</a></li><li><a class="vkey" href="../logic/i-dont-know/?models=decision" data-keep-group><span class="tlong">I don't know</span><span class="tshort">IDK</span></a></li><li><a class="vkey" href="../logic/confidence/?models=decision" data-keep-group><span class="tlong">Confidence</span><span class="tshort">Conf.</span></a></li></ul></div></nav>
   </div>
   <header class="topbar">
     <a class="brand" href="../?models=decision">Logic &amp; Math benchmark</a>
@@ -6182,12 +6182,90 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-d1_en"><h3>Math · d1_en</h3><dl class="facts"><dt>Setup</dt><dd>Liquid d1 · decision model</dd><dt>Model</dt><dd><code>d1</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.006325 for the run · API bill</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>7 Nov 2026 16:11 UTC; last answer 7 Nov 2026 16:19 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1 (site run 52); runner ffc307cb7; published as d1:free (free tier), which Liquid&#x27;s API no longer serves (HTTP 404, 2 November 2026); run_english.sh&#x27;s d1 lane asks for d1 with the same settings, priced at Liquid&#x27;s d1 list price</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;d1&quot;,
+    &quot;--provider&quot;,
+    &quot;liquid&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;d34eca45758fb0f34790435742d5c28028131623&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;d1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;Liquid&#x27;s price for d1, as its API bills it&quot;,
+    &quot;date&quot;: &quot;2026-11-02&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.02,
+      &quot;cache_write_input_tokens&quot;: 0.02,
+      &quot;cached_input_tokens&quot;: 0.02,
+      &quot;input_tokens&quot;: 0.02,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://www.liquid.ai/pricing&quot;,
+    &quot;text&quot;: &quot;$0.02 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;liquid&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 459.3261034428142,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;/home/cbasaran/code/benchmark/decision/results/d1__math_en_standard.sqlite&quot;,
+  &quot;run_key&quot;: &quot;e73ffc275ce75822ec1f72b2bcec6e4eb722e80803d0b86d11fef9ae44d6a126&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;ffc307cb723143e7a64ecd4cd1865f8eaa2e6e12&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: 52,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 316269,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://api.liquid.ai/decisions/v1/systemone
+{
+ &quot;model&quot;: &quot;d1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 7 Nov 2026 16:18 UTC from the logic and math benchmark.db files (129,531 graded answers in 81 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 7 Nov 2026 16:21 UTC from the logic and math benchmark.db files (131,694 graded answers in 82 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
