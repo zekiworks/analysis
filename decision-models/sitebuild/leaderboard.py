@@ -254,8 +254,9 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
 
 def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str, Any], list[dict[str, Any]]]], run_of: Any,
                facts: Any, score: Any, answers: Any) -> list[str]:
-    """The body rows of one part: each model row (rank, maker dot and icon, name with maker · kind · setting under it and
-    its expander, the score, the wide cells; its details box in the name cell), then its other setups' rows, hidden."""
+    """The body rows of one part: each model row (rank, maker dot and icon, name and its expander, the score, the wide
+    cells; its details box in the name cell, the only place its maker · kind · setting shows: project lead, bus #3039),
+    then its other setups' rows, hidden, each with its setting under its name, the one thing that tells it apart."""
     scored = [(item, others, *score(item)) for item, others in rows]
     scored.sort(key=lambda entry: (-entry[3], run_of(entry[0])["run"]))
     kinds = [site.decision(run_of(item)) for item, *_ in scored]
@@ -286,7 +287,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             f'data-rank-{kind}="{by_kind[index]}">{every[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{site.icon(run)}'
             f'<a class="model-name" href="{answers(item)}" title="{esc(name)}" aria-describedby="{box}">{esc(name)}</a>'
-            f'<span class="small lb-type">{esc(under(site, run))}</span>{more}'
+            f'{more}'
             f'{details(site, run, box, lines, answers(item))}</td><td class="lb-score">{cell}</td>'
             + "".join(wide(value) for value in cells) + "</tr>")
         for sub_id, other in zip(sub_ids, others):
@@ -307,8 +308,8 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
 def table(part: str, heads: list[str], body: list[str], caption: str) -> str:
     head = "".join(f'<th scope="col" class="num lb-wide">{text}</th>' for text in heads[1:])
     return (f'<div class="table-wrap"><table class="lb-table" data-part="{part}"><caption class="visually-hidden">{esc(caption)}'
-            f'</caption><thead><tr><th scope="col" class="num">#</th><th scope="col">Model<span class="small">maker · kind · '
-            f'setting</span></th><th scope="col" class="lb-score">{heads[0]}</th>{head}</tr></thead><tbody>{"".join(body)}'
+            f'</caption><thead><tr><th scope="col" class="num">#</th><th scope="col">Model</th>'
+            f'<th scope="col" class="lb-score">{heads[0]}</th>{head}</tr></thead><tbody>{"".join(body)}'
             "</tbody></table></div>")
 
 

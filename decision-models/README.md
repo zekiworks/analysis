@@ -369,11 +369,12 @@ python3 -m http.server 8000                                # preview at http://1
       < low < medium < high < xhigh < max; "on" above off for a model with only on and off; a decision model has no
       setting; the build stops for a model with "on" and a level), then the earliest run (lowest run id); a model
       with one setup uses it. Every value of a row and of its details box is that one setup's; the row's other setups
-      sit behind its expander ("N other settings"). A row: rank, maker dot in the family colour and the family icon,
-      the model's name with "maker · chat model / decision model · setting" under it (the maker is
+      sit behind its expander ("N other settings"), each with its setting under its name. A row: rank, maker dot in the
+      family colour and the family icon, the model's name, the main-score bar from 0 to 100% with its Wilson 95%
+      interval as the whisker, and the score; from 900 px more columns. Nothing sits under the name (project lead, bus
+      #3039): "maker · chat model / decision model · setting" heads the details box (the maker is
       `model_families[].maker`: the organisation the Method or model pages name for the family, else the family's
-      name), the main-score bar from 0 to 100% with its Wilson 95% interval as the whisker, and the score; from 900 px
-      more columns. The details box (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
+      name). The details box (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
       opens on a tap on a phone and on hover or the keyboard focus on a desktop, focus beating the pointer, capped to
       the room on a short screen, and closes on a second tap, a tap outside or Escape; it lists the setup, its accuracy
       with the interval, reading and grammar, non-hallucination with "Bilmiyorum", the answers kept at 99% confidence
