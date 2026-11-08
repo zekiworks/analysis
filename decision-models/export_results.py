@@ -229,6 +229,12 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 397_000_000_000,
         "active_parameters": [17_000_000_000],
     },
+    "xiaomi/mimo-v2.6-flash": {
+        "name": "MiMo V2.6 Flash",
+        "access": "OpenRouter chat API, Xiaomi's own endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included",
+        "parameters": 309_000_000_000,
+        "active_parameters": [15_000_000_000],
+    },
     "gemma4:31b": {"name": "Gemma 4 31B"},
     "deepseek-v4-flash:latest": {"name": "DeepSeek V4 Flash"},
     "muse-glimmer:30b": {"name": "Muse Glimmer 30B"},

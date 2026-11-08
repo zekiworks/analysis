@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a
-difference; the colour shows a related but separate test, adjusted across these 83 comparisons (9 pass).
-━━ passes the Holm adjustment across these 83 comparisons   ━━ does not pass
+difference; the colour shows a related but separate test, adjusted across these 84 comparisons (8 pass).
+━━ passes the Holm adjustment across these 84 comparisons   ━━ does not pass
 
                              Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                         ⠤⡧⠤                                     +0.1
                                   GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                         ⠠⡧⠄                                     +0.2
@@ -32,9 +32,10 @@ difference; the colour shows a related but separate test, adjusted across these 
                                                     Liquid d1-ultra minus GLM-5.3 (low reasoning)                          ⡇⠤⠤⠤⠤⠤⡦⠤⠤⠤⠤⠄                           +2.5
                                         GLM-5.3 (low reasoning) minus Qwen3.8-27B (low reasoning)                      ⠠⠤⠤⠤⡧⡦⠤⠤⠤⠤⠄                                +0.6
                                                     Qwen3.8-27B (low reasoning) minus Gemma 4 31B                       ⠤⠤⠤⡧⢴⠤⠤⠤⠤⠤                                +0.8
-                                                 Gemma 4 31B minus Kimi K3.1 Pro (reasoning none)                      ⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤                                 +0.4
+                                                 Gemma 4 31B minus Kimi K3.1 Pro (reasoning none)                      ⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤                                 +0.4
                                                                   Gemma 4 31B minus Fastino GLiDE                          ⡇      ⠤⠤⠤⠤⠤⢼⠤⠤⠤⠤⠤                     +5.2
-                 Kimi K3.1 Pro (reasoning none) minus Perplexity Decider 27B v1.2 (API, with web)                          ⡇   ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                        +4.0
+                            Kimi K3.1 Pro (reasoning none) minus MiMo V2.6 Flash (high reasoning)                      ⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠤                                +0.6
+               MiMo V2.6 Flash (high reasoning) minus Perplexity Decider 27B v1.2 (API, with web)                          ⡇ ⠠⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                         +3.4
                              Perplexity Decider 27B v1.2 (API, with web) minus Fastino GLiDE v1.2                      ⠠⠤⠤⠤⣿⠤⠤⠤⠄                                  +0.3
                                               Fastino GLiDE v1.2 minus GPT-6 Luna (low reasoning)                     ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.2
                                                    GPT-6 Luna (low reasoning) minus Fastino GLiDE                     ⠠⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠄                                +0.4
@@ -48,7 +49,7 @@ difference; the colour shows a related but separate test, adjusted across these 
                                           Mammoth-1 minus Perplexity Decider 27B v1.2 (local GPU)                     ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠄                                  +0.0
                         Perplexity Decider 27B v1.2 (local GPU) minus Perplexity Decider 27B v1.1                       ⠤⠤⠤⡧⠤⠤⠤                                   +0.2
                             Perplexity Decider 27B v1.1 minus MiniMax-M3.1-Flash (high reasoning)                     ⠠⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠄                                +0.4
-                                      Perplexity Decider 27B v1.1 minus Perplexity Decider 27B v1                          ⡇          ⠤⠤⠤⠤⢼⠤⠤⠤⠤                   +6.5
+                                      Perplexity Decider 27B v1.1 minus Perplexity Decider 27B v1                          ⡇          ⠒⠒⠒⠒⢺⠒⠒⠒⠒                   +6.5
                       MiniMax-M3.1-Flash (high reasoning) minus Perplexity Decider 27B v1.2 (API)                    ⠐⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒                                 +0.1
                  Perplexity Decider 27B v1.2 (API) minus DeepSeek-V4.1-Flash 1017 (reasoning off)                     ⠐⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒                                 +0.3
 DeepSeek-V4.1-Flash 1017 (reasoning off) minus DeepSeek-V4.1-Flash, first release (reasoning off)                       ⠒⠒⠒⡗⠒⠒⠂                                   +0.1

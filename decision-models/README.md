@@ -589,7 +589,7 @@ on its left, 14 px and hidden from screen readers. A family in `page_config.json
 Simple Icons slug; its SVG path is vendored in `sitebuild/family_icons.py` from
 [Simple Icons](https://simpleicons.org) 16.36.0, whose icon data is CC0 1.0 (the marks stay their owners'
 trademarks, used here only to name their models). Official marks: Gemini (Google Gemini), Gemma (Google), GPT
-(OpenAI), Claude, Qwen, DeepSeek, Kimi, MiniMax, Perplexity, Microsoft and vLLM-SR (vLLM), drawn in the text colour.
+(OpenAI), Claude, Qwen, DeepSeek, Kimi, MiMo (Xiaomi), MiniMax, Perplexity, Microsoft and vLLM-SR (vLLM), drawn in the text colour.
 Simple Icons has no mark for xAI, Z.ai or Liquid AI, so Grok (xAI), GLM (Z.ai) and Liquid (Liquid AI) use the
 public-domain logos on Wikimedia Commons, scaled to one 24 x 24 path; each MARKS entry names its source and date read.
 A family with no findable vector mark (Inception, Fastino, Inkling and the rest) gets a plain shape (circle, diamond, triangle
