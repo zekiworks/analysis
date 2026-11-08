@@ -455,7 +455,8 @@ class ChatDontKnowTests(unittest.TestCase):
             provider=provider, model="m", timeout=1, seed=0, english=english, dont_know=dont_know, dont_know_word="turkish",
             codex_bin="codex", claude_bin="claude", gemini_api_key="k", gemini_thinking="low", claude_effort="low",
             xai_reasoning="low", antigravity_thinking="low", openrouter_reasoning="low", openrouter_order="p",
-            openrouter_require_parameters=True, openrouter_json_object=False, vllm_url="http://localhost",
+            openrouter_require_parameters=True, openrouter_json_object=False, openrouter_max_tokens=32768,
+            openrouter_answer_layout=False, vllm_url="http://localhost",
             ollama_url="http://localhost", num_ctx=None,
         )
         with mock.patch("benchmark_ollama.post_json", side_effect=post), \

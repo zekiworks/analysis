@@ -188,6 +188,10 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_openrouter_kimi.sh` | Kimi K3.1 Pro via OpenRouter's chat API, pinned to Moonshot AI's endpoint (`moonshotai/mxfp4`), reasoning_effort none | `OPENROUTER_API_KEY` |
 | `run_openrouter_kimi_low.sh` | Kimi K3.1 Pro on the same route with reasoning_effort low | `OPENROUTER_API_KEY` |
 | `run_openrouter_glm.sh` | GLM-5.3 via OpenRouter's chat API, pinned to Fireworks with required parameters, reasoning_effort low | `OPENROUTER_API_KEY` |
+| `run_openrouter_qwen3_5_397b.sh` | Qwen 3.5 397B-A17B via OpenRouter's chat API, pinned to DeepInfra (`deepinfra/fp8`) with required parameters and the answer schema, reasoning_effort high | `OPENROUTER_API_KEY` |
+| `run_openrouter_mimo_v2_6_flash.sh` | MiMo V2.6 Flash via OpenRouter's chat API, pinned to Xiaomi (`xiaomi/fp8`) with required parameters and the answer schema, reasoning_effort high, output cap 65,536 tokens | `OPENROUTER_API_KEY` |
+| `run_openrouter_minimax_m3_1_flash.sh` | MiniMax-M3.1-Flash via OpenRouter's chat API, pinned to MiniMax (`minimax`) with required parameters, JSON mode and the answer layout in the prompt, reasoning_effort high | `OPENROUTER_API_KEY` |
+| `run_openrouter_inkling_small.sh` | Inkling Small via OpenRouter's chat API, pinned to DeepInfra (`deepinfra/fp8`), no response format, the answer layout in the prompt, reasoning_effort high | `OPENROUTER_API_KEY` |
 | `run_xai_grok_high.sh` | Grok 4.7 through xAI's Responses API with a SuperGrok subscription login, reasoning effort high, 4 requests at a time | OMP's `xai-oauth` login (`omp token xai-oauth`) |
 | `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
 
@@ -217,7 +221,34 @@ OpenRouter's own time.
 
 `--provider openrouter-chat` sends the chat models' prompt and answer schema through OpenRouter's chat completions,
 pinned to the one provider endpoint the run names (`--openrouter-order`) with fallbacks off, temperature 1.0 and
-OpenRouter's usage accounting, which records each request's billed cost.
+OpenRouter's usage accounting, which records each request's billed cost. Its options, each recorded in the run's
+endpoint after `#provider=PIN`:
+
+- `--openrouter-require-parameters` (`;require_parameters`): OpenRouter routes only to an endpoint that supports every
+  parameter sent.
+- `--openrouter-json-object` (`;json_object`): JSON mode (`response_format` `json_object`) instead of the answer schema,
+  for an endpoint without structured outputs.
+- `--openrouter-max-tokens N` (`;max_tokens=N`, recorded only when N is not the default): the output cap, reasoning
+  included; default 32768, the cap of every earlier OpenRouter chat run.
+- `--openrouter-answer-layout` (`;answer_layout`): for an endpoint without structured outputs, no answer schema; the user
+  message ends with one more paragraph that states the answers' JSON layout, with JSON mode when
+  `--openrouter-json-object` is given too and no `response_format` otherwise. The paragraph is a prompt difference: a
+  run with it does not have the same prompt as the other chat setups, and its description says so. In Turkish runs:
+  `Yalnızca tam olarak şu düzende tek bir JSON nesnesi döndürün, başka hiçbir şey yazmayın: {"answers": {"<soru
+  numarası>": {"answer": "<harf>", "confidence": <0 ile 1 arasında bir sayı>}}}. Aşağıdaki her soru numarasını tam bir
+  kez, izin verilen harflerinden biriyle verin: 1: A, B, C, D, E; 2: A, B, C, D, E; ...`; in English runs: `Return only
+  one JSON object in exactly this layout and nothing else: {"answers": {"<question number>": {"answer": "<letter>",
+  "confidence": <number from 0 to 1>}}}. Give every question number below exactly once, with one of its allowed
+  letters: 1: A, B, C, D, E; 2: A, B, C, D, E; ...`. Each question's letters are those the answer schema would allow,
+  the "I don't know" option's among them with `--dont-know`. The reply is read strictly: after one surrounding Markdown
+  code fence is removed, it must be one JSON object `{"answers": {...}}` whose keys are the batch's question numbers;
+  a question's answer is valid only when its number appears exactly once with exactly an allowed `answer` letter and a
+  `confidence` from 0 to 1. Anything else (missing, repeated, another letter, no or a bad confidence, another layout
+  such as `"Q1"` keys or a list) leaves the answer invalid; nothing is filled in, re-mapped or taken from free text.
+  The raw reply is stored as always.
+
+A reasoning effort on an endpoint that reports 0 reasoning tokens counts as reasoning that could not be verified, not
+as reasoning off.
 
 ### vLLM and SGLang
 

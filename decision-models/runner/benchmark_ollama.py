@@ -982,6 +982,9 @@ ANTIGRAVITY_MAX_OUTPUT_TOKENS = 65536
 # OpenRouter's chat completions, each run pinned to one provider endpoint (--openrouter-order) without fallbacks.
 OPENROUTER_CHAT_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_EFFORTS = ("none", "minimal", "low", "medium", "high", "xhigh", "max")
+# The output cap of an OpenRouter chat request (--openrouter-max-tokens), reasoning included: 32,768 unless a run asks
+# for more, as MiMo V2.6 Flash's do (its Turkish smoke batch spent all 32,768 on reasoning, run 835).
+OPENROUTER_MAX_TOKENS = 32768
 # OMP's credential store, opened read-only for a login's stored fields (Antigravity's project id); its tokens come
 # from `omp token PROVIDER`, which refreshes them when due.
 OMP_AGENT_DB = Path("~/.omp/agent/agent.db")
@@ -1199,6 +1202,22 @@ def parse_args() -> argparse.Namespace:
         "for a pinned endpoint without structured outputs; the answers are then read from the model's own JSON layout",
     )
     parser.add_argument(
+        "--openrouter-max-tokens",
+        type=int,
+        metavar="N",
+        default=OPENROUTER_MAX_TOKENS,
+        help=f"with --provider openrouter-chat, the request's output cap (max_tokens), reasoning included (default: "
+        f"{OPENROUTER_MAX_TOKENS}); a run with another cap records it with its endpoint",
+    )
+    parser.add_argument(
+        "--openrouter-answer-layout",
+        action="store_true",
+        help="with --provider openrouter-chat, for a pinned endpoint without structured outputs: no answer schema, the "
+        "user message ends with one more paragraph that states the answers' JSON layout with each question's number and "
+        "letters (a prompt difference: such a run does not have the same prompt as the other chat setups), and each "
+        "answer is read strictly in that layout; add --openrouter-json-object where the endpoint has JSON mode",
+    )
+    parser.add_argument(
         "--unit",
         action="append",
         help="Unit number or exact unit title; repeat to select multiple units",
@@ -1340,6 +1359,8 @@ def parse_args() -> argparse.Namespace:
         parser.error(f"--concurrency is only supported by --provider {', '.join(concurrent)} and the System One providers")
     if args.provider == "openrouter-chat" and (args.openrouter_reasoning is None or not args.openrouter_order):
         parser.error("--provider openrouter-chat needs --openrouter-reasoning and --openrouter-order")
+    if args.openrouter_max_tokens < 1:
+        parser.error("--openrouter-max-tokens must be at least 1")
     if args.repeat is not None and args.repeat < 2:
         parser.error("--repeat must be at least 2; the first run of a configuration is repeat 1")
     if args.questions is not None and (args.sample is not None or args.limit is not None):
@@ -2744,6 +2765,77 @@ def confidence_answers(
     return predictions, per_question
 
 
+# The answer layout stated in the prompt (--openrouter-answer-layout), for an endpoint without structured outputs: one
+# more paragraph at the end of the user message, in the language of the run's chat prompts (told apart by their
+# question headers, which the "I don't know" prompts share), fixed text apart from each question's number and letters,
+# which are those the answer schema's enum would allow (the "I don't know" option's letter among them when it is on).
+ANSWER_LAYOUT_TEXT = {
+    TURKISH_CHAT.question_header: (
+        'Yalnızca tam olarak şu düzende tek bir JSON nesnesi döndürün, başka hiçbir şey yazmayın: {"answers": '
+        '{"<soru numarası>": {"answer": "<harf>", "confidence": <0 ile 1 arasında bir sayı>}}}. Aşağıdaki her soru '
+        "numarasını tam bir kez, izin verilen harflerinden biriyle verin: {letters}."
+    ),
+    ENGLISH_CHAT.question_header: (
+        'Return only one JSON object in exactly this layout and nothing else: {"answers": {"<question number>": '
+        '{"answer": "<letter>", "confidence": <number from 0 to 1>}}}. Give every question number below exactly once, '
+        "with one of its allowed letters: {letters}."
+    ),
+}
+# One Markdown code fence around a whole reply, which the answer-layout reader may remove.
+FENCED_REPLY = re.compile(r"```[A-Za-z]*[ \t]*\n(.*)\n[ \t]*```", re.DOTALL)
+
+
+def answer_layout_text(batch: list[Question], prompts: ChatPrompts) -> str:
+    """The paragraph that states the answer layout for `batch` in the language of `prompts`."""
+    letters = "; ".join(
+        f"{index}: {', '.join(option.label for option in question.options)}" for index, question in enumerate(batch, 1)
+    )
+    return ANSWER_LAYOUT_TEXT[prompts.question_header].replace("{letters}", letters)
+
+
+class JsonPairs(list):
+    """A JSON object as its (key, value) pairs in order, a repeated key kept as often as it appears."""
+
+
+def reject_json_constant(name: str) -> Any:
+    raise ValueError(f"not a JSON number: {name}")
+
+
+def layout_answers(text: str, batch: list[Question]) -> tuple[list[str | None], dict[str, dict[str, Any]]]:
+    """Read a reply to the answer layout strictly, as confidence_answers returns them: after one surrounding Markdown
+    code fence is removed, the reply must be one JSON object {"answers": {...}} whose keys are question numbers of the
+    batch, else every answer is invalid. A question's answer is valid only when its number appears exactly once, as an
+    object of exactly "answer", one of the question's letters, and "confidence", a number from 0 to 1; anything else
+    leaves that question invalid. Nothing is filled in, guessed, re-mapped or taken from free text."""
+    fenced = FENCED_REPLY.fullmatch(text.strip())
+    if fenced:
+        text = fenced.group(1)
+    try:
+        reply = json.loads(text, object_pairs_hook=JsonPairs, parse_constant=reject_json_constant)
+    except ValueError:
+        reply = None
+    numbers = {str(index) for index in range(1, len(batch) + 1)}
+    found: dict[str, list[Any]] = {}
+    if isinstance(reply, JsonPairs) and len(reply) == 1 and reply[0][0] == "answers" and isinstance(reply[0][1], JsonPairs):
+        if all(key in numbers for key, _ in reply[0][1]):
+            for key, value in reply[0][1]:
+                found.setdefault(key, []).append(value)
+    predictions: list[str | None] = []
+    per_question: dict[str, dict[str, Any]] = {}
+    for index, question in enumerate(batch, 1):
+        answer = confidence = None
+        values = found.get(str(index), [])
+        if len(values) == 1 and isinstance(values[0], JsonPairs) and sorted(key for key, _ in values[0]) == ["answer", "confidence"]:
+            item = dict(values[0])
+            letter, stated = item["answer"], item["confidence"]
+            valid_confidence = isinstance(stated, (int, float)) and not isinstance(stated, bool) and 0 <= stated <= 1
+            if isinstance(letter, str) and letter in [option.label for option in question.options] and valid_confidence:
+                answer, confidence = letter, stated
+        predictions.append(answer)
+        per_question[str(question.question_id)] = {"answer": answer, "confidence": confidence}
+    return predictions, per_question
+
+
 def ask_openai(
     codex_bin: str,
     model: str,
@@ -3161,33 +3253,42 @@ def ask_antigravity(
 def ask_openrouter_chat(
     model: str, batch: list[Question], timeout: float, effort: str, order: str, require_parameters: bool,
     json_object: bool, verbose_log: TextIO | None, prompts: ChatPrompts = TURKISH_CHAT,
+    max_tokens: int = OPENROUTER_MAX_TOKENS, answer_layout: bool = False,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through OpenRouter's chat completions, pinned to one
     provider endpoint without fallbacks: the prompt, system prompt and schema of the other chat providers, the
-    reasoning effort set, temperature 1.0, OpenRouter's usage accounting (with its billed cost) included. With
-    json_object the request asks for JSON mode without the schema, for an endpoint that lacks structured outputs
-    (DeepSeek's own, which require_parameters would otherwise rule out)."""
+    reasoning effort set, temperature 1.0, output capped at max_tokens, OpenRouter's usage accounting (with its billed
+    cost) included. With json_object the request asks for JSON mode without the schema, for an endpoint that lacks
+    structured outputs (DeepSeek's own, which require_parameters would otherwise rule out). With answer_layout the
+    request has no schema either, its user message ends with the paragraph of answer_layout_text (a prompt difference),
+    and the reply is read by layout_answers; with json_object too it asks for JSON mode, else for no response format."""
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
         raise ValueError("--provider openrouter-chat requires OPENROUTER_API_KEY")
     pin: dict[str, Any] = {"order": [order], "allow_fallbacks": False}
     if require_parameters:
         pin["require_parameters"] = True
-    payload = {
+    user = make_prompt(batch, prompts.confidence_instruction, prompts)
+    if answer_layout:
+        user += "\n\n" + answer_layout_text(batch, prompts)
+    payload: dict[str, Any] = {
         "model": model,
         "messages": [
             {"role": "system", "content": prompts.confidence_system},
-            {"role": "user", "content": make_prompt(batch, prompts.confidence_instruction, prompts)},
+            {"role": "user", "content": user},
         ],
         "temperature": 1.0,
-        "max_tokens": 32768,
+        "max_tokens": max_tokens,
         "reasoning_effort": effort,
-        "response_format": {"type": "json_object"} if json_object else {
-            "type": "json_schema", "json_schema": {"name": "answers", "schema": confidence_schema(batch), "strict": True}
-        },
-        "provider": pin,
-        "usage": {"include": True},
     }
+    if json_object:
+        payload["response_format"] = {"type": "json_object"}
+    elif not answer_layout:
+        payload["response_format"] = {
+            "type": "json_schema", "json_schema": {"name": "answers", "schema": confidence_schema(batch), "strict": True}
+        }
+    payload["provider"] = pin
+    payload["usage"] = {"include": True}
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
     result, _ = post_json(OPENROUTER_CHAT_URL, payload, headers, timeout, verbose_log, "OpenRouter")
     try:
@@ -3197,7 +3298,10 @@ def ask_openrouter_chat(
     # A reasoning model may put its thinking before the answer, closed by </think>.
     if "</think>" in text:
         text = text.split("</think>", 1)[1]
-    predictions, per_question = confidence_answers(json_answers(text.strip()), batch)
+    if answer_layout:
+        predictions, per_question = layout_answers(text, batch)
+    else:
+        predictions, per_question = confidence_answers(json_answers(text.strip()), batch)
     if any(prediction is None for prediction in predictions):
         print(f"warning: incomplete OpenRouter response (served by {result.get('provider')!r})", file=sys.stderr)
     stored_response = json.dumps({"answers": per_question, "response": result}, ensure_ascii=False, separators=(",", ":"))
@@ -3987,6 +4091,7 @@ def ask_batch(
         return ask_openrouter_chat(
             args.model, questions, args.timeout, args.openrouter_reasoning, args.openrouter_order,
             args.openrouter_require_parameters, args.openrouter_json_object, verbose_log, prompts,
+            args.openrouter_max_tokens, args.openrouter_answer_layout,
         )
     return ask_ollama(
         args.ollama_url, args.model, questions, args.timeout, args.seed, thinking, args.num_ctx, verbose_log, prompts
@@ -6198,6 +6303,11 @@ def main() -> int:
                 endpoint += ";require_parameters"
             if args.openrouter_json_object:
                 endpoint += ";json_object"
+            # The answer layout in the prompt (a prompt difference) and an output cap other than the default.
+            if args.openrouter_answer_layout:
+                endpoint += ";answer_layout"
+            if args.openrouter_max_tokens != OPENROUTER_MAX_TOKENS:
+                endpoint += f";max_tokens={args.openrouter_max_tokens}"
             image_input = False
         else:
             endpoint = require_server_url(args.ollama_url, "--ollama-url")
