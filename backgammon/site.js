@@ -56,12 +56,12 @@
   if (pagePng) pagePng.addEventListener('click', () => { set(false); toggle.focus(); });
 })();
 
-/* On a phone the navigation bar scrolls sideways: the current page's link starts in the middle of the bar, and a link
-   that takes the keyboard focus is brought fully into view. */
+/* On a phone the tab row scrolls sideways: the current tab starts in the middle of the row, and a tab that takes the
+   keyboard focus is brought fully into view. */
 (function keepNavLinksInView() {
-  const bar = document.querySelector('.nav ul');
+  const bar = document.querySelector('.site-tabs ul');
   if (!bar) return;
-  const current = bar.querySelector('[aria-current="page"]');
+  const current = bar.querySelector('[aria-current]');
   if (current && bar.scrollWidth > bar.clientWidth) {
     const a = current.getBoundingClientRect(), b = bar.getBoundingClientRect();
     bar.scrollLeft += a.left - b.left - (b.width - a.width) / 2;
@@ -124,61 +124,12 @@
   });
 })();
 
-/* Every page: the suite header, sticky at the top of the window: the suite strip, then the view bar with Home and, on
-   the home page, its League, Models and Measure rows (Zeki #2270, #2274). Its height is kept in
-   --view-bar-h, so links to a part of a page land below it. On the home page the Measure row marks the part in view:
-   the part that crosses a line a quarter of the way down the window below the bar, or the key just pressed until the
-   reader scrolls on; between parts no key is marked. */
+/* Every page: the sticky header (the suite strip and the site's bar with its tabs, Ümit #2901). Its height is kept in
+   --view-bar-h, so links to a part of a page land below it. */
 (function setupViewBar() {
   const bar = document.querySelector('.site-header');
   if (!bar) return;
   const measure = () => document.documentElement.style.setProperty('--view-bar-h', `${bar.offsetHeight}px`);
   measure();
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
-  const links = [...bar.querySelectorAll('a[data-view-measure]')];
-  const parts = links.map(link => ({ link, part: document.getElementById(link.dataset.viewMeasure) })).filter(x => x.part);
-  if (!parts.length) return;
-  const mark = key => links.forEach(link => {
-    if (link.dataset.viewMeasure === key) link.setAttribute('aria-current', 'true');
-    else link.removeAttribute('aria-current');
-  });
-  let pressed = null;
-  let pressedAt = 0;
-  const inView = () => {
-    const top = bar.offsetHeight;
-    const line = top + (innerHeight - top) / 4;
-    const found = parts.find(({ part }) => {
-      if (!part.offsetParent) return false;
-      const box = part.getBoundingClientRect();
-      return box.top <= line && box.bottom > line;
-    });
-    return found ? found.link.dataset.viewMeasure : null;
-  };
-  const press = key => {
-    pressed = key;
-    mark(key);
-    requestAnimationFrame(() => { pressedAt = scrollY; });
-  };
-  let queued = false;
-  addEventListener('scroll', () => {
-    if (queued) return;
-    queued = true;
-    requestAnimationFrame(() => {
-      queued = false;
-      if (pressed && Math.abs(scrollY - pressedAt) < 48) return;
-      pressed = null;
-      mark(inView());
-    });
-  }, { passive: true });
-  bar.addEventListener('click', event => {
-    const key = event.target.closest('a[data-view-measure]')?.dataset.viewMeasure;
-    if (key) press(key);
-  });
-  const fromHash = () => {
-    const key = decodeURIComponent(location.hash.slice(1));
-    if (parts.some(({ link }) => link.dataset.viewMeasure === key)) press(key);
-    else mark(inView());
-  };
-  addEventListener('hashchange', fromHash);
-  fromHash();
 })();

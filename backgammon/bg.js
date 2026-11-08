@@ -523,8 +523,8 @@ async function savePng(panel, svg, title, lines, filename) {
   fromHash(location.hash.length > 1);
 })();
 
-/* Home page: the headline table's two views (story.py): the best setting per model, or every setup (the All leagues risk
-   table). A row's "+N" link (on a phone, its other settings) shows All setups too. */
+/* Home page: the headline table's two views (story.py): one row per model, or every setup (the All leagues risk table);
+   and each row's "other settings" expander, which shows or hides the rows it names (aria-controls). */
 (function headlineViews() {
   const keys = [...document.querySelectorAll('[data-headline-view]')];
   if (!keys.length) return;
@@ -533,7 +533,124 @@ async function savePng(panel, svg, title, lines, filename) {
     document.querySelectorAll('[data-headline-panel]').forEach(p => { p.hidden = p.dataset.headlinePanel !== view; });
   };
   keys.forEach(k => k.addEventListener('click', () => show(k.dataset.headlineView)));
-  document.querySelectorAll('[data-headline-show]').forEach(a => a.addEventListener('click', () => show(a.dataset.headlineShow)));
+  document.querySelectorAll('#headline-table .hl-more').forEach(b => b.addEventListener('click', () => {
+    const open = b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', String(open));
+    b.getAttribute('aria-controls').split(' ').forEach(id => { const r = document.getElementById(id); if (r) r.hidden = !open; });
+  }));
+})();
+
+/* Home page: the leaderboard's own filter (Ümit #2907): All, Chat models or Decision models, local to the table (the
+   page's filters never change it). A row of the other type and its other-settings rows go out of view (class hl-off),
+   whatever their expander says; the programs stay in every view; the ranks are the ranks among all models. */
+(function headlineFilter() {
+  const table = document.getElementById('headline-table');
+  const keys = [...document.querySelectorAll('[data-hl-filter]')];
+  if (!table || !keys.length) return;
+  keys.forEach(k => k.addEventListener('click', () => {
+    const type = k.dataset.hlFilter;
+    keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
+    table.querySelectorAll('tbody tr[data-hl-type]').forEach(tr => {
+      const t = tr.dataset.hlType;
+      tr.classList.toggle('hl-off', type !== 'all' && t !== 'program' && t !== type);
+    });
+    table.dispatchEvent(new CustomEvent('hl-filter'));
+  }));
+})();
+
+/* Home page: a leaderboard row's details box (Ümit #2904, as Clocktower Bench's). A tap on a phone opens it and a
+   second tap on the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row;
+   with the keyboard while the focus is in the row (the model's name, then the box's links). The box is placed under
+   the row (above it near the bottom of the window), within the window's width. Without JavaScript every box is shown
+   in its row. */
+(function headlineDetails() {
+  const table = document.getElementById('headline-table');
+  if (!table) return;
+  let open = null, pinned = false, pointer = 'mouse', quiet = false;
+  const boxOf = tr => document.getElementById(tr.dataset.box);
+  const place = () => {
+    if (!open) return;
+    const box = boxOf(open), row = open.getBoundingClientRect(), cell = open.querySelector('td.model').getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;  // the visible width, even where something overflows the page
+    const width = Math.min(380, vw - 16);
+    box.style.width = `${width}px`;
+    box.style.left = `${Math.max(8, Math.min(cell.left, vw - width - 8))}px`;
+    // Height: below the row if it fits, else above it. If it fits neither way, capped to the larger side of the row,
+    // scrolling inside (its links stay reachable by scrolling it or with Tab), so the row itself stays uncovered for a
+    // second tap; only where neither side has 120 px does it take the window under the header.
+    box.style.maxHeight = '';
+    const height = box.offsetHeight;
+    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
+    const below = row.bottom;  // no gap: the pointer moves from the row into its box without leaving the row
+    const bottom = innerHeight - 8;
+    const roomBelow = bottom - below, roomAbove = row.top - header - 4;
+    if (height <= roomBelow) box.style.top = `${below}px`;
+    else if (height <= roomAbove) box.style.top = `${row.top - height}px`;
+    else if (Math.max(roomBelow, roomAbove) >= 120) {
+      box.style.maxHeight = `${Math.max(roomBelow, roomAbove)}px`;
+      box.style.top = `${roomBelow >= roomAbove ? below : row.top - roomAbove}px`;
+    } else {
+      const room = Math.max(bottom - header - 4, 80);
+      box.style.maxHeight = `${room}px`;
+      box.style.top = `${header + 4}px`;
+    }
+  };
+  const hide = () => {
+    if (!open) return;
+    boxOf(open).classList.remove('open');
+    open.classList.remove('hl-open');
+    open = null;
+    pinned = false;
+  };
+  const show = (tr, pin) => {
+    if (open !== tr) hide();
+    const box = boxOf(tr);
+    if (!box) return;
+    open = tr;
+    pinned = pin;
+    tr.classList.add('hl-open');
+    box.classList.add('open');
+    place();
+  };
+  const rows = [...table.querySelectorAll('tbody tr[data-box]')];
+  // Keyboard focus in the open row (its name or its box) keeps the box: the pointer leaving the row or entering another
+  // row does not take it away until the focus leaves the row, Escape, a second tap or a click outside. Focus that a
+  // press of the pointer gives (pointing) neither opens a box nor holds one: the press itself decides.
+  let pointing = false, keyed = false;
+  const held = () => !!open && keyed && open.contains(document.activeElement);
+  document.addEventListener('pointerdown', event => {
+    pointing = true;
+    if (table.contains(event.target)) pointer = event.pointerType || 'mouse';
+  }, true);
+  const released = () => setTimeout(() => { pointing = false; });
+  document.addEventListener('pointerup', released, true);
+  document.addEventListener('pointercancel', released, true);
+  rows.forEach(tr => {
+    tr.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && !pinned && !held()) show(tr, false); });
+    tr.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && !pinned && open === tr && !held()) hide(); });
+    tr.addEventListener('focusin', () => {
+      keyed = !pointing;
+      if (keyed && open !== tr && !quiet) show(tr, false);
+    });
+    tr.addEventListener('focusout', event => { if (open === tr && !pinned && !tr.contains(event.relatedTarget)) hide(); });
+    tr.addEventListener('click', event => {
+      // A mouse click or a key (detail 0) follows the link; a link or key in the box or the expander does its own job.
+      if (pointer === 'mouse' || event.detail === 0 || boxOf(tr).contains(event.target) || event.target.closest('.hl-more')) return;
+      event.preventDefault();  // a tap opens the box; its own link opens the decisions
+      if (open === tr && pinned) hide(); else show(tr, true);
+    });
+  });
+  document.addEventListener('click', event => { if (open && !open.contains(event.target)) hide(); });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !open) return;
+    const name = open.querySelector('.model-name');
+    const inside = open.contains(document.activeElement);
+    hide();
+    if (inside && name) { quiet = true; name.focus(); quiet = false; }
+  });
+  addEventListener('scroll', place, { passive: true });
+  addEventListener('resize', place);
+  table.addEventListener('hl-filter', () => { if (open && open.classList.contains('hl-off')) hide(); });
 })();
 
 /* Home page: the Nackgammon summary table's keys (nack_section.py; Ümit #2647, #2651): Decision / Chat / All by model

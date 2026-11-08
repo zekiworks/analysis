@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Experiments · Hilde</title>
+  <link rel="canonical" href="https://zekiworks.github.io/analysis/backgammon/experiments/">
+  <meta name="description" content="Experiments of the backgammon benchmark: Clear risk, Nackgammon and Learning from experience.">
+  <meta property="og:title" content="Experiments · Hilde"><meta property="og:description" content="Experiments of the backgammon benchmark: Clear risk, Nackgammon and Learning from experience.">
+  <meta property="og:type" content="website"><meta property="og:url" content="https://zekiworks.github.io/analysis/backgammon/experiments/">
+  <meta name="twitter:title" content="Experiments · Hilde"><meta name="twitter:description" content="Experiments of the backgammon benchmark: Clear risk, Nackgammon and Learning from experience.">
+  <meta property="og:image" content="https://zekiworks.github.io/analysis/backgammon/share/preview-aadcb221.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://zekiworks.github.io/analysis/backgammon/share/preview-aadcb221.png">
+  <meta name="color-scheme" content="dark light">
+  <script>(function () { var d = document.documentElement; d.classList.add("js"); d.dataset.theme = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; var u = new URLSearchParams(location.search).get("cost-unit"); try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") d.dataset.theme = t; if (!u) u = localStorage.getItem("costUnit"); } catch (e) {} if (u === "1m") d.dataset.costUnit = "1m"; })();</script>
+  <link rel="stylesheet" href="../suite-bar.css"><link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../bg.css">
+  <script src="../site.js" defer></script><script src="../tables.js" defer></script><script src="../png.js" defer></script>
+</head>
+<body class="v3 " data-site-title="Backgammon: do models take the right risks, and do they learn from their games?" data-site-subtitle="And when does playing safe cost more?">
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="site-header">
+  <nav class="suite-bar" aria-label="Benchmarks"><ul><li><a href="/analysis/decision-models/">English &amp; Turkish Reading</a></li><li><a href="/analysis/logic/">Logic &amp; Math</a></li><li><a href="/analysis/backgammon/" aria-current="page">Backgammon</a></li></ul></nav>
+  <header class="site-bar"><div class="site-bar-in"><div class="site-title-row"><a class="site-title" href="../"><img class="site-leaf" src="../hilde-leaf.svg" width="18" height="21" alt="">Backgammon bench</a><div class="site-controls"><div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>Dark<span class="long"> background</span></button><button type="button" class="key" data-theme-choice="light" aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light<span class="long"> background</span></button></div><div class="more-menu needs-js"><button type="button" class="key more-toggle" data-more-toggle aria-expanded="false" aria-controls="more-options" aria-label="More options">More<span class="more-long"> options</span><span class="chevron" aria-hidden="true"></span></button><div class="more-pop" id="more-options" hidden><p class="more-label">Share</p><button type="button" class="key page-png" data-page-png hidden>Export page as PNG</button></div></div></div></div><nav class="site-tabs" id="view-part" aria-label="Sections"><ul><li><a href="../">Leaderboard</a></li><li><a href="../decisions/">Decisions</a></li><li><a href="../highlights/">Highlights</a></li><li><a href="../experiments/" aria-current=page>Experiments</a></li><li><a href="../about/">About</a></li></ul></nav></div></header>
+  </div>
+  <main id="main">
+<header class="card hero page-head"><p class="eyebrow">Experiments</p><h1>Experiments</h1><p class=intro>Tests beside the leagues, each opened from its card.</p><p class="version">Results 7b40b30e, updated 8 November 2026, 07:50 UTC; scored by GNU Backgammon 1.08, 2-ply.</p></header><div class="experiment-cards"><section class="card experiment-card" id="clear-risk"><h2>Clear risk</h2><span class="status status-preliminary-partial">Preliminary / partial</span><p>Clear-risk scan: decisions where a risk or safety is clearly better, per setup, checks, a rollout check and a partial model quiz.</p><p class="hero-links"><a href="../clear-risk/">Open Clear risk</a></p></section><section class="card experiment-card" id="nackgammon"><h2>Nackgammon</h2><p>Does a model still play well when the starting position changes? Nackgammon has the rules of backgammon; only the starting position differs.</p><p class="hero-links"><a href="../#nackgammon-paired">The paired test</a><a href="../leagues/#nack-knockout">The knockout</a><a href="../matches/#stage-knockout">Its matches</a></p></section><section class="card experiment-card" id="learning"><h2>Learning from experience</h2><span class="status status-pre-registration">Pre-registration</span><p>Does a model play better after seeing its own earlier games? Results will be published whichever way they go, including no lift.</p><p class="hero-links"><a href="../learning/">Open Learning from experience</a></p></section></div>
+  </main>
+  <footer class="footer">
+    <p>Download: <a href="../data/results.json" download="results.json">results.json</a> · <a href="../decisions/index.json" download="decisions.json">decisions.json</a> · <a href="../data/">every data file</a></p>
+    <p>Results 7b40b30e, updated 8 November 2026, 07:50 UTC; scored by GNU Backgammon 1.08, 2-ply.</p>
+  </footer>
+</body>
+</html>

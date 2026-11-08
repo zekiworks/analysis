@@ -321,61 +321,51 @@ td.badges .small { display: block; white-space: normal; }
 }
 
 /* --- The sibling site's face (Ümit, bus #1831; Zeki #1833, #1834, #1836, #1860). -------------------------------- */
-/* One navigation: the top bar's pages row (site.css, the sibling's keys), in its groups, Home first; group names small
-   before their keys, keys centred on them. */
-.nav-group { align-items: center; }
-/* The view bar (site.css: the sibling's compact sticky header, one line at 1280 px): Home on every page; on the home page
-   the League and Models rows, which filter, and the Measure row, the parts of the page. The League keys read All, 1, 2,
-   3 after the row's name; on a phone, where the names are for screen readers only, they read All leagues, League 1 … */
-.view-more { display: none; }
-/* The title strip under the header, as the sibling's: the theme keys read Dark and Light (their full names in their
-   labels) and More options takes their size; the pages row keeps one line at 1280 px, its groups apart by spacing and
-   their names for screen readers only (the row's PAGES label is the visible one). */
+/* The theme keys read Dark and Light (their full names in their labels). */
 .theme-switch .long { display: none; }
-.topbar .more-menu .key { min-height: 24px; padding: 1px 8px; gap: 5px; font-size: 12px; }
-.nav-group { position: relative; }
-.nav-group-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
-  white-space: nowrap; border: 0; }
+/* The pages that are not tabs (Ümit #2901), on the Leaderboard and About: their group name before the keys. */
+.more-pages { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin-top: .6rem; }
+.more-pages .view-label { margin-right: .2rem; }
+/* Highlights and Experiments (Ümit #2901). */
+.highlight-slots, .experiment-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.highlight-slot { border-style: dashed; }
+.highlight-candidate { color: var(--text-2); }
+.experiment-card .status { margin-bottom: .3rem; }
 /* Three kinds of choice, three looks, in both themes and without hovering (Zeki, bus #1860):
-   - the page in view: the pages row's key filled navy (light) or blue with a light blue edge (dark), site.css;
-   - a part of a page (in-page tabs: the leaderboard's and the leagues' tabs, the part links, the Measure row): keys
+   - the page in view: its tab in the site's bar underlined in the link colour (site.css);
+   - a part of a page (in-page tabs: the leaderboard's and the leagues' tabs, the part links): keys
      tinted with the link colour, the one in view filled with it (the sibling's --tab-* colours);
-   - a filter (League, Models, the Filters panel, the cost unit and the other keys that switch a view): rounded keys, the
+   - a filter (the Filters panel, the cost unit and the other keys that switch a view): rounded keys, the
      chosen one with a thick edge in the link colour on its tint and a check mark; a filter at its default (All) looks
      unpressed, as on the sibling site, its lamp still lit. */
-button.mode, a.mode, .view-measures a.view-key { color: var(--tab-text); background: var(--tab-bg); border: 2px solid var(--tab-edge);
+button.mode, a.mode { color: var(--tab-text); background: var(--tab-bg); border: 2px solid var(--tab-edge);
   border-radius: 7px; font-weight: 700; box-shadow: var(--key-shadow); }
-/* In the compact view bar every key keeps the bar's 1.5 px edge and 6 px corners (filters stay round). */
-.view-bar a.view-key, .view-bar .view-filter a.view-key[aria-current] { border-width: 1.5px; }
-.view-measures a.view-key { border-radius: 6px; }
-button.mode:hover, a.mode:hover, .view-measures a.view-key:hover { border-color: var(--view-key-hover); }
-button.mode[aria-selected="true"], a.mode[aria-selected="true"], .view-measures a.view-key[aria-current] {
+button.mode:hover, a.mode:hover { border-color: var(--view-key-hover); }
+button.mode[aria-selected="true"], a.mode[aria-selected="true"] {
   color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); box-shadow: none; }
 button.mode[aria-selected="true"]::after, a.mode[aria-selected="true"]::after { background: var(--tab-current-bg); }
-.view-filter a.view-key, #filters button.key, .cost-unit button.key, .view-switch button.key, .col-switch button.key { border-radius: 999px; }
-.view-filter a.view-key[aria-current], button.key[aria-pressed="true"] { color: var(--tab-text); background: var(--tab-bg);
+#filters button.key, .cost-unit button.key, .view-switch button.key, .col-switch button.key, .hl-filter button.key { border-radius: 999px; }
+button.key[aria-pressed="true"] { color: var(--tab-text); background: var(--tab-bg);
   border: 2px solid var(--tab-edge); box-shadow: var(--key-inset); font-weight: 700; }
-.view-filter a.view-key[aria-current]::before, button.key[aria-pressed="true"]::before { content: "\2713"; margin-right: .3rem; }
-.view-filter a.view-key[data-league-pick="all"][aria-current], .view-filter a.view-key[data-filter-kind="all"][aria-current],
+button.key[aria-pressed="true"]::before { content: "\2713"; margin-right: .3rem; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
-  [data-filter-runs="all"], [data-filter-weights="all"]) { color: var(--view-text); background: var(--view-key);
-  border: 1.5px solid var(--view-key-edge); box-shadow: var(--key-shadow); font-weight: 700; }
+  [data-filter-runs="all"], [data-filter-weights="all"]), .hl-filter button.key[aria-pressed="true"][data-hl-filter="all"] {
+  color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); box-shadow: var(--key-shadow);
+  font-weight: 700; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
   [data-filter-runs="all"], [data-filter-weights="all"]) { border-width: 1px; font-weight: 400; }
-.view-filter a.view-key[aria-current]:is([data-league-pick="all"], [data-filter-kind="all"])::before,
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
-  [data-filter-runs="all"], [data-filter-weights="all"])::before { content: none; }
-.view-filter a.view-key { font-weight: 700; }
+  [data-filter-runs="all"], [data-filter-weights="all"])::before,
+.hl-filter button.key[aria-pressed="true"][data-hl-filter="all"]::before { content: none; }
 /* The theme keys keep the sibling's look: a lit lamp says which theme is on. */
 .theme-switch button.key[aria-pressed="true"] { border-radius: 6px; }
 .theme-switch button.key[aria-pressed="true"]::before { content: none; }
 /* The measures, one chart card each in one column; the leaderboard's own chart panels keep their two columns. */
 .charts.measures { grid-template-columns: minmax(0, 1fr); margin: 0 0 1rem; }
 .board-panel .chart-head h2 { font-size: 1.15rem; }
-/* The bars: a program grey and striped (a reference row, never ranked); a setup without a recorded family grey; the 95%
-   interval a line across the bar; the league beside the name under All leagues. */
+/* The bars: in the maker's colour (content/maker_colors.json); a program grey and striped (a reference row, never
+   ranked); the 95% interval a line across the bar; the league beside the name under All leagues. */
 .hbar-fill.program { background-color: var(--data-grey); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
-.hbar-fill.other { background: var(--data-grey); }
 .hbar-track { position: relative; }
 .hbar-interval { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); box-shadow: 0 0 0 1px var(--panel); }
 .hbar-interval::before, .hbar-interval::after { content: ""; position: absolute; top: -4px; width: 2px; height: 10px; background: var(--text); }
@@ -399,14 +389,6 @@ i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2
 .cards-note { margin: .4rem 0 .2rem; }
 .unmeasured { margin-top: .6rem; }
 @media (max-width: 640px) {
-  /* The view bar on a phone, as the sibling's three short rows (site.css): the leagues across the width, the Home key
-     beside All, Decision and Chat, the measures across the width. */
-  .view-row.view-leagues { grid-column: 1 / -1; }
-  .view-row.view-leagues ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .view-row.view-leagues .view-more { display: inline; }
-  .view-row.view-measures ul { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr) minmax(0, .7fr) minmax(0, .7fr) minmax(0, 1.35fr); }
-  /* The pages row scrolls sideways as one line (site.css); the groups' own lists do not scroll inside it. */
-  .nav-group > ul { overflow: visible; margin: 0; padding: 0; }
   /* The bars on a phone in two lines, as the sibling's Math accuracy chart (Ümit via Zeki #2895, #2898): the icon and
      the name (its league after it, small) across the width, then the bar from the left edge with the value and its
      interval right-aligned beside it, in a narrower value column so the bar gets the width. */
@@ -423,7 +405,8 @@ i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2
 .headline .chart-head .keys { margin-left: auto; }
 table.headline td.model { min-width: 15rem; }
 table.headline td.model .swatch { margin-right: .3rem; }
-td.hl-judgement { min-width: 13rem; }
+table.headline thead th:nth-child(2) { text-align: left; }
+td.hl-judgement { width: 55%; min-width: 13rem; }
 .hl-bar { position: relative; display: block; height: .8rem; margin: .2rem 0 .25rem; background: var(--sunk);
   border-radius: 2px; box-shadow: inset 0 0 0 1px var(--edge); }
 .hl-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
@@ -431,58 +414,49 @@ td.hl-judgement { min-width: 13rem; }
 .hl-int { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); box-shadow: 0 0 0 1px var(--panel); }
 .hl-safe { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--text-2); }
 .hl-val { font-family: var(--mono); font-size: .84rem; }
-td.hl-release { white-space: nowrap; }
 .js [data-headline-panel][hidden] { display: none; }
-table.headline .head-short, table.headline .hl-more { white-space: nowrap; }
-table.headline .head-short { display: none; }
-/* The headline table on a phone (Ümit via Zeki #2895, #2898): # | Model | Risk judgement | PR on the first screen and no
-   sideways scroll. Each row is a wrapping line: the rank in 26 px, the model (icon, name, its league and a "+N" link to
-   its other settings under All setups), the bar with its number and the error rate; the release month, risks found,
-   right safety and cost follow under the model on a small second line, each after its header's name (those headers stay
-   for screen readers only, so the header is one line). */
+/* The leaderboard rows (Ümit, bus #2745; #2904, #2907; #2921): the rank, the model (maker dot, its type under the name
+   with a late entry's tag, the expander of its other settings, shown without script) and the risk judgement; the
+   programs grey and unranked under a group heading. */
+table.headline td.model .hl-dot { width: .7rem; height: .7rem; border-radius: 50%; }
+table.headline .hl-type { display: block; }
+.hl-filter { display: flex; flex-wrap: wrap; gap: .3rem; margin: .1rem 0 .2rem; }
+.hl-filter .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
+.hl-tag::before { content: " \00b7\0020"; font-weight: 400; }
+.hl-tag { font-weight: 600; }
+tr.hl-off { display: none !important; }
+table.headline tbody tr.hl-open > td { background: var(--row-hover); }
+/* A row's details box (bg.js): every value of the setup, a line per kind; in its row without script, else over the page
+   under its row (fixed to the window, within its width), opened by a tap, hover or the focus. */
+.hl-box { margin: .35rem 0 0; color: var(--text); font-size: .82rem; line-height: 1.4; white-space: normal; }
+.hl-box p { margin: .12rem 0; }
+.hl-box p:first-child { margin-top: 0; }
+.js .hl-box { display: none; position: fixed; z-index: 30; max-width: calc(100vw - 16px); margin: 0; padding: .6rem .75rem;
+  overflow: auto; overscroll-behavior: contain;
+  background: var(--panel); border: 1px solid var(--control-edge); border-radius: 8px; box-shadow: var(--shadow); }
+.js .hl-box.open { display: block; }
+.hl-more { display: block; margin-top: .2rem; padding: 0; border: 0; background: none; color: var(--link, var(--text-2));
+  font: inherit; font-size: .8rem; cursor: pointer; text-decoration: underline dotted; }
+.hl-more::before { content: "\25B8\00a0"; }
+.hl-more[aria-expanded="true"]::before { content: "\25BE\00a0"; }
+tr.hl-sub[hidden] { display: table-row; }
+.js tr.hl-sub[hidden] { display: none; }
+tr.hl-sub td { background: var(--sunk); }
+tr.hl-sub td.model { padding-left: 1.6rem; }
+tr.hl-group th { padding-top: .8rem; text-align: left; font-size: .8rem; font-weight: 600; color: var(--text-2); }
+table.headline tr.reference td { color: var(--text-2); }
+.hbar-fill.ts-found, i.swatch-ts-found { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
+.hbar-fill.ts-grey, i.swatch-ts-grey { background-color: var(--data-grey); }
+i.swatch-ts-safety, i.swatch-ts-found { background-color: var(--text-2); }
+.too-safe { margin-top: 1rem; }
+/* At phone width: the three columns fit the width (no sticky column, no sideways scrolling), the bar column narrower. */
 @media (max-width: 640px) {
-  table.headline .head-long { display: none; }
-  table.headline .head-short { display: inline; }
-  [data-headline-panel="best"] > .swipe-hint { display: none; }
-  table.board.headline, table.board.headline > thead, table.board.headline > tbody { display: block; }
-  table.board.headline > caption { display: block; }
-  table.board.headline tr { display: flex; flex-wrap: wrap; align-items: flex-start; padding-left: 26px;
-    border-bottom: 1px solid var(--edge); }
-  table.board.headline tr > :is(th, td) { position: static; width: auto; min-width: 0; max-width: none; padding: .4rem .2rem;
-    border-bottom: 0; box-shadow: none; order: 5; }
-  table.board.headline tr > :nth-child(1) { flex: 0 0 26px; order: 1; margin-left: -26px; padding-left: 0; padding-right: 4px;
-    text-align: right; }
-  table.board.headline tr > :nth-child(2) { flex: 1 1 calc(100% - 6.4rem - 3.7rem); order: 2; text-align: left; }
-  table.board.headline tr > :nth-child(4) { flex: 0 0 6.4rem; order: 3; text-align: left; }
-  table.board.headline tr > :nth-child(7) { flex: 0 0 3.7rem; order: 4; white-space: normal; }
-  table.board.headline tr > :nth-child(7) .small { font-size: .66rem; }
-  table.board.headline thead tr > :is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(8)) { position: absolute;
-    width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  table.board.headline tbody tr > :is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(8)) { padding: 0 .55rem .2rem .2rem;
-    font-size: .7rem; line-height: 1.3; text-align: left; white-space: nowrap; }
-  table.board.headline tbody tr > :is(:nth-child(5), :nth-child(6), :nth-child(8)) .small { display: inline; margin-left: .2em;
-    font-size: .64rem; }
-  table.board.headline tbody tr > :is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(8))::before {
-    color: var(--text-2); font-family: var(--sans); }
-  table.board.headline tbody tr > :nth-child(3)::before { content: "Released "; }
-  table.board.headline tbody tr > :nth-child(5)::before { content: "Risks found "; }
-  table.board.headline tbody tr > :nth-child(6)::before { content: "Right safety "; }
-  table.board.headline tbody tr > :nth-child(8)::before { content: "Per 1,000 decisions "; }
-  :root[data-cost-unit="1m"] table.board.headline tbody tr > :nth-child(8)::before { content: "Per 1M decisions "; }
-  table.board.headline td.model { padding-left: .3rem; }
-  table.board.headline td.model .swatch { display: none; }
-  table.board.headline .model-name { overflow-wrap: anywhere; }
-  table.board.headline thead th { font-size: .76rem; white-space: normal; }
-  table.board.headline tbody tr > :nth-child(8) { flex-basis: 100%; white-space: normal; }
-  /* The row, not each cell, carries the zebra, hover and selection colour, so the second line has no gaps. */
-  table.board.headline tbody tr { background: var(--panel); }
-  table.board.headline tbody tr:nth-child(even) { background: var(--zebra); }
-  table.board.headline tbody tr:hover { background: var(--row-hover); }
-  table.board.headline tbody tr.is-selected { background: var(--row-selected); }
-  table.board.headline tbody tr:nth-child(n) > td { background: transparent; }
-  td.hl-judgement { min-width: 0; }
-  .hl-val { font-size: .78rem; }
-  .hl-val .small { font-size: .64rem; }
+  table.headline th:first-child, table.headline td:first-child { position: static; width: auto; min-width: 0; max-width: none;
+    box-shadow: none; }
+  table.headline td.model { min-width: 0; }
+  table.headline th, table.headline td { padding-left: .35rem; padding-right: .35rem; }
+  table.headline tr.hl-sub td.model { padding-left: .6rem; }
+  table.headline td.hl-judgement { min-width: 8rem; }
 }
 .finding h2 { font-size: 1.25rem; }
 .finding-text { max-width: 80ch; margin: 0 0 .75rem; }
@@ -490,7 +464,7 @@ table.headline .head-short { display: none; }
 .section-caveat { margin-top: .6rem; }
 .hbar-fill.q1-board, i.swatch-q1-board { background-color: var(--data-grey); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
 /* The Risk calls part's compact filter row (home.filters; Ümit, bus #2570 item 1): league, models, the parts of the page,
-   More filters, the setup count and Reset on one line where they fit, in the view bar's compact key size. The row is
+   More filters, the setup count and Reset on one line where they fit, in a compact key size. The row is
    always open: its body's selector outranks site.css's `.filters:not(.is-open) .filters-body { display: none }`
    (the collapsible filter panel, which this row is not), which had hidden the whole row. */
 .filter-row { padding: 6px 10px; }
