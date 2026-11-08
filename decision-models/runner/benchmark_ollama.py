@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import bisect
+import copy
 import decimal
 import fcntl
 import functools
@@ -25,7 +26,7 @@ import sys
 import tempfile
 import threading
 import time
-from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, as_completed, wait
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
@@ -1274,6 +1275,21 @@ def parse_args() -> argparse.Namespace:
         help="with --provider antigravity, after the run's own requests, ask each request Antigravity cut at its output "
         "limit before a complete answer once more (a stored retry is never asked again)",
     )
+    parser.add_argument(
+        "--rescue",
+        type=int,
+        nargs="+",
+        metavar="RUN",
+        help=f"apply the rule on empty and broken replies to finished runs RUN... in --database ({', '.join(RESCUE_PROVIDERS)}): "
+        "read the clearly readable letters of every broken reply, ask every empty reply that was never asked again once "
+        "more with the run's own settings, update only invalid answers, print the counts per run and exit; refuses a "
+        "run it cannot re-ask",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="with --rescue: ask and write nothing; print what it would read and re-ask",
+    )
     parser.add_argument("--log-verbose", action="store_true")
     parser.add_argument("--progress-every", type=int, default=10)
     variant = parser.add_mutually_exclusive_group()
@@ -1355,8 +1371,11 @@ def parse_args() -> argparse.Namespace:
         "with a valid choice and a probability for every option summing to 1), print what fails and exit 1 if anything does",
     )
     args = parser.parse_args()
-    if args.model is None and not args.refresh_report and args.export_answers is None and args.check_probabilities is None:
+    if (args.model is None and not args.refresh_report and args.export_answers is None and args.check_probabilities is None
+            and args.rescue is None):
         parser.error("the model argument is required")
+    if args.dry_run and args.rescue is None:
+        parser.error("--dry-run needs --rescue")
     for name in ("limit", "sample", "num_ctx"):
         value = getattr(args, name)
         if value is not None and value < 1:
@@ -1380,7 +1399,7 @@ def parse_args() -> argparse.Namespace:
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
     concurrent = ("vllm", "vllm-stated", "gemini", "xai", "antigravity", "openrouter-chat")
-    if args.concurrency > 1 and args.provider not in concurrent and args.provider not in SYSTEM_ONE:
+    if args.concurrency > 1 and args.rescue is None and args.provider not in concurrent and args.provider not in SYSTEM_ONE:
         parser.error(f"--concurrency is only supported by --provider {', '.join(concurrent)} and the System One providers")
     if args.provider == "openrouter-chat" and (args.openrouter_reasoning is None or not args.openrouter_order):
         parser.error("--provider openrouter-chat needs --openrouter-reasoning and --openrouter-order")
@@ -2629,24 +2648,27 @@ def ask_vllm(
     thinking: bool | str,
     verbose_log: TextIO | None,
     prompts: ChatPrompts = TURKISH_CHAT,
+    retry_empty: bool = True,
 ) -> tuple[list[str | None], str]:
     """The Ollama request through vLLM's chat API (vllm_chat_payload): the same prompt and answer schema.
 
     The server also returns each generated token's log probability and top alternatives. The stored
     response keeps, instead of those, each question's answer and its letter probabilities
-    (letter_probabilities), keyed by question ID."""
+    (letter_probabilities), keyed by question ID. An EMPTY reply is asked once more (post_chat), the first kept under
+    "empty_first_reply"; a BROKEN reply's clearly readable letters are read (read_broken), without probabilities."""
     payload = vllm_chat_payload(
         model, prompts.answer_system, make_prompt(batch, prompts.answer_instruction, prompts), answers_schema(batch), seed, thinking,
         len(batch),
     )
     payload.update(logprobs=True, top_logprobs=VLLM_TOP_LOGPROBS)
-    result, _ = post_json(
+    result, first = post_chat(
         f"{base_url.rstrip('/')}/v1/chat/completions",
         payload,
         {"Content-Type": "application/json"},
         timeout,
         verbose_log,
         "vLLM",
+        retry_empty,
     )
     try:
         message = result["choices"][0]["message"]["content"]
@@ -2655,12 +2677,16 @@ def ask_vllm(
         message, content = None, None
     predictions = batch_predictions(content, batch, result)
     probabilities = letter_probabilities(result, message, batch)
-    for choice in result.get("choices") or []:
-        choice.pop("logprobs", None)
+    for response in (result, first or {}):
+        for choice in response.get("choices") or []:
+            choice.pop("logprobs", None)
     result["answers"] = {
         str(question.question_id): {"answer": prediction, "probabilities": probabilities.get(index)}
         for index, (question, prediction) in enumerate(zip(batch, predictions), 1)
     }
+    predictions = read_broken(result, reads_whole("vllm", result, batch), batch, "letter", predictions, result["answers"])
+    if first is not None:
+        result["empty_first_reply"] = first
     return predictions, json.dumps(result, ensure_ascii=False, separators=(",", ":"))
 
 
@@ -2673,21 +2699,25 @@ def ask_vllm_stated(
     thinking: bool | str,
     verbose_log: TextIO | None,
     prompts: ChatPrompts = TURKISH_CHAT,
+    retry_empty: bool = True,
 ) -> tuple[list[str | None], str]:
     """The hosted models' request through vLLM's chat API (vllm_chat_payload), for a server that returns no token
     probabilities, such as TensorFold: the prompt, system instruction and schema of the Claude, OpenAI and Gemini
-    providers, a letter and a stated 0-1 confidence per question. Stored like the Gemini provider's response."""
+    providers, a letter and a stated 0-1 confidence per question. Stored like the Gemini provider's response. An EMPTY
+    reply is asked once more (post_chat), the first kept under "empty_first_reply"; a BROKEN reply's clearly readable
+    letters are read (read_broken)."""
     payload = vllm_chat_payload(
         model, prompts.confidence_system, make_prompt(batch, prompts.confidence_instruction, prompts), confidence_schema(batch),
         seed, thinking, len(batch),
     )
-    result, _ = post_json(
+    result, first = post_chat(
         f"{base_url.rstrip('/')}/v1/chat/completions",
         payload,
         {"Content-Type": "application/json"},
         timeout,
         verbose_log,
         "vLLM",
+        retry_empty,
     )
     try:
         answers = json.loads(result["choices"][0]["message"]["content"]).get("answers")
@@ -2696,7 +2726,11 @@ def ask_vllm_stated(
     predictions, per_question = confidence_answers(answers, batch)
     if any(prediction is None for prediction in predictions):
         print(f"warning: incomplete vLLM response: {result!r}", file=sys.stderr)
-    stored_response = json.dumps({"answers": per_question, "response": result}, ensure_ascii=False, separators=(",", ":"))
+    predictions = read_broken(result, reads_whole("stated", result, batch), batch, "confidence", predictions, per_question)
+    stored: dict[str, Any] = {"answers": per_question, "response": result}
+    if first is not None:
+        stored["empty_first_reply"] = first
+    stored_response = json.dumps(stored, ensure_ascii=False, separators=(",", ":"))
     return predictions, stored_response
 
 
@@ -2826,12 +2860,10 @@ def reject_json_constant(name: str) -> Any:
     raise ValueError(f"not a JSON number: {name}")
 
 
-def layout_answers(text: str, batch: list[Question]) -> tuple[list[str | None], dict[str, dict[str, Any]]]:
-    """Read a reply to the answer layout strictly, as confidence_answers returns them: after one surrounding Markdown
-    code fence is removed, the reply must be one JSON object {"answers": {...}} whose keys are question numbers of the
-    batch, else every answer is invalid. A question's answer is valid only when its number appears exactly once, as an
-    object of exactly "answer", one of the question's letters, and "confidence", a number from 0 to 1; anything else
-    leaves that question invalid. Nothing is filled in, guessed, re-mapped or taken from free text."""
+def layout_entries(text: str, batch: list[Question]) -> dict[str, list[Any]] | None:
+    """The answer entries of a reply to the answer layout by question number, a repeated number with each of its values,
+    or None when the reply is not, as a whole, one JSON object {"answers": {...}} whose keys are question numbers of the
+    batch (after one surrounding Markdown code fence is removed)."""
     fenced = FENCED_REPLY.fullmatch(text.strip())
     if fenced:
         text = fenced.group(1)
@@ -2840,11 +2872,23 @@ def layout_answers(text: str, batch: list[Question]) -> tuple[list[str | None], 
     except ValueError:
         reply = None
     numbers = {str(index) for index in range(1, len(batch) + 1)}
+    if not (isinstance(reply, JsonPairs) and len(reply) == 1 and reply[0][0] == "answers" and isinstance(reply[0][1], JsonPairs)):
+        return None
+    if not all(key in numbers for key, _ in reply[0][1]):
+        return None
     found: dict[str, list[Any]] = {}
-    if isinstance(reply, JsonPairs) and len(reply) == 1 and reply[0][0] == "answers" and isinstance(reply[0][1], JsonPairs):
-        if all(key in numbers for key, _ in reply[0][1]):
-            for key, value in reply[0][1]:
-                found.setdefault(key, []).append(value)
+    for key, value in reply[0][1]:
+        found.setdefault(key, []).append(value)
+    return found
+
+
+def layout_answers(text: str, batch: list[Question]) -> tuple[list[str | None], dict[str, dict[str, Any]]]:
+    """Read a reply to the answer layout strictly, as confidence_answers returns them: the reply must be what
+    layout_entries reads as a whole, else every answer is invalid. A question's answer is valid only when its number
+    appears exactly once, as an object of exactly "answer", one of the question's letters, and "confidence", a number
+    from 0 to 1; anything else leaves that question invalid. Nothing is filled in, guessed, re-mapped or taken from free
+    text."""
+    found = layout_entries(text, batch) or {}
     predictions: list[str | None] = []
     per_question: dict[str, dict[str, Any]] = {}
     for index, question in enumerate(batch, 1):
@@ -2859,6 +2903,209 @@ def layout_answers(text: str, batch: list[Question]) -> tuple[list[str | None], 
         predictions.append(answer)
         per_question[str(question.question_id)] = {"answer": answer, "confidence": confidence}
     return predictions, per_question
+
+
+# Empty and broken chat replies (the project lead's rule, bus #3215). A chat completions reply is EMPTY when it finished
+# normally (finish_reason "stop") and its final content, stripped, is empty or an empty JSON object; it is asked once
+# more. A reply cut off at the output limit (finish_reason "length") is never empty and never read. A reply is BROKEN
+# when it has content but the run's reader cannot read it as a whole; then broken_answers reads its clearly readable
+# letters and the rest stay invalid.
+EMPTY_CONTENT = re.compile(r"\s*(?:\{\s*\}\s*)?")
+CUT_FINISH_REASON = "length"
+# A JSON number, as a stated confidence is written.
+JSON_NUMBER = r"-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?"
+# The answer shapes of the chat requests' schemas: "letter" for make_prompt's ("<number>": "<letter>", the vllm
+# provider), "confidence" for confidence_schema's and the answer layout's ("<number>": {"answer": "<letter>",
+# "confidence": <number>}, or with "confidence" first).
+ANSWER_SHAPES = ("letter", "confidence")
+
+
+def reply_text(result: Any) -> str | None:
+    """The final content of a chat completions response: its first choice's content ("" when it has none), after any
+    thinking closed by </think>; None when the response has no message. Reasoning the response carries apart from the
+    content is never part of it."""
+    try:
+        message = result["choices"][0]["message"]
+    except (KeyError, IndexError, TypeError):
+        return None
+    if not isinstance(message, dict):
+        return None
+    text = message.get("content") or ""
+    if not isinstance(text, str):
+        return None
+    return text.split("</think>", 1)[1] if "</think>" in text else text
+
+
+def finish_reason(result: Any) -> str | None:
+    """The first choice's finish_reason of a chat completions response, or None."""
+    try:
+        return result["choices"][0].get("finish_reason")
+    except (KeyError, IndexError, TypeError, AttributeError):
+        return None
+
+
+def empty_reply(result: Any) -> bool:
+    """Whether a chat completions response is EMPTY: finished normally ("stop") with a final content that is, stripped,
+    empty or an empty JSON object."""
+    text = reply_text(result)
+    return finish_reason(result) == "stop" and text is not None and EMPTY_CONTENT.fullmatch(text) is not None
+
+
+def post_chat(
+    endpoint: str, payload: dict[str, Any], headers: dict[str, str], timeout: float, verbose_log: TextIO | None,
+    service: str, retry_empty: bool = True,
+) -> tuple[Any, Any | None]:
+    """A chat completions request through post_json, asked once more, the same request, when its reply is EMPTY (and
+    `retry_empty`): the reply to use, and the first, empty reply when there was a retry, else None. A second empty
+    reply stays empty."""
+    result, _ = post_json(endpoint, payload, headers, timeout, verbose_log, service)
+    if not retry_empty or not empty_reply(result):
+        return result, None
+    print(f"warning: empty {service} reply; asking once more", file=sys.stderr)
+    retry, _ = post_json(endpoint, payload, headers, timeout, verbose_log, service)
+    return retry, result
+
+
+# The readers of the chat replies, by the path that asks: "vllm" (ask_vllm: the content as parse_ollama_content reads
+# it, {"answers": {"<number>": "<letter>"}}), "stated" (ask_vllm_stated: the content's JSON "answers" object), "json"
+# (ask_openrouter_chat with the schema or JSON mode: the final content's JSON "answers" object) and "layout"
+# (ask_openrouter_chat with the answer layout: layout_entries).
+CHAT_READERS = ("vllm", "stated", "json", "layout")
+
+
+def reads_whole(reader: str, result: Any, batch: list[Question]) -> bool:
+    """Whether `reader` (CHAT_READERS) reads a chat completions response as a whole, as the path that asked reads it:
+    each question's answer then stands or falls on its own entry."""
+    try:
+        content = result["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return False
+    if not isinstance(content, str):
+        return False
+    try:
+        if reader == "vllm":
+            parsed = parse_ollama_content(content)
+            return isinstance(parsed, dict) and isinstance(parsed.get("answers"), dict)
+        if reader == "stated":
+            parsed = json.loads(content)
+            return isinstance(parsed, dict) and isinstance(parsed.get("answers"), dict)
+    except json.JSONDecodeError:
+        return False
+    text = reply_text(result) or ""
+    if reader == "json":
+        return isinstance(json_answers(text.strip()), dict)
+    if reader == "layout":
+        return layout_entries(text, batch) is not None
+    raise ValueError(f"unknown chat reader {reader!r}")
+
+
+def broken_reply(result: Any, read_whole: bool) -> bool:
+    """Whether a chat completions response is BROKEN: it has content (it is not empty), it was not cut off at the output
+    limit, and the run's reader could not read it as a whole (`read_whole` False)."""
+    text = reply_text(result)
+    return (not read_whole and text is not None and EMPTY_CONTENT.fullmatch(text) is None
+            and finish_reason(result) != CUT_FINISH_REASON)
+
+
+def answer_entries(text: str, number: int, shape: str) -> tuple[int, str | None, float | None]:
+    """How often question `number`'s key appears in `text`, and when it appears once, as an answer entry of `shape`
+    (ANSWER_SHAPES), its letter and the confidence readable in the same entry (a number from 0 to 1), else None."""
+    key = rf'"{number}"\s*:'
+    count = len(re.findall(rf'(?<![\w"]){key}', text))
+    if count != 1:
+        return count, None, None
+    if shape == "letter":
+        found = re.search(rf'(?<![\w"]){key}\s*"([^"\\]*)"', text)
+        return count, found.group(1) if found else None, None
+    letter = rf'"answer"\s*:\s*"([^"\\]*)"'
+    confidence = rf'"confidence"\s*:\s*({JSON_NUMBER})'
+    first = re.search(rf'(?<![\w"]){key}\s*\{{\s*{letter}(?:\s*,\s*{confidence}\s*\}})?', text)
+    if first:
+        letter_text, stated = first.group(1), first.group(2)
+    else:
+        second = re.search(rf'(?<![\w"]){key}\s*\{{\s*{confidence}\s*,\s*{letter}', text)
+        if not second:
+            return count, None, None
+        stated, letter_text = second.group(1), second.group(2)
+    value = float(stated) if stated is not None else None
+    return count, letter_text, value if value is not None and 0 <= value <= 1 else None
+
+
+def broken_answers(text: str, batch: list[Question], shape: str) -> tuple[list[str | None], list[float | None]]:
+    """The clearly readable letters of a BROKEN reply's final content, in batch order, and their confidences: a
+    question's letter is read when its number appears exactly once in the content, as an answer entry of the requested
+    shape (answer_entries), with a letter the question allows; its confidence when the same entry holds a number from 0
+    to 1. Everything else stays None: nothing is inferred."""
+    letters: list[str | None] = []
+    confidences: list[float | None] = []
+    for index, question in enumerate(batch, 1):
+        _, letter, confidence = answer_entries(text, index, shape)
+        allowed = letter is not None and letter in [option.label for option in question.options]
+        letters.append(letter if allowed else None)
+        confidences.append(confidence if allowed else None)
+    return letters, confidences
+
+
+def read_broken(
+    result: Any, read_whole: bool, batch: list[Question], shape: str, predictions: list[str | None],
+    per_question: dict[str, dict[str, Any]],
+) -> list[str | None]:
+    """The run reader's predictions, with the clearly readable letters of a BROKEN reply (broken_answers) in place of
+    its invalid ones; each answer read so is marked in `per_question` ("read_from_broken_reply": true, its confidence
+    under "confidence" where the entry holds one). A reply that is not broken is left as it is."""
+    if not broken_reply(result, read_whole):
+        return predictions
+    letters, confidences = broken_answers(reply_text(result) or "", batch, shape)
+    merged = list(predictions)
+    for index, (question, letter, confidence) in enumerate(zip(batch, letters, confidences)):
+        if merged[index] is None and letter is not None:
+            merged[index] = letter
+            entry = per_question.setdefault(str(question.question_id), {})
+            entry["answer"] = letter
+            if shape == "confidence":
+                entry["confidence"] = confidence
+            entry["read_from_broken_reply"] = True
+    if merged != predictions:
+        print(f"warning: read {sum(a is None for a in predictions) - sum(a is None for a in merged)} answer(s) from a broken reply",
+              file=sys.stderr)
+    return merged
+
+
+def unconfident_answers(text: str, batch: list[Question]) -> list[str | None]:
+    """For a reply to the answer layout that layout_entries reads as a whole: the letter of each question whose entry
+    the strict reader rejects only for its confidence (its number appears exactly once, as an object with one "answer",
+    a letter the question allows, and at most one "confidence" besides, which is missing or not a number from 0 to 1),
+    in batch order; None for every other question. A letter the question does not allow is never read."""
+    found = layout_entries(text, batch) or {}
+    letters: list[str | None] = []
+    for index, question in enumerate(batch, 1):
+        values = found.get(str(index), [])
+        letter = None
+        if len(values) == 1 and isinstance(values[0], JsonPairs):
+            keys = [key for key, _ in values[0]]
+            if keys.count("answer") == 1 and keys.count("confidence") <= 1 and set(keys) <= {"answer", "confidence"}:
+                item = dict(values[0])
+                stated = item.get("confidence")
+                valid_confidence = isinstance(stated, (int, float)) and not isinstance(stated, bool) and 0 <= stated <= 1
+                if isinstance(item["answer"], str) and item["answer"] in [option.label for option in question.options] \
+                        and not valid_confidence:
+                    letter = item["answer"]
+        letters.append(letter)
+    return letters
+
+
+def read_unconfident(
+    text: str, batch: list[Question], predictions: list[str | None], per_question: dict[str, dict[str, Any]],
+) -> list[str | None]:
+    """layout_answers' predictions, with the letters of unconfident_answers in place of the invalid ones they cover, each
+    marked in `per_question` ("read_without_confidence": true, with no confidence): a clearly readable letter scores
+    even without a confidence (bus #3215)."""
+    merged = list(predictions)
+    for index, (question, letter) in enumerate(zip(batch, unconfident_answers(text, batch))):
+        if merged[index] is None and letter is not None:
+            merged[index] = letter
+            per_question[str(question.question_id)] = {"answer": letter, "confidence": None, "read_without_confidence": True}
+    return merged
 
 
 def ask_openai(
@@ -3278,7 +3525,7 @@ def ask_antigravity(
 def ask_openrouter_chat(
     model: str, batch: list[Question], timeout: float, effort: str, order: str, require_parameters: bool,
     json_object: bool, verbose_log: TextIO | None, prompts: ChatPrompts = TURKISH_CHAT,
-    max_tokens: int = OPENROUTER_MAX_TOKENS, answer_layout: bool = False,
+    max_tokens: int = OPENROUTER_MAX_TOKENS, answer_layout: bool = False, retry_empty: bool = True,
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through OpenRouter's chat completions, pinned to one
     provider endpoint without fallbacks: the prompt, system prompt and schema of the other chat providers, the
@@ -3286,7 +3533,9 @@ def ask_openrouter_chat(
     cost) included. With json_object the request asks for JSON mode without the schema, for an endpoint that lacks
     structured outputs (DeepSeek's own, which require_parameters would otherwise rule out). With answer_layout the
     request has no schema either, its user message ends with the paragraph of answer_layout_text (a prompt difference),
-    and the reply is read by layout_answers; with json_object too it asks for JSON mode, else for no response format."""
+    and the reply is read by layout_answers; with json_object too it asks for JSON mode, else for no response format.
+    An EMPTY reply is asked once more (post_chat), the first kept, with its usage, under "empty_first_reply"; a BROKEN
+    reply's clearly readable letters are read (read_broken)."""
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
         raise ValueError("--provider openrouter-chat requires OPENROUTER_API_KEY")
@@ -3315,7 +3564,7 @@ def ask_openrouter_chat(
     payload["provider"] = pin
     payload["usage"] = {"include": True}
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
-    result, _ = post_json(OPENROUTER_CHAT_URL, payload, headers, timeout, verbose_log, "OpenRouter")
+    result, first = post_chat(OPENROUTER_CHAT_URL, payload, headers, timeout, verbose_log, "OpenRouter", retry_empty)
     try:
         text = result["choices"][0]["message"].get("content") or ""
     except (KeyError, IndexError, TypeError, AttributeError):
@@ -3325,11 +3574,17 @@ def ask_openrouter_chat(
         text = text.split("</think>", 1)[1]
     if answer_layout:
         predictions, per_question = layout_answers(text, batch)
+        predictions = read_unconfident(text, batch, predictions, per_question)
     else:
         predictions, per_question = confidence_answers(json_answers(text.strip()), batch)
     if any(prediction is None for prediction in predictions):
         print(f"warning: incomplete OpenRouter response (served by {result.get('provider')!r})", file=sys.stderr)
-    stored_response = json.dumps({"answers": per_question, "response": result}, ensure_ascii=False, separators=(",", ":"))
+    reader = "layout" if answer_layout else "json"
+    predictions = read_broken(result, reads_whole(reader, result, batch), batch, "confidence", predictions, per_question)
+    stored: dict[str, Any] = {"answers": per_question, "response": result}
+    if first is not None:
+        stored["empty_first_reply"] = first
+    stored_response = json.dumps(stored, ensure_ascii=False, separators=(",", ":"))
     return predictions, stored_response
 
 
@@ -4061,6 +4316,301 @@ def retry_cut_requests(
         print(f"  ordinals {batch[0][0]}-{batch[-1][0]}: {answered} of {len(batch)} answered on the retry", flush=True)
 
 
+# The providers whose chat replies follow the rule on empty and broken replies (project lead, bus #3215): their paths
+# ask an EMPTY reply once more and read a BROKEN reply's clearly readable letters, and --rescue applies the rule to
+# their finished runs.
+RESCUE_PROVIDERS = ("openrouter-chat", "vllm", "vllm-stated")
+# Why an answer is still invalid, as --rescue and the report count it.
+INVALID_KINDS = ("empty after retry", "empty, not retried", "cut off", "unreadable", "letter not allowed")
+# How a stored answer read by the rule is marked in its record's answers: a letter read from a broken reply
+# (read_broken), and an allowed letter whose entry the answer layout's strict reader rejected only for its confidence
+# (read_unconfident).
+READ_MARKERS = ("read_from_broken_reply", "read_without_confidence")
+
+
+def openrouter_pin(endpoint: str) -> dict[str, Any]:
+    """The request settings an openrouter-chat run's endpoint records after "#provider=" (main writes them), as
+    ask_batch's openrouter_* settings. A ValueError for an endpoint of another form or with a setting it does not know."""
+    base, _, fragment = endpoint.partition("#")
+    if base != OPENROUTER_CHAT_URL or not fragment.startswith("provider="):
+        raise ValueError(f"not an OpenRouter chat endpoint: {endpoint}")
+    order, *flags = fragment[len("provider="):].split(";")
+    settings: dict[str, Any] = {
+        "openrouter_order": order, "openrouter_require_parameters": False, "openrouter_json_object": False,
+        "openrouter_answer_layout": False, "openrouter_max_tokens": OPENROUTER_MAX_TOKENS,
+    }
+    for flag in flags:
+        if flag.startswith("max_tokens="):
+            settings["openrouter_max_tokens"] = int(flag[len("max_tokens="):])
+        elif flag in ("require_parameters", "json_object", "answer_layout"):
+            settings[f"openrouter_{flag}"] = True
+        else:
+            raise ValueError(f"unknown setting {flag!r} in endpoint {endpoint}")
+    return settings
+
+
+def run_reader(run: sqlite3.Row) -> tuple[str, str]:
+    """The reader (CHAT_READERS) and the answer shape (ANSWER_SHAPES) of a RESCUE_PROVIDERS run's replies."""
+    if run["provider"] == "vllm":
+        return "vllm", "letter"
+    if run["provider"] == "vllm-stated":
+        return "stated", "confidence"
+    return ("layout" if openrouter_pin(run["ollama_url"])["openrouter_answer_layout"] else "json"), "confidence"
+
+
+def stored_reply(provider: str, record: dict[str, Any]) -> Any:
+    """The chat completions response a stored answer's record keeps: ask_vllm stores the response itself, with the
+    answers in it; the other RESCUE_PROVIDERS paths store it under "response"."""
+    if provider == "vllm":
+        return {key: value for key, value in record.items() if key not in ("answers", "empty_first_reply", "rescued")}
+    return record.get("response")
+
+
+def rescue_settings(run: sqlite3.Row, timeout: float, re_ask: bool = True) -> tuple[argparse.Namespace, bool | str]:
+    """ask_batch's settings to ask a request of a finished run again, and its thinking, from what the run's row
+    records: provider, model, endpoint with its settings, seed, reasoning, language and "I don't know". A ValueError
+    naming the reason for a run --rescue cannot re-ask: a provider outside RESCUE_PROVIDERS, or, when it would re-ask
+    (`re_ask`), a run whose prompt version is not the one this runner sends."""
+    provider = run["provider"]
+    if provider not in RESCUE_PROVIDERS:
+        raise ValueError(f"run {run['id']}: --rescue cannot re-ask provider {provider!r} (only {', '.join(RESCUE_PROVIDERS)})")
+    english, dont_know = run["english"] is not None, bool(run["dont_know"])
+    version = run_prompt_version(provider, english, dont_know, run["dont_know_word"])
+    if re_ask and run["prompt_version"] != version:
+        raise ValueError(f"run {run['id']}: cannot re-ask its empty replies: asked with prompt version "
+                         f"{run['prompt_version']}, but this runner sends {version}")
+    settings = argparse.Namespace(
+        provider=provider, model=run["model"], timeout=timeout, seed=run["seed"],
+        english=Path(run["english"]) if english else None, dont_know=dont_know, dont_know_word=run["dont_know_word"] or "turkish",
+    )
+    if provider == "openrouter-chat":
+        vars(settings).update(openrouter_pin(run["ollama_url"]), openrouter_reasoning=run["thinking_mode"])
+        return settings, run["thinking_mode"]
+    settings.vllm_url = run["ollama_url"]
+    return settings, {"off": False, "on": True}.get(run["thinking_mode"], run["thinking_mode"])
+
+
+def stored_question(row: sqlite3.Row) -> Question:
+    """A stored answer's question as it was asked: its prompt, its options as shown (with --shuffle-options their bank
+    letters, with --replace-key-text the option the key copies), its page and its key; what make_prompt and the
+    answer schemas need to ask it again."""
+    shown = json.loads(row["options_json"])
+    originals = tuple(option["original"] for option in shown if "original" in option)
+    key = row["expected_answer"]
+    if originals:
+        key = next(option["label"] for option in shown if option["original"] == key)
+    twin = next((option["copied_from"] for option in shown if "copied_from" in option), None)
+    return Question(
+        int(row["question_id"]), row["category"], "", "", "", "", "", "", row["question"],
+        tuple(Option(option["label"], option["text"]) for option in shown), key, int(row["source_page"]), False, None,
+        row["status"], originals, twin,
+    )
+
+
+def stored_requests(connection: sqlite3.Connection, run_id: int, batch_size: int) -> list[list[sqlite3.Row]]:
+    """A run's stored answers by the request that asked them, each request's in ordinal order, its batch order (as
+    run_requests tells requests apart)."""
+    requests: dict[Any, list[sqlite3.Row]] = {}
+    for row in connection.execute("SELECT * FROM answers WHERE run_id=? ORDER BY ordinal", (run_id,)):
+        requests.setdefault(row["raw_response"] if batch_size > 1 else row["ordinal"], []).append(row)
+    return list(requests.values())
+
+
+def invalid_kind(provider: str, shape: str, record: dict[str, Any], number: int, letters: list[str]) -> str:
+    """Why the answer to question `number` of a stored request is invalid (INVALID_KINDS); `letters` are the letters
+    the question allows."""
+    reply = stored_reply(provider, record)
+    if empty_reply(reply):
+        return "empty after retry" if "empty_first_reply" in record else "empty, not retried"
+    if finish_reason(reply) == CUT_FINISH_REASON:
+        return "cut off"
+    _, letter, _ = answer_entries(reply_text(reply) or "", number, shape)
+    return "letter not allowed" if letter is not None and letter not in letters else "unreadable"
+
+
+def kinds_text(kinds: dict[str, int], names: dict[str, str] | None = None) -> str:
+    """Invalid answers by kind, in INVALID_KINDS order, the kinds with none left out."""
+    names = names or {}
+    return ", ".join(f"{names.get(kind, kind)} {kinds[kind]}" for kind in INVALID_KINDS if kinds.get(kind)) or "none"
+
+
+def rescue_run(
+    connection: sqlite3.Connection, run_id: int, timeout: float, concurrency: int, dry_run: bool, will_ask: bool = False,
+) -> list[str]:
+    """--rescue: apply the rule on empty and broken replies (bus #3215) to finished run `run_id`, and return what it
+    did, to print. (a) Every request with invalid answers whose stored reply is BROKEN has its clearly readable letters
+    read (broken_answers), without a request; (b) every request whose stored reply is EMPTY and was never asked again is
+    asked once more with the run's own settings (rescue_settings: the same questions in the same request), the reply
+    read as in a run (a broken one too). Only answers that are invalid change; each changed request's record keeps the
+    first reply (under "empty_first_reply", with its usage) and what changed (under "rescued": the runner's commit, the
+    time, and the answers before). A re-ask adds its time to the run's request time and to the request's. With
+    `dry_run` nothing is asked or written: it says what it would read and re-ask. A run with empty replies to re-ask
+    that rescue_settings refuses to re-ask raises its ValueError before anything is written, in a dry run too."""
+    run = connection.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
+    if run is None:
+        raise ValueError(f"run {run_id}: not in the database")
+    if run["status"] == "running":
+        raise ValueError(f"run {run_id}: still running")
+    settings, thinking = rescue_settings(run, timeout, re_ask=False)
+    provider = run["provider"]
+    reader, shape = run_reader(run)
+    requests = stored_requests(connection, run_id, run["batch_size"])
+    invalid_before = sum(row["predicted_answer"] is None for rows in requests for row in rows)
+    now = utc_now()
+    harness = None if dry_run else harness_commit()
+    reread: list[tuple[list[sqlite3.Row], list[Question], list[str | None], dict[str, Any], str]] = []
+    to_ask: list[tuple[list[sqlite3.Row], list[Question], dict[str, Any]]] = []
+    for rows in requests:
+        if all(row["predicted_answer"] is not None for row in rows):
+            continue
+        record = json.loads(rows[0]["raw_response"])
+        reply = stored_reply(provider, record)
+        questions = [stored_question(row) for row in rows]
+        if empty_reply(reply):
+            if "empty_first_reply" not in record:
+                to_ask.append((rows, questions, record))
+            continue
+        whole = reads_whole(reader, reply, questions)
+        if whole:
+            # Read as a whole: its invalid answers stand or fall on their own entries; in the answer layout, an allowed
+            # letter the strict reader rejected only for its confidence is read without one (read_unconfident).
+            if reader != "layout":
+                continue
+            letters = [letter if row["predicted_answer"] is None else None
+                       for row, letter in zip(rows, unconfident_answers(reply_text(reply) or "", questions))]
+            confidences: list[float | None] = [None] * len(rows)
+            marker = "read_without_confidence"
+        elif broken_reply(reply, whole):
+            letters, confidences = broken_answers(reply_text(reply) or "", questions, shape)
+            marker = "read_from_broken_reply"
+        else:
+            continue
+        if not any(letters):
+            continue
+        answers = record.setdefault("answers", {})
+        before = {}
+        for question, letter, confidence in zip(questions, letters, confidences):
+            if letter is None:
+                continue
+            key = str(question.question_id)
+            before[key] = copy.deepcopy(answers.get(key))
+            entry = answers.setdefault(key, {})
+            entry["answer"] = letter
+            if shape == "confidence":
+                entry["confidence"] = confidence
+            entry[marker] = True
+        record["rescued"] = {"harness_commit": harness, "at": now, "answers_before": before}
+        reread.append((rows, questions, letters, record, marker))
+    if to_ask:
+        settings, thinking = rescue_settings(run, timeout)
+    if to_ask and (will_ask or not dry_run) and provider == "openrouter-chat" and not os.environ.get("OPENROUTER_API_KEY", "").strip():
+        raise ValueError(f"run {run_id}: re-asking {len(to_ask)} empty repl(ies) needs OPENROUTER_API_KEY")
+
+    def counted(kind: str) -> tuple[int, int]:
+        found = [letters for _, _, letters, _, marker in reread if marker == kind]
+        return sum(letter is not None for letters in found for letter in letters), len(found)
+
+    read, broken_count = counted("read_from_broken_reply")
+    unconfident, unconfident_count = counted("read_without_confidence")
+    read_lines = [
+        f"  answers {'it would read' if dry_run else 'read'} from broken replies: {read} "
+        f"(from {broken_count} repl{'y' if broken_count == 1 else 'ies'})",
+        f"  answers {'it would read' if dry_run else 'read'} without a confidence: {unconfident} "
+        f"(from {unconfident_count} repl{'y' if unconfident_count == 1 else 'ies'})",
+    ]
+    label = f"Run {run_id} ({provider}, {run['model']})"
+    lines = [f"{label}{' [dry run: nothing asked or written]' if dry_run else ''}: {invalid_before} invalid answers before"]
+    if dry_run:
+        kinds: dict[str, int] = {}
+        reread_ordinals = {row["ordinal"] for rows, _, letters, _, _ in reread for row, letter in zip(rows, letters) if letter}
+        for rows in requests:
+            record = json.loads(rows[0]["raw_response"])
+            for number, row in enumerate(rows, 1):
+                if row["predicted_answer"] is None and row["ordinal"] not in reread_ordinals:
+                    kind = invalid_kind(provider, shape, record, number, [o["label"] for o in json.loads(row["options_json"])])
+                    kinds[kind] = kinds.get(kind, 0) + 1
+        lines += [
+            f"  empty replies it would re-ask once: {len(to_ask)}"
+            + "".join(f"\n    ordinals {rows[0]['ordinal']}-{rows[-1]['ordinal']} ({len(rows)} questions)" for rows, _, _ in to_ask),
+            *read_lines,
+            f"  invalid after, before any re-ask comes back: {sum(kinds.values())} "
+            f"({kinds_text(kinds, {'empty, not retried': 'empty, to re-ask'})})",
+        ]
+        return lines
+    with connection:
+        for rows, questions, letters, record, _ in reread:
+            raw = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+            for row, question, letter in zip(rows, questions, letters):
+                if row["predicted_answer"] is not None:
+                    # A valid answer keeps its letter and correctness; only the record its request shares changes.
+                    connection.execute("UPDATE answers SET raw_response=? WHERE run_id=? AND ordinal=?", (raw, run_id, row["ordinal"]))
+                    continue
+                connection.execute(
+                    "UPDATE answers SET predicted_answer=?,correct=?,raw_response=? WHERE run_id=? AND ordinal=? "
+                    "AND predicted_answer IS NULL",
+                    (question.original_label(letter), int(letter == question.answer), raw, run_id, row["ordinal"]),
+                )
+
+    def request(item: tuple[list[sqlite3.Row], list[Question], dict[str, Any]]) -> tuple[Any, list[str | None], str, float]:
+        started = time.monotonic()
+        predictions, raw_response = ask_batch(settings, item[1], thinking, None, retry_empty=False)
+        return item, predictions, raw_response, time.monotonic() - started
+
+    answered_replies = answered = read_after_retry = 0
+    with ThreadPoolExecutor(max_workers=concurrency) as executor:
+        for future in as_completed([executor.submit(request, item) for item in to_ask]):
+            (rows, questions, first), predictions, raw_response, seconds = future.result()
+            record = json.loads(raw_response)
+            record["empty_first_reply"] = stored_reply(provider, first)
+            record["rescued"] = {
+                "harness_commit": harness, "at": now, "first_request_seconds": rows[0]["request_seconds"],
+                "answers_before": first.get("answers"),
+            }
+            raw = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+            found = sum(prediction is not None for prediction in predictions)
+            answered_replies += found > 0
+            answered += found
+            read_after_retry += sum(any((entry or {}).get(marker) for marker in READ_MARKERS)
+                                    for entry in (record.get("answers") or {}).values())
+            with connection:
+                for row, question, prediction in zip(rows, questions, predictions):
+                    connection.execute(
+                        "UPDATE answers SET predicted_answer=?,correct=?,raw_response=?,request_seconds=? WHERE run_id=? "
+                        "AND ordinal=? AND predicted_answer IS NULL",
+                        (question.original_label(prediction), int(prediction == question.answer), raw,
+                         (row["request_seconds"] or 0.0) + seconds, run_id, row["ordinal"]),
+                    )
+                connection.execute(
+                    "UPDATE runs SET timed_seconds=timed_seconds+?,questions_per_minute=(timed_questions*60.0)/(timed_seconds+?),"
+                    "updated_at=? WHERE id=?",
+                    (seconds, seconds, utc_now(), run_id),
+                )
+    kinds = {}
+    for rows in stored_requests(connection, run_id, run["batch_size"]):
+        record = json.loads(rows[0]["raw_response"])
+        for number, row in enumerate(rows, 1):
+            if row["predicted_answer"] is None:
+                kind = invalid_kind(provider, shape, record, number, [o["label"] for o in json.loads(row["options_json"])])
+                kinds[kind] = kinds.get(kind, 0) + 1
+    lines += [
+        f"  empty replies re-asked once: {len(to_ask)}; came back with answers: {answered_replies} (answers given: {answered}"
+        f"{f', {read_after_retry} of them read from a broken reply or without a confidence' if read_after_retry else ''})",
+        *read_lines,
+        f"  invalid after: {sum(kinds.values())} ({kinds_text(kinds)})",
+    ]
+    return lines
+
+
+def rescue_runs(connection: sqlite3.Connection, run_ids: list[int], timeout: float, concurrency: int, dry_run: bool) -> list[str]:
+    """--rescue on each of `run_ids`. Unless `dry_run`, a dry run of every one of them comes first: a run it cannot
+    re-ask (rescue_settings, or an OpenRouter run with empty replies to re-ask and no key) stops it before anything is
+    asked or written."""
+    if not dry_run:
+        for run_id in run_ids:
+            rescue_run(connection, run_id, timeout, concurrency, dry_run=True, will_ask=True)
+    return [line for run_id in run_ids for line in rescue_run(connection, run_id, timeout, concurrency, dry_run)]
+
+
 def decision_instructions(args: argparse.Namespace) -> str:
     """The instructions the decision-model requests carry (System One `choice` and Open-Jev's yes/no prompt)."""
     if args.english is not None:
@@ -4071,10 +4621,13 @@ def decision_instructions(args: argparse.Namespace) -> str:
 
 
 def ask_batch(
-    args: argparse.Namespace, questions: list[Question], thinking: bool | str, verbose_log: TextIO | None
+    args: argparse.Namespace, questions: list[Question], thinking: bool | str, verbose_log: TextIO | None,
+    retry_empty: bool = True,
 ) -> tuple[list[str | None], str]:
     """One request to the run's provider: an answer per question, and the raw response to store. A chat provider's
-    request takes the chat prompts of the run's language and "I don't know" setting (chat_prompts)."""
+    request takes the chat prompts of the run's language and "I don't know" setting (chat_prompts). Without
+    `retry_empty`, the chat paths that ask an EMPTY reply once more (RESCUE_PROVIDERS) do not: --rescue's re-ask is
+    itself that one retry."""
     prompts = chat_prompts(args.english is not None, args.dont_know)
     if args.provider == "openai":
         return ask_openai(args.codex_bin, args.model, questions, args.timeout, str(thinking), verbose_log, prompts)
@@ -4091,9 +4644,11 @@ def ask_batch(
         )
         return [prediction], raw_response
     if args.provider == "vllm":
-        return ask_vllm(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log, prompts)
+        return ask_vllm(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log, prompts, retry_empty)
     if args.provider == "vllm-stated":
-        return ask_vllm_stated(args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log, prompts)
+        return ask_vllm_stated(
+            args.vllm_url, args.model, questions, args.timeout, args.seed, thinking, verbose_log, prompts, retry_empty
+        )
     if args.provider == "vllm-verbal":
         prediction, raw_response = ask_vllm_verbal(
             args.vllm_url, args.model, questions[0], args.timeout, args.seed, verbose_log, prompts
@@ -4116,7 +4671,7 @@ def ask_batch(
         return ask_openrouter_chat(
             args.model, questions, args.timeout, args.openrouter_reasoning, args.openrouter_order,
             args.openrouter_require_parameters, args.openrouter_json_object, verbose_log, prompts,
-            args.openrouter_max_tokens, args.openrouter_answer_layout,
+            args.openrouter_max_tokens, args.openrouter_answer_layout, retry_empty,
         )
     return ask_ollama(
         args.ollama_url, args.model, questions, args.timeout, args.seed, thinking, args.num_ctx, verbose_log, prompts
@@ -5161,23 +5716,25 @@ def answer_usage(
         input_tokens = sum(int(usage.get("promptTokenCount") or 0) for usage in usages) if usages[0] else None
         output_tokens = sum(int(usage.get("candidatesTokenCount") or 0) + int(usage.get("thoughtsTokenCount") or 0) for usage in usages)
         cache = {"cached_input_tokens": sum(int(usage.get("cachedContentTokenCount") or 0) for usage in usages)}
-    elif provider == "openrouter-chat":
-        # OpenRouter's usage accounting: completion_tokens includes reasoning.
-        usage = (record.get("response") or {}).get("usage") or {}
-        score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
-        input_tokens, output_tokens = usage.get("prompt_tokens"), usage.get("completion_tokens")
-        cache = {"cached_input_tokens": int((usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0)}
-    elif provider == "vllm":
-        # vLLM's response, stored as it came apart from the token log probabilities (see ask_vllm).
-        usage = record.get("usage") or {}
-        answer = (record.get("answers") or {}).get(str(question_id)) or {}
-        score = (answer.get("probabilities") or {}).get(answer.get("answer"))
-        input_tokens, output_tokens = usage.get("prompt_tokens"), usage.get("completion_tokens")
-    elif provider == "vllm-stated":
-        # The chat API's response, with each question's answer and stated confidence (see ask_vllm_stated).
-        usage = (record.get("response") or {}).get("usage") or {}
-        score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
-        input_tokens, output_tokens = usage.get("prompt_tokens"), usage.get("completion_tokens")
+    elif provider in RESCUE_PROVIDERS:
+        # A request whose first reply was EMPTY and asked once more (post_chat, --rescue) also counts the tokens of the
+        # first reply its record keeps under "empty_first_reply".
+        first = (record.get("empty_first_reply") or {}).get("usage") or {}
+        if provider == "vllm":
+            # vLLM's response, stored as it came apart from the token log probabilities (see ask_vllm).
+            usage = record.get("usage") or {}
+            answer = (record.get("answers") or {}).get(str(question_id)) or {}
+            score = (answer.get("probabilities") or {}).get(answer.get("answer"))
+        else:
+            # OpenRouter's usage accounting (completion_tokens includes reasoning), or the chat API's response of
+            # ask_vllm_stated, each with each question's answer and stated confidence.
+            usage = (record.get("response") or {}).get("usage") or {}
+            score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
+        input_tokens = int(usage.get("prompt_tokens") or 0) + int(first.get("prompt_tokens") or 0)
+        output_tokens = int(usage.get("completion_tokens") or 0) + int(first.get("completion_tokens") or 0)
+        if provider == "openrouter-chat":
+            cache = {"cached_input_tokens": sum(
+                int((item.get("prompt_tokens_details") or {}).get("cached_tokens") or 0) for item in (usage, first))}
     elif provider in VOTE_PROVIDERS:
         usage = record.get("usage") or {}
         votes = record.get("votes") or {}
@@ -5259,6 +5816,58 @@ def request_times(connection: sqlite3.Connection, result: dict[str, Any], search
 
 
 
+def asked_again(provider: str, raw_response: str) -> bool:
+    """Whether a stored request was asked once more after an EMPTY reply (its record keeps "empty_first_reply")."""
+    return provider in RESCUE_PROVIDERS and '"empty_first_reply"' in raw_response and "empty_first_reply" in json.loads(raw_response)
+
+
+def invalid_replies(connection: sqlite3.Connection, run: sqlite3.Row, graded: list[dict[str, Any]]) -> dict[str, Any]:
+    """What the rule on empty and broken replies did in a RESCUE_PROVIDERS run, counted over its graded answers as its
+    invalid answers are: answers read from broken replies; requests asked once more after an empty reply (each request
+    once), how many of them came back with an answer, and the answers they gave; the answers still invalid, by kind
+    (INVALID_KINDS); and the invalid answers the run would have without the rule (still invalid, plus those read from a
+    broken reply or given after asking again)."""
+    _, shape = run_reader(run)
+    graded_ids = {int(row["question_id"]) for row in graded}
+    read = unconfident = asked = answered_requests = after_asking = 0
+    recovered: set[int] = set()
+    kinds: dict[str, int] = {}
+    for rows in stored_requests(connection, run["id"], run["batch_size"]):
+        record = json.loads(rows[0]["raw_response"])
+        answers = record.get("answers") or {}
+        retried = "empty_first_reply" in record
+        if retried:
+            asked += 1
+            answered_requests += any(row["predicted_answer"] is not None for row in rows)
+        for number, row in enumerate(rows, 1):
+            question_id = int(row["question_id"])
+            if question_id not in graded_ids:
+                continue
+            if row["predicted_answer"] is None:
+                kind = invalid_kind(run["provider"], shape, record, number, [o["label"] for o in json.loads(row["options_json"])])
+                kinds[kind] = kinds.get(kind, 0) + 1
+                continue
+            entry = answers.get(str(question_id)) or {}
+            if entry.get("read_from_broken_reply"):
+                read += 1
+                recovered.add(question_id)
+            if entry.get("read_without_confidence"):
+                unconfident += 1
+                recovered.add(question_id)
+            if retried:
+                after_asking += 1
+                recovered.add(question_id)
+    return {
+        "invalid_without_rule": sum(kinds.values()) + len(recovered),
+        "read_from_broken_replies": read,
+        "read_without_confidence": unconfident,
+        "empty_replies_asked_again": asked,
+        "asked_again_with_answers": answered_requests,
+        "answers_after_asking_again": after_asking,
+        "invalid_by_kind": {kind: kinds[kind] for kind in INVALID_KINDS if kind in kinds},
+    }
+
+
 def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) -> dict[str, Any]:
     """Request time, token counts and accuracy by question group for any run; cost and confidence metrics
     where the provider has them, with bootstrap intervals clustered by passage. Time, tokens and cost cover
@@ -5268,7 +5877,8 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
         "SELECT id,model,provider,timed_seconds,questions_per_minute,replace_key_text,dont_know,english,dont_know_word,rerun,"
         "perplexity_mode,"
         "prompt_version,"
-        "evaluated_total,thinking_mode,batch_size,dataset,dataset_sha256,selection_sha256,created_at FROM runs WHERE run_key=?",
+        "evaluated_total,thinking_mode,batch_size,dataset,dataset_sha256,selection_sha256,created_at,ollama_url FROM runs "
+        "WHERE run_key=?",
         (run_key,),
     ).fetchone()
     if run is None:
@@ -5283,7 +5893,8 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     request_seconds: list[float] = []
     requests = 0
     for row in run_requests(connection, run["id"], run["batch_size"]):
-        requests += 1
+        # A request asked once more after an EMPTY reply is two requests.
+        requests += 1 + asked_again(provider, row["raw_response"])
         for key, count in answer_usage(provider, row["question_id"], row["raw_response"])[0].items():
             totals[key] += count
         if row["request_seconds"] is not None:
@@ -5313,6 +5924,8 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
         categories=dict(sorted(categories.items())),
         excluded_since_run=stored - len(graded),
     )
+    if provider in RESCUE_PROVIDERS:
+        metrics["invalid_replies"] = invalid_replies(connection, run, graded)
     bank = current_bank(run["dataset"], str(search_dir))
     metrics.update(
         graded_sha256=bank[0] if bank else None,
@@ -6267,6 +6880,16 @@ def main() -> int:
                 print(f"... and {len(problems) - 50} more")
             print("PASS" if not problems else f"FAIL: {len(problems)} problems")
             return 0 if not problems else 1
+        if args.rescue is not None:
+            # A dry run only reads: the database is opened read-only.
+            result_connection = (sqlite3.connect(f"file:{result_path}?mode=ro", uri=True) if args.dry_run
+                                 else open_result_database(result_path))
+            result_connection.row_factory = sqlite3.Row
+            for line in rescue_runs(result_connection, args.rescue, args.timeout, args.concurrency, args.dry_run):
+                print(line, flush=True)
+            if not args.dry_run:
+                print(f"Updated {args.database}; refresh the report (--refresh-report) to recompute the rescued runs' metrics")
+            return 0
         if args.export_answers is not None:
             result_connection = open_result_database(result_path)
             count = export_answers(args.export_answers.resolve(), args.output.resolve(), result_connection)

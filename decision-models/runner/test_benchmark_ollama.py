@@ -53,6 +53,7 @@ from benchmark_ollama import (
     confidence_answers,
     derived_abstention,
     dont_know_lines,
+    empty_reply,
     english_lines,
     english_selection,
     export_answers,
@@ -67,6 +68,7 @@ from benchmark_ollama import (
     parse_ollama_content,
     probability_problems,
     regrade,
+    rescue_runs,
     replace_key_text,
     run_label,
     run_metrics,
@@ -1163,6 +1165,254 @@ class EnglishDontKnowTests(unittest.TestCase):
         for run in runs:
             self.assertFalse(in_main_tables(run))
         self.assertEqual(run_repeats(connection, {run["run_key"]: run for run in runs}, path.parent), [])
+
+
+class EmptyAndBrokenReplyTests(unittest.TestCase):
+    """The project lead's rule on chat replies (bus #3215): an empty reply is asked once more; a broken reply has its
+    clearly readable letters read and the rest stay invalid; --rescue applies both to finished runs."""
+
+    bank = DontKnowTests.bank
+    LAYOUT = "https://openrouter.ai/api/v1/chat/completions#provider=deepinfra/fp8;answer_layout;max_tokens=65536"
+
+    @staticmethod
+    def reply(content: str | None, finish: str = "stop", prompt: int = 100, completion: int = 50) -> dict:
+        return {"choices": [{"finish_reason": finish, "message": {"content": content}}],
+                "usage": {"prompt_tokens": prompt, "completion_tokens": completion}}
+
+    @staticmethod
+    def questions(count: int = 3) -> list[Question]:
+        options = tuple(Option(label, f"option {label}") for label in "ABCDE")
+        return [Question(i, "1. Unit", "1", "", "", "", "", str(i), f"Question {i}?", options, "B", 1, False, None)
+                for i in range(1, count + 1)]
+
+    def ask(self, replies: list[dict], answer_layout: bool = True, json_object: bool = False) -> tuple[list, dict, int]:
+        """ask_openrouter_chat through ask_batch with post_json returning `replies` in turn: the predictions, the stored
+        record and the number of requests sent."""
+        sent = []
+
+        def post(*args, **kwargs):
+            sent.append(1)
+            return copy.deepcopy(replies[len(sent) - 1]), {}
+
+        args = argparse.Namespace(
+            provider="openrouter-chat", model="m", timeout=1, english=None, dont_know=False, openrouter_reasoning="high",
+            openrouter_order="p", openrouter_require_parameters=False, openrouter_json_object=json_object,
+            openrouter_max_tokens=100, openrouter_answer_layout=answer_layout,
+        )
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "k"}), \
+                mock.patch("sys.stderr"):
+            predictions, raw = ask_batch(args, self.questions(), "high", None)
+        return predictions, json.loads(raw), len(sent)
+
+    def test_empty_means_finished_normally_with_nothing_or_an_empty_object(self) -> None:
+        self.assertTrue(empty_reply(self.reply("")))
+        self.assertTrue(empty_reply(self.reply(None)))
+        self.assertTrue(empty_reply(self.reply(" {\n } ")))
+        self.assertTrue(empty_reply(self.reply("<think>long thought</think>  ")))
+        self.assertFalse(empty_reply(self.reply("", finish="length")))
+        self.assertFalse(empty_reply(self.reply('{"answers": {}}')))
+        self.assertFalse(empty_reply({"error": {"code": 500}}))
+
+    def test_an_empty_reply_is_asked_once_more_and_both_replies_are_kept(self) -> None:
+        good = self.reply('{"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": "A", "confidence": 0.5}, '
+                          '"3": {"answer": "C", "confidence": 0.7}}}', prompt=120, completion=60)
+        predictions, record, sent = self.ask([self.reply("", prompt=100, completion=30), good])
+        self.assertEqual((predictions, sent), (["B", "A", "C"], 2))
+        self.assertEqual(record["response"], good)
+        self.assertEqual(record["empty_first_reply"]["usage"], {"prompt_tokens": 100, "completion_tokens": 30})
+        # Both requests' tokens count in the run's cost.
+        tokens, _ = answer_usage("openrouter-chat", 1, json.dumps(record))
+        self.assertEqual((tokens["input_tokens"], tokens["output_tokens"]), (220, 90))
+
+    def test_a_second_empty_reply_stays_empty_and_a_cut_or_broken_reply_is_never_asked_again(self) -> None:
+        predictions, record, sent = self.ask([self.reply(""), self.reply("{}")])
+        self.assertEqual((predictions, sent), ([None] * 3, 2))
+        self.assertEqual(record["empty_first_reply"]["choices"][0]["message"]["content"], "")
+        predictions, record, sent = self.ask([self.reply('{"answers": {"1": {"answer": "B", "conf', finish="length")])
+        self.assertEqual((predictions, sent), ([None] * 3, 1))
+        self.assertNotIn("empty_first_reply", record)
+        predictions, _, sent = self.ask([self.reply("I think the answer to 1 is B.")])
+        self.assertEqual((predictions, sent), ([None] * 3, 1))
+
+    def test_a_broken_reply_has_its_clearly_readable_letters_read_and_marked(self) -> None:
+        # The closing brace is missing (Inkling Small's broken replies, runs 866 and 868); "3" has "confidence" first.
+        text = '{"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": "A"}, "3": {"confidence": 0.4, "answer": "D"}}'
+        predictions, record, sent = self.ask([self.reply(text)])
+        self.assertEqual((predictions, sent), (["B", "A", "D"], 1))
+        self.assertEqual(record["answers"], {
+            "1": {"answer": "B", "confidence": 0.9, "read_from_broken_reply": True},
+            "2": {"answer": "A", "confidence": None, "read_from_broken_reply": True},
+            "3": {"answer": "D", "confidence": 0.4, "read_from_broken_reply": True},
+        })
+        # The same reply through the JSON reader (schema or JSON mode), and without the "answers" object (another layout).
+        self.assertEqual(self.ask([self.reply(text)], answer_layout=False)[0], ["B", "A", "D"])
+        self.assertEqual(self.ask([self.reply(text[len('{"answers": '):])], answer_layout=False)[0], ["B", "A", "D"])
+
+    def test_nothing_else_is_read_from_a_broken_reply(self) -> None:
+        # 1 appears twice, 2's letter is not allowed, 3's letter is only in free text; the thinking before </think> holds
+        # entries that are never read.
+        text = ('<think>"2": {"answer": "C"} "3": {"answer": "E"}</think>{"answers": {"1": {"answer": "B"}, "1": '
+                '{"answer": "C"}, "2": {"answer": "V", "confidence": 0.5}, "3": "I would say E"')
+        predictions, record, _ = self.ask([self.reply(text)])
+        self.assertEqual(predictions, [None] * 3)
+        self.assertFalse(any(entry.get("read_from_broken_reply") for entry in record["answers"].values()))
+
+    def test_a_reply_read_as_a_whole_is_not_broken_but_a_letter_without_its_confidence_is_read(self) -> None:
+        # The strict layout reader reads it; "V" (MiniMax, run 864) stays invalid; 3 has no confidence and 4 one out of
+        # range: both letters are read with none, marked; 5 has another key and stays invalid.
+        text = ('{"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": "V", "confidence": 0.5}, '
+                '"3": {"answer": "C"}, "4": {"answer": "A", "confidence": 1.5}, "5": {"answer": "D", "why": "x"}}}')
+        sent = []
+
+        def post(*args, **kwargs):
+            sent.append(1)
+            return self.reply(text), {}
+
+        args = argparse.Namespace(
+            provider="openrouter-chat", model="m", timeout=1, english=None, dont_know=False, openrouter_reasoning="high",
+            openrouter_order="p", openrouter_require_parameters=False, openrouter_json_object=False,
+            openrouter_max_tokens=100, openrouter_answer_layout=True,
+        )
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "k"}), \
+                mock.patch("sys.stderr"):
+            predictions, raw = ask_batch(args, self.questions(5), "high", None)
+        record = json.loads(raw)
+        self.assertEqual((predictions, len(sent)), (["B", None, "C", "A", None], 1))
+        self.assertNotIn("read_from_broken_reply", raw)
+        self.assertEqual(record["answers"]["3"], {"answer": "C", "confidence": None, "read_without_confidence": True})
+        self.assertEqual(record["answers"]["4"], {"answer": "A", "confidence": None, "read_without_confidence": True})
+        self.assertEqual(record["answers"]["1"], {"answer": "B", "confidence": 0.9})
+
+    def test_rescue_reads_a_letter_without_its_confidence_and_keeps_the_valid_answers(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        selection = load_questions(path, None, None, None, 0)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, "openrouter-chat", self.LAYOUT, 0, 3, "high", None, False,
+                                 None, None, False, None, False)
+        text = ('{"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": "E", "confidence": "high"}, '
+                '"3": {"answer": "V", "confidence": 0.5}}}')
+        raw = json.dumps({"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": None, "confidence": None},
+                                      "3": {"answer": None, "confidence": None}}, "response": self.reply(text)})
+        store_answers(connection, identity.run_id, list(enumerate(selection.questions)), ["B", None, None], raw, 1.0, 1.0)
+        mark_run(connection, identity.run_id, "completed")
+        before = connection.execute("SELECT * FROM answers WHERE run_id=? ORDER BY ordinal", (identity.run_id,)).fetchall()
+        with mock.patch("benchmark_ollama.harness_commit", return_value="1" * 40):
+            text_out = "\n".join(rescue_runs(connection, [identity.run_id], 1.0, 1, dry_run=False))
+        self.assertIn("answers read without a confidence: 1 (from 1 reply)", text_out)
+        self.assertIn("invalid after: 1 (letter not allowed 1)", text_out)
+        after = connection.execute("SELECT * FROM answers WHERE run_id=? ORDER BY ordinal", (identity.run_id,)).fetchall()
+        self.assertEqual([row["predicted_answer"] for row in after], ["B", "E", None])
+        self.assertEqual([(row["predicted_answer"], row["correct"]) for row in after[:1]],
+                         [(row["predicted_answer"], row["correct"]) for row in before[:1]])
+        self.assertEqual(len({row["raw_response"] for row in after}), 1)
+        self.assertEqual(json.loads(after[0]["raw_response"])["answers"]["2"],
+                         {"answer": "E", "confidence": None, "read_without_confidence": True})
+
+    def test_the_vllm_path_reads_its_own_answer_shape(self) -> None:
+        sent = []
+
+        def post(*args, **kwargs):
+            sent.append(1)
+            return self.reply('{"answers": {"1": "B", "2": "Z", "3": "C"') if len(sent) > 1 else self.reply(""), {}
+
+        args = argparse.Namespace(provider="vllm", model="m", timeout=1, english=None, dont_know=False, seed=0,
+                                  vllm_url="http://localhost")
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch("sys.stderr"):
+            predictions, raw = ask_batch(args, self.questions(), False, None)
+        record = json.loads(raw)
+        self.assertEqual((predictions, len(sent)), (["B", None, "C"], 2))
+        self.assertEqual(record["answers"]["1"], {"answer": "B", "probabilities": None, "read_from_broken_reply": True})
+        self.assertIn("empty_first_reply", record)
+
+    def run_with_replies(self, connection: sqlite3.Connection, path: Path, provider: str = "openrouter-chat") -> int:
+        """A finished run of the three bank questions, one per request: question 1 answered, question 2 in a broken
+        reply, question 3 in an empty reply."""
+        selection = load_questions(path, None, None, None, 0)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, provider, self.LAYOUT, 0, 1, "high", None, False,
+                                 None, None, False, None, False)
+        replies = [
+            ("B", self.reply('{"answers": {"1": {"answer": "B", "confidence": 0.9}}}'), {"answer": "B", "confidence": 0.9}),
+            (None, self.reply('{"answers": {"1": {"answer": "E", "confidence": 0.8}}'), {"answer": None, "confidence": None}),
+            (None, self.reply(""), {"answer": None, "confidence": None}),
+        ]
+        for ordinal, (question, (letter, reply, answer)) in enumerate(zip(selection.questions, replies)):
+            raw = json.dumps({"answers": {str(question.question_id): answer}, "response": reply}, separators=(",", ":"))
+            store_answers(connection, identity.run_id, [(ordinal, question)], [letter], raw, 1.0, 1.0)
+        mark_run(connection, identity.run_id, "completed")
+        return identity.run_id
+
+    def test_rescue_reads_broken_replies_re_asks_empty_ones_once_and_leaves_valid_answers_alone(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        run_id = self.run_with_replies(connection, path)
+        before = connection.execute("SELECT * FROM answers WHERE run_id=? ORDER BY ordinal", (run_id,)).fetchall()
+        lines = rescue_runs(connection, [run_id], 1.0, 1, dry_run=True)
+        self.assertIn("empty replies it would re-ask once: 1", "\n".join(lines))
+        self.assertIn("answers it would read from broken replies: 1 (from 1 reply)", "\n".join(lines))
+        self.assertEqual(connection.execute("SELECT * FROM answers WHERE run_id=? ORDER BY ordinal", (run_id,)).fetchall(), before)
+        sent = []
+
+        def post(endpoint, payload, *args, **kwargs):
+            sent.append(payload)
+            return self.reply('{"answers": {"1": {"answer": "C", "confidence": 0.6}}}', prompt=7, completion=3), {}
+
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch("benchmark_ollama.harness_commit", return_value="1" * 40), \
+                mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "k"}), mock.patch("sys.stderr"):
+            lines = rescue_runs(connection, [run_id], 1.0, 1, dry_run=False)
+        text = "\n".join(lines)
+        self.assertIn("2 invalid answers before", text)
+        self.assertIn("empty replies re-asked once: 1; came back with answers: 1 (answers given: 1)", text)
+        self.assertIn("invalid after: 0 (none)", text)
+        # One request, the run's own: its question with the answer layout, the endpoint pin and the output cap.
+        self.assertEqual(len(sent), 1)
+        self.assertEqual((sent[0]["provider"]["order"], sent[0]["max_tokens"], sent[0]["reasoning_effort"]), (["deepinfra/fp8"], 65536, "high"))
+        self.assertIn("Question 3?", sent[0]["messages"][1]["content"])
+        self.assertNotIn("response_format", sent[0])
+        after = connection.execute("SELECT * FROM answers WHERE run_id=? ORDER BY ordinal", (run_id,)).fetchall()
+        self.assertEqual(tuple(after[0]), tuple(before[0]))
+        self.assertEqual([row["predicted_answer"] for row in after], ["B", "E", "C"])
+        self.assertEqual([row["correct"] for row in after], [1, 1, 1])
+        broken, retried = json.loads(after[1]["raw_response"]), json.loads(after[2]["raw_response"])
+        self.assertEqual(broken["response"], json.loads(before[1]["raw_response"])["response"])
+        self.assertEqual(broken["answers"]["2"], {"answer": "E", "confidence": 0.8, "read_from_broken_reply": True})
+        self.assertEqual(broken["rescued"]["answers_before"], {"2": {"answer": None, "confidence": None}})
+        self.assertEqual(retried["empty_first_reply"], json.loads(before[2]["raw_response"])["response"])
+        self.assertEqual(retried["rescued"]["harness_commit"], "1" * 40)
+        # Run again, nothing is left to do: a re-asked reply is never asked again.
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch("benchmark_ollama.harness_commit", return_value="1" * 40):
+            rescue_runs(connection, [run_id], 1.0, 1, dry_run=False)
+        self.assertEqual(len(sent), 1)
+        # The report counts both requests of the re-asked question, and what the rule did.
+        metrics = run_metrics(connection, connection.execute("SELECT run_key FROM runs WHERE id=?", (run_id,)).fetchone()[0],
+                              path.parent)
+        self.assertEqual(metrics["requests"], 4)
+        self.assertEqual(metrics["invalid_replies"], {
+            "invalid_without_rule": 2, "read_from_broken_replies": 1, "read_without_confidence": 0,
+            "empty_replies_asked_again": 1, "asked_again_with_answers": 1, "answers_after_asking_again": 1,
+            "invalid_by_kind": {},
+        })
+
+    def test_rescue_refuses_a_run_it_cannot_re_ask_before_touching_any(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        good = self.run_with_replies(connection, path)
+        other = DontKnowTests.store_run(connection, path, False, {i: ("B", {}) for i in (1, 2, 3)})["run_id"]
+        before = connection.execute("SELECT * FROM answers ORDER BY run_id, ordinal").fetchall()
+        with self.assertRaisesRegex(ValueError, f"run {other}: --rescue cannot re-ask provider 'subq'"), \
+                mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "k"}):
+            rescue_runs(connection, [good, other], 1.0, 1, dry_run=False)
+        self.assertEqual(connection.execute("SELECT * FROM answers ORDER BY run_id, ordinal").fetchall(), before)
+        # Its empty reply cannot be re-asked with prompts other than the run's own; nothing is read either.
+        with connection:
+            connection.execute("UPDATE runs SET prompt_version='older' WHERE id=?", (good,))
+        with self.assertRaisesRegex(ValueError, f"run {good}: cannot re-ask its empty replies: asked with prompt version older"):
+            rescue_runs(connection, [good], 1.0, 1, dry_run=False)
+        self.assertEqual(connection.execute("SELECT * FROM answers ORDER BY run_id, ordinal").fetchall(), before)
 
 
 class RunRequestsTests(unittest.TestCase):

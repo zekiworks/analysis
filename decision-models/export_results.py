@@ -855,6 +855,11 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "concurrency": record.get("concurrency", 1),
                 "correct": record["correct"],
                 "invalid": record["invalid"],
+                # The rule on empty and broken chat replies (bus #3215), for the setups it applies to (the runner's
+                # RESCUE_PROVIDERS; None for the others): answers read from broken replies, empty replies asked once
+                # more, how many came back with answers and the answers they gave, the answers still invalid by kind,
+                # and the invalid answers without the rule (the count before --rescue for a run rescued afterwards).
+                "invalid_replies": record.get("invalid_replies"),
                 "answered_questions": record.get("as_run", {}).get("evaluated", record["evaluated"]),
                 "groups": groups,
                 "tyt_mix": tyt_mix(groups),

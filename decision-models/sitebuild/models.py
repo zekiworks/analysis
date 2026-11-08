@@ -26,6 +26,42 @@ LEVEL_SOURCES = {"developers.openai.com": "OpenAI's model page", "platform.claud
 NOT_RECORDED = "not recorded"
 # The address of the former list of every setup, now a page that sends its readers to the All models view (redirect).
 INDEX = "models/"
+# The rule on empty and broken chat replies (project lead, bus #3215), in one plain sentence, as the model pages and the
+# Method page's notes (#REPLY_ANCHOR) state it.
+REPLY_RULE = ("An empty reply is asked once more; in a broken reply, any letter that is clearly readable is scored and "
+              "the rest count as wrong.")
+REPLY_ANCHOR = "empty-broken-replies"
+# How the page names results.json's invalid_by_kind kinds (the runner's INVALID_KINDS).
+INVALID_KIND_NAMES = {"empty after retry": "still empty when asked again", "empty, not retried": "empty and not yet asked again",
+                      "cut off": "cut off at the output limit", "unreadable": "unreadable",
+                      "letter not allowed": "with a letter the question does not allow"}
+
+
+def reply_counts(run: dict[str, Any]) -> str | None:
+    """A setup's invalid answers beside what the rule on empty and broken replies did (results.json's invalid_replies):
+    "Invalid answers: N; read from broken replies: M; empty replies asked again: K" (with the letters read without a
+    confidence where there are any), the still invalid answers by kind and the count without the rule where it differs.
+    None for a setup the rule does not apply to, or with nothing to count."""
+    replies = run.get("invalid_replies")
+    if replies is None:
+        return None
+    unconfident = replies.get("read_without_confidence", 0)
+    if not (run["invalid"] or replies["read_from_broken_replies"] or unconfident or replies["empty_replies_asked_again"]):
+        return None
+    text = f"Invalid answers: {run['invalid']:,}; read from broken replies: {replies['read_from_broken_replies']:,}; "
+    if unconfident:
+        text += f"read without a confidence: {unconfident:,}; "
+    text += f"empty replies asked again: {replies['empty_replies_asked_again']:,}"
+    if replies["empty_replies_asked_again"]:
+        text += (f" ({replies['asked_again_with_answers']:,} came back with answers, "
+                 f"{replies['answers_after_asking_again']:,} answers)")
+    kinds = replies["invalid_by_kind"]
+    if kinds:
+        text += ". Still invalid: " + ", ".join(f"{count:,} {INVALID_KIND_NAMES[kind]}" for kind, count in kinds.items())
+    if replies["invalid_without_rule"] != run["invalid"]:
+        text += f". Without the rule: {replies['invalid_without_rule']:,} invalid"
+    return text + "."
+
 
 
 def facts(items: list[tuple[str, str | None]]) -> str:
@@ -120,7 +156,12 @@ def results(site: Site, run: dict[str, Any]) -> str:
     )
     group = (f'<p>Comparison group: <span class="hint" tabindex="0" data-tip="{esc(GROUP_TIP)}"><strong>{esc(run["group"])}</strong></span>. '
              f'<a href="{rel(site.model_path(run), "compare/")}?a={run["run"]}">Compare with another setup</a>.</p>')
-    invalid = f"<p>{run['invalid']:,} questions got no valid answer; they count as wrong.</p>" if run["invalid"] else ""
+    counts = reply_counts(run)
+    if counts is not None:
+        invalid = (f"<p>{esc(counts)} {esc(REPLY_RULE)} Invalid answers count as wrong "
+                   f'(<a href="{rel(site.model_path(run), "method/")}#{REPLY_ANCHOR}">how</a>).</p>')
+    else:
+        invalid = f"<p>{run['invalid']:,} questions got no valid answer; they count as wrong.</p>" if run["invalid"] else ""
     topics = "".join(
         f'<tr><td><a href="{rel(site.model_path(run), f"topics/{unit["number"]}/")}">{esc(unit["english"])}</a></td>'
         f'<td data-label="Part">{site.part(unit["number"]).capitalize()}</td>'

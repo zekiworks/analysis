@@ -15,6 +15,7 @@ from typing import Any
 
 import benchmark_metrics as bm
 import build_page as bp
+from sitebuild.models import REPLY_ANCHOR, REPLY_RULE, reply_counts
 from sitebuild.site import MODEL_GROUPS, REPO_URL, ROOT, SITE_NAME, TABS, Site, esc, rel
 
 PATH = "method/"
@@ -478,6 +479,20 @@ def maker_priced(snap: bp.Snapshot) -> str:
     listed = groups[0] if len(groups) == 1 else "; ".join(groups[:-1]) + "; and " + groups[-1]
     billed = "".join(f" {maker} bills {count} input tokens per request more than our servers count, so we add them." for maker, count in extra.items())
     return f"{listed}.{billed}"
+
+
+def reply_notes(snap: bp.Snapshot) -> str:
+    """The Method notes' item on empty and broken chat replies: the rule in one plain sentence, and for each setup it
+    did something in, its counts as the setup's page gives them (models.reply_counts), by run."""
+    rows = sorted((run for run in snap.runs if reply_counts(run) is not None), key=lambda run: run["run"])
+    listed = "".join(f"<li>{esc(display_name(run, snap.runs))} (run {run['run']}): {esc(reply_counts(run))}</li>" for run in rows)
+    return (f'<li id="{REPLY_ANCHOR}"><strong>Empty and broken replies.</strong> {esc(REPLY_RULE)} An empty reply is one '
+            "that finished normally with no content (or only {}); a reply cut off at the output limit is not asked again. "
+            "A letter is clearly readable when the reply holds exactly one entry for that question in the requested "
+            "answer format, with a letter the question allows; nothing else is inferred, and every reply is kept. Such a "
+            "letter is also scored where only its confidence is missing or out of range (it then has none). A letter "
+            "read this way is scored like any other answer."
+            + (f"<ul>{listed}</ul>" if listed else " No setup on this page needed it.") + "</li>")
 
 
 def local_estimates(snap: bp.Snapshot) -> str:
@@ -1038,6 +1053,7 @@ latency measured on a sample of the questions carries a mark that names the samp
 <li><strong>Non-hallucination.</strong> “Bilmiyorum” among the answers that were not right, with it offered as a sixth
 option; read it with the share answered. The <a href="{rel(PATH, 'dont-know/')}">Hallucination tab</a> has the full
 table and its method.</li>
+{reply_notes(snap)}
 </ul>"""))
     toc = '<li><a href="#at-a-glance">At a glance</a></li>' + "".join(f'<li><a href="#{anchor}">{esc(title)}</a></li>' for anchor, title, _ in sections)
     cards = "".join(

@@ -243,9 +243,11 @@ endpoint after `#provider=PIN`:
   the "I don't know" option's among them with `--dont-know`. The reply is read strictly: after one surrounding Markdown
   code fence is removed, it must be one JSON object `{"answers": {...}}` whose keys are the batch's question numbers;
   a question's answer is valid only when its number appears exactly once with exactly an allowed `answer` letter and a
-  `confidence` from 0 to 1. Anything else (missing, repeated, another letter, no or a bad confidence, another layout
-  such as `"Q1"` keys or a list) leaves the answer invalid; nothing is filled in, re-mapped or taken from free text.
-  The raw reply is stored as always.
+  `confidence` from 0 to 1. Anything else (missing, repeated, another letter, no or a bad confidence) leaves the answer
+  invalid for this reader; nothing is filled in, re-mapped or taken from free text. An allowed letter rejected only for
+  its confidence is then read under the rule below, with no confidence. A reply the strict reader rejects as a whole (not
+  JSON, or another layout such as `"Q1"` keys or a list) is a broken reply: see [Empty and broken chat
+  replies](#empty-and-broken-chat-replies). The raw reply is stored as always.
 
 A reasoning effort on an endpoint that reports 0 reasoning tokens counts as reasoning that could not be verified, not
 as reasoning off.
@@ -328,6 +330,54 @@ Open-Jev and Laya get no `model` field. `servers/` holds the nine wrappers used 
 each copied next to its model's checkpoint and virtual environment (`model/` beside the script, or the checkpoint
 given with `--checkpoint`; each file's docstring gives its command). They only translate this request for the
 model; the page's Method section describes how each was read out.
+
+### Empty and broken chat replies
+
+The project lead's rule for every chat setup (bus #3215, 8 November 2026): an empty reply gets one retry; a reply that
+came back broken has its clearly readable letters scored and the rest count as wrong. It applies to the chat replies of
+`--provider openrouter-chat` (schema, `--openrouter-json-object` and `--openrouter-answer-layout`), `vllm` and
+`vllm-stated` (`RESCUE_PROVIDERS`). Every raw reply is kept; nothing is filled in or guessed.
+
+- **Empty.** A reply that finished normally (`finish_reason` `"stop"`) whose final content (after any thinking closed by
+  `</think>`), stripped, is empty or an empty JSON object (`{}` with any whitespace). The same request is sent once
+  more and its reply used; the record keeps the first reply, with its usage, under `"empty_first_reply"`, and the run's
+  tokens, cost and request count include both requests. A second empty reply stays empty (invalid). A reply cut off at
+  the output limit (`finish_reason` `"length"`) is not empty: it stays cut off and invalid and is never asked again,
+  and neither is a reply with content that cannot be read.
+- **Broken.** A reply with content, not cut off, that the run's reader cannot read as a whole: not valid JSON, another
+  layout (such as the answers without their `"answers"` object), or one the strict reader of `--openrouter-answer-layout`
+  rejects as a whole. A reply read as a whole is not broken: each of its answers stands or falls on its own entry (a
+  letter the question does not allow, such as `"V"`, stays invalid). In the answer layout, an entry the strict reader
+  rejects only for its confidence (missing, or not a number from 0 to 1) with an allowed letter, its number appearing
+  once and no key but `answer` and `confidence`, is read with no confidence and marked `"read_without_confidence":
+  true` (the schema and JSON-mode readers already read such letters).
+- **Clearly readable letter.** In a broken reply's final content (never reasoning text), for question number N of the
+  batch: N's key appears exactly once, as an answer entry of the shape the request asked for: `"N": {"answer": "L"`
+  (`"confidence"` before `"answer"` also counts) for the confidence schema and the answer layout, `"N": "L"` for
+  `vllm`'s schema; JSON whitespace allowed; and L is a letter the question allows. The answer is then read, with the
+  confidence the same entry holds as a number from 0 to 1 (else none), and marked `"read_from_broken_reply": true` in
+  the record's `answers`. A repeated number, a letter not allowed, a letter only in free text or any other form leaves
+  that answer invalid. A read answer is scored like any other.
+
+`--rescue RUN [RUN ...]` applies the rule to finished runs in `--database`, without running a model: it re-reads the
+stored reply of every request whose answers are all invalid and that is broken, and of every answer-layout request
+with an invalid answer rejected only for its confidence, with no request, and asks every empty reply that was never
+asked again once more (`--timeout` and `--concurrency` apply) with the run's own settings, as its row records them
+(provider, model, endpoint and its `#provider=` settings, seed, reasoning, language and "I don't know"; the same
+questions in the same request, each as its prompt and shown options were stored). Only invalid answers change (a valid
+answer of a request whose record changes keeps its letter and correctness). Each changed request's record keeps the
+earlier reply (`"empty_first_reply"`) and under `"rescued"`
+the runner's commit, the time and the answers before; a re-ask adds its time to the run's request time. It refuses a
+run whose provider it cannot re-ask (any outside `RESCUE_PROVIDERS`, named in the message), a running run, and a run
+with empty replies to re-ask whose prompt version is not the one the runner sends or, through OpenRouter, without
+`OPENROUTER_API_KEY`, all before anything is asked or written. Per run it prints the invalid answers before, the empty
+replies re-asked, how many came back with answers (and the answers), the answers read from broken replies and those
+read without a confidence, and the invalid answers after by kind (empty after retry, empty and not asked again, cut
+off, unreadable, letter not allowed). `--dry-run` opens the database read-only, asks nothing and prints the same counts
+with the requests it would re-ask. Afterwards `--refresh-report` recomputes the rescued runs' metrics. The report keeps
+per run `invalid_replies`: the answers read from broken replies and without a confidence, the empty replies asked
+again, how many came back with answers and the answers they gave, the invalid answers by kind, and the invalid answers
+without the rule (before `--rescue`).
 
 ### Repeats, routing and the vote share
 
