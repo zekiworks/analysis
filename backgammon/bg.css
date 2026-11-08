@@ -425,16 +425,17 @@ td.hl-judgement { width: 55%; min-width: 13rem; }
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .45); }
 .hl-val { font-family: var(--mono); font-size: .84rem; }
 .js [data-headline-panel][hidden] { display: none; }
-/* The leaderboard rows (Ümit, bus #2745; #2904, #2907; #2921; #3039): the rank, the model (maker dot, a late entry's
-   tag small after the name, the expander of its other settings, shown without script; nothing under the name, its
-   maker, type and setting are in its details box) and the risk judgement; the programs grey and unranked under a group
-   heading. */
+/* The leaderboard rows (Ümit, bus #2745; #2904, #2907; #2921; #3039; #3193): the rank, the model (maker dot, the name,
+   one small grey chip after it: setting · type, a late entry's tag in it, 'program' for a program; the expander of its
+   other settings, shown without script; nothing under the name, its maker is in the dot and its details box) and the
+   risk judgement; the programs grey and unranked under a group heading. */
 table.headline td.model .hl-dot { width: .7rem; height: .7rem; border-radius: 50%; }
-table.headline td.model > .hl-tag { color: var(--text-2); font-size: .78rem; white-space: nowrap; }
+table.headline td.model > .hl-tag { display: inline-block; margin: .1rem 0 0 .35rem; padding: 0 .4rem; color: var(--text-2);
+  font-size: .74rem; line-height: 1.35; white-space: nowrap; vertical-align: .05rem; background: var(--sunk);
+  border: 1px solid var(--edge); border-radius: 999px; }
+tr.hl-sub td.model > .hl-tag { background: var(--panel); }
 .hl-filter { display: flex; flex-wrap: wrap; gap: .3rem; margin: .1rem 0 .2rem; }
 .hl-filter .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
-.hl-tag::before { content: " \00b7\0020"; font-weight: 400; }
-.hl-tag { font-weight: 600; }
 tr.hl-off { display: none !important; }
 table.headline tbody tr.hl-open > td { background: var(--row-hover); }
 /* A row's details box (bg.js): every value of the setup, a line per kind; in its row without script, else over the page
@@ -467,6 +468,10 @@ table.headline th[data-wide], table.headline td.hl-wide, .hl-wide-note { display
   td.hl-judgement { width: 40%; }
   .hl-wide-note { display: inline; }
 }
+/* Wide desktop windows: the model column wide enough for the name and its chip on one line (Ümit #3193). */
+@media (min-width: 1200px) {
+  table.headline td.model { min-width: 22.5rem; }
+}
 /* At phone width: the three columns fit the width (no sticky column, no sideways scrolling), the bar column narrower. */
 @media (max-width: 640px) {
   table.headline th:first-child, table.headline td:first-child { position: static; width: auto; min-width: 0; max-width: none;
@@ -474,7 +479,10 @@ table.headline th[data-wide], table.headline td.hl-wide, .hl-wide-note { display
   table.headline td.model { min-width: 0; }
   table.headline th, table.headline td { padding-left: .35rem; padding-right: .35rem; }
   table.headline tr.hl-sub td.model { padding-left: .6rem; }
-  table.headline td.hl-judgement { min-width: 8rem; }
+  /* The bar column takes only what the model column leaves (min 8rem), and the chip may wrap between its parts, so
+     names stay readable and the chip never pushes the score and its interval past the table's frame (Zeki #3240). */
+  table.headline td.hl-judgement { width: auto; min-width: 8rem; }
+  table.headline td.model > .hl-tag { white-space: normal; border-radius: .6rem; }
 }
 .finding h2 { font-size: 1.25rem; }
 .finding-text { max-width: 80ch; margin: 0 0 .75rem; }
