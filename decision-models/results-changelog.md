@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 792ddeb2 (8 November 2026)
+
+- Web grounding repeats (Perplexity Decider 27B v1.2 through the API, without and with web), continued after the Perplexity credit ran out on 5 November. Turkish, 2,198 questions: without web, runs 633, 684 and 687 got 1,458, 1,459 and 1,462 right (66.3%, 66.4%, 66.5%); with web, runs 640, 685 and 692 got 1,511, 1,511 and 1,478 (68.7%, 68.7%, 67.2%). English, the 547 kept questions: without web, runs 637 and 688 got 484 each (88.5%); with web, runs 639 and 693 got 495 and 486 (90.5%, 88.8%). The third English pair waits: its run with web stopped at 432 of 547 questions when the credit ran out again, so its partner without web (run 689, 485 right) is held until it can be finished. No other number changed.
+
 ## Results a87888c3 (6 November 2026)
 
 - Added REAX 1.3: `decisionmodels/REAX-1.3` at `fa4bf7e` on one of our GPUs, through the maker's own engine (the `reax13` mode of the REAX Engine at `ff8f595`): two parts in FP8 on the one GPU, each option's probability the 50/50 mean of the two parts'. Text: one run over the 2,198 scored questions (run 827), 1,713 right (77.9%), the most right answers of the 40 decision-model setups, tied with Liquid d1-ultra (77.1%; the paired tests give them a shared letter and neither shares one with any other decision model); 80 setups in all. Its cost is a GPU-time estimate.
