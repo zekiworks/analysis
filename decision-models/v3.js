@@ -1172,6 +1172,7 @@ function barChart(box, name) {
     parts.push(`<line class="axis" x1="${x(domain[0])}" x2="${right}" y1="${base}" y2="${base}"/>`);
     parts.push(`<text class="axis-title" x="${(left + right) / 2}" y="${base + 32}" text-anchor="middle">${esc(measure.axis)}</text>`);
     if (apart) parts.push(apartLine(yOf(TOP_ROWS) - APART / 2, width));
+    const bands = [];
     rows.forEach((run, index) => {
       const y = yOf(index);
       const value = measure.value(run);
@@ -1213,9 +1214,14 @@ function barChart(box, name) {
         inner.push(`<text class="value${latencyValue == null ? ' nm' : ''}" x="${width - 4}" y="${mid + 4}" text-anchor="end">${esc(latencyText(run))}</text>`);
       }
       parts.push(`<g ${markAttributes(run, full)}>${inner.join('')}</g>`);
+      bands.push([barTop - 1, barTop + barHeight + 1]);
     });
-    /* Chance, over the bars it crosses. */
-    if (name === 'accuracy') parts.push(`<line class="chance" x1="${x(chance())}" x2="${x(chance())}" y1="${top - 3}" y2="${base}"/>`);
+    /* Chance, over the bars it crosses: one line down the plot beside the names, and on a phone, where each name sits
+       above its bar, a piece across each bar's band only, so it never crosses a name. */
+    const at = x(chance());
+    if (name === 'accuracy') {
+      parts.push(...(phone ? bands : [[top - 3, base]]).map(([y1, y2]) => `<line class="chance" x1="${at}" x2="${at}" y1="${y1}" y2="${y2}"/>`));
+    }
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${rows.length} of ${ordered.length} setups.`)}">${parts.join('')}</svg>`;
   };
   const { rows, apart } = topRows(name, ordered);
