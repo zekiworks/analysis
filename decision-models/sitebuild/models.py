@@ -63,6 +63,38 @@ def reply_counts(run: dict[str, Any]) -> str | None:
     return text + "."
 
 
+def idk_runs(results: dict[str, Any]) -> list[tuple[int, str, str, dict[str, Any]]]:
+    """Each run with the "I don't know" option that results.json gives the rule's counts for (invalid_replies): the
+    Hallucination tab's rows (`dont_know`, their first runs, with "Bilmiyorum") and english_reading.dont_know's English
+    runs (with "I don't know") and Turkish runs on the kept questions (a Turkish side that is a Hallucination tab row is
+    that row). Each as (its setup's Text tab run, "turkish" or "english", the option, {"run", "invalid",
+    "invalid_replies"} for reply_counts), the option's run's own invalid answers."""
+    found = []
+    tab = results.get("dont_know") or {}
+    for row in tab.get("models", []):
+        found.append((row["original_run"], "turkish", tab["option"],
+                      {"run": row["run"], "invalid": row["invalid"], "invalid_replies": row.get("invalid_replies")}))
+    idk = (results.get("english_reading") or {}).get("dont_know") or {}
+    for item in idk.get("models", []) + idk.get("english_only", []) + idk.get("turkish_only", []):
+        for side, option in (("english", idk["option"]), ("turkish", tab.get("option"))):
+            counts = item.get(side)
+            if counts is not None and (side == "english" or counts["subset"]):
+                found.append((item["text_run"], side, option, {"run": counts["run"], "invalid": counts["invalid"],
+                                                               "invalid_replies": counts.get("invalid_replies")}))
+    return found
+
+
+def idk_counts(site: Site, run: dict[str, Any], side: str) -> str:
+    """The rule's counts line (reply_counts) for each of the setup's runs with the "I don't know" option in `side`
+    (idk_runs), named by its option and run, linked to the Method notes; empty without any."""
+    path = site.model_path(run)
+    return "".join(
+        f"<p>With “{esc(option)}” (run {item['run']}): {esc(counts)} "
+        f'(<a href="{rel(path, "method/")}#{REPLY_ANCHOR}">how</a>)</p>'
+        for text_run, found, option, item in idk_runs(site.results)
+        if text_run == run["run"] and found == side and (counts := reply_counts(item)) is not None
+    )
+
 
 def facts(items: list[tuple[str, str | None]]) -> str:
     """A definition list of the items that have a value."""
@@ -172,7 +204,7 @@ def results(site: Site, run: dict[str, Any]) -> str:
     return (
         '<div class="table-wrap"><table><thead><tr><th scope="col">Questions</th><th scope="col" class="num">Accuracy</th>'
         f'<th scope="col" class="num">95% interval</th><th scope="col" class="num">Right</th></tr></thead><tbody>{rows}</tbody></table></div>'
-        f"{group}{invalid}"
+        f"{group}{invalid}{idk_counts(site, run, 'turkish')}"
         '<details class="show-table"><summary>Accuracy by topic</summary><div class="table-wrap"><table class="board list">'
         '<thead><tr><th scope="col">Topic</th><th scope="col">Part</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">Right</th></tr></thead>'
         f"<tbody>{topics}</tbody></table></div></details>"
@@ -373,7 +405,8 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
     """For a setup with an English run (results.json english_reading.models, by its Text tab run): its right answers of
     the kept reading questions in its first English run and its accuracy (the range over its English runs where it has
     several), its English non-hallucination rate with “I don't know” where measured (english_reading.dont_know), the
-    first English run's cost and median latency, and the English runs' settings from their records in answers.json."""
+    first English run's cost and median latency, the English runs' settings from their records in answers.json, and the
+    rule on empty and broken replies' counts for its English “I don't know” runs (idk_counts)."""
     data = site.results.get("english_reading")
     if data is None or run["run"] not in setup_labels(site):
         return None
@@ -416,7 +449,8 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
                 ("Reasoning", each(lambda record: NOT_RECORDED if record.get("thinking") is None else str(record["thinking"]))),
                 ("Prompt version", "<code>" + each(lambda record: record["english"]["prompt_version"]) + "</code>"),
                 ("Translations, SHA-256", "<code>" + each(lambda record: record["english"]["translations_sha256"]) + "</code>"),
-            ]))
+            ])
+            + idk_counts(site, run, "english"))
 
 
 def summary(site: Site, run: dict[str, Any]) -> str:

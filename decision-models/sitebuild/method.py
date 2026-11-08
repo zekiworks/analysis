@@ -15,7 +15,7 @@ from typing import Any
 
 import benchmark_metrics as bm
 import build_page as bp
-from sitebuild.models import REPLY_ANCHOR, REPLY_RULE, reply_counts
+from sitebuild.models import REPLY_ANCHOR, REPLY_RULE, idk_runs, reply_counts
 from sitebuild.site import MODEL_GROUPS, REPO_URL, ROOT, SITE_NAME, TABS, Site, esc, rel
 
 PATH = "method/"
@@ -482,10 +482,14 @@ def maker_priced(snap: bp.Snapshot) -> str:
 
 
 def reply_notes(snap: bp.Snapshot) -> str:
-    """The Method notes' item on empty and broken chat replies: the rule in one plain sentence, and for each setup it
-    did something in, its counts as the setup's page gives them (models.reply_counts), by run."""
-    rows = sorted((run for run in snap.runs if reply_counts(run) is not None), key=lambda run: run["run"])
-    listed = "".join(f"<li>{esc(display_name(run, snap.runs))} (run {run['run']}): {esc(reply_counts(run))}</li>" for run in rows)
+    """The Method notes' item on empty and broken chat replies: the rule in one plain sentence, and for each run it did
+    something in, its counts as the setup's page gives them (models.reply_counts), by run: the Text tab runs, named as
+    their setups, and the runs with the "I don't know" option (models.idk_runs), named as their setups with the option."""
+    by_run = {run["run"]: run for run in snap.runs}
+    rows = [(run["run"], display_name(run, snap.runs), counts) for run in snap.runs if (counts := reply_counts(run)) is not None]
+    rows += [(item["run"], f"{display_name(by_run[text_run], snap.runs)} with “{option}”", counts)
+             for text_run, _, option, item in idk_runs(snap.results) if (counts := reply_counts(item)) is not None]
+    listed = "".join(f"<li>{esc(name)} (run {number}): {esc(counts)}</li>" for number, name, counts in sorted(rows))
     return (f'<li id="{REPLY_ANCHOR}"><strong>Empty and broken replies.</strong> {esc(REPLY_RULE)} An empty reply is one '
             "that finished normally with no content (or only {}); a reply cut off at the output limit is not asked again. "
             "A letter is clearly readable when the reply holds exactly one entry for that question in the requested "

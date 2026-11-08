@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 5b776a23 (8 November 2026)
+
+- Added Qwen 3.5 397B-A17B, an open-weights chat model, through OpenRouter: DeepInfra's endpoint (fp8), which has structured outputs, so its requests carry the answer schema of every other chat setup; reasoning high, 16 questions per request, a 65,536-token output cap, fallbacks off. Text: run 870, 1,818 of 2,198 right (82.7%); 83 setups in all. English reading: run 871, 500 of the 547 kept questions right (91.4%), the same as in Turkish on those questions. Hallucination tab: with "Bilmiyorum" (run 872) 6 "Bilmiyorum" and 390 wrong, 1.5% non-hallucination; English "I don't know" (run 873) 3 and 45 wrong, 6.3%. No empty or broken replies. Its cost is at OpenRouter's price for DeepInfra's endpoint.
+- Empty and broken replies: the "Bilmiyorum" and "I don't know" runs now show their counts too, on their model pages and in the Method notes (MiniMax-M3.1-Flash, run 864: 16 answers read from 1 broken reply, 12 still invalid; Inkling Small, run 868: 2 empty replies asked again, 80 answers read from 5 broken replies). Runs the rule has not changed are listed there with the kind of their invalid answers: GLM-5.3 (run 656) and GLM-5.3-Flash (run 825), cut off at the output limit; Qwen3.8-27B (run 666), 11 empty replies, to be asked again when its server runs.
+- No other number changed; no significance letter or paired verdict moved.
+
 ## Results d54a7313 (8 November 2026)
 
 - Added two open-weights chat models through OpenRouter, reasoning high, 16 questions per request, a 65,536-token output cap, each pinned to one endpoint with fallbacks off: MiniMax-M3.1-Flash (MiniMax's own endpoint) and Inkling Small (DeepInfra's endpoint, fp8). Neither endpoint offers structured outputs, so their prompt adds one paragraph stating the answer layout and their answers are read in that layout: a prompt difference from the other chat setups. Text: MiniMax-M3.1-Flash (run 862) 1,461 of 2,198 right (66.5%), Inkling Small (run 866) 1,758 (80.0%); 82 setups in all. Their costs are at OpenRouter's prices for the pinned endpoints (MiniMax's endpoint lists half its rate from 15:00 to 01:00 UTC; the site states the regular rate).

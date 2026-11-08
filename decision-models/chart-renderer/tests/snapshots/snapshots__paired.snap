@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a
-difference; the colour shows a related but separate test, adjusted across these 82 comparisons (9 pass).
-━━ passes the Holm adjustment across these 82 comparisons   ━━ does not pass
+difference; the colour shows a related but separate test, adjusted across these 83 comparisons (9 pass).
+━━ passes the Holm adjustment across these 83 comparisons   ━━ does not pass
 
                              Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                         ⠤⡧⠤                                     +0.1
                                   GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                         ⠠⡧⠄                                     +0.2
@@ -24,14 +24,15 @@ difference; the colour shows a related but separate test, adjusted across these 
                               GPT-6.1 Terra (low reasoning) minus Claude Opus 5.5 (low reasoning)                       ⠠⠤⠤⡧⡦⠤⠤⠄                                  +0.4
                          Claude Opus 5.5 (low reasoning) minus Claude Sonnet 5.5 (high reasoning)                          ⡇        ⠤⠤⠤⢴⠤⠤⠤⠤                      +5.4
                            Claude Sonnet 5.5 (high reasoning) minus Kimi K3.1 Pro (low reasoning)                          ⡇⠤⠤⠤⠤⡦⠤⠤⠤⠤                             +2.3
-                               Kimi K3.1 Pro (low reasoning) minus Inkling Small (high reasoning)                          ⡇ ⠤⠤⠤⠤⢴⠤⠤⠤⠤                            +2.8
+                          Kimi K3.1 Pro (low reasoning) minus Qwen 3.5 397B-A17B (high reasoning)                      ⠤⠤⠤⠤⡧⠤⠤⠤⠄                                  +0.0
+                         Qwen 3.5 397B-A17B (high reasoning) minus Inkling Small (high reasoning)                          ⡇ ⠤⠤⠤⠤⢴⠤⠤⠤⠤                            +2.7
                                 Inkling Small (high reasoning) minus GLM-5.3-Flash (reasoning on)                        ⠠⠤⡧⠤⢴⠤⠤⠤⠤⠄                               +1.2
                                                       GLM-5.3-Flash (reasoning on) minus REAX 1.3                       ⠤⠤⠤⡧⠤⡦⠤⠤⠤⠤                                +0.9
                                                                    REAX 1.3 minus Liquid d1-ultra                       ⠠⠤⠤⡧⠤⡦⠤⠤⠤⠄                                +0.9
                                                     Liquid d1-ultra minus GLM-5.3 (low reasoning)                          ⡇⠤⠤⠤⠤⠤⡦⠤⠤⠤⠤⠄                           +2.5
                                         GLM-5.3 (low reasoning) minus Qwen3.8-27B (low reasoning)                      ⠠⠤⠤⠤⡧⡦⠤⠤⠤⠤⠄                                +0.6
                                                     Qwen3.8-27B (low reasoning) minus Gemma 4 31B                       ⠤⠤⠤⡧⢴⠤⠤⠤⠤⠤                                +0.8
-                                                 Gemma 4 31B minus Kimi K3.1 Pro (reasoning none)                      ⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤                                 +0.4
+                                                 Gemma 4 31B minus Kimi K3.1 Pro (reasoning none)                      ⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤                                 +0.4
                                                                   Gemma 4 31B minus Fastino GLiDE                          ⡇      ⠤⠤⠤⠤⠤⢼⠤⠤⠤⠤⠤                     +5.2
                  Kimi K3.1 Pro (reasoning none) minus Perplexity Decider 27B v1.2 (API, with web)                          ⡇   ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                        +4.0
                              Perplexity Decider 27B v1.2 (API, with web) minus Fastino GLiDE v1.2                      ⠠⠤⠤⠤⣿⠤⠤⠤⠄                                  +0.3

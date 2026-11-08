@@ -223,6 +223,12 @@ MODELS: dict[str, dict[str, Any]] = {
         "parameters": 276_000_000_000,
         "active_parameters": [12_000_000_000],
     },
+    "qwen/qwen3.5-397b-a17b": {
+        "name": "Qwen 3.5 397B-A17B",
+        "access": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included",
+        "parameters": 397_000_000_000,
+        "active_parameters": [17_000_000_000],
+    },
     "gemma4:31b": {"name": "Gemma 4 31B"},
     "deepseek-v4-flash:latest": {"name": "DeepSeek V4 Flash"},
     "muse-glimmer:30b": {"name": "Muse Glimmer 30B"},
@@ -1429,6 +1435,8 @@ def dont_know(records: list[dict[str, Any]], data: dict[str, Any], by_record: di
                 "run": found[0]["run_id"],
                 "runs": [record["run_id"] for record in found],
                 **{key: head[key] for key in ("right", "wrong", "dont_know", "invalid")},
+                # The rule on empty and broken chat replies in its first run, as for a Text tab run (`runs[].invalid_replies`).
+                "invalid_replies": found[0].get("invalid_replies"),
                 **{key: head[key] for key in metrics},
                 "spread": None
                 if len(values) == 1
@@ -2508,7 +2516,7 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         if reason is not None or (group == "chat" and subset is None and not hallucination):
             english_only.append({"name": reading[0]["name"], "model": model, "provider": provider, "group": group,
                                  "text_run": text_run, "reason": reason or running_reason(), "running": reason is None,
-                                 "english": {"run": runs[0], "runs": runs}})
+                                 "english": {"run": runs[0], "runs": runs, "invalid_replies": found[0].get("invalid_replies")}})
             continue
         if subset is not None:
             turkish = [record["run_id"] for record in subset]
@@ -2528,8 +2536,9 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
                 "provider": provider,
                 "group": group,
                 "text_run": text_run,
-                "english": {"run": runs[0], "runs": runs},
-                "turkish": {"run": turkish[0], "runs": turkish, "subset": subset is not None},
+                "english": {"run": runs[0], "runs": runs, "invalid_replies": found[0].get("invalid_replies")},
+                "turkish": {"run": turkish[0], "runs": turkish, "subset": subset is not None,
+                            "invalid_replies": by_record[turkish[0]].get("invalid_replies")},
             }
         )
     if subsets:
@@ -2540,7 +2549,8 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
     reading_by_text = {item["turkish_run"]: item for item in english_section["models"]}
     turkish_only = [{"name": reading_by_text[row["original_run"]]["name"], "model": row["model"], "provider": row["provider"],
                      "group": row["group"], "text_run": row["original_run"], "reason": running_reason(), "running": True,
-                     "turkish": {"run": row["run"], "runs": row["runs"], "subset": False}}
+                     "turkish": {"run": row["run"], "runs": row["runs"], "subset": False,
+                                 "invalid_replies": row["invalid_replies"]}}
                     for row in full if row["group"] == "chat" and row["run"] not in paired_rows
                     and row["original_run"] in reading_by_text]
     return {"models": models, "english_only": english_only, "turkish_only": turkish_only,
