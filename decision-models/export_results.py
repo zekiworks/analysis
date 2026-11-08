@@ -206,6 +206,23 @@ MODELS: dict[str, dict[str, Any]] = {
         "access": "OpenRouter chat API, Moonshot AI's endpoint (mxfp4), fallbacks off",
     },
     "z-ai/glm-5.3": {"name": "GLM-5.3", "access": "OpenRouter chat API, Fireworks endpoint, fallbacks off"},
+    # Open-weights chat models through OpenRouter, reasoning high; parameters from each model card.
+    "minimax/minimax-m3.1-flash": {
+        "name": "MiniMax-M3.1-Flash",
+        "access": "OpenRouter chat API, MiniMax's own endpoint, fallbacks off, output cap 65,536 tokens, reasoning included; "
+                  "JSON mode without the answer schema (the endpoint has no structured outputs), so the prompt adds a "
+                  "paragraph stating the answer layout",
+        "parameters": 428_000_000_000,
+        "active_parameters": [23_000_000_000],
+    },
+    "thinkingmachines/inkling-small": {
+        "name": "Inkling Small",
+        "access": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning "
+                  "included; no response format (the endpoint has no structured outputs), so the prompt adds a paragraph "
+                  "stating the answer layout",
+        "parameters": 276_000_000_000,
+        "active_parameters": [12_000_000_000],
+    },
     "gemma4:31b": {"name": "Gemma 4 31B"},
     "deepseek-v4-flash:latest": {"name": "DeepSeek V4 Flash"},
     "muse-glimmer:30b": {"name": "Muse Glimmer 30B"},
