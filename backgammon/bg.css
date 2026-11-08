@@ -36,17 +36,19 @@ details.more > summary { cursor: pointer; font-weight: 600; }
 .chart-svg .dot { fill: var(--reading); }
 .chart-svg .whisker { stroke: var(--reading); }
 .chart-svg .muted { fill: var(--text-2); }
-/* The Learning tab's chart (learning_page.chart): one colour and dash per arm, in lines, dots and the legend. */
+/* The Learning page's charts (learning_page.line_chart): each arm's colour is learning_page.ARM_COLOUR, set as --lp on
+   every line, dot and legend swatch; control's dashed line is the SVG's own stroke-dasharray. */
 .chart-svg .lp-title { font-weight: 700; font-size: 12px; }
-.chart-svg .lp-line { fill: none; stroke-width: 2; }
-.chart-svg .lp-dot { stroke: var(--panel); stroke-width: 1; }
-.lp-control { --lp: var(--text-2); } .lp-records { --lp: var(--reading); } .lp-lessons { --lp: var(--good); }
-.lp-budget { --lp: var(--wrong); }
-.chart-svg .lp-line { stroke: var(--lp); } .chart-svg .lp-dot { fill: var(--lp); }
-.chart-svg .lp-lessons.lp-line { stroke-dasharray: 6 3; } .chart-svg .lp-budget.lp-line { stroke-dasharray: 2 3; }
+.chart-svg .lp-line { fill: none; stroke-width: 2; stroke: var(--lp); }
+.chart-svg .lp-dot { stroke: var(--panel); stroke-width: 1; fill: var(--lp); }
 .lp-swatch { background: var(--lp); }
+.lp-swatch.lp-dashed { width: 1.2rem; height: 0; background: none; border-top: 2px dashed var(--lp); border-radius: 0;
+  vertical-align: .2rem; }
 .tab-rule { margin-top: .6rem; padding: .5rem .9rem; border-left: 3px solid var(--edge); background: var(--sunk); }
-.lp-charts { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; } .lp-charts .chart-svg { flex: 1 1 320px; max-width: 520px; }
+.lp-charts { display: grid; gap: 1.5rem; } .lp-chart { margin: 0; min-width: 0; }
+.lp-chart .chart-svg { display: block; width: 100%; max-width: 560px; }
+.lp-status { margin: .3rem 0 .6rem; font-size: 1.05rem; }
+details.lp-series { margin: .4rem 0; } details.lp-series > summary { cursor: pointer; font-weight: 600; }
 
 /* --- Dashboard layout: a centred header, tables first; data colours are unchanged. Colours, keys, lamps and panels are
    site.css's, the sibling site's look in both themes (Ümit, 31 Oct 2026); this page's own colour names map onto
