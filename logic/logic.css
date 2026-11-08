@@ -179,3 +179,16 @@ td[data-label="GPU"] { white-space: nowrap; }
 table.headline td.bar-cell { width: 30%; min-width: 8rem; }
 .all-setups { margin-top: .8rem; }
 .all-setups > summary { cursor: pointer; font-weight: 650; }
+/* Headline table on a phone: only # · Model (with its GPU / web / group as a grey sub-line) · Logic · Math. */
+table.headline .phone-only { display: none; }
+@media (max-width: 640px) {
+  table.headline .aux { display: none; }
+  table.headline .phone-only { display: block; color: var(--muted); font-size: .72rem; line-height: 1.2; white-space: normal; }
+  table.board.headline { table-layout: auto; width: 100%; }
+  table.board.headline thead th { vertical-align: bottom; min-width: 0; white-space: normal; }
+  table.board.headline td.model { white-space: nowrap; }
+  table.board.headline td.model .model-name { white-space: normal; }
+  table.board.headline td.num, table.board.headline th.num { width: 3.6rem; }
+  table.board.headline th:first-child, table.board.headline td:first-child { width: 1.6rem; min-width: 0; max-width: 1.8rem;
+    padding-left: .15rem; padding-right: .25rem; }
+}
