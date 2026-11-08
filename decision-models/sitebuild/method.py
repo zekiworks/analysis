@@ -15,7 +15,7 @@ from typing import Any
 
 import benchmark_metrics as bm
 import build_page as bp
-from sitebuild.site import MENU, REPO_URL, ROOT, VIEW_GROUPS, VIEW_MEASURES, VIEW_TESTS, Site, esc, rel
+from sitebuild.site import MODEL_GROUPS, REPO_URL, ROOT, SITE_NAME, TABS, Site, esc, rel
 
 PATH = "method/"
 TITLE = "Method"
@@ -557,10 +557,10 @@ def glance(site: Site) -> str:
 <th scope="col">What it measures</th><th scope="col">Main measure</th></tr></thead><tbody>{rows}</tbody></table></div>
 <h3>How the site is laid out</h3>
 <ul>
-<li><strong>The view bar</strong>, under the top bar, has three rows. Test picks the page: {and_list(VIEW_TESTS)}. Models picks the group: {and_list(VIEW_GROUPS)}. Measure goes to a part of the page: {and_list(VIEW_MEASURES)}.</li>
-<li><strong>The top links</strong> lead to {and_list(MENU)}. Page images and Hallucination are tests of their own, each ranked on its own page.</li>
-<li><strong>Web grounding</strong>: <a href="{rel(PATH, 'web-grounding/')}">its page</a> is linked from the home page, both English pages and the Perplexity model pages.</li>
-<li><strong>PWS-Decisions</strong>: <a href="{rel(PATH, 'pws-decisions/')}">its own page</a>, linked from the web grounding page, the home page and both English pages.</li>
+<li><strong>The top bar</strong> holds the site's name, {esc(SITE_NAME)}, and five tabs: {and_list(TABS)}. The Leaderboard is the home page; its filter picks the models: {and_list(MODEL_GROUPS)}, and its part switch the test: English, Turkish or both.</li>
+<li><strong>Experiments</strong> leads to Page images, Hallucination, Web grounding, PWS-Decisions and the Artificial Analysis comparison. Page images and Hallucination are tests of their own, each ranked on its own page.</li>
+<li><strong>Web grounding</strong>: <a href="{rel(PATH, 'web-grounding/')}">its page</a> is linked from Experiments, both English pages and the Perplexity model pages.</li>
+<li><strong>PWS-Decisions</strong>: <a href="{rel(PATH, 'pws-decisions/')}">its own page</a>, linked from Experiments, the web grounding page and both English pages.</li>
 </ul>
 <h3>How we ask the models</h3>
 <ul>

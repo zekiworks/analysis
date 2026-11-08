@@ -173,37 +173,23 @@ python3 -m http.server 8000                                # preview at http://1
     header on every page, identical on the three sites, which copy both files. Its stylesheet is self-contained (its own
     `--suite-*` colours, light and dark by `data-theme` on `<html>`, else the system setting); our pages always set
     `data-theme` ("light" or "dark") so it matches the page.
-  - **View bar** (`topbar` in `sitebuild/site.py`, under the suite strip in the sticky header `.site-header` on every
-    page; `--view-bar-h` is the header's height, kept by `site.js`): the Home key first (a
-    house mark and "Home", opening the root index in its default state and marked on it; beside All, Decision and Chat
-    on a phone), row 1 the test (English
-    reading, `english/`; Turkish reading and grammar, the home page; English and Turkish, `turkish-vs-english/`), row 2
-    the models (`?models=all|decision|chat`, all when missing; trailing dots, punctuation or spaces are dropped, so
-    `?models=all.` reads as all), row 3 the measure (Accuracy, Non-hallucination, Cost,
-    Latency); compact keys (12.5 px bold text, 26 px tall, 4 px apart, 10 px group names), the groups set apart by
-    spacing, on one line at 1280 px (63 px sticky header with the suite strip), on two at 1024 px; on a phone three
-    short rows, the group names for screen readers only (112 px with the suite strip). Row 2 reads All, Decision,
-    Chat. Each row 1 choice opens
-    its page at the top, charts first, then the table. One active tab: only the page in view looks active (Home on the
-    root index, whose own test key stays plain; the test key on `english/` and `turkish-vs-english/`; the pages-row
-    entry on the other pages), and a filter only away from its default (Decision or Chat; All keeps its `aria-current`
-    but looks unpressed); a row 3 key looks active when pressed or scrolled into. Every active-looking key (the Home
-    key, the open test, Decision or Chat, the marked measure and the pages row's entry of the page in view) opens Home,
-    the root index, in its default state (`HOME_STATE`: `?models=all`, no part in the address, so no row 3 key marked;
-    the view bar's `data-home`); a plain key does its normal job. A row 2 key keeps the view (`keepViewOnGroup` in `site.js`): it
-    opens its group with the chosen cost unit (`?cost-unit=`) and the part of row 3's marked key, so Decision pressed at
-    `#cost` opens that page's `#cost` with `?models=decision` in the same unit (the top of the page when no key is
-    marked). `site.js` marks the current group, keeps it in row 1's links and
-    in the links marked `data-keep-group` (the top bar's Page images, Hallucination, Web grounding and PWS-Decisions),
-    and shows each `data-models` element only for its groups. On the pages that show their parts by group
-    (`FILTER_PAGES`: the three test pages, Page images, Hallucination, Web grounding and PWS-Decisions) row 2 stays on
-    the page; on any other page it leads to the home page with
-    that group. A row 3 key whose part (`#accuracy`, `#non-hallucination`, `#cost`, `#latency`) is on the page links to
-    it (the query, so the group, stays; the three test pages have all four, Web grounding its Cost), landing below the
-    bar (`--view-bar-h`), and `site.js` marks the key of the part in view (or the one just pressed); a page opened
-    without a part in the address marks no key until the reader scrolls or presses a key. A key whose part
-    is not on the page opens that part of the home page with the group in view. The All models view always ranks decision and chat
-    models together in one chart and one table per measure. **Cost unit**: every cost reads per 1,000 questions or per
+  - **Top bar** (`topbar` in `sitebuild/site.py`, under the suite strip in the one sticky header `.site-header` on
+    every page, as on the Backgammon site; `--view-bar-h` is the header's height, kept by `site.js`): the Hilde leaf
+    (`hilde-leaf.svg`) and the site's name, "Reading bench" (`SITE_NAME`), linking the Leaderboard, with the Dark /
+    Light switch at the right; under them one row of five tabs (`TABS`): Leaderboard (the home page), Questions,
+    Highlights, Experiments and About. The tab a page sits under (`tab_of`, `SECTION`) is underlined in the accent
+    colour: Leaderboard for the home page, `english/`, `turkish-vs-english/` and `models/*`; Questions for
+    `questions/`, `question/`, `disagreements/`, `topics/` and `compare/`; Highlights for `highlights/`; Experiments for
+    `experiments/`, `vision/`, `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
+    `about/`, `method/` and `data/`. On a phone the tab row scrolls sideways, the current tab brought into view. No other
+    navigation row sits under the suite strip; a page's own part links (`.face-nav`, as PWS-Decisions' steps) stay in
+    the page. **Model groups**: `?models=all|decision|chat` (all when missing; trailing dots, punctuation or spaces are
+    dropped, so `?models=all.` reads as all) still picks the group on every page that shows its parts by group
+    (`data-models`; `site.js` shows each element only for its groups), and such a page carries its own group keys at
+    the top of its body (`group_switch`, All · Decision models · Chat models, in the page, not in the top bar); on the
+    Leaderboard it sets the table's filter. A group asked for in the address stays in the links marked
+    `data-keep-group`. The footer of every page (`footer`): About · Method · Data · GitHub, the downloads and the
+    results version. **Cost unit**: every cost reads per 1,000 questions or per
     1M questions, one choice for the whole site (the keys in each cost card's head, `cost_switch`; `site.js` keeps it in
     `?cost-unit=1k|1m` and localStorage `costUnit`, in `<html data-cost-unit>`, which each page's `<head>` sets before
     it renders). Static values and unit names carry both units (`cost_value`, `cost_per`, `cost_unit_in`, `cost_tick`
@@ -217,7 +203,7 @@ python3 -m http.server 8000                                # preview at http://1
     option-word check is for decision models only. A setup that shares its name with another English setup is labelled with the settings
     that tell them apart, as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
     (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: under a one-sentence lead
-    and the translation check's limit (`limit_note`; neither English page has a links row of its own, row 3 does that),
+    and the translation check's limit (`limit_note`; neither English page has a links row of its own),
     accuracy per group first (ranked by English accuracy), the
     Non-hallucination part (holding back by confidence, which reads Not measured in English in each block, beside holding
     back with "I don't know" in English, as below; under them, set apart, the Turkish reference: each setup's Text tab run
@@ -228,24 +214,18 @@ python3 -m http.server 8000                                # preview at http://1
     paired bars, the Text tab run (`.turkish`) and the first English run (`.english`), with both in its main table.
     Every setup name on both English pages links to its model page's English section (`#english`, `setup_href` in
     `sitebuild/english_reading.py`; a setup without an English run links to its model page).
-  - **Four tabs**: the site's four benchmarks, each with its own address and its own rankings, never combined: Text
-    (the home page, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
+  - **The benchmarks**: each with its own address and its own rankings, never combined: Turkish reading and grammar
+    (the Leaderboard, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know`, `dont_know_option_word`, `hosted_glide_rerun` and
     `english_reading.dont_know` and `page_config.json`'s `dont_know`, built by `sitebuild/dont_know.py`) and Turkish vs
     English (`turkish-vs-english/`, from `results.json`'s `english_reading`,
     `dont_know_option_word`, `english-reading.json` and `page_config.json`'s `english_reading` and `model_languages`,
-    built by `sitebuild/english_reading.py`; its former address `english-reading/` redirects there, fragment kept). The
-    title strip under the sticky header (`topbar` in `sitebuild/site.py`, scrolling away): the brand and the theme
-    switch on one short line, then the pages row, compact keys in the view bar's style after a small PAGES label, on
-    one line at 1280 px (Home first, the root index in its default state; Page
-    images and Hallucination, then the web experiments Web grounding and PWS-Decisions, each one click from every page,
-    then Every question, Where models disagree, Topics, Compare, Method, Data; the current page filled as a selected key,
-    its entry opening Home; on a phone one line that scrolls sideways). The in-page link rows that work as tabs
-    (`.face-nav`: a page's own parts, the habits steps) use the same keys. Text is the home
-    page (the brand, Home and row 1); Turkish vs English
-    is row 1's English and Turkish. Each tab's face
-    is charts, each card with a line saying which way is better; its tables and notes are under Info (except the Text
-    tab's leaderboard and the Page images tables, which follow their charts), a details element
+    built by `sitebuild/english_reading.py`; its former address `english-reading/` redirects there, fragment kept).
+    Page images and Hallucination sit under the Experiments tab with Web grounding, PWS-Decisions and the Artificial
+    Analysis comparison. The in-page link rows that work as tabs (`.face-nav`: a page's own parts, the habits steps)
+    are tinted keys. Each benchmark page's face
+    is charts, each card with a line saying which way is better; its tables and notes are under Info (except the Page
+    images tables, which follow their charts), a details element
     closed by default that `site.js` opens for a link into it (`dont-know/#method`). The Page images, Hallucination and
     Turkish vs English faces are HTML bars (`hbars` in `sitebuild/site.py`: one series coloured by the ranking scale; the
     Turkish vs English pairs, as English reading's bars, in each model family's colour, the English bar striped), so they need
@@ -369,38 +349,73 @@ python3 -m http.server 8000                                # preview at http://1
     setup gets a small second line in the Accuracy chart (hbars' row `note`) and the table: "picks the first choice in
     N of 10 questions; always picking the first choice scores X%"; without the block neither appears. The method notes
     compute the chance line from `choice_counts`. Row labels add a
-    setup's `interface` (CLI or API) beside its other marks, so two rows of one model never read the same. The view
-    bar's row 2 filters the page in place (`FILTER_PAGES`): each chart row (hbars' row `models`) and table row carries
+    setup's `interface` (CLI or API) beside its other marks, so two rows of one model never read the same. The group
+    keys filter the page in place: each chart row (hbars' row `models`) and table row carries
     `data-models` ("all decision" or "all chat"), the three cards sit under a "Decision models" heading in the all and
     decision views, and the "I don't know" section is a decision-model part. Waiting lists the chat setups without
     three complete runs (`pending.chat_unfinished`, and setups with `failed_attempts` but no setup yet); the method notes
     give the attempts set aside whole with their counts.
-  - **Home page** (`index.html`, the Text tab): the script fills its `<!-- build:… -->` blocks (the meta tags,
-    with the link preview from `share/images.json`, the stats row, the leaderboard as plain tables for
-    readers without JavaScript, the settings `v3.js` reads, the result cards and the static Non-hallucination part).
-    Its face starts under the one-line top bar with the hero: the title, the intro, the language of the questions, the
-    experiments line and a row of large links (`hero_links`: How the scores work on this page, then Method, Every question
-    and Where models disagree, each keeping the group). Then `#headline` ("The models, each at its best setting",
-    `headline` in `build_site.py`, one copy per view bar group): one row per model, each row one setup, the model's setup
-    with the most right answers on all questions (`headline_rows`: ties go to the earlier run, and a setup with web search
-    is its own row), every cell from that setup (rank, name, kind and setting, accuracy, reading, grammar,
-    non-hallucination, cost with its basis); the selection rule above it, the first 10 rows and a Show all key, and under
-    it the ranks line (`RANKS_NOTE`, also under the leaderboard) and a link to the full ranking (`#board`). Then
-    `#how-scores` (`how_scores`): five plain bullets, their numbers from `results.json`. Then a heading naming the cards'
-    scope ("Full test · 2,198 questions", the count from `results.json`, so the Reading or Grammar choice under them is
-    not read as theirs) and three result
-    cards (`result_cards` in `build_site.py`, one set per
-    view bar group, site.js showing the one in view; each names its scope): the highest accuracy, with its setup and
-    right answers of all questions; the most answers kept at the 99% confidence threshold with no observed mistakes,
-    with how many setups kept more but got some wrong; and the lowest cost per 1,000 questions among the setups within
-    1 point of the best accuracy, or, where none of them has a cost, the cheapest overall, saying so (`card_checks`
-    tests the three against `results.json` on every build). Then `#accuracy`, whose head holds the Filters bar (the
-    panel opens under the head). The parts follow row 3 of the view bar: `#accuracy`, `#non-hallucination`, `#cost` and
-    `#latency`, then the rest (no list of links to the parts: row 3 is that list). Each part's heading states a finding
-    (`findings` and `finding_html` in `build_site.py`): a claim with its numbers computed from `results.json`, under a
-    small label with the measure's name, shown only while it holds, else the measure's name (`findings_checks` checks
-    the headings against `results.json` on every build); each part has one caveat line, linking to the Method page's
-    notes behind the home page charts (`method/#home-notes`), which hold the rest; each chart card has a line saying
+  - **Leaderboard** (the home page, `index.html`): the script fills its `<!-- build:… -->` blocks (the meta tags, with
+    the link preview from `share/images.json`, the Leaderboard, the full ranking as plain tables for readers without
+    JavaScript, the settings `v3.js` reads, the finding headings and the static Non-hallucination part). In this order:
+    - **Hero**: the question "When should you trust a decision model?", the intro (`INTRO`, its counts from
+      `results.json`), one line of counts (`hero_counts`: questions, models, that is the Leaderboard's rows, setups and
+      the last update) and three large links: Read the method, Every question, Experiments.
+    - **The Leaderboard** (`#leaderboard`, `sitebuild/leaderboard.py`): one row per model, a model being its model ID,
+      its kind (chat or decision model) and web search (a setup with web is its own row; different version names are
+      separate rows). A dated checkpoint joins its original's row only through `page_config.json`'s
+      `leaderboard.dated_checkpoints` (today `deepseek-v4.1-flash-1017` under `deepseek-v4.1-flash`), never by similar
+      names. **Row rule**, fixed and never the best score: the model's highest reasoning setting (none or off < minimal
+      < low < medium < high < xhigh < max; "on" above off for a model with only on and off; a decision model has no
+      setting; the build stops for a model with "on" and a level), then the earliest run (lowest run id); a model
+      with one setup uses it. Every value of a row and of its details box is that one setup's; the row's other setups
+      sit behind its expander ("N other settings"). A row: rank, maker dot in the family colour and the family icon,
+      the model's name with "maker · chat model / decision model · setting" under it (the maker is
+      `model_families[].maker`: the organisation the Method or model pages name for the family, else the family's
+      name), the main-score bar from 0 to 100% with its Wilson 95% interval as the whisker, and the score; from 900 px
+      more columns. The details box (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
+      opens on a tap on a phone and on hover or the keyboard focus on a desktop, focus beating the pointer, capped to
+      the room on a short screen, and closes on a second tap, a tap outside or Escape; it lists the setup, its accuracy
+      with the interval, reading and grammar, non-hallucination with "Bilmiyorum", the answers kept at 99% confidence
+      (decision models), the cost with its basis and the request size, and "Open its answers →" (its model page), each
+      line only where the data has it. **Controls**, one row (`site.js` `leaderboard`): the part (English: the English
+      setups on the 547 kept reading questions, from `english_reading`, with non-hallucination with "I don't know" and
+      cost; Turkish, the default: the 2,198-question ranking, with reading, grammar, non-hallucination with
+      "Bilmiyorum" and cost; Both: Turkish and English accuracy on the same questions, as `turkish-vs-english/`
+      computes them, ranked by Turkish), the filter (All · Chat models · Decision models, Decision models by default,
+      or the group `?models=` names; the rank column shows each row's rank among the rows in view, ties sharing a
+      rank) and All setups, which shows today's full ranking in the table's place. Two lines of text: what the score
+      means above the table and the row rule under it; the longer notes are on About.
+    - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
+      then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
+      `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;
+      `#info` opens About's summary.
+    - **Finding sections**, each a heading that states its finding, one chart, two or three sentences and one link
+      (`findings` and `finding_html` in `build_site.py`): `#accuracy` (the best chat setup against the best decision
+      model; Share view and Download PNG stay in its head), `#non-hallucination` ("Bilmiyorum"), `#cost`, `#latency`,
+      `#reading-grammar` and `#calibration` (the decision model with the smallest calibration gap as shipped, with
+      its own check worded as it computes it). A heading shows its claim only while the claim holds, else the
+      measure's name (`findings_checks` checks every heading against `results.json` on every build). No filter bar and
+      no part keys sit on the charts; a filter in the address (`?part=`, `?topic=`, `?size=`, `?web=`, `?setups=`)
+      still applies.
+    - **How the scores work** (`#how-scores`, `how_scores`): five plain bullets, their numbers from `results.json`.
+    - **Footer**: About · Method · Data · GitHub.
+  - **About** (`about/`, `sitebuild/about.py`, built by `build_site.py` after the home page): what the test is (short,
+    with the Method page for the full study) with the counters, How the scores work, the notes behind the full ranking
+    (the ranks sentence, `RANKS_NOTE`, and the cost notes), the leaderboard rules (`leaderboard.about_text`: the row
+    rule, the dated checkpoints, the ranks, the whiskers), the three result cards (`result_cards`, one set per group,
+    the group keys showing the one in view: the highest accuracy, the most answers kept at the 99% confidence threshold
+    with no observed mistakes, and the lowest cost per 1,000 questions within 1 point of the best accuracy, or the
+    cheapest overall, saying so; `card_checks` tests them on this page), the summary (`about.SUMMARY`; `summary_checks`
+    and `copy_checks` test it) and the links to Method and Data.
+  - **Experiments** (`experiments/`, `sitebuild/experiments.py`): one card each for Page images, Hallucination
+    ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it
+    measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting
+    for an API key or credit).
+  - **Highlights** (`highlights/`, `sitebuild/highlights.py`): a page shell, a heading and one sentence; single
+    questions with two or three models' answers come later. No question text.
+  - **Questions** is Every question (`questions/`), with links to Where models disagree, Topics and Compare.
+  - **The home page's charts**: each chart card has a line saying
     which way is better, and each bar chart names its value columns above them (`COLUMN_HEADS` in `v3.js`; the static
     charts through `hbars`' head or columns): Accuracy, each bar with its Wilson 95% interval as a whisker (`wilson` in
     `v3.js`) and a line at chance (1 / `baselines.options`), its value cell "77.9% (76%–80%) lm" (accuracy, the interval
@@ -411,8 +426,8 @@ python3 -m http.server 8000                                # preview at http://1
     measured on a sample; No list price for a cost of a setup on our own hardware with no estimate, `cost_missing` in
     `sitebuild/site.py` and `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured). A run's variant (its
     route or access note) shows beside its name only where it tells it apart from another setup of the same model ID
-    (`shownVariant` in `v3.js`, `shown_variant` in `build_site.py`); otherwise it is on the model page only. Non-hallucination
-    (`non_hallucination` in `build_site.py`, static HTML, one copy per view; the same two sides on the Hallucination tab,
+    (`shownVariant` in `v3.js`); otherwise it is on the model page only. Non-hallucination
+    (`non_hallucination` in `build_site.py`, static HTML, one copy per group; the same two sides on the Hallucination tab,
     and on english/ with confidence Not measured in English and the Turkish reference apart, `sitebuild/holding_back.py`;
     on the Hallucination tab its other charts and its table also show Decision models and Chat models as separate
     blocks, the paired test being decision models only) shows two kinds of holding back side by side, each with Decision
@@ -425,12 +440,12 @@ python3 -m http.server 8000                                # preview at http://1
     in columns of their own the share answered (the attempt rate, as that tab writes it) and the error rate among the
     answers (wrong / answered), bars in family colours; under the decision block the decision models that chose the
     option on fewer than `dont_know.vs_confidence_share` of the questions, with how often each did (`rare_note`), under the
-    chat block the chat setups whose Turkish run is still running with their reason, a link to that tab; one heading);
-    Cost, its chart then the table of every setup in one part; Latency;
-    accuracy against cost or latency, with the Pareto line (the setups in view no other setup in view
+    chat block the chat setups whose Turkish run is still running with their reason, a link to that tab).
+    Cost; Latency; Reading vs grammar;
+    accuracy against cost or latency (under All setups), with the Pareto line (the setups in view no other setup in view
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
-    gap, as shipped, on all questions). The charts draw every setup of the model group the view bar
-    selects (every setup together, the decision models or the chat and general models), within the filters;
+    gap, as shipped, on all questions). The charts draw every setup of the model group `?models=`
+    names (every setup together by default, the decision models or the chat and general models), within the filters;
     each bar or dot takes its model family's colour (`page_config.json` `model_families`: a maker's line of models shares
     one colour, in every chart and both groups; `run_families` in `sitebuild/site.py` stops the build unless every run
     has exactly one family), with the families shown in the legend, on one compact line of their own that wraps
@@ -438,40 +453,35 @@ python3 -m http.server 8000                                # preview at http://1
     under Cost show their first 10 rows, with a "Show all N setups" key that opens every row in place and closes them
     again (`topRows` in `v3.js`); a highlighted setup ranked below them is added after them, set apart by a dotted line.
     The trade-off chart has a fixed height. A downloaded PNG has every row of the view.
-    Under the Cost chart, in the same part, the table of every setup (`#cost-table`, `costTable` in `v3.js`) holds every setup of that
-    group, whatever the filters and the model selection: cheapest
+    Under All setups, the table of every setup (`#cost-table`, `costTable` in `v3.js`) holds every setup of that
+    group, whatever the filters: cheapest
     first (setups without a cost last, by accuracy), with $ per 1,000 questions as the Cost card writes it, its cost over
     the cheapest setup's (× cheapest, empty where the cost is not measured), accuracy, median latency, the answers kept at
     the 99% cutoff (right of kept, and the questions skipped: the scored total minus the kept, that is the answers below
     99% confidence plus any invalid answers, which the cell counts where there are some), the non-hallucination rate
     with its attempt rate where the Hallucination tab has the model (Not run otherwise), and a Pareto tag for the setups
     the trade-off chart's rule puts on its dotted line among all setups with a cost. No score combines these columns.
-    Kept and skipped counts stand beside the cutoff figures: the leaderboard's Confidence tab; the Routing tab wherever
+    Kept and skipped counts stand beside the cutoff figures: the full ranking's Confidence tab; the Routing tab wherever
     `results.json` stores whole counts (the fixed 99% rule and the most confident quarter in the replay and in the live
     tests, the half rule in the live tests; the half rule's replay figures are means over 300 splits, so they stay
     shares); the model pages; the Method page; and the Hallucination tab's derived cut-off (answered and held back).
-    Right after the charts comes the leaderboard with its four tabs: one table for the selected group, ranked by
+    The full ranking (All setups) has four tabs: one table for the group in view, ranked by
     accuracy (in the all view decision and chat models together, each row saying which); the Routing tab opens by the
     share taken and the Stability tab by changed answers, most first, ties by the same wrong answer in all five runs,
-    most first (`DEFAULT_SORTS` and a column's `tie` in `v3.js`). Info, a details element closed
-    by default and opened by a link into it (`#info`), holds the counters, the summary, the notes and the Reading vs
-    grammar chart. A model ID with runs in both groups
+    most first (`DEFAULT_SORTS` and a column's `tie` in `v3.js`). A model ID with runs in both groups
     gets its route after its name in each row ("GPT-6 Luna (Decisions API)", "GPT-6 Luna (chat API)"; `route_labels`
-    in `sitebuild/site.py`). The leaderboard rows carry no notes: a setup's notes are on its model page (How we
-    called it), which its name links to. The Reading vs grammar chart lists the setups in the leaderboard's order.
-    `v3.js` draws the filters, the charts and the four leaderboard tabs in the
+    in `sitebuild/site.py`). The full ranking's rows carry no notes: a setup's notes are on its model page (How we
+    called it), which its name links to. The Reading vs grammar chart lists the setups in the full ranking's order.
+    `v3.js` draws the charts and the four tabs of the full ranking in the
     browser from two compact files that `build_site.py` writes from `results.json` (`home_data`), which stays the
     published download: `data/home.json`, preloaded by the page, holds what the first draw reads (the runs, each
     run's confidence cut to the counts at the sure cutoff that the Cost table shows, and the units, prices, routing
     replays and live tests, repeats and Hallucination models), and `data/home-more.json` the runs' whole confidence
     and the cascades without their curves, which `v3.js` loads when the Calibration chart comes within a screen of
     the view or the Confidence or Routing tab opens; until a chart is drawn its box reads Loading charts…. Accuracy
-    for a part or topic and its Wilson 95% interval come from the counts there. The part keys (All, Reading, Grammar,
-    each with its question count) sit above the Accuracy chart; the Filters panel holds the topic, the request size,
-    the web filter (setups with `perplexity_mode`, which carry a "with web" badge in the lists unless their name already
-    says so, or the others) and the models picked. All of them and the Routing tab's four choices are kept in the URL
-    (`?part=reading&topic=3&size=16&web=with&setups=145,199`), so a reload, Back or a shared link (Share view copies
-    it) opens the same view.
+    for a part or topic and its Wilson 95% interval come from the counts there. The filters and the Routing tab's four
+    choices are kept in the URL (`?part=reading&topic=3&size=16&web=with&setups=145,199`), so a reload, Back or a
+    shared link (Share view copies it) opens the same view.
     The Routing tab's scope line names the questions its numbers cover: a live test's held-out questions
     (`pipelines[].held_out`), the half rule's held-out half, or all questions. The page's fixed copy quotes numbers; the
     script checks each against `results.json`, prints every claim that differs and then exits with status 1,

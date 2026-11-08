@@ -2289,7 +2289,7 @@ def build(site: Site) -> dict[str, str]:
     </section>
     <section class="card" id="results">
       <h2>Results</h2>
-      <p class="note">The setups of the group the view bar shows, ordered by accuracy in English, highest first. Each row compares the setup's first English run with its Text tab run, out of the {kept} kept questions; an invalid answer counts as not right. Where a side has more than one run, its accuracy shows the range over its runs and its runs show how many answers changed between them. The paired counts, p and the Holm-adjusted p (over all {family} English {noun("all", family)}, whatever the group shown) are those of the exact McNemar test; * marks a Holm-adjusted p below {SIGNIFICANT:g}.</p>
+      <p class="note">The setups of the model group in view, ordered by accuracy in English, highest first. Each row compares the setup's first English run with its Text tab run, out of the {kept} kept questions; an invalid answer counts as not right. Where a side has more than one run, its accuracy shows the range over its runs and its runs show how many answers changed between them. The paired counts, p and the Holm-adjusted p (over all {family} English {noun("all", family)}, whatever the group shown) are those of the exact McNemar test; * marks a Holm-adjusted p below {SIGNIFICANT:g}.</p>
       {copies(lambda group: table(site, data, group))}
       {"".join(not_run_list(site, data, group) for group in GROUPS)}
     </section>

@@ -54,11 +54,10 @@ import benchmark_metrics as bm  # noqa: E402
 import build_page as bp  # noqa: E402
 from sitebuild.dont_know import ranked as dont_know_ranked, running_setups  # noqa: E402
 from sitebuild import holding_back as hold  # noqa: E402
-from sitebuild.english_reading import BASIS_WORDS  # noqa: E402
 from sitebuild.site import (GROUPS, NOT_MEASURED, ROUTE_LLMS, SUITE_CSS, Site, asset, cost_missing, cost_per, cost_unit_in,  # noqa: E402
-                            cost_value, experiments, family_icon, family_legend, hbars, pct, route_labels, run_families,
-                            shown, topbar)
-from sitebuild.vision import cell  # noqa: E402
+                            cost_value, family_icon, family_legend, footer, hbars, pct, route_labels, run_families, shown,
+                            topbar)
+from sitebuild import about, leaderboard  # noqa: E402
 
 PAGE = ROOT / "index.html"
 # The home page's data, from results.json, which stays the published download: HOME, preloaded, holds what v3.js's
@@ -70,9 +69,10 @@ HOME_MORE = "data/home-more.json"
 HOME_KEYS = ("results_version", "questions", "sure_threshold", "units", "prices", "dont_know", "pipelines", "repeats",
              "replay", "baselines")
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
+# The About page comes after them, from the home page's parts (sitebuild/about.py).
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
                                  "english_reading", "english_view", "aa_index", "web_grounding", "pws_decisions", "data",
-                                 "method")
+                                 "method", "highlights", "experiments")
 TITLE = "When should you trust a decision model?"
 # The intro and the meta description; their counts come from results.json (counts()).
 INTRO = (
@@ -313,33 +313,10 @@ def stats(data: Data) -> str:
     )
 
 
-def setups(data: Data) -> str:
-    """The setup count the page opens with: every setup, in its one table, on the Accuracy tab."""
-    return f"{bp.count(len(data.runs))} of {bp.count(len(data.runs))} setups"
-
-
-def topics(data: Data) -> str:
-    """The Topic menu's options, Reading first, as v3.js draws them."""
-    reading = set(data.config["reading_units"])
-    groups = []
-    for label, part in (("Reading", True), ("Grammar", False)):
-        options = "".join(f'<option value="{unit["number"]}">{bp.esc(unit["english"])}</option>'
-                          for unit in data.results["units"] if (unit["number"] in reading) == part)
-        groups.append(f'<optgroup label="{label}">{options}</optgroup>')
-    return '<option value="">All topics</option>' + "".join(groups)
-
-
-def parts(data: Data) -> str:
-    """The part keys above the Accuracy chart, each with its question count (runs[].groups, as v3.js counts them): All,
-    Reading, Grammar. v3.js marks the pressed one."""
-    groups = data.runs[0]["groups"]
-    keys = (("all", "All", groups["reading"]["questions"] + groups["grammar"]["questions"]),
-            ("reading", "Reading", groups["reading"]["questions"]), ("grammar", "Grammar", groups["grammar"]["questions"]))
-    return "".join(
-        f'<button type="button" class="key" data-part="{part}" aria-pressed="{str(part == "all").lower()}">'
-        f'<span class="lamp" aria-hidden="true"></span>{label} <span class="key-count">{bp.count(count)}</span></button>'
-        for part, label, count in keys
-    )
+def hero_counts(data: Data, site: Site) -> str:
+    """The hero's line of counts: questions, models (the Leaderboard's rows), setups and the last update."""
+    return (f"{bp.count(data.results['questions'])} questions · {bp.count(leaderboard.model_count(site))} models · "
+            f"{bp.count(len(data.runs))} setups · updated {bp.long_date(data.results['updated'])}")
 
 
 def page_settings(data: Data) -> str:
@@ -401,16 +378,16 @@ NON_HALLUCINATION_NOUNS = {"decision": ("decision model", "decision models"), "c
 
 
 def non_hallucination(site: Site, finding: str) -> str:
-    """The home page's Non-hallucination part (#non-hallucination, row 3 of the view bar), in static HTML, once per group
-    of the view bar (data-models, toggled by site.js; the all group shown without JavaScript): the Hallucination tab's
-    setups of the group (results.json dont_know, each row's group), held back two ways side by side (holding_back): (A)
-    by confidence, each setup's Text tab run at the threshold, and (B) with the option, the tab's rows in its order, each
-    bar its non-hallucination rate with the option in its model family's colour, then in columns of their own its attempt
-    rate (the share of the questions answered, as that tab writes them) and its error rate among its answers (wrong over
-    right + wrong). Each side shows decision and chat models as separate blocks, never one ranking (both under all); under
-    the decision block the models that almost never chose the option (holding_back.rare_note), under the chat block the
-    chat setups whose Turkish run with the option is still running (running_setups), with page_config.json's reason. Its
-    heading is the part's finding (finding_html); one caveat line closes it."""
+    """The home page's Non-hallucination finding (#non-hallucination), in static HTML, once per model group (data-models,
+    from ?models=, site.js; the all group shown without it): the Hallucination tab's setups of the group (results.json
+    dont_know, each row's group), held back two ways side by side (holding_back): (A) by confidence, each setup's Text tab
+    run at the threshold, and (B) with the option, the tab's rows in its order, each bar its non-hallucination rate with
+    the option in its model family's colour, then in columns of their own its attempt rate (the share of the questions
+    answered, as that tab writes them) and its error rate among its answers (wrong over right + wrong). Each side shows
+    decision and chat models as separate blocks, never one ranking (both under all); under the decision block the models
+    that almost never chose the option (holding_back.rare_note), under the chat block the chat setups whose Turkish run
+    with the option is still running (running_setups), with page_config.json's reason. Its heading is the part's finding
+    (finding_html); one line with its link to the Hallucination tab closes it."""
     data = site.results["dont_know"]
     digits, option, total = site.config["percent_digits"], data["option"], data["questions"]
     run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
@@ -473,27 +450,14 @@ def non_hallucination(site: Site, finding: str) -> str:
             + caveat(f"Read non-hallucination with the share answered; the {tab} has the full table.") + "</figure>")
 
 
-# The home page as a story: the hero's links, the headline table (one row per model, its setup with the most right
-# answers), the finding headings over each part, one caveat line per part (the rest on the Method page, METHOD_NOTES)
-# and the "How the scores work" box.
-METHOD_NOTES = "method/#home-notes"
+# The home page as a story: the hero, the Leaderboard (sitebuild/leaderboard.py), the finding sections, each a heading
+# that states its finding, one chart, two or three sentences and one link, and the "How the scores work" box.
 RANKS_NOTE = "Ranks show observed scores; small gaps need not be meaningful."
-HEADLINE_RULE = "Each model's setup with the most right answers on the {questions} questions."
-HEADLINE_TOP = 10  # rows shown before Show all, as the charts' lists (v3.js TOP_ROWS)
 
 
 def caveat(text: str) -> str:
-    """A part's one caveat line, already HTML, with the link to the rest on the Method page."""
-    return f'<p class="caveat">{text} <a href="{METHOD_NOTES}" data-keep-group>More in the method</a>.</p>'
-
-
-def hero_links() -> str:
-    """The hero's row of large links: the How the scores work box on this page, then the Method, Every question and Where
-    models disagree pages, each keeping the view bar's group (data-keep-group, site.js)."""
-    links = [("#how-scores", "How the scores work", False), ("method/", "Method", True), ("questions/", "Every question", True),
-             ("disagreements/", "Where models disagree", True)]
-    return ('<nav class="hero-links" aria-label="Start here">' + "".join(
-        f'<a href="{href}"{" data-keep-group" if keep else ""}>{bp.esc(text)}</a>' for href, text, keep in links) + "</nav>")
+    """A part's closing line, already HTML, with its one link."""
+    return f'<p class="caveat">{text}</p>'
 
 
 def share(run: dict[str, Any], part: str | None = None) -> float:
@@ -502,88 +466,6 @@ def share(run: dict[str, Any], part: str | None = None) -> float:
         correct, total = accuracy(run)
         return correct / total
     return run["groups"][part]["correct"] / run["groups"][part]["questions"]
-
-
-def model_key(data: Data, run: dict[str, Any]) -> tuple[str, bool, bool]:
-    """A model as the headline table counts it: its model ID across providers and hosts, its kind (a model ID that runs
-    as both a decision and a chat model counts once per kind) and web search (a setup with web keeps its own row)."""
-    return run["model"], data.decision(run), run["perplexity_mode"] is not None
-
-
-def headline_rows(data: Data) -> list[dict[str, Any]]:
-    """Each model's setup with the most right answers on all questions (ties: the earlier run), best first."""
-    best: dict[tuple[str, bool, bool], dict[str, Any]] = {}
-    for run in data.runs:
-        key = model_key(data, run)
-        held = best.get(key)
-        if held is None or (accuracy(run)[0], -run["run"]) > (accuracy(held)[0], -held["run"]):
-            best[key] = run
-    return sorted(best.values(), key=lambda run: (-accuracy(run)[0], run["run"]))
-
-
-def headline(data: Data, site: Site) -> str:
-    """The headline table (#headline), one copy per group of the view bar (data-models): one row per model, each row one
-    setup (headline_rows) with every cell from that setup: its rank, name (family icon and colour), kind, setting
-    (reasoning, questions per request, where it ran, web), accuracy, reading, grammar, non-hallucination (its run with
-    the option, Not run without one) and cost per 1,000 questions with its basis. The first HEADLINE_TOP rows, then a
-    Show all key (site.js); the full ranking of every setup is the leaderboard (#board)."""
-    questions = data.results["questions"]
-    option = data.results["dont_know"]["option"]
-    rated = {model["original_run"]: model for model in data.results["dont_know"]["models"]}
-    heads = [("Accuracy", "%"), ("Reading", "%"), ("Grammar", "%"), ("Non-hallucination", f"with “{option}”"),
-             ("Cost", "per 1,000 questions")]
-    labels = [f"{head} ({unit})" for head, unit in heads]
-
-    def setting(run: dict[str, Any]) -> str:
-        where = "our GPU" if run["billing"] == "local" else run["access"]
-        return " · ".join(filter(None, [site.detail(run), where, "with web" if run["perplexity_mode"] else ""]))
-
-    def non_hallucination(run: dict[str, Any]) -> str:
-        model = rated.get(run["run"])
-        if model is None:
-            return '<span class="nm">Not run</span>'
-        if model["non_hallucination"] is None:
-            return '<span class="nm">No rate</span>'
-        return bp.esc(pct(model["non_hallucination"]))
-
-    def cost(run: dict[str, Any]) -> str:
-        value = bp.per_thousand(run)
-        if value is None:
-            return cost_missing(run)
-        mark = f'{data.config["first_cost_marks"]["upper"]["mark"]} ' if run.get("cost_upper_bound") else ""
-        return f'{cost_value(value, mark)}<span class="small">{bp.esc(BASIS_WORDS[run["cost_basis"]])}</span>'
-
-    def row(rank: int, run: dict[str, Any]) -> str:
-        family = site.families[run["run"]]
-        name = site.row_name(run)
-        if run["perplexity_mode"] and "with web" not in name:
-            name += " (with web)"
-        values = [bp.esc(pct(share(run))), bp.esc(pct(share(run, "reading"))), bp.esc(pct(share(run, "grammar"))),
-                  non_hallucination(run), cost(run)]
-        beyond = ' class="beyond-top"' if rank > HEADLINE_TOP else ""
-        kind = "Decision model" if data.decision(run) else "Chat model"
-        return (f'<tr{beyond}><td class="num rank">{rank}</td>'
-                f'<td class="model"><i class="swatch" style="background:{family["colour"]}" aria-hidden="true"></i>'
-                f'{site.icon(run)}<a class="model-name" href="{site.model_path(run)}">{bp.esc(name)}</a>'
-                f'<span class="small">{kind} · {bp.esc(setting(run))}</span></td>'
-                + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
-
-    def copy(group: str) -> str:
-        rows = [run for run in headline_rows(data) if group == "all" or data.decision(run) == (group == "decision")]
-        more = (f'<button type="button" class="key show-all" data-rows-all aria-expanded="false" data-top="{HEADLINE_TOP}" '
-                f'data-total="{len(rows)}">Show all {len(rows)} models</button>') if len(rows) > HEADLINE_TOP else ""
-        head = "".join(f'<th scope="col" class="num">{bp.esc(text)}<span class="small">'
-                       f'{cost_per() if text == "Cost" else bp.esc(unit)}</span></th>' for text, unit in heads)
-        return (f'<div class="headline-copy" {shown(group)}><div class="table-wrap"><table class="board list stack '
-                f'wrap-headers headline-table"><thead><tr><th scope="col" class="num">Rank</th>'
-                f'<th scope="col">Model<span class="small">kind · setting</span></th>{head}</tr></thead><tbody>'
-                + "".join(row(rank, run) for rank, run in enumerate(rows, 1)) + f"</tbody></table></div>{more}</div>")
-
-    return (f'<section class="panel headline" id="headline" aria-labelledby="headline-title">'
-            f'<h2 id="headline-title">The models, each at its best setting</h2>'
-            f'<p class="chart-sub">{bp.esc(HEADLINE_RULE.format(questions=bp.count(questions)))}</p>'
-            + "".join(copy(group) for group in GROUPS)
-            + f'<p class="caveat">{bp.esc(RANKS_NOTE)} <a href="#board">All setups: the full ranking</a>.</p></section>')
 
 
 def how_scores(data: Data) -> str:
@@ -610,7 +492,7 @@ def how_scores(data: Data) -> str:
     return (f'<section class="panel how-scores" id="how-scores" aria-labelledby="how-scores-title">'
             f'<h2 id="how-scores-title">How the scores work</h2><ul>'
             + "".join(f"<li>{bullet}</li>" for bullet in bullets)
-            + '</ul><p class="caveat">The rest is on the <a href="method/" data-keep-group>Method</a> page.</p></section>')
+            + '</ul><p class="caveat">The rest is on the <a href="method/">Method</a> page.</p></section>')
 
 
 def findings(data: Data, site: Site) -> dict[str, dict[str, Any]]:
@@ -677,7 +559,22 @@ def findings(data: Data, site: Site) -> dict[str, dict[str, Any]]:
         "text": (f"Among decision models, the best on reading got {pct(share(top_reading, 'reading'))} of the "
                  f"{bp.count(reading)} reading questions right; the best on grammar, "
                  f"{pct(share(top_grammar, 'grammar'))} of the {bp.count(grammar)} grammar questions.")}
+    out["calibration"] = calibration(data, site)
     return out
+
+
+def calibration(data: Data, site: Site) -> dict[str, Any]:
+    """The Calibration finding: the decision model with the smallest calibration gap as shipped (results.json runs[].
+    confidence.ece, the Calibration chart's value), a claim only while no other decision model has the same gap."""
+    decision = sorted((run for run in data.runs if data.decision(run)), key=lambda run: (run["confidence"]["ece"], run["run"]))
+    best, second, worst = decision[0], decision[1], decision[-1]
+    points = lambda run: f"{100 * run['confidence']['ece']:.1f}"  # noqa: E731
+    return {
+        "label": "Calibration", "holds": best["confidence"]["ece"] < second["confidence"]["ece"],
+        "claim": (f"{bp.esc(site.row_name(best))} has the smallest calibration gap of the {len(decision)} decision models, "
+                  f"as shipped: {points(best)} points"),
+        "text": (f"The gap is how far a model's confidence is from how often it is right. Among decision models, the "
+                 f"largest is {site.row_name(worst)}'s, {points(worst)} points.")}
 
 
 def finding_html(item: dict[str, Any], key: str) -> str:
@@ -701,6 +598,7 @@ def findings_checks(page: str, data: Data, site: Site) -> list[str]:
     fast = lambda group: statistics.median([run["latency"]["median_request_seconds"] for run in group  # noqa: E731
                                             if run["questions_per_request"] == 1
                                             and (run.get("latency") or {}).get("median_request_seconds") is not None])
+    gaps = sorted(run["confidence"]["ece"] for run in decision)
     holds = {
         "accuracy": max(map(share, chat)) > max(map(share, decision)),
         "non-hallucination": (max(model["non_hallucination"] for model in rated if model["group"] == "decision")
@@ -708,6 +606,7 @@ def findings_checks(page: str, data: Data, site: Site) -> list[str]:
         "cost": priced(decision) < priced(chat),
         "latency": fast(decision) < fast(chat),
         "reading-grammar": 2 * sum(share(run, "reading") > share(run, "grammar") for run in runs) > len(runs),
+        "calibration": sum(run["confidence"]["ece"] == gaps[0] for run in decision) == 1,
     }
     found = []
     for key, item in findings(data, site).items():
@@ -715,15 +614,24 @@ def findings_checks(page: str, data: Data, site: Site) -> list[str]:
         expected = item["claim"] if holds[key] else bp.esc(item["label"])
         if not title or title.group(1) != expected:
             found.append(f"finding heading {key}: {title.group(1) if title else 'missing'}")
+    # The Calibration heading, worded as this computes it: the one decision model with the smallest gap as shipped,
+    # among how many, and its gap in points to one decimal.
+    lowest = [run for run in decision if run["confidence"]["ece"] == gaps[0]]
+    title = re.search(r'<div class="finding" data-finding="calibration">.*?<h2 class="finding-title">(.*?)</h2>', page, re.S)
+    if holds["calibration"] and (not title or title.group(1) != (
+            f"{bp.esc(site.row_name(lowest[0]))} has the smallest calibration gap of the {len(decision)} decision models, "
+            f"as shipped: {100 * gaps[0]:.1f} points")):
+        found.append(f"Calibration heading: {site.row_name(lowest[0])}, the smallest gap of the {len(decision)} decision "
+                     f"models, {100 * gaps[0]:.1f} points")
     return found
 
 
-# The groups of the view bar's row 2 (?models=) the result cards cover, each in the words that name a card's scope.
+# The model groups (?models=) the result cards on the About page cover, each in the words that name a card's scope.
 CARD_SCOPES = {"all": "all {n} setups", "decision": "the {n} decision-model setups", "chat": "the {n} chat-model setups"}
 
 
 def group_runs(data: Data, group: str) -> list[dict[str, Any]]:
-    """The setups of a view bar group: every setup, the decision models' or the chat models'."""
+    """The setups of a model group: every setup, the decision models' or the chat models'."""
     return [run for run in data.runs if group == "all" or data.decision(run) == (group == "decision")]
 
 
@@ -748,9 +656,9 @@ def card_facts(data: Data, runs: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def result_cards(data: Data, site: Site) -> str:
-    """The three result cards above the Accuracy chart, under a heading naming their scope (the full test and its
-    question count, so the Reading or Grammar choice below them is not read as theirs), one set per view bar group
-    (data-models; site.js shows the one in view): the highest accuracy, the most answers kept at the confidence threshold
+    """The three result cards on the About page, under a heading naming their scope (the full test and its question
+    count), one set per model group (data-models; site.js shows the one in view): the highest accuracy, the most answers
+    kept at the confidence threshold
     with no observed mistakes, and the lowest cost per 1,000 questions within 1 point of the best accuracy (or, if no
     such setup has a cost, the lowest overall). Each card names its scope. card_checks tests the numbers against
     results.json."""
@@ -1073,24 +981,18 @@ def main() -> int:
                    f'  <script src="{asset("site.js")}" defer></script>\n'
                    f'  <script src="{asset("v3.js")}" defer></script>'),
         "intro": bp.esc(INTRO.format(**counts(data))),
+        "counts": hero_counts(data, site),
         "topbar": topbar(""),
-        "stats": stats(data),
         "version": version(data),
-        "setups": setups(data),
-        "topics": topics(data),
-        "parts": parts(data),
         "questions": f"{bp.count(data.results['questions'])} questions",
         "board": fallback_table(data, site),
         "settings": page_settings(data),
-        "board-note": (f'<div class="tab-notes"><p>{bp.esc(RANKS_NOTE)}</p><p>'
-                       f'{bp.esc(" ".join(filter(None, [site.cost_note(data.runs), not_measured_note(data)])))}</p></div>'),
-        "experiments": experiments(data.results, ""),
+        "leaderboard": leaderboard.leaderboard(site),
         "non-hallucination": non_hallucination(site, finding_html(found["non-hallucination"], "non-hallucination")),
-        "cards": result_cards(data, site),
-        "hero-links": hero_links(),
-        "headline": headline(data, site),
         "how-scores": how_scores(data),
-        **{f"finding-{key}": finding_html(found[key], key) for key in ("accuracy", "cost", "latency", "reading-grammar")},
+        "footer": footer("", version(data)),
+        **{f"finding-{key}": finding_html(found[key], key)
+           for key in ("accuracy", "cost", "latency", "reading-grammar", "calibration")},
     }
     text = PAGE.read_text()
     seen = set()
@@ -1104,9 +1006,17 @@ def main() -> int:
         raise ValueError(f"index.html lacks the markers {sorted(set(blocks) - seen)}")
     PAGE.write_text(text)
     written = write_pages(site)
-    summary, words = summary_checks(text)
+    # The About page, from the home page's parts: the result cards, the counters and the notes behind the full ranking
+    # moved there, with the summary; its cards and summary are checked there.
+    notes = (f"<p>{bp.esc(RANKS_NOTE)}</p><p>"
+             f'{bp.esc(" ".join(filter(None, [site.cost_note(data.runs), not_measured_note(data)])))}</p>')
+    about_page = about.page(site, INTRO.format(**counts(data)), how_scores(data), notes, result_cards(data, site), stats(data))
+    (ROOT / about.PATH).mkdir(exist_ok=True)
+    (ROOT / about.PATH / "index.html").write_text(about_page)
+    written += 1
+    summary, words = summary_checks(about_page)
     print(f"Summary block: {words} words (at most {SUMMARY_WORDS})")
-    differ = copy_checks(data) + card_checks(text, data, site) + findings_checks(text, data, site) + summary
+    differ = copy_checks(data) + card_checks(about_page, data, site) + findings_checks(text, data, site) + summary
     for claim in differ:
         print(f"copy differs from results.json: {claim}", file=sys.stderr)
     print(f"wrote index.html and {written} other pages; {len(differ)} copy claims differ from results.json")

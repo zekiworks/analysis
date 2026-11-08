@@ -219,27 +219,20 @@ const DEFAULT_FILTERS = { part: 'all', topic: null, qpr: 'all', web: 'all' };
 const state = {
   ...DEFAULT_FILTERS,
   picked: new Set(),
-  search: '',
   selected: null,
-  filtersOpen: false,
-  /* The model group the page shows, from the URL's ?models= (the view bar's second row): every setup ('all', decision
-     and chat models ranked together), the decision models ('decision') or the chat and general models ('chat'). */
+  /* The model group the charts and the full ranking show, from the URL's ?models= (site.js): every setup ('all',
+     decision and chat models ranked together), the decision models ('decision') or the chat and general models ('chat'). */
   models: 'all',
   tab: 'accuracy',
   sort: { key: 'accuracy', descending: true },
   route: { llm: 'opus', qpr: 1, rule: 'half', mode: 'replay' },
   across: 'cost',
-  /* Info (the summary, the notes and Reading vs grammar) open or closed; kept in the history entry, not in the URL. */
-  infoOpen: false,
 };
 /* Each tab's order when it opens: the Routing tab by the share of the LLM's questions taken, the Stability tab by
    changed answers, most first (ties by the same wrong answer in all five runs, the column's tie, most first), the
    others by accuracy. */
 const DEFAULT_SORTS = { routing: { key: 'share', descending: true }, stability: { key: 'changed', descending: true } };
 const defaultSort = tab => ({ ...(DEFAULT_SORTS[tab] ?? { key: 'accuracy', descending: true }) });
-const atDefaults = () =>
-  Object.entries(DEFAULT_FILTERS).every(([key, value]) => state[key] === value) && !state.picked.size;
-
 const units = () => data.units;
 const unitPart = unit => (SETTINGS.readingUnits.includes(unit.number) ? 'reading' : 'grammar');
 
@@ -801,84 +794,12 @@ function filterSummary() {
   return parts.join(' · ') || 'All setups';
 }
 
+/* The full ranking's question count above its table. The filters themselves come from the address only (readUrl): the
+   home page shows no filter controls. */
 function renderFilters() {
-  const press = (selector, test) => document.querySelectorAll(selector).forEach(button => button.setAttribute('aria-pressed', String(test(button))));
-  press('[data-control="part"] [data-part]', button => button.dataset.part === state.part);
-  press('[data-control="qpr"] [data-qpr]', button => button.dataset.qpr === String(state.qpr));
-  press('[data-control="web"] [data-web]', button => button.dataset.web === state.web);
-  const topics = units().filter(unit => state.part === 'all' || unitPart(unit) === state.part);
-  const group = part =>
-    topics
-      .filter(unit => unitPart(unit) === part)
-      .map(unit => `<option value="${unit.number}"${unit.number === state.topic ? ' selected' : ''}>${esc(unit.english)}</option>`)
-      .join('');
-  document.querySelector('[data-control="topic"]').innerHTML =
-    '<option value="">All topics</option>' +
-    ['reading', 'grammar']
-      .map(part => [part, group(part)])
-      .filter(([, html]) => html)
-      .map(([part, html]) => `<optgroup label="${part === 'reading' ? 'Reading' : 'Grammar'}">${html}</optgroup>`)
-      .join('');
-  document.querySelector('[data-summary]').textContent = filterSummary();
   /* The Routing tab ignores the part and topic filters: its table covers the questions of the test shown (routeScope). */
   const route = state.tab === 'routing' ? routeScope() : null;
   document.querySelector('[data-count]').textContent = route ? `${route.about ? 'about ' : ''}${integer(route.count)} questions` : `${integer(questionsInFilter())} questions`;
-  const reset = document.querySelector('.filters-bar [data-control="reset"]');
-  const idle = atDefaults();
-  reset.setAttribute('aria-disabled', String(idle));
-  if (idle) {
-    reset.dataset.tip = document.querySelector('[data-reset-why]').textContent;
-    reset.setAttribute('aria-describedby', 'reset-why');
-  } else {
-    delete reset.dataset.tip;
-    reset.removeAttribute('aria-describedby');
-  }
-  const filters = document.getElementById('filters');
-  filters.classList.toggle('is-open', state.filtersOpen);
-  filters.classList.toggle('is-closed', !state.filtersOpen);
-  filters.querySelector('[data-control="filters"]').setAttribute('aria-expanded', String(state.filtersOpen));
-}
-
-/* A picker row's settings (runDetail) without a "with web" its name already says. */
-const pickerDetail = run =>
-  runDetail(run).split(' · ').filter(part => !(saysWeb(rowName(run)) && saysWeb(part))).join(' · ');
-
-function renderPicker() {
-  const list = document.querySelector('[data-control="picker"]');
-  const group = (title, runs) =>
-    `<fieldset><legend>${title}</legend>${runs
-      .map(run =>
-        `<label data-name="${esc(`${rowName(run)} ${runDetail(run)}`.toLowerCase())}"><input type="checkbox" value="${run.run}"${state.picked.has(run.run) ? ' checked' : ''}> ` +
-        `<span>${esc(rowName(run))}${webBadge(run, rowName(run))} <span class="detail">${esc(pickerDetail(run))}</span></span></label>`)
-      .join('')}</fieldset>`;
-  const sorted = groupRuns().sort((a, b) => overallAccuracy(b) - overallAccuracy(a));
-  /* The models of the group in view; in the all view, the decision models, then the chat models. */
-  const lists = state.models === 'all'
-    ? [[MODEL_GROUPS.decision.title, sorted.filter(isDecision)], [MODEL_GROUPS.chat.title, sorted.filter(run => !isDecision(run))]]
-    : [[MODEL_GROUPS[state.models].title, sorted]];
-  list.innerHTML = lists.map(([title, runs]) => group(title, runs)).join('') + '<p class="none" hidden>No model matches.</p>';
-  document.querySelector('[data-control="model-search"]').value = state.search;
-  applySearch();
-}
-
-function applySearch() {
-  const query = state.search.trim().toLowerCase();
-  let shown = 0;
-  document.querySelectorAll('.model-list label').forEach(label => {
-    label.hidden = Boolean(query) && !label.dataset.name.includes(query);
-    if (!label.hidden) shown += 1;
-  });
-  document.querySelectorAll('.model-list fieldset').forEach(set => {
-    set.hidden = ![...set.querySelectorAll('label')].some(label => !label.hidden);
-  });
-  document.querySelector('.model-list .none').hidden = shown > 0;
-}
-
-function resetFilters() {
-  Object.assign(state, DEFAULT_FILTERS);
-  state.picked.clear();
-  state.search = '';
-  renderPicker();
 }
 
 /* ---- Charts ---- */
@@ -912,8 +833,7 @@ const MEASURES = {
   latency: { label: 'Latency', axis: 'Median latency per request (s), log scale', value: latencyOf, log: true, text: secondsText, higher: false },
   cost: { label: 'Cost', get axis() { return `$ ${costLabel()}, log scale`; }, value: costShown, log: true, text: costNumber, higher: false },
 };
-/* The bar charts on the page, one card each, in the order of the view bar's row 3: accuracy, cost and latency (then,
-   after the trade-off, calibration). */
+/* The bar charts on the page, one finding section each: accuracy, latency, cost and calibration. */
 const FACE_MEASURES = ['accuracy', 'gap', 'latency', 'cost'];
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
 /* The name above each value column of a bar chart, in full and on a phone, as the static charts' headers ("Turkish ·
@@ -1488,8 +1408,7 @@ function renderCharts() {
     }
   });
   scatterChart(document.querySelector('[data-chart="tradeoff"]'));
-  /* Reading vs grammar sits under Info: it draws when Info is open, at the width it then has. */
-  if (state.infoOpen) readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
+  readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
 }
 
 /* The cost of every setup: one table of every setup of the group in view (?models=), whatever the filters and the model
@@ -1678,7 +1597,7 @@ function readUrl() {
   const routed = llm || rule || params.has('per-request') || params.has('test');
   if (TABS[params.get('tab')]) state.tab = params.get('tab');
   else if (routed) state.tab = 'routing';
-  /* The model group from ?models= (the view bar's second row), as site.js reads it; missing or unknown means all. */
+  /* The model group from ?models=, as site.js reads it; missing or unknown means all. */
   const models = document.documentElement.dataset.modelsView;
   state.models = Object.hasOwn(MODEL_GROUPS, models ?? '') ? models : 'all';
   /* The filters: a topic keeps the part it belongs to; the models picked stay those of the group in view. */
@@ -1692,15 +1611,13 @@ function readUrl() {
   if (data.runs.some(run => run.questions_per_request === qpr)) state.qpr = qpr;
   if (['with', 'without'].includes(params.get('web'))) state.web = params.get('web');
   state.picked = new Set((params.get('setups') ?? '').split(',').map(Number).filter(id => byId.get(id) && inGroup(byId.get(id))));
-  /* A link to Info (#info) opens it; the tables sit under the charts, outside Info. */
-  if (window.location.hash === '#info') state.infoOpen = true;
 }
 
-/* The search, the highlighted setup, the chart choices and whether Info is open, kept with the browser's history entry
-   rather than the URL, so Back from a model's page returns to the same view. */
+/* The highlighted setup, the sort and the chart choice, kept with the browser's history entry rather than the URL, so
+   Back from a model's page returns to the same view. */
 function remembered() {
-  const { search, selected, filtersOpen, sort, across, infoOpen } = state;
-  return { search, selected, filtersOpen, sort, across, infoOpen };
+  const { selected, sort, across } = state;
+  return { selected, sort, across };
 }
 
 /* Only the keys remembered() writes come back, so an entry saved by an earlier version of the page sets nothing else
@@ -1708,7 +1625,7 @@ function remembered() {
 function restore() {
   const saved = window.history.state?.v3;
   if (!saved) return;
-  ['search', 'selected', 'filtersOpen', 'sort', 'across', 'infoOpen'].forEach(key => {
+  ['selected', 'sort', 'across'].forEach(key => {
     if (saved[key] !== undefined) state[key] = saved[key];
   });
 }
@@ -1738,7 +1655,6 @@ function render() {
   const definition = document.querySelector('[data-definition]');
   definition.textContent = DEFINITIONS[state.tab] ?? '';
   definition.hidden = !DEFINITIONS[state.tab];
-  document.querySelector('[data-info]').open = state.infoOpen;
   renderFilters();
   renderBoard();
   updateSwipe();
@@ -1768,14 +1684,14 @@ const toggleSelected = id => {
   state.selected = state.selected === id ? null : id;
 };
 
-/* A label in the summary opens its tab and brings the leaderboard, under the charts, into view, with the tab's key
-   focused. */
+/* A link into the full ranking (a finding's link) opens All setups (site.js, 'open-all-setups') at its tab and brings
+   it into view, with the tab's key focused. */
 function openTab(tab) {
+  document.dispatchEvent(new CustomEvent('open-all-setups'));
   state.tab = tab;
   state.sort = defaultSort(tab);
   render();
   document.getElementById(`tab-${tab}`).focus({ preventScroll: true });
-  /* The Calibration chart above the leaderboard takes its height with MORE_URL: the scroll waits for it. */
   loadMore().then(() => document.querySelector('.board-panel').scrollIntoView({ behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth', block: 'start' }));
 }
 
@@ -1823,11 +1739,6 @@ function onClick(event) {
   }
   const { dataset } = button;
   if (dataset.select) toggleSelected(Number(dataset.select));
-  else if (dataset.part) {
-    state.part = dataset.part;
-    if (state.topic != null && state.part !== 'all' && unitPart(units().find(unit => unit.number === state.topic)) !== state.part) state.topic = null;
-  } else if (dataset.qpr) state.qpr = dataset.qpr === 'all' ? 'all' : Number(dataset.qpr);
-  else if (dataset.web) state.web = dataset.web;
   else if (dataset.tab) {
     state.tab = dataset.tab;
     state.sort = defaultSort(state.tab);
@@ -1840,16 +1751,9 @@ function onClick(event) {
   } else if (dataset.routeQpr) state.route.qpr = Number(dataset.routeQpr);
   else if (dataset.routeMode) state.route.mode = dataset.routeMode;
   else if (dataset.across) state.across = dataset.across;
-  else if (dataset.control === 'filters') state.filtersOpen = !state.filtersOpen;
   else if (dataset.control === 'share') {
     shareView(button);
     return;
-  } else if (dataset.control === 'reset') {
-    if (button.getAttribute('aria-disabled') === 'true') return;
-    resetFilters();
-  } else if (dataset.control === 'clear-picked') {
-    state.picked.clear();
-    renderPicker();
   } else if (dataset.chartAll) {
     toggleRows(dataset.chartAll);
     return;
@@ -1869,23 +1773,9 @@ function onKeydown(event) {
 }
 
 function onChange(event) {
-  const target = event.target;
-  const control = target.dataset.control;
-  if (control === 'topic') state.topic = target.value ? Number(target.value) : null;
-  else if (control === 'route-rule') state.route.rule = target.value;
-  else if (target.closest('.model-list') && target.type === 'checkbox') {
-    const id = Number(target.value);
-    if (target.checked) state.picked.add(id);
-    else state.picked.delete(id);
-  } else return;
+  if (event.target.dataset.control !== 'route-rule') return;
+  state.route.rule = event.target.value;
   renderKeepingFocus();
-}
-
-function onInput(event) {
-  if (event.target.dataset.control !== 'model-search') return;
-  state.search = event.target.value;
-  applySearch();
-  writeUrl();
 }
 
 /* The page's own text paints before the charts draw: the browser's first contentful paint and one frame more, or
@@ -1938,9 +1828,8 @@ async function start() {
   });
   state.sort = defaultSort(state.tab);
   restore();
-  renderPicker();
   render();
-  /* The page opens at its top; a link into it (#board, #info, a chart) lands on its target once the charts and the table
+  /* The page opens at its top; a link into it (#board, a chart) lands on its target once the charts and the table
      above it have their height, with a tab that waits for MORE_URL drawn first. Back and Forward keep the browser's own
      scroll position. */
   const arrival = performance.getEntriesByType('navigation')[0]?.type;
@@ -1950,19 +1839,14 @@ async function start() {
     else land();
   }
   document.addEventListener('click', onClick);
-  /* Info opens and closes as a details element: the state follows it, and what needs Info's width draws when it opens. */
-  document.querySelector('[data-info]').addEventListener('toggle', event => {
-    if (event.currentTarget.open === state.infoOpen) return;
-    state.infoOpen = event.currentTarget.open;
-    if (state.infoOpen) {
-      updateSwipe();
-      renderCharts();
-    }
-    writeUrl();
+  /* All setups opened (site.js): the full ranking, the cost table and the chart under it draw at the width they now have. */
+  document.addEventListener('leaderboard-view', () => {
+    costTable(document.querySelector('[data-cost-table]'));
+    updateSwipe();
+    renderCharts();
   });
   document.addEventListener('keydown', onKeydown);
   document.addEventListener('change', onChange);
-  document.addEventListener('input', onInput);
   let width = window.innerWidth;
   new ResizeObserver(() => {
     if (window.innerWidth === width) return;

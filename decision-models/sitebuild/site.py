@@ -19,47 +19,25 @@ import build_page as bp
 
 # The site's folder: the data, page_config.json, key-changelog.md and every page.
 ROOT = Path(__file__).resolve().parent.parent
-KICKER = "Hilde · Decision models · answer key v2"
+# The site's name in the top bar, after the Hilde leaf (LEAF, a file of the site), as on the Backgammon site.
+SITE_NAME = "Reading bench"
+LEAF = "hilde-leaf.svg"
 ISSUE_URL = "https://github.com/zekiworks/analysis/issues/new?template="
 REPO_URL = "https://github.com/zekiworks/analysis"
 esc = html.escape
 
-# The navigation bar of every page, in order: (path inside the site, label). Home first: the root index, the Turkish
-# ranking, in its default state (HOME_STATE). The brand links to the home page too. The two benchmarks beside the Text
-# one come next, then the two web experiments (web grounding and PWS-Decisions); their links keep the view bar's group
-# (GROUP_PAGES).
-MENU = (
-    ("", "Home"),
-    ("vision/", "Page images"),
-    ("dont-know/", "Hallucination"),
-    ("web-grounding/", "Web grounding"),
-    ("pws-decisions/", "PWS-Decisions"),
-    ("questions/", "Every question"),
-    ("disagreements/", "Where models disagree"),
-    ("topics/", "Topics"),
-    ("compare/", "Compare"),
-    ("method/", "Method"),
-    ("data/", "Data"),
-)
-# The view bar under the top bar of every page. Row 1, the test, picks the page: (path inside the site, label).
-VIEW_TESTS = (("english/", "English reading"), ("", "Turkish reading and grammar"), ("turkish-vs-english/", "English and Turkish"))
-# Row 2, the models, picks the group with ?models= on the page in view when it reads it (FILTER_PAGES), else on the home
-# page (site.js marks the current one and shows each element whose data-models lists it): (value of ?models=, label).
-VIEW_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", "Chat models"))
-# Row 3, the measure: on each page of row 1 a link to the part of the page with that id, in every group (the query, so
-# the group, stays); on any other page a link to that part of the home page with the group (site.js marks the key of the
-# part in view): (id of the part, label).
-VIEW_MEASURES = (("accuracy", "Accuracy"), ("non-hallucination", "Non-hallucination"), ("cost", "Cost"),
-                 ("latency", "Latency"))
-# The pages of the navigation bar that read ?models=: site.js keeps the group in their links, as in the view bar's row 1.
-GROUP_PAGES = ("vision/", "dont-know/", "web-grounding/", "pws-decisions/")
-# Every page that shows its parts by group (data-models): row 2 of the view bar stays on it.
-FILTER_PAGES = (*(target for target, _ in VIEW_TESTS), *GROUP_PAGES)
-# Home's default state, the address every marked key opens (on the root index): All models, no part.
-HOME_STATE = "?models=all"
-# The house mark before the view bar's Home key, in the key's text colour.
-HOME_MARK = ('<svg class="home-mark" viewBox="0 0 16 16" aria-hidden="true" focusable="false">'
-             '<path d="M8 1.6 1 7.6h2v6.8h3.8v-4.2h2.4v4.2H13V7.6h2z"/></svg>')
+# The tabs of the top bar on every page, in order: (path inside the site, label). The Leaderboard is the root index.
+TABS = (("", "Leaderboard"), ("questions/", "Questions"), ("highlights/", "Highlights"), ("experiments/", "Experiments"),
+        ("about/", "About"))
+# The tab each other page sits under, by the start of its path; a page under none of them sits under the Leaderboard
+# (the root index, english/, turkish-vs-english/, english-reading/, models/).
+SECTION = {"question/": "questions/", "disagreements/": "questions/", "topics/": "questions/", "compare/": "questions/",
+           "vision/": "experiments/", "dont-know/": "experiments/", "web-grounding/": "experiments/",
+           "pws-decisions/": "experiments/", "aa-decision-index/": "experiments/", "method/": "about/", "data/": "about/"}
+# The model groups a page can show (?models=, read by site.js on every page; data-models marks the parts of each):
+# (value of ?models=, label). On the Leaderboard ?models= sets the table's filter; on a page that shows its parts by
+# group, its group keys (group_switch) pick one.
+MODEL_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", "Chat models"))
 # The suite strip shared by the three benchmark sites (decision-models, logic, backgammon): its stylesheet and snippet,
 # files of the site published as they are, which the other two sites copy; this site's link is the marked one.
 SUITE_CSS = "suite-bar.css"
@@ -89,8 +67,8 @@ def suite_bar() -> str:
     return snippet.replace(here, f'<a href="{SUITE_HERE}" aria-current="page">')
 
 
-# The view bar's groups (?models=), the first shown without JavaScript.
-GROUPS = tuple(key for key, _ in VIEW_GROUPS)
+# The model groups (?models=), the first shown without JavaScript.
+GROUPS = tuple(key for key, _ in MODEL_GROUPS)
 # The attribute of a part about decision models only: shown for the all and decision groups, a note for chat.
 DECISION_ONLY = 'data-models="all decision"'
 
@@ -106,10 +84,9 @@ def chat_note(text: str) -> str:
 
 
 def experiments(results: dict[str, Any], path: str) -> str:
-    """The line on the experiments beside the ranking, on the home page and both English pages: the web grounding page,
-    when results.json has it, and the PWS-Decisions page, when pws-decisions.json is there, with its Answering habits
-    step (#habits-2) when the file has the habits block; each link keeps the view bar's group (data-keep-group,
-    site.js)."""
+    """The line on the experiments beside the ranking, on both English pages: the web grounding page, when results.json
+    has it, and the PWS-Decisions page, when pws-decisions.json is there, with its Answering habits step (#habits-2) when
+    the file has the habits block; each link keeps a chosen group (data-keep-group, site.js)."""
     link = lambda target, text: f'<a href="{rel(path, target)}" data-keep-group>{text}</a>'  # noqa: E731
     grounding = results.get("web_grounding")
     pws_file = ROOT / "pws-decisions.json"
@@ -172,7 +149,7 @@ def scale_legend(stops: list[str], worst: str, best: str, higher: bool = True, w
 
 
 def run_families(config: dict[str, Any], runs: list[dict[str, Any]]) -> dict[int, dict[str, str]]:
-    """Each run's model family (page_config.json model_families), by run id: its name and colour. A family's rule names a
+    """Each run's model family (page_config.json model_families), by run id: its name, maker and colour. A family's rule names a
     provider and, where one provider serves several families, a model. The build stops unless every run belongs to
     exactly one family."""
     found, problems = {}, []
@@ -181,7 +158,7 @@ def run_families(config: dict[str, Any], runs: list[dict[str, Any]]) -> dict[int
                     if any(rule["provider"] == run["provider"] and rule.get("model", run["model"]) == run["model"]
                            for rule in family["runs"])]
         if len(families) == 1:
-            found[run["run"]] = {"name": families[0]["name"], "colour": families[0]["colour"]}
+            found[run["run"]] = {"name": families[0]["name"], "maker": families[0]["maker"], "colour": families[0]["colour"]}
         else:
             problems.append(f"run {run['run']} ({run['name']}): in {len(families)} families")
     if problems:
@@ -387,62 +364,60 @@ def legend_mark(colour: str, shape: str | None = None, dash: str | None = None) 
     return f'<svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true" style="vertical-align:middle">{inner}</svg>'
 
 
+def tab_of(path: str) -> str:
+    """The tab a page sits under (TABS): its own, its SECTION's, else the Leaderboard's ("")."""
+    for prefix, tab in SECTION.items():
+        if path.startswith(prefix):
+            return tab
+    return next((target for target, _ in TABS if target and path.startswith(target)), "")
+
+
+THEME_SWITCH = (
+    '<div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" '
+    'data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>'
+    'Dark</button><button type="button" class="key" data-theme-choice="light" aria-pressed="false" '
+    'aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light</button></div>')
+
+
 def topbar(path: str) -> str:
-    """The top of every page: first the sticky header, which stays at the top of the window: the suite strip
-    (suite_bar, linking the three benchmark sites), then the view bar: the Home key (HOME_MARK, the root index in its
-    default state, marked as the current page there), the test (a page, the current one marked here from the path; on
-    the root index Home is the page, so no test is marked), the models (?models=, marked by site.js, which also keeps
-    the group in the test links; All, the default, looks unpressed, v3.css) and the measure (a part of the page, marked
-    by site.js), on one line at 1280 px (v3.css); then the title strip with the brand, which links home, the theme
-    switch and the pages row (keys after a PAGES label), which scrolls away. On a page that shows its parts by group
-    (FILTER_PAGES) the group links stay on it, elsewhere they open the home page with that group; on a test's page the
-    measure links go to its parts, elsewhere to the home page's.
-    One active tab: only the page in view (Home, a test or a pages-row entry) and a chosen filter look active, and every
-    active-looking key opens Home in its default state (the root index with HOME_STATE: All models, no part in the
-    address): the Home key, the open test and the pages row's entry of the page in view here, Decision or Chat and the
-    marked measure in site.js (the view bar's data-home)."""
-    current = ' aria-current="page"'
-    home = f"{rel(path, '')}{HOME_STATE}"
-    links = "".join(
-        f'<li><a href="{home}"{current}>{esc(label)}</a></li>' if (path == target if not target else path.startswith(target))
-        else f'<li><a href="{home if not target else rel(path, target)}"'
-             f'{" data-keep-group" if target in GROUP_PAGES else ""}>{esc(label)}</a></li>'
-        for target, label in MENU
-    )
-    # One active tab: on the root index Home is the current page, so its test key (the same page) stays a plain key.
-    tests = "".join(f'<li><a class="view-key" href="{home}"{current}>{esc(label)}</a></li>' if path == target and path else
-                    f'<li><a class="view-key" href="{rel(path, target)}" data-view-test>{esc(label)}</a></li>'
-                    for target, label in VIEW_TESTS)
-    base = "" if path in {target for target, _ in VIEW_TESTS} else rel(path, "")
-    # Row 2's keys read All, Decision and Chat after the group's name, Models.
-    groups = "".join(f'<li><a class="view-key" href="{"" if path in FILTER_PAGES else rel(path, "")}?models={value}" '
-                     f'data-view-group="{value}">{esc(label.removesuffix(" models"))}</a></li>'
-                     for value, label in VIEW_GROUPS)
-    measures = "".join(f'<li><a class="view-key" href="{base + "?models=all" if base else ""}#{key}" data-view-measure="{key}">'
-                       f"{esc(label)}</a></li>" for key, label in VIEW_MEASURES)
+    """The top of every page, one sticky header that stays at the top of the window, as on the Backgammon site: the
+    suite strip (suite_bar, linking the three benchmark sites), then the site's bar: the Hilde leaf and the site's name
+    (linking the Leaderboard) with the Dark / Light switch at the right, and under them one row of tabs (TABS), which
+    scrolls sideways on a phone; the tab the page sits under (tab_of) is underlined in the accent colour, marked as the
+    page itself where it is the tab's own page. Then the family icons (family_sprite), hidden, for the pages' names."""
+    here = tab_of(path)
+    root = rel(path, "")
+    tabs = "".join(
+        f'<li><a href="{rel(path, target)}"'
+        + ((' aria-current="page"' if target == path else ' aria-current="true"') if target == here else "")
+        + f">{esc(label)}</a></li>" for target, label in TABS)
     return (
         f'<div class="site-header">\n  {suite_bar()}\n'
-        f'  <nav class="view-bar" aria-label="View: test, models and measure" data-home="{home}"><div class="view-rows">\n'
-        f'    <a class="view-key view-home" href="{home}" data-view-home{current if not path else ""}>{HOME_MARK}Home</a>\n'
-        '    <div class="view-row view-tests"><span class="view-label" id="view-test">Test</span>'
-        f'<ul aria-labelledby="view-test">{tests}</ul></div>\n'
-        '    <div class="view-row view-groups"><span class="view-label" id="view-models">Models</span>'
-        f'<ul aria-labelledby="view-models">{groups}</ul></div>\n'
-        '    <div class="view-row view-measures"><span class="view-label" id="view-measure">Measure</span>'
-        f'<ul aria-labelledby="view-measure">{measures}</ul></div>\n'
-        "  </div></nav>\n"
+        '  <header class="site-bar"><div class="site-bar-in">'
+        f'<div class="site-title-row"><a class="site-title" href="{root}"><img class="site-leaf" '
+        f'src="{rel(path, LEAF)}" width="18" height="21" alt="">{esc(SITE_NAME)}</a>{THEME_SWITCH}</div>'
+        f'<nav class="site-tabs" aria-label="Sections"><ul>{tabs}</ul></nav></div></header>\n'
         "  </div>\n"
-        '  <header class="topbar">\n'
-        f'    <a class="brand" href="{rel(path, "")}">{esc(KICKER)}</a>\n'
-        '    <nav class="nav" aria-label="Pages"><span class="view-label nav-label" aria-hidden="true">Pages</span>'
-        f'<ul>{links}</ul></nav>\n'
-        '    <div class="theme-switch" role="group" aria-label="Colour theme" hidden><button type="button" class="key" '
-        'data-theme-choice="dark" aria-pressed="true" aria-label="Dark background"><span class="lamp" aria-hidden="true"></span>'
-        'Dark</button><button type="button" class="key" data-theme-choice="light" '
-        'aria-pressed="false" aria-label="Light background"><span class="lamp" aria-hidden="true"></span>Light</button></div>\n'
-        "  </header>\n"
         f"  {family_sprite()}"
     )
+
+
+def footer(path: str, version: str) -> str:
+    """The foot of every page: About · Method · Data · GitHub, the downloads and the results version."""
+    links = " · ".join(f'<a href="{href}">{label}</a>' for href, label in (
+        (rel(path, "about/"), "About"), (rel(path, "method/"), "Method"), (rel(path, "data/"), "Data"), (REPO_URL, "GitHub")))
+    return (f'<footer class="footer">\n    <nav class="footer-links" aria-label="Site">{links}</nav>\n'
+            f'    <p>Download: <a href="{rel(path, "results.json")}" download>results.json</a> · '
+            f'<a href="{rel(path, "answers.json")}" download>answers.json</a></p>\n    <p>{version}</p>\n  </footer>')
+
+
+def group_switch() -> str:
+    """The model group keys at the top of a page that shows its parts by group (data-models): All, Decision and Chat,
+    each the page itself with ?models=; site.js marks the one in view. In the page, not in the top bar."""
+    keys = "".join(f'<a class="key" href="?models={value}" data-group-key="{value}">{esc(label)}</a>'
+                   for value, label in MODEL_GROUPS)
+    return (f'<nav class="group-switch needs-js" aria-label="Model group"><span class="group-label">Models</span>'
+            f'{keys}</nav>')
 
 
 # The cost unit, one choice for the whole site: every cost reads per 1,000 questions or per 1M questions. site.js keeps
@@ -738,7 +713,8 @@ class Site:
     def page(self, path: str, title: str, description: str, body: str, scripts: tuple[str, ...] = (),
              image: str | None = None) -> str:
         """A whole page at path (inside the site): head with its canonical address (and, with image, the key of its
-        share/images.json link preview), top bar with the navigation bar, body, footer."""
+        share/images.json link preview), the top bar, the body (after the model group keys where it shows its parts by
+        group), the footer."""
         root = rel(path, "")
         preview = ""
         if image:
@@ -767,12 +743,10 @@ class Site:
   <a class="skip" href="#main">Skip to content</a>
   {topbar(path)}
   <main id="main">
+{group_switch() if 'data-models="' in body else ""}
 {body}
   </main>
-  <footer class="footer">
-    <p>Download: <a href="{rel(path, "results.json")}" download>results.json</a> · <a href="{rel(path, "answers.json")}" download>answers.json</a></p>
-    <p>{self.version()}</p>
-  </footer>
+  {footer(path, self.version())}
 </body>
 </html>
 """

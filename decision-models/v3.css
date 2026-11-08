@@ -101,7 +101,7 @@
 /* Images drawn for one theme only (the Method page's charts exist in both). */
 @media screen { :root:not([data-theme="light"]) .theme-light { display: none !important; } }
 :root[data-theme="light"] .theme-dark { display: none !important; }
-@media print { .theme-dark, .theme-switch, .view-bar, .needs-js, .skip { display: none !important; } }
+@media print { .theme-dark, .theme-switch, .site-tabs, .needs-js, .skip { display: none !important; } }
 /* Controls that need the script stay out of the page without it; the plain table shows every setup instead. */
 html:not(.js) .needs-js { display: none !important; }
 
@@ -109,13 +109,14 @@ html:not(.js) .needs-js { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; padding: 0 1rem 2rem; background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.5; }
 main, .footer { max-width: 1100px; margin: 0 auto; }
+main { padding-top: .75rem; }
 a { color: var(--link); text-underline-offset: 2px; }
 code { font-family: var(--mono); font-size: .85em; }
 h1, h2, h3 { line-height: 1.2; }
-/* The sticky header (the suite strip and the view bar) stays at the top of the window: links to a part of a page, and
-   the page's own scrolling, land below it. site.js keeps --view-bar-h at the header's height; the value here holds
-   until it runs. */
-html { --view-bar-h: 63px; scroll-padding-top: var(--view-bar-h); }
+/* The sticky header (the suite strip and the site's bar with its tabs) stays at the top of the window: links to a part
+   of a page, and the page's own scrolling, land below it. site.js keeps --view-bar-h at the header's height; the value
+   here holds until it runs. */
+html { --view-bar-h: 96px; scroll-padding-top: var(--view-bar-h); }
 [id] { scroll-margin-top: 1rem; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
@@ -124,29 +125,31 @@ html { --view-bar-h: 63px; scroll-padding-top: var(--view-bar-h); }
   border: 1px solid var(--control-edge); border-radius: 6px; }
 .skip:focus { left: 1rem; }
 
-/* Title strip, under the sticky header, scrolling away: the site's crumb and the theme switch on one short line, the
-   pages row under them: compact keys in the view bar's style after a small PAGES label, the current page filled like a
-   selected key, on one line at 1280 px (on a phone one line that scrolls sideways). The theme keys read Dark and Light,
-   their full names in their labels. */
-.topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand theme" "nav nav";
-  align-items: center; gap: 4px .9rem; max-width: 1100px; margin: 0 auto .6rem; padding: 5px 0 6px;
-  border-bottom: 1px solid var(--edge); }
-.brand { grid-area: brand; flex: none; color: var(--text-2); font-size: 11px; font-weight: 600; letter-spacing: .04em;
-  text-transform: uppercase; text-decoration: none; }
-.brand:hover { color: var(--text); }
-.nav { grid-area: nav; display: flex; align-items: center; gap: 6px; min-width: 0; }
-.nav-label { flex: none; }
-.nav ul { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 4px; min-width: 0; list-style: none; margin: 0; padding: 0; }
-/* The pages row's keys: the view bar's compact key size. */
-.nav a { display: inline-flex; align-items: center; min-height: 26px; padding: 2px 8px; color: var(--view-text);
-  background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 6px; font-size: 12.5px;
-  font-weight: 700; line-height: 1.1; white-space: nowrap; text-decoration: none; box-shadow: var(--key-shadow); }
+/* The site's bar, in the sticky header under the suite strip, as on the Backgammon site: the Hilde leaf and the site's
+   name with the Dark / Light switch at the right of the same line; under them the five tabs, one line that scrolls
+   sideways where it does not fit, the tab of the page in view underlined in the accent colour. The theme keys read
+   Dark and Light, their full names in their labels. */
+.site-bar { padding: 0 1rem; background: var(--view-bg); border-bottom: 1px solid var(--view-edge); }
+.site-bar-in { max-width: 1100px; margin: 0 auto; }
+.site-title-row { display: flex; align-items: center; gap: .6rem; padding: 6px 0 0; }
+.site-title { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; color: var(--text); font-size: 1.15rem;
+  font-weight: 700; line-height: 1.2; white-space: nowrap; text-decoration: none; }
+.site-leaf { flex: none; width: 18px; height: 21px; }
+.site-tabs ul { display: flex; gap: .2rem; list-style: none; margin: 0 -.35rem; padding: 0 .35rem; overflow-x: auto;
+  scrollbar-width: none; scroll-padding-inline: .35rem; }
+.site-tabs ul::-webkit-scrollbar { display: none; }
+.site-tabs li { flex: none; }
+.site-tabs a { display: block; padding: 6px 10px 4px; color: var(--text-2); font-size: .92rem; font-weight: 600;
+  line-height: 1.25; white-space: nowrap; text-decoration: none; border-bottom: 3px solid transparent; }
+.site-tabs a:hover { color: var(--text); border-bottom-color: var(--edge); }
+.site-tabs a[aria-current] { color: var(--text); border-bottom-color: var(--link); }
+.site-tabs a:focus-visible { outline-offset: -2px; }
 /* The in-page link rows that work as tabs (.face-nav: a page's own parts, the habits steps): bordered keys a little
    larger than the bars' keys. */
 .face-nav a { display: inline-flex; align-items: center; min-height: 1.85rem; padding: .15rem .6rem;
   color: var(--view-text); background: var(--view-key); border: 2px solid var(--view-key-edge); border-radius: 7px;
   font-size: .86rem; font-weight: 700; line-height: 1.15; text-decoration: none; box-shadow: var(--key-shadow); }
-.nav a:hover, .face-nav a:hover { border-color: var(--view-key-hover); }
+.face-nav a:hover { border-color: var(--view-key-hover); }
 /* In-page tab rows (a page's own parts, the habits steps) are tinted and edged with the link colour, so they stand apart
    from the page text and from the pages row. Each theme sets its own tab colours (--tab-*) so the text keeps its
    contrast: a light blue tint with blue text in the light theme, a dark blue with near-white text in the dark one. */
@@ -154,19 +157,14 @@ html { --view-bar-h: 63px; scroll-padding-top: var(--view-bar-h); }
 .face-nav a:focus-visible { border-color: var(--view-key-hover); }
 /* The tab of the part in the address (just pressed, or opened by a link) is filled. */
 .face-nav a[aria-current] { color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); }
-.nav a[aria-current="page"] { color: var(--view-current-text); background: var(--view-current-bg);
-  border-color: var(--view-current-edge); box-shadow: inset 0 -2px 0 var(--view-current-edge); }
-.theme-switch { grid-area: theme; display: inline-flex; gap: 4px; margin-left: auto; }
-.topbar .theme-switch .key { min-height: 24px; padding: 1px 8px; gap: 5px; font-size: 12px; }
+.theme-switch { display: inline-flex; gap: 4px; margin-left: auto; }
+.site-bar .theme-switch .key { min-height: 24px; padding: 1px 8px; gap: 5px; font-size: 12px; }
 .theme-switch[hidden] { display: none; }
 /* With the script, the switch shows from the first paint, so nothing moves when site.js wires it. */
 .js .theme-switch[hidden] { display: inline-flex; }
 
-/* The sticky header, the first thing on every page: the suite strip (suite-bar.css), then the view bar: the Home key,
-   the test (a page), the models (?models=) and the measure (a part of the page), each group's small name before its
-   compact keys, the groups set apart by spacing, on one line across the window at 1280 px (wrapping onto a second line
-   where they do not fit). The title strip under it scrolls away. The current choice is filled: in the dark theme white
-   text on blue with a light blue edge, in the light theme white text on near-black navy. */
+/* The sticky header's colours: the site's bar, and the in-page tab rows' keys. In the dark theme keys lighter than the
+   bar and with a light edge; in-page tabs tinted with the link colour. */
 :root {
   --view-bg: #f7f6f2;
   --view-edge: #7c7871;
@@ -206,27 +204,13 @@ html { --view-bar-h: 63px; scroll-padding-top: var(--view-bar-h); }
   }
 }
 .site-header { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; box-shadow: var(--shadow); }
-.view-bar { padding: 4px 1rem; background: var(--view-bg); border-bottom: 2px solid var(--view-edge); }
-.view-rows { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; max-width: 1248px; margin: 0 auto; }
-.view-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.view-label { color: var(--view-label); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-.view-row ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
-.view-row li { display: flex; }
-a.view-key { display: flex; align-items: center; justify-content: center; min-height: 26px; padding: 2px 8px;
-  color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 6px;
-  font-size: 12.5px; font-weight: 700; line-height: 1.1; text-align: center; white-space: nowrap; text-decoration: none;
+/* A page's model group keys (site.py group_switch), at the top of a page that shows its parts by group. */
+.group-switch { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin: 0 0 .75rem; }
+.group-switch .group-label { margin-right: .2rem; }
+.group-switch a.key { display: inline-flex; align-items: center; min-height: 1.75rem; padding: .1rem .6rem; color: var(--text);
+  background: var(--key); border: 1px solid var(--control-edge); border-radius: 6px; font-size: .82rem; text-decoration: none;
   box-shadow: var(--key-shadow); }
-a.view-key:hover { border-color: var(--view-key-hover); }
-a.view-key[aria-current] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge);
-  box-shadow: inset 0 -2px 0 var(--view-current-edge); }
-/* The Home key comes first, with a house mark (marked on the root index, the page it opens). */
-a.view-key.view-home { gap: 4px; }
-.home-mark { width: 12px; height: 12px; flex: none; fill: currentColor; }
-/* One active tab: a filter looks active only away from its default. All, the default group, keeps its aria-current for
-   screen readers but looks like an unpressed key; Decision or Chat, when chosen, is filled. */
-a.view-key[data-view-group="all"][aria-current] { color: var(--view-text); background: var(--view-key);
-  border-color: var(--view-key-edge); box-shadow: var(--key-shadow); }
-a.view-key[data-view-group="all"][aria-current]:hover { border-color: var(--view-key-hover); }
+.group-switch a.key[aria-current] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); font-weight: 700; }
 /* The cost unit (site.js): each cost carries both units and the chosen one shows; per 1,000 questions without the
    script. The keys sit in the head of each chart or table with costs. */
 .cost-1m { display: none; }
@@ -267,12 +251,12 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .limit { margin: .5rem 0 0; font-size: .92rem; }
 .subtitle { color: var(--text-2); margin: 0 0 .75rem; }
 
-/* The title, the intro and the language of the questions, under the Accuracy chart. */
-.hero { max-width: 76ch; margin: 0; }
+/* The hero: the question, the intro, the line of counts and three large links (the Method, Every question,
+   Experiments); they wrap on a phone. */
+.hero { max-width: 76ch; margin: .15rem 0 0; }
 .hero h1 { font-size: 2.25rem; margin: 0 0 .75rem; letter-spacing: -.01em; text-wrap: balance; }
-.hero .intro { font-size: 1.1rem; margin: 0 0 1rem; }
-/* The hero's row of large links: in-page tab keys, larger (How the scores work, Method, Every question, Where models
-   disagree); they wrap on a phone. */
+.hero .intro { font-size: 1.1rem; margin: 0 0 .6rem; }
+.hero-counts { margin: 0 0 .9rem; color: var(--text-2); font-family: var(--mono); font-size: .9rem; }
 .hero-links { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
 .hero-links a { display: inline-flex; align-items: center; min-height: 2.4rem; padding: .3rem .9rem; color: var(--tab-text);
   background: var(--tab-bg); border: 2px solid var(--tab-edge); border-radius: 8px; font-size: 1rem; font-weight: 700;
@@ -285,13 +269,79 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
   text-transform: uppercase; }
 .finding-title { margin: 0 0 .3rem; font-size: 1.3rem; text-wrap: balance; }
 .finding-text { margin: 0; color: var(--text-2); font-size: .92rem; max-width: 80ch; }
-/* The headline table and the How the scores work box. Past the top rows, the headline rows wait for Show all (site.js);
-   without the script every row shows. */
-.headline, .how-scores { min-width: 0; margin: 0 0 1rem; }
-.headline h2, .how-scores h2 { margin: 0 0 .3rem; font-size: 1.3rem; }
-.headline-table td.rank { width: 2.5rem; }
-.headline-table td.model .swatch { width: .6rem; height: .6rem; margin-right: .3rem; }
-.js .headline-copy:not(.rows-open) tr.beyond-top { display: none; }
+.finding-link { margin: .6rem 0 0; font-size: .92rem; }
+.findings > .measure { margin: 0 0 1rem; }
+/* The Leaderboard (sitebuild/leaderboard.py, site.js): the controls in one row, the table with one row per model (rank,
+   maker dot and icon, name with maker · kind · setting under it, the main-score bar with its Wilson whisker and the
+   score; more columns on a wide screen), the row rule line; All setups shows the full ranking in its place. */
+.leaderboard { min-width: 0; }
+.leaderboard > h2, .how-scores h2 { margin: 0 0 .5rem; font-size: 1.3rem; }
+.lb-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; margin: 0 0 .6rem; }
+.lb-controls .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
+.lb-meaning { margin: 0 0 .4rem; }
+.lb-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.lb-table th { padding: .35rem .45rem; color: var(--text-2); font-size: .78rem; font-weight: 600; text-align: left;
+  vertical-align: bottom; border-bottom: 1px solid var(--edge); }
+.lb-table th .small, .lb-table td .small { display: block; color: var(--text-2); font-size: .74rem; font-weight: 400; }
+.lb-table td { padding: .4rem .45rem; vertical-align: middle; border-bottom: 1px solid var(--edge); }
+.lb-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lb-table td.rank { width: 2.2rem; color: var(--text-2); }
+.lb-table td.model { min-width: 12rem; }
+.lb-table td.model .model-name { font-weight: 650; }
+.lb-table tbody tr:hover > td, .lb-table tbody tr.lb-open > td { background: var(--sunk); }
+.lb-dot { display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem; border-radius: 50%; vertical-align: -.05em; }
+.lb-table td.lb-score, .lb-table th.lb-score { width: 42%; }
+.lb-score { white-space: nowrap; }
+.lb-bar { position: relative; display: inline-block; width: calc(100% - 4.4rem); height: .8rem; vertical-align: middle;
+  background: var(--sunk); border-radius: 3px; }
+.lb-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.lb-en .lb-fill { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .45) 0 3px, transparent 3px 6px); }
+.lb-whisker { position: absolute; top: 50%; height: 0; border-top: 1.5px solid var(--text); }
+.lb-whisker::before, .lb-whisker::after { content: ""; position: absolute; top: -5px; height: 8px; border-left: 1.5px solid var(--text); }
+.lb-whisker::before { left: 0; }
+.lb-whisker::after { right: 0; }
+.lb-value { display: inline-block; width: 4.2rem; padding-left: .4rem; text-align: right; font-variant-numeric: tabular-nums;
+  font-weight: 650; vertical-align: middle; }
+.lb-value .small { display: block; font-weight: 400; }
+/* Both: the Turkish bar (solid) over the English one (striped), the two values beside them. */
+.lb-table[data-part="both"] td.lb-score { display: grid; grid-template-columns: minmax(0, 1fr) 4.2rem; align-items: center; row-gap: .2rem; }
+.lb-table[data-part="both"] .lb-bar { width: 100%; grid-column: 1; }
+.lb-table[data-part="both"] .lb-value { grid-column: 2; grid-row: 1 / span 2; }
+.lb-more { display: block; margin-top: .2rem; padding: 0; border: 0; background: none; color: var(--link); font: inherit;
+  font-size: .8rem; cursor: pointer; text-decoration: underline dotted; }
+.lb-more::before { content: "\25B8\00a0"; }
+.lb-more[aria-expanded="true"]::before { content: "\25BE\00a0"; }
+tr.lb-sub > td { background: var(--sunk); }
+tr.lb-sub td.model { padding-left: 1.4rem; }
+tr.lb-off { display: none !important; }
+.lb-rule { margin: .5rem 0 0; }
+/* A row's details box (site.js): every value of the setup, a line per kind; in its row without the script, else over
+   the page under its row (fixed to the window, within its width), opened by a tap, hover or the focus. */
+.lb-box { margin: .35rem 0 0; color: var(--text); font-size: .82rem; font-weight: 400; line-height: 1.4; white-space: normal; }
+.lb-box p { margin: .12rem 0; }
+.js .lb-box { display: none; position: fixed; z-index: 30; max-width: calc(100vw - 16px); margin: 0; padding: .6rem .75rem;
+  overflow: auto; overscroll-behavior: contain; background: var(--panel); border: 1px solid var(--control-edge);
+  border-radius: 8px; box-shadow: var(--shadow); }
+.js .lb-box.open { display: block; }
+/* Wide screens show more columns; a phone shows rank, model and score, the rest in the details box. */
+.lb-table .lb-wide { display: none; }
+@media (min-width: 900px) { .lb-table .lb-wide { display: table-cell; } }
+/* All setups: the full ranking in place of the one-row-per-model table (site.js); both show without the script. */
+.js .lb-all-setups:not(.is-open) { display: none; }
+.js .leaderboard.all-open .lb-models { display: none; }
+.js .leaderboard.all-open .lb-controls [role="group"] { display: none; }
+.all-setups-title { margin: .2rem 0 .6rem; font-size: 1.05rem; }
+.lb-all-setups > .chart-card { margin: 1.25rem 0 0; padding-top: 1rem; border-top: 1px solid var(--edge); }
+.how-scores { min-width: 0; margin: 0 0 1rem; }
+/* The Experiments cards: one per test beside the ranking, each with its status from the data. */
+.exp-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 1rem; list-style: none; margin: 1rem 0 0;
+  padding: 0; }
+.exp-card { margin: 0; }
+.exp-card h2 { margin: 0 0 .4rem; font-size: 1.1rem; border: 0; padding: 0; }
+.exp-card p { margin: 0 0 .5rem; }
+.exp-status { display: inline-block; padding: .1rem .5rem; border: 1px solid var(--control-edge); border-radius: 999px;
+  color: var(--text-2); font-size: .8rem; font-weight: 600; }
+.footer-links { margin: 0 0 .4rem; font-weight: 600; }
 .how-scores ul { margin: .4rem 0 0; padding-left: 1.2rem; }
 .how-scores li { margin: 0 0 .35rem; max-width: 90ch; }
 .readout-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .4rem 1rem; margin: 0 0 .85rem;
@@ -316,51 +366,18 @@ main > .card h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
 /* Phone-only parts (shown by the phone rules below): the swipe label, the versions under the table and the setup count
    inside the filter panel. */
 .swipe-hint, .version-below { display: none; }
-.filters .panel-only { display: none; }
 
-/* Filters: labelled groups; the bar keeps the count, a summary and Reset in view when the panel is closed. On the home
-   page the bar sits in the Accuracy chart's head, after its title, and the panel opens under the head, in the page's
-   flow, so it never covers the charts or the table. */
-.chart-head .filters { display: contents; }
-.chart-head .filters-bar { order: 1; flex: 0 1 auto; flex-wrap: nowrap; }
-.chart-head .filters-summary { flex: 0 1 auto; }
-.chart-head > .key { order: 2; }
-.chart-head > .chart-sub { order: 3; }
-.chart-head .filters-body { order: 4; flex: 1 1 100%; margin-top: .2rem; }
-.filters-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
 .group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .35rem .55rem; margin: 0; }
 .group-label { color: var(--text-2); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .setup-count { font-family: var(--mono); font-size: .85rem; white-space: nowrap; }
-.filters-summary { flex: 1 1 12rem; margin: 0; color: var(--text-2); font-size: .85rem; }
 /* Share view keeps its width when it reads "Link copied". */
-.filters-bar .share { min-width: 6.6rem; white-space: nowrap; }
-/* The part keys above the Accuracy chart (All, Reading, Grammar with their question counts); they change the measure
-   charts as the filters do. */
-.part-keys { margin: 0 0 .5rem; }
-.key-count { margin-left: .3rem; font-family: var(--mono); font-size: .8em; color: var(--text-2); }
+.chart-head .share { min-width: 6.6rem; white-space: nowrap; }
 /* Beside the name of a setup that searched the web before answering. */
 .web-badge { display: inline-block; margin-left: .35rem; padding: 0 .35rem; border: 1px solid var(--control-edge); border-radius: 999px;
   color: var(--text-2); font-size: .72rem; font-weight: 600; line-height: 1.4; white-space: nowrap; vertical-align: .05em; }
 .chevron { display: inline-block; width: .7rem; font-size: .8rem; }
 .chevron::before { content: "\25B8"; }
 [aria-expanded="true"] > .chevron::before { content: "\25BE"; }
-.filters-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .9rem 2rem; margin-top: .7rem; padding-top: .7rem;
-  border-top: 1px solid var(--edge); }
-.filters:not(.is-open) .filters-body { display: none; }
-.filters-body > .group { flex-direction: column; align-items: flex-start; }
-.filters-body .group select { width: 17rem; max-width: 100%; }
-.models { display: grid; flex: 1 1 100%; gap: .4rem; }
-.model-tools { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
-.model-tools input { width: 17rem; max-width: 100%; }
-.model-list { height: 9.5rem; overflow-y: auto; padding: .4rem .6rem; background: var(--sunk); border: 1px solid var(--edge); border-radius: 6px; }
-.model-list fieldset { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); column-gap: 1.5rem; border: 0; margin: 0 0 .4rem;
-  padding: 0; }
-.model-list fieldset[hidden] { display: none; }
-.model-list legend { padding: 0; color: var(--text-2); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-.model-list label { display: flex; align-items: baseline; gap: .45rem; padding: .15rem 0; font-size: .85rem; }
-.model-list label[hidden] { display: none; }
-.model-list .detail { color: var(--text-2); font-size: .78rem; }
-.model-list .none { margin: .25rem 0; color: var(--text-2); font-size: .85rem; }
 /* A disabled key says why, on hover and on keyboard focus. */
 button.key[data-tip] { position: relative; }
 button.key[data-tip]:hover::after, button.key[data-tip]:focus-visible::after { content: attr(data-tip); position: absolute; right: 0;
@@ -873,64 +890,69 @@ ul.price-list { padding-left: 1.25rem; }
   .chart-wide .hbar-value, .chart-wide .hbar-head { font-size: .72rem; }
   .chart-wide .hbar-axis .hbar-tick:nth-child(even) { display: none; }
   body { padding: 0 .6rem 1.5rem; }
-  /* The first screen reaches the results: the site name and the theme switch share a row, the pages row is one line
-     that scrolls sideways, the title is smaller, the counters take one line and the versions move under the table. */
-  .topbar { gap: 4px .6rem; margin-bottom: .55rem; padding: 5px 0 5px; }
-  /* The view bar on a phone: three short rows, the group names for screen readers only: the tests across the width
-     (their labels may wrap onto two tight lines inside their keys), the Home key beside All, Decision and Chat, the
-     measures across the width. */
-  html { --view-bar-h: 112px; }
+  /* The first screen reaches the results: the site's bar takes two short lines (the name and the theme switch, then
+     the tabs, which scroll sideways), the title is smaller and the versions move under the table. */
+  html { --view-bar-h: 84px; }
   .site-header { margin: 0 -.6rem; }
-  .view-bar { padding: 2px .6rem; }
-  .view-rows { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 4px; }
-  .view-row { display: block; }
-  .view-row.view-tests, .view-row.view-measures { grid-column: 1 / -1; }
-  a.view-key.view-home { grid-column: 1; grid-row: 2; padding: 1px 8px; }
-  .view-row.view-groups { grid-column: 2; grid-row: 2; }
-  .view-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
-    white-space: nowrap; border: 0; }
-  .view-row ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
-  .view-row.view-tests ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); }
-  .view-row li { min-width: 0; }
-  a.view-key { flex: 1; min-height: 24px; padding: 1px 4px; font-size: 12px; line-height: 1.1; white-space: normal; }
-  .view-tests a.view-key { font-size: 11px; line-height: 1.05; }
-  /* The measures' four keys share one row: Non-hallucination, the longest label, takes more room. */
-  .view-row.view-measures ul { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, .8fr) minmax(0, 1fr); }
-  .brand { font-size: 10.5px; letter-spacing: .04em; }
+  .site-bar { padding: 0 .6rem; }
+  .site-title { font-size: 1.05rem; }
+  .site-tabs a { padding: 5px 8px 4px; font-size: .88rem; }
   .theme-switch { gap: 4px; }
   .theme-switch .key { min-height: 24px; padding: 1px 7px; gap: 5px; font-size: 11.5px; }
-  /* Padding inside the scrolling bar keeps a focused link's outline unclipped; the negative margin keeps the row's size. */
-  .nav ul { flex-wrap: nowrap; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: -.3rem -.35rem; padding: .3rem .35rem;
-    scroll-padding-inline: .35rem; }
-  .nav ul::-webkit-scrollbar { display: none; }
-  .nav li { flex: none; }
-  .nav a { white-space: nowrap; }
   .panel, .card { padding: .75rem; border-radius: 8px; }
+  main { padding-top: .5rem; }
+  .hero { margin-top: 0; }
   .hero h1 { font-size: 1.45rem; margin-bottom: .35rem; }
-  .hero .intro { font-size: .95rem; line-height: 1.36; margin-bottom: .5rem; }
-  .hero .language { font-size: .95rem; line-height: 1.36; margin-bottom: .45rem; }
+  .hero .intro { font-size: .95rem; line-height: 1.36; margin-bottom: .4rem; }
+  .hero-counts { font-size: .8rem; margin-bottom: .6rem; }
+  .hero-links { gap: .35rem; margin-bottom: .75rem; }
+  .hero-links a { min-height: 2.1rem; padding: .2rem .6rem; font-size: .9rem; }
+  /* The controls stay one strip that scrolls sideways inside its box, as on the Logic & Math site; site.js brings the
+     pressed keys into view. */
+  .lb-controls { flex-wrap: nowrap; gap: .3rem; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
+    padding: 2px 0; }
+  .lb-controls::-webkit-scrollbar { display: none; }
+  .lb-controls > * { flex: none; }
+  .lb-controls > * + * { padding-left: .3rem; border-left: 1px solid var(--edge); }
+  .lb-controls .keys { flex-wrap: nowrap; gap: .2rem; }
+  .lb-controls .key { padding: .15rem .38rem; font-size: .76rem; white-space: nowrap; }
+  /* The Leaderboard on a phone: each row in layers, so no name breaks: the rank, the maker dot, the icon and the full
+     name on one line (cut with an ellipsis only where the name alone is wider than the screen; its title holds it
+     whole), "maker · kind · setting" under it, then the bar with its whisker and the score at the right. The head
+     row is left out: the line above the table says what the score is. */
+  .lb-table { font-size: .85rem; }
+  .lb-table thead { display: none; }
+  .lb-table, .lb-table tbody { display: block; }
+  /* The panel runs to the screen's edges, so a name's line has the width; a name wider than the line alone is cut. */
+  .panel.leaderboard { margin-inline: -.6rem; padding-inline: .5rem; border-inline: 0; border-radius: 0; }
+  .lb-table tbody tr { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: .3rem; align-items: baseline;
+    padding: .45rem 0; border-bottom: 1px solid var(--edge); }
+  .lb-table tbody tr[hidden] { display: none; }
+  .lb-table tbody td { display: block; padding: 0; border: 0; }
+  .lb-table td.rank { grid-column: 1; grid-row: 1; width: auto; min-width: 1.3rem; }
+  .lb-table td.model { grid-column: 2; grid-row: 1; display: grid; grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center; min-width: 0; }
+  .lb-table td.model .lb-dot { grid-column: 1; }
+  .lb-table td.model .fam-icon { grid-column: 2; margin-right: .3rem; }
+  .lb-table td.model .model-name { grid-column: 3; justify-self: start; max-width: 100%; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; }
+  .lb-table tr.lb-sub td.model .model-name { grid-column: 1 / -1; }
+  .lb-table td.model > :is(.small, .lb-more, .lb-box) { grid-column: 1 / -1; justify-self: start; }
+  .lb-table td.lb-score { grid-column: 1 / -1; grid-row: 2; width: auto; margin-top: .3rem; }
+  .lb-table td.lb-wide { display: none; }
+  .lb-value { width: 3.6rem; padding-left: .25rem; }
+  .lb-bar { width: calc(100% - 3.8rem); }
+  .lb-table[data-part="both"] td.lb-score { display: grid; grid-template-columns: minmax(0, 1fr) 3.6rem; }
   .readout-row { padding: .3rem 0; margin-bottom: .45rem; }
-  .readouts { flex-wrap: nowrap; }
+  .readouts { row-gap: .2rem; }
   .readout { gap: .2rem; margin-right: .4rem; padding-right: .4rem; white-space: nowrap; }
   .readout-value { font-size: .82rem; }
   .readout-label { font-size: .72rem; }
   .version-below { display: block; margin-top: .6rem; }
   .summary { font-size: .9rem; line-height: 1.25; }
   .summary-list li { margin: 0; }
-  /* One filter row under the Accuracy title: the Filters key, the summary of the active filters and Reset; the setup
-     count is inside the panel. */
-  .chart-head .filters-bar { order: 3; flex: 1 1 100%; }
   .chart-head > .chart-sub { order: 4; }
-  .filters-bar { flex-wrap: nowrap; gap: .5rem; }
-  .filters .bar-only { display: none; }
-  .filters .panel-only { display: flex; }
-  .filters-summary { flex: 1 1 auto; min-width: 0; }
-  .filters-body { gap: .8rem; }
-  /* The three part keys share one row. */
-  .part-keys .keys { flex-wrap: nowrap; }
-  .part-keys button.key { gap: .3rem; padding: .25rem .45rem; }
-  .key-count { margin-left: .15rem; }
-  /* The leaderboard panel: the question count, then the four tabs on one row. */
+  /* The full ranking: the question count, then the four tabs on one row. */
   .board-panel { padding-top: .5rem; }
   .modebar { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "count" "tabs";
     gap: .35rem .5rem; margin-bottom: .4rem; padding-bottom: .45rem; }

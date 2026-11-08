@@ -88,145 +88,48 @@ const costSwitch = () =>
   });
 })();
 
-/* Every page: the view bar's group, from ?models= (all, decision or chat; missing or unknown means all; trailing dots,
-   punctuation or spaces are dropped, so "all." reads as all). The bar marks its row 2 choice, the row 1 links and the top
-   bar's benchmark links keep the group, and each element whose data-models lists other groups only is
-   hidden (and shown again when it lists this one), before the page's own scripts run. <html data-models-view> carries
-   the group for them. The sticky header's height (the suite strip and the view bar) is kept in --view-bar-h, so the
-   page scrolls links and parts below it. */
-(function setupViewBar() {
-  const asked = (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, '');
-  const group = ['all', 'decision', 'chat'].includes(asked) ? asked : 'all';
+/* Every page: the model group, from ?models= (all, decision or chat; missing or unknown means all; trailing dots,
+   punctuation or spaces are dropped, so "all." reads as all). Each element whose data-models lists other groups only is
+   hidden (and shown again when it lists this one), before the page's own scripts run; <html data-models-view> carries
+   the group for them, and a page's group keys (.group-switch) mark it. A group asked for in the address stays in the
+   links marked data-keep-group. The sticky header's height (the suite strip and the site's bar) is kept in
+   --view-bar-h, so the page scrolls links and parts below it. */
+const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, '');
+(function setupGroup() {
+  const asked = ['all', 'decision', 'chat'].includes(ASKED_GROUP) ? ASKED_GROUP : null;
+  const group = asked ?? 'all';
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
   });
-  const bar = document.querySelector('.view-bar');
-  if (!bar) return;
-  bar.querySelectorAll('a[data-view-group]').forEach(link => {
-    if (link.dataset.viewGroup === group) link.setAttribute('aria-current', 'true');
+  document.querySelectorAll('.group-switch a[data-group-key]').forEach(link => {
+    if (link.dataset.groupKey === group) link.setAttribute('aria-current', 'true');
     else link.removeAttribute('aria-current');
+    const url = new URL(link.href);
+    url.hash = '';
+    link.href = url.href;
   });
-  bar.querySelectorAll('a[data-view-test]').forEach(link => {
-    link.setAttribute('href', `${link.getAttribute('href').split('?')[0]}?models=${group}`);
-  });
-  // Links marked data-keep-group (the top bar's Page images, Hallucination, Web grounding and PWS-Decisions, the
-  // experiments line) keep the group too,
-  // so no press loses it.
-  document.querySelectorAll('a[data-keep-group]').forEach(link => {
-    const [path, fragment] = link.getAttribute('href').split('#');
-    link.setAttribute('href', `${path.split('?')[0]}?models=${group}${fragment ? `#${fragment}` : ''}`);
-  });
-  const header = bar.closest('.site-header') ?? bar;
+  if (asked) {
+    document.querySelectorAll('a[data-keep-group]').forEach(link => {
+      const [path, fragment] = link.getAttribute('href').split('#');
+      link.setAttribute('href', `${path.split('?')[0]}?models=${group}${fragment ? `#${fragment}` : ''}`);
+    });
+  }
+  const header = document.querySelector('.site-header');
+  if (!header) return;
   const measure = () => document.documentElement.style.setProperty('--view-bar-h', `${header.offsetHeight}px`);
   measure();
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(header);
 })();
 
-/* Every page: the view bar's row 3, the measure. A key whose part (#accuracy, #non-hallucination, #cost, #latency) is on
-   the page links to it (the query, so the group, stays): the three test pages, and any other page with a part of that
-   id, as Web grounding's Cost; the others open the home page's part with the group in view. The key of the part in
-   view is marked: the part that crosses a line a quarter of the way down the window below the bar, or the key just
-   pressed until the reader scrolls on, as a part at the end of the page may not reach that line. Between parts no key
-   is marked. A page opened without a part in the address marks no key until the reader scrolls or presses a key; with
-   one, its key is marked. The marked key pressed opens Home in its default state (the view bar's data-home), as every
-   marked key of the view bar and the navigation bar does. */
-(function setupMeasureRow() {
-  const bar = document.querySelector('.view-bar');
-  if (!bar) return;
-  const group = document.documentElement.dataset.modelsView;
-  const links = [...bar.querySelectorAll('a[data-view-measure]')];
-  const parts = [];
-  links.forEach(link => {
-    const key = link.dataset.viewMeasure;
-    const part = document.getElementById(key);
-    if (part) {
-      link.setAttribute('href', `#${key}`);
-      parts.push({ link, part });
-    } else {
-      link.setAttribute('href', `${link.getAttribute('href').split(/[?#]/)[0]}?models=${group}#${key}`);
-    }
-  });
-  if (!parts.length) return;
-  const mark = key => links.forEach(link => {
-    if (link.dataset.viewMeasure === key) link.setAttribute('aria-current', 'true');
-    else link.removeAttribute('aria-current');
-  });
-  let pressed = null;
-  let pressedAt = 0;
-  const inView = () => {
-    const top = (bar.closest('.site-header') ?? bar).offsetHeight;
-    const line = top + (window.innerHeight - top) / 4;
-    const found = parts.find(({ part }) => {
-      if (!part.offsetParent) return false;
-      const box = part.getBoundingClientRect();
-      return box.top <= line && box.bottom > line;
-    });
-    return found ? found.link.dataset.viewMeasure : null;
-  };
-  const press = key => {
-    pressed = key;
-    mark(key);
-    requestAnimationFrame(() => { pressedAt = window.scrollY; });
-  };
-  let queued = false;
-  window.addEventListener('scroll', () => {
-    if (queued) return;
-    queued = true;
-    requestAnimationFrame(() => {
-      queued = false;
-      if (pressed && Math.abs(window.scrollY - pressedAt) < 48) return;
-      pressed = null;
-      mark(inView());
-    });
-  }, { passive: true });
-  bar.addEventListener('click', event => {
-    const link = event.target.closest('a[data-view-measure]');
-    const key = link?.dataset.viewMeasure;
-    if (!key || !parts.some(found => found.link.dataset.viewMeasure === key)) return;
-    if (link.hasAttribute('aria-current')) {
-      link.href = bar.dataset.home;
-      return;
-    }
-    press(key);
-  });
-  const fromHash = opening => {
-    const key = decodeURIComponent(window.location.hash.slice(1));
-    if (parts.some(({ link }) => link.dataset.viewMeasure === key)) press(key);
-    else mark(opening ? null : inView());
-  };
-  window.addEventListener('hashchange', () => fromHash(false));
-  // A page opened without a part in the address marks no key until the reader scrolls or presses a key.
-  fromHash(true);
-})();
-
-/* Every page: a row 2 key keeps the view. Pressed, it opens its group with the cost unit (?cost-unit=) and the part of
-   row 3's marked key (#cost), so Decision pressed at a page's #cost opens that page's #cost for decision models, in the
-   same unit. With no key marked (between parts) it opens the top of the page. The chosen Decision or Chat (the
-   active-looking group) pressed opens Home in its default state (the view bar's data-home); All, the default, looks
-   unpressed and pressed does its normal job. */
-(function keepViewOnGroup() {
-  const bar = document.querySelector('.view-bar');
-  if (!bar) return;
-  bar.addEventListener('click', event => {
-    const link = event.target.closest('a[data-view-group]');
-    if (!link) return;
-    if (link.hasAttribute('aria-current') && link.dataset.viewGroup !== 'all') {
-      link.href = bar.dataset.home;
-      return;
-    }
-    const url = new URL(link.href);
-    url.searchParams.set('cost-unit', costUnit());
-    url.hash = bar.querySelector('a[data-view-measure][aria-current]')?.dataset.viewMeasure ?? '';
-    link.href = url.href;
-  });
-})();
-
-/* On a phone the navigation bar scrolls sideways; a link that takes the keyboard focus is brought fully into view. */
-(function keepFocusedLinkInView() {
-  const bar = document.querySelector('.nav ul');
-  if (!bar) return;
-  bar.addEventListener('focusin', event => event.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
+/* On a phone the tab row scrolls sideways: the tab of the page in view, and a link that takes the keyboard focus, are
+   brought fully into view. */
+(function keepTabInView() {
+  const row = document.querySelector('.site-tabs ul');
+  if (!row) return;
+  const current = row.querySelector('a[aria-current]');
+  if (current && row.scrollWidth > row.clientWidth) row.scrollLeft = Math.max(0, current.offsetLeft - 16);
+  row.addEventListener('focusin', event => event.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
 })();
 
 /* Pages that keep their details under a closed Info (a details element): a link to a part inside it, in the address or
@@ -244,14 +147,13 @@ const costSwitch = () =>
   window.addEventListener('hashchange', open);
 })();
 
-/* In-page tab rows (.face-nav): in each row the tab of the part in view is marked, by the measure row's line (a quarter
-   of the way down the window below the bar), or the tab just pressed until the reader scrolls on, as a part at the end
-   of the page may not reach that line. A part that is a heading runs to the next part of any row after it in its
-   section, so a section's tab gives way to a step's tab inside it. Between parts no tab is marked, and a page opened
-   without a part in the address marks none until the reader scrolls or presses a tab. The marked tab pressed opens Home
-   in its default state (the view bar's data-home), as every marked key does. */
+/* In-page tab rows (.face-nav): in each row the tab of the part in view is marked, by a line a quarter of the way down
+   the window below the header, or the tab just pressed until the reader scrolls on, as a part at the end of the page
+   may not reach that line. A part that is a heading runs to the next part of any row after it in its section, so a
+   section's tab gives way to a step's tab inside it. Between parts no tab is marked, and a page opened without a part
+   in the address marks none until the reader scrolls or presses a tab. */
 (function markFaceNav() {
-  const bar = document.querySelector('.view-bar');
+  const header = document.querySelector('.site-header');
   const rows = [...document.querySelectorAll('.face-nav')]
     .map(row => [...row.querySelectorAll('a[href^="#"]')]
       .map(link => ({ link, part: document.getElementById(decodeURIComponent(link.getAttribute('href').slice(1))) }))
@@ -272,7 +174,7 @@ const costSwitch = () =>
     return [box.top, end];
   };
   const inView = () => {
-    const top = bar ? bar.offsetHeight : 0;
+    const top = header ? header.offsetHeight : 0;
     const line = top + (window.innerHeight - top) / 4;
     return rows.map(row => {
       let best = null;
@@ -311,10 +213,6 @@ const costSwitch = () =>
       show(inView());
     });
   }, { passive: true });
-  document.addEventListener('click', event => {
-    const link = event.target.closest('.face-nav a[aria-current]');
-    if (link && bar?.dataset.home) link.href = bar.dataset.home;
-  });
   const fromHash = opening => {
     const part = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
     if (part && parts.includes(part)) press(part);
@@ -324,16 +222,201 @@ const costSwitch = () =>
   fromHash(true);
 })();
 
-/* Home page: the headline table's Show all key opens every row in place and closes them again, as the charts' Show all
-   keys do (v3.js); the rows past the top carry beyond-top (v3.css hides them while the table is closed). */
-(function headlineRows() {
-  document.addEventListener('click', event => {
-    const key = event.target.closest('button[data-rows-all]');
+/* Home page: the Leaderboard (sitebuild/leaderboard.py). Its controls, one row: the part (English, Turkish or Both,
+   Turkish first), the filter (All, Chat models or Decision models; Decision models unless ?models= asks for another),
+   local to the table, and All setups, which shows today's full ranking with its tabs (#all-setups, v3.js) in place of
+   the one-row-per-model table. A row of another kind and its other-setting rows go out of view (lb-off); the rank cell
+   shows the row's rank among the rows in view. Each row's expander shows or hides its other setups. Old addresses keep
+   working: #headline lands on the Leaderboard; #board, #all-setups, #cost-table and #chart-tradeoff open All setups
+   first; #info, whose summary and notes moved, opens About. Without JavaScript the Turkish table and the full ranking
+   both show. */
+(function leaderboard() {
+  const board = document.getElementById('leaderboard');
+  if (!board) return;
+  const hash = decodeURIComponent(window.location.hash.slice(1));
+  if (hash === 'info') {
+    window.location.replace('about/#summary');
+    return;
+  }
+  const state = {
+    part: 'turkish',
+    filter: ['all', 'decision', 'chat'].includes(ASKED_GROUP) ? ASKED_GROUP : 'decision',
+    all: false,
+  };
+  const allPanel = document.getElementById('all-setups');
+  const apply = () => {
+    board.querySelectorAll('[data-lb-part]').forEach(key => {
+      if (key.tagName === 'BUTTON') key.setAttribute('aria-pressed', String(key.dataset.lbPart === state.part));
+      else key.hidden = key.dataset.lbPart !== state.part;
+    });
+    board.querySelectorAll('button[data-lb-filter]').forEach(key => key.setAttribute('aria-pressed', String(key.dataset.lbFilter === state.filter)));
+    board.querySelectorAll('tbody tr[data-kind]').forEach(row => {
+      row.classList.toggle('lb-off', state.filter !== 'all' && row.dataset.kind !== state.filter);
+      const rank = row.querySelector('td.rank');
+      if (rank) rank.textContent = rank.dataset[`rank${state.filter[0].toUpperCase()}${state.filter.slice(1)}`] ?? '';
+    });
+    board.querySelector('[data-lb-all]')?.setAttribute('aria-pressed', String(state.all));
+    board.classList.toggle('all-open', state.all);
+    allPanel?.classList.toggle('is-open', state.all);
+    reveal();
+  };
+  // On a phone the controls are one strip that scrolls sideways: the pressed keys (the part, the filter) are brought
+  // into view together where they fit, else the last pressed one.
+  const strip = board.querySelector('.lb-controls');
+  const reveal = () => {
+    if (!strip || strip.scrollWidth <= strip.clientWidth) return;
+    const base = strip.getBoundingClientRect().left - strip.scrollLeft;
+    const keys = [...strip.querySelectorAll('[aria-pressed="true"]')].filter(key => key.offsetParent)
+      .map(key => { const box = key.getBoundingClientRect(); return [box.left - base, box.right - base]; });
+    if (!keys.length) return;
+    const left = Math.min(...keys.map(([start]) => start));
+    const right = Math.max(...keys.map(([, end]) => end));
+    strip.scrollLeft = right - left + 16 <= strip.clientWidth ? Math.max(0, right - strip.clientWidth + 8) : Math.max(0, keys[keys.length - 1][0] - 8);
+  };
+  const openAll = open => {
+    if (state.all === open) return;
+    state.all = open;
+    apply();
+    document.dispatchEvent(new CustomEvent('leaderboard-view'));
+  };
+  board.addEventListener('click', event => {
+    const key = event.target.closest('button');
     if (!key) return;
-    const open = key.getAttribute('aria-expanded') !== 'true';
-    key.setAttribute('aria-expanded', String(open));
-    key.closest('.headline-copy').classList.toggle('rows-open', open);
-    key.textContent = open ? `Show the top ${key.dataset.top}` : `Show all ${key.dataset.total} models`;
-    if (!open) key.scrollIntoView({ block: 'nearest' });
+    if (key.dataset.lbPart) state.part = key.dataset.lbPart;
+    else if (key.dataset.lbFilter) state.filter = key.dataset.lbFilter;
+    else if (key.hasAttribute('data-lb-all')) {
+      openAll(!state.all);
+      return;
+    } else if (key.classList.contains('lb-more')) {
+      const open = key.getAttribute('aria-expanded') !== 'true';
+      key.setAttribute('aria-expanded', String(open));
+      key.getAttribute('aria-controls').split(' ').forEach(id => {
+        const row = document.getElementById(id);
+        if (row) row.hidden = !open;
+      });
+      return;
+    } else return;
+    apply();
+    board.dispatchEvent(new CustomEvent('lb-change'));
   });
+  document.addEventListener('open-all-setups', () => openAll(true));
+  apply();
+  const INTO_ALL = ['board', 'all-setups', 'cost-table', 'chart-tradeoff', 'tab-accuracy', 'tab-confidence', 'tab-routing', 'tab-stability'];
+  const land = (id, opening) => {
+    if (id === 'headline') {
+      history.replaceState(history.state, '', `${window.location.pathname}${window.location.search}#leaderboard`);
+      if (!opening) board.scrollIntoView();
+    } else if (INTO_ALL.includes(id)) {
+      openAll(true);
+      if (!opening) document.getElementById(id)?.scrollIntoView();
+    }
+  };
+  land(hash, true);
+  window.addEventListener('hashchange', () => land(decodeURIComponent(window.location.hash.slice(1)), false));
+  // A link to a part of All setups on this page opens it before the browser scrolls there.
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[href^="#"]');
+    if (link && INTO_ALL.includes(link.getAttribute('href').slice(1)) && !link.dataset.gotoTab) openAll(true);
+  }, true);
+  if (hash === 'headline') board.scrollIntoView();
+})();
+
+/* Home page: a Leaderboard row's details box, as on the Backgammon site. A tap on a phone opens it and a second tap on
+   the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row; with the
+   keyboard while the focus is in the row (the model's name, then the box's link). Focus beats the pointer. The box is
+   placed under the row (above it near the bottom of the window), within the window's width, and capped to the room
+   there on a short screen, scrolling inside. Without JavaScript every box shows in its row. */
+(function leaderboardDetails() {
+  const board = document.getElementById('leaderboard');
+  if (!board) return;
+  let open = null;
+  let pinned = false;
+  let pointer = 'mouse';
+  let quiet = false;
+  const boxOf = row => document.getElementById(row.dataset.box);
+  const place = () => {
+    if (!open) return;
+    const box = boxOf(open);
+    const row = open.getBoundingClientRect();
+    const cell = open.querySelector('td.model').getBoundingClientRect();
+    const width = Math.min(380, document.documentElement.clientWidth - 16);
+    box.style.width = `${width}px`;
+    box.style.left = `${Math.max(8, Math.min(cell.left, document.documentElement.clientWidth - width - 8))}px`;
+    box.style.maxHeight = '';
+    const height = box.offsetHeight;
+    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
+    const bottom = window.innerHeight - 8;
+    const roomBelow = bottom - row.bottom;
+    const roomAbove = row.top - header - 4;
+    if (height <= roomBelow) box.style.top = `${row.bottom}px`;
+    else if (height <= roomAbove) box.style.top = `${row.top - height}px`;
+    else if (Math.max(roomBelow, roomAbove) >= 120) {
+      box.style.maxHeight = `${Math.max(roomBelow, roomAbove)}px`;
+      box.style.top = `${roomBelow >= roomAbove ? row.bottom : row.top - roomAbove}px`;
+    } else {
+      box.style.maxHeight = `${Math.max(bottom - header - 4, 80)}px`;
+      box.style.top = `${header + 4}px`;
+    }
+  };
+  const hide = () => {
+    if (!open) return;
+    boxOf(open).classList.remove('open');
+    open.classList.remove('lb-open');
+    open = null;
+    pinned = false;
+  };
+  const show = (row, pin) => {
+    if (open !== row) hide();
+    const box = boxOf(row);
+    if (!box) return;
+    open = row;
+    pinned = pin;
+    row.classList.add('lb-open');
+    box.classList.add('open');
+    place();
+  };
+  // Keyboard focus in the open row (its name or its box) keeps the box: the pointer leaving the row or entering another
+  // row does not take it away until the focus leaves the row, Escape, a second tap or a click outside. Focus that a
+  // press of the pointer gives neither opens a box nor holds one: the press itself decides.
+  let pointing = false;
+  let keyed = false;
+  const held = () => !!open && keyed && open.contains(document.activeElement);
+  document.addEventListener('pointerdown', event => {
+    pointing = true;
+    if (board.contains(event.target)) pointer = event.pointerType || 'mouse';
+  }, true);
+  const released = () => setTimeout(() => { pointing = false; });
+  document.addEventListener('pointerup', released, true);
+  document.addEventListener('pointercancel', released, true);
+  board.querySelectorAll('tbody tr[data-box]').forEach(row => {
+    row.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && !pinned && !held()) show(row, false); });
+    row.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && !pinned && open === row && !held()) hide(); });
+    row.addEventListener('focusin', () => {
+      keyed = !pointing;
+      if (keyed && open !== row && !quiet) show(row, false);
+    });
+    row.addEventListener('focusout', event => { if (open === row && !pinned && !row.contains(event.relatedTarget)) hide(); });
+    row.addEventListener('click', event => {
+      // A mouse click or a key (detail 0) follows the link; a link in the box or the expander does its own job.
+      if (pointer === 'mouse' || event.detail === 0 || boxOf(row).contains(event.target) || event.target.closest('.lb-more')) return;
+      event.preventDefault(); // a tap opens the box; its own link opens the answers
+      if (open === row && pinned) hide();
+      else show(row, true);
+    });
+  });
+  document.addEventListener('click', event => { if (open && !open.contains(event.target)) hide(); });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !open) return;
+    const name = open.querySelector('.model-name');
+    const inside = open.contains(document.activeElement);
+    hide();
+    if (inside && name) {
+      quiet = true;
+      name.focus();
+      quiet = false;
+    }
+  });
+  window.addEventListener('scroll', place, { passive: true });
+  window.addEventListener('resize', place);
+  board.addEventListener('lb-change', () => { if (open && (open.classList.contains('lb-off') || !open.offsetParent)) hide(); });
 })();
