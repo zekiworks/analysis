@@ -402,8 +402,11 @@ python3 -m http.server 8000                                # preview at http://1
     the headings against `results.json` on every build); each part has one caveat line, linking to the Method page's
     notes behind the home page charts (`method/#home-notes`), which hold the rest; each chart card has a line saying
     which way is better, and each bar chart names its value columns above them (`COLUMN_HEADS` in `v3.js`; the static
-    charts through `hbars`' head or columns): Accuracy, with each setup's cost and median
-    latency beside its accuracy as the Cost and Latency cards write them ($ in the chosen cost unit, ≤ before an
+    charts through `hbars`' head or columns): Accuracy, each bar with its Wilson 95% interval as a whisker (`wilson` in
+    `v3.js`) and a line at chance (1 / `baselines.options`), its value cell "77.9% (76%–80%) lm" (accuracy, the interval
+    in whole percents, and on all questions the setup's tie-group letters `runs[].group`), with each setup's cost and median
+    latency beside its accuracy as the Cost and Latency cards write them (on a phone at the right of the name's line, over
+    the bar) ($ in the chosen cost unit, ≤ before an
     upper-bound estimate, each estimate's basis in its tooltip and the note under the chart; seconds, * for a latency
     measured on a sample; No list price for a cost of a setup on our own hardware with no estimate, `cost_missing` in
     `sitebuild/site.py` and `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured). A run's variant (its

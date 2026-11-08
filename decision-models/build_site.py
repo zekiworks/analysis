@@ -68,7 +68,7 @@ PAGE = ROOT / "index.html"
 HOME = "data/home.json"
 HOME_MORE = "data/home-more.json"
 HOME_KEYS = ("results_version", "questions", "sure_threshold", "units", "prices", "dont_know", "pipelines", "repeats",
-             "replay")
+             "replay", "baselines")
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
                                  "english_reading", "english_view", "aa_index", "web_grounding", "pws_decisions", "data",

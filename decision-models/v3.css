@@ -562,6 +562,15 @@ table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
 .chart-box :is(.bar-decision, .bar-chat, .dot-decision, .dot-chat) { stroke: var(--mark-edge); stroke-width: 1; }
 .chart-box .bar-reading { fill: var(--reading); }
 .chart-box .bar-grammar { fill: var(--grammar); }
+/* The accuracy chart's Wilson 95% interval across each bar: a line in the text colour on a casing in the panel colour,
+   readable on any bar in both themes; its value cell's interval and tie-group letters in the secondary colour. */
+.chart-box .whisker-case { fill: none; stroke: var(--panel); stroke-width: 4.5; }
+.chart-box .whisker { fill: none; stroke: var(--text); stroke-width: 1.5; }
+.chart-box .value-sub, .chart-box .letters { fill: var(--text-2); }
+/* On a phone, the accuracy chart's cost and latency at the right of each name's line. */
+.chart-box .value.side { fill: var(--text-2); font-size: 11px; }
+/* Chance on the accuracy chart: a thin line in the text colour across every row. */
+.chart-box .chance { stroke: var(--text); stroke-width: 1.5; pointer-events: none; }
 .chart-box .leader { stroke: var(--text-2); stroke-width: 1; }
 /* The trade-off chart's shaded region (better than the median on both) and its Pareto line. */
 .chart-box .quadrant { fill: var(--bar); fill-opacity: .6; }
@@ -577,7 +586,7 @@ table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
 .chart-box text.label.is-selected { paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
 /* With a setup selected, the others dim; nothing disappears. Dimmed shapes keep 3:1 against the panel, and dimmed text
    turns secondary, which keeps 4.5:1. */
-.chart-box.has-selection .mark:not(.is-selected) :is(.bar-decision, .bar-chat, .bar-reading, .bar-grammar, .dot-decision, .dot-chat),
+.chart-box.has-selection .mark:not(.is-selected) :is(.bar-decision, .bar-chat, .bar-reading, .bar-grammar, .dot-decision, .dot-chat, .whisker, .whisker-case),
 .chart-box.has-selection .leader:not(.is-selected) { opacity: var(--dim); }
 .chart-box.has-selection .mark:not(.is-selected) .value, .chart-box.has-selection .label:not(.is-selected) { fill: var(--text-2); }
 .chart-legend { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: .5rem 0 0; color: var(--text-2); font-size: .8rem; }
@@ -667,7 +676,8 @@ i.swatch-wrong { background: var(--wrong); }
 .cols .hbar-head { white-space: normal; line-height: 1.2; }
 /* The Non-hallucination parts' two kinds of holding back (sitebuild/holding_back.py): by confidence and with the option,
    side by side on a wide screen, one under the other below it; each side's decision and chat models in blocks of their
-   own, each with its heading. Side by side, each chart keeps a narrower name and short column names. */
+   own, each with its heading. Side by side, each row takes two layers as on a phone (the name above, its bars and values
+   below), so a name never breaks beside its bar, and the columns take their short names. */
 .hold-pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem 1.5rem; }
 .hold-side { min-width: 0; }
 .hold-side > h3 { margin: 0 0 .2rem; font-size: .98rem; }
@@ -683,9 +693,11 @@ i.swatch-wrong { background: var(--wrong); }
 .hold-rare { margin: .5rem 0 0; font-size: .8rem; }
 @media (min-width: 1000px) {
   .hold-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hold-pair .hbar, .hold-pair .hbars > .hbar { grid-template-columns: minmax(5.5rem, 9rem) minmax(0, 1fr) 7.5rem; gap: .5rem; }
+  .hold-pair .hbar, .hold-pair .hbars > .hbar { grid-template-columns: minmax(0, 1fr) 7.5rem; gap: .1rem .5rem; }
   .hold-pair .hbar.cols, .hold-pair .hbars.cols > .hbar {
-    grid-template-columns: minmax(5.5rem, 9rem) minmax(0, 1fr) repeat(var(--cols), 3.3rem); column-gap: .4rem; }
+    grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 3.3rem); column-gap: .4rem; }
+  .hold-pair .hbar-label { grid-column: 1 / -1; text-align: left; }
+  .hold-pair .hbar-axis > span:first-child { display: none; }
   .hold-pair .hbar-head .head-long { display: none; }
   .hold-pair .hbar-head .head-short { display: inline; }
 }
@@ -928,6 +940,8 @@ ul.price-list { padding-left: 1.25rem; }
   .swipe-hint:not([hidden]) { display: block; }
   .swiped .swipe-hint { display: none; }
   .chart-box { min-height: 22rem; }
+  /* The accuracy chart's value cell (accuracy, interval, letters) a size smaller, as v3.js measures it, for a longer bar. */
+  .chart-box .value.cell { font-size: 11px; }
   .route-map { grid-template-columns: 1fr; justify-items: start; }
   .rm-wire { width: 2px; height: 1rem; margin-left: 1.25rem; transform-origin: top center; }
   .route-map.trace .rm-wire { animation-name: rm-drop; }

@@ -917,9 +917,10 @@ const MEASURES = {
 const FACE_MEASURES = ['accuracy', 'gap', 'latency', 'cost'];
 const NEEDS = { latency: 'latency', cost: 'cost estimate' };
 /* The name above each value column of a bar chart, in full and on a phone, as the static charts' headers ("Turkish ·
-   English", "TR · EN"): each chart's own value, then the accuracy chart's cost and latency columns. */
+   English", "TR · EN"): each chart's own value (accuracy's as accuracyHead), then the accuracy chart's cost and latency
+   columns. */
 const COLUMN_HEADS = {
-  accuracy: ['Accuracy', 'Acc.'],
+  get accuracy() { return accuracyHead(); },
   gap: ['Gap (points)', 'Gap'],
   latency: ['Median latency', 'Median'],
   get cost() { return costUnit() === '1m' ? ['Cost / 1M', '$/1M'] : ['Cost / 1k', '$/1k']; },
@@ -932,13 +933,38 @@ const priceText = run => {
   const value = costShown(run);
   return value == null ? costMissing(run) : `${upperPrefix(run)}$${MEASURES.cost.text(value)}`;
 };
-const priceNote = () => `Beside each bar: accuracy (%), then cost in $ ${costLabel()}, estimated from list prices and recorded token use, as in the Cost chart, then the median latency per request, as in the Latency chart.`;
+const priceNote = () => `Beside each bar: accuracy with its interval${lettersShown() ? ' and tie group' : ''}, then cost in $ ${costLabel()}, estimated from list prices and recorded token use, as in the Cost chart, then the median latency per request, as in the Latency chart.`;
 /* The accuracy chart's latency column: the median seconds per request, marked when measured on a sample; Not measured
    where there is none (never a zero). */
 const latencyText = run => {
   const value = latencyOf(run);
   return value == null ? EMPTY.notMeasured : `${secondsText(value)} s${sampleLabel(run) ? ` ${SAMPLE_MARK}` : ''}`;
 };
+/* The accuracy chart's value cell, as on the Logic & Math pages: the accuracy, its Wilson 95% interval (wilson(), as each
+   setup's page gives it) in whole percents and, on all questions, the setup's tie-group letters (results.json
+   runs[].group, from the all-pairs test over every setup on the whole test); under a part or topic filter no letters. */
+const lettersShown = () => !filtered();
+function accuracyParts(run) {
+  const { correct, questions } = counts(run);
+  const [low, high] = wilson(correct, questions);
+  return { value: pct(correct / questions), low, high, interval: `(${pct(low, 0)}–${pct(high, 0)})`, letters: lettersShown() ? run.group ?? '' : '' };
+}
+const accuracyText = run => {
+  const { value, interval, letters } = accuracyParts(run);
+  return [value, interval, letters].filter(Boolean).join(' ');
+};
+const accuracyValue = run => {
+  const { value, interval, letters } = accuracyParts(run);
+  return `${esc(value)} <tspan class="value-sub">${esc(interval)}</tspan>${letters ? ` <tspan class="letters">${esc(letters)}</tspan>` : ''}`;
+};
+const accuracyHead = () => (lettersShown() ? ['Accuracy (95% interval) · tie group', 'Acc. · group'] : ['Accuracy (95% interval)', 'Acc. (95%)']);
+/* Chance: the accuracy of a uniform guess among each question's options (results.json baselines.options), a line across
+   the accuracy chart. */
+const chance = () => 1 / data.baselines.options;
+const chanceNote = () => `The line is chance (${pct(chance(), 0)}): a uniform guess among ${data.baselines.options} options.`;
+/* The line under the accuracy chart: what its whiskers and letters are, in the words of each setup's page. */
+const WHISKER_NOTE = 'Whiskers: Wilson 95% intervals, the 95% interval each setup’s page gives.';
+const LETTERS_NOTE = 'Letters: tie groups on all questions; the all-pairs test did not detect a difference between setups that share a letter. This does not establish equality.';
 
 /* Model families. In the accuracy, calibration, latency and cost charts and the small chart, each setup's bar or dot
    takes its model family's colour (page_config.json model_families, given by run id in SETTINGS.families): a maker's
@@ -1111,14 +1137,19 @@ function barChart(box, name) {
      on a phone); a column is as wide as its longest entry or its name. */
   const pick = ([long, short]) => (phone ? short : long);
   const headWidth = text => Math.ceil(textWidth(text, 600, 12));
-  const valueWidth = Math.max(phone ? 62 : 70, headWidth(pick(COLUMN_HEADS[name])) + 8);
-  /* The accuracy chart also gives each setup's cost (priceText) and median latency (latencyText) in columns of their own
-     at the right. */
-  const priced = name === 'accuracy';
   const mono = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim() || 'monospace';
-  const columnWidth = (text, head) => Math.max(Math.ceil(Math.max(...ordered.map(run => textWidth(text(run), 400, 12, mono)))), headWidth(pick(head))) + 24;
-  const priceWidth = priced ? columnWidth(priceText, COLUMN_HEADS.price) : 0;
-  const latencyWidth = priced ? columnWidth(latencyText, COLUMN_HEADS.speed) : 0;
+  const widest = (text, size = 12) => Math.ceil(Math.max(0, ...ordered.map(run => textWidth(text(run), 400, size, mono))));
+  /* The accuracy chart's value is its cell (accuracyText: accuracy, interval, letters), as wide as its longest. */
+  const lettered = name === 'accuracy';
+  const valueWidth = Math.max(phone ? 62 : 70, headWidth(pick(COLUMN_HEADS[name])) + 8, lettered ? widest(accuracyText, phone ? 11 : 12) + 8 : 0);
+  /* The accuracy chart also gives each setup's cost (priceText) and median latency (latencyText): in columns of their own
+     at the right, or on a phone at the right of the name's line, over the value (sideText), so nothing scrolls sideways. */
+  const priced = name === 'accuracy';
+  const columnWidth = (text, head) => Math.max(widest(text), headWidth(pick(head))) + 24;
+  const priceWidth = priced && !phone ? columnWidth(priceText, COLUMN_HEADS.price) : 0;
+  const latencyWidth = priced && !phone ? columnWidth(latencyText, COLUMN_HEADS.speed) : 0;
+  const sideText = run => `${priceText(run)} · ${latencyText(run)}`;
+  const sideWidth = run => (priced && phone ? Math.ceil(textWidth(sideText(run), 400, 11, mono)) + 10 : 0);
   const values = known.map(measure.value);
   /* Accuracy runs from 0 to 100%; the calibration gap from 0 to the next 5 points above the largest; latency and cost on
      a log scale around their values. */
@@ -1152,11 +1183,15 @@ function barChart(box, name) {
       const latency = !priced ? '' : latencyValue == null ? `; median latency per request: ${EMPTY.notMeasured}`
         : `; median latency per request: ${secondsText(latencyValue)} s${sampleLabel(run) ? ` (${sampleLabel(run)})` : ''}`;
       const missing = name === 'cost' ? costMissing(run) : EMPTY.notMeasured;
-      const full = `${run.name} · ${runDetail(run)}: ${value == null ? missing : measure.text(value)}${maker ? ` (${basisCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}${latency}`;
+      const cell = lettered ? accuracyParts(run) : null;
+      const shown = value == null ? missing : cell
+        ? `${cell.value}, Wilson 95% interval ${pct(cell.low)} to ${pct(cell.high)}${cell.letters ? `, tie group ${cell.letters}` : ''}`
+        : measure.text(value);
+      const full = `${run.name} · ${runDetail(run)}: ${shown}${maker ? ` (${basisCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}${latency}`;
       const barTop = phone ? y + 18 : y + (row - 16) / 2;
       const barHeight = phone ? 14 : 16;
       const mid = barTop + barHeight / 2;
-      const label = rowLabel(labels, run, y, row, width, labelWidth, full);
+      const label = rowLabel(labels, run, y, row, width - sideWidth(run), labelWidth, full);
       /* The ring spans the row: it shows the focus, and it shades the selected setup's row. */
       const inner = [`<rect class="ring" x="1" y="${y + 1}" width="${width - 2}" height="${row - 2}" rx="3"/>`, label];
       if (value == null) {
@@ -1164,14 +1199,23 @@ function barChart(box, name) {
       } else {
         const start = x(domain[0]);
         inner.push(`<rect class="bar-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" x="${start}" y="${barTop}" width="${Math.max(1, x(value) - start)}" height="${barHeight}" rx="2"><title>${esc(full)}</title></rect>`);
-        inner.push(`<text class="value" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${name === 'cost' ? upperPrefix(run) : ''}${measure.text(value)}${sample ? ` ${SAMPLE_MARK}` : ''}</text>`);
+        if (cell) {
+          /* A casing in the panel colour keeps the line apart from the bar it crosses, in both themes. */
+          const path = `M${x(cell.low)} ${mid - 3}v6M${x(cell.low)} ${mid}H${x(cell.high)}M${x(cell.high)} ${mid - 3}v6`;
+          inner.push(`<path class="whisker-case" d="${path}"/><path class="whisker" d="${path}"/>`);
+        }
+        inner.push(`<text class="value${cell ? ' cell' : ''}" x="${width - 4 - priceWidth - latencyWidth}" y="${mid + 4}" text-anchor="end">${cell ? accuracyValue(run) : `${name === 'cost' ? upperPrefix(run) : ''}${measure.text(value)}${sample ? ` ${SAMPLE_MARK}` : ''}`}</text>`);
       }
-      if (priced) {
+      if (priced && phone) {
+        inner.push(`<text class="value side" x="${width - 4}" y="${y + 13}" text-anchor="end">${esc(sideText(run))}</text>`);
+      } else if (priced) {
         inner.push(`<text class="value${costPer1000(run) == null ? ' nm' : ''}" x="${width - 4 - latencyWidth}" y="${mid + 4}" text-anchor="end">${esc(priceText(run))}</text>`);
         inner.push(`<text class="value${latencyValue == null ? ' nm' : ''}" x="${width - 4}" y="${mid + 4}" text-anchor="end">${esc(latencyText(run))}</text>`);
       }
       parts.push(`<g ${markAttributes(run, full)}>${inner.join('')}</g>`);
     });
+    /* Chance, over the bars it crosses. */
+    if (name === 'accuracy') parts.push(`<line class="chance" x1="${x(chance())}" x2="${x(chance())}" y1="${top - 3}" y2="${base}"/>`);
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${esc(`Bar chart of ${measure.label.toLowerCase()} for ${rows.length} of ${ordered.length} setups.`)}">${parts.join('')}</svg>`;
   };
   const { rows, apart } = topRows(name, ordered);
@@ -1182,19 +1226,27 @@ function barChart(box, name) {
   const costNotes = name === 'cost' || priced ? [costNote(ordered)] : [];
   const sampleNote = name === 'latency' || priced ? sampleNotes(ordered) : [];
   const scaleNote = measure.log ? 'Log scale.' : '';
+  const intervalNotes = name === 'accuracy' ? [WHISKER_NOTE, chanceNote(), lettersShown() ? LETTERS_NOTE : ''].filter(Boolean) : [];
   /* The image has every row, so its notes and legend cover them all; the page's legend names the families shown. */
   chartNotes[name] = {
-    notes: [`${measure.label}${where}.`, scaleNote, priced ? priceNote() : '', ...latencyNote, ...costNotes, ...sampleNote].filter(Boolean),
+    notes: [`${measure.label}${where}.`, scaleNote, ...intervalNotes, priced ? priceNote() : '', ...latencyNote, ...costNotes, ...sampleNote].filter(Boolean),
     unlabelled: [], families: familiesIn(ordered), full: () => draw(ordered, false),
   };
-  const heads = [[pick(COLUMN_HEADS[name]), width - 4 - priceWidth - latencyWidth],
-    ...(priced ? [[pick(COLUMN_HEADS.price), width - 4 - latencyWidth], [pick(COLUMN_HEADS.speed), width - 4]] : [])];
+  /* Each column's name over it; on a phone the accuracy chart's cost and latency, at the right of each name's line, are
+     named on a line above its value's name. */
+  const heads = priced && phone
+    ? [[`${pick(COLUMN_HEADS.price)} · ${pick(COLUMN_HEADS.speed)}`, width - 4, 13], [pick(COLUMN_HEADS[name]), width - 4, 29]]
+    : [[pick(COLUMN_HEADS[name]), width - 4 - priceWidth - latencyWidth, 13],
+      ...(priced ? [[pick(COLUMN_HEADS.price), width - 4 - latencyWidth, 13], [pick(COLUMN_HEADS.speed), width - 4, 13]] : [])];
+  const headHeight = priced && phone ? 34 : 18;
+  if (name === 'accuracy') document.querySelectorAll('[data-chance]').forEach(item => { item.textContent = pct(chance(), 0); });
   box.innerHTML =
-    `<svg class="column-heads" width="${width}" height="18" viewBox="0 0 ${width} 18" aria-hidden="true">` +
-    `${heads.map(([text, at]) => `<text class="column-head" x="${at}" y="13" text-anchor="end">${esc(text)}</text>`).join('')}</svg>` +
+    `<svg class="column-heads" width="${width}" height="${headHeight}" viewBox="0 0 ${width} ${headHeight}" aria-hidden="true">` +
+    `${heads.map(([text, at, y]) => `<text class="column-head" x="${at}" y="${y}" text-anchor="end">${esc(text)}</text>`).join('')}</svg>` +
     draw(rows, apart) + showAllKey(name, ordered.length) +
     (PAGE_CAVEATS[name]
       ? legend(familiesIn(rows), [chartScope(runs), shownNote(name, ordered, rows), ...sampleNote].filter(Boolean).join(' ')) +
+        (name === 'accuracy' ? `<p class="caveat">${esc([WHISKER_NOTE, lettersShown() ? LETTERS_NOTE : ''].filter(Boolean).join(' '))}</p>` : '') +
         caveatLine(PAGE_CAVEATS[name])
       : legend(familiesIn(rows), [...chartNotes[name].notes, chartScope(runs), shownNote(name, ordered, rows)].filter(Boolean).join(' ')));
 }
