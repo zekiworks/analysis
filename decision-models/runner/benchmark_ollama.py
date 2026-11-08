@@ -440,6 +440,31 @@ PRICES: dict[tuple[str, str], Price] = {
         "OpenRouter's price for DeepSeek's own endpoint", "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017", "2026-10-28",
         0.15, 0.60, cached_input=0.003,
     ),
+    # MiniMax-M3.1-Flash at OpenRouter's price for MiniMax's own endpoint (minimax; its endpoints API, read 8 November
+    # 2026): its regular rate; the endpoint lists half of it (0.075 input, 0.30 output, 0.0075 cached input) from 15:00
+    # to 01:00 UTC.
+    ("openrouter-chat", "minimax/minimax-m3.1-flash"): Price(
+        "OpenRouter's price for MiniMax's own endpoint", "https://openrouter.ai/minimax/minimax-m3.1-flash", "2026-11-08",
+        0.15, 0.60, cached_input=0.015,
+    ),
+    # Inkling Small at OpenRouter's price for DeepInfra's endpoint (deepinfra/fp8, its only one; its endpoints API, read
+    # 8 November 2026).
+    ("openrouter-chat", "thinkingmachines/inkling-small"): Price(
+        "OpenRouter's price for DeepInfra's endpoint (fp8)", "https://openrouter.ai/thinkingmachines/inkling-small",
+        "2026-11-08", 0.45, 1.20, cached_input=0.10,
+    ),
+    # Qwen 3.5 397B-A17B at OpenRouter's price for DeepInfra's endpoint (deepinfra/fp8; its endpoints API, read 8
+    # November 2026).
+    ("openrouter-chat", "qwen/qwen3.5-397b-a17b"): Price(
+        "OpenRouter's price for DeepInfra's endpoint (fp8)", "https://openrouter.ai/qwen/qwen3.5-397b-a17b", "2026-11-08",
+        0.45, 3.00, cached_input=0.22,
+    ),
+    # MiMo V2.6 Flash at OpenRouter's price for Xiaomi's own endpoint (xiaomi/fp8; its endpoints API, read 8 November
+    # 2026).
+    ("openrouter-chat", "xiaomi/mimo-v2.6-flash"): Price(
+        "OpenRouter's price for Xiaomi's own endpoint (fp8)", "https://openrouter.ai/xiaomi/mimo-v2.6-flash", "2026-11-08",
+        0.14, 0.28, cached_input=0.0028,
+    ),
     # DeepSeek-V4.1-Flash 1017 on our GPUs, at DeepSeek's own API price for the same model (deepseek-flash serves
     # DeepSeek-V4.1-Flash-1017): its regular rate, the peak hours' (01:00-04:00 and 06:00-10:00 UTC on weekdays); the
     # other hours cost half. The basis keeps the wording every maker's price has (the site names the maker from it).

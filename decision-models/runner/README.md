@@ -188,10 +188,10 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_openrouter_kimi.sh` | Kimi K3.1 Pro via OpenRouter's chat API, pinned to Moonshot AI's endpoint (`moonshotai/mxfp4`), reasoning_effort none | `OPENROUTER_API_KEY` |
 | `run_openrouter_kimi_low.sh` | Kimi K3.1 Pro on the same route with reasoning_effort low | `OPENROUTER_API_KEY` |
 | `run_openrouter_glm.sh` | GLM-5.3 via OpenRouter's chat API, pinned to Fireworks with required parameters, reasoning_effort low | `OPENROUTER_API_KEY` |
-| `run_openrouter_qwen3_5_397b.sh` | Qwen 3.5 397B-A17B via OpenRouter's chat API, pinned to DeepInfra (`deepinfra/fp8`) with required parameters and the answer schema, reasoning_effort high | `OPENROUTER_API_KEY` |
+| `run_openrouter_qwen3_5_397b.sh` | Qwen 3.5 397B-A17B via OpenRouter's chat API, pinned to DeepInfra (`deepinfra/fp8`) with required parameters and the answer schema, reasoning_effort high, output cap 65,536 tokens | `OPENROUTER_API_KEY` |
 | `run_openrouter_mimo_v2_6_flash.sh` | MiMo V2.6 Flash via OpenRouter's chat API, pinned to Xiaomi (`xiaomi/fp8`) with required parameters and the answer schema, reasoning_effort high, output cap 65,536 tokens | `OPENROUTER_API_KEY` |
-| `run_openrouter_minimax_m3_1_flash.sh` | MiniMax-M3.1-Flash via OpenRouter's chat API, pinned to MiniMax (`minimax`) with required parameters, JSON mode and the answer layout in the prompt, reasoning_effort high | `OPENROUTER_API_KEY` |
-| `run_openrouter_inkling_small.sh` | Inkling Small via OpenRouter's chat API, pinned to DeepInfra (`deepinfra/fp8`), no response format, the answer layout in the prompt, reasoning_effort high | `OPENROUTER_API_KEY` |
+| `run_openrouter_minimax_m3_1_flash.sh` | MiniMax-M3.1-Flash via OpenRouter's chat API, pinned to MiniMax (`minimax`) with required parameters, JSON mode and the answer layout in the prompt, reasoning_effort high, output cap 65,536 tokens | `OPENROUTER_API_KEY` |
+| `run_openrouter_inkling_small.sh` | Inkling Small via OpenRouter's chat API, pinned to DeepInfra (`deepinfra/fp8`), no response format, the answer layout in the prompt, reasoning_effort high, output cap 65,536 tokens | `OPENROUTER_API_KEY` |
 | `run_xai_grok_high.sh` | Grok 4.7 through xAI's Responses API with a SuperGrok subscription login, reasoning effort high, 4 requests at a time | OMP's `xai-oauth` login (`omp token xai-oauth`) |
 | `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
 
