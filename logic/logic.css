@@ -1,56 +1,61 @@
-/* The logic & math site's additions to tb-next's v3.css (copied unchanged beside this file): the compact sticky header
-   (the suite bar slot and the view bar, in v3.css's design tokens), the Current work panel, the question pages, the
-   question index's filters and outcome marks. */
+/* The logic & math site's additions to tb-next's v3.css (copied unchanged beside this file): the sticky header (turkce's
+   suite bar and the site bar, as the backgammon site's: Ümit #2980), the leaderboard, the Current work panel, the
+   question pages, the question index's filters and outcome marks. */
 
-:root { --vkey-h: 26px; --vkey-font: 12.5px; --vkey-gap: 4px; --vkey-pad-x: 6px; --vbar-pad-y: 4px; --vrow-gap: 18px; }
-html { --view-bar-h: 64px; scroll-padding-top: calc(var(--view-bar-h) + 8px); }
-.head-sticky { position: sticky; top: 0; z-index: 20; margin: 0 -1rem; padding: 0; background: var(--view-bg);
-  border-bottom: 1px solid var(--view-edge); box-shadow: var(--shadow); }
-.vbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--vkey-gap) var(--vrow-gap); max-width: 1280px;
-  margin: 0 auto; padding: var(--vbar-pad-y) 1rem; }
-.vrow { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.vrow li { display: flex; align-items: center; height: var(--vkey-h); }
-.vrow ul { height: var(--vkey-h); display: flex; align-items: center; gap: var(--vkey-gap); margin: 0; padding: 0; list-style: none; }
-.vlabel, .topbar .nav-label { color: var(--view-label); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-a.vkey { display: inline-flex; align-items: center; gap: 4px; height: var(--vkey-h); padding: 0 var(--vkey-pad-x);
-  color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 6px;
-  font-size: var(--vkey-font); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; }
-a.vkey:hover { border-color: var(--view-key-hover); }
-a.vkey[aria-current] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge);
-  box-shadow: inset 0 -2px 0 var(--view-current-edge); }
-.vkey .home-mark { width: 12px; height: 12px; fill: currentColor; }
-.vshort, .tshort { display: none; }
+/* The sticky header: the suite strip, then the site bar (the Hilde leaf and the site's name, the theme keys at the right,
+   under them one row of tabs that scrolls sideways where it does not fit, the page's tab underlined in the link colour).
+   It stays at the top of the window on every width; site.js keeps --view-bar-h at its height. */
+html { --view-bar-h: 84px; scroll-padding-top: calc(var(--view-bar-h) + 8px); }
+.site-header { position: sticky; top: 0; z-index: 20; margin: 0 -1rem .75rem; background: var(--view-bg); box-shadow: var(--shadow); }
+.site-bar { padding: 0 1rem; background: var(--view-bg); border-bottom: 1px solid var(--view-edge); }
+.site-bar-in { max-width: 1100px; margin: 0 auto; }
+.site-title-row { display: flex; align-items: center; gap: .6rem; padding: 6px 0 0; }
+.site-title { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; color: var(--text); font-size: 1.15rem;
+  font-weight: 700; line-height: 1.2; white-space: nowrap; text-decoration: none; }
+.site-leaf { flex: none; width: 18px; height: 21px; }
+.site-tag { padding: 0 .35rem; color: var(--text-2); border: 1px solid var(--edge); border-radius: 4px; font-size: .7rem;
+  font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.site-controls { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.site-controls .key { min-height: 24px; padding: 1px 8px; gap: 5px; font-size: 12px; }
+.site-tabs ul { display: flex; gap: .2rem; list-style: none; margin: 0 -.35rem; padding: 0 .35rem; overflow-x: auto;
+  scrollbar-width: none; scroll-padding-inline: .35rem; }
+.site-tabs ul::-webkit-scrollbar { display: none; }
+.site-tabs li { flex: none; }
+.site-tabs a { display: block; padding: 6px 10px 4px; color: var(--text-2); font-size: .92rem; font-weight: 600;
+  line-height: 1.25; white-space: nowrap; text-decoration: none; border-bottom: 3px solid transparent; }
+.site-tabs a:hover { color: var(--text); border-bottom-color: var(--edge); }
+.site-tabs a[aria-current] { color: var(--text); border-bottom-color: var(--link); }
+.site-tabs a:focus-visible { outline-offset: -2px; }
+@media print { .site-tabs, .needs-js { display: none !important; } }
+html:not(.js) .needs-js { display: none !important; }
 .hv-sub { color: var(--text-2); }
 td.probs span { white-space: nowrap; }
-@media (max-width: 1340px) { .vlong { display: none; } .vshort { display: inline; } }
 /* A wide value column (accuracy with its interval and letters, costs in both units) that never wraps. */
 .chart-wide .hbar:not(.cols), .chart-wide .hbars:not(.cols) > .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) 15rem; }
 .chart-wide .hbar-value { white-space: nowrap; }
 .chart-wide .hbar.cols, .chart-wide .hbars.cols > .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) repeat(var(--cols), 7.5rem); }
 .chart-wide .cols .hbar-value { white-space: normal; }
-/* The pages row (not sticky) in the same compact key size. */
-.topbar { gap: 4px 12px; margin-bottom: .5rem; padding: 6px 0; }
-.nav ul { gap: var(--vkey-gap); }
-.nav a { min-height: var(--vkey-h); height: var(--vkey-h); padding: 0 var(--vkey-pad-x); border-width: 1.5px; border-radius: 6px;
-  font-size: var(--vkey-font); }
-.topbar .theme-switch .key { min-height: 24px; font-size: 12px; }
+/* A test page's own keys (shell.view_keys: part, models, measure), in the card under its title. */
+.view-keys { display: flex; flex-wrap: wrap; gap: .35rem 1.2rem; margin: .2rem 0 .7rem; }
+.view-keys-row { display: flex; align-items: center; gap: .4rem; min-width: 0; }
+.view-keys-label { color: var(--text-2); font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.view-keys ul { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0; padding: 0; list-style: none; }
+.view-keys a { display: inline-flex; align-items: center; min-height: 1.6rem; padding: 0 .5rem; color: var(--tab-text);
+  background: var(--tab-bg); border: 1.5px solid var(--tab-edge); border-radius: 6px; font-size: .8rem; font-weight: 700;
+  text-decoration: none; white-space: nowrap; }
+.view-keys a[aria-current] { color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); }
+/* The footer's links. */
+.footer-links { display: flex; gap: 1rem; margin: 0 0 .5rem; font-weight: 600; }
 @media (max-width: 640px) {
-  :root { --vkey-h: 24px; --vkey-font: 12px; --vkey-pad-x: 6px; --vbar-pad-y: 4px; }
-  .head-sticky { margin: 0 -.6rem; }
-  .vbar { padding: var(--vbar-pad-y) .6rem; }
-  .topbar .nav-label { display: none; }
-  .vbar { display: grid; grid-template-columns: auto minmax(0, 1fr); row-gap: 2px; column-gap: 6px; }
-  .vlabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .vhome { grid-column: 1; grid-row: 1; }
-  .vgroups { grid-column: 2; grid-row: 1; }
-  .vtests { grid-column: 1 / -1; grid-row: 2; }
-  .vmeasures { grid-column: 1 / -1; grid-row: 3; }
-  .vrow, .vrow ul { min-width: 0; }
-  .vtests ul, .vmeasures ul { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-  .vlong { display: none; }
-  .vshort, .tshort { display: inline; }
-  .tlong { display: none; }
-  .nav ul { flex-wrap: nowrap; overflow-x: auto; }
+  html { --view-bar-h: 80px; }
+  .site-header { margin: 0 -.6rem .55rem; }
+  .site-bar { padding: 0 .6rem; }
+  .site-title-row { gap: .3rem; padding-top: 4px; }
+  .site-title { gap: .3rem; font-size: .95rem; }
+  .site-leaf { width: 15px; height: 18px; }
+  .site-tabs a { padding: 5px 8px 4px; font-size: .88rem; }
+  .theme-switch .key { padding: 1px 6px; gap: 4px; font-size: 11.5px; }
+  .view-keys-row ul { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .chart-wide .hbar:not(.cols), .chart-wide .hbars:not(.cols) > .hbar { grid-template-columns: minmax(0, 1fr) 12.5rem; }
   .chart-wide .hbar-value { font-size: .74rem; }
   .chart-wide .hbar.cols, .chart-wide .hbars.cols > .hbar { grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 3.7rem); column-gap: .35rem; }
@@ -155,40 +160,93 @@ td[data-label="GPU"] { white-space: nowrap; }
 .hbar-whisker::before { left: 0; }
 .hbar-whisker::after { right: 0; }
 .whisker-note { display: block; margin-top: .3rem; }
-/* Home: the large links under the intro, four in a row (two by two on a phone). */
-.home-links { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; margin: 1rem 0 .2rem; }
-.home-links a { display: flex; align-items: center; justify-content: center; min-height: 3.2rem; padding: .5rem .8rem;
-  color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 8px;
-  font-size: 1rem; font-weight: 700; text-align: center; text-decoration: none; box-shadow: var(--key-shadow); }
-.home-links a:hover { border-color: var(--view-key-hover); }
-.home-links a:first-child { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
-@media (max-width: 640px) { .home-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } .home-links a { min-height: 2.8rem; font-size: .92rem; } }
 .versus-icon { fill: var(--text); }
 .how-scores ul { margin: .4rem 0 .6rem; padding-left: 1.2rem; }
 .how-scores li { margin: .3rem 0; }
-/* Home's story: one finding per section, its chart or table, one caveat line. */
+/* The front page's finding sections: the finding as the heading, one chart, a few sentences, one link. */
 .story > h2 { font-size: 1.2rem; line-height: 1.3; }
 .story > p { max-width: 62rem; }
 .section-caveat { margin: .5rem 0 0; color: var(--text-2); font-size: .85rem; }
-.cellbar { position: relative; display: block; min-width: 7rem; height: .9rem; background: var(--sunk); border-radius: 2px; }
-.cellbar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
-.cellbar-whisker { position: absolute; top: 50%; height: 0; border-top: 1.5px solid var(--text); }
-.cellbar-whisker::before, .cellbar-whisker::after { content: ""; position: absolute; top: -5px; height: 8px; border-left: 1.5px solid var(--text); }
-.cellbar-whisker::before { left: 0; }
-.cellbar-whisker::after { right: 0; }
-table.headline td.bar-cell { width: 30%; min-width: 8rem; }
-.all-setups { margin-top: .8rem; }
-.all-setups > summary { cursor: pointer; font-weight: 650; }
-/* Headline table on a phone: only # · Model (with its GPU / web / group as a grey sub-line) · Logic · Math. */
-table.headline .phone-only { display: none; }
+/* The front page's hero: the question, one paragraph, the counts and three links. */
+.hero-card { max-width: none; }
+.hero-card h1 { margin: 0 0 .5rem; }
+.hero-card .intro { max-width: 62rem; margin: 0 0 .6rem; font-size: 1.05rem; }
+.readout-date { font-size: .9rem; white-space: normal; }
+.readout-when { flex-wrap: wrap; min-width: 0; }
+.hero-links { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0 0; }
+.hero-links a { display: inline-flex; align-items: center; min-height: 2.3rem; padding: .3rem .8rem; color: var(--view-text);
+  background: var(--view-key); border: 1.5px solid var(--view-key-edge); border-radius: 8px; font-weight: 700;
+  text-decoration: none; box-shadow: var(--key-shadow); }
+.hero-links a:hover { border-color: var(--view-key-hover); }
+.hero-links a:first-child { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
+/* The leaderboard (home.leaderboard): its keys in one row, two lines of text, the rows (rank, the model with its maker dot
+   and the line under it, the main score as a bar with its 95% interval), five more columns from 900 px; a row's details
+   box opens on hover, focus or a tap (site.js). */
+.leaderboard > h2 { margin: 0 0 .4rem; }
+.lb-controls { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin: 0 0 .5rem; }
+.lb-keys { display: flex; flex-wrap: wrap; gap: .25rem; }
+.lb-keys .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
+.lb-keys .key[aria-pressed="true"] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
+.lb-line { margin: .2rem 0 .45rem; color: var(--text-2); font-size: .86rem; max-width: 62rem; }
+.lb-rule { margin-top: .5rem; }
+.lb-provisional { margin: 0 0 .45rem; font-size: .84rem; }
+.js [data-lb-panel][hidden], .js [data-lb-view][hidden], .lb-empty[hidden] { display: none; }
+table.lb-table td.model { min-width: 13rem; }
+table.lb-table thead th:nth-child(2), table.lb-table thead th:nth-child(3) { text-align: left; }
+i.swatch.lb-dot { width: .7rem; height: .7rem; margin-right: .35rem; border-radius: 50%; vertical-align: -.05rem; }
+table.lb-table .hl-type { display: block; }
+td.lb-score { width: 45%; min-width: 9rem; }
+.hl-bar { position: relative; display: block; height: .8rem; margin: .2rem 0 .25rem; background: var(--sunk); border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--edge); }
+.hl-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
+.hl-int { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); box-shadow: 0 0 0 1px var(--panel); }
+.hl-val { font-family: var(--mono); font-size: .84rem; }
+.hl-val .small { display: inline; margin-left: .4rem; }
+tr.hl-off { display: none !important; }
+table.lb-table tbody tr.hl-open > td { background: var(--row-hover); }
+.hl-box { margin: .35rem 0 0; color: var(--text); font-size: .82rem; line-height: 1.4; white-space: normal; }
+.hl-box p { margin: .12rem 0; }
+.hl-box p:first-child { margin-top: 0; }
+.hl-box .cost-gpu { display: inline; margin-left: .3rem; }
+.js .hl-box { display: none; position: fixed; z-index: 30; max-width: calc(100vw - 16px); margin: 0; padding: .6rem .75rem;
+  overflow: auto; overscroll-behavior: contain; background: var(--panel); border: 1px solid var(--control-edge); border-radius: 8px;
+  box-shadow: var(--shadow); }
+.js .hl-box.open { display: block; }
+.hl-more { display: block; margin-top: .2rem; padding: 0; border: 0; background: none; color: var(--link); font: inherit;
+  font-size: .8rem; cursor: pointer; text-decoration: underline dotted; }
+.hl-more::before { content: "\25B8\00a0"; }
+.hl-more[aria-expanded="true"]::before { content: "\25BE\00a0"; }
+tr.hl-sub[hidden] { display: table-row; }
+.js tr.hl-sub[hidden] { display: none; }
+tr.hl-sub td { background: var(--sunk); }
+tr.hl-sub td.model { padding-left: 1.6rem; }
+table.lb-table .lb-wide { display: none; }
+@media (min-width: 900px) {
+  table.lb-table .lb-wide { display: table-cell; white-space: nowrap; }
+  td.lb-score { width: 32%; }
+}
+.more-views-box { margin-top: .6rem; }
+.more-views-box > summary { cursor: pointer; font-weight: 650; }
+.more-views { margin: .4rem 0 0; padding-left: 1.1rem; }
+.more-views li { margin: .2rem 0; }
+.more-views-part { display: inline-block; min-width: 3.2rem; font-weight: 700; }
+.finding-link { margin: .3rem 0 0; font-weight: 600; }
+.story > figure { margin: .5rem 0 .6rem; }
 @media (max-width: 640px) {
-  table.headline .aux { display: none; }
-  table.headline .phone-only { display: block; color: var(--muted); font-size: .72rem; line-height: 1.2; white-space: normal; }
-  table.board.headline { table-layout: auto; width: 100%; }
-  table.board.headline thead th { vertical-align: bottom; min-width: 0; white-space: normal; }
-  table.board.headline td.model { white-space: nowrap; }
-  table.board.headline td.model .model-name { white-space: normal; }
-  table.board.headline td.num, table.board.headline th.num { width: 3.6rem; }
-  table.board.headline th:first-child, table.board.headline td:first-child { width: 1.6rem; min-width: 0; max-width: 1.8rem;
-    padding-left: .15rem; padding-right: .25rem; }
+  .hero-card h1 { font-size: 1.45rem; }
+  .hero-card .intro { font-size: .95rem; }
+  .readouts { gap: .2rem 0; }
+  .readout { margin-right: .5rem; padding-right: .5rem; }
+  .hero-links a { min-height: 2rem; padding: .2rem .6rem; font-size: .88rem; }
+  /* The keys in one row that scrolls sideways inside the card (as the tab row), the three groups apart by a thin line. */
+  .lb-controls { flex-wrap: nowrap; gap: .45rem; overflow-x: auto; scrollbar-width: none; margin: 0 -.75rem .5rem; padding: 0 .75rem; }
+  .lb-controls::-webkit-scrollbar { display: none; }
+  .lb-keys { flex: none; flex-wrap: nowrap; }
+  .lb-keys + .lb-keys { padding-left: .45rem; border-left: 1px solid var(--edge); }
+  .lb-keys .key { min-height: 1.7rem; padding: .1rem .45rem; font-size: .76rem; white-space: nowrap; }
+  table.board.lb-table { table-layout: auto; width: 100%; }
+  table.board.lb-table td.model { min-width: 0; white-space: normal; }
+  table.board.lb-table td.lb-score { width: 38%; min-width: 6.5rem; }
+  table.board.lb-table th:first-child, table.board.lb-table td:first-child { width: 1.6rem; min-width: 0; padding-left: .15rem; padding-right: .25rem; }
+  .hl-val .small { display: block; margin-left: 0; }
 }
