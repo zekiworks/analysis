@@ -53,6 +53,10 @@ details.lp-series { margin: .4rem 0; } details.lp-series > summary { cursor: poi
 /* The exploratory block (learning_page.explore): apart from the verdict, a dashed frame on the sunk background. */
 section.card.lp-explore { border: 2px dashed var(--edge); background: var(--sunk); }
 .lp-explore-label { margin-top: 0; }
+/* "Did they improve?" (improve_page.py): the long cells of the models table get room, so rows stay short. */
+.improve-models td[data-cell="answers"] { min-width: 24rem; }
+.improve-models td[data-cell="cost"], .improve-models td[data-cell="verdict"] { min-width: 11rem; }
+.improve-models th[scope="row"] { min-width: 11rem; }
 
 /* --- Dashboard layout: a centred header, tables first; data colours are unchanged. Colours, keys, lamps and panels are
    site.css's, the sibling site's look in both themes (Ümit, 31 Oct 2026); this page's own colour names map onto
