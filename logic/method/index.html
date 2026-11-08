@@ -40,7 +40,7 @@
         <li>The view bar's MODELS row picks Decision (the default), Chat or All; every chart, card, table and tie group is computed within the chosen group.</li>
         <li><strong>One row for the same answers</strong>: a named list of setup pairs that are one model behind two names (SubQ Snap 1.1 with SubQ Snap Preview) is ranked once, as one row, chart bar and tie-group member, with every number from the first. A pair is merged only while it still holds: both runs complete, the same letter on every common question in the standard and the “I don't know” runs, and identical option probabilities on at least 99% of them; otherwise both rows are shown.</li>
       </ul>
-      <p>Setups shown once (named “first = second”, with the first's numbers; both stay in the database and under All setups on Home):</p><ul><li>Logic: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 1,125 of 1,125); shown once.</li><li>Logic: Perplexity Decider 27B v1.2 API and Perplexity Decider 27B v1.2 local are the same model, one on our GPU and one through its API; shown once, with the more accurate on this test (53.3% against 53.2%); the other is under All setups.</li><li>Math: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 2,151 of 2,163); shown once.</li><li>Math: Perplexity Decider 27B v1.2 local and Perplexity Decider 27B v1.2 API are the same model, one on our GPU and one through its API; shown once, with the more accurate on this test (70.3% against 69.8%); the other is under All setups.</li></ul>
+      <p>Setups shown once (named “first = second”, with the first's numbers; both stay in the database and under All setups on Home):</p><ul><li>Logic: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 1,125 of 1,125); shown once.</li><li>Logic: Perplexity Decider 27B v1.2 API and Perplexity Decider 27B v1.2 local are two setups under the same model name, one on our GPU and one through Perplexity&#x27;s API (not verified to be identical weights or settings); shown once, with the more accurate on this test (53.3% against 53.2%); the other is under All setups.</li><li>Math: SubQ Snap Preview and SubQ Snap 1.1 returned the same answer to every question (and the same probabilities on 2,151 of 2,163); shown once.</li><li>Math: Perplexity Decider 27B v1.2 local and Perplexity Decider 27B v1.2 API are two setups under the same model name, one on our GPU and one through Perplexity&#x27;s API (not verified to be identical weights or settings); shown once, with the more accurate on this test (70.3% against 69.8%); the other is under All setups.</li></ul>
     </section>
     <section class="card prose" id="measures">
       <h2>Measures</h2>
@@ -10445,7 +10445,7 @@
   </main>
   <footer class="footer">
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 8 Nov 2026 02:22 UTC from the logic and math benchmark.db files (226,064 graded answers in 138 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 8 Nov 2026 02:24 UTC from the logic and math benchmark.db files (226,064 graded answers in 138 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
