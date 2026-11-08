@@ -407,7 +407,16 @@ i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2
   .view-row.view-measures ul { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr) minmax(0, .7fr) minmax(0, .7fr) minmax(0, 1.35fr); }
   /* The pages row scrolls sideways as one line (site.css); the groups' own lists do not scroll inside it. */
   .nav-group > ul { overflow: visible; margin: 0; padding: 0; }
-  .hbar-where { display: block; }
+  /* The bars on a phone in two lines, as the sibling's Math accuracy chart (Ümit via Zeki #2895, #2898): the icon and
+     the name (its league after it, small) across the width, then the bar from the left edge with the value and its
+     interval right-aligned beside it, in a narrower value column so the bar gets the width. */
+  .chart-wide .hbar { grid-template-columns: minmax(0, 1fr) 7.4rem; }
+  .chart-wide .hbar-value, .chart-wide .hbar-head { font-size: .7rem; }
+  .chart-wide .hbar-value { white-space: nowrap; }
+  .hbar-label a { overflow-wrap: anywhere; }
+  /* The filter row's part links scroll sideways inside the row instead of widening the page. */
+  .filter-row .part-links { min-width: 0; max-width: 100%; }
+  .filter-row .part-links .face-nav { min-width: 0; }
 }
 
 /* --- The home page as a story (Ümit, bus #2570; story.py): the headline table and the finding sections. --------------- */
@@ -424,6 +433,57 @@ td.hl-judgement { min-width: 13rem; }
 .hl-val { font-family: var(--mono); font-size: .84rem; }
 td.hl-release { white-space: nowrap; }
 .js [data-headline-panel][hidden] { display: none; }
+table.headline .head-short, table.headline .hl-more { white-space: nowrap; }
+table.headline .head-short { display: none; }
+/* The headline table on a phone (Ümit via Zeki #2895, #2898): # | Model | Risk judgement | PR on the first screen and no
+   sideways scroll. Each row is a wrapping line: the rank in 26 px, the model (icon, name, its league and a "+N" link to
+   its other settings under All setups), the bar with its number and the error rate; the release month, risks found,
+   right safety and cost follow under the model on a small second line, each after its header's name (those headers stay
+   for screen readers only, so the header is one line). */
+@media (max-width: 640px) {
+  table.headline .head-long { display: none; }
+  table.headline .head-short { display: inline; }
+  [data-headline-panel="best"] > .swipe-hint { display: none; }
+  table.board.headline, table.board.headline > thead, table.board.headline > tbody { display: block; }
+  table.board.headline > caption { display: block; }
+  table.board.headline tr { display: flex; flex-wrap: wrap; align-items: flex-start; padding-left: 26px;
+    border-bottom: 1px solid var(--edge); }
+  table.board.headline tr > :is(th, td) { position: static; width: auto; min-width: 0; max-width: none; padding: .4rem .2rem;
+    border-bottom: 0; box-shadow: none; order: 5; }
+  table.board.headline tr > :nth-child(1) { flex: 0 0 26px; order: 1; margin-left: -26px; padding-left: 0; padding-right: 4px;
+    text-align: right; }
+  table.board.headline tr > :nth-child(2) { flex: 1 1 calc(100% - 6.4rem - 3.7rem); order: 2; text-align: left; }
+  table.board.headline tr > :nth-child(4) { flex: 0 0 6.4rem; order: 3; text-align: left; }
+  table.board.headline tr > :nth-child(7) { flex: 0 0 3.7rem; order: 4; white-space: normal; }
+  table.board.headline tr > :nth-child(7) .small { font-size: .66rem; }
+  table.board.headline thead tr > :is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(8)) { position: absolute;
+    width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  table.board.headline tbody tr > :is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(8)) { padding: 0 .55rem .2rem .2rem;
+    font-size: .7rem; line-height: 1.3; text-align: left; white-space: nowrap; }
+  table.board.headline tbody tr > :is(:nth-child(5), :nth-child(6), :nth-child(8)) .small { display: inline; margin-left: .2em;
+    font-size: .64rem; }
+  table.board.headline tbody tr > :is(:nth-child(3), :nth-child(5), :nth-child(6), :nth-child(8))::before {
+    color: var(--text-2); font-family: var(--sans); }
+  table.board.headline tbody tr > :nth-child(3)::before { content: "Released "; }
+  table.board.headline tbody tr > :nth-child(5)::before { content: "Risks found "; }
+  table.board.headline tbody tr > :nth-child(6)::before { content: "Right safety "; }
+  table.board.headline tbody tr > :nth-child(8)::before { content: "Per 1,000 decisions "; }
+  :root[data-cost-unit="1m"] table.board.headline tbody tr > :nth-child(8)::before { content: "Per 1M decisions "; }
+  table.board.headline td.model { padding-left: .3rem; }
+  table.board.headline td.model .swatch { display: none; }
+  table.board.headline .model-name { overflow-wrap: anywhere; }
+  table.board.headline thead th { font-size: .76rem; white-space: normal; }
+  table.board.headline tbody tr > :nth-child(8) { flex-basis: 100%; white-space: normal; }
+  /* The row, not each cell, carries the zebra, hover and selection colour, so the second line has no gaps. */
+  table.board.headline tbody tr { background: var(--panel); }
+  table.board.headline tbody tr:nth-child(even) { background: var(--zebra); }
+  table.board.headline tbody tr:hover { background: var(--row-hover); }
+  table.board.headline tbody tr.is-selected { background: var(--row-selected); }
+  table.board.headline tbody tr:nth-child(n) > td { background: transparent; }
+  td.hl-judgement { min-width: 0; }
+  .hl-val { font-size: .78rem; }
+  .hl-val .small { font-size: .64rem; }
+}
 .finding h2 { font-size: 1.25rem; }
 .finding-text { max-width: 80ch; margin: 0 0 .75rem; }
 .finding-chart { margin: 0; }

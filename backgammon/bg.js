@@ -524,7 +524,7 @@ async function savePng(panel, svg, title, lines, filename) {
 })();
 
 /* Home page: the headline table's two views (story.py): the best setting per model, or every setup (the All leagues risk
-   table). */
+   table). A row's "+N" link (on a phone, its other settings) shows All setups too. */
 (function headlineViews() {
   const keys = [...document.querySelectorAll('[data-headline-view]')];
   if (!keys.length) return;
@@ -533,6 +533,7 @@ async function savePng(panel, svg, title, lines, filename) {
     document.querySelectorAll('[data-headline-panel]').forEach(p => { p.hidden = p.dataset.headlinePanel !== view; });
   };
   keys.forEach(k => k.addEventListener('click', () => show(k.dataset.headlineView)));
+  document.querySelectorAll('[data-headline-show]').forEach(a => a.addEventListener('click', () => show(a.dataset.headlineShow)));
 })();
 
 /* Home page: the Nackgammon summary table's keys (nack_section.py; Ümit #2647, #2651): Decision / Chat / All by model
