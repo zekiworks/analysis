@@ -421,11 +421,12 @@ td.hl-judgement { width: 55%; min-width: 13rem; }
   box-shadow: 0 0 0 1px rgba(0, 0, 0, .45); }
 .hl-val { font-family: var(--mono); font-size: .84rem; }
 .js [data-headline-panel][hidden] { display: none; }
-/* The leaderboard rows (Ümit, bus #2745; #2904, #2907; #2921): the rank, the model (maker dot, its type under the name
-   with a late entry's tag, the expander of its other settings, shown without script) and the risk judgement; the
-   programs grey and unranked under a group heading. */
+/* The leaderboard rows (Ümit, bus #2745; #2904, #2907; #2921; #3039): the rank, the model (maker dot, a late entry's
+   tag small after the name, the expander of its other settings, shown without script; nothing under the name, its
+   maker, type and setting are in its details box) and the risk judgement; the programs grey and unranked under a group
+   heading. */
 table.headline td.model .hl-dot { width: .7rem; height: .7rem; border-radius: 50%; }
-table.headline .hl-type { display: block; }
+table.headline td.model > .hl-tag { color: var(--text-2); font-size: .78rem; white-space: nowrap; }
 .hl-filter { display: flex; flex-wrap: wrap; gap: .3rem; margin: .1rem 0 .2rem; }
 .hl-filter .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
 .hl-tag::before { content: " \00b7\0020"; font-weight: 400; }
@@ -433,7 +434,8 @@ table.headline .hl-type { display: block; }
 tr.hl-off { display: none !important; }
 table.headline tbody tr.hl-open > td { background: var(--row-hover); }
 /* A row's details box (bg.js): every value of the setup, a line per kind; in its row without script, else over the page
-   under its row (fixed to the window, within its width), opened by a tap, hover or the focus. */
+   beside its row where the window has room, else under it (fixed to the window, within its width), opened by a tap,
+   hover or the focus. */
 .hl-box { margin: .35rem 0 0; color: var(--text); font-size: .82rem; line-height: 1.4; white-space: normal; }
 .hl-box p { margin: .12rem 0; }
 .hl-box p:first-child { margin-top: 0; }

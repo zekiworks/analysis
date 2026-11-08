@@ -571,10 +571,14 @@ async function savePng(panel, svg, title, lines, filename) {
 })();
 
 /* Home page: a leaderboard row's details box (Ümit #2904, as Clocktower Bench's). A tap on a phone opens it and a
-   second tap on the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row;
-   with the keyboard while the focus is in the row (the model's name, then the box's links). The box is placed under
-   the row (above it near the bottom of the window), within the window's width. Without JavaScript every box is shown
-   in its row. */
+   second tap on the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row or
+   its box (150 ms of grace after leaving both, so the pointer can cross a corner into the box; another row takes over at
+   once); with the keyboard while the focus is in the row (the model's name, then the box's links). Where the window has
+   room the box stands beside its row, right of the score column (else right of the name column), from the row's top
+   (from its bottom upwards near the window's foot): it never covers another row's name, so the row under the pointer
+   on a name is the row whose box shows (HoverCheck, Zeki #3146). On a phone it goes under the row (above it near the
+   bottom of the window). Within the window's width; capped where it does not fit. Without JavaScript every box is
+   shown in its row. */
 (function headlineDetails() {
   const table = document.getElementById('headline-table');
   if (!table) return;
@@ -583,18 +587,31 @@ async function savePng(panel, svg, title, lines, filename) {
   const place = () => {
     if (!open) return;
     const box = boxOf(open), row = open.getBoundingClientRect(), cell = open.querySelector('td.model').getBoundingClientRect();
+    const score = open.cells[2].getBoundingClientRect();
     const vw = document.documentElement.clientWidth;  // the visible width, even where something overflows the page
     const width = Math.min(380, vw - 16);
     box.style.width = `${width}px`;
+    box.style.maxHeight = '';
+    let height = box.offsetHeight;
+    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
+    const bottom = innerHeight - 8;
+    const side = vw - 8 - score.right >= width ? score.right : vw - 8 - cell.right >= width ? cell.right : null;
+    if (side !== null) {
+      // Beside the row: from its top, else ending at its bottom; where neither fits, within the window as near the
+      // row as it goes, capped to the window under the header (scrolling inside).
+      box.style.left = `${side}px`;
+      const top = header + 4;
+      if (height > bottom - top) { height = Math.max(bottom - top, 80); box.style.maxHeight = `${height}px`; }
+      box.style.top = `${row.top >= top && row.top + height <= bottom ? row.top
+        : row.bottom - height >= top && row.bottom <= bottom ? row.bottom - height
+        : Math.min(Math.max(row.top, top), bottom - height)}px`;
+      return;
+    }
     box.style.left = `${Math.max(8, Math.min(cell.left, vw - width - 8))}px`;
     // Height: below the row if it fits, else above it. If it fits neither way, capped to the larger side of the row,
     // scrolling inside (its links stay reachable by scrolling it or with Tab), so the row itself stays uncovered for a
     // second tap; only where neither side has 120 px does it take the window under the header.
-    box.style.maxHeight = '';
-    const height = box.offsetHeight;
-    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
     const below = row.bottom;  // no gap: the pointer moves from the row into its box without leaving the row
-    const bottom = innerHeight - 8;
     const roomBelow = bottom - below, roomAbove = row.top - header - 4;
     if (height <= roomBelow) box.style.top = `${below}px`;
     else if (height <= roomAbove) box.style.top = `${row.top - height}px`;
@@ -637,9 +654,21 @@ async function savePng(panel, svg, title, lines, filename) {
   const released = () => setTimeout(() => { pointing = false; });
   document.addEventListener('pointerup', released, true);
   document.addEventListener('pointercancel', released, true);
+  // The pointer leaving the row and its box (the box is inside the row) closes it after a 150 ms grace; entering the row
+  // or its box again keeps it, entering another row shows that row's box at once.
+  let leaving = 0;
+  const stay = () => { clearTimeout(leaving); leaving = 0; };
   rows.forEach(tr => {
-    tr.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && !pinned && !held()) show(tr, false); });
-    tr.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && !pinned && open === tr && !held()) hide(); });
+    tr.addEventListener('pointerenter', event => {
+      if (event.pointerType !== 'mouse') return;
+      stay();
+      if (!pinned && !held()) show(tr, false);
+    });
+    tr.addEventListener('pointerleave', event => {
+      if (event.pointerType !== 'mouse' || pinned || open !== tr || held()) return;
+      stay();
+      leaving = setTimeout(() => { leaving = 0; if (open === tr && !pinned && !held()) hide(); }, 150);
+    });
     tr.addEventListener('focusin', () => {
       keyed = !pointing;
       if (keyed && open !== tr && !quiet) show(tr, false);
@@ -648,7 +677,7 @@ async function savePng(panel, svg, title, lines, filename) {
     tr.addEventListener('click', event => {
       // A mouse click or a key (detail 0) follows the link; a link or key in the box or the expander does its own job.
       if (pointer === 'mouse' || event.detail === 0 || boxOf(tr).contains(event.target) || event.target.closest('.hl-more')) return;
-      event.preventDefault();  // a tap opens the box; its own link opens the decisions
+      event.preventDefault();  // a tap opens the box (tables.js leaves a prevented click alone); its link opens the decisions
       if (open === tr && pinned) hide(); else show(tr, true);
     });
   });
