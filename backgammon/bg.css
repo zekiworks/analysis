@@ -331,6 +331,7 @@ td.badges .small { display: block; white-space: normal; }
 /* Highlights and Experiments (Ümit #2901). */
 .highlight-slots, .experiment-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
 .highlight-slot { border-style: dashed; }
+.highlight-slot[data-slot="filled"] { grid-column: 1 / -1; border-style: solid; }
 .highlight-candidate { color: var(--text-2); }
 .experiment-card .status { margin-bottom: .3rem; }
 /* Three kinds of choice, three looks, in both themes and without hovering (Zeki, bus #1860):
@@ -398,9 +399,6 @@ i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2
   .chart-wide .hbar-value, .chart-wide .hbar-head { font-size: .7rem; }
   .chart-wide .hbar-value { white-space: nowrap; }
   .hbar-label a { overflow-wrap: anywhere; }
-  /* The filter row's part links scroll sideways inside the row instead of widening the page. */
-  .filter-row .part-links { min-width: 0; max-width: 100%; }
-  .filter-row .part-links .face-nav { min-width: 0; }
 }
 
 /* --- The home page as a story (Ümit, bus #2570; story.py): the headline table and the finding sections. --------------- */
@@ -414,7 +412,9 @@ td.hl-judgement { width: 55%; min-width: 13rem; }
 .hl-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
 .hl-fill.other { background: var(--data-grey); }
 .hl-int { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); box-shadow: 0 0 0 1px var(--panel); }
-.hl-safe { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--text-2); }
+/* The line at 50 (always safe): a white tick with a thin edge, so it shows on every fill and in both themes. */
+.hl-safe { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45); }
 .hl-val { font-family: var(--mono); font-size: .84rem; }
 .js [data-headline-panel][hidden] { display: none; }
 /* The leaderboard rows (Ümit, bus #2745; #2904, #2907; #2921): the rank, the model (maker dot, its type under the name
@@ -450,7 +450,13 @@ table.headline tr.reference td { color: var(--text-2); }
 .hbar-fill.ts-found, i.swatch-ts-found { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
 .hbar-fill.ts-grey, i.swatch-ts-grey { background-color: var(--data-grey); }
 i.swatch-ts-safety, i.swatch-ts-found { background-color: var(--text-2); }
-.too-safe { margin-top: 1rem; }
+/* Wide screens: four more columns (Ümit #2938 item 3: risks found, safe right, error rate, $ per 1,000). */
+table.headline th[data-wide], table.headline td.hl-wide, .hl-wide-note { display: none; }
+@media (min-width: 900px) {
+  table.headline th[data-wide], table.headline td.hl-wide { display: table-cell; white-space: nowrap; }
+  td.hl-judgement { width: 40%; }
+  .hl-wide-note { display: inline; }
+}
 /* At phone width: the three columns fit the width (no sticky column, no sideways scrolling), the bar column narrower. */
 @media (max-width: 640px) {
   table.headline th:first-child, table.headline td:first-child { position: static; width: auto; min-width: 0; max-width: none;
@@ -465,7 +471,28 @@ i.swatch-ts-safety, i.swatch-ts-found { background-color: var(--text-2); }
 .finding-chart { margin: 0; }
 .section-caveat { margin-top: .6rem; }
 .hbar-fill.q1-board, i.swatch-q1-board { background-color: var(--data-grey); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
-/* The Risk calls part's compact filter row (home.filters; Ümit, bus #2570 item 1): league, models, the parts of the page,
+/* The finding sections' own charts (story.py, Ümit #2938 item 2): one dot per model in its maker's colour, programs grey. */
+.finding-svg { max-width: 640px; }
+.chart-svg .sk-dot { stroke: var(--panel); stroke-width: 1; }
+.chart-svg .sk-ref { fill: var(--data-grey); stroke: var(--panel); }
+.chart-svg .sk-label { font-size: 10.5px; }
+.chart-svg .sk-head { font-weight: 600; }
+.chart-svg .sk-row { font-size: 10.5px; }
+.chart-svg .rd-line, .chart-svg .th-line { fill: none; stroke-width: 2; opacity: .8; }
+.chart-svg .th-dot { stroke-width: 2; }
+.finding #too-safe-values { margin-top: .6rem; }
+.finding .lp-chart { margin: 0; }
+/* The front page's hero (Ümit #2938 item 2 (1)): the question, the description, the counts line and three buttons. */
+.hero-card h1 { margin-top: 0; }
+.counts-line { margin: .3rem 0 .5rem; color: var(--text-2); font-size: .9rem; }
+.counts-line .readout-value { color: var(--text); font-weight: 700; }
+.footer-links { margin: .25rem 0 .4rem; }
+.decisions-links, .about-links { margin: 0 0 1rem; }
+/* Highlights: a filled slot shows its board beside the plays. */
+.highlight-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 1.5rem; align-items: start; }
+.highlight-body svg.hl-board { width: 100%; max-width: 460px; height: auto; display: block; }
+@media (max-width: 760px) { .highlight-body { grid-template-columns: minmax(0, 1fr); } }
+/* The compact filter row (home.filters; Ümit, bus #2570 item 1; on the Leagues page since #2938): league, models,
    More filters, the setup count and Reset on one line where they fit, in a compact key size. The row is
    always open: its body's selector outranks site.css's `.filters:not(.is-open) .filters-body { display: none }`
    (the collapsible filter panel, which this row is not), which had hidden the whole row. */
@@ -482,6 +509,5 @@ nav.filters.filter-row .filters-body { display: flex; flex-wrap: wrap; align-ite
 @media (max-width: 640px) {
   .filter-row .group-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); }
   .filter-row .key { min-height: 24px; padding: 1px 7px; font-size: 12px; }
-  .filter-row .part-links .face-nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .filter-row .filters-count { margin-left: 0; }
 }

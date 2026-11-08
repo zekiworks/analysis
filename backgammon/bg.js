@@ -21,10 +21,13 @@ const FILTER_LABEL = { kind: 'Model type', setting: 'Reasoning', runs: 'Runs on'
 const FOLDED = ['setting', 'runs', 'weights'];
 const TOP_N = 8;
 
-/* The anchors of the page that was live here before the switch (B2) open where that content lives now. */
+/* Old anchors of the home page open where that content lives now: the blocks that moved to the Leagues and Nackgammon
+   pages in Ümit #2938 (the map the build writes into #moved-anchors: every id of those blocks, and the old home league
+   block's lg- ids), then the anchors of the page that was live here before the switch (B2). The query string goes
+   along (?tab=, ?league=, ?type= work on the Leagues page too). */
 (function oldAnchors() {
   if (!document.body.classList.contains('home')) return;
-  const MOVED = {
+  const BEFORE_SWITCH = {
     v3: 'leagues/', 'v3-title': 'leagues/', 'v3-l1': 'leagues/#league-1', 'v3-league1': 'leagues/#league-1',
     'v3-l2': 'leagues/#league-2', 'v3-league2': 'leagues/#league-2', 'v3-l3': 'leagues/#league-3',
     'v3-league3': 'leagues/#league-3', 'v3-anchor': 'method/#v3-anchor', 'v3-dice': 'method/#exp-dice',
@@ -33,9 +36,13 @@ const TOP_N = 8;
     results: 'leagues/#v1-results', allstar: 'leagues/#v1-allstar', 'speed-cost': 'leagues/#v1-speed-cost',
     limits: 'leagues/#v1-limits',
   };
+  const map = document.getElementById('moved-anchors');
+  const MOVED = Object.assign({}, BEFORE_SWITCH, map ? JSON.parse(map.textContent) : {});
   const go = () => {
     const id = decodeURIComponent(location.hash.slice(1)).replace(/-title$/, '');
-    if (id && !document.getElementById(id) && MOVED[id]) location.replace(MOVED[id]);
+    if (!id || document.getElementById(id) || !MOVED[id]) return;
+    const [path, hash] = MOVED[id].split('#');
+    location.replace(path + location.search + (hash ? '#' + hash : ''));
   };
   go();
   window.addEventListener('hashchange', go);
@@ -165,7 +172,8 @@ async function loadPhase(phase) {
   } else {
     const leagues = [...new Set([...slots].map(s => s.dataset.dataset))];
     await Promise.all(leagues.map(async ds => {
-      const res = await fetch(`fragments/${ds}-${phase}.html`);
+      const base = document.getElementById('filters')?.dataset.fragments || 'fragments/';
+      const res = await fetch(`${base}${ds}-${phase}.html`);
       if (!res.ok) throw new Error(`fragments/${ds}-${phase}.html: ${res.status}`);
       const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
       doc.querySelectorAll('.phase-slot').forEach(src => {
@@ -500,7 +508,11 @@ async function savePng(panel, svg, title, lines, filename) {
   const fromHash = scroll => {
     const id = decodeURIComponent(location.hash.slice(1));
     const el = id && document.getElementById(id);
-    if (!el || !route(el, scroll)) route(document.getElementById(tabs[0].getAttribute('aria-controls')), false);
+    if (el && route(el, scroll)) return;
+    route(document.getElementById(tabs[0].getAttribute('aria-controls')), false);
+    // An anchor outside the tabs (the blocks moved here from the home page, #board-panel, #risk-judgement …): the tabs
+    // above it just changed height, so scroll to it again.
+    if (el && scroll) el.scrollIntoView();
   };
   tabs.forEach(t => t.addEventListener('click', event => {
     event.preventDefault();
