@@ -1,13 +1,17 @@
-/* The suite strip: one thin row of links to the three benchmark sites (English & Turkish Reading, Logic & Math,
+/* The suite strip: one row of links to the three benchmark sites (English & Turkish Reading, Logic & Math,
    Backgammon), identical on every page of all three. Self-contained: it needs no other stylesheet. The snippet is
    suite-bar.html; put it as the first row of the page's sticky header (or at the very top of <body>).
 
    Theme: it follows data-theme on <html> ("light" or "dark"), as the sites' own stylesheets do; without the attribute
    it follows the reader's system setting (prefers-color-scheme). The current site's link carries aria-current="page"
-   and is filled like a selected key; the others are plain links. On a desktop about 50 px tall: 8 px above the links and
-   10 px below them, the links 32 px high with 8 px by 16 px inside and 20 px between them, 14 px text. On screens
-   narrower than 600 px about 46 px: links 28 px high with 6 px by 12 px inside, 8 px apart, 13 px text. One line; on a
-   narrow screen the links scroll sideways inside the strip, never the page. */
+   and is filled like a selected key; the others are plain links.
+
+   The links sit in the middle of the strip (project lead, 9 November). They are centred by auto margins, not by
+   justify-content: center: where they are wider than the screen (a phone) they then start at its left edge and
+   scroll sideways inside the strip, never the page; plain centring would push the start of the first link off the
+   left edge, out of reach. On a desktop about 57 px tall: 10 px above and below the links, the links 36 px high with
+   10 px by 18 px inside and 24 px between them, 14 px text. On screens narrower than 600 px about 52 px: 10 px above
+   and below, the links 31 px high with 8 px by 12 px inside and 12 px between them, 13 px text. One line. */
 .suite-bar {
   --suite-bg: #ecebe6;
   --suite-edge: #c9c6bf;
@@ -43,9 +47,9 @@
 .suite-bar {
   box-sizing: border-box;
   display: block;
-  min-height: 50px;
+  min-height: 52px;
   margin: 0;
-  padding: 8px 16px 10px;
+  padding: 10px 18px;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -58,8 +62,8 @@
 .suite-bar ul {
   display: flex;
   align-items: center;
-  gap: 20px;
-  max-width: 1248px;
+  gap: 24px;
+  width: max-content;
   margin: 0 auto;
   padding: 0;
   list-style: none;
@@ -69,8 +73,8 @@
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  min-height: 32px;
-  padding: 8px 16px;
+  min-height: 36px;
+  padding: 10px 18px;
   color: var(--suite-text);
   border: 1px solid transparent;
   border-radius: 5px;
@@ -88,8 +92,8 @@
   text-decoration: none;
 }
 @media (max-width: 599px) {
-  .suite-bar { min-height: 46px; padding: 8px 14px 10px; font-size: 13px; }
-  .suite-bar ul { gap: 8px; }
-  .suite-bar a { min-height: 28px; padding: 6px 12px; }
+  .suite-bar { min-height: 48px; padding: 10px 14px; font-size: 13px; }
+  .suite-bar ul { gap: 12px; }
+  .suite-bar a { min-height: 31px; padding: 8px 12px; }
 }
 @media print { .suite-bar { display: none; } }
