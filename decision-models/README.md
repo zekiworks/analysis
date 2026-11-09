@@ -188,12 +188,14 @@ python3 -m http.server 8000                                # preview at http://1
     (`data-models`; `site.js` shows each element only for its groups), and such a page carries its own group keys at
     the top of its body (`group_switch`, All · Decision models · Chat models · Small models, in the page, not in the
     top bar), with the Small models rule under them in the small view; on the Leaderboard it sets the table's filter.
-    **Small models** (`Site.small`, `v3.js` `isSmall`): every setup, chat or decision model, whose model's total
-    parameter count as its maker discloses it is at most `page_config.json`'s `small_models.max_parameters` (15B, one
-    threshold shared with the Logic and Backgammon sites); a mixture of experts counts by its total, and a model whose
-    maker discloses no size is never in it. `small_models.also_by_name` holds setups by name although their total is
-    larger, worded in the rule line as on the other two sites: Inkling Small, 12B active of 265.96B total (project lead
-    through Zeki, bus #3806). A part that covers every decision model whatever its size (a Holm family,
+    **Small models** (`Site.small`, `v3.js` `isSmall`): one rule on the three sites (project lead through Zeki, bus
+    #3812-#3816), worded in `small_models.line`: every setup, chat or decision model, whose model's total parameter
+    count, or for a mixture of experts every active count (DeepSeek-V4.1-Flash's 8B prefill and 16B decode keep it
+    out), as its maker discloses it is at most `small_models.max_parameters` (15B); a model whose maker discloses no
+    size is never in it. `small_models.left_out_models` are never in it here: the six small setups only this site ran
+    (Laya, Laya multilingual, the two GLiNER2.5, Qwen3-14B, Erk-14B; Zeki #3805, #3818), named in the rule line and
+    shown under All. `small_models.also_by_name` holds a setup whose size record does not carry its maker's active count
+    yet (Inkling Small, 12B active on its card). A part that covers every decision model whatever its size (a Holm family,
     a decision-model finding) is not split by size: under Small models a note (`small_note`) stands in its place, as
     under Chat models. A group asked for in the address stays in the links marked
     `data-keep-group`. The footer of every page (`footer`): About · Method · Data · GitHub, the downloads and the

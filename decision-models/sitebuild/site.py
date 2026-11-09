@@ -682,12 +682,18 @@ class Site:
         return self.config["small_models"]["max_parameters"]
 
     def small(self, run: dict[str, Any]) -> bool:
-        """Whether a setup is in the Small models view: its model's total as the maker discloses it (a mixture of experts
-        by its total) is at most small_max, or it is in small_models.also_by_name; a model whose maker discloses no size
-        never is otherwise."""
-        named = any(item["provider"] == run["provider"] and item["model"] == run["model"]
-                    for item in self.config["small_models"].get("also_by_name", []))
-        return named or (run.get("parameters") is not None and run["parameters"] <= self.small_max)
+        """Whether a setup is in the Small models view (the three sites' rule, project lead through Zeki #3812-#3816): its
+        model's total, or for a mixture of experts every active count, as the maker discloses it, at most small_max; a
+        model whose maker discloses no size never is. small_models.left_out_models never are (setups only this site
+        ran, Zeki #3805, #3818); small_models.also_by_name always are (a setup whose maker's active count its size record
+        does not carry yet)."""
+        small = self.config["small_models"]
+        if run["model"] in small.get("left_out_models", []):
+            return False
+        if any(item["provider"] == run["provider"] and item["model"] == run["model"] for item in small.get("also_by_name", [])):
+            return True
+        total, active = run.get("parameters"), run.get("active_parameters") or []
+        return (total is not None and total <= self.small_max) or (bool(active) and max(active) <= self.small_max)
 
     def in_group(self, run: dict[str, Any], group: str) -> bool:
         """Whether a setup shows in a model group of the view bar (MODEL_GROUPS)."""
@@ -698,12 +704,10 @@ class Site:
         return self.decision(run) == (group == "decision")
 
     def small_line(self) -> str:
-        """The Small models view's rule in one line, under the Leaderboard and on the pages that show the view, with the
-        setups it holds by name (small_models.also_by_name), worded as on the other two sites."""
-        named = [item["text"] for item in self.config["small_models"].get("also_by_name", [])]
-        return (f"Small models: at most {billions(self.small_max)} parameters in total, as disclosed by the maker; models "
-                "whose makers disclose no size are not included."
-                + (f" Also included by name: {'; '.join(named)}." if named else ""))
+        """The Small models view's rule in one line, under the Leaderboard and on the pages that show the view: the three
+        sites' words (small_models.line), then the setups left out here."""
+        small = self.config["small_models"]
+        return small["line"] + (f" Left out here: {small['left_out_text']}." if small.get("left_out_text") else "")
 
     def kind(self, run: dict[str, Any]) -> str:
         return "Decision model" if self.decision(run) else "Chat model"

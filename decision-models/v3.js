@@ -285,11 +285,17 @@ const MODEL_GROUPS = {
   chat: { title: 'Chat models', every: 'every chat and general model', of: count => `the ${count} chat and general models` },
   small: { title: 'Small models', every: 'every small model setup, decision and chat models together', of: count => `the ${count} small model setups` },
 };
-/* A setup of a small model: its maker's disclosed total (a mixture of experts by its total) at most the threshold
-   (page_config.json small_models), or one of the setups it holds by name (SETTINGS.smallByName, "provider|model"); a
-   model whose maker discloses no size never is otherwise. As Site.small. */
-const isSmall = run => (SETTINGS.smallByName || []).includes(`${run.provider}|${run.model}`)
-  || (run.parameters != null && run.parameters <= SETTINGS.smallModels);
+/* A setup of a small model (page_config.json small_models, as Site.small): its maker's disclosed total, or for a
+   mixture of experts every active count, at most the threshold; never a model id the view leaves out
+   (SETTINGS.smallLeftOut), always a setup it holds by name (SETTINGS.smallByName, "provider|model"); a model whose
+   maker discloses no size never is. */
+const isSmall = run => {
+  if ((SETTINGS.smallLeftOut || []).includes(run.model)) return false;
+  if ((SETTINGS.smallByName || []).includes(`${run.provider}|${run.model}`)) return true;
+  const active = run.active_parameters || [];
+  return (run.parameters != null && run.parameters <= SETTINGS.smallModels)
+    || (active.length > 0 && Math.max(...active) <= SETTINGS.smallModels);
+};
 const inGroup = run => state.models === 'all' || (state.models === 'small' ? isSmall(run) : isDecision(run) === (state.models === 'decision'));
 /* Every setup of the group in view, whatever the filters. */
 const groupRuns = () => data.runs.filter(inGroup);

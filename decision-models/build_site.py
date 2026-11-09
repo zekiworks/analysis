@@ -328,9 +328,10 @@ def page_settings(data: Data) -> str:
         "moreUrl": asset(HOME_MORE),
         "decisionProviders": data.config["decision_model_providers"],
         "notDecisionModels": data.config["not_decision_models"],
-        # The Small models view's threshold in parameters and the setups it holds by name, as "provider|model"
-        # (page_config.json small_models; Site.small).
+        # The Small models view (page_config.json small_models; Site.small): the threshold in parameters, the model ids it
+        # leaves out and the setups it holds by name, as "provider|model".
         "smallModels": data.config["small_models"]["max_parameters"],
+        "smallLeftOut": data.config["small_models"].get("left_out_models", []),
         "smallByName": [f'{item["provider"]}|{item["model"]}' for item in data.config["small_models"].get("also_by_name", [])],
         "readingUnits": data.config["reading_units"],
         "threshold": data.config["threshold"],
