@@ -1,8 +1,9 @@
 """Page images (vision/), the site's second tab: the questions that point at underlined or numbered words on
 the printed page, asked as text (A), as a picture of the page only (B), as both (C) and as each OCR model's reading of the
 picture (D), from vision.json. vision.json holds aggregate numbers and each answer's pick and option probabilities; no
-question text, picture or OCR text. Under the intro, the four inputs drawn on a sample question written for the page
-(inputs_sample), then the charts, the leaderboards and the OCR models' table; Info holds what we found and the method.
+question text, picture or OCR text. Under one line, the charts, the leaderboards and the OCR models' table; Info holds
+what we found and the method. The longer intro and the four inputs drawn on a sample question written for the page
+(inputs_sample) are in About's notes on each page (Site.note).
 
 The leaderboard keeps decision models and other models apart (page_config.json's rule, Site.decision), and within each,
 the image models ranked by B, then the text-only models ranked by their best OCR route. A condition vision.json does not
@@ -20,7 +21,7 @@ from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import DECISION_ONLY, ROOT, Site, chat_note, esc, hbars, interval, pct, rank_fill, rel
+from sitebuild.site import DECISION_ONLY, ROOT, Site, chat_note, esc, hbars, interval, more_link, pct, rank_fill, rel
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -647,12 +648,14 @@ def build(site: Site) -> dict[str, str]:
     failures = [esc(item) if isinstance(item, str) else esc(str(item)) for item in data["failures"]]
     ocr_methods = [f"<strong>{esc(OCR_NAMES[key])}</strong> ({esc(item['model'])} at {esc(item['revision'][:7])}): {esc(item['method'])}"
                    for key, item in data["ocr"]["models"].items()]
+    site.note(PATH, "Page images", f"""<p>The {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
+      {inputs_sample(data)}""")
     body = f"""    <section class="card">
       <p class="eyebrow">Page images</p>
       <h1>{questions} questions with underlined or numbered words</h1>
       {chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
-      <p>The {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
-      {inputs_sample(data)}
+      <p>Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D); ranked apart from the Text tab.</p>
+      {more_link(PATH)}
       <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision">Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
     </section>
     {face(site, data)}

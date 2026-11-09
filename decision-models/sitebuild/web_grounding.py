@@ -21,7 +21,7 @@ from typing import Any
 from build_page import long_date
 from sitebuild import pws_decisions
 from sitebuild.site import (DECISION_ONLY, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value, esc,
-                            family_icon, hbars, log_axis, pct, rel)
+                            family_icon, hbars, log_axis, more_link, pct, rel)
 
 PATH = "web-grounding/"
 TITLE = "Web grounding"
@@ -702,12 +702,17 @@ def build(site: Site) -> dict[str, str]:
     rows = arms(data, pws_rows)
     days = sorted(set(data["dates"]) | {PWS_RUN_DATE} | set(pws_dates))
     when = long_date(days[0]) if len(days) == 1 else f"{long_date(days[0])} to {long_date(days[-1])}"
+    site.note(PATH, TITLE, f'<p {DECISION_ONLY}><a href="{named["off"]["href"]}">{esc(named["off"]["name"])}</a> and '
+              f'<a href="{named["on"]["href"]}">{esc(named["on"]["name"])}</a>, Perplexity\'s Decisions API without and '
+              f"with a web search per question; {run_counts(data, pws_rows)}, the ranking keeping each setup's first run; "
+              f"run on {esc(when)}.</p>")
     body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
       <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
       {chat_note("Chat models: this page compares decision-model setups, so it shows under All models and Decision models. PWS-Decisions with chat models: its own page.")}
       <div {DECISION_ONLY}>
-      <p class="note"><a href="{named['off']['href']}">{esc(named['off']['name'])}</a> and <a href="{named['on']['href']}">{esc(named['on']['name'])}</a>, Perplexity's Decisions API without and with a web search per question; {run_counts(data, pws_rows)}, the ranking keeping each setup's first run; run on {esc(when)}.</p>
+      <p>Perplexity's Decisions API without and with a web search per question.</p>
+      {more_link(PATH)}
       {result_cards(rows, digits, upper)}
       <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#non-hallucination">Non-hallucination</a><a href="#latency">Latency</a><a href="#cost">Cost</a><a href="#pws">PWS-Decisions, decision models</a><a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Detailed results</a></nav></div>
     </section>

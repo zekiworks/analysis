@@ -228,14 +228,16 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
    the one-row-per-model table. A row of another kind and its other-setting rows go out of view (lb-off); the rank cell
    shows the row's rank among the rows in view. Each row's expander shows or hides its other setups. Old addresses keep
    working: #headline lands on the Leaderboard; #board, #all-setups, #cost-table and #chart-tradeoff open All setups
-   first; #info, whose summary and notes moved, opens About. Without JavaScript the Turkish table and the full ranking
-   both show. */
+   first; on the home page itself, #info, whose summary and notes moved, and #how-scores, which moved, open About
+   (MOVED; the About page has its own #leaderboard). Without JavaScript the Turkish table and the full ranking both
+   show. */
 (function leaderboard() {
   const board = document.getElementById('leaderboard');
   if (!board) return;
   const hash = decodeURIComponent(window.location.hash.slice(1));
-  if (hash === 'info') {
-    window.location.replace('about/#summary');
+  const MOVED = { info: 'about/#summary', 'how-scores': 'about/#how-scores' };
+  if (document.body.classList.contains('home') && Object.hasOwn(MOVED, hash)) {
+    window.location.replace(MOVED[hash]);
     return;
   }
   const state = {

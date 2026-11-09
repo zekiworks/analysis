@@ -8,6 +8,7 @@ import hashlib
 import html
 import json
 import math
+import posixpath
 import re
 from collections.abc import Callable, Iterable
 from functools import cache, cached_property
@@ -122,6 +123,40 @@ def rel(origin: str, target: str) -> str:
     """A relative link from the page at origin to target, both inside the site ('' is the home page, 'models/145/')."""
     up = "../" * origin.count("/")
     return (up + target) or "./"
+
+
+# The About page's "Notes on each page" (#page-notes): the longer explanations that stood at the top of a page or above a
+# chart, moved there (Ümit via Zeki, bus #3521), each under its page's sub-heading and anchor, with a link where it was.
+ABOUT = "about/"
+NOTES_ANCHOR = "page-notes"
+LINK = re.compile(r'\b(href|src)="([^"]*)"')
+
+
+def rebase(text: str, origin: str, target: str) -> str:
+    """HTML written for the page at origin, its relative links (and in-page links) rewritten for the page at target."""
+    def fix(match: re.Match[str]) -> str:
+        url = match.group(2)
+        if re.match(r"[a-z][a-z0-9+.-]*:|/", url, re.I):
+            return match.group(0)
+        rest, hash_mark, fragment = url.partition("#")
+        path, query_mark, query = rest.partition("?")
+        if path:
+            resolved = posixpath.normpath(posixpath.join("/" + origin, path)).lstrip("/")
+            resolved = "" if resolved in ("", ".") else resolved + ("/" if path.endswith(("/", ".")) else "")
+        else:
+            resolved = origin
+        return f'{match.group(1)}="{rel(target, resolved)}{query_mark}{query}{hash_mark}{fragment}"'
+    return LINK.sub(fix, text)
+
+
+def note_anchor(path: str, part: str | None = None) -> str:
+    """The anchor of a page's notes (or of one part of them) on the About page: notes-home, notes-dont-know-headline."""
+    return "notes-" + (path.strip("/").replace("/", "-") or "home") + (f"-{part}" if part else "")
+
+
+def more_link(path: str, part: str | None = None, text: str = "More about this page") -> str:
+    """The link left where a page's moved text stood, to its notes on the About page."""
+    return f'<p class="more-note"><a href="{rel(path, ABOUT)}#{note_anchor(path, part)}">{esc(text)}</a></p>'
 
 
 def asset(target: str) -> str:
@@ -530,6 +565,15 @@ class Site:
         self.by_id = {run["run"]: run for run in self.runs}
         self.total: int = self.results["questions"]
         self.units: list[dict[str, Any]] = self.results["units"]
+        # The About page's notes on each page (note()), by page path: its title and its parts (anchor part, title, HTML).
+        self.notes: dict[str, tuple[str, list[tuple[str | None, str | None, str]]]] = {}
+
+    def note(self, path: str, page_title: str, html_text: str, part: str | None = None, title: str | None = None) -> None:
+        """Moves text from the page at path to its notes on the About page (Notes on each page): the HTML, its links
+        rebased for the About page, under the page's sub-heading (page_title), or under its own sub-heading and anchor
+        with part and title; the page leaves more_link() where it stood."""
+        parts = self.notes.setdefault(path, (page_title, []))[1]
+        parts.append((part, title, rebase(html_text, path, ABOUT)))
 
     @cached_property
     def answers(self) -> dict[str, Any]:

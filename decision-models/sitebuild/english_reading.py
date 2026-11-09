@@ -15,8 +15,9 @@ know" in both languages, cost and latency, the rank in both languages and the la
 risk-coverage plots and the table of the runs with the option, the Non-hallucination part (#non-hallucination: the same
 questions with an "I don't know" option in English against the Hallucination tab's "Bilmiyorum", dont_know_face(),
 decision and chat models ranked together in the all group, a chat model's side still running read as Running), the
-Results table and the setups without an English run. The intro is one sentence, the headline and the translation
-check's limit (limit_note()); the view bar's row 3 links to the face's parts: #accuracy, #non-hallucination, #cost and
+Results table and the setups without an English run. The top is one line and the translation check's limit in one line
+(limit_line()); the lead with the headline, limit_note() and the experiments line are in About's notes on each page
+(Site.note). The view bar's row 3 links to the face's parts: #accuracy, #non-hallucination, #cost and
 #latency, so the page has no links row of its own. The parts about decision models only come once, for the all and
 decision groups: Liquid d1-ultra against each decision model (with one note for the chat group), the same with the
 option written "I don't know" in Turkish too (dont_know_word_face()) and the option's word on the Turkish questions
@@ -39,8 +40,8 @@ from sitebuild.data import BLOB_URL
 from sitebuild.dont_know import check_option_word, group_data, option_word_rows
 from sitebuild.site import (DECISION_ONLY, GROUPS, NO_LIST_PRICE, NOT_MEASURED, ROOT, Site, chat_note, cost_missing,
                             cost_per, cost_switch, cost_tick, cost_unit_in, cost_value, cost_words, esc, experiments,
-                            family_legend, hbars, legend_mark, line_plot, log_axis, pct, rel, request_size, seconds_tick,
-                            shown)
+                            family_legend, hbars, legend_mark, line_plot, log_axis, more_link, pct, rel, request_size,
+                            seconds_tick, shown)
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "turkish-vs-english/"
@@ -581,14 +582,20 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
 
 
 def limit_note(translator: str, method: str) -> str:
-    """The translation check's limit, short, in the intro of both English pages (the method gives it in full)."""
+    """The translation check's limit in full, among the notes on both English pages (the method gives it in full)."""
     return (f'<p class="limit"><strong>Limit:</strong> {esc(translator)} translated the questions and flagged those whose '
             "answer depends on Turkish wording. No person checked the translations or the flags, so an error could move a "
             f'setup\'s English accuracy (<a href="{method}">Our method</a>).</p>')
 
 
+def limit_line(method: str) -> str:
+    """The translation check's limit in one line, at the top of both English pages (limit_note in their notes)."""
+    return ('<p class="limit"><strong>Limit:</strong> a model translated the questions and no person checked them '
+            f'(<a href="{method}">Our method</a>).</p>')
+
+
 def experiments_note(site: Site, path: str) -> str:
-    """The experiments line beside the ranking (site.experiments), under the intro of both English pages."""
+    """The experiments line beside the ranking (site.experiments), in About's notes on both English pages."""
     line = experiments(site.results, path)
     return f'<p class="note experiments">{line}</p>' if line else ""
 
@@ -2242,6 +2249,15 @@ def build(site: Site) -> dict[str, str]:
                 f"asked of {bp.in_words(count)} {noun(group, count)}" + (f" ({split})" if group == "all" else "")
                 + f", each compared with its own Turkish run.</p>{headline(site, data, group)}</div>")
 
+    def short(group: str) -> str:
+        """A group's one line at the top: what was asked of how many of its setups (lead, with the headline, in the
+        notes)."""
+        count = counts[group]
+        if not count:
+            return lead(group)
+        return (f"<div {shown(group)}><p>{kept} of the Text tab's {reading} reading questions, translated into English, "
+                f"asked of {bp.in_words(count)} {noun(group, count)}.</p></div>")
+
     def copies(render: Callable[[str], str]) -> str:
         return "".join(render(group) for group in GROUPS if counts[group])
 
@@ -2267,11 +2283,14 @@ def build(site: Site) -> dict[str, str]:
         "Liquid d1-ultra against each decision model in English is for decision models only.")) if against else ""
     idk_block = idk_parts + (f"<div {DECISION_ONLY}>{word_parts}</div>" if word_parts else "")
     method = "#method"
+    site.note(PATH, "Turkish vs English", "".join(lead(group) for group in GROUPS) + limit_note(translator_name, method)
+              + experiments_note(site, PATH))
     body = f"""    <section class="card">
       <p class="eyebrow">Turkish vs English</p>
       <h1>The Text tab's reading questions, in Turkish and in English</h1>
-      {"".join(lead(group) for group in GROUPS)}
-      {limit_note(translator_name, method)}{experiments_note(site, PATH)}
+      {"".join(short(group) for group in GROUPS)}
+      {limit_line(method)}
+      {more_link(PATH)}
     </section>
     <section class="measure" id="accuracy" aria-label="Accuracy">{copies(lambda group: face(site, data, group))}{against_block}</section>
     {copies(lambda group: main_table(site, data, group))}

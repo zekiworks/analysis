@@ -16,7 +16,7 @@ from typing import Any
 
 from build_page import long_date
 from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value,
-                            esc, family_legend, hbars, log_axis, pct, rel, seconds_tick)
+                            esc, family_legend, hbars, log_axis, more_link, pct, rel, seconds_tick)
 from sitebuild.vision import cell, joined
 
 PATH = "pws-decisions/"
@@ -1085,14 +1085,16 @@ def build(site: Site) -> dict[str, str]:
                    if web(item["setup"]) and item["setup"]["price"].get("per_request", 0) > 0})
     block = dont_know_block(data)
     idk_nav = f'<a href="#dont-know" {DECISION_ONLY}>{esc(block["option"])}</a>' if block else ""
+    site.note(PATH, TITLE, f"""<p>PWS-Decisions is Parallel Web Systems' benchmark of {data['questions']} public English multiple-choice questions whose answers depend on dated facts on the public web. We asked {who} that an API still serves, {data['runs_per_setup']} runs each, one question per request. {"With web search: " + esc(joined(searched)) + "; every other setup answered without search." if searched else "Every setup answered without search."} This page is not part of the Turkish ranking.</p>
+      {framing(data)}
+      <p>{above} setups have a mean accuracy above the {pct(data['random_accuracy'], digits)} chance line (Parallel's random-guess baseline, not a run of ours); every accuracy here is the mean of our {data['runs_per_setup']} runs.</p>
+      {provenance(data)}""")
     body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
       <h1>PWS-Decisions: the site's models on dated web facts</h1>
-      <p>PWS-Decisions is Parallel Web Systems' benchmark of {data['questions']} public English multiple-choice questions whose answers depend on dated facts on the public web. We asked {who} that an API still serves, {data['runs_per_setup']} runs each, one question per request. {"With web search: " + esc(joined(searched)) + "; every other setup answered without search." if searched else "Every setup answered without search."} This page is not part of the Turkish ranking.</p>
+      <p>Parallel Web Systems' {data['questions']} public English questions on dated web facts; not part of the Turkish ranking.</p>
+      {more_link(PATH)}
       {summary_cards(items, digits)}
-      {framing(data)}
-      <p>{above} setups have a mean accuracy above the {pct(data['random_accuracy'], digits)} chance line (Parallel's random-guess baseline, not a run of ours); every accuracy here is the mean of our {data['runs_per_setup']} runs.</p>
-      {provenance(data)}
       <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{f'<a href="#habits" {DECISION_ONLY}>Without the facts</a><a href="#habits-2" {DECISION_ONLY}>Answering habits</a>' if data.get("habits") else ""}{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
     </section>
     <section class="charts" aria-label="Charts">{charts(site, data, items, PATH, "chart-", measures=True)}</section>

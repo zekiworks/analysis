@@ -8,7 +8,7 @@ import re
 
 import build_page as bp
 from sitebuild.questions import PICKS
-from sitebuild.site import ROOT, Site, esc, rel
+from sitebuild.site import ROOT, Site, esc, more_link, rel
 from sitebuild.vision import joined
 
 PATH = "data/"
@@ -122,9 +122,12 @@ def build(site: Site) -> dict[str, str]:
     citation = bp.citation(site.snapshot, site.values)
     key = results["answer_key"]
     picks_hash = hashlib.sha256(PICKS.read_bytes()).hexdigest()[:12]
+    site.note(PATH, "Data", "<p>Everything the pages show comes from these files. They hold aggregate numbers and every "
+              "answer, but not the questions: the publisher owns them.</p>")
     body = f"""    <section class="card">
       <h1>Data</h1>
-      <p>Everything the pages show comes from these files. They hold aggregate numbers and every answer, but not the questions: the publisher owns them.</p>
+      <p>Everything the pages show comes from these files.</p>
+      {more_link(PATH)}
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">File</th><th scope="col">Contents</th><th scope="col" class="num">Size</th></tr></thead><tbody>{downloads}</tbody></table></div>
       <p class="note">Results version {esc(results["results_version"])} (what changed: the <a href="#results-changelog">results changelog</a>); picks.json {picks_hash}. The code that ran the benchmark and rebuilds these files is in the <a href="{CODE_URL}">repository</a>; its runner README explains how someone who owns the book rebuilds the question bank.</p>
     </section>

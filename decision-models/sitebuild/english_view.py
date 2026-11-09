@@ -23,10 +23,10 @@ from typing import Any
 
 from sitebuild.english_reading import (NO_OPTION, NO_RATE, PATH as COMPARISON, RECORD, TRANSLATORS, anchor,
                                        check_dont_know, cost_note, english_only, experiments_note, group_models, label,
-                                       limit_note, measure_card, measure_cell, measure_heads, missing_note, missing_side,
-                                       noun, setup_href)
+                                       limit_line, limit_note, measure_card, measure_cell, measure_heads, missing_note,
+                                       missing_side, noun, setup_href)
 from sitebuild import holding_back as hold
-from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, pct, rel, shown
+from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, more_link, pct, rel, shown
 from sitebuild.vision import cell
 
 PATH = "english/"
@@ -232,13 +232,24 @@ def build(site: Site) -> dict[str, str]:
                 f"{noun(group, count)}{split} with their Text tab settings. The paired comparison with Turkish is on "
                 f'<a href="{comparison}">English and Turkish</a>.</p></div>')
 
+    def short(group: str) -> str:
+        """A group's one line at the top: how many of its setups answered the English questions (lead in the notes)."""
+        count = counts[group]
+        if not count:
+            return lead(group)
+        return (f"<div {shown(group)}><p>The Text tab's {total:,} kept reading questions in English, answered by {count} "
+                f"{noun(group, count)}.</p></div>")
+
     comparison = rel(PATH, COMPARISON)
     translator = TRANSLATORS[json.loads(RECORD.read_text(encoding="utf-8"))["translator"]["model"]]
+    site.note(PATH, TITLE, "".join(lead(group) for group in GROUPS) + limit_note(translator, method)
+              + experiments_note(site, PATH))
     body = f"""    <section class="card">
       <p class="eyebrow">English reading</p>
       <h1>The reading questions in English</h1>
-      {"".join(lead(group) for group in GROUPS)}
-      {limit_note(translator, method)}{experiments_note(site, PATH)}
+      {"".join(short(group) for group in GROUPS)}
+      {limit_line(method)}
+      {more_link(PATH)}
     </section>
     <div class="charts">{charts}</div>
     <p class="note">Calibration is not measured in English.</p>

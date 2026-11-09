@@ -26,8 +26,8 @@ from typing import Any, Callable
 
 import build_page as bp
 from sitebuild import holding_back as hold
-from sitebuild.site import (DECISION_ONLY, GROUPS, Site, esc, hbars, legend_mark, line_plot, marker_path, pct, rank_fill, rel,
-                            scale_legend, shown)
+from sitebuild.site import (DECISION_ONLY, GROUPS, Site, esc, hbars, legend_mark, line_plot, marker_path, more_link, pct,
+                            rank_fill, rel, scale_legend, shown)
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "dont-know/"
@@ -1881,11 +1881,16 @@ def build(site: Site) -> dict[str, str]:
                     f"instruction when it states a confidence, in full:</p><blockquote><p>{esc(chat['confidence_system'])}</p>"
                     f"<p>{esc(chat['confidence_instruction'])}</p></blockquote><p>Prompt version {esc(chat['prompt_version'])} "
                     "(the chat models' prompts with the sentence and the option, hashed the same way).</p>") if chat else ""
+    site.note(PATH, "Hallucination",
+              f"<p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data['option_en'])}”) "
+              "instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its "
+              f"numbers.</p><div {DECISION_ONLY}>{headline(decision, against)}</div>")
     body = f"""    <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
-      <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data["option_en"])}”) instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
-      <div {DECISION_ONLY}>{headline(decision, against)}
+      <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” instead.</p>
+      {more_link(PATH)}
+      <div {DECISION_ONLY}>
       <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Answered and non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#option-word-confidence">“I don&#x27;t know” against confidence</a>' if against else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}{'<a href="#same-answers">The same number of answers</a>' if same else ""}{'<a href="#high-confidence">Answers at 95%+ confidence</a>' if high else ""}<a href="#info">Info</a></nav></div>
     </section>
     {"".join(face(site, data, group) for group in GROUPS if counts[group])}

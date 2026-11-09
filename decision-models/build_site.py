@@ -20,7 +20,7 @@ The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the
 (sitebuild/dont_know.py) the Hallucination tab and turkish-vs-english/ (sitebuild/english_reading.py) the Turkish vs
 English tab, with a redirect at its earlier address english-reading/. index.html keeps its copy; this script rewrites
 what is inside its <!-- build:name --> markers: the meta tags, the
-top bar, the intro (its counts from results.json), the counters, the results version, the plain table for
+top bar, the hero's line of counts (from results.json), the counters, the results version, the plain table for
 readers without JavaScript (every setup, decision and chat models ranked together, the page's all view) and the note
 under it, the settings v3.js reads, the default setup count, the topic list, the part keys with their question counts
 and the questions in view. v3.js
@@ -74,7 +74,8 @@ PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models
                                  "english_reading", "english_view", "aa_index", "web_grounding", "pws_decisions", "data",
                                  "method", "highlights", "experiments")
 TITLE = "When should you trust a decision model?"
-# The intro and the meta description; their counts come from results.json (counts()).
+# The intro (at the top of the About page, moved from the home page) and the meta description; their counts come from
+# results.json (counts()).
 INTRO = (
     "Our reading comprehension and grammar test: {questions} questions answered by {decision} decision models, with "
     "chat models for comparison. A decision model scores each answer option and picks one. Grammar questions test "
@@ -447,11 +448,13 @@ def non_hallucination(site: Site, finding: str) -> str:
 
     return ('<figure class="panel chart-card" id="chart-non-hallucination">' + finding
             + "".join(copy(group) for group in GROUPS)
-            + caveat(f"Read non-hallucination with the share answered; the {tab} has the full table.") + "</figure>")
+            + caveat(f"Read non-hallucination with the share answered; the {tab} has the full table. "
+                     '<a href="about/#notes-home-non-hallucination">More about this finding</a>') + "</figure>")
 
 
-# The home page as a story: the hero, the Leaderboard (sitebuild/leaderboard.py), the finding sections, each a heading
-# that states its finding, one chart, two or three sentences and one link, and the "How the scores work" box.
+# The home page as a story: the hero (the title and one line of counts), the Leaderboard (sitebuild/leaderboard.py) and
+# the finding sections, each a heading that states its finding, one chart and one link. Each finding's sentences, the
+# intro and "How the scores work" are on the About page (Ümit via Zeki, bus #3521: less text at the top of pages).
 RANKS_NOTE = "Ranks show observed scores; small gaps need not be meaningful."
 
 
@@ -579,11 +582,22 @@ def calibration(data: Data, site: Site) -> dict[str, Any]:
 
 def finding_html(item: dict[str, Any], key: str) -> str:
     """A part's heading: the finding while its claim holds, under a small label with the measure's name, else the neutral
-    heading; then its sentences. The claims carry HTML (a cost in both units); the rest is plain text."""
-    title = item["claim"] if item["holds"] else bp.esc(item["label"])
+    heading. Its sentences go to the About page's notes (finding_notes). The claims carry HTML (a cost in both units)."""
     label = f'<p class="finding-label">{bp.esc(item["label"])}</p>' if item["holds"] else ""
-    return (f'<div class="finding" data-finding="{key}">{label}<h2 class="finding-title">{title}</h2>'
-            f'<p class="finding-text">{bp.esc(item["text"])}</p></div>')
+    return f'<div class="finding" data-finding="{key}">{label}<h2 class="finding-title">{finding_title(item)}</h2></div>'
+
+
+def finding_title(item: dict[str, Any]) -> str:
+    """A finding's heading: its claim while it holds, else the measure's name (HTML)."""
+    return item["claim"] if item["holds"] else bp.esc(item["label"])
+
+
+def finding_notes(site: Site, found: dict[str, dict[str, Any]]) -> None:
+    """Each finding's sentences, moved to the About page's notes on the home page under the finding's own heading
+    (#notes-home-<key>, linked from the part's last line)."""
+    for key in ("accuracy", "non-hallucination", "cost", "latency", "reading-grammar", "calibration"):
+        item = found[key]
+        site.note("", "Leaderboard", f'<p>{bp.esc(item["text"])}</p>', key, finding_title(item))
 
 
 def findings_checks(page: str, data: Data, site: Site) -> list[str]:
@@ -980,7 +994,6 @@ def main() -> int:
                    f'  <link rel="preload" href="{asset(HOME)}" as="fetch" crossorigin>\n'
                    f'  <script src="{asset("site.js")}" defer></script>\n'
                    f'  <script src="{asset("v3.js")}" defer></script>'),
-        "intro": bp.esc(INTRO.format(**counts(data))),
         "counts": hero_counts(data, site),
         "topbar": topbar(""),
         "version": version(data),
@@ -989,7 +1002,6 @@ def main() -> int:
         "settings": page_settings(data),
         "leaderboard": leaderboard.leaderboard(site),
         "non-hallucination": non_hallucination(site, finding_html(found["non-hallucination"], "non-hallucination")),
-        "how-scores": how_scores(data),
         "footer": footer("", version(data)),
         **{f"finding-{key}": finding_html(found[key], key)
            for key in ("accuracy", "cost", "latency", "reading-grammar", "calibration")},
@@ -1006,8 +1018,10 @@ def main() -> int:
         raise ValueError(f"index.html lacks the markers {sorted(set(blocks) - seen)}")
     PAGE.write_text(text)
     written = write_pages(site)
-    # The About page, from the home page's parts: the result cards, the counters and the notes behind the full ranking
-    # moved there, with the summary; its cards and summary are checked there.
+    # The About page, from the home page's parts: the intro, How the scores work, the result cards, the counters and the
+    # notes behind the full ranking moved there, with the summary and the notes on each page; its cards and summary are
+    # checked there.
+    finding_notes(site, found)
     notes = (f"<p>{bp.esc(RANKS_NOTE)}</p><p>"
              f'{bp.esc(" ".join(filter(None, [site.cost_note(data.runs), not_measured_note(data)])))}</p>')
     about_page = about.page(site, INTRO.format(**counts(data)), how_scores(data), notes, result_cards(data, site), stats(data))

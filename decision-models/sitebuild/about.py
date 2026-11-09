@@ -1,15 +1,20 @@
 """The About tab (about/): what the test is and how it was built (short, with the Method page for the full study), how
-the scores work in detail, the leaderboard rules (sitebuild/leaderboard.py), the three result cards and the summary that
-stood on the home page before (build_site.py checks both on this page: card_checks, summary_checks), and the links to
-Method and Data. build_site.py builds it, after the home page, from the parts it computes (page)."""
+the scores work in detail (moved from the home page), the leaderboard rules (sitebuild/leaderboard.py), the notes on each
+page (the longer explanations moved from the top of the pages and from above their charts, Site.note), the three result
+cards and the summary that stood on the home page before (build_site.py checks both on this page: card_checks,
+summary_checks), and the links to Method and Data. build_site.py builds it, after the home page and the other pages,
+from the parts it computes (page)."""
 
 from __future__ import annotations
 
 from sitebuild import leaderboard
-from sitebuild.site import Site, esc, rel
+from sitebuild.site import NOTES_ANCHOR, Site, esc, note_anchor, rel
 
 PATH = "about/"
 TITLE = "About"
+# The order of the pages in Notes on each page; a page not named here follows them in the order it was built.
+NOTES_ORDER = ("", "english/", "turkish-vs-english/", "dont-know/", "web-grounding/", "pws-decisions/", "vision/",
+               "questions/", "experiments/", "data/")
 # The summary of the decision models' results, as it stood under Info on the home page: fixed copy, each line checked
 # against results.json by build_site.py (copy_checks, summary_checks). Its links open a tab of the full ranking (All
 # setups) on the Leaderboard.
@@ -23,6 +28,20 @@ SUMMARY = """<div class="summary">
           <li><a href="../#reading-grammar">Reading vs grammar</a>: decision models got up to 92.4% of the reading questions right, but at most 71.8% of the grammar questions.</li>
         </ul>
       </div>"""
+
+
+def page_notes(site: Site) -> str:
+    """Notes on each page (#page-notes): for each page with moved text (Site.note), a sub-heading linking the page with
+    its anchor (note_anchor), then its text, each part under its own sub-heading and anchor."""
+    order = sorted(site.notes, key=lambda path: NOTES_ORDER.index(path) if path in NOTES_ORDER else len(NOTES_ORDER))
+    blocks = []
+    for path in order:
+        title, parts = site.notes[path]
+        text = "".join(f'<h4 id="{note_anchor(path, part)}">{heading}</h4>{body}' if part else body
+                       for part, heading, body in parts)
+        blocks.append(f'<h3 id="{note_anchor(path)}"><a href="{rel(PATH, path)}">{esc(title)}</a></h3>{text}')
+    return (f'<section class="card prose page-notes" id="{NOTES_ANCHOR}">\n      <h2>Notes on each page</h2>\n      '
+            + "\n      ".join(blocks) + "\n    </section>")
 
 
 def page(site: Site, intro: str, how_scores: str, notes: str, cards: str, stats: str) -> str:
@@ -46,6 +65,7 @@ def page(site: Site, intro: str, how_scores: str, notes: str, cards: str, stats:
       <h2>The leaderboard rules</h2>
       {leaderboard.about_text(site, PATH)}
     </section>
+    {page_notes(site)}
     <section class="card results-lead" id="results" aria-label="Main results">
       {moved(cards)}
     </section>

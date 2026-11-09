@@ -12,7 +12,7 @@ import json
 import math
 from typing import Any
 
-from sitebuild.site import ROOT, Site, esc, rel
+from sitebuild.site import ROOT, Site, esc, more_link, rel
 
 PICKS = ROOT / "data" / "picks.json"
 
@@ -186,9 +186,13 @@ def every_question(site: Site, data: dict[str, Any]) -> str:
              f'<button type="button" class="key" data-step="-1">Previous {ROWS_SHOWN}</button>'
              '<span class="q-where" data-q-where></span>'
              f'<button type="button" class="key" data-step="1">Next {ROWS_SHOWN}</button></nav>')
+    site.note(path, "Every question", f"<p>The {len(data['questions']):,} scored questions, in the order of the book. Their "
+              "text stays unpublished: the publisher owns it; the page and printed number find each one in the book. Each "
+              "ID opens the question's page, with every setup's pick.</p>")
     body = f"""    <section class="card" id="questions" data-rows="{ROWS_SHOWN}">
       <h1>Every question</h1>
-      <p>The {len(data["questions"]):,} scored questions, in the order of the book. Their text stays unpublished: the publisher owns it; the page and printed number find each one in the book. Each ID opens the question's page, with every setup's pick.</p>
+      <p>The {len(data["questions"]):,} scored questions, in the order of the book; each ID opens its page.</p>
+      {more_link(path)}
       <nav class="face-nav" aria-label="More on the questions"><a href="{rel(path, "disagreements/")}">Where models disagree</a><a href="{rel(path, "topics/")}">Topics</a><a href="{rel(path, "compare/")}">Compare</a></nav>
       <form class="q-filters" data-q-filters role="search" aria-label="Filter the questions" hidden>
         <label class="control">Question ID <input type="search" inputmode="numeric" autocomplete="off" size="6" data-filter="id"></label>

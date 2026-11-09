@@ -202,8 +202,9 @@ python3 -m http.server 8000                                # preview at http://1
     `dont_know.running`); the parts about decision models only appear once (`data-models="all decision"`), as the
     option-word check is for decision models only. A setup that shares its name with another English setup is labelled with the settings
     that tell them apart, as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
-    (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: under a one-sentence lead
-    and the translation check's limit (`limit_note`; neither English page has a links row of its own),
+    (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: under a one-line lead
+    and the translation check's limit in one line (`limit_line`; the full lead, `limit_note` and the experiments line
+    are in About's notes on each page; neither English page has a links row of its own),
     accuracy per group first (ranked by English accuracy), the
     Non-hallucination part (holding back by confidence, which reads Not measured in English in each block, beside holding
     back with "I don't know" in English, as below; under them, set apart, the Turkish reference: each setup's Text tab run
@@ -252,7 +253,8 @@ python3 -m http.server 8000                                # preview at http://1
     check that d1-ultra's worst run stays below their best at every whole percent up to 98%; d1-ultra's English runs at
     95%; `high_confidence`). Every "I don't know" table leads with Answered
     ((right + wrong) / questions) and Wrong of answers (wrong / (right + wrong)), the non-hallucination rate after them.
-    Turkish vs English opens with one sentence, the headline and the translation check's limit, then its charts: accuracy
+    Turkish vs English opens with one line and the translation check's limit in one line (the lead with the headline,
+    `limit_note` and the experiments line are in About's notes on each page), then its charts: accuracy
     in Turkish and in English first (ranked by English accuracy), then the paired test of the two (the
     questions only one of them got right, with p adjusted by Holm over every English setup), then its main table (ordered
     by English accuracy: accuracy in Turkish and in English with the difference; for decision models, with "I don't
@@ -280,8 +282,8 @@ python3 -m http.server 8000                                # preview at http://1
     (`question/?id=`) shows, for each kept reading question, every compared model's answer and its probability in Turkish
     and in English side by side (`picks.json`'s `english`).
   - **Web grounding** (`web-grounding/`, from `results.json`'s `web_grounding`, built by `sitebuild/web_grounding.py`):
-    comparing the Text tab's two hosted setups, linked from the home page's hero and both English pages' intros (the
-    experiments line, `experiments` in `sitebuild/site.py`, its links keeping the group) and from the
+    comparing the Text tab's two hosted setups, linked from the experiments line in About's notes on both English pages
+    (`experiments` in `sitebuild/site.py`, its links keeping the group) and from the
     model pages of the Perplexity family. Perplexity's Decider v1.2 through its Decisions API off ("Perplexity Decider
     27B v1.2 (API)", run 633) and with web ("... (API, with web)", run 640; the checkpoint on our hardware is "... (local
     GPU)", run 217) on the full bank, reading and grammar apart; the
@@ -294,8 +296,9 @@ python3 -m http.server 8000                                # preview at http://1
     run) and answers.json's `web_grounding_runs`. PWS-Decisions' rows are the mean of our three runs of the two setups
     in `pws-decisions.json`, the same numbers as its page, labelled "mean of 3 runs"; its "I don't know" runs
     (`pws-decisions.json`'s `dont_know`, when present) join the Non-hallucination chart and table. The first screen:
-    one line naming both setups (three runs per setting, the ranking keeping each setup's first run, and the run dates)
-    and three result cards (the Turkish full bank, English reading and PWS-Decisions: mean accuracy off → with web, the
+    one short line with "More about this page" (the line naming both setups, three runs per setting, the ranking keeping
+    each setup's first run, and the run dates, is in About's notes on each page) and three result cards (the Turkish
+    full bank, English reading and PWS-Decisions: mean accuracy off → with web, the
     change in points, the runs' range, the cost off vs ≤ with web). Then four charts in the
     home page's format, each in a section with the id the view bar's Measure row uses (`accuracy`,
     `non-hallucination`, `latency`, `cost`): each set of questions a small heading (hbars' row `group`) over its two
@@ -358,9 +361,9 @@ python3 -m http.server 8000                                # preview at http://1
   - **Leaderboard** (the home page, `index.html`): the script fills its `<!-- build:… -->` blocks (the meta tags, with
     the link preview from `share/images.json`, the Leaderboard, the full ranking as plain tables for readers without
     JavaScript, the settings `v3.js` reads, the finding headings and the static Non-hallucination part). In this order:
-    - **Hero**: the question "When should you trust a decision model?", the intro (`INTRO`, its counts from
-      `results.json`), one line of counts (`hero_counts`: questions, models, that is the Leaderboard's rows, setups and
-      the last update) and three large links: Read the method, Every question, Experiments.
+    - **Hero**: the question "When should you trust a decision model?" and one line of counts (`hero_counts`:
+      questions, models, that is the Leaderboard's rows, setups and the last update) with "More about this page"
+      (About, where the intro, `INTRO`, and How the scores work now stand; Ümit via Zeki, bus #3521).
     - **The Leaderboard** (`#leaderboard`, `sitebuild/leaderboard.py`): one row per model, a model being its model ID,
       its kind (chat or decision model) and web search (a setup with web is its own row; different version names are
       separate rows). A dated checkpoint joins its original's row only through `page_config.json`'s
@@ -390,21 +393,24 @@ python3 -m http.server 8000                                # preview at http://1
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
       then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
       `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;
-      `#info` opens About's summary.
-    - **Finding sections**, each a heading that states its finding, one chart, two or three sentences and one link
-      (`findings` and `finding_html` in `build_site.py`): `#accuracy` (the best chat setup against the best decision
+      `#info` opens About's summary and `#how-scores` About's How the scores work (`MOVED` in `site.js`).
+    - **Finding sections**, each a heading that states its finding, one chart and one link, with "More about this
+      finding" to its sentences in About's notes (`#notes-home-<part>`; `findings`, `finding_html` and `finding_notes`
+      in `build_site.py`): `#accuracy` (the best chat setup against the best decision
       model; Share view and Download PNG stay in its head), `#non-hallucination` ("Bilmiyorum"), `#cost`, `#latency`,
       `#reading-grammar` and `#calibration` (the decision model with the smallest calibration gap as shipped, with
       its own check worded as it computes it). A heading shows its claim only while the claim holds, else the
       measure's name (`findings_checks` checks every heading against `results.json` on every build). No filter bar and
       no part keys sit on the charts; a filter in the address (`?part=`, `?topic=`, `?size=`, `?web=`, `?setups=`)
       still applies.
-    - **How the scores work** (`#how-scores`, `how_scores`): five plain bullets, their numbers from `results.json`.
     - **Footer**: About · Method · Data · GitHub.
   - **About** (`about/`, `sitebuild/about.py`, built by `build_site.py` after the home page): what the test is (short,
-    with the Method page for the full study) with the counters, How the scores work, the notes behind the full ranking
-    (the ranks sentence, `RANKS_NOTE`, and the cost notes), the leaderboard rules (`leaderboard.about_text`: the row
-    rule, the dated checkpoints, the ranks, the whiskers), the three result cards (`result_cards`, one set per group,
+    with the Method page for the full study) with the intro and the counters, How the scores work (`#how-scores`), the
+    notes behind the full ranking (the ranks sentence, `RANKS_NOTE`, and the cost notes), the leaderboard rules
+    (`leaderboard.about_text`: the row rule, the dated checkpoints, the ranks, the whiskers), Notes on each page
+    (`#page-notes`, `about.page_notes`: the longer explanations moved from the top of each page and the home page's
+    finding sentences, each page under its own sub-heading and anchor, `#notes-<page>`; a page calls `Site.note` and
+    leaves `more_link`, "More about this page", where the text stood), the three result cards (`result_cards`, one set per group,
     the group keys showing the one in view: the highest accuracy, the most answers kept at the 99% confidence threshold
     with no observed mistakes, and the lowest cost per 1,000 questions within 1 point of the best accuracy, or the
     cheapest overall, saying so; `card_checks` tests them on this page), the summary (`about.SUMMARY`; `summary_checks`
