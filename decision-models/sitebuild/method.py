@@ -508,10 +508,15 @@ def maker_priced(snap: bp.Snapshot) -> str:
 def reply_notes(snap: bp.Snapshot) -> str:
     """The Method notes' item on empty and broken chat replies: the rule in one plain sentence, and for each run it did
     something in, its counts as the setup's page gives them (models.reply_counts), by run: the Text tab runs, named as
-    their setups, and the runs with the "I don't know" option (models.idk_runs), named as their setups with the option."""
+    their setups, and the runs with the "I don't know" option (models.idk_runs), named as their setups with the option;
+    an English-only setup (no Text tab run, english_reading.dont_know.english_only) by its own name."""
     by_run = {run["run"]: run for run in snap.runs}
+    english_only = {entry["english"]["run"]: entry["name"]
+                    for entry in ((snap.results.get("english_reading") or {}).get("dont_know") or {}).get("english_only", [])
+                    if entry.get("text_run") is None}
     rows = [(run["run"], display_name(run, snap.runs), counts) for run in snap.runs if (counts := reply_counts(run)) is not None]
-    rows += [(item["run"], f"{display_name(by_run[text_run], snap.runs)} with “{option}”", counts)
+    rows += [(item["run"], f"{display_name(by_run[text_run], snap.runs) if text_run is not None else english_only[item['run']]}"
+                           f" with “{option}”", counts)
              for text_run, _, option, item in idk_runs(snap.results) if (counts := reply_counts(item)) is not None]
     listed = "".join(f"<li>{esc(name)} (run {number}): {esc(counts)}</li>" for number, name, counts in sorted(rows))
     return (f'<li id="{REPLY_ANCHOR}"><strong>Empty and broken replies.</strong> {esc(REPLY_RULE)} An empty reply is one '

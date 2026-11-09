@@ -577,6 +577,23 @@ PRICES: dict[tuple[str, str], Price] = {
     ("gliner", "gliner2.5-multi-v1"): Price(
         "Fastino's list price for the same model", "https://docs.fastino.ai/pricing", "2026-11-05", 0.03, applies_to="maker",
     ),
+    # Ümit's small open models on logic's servers (vllm-plain, one GPU each; read 9 November 2026): LFM3-1.7B at Liquid
+    # AI's own endpoint, Gemma 4 12B IT at SiliconFlow's (the weights Cygnet runs), Qwen3.5-9B at DeepInfra's BF16
+    # endpoint. The rest have no API that sells the same weights, so GPU_TIME: Mistral's API sells Ministral 3's
+    # Instruct checkpoints, not the Reasoning ones; Featherless AI serves VibeThinker-3B and Qwen3.5-4B by monthly plan
+    # only; Together lists LFM2.5-8B-A1B as not yet served.
+    ("vllm-plain", "lfm3-1.7b"): Price(
+        "Liquid AI's list price for the same model (FP8 at its endpoint)", "https://openrouter.ai/liquid/lfm-3-1.7b",
+        "2026-11-09", 0.08, 0.20, applies_to="maker",
+    ),
+    ("vllm-plain", "gemma-4-12b-it"): Price(
+        "SiliconFlow's list price for the same weights (Gemma 4 12B IT; precision not stated)",
+        "https://www.siliconflow.com/models/gemma-4-12b-it", "2026-11-05", 0.10, 0.30, applies_to="weights",
+    ),
+    ("vllm-plain", "qwen3.5-9b"): Price(
+        "DeepInfra's list price for the same weights (BF16)", "https://openrouter.ai/qwen/qwen3.5-9b", "2026-11-09", 0.10,
+        0.15, applies_to="weights",
+    ),
 }
 # Prices of runs with --perplexity-mode web_grounding, by (provider, model). A grounded request runs one Fast Search per
 # question at $0.001 ("Questions that produce the same search query share one search"; a failed or timed-out search is
@@ -637,6 +654,16 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("d3-server", "vllm-sr/d3-ultra"): 1,
     ("d1-server", "LiquidAI/d1-2B"): 1,
     ("reax", "reax13"): 1,
+    ("vllm-plain", "vibethinker-3b"): 1,
+    ("vllm-plain", "lfm2.5-8b-a1b"): 1,
+    ("vllm-plain", "gemma-4-e4b-it"): 1,
+    ("vllm-plain", "ministral-3-8b-reasoning"): 1,
+    ("vllm-plain", "qwen3.5-4b"): 1,
+    ("vllm-plain", "gemma-4-e2b-it"): 1,
+    ("vllm-plain", "ministral-3-3b-reasoning"): 1,
+    ("vllm-plain", "ministral-3-14b-reasoning"): 1,
+    ("vllm-plain", "lfm2.5-1.2b-thinking"): 1,
+    ("vllm-plain", "lfm2-350m-math"): 1,
 }
 
 
