@@ -3301,12 +3301,7 @@ def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: 
     not_decision_models. The chat models' English runs stay out: the comparison is among decision models."""
     kept = kept_questions(answers, public)
     lists = {run["run"]: run for run in answers["english_runs"]}
-    config = json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))
-    text_runs = {run["run"]: run for run in runs}
-
-    def decision(model: dict[str, Any]) -> bool:
-        run = text_runs[model["turkish_run"]]
-        return run["provider"] in config["decision_model_providers"] and run["model"] not in config["not_decision_models"]
+    decision = decision_setup(runs)
 
     def right(run: int) -> list[int]:
         return [int(lists[run]["correct"][index] == 1) for index in kept]
@@ -3323,6 +3318,71 @@ def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: 
     for model, adjusted in zip(models, bm.holm([model["p"] for model in models])):
         model["p_holm"] = adjusted
     return {"reference": reference_name, "reference_run": reference["run"], "questions": len(kept), "models": models}
+
+
+def decision_setup(runs: list[dict[str, Any]]) -> Any:
+    """Whether an `english_reading` model is a decision model by page_config.json's rule (Site.decision) on its Text tab
+    run: its provider one of decision_model_providers and its model not one of not_decision_models."""
+    config = json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))
+    text_runs = {run["run"]: run for run in runs}
+
+    def decision(model: dict[str, Any]) -> bool:
+        run = text_runs[model["turkish_run"]]
+        return run["provider"] in config["decision_model_providers"] and run["model"] not in config["not_decision_models"]
+
+    return decision
+
+
+def decision_score(run: dict[str, Any], kept: list[int]) -> dict[str, Any]:
+    """Artificial Analysis's Decision Score formula on one run's asked questions (`kept`): per question
+    50 x (1 + c - (p - c)^2), p the probability the run gave the answer it chose and c 1 if that answer is right, else
+    0; the run's score is the mean. Returns {"score", "accuracy", "brier", "n", "run"}, Brier the mean of (p - c)^2 over
+    the chosen answers (not a multiclass Brier), with score == 50 x (1 + accuracy - Brier) asserted to 1e-9; or
+    {"unavailable": reason} when any asked question lacks a chosen answer with a finite probability in [0, 1]: no
+    probability is filled in and no subset is scored."""
+    missing, invalid = 0, 0
+    pairs = []
+    for index in kept:
+        choice, probabilities = run["choice"][index], run["probabilities"][index]
+        p = probabilities.get(choice) if choice is not None and isinstance(probabilities, dict) else None
+        if p is None:
+            missing += 1
+        elif isinstance(p, bool) or not isinstance(p, (int, float)) or not math.isfinite(p) or not 0 <= p <= 1:
+            invalid += 1
+        else:
+            pairs.append((float(p), 1 if run["correct"][index] == 1 else 0))
+    n = len(kept)
+    if missing or invalid or not n:
+        reasons = ([f"{missing} of {n} answers without a probability for the chosen answer"] if missing else []) + (
+            [f"{invalid} of {n} answers with a chosen-answer probability that is not a finite number in [0, 1]"] if invalid else [])
+        return {"unavailable": "; ".join(reasons) or "no asked questions"}
+    score = sum(50 * (1 + c - (p - c) ** 2) for p, c in pairs) / n
+    accuracy = sum(c for _, c in pairs) / n
+    brier = sum((p - c) ** 2 for p, c in pairs) / n
+    if abs(score - 50 * (1 + accuracy - brier)) > 1e-9:
+        raise ValueError(f"decision score: run {run['run']} gives {score}, not 50 x (1 + accuracy - Brier)")
+    return {"score": score, "accuracy": accuracy, "brier": brier, "n": n, "run": run["run"]}
+
+
+def decision_scores(reading: dict[str, Any], answers: dict[str, Any], public: dict[str, Any],
+                    runs: list[dict[str, Any]]) -> None:
+    """Per decision model of `english_reading.models` (decision_setup), on its English standard run (the first, the one
+    the English page shows) over the kept questions: `decision_score` (decision_score) or `decision_score_unavailable`
+    with the reason. Chat models get neither, nor do the "I don't know" runs (`english_reading.dont_know`)."""
+    kept = kept_questions(answers, public)
+    lists = {run["run"]: run for run in answers["english_runs"]}
+    decision = decision_setup(runs)
+    for model in reading["models"]:
+        if not decision(model):
+            continue
+        found = decision_score(lists[model["run"]], kept)
+        if "unavailable" in found:
+            model["decision_score_unavailable"] = found["unavailable"]
+        else:
+            if abs(found["accuracy"] - model["english"]["accuracy"]) > 1e-12:
+                raise ValueError(f"decision score: {model['name']}'s accuracy differs from english_reading's")
+            model["decision_score"] = found
+
 
 
 def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_section: dict[str, Any] | None = None,
@@ -3557,6 +3617,7 @@ def main() -> int:
             raise ValueError("high_confidence: needs `english_reading`")
         data["high_confidence"] = high_confidence(data, answers, public)
         data["english_reading"]["against_reference"] = against_reference(data["english_reading"], answers, public, data["runs"])
+        decision_scores(data["english_reading"], answers, public, data["runs"])
         data["baselines"] = baselines(answers, data["replay"]["decision"])
         if grounding:
             data["web_grounding"] = web_grounding(data, by_run, answers, json.loads(WEB_GROUNDING_PATH.read_text(encoding="utf-8")))

@@ -827,6 +827,16 @@ confidence useful.</p>
 <details class="show-table"><summary>All calibration results</summary>
 {refit_table(site, snap)}
 </details>
+<h3 id="decision-score">Decision Score (AA formula), English reading</h3>
+<p>The English reading page shows a Decision Score computed with Artificial Analysis's formula.
+Artificial Analysis's formula applied to our questions. Not their Index.
+Per question the score is 50 × (1 + c − (p − c)²), p the probability the model gave the answer it chose and c 1 if that
+answer is right, else 0; a run's score is the mean over its questions. That mean equals 50 × (1 + accuracy − Brier), the
+Brier here being the chosen-answer Brier, the mean of (p − c)² over the chosen answers (not a multiclass Brier over every
+option); the export checks the two agree to 1e-9 for every run. It is computed on each decision model's first English run
+on the kept questions. A run with any question lacking a finite chosen-answer probability between 0 and 1 is shown as
+unavailable with the reason: no probability is filled in and no subset is scored. Decision models only: chat models and
+the I don't know runs are excluded.</p>
 <h3 id="sure">What a score of {v['threshold']} or more meant</h3>
 <p>At {v['threshold']} or more, Jev 1.13 got {v['jev_correct']} of {v['jev_accepted']} right ({v['jev_skipped']} skipped), d1
 {v['d1_correct']} of {v['d1_accepted']} ({v['d1_skipped']} skipped), Decider v1 {v['decider_v1_correct']} of

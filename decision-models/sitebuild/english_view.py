@@ -4,7 +4,9 @@ the view bar's row 3 links to the parts), then the four parts row 3 links to: Ac
 difference first, as on turkish-vs-english/, then English accuracy), Non-hallucination (#non-hallucination), Cost (#cost)
 and Latency (#latency), each chart in the
 site's static style (Site hbars, each bar in its model family's colour, as the home page's charts), and one table ranked
-by English accuracy with the four measures; the charts and the table come once per group of the view bar (data-models,
+by English accuracy with the four measures and the Decision Score (AA formula) column (english_reading.models[]
+.decision_score, decision models only; a full-width table of it also sits under the two holding-back sides);
+the charts and the table come once per group of the view bar (data-models,
 toggled by site.js; the all group is the one shown without JavaScript, every setup ranked together), counts and
 sentences computed for that group. Non-hallucination holds back two ways side by side (sitebuild/holding_back.py), each
 with decision and chat models in blocks of their own, never one ranking: by confidence, Not measured in English in each
@@ -64,6 +66,54 @@ def href(site: Site, model: dict[str, Any]) -> str:
     return setup_href(site, PATH, model["turkish_run"])
 
 
+SCORE_HEAD = "Decision Score (AA formula)"
+SCORE_NOTE = "Artificial Analysis's formula applied to our questions. Not their Index."
+SCORE_SCOPE = "Decision models only: chat models and the I don't know runs are excluded."
+
+
+def score_cell(model: dict[str, Any]) -> str:
+    """A setup's Decision Score cell: the score to 2 decimals with its Brier under it, "unavailable" with the reason
+    in its title, or "not applicable" for a chat model (english_reading.models[].decision_score)."""
+    if "decision_score" in model:
+        found = model["decision_score"]
+        return f'{found["score"]:.2f}<span class="small">chosen-answer Brier {found["brier"]:.4f}</span>'
+    if "decision_score_unavailable" in model:
+        return f'<span class="nm" title="{esc(model["decision_score_unavailable"])}">unavailable</span>'
+    return '<span class="nm">not applicable</span>'
+
+
+def score_notes(models: list[dict[str, Any]]) -> str:
+    """The Decision Score notes under a table of `models`: the formula, the two required lines, and each unavailable
+    setup's reason."""
+    unavailable = "".join(f" {esc(model['name'])}: unavailable, {esc(model['decision_score_unavailable'])}."
+                          for model in models if "decision_score_unavailable" in model)
+    return (f'<p class="note">{esc(SCORE_HEAD)}: 50 × (1 + accuracy − chosen-answer Brier) on the first English run, '
+            "the chosen-answer Brier being the mean of (p − c)², p the probability given to the chosen answer and c 1 if "
+            f"it is right, else 0.{unavailable}</p><p class=\"note\">{esc(SCORE_NOTE)} {esc(SCORE_SCOPE)}</p>")
+
+
+def score_table(site: Site, models: list[dict[str, Any]]) -> str:
+    """The decision models' Decision Score table in the confidence section: per decision model of `models` (ranked as
+    the page ranks them), its score, accuracy and chosen-answer Brier from its first English run, then the notes."""
+    mine = [model for model in models if "decision_score" in model or "decision_score_unavailable" in model]
+    if not mine:
+        return ""
+    heads = (SCORE_HEAD, "Accuracy", "Chosen-answer Brier")
+    rows = []
+    for model in mine:
+        found = model.get("decision_score")
+        values = ([score_cell(model), '<span class="nm">unavailable</span>', '<span class="nm">unavailable</span>']
+                  if found is None else
+                  [f'{found["score"]:.2f}', f'{100 * found["accuracy"]:.2f}%', f'{found["brier"]:.4f}'])
+        run = site.by_id[model["turkish_run"]]
+        rows.append(f'<tr><td class="model">{site.icon(run)}<a class="model-name" href="{href(site, model)}">'
+                    f'{esc(label(site, model))}</a></td>' + "".join(cell(text, value) for text, value in zip(heads, values))
+                    + "</tr>")
+    head = "".join(f'<th scope="col" class="num">{esc(text)}</th>' for text in heads)
+    return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'
+            f'</thead><tbody>{"".join(rows)}</tbody></table></div>{score_notes(mine)}')
+
+
 def build(site: Site) -> dict[str, str]:
     if "english_reading" not in site.results:
         return {}
@@ -113,6 +163,9 @@ def build(site: Site) -> dict[str, str]:
         members = group_models(site, data, group)
         provider = lambda model: site.by_id[model["turkish_run"]]["provider"]  # noqa: E731
         confidence = hold.not_measured_side(group, "English")
+        scores = score_table(site, members)
+        if scores:
+            scores = hold.block(f"{SCORE_HEAD}, decision models", scores, level=3)
         reference = hold.confidence_side(
             site, [(site.by_id[model["turkish_run"]], label(site, model), href(site, model)) for model in members], group,
             ", in its Text tab run on the Turkish questions, for reference", title="Turkish reference (the Text tab runs)")
@@ -162,7 +215,7 @@ def build(site: Site) -> dict[str, str]:
             "answered share; a model that always chose the option would reach 100% with no right answers",
             "".join(option_block(kind, heading) for kind, heading in hold.kinds(group)))
         return (f'<figure class="panel chart-card" id="{anchor("chart-non-hallucination", group)}" {shown(group)}>'
-                f'<div class="chart-head"><h2>Non-hallucination</h2></div>{hold.pair(confidence, with_option)}'
+                f'<div class="chart-head"><h2>Non-hallucination</h2></div>{hold.pair(confidence, with_option)}{scores}'
                 f'<div class="hold-reference">{reference}</div></figure>')
 
     method = f"{rel(PATH, COMPARISON)}#method"
@@ -179,6 +232,7 @@ def build(site: Site) -> dict[str, str]:
     def table(group: str) -> str:
         """A group's copy of the table, ranked by English accuracy, with the English non-hallucination column."""
         heads = [("English accuracy", "first English run; higher is better"),
+                 (SCORE_HEAD, "first English run; higher is better"),
                  ("Turkish accuracy", f"Text tab run, same {total:,}; for context"),
                  ("English non-hallucination", f"with “{option}”; higher is better")]
         heads += measure_heads("cost", ("english",)) + measure_heads("latency", ("english",))
@@ -189,6 +243,7 @@ def build(site: Site) -> dict[str, str]:
                 f'{pct(model["english"]["accuracy"], digits)}<span class="small">{model["english"]["right"]:,} of {total:,} right</span>',
                 f'{pct(model["turkish"]["accuracy"], digits)}<span class="small">{model["turkish"]["right"]:,} of {total:,} right</span>',
             ]
+            values.insert(1, score_cell(model))
             counts = held.get(model["turkish_run"])
             values.append(
                 missing_side(site, model["turkish_run"]) if counts is None else
@@ -219,6 +274,7 @@ def build(site: Site) -> dict[str, str]:
                 "the requests in flight under it, each from the first English run (Cost and Latency above)."
                 + (" " + missing_note(site, group_models(site, data, group), ("english",))).rstrip()
                 + " Each name opens its model page's English section; its tooltip gives its settings and English run.</p>"
+                f'{score_notes(group_models(site, data, group))}'
                 f'<p class="note">{esc(cost_note(site, group_models(site, data, group), ("english",)))}</p></section>')
 
     def lead(group: str) -> str:
@@ -252,7 +308,7 @@ def build(site: Site) -> dict[str, str]:
       {more_link(PATH)}
     </section>
     <div class="charts">{charts}</div>
-    <p class="note">Calibration is not measured in English.</p>
+    <p class="note">Calibration of holding back by confidence at the {pct(site.config["threshold"], 0)} threshold is not measured in English.</p>
     {"".join(table(group) for group in GROUPS if counts[group])}"""
     return {PATH: site.page(PATH, TITLE, f"The Text tab's {total:,} kept reading questions in English: accuracy of "
                             f"{len(models)} setups ({counts['decision']} decision models, {counts['chat']} chat model "

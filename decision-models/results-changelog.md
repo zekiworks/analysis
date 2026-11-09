@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 5b0e2a07 (9 November 2026)
+
+- Added "Decision Score (AA formula)" for decision models on English reading (project lead, bus #3511). Artificial Analysis's formula applied to our questions. Not their Index. For each decision setup's English standard run: the mean over its 547 kept questions of 50 x (1 + c - (p - c)^2), with p the probability the model gave to the answer it chose and c 1 when that answer is right; it equals 50 x (1 + accuracy - chosen-answer Brier), checked to 1e-9 for every run. 37 of 38 decision setups have it, for example REAX 1.3 93.75 (accuracy 92.5%, chosen-answer Brier 0.0500), Fastino GLiDE v1.2 91.96, Liquid d1-ultra 91.92, Mammoth-1 91.75, Drex Max 1.1 90.81. GPT-6 Luna (Decisions API) shows "unavailable": 2 of its 547 answers have no probability for the chosen answer. Decision models only: chat models and the "I don't know" runs are excluded. Shown in the English page's accuracy table and in its Non-hallucination card; the Method page gives the formula.
+- answers.json: each run entry gains `request_params` (the request settings of the new plain-answer provider for the small open models; null for every run so far). No number changed.
+
 ## Results 6fbca90e (9 November 2026)
 
 - The empty and broken reply rule (project lead, 8 November 2026) applied to Qwen3.8-27B's earlier runs on our GPU: each empty reply was asked once more, on the same server command as the runs (no new run). Text, run 318: 5 empty replies of 16 questions asked again, 2 came back with answers (32 answers); 1,641 of 2,198 right (74.7%; 1,625, 73.9% before), 48 answers still empty after asking again. Hallucination tab, with "Bilmiyorum" (run 666): 11 empty replies asked again, 10 came back with answers (160 answers); 31 "Bilmiyorum" and 493 wrong, 5.9% non-hallucination (6.3% before, when 176 answers were missing), 16 answers still empty. The cost includes the replies asked again.

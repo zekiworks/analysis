@@ -211,7 +211,13 @@ python3 -m http.server 8000                                # preview at http://1
     at the threshold), cost per 1,000 questions and median latency per
     request of each first English run per group (`english_reading.models[].cost.english` and `.latency.english`, log
     scale, Not measured named in the note; `measure_card` in `sitebuild/english_reading.py`), then the table per group
-    ranked by English accuracy with the four measures. Turkish vs English draws the same Cost and Latency cards as
+    ranked by English accuracy with the four measures and the Decision Score (AA formula) column. Each decision model's
+    first English run carries `english_reading.models[].decision_score` ({score, accuracy, brier, n, run}: Artificial
+    Analysis's formula, the mean of 50 × (1 + c − (p − c)²) with p the chosen answer's probability, asserted equal to
+    50 × (1 + accuracy − chosen-answer Brier) within 1e-9 in `export_results.py`) or `decision_score_unavailable` (the
+    reason, when any kept question lacks a finite chosen-answer probability in [0, 1]); chat models and the "I don't
+    know" runs carry neither. The same scores sit in a full-width table under the two holding-back sides of Non-hallucination.
+    Tests: `test_decision_score.py`. Turkish vs English draws the same Cost and Latency cards as
     paired bars, the Text tab run (`.turkish`) and the first English run (`.english`), with both in its main table.
     Every setup name on both English pages links to its model page's English section (`#english`, `setup_href` in
     `sitebuild/english_reading.py`; a setup without an English run links to its model page).
