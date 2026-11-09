@@ -300,18 +300,18 @@
     "updated_at": "2026-11-09T05:48:16+00:00"
    },
    {
-    "reason": "shared-balance priority",
+    "reason": null,
     "series_done": 0,
     "setup": "Kimi K3.1 Pro (off)",
-    "status": "paused",
-    "updated_at": "2026-11-09T05:48:16+00:00"
+    "status": "running",
+    "updated_at": "2026-11-09T11:42:31+00:00"
    },
    {
-    "reason": "shared-balance priority",
+    "reason": null,
     "series_done": 0,
     "setup": "DeepSeek V4.1 Flash (low)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:26:02+00:00"
+    "status": "running",
+    "updated_at": "2026-11-09T11:42:40+00:00"
    },
    {
     "reason": null,
@@ -321,39 +321,39 @@
     "updated_at": "2026-11-09T02:02:54+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "Claude Sonnet 5.5 (high)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "status": "running",
+    "updated_at": "2026-11-09T11:42:31+00:00"
    },
    {
     "reason": "waiting for its turn",
     "series_done": 0,
     "setup": "Claude Opus 5.5 (high)",
     "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "updated_at": "2026-11-09T11:42:31+00:00"
    },
    {
     "reason": null,
     "series_done": 0,
     "setup": "Gemini 4 Argon (high)",
     "status": "running",
-    "updated_at": "2026-11-09T10:37:47+00:00"
+    "updated_at": "2026-11-09T11:37:22+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "Grok 4.7 (high)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "status": "running",
+    "updated_at": "2026-11-09T11:37:24+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "Claude Fable 5.1 (high)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "status": "running",
+    "updated_at": "2026-11-09T11:42:40+00:00"
    },
    {
     "reason": null,
@@ -391,7 +391,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-09T11:30:25+00:00"
+  "updated_at": "2026-11-09T11:49:31+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -1337,11 +1337,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 47.16645307838917,
+     "right_safety": 90.0,
+     "risks_found": 41.0
     },
     "change": {
      "error_rate": null,
@@ -1349,29 +1359,47 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 0.0,
-     "billed_usd": 0,
+     "api_equivalent_usd": 0.9656,
+     "billed_usd": 0.9656,
      "estimate_usd": 35.0,
-     "reported_usd": 0
+     "reported_usd": 0.9656
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 47.16645307838917,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 90.0,
+      "risk_pays": 100,
+      "risks_found": 41.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 210.9
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "kimi-k3.1-pro-off",
     "progress": {
-     "reason": "shared-balance priority",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-09T05:48:16+00:00"
+     "status": "running",
+     "updated_at": "2026-11-09T11:42:31+00:00"
     },
     "range": null,
-    "reason": "paused: shared-balance priority, Ümit #3215",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "Kimi K3.1 Pro (off)",
-    "state": "paused",
-    "status": "paused: shared-balance priority, Ümit #3215",
-    "steps_done": [],
+    "state": "running",
+    "status": "running, 0 of 5 series",
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -1394,28 +1422,28 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 0.0,
-     "billed_usd": 0,
+     "api_equivalent_usd": 0.2289,
+     "billed_usd": 0.4988,
      "estimate_usd": 44.0,
-     "reported_usd": 0
+     "reported_usd": 0.2289
     },
     "empty": [],
     "empty_done": 0,
     "improved": null,
     "key": "deepseek-v4.1-flash-on",
     "progress": {
-     "reason": "shared-balance priority",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:26:02+00:00"
+     "status": "running",
+     "updated_at": "2026-11-09T11:42:40+00:00"
     },
     "range": null,
-    "reason": "paused: shared-balance priority, Ümit #3215",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "DeepSeek V4.1 Flash (low)",
-    "state": "paused",
-    "status": "paused: shared-balance priority, Ümit #3215",
+    "state": "running",
+    "status": "running, 0 of 5 series",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -1905,7 +1933,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 0.0,
+     "api_equivalent_usd": 2.5554,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -1915,18 +1943,18 @@
     "improved": null,
     "key": "claude-sonnet-5.5-high",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "status": "running",
+     "updated_at": "2026-11-09T11:42:31+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "Claude Sonnet 5.5 (high)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "state": "running",
+    "status": "running, 0 of 5 series",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -1963,7 +1991,7 @@
      "reason": "waiting for its turn",
      "series_done": 0,
      "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "updated_at": "2026-11-09T11:42:31+00:00"
     },
     "range": null,
     "reason": "waiting for its turn in its lane",
@@ -2005,7 +2033,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 73.7397,
+     "api_equivalent_usd": 74.7694,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2034,7 +2062,7 @@
      "reason": null,
      "series_done": 0,
      "status": "running",
-     "updated_at": "2026-11-09T10:37:47+00:00"
+     "updated_at": "2026-11-09T11:37:22+00:00"
     },
     "range": null,
     "reason": null,
@@ -2068,7 +2096,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 0.0,
+     "api_equivalent_usd": 0.7673,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2078,18 +2106,18 @@
     "improved": null,
     "key": "grok-4.7-on",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "status": "running",
+     "updated_at": "2026-11-09T11:37:24+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "Grok 4.7 (high)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "state": "running",
+    "status": "running, 0 of 5 series",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -2113,7 +2141,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 0.0,
+     "api_equivalent_usd": 8.6227,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2123,18 +2151,18 @@
     "improved": null,
     "key": "claude-fable-5.1-on",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "status": "running",
+     "updated_at": "2026-11-09T11:42:40+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "Claude Fable 5.1 (high)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "state": "running",
+    "status": "running, 0 of 5 series",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -2503,19 +2531,19 @@
    }
   ],
   "money": {
-   "billed_total_usd": 14.4921,
+   "billed_total_usd": 15.9565,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-09T11:30:25+00:00"
+  "updated_at": "2026-11-09T11:49:31+00:00"
  },
- "source_sha256": "cc008bec220b74ca25e64059c2ec94f80ae280885e38d0262f8b2c35bb1d8bae",
+ "source_sha256": "c086da4555c4f3229334bde7921149b1cd7d2f6d419a77b97efc632a2ab6ea9c",
  "status": {
-  "last_update": "2026-11-09T11:30:25+00:00",
-  "line": "3 of 15 models with a verdict · 3 running · 9 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-09T11:49:31+00:00",
+  "line": "3 of 15 models with a verdict · 8 running · 4 paused · 0 incomplete or stopped",
   "models": 15,
-  "paused": 9,
+  "paused": 4,
   "phase": "running",
-  "running": 3,
+  "running": 8,
   "stopped": 0,
   "verdicts": 3
  },
