@@ -39,6 +39,7 @@ from benchmark_ollama import (
     ENGLISH_PROMPT_VERSION,
     ENGLISH_PROMPTS,
     JEV_INSTRUCTIONS,
+    PLAIN_PROMPT_VERSIONS,
     PROMPT_VERSION,
     GPU_RATE,
     GPU_TIME,
@@ -66,6 +67,7 @@ from benchmark_ollama import (
     option_probabilities,
     parse_args,
     parse_ollama_content,
+    plain_prompt,
     probability_problems,
     regrade,
     rescue_runs,
@@ -1413,6 +1415,159 @@ class EmptyAndBrokenReplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, f"run {good}: cannot re-ask its empty replies: asked with prompt version older"):
             rescue_runs(connection, [good], 1.0, 1, dry_run=False)
         self.assertEqual(connection.execute("SELECT * FROM answers ORDER BY run_id, ordinal").fetchall(), before)
+
+
+class PlainAnswerLineTests(unittest.TestCase):
+    """--provider vllm-plain (Ümit, bus #3446 and #3475): one question per request as a plain user message with logic's
+    instruction, only the --request-params settings, and the last ANSWER or CEVAP line's letter."""
+
+    PARAMS = {"temperature": 0.6, "max_tokens": 4096, "chat_template_kwargs": {"enable_thinking": True}}
+    reply = staticmethod(EmptyAndBrokenReplyTests.reply)
+    bank = DontKnowTests.bank
+
+    @staticmethod
+    def question(dont_know: bool = False) -> Question:
+        options = tuple(Option(label, f"option {label}") for label in "ABCDE")
+        if dont_know:
+            options = (*options, Option("F", ENGLISH_DONT_KNOW_OPTION))
+        prompt = "Body?\n\nOptions:\n" + "\n".join(f"{option.label}. {option.text}" for option in options)
+        return Question(7, "1. Unit", "1", "", "", "", "", "7", prompt, options, "B", 1, False, None)
+
+    def ask(self, replies: list[dict], dont_know: bool = False, retry_empty: bool = True) -> tuple[str | None, dict, list]:
+        """ask_vllm_plain through ask_batch with post_json returning `replies` in turn: the answer, the stored record and
+        the request bodies sent."""
+        sent = []
+
+        def post(endpoint, payload, *args, **kwargs):
+            sent.append((endpoint, payload))
+            return copy.deepcopy(replies[len(sent) - 1]), {}
+
+        args = argparse.Namespace(provider="vllm-plain", model="m", timeout=1, english=Path("en.jsonl"), dont_know=dont_know,
+                                  vllm_url="http://localhost:8000/", request_params=self.PARAMS)
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch("sys.stderr"):
+            predictions, raw = ask_batch(args, [self.question(dont_know)], "on", None, retry_empty)
+        return predictions[0], json.loads(raw), sent
+
+    def test_the_request_is_the_model_the_user_message_and_the_given_settings_only(self) -> None:
+        _, record, sent = self.ask([self.reply("ANSWER: B")])
+        endpoint, payload = sent[0]
+        self.assertEqual(endpoint, "http://localhost:8000/v1/chat/completions")
+        self.assertEqual(payload, {"model": "m", "messages": [{"role": "user", "content": (
+            "Solve the following multiple-choice question. On the last line of your reply write only 'ANSWER: X' "
+            "(X = A, B, C, D or E).\n\nBody?\n\nOptions:\nA. option A\nB. option B\nC. option C\nD. option D\nE. option E")}],
+            **self.PARAMS})
+        self.assertEqual(record, {"response": self.reply("ANSWER: B"), "answers": {"7": {"answer": "B"}}})
+
+    def test_the_instructions_are_logics_and_follow_the_question_letters(self) -> None:
+        question = self.question(dont_know=True)
+        self.assertEqual(plain_prompt(question, True, True).split("\n\n")[0], (
+            "Solve the following multiple-choice question. On the last line of your reply write only 'ANSWER: X' "
+            "(X = A, B, C, D, E or F). If you do not know the answer, choose I don't know."))
+        self.assertEqual(plain_prompt(question, False, True).split("\n\n")[0], (
+            "Aşağıdaki çoktan seçmeli soruyu çöz. Yanıtının son satırına yalnızca 'CEVAP: X' yaz (X = A, B, C, D, E veya F). "
+            f"{CHAT_DONT_KNOW_SENTENCE}"))
+        four = Question(1, "", "", "", "", "", "", "", "Q", tuple(Option(label, label) for label in "ABCD"), "A", 1, False, None)
+        self.assertEqual(plain_prompt(four, False, False),
+                         "Aşağıdaki çoktan seçmeli soruyu çöz. Yanıtının son satırına yalnızca 'CEVAP: X' yaz "
+                         "(X = A, B, C veya D).\n\nQ")
+        # Each variant has a prompt version of its own, none another provider's.
+        self.assertEqual(len(set(PLAIN_PROMPT_VERSIONS.values())), 4)
+        self.assertTrue(set(PLAIN_PROMPT_VERSIONS.values()).isdisjoint(
+            {PROMPT_VERSION, ENGLISH_PROMPT_VERSION, ENGLISH_CHAT_PROMPT_VERSION, ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION}))
+
+    def test_the_reader_takes_the_last_answer_line_of_the_content_only(self) -> None:
+        cases = [
+            ("valid last line", self.reply("The passage says so.\nANSWER: C"), False, "C"),
+            ("two answer lines, the last wins", self.reply("ANSWER: A\nOn reflection:\nANSWER: D"), False, "D"),
+            ("bold", self.reply("ANSWER: **B**"), False, "B"),
+            ("parenthesised", self.reply("ANSWER: (C)"), False, "C"),
+            ("lower case", self.reply("answer: d"), False, "D"),
+            ("Turkish line", self.reply("CEVAP: E"), False, "E"),
+            ("cut off with a letter", self.reply("ANSWER: B and then", finish="length"), False, None),
+            ("F without I don't know", self.reply("ANSWER: F"), False, None),
+            ("F with I don't know", self.reply("ANSWER: F"), True, "F"),
+            ("no answer line", self.reply("I think it is B."), False, None),
+            ("letter outside the options", self.reply("ANSWER: G"), False, None),
+        ]
+        for name, reply, dont_know, expected in cases:
+            with self.subTest(name):
+                answer, record, sent = self.ask([reply], dont_know=dont_know)
+                self.assertEqual((answer, len(sent)), (expected, 1))
+                self.assertEqual(record["answers"], {"7": {"answer": expected}})
+        # A server's separate reasoning field is never searched.
+        reasoning = {"choices": [{"finish_reason": "stop", "message": {"content": "no line", "reasoning_content": "ANSWER: B"}}]}
+        self.assertIsNone(self.ask([reasoning])[0])
+
+    def test_an_empty_reply_is_asked_once_more(self) -> None:
+        answer, record, sent = self.ask([self.reply("  \n", prompt=90, completion=20), self.reply("ANSWER: B")])
+        self.assertEqual((answer, len(sent)), ("B", 2))
+        self.assertEqual(sent[0], sent[1])
+        self.assertEqual(record["empty_first_reply"], self.reply("  \n", prompt=90, completion=20))
+        tokens, score = answer_usage("vllm-plain", 7, json.dumps(record))
+        self.assertEqual((tokens["input_tokens"], tokens["output_tokens"], score), (190, 70, None))
+        answer, record, sent = self.ask([self.reply(""), self.reply("")])
+        self.assertEqual((answer, len(sent)), (None, 2))
+        self.assertEqual(self.ask([self.reply("")], retry_empty=False)[0], None)
+
+    def test_parse_args_takes_only_the_allowed_settings_with_vllm_plain(self) -> None:
+        base = ["benchmark_ollama.py", "m", "--provider", "vllm-plain"]
+        with mock.patch("sys.argv", [*base, "--request-params", '{"top_k": 20, "seed": 1}']):
+            args = parse_args()
+        self.assertEqual((args.request_params, args.seed), ({"top_k": 20, "seed": 1}, 0))
+        for extra in ([], ["--request-params", '{"response_format": {}}'], ["--request-params", "[1]"],
+                      ["--request-params", "{}", "--seed", "3"], ["--request-params", "{}", "--batch-size", "2"]):
+            with self.subTest(extra), mock.patch("sys.argv", [*base, *extra]), mock.patch("sys.stderr"), \
+                    self.assertRaises(SystemExit):
+                parse_args()
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "m", "--provider", "vllm", "--request-params", "{}"]), \
+                mock.patch("sys.stderr"), self.assertRaises(SystemExit):
+            parse_args()
+
+    def start(self, connection: sqlite3.Connection, path: Path, params: str):
+        selection = load_questions(path, None, None, None, 0)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            return selection, start_run(connection, selection, "m", path, "vllm-plain", "http://localhost:8000", None, 1,
+                                        "default", None, False, None, None, False, None, False, request_params=params)
+
+    def test_the_settings_are_part_of_the_identity_and_an_unfinished_run_keeps_its_own(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        _, first = self.start(connection, path, '{"temperature":0}')
+        row = connection.execute("SELECT seed,request_params FROM runs WHERE id=?", (first.run_id,)).fetchone()
+        self.assertEqual(tuple(row), (0, '{"temperature":0}'))
+        self.assertEqual(self.start(connection, path, '{"temperature":0}')[1], first)
+        with self.assertRaisesRegex(ValueError, f"run {first.run_id} of this setup is unfinished"):
+            self.start(connection, path, '{"temperature":1}')
+        mark_run(connection, first.run_id, "completed")
+        self.assertNotEqual(self.start(connection, path, '{"temperature":1}')[1].run_key, first.run_key)
+
+    def test_rescue_re_asks_only_empty_replies_with_the_runs_settings(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        selection, identity = self.start(connection, path, '{"max_tokens":64}')
+        replies = [("B", self.reply("ANSWER: B")), (None, self.reply("ANSWER: B and", finish="length")), (None, self.reply(""))]
+        for ordinal, (question, (letter, reply)) in enumerate(zip(selection.questions, replies)):
+            raw = json.dumps({"response": reply, "answers": {str(question.question_id): {"answer": letter}}})
+            store_answers(connection, identity.run_id, [(ordinal, question)], [letter], raw, 1.0, 1.0)
+        mark_run(connection, identity.run_id, "completed")
+        sent = []
+
+        def post(endpoint, payload, *args, **kwargs):
+            sent.append(payload)
+            return self.reply("Thinking.\nCEVAP: C"), {}
+
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch("benchmark_ollama.harness_commit", return_value="1" * 40):
+            text = "\n".join(rescue_runs(connection, [identity.run_id], 1.0, 1, dry_run=False))
+        self.assertIn("empty replies re-asked once: 1; came back with answers: 1 (answers given: 1)", text)
+        self.assertIn("invalid after: 1 (cut off 1)", text)
+        self.assertEqual(sent, [{"model": "m", "messages": [{"role": "user", "content": plain_prompt(selection.questions[2], False, False)}],
+                                 "max_tokens": 64}])
+        after = connection.execute("SELECT predicted_answer,raw_response FROM answers WHERE run_id=? ORDER BY ordinal",
+                                   (identity.run_id,)).fetchall()
+        self.assertEqual([row["predicted_answer"] for row in after], ["B", None, "C"])
+        self.assertEqual(json.loads(after[2]["raw_response"])["empty_first_reply"], self.reply(""))
 
 
 class RunRequestsTests(unittest.TestCase):

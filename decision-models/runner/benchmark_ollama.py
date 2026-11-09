@@ -680,9 +680,15 @@ def questions_asked(result: dict[str, Any]) -> int:
 DEFAULT_VLLM_URL = server_url("VLLM_URL")
 # vllm sends the Ollama models' prompt, several questions per request, and reads the letters' token probabilities;
 # vllm-stated sends the hosted models' stated-confidence prompt the same way, for a server that returns no token
-# probabilities; vllm-yes-no, vllm-verbal and vllm-vote send one question per request.
-VLLM_PROVIDERS = ("vllm", "vllm-stated", "vllm-yes-no", "vllm-verbal", "vllm-vote")
-SINGLE_QUESTION_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm-verbal", "vllm-vote")
+# probabilities; vllm-yes-no, vllm-verbal, vllm-vote and vllm-plain send one question per request. vllm-plain asks for
+# a plain answer line (PLAIN_PROMPTS) with only the request settings of --request-params.
+VLLM_PROVIDERS = ("vllm", "vllm-stated", "vllm-yes-no", "vllm-verbal", "vllm-vote", "vllm-plain")
+SINGLE_QUESTION_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm-verbal", "vllm-vote", "vllm-plain")
+# The request settings --request-params may carry into a vllm-plain request body (vLLM's and llama.cpp's chat API).
+PLAIN_REQUEST_PARAMS = (
+    "temperature", "top_p", "top_k", "min_p", "presence_penalty", "repetition_penalty", "repeat_penalty", "repeat_last_n",
+    "seed", "max_tokens", "chat_template_kwargs",
+)
 # --provider vllm-vote: the vllm-verbal request sampled VOTE_SAMPLES times with the instruct sampling
 # settings of Qwen's model card (README.md in the Qwen3.8-27B-DGX-Spark-RTX-6000 repository). The answer is the
 # most frequent letter and its score the share of samples that chose it.
@@ -766,7 +772,7 @@ RESULT_FIELDS = (
     "run_key", "run_id", "model", "provider", "dataset", "database", "dataset_sha256", "selection_sha256",
     "eligible_total", "evaluated", "correct", "invalid", "skipped", "batch_size", "thinking", "num_ctx",
     "image_input", "shuffle_options", "replace_key_text", "categories", "updated", "concurrency", "as_run",
-    "repeat", "question_list", "dont_know", "english", "dont_know_word", "rerun", "perplexity_mode",
+    "repeat", "question_list", "dont_know", "english", "dont_know_word", "rerun", "perplexity_mode", "request_params",
 )
 JEV_INSTRUCTIONS = "Which option is the correct answer to this Turkish multiple-choice question?"
 # Open-Jev's per-option prompt (jev/api.py candidate_prompts), used by --provider vllm-yes-no.
@@ -958,6 +964,45 @@ ENGLISH_DONT_KNOW_CHAT_PROMPTS = {**{field: getattr(ENGLISH_DONT_KNOW_CHAT, fiel
 ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION = hashlib.sha256(
     json.dumps(ENGLISH_DONT_KNOW_CHAT_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
 ).hexdigest()[:12]
+# The plain answer line (--provider vllm-plain; Ümit, bus #3446 and #3475; coordinator, bus #3492): the user message is
+# the instruction, a blank line and the question as the other runs in its language show it (question.prompt), with no
+# system prompt and no answer schema. The instructions are word for word those of logic's run_eval.py, so a small model
+# sees one instruction on both sites; {letters} lists the question's own letters, the last after the word in
+# "last_letter_word". The reply's last ANSWER or CEVAP line gives the letter (PLAIN_ANSWER). PLAIN_PROMPT_VERSIONS
+# identify each variant, computed as PROMPT_VERSION is.
+PLAIN_ENGLISH_INSTRUCTION = (
+    "Solve the following multiple-choice question. On the last line of your reply write only 'ANSWER: X' (X = {letters})."
+)
+PLAIN_TURKISH_INSTRUCTION = (
+    "Aşağıdaki çoktan seçmeli soruyu çöz. Yanıtının son satırına yalnızca 'CEVAP: X' yaz (X = {letters})."
+)
+PLAIN_PROMPTS = {
+    "english": {"plain_user_message": "{instruction}\n\n{question}", "plain_instruction": PLAIN_ENGLISH_INSTRUCTION,
+                "last_letter_word": "or", "options_heading": ENGLISH_OPTIONS_HEADING},
+    "english_dont_know": {"plain_user_message": "{instruction}\n\n{question}",
+                          "plain_instruction": f"{PLAIN_ENGLISH_INSTRUCTION} {ENGLISH_DONT_KNOW_SENTENCE}",
+                          "last_letter_word": "or", "options_heading": ENGLISH_OPTIONS_HEADING,
+                          "dont_know_option": ENGLISH_DONT_KNOW_OPTION},
+    "turkish": {"plain_user_message": "{instruction}\n\n{question}", "plain_instruction": PLAIN_TURKISH_INSTRUCTION,
+                "last_letter_word": "veya"},
+    "turkish_dont_know": {"plain_user_message": "{instruction}\n\n{question}",
+                          "plain_instruction": f"{PLAIN_TURKISH_INSTRUCTION} {CHAT_DONT_KNOW_SENTENCE}",
+                          "last_letter_word": "veya", "dont_know_option": DONT_KNOW_OPTION},
+}
+PLAIN_PROMPT_VERSIONS = {
+    variant: hashlib.sha256(
+        json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:12]
+    for variant, prompts in PLAIN_PROMPTS.items()
+}
+PLAIN_ANSWER = re.compile(r"(?:ANSWER|CEVAP)\s*[:：]\s*\**\s*\(?([A-F])\b", re.IGNORECASE)
+
+
+def plain_variant(english: bool, dont_know: bool) -> str:
+    """The PLAIN_PROMPTS variant of a vllm-plain run in English (--english) or Turkish, with or without "I don't know"."""
+    return f"{'english' if english else 'turkish'}{'_dont_know' if dont_know else ''}"
+
+
 # The decision models: the providers whose requests carry the System One instructions (system_one_instructions); every
 # other provider is a chat provider, asked with ChatPrompts.
 DECISION_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no")
@@ -971,8 +1016,11 @@ def chat_prompts(english: bool, dont_know: bool) -> ChatPrompts:
 
 
 def run_prompt_version(provider: str, english: bool, dont_know: bool, dont_know_word: str | None) -> str:
-    """The prompt version a run records: of the decision models' prompts (System One providers and vllm-yes-no) or the
-    chat models', in English (--english) or Turkish, with or without "I don't know" (and its option word)."""
+    """The prompt version a run records: of the plain answer line (vllm-plain), the decision models' prompts (System One
+    providers and vllm-yes-no) or the chat models', in English (--english) or Turkish, with or without "I don't know"
+    (and its option word)."""
+    if provider == "vllm-plain":
+        return PLAIN_PROMPT_VERSIONS[plain_variant(english, dont_know)]
     decision = provider in DECISION_PROVIDERS
     if english:
         if dont_know:
@@ -1172,6 +1220,12 @@ def parse_args() -> argparse.Namespace:
         "default); the run's reasoning setting is then this level",
     )
     parser.add_argument(
+        "--request-params",
+        metavar="JSON",
+        help="with --provider vllm-plain (required there): a JSON object merged as-is into every request body, the only "
+        f"settings sent and part of the run's identity; keys: {', '.join(PLAIN_REQUEST_PARAMS)}",
+    )
+    parser.add_argument(
         "--concurrency",
         type=int,
         default=1,
@@ -1265,7 +1319,8 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--timeout", type=float, default=300.0)
-    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--seed", type=int, help="the seed of the requests and of --sample (default: 0); --provider "
+                        "vllm-plain sends a seed only in --request-params")
     parser.add_argument("--num-ctx", type=int)
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--restart", action="store_true")
@@ -1398,7 +1453,7 @@ def parse_args() -> argparse.Namespace:
         parser.error("--retry-cut is only supported by --provider antigravity, without --restart")
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
-    concurrent = ("vllm", "vllm-stated", "gemini", "xai", "antigravity", "openrouter-chat")
+    concurrent = ("vllm", "vllm-stated", "vllm-plain", "gemini", "xai", "antigravity", "openrouter-chat")
     if args.concurrency > 1 and args.rescue is None and args.provider not in concurrent and args.provider not in SYSTEM_ONE:
         parser.error(f"--concurrency is only supported by --provider {', '.join(concurrent)} and the System One providers")
     if args.provider == "openrouter-chat" and (args.openrouter_reasoning is None or not args.openrouter_order):
@@ -1413,6 +1468,26 @@ def parse_args() -> argparse.Namespace:
         parser.error(f"--provider {args.provider} sends one question per request; use --batch-size 1")
     if args.dont_know and args.provider == "vllm-yes-no":
         parser.error("--dont-know is not supported by --provider vllm-yes-no")
+    if args.request_params is not None:
+        if args.provider != "vllm-plain":
+            parser.error("--request-params is only supported by --provider vllm-plain")
+        try:
+            params = json.loads(args.request_params)
+        except json.JSONDecodeError as exc:
+            parser.error(f"--request-params is not JSON: {exc}")
+        if not isinstance(params, dict):
+            parser.error("--request-params must be a JSON object")
+        unknown = sorted(set(params) - set(PLAIN_REQUEST_PARAMS))
+        if unknown:
+            parser.error(f"--request-params: {', '.join(unknown)} not allowed (allowed: {', '.join(PLAIN_REQUEST_PARAMS)})")
+        args.request_params = params
+    elif (args.provider == "vllm-plain" and args.rescue is None and not args.refresh_report and args.export_answers is None
+          and args.check_probabilities is None):
+        parser.error("--provider vllm-plain needs --request-params")
+    if args.provider == "vllm-plain" and args.seed is not None:
+        parser.error("--provider vllm-plain sends only --request-params: set seed there, not with --seed")
+    if args.seed is None:
+        args.seed = 0
     if args.perplexity_mode is not None and args.provider != "perplexity":
         parser.error("--perplexity-mode is only supported by --provider perplexity")
     if args.english is not None:
@@ -2047,7 +2122,9 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                 "thinking": result["thinking"],
                 "questions_per_request": result["batch_size"],
                 "concurrency": result.get("concurrency", 1),
-                "seed": run["seed"],
+                # A vllm-plain run sends a seed only in its request settings (the runs row cannot hold none).
+                "seed": (json.loads(result["request_params"]).get("seed") if result.get("provider") == "vllm-plain"
+                         else run["seed"]),
                 # The code and the prompts behind the run (harness_commit, PROMPT_VERSION); None for runs from before both.
                 "harness_commit": run["harness_commit"],
                 "prompt_version": run["prompt_version"],
@@ -2060,6 +2137,8 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                 "dont_know_word": result.get("dont_know_word"),
                 "rerun": result.get("rerun"),
                 "perplexity_mode": result.get("perplexity_mode"),
+                # --provider vllm-plain: the request settings sent, as sorted compact JSON; None for other providers.
+                "request_params": result.get("request_params"),
                 "answers": answers,
             }
         )
@@ -2093,6 +2172,10 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
                 ],
             }
         )
+    plain_variants = sorted({plain_variant(bool(result.get("english")), bool(result.get("dont_know")))
+                             for result in results if result.get("provider") == "vllm-plain"})
+    # The chat providers' prompt sections leave out vllm-plain, which has its own (plain_prompts).
+    plain_or_decision = (*DECISION_PROVIDERS, "vllm-plain")
     document = {
         "schema_version": 2,
         "prompts": dict(PROMPTS),
@@ -2103,7 +2186,7 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
         # The prompts of the chat models' "I don't know" (--dont-know with a chat provider), when one of their runs is
         # exported.
         **({"dont_know_chat_prompts": dict(DONT_KNOW_CHAT_PROMPTS)}
-           if any(result.get("dont_know") and not result.get("english") and result.get("provider") not in DECISION_PROVIDERS
+           if any(result.get("dont_know") and not result.get("english") and result.get("provider") not in plain_or_decision
                   for result in results) else {}),
         # The prompts of English reading (--english), when one of its runs is exported.
         **({"english_prompts": dict(ENGLISH_PROMPTS)}
@@ -2112,7 +2195,7 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
         # The prompts of English reading for the chat models (--english with a chat provider), when one of their runs is
         # exported.
         **({"english_chat_prompts": dict(ENGLISH_CHAT_PROMPTS)}
-           if any(result.get("english") and not result.get("dont_know") and result.get("provider") not in DECISION_PROVIDERS
+           if any(result.get("english") and not result.get("dont_know") and result.get("provider") not in plain_or_decision
                   for result in results) else {}),
         # The prompts of English "I don't know" (--english with --dont-know), when one of its decision-model runs is exported.
         **({"english_dont_know_prompts": dict(ENGLISH_DONT_KNOW_PROMPTS)}
@@ -2121,11 +2204,13 @@ def export_answers(path: Path, report: Path, connection: sqlite3.Connection) -> 
         # The prompts of the chat models' English "I don't know" (--english with --dont-know and a chat provider), when one
         # of their runs is exported.
         **({"english_dont_know_chat_prompts": dict(ENGLISH_DONT_KNOW_CHAT_PROMPTS)}
-           if any(result.get("english") and result.get("dont_know") and result.get("provider") not in DECISION_PROVIDERS
+           if any(result.get("english") and result.get("dont_know") and result.get("provider") not in plain_or_decision
                   for result in results) else {}),
         # The prompts of the option-word check (--dont-know-word english), when one of its runs is exported.
         **({"dont_know_word_prompts": dict(DONT_KNOW_WORD_PROMPTS)}
            if any(result.get("dont_know_word") == "english" for result in results) else {}),
+        # The plain answer line's prompts (--provider vllm-plain) of each variant one of its runs is exported in.
+        **({"plain_prompts": {variant: dict(PLAIN_PROMPTS[variant]) for variant in plain_variants}} if plain_variants else {}),
         "datasets": output,
     }
     path.write_text(json.dumps(document, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
@@ -2205,6 +2290,8 @@ def open_result_database(path: Path) -> sqlite3.Connection:
         ("runs", "rerun", "TEXT"),
         # --perplexity-mode: the Decisions API request's mode ("web_grounding"), else NULL.
         ("runs", "perplexity_mode", "TEXT"),
+        # --request-params (--provider vllm-plain): the request settings sent, as sorted compact JSON, else NULL.
+        ("runs", "request_params", "TEXT"),
     ):
         columns = {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})")}
         if column not in columns:
@@ -2264,7 +2351,7 @@ def start_run(
     data_path: Path,
     provider: str,
     endpoint: str,
-    seed: int,
+    seed: int | None,
     batch_size: int,
     thinking: bool | str,
     num_ctx: int | None,
@@ -2278,7 +2365,10 @@ def start_run(
     dont_know_word: str | None = None,
     rerun: str | None = None,
     perplexity_mode: str | None = None,
+    request_params: str | None = None,
 ) -> RunIdentity:
+    """Create or resume the run of these settings. `seed` is None only for a vllm-plain run that sends none;
+    `request_params` is a vllm-plain run's --request-params as sorted compact JSON (plain_params_text)."""
     dataset_hash = file_sha256(data_path)
     selection_text = "\n".join(str(question.question_id) for question in selection.questions)
     selection_hash = hashlib.sha256(selection_text.encode()).hexdigest()
@@ -2320,6 +2410,9 @@ def start_run(
     if perplexity_mode is not None:
         # A grounded run never resumes one answered from the state alone, nor the other way round.
         identity_config["perplexity_mode"] = perplexity_mode
+    if request_params is not None:
+        # vllm-plain: other request settings are another run.
+        identity_config["request_params"] = request_params
     identity = json.dumps(
         identity_config,
         sort_keys=True,
@@ -2334,6 +2427,25 @@ def start_run(
             f"this run started with prompt version {existing['prompt_version']}, not {prompt_version}: add --restart to "
             "answer it again with the current prompts"
         )
+    if request_params is not None and existing is None:
+        # Resuming an unfinished vllm-plain run with other request settings would start a second run beside it.
+        unfinished = connection.execute(
+            """
+            SELECT id,request_params FROM runs WHERE provider=? AND model=? AND dataset_sha256=? AND selection_sha256=?
+                AND ollama_url=? AND batch_size=? AND shuffle_options IS ? AND replace_key_text IS ? AND dont_know IS ?
+                AND english IS ? AND dont_know_word IS ? AND rerun IS ? AND repeat IS ? AND status!='completed'
+                AND request_params IS NOT ?
+            ORDER BY id LIMIT 1
+            """,
+            (provider, model, dataset_hash, selection_hash, endpoint.rstrip("/"), batch_size, shuffle_seed, replace_key_seed,
+             1 if dont_know else None, english, dont_know_word, rerun, repeat, request_params),
+        ).fetchone()
+        if unfinished is not None:
+            raise ValueError(
+                f"run {unfinished['id']} of this setup is unfinished and was asked with --request-params "
+                f"{unfinished['request_params']}, not {request_params}: resume it with its own settings, or add --rerun TAG "
+                "to run these settings as a run of their own"
+            )
     # A new run, or one answered again, records the code and the prompts that answer it; a resumed run keeps its own.
     harness = harness_commit() if existing is None or restart else None
     with connection:
@@ -2342,10 +2454,10 @@ def start_run(
             INSERT OR IGNORE INTO runs (
                 run_key, model, provider, dataset, dataset_sha256, selection_sha256,
                 ollama_url, seed, batch_size, num_ctx, shuffle_options, replace_key_text, dont_know, english, dont_know_word,
-                rerun, repeat, perplexity_mode,
+                rerun, repeat, perplexity_mode, request_params,
                 thinking_mode, selected_total, evaluated_total, skipped_json, status, created_at, updated_at, harness_commit,
                 prompt_version
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'running', ?, ?, ?, ?)
             """,
             (
                 run_key,
@@ -2355,7 +2467,9 @@ def start_run(
                 dataset_hash,
                 selection_hash,
                 endpoint.rstrip("/"),
-                seed,
+                # The column cannot be NULL: a vllm-plain run that sends no seed stores 0 here; its sent seed is the one
+                # in request_params (the identity and the export take it from there).
+                0 if seed is None else seed,
                 batch_size,
                 num_ctx,
                 shuffle_seed,
@@ -2366,6 +2480,7 @@ def start_run(
                 rerun,
                 repeat,
                 perplexity_mode,
+                request_params,
                 thinking_label(thinking),
                 selection.eligible_total,
                 len(selection.questions),
@@ -2968,14 +3083,17 @@ def post_chat(
 
 # The readers of the chat replies, by the path that asks: "vllm" (ask_vllm: the content as parse_ollama_content reads
 # it, {"answers": {"<number>": "<letter>"}}), "stated" (ask_vllm_stated: the content's JSON "answers" object), "json"
-# (ask_openrouter_chat with the schema or JSON mode: the final content's JSON "answers" object) and "layout"
-# (ask_openrouter_chat with the answer layout: layout_entries).
-CHAT_READERS = ("vllm", "stated", "json", "layout")
+# (ask_openrouter_chat with the schema or JSON mode: the final content's JSON "answers" object), "layout"
+# (ask_openrouter_chat with the answer layout: layout_entries) and "plain" (ask_vllm_plain: plain_answer).
+CHAT_READERS = ("vllm", "stated", "json", "layout", "plain")
 
 
 def reads_whole(reader: str, result: Any, batch: list[Question]) -> bool:
     """Whether `reader` (CHAT_READERS) reads a chat completions response as a whole, as the path that asked reads it:
-    each question's answer then stands or falls on its own entry."""
+    each question's answer then stands or falls on its own entry. The plain reader reads every reply whole: a reply
+    without a valid answer line is invalid, and nothing else is read from it."""
+    if reader == "plain":
+        return True
     try:
         content = result["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError):
@@ -4128,6 +4246,85 @@ def verbal_payload(model: str, question: Question, seed: int, prompts: ChatPromp
     }
 
 
+def plain_params_text(params: dict[str, Any]) -> str:
+    """A vllm-plain run's --request-params as its identity, row, record and export hold them: sorted compact JSON."""
+    return json.dumps(params, sort_keys=True, separators=(",", ":"))
+
+
+def plain_thinking(params: dict[str, Any]) -> str:
+    """A vllm-plain run's reasoning setting, as its request settings state it: "on" or "off" when chat_template_kwargs
+    sets enable_thinking (or thinking, which DeepSeek's template reads), else "default" (the chat template's own)."""
+    kwargs = params.get("chat_template_kwargs")
+    for key in ("enable_thinking", "thinking"):
+        if isinstance(kwargs, dict) and isinstance(kwargs.get(key), bool):
+            return "on" if kwargs[key] else "off"
+    return "default"
+
+
+def plain_prompt(question: Question, english: bool, dont_know: bool) -> str:
+    """The user message of a vllm-plain request (PLAIN_PROMPTS): the instruction with the question's own letters, a blank
+    line, and the question as the other runs in its language show it."""
+    prompts = PLAIN_PROMPTS[plain_variant(english, dont_know)]
+    labels = [option.label for option in question.options]
+    letters = labels[0] if len(labels) == 1 else f"{', '.join(labels[:-1])} {prompts['last_letter_word']} {labels[-1]}"
+    instruction = prompts["plain_instruction"].format(letters=letters)
+    return prompts["plain_user_message"].format(instruction=instruction, question=question.prompt)
+
+
+def plain_line_letter(result: Any) -> str | None:
+    """The letter of the last answer line (PLAIN_ANSWER) in a chat completions response's first choice's
+    message.content, upper-cased, or None without one. Reasoning the response carries apart from the content is never
+    searched."""
+    try:
+        content = result["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return None
+    found = PLAIN_ANSWER.findall(content) if isinstance(content, str) else []
+    return found[-1].upper() if found else None
+
+
+def plain_answer(result: Any, labels: list[str]) -> str | None:
+    """A vllm-plain reply's answer: the last answer line's letter (plain_line_letter) when it is one of `labels`, the
+    question's options; None when the reply was cut off at the output limit (finish_reason "length"), even with a
+    letter, and when it has no answer line or another letter."""
+    if finish_reason(result) == CUT_FINISH_REASON:
+        return None
+    letter = plain_line_letter(result)
+    return letter if letter in labels else None
+
+
+def ask_vllm_plain(
+    base_url: str,
+    model: str,
+    question: Question,
+    timeout: float,
+    request_params: dict[str, Any],
+    english: bool,
+    dont_know: bool,
+    verbose_log: TextIO | None,
+    retry_empty: bool = True,
+) -> tuple[str | None, str]:
+    """One question as a plain user message (plain_prompt) through the chat API vLLM and llama.cpp serve, with
+    `request_params` (--request-params) and nothing else: no system prompt, answer schema, seed, temperature, output
+    limit or log probabilities of the runner's own. The answer is read by plain_answer; no letter probabilities. An EMPTY
+    reply is asked once more (post_chat), the first kept under "empty_first_reply". Stored like the vllm-stated
+    provider's response: the response as it came and the answer under "answers", keyed by question ID."""
+    payload = {"model": model, "messages": [{"role": "user", "content": plain_prompt(question, english, dont_know)}],
+               **request_params}
+    result, first = post_chat(
+        f"{base_url.rstrip('/')}/v1/chat/completions", payload, {"Content-Type": "application/json"}, timeout, verbose_log,
+        "vLLM", retry_empty,
+    )
+    prediction = plain_answer(result, [option.label for option in question.options])
+    if prediction is None:
+        print(f"warning: no valid answer line in the reply to question {question.question_id} "
+              f"(finish_reason {finish_reason(result)!r})", file=sys.stderr)
+    record: dict[str, Any] = {"response": result, "answers": {str(question.question_id): {"answer": prediction}}}
+    if first is not None:
+        record["empty_first_reply"] = first
+    return prediction, json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+
+
 def ask_vllm_vote(
     base_url: str,
     model: str,
@@ -4318,8 +4515,8 @@ def retry_cut_requests(
 
 # The providers whose chat replies follow the rule on empty and broken replies (project lead, bus #3215): their paths
 # ask an EMPTY reply once more and read a BROKEN reply's clearly readable letters, and --rescue applies the rule to
-# their finished runs.
-RESCUE_PROVIDERS = ("openrouter-chat", "vllm", "vllm-stated")
+# their finished runs. vllm-plain's reader reads every reply whole (reads_whole), so only its empty replies are re-asked.
+RESCUE_PROVIDERS = ("openrouter-chat", "vllm", "vllm-stated", "vllm-plain")
 # Why an answer is still invalid, as --rescue and the report count it.
 INVALID_KINDS = ("empty after retry", "empty, not retried", "cut off", "unreadable", "letter not allowed")
 # How a stored answer read by the rule is marked in its record's answers: a letter read from a broken reply
@@ -4350,9 +4547,12 @@ def openrouter_pin(endpoint: str) -> dict[str, Any]:
 
 
 def run_reader(run: sqlite3.Row) -> tuple[str, str]:
-    """The reader (CHAT_READERS) and the answer shape (ANSWER_SHAPES) of a RESCUE_PROVIDERS run's replies."""
+    """The reader (CHAT_READERS) and the answer shape (ANSWER_SHAPES) of a RESCUE_PROVIDERS run's replies (vllm-plain's
+    plain reader reads no shape of entries; its shape is never used)."""
     if run["provider"] == "vllm":
         return "vllm", "letter"
+    if run["provider"] == "vllm-plain":
+        return "plain", "letter"
     if run["provider"] == "vllm-stated":
         return "stated", "confidence"
     return ("layout" if openrouter_pin(run["ollama_url"])["openrouter_answer_layout"] else "json"), "confidence"
@@ -4368,9 +4568,9 @@ def stored_reply(provider: str, record: dict[str, Any]) -> Any:
 
 def rescue_settings(run: sqlite3.Row, timeout: float, re_ask: bool = True) -> tuple[argparse.Namespace, bool | str]:
     """ask_batch's settings to ask a request of a finished run again, and its thinking, from what the run's row
-    records: provider, model, endpoint with its settings, seed, reasoning, language and "I don't know". A ValueError
-    naming the reason for a run --rescue cannot re-ask: a provider outside RESCUE_PROVIDERS, or, when it would re-ask
-    (`re_ask`), a run whose prompt version is not the one this runner sends."""
+    records: provider, model, endpoint with its settings, seed, request settings (vllm-plain), reasoning, language and
+    "I don't know". A ValueError naming the reason for a run --rescue cannot re-ask: a provider outside
+    RESCUE_PROVIDERS, or, when it would re-ask (`re_ask`), a run whose prompt version is not the one this runner sends."""
     provider = run["provider"]
     if provider not in RESCUE_PROVIDERS:
         raise ValueError(f"run {run['id']}: --rescue cannot re-ask provider {provider!r} (only {', '.join(RESCUE_PROVIDERS)})")
@@ -4387,6 +4587,8 @@ def rescue_settings(run: sqlite3.Row, timeout: float, re_ask: bool = True) -> tu
         vars(settings).update(openrouter_pin(run["ollama_url"]), openrouter_reasoning=run["thinking_mode"])
         return settings, run["thinking_mode"]
     settings.vllm_url = run["ollama_url"]
+    if provider == "vllm-plain":
+        settings.request_params = json.loads(run["request_params"])
     return settings, {"off": False, "on": True}.get(run["thinking_mode"], run["thinking_mode"])
 
 
@@ -4424,7 +4626,10 @@ def invalid_kind(provider: str, shape: str, record: dict[str, Any], number: int,
         return "empty after retry" if "empty_first_reply" in record else "empty, not retried"
     if finish_reason(reply) == CUT_FINISH_REASON:
         return "cut off"
-    _, letter, _ = answer_entries(reply_text(reply) or "", number, shape)
+    if provider == "vllm-plain":
+        letter = plain_line_letter(reply)
+    else:
+        _, letter, _ = answer_entries(reply_text(reply) or "", number, shape)
     return "letter not allowed" if letter is not None and letter not in letters else "unreadable"
 
 
@@ -4657,6 +4862,12 @@ def ask_batch(
     if args.provider == "vllm-vote":
         prediction, raw_response = ask_vllm_vote(
             args.vllm_url, args.model, questions[0], args.timeout, args.seed, verbose_log, prompts
+        )
+        return [prediction], raw_response
+    if args.provider == "vllm-plain":
+        prediction, raw_response = ask_vllm_plain(
+            args.vllm_url, args.model, questions[0], args.timeout, args.request_params, args.english is not None,
+            bool(args.dont_know), verbose_log, retry_empty,
         )
         return [prediction], raw_response
     if args.provider == "gemini":
@@ -5620,6 +5831,8 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
             options.append(f"Questions: in English, translations {result['english']['translations_sha256'][:12]}  ")
         if result.get("perplexity_mode") is not None:
             options.append(f"Requests: mode {result['perplexity_mode']} (a web search per question, its results added as evidence)  ")
+        if result.get("request_params") is not None:
+            options.append(f"Requests: a plain answer line, settings {result['request_params']}  ")
         lines.extend(
             [
                 "",
@@ -6847,6 +7060,7 @@ def run_record(
         "dont_know_word": None if args.dont_know_word == "turkish" else args.dont_know_word,
         "rerun": args.rerun,
         "perplexity_mode": args.perplexity_mode,
+        "request_params": plain_params_text(args.request_params) if args.provider == "vllm-plain" else None,
         "english": None if args.english is None else {
             "translations_sha256": args.english_sha256,
             "questions": len(selection.questions),
@@ -6916,7 +7130,8 @@ def main() -> int:
             image_input = False
         elif args.provider in VLLM_PROVIDERS:
             endpoint = require_server_url(args.vllm_url, "--vllm-url")
-            thinking = args.vllm_reasoning_effort or args.vllm_thinking
+            thinking = (plain_thinking(args.request_params) if args.provider == "vllm-plain"
+                        else args.vllm_reasoning_effort or args.vllm_thinking)
             image_input = False
             if args.provider == "vllm-yes-no":
                 args.yes_no_ids = vllm_yes_no_ids(args.vllm_url, args.model, args.timeout)
@@ -7002,7 +7217,7 @@ def main() -> int:
             data_path,
             args.provider,
             endpoint,
-            args.seed,
+            args.request_params.get("seed") if args.provider == "vllm-plain" else args.seed,
             args.batch_size,
             thinking,
             args.num_ctx,
@@ -7016,6 +7231,7 @@ def main() -> int:
             dont_know_word=None if args.dont_know_word == "turkish" else args.dont_know_word,
             rerun=args.rerun,
             perplexity_mode=args.perplexity_mode,
+            request_params=plain_params_text(args.request_params) if args.provider == "vllm-plain" else None,
         )
         if args.log_verbose:
             verbose_log, log_path = open_verbose_log(args.model)
@@ -7027,7 +7243,9 @@ def main() -> int:
             f"image_input={'on' if image_input else 'off'}, shuffle_options={args.shuffle_options}, "
             f"replace_key_text={args.replace_key_text}, dont_know={args.dont_know}, "
             f"english={args.english_sha256 and args.english_sha256[:12]}, dont_know_word={args.dont_know_word}, "
-            f"rerun={args.rerun}, perplexity_mode={args.perplexity_mode}, run={identity.run_id})"
+            f"rerun={args.rerun}, perplexity_mode={args.perplexity_mode}, "
+            + (f"request_params={plain_params_text(args.request_params)}, " if args.provider == "vllm-plain" else "")
+            + f"run={identity.run_id})"
         )
         correct, invalid, categories = evaluate(
             selection, result_connection, identity, args, thinking, verbose_log

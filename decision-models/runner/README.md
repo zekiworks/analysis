@@ -134,7 +134,7 @@ variables. To repeat a run exactly, check out the commit it names.
 | Where | Environment variable | Flag |
 |---|---|---|
 | `--provider ollama` | `OLLAMA_URL` | `--ollama-url` |
-| `--provider vllm`, `vllm-stated`, `vllm-yes-no`, `vllm-verbal`, `vllm-vote` | `VLLM_URL` | `--vllm-url` |
+| `--provider vllm`, `vllm-stated`, `vllm-yes-no`, `vllm-verbal`, `vllm-vote`, `vllm-plain` | `VLLM_URL` | `--vllm-url` |
 | `--provider open-jev`, `laya`, `gliner`, `clef`, `metask`, `cygnet`, `winnow` | `OPEN_JEV_URL`, `LAYA_URL`, `GLINER_URL`, `CLEF_URL`, `METASK_URL`, `CYGNET_URL`, `WINNOW_URL` | `--jev-url` |
 | `--provider strands`, `pplx-decider`, `glide`, `vllm-sr`, `onejev`, `d3-server`, `drex-max`, `d1-server`, `baselabs` | `STRANDS_URL`, `PPLX_DECIDER_URL`, `GLIDE_URL`, `VLLM_SR_URL`, `ONEJEV_URL`, `D3_SERVER_URL`, `DREX_MAX_URL`, `D1_SERVER_URL`, `BASELABS_URL` | `--jev-url` |
 | `run_clef_flash.sh`, `run_gliner_decide.sh`, `run_laya_multilingual.sh` | `CLEF_FLASH_URL`, `GLINER_DECIDE_URL`, `LAYA_MULTILINGUAL_URL` | |
@@ -281,6 +281,41 @@ docker run -d --name qwen3-14b-vllm --network host --ipc host --gpus device=GPU 
 # and --served-model-name erk-14b
 ```
 
+**Small open models (`--provider vllm-plain`).** Ümit's small open models (bus #3446, #3475) get the Reading English
+test on logic's per-model server (vLLM, or llama.cpp's server, which takes the same chat API), right after logic's runs:
+
+```bash
+./benchmark_ollama.py SERVED_NAME --provider vllm-plain --vllm-url http://HOST:PORT --data questions-v2.sqlite \
+  --english translations.jsonl --questions kept.txt [--dont-know] \
+  --request-params '{"temperature": 0, "max_tokens": 8192}'
+```
+
+One question per request (`--batch-size 1`, the only size it takes), a plain answer line and no answer schema:
+
+- **Request.** `{"model": SERVED_NAME, "messages": [{"role": "user", "content": PROMPT}], ...}` to
+  `/v1/chat/completions`, with the object of `--request-params` merged in as it is and nothing else: no system prompt,
+  seed, temperature, output limit, `response_format` or log probabilities of the runner's own. `--request-params` is
+  required and takes only `temperature`, `top_p`, `top_k`, `min_p`, `presence_penalty`, `repetition_penalty`,
+  `repeat_penalty`, `repeat_last_n`, `seed`, `max_tokens` and `chat_template_kwargs` (logic's per-model settings);
+  `--seed` is refused (a seed goes in `--request-params`). The settings, as sorted compact JSON, are part of the run's
+  identity (`request_params`): other settings make another run, and a setup whose run with other settings is unfinished
+  is refused until that run is resumed with its own (or `--rerun TAG` names a run of its own). A run records the seed
+  it sent, or none; its reasoning setting is `on` or `off` when `chat_template_kwargs` sets `enable_thinking` (or
+  `thinking`), else `default`.
+- **Prompt.** PROMPT is the instruction, a blank line and the question as the other runs in its language show it
+  (passage, question, the lettered options in the bank's order; with `--dont-know` the option F). The instructions are
+  logic's (`run_eval.py`), word for word, with the question's own letters: in English `Solve the following
+  multiple-choice question. On the last line of your reply write only 'ANSWER: X' (X = A, B, C, D or E).`, with
+  `--dont-know` `(X = A, B, C, D, E or F). If you do not know the answer, choose I don't know.`; in Turkish
+  `Aşağıdaki çoktan seçmeli soruyu çöz. Yanıtının son satırına yalnızca 'CEVAP: X' yaz (X = A, B, C, D veya E).`, with
+  `--dont-know` `(X = A, B, C, D, E veya F).` and the chat runs' Bilmiyorum sentence. Each of the four has a prompt
+  version of its own (`PLAIN_PROMPTS`, exported as `plain_prompts`).
+- **Reading.** Only `choices[0].message.content`; a reasoning field the server returns apart from it is never searched.
+  A reply cut off at the output limit (`finish_reason` `"length"`) is invalid, even with a letter. Otherwise the answer
+  is the letter of the last match of `(?:ANSWER|CEVAP)\s*[:：]\s*\**\s*\(?([A-F])\b` (any case, upper-cased) when it is
+  one of the question's options (F only with `--dont-know`); no match or another letter is invalid. Nothing else is
+  read. An empty reply is asked once more (below). No letter probabilities are stored: these runs have no confidence.
+
 ### Self-hosted decision servers
 
 | Script | Configuration | Server |
@@ -335,8 +370,10 @@ model; the page's Method section describes how each was read out.
 
 The project lead's rule for every chat setup (bus #3215, 8 November 2026): an empty reply gets one retry; a reply that
 came back broken has its clearly readable letters scored and the rest count as wrong. It applies to the chat replies of
-`--provider openrouter-chat` (schema, `--openrouter-json-object` and `--openrouter-answer-layout`), `vllm` and
-`vllm-stated` (`RESCUE_PROVIDERS`). Every raw reply is kept; nothing is filled in or guessed.
+`--provider openrouter-chat` (schema, `--openrouter-json-object` and `--openrouter-answer-layout`), `vllm`,
+`vllm-stated` and `vllm-plain` (`RESCUE_PROVIDERS`). Every raw reply is kept; nothing is filled in or guessed. A
+`vllm-plain` reply is never broken: its reader reads every reply whole (no answer line is an invalid answer), so only
+its empty replies are asked again.
 
 - **Empty.** A reply that finished normally (`finish_reason` `"stop"`) whose final content (after any thinking closed by
   `</think>`), stripped, is empty or an empty JSON object (`{}` with any whitespace). The same request is sent once
@@ -363,9 +400,10 @@ came back broken has its clearly readable letters scored and the rest count as w
 stored reply of every request whose answers are all invalid and that is broken, and of every answer-layout request
 with an invalid answer rejected only for its confidence, with no request, and asks every empty reply that was never
 asked again once more (`--timeout` and `--concurrency` apply) with the run's own settings, as its row records them
-(provider, model, endpoint and its `#provider=` settings, seed, reasoning, language and "I don't know"; the same
-questions in the same request, each as its prompt and shown options were stored). Only invalid answers change (a valid
-answer of a request whose record changes keeps its letter and correctness). Each changed request's record keeps the
+(provider, model, endpoint and its `#provider=` settings, seed, `vllm-plain`'s `request_params`, reasoning, language
+and "I don't know"; the same questions in the same request, each as its prompt and shown options were stored). Only
+invalid answers change (a valid answer of a request whose record changes keeps its letter and correctness). Each
+changed request's record keeps the
 earlier reply (`"empty_first_reply"`) and under `"rescued"`
 the runner's commit, the time and the answers before; a re-ask adds its time to the run's request time. It refuses a
 run whose provider it cannot re-ask (any outside `RESCUE_PROVIDERS`, named in the message), a running run, and a run
