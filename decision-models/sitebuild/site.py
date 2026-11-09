@@ -212,13 +212,31 @@ def scale_legend(stops: list[str], worst: str, best: str, higher: bool = True, w
             f'<span>best {esc(best)} ({"higher" if higher else "lower"} is better)</span></span>')
 
 
-def run_families(config: dict[str, Any], runs: list[dict[str, Any]]) -> dict[int, dict[str, str]]:
-    """Each run's model family (page_config.json model_families), by run id: its name, maker and colour. A family's rule names a
-    provider and, where one provider serves several families, a model. The build stops unless every run belongs to
-    exactly one family."""
+@cache
+def model_families() -> list[dict[str, Any]]:
+    """page_config.json model_families, each with its maker and colour from maker_colours.json: the one colour map of the
+    three benchmark sites, kept by the Logic & Math site and copied here unchanged, which lists every maker's families.
+    The build stops unless exactly one maker lists each family."""
+    makers = json.loads((ROOT / "maker_colours.json").read_text())["makers"]
+    families, problems = [], []
+    for family in json.loads((ROOT / "page_config.json").read_text())["model_families"]["families"]:
+        listed = [(maker, entry["colour"]) for maker, entry in makers.items() if family["name"] in entry["families"]]
+        if len(listed) == 1:
+            families.append({**family, "maker": listed[0][0], "colour": listed[0][1]})
+        else:
+            problems.append(f"family {family['name']}: listed by {len(listed)} makers")
+    if problems:
+        raise SystemExit("maker_colours.json:\n  " + "\n  ".join(problems))
+    return families
+
+
+def run_families(runs: list[dict[str, Any]]) -> dict[int, dict[str, str]]:
+    """Each run's model family (model_families), by run id: its name, maker and colour. A family's rule names a provider
+    and, where one provider serves several families, a model. The build stops unless every run belongs to exactly one
+    family."""
     found, problems = {}, []
     for run in runs:
-        families = [family for family in config["model_families"]["families"]
+        families = [family for family in model_families()
                     if any(rule["provider"] == run["provider"] and rule.get("model", run["model"]) == run["model"]
                            for rule in family["runs"])]
         if len(families) == 1:
@@ -251,7 +269,7 @@ def family_sprite() -> str:
     from sitebuild.family_icons import MARKS
 
     symbols = []
-    for family in json.loads((ROOT / "page_config.json").read_text())["model_families"]["families"]:
+    for family in model_families():
         if family.get("icon"):
             inner = f'<path d="{MARKS[family["icon"]]}"/>'
         else:
@@ -623,7 +641,7 @@ class Site:
     @cached_property
     def families(self) -> dict[int, dict[str, str]]:
         """Each leaderboard run's model family, by run id (run_families)."""
-        return run_families(self.config, self.runs)
+        return run_families(self.runs)
 
     def icon(self, run: dict[str, Any]) -> str:
         """The icon of a leaderboard run's model family, for the left of its name (family_icon)."""

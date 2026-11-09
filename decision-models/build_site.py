@@ -55,8 +55,8 @@ import build_page as bp  # noqa: E402
 from sitebuild.dont_know import ranked as dont_know_ranked, running_setups  # noqa: E402
 from sitebuild import holding_back as hold  # noqa: E402
 from sitebuild.site import (GROUPS, NOT_MEASURED, ROUTE_LLMS, SUITE_CSS, Site, asset, cost_missing, cost_per, cost_unit_in,  # noqa: E402
-                            cost_value, family_icon, family_legend, footer, hbars, pct, route_labels, run_families, shown,
-                            topbar)
+                            cost_value, family_icon, family_legend, footer, hbars, model_families, pct, route_labels,
+                            run_families, shown, topbar)
 from sitebuild import about, leaderboard  # noqa: E402
 
 PAGE = ROOT / "index.html"
@@ -334,10 +334,10 @@ def page_settings(data: Data) -> str:
         "threshold": data.config["threshold"],
         # Each route label, by run id.
         "routeLabels": data.route_labels,
-        # The charts' colours: each run's model family by run id, and each family's colour (page_config.json
-        # model_families; run_families stops the build unless every run has exactly one family).
-        "families": {run: family["name"] for run, family in run_families(data.config, data.runs).items()},
-        "familyColours": {family["name"]: family["colour"] for family in data.config["model_families"]["families"]},
+        # The charts' colours: each run's model family by run id, and each family's colour (model_families, from
+        # maker_colours.json; run_families stops the build unless every run has exactly one family).
+        "families": {run: family["name"] for run, family in run_families(data.runs).items()},
+        "familyColours": {family["name"]: family["colour"] for family in model_families()},
         # A saving whose first model ran on our own hardware: its marker, tooltip and note, by how its cost was counted.
         "firstCostMarks": {key: value for key, value in data.config["first_cost_marks"].items() if key != "about"},
         # The note under the Accuracy table (not_measured_note), also under the plain table, after the ranking's line.

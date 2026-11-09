@@ -401,9 +401,9 @@ python3 -m http.server 8000                                # preview at http://1
       sit behind its expander ("N other settings"), each with its setting under its name. A row: rank, maker dot in the
       family colour and the family icon, the model's name, the main-score bar from 0 to 100% with its Wilson 95%
       interval as the whisker, and the score; from 900 px more columns. Nothing sits under the name (project lead, bus
-      #3039): "maker · chat model / decision model · setting" heads the details box (the maker is
-      `model_families[].maker`: the organisation the Method or model pages name for the family, else the family's
-      name). The details box (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
+      #3039): "maker · chat model / decision model · setting" heads the details box (the maker is the family's maker in
+      `maker_colours.json`, named as on the maker's own pages, each with its source URL). The details box
+      (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
       opens on a tap on a phone and on hover or the keyboard focus on a desktop, focus beating the pointer, capped to
       the room on a short screen, and closes on a second tap, a tap outside or Escape; it lists the setup, its model's
       size ("Parameters: 31.3B", "Parameters: 552B total, 8B to 16B active per token", "Parameters: 8B total, 4.5B
@@ -483,9 +483,11 @@ python3 -m http.server 8000                                # preview at http://1
     beats on both) and, shaded, the region better than the median setup in view on both; Calibration (the calibration
     gap, as shipped, on all questions). The charts draw every setup of the model group `?models=`
     names (every setup together by default, the decision models or the chat and general models), within the filters;
-    each bar or dot takes its model family's colour (`page_config.json` `model_families`: a maker's line of models shares
-    one colour, in every chart and both groups; `run_families` in `sitebuild/site.py` stops the build unless every run
-    has exactly one family), with the families shown in the legend, on one compact line of their own that wraps
+    each bar or dot takes its model family's colour (`page_config.json` `model_families` puts each run in a family by
+    provider and model; `maker_colours.json` gives each family its maker and colour, a maker's line of models sharing one
+    colour, in every chart and both groups; `run_families` in `sitebuild/site.py` stops the build unless every run
+    has exactly one family and `model_families` unless exactly one maker lists each family), with the families shown
+    in the legend, on one compact line of their own that wraps
     (`.families`, on every page). Nothing scrolls inside a chart box: each bar chart, Reading vs grammar and the table
     under Cost show their first 10 rows, with a "Show all N setups" key that opens every row in place and closes them
     again (`topRows` in `v3.js`); a highlighted setup ranked below them is added after them, set apart by a dotted line.
@@ -625,14 +627,24 @@ on its left, 14 px and hidden from screen readers. A family in `page_config.json
 Simple Icons slug; its SVG path is vendored in `sitebuild/family_icons.py` from
 [Simple Icons](https://simpleicons.org) 16.36.0, whose icon data is CC0 1.0 (the marks stay their owners'
 trademarks, used here only to name their models). Official marks: Gemini (Google Gemini), Gemma (Google), GPT
-(OpenAI), Claude, Qwen, DeepSeek, Kimi, MiMo (Xiaomi), MiniMax, Perplexity, Microsoft, vLLM-SR (vLLM), Mistral (Mistral AI)
-and VibeThinker (Sina Weibo, for Weibo AI), drawn in the text colour. Families still without a colour of their
-own (Mistral, VibeThinker and the others in grey #64748b) wait for the lead's choice.
+(OpenAI), Claude, Qwen, DeepSeek, Kimi, MiMo (Xiaomi), MiniMax, Perplexity, Microsoft, vLLM-SR (vLLM), Ministral (Mistral AI)
+and VibeThinker (Sina Weibo, for Weibo AI), drawn in the text colour.
 Simple Icons has no mark for xAI, Z.ai or Liquid AI, so Grok (xAI), GLM (Z.ai) and Liquid (Liquid AI) use the
 public-domain logos on Wikimedia Commons, scaled to one 24 x 24 path; each MARKS entry names its source and date read.
 A family with no findable vector mark (Inception, Fastino, Inkling and the rest) gets a plain shape (circle, diamond, triangle
 or ring) on its own colour, never a letter. `family_sprite` in
 `sitebuild/site.py` puts every icon as an SVG symbol once on each page.
+
+### Maker colours
+
+`maker_colours.json` is the one colour map of the three benchmark sites (English & Turkish Reading, Logic & Math,
+Backgammon), kept by the Logic & Math site (`work/maker_colours.json` there) and copied here byte for byte: each maker
+with its colour, the families it makes, the page that names it (`maker_source`) and its lowest contrast against the
+sites' four backgrounds. A colour belongs to the maker, never to the provider that serves the model. The project
+lead fixed seven makers' colours (OpenAI, Google, Anthropic, xAI, DeepSeek, Moonshot, Liquid AI; `fixed_by_umit`);
+the file's checks keep every pair of colours at least 12 apart (CIEDE2000) and every colour at a contrast of at
+least 2 against the light and dark panels and pages. To change a colour, change it there and copy the new file here;
+the build reads nothing else for makers or colours.
 
 ## Updating the results (maintainer)
 

@@ -156,8 +156,8 @@ def idk_key(model: dict[str, Any]) -> int:
 @functools.cache
 def setup_families(site: Site) -> dict[int, dict[str, str]]:
     """Each English reading entry's model family by setup_key: Site.families for the Text tab runs, run_families
-    (page_config.json model_families) for the English-only setups."""
-    return {**site.families, **run_families(site.config, english_only(site.results["english_reading"]))}
+    (model_families) for the English-only setups."""
+    return {**site.families, **run_families(english_only(site.results["english_reading"]))}
 
 
 def setup_icon(site: Site, model: dict[str, Any]) -> str:
