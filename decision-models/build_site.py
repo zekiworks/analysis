@@ -328,6 +328,8 @@ def page_settings(data: Data) -> str:
         "moreUrl": asset(HOME_MORE),
         "decisionProviders": data.config["decision_model_providers"],
         "notDecisionModels": data.config["not_decision_models"],
+        # The Small models view's threshold in parameters (page_config.json small_models; Site.small).
+        "smallModels": data.config["small_models"]["max_parameters"],
         "readingUnits": data.config["reading_units"],
         "threshold": data.config["threshold"],
         # Each route label, by run id.
@@ -403,11 +405,12 @@ def non_hallucination(site: Site, finding: str) -> str:
         answered = model["right"] + model["wrong"]
         return pct(model["wrong"] / answered, digits) if answered else NOT_MEASURED
 
-    def option_block(kind: str, heading: str) -> str:
-        models = dont_know_ranked([model for model in data["models"] if model["group"] == kind])
+    def option_block(group: str, kind: str, heading: str) -> str:
+        models = dont_know_ranked([model for model in data["models"]
+                                   if model["group"] == kind and site.in_group(run_of(model), group)])
         rated = [model for model in models if model["non_hallucination"] is not None]
         undefined = [site.row_name(run_of(model)) for model in models if model["non_hallucination"] is None]
-        running = [names[run["run"]] for run in runs if kind == "chat" and not site.decision(run)]
+        running = [names[run["run"]] for run in runs if kind == "chat" and not site.decision(run) and site.in_group(run, group)]
         one, many = NON_HALLUCINATION_NOUNS[kind]
         running_note = (f" <span>{bp.esc(site.config['dont_know']['running'].removesuffix('.'))}; still running in Turkish: "
                         f"{bp.esc(', '.join(running))}.</span>") if running else ""
@@ -434,7 +437,7 @@ def non_hallucination(site: Site, finding: str) -> str:
             + running_note + "</p>"))
 
     def copy(group: str) -> str:
-        members = dont_know_ranked([model for model in data["models"] if group == "all" or model["group"] == group])
+        members = dont_know_ranked([model for model in data["models"] if site.in_group(run_of(model), group)])
         setups = [(run_of(model), site.row_name(run_of(model)), site.model_path(run_of(model))) for model in members]
         confidence = hold.confidence_side(site, setups, group, ", in its Text tab run") if setups else ""
         with_option = hold.side(
@@ -443,7 +446,7 @@ def non_hallucination(site: Site, finding: str) -> str:
             f"questions; beside it the share answered (right + wrong of {total:,}) and the error rate among the answers "
             "(wrong of right + wrong) · higher non-hallucination is better, read with the share answered; a model that "
             "always chose the option would reach 100% with no right answers",
-            "".join(option_block(kind, heading) for kind, heading in hold.kinds(group)))
+            "".join(option_block(group, kind, heading) for kind, heading in hold.kinds(group)))
         return f'<div {shown(group)}>{hold.pair(confidence, with_option)}</div>'
 
     return ('<figure class="panel chart-card" id="chart-non-hallucination">' + finding
@@ -641,12 +644,14 @@ def findings_checks(page: str, data: Data, site: Site) -> list[str]:
 
 
 # The model groups (?models=) the result cards on the About page cover, each in the words that name a card's scope.
-CARD_SCOPES = {"all": "all {n} setups", "decision": "the {n} decision-model setups", "chat": "the {n} chat-model setups"}
+CARD_SCOPES = {"all": "all {n} setups", "decision": "the {n} decision-model setups", "chat": "the {n} chat-model setups",
+               "small": "the {n} small-model setups"}
 
 
-def group_runs(data: Data, group: str) -> list[dict[str, Any]]:
-    """The setups of a model group: every setup, the decision models' or the chat models'."""
-    return [run for run in data.runs if group == "all" or data.decision(run) == (group == "decision")]
+def group_runs(data: Data, site: Site, group: str) -> list[dict[str, Any]]:
+    """The setups of a model group (Site.in_group): every setup, the decision models', the chat models' or the small
+    models'."""
+    return [run for run in data.runs if site.in_group(run, group)]
 
 
 def card_facts(data: Data, runs: list[dict[str, Any]]) -> dict[str, Any]:
@@ -679,7 +684,7 @@ def result_cards(data: Data, site: Site) -> str:
     total, sure = data.results["questions"], pct(data.config["threshold"], 0)
     sets = [f'<h2 class="results-heading">Full test · {bp.count(total)} questions</h2>']
     for group, scope in CARD_SCOPES.items():
-        runs = group_runs(data, group)
+        runs = group_runs(data, site, group)
         names = site.names(runs)
         among = scope.format(n=bp.count(len(runs)))
         facts = card_facts(data, runs)
@@ -728,7 +733,7 @@ def card_checks(page: str, data: Data, site: Site) -> list[str]:
     found = []
     total = data.results["questions"]
     for group in CARD_SCOPES:
-        runs = group_runs(data, group)
+        runs = group_runs(data, site, group)
         names = site.names(runs)
         block = re.search(rf'<div class="result-cards" data-models="{group}"[^>]*>(.*?)</div>', page, re.S)
         if block is None:

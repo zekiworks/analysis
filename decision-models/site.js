@@ -88,7 +88,7 @@ const costSwitch = () =>
   });
 })();
 
-/* Every page: the model group, from ?models= (all, decision or chat; missing or unknown means all; trailing dots,
+/* Every page: the model group, from ?models= (all, decision, chat or small; missing or unknown means all; trailing dots,
    punctuation or spaces are dropped, so "all." reads as all). Each element whose data-models lists other groups only is
    hidden (and shown again when it lists this one), before the page's own scripts run; <html data-models-view> carries
    the group for them, and a page's group keys (.group-switch) mark it. A group asked for in the address stays in the
@@ -96,7 +96,7 @@ const costSwitch = () =>
    --view-bar-h, so the page scrolls links and parts below it. */
 const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, '');
 (function setupGroup() {
-  const asked = ['all', 'decision', 'chat'].includes(ASKED_GROUP) ? ASKED_GROUP : null;
+  const asked = ['all', 'decision', 'chat', 'small'].includes(ASKED_GROUP) ? ASKED_GROUP : null;
   const group = asked ?? 'all';
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
@@ -223,14 +223,15 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
 })();
 
 /* Home page: the Leaderboard (sitebuild/leaderboard.py). Its controls, one row: the part (English, Turkish or Both,
-   Turkish first), the filter (All, Chat models or Decision models; Decision models unless ?models= asks for another),
-   local to the table, and All setups, which shows today's full ranking with its tabs (#all-setups, v3.js) in place of
-   the one-row-per-model table. A row of another kind and its other-setting rows go out of view (lb-off); the rank cell
-   shows the row's rank among the rows in view. Each row's expander shows or hides its other setups. Old addresses keep
-   working: #headline lands on the Leaderboard; #board, #all-setups, #cost-table and #chart-tradeoff open All setups
-   first; on the home page itself, #info, whose summary and notes moved, and #how-scores, which moved, open About
-   (MOVED; the About page has its own #leaderboard). Without JavaScript the Turkish table and the full ranking both
-   show. */
+   Turkish first), the filter (All, Chat models, Decision models or Small models; Decision models unless ?models= asks
+   for another), local to the table, and All setups, which shows today's full ranking with its tabs (#all-setups,
+   v3.js) in place of the one-row-per-model table. A row outside the filter (its data-kind, or data-small for Small
+   models) and its other-setting rows go out of view (lb-off); the rank cell shows the row's rank among the rows in
+   view; under Small models its rule shows under the table (data-lb-small). Each row's expander shows or hides its other
+   setups. Old addresses keep working: #headline lands on the Leaderboard; #board, #all-setups, #cost-table and
+   #chart-tradeoff open All setups first; on the home page itself, #info, whose summary and notes moved, and
+   #how-scores, which moved, open About (MOVED; the About page has its own #leaderboard). Without JavaScript the
+   Turkish table and the full ranking both show. */
 (function leaderboard() {
   const board = document.getElementById('leaderboard');
   if (!board) return;
@@ -242,7 +243,7 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
   }
   const state = {
     part: 'turkish',
-    filter: ['all', 'decision', 'chat'].includes(ASKED_GROUP) ? ASKED_GROUP : 'decision',
+    filter: ['all', 'decision', 'chat', 'small'].includes(ASKED_GROUP) ? ASKED_GROUP : 'decision',
     all: false,
   };
   const allPanel = document.getElementById('all-setups');
@@ -253,10 +254,12 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
     });
     board.querySelectorAll('button[data-lb-filter]').forEach(key => key.setAttribute('aria-pressed', String(key.dataset.lbFilter === state.filter)));
     board.querySelectorAll('tbody tr[data-kind]').forEach(row => {
-      row.classList.toggle('lb-off', state.filter !== 'all' && row.dataset.kind !== state.filter);
+      const off = state.filter === 'small' ? !row.hasAttribute('data-small') : state.filter !== 'all' && row.dataset.kind !== state.filter;
+      row.classList.toggle('lb-off', off);
       const rank = row.querySelector('td.rank');
       if (rank) rank.textContent = rank.dataset[`rank${state.filter[0].toUpperCase()}${state.filter.slice(1)}`] ?? '';
     });
+    board.querySelectorAll('[data-lb-small]').forEach(line => { line.hidden = state.filter !== 'small'; });
     board.querySelector('[data-lb-all]')?.setAttribute('aria-pressed', String(state.all));
     board.classList.toggle('all-open', state.all);
     allPanel?.classList.toggle('is-open', state.all);

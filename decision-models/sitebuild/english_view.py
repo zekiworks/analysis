@@ -15,18 +15,22 @@ the decision block the models that almost never chose it); under the two, set ap
 Text tab run at the threshold); a
 setup without an English run with the option reads Running (a chat model's run still running, page_config.json's
 dont_know.running) or Not run (a decision model not run with it yet). Cost and latency are each
-setup's first English run's (english_reading.models[].cost and .latency), on a log scale as on the home page. The
-comparison with Turkish is turkish-vs-english/. It needs no JavaScript and changes no number of the other pages."""
+setup's first English run's (english_reading.models[].cost and .latency), on a log scale as on the home page. English-only
+setups (english_reading.english_only: no Text tab run, Ümit's small models) are ranked with the others (english_members):
+their Turkish accuracy reads Not run, they have no Turkish reference, and their name links to their row here
+(only_anchor), as they have no model page. The comparison with Turkish is turkish-vs-english/. It needs no JavaScript
+and changes no number of the other pages."""
 
 from __future__ import annotations
 
 import json
 from typing import Any
 
-from sitebuild.english_reading import (NO_OPTION, NO_RATE, PATH as COMPARISON, RECORD, TRANSLATORS, anchor,
-                                       check_dont_know, cost_note, english_only, experiments_note, group_models, label,
-                                       limit_line, limit_note, measure_card, measure_cell, measure_heads, missing_note,
-                                       missing_side, noun, setup_href)
+from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMPARISON, RECORD, TRANSLATORS, anchor,
+                                       check_dont_know, cost_note, english_members, english_only, entry_href,
+                                       experiments_note, group_models, idk_key, label, limit_line, limit_note,
+                                       measure_card, measure_cell, measure_heads, missing_note, missing_side, noun,
+                                       only_anchor, setup_families, setup_icon, setup_key, setup_run)
 from sitebuild import holding_back as hold
 from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, more_link, pct, rel, shown
 from sitebuild.vision import cell
@@ -38,7 +42,8 @@ TITLE = "English reading"
 def check(site: Site, data: dict[str, Any]) -> None:
     """Stops the build when english_reading no longer fits what the page says: each setup with its Text tab run, the
     first English run the one shown, its counts covering the kept questions and its accuracy its counts, in order of
-    English right answers; the decision and chat groups adding up to every setup."""
+    English right answers; the decision and chat groups adding up to every setup; each English-only setup without a Text
+    tab run, in its own order of English accuracy, its group its kind's."""
     problems = []
     models, total = data["models"], data["questions"]
     for model in models:
@@ -58,12 +63,23 @@ def check(site: Site, data: dict[str, Any]) -> None:
         problems.append("the setups are not ordered by English right answers")
     if len(group_models(site, data, "decision")) + len(group_models(site, data, "chat")) != len(models):
         problems.append("the decision and chat groups do not add up to every setup")
+    alone = english_only(data)
+    for model in alone:
+        if "turkish_run" in model or model["run"] in site.by_id or model["runs"][0] != model["run"]:
+            problems.append(f"{model['name']}: English only, but with a Text tab run or not its first English run shown")
+        counts = model["english"]
+        if counts["right"] + counts["wrong"] + counts["invalid"] != total or abs(counts["accuracy"] - counts["right"] / total) > 1e-9:
+            problems.append(f"{model['name']}: its English counts do not give its accuracy on the {total} questions")
+        if model["group"] != ("decision" if site.decision(model) else "chat"):
+            problems.append(f"{model['name']}: English only, its group is not its kind's")
+    if [model["english"]["accuracy"] for model in alone] != sorted((model["english"]["accuracy"] for model in alone), reverse=True):
+        problems.append("the English-only setups are not ordered by English accuracy")
     if problems:
         raise SystemExit("english_view:\n  " + "\n  ".join(problems))
 
 
 def href(site: Site, model: dict[str, Any]) -> str:
-    return setup_href(site, PATH, model["turkish_run"])
+    return entry_href(site, PATH, model)
 
 
 SCORE_HEAD = "Decision Score (AA formula)"
@@ -105,8 +121,7 @@ def score_table(site: Site, models: list[dict[str, Any]]) -> str:
         values = ([score_cell(model), '<span class="nm">unavailable</span>', '<span class="nm">unavailable</span>']
                   if found is None else
                   [f'{found["score"]:.2f}', f'{100 * found["accuracy"]:.2f}%', f'{found["brier"]:.4f}'])
-        run = site.by_id[model["turkish_run"]]
-        rows.append(f'<tr><td class="model">{site.icon(run)}<a class="model-name" href="{href(site, model)}">'
+        rows.append(f'<tr><td class="model">{setup_icon(site, model)}<a class="model-name" href="{href(site, model)}">'
                     f'{esc(label(site, model))}</a></td>' + "".join(cell(text, value) for text, value in zip(heads, values))
                     + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text)}</th>' for text in heads)
@@ -122,14 +137,15 @@ def build(site: Site) -> dict[str, str]:
     idk = data["dont_know"]
     check_dont_know(site, data, idk)
     digits = site.config["percent_digits"]
-    family = lambda model: site.families[model["turkish_run"]]  # noqa: E731
+    family = lambda model: setup_families(site)[setup_key(model)]  # noqa: E731
     total, models = data["questions"], data["models"]
     option = idk["option"]
-    counts = {group: len(group_models(site, data, group)) for group in GROUPS}
-    # English "I don't know": the English side of each paired model, and the models with an English run only.
+    counts = {group: len(english_members(site, data, group)) for group in GROUPS}
+    # English "I don't know": the English side of each paired model, and the models with an English run only, by
+    # setup_key (an English-only setup's by its English reading entry, idk_key).
     english_idk = [(model["text_run"], model["english"]) for model in idk["models"]] + \
-                  [(model["text_run"], model["english"]) for model in english_only(idk)]
-    by_run = {model["turkish_run"]: model for model in models}
+                  [(idk_key(model), model["english"]) for model in english_only(idk)]
+    by_run = {setup_key(model): model for model in models + english_only(data)}
     held = {run: counts for run, counts in english_idk}
     if len(held) != len(english_idk) or any(run not in by_run for run in held):
         raise SystemExit("english_view: an English “I don't know” run is not one setup of the accuracy comparison")
@@ -141,7 +157,7 @@ def build(site: Site) -> dict[str, str]:
                 f'<p class="chart-sub">{sub}</p></div>{hbars(rows, head=head)}<p class="chart-legend">{legend}</p></figure>')
 
     def accuracy_card(group: str) -> str:
-        members = group_models(site, data, group)
+        members = english_members(site, data, group)
         rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
                  "text": f"{pct(model['english']['accuracy'], digits)} · {model['english']['right']:,}",
                  "bars": [{"value": model["english"]["accuracy"], "colour": family(model)["colour"]}],
@@ -160,28 +176,29 @@ def build(site: Site) -> dict[str, str]:
         English run with it by the rate; under each block the setups whose run is still running (chat), not run
         (decision) or not possible (NO_OPTION), and under the decision block the models that almost never chose the
         option. Under the two, set apart and smaller, the Turkish reference: each setup's Text tab run at the threshold."""
-        members = group_models(site, data, group)
-        provider = lambda model: site.by_id[model["turkish_run"]]["provider"]  # noqa: E731
+        members = english_members(site, data, group)
+        provider = lambda model: setup_run(site, model)["provider"]  # noqa: E731
         confidence = hold.not_measured_side(group, "English")
         scores = score_table(site, members)
         if scores:
             scores = hold.block(f"{SCORE_HEAD}, decision models", scores, level=3)
         reference = hold.confidence_side(
-            site, [(site.by_id[model["turkish_run"]], label(site, model), href(site, model)) for model in members], group,
+            site, [(site.by_id[model["turkish_run"]], label(site, model), href(site, model)) for model in members
+                   if "turkish_run" in model], group,
             ", in its Text tab run on the Turkish questions, for reference", title="Turkish reference (the Text tab runs)")
 
         def option_block(kind: str, heading: str) -> str:
-            mine = [model for model in members if hold.kind_of(site, site.by_id[model["turkish_run"]]) == kind]
+            mine = [model for model in members if hold.kind_of(site, setup_run(site, model)) == kind]
             if not mine:
                 return ""
-            rated = sorted(((model, held[model["turkish_run"]]) for model in mine
-                            if model["turkish_run"] in held and held[model["turkish_run"]]["non_hallucination"] is not None),
+            rated = sorted(((model, held[setup_key(model)]) for model in mine
+                            if setup_key(model) in held and held[setup_key(model)]["non_hallucination"] is not None),
                            key=lambda pair: (-pair[1]["non_hallucination"], label(site, pair[0]).casefold()))
             undefined = [label(site, model) for model in mine
-                         if model["turkish_run"] in held and held[model["turkish_run"]]["non_hallucination"] is None]
+                         if setup_key(model) in held and held[setup_key(model)]["non_hallucination"] is None]
             no_option = [(label(site, model), NO_OPTION[provider(model)]) for model in mine
-                         if model["turkish_run"] not in held and provider(model) in NO_OPTION]
-            waiting = [label(site, model) for model in mine if model["turkish_run"] not in held and provider(model) not in NO_OPTION]
+                         if setup_key(model) not in held and provider(model) in NO_OPTION]
+            waiting = [label(site, model) for model in mine if setup_key(model) not in held and provider(model) not in NO_OPTION]
             rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
                      "text": f"{pct(counts['non_hallucination'], digits)} · {pct(counts['attempt_rate'], digits)}",
                      "bars": [{"value": counts["non_hallucination"], "colour": family(model)["colour"]}],
@@ -189,8 +206,8 @@ def build(site: Site) -> dict[str, str]:
                               f"{counts['dont_know'] + counts['wrong']:,} not right; {counts['right'] + counts['wrong']:,} of "
                               f"{total:,} answered (run {counts['run']})"}
                     for model, counts in rated]
-            rare = hold.rare_note([(label(site, model), held[model["turkish_run"]]["dont_know"],
-                                    held[model["turkish_run"]]["non_hallucination"]) for model in mine if model["turkish_run"] in held],
+            rare = hold.rare_note([(label(site, model), held[setup_key(model)]["dont_know"],
+                                    held[setup_key(model)]["non_hallucination"]) for model in mine if setup_key(model) in held],
                                   total, site.results["dont_know"]["vs_confidence_share"], option, digits,
                                   "confidence is not measured in English; the Turkish reference below shows their Text "
                                   "tab runs at the threshold") \
@@ -225,7 +242,7 @@ def build(site: Site) -> dict[str, str]:
 
     charts = (part("accuracy", "Accuracy", "".join(accuracy_card(group) for group in GROUPS if counts[group]))
               + part("non-hallucination", "Non-hallucination", "".join(rates_card(group) for group in GROUPS if counts[group]))
-              + "".join(part(key, title, "".join(measure_card(site, data, group, key, ("english",), href, method)
+              + "".join(part(key, title, "".join(measure_card(site, data, group, key, ("english",), href, method, english_members)
                                                  for group in GROUPS if counts[group]))
                         for key, title in (("cost", "Cost"), ("latency", "Latency"))))
 
@@ -238,44 +255,51 @@ def build(site: Site) -> dict[str, str]:
         heads += measure_heads("cost", ("english",)) + measure_heads("latency", ("english",))
         labels = [f"{head} ({note})" for head, note in heads]
         rows = []
-        for model in group_models(site, data, group):
+        members = english_members(site, data, group)
+        for model in members:
             values = [
                 f'{pct(model["english"]["accuracy"], digits)}<span class="small">{model["english"]["right"]:,} of {total:,} right</span>',
-                f'{pct(model["turkish"]["accuracy"], digits)}<span class="small">{model["turkish"]["right"]:,} of {total:,} right</span>',
+                f'{pct(model["turkish"]["accuracy"], digits)}<span class="small">{model["turkish"]["right"]:,} of {total:,} right</span>'
+                if "turkish_run" in model else f'{NOT_RUN}<span class="small">English only, no Text tab run</span>',
             ]
             values.insert(1, score_cell(model))
-            counts = held.get(model["turkish_run"])
+            counts = held.get(setup_key(model))
             values.append(
-                missing_side(site, model["turkish_run"]) if counts is None else
+                missing_side(site, setup_run(site, model)) if counts is None else
                 f'{NO_RATE if counts["non_hallucination"] is None else pct(counts["non_hallucination"], digits)}'
                 f'<span class="small">{counts["dont_know"]:,} “{esc(option)}” of '
                 f'{counts["dont_know"] + counts["wrong"]:,} not right</span>'
                 f'<span class="small">answered {pct(counts["attempt_rate"], digits)}</span>')
             values += [measure_cell(site, model, "cost", "english"), measure_cell(site, model, "latency", "english")]
-            run = site.by_id[model["turkish_run"]]
-            name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{href(site, model)}" '
+            run = setup_run(site, model)
+            row_id = "" if "turkish_run" in model else f' id="{anchor(only_anchor(model), group)}"'
+            name = (f'<td class="model">{setup_icon(site, model)}<a class="model-name" href="{href(site, model)}" '
                     f'title="{esc(" · ".join(filter(None, (site.detail(run), f"English run {model['run']}"))))}">'
                     f'{esc(label(site, model))}</a></td>')
-            rows.append(f"<tr>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
+            rows.append(f"<tr{row_id}>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
         head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{cost_unit_in(esc(note))}</span></th>'
                        for text, note in heads)
+        alone = [model for model in members if "turkish_run" not in model]
         rate_note = (f" English non-hallucination: “{esc(option)}” among the answers that were not right, in the setup's "
                      "first English run with it offered as a sixth option; Running: a chat model's run still running; Not "
-                     "run: a decision model not run with it yet.")
+                     "run: a decision model not run with it yet" + (", or an English-only setup" if alone else "") + ".")
         return (f'<section class="card" id="{anchor("table", group)}" {shown(group)}>'
                 f"<h2>Every {noun(group, 1)} in English</h2>"
                 f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'
                 f'</thead><tbody>{"".join(rows)}</tbody></table></div>'
                 f'<p class="note">Ranked by English accuracy, highest first: right answers of the {total:,} kept reading '
                 "questions in each setup's first English run (an invalid answer counts as not right). Turkish accuracy: the "
-                f"setup's Text tab run on the same {total:,} questions, for context; the paired comparison is on "
-                f'<a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ {cost_per()}, with its '
-                "basis under it; English latency: the median time per request, with the request size and "
-                "the requests in flight under it, each from the first English run (Cost and Latency above)."
-                + (" " + missing_note(site, group_models(site, data, group), ("english",))).rstrip()
-                + " Each name opens its model page's English section; its tooltip gives its settings and English run.</p>"
-                f'{score_notes(group_models(site, data, group))}'
-                f'<p class="note">{esc(cost_note(site, group_models(site, data, group), ("english",)))}</p></section>')
+                f"setup's Text tab run on the same {total:,} questions, for context"
+                + (f" (Not run: an English-only setup, with no Text tab run)" if alone else "")
+                + f'; the paired comparison is on <a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ '
+                f"{cost_per()}, with its basis under it; English latency: the median time per request, with the request "
+                "size and the requests in flight under it, each from the first English run (Cost and Latency above)."
+                + (" " + missing_note(site, members, ("english",))).rstrip()
+                + " Each name opens its model page's English section"
+                + (" (an English-only setup has no model page: its name opens its row here)" if alone else "")
+                + "; its tooltip gives its settings and English run.</p>"
+                f'{score_notes(members)}'
+                f'<p class="note">{esc(cost_note(site, members, ("english",)))}</p></section>')
 
     def lead(group: str) -> str:
         count = counts[group]
@@ -284,8 +308,11 @@ def build(site: Site) -> dict[str, str]:
                     f'<a href="{comparison}">English and Turkish</a>.</p></div>')
         split = (f" ({counts['decision']} {noun('decision', counts['decision'])} and {counts['chat']} "
                  f"{noun('chat', counts['chat'])})") if group == "all" else ""
+        alone = sum(1 for model in english_members(site, data, group) if "turkish_run" not in model)
+        settings = ("with their Text tab settings" if not alone else
+                    f"with their Text tab settings, {alone} of them English only (no Text tab run, with their own settings)")
         return (f"<div {shown(group)}><p>The Text tab's {total:,} kept reading questions in English, answered by {count} "
-                f"{noun(group, count)}{split} with their Text tab settings. The paired comparison with Turkish is on "
+                f"{noun(group, count)}{split} {settings}. The paired comparison with Turkish is on "
                 f'<a href="{comparison}">English and Turkish</a>.</p></div>')
 
     def short(group: str) -> str:
@@ -311,6 +338,6 @@ def build(site: Site) -> dict[str, str]:
     <p class="note">Calibration of holding back by confidence at the {pct(site.config["threshold"], 0)} threshold is not measured in English.</p>
     {"".join(table(group) for group in GROUPS if counts[group])}"""
     return {PATH: site.page(PATH, TITLE, f"The Text tab's {total:,} kept reading questions in English: accuracy of "
-                            f"{len(models)} setups ({counts['decision']} decision models, {counts['chat']} chat model "
+                            f"{counts['all']} setups ({counts['decision']} decision models, {counts['chat']} chat model "
                             "setups) and their non-hallucination rate with “I don't know”.", body,
                             image="english")}

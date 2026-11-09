@@ -16,7 +16,7 @@ from typing import Any
 
 from build_page import long_date
 from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value,
-                            esc, family_legend, hbars, log_axis, more_link, pct, rel, seconds_tick)
+                            esc, family_legend, hbars, log_axis, more_link, pct, rel, seconds_tick, small_note)
 from sitebuild.vision import cell, joined
 
 PATH = "pws-decisions/"
@@ -67,9 +67,20 @@ def chat(setup: dict[str, Any]) -> bool:
     return setup.get("group", "decision") == "chat"
 
 
-def models(setup: dict[str, Any]) -> str:
-    """The view bar's groups a setup's rows show in (data-models): all, and its own."""
-    return "all chat" if chat(setup) else "all decision"
+def models(site: Site, setup: dict[str, Any], run: dict[str, Any]) -> str:
+    """The view bar's groups a setup's rows show in (data-models): all, its own, and small when its Text tab run is."""
+    return ("all chat" if chat(setup) else "all decision") + (" small" if site.in_group(run, "small") else "")
+
+
+def key_small(site: Site, key: str) -> bool:
+    """Whether a pws/bench.py setup key's model is in the small group (its results.json runs, as setup_name finds them)."""
+    model = setup_key(key)[0]
+    return any(site.in_group(run, "small") for run in site.runs if run["model"] == model)
+
+
+def chat_models(small: bool) -> str:
+    """data-models of a chat-only element: all and chat, and small when it concerns a small chat setup."""
+    return "all chat small" if small else "all chat"
 
 
 # The models a CLI handed requests to, as the page names them (pws/bench.py's stand_in).
@@ -99,8 +110,9 @@ def cost_kind(setup: dict[str, Any]) -> str:
 
 
 def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
-    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat") and chart label: its full
-    name, with "chat" for a chat model, its interface where the setup names one (CLI, API: two rows of one model never
+    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat", plus "small" for a small
+    model setup) and chart label: its full name, with "chat" for a chat model, its interface where the setup names one
+    (CLI, API: two rows of one model never
     read the same), its host where the setup names one (Baseten, our GPU), "with web" for a setup that searched where
     the name does not say so, and the requests another model answered (stand_in_words), so a mixed-model run never
     reads as one model's. Ranked by mean accuracy."""
@@ -121,7 +133,7 @@ def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
                  + (["with web"] if web(setup) and "with web" not in name else []))
         inside = "; ".join(part for part in (", ".join(marks), stand_in_words(setup)) if part)
         label = f"{name} ({inside})" if inside else name
-        out.append({"setup": setup, "run": run, "family": site.families[run["run"]], "models": models(setup),
+        out.append({"setup": setup, "run": run, "family": site.families[run["run"]], "models": models(site, setup, run),
                     "label": label})
     return sorted(out, key=lambda item: (-item["setup"]["accuracy"]["mean"], item["label"].casefold()))
 
@@ -143,7 +155,7 @@ def cli_notes(items: list[dict[str, Any]]) -> str:
                          + " and ".join(STAND_IN_NAMES.get(model, model) for model in handed["models"])
                          + "; the scorer counted each as a failure (a refusal), not with that model's answer")
         if parts:
-            lines.append(f"<li data-models=\"all chat\"><strong>{esc(item['label'])}.</strong> {esc('. '.join(parts))}.</li>")
+            lines.append(f"<li data-models=\"{item['models']}\"><strong>{esc(item['label'])}.</strong> {esc('. '.join(parts))}.</li>")
     return "".join(lines)
 
 
@@ -243,8 +255,10 @@ def marks_legend(items: list[dict[str, Any]], striped: str) -> str:
     out = ""
     if any(web(item["setup"]) for item in items):
         out += f' <span><i class="swatch swatch-web"></i>{striped}</span>'
-    if any(chat(item["setup"]) for item in items):
-        out += (" <span data-models=\"all chat\">(chat): a chat model, asked each question in the benchmark's own words, its answer read from its "
+    chats = [item for item in items if chat(item["setup"])]
+    if chats:
+        marks = chat_models(any("small" in item["models"].split() for item in chats))
+        out += (f" <span data-models=\"{marks}\">(chat): a chat model, asked each question in the benchmark's own words, its answer read from its "
                 "reply; the other rows are decision models.</span>")
     return out
 
@@ -512,10 +526,12 @@ def pending(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> st
                    f"{check['questions'] - gaps['baselabs/mammoth-1']['same_choice']} of them). They wait with the GPU "
                    "setups.</li>")
     blocked_keys = {row["setup"] for row in data.get("blocked", [])}
-    waiting = unfinished_chat(site, data, blocked_keys)
-    chats = (f'<li data-models="all chat">Chat setups without three complete runs yet: {esc(joined(waiting))}; added when '
-             "they have them.</li>" if waiting else "")
-    blocked = "".join(f'<li data-models="all chat">{esc(setup_name(site, row["setup"]))}: {esc(row["reason"])}.</li>'
+    waiting = unfinished_chat(data, blocked_keys)
+    chats = (f'<li data-models="{chat_models(any(key_small(site, key) for key in waiting))}">Chat setups without three '
+             f"complete runs yet: {esc(joined([setup_name(site, key) for key in waiting]))}; added when they have them.</li>"
+             if waiting else "")
+    blocked = "".join(f'<li data-models="{chat_models(key_small(site, row["setup"]))}">{esc(setup_name(site, row["setup"]))}: '
+                      f'{esc(row["reason"])}.</li>'
                       for row in data.get("blocked", []))
     return ("<li>Parallel's own Decisions API: not run, no API key available to us yet.</li>"
             + (f"<li>Decision models on our GPUs: running now, added when done ({esc(joined(gpu))}).</li>" if gpu else "")
@@ -540,15 +556,15 @@ def setup_key(key: str) -> tuple[str, bool, bool]:
     return base.removesuffix("-api"), web_key, base.endswith("-api")
 
 
-def unfinished_chat(site: Site, data: dict[str, Any], blocked: set[str] = frozenset()) -> list[str]:
-    """The chat setups without three complete runs: those the summary step lists as unfinished, and those with attempts
-    set aside (failed_attempts) and no setup of their model and web search among the setups yet; the blocked setups
-    (listed with their reason instead) left out."""
+def unfinished_chat(data: dict[str, Any], blocked: set[str] = frozenset()) -> list[str]:
+    """The keys of the chat setups without three complete runs: those the summary step lists as unfinished, and those
+    with attempts set aside (failed_attempts) and no setup of their model and web search among the setups yet; the
+    blocked setups (listed with their reason instead) left out."""
     done = {(setup["model"], web(setup), setup.get("interface") == "API") for setup in data["setups"] if chat(setup)}
     keys = [key for key in data["pending"].get("chat_unfinished", []) if key not in blocked]
     keys += [key for key in dict.fromkeys(row["setup"] for row in data.get("failed_attempts", []))
              if key not in keys and key not in blocked and setup_key(key) not in done]
-    return [setup_name(site, key) for key in keys]
+    return keys
 
 
 def attempts_note(site: Site, data: dict[str, Any]) -> str:
@@ -562,7 +578,8 @@ def attempts_note(site: Site, data: dict[str, Any]) -> str:
     parts = [f"{setup_name(site, setup)}, {attempt}: {len(rows)} runs, {sum(row['rows'] for row in rows):,} answers, "
              f"{sum(row['errors'] for row in rows):,} errors, {sum(row['correct'] for row in rows):,} right"
              for (setup, attempt), rows in found.items()]
-    return f'<li data-models="all chat">Attempts set aside whole, never merged into a run: {esc("; ".join(parts))}.</li>'
+    marks = chat_models(any(key_small(site, setup) for setup, _ in found))
+    return f'<li data-models="{marks}">Attempts set aside whole, never merged into a run: {esc("; ".join(parts))}.</li>'
 
 
 def load(site: Site) -> tuple[dict[str, Any], list[dict[str, Any]]] | None:
@@ -587,6 +604,12 @@ def dont_know_item(items: list[dict[str, Any]], block: dict[str, Any], side: str
     if len(found) != 1:
         raise SystemExit(f"pws-decisions.json dont_know: {key} matches {len(found)} setups")
     return found[0]
+
+
+def dont_know_marks(items: list[dict[str, Any]], block: dict[str, Any]) -> str:
+    """The view bar's groups of the “I don't know” runs: a decision model's, with small when its setup is small."""
+    small = "small" in dont_know_item(items, block, "off")["models"].split()
+    return f'data-models="all decision{" small" if small else ""}"'
 
 
 def count(value: float) -> str:
@@ -624,7 +647,7 @@ def dont_know_section(site: Site, data: dict[str, Any], items: list[dict[str, An
     dates = sorted(block.get("dates", []))
     when = "" if not dates else f" Run on {esc(long_date(dates[0]))}" + (
         f" to {esc(long_date(dates[-1]))}." if dates[-1] != dates[0] else ".")
-    return f"""<section class="card" id="dont-know" {DECISION_ONLY}>
+    return f"""<section class="card" id="dont-know" {dont_know_marks(items, block)}>
       <h2>With “{esc(option)}” as an extra choice</h2>
       <p>{esc(block_name(items, block))}, off and with web, asked the same {data['questions']} questions with “{esc(option)}” offered as an extra choice, {len(block['off']['runs'])} runs each.{when} Non-hallucination: the share of the answers that were not right where the setup chose “{esc(option)}” instead of a wrong answer. Each value is the mean of the runs, with the lowest and highest run under it.</p>
       <div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">Setup</th>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>
@@ -1084,7 +1107,11 @@ def build(site: Site) -> dict[str, str]:
     fees = sorted({format(item["setup"]["price"]["per_request"], "g") for item in items
                    if web(item["setup"]) and item["setup"]["price"].get("per_request", 0) > 0})
     block = dont_know_block(data)
-    idk_nav = f'<a href="#dont-know" {DECISION_ONLY}>{esc(block["option"])}</a>' if block else ""
+    idk_nav = f'<a href="#dont-know" {dont_know_marks(items, block)}>{esc(block["option"])}</a>' if block else ""
+    small_only = bool(summary_cards(items, digits) or data.get("habits")
+                      or (block and "small" not in dont_know_marks(items, block)))
+    small_parts = small_note("Small models: the parts about decision models only are not split by size; they show under "
+                             "All models or Decision models.") if small_only else ""
     site.note(PATH, TITLE, f"""<p>PWS-Decisions is Parallel Web Systems' benchmark of {data['questions']} public English multiple-choice questions whose answers depend on dated facts on the public web. We asked {who} that an API still serves, {data['runs_per_setup']} runs each, one question per request. {"With web search: " + esc(joined(searched)) + "; every other setup answered without search." if searched else "Every setup answered without search."} This page is not part of the Turkish ranking.</p>
       {framing(data)}
       <p>{above} setups have a mean accuracy above the {pct(data['random_accuracy'], digits)} chance line (Parallel's random-guess baseline, not a run of ours); every accuracy here is the mean of our {data['runs_per_setup']} runs.</p>
@@ -1095,6 +1122,7 @@ def build(site: Site) -> dict[str, str]:
       <p>Parallel Web Systems' {data['questions']} public English questions on dated web facts; not part of the Turkish ranking.</p>
       {more_link(PATH)}
       {summary_cards(items, digits)}
+      {small_parts}
       <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{f'<a href="#habits" {DECISION_ONLY}>Without the facts</a><a href="#habits-2" {DECISION_ONLY}>Answering habits</a>' if data.get("habits") else ""}{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
     </section>
     <section class="charts" aria-label="Charts">{charts(site, data, items, PATH, "chart-", measures=True)}</section>

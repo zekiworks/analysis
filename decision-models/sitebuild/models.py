@@ -16,7 +16,7 @@ from sitebuild import english_view, vision
 from sitebuild.english_reading import (ENGLISH_ANCHOR, PATH as COMPARISON, english_only, measure_cell, missing_side,
                                        setup_labels)
 from sitebuild.site import (NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per, cost_switch, cost_value, esc,
-                            interval, latency_text, pct, rel, request_size)
+                            interval, latency_text, parameters_text, pct, rel, request_size)
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
 # The documentation page page_config.json's reasoning_levels cite, by its host, as the Settings line names it.
@@ -101,14 +101,16 @@ def facts(items: list[tuple[str, str | None]]) -> str:
     return '<dl class="facts">' + "".join(f"<dt>{term}</dt><dd>{value}</dd>" for term, value in items if value) + "</dl>"
 
 
-def parameters_text(run: dict[str, Any]) -> str | None:
-    count = run.get("parameters")
-    if not count:
-        return None
-    billions = lambda value: f"{value / 1e9:.1f}".rstrip("0").rstrip(".")  # noqa: E731
-    size = f"{billions(count)}B" if count >= 1e9 else f"{round(count / 1e6)}M"
-    active = run.get("active_parameters")
-    return f"{size} ({' to '.join(billions(value) for value in active)}B active per token)" if active else size
+def size_fact(run: dict[str, Any]) -> str:
+    """The Parameters fact: the size in the details box's words (parameters_text), then what it covers, its sources
+    (results.json parameters_source: each page linked, or the checkpoint counted, repo@revision) and the
+    date read."""
+    sources = ", ".join(f'<a href="{esc(source)}">{esc(source.removeprefix("https://"))}</a>' if source.startswith("https://")
+                        else esc(source) for source in run["parameters_source"])
+    scope = f"{esc(run['parameters_scope'])}; " if run.get("parameters_scope") else ""
+    checked = "pages checked" if run.get("parameters") is None else "source"
+    return (f'{esc(parameters_text(run))}<span class="small">{scope}{checked}: {sources}; read '
+            f'{bp.long_date(run["parameters_read"])}</span>')
 
 
 def section(title: str, body: str, anchor: str) -> str:
@@ -123,7 +125,7 @@ def called(site: Site, run: dict[str, Any]) -> str:
         ("Paid as", esc(billing["access"])),
         ("Model ID", f"<code>{esc(run['model'])}</code>"),
         ("Variant", esc(run["variant"]) if run.get("variant") else None),
-        ("Parameters", parameters_text(run)),
+        ("Parameters", size_fact(run)),
         ("Hardware", esc(run["hardware"]) if run.get("hardware") else None),
         ("Note", esc(run["note"]) if run.get("note") else None),
         ("Confidence from", esc(run["confidence"]["label"])),
@@ -422,7 +424,7 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
     found = next((item["english"] for item in idk["models"] + english_only(idk) if item["text_run"] == run["run"]), None)
     option = esc(idk["option"])
     if found is None:
-        rate = missing_side(site, run["run"])
+        rate = missing_side(site, run)
     else:
         value = "No rate" if found["non_hallucination"] is None else pct(found["non_hallucination"], digits)
         rate = (f"{value}: {found['dont_know']:,} “{option}” of {found['dont_know'] + found['wrong']:,} not right; "

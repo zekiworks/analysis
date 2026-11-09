@@ -6,12 +6,14 @@ is charts (face()): first holding back two ways side by side (sitebuild/holding_
 non-hallucination rate together); then the non-hallucination rate with the option and held back by confidence, and
 accuracy with the option against accuracy with five options, as HTML bars (Site hbars). The charts and the table (one row
 per model, from its first run, Answered and Wrong of answers first, ranked by non-hallucination rate, accuracy breaking
-ties; a model with more than one run shows the range over its runs) come once per group of the view bar (data-models,
-toggled by site.js; the all group shown without JavaScript), each chart and the table with decision and chat models in
-blocks of their own, each its own ranking under its heading (holding_back.kinds: both under all), never one mixed list;
-each row in its group by its `group` field, which must be the Text tab's (Site.decision). The chat setups whose Turkish run with the option is still running are listed
-with their reason for the all and chat groups (running_setups). The parts about decision models only come for the all
-and decision groups (DECISION_ONLY): the headline, the paired test against confidence, the English questions, the
+ties; a model with more than one run shows the range over its runs) come once per group of the view bar (all, decision,
+chat, small; data-models, toggled by site.js; the all group shown without JavaScript; a row's group by Site.in_group of its
+Text tab run, group_models), each chart and the table with decision and chat models in blocks of their own, each its own
+ranking under its heading (holding_back.kinds: both under all and small), never one mixed list; each row's kind by its
+`group` field, which must be the Text tab's (Site.decision). The chat setups whose Turkish run with the option is still
+running are listed with their reason for each group they are in (running_setups). The parts about decision models only
+come for the all and decision groups (DECISION_ONLY), not split by size, the small group showing a note instead
+(small_note): the headline, the paired test against confidence, the English questions, the
 option's word, the hosted GLiDE rerun, the same number of answers (risk-coverage plots on the face, tables under Info)
 and the answers at 95%+ confidence, each from the decision models' rows. Under Info: the tables, What we found and Our
 method, with both kinds' added sentence and prompt version. It needs no JavaScript. The tab ranks nothing on the Text
@@ -27,7 +29,7 @@ from typing import Any, Callable
 import build_page as bp
 from sitebuild import holding_back as hold
 from sitebuild.site import (DECISION_ONLY, GROUPS, Site, esc, hbars, legend_mark, line_plot, marker_path, more_link, pct,
-                            rank_fill, rel, scale_legend, shown)
+                            rank_fill, rel, scale_legend, shown, small_note)
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "dont-know/"
@@ -121,11 +123,11 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
 
 
 def table(site: Site, data: dict[str, Any], group: str) -> str:
-    """A group's copy of the table: a decision and a chat block (holding_back.kinds: both under all), each with its
-    heading and its rows ranked (ranked)."""
+    """A group's copy of the table: a decision and a chat block (holding_back.kinds: both under all and small), each with
+    its heading and its rows ranked (ranked)."""
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(direction)}</span></th>'
                    for name, direction in columns(data["option"]))
-    models = ranked(group_data(data, group)["models"])
+    models = ranked(group_models(site, data, group))
     blocks = "".join(
         hold.block(heading, '<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>'
                    f'{head}</tr></thead><tbody>{"".join(row(site, data, model) for model in mine)}</tbody></table></div>', 3)
@@ -150,8 +152,8 @@ def running_setups(site: Site) -> list[dict[str, Any]]:
 
 def running_list(site: Site, group: str) -> str:
     """A group's list of the chat setups still running in Turkish (running_setups), with page_config.json's reason."""
-    runs = [run for run in running_setups(site) if group == "all" or not site.decision(run)]
-    if group == "decision" or not runs:
+    runs = [run for run in running_setups(site) if site.in_group(run, group)]
+    if not runs:
         return ""
     names = site.names(runs)
     lines = "".join(f'<li><a href="{rel(PATH, site.model_path(run))}">{esc(names[run["run"]])}</a></li>' for run in runs)
@@ -159,9 +161,14 @@ def running_list(site: Site, group: str) -> str:
             f"of each is on the Turkish vs English tab.</p><ul>{lines}</ul>")
 
 
-def group_data(data: dict[str, Any], group: str) -> dict[str, Any]:
-    """The section with the rows of one group of the view bar (all: every row)."""
-    return {**data, "models": [model for model in data["models"] if group == "all" or model["group"] == group]}
+def group_data(data: dict[str, Any], kind: str) -> dict[str, Any]:
+    """The section with the rows of one kind of model (decision or chat), as the parts about one kind read it."""
+    return {**data, "models": [model for model in data["models"] if model["group"] == kind]}
+
+
+def group_models(site: Site, data: dict[str, Any], group: str) -> list[dict[str, Any]]:
+    """The rows of one group of the view bar: those whose Text tab run is in it (Site.in_group; all: every row)."""
+    return [model for model in data["models"] if site.in_group(site.by_id[model["original_run"]], group)]
 
 
 def findings(site: Site, data: dict[str, Any], word: dict[str, Any] | None = None) -> str:
@@ -326,8 +333,8 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
     holding back with the option (dont_know: the answered share, the wrong share of the answers and the non-hallucination
     rate together), each in a decision and a chat block (holding_back; under the decision block the models that almost
     never chose the option), then that rate against confidence, the paired test of the two (vs_confidence, the decision
-    models only: for the all and decision groups) and accuracy. A single-series bar takes the ranking scale between the
-    models' worst and best values on its chart."""
+    models only: for every group with one, its rows the group's, Holm's family every decision model's) and accuracy. A
+    single-series bar takes the ranking scale between the models' worst and best values on its chart."""
     option = esc(data["option"])
     stops = site.config["rank_scale"]["stops"]
     total = data["questions"]
@@ -336,7 +343,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
     names = site.names([run_of(model) for model in data["models"]])
     label = lambda model: names[model["original_run"]]  # noqa: E731
     href = lambda model: rel(PATH, site.model_path(run_of(model)))  # noqa: E731
-    models = ranked(group_data(data, group)["models"])
+    models = ranked(group_models(site, data, group))
     rated = [model for model in models if model["non_hallucination"] is not None]
 
     def card(base: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, **axis: Any) -> str:
@@ -408,15 +415,17 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
                       for model in mine],
         lambda mine, heading: f'<span><i class="swatch swatch-lead"></i>With “{option}”</span> '
                               '<span><i class="swatch swatch-base"></i>Held back by its own confidence (the derived rate)</span>')
-    # The paired test (vs_confidence, decision models only): for each model in Holm's family, the wrong answers only one
-    # side made, most significant first, with its Holm-adjusted p; the decision models outside the family are named under it.
+    # The paired test (vs_confidence, decision models only): for each of the group's models in Holm's family (every
+    # decision model's, whatever the group shows: family), the wrong answers only one side made, most significant first,
+    # with its Holm-adjusted p; the group's decision models outside the family are named under it.
+    family = [model for model in data["models"] if model["vs_confidence"] is not None and model["vs_confidence"]["p_holm"] is not None]
     decision = [model for model in models if model["vs_confidence"] is not None]
     tested = sorted((model for model in decision if model["vs_confidence"]["p_holm"] is not None),
                     key=lambda model: (model["vs_confidence"]["p_holm"], model["vs_confidence"]["p"], model["name"].casefold()))
     untested = [label(model) for model in decision if model["vs_confidence"]["p_holm"] is None]
     share = f"{100 * data['vs_confidence_share']:g}%"
     paired = ""
-    if tested and group != "chat":
+    if tested:
         most = max(max(model["vs_confidence"]["option_only_wrong"], model["vs_confidence"]["confidence_only_wrong"]) for model in tested)
         # A tick at each quarter of the axis, the quarter a round number of answers that fits the largest count.
         quarter = math.ceil(most / 40) * 10 if most >= 40 else max(1, math.ceil(most / 4))
@@ -439,7 +448,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
             "chart-paired", f"Fewer wrong answers: “{data['option']}” or confidence?",
             f"Each decision model's first run with “{option}” against its five-option run held back by its own confidence on as many "
             f"questions: the questions only one of the two got wrong, by the exact McNemar test with p adjusted by Holm's method "
-            f"over the {len(tested)} decision models that chose “{option}” on at least {share} of the questions · the shorter bar left "
+            f"over the {len(family)} decision models that chose “{option}” on at least {share} of the questions · the shorter bar left "
             "fewer wrong answers",
             [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
               "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if model['vs_confidence']['p_holm'] < 0.05 else ''}",
@@ -452,7 +461,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
             '<span><i class="swatch swatch-base"></i>Wrong only when held back by its own confidence</span> '
             f"<span>{verdict}"
             + (f" Not in the test, as they chose “{option}” on fewer than {share} of the questions: {esc(joined(untested))}." if untested else "")
-            + (" Chat models are not in this test." if group == "all" else "")
+            + (" Chat models are not in this test." if any(model["group"] == "chat" for model in models) else "")
             + "</span>",
             top=4 * quarter, tick=lambda value: f"{value:,.0f}")
     by_accuracy = sorted(models, key=lambda model: (-model["accuracy"], model["name"].casefold()))
@@ -1810,13 +1819,16 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
             f"<p>{high_check_text(high, digits)}</p>{note}</section>")
 
 
-def chat_findings(site: Site, data: dict[str, Any]) -> str:
-    """What we found about the chat models, for the all and chat groups: how many setups have a run with the option,
-    the range of their non-hallucination rates against the decision models', and how many are still running."""
+def chat_findings(site: Site, data: dict[str, Any], group: str) -> str:
+    """What we found about the chat models of a group (all: shown for the all and chat groups; small: the small setups
+    only, against the small decision models): how many setups have a run with the option, the range of their
+    non-hallucination rates against the decision models', and how many are still running."""
     digits = site.config["percent_digits"]
-    chat = [model for model in ranked(data["models"]) if model["group"] == "chat" and model["non_hallucination"] is not None]
-    decision = [model for model in ranked(data["models"]) if model["group"] == "decision" and model["non_hallucination"] is not None]
-    running = [run for run in running_setups(site) if not site.decision(run)]
+    models = ranked(group_models(site, data, group))
+    chat = [model for model in models if model["group"] == "chat" and model["non_hallucination"] is not None]
+    decision = [model for model in models if model["group"] == "decision" and model["non_hallucination"] is not None]
+    running = [run for run in running_setups(site) if not site.decision(run) and site.in_group(run, group)]
+    size = "small " if group == "small" else ""
     if not chat:
         return ""
     names = site.names([site.by_id[model["original_run"]] for model in data["models"]])
@@ -1825,10 +1837,12 @@ def chat_findings(site: Site, data: dict[str, Any]) -> str:
               f"{pct(chat[0]['non_hallucination'], digits)} ({name(chat[0])})") if len(chat) > 1 else \
         f"{pct(chat[0]['non_hallucination'], digits)} ({name(chat[0])})"
     against = (f", against {pct(decision[-1]['non_hallucination'], digits)} to {pct(decision[0]['non_hallucination'], digits)} "
-               f"for the {len(decision)} decision models") if decision else ""
-    still = (f" {bp.opening_count(len(running))} more chat model setup{'' if len(running) == 1 else 's'} "
+               f"for the {len(decision)} {size}decision models") if decision else ""
+    still = (f" {bp.opening_count(len(running))} more {size}chat model setup{'' if len(running) == 1 else 's'} "
              f"{'is' if len(running) == 1 else 'are'} still running in Turkish (Running, under Results).") if running else ""
-    return (f'<p data-models="all chat">Chat models: {bp.in_words(len(chat))} setup{"" if len(chat) == 1 else "s"} '
+    attributes = 'data-models="all chat"' if group == "all" else shown(group)
+    lead = "Small chat models" if size else "Chat models"
+    return (f'<p {attributes}>{lead}: {bp.in_words(len(chat))} setup{"" if len(chat) == 1 else "s"} '
             f"{'has' if len(chat) == 1 else 'have'} a run with “{esc(data['option'])}” so far, with a non-hallucination rate "
             f"{spread}{against}.{still}</p>")
 
@@ -1855,7 +1869,7 @@ def build(site: Site) -> dict[str, str]:
     english = (site.results.get("english_reading") or {}).get("dont_know")
     if english:
         from sitebuild import english_reading as er  # here, not at the top: english_reading imports this module
-        english = er.idk_group(english, "decision")
+        english = er.idk_group(site, english, "decision")
     if word:
         check_option_word(site, decision, word)
     glide = check_rerun(site, decision, rerun) if rerun else None
@@ -1870,7 +1884,7 @@ def build(site: Site) -> dict[str, str]:
     if high:
         check_high_confidence(site, high)
     chat = data.get("chat")
-    counts = {group: len(group_data(data, group)["models"]) for group in GROUPS}
+    counts = {group: len(group_models(site, data, group)) for group in GROUPS}
     running = [run for run in running_setups(site) if not site.decision(run)]
     chat_sentence = (f" A chat model's instructions end with its own sentence instead: “{esc(chat['sentence'])}”"
                      if chat else "")
@@ -1885,11 +1899,13 @@ def build(site: Site) -> dict[str, str]:
               f"<p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data['option_en'])}”) "
               "instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its "
               f"numbers.</p><div {DECISION_ONLY}>{headline(decision, against)}</div>")
+    small = small_note("Small models: the parts about decision models only are not split by size; they show under All "
+                       "models or Decision models.")
     body = f"""    <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” instead.</p>
-      {more_link(PATH)}
+      {more_link(PATH)}{small}
       <div {DECISION_ONLY}>
       <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Answered and non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#option-word-confidence">“I don&#x27;t know” against confidence</a>' if against else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}{'<a href="#same-answers">The same number of answers</a>' if same else ""}{'<a href="#high-confidence">Answers at 95%+ confidence</a>' if high else ""}<a href="#info">Info</a></nav></div>
     </section>
@@ -1915,7 +1931,7 @@ def build(site: Site) -> dict[str, str]:
     <section class="card" id="findings">
       <h2>What we found</h2>
       <div {DECISION_ONLY}>{findings(site, decision, against)}{same_finding(site, same, families) if same else ""}</div>
-      {chat_findings(site, data)}
+      {chat_findings(site, data, "all")}{chat_findings(site, data, "small")}
     </section>
     <section class="card method-notes" id="method">
       <h2>Our method</h2>

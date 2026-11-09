@@ -2094,11 +2094,14 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     sides' right, wrong and invalid
     answers and accuracy on the kept questions, the difference, the ranges and the answers that differ over each
     side's runs, and the right answers only the first English run or only the Text tab run gave (exact McNemar, Holm
-    over every model); the models in order of English accuracy, then name. Every English run must be listed once and
-    in no other list. Returns a line per mismatch."""
+    over every model); the models in order of English accuracy, then name. A setup without such a Text tab run is an
+    English-only entry (`english_only`): its identity and its first English run's counts and accuracy, in the same order,
+    in no paired test. A vllm-plain run carries the version of answers.json's plain_prompts' English prompts. Every
+    English run must be listed once and in no other list. Returns a line per mismatch."""
     section = results.get("english_reading")
     runs = {run["run"]: run for run in answers.get("english_runs", [])}
-    listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
+    listed = [run_id for model in (section or {}).get("models", []) + (section or {}).get("english_only", [])
+              for run_id in model["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs",
                                      "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs",
                                      "rerun_runs", "web_grounding_runs") for run in answers.get(key, [])}
@@ -2131,6 +2134,9 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     # with the System One instructions in English, any other with these.
     chat_prompts = answers.get("english_chat_prompts")
     chat_version = None if chat_prompts is None else hashed(chat_prompts)
+    # vllm-plain runs: the plain answer line's English prompts (plain_prompts, the runner's PLAIN_PROMPTS).
+    plain = (answers.get("plain_prompts") or {}).get("english")
+    plain_version = None if plain is None else hashed(plain)
     check("chat prompts", [section.get("chat_prompts"), section.get("chat_prompt_version")], [chat_prompts, chat_version])
     check("translations", section["translations_sha256"], public["translations_sha256"])
     ids = answers["questions"]["id"]
@@ -2144,7 +2150,8 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
     for run_id, run in sorted(runs.items()):
         english = run.get("english") or {}
         asked = [index for index, value in enumerate(run["correct"]) if value is not None]
-        expected = version if system_one(docs, run["provider"]) else chat_version
+        expected = (plain_version if run["provider"] == "vllm-plain"
+                    else version if system_one(docs, run["provider"]) else chat_version)
         check(f"English run {run_id}", [expected, public["translations_sha256"], len(kept), kept],
               [run["prompt_version"] if run["prompt_version"] == english.get("prompt_version") else None,
                english.get("translations_sha256"), english.get("questions"), asked])
@@ -2163,7 +2170,7 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
         invalid = sum(1 for index in kept if run["choice"][index] is None)
         return {"right": right, "wrong": total - right - invalid, "invalid": invalid, "accuracy": right / total}
 
-    expected = []
+    expected, alone = [], []
     for (provider, model, thinking, size, mode), group in setups.items():
         group.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
         name = f"{model} ({provider})"
@@ -2172,7 +2179,10 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
         found = sorted(run["run"] for run in main.values()
                        if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"],
                            run.get("perplexity_mode")) == (provider, text_model, thinking, size, None, mode))
-        check(f"{name}, Text tab run", 1, len(found))
+        check(f"{name}, at most one Text tab run", True, len(found) <= 1)
+        if not found:
+            alone.append({"model": model, "provider": provider, "runs": [run["run"] for run in group]})
+            continue
         if len(found) != 1:
             continue
         turkish_run = found[0]
@@ -2230,6 +2240,21 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
         check(f"{model['name']}, p_holm", model["paired"]["p_holm"], adjusted, p=True)
     order = [model["run"] for model in sorted(section["models"], key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))]
     check("model order", [model["run"] for model in section["models"]], order)
+    only = {model["run"]: model for model in section.get("english_only", [])}
+    check("English-only setups", sorted(only), sorted(item["runs"][0] for item in alone))
+    for item in alone:
+        model = only.get(item["runs"][0])
+        if model is None:
+            continue
+        name = f"{model['name']} (English run {item['runs'][0]}, English only)"
+        check(f"{name}, identity", {key: model.get(key) for key in (*item, "run")}, {**item, "run": item["runs"][0]})
+        check(f"{name}, repeat sets", [item["runs"]] * len(item["runs"]), [runs[run_id]["repeat_set"] for run_id in item["runs"]])
+        first = counts(runs[item["runs"][0]])
+        check(f"{name}, English counts", [model["english"][key] for key in ("right", "wrong", "invalid")],
+              [first[key] for key in ("right", "wrong", "invalid")])
+        check(f"{name}, English accuracy", model["english"]["accuracy"], first["accuracy"], metric=True)
+    order = [model["run"] for model in sorted(only.values(), key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))]
+    check("English-only order", [model["run"] for model in section.get("english_only", [])], order)
     return mismatches
 
 
@@ -2305,11 +2330,15 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     total = len(kept)
     check("questions", [section["questions"], public["kept"]], [total, total])
     check("kept questions scored", True, set(kept) <= set(scored))
+    plain = (answers.get("plain_prompts") or {}).get("english_dont_know")
+    plain_version = None if plain is None else hashed(plain)
     for run_id, run in sorted(english_runs.items()):
         english = run.get("english") or {}
         asked = [index for index, value in enumerate(run["correct"]) if value is not None]
-        # A run of a System One provider (system_one) answered with the System One instructions, any other with the chat prompts.
-        expected_version = version if system_one(docs, run["provider"]) else chat_version
+        # A run of a System One provider (system_one) answered with the System One instructions, a vllm-plain run with the
+        # plain answer line (plain_prompts' english_dont_know), any other with the chat prompts.
+        expected_version = (plain_version if run["provider"] == "vllm-plain"
+                            else version if system_one(docs, run["provider"]) else chat_version)
         check(f"English \"I don't know\" run {run_id} (option, versions, translations, questions, asked the kept ones)",
               [True, expected_version, expected_version, public["translations_sha256"], total, True],
               [bool(run.get("dont_know")), run["prompt_version"], english.get("prompt_version"),
@@ -2334,6 +2363,16 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     expected_only = []
     only_runs = {item["text_run"] for item in english_only}
     reason = json.loads((docs / "page_config.json").read_text(encoding="utf-8"))["dont_know"]["running"]
+    # The English reading track's English-only setups (no Text tab run): an English "I don't know" setup of one of them is
+    # published in English only, by rule, under its English reading entry's first run (reading_run). The entry's setup is
+    # its first English run's as the runner recorded it (the entry itself carries a scoring provider's reasoning as None).
+    reading_only = (results.get("english_reading") or {}).get("english_only", [])
+    reading_runs = {run["run"]: run for run in answers.get("english_runs", [])}
+
+    def reading_setup(entry: dict[str, Any]) -> tuple[Any, ...]:
+        run = reading_runs[entry["run"]]
+        return run["provider"], run["model"], run["thinking"], run["questions_per_request"], run.get("perplexity_mode")
+
     for (provider, model, thinking, size, mode), group in setups(english_runs).items():
         group.sort(key=lambda run: (run["repeat"] or 1, run["run"]))
         name = f"{model} ({provider})"
@@ -2342,9 +2381,16 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
         found = sorted(run["run"] for run in main.values()
                        if (run["provider"], run["model"], run["thinking"], run["questions_per_request"], run["shuffle_options"],
                            run.get("perplexity_mode")) == (provider, text_model, thinking, size, None, mode))
-        check(f"{name}, Text tab run", 1, len(found))
+        alone_reading = [entry for entry in reading_only if reading_setup(entry) == (provider, model, thinking, size, mode)]
+        check(f"{name}, Text tab run or English-only setup", 1, len(found) + len(alone_reading))
         kind = group_of(docs, provider, model)
         subset, full = subsets.pop((provider, model, thinking, size, mode), None), fulls.get((provider, model, thinking, size, mode))
+        if alone_reading:
+            check(f"{name}, English-only setup without Turkish \"I don't know\" runs", True, subset is None and full is None)
+            expected_only.append(({"name": alone_reading[0]["name"], "model": model, "provider": provider, "group": kind,
+                                   "text_run": None, "reading_run": alone_reading[0]["run"], "running": False,
+                                   "english": {"run": group[0]["run"], "runs": [run["run"] for run in group]}}, group))
+            continue
         alone = bool(found) and found[0] in only_runs
         # The Turkish side: the runs on the kept questions where the setup has them, else its full-bank runs.
         check(f"{name}, Turkish sides{' (published without one)' if alone else ''}", 0 if alone else 1,
@@ -2469,7 +2515,7 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
             continue
         name = f"{item['name']} (English \"I don't know\" run {item['english']['run']}, English only)"
         check(f"{name}, identity",
-              {**{key: model.get(key) for key in ("name", "model", "provider", "group", "text_run", "running")},
+              {**{key: model.get(key) for key in item if key != "english"},
                "english": {key: model["english"].get(key) for key in ("run", "runs")}}, item)
         check(f"{name}, reason given", True, bool(model.get("reason")) and (not item["running"] or model["reason"] == reason))
         check(f"{name}, no Turkish side, no test, in no Holm family", [None, None, None, False],

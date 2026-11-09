@@ -9,8 +9,8 @@ comparisons), four charts in the home page's format, each in its Measure section
 and the pilot folded; non-hallucination; latency; cost: each set of questions a small heading over its two setups, web
 off grey and with web the accent colour), PWS-Decisions' charts of its decision models (pws_decisions.py), what the
 search returned, the caveats, and the detailed tables. The home page's experiments line and the Perplexity family's
-model pages link here. Every setup shown is a decision model (the build stops otherwise), so the page shows for the view
-bar's all and decision groups (data-models) and the chat group shows a note instead."""
+model pages link here. Every setup shown is a decision model and none a small one (the build stops otherwise), so the
+page shows for the view bar's all and decision groups (data-models) and the chat and small groups show a note instead."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from typing import Any
 from build_page import long_date
 from sitebuild import pws_decisions
 from sitebuild.site import (DECISION_ONLY, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value, esc,
-                            family_icon, hbars, log_axis, more_link, pct, rel)
+                            family_icon, hbars, log_axis, more_link, pct, rel, small_note)
 
 PATH = "web-grounding/"
 TITLE = "Web grounding"
@@ -692,6 +692,9 @@ def build(site: Site) -> dict[str, str]:
     if not all(site.decision(site.by_id[run]) for run in data["text_runs"].values()):
         raise SystemExit("results.json web_grounding: a setup that is not a decision model, which the page shows for the "
                          "view bar's all and decision groups only")
+    if any(site.in_group(site.by_id[run], "small") for run in data["text_runs"].values()):
+        raise SystemExit("results.json web_grounding: a small model setup, which the page does not show for the view bar's "
+                         "small group yet")
     digits = site.config["percent_digits"]
     upper = site.config["first_cost_marks"]["upper"]
     named = setups(site, data)
@@ -710,6 +713,7 @@ def build(site: Site) -> dict[str, str]:
       <p class="eyebrow">Experiment</p>
       <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
       {chat_note("Chat models: this page compares decision-model setups, so it shows under All models and Decision models. PWS-Decisions with chat models: its own page.")}
+      {small_note("Small models: this page compares setups of a model above the small models' size, so it shows under All models and Decision models. PWS-Decisions with small models: its own page.")}
       <div {DECISION_ONLY}>
       <p>Perplexity's Decisions API without and with a web search per question.</p>
       {more_link(PATH)}

@@ -183,11 +183,17 @@ python3 -m http.server 8000                                # preview at http://1
     `experiments/`, `vision/`, `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
     `about/`, `method/` and `data/`. On a phone the tab row scrolls sideways, the current tab brought into view. No other
     navigation row sits under the suite strip; a page's own part links (`.face-nav`, as PWS-Decisions' steps) stay in
-    the page. **Model groups**: `?models=all|decision|chat` (all when missing; trailing dots, punctuation or spaces are
-    dropped, so `?models=all.` reads as all) still picks the group on every page that shows its parts by group
+    the page. **Model groups**: `?models=all|decision|chat|small` (all when missing; trailing dots, punctuation or spaces
+    are dropped, so `?models=all.` reads as all) still picks the group on every page that shows its parts by group
     (`data-models`; `site.js` shows each element only for its groups), and such a page carries its own group keys at
-    the top of its body (`group_switch`, All · Decision models · Chat models, in the page, not in the top bar); on the
-    Leaderboard it sets the table's filter. A group asked for in the address stays in the links marked
+    the top of its body (`group_switch`, All · Decision models · Chat models · Small models, in the page, not in the
+    top bar), with the Small models rule under them in the small view; on the Leaderboard it sets the table's filter.
+    **Small models** (`Site.small`, `v3.js` `isSmall`): every setup, chat or decision model, whose model's total
+    parameter count as its maker discloses it is at most `page_config.json`'s `small_models.max_parameters` (15B, one
+    threshold shared with the Logic and Backgammon sites); a mixture of experts counts by its total, and a model whose
+    maker discloses no size is never in it. A part that covers every decision model whatever its size (a Holm family,
+    a decision-model finding) is not split by size: under Small models a note (`small_note`) stands in its place, as
+    under Chat models. A group asked for in the address stays in the links marked
     `data-keep-group`. The footer of every page (`footer`): About · Method · Data · GitHub, the downloads and the
     results version. **Cost unit**: every cost reads per 1,000 questions or per
     1M questions, one choice for the whole site (the keys in each cost card's head, `cost_switch`; `site.js` keeps it in
@@ -221,6 +227,20 @@ python3 -m http.server 8000                                # preview at http://1
     paired bars, the Text tab run (`.turkish`) and the first English run (`.english`), with both in its main table.
     Every setup name on both English pages links to its model page's English section (`#english`, `setup_href` in
     `sitebuild/english_reading.py`; a setup without an English run links to its model page).
+    **English-only setups** (`english_reading.english_only`; Ümit's small models, provider `vllm-plain`): an English
+    standard run whose setup has no Text tab run (same provider, model as `ENGLISH_TEXT_MODEL` maps it, reasoning,
+    variant, questions per request and Perplexity mode) is exported as an English-only entry with its name, settings,
+    size record, group, access text, billing, hardware, note, the first English run's cost and latency and its English
+    counts: no Turkish side, no paired test, in no Holm family. Its English "I don't know" runs join
+    `english_reading.dont_know.english_only` by rule (`text_run` null, `reading_run` its entry's first run, reason "no
+    Turkish run: an English-only setup"). English reading and the Leaderboard's English part rank them with the paired
+    setups (Turkish accuracy Not run; no Turkish reference); the Both and Turkish parts and the paired tables and tests
+    of Turkish vs English leave them out, which lists them per group under its main table with their English accuracy.
+    With no model page, their name links to their row on English reading (`#english-only-<run>`); their details box says
+    "English only" and how they were called. A `vllm-plain` run's access text comes from its record's `request_params`
+    and the model's `backend`, `precision` and `revision` in `MODELS` (`plain_access` in `export_results.py`), its
+    confidence reads not measured, its cost is the GPU time as for the other local runs, and its prompt version is
+    that of the answers file's `plain_prompts` (the runner's `PLAIN_PROMPTS`), published in `answers.json` with it.
   - **The benchmarks**: each with its own address and its own rankings, never combined: Turkish reading and grammar
     (the Leaderboard, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know`, `dont_know_option_word`, `hosted_glide_rerun` and
@@ -385,17 +405,21 @@ python3 -m http.server 8000                                # preview at http://1
       `model_families[].maker`: the organisation the Method or model pages name for the family, else the family's
       name). The details box (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
       opens on a tap on a phone and on hover or the keyboard focus on a desktop, focus beating the pointer, capped to
-      the room on a short screen, and closes on a second tap, a tap outside or Escape; it lists the setup, its accuracy
+      the room on a short screen, and closes on a second tap, a tap outside or Escape; it lists the setup, its model's
+      size ("Parameters: 31.3B", "Parameters: 552B total, 8B to 16B active per token", "Parameters: 8B total, 4.5B
+      effective" or "Parameters: not disclosed by maker", `parameters_text`), its accuracy
       with the interval, reading and grammar, non-hallucination with "Bilmiyorum", the answers kept at 99% confidence
       (decision models), the cost with its basis and the request size, and "Open its answers →" (its model page), each
-      line only where the data has it. **Controls**, one row (`site.js` `leaderboard`): the part (English: the English
+      line only where the data has it. The size shows only there and on the model page (with what it covers, its
+      source and the date read), never beside the name. **Controls**, one row (`site.js` `leaderboard`): the part (English: the English
       setups on the 547 kept reading questions, from `english_reading`, with non-hallucination with "I don't know" and
       cost; Turkish, the default: the 2,198-question ranking, with reading, grammar, non-hallucination with
       "Bilmiyorum" and cost; Both: Turkish and English accuracy on the same questions, as `turkish-vs-english/`
-      computes them, ranked by Turkish), the filter (All · Chat models · Decision models, Decision models by default,
-      or the group `?models=` names; the rank column shows each row's rank among the rows in view, ties sharing a
-      rank) and All setups, which shows today's full ranking in the table's place. Two lines of text: what the score
-      means above the table and the row rule under it; the longer notes are on About.
+      computes them, ranked by Turkish), the filter (All · Chat models · Decision models · Small models, Decision models
+      by default, or the group `?models=` names; the rank column shows each row's rank among the rows in view, ties
+      sharing a rank; under Small models the rule's one line shows under the table) and All setups, which shows today's
+      full ranking in the table's place. Two lines of text: what the score means above the table and the row rule under
+      it; the longer notes are on About.
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
       then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
       `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;
@@ -601,7 +625,9 @@ on its left, 14 px and hidden from screen readers. A family in `page_config.json
 Simple Icons slug; its SVG path is vendored in `sitebuild/family_icons.py` from
 [Simple Icons](https://simpleicons.org) 16.36.0, whose icon data is CC0 1.0 (the marks stay their owners'
 trademarks, used here only to name their models). Official marks: Gemini (Google Gemini), Gemma (Google), GPT
-(OpenAI), Claude, Qwen, DeepSeek, Kimi, MiMo (Xiaomi), MiniMax, Perplexity, Microsoft and vLLM-SR (vLLM), drawn in the text colour.
+(OpenAI), Claude, Qwen, DeepSeek, Kimi, MiMo (Xiaomi), MiniMax, Perplexity, Microsoft, vLLM-SR (vLLM), Mistral (Mistral AI)
+and VibeThinker (Sina Weibo, for Weibo AI), drawn in the text colour. Families still without a colour of their
+own (Mistral, VibeThinker and the others in grey #64748b) wait for the lead's choice.
 Simple Icons has no mark for xAI, Z.ai or Liquid AI, so Grok (xAI), GLM (Z.ai) and Liquid (Liquid AI) use the
 public-domain logos on Wikimedia Commons, scaled to one 24 x 24 path; each MARKS entry names its source and date read.
 A family with no findable vector mark (Inception, Fastino, Inkling and the rest) gets a plain shape (circle, diamond, triangle
@@ -665,7 +691,15 @@ A new provider needs an entry in `PROVIDERS` (its access route and how it is pai
 stops until it has one. A decision model's provider also goes in `page_config.json`'s
 `decision_model_providers`, and a new model of a provider in its `mixed_providers` stops the build until it
 is listed there. A new model is shown by its ID unless `MODELS` gives it a display name, and a
-model on our GPUs needs its hardware there. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
+model on our GPUs needs its hardware there. Every exported model needs a size record in `MODELS` (the export stops
+without one): `parameters` (the total, or `None` when the maker publishes no size: "not disclosed by maker"),
+`active_parameters` for a mixture of experts (DeepSeek's two figures, prefill and decode, kept apart),
+`effective_parameters` only where the maker states one, `parameters_scope` (what the count covers: language model,
+vision encoder, scoring head), `parameters_source` (the maker's official pages, or the checkpoint counted as
+`repo@revision` from its safetensors headers' logical tensor shapes, never quantized storage, scales or an adapter
+file alone; for an undisclosed size, every official page checked) and `parameters_read` (the date read). A size is
+never guessed from a name or taken from an open sibling of a hosted model. The records reach `results.json` per run
+and drive the details box, the model pages, Method's size table and the Small models view. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
 the export takes each run's price from the report, and stops when a paid or free-tier run has none or a
 price applies to another kind of run: a self-hosted run may only take its maker's list price for the same
 model (our hardware cost is not measured), and a free-tier run the list price of the model it called.

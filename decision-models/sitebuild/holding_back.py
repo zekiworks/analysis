@@ -24,8 +24,8 @@ NO_CONFIDENCE = "No confidence reported"
 
 
 def kinds(group: str) -> list[tuple[str, str]]:
-    """The blocks a view bar group shows: both under all, else its own."""
-    return [kind for kind in KINDS if group == "all" or kind[0] == group]
+    """The blocks a view bar group shows: both under all and small (small cuts across the two kinds), else its own."""
+    return [kind for kind in KINDS if group in ("all", "small") or kind[0] == group]
 
 
 def kind_of(site: Site, run: dict[str, Any]) -> str:

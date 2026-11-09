@@ -221,7 +221,8 @@ const state = {
   picked: new Set(),
   selected: null,
   /* The model group the charts and the full ranking show, from the URL's ?models= (site.js): every setup ('all',
-     decision and chat models ranked together), the decision models ('decision') or the chat and general models ('chat'). */
+     decision and chat models ranked together), the decision models ('decision'), the chat and general models ('chat')
+     or the small models ('small', chat and decision models of at most SETTINGS.smallModels parameters in total). */
   models: 'all',
   tab: 'accuracy',
   sort: { key: 'accuracy', descending: true },
@@ -282,8 +283,12 @@ const MODEL_GROUPS = {
   all: { title: 'All models', every: 'every setup, decision and chat models together', of: count => `the ${count} setups, decision and chat models together` },
   decision: { title: 'Decision models', every: 'every decision model', of: count => `the ${count} decision models` },
   chat: { title: 'Chat models', every: 'every chat and general model', of: count => `the ${count} chat and general models` },
+  small: { title: 'Small models', every: 'every small model setup, decision and chat models together', of: count => `the ${count} small model setups` },
 };
-const inGroup = run => state.models === 'all' || isDecision(run) === (state.models === 'decision');
+/* A setup of a small model: its maker's disclosed total (a mixture of experts by its total) at most the threshold
+   (page_config.json small_models); a model whose maker discloses no size never is. As Site.small. */
+const isSmall = run => run.parameters != null && run.parameters <= SETTINGS.smallModels;
+const inGroup = run => state.models === 'all' || (state.models === 'small' ? isSmall(run) : isDecision(run) === (state.models === 'decision'));
 /* Every setup of the group in view, whatever the filters. */
 const groupRuns = () => data.runs.filter(inGroup);
 
@@ -1440,7 +1445,7 @@ function costTable(box) {
     const counts = sureCounts(run);
     const held = idk.get(run.run);
     /* With both kinds in one table, a chat model says so. */
-    const chat = state.models === 'all' && !isDecision(run) ? '<span class="small">Chat model</span>' : '';
+    const chat = ['all', 'small'].includes(state.models) && !isDecision(run) ? '<span class="small">Chat model</span>' : '';
     const tag = pareto.has(run) ? ' <span class="pareto-tag">Pareto</span>' : '';
     return `<tr><td class="model">${familyIcon(run)}<a class="model-name" href="models/${run.run}/">${esc(labels.get(run).text)}</a>${tag}${chat}</td>` +
       `<td class="num">${cost == null ? `<span class="nm">${costMissing(run)}</span>` : esc(priceText(run))}</td>` +

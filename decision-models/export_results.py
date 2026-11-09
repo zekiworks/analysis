@@ -105,6 +105,9 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "vllm-stated": {"access": "vLLM-compatible chat API, self-hosted", "scoring": False, "billing": "local"},
     "vllm-verbal": {"access": "vLLM, self-hosted, BF16", "scoring": False, "billing": "local"},
     "vllm-vote": {"access": "vLLM, self-hosted, BF16", "scoring": False, "billing": "local"},
+    # Small open models on logic's server (Ümit, bus #3446, #3475): one question per request, a plain ANSWER: X line, the
+    # run identity's request_params as the only request settings (english_reading's plain_access writes its access).
+    "vllm-plain": {"access": "our GPU (logic's server)", "scoring": False, "billing": "local"},
     "claude": {"access": "Claude Code CLI, Claude subscription", "scoring": False, "billing": "subscription"},
     "openai": {"access": "Codex CLI, ChatGPT subscription", "scoring": False, "billing": "subscription"},
     "openai-decisions": {"access": "OpenAI Decisions API (public beta)", "scoring": True, "billing": "api"},
@@ -148,13 +151,7 @@ VARIANTS = {
 }
 GPU = "RTX PRO 6000 Blackwell (96 GB)"
 SPARK = "DGX Spark, GB10 (128 GB unified memory)"
-# Display names, and for models on our GPUs the hardware and precision.
-# parameters: the model's weights, counted from the tensor shapes in each local checkpoint's safetensors
-# files (Open-Jev: Qwen3.8-27B plus its LoRA adapter and scoring head; Clef: the backbone plus its joint
-# head); Perplexity's Decider from the total_parameters of its published index; DeepSeek-V4.1-Flash and GLM-5.3-Flash
-# from their model cards, mixtures of experts: DeepSeek with 552B backbone parameters, of which 8B are active per token
-# in prefill and 16B in decode, GLM with 320B, of which 18B are active (active_parameters). Models whose makers publish
-# no size have neither.
+# Display names, and for models on our GPUs the hardware and precision. Each model's size is its record in SIZES.
 MODELS: dict[str, dict[str, Any]] = {
     "gpt-6-astra": {"name": "GPT-6 Astra"},
     "gpt-6.1-sol": {"name": "GPT-6.1 Sol"},
@@ -166,7 +163,6 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "Gemma 4 31B",
         "access": "vLLM, self-hosted, FP8",
         "hardware": f"1 × {GPU}; FP8 weights and KV cache",
-        "parameters": 31_273_088_876,
     },
     "deepseek-v4.1-flash": {
         # Every DeepSeek-V4.1-Flash run here (58 to 121, 4 and 5 October 2026) served the first release: the server
@@ -174,8 +170,6 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "DeepSeek-V4.1-Flash, first release",
         "access": "SGLang, self-hosted, published mixed precision; first-release weights (revision fb2764a), not the 1017 update",
         "hardware": f"4 × {GPU}; FP4 experts, FP8 and BF16 layers",
-        "parameters": 552_000_000_000,
-        "active_parameters": [8_000_000_000, 16_000_000_000],
     },
     "deepseek-v4.1-flash-1017": {
         # DeepSeek's minor update of 17 October 2026 (deepseek-ai/DeepSeek-V4.1-Flash-1017, the same config, tokenizer
@@ -184,8 +178,6 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "DeepSeek-V4.1-Flash 1017",
         "access": "SGLang, self-hosted, published mixed precision; 1017 weights (revision 1bae0e1)",
         "hardware": f"4 × {GPU}; FP4 experts, FP8 and BF16 layers",
-        "parameters": 552_000_000_000,
-        "active_parameters": [8_000_000_000, 16_000_000_000],
     },
     "deepseek/deepseek-v4.1-flash-1017": {
         "name": "DeepSeek-V4.1-Flash-1017",
@@ -195,8 +187,6 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "GLM-5.3-Flash",
         "access": "TensorFold, self-hosted, EXL3 4-bit experts",
         "hardware": f"4 × {GPU}; EXL3 4-bit experts, FP8 dense layers and KV cache",
-        "parameters": 320_000_000_000,
-        "active_parameters": [18_000_000_000],
     },
     "grok-4.7": {"name": "Grok 4.7"},
     "gemini-4-argon": {"name": "Gemini 4 Argon"},
@@ -212,71 +202,52 @@ MODELS: dict[str, dict[str, Any]] = {
         "access": "OpenRouter chat API, MiniMax's own endpoint, fallbacks off, output cap 65,536 tokens, reasoning included; "
                   "JSON mode without the answer schema (the endpoint has no structured outputs), so the prompt adds a "
                   "paragraph stating the answer layout",
-        "parameters": 428_000_000_000,
-        "active_parameters": [23_000_000_000],
     },
     "thinkingmachines/inkling-small": {
         "name": "Inkling Small",
         "access": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning "
                   "included; no response format (the endpoint has no structured outputs), so the prompt adds a paragraph "
                   "stating the answer layout",
-        "parameters": 276_000_000_000,
-        "active_parameters": [12_000_000_000],
     },
     "qwen/qwen3.5-397b-a17b": {
         "name": "Qwen 3.5 397B-A17B",
         "access": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included",
-        "parameters": 397_000_000_000,
-        "active_parameters": [17_000_000_000],
     },
     "xiaomi/mimo-v2.6-flash": {
         "name": "MiMo V2.6 Flash",
         "access": "OpenRouter chat API, Xiaomi's own endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included",
-        "parameters": 309_000_000_000,
-        "active_parameters": [15_000_000_000],
     },
-    "gemma4:31b": {"name": "Gemma 4 31B"},
-    "deepseek-v4-flash:latest": {"name": "DeepSeek V4 Flash"},
-    "muse-glimmer:30b": {"name": "Muse Glimmer 30B"},
     "jev-1.13.0": {"name": "Jev 1.13.0"},
     "jev-1.14.0": {"name": "Jev 1.14.0"},
     "open-jev-27b-v1.1": {
         "name": "Open-Jev 27B v1.1",
         "note": "Fine-tune of Qwen3.8-27B (LoRA and a scoring head)",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 27_796_899_569,
     },
-    "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B v1", "parameters": 26_085_330_160},
-    # Counted from the released checkpoint (perplexity-ai/pplx-decider-v1.1-27b at 5cd25e3), backbone and head.
-    "pplx-decider-v1.1-27b": {"name": "Perplexity Decider 27B v1.1", "parameters": 26_086_635_760},
-    # Counted from the released checkpoints (perplexity-ai/pplx-decider-v1.2 at 225c913 and
-    # perplexity-ai/pplx-decider-flash-v1.2 at 6d771ad), backbone and head. Both ran on a DGX Spark (GB10).
+    "pplx-decider-v1-27b": {"name": "Perplexity Decider 27B v1"},
+    "pplx-decider-v1.1-27b": {"name": "Perplexity Decider 27B v1.1"},
+    # Perplexity's released checkpoints run on a DGX Spark (GB10).
     "pplx-decider-v1.2": {
         "name": "Perplexity Decider 27B v1.2 (local GPU)",
         "note": "Perplexity's released checkpoint, run on our hardware. Its run through Perplexity's Decisions API is a "
         "setup of its own.",
         "hardware": f"1 × {SPARK}; BF16",
-        "parameters": 26_086_635_760,
     },
     "pplx-decider-flash-v1.2": {
         "name": "Perplexity Decider Flash v1.2",
         "note": "Perplexity's released Flash checkpoint, based on Qwen3.5-4B, run on our hardware. An API run is pending; "
         "this is an additional local setup.",
         "hardware": f"1 × {SPARK}; BF16",
-        "parameters": 4_539_918_336,
     },
-    # Counted from the released checkpoint (fastino/GLiDE at a7e4589): language model, vision encoder and readout. It ran
-    # on a DGX Spark (GB10).
+    # It ran on a DGX Spark (GB10).
     "glide-v1.2": {
         "name": "Fastino GLiDE v1.2",
         "note": "Fastino's released checkpoint, a modified Qwen3.8-27B, run on our hardware through the server it ships. "
         "Fastino's hosted GLiDE gave the same answers on 20 sample questions on 22 October 2026; the other GLiDE row is "
         "the hosted model as it answered on 6 October 2026, before a change on Fastino's side.",
         "hardware": f"1 × {SPARK}; BF16",
-        "parameters": 26_086_635_760,
     },
-    # Counted from the released checkpoint (vllm-sr/d3 at 20f37b9): backbone and readout. It ran on one RTX PRO 6000
-    # Blackwell (96 GB).
+    # It ran on one RTX PRO 6000 Blackwell (96 GB).
     "vllm-sr/d3": {
         "name": "vLLM-SR d3",
         "note": "The vLLM Semantic Router's released Decision 3.0 checkpoint (vllm-sr/d3 at 20f37b9), fine-tuned from "
@@ -284,10 +255,8 @@ MODELS: dict[str, dict[str, Any]] = {
         "(0.32.1rc1.dev613+g8977b13a1) with --max-num-seqs 256: with the default, vLLM's startup memory check did not fit "
         "the GPU. One request at a time, as for the other setups.",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 26_086_635_760,
     },
-    # Counted from the released checkpoint (vllm-sr/d3-ultra at 52ba9e7): backbone, vision encoder and readout. It ran on
-    # one RTX PRO 6000 Blackwell (96 GB).
+    # It ran on one RTX PRO 6000 Blackwell (96 GB).
     "vllm-sr/d3-ultra": {
         "name": "vLLM-SR d3-ultra",
         "note": "The vLLM Semantic Router's released d3-ultra checkpoint (vllm-sr/d3-ultra at 52ba9e7), fine-tuned from "
@@ -295,9 +264,7 @@ MODELS: dict[str, dict[str, Any]] = {
         "the package's transformers runtime as in the model card's Quickstart; transformers 5.17.0). vLLM cannot serve it "
         "yet: it rejects the checkpoint's attention mode (prefix_bidir). One request at a time, as for the other setups.",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 26_086_635_760,
     },
-    # Counted from the released checkpoint (OmniJev/OneJev-27B at a5e5f55): language model, vision encoder and readout.
     # It ran on one RTX PRO 6000 Blackwell (96 GB).
     "OmniJev/OneJev-27B": {
         "name": "OneJev 27B",
@@ -306,17 +273,14 @@ MODELS: dict[str, dict[str, Any]] = {
         "defaults. One request at a time, as for the other setups. The five runs are identical because decoding is "
         "deterministic: each run sent all 2,198 questions again as separate requests.",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 27_356_728_560,
     },
-    # Nace.AI's hosted Drex Max v1.1 (released 28 October 2026): a newer checkpoint than the open v1; no published
-    # weights or size.
+    # Nace.AI's hosted Drex Max v1.1 (released 28 October 2026): a newer checkpoint than the open v1; no published weights.
     "drex-max-v1.1": {
         "name": "Drex Max 1.1",
         "note": "Nace.AI's hosted Drex Max v1.1 (drex-max-v1.1, released 28 October 2026), a newer checkpoint than the open "
         "Drex Max v1 weights; Nace publishes no weights for it. Nace bills $0.03 per million input tokens during its launch, "
         "half the $0.06 list price the cost here uses.",
     },
-    # Counted from the released checkpoint (nace-ai/drex-max-v1 at cac65e1): language model, vision encoder and readout.
     # It ran on one RTX PRO 6000 Blackwell (96 GB).
     "drex-max-v1": {
         "name": "Drex Max v1",
@@ -325,20 +289,15 @@ MODELS: dict[str, dict[str, Any]] = {
         "nace-ai/drex-decision-models at e206b27), which makes 16 of the 64 layers attend non-causally, behind our HTTP "
         "server (servers/drex_max_server.py). One request at a time, as for the other setups.",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 26_086_635_760,
     },
-    # Nace.AI's hosted Drex 2.0: a mixture of experts with 35B parameters, about 3B active, as Nace states (its models page
-    # and nace.ai/drex, read 30 October 2026).
+    # Nace.AI's hosted Drex 2.0 (its size: SIZES).
     "drex-v2.0": {
         "name": "Drex 2.0",
         "note": "Nace.AI's hosted Drex 2.0 (drex-v2.0, released 6 October 2026), built on Qwen3.6-35B-A3B. It reads text "
         "only, so it is not on the Page images tab. Nace's API gives its option probabilities rounded to 4 decimal places, "
         "so they sum to 1 only within that rounding; the check before its runs allowed for it.",
-        "parameters": 35_000_000_000,
-        "active_parameters": [3_000_000_000],
     },
-    # Counted from the released checkpoint (LiquidAI/d1-2B at 10e7671): language model and readout 1,728,801,536, vision
-    # encoder 164,206,336, projector 25,174,016. It ran on one RTX PRO 6000 Blackwell (96 GB).
+    # It ran on one RTX PRO 6000 Blackwell (96 GB).
     "LiquidAI/d1-2B": {
         "name": "Liquid d1-2B (open weights)",
         "note": "Liquid AI's released d1-2B weights (LiquidAI/d1-2B at 10e7671), a decision model built on LFM3-VL-2B that "
@@ -346,11 +305,8 @@ MODELS: dict[str, dict[str, Any]] = {
         "in Transformers) behind our HTTP server (servers/d1_server.py), one request at a time. Liquid lists 16 languages "
         "for it; Turkish is not among them.",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 1_918_181_888,
     },
-    # Counted from the released checkpoints: elephant-1 (baselabs/elephant-1 at b3f8a93), language model 8,953,803,264 and
-    # vision encoder 456,010,480; mammoth-1 (baselabs/mammoth-1 at 61cec44), language model 26,895,998,464 and vision
-    # encoder 460,730,096. Each ran on one RTX PRO 6000 Blackwell (96 GB).
+    # Each ran on one RTX PRO 6000 Blackwell (96 GB).
     "baselabs/elephant-1": {
         "name": "Elephant-1",
         "note": "Base Labs' released elephant-1 weights (baselabs/elephant-1 at b3f8a93), a decision model post-trained from "
@@ -362,7 +318,6 @@ MODELS: dict[str, dict[str, Any]] = {
         "Probabilities rounded to 6 decimals by the model's own loader. They sum to 1 only within that rounding, and the "
         "check before its runs allowed for it. Its card lists English only.",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 9_409_813_744,
     },
     "baselabs/mammoth-1": {
         "name": "Mammoth-1",
@@ -375,13 +330,9 @@ MODELS: dict[str, dict[str, Any]] = {
         "Probabilities rounded to 6 decimals by the model's own loader. They sum to 1 only within that rounding, and the "
         "check before its runs allowed for it. Its card lists English only.",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 27_356_728_560,
     },
-    # Counted from the released checkpoint's safetensors headers (decisionmodels/REAX-1.3 at fa4bf7e), both parts, every
-    # tensor as stored (BF16, the readout F32): part G (part-g/) language model 30,697,345,340 and vision encoder with its
-    # projector 575,743,536; part Q (part-q/) language model 25,624,600,064, vision encoder 460,730,096 and readout
-    # (readout.safetensors) 1,305,600. The engine loads both parts in FP8 (block-128) on one RTX PRO 6000 Blackwell
-    # (96 GB), peak reserved memory about 88.5 GiB (the model card).
+    # The engine loads both parts in FP8 (block-128) on one RTX PRO 6000 Blackwell (96 GB), peak reserved memory about
+    # 88.5 GiB (the model card).
     "reax13": {
         "name": "REAX 1.3",
         "note": "REAX's released REAX 1.3 weights (decisionmodels/REAX-1.3 at fa4bf7e), a decision model of two parts that "
@@ -392,10 +343,10 @@ MODELS: dict[str, dict[str, Any]] = {
         "(the reax13 mode of reaxlabs/reax-engine at ff8f595, its own server, serve.py), both parts in FP8 (block-128) on "
         "one RTX PRO 6000 Blackwell, text only, one request at a time. Its card lists English only.",
         "hardware": f"1 × {GPU}; FP8 (block-128)",
-        "parameters": 57_359_724_636,
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
+    "celeris-1.1-decision": {"name": "Celeris-1.1 Decision"},
     "subq-snap-preview": {"name": "SubQ Snap Preview"},
     # SubQ's subq-snap-1.1 through its Decisions API, in public preview; it also reads images (Page images tab). Its
     # option probabilities arrive as 32-bit floats.
@@ -421,66 +372,56 @@ MODELS: dict[str, dict[str, Any]] = {
         "note": "Inception's decision model, called through OpenRouter's System One route (paid listing). It returns a "
         "probability for each option.",
     },
-    "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}", "parameters": 421_293_830},
+    "laya": {"name": "Laya", "note": "Encoder with a decision head", "hardware": f"1 × {GPU}"},
     "laya-multilingual": {
         "name": "Laya multilingual",
         "note": "Encoder with a decision head",
         "hardware": f"1 × {GPU}",
-        "parameters": 321_908_998,
     },
     "qwen38-27b-bf16": {
         "name": "Qwen3.8-27B",
         "note": "Open-Jev's base model",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 27_781_427_952,
     },
     "gliner2.5-multi-v1": {
         "name": "GLiNER2.5 Multi (base)",
         "note": "Multilingual extraction and classification model",
         "hardware": f"1 × {GPU}; FP16",
-        "parameters": 287_355_159,
     },
     "gliner2.5-multi-decide": {
         "name": "GLiNER2.5-multi-Decide",
         "note": "Fastino's decision fine-tune of GLiNER2.5 Multi",
         "hardware": f"1 × {GPU}; FP16",
-        "parameters": 287_355_159,
     },
     "clef": {
         "name": "Clef",
         "note": "Cloudflare's decision model, post-trained from Qwen3.8-27B",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 27_484_784_884,
     },
     "clef-flash": {
         "name": "Clef-flash",
         "note": "Cloudflare's 9B decision model, post-trained from Qwen3.5-9B",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 9_531_576_564,
     },
     "metask-jev-4b-policy-mix": {
         "name": "Metask-Jev 4B",
         "note": "Fine-tune of Qwen3.5-4B (merged LoRA)",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 4_539_265_536,
     },
     "cygnet": {
         "name": "Cygnet",
         "note": "Gemma 4 12B IT, unchanged, read out by option letter",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 11_959_730_224,
     },
     "winnow-12b": {
         "name": "Winnow-12B",
         "note": "Fine-tune of Gemma 4 12B IT (Q8_0 GGUF)",
         "hardware": f"1 × {GPU}; Q8_0",
-        "parameters": 11_907_350_576,
     },
     "strands-decider-2b": {
         "name": "Strands Decider 2B",
         "note": "Amazon's decision model: a LoRA adapter and a decision head on Qwen3.5-2B-Base",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 2_291_942_208,
     },
     "gemini-3.8-flash": {"name": "Gemini 3.8 Flash"},
     "erk-14b": {
@@ -488,15 +429,35 @@ MODELS: dict[str, dict[str, Any]] = {
         "note": "Qwen3-14B with continued Turkish training (eCloud)",
         "access": "vLLM, self-hosted, BF16",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 14_768_307_200,
     },
     "qwen3-14b": {
         "name": "Qwen3-14B",
         "note": "Erk-14B's base model",
         "access": "vLLM, self-hosted, BF16",
         "hardware": f"1 × {GPU}; BF16",
-        "parameters": 14_768_307_200,
     },
+    # Ümit's small open models (bus #3446), Reading in English only, served by logic's queue (logic/work/small_models.py
+    # SETUPS, whose keys are the model IDs) on one RTX PRO 6000 Blackwell each: the official repo at a pinned revision,
+    # through backend in precision (vllm-plain's access text).
+    **{key: {"name": name, "backend": backend, "precision": "BF16", "revision": revision, "hardware": f"1 × {GPU}; BF16"}
+       for key, name, backend, revision in (
+           ("vibethinker-3b", "VibeThinker-3B", "vLLM v0.30.0", "WeiboAI/VibeThinker-3B@77bd2cc"),
+           ("lfm2.5-8b-a1b", "LFM2.5-8B-A1B", "vLLM v0.30.0", "LiquidAI/LFM2.5-8B-A1B@dd83f5c"),
+           ("gemma-4-e4b-it", "Gemma 4 E4B", "vLLM v0.30.0", "google/gemma-4-E4B-it@4ecc2ba"),
+           ("ministral-3-8b-reasoning", "Ministral 3 8B Reasoning", "vLLM v0.30.0",
+            "mistralai/Ministral-3-8B-Reasoning-2512@81eaece"),
+           ("qwen3.5-4b", "Qwen3.5-4B", "vLLM v0.30.0", "Qwen/Qwen3.5-4B@851bf6e"),
+           ("lfm3-1.7b", "LFM3-1.7B", "llama.cpp b12020 (the official GGUF)", "LiquidAI/LFM3-1.7B-GGUF@cd0c74c"),
+           ("gemma-4-e2b-it", "Gemma 4 E2B", "vLLM v0.30.0", "google/gemma-4-E2B-it@4adf157"),
+           ("gemma-4-12b-it", "Gemma 4 12B", "vLLM v0.30.0", "google/gemma-4-12B-it@43c9d01"),
+           ("ministral-3-3b-reasoning", "Ministral 3 3B Reasoning", "vLLM v0.30.0",
+            "mistralai/Ministral-3-3B-Reasoning-2512@4a36357"),
+           ("ministral-3-14b-reasoning", "Ministral 3 14B Reasoning", "vLLM v0.30.0",
+            "mistralai/Ministral-3-14B-Reasoning-2512@51f9210"),
+           ("qwen3.5-9b", "Qwen3.5-9B", "vLLM v0.30.0", "Qwen/Qwen3.5-9B@c202236"),
+           ("lfm2.5-1.2b-thinking", "LFM2.5-1.2B-Thinking", "vLLM v0.30.0", "LiquidAI/LFM2.5-1.2B-Thinking@fa4681e"),
+           ("lfm2-350m-math", "LFM2-350M-Math", "vLLM v0.30.0", "LiquidAI/LFM2-350M-Math@8eb8b70"),
+       )},
 }
 # Setups whose model ID another setup shares, by (provider, model, Perplexity mode): their entry replaces the model's in
 # MODELS. The hosted Decider v1.2 (Ümit #1138, #1219, #1229) has the self-hosted checkpoint's model ID; with web
@@ -506,7 +467,6 @@ SETUP_MODELS: dict[tuple[str, str, str | None], dict[str, Any]] = {
         "name": "Perplexity Decider 27B v1.2 (API)",
         "note": "Perplexity's hosted Decider v1.2 through its Decisions API, web grounding off. The other Decider v1.2 "
         "rows are Perplexity's released checkpoint on our hardware and this model with web grounding on.",
-        "parameters": 26_086_635_760,
     },
     ("perplexity", "pplx-decider-v1.2", "web_grounding"): {
         "name": "Perplexity Decider 27B v1.2 (API, with web)",
@@ -514,8 +474,311 @@ SETUP_MODELS: dict[tuple[str, str, str | None], dict[str, Any]] = {
         "question, its results added as evidence. The search sends the question out, and for some questions it returned "
         "pages of the bank's source book (the Web grounding page). Its cost is an upper-bound estimate: one $0.001 search "
         "billed per request, while Perplexity bills only completed searches.",
-        "parameters": 26_086_635_760,
     },
+}
+# One size record per model ID of MODELS (bus #3467, #3473; coordinator, Zeki #3529), shared by every setup of the ID:
+# total (the logical parameter count; None when the maker publishes no size: "not disclosed by maker"), active (a
+# mixture of experts' parameters active per token; DeepSeek's two figures, prefill and decode, kept apart), effective
+# (only where the maker states one), scope (what the count covers), sources (the maker's official pages, or the checkpoint
+# counted as repo@revision from its safetensors headers' logical tensor shapes, never quantized storage, scales, buffers
+# or an adapter file alone; for an undisclosed size every official page checked) and read (the date). Never guessed from
+# a name, never taken from an open sibling of a hosted model, never a third party's estimate. results.json carries each
+# run's record (size_record); the export stops for a setup whose model has none.
+READ = "2026-11-09"
+SIZES: dict[str, dict[str, Any]] = {
+    # Hosted chat models: no maker states a size.
+    "gpt-6-astra": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6-astra"], "read": READ},
+    "gpt-6-luna": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6-luna"], "read": READ},
+    "gpt-6.1-sol": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6.1-sol"], "read": READ},
+    "gpt-6.1-terra": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6.1-terra"], "read": READ},
+    "claude-opus-5-5": {"total": None, "sources": ["https://www.anthropic.com/claude-opus-5-5",
+                                                   "https://platform.claude.com/docs/en/models/overview"], "read": READ},
+    "claude-sonnet-5-5": {"total": None, "sources": ["https://www.anthropic.com/claude-sonnet-5-5",
+                                                     "https://platform.claude.com/docs/en/models/overview"], "read": READ},
+    "claude-fable-5-1": {"total": None, "sources": ["https://www.anthropic.com/claude/fable",
+                                                    "https://platform.claude.com/docs/en/models/overview"], "read": READ},
+    "gemini-3.8-flash": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-3-8-flash/"], "read": READ},
+    # The card: "a large scale sparse mixture-of-experts (MoE) ... transformer-based model", with no number.
+    "gemini-4-argon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-argon/"], "read": READ},
+    "grok-4.7": {"total": None, "sources": ["https://media.x.ai/v1/website/4p7card-5eccc980.pdf", "https://x.ai/news/grok-4-7",
+                                            "https://docs.x.ai/developers/models"], "read": READ},
+    # Hosted decision models: no maker states a size.
+    "celeris-1-decision": {"total": None, "sources": ["https://docs.celeris.ai/decisions", "https://celeris.ai/decisions"],
+                           "read": READ},
+    "celeris-1.1-decision": {"total": None, "sources": ["https://docs.celeris.ai/decisions", "https://docs.celeris.ai/models",
+                                                       "https://celeris.ai/pricing"], "read": READ},
+    # Hosted Drex Max v1.1; the open Drex Max v1 weights are another checkpoint.
+    "drex-max-v1.1": {"total": None, "sources": ["https://console.nace.ai/docs/drex/reference/models",
+                                                 "https://console.nace.ai/docs/drex/guides/drex-max"], "read": READ},
+    # Fastino's hosted GLiDE as it answered on 6 October 2026. Fastino's post of 5 November gives 26.09B for the GLiDE 27B
+    # its API serves now; the hosted model answered differently from the open v1.2 checkpoint before (the note under
+    # MODELS), so that figure is not this run's.
+    "fastino/GLiDE": {"total": None, "sources": ["https://docs.fastino.ai/inference/systemone",
+                                                 "https://fastino.ai/blog/introducing-glide-the-first-thinking-decision-model"],
+                      "read": READ},
+    "inception/mercury-decide": {"total": None, "sources": ["https://www.inceptionlabs.ai/"], "read": READ},
+    "jev-1.13.0": {"total": None, "sources": ["https://docs.typesafe.ai/models", "https://typesafe.ai/blog/jev-1-14"], "read": READ},
+    "jev-1.14.0": {"total": None, "sources": ["https://docs.typesafe.ai/models", "https://typesafe.ai/blog/jev-1-14"], "read": READ},
+    # Microsoft names its base model (post-trained from Qwen3.5-9B, to be rebased on other models), not a size.
+    "microsoft/microsoft-decision-1": {"total": None, "sources": [
+        "https://commandline.microsoft.com/microsoft-decision-1-model-foundry/"], "read": READ},
+    "d1:free": {"total": None, "sources": ["https://www.liquid.ai/blog/d1-decision-model"], "read": READ},
+    # "we based d1-ultra on a larger open-weight model", unnamed.
+    "d1-ultra": {"total": None, "sources": ["https://www.liquid.ai/blog/d1-ultra"], "read": READ},
+    "d1.1": {"total": None, "sources": ["https://docs.liquid.ai/lfm/models/decision-models"], "read": READ},
+    "subq-snap-preview": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": READ},
+    "subq-snap-1.1": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": READ},
+    # "it is a small model", with no number; the ID now serves Decider 1.1, whose weights meraGPT does not publish.
+    "decider-1": {"total": None, "sources": ["https://meragpt.com/models/decider-1",
+                                             "https://meragpt.com/blog/introducing-decider-1"], "read": READ},
+    # Sizes the makers state. Drex 2.0: "35B parameters in total, about 3B active per token"; counted from its open
+    # checkpoint, with the vision tower its card says is not loaded for text.
+    "drex-v2.0": {"total": 35_107_181_936, "active": [3_000_000_000],
+                  "scope": "mixture of experts: language model with its LM head + 0.45B vision tower (not loaded for text, "
+                           "per the card); about 3B active per token, as Nace states it",
+                  "sources": ["counted from the checkpoint's safetensors, nace-ai/drex-v2.0@e646674",
+                              "https://huggingface.co/nace-ai/drex-v2.0", "https://console.nace.ai/docs/drex/reference/models"],
+                  "read": READ},
+    # The card's Model Summary: "Total Parameters | 2.8T", "Activated Parameters | 104B" (rounded; the safetensors at
+    # d9e99b0 hold 2,780,110,363,392).
+    "moonshotai/kimi-k3.1-pro": {"total": 2_800_000_000_000, "active": [104_000_000_000],
+                                 "scope": "mixture of experts, as the model card states it",
+                                 "sources": ["https://huggingface.co/moonshotai/Kimi-K3.1-Pro"], "read": READ},
+    # Released decision checkpoints, counted from their safetensors headers (logical shapes; buffers such as a stored
+    # calibration temperature or Gemma's layer_scalar left out). Hugging Face's own total for the Perplexity, vLLM-SR,
+    # GLiDE and Drex Max repos counts only the index's files and so leaves out readout.safetensors (1,305,600).
+    # Perplexity's API setups of a version share its released checkpoint's record.
+    "pplx-decider-v1-27b": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                            "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-v1-27b@5117a6c",
+                                        "https://huggingface.co/perplexity-ai/pplx-decider-v1-27b"], "read": READ},
+    "pplx-decider-v1.1-27b": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                              "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-v1.1-27b@5cd25e3",
+                                          "https://huggingface.co/perplexity-ai/pplx-decider-v1.1-27b"], "read": READ},
+    "pplx-decider-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                          "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-v1.2@225c913 "
+                                      "(the same weights as cce0f3f)", "https://huggingface.co/perplexity-ai/pplx-decider-v1.2"],
+                          "read": READ},
+    "pplx-decider-flash-v1.2": {"total": 4_539_918_336,
+                                "scope": "language model (tied embeddings) + 0.33B vision encoder + 255-way readout",
+                                "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-flash-v1.2@6d771ad",
+                                            "https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.2"], "read": READ},
+    # Fastino's post: "serves 57.36B parameters versus GLiDE's 26.09B".
+    "glide-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                   "sources": ["counted from the checkpoint's safetensors, fastino/GLiDE@a7e4589",
+                               "https://fastino.space/blog/glide-decision-model-family"], "read": READ},
+    # The cards: "26.09B, including the 0.46B vision encoder".
+    "vllm-sr/d3": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                   "sources": ["counted from the checkpoint's safetensors, vllm-sr/d3@20f37b9", "https://huggingface.co/vllm-sr/d3"],
+                   "read": READ},
+    "vllm-sr/d3-ultra": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                         "sources": ["counted from the checkpoint's safetensors, vllm-sr/d3-ultra@52ba9e7",
+                                     "https://huggingface.co/vllm-sr/d3-ultra"], "read": READ},
+    "OmniJev/OneJev-27B": {"total": 27_356_728_560, "scope": "language model with its LM head + 0.46B vision encoder",
+                           "sources": ["counted from the checkpoint's safetensors, OmniJev/OneJev-27B@a5e5f55",
+                                       "https://huggingface.co/OmniJev/OneJev-27B"], "read": READ},
+    # The card: "a dense 27B-parameter model with a 255-way readout head".
+    "drex-max-v1": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                    "sources": ["counted from the checkpoint's safetensors, nace-ai/drex-max-v1@cac65e1",
+                                "https://huggingface.co/nace-ai/drex-max-v1"], "read": READ},
+    # The card: 1.92B.
+    "LiquidAI/d1-2B": {"total": 1_918_181_888, "scope": "language model (tied embeddings) + 0.16B vision encoder + projector",
+                       "sources": ["counted from the checkpoint's safetensors, LiquidAI/d1-2B@10e7671",
+                                   "https://huggingface.co/LiquidAI/d1-2B"], "read": READ},
+    # The cards: "a 9B parameter decision model", "a 27B parameter decision model".
+    "baselabs/elephant-1": {"total": 9_409_813_744, "scope": "language model with its LM head + 0.46B vision encoder",
+                            "sources": ["counted from the checkpoint's safetensors, baselabs/elephant-1@b3f8a93",
+                                        "https://huggingface.co/baselabs/elephant-1"], "read": READ},
+    "baselabs/mammoth-1": {"total": 27_356_728_560, "scope": "language model with its LM head + 0.46B vision encoder",
+                           "sources": ["counted from the checkpoint's safetensors, baselabs/mammoth-1@61cec44",
+                                       "https://huggingface.co/baselabs/mammoth-1"], "read": READ},
+    # Both parts score every question; the card states no count.
+    "reax13": {"total": 57_359_722_272, "scope": "two full models: part G (Gemma 4 31B line, with vision encoder) + part Q "
+                                                  "(Qwen3.8-27B line, with vision encoder and 255-way readout)",
+               "sources": ["counted from the checkpoint's safetensors, decisionmodels/REAX-1.3@fa4bf7e",
+                           "https://huggingface.co/decisionmodels/REAX-1.3"], "read": READ},
+    # The card: "ModernBERT-large (395M ...) + a decision head ... 421M total"; laya multilingual "mmBERT-base | 322M".
+    "laya": {"total": 421_293_827, "scope": "ModernBERT-large encoder + decision head",
+             "sources": ["counted from the checkpoint's safetensors, convaiinnovations/laya@c5d7873",
+                         "https://huggingface.co/convaiinnovations/laya"], "read": READ},
+    "laya-multilingual": {"total": 321_908_995, "scope": "mmBERT-base encoder + decision head",
+                          "sources": ["counted from the checkpoint's safetensors, convaiinnovations/laya@c5d7873 (multilingual/)",
+                                      "https://huggingface.co/convaiinnovations/laya"], "read": READ},
+    # The cards: 287M.
+    "gliner2.5-multi-v1": {"total": 287_355_159, "scope": "mDeBERTa-v3-base encoder + extraction and classification heads",
+                           "sources": ["counted from the checkpoint's safetensors, fastino/gliner2.5-multi-v1@2ca71aa",
+                                       "https://huggingface.co/fastino/gliner2.5-multi-v1"], "read": READ},
+    "gliner2.5-multi-decide": {"total": 287_355_159, "scope": "mDeBERTa-v3-base encoder + extraction and classification heads",
+                               "sources": ["counted from the checkpoint's safetensors, fastino/GLiNER2.5-multi-Decide@a35a0cd",
+                                           "https://huggingface.co/fastino/GLiNER2.5-multi-Decide"], "read": READ},
+    # The cards: "a 27B multimodal model", "a 9B multimodal model".
+    "clef": {"total": 27_484_784_884, "scope": "language model with its LM head + 0.46B vision encoder + joint schema head",
+             "sources": ["counted from the checkpoint's safetensors, Cloudflare/clef@2f3de3d", "https://huggingface.co/Cloudflare/clef"],
+             "read": READ},
+    "clef-flash": {"total": 9_531_576_564, "scope": "language model with its LM head + 0.46B vision encoder + joint schema head",
+                   "sources": ["counted from the checkpoint's safetensors, Cloudflare/clef-flash@fde727a",
+                               "https://huggingface.co/Cloudflare/clef-flash"], "read": READ},
+    # The card: "params | 4.54B".
+    "metask-jev-4b-policy-mix": {"total": 4_539_265_536,
+                                 "scope": "Qwen3.5-4B with its LoRA merged: language model (tied embeddings) + 0.33B vision encoder",
+                                 "sources": ["counted from the checkpoint's safetensors, wayfind/metask-jev-4b-policy-mix@ea20fe8",
+                                             "https://huggingface.co/wayfind/metask-jev-4b-policy-mix"], "read": READ},
+    # Gemma 4 12B IT unchanged; the card: "Total Parameters ... 11.95B".
+    "cygnet": {"total": 11_959_730_176, "scope": "Gemma 4 12B IT: language model (tied embeddings) + vision and audio embedders",
+               "sources": ["counted from the checkpoint's safetensors, google/gemma-4-12B-it@707f0a3",
+                           "https://huggingface.co/google/gemma-4-12B-it"], "read": READ},
+    # Counted from the Q8_0 GGUF's logical tensor shapes (not its packed storage): exactly Gemma 4 12B's language model.
+    "winnow-12b": {"total": 11_907_350_272, "scope": "language model only (Gemma 4 12B architecture, LoRA merged; text only)",
+                   "sources": ["counted from the GGUF's logical tensor shapes, EldanRing/Winnow-12B@b2b1421 (Winnow-12B-Q8_0.gguf)",
+                               "https://huggingface.co/EldanRing/Winnow-12B"], "read": READ},
+    # The model as run (the three sites' rule, bus #3550-#3552): the base checkpoint as released, with the adapter and
+    # head; the repos hold only the adapter and head. Strands: Qwen3.5-2B-Base 2,274,069,824 (its 0.33B vision encoder
+    # and 61M multi-token prediction layer included) + LoRA 16,819,200 + head 1,053,184. Open-Jev, whose card says "a
+    # trained LoRA adapter and scalar decision head for the text backbone of Qwen/Qwen3.8-27B ... 15,471,617 trained
+    # parameters": Qwen3.8-27B 27,781,427,952 + 15,471,617.
+    "strands-decider-2b": {"total": 2_291_942_208,
+                           "scope": "Qwen3.5-2B-Base (with its vision encoder) + LoRA adapter + readout head; the repo "
+                                    "holds only the adapter and head",
+                           "sources": ["counted from the checkpoints' safetensors, StrandsAgents/strands-decider-2B-hobson-v21@2b52a62 "
+                                       "on Qwen/Qwen3.5-2B-Base@b1485b2",
+                                       "https://huggingface.co/StrandsAgents/strands-decider-2B-hobson-v21"], "read": READ},
+    "open-jev-27b-v1.1": {"total": 27_796_899_569,
+                          "scope": "Qwen3.8-27B (with its vision encoder) + LoRA adapter and scalar decision head (15.5M); "
+                                   "the repo holds only the adapter and head",
+                          "sources": ["counted from the checkpoints' safetensors, ZefanCai/Open-Jev-27B-v1.1@28cf730 on "
+                                      "Qwen/Qwen3.8-27B@1d4bf0f", "https://huggingface.co/ZefanCai/Open-Jev-27B-v1.1"],
+                          "read": READ},
+    # Open chat models on our GPUs, counted from their checkpoints' safetensors headers. Gemma 4 31B's card: "Total
+    # Parameters ... 30.7B" and "Vision Encoder Parameters ... ~550M"; its stored layer_scalar and vision std_bias and
+    # std_scale buffers (2,364) are left out. Qwen3.8-27B's card: "Number of Parameters: 27B"; Qwen3-14B's: "14.8B";
+    # Erk-14B's: "a 14-billion-parameter, Turkish-focused large language model".
+    "gemma-4-31B-it": {"total": 31_273_086_512, "scope": "language model (tied embeddings) + 0.58B vision encoder",
+                       "sources": ["counted from the checkpoint's safetensors, google/gemma-4-31B-it@842da37",
+                                   "https://huggingface.co/google/gemma-4-31B-it"], "read": READ},
+    "qwen38-27b-bf16": {"total": 27_781_427_952, "scope": "language model with its LM head + 0.42B multi-token prediction "
+                                                          "layer + 0.46B vision encoder",
+                        "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3.8-27B@1d4bf0f",
+                                    "https://huggingface.co/Qwen/Qwen3.8-27B"], "read": READ},
+    "qwen3-14b": {"total": 14_768_307_200, "scope": "language model with its LM head (text only)",
+                  "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3-14B@40c0698",
+                              "https://huggingface.co/Qwen/Qwen3-14B"], "read": READ},
+    "erk-14b": {"total": 14_768_307_200, "scope": "language model with its LM head (text only)",
+                "sources": ["counted from the checkpoint's safetensors, ecloudtech/Erk-14B@8584b14",
+                            "https://huggingface.co/ecloudtech/Erk-14B"], "read": READ},
+    # Mixtures of experts, as their makers state them. DeepSeek: "552B backbone parameters", 8B active per token in
+    # prefill and 16B in decode; its separate Engram conditional memory (196B) is not in that figure. The 1017 update
+    # states no size of its own, so it reads not disclosed, with the first release's figures in its note (as on the logic
+    # and backgammon sites).
+    "deepseek-v4.1-flash": {"total": 552_000_000_000, "active": [8_000_000_000, 16_000_000_000],
+                            "scope": "backbone, as DeepSeek states it (8B active in prefill, 16B in decode); the 196B Engram "
+                                     "memory is separate",
+                            "sources": ["https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash"], "read": READ},
+    "deepseek-v4.1-flash-1017": {"total": None,
+                                 "scope": "V4.1 Flash card (first release): 552B backbone + 196B conditional memory; 8B "
+                                          "active in prefill, 16B in decode; the 1017 card states no size",
+                                 "sources": ["https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+                                             "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash"], "read": READ},
+    "deepseek/deepseek-v4.1-flash-1017": {"total": None,
+                                          "scope": "V4.1 Flash card (first release): 552B backbone + 196B conditional "
+                                                   "memory; 8B active in prefill, 16B in decode; the 1017 card states no size",
+                                          "sources": ["https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+                                                      "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash"],
+                                          "read": READ},
+    # "With 320B total parameters and just 18B active parameters"; served as a third party's EXL3 4-bit quantization.
+    "glm-5.3-flash": {"total": 320_000_000_000, "active": [18_000_000_000], "scope": "mixture of experts, as Z.ai states it",
+                      "sources": ["https://huggingface.co/zai-org/GLM-5.3-Flash"], "read": READ},
+    # "Approximately 428B total; 23B activated per token".
+    "minimax/minimax-m3.1-flash": {"total": 428_000_000_000, "active": [23_000_000_000],
+                                   "scope": "mixture of experts, as MiniMax states it",
+                                   "sources": ["https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash"], "read": READ},
+    # Counted from the released BF16 checkpoint: language model 263,655,199,232 + multi-token prediction 2,231,912,448 +
+    # vision 64,080,384 + audio 5,246,976. The card's "276B total, 12B active" is beside it; the checkpoint alone does not
+    # verify the active count, so it stays the card's.
+    "thinkingmachines/inkling-small": {"total": 265_956_439_040,
+                                       "scope": "mixture of experts: language model + multi-token prediction layer + vision "
+                                                "and audio encoders; card: 276B total, 12B active",
+                                       "sources": ["counted from the checkpoint's safetensors, thinkingmachines/Inkling-Small@8cc5877",
+                                                   "https://thinkingmachines.ai/model-card/inkling-small/",
+                                                   "https://huggingface.co/thinkingmachines/Inkling-Small"], "read": READ},
+    # "Number of Parameters: 397B in total and 17B activated".
+    "qwen/qwen3.5-397b-a17b": {"total": 397_000_000_000, "active": [17_000_000_000],
+                               "scope": "mixture of experts, as Qwen states it",
+                               "sources": ["https://huggingface.co/Qwen/Qwen3.5-397B-A17B"], "read": READ},
+    # "309B total / 15B activated parameters"; OpenRouter serves XiaomiMiMo/MiMo-V2.6-Flash-RL.
+    "xiaomi/mimo-v2.6-flash": {"total": 309_000_000_000, "active": [15_000_000_000],
+                               "scope": "mixture-of-experts backbone, as Xiaomi states it",
+                               "sources": ["https://huggingface.co/XiaomiMiMo/MiMo-V2.6-Flash-RL"], "read": READ},
+    # Z.ai states no size; counted from its checkpoint (logical shapes, FP8 scales left out), with its one multi-token
+    # prediction layer (9,952,920,576). Z.ai states no active count.
+    "z-ai/glm-5.3": {"total": 753_329_940_480, "scope": "mixture of experts: language model with its LM head + one "
+                                                       "multi-token prediction layer (text only); Z.ai states no active count",
+                     "sources": ["counted from the checkpoint's safetensors, zai-org/GLM-5.3@ba32f8c",
+                                 "https://huggingface.co/zai-org/GLM-5.3", "https://docs.z.ai/guides/llm/glm-5.3"], "read": READ},
+    # Ümit's small open models, counted from each released checkpoint at the revision served (logical shapes; Gemma's
+    # stored layer_scalar and clip-bound buffers left out), vision encoders and multi-token prediction layers included
+    # where the checkpoint holds them (the model as run: the three sites' rule). The makers' words beside each.
+    # "with only 3B parameters"
+    "vibethinker-3b": {"total": 3_085_938_688, "scope": "language model (tied embeddings, text only)",
+                       "sources": ["counted from the checkpoint's safetensors, WeiboAI/VibeThinker-3B@77bd2cc",
+                                   "https://huggingface.co/WeiboAI/VibeThinker-3B"], "read": READ},
+    # The card: "Total parameters: 8.3B", "Active parameters: 1.5B", the figures of the older LFM2-8B-A1B; this
+    # checkpoint's 128,000-token vocabulary adds 127,926,272 embedding parameters. Active: every non-expert parameter
+    # and 4 of the 32 experts in each of the 22 expert layers.
+    "lfm2.5-8b-a1b": {"total": 8_467_856_832, "active": [1_685_667_264],
+                      "scope": "mixture of experts: language model (tied embeddings, text only), counted; the card says "
+                               "8.3B total, 1.5B active",
+                      "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2.5-8B-A1B@dd83f5c",
+                                  "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B"], "read": READ},
+    # The card: "4.5B effective (8B with embeddings)", "2.3B effective (5.1B with embeddings)"; 11.95B for the 12B.
+    "gemma-4-e4b-it": {"total": 7_996_156_448, "effective": 4_500_000_000,
+                       "scope": "language model with per-layer embeddings + vision and audio encoders; effective size as "
+                                "Google states it",
+                       "sources": ["counted from the checkpoint's safetensors, google/gemma-4-E4B-it@4ecc2ba",
+                                   "https://huggingface.co/google/gemma-4-E4B-it"], "read": READ},
+    "gemma-4-e2b-it": {"total": 5_123_178_016, "effective": 2_300_000_000,
+                       "scope": "language model with per-layer embeddings + vision and audio encoders; effective size as "
+                                "Google states it",
+                       "sources": ["counted from the checkpoint's safetensors, google/gemma-4-E2B-it@4adf157",
+                                   "https://huggingface.co/google/gemma-4-E2B-it"], "read": READ},
+    "gemma-4-12b-it": {"total": 11_959_730_176, "scope": "language model (tied embeddings) + vision and audio embedders",
+                       "sources": ["counted from the checkpoint's safetensors, google/gemma-4-12B-it@43c9d01",
+                                   "https://huggingface.co/google/gemma-4-12B-it"], "read": READ},
+    # The cards: "3.4B Language Model", "8.4B Language Model", "13.5B Language Model", each with a "0.4B Vision Encoder".
+    "ministral-3-3b-reasoning": {"total": 3_849_090_048, "scope": "language model (tied embeddings) + 0.42B vision encoder "
+                                                                  "and projector",
+                                 "sources": ["counted from the checkpoint's safetensors, "
+                                             "mistralai/Ministral-3-3B-Reasoning-2512@4a36357",
+                                             "https://huggingface.co/mistralai/Ministral-3-3B-Reasoning-2512"], "read": READ},
+    "ministral-3-8b-reasoning": {"total": 8_918_026_240, "scope": "language model with its LM head + 0.43B vision encoder "
+                                                                  "and projector",
+                                 "sources": ["counted from the checkpoint's safetensors, "
+                                             "mistralai/Ministral-3-8B-Reasoning-2512@81eaece",
+                                             "https://huggingface.co/mistralai/Ministral-3-8B-Reasoning-2512"], "read": READ},
+    "ministral-3-14b-reasoning": {"total": 13_945_031_680, "scope": "language model with its LM head + 0.44B vision "
+                                                                    "encoder and projector",
+                                  "sources": ["counted from the checkpoint's safetensors, "
+                                              "mistralai/Ministral-3-14B-Reasoning-2512@51f9210",
+                                              "https://huggingface.co/mistralai/Ministral-3-14B-Reasoning-2512"], "read": READ},
+    # The cards: "Number of Parameters: 4B", "9B" (the language model alone).
+    "qwen3.5-4b": {"total": 4_659_865_088, "scope": "language model (tied embeddings) + multi-token prediction layer + "
+                                                    "0.33B vision encoder",
+                   "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3.5-4B@851bf6e",
+                               "https://huggingface.co/Qwen/Qwen3.5-4B"], "read": READ},
+    "qwen3.5-9b": {"total": 9_653_104_368, "scope": "language model with its LM head + multi-token prediction layer + "
+                                                    "0.46B vision encoder",
+                   "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3.5-9B@c202236",
+                               "https://huggingface.co/Qwen/Qwen3.5-9B"], "read": READ},
+    # The cards: "Parameters | 1.73B", "Number of parameters: 1.17B"; LFM2-350M-Math's states none, its base LFM2-350M's
+    # "354,483,968". The LFM3 GGUF served holds the same tensors, plus a 64-value RoPE buffer.
+    "lfm3-1.7b": {"total": 1_728_801_536, "scope": "language model (tied embeddings, text only)",
+                  "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM3-1.7B@0dc4268",
+                              "https://huggingface.co/LiquidAI/LFM3-1.7B"], "read": READ},
+    "lfm2.5-1.2b-thinking": {"total": 1_170_340_608, "scope": "language model (tied embeddings, text only)",
+                             "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2.5-1.2B-Thinking@fa4681e",
+                                         "https://huggingface.co/LiquidAI/LFM2.5-1.2B-Thinking"], "read": READ},
+    "lfm2-350m-math": {"total": 354_483_968, "scope": "language model (tied embeddings, text only)",
+                       "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2-350M-Math@8eb8b70",
+                                   "https://huggingface.co/LiquidAI/LFM2-350M-Math", "https://huggingface.co/LiquidAI/LFM2-350M"],
+                       "read": READ},
 }
 # The variant a Perplexity mode adds to a setup's name in tables and charts.
 MODE_VARIANTS = {"web_grounding": "with web"}
@@ -524,6 +787,48 @@ MODE_VARIANTS = {"web_grounding": "with web"}
 def model_info(provider: str, model: str, mode: str | None = None) -> dict[str, Any]:
     """A setup's display name, note, size, access, billing and hardware: SETUP_MODELS, else MODELS."""
     return SETUP_MODELS.get((provider, model, mode), MODELS.get(model, {}))
+
+
+def size_record(model: str) -> dict[str, Any]:
+    """A setup's size record as results.json gives it, from SIZES by model ID: total, active per token and effective
+    parameters (None where the maker states none; a total of None means the maker discloses no size), the scope counted,
+    the sources and the date read."""
+    size = SIZES[model]
+    return {"parameters": size["total"], "active_parameters": size.get("active"), "effective_parameters": size.get("effective"),
+            "parameters_scope": size.get("scope"), "parameters_source": size["sources"], "parameters_read": size["read"]}
+
+
+def plain_access(info: dict[str, Any], request_params: str) -> str:
+    """A vllm-plain run's access text: logic's server with the model's backend, precision and revision (MODELS), the
+    plain answer line, and the run identity's request settings (`request_params`, sorted compact JSON): every key but
+    max_tokens and chat_template_kwargs as "key value", thinking on or off where chat_template_kwargs sets it, and the
+    output cap from max_tokens."""
+    params = json.loads(request_params)
+    sampling = [f"{key} {value}" for key, value in params.items() if key not in ("max_tokens", "chat_template_kwargs")]
+    kwargs = params.get("chat_template_kwargs") or {}
+    thinking = next((kwargs[key] for key in ("enable_thinking", "thinking") if isinstance(kwargs.get(key), bool)), None)
+    if thinking is not None:
+        sampling.append(f"thinking {'on' if thinking else 'off'}")
+    text = (f"our GPU (logic's server, {info['backend']} {info['precision']}, revision {info['revision']}), one question "
+            f"per request, plain answer line ANSWER: X (no answer schema); sampling {', '.join(sampling) or 'none set'}")
+    return text + (f"; output cap {params['max_tokens']:,}" if "max_tokens" in params else "")
+
+
+def access_text(provider: str, info: dict[str, Any], record: dict[str, Any]) -> str:
+    """How a run's setup was called: plain_access for vllm-plain, else the model's access (MODELS, SETUP_MODELS), else its
+    provider's."""
+    if provider == "vllm-plain":
+        if not record.get("request_params"):
+            raise ValueError(f"run {record['run_id']} ({record['model']}, vllm-plain): no request_params in its record")
+        return plain_access(info, record["request_params"])
+    return info.get("access", PROVIDERS[provider]["access"])
+
+
+def plain_version(document: dict[str, Any], variant: str) -> str | None:
+    """The prompt version of a vllm-plain run of a PLAIN_PROMPTS variant ("english", "english_dont_know"), from the
+    answers file's plain_prompts hashed as the runner hashes them; None without them."""
+    prompts = (document.get("plain_prompts") or {}).get(variant)
+    return None if prompts is None else hashed_prompts(prompts)
 
 
 def run_variant(record: dict[str, Any]) -> str | None:
@@ -845,6 +1150,9 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
         if sum(counts["correct"] for counts in categories.values()) != record["correct"]:
             raise ValueError(f"{label}: unit results do not add up to its score")
         model = model_info(provider_name, record["model"], record.get("perplexity_mode"))
+        if record["model"] not in SIZES:
+            raise ValueError(f"{label}: its model has no size record; add one to SIZES (its total, or None when the maker "
+                             "discloses no size, with its sources and the date read; see the comment above SIZES)")
         billing = model.get("billing", provider["billing"])
         cost = record.get("cost_usd")
         if (cost is None) != (record.get("price") is None):
@@ -876,10 +1184,9 @@ def export(records: list[dict[str, Any]], analysis: dict[str, Any]) -> dict[str,
                 "run": record["run_id"],
                 **names,
                 "note": " ".join(note for note in (model.get("note"), RUN_NOTES.get(record["run_id"])) if note) or None,
-                "parameters": model.get("parameters"),
-                "active_parameters": model.get("active_parameters"),
+                **size_record(record["model"]),
                 "provider": provider_name,
-                "access": model.get("access", provider["access"]),
+                "access": access_text(provider_name, model, record),
                 "questions_per_request": record["batch_size"],
                 "concurrency": record.get("concurrency", 1),
                 "correct": record["correct"],
@@ -2231,11 +2538,13 @@ ENGLISH_OPTION_FOUR_SOURCE = ("Ümit's follow-up of 2 November 2026, step 2: the
 
 # English "I don't know" setups published without a Turkish side (results.json `english_reading.dont_know.english_only`),
 # by (provider, model), with the reason shown: Zeki's #883 of 3 November 2026. Any other setup without a Turkish side
-# stops the export, and so does a listed setup that has one.
+# stops the export (but English-only setups, by rule, with ENGLISH_ONLY_SETUP), and so does a listed setup that has one.
 ENGLISH_DONT_KNOW_ENGLISH_ONLY = {
     ("celeris", "celeris-1-decision"): ("no Turkish run with “Bilmiyorum” on these questions; new Turkish runs were "
                                         "outside the request of 3 November 2026"),
 }
+# The reason shown for an English "I don't know" setup whose English reading entry is English-only (no Text tab run).
+ENGLISH_ONLY_SETUP = "no Turkish run: an English-only setup"
 
 
 def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
@@ -2244,8 +2553,11 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
     first run without a repeat number first and its repeats after it, and its Text tab run (same provider, model as
     ENGLISH_TEXT_MODEL maps it, reasoning, variant, questions per request and Perplexity mode) with that run's whole-bank
     repeats. Decision and chat
-    models alike (Ümit via Zeki #1136, 5 November 2026: every Text tab setup in English too). None without such runs. The
-    numbers come from the answers (english_reading_answers_part)."""
+    models alike (Ümit via Zeki #1136, 5 November 2026: every Text tab setup in English too). A setup without such a
+    Text tab run (Ümit's small models, run in English only) is an English-only entry (`english_only`): its name, settings,
+    size record (size_record), view bar group (group_of), access (access_text), billing, hardware, note and its first
+    English run's cost and latency, with no Turkish side. None without such runs. The numbers come from the answers
+    (english_reading_answers_part)."""
     if not records:
         return None
     setups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
@@ -2253,7 +2565,7 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
         key = (record.get("provider", "ollama"), record["model"], record["thinking"], record["batch_size"], record.get("perplexity_mode"))
         setups.setdefault(key, []).append(record)
     repeats = {item["runs"][0]: item["runs"] for item in data["repeats"] if item["whole_bank"]}
-    models = []
+    models, english_only = [], []
     for (provider, model, thinking, batch_size, mode), found in setups.items():
         label = f"{model} ({provider}), English runs {[record['run_id'] for record in found]}"
         if provider not in PROVIDERS:
@@ -2268,16 +2580,16 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
             if (run["provider"], run["model"], run["reasoning"], run["variant"], run["questions_per_request"], run["perplexity_mode"])
             == (provider, text_model, reasoning, run_variant({"provider": provider, "perplexity_mode": mode}), batch_size, mode)
         ]
-        if len(paired) != 1:
-            raise ValueError(f"{label}: needs exactly one Text tab run of {text_model} with {batch_size} question"
+        if len(paired) > 1:
+            raise ValueError(f"{label}: needs at most one Text tab run of {text_model} with {batch_size} question"
                              f"{'' if batch_size == 1 else 's'} per request, found {[run['run'] for run in paired]}")
-        turkish = paired[0]
         first = found[0]
         # Cost and time per request of the first English run, beside its Text tab run's (Ümit via Zeki #1189): the run's
         # tokens at the price the runner records with it (its cost basis from its billing and the price, as for a main
         # run; a GPU-time estimate also gives the request time it counts), and its
         # median and 90th-percentile time per request as the runner measured it.
-        billing = model_info(provider, model, mode).get("billing", PROVIDERS[provider]["billing"])
+        info = model_info(provider, model, mode)
+        billing = info.get("billing", PROVIDERS[provider]["billing"])
         cost, price = first.get("cost_usd"), first.get("price")
         if (cost is None) != (price is None):
             raise ValueError(f"{label}: a cost needs its price, and a price its cost")
@@ -2285,6 +2597,53 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
         if price is not None and applies not in COST_BASES[billing]:
             raise ValueError(f"{label}: billed as {billing!r}, but its price applies to {applies!r}")
         tokens = {kind: first.get(kind, 0) for kind in TOKEN_KINDS}
+        english_cost = None if cost is None else {
+            "usd": cost, "per_1000": 1000 * cost / first["evaluated"], "basis": COST_BASES[billing][applies],
+            "billing": billing, "tokens": tokens, "requests": first.get("requests"), "price": price,
+            "upper_bound": upper_bound_cost(first),
+            **({"request_seconds": first["timed_seconds"]} if applies == "gpu" else {}),
+        }
+        english_latency = None if first.get("median_request_seconds") is None else {
+            "median_request_seconds": first["median_request_seconds"],
+            "p90_request_seconds": first.get("p90_request_seconds"),
+            "concurrency": first.get("concurrency"),
+            "questions_per_request": batch_size,
+        }
+        if not paired:
+            # An English-only setup (Ümit's small models, bus #3446): no Text tab run of the same setup, so no Turkish
+            # side, no paired test and no Holm adjustment; it carries what the pages need without a Text tab run.
+            if model not in SIZES:
+                raise ValueError(f"{label}: its model has no size record; add one to SIZES")
+            if cost is None and billing != "local":
+                raise ValueError(f"{label}: billed as {billing!r} without a price")
+            if billing == "local" and "hardware" not in info:
+                raise ValueError(f"{label}: runs on our GPUs; add its hardware to MODELS")
+            if applies == "gpu" and not info["hardware"].startswith(f"{price['gpus']} × "):
+                raise ValueError(f"{label}: its GPU-time price counts {price['gpus']} GPUs, its hardware {info['hardware']!r}")
+            english_only.append(
+                {
+                    "name": info.get("name", model),
+                    "model": model,
+                    "provider": provider,
+                    "reasoning": reasoning,
+                    "variant": run_variant({"provider": provider, "perplexity_mode": mode}),
+                    "questions_per_request": batch_size,
+                    "perplexity_mode": mode,
+                    "run": first["run_id"],
+                    "runs": [record["run_id"] for record in found],
+                    "dates": sorted({record["started"][:10] for record in found}),
+                    **size_record(model),
+                    "group": group_of(provider, model),
+                    "access": access_text(provider, info, first),
+                    "billing": billing,
+                    "hardware": info.get("hardware") if billing == "local" else None,
+                    "note": " ".join(note for note in (info.get("note"), RUN_NOTES.get(first["run_id"])) if note) or None,
+                    "cost": {"english": english_cost},
+                    "latency": {"english": english_latency},
+                }
+            )
+            continue
+        turkish = paired[0]
         text_cost = turkish["api_equivalent_usd"]
         text_latency = turkish.get("latency")
         models.append(
@@ -2300,24 +2659,14 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
                 "turkish_run": turkish["run"],
                 "turkish_runs": repeats.get(turkish["run"], [turkish["run"]]),
                 "cost": {
-                    "english": None if cost is None else {
-                        "usd": cost, "per_1000": 1000 * cost / first["evaluated"], "basis": COST_BASES[billing][applies],
-                        "billing": billing, "tokens": tokens, "requests": first.get("requests"), "price": price,
-                        "upper_bound": upper_bound_cost(first),
-                        **({"request_seconds": first["timed_seconds"]} if applies == "gpu" else {}),
-                    },
+                    "english": english_cost,
                     "turkish": None if text_cost is None else {
                         "usd": text_cost, "per_1000": 1000 * text_cost / turkish["answered_questions"], "basis": turkish["cost_basis"],
                         "upper_bound": turkish["cost_upper_bound"],
                     },
                 },
                 "latency": {
-                    "english": None if first.get("median_request_seconds") is None else {
-                        "median_request_seconds": first["median_request_seconds"],
-                        "p90_request_seconds": first.get("p90_request_seconds"),
-                        "concurrency": first.get("concurrency"),
-                        "questions_per_request": batch_size,
-                    },
+                    "english": english_latency,
                     "turkish": None if text_latency is None else {
                         "median_request_seconds": text_latency["median_request_seconds"],
                         "p90_request_seconds": text_latency["p90_request_seconds"],
@@ -2328,7 +2677,7 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
                 },
             }
         )
-    return {"models": models, "records": {record["run_id"]: record for record in records}}
+    return {"models": models, "english_only": english_only, "records": {record["run_id"]: record for record in records}}
 
 
 def kept_questions(answers: dict[str, Any], public: dict[str, Any]) -> list[int]:
@@ -2352,13 +2701,15 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
     """The `english_reading` section from the answers file and the track's public record (english-reading.json): the
     English prompts (english_prompts, the decision models' System One instructions naming English, and
     english_chat_prompts, the chat models' Turkish run prompts in English, each hashed as the runner hashes them; every
-    English run must carry its kind's version, decision for a scoring provider and chat for any other, and the record's
+    English run must carry its kind's version, decision for a scoring provider, plain_prompts' English one for vllm-plain
+    and chat for any other, and the record's
     translations_sha256, and must have been asked exactly its kept questions), and per model, on the kept questions, the
     right, wrong and invalid answers and accuracy of its first English run and of its Text tab run, the difference, the
     accuracy range and the questions whose answer differs over each side's runs (None for a side with one run, and for
     both when both sides have one), and the first English run against the Text tab run as right answers in each (exact
     McNemar, bm.paired_comparison: first English, second Turkish) with Holm's correction over every model. Ordered by
-    English accuracy, best first, then by name."""
+    English accuracy, best first, then by name. The English-only setups (`english_only`) get their first English run's
+    right, wrong and invalid answers and accuracy only, in the same order."""
     prompts = document.get("english_prompts")
     if prompts is None:
         raise ValueError("the answers file has English runs but no english_prompts")
@@ -2386,7 +2737,8 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
         if english.get("translations_sha256") != translations:
             raise ValueError(f"English run {run_id}: translations {str(english.get('translations_sha256'))[:12]}, not "
                              f"{ENGLISH_READING_PATH.name}'s {translations[:12]}")
-        expected = version if PROVIDERS[run["provider"]]["scoring"] else chat_version
+        expected = (plain_version(document, "english") if run["provider"] == "vllm-plain"
+                    else version if PROVIDERS[run["provider"]]["scoring"] else chat_version)
         if expected is None or english.get("prompt_version") != expected or run["prompt_version"] != expected:
             raise ValueError(f"English run {run_id} ({run['provider']}) was not run with its prompt version {expected}")
         asked = [index for index, value in enumerate(run["correct"]) if value is not None]
@@ -2433,6 +2785,9 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
     for model, adjusted in zip(models, bm.holm([model["paired"]["p"] for model in models])):
         model["paired"]["p_holm"] = adjusted
     models.sort(key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))
+    # English-only setups: the first English run's answers only, in no paired test and no Holm family.
+    english_only = [{**model, "english": counted(by_id[model["run"]])} for model in section["english_only"]]
+    english_only.sort(key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))
     return {
         "instructions": instructions,
         "options_heading": heading.strip(),
@@ -2444,6 +2799,7 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
         "questions": total,
         "flagged": public["flagged"],
         "models": models,
+        "english_only": english_only,
     }
 
 
@@ -2460,7 +2816,9 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
     on the kept questions. Turkish runs with the option on that many listed questions belong to no other section, so
     each must pair with an English setup. A setup without a Turkish side is published in English only
     (`english_only`): a decision model with its reason from ENGLISH_DONT_KNOW_ENGLISH_ONLY, a chat model with
-    page_config.json's dont_know.running (`running` true). A chat model's Hallucination tab row of an English reading
+    page_config.json's dont_know.running (`running` true), and, by rule, any setup whose English reading entry is
+    English-only (ENGLISH_ONLY_SETUP; no Text tab run, so `text_run` None and `reading_run` its English reading entry's
+    first run). A chat model's Hallucination tab row of an English reading
     model's Text tab run without English runs with the option is published in Turkish only (`turkish_only`, running).
     None without runs in English with the option. The numbers come from the answers (english_dont_know_answers_part)."""
     english = [record for record in records if record.get("english")]
@@ -2497,7 +2855,7 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         runs = [record["run_id"] for record in found]
         label = f"{model} ({provider}), English \"I don't know\" runs {runs}"
         originals = {record["dont_know_answers"]["original_run"] for record in found}
-        reading = [item for item in english_section["models"] if item["run"] in originals]
+        reading = [item for item in english_section["models"] + english_section["english_only"] if item["run"] in originals]
         if len(originals) != 1 or len(reading) != 1 \
                 or (reading[0]["provider"], reading[0]["model"], reading[0]["perplexity_mode"]) != (provider, model, mode):
             raise ValueError(f"{label}: its original runs {sorted(originals, key=str)} are not the first English run of one "
@@ -2506,8 +2864,17 @@ def english_dont_know(records: list[dict[str, Any]], dont_know_section: dict[str
         if size != asked:
             raise ValueError(f"{label}: asked {size} questions per request, its English reading run {asked}")
         group = group_of(provider, model)
-        text_run = reading[0]["turkish_run"]
         subset = subsets.pop((provider, model, thinking, size, mode), None)
+        if "turkish_run" not in reading[0]:
+            if subset is not None:
+                raise ValueError(f"{label}: an English-only setup with Turkish \"I don't know\" runs "
+                                 f"{[record['run_id'] for record in subset]}")
+            english_only.append({"name": reading[0]["name"], "model": model, "provider": provider, "group": group,
+                                 "text_run": None, "reading_run": reading[0]["run"], "reason": ENGLISH_ONLY_SETUP,
+                                 "running": False,
+                                 "english": {"run": runs[0], "runs": runs, "invalid_replies": found[0].get("invalid_replies")}})
+            continue
+        text_run = reading[0]["turkish_run"]
         hallucination = [item for item in full if item["original_run"] == text_run
                          and (item["provider"], item["model"], item["perplexity_mode"]) == (provider, model, mode)]
         # A Turkish run on the kept questions is the setup's Turkish side even when the setup also has a full-bank row on
@@ -2603,7 +2970,7 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
     subset_runs = {run["run"]: run for run in answers["english_dont_know_turkish_runs"]}
     full_runs = {run["run"]: run for run in answers["dont_know_runs"]}
     chat = None
-    if any(not PROVIDERS[run["provider"]]["scoring"] for run in english_runs.values()):
+    if any(not PROVIDERS[run["provider"]]["scoring"] and run["provider"] != "vllm-plain" for run in english_runs.values()):
         chat = chat_dont_know_prompts(document.get("english_dont_know_chat_prompts"), document.get("english_chat_prompts") or {},
                                       option, "english_dont_know_chat_prompts")
     for run_id, run in sorted(english_runs.items()):
@@ -2613,7 +2980,8 @@ def english_dont_know_answers_part(section: dict[str, Any], document: dict[str, 
         if english.get("translations_sha256") != translations:
             raise ValueError(f"English \"I don't know\" run {run_id}: translations {str(english.get('translations_sha256'))[:12]}, "
                              f"not {ENGLISH_READING_PATH.name}'s {translations[:12]}")
-        expected = version if PROVIDERS[run["provider"]]["scoring"] else chat["prompt_version"]
+        expected = (plain_version(document, "english_dont_know") if run["provider"] == "vllm-plain"
+                    else version if PROVIDERS[run["provider"]]["scoring"] else chat["prompt_version"])
         if english.get("prompt_version") != expected or run["prompt_version"] != expected:
             raise ValueError(f"English \"I don't know\" run {run_id} was not run with its kind's prompt version {expected}")
     for run_id, run in sorted(subset_runs.items()):
@@ -2837,7 +3205,9 @@ def english_coverage(reading: dict[str, Any], option_word: dict[str, Any] | None
              ("runs", "english_runs", "dont_know_runs", "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs")}
     idk = reading.get("dont_know") or {"models": []}
     bilmiyorum = {model["text_run"]: model["turkish"] for model in idk["models"]}
-    english_idk = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])}
+    # English-only setups (text_run None) have no Turkish side and no coverage entry.
+    english_idk = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])
+                   if model["text_run"] is not None}
     word_by_text: dict[int, int] = {}
     if option_word is not None:
         original = {row["run"]: row["original_run"] for row in dont_know_section["models"]}
@@ -2920,7 +3290,8 @@ def english_dont_know_word(reading: dict[str, Any], option_word: dict[str, Any],
     kept = kept_questions(answers, public)
     total = len(kept)
     idk = reading["dont_know"]
-    english_sides = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])}
+    english_sides = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])
+                     if model["text_run"] is not None}
     english_runs = {run["run"]: run for run in answers["english_dont_know_runs"]}
     word_runs = {run["run"]: run for run in answers["dont_know_word_runs"]}
     original = {row["run"]: row["original_run"] for row in dont_know_section["models"]}
@@ -3179,7 +3550,7 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
     idk = reading["dont_know"]
     # The decision models' English runs with the option, as in Turkish.
     first_english = {model["text_run"]: model["english"] for model in idk["models"] + idk.get("english_only", [])
-                     if model["group"] == "decision"}
+                     if model["group"] == "decision" and model["text_run"] is not None}
     english, english_ranked = [], []
     for model in reading["models"]:
         name, text_run = model["name"], model["turkish_run"]
@@ -3322,12 +3693,13 @@ def against_reference(reading: dict[str, Any], answers: dict[str, Any], public: 
 
 def decision_setup(runs: list[dict[str, Any]]) -> Any:
     """Whether an `english_reading` model is a decision model by page_config.json's rule (Site.decision) on its Text tab
-    run: its provider one of decision_model_providers and its model not one of not_decision_models."""
+    run, or an English-only entry on its own provider and model: its provider one of decision_model_providers and its
+    model not one of not_decision_models."""
     config = json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))
     text_runs = {run["run"]: run for run in runs}
 
     def decision(model: dict[str, Any]) -> bool:
-        run = text_runs[model["turkish_run"]]
+        run = text_runs[model["turkish_run"]] if "turkish_run" in model else model
         return run["provider"] in config["decision_model_providers"] and run["model"] not in config["not_decision_models"]
 
     return decision
@@ -3366,13 +3738,14 @@ def decision_score(run: dict[str, Any], kept: list[int]) -> dict[str, Any]:
 
 def decision_scores(reading: dict[str, Any], answers: dict[str, Any], public: dict[str, Any],
                     runs: list[dict[str, Any]]) -> None:
-    """Per decision model of `english_reading.models` (decision_setup), on its English standard run (the first, the one
-    the English page shows) over the kept questions: `decision_score` (decision_score) or `decision_score_unavailable`
-    with the reason. Chat models get neither, nor do the "I don't know" runs (`english_reading.dont_know`)."""
+    """Per decision model of `english_reading.models` and `english_reading.english_only` (decision_setup), on its
+    English standard run (the first, the one the English page shows) over the kept questions: `decision_score`
+    (decision_score) or `decision_score_unavailable` with the reason. Chat models get neither, nor do the "I don't know"
+    runs (`english_reading.dont_know`)."""
     kept = kept_questions(answers, public)
     lists = {run["run"]: run for run in answers["english_runs"]}
     decision = decision_setup(runs)
-    for model in reading["models"]:
+    for model in reading["models"] + reading.get("english_only", []):
         if not decision(model):
             continue
         found = decision_score(lists[model["run"]], kept)
@@ -3427,7 +3800,8 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
     }
     by_id = {run["run"]: run for run in dataset["runs"]}
     dont_know_sets = {run: model["runs"] for model in (dont_know_section or {}).get("models", []) for run in model["runs"]}
-    english_sets = {run: model["runs"] for model in (english_section or {}).get("models", []) for run in model["runs"]}
+    english_sets = {run: model["runs"] for model in (english_section or {}).get("models", []) + (english_section or {}).get("english_only", [])
+                    for run in model["runs"]}
     idk_models = (english_dont_know_section or {}).get("models", [])
     english_idk_sets = {run: model["english"]["runs"] for model in idk_models + (english_dont_know_section or {}).get("english_only", [])
                         for run in model["english"]["runs"]}
@@ -3472,7 +3846,11 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         **({"english_chat_prompts": document["english_chat_prompts"]} if english_sets and "english_chat_prompts" in document else {}),
         **({"english_dont_know_prompts": document["english_dont_know_prompts"]} if english_idk_sets else {}),
         **({"english_dont_know_chat_prompts": document["english_dont_know_chat_prompts"]}
-           if any(not PROVIDERS[by_id[run]["provider"]]["scoring"] for run in english_idk_sets) else {}),
+           if any(not PROVIDERS[by_id[run]["provider"]]["scoring"] and by_id[run]["provider"] != "vllm-plain"
+                  for run in english_idk_sets) else {}),
+        # The plain answer line's prompts (the runner's PLAIN_PROMPTS), when a vllm-plain run is published.
+        **({"plain_prompts": document["plain_prompts"]}
+           if any(by_id[run]["provider"] == "vllm-plain" for run in {**english_sets, **english_idk_sets}) else {}),
         **({"dont_know_word_prompts": document["dont_know_word_prompts"]} if word_runs else {}),
         "questions": dataset["questions"],
         "runs": [by_id[run] for run in sorted(main)],

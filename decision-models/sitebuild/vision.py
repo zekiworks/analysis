@@ -11,7 +11,9 @@ hold reads "Not available" with its reason from the model's "missing"; a row wit
 the ranked rows, in vision.json's order. model_table() also gives a model page its row. findings() puts the results in
 words, computed from vision.json when the site is built. Every model here is a decision model (the build stops
 otherwise), so the models' charts, tables and findings show for the view bar's all and decision groups (data-models)
-and the chat group shows a note instead; the OCR models' parts show in every group."""
+and the chat group shows a note instead. The small group gets its own leaderboard (small_board) and the charts' rows of
+the small models; the charts without one and the findings, which cover every model, give way to a note there. The OCR
+models' parts show in every group."""
 
 from __future__ import annotations
 
@@ -21,7 +23,8 @@ from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import DECISION_ONLY, ROOT, Site, chat_note, esc, hbars, interval, more_link, pct, rank_fill, rel
+from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, esc, hbars, interval, more_link, pct, rank_fill, rel,
+                            shown, small_note)
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -177,6 +180,23 @@ def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
         return f'{start}<p class="note">{empty}</p>{not_run(skipped)}\n    </section>'
     groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
     return f"{start}{groups}{not_run(skipped)}\n    </section>"
+
+
+def small(site: Site, model: dict[str, Any]) -> bool:
+    """Whether a model is in the view bar's small group, by its Text tab setup (condition A's run); never without one."""
+    run = site.by_id.get(model["a_run"])
+    return run is not None and site.in_group(run, "small")
+
+
+def small_board(site: Site, data: dict[str, Any]) -> str:
+    """The small group's leaderboard: the small models (all decision models, as build() stops on any other), grouped
+    as in the decision models' leaderboard."""
+    models = [model for model in data["models"] if small(site, model)]
+    start = f'    <section class="card" id="small" {shown("small")}>\n      <h2>Small decision models</h2>\n      '
+    if not models:
+        return f'{start}<p class="note">No small model has been run on the page images yet.</p>\n    </section>'
+    groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
+    return f"{start}{groups}\n    </section>"
 
 
 def ocr_table(data: dict[str, Any]) -> str:
@@ -547,24 +567,38 @@ def inputs_sample(data: dict[str, Any]) -> str:
             f'the benchmark\'s ({esc(SAMPLE_ENGLISH)})</figcaption><ol class="input-list">{items}</ol></figure>')
 
 
-def face(site: Site, data: dict[str, Any]) -> str:
+def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
     """The tab's face: four chart cards, each with a line saying which way is better, every number from vision.json: the
     picture alone (B) against the text (A), the text plus the picture (C) against the text, the best OCR route against the
-    text, and the marks each OCR model kept. Bars of one measure take the ranking scale between its worst and best."""
+    text, and the marks each OCR model kept. Bars of one measure take the ranking scale between its worst and best. With
+    the titles of the model charts without a small model's row, for the small group's note."""
     stops = site.config["rank_scale"]["stops"]
     questions = f"{data['subset']['questions']:,}"
     acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
 
-    shown = shown_names(site, data["models"])
+    names_shown = shown_names(site, data["models"])
+    # The charts with no small model's row, which the small group's note names.
+    whole: list[str] = []
 
     def name(model: dict[str, Any]) -> str:
-        return shown.get(model["a_run"], model["name"])
+        return names_shown.get(model["a_run"], model["name"])
+
+    def groups(model: dict[str, Any]) -> str:
+        return "all decision small" if small(site, model) else "all decision"
 
     def href(model: dict[str, Any]) -> str | None:
         run = site.by_id.get(model["a_run"])
         return rel(PATH, site.model_path(run)) if run else None
 
-    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, marks: str = DECISION_ONLY) -> str:
+    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, marks: str | None = None) -> str:
+        """A chart card; a card of the models' rows shows for the all and decision groups, and for small when one of
+        its rows is a small model's (each row marked with its groups)."""
+        if marks is None:
+            marks = DECISION_ONLY
+            if any("small" in row["models"].split() for row in rows):
+                marks = 'data-models="all decision small"'
+            else:
+                whole.append(title)
         return (f'<figure class="panel chart-card" id="{anchor}" {marks}><div class="chart-head"><h2>{esc(title)}</h2>'
                 f'<p class="chart-sub">{esc(sub)}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
 
@@ -583,7 +617,8 @@ def face(site: Site, data: dict[str, Any]) -> str:
         "chart-image", "The picture alone (B)", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
         [{"label": name(model), "href": href(model), "text": pct(acc(model, "B")), "marker": acc(model, "A"),
           "bars": [{"value": acc(model, "B"), "colour": rank_fill(stops, acc(model, "B"), low, high)}],
-          "title": f"{name(model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text"}
+          "title": f"{name(model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
+          "models": groups(model)}
          for model in by_b],
         colour_scale(low, high) + marker)
     by_c = sorted(image, key=lambda model: -acc(model, "C"))
@@ -591,7 +626,8 @@ def face(site: Site, data: dict[str, Any]) -> str:
         "chart-both", "The text plus the picture (C)", "Accuracy with the picture after the text, and with the text alone · higher is better",
         [{"label": name(model), "href": href(model), "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
           "bars": [{"value": acc(model, "C"), "kind": "lead"}, {"value": acc(model, "A"), "kind": "base"}],
-          "title": f"{name(model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text"}
+          "title": f"{name(model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text",
+          "models": groups(model)}
          for model in by_c],
         '<span><i class="swatch swatch-lead"></i>Text plus picture (C)</span> <span><i class="swatch swatch-base"></i>Text (A)</span>')
     routes = [(model, *best_route(data, model)) for model in data["models"] if best_route(data, model)]
@@ -604,7 +640,8 @@ def face(site: Site, data: dict[str, Any]) -> str:
         "chart-ocr-route", "The best OCR route (D)", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
         [{"label": name(model), "href": href(model), "text": pct(share), "marker": acc(model, "A"),
           "bars": [{"value": share, "colour": rank_fill(stops, share, min(shares), max(shares))}],
-          "title": f"{name(model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text"}
+          "title": f"{name(model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
+          "models": groups(model)}
          for (model, label, _), share in zip(routes, shares)],
         colour_scale(min(shares), max(shares)) + marker + same)
     kept = []
@@ -621,7 +658,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
          for key, underlined, numbered in kept],
         '<span><i class="swatch swatch-lead"></i>Underlined words</span> <span><i class="swatch swatch-base"></i>Numbered words</span>',
         marks="")
-    return f'<section class="charts" aria-label="Charts">{first}{second}{third}{fourth}</section>'
+    return f'<section class="charts" aria-label="Charts">{first}{second}{third}{fourth}</section>', whole
 
 
 def build(site: Site) -> dict[str, str]:
@@ -648,6 +685,7 @@ def build(site: Site) -> dict[str, str]:
     failures = [esc(item) if isinstance(item, str) else esc(str(item)) for item in data["failures"]]
     ocr_methods = [f"<strong>{esc(OCR_NAMES[key])}</strong> ({esc(item['model'])} at {esc(item['revision'][:7])}): {esc(item['method'])}"
                    for key, item in data["ocr"]["models"].items()]
+    charts, _ = face(site, data)
     site.note(PATH, "Page images", f"""<p>The {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
       {inputs_sample(data)}""")
     body = f"""    <section class="card">
@@ -656,10 +694,12 @@ def build(site: Site) -> dict[str, str]:
       {chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
       <p>Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D); ranked apart from the Text tab.</p>
       {more_link(PATH)}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision">Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
+      {small_note("Small models: the charts and What we found cover decision models of every size; they show under All models or Decision models.")}
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#small" {shown("small")}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
     </section>
-    {face(site, data)}
+    {charts}
 {leaderboard(site, data, True)}
+{small_board(site, data)}
 {leaderboard(site, data, False)}
     <section class="card" id="ocr">
       <h2>How well the OCR models read the pages</h2>

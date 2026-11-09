@@ -37,8 +37,9 @@ SECTION = {"question/": "questions/", "disagreements/": "questions/", "topics/":
            "pws-decisions/": "experiments/", "aa-decision-index/": "experiments/", "method/": "about/", "data/": "about/"}
 # The model groups a page can show (?models=, read by site.js on every page; data-models marks the parts of each):
 # (value of ?models=, label). On the Leaderboard ?models= sets the table's filter; on a page that shows its parts by
-# group, its group keys (group_switch) pick one.
-MODEL_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", "Chat models"))
+# group, its group keys (group_switch) pick one. Small cuts across the other two: every setup, decision or chat model,
+# whose model's disclosed total is at most page_config.json's small_models.max_parameters (Site.small).
+MODEL_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", "Chat models"), ("small", "Small models"))
 # The suite strip shared by the three benchmark sites (decision-models, logic, backgammon): its stylesheet and snippet,
 # files of the site published as they are, which the other two sites copy; this site's link is the marked one.
 SUITE_CSS = "suite-bar.css"
@@ -70,7 +71,7 @@ def suite_bar() -> str:
 
 # The model groups (?models=), the first shown without JavaScript.
 GROUPS = tuple(key for key, _ in MODEL_GROUPS)
-# The attribute of a part about decision models only: shown for the all and decision groups, a note for chat.
+# The attribute of a part about decision models only: shown for the all and decision groups, a note for chat and small.
 DECISION_ONLY = 'data-models="all decision"'
 
 
@@ -82,6 +83,34 @@ def shown(group: str) -> str:
 def chat_note(text: str) -> str:
     """The one note the chat group shows instead of a page's parts about decision models only."""
     return f'<p class="note" data-models="chat" hidden>{text}</p>'
+
+
+def small_note(text: str) -> str:
+    """The one note the small group shows instead of a page's parts that are not split by size."""
+    return f'<p class="note" data-models="small" hidden>{text}</p>'
+
+
+def billions(value: int) -> str:
+    """A parameter count as the site writes it: '2.8T', '31.3B', '8B', '287M'."""
+    if value >= 1e12:
+        return f"{value / 1e12:.1f}".removesuffix(".0") + "T"
+    if value >= 1e9:
+        return f"{value / 1e9:.1f}".removesuffix(".0") + "B"
+    return f"{round(value / 1e6)}M"
+
+
+def parameters_text(run: dict[str, Any]) -> str:
+    """A setup's model size from its size record (results.json parameters, active_parameters, effective_parameters),
+    one wording for the details box and the model page: "31.3B", "552B total, 8B to 16B active per token", "8B total,
+    4.5B effective", or "not disclosed by maker" when the maker publishes none (parameters null)."""
+    total = run.get("parameters")
+    if total is None:
+        return "not disclosed by maker"
+    if run.get("active_parameters"):
+        return f"{billions(total)} total, {' to '.join(map(billions, run['active_parameters']))} active per token"
+    if run.get("effective_parameters"):
+        return f"{billions(total)} total, {billions(run['effective_parameters'])} effective"
+    return billions(total)
 
 
 def experiments(results: dict[str, Any], path: str) -> str:
@@ -447,8 +476,8 @@ def footer(path: str, version: str) -> str:
 
 
 def group_switch() -> str:
-    """The model group keys at the top of a page that shows its parts by group (data-models): All, Decision and Chat,
-    each the page itself with ?models=; site.js marks the one in view. In the page, not in the top bar."""
+    """The model group keys at the top of a page that shows its parts by group (data-models): All, Decision, Chat and
+    Small, each the page itself with ?models=; site.js marks the one in view. In the page, not in the top bar."""
     keys = "".join(f'<a class="key" href="?models={value}" data-group-key="{value}">{esc(label)}</a>'
                    for value, label in MODEL_GROUPS)
     return (f'<nav class="group-switch needs-js" aria-label="Model group"><span class="group-label">Models</span>'
@@ -629,6 +658,29 @@ class Site:
     def decision(self, run: dict[str, Any]) -> bool:
         return run["provider"] in self.config["decision_model_providers"] and run["model"] not in self.config["not_decision_models"]
 
+    @property
+    def small_max(self) -> int:
+        """The Small models view's one threshold (page_config.json small_models.max_parameters), in parameters."""
+        return self.config["small_models"]["max_parameters"]
+
+    def small(self, run: dict[str, Any]) -> bool:
+        """Whether a setup is in the Small models view: its model's total as the maker discloses it (a mixture of experts
+        by its total) is at most small_max; a model whose maker discloses no size never is."""
+        return run.get("parameters") is not None and run["parameters"] <= self.small_max
+
+    def in_group(self, run: dict[str, Any], group: str) -> bool:
+        """Whether a setup shows in a model group of the view bar (MODEL_GROUPS)."""
+        if group == "all":
+            return True
+        if group == "small":
+            return self.small(run)
+        return self.decision(run) == (group == "decision")
+
+    def small_line(self) -> str:
+        """The Small models view's rule in one line, under the Leaderboard and on the pages that show the view."""
+        return (f"Small models: at most {billions(self.small_max)} parameters in total, as disclosed by the maker; models "
+                "whose makers disclose no size are not included.")
+
     def kind(self, run: dict[str, Any]) -> str:
         return "Decision model" if self.decision(run) else "Chat model"
 
@@ -787,7 +839,7 @@ class Site:
   <a class="skip" href="#main">Skip to content</a>
   {topbar(path)}
   <main id="main">
-{group_switch() if 'data-models="' in body else ""}
+{group_switch() + small_note(esc(self.small_line())) if 'data-models="' in body else ""}
 {body}
   </main>
   {footer(path, self.version())}
