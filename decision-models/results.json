@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "024b538c",
-  "updated": "2026-11-09T14:12:45Z",
+  "results_version": "eab43f16",
+  "updated": "2026-11-09T17:14:25Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -308120,6 +308120,81 @@
           "n": 547,
           "run": 882
         }
+      },
+      {
+        "name": "LFM2.5-8B-A1B",
+        "model": "lfm2.5-8b-a1b",
+        "provider": "vllm-plain",
+        "reasoning": "default",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 886,
+        "runs": [
+          886
+        ],
+        "dates": [
+          "2026-11-09"
+        ],
+        "parameters": 8467856832,
+        "active_parameters": [
+          1685667264
+        ],
+        "effective_parameters": null,
+        "parameters_scope": "mixture of experts: language model (tied embeddings, text only), counted; the card says 8.3B total, 1.5B active",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, LiquidAI/LFM2.5-8B-A1B@dd83f5c",
+          "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B"
+        ],
+        "parameters_read": "2026-11-09",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision LiquidAI/LFM2.5-8B-A1B@dd83f5c), one question per request, plain answer line ANSWER: X (no answer schema); sampling repetition_penalty 1.05, seed 0, temperature 0.2, top_k 80; output cap 32,768",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 0.28298574303187735,
+            "per_1000": 0.5173413949394468,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 147837,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 698980
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 409.1360140219913
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 19.43978533099289,
+            "p90_request_seconds": 36.88224925760005,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 385,
+          "wrong": 159,
+          "invalid": 3,
+          "accuracy": 0.7038391224862889
+        }
       }
     ],
     "dont_know": {
@@ -311915,6 +311990,41 @@
             "attempt_rate": 0.8318098720292505,
             "non_hallucination": 0.7131782945736435,
             "mean_dont_know_probability": 0.12687385740402193
+          }
+        },
+        {
+          "name": "LFM2.5-8B-A1B",
+          "model": "lfm2.5-8b-a1b",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 886,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 887,
+            "runs": [
+              887
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 1,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "invalid_by_kind": {
+                "unreadable": 1
+              }
+            },
+            "right": 353,
+            "wrong": 142,
+            "dont_know": 51,
+            "invalid": 1,
+            "accuracy": 0.6453382084095064,
+            "attempt_rate": 0.9049360146252285,
+            "non_hallucination": 0.26424870466321243,
+            "mean_dont_know_probability": null
           }
         }
       ]
