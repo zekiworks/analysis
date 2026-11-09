@@ -324,6 +324,12 @@ PRICES: dict[tuple[str, str], Price] = {
     ("celeris", "celeris-1-decision"): Price(
         "Celeris's decision model price", "https://docs.celeris.ai/pricing", "2026-10-10", 0.04
     ),
+    # Celeris-1.1 Decision, served at the same base path as celeris-1-decision (inference.celeris.ai/celeris-1-decision,
+    # model field celeris-1.1-decision; docs.celeris.ai/decisions, read 9 November 2026): input and cached input
+    # US$0.004 per million tokens, output free (Ümit bus #3514).
+    ("celeris", "celeris-1.1-decision"): Price(
+        "Celeris's list price", "https://docs.celeris.ai/pricing", "2026-11-09", 0.004
+    ),
     # Output tokens are free (docs.subq.ai/using-the-api/models); the model is in public preview.
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
     # SubQ Snap 1.1, SubQ's default decision model since it replaced Snap Preview (docs.subq.ai/using-the-api/models, read
