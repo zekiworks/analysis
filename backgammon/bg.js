@@ -552,20 +552,25 @@ async function savePng(panel, svg, title, lines, filename) {
   }));
 })();
 
-/* Home page: the leaderboard's own filter (Ümit #2907): All, Chat models or Decision models, local to the table (the
-   page's filters never change it). A row of the other type and its other-settings rows go out of view (class hl-off),
-   whatever their expander says; the programs stay in every view; the ranks are the ranks among all models. */
+/* Home page: the leaderboard's own filter (Ümit #2907): All, Chat models, Decision models or Small models (Ümit #3465:
+   rows marked data-hl-small, the model's disclosed total parameters at most story's threshold), local to the table
+   (the page's filters never change it). A row out of the view and its other-settings rows go out of view (class
+   hl-off), whatever their expander says; the programs stay in every view; the ranks are the ranks among all models;
+   the Small models key shows its definition under the keys. */
 (function headlineFilter() {
   const table = document.getElementById('headline-table');
   const keys = [...document.querySelectorAll('[data-hl-filter]')];
+  const note = document.querySelector('.hl-small-note');
   if (!table || !keys.length) return;
   keys.forEach(k => k.addEventListener('click', () => {
     const type = k.dataset.hlFilter;
     keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
     table.querySelectorAll('tbody tr[data-hl-type]').forEach(tr => {
       const t = tr.dataset.hlType;
-      tr.classList.toggle('hl-off', type !== 'all' && t !== 'program' && t !== type);
+      const out = type === 'small' ? tr.dataset.hlSmall !== 'yes' : t !== type;
+      tr.classList.toggle('hl-off', type !== 'all' && t !== 'program' && out);
     });
+    if (note) note.hidden = type !== 'small';
     table.dispatchEvent(new CustomEvent('hl-filter'));
   }));
 })();
