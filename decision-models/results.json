@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "49c9738e",
-  "updated": "2026-11-08T23:38:44Z",
+  "results_version": "6fbca90e",
+  "updated": "2026-11-09T01:10:39Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -14531,7 +14531,7 @@
       "started": "2026-10-16T13:30:45Z",
       "updated": "2026-10-16T13:39:57Z",
       "format_of": null,
-      "group": "mno",
+      "group": "mn",
       "latency": {
         "source": "run",
         "runs": [
@@ -14540,6 +14540,478 @@
         "concurrency": 1,
         "median_request_seconds": 0.22344711299228948,
         "p90_request_seconds": 0.350752345994988
+      },
+      "single_question_latency": null
+    },
+    {
+      "run": 318,
+      "model": "qwen38-27b-bf16",
+      "name": "Qwen3.8-27B",
+      "variant": null,
+      "reasoning": "low",
+      "provider": "vllm",
+      "perplexity_mode": null,
+      "note": "Open-Jev's base model Reasoning on at the chat template's low effort. Five of the 138 replies never left the thinking part, so their 80 questions have no answer and count as wrong. The GPU was shared with another program during the run, so its request times are longer than on a free GPU.",
+      "parameters": 27781427952,
+      "active_parameters": null,
+      "access": "vLLM, self-hosted",
+      "questions_per_request": 16,
+      "concurrency": 4,
+      "correct": 1641,
+      "invalid": 48,
+      "invalid_replies": {
+        "invalid_without_rule": 80,
+        "read_from_broken_replies": 0,
+        "read_without_confidence": 0,
+        "empty_replies_asked_again": 5,
+        "asked_again_with_answers": 2,
+        "answers_after_asking_again": 32,
+        "invalid_by_kind": {
+          "empty after retry": 48
+        }
+      },
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 586
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 1055
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1639
+        }
+      },
+      "tyt_mix": 0.8566973324159312,
+      "questions_per_minute": 4.987759002835143,
+      "request_seconds": 26440.732185543995,
+      "median_request_seconds": 648.3749564884638,
+      "p90_request_seconds": 1357.999595651008,
+      "billing": "local",
+      "api_equivalent_usd": 6.803051,
+      "cost_basis": "maker",
+      "cost_upper_bound": false,
+      "requests": 143,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+      "input_tokens": 541600,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "cache_write_1h_input_tokens": 0,
+      "output_tokens": 2177417,
+      "confidence": {
+        "source": "probability",
+        "label": "Answer letter probability",
+        "bins": [
+          {
+            "questions": 1,
+            "correct": 1
+          },
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 2149,
+            "correct": 1640
+          }
+        ],
+        "auroc": 0.6359059177342868,
+        "auroc_interval": [
+          0.6087300683100965,
+          0.6623151571164511
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 656,
+            "auroc": 0.7565090199902487,
+            "auroc_interval": [
+              0.6967818333797715,
+              0.8091418820087762
+            ]
+          },
+          "form": {
+            "questions": 1494,
+            "auroc": 0.6050319014563473,
+            "auroc_interval": [
+              0.5744706821063766,
+              0.6348531268109269
+            ]
+          }
+        },
+        "aurc": 0.16264316559929695,
+        "ece": 0.23697412193898643,
+        "brier": 0.23689274817927514,
+        "coverage_accuracy": {
+          "0.20": 0.8790697674418605,
+          "0.50": 0.8344186046511628,
+          "0.80": 0.7930232558139535
+        },
+        "coverage_intervals": {
+          "0.20": [
+            0.8438956197576888,
+            0.9071063632141199
+          ],
+          "0.50": [
+            0.809878844361603,
+            0.8544862854486286
+          ],
+          "0.80": [
+            0.7735211923614346,
+            0.8125580315691736
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.1163
+          ],
+          [
+            0.04,
+            0.093
+          ],
+          [
+            0.06,
+            0.093
+          ],
+          [
+            0.08,
+            0.0988
+          ],
+          [
+            0.1,
+            0.093
+          ],
+          [
+            0.12,
+            0.0969
+          ],
+          [
+            0.14,
+            0.1096
+          ],
+          [
+            0.16,
+            0.1134
+          ],
+          [
+            0.18,
+            0.1214
+          ],
+          [
+            0.2,
+            0.1209
+          ],
+          [
+            0.22,
+            0.129
+          ],
+          [
+            0.24,
+            0.1279
+          ],
+          [
+            0.26,
+            0.1395
+          ],
+          [
+            0.28,
+            0.1395
+          ],
+          [
+            0.3,
+            0.1395
+          ],
+          [
+            0.32,
+            0.1468
+          ],
+          [
+            0.34,
+            0.1518
+          ],
+          [
+            0.36,
+            0.1486
+          ],
+          [
+            0.38,
+            0.1493
+          ],
+          [
+            0.4,
+            0.15
+          ],
+          [
+            0.42,
+            0.1528
+          ],
+          [
+            0.44,
+            0.1617
+          ],
+          [
+            0.46,
+            0.1618
+          ],
+          [
+            0.48,
+            0.1618
+          ],
+          [
+            0.5,
+            0.1656
+          ],
+          [
+            0.52,
+            0.1691
+          ],
+          [
+            0.54,
+            0.1697
+          ],
+          [
+            0.56,
+            0.1694
+          ],
+          [
+            0.58,
+            0.1708
+          ],
+          [
+            0.6,
+            0.1744
+          ],
+          [
+            0.62,
+            0.1778
+          ],
+          [
+            0.64,
+            0.1802
+          ],
+          [
+            0.66,
+            0.1811
+          ],
+          [
+            0.68,
+            0.184
+          ],
+          [
+            0.7,
+            0.1907
+          ],
+          [
+            0.72,
+            0.1906
+          ],
+          [
+            0.74,
+            0.1961
+          ],
+          [
+            0.76,
+            0.1952
+          ],
+          [
+            0.78,
+            0.2016
+          ],
+          [
+            0.8,
+            0.207
+          ],
+          [
+            0.82,
+            0.2099
+          ],
+          [
+            0.84,
+            0.2148
+          ],
+          [
+            0.86,
+            0.2201
+          ],
+          [
+            0.88,
+            0.2225
+          ],
+          [
+            0.9,
+            0.2233
+          ],
+          [
+            0.92,
+            0.223
+          ],
+          [
+            0.94,
+            0.2261
+          ],
+          [
+            0.96,
+            0.2297
+          ],
+          [
+            0.98,
+            0.2335
+          ],
+          [
+            1.0,
+            0.2367
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 1,
+            "mean_confidence": 0.2018019629088712,
+            "accuracy": 1.0
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 2149,
+            "mean_confidence": 0.9998586152311446,
+            "accuracy": 0.7631456491391345
+          }
+        ],
+        "median_right": 0.9999941070871773,
+        "median_wrong": 0.9999857484619254,
+        "sure": {
+          "questions": 2145,
+          "correct": 1639,
+          "interval": [
+            0.7456730955128594,
+            0.7815877319022464
+          ]
+        },
+        "sure_before_audit": null,
+        "doubtful": {
+          "questions": 1,
+          "correct": 1,
+          "interval": [
+            0.20654329147389294,
+            1.0
+          ]
+        },
+        "ece_refit": 0.021261660184013417,
+        "brier_refit": 0.17497458005824154,
+        "brier_base": 0.1809679033214465,
+        "refit_slopes": [
+          0.22163325876400647,
+          0.20640484145291133,
+          0.22562510885267528,
+          0.21501339038589404,
+          0.24523158927352307
+        ],
+        "refit_questions": 2150,
+        "refit_converged": true
+      },
+      "previous": null,
+      "units": [
+        113,
+        148,
+        55,
+        94,
+        86,
+        90,
+        109,
+        52,
+        73,
+        61,
+        63,
+        37,
+        115,
+        59,
+        66,
+        101,
+        20,
+        87,
+        77,
+        135
+      ],
+      "started": "2026-10-28T22:04:39Z",
+      "updated": "2026-10-29T04:45:15Z",
+      "format_of": null,
+      "group": "no",
+      "latency": {
+        "source": "run",
+        "runs": [
+          318
+        ],
+        "concurrency": 4,
+        "median_request_seconds": 648.3749564884638,
+        "p90_request_seconds": 1357.999595651008
       },
       "single_question_latency": null
     },
@@ -15001,7 +15473,7 @@
       "started": "2026-10-28T14:52:06Z",
       "updated": "2026-10-28T15:07:25Z",
       "format_of": null,
-      "group": "nop",
+      "group": "no",
       "latency": {
         "source": "run",
         "runs": [
@@ -15010,478 +15482,6 @@
         "concurrency": 4,
         "median_request_seconds": 17.073907982499804,
         "p90_request_seconds": 54.499747568386375
-      },
-      "single_question_latency": null
-    },
-    {
-      "run": 318,
-      "model": "qwen38-27b-bf16",
-      "name": "Qwen3.8-27B",
-      "variant": null,
-      "reasoning": "low",
-      "provider": "vllm",
-      "perplexity_mode": null,
-      "note": "Open-Jev's base model Reasoning on at the chat template's low effort. Five of the 138 replies never left the thinking part, so their 80 questions have no answer and count as wrong. The GPU was shared with another program during the run, so its request times are longer than on a free GPU.",
-      "parameters": 27781427952,
-      "active_parameters": null,
-      "access": "vLLM, self-hosted",
-      "questions_per_request": 16,
-      "concurrency": 4,
-      "correct": 1625,
-      "invalid": 80,
-      "invalid_replies": {
-        "invalid_without_rule": 80,
-        "read_from_broken_replies": 0,
-        "read_without_confidence": 0,
-        "empty_replies_asked_again": 0,
-        "asked_again_with_answers": 0,
-        "answers_after_asking_again": 0,
-        "invalid_by_kind": {
-          "empty, not retried": 80
-        }
-      },
-      "answered_questions": 2198,
-      "groups": {
-        "reading": {
-          "questions": 656,
-          "correct": 586
-        },
-        "grammar": {
-          "questions": 1542,
-          "correct": 1039
-        },
-        "without_suspect": {
-          "questions": 2186,
-          "correct": 1623
-        }
-      },
-      "tyt_mix": 0.8548815088102243,
-      "questions_per_minute": 5.486924736625842,
-      "request_seconds": 24035.321483395994,
-      "median_request_seconds": 648.3749564884638,
-      "p90_request_seconds": 1337.1598235789686,
-      "billing": "local",
-      "api_equivalent_usd": 6.4412905,
-      "cost_basis": "maker",
-      "cost_upper_bound": false,
-      "requests": 138,
-      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
-      "input_tokens": 524063,
-      "cached_input_tokens": 0,
-      "cache_write_input_tokens": 0,
-      "cache_write_1h_input_tokens": 0,
-      "output_tokens": 2059753,
-      "confidence": {
-        "source": "probability",
-        "label": "Answer letter probability",
-        "bins": [
-          {
-            "questions": 1,
-            "correct": 1
-          },
-          {
-            "questions": 0,
-            "correct": 0
-          },
-          {
-            "questions": 0,
-            "correct": 0
-          },
-          {
-            "questions": 0,
-            "correct": 0
-          },
-          {
-            "questions": 2117,
-            "correct": 1624
-          }
-        ],
-        "auroc": 0.6345358090185677,
-        "auroc_interval": [
-          0.6063124461826351,
-          0.6609779686702764
-        ],
-        "parts": {
-          "meaning": {
-            "questions": 656,
-            "auroc": 0.7565090199902487,
-            "auroc_interval": [
-              0.6967818333797715,
-              0.8091418820087762
-            ]
-          },
-          "form": {
-            "questions": 1462,
-            "auroc": 0.6027083233787717,
-            "auroc_interval": [
-              0.5703697534976683,
-              0.63182114369172
-            ]
-          }
-        },
-        "aurc": 0.16039801989462252,
-        "ece": 0.23300113126490113,
-        "brier": 0.2329188557813457,
-        "coverage_accuracy": {
-          "0.20": 0.8805476864966949,
-          "0.50": 0.8385269121813032,
-          "0.80": 0.796152030217186
-        },
-        "coverage_intervals": {
-          "0.20": [
-            0.8441190363722249,
-            0.9102079395085066
-          ],
-          "0.50": [
-            0.8166351606805293,
-            0.8611764705882353
-          ],
-          "0.80": [
-            0.7765330188679245,
-            0.8150377714825306
-          ]
-        },
-        "risk_coverage": [
-          [
-            0.02,
-            0.1029
-          ],
-          [
-            0.04,
-            0.0911
-          ],
-          [
-            0.06,
-            0.0944
-          ],
-          [
-            0.08,
-            0.1003
-          ],
-          [
-            0.1,
-            0.0944
-          ],
-          [
-            0.12,
-            0.0984
-          ],
-          [
-            0.14,
-            0.1063
-          ],
-          [
-            0.16,
-            0.1151
-          ],
-          [
-            0.18,
-            0.1233
-          ],
-          [
-            0.2,
-            0.1195
-          ],
-          [
-            0.22,
-            0.1288
-          ],
-          [
-            0.24,
-            0.1279
-          ],
-          [
-            0.26,
-            0.138
-          ],
-          [
-            0.28,
-            0.1383
-          ],
-          [
-            0.3,
-            0.136
-          ],
-          [
-            0.32,
-            0.1461
-          ],
-          [
-            0.34,
-            0.15
-          ],
-          [
-            0.36,
-            0.1475
-          ],
-          [
-            0.38,
-            0.1479
-          ],
-          [
-            0.4,
-            0.1487
-          ],
-          [
-            0.42,
-            0.1484
-          ],
-          [
-            0.44,
-            0.1567
-          ],
-          [
-            0.46,
-            0.1581
-          ],
-          [
-            0.48,
-            0.1584
-          ],
-          [
-            0.5,
-            0.1615
-          ],
-          [
-            0.52,
-            0.1647
-          ],
-          [
-            0.54,
-            0.1653
-          ],
-          [
-            0.56,
-            0.1661
-          ],
-          [
-            0.58,
-            0.1672
-          ],
-          [
-            0.6,
-            0.1715
-          ],
-          [
-            0.62,
-            0.1737
-          ],
-          [
-            0.64,
-            0.1763
-          ],
-          [
-            0.66,
-            0.1788
-          ],
-          [
-            0.68,
-            0.1819
-          ],
-          [
-            0.7,
-            0.1879
-          ],
-          [
-            0.72,
-            0.1889
-          ],
-          [
-            0.74,
-            0.194
-          ],
-          [
-            0.76,
-            0.1932
-          ],
-          [
-            0.78,
-            0.1986
-          ],
-          [
-            0.8,
-            0.2038
-          ],
-          [
-            0.82,
-            0.2071
-          ],
-          [
-            0.84,
-            0.2113
-          ],
-          [
-            0.86,
-            0.2169
-          ],
-          [
-            0.88,
-            0.2188
-          ],
-          [
-            0.9,
-            0.2194
-          ],
-          [
-            0.92,
-            0.2191
-          ],
-          [
-            0.94,
-            0.222
-          ],
-          [
-            0.96,
-            0.2257
-          ],
-          [
-            0.98,
-            0.2293
-          ],
-          [
-            1.0,
-            0.2328
-          ]
-        ],
-        "reliability": [
-          {
-            "low": 0.0,
-            "high": 0.1,
-            "questions": 0,
-            "mean_confidence": null,
-            "accuracy": null
-          },
-          {
-            "low": 0.1,
-            "high": 0.2,
-            "questions": 0,
-            "mean_confidence": null,
-            "accuracy": null
-          },
-          {
-            "low": 0.2,
-            "high": 0.3,
-            "questions": 1,
-            "mean_confidence": 0.2018019629088712,
-            "accuracy": 1.0
-          },
-          {
-            "low": 0.3,
-            "high": 0.4,
-            "questions": 0,
-            "mean_confidence": null,
-            "accuracy": null
-          },
-          {
-            "low": 0.4,
-            "high": 0.5,
-            "questions": 0,
-            "mean_confidence": null,
-            "accuracy": null
-          },
-          {
-            "low": 0.5,
-            "high": 0.6,
-            "questions": 0,
-            "mean_confidence": null,
-            "accuracy": null
-          },
-          {
-            "low": 0.6,
-            "high": 0.7,
-            "questions": 0,
-            "mean_confidence": null,
-            "accuracy": null
-          },
-          {
-            "low": 0.7,
-            "high": 0.8,
-            "questions": 0,
-            "mean_confidence": null,
-            "accuracy": null
-          },
-          {
-            "low": 0.8,
-            "high": 0.9,
-            "questions": 0,
-            "mean_confidence": null,
-            "accuracy": null
-          },
-          {
-            "low": 0.9,
-            "high": 1.0,
-            "questions": 2117,
-            "mean_confidence": 0.9998574388200139,
-            "accuracy": 0.7671232876712328
-          }
-        ],
-        "median_right": 0.9999941178422007,
-        "median_wrong": 0.9999857536908587,
-        "sure": {
-          "questions": 2113,
-          "correct": 1623,
-          "interval": [
-            0.7496299235686176,
-            0.7856014324289212
-          ]
-        },
-        "sure_before_audit": null,
-        "doubtful": {
-          "questions": 1,
-          "correct": 1,
-          "interval": [
-            0.20654329147389294,
-            1.0
-          ]
-        },
-        "ece_refit": 0.022750741839562657,
-        "brier_refit": 0.1732184892154537,
-        "brier_base": 0.17889320573282208,
-        "refit_slopes": [
-          0.21826028809717343,
-          0.20399784805870902,
-          0.22627791913890047,
-          0.2082578053342295,
-          0.2430936440206276
-        ],
-        "refit_questions": 2118,
-        "refit_converged": true
-      },
-      "previous": null,
-      "units": [
-        113,
-        148,
-        55,
-        94,
-        86,
-        90,
-        109,
-        52,
-        73,
-        61,
-        63,
-        26,
-        115,
-        59,
-        66,
-        96,
-        20,
-        87,
-        77,
-        135
-      ],
-      "started": "2026-10-28T22:04:39Z",
-      "updated": "2026-10-29T04:45:15Z",
-      "format_of": null,
-      "group": "op",
-      "latency": {
-        "source": "run",
-        "runs": [
-          318
-        ],
-        "concurrency": 4,
-        "median_request_seconds": 648.3749564884638,
-        "p90_request_seconds": 1337.1598235789686
       },
       "single_question_latency": null
     },
@@ -15943,7 +15943,7 @@
       "started": "2026-10-05T18:23:31Z",
       "updated": "2026-10-05T18:32:29Z",
       "format_of": null,
-      "group": "p",
+      "group": "o",
       "latency": {
         "source": "run",
         "runs": [
@@ -16418,7 +16418,7 @@
       "started": "2026-10-28T14:52:06Z",
       "updated": "2026-10-28T14:55:37Z",
       "format_of": null,
-      "group": "pq",
+      "group": "op",
       "latency": {
         "source": "run",
         "runs": [
@@ -16893,7 +16893,7 @@
       "started": "2026-11-08T16:39:16Z",
       "updated": "2026-11-08T23:24:00Z",
       "format_of": null,
-      "group": "pqr",
+      "group": "opq",
       "latency": {
         "source": "run",
         "runs": [
@@ -17355,7 +17355,7 @@
       "started": "2026-11-05T13:23:43Z",
       "updated": "2026-11-05T13:44:26Z",
       "format_of": null,
-      "group": "qrs",
+      "group": "pqr",
       "latency": {
         "source": "run",
         "runs": [
@@ -17817,7 +17817,7 @@
       "started": "2026-10-22T18:39:36Z",
       "updated": "2026-10-22T18:55:25Z",
       "format_of": null,
-      "group": "rs",
+      "group": "qr",
       "latency": {
         "source": "run",
         "runs": [
@@ -18279,7 +18279,7 @@
       "started": "2026-10-06T12:36:07Z",
       "updated": "2026-10-06T13:02:06Z",
       "format_of": null,
-      "group": "rst",
+      "group": "qrs",
       "latency": {
         "source": "run",
         "runs": [
@@ -18741,7 +18741,7 @@
       "started": "2026-10-06T10:53:16Z",
       "updated": "2026-10-06T11:07:43Z",
       "format_of": null,
-      "group": "stu",
+      "group": "rst",
       "latency": {
         "source": "run",
         "runs": [
@@ -19203,7 +19203,7 @@
       "started": "2026-10-27T09:16:30Z",
       "updated": "2026-10-27T09:20:19Z",
       "format_of": null,
-      "group": "stu",
+      "group": "rst",
       "latency": {
         "source": "run",
         "runs": [
@@ -19665,7 +19665,7 @@
       "started": "2026-10-27T14:45:17Z",
       "updated": "2026-10-27T14:56:49Z",
       "format_of": null,
-      "group": "stu",
+      "group": "rst",
       "latency": {
         "source": "run",
         "runs": [
@@ -20127,7 +20127,7 @@
       "started": "2026-10-31T15:17:59Z",
       "updated": "2026-10-31T15:21:22Z",
       "format_of": null,
-      "group": "stu",
+      "group": "rst",
       "latency": {
         "source": "run",
         "runs": [
@@ -20589,7 +20589,7 @@
       "started": "2026-10-31T15:41:43Z",
       "updated": "2026-10-31T16:00:19Z",
       "format_of": null,
-      "group": "stu",
+      "group": "rst",
       "latency": {
         "source": "run",
         "runs": [
@@ -21051,7 +21051,7 @@
       "started": "2026-11-01T18:14:08Z",
       "updated": "2026-11-01T18:20:26Z",
       "format_of": null,
-      "group": "stuv",
+      "group": "rstu",
       "latency": {
         "source": "run",
         "runs": [
@@ -21513,7 +21513,7 @@
       "started": "2026-10-17T18:04:03Z",
       "updated": "2026-10-17T18:26:45Z",
       "format_of": null,
-      "group": "stu",
+      "group": "rst",
       "latency": {
         "source": "run",
         "runs": [
@@ -21975,7 +21975,7 @@
       "started": "2026-10-09T08:15:06Z",
       "updated": "2026-10-09T08:24:44Z",
       "format_of": null,
-      "group": "stuv",
+      "group": "rstu",
       "latency": {
         "source": "run",
         "runs": [
@@ -22445,7 +22445,7 @@
       "started": "2026-10-13T16:20:09Z",
       "updated": "2026-10-13T19:45:13Z",
       "format_of": 119,
-      "group": "stuv",
+      "group": "rstu",
       "latency": {
         "source": "run",
         "runs": [
@@ -22919,7 +22919,7 @@
       "started": "2026-11-08T15:09:36Z",
       "updated": "2026-11-08T16:31:59Z",
       "format_of": null,
-      "group": "stuv",
+      "group": "rstu",
       "latency": {
         "source": "run",
         "runs": [
@@ -23381,7 +23381,7 @@
       "started": "2026-11-05T11:55:44Z",
       "updated": "2026-11-05T12:08:19Z",
       "format_of": null,
-      "group": "stuv",
+      "group": "rstu",
       "latency": {
         "source": "run",
         "runs": [
@@ -23854,7 +23854,7 @@
       "started": "2026-11-05T02:19:23Z",
       "updated": "2026-11-05T02:34:20Z",
       "format_of": null,
-      "group": "stuv",
+      "group": "rstu",
       "latency": {
         "source": "run",
         "runs": [
@@ -24327,7 +24327,7 @@
       "started": "2026-10-05T18:49:31Z",
       "updated": "2026-10-05T19:01:55Z",
       "format_of": null,
-      "group": "stuv",
+      "group": "rstu",
       "latency": {
         "source": "run",
         "runs": [
@@ -24786,7 +24786,7 @@
       "started": "2026-10-13T06:41:20Z",
       "updated": "2026-10-13T06:55:58Z",
       "format_of": null,
-      "group": "tuvw",
+      "group": "stuv",
       "latency": {
         "source": "run",
         "runs": [
@@ -25248,7 +25248,7 @@
       "started": "2026-11-01T15:44:28Z",
       "updated": "2026-11-01T19:34:16Z",
       "format_of": null,
-      "group": "vwx",
+      "group": "uvw",
       "latency": {
         "source": "run",
         "runs": [
@@ -25710,7 +25710,7 @@
       "started": "2026-10-08T12:06:17Z",
       "updated": "2026-10-08T12:08:06Z",
       "format_of": null,
-      "group": "uvwxy",
+      "group": "tuvwx",
       "latency": {
         "source": "run",
         "runs": [
@@ -26172,7 +26172,7 @@
       "started": "2026-10-24T07:34:52Z",
       "updated": "2026-10-24T07:42:55Z",
       "format_of": null,
-      "group": "wxyz",
+      "group": "vwxy",
       "latency": {
         "source": "run",
         "runs": [
@@ -26661,7 +26661,7 @@
       "started": "2026-10-04T09:02:05Z",
       "updated": "2026-10-04T09:11:41Z",
       "format_of": null,
-      "group": "wxyzA",
+      "group": "vwxyz",
       "latency": {
         "source": "sample",
         "runs": [
@@ -27132,7 +27132,7 @@
       "started": "2026-10-10T18:37:11Z",
       "updated": "2026-10-10T18:52:00Z",
       "format_of": null,
-      "group": "xyzAB",
+      "group": "wxyzA",
       "latency": {
         "source": "run",
         "runs": [
@@ -27627,7 +27627,7 @@
       "started": "2026-10-04T08:31:15Z",
       "updated": "2026-10-04T08:39:05Z",
       "format_of": null,
-      "group": "xyzAB",
+      "group": "wxyzA",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -28099,7 +28099,7 @@
       "started": "2026-10-27T13:44:13Z",
       "updated": "2026-10-27T13:49:37Z",
       "format_of": null,
-      "group": "yzABC",
+      "group": "xyzAB",
       "latency": {
         "source": "run",
         "runs": [
@@ -28561,7 +28561,7 @@
       "started": "2026-10-16T09:52:25Z",
       "updated": "2026-10-16T10:06:22Z",
       "format_of": null,
-      "group": "zABCD",
+      "group": "yzABC",
       "latency": {
         "source": "run",
         "runs": [
@@ -29023,7 +29023,7 @@
       "started": "2026-10-17T15:08:47Z",
       "updated": "2026-10-17T15:24:29Z",
       "format_of": null,
-      "group": "zABCD",
+      "group": "yzABC",
       "latency": {
         "source": "run",
         "runs": [
@@ -29495,7 +29495,7 @@
       "started": "2026-10-11T10:20:58Z",
       "updated": "2026-10-11T10:23:29Z",
       "format_of": null,
-      "group": "zABCDE",
+      "group": "yzABCD",
       "latency": {
         "source": "run",
         "runs": [
@@ -29990,7 +29990,7 @@
       "started": "2026-10-04T08:39:08Z",
       "updated": "2026-10-04T08:47:59Z",
       "format_of": null,
-      "group": "ABCDE",
+      "group": "zABCD",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -30459,7 +30459,7 @@
       "started": "2026-10-05T20:59:17Z",
       "updated": "2026-10-05T21:07:04Z",
       "format_of": null,
-      "group": "ABCDE",
+      "group": "zABCD",
       "latency": {
         "source": "run",
         "runs": [
@@ -30954,7 +30954,7 @@
       "started": "2026-10-04T08:48:02Z",
       "updated": "2026-10-04T09:02:49Z",
       "format_of": null,
-      "group": "BCDE",
+      "group": "ABCD",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -31428,7 +31428,7 @@
       "started": "2026-10-31T21:26:44Z",
       "updated": "2026-10-31T21:45:07Z",
       "format_of": null,
-      "group": "CDEF",
+      "group": "BCDE",
       "latency": {
         "source": "run",
         "runs": [
@@ -31890,7 +31890,7 @@
       "started": "2026-10-06T10:05:32Z",
       "updated": "2026-10-06T10:06:56Z",
       "format_of": null,
-      "group": "CDEF",
+      "group": "BCDE",
       "latency": {
         "source": "run",
         "runs": [
@@ -32379,7 +32379,7 @@
       "started": "2026-10-04T08:31:15Z",
       "updated": "2026-10-04T08:45:43Z",
       "format_of": null,
-      "group": "DEF",
+      "group": "CDE",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -32851,7 +32851,7 @@
       "started": "2026-10-06T10:25:55Z",
       "updated": "2026-10-06T10:28:09Z",
       "format_of": null,
-      "group": "CDEF",
+      "group": "BCDE",
       "latency": {
         "source": "run",
         "runs": [
@@ -33313,7 +33313,7 @@
       "started": "2026-10-04T20:32:46Z",
       "updated": "2026-10-04T21:33:38Z",
       "format_of": null,
-      "group": "EF",
+      "group": "DE",
       "latency": {
         "source": "run",
         "runs": [
@@ -33808,7 +33808,7 @@
       "started": "2026-10-04T08:54:01Z",
       "updated": "2026-10-04T09:09:07Z",
       "format_of": null,
-      "group": "EF",
+      "group": "DE",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -34280,7 +34280,7 @@
       "started": "2026-11-01T18:13:53Z",
       "updated": "2026-11-01T18:16:49Z",
       "format_of": null,
-      "group": "F",
+      "group": "E",
       "latency": {
         "source": "run",
         "runs": [
@@ -34775,7 +34775,7 @@
       "started": "2026-10-04T08:42:28Z",
       "updated": "2026-10-04T08:53:57Z",
       "format_of": null,
-      "group": "FG",
+      "group": "EF",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -35244,7 +35244,7 @@
       "started": "2026-10-17T20:36:02Z",
       "updated": "2026-10-17T20:41:22Z",
       "format_of": null,
-      "group": "GH",
+      "group": "FG",
       "latency": {
         "source": "run",
         "runs": [
@@ -35706,7 +35706,7 @@
       "started": "2026-10-17T15:08:47Z",
       "updated": "2026-10-17T15:19:46Z",
       "format_of": null,
-      "group": "H",
+      "group": "G",
       "latency": {
         "source": "run",
         "runs": [
@@ -36165,7 +36165,7 @@
       "started": "2026-10-07T19:44:42Z",
       "updated": "2026-10-07T19:47:57Z",
       "format_of": null,
-      "group": "H",
+      "group": "G",
       "latency": {
         "source": "run",
         "runs": [
@@ -36635,7 +36635,7 @@
       "started": "2026-10-06T12:25:34Z",
       "updated": "2026-10-06T12:32:15Z",
       "format_of": null,
-      "group": "H",
+      "group": "G",
       "latency": {
         "source": "run",
         "runs": [
@@ -37105,7 +37105,7 @@
       "started": "2026-10-06T12:25:34Z",
       "updated": "2026-10-06T12:31:11Z",
       "format_of": null,
-      "group": "HI",
+      "group": "GH",
       "latency": {
         "source": "run",
         "runs": [
@@ -37564,7 +37564,7 @@
       "started": "2026-10-06T09:45:14Z",
       "updated": "2026-10-06T09:48:37Z",
       "format_of": null,
-      "group": "I",
+      "group": "H",
       "latency": {
         "source": "run",
         "runs": [
@@ -38023,7 +38023,7 @@
       "started": "2026-11-01T12:00:08Z",
       "updated": "2026-11-01T12:00:56Z",
       "format_of": null,
-      "group": "J",
+      "group": "I",
       "latency": {
         "source": "run",
         "runs": [
@@ -38482,7 +38482,7 @@
       "started": "2026-10-07T19:49:08Z",
       "updated": "2026-10-07T19:50:14Z",
       "format_of": null,
-      "group": "J",
+      "group": "I",
       "latency": {
         "source": "run",
         "runs": [
@@ -38941,7 +38941,7 @@
       "started": "2026-10-19T10:31:37Z",
       "updated": "2026-10-19T10:46:02Z",
       "format_of": null,
-      "group": "J",
+      "group": "I",
       "latency": {
         "source": "run",
         "runs": [
@@ -39400,7 +39400,7 @@
       "started": "2026-10-07T17:25:44Z",
       "updated": "2026-10-07T17:26:07Z",
       "format_of": null,
-      "group": "K",
+      "group": "J",
       "latency": {
         "source": "run",
         "runs": [
@@ -39889,7 +39889,7 @@
       "started": "2026-10-04T08:46:03Z",
       "updated": "2026-10-04T08:46:34Z",
       "format_of": null,
-      "group": "K",
+      "group": "J",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -40394,7 +40394,7 @@
       "started": "2026-10-04T08:31:15Z",
       "updated": "2026-10-04T08:31:44Z",
       "format_of": null,
-      "group": "K",
+      "group": "J",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -40863,7 +40863,7 @@
       "started": "2026-10-05T19:34:39Z",
       "updated": "2026-10-05T19:35:51Z",
       "format_of": null,
-      "group": "K",
+      "group": "J",
       "latency": {
         "source": "run",
         "runs": [
@@ -40941,7 +40941,7 @@
       "high": 0.013221959935709241,
       "p": 0.0021024015732109547,
       "p_holm": 0.15557771641761065,
-      "p_holm_all": 0.7379429521970451
+      "p_holm_all": 0.740045353770256
     },
     {
       "first": 124,
@@ -41084,7 +41084,7 @@
       "high": 0.06975305089881688,
       "p": 1.4657942286341076e-11,
       "p_holm": 1.1872933251936272e-09,
-      "p_holm_all": 1.0245901658152411e-08
+      "p_holm_all": 1.0172611946720706e-08
     },
     {
       "first": 55,
@@ -41123,7 +41123,7 @@
       "high": 0.04496084685871464,
       "p": 0.002907592351864458,
       "p_holm": 0.2122542416861054,
-      "p_holm_all": 0.993985449955852
+      "p_holm_all": 0.9968918401604013
     },
     {
       "first": 866,
@@ -41166,40 +41166,40 @@
     },
     {
       "first": 199,
-      "second": 314,
-      "questions": 2198,
-      "first_only": 298,
-      "second_only": 242,
-      "difference": 0.025477707006369428,
-      "low": 0.004783405507661015,
-      "high": 0.04617200850507784,
-      "p": 0.017859908740936698,
-      "p_holm": 1.0,
-      "p_holm_all": 1.0
-    },
-    {
-      "first": 314,
       "second": 318,
       "questions": 2198,
-      "first_only": 275,
-      "second_only": 262,
-      "difference": 0.005914467697907188,
-      "low": -0.014748106808133416,
-      "high": 0.02657704220394779,
-      "p": 0.6046123371741172,
+      "first_only": 271,
+      "second_only": 218,
+      "difference": 0.024112829845313922,
+      "low": 0.004419708125819748,
+      "high": 0.0438059515648081,
+      "p": 0.01860544951018013,
       "p_holm": 1.0,
       "p_holm_all": 1.0
     },
     {
       "first": 318,
+      "second": 314,
+      "questions": 2198,
+      "first_only": 266,
+      "second_only": 263,
+      "difference": 0.001364877161055505,
+      "low": -0.01914459760361952,
+      "high": 0.021874351925730534,
+      "p": 0.9307169071652996,
+      "p_holm": 1.0,
+      "p_holm_all": 1.0
+    },
+    {
+      "first": 314,
       "second": 119,
       "questions": 2198,
-      "first_only": 285,
-      "second_only": 267,
-      "difference": 0.00818926296633303,
-      "low": -0.012758609786674636,
-      "high": 0.029137135719340696,
-      "p": 0.4693630998766396,
+      "first_only": 291,
+      "second_only": 260,
+      "difference": 0.014103730664240218,
+      "low": -0.006819647722726837,
+      "high": 0.035027109051207275,
+      "p": 0.20119121922079947,
       "p_holm": 1.0,
       "p_holm_all": 1.0
     },
@@ -41227,7 +41227,7 @@
       "high": 0.07396141572602216,
       "p": 2.7673699726562264e-06,
       "p_holm": 0.00021585485786718565,
-      "p_holm_all": 0.0013504765466562385
+      "p_holm_all": 0.0013532439166288946
     },
     {
       "first": 315,
@@ -41305,7 +41305,7 @@
       "high": -0.027731921582885947,
       "p": 2.0485146663561087e-06,
       "p_holm": 0.00016183265864213258,
-      "p_holm_all": 0.0010099177305135617
+      "p_holm_all": 0.0010119662451799178
     },
     {
       "first": 129,
@@ -41331,7 +41331,7 @@
       "high": 0.09361545164698735,
       "p": 3.678091628881056e-15,
       "p_holm": 3.052816051971277e-13,
-      "p_holm_all": 2.935117119847083e-12
+      "p_holm_all": 2.931439028218202e-12
     },
     {
       "first": 259,
@@ -41435,7 +41435,7 @@
       "high": 0.08266234614451745,
       "p": 6.670084191087266e-13,
       "p_holm": 5.469469036691558e-11,
-      "p_holm_all": 4.915852048831315e-10
+      "p_holm_all": 4.882501627875878e-10
     },
     {
       "first": 862,
@@ -41734,7 +41734,7 @@
       "high": 0.05757837077100093,
       "p": 0.00022780042456489667,
       "p_holm": 0.017540632691497044,
-      "p_holm_all": 0.0897533672785693
+      "p_holm_all": 0.08998116770313419
     },
     {
       "first": 127,
@@ -41877,7 +41877,7 @@
       "high": 0.06665146705673171,
       "p": 0.0007641053000487032,
       "p_holm": 0.05807200280370144,
-      "p_holm_all": 0.2850112769181663
+      "p_holm_all": 0.28577538221821497
     },
     {
       "first": 126,
@@ -41890,7 +41890,7 @@
       "high": 0.1388597644013221,
       "p": 2.0835598433676e-18,
       "p_holm": 1.7501902684287838e-16,
-      "p_holm_all": 1.854368260597164e-15
+      "p_holm_all": 1.8564518204405316e-15
     },
     {
       "first": 340,
@@ -41929,7 +41929,7 @@
       "high": 0.09327126976775851,
       "p": 2.6643193119385933e-08,
       "p_holm": 2.1314554495508746e-06,
-      "p_holm_all": 1.5373122429885684e-05
+      "p_holm_all": 1.531983604364691e-05
     },
     {
       "first": 135,
@@ -296827,6 +296827,49 @@
         "vs_confidence": null
       },
       {
+        "name": "Qwen3.8-27B",
+        "model": "qwen38-27b-bf16",
+        "provider": "vllm",
+        "perplexity_mode": null,
+        "group": "chat",
+        "run": 666,
+        "runs": [
+          666
+        ],
+        "right": 1658,
+        "wrong": 493,
+        "dont_know": 31,
+        "invalid": 16,
+        "invalid_replies": {
+          "invalid_without_rule": 176,
+          "read_from_broken_replies": 0,
+          "read_without_confidence": 0,
+          "empty_replies_asked_again": 11,
+          "asked_again_with_answers": 10,
+          "answers_after_asking_again": 160,
+          "invalid_by_kind": {
+            "empty after retry": 16
+          }
+        },
+        "accuracy": 0.7543221110100091,
+        "attempt_rate": 0.978616924476797,
+        "non_hallucination": 0.05916030534351145,
+        "mean_dont_know_probability": 0.01426252084081356,
+        "spread": null,
+        "answers_changed": null,
+        "original_run": 318,
+        "original_accuracy": 0.7465878070973613,
+        "derived": {
+          "cut_off": 0.2018019629088712,
+          "attempt_rate": 0.978161965423112,
+          "non_hallucination": 0.08617594254937164,
+          "right": 1641,
+          "wrong": 509,
+          "abstained": 48
+        },
+        "vs_confidence": null
+      },
+      {
         "name": "GLM-5.3",
         "model": "z-ai/glm-5.3",
         "provider": "openrouter-chat",
@@ -296991,49 +297034,6 @@
           "right": 1583,
           "wrong": 543,
           "abstained": 72
-        },
-        "vs_confidence": null
-      },
-      {
-        "name": "Qwen3.8-27B",
-        "model": "qwen38-27b-bf16",
-        "provider": "vllm",
-        "perplexity_mode": null,
-        "group": "chat",
-        "run": 666,
-        "runs": [
-          666
-        ],
-        "right": 1565,
-        "wrong": 428,
-        "dont_know": 29,
-        "invalid": 176,
-        "invalid_replies": {
-          "invalid_without_rule": 176,
-          "read_from_broken_replies": 0,
-          "read_without_confidence": 0,
-          "empty_replies_asked_again": 0,
-          "asked_again_with_answers": 0,
-          "answers_after_asking_again": 0,
-          "invalid_by_kind": {
-            "empty, not retried": 176
-          }
-        },
-        "accuracy": 0.7120109190172884,
-        "attempt_rate": 0.9067333939945404,
-        "non_hallucination": 0.06345733041575492,
-        "mean_dont_know_probability": 0.014457315880518322,
-        "spread": null,
-        "answers_changed": null,
-        "original_run": 318,
-        "original_accuracy": 0.7393084622383985,
-        "derived": {
-          "cut_off": 0.9997021388427969,
-          "attempt_rate": 0.9067333939945404,
-          "non_hallucination": 0.3168469860896445,
-          "right": 1551,
-          "wrong": 442,
-          "abstained": 205
         },
         "vs_confidence": null
       },
@@ -302762,8 +302762,8 @@
             "upper_bound": false
           },
           "turkish": {
-            "usd": 6.4412905,
-            "per_1000": 2.930523430391265,
+            "usd": 6.803051,
+            "per_1000": 3.0951096451319384,
             "basis": "maker",
             "upper_bound": false
           }
@@ -302777,7 +302777,7 @@
           },
           "turkish": {
             "median_request_seconds": 648.3749564884638,
-            "p90_request_seconds": 1337.1598235789686,
+            "p90_request_seconds": 1357.999595651008,
             "concurrency": 4,
             "questions_per_request": 16,
             "source": "run"
@@ -309901,11 +309901,11 @@
               "invalid_without_rule": 176,
               "read_from_broken_replies": 0,
               "read_without_confidence": 0,
-              "empty_replies_asked_again": 0,
-              "asked_again_with_answers": 0,
-              "answers_after_asking_again": 0,
+              "empty_replies_asked_again": 11,
+              "asked_again_with_answers": 10,
+              "answers_after_asking_again": 160,
               "invalid_by_kind": {
-                "empty, not retried": 176
+                "empty after retry": 16
               }
             },
             "right": 498,
@@ -606602,6 +606602,21 @@
           ]
         },
         {
+          "name": "Qwen3.8-27B",
+          "text_run": 318,
+          "five_option_run": 318,
+          "wrong": 310,
+          "wrong_of_answers": 0.1959544879898862,
+          "difference": 0.09039190897597976,
+          "interval": [
+            0.0670037926675095,
+            0.10872313527180784
+          ],
+          "p": 0.00019998000199980003,
+          "p_holm": 0.016598340165983404,
+          "wrong_by_rank": "00000000000100000000000000100000000010000110000000000000000000010000000000010000000010000000000000000001010000100000000100000000000000000010100001000000000000001001000000000100000000000010000000000000000000000010000000000000000000000010001101000000000001000000000011100000000000000000001000100100010010010000000001000001001001000000000000100000000000010000110010000000010000010100000100000000000000000010010000000000100000000010100010100100111100000000000001000000100000000000000000100100000000011000000000000001000001000000010000001000111010100000010101001000000010110000000000000100000000000100001000100000000000000000000000100000000000010111000000001100001100010011011000011000000000001010000100000000110000001110000000100000100000000000000000000000101100000000000001000000000000010000001010000010100000100000100000100010011000100000000110000000000000000000101000000100000000110010000000000010000001111100001101100000100001000010010001000010110000000001100001000000000000000100000101100000001000110000000000100000000000011100000000001000100111000000000000100110001010000100010101000000000000110000001010001100001001001000011000000000010000010010000010000000101001010000000010100000010000000000001000000010100001001000001000000000100000010100001000000100000101010000101001000101000101100000101111000000000001100101000000010000000111000010000001000000100010001000000101010011010000000100011010000000001101000000100000010000000011010010000100010100001000011010000000001110001011100100101010010011101000101000100000100100000000001000010001010001000001011111000101000101010101100001000000011000000001000010000010000000010001000100010000100000010010100111001011011001000001101101110000110111000010001010011110001101000000110001000101000000011000101010011010001010010001011001010001001100010110101010100100100100011100010011111101100010000110011001100001000001000010000100101000100100001011001011100010000001000101000000001100000011010000110001000010000000000000001000000001100111001011101000111000101000001001100000101010000001000110001001100101101110100101100000000100100011001011010001000011000000100111111010101001000001010011000000110010100011110110"
+        },
+        {
           "name": "GLM-5.3",
           "text_run": 314,
           "five_option_run": 314,
@@ -606615,21 +606630,6 @@
           "p": 0.00019998000199980003,
           "p_holm": 0.016598340165983404,
           "wrong_by_rank": "00000000000000000000000000000000000000000100001010000000000000000000000000000000000000000000000000000000100100000000000000000000000000000000000000000001000000000000000000000000000000000000001000000000000000000000000000000000100010000000001000000001000001111000001000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000010100000000000000000000000100011100000010000000001100011000000000000000001000000001000001011000000000000100000000000000010100000000000000000000001001000000000000000000000010011000000000000100000000000000000000100000000010000100000000000100010000001000000000000001011001110110010010001000000000101001000001000000010000000000000000000000000000001000000000000000010000000100000000000000001100001000000011001100000011000010000000000000000000000010000010100001101000000011001101010010111100111000110101001000101001000100100010001000101000000000000010001000000000000000001000000000000000010100000000000000100000010000000000010000100001100000001000000000000000011001100000010010000101010000010001000000000000000001000000000001000000000000010000000000000000000000000001100010100001000010001000000010010000100001010000011110100000101001100001000111000111000000001000001110100011010001101100001110000010010000001010000001100001000000000101010011000000000100000100010000000110000001110100000010010000100000000001000000110101010001001000100000011100000101000000000110010010101000000001000101001100010000000001001100000001001010010000001100010001000110010100010100000010001000010100100101000011000000000011010000000010000000001000100110100010101000100010100000110100000000000011000010100000000111000011000100010000011000000001001001001000001011111111101011110000110101101000100000100100000011000000001100001011010100000011110011101011101100000010011100001000010100001100000001000010011100011011000000000000011010010001110011010001000110110111011111011011010001010000010111110111101111111000110111110010000001111100110110110011111101011001000110000001111101110100010110011111001001000010111001111111010011100011001101111110001110001011001101100111111111011010110101101011011110111110111111111010101111111111101111110110011111110110110111"
-        },
-        {
-          "name": "Qwen3.8-27B",
-          "text_run": 318,
-          "five_option_run": 318,
-          "wrong": 306,
-          "wrong_of_answers": 0.1934260429835651,
-          "difference": 0.08786346396965866,
-          "interval": [
-            0.06573957016434892,
-            0.10745891276864727
-          ],
-          "p": 0.00019998000199980003,
-          "p_holm": 0.016598340165983404,
-          "wrong_by_rank": "000000000001000000000000001000000000100001100000000000000000000100000000000100000000100000000000000000010100001000000001000000000000000000101000010000000000000010010000000001000000000000100000000000000000000000100000000000000000000000100011010000000000010000000001110000000000000000000100010010001001001000000001000001001001000000000001000000000000100001100100000000100000101000001000000000000000001000000000000100000000010100010100100111100000000000001000000100000000000000001001000000000110000000000000010000010000000100000010001110100000001010100100000001011000000000000010000000000010000100010000000000000000000000010000000000001011100000000110000110001001101100001100000000000101000010000000011000000111000000010000010000000000000000000000010110000000000000100000000000001000000101000001010000010000010000010001001100000000000110000000000000000001010000001000000010010000000000010000001111100001011000001000010000100100010000101100000000011000010000000000000001000001010000000100011000000000010000000000001110000000000100010011100000000000100100101000010001010100000000000011000000101000110000100100100001100000000001000001001000001000000010100101000000010100000100000000000010000000101000010010000010000000001000000101000010000001000001010100001010010001010001011000001011110000000000011001010000000100000001110000100000010000001000100010000001010100110100000010001101000000000110100000010000001000000001101001000010001010000100011010000000001110001011100100101010010011101000101000100000100100000000001000010001010001000001011111000101000101001011000100000001100000000100001000001000000001000100010001000010000001001010111001011011001000001101101110000101110000100010100111100011010000001100010001000000001100010101001101000101001000101100101000100100010110101001001001001000111000100111111011000100001100110011000010000010000100001001010001001000010110010111000100000010001010000000010000001010000110001000010000000000000001000000001100111000111010001110001010000010011000001010100000010001100010011001011011101001011000000010010001100101010001000011000000100111111010101001000001010011000000110010100011110110"
         },
         {
           "name": "Gemma 4 31B",
@@ -610008,16 +610008,16 @@
         "wrong": 0
       },
       {
+        "name": "Qwen3.8-27B",
+        "text_run": 318,
+        "kept": 2149,
+        "wrong": 509
+      },
+      {
         "name": "GLM-5.3",
         "text_run": 314,
         "kept": 129,
         "wrong": 5
-      },
-      {
-        "name": "Qwen3.8-27B",
-        "text_run": 318,
-        "kept": 2117,
-        "wrong": 493
       },
       {
         "name": "Gemma 4 31B",

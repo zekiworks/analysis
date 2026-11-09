@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 6fbca90e (9 November 2026)
+
+- The empty and broken reply rule (project lead, 8 November 2026) applied to Qwen3.8-27B's earlier runs on our GPU: each empty reply was asked once more, on the same server command as the runs (no new run). Text, run 318: 5 empty replies of 16 questions asked again, 2 came back with answers (32 answers); 1,641 of 2,198 right (74.7%; 1,625, 73.9% before), 48 answers still empty after asking again. Hallucination tab, with "Bilmiyorum" (run 666): 11 empty replies asked again, 10 came back with answers (160 answers); 31 "Bilmiyorum" and 493 wrong, 5.9% non-hallucination (6.3% before, when 176 answers were missing), 16 answers still empty. The cost includes the replies asked again.
+- Significance-group letters move where run 318's accuracy changed; no paired verdict between setups moved. No other setup's number changed. Still to be asked again: one empty reply of DeepSeek-V4.1-Flash 1017 (run 585), which needs all four GPUs, and two of GPT-6 Luna through OpenAI's Decisions API (run 397), which need API credit.
+
 ## Results 49c9738e (8 November 2026)
 
 - Added MiMo V2.6 Flash, an open-weights chat model, through OpenRouter: Xiaomi's own endpoint (fp8), which has structured outputs, so its requests carry the answer schema of every other chat setup; reasoning high, a 65,536-token output cap, fallbacks off, and one question per request, a setup of its own: with 16 questions per request its reasoning looped on one Turkish grammar question and used the whole output cap with no answer (smoke runs 835 and 855), so the project lead chose one question per request. Text: run 877, 1,585 of 2,198 right (72.1%); 84 setups in all. English reading: run 878, 487 of the 547 kept questions right (89.0%) against 86.8% in Turkish on the same questions, not a significant difference (Holm). Hallucination tab: with "Bilmiyorum" (run 879) 20 "Bilmiyorum" and 557 wrong, 3.5% non-hallucination; English "I don't know" (run 880) 1 and 58 wrong, 1.7%. Its cost is at OpenRouter's price for Xiaomi's endpoint.
