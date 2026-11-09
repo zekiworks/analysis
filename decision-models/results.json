@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "eab43f16",
-  "updated": "2026-11-09T17:14:25Z",
+  "results_version": "70efbd84",
+  "updated": "2026-11-09T18:08:54Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -308122,6 +308122,79 @@
         }
       },
       {
+        "name": "Gemma 4 E4B",
+        "model": "gemma-4-e4b-it",
+        "provider": "vllm-plain",
+        "reasoning": "default",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 889,
+        "runs": [
+          889
+        ],
+        "dates": [
+          "2026-11-09"
+        ],
+        "parameters": 7996156448,
+        "active_parameters": null,
+        "effective_parameters": 4500000000,
+        "parameters_scope": "language model with per-layer embeddings + vision and audio encoders; effective size as Google states it",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, google/gemma-4-E4B-it@4ecc2ba",
+          "https://huggingface.co/google/gemma-4-E4B-it"
+        ],
+        "parameters_read": "2026-11-09",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision google/gemma-4-E4B-it@4ecc2ba), one question per request, plain answer line ANSWER: X (no answer schema); sampling temperature 0.0; output cap 8,192",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 0.10869578223394008,
+            "per_1000": 0.19871258178051202,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 149024,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 283570
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 157.1505285309977
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 8.387442033999832,
+            "p90_request_seconds": 11.884392890401068,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 451,
+          "wrong": 94,
+          "invalid": 2,
+          "accuracy": 0.8244972577696527
+        }
+      },
+      {
         "name": "LFM2.5-8B-A1B",
         "model": "lfm2.5-8b-a1b",
         "provider": "vllm-plain",
@@ -312024,6 +312097,41 @@
             "accuracy": 0.6453382084095064,
             "attempt_rate": 0.9049360146252285,
             "non_hallucination": 0.26424870466321243,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Gemma 4 E4B",
+          "model": "gemma-4-e4b-it",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 889,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 890,
+            "runs": [
+              890
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 2,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "invalid_by_kind": {
+                "unreadable": 2
+              }
+            },
+            "right": 443,
+            "wrong": 92,
+            "dont_know": 10,
+            "invalid": 2,
+            "accuracy": 0.8098720292504571,
+            "attempt_rate": 0.9780621572212066,
+            "non_hallucination": 0.09803921568627451,
             "mean_dont_know_probability": null
           }
         }
