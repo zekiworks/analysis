@@ -357,17 +357,17 @@
    },
    {
     "reason": null,
-    "series_done": 0,
+    "series_done": 1,
     "setup": "Gemma 4 31B (on)",
     "status": "running",
-    "updated_at": "2026-11-09T09:06:29+00:00"
+    "updated_at": "2026-11-09T11:17:14+00:00"
    },
    {
     "reason": null,
     "series_done": 0,
     "setup": "Qwen3.8-27B (low)",
     "status": "running",
-    "updated_at": "2026-11-09T07:48:27+00:00"
+    "updated_at": "2026-11-09T11:06:12+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -391,7 +391,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-09T11:02:14+00:00"
+  "updated_at": "2026-11-09T11:17:14+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -2005,7 +2005,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 72.163,
+     "api_equivalent_usd": 72.7566,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2141,11 +2141,21 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 36.08478419482708,
+     "right_safety": 97.0,
+     "risks_found": 40.0
     },
-    "answers_after": null,
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "answers_before": {
      "answer_rate": 100.0,
      "answered": 200,
@@ -2163,9 +2173,9 @@
      "risks_found": 34.0
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": -2.2302860766649246,
+     "right_safety": -1.0,
+     "risks_found": 6.0
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -2195,19 +2205,90 @@
     "key": "gemma-4-31b-on",
     "progress": {
      "reason": null,
-     "series_done": 0,
+     "series_done": 1,
      "status": "running",
-     "updated_at": "2026-11-09T09:06:29+00:00"
+     "updated_at": "2026-11-09T11:17:14+00:00"
     },
     "range": null,
     "reason": null,
-    "series": [],
-    "series_finished": 0,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 232,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Be more aggressive with attacking hits to maintain pressure and equity.\n- Prioritize clearing the midpoint and improving overall structure over redundant home-board hits.\n- Focus on escaping back checkers and gaining mobility rather than attacking when the position is precarious.\n- Prioritize advancing checkers out of danger zones over making internal moves.\n- Ensure every move contributes to mobility or structural strength rather than just hitting."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize escaping back checkers over hitting deep in the home board.\n- Be more proactive with aggressive hitting in the early game to disrupt the opponent's timing.\n- Clear the midpoint efficiently when transitioning to the bear-in phase.\n- During the bear-off, prioritize board control and hitting to prevent the opponent from establishing a counter-play."
+       },
+       {
+        "game": 3,
+        "text": "- Be more aggressive in the early game; don't miss opportunities to hit and disrupt the opponent.\n- Prioritize making key home-board points, especially the 5-point, over playing purely for safety.\n- Avoid excessive caution; playing too conservatively often results in a significant loss of equity.\n- Balance the need for safety with the need to establish a strong positional presence on the board."
+       },
+       {
+        "game": 4,
+        "text": "- Be more aggressive in hitting; don't miss opportunities to put the opponent on the bar.\n- Avoid overly passive play when attacking moves provide significantly higher equity.\n- Evaluate the risk of leaving blots more accurately to avoid \"missed risk\" errors.\n- Prioritize maximizing the efficiency of the bear-off over hasty removals."
+       },
+       {
+        "game": 5,
+        "text": "- Avoid the temptation to hit every possible blot; prioritize structural integrity and secure anchors over aggressive, low-value hits.\n- Avoid taking needless risks with back checkers when safer interior moves are available.\n- When bringing checkers home, prioritize clearing the outermost points first to minimize future vulnerability.\n- In the endgame, focus on clearing the home board and preparing to bear off rather than making unnecessary runs with lone checkers."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize advancing or splitting back checkers over minor home-board tidying.\n- Avoid burying checkers too deep in the home board to maintain flexibility.\n- Be more willing to take calculated risks to improve anchor positions early.\n- Ensure back checkers are not forgotten while focusing on building an inner board."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize advancing or splitting back checkers over making minor home board improvements.\n- Avoid getting trapped in the opponent's home board; look for opportunities to escape early.\n- Compare the strategic value of hitting in the opponent's home board versus the outer board.\n- Balance aggressive attacking play with the necessity of moving all checkers toward the home board."
+       },
+       {
+        "game": 8,
+        "text": "- Prioritize escaping back checkers over consolidating internal points early in the game.\n- Avoid burying checkers on the 1-point too early to maintain tactical flexibility.\n- Be more aggressive in hitting opponents, especially when it gains significant tempo.\n- Don't trade away attacking potential for safety when the engine indicates a \"missed risk.\"\n- Always consider hitting opportunities with back checkers to disrupt the opponent's structure."
+       },
+       {
+        "game": 9,
+        "text": "- Prioritize escaping back checkers early rather than focusing on building the home board.\n- Avoid over-committing to an inner board if your runners are still stranded.\n- When bearing off, prioritize clearing high points to minimize the risk of leaving blots.\n- Be more aggressive in challenging the opponent's positions when the engine suggests \"missed risks.\""
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize making home board points over consolidating outer board checkers.\n- Be more aggressive in hitting to maintain tempo and pressure the opponent.\n- Avoid burying checkers on low points too early; maintain flexibility for the bear-off.\n- Prioritize clearing blots on higher points before consolidating lower ones.\n- Focus on overall home board structure and efficiency rather than simply moving checkers inward."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 2,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 36.08478419482708,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 97.0,
+       "risk_pays": 100,
+       "risks_found": 40.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 7844.3
+      },
+      "wins": 7
+     }
+    ],
+    "series_finished": 1,
     "setup": "Gemma 4 31B (on)",
     "state": "running",
-    "status": "running on our GPU, 0 of 5 series",
+    "status": "running on our GPU, 1 of 5 series",
     "steps_done": [
-     "E1"
+     "E1",
+     "S1"
     ],
     "threshold": null,
     "verdict": false
@@ -2219,11 +2300,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 47.31360651552677,
+     "right_safety": 90.0,
+     "risks_found": 34.0
     },
     "change": {
      "error_rate": null,
@@ -2236,15 +2327,31 @@
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 47.31360651552677,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 90.0,
+      "risk_pays": 100,
+      "risks_found": 34.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 11864.6
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "qwen3.8-27b-on",
     "progress": {
      "reason": null,
      "series_done": 0,
      "status": "running",
-     "updated_at": "2026-11-09T07:48:27+00:00"
+     "updated_at": "2026-11-09T11:06:12+00:00"
     },
     "range": null,
     "reason": null,
@@ -2253,7 +2360,9 @@
     "setup": "Qwen3.8-27B (low)",
     "state": "running",
     "status": "running on our GPU, 0 of 5 series",
-    "steps_done": [],
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -2397,11 +2506,11 @@
    "billed_total_usd": 14.4921,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-09T11:02:14+00:00"
+  "updated_at": "2026-11-09T11:17:14+00:00"
  },
- "source_sha256": "5035da1200d71383dac3336687ed4e483f981bb9a2c3d6af4ca17baf43f53451",
+ "source_sha256": "2c1467dea3568f700d9f489922e57eed7499d6c4c3ad9ec88bb7bcb4c4cae53f",
  "status": {
-  "last_update": "2026-11-09T11:02:14+00:00",
+  "last_update": "2026-11-09T11:17:14+00:00",
   "line": "3 of 15 models with a verdict · 3 running · 9 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 9,
