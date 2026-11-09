@@ -429,7 +429,8 @@ td.hl-judgement { width: 55%; min-width: 13rem; }
    one small grey chip after it: setting · type, a late entry's tag in it, 'program' for a program; the expander of its
    other settings, shown without script; nothing under the name, its maker is in the dot and its details box) and the
    risk judgement; the programs grey and unranked under a group heading. */
-table.headline td.model .hl-dot { width: .7rem; height: .7rem; border-radius: 50%; }
+table.headline td.model .hl-dot, #improve-results-table .model .hl-dot { width: .7rem; height: .7rem; border-radius: 50%; }
+#improve-results-table .hl-dot-none { background: var(--data-grey); }
 table.headline td.model > .hl-tag { display: inline-block; margin: .1rem 0 0 .35rem; padding: 0 .4rem; color: var(--text-2);
   font-size: .74rem; line-height: 1.35; white-space: nowrap; vertical-align: .05rem; background: var(--sunk);
   border: 1px solid var(--edge); border-radius: 999px; }
@@ -437,7 +438,11 @@ tr.hl-sub td.model > .hl-tag { background: var(--panel); }
 .hl-filter { display: flex; flex-wrap: wrap; gap: .3rem; margin: .1rem 0 .2rem; }
 .hl-filter .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
 tr.hl-off { display: none !important; }
-table.headline tbody tr.hl-open > td { background: var(--row-hover); }
+table.headline tbody tr.hl-open > td, #improve-results-table tbody tr.hl-open > * { background: var(--row-hover); }
+/* The "Did they improve?" table's boxes sit in its sticky first column: the open row's cell above the other rows' (and
+   the header's) sticky cells, the box in plain text, not the row header's bold. */
+#improve-results-table tbody tr.hl-open > th:first-child { z-index: 4; }
+#improve-results-table .hl-box { font-weight: 400; text-align: left; }
 /* A row's details box (bg.js): every value of the setup, a line per kind; in its row without script, else over the page
    beside its row where the window has room, else under it (fixed to the window, within its width), opened by a tap,
    hover or the focus. */

@@ -583,15 +583,15 @@ async function savePng(panel, svg, title, lines, filename) {
    (from its bottom upwards near the window's foot): it never covers another row's name, so the row under the pointer
    on a name is the row whose box shows (HoverCheck, Zeki #3146). On a phone it goes under the row (above it near the
    bottom of the window). Within the window's width; capped where it does not fit. Without JavaScript every box is
-   shown in its row. */
+   shown in its row. The same boxes on the "Did they improve?" results table (Ümit via Zeki #3803). */
 (function headlineDetails() {
-  const table = document.getElementById('headline-table');
+  const table = document.getElementById('headline-table') || document.getElementById('improve-results-table');
   if (!table) return;
   let open = null, pinned = false, pointer = 'mouse', quiet = false;
   const boxOf = tr => document.getElementById(tr.dataset.box);
   const place = () => {
     if (!open) return;
-    const box = boxOf(open), row = open.getBoundingClientRect(), cell = open.querySelector('td.model').getBoundingClientRect();
+    const box = boxOf(open), row = open.getBoundingClientRect(), cell = open.querySelector('.model').getBoundingClientRect();
     const score = open.cells[2].getBoundingClientRect();
     const vw = document.documentElement.clientWidth;  // the visible width, even where something overflows the page
     const width = Math.min(380, vw - 16);
