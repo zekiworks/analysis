@@ -133,3 +133,21 @@
   measure();
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
 })();
+
+/* Did they improve?: the results table's filter (Ümit/Zeki #3710): All, Chat models, Decision models or Small models
+   (rows marked data-small="yes": the model's disclosed total parameters at most the leaderboard's provisional
+   threshold); the Small models key shows its definition under the keys. */
+(function improveFilter() {
+  const table = document.getElementById('improve-results-table');
+  const keys = [...document.querySelectorAll('[data-improve-filter]')];
+  const note = document.querySelector('.improve-small-note');
+  if (!table || !keys.length) return;
+  keys.forEach(k => k.addEventListener('click', () => {
+    const type = k.dataset.improveFilter;
+    keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
+    table.querySelectorAll('tbody tr[data-group]').forEach(tr => {
+      tr.hidden = type !== 'all' && (type === 'small' ? tr.dataset.small !== 'yes' : tr.dataset.group !== type);
+    });
+    if (note) note.hidden = type !== 'small';
+  }));
+})();
