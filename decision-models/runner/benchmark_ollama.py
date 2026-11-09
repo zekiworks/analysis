@@ -513,6 +513,11 @@ PRICES: dict[tuple[str, str], Price] = {
         "Cloudflare's list price for the same model", "https://developers.cloudflare.com/workers-ai/models/clef-flash/",
         "2026-10-18", 0.038, applies_to="maker",
     ),
+    # Clef-Omni: US$0.15 per million input tokens on Workers AI (read 9 November 2026); our runs use its open weights.
+    ("clef", "clef-omni"): Price(
+        "Cloudflare's list price for the same model", "https://developers.cloudflare.com/workers-ai/models/clef-omni/",
+        "2026-11-09", 0.15, applies_to="maker",
+    ),
     # Alibaba Cloud Model Studio's international (Singapore) price for qwen3.8-27b, implicit cache reads included; the
     # page shows no promotions and one output price, thinking or not (read again 29 October 2026). The four
     # Qwen3.8-27B setups differ only in how they ask.
@@ -3835,6 +3840,9 @@ def reported_decimals(value: float) -> int:
 ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     ("nace", "drex-v2.0"): 4, ("baselabs", "baselabs/elephant-1"): 6, ("baselabs", "baselabs/mammoth-1"): 6,
     ("meragpt", "decider-1"): 4, ("clef", "clef"): 4, ("clef", "clef-flash"): 4,
+    # Clef-Omni's release code (Cloudflare/clef-omni @ f32dfc06, joint_schema_model.py lines 673-674) rounds each
+    # option's probability to 4 places with the same lines as Clef's, so the Clef rule of #1152 applies (Ümit #3514).
+    ("clef", "clef-omni"): 4,
     ("strands", "strands-decider-2b"): 4, ("laya", "laya"): 4, ("laya", "laya-multilingual"): 4,
     ("onejev", "OmniJev/OneJev-27B"): 6,
 }
