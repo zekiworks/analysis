@@ -191,7 +191,9 @@ python3 -m http.server 8000                                # preview at http://1
     **Small models** (`Site.small`, `v3.js` `isSmall`): every setup, chat or decision model, whose model's total
     parameter count as its maker discloses it is at most `page_config.json`'s `small_models.max_parameters` (15B, one
     threshold shared with the Logic and Backgammon sites); a mixture of experts counts by its total, and a model whose
-    maker discloses no size is never in it. A part that covers every decision model whatever its size (a Holm family,
+    maker discloses no size is never in it. `small_models.also_by_name` holds setups by name although their total is
+    larger, worded in the rule line as on the other two sites: Inkling Small, 12B active of 265.96B total (project lead
+    through Zeki, bus #3806). A part that covers every decision model whatever its size (a Holm family,
     a decision-model finding) is not split by size: under Small models a note (`small_note`) stands in its place, as
     under Chat models. A group asked for in the address stays in the links marked
     `data-keep-group`. The footer of every page (`footer`): About · Method · Data · GitHub, the downloads and the
@@ -417,9 +419,10 @@ python3 -m http.server 8000                                # preview at http://1
       "Bilmiyorum" and cost; Both: Turkish and English accuracy on the same questions, as `turkish-vs-english/`
       computes them, ranked by Turkish), the filter (All · Chat models · Decision models · Small models, Decision models
       by default, or the group `?models=` names; the rank column shows each row's rank among the rows in view, ties
-      sharing a rank; under Small models the rule's one line shows under the table) and All setups, which shows today's
-      full ranking in the table's place. Two lines of text: what the score means above the table and the row rule under
-      it; the longer notes are on About.
+      sharing a rank; under Small models the rule's one line shows under the table, and choosing Small models, or
+      opening `?models=small`, shows the English part, as the small open models ran in English only) and All setups,
+      which shows today's full ranking in the table's place. Two lines of text: what the score means above the table
+      and the row rule under it; the longer notes are on About.
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
       then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
       `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;

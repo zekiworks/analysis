@@ -37,6 +37,9 @@ RULE = ("Row rule: each model's highest reasoning setting (none, off or the chat
 ROW_LINE = "One row per model at its highest reasoning setting, never its best score; tap or point at a row for its details."
 PARTS = (("english", "English"), ("turkish", "Turkish"), ("both", "Both"))
 DEFAULT_PART = "turkish"
+# Under Small models the Leaderboard shows the English part first (site.js): the small open models of 9 November
+# (project lead, bus #3446, #3475) ran in English only, so Turkish and Both hold none of them (Zeki #3805).
+SMALL_PART = "The small open models ran in English only, so Small models opens on English."
 FILTERS = (("all", "All"), ("chat", "Chat models"), ("decision", "Decision models"), ("small", "Small models"))
 DEFAULT_FILTER = "decision"
 TYPE_LABEL = {True: "decision model", False: "chat model"}
@@ -382,7 +385,7 @@ def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
                      for part, _ in PARTS)
     return (f'{controls}<div class="lb-models" data-lb-view="models">{panels}'
             f'<p class="table-note lb-rule">{esc(ROW_LINE)} <a href="{about}">How rows are chosen</a></p>'
-            f'<p class="table-note lb-small-line" data-lb-small hidden>{esc(site.small_line())}</p></div>')
+            f'<p class="table-note lb-small-line" data-lb-small hidden>{esc(site.small_line())} {esc(SMALL_PART)}</p></div>')
 
 
 def about_text(site: Site, origin: str) -> str:

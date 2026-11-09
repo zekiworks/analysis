@@ -286,8 +286,10 @@ const MODEL_GROUPS = {
   small: { title: 'Small models', every: 'every small model setup, decision and chat models together', of: count => `the ${count} small model setups` },
 };
 /* A setup of a small model: its maker's disclosed total (a mixture of experts by its total) at most the threshold
-   (page_config.json small_models); a model whose maker discloses no size never is. As Site.small. */
-const isSmall = run => run.parameters != null && run.parameters <= SETTINGS.smallModels;
+   (page_config.json small_models), or one of the setups it holds by name (SETTINGS.smallByName, "provider|model"); a
+   model whose maker discloses no size never is otherwise. As Site.small. */
+const isSmall = run => (SETTINGS.smallByName || []).includes(`${run.provider}|${run.model}`)
+  || (run.parameters != null && run.parameters <= SETTINGS.smallModels);
 const inGroup = run => state.models === 'all' || (state.models === 'small' ? isSmall(run) : isDecision(run) === (state.models === 'decision'));
 /* Every setup of the group in view, whatever the filters. */
 const groupRuns = () => data.runs.filter(inGroup);

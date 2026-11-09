@@ -13,7 +13,7 @@
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
   "mixed_providers": {"openrouter": ["inception/mercury-decide", "microsoft/microsoft-decision-1"]},
-  "small_models": {"about": "The Small models view (?models=small, after Decision models): every setup, chat or decision model, whose model's total parameter count as its maker discloses it (export_results.py MODELS, each with its source and the date read) is at most max_parameters; a mixture of experts counts by its total, and a model whose maker discloses no size is never in it. One threshold for the three benchmark sites (Ümit, bus #3467).", "max_parameters": 15000000000},
+  "small_models": {"about": "The Small models view (?models=small, after Decision models): every setup, chat or decision model, whose model's total parameter count as its maker discloses it (export_results.py MODELS, each with its source and the date read) is at most max_parameters; a mixture of experts counts by its total, and a model whose maker discloses no size is never in it. One threshold for the three benchmark sites (Ümit, bus #3467). also_by_name: setups in it by name although their total is larger, each with the words its rule line gives, the same on the three sites (Ümit via Zeki #3806: Inkling Small, 12B active).", "max_parameters": 15000000000, "also_by_name": [{"provider": "openrouter-chat", "model": "thinkingmachines/inkling-small", "text": "Inkling Small (12B active of 265.96B total)"}]},
   "confidence_rows": [
     {"provider": "perplexity", "model": "pplx-decider-v1.1-27b", "key": "decider_v11"},
     {"provider": "perplexity", "model": "pplx-decider-v1-27b", "key": "decider_v1"},

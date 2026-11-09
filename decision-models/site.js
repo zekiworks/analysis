@@ -241,8 +241,9 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
     window.location.replace(MOVED[hash]);
     return;
   }
+  // Small models opens on English (leaderboard.py SMALL_PART): the small open models ran in English only.
   const state = {
-    part: 'turkish',
+    part: ASKED_GROUP === 'small' ? 'english' : 'turkish',
     filter: ['all', 'decision', 'chat', 'small'].includes(ASKED_GROUP) ? ASKED_GROUP : 'decision',
     all: false,
   };
@@ -288,8 +289,10 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
     const key = event.target.closest('button');
     if (!key) return;
     if (key.dataset.lbPart) state.part = key.dataset.lbPart;
-    else if (key.dataset.lbFilter) state.filter = key.dataset.lbFilter;
-    else if (key.hasAttribute('data-lb-all')) {
+    else if (key.dataset.lbFilter) {
+      state.filter = key.dataset.lbFilter;
+      if (state.filter === 'small') state.part = 'english';
+    } else if (key.hasAttribute('data-lb-all')) {
       openAll(!state.all);
       return;
     } else if (key.classList.contains('lb-more')) {
