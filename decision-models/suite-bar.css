@@ -4,8 +4,10 @@
 
    Theme: it follows data-theme on <html> ("light" or "dark"), as the sites' own stylesheets do; without the attribute
    it follows the reader's system setting (prefers-color-scheme). The current site's link carries aria-current="page"
-   and is filled like a selected key; the others are plain links. About 27 px tall, one line; on a narrow screen the
-   links scroll sideways inside the strip, never the page. */
+   and is filled like a selected key; the others are plain links. On a desktop about 50 px tall: 8 px above the links and
+   10 px below them, the links 32 px high with 8 px by 16 px inside and 20 px between them, 14 px text. On screens
+   narrower than 600 px about 46 px: links 28 px high with 6 px by 12 px inside, 8 px apart, 13 px text. One line; on a
+   narrow screen the links scroll sideways inside the strip, never the page. */
 .suite-bar {
   --suite-bg: #ecebe6;
   --suite-edge: #c9c6bf;
@@ -41,23 +43,22 @@
 .suite-bar {
   box-sizing: border-box;
   display: block;
-  height: 27px;
+  min-height: 50px;
   margin: 0;
-  padding: 0 8px;
+  padding: 8px 16px 10px;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
   background: var(--suite-bg);
   border-bottom: 1px solid var(--suite-edge);
-  font: 600 12px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font: 600 14px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   letter-spacing: 0;
 }
 .suite-bar::-webkit-scrollbar { display: none; }
 .suite-bar ul {
   display: flex;
   align-items: center;
-  gap: 4px;
-  height: 100%;
+  gap: 20px;
   max-width: 1248px;
   margin: 0 auto;
   padding: 0;
@@ -68,8 +69,8 @@
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  height: 21px;
-  padding: 0 8px;
+  min-height: 32px;
+  padding: 8px 16px;
   color: var(--suite-text);
   border: 1px solid transparent;
   border-radius: 5px;
@@ -85,5 +86,10 @@
   background: var(--suite-current-bg);
   border-color: var(--suite-current-edge);
   text-decoration: none;
+}
+@media (max-width: 599px) {
+  .suite-bar { min-height: 46px; padding: 8px 14px 10px; font-size: 13px; }
+  .suite-bar ul { gap: 8px; }
+  .suite-bar a { min-height: 28px; padding: 6px 12px; }
 }
 @media print { .suite-bar { display: none; } }
