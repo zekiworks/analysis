@@ -4,12 +4,12 @@
    unchanged) and the question index's filters. Every page works without it (the Decision copy of each test page's parts
    shows, the leaderboard shows Logic with every row and every details box in its row, costs read per 1,000 questions). */
 
-/* The model group from ?models= (all, decision or chat; missing or unknown means decision, the default). Each element
+/* The model group from ?models= (all, decision, chat or small; missing or unknown means decision, the default). Each element
    whose data-models lists other groups only is hidden; the page's Models key of the group is marked; the links that
    keep the group (data-keep-group) carry it. */
 (function setupModels() {
   const asked = (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, '');
-  const group = ['all', 'decision', 'chat'].includes(asked) ? asked : 'decision';
+  const group = ['all', 'decision', 'chat', 'small'].includes(asked) ? asked : 'decision';
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
@@ -47,7 +47,8 @@
 })();
 
 /* The leaderboard's keys (Ümit #2980 item 4): the part (Logic, Math, Both: one panel each), the models (All, Chat models,
-   Decision models: rows of the other type go out of view, class hl-off) and All setups (every setup its own row); the
+   Decision models: rows of the other type go out of view, class hl-off; Small models: the rows whose model is small,
+   data-small, of either type, with the one-line rule under the keys) and All setups (every setup its own row); the
    ranks are the places among the rows in view. The choice is kept in the address (?part=, ?models=, ?setups=all), and
    the More views links carry the models. Expander keys open a row's other settings. */
 (function setupLeaderboard() {
@@ -55,7 +56,8 @@
   if (!board) return;
   const params = new URLSearchParams(window.location.search);
   const parts = ['logic', 'math', 'together'];
-  const groups = ['all', 'chat', 'decision'];
+  const groups = ['all', 'chat', 'decision', 'small'];
+  const shows = tr => state.filter === 'all' || (state.filter === 'small' ? tr.dataset.small === 'true' : tr.dataset.hlType === state.filter);
   const askedPart = params.get('part') === 'both' ? 'together' : params.get('part');
   const state = {
     part: parts.includes(askedPart) ? askedPart : 'logic',
@@ -66,12 +68,13 @@
     board.querySelectorAll('[data-lb-part]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbPart === state.part)));
     board.querySelectorAll('[data-lb-filter]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbFilter === state.filter)));
     board.querySelector('[data-lb-setups]').setAttribute('aria-pressed', String(state.setups));
+    board.querySelector('[data-lb-small-rule]').hidden = state.filter !== 'small';
     board.querySelectorAll('[data-lb-panel]').forEach(panel => {
       panel.hidden = panel.dataset.lbPanel !== state.part;
       panel.querySelectorAll('[data-lb-view]').forEach(view => { view.hidden = (view.dataset.lbView === 'setups') !== state.setups; });
       let shown = 0;
       panel.querySelectorAll('tbody tr[data-hl-type]').forEach(tr => {
-        tr.classList.toggle('hl-off', state.filter !== 'all' && tr.dataset.hlType !== state.filter);
+        tr.classList.toggle('hl-off', !shows(tr));
         if (!tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off') && !tr.closest('[data-lb-view]').hidden) {
           shown += 1;
           tr.querySelector('.lb-rank').textContent = String(shown);
@@ -98,6 +101,11 @@
     b.getAttribute('aria-controls').split(' ').forEach(id => { const r = document.getElementById(id); if (r) r.hidden = !open; });
   }));
   apply(false);
+  // On a narrow screen the keys scroll sideways in their row: bring the models key in use into view (?models=small).
+  const controls = board.querySelector('.lb-controls');
+  const pressed = board.querySelector('[data-lb-filter][aria-pressed="true"]');
+  const past = pressed.getBoundingClientRect().right - controls.getBoundingClientRect().right;
+  if (past > 0) controls.scrollLeft += past + 12;
 })();
 
 /* A leaderboard row's details box (as the backgammon site's, bg.js headlineDetails). A tap opens it and a second tap on
