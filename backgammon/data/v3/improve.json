@@ -445,10 +445,10 @@
    },
    {
     "reason": null,
-    "series_done": 0,
+    "series_done": 1,
     "setup": "DeepSeek V4.1 Flash (low)",
     "status": "running",
-    "updated_at": "2026-11-09T16:53:25+00:00"
+    "updated_at": "2026-11-09T18:01:34+00:00"
    },
    {
     "reason": null,
@@ -483,14 +483,14 @@
     "series_done": 0,
     "setup": "Grok 4.7 (high)",
     "status": "running",
-    "updated_at": "2026-11-09T15:55:29+00:00"
+    "updated_at": "2026-11-09T17:52:41+00:00"
    },
    {
     "reason": "usage limit",
     "series_done": 1,
     "setup": "Claude Fable 5.1 (high)",
     "status": "paused",
-    "updated_at": "2026-11-09T17:22:58+00:00"
+    "updated_at": "2026-11-09T17:55:59+00:00"
    },
    {
     "reason": null,
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-09T17:49:21+00:00"
+  "updated_at": "2026-11-09T18:04:27+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -1542,11 +1542,21 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 36.06987954714359,
+     "right_safety": 87.0,
+     "risks_found": 48.421052631578945
     },
-    "answers_after": null,
+    "answers_after": {
+     "answer_rate": 97.5,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 5,
+     "risk_pays": 95,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 195
+    },
     "answers_before": {
      "answer_rate": 99.5,
      "answered": 200,
@@ -1564,15 +1574,15 @@
      "risks_found": 46.464646464646464
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 2.089509979272499,
+     "right_safety": -5.0,
+     "risks_found": 1.9564061669324815
     },
     "cost": {
-     "api_equivalent_usd": 7.369,
-     "billed_usd": 10.1365,
+     "api_equivalent_usd": 8.0861,
+     "billed_usd": 10.7213,
      "estimate_usd": 44.0,
-     "reported_usd": 7.4205
+     "reported_usd": 8.0861
     },
     "empty": [
      {
@@ -1596,19 +1606,90 @@
     "key": "deepseek-v4.1-flash-on",
     "progress": {
      "reason": null,
-     "series_done": 0,
+     "series_done": 1,
      "status": "running",
-     "updated_at": "2026-11-09T16:53:25+00:00"
+     "updated_at": "2026-11-09T18:01:34+00:00"
     },
     "range": null,
     "reason": null,
-    "series": [],
-    "series_finished": 0,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 210,
+      "game_invalid": 3,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When opponent has a checker on the bar, look to hit a second checker or slot key inner points; don't default to safe.\n- Build your board by slotting/covering inner points (5,4,3) rather than stacking on outer points like the 8-point.\n- Avoid burying checkers on the 1- or 2-point during bear-in; keep them higher for flexibility.\n- In the bear-off, compare all legal moves for pip efficiency and shot risk; don't bear off if it leaves gaps or awkward distribution.\n- When bearing off, clear from the highest point with the larger die and keep a smooth, flexible home board."
+       },
+       {
+        "game": 2,
+        "text": "- When trapped with several checkers on the 24-point, prioritize escaping them over making low home-board points.\n- Use turns when opponent is on the bar to advance rear checkers, not to stack your inner board.\n- Don't automatically take the safest bar entry; enter higher when it improves your escape/contact.\n- Don't miss a good hit just to keep a blot-free position; hitting often gains tempo.\n- In races/bearoffs, clear points safely and avoid needless hits or loose blots."
+       },
+       {
+        "game": 3,
+        "text": "- Look for tempo hits early; when opponent leaves a blot, hitting often beats a quiet safe play.\n- When you can escape/advance back checkers, do it; don't make low home-board points while they remain trapped.\n- With two back checkers, split them to different points instead of running one deep, reducing attack/block risk.\n- Avoid stacking checkers on one point, especially with doubles; spread them and advance one checker further.\n- In bearoff, maximize checkers off and use small dice to smooth gaps; avoid internal moves when you can bear off."
+       },
+       {
+        "game": 4,
+        "text": "- In the bearoff, prioritize pip efficiency and smooth distribution; avoid stacking more checkers on already-heavy points.\n- When you can safely hit a blot in your home board, do it—hitting gains tempo and can win the race.\n- In pure races, favor safe, efficient bearoff plays; unnecessary risks rarely pay off.\n- Use spare checkers from higher points to fill gaps instead of creating new gaps on lower points.\n- Review small bearoff errors; they often come from choosing a play that leaves worse future rolls."
+       },
+       {
+        "game": 5,
+        "text": "- Prefer making a new blocking point with two checkers over scattering checkers deep into your home board.\n- Avoid loose double hits or deep-point hits that strip your position; one constructive hit or a safe advance is usually stronger.\n- When behind or with a checker on the bar, secure an anchor or escape the rear checker before taking speculative hits.\n- In bear-in, advance outer/rear checkers toward home and don't bury checkers on the 1- or 2-point unless forced.\n- Keep spare flexibility: clear from the back and avoid gaps that make low rolls awkward."
+       },
+       {
+        "game": 6,
+        "text": "- When you can hit a blot in your home board or make a key inner point, prioritize it over quiet consolidation.\n- Avoid loose or unnecessary hits when already ahead or in a race; take a safe development if it offers similar upside.\n- In bearoff/race positions, value safety and smooth distribution over hitting; don't create return shots or bury checkers on the ace point.\n- With doubles, use all moves to improve flexibility and connectivity, not just stack checkers on an already made point.\n- When bearing in, move from higher/rear points to fill gaps rather than stripping your low points too early."
+       },
+       {
+        "game": 7,
+        "text": "- When you can hit a blot, especially while entering from the bar, weigh the tempo gain heavily; don't default to the safest play if it lets opponent escape.\n- Early game, avoid overaggressive double hits that leave your own checkers stacked; prefer developing back checkers or making constructive points when the gain is small.\n- In bearoff positions, improve distribution toward the 1-point; with only one die playable, choose the move that reduces future wastage, not just any legal move.\n- Trust your safety calls when they are right, but when you sense you are being too passive, look for a loose hit or tempo play.\n- Keep your generally good risk judgment; most errors come from isolated moments of choosing passivity over initiative."
+       },
+       {
+        "game": 8,
+        "text": "- When opponent has checkers back or on the bar, look first for a hit that keeps them trapped; safe inside plays often lose equity.\n- Do not neglect your 24-point checkers: advance or escape them when your home board is not under immediate pressure.\n- With big doubles, use at least part of the roll to hit or build a blocking point, not just stack the midpoint.\n- Before settling for a safe move, check whether a tempo-gaining hit or escape is available; many errors were missed risk.\n- In bear-in/bear-off, keep flexibility and avoid unnecessary low-point moves that weaken your structure."
+       },
+       {
+        "game": 9,
+        "text": "- Early, develop/escape back checkers instead of quiet midpoint shuffles; don't leave them stranded.\n- When opponent has a blot in your home or is on the bar, hit inside to keep pressure, unless it leaves many return shots.\n- Avoid needless outfield hits when opponent has a strong board; hitting just because you can often gives back shots and loses tempo.\n- Use doubles to unstack and advance rear checkers, not merely to rearrange safe points.\n- In races and bear-in, prioritize safety and connectivity: bring checkers home together and avoid exposing lone stragglers."
+       },
+       {
+        "game": 10,
+        "text": "- When your opponent has a blot you can hit without exposing too much, hit it; the tempo often beats a quiet safe play.\n- With doubles, use them to advance and make a key inner point rather than stacking a neutral point and burying checkers.\n- During bear-in, move from your highest/rearmost points to fill gaps; avoid stripping the 6-point into low points.\n- Keep checkers distributed and flexible for bear-off; don’t pile them on one point or bury them on the 2-point.\n- You sometimes played too safely when ahead: still weigh calculated risk to keep or grow gammon chances."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 97.5,
+       "answered": 200,
+       "error_rate": 36.06987954714359,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 5,
+       "right_safety": 87.0,
+       "risk_pays": 95,
+       "risks_found": 48.421052631578945,
+       "safety_pays": 100,
+       "valid": 195,
+       "wall_seconds": 4089.3
+      },
+      "wins": 8
+     }
+    ],
+    "series_finished": 1,
     "setup": "DeepSeek V4.1 Flash (low)",
     "state": "running",
-    "status": "running, 0 of 5 series",
+    "status": "running, 1 of 5 series",
     "steps_done": [
-     "E1"
+     "E1",
+     "S1"
     ],
     "threshold": null,
     "verdict": false
@@ -2198,7 +2279,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 102.0791,
+     "api_equivalent_usd": 105.3348,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2271,7 +2352,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 25.7758,
+     "api_equivalent_usd": 26.4826,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2300,7 +2381,7 @@
      "reason": null,
      "series_done": 0,
      "status": "running",
-     "updated_at": "2026-11-09T15:55:29+00:00"
+     "updated_at": "2026-11-09T17:52:41+00:00"
     },
     "range": null,
     "reason": null,
@@ -2383,7 +2464,7 @@
      "reason": "usage limit",
      "series_done": 1,
      "status": "paused",
-     "updated_at": "2026-11-09T17:22:58+00:00"
+     "updated_at": "2026-11-09T17:55:59+00:00"
     },
     "range": null,
     "reason": "S2: usage limit (429 rate_limit_error)",
@@ -2833,14 +2914,14 @@
    }
   ],
   "money": {
-   "billed_total_usd": 25.5942,
+   "billed_total_usd": 26.179,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-09T17:49:21+00:00"
+  "updated_at": "2026-11-09T18:04:27+00:00"
  },
- "source_sha256": "a2af84fc29be6d896c991d6bebd8c382a8697ca294c603d3e61229357570dd75",
+ "source_sha256": "f6ee43cbc5e41457cc4554b89a7ee8e87572ccca7caea3b2759f5b510e8df8fc",
  "status": {
-  "last_update": "2026-11-09T17:49:21+00:00",
+  "last_update": "2026-11-09T18:04:27+00:00",
   "line": "3 of 15 models with a verdict · 5 running · 7 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 7,
