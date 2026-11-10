@@ -9,7 +9,8 @@ keeps in all-benches/benches.json: a file the address does not serve yet is "not
 address cannot be reached, the build keeps what it read before. Models join across benches by Hugging Face repo, else
 by name and kind (join_key). Every score is 0 to 100: 0 = chance (Backgammon: a random legal-move player's error
 rate), 100 = perfect. The combined score is the plain mean of Reading (Text), Logic & Math and Backgammon, for a model on
-all three only; learning from experience (improvement points) stays outside it. Two scores closer than their margin
+all three only, and only where one model answered every bench (page_config.json all_benches.not_combined lists the rows
+where it did not); learning from experience (improvement points) stays outside it. Two scores closer than their margin
 (margin) read "tied", the one rule the Methodology page states (#tied); no interval or range is shown.
 
 The page in order: the line on what it measures with the Text / Vision switch; the ranking (a column chart of the
@@ -190,6 +191,18 @@ class Data:
         for model in self.models.values():
             model["combined"] = (statistics.fmean(model["scores"][key]["score_0_100"] for key in COMBINED)
                                  if all(key in model["scores"] for key in COMBINED) else None)
+        # Rows whose benches one model did not answer (page_config.json all_benches.not_combined): their per-bench
+        # scores stay, their combined score goes, with the reason the combined board and their page give.
+        self.not_combined: list[dict[str, Any]] = []
+        for entry in config["not_combined"]:
+            match = entry["match"]
+            key = ("repo:" + match["repo"].lower() if match.get("repo")
+                   else f"name:{norm(match['name'])}|{match['kind']}")
+            if key not in self.models:
+                raise SystemExit(f"page_config.json all_benches.not_combined: no row matches {match}")
+            self.models[key]["combined"] = None
+            self.models[key]["not_combined"] = entry["reason"]
+            self.not_combined.append(self.models[key])
         self.latency_runs(config["latency_runs"])
         self.their = config["their_score"]
         for item in self.their["models"]:
@@ -226,7 +239,7 @@ class Data:
                     "key": key, "name": row["name"], "slug": slug(row["name"]), "maker": row.get("maker"), "kind": kind,
                     "repo": row.get("repo"), "family": family, "colour": self.colour(row.get("maker"), kind),
                     "tag": training["tag"] if training else None, "size": row.get("params_total"),
-                    "active": row.get("params_active"), "scores": {}, "latency": None}
+                    "active": row.get("params_active"), "scores": {}, "latency": None, "not_combined": None}
             model["scores"][bench["key"]] = row
             if model["size"] is None and row.get("params_total") is not None:
                 model["size"], model["active"] = row["params_total"], row.get("params_active")
@@ -391,7 +404,15 @@ def bars(data: Data, view: str) -> str:
     legend = "".join(f'<span><i class="swatch" style="background:{colour}"></i>{esc(maker)}</span>'
                      for maker, colour in dict.fromkeys((model["maker"] or "no maker", model["colour"]) for model in ranked))
     return (f'<ol class="ab-bars" aria-label="{esc(data.view_label(view))}: decision models by score, higher is better">'
-            f'{"".join(items)}</ol><p class="ab-legend families">{legend}</p>')
+            f'{"".join(items)}</ol><p class="ab-legend families">{legend}</p>{not_combined_note(data, view)}')
+
+
+def not_combined_note(data: Data, view: str) -> str:
+    """Under the combined board: the rows left out of it, each with its reason (Methodology #combined)."""
+    if view != "combined" or not data.not_combined:
+        return ""
+    return "".join(f'<p class="note ab-not-combined">No combined score for <a href="{model_href(model)}">{esc(model["name"])}</a>: '
+                   f'{esc(model["not_combined"])} (<a href="method/#combined">the rule</a>)</p>' for model in data.not_combined)
 
 
 def empty_note(data: Data, view: str) -> str:
@@ -468,7 +489,7 @@ def scoring(data: Data) -> str:
         <li>Every bench on one scale: <strong>0 = random guessing, 100 = perfect</strong>; higher is better {UP}.</li>
         <li><strong>Reading</strong> ({bp.count(text["models"][0]["raw"]["questions"])} Turkish questions, 5 options) and <strong>Logic &amp; Math</strong>: accuracy corrected for chance, (accuracy − 1/k) / (1 − 1/k) × 100, k the number of options. <strong>Vision</strong>: the same on Reading's {bp.count(vision["models"][0]["raw"]["questions"])} questions that depend on the printed page, read from the page image alone.</li>
         <li><strong>Backgammon</strong>: 0 = the error rate of a player that picks a random legal move, 100 = no error.</li>
-        <li><strong>Combined</strong> = the plain mean of Reading (Text), Logic &amp; Math and Backgammon, equal weights, only for a model that ran all three; the others are in each bench's tab.</li>
+        <li><strong>Combined</strong> = the plain mean of Reading (Text), Logic &amp; Math and Backgammon, equal weights, only for a model that ran all three, one model on every bench (<a href="method/#combined">the rule</a>); the others are in each bench's tab.</li>
         <li><strong>Learning from experience</strong> ("did it improve?", points gained, higher is better {UP}) is a column of its own, outside the combined score.</li>
         <li>Lower is better {DOWN} for calibration error (ECE, in points: how far the stated probabilities are from the hit rate) and latency. Close scores read <strong>tied</strong>, never with an interval: <a href="method/#tied">the rule</a>.</li>
       </ul>
@@ -483,6 +504,9 @@ def h2h_rows(data: Data, first: dict[str, Any], second: dict[str, Any]) -> str:
         a, b = data.score(first, key), data.score(second, key)
         if not data.published(key):
             verdict = f'<span class="nm">{NOT_PUBLISHED}</span>'
+        elif key == "combined" and (first["not_combined"] or second["not_combined"]):
+            verdict = (f'<span class="nm">no combined score for {esc((first if first["not_combined"] else second)["name"])}: '
+                       f'one model did not answer every bench</span>')
         elif a is None and b is None:
             verdict = '<span class="nm">neither ran it</span>'
         elif a is None or b is None:
@@ -530,7 +554,8 @@ def results_table(data: Data, models: list[dict[str, Any]], caption: str) -> str
     body = []
     for model in models:
         cells = [name_cell(model), f'<td class="num">{size_text(model)}</td>',
-                 f'<td class="num">{"–" if model["combined"] is None else number(model["combined"])}</td>']
+                 f'<td class="num">{"–" if model["combined"] is None else number(model["combined"])}'
+                 f'{"<span class=\"small\">not one model</span>" if model["not_combined"] else ""}</td>']
         for bench in [*text_benches, *vision_benches]:
             row = model["scores"].get(bench["key"])
             cells.append(f'<td class="num">{"–" if row is None else number(row["score_0_100"]) + ece_text(row)}</td>')
@@ -821,8 +846,9 @@ def model_page(data: Data, model: dict[str, Any]) -> str:
             continue
         value = data.score(model, key)
         if value is None:
-            reason = ("needs all three of Reading, Logic & Math and Backgammon" if key == "combined" else "not on this bench")
-            rows.append(f'<tr><th scope="row">{esc(label)}</th><td colspan="5"><span class="nm">{reason}</span></td></tr>')
+            reason = ((model["not_combined"] or "needs all three of Reading, Logic & Math and Backgammon") if key == "combined"
+                      else "not on this bench")
+            rows.append(f'<tr><th scope="row">{esc(label)}</th><td colspan="5"><span class="nm">{esc(reason)}</span></td></tr>')
             continue
         row = model["scores"].get(key) or {}
         commit = row.get("commit")
@@ -862,7 +888,7 @@ def script_data(data: Data) -> str:
         "defaults": {board: data.default_view(board) for board, _ in BOARDS},
         "models": [{"key": model["key"], "name": model["name"], "slug": model["slug"], "repo": model["repo"],
                     "scores": {key: [row["score_0_100"], row["raw"]["questions"]] for key, row in model["scores"].items()},
-                    "combined": model["combined"]} for model in data.models.values()],
+                    "combined": model["combined"], "nc": bool(model["not_combined"])} for model in data.models.values()],
     }
     return f'<script type="application/json" id="ab-data">{json.dumps(payload, ensure_ascii=False, separators=(",", ":"))}</script>'
 
@@ -922,6 +948,8 @@ def method_page(data: Data) -> str:
       </ul>
       <h2 id="combined">Combined score</h2>
       <p>The plain mean, equal weights, of Reading (Text), Logic &amp; Math and Backgammon. Only a model with a score on all three gets one; the others appear in each bench's tab. Vision is not part of it.</p>
+      <p>A row gets a combined score only if one model answered every bench: the same checkpoint (one repo, one set of weights) or the same served version of a hosted model. A hosted service that changed its model between the benches' runs keeps its score on each bench, but gets no combined score{":" if data.not_combined else "."}</p>
+      {"<ul>" + "".join(f"<li>{esc(model['name'])}: {esc(model['not_combined'])}</li>" for model in data.not_combined) + "</ul>" if data.not_combined else ""}
       <h2 id="learning">Learning from experience</h2>
       <p>"Did it improve?": the points a model gains from its own experience, as a bench's file gives them (improvement_points). A column of its own, never part of the combined score.</p>
       <h2 id="tied">When we write "tied"</h2>

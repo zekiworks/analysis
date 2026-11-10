@@ -118,7 +118,9 @@
       const open = key === 'combined' || published[key];
       let verdict;
       if (!open) verdict = '<span class="nm">not published yet</span>';
-      else if (first === null && second === null) verdict = '<span class="nm">neither ran it</span>';
+      else if (key === 'combined' && (a.nc || b.nc)) {
+        verdict = `<span class="nm">no combined score for ${esc((a.nc ? a : b).name)}: one model did not answer every bench</span>`;
+      } else if (first === null && second === null) verdict = '<span class="nm">neither ran it</span>';
       else if (first === null || second === null) verdict = `<span class="nm">only ${esc((second === null ? a : b).name)} ran it</span>`;
       else if (Math.abs(first - second) < margin(key, a, b)) verdict = `tied (${number(first - second)})`;
       else verdict = `${esc((first > second ? a : b).name)} ahead by ${number(Math.abs(first - second))}`;
