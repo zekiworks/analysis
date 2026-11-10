@@ -114,7 +114,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: REAX 1.3 and Liquid d1-ultra, tied and clearly ahead at 77.9% and 77.1%; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2 (local GPU), at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: REAX 1.3 and Liquid d1-ultra, tied and clearly ahead at 77.9% and 77.1%; then GLiDE 27B (open) at 71.1%; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2 (local GPU), at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -838,9 +838,9 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap Preview thirteenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 12)
+    check("SubQ Snap Preview fourteenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 13)
     for size in (16, 1):
-        for key, place, word in (("opus", 20, "twentieth"), ("astra", 18, "eighteenth")):
+        for key, place, word in (("opus", 21, "twenty-first"), ("astra", 19, "nineteenth")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
@@ -886,12 +886,14 @@ def copy_checks(data: Data) -> list[str]:
           and not any(shares(lead, run) for lead in (reax, ultra) for run in decision if run is not reax and run is not ultra))
     with_web = data.by_name("pplx-decider-v1.2", "perplexity", "web_grounding")
     hosted = data.by_name("pplx-decider-v1.2", "perplexity", None)
+    glide27 = data.by_name("glide-27b")
+    check("Summary: then GLiDE 27B (open) at 71.1%", ranked[2] is glide27 and percent(glide27) == "71.1")
     check(f"Summary: then {with_web['name']}, GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, "
           f"Mammoth-1, and {decider['name']} and {decider12['name']}, in that order",
-          ranked[2] is with_web and ranked[3] is glide12 and ranked[4] is glide
-          and {run["run"] for run in ranked[5:7]} == {d3["run"], d3_ultra["run"]}
-          and accuracy(d3) == accuracy(d3_ultra) and ranked[7] is drex_v1 and ranked[8] is drex_11 and ranked[9] is mammoth
-          and {run["run"] for run in ranked[10:12]} == {decider["run"], decider12["run"]})
+          ranked[3] is with_web and ranked[4] is glide12 and ranked[5] is glide
+          and {run["run"] for run in ranked[6:8]} == {d3["run"], d3_ultra["run"]}
+          and accuracy(d3) == accuracy(d3_ultra) and ranked[8] is drex_v1 and ranked[9] is drex_11 and ranked[10] is mammoth
+          and {run["run"] for run in ranked[11:13]} == {decider["run"], decider12["run"]})
     near = (with_web, glide12, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
     check("Summary: at 66.9% to 68.7%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")
@@ -910,13 +912,16 @@ def copy_checks(data: Data) -> list[str]:
 
     check("Summary: decision models got up to 92.4% of the reading questions right", best_share("reading") == "92.4")
     check("Summary: but at most 71.8% of the grammar questions", best_share("grammar") == "71.8")
-    # The cost notes: a setup without a cost runs on our hardware with no request time to estimate it from; every other
-    # cost of a setup on our hardware is at its maker's list price for the same model, a public host's for the same
-    # weights, or its GPU time at the rate and date the gpu note and tip state; Liquid d1 is estimated at Liquid's list
-    # price; no latency for runs made before requests were timed one by one.
+    # The cost notes: a setup without a cost runs on our hardware with no request time to estimate it from, or on a DGX
+    # Spark, which has no public hourly price (the GLiDE family's open checkpoints); every other cost of a setup on our
+    # hardware is at its maker's list price for the same model, a public host's for the same weights, or its GPU time at
+    # the rate and date the gpu note and tip state; Liquid d1 is estimated at Liquid's list price; no latency for runs
+    # made before requests were timed one by one.
     prices = {bp.price_key(price): price for price in results["prices"]}
-    check("No list price note: every setup without a cost runs on our hardware, with no request time to estimate it from",
-          all(run["billing"] == "local" and run["cost_basis"] is None and not run["request_seconds"]
+    check("No list price note: every setup without a cost runs on our hardware, with no request time to estimate it from "
+          "or on a DGX Spark",
+          all(run["billing"] == "local" and run["cost_basis"] is None
+              and (not run["request_seconds"] or "DGX Spark" in (run.get("hardware") or ""))
               for run in runs if run["api_equivalent_usd"] is None))
     bases = {"maker": r"'s list price for the same model( \(.+\))?", "weights": r"'s list price for the same weights \(.+\)",
              "gpu": r".+"}
@@ -947,9 +952,9 @@ def copy_checks(data: Data) -> list[str]:
                        for run in decision if (run["run"], frontier["run"]) in cascades]
             winners.append(max(savings)[1])
     tally = Counter(winners)
-    check(f"Summary: d1-ultra gave the biggest estimated saving in 10 of the 16 LLM setups, REAX 1.3 in the other 6 "
-          f"({len(winners)} setups: {dict((data.by_id[run]['name'], times) for run, times in tally.items())})",
-          len(winners) == 16 and tally == Counter({ultra["run"]: 10, reax["run"]: 6}))
+    check(f"Summary: d1-ultra gave the biggest estimated saving in 8 of the 16 LLM setups, REAX 1.3 in 6, GLiDE 27B (open) "
+          f"in the other 2 ({len(winners)} setups: {dict((data.by_id[run]['name'], times) for run, times in tally.items())})",
+          len(winners) == 16 and tally == Counter({ultra["run"]: 8, reax["run"]: 6, data.by_name("glide-27b")["run"]: 2}))
     return found
 
 

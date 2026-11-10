@@ -2945,10 +2945,12 @@ def check_costs(results: dict[str, Any], checks: Checks) -> list[str]:
     for run in results["runs"]:
         price = prices.get((run["provider"], run["model"], run.get("perplexity_mode")))
         if price is None:
-            # A run without a price must say why: our own GPUs, and no request time to estimate its GPU time from.
+            # A run without a price must say why: our own hardware, and either no request time to estimate its GPU time
+            # from or a machine with no public hourly price to estimate it at (a DGX Spark: the GPU-time rate is the
+            # RTX PRO 6000's, which a Spark's request time does not fit; the GLiDE family's open checkpoints, #4055).
             matched = (run["api_equivalent_usd"] is None and run["billing"] == "local" and run["cost_basis"] is None
-                       and not run["request_seconds"])
-            cell = checks.cell(matched, "no price (local, no request time)",
+                       and (not run["request_seconds"] or "DGX Spark" in (run.get("hardware") or "")))
+            cell = checks.cell(matched, "no price (local; no request time, or a DGX Spark)",
                                f"{run['api_equivalent_usd']} ({run['billing']}, {run['cost_basis']})")
             if "≠" in cell:
                 mismatches.append(f"  run {run['run']} ({label(run)}): {cell}")

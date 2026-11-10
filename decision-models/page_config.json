@@ -9,7 +9,7 @@
   "decision_model_providers": [
     "jev", "perplexity", "liquid", "fastino", "celeris", "openai-decisions", "subq", "meragpt", "clef", "cygnet", "open-jev",
     "winnow", "metask", "strands", "gliner", "laya", "openrouter", "pplx-decider", "glide", "vllm-sr", "d3-server", "onejev",
-    "nace", "drex-max", "d1-server", "baselabs", "reax"
+    "nace", "drex-max", "d1-server", "baselabs", "reax", "knowline", "sieve", "turion-jev", "startlux", "cerno"
   ],
   "not_decision_models": ["gliner2.5-multi-v1"],
   "mixed_providers": {"openrouter": ["inception/mercury-decide", "microsoft/microsoft-decision-1"]},
@@ -213,7 +213,12 @@
       {"name": "Winnow", "runs": [{"provider": "winnow"}]},
       {"name": "Inception", "runs": [{"provider": "openrouter", "model": "inception/mercury-decide"}]},
       {"name": "Microsoft", "icon": "microsoft", "runs": [{"provider": "openrouter", "model": "microsoft/microsoft-decision-1"}]},
-      {"name": "REAX", "runs": [{"provider": "reax"}]}
+      {"name": "REAX", "runs": [{"provider": "reax"}]},
+      {"name": "KnowLine", "runs": [{"provider": "knowline"}]},
+      {"name": "Sieve", "runs": [{"provider": "sieve"}]},
+      {"name": "Turion Jev", "runs": [{"provider": "turion-jev"}]},
+      {"name": "StartLux", "runs": [{"provider": "startlux"}]},
+      {"name": "Cerno", "runs": [{"provider": "cerno"}]}
     ]
   },
   "leaderboard": {
@@ -320,7 +325,7 @@
       "fastino/GLiNER2.5-multi-Decide": {"tag": "fine-tune", "source": "MODELS note: Fastino's decision fine-tune of GLiNER2.5 Multi"},
       "Cygnet": {"tag": "unchanged base", "source": "MODELS note: Gemma 4 12B IT, unchanged, read out by option letter"}
     },
-    "latency_runs": [],
+    "latency_runs": [899, 907, 915, 923, 931],
     "not_combined": [
       {"match": {"repo": null, "name": "Fastino GLiDE", "kind": "decision"},
        "reason": "Fastino's API served a changed model between our benches' runs (Reading 6 Oct, Logic & Math 7 Nov, Backgammon 20 Oct to 7 Nov), so its bench scores are not one model's."}

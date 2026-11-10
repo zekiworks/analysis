@@ -549,11 +549,12 @@ def local_estimates(snap: bp.Snapshot) -> str:
     return text
 
 
-def gemma_lead(snap: bp.Snapshot) -> str:
+def gemma_lead(snap: bp.Snapshot) -> tuple[str, str]:
     """What we found says Gemma 4 31B, a chat model, scored higher than every decision model on Reading and on Grammar
     except the ones it names, which scored higher than Gemma on both, and that its confidence matched its hit rate less
-    closely than the best decision models' did; returns those decision models' short names, and the build stops when a
-    part no longer holds."""
+    closely than the best decision models' did; a decision model with exactly Gemma's right answers on a part is named as
+    tied there (GLiDE 27B (open) on Reading, 10 November 2026). Returns those decision models' short names and the ties'
+    clause ("" without one); the build stops when a part no longer holds."""
     decision = [run for run in snap.runs if snap.decision_model(run)]
     gemma = snap.named["gemma"]
     groups = ("reading", "grammar")
@@ -561,13 +562,16 @@ def gemma_lead(snap: bp.Snapshot) -> str:
                                             for group in groups)]
     if not ahead:
         raise ValueError("What we found names the decision models ahead of Gemma; there are none")
+    ties = []
     for group in groups:
         share = bp.study_share(snap, gemma, group)
-        if any(bp.study_share(snap, run, group) >= share for run in decision if run not in ahead):
+        if any(bp.study_share(snap, run, group) > share for run in decision if run not in ahead):
             raise ValueError(f"What we found says Gemma beats every other decision model on {group}; it does not")
+        ties += [(run, group) for run in decision if run not in ahead and bp.study_share(snap, run, group) == share]
     if gemma["confidence"]["ece"] <= min(run["confidence"]["ece"] for run in decision):
         raise ValueError("What we found says Gemma's confidence matched its hit rate less closely than the best decision models'")
-    return bp.and_list([run["name"].removeprefix("Liquid ") for run in ahead])
+    tied = "".join(f" ({esc(run['name'])} tied with it on {group.capitalize()})" for run, group in ties)
+    return bp.and_list([run["name"].removeprefix("Liquid ") for run in ahead]), tied
 
 
 def and_list(items: tuple[tuple[str, str], ...]) -> str:
@@ -649,7 +653,7 @@ def glance(site: Site) -> str:
 def build(site: Site) -> dict[str, str]:
     snap = site.snapshot
     v = site.values
-    gemma_ahead = gemma_lead(snap)
+    gemma_ahead, gemma_tied = gemma_lead(snap)
     cite = Cites()
     pairs = reasoning_pairs(site, snap)
     smaller, live_total = average_cost(snap)
@@ -682,13 +686,12 @@ def build(site: Site) -> dict[str, str]:
         ("main-findings", "What we found", f"""
 <p>No model led on every measure: accuracy, ranking answers by confidence and confidence that matches the hit rate are
 separate strengths. Gemma 4 31B, a chat model, scored higher than every decision model except {esc(gemma_ahead)} on Reading
-({v['gemma_reading']}) and Grammar ({v['gemma_grammar']}), but its confidence matched its hit rate less closely than the
-best decision models' did.</p>
+({v['gemma_reading']}) and Grammar ({v['gemma_grammar']}){gemma_tied}, but its confidence matched its hit rate less closely
+than the best decision models' did.</p>
 <p>How a model gives its confidence matters. GPT-6 Luna through OpenAI's Decisions API ranked its answers better than Luna
 writing its confidence (ranking score {v['luna_api_auroc']} against {v['luna_stated_auroc']}) but got fewer right
 ({v['luna_api_accuracy']} against {v['luna_stated_accuracy']}), with a different access method and request size. Among
-decision models, its calibration gap ({v['luna_api_ece_points']} points) was second only to Liquid d1.1's
-({v['d1_1_ece_points']} points).</p>
+decision models, its calibration gap ({v['luna_api_ece_points']} points) was {v['luna_api_gap_place']}.</p>
 <p>Cheaper chat models remain alternatives. GPT-6.1 Sol scored {v['sol_accuracy']} at an estimated cost {v['sol_saving']}
 below GPT-6 Astra's ({v['astra_accuracy']}). Gemini 3.8 Flash at high reasoning scored {v['gemini_high_accuracy']}, and the
 test over all pairs did not establish a difference from Astra.</p>

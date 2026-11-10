@@ -99,6 +99,12 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "d1-server": {"access": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16", "scoring": True, "billing": "local"},
     "baselabs": {"access": "Base Labs server (qev, the model card's loader), self-hosted, BF16", "scoring": True, "billing": "local"},
     "reax": {"access": "REAX Engine server (reax13 mode, the maker's release code), self-hosted, FP8", "scoring": True, "billing": "local"},
+    # The new Decision Index models' servers (Ümit #4057), each as its model card serves it (runner/README.md).
+    "knowline": {"access": "KnowLine server (knowline_server.py over SGLang, PelaAI's release code), self-hosted", "scoring": True, "billing": "local"},
+    "sieve": {"access": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "turion-jev": {"access": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load", "scoring": True, "billing": "local"},
+    "startlux": {"access": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "cerno": {"access": "Cerno server (logic's thin server around the card's CernoEngine, transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -247,6 +253,39 @@ MODELS: dict[str, dict[str, Any]] = {
         "the hosted model as it answered on 6 October 2026, before a change on Fastino's side.",
         "hardware": f"1 × {SPARK}; BF16",
     },
+    # Fastino's open GLiDE family (the project lead, bus #4006 and #4008): each checkpoint at the commit logic's server
+    # pinned, behind the server its repository ships (python -m glide.server, GLIDE_MAX_BATCH=1), on a DGX Spark (GB10).
+    "glide-27b": {
+        "name": "GLiDE 27B (open)",
+        "note": "Fastino's released GLiDE 27B (fastino/GLiDE-27B at 4d32743, 5 November 2026), a modified Qwen3.8-27B whose "
+        "layers 24 to 47 run twice (recurrent depth, its decision_config.json), run on our hardware through the server it "
+        "ships. The same repository's earlier checkpoint, kept at its tag glide-v1.2, is the Fastino GLiDE v1.2 row.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "glide-9b": {
+        "name": "GLiDE 9B (open)",
+        "note": "Fastino's released GLiDE 9B (fastino/GLiDE-9B at ab54df5), on Qwen3.5-9B, text only, whose layers 12 to 23 "
+        "run twice (recurrent depth, its decision_config.json), run on our hardware through the server it ships.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "glide-2b": {
+        "name": "GLiDE 2B (open)",
+        "note": "Fastino's released GLiDE 2B (fastino/GLiDE-2B at 00f122c), on Qwen3.5-2B, run on our hardware through the "
+        "server it ships. Its checkpoint holds no vision encoder, so its server takes text only.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "glide-0.8b": {
+        "name": "GLiDE 0.8B (open)",
+        "note": "Fastino's released GLiDE 0.8B (fastino/GLiDE-0.8B at 9eacdee), on Qwen3.5-0.8B, run on our hardware "
+        "through the server it ships. Its checkpoint holds no vision encoder, so its server takes text only.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "glide-0.4b": {
+        "name": "GLiDE 0.4B (open)",
+        "note": "Fastino's released GLiDE 0.4B (fastino/GLiDE-0.4B at 6bda7ab), an encoder (ModernBERT architecture, from "
+        "Ettin-encoder-400m) that reads at most 7,999 tokens, run on our hardware through the server it ships.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
     # It ran on one RTX PRO 6000 Blackwell (96 GB).
     "vllm-sr/d3": {
         "name": "vLLM-SR d3",
@@ -343,6 +382,75 @@ MODELS: dict[str, dict[str, Any]] = {
         "(the reax13 mode of reaxlabs/reax-engine at ff8f595, its own server, serve.py), both parts in FP8 (block-128) on "
         "one RTX PRO 6000 Blackwell, text only, one request at a time. Its card lists English only.",
         "hardware": f"1 × {GPU}; FP8 (block-128)",
+    },
+    # The new Decision Index models (Ümit #4057), each on spark2 (one DGX Spark, GB10) behind the server its model card
+    # names, one request at a time, as logic served them (#4072); names as their makers write them.
+    "PelaAI/KnowLine-31B-Gen1.5": {
+        "name": "KnowLine 31B Gen1.5",
+        "note": "PelaAI's released KnowLine-31B-Gen1.5 (PelaAI/KnowLine-31B-Gen1.5 at 8e56aa1), a merged LoRA fine-tune of "
+        "Gemma-4-31B-it whose weights are those of Gen1; Gen1.5 changes only how long requests are served. It ran on our "
+        "hardware (one DGX Spark), one request at a time, through the card's serve_knowline.sh (SGLang 0.5.21 in BF16 and "
+        "the repository's knowline_server.py, which reads a request of up to 3,000 tokens twice), with vision on. Its card "
+        "lists English and Chinese.",
+        "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "PelaAI/KnowLine-4B-Gen5.5": {
+        "name": "KnowLine 4B Gen5.5",
+        "note": "PelaAI's released KnowLine-4B-Gen5.5 (PelaAI/KnowLine-4B-Gen5.5 at 779944d), a fine-tune of Qwen3.5-4B whose "
+        "weights are those of Gen5. It ran on our hardware (one DGX Spark), one request at a time, through the card's "
+        "serve_knowline.sh (SGLang 0.5.21 with the weights quantised to FP8 at load, and the repository's "
+        "knowline_server.py, which reads a request of up to 3,000 tokens twice), with vision on. Its card lists English "
+        "and Chinese.",
+        "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, FP8 at load",
+        "hardware": f"1 × {SPARK}; FP8 at load",
+    },
+    "sthanika-ai/Sieve-31B-v3": {
+        "name": "Sieve 31B v3",
+        "note": "sthanika-ai's released Sieve-31B-v3 (sthanika-ai/Sieve-31B-v3 at 8fcee85), a full fine-tune of "
+        "Gemma-4-31B-it with bidirectional attention in its global layers, read in two option orders. It ran on our "
+        "hardware (one DGX Spark), one request at a time, through the server its card names (sieve-serve from the Sieve "
+        "repository's main at 1e64657, on torch 2.14 where the card tested torch 2.8), text only. Probabilities rounded to "
+        "4 decimals by its own code; they sum to 1 only within that rounding. Its server reports no token counts. Its "
+        "card lists English only.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "turion-ai/turion-jev-31b": {
+        "name": "Turion Jev 31B",
+        "note": "Turion AI's released Turion Jev 31B (turion-ai/turion-jev-31b at 866c0fc), a merged LoRA fine-tune of "
+        "Gemma-4-31B-it. It ran on our hardware (one DGX Spark), one request at a time, through the server its package "
+        "ships (python -m turion_jev.serve on vLLM), with the BF16 weights quantised to FP8 at load and --no-recheck (no "
+        "second reading of unsure questions), both as in the card's own benchmark run, text only. Probabilities rounded "
+        "to 6 decimals by its own code; they sum to 1 only within that rounding.",
+        "hardware": f"1 × {SPARK}; FP8 at load",
+    },
+    "apertixai/cerno-9b-v1.2": {
+        "name": "Cerno 9B v1.2",
+        "note": "Apertix AI's released Cerno 9B v1.2 (apertixai/cerno-9b-v1.2 at f02a632), a full fine-tune of Qwen3.5-9B "
+        "with block-bidirectional attention. Its card ships no server, only an in-process engine (CernoEngine, "
+        "transformers, BF16); it ran on our hardware (one DGX Spark), one request at a time, through our thin System One "
+        "wrapper around that engine, text only. Input tokens are counted only where the engine reports them. "
+        "Probabilities rounded to 4 decimals by its own code; they sum to 1 only within that rounding.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "startlux-models/StartLux-Decision-v1.1-4B-Instant": {
+        "name": "StartLux-Decision v1.1 4B",
+        "note": "StartLux Labs' released StartLux-Decision-v1.1-4B-Instant (at 416088f), a fine-tune of Qwen3.5-4B that reads "
+        "the prompt bidirectionally and also reads images. It ran on our hardware (one DGX Spark), one request at a time, "
+        "through the server of its package (startlux-decide serve --launch-vllm, StartLux-Decision at a99977d) on vLLM "
+        "0.31.0, with vision on: the card's scores were measured on vLLM 0.19.1, which has no build for the DGX Spark's "
+        "processor (aarch64). Its weights are licensed for non-commercial use only (CC BY-NC 4.0); we use them "
+        "non-commercially, for evaluation. Its card lists English only.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "OmniJev/OneJev1.6-0.8B": {
+        "name": "OneJev1.6-0.8B",
+        "note": "OmniJev's released OneJev1.6-0.8B (OmniJev/OneJev1.6-0.8B at c89933c), an average of three full fine-tunes "
+        "of Qwen3.5-0.8B that also reads images. It ran on our hardware (one DGX Spark), one request at a time, through "
+        "the server its card names (Flide 0.1.11, flide serve), with vision on (torchvision 0.29.1). Probabilities rounded "
+        "to 6 decimals by Flide; they sum to 1 only within that rounding.",
+        "access": "Flide server (flide 0.1.11, the card's server for OneJev 1.6), self-hosted, BF16",
+        "hardware": f"1 × {SPARK}; BF16",
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
     "celeris-1-decision": {"name": "Celeris-1 Decision"},
@@ -574,6 +682,29 @@ SIZES: dict[str, dict[str, Any]] = {
                    "repo": "fastino/GLiDE", "commit": "a7e4589",
                    "sources": ["counted from the checkpoint's safetensors, fastino/GLiDE@a7e4589",
                                "https://fastino.space/blog/glide-decision-model-family"], "read": READ},
+    # The GLiDE family's records, counted from each checkpoint's safetensors headers at the commit logic's server pinned
+    # (read 10 November 2026); the cards give 7.94B, 1.88B, 0.75B and 0.40B and name the largest "27B". Recurrent depth
+    # runs some layers twice; the parameters are counted once, as stored.
+    "glide-27b": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                  "repo": "fastino/GLiDE-27B", "commit": "4d32743",
+                  "sources": ["counted from the checkpoint's safetensors, fastino/GLiDE-27B@4d32743",
+                              "https://huggingface.co/fastino/GLiDE-27B"], "read": "2026-11-10"},
+    "glide-9b": {"total": 7_937_729_024, "scope": "language model (no LM head) + 255-way readout",
+                 "repo": "fastino/GLiDE-9B", "commit": "ab54df5",
+                 "sources": ["counted from the checkpoint's safetensors, fastino/GLiDE-9B@ab54df5",
+                             "https://huggingface.co/fastino/GLiDE-9B"], "read": "2026-11-10"},
+    "glide-2b": {"total": 1_882_347_328, "scope": "language model (no LM head) + 255-way readout",
+                 "repo": "fastino/GLiDE-2B", "commit": "00f122c",
+                 "sources": ["counted from the checkpoint's safetensors, fastino/GLiDE-2B@00f122c",
+                             "https://huggingface.co/fastino/GLiDE-2B"], "read": "2026-11-10"},
+    "glide-0.8b": {"total": 752_654_144, "scope": "language model (no LM head) + 255-way readout",
+                   "repo": "fastino/GLiDE-0.8B", "commit": "9eacdee",
+                   "sources": ["counted from the checkpoint's safetensors, fastino/GLiDE-0.8B@9eacdee",
+                               "https://huggingface.co/fastino/GLiDE-0.8B"], "read": "2026-11-10"},
+    "glide-0.4b": {"total": 395_042_816, "scope": "encoder (no MLM head) + 255-way readout",
+                   "repo": "fastino/GLiDE-0.4B", "commit": "6bda7ab",
+                   "sources": ["counted from the checkpoint's safetensors, fastino/GLiDE-0.4B@6bda7ab",
+                               "https://huggingface.co/fastino/GLiDE-0.4B"], "read": "2026-11-10"},
     # The cards: "26.09B, including the 0.46B vision encoder".
     "vllm-sr/d3": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
                    "repo": "vllm-sr/d3", "commit": "20f37b9",
@@ -612,6 +743,34 @@ SIZES: dict[str, dict[str, Any]] = {
                "repo": "decisionmodels/REAX-1.3", "commit": "fa4bf7e",
                "sources": ["counted from the checkpoint's safetensors, decisionmodels/REAX-1.3@fa4bf7e",
                            "https://huggingface.co/decisionmodels/REAX-1.3"], "read": READ},
+    # The new Decision Index models (Ümit #4057), counted from their checkpoints' safetensors headers (logical shapes),
+    # with the pinned commit (repo, commit: the keys the other benches join on). The Gemma 4 31B fine-tunes hold Gemma 4
+    # 31B's tensors, and their stored layer_scalar and vision std_bias and std_scale buffers (2,364) are left out, as for
+    # gemma-4-31B-it; Sieve's head.pt holds labels, temperatures and its serving policy, no weights. The cards: KnowLine
+    # 31B "about 31B parameters"; Sieve 31B v3 "29.29B" trained parameters (every linear projection of the decoder);
+    # Turion Jev 31B no count but its name; Cerno 9B v1.2 "9B"; KnowLine 4B "4B"; StartLux-Decision "a 4B decision
+    # model"; OneJev1.6-0.8B "0.9B parameters" (its chart). KnowLine 4B's multi-token prediction layer is stored in
+    # model-extra-from-base.safetensors, StartLux's with the language model; neither server reads it.
+    **{key: {"total": total, "scope": scope, "repo": repo, "commit": commit,
+             "sources": [f"counted from the checkpoint's safetensors, {repo}@{commit[:7]}", f"https://huggingface.co/{repo}"],
+             "read": "2026-11-10"}
+       for key, total, scope, repo, commit in (
+           ("PelaAI/KnowLine-31B-Gen1.5", 31_273_086_512, "language model (tied embeddings) + 0.58B vision encoder",
+            "PelaAI/KnowLine-31B-Gen1.5", "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140"),
+           ("sthanika-ai/Sieve-31B-v3", 31_273_086_512, "language model (tied embeddings) + 0.58B vision encoder (not read "
+            "by its server)", "sthanika-ai/Sieve-31B-v3", "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2"),
+           ("turion-ai/turion-jev-31b", 31_273_086_512, "language model (tied embeddings) + 0.58B vision encoder (not read "
+            "by its server)", "turion-ai/turion-jev-31b", "866c0fc6e040cba23fcc72113a80e5c99d5ebab1"),
+           ("apertixai/cerno-9b-v1.2", 8_953_803_264, "language model with its LM head (text only)",
+            "apertixai/cerno-9b-v1.2", "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda"),
+           ("PelaAI/KnowLine-4B-Gen5.5", 4_659_865_088, "language model (tied embeddings) + multi-token prediction layer "
+            "+ 0.33B vision encoder", "PelaAI/KnowLine-4B-Gen5.5", "779944d2cc8ffa19cef386aee83c83bcb967ade2"),
+           ("startlux-models/StartLux-Decision-v1.1-4B-Instant", 4_659_865_088, "language model (tied embeddings) + "
+            "multi-token prediction layer + 0.33B vision encoder", "startlux-models/StartLux-Decision-v1.1-4B-Instant",
+            "416088f77cfce09633906a3675c7cd2e5dabcf10"),
+           ("OmniJev/OneJev1.6-0.8B", 852_985_920, "language model (tied embeddings) + 0.10B vision encoder",
+            "OmniJev/OneJev1.6-0.8B", "c89933c277629b707895bff752c61d2b0664c85e"),
+       )},
     # The card: "ModernBERT-large (395M ...) + a decision head ... 421M total"; laya multilingual "mmBERT-base | 322M".
     "laya": {"total": 421_293_827, "scope": "ModernBERT-large encoder + decision head",
              "repo": "convaiinnovations/laya", "commit": "c5d7873",
@@ -1947,6 +2106,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
         ("open-jev", "open-jev-27b-v1.1"), ("pplx-decider", "pplx-decider-flash-v1.2"))},
     ("reax", "reax13", None): "added to the Hallucination tab on 6 November 2026 (run on our GPU), after the option-word "
     "check; not asked with “I don't know” yet.",
+    **{("glide", model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the option-word "
+       "check; not asked with “I don't know” yet." for model in ("glide-27b", "glide-9b", "glide-2b", "glide-0.8b", "glide-0.4b")},
 }
 # The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
 # five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't

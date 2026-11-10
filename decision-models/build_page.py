@@ -536,6 +536,21 @@ def values(snap: Snapshot) -> dict[str, str]:
     per_thousand = {key: 1000 * run["api_equivalent_usd"] / run["answered_questions"] for key, run in (("astra", astra), ("sol", sol))}
     out["sol_saving"] = fmt.pct(1 - per_thousand["sol"] / per_thousand["astra"], 0)
     out["sol_gap"] = f"{100 * (astra['correct'] - sol['correct']) / snap.total:.1f}"
+    # Luna through the Decisions API's place among the decision models by calibration gap, as the Method page states it:
+    # the decision models whose gap is smaller, by name with their gaps in points (Liquid d1.1 alone until the GLiDE
+    # family; GLiDE 27B (open) joined it on 10 November 2026).
+    by_gap = sorted((run for run in snap.runs if snap.decision_model(run) and (run.get("confidence") or {}).get("ece") is not None),
+                    key=lambda run: run["confidence"]["ece"])
+    ahead = by_gap[: by_gap.index(snap.named["luna_api"])]
+    gaps = [f"{run['name']} ({100 * run['confidence']['ece']:.1f} points)" for run in ahead]
+    places = {2: "second", 3: "third", 4: "fourth", 5: "fifth"}
+    if not ahead:
+        out["luna_api_gap_place"] = "the smallest"
+    elif len(ahead) == 1:
+        out["luna_api_gap_place"] = f"second only to {ahead[0]['name']}'s ({100 * ahead[0]['confidence']['ece']:.1f} points)"
+    else:
+        out["luna_api_gap_place"] = (f"{places.get(len(ahead) + 1, f'number {len(ahead) + 1}')}, behind "
+                                     f"{', '.join(gaps[:-1])} and {gaps[-1]}")
     out.update(replay_values(snap))
     out.update(paired_values(snap))
     out.update(key_values(snap))
@@ -797,9 +812,8 @@ def study_checks(snap: Snapshot) -> None:
     named, total = snap.named, snap.total
     decision = [run for run in snap.runs if snap.decision_model(run)]
     by_gap = sorted(decision, key=lambda run: run["confidence"]["ece"])
-    if by_gap[0] is not named["d1_1"] or by_gap[1] is not named["luna_api"]:
-        raise ValueError("the study says Liquid d1.1 has the smallest calibration gap among the decision models, and Luna "
-                         "through the Decisions API the next")
+    if by_gap[0] is not named["d1_1"]:
+        raise ValueError("the study says Liquid d1.1 has the smallest calibration gap among the decision models")
     deepseek = named["deepseek_on"]["confidence"]["sure"]
     if deepseek["questions"] != total:
         raise ValueError("the study says DeepSeek with reasoning scores every answer letter at 99% or more")

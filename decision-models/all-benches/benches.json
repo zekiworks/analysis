@@ -9,7 +9,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-10T10:28:56Z",
+    "updated": "2026-11-10T13:03:01Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -792,6 +792,32 @@
       "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
      },
      {
+      "repo": "fastino/GLiDE-9B",
+      "commit": "ab54df5acba0eebf7df45560ffdaacd64e32df3b",
+      "name": "GLiDE 9B",
+      "maker": "Fastino",
+      "kind": "decision",
+      "params_total": 7.94,
+      "params_active": 7.94,
+      "quantization": "BF16",
+      "score_0_100": 43.08850364963503,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5447080291970803,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.06680273588737132,
+      "improvement_points": null,
+      "runs": [
+       "logic:glide-9b_en",
+       "math:glide-9b_en",
+       "logic:glide-9b_en_dontknow",
+       "math:glide-9b_en_dontknow"
+      ],
+      "notes": "run on our hardware (DGX Spark (GB10))"
+     },
+     {
       "repo": null,
       "commit": null,
       "name": "Microsoft-Decision-1",
@@ -1104,6 +1130,32 @@
       "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
      },
      {
+      "repo": "fastino/GLiDE-2B",
+      "commit": "00f122c120cdeed82284106cb77d9bab5a50ad16",
+      "name": "GLiDE 2B",
+      "maker": "Fastino",
+      "kind": "decision",
+      "params_total": 1.88,
+      "params_active": 1.88,
+      "quantization": "BF16",
+      "score_0_100": 19.02372262773722,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.3521897810218978,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.1683616191457715,
+      "improvement_points": null,
+      "runs": [
+       "logic:glide-2b_en",
+       "math:glide-2b_en",
+       "logic:glide-2b_en_dontknow",
+       "math:glide-2b_en_dontknow"
+      ],
+      "notes": "run on our hardware (DGX Spark (GB10))"
+     },
+     {
       "repo": "LiquidAI/d1-2B",
       "commit": "10e7671d44e4b37700020b1eed3f594c5f2af0b4",
       "name": "Liquid d1-2B",
@@ -1130,6 +1182,32 @@
       "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
      },
      {
+      "repo": "fastino/GLiDE-0.8B",
+      "commit": "9eacdeec79fa48ec52a8d6f54b331376b4bbfaf0",
+      "name": "GLiDE 0.8B",
+      "maker": "Fastino",
+      "kind": "decision",
+      "params_total": 0.75,
+      "params_active": 0.75,
+      "quantization": "BF16",
+      "score_0_100": 13.85340632603406,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.3108272506082725,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.1713609660179691,
+      "improvement_points": null,
+      "runs": [
+       "logic:glide-0.8b_en",
+       "math:glide-0.8b_en",
+       "logic:glide-0.8b_en_dontknow",
+       "math:glide-0.8b_en_dontknow"
+      ],
+      "notes": "run on our hardware (DGX Spark (GB10))"
+     },
+     {
       "repo": "StrandsAgents/strands-decider-2B-hobson-v21",
       "commit": "2b52a6235c1b8306bbfa30b00b9d4b74b63a39f5",
       "name": "Strands Decider 2B",
@@ -1154,6 +1232,32 @@
        "math:strands_en_dontknow"
       ],
       "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB)); the repository holds a LoRA and head on Qwen3.5-2B-Base"
+     },
+     {
+      "repo": "fastino/GLiDE-0.4B",
+      "commit": "6bda7ab91aeb36dcad6d27828a8871e548c7fc71",
+      "name": "GLiDE 0.4B",
+      "maker": "Fastino",
+      "kind": "decision",
+      "params_total": 0.4,
+      "params_active": 0.4,
+      "quantization": "BF16",
+      "score_0_100": 1.8400243309002404,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.21472019464720193,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.11006255383209179,
+      "improvement_points": null,
+      "runs": [
+       "logic:glide-0.4b_en",
+       "math:glide-0.4b_en",
+       "logic:glide-0.4b_en_dontknow",
+       "math:glide-0.4b_en_dontknow"
+      ],
+      "notes": "run on our hardware (DGX Spark (GB10))"
      }
     ]
    }
@@ -2045,7 +2149,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-10T11:02Z",
+    "updated": "2026-11-10T14:20Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

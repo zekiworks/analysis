@@ -419,8 +419,8 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     taken between accuracies computed from the right-answer counts and rounded only when shown (not between the tables'
     rounded percentages); significance from the paired exact McNemar tests vision.json holds (p below 0.05, one
     comparison at a time). The sentences assume what they state (each image model has A, B and C and is less accurate
-    with the picture alone, every model's best OCR route is below its text, every OCR route beats the picture alone);
-    the build stops when the data no longer fits them."""
+    with the picture alone, most models' best OCR route is below their text, with the others named, every OCR route beats
+    the picture alone); the build stops when the data no longer fits them."""
     exact = lambda result: 100 * result["correct"] / result["questions"]  # noqa: E731 - an accuracy in percent, unrounded
     acc = lambda model, label: exact(model["conditions"][label])  # noqa: E731
     points = lambda value: f"{value:.1f}"  # noqa: E731
@@ -479,11 +479,24 @@ def findings(site: Site, data: dict[str, Any]) -> str:
 
     routes = [(model, *best_route(data, model)) for model in data["models"] if best_route(data, model)]
     gap = {model["name"]: acc(model, "A") - exact(metrics) for model, _, metrics in routes}
-    if not routes or min(gap.values()) <= 0:
-        raise SystemExit("vision.json findings: the text expects every model's best OCR route below its text")
-    third = (f"<p>Through an OCR model (D), each of the {len(routes)} models with an OCR route was less accurate than with the "
-             f"text: its best route was {points(min(gap.values()))} to {points(max(gap.values()))} points below condition "
-             f"A.")
+    below = [model for model, _, _ in routes if gap[model["name"]] > 0]
+    level = [model for model, _, _ in routes if gap[model["name"]] <= 0]
+    if not below:
+        raise SystemExit("vision.json findings: the text expects most models' best OCR route below their text")
+    if not level:
+        third = (f"<p>Through an OCR model (D), each of the {len(routes)} models with an OCR route was less accurate than with "
+                 f"the text: its best route was {points(min(gap.values()))} to {points(max(gap.values()))} points below "
+                 f"condition A.")
+    else:
+        # A model whose best OCR route reaches its text (GLiDE 2B (open), 10 November 2026: 247 against 242 of 763) is
+        # named with its gap; the OCR routes have no paired test against the text (fifth paragraph).
+        under = [gap[model["name"]] for model in below]
+        third = (f"<p>Through an OCR model (D), {len(below)} of the {len(routes)} models with an OCR route were less accurate "
+                 f"than with the text: their best route was {points(min(under))} to {points(max(under))} points below "
+                 f"condition A. " + "; ".join(
+                     f"{name(model)}'s best route was "
+                     + (f"{points(-gap[model['name']])} points above its text" if gap[model["name"]] < 0 else "level with its text")
+                     for model in level) + ", without a paired test to tell that from chance.")
     best_keys = {label.removeprefix("D ") for _, label, _ in routes}
     if len(best_keys) == 1:
         key = next(iter(best_keys))
