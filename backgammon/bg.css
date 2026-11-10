@@ -337,10 +337,12 @@ td.badges .small { display: block; white-space: normal; }
 .more-pages { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin-top: .6rem; }
 .more-pages .view-label { margin-right: .2rem; }
 /* Highlights and Experiments (Ümit #2901). */
-.highlight-slots, .experiment-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
-.highlight-slot { border-style: dashed; }
-.highlight-slot[data-slot="filled"] { grid-column: 1 / -1; border-style: solid; }
-.highlight-candidate { color: var(--text-2); }
+.experiment-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.highlight-slots { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); }
+.highlight-slot[data-slot="filled"] { grid-column: 1 / -1; }
+.highlight-finding .status { margin-bottom: .3rem; }
+.hc-line { color: var(--text-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.hc-num { color: var(--text); font-weight: 600; }
 .experiment-card .status { margin-bottom: .3rem; }
 /* Three kinds of choice, three looks, in both themes and without hovering (Zeki, bus #1860):
    - the page in view: its tab in the site's bar underlined in the link colour (site.css);
