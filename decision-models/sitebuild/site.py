@@ -470,8 +470,8 @@ THEME_SWITCH = (
 def topbar(path: str) -> str:
     """The top of every page, one sticky header that stays at the top of the window, as on the Backgammon site: the
     suite strip (suite_bar, linking the three benchmark sites), then the site's bar: the Hilde leaf and the site's name
-    (linking the Leaderboard) with the Dark / Light switch at the right, and under them one row of tabs (TABS), which
-    scrolls sideways on a phone; the tab the page sits under (tab_of) is underlined in the accent colour, marked as the
+    (linking the Leaderboard) with the Dark / Light switch at the right, and under them the tabs (TABS), which wrap to a
+    second line on a phone; the tab the page sits under (tab_of) is underlined in the accent colour, marked as the
     page itself where it is the tab's own page. Then the family icons (family_sprite), hidden, for the pages' names."""
     here = tab_of(path)
     root = rel(path, "")
@@ -499,11 +499,13 @@ def footer(path: str, version: str) -> str:
             f'<a href="{rel(path, "answers.json")}" download>answers.json</a></p>\n    <p>{version}</p>\n  </footer>')
 
 
-def group_switch() -> str:
+def group_switch(hidden: tuple[str, ...] = ()) -> str:
     """The model group keys at the top of a page that shows its parts by group (data-models): All, Decision, Chat and
-    Small chat and Small decision, each the page itself with ?models=; site.js marks the one in view. In the page, not in the top bar."""
+    Small chat and Small decision, each the page itself with ?models=; site.js marks the one in view. In the page, not in
+    the top bar. A page leaves out the keys of groups it has nothing for (hidden), as Vision the chat groups while no chat
+    model has a vision result."""
     keys = "".join(f'<a class="key" href="?models={value}" data-group-key="{value}">{esc(label)}</a>'
-                   for value, label in MODEL_GROUPS)
+                   for value, label in MODEL_GROUPS if value not in hidden)
     return (f'<nav class="group-switch needs-js" aria-label="Model group"><span class="group-label">Models</span>'
             f'{keys}</nav>')
 
@@ -839,10 +841,10 @@ class Site:
                 f"answer key version {results['answer_key']['version']}.")
 
     def page(self, path: str, title: str, description: str, body: str, scripts: tuple[str, ...] = (),
-             image: str | None = None) -> str:
+             image: str | None = None, hidden_groups: tuple[str, ...] = ()) -> str:
         """A whole page at path (inside the site): head with its canonical address (and, with image, the key of its
         share/images.json link preview), the top bar, the body (after the model group keys where it shows its parts by
-        group), the footer."""
+        group, without the keys of hidden_groups), the footer."""
         root = rel(path, "")
         preview = ""
         if image:
@@ -871,7 +873,7 @@ class Site:
   <a class="skip" href="#main">Skip to content</a>
   {topbar(path)}
   <main id="main">
-{group_switch() + "".join(small_note(esc(self.small_line(group)), (group,)) for group in SMALL_GROUPS) if 'data-models="' in body else ""}
+{group_switch(hidden_groups) + "".join(small_note(esc(self.small_line(group)), (group,)) for group in SMALL_GROUPS if group not in hidden_groups) if 'data-models="' in body else ""}
 {body}
   </main>
   {footer(path, self.version())}

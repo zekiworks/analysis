@@ -24,8 +24,8 @@ from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
-from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, esc, hbars, interval, more_link, pct, rank_fill, rel,
-                            shown, small_note)
+from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, esc, family_icon, family_legend, hbars, interval, more_link,
+                            pct, rel, run_families, shown, small_note)
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -42,9 +42,11 @@ NOT_AVAILABLE = "Not available"
 NO_IMAGE = '<span class="nm">No image input</span>'
 
 
-def cell(label: str, content: str) -> str:
-    """A number cell; on a phone, the table stacks each row and the cell shows its label (header and direction)."""
-    return f'<td class="num" data-label="{esc(label)}"><span class="cell">{content}</span></td>'
+def cell(label: str, content: str, title: str = "") -> str:
+    """A number cell; on a phone, the table stacks each row and the cell shows its label (header and direction). A title
+    (the tooltip, on hover or tap) holds what would crowd the cell, as an accuracy's interval."""
+    tip = f' title="{esc(title)}"' if title else ""
+    return f'<td class="num" data-label="{esc(label)}"{tip}><span class="cell">{content}</span></td>'
 
 
 def ocr_labels(data: dict[str, Any]) -> list[str]:
@@ -60,11 +62,11 @@ def best_route(data: dict[str, Any], model: dict[str, Any]) -> tuple[str, dict[s
 
 
 def accuracy_cell(head: str, got: dict[str, Any], route: str = "") -> str:
-    """Accuracy on the questions with its 95% interval (Wilson, as everywhere on the site) and, for the best OCR route,
-    the OCR model."""
+    """Accuracy on the questions, with its 95% interval (Wilson, as everywhere on the site) in the cell's title and, for
+    the best OCR route, the OCR model."""
     via = f'<span class="small">via {esc(route)}</span>' if route else ""
-    return cell(f"{head} ({DIRECTION})",
-                f'{pct(got["accuracy"])}{via}<span class="small">{interval(got["correct"], got["questions"])}</span>')
+    return cell(f"{head} ({DIRECTION})", f'{pct(got["accuracy"])}{via}',
+                f'95% interval: {interval(got["correct"], got["questions"])}')
 
 
 def unavailable_cell(model: dict[str, Any], head: str, labels: list[str]) -> str:
@@ -106,15 +108,19 @@ def shown_names(site: Site, models: list[dict[str, Any]]) -> dict[int, str]:
 
 
 def model_cell(site: Site, origin: str, model: dict[str, Any], shown: dict[int, str]) -> str:
-    """The model, linked to the page of its Text tab setup (condition A's run) when the Text tab has it, named as shown
-    gives it, its settings in the tooltip."""
+    """The model, after its maker's colour dot and its family's icon (as the home page's Leaderboard), linked to the page
+    of its Text tab setup (condition A's run) when the Text tab has it, named as shown gives it, its settings in the
+    tooltip."""
+    known = family(site, model)
+    mark = (f'<i class="lb-dot" style="background:{known["colour"]}" title="{esc(known["maker"])}"></i>'
+            f'{family_icon(known["name"])}')
     run = site.by_id.get(model["a_run"])
     if run is None:
-        return (f'<td class="model"><span class="model-name">{esc(model["name"])}</span>'
+        return (f'<td class="model">{mark}<span class="model-name">{esc(model["name"])}</span>'
                 '<span class="small">Not on the Text tab</span></td>')
     detail = site.detail(run)
     tip = f' title="{esc(detail)}"' if detail else ""
-    return (f'<td class="model"{tip}><a class="model-name" href="{rel(origin, site.model_path(run))}">'
+    return (f'<td class="model"{tip}>{mark}<a class="model-name" href="{rel(origin, site.model_path(run))}">'
             f'{esc(shown[run["run"]])}</a></td>')
 
 
@@ -160,19 +166,42 @@ def group(site: Site, data: dict[str, Any], models: list[dict[str, Any]], kind: 
     return f'{heading}<p class="note">{note}</p>{model_table(site, PATH, data, top + rest)}'
 
 
+# vision.json's texts as the page says them: internal notes (decision numbers, people, remarks about the machine) are
+# rewritten here, at presentation time, so that vision.json stays as recorded. build() stops if any such note is left.
+PUBLIC = (
+    ("under the rule for the GLiDE family (no truncation, the project lead's #4008)",
+     "under our no-truncation rule for the GLiDE family"),
+    ("By decision, its released checkpoint was not run on our GPU instead.",
+     "Its released checkpoint was not run on our GPU in place of the API."),
+    ("Nace's drex_max", "drex_max"),
+    (" (another process held 18 GB of the GPU)", ""),
+)
+INTERNAL = re.compile(r"#[0-9]{3,4}\b|project lead|Ümit|Zeki|Nace's|by decision|another process|GB of the GPU", re.IGNORECASE)
+
+
+def public(text: str) -> str:
+    """A text from vision.json without its internal notes (PUBLIC)."""
+    for said, shown_as in PUBLIC:
+        text = text.replace(said, shown_as)
+    return text
+
+
 def not_run(items: list[dict[str, Any]]) -> str:
     """The models we have not run yet, each with its reason from vision.json's skipped."""
     if not items:
         return ""
-    lines = "".join(f"<li><strong>{esc(item['model'])}</strong>: {esc(item['reason'].removeprefix('Not run: '))}</li>" for item in items)
+    lines = "".join(f"<li><strong>{esc(item['model'])}</strong>: {esc(public(item['reason'].removeprefix('Not run: ')))}</li>" for item in items)
     return f'<h3 class="board-group">Not run</h3><ul>{lines}</ul>'
 
 
 def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
     """The decision models' leaderboard (shown for the all and decision groups of the view bar), or the other models'
-    (for the all group: the chat group shows the page's chat note instead, as build() stops on any chat model here)."""
+    (for the all group: the chat group shows the page's chat note instead, as build() stops on any chat model here),
+    which is left out while it has neither a model nor a skipped one."""
     models = [model for model in data["models"] if site.decision(model) == decision]
     skipped = [item for item in data["skipped"] if site.decision(item) == decision]
+    if not decision and not models and not skipped:
+        return ""
     title = "Decision models" if decision else "Other models: chat and general models"
     marks = DECISION_ONLY if decision else 'data-models="all"'
     start = f'    <section class="card" id="{"decision" if decision else "other"}" {marks}>\n      <h2>{title}</h2>\n      '
@@ -582,12 +611,16 @@ def inputs_sample(data: dict[str, Any]) -> str:
             f'the benchmark\'s ({esc(SAMPLE_ENGLISH)})</figcaption><ol class="input-list">{items}</ol></figure>')
 
 
+# A one-line note under an OCR model in the marks chart where its stored text lost marks its raw output kept, by the
+# reason its method gives (vision.json's ocr.models[].method), with the counts from vision.json.
+MARKS_NOTES = {"chandra-ocr-2": "{shown} because its official markdown export drops underline marks; its raw output kept {raw:,} of {spans:,}."}
+
+
 def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
     """The tab's face: four chart cards, each with a line saying which way is better, every number from vision.json: the
     picture alone (B) against the text (A), the text plus the picture (C) against the text, the best OCR route against the
-    text, and the marks each OCR model kept. Bars of one measure take the ranking scale between its worst and best. With
-    the titles of the model charts without a small model's row, for the small group's note."""
-    stops = site.config["rank_scale"]["stops"]
+    text, and the marks each OCR model kept. The models' bars are in their model family's colour (model_families), as on
+    the home page's charts. With the titles of the model charts without a small model's row, for the small group's note."""
     questions = f"{data['subset']['questions']:,}"
     acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
 
@@ -617,34 +650,28 @@ def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
         return (f'<figure class="panel chart-card" id="{anchor}" {marks}><div class="chart-head"><h2>{esc(title)}</h2>'
                 f'<p class="chart-sub">{esc(sub)}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
 
-    def colour_scale(low: float, high: float) -> str:
-        """The legend of bars coloured by accuracy (the ranking scale between this chart's lowest and highest), which
-        says that the colour is not the model family, as it is on the home page's charts."""
-        return ('<span class="scale-legend colour-scale"><strong>Colour: accuracy, not the model family.</strong> '
-                f'<span>Lowest {pct(low)}</span><i class="ramp wide" style="background:linear-gradient(to right, '
-                f'{", ".join(stops)})" aria-hidden="true"></i><span>highest {pct(high)} (higher is better)</span></span>')
-
     marker = ' <span><i class="swatch swatch-marker"></i>The same model with the text (A)</span>'
     image = [model for model in data["models"] if all(label in model["conditions"] for label in ("A", "B", "C"))]
     by_b = sorted(image, key=lambda model: -acc(model, "B"))
-    low, high = min(acc(model, "B") for model in image), max(acc(model, "B") for model in image)
     first = card(
         "chart-image", "The picture alone (B)", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
-        [{"label": name(model), "href": href(model), "text": pct(acc(model, "B")), "marker": acc(model, "A"),
-          "bars": [{"value": acc(model, "B"), "colour": rank_fill(stops, acc(model, "B"), low, high)}],
+        [{"label": name(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
+          "marker": acc(model, "A"), "bars": [{"value": acc(model, "B"), "colour": family(site, model)["colour"]}],
           "title": f"{name(model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
           "models": groups(model)}
          for model in by_b],
-        colour_scale(low, high) + marker)
+        family_legend([family(site, model) for model in by_b]) + marker)
     by_c = sorted(image, key=lambda model: -acc(model, "C"))
     second = card(
         "chart-both", "The text plus the picture (C)", "Accuracy with the picture after the text, and with the text alone · higher is better",
-        [{"label": name(model), "href": href(model), "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
-          "bars": [{"value": acc(model, "C"), "kind": "lead"}, {"value": acc(model, "A"), "kind": "base"}],
+        [{"label": name(model), "family": family(site, model)["name"], "href": href(model),
+          "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
+          "bars": [{"value": acc(model, "C"), "colour": family(site, model)["colour"]}, {"value": acc(model, "A"), "kind": "base"}],
           "title": f"{name(model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text",
           "models": groups(model)}
          for model in by_c],
-        '<span><i class="swatch swatch-lead"></i>Text plus picture (C)</span> <span><i class="swatch swatch-base"></i>Text (A)</span>')
+        family_legend([family(site, model) for model in by_c])
+        + ' <span>Upper bar: text plus picture (C), in the family\'s colour</span> <span><i class="swatch swatch-base"></i>Text (A)</span>')
     routes = [(model, *best_route(data, model)) for model in data["models"] if best_route(data, model)]
     routes.sort(key=lambda item: -item[2]["correct"] / item[2]["questions"])
     shares = [metrics["correct"] / metrics["questions"] for _, _, metrics in routes]
@@ -653,27 +680,39 @@ def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
             if len(best_keys) == 1 else "")
     third = card(
         "chart-ocr-route", "The best OCR route (D)", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
-        [{"label": name(model), "href": href(model), "text": pct(share), "marker": acc(model, "A"),
-          "bars": [{"value": share, "colour": rank_fill(stops, share, min(shares), max(shares))}],
+        [{"label": name(model), "family": family(site, model)["name"], "href": href(model), "text": pct(share), "marker": acc(model, "A"),
+          "bars": [{"value": share, "colour": family(site, model)["colour"]}],
           "title": f"{name(model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
           "models": groups(model)}
          for (model, label, _), share in zip(routes, shares)],
-        colour_scale(min(shares), max(shares)) + marker + same)
+        family_legend([family(site, model) for model, _, _ in routes]) + marker + same)
     kept = []
     for key, item in data["ocr"]["models"].items():
-        sent = item["verified"]["marked_in_text_sent"]
-        kept.append((key, sent["underlined"]["marked"] / sent["underlined"]["spans"], sent["numbered"]["marked"] / sent["numbered"]["markers"]))
+        sent, raw = item["verified"]["marked_in_text_sent"], item["verified"].get("marked_in_raw_output")
+        underlined = sent["underlined"]["marked"] / sent["underlined"]["spans"]
+        note = None
+        if key in MARKS_NOTES and raw and raw["underlined"]["marked"] > sent["underlined"]["marked"]:
+            note = MARKS_NOTES[key].format(shown=pct(underlined, 0), raw=raw["underlined"]["marked"], spans=raw["underlined"]["spans"])
+        kept.append((key, underlined, sent["numbered"]["marked"] / sent["numbered"]["markers"], note))
     kept.sort(key=lambda item: -item[1])
     fourth = card(
         "chart-marks", "Marks the OCR models kept",
         "Share of the underlined and of the numbered words still marked in the text the models received, on the human-verified text · higher is better",
-        [{"label": OCR_NAMES[key], "text": f"{pct(underlined)} · {pct(numbered)}",
+        [{"label": OCR_NAMES[key], "text": f"{pct(underlined)} · {pct(numbered)}", **({"note": note} if note else {}),
           "bars": [{"value": underlined, "kind": "lead"}, {"value": numbered, "kind": "base"}],
           "title": f"{OCR_NAMES[key]}: {pct(underlined)} of the underlined words and {pct(numbered)} of the numbered words kept"}
-         for key, underlined, numbered in kept],
+         for key, underlined, numbered, note in kept],
         '<span><i class="swatch swatch-lead"></i>Underlined words</span> <span><i class="swatch swatch-base"></i>Numbered words</span>',
         marks="")
     return f'<section class="charts" aria-label="Charts">{first}{second}{third}{fourth}</section>', whole
+
+
+def family(site: Site, model: dict[str, Any]) -> dict[str, str]:
+    """A model's family (name, maker, colour): its Text tab run's (Site.families), else by its provider and model
+    (run_families)."""
+    if model["a_run"] in site.families:
+        return site.families[model["a_run"]]
+    return run_families([{"run": 0, "provider": model["provider"], "model": model["model"], "name": model["name"]}])[0]
 
 
 def build(site: Site) -> dict[str, str]:
@@ -695,21 +734,32 @@ def build(site: Site) -> dict[str, str]:
     leak = crops["leak_check"]
     cost = data["cost"]
     verified = next(iter(data["ocr"]["models"].values()))["verified"]["crops"]
-    hardware = sorted({value for model in data["models"] for value in (model.get("hardware") or {}).values()})
-    units = ", ".join(f"{unit}: {count}" for unit, count in subset["by_unit"].items())
+    # One line per self-hosted model: its hardware, number format and server, once however many conditions it ran.
+    hosted = []
+    for model in data["models"]:
+        for value in dict.fromkeys((model.get("hardware") or {}).values()):
+            hardware, dtype, *server = public(value).split("; ", 2)
+            hosted.append(f"<strong>{esc(model['name'])}</strong>: " + esc(", ".join([hardware, dtype, *server])))
+    topics = {unit["number"]: unit["english"] for unit in site.units}
+    units = "; ".join(f"{topics[int(unit)]}: {count}" for unit, count in subset["by_unit"].items())
     failures = [esc(item) if isinstance(item, str) else esc(str(item)) for item in data["failures"]]
-    ocr_methods = [f"<strong>{esc(OCR_NAMES[key])}</strong> ({esc(item['model'])} at {esc(item['revision'][:7])}): {esc(item['method'])}"
+    ocr_methods = [f"<strong>{esc(OCR_NAMES[key])}</strong> ({esc(item['model'])} at {esc(item['revision'][:7])}): {esc(public(item['method']))}"
                    for key, item in data["ocr"]["models"].items()]
+    # The chat groups' keys and notes, and the other models' leaderboard (leaderboard()), show once a chat model has a
+    # vision result.
+    hidden = () if chat else ("chat", "small-chat")
     charts, _ = face(site, data)
     site.note(PATH, "Page images", f"""<p>The {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
       {inputs_sample(data)}""")
     body = f"""    <section class="card">
-      <p class="eyebrow">Page images</p>
-      <h1>{questions} questions with underlined or numbered words</h1>
-      {chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
-      <p>Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D); ranked apart from the Text tab.</p>
+      <p class="eyebrow">Vision</p>
+      <h1>Same questions, as text and as a page image</h1>
+      <p class="lede"><strong>Turkish:</strong> {questions} questions with underlined or numbered words (original Turkish pages)</p>
+      {summary(data)}
+      {"" if "chat" in hidden else chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
+      <p>Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D). These rankings are separate from the Text tab.</p>
       {more_link(PATH)}
-      {small_note("Small chat models: none on this tab. No small chat model ran on the page images; every model run there is a decision model. The OCR models' parts below show in every view.", ("small-chat",))}
+      {"" if "small-chat" in hidden else small_note("Small chat models: none on this tab. No small chat model ran on the page images; every model run there is a decision model. The OCR models' parts below show in every view.", ("small-chat",))}
       {small_note("Small decision models: the charts and What we found cover decision models of every size; they show under All models or Decision models.", ("small-decision",))}
       <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#small" {shown("small-decision")}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
     </section>
@@ -726,7 +776,7 @@ def build(site: Site) -> dict[str, str]:
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">What we found, the measure and how the benchmark was run</span></summary>
     <section class="card">
       <h2>About this test</h2>
-      <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}), with its 95% interval under it in the tables.</p>
+      <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}); in the tables its 95% interval shows when you hover over or tap a number.</p>
       <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's pick and option probabilities; no question text, page image or OCR text).</p>
     </section>
     <section class="card" id="findings" {DECISION_ONLY}>
@@ -737,7 +787,9 @@ def build(site: Site) -> dict[str, str]:
       <h2>How the benchmark was run</h2>
       <h3>Conditions</h3>
       {listing([f"<strong>{esc(label)}</strong>: {esc(text)}" for label, text in data["conditions"].items()])}
-      <p>Each cell is one run. It is one pass over the {questions} questions, not an average of repeated runs ({len(data["requests"]["continued_cells"])} passes were resumed after an interruption; see Models and cost).</p>
+      <p>Each cell is one run. It is one pass over the {questions} questions, not an average of repeated runs ({len(data["requests"]["continued_cells"])} passes were resumed after an interruption; see Models and cost under Run details).</p>
+      <details class="method-more">
+      <summary>Run details: pictures and leak checks, OCR models, models and cost</summary>
       <h3>Pictures of the questions</h3>
       <p>{esc(sentence(crops["method"]))}. {crops["images"]} images for {crops["questions"]} questions; {crops["clipped_at_key"]} crops stop above an answer key box, {crops["padded"]} were padded and {crops["scaled"]} scaled. Questions per topic: {esc(units)}.</p>
       {image_sizes(data)}
@@ -746,13 +798,48 @@ def build(site: Site) -> dict[str, str]:
       <h3>OCR models</h3>
       {listing(ocr_methods)}
       <h3>Models and cost</h3>
-      <p>Every request went through the benchmark's runner{harness(data)}, one question per request; the images went in each API's own format. Self-hosted models ran on {esc("; ".join(hardware)) if hardware else "our GPU"}. The API image runs (B and C) cost ${cost["image_runs_usd"]:.2f} and the API runs of condition D ${cost["d_runs_usd"]:.2f}, at the prices in results.json.</p>
+      <p>Every request went through the benchmark's runner{harness(data)}, one question per request; the images went in each API's own format. The API image runs (B and C) cost ${cost["image_runs_usd"]:.2f} and the API runs of condition D ${cost["d_runs_usd"]:.2f}, at the prices in results.json.</p>
+      <p>Self-hosted models (hardware, number format, server):</p>
+      {listing(hosted) if hosted else "<p>None.</p>"}
       {engine_check(site, data)}
       {requests_note(site, data)}
       {repeats_note(data)}
       {"<h3>Failures</h3>" + listing(failures) if failures else ""}
+      </details>
     </section>
     </details>"""
-    return {PATH: site.page(PATH, "Page images",
-                            f"{questions} questions with underlined or numbered words, asked as text, as a page image, "
-                            "as both and through four OCR models.", body, image="vision")}
+    left = INTERNAL.search(re.sub(r"<[^>]+>", "", body))
+    if left:
+        raise SystemExit(f"vision/: an internal note in the page's text ({left.group(0)!r}); add its rewrite to vision.py's PUBLIC")
+    return {PATH: site.page(PATH, "Vision",
+                            f"{questions} Turkish questions with underlined or numbered words, asked as text, as a page "
+                            "image, as both and through four OCR models.", body, image="vision", hidden_groups=hidden)}
+
+
+def signed(points: float) -> str:
+    """A difference in points, signed with a true minus, one decimal: "−16.0 points", "+1.6 points"."""
+    text = f"{points:+.1f}"
+    return ("+0.0" if text == "-0.0" else text).replace("-", "−") + " points"
+
+
+def summary(data: dict[str, Any]) -> str:
+    """The three lines under the title, from vision.json: the average difference from the text (A), in points, of the
+    picture alone (B) and of the text plus the picture (C) over the image models (those with A, B and C), and of the best
+    OCR route over every model with one."""
+    share = lambda got: got["correct"] / got["questions"]  # noqa: E731
+    image = [model for model in data["models"] if all(label in model["conditions"] for label in ("A", "B", "C"))]
+    routes = [(model, best_route(data, model)) for model in data["models"]]
+    routes = [(model, route[1]) for model, route in routes if route]
+    mean = lambda values: 100 * sum(values) / len(values)  # noqa: E731
+    lines = []
+    for label, models in (("B", image), ("C", image)):
+        if models:
+            lines.append(("Picture only (B) vs text (A)" if label == "B" else "Text + picture (C) vs text (A)",
+                          mean([share(model["conditions"][label]) - share(model["conditions"]["A"]) for model in models]),
+                          f"average over the {len(models)} image models"))
+    if routes:
+        lines.append(("Best OCR route (D) vs text (A)", mean([share(got) - share(model["conditions"]["A"]) for model, got in routes]),
+                      f"average over the {len(routes)} models with an OCR route"))
+    items = "".join(f"<li><strong>{esc(name)}:</strong> {signed(value)} <span class=\"small\">{esc(scope)}</span></li>"
+                    for name, value, scope in lines)
+    return f'<ul class="vision-summary">{items}</ul>'

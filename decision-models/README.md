@@ -183,7 +183,7 @@ python3 -m http.server 8000                                # preview at http://1
     `turkish-vs-english/` and `models/*`; Vision for `vision/`; Questions for `questions/`, `question/`,
     `disagreements/`, `topics/` and `compare/`; Highlights for `highlights/`; Experiments for `experiments/`,
     `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
-    `about/`, `method/` and `data/`. On a phone the tab row scrolls sideways, the current tab brought into view. No other
+    `about/`, `method/` and `data/`. On a phone the tab row wraps to a second line, so every tab stays in view. No other
     navigation row sits under the suite strip; a page's own part links (`.face-nav`, as PWS-Decisions' steps) stay in
     the page. **Model groups**: `?models=all|decision|chat|small-chat|small-decision` (all when missing; trailing dots,
     punctuation or spaces are dropped, so `?models=all.` reads as all; the old `?models=small` reads as `small-chat`) still picks the group on every page that shows its parts by group

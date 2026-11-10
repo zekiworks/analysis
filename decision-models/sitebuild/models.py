@@ -383,9 +383,9 @@ def page_images(site: Site, run: dict[str, Any]) -> str | None:
         return None
     path = site.model_path(run)
     return (f'<p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is '
-            f'condition A of the <a href="{rel(path, vision.PATH)}">Page images tab</a>, which asks the '
+            f'condition A of the <a href="{rel(path, vision.PATH)}">Vision tab</a>, which asks the '
             f'{site.vision["subset"]["questions"]:,} questions with underlined or numbered words as text (A), as a page image (B), '
-            "as both (C) and through OCR models (D); the share answered right, with its 95% interval.</p>"
+            "as both (C) and through OCR models (D); the share answered right, its 95% interval in the number's tooltip.</p>"
             + vision.model_table(site, path, site.vision, found))
 
 
@@ -498,7 +498,7 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
     ]
     images = page_images(site, run)
     if images:
-        parts.append(section("Page images (preliminary)", images, "page-images"))
+        parts.append(section("Vision (preliminary)", images, "page-images"))
     english_part = english(site, run)
     if english_part:
         parts.append(section("English", english_part, ENGLISH_ANCHOR))

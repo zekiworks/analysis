@@ -131,16 +131,6 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(header);
 })();
 
-/* On a phone the tab row scrolls sideways: the tab of the page in view, and a link that takes the keyboard focus, are
-   brought fully into view. */
-(function keepTabInView() {
-  const row = document.querySelector('.site-tabs ul');
-  if (!row) return;
-  const current = row.querySelector('a[aria-current]');
-  if (current && row.scrollWidth > row.clientWidth) row.scrollLeft = Math.max(0, current.offsetLeft - 16);
-  row.addEventListener('focusin', event => event.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
-})();
-
 /* Pages that keep their details under a closed Info (a details element): a link to a part inside it, in the address or
    followed later, opens Info first, so the browser can scroll there. */
 (function openInfoForLink() {

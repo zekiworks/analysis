@@ -126,8 +126,8 @@ html { --view-bar-h: 119px; scroll-padding-top: var(--view-bar-h); }
 .skip:focus { left: 1rem; }
 
 /* The site's bar, in the sticky header under the suite strip, as on the Backgammon site: the Hilde leaf and the site's
-   name with the Dark / Light switch at the right of the same line; under them the five tabs, one line that scrolls
-   sideways where it does not fit, the tab of the page in view underlined in the accent colour. The theme keys read
+   name with the Dark / Light switch at the right of the same line; under them the six tabs, which wrap to a second line
+   where they do not fit, the tab of the page in view underlined in the accent colour. The theme keys read
    Dark and Light, their full names in their labels. */
 .site-bar { padding: 0 1rem; background: var(--view-bg); border-bottom: 1px solid var(--view-edge); }
 .site-bar-in { max-width: 1100px; margin: 0 auto; }
@@ -135,10 +135,17 @@ html { --view-bar-h: 119px; scroll-padding-top: var(--view-bar-h); }
 .site-title { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; color: var(--text); font-size: 1.15rem;
   font-weight: 700; line-height: 1.2; white-space: nowrap; text-decoration: none; }
 .site-leaf { flex: none; width: 18px; height: 21px; }
-.site-tabs ul { display: flex; gap: .2rem; list-style: none; margin: 0 -.35rem; padding: 0 .35rem; overflow-x: auto;
-  scrollbar-width: none; scroll-padding-inline: .35rem; }
-.site-tabs ul::-webkit-scrollbar { display: none; }
+/* The tabs wrap to a second line where they do not fit (a phone), so every tab, Text first, stays in view; site.js
+   keeps --view-bar-h at the header's height either way. */
+.site-tabs ul { display: flex; flex-wrap: wrap; gap: 0 .2rem; list-style: none; margin: 0 -.35rem; padding: 0 .35rem; }
 .site-tabs li { flex: none; }
+/* Vision: the Turkish line and the three summary lines under the title; the run details closed under the method. */
+.lede { margin: .2rem 0 .4rem; font-size: 1.02rem; }
+.vision-summary { margin: .3rem 0 .6rem; padding: 0; list-style: none; }
+.vision-summary li { margin: .12rem 0; }
+.vision-summary .small { color: var(--text-2); font-size: .82rem; }
+details.method-more { margin-top: 1rem; }
+details.method-more > summary { font-weight: 600; color: var(--link); }
 .site-tabs a { display: block; padding: 6px 10px 4px; color: var(--text-2); font-size: .92rem; font-weight: 600;
   line-height: 1.25; white-space: nowrap; text-decoration: none; border-bottom: 3px solid transparent; }
 .site-tabs a:hover { color: var(--text); border-bottom-color: var(--edge); }
@@ -898,9 +905,9 @@ ul.price-list { padding-left: 1.25rem; }
   .chart-wide .hbar-value, .chart-wide .hbar-head { font-size: .72rem; }
   .chart-wide .hbar-axis .hbar-tick:nth-child(even) { display: none; }
   body { padding: 0 .6rem 1.5rem; }
-  /* The first screen reaches the results: the site's bar takes two short lines (the name and the theme switch, then
-     the tabs, which scroll sideways), the title is smaller and the versions move under the table. */
-  html { --view-bar-h: 113px; }
+  /* The first screen reaches the results: the site's bar takes short lines (the name and the theme switch, then
+     the tabs, wrapped to two lines), the title is smaller and the versions move under the table. */
+  html { --view-bar-h: 142px; }
   .site-header { margin: 0 -.6rem; }
   .site-bar { padding: 0 .6rem; }
   .site-title { font-size: 1.05rem; }
