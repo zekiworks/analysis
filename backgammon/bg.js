@@ -552,35 +552,54 @@ async function savePng(panel, svg, title, lines, filename) {
   }));
 })();
 
-/* Home page: the leaderboard's own filter (Ümit #2907): All, Chat models, Decision models, Small chat
-   models or Small decision models (Ümit #3465, #3876: rows of that type marked data-hl-small; ?models=small-chat or
-   small-decision opens on one, the old ?models=small on Small chat models), local to the table
-   (the page's filters never change it). A row out of the view and its other-settings rows go out of view (class
+/* Home page: the leaderboard's own filter (Ümit #2907), local to the table (the page's filters never change it): a
+   type row (All, Chat models, Decision models) and a Class row (Ümit #4217: All, Tiny, Small, Medium, Large,
+   Efficient, Workhorse, Flagship; rows marked data-hl-class, a model without a class none), combined: a row shows when
+   it is of the type and of a selected class. A class with no model of the type in view loses its key (hidden; a
+   selected one goes back to All). A second click on a pressed key returns its row to All (Ümit #3923).
+   ?models=chat|decision and ?class=<class> open on them; the old ?models=small-chat / small-decision (and small: Small
+   chat) open on that type with Tiny and Small. A row out of the view and its other-settings rows go out of view (class
    hl-off), whatever their expander says; the programs stay in every view; the ranks are the ranks among all models;
-   a Small key shows its definition under the keys. */
+   the class rule (Ümit #4245) stands under the keys. */
 (function headlineFilter() {
   const table = document.getElementById('headline-table');
   const keys = [...document.querySelectorAll('[data-hl-filter]')];
-  const notes = [...document.querySelectorAll('.hl-small-note')];
+  const classKeys = [...document.querySelectorAll('#leaderboard [data-class-key]')];
   if (!table || !keys.length) return;
-  keys.forEach(k => k.addEventListener('click', () => {
-    // A second click on the pressed key undoes it: back to All (Ümit #3923).
-    const all = keys.find(x => x.dataset.hlFilter === 'all');
-    if (k !== all && k.getAttribute('aria-pressed') === 'true' && all) { all.click(); return; }
-    const type = k.dataset.hlFilter;
-    const small = type.startsWith('small-');
-    keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
-    table.querySelectorAll('tbody tr[data-hl-type]').forEach(tr => {
+  const rows = [...table.querySelectorAll('tbody tr[data-hl-type]')];
+  let type = 'all', classes = new Set();
+  const apply = () => {
+    const inType = rows.filter(tr => tr.dataset.hlType !== 'program' && (type === 'all' || tr.dataset.hlType === type));
+    const present = new Set(inType.map(tr => tr.dataset.hlClass).filter(Boolean));
+    classKeys.forEach(x => { x.hidden = x.dataset.classKey !== 'all' && !present.has(x.dataset.classKey); });
+    classes = new Set([...classes].filter(c => present.has(c)));
+    keys.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.hlFilter === type)));
+    classKeys.forEach(x => x.setAttribute('aria-pressed', String(classes.size ? classes.has(x.dataset.classKey) : x.dataset.classKey === 'all')));
+    rows.forEach(tr => {
       const t = tr.dataset.hlType;
-      const out = small ? tr.dataset.hlSmall !== 'yes' || t !== type.slice(6) : t !== type;
-      tr.classList.toggle('hl-off', type !== 'all' && t !== 'program' && out);
+      const out = (type !== 'all' && t !== type) || (classes.size > 0 && !classes.has(tr.dataset.hlClass));
+      tr.classList.toggle('hl-off', t !== 'program' && out);
     });
-    notes.forEach(n => { n.hidden = n.dataset.smallNote !== type; });
     table.dispatchEvent(new CustomEvent('hl-filter'));
+  };
+  keys.forEach(k => k.addEventListener('click', () => {
+    const t = k.dataset.hlFilter;
+    type = t !== 'all' && t === type ? 'all' : t;
+    apply();
   }));
-  const asked = new URLSearchParams(location.search).get('models');
-  const start = keys.find(k => k.dataset.hlFilter === (asked === 'small' ? 'small-chat' : asked));
-  if (start) start.click();
+  classKeys.forEach(k => k.addEventListener('click', () => {
+    const c = k.dataset.classKey;
+    classes = c === 'all' || k.getAttribute('aria-pressed') === 'true' ? new Set() : new Set([c]);
+    apply();
+  }));
+  const q = new URLSearchParams(location.search);
+  const asked = q.get('models') === 'small' ? 'small-chat' : q.get('models');
+  const small = asked && asked.startsWith('small-');
+  const t = small ? asked.slice(6) : asked;
+  if (keys.some(k => k.dataset.hlFilter === t)) type = t;
+  if (small) classes = new Set(['tiny', 'small']);
+  if (classKeys.some(k => k.dataset.classKey === q.get('class') && q.get('class') !== 'all')) classes = new Set([q.get('class')]);
+  apply();
 })();
 
 /* Home page: a leaderboard row's details box (Ümit #2904, as Clocktower Bench's). A tap on a phone opens it and a

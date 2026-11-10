@@ -134,27 +134,45 @@
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
 })();
 
-/* Did they improve?: the results table's filter (Ümit/Zeki #3710): All, Chat models, Decision models, Small chat
-   models or Small decision models (Ümit #3876: rows of that group marked data-small="yes", the leaderboard's rule);
-   a Small key shows its definition under the keys; ?models= opens on a key (the old ?models=small: Small chat). */
+/* Did they improve?: the results table's filter (Ümit/Zeki #3710), the leaderboard's (bg.js headlineFilter): a type
+   row (All, Chat models, Decision models; rows' data-group) and a Class row (Ümit #4217; rows' data-class, empty for
+   none), combined; a class with no model of the type in view loses its key (a selected one goes back to All); a second
+   click on a pressed key returns its row to All (Ümit #3923); the class rule (Ümit #4245) stands under the keys;
+   ?models=chat|decision and ?class=<class> open on them, the old ?models=small-chat / small-decision (small: Small
+   chat) on that type with Tiny and Small. */
 (function improveFilter() {
   const table = document.getElementById('improve-results-table');
   const keys = [...document.querySelectorAll('[data-improve-filter]')];
-  const notes = [...document.querySelectorAll('.improve-small-note')];
+  const classKeys = [...document.querySelectorAll('.improve-class [data-class-key]')];
   if (!table || !keys.length) return;
-  keys.forEach(k => k.addEventListener('click', () => {
-    // A second click on the pressed key undoes it: back to All (Ümit #3923).
-    const all = keys.find(x => x.dataset.improveFilter === 'all');
-    if (k !== all && k.getAttribute('aria-pressed') === 'true' && all) { all.click(); return; }
-    const type = k.dataset.improveFilter;
-    const small = type.startsWith('small-');
-    keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
-    table.querySelectorAll('tbody tr[data-group]').forEach(tr => {
-      tr.hidden = type !== 'all' && ((small && tr.dataset.small !== 'yes') || tr.dataset.group !== (small ? type.slice(6) : type));
+  const rows = [...table.querySelectorAll('tbody tr[data-group]')];
+  let type = 'all', classes = new Set();
+  const apply = () => {
+    const present = new Set(rows.filter(tr => type === 'all' || tr.dataset.group === type).map(tr => tr.dataset.class).filter(Boolean));
+    classKeys.forEach(x => { x.hidden = x.dataset.classKey !== 'all' && !present.has(x.dataset.classKey); });
+    classes = new Set([...classes].filter(c => present.has(c)));
+    keys.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.improveFilter === type)));
+    classKeys.forEach(x => x.setAttribute('aria-pressed', String(classes.size ? classes.has(x.dataset.classKey) : x.dataset.classKey === 'all')));
+    rows.forEach(tr => {
+      tr.hidden = (type !== 'all' && tr.dataset.group !== type) || (classes.size > 0 && !classes.has(tr.dataset.class));
     });
-    notes.forEach(n => { n.hidden = n.dataset.smallNote !== type; });
+  };
+  keys.forEach(k => k.addEventListener('click', () => {
+    const t = k.dataset.improveFilter;
+    type = t !== 'all' && t === type ? 'all' : t;
+    apply();
   }));
-  const asked = new URLSearchParams(location.search).get('models');
-  const start = keys.find(k => k.dataset.improveFilter === (asked === 'small' ? 'small-chat' : asked));
-  if (start) start.click();
+  classKeys.forEach(k => k.addEventListener('click', () => {
+    const c = k.dataset.classKey;
+    classes = c === 'all' || k.getAttribute('aria-pressed') === 'true' ? new Set() : new Set([c]);
+    apply();
+  }));
+  const q = new URLSearchParams(location.search);
+  const asked = q.get('models') === 'small' ? 'small-chat' : q.get('models');
+  const small = asked && asked.startsWith('small-');
+  const t = small ? asked.slice(6) : asked;
+  if (keys.some(k => k.dataset.improveFilter === t)) type = t;
+  if (small) classes = new Set(['tiny', 'small']);
+  if (classKeys.some(k => k.dataset.classKey === q.get('class') && q.get('class') !== 'all')) classes = new Set([q.get('class')]);
+  apply();
 })();
