@@ -139,11 +139,12 @@ def tiers(letters: list[str | None]) -> list[int]:
 
 
 def label_count(value: int) -> str:
-    """A count in the size label (the shared form, #4231): whole billions from 10B up ("26B", "57B", "266B"), one decimal
-    below ("7.9B", "1.9B", "0.4B"), one decimal of trillions from 1T up ("2.8T")."""
-    if value >= 1e12:
+    """A count in the size label (the shared form, #4231, #4235): one decimal of trillions from 1,000B up ("2.8T"), whole
+    billions from 10B to 999B ("26B", "57B", "266B"), one decimal below ("7.9B", "1.9B", "0.4B"); each range by the
+    value as rounded, so 999.6B reads "1.0T" and 9.96B "10B"."""
+    if round(value / 1e9) >= 1000:
         return f"{value / 1e12:.1f}T"
-    return f"{value / 1e9:.0f}B" if value >= 10e9 else f"{value / 1e9:.1f}B"
+    return f"{value / 1e9:.0f}B" if round(value / 1e8) >= 100 else f"{value / 1e9:.1f}B"
 
 
 def size_label(run: dict[str, Any], box: str) -> str:

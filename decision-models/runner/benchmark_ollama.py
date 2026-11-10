@@ -505,6 +505,12 @@ PRICES: dict[tuple[str, str], Price] = {
         "OpenRouter's price for Xiaomi's own endpoint (fp8)", "https://openrouter.ai/xiaomi/mimo-v2.6-flash", "2026-11-08",
         0.14, 0.28, cached_input=0.0028,
     ),
+    # Meta's Muse Ember (released 9 November 2026, closed weights) at OpenRouter's price for Meta's own endpoint, the only
+    # one that serves it (its endpoints API, read 10 November 2026; project lead bus #4021).
+    ("openrouter-chat", "meta/muse-ember"): Price(
+        "OpenRouter's price for Meta's own endpoint", "https://openrouter.ai/meta/muse-ember", "2026-11-10",
+        0.10, 0.50, cached_input=0.004,
+    ),
     # DeepSeek-V4.1-Flash 1017 on our GPUs, at DeepSeek's own API price for the same model (deepseek-flash serves
     # DeepSeek-V4.1-Flash-1017): its regular rate, the peak hours' (01:00-04:00 and 06:00-10:00 UTC on weekdays); the
     # other hours cost half. The basis keeps the wording every maker's price has (the site names the maker from it).
