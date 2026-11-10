@@ -91,44 +91,148 @@ const costSwitch = () =>
   });
 })();
 
-/* Every page: the model group, from ?models= (all, decision, chat, small-chat or small-decision; missing or unknown
-   means all; trailing dots, punctuation or spaces are dropped, so "all." reads as all; the old small reads as
-   small-chat, so old links and bookmarks keep working). Each element whose data-models lists other groups only is
-   hidden (and shown again when it lists this one), before the page's own scripts run; <html data-models-view> carries
-   the group for them, and a page's group keys (.group-switch) mark it; the marked key leads to All models, so a second
-   tap clears the group (the three sites' rule for the model keys, bus #3937, #3953). A group asked for in the address
-   stays in the links marked data-keep-group. The sticky header's height (the suite strip and the site's bar) is kept
-   in --view-bar-h, so the page scrolls links and parts below it. */
-const GROUP_KEYS = ['all', 'decision', 'chat', 'small-chat', 'small-decision'];
-const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
-  (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, ''));
+/* Every page: the model type and class, from ?models= (all, decision or chat; missing or unknown means all; trailing
+   dots, punctuation or spaces are dropped, so "all." reads as all) and ?class= (one or more class keys, comma-separated;
+   unknown ones are dropped). The old small addresses (?models=small-chat, small-decision, and small, read as
+   small-chat) read as the type with Tiny and Small pressed, the nearest view to the old small ones, unless ?class= says
+   otherwise. Each element whose data-models lists other types only is hidden (and shown again when it lists this one),
+   before the page's own scripts run; <html data-models-view> carries the type for them, and a page's type keys
+   (.group-switch) mark it; the marked key leads to All models, so a second tap clears the type (the three sites' rule
+   for the model keys, bus #3937, #3953). The type and class asked for stay in the links marked data-keep-group and in
+   every link to another page with the model keys (MODEL_PAGES: the home page's Leaderboard reads them too). The
+   sticky header's height (the suite strip and the site's bar) is kept in --view-bar-h, so the page scrolls links and
+   parts below it. */
+const GROUP_KEYS = ['all', 'decision', 'chat'];
+const ADDRESS = new URLSearchParams(window.location.search);
+const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))((ADDRESS.get('models') ?? '').replace(/[^a-z]+$/i, ''));
+const OLD_SMALL = ['small-chat', 'small-decision'].includes(ASKED_GROUP);
+const ASKED_TYPE = OLD_SMALL ? ASKED_GROUP.slice(6) : (GROUP_KEYS.includes(ASKED_GROUP) ? ASKED_GROUP : null);
+const ASKED_CLASSES = ADDRESS.has('class')
+  ? [...new Set(ADDRESS.get('class').split(/[\s,]+/).map(key => key.replace(/[^a-z]+$/i, '').toLowerCase()).filter(Boolean))]
+  : (OLD_SMALL ? ['tiny', 'small'] : []);
+/* The address of a page with a type (null: none asked) and classes, its hash kept apart. */
+const modelsQuery = (type, classes) => [type ? `models=${type}` : '', classes.length ? `class=${classes.join(',')}` : '']
+  .filter(Boolean).join('&');
+/* The pages with model keys, inside the site (its root: the top bar's title link). */
+const MODEL_PAGES = ['', 'english/', 'turkish-vs-english/', 'dont-know/', 'web-grounding/', 'pws-decisions/', 'vision/'];
+const keepModels = (type, classes) => {
+  const root = document.querySelector('.site-title')?.href;
+  const pages = root ? MODEL_PAGES.map(page => new URL(page, root).pathname) : [];
+  document.querySelectorAll('a[href]:not([data-group-key])').forEach(link => {
+    const href = link.getAttribute('href');
+    if (href.startsWith('#')) return;
+    const target = new URL(href, window.location.href);
+    if (!link.hasAttribute('data-keep-group') && (target.origin !== window.location.origin
+        || target.pathname === window.location.pathname || !pages.includes(target.pathname))) return;
+    // The link's own query (as the home page's ?tab=) stays; the type and class are set or dropped.
+    const [path, fragment] = href.split('#');
+    const [base, own] = path.split('?');
+    const query = new URLSearchParams(own ?? '');
+    query.delete('models');
+    query.delete('class');
+    const kept = [query.toString(), modelsQuery(type, classes)].filter(Boolean).join('&');
+    link.setAttribute('href', `${base}${kept ? `?${kept}` : ''}${fragment ? `#${fragment}` : ''}`);
+  });
+};
 (function setupGroup() {
-  const asked = GROUP_KEYS.includes(ASKED_GROUP) ? ASKED_GROUP : null;
-  const group = asked ?? 'all';
+  const group = ASKED_TYPE ?? 'all';
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
   });
   document.querySelectorAll('.group-switch a[data-group-key]').forEach(link => {
-    const url = new URL(link.href);
-    url.hash = '';
-    if (link.dataset.groupKey === group) {
-      link.setAttribute('aria-current', 'true');
-      if (group !== 'all') url.searchParams.delete('models');
-    } else link.removeAttribute('aria-current');
-    link.href = url.href;
+    if (link.dataset.groupKey === group) link.setAttribute('aria-current', 'true');
+    else link.removeAttribute('aria-current');
   });
-  if (asked) {
-    document.querySelectorAll('a[data-keep-group]').forEach(link => {
-      const [path, fragment] = link.getAttribute('href').split('#');
-      link.setAttribute('href', `${path.split('?')[0]}?models=${group}${fragment ? `#${fragment}` : ''}`);
-    });
-  }
+  if (ASKED_TYPE || ASKED_CLASSES.length) keepModels(ASKED_TYPE, ASKED_CLASSES);
   const header = document.querySelector('.site-header');
   if (!header) return;
   const measure = () => document.documentElement.style.setProperty('--view-bar-h', `${header.offsetHeight}px`);
   measure();
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(header);
+})();
+
+/* Every page with model rows besides the home page: the Class keys under the type keys (sitebuild/site.py
+   group_switch; the Leaderboard's keys and rule, Ümit #4217), combined with the type in view. A class key with no row
+   of the type in view hides (and lets go if it was pressed); a second tap on the pressed key, or All, clears it; a key
+   pressed while two are (an old small address) keeps only itself. While a class is chosen each element of a model
+   (data-class: a table row or a bar; empty for a setup only this site ran, shown under Class: All only) of another
+   class goes out of view (class-off), a bar chart's heading with no bar left goes with its bars, a table or chart left
+   with no row says so in its place, and the class rule shows under the keys. The choice is kept in the address
+   (?class=, the old small address read as its type), so Back from a model page returns to the same view, and in the
+   type keys and the links marked data-keep-group. */
+(function classPages() {
+  const switcher = document.querySelector('.class-switch');
+  const group = ASKED_TYPE ?? 'all';
+  const typeLinks = [...document.querySelectorAll('.group-switch a[data-group-key]')];
+  const marked = [...document.querySelectorAll('[data-class]')];
+  const present = new Set(marked.filter(element => !element.closest('[data-models][hidden]')).map(element => element.dataset.class));
+  let classes = switcher ? ASKED_CLASSES.filter(key => key && present.has(key)) : ASKED_CLASSES;
+  const links = () => {
+    typeLinks.forEach(link => {
+      const url = new URL(window.location.href);
+      url.hash = '';
+      url.search = modelsQuery(link.dataset.groupKey === group ? null : link.dataset.groupKey, classes);
+      link.href = url.href;
+    });
+    if (switcher) keepModels(ASKED_TYPE, classes);
+  };
+  links();
+  if (!switcher) return;
+  // A type with no model row of any class (a page whose rows are all of the other type) has no class to pick.
+  switcher.classList.toggle('class-off', ![...present].some(Boolean));
+  const line = document.querySelector('.class-line');
+  // Each list or table of model rows: its rows, the part that goes out of view when none is left, and the note that
+  // then stands in its place (added once, after it).
+  const holders = [...new Set(marked.map(element => element.parentElement))].map(holder => {
+    const table = holder.closest('table');
+    const box = table ? (table.closest('.table-wrap') ?? table) : holder;
+    const note = document.createElement('p');
+    note.className = 'note class-empty';
+    note.hidden = true;
+    note.textContent = 'No model of the chosen class here.';
+    box.after(note);
+    const axis = holder.matches('ol.hbars') && holder.previousElementSibling?.matches('.hbar-axis') ? holder.previousElementSibling : null;
+    return { holder, box, axis, note };
+  });
+  const apply = () => {
+    switcher.querySelectorAll('button[data-class-key]').forEach(key => {
+      const found = key.dataset.classKey;
+      key.hidden = found !== 'all' && !present.has(found);
+      key.setAttribute('aria-pressed', String(found === 'all' ? !classes.length : classes.includes(found)));
+    });
+    marked.forEach(element => element.classList.toggle('class-off', classes.length > 0 && !classes.includes(element.dataset.class)));
+    holders.forEach(({ holder, box, axis, note }) => {
+      const rows = [...holder.children].filter(child => child.hasAttribute('data-class'));
+      const empty = rows.every(row => row.classList.contains('class-off'));
+      [box, axis].forEach(part => part?.classList.toggle('class-off', empty));
+      note.hidden = !empty;
+      let heading = null;
+      let seen = false;
+      const close = () => heading?.classList.toggle('class-off', !seen);
+      [...holder.children].forEach(child => {
+        if (child.matches('.hbar-group')) {
+          close();
+          heading = child;
+          seen = false;
+        } else if (!child.classList.contains('class-off')) seen = true;
+      });
+      close();
+    });
+    if (line) line.hidden = !classes.length;
+  };
+  switcher.addEventListener('click', event => {
+    const key = event.target.closest('button[data-class-key]');
+    if (!key) return;
+    const chosen = key.dataset.classKey;
+    classes = chosen === 'all' || (classes.length === 1 && classes[0] === chosen) ? [] : [chosen];
+    apply();
+    links();
+    const url = new URL(window.location.href);
+    url.search = modelsQuery(ASKED_TYPE, classes);
+    history.replaceState(history.state, '', url.href);
+  });
+  apply();
 })();
 
 /* Pages that keep their details under a closed Info (a details element): a link to a part inside it, in the address or
@@ -231,9 +335,10 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
    rows carry tie-group letters (the Turkish part) the tier (leaderboard.py tiers(): a row joins the tier of the tier's
    top row when they share a letter, else it starts the next tier, marked lb-tier-start for the line between tiers),
    elsewhere the rank, tied scores sharing one; a row with web search (data-unranked) is numbered in neither and keeps
-   its dash. While a class is chosen the class rule shows under the table; a part with no row in view says so. The old
-   small addresses (?models=small-chat, small, small-decision) press Tiny and Small together; small-chat opens on
-   English, as before (the small open models ran in English only). Each row's
+   its dash. While a class is chosen the class rule shows under the table; a part with no row in view says so. The type
+   and classes asked for in the address (ASKED_TYPE, ASKED_CLASSES: ?models=, ?class=, as the other pages keep them in
+   their links) are pressed first; the old small addresses (?models=small-chat, small, small-decision) press Tiny and
+   Small together; small-chat opens on English, as before (the small open models ran in English only). Each row's
    expander shows or hides its other setups. Old addresses keep working: #headline lands on the Leaderboard; #board,
    #all-setups, #cost-table and #chart-tradeoff open All setups first; on the home page itself, #info, whose summary and
    notes moved, and #how-scores, which moved, open About (MOVED; the About page has its own #leaderboard). Without
@@ -252,11 +357,10 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
   // (an old small address) keeps only itself.
   const DEFAULT_PART = 'turkish';
   const DEFAULT_TYPE = 'decision';
-  const SMALL = ASKED_GROUP?.startsWith('small-');
   const state = {
     part: ASKED_GROUP === 'small-chat' ? 'english' : DEFAULT_PART,
-    type: SMALL ? ASKED_GROUP.slice(6) : (GROUP_KEYS.includes(ASKED_GROUP) ? ASKED_GROUP : DEFAULT_TYPE),
-    classes: SMALL ? ['tiny', 'small'] : [],
+    type: ASKED_TYPE ?? DEFAULT_TYPE,
+    classes: ASKED_CLASSES,
     all: false,
   };
   const allPanel = document.getElementById('all-setups');
@@ -375,33 +479,6 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     if (link && INTO_ALL.includes(link.getAttribute('href').slice(1)) && !link.dataset.gotoTab) openAll(true);
   }, true);
   if (hash === 'headline') board.scrollIntoView();
-})();
-
-/* Other boards with a Class row (data-class-board: the Vision page's decision models; sitebuild/vision.py class_keys;
-   Ümit #4217): one class key pressed at a time, a second tap back to All; a row of another class, or of none (a setup
-   only this site ran), goes out of view while a class is pressed, and a group left with no row says so. */
-(function classBoards() {
-  document.querySelectorAll('[data-class-board]').forEach(board => {
-    let chosen = 'all';
-    const apply = () => {
-      board.querySelectorAll('button[data-class-key]').forEach(key => key.setAttribute('aria-pressed', String(key.dataset.classKey === chosen)));
-      board.querySelectorAll('.board-part').forEach(part => {
-        let seen = 0;
-        part.querySelectorAll('tbody tr').forEach(row => {
-          row.hidden = chosen !== 'all' && row.dataset.class !== chosen;
-          if (!row.hidden) seen += 1;
-        });
-        part.querySelector('.table-wrap').hidden = seen === 0;
-        part.querySelector('.board-empty').hidden = seen > 0;
-      });
-    };
-    board.addEventListener('click', event => {
-      const key = event.target.closest('button[data-class-key]');
-      if (!key) return;
-      chosen = key.dataset.classKey === chosen ? 'all' : key.dataset.classKey;
-      apply();
-    });
-  });
 })();
 
 /* Home page: a Leaderboard row's details box, as on the Backgammon site. A tap on a phone opens it and a second tap on

@@ -273,17 +273,16 @@ def setups_table(site: Site, snap: bp.Snapshot) -> str:
             f'<th scope="col">Why we included it</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
 
 
-def small_kind(site: Site, run: dict[str, Any]) -> str:
-    """A setup's mark in the sizes table: Small chat model, Small decision model or No (Site.small, Site.decision)."""
-    if not site.small(run):
-        return "No"
-    return "Small decision model" if site.decision(run) else "Small chat model"
+def left_out_names(site: Site) -> list[str]:
+    """The names of the setups only this site ran (page_config.json small_models.left_out_models), in no class."""
+    left_out = site.config["small_models"].get("left_out_models", [])
+    return sorted({site.row_name(run) for run in site.runs if run["model"] in left_out}, key=str.casefold)
 
 
 def sizes_table(site: Site) -> str:
     """Each model's size record (results.json parameters, active_parameters, effective_parameters, parameters_scope,
-    parameters_source, parameters_read), one row per model name, each marked Small chat model, Small decision model or No, in the details
-    box's words (parameters_text)."""
+    parameters_source, parameters_read), one row per model name, in the details box's words (parameters_text), each with
+    its class label as the boards show it (Site.label)."""
     firsts: dict[str, dict[str, Any]] = {}
     for run in sorted(site.runs, key=lambda run: run["name"].casefold()):
         firsts.setdefault(run["name"], run)
@@ -296,11 +295,11 @@ def sizes_table(site: Site) -> str:
         f'<tr><th scope="row"><a href="{rel(PATH, site.model_path(run))}">{esc(name)}</a></th>'
         f'<td data-label="Parameters">{esc(parameters_text(run))}'
         + (f'<span class="small">{esc(run["parameters_scope"])}</span>' if run.get("parameters_scope") else "")
-        + f'</td><td data-label="Small">{small_kind(site, run)}</td>'
+        + f'</td><td data-label="Class">{site.label(run)}</td>'
         f'<td data-label="Source">{sources(run)}<span class="small">read {bp.long_date(run["parameters_read"])}</span></td></tr>'
         for name, run in firsts.items())
     return ('<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>'
-            '<th scope="col">Parameters</th><th scope="col">Small</th><th scope="col">Source</th></tr></thead>'
+            '<th scope="col">Parameters</th><th scope="col">Class</th><th scope="col">Source</th></tr></thead>'
             f"<tbody>{rows}</tbody></table></div>")
 
 
@@ -750,7 +749,7 @@ for each option.</p>
 {v['configs']} setups of {v['models']} models. Each name links to its setup's page; the results file keeps each identifier,
 server and hardware.</p>
 {setups_table(site, snap)}
-<h3 id="sizes">Model sizes and the small views</h3>
+<h3 id="sizes">Model sizes and classes</h3>
 <p>Each model's size is its maker's figure for the released model or our count of the released checkpoint's tensors
 (logical shapes, never quantized storage), with what it covers and the checkpoint's revision; each size says whether the
 model is dense or a mixture of experts (MoE: as its maker states it, or as the checkpoint we counted shows it), a mixture
@@ -758,9 +757,10 @@ of experts with the parameters active per token (or "active not disclosed by mak
 embeddings its effective size where the maker states one. A model whose maker publishes no size reads "not disclosed by
 maker"; we never guess one from a name or from an open sibling. The details box of each Leaderboard row and each model
 page give the same wording.</p>
-<p>{esc(site.small_line("small-chat"))}</p>
-<p>{esc(site.small_line("small-decision"))}</p>
-<p>Each small view is ranked as its own group; chat and decision models never mix.</p>
+<p>{esc(site.config["model_classes"]["line"])}</p>
+<p>Every board with model rows (the Leaderboard and each page with the model keys) has the same Class keys: a class
+narrows the rows of its tables and bar charts, together with the type keys (All, Chat models, Decision models). The setups
+only this site ran ({esc(bp.and_list(left_out_names(site)))}) are in no class; they show under Class: All.</p>
 {sizes_table(site)}"""),
         ("sending", "What we sent and which settings we used", f"""
 <p>Each question went with its lettered options. Chat models were asked, in Turkish, for their answer's letter and, where

@@ -9,8 +9,9 @@ comparisons), four charts in the home page's format, each in its Measure section
 and the pilot folded; non-hallucination; latency; cost: each set of questions a small heading over its two setups, web
 off grey and with web the accent colour), PWS-Decisions' charts of its decision models (pws_decisions.py), what the
 search returned, the caveats, and the detailed tables. The home page's experiments line and the Perplexity family's
-model pages link here. Every setup shown is a decision model and none a small one (the build stops otherwise), so the
-page shows for the view bar's all and decision groups (data-models) and the chat and small groups show a note instead."""
+model pages link here. Every setup shown is a decision model (the build stops otherwise), so the page shows for the view
+bar's all and decision groups (data-models) and the chat group shows a note instead; the Class row filters the setups'
+rows and bars (data-class)."""
 
 from __future__ import annotations
 
@@ -21,7 +22,7 @@ from typing import Any
 from build_page import long_date
 from sitebuild import pws_decisions
 from sitebuild.site import (DECISION_ONLY, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value, esc,
-                            family_icon, hbars, log_axis, more_link, pct, rel, small_note)
+                            family_icon, hbars, log_axis, more_link, pct, rel)
 
 PATH = "web-grounding/"
 TITLE = "Web grounding"
@@ -202,9 +203,15 @@ def pilot_arms(rows: list[tuple[str, dict[str, Any], dict[str, Any], dict[str, A
 
 
 def setups(site: Site, data: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    """The two setups, off and with web (on): their full names, links from this page and their family."""
-    return {side: {"name": data["names"][side], "href": rel(PATH, site.model_path(site.by_id[data["text_runs"][side]])),
-                   "family": site.families[data["text_runs"][side]]} for side in SIDES}
+    """The two setups, off and with web (on): their full names, links from this page, their family, and their size label,
+    class key and data-class attribute for the Class row."""
+    found = {}
+    for side in SIDES:
+        run = site.by_id[data["text_runs"][side]]
+        found[side] = {"name": data["names"][side], "href": rel(PATH, site.model_path(run)),
+                       "family": site.families[data["text_runs"][side]], "label": site.label(run),
+                       "class_key": site.model_class(run), "class_attribute": site.class_attribute(run)}
+    return found
 
 
 def pair_rows(named: dict[str, dict[str, Any]], group: str, values: dict[str, float], texts: dict[str, Any],
@@ -219,6 +226,7 @@ def pair_rows(named: dict[str, dict[str, Any]], group: str, values: dict[str, fl
         return {"html" if html else "text": text}
 
     return [{"group": group, "label": named[side]["name"], "href": named[side]["href"], "family": named[side]["family"]["name"],
+             "class_key": named[side]["class_key"],
              "bars": [{"value": values[side], "kind": f"web-{side}"}], **value(side),
              "title": f"{named[side]['name']}, {group}: {titles[side]}", **({"marker": markers[side]} if markers else {})}
             for side in SIDES]
@@ -394,7 +402,7 @@ def setup_cell(named: dict[str, dict[str, Any]], side: str, questions: str, run:
     """A table row's setup: its family icon and full name, linked to its page, with its questions and run under it."""
     item = named[side]
     return (f'<td class="model">{family_icon(item["family"]["name"])}<a class="model-name" href="{item["href"]}">'
-            f'{esc(item["name"])}</a><span class="small">{esc(questions)} · {esc(run)}</span></td>')
+            f'{esc(item["name"])}</a> {item["label"]}<span class="small">{esc(questions)} · {esc(run)}</span></td>')
 
 
 HEADS = (("Right", "of the questions"), ("Accuracy", "higher is better"), ("Median per request", "ms; lower is better"),
@@ -442,7 +450,7 @@ def arm_rows(named: dict[str, dict[str, Any]], digits: int, upper: dict[str, str
                  esc(ms(item["p95_request_seconds"])) + small(ranged(item, "p95_request_seconds", ms)),
                  cost_value(item["cost_per_million_questions"] / 1000, prefix) + cost_range(item, prefix)
                  + small("incl. search" if side == "on" else "no search fee"), esc(only)]
-        out.append(f"<tr>{setup_cell(named, side, label, run)}"
+        out.append(f"<tr{named[side]['class_attribute']}>{setup_cell(named, side, label, run)}"
                    + "".join(f'<td class="num" data-label="{esc(name)}">{text}</td>' for (name, _), text in zip(HEADS, cells))
                    + "</tr>")
     return "".join(out)
@@ -465,7 +473,7 @@ def table(rows: list[Any], pws_idk: dict[str, Any] | None, data: dict[str, Any],
                 esc(rate(item[key], digits)) + (small(ranged(item, key, write)) if several and item[key] is not None else "")
                 for key in ("answered", "wrong_of_answers", "non_hallucination")]
             run = f"mean of {item['runs']} runs" if several else f"run {item['run']}"
-            out.append(f"<tr>{setup_cell(named, side, label, run)}"
+            out.append(f"<tr{named[side]['class_attribute']}>{setup_cell(named, side, label, run)}"
                        + "".join(f'<td class="num" data-label="{esc(name)}">{text}</td>' for (name, _), text in zip(idk_heads, cells))
                        + "</tr>")
         return "".join(out)
@@ -692,9 +700,6 @@ def build(site: Site) -> dict[str, str]:
     if not all(site.decision(site.by_id[run]) for run in data["text_runs"].values()):
         raise SystemExit("results.json web_grounding: a setup that is not a decision model, which the page shows for the "
                          "view bar's all and decision groups only")
-    if any(site.small(site.by_id[run]) for run in data["text_runs"].values()):
-        raise SystemExit("results.json web_grounding: a small model setup, which the page does not show for the view bar's "
-                         "small groups yet")
     digits = site.config["percent_digits"]
     upper = site.config["first_cost_marks"]["upper"]
     named = setups(site, data)
@@ -713,8 +718,6 @@ def build(site: Site) -> dict[str, str]:
       <p class="eyebrow">Experiment</p>
       <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
       {chat_note("Chat models: this page compares decision-model setups, so it shows under All models and Decision models. PWS-Decisions with chat models: its own page.")}
-      {small_note("Small chat models: this page compares decision-model setups, so it shows under All models and Decision models. PWS-Decisions with small chat models: its own page.", ("small-chat",))}
-      {small_note("Small decision models: this page compares setups of a model above the small models' size, so it shows under All models and Decision models. PWS-Decisions with small decision models: its own page.", ("small-decision",))}
       <div {DECISION_ONLY}>
       <p>Perplexity's Decisions API without and with a web search per question.</p>
       {more_link(PATH)}

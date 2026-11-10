@@ -109,7 +109,7 @@ def size_fact(run: dict[str, Any]) -> str:
                         else esc(source) for source in run["parameters_source"])
     scope = f"{esc(run['parameters_scope'])}; " if run.get("parameters_scope") else ""
     checked = "pages checked" if run.get("parameters") is None else "source"
-    return (f'{esc(size_sentence(run) or parameters_text(run))}<span class="small">{scope}{checked}: {sources}; read '
+    return (f'{esc((size_sentence(run) or parameters_text(run)).removeprefix("Parameters: "))}<span class="small">{scope}{checked}: {sources}; read '
             f'{bp.long_date(run["parameters_read"])}</span>')
 
 

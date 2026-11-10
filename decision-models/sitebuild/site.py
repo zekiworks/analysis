@@ -38,13 +38,11 @@ SECTION = {"question/": "questions/", "disagreements/": "questions/", "topics/":
            "dont-know/": "experiments/", "web-grounding/": "experiments/",
            "pws-decisions/": "experiments/", "aa-decision-index/": "experiments/", "method/": "about/", "data/": "about/"}
 # The model groups a page can show (?models=, read by site.js on every page; data-models marks the parts of each):
-# (value of ?models=, label). On the Leaderboard ?models= sets the table's filter; on a page that shows its parts by
-# group, its group keys (group_switch) pick one. The two small groups split each kind by size: the chat or decision
-# models whose model's disclosed size is at most page_config.json's small_models.max_parameters (Site.small). The old
-# ?models=small reads as small-chat (site.js).
-MODEL_GROUPS = (("all", "All models"), ("chat", "Chat models"), ("decision", "Decision models"),
-                ("small-chat", "Small chat models"), ("small-decision", "Small decision models"))
-SMALL_GROUPS = ("small-chat", "small-decision")
+# (value of ?models=, label). On the Leaderboard ?models= sets the table's type; on a page that shows its parts by
+# group, its group keys (group_switch) pick one, and its Class keys (page_config.json model_classes, Site.model_class;
+# Ümit #4217) narrow the rows of its tables and bar charts to a class, as the Leaderboard's do. The old small groups
+# (?models=small-chat, small-decision, small) read as the type with Tiny and Small pressed (site.js).
+MODEL_GROUPS = (("all", "All models"), ("chat", "Chat models"), ("decision", "Decision models"))
 # The suite strip shared by the three benchmark sites (decision-models, logic, backgammon) and All benches: its stylesheet
 # and snippet, files of the site published as they are, which the other two sites copy; this site's link is the marked
 # one (All benches marks its own, sitebuild/all_benches.py).
@@ -78,9 +76,12 @@ def suite_bar(here: str = SUITE_HERE) -> str:
 
 # The model groups (?models=), the first shown without JavaScript.
 GROUPS = tuple(key for key, _ in MODEL_GROUPS)
-# The attribute of a part about decision models only: shown for the all and decision groups, a note for chat and the
-# small groups.
+# The attribute of a part about decision models only: shown for the all and decision groups, a note for chat.
 DECISION_ONLY = 'data-models="all decision"'
+# What a page's Class keys narrow, after the class rule under them (group_switch): the rows of its tables and bar
+# charts; its sentences, counts, tests and line plots stay those of the type in view.
+CLASS_PAGE_LINE = ("On this page a class narrows the rows of the tables and bar charts; the sentences, counts, tests "
+                   "and line plots still cover every model of the type in view.")
 
 
 def shown(group: str) -> str:
@@ -92,10 +93,6 @@ def chat_note(text: str) -> str:
     """The one note the chat group shows instead of a page's parts about decision models only."""
     return f'<p class="note" data-models="chat" hidden>{text}</p>'
 
-
-def small_note(text: str, groups: tuple[str, ...] = SMALL_GROUPS) -> str:
-    """The one note the small groups (or the ones given) show instead of a page's parts that are not split by size."""
-    return f'<p class="note" data-models="{" ".join(groups)}" hidden>{text}</p>'
 
 
 def billions(value: int) -> str:
@@ -159,11 +156,21 @@ def stated_sizes() -> dict[str, dict[str, Any]]:
     return json.loads((ROOT / "page_config.json").read_text(encoding="utf-8"))["stated_sizes"]["models"]
 
 
+def counted(run: dict[str, Any]) -> bool:
+    """Whether a setup's size record is our count of the released checkpoint (a source "counted from ..."), not a
+    figure its maker states."""
+    return any(source.startswith("counted from") for source in run.get("parameters_source") or [])
+
+
 def stated_total(run: dict[str, Any]) -> int | None:
-    """The total a size label and a class read (Ümit #4245): the maker's stated total (stated_sizes) where its card
-    states one, else the size record's (the maker's figure for a hosted model, else our count of the released
-    checkpoint); None where the maker discloses no size."""
-    return stated_sizes().get(run["model"], {}).get("total", run.get("parameters"))
+    """The total a size label and a class read (Ümit #4245, the three sites' #4260-#4262): the maker's stated total
+    (stated_sizes: its card or page, or the size in its official name), else the size record's where it is the maker's
+    own figure (a hosted model); None where the maker states no total, our count of the checkpoint notwithstanding
+    (GLM-5.3): the size is undisclosed and the class goes by price."""
+    found = stated_sizes().get(run["model"])
+    if found:
+        return found["total"]
+    return None if counted(run) else run.get("parameters")
 
 
 def stated_active(run: dict[str, Any]) -> list[int] | None:
@@ -177,25 +184,34 @@ def mixture(run: dict[str, Any]) -> bool:
 
 
 def size_sentence(run: dict[str, Any]) -> str | None:
-    """The details box's and the model page's explanation of a size label's mark (#4229, #4231, #4245): for a mixture
-    of experts, its total as the maker states it (with our count of the checkpoint where it differs) and its active
-    count per step, then "Size class uses the total (276B)."; for two models run together, their total, all of it used
-    on every question; None for a dense model or an undisclosed size, which keep parameters_text. A counted total with
-    two decimals, a stated whole one as the maker gives it."""
+    """The details box's and the model page's size line (#4229, #4231, #4245, #4262), our count of the released
+    checkpoint in it where we counted one ("counted from the released files: …"): a mixture of experts' total as the
+    maker states it and its active count per step, then "Size class uses the total (276B)."; two models run together,
+    their total, all of it used on every question; a dense model's stated total ("Parameters: 27B dense, as the maker
+    states it"); a model whose maker states no total, "not stated by the maker" with our count; None where the record
+    has no size at all (parameters_text then says "not disclosed by maker"). A counted total with two decimals, a
+    stated whole one as the maker gives it."""
     total, stated = run.get("parameters"), stated_total(run)
-    if stated is None:
-        return None
     exact = lambda value: (billions(value) if value % 1e9 == 0 else  # noqa: E731
                            f"{value / 1e12:.2f}T" if value >= 1e12 else f"{value / 1e9:.2f}B")
+    said = lambda value: (billions(value) if value < 1e9 or value >= 1e12 else  # noqa: E731
+                          f"{value / 1e9:.2f}".rstrip("0").rstrip(".") + "B")
+    files = f"counted from the released files: {exact(total)}" if total is not None and counted(run) else ""
+    if stated is None:
+        if not files:
+            return None
+        kind = " (a mixture of experts)" if mixture(run) else ""
+        return f"Parameters: not stated by the maker{kind}; {files}."
     if combined(run):
         return (f"Two models run together, option probabilities averaged 50/50: {exact(total)} in all, all used on every "
                 "question.")
+    note = f" ({files})" if files and stated != total else ""
     if not mixture(run):
-        return None
+        effective = f" · {billions(run['effective_parameters'])} effective" if run.get("effective_parameters") else ""
+        return f"Parameters: {said(stated)} dense{effective}, as the maker states it{note}."
     active = stated_active(run)
-    counted = f" (our count of the released checkpoint: {exact(total)})" if total is not None and stated != total else ""
     each = f"about {' to '.join(map(billions, active))} active per step" if active else "active not disclosed by maker"
-    return f"Mixture of experts: {exact(stated)} total{counted}, {each}. Size class uses the total ({label_count(stated)})."
+    return f"Mixture of experts: {said(stated)} total{note}, {each}. Size class uses the total ({label_count(stated)})."
 
 
 def experiments(results: dict[str, Any], path: str) -> str:
@@ -390,10 +406,10 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     of the divisions), in percent unless tick writes a value its way, as HTML (aa-decision-index/ writes dollars;
     cost_tick both cost units). head names the value column above it: (in full, on a phone), as ("Turkish · English",
     "TR · EN"). With columns, several value columns, each named so: a row's texts then give one value per column
-    instead. A row's note (optional) is a small second line under its label. A row's group (optional) heads it and the
-    rows after it of the same group, as a small line across the chart (web-grounding/ names each set of questions so).
     A row's models (optional, the view bar's groups it shows in, as
-    "all decision") marks it data-models, and its heading with every group of its rows (pws-decisions/)."""
+    "all decision") marks it data-models, and its heading with every group of its rows (pws-decisions/). A row's
+    class_key (optional: present for a model's row, Site.model_class, None for one in no class) marks it data-class,
+    so a page's Class keys (site.js) narrow the chart; a heading whose rows are all out of view goes with them."""
     place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
     ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / divisions)}">'
@@ -429,7 +445,8 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
             values = f'<span class="hbar-value stack">{"".join(f"<span>{esc(text)}</span>" for text in row["texts"])}</span>'
         else:
             values = f'<span class="hbar-value">{row["html"] if "html" in row else esc(row["text"])}</span>'
-        items.append(f'<li class="hbar" title="{esc(row["title"])}"{marks(set(row.get("models", "").split()))}>'
+        cls = f' data-class="{row["class_key"] or ""}"' if "class_key" in row else ""
+        items.append(f'<li class="hbar" title="{esc(row["title"])}"{marks(set(row.get("models", "").split()))}{cls}>'
                      f'<span class="hbar-label">{label}</span>'
                      f'<span class="hbar-track"{lines}>{fills}{marker}</span>{values}</li>')
     named = "".join(f'<span class="hbar-head"><span class="head-long">{esc(long)}</span><span class="head-short">{esc(short)}'
@@ -578,15 +595,24 @@ def footer(path: str, version: str) -> str:
             f'<a href="{rel(path, "answers.json")}" download>answers.json</a></p>\n    <p>{version}</p>\n  </footer>')
 
 
-def group_switch(hidden: tuple[str, ...] = ()) -> str:
-    """The model group keys at the top of a page that shows its parts by group (data-models): All, Decision, Chat and
-    Small chat and Small decision, each the page itself with ?models=; site.js marks the one in view. In the page, not in
-    the top bar. A page leaves out the keys of groups it has nothing for (hidden), as Vision the chat groups while no chat
-    model has a vision result."""
+def group_switch(classes: list[tuple[str, str]], line: str, hidden: tuple[str, ...] = ()) -> str:
+    """The model keys at the top of a page that shows its parts by group (data-models): the type keys, All, Chat and
+    Decision, each the page itself with ?models= (site.js marks the one in view), then the Class keys, the Leaderboard's
+    row (Ümit #4217: All, then classes, the keys and markup of leaderboard.py; site.js hides a class with no row of the
+    type in view and keeps the choice in ?class=), and the class rule (line), shown while a class is chosen. In the page,
+    not in the top bar. A page leaves out the keys of groups it has nothing for (hidden), as Vision the chat group while
+    no chat model has a vision result; a page with no model rows (no classes given) has no Class keys."""
     keys = "".join(f'<a class="key" href="?models={value}" data-group-key="{value}">{esc(label)}</a>'
                    for value, label in MODEL_GROUPS if value not in hidden)
-    return (f'<nav class="group-switch needs-js" aria-label="Model group"><span class="group-label">Models</span>'
-            f'{keys}</nav>')
+    switch = (f'<nav class="group-switch needs-js" aria-label="Model group"><span class="group-label">Models</span>'
+              f'{keys}</nav>')
+    if not classes:
+        return switch
+    buttons = "".join(f'<button type="button" class="key" data-class-key="{key}" aria-pressed="{str(key == "all").lower()}">'
+                      f'{esc(label)}</button>' for key, label in [("all", "All"), *classes])
+    return (f'{switch}<div class="lb-controls lb-size-keys class-switch needs-js"><span class="keys" role="group" '
+            f'aria-label="Class"><span class="lb-keys-label" aria-hidden="true">Class:</span>{buttons}</span></div>'
+            f'<p class="table-note class-line" hidden>{esc(line)}</p>')
 
 
 # The cost unit, one choice for the whole site: every cost reads per 1,000 questions or per 1M questions. site.js keeps
@@ -765,33 +791,13 @@ class Site:
 
     @property
     def small_max(self) -> int:
-        """The small views' one threshold (page_config.json small_models.max_parameters), in parameters."""
+        """The three sites' size threshold for a small model (page_config.json small_models.max_parameters), in
+        parameters: Highlights' small open chat models."""
         return self.config["small_models"]["max_parameters"]
-
-    def small(self, run: dict[str, Any]) -> bool:
-        """Whether a setup is small (the three sites' rule, project lead through Zeki #3812-#3816; Small chat models and
-        Small decision models hold the small setups of each kind, #3876-#3882): its model's total, or for a mixture of
-        experts every active count, as the maker discloses it, at most small_max; a model whose maker discloses no size
-        never is. small_models.left_out_models never are (setups only this site ran, Zeki #3805, #3818)."""
-        small = self.config["small_models"]
-        if run["model"] in small.get("left_out_models", []):
-            return False
-        total, active = run.get("parameters"), run.get("active_parameters") or []
-        return (total is not None and total <= self.small_max) or (bool(active) and max(active) <= self.small_max)
 
     def in_group(self, run: dict[str, Any], group: str) -> bool:
         """Whether a setup shows in a model group of the view bar (MODEL_GROUPS)."""
-        if group == "all":
-            return True
-        if group in SMALL_GROUPS:
-            return self.small(run) and self.decision(run) == (group == "small-decision")
-        return self.decision(run) == (group == "decision")
-
-    def small_line(self, group: str) -> str:
-        """A small group's rule in one line, under the Leaderboard and on the pages that show the group: the three
-        sites' words (small_models.groups' line), then the setups of its kind left out here."""
-        small = self.config["small_models"]["groups"][group]
-        return small["line"] + (f" Left out here: {small['left_out_text']}." if small.get("left_out_text") else "")
+        return group == "all" or self.decision(run) == (group == "decision")
 
     @staticmethod
     def is_open(run: dict[str, Any]) -> bool:
@@ -841,6 +847,11 @@ class Site:
         classes = self.config["model_classes"]
         return [(item["key"], item["label"]) for item in [*classes["open"], *classes["closed"], classes["undisclosed"]]]
 
+    def class_attribute(self, run: dict[str, Any]) -> str:
+        """A model row's mark for a page's Class keys (site.js): data-class with its class (model_class), empty for a
+        setup only this site ran, which shows under Class: All only (as on the Leaderboard)."""
+        return f' data-class="{self.model_class(run) or ""}"'
+
     def label(self, run: dict[str, Any], box: str | None = None) -> str:
         """The label beside a model's name on a board, as HTML (#4229, #4231, #4217, #4245): an open model's total as the
         maker states it (stated_total, label_count); a mixture of experts with a space, a small superscript "MoE" and its
@@ -865,6 +876,20 @@ class Site:
         each = f" · {' to '.join(map(billions, active))} active" if active else ""
         return (f'<span class="lb-size">{label_count(total)} <sup class="lb-mark" tabindex="0" '
                 f'aria-label="mixture of experts"{described}>MoE</sup>{each}</span>')
+
+    def price_note(self, run: dict[str, Any]) -> str | None:
+        """The details box's price line for a model classed by price (#4265): its class, the kind of price (the standard
+        list price, or an introductory price, the only one published) and its source; None for a model classed by
+        size, one in no class, or an Undisclosed one."""
+        found = self.model_class(run)
+        price = self.list_price(run)
+        if found not in {item["key"] for item in self.config["model_classes"]["closed"]} or price is None:
+            return None
+        kind = "introductory price, the only one published" if price.get("provisional") else "standard list price"
+        provisional = " (provisional)" if price.get("provisional") else ""
+        rate = f"{price['input']:.2f}" if round(price["input"], 2) == price["input"] else f"{price['input']:g}"
+        return (f"Class: {dict(self.model_classes())[found]}{provisional}, by its {kind}: ${rate} per 1M input "
+                f"tokens ({price['source']}, read {price['date']})")
 
     def kind(self, run: dict[str, Any]) -> str:
         return "Decision model" if self.decision(run) else "Chat model"
@@ -992,11 +1017,21 @@ class Site:
         return (f"Results {esc(results['results_version'])}, updated {bp.long_date(results['updated'])}; "
                 f"answer key version {results['answer_key']['version']}.")
 
+    def model_keys(self, body: str, hidden: tuple[str, ...]) -> str:
+        """The model keys above a page's body (group_switch) where it shows its parts by group: the type keys, and the
+        Class keys with their rule (the Leaderboard's class_line, then CLASS_PAGE_LINE) where it has model rows."""
+        from sitebuild.leaderboard import class_line
+        if 'data-models="' not in body:
+            return ""
+        if 'data-class="' not in body:
+            return group_switch([], "", hidden)
+        return group_switch(self.model_classes(), f"{class_line(self, self.runs)} {CLASS_PAGE_LINE}", hidden)
+
     def page(self, path: str, title: str, description: str, body: str, scripts: tuple[str, ...] = (),
              image: str | None = None, hidden_groups: tuple[str, ...] = ()) -> str:
         """A whole page at path (inside the site): head with its canonical address (and, with image, the key of its
-        share/images.json link preview), the top bar, the body (after the model group keys where it shows its parts by
-        group, without the keys of hidden_groups), the footer."""
+        share/images.json link preview), the top bar, the body (after the model keys where it shows its parts by group,
+        without the keys of hidden_groups, and with the Class keys where it has model rows, data-class), the footer."""
         root = rel(path, "")
         preview = ""
         if image:
@@ -1025,7 +1060,7 @@ class Site:
   <a class="skip" href="#main">Skip to content</a>
   {topbar(path)}
   <main id="main">
-{group_switch(hidden_groups) + "".join(small_note(esc(self.small_line(group)), (group,)) for group in SMALL_GROUPS if group not in hidden_groups) if 'data-models="' in body else ""}
+{self.model_keys(body, hidden_groups)}
 {body}
   </main>
   {footer(path, self.version())}

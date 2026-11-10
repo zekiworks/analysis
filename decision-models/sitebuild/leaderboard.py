@@ -197,13 +197,14 @@ def wide(value: str) -> str:
 
 
 def details(site: Site, run: dict[str, Any], box: str, lines: list[str | None], answers: str) -> str:
-    """A setup's details box: its name line, its model's size (size_sentence, else parameters_text), then the lines the data has (never
+    """A setup's details box: its name line, its model's size (size_sentence, else parameters_text), its price line where
+    it is classed by price (Site.price_note), then the lines the data has (never
     "n/a"), then the link to its answers (an English-only setup, with no Text tab run and no model page: its row on the
     English reading page)."""
     head = " · ".join([f"<strong>{esc(name_of(site, run))}</strong>", esc(under(site, run))])
     link = "Open its answers" if run["run"] in site.by_id else "Open its English results"
     size = size_sentence(run) or f"Parameters: {parameters_text(run)}"
-    body = [head, esc(size), *lines, f'<a href="{answers}">{link} \u2192</a>']
+    body = [head, esc(size), esc(site.price_note(run) or ""), *lines, f'<a href="{answers}">{link} \u2192</a>']
     return (f'<div class="lb-box" id="{box}" role="group" aria-label="{esc(name_of(site, run))}: details">'
             + "".join(f"<p>{line}</p>" for line in body if line) + "</div>")
 
@@ -320,12 +321,6 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
     return heads, body
 
 
-def class_attributes(site: Site, run: dict[str, Any]) -> str:
-    """A row's class for the Class keys (Site.model_class); none for a setup only this site ran (Class: All only)."""
-    found = site.model_class(run)
-    return f' data-class="{found}"' if found else ""
-
-
 def name_cell(site: Site, name: str, href: str, box: str, run: dict[str, Any]) -> str:
     """A row's name link, a space (so copied text and screen readers never run the two together, #4269), and its label
     beside it (Site.label)."""
@@ -377,7 +372,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
         if not unranked[index]:
             previous = numbers[index]
         out.append(
-            f'<tr data-kind="{kind}"{class_attributes(site, run)} data-score="{points}"{tested_attributes} data-box="{box}">'
+            f'<tr data-kind="{kind}"{site.class_attribute(run)} data-score="{points}"{tested_attributes} data-box="{box}">'
             f'<td class="num rank">{"–" if unranked[index] else numbers[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{family_icon(family["name"])}'
             f'{name_cell(site, name, answers(item), box, run)}{more}'
@@ -388,7 +383,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             other_lines, other_cells = facts(other)
             other_box = f"{sub_id}-box"
             out.append(
-                f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{class_attributes(site, other_run)} '
+                f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{site.class_attribute(other_run)} '
                 f'data-box="{other_box}"><td class="num"></td>'
                 f'<td class="model">{name_cell(site, name_of(site, other_run), answers(other), other_box, other_run)}<span class="small">'
                 f'{esc(setting(site, other_run) + " · ") if setting(site, other_run) else ""}other setting of '

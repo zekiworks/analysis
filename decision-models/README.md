@@ -180,9 +180,14 @@ python3 -m http.server 8000                                # preview at http://1
     the git-ignored folder `_suite/all-benches/`, self-contained (its pages, `benches.json` and copies of
     `suite-bar.css`, `v3.css`, `site.js`, `all-benches.css` and `all-benches.js`); publishing copies that folder to
     the mirror's `analysis/all-benches/`. `all-benches/` and `all-benches/method/` here are redirects to it that keep
-    the query and the fragment; `all-benches/benches.json` is what the build last read from the other sites. This
-    site's `bench-scores.json` feeds it three benches: Reading · Turkish (`reading-text`), Reading · English
-    (`reading-english`, the kept reading questions in English) and Reading · Vision (`reading-vision`).
+    the query and the fragment; `all-benches/benches.json` is what the build last read from the other sites (one file
+    per bench: Logic, Math, the pooled Logic & Math and Backgammon; Logic & Math shows in place of Logic and Math until
+    both are live, and Combined uses it either way). This site's `bench-scores.json` feeds it five benches, each row
+    with `model_key`, the three sites' join key: Reading · Turkish (`reading-text`, all 2,198 questions, in Combined
+    only), Turkish Reading (`turkish-reading`), Turkish Grammar (`turkish-grammar`), English Reading
+    (`reading-english`, the kept reading questions in English) and Vision (`reading-vision`). The page's type and class
+    keys (the Leaderboard's, `?models=` and `?class=`) choose the models in view; the score keys pick what the chart
+    ranks by and the table under it, every model on every bench, sorts by.
   - **Top bar** (`topbar` in `sitebuild/site.py`, under the suite strip in the one sticky header `.site-header` on
     every page, as on the Backgammon site; `--view-bar-h` is the header's height, kept by `site.js`): the Hilde leaf
     (`hilde-leaf.svg`) and the site's name, "Reading bench" (`SITE_NAME`), linking the home page, with the Dark /
@@ -195,25 +200,26 @@ python3 -m http.server 8000                                # preview at http://1
     `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
     `about/`, `method/` and `data/`. On a phone the tab row wraps to a second line, so every tab stays in view. No other
     navigation row sits under the suite strip; a page's own part links (`.face-nav`, as PWS-Decisions' steps) stay in
-    the page. **Model groups**: `?models=all|decision|chat|small-chat|small-decision` (all when missing; trailing dots,
-    punctuation or spaces are dropped, so `?models=all.` reads as all; the old `?models=small` reads as `small-chat`) still picks the group on every page that shows its parts by group
-    (`data-models`; `site.js` shows each element only for its groups), and such a page carries its own group keys at
-    the top of its body (`group_switch`, All · Decision models · Chat models · Small chat models · Small decision
-    models, in the page, not in the top bar), with the group's rule under them in a small view; on the Leaderboard it
-    sets the type and size keys (below). **Small chat models** and **Small decision models** (`Site.small`, `Site.in_group`,
-    `v3.js` `isSmall`, `inGroup`; split by kind so the two never mix, project lead bus #3876, the three sites #3877-#3882):
-    one size rule on the three sites (project lead through Zeki, bus #3812-#3816), worded per group in
-    `small_models.groups` (`line`): a setup is small when its model's total parameter count, or for a mixture of experts
-    every active count (DeepSeek-V4.1-Flash's 8B prefill and 16B decode keep it out), as its maker discloses it is at
-    most `small_models.max_parameters` (15B); a model whose maker discloses no size never is. Small chat models holds the
-    small chat models, Small decision models the small decision models. `small_models.left_out_models` are never small
-    here: the six small setups only this site ran (Laya, Laya multilingual, GLiNER2.5-multi-Decide in the decision
-    group's sentence; GLiNER2.5 Multi (base), Qwen3-14B, Erk-14B in the chat group's; Zeki #3805, #3818), named in each
-    group's `left_out_text` and shown under All. Inkling Small is in Small chat models by its card's 12B active
-    parameters. A part that covers every decision model whatever its size (a Holm family, a decision-model finding)
-    is not split by size: under both small groups a note (`small_note`) stands in its
-    place, as under Chat models. A group asked for in the address stays in the links marked
-    `data-keep-group`. The footer of every page (`footer`): About · Method · Data · GitHub, the downloads and the
+    the page. **Model keys**: `?models=all|decision|chat` (all when missing; trailing dots, punctuation or spaces are
+    dropped, so `?models=all.` reads as all) picks the type on every page that shows its parts by group (`data-models`;
+    `site.js` shows each element only for its type), and such a page carries its own type keys at the top of its body
+    (`group_switch`, All models · Chat models · Decision models, in the page, not in the top bar); on the Leaderboard
+    it sets the type key (below). Under them, on every such page with model rows (English reading, Turkish vs English,
+    Hallucination, Web grounding, PWS-Decisions, Vision; About has none), the Leaderboard's **Class keys** (Class: All ·
+    Tiny · Small · Medium · Large · Efficient · Workhorse · Flagship · Undisclosed, `Site.model_classes`; Ümit #4217),
+    combined with the type: each table row and bar of one model carries its class (`Site.class_attribute`, hbars'
+    `class_key`; empty for `small_models.left_out_models`, the setups only this site ran, which show under Class: All
+    only), and `site.js` (`classPages`) takes the rows of other classes out of view, hides a class key with no row of the
+    type in view (the whole Class row where the type has no model row, as Chat models on Web grounding and Vision),
+    says so where a table or chart is left with no row, and shows the class
+    rule (`leaderboard.class_line`, then `CLASS_PAGE_LINE`: the sentences, counts, tests and line plots stay those of
+    the type) while a class is chosen; a second tap on the pressed key goes back to All. Each table row names its model
+    with the Leaderboard's size label (`Site.label`). The choice is kept in `?class=` (comma-separated keys), so Back
+    from a model page returns to the same view. The old small views gave way to the classes: `?models=small-chat` (and
+    the older `small`) and `?models=small-decision` read as Chat models or Decision models with Tiny and Small pressed,
+    as on the Leaderboard. The type and class asked for stay in the links marked `data-keep-group` and in every link to
+    another page with model keys (`MODEL_PAGES` in `site.js`, the home page included, whose Leaderboard reads both).
+    The footer of every page (`footer`): About · Method · Data · GitHub, the downloads and the
     results version. **Cost unit**: every cost reads per 1,000 questions or per
     1M questions, one choice for the whole site (the keys in each cost card's head, `cost_switch`; `site.js` keeps it in
     `?cost-unit=1k|1m` and localStorage `costUnit`, in `<html data-cost-unit>`, which each page's `<head>` sets before
@@ -445,9 +451,10 @@ python3 -m http.server 8000                                # preview at http://1
       the group `?models=` names) and All setups, which shows today's full ranking in the table's place; then the Class
       keys on a row of their own (Class: All · Tiny · Small · Medium · Large · Efficient · Workhorse · Flagship, Ümit
       #4217, one scale with the Logic & Math and Backgammon sites, combined with the type; `page_config.json`
-      `model_classes`, `Site.model_class`: an open model with a disclosed size by its TOTAL parameters (#4245; the
-      maker's stated total where `stated_sizes` gives it, Inkling Small's 276B and DeepSeek-V4.1-Flash's 552B, else the
-      size record, `stated_total`), Tiny below 6B, Small 6B to 15B, Medium above 15B up to 40B, Large above 40B (Gemma's
+      `model_classes`, `Site.model_class`: an open model with a disclosed size by its TOTAL parameters (#4245, the three
+      sites' #4260-#4262: the maker's stated total, from its card or page or the size in its official name, as
+      `stated_sizes` gives it, else a hosted model's record; `stated_total`; an open model whose maker states no total,
+      GLM-5.3, has an undisclosed size and is priced; our count of the checkpoint shows only in the details box), Tiny below 6B, Small 6B to 15B, Medium above 15B up to 40B, Large above 40B (Gemma's
       E models by their total with embeddings); a
       closed model, or an open one whose maker discloses no size, by its standard list price per 1M input tokens, never
       an introductory or promotional one (#4238; `Site.list_price`: `model_classes.prices`, else results.json prices),
@@ -463,14 +470,15 @@ python3 -m http.server 8000                                # preview at http://1
       box explains), a space and a .5rem gap between the name and the label; the mark takes the focus and a hover,
       focus or tap on it opens the row's details box, which ends "Size class uses the total (276B)."; a closed model
       "Closed · Workhorse" ("(provisional)" after a class from a promotional price only), an open one of undisclosed
-      size "Open · Workhorse" (#4265). The #
+      size "Open · Workhorse" (#4265); the details box of a priced model gives its class, the kind of price
+      (standard list price, or introductory price, the only one published) and its source (`Site.price_note`). The #
       column numbers the rows in view: on the Turkish part their
       tier (a row joins the tier of the tier's top row when they share a tie-group letter of the full ranking's
       all-pairs test, else it starts the next tier; a thin line between tiers), on the other parts, which no all-pairs
       test covers, their rank, ties sharing a rank; a setup with web search is in neither (# shows a dash). Lines of
       text: what the score means above the table, what # shows, the row rule and, while a class is chosen, the class
-      rule under it; the longer notes are on About. The Vision page's decision models board has the same Class row
-      (`vision.class_keys`, `site.js` `classBoards`) and labels.
+      rule under it; the longer notes are on About. Every other page with model keys has the same Class row
+      (`group_switch`, `site.js` `classPages`, under Site chrome above) and labels.
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
       then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
       `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;
@@ -764,7 +772,7 @@ vision encoder, scoring head), `parameters_source` (the maker's official pages, 
 `repo@revision` from its safetensors headers' logical tensor shapes, never quantized storage, scales or an adapter
 file alone; for an undisclosed size, every official page checked) and `parameters_read` (the date read). A size is
 never guessed from a name or taken from an open sibling of a hosted model. The records reach `results.json` per run
-and drive the details box, the model pages, Method's size table and the small views. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
+and drive the details box, the model pages, Method's size table and the size labels and classes. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
 the export takes each run's price from the report, and stops when a paid or free-tier run has none or a
 price applies to another kind of run: a self-hosted run may only take its maker's list price for the same
 model (our hardware cost is not measured), and a free-tier run the list price of the model it called.

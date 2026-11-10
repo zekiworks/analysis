@@ -11,9 +11,7 @@ hold reads "Not available" with its reason from the model's "missing"; a row wit
 the ranked rows, in vision.json's order. model_table() also gives a model page its row. findings() puts the results in
 words, computed from vision.json when the site is built. Every model here is a decision model (the build stops
 otherwise), so the models' charts, tables and findings show for the view bar's all and decision groups (data-models)
-and the chat and small chat groups show a note instead. The small decision group gets its own leaderboard
-(small_board) and the charts' rows of the small models; the charts without one and the findings, which cover every
-model, give way to a note there. The OCR
+and the chat group shows a note instead; the page's Class row filters the models' rows and bars (data-class). The OCR
 models' parts show in every group."""
 
 from __future__ import annotations
@@ -25,7 +23,7 @@ from typing import Any
 
 import build_page as bp
 from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, esc, family_icon, family_legend, hbars, interval, more_link,
-                            pct, rel, run_families, shown, small_note)
+                            pct, rel, run_families)
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -125,22 +123,10 @@ def model_cell(site: Site, origin: str, model: dict[str, Any], shown: dict[int, 
 
 
 def class_attribute(site: Site, model: dict[str, Any]) -> str:
-    """A row's class for the board's Class keys (Site.model_class of its Text tab setup, condition A's run); none for a
-    model without one or a setup only this site ran (Class: All only)."""
+    """A row's mark for the page's Class keys: its Text tab setup's (condition A's run, Site.class_attribute); empty, so
+    Class: All only, for a model without one."""
     run = site.by_id.get(model["a_run"])
-    found = site.model_class(run) if run else None
-    return f' data-class="{found}"' if found else ""
-
-
-def class_keys(site: Site, models: list[dict[str, Any]]) -> str:
-    """The board's Class row (Ümit #4217, as the home page's Leaderboard): All, then each class some model of the
-    board is in, in the scale's order; site.js (classBoards) filters the rows."""
-    present = {site.model_class(site.by_id[model["a_run"]]) for model in models if model["a_run"] in site.by_id}
-    keys = [("all", "All"), *((key, label) for key, label in site.model_classes() if key in present)]
-    buttons = "".join(f'<button type="button" class="key" data-class-key="{key}" aria-pressed="{str(key == "all").lower()}">'
-                      f'{esc(label)}</button>' for key, label in keys)
-    return (f'<div class="lb-controls lb-size-keys needs-js"><span class="keys" role="group" aria-label="Class">'
-            f'<span class="lb-keys-label" aria-hidden="true">Class:</span>{buttons}</span></div>')
+    return site.class_attribute(run) if run else ' data-class=""'
 
 
 def model_table(site: Site, origin: str, data: dict[str, Any], models: list[dict[str, Any]]) -> str:
@@ -184,7 +170,7 @@ def group(site: Site, data: dict[str, Any], models: list[dict[str, Any]], kind: 
         note += (f" {esc(names(rest))} {'has' if len(rest) == 1 else 'have'} {missing}, so "
                  f"{'it is' if len(rest) == 1 else 'they are'} not ranked and {'follows' if len(rest) == 1 else 'follow'} the ranked rows.")
     return (f'<div class="board-part">{heading}<p class="note">{note}</p>{model_table(site, PATH, data, top + rest)}'
-            '<p class="note board-empty" hidden>No model of this class in this group.</p></div>')
+            '</div>')
 
 
 # vision.json's texts as the page says them: internal notes (decision numbers, people, remarks about the machine) are
@@ -225,31 +211,13 @@ def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
         return ""
     title = "Decision models" if decision else "Other models: chat and general models"
     marks = DECISION_ONLY if decision else 'data-models="all"'
-    start = (f'    <section class="card" id="{"decision" if decision else "other"}" {marks}'
-             f'{" data-class-board" if decision else ""}>\n      <h2>{title}</h2>\n      ')
+    start = (f'    <section class="card" id="{"decision" if decision else "other"}" {marks}>'
+             f'\n      <h2>{title}</h2>\n      ')
     if not models:
         empty = "No chat or general model has been run on the page images yet." if not decision else "No decision model has been run on the page images yet."
         return f'{start}<p class="note">{empty}</p>{not_run(skipped)}\n    </section>'
     groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
-    return f"{start}{class_keys(site, models) if decision else ''}{groups}{not_run(skipped)}\n    </section>"
-
-
-def small(site: Site, model: dict[str, Any]) -> bool:
-    """Whether a model is in the view bar's small decision group, by its Text tab setup (condition A's run); never
-    without one."""
-    run = site.by_id.get(model["a_run"])
-    return run is not None and site.in_group(run, "small-decision")
-
-
-def small_board(site: Site, data: dict[str, Any]) -> str:
-    """The small decision group's leaderboard: the small models (all decision models, as build() stops on any other), grouped
-    as in the decision models' leaderboard."""
-    models = [model for model in data["models"] if small(site, model)]
-    start = f'    <section class="card" id="small" {shown("small-decision")}>\n      <h2>Small decision models</h2>\n      '
-    if not models:
-        return f'{start}<p class="note">No small model has been run on the page images yet.</p>\n    </section>'
-    groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
-    return f"{start}{groups}\n    </section>"
+    return f"{start}{groups}{not_run(skipped)}\n    </section>"
 
 
 def ocr_table(data: dict[str, Any]) -> str:
@@ -638,37 +606,29 @@ def inputs_sample(data: dict[str, Any]) -> str:
 MARKS_NOTES = {"chandra-ocr-2": "{shown} because its official markdown export drops underline marks; its raw output kept {raw:,} of {spans:,}."}
 
 
-def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
+def face(site: Site, data: dict[str, Any]) -> str:
     """The tab's face: four chart cards, each with a line saying which way is better, every number from vision.json: the
     picture alone (B) against the text (A), the text plus the picture (C) against the text, the best OCR route against the
     text, and the marks each OCR model kept. The models' bars are in their model family's colour (model_families), as on
-    the home page's charts. With the titles of the model charts without a small model's row, for the small group's note."""
+    the home page's charts, each marked with its class for the page's Class keys."""
     questions = f"{data['subset']['questions']:,}"
     acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
 
     names_shown = shown_names(site, data["models"])
-    # The charts with no small model's row, which the small group's note names.
-    whole: list[str] = []
 
     def name(model: dict[str, Any]) -> str:
         return names_shown.get(model["a_run"], model["name"])
 
-    def groups(model: dict[str, Any]) -> str:
-        return "all decision small-decision" if small(site, model) else "all decision"
+    def class_key(model: dict[str, Any]) -> str | None:
+        run = site.by_id.get(model["a_run"])
+        return site.model_class(run) if run else None
 
     def href(model: dict[str, Any]) -> str | None:
         run = site.by_id.get(model["a_run"])
         return rel(PATH, site.model_path(run)) if run else None
 
-    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, marks: str | None = None) -> str:
-        """A chart card; a card of the models' rows shows for the all and decision groups, and for small-decision when
-        one of its rows is a small model's (each row marked with its groups)."""
-        if marks is None:
-            marks = DECISION_ONLY
-            if any("small-decision" in row["models"].split() for row in rows):
-                marks = 'data-models="all decision small-decision"'
-            else:
-                whole.append(title)
+    def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, marks: str = DECISION_ONLY) -> str:
+        """A chart card; a card of the models' rows shows for the all and decision groups."""
         return (f'<figure class="panel chart-card" id="{anchor}" {marks}><div class="chart-head"><h2>{esc(title)}</h2>'
                 f'<p class="chart-sub">{esc(sub)}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
 
@@ -680,7 +640,7 @@ def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
         [{"label": name(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
           "marker": acc(model, "A"), "bars": [{"value": acc(model, "B"), "colour": family(site, model)["colour"]}],
           "title": f"{name(model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
-          "models": groups(model)}
+          "class_key": class_key(model)}
          for model in by_b],
         family_legend([family(site, model) for model in by_b]) + marker)
     by_c = sorted(image, key=lambda model: -acc(model, "C"))
@@ -690,7 +650,7 @@ def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
           "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
           "bars": [{"value": acc(model, "C"), "colour": family(site, model)["colour"]}, {"value": acc(model, "A"), "kind": "base"}],
           "title": f"{name(model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text",
-          "models": groups(model)}
+          "class_key": class_key(model)}
          for model in by_c],
         family_legend([family(site, model) for model in by_c])
         + ' <span>Upper bar: text plus picture (C), in the family\'s colour</span> <span><i class="swatch swatch-base"></i>Text (A)</span>')
@@ -705,7 +665,7 @@ def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
         [{"label": name(model), "family": family(site, model)["name"], "href": href(model), "text": pct(share), "marker": acc(model, "A"),
           "bars": [{"value": share, "colour": family(site, model)["colour"]}],
           "title": f"{name(model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
-          "models": groups(model)}
+          "class_key": class_key(model)}
          for (model, label, _), share in zip(routes, shares)],
         family_legend([family(site, model) for model, _, _ in routes]) + marker + same)
     kept = []
@@ -726,7 +686,7 @@ def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
          for key, underlined, numbered, note in kept],
         '<span><i class="swatch swatch-lead"></i>Underlined words</span> <span><i class="swatch swatch-base"></i>Numbered words</span>',
         marks="")
-    return f'<section class="charts" aria-label="Charts">{first}{second}{third}{fourth}</section>', whole
+    return f'<section class="charts" aria-label="Charts">{first}{second}{third}{fourth}</section>'
 
 
 def family(site: Site, model: dict[str, Any]) -> dict[str, str]:
@@ -767,10 +727,10 @@ def build(site: Site) -> dict[str, str]:
     failures = [esc(item) if isinstance(item, str) else esc(str(item)) for item in data["failures"]]
     ocr_methods = [f"<strong>{esc(OCR_NAMES[key])}</strong> ({esc(item['model'])} at {esc(item['revision'][:7])}): {esc(public(item['method']))}"
                    for key, item in data["ocr"]["models"].items()]
-    # The chat groups' keys and notes, and the other models' leaderboard (leaderboard()), show once a chat model has a
+    # The chat group's key and note, and the other models' leaderboard (leaderboard()), show once a chat model has a
     # vision result.
-    hidden = () if chat else ("chat", "small-chat")
-    charts, _ = face(site, data)
+    hidden = () if chat else ("chat",)
+    charts = face(site, data)
     site.note(PATH, "Page images", f"""<p>The {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
       {inputs_sample(data)}""")
     body = f"""    <section class="card">
@@ -781,13 +741,10 @@ def build(site: Site) -> dict[str, str]:
       {"" if "chat" in hidden else chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
       <p>Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D). These rankings are separate from the Text tab.</p>
       {more_link(PATH)}
-      {"" if "small-chat" in hidden else small_note("Small chat models: none on this tab. No small chat model ran on the page images; every model run there is a decision model. The OCR models' parts below show in every view.", ("small-chat",))}
-      {small_note("Small decision models: the charts and What we found cover decision models of every size; they show under All models or Decision models.", ("small-decision",))}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#small" {shown("small-decision")}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
     </section>
     {charts}
 {leaderboard(site, data, True)}
-{small_board(site, data)}
 {leaderboard(site, data, False)}
     <section class="card" id="ocr">
       <h2>How well the OCR models read the pages</h2>

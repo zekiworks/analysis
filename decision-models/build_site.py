@@ -328,10 +328,6 @@ def page_settings(data: Data) -> str:
         "moreUrl": asset(HOME_MORE),
         "decisionProviders": data.config["decision_model_providers"],
         "notDecisionModels": data.config["not_decision_models"],
-        # The small views, Small chat models and Small decision models (page_config.json small_models; Site.small): the
-        # threshold in parameters and the model ids they leave out.
-        "smallModels": data.config["small_models"]["max_parameters"],
-        "smallLeftOut": data.config["small_models"].get("left_out_models", []),
         "readingUnits": data.config["reading_units"],
         "threshold": data.config["threshold"],
         # Each route label, by run id.
@@ -646,13 +642,11 @@ def findings_checks(page: str, data: Data, site: Site) -> list[str]:
 
 
 # The model groups (?models=) the result cards on the About page cover, each in the words that name a card's scope.
-CARD_SCOPES = {"all": "all {n} setups", "decision": "the {n} decision-model setups", "chat": "the {n} chat-model setups",
-               "small-chat": "the {n} small chat-model setups", "small-decision": "the {n} small decision-model setups"}
+CARD_SCOPES = {"all": "all {n} setups", "decision": "the {n} decision-model setups", "chat": "the {n} chat-model setups"}
 
 
 def group_runs(data: Data, site: Site, group: str) -> list[dict[str, Any]]:
-    """The setups of a model group (Site.in_group): every setup, the decision models', the chat models', the small chat
-    models' or the small decision models'."""
+    """The setups of a model group (Site.in_group): every setup, the decision models' or the chat models'."""
     return [run for run in data.runs if site.in_group(run, group)]
 
 

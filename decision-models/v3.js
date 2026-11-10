@@ -224,9 +224,8 @@ const state = {
   picked: new Set(),
   selected: null,
   /* The model group the charts and the full ranking show, from the URL's ?models= (site.js): every setup ('all',
-     decision and chat models ranked together), the decision models ('decision'), the chat and general models ('chat')
-     or the small models of one kind ('small-chat', 'small-decision': at most SETTINGS.smallModels parameters, total
-     or active, isSmall). */
+     decision and chat models ranked together), the decision models ('decision') or the chat and general models
+     ('chat'). */
   models: 'all',
   tab: 'accuracy',
   sort: { key: 'accuracy', descending: true },
@@ -287,20 +286,8 @@ const MODEL_GROUPS = {
   all: { title: 'All models', every: 'every setup, decision and chat models together', of: count => `the ${count} setups, decision and chat models together` },
   decision: { title: 'Decision models', every: 'every decision model', of: count => `the ${count} decision models` },
   chat: { title: 'Chat models', every: 'every chat and general model', of: count => `the ${count} chat and general models` },
-  'small-chat': { title: 'Small chat models', every: 'every small chat model', of: count => `the ${count} small chat models` },
-  'small-decision': { title: 'Small decision models', every: 'every small decision model', of: count => `the ${count} small decision models` },
 };
-/* A setup of a small model (page_config.json small_models, as Site.small): its maker's disclosed total, or for a
-   mixture of experts every active count, at most the threshold; never a model id the view leaves out
-   (SETTINGS.smallLeftOut); a model whose maker discloses no size never is. */
-const isSmall = run => {
-  if ((SETTINGS.smallLeftOut || []).includes(run.model)) return false;
-  const active = run.active_parameters || [];
-  return (run.parameters != null && run.parameters <= SETTINGS.smallModels)
-    || (active.length > 0 && Math.max(...active) <= SETTINGS.smallModels);
-};
-const inGroup = run => state.models === 'all'
-  || ((!state.models.startsWith('small-') || isSmall(run)) && isDecision(run) === state.models.endsWith('decision'));
+const inGroup = run => state.models === 'all' || isDecision(run) === (state.models === 'decision');
 /* Every setup of the group in view, whatever the filters. */
 const groupRuns = () => data.runs.filter(inGroup);
 
@@ -697,7 +684,7 @@ function emptyReason() {
     if (state.picked.size) return `None of the models you picked ${size ?? 'matches these filters'}.`;
     return `No setup ${size ?? 'matches these filters'}.`;
   }
-  if (state.tab === 'routing' && ['chat', 'small-chat'].includes(state.models)) return 'Only decision models went first in front of an LLM: the Routing tab has no chat model.';
+  if (state.tab === 'routing' && state.models === 'chat') return 'Only decision models went first in front of an LLM: the Routing tab has no chat model.';
   if (state.tab === 'routing') return 'The Routing tab lists only the setups we put in front of an LLM; none of them matches these filters.';
   if (state.tab === 'stability') return 'The Stability tab lists only the setups we repeated; none of them matches these filters.';
   return 'No setup matches these filters.';
@@ -723,7 +710,7 @@ function renderBoard() {
         `${tab.columns.map(column => `<td class="num">${column.cell(row)}</td>`).join('')}</tr>`).join('') +
       '</tbody></table></div></div>'
     : `<div class="empty-state" role="status"><p><span class="icon" aria-hidden="true">⚠</span> ${esc(emptyReason())}</p>` +
-      `${state.tab === 'routing' && ['chat', 'small-chat'].includes(state.models) ? '' : '<button type="button" class="key" data-control="reset">Reset filters</button>'}</div>`;
+      `${state.tab === 'routing' && state.models === 'chat' ? '' : '<button type="button" class="key" data-control="reset">Reset filters</button>'}</div>`;
   const routing =
     state.tab === 'routing'
       ? `<h3 class="tab-title">Can a cheap model go first?</h3>${routingControls()}${routeMap()}<p class="table-title">${esc(routeTitle())}</p>` +

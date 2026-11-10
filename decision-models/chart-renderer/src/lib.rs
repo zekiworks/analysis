@@ -73,6 +73,11 @@ pub struct Run {
     pub provider: String,
     /// How the run was paid for: "api", "subscription", "free" or "local".
     pub billing: String,
+    /// Its model's total parameter count from our size records; None where the maker states no size. A hosted chat
+    /// model with none is a closed one (an open-weights model with none, such as DeepSeek-V4.1-Flash's 1017 update,
+    /// runs on our hardware).
+    #[serde(default)]
+    pub parameters: Option<u64>,
     /// The run's estimated cost in US dollars at the list price `cost_basis` names; None for a run with no estimate.
     pub api_equivalent_usd: Option<f64>,
     /// Whose list price the cost uses: "api", "subscription", "free tier", or for a run on our hardware "maker" (the
@@ -1854,29 +1859,34 @@ fn split<'a>(name: &str, runs: Vec<&'a Run>, max: usize) -> Vec<(String, Vec<&'a
 }
 
 /// The panels of the confidence figures, decision models first.
-const FAMILIES: [&str; 6] = [
+const FAMILIES: [&str; 7] = [
     "Decision models",
     "Chat models from OpenAI and Google",
     "Chat models from Anthropic",
+    "Other closed chat models",
     "Open-weight chat models",
     "Qwen 3.8 27B, different confidence sources",
     "Near chance: Laya and GLiNER",
 ];
 
-/// Which of [`FAMILIES`] a run belongs to.
+/// Which of [`FAMILIES`] a run belongs to. Anthropic's models go to their panel whichever route asked them; a chat
+/// model asked through a hosted API (not on our hardware) whose maker states no size is closed (Grok 4.7, Muse Ember)
+/// and never in the open-weight panel.
 fn family(results: &Results, run: &Run) -> usize {
     if CHANCE_MODELS.contains(&run.model.as_str()) {
-        5
+        6
     } else if results.is_decision(run) {
         0
     } else if matches!(run.provider.as_str(), "openai" | "gemini") {
         1
-    } else if run.provider == "claude" {
+    } else if run.provider == "claude" || run.model.starts_with("anthropic/") {
         2
-    } else if run.model == "qwen38-27b-bf16" {
-        4
-    } else {
+    } else if run.parameters.is_none() && run.billing != "local" {
         3
+    } else if run.model == "qwen38-27b-bf16" {
+        5
+    } else {
+        4
     }
 }
 

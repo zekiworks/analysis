@@ -218,6 +218,11 @@ details.method-more > summary { font-weight: 600; color: var(--link); }
   background: var(--key); border: 1px solid var(--control-edge); border-radius: 6px; font-size: .82rem; text-decoration: none;
   box-shadow: var(--key-shadow); }
 .group-switch a.key[aria-current] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); font-weight: 700; }
+/* A page's Class keys under its type keys (site.py group_switch, the Leaderboard's row), the class rule under them while
+   a class is chosen, and a model's row or bar of another class out of view (site.js classPages). */
+.group-switch + .class-switch { margin-top: -.35rem; }
+.class-line { max-width: 60rem; margin: 0 0 .75rem; color: var(--text-2); font-size: .78rem; line-height: 1.4; }
+.class-off { display: none !important; }
 /* The cost unit (site.js): each cost carries both units and the chosen one shows; per 1,000 questions without the
    script. The keys sit in the head of each chart or table with costs. */
 .cost-1m { display: none; }

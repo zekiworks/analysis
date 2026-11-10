@@ -6,8 +6,9 @@ and Latency (#latency), each chart in the
 site's static style (Site hbars, each bar in its model family's colour, as the home page's charts), and one table ranked
 by English accuracy with the four measures and the Decision Score (AA formula) column (english_reading.models[]
 .decision_score, decision models only; a full-width table of it also sits under the two holding-back sides);
-the charts and the table come once per group of the view bar (data-models,
-toggled by site.js; the all group is the one shown without JavaScript, every setup ranked together), counts and
+the charts and the table come once per type group of the view bar (data-models all/chat/decision,
+toggled by site.js, its Class keys hiding rows and bars by data-class; the all group is the one shown without
+JavaScript, every setup ranked together), counts and
 sentences computed for that group. Non-hallucination holds back two ways side by side (sitebuild/holding_back.py), each
 with decision and chat models in blocks of their own, never one ranking: by confidence, Not measured in English in each
 block, and with "I don't know" in English (english_reading.dont_know's English sides and english_only, the rate; under
@@ -121,8 +122,10 @@ def score_table(site: Site, models: list[dict[str, Any]]) -> str:
         values = ([score_cell(model), '<span class="nm">unavailable</span>', '<span class="nm">unavailable</span>']
                   if found is None else
                   [f'{found["score"]:.2f}', f'{100 * found["accuracy"]:.2f}%', f'{found["brier"]:.4f}'])
-        rows.append(f'<tr><td class="model">{setup_icon(site, model)}<a class="model-name" href="{href(site, model)}">'
-                    f'{esc(label(site, model))}</a></td>' + "".join(cell(text, value) for text, value in zip(heads, values))
+        rows.append(f'<tr{site.class_attribute(setup_run(site, model))}><td class="model">{setup_icon(site, model)}'
+                    f'<a class="model-name" href="{href(site, model)}">'
+                    f'{esc(label(site, model))}</a> {site.label(setup_run(site, model))}</td>'
+                    + "".join(cell(text, value) for text, value in zip(heads, values))
                     + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text)}</th>' for text in heads)
     return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'
@@ -159,6 +162,7 @@ def build(site: Site) -> dict[str, str]:
     def accuracy_card(group: str) -> str:
         members = english_members(site, data, group)
         rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
+                 "class_key": site.model_class(setup_run(site, model)),
                  "text": f"{pct(model['english']['accuracy'], digits)} · {model['english']['right']:,}",
                  "bars": [{"value": model["english"]["accuracy"], "colour": family(model)["colour"]}],
                  "title": f"{label(site, model)}: {model['english']['right']:,} of {total:,} right in English "
@@ -200,6 +204,7 @@ def build(site: Site) -> dict[str, str]:
                          if setup_key(model) not in held and provider(model) in NO_OPTION]
             waiting = [label(site, model) for model in mine if setup_key(model) not in held and provider(model) not in NO_OPTION]
             rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
+                     "class_key": site.model_class(setup_run(site, model)),
                      "text": f"{pct(counts['non_hallucination'], digits)} · {pct(counts['attempt_rate'], digits)}",
                      "bars": [{"value": counts["non_hallucination"], "colour": family(model)["colour"]}],
                      "title": f"{label(site, model)}: {counts['dont_know']:,} “{option}” of "
@@ -275,8 +280,9 @@ def build(site: Site) -> dict[str, str]:
             row_id = "" if "turkish_run" in model else f' id="{anchor(only_anchor(model), group)}"'
             name = (f'<td class="model">{setup_icon(site, model)}<a class="model-name" href="{href(site, model)}" '
                     f'title="{esc(" · ".join(filter(None, (site.detail(run), f"English run {model['run']}"))))}">'
-                    f'{esc(label(site, model))}</a></td>')
-            rows.append(f"<tr{row_id}>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
+                    f'{esc(label(site, model))}</a> {site.label(run)}</td>')
+            rows.append(f"<tr{row_id}{site.class_attribute(run)}>{name}"
+                        + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
         head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{cost_unit_in(esc(note))}</span></th>'
                        for text, note in heads)
         alone = [model for model in members if "turkish_run" not in model]

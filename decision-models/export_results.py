@@ -223,6 +223,13 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "MiMo V2.6 Flash",
         "access": "OpenRouter chat API, Xiaomi's own endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included",
     },
+    # Meta's closed chat model (released 9 November 2026), a chat-model comparison (project lead bus #4021), at its
+    # highest reasoning setting; Meta discloses no size.
+    "meta/muse-ember": {
+        "name": "Muse Ember",
+        "note": "Meta's closed chat model, released 9 November 2026, added as a chat-model comparison",
+        "access": "OpenRouter chat API, Meta's own endpoint, fallbacks off, output cap 65,536 tokens, reasoning max",
+    },
     "jev-1.13.0": {"name": "Jev 1.13.0"},
     "jev-1.14.0": {"name": "Jev 1.14.0"},
     "open-jev-27b-v1.1": {
@@ -612,6 +619,9 @@ SIZES: dict[str, dict[str, Any]] = {
     "gemini-4-argon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-argon/"], "read": READ},
     "grok-4.7": {"total": None, "sources": ["https://media.x.ai/v1/website/4p7card-5eccc980.pdf", "https://x.ai/news/grok-4-7",
                                             "https://docs.x.ai/developers/models"], "read": READ},
+    # Meta's announcement and model page give no size (read 10 November 2026; project lead bus #4021).
+    "meta/muse-ember": {"total": None, "sources": ["https://research.meta.ai/blog/muse-ember",
+                                                   "https://dev.meta.ai/models/muse-ember"], "read": "2026-11-10"},
     # Hosted decision models: no maker states a size.
     "celeris-1-decision": {"total": None, "sources": ["https://docs.celeris.ai/decisions", "https://celeris.ai/decisions"],
                            "read": READ},

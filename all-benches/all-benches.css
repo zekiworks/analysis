@@ -1,26 +1,20 @@
 /* All benches (/analysis/all-benches/ and its method/, sitebuild/all_benches.py), on top of v3.css and in its variables,
-   so both themes hold: the ranking's columns (rows on a phone), the size slider, the score switch, the pair bars of
-   "Their score against ours", the scatter charts and the model pages. */
+   so both themes hold: the ranking's columns (rows on a phone), the type, class and score keys, the table under the chart,
+   the pair bars of "Their score against ours", the scatter charts and the model pages. */
 
 :is(.ab-view, .ab-model, .ab-tab-panel, .ab-bar, .card)[hidden] { display: none !important; }
+/* Out of view by the type and class keys (all-benches.js): bars, rows, dots, names, legend entries, tables. */
+.ab-off, .ab-tied[hidden] { display: none !important; }
+.ab-combined-note { margin: -.2rem 0 .4rem; }
 
 .ab-keys { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin: .4rem 0 .6rem; }
 .ab-keys .group-label { margin-right: .2rem; color: var(--text-2); font-size: .85rem; }
-.ab-size { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; margin: 0 0 .25rem; font-size: .875rem; }
-.ab-size input { width: min(22rem, 100%); accent-color: var(--text); }
-.ab-size-out { color: var(--text-2); font-family: var(--mono); font-size: .82rem; }
 
 .ab-tag { display: inline-block; margin-left: .3rem; padding: 0 .3rem; color: var(--text-2); border: 1px solid var(--edge);
   border-radius: 4px; font-size: .7rem; font-weight: 600; line-height: 1.4; white-space: nowrap; vertical-align: .1em; }
 .ab-noicon { display: inline-block; flex: none; width: 12px; height: 12px; margin-right: .3rem; border: 1px solid var(--mark-edge);
   border-radius: 3px; vertical-align: -1px; }
 
-/* The #1 decision model of the view. */
-.ab-lead { margin: .25rem 0 .75rem; padding: .5rem .75rem; background: var(--sunk); border-left: 3px solid var(--text); border-radius: 4px; }
-.ab-lead-line { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .4rem; margin: 0; }
-.ab-lead-line .eyebrow { flex-basis: 100%; margin: 0; }
-.ab-lead-line .fam-icon, .ab-lead-line .ab-noicon { margin-right: 0; }
-.ab-lead-scores { display: flex; flex-wrap: wrap; gap: .1rem 1.1rem; margin: .3rem 0 0; padding: 0; list-style: none; font-size: .85rem; }
 
 /* The ranking: one column per decision model, its value on top, its maker's mark and its name under it. */
 .ab-bars { display: flex; align-items: flex-start; gap: 3px; margin: .5rem 0 0; padding: 0; list-style: none; }
@@ -57,6 +51,33 @@
     border-radius: 0 3px 3px 0; }
   .ab-bar-value { order: 2; display: flex; gap: .3rem; align-items: baseline; margin: 0 0 0 .3rem; font-size: .74rem; }
   .ab-tied { font-size: .68rem; }
+}
+
+/* The table under the chart (Ümit #4239): every model in view side by side, each head a sort key; the model column
+   stays in view while the table scrolls sideways inside its box. */
+.ab-main-wrap { margin-top: 1rem; }
+table.ab-main { min-width: 100%; }
+table.ab-main thead th { min-width: 0; white-space: normal; vertical-align: bottom; }
+table.ab-main th, table.ab-main td { padding-left: .45rem; padding-right: .45rem; }
+table.ab-main thead th.num { width: 4.6rem; }
+table.ab-main th.ab-rank, table.ab-main td.ab-rank { width: 2.4rem; min-width: 2.4rem; max-width: 2.4rem; color: var(--text-2); }
+table.ab-main th.model, table.ab-main td.model { position: sticky; left: 0; z-index: 2; min-width: 11rem; background: var(--panel);
+  box-shadow: 1px 0 0 var(--edge); }
+table.ab-main thead th.model { z-index: 3; }
+table.ab-main tbody tr:hover > td.model { background: var(--row-hover); }
+table.ab-main td.model .fam-icon, table.ab-main td.model .ab-noicon { margin-right: .3rem; }
+.ab-setup-mark { margin-left: .35rem; color: var(--text-2); font-size: .72rem; white-space: nowrap; }
+.ab-setup-note { margin: .3rem 0 0; }
+.ab-sort { padding: 0; color: inherit; background: none; border: 0; font: inherit; font-weight: 600; cursor: pointer;
+  text-decoration: underline dotted; text-underline-offset: 3px; }
+th[aria-sort] .ab-sort::after { content: " \2193"; }
+th[aria-sort="ascending"] .ab-sort::after { content: " \2191"; }
+.ab-sort:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; border-radius: 2px; }
+@media (max-width: 640px) {
+  /* v3.css makes a board's first column sticky on a phone; here the # stays narrow and the model column sticks. */
+  table.board.ab-main th:first-child, table.board.ab-main td:first-child { position: static; width: 2rem; min-width: 2rem;
+    max-width: 2rem; box-shadow: none; }
+  table.ab-main th.model, table.ab-main td.model { min-width: 9.5rem; max-width: 9.5rem; white-space: normal; }
 }
 
 /* Head to head, the tables. */

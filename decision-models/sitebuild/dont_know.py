@@ -7,13 +7,12 @@ non-hallucination rate together); then the non-hallucination rate with the optio
 accuracy with the option against accuracy with five options, as HTML bars (Site hbars). The charts and the table (one row
 per model, from its first run, Answered and Wrong of answers first, ranked by non-hallucination rate, accuracy breaking
 ties; a model with more than one run shows the range over its runs) come once per group of the view bar (all, decision,
-chat, small-chat, small-decision; data-models, toggled by site.js; the all group shown without JavaScript; a row's group by Site.in_group of its
-Text tab run, group_models), each chart and the table with decision and chat models in blocks of their own, each its own
+chat; data-models, toggled by site.js; the all group shown without JavaScript; a row's group by Site.in_group of its
+Text tab run, group_models; every model's row and bar also carries its Class key, data-class, filtered by site.js), each chart and the table with decision and chat models in blocks of their own, each its own
 ranking under its heading (holding_back.kinds: both under all, else the group's kind), never one mixed list; each row's kind by its
 `group` field, which must be the Text tab's (Site.decision). The chat setups whose Turkish run with the option is still
 running are listed with their reason for each group they are in (running_setups). The parts about decision models only
-come for the all and decision groups (DECISION_ONLY), not split by size, each small group showing a note instead
-(small_note): the headline, the paired test against confidence, the English questions, the
+come for the all and decision groups (DECISION_ONLY): the headline, the paired test against confidence, the English questions, the
 option's word, the hosted GLiDE rerun, the same number of answers (risk-coverage plots on the face, tables under Info)
 and the answers at 95%+ confidence, each from the decision models' rows. Under Info: the tables, What we found and Our
 method, with both kinds' added sentence and prompt version. It needs no JavaScript. The tab ranks nothing on the Text
@@ -29,7 +28,7 @@ from typing import Any, Callable
 import build_page as bp
 from sitebuild import holding_back as hold
 from sitebuild.site import (DECISION_ONLY, GROUPS, Site, esc, hbars, legend_mark, line_plot, marker_path, more_link, pct,
-                            rank_fill, rel, scale_legend, shown, small_note)
+                            rank_fill, rel, scale_legend, shown)
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "dont-know/"
@@ -81,7 +80,12 @@ def model_cell(site: Site, model: dict[str, Any], name: str | None = None) -> st
     detail = site.detail(run)
     tip = f' title="{esc(detail)}"' if detail else ""
     return (f'<td class="model"{tip}>{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">'
-            f'{esc(name or site.row_name(run))}</a></td>')
+            f'{esc(name or site.row_name(run))}</a> {site.label(run)}</td>')
+
+
+def model_tr(site: Site, model: dict[str, Any]) -> str:
+    """The opening <tr> of the model's row, with its Class key (site.class_attribute of the original run)."""
+    return f"<tr{site.class_attribute(site.by_id[model['original_run']])}>"
 
 
 def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
@@ -119,7 +123,7 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
         f'{percent(model["original_accuracy"])}<span class="small"><a href="{rel(PATH, site.model_path(run))}">run {run["run"]}</a></span>',
         runs_text,
     ]
-    return f"<tr>{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>"
+    return f"{model_tr(site, model)}{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>"
 
 
 def table(site: Site, data: dict[str, Any], group: str) -> str:
@@ -378,6 +382,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         if not mine:
             return ""
         rows = [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+                 "class_key": site.model_class(run_of(model)),
                  "texts": [shown_rate(value(model)) for _, _, value in measures],
                  "bars": [{"value": value(model) or 0.0, "kind": kind} for _, kind, value in measures],
                  "title": f"{label(model)}: {model['right'] + model['wrong']:,} of {total:,} answered, {model['wrong']:,} of them "
@@ -407,6 +412,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         "about the same attempt rate · higher is better",
         [model for model in rated if model["derived"]["non_hallucination"] is not None],
         lambda mine: [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+                       "class_key": site.model_class(run_of(model)),
                        "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['derived']['non_hallucination'], digits)}",
                        "bars": [{"value": model["non_hallucination"], "kind": "lead"},
                                 {"value": model["derived"]["non_hallucination"], "kind": "base"}],
@@ -451,6 +457,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
             f"over the {len(family)} decision models that chose “{option}” on at least {share} of the questions · the shorter bar left "
             "fewer wrong answers",
             [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+              "class_key": site.model_class(run_of(model)),
               "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if model['vs_confidence']['p_holm'] < 0.05 else ''}",
               "bars": [{"value": counts(model)[0], "kind": "lead"}, {"value": counts(model)[1], "kind": "base"}],
               "title": f"{label(model)}: {counts(model)[0]:,} wrong only with “{data['option']}”, {counts(model)[1]:,} wrong only "
@@ -469,6 +476,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
     def accuracy_rows(mine: list[dict[str, Any]]) -> list[dict[str, Any]]:
         accuracies = [model["accuracy"] for model in mine]
         return [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+                 "class_key": site.model_class(run_of(model)),
                  "text": pct(model["accuracy"], digits),
                  "bars": [{"value": model["accuracy"], "colour": rank_fill(stops, model["accuracy"], min(accuracies), max(accuracies))}],
                  "marker": model["original_accuracy"],
@@ -577,6 +585,7 @@ def option_word_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -> 
     side = lambda model, key: model[key]  # noqa: E731
     chart = hbars([
         {"label": label(model), "family": site.families[model["original_run"]]["name"], "href": rel(PATH, site.model_path(run_of(model))),
+         "class_key": site.model_class(run_of(model)),
          "text": f"{pct(model['i_dont_know']['non_hallucination'], digits)} · {pct(model['bilmiyorum']['non_hallucination'], digits)}",
          "bars": [{"value": model["i_dont_know"]["non_hallucination"], "kind": "lead"},
                   {"value": model["bilmiyorum"]["non_hallucination"], "kind": "base"}],
@@ -634,7 +643,7 @@ def option_word_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -> 
         values = ([answered(model[side], text) for side, text in sides] + [wrong_cell(model[side], digits) for side, _ in sides]
                   + [f'{percent(model[side][key])}<span class="small">{small(model[side], text)}</span>'
                      for key, small in smalls for side, text in sides] + [test, runs])
-        rows.append(f"<tr>{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(labels, values)) + "</tr>")
+        rows.append(f"{model_tr(site, model)}{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(direction)}</span></th>' for name, direction in heads)
     return f"""
     <section class="card" id="option-word-results">
@@ -791,6 +800,7 @@ def vs_confidence_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -
         verdict += f" The other {len(others)}: {adjusted(others)}." if significant else f" Adjusted: {adjusted(others)}."
     chart = hbars(
         [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": rel(PATH, site.model_path(run_of(model))),
+          "class_key": site.model_class(run_of(model)),
           "text": f"{model['option_only_wrong']:,} · {model['confidence_only_wrong']:,}{' *' if model['p_holm'] < 0.05 else ''}",
           "bars": [{"value": model["option_only_wrong"], "kind": "lead"}, {"value": model["confidence_only_wrong"], "kind": "base"}],
           "title": f"{label(model)}: {model['option_only_wrong']:,} wrong only with “{word['option']}” (run {model['option_run']}), "
@@ -851,7 +861,7 @@ def vs_confidence_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -
                   esc(bp.p_text(model["p"]).removeprefix("p = ").removeprefix("p ")),
                   "not in the family" if model["p_holm"] is None else
                   esc(bp.p_text(model["p_holm"]).removeprefix("p = ").removeprefix("p ")) + (" *" if model["p_holm"] < 0.05 else "")]
-        rows.append(f"<tr>{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(labels, values)) + "</tr>")
+        rows.append(f"{model_tr(site, model)}{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
     family = word["vs_confidence"]["family"]
     outside = [model["name"] for model in vs_confidence_rows(site, data, word) if model["p_holm"] is None]
@@ -1038,7 +1048,7 @@ def english_four_card(site: Site, idk: dict[str, Any], four: dict[str, Any]) -> 
                   p(model["p_holm"]) + (" *" if model["p_holm"] < 0.05 else "")]
         detail = site.detail(run)
         tip = f' title="{esc(detail)}"' if detail else ""
-        rows += (f'<tr><td class="model"{tip}>{site.icon(run)}<a class="model-name" href="{er.idk_href(site, entry)}">{esc(er.idk_label(site, entry))}</a></td>'
+        rows += (f'<tr{site.class_attribute(run)}><td class="model"{tip}>{site.icon(run)}<a class="model-name" href="{er.idk_href(site, entry)}">{esc(er.idk_label(site, entry))}</a> {site.label(run)}</td>'
                  + "".join(cell(f"{head} ({note})", item) for (head, note), item in zip(heads, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
     significant = [entry for model, entry in pairs if model["p_holm"] < 0.05]
@@ -1566,8 +1576,8 @@ def same_curves(site: Site, same: dict[str, Any], family: dict[str, Any]) -> str
                f'points="{points(model["curve"])}"><title>{esc(name)}: five options, run {model["five_option_run"]}, from 1 to '
                f'{model["curve"][-1][0]:,} answers; {same_wrong_text(model["wrong"])} wrong of its {k:,} most confident</title>'
                f'</polyline><g fill="{SAME_SMALL_COLOUR}" stroke="var(--panel)" stroke-width="1">{marks}</g></svg>')
-        return (f'<li><figure style="margin:0">{svg}<figcaption class="note" style="margin:.25rem 0 0">'
-                f'{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" title="{esc(site.detail(run))}">{esc(name)}</a> '
+        return (f'<li{site.class_attribute(run)}><figure style="margin:0">{svg}<figcaption class="note" style="margin:.25rem 0 0">'
+                f'{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" title="{esc(site.detail(run))}">{esc(name)}</a> {site.label(run)} '
                 f'Wrong of the {k:,} answers: {wrong}, {versus}<br>'
                 f"{option}</figcaption></figure></li>")
 
@@ -1631,7 +1641,8 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
                           f'{100 * model["difference"]:+.{digits}f}<span class="small">{100 * low:+.{digits}f} to '
                           f"{100 * high:+.{digits}f}</span>",
                           p_text(model["p"]), p_text(model["p_holm"]) + (" *" if model["p_holm"] < 0.05 else ""), context]
-            return (f"<tr>{model_cell(site, {'original_run': model['text_run']}, shown[model['text_run']])}"
+            text = {'original_run': model['text_run']}
+            return (f"{model_tr(site, text)}{model_cell(site, text, shown[model['text_run']])}"
                     + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
 
         def board(models: list[dict[str, Any]]) -> str:
@@ -1746,16 +1757,17 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
     digits = site.config["percent_digits"]
     threshold = f"{100 * high['threshold']:g}%"
 
-    def board(heads: tuple[str, ...], rows: list[tuple[str, list[str]]]) -> str:
+    def board(heads: tuple[str, ...], rows: list[tuple[int, str, list[str]]]) -> str:
         head = "".join(f'<th scope="col" class="num">{esc(name)}</th>' for name in heads[1:])
-        body = "".join(f"<tr>{first}" + "".join(cell(label, value) for label, value in zip(heads[1:], values)) + "</tr>"
-                       for first, values in rows)
+        body = "".join(f"<tr{site.class_attribute(site.by_id[run_id])}>{first}"
+                       + "".join(cell(label, value) for label, value in zip(heads[1:], values)) + "</tr>"
+                       for run_id, first, values in rows)
         return (f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">{esc(heads[0])}</th>'
                 f"{head}</tr></thead><tbody>{body}</tbody></table></div>")
 
     def name_cell(run_id: int, note: str) -> str:
         run = site.by_id[run_id]
-        return (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">{esc(site.row_name(run))}</a>'
+        return (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">{esc(site.row_name(run))}</a> {site.label(run)}'
                 f'<span class="small">{esc(note)}</span></td>')
 
     run_note = lambda run, text_run: f"run {run}, " + ("Text tab run" if run == text_run else "repeat run")  # noqa: E731
@@ -1764,7 +1776,7 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
                                      -model["kept"], model["name"]))
     heads = ("Model", "Run", f"Answers kept (at {threshold}+)", "Wrong", "% wrong")
     shown = site.names([site.by_id[model["text_run"]] for model in decision])
-    main = board(heads, [(model_cell(site, {"original_run": model["text_run"]}, shown[model["text_run"]]),
+    main = board(heads, [(model["text_run"], model_cell(site, {"original_run": model["text_run"]}, shown[model["text_run"]]),
                           [str(model["text_run"]), f"{model['kept']:,}", f"{model['wrong']:,}",
                            high_rate(model["kept"], model["wrong"], digits)]) for model in decision])
     repeats = ""
@@ -1775,12 +1787,12 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
                     f'<p class="note">The same questions and settings, run again; run {entry["text_run"]} is the Text tab '
                     "run above, shown for context.</p>"
                     + board(("Run", "Answers kept", "Wrong", "% wrong"),
-                            [(name_cell(entry["text_run"], run_note(run["run"], entry["text_run"])),
+                            [(entry["text_run"], name_cell(entry["text_run"], run_note(run["run"], entry["text_run"])),
                               [f"{run['kept']:,}", f"{run['wrong']:,}", high_rate(run["kept"], run["wrong"], digits)])
                              for run in runs]))
     cuts = high["cutoffs"]["cutoffs"]
     cut_heads = ("Model and run",) + tuple(f"{100 * cut:g}%" for cut in cuts)
-    cut_rows = [(name_cell(model["text_run"], run_note(run["run"], model["text_run"])),
+    cut_rows = [(model["text_run"], name_cell(model["text_run"], run_note(run["run"], model["text_run"])),
                  [high_rate(kept, wrong, digits) for kept, wrong in zip(run["kept"], run["wrong"])])
                 for model in high["cutoffs"]["models"] for run in model["runs"]]
     english = high["english"]
@@ -1819,16 +1831,14 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
             f"<p>{high_check_text(high, digits)}</p>{note}</section>")
 
 
-def chat_findings(site: Site, data: dict[str, Any], group: str) -> str:
-    """What we found about the chat models of a group (all: shown for the all and chat groups; small-chat: the small
-    chat setups only): how many setups have a run with the option, the range of their
-    non-hallucination rates against the decision models', and how many are still running."""
+def chat_findings(site: Site, data: dict[str, Any]) -> str:
+    """What we found about the chat models (shown for the all and chat groups): how many setups have a run with the
+    option, the range of their non-hallucination rates against the decision models', and how many are still running."""
     digits = site.config["percent_digits"]
-    models = ranked(group_models(site, data, group))
+    models = ranked(data["models"])
     chat = [model for model in models if model["group"] == "chat" and model["non_hallucination"] is not None]
     decision = [model for model in models if model["group"] == "decision" and model["non_hallucination"] is not None]
-    running = [run for run in running_setups(site) if not site.decision(run) and site.in_group(run, group)]
-    size = "small " if group == "small-chat" else ""
+    running = [run for run in running_setups(site) if not site.decision(run)]
     if not chat:
         return ""
     names = site.names([site.by_id[model["original_run"]] for model in data["models"]])
@@ -1837,12 +1847,10 @@ def chat_findings(site: Site, data: dict[str, Any], group: str) -> str:
               f"{pct(chat[0]['non_hallucination'], digits)} ({name(chat[0])})") if len(chat) > 1 else \
         f"{pct(chat[0]['non_hallucination'], digits)} ({name(chat[0])})"
     against = (f", against {pct(decision[-1]['non_hallucination'], digits)} to {pct(decision[0]['non_hallucination'], digits)} "
-               f"for the {len(decision)} {size}decision models") if decision else ""
-    still = (f" {bp.opening_count(len(running))} more {size}chat model setup{'' if len(running) == 1 else 's'} "
+               f"for the {len(decision)} decision models") if decision else ""
+    still = (f" {bp.opening_count(len(running))} more chat model setup{'' if len(running) == 1 else 's'} "
              f"{'is' if len(running) == 1 else 'are'} still running in Turkish (Running, under Results).") if running else ""
-    attributes = 'data-models="all chat"' if group == "all" else shown(group)
-    lead = "Small chat models" if size else "Chat models"
-    return (f'<p {attributes}>{lead}: {bp.in_words(len(chat))} setup{"" if len(chat) == 1 else "s"} '
+    return (f'<p data-models="all chat">Chat models: {bp.in_words(len(chat))} setup{"" if len(chat) == 1 else "s"} '
             f"{'has' if len(chat) == 1 else 'have'} a run with “{esc(data['option'])}” so far, with a non-hallucination rate "
             f"{spread}{against}.{still}</p>")
 
@@ -1899,15 +1907,11 @@ def build(site: Site) -> dict[str, str]:
               f"<p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data['option_en'])}”) "
               "instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its "
               f"numbers.</p><div {DECISION_ONLY}>{headline(decision, against)}</div>")
-    small = (small_note("Small chat models: the parts about decision models only show under All models or Decision "
-                        "models.", ("small-chat",))
-             + small_note("Small decision models: the parts about decision models only are not split by size; they show "
-                          "under All models or Decision models.", ("small-decision",)))
     body = f"""    <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
       <p>A wrong answer counts as a hallucination: the model could have chosen “{option}” instead.</p>
-      {more_link(PATH)}{small}
+      {more_link(PATH)}
       <div {DECISION_ONLY}>
       <nav class="face-nav" aria-label="On this page"><a href="#chart-non-hallucination">Answered and non-hallucination</a><a href="#chart-confidence">Against confidence</a><a href="#chart-paired">Paired test</a><a href="#chart-accuracy">Accuracy</a>{'<a href="#english-option">English questions</a>' if english else ""}{'<a href="#option-word">The option&#x27;s word</a>' if word else ""}{'<a href="#option-word-confidence">“I don&#x27;t know” against confidence</a>' if against else ""}{'<a href="#hosted-glide-rerun">Hosted GLiDE rerun</a>' if rerun else ""}{'<a href="#same-answers">The same number of answers</a>' if same else ""}{'<a href="#high-confidence">Answers at 95%+ confidence</a>' if high else ""}<a href="#info">Info</a></nav></div>
     </section>
@@ -1933,7 +1937,7 @@ def build(site: Site) -> dict[str, str]:
     <section class="card" id="findings">
       <h2>What we found</h2>
       <div {DECISION_ONLY}>{findings(site, decision, against)}{same_finding(site, same, families) if same else ""}</div>
-      {chat_findings(site, data, "all")}{chat_findings(site, data, "small-chat")}
+      {chat_findings(site, data)}
     </section>
     <section class="card method-notes" id="method">
       <h2>Our method</h2>

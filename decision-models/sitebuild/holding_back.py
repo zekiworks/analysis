@@ -24,8 +24,8 @@ NO_CONFIDENCE = "No confidence reported"
 
 
 def kinds(group: str) -> list[tuple[str, str]]:
-    """The blocks a view bar group shows: both under all, else its own kind's (a small group's: its kind's)."""
-    return [kind for kind in KINDS if group == "all" or kind[0] == group.removeprefix("small-")]
+    """The blocks a view bar group shows: both under all, else its own kind's."""
+    return [kind for kind in KINDS if group in ("all", kind[0])]
 
 
 def kind_of(site: Site, run: dict[str, Any]) -> str:
@@ -85,7 +85,7 @@ def confidence_side(site: Site, setups: list[tuple[dict[str, Any], str, str]], g
         rated.sort(key=lambda item: (item[4] > 0, item[4] / item[3] if item[4] else -item[3], item[1].casefold()))
         sources = Counter(item[0]["confidence"]["source"] for item in rated)
         main = sources.most_common(1)[0][0] if sources else None
-        rows = [{"label": label, "family": site.families[run["run"]]["name"], "href": href,
+        rows = [{"label": label, "family": site.families[run["run"]]["name"], "href": href, "class_key": site.model_class(run),
                  "note": None if run["confidence"]["source"] == main else SOURCES[run["confidence"]["source"]],
                  "bars": [{"value": kept / total, "colour": site.families[run["run"]]["colour"]}],
                  "texts": [f"{kept:,}", f"{wrong:,}", f"{run['confidence']['auroc']:.3f}"],

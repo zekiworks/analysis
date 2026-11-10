@@ -4,17 +4,22 @@ Its conventions follow the first file published, the Logic & Math site's (#4063 
 sizes in billions with the active count equal to the total for a dense model, repo and commit null for a setup that ran
 through an API and for Cygnet, ECE over 10 equal-width bins of the chosen option's probability, count-weighted.
 
-This site measures three benches, so its file holds them under "benches", their keys kept from before the split (the
-combined page joins on them): reading-text, titled Reading · Turkish (results.json, the Leaderboard's rows split by
-route, so a model's setup on our hardware and its API setup are rows of their own); reading-english, Reading · English
+This site measures five benches, so its file holds them under "benches", their keys kept from before the splits (the
+combined page joins on them): reading-text, titled Reading · Turkish (results.json, the Leaderboard's rows, one per
+model ID, kind and web search: the route never splits a model, Ümit #4270; all 2,198 Turkish questions, the one
+All benches' Combined score uses); turkish-reading and turkish-grammar, Turkish Reading and Turkish Grammar (the same
+rows on the reading units' and the grammar units' questions only, Ümit #4239); reading-english, Reading · English
 (results.json english_reading: the same rows' first English run on the kept reading questions, and the English-only
 setups); reading-vision, Reading · Vision (vision.json, condition B: the page image only; the models that read only text
 are not on it). Each bench scores 0 = chance and 100 = every question right: (accuracy - mean of 1/k) / (1 - mean of
-1/k) x 100, k each question's number of options."""
+1/k) x 100, k each question's number of options. Every row carries model_key, the three sites' join key (#4243): the
+model's name without its setting or route, lower case, spaces as hyphens, dots kept, "(open)" dropped, "-with-web"
+after it for a setup with web search (#4253)."""
 
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 import benchmark_metrics as bm
@@ -26,7 +31,29 @@ from sitebuild.site import Site
 PATH = "bench-scores.json"
 TEXT_OPTIONS = 5  # every Text question has options A to E, in Turkish and in English
 # The benches' titles (project lead, bus #4173); their keys stay reading-text and reading-vision.
-TITLES = {"text": "Reading · Turkish", "english": "Reading · English", "vision": "Reading · Vision"}
+TITLES = {"text": "Reading · Turkish", "english": "Reading · English", "vision": "Reading · Vision",
+          "reading": "Turkish Reading", "grammar": "Turkish Grammar"}
+# The Turkish parts (Ümit #4239): (bench key, results.json group, the questions in words).
+PARTS = (("turkish-reading", "reading", "Turkish reading questions (units 1 to 6)"),
+         ("turkish-grammar", "grammar", "Turkish grammar questions (units 7 to 20)"))
+
+
+# What a run's name may say about how it ran rather than which model it is: openness and route in parentheses. A release
+# after a comma stays: "DeepSeek-V4.1-Flash, first release" is not the 1017 update nor a hosted "DeepSeek V4.1 Flash".
+SETTING = re.compile(r"\s*\((?:open(?: weights)?|api[^)]*|local gpu)\)", re.I)
+
+
+def model_key(name: str) -> str:
+    """The three sites' join key (#4243): the model's name without its setting or route (a run's name, not its row's,
+    SETTING dropped), lower case, spaces as hyphens, dots kept: "GLiDE 27B (open)" reads glide-27b, "Perplexity Decider
+    27B v1.2 (API, with web)" perplexity-decider-27b-v1.2, "GLiNER2.5 Multi (base)" gliner2.5-multi-base."""
+    return "-".join(re.sub(r"[(),]", " ", SETTING.sub("", name)).lower().split())
+
+
+def run_key(run: dict[str, Any]) -> str:
+    """A setup's model_key: its run's name's (model_key), with "-with-web" for a setup with web search (#4253), so a
+    with-web row never joins the plain one."""
+    return model_key(run["name"]) + ("-with-web" if run.get("perplexity_mode") else "")
 
 
 def billions(value: int | None) -> float | None:
@@ -63,33 +90,54 @@ def sizes(run: dict[str, Any]) -> tuple[float | None, float | None]:
 
 def text_rows(site: Site) -> list[tuple[dict[str, Any], list[dict[str, Any]]]]:
     """The Text bench's rows: the Leaderboard's (one per model ID, kind and web search, its setup by the Leaderboard's
-    rule), each split by route, our hardware or an API, so each row is one checkpoint or one hosted service."""
+    rule, whichever route it ran: the route never splits a model, Ümit #4270), each with its other setups."""
     board = leaderboard.Board(site)
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
     for run in site.runs:
-        groups.setdefault((*board.key(run), run["billing"] == "local"), []).append(run)
+        groups.setdefault(board.key(run), []).append(run)
     return [leaderboard.choose(setups, lambda item: item) for setups in groups.values()]
 
 
-def text_bench(site: Site) -> dict[str, Any]:
+def part_ece(site: Site, run_id: int, part: str) -> float | None:
+    """A Text run's calibration error on one part's questions (Site.part of each question's unit), as its whole run's
+    (results.json runs[].confidence.ece): the scored questions that carry a confidence, 10 equal-width bins."""
+    answers = site.answer_runs[run_id]
+    units = site.answers["questions"]["unit"]
+    scored = [(answers["score"][index], int(answers["correct"][index])) for index in site.scored
+              if site.part(units[index]) == part and answers["score"][index] is not None
+              and answers["correct"][index] is not None]
+    return bm.calibration(scored)["ece"] if scored else None
+
+
+def text_bench(site: Site, part: tuple[str, str, str] | None = None) -> dict[str, Any]:
+    """Reading · Turkish (reading-text, every Turkish question), or with part one of PARTS: the same rows on that
+    part's questions, scored and calibrated on them."""
     total = site.results["questions"]
     models = []
     for run, others in text_rows(site):
-        correct, questions = site.accuracy(run)
+        if part:
+            group = run["groups"][part[1]]
+            correct, questions = group["correct"], group["questions"]
+            ece = part_ece(site, run["run"], part[1]) if run.get("confidence") else None
+        else:
+            correct, questions = site.accuracy(run)
+            ece = (run.get("confidence") or {}).get("ece")
         repo, commit = checkpoint(run)
         params_total, params_active = sizes(run)
         models.append({
-            "repo": repo, "commit": commit, "name": leaderboard.name_of(site, run),
+            "repo": repo, "commit": commit, "name": leaderboard.name_of(site, run), "model_key": run_key(run),
             "maker": site.families[run["run"]]["maker"], "kind": "decision" if site.decision(run) else "chat",
             "params_total": params_total, "params_active": params_active, "quantization": quantization(run),
             "score_0_100": score(correct / questions, 1 / TEXT_OPTIONS),
             "raw": {"metric": "accuracy", "value": correct / questions, "questions": questions, "options": TEXT_OPTIONS},
-            "calibration_error": (run.get("confidence") or {}).get("ece"), "improvement_points": None,
+            "calibration_error": ece, "improvement_points": None,
             "runs": [f"text:{item['run']}" for item in (run, *others)], "notes": run["access"]})
-    return {"bench": "reading-text", "title": TITLES["text"], "url": site.config["site_url"],
-            "updated": site.results["updated"],
+    count = models[0]["raw"]["questions"]
+    return {"bench": part[0] if part else "reading-text", "title": TITLES[part[1] if part else "text"],
+            "url": site.config["site_url"], "updated": site.results["updated"],
             "score": {"zero": f"chance: 1 of {TEXT_OPTIONS} options right on every question (accuracy 20%)",
-                      "hundred": f"every one of the {total:,} Turkish reading and grammar questions right (accuracy 100%)"},
+                      "hundred": (f"every one of the {count:,} {part[2]} right (accuracy 100%)" if part else
+                                  f"every one of the {total:,} Turkish reading and grammar questions right (accuracy 100%)")},
             "models": sorted(models, key=lambda model: -model["score_0_100"])}
 
 
@@ -108,7 +156,7 @@ def vision_bench(site: Site) -> dict[str, Any]:
         repo, commit = checkpoint(run)
         params_total, params_active = sizes(run)
         models.append({
-            "repo": repo, "commit": commit, "name": leaderboard.name_of(site, run), "maker": site.families[run["run"]]["maker"],
+            "repo": repo, "commit": commit, "name": leaderboard.name_of(site, run), "model_key": run_key(run), "maker": site.families[run["run"]]["maker"],
             "kind": "decision" if site.decision(run) else "chat", "params_total": params_total,
             "params_active": params_active, "quantization": quantization(run),
             "score_0_100": score(got["accuracy"], chance),
@@ -151,7 +199,7 @@ def english_bench(site: Site) -> dict[str, Any]:
         repo, commit = checkpoint(run)
         params_total, params_active = sizes(run)
         models.append({
-            "repo": repo, "commit": commit, "name": name, "maker": maker, "kind": kind,
+            "repo": repo, "commit": commit, "name": name, "model_key": run_key(run), "maker": maker, "kind": kind,
             "params_total": params_total, "params_active": params_active, "quantization": quantization(run),
             "score_0_100": score(counts["accuracy"], 1 / TEXT_OPTIONS),
             "raw": {"metric": "accuracy", "value": counts["accuracy"], "questions": total, "options": TEXT_OPTIONS},
@@ -175,8 +223,8 @@ def english_bench(site: Site) -> dict[str, Any]:
 
 
 def benches(site: Site) -> list[dict[str, Any]]:
-    """The three benches: Turkish, English, Vision."""
-    return [text_bench(site), english_bench(site), vision_bench(site)]
+    """The five benches: Turkish (all), Turkish Reading, Turkish Grammar, English, Vision."""
+    return [text_bench(site), *(text_bench(site, part) for part in PARTS), english_bench(site), vision_bench(site)]
 
 
 def build(site: Site) -> dict[str, str]:

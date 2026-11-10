@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results d9413097 (10 November 2026)
+
+- Added Muse Ember, Meta's closed chat model (released 9 November 2026), as a chat-model comparison at the project lead's request (bus #4021, #4257), through OpenRouter: Meta's own endpoint, the only one serving it, which has structured outputs, so its requests carry the answer schema of every other chat setup; reasoning max (its highest setting), 16 questions per request, a 65,536-token output cap, fallbacks off. Meta discloses no size; by its list price ($0.10 per 1M input tokens, $0.50 per 1M output tokens) it is in the Efficient class. Text: run 939, 1,882 of 2,198 right (85.6%). English reading: run 942, 490 of the 547 kept questions right (89.6%), against 90.9% in Turkish on the same questions; the difference is not significant. Hallucination tab: with "Bilmiyorum" (run 940) 6 "Bilmiyorum" and 281 wrong, 2.1% non-hallucination; English "I don't know" (run 943) 3 and 54 wrong, 5.3%.
+- Its invalid answers: runs 939 and 940 have 48 each, from the same three requests of 16 questions in both runs, every one cut off at the 65,536-token output cap while reasoning (a cut-off reply is not asked again); the English runs have none.
+- Cost, at OpenRouter's billed usage (Meta's list price): $1.43 for the Turkish run ($0.65 per 1,000 questions), $0.13 for the English run ($0.25 per 1,000).
+- Confidence figures: a closed chat model asked through a hosted API whose maker states no size now has a panel of its own, "Other closed chat models" (Grok 4.7 and Muse Ember); Grok 4.7 was shown among the open-weight chat models before. Anthropic's models go to their panel whichever route asked them.
+- No other number changed; the significance letters move where the new setup takes one, and no paired verdict moved.
+
 ## Results 3a90caa8 (10 November 2026)
 
 - Fastino's open GLiDE family, five released checkpoints, at the project lead's request (bus #4006, #4008, #4057): GLiDE 27B (open) (`fastino/GLiDE-27B` at `4d32743`, 26.09B parameters with its 0.46B vision encoder), GLiDE 9B (open) (`ab54df5`, 7.94B), GLiDE 2B (open) (`00f122c`, 1.88B), GLiDE 0.8B (open) (`9eacdee`, 0.75B) and GLiDE 0.4B (open) (`6bda7ab`, 0.40B, an encoder). Each ran through the server its repository ships (`python -m glide.server`, `GLIDE_MAX_BATCH=1`, BF16) on one DGX Spark, one request at a time. 27B and 9B run some layers twice (recurrent depth), counted once in the sizes. The four smaller ones are in Small decision models. The rows Fastino GLiDE v1.2 (the same repository's earlier checkpoint, now at its tag `glide-v1.2`) and Fastino GLiDE (the hosted API) are unchanged.

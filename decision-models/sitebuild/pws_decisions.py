@@ -16,7 +16,7 @@ from typing import Any
 
 from build_page import long_date
 from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value,
-                            esc, family_legend, hbars, log_axis, more_link, pct, rel, seconds_tick, small_note)
+                            esc, family_legend, hbars, log_axis, more_link, pct, rel, seconds_tick)
 from sitebuild.vision import cell, joined
 
 PATH = "pws-decisions/"
@@ -67,23 +67,10 @@ def chat(setup: dict[str, Any]) -> bool:
     return setup.get("group", "decision") == "chat"
 
 
-def models(site: Site, setup: dict[str, Any], run: dict[str, Any]) -> str:
-    """The view bar's groups a setup's rows show in (data-models): all, its own, and its kind's small group when its
-    Text tab run is small."""
-    kind = "chat" if chat(setup) else "decision"
-    return f"all {kind}" + (f" small-{kind}" if site.in_group(run, f"small-{kind}") else "")
-
-
-def key_small(site: Site, key: str) -> bool:
-    """Whether a pws/bench.py chat setup key's model is in the small chat group (its results.json runs, as setup_name
-    finds them)."""
-    model = setup_key(key)[0]
-    return any(site.in_group(run, "small-chat") for run in site.runs if run["model"] == model)
-
-
-def chat_models(small: bool) -> str:
-    """data-models of a chat-only element: all and chat, and small-chat when it concerns a small chat setup."""
-    return "all chat small-chat" if small else "all chat"
+def models(setup: dict[str, Any]) -> str:
+    """The view bar's type groups a setup's rows show in (data-models): all and its own; the Class keys come from
+    data-class."""
+    return "all chat" if chat(setup) else "all decision"
 
 
 # The models a CLI handed requests to, as the page names them (pws/bench.py's stand_in).
@@ -113,8 +100,8 @@ def cost_kind(setup: dict[str, Any]) -> str:
 
 
 def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
-    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat", plus "small-decision" or
-    "small-chat" for a small model setup) and chart label: its full name, with "chat" for a chat model, its interface where the setup names one
+    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat") and chart label: its full
+    name, with "chat" for a chat model, its interface where the setup names one
     (CLI, API: two rows of one model never
     read the same), its host where the setup names one (Baseten, our GPU), "with web" for a setup that searched where
     the name does not say so, and the requests another model answered (stand_in_words), so a mixed-model run never
@@ -136,7 +123,7 @@ def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
                  + (["with web"] if web(setup) and "with web" not in name else []))
         inside = "; ".join(part for part in (", ".join(marks), stand_in_words(setup)) if part)
         label = f"{name} ({inside})" if inside else name
-        out.append({"setup": setup, "run": run, "family": site.families[run["run"]], "models": models(site, setup, run),
+        out.append({"setup": setup, "run": run, "family": site.families[run["run"]], "models": models(setup),
                     "label": label})
     return sorted(out, key=lambda item: (-item["setup"]["accuracy"]["mean"], item["label"].casefold()))
 
@@ -260,8 +247,7 @@ def marks_legend(items: list[dict[str, Any]], striped: str) -> str:
         out += f' <span><i class="swatch swatch-web"></i>{striped}</span>'
     chats = [item for item in items if chat(item["setup"])]
     if chats:
-        marks = chat_models(any("small-chat" in item["models"].split() for item in chats))
-        out += (f" <span data-models=\"{marks}\">(chat): a chat model, asked each question in the benchmark's own words, its answer read from its "
+        out += (" <span data-models=\"all chat\">(chat): a chat model, asked each question in the benchmark's own words, its answer read from its "
                 "reply; the other rows are decision models.</span>")
     return out
 
@@ -282,7 +268,7 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
         note = habits_note(data, setup) if notes else None
         rows.append({
             "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
-            "models": item["models"], **({"note": note} if note else {}),
+            "models": item["models"], "class_key": site.model_class(item["run"]), **({"note": note} if note else {}),
             "bars": [{"value": accuracy, "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "marker": random,
             "html": f"{esc(pct(accuracy, digits))} | {priced} | {ms(median)} · {ms(p95)}",
@@ -324,7 +310,7 @@ def cost_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]], or
         fee = " incl. search" if search_fee(setup) else " tokens only" if lower(setup) else ""
         rows.append({
             "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
-            "models": item["models"],
+            "models": item["models"], "class_key": site.model_class(item["run"]),
             "bars": [{"value": place(value / 1000), "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "html": cost_html(setup, value, mark) + esc(fee),
             "title": f"{item['label']}: " + cost_words(value / 1000, bound(setup, mark))
@@ -361,7 +347,7 @@ def latency_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]],
         median, p95 = setup["median_request_seconds"]["mean"], setup["p95_request_seconds"]["mean"]
         rows.append({
             "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
-            "models": item["models"],
+            "models": item["models"], "class_key": site.model_class(item["run"]),
             "bars": [{"value": place(median), "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "marker": place(p95), "text": f"{ms(median)} · {ms(p95)} ms",
             "title": f"{item['label']}: median {ms(median)} ms, 95th percentile {ms(p95)} ms per request, the mean of "
@@ -460,13 +446,13 @@ def table(site: Site, data: dict[str, Any], items: list[dict[str, Any]], mark: s
             values += ['<span class="nm">No probabilities</span>'] * 2
         access = setup.get("access", run["access"])
         name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" '
-                f'title="{esc(site.detail(run))}">{esc(item["label"])}</a>'
+                f'title="{esc(site.detail(run))}">{esc(item["label"])}</a> {site.label(run)}'
                 f'<span class="small">{esc(access)}; <code>{esc(setup["request_model"])}</code></span>'
                 + (f'<span class="small">{esc(setup["method_note"][0].upper() + setup["method_note"][1:])}.</span>'
                    if setup.get("method_note") else "")
                 + (f'<span class="small habits-note">{esc(note)}</span>' if (note := habits_note(data, setup)) else "")
                 + "</td>")
-        body.append(f'<tr data-models="{item["models"]}">{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
+        body.append(f'<tr data-models="{item["models"]}"{site.class_attribute(run)}>{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{text}<span class="small">{direction}</span></th>'
                    for text, direction in zip(plain, [direction for _, direction in heads]))
     return (f'<div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">Setup</th>{head}'
@@ -530,10 +516,10 @@ def pending(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> st
                    "setups.</li>")
     blocked_keys = {row["setup"] for row in data.get("blocked", [])}
     waiting = unfinished_chat(data, blocked_keys)
-    chats = (f'<li data-models="{chat_models(any(key_small(site, key) for key in waiting))}">Chat setups without three '
+    chats = (f'<li data-models="all chat">Chat setups without three '
              f"complete runs yet: {esc(joined([setup_name(site, key) for key in waiting]))}; added when they have them.</li>"
              if waiting else "")
-    blocked = "".join(f'<li data-models="{chat_models(key_small(site, row["setup"]))}">{esc(setup_name(site, row["setup"]))}: '
+    blocked = "".join(f'<li data-models="all chat">{esc(setup_name(site, row["setup"]))}: '
                       f'{esc(row["reason"])}.</li>'
                       for row in data.get("blocked", []))
     return ("<li>Parallel's own Decisions API: not run, no API key available to us yet.</li>"
@@ -581,8 +567,7 @@ def attempts_note(site: Site, data: dict[str, Any]) -> str:
     parts = [f"{setup_name(site, setup)}, {attempt}: {len(rows)} runs, {sum(row['rows'] for row in rows):,} answers, "
              f"{sum(row['errors'] for row in rows):,} errors, {sum(row['correct'] for row in rows):,} right"
              for (setup, attempt), rows in found.items()]
-    marks = chat_models(any(key_small(site, setup) for setup, _ in found))
-    return f'<li data-models="{marks}">Attempts set aside whole, never merged into a run: {esc("; ".join(parts))}.</li>'
+    return f'<li data-models="all chat">Attempts set aside whole, never merged into a run: {esc("; ".join(parts))}.</li>'
 
 
 def load(site: Site) -> tuple[dict[str, Any], list[dict[str, Any]]] | None:
@@ -609,11 +594,9 @@ def dont_know_item(items: list[dict[str, Any]], block: dict[str, Any], side: str
     return found[0]
 
 
-def dont_know_marks(items: list[dict[str, Any]], block: dict[str, Any]) -> str:
-    """The view bar's groups of the “I don't know” runs: a decision model's, with small-decision when its setup is
-    small."""
-    small = "small-decision" in dont_know_item(items, block, "off")["models"].split()
-    return f'data-models="all decision{" small-decision" if small else ""}"'
+def dont_know_marks() -> str:
+    """The view bar's groups of the “I don't know” runs: a decision model's."""
+    return 'data-models="all decision"'
 
 
 def count(value: float) -> str:
@@ -644,14 +627,14 @@ def dont_know_section(site: Site, data: dict[str, Any], items: list[dict[str, An
                    for key in ("accuracy", "answered", "wrong_of_answers", "non_hallucination")]
         values.append(spread(arm["errors"], lambda value: esc(count(value))))
         name = (f'<td class="model">{site.icon(item["run"])}<a class="model-name" href="{link(site, PATH, item)}">'
-                f'{esc(item["label"])}</a><span class="small">{len(arm["runs"])} runs</span></td>')
-        body.append(f'<tr data-models="{item["models"]}">{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
+                f'{esc(item["label"])}</a> {site.label(item["run"])}<span class="small">{len(arm["runs"])} runs</span></td>')
+        body.append(f'<tr data-models="{item["models"]}"{site.class_attribute(item["run"])}>{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{esc(direction)}</span></th>'
                    for text, direction in heads)
     dates = sorted(block.get("dates", []))
     when = "" if not dates else f" Run on {esc(long_date(dates[0]))}" + (
         f" to {esc(long_date(dates[-1]))}." if dates[-1] != dates[0] else ".")
-    return f"""<section class="card" id="dont-know" {dont_know_marks(items, block)}>
+    return f"""<section class="card" id="dont-know" {dont_know_marks()}>
       <h2>With “{esc(option)}” as an extra choice</h2>
       <p>{esc(block_name(items, block))}, off and with web, asked the same {data['questions']} questions with “{esc(option)}” offered as an extra choice, {len(block['off']['runs'])} runs each.{when} Non-hallucination: the share of the answers that were not right where the setup chose “{esc(option)}” instead of a wrong answer. Each value is the mean of the runs, with the lowest and highest run under it.</p>
       <div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">Setup</th>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>
@@ -706,17 +689,23 @@ def signed(value: float) -> str:
     return f"{100 * value:+.1f}"
 
 
-def habits_table(heads: list[tuple[str, str]], rows: list[tuple[str, list[str]]], first: str = "Setup") -> str:
+def habits_table(heads: list[tuple[str, str]], rows: list[tuple[str, list[str]] | tuple[str, list[str], str]],
+                 first: str = "Setup") -> str:
     """One step's table: a first column (first: Setup, or Strategy for step 1), then the heads (name, what it is), each
-    row its label and its cells (HTML)."""
+    row its label and its cells (HTML), and for a setup's row its tr attributes (setup_row)."""
     labels = [f"{head} ({what})" if what else head for head, what in heads]
     head = "".join(f'<th scope="col" class="num">{esc(text)}' + (f'<span class="small">{esc(what)}</span>' if what else "")
                    + "</th>" for text, what in heads)
-    body = "".join(f'<tr><td class="model">{label}</td>'
+    body = "".join(f'<tr{"".join(mark)}><td class="model">{label}</td>'
                    + "".join(cell(name, value) for name, value in zip(labels, values)) + "</tr>"
-                   for label, values in rows)
+                   for label, values, *mark in rows)
     return (f'<div class="table-wrap"><table class="board list stack wrap-headers"><thead><tr><th scope="col">{esc(first)}</th>'
             f"{head}</tr></thead><tbody>{body}</tbody></table></div>")
+
+
+def setup_row(site: Site, item: dict[str, Any], values: list[str]) -> tuple[str, list[str], str]:
+    """A habits_table row for one setup: its label with its size label, its cells, and its data-class."""
+    return f'{esc(item["label"])} {site.label(item["run"])}', values, site.class_attribute(item["run"])
 
 
 def habits_figure(step: int, chart: str, legend: list[str], families: list[dict[str, str]]) -> str:
@@ -763,7 +752,8 @@ def habits_charts(site: Site, data: dict[str, Any], rows: list[dict[str, Any]], 
     yes_n = lazy["always_yes"]["questions"]
     ordinals = ["first", "second", "third", "fourth", "fifth", "sixth"]
     row_of = lambda item, **fields: {"label": item["label"], "family": item["family"]["name"],  # noqa: E731
-                                     "href": link(site, PATH, item), "models": item["models"], **fields}
+                                     "href": link(site, PATH, item), "models": item["models"],
+                                     "class_key": site.model_class(item["run"]), **fields}
     strategies = [
         ("Always the first choice", lazy["always_first"], random, n),
         ("Always the last choice", lazy["always_last"], random, n),
@@ -912,7 +902,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
         habits = setup["habits"]
         shares = habits["positions"] + [0.0] * (len(rights) - len(habits["positions"]))
         explained = f'<span class="small">{esc(mark_words)}</span>' if habits["explained"] else ""
-        step2_rows.append((esc(item["label"]), [
+        step2_rows.append(setup_row(site, item, [
             esc(pct(setup["accuracy"]["mean"], digits)), *(esc(pct(share, digits)) for share in shares),
             esc(pct(habits["yes_share"], digits)), esc(pct(habits["first_share_other"], digits)),
             esc(pct(habits["baseline"], digits)), f"{esc(signed(habits['above']))}{explained}",
@@ -932,19 +922,19 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
     step3 = habits_table(
         [("Right, runs " + " / ".join(str(index + 1) for index in range(runs)), f"of {hard['questions']}"),
          ("Mean", "of the runs"), (f"Right in all {runs} runs", "")],
-        [(esc(item["label"]), [" / ".join(str(value) for value in item["setup"]["habits"]["hard_right"]),
-                               f"{statistics.mean(item['setup']['habits']['hard_right']):.2f}",
-                               str(item["setup"]["habits"]["hard_right_all_runs"])]) for item in rows])
+        [setup_row(site, item, [" / ".join(str(value) for value in item["setup"]["habits"]["hard_right"]),
+                                f"{statistics.mean(item['setup']['habits']['hard_right']):.2f}",
+                                str(item["setup"]["habits"]["hard_right_all_runs"])]) for item in rows])
     sure = data["sure_threshold"]
     step4_rows = []
     for item in rows:
         confidence = item["setup"]["habits"].get("confidence")
         if not confidence:
-            step4_rows.append((esc(item["label"]), ['<span class="nm">No probabilities</span>'] * 4))
+            step4_rows.append(setup_row(site, item, ['<span class="nm">No probabilities</span>'] * 4))
             continue
         per_run = [run["confidence"]["sure"] for run in item["setup"]["runs"]]
         mean = lambda value: "none" if value is None else esc(pct(value, digits))  # noqa: E731
-        step4_rows.append((esc(item["label"]), [
+        step4_rows.append(setup_row(site, item, [
             mean(confidence["mean_right"]), mean(confidence["mean_wrong"]),
             f"{confidence['sure']:,}<span class=\"small\">runs {' / '.join(str(value) for value in per_run)}</span>",
             f"{confidence['sure_wrong']:,}"]))
@@ -957,7 +947,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
     step6 = habits_table(
         [("Hugging Face repository", ""), ("Revision we ran", ""), ("Revision committed", "UTC"),
          ("Days before the questions were public", "")],
-        [(esc(item["label"]), [
+        [setup_row(site, item, [
             f"<code>{esc(weights['repo'])}</code>" + (f'<span class="small">{esc(weights["note"])}</span>'
                                                       if weights.get("note") else ""),
             f"<code>{esc(weights['revision'])}</code>", esc(weights["committed"]), esc(days_value(weights["days_before"]))])
@@ -1046,7 +1036,7 @@ def reversed_step(site: Site, data: dict[str, Any], rows: list[dict[str, Any]]) 
              + (f"; {joined(moved)}" + (", consistent with sensitivity to the position of the choices" if lost else "")
                 if moved else "") + ".")
     chart_rows = [{"label": item["label"], "family": item["family"]["name"], "href": link(site, PATH, item),
-                   "models": item["models"],
+                   "models": item["models"], "class_key": site.model_class(item["run"]),
                    "bars": [{"value": turned(item)["run_1_accuracy"], "colour": item["family"]["colour"]},
                             {"value": turned(item)["accuracy"], "kind": "base"}],
                    "texts": [whole(turned(item)["run_1_accuracy"]), whole(turned(item)["accuracy"]),
@@ -1061,12 +1051,12 @@ def reversed_step(site: Site, data: dict[str, Any], rows: list[dict[str, Any]]) 
         '<i class="swatch swatch-base"></i>The lower bar: the run with the choices reversed',
         "Change: reversed minus run 1, in points; same choice: the share of the questions where both chose the same "
         "original choice"], [item["family"] for item in done])
-    table_rows = [(esc(item["label"]), [
+    table_rows = [setup_row(site, item, [
         esc(whole(turned(item)["run_1_accuracy"])), esc(whole(turned(item)["accuracy"])), esc(signed(turned(item)["change"])),
         esc(whole(turned(item)["same_choice_as_run_1"])), esc(whole(turned(item)["runs_1_2_agree"])),
         esc(pct(item["setup"]["accuracy"]["mean"], digits)), f"{turned(item)['errors']} / {turned(item)['missing']}"])
         for item in done]
-    table_rows += [(esc(item["label"]), [f'<span class="nm">Not run: {esc(turned(item)["not_run"])}</span>', *[""] * 6])
+    table_rows += [setup_row(site, item, [f'<span class="nm">Not run: {esc(turned(item)["not_run"])}</span>', *[""] * 6])
                    for item in not_run]
     table = habits_table(
         [("Normal order", "run 1"), ("Reversed", "one run"), ("Change", "points"), ("Same choice as run 1", "share"),
@@ -1111,13 +1101,7 @@ def build(site: Site) -> dict[str, str]:
     fees = sorted({format(item["setup"]["price"]["per_request"], "g") for item in items
                    if web(item["setup"]) and item["setup"]["price"].get("per_request", 0) > 0})
     block = dont_know_block(data)
-    idk_nav = f'<a href="#dont-know" {dont_know_marks(items, block)}>{esc(block["option"])}</a>' if block else ""
-    small_only = bool(summary_cards(items, digits) or data.get("habits")
-                      or (block and "small-decision" not in dont_know_marks(items, block)))
-    small_parts = (small_note("Small chat models: the parts about decision models only show under All models or Decision "
-                              "models.", ("small-chat",))
-                   + small_note("Small decision models: the parts about decision models only are not split by size; they "
-                                "show under All models or Decision models.", ("small-decision",))) if small_only else ""
+    idk_nav = f'<a href="#dont-know" {dont_know_marks()}>{esc(block["option"])}</a>' if block else ""
     site.note(PATH, TITLE, f"""<p>PWS-Decisions is Parallel Web Systems' benchmark of {data['questions']} public English multiple-choice questions whose answers depend on dated facts on the public web. We asked {who} that an API still serves, {data['runs_per_setup']} runs each, one question per request. {"With web search: " + esc(joined(searched)) + "; every other setup answered without search." if searched else "Every setup answered without search."} This page is not part of the Turkish ranking.</p>
       {framing(data)}
       <p>{above} setups have a mean accuracy above the {pct(data['random_accuracy'], digits)} chance line (Parallel's random-guess baseline, not a run of ours); every accuracy here is the mean of our {data['runs_per_setup']} runs.</p>
@@ -1128,7 +1112,6 @@ def build(site: Site) -> dict[str, str]:
       <p>Parallel Web Systems' {data['questions']} public English questions on dated web facts; not part of the Turkish ranking.</p>
       {more_link(PATH)}
       {summary_cards(items, digits)}
-      {small_parts}
       <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{f'<a href="#habits" {DECISION_ONLY}>Without the facts</a><a href="#habits-2" {DECISION_ONLY}>Answering habits</a>' if data.get("habits") else ""}{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
     </section>
     <section class="charts" aria-label="Charts">{charts(site, data, items, PATH, "chart-", measures=True)}</section>

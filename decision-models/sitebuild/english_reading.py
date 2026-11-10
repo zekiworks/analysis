@@ -6,8 +6,8 @@ public record: the translator, its prompts, the flags and each question's hash o
 page_config.json's `english_reading` (the reason of each Text tab setup without an English run, by provider with
 overrides by run, and the structural check's facts) and `model_languages`.
 
-Every part that depends on the setups shown comes once per group of the view bar (GROUPS: all, decision, chat, small-chat,
-small-decision; data-models, toggled by site.js; the all group is the one shown without JavaScript), its counts and sentences computed
+Every part that depends on the setups shown comes once per group of the view bar (GROUPS: all, decision, chat;
+data-models, toggled by site.js, with each setup's row and bar marked data-class for the Class keys; the all group is the one shown without JavaScript), its counts and sentences computed
 for that group, its setups ranked within it: the face's charts (accuracy in both languages first, ranked by English
 accuracy, then the paired test, Site hbars; cost and latency of the Text tab run and the first English
 run, measure_card(), from english_reading.models[]'s cost and latency), the main table (main_table(): accuracy, "I don't
@@ -19,7 +19,7 @@ Results table and the setups without an English run. The top is one line and the
 (limit_line()); the lead with the headline, limit_note() and the experiments line are in About's notes on each page
 (Site.note). The view bar's row 3 links to the face's parts: #accuracy, #non-hallucination, #cost and
 #latency, so the page has no links row of its own. The parts about decision models only come once, for the all and
-decision groups: Liquid d1-ultra against each decision model (with one note for the chat group and one for both small groups), the same with the
+decision groups: Liquid d1-ultra against each decision model (with one note for the chat group), the same with the
 option written "I don't know" in Turkish too (dont_know_word_face()) and the option's word on the Turkish questions
 (option_word()). Under Info: the tables, the setups without an English run, Our method and the full instructions and
 prompts of each kind of run. The question text, Turkish or English, is never published. The tab ranks nothing on the
@@ -44,7 +44,7 @@ from sitebuild.dont_know import check_option_word, group_data, option_word_rows
 from sitebuild.site import (DECISION_ONLY, GROUPS, NO_LIST_PRICE, NOT_MEASURED, ROOT, Site, chat_note, cost_missing,
                             cost_per, cost_switch, cost_tick, cost_unit_in, cost_value, cost_words, esc, experiments,
                             family_icon, family_legend, hbars, legend_mark, line_plot, log_axis, more_link, pct, rel,
-                            request_size, run_families, seconds_tick, shown, small_note)
+                            request_size, run_families, seconds_tick, shown)
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "turkish-vs-english/"
@@ -99,12 +99,9 @@ def english_members(site: Site, data: dict[str, Any], group: str) -> list[dict[s
 
 
 def noun(group: str, count: int) -> str:
-    """What a group's members are called: setups (all), decision models, chat model setups, small chat model setups,
-    small decision models."""
+    """What a group's members are called: setups (all), decision models, chat model setups."""
     one, many = {"all": ("setup", "setups"), "decision": ("decision model", "decision models"),
-                 "chat": ("chat model setup", "chat model setups"),
-                 "small-chat": ("small chat model setup", "small chat model setups"),
-                 "small-decision": ("small decision model", "small decision models")}[group]
+                 "chat": ("chat model setup", "chat model setups")}[group]
     return one if count == 1 else many
 
 
@@ -489,6 +486,7 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
         text = " · ".join(short(model, side) for side in sides)
         tip = site.cost_tip(setup_run(site, model)) if cost else None
         rows.append({"label": label(site, model), "family": families[setup_key(model)]["name"], "href": link(site, model), "bars": bars, "html": text,
+                     "class_key": site.model_class(setup_run(site, model)),
                      "title": f"{label(site, model)}: " + "; ".join(said(model, side) for side in sides)
                      + (f". {tip}" if tip else "")})
     count = len(models)
@@ -610,6 +608,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         f"Share of the {total:,} kept reading questions answered right: each of the {bp.in_words(count)} "
         f"{noun(group, count)}' Text tab run and its first English run, ordered by English accuracy · higher is better",
         [{"label": label(site, model), "family": site.families[model["turkish_run"]]["name"], "href": href(site, model),
+          "class_key": site.model_class(site.by_id[model["turkish_run"]]),
           "text": f"{pct(model['turkish']['accuracy'], digits)} · {pct(model['english']['accuracy'], digits)}",
           "bars": family_bars(site, model["turkish_run"], (model["turkish"]["accuracy"], "turkish"), (model["english"]["accuracy"], "english")),
           "title": f"{label(site, model)}: {model['turkish']['right']:,} of {total:,} right in Turkish, "
@@ -642,6 +641,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         f"the two got right, by the exact McNemar test with p adjusted by Holm's method over all {family} English "
         f"{noun('all', family)} · the longer bar is the language with more right answers",
         [{"label": label(site, model), "family": site.families[model["turkish_run"]]["name"], "href": href(site, model),
+          "class_key": site.model_class(site.by_id[model["turkish_run"]]),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if significant(model) else ''}",
           "bars": family_bars(site, model["turkish_run"], (counts(model)[0], "turkish"), (counts(model)[1], "english")),
           "title": f"{label(site, model)}: {counts(model)[0]:,} right only in Turkish, {counts(model)[1]:,} right only in "
@@ -732,7 +732,7 @@ def against_reference(site: Site, data: dict[str, Any]) -> str:
     for model in models:
         compared = by_run[model["run"]]
         run = site.by_id[compared["turkish_run"]]
-        name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{href(site, compared)}" title="{esc(site.detail(run))}">{esc(label(site, compared))}</a>'
+        name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{href(site, compared)}" title="{esc(site.detail(run))}">{esc(label(site, compared))}</a> {site.label(run)}'
                 f'</td>')
         values = [
             run_span([model["run"]]),
@@ -742,7 +742,7 @@ def against_reference(site: Site, data: dict[str, Any]) -> str:
             esc(bp.p_text(model["p_holm"]).removeprefix("p = ").removeprefix("p ")),
             esc(verdicts[model["name"]]),
         ]
-        rows.append(f"<tr>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
+        rows.append(f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
     tally = Counter(verdicts.values())
     close, behind, ahead = (tally["too close to call"], tally[f"behind {short}"], tally[f"ahead of {short}"])
     parts = [f"{bp.in_words(close)} {'is' if close == 1 else 'are'} too close to call"]
@@ -893,8 +893,8 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             values.append(f'{languages_text(entry["languages"])}<span class="small"><a href="{esc(entry["source"])}">{source}</a></span>')
         run = site.by_id[model["turkish_run"]]
         name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{href(site, model)}" title="{esc(site.detail(run))}">'
-                f'{esc(label(site, model))}</a></td>')
-        rows.append(f"<tr>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
+                f'{esc(label(site, model))}</a> {site.label(run)}</td>')
+        rows.append(f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
     short = "".join(f'<th scope="col" class="num">{name}<span class="small">{cost_unit_in(esc(note))}</span></th>'
                     for part, names, notes in groups if names != ("",) for name, note in zip(names, notes))
     head = ('<tr><th scope="col" rowspan="2">Model</th>'
@@ -994,8 +994,8 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
     heads = [f"{head} ({note})" for head, note in columns(data)]
     run = site.by_id[model["turkish_run"]]
     name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{href(site, model)}" title="{esc(site.detail(run))}">'
-            f'{esc(label(site, model))}</a></td>')
-    return f"<tr>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>"
+            f'{esc(label(site, model))}</a> {site.label(run)}</td>')
+    return f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>"
 
 
 def table(site: Site, data: dict[str, Any], group: str) -> str:
@@ -1299,6 +1299,7 @@ def dont_know_charts(site: Site, idk: dict[str, Any], group: str = "all") -> str
         "language, ordered by the English rate · higher is better, read with the attempt rate (under the chart and in "
         "each bar's tooltip)",
         [{"label": idk_label(site, model), "family": site.families[model["text_run"]]["name"], "href": idk_href(site, model),
+          "class_key": site.model_class(idk_run(site, model)),
           "text": f"{side_text(model, 'turkish')} · {side_text(model, 'english')}",
           "bars": family_bars(site, model["text_run"], (side_value(model, "turkish"), "turkish"),
                               (side_value(model, "english"), "english")),
@@ -1339,6 +1340,7 @@ def dont_know_charts(site: Site, idk: dict[str, Any], group: str = "all") -> str
            f"over the {'decision' if tested[0]['group'] == 'decision' else 'chat'} models")
         + " · the shorter bar is the language with fewer wrong answers",
         [{"label": idk_label(site, model), "family": site.families[model["text_run"]]["name"], "href": idk_href(site, model),
+          "class_key": site.model_class(idk_run(site, model)),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if idk_significant(model) else ''}",
           "bars": family_bars(site, model["text_run"], (counts(model)[0], "turkish"), (counts(model)[1], "english")),
           "title": f"{idk_label(site, model)}: {counts(model)[0]:,} wrong only in Turkish, {counts(model)[1]:,} wrong only "
@@ -1461,8 +1463,8 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
     heads = [f"{head} ({note})" for head, note in dont_know_columns(idk)]
     run = site.by_id[model["text_run"]]
     name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{idk_href(site, model)}" title="{esc(site.detail(run))}">'
-            f'{esc(idk_label(site, model))}</a></td>')
-    return f"<tr>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
+            f'{esc(idk_label(site, model))}</a> {site.label(run)}</td>')
+    return f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
 
 
 # A chat model's mean probability of the option: it states a confidence and reports no option probabilities.
@@ -1507,8 +1509,8 @@ def one_side_row(site: Site, idk: dict[str, Any], model: dict[str, Any], side: s
     run = idk_run(site, model)
     icon = family_icon(setup_families(site)[idk_key(model)]["name"])
     name = (f'<td class="model">{icon}<a class="model-name" href="{idk_href(site, model)}" title="{esc(site.detail(run))}">'
-            f'{esc(idk_label(site, model))}</a></td>')
-    return f"<tr>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
+            f'{esc(idk_label(site, model))}</a> {site.label(run)}</td>')
+    return f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
 
 
 def dont_know_table(site: Site, idk: dict[str, Any], attributes: str = "") -> str:
@@ -1796,6 +1798,7 @@ def dont_know_word_charts(site: Site, word: dict[str, Any]) -> str:
         "questions: each model's first run in each language, ordered by the Turkish share, lowest first · lower is "
         "better, read with the answered share (under the chart and in each bar's tooltip)",
         [{"label": idk_label(site, model), "family": site.families[model["text_run"]]["name"], "href": idk_href(site, model),
+          "class_key": site.model_class(site.by_id[model["text_run"]]),
           "text": f"{share_text(model['turkish'])} · {share_text(model['english'])}",
           "bars": family_bars(site, model["text_run"], (wrong_share(model["turkish"]) or 0, "turkish"),
                               (wrong_share(model["english"]) or 0, "english")),
@@ -1834,6 +1837,7 @@ def dont_know_word_charts(site: Site, word: dict[str, Any]) -> str:
         f"method over the {len(tested)} model{'' if len(tested) == 1 else 's'} with both runs · the shorter bar is the "
         "language with fewer wrong answers",
         [{"label": idk_label(site, model), "family": site.families[model["text_run"]]["name"], "href": idk_href(site, model),
+          "class_key": site.model_class(site.by_id[model["text_run"]]),
           "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if idk_significant(model) else ''}",
           "bars": family_bars(site, model["text_run"], (counts(model)[0], "turkish"), (counts(model)[1], "english")),
           "title": f"{idk_label(site, model)}: {counts(model)[0]:,} wrong only in Turkish, {counts(model)[1]:,} wrong only "
@@ -1922,8 +1926,8 @@ def dont_know_word_row(site: Site, word: dict[str, Any], model: dict[str, Any]) 
     heads = [f"{head} ({note})" for head, note in dont_know_word_columns(word)]
     run = site.by_id[model["text_run"]]
     name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{idk_href(site, model)}" title="{esc(site.detail(run))}">'
-            f'{esc(idk_label(site, model))}</a></td>')
-    return f"<tr>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
+            f'{esc(idk_label(site, model))}</a> {site.label(run)}</td>')
+    return f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(head, item) for head, item in zip(heads, values)) + "</tr>"
 
 
 def dont_know_word_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -> str:
@@ -1989,8 +1993,8 @@ def languages(site: Site, data: dict[str, Any]) -> str:
         raise SystemExit("page_config.json model_languages: the sentence says no card names Turkish")
     name = lambda model: site.row_name(site.by_id[model["run"]])  # noqa: E731
     rows = "".join(
-        f'<tr><td class="model">{site.icon(site.by_id[model["run"]])}<a class="model-name" href="{setup_href(site, PATH, model["run"])}">'
-        f'{esc(name(model))}</a></td><td data-label="Languages listed">{languages_text(model["languages"])}</td>'
+        f'<tr{site.class_attribute(site.by_id[model["run"]])}><td class="model">{site.icon(site.by_id[model["run"]])}<a class="model-name" href="{setup_href(site, PATH, model["run"])}">'
+        f'{esc(name(model))}</a> {site.label(site.by_id[model["run"]])}</td><td data-label="Languages listed">{languages_text(model["languages"])}</td>'
         f'<td data-label="Source"><a href="{esc(model["source"])}">{esc(model["source"].split("//", 1)[1].split("/", 1)[0])}</a></td>'
         f'<td data-label="Checked">{esc(config["checked"])}</td></tr>' for model in models)
     maker = lambda model: esc(name(model).split()[0])  # noqa: E731
@@ -2089,10 +2093,10 @@ def option_word(site: Site) -> str:
         holm = "not in Holm's family" if paired["p_holm"] is None else esc(bp.p_text(paired["p_holm"]))
         run = site.by_id[model["original_run"]]
         name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{setup_href(site, PATH, run["run"])}">'
-                f'{esc(site.row_name(run))}</a></td>')
+                f'{esc(site.row_name(run))}</a> {site.label(run)}</td>')
         values = (answered(b), answered(e), wrong_of_answers(b, digits), wrong_of_answers(e, digits), rate(b, old),
                   rate(e, new), difference, holm)
-        rows.append(f"<tr>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
+        rows.append(f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text.split(" (")[0])}<span class="small">{esc(text.split(" (", 1)[1][:-1])}</span></th>'
                    for text in heads)
     return (f'<section class="card" id="option-word"><h2>The option\'s word: “{esc(new)}” instead of “{esc(old)}”</h2>'
@@ -2215,8 +2219,8 @@ def coverage(site: Site, data: dict[str, Any]) -> str:
                                         f'<span class="small">{point["right"]:,} right, {point["wrong"]:,} wrong, '
                                         f'{point["abstained"]:,} abstained · run {point["run"]}{restricted}</span>'))
             run = site.by_id[model["text_run"]]
-            rows.append(f'<tr><td class="model">{site.icon(run)}<a class="model-name" href="{setup_href(site, PATH, run["run"])}">'
-                        f'{esc(name(model))}</a></td>{"".join(cells)}</tr>')
+            rows.append(f'<tr{site.class_attribute(run)}><td class="model">{site.icon(run)}<a class="model-name" href="{setup_href(site, PATH, run["run"])}">'
+                        f'{esc(name(model))}</a> {site.label(run)}</td>{"".join(cells)}</tr>')
         return (f'<div class="table-wrap" {shown(group)}><table class="board list stack idk"><thead><tr><th scope="col">Model</th>'
                 f'{header}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>') if rows else ""
 
@@ -2382,10 +2386,7 @@ def build(site: Site) -> dict[str, str]:
     whole_bank = "" if not chat or any(len(model["turkish_runs"]) > 1 for model in chat) else \
         "; no chat setup run in English has whole-bank Turkish repeats, so each has one"
     against_block = (f"<div {DECISION_ONLY}>{against}</div>" + chat_note(
-        "Liquid d1-ultra against each decision model in English is for decision models only.") + small_note(
-        "Liquid d1-ultra against each decision model in English, and the decision models' comparison with “I don't "
-        "know” in Turkish too, cover every decision model whatever its size: they show under All models or Decision "
-        "models.")) if against else ""
+        "Liquid d1-ultra against each decision model in English is for decision models only.")) if against else ""
     idk_block = idk_parts + (f"<div {DECISION_ONLY}>{word_parts}</div>" if word_parts else "")
     method = "#method"
     site.note(PATH, "Turkish vs English", "".join(lead(group) for group in GROUPS) + limit_note(translator_name, method)
