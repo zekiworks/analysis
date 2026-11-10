@@ -37,9 +37,12 @@ SECTION = {"question/": "questions/", "disagreements/": "questions/", "topics/":
            "pws-decisions/": "experiments/", "aa-decision-index/": "experiments/", "method/": "about/", "data/": "about/"}
 # The model groups a page can show (?models=, read by site.js on every page; data-models marks the parts of each):
 # (value of ?models=, label). On the Leaderboard ?models= sets the table's filter; on a page that shows its parts by
-# group, its group keys (group_switch) pick one. Small cuts across the other two: every setup, decision or chat model,
-# whose model's disclosed total is at most page_config.json's small_models.max_parameters (Site.small).
-MODEL_GROUPS = (("all", "All models"), ("decision", "Decision models"), ("chat", "Chat models"), ("small", "Small models"))
+# group, its group keys (group_switch) pick one. The two small groups split each kind by size: the chat or decision
+# models whose model's disclosed size is at most page_config.json's small_models.max_parameters (Site.small). The old
+# ?models=small reads as small-chat (site.js).
+MODEL_GROUPS = (("all", "All models"), ("chat", "Chat models"), ("decision", "Decision models"),
+                ("small-chat", "Small chat models"), ("small-decision", "Small decision models"))
+SMALL_GROUPS = ("small-chat", "small-decision")
 # The suite strip shared by the three benchmark sites (decision-models, logic, backgammon): its stylesheet and snippet,
 # files of the site published as they are, which the other two sites copy; this site's link is the marked one.
 SUITE_CSS = "suite-bar.css"
@@ -71,7 +74,8 @@ def suite_bar() -> str:
 
 # The model groups (?models=), the first shown without JavaScript.
 GROUPS = tuple(key for key, _ in MODEL_GROUPS)
-# The attribute of a part about decision models only: shown for the all and decision groups, a note for chat and small.
+# The attribute of a part about decision models only: shown for the all and decision groups, a note for chat and the
+# small groups.
 DECISION_ONLY = 'data-models="all decision"'
 
 
@@ -85,9 +89,9 @@ def chat_note(text: str) -> str:
     return f'<p class="note" data-models="chat" hidden>{text}</p>'
 
 
-def small_note(text: str) -> str:
-    """The one note the small group shows instead of a page's parts that are not split by size."""
-    return f'<p class="note" data-models="small" hidden>{text}</p>'
+def small_note(text: str, groups: tuple[str, ...] = SMALL_GROUPS) -> str:
+    """The one note the small groups (or the ones given) show instead of a page's parts that are not split by size."""
+    return f'<p class="note" data-models="{" ".join(groups)}" hidden>{text}</p>'
 
 
 def billions(value: int) -> str:
@@ -495,7 +499,7 @@ def footer(path: str, version: str) -> str:
 
 def group_switch() -> str:
     """The model group keys at the top of a page that shows its parts by group (data-models): All, Decision, Chat and
-    Small, each the page itself with ?models=; site.js marks the one in view. In the page, not in the top bar."""
+    Small chat and Small decision, each the page itself with ?models=; site.js marks the one in view. In the page, not in the top bar."""
     keys = "".join(f'<a class="key" href="?models={value}" data-group-key="{value}">{esc(label)}</a>'
                    for value, label in MODEL_GROUPS)
     return (f'<nav class="group-switch needs-js" aria-label="Model group"><span class="group-label">Models</span>'
@@ -678,11 +682,12 @@ class Site:
 
     @property
     def small_max(self) -> int:
-        """The Small models view's one threshold (page_config.json small_models.max_parameters), in parameters."""
+        """The small views' one threshold (page_config.json small_models.max_parameters), in parameters."""
         return self.config["small_models"]["max_parameters"]
 
     def small(self, run: dict[str, Any]) -> bool:
-        """Whether a setup is in the Small models view (the three sites' rule, project lead through Zeki #3812-#3816): its
+        """Whether a setup is small (the three sites' rule, project lead through Zeki #3812-#3816; Small chat models and
+        Small decision models hold the small setups of each kind, #3876-#3882): its
         model's total, or for a mixture of experts every active count, as the maker discloses it, at most small_max; a
         model whose maker discloses no size never is. small_models.left_out_models never are (setups only this site
         ran, Zeki #3805, #3818); small_models.also_by_name always are (a setup whose maker's active count its size record
@@ -699,14 +704,14 @@ class Site:
         """Whether a setup shows in a model group of the view bar (MODEL_GROUPS)."""
         if group == "all":
             return True
-        if group == "small":
-            return self.small(run)
+        if group in SMALL_GROUPS:
+            return self.small(run) and self.decision(run) == (group == "small-decision")
         return self.decision(run) == (group == "decision")
 
-    def small_line(self) -> str:
-        """The Small models view's rule in one line, under the Leaderboard and on the pages that show the view: the three
-        sites' words (small_models.line), then the setups left out here."""
-        small = self.config["small_models"]
+    def small_line(self, group: str) -> str:
+        """A small group's rule in one line, under the Leaderboard and on the pages that show the group: the three
+        sites' words (small_models.groups' line), then the setups of its kind left out here."""
+        small = self.config["small_models"]["groups"][group]
         return small["line"] + (f" Left out here: {small['left_out_text']}." if small.get("left_out_text") else "")
 
     def kind(self, run: dict[str, Any]) -> str:
@@ -867,7 +872,7 @@ class Site:
   <a class="skip" href="#main">Skip to content</a>
   {topbar(path)}
   <main id="main">
-{group_switch() + small_note(esc(self.small_line())) if 'data-models="' in body else ""}
+{group_switch() + "".join(small_note(esc(self.small_line(group)), (group,)) for group in SMALL_GROUPS) if 'data-models="' in body else ""}
 {body}
   </main>
   {footer(path, self.version())}

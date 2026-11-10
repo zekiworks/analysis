@@ -11,8 +11,9 @@ hold reads "Not available" with its reason from the model's "missing"; a row wit
 the ranked rows, in vision.json's order. model_table() also gives a model page its row. findings() puts the results in
 words, computed from vision.json when the site is built. Every model here is a decision model (the build stops
 otherwise), so the models' charts, tables and findings show for the view bar's all and decision groups (data-models)
-and the chat group shows a note instead. The small group gets its own leaderboard (small_board) and the charts' rows of
-the small models; the charts without one and the findings, which cover every model, give way to a note there. The OCR
+and the chat and small chat groups show a note instead. The small decision group gets its own leaderboard
+(small_board) and the charts' rows of the small models; the charts without one and the findings, which cover every
+model, give way to a note there. The OCR
 models' parts show in every group."""
 
 from __future__ import annotations
@@ -183,16 +184,17 @@ def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
 
 
 def small(site: Site, model: dict[str, Any]) -> bool:
-    """Whether a model is in the view bar's small group, by its Text tab setup (condition A's run); never without one."""
+    """Whether a model is in the view bar's small decision group, by its Text tab setup (condition A's run); never
+    without one."""
     run = site.by_id.get(model["a_run"])
-    return run is not None and site.in_group(run, "small")
+    return run is not None and site.in_group(run, "small-decision")
 
 
 def small_board(site: Site, data: dict[str, Any]) -> str:
-    """The small group's leaderboard: the small models (all decision models, as build() stops on any other), grouped
+    """The small decision group's leaderboard: the small models (all decision models, as build() stops on any other), grouped
     as in the decision models' leaderboard."""
     models = [model for model in data["models"] if small(site, model)]
-    start = f'    <section class="card" id="small" {shown("small")}>\n      <h2>Small decision models</h2>\n      '
+    start = f'    <section class="card" id="small" {shown("small-decision")}>\n      <h2>Small decision models</h2>\n      '
     if not models:
         return f'{start}<p class="note">No small model has been run on the page images yet.</p>\n    </section>'
     groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
@@ -584,19 +586,19 @@ def face(site: Site, data: dict[str, Any]) -> tuple[str, list[str]]:
         return names_shown.get(model["a_run"], model["name"])
 
     def groups(model: dict[str, Any]) -> str:
-        return "all decision small" if small(site, model) else "all decision"
+        return "all decision small-decision" if small(site, model) else "all decision"
 
     def href(model: dict[str, Any]) -> str | None:
         run = site.by_id.get(model["a_run"])
         return rel(PATH, site.model_path(run)) if run else None
 
     def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, marks: str | None = None) -> str:
-        """A chart card; a card of the models' rows shows for the all and decision groups, and for small when one of
-        its rows is a small model's (each row marked with its groups)."""
+        """A chart card; a card of the models' rows shows for the all and decision groups, and for small-decision when
+        one of its rows is a small model's (each row marked with its groups)."""
         if marks is None:
             marks = DECISION_ONLY
-            if any("small" in row["models"].split() for row in rows):
-                marks = 'data-models="all decision small"'
+            if any("small-decision" in row["models"].split() for row in rows):
+                marks = 'data-models="all decision small-decision"'
             else:
                 whole.append(title)
         return (f'<figure class="panel chart-card" id="{anchor}" {marks}><div class="chart-head"><h2>{esc(title)}</h2>'
@@ -694,8 +696,9 @@ def build(site: Site) -> dict[str, str]:
       {chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
       <p>Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D); ranked apart from the Text tab.</p>
       {more_link(PATH)}
-      {small_note("Small models: the charts and What we found cover decision models of every size; they show under All models or Decision models.")}
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#small" {shown("small")}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
+      {small_note("Small chat models: none on this tab. No small chat model ran on the page images; every model run there is a decision model. The OCR models' parts below show in every view.", ("small-chat",))}
+      {small_note("Small decision models: the charts and What we found cover decision models of every size; they show under All models or Decision models.", ("small-decision",))}
+      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#small" {shown("small-decision")}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
     </section>
     {charts}
 {leaderboard(site, data, True)}

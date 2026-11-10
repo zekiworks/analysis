@@ -6,8 +6,8 @@ public record: the translator, its prompts, the flags and each question's hash o
 page_config.json's `english_reading` (the reason of each Text tab setup without an English run, by provider with
 overrides by run, and the structural check's facts) and `model_languages`.
 
-Every part that depends on the setups shown comes once per group of the view bar (GROUPS: all, decision, chat, small;
-data-models, toggled by site.js; the all group is the one shown without JavaScript), its counts and sentences computed
+Every part that depends on the setups shown comes once per group of the view bar (GROUPS: all, decision, chat, small-chat,
+small-decision; data-models, toggled by site.js; the all group is the one shown without JavaScript), its counts and sentences computed
 for that group, its setups ranked within it: the face's charts (accuracy in both languages first, ranked by English
 accuracy, then the paired test, Site hbars; cost and latency of the Text tab run and the first English
 run, measure_card(), from english_reading.models[]'s cost and latency), the main table (main_table(): accuracy, "I don't
@@ -19,7 +19,7 @@ Results table and the setups without an English run. The top is one line and the
 (limit_line()); the lead with the headline, limit_note() and the experiments line are in About's notes on each page
 (Site.note). The view bar's row 3 links to the face's parts: #accuracy, #non-hallucination, #cost and
 #latency, so the page has no links row of its own. The parts about decision models only come once, for the all and
-decision groups: Liquid d1-ultra against each decision model (with one note each for the chat and small groups), the same with the
+decision groups: Liquid d1-ultra against each decision model (with one note for the chat group and one for both small groups), the same with the
 option written "I don't know" in Turkish too (dont_know_word_face()) and the option's word on the Turkish questions
 (option_word()). Under Info: the tables, the setups without an English run, Our method and the full instructions and
 prompts of each kind of run. The question text, Turkish or English, is never published. The tab ranks nothing on the
@@ -99,10 +99,12 @@ def english_members(site: Site, data: dict[str, Any], group: str) -> list[dict[s
 
 
 def noun(group: str, count: int) -> str:
-    """What a group's members are called: setups (all), decision models, chat model setups, small model setups."""
+    """What a group's members are called: setups (all), decision models, chat model setups, small chat model setups,
+    small decision models."""
     one, many = {"all": ("setup", "setups"), "decision": ("decision model", "decision models"),
                  "chat": ("chat model setup", "chat model setups"),
-                 "small": ("small model setup", "small model setups")}[group]
+                 "small-chat": ("small chat model setup", "small chat model setups"),
+                 "small-decision": ("small decision model", "small decision models")}[group]
     return one if count == 1 else many
 
 

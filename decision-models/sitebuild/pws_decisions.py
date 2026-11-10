@@ -68,19 +68,22 @@ def chat(setup: dict[str, Any]) -> bool:
 
 
 def models(site: Site, setup: dict[str, Any], run: dict[str, Any]) -> str:
-    """The view bar's groups a setup's rows show in (data-models): all, its own, and small when its Text tab run is."""
-    return ("all chat" if chat(setup) else "all decision") + (" small" if site.in_group(run, "small") else "")
+    """The view bar's groups a setup's rows show in (data-models): all, its own, and its kind's small group when its
+    Text tab run is small."""
+    kind = "chat" if chat(setup) else "decision"
+    return f"all {kind}" + (f" small-{kind}" if site.in_group(run, f"small-{kind}") else "")
 
 
 def key_small(site: Site, key: str) -> bool:
-    """Whether a pws/bench.py setup key's model is in the small group (its results.json runs, as setup_name finds them)."""
+    """Whether a pws/bench.py chat setup key's model is in the small chat group (its results.json runs, as setup_name
+    finds them)."""
     model = setup_key(key)[0]
-    return any(site.in_group(run, "small") for run in site.runs if run["model"] == model)
+    return any(site.in_group(run, "small-chat") for run in site.runs if run["model"] == model)
 
 
 def chat_models(small: bool) -> str:
-    """data-models of a chat-only element: all and chat, and small when it concerns a small chat setup."""
-    return "all chat small" if small else "all chat"
+    """data-models of a chat-only element: all and chat, and small-chat when it concerns a small chat setup."""
+    return "all chat small-chat" if small else "all chat"
 
 
 # The models a CLI handed requests to, as the page names them (pws/bench.py's stand_in).
@@ -110,8 +113,8 @@ def cost_kind(setup: dict[str, Any]) -> str:
 
 
 def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
-    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat", plus "small" for a small
-    model setup) and chart label: its full name, with "chat" for a chat model, its interface where the setup names one
+    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat", plus "small-decision" or
+    "small-chat" for a small model setup) and chart label: its full name, with "chat" for a chat model, its interface where the setup names one
     (CLI, API: two rows of one model never
     read the same), its host where the setup names one (Baseten, our GPU), "with web" for a setup that searched where
     the name does not say so, and the requests another model answered (stand_in_words), so a mixed-model run never
@@ -257,7 +260,7 @@ def marks_legend(items: list[dict[str, Any]], striped: str) -> str:
         out += f' <span><i class="swatch swatch-web"></i>{striped}</span>'
     chats = [item for item in items if chat(item["setup"])]
     if chats:
-        marks = chat_models(any("small" in item["models"].split() for item in chats))
+        marks = chat_models(any("small-chat" in item["models"].split() for item in chats))
         out += (f" <span data-models=\"{marks}\">(chat): a chat model, asked each question in the benchmark's own words, its answer read from its "
                 "reply; the other rows are decision models.</span>")
     return out
@@ -607,9 +610,10 @@ def dont_know_item(items: list[dict[str, Any]], block: dict[str, Any], side: str
 
 
 def dont_know_marks(items: list[dict[str, Any]], block: dict[str, Any]) -> str:
-    """The view bar's groups of the “I don't know” runs: a decision model's, with small when its setup is small."""
-    small = "small" in dont_know_item(items, block, "off")["models"].split()
-    return f'data-models="all decision{" small" if small else ""}"'
+    """The view bar's groups of the “I don't know” runs: a decision model's, with small-decision when its setup is
+    small."""
+    small = "small-decision" in dont_know_item(items, block, "off")["models"].split()
+    return f'data-models="all decision{" small-decision" if small else ""}"'
 
 
 def count(value: float) -> str:
@@ -1109,9 +1113,11 @@ def build(site: Site) -> dict[str, str]:
     block = dont_know_block(data)
     idk_nav = f'<a href="#dont-know" {dont_know_marks(items, block)}>{esc(block["option"])}</a>' if block else ""
     small_only = bool(summary_cards(items, digits) or data.get("habits")
-                      or (block and "small" not in dont_know_marks(items, block)))
-    small_parts = small_note("Small models: the parts about decision models only are not split by size; they show under "
-                             "All models or Decision models.") if small_only else ""
+                      or (block and "small-decision" not in dont_know_marks(items, block)))
+    small_parts = (small_note("Small chat models: the parts about decision models only show under All models or Decision "
+                              "models.", ("small-chat",))
+                   + small_note("Small decision models: the parts about decision models only are not split by size; they "
+                                "show under All models or Decision models.", ("small-decision",))) if small_only else ""
     site.note(PATH, TITLE, f"""<p>PWS-Decisions is Parallel Web Systems' benchmark of {data['questions']} public English multiple-choice questions whose answers depend on dated facts on the public web. We asked {who} that an API still serves, {data['runs_per_setup']} runs each, one question per request. {"With web search: " + esc(joined(searched)) + "; every other setup answered without search." if searched else "Every setup answered without search."} This page is not part of the Turkish ranking.</p>
       {framing(data)}
       <p>{above} setups have a mean accuracy above the {pct(data['random_accuracy'], digits)} chance line (Parallel's random-guess baseline, not a run of ours); every accuracy here is the mean of our {data['runs_per_setup']} runs.</p>

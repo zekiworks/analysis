@@ -692,10 +692,11 @@ SIZES: dict[str, dict[str, Any]] = {
                                    "sources": ["https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash"], "read": READ},
     # Counted from the released BF16 checkpoint: language model 263,655,199,232 + multi-token prediction 2,231,912,448 +
     # vision 64,080,384 + audio 5,246,976. The card's "276B total, 12B active" is beside it; the checkpoint alone does not
-    # verify the active count, so it stays the card's.
-    "thinkingmachines/inkling-small": {"total": 265_956_439_040,
+    # verify the active count, so the active count is the card's (the three sites' Small models rule reads it, bus #3812).
+    "thinkingmachines/inkling-small": {"total": 265_956_439_040, "active": [12_000_000_000],
                                        "scope": "mixture of experts: language model + multi-token prediction layer + vision "
-                                                "and audio encoders; card: 276B total, 12B active",
+                                                "and audio encoders, counted; active per token as the card states it; card: "
+                                                "276B total, 12B active",
                                        "sources": ["counted from the checkpoint's safetensors, thinkingmachines/Inkling-Small@8cc5877",
                                                    "https://thinkingmachines.ai/model-card/inkling-small/",
                                                    "https://huggingface.co/thinkingmachines/Inkling-Small"], "read": READ},

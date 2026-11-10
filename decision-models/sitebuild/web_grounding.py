@@ -692,9 +692,9 @@ def build(site: Site) -> dict[str, str]:
     if not all(site.decision(site.by_id[run]) for run in data["text_runs"].values()):
         raise SystemExit("results.json web_grounding: a setup that is not a decision model, which the page shows for the "
                          "view bar's all and decision groups only")
-    if any(site.in_group(site.by_id[run], "small") for run in data["text_runs"].values()):
+    if any(site.small(site.by_id[run]) for run in data["text_runs"].values()):
         raise SystemExit("results.json web_grounding: a small model setup, which the page does not show for the view bar's "
-                         "small group yet")
+                         "small groups yet")
     digits = site.config["percent_digits"]
     upper = site.config["first_cost_marks"]["upper"]
     named = setups(site, data)
@@ -713,7 +713,8 @@ def build(site: Site) -> dict[str, str]:
       <p class="eyebrow">Experiment</p>
       <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
       {chat_note("Chat models: this page compares decision-model setups, so it shows under All models and Decision models. PWS-Decisions with chat models: its own page.")}
-      {small_note("Small models: this page compares setups of a model above the small models' size, so it shows under All models and Decision models. PWS-Decisions with small models: its own page.")}
+      {small_note("Small chat models: this page compares decision-model setups, so it shows under All models and Decision models. PWS-Decisions with small chat models: its own page.", ("small-chat",))}
+      {small_note("Small decision models: this page compares setups of a model above the small models' size, so it shows under All models and Decision models. PWS-Decisions with small decision models: its own page.", ("small-decision",))}
       <div {DECISION_ONLY}>
       <p>Perplexity's Decisions API without and with a web search per question.</p>
       {more_link(PATH)}

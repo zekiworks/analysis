@@ -7,8 +7,8 @@ english_reading.english_only, with no Text tab run); Both, Turkish and English a
 turkish-vs-english/ computes them (paired setups only). A row is a model ID, its kind (chat or decision model) and web
 search (a setup with web is its own row); a dated checkpoint joins its original's row only through page_config.json's
 leaderboard.dated_checkpoints. Every row carries its rank among all models, among its kind and, for a small model
-(Site.small), among the small models, so the filter (All · Chat models · Decision models · Small models, site.js) shows
-the ranks of the rows in view."""
+(Site.small), among the small models of its kind, so the filter (All · Chat models · Decision models · Small chat
+models · Small decision models, site.js) shows the ranks of the rows in view."""
 
 from __future__ import annotations
 
@@ -37,10 +37,12 @@ RULE = ("Row rule: each model's highest reasoning setting (none, off or the chat
 ROW_LINE = "One row per model at its highest reasoning setting, never its best score; tap or point at a row for its details."
 PARTS = (("english", "English"), ("turkish", "Turkish"), ("both", "Both"))
 DEFAULT_PART = "turkish"
-# Under Small models the Leaderboard shows the English part first (site.js): the small open models of 9 November
-# (project lead, bus #3446, #3475) ran in English only, so Turkish and Both hold none of them (Zeki #3805).
-SMALL_PART = "The small open models ran in English only, so Small models opens on English."
-FILTERS = (("all", "All"), ("chat", "Chat models"), ("decision", "Decision models"), ("small", "Small models"))
+# Under Small chat models the Leaderboard shows the English part first (site.js): the small open models of 9 November
+# (project lead, bus #3446, #3475) ran in English only, so Turkish and Both hold few of them (Zeki #3805). Small
+# decision models keeps the part in view.
+SMALL_PART = "The small open models ran in English only, so Small chat models opens on English."
+FILTERS = (("all", "All"), ("chat", "Chat models"), ("decision", "Decision models"),
+           ("small-chat", "Small chat models"), ("small-decision", "Small decision models"))
 DEFAULT_FILTER = "decision"
 TYPE_LABEL = {True: "decision model", False: "chat model"}
 
@@ -288,8 +290,10 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
         mine = [index for index, other in enumerate(kinds) if other == kind]
         for index, rank in zip(mine, ranks([(scored[index][3], kind) for index in mine])):
             by_kind[index] = rank
-    mine = [index for index, flag in enumerate(small) if flag]
-    by_small = dict(zip(mine, ranks([(scored[index][3], True) for index in mine])))
+    by_small = {}
+    for kind in (True, False):
+        mine = [index for index, flag in enumerate(small) if flag and kinds[index] == kind]
+        by_small.update(zip(mine, ranks([(scored[index][3], kind) for index in mine])))
     out = []
     for index, (item, others, cell, _) in enumerate(scored):
         run = run_of(item)
@@ -309,7 +313,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
         out.append(
             f'<tr data-kind="{kind}"{" data-small" if small[index] else ""} data-box="{box}"><td class="num rank" '
             f'data-rank-all="{every[index]}" data-rank-{kind}="{by_kind[index]}"'
-            f'{f" data-rank-small={chr(34)}{by_small[index]}{chr(34)}" if small[index] else ""}>{every[index]}</td><td class="model">'
+            f'{f" data-rank-small-{kind}={chr(34)}{by_small[index]}{chr(34)}" if small[index] else ""}>{every[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{family_icon(family["name"])}'
             f'<a class="model-name" href="{answers(item)}" title="{esc(name)}" aria-describedby="{box}">{esc(name)}</a>'
             f'{more}'
@@ -385,7 +389,9 @@ def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
                      for part, _ in PARTS)
     return (f'{controls}<div class="lb-models" data-lb-view="models">{panels}'
             f'<p class="table-note lb-rule">{esc(ROW_LINE)} <a href="{about}">How rows are chosen</a></p>'
-            f'<p class="table-note lb-small-line" data-lb-small hidden>{esc(site.small_line())} {esc(SMALL_PART)}</p></div>')
+            f'<p class="table-note lb-small-line" data-lb-small="small-chat" hidden>{esc(site.small_line("small-chat"))} '
+            f'{esc(SMALL_PART)}</p><p class="table-note lb-small-line" data-lb-small="small-decision" hidden>'
+            f'{esc(site.small_line("small-decision"))}</p></div>')
 
 
 def about_text(site: Site, origin: str) -> str:
@@ -398,9 +404,9 @@ def about_text(site: Site, origin: str) -> str:
                f"listed under another: {mapped}. The row shows the original; the checkpoint's setups sit under its other "
                "settings.</p>" if mapped else "")
             + "<p>Ranks show observed scores; small gaps need not be meaningful. # is the rank among the models in view: "
-            "All ranks every model; Chat models and Decision models rank within their kind; Small models ranks the "
-            f"models of at most {esc(billions(site.small_max))} parameters in total, as their makers disclose them, chat "
-            "and decision models together. Tied scores share a rank. Each row's details box gives its model's size and "
+            "All ranks every model; Chat models and Decision models rank within their kind; Small chat models and "
+            f"Small decision models rank the models of that kind of at most {esc(billions(site.small_max))} parameters, "
+            "total or active, as their makers disclose them. Tied scores share a rank. Each row's details box gives its model's size and "
             "the model page its source.</p>"
             "<p>Each bar runs from 0 to 100%; its whisker is the Wilson 95% interval of the accuracy, the interval each "
             "setup's page gives. The paired tests behind the full ranking's letters are on "

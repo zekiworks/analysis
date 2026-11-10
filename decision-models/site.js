@@ -88,15 +88,18 @@ const costSwitch = () =>
   });
 })();
 
-/* Every page: the model group, from ?models= (all, decision, chat or small; missing or unknown means all; trailing dots,
-   punctuation or spaces are dropped, so "all." reads as all). Each element whose data-models lists other groups only is
+/* Every page: the model group, from ?models= (all, decision, chat, small-chat or small-decision; missing or unknown
+   means all; trailing dots, punctuation or spaces are dropped, so "all." reads as all; the old small reads as
+   small-chat, so old links and bookmarks keep working). Each element whose data-models lists other groups only is
    hidden (and shown again when it lists this one), before the page's own scripts run; <html data-models-view> carries
    the group for them, and a page's group keys (.group-switch) mark it. A group asked for in the address stays in the
    links marked data-keep-group. The sticky header's height (the suite strip and the site's bar) is kept in
    --view-bar-h, so the page scrolls links and parts below it. */
-const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, '');
+const GROUP_KEYS = ['all', 'decision', 'chat', 'small-chat', 'small-decision'];
+const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
+  (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, ''));
 (function setupGroup() {
-  const asked = ['all', 'decision', 'chat', 'small'].includes(ASKED_GROUP) ? ASKED_GROUP : null;
+  const asked = GROUP_KEYS.includes(ASKED_GROUP) ? ASKED_GROUP : null;
   const group = asked ?? 'all';
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
@@ -223,11 +226,11 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
 })();
 
 /* Home page: the Leaderboard (sitebuild/leaderboard.py). Its controls, one row: the part (English, Turkish or Both,
-   Turkish first), the filter (All, Chat models, Decision models or Small models; Decision models unless ?models= asks
-   for another), local to the table, and All setups, which shows today's full ranking with its tabs (#all-setups,
-   v3.js) in place of the one-row-per-model table. A row outside the filter (its data-kind, or data-small for Small
-   models) and its other-setting rows go out of view (lb-off); the rank cell shows the row's rank among the rows in
-   view; under Small models its rule shows under the table (data-lb-small). Each row's expander shows or hides its other
+   Turkish first), the filter (All, Chat models, Decision models, Small chat models or Small decision models; Decision models
+   unless ?models= asks for another), local to the table, and All setups, which shows today's full ranking with its tabs
+   (#all-setups, v3.js) in place of the one-row-per-model table. A row outside the filter (its data-kind, and for a
+   small group data-small as well) and its other-setting rows go out of view (lb-off); the rank cell shows the row's
+   rank among the rows in view; under a small group its rule shows under the table (data-lb-small, the group's key). Each row's expander shows or hides its other
    setups. Old addresses keep working: #headline lands on the Leaderboard; #board, #all-setups, #cost-table and
    #chart-tradeoff open All setups first; on the home page itself, #info, whose summary and notes moved, and
    #how-scores, which moved, open About (MOVED; the About page has its own #leaderboard). Without JavaScript the
@@ -241,10 +244,11 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
     window.location.replace(MOVED[hash]);
     return;
   }
-  // Small models opens on English (leaderboard.py SMALL_PART): the small open models ran in English only.
+  // Small chat models opens on English (leaderboard.py SMALL_PART): the small open models ran in English only. Small
+  // decision models keeps the part in view.
   const state = {
-    part: ASKED_GROUP === 'small' ? 'english' : 'turkish',
-    filter: ['all', 'decision', 'chat', 'small'].includes(ASKED_GROUP) ? ASKED_GROUP : 'decision',
+    part: ASKED_GROUP === 'small-chat' ? 'english' : 'turkish',
+    filter: GROUP_KEYS.includes(ASKED_GROUP) ? ASKED_GROUP : 'decision',
     all: false,
   };
   const allPanel = document.getElementById('all-setups');
@@ -255,12 +259,14 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
     });
     board.querySelectorAll('button[data-lb-filter]').forEach(key => key.setAttribute('aria-pressed', String(key.dataset.lbFilter === state.filter)));
     board.querySelectorAll('tbody tr[data-kind]').forEach(row => {
-      const off = state.filter === 'small' ? !row.hasAttribute('data-small') : state.filter !== 'all' && row.dataset.kind !== state.filter;
+      const small = state.filter.startsWith('small-');
+      const kind = small ? state.filter.slice(6) : state.filter;
+      const off = (small && !row.hasAttribute('data-small')) || (kind !== 'all' && row.dataset.kind !== kind);
       row.classList.toggle('lb-off', off);
       const rank = row.querySelector('td.rank');
-      if (rank) rank.textContent = rank.dataset[`rank${state.filter[0].toUpperCase()}${state.filter.slice(1)}`] ?? '';
+      if (rank) rank.textContent = rank.dataset[`rank-${state.filter}`.replace(/-(\w)/g, (_, letter) => letter.toUpperCase())] ?? '';
     });
-    board.querySelectorAll('[data-lb-small]').forEach(line => { line.hidden = state.filter !== 'small'; });
+    board.querySelectorAll('[data-lb-small]').forEach(line => { line.hidden = line.dataset.lbSmall !== state.filter; });
     board.querySelector('[data-lb-all]')?.setAttribute('aria-pressed', String(state.all));
     board.classList.toggle('all-open', state.all);
     allPanel?.classList.toggle('is-open', state.all);
@@ -291,7 +297,7 @@ const ASKED_GROUP = (new URLSearchParams(window.location.search).get('models') ?
     if (key.dataset.lbPart) state.part = key.dataset.lbPart;
     else if (key.dataset.lbFilter) {
       state.filter = key.dataset.lbFilter;
-      if (state.filter === 'small') state.part = 'english';
+      if (state.filter === 'small-chat') state.part = 'english';
     } else if (key.hasAttribute('data-lb-all')) {
       openAll(!state.all);
       return;

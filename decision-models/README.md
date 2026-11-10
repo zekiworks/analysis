@@ -183,21 +183,24 @@ python3 -m http.server 8000                                # preview at http://1
     `experiments/`, `vision/`, `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
     `about/`, `method/` and `data/`. On a phone the tab row scrolls sideways, the current tab brought into view. No other
     navigation row sits under the suite strip; a page's own part links (`.face-nav`, as PWS-Decisions' steps) stay in
-    the page. **Model groups**: `?models=all|decision|chat|small` (all when missing; trailing dots, punctuation or spaces
-    are dropped, so `?models=all.` reads as all) still picks the group on every page that shows its parts by group
+    the page. **Model groups**: `?models=all|decision|chat|small-chat|small-decision` (all when missing; trailing dots,
+    punctuation or spaces are dropped, so `?models=all.` reads as all; the old `?models=small` reads as `small-chat`) still picks the group on every page that shows its parts by group
     (`data-models`; `site.js` shows each element only for its groups), and such a page carries its own group keys at
-    the top of its body (`group_switch`, All · Decision models · Chat models · Small models, in the page, not in the
-    top bar), with the Small models rule under them in the small view; on the Leaderboard it sets the table's filter.
-    **Small models** (`Site.small`, `v3.js` `isSmall`): one rule on the three sites (project lead through Zeki, bus
-    #3812-#3816), worded in `small_models.line`: every setup, chat or decision model, whose model's total parameter
-    count, or for a mixture of experts every active count (DeepSeek-V4.1-Flash's 8B prefill and 16B decode keep it
-    out), as its maker discloses it is at most `small_models.max_parameters` (15B); a model whose maker discloses no
-    size is never in it. `small_models.left_out_models` are never in it here: the six small setups only this site ran
-    (Laya, Laya multilingual, the two GLiNER2.5, Qwen3-14B, Erk-14B; Zeki #3805, #3818), named in the rule line and
-    shown under All. `small_models.also_by_name` holds a setup whose size record does not carry its maker's active count
+    the top of its body (`group_switch`, All · Decision models · Chat models · Small chat models · Small decision
+    models, in the page, not in the top bar), with the group's rule under them in a small view; on the Leaderboard it
+    sets the table's filter. **Small chat models** and **Small decision models** (`Site.small`, `Site.in_group`,
+    `v3.js` `isSmall`, `inGroup`; split by kind so the two never mix, project lead bus #3876, the three sites #3877-#3882):
+    one size rule on the three sites (project lead through Zeki, bus #3812-#3816), worded per group in
+    `small_models.groups` (`line`): a setup is small when its model's total parameter count, or for a mixture of experts
+    every active count (DeepSeek-V4.1-Flash's 8B prefill and 16B decode keep it out), as its maker discloses it is at
+    most `small_models.max_parameters` (15B); a model whose maker discloses no size never is. Small chat models holds the
+    small chat models, Small decision models the small decision models. `small_models.left_out_models` are never small
+    here: the six small setups only this site ran (Laya, Laya multilingual, GLiNER2.5-multi-Decide in the decision
+    group's sentence; GLiNER2.5 Multi (base), Qwen3-14B, Erk-14B in the chat group's; Zeki #3805, #3818), named in each
+    group's `left_out_text` and shown under All. `small_models.also_by_name` holds a setup whose size record does not carry its maker's active count
     yet (Inkling Small, 12B active on its card). A part that covers every decision model whatever its size (a Holm family,
-    a decision-model finding) is not split by size: under Small models a note (`small_note`) stands in its place, as
-    under Chat models. A group asked for in the address stays in the links marked
+    a decision-model finding) is not split by size: under both small groups a note (`small_note`) stands in its
+    place, as under Chat models. A group asked for in the address stays in the links marked
     `data-keep-group`. The footer of every page (`footer`): About · Method · Data · GitHub, the downloads and the
     results version. **Cost unit**: every cost reads per 1,000 questions or per
     1M questions, one choice for the whole site (the keys in each cost card's head, `cost_switch`; `site.js` keeps it in
@@ -419,10 +422,11 @@ python3 -m http.server 8000                                # preview at http://1
       setups on the 547 kept reading questions, from `english_reading`, with non-hallucination with "I don't know" and
       cost; Turkish, the default: the 2,198-question ranking, with reading, grammar, non-hallucination with
       "Bilmiyorum" and cost; Both: Turkish and English accuracy on the same questions, as `turkish-vs-english/`
-      computes them, ranked by Turkish), the filter (All · Chat models · Decision models · Small models, Decision models
-      by default, or the group `?models=` names; the rank column shows each row's rank among the rows in view, ties
-      sharing a rank; under Small models the rule's one line shows under the table, and choosing Small models, or
-      opening `?models=small`, shows the English part, as the small open models ran in English only) and All setups,
+      computes them, ranked by Turkish), the filter (All · Chat models · Decision models · Small chat models · Small
+      decision models, Decision models by default, or the group `?models=` names; the rank column shows each row's rank
+      among the rows in view, ties sharing a rank; under a small group its rule's line shows under the table; choosing
+      Small chat models, or opening `?models=small-chat` or `?models=small`, shows the English part, as the small open
+      models ran in English only; Small decision models keeps the part in view) and All setups,
       which shows today's full ranking in the table's place. Two lines of text: what the score means above the table
       and the row rule under it; the longer notes are on About.
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
@@ -716,7 +720,7 @@ vision encoder, scoring head), `parameters_source` (the maker's official pages, 
 `repo@revision` from its safetensors headers' logical tensor shapes, never quantized storage, scales or an adapter
 file alone; for an undisclosed size, every official page checked) and `parameters_read` (the date read). A size is
 never guessed from a name or taken from an open sibling of a hosted model. The records reach `results.json` per run
-and drive the details box, the model pages, Method's size table and the Small models view. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
+and drive the details box, the model pages, Method's size table and the small views. Prices live in `PRICES` in `runner/benchmark_ollama.py`:
 the export takes each run's price from the report, and stops when a paid or free-tier run has none or a
 price applies to another kind of run: a self-hosted run may only take its maker's list price for the same
 model (our hardware cost is not measured), and a free-tier run the list price of the model it called.

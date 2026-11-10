@@ -273,9 +273,16 @@ def setups_table(site: Site, snap: bp.Snapshot) -> str:
             f'<th scope="col">Why we included it</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
 
 
+def small_kind(site: Site, run: dict[str, Any]) -> str:
+    """A setup's mark in the sizes table: Small chat model, Small decision model or No (Site.small, Site.decision)."""
+    if not site.small(run):
+        return "No"
+    return "Small decision model" if site.decision(run) else "Small chat model"
+
+
 def sizes_table(site: Site) -> str:
     """Each model's size record (results.json parameters, active_parameters, effective_parameters, parameters_scope,
-    parameters_source, parameters_read), one row per model name, the Small models view's members marked, in the details
+    parameters_source, parameters_read), one row per model name, each marked Small chat model, Small decision model or No, in the details
     box's words (parameters_text)."""
     firsts: dict[str, dict[str, Any]] = {}
     for run in sorted(site.runs, key=lambda run: run["name"].casefold()):
@@ -289,11 +296,11 @@ def sizes_table(site: Site) -> str:
         f'<tr><th scope="row"><a href="{rel(PATH, site.model_path(run))}">{esc(name)}</a></th>'
         f'<td data-label="Parameters">{esc(parameters_text(run))}'
         + (f'<span class="small">{esc(run["parameters_scope"])}</span>' if run.get("parameters_scope") else "")
-        + f'</td><td data-label="Small models">{"Yes" if site.small(run) else "No"}</td>'
+        + f'</td><td data-label="Small">{small_kind(site, run)}</td>'
         f'<td data-label="Source">{sources(run)}<span class="small">read {bp.long_date(run["parameters_read"])}</span></td></tr>'
         for name, run in firsts.items())
     return ('<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>'
-            '<th scope="col">Parameters</th><th scope="col">Small models</th><th scope="col">Source</th></tr></thead>'
+            '<th scope="col">Parameters</th><th scope="col">Small</th><th scope="col">Source</th></tr></thead>'
             f"<tbody>{rows}</tbody></table></div>")
 
 
@@ -740,14 +747,15 @@ for each option.</p>
 {v['configs']} setups of {v['models']} models. Each name links to its setup's page; the results file keeps each identifier,
 server and hardware.</p>
 {setups_table(site, snap)}
-<h3 id="sizes">Model sizes and the Small models view</h3>
+<h3 id="sizes">Model sizes and the small views</h3>
 <p>Each model's size is its maker's figure for the released model or our count of the released checkpoint's tensors
 (logical shapes, never quantized storage), with what it covers and the checkpoint's revision; a mixture of experts has its
 total and the parameters active per token, and a model with per-layer embeddings its effective size where the maker
 states one. A model whose maker publishes no size reads "not disclosed by maker"; we never guess one from a name or from
 an open sibling. The details box of each Leaderboard row and each model page give the same wording.</p>
-<p>{esc(site.small_line())} A mixture of experts counts by its total. Small models holds chat and decision models
-together, ranked as one group.</p>
+<p>{esc(site.small_line("small-chat"))}</p>
+<p>{esc(site.small_line("small-decision"))}</p>
+<p>Each small view is ranked as its own group; chat and decision models never mix.</p>
 {sizes_table(site)}"""),
         ("sending", "What we sent and which settings we used", f"""
 <p>Each question went with its lettered options. Chat models were asked, in Turkish, for their answer's letter and, where

@@ -7,12 +7,12 @@ non-hallucination rate together); then the non-hallucination rate with the optio
 accuracy with the option against accuracy with five options, as HTML bars (Site hbars). The charts and the table (one row
 per model, from its first run, Answered and Wrong of answers first, ranked by non-hallucination rate, accuracy breaking
 ties; a model with more than one run shows the range over its runs) come once per group of the view bar (all, decision,
-chat, small; data-models, toggled by site.js; the all group shown without JavaScript; a row's group by Site.in_group of its
+chat, small-chat, small-decision; data-models, toggled by site.js; the all group shown without JavaScript; a row's group by Site.in_group of its
 Text tab run, group_models), each chart and the table with decision and chat models in blocks of their own, each its own
-ranking under its heading (holding_back.kinds: both under all and small), never one mixed list; each row's kind by its
+ranking under its heading (holding_back.kinds: both under all, else the group's kind), never one mixed list; each row's kind by its
 `group` field, which must be the Text tab's (Site.decision). The chat setups whose Turkish run with the option is still
 running are listed with their reason for each group they are in (running_setups). The parts about decision models only
-come for the all and decision groups (DECISION_ONLY), not split by size, the small group showing a note instead
+come for the all and decision groups (DECISION_ONLY), not split by size, each small group showing a note instead
 (small_note): the headline, the paired test against confidence, the English questions, the
 option's word, the hosted GLiDE rerun, the same number of answers (risk-coverage plots on the face, tables under Info)
 and the answers at 95%+ confidence, each from the decision models' rows. Under Info: the tables, What we found and Our
@@ -123,7 +123,7 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
 
 
 def table(site: Site, data: dict[str, Any], group: str) -> str:
-    """A group's copy of the table: a decision and a chat block (holding_back.kinds: both under all and small), each with
+    """A group's copy of the table: a decision and a chat block (holding_back.kinds: both under all, else the group's kind), each with
     its heading and its rows ranked (ranked)."""
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(direction)}</span></th>'
                    for name, direction in columns(data["option"]))
@@ -1820,15 +1820,15 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
 
 
 def chat_findings(site: Site, data: dict[str, Any], group: str) -> str:
-    """What we found about the chat models of a group (all: shown for the all and chat groups; small: the small setups
-    only, against the small decision models): how many setups have a run with the option, the range of their
+    """What we found about the chat models of a group (all: shown for the all and chat groups; small-chat: the small
+    chat setups only): how many setups have a run with the option, the range of their
     non-hallucination rates against the decision models', and how many are still running."""
     digits = site.config["percent_digits"]
     models = ranked(group_models(site, data, group))
     chat = [model for model in models if model["group"] == "chat" and model["non_hallucination"] is not None]
     decision = [model for model in models if model["group"] == "decision" and model["non_hallucination"] is not None]
     running = [run for run in running_setups(site) if not site.decision(run) and site.in_group(run, group)]
-    size = "small " if group == "small" else ""
+    size = "small " if group == "small-chat" else ""
     if not chat:
         return ""
     names = site.names([site.by_id[model["original_run"]] for model in data["models"]])
@@ -1899,8 +1899,10 @@ def build(site: Site) -> dict[str, str]:
               f"<p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data['option_en'])}”) "
               "instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its "
               f"numbers.</p><div {DECISION_ONLY}>{headline(decision, against)}</div>")
-    small = small_note("Small models: the parts about decision models only are not split by size; they show under All "
-                       "models or Decision models.")
+    small = (small_note("Small chat models: the parts about decision models only show under All models or Decision "
+                        "models.", ("small-chat",))
+             + small_note("Small decision models: the parts about decision models only are not split by size; they show "
+                          "under All models or Decision models.", ("small-decision",)))
     body = f"""    <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>
@@ -1931,7 +1933,7 @@ def build(site: Site) -> dict[str, str]:
     <section class="card" id="findings">
       <h2>What we found</h2>
       <div {DECISION_ONLY}>{findings(site, decision, against)}{same_finding(site, same, families) if same else ""}</div>
-      {chat_findings(site, data, "all")}{chat_findings(site, data, "small")}
+      {chat_findings(site, data, "all")}{chat_findings(site, data, "small-chat")}
     </section>
     <section class="card method-notes" id="method">
       <h2>Our method</h2>
