@@ -134,27 +134,42 @@
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
 })();
 
-/* Did they improve?: the results table's filter (Ümit/Zeki #3710): All, Chat models, Decision models, Small chat
-   models or Small decision models (Ümit #3876: rows of that group marked data-small="yes", the leaderboard's rule);
-   a Small key shows its definition under the keys; ?models= opens on a key (the old ?models=small: Small chat). */
+/* Did they improve?: the results table's filter (Ümit/Zeki #3710), the leaderboard's (bg.js headlineFilter): a type
+   row (All, Chat models, Decision models; rows' data-group) and a Size row (Ümit #4156; rows' data-size), combined; a
+   second click on a pressed key returns its row to All (Ümit #3923); a selected size shows its rule under the keys;
+   ?models=chat|decision and ?size=<class> open on them, the old ?models=small-chat / small-decision (small: Small
+   chat) on that type with Tiny and Small. */
 (function improveFilter() {
   const table = document.getElementById('improve-results-table');
   const keys = [...document.querySelectorAll('[data-improve-filter]')];
-  const notes = [...document.querySelectorAll('.improve-small-note')];
+  const sizeKeys = [...document.querySelectorAll('.improve-size [data-size-key]')];
+  const notes = [...document.querySelectorAll('[data-size-note]')];
   if (!table || !keys.length) return;
-  keys.forEach(k => k.addEventListener('click', () => {
-    // A second click on the pressed key undoes it: back to All (Ümit #3923).
-    const all = keys.find(x => x.dataset.improveFilter === 'all');
-    if (k !== all && k.getAttribute('aria-pressed') === 'true' && all) { all.click(); return; }
-    const type = k.dataset.improveFilter;
-    const small = type.startsWith('small-');
-    keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
+  let type = 'all', sizes = new Set();
+  const apply = () => {
+    keys.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.improveFilter === type)));
+    sizeKeys.forEach(x => x.setAttribute('aria-pressed', String(sizes.size ? sizes.has(x.dataset.sizeKey) : x.dataset.sizeKey === 'all')));
     table.querySelectorAll('tbody tr[data-group]').forEach(tr => {
-      tr.hidden = type !== 'all' && ((small && tr.dataset.small !== 'yes') || tr.dataset.group !== (small ? type.slice(6) : type));
+      tr.hidden = (type !== 'all' && tr.dataset.group !== type) || (sizes.size > 0 && !sizes.has(tr.dataset.size));
     });
-    notes.forEach(n => { n.hidden = n.dataset.smallNote !== type; });
+    notes.forEach(n => { n.hidden = !sizes.has(n.dataset.sizeNote); });
+  };
+  keys.forEach(k => k.addEventListener('click', () => {
+    const t = k.dataset.improveFilter;
+    type = t !== 'all' && t === type ? 'all' : t;
+    apply();
   }));
-  const asked = new URLSearchParams(location.search).get('models');
-  const start = keys.find(k => k.dataset.improveFilter === (asked === 'small' ? 'small-chat' : asked));
-  if (start) start.click();
+  sizeKeys.forEach(k => k.addEventListener('click', () => {
+    const s = k.dataset.sizeKey;
+    sizes = s === 'all' || k.getAttribute('aria-pressed') === 'true' ? new Set() : new Set([s]);
+    apply();
+  }));
+  const q = new URLSearchParams(location.search);
+  const asked = q.get('models') === 'small' ? 'small-chat' : q.get('models');
+  const small = asked && asked.startsWith('small-');
+  const t = small ? asked.slice(6) : asked;
+  if (keys.some(k => k.dataset.improveFilter === t)) type = t;
+  if (small) sizes = new Set(['tiny', 'small']);
+  if (sizeKeys.some(k => k.dataset.sizeKey === q.get('size') && q.get('size') !== 'all')) sizes = new Set([q.get('size')]);
+  if (type !== 'all' || sizes.size) apply();
 })();

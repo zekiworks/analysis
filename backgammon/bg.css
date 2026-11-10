@@ -362,14 +362,14 @@ button.key[aria-pressed="true"] { color: var(--tab-text); background: var(--tab-
   border: 2px solid var(--tab-edge); box-shadow: var(--key-inset); font-weight: 700; }
 button.key[aria-pressed="true"]::before { content: "\2713"; margin-right: .3rem; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
-  [data-filter-runs="all"], [data-filter-weights="all"]), .hl-filter button.key[aria-pressed="true"][data-hl-filter="all"] {
+  [data-filter-runs="all"], [data-filter-weights="all"]), .hl-filter button.key[aria-pressed="true"]:is([data-hl-filter="all"], [data-size-key="all"]) {
   color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); box-shadow: var(--key-shadow);
   font-weight: 700; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
   [data-filter-runs="all"], [data-filter-weights="all"]) { border-width: 1px; font-weight: 400; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
   [data-filter-runs="all"], [data-filter-weights="all"])::before,
-.hl-filter button.key[aria-pressed="true"][data-hl-filter="all"]::before { content: none; }
+.hl-filter button.key[aria-pressed="true"]:is([data-hl-filter="all"], [data-size-key="all"])::before { content: none; }
 /* The theme keys keep the sibling's look: a lit lamp says which theme is on. */
 .theme-switch button.key[aria-pressed="true"] { border-radius: 6px; }
 .theme-switch button.key[aria-pressed="true"]::before { content: none; }
@@ -438,6 +438,11 @@ table.headline td.model > .hl-tag { display: inline-block; margin: .1rem 0 0 .35
 tr.hl-sub td.model > .hl-tag { background: var(--panel); }
 .hl-filter { display: flex; flex-wrap: wrap; gap: .3rem; margin: .1rem 0 .2rem; }
 .hl-filter .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
+/* The Size row (Ümit #4156): its label before the keys; each model's size after its name, small grey text, which a
+   narrow cell wraps under the name. */
+.size-keys { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
+.size-keys-label { color: var(--text-2); font-size: .82rem; }
+.hl-size { display: inline-block; margin-left: .35rem; color: var(--text-2); font-size: .74rem; white-space: nowrap; }
 tr.hl-off { display: none !important; }
 table.headline tbody tr.hl-open > td, #improve-results-table tbody tr.hl-open > * { background: var(--row-hover); }
 /* The "Did they improve?" table's boxes sit in its sticky first column: the open row's cell above the other rows' (and
