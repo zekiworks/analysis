@@ -175,12 +175,14 @@ python3 -m http.server 8000                                # preview at http://1
     `data-theme` ("light" or "dark") so it matches the page.
   - **Top bar** (`topbar` in `sitebuild/site.py`, under the suite strip in the one sticky header `.site-header` on
     every page, as on the Backgammon site; `--view-bar-h` is the header's height, kept by `site.js`): the Hilde leaf
-    (`hilde-leaf.svg`) and the site's name, "Reading bench" (`SITE_NAME`), linking the Leaderboard, with the Dark /
-    Light switch at the right; under them one row of five tabs (`TABS`): Leaderboard (the home page), Questions,
-    Highlights, Experiments and About. The tab a page sits under (`tab_of`, `SECTION`) is underlined in the accent
-    colour: Leaderboard for the home page, `english/`, `turkish-vs-english/` and `models/*`; Questions for
-    `questions/`, `question/`, `disagreements/`, `topics/` and `compare/`; Highlights for `highlights/`; Experiments for
-    `experiments/`, `vision/`, `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
+    (`hilde-leaf.svg`) and the site's name, "Reading bench" (`SITE_NAME`), linking the home page, with the Dark /
+    Light switch at the right; under them one row of six tabs (`TABS`), starting "Text · Vision" as on the other two
+    benchmark sites (project lead through Zeki, bus #4039; agreed #4042-#4049): Text (the home page, with the
+    Leaderboard), Vision (`vision/`, the Page images board), Questions, Highlights, Experiments and About. The tab a page
+    sits under (`tab_of`, `SECTION`) is underlined in the accent colour: Text for the home page, `english/`,
+    `turkish-vs-english/` and `models/*`; Vision for `vision/`; Questions for `questions/`, `question/`,
+    `disagreements/`, `topics/` and `compare/`; Highlights for `highlights/`; Experiments for `experiments/`,
+    `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
     `about/`, `method/` and `data/`. On a phone the tab row scrolls sideways, the current tab brought into view. No other
     navigation row sits under the suite strip; a page's own part links (`.face-nav`, as PWS-Decisions' steps) stay in
     the page. **Model groups**: `?models=all|decision|chat|small-chat|small-decision` (all when missing; trailing dots,

@@ -1,7 +1,8 @@
 """The Experiments tab (experiments/): one card for each test beside the ranking, each with one line on what it measures
-and a status label from the data: Page images (vision.json), Hallucination (results.json dont_know and the chat setups
-still running), Web grounding (web-grounding.json), PWS-Decisions (pws-decisions.json, with its setups still waiting)
-and the Artificial Analysis comparison (page_config.json aa_decision_index). The pages themselves are unchanged."""
+and a status label from the data: Hallucination (results.json dont_know and the chat setups still running), Web
+grounding (web-grounding.json), PWS-Decisions (pws-decisions.json, with its setups still waiting) and the Artificial
+Analysis comparison (page_config.json aa_decision_index). Page images is the top bar's Vision tab. The pages themselves
+are unchanged."""
 
 from __future__ import annotations
 
@@ -21,14 +22,8 @@ def plural(count: int, noun: str) -> str:
 
 
 def cards(site: Site) -> list[tuple[str, str, str, str]]:
-    """(path, title, what it measures, status) of each experiment."""
+    """(path, title, what it measures, status) of each experiment. Page images is the Vision tab of the top bar, not one."""
     found = []
-    vision = site.vision
-    skipped = len(vision.get("skipped") or [])
-    found.append(("vision/", "Page images",
-                  "Questions that point at underlined or numbered words, answered from the text, a picture of the page, both, "
-                  "or an OCR model's reading.",
-                  f"Done: {plural(len(vision['models']), 'model')}" + (f" · {bp.count(skipped)} not run" if skipped else "")))
     idk = site.results["dont_know"]
     running = running_setups(site)
     not_run = len(site.config["dont_know"].get("not_run") or [])
