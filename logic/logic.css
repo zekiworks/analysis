@@ -191,6 +191,12 @@ main > .card h1, .hero-card h1 { font-size: clamp(1.05rem, 1.6vw, 1.35rem); line
 .lb-keys { display: flex; flex-wrap: wrap; gap: .25rem; }
 .lb-keys .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
 .lb-keys .key[aria-pressed="true"] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
+/* The front page's Measure keys: Accuracy is this leaderboard (a pressed key), the others are links to the test pages
+   drawn as keys (zeki #4154). */
+.lb-measures { margin: 0 0 .45rem; }
+.lb-keys a.key { display: inline-flex; align-items: center; color: var(--text); text-decoration: none; background: var(--key);
+  border: 1px solid var(--control-edge); border-radius: 6px; box-shadow: var(--key-shadow); line-height: 1.2; }
+.lb-keys a.key:hover { border-color: var(--text-2); }
 .lb-line { margin: .2rem 0 .45rem; color: var(--text-2); font-size: .86rem; max-width: 62rem; }
 .lb-rule { margin-top: .5rem; }
 .lb-provisional { margin: 0 0 .45rem; font-size: .84rem; }
@@ -248,6 +254,8 @@ table.lb-table .lb-wide { display: none; }
   .lb-keys { flex: none; flex-wrap: nowrap; }
   .lb-keys + .lb-keys { padding-left: .45rem; border-left: 1px solid var(--edge); }
   .lb-keys .key { min-height: 1.7rem; padding: .1rem .45rem; font-size: .76rem; white-space: nowrap; }
+  .lb-keys.lb-measures { overflow-x: auto; scrollbar-width: none; margin: 0 -.75rem .45rem; padding: 0 .75rem; }
+  .lb-keys.lb-measures::-webkit-scrollbar { display: none; }
   table.board.lb-table { table-layout: auto; width: 100%; }
   table.board.lb-table td.model { min-width: 0; white-space: normal; }
   table.board.lb-table td.lb-score { width: 38%; min-width: 6.5rem; }
