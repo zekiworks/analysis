@@ -12923,13 +12923,78 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-knowline-31b_en_dontknow"><h3>Math · knowline-31b_en_dontknow</h3><dl class="facts"><dt>Setup</dt><dd>KnowLine 31B Gen1.5 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>PelaAI/KnowLine-31B-Gen1.5</code> · provider knowline</dd><dt>GPU</dt><dd>1× DGX Spark (GB10)</dd><dt>Cost</dt><dd>not measured</dd><dt>Answer time</dt><dd>run knowline-31b_en_dontknow · first answer 2026-11-10 16:36:52 UTC · last answer 2026-11-10 17:07:39 UTC · span 1847.0 s, pauses included (not charged) · charged 1847.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 31B dense · source <a href="https://huggingface.co/PelaAI/KnowLine-31B-Gen1.5">https://huggingface.co/PelaAI/KnowLine-31B-Gen1.5</a> · read 2026-11-10 · the card states about 31B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 31.27B (counted from the checkpoint (31,273,088,876: language model 30,697,345,340, vision tower 575,743,536); a fine-tune of Gemma 4 31B IT; the card: about 31B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19360</code></dd><dt>Started</dt><dd>10 Nov 2026 16:36 UTC; last answer 10 Nov 2026 17:07 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup KnowLine 31B Gen1.5 (site run None); runner 9ba1b409d; PelaAI/KnowLine-31B-Gen1.5@8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140 (Apache-2.0 weights, MIT code; Gemma 4 31B IT fine-tune, readout temperature folded into the weights) behind the card&#x27;s serve_knowline.sh: SGLang 0.5.21 (BF16, --enable-fp32-lm-head) on port+1000 and the repository&#x27;s knowline_server.py front end (read twice for prompts up to 3,000 tokens): cd ~/decision-models/KnowLine-31B-Gen1.5@8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140 &amp;&amp; PATH=~/envs/knowline-sglang/bin:$PATH HOST=0.0.0.0 bash serve_knowline.sh ~/decision-models/KnowLine-31B-Gen1.5@8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140 0 19360 (MEM default 0.85), env ~/envs/knowline-sglang (sglang==0.5.21, transformers==5.12.1, torch 2.13.0+cu130); vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19360; spark2 (DGX Spark, GB10); runner provider &#x27;knowline&#x27; (System One at /v1/systemone; model field ignored)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;PelaAI/KnowLine-31B-Gen1.5&quot;,
+    &quot;--provider&quot;,
+    &quot;knowline&quot;,
+    &quot;--timeout&quot;,
+    &quot;120&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;3b14502cefed852b2c6ac3a9139c7574549374b6&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;PelaAI/KnowLine-31B-Gen1.5&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;knowline&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 1831.6187651634682,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;a65ada6f4fc771409f2c4eae96635b3ae32d3861c3a8bf8433f5d2c7eed47ffe&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;9ba1b409d68af1a8b3c846f54993e438b9db212a&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 120.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 1068267,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19360/v1/systemone
+{
+ &quot;model&quot;: &quot;PelaAI/KnowLine-31B-Gen1.5&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <nav class="footer-links" aria-label="About this site"><a href="../about/">About</a><a href="../method/">Method</a><a href="../about/#data">Data</a></nav>
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 10 Nov 2026 16:48 UTC from the logic and math benchmark.db files (338,601 graded answers in 217 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 10 Nov 2026 17:08 UTC from the logic and math benchmark.db files (340,764 graded answers in 218 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
