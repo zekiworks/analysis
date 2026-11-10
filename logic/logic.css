@@ -248,17 +248,23 @@ table.lb-table .lb-wide { display: none; }
   .readouts { gap: .2rem 0; }
   .hero-links a { min-height: 2rem; padding: .2rem .6rem; font-size: .88rem; }
   .readout { margin-right: .5rem; padding-right: .5rem; }
-  /* The keys in one row that scrolls sideways inside the card (as the tab row), the three groups apart by a thin line. */
-  .lb-controls { flex-wrap: nowrap; gap: .45rem; overflow-x: auto; scrollbar-width: none; margin: 0 -.75rem .5rem; padding: 0 .75rem; }
-  .lb-controls::-webkit-scrollbar { display: none; }
-  .lb-keys { flex: none; flex-wrap: nowrap; }
-  .lb-keys + .lb-keys { padding-left: .45rem; border-left: 1px solid var(--edge); }
+  /* The key rows wrap onto more lines rather than scroll sideways, so no key is cut off at the edge (zeki #4177; Ümit
+     #4163 asked the same of the tab bar). Each group stays on its own line(s). */
+  .lb-controls { flex-direction: column; gap: .35rem; }
+  .lb-keys { flex-wrap: wrap; }
   .lb-keys .key { min-height: 1.7rem; padding: .1rem .45rem; font-size: .76rem; white-space: nowrap; }
-  .lb-keys.lb-measures { overflow-x: auto; scrollbar-width: none; margin: 0 -.75rem .45rem; padding: 0 .75rem; }
-  .lb-keys.lb-measures::-webkit-scrollbar { display: none; }
+  .lb-keys.lb-measures { margin: 0 0 .45rem; }
   table.board.lb-table { table-layout: auto; width: 100%; }
   table.board.lb-table td.model { min-width: 0; white-space: normal; }
   table.board.lb-table td.lb-score { width: 38%; min-width: 6.5rem; }
   table.board.lb-table th:first-child, table.board.lb-table td:first-child { width: 1.6rem; min-width: 0; padding-left: .15rem; padding-right: .25rem; }
   .hl-val .small { display: block; margin-left: 0; }
 }
+
+/* The Vision tab: the language line, the averages under the heading and the closed method block. */
+.vision-lang { margin: .2rem 0 .6rem; }
+.vision-gaps { margin: .4rem 0 .3rem; padding-left: 1.1rem; }
+.vision-gaps li { margin: .2rem 0; }
+.vision-method > summary { cursor: pointer; font-weight: 650; }
+.vision-method[open] > summary { margin-bottom: .5rem; }
+.chart-card .table-wrap { margin-top: .8rem; }
