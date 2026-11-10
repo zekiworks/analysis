@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-10T12:08:03Z",
+ "updated": "2026-11-10T12:45:13Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -1121,6 +1121,32 @@
     "math:metask_en_dontknow"
    ],
    "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": "fastino/GLiDE-2B",
+   "commit": "00f122c120cdeed82284106cb77d9bab5a50ad16",
+   "name": "GLiDE 2B",
+   "maker": "Fastino",
+   "kind": "decision",
+   "params_total": 1.88,
+   "params_active": 1.88,
+   "quantization": "BF16",
+   "score_0_100": 19.02372262773722,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.3521897810218978,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.1683616191457715,
+   "improvement_points": null,
+   "runs": [
+    "logic:glide-2b_en",
+    "math:glide-2b_en",
+    "logic:glide-2b_en_dontknow",
+    "math:glide-2b_en_dontknow"
+   ],
+   "notes": "run on our hardware (DGX Spark (GB10))"
   },
   {
    "repo": "LiquidAI/d1-2B",
