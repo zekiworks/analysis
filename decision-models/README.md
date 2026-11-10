@@ -190,7 +190,7 @@ python3 -m http.server 8000                                # preview at http://1
     (`data-models`; `site.js` shows each element only for its groups), and such a page carries its own group keys at
     the top of its body (`group_switch`, All · Decision models · Chat models · Small chat models · Small decision
     models, in the page, not in the top bar), with the group's rule under them in a small view; on the Leaderboard it
-    sets the table's filter. **Small chat models** and **Small decision models** (`Site.small`, `Site.in_group`,
+    sets the type and size keys (below). **Small chat models** and **Small decision models** (`Site.small`, `Site.in_group`,
     `v3.js` `isSmall`, `inGroup`; split by kind so the two never mix, project lead bus #3876, the three sites #3877-#3882):
     one size rule on the three sites (project lead through Zeki, bus #3812-#3816), worded per group in
     `small_models.groups` (`line`): a setup is small when its model's total parameter count, or for a mixture of experts
@@ -422,18 +422,29 @@ python3 -m http.server 8000                                # preview at http://1
       holds; Ümit #4183, as on the other two sites; the same words on the model page and Method's sizes table), its accuracy
       with the interval, reading and grammar, non-hallucination with "Bilmiyorum", the answers kept at 99% confidence
       (decision models), the cost with its basis and the request size, and "Open its answers →" (its model page), each
-      line only where the data has it. The size shows only there and on the model page (with what it covers, its
-      source and the date read), never beside the name. **Controls**, one row (`site.js` `leaderboard`): the part (English: the English
-      setups on the 547 kept reading questions, from `english_reading`, with non-hallucination with "I don't know" and
-      cost; Turkish, the default: the 2,198-question ranking, with reading, grammar, non-hallucination with
-      "Bilmiyorum" and cost; Both: Turkish and English accuracy on the same questions, as `turkish-vs-english/`
-      computes them, ranked by Turkish), the filter (All · Chat models · Decision models · Small chat models · Small
-      decision models, Decision models by default, or the group `?models=` names; the rank column shows each row's rank
-      among the rows in view, ties sharing a rank; under a small group its rule's line shows under the table; choosing
-      Small chat models, or opening `?models=small-chat` or `?models=small`, shows the English part, as the small open
-      models ran in English only; Small decision models keeps the part in view) and All setups,
-      which shows today's full ranking in the table's place. Two lines of text: what the score means above the table
-      and the row rule under it; the longer notes are on About.
+      line only where the data has it. The size shows there and on the model page (with what it covers, its
+      source and the date read), and in short beside the name. **Controls** (`site.js` `leaderboard`): the part (Ümit
+      #4181: Turkish, the default: the 2,198-question ranking, with reading, grammar, non-hallucination with
+      "Bilmiyorum" and cost; Turkish reading and Turkish grammar: the same rows ranked on the 656 reading or the 1,542
+      grammar questions, with that accuracy and its 95% interval, then the whole Turkish accuracy and the other group;
+      English reading: the English setups on the 547 kept reading questions, from `english_reading`, with
+      non-hallucination with "I don't know" and cost; Both: Turkish and English accuracy on the same questions, as
+      `turkish-vs-english/` computes them, ranked by Turkish), the type (All · Chat models · Decision models, Decision models by default, or
+      the group `?models=` names) and All setups, which shows today's full ranking in the table's place; then the Size
+      keys on a row of their own (Size: All · Tiny · Small · Medium · Large · Undisclosed, Ümit #4156, combined with the
+      type; `page_config.json` `size_classes`, `Site.size_class`: by the smaller of the model's total and active
+      parameters as its size record gives them, Tiny below 6B, Small 6B to 15B, Medium above 15B up to 40B, Large above
+      40B, Undisclosed when the maker discloses no size; `small_models.left_out_models` in no class, under Size: All
+      only; the build stops unless Tiny and Small together hold exactly the small views' setups). The old addresses
+      `?models=small-chat` (and `small`) and `?models=small-decision` press Tiny and Small with Chat models or Decision
+      models, `small-chat` on the English reading part as before. Each row shows its model's size beside its name
+      (`size_label`, the format agreed with Logic & Math, #4192: one decimal unless the maker's whole figure, with the
+      architecture: "26.1B dense", "552B MoE · 8B to 16B active", "753.3B MoE", "8.0B dense · 4.5B effective",
+      "undisclosed"). The # column numbers the rows in view: on the Turkish part their
+      tier (a row joins the tier of the tier's top row when they share a tie-group letter of the full ranking's
+      all-pairs test, else it starts the next tier; a thin line between tiers), on the other parts, which no all-pairs
+      test covers, their rank, ties sharing a rank. Lines of text: what the score means above the table, what # shows,
+      the row rule and, while a size is chosen, the size rule under it; the longer notes are on About.
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
       then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
       `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;

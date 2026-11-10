@@ -321,6 +321,13 @@ tr.lb-sub > td { background: var(--sunk); }
 tr.lb-sub td.model { padding-left: 1.4rem; }
 tr.lb-off { display: none !important; }
 .lb-rule { margin: .5rem 0 0; }
+/* The Size keys' row under the other keys (Ümit #4156), its "Size:" label as the keys' text; a model's size beside its
+   name, under it below 640 px; a thin line above the first row of each tier after the first (site.js lb-tier-start). */
+.lb-controls.lb-size-keys { margin-top: -.25rem; }
+.lb-keys-label { align-self: center; margin-right: .15rem; color: var(--text-2); font-size: .82rem; }
+.lb-size { margin-left: .4rem; color: var(--text-2); font-size: .74rem; font-weight: 400; white-space: nowrap; }
+.lb-table tbody tr.lb-tier-start > td { box-shadow: inset 0 1px 0 var(--control-edge); }
+.lb-size-line, .lb-numbers { margin: .4rem 0 0; }
 /* A row's details box (site.js): every value of the setup, a line per kind; in its row without the script, else over
    the page under its row (fixed to the window, within its width), opened by a tap, hover or the focus. */
 .lb-box { margin: .35rem 0 0; color: var(--text); font-size: .82rem; font-weight: 400; line-height: 1.4; white-space: normal; }
@@ -345,6 +352,7 @@ tr.lb-off { display: none !important; }
 .js .lb-all-setups:not(.is-open) { display: none; }
 .js .leaderboard.all-open .lb-models { display: none; }
 .js .leaderboard.all-open .lb-controls [role="group"] { display: none; }
+.js .leaderboard.all-open .lb-size-keys { display: none; }
 .all-setups-title { margin: .2rem 0 .6rem; font-size: 1.05rem; }
 .lb-all-setups > .chart-card { margin: 1.25rem 0 0; padding-top: 1rem; border-top: 1px solid var(--edge); }
 .how-scores { min-width: 0; margin: 0 0 1rem; }
@@ -938,6 +946,8 @@ ul.price-list { padding-left: 1.25rem; }
   .lb-table td.model { min-width: 6.5rem; max-width: 8.5rem; }
   .lb-table td.model .lb-dot { width: .55rem; height: .55rem; margin-right: .2rem; }
   .lb-table td.model svg.fam-icon { width: 12px; height: 12px; margin-right: .2rem; }
+  .lb-size { display: block; margin-left: 0; font-size: .62rem; white-space: normal; }
+  .lb-table tbody tr.lb-tier-start > td:nth-child(2) { box-shadow: inset 0 1px 0 var(--control-edge), 1px 0 0 var(--edge); }
   .readout-row { padding: .3rem 0; margin-bottom: .45rem; }
   .readouts { row-gap: .2rem; }
   .readout { gap: .2rem; margin-right: .4rem; padding-right: .4rem; white-space: nowrap; }

@@ -1,14 +1,17 @@
 """The Leaderboard (the home page's table, #leaderboard), as on the Backgammon site: one row per model at its highest
 reasoning setting, a fixed rule and never the best score, with each row's other setups behind an expander and every
-value of a row and of its details box from its one setup. Three parts, one table each, switched above the table
-(site.js): Turkish, the 2,198-question ranking (results.json runs); English, the English setups on the kept reading
+value of a row and of its details box from its one setup. Five parts, one table each, switched above the table
+(site.js; Ümit #4181): Turkish, the 2,198-question ranking (results.json runs); Turkish reading and Turkish grammar, the
+same rows ranked on their reading or grammar questions; English reading, the English setups on the kept reading
 questions (english_reading.models, each with its Text tab run's settings, and the English-only setups,
 english_reading.english_only, with no Text tab run); Both, Turkish and English accuracy on those same questions, as
 turkish-vs-english/ computes them (paired setups only). A row is a model ID, its kind (chat or decision model) and web
 search (a setup with web is its own row); a dated checkpoint joins its original's row only through page_config.json's
-leaderboard.dated_checkpoints. Every row carries its rank among all models, among its kind and, for a small model
-(Site.small), among the small models of its kind, so the filter (All · Chat models · Decision models · Small chat
-models · Small decision models, site.js) shows the ranks of the rows in view."""
+leaderboard.dated_checkpoints. Two key rows filter the rows (site.js): the type (All · Chat models · Decision models) and
+the size (Size: All · Tiny · Small · Medium · Large · Undisclosed, Site.size_class; Ümit #4156, a preview), combined.
+Each row carries its kind, its size class and its score; on the Turkish part also its tie-group letters (results.json
+runs' group), so the # column shows each row's tier among the rows in view (tiers()); the other parts, which no
+all-pairs test covers, show the rank."""
 
 from __future__ import annotations
 
@@ -17,8 +20,8 @@ from typing import Any
 import benchmark_metrics as bm
 import build_page as bp
 from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run)
-from sitebuild.site import (NOT_MEASURED, Site, billions, cost_missing, cost_per, cost_value, esc, family_icon,
-                            parameters_text, pct, rel)
+from sitebuild.site import (NOT_MEASURED, Site, architecture, billions, cost_missing, cost_per, cost_value, esc,
+                            family_icon, parameters_text, pct, rel)
 
 # The reasoning settings in order, as the requests sent them: none and off (and a setup without a setting, or a chat
 # template's default, vllm-plain's "default") lowest; "on" is the setting of a model with thinking on or off only, above
@@ -35,16 +38,25 @@ RULE = ("Row rule: each model's highest reasoning setting (none, off or the chat
         "names are separate rows; a dated checkpoint joins another model's row only through the map below, never by a "
         "similar name.")
 ROW_LINE = "One row per model at its highest reasoning setting, never its best score; tap or point at a row for its details."
-PARTS = (("english", "English"), ("turkish", "Turkish"), ("both", "Both"))
+# The parts (Ümit #4181): Turkish, all 2,198 questions (the default, and the only part with the all-pairs test, so the
+# only one with tiers); Turkish reading and Turkish grammar, the same rows ranked on their reading or grammar questions;
+# English reading, the 547 kept reading questions in English; Both, Turkish and English on those 547.
+PARTS = (("turkish", "Turkish"), ("turkish-reading", "Turkish reading"), ("turkish-grammar", "Turkish grammar"),
+         ("english", "English reading"), ("both", "Both"))
 DEFAULT_PART = "turkish"
-# Under Small chat models the Leaderboard shows the English part first (site.js): the small open models of 9 November
-# (project lead, bus #3446, #3475) ran in English only, so Turkish and Both hold few of them (Zeki #3805). Small
-# decision models keeps the part in view.
-SMALL_PART = "The small open models ran in English only, so Small chat models opens on English."
-FILTERS = (("all", "All"), ("chat", "Chat models"), ("decision", "Decision models"),
-           ("small-chat", "Small chat models"), ("small-decision", "Small decision models"))
-DEFAULT_FILTER = "decision"
+# The type keys and the size keys (page_config.json size_classes, Site.size_classes; Ümit #4156): one of each pressed,
+# All when none; the old addresses ?models=small-chat, small-decision and small press Tiny and Small together (site.js).
+TYPES = (("all", "All"), ("chat", "Chat models"), ("decision", "Decision models"))
+DEFAULT_TYPE = "decision"
 TYPE_LABEL = {True: "decision model", False: "chat model"}
+# The # column's line under each part's table: the Turkish part's tiers, the other parts' ranks.
+TIER_LINE = ("# is the tier among the rows in view: ranked by accuracy, a row joins the tier of the tier's top row when "
+             "the all-pairs test behind the Accuracy section's letters ({pairs} pairs, exact McNemar, Holm-corrected, "
+             "5%) found no difference between them, else it starts the next tier; a line separates tiers. Rows in one "
+             "tier need not be equal.")
+RANK_LINE = ("# is the rank among the rows in view; tied scores share a rank. No test compares the models on the "
+             "{part} part, so it has no tiers.")
+EMPTY_LINE = "No row of this part matches these keys. The small open chat models ran in English only."
 
 
 def level(setting: str | None) -> int:
@@ -105,9 +117,49 @@ def share(run: dict[str, Any], part: str) -> float:
     return run["groups"][part]["correct"] / run["groups"][part]["questions"]
 
 
-def ranks(entries: list[tuple[int, bool]]) -> list[int]:
-    """Each entry's rank (score, kind) among all entries: 1 + the number with a higher score; ties share a rank."""
-    return [1 + sum(other > score for other, _ in entries) for score, _ in entries]
+def ranks(scores: list[int]) -> list[int]:
+    """Each score's rank among all: 1 + the number of higher scores; ties share a rank."""
+    return [1 + sum(other > score for other in scores) for score in scores]
+
+
+def tiers(letters: list[str | None]) -> list[int]:
+    """Each row's tier, the rows in rank order (Ümit #4156): the first row starts tier 1; a row joins the current tier
+    when it shares a tie-group letter with that tier's top row (the all-pairs test found no difference between them,
+    bp.shares_letter), else it starts the next tier and becomes its top row. site.js does the same for the rows in
+    view."""
+    out: list[int] = []
+    top: str | None = None
+    for group in letters:
+        if out and bp.shares_letter(group, top):
+            out.append(out[-1])
+        else:
+            top = group
+            out.append(out[-1] + 1 if out else 1)
+    return out
+
+
+def label_count(value: int) -> str:
+    """A count in the size label (the format agreed with the Logic & Math site, #4192): one decimal ("26.1B", "8.0B"),
+    none for a whole count as the maker states it ("552B", "3B"); below a billion as billions() writes it ("395M")."""
+    if value < 1e9 or value % (1e12 if value >= 1e12 else 1e9) == 0:
+        return billions(value)
+    return f"{value / 1e12:.1f}T" if value >= 1e12 else f"{value / 1e9:.1f}B"
+
+
+def size_label(run: dict[str, Any]) -> str:
+    """The size beside a row's name (#4192): the total and the architecture (Site.architecture): "26.1B dense",
+    "35.1B MoE · 3B active", "552B MoE · 8B to 16B active", "753.3B MoE" (active not disclosed), "8.0B dense · 4.5B
+    effective", the bare total where the architecture is not known, or "undisclosed" with no number."""
+    total = run.get("parameters")
+    if total is None:
+        return "undisclosed"
+    kind = architecture(run)
+    text = label_count(total) + (f" {kind}" if kind else "")
+    if run.get("active_parameters"):
+        return f"{text} · {' to '.join(map(label_count, run['active_parameters']))} active"
+    if run.get("effective_parameters"):
+        return f"{text} · {label_count(run['effective_parameters'])} effective"
+    return text
 
 
 def name_of(site: Site, run: dict[str, Any]) -> str:
@@ -175,10 +227,17 @@ def details(site: Site, run: dict[str, Any], box: str, lines: list[str | None], 
             + "".join(f"<p>{line}</p>" for line in body if line) + "</div>")
 
 
-def turkish(site: Site, board: Board) -> tuple[list[str], list[str], int]:
-    """The Turkish part: the head cells, the body rows and the number of model rows."""
+def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[str], list[str], int]:
+    """The Turkish part (group None: all questions, ranked in tiers) or the Turkish reading or Turkish grammar part
+    (group "reading" or "grammar": the same rows, ranked on that group's questions, with its accuracy and 95% interval;
+    no all-pairs test covers them, so # is the rank; Ümit #4181): the head cells, the body rows and the number of model
+    rows."""
     total, digits = board.total, site.config["percent_digits"]
     sure = pct(site.config["threshold"], 0)
+    other = {"reading": "grammar", "grammar": "reading"}.get(group or "")
+
+    def counts(run: dict[str, Any]) -> tuple[int, int]:
+        return accuracy(run) if group is None else (run["groups"][group]["correct"], run["groups"][group]["questions"])
 
     def facts(run: dict[str, Any]) -> tuple[list[str | None], list[str]]:
         correct, questions = accuracy(run)
@@ -187,6 +246,7 @@ def turkish(site: Site, board: Board) -> tuple[list[str], list[str], int]:
         kept = (run.get("confidence") or {}).get("sure") if site.decision(run) else None
         value = bp.per_thousand(run)
         lines = [
+            (f"Turkish {group} {pct(counts(run)[0] / counts(run)[1])} {interval(*counts(run))}" if group else None),
             f"Accuracy {pct(correct / questions)} {interval(correct, questions)}",
             f"Reading {pct(share(run, 'reading'))} · grammar {pct(share(run, 'grammar'))}",
             f"Non-hallucination with \u201c{esc(board.option)}\u201d: {rate}" if rate else None,
@@ -202,20 +262,24 @@ def turkish(site: Site, board: Board) -> tuple[list[str], list[str], int]:
         mark = f'{site.config["first_cost_marks"]["upper"]["mark"]} ' if run.get("cost_upper_bound") else ""
         cost = (cost_missing(run) if value is None else
                 f'{cost_value(value, mark)}<span class="small">{esc(BASIS_WORDS[run["cost_basis"]])}</span>')
-        cells = [pct(share(run, "reading")), pct(share(run, "grammar")), hall, cost]
+        cells = ([pct(share(run, "reading")), pct(share(run, "grammar"))] if group is None else
+                 [pct(correct / questions), pct(share(run, other))]) + [hall, cost]
         return lines, cells
 
     def score(run: dict[str, Any]) -> tuple[str, int]:
-        correct, questions = accuracy(run)
+        correct, questions = counts(run)
         colour = site.families[run["run"]]["colour"]
         return f'{bar(correct, questions, colour)}<span class="lb-value">{pct(correct / questions)}</span>', correct
 
     rows = board.turkish_rows()
-    heads = ["Reading", "Grammar", f"Non-hallucination<span class=\"small\">with \u201c{esc(board.option)}\u201d</span>",
-             f"Cost<span class=\"small\">{cost_per()}</span>"]
-    body = table_rows(site, board, "tr", rows, lambda run: run, facts, score,
-                      lambda run: site.model_path(run))
-    return [f"Accuracy<span class=\"small\">{bp.count(total)} questions, 95% interval</span>", *heads], body, len(rows)
+    heads = (["Reading", "Grammar"] if group is None else ["Turkish<span class=\"small\">all questions</span>", other.capitalize()])
+    heads += [f"Non-hallucination<span class=\"small\">with \u201c{esc(board.option)}\u201d</span>",
+              f"Cost<span class=\"small\">{cost_per()}</span>"]
+    questions = total if group is None else counts(rows[0][0])[1]
+    title = "Accuracy" if group is None else f"Accuracy on {group}"
+    body = table_rows(site, board, "tr" if group is None else f"tr{group[0]}", rows, lambda run: run, facts, score,
+                      lambda run: site.model_path(run), group is None)
+    return [f"{title}<span class=\"small\">{bp.count(questions)} questions, 95% interval</span>", *heads], body, len(rows)
 
 
 def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]:
@@ -271,34 +335,39 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                  f"Non-hallucination<span class=\"small\">with \u201c{esc(board.english_option)}\u201d</span>",
                  f"Cost<span class=\"small\">{cost_per()}</span>"]
     body = table_rows(site, board, "bo" if both else "en", rows, run_of, facts, score,
-                      lambda model: entry_href(site, "", model))
+                      lambda model: entry_href(site, "", model), False)
     return heads, body
 
 
+def size_attributes(site: Site, run: dict[str, Any]) -> str:
+    """A row's size class for the Size keys (Site.size_class); none for a setup only this site ran (Size: All only)."""
+    size = site.size_class(run)
+    return f' data-size="{size}"' if size else ""
+
+
+def name_cell(name: str, href: str, box: str, run: dict[str, Any]) -> str:
+    """A row's name link and its size label beside it (size_label)."""
+    return (f'<a class="model-name" href="{href}" title="{esc(name)}" aria-describedby="{box}">{esc(name)}</a>'
+            f'<span class="lb-size">{esc(size_label(run))}</span>')
+
+
 def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str, Any], list[dict[str, Any]]]], run_of: Any,
-               facts: Any, score: Any, answers: Any) -> list[str]:
-    """The body rows of one part: each model row (rank, maker dot and icon, name and its expander, the score, the wide
-    cells; its details box in the name cell, the only place its maker · kind · setting shows: project lead, bus #3039),
-    then its other setups' rows, hidden, each with its setting under its name, the one thing that tells it apart."""
+               facts: Any, score: Any, answers: Any, tested: bool) -> list[str]:
+    """The body rows of one part: each model row (# cell, maker dot and icon, name with its size label and its expander,
+    the score, the wide cells; its details box in the name cell, the only place its maker · kind · setting shows:
+    project lead, bus #3039), then its other setups' rows, hidden, each with its setting under its name, the one thing
+    that tells it apart. Each model row carries its kind, size class (data-size) and score (data-score), and with tested
+    (the Turkish part) its tie-group letters (data-letters), from which site.js numbers the rows in view; the # cell
+    holds the tier (tested) or rank among every row, as the table shows without JavaScript."""
     scored = [(item, others, *score(item)) for item, others in rows]
     scored.sort(key=lambda entry: (-entry[3], run_of(entry[0])["run"]))
-    kinds = [site.decision(run_of(item)) for item, *_ in scored]
-    small = [site.small(run_of(item)) for item, *_ in scored]
-    every = ranks([(entry[3], kind) for entry, kind in zip(scored, kinds)])
-    by_kind = {}
-    for kind in (True, False):
-        mine = [index for index, other in enumerate(kinds) if other == kind]
-        for index, rank in zip(mine, ranks([(scored[index][3], kind) for index in mine])):
-            by_kind[index] = rank
-    by_small = {}
-    for kind in (True, False):
-        mine = [index for index, flag in enumerate(small) if flag and kinds[index] == kind]
-        by_small.update(zip(mine, ranks([(scored[index][3], kind) for index in mine])))
+    letters = [run_of(item)["group"] for item, *_ in scored] if tested else []
+    numbers = tiers(letters) if tested else ranks([entry[3] for entry in scored])
     out = []
-    for index, (item, others, cell, _) in enumerate(scored):
+    for index, (item, others, cell, points) in enumerate(scored):
         run = run_of(item)
         family = setup_families(site)[run["run"]]
-        kind = "decision" if kinds[index] else "chat"
+        kind = "decision" if site.decision(run) else "chat"
         row_id = f"lb-{prefix}-{index + 1}"
         box = f"{row_id}-box"
         lines, cells = facts(item)
@@ -310,13 +379,14 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
         more = (f'<button type="button" class="lb-more needs-js" aria-expanded="false" aria-controls="{" ".join(sub_ids)}">'
                 f'{len(others)} other setting{"s" if len(others) > 1 else ""}</button>' if others else "")
         name = name_of(site, run)
+        tested_attributes = f' data-letters="{letters[index]}"' if tested else ""
+        if tested and index > 0 and numbers[index] != numbers[index - 1]:
+            tested_attributes += ' class="lb-tier-start"'
         out.append(
-            f'<tr data-kind="{kind}"{" data-small" if small[index] else ""} data-box="{box}"><td class="num rank" '
-            f'data-rank-all="{every[index]}" data-rank-{kind}="{by_kind[index]}"'
-            f'{f" data-rank-small-{kind}={chr(34)}{by_small[index]}{chr(34)}" if small[index] else ""}>{every[index]}</td><td class="model">'
+            f'<tr data-kind="{kind}"{size_attributes(site, run)} data-score="{points}"{tested_attributes} data-box="{box}">'
+            f'<td class="num rank">{numbers[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{family_icon(family["name"])}'
-            f'<a class="model-name" href="{answers(item)}" title="{esc(name)}" aria-describedby="{box}">{esc(name)}</a>'
-            f'{more}'
+            f'{name_cell(name, answers(item), box, run)}{more}'
             f'{details(site, run, box, lines, answers(item))}</td><td class="lb-score">{cell}</td>'
             + "".join(wide(value) for value in cells) + "</tr>")
         for sub_id, other in zip(sub_ids, others):
@@ -324,11 +394,9 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             other_lines, other_cells = facts(other)
             other_box = f"{sub_id}-box"
             out.append(
-                f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{" data-small" if site.small(other_run) else ""} '
+                f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{size_attributes(site, other_run)} '
                 f'data-box="{other_box}"><td class="num"></td>'
-                f'<td class="model"><a class="model-name" href="{answers(other)}" title="{esc(name_of(site, other_run))}" '
-                f'aria-describedby="{other_box}">'
-                f'{esc(name_of(site, other_run))}</a><span class="small">'
+                f'<td class="model">{name_cell(name_of(site, other_run), answers(other), other_box, other_run)}<span class="small">'
                 f'{esc(setting(site, other_run) + " · ") if setting(site, other_run) else ""}other setting of '
                 f'{esc(name)}</span>{details(site, other_run, other_box, other_lines, answers(other))}</td>'
                 f'<td class="lb-score">{score(other)[0]}</td>' + "".join(wide(value) for value in other_cells) + "</tr>")
@@ -337,17 +405,22 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
 
 def table(part: str, heads: list[str], body: list[str], caption: str) -> str:
     head = "".join(f'<th scope="col" class="num lb-wide">{text}</th>' for text in heads[1:])
+    number = '<abbr title="Tier">#</abbr>' if part == "turkish" else "#"
     return (f'<div class="table-wrap"><table class="lb-table" data-part="{part}"><caption class="visually-hidden">{esc(caption)}'
-            f'</caption><thead><tr><th scope="col" class="num">#</th><th scope="col">Model</th>'
+            f'</caption><thead><tr><th scope="col" class="num">{number}</th><th scope="col">Model</th>'
             f'<th scope="col" class="lb-score">{heads[0]}</th>{head}</tr></thead><tbody>{"".join(body)}'
             "</tbody></table></div>")
 
 
-def meaning(part: str, total: int, kept: int) -> str:
-    """What the score means, the one line above each part's table."""
+def meaning(part: str, total: int, kept: int, groups: dict[str, int]) -> str:
+    """What the score means, the one line above each part's table (groups: the reading and grammar question counts)."""
     return {
         "turkish": f"Accuracy: the share of the {bp.count(total)} Turkish questions answered right, with its 95% interval "
                    "as the whisker; higher is better.",
+        "turkish-reading": f"Accuracy on reading: the share of the {bp.count(groups['reading'])} Turkish reading questions "
+                           "answered right, with its 95% interval as the whisker; higher is better.",
+        "turkish-grammar": f"Accuracy on grammar: the share of the {bp.count(groups['grammar'])} Turkish grammar questions "
+                           "answered right, with its 95% interval as the whisker; higher is better.",
         "english": f"Accuracy in English: the share of the {bp.count(kept)} kept reading questions, translated, answered "
                    "right, with its 95% interval as the whisker; higher is better.",
         "both": f"Turkish (solid) and English (striped) accuracy on the same {bp.count(kept)} kept reading questions, with "
@@ -366,32 +439,65 @@ def chosen(site: Site) -> dict[str, list[int]]:
             for run, others in Board(site).turkish_rows() if others}
 
 
+def size_line(site: Site, runs: list[dict[str, Any]]) -> str:
+    """The Size keys' rule, under the table while a class is chosen: the classes' bounds (page_config.json size_classes)
+    and the setups only this site ran, in no class."""
+    classes = site.config["size_classes"]
+    bounds = " · ".join(f"{item['label']} {item['words']}" for item in classes["classes"])
+    left_out = sorted({name_of(site, run) for run in runs if site.size_class(run) is None}, key=str.casefold)
+    return (f"Size: by the smaller of the model's total and active parameters (for a mixture of experts), as its maker "
+            f"discloses them: {bounds} · {classes['undisclosed']['label']}: {classes['undisclosed']['words']}."
+            + (f" Left out here: the setups only this site ran ({bp.and_list(left_out)}); they show under Size: All."
+               if left_out else ""))
+
+
+def check_sizes(site: Site, runs: list[dict[str, Any]]) -> None:
+    """Tiny and Small together hold exactly the small views' setups (Site.small), so the old small addresses land on
+    the same rows; the build stops otherwise."""
+    differ = [run["run"] for run in runs if site.small(run) != (site.size_class(run) in ("tiny", "small"))]
+    if differ:
+        raise SystemExit(f"leaderboard: Tiny + Small differ from the small views for runs {differ}")
+
+
 def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
-    """The Leaderboard's controls in one row (the part switch, the filter, the All setups key), then each part's meaning
-    line and table (Turkish shown first, Decision models the default filter, site.js) and the row rule line. The All
+    """The Leaderboard's controls (the part switch, the type keys, the All setups key, then the Size keys on a row of
+    their own), then each part's meaning line, table, # line (TIER_LINE or RANK_LINE) and empty-view line, the row rule
+    line and the size rule line (Turkish shown first, Decision models and Size: All the default, site.js). The All
     setups panel (today's full ranking with its tabs, #all-setups) follows it in index.html."""
     board = Board(site)
     tr_heads, tr_body, _ = turkish(site, board)
+    re_heads, re_body, _ = turkish(site, board, "reading")
+    gr_heads, gr_body, _ = turkish(site, board, "grammar")
     en_heads, en_body = english(site, board, False)
     bo_heads, bo_body = english(site, board, True)
+    runs = [*site.runs, *(setup_run(site, model) for model in english_only(board.english))]
+    check_sizes(site, runs)
+    groups = {name: site.runs[0]["groups"][name]["questions"] for name in ("reading", "grammar")}
     parts = {"turkish": table("turkish", tr_heads, tr_body, "One row per model: Turkish accuracy"),
+             "turkish-reading": table("turkish-reading", re_heads, re_body, "One row per model: Turkish reading accuracy"),
+             "turkish-grammar": table("turkish-grammar", gr_heads, gr_body, "One row per model: Turkish grammar accuracy"),
              "english": table("english", en_heads, en_body, "One row per model: English accuracy"),
              "both": table("both", bo_heads, bo_body, "One row per model: Turkish and English accuracy")}
+    numbers = {"turkish": TIER_LINE.format(pairs=bp.count(site.results["group_pairs"])),
+               **{part: RANK_LINE.format(part=label) for part, label in PARTS if part != "turkish"}}
     keys = lambda name, options, current: "".join(  # noqa: E731
         f'<button type="button" class="key" data-lb-{name}="{value}" aria-pressed="{str(value == current).lower()}">'
         f'{esc(label)}</button>' for value, label in options)
     controls = (f'<div class="lb-controls needs-js"><span class="keys" role="group" aria-label="Part of the test">'
-                f'{keys("part", PARTS, DEFAULT_PART)}</span><span class="keys" role="group" aria-label="Models">'
-                f'{keys("filter", FILTERS, DEFAULT_FILTER)}</span><button type="button" class="key lb-all-key" '
-                'data-lb-all aria-pressed="false" aria-controls="all-setups">All setups</button></div>')
+                f'{keys("part", PARTS, DEFAULT_PART)}</span><span class="keys" role="group" aria-label="Model type">'
+                f'{keys("type", TYPES, DEFAULT_TYPE)}</span><button type="button" class="key lb-all-key" '
+                'data-lb-all aria-pressed="false" aria-controls="all-setups">All setups</button></div>'
+                '<div class="lb-controls lb-size-keys needs-js"><span class="keys" role="group" aria-label="Size">'
+                f'<span class="lb-keys-label" aria-hidden="true">Size:</span>{keys("size", [("all", "All"), *site.size_classes()], "all")}'
+                '</span></div>')
     panels = "".join(f'<div class="lb-part" data-lb-part="{part}"{"" if part == DEFAULT_PART else " hidden"}>'
-                     f'<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept))}</p>{parts[part]}</div>'
+                     f'<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept, groups))}</p>{parts[part]}'
+                     f'<p class="table-note lb-empty" hidden>{esc(EMPTY_LINE)}</p>'
+                     f'<p class="table-note lb-numbers">{esc(numbers[part])}</p></div>'
                      for part, _ in PARTS)
     return (f'{controls}<div class="lb-models" data-lb-view="models">{panels}'
             f'<p class="table-note lb-rule">{esc(ROW_LINE)} <a href="{about}">How rows are chosen</a></p>'
-            f'<p class="table-note lb-small-line" data-lb-small="small-chat" hidden>{esc(site.small_line("small-chat"))} '
-            f'{esc(SMALL_PART)}</p><p class="table-note lb-small-line" data-lb-small="small-decision" hidden>'
-            f'{esc(site.small_line("small-decision"))}</p></div>')
+            f'<p class="table-note lb-size-line" hidden>{esc(size_line(site, runs))}</p></div>')
 
 
 def about_text(site: Site, origin: str) -> str:
@@ -403,11 +509,14 @@ def about_text(site: Site, origin: str) -> str:
             + (f"<p>The dated-checkpoint map (page_config.json, leaderboard.dated_checkpoints), the only model IDs "
                f"listed under another: {mapped}. The row shows the original; the checkpoint's setups sit under its other "
                "settings.</p>" if mapped else "")
-            + "<p>Ranks show observed scores; small gaps need not be meaningful. # is the rank among the models in view: "
-            "All ranks every model; Chat models and Decision models rank within their kind; Small chat models and "
-            f"Small decision models rank the models of that kind of at most {esc(billions(site.small_max))} parameters, "
-            "total or active, as their makers disclose them. Tied scores share a rank. Each row's details box gives its model's size and "
-            "the model page its source.</p>"
+            + "<p>Ranks show observed scores; small gaps need not be meaningful. The type keys (All, Chat models, Decision "
+            "models) and the Size keys (Tiny, Small, Medium, Large, Undisclosed, by the smaller of a model's total and "
+            "active parameters as its maker discloses them) choose the rows in view; the setups only this site ran are in "
+            "no size class and show under Size: All. On the Turkish part # is the tier among the rows in view: ranked by "
+            "accuracy, a row joins the tier of the tier's top row when the all-pairs test behind the full ranking's "
+            "letters found no difference between them, else it starts the next tier. On Turkish reading, Turkish grammar, "
+            "English reading and Both, which no all-pairs test covers, # is the rank; tied scores share a rank. Each row shows its model's size beside its "
+            "name; its details box gives the size in full and the model page its source.</p>"
             "<p>Each bar runs from 0 to 100%; its whisker is the Wilson 95% interval of the accuracy, the interval each "
             "setup's page gives. The paired tests behind the full ranking's letters are on "
             f'<a href="{rel(origin, "method/")}">Method</a>.</p>'

@@ -731,6 +731,32 @@ class Site:
         small = self.config["small_models"]["groups"][group]
         return small["line"] + (f" Left out here: {small['left_out_text']}." if small.get("left_out_text") else "")
 
+    @staticmethod
+    def size(run: dict[str, Any]) -> int | None:
+        """The parameter count a setup's size class reads (Ümit #4156): the smaller of its model's total and its active
+        count per token, the larger active figure where the maker gives two (DeepSeek's prefill and decode, as small()
+        reads every active count); None when the maker discloses no size."""
+        total, active = run.get("parameters"), run.get("active_parameters") or []
+        if total is None:
+            return None
+        return min(total, max(active)) if active else total
+
+    def size_class(self, run: dict[str, Any]) -> str | None:
+        """A setup's size class key (page_config.json size_classes): the first class whose max holds size(), the last
+        with none; undisclosed without a size; None for small_models.left_out_models, which show under Size: All only."""
+        if run["model"] in self.config["small_models"].get("left_out_models", []):
+            return None
+        classes = self.config["size_classes"]
+        size = self.size(run)
+        if size is None:
+            return classes["undisclosed"]["key"]
+        return next(item["key"] for item in classes["classes"] if item["max"] is None or size <= item["max"])
+
+    def size_classes(self) -> list[tuple[str, str]]:
+        """The size classes in order, Undisclosed last: (key, label)."""
+        classes = self.config["size_classes"]
+        return [(item["key"], item["label"]) for item in [*classes["classes"], classes["undisclosed"]]]
+
     def kind(self, run: dict[str, Any]) -> str:
         return "Decision model" if self.decision(run) else "Chat model"
 
