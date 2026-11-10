@@ -735,16 +735,35 @@ async function savePng(panel, svg, title, lines, filename) {
   if (!table) return;
   const kinds = JSON.parse(sec.dataset.nackKinds);
   const chosen = new Set(JSON.parse(sec.dataset.nackChosen));
-  const state = { kind: 'all', view: 'model' };
+  const classOf = JSON.parse(sec.dataset.nackClasses);
+  const classKeys = [...sec.querySelectorAll('.nack-class [data-class-key]')];
+  const state = { kind: 'all', view: 'model', cls: 'all' };
+  // The Class row (Ümit #4386, as on the leaderboard): filters every setup row of every table and the chart's points,
+  // combined with Decision / Chat (keys with no setup of the type in view hidden; a second tap returns to All);
+  // programs (class '') stay in every view.
+  const off = n => n in classOf && classOf[n] !== '' && state.cls !== 'all' && classOf[n] !== state.cls;
   const apply = () => {
+    const present = new Set(Object.keys(classOf).filter(n => state.kind === 'all' || kinds[n] === state.kind).map(n => classOf[n]).filter(Boolean));
+    if (!present.has(state.cls)) state.cls = 'all';
+    classKeys.forEach(x => {
+      x.hidden = x.dataset.classKey !== 'all' && !present.has(x.dataset.classKey);
+      x.setAttribute('aria-pressed', String(x.dataset.classKey === state.cls));
+    });
+    sec.querySelectorAll('tbody tr[data-row]').forEach(tr => { if (tr.closest('table') !== table) tr.hidden = off(tr.dataset.row); });
+    sec.querySelectorAll('.pt[data-setup]').forEach(g => { g.style.display = off(g.dataset.setup) ? 'none' : ''; });
     sec.querySelectorAll('[data-nack-kind-pick]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.nackKindPick === state.kind)));
     sec.querySelectorAll('[data-nack-view]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.nackView === state.view)));
     table.querySelectorAll('tbody tr[data-row]').forEach(tr => {
       const k = kinds[tr.dataset.row];
-      tr.hidden = k !== 'program' && ((state.kind !== 'all' && k !== state.kind) || (state.view === 'model' && !chosen.has(tr.dataset.row)));
+      tr.hidden = off(tr.dataset.row) || (k !== 'program' && ((state.kind !== 'all' && k !== state.kind) || (state.view === 'model' && !chosen.has(tr.dataset.row))));
     });
   };
   sec.querySelectorAll('[data-nack-kind-pick]').forEach(k => k.addEventListener('click', () => { state.kind = k.dataset.nackKindPick; apply(); }));
   sec.querySelectorAll('[data-nack-view]').forEach(k => k.addEventListener('click', () => { state.view = k.dataset.nackView; apply(); }));
+  classKeys.forEach(k => k.addEventListener('click', () => {
+    const c = k.dataset.classKey;
+    state.cls = c === state.cls ? 'all' : c;
+    apply();
+  }));
   apply();
 })();
