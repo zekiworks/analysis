@@ -272,6 +272,56 @@
       {"name": "Clef-Omni", "run": null}
     ]
   },
+  "all_benches": {
+    "about": "The combined page (all-benches/, sitebuild/all_benches.py). benches: the other sites' published bench-scores.json, read by the build (the page shows a bench only once its file is live). their_score: the Jev Decision Index's own score for its 15 open decision models, a sanity check beside ours, never shown as our score; joined to our rows by Hugging Face repo, the reference by name. training: the training method as a small tag beside a model's name, only where our setup records state it (export_results.py MODELS notes and SIZES scopes), by repo or, for a model without one, by name. latency_runs: the Text tab runs timed on the pinned machine (spark2, a DGX Spark GB10; one request at a time), by the host in the answer store's runs.ollama_url, not the hardware text (both of our DGX Sparks read the same); a model with none reads 'not timed on the pinned machine yet'.",
+    "benches": [
+      {"key": "logic", "label": "Logic & Math", "board": "text", "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json"},
+      {"key": "backgammon", "label": "Backgammon", "board": "text", "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json"}
+    ],
+    "their_score": {
+      "name": "Jev Decision Index",
+      "edition": "0.4.1",
+      "measure": "Full score",
+      "date": "2026-11-06",
+      "source": "https://huggingface.co/spaces/multimodalart/jev-decision-index",
+      "models": [
+        {"name": "REAX 1.3", "repo": "decisionmodels/REAX-1.3", "maker": "REAX", "score": 74.0},
+        {"name": "GLiDE 27B", "repo": "fastino/GLiDE-27B", "maker": "Fastino", "score": 73.4},
+        {"name": "KnowLine 31B Gen1.5", "repo": "PelaAI/KnowLine-31B-Gen1.5", "maker": "PelaAI", "score": 71.9},
+        {"name": "Sieve 31B v3", "repo": "sthanika-ai/Sieve-31B-v3", "maker": "Sthānika AI", "score": 71.1},
+        {"name": "Turion Jev 31B", "repo": "turion-ai/turion-jev-31b", "maker": "Turion.AI", "score": 70.5},
+        {"name": "vLLM-SR d3-ultra", "repo": "vllm-sr/d3-ultra", "maker": "vLLM Semantic Router", "score": 70.2},
+        {"name": "GLiDE 9B", "repo": "fastino/GLiDE-9B", "maker": "Fastino", "score": 62.5},
+        {"name": "Elephant-1", "repo": "baselabs/elephant-1", "maker": "Base Labs", "score": 60.3},
+        {"name": "Cerno 9B v1.2", "repo": "apertixai/cerno-9b-v1.2", "maker": "Apertix AI", "score": 59.0},
+        {"name": "KnowLine 4B Gen5.5", "repo": "PelaAI/KnowLine-4B-Gen5.5", "maker": "PelaAI", "score": 56.0},
+        {"name": "StartLux-Decision v1.1 4B", "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant", "maker": "StartLux", "score": 54.8},
+        {"name": "Perplexity Decider Flash v1.2", "repo": "perplexity-ai/pplx-decider-flash-v1.2", "maker": "Perplexity", "score": 54.3},
+        {"name": "GLiDE 0.8B", "repo": "fastino/GLiDE-0.8B", "maker": "Fastino", "score": 36.4},
+        {"name": "GLiDE 0.4B", "repo": "fastino/GLiDE-0.4B", "maker": "Fastino", "score": 33.8},
+        {"name": "OneJev1.6-0.8B", "repo": "OmniJev/OneJev1.6-0.8B", "maker": "OmniJev", "score": 29.6}
+      ],
+      "reference": {"name": "Jev 1.14.0", "note": "TypeSafe's hosted Jev 1.14, the model the index's entries reproduce: a reference bar, with no index score of its own here"}
+    },
+    "training": {
+      "decisionmodels/REAX-1.3": {"tag": "blend", "source": "MODELS note: each part blends released decision models"},
+      "vllm-sr/d3": {"tag": "fine-tune", "source": "MODELS note: fine-tuned from Qwen3.8-27B"},
+      "vllm-sr/d3-ultra": {"tag": "fine-tune", "source": "MODELS note: fine-tuned from Qwen3.8-27B"},
+      "nace-ai/drex-max-v1": {"tag": "fine-tune", "source": "MODELS note: a fine-tune of Qwen3.8-27B"},
+      "OmniJev/OneJev-27B": {"tag": "full fine-tune", "source": "MODELS note: a full fine-tune of Qwen3.8-27B"},
+      "baselabs/elephant-1": {"tag": "post-trained", "source": "MODELS note: post-trained from Qwen3.5-9B"},
+      "baselabs/mammoth-1": {"tag": "post-trained", "source": "MODELS note: post-trained from Qwen3.5-27B"},
+      "Cloudflare/clef": {"tag": "post-trained", "source": "MODELS note: post-trained from Qwen3.8-27B"},
+      "Cloudflare/clef-flash": {"tag": "post-trained", "source": "MODELS note: post-trained from Qwen3.5-9B"},
+      "EldanRing/Winnow-12B": {"tag": "LoRA, merged", "source": "SIZES scope: Gemma 4 12B architecture, LoRA merged"},
+      "wayfind/metask-jev-4b-policy-mix": {"tag": "LoRA, merged", "source": "SIZES scope: Qwen3.5-4B with its LoRA merged"},
+      "ZefanCai/Open-Jev-27B-v1.1": {"tag": "LoRA + head", "source": "MODELS note: LoRA and a scoring head on Qwen3.8-27B"},
+      "StrandsAgents/strands-decider-2B-hobson-v21": {"tag": "LoRA + head", "source": "MODELS note: a LoRA adapter and a decision head on Qwen3.5-2B-Base"},
+      "fastino/GLiNER2.5-multi-Decide": {"tag": "fine-tune", "source": "MODELS note: Fastino's decision fine-tune of GLiNER2.5 Multi"},
+      "Cygnet": {"tag": "unchanged base", "source": "MODELS note: Gemma 4 12B IT, unchanged, read out by option letter"}
+    },
+    "latency_runs": []
+  },
   "model_languages": {
  "checked": "2026-11-02",
  "method": "the model card at the revision we ran (local weights) or the maker's model page and docs (APIs), searched for language statements and the Hugging Face `language:` field (subagent ModelLanguages)",

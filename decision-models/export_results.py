@@ -483,7 +483,9 @@ SETUP_MODELS: dict[tuple[str, str, str | None], dict[str, Any]] = {
 # counted as repo@revision from its safetensors headers' logical tensor shapes, never quantized storage, scales, buffers
 # or an adapter file alone; for an undisclosed size every official page checked) and read (the date). Never guessed from
 # a name, never taken from an open sibling of a hosted model, never a third party's estimate. results.json carries each
-# run's record (size_record); the export stops for a setup whose model has none.
+# run's record (size_record); the export stops for a setup whose model has none. A record counted from a released
+# checkpoint also names it structured: repo (its Hugging Face id) and commit (the revision counted, as recorded), which
+# Reading's bench-scores.json reads (sitebuild/bench_scores.py; a setup that ran through an API gets neither there).
 READ = "2026-11-09"
 SIZES: dict[str, dict[str, Any]] = {
     # Hosted chat models: no maker states a size.
@@ -534,6 +536,7 @@ SIZES: dict[str, dict[str, Any]] = {
     # Sizes the makers state. Drex 2.0: "35B parameters in total, about 3B active per token"; counted from its open
     # checkpoint, with the vision tower its card says is not loaded for text.
     "drex-v2.0": {"total": 35_107_181_936, "active": [3_000_000_000],
+                  "repo": "nace-ai/drex-v2.0", "commit": "e646674",
                   "scope": "mixture of experts: language model with its LM head + 0.45B vision tower (not loaded for text, "
                            "per the card); about 3B active per token, as Nace states it",
                   "sources": ["counted from the checkpoint's safetensors, nace-ai/drex-v2.0@e646674",
@@ -549,85 +552,108 @@ SIZES: dict[str, dict[str, Any]] = {
     # GLiDE and Drex Max repos counts only the index's files and so leaves out readout.safetensors (1,305,600).
     # Perplexity's API setups of a version share its released checkpoint's record.
     "pplx-decider-v1-27b": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                            "repo": "perplexity-ai/pplx-decider-v1-27b", "commit": "5117a6c",
                             "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-v1-27b@5117a6c",
                                         "https://huggingface.co/perplexity-ai/pplx-decider-v1-27b"], "read": READ},
     "pplx-decider-v1.1-27b": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                              "repo": "perplexity-ai/pplx-decider-v1.1-27b", "commit": "5cd25e3",
                               "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-v1.1-27b@5cd25e3",
                                           "https://huggingface.co/perplexity-ai/pplx-decider-v1.1-27b"], "read": READ},
     "pplx-decider-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                          "repo": "perplexity-ai/pplx-decider-v1.2", "commit": "225c913",
                           "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-v1.2@225c913 "
                                       "(the same weights as cce0f3f)", "https://huggingface.co/perplexity-ai/pplx-decider-v1.2"],
                           "read": READ},
     "pplx-decider-flash-v1.2": {"total": 4_539_918_336,
+                                "repo": "perplexity-ai/pplx-decider-flash-v1.2", "commit": "6d771ad",
                                 "scope": "language model (tied embeddings) + 0.33B vision encoder + 255-way readout",
                                 "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-flash-v1.2@6d771ad",
                                             "https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.2"], "read": READ},
     # Fastino's post: "serves 57.36B parameters versus GLiDE's 26.09B".
     "glide-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                   "repo": "fastino/GLiDE", "commit": "a7e4589",
                    "sources": ["counted from the checkpoint's safetensors, fastino/GLiDE@a7e4589",
                                "https://fastino.space/blog/glide-decision-model-family"], "read": READ},
     # The cards: "26.09B, including the 0.46B vision encoder".
     "vllm-sr/d3": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                   "repo": "vllm-sr/d3", "commit": "20f37b9",
                    "sources": ["counted from the checkpoint's safetensors, vllm-sr/d3@20f37b9", "https://huggingface.co/vllm-sr/d3"],
                    "read": READ},
     "vllm-sr/d3-ultra": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                         "repo": "vllm-sr/d3-ultra", "commit": "52ba9e7",
                          "sources": ["counted from the checkpoint's safetensors, vllm-sr/d3-ultra@52ba9e7",
                                      "https://huggingface.co/vllm-sr/d3-ultra"], "read": READ},
     "OmniJev/OneJev-27B": {"total": 27_356_728_560, "scope": "language model with its LM head + 0.46B vision encoder",
+                           "repo": "OmniJev/OneJev-27B", "commit": "a5e5f55",
                            "sources": ["counted from the checkpoint's safetensors, OmniJev/OneJev-27B@a5e5f55",
                                        "https://huggingface.co/OmniJev/OneJev-27B"], "read": READ},
     # The card: "a dense 27B-parameter model with a 255-way readout head".
     "drex-max-v1": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+                    "repo": "nace-ai/drex-max-v1", "commit": "cac65e1",
                     "sources": ["counted from the checkpoint's safetensors, nace-ai/drex-max-v1@cac65e1",
                                 "https://huggingface.co/nace-ai/drex-max-v1"], "read": READ},
     # The card: 1.92B.
     "LiquidAI/d1-2B": {"total": 1_918_181_888, "scope": "language model (tied embeddings) + 0.16B vision encoder + projector",
+                       "repo": "LiquidAI/d1-2B", "commit": "10e7671",
                        "sources": ["counted from the checkpoint's safetensors, LiquidAI/d1-2B@10e7671",
                                    "https://huggingface.co/LiquidAI/d1-2B"], "read": READ},
     # The cards: "a 9B parameter decision model", "a 27B parameter decision model".
     "baselabs/elephant-1": {"total": 9_409_813_744, "scope": "language model with its LM head + 0.46B vision encoder",
+                            "repo": "baselabs/elephant-1", "commit": "b3f8a93",
                             "sources": ["counted from the checkpoint's safetensors, baselabs/elephant-1@b3f8a93",
                                         "https://huggingface.co/baselabs/elephant-1"], "read": READ},
     "baselabs/mammoth-1": {"total": 27_356_728_560, "scope": "language model with its LM head + 0.46B vision encoder",
+                           "repo": "baselabs/mammoth-1", "commit": "61cec44",
                            "sources": ["counted from the checkpoint's safetensors, baselabs/mammoth-1@61cec44",
                                        "https://huggingface.co/baselabs/mammoth-1"], "read": READ},
     # Both parts score every question; the card states no count.
     "reax13": {"total": 57_359_722_272, "scope": "two full models: part G (Gemma 4 31B line, with vision encoder) + part Q "
                                                   "(Qwen3.8-27B line, with vision encoder and 255-way readout)",
+               "repo": "decisionmodels/REAX-1.3", "commit": "fa4bf7e",
                "sources": ["counted from the checkpoint's safetensors, decisionmodels/REAX-1.3@fa4bf7e",
                            "https://huggingface.co/decisionmodels/REAX-1.3"], "read": READ},
     # The card: "ModernBERT-large (395M ...) + a decision head ... 421M total"; laya multilingual "mmBERT-base | 322M".
     "laya": {"total": 421_293_827, "scope": "ModernBERT-large encoder + decision head",
+             "repo": "convaiinnovations/laya", "commit": "c5d7873",
              "sources": ["counted from the checkpoint's safetensors, convaiinnovations/laya@c5d7873",
                          "https://huggingface.co/convaiinnovations/laya"], "read": READ},
     "laya-multilingual": {"total": 321_908_995, "scope": "mmBERT-base encoder + decision head",
+                          "repo": "convaiinnovations/laya", "commit": "c5d7873",
                           "sources": ["counted from the checkpoint's safetensors, convaiinnovations/laya@c5d7873 (multilingual/)",
                                       "https://huggingface.co/convaiinnovations/laya"], "read": READ},
     # The cards: 287M.
     "gliner2.5-multi-v1": {"total": 287_355_159, "scope": "mDeBERTa-v3-base encoder + extraction and classification heads",
+                           "repo": "fastino/gliner2.5-multi-v1", "commit": "2ca71aa",
                            "sources": ["counted from the checkpoint's safetensors, fastino/gliner2.5-multi-v1@2ca71aa",
                                        "https://huggingface.co/fastino/gliner2.5-multi-v1"], "read": READ},
     "gliner2.5-multi-decide": {"total": 287_355_159, "scope": "mDeBERTa-v3-base encoder + extraction and classification heads",
+                               "repo": "fastino/GLiNER2.5-multi-Decide", "commit": "a35a0cd",
                                "sources": ["counted from the checkpoint's safetensors, fastino/GLiNER2.5-multi-Decide@a35a0cd",
                                            "https://huggingface.co/fastino/GLiNER2.5-multi-Decide"], "read": READ},
     # The cards: "a 27B multimodal model", "a 9B multimodal model".
     "clef": {"total": 27_484_784_884, "scope": "language model with its LM head + 0.46B vision encoder + joint schema head",
+             "repo": "Cloudflare/clef", "commit": "2f3de3d",
              "sources": ["counted from the checkpoint's safetensors, Cloudflare/clef@2f3de3d", "https://huggingface.co/Cloudflare/clef"],
              "read": READ},
     "clef-flash": {"total": 9_531_576_564, "scope": "language model with its LM head + 0.46B vision encoder + joint schema head",
+                   "repo": "Cloudflare/clef-flash", "commit": "fde727a",
                    "sources": ["counted from the checkpoint's safetensors, Cloudflare/clef-flash@fde727a",
                                "https://huggingface.co/Cloudflare/clef-flash"], "read": READ},
     # The card: "params | 4.54B".
     "metask-jev-4b-policy-mix": {"total": 4_539_265_536,
+                                 "repo": "wayfind/metask-jev-4b-policy-mix", "commit": "ea20fe8",
                                  "scope": "Qwen3.5-4B with its LoRA merged: language model (tied embeddings) + 0.33B vision encoder",
                                  "sources": ["counted from the checkpoint's safetensors, wayfind/metask-jev-4b-policy-mix@ea20fe8",
                                              "https://huggingface.co/wayfind/metask-jev-4b-policy-mix"], "read": READ},
     # Gemma 4 12B IT unchanged; the card: "Total Parameters ... 11.95B".
+    # No repo or commit: Cygnet is a recipe on the unchanged Gemma 4 12B IT, so Gemma's repo id would join it to that
+    # chat model on the other benches (as on the Logic & Math site's bench-scores.json).
     "cygnet": {"total": 11_959_730_176, "scope": "Gemma 4 12B IT: language model (tied embeddings) + vision and audio embedders",
                "sources": ["counted from the checkpoint's safetensors, google/gemma-4-12B-it@707f0a3",
                            "https://huggingface.co/google/gemma-4-12B-it"], "read": READ},
     # Counted from the Q8_0 GGUF's logical tensor shapes (not its packed storage): exactly Gemma 4 12B's language model.
     "winnow-12b": {"total": 11_907_350_272, "scope": "language model only (Gemma 4 12B architecture, LoRA merged; text only)",
+                   "repo": "EldanRing/Winnow-12B", "commit": "b2b1421",
                    "sources": ["counted from the GGUF's logical tensor shapes, EldanRing/Winnow-12B@b2b1421 (Winnow-12B-Q8_0.gguf)",
                                "https://huggingface.co/EldanRing/Winnow-12B"], "read": READ},
     # The model as run (the three sites' rule, bus #3550-#3552): the base checkpoint as released, with the adapter and
@@ -636,12 +662,14 @@ SIZES: dict[str, dict[str, Any]] = {
     # trained LoRA adapter and scalar decision head for the text backbone of Qwen/Qwen3.8-27B ... 15,471,617 trained
     # parameters": Qwen3.8-27B 27,781,427,952 + 15,471,617.
     "strands-decider-2b": {"total": 2_291_942_208,
+                           "repo": "StrandsAgents/strands-decider-2B-hobson-v21", "commit": "2b52a62",
                            "scope": "Qwen3.5-2B-Base (with its vision encoder) + LoRA adapter + readout head; the repo "
                                     "holds only the adapter and head",
                            "sources": ["counted from the checkpoints' safetensors, StrandsAgents/strands-decider-2B-hobson-v21@2b52a62 "
                                        "on Qwen/Qwen3.5-2B-Base@b1485b2",
                                        "https://huggingface.co/StrandsAgents/strands-decider-2B-hobson-v21"], "read": READ},
     "open-jev-27b-v1.1": {"total": 27_796_899_569,
+                          "repo": "ZefanCai/Open-Jev-27B-v1.1", "commit": "28cf730",
                           "scope": "Qwen3.8-27B (with its vision encoder) + LoRA adapter and scalar decision head (15.5M); "
                                    "the repo holds only the adapter and head",
                           "sources": ["counted from the checkpoints' safetensors, ZefanCai/Open-Jev-27B-v1.1@28cf730 on "
@@ -652,16 +680,20 @@ SIZES: dict[str, dict[str, Any]] = {
     # std_scale buffers (2,364) are left out. Qwen3.8-27B's card: "Number of Parameters: 27B"; Qwen3-14B's: "14.8B";
     # Erk-14B's: "a 14-billion-parameter, Turkish-focused large language model".
     "gemma-4-31B-it": {"total": 31_273_086_512, "scope": "language model (tied embeddings) + 0.58B vision encoder",
+                       "repo": "google/gemma-4-31B-it", "commit": "842da37",
                        "sources": ["counted from the checkpoint's safetensors, google/gemma-4-31B-it@842da37",
                                    "https://huggingface.co/google/gemma-4-31B-it"], "read": READ},
     "qwen38-27b-bf16": {"total": 27_781_427_952, "scope": "language model with its LM head + 0.42B multi-token prediction "
                                                           "layer + 0.46B vision encoder",
+                        "repo": "Qwen/Qwen3.8-27B", "commit": "1d4bf0f",
                         "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3.8-27B@1d4bf0f",
                                     "https://huggingface.co/Qwen/Qwen3.8-27B"], "read": READ},
     "qwen3-14b": {"total": 14_768_307_200, "scope": "language model with its LM head (text only)",
+                  "repo": "Qwen/Qwen3-14B", "commit": "40c0698",
                   "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3-14B@40c0698",
                               "https://huggingface.co/Qwen/Qwen3-14B"], "read": READ},
     "erk-14b": {"total": 14_768_307_200, "scope": "language model with its LM head (text only)",
+                "repo": "ecloudtech/Erk-14B", "commit": "8584b14",
                 "sources": ["counted from the checkpoint's safetensors, ecloudtech/Erk-14B@8584b14",
                             "https://huggingface.co/ecloudtech/Erk-14B"], "read": READ},
     # Mixtures of experts, as their makers state them. DeepSeek: "552B backbone parameters", 8B active per token in
@@ -694,6 +726,7 @@ SIZES: dict[str, dict[str, Any]] = {
     # vision 64,080,384 + audio 5,246,976. The card's "276B total, 12B active" is beside it; the checkpoint alone does not
     # verify the active count, so the active count is the card's (the three sites' Small models rule reads it, bus #3812).
     "thinkingmachines/inkling-small": {"total": 265_956_439_040, "active": [12_000_000_000],
+                                       "repo": "thinkingmachines/Inkling-Small", "commit": "8cc5877",
                                        "scope": "mixture of experts: language model + multi-token prediction layer + vision "
                                                 "and audio encoders, counted; active per token as the card states it; card: "
                                                 "276B total, 12B active",
@@ -712,6 +745,7 @@ SIZES: dict[str, dict[str, Any]] = {
     # prediction layer (9,952,920,576). Z.ai states no active count.
     "z-ai/glm-5.3": {"total": 753_329_940_480, "scope": "mixture of experts: language model with its LM head + one "
                                                        "multi-token prediction layer (text only); Z.ai states no active count",
+                     "repo": "zai-org/GLM-5.3", "commit": "ba32f8c",
                      "sources": ["counted from the checkpoint's safetensors, zai-org/GLM-5.3@ba32f8c",
                                  "https://huggingface.co/zai-org/GLM-5.3", "https://docs.z.ai/guides/llm/glm-5.3"], "read": READ},
     # Ümit's small open models, counted from each released checkpoint at the revision served (logical shapes; Gemma's
@@ -719,64 +753,77 @@ SIZES: dict[str, dict[str, Any]] = {
     # where the checkpoint holds them (the model as run: the three sites' rule). The makers' words beside each.
     # "with only 3B parameters"
     "vibethinker-3b": {"total": 3_085_938_688, "scope": "language model (tied embeddings, text only)",
+                       "repo": "WeiboAI/VibeThinker-3B", "commit": "77bd2cc",
                        "sources": ["counted from the checkpoint's safetensors, WeiboAI/VibeThinker-3B@77bd2cc",
                                    "https://huggingface.co/WeiboAI/VibeThinker-3B"], "read": READ},
     # The card: "Total parameters: 8.3B", "Active parameters: 1.5B", the figures of the older LFM2-8B-A1B; this
     # checkpoint's 128,000-token vocabulary adds 127,926,272 embedding parameters. Active: every non-expert parameter
     # and 4 of the 32 experts in each of the 22 expert layers.
     "lfm2.5-8b-a1b": {"total": 8_467_856_832, "active": [1_685_667_264],
+                      "repo": "LiquidAI/LFM2.5-8B-A1B", "commit": "dd83f5c",
                       "scope": "mixture of experts: language model (tied embeddings, text only), counted; the card says "
                                "8.3B total, 1.5B active",
                       "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2.5-8B-A1B@dd83f5c",
                                   "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B"], "read": READ},
     # The card: "4.5B effective (8B with embeddings)", "2.3B effective (5.1B with embeddings)"; 11.95B for the 12B.
     "gemma-4-e4b-it": {"total": 7_996_156_448, "effective": 4_500_000_000,
+                       "repo": "google/gemma-4-E4B-it", "commit": "4ecc2ba",
                        "scope": "language model with per-layer embeddings + vision and audio encoders; effective size as "
                                 "Google states it",
                        "sources": ["counted from the checkpoint's safetensors, google/gemma-4-E4B-it@4ecc2ba",
                                    "https://huggingface.co/google/gemma-4-E4B-it"], "read": READ},
     "gemma-4-e2b-it": {"total": 5_123_178_016, "effective": 2_300_000_000,
+                       "repo": "google/gemma-4-E2B-it", "commit": "4adf157",
                        "scope": "language model with per-layer embeddings + vision and audio encoders; effective size as "
                                 "Google states it",
                        "sources": ["counted from the checkpoint's safetensors, google/gemma-4-E2B-it@4adf157",
                                    "https://huggingface.co/google/gemma-4-E2B-it"], "read": READ},
     "gemma-4-12b-it": {"total": 11_959_730_176, "scope": "language model (tied embeddings) + vision and audio embedders",
+                       "repo": "google/gemma-4-12B-it", "commit": "43c9d01",
                        "sources": ["counted from the checkpoint's safetensors, google/gemma-4-12B-it@43c9d01",
                                    "https://huggingface.co/google/gemma-4-12B-it"], "read": READ},
     # The cards: "3.4B Language Model", "8.4B Language Model", "13.5B Language Model", each with a "0.4B Vision Encoder".
     "ministral-3-3b-reasoning": {"total": 3_849_090_048, "scope": "language model (tied embeddings) + 0.42B vision encoder "
                                                                   "and projector",
+                                 "repo": "mistralai/Ministral-3-3B-Reasoning-2512", "commit": "4a36357",
                                  "sources": ["counted from the checkpoint's safetensors, "
                                              "mistralai/Ministral-3-3B-Reasoning-2512@4a36357",
                                              "https://huggingface.co/mistralai/Ministral-3-3B-Reasoning-2512"], "read": READ},
     "ministral-3-8b-reasoning": {"total": 8_918_026_240, "scope": "language model with its LM head + 0.43B vision encoder "
                                                                   "and projector",
+                                 "repo": "mistralai/Ministral-3-8B-Reasoning-2512", "commit": "81eaece",
                                  "sources": ["counted from the checkpoint's safetensors, "
                                              "mistralai/Ministral-3-8B-Reasoning-2512@81eaece",
                                              "https://huggingface.co/mistralai/Ministral-3-8B-Reasoning-2512"], "read": READ},
     "ministral-3-14b-reasoning": {"total": 13_945_031_680, "scope": "language model with its LM head + 0.44B vision "
                                                                     "encoder and projector",
+                                  "repo": "mistralai/Ministral-3-14B-Reasoning-2512", "commit": "51f9210",
                                   "sources": ["counted from the checkpoint's safetensors, "
                                               "mistralai/Ministral-3-14B-Reasoning-2512@51f9210",
                                               "https://huggingface.co/mistralai/Ministral-3-14B-Reasoning-2512"], "read": READ},
     # The cards: "Number of Parameters: 4B", "9B" (the language model alone).
     "qwen3.5-4b": {"total": 4_659_865_088, "scope": "language model (tied embeddings) + multi-token prediction layer + "
                                                     "0.33B vision encoder",
+                   "repo": "Qwen/Qwen3.5-4B", "commit": "851bf6e",
                    "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3.5-4B@851bf6e",
                                "https://huggingface.co/Qwen/Qwen3.5-4B"], "read": READ},
     "qwen3.5-9b": {"total": 9_653_104_368, "scope": "language model with its LM head + multi-token prediction layer + "
                                                     "0.46B vision encoder",
+                   "repo": "Qwen/Qwen3.5-9B", "commit": "c202236",
                    "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3.5-9B@c202236",
                                "https://huggingface.co/Qwen/Qwen3.5-9B"], "read": READ},
     # The cards: "Parameters | 1.73B", "Number of parameters: 1.17B"; LFM2-350M-Math's states none, its base LFM2-350M's
     # "354,483,968". The LFM3 GGUF served holds the same tensors, plus a 64-value RoPE buffer.
     "lfm3-1.7b": {"total": 1_728_801_536, "scope": "language model (tied embeddings, text only)",
+                  "repo": "LiquidAI/LFM3-1.7B", "commit": "0dc4268",
                   "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM3-1.7B@0dc4268",
                               "https://huggingface.co/LiquidAI/LFM3-1.7B"], "read": READ},
     "lfm2.5-1.2b-thinking": {"total": 1_170_340_608, "scope": "language model (tied embeddings, text only)",
+                             "repo": "LiquidAI/LFM2.5-1.2B-Thinking", "commit": "fa4681e",
                              "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2.5-1.2B-Thinking@fa4681e",
                                          "https://huggingface.co/LiquidAI/LFM2.5-1.2B-Thinking"], "read": READ},
     "lfm2-350m-math": {"total": 354_483_968, "scope": "language model (tied embeddings, text only)",
+                       "repo": "LiquidAI/LFM2-350M-Math", "commit": "8eb8b70",
                        "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2-350M-Math@8eb8b70",
                                    "https://huggingface.co/LiquidAI/LFM2-350M-Math", "https://huggingface.co/LiquidAI/LFM2-350M"],
                        "read": READ},

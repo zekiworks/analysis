@@ -72,7 +72,7 @@ HOME_KEYS = ("results_version", "questions", "sure_threshold", "units", "prices"
 # The About page comes after them, from the home page's parts (sitebuild/about.py).
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
                                  "english_reading", "english_view", "aa_index", "web_grounding", "pws_decisions", "data",
-                                 "method", "highlights", "experiments")
+                                 "method", "highlights", "experiments", "bench_scores", "all_benches")
 TITLE = "When should you trust a decision model?"
 # The intro (at the top of the About page, moved from the home page) and the meta description; their counts come from
 # results.json (counts()).

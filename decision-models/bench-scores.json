@@ -1,0 +1,1732 @@
+{
+ "benches": [
+  {
+   "bench": "reading-text",
+   "title": "Reading (Text)",
+   "url": "https://zekiworks.github.io/analysis/decision-models/",
+   "updated": "2026-11-10T04:01:02Z",
+   "score": {
+    "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
+    "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
+   },
+   "models": [
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Gemini 3.8 Flash",
+     "maker": "Google",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 97.61146496815287,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9808917197452229,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.010841674249322482,
+     "improvement_points": null,
+     "runs": [
+      "text:140",
+      "text:123",
+      "text:188"
+     ],
+     "notes": "Gemini API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "GPT-6 Astra",
+     "maker": "OpenAI",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 97.44085532302094,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9795268425841674,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.0065000000000037935,
+     "improvement_points": null,
+     "runs": [
+      "text:277",
+      "text:610",
+      "text:48",
+      "text:191"
+     ],
+     "notes": "Codex CLI, ChatGPT subscription"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "GPT-6.1 Sol",
+     "maker": "OpenAI",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 97.21337579617834,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9777070063694268,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.009818016378528189,
+     "improvement_points": null,
+     "runs": [
+      "text:276",
+      "text:124",
+      "text:190"
+     ],
+     "notes": "Codex CLI, ChatGPT subscription"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Gemini 4 Argon",
+     "maker": "Google",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 95.4504094631483,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9636032757051866,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.02185623293903984,
+     "improvement_points": null,
+     "runs": [
+      "text:557"
+     ],
+     "notes": "Gemini API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Claude Fable 5.1",
+     "maker": "Anthropic",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 95.16606005459506,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9613284804367607,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.11954504094631425,
+     "improvement_points": null,
+     "runs": [
+      "text:310"
+     ],
+     "notes": "Claude Code CLI, Claude subscription"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Claude Opus 5.5",
+     "maker": "Anthropic",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 93.74431301182892,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9499545040946314,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.14620109190173014,
+     "improvement_points": null,
+     "runs": [
+      "text:278",
+      "text:47",
+      "text:192"
+     ],
+     "notes": "Claude Code CLI, Claude subscription"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "GPT-6.1 Terra",
+     "maker": "OpenAI",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 92.8343949044586,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9426751592356688,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.02824840764332354,
+     "improvement_points": null,
+     "runs": [
+      "text:275",
+      "text:274"
+     ],
+     "notes": "Codex CLI, ChatGPT subscription"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Grok 4.7",
+     "maker": "xAI",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 90.90081892629665,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9272065514103731,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.11871246587807233,
+     "improvement_points": null,
+     "runs": [
+      "text:311"
+     ],
+     "notes": "xAI Responses API, SuperGrok subscription"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "DeepSeek-V4.1-Flash, first release",
+     "maker": "DeepSeek",
+     "kind": "chat",
+     "params_total": 552.0,
+     "params_active": 16.0,
+     "quantization": "FP4 experts, FP8 and BF16 layers",
+     "score_0_100": 90.04777070063693,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9203821656050956,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.07960198328526213,
+     "improvement_points": null,
+     "runs": [
+      "text:121",
+      "text:585",
+      "text:120",
+      "text:558"
+     ],
+     "notes": "SGLang, self-hosted, published mixed precision; first-release weights (revision fb2764a), not the 1017 update"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Claude Sonnet 5.5",
+     "maker": "Anthropic",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 81.28980891719745,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8503184713375797,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.15961328480436646,
+     "improvement_points": null,
+     "runs": [
+      "text:55",
+      "text:193",
+      "text:54"
+     ],
+     "notes": "Claude Code CLI, Claude subscription"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Kimi K3.1 Pro",
+     "maker": "Moonshot",
+     "kind": "chat",
+     "params_total": 2800.0,
+     "params_active": 104.0,
+     "quantization": null,
+     "score_0_100": 78.44631483166515,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8275705186533212,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.1256551410373169,
+     "improvement_points": null,
+     "runs": [
+      "text:320",
+      "text:315"
+     ],
+     "notes": "OpenRouter chat API, Moonshot AI's endpoint (mxfp4), fallbacks off"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Qwen 3.5 397B-A17B",
+     "maker": "Alibaba",
+     "kind": "chat",
+     "params_total": 397.0,
+     "params_active": 17.0,
+     "quantization": null,
+     "score_0_100": 78.3894449499545,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.827115559599636,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.062252047315757925,
+     "improvement_points": null,
+     "runs": [
+      "text:870"
+     ],
+     "notes": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Inkling Small",
+     "maker": "Thinking Machines",
+     "kind": "chat",
+     "params_total": 265.96,
+     "params_active": 12.0,
+     "quantization": null,
+     "score_0_100": 74.97725204731573,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7998180163785259,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.07924476797088931,
+     "improvement_points": null,
+     "runs": [
+      "text:866"
+     ],
+     "notes": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included; no response format (the endpoint has no structured outputs), so the prompt adds a paragraph stating the answer layout"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "GLM-5.3-Flash",
+     "maker": "Z.ai",
+     "kind": "chat",
+     "params_total": 320.0,
+     "params_active": 18.0,
+     "quantization": "EXL3 4-bit experts, FP8 dense layers and KV cache",
+     "score_0_100": 73.49863512283893,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7879890809827116,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.04548309178743938,
+     "improvement_points": null,
+     "runs": [
+      "text:160",
+      "text:159"
+     ],
+     "notes": "TensorFold, self-hosted, EXL3 4-bit experts"
+    },
+    {
+     "repo": "decisionmodels/REAX-1.3",
+     "commit": "fa4bf7e",
+     "name": "REAX 1.3",
+     "maker": "REAX",
+     "kind": "decision",
+     "params_total": 57.36,
+     "params_active": 57.36,
+     "quantization": "FP8",
+     "score_0_100": 72.41810737033666,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7793448589626933,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.04139613055428547,
+     "improvement_points": null,
+     "runs": [
+      "text:827"
+     ],
+     "notes": "REAX Engine server (reax13 mode, the maker's release code), self-hosted, FP8"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Liquid d1-ultra",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 71.33757961783441,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7707006369426752,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.03629871483620005,
+     "improvement_points": null,
+     "runs": [
+      "text:199"
+     ],
+     "notes": "Liquid AI decisions API"
+    },
+    {
+     "repo": "Qwen/Qwen3.8-27B",
+     "commit": "1d4bf0f",
+     "name": "Qwen3.8-27B",
+     "maker": "Alibaba",
+     "kind": "chat",
+     "params_total": 27.78,
+     "params_active": 27.78,
+     "quantization": "BF16",
+     "score_0_100": 68.32347588717016,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7465878070973613,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.23697412193898643,
+     "improvement_points": null,
+     "runs": [
+      "text:318",
+      "text:50",
+      "text:53",
+      "text:83"
+     ],
+     "notes": "vLLM, self-hosted"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "GLM-5.3",
+     "maker": "Z.ai",
+     "kind": "chat",
+     "params_total": 753.33,
+     "params_active": 753.33,
+     "quantization": null,
+     "score_0_100": 68.1528662420382,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7452229299363057,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.025787079162879617,
+     "improvement_points": null,
+     "runs": [
+      "text:314"
+     ],
+     "notes": "OpenRouter chat API, Fireworks endpoint, fallbacks off"
+    },
+    {
+     "repo": "google/gemma-4-31B-it",
+     "commit": "842da37",
+     "name": "Gemma 4 31B",
+     "maker": "Google",
+     "kind": "chat",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "FP8 weights and KV cache",
+     "score_0_100": 66.38989990900818,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7311191992720655,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.24156780736968866,
+     "improvement_points": null,
+     "runs": [
+      "text:119",
+      "text:189"
+     ],
+     "notes": "vLLM, self-hosted, FP8"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "MiMo V2.6 Flash",
+     "maker": "Xiaomi",
+     "kind": "chat",
+     "params_total": 309.0,
+     "params_active": 15.0,
+     "quantization": null,
+     "score_0_100": 65.13876251137398,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7211101000909919,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.07140581068416227,
+     "improvement_points": null,
+     "runs": [
+      "text:877"
+     ],
+     "notes": "OpenRouter chat API, Xiaomi's own endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Perplexity Decider 27B v1.2 (API, with web)",
+     "maker": "Perplexity",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": null,
+     "score_0_100": 60.93039126478617,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6874431301182894,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.03589856878495877,
+     "improvement_points": null,
+     "runs": [
+      "text:640"
+     ],
+     "notes": "Perplexity Decisions API"
+    },
+    {
+     "repo": "fastino/GLiDE",
+     "commit": "a7e4589",
+     "name": "Fastino GLiDE v1.2",
+     "maker": "Fastino",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": "BF16",
+     "score_0_100": 60.58917197452228,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6847133757961783,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.029152681148497294,
+     "improvement_points": null,
+     "runs": [
+      "text:248"
+     ],
+     "notes": "GLiDE server (Fastino's release code), self-hosted"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "GPT-6 Luna (chat API)",
+     "maker": "OpenAI",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 60.361692447679715,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6828935395814377,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.2565468607825413,
+     "improvement_points": null,
+     "runs": [
+      "text:133"
+     ],
+     "notes": "Codex CLI, ChatGPT subscription"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Fastino GLiDE",
+     "maker": "Fastino",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 59.84986351228388,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6787989080982711,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.04508679278866653,
+     "improvement_points": null,
+     "runs": [
+      "text:129"
+     ],
+     "notes": "Fastino System One API"
+    },
+    {
+     "repo": "vllm-sr/d3",
+     "commit": "20f37b9",
+     "name": "vLLM-SR d3",
+     "maker": "vLLM Semantic Router",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": "BF16",
+     "score_0_100": 59.7361237488626,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6778889899909009,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.0260618026254459,
+     "improvement_points": null,
+     "runs": [
+      "text:259"
+     ],
+     "notes": "vLLM System One endpoint (nightly), self-hosted, BF16"
+    },
+    {
+     "repo": "vllm-sr/d3-ultra",
+     "commit": "52ba9e7",
+     "name": "vLLM-SR d3-ultra",
+     "maker": "vLLM Semantic Router",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": "BF16",
+     "score_0_100": 59.7361237488626,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6778889899909009,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.12470444406965506,
+     "improvement_points": null,
+     "runs": [
+      "text:269"
+     ],
+     "notes": "d3 package server (transformers, the release code), self-hosted, BF16"
+    },
+    {
+     "repo": "nace-ai/drex-max-v1",
+     "commit": "cac65e1",
+     "name": "Drex Max v1",
+     "maker": "Nace.AI",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": "BF16",
+     "score_0_100": 59.67925386715195,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6774340309372157,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.06325311335192765,
+     "improvement_points": null,
+     "runs": [
+      "text:322"
+     ],
+     "notes": "Drex Max server (Nace's loader, drex_max), self-hosted, BF16"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Drex Max 1.1",
+     "maker": "Nace.AI",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 59.224294813466784,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6737943585077343,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.02920837835252908,
+     "improvement_points": null,
+     "runs": [
+      "text:326"
+     ],
+     "notes": "Nace.AI System One API"
+    },
+    {
+     "repo": "baselabs/mammoth-1",
+     "commit": "61cec44",
+     "name": "Mammoth-1",
+     "maker": "Base Labs",
+     "kind": "decision",
+     "params_total": 27.36,
+     "params_active": 27.36,
+     "quantization": "BF16",
+     "score_0_100": 58.88307552320291,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6710646041856233,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.05571809872611476,
+     "improvement_points": null,
+     "runs": [
+      "text:374"
+     ],
+     "notes": "Base Labs server (qev, the model card's loader), self-hosted, BF16"
+    },
+    {
+     "repo": "perplexity-ai/pplx-decider-v1.2",
+     "commit": "225c913",
+     "name": "Perplexity Decider 27B v1.2 (local GPU)",
+     "maker": "Perplexity",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": "BF16",
+     "score_0_100": 58.82620564149226,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6706096451319381,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.0443262835543908,
+     "improvement_points": null,
+     "runs": [
+      "text:217"
+     ],
+     "notes": "Perplexity Decider server, self-hosted"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Perplexity Decider 27B v1.1",
+     "maker": "Perplexity",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": null,
+     "score_0_100": 58.598726114649665,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6687898089171974,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.03844291588122355,
+     "improvement_points": null,
+     "runs": [
+      "text:145"
+     ],
+     "notes": "Perplexity Decisions API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "MiniMax-M3.1-Flash",
+     "maker": "MiniMax",
+     "kind": "chat",
+     "params_total": 428.0,
+     "params_active": 23.0,
+     "quantization": null,
+     "score_0_100": 58.08689717925386,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.664695177434031,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.2113114754098455,
+     "improvement_points": null,
+     "runs": [
+      "text:862"
+     ],
+     "notes": "OpenRouter chat API, MiniMax's own endpoint, fallbacks off, output cap 65,536 tokens, reasoning included; JSON mode without the answer schema (the endpoint has no structured outputs), so the prompt adds a paragraph stating the answer layout"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Perplexity Decider 27B v1.2 (API)",
+     "maker": "Perplexity",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": null,
+     "score_0_100": 57.91628753412192,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6633303002729755,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.04236332729104053,
+     "improvement_points": null,
+     "runs": [
+      "text:633"
+     ],
+     "notes": "Perplexity Decisions API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Snap Preview",
+     "maker": "Subquadratic",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 56.551410373066425,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6524112829845314,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.048948969200484,
+     "improvement_points": null,
+     "runs": [
+      "text:177"
+     ],
+     "notes": "SubQ Decisions API (public preview)"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Snap 1.1",
+     "maker": "Subquadratic",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 54.84531392174704,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6387625113739763,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.11150360240298471,
+     "improvement_points": null,
+     "runs": [
+      "text:346"
+     ],
+     "notes": "SubQ Decisions API (public preview)"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "GPT-6 Luna (Decisions API)",
+     "maker": "OpenAI",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 54.50409463148317,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6360327570518653,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.023755697356427245,
+     "improvement_points": null,
+     "runs": [
+      "text:143"
+     ],
+     "notes": "OpenAI Decisions API (public beta)"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Liquid d1.1",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 51.88808007279344,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6151046405823476,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.019863492797650786,
+     "improvement_points": null,
+     "runs": [
+      "text:254"
+     ],
+     "notes": "Liquid AI decisions API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Celeris-1 Decision",
+     "maker": "Celeris",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 50.58007279344858,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6046405823475887,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.04257051865332119,
+     "improvement_points": null,
+     "runs": [
+      "text:150"
+     ],
+     "notes": "Celeris System One API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Perplexity Decider 27B v1",
+     "maker": "Perplexity",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": null,
+     "score_0_100": 50.466333030027286,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6037306642402184,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.049916517793603135,
+     "improvement_points": null,
+     "runs": [
+      "text:44"
+     ],
+     "notes": "Perplexity Decisions API"
+    },
+    {
+     "repo": "OmniJev/OneJev-27B",
+     "commit": "a5e5f55",
+     "name": "OneJev 27B",
+     "maker": "OmniJev",
+     "kind": "decision",
+     "params_total": 27.36,
+     "params_active": 27.36,
+     "quantization": "BF16",
+     "score_0_100": 49.499545040946316,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5959963603275705,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.05534345950864414,
+     "improvement_points": null,
+     "runs": [
+      "text:264"
+     ],
+     "notes": "OneJev server (qev, OmniJev's release code), self-hosted, BF16"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Jev 1.14.0",
+     "maker": "TypeSafe",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 48.98771610555049,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.591901728844404,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.025313921747042376,
+     "improvement_points": null,
+     "runs": [
+      "text:194"
+     ],
+     "notes": "TypeSafe System One API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Inception Mercury Decide",
+     "maker": "Inception",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 47.85031847133757,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5828025477707006,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.15503569618513982,
+     "improvement_points": null,
+     "runs": [
+      "text:204"
+     ],
+     "notes": "OpenRouter System One API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Jev 1.13.0",
+     "maker": "TypeSafe",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 46.88353048225659,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5750682438580528,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.051401273885350714,
+     "improvement_points": null,
+     "runs": [
+      "text:49"
+     ],
+     "notes": "TypeSafe System One API"
+    },
+    {
+     "repo": "Cloudflare/clef",
+     "commit": "2f3de3d",
+     "name": "Clef",
+     "maker": "Cloudflare",
+     "kind": "decision",
+     "params_total": 27.48,
+     "params_active": 27.48,
+     "quantization": "BF16",
+     "score_0_100": 46.599181073703356,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5727934485896269,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.1069694722474975,
+     "improvement_points": null,
+     "runs": [
+      "text:125"
+     ],
+     "notes": "Clef server, self-hosted"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Liquid d1",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 46.257961783439484,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5700636942675159,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.10208650451299976,
+     "improvement_points": null,
+     "runs": [
+      "text:52"
+     ],
+     "notes": "Liquid AI decisions API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Drex 2.0",
+     "maker": "Nace.AI",
+     "kind": "decision",
+     "params_total": 35.11,
+     "params_active": 3.0,
+     "quantization": null,
+     "score_0_100": 44.665605095541395,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5573248407643312,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.042306960873521385,
+     "improvement_points": null,
+     "runs": [
+      "text:334"
+     ],
+     "notes": "Nace.AI System One API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Cygnet",
+     "maker": "Blockbrain Labs",
+     "kind": "decision",
+     "params_total": 11.96,
+     "params_active": 11.96,
+     "quantization": "BF16",
+     "score_0_100": 44.60873521383075,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.556869881710646,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.137566046929174,
+     "improvement_points": null,
+     "runs": [
+      "text:127"
+     ],
+     "notes": "Cygnet decision server on vLLM, self-hosted"
+    },
+    {
+     "repo": "ZefanCai/Open-Jev-27B-v1.1",
+     "commit": "28cf730",
+     "name": "Open-Jev 27B v1.1",
+     "maker": "Zefan Cai",
+     "kind": "decision",
+     "params_total": 27.8,
+     "params_active": 27.8,
+     "quantization": "BF16",
+     "score_0_100": 44.60873521383075,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.556869881710646,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.24515588984478145,
+     "improvement_points": null,
+     "runs": [
+      "text:45"
+     ],
+     "notes": "Open-Jev server, self-hosted"
+    },
+    {
+     "repo": "EldanRing/Winnow-12B",
+     "commit": "b2b1421",
+     "name": "Winnow-12B",
+     "maker": "EldanRing",
+     "kind": "decision",
+     "params_total": 11.91,
+     "params_active": 11.91,
+     "quantization": "Q8_0",
+     "score_0_100": 44.32438580527752,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5545950864422202,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.1970922224223394,
+     "improvement_points": null,
+     "runs": [
+      "text:128"
+     ],
+     "notes": "Winnow server (llama.cpp), self-hosted"
+    },
+    {
+     "repo": "baselabs/elephant-1",
+     "commit": "b3f8a93",
+     "name": "Elephant-1",
+     "maker": "Base Labs",
+     "kind": "decision",
+     "params_total": 9.41,
+     "params_active": 9.41,
+     "quantization": "BF16",
+     "score_0_100": 40.45723384895359,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5236578707916287,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.11820176478616924,
+     "improvement_points": null,
+     "runs": [
+      "text:373"
+     ],
+     "notes": "Base Labs server (qev, the model card's loader), self-hosted, BF16"
+    },
+    {
+     "repo": "perplexity-ai/pplx-decider-flash-v1.2",
+     "commit": "6d771ad",
+     "name": "Perplexity Decider Flash v1.2",
+     "maker": "Perplexity",
+     "kind": "decision",
+     "params_total": 4.54,
+     "params_active": 4.54,
+     "quantization": "BF16",
+     "score_0_100": 34.71337579617834,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.47770700636942676,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.08269965655542914,
+     "improvement_points": null,
+     "runs": [
+      "text:223"
+     ],
+     "notes": "Perplexity Decider server, self-hosted"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Microsoft-Decision-1",
+     "maker": "Microsoft",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 33.0641492265696,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.46451319381255685,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.19786253783505095,
+     "improvement_points": null,
+     "runs": [
+      "text:205"
+     ],
+     "notes": "OpenRouter System One API"
+    },
+    {
+     "repo": "Cloudflare/clef-flash",
+     "commit": "fde727a",
+     "name": "Clef-flash",
+     "maker": "Cloudflare",
+     "kind": "decision",
+     "params_total": 9.53,
+     "params_active": 9.53,
+     "quantization": "BF16",
+     "score_0_100": 32.154231119199274,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4572338489535942,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.15476878980891715,
+     "improvement_points": null,
+     "runs": [
+      "text:139"
+     ],
+     "notes": "Clef server, self-hosted"
+    },
+    {
+     "repo": "Qwen/Qwen3-14B",
+     "commit": "40c0698",
+     "name": "Qwen3-14B",
+     "maker": "Alibaba",
+     "kind": "chat",
+     "params_total": 14.77,
+     "params_active": 14.77,
+     "quantization": "BF16",
+     "score_0_100": 32.154231119199274,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4572338489535942,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.41002744844910793,
+     "improvement_points": null,
+     "runs": [
+      "text:131"
+     ],
+     "notes": "vLLM, self-hosted, BF16"
+    },
+    {
+     "repo": "ecloudtech/Erk-14B",
+     "commit": "8584b14",
+     "name": "Erk-14B",
+     "maker": "eCloud Technology",
+     "kind": "chat",
+     "params_total": 14.77,
+     "params_active": 14.77,
+     "quantization": "BF16",
+     "score_0_100": 31.244313011828933,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4499545040946315,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.13455620377261668,
+     "improvement_points": null,
+     "runs": [
+      "text:132"
+     ],
+     "notes": "vLLM, self-hosted, BF16"
+    },
+    {
+     "repo": "wayfind/metask-jev-4b-policy-mix",
+     "commit": "ea20fe8",
+     "name": "Metask-Jev 4B",
+     "maker": "Metask Lab",
+     "kind": "decision",
+     "params_total": 4.54,
+     "params_active": 4.54,
+     "quantization": "BF16",
+     "score_0_100": 25.955414012738853,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.40764331210191085,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.058126771586986974,
+     "improvement_points": null,
+     "runs": [
+      "text:126"
+     ],
+     "notes": "Metask-Jev server, self-hosted"
+    },
+    {
+     "repo": "LiquidAI/d1-2B",
+     "commit": "10e7671",
+     "name": "Liquid d1-2B (open weights)",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 1.92,
+     "params_active": 1.92,
+     "quantization": "BF16",
+     "score_0_100": 11.73794358507734,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.29390354868061874,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.0579868390338947,
+     "improvement_points": null,
+     "runs": [
+      "text:340"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16"
+    },
+    {
+     "repo": "StrandsAgents/strands-decider-2B-hobson-v21",
+     "commit": "2b52a62",
+     "name": "Strands Decider 2B",
+     "maker": "Strands Agents",
+     "kind": "decision",
+     "params_total": 2.29,
+     "params_active": 2.29,
+     "quantization": "BF16",
+     "score_0_100": 9.349408553230209,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.2747952684258417,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.12245345768880803,
+     "improvement_points": null,
+     "runs": [
+      "text:141"
+     ],
+     "notes": "Strands Decider server, self-hosted"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "meraGPT Decider 1",
+     "maker": "meraGPT",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 8.894449499545043,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.27115559599636035,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.1431224749772521,
+     "improvement_points": null,
+     "runs": [
+      "text:243"
+     ],
+     "notes": "meraGPT System One API"
+    },
+    {
+     "repo": "fastino/GLiNER2.5-multi-Decide",
+     "commit": "a35a0cd",
+     "name": "GLiNER2.5-multi-Decide",
+     "maker": "Fastino",
+     "kind": "decision",
+     "params_total": 0.29,
+     "params_active": 0.29,
+     "quantization": "FP16",
+     "score_0_100": 0.25022747952684055,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.20200181983621474,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.23118755647792288,
+     "improvement_points": null,
+     "runs": [
+      "text:135"
+     ],
+     "notes": "GLiNER2 server, self-hosted"
+    },
+    {
+     "repo": "convaiinnovations/laya",
+     "commit": "c5d7873",
+     "name": "Laya",
+     "maker": "Convai Innovations",
+     "kind": "decision",
+     "params_total": 0.42,
+     "params_active": 0.42,
+     "quantization": null,
+     "score_0_100": -1.2283894449499553,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.19017288444040037,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.1321950409463146,
+     "improvement_points": null,
+     "runs": [
+      "text:51"
+     ],
+     "notes": "Laya server, self-hosted"
+    },
+    {
+     "repo": "convaiinnovations/laya",
+     "commit": "c5d7873",
+     "name": "Laya multilingual",
+     "maker": "Convai Innovations",
+     "kind": "decision",
+     "params_total": 0.32,
+     "params_active": 0.32,
+     "quantization": null,
+     "score_0_100": -2.6501364877161078,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.17879890809827115,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.2771874886260236,
+     "improvement_points": null,
+     "runs": [
+      "text:46"
+     ],
+     "notes": "Laya server, self-hosted"
+    },
+    {
+     "repo": "fastino/gliner2.5-multi-v1",
+     "commit": "2ca71aa",
+     "name": "GLiNER2.5 Multi (base)",
+     "maker": "Fastino",
+     "kind": "chat",
+     "params_total": 0.29,
+     "params_active": 0.29,
+     "quantization": "FP16",
+     "score_0_100": -3.1619654231119196,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.17470427661510465,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.35619655110491094,
+     "improvement_points": null,
+     "runs": [
+      "text:122"
+     ],
+     "notes": "GLiNER2 server, self-hosted"
+    }
+   ]
+  },
+  {
+   "bench": "reading-vision",
+   "title": "Reading (Vision)",
+   "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
+   "updated": "2026-11-01T21:47:11Z",
+   "score": {
+    "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
+    "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"
+   },
+   "models": [
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Liquid d1-ultra",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 37.5819134993447,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5006553079947575,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.034957632368552746,
+     "improvement_points": null,
+     "runs": [
+      "vision:2",
+      "vision:5"
+     ],
+     "notes": "Liquid AI decisions API; the page image only (condition B)"
+    },
+    {
+     "repo": "vllm-sr/d3",
+     "commit": "20f37b9",
+     "name": "vLLM-SR d3",
+     "maker": "vLLM Semantic Router",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": "BF16",
+     "score_0_100": 35.61598951507208,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4849279161205767,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.03745645138174668,
+     "improvement_points": null,
+     "runs": [
+      "vision:41"
+     ],
+     "notes": "vLLM System One endpoint (nightly), self-hosted, BF16; the page image only (condition B)"
+    },
+    {
+     "repo": "nace-ai/drex-max-v1",
+     "commit": "cac65e1",
+     "name": "Drex Max v1",
+     "maker": "Nace.AI",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": "BF16",
+     "score_0_100": 33.48623853211009,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.46788990825688076,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.09308429546459711,
+     "improvement_points": null,
+     "runs": [
+      "vision:56"
+     ],
+     "notes": "Drex Max server (Nace's loader, drex_max), self-hosted, BF16; the page image only (condition B)"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Snap 1.1",
+     "maker": "Subquadratic",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 32.17562254259502,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.45740498034076016,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.11736391430054234,
+     "improvement_points": null,
+     "runs": [
+      "vision:62"
+     ],
+     "notes": "SubQ Decisions API (public preview); the page image only (condition B)"
+    },
+    {
+     "repo": "vllm-sr/d3-ultra",
+     "commit": "52ba9e7",
+     "name": "vLLM-SR d3-ultra",
+     "maker": "vLLM Semantic Router",
+     "kind": "decision",
+     "params_total": 26.09,
+     "params_active": 26.09,
+     "quantization": "BF16",
+     "score_0_100": 31.847968545216247,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.45478374836173,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.18775177910999716,
+     "improvement_points": null,
+     "runs": [
+      "vision:29"
+     ],
+     "notes": "d3 package server (transformers, the release code), self-hosted, BF16; the page image only (condition B)"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Drex Max 1.1",
+     "maker": "Nace.AI",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 31.356487549148106,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4508519003931848,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.05152597785022986,
+     "improvement_points": null,
+     "runs": [
+      "vision:58"
+     ],
+     "notes": "Nace.AI System One API; the page image only (condition B)"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "Jev 1.14.0",
+     "maker": "TypeSafe",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 29.062909567496725,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4325032765399738,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.03672346002621207,
+     "improvement_points": null,
+     "runs": [
+      "vision:1",
+      "vision:6"
+     ],
+     "notes": "TypeSafe System One API; the page image only (condition B)"
+    },
+    {
+     "repo": "OmniJev/OneJev-27B",
+     "commit": "a5e5f55",
+     "name": "OneJev 27B",
+     "maker": "OmniJev",
+     "kind": "decision",
+     "params_total": 27.36,
+     "params_active": 27.36,
+     "quantization": "BF16",
+     "score_0_100": 26.605504587155966,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.41284403669724773,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.04855050196592398,
+     "improvement_points": null,
+     "runs": [
+      "vision:28",
+      "vision:35"
+     ],
+     "notes": "OneJev server (qev, OmniJev's release code), self-hosted, BF16; the page image only (condition B)"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "GPT-6 Luna (Decisions API)",
+     "maker": "OpenAI",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 15.792922673656621,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.32634338138925295,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.05684141546526838,
+     "improvement_points": null,
+     "runs": [
+      "vision:3",
+      "vision:4"
+     ],
+     "notes": "OpenAI Decisions API (public beta); the page image only (condition B)"
+    },
+    {
+     "repo": "LiquidAI/d1-2B",
+     "commit": "10e7671",
+     "name": "Liquid d1-2B (open weights)",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 1.92,
+     "params_active": 1.92,
+     "quantization": "BF16",
+     "score_0_100": 4.161205766710356,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.23328964613368283,
+      "questions": 763,
+      "options": 5
+     },
+     "calibration_error": 0.010668762025147863,
+     "improvement_points": null,
+     "runs": [
+      "vision:60"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16; the page image only (condition B)"
+    }
+   ]
+  }
+ ]
+}

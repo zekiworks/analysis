@@ -1,0 +1,105 @@
+/* The combined page (all-benches/ and all-benches/method/, sitebuild/all_benches.py), on top of v3.css and in its
+   variables, so both themes hold: the ranking's columns (rows on a phone), the size slider, the switches, the pair bars
+   of "Their score against ours", the scatter charts and the model pages. */
+
+:is(.ab-view, .ab-board, .ab-model, .ab-tab-panel, .ab-bar, .card)[hidden] { display: none !important; }
+
+.ab-keys { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin: .4rem 0 .6rem; }
+.ab-keys .group-label { margin-right: .2rem; color: var(--text-2); font-size: .85rem; }
+.ab-board-title { margin: .5rem 0 .2rem; font-size: 1rem; }
+.ab-size { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; margin: 0 0 .25rem; font-size: .875rem; }
+.ab-size input { width: min(22rem, 100%); accent-color: var(--text); }
+.ab-size-out { color: var(--text-2); font-family: var(--mono); font-size: .82rem; }
+
+.ab-tag { display: inline-block; margin-left: .3rem; padding: 0 .3rem; color: var(--text-2); border: 1px solid var(--edge);
+  border-radius: 4px; font-size: .7rem; font-weight: 600; line-height: 1.4; white-space: nowrap; vertical-align: .1em; }
+.ab-noicon { display: inline-block; flex: none; width: 12px; height: 12px; margin-right: .3rem; border: 1px solid var(--mark-edge);
+  border-radius: 3px; vertical-align: -1px; }
+
+/* The #1 decision model of the view. */
+.ab-lead { margin: .25rem 0 .75rem; padding: .5rem .75rem; background: var(--sunk); border-left: 3px solid var(--text); border-radius: 4px; }
+.ab-lead-line { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .4rem; margin: 0; }
+.ab-lead-line .eyebrow { flex-basis: 100%; margin: 0; }
+.ab-lead-line .fam-icon, .ab-lead-line .ab-noicon { margin-right: 0; }
+.ab-lead-scores { display: flex; flex-wrap: wrap; gap: .1rem 1.1rem; margin: .3rem 0 0; padding: 0; list-style: none; font-size: .85rem; }
+
+/* The ranking: one column per decision model, its value on top, its maker's mark and its name under it. */
+.ab-bars { display: flex; align-items: flex-start; gap: 3px; margin: .5rem 0 0; padding: 0; list-style: none; }
+.ab-bar { flex: 1 1 0; min-width: 0; }
+.ab-bar > a { display: flex; flex-direction: column; align-items: center; color: var(--text); text-decoration: none; }
+.ab-bar-value { display: block; margin-bottom: 2px; font-family: var(--mono); font-size: .64rem; line-height: 1.1; text-align: center; }
+.ab-tied { display: block; color: var(--text-2); font-family: var(--sans); font-size: .6rem; }
+.ab-bar-track { display: flex; flex-direction: column; justify-content: flex-end; width: 100%; height: 230px;
+  border-bottom: 1px solid var(--control-edge); }
+.ab-bar-fill { display: block; flex: none; width: 100%; height: calc(var(--h) * .85); background: var(--c);
+  border: 1px solid var(--mark-edge); border-bottom: 0; border-radius: 3px 3px 0 0; }
+.ab-ref .ab-bar-fill, .ab-pair-bar.ab-ref { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, transparent 3px 6px); }
+.ab-bar-logo { display: flex; justify-content: center; height: 14px; margin: .3rem 0 .2rem; }
+.ab-bar-logo .fam-icon, .ab-bar-logo .ab-noicon { margin: 0; }
+.ab-bar-name { max-height: 10.5rem; overflow: hidden; font-size: .72rem; line-height: 1.1; white-space: nowrap; text-overflow: ellipsis;
+  writing-mode: vertical-rl; transform: rotate(180deg); }
+.ab-bar-name .ab-tag { display: none; }
+.ab-ref-word { color: var(--text-2); }
+.ab-bar > a:hover .ab-bar-fill, .ab-bar > a:focus-visible .ab-bar-fill { border-color: var(--text); border-width: 2px; }
+.ab-bar > a:hover .ab-bar-name { text-decoration: underline; }
+.ab-legend { display: flex; flex-wrap: wrap; gap: 0 .7rem; margin: .6rem 0 0; font-size: .74rem; }
+.ab-empty { padding: .75rem 0; }
+
+/* On a phone the columns turn into rows: mark, name, then the bar with its value after it. */
+@media (max-width: 760px) {
+  .ab-bars { display: block; }
+  .ab-bar > a { display: grid; grid-template-columns: 16px minmax(0, 8.5rem) minmax(0, 1fr); align-items: center;
+    gap: .35rem; padding: .1rem 0; }
+  .ab-bar-logo { order: 1; height: auto; margin: 0; }
+  .ab-bar-name { order: 2; max-height: none; writing-mode: horizontal-tb; transform: none; font-size: .8rem; }
+  .ab-bar-track { order: 3; flex-direction: row; align-items: center; justify-content: flex-start; height: auto; min-height: 1rem;
+    border-bottom: 0; }
+  .ab-bar-fill { order: 1; width: calc(var(--h) * .78); height: .75rem; border: 1px solid var(--mark-edge); border-left: 0;
+    border-radius: 0 3px 3px 0; }
+  .ab-bar-value { order: 2; display: flex; gap: .3rem; align-items: baseline; margin: 0 0 0 .3rem; font-size: .74rem; }
+  .ab-tied { font-size: .68rem; }
+}
+
+/* Head to head, the tables. */
+.ab-h2h th[scope="row"] { font-weight: 600; white-space: nowrap; }
+table.ab-results td.num .small, table.ab-bench-table td.num .small { white-space: nowrap; }
+table.ab-results thead th { white-space: normal; min-width: 5.5rem; }
+table.ab-results thead th:first-child { min-width: 12rem; }
+.ab-more { margin: 1rem 0 0; }
+.ab-more summary { cursor: pointer; font-weight: 600; }
+
+/* Their score against ours: two bars per model, theirs hatched grey, ours in the maker's colour. */
+td.ab-pair { min-width: 9rem; white-space: nowrap; }
+.ab-pair-bar { display: inline-block; width: calc(var(--h) * .72); height: .75rem; margin-right: .35rem; vertical-align: -1px;
+  border: 1px solid var(--mark-edge); border-radius: 0 3px 3px 0; }
+.ab-theirs { background: repeating-linear-gradient(135deg, var(--data-grey) 0 2px, var(--panel) 2px 4px); }
+.ab-ours { background-color: var(--c); }
+.ab-pair-value { font-family: var(--mono); font-size: .82rem; }
+.ab-ref-row td { color: var(--text-2); }
+
+/* The charts: two to a row where they fit, one on a phone. */
+.ab-charts:not([hidden]) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1rem; }
+.ab-chart h3 { margin: 0; font-size: .98rem; }
+.ab-scatter { display: block; width: 100%; height: auto; }
+.ab-scatter text { font-family: var(--sans); font-size: 12px; }
+.ab-scatter .grid { stroke: var(--edge); stroke-width: 1; }
+.ab-scatter .axis { stroke: var(--control-edge); stroke-width: 1; }
+.ab-scatter .tick, .ab-scatter .axis-title { fill: var(--text-2); }
+.ab-scatter .ab-dot { stroke: var(--mark-edge); stroke-width: 1; }
+.ab-scatter a:hover .ab-dot, .ab-scatter a:focus-visible .ab-dot { stroke: var(--text); stroke-width: 2.5; }
+.ab-scatter .ab-dot-label { fill: var(--text); font-size: 11px; }
+
+/* One tab per bench. */
+.ab-tabs { margin-bottom: .9rem; }
+.ab-tabs .key[aria-selected="true"] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); }
+.ab-tab-panel > h3 { margin: .25rem 0 .35rem; font-size: 1.02rem; }
+html:not(.js) .ab-tab-panel + .ab-tab-panel { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--edge); }
+
+/* The Methodology page: its source addresses wrap on a phone. */
+#method a { overflow-wrap: anywhere; }
+
+/* A model's page (?model=). */
+.ab-back { margin: 0 0 .5rem; font-size: .9rem; }
+.ab-model h1 { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
+.ab-facts { margin: 0 0 1rem; padding-left: 1.1rem; }
+.ab-facts li { margin: .1rem 0; }
