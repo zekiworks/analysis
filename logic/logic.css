@@ -278,3 +278,26 @@ table.lb-table .lb-wide { display: none; }
 .vision-method > summary { cursor: pointer; font-weight: 650; }
 .vision-method[open] > summary { margin-bottom: .5rem; }
 .chart-card .table-wrap { margin-top: .8rem; }
+/* Ümit #4317, #4318; zeki #4320, #4337: the Decision style section on the Logic page (decision models). */
+.decision-style .chart-box svg .style-name { fill: var(--text-2); font-size: 11px; font-weight: 650; }
+.decision-style .style-sub { margin: 1rem 0 .3rem; font-size: 1rem; }
+.decision-style .style-note { margin: .4rem 0 0; }
+.decision-style .style-key svg { vertical-align: -.15rem; margin-right: .25rem; }
+.decision-style tr.style-chosen td { font-weight: 650; }
+.decision-style .style-method { margin-top: .8rem; }
+.decision-style .style-method > summary { cursor: pointer; font-weight: 650; }
+.decision-style .chart-box { min-height: 0; }
+.decision-style tr.style-head > td { border-bottom: 0; font-weight: 600; }
+.decision-style tr.style-members > td { padding-top: 0; color: var(--text-2); font-size: .85rem; white-space: normal; }
+.decision-style .style-sensitivity { margin: .2rem 0 .6rem; padding: .5rem .7rem; border-left: 3px solid var(--text-2); background: var(--sunk); font-weight: 600; }
+.decision-style .style-k-keys > .style-k-input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.decision-style .style-k-keys > label.key { display: inline-flex; align-items: center; min-height: 2rem; padding: .25rem .7rem; margin: 0 .35rem .6rem 0;
+  font-size: .85rem; color: var(--text); background: var(--key); border: 1px solid var(--control-edge); border-radius: 6px; box-shadow: var(--key-shadow); cursor: pointer; }
+.decision-style .style-k-input:checked + label.key { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
+.decision-style .style-k-input:focus-visible + label.key { outline: 2px solid var(--text); outline-offset: 2px; }
+.decision-style .style-chart-note { margin: .5rem 0 0; }
+.decision-style .style-change { margin: .5rem 0 0; }
+/* Phone: each table scrolls sideways inside its own box; the first column (model or style) stays in view. */
+.decision-style .table-wrap { max-width: 100%; overflow-x: auto; }
+.decision-style table.style-table tbody td:first-child, .decision-style table.style-table thead th:first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); }
+.decision-style table.style-table tr.style-members > td:first-child { position: static; }
