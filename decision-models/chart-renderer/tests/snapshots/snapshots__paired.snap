@@ -5,8 +5,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a
-difference; the colour shows a related but separate test, adjusted across these 90 comparisons (9 pass).
-━━ passes the Holm adjustment across these 90 comparisons   ━━ does not pass
+difference; the colour shows a related but separate test, adjusted across these 91 comparisons (9 pass).
+━━ passes the Holm adjustment across these 91 comparisons   ━━ does not pass
 
                              Gemini 3.8 Flash (high reasoning) minus GPT-6 Astra (high reasoning)                              ⠠⠤⡧⠤                               +0.1
                                   GPT-6 Astra (high reasoning) minus GPT-6.1 Sol (high reasoning)                               ⠠⣷⠤                               +0.2
@@ -27,7 +27,8 @@ difference; the colour shows a related but separate test, adjusted across these 
                                               Muse Ember minus Claude Sonnet 5.5 (high reasoning)                            ⠠⠤⠤⠤⡧⢴⠤⠤⠤⠤⠤                          +0.6
                            Claude Sonnet 5.5 (high reasoning) minus Kimi K3.1 Pro (low reasoning)                                ⡇⠤⠤⠤⠤⠤⢴⠤⠤⠤⠤⠤⠄                    +2.3
                           Kimi K3.1 Pro (low reasoning) minus Qwen 3.5 397B-A17B (high reasoning)                           ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                           +0.0
-                         Qwen 3.5 397B-A17B (high reasoning) minus Inkling Small (high reasoning)                                ⡇ ⠠⠤⠤⠤⠤⠤⡦⠤⠤⠤⠤⠄                   +2.7
+                                    Qwen 3.5 397B-A17B (high reasoning) minus KnowLine 31B Gen1.5                             ⠤⠤⠤⡧⠤⢴⠤⠤⠤⠤⠤⠄                        +0.9
+                                         KnowLine 31B Gen1.5 minus Inkling Small (high reasoning)                               ⠠⡧⠤⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                     +1.8
                                 Inkling Small (high reasoning) minus GLM-5.3-Flash (reasoning on)                              ⠤⠤⡧⠤⠤⢴⠤⠤⠤⠤⠤                        +1.2
                                                       GLM-5.3-Flash (reasoning on) minus REAX 1.3                            ⠠⠤⠤⠤⡧⠤⢴⠤⠤⠤⠤⠤⠄                        +0.9
                                                                    REAX 1.3 minus Liquid d1-ultra                             ⠤⠤⠤⡧⠤⢴⠤⠤⠤⠤⠤                         +0.9
@@ -70,7 +71,7 @@ DeepSeek-V4.1-Flash 1017 (reasoning off) minus DeepSeek-V4.1-Flash, first releas
                                                         Jev 1.14.0 minus Inception Mercury Decide                            ⠐⠒⠒⠒⡗⠒⢺⠒⠒⠒⠒⠒⠒                        +0.9
                                      Inception Mercury Decide minus GLM-5.3-Flash (reasoning off)                          ⠐⠒⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒⠒⠒⠂                        +0.5
                                                    GLM-5.3-Flash (reasoning off) minus Jev 1.13.0                          ⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠂                         +0.3
-                                                                            Jev 1.13.0 minus Clef                          ⠐⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒                          +0.2
+                                                                            Jev 1.13.0 minus Clef                          ⠐⠒⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠒                          +0.2
                                                                              Clef minus Liquid d1                          ⠐⠒⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠒                          +0.3
                                                                          Liquid d1 minus Drex 2.0                              ⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠂                       +1.3
                                                                  Drex 2.0 minus Open-Jev 27B v1.1                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠂                          +0.0

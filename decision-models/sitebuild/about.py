@@ -21,11 +21,11 @@ NOTES_ORDER = ("", "english/", "turkish-vs-english/", "dont-know/", "web-groundi
 SUMMARY = """<div class="summary">
         <p class="summary-lead">No decision model led on every measure:</p>
         <ul class="summary-list">
-          <li><a href="../?tab=accuracy#board">Accuracy</a>: REAX 1.3 and Liquid d1-ultra, tied and clearly ahead at 77.9% and 77.1%; then GLiDE 27B (open) at 71.1%; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2 (local GPU), at 66.9% to 68.7%.</li>
+          <li><a href="../?tab=accuracy#board">Accuracy</a>: KnowLine 31B Gen1.5 clearly ahead at 81.8%; REAX 1.3 and Liquid d1-ultra, tied at 77.9% and 77.1%; GLiDE 27B (open) at 71.1%; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra, Drex Max v1 and 1.1, Mammoth-1, Deciders v1.1 and v1.2 (local GPU), at 66.9% to 68.7%.</li>
           <li><a href="../?tab=confidence#board">Calibration gap, as shipped</a>: Liquid d1.1 had the smallest among decision models.</li>
           <li><a href="../?tab=confidence#board">Better than a flat guess, after refit</a>: Perplexity Decider 27B v1.2 (API) at 32.1%, then Open-Jev 27B v1.1 (31.9%), then SubQ Snap 1.1 and Perplexity Decider 27B v1.1 (31.5% each). We did not test whether these gaps are real.</li>
           <li><a href="../?tab=routing#board">Estimated saving</a>: d1-ultra, the biggest in 8 of 16 LLM setups; REAX 1.3 in 6; GLiDE 27B (open) in 2.</li>
-          <li><a href="../#reading-grammar">Reading vs grammar</a>: decision models got up to 92.4% of reading questions right, but at most 71.8% of grammar questions.</li>
+          <li><a href="../#reading-grammar">Reading vs grammar</a>: decision models got up to 92.8% of reading questions right, but at most 77.1% of grammar questions.</li>
         </ul>
       </div>"""
 

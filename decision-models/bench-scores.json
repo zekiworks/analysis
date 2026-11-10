@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-10T17:08:26Z",
+   "updated": "2026-11-10T19:08:50Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -337,6 +337,30 @@
       "text:870"
      ],
      "notes": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included"
+    },
+    {
+     "repo": "PelaAI/KnowLine-31B-Gen1.5",
+     "commit": "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140",
+     "name": "KnowLine 31B Gen1.5",
+     "model_key": "knowline-31b-gen1.5",
+     "maker": "PelaAI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 77.25204731574159,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8180163785259327,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.03390679080566063,
+     "improvement_points": null,
+     "runs": [
+      "text:957"
+     ],
+     "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16"
     },
     {
      "repo": null,
@@ -1670,7 +1694,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-10T17:08:26Z",
+   "updated": "2026-11-10T19:08:50Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -1929,6 +1953,30 @@
       "text:558"
      ],
      "notes": "SGLang, self-hosted, published mixed precision; first-release weights (revision fb2764a), not the 1017 update"
+    },
+    {
+     "repo": "PelaAI/KnowLine-31B-Gen1.5",
+     "commit": "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140",
+     "name": "KnowLine 31B Gen1.5",
+     "model_key": "knowline-31b-gen1.5",
+     "maker": "PelaAI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 91.04420731707316,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9283536585365854,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.03369956281247031,
+     "improvement_points": null,
+     "runs": [
+      "text:957"
+     ],
+     "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16"
     },
     {
      "repo": "decisionmodels/REAX-1.3",
@@ -3336,7 +3384,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-10T17:08:26Z",
+   "updated": "2026-11-10T19:08:50Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -3669,6 +3717,30 @@
       "text:315"
      ],
      "notes": "OpenRouter chat API, Moonshot AI's endpoint (mxfp4), fallbacks off"
+    },
+    {
+     "repo": "PelaAI/KnowLine-31B-Gen1.5",
+     "commit": "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140",
+     "name": "KnowLine 31B Gen1.5",
+     "model_key": "knowline-31b-gen1.5",
+     "maker": "PelaAI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 71.38456549935148,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.771076523994812,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.03856193907697914,
+     "improvement_points": null,
+     "runs": [
+      "text:957"
+     ],
+     "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16"
     },
     {
      "repo": null,
@@ -5002,7 +5074,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-10T17:08:26Z",
+   "updated": "2026-11-10T19:08:50Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -5175,6 +5247,30 @@
       "english:587"
      ],
      "notes": "Claude Code CLI, Claude subscription; the kept reading questions in English"
+    },
+    {
+     "repo": "PelaAI/KnowLine-31B-Gen1.5",
+     "commit": "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140",
+     "name": "KnowLine 31B Gen1.5",
+     "model_key": "knowline-31b-gen1.5",
+     "maker": "PelaAI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 92.00182815356489,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9360146252285192,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.05000751445688127,
+     "improvement_points": null,
+     "runs": [
+      "english:953"
+     ],
+     "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16; the kept reading questions in English"
     },
     {
      "repo": null,

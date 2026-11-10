@@ -84,7 +84,8 @@ INTRO = (
 DESCRIPTION = (
     "We tested {decision} decision models on a reading comprehension and grammar test in native Turkish (not "
     "translated): {questions} questions. "
-    "No model led on every measure. REAX 1.3 got the most answers right, tied with Liquid's d1-ultra. Of the decision "
+    "No model led on every measure. KnowLine 31B Gen1.5 got the most answers right, ahead of REAX 1.3 and Liquid's "
+    "d1-ultra, which tied. Of the decision "
     "models with no observed mistakes at 99% confidence, Perplexity's Decider v1.2, run on our hardware, kept the most "
     "answers. With every model at 1 question per request, the decision model "
     "with the largest share took 34% to 56% of each LLM's questions, with accuracy at most 0.27 points lower, in a "
@@ -114,7 +115,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: REAX 1.3 and Liquid d1-ultra, tied and clearly ahead at 77.9% and 77.1%; then GLiDE 27B (open) at 71.1%; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2 (local GPU), at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: KnowLine 31B Gen1.5 clearly ahead at 81.8%; REAX 1.3 and Liquid d1-ultra, tied at 77.9% and 77.1%; GLiDE 27B (open) at 71.1%; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra, Drex Max v1 and 1.1, Mammoth-1, Deciders v1.1 and v1.2 (local GPU), at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -791,8 +792,12 @@ def copy_checks(data: Data) -> list[str]:
 
     check("Stability: every repeated setup ran 5 times", all(len(item["runs"]) == 5 for item in results["repeats"]))
     best = max(decision, key=lambda run: accuracy(run)[0])
-    check("REAX 1.3 got the most answers right (among decision models), tied with Liquid's d1-ultra",
-          best is reax and any(letter in (ultra.get("group") or "") for letter in (reax.get("group") or "")))
+    knowline = data.by_name("PelaAI/KnowLine-31B-Gen1.5")
+    check("KnowLine 31B Gen1.5 got the most answers right (among decision models), ahead of REAX 1.3 and Liquid's "
+          "d1-ultra, which tied",
+          best is knowline and not any(letter in (run.get("group") or "") for run in (reax, ultra)
+                                       for letter in (knowline.get("group") or ""))
+          and any(letter in (ultra.get("group") or "") for letter in (reax.get("group") or "")))
     flawless = [run for run in decision if run["confidence"]["sure"]["questions"] == run["confidence"]["sure"]["correct"]]
     flawless_kept = sorted((run["confidence"]["sure"]["questions"], run["run"]) for run in flawless)
     check("Of the decision models with no observed mistakes at 99% confidence, Decider v1.2 kept the most answers",
@@ -857,9 +862,10 @@ def copy_checks(data: Data) -> list[str]:
     check("Stability note: the other chat models were repeated on a sample of 200",
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
-    # replayed): REAX 1.3 and Liquid d1-ultra lead on accuracy, sharing a letter with each other and with no other decision
-    # model; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex
-    # Max v1 and 1.1, Mammoth-1, and Deciders v1.1 and v1.2 (local GPU), in that order, at 66.9% to 68.7%;
+    # replayed): KnowLine 31B Gen1.5 leads on accuracy, sharing a letter with no other decision model; then REAX 1.3 and
+    # Liquid d1-ultra, sharing a letter with each other and with no other decision model; then GLiDE 27B (open); then
+    # Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex Max v1 and
+    # 1.1, Mammoth-1, and Deciders v1.1 and v1.2 (local GPU), in that order, at 66.9% to 68.7%;
     # Liquid d1.1 has the smallest calibration gap as
     # shipped; Perplexity Decider 27B v1.2 (API) scores highest on Better than a flat guess, then Open-Jev 27B v1.1, then
     # SubQ Snap 1.1 and Decider v1.1 (equal to one decimal); d1-ultra gives the biggest estimated saving in 10 of the 16
@@ -873,21 +879,25 @@ def copy_checks(data: Data) -> list[str]:
         correct, total = accuracy(run)
         return f"{100 * correct / total:.1f}"
 
-    check("Summary: REAX 1.3 and Liquid d1-ultra have the highest accuracy among decision models, at 77.9% and 77.1%",
-          ranked[0] is reax and ranked[1] is ultra and percent(reax) == "77.9" and percent(ultra) == "77.1")
-    check("Summary: tied and clearly ahead: REAX 1.3 and d1-ultra share a letter with each other and with no other "
-          "decision model", shares(reax, ultra)
+    check("Summary: KnowLine 31B Gen1.5 has the highest accuracy among decision models, at 81.8%, clearly ahead: it shares "
+          "a letter with no other decision model",
+          ranked[0] is knowline and percent(knowline) == "81.8"
+          and not any(shares(knowline, run) for run in decision if run is not knowline))
+    check("Summary: REAX 1.3 and Liquid d1-ultra next, tied at 77.9% and 77.1%: they share a letter with each other and "
+          "with no other decision model",
+          ranked[1] is reax and ranked[2] is ultra and percent(reax) == "77.9" and percent(ultra) == "77.1"
+          and shares(reax, ultra)
           and not any(shares(lead, run) for lead in (reax, ultra) for run in decision if run is not reax and run is not ultra))
     with_web = data.by_name("pplx-decider-v1.2", "perplexity", "web_grounding")
     hosted = data.by_name("pplx-decider-v1.2", "perplexity", None)
     glide27 = data.by_name("glide-27b")
-    check("Summary: then GLiDE 27B (open) at 71.1%", ranked[2] is glide27 and percent(glide27) == "71.1")
-    check(f"Summary: then {with_web['name']}, GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied), Drex Max v1 and 1.1, "
-          f"Mammoth-1, and {decider['name']} and {decider12['name']}, in that order",
-          ranked[3] is with_web and ranked[4] is glide12 and ranked[5] is glide
-          and {run["run"] for run in ranked[6:8]} == {d3["run"], d3_ultra["run"]}
-          and accuracy(d3) == accuracy(d3_ultra) and ranked[8] is drex_v1 and ranked[9] is drex_11 and ranked[10] is mammoth
-          and {run["run"] for run in ranked[11:13]} == {decider["run"], decider12["run"]})
+    check("Summary: GLiDE 27B (open) at 71.1%", ranked[3] is glide27 and percent(glide27) == "71.1")
+    check(f"Summary: then {with_web['name']}, GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex "
+          f"Max v1 and 1.1, Mammoth-1, {decider['name']} and {decider12['name']}, in that order",
+          ranked[4] is with_web and ranked[5] is glide12 and ranked[6] is glide
+          and {run["run"] for run in ranked[7:9]} == {d3["run"], d3_ultra["run"]}
+          and accuracy(d3) == accuracy(d3_ultra) and ranked[9] is drex_v1 and ranked[10] is drex_11 and ranked[11] is mammoth
+          and {run["run"] for run in ranked[12:14]} == {decider["run"], decider12["run"]})
     near = (with_web, glide12, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
     check("Summary: at 66.9% to 68.7%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")
@@ -904,8 +914,8 @@ def copy_checks(data: Data) -> list[str]:
     def best_share(part: str) -> str:
         return f"{100 * max(run['groups'][part]['correct'] / run['groups'][part]['questions'] for run in decision):.1f}"
 
-    check("Summary: decision models got up to 92.4% of the reading questions right", best_share("reading") == "92.4")
-    check("Summary: but at most 71.8% of the grammar questions", best_share("grammar") == "71.8")
+    check("Summary: decision models got up to 92.8% of the reading questions right", best_share("reading") == "92.8")
+    check("Summary: but at most 77.1% of the grammar questions", best_share("grammar") == "77.1")
     # The cost notes: a setup without a cost runs on our hardware with no request time to estimate it from, or on a DGX
     # Spark, which has no public hourly price (the GLiDE family's open checkpoints); every other cost of a setup on our
     # hardware is at its maker's list price for the same model, a public host's for the same weights, or its GPU time at
