@@ -552,50 +552,35 @@ async function savePng(panel, svg, title, lines, filename) {
   }));
 })();
 
-/* Home page: the leaderboard's own filter (Ümit #2907), local to the table (the page's filters never change it): a
-   type row (All, Chat models, Decision models) and a Size row (Ümit #4156: All, Tiny, Small, Medium, Large,
-   Undisclosed; rows marked data-hl-size), combined: a row shows when it is of the type and of a selected size. A
-   second click on a pressed key returns its row to All (Ümit #3923). ?models=chat|decision and ?size=<class> open on
-   them; the old ?models=small-chat / small-decision (and small: Small chat) open on that type with Tiny and Small.
-   A row out of the view and its other-settings rows go out of view (class hl-off), whatever their expander says; the
-   programs stay in every view; the ranks are the ranks among all models; a selected size shows its rule under the
-   keys. */
+/* Home page: the leaderboard's own filter (Ümit #2907): All, Chat models, Decision models, Small chat
+   models or Small decision models (Ümit #3465, #3876: rows of that type marked data-hl-small; ?models=small-chat or
+   small-decision opens on one, the old ?models=small on Small chat models), local to the table
+   (the page's filters never change it). A row out of the view and its other-settings rows go out of view (class
+   hl-off), whatever their expander says; the programs stay in every view; the ranks are the ranks among all models;
+   a Small key shows its definition under the keys. */
 (function headlineFilter() {
   const table = document.getElementById('headline-table');
   const keys = [...document.querySelectorAll('[data-hl-filter]')];
-  const sizeKeys = [...document.querySelectorAll('#leaderboard [data-size-key]')];
-  const notes = [...document.querySelectorAll('#leaderboard [data-size-note]')];
+  const notes = [...document.querySelectorAll('.hl-small-note')];
   if (!table || !keys.length) return;
-  let type = 'all', sizes = new Set();
-  const apply = () => {
-    keys.forEach(x => x.setAttribute('aria-pressed', String(x.dataset.hlFilter === type)));
-    sizeKeys.forEach(x => x.setAttribute('aria-pressed', String(sizes.size ? sizes.has(x.dataset.sizeKey) : x.dataset.sizeKey === 'all')));
+  keys.forEach(k => k.addEventListener('click', () => {
+    // A second click on the pressed key undoes it: back to All (Ümit #3923).
+    const all = keys.find(x => x.dataset.hlFilter === 'all');
+    if (k !== all && k.getAttribute('aria-pressed') === 'true' && all) { all.click(); return; }
+    const type = k.dataset.hlFilter;
+    const small = type.startsWith('small-');
+    keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
     table.querySelectorAll('tbody tr[data-hl-type]').forEach(tr => {
       const t = tr.dataset.hlType;
-      const out = (type !== 'all' && t !== type) || (sizes.size > 0 && !sizes.has(tr.dataset.hlSize));
-      tr.classList.toggle('hl-off', t !== 'program' && out);
+      const out = small ? tr.dataset.hlSmall !== 'yes' || t !== type.slice(6) : t !== type;
+      tr.classList.toggle('hl-off', type !== 'all' && t !== 'program' && out);
     });
-    notes.forEach(n => { n.hidden = !sizes.has(n.dataset.sizeNote); });
+    notes.forEach(n => { n.hidden = n.dataset.smallNote !== type; });
     table.dispatchEvent(new CustomEvent('hl-filter'));
-  };
-  keys.forEach(k => k.addEventListener('click', () => {
-    const t = k.dataset.hlFilter;
-    type = t !== 'all' && t === type ? 'all' : t;
-    apply();
   }));
-  sizeKeys.forEach(k => k.addEventListener('click', () => {
-    const s = k.dataset.sizeKey;
-    sizes = s === 'all' || k.getAttribute('aria-pressed') === 'true' ? new Set() : new Set([s]);
-    apply();
-  }));
-  const q = new URLSearchParams(location.search);
-  const asked = q.get('models') === 'small' ? 'small-chat' : q.get('models');
-  const small = asked && asked.startsWith('small-');
-  const t = small ? asked.slice(6) : asked;
-  if (keys.some(k => k.dataset.hlFilter === t)) type = t;
-  if (small) sizes = new Set(['tiny', 'small']);
-  if (sizeKeys.some(k => k.dataset.sizeKey === q.get('size') && q.get('size') !== 'all')) sizes = new Set([q.get('size')]);
-  if (type !== 'all' || sizes.size) apply();
+  const asked = new URLSearchParams(location.search).get('models');
+  const start = keys.find(k => k.dataset.hlFilter === (asked === 'small' ? 'small-chat' : asked));
+  if (start) start.click();
 })();
 
 /* Home page: a leaderboard row's details box (Ümit #2904, as Clocktower Bench's). A tap on a phone opens it and a
