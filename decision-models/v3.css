@@ -322,9 +322,18 @@ tr.lb-off { display: none !important; }
   overflow: auto; overscroll-behavior: contain; background: var(--panel); border: 1px solid var(--control-edge);
   border-radius: 8px; box-shadow: var(--shadow); }
 .js .lb-box.open { display: block; }
-/* Wide screens show more columns; a phone shows rank, model and score, the rest in the details box. */
-.lb-table .lb-wide { display: none; }
-@media (min-width: 900px) { .lb-table .lb-wide { display: table-cell; } }
+/* Every screen shows the same table, its head row and every column (the project lead via Zeki #4150: a phone as on
+   the web). Narrower than 900 px it is set tighter: the heads and the cost notes wrap, and the bar sits above the score
+   in a narrow column. */
+@media (max-width: 899px) {
+  .lb-table th.num, .lb-table th.lb-score, .lb-table td.num .small { white-space: normal; }
+  .lb-table td.model { min-width: 7rem; }
+  .lb-table td.lb-score, .lb-table th.lb-score { width: auto; }
+  .lb-table td.lb-score { min-width: 3.4rem; text-align: right; }
+  .lb-table td.lb-score .lb-bar { display: block; width: 100%; height: .45rem; margin: .15rem 0 .2rem; }
+  .lb-table td.lb-score .lb-value { display: block; width: auto; padding-left: 0; }
+  .lb-table[data-part="both"] td.lb-score { display: table-cell; }
+}
 /* All setups: the full ranking in place of the one-row-per-model table (site.js); both show without the script. */
 .js .lb-all-setups:not(.is-open) { display: none; }
 .js .leaderboard.all-open .lb-models { display: none; }
@@ -902,42 +911,26 @@ ul.price-list { padding-left: 1.25rem; }
   main { padding-top: .5rem; }
   .hero { margin-top: 0; }
   .hero-counts { font-size: .8rem; margin-bottom: .6rem; }
-  /* The controls stay one strip that scrolls sideways inside its box, as on the Logic & Math site; site.js brings the
-     pressed keys into view. */
-  .lb-controls { flex-wrap: nowrap; gap: .3rem; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
-    padding: 2px 0; }
-  .lb-controls::-webkit-scrollbar { display: none; }
-  .lb-controls > * { flex: none; }
-  .lb-controls > * + * { padding-left: .3rem; border-left: 1px solid var(--edge); }
-  .lb-controls .keys { flex-wrap: nowrap; gap: .2rem; }
-  .lb-controls .key { padding: .15rem .38rem; font-size: .76rem; white-space: nowrap; }
-  /* The Leaderboard on a phone: each row in layers, so no name breaks: the rank, the maker dot, the icon and the full
-     name on one line (cut with an ellipsis only where the name alone is wider than the screen; its title holds it
-     whole), then the bar with its whisker and the score at the right. The head row is left out: the line above the
-     table says what the score is. */
-  .lb-table { font-size: .85rem; }
-  .lb-table thead { display: none; }
-  .lb-table, .lb-table tbody { display: block; }
-  /* The panel runs to the screen's edges, so a name's line has the width; a name wider than the line alone is cut. */
-  .panel.leaderboard { margin-inline: -.6rem; padding-inline: .5rem; border-inline: 0; border-radius: 0; }
-  .lb-table tbody tr { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: .3rem; align-items: baseline;
-    padding: .45rem 0; border-bottom: 1px solid var(--edge); }
-  .lb-table tbody tr[hidden] { display: none; }
-  .lb-table tbody td { display: block; padding: 0; border: 0; }
-  .lb-table td.rank { grid-column: 1; grid-row: 1; width: auto; min-width: 1.3rem; }
-  .lb-table td.model { grid-column: 2; grid-row: 1; display: grid; grid-template-columns: auto auto minmax(0, 1fr);
-    align-items: center; min-width: 0; }
-  .lb-table td.model .lb-dot { grid-column: 1; }
-  .lb-table td.model .fam-icon { grid-column: 2; margin-right: .3rem; }
-  .lb-table td.model .model-name { grid-column: 3; justify-self: start; max-width: 100%; overflow: hidden;
-    text-overflow: ellipsis; white-space: nowrap; }
-  .lb-table tr.lb-sub td.model .model-name { grid-column: 1 / -1; }
-  .lb-table td.model > :is(.small, .lb-more, .lb-box) { grid-column: 1 / -1; justify-self: start; }
-  .lb-table td.lb-score { grid-column: 1 / -1; grid-row: 2; width: auto; margin-top: .3rem; }
-  .lb-table td.lb-wide { display: none; }
-  .lb-value { width: 3.6rem; padding-left: .25rem; }
-  .lb-bar { width: calc(100% - 3.8rem); }
-  .lb-table[data-part="both"] td.lb-score { display: grid; grid-template-columns: minmax(0, 1fr) 3.6rem; }
+  /* The Leaderboard's keys wrap onto lines as on a wide screen, so no key is out of view. */
+  .lb-controls { gap: .35rem .6rem; }
+  .lb-controls .key { padding: .15rem .45rem; font-size: .78rem; }
+  /* The Leaderboard on a phone: the wide screen's table, smaller. The panel runs to the screen's edges; the rank and
+     model columns stay in view while the number columns scroll beside them inside the table's wrapper when the screen
+     is too narrow for them all. A row whose details box is open sits above the rows under it. */
+  .panel.leaderboard { margin-inline: -.6rem; padding-inline: .4rem; border-inline: 0; border-radius: 0; }
+  .lb-table { font-size: .8rem; }
+  .lb-table th { padding: .3rem .25rem; font-size: .68rem; line-height: 1.25; }
+  .lb-table :is(th, td) .small { font-size: .62rem; }
+  .lb-table td { padding: .35rem .25rem; }
+  .lb-table :is(th, td):first-child { box-sizing: border-box; width: 1.7rem; min-width: 1.7rem; max-width: 1.7rem;
+    position: sticky; left: 0; z-index: 2; background: var(--panel); }
+  .lb-table :is(th, td):nth-child(2) { position: sticky; left: 1.7rem; z-index: 2; background: var(--panel);
+    box-shadow: 1px 0 0 var(--edge); }
+  .lb-table tr.lb-sub > td:is(:first-child, :nth-child(2)) { background: var(--sunk); }
+  .lb-table tr.lb-open > td:is(:first-child, :nth-child(2)) { z-index: 5; }
+  .lb-table td.model { min-width: 6.5rem; max-width: 8.5rem; }
+  .lb-table td.model .lb-dot { width: .55rem; height: .55rem; margin-right: .2rem; }
+  .lb-table td.model svg.fam-icon { width: 12px; height: 12px; margin-right: .2rem; }
   .readout-row { padding: .3rem 0; margin-bottom: .45rem; }
   .readouts { row-gap: .2rem; }
   .readout { gap: .2rem; margin-right: .4rem; padding-right: .4rem; white-space: nowrap; }
