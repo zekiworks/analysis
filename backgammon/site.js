@@ -56,8 +56,8 @@
   if (pagePng) pagePng.addEventListener('click', () => { set(false); toggle.focus(); });
 })();
 
-/* On a phone the tab row scrolls sideways: the current tab starts in the middle of the row, and a tab that takes the
-   keyboard focus is brought fully into view. */
+/* If the tab row is ever wider than the window (it wraps on a phone), the current tab starts in the middle of the row,
+   and a tab that takes the keyboard focus is brought fully into view. */
 (function keepNavLinksInView() {
   const bar = document.querySelector('.site-tabs ul');
   if (!bar) return;

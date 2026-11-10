@@ -442,6 +442,13 @@ table.headline tbody tr.hl-open > td, #improve-results-table tbody tr.hl-open > 
    the header's) sticky cells, the box in plain text, not the row header's bold. */
 #improve-results-table tbody tr.hl-open > th:first-child { z-index: 4; }
 #improve-results-table .hl-box { font-weight: 400; text-align: left; }
+/* On a phone the table fits the screen (Ümit): Model, Change and Improved? only; the group, status, series
+   and the before → after values are in each row's details box. */
+@media (max-width: 640px) {
+  #improve-results-table :is(th, td):is(:nth-child(2), :nth-child(3), :nth-child(4), :nth-child(5), :nth-child(7)),
+  #improve-results .swipe-hint { display: none !important; }
+  #improve-results-table .model-name { white-space: normal; overflow-wrap: anywhere; }
+}
 /* A row's details box (bg.js): every value of the setup, a line per kind; in its row without script, else over the page
    beside its row where the window has room, else under it (fixed to the window, within its width), opened by a tap,
    hover or the focus. */
