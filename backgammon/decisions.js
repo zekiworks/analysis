@@ -21,6 +21,11 @@
   const count = n => n.toLocaleString('en-US');
   const nm = text => `<span class="nm">${esc(text)}</span>`;
   const plural = (n, word) => `${count(n)} ${word}${n === 1 ? '' : 's'}`;
+  /* A setup as the site shows it: its official name and tag (Ümit #4445; the page's #setup-labels, by dataset and the
+     name decisions/index.json keys it by), else that name. */
+  const labelsEl = document.getElementById('setup-labels');
+  const LABELS = labelsEl ? JSON.parse(labelsEl.textContent) : {};
+  const shown = (dataset, setup) => (LABELS[dataset.id] || {})[setup.name] || setup.name;
 
   /* GitHub Pages serves .gz files as they are; a server that sends them with Content-Encoding: gzip hands over JSON. */
   async function fetchJSON(url) {
@@ -311,7 +316,7 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
     const call = Object.keys(CALL_CODE).find(k => CALL_CODE[k] === view.c);
     return {
       league: view.dataset.label,
-      filters: [`Setup: ${view.setup ? view.setup.name : ''}`, view.r !== 'all' && `Position class: ${KIND[view.r]}`,
+      filters: [`Setup: ${view.setup ? shown(view.dataset, view.setup) : ''}`, view.r !== 'all' && `Position class: ${KIND[view.r]}`,
         call && `Risk call: ${CALL[call]}`, view.b !== 'all' && `Stake, or equity lost by a needless risk: ${STAKE_BAND[view.b]}`,
         view.k !== 'all' && `Close choice: ${CLOSE_FILTER[view.k]}`,
         view.pages && `page ${count(view.p)} of ${count(view.pages)}`].filter(Boolean),
@@ -347,7 +352,7 @@ ${flag}<div class="dec-top"><figure class="dec-board">${boardSVG(d)}</figure>${f
   function renderControls(v) {
     const datasetOptions = index.datasets.map(x => `<option value="${esc(x.id)}"${x.id === v.d ? ' selected' : ''}>${esc(x.label)}</option>`).join('');
     const setupOptions = v.dataset.setups.map(x => `<option value="${esc(x.slug)}"${x.slug === v.s ? ' selected' : ''}>` +
-      `${esc(x.name)} (${x.decisions ? plural(x.decisions, 'decision') : 'none scored yet'})</option>`).join('');
+      `${esc(shown(v.dataset, x))} (${x.decisions ? plural(x.decisions, 'decision') : 'none scored yet'})</option>`).join('');
     const rc = (v.setup && v.setup.risk) || {};
     const calls = rc.calls || {};
     const kindOptions = [['all', 'All decisions'], ['risk', `Risk pays (${count(rc.risk || 0)})`],
@@ -417,8 +422,8 @@ ${v.k !== 'all' ? `<p class="note dec-note">Close choice: the second most likely
       renderControls(v);
       list.innerHTML = decisions.map(d => card(d, v.dataset)).join('');
       const invalid = decisions.filter(d => d.invalid).length;
-      status.textContent = v.total === 0 ? `${v.setup.name}: no decision matches these filters.`
-        : `${v.setup.name}: page ${count(v.p)} of ${count(v.pages)}, ` +
+      status.textContent = v.total === 0 ? `${shown(v.dataset, v.setup)}: no decision matches these filters.`
+        : `${shown(v.dataset, v.setup)}: page ${count(v.p)} of ${count(v.pages)}, ` +
         `${plural(decisions.length, 'decision')}, ${plural(invalid, 'invalid answer')} on this page ` +
         `(${plural(v.setup.invalid, 'invalid answer')} in all ${count(v.setup.decisions)}).`;
       updateFrames();

@@ -452,10 +452,12 @@ async function savePng(panel, svg, title, lines, filename) {
       const [lo, hi] = flip ? [-p.hi, -p.lo] : [p.lo, p.hi];
       const word = hi < 0 ? 'lower error (interval entirely below zero)' : lo > 0 ? 'higher error (interval entirely above zero)'
         : 'no clear difference (the interval includes zero)';
+      // The setups as the pickers show them (official name and tag, Ümit #4445); the values stay the data's keys.
+      const shown = sel => sel.options[sel.selectedIndex].text;
       out.innerHTML = `<dl class="facts"><dt>Positions both answered validly</dt><dd>${p.positions.toLocaleString('en')}</dd>`
-        + `<dt>Error difference, ${esc(b.value)} minus ${esc(a.value)}</dt><dd>${fmt(s * p.diff)} PR `
+        + `<dt>Error difference, ${esc(shown(b))} minus ${esc(shown(a))}</dt><dd>${fmt(s * p.diff)} PR `
         + `<span class="small inline">95% interval ${fmt(lo)} to ${fmt(hi)}</span></dd>`
-        + `<dt>Reading</dt><dd>${esc(b.value)}: ${word}</dd></dl>`;
+        + `<dt>Reading</dt><dd>${esc(shown(b))}: ${word}</dd></dl>`;
     };
     a.addEventListener('change', render);
     b.addEventListener('change', render);
