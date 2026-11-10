@@ -216,6 +216,9 @@ function chartLabels(runs) {
 /* The filters, each also a key in the page URL (readUrl, writeUrl). web: every setup ('all'), those that searched the
    web before answering ('with', perplexity_mode) or the others ('without'). */
 const DEFAULT_FILTERS = { part: 'all', topic: null, qpr: 'all', web: 'all' };
+/* The Routing tab's and the tradeoff chart's keys as the page opens; a second tap on a pressed key returns there. */
+const DEFAULT_ROUTE = { llm: 'opus', qpr: 1, rule: 'half', mode: 'replay' };
+const DEFAULT_ACROSS = 'cost';
 const state = {
   ...DEFAULT_FILTERS,
   picked: new Set(),
@@ -227,8 +230,8 @@ const state = {
   models: 'all',
   tab: 'accuracy',
   sort: { key: 'accuracy', descending: true },
-  route: { llm: 'opus', qpr: 1, rule: 'half', mode: 'replay' },
-  across: 'cost',
+  route: { ...DEFAULT_ROUTE },
+  across: DEFAULT_ACROSS,
 };
 /* Each tab's order when it opens: the Routing tab by the share of the LLM's questions taken, the Stability tab by
    changed answers, most first (ties by the same wrong answer in all five runs, the column's tie, most first), the
@@ -1754,19 +1757,22 @@ function onClick(event) {
     return;
   }
   const { dataset } = button;
+  /* A second tap on a pressed key undoes it, back to the key row's default (the three sites' rule, bus #3923-#3927);
+     a sort key keeps flipping its order instead. */
+  const pick = (current, chosen, fallback) => (String(current) === String(chosen) ? fallback : chosen);
   if (dataset.select) toggleSelected(Number(dataset.select));
   else if (dataset.tab) {
-    state.tab = dataset.tab;
+    state.tab = pick(state.tab, dataset.tab, 'accuracy');
     state.sort = defaultSort(state.tab);
   } else if (dataset.sort) {
     const column = TABS[state.tab].columns.find(item => item.key === dataset.sort);
     state.sort = state.sort.key === column.key ? { key: column.key, descending: !state.sort.descending } : { key: column.key, descending: !column.low };
   } else if (dataset.routeLlm) {
-    state.route.llm = dataset.routeLlm;
+    state.route.llm = pick(state.route.llm, dataset.routeLlm, DEFAULT_ROUTE.llm);
     fitRouteSize();
-  } else if (dataset.routeQpr) state.route.qpr = Number(dataset.routeQpr);
-  else if (dataset.routeMode) state.route.mode = dataset.routeMode;
-  else if (dataset.across) state.across = dataset.across;
+  } else if (dataset.routeQpr) state.route.qpr = Number(pick(state.route.qpr, dataset.routeQpr, DEFAULT_ROUTE.qpr));
+  else if (dataset.routeMode) state.route.mode = pick(state.route.mode, dataset.routeMode, DEFAULT_ROUTE.mode);
+  else if (dataset.across) state.across = pick(state.across, dataset.across, DEFAULT_ACROSS);
   else if (dataset.control === 'share') {
     shareView(button);
     return;

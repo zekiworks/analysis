@@ -12,7 +12,9 @@ function secondsText(value) {
    each page's <head> sets before it renders. A page's own values carry both units (site.py cost_value) and v3.css shows
    the chosen one; v3.js and compare.js write theirs with costScale and costNumber and redraw on the "costunit" event.
    A key with data-cost-unit-choice (site.py cost_switch) changes it everywhere, keeps it in localStorage and in the
-   address (the rest of the address and its history state stay). Without JavaScript costs read per 1,000 questions. */
+   address (the rest of the address and its history state stay); a second tap on the pressed key goes back to the
+   default, per 1,000 questions (the three sites' rule, bus #3923-#3927). Without JavaScript costs read per 1,000
+   questions. */
 const COST_UNITS = { '1k': { label: 'per 1,000 questions', scale: 1 }, '1m': { label: 'per 1M questions', scale: 1000 } };
 const costUnit = () => (document.documentElement.dataset.costUnit === '1m' ? '1m' : '1k');
 /* A cost per 1,000 questions times costScale() is the cost in the chosen unit. */
@@ -49,8 +51,9 @@ const costSwitch = () =>
   press();
   document.addEventListener('click', event => {
     const key = event.target.closest('[data-cost-unit-choice]');
-    if (!key || key.dataset.costUnitChoice === costUnit()) return;
-    const unit = key.dataset.costUnitChoice;
+    if (!key) return;
+    const unit = key.dataset.costUnitChoice !== costUnit() ? key.dataset.costUnitChoice : costUnit() !== '1k' ? '1k' : null;
+    if (!unit) return;
     root.dataset.costUnit = unit;
     keep(unit);
     const url = new URL(window.location.href);
@@ -92,9 +95,10 @@ const costSwitch = () =>
    means all; trailing dots, punctuation or spaces are dropped, so "all." reads as all; the old small reads as
    small-chat, so old links and bookmarks keep working). Each element whose data-models lists other groups only is
    hidden (and shown again when it lists this one), before the page's own scripts run; <html data-models-view> carries
-   the group for them, and a page's group keys (.group-switch) mark it. A group asked for in the address stays in the
-   links marked data-keep-group. The sticky header's height (the suite strip and the site's bar) is kept in
-   --view-bar-h, so the page scrolls links and parts below it. */
+   the group for them, and a page's group keys (.group-switch) mark it; the marked key leads back to the page's default,
+   All models, so a second tap undoes it (the three sites' rule, bus #3923-#3927). A group asked for in the address
+   stays in the links marked data-keep-group. The sticky header's height (the suite strip and the site's bar) is kept
+   in --view-bar-h, so the page scrolls links and parts below it. */
 const GROUP_KEYS = ['all', 'decision', 'chat', 'small-chat', 'small-decision'];
 const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
   (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, ''));
@@ -106,10 +110,12 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
   });
   document.querySelectorAll('.group-switch a[data-group-key]').forEach(link => {
-    if (link.dataset.groupKey === group) link.setAttribute('aria-current', 'true');
-    else link.removeAttribute('aria-current');
     const url = new URL(link.href);
     url.hash = '';
+    if (link.dataset.groupKey === group) {
+      link.setAttribute('aria-current', 'true');
+      if (group !== 'all') url.searchParams.delete('models');
+    } else link.removeAttribute('aria-current');
     link.href = url.href;
   });
   if (asked) {
@@ -245,10 +251,13 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     return;
   }
   // Small chat models opens on English (leaderboard.py SMALL_PART): the small open models ran in English only. Small
-  // decision models keeps the part in view.
+  // decision models keeps the part in view. A second tap on a pressed key undoes it, back to the default (the three
+  // sites' rule, bus #3923-#3927): a part to Turkish; a filter to Decision models, and Decision models to All.
+  const DEFAULT_PART = 'turkish';
+  const DEFAULT_FILTER = 'decision';
   const state = {
-    part: ASKED_GROUP === 'small-chat' ? 'english' : 'turkish',
-    filter: GROUP_KEYS.includes(ASKED_GROUP) ? ASKED_GROUP : 'decision',
+    part: ASKED_GROUP === 'small-chat' ? 'english' : DEFAULT_PART,
+    filter: GROUP_KEYS.includes(ASKED_GROUP) ? ASKED_GROUP : DEFAULT_FILTER,
     all: false,
   };
   const allPanel = document.getElementById('all-setups');
@@ -294,9 +303,10 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
   board.addEventListener('click', event => {
     const key = event.target.closest('button');
     if (!key) return;
-    if (key.dataset.lbPart) state.part = key.dataset.lbPart;
+    if (key.dataset.lbPart) state.part = key.dataset.lbPart === state.part ? DEFAULT_PART : key.dataset.lbPart;
     else if (key.dataset.lbFilter) {
-      state.filter = key.dataset.lbFilter;
+      const chosen = key.dataset.lbFilter;
+      state.filter = chosen !== state.filter ? chosen : chosen === DEFAULT_FILTER ? 'all' : DEFAULT_FILTER;
       if (state.filter === 'small-chat') state.part = 'english';
     } else if (key.hasAttribute('data-lb-all')) {
       openAll(!state.all);
