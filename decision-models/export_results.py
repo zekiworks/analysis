@@ -3606,7 +3606,9 @@ SAME_ANSWERS_TAIL = 250
 SAME_ANSWERS_RULE = (
     "Each model's five-option run (Turkish: every main run on the Text tab, all its setups, each its own Text tab run; "
     "English: its first English run) keeps exactly k answers, k being the reference's answered count (right + wrong) in "
-    "its run with \"I don't know\". A run's scored answers (score and choice not null; any other answer is never kept) "
+    "its run with \"I don't know\"; a run with fewer than k scored answers keeps none: wrong, wrong_of_answers, "
+    "difference, interval, p and p_holm stay null, its curve still has its points, and it is left out of the bootstrap "
+    "and of Holm's correction (the reference having fewer than k stops the export). A run's scored answers (score and choice not null; any other answer is never kept) "
     "are ranked by score, highest first, equal scores by question id ascending (answers.json questions.id), never by "
     "correctness; the first k are kept, and wrong is the number of wrong answers among them, a whole number. "
     "wrong_of_answers = wrong / k; difference = a model's wrong_of_answers - the reference's. A curve has one point "
@@ -3620,7 +3622,8 @@ SAME_ANSWERS_RULE = (
     f"Two-sided p = min(1, 2 * min(1 + #{{d <= 0}}, 1 + #{{d >= 0}}) / {SAME_ANSWERS_RESAMPLES + 1:,}); the 95% "
     f"interval is the percentile interval, the {SAME_ANSWERS_TAIL}th smallest and the {SAME_ANSWERS_TAIL}th largest of "
     f"the {SAME_ANSWERS_RESAMPLES:,} resampled d. Holm's correction within each family over the models other than the "
-    "reference (Turkish: the other main runs; English: the other English reading models), in the family's order."
+    "reference that keep k answers (Turkish: the other main runs; English: the other English reading models), in the "
+    "family's order."
 )
 
 
@@ -3665,30 +3668,35 @@ def same_answers_compare(family: str, models: list[dict[str, Any]], ranked: list
                          k: int, reference: int) -> None:
     """Fill in each model's wrong answers among its k most confident (`wrong`, `wrong_of_answers`) and, for every model
     but the reference (`models[reference]`), the difference from the reference with its paired bootstrap interval, p and
-    Holm's p over the family (SAME_ANSWERS_RULE). Stops when a model has fewer than k scored answers, or a resample
-    leaves it fewer."""
+    Holm's p over the family (SAME_ANSWERS_RULE). A model with fewer than k scored answers keeps its nulls and is left
+    out of the bootstrap and of Holm's correction; stops when the reference has fewer than k, or a resample leaves a
+    compared model fewer."""
     ones = [1] * questions
-    for model, found in zip(models, ranked):
+    compared = []
+    for index, (model, found) in enumerate(zip(models, ranked)):
         wrong = kept_wrong(found, ones, k)
+        if wrong is None and index != reference:
+            continue
+        compared.append(index)
         if wrong is None:
             raise ValueError(f"same answers, {family}: {model['name']} (Text tab run {model['text_run']})'s five-option run "
                              f"{model['five_option_run']} has {len(found['order'])} scored answers, fewer than k = {k}")
         model["wrong"] = wrong
         model["wrong_of_answers"] = wrong / k
-    others = [index for index in range(len(models)) if index != reference]
+    others = [index for index in compared if index != reference]
     differences: dict[int, list[float]] = {index: [] for index in others}
     rng = random.Random(SAME_ANSWERS_SEED)
     for resample in range(SAME_ANSWERS_RESAMPLES):
         weights = [0] * questions
         for position in rng.choices(range(questions), k=questions):
             weights[position] += 1
-        rates = []
-        for model, found in zip(models, ranked):
-            wrong = kept_wrong(found, weights, k)
+        rates = {}
+        for index in compared:
+            model, wrong = models[index], kept_wrong(ranked[index], weights, k)
             if wrong is None:
                 raise ValueError(f"same answers, {family}: resample {resample + 1} leaves {model['name']} (Text tab run "
                                  f"{model['text_run']}) fewer than k = {k} weighted scored answers")
-            rates.append(wrong / k)
+            rates[index] = wrong / k
         for index in others:
             differences[index].append(rates[index] - rates[reference])
     for index in others:
@@ -3708,8 +3716,9 @@ def dont_know_same_answers(data: dict[str, Any], answers: dict[str, Any], public
     with the option as points ("Bilmiyorum" and the option-word run); k from the reference's option-word run. English:
     the models of `english_reading` on the kept questions, each with its first English run, its answers in the selection
     order and its first English "I don't know" run as its point; k from the reference's English "I don't know" run.
-    Stops when a needed section or run is missing, a Hallucination tab model is not a main run or a run's answers do not
-    give its published counts."""
+    A five-option run with fewer than k scored answers keeps its nulls (same_answers_compare). Stops when a needed
+    section or run is missing, a Hallucination tab model is not a main run or a run's answers do not give its published
+    counts."""
     section, option_word = data.get("dont_know"), data.get("dont_know_option_word")
     reading = data.get("english_reading") or {}
     if section is None or option_word is None or public is None or "dont_know" not in reading:

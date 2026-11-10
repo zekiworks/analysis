@@ -107,8 +107,10 @@ python3 -m http.server 8000                                # preview at http://1
   for the same number of answers (`dont_know_same_answers`) each model's wrong answers among exactly its k most
   confident five-option answers (equal scores taken in question-id order), the differences from Liquid d1-ultra with
   the paired bootstrap (10,000 resamples, seed 20261103) and Holm (over every other Text tab setup in Turkish, the
-  other English reading models in English), each setup's answers in selection order (`wrong_by_rank`, from which
-  every curve is drawn) and the markers of the runs with the option; for answers at 95%+ confidence (`high_confidence`)
+  other English reading models in English, each over the models that keep k answers), each setup's answers in selection
+  order (`wrong_by_rank`, from which every curve is drawn) and the markers of the runs with the option; a five-option
+  run other than Liquid d1-ultra's with fewer than k scored answers keeps every number null and is left out of the
+  bootstrap and of Holm; for answers at 95%+ confidence (`high_confidence`)
   each Text tab run's kept and wrong answers at 95%, Liquid d1-ultra's repeat runs, the three models Artificial Analysis
   ties at 65 in all their runs at six cutoffs with the check at every whole percent up to 98%, and d1-ultra's English
   runs with the questions they got wrong; and for Liquid d1-ultra against each English reading model
@@ -295,7 +297,8 @@ python3 -m http.server 8000                                # preview at http://1
     word ("I don't know" instead of "Bilmiyorum" on the same Turkish questions) and those runs against confidence, hosted
     GLiDE against a new five-option run in place of run 129, and the same number of answers (each model's five-option run
     keeping its k most confident answers, k being Liquid d1-ultra's answered count with "I don't know", against Liquid
-    d1-ultra by a paired bootstrap: in Turkish every setup of the Text tab, in English every English reading model; the
+    d1-ultra by a paired bootstrap: in Turkish every setup of the Text tab, in English every English reading model, a run
+    with fewer than k scored answers left out of the test and named as such in the summary, its curve still drawn; the
     Turkish plot draws each setup with runs with the option and the English plot every English reading model, each curve
     of wrong of answers against answered with the setup's runs with the option marked, and under Info a small plot per
     Turkish setup shows every setup's curve against Liquid d1-ultra's; inline

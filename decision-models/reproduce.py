@@ -1547,7 +1547,10 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
     INTERVAL_TOLERANCE), Holm's correction over the non-reference models, each entry's wrong_by_rank (its scored answers
     in the selection order, "1" wrong and "0" right: rebuilt exactly, as long as the run's scored answers, with wrong the
     "1"s among its first k characters), no curve pairs, and the runs with the option of each Hallucination tab model and
-    each English model (and no points for any other main run). Returns a line per mismatch."""
+    each English model (and no points for any other main run). A model other than the reference with fewer than k
+    scored answers has wrong, wrong_of_answers, difference, interval, p and p_holm all null, its wrong_by_rank rebuilt
+    exactly (as long as its scored answers, fewer than k) and is left out of the bootstrap and of Holm's correction.
+    Returns a line per mismatch."""
     section = results.get("dont_know_same_answers")
     if section is None:
         return []
@@ -1600,7 +1603,8 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
         if k is None:
             return
         rankings = []
-        for item, model, found in zip(expected, published["models"], points):
+        compared = []
+        for index, (item, model, found) in enumerate(zip(expected, published["models"], points)):
             name = f"{label} {item['name']} (run {item['text_run']})"
             check(f"{name} runs", [model.get("text_run"), model.get("five_option_run"), "replaces_run" in model],
                   [item["text_run"], item["five_option_run"], False])
@@ -1611,16 +1615,25 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
             ranking = kept_ranking(run, positions, ids)
             rankings.append(ranking)
             wrong = selected_wrong(ranking, [1] * len(positions), k)
-            check(f"{name} wrong, a whole number", [model["wrong"], isinstance(model["wrong"], int)], [wrong, True])
-            check(f"{name} wrong_of_answers", model["wrong_of_answers"], None if wrong is None else wrong / k)
-            if wrong is None:
-                return
             ranks = model.get("wrong_by_rank")
-            scored_answers = sum(1 for index in positions if run["score"][index] is not None and run["choice"][index] is not None)
+            scored_answers = sum(1 for position in positions if run["score"][position] is not None and run["choice"][position] is not None)
             check(f"{name} wrong_by_rank", ranks, "".join(map(str, ranking[1])))
-            check(f"{name} wrong_by_rank length, wrong among its first k, no curve pairs",
-                  [len(ranks) if isinstance(ranks, str) else None, ranks[:k].count("1") if isinstance(ranks, str) else None,
-                   "curve" in model], [scored_answers, model["wrong"], False])
+            if wrong is None and index != at:
+                check(f"{name} fewer than k scored answers: wrong, wrong_of_answers, difference, interval, p, p_holm null",
+                      [model.get(key, "missing") for key in ("wrong", "wrong_of_answers", "difference", "interval", "p", "p_holm")],
+                      [None] * 6)
+                check(f"{name} wrong_by_rank length, fewer than k, no curve pairs",
+                      [len(ranks) if isinstance(ranks, str) else None, scored_answers < k, "curve" in model],
+                      [scored_answers, True, False])
+            else:
+                check(f"{name} wrong, a whole number", [model["wrong"], isinstance(model["wrong"], int)], [wrong, True])
+                check(f"{name} wrong_of_answers", model["wrong_of_answers"], None if wrong is None else wrong / k)
+                if wrong is None:
+                    return
+                compared.append(index)
+                check(f"{name} wrong_by_rank length, wrong among its first k, no curve pairs",
+                      [len(ranks) if isinstance(ranks, str) else None, ranks[:k].count("1") if isinstance(ranks, str) else None,
+                       "curve" in model], [scored_answers, model["wrong"], False])
             if item["option"]:
                 check(f"{name} points", model.get("points"), found)
             else:
@@ -1632,18 +1645,18 @@ def check_same_answers(docs: Path, results: dict[str, Any], answers: dict[str, A
         for resample in range(resamples):
             times = Counter(rng.choices(range(len(positions)), k=len(positions)))
             weights = [times[position] for position in range(len(positions))]
-            rates = [selected_wrong(ranking, weights, k) for ranking in rankings]
-            if None in rates:
+            rates = {index: selected_wrong(rankings[index], weights, k) for index in compared}
+            if None in rates.values():
                 short = resample + 1
                 break
-            for index, rate in enumerate(rates):
+            for index, rate in rates.items():
                 drawn[index].append(rate / k - rates[at] / k)
-        check(f"{label} every resample keeps k answers of every model", short, None)
+        check(f"{label} every resample keeps k answers of every compared model", short, None)
         if short is not None:
             return
-        others = [index for index in range(len(rankings)) if index != at]
+        others = [index for index in compared if index != at]
         p_values = {}
-        for index in range(len(rankings)):
+        for index in compared:
             model, name = published["models"][index], f"{label} {expected[index]['name']} (run {expected[index]['text_run']})"
             if index == at:
                 check(f"{name} (reference) difference, interval, p, p_holm",

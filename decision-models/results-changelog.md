@@ -2,6 +2,16 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 258d4ef4 (10 November 2026)
+
+- Added Claude Haiku 5.5, Anthropic's small chat model, as a chat model at the project lead's request (bus #4257): through OpenRouter on Anthropic's own endpoint (fallbacks off), with the answer schema every other chat setup uses, reasoning max, 16 questions per request and an output cap of 128,000 tokens, the endpoint's maximum. Anthropic states no size; at its list price of $0.10 per 1M input tokens it is in the Efficient class.
+- Text: run 948, 1,254 of the 2,198 questions right (57.1%). 784 answers are invalid and count as wrong, as for every setup, and none was asked again: 46 of its 138 requests (736 answers) spent the whole 128,000-token output cap on reasoning and returned no answer, and 3 requests (48 answers) failed at the provider (a timeout, an overload, one without a code). Of the 1,414 questions it answered, 1,254 were right (88.7%); that share leaves the unanswered questions out, so it is not comparable with any setup's accuracy.
+- English reading: run 949, 507 of the 547 kept questions right (92.7%), no invalid answers.
+- Hallucination tab: "Bilmiyorum" run 950 chose the option for 39 of its 177 answers that were not right (non-hallucination 22.0%), with 672 answers invalid (42 of its 138 requests cut off at the output cap); English "I don't know" run 951 for 4 of 51 (7.8%), with 16 invalid (1 of its 35 requests cut off at the cap).
+- The same number of answers (Hallucination tab): a five-option run with fewer scored answers than k keeps no k answers, so it is now listed with its count and left out of the comparison and of Holm's correction (the rule says so); Claude Haiku 5.5's Turkish run is the one such run (1,414 scored answers, k = 1,582), so no Turkish number there changed. In English its run has all 547 answers and joins the comparison (20 wrong of its 496 most confident answers, 1.8 points fewer than Liquid d1-ultra's five-option run, could be chance); Holm's correction there covers one more model, so the others' adjusted p values rise slightly, and no verdict moved.
+- Cost at OpenRouter's price for Anthropic's own endpoint ($0.10 per 1M input tokens, $0.50 per 1M output): $6.34 for the Turkish run ($2.89 per 1,000 questions), $0.69 for English ($1.26 per 1,000).
+- Significance letters move with the new setup; no paired verdict moved. In the English "I don't know" comparison Holm's correction covers one more model; no verdict moved. No other number changed.
+
 ## Results f0fa180a (10 November 2026)
 
 - KnowLine 31B Gen1.5's other runs, on the same DGX Spark: on the Hallucination tab, English "I don't know" (run 955) and Turkish "Bilmiyorum" (run 959); it chose the option for none of its 37 English answers that were not right and for 1 of its 412 Turkish ones (non-hallucination 0.0% and 0.2%).
