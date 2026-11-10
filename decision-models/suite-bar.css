@@ -1,19 +1,20 @@
-/* The suite strip: one row of links to the three benchmark sites (English & Turkish Reading, Logic & Math,
-   Backgammon), identical on every page of all three. Self-contained: it needs no other stylesheet. The snippet is
-   suite-bar.html; put it as the first row of the page's sticky header (or at the very top of <body>).
+/* The suite strip: one row of four links, All benches first, then the three benchmark sites (All benches, Reading &
+   Grammar, Logic & Math, Backgammon; project lead, 10 November, bus #4172 and #4224), identical on every page of the three sites and
+   of All benches. Self-contained: it needs no other stylesheet. The snippet is suite-bar.html; put it as the first row
+   of the page's sticky header (or at the very top of <body>).
 
    Theme: it follows data-theme on <html> ("light" or "dark"), as the sites' own stylesheets do; without the attribute
-   it follows the reader's system setting (prefers-color-scheme). The current site's link carries aria-current="page"
-   and is filled like a selected key; the others are plain links.
+   it follows the reader's system setting (prefers-color-scheme). Every link is a framed key, so it reads as a button
+   (project lead, 10 November, bus #4222): a white rectangle with a dark edge in the light theme, a light outline on a
+   faint fill in the dark one. The current site's link carries aria-current="page" and is filled, with a thicker ring.
 
-   The links sit in the middle of the strip (project lead, 9 November). They are centred by auto margins, not by
-   justify-content: center: where they are wider than the screen they then start at its left edge and scroll sideways
-   inside the strip, never the page; plain centring would push the start of the first link off the left edge, out of
-   reach. On a desktop about 57 px tall: 10 px above and below the links, the links 36 px high with 10 px by 18 px
-   inside and 24 px between them, 14 px text. Below 600 px wide about 52 px tall, links 31 px high, 13 px text, and the
-   spacing narrows with the screen so that the three full names fit side by side on a phone (project lead, 10
-   November): 8 px inside each link and 8 px between them and at the edges below 600 px, 3 px inside and 5 px between
-   below 430 px, 2 px inside and 3 px between below 390 px. One line. */
+   The links sit in the middle of the strip (project lead, 9 November), every label whole. Where one line no longer
+   fits (below about 700 px wide), the links wrap onto a second centred line (up to about 385 px: All benches and
+   Reading & Grammar, then Logic & Math and Backgammon; wider, the first three, then Backgammon), so the strip never
+   scrolls sideways and never cuts a label. On a desktop one line about 57 px tall: 10 px above and below the links,
+   the links 36 px high with 10 px by 18 px inside and 24 px between them, 14 px text. Below 600 px wide the full
+   labels in 13 px text (Zeki, bus #3924), links 31 px high with 8 px inside and 8 px between them, 6 px between the
+   two lines: about 48 px tall on one line, 85 px on two. */
 .suite-bar {
   --suite-bg: #ecebe6;
   --suite-edge: #c9c6bf;
@@ -23,6 +24,10 @@
   --suite-current-edge: #14213d;
   --suite-current-text: #ffffff;
   --suite-focus: #1f5fbf;
+  --suite-link-bg: #ffffff;
+  --suite-link-edge: rgba(0, 0, 0, .32);
+  --suite-link-hover-bg: #ffffff;
+  --suite-link-hover-edge: rgba(0, 0, 0, .62);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .suite-bar {
@@ -34,6 +39,10 @@
     --suite-current-edge: #9cc8ff;
     --suite-current-text: #ffffff;
     --suite-focus: #9cc8ff;
+    --suite-link-bg: rgba(255, 255, 255, .06);
+    --suite-link-edge: rgba(255, 255, 255, .45);
+    --suite-link-hover-bg: rgba(255, 255, 255, .12);
+    --suite-link-hover-edge: rgba(255, 255, 255, .78);
   }
 }
 :root[data-theme="dark"] .suite-bar {
@@ -45,6 +54,10 @@
   --suite-current-edge: #9cc8ff;
   --suite-current-text: #ffffff;
   --suite-focus: #9cc8ff;
+  --suite-link-bg: rgba(255, 255, 255, .06);
+  --suite-link-edge: rgba(255, 255, 255, .45);
+  --suite-link-hover-bg: rgba(255, 255, 255, .12);
+  --suite-link-hover-edge: rgba(255, 255, 255, .78);
 }
 .suite-bar {
   box-sizing: border-box;
@@ -52,21 +65,18 @@
   min-height: 52px;
   margin: 0;
   padding: 10px 18px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
   background: var(--suite-bg);
   border-bottom: 1px solid var(--suite-edge);
   font: 600 14px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   letter-spacing: 0;
 }
-.suite-bar::-webkit-scrollbar { display: none; }
 .suite-bar ul {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 24px;
-  width: max-content;
-  margin: 0 auto;
+  justify-content: center;
+  gap: 6px 24px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -78,34 +88,23 @@
   min-height: 36px;
   padding: 10px 18px;
   color: var(--suite-text);
-  border: 1px solid transparent;
-  border-radius: 5px;
+  background: var(--suite-link-bg);
+  border: 1px solid var(--suite-link-edge);
+  border-radius: 7px;
   white-space: nowrap;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
-.suite-bar a:hover { color: var(--suite-hover); border-color: var(--suite-edge); }
+.suite-bar a:hover { color: var(--suite-hover); background: var(--suite-link-hover-bg); border-color: var(--suite-link-hover-edge); }
 .suite-bar a:focus-visible { outline: 2px solid var(--suite-focus); outline-offset: 1px; }
 .suite-bar a[aria-current="page"] {
   color: var(--suite-current-text);
   background: var(--suite-current-bg);
   border-color: var(--suite-current-edge);
-  text-decoration: none;
+  box-shadow: 0 0 0 1px var(--suite-current-edge);
 }
 @media (max-width: 599px) {
-  .suite-bar { min-height: 48px; padding: 10px 8px; font-size: 13px; }
-  .suite-bar ul { gap: 8px; }
+  .suite-bar { min-height: 48px; padding: 8px 8px; font-size: 13px; }
+  .suite-bar ul { gap: 6px 8px; }
   .suite-bar a { min-height: 31px; padding: 8px 8px; }
-}
-@media (max-width: 429px) {
-  .suite-bar { padding: 10px 5px; }
-  .suite-bar ul { gap: 5px; }
-  .suite-bar a { padding: 8px 3px; }
-}
-@media (max-width: 389px) {
-  .suite-bar { padding: 10px 3px; }
-  .suite-bar ul { gap: 3px; }
-  .suite-bar a { padding: 8px 2px; }
 }
 @media print { .suite-bar { display: none; } }

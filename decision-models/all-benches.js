@@ -1,8 +1,10 @@
 'use strict';
 
-/* The combined page, all-benches/ (sitebuild/all_benches.py). The page comes built: every view's ranking, charts and
-   table are in it, the default view shown; this script switches between them and keeps the reader's choice in the
-   address (?board=, view=, size=, a=, b=, tab=), so Back from a model's page returns to the same view. ?model=<name>
+/* All benches, /analysis/all-benches/ (sitebuild/all_benches.py). The page comes built: every view's ranking, charts and
+   table are in it, the default view shown; this script switches between them (the score switch: Combined, Reading ·
+   Turkish, Reading · English, Reading · Vision, Logic & Math, Backgammon) and keeps the reader's choice in the address
+   (?view=, size=, a=, b=, tab=), so Back from a model's page returns to the same view; the earlier ?board=vision opens
+   Reading · Vision. ?model=<name>
    (or its slug or repo) shows that model's page instead of the rest. Head to head is redrawn here from ab-data, with the
    page's one rule for "tied" (Methodology #tied): apart only by at least 100 / sqrt(n) points, n the smaller question
    count; on the combined score sqrt(sum of the three margins squared) / 3. */
@@ -26,7 +28,7 @@
     const next = new URLSearchParams();
     for (const [key, value] of Object.entries(state)) if (value !== null && value !== undefined && value !== '') next.set(key, value);
     const query = next.toString();
-    history.replaceState(history.state, '', query ? `?${query}` : window.location.pathname);
+    history.replaceState(history.state, '', (query ? `?${query}` : window.location.pathname) + window.location.hash);
   }
 
   /* ?model=: one model's page, the rest of the page hidden. */
@@ -52,32 +54,16 @@
     }
   }
 
-  /* Text / Vision, and the score in view on each board. */
-  const boards = $$('[data-ab-board]').map(key => key.dataset.abBoard);
-  let askedView = params.get('view');
-  function showView(board, view) {
-    const views = $$(`.ab-board[data-board="${board}"] [data-ab-view]`).map(key => key.dataset.abView);
-    if (!views.includes(view)) view = DATA.defaults[board];
-    $$(`.ab-board[data-board="${board}"] [data-ab-view]`).forEach(key => key.setAttribute('aria-pressed', String(key.dataset.abView === view)));
-    $$(`.ab-board[data-board="${board}"] .ab-view`).forEach(part => { part.hidden = part.dataset.view !== view; });
-    $$('[data-board-view]').forEach(part => { part.hidden = !(part.dataset.boardView === board && part.dataset.view === view); });
-    state.view = view === DATA.defaults[board] ? null : view;
+  /* The score in view: the ranking, the charts and their score against ours follow it. */
+  const views = $$('[data-ab-view]').map(key => key.dataset.abView);
+  function showView(view) {
+    if (!views.includes(view)) view = DATA.default;
+    $$('[data-ab-view]').forEach(key => key.setAttribute('aria-pressed', String(key.dataset.abView === view)));
+    $$('.ab-view[data-view]').forEach(part => { part.hidden = part.dataset.view !== view; });
+    state.view = view === DATA.default ? null : view;
     applySize();
   }
-  function showBoard(board) {
-    if (!boards.includes(board)) board = boards[0];
-    $$('[data-ab-board]').forEach(key => key.setAttribute('aria-pressed', String(key.dataset.abBoard === board)));
-    $$('.ab-board').forEach(part => { part.hidden = part.dataset.board !== board; });
-    state.board = board === boards[0] ? null : board;
-    const view = askedView || DATA.defaults[board];
-    askedView = null;
-    showView(board, view);
-  }
-  $$('[data-ab-board]').forEach(key => key.addEventListener('click', () => { showBoard(key.dataset.abBoard); save(); }));
-  $$('[data-ab-view]').forEach(key => key.addEventListener('click', () => {
-    showView(key.closest('.ab-board').dataset.board, key.dataset.abView);
-    save();
-  }));
+  $$('[data-ab-view]').forEach(key => key.addEventListener('click', () => { showView(key.dataset.abView); save(); }));
 
   /* The size slider: bars up to the size chosen; models of undisclosed size only at its top (all sizes). */
   const slider = document.getElementById('ab-size');
@@ -148,7 +134,7 @@
   }
   tabs.forEach(tab => tab.addEventListener('click', () => { showTab(tab.dataset.abTab); save(); }));
 
-  showBoard(params.get('board') || boards[0]);
+  showView(params.get('view') || (params.get('board') === 'vision' ? 'reading-vision' : DATA.default));
   showTab(params.get('tab'));
   save();
 })();

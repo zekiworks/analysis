@@ -822,24 +822,29 @@ def signed(points: float) -> str:
     return ("+0.0" if text == "-0.0" else text).replace("-", "−") + " points"
 
 
-def summary(data: dict[str, Any]) -> str:
-    """The three lines under the title, from vision.json: the average difference from the text (A), in points, of the
-    picture alone (B) and of the text plus the picture (C) over the image models (those with A, B and C), and of the best
-    OCR route over every model with one."""
+def differences(data: dict[str, Any]) -> dict[str, tuple[float, int]]:
+    """The average difference from the text (A), in points, with the number of models averaged, by condition: "B" (the
+    picture alone) and "C" (the text plus the picture) over the image models (those with A, B and C), "D" (the best OCR
+    route) over every model with one; a condition no model has is left out. The Vision page's summary lines and the
+    Highlights tab's Vision card."""
     share = lambda got: got["correct"] / got["questions"]  # noqa: E731
+    mean = lambda values: 100 * sum(values) / len(values)  # noqa: E731
     image = [model for model in data["models"] if all(label in model["conditions"] for label in ("A", "B", "C"))]
     routes = [(model, best_route(data, model)) for model in data["models"]]
     routes = [(model, route[1]) for model, route in routes if route]
-    mean = lambda values: 100 * sum(values) / len(values)  # noqa: E731
-    lines = []
-    for label, models in (("B", image), ("C", image)):
-        if models:
-            lines.append(("Picture only (B) vs text (A)" if label == "B" else "Text + picture (C) vs text (A)",
-                          mean([share(model["conditions"][label]) - share(model["conditions"]["A"]) for model in models]),
-                          f"average over the {len(models)} image models"))
+    out = {}
+    if image:
+        for label in ("B", "C"):
+            out[label] = (mean([share(model["conditions"][label]) - share(model["conditions"]["A"]) for model in image]), len(image))
     if routes:
-        lines.append(("Best OCR route (D) vs text (A)", mean([share(got) - share(model["conditions"]["A"]) for model, got in routes]),
-                      f"average over the {len(routes)} models with an OCR route"))
-    items = "".join(f"<li><strong>{esc(name)}:</strong> {signed(value)} <span class=\"small\">{esc(scope)}</span></li>"
-                    for name, value, scope in lines)
+        out["D"] = (mean([share(got) - share(model["conditions"]["A"]) for model, got in routes]), len(routes))
+    return out
+
+
+def summary(data: dict[str, Any]) -> str:
+    """The three lines under the title, from vision.json (differences)."""
+    names = {"B": ("Picture only (B) vs text (A)", "image models"), "C": ("Text + picture (C) vs text (A)", "image models"),
+             "D": ("Best OCR route (D) vs text (A)", "models with an OCR route")}
+    items = "".join(f"<li><strong>{esc(names[label][0])}:</strong> {signed(value)} <span class=\"small\">average over the "
+                    f"{count} {names[label][1]}</span></li>" for label, (value, count) in differences(data).items())
     return f'<ul class="vision-summary">{items}</ul>'

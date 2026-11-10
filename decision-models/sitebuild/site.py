@@ -45,8 +45,9 @@ SECTION = {"question/": "questions/", "disagreements/": "questions/", "topics/":
 MODEL_GROUPS = (("all", "All models"), ("chat", "Chat models"), ("decision", "Decision models"),
                 ("small-chat", "Small chat models"), ("small-decision", "Small decision models"))
 SMALL_GROUPS = ("small-chat", "small-decision")
-# The suite strip shared by the three benchmark sites (decision-models, logic, backgammon): its stylesheet and snippet,
-# files of the site published as they are, which the other two sites copy; this site's link is the marked one.
+# The suite strip shared by the three benchmark sites (decision-models, logic, backgammon) and All benches: its stylesheet
+# and snippet, files of the site published as they are, which the other two sites copy; this site's link is the marked
+# one (All benches marks its own, sitebuild/all_benches.py).
 SUITE_CSS = "suite-bar.css"
 SUITE_HTML = "suite-bar.html"
 SUITE_HERE = "/analysis/decision-models/"
@@ -64,14 +65,15 @@ def cost_missing(run: dict[str, Any]) -> str:
 
 
 @cache
-def suite_bar() -> str:
-    """The suite strip as suite-bar.html gives it (its leading comment dropped), this site's link marked as the current
-    one (aria-current="page"), inlined at the top of the sticky header of every page."""
+def suite_bar(here: str = SUITE_HERE) -> str:
+    """The suite strip as suite-bar.html gives it (its leading comment dropped), the link to here (this site's, unless
+    a page of All benches asks for its own) marked as the current one (aria-current="page"), inlined at the top of the
+    sticky header of every page."""
     snippet = re.sub(r"<!--.*?-->", "", (ROOT / SUITE_HTML).read_text(encoding="utf-8"), flags=re.S).strip()
-    here = f'<a href="{SUITE_HERE}">'
-    if snippet.count(here) != 1:
-        raise SystemExit(f"{SUITE_HTML}: no single link to {SUITE_HERE}")
-    return snippet.replace(here, f'<a href="{SUITE_HERE}" aria-current="page">')
+    link = f'<a href="{here}">'
+    if snippet.count(link) != 1:
+        raise SystemExit(f"{SUITE_HTML}: no single link to {here}")
+    return snippet.replace(link, f'<a href="{here}" aria-current="page">')
 
 
 # The model groups (?models=), the first shown without JavaScript.

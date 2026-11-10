@@ -1,0 +1,110 @@
+/* The suite strip: one row of four links, All benches first, then the three benchmark sites (All benches, Reading &
+   Grammar, Logic & Math, Backgammon; project lead, 10 November, bus #4172 and #4224), identical on every page of the three sites and
+   of All benches. Self-contained: it needs no other stylesheet. The snippet is suite-bar.html; put it as the first row
+   of the page's sticky header (or at the very top of <body>).
+
+   Theme: it follows data-theme on <html> ("light" or "dark"), as the sites' own stylesheets do; without the attribute
+   it follows the reader's system setting (prefers-color-scheme). Every link is a framed key, so it reads as a button
+   (project lead, 10 November, bus #4222): a white rectangle with a dark edge in the light theme, a light outline on a
+   faint fill in the dark one. The current site's link carries aria-current="page" and is filled, with a thicker ring.
+
+   The links sit in the middle of the strip (project lead, 9 November), every label whole. Where one line no longer
+   fits (below about 700 px wide), the links wrap onto a second centred line (up to about 385 px: All benches and
+   Reading & Grammar, then Logic & Math and Backgammon; wider, the first three, then Backgammon), so the strip never
+   scrolls sideways and never cuts a label. On a desktop one line about 57 px tall: 10 px above and below the links,
+   the links 36 px high with 10 px by 18 px inside and 24 px between them, 14 px text. Below 600 px wide the full
+   labels in 13 px text (Zeki, bus #3924), links 31 px high with 8 px inside and 8 px between them, 6 px between the
+   two lines: about 48 px tall on one line, 85 px on two. */
+.suite-bar {
+  --suite-bg: #ecebe6;
+  --suite-edge: #c9c6bf;
+  --suite-text: #23221f;
+  --suite-hover: #000000;
+  --suite-current-bg: #14213d;
+  --suite-current-edge: #14213d;
+  --suite-current-text: #ffffff;
+  --suite-focus: #1f5fbf;
+  --suite-link-bg: #ffffff;
+  --suite-link-edge: rgba(0, 0, 0, .32);
+  --suite-link-hover-bg: #ffffff;
+  --suite-link-hover-edge: rgba(0, 0, 0, .62);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .suite-bar {
+    --suite-bg: #111110;
+    --suite-edge: #3a3935;
+    --suite-text: #dedbd4;
+    --suite-hover: #ffffff;
+    --suite-current-bg: #24508f;
+    --suite-current-edge: #9cc8ff;
+    --suite-current-text: #ffffff;
+    --suite-focus: #9cc8ff;
+    --suite-link-bg: rgba(255, 255, 255, .06);
+    --suite-link-edge: rgba(255, 255, 255, .45);
+    --suite-link-hover-bg: rgba(255, 255, 255, .12);
+    --suite-link-hover-edge: rgba(255, 255, 255, .78);
+  }
+}
+:root[data-theme="dark"] .suite-bar {
+  --suite-bg: #111110;
+  --suite-edge: #3a3935;
+  --suite-text: #dedbd4;
+  --suite-hover: #ffffff;
+  --suite-current-bg: #24508f;
+  --suite-current-edge: #9cc8ff;
+  --suite-current-text: #ffffff;
+  --suite-focus: #9cc8ff;
+  --suite-link-bg: rgba(255, 255, 255, .06);
+  --suite-link-edge: rgba(255, 255, 255, .45);
+  --suite-link-hover-bg: rgba(255, 255, 255, .12);
+  --suite-link-hover-edge: rgba(255, 255, 255, .78);
+}
+.suite-bar {
+  box-sizing: border-box;
+  display: block;
+  min-height: 52px;
+  margin: 0;
+  padding: 10px 18px;
+  background: var(--suite-bg);
+  border-bottom: 1px solid var(--suite-edge);
+  font: 600 14px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: 0;
+}
+.suite-bar ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.suite-bar li { flex: none; margin: 0; padding: 0; }
+.suite-bar a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 10px 18px;
+  color: var(--suite-text);
+  background: var(--suite-link-bg);
+  border: 1px solid var(--suite-link-edge);
+  border-radius: 7px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.suite-bar a:hover { color: var(--suite-hover); background: var(--suite-link-hover-bg); border-color: var(--suite-link-hover-edge); }
+.suite-bar a:focus-visible { outline: 2px solid var(--suite-focus); outline-offset: 1px; }
+.suite-bar a[aria-current="page"] {
+  color: var(--suite-current-text);
+  background: var(--suite-current-bg);
+  border-color: var(--suite-current-edge);
+  box-shadow: 0 0 0 1px var(--suite-current-edge);
+}
+@media (max-width: 599px) {
+  .suite-bar { min-height: 48px; padding: 8px 8px; font-size: 13px; }
+  .suite-bar ul { gap: 6px 8px; }
+  .suite-bar a { min-height: 31px; padding: 8px 8px; }
+}
+@media print { .suite-bar { display: none; } }

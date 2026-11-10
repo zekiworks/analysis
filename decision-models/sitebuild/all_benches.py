@@ -1,24 +1,31 @@
-"""The combined page (all-benches/, working title TITLE): every Zeki Works bench for the decision models on one page,
-laid out after the Jev Decision Index page in the site's own style (project lead, bus #4057), and its Methodology page
-(all-benches/method/).
+"""All benches (TITLE, the project lead's name for it, bus #4172): every Zeki Works bench for the decision models on one
+page, laid out after the Jev Decision Index page in the site's own style (project lead, bus #4057), and its Methodology
+page. They live outside the Reading site, at /analysis/all-benches/ and /analysis/all-benches/method/ (page_config.json
+all_benches.url): the build writes them into the git-ignored folder OUT (_suite/all-benches/) with copies of every file
+they use (ASSETS), so the folder works on its own; the publishing step copies it to the mirror's analysis/all-benches/.
+Their header is the suite strip with All benches marked, then the page's own title row (its name and the theme switch),
+no Reading tabs. The old addresses in the Reading site, all-benches/ and all-benches/method/, are redirects to the new
+ones that keep the query and the fragment.
 
-Data: only the benches' published bench-scores.json files, one schema for the three sites (#4062): this site's own Text
-and Vision benches (sitebuild/bench_scores.py, the same rows its bench-scores.json publishes) and the Logic & Math and
-Backgammon sites' files at their published addresses (page_config.json all_benches.benches), which the build reads and
-keeps in all-benches/benches.json: a file the address does not serve yet is "not published yet" on the page; when the
-address cannot be reached, the build keeps what it read before. Models join across benches by Hugging Face repo, else
-by name and kind (join_key). Every score is 0 to 100: 0 = chance (Backgammon: a random legal-move player's error
-rate), 100 = perfect. The combined score is the plain mean of Reading (Text), Logic & Math and Backgammon, for a model on
-all three only, and only where one model answered every bench (page_config.json all_benches.not_combined lists the rows
-where it did not); learning from experience (improvement points) stays outside it. Two scores closer than their margin
-(margin) read "tied", the one rule the Methodology page states (#tied); no interval or range is shown.
+Data: only the benches' published bench-scores.json files, one schema for the three sites (#4062): this site's own three
+Reading benches, Reading · Turkish, Reading · English and Reading · Vision (#4173; sitebuild/bench_scores.py, the same
+rows its bench-scores.json publishes; their keys here stay reading, reading-english and reading-vision) and the Logic &
+Math and Backgammon sites' files at their published addresses (page_config.json all_benches.benches), which the build
+reads and keeps in SNAPSHOT (in the repo, copied into OUT): a file the address does not serve yet is "not published yet"
+on the page; when the address cannot be reached, the build keeps what it read before. Models join across benches by
+Hugging Face repo, else by name and kind (join_key). Every score is 0 to 100: 0 = chance (Backgammon: a random
+legal-move player's error rate), 100 = perfect. The combined score is the plain mean of Reading · Turkish, Logic & Math
+and Backgammon, for a model on all three only, and only where one model answered every bench (page_config.json
+all_benches.not_combined lists the rows where it did not); learning from experience (improvement points) stays outside
+it. Two scores closer than their margin (margin) read "tied", the one rule the Methodology page states (#tied); no
+interval or range is shown.
 
-The page in order: the line on what it measures with the Text / Vision switch; the ranking (a column chart of the
-decision models, each bar in its maker's colour with the maker's mark under it, the Combined / per-bench switch and the
-size slider; it opens on the #1 decision model); How it's scored; Head to head; Full results; the three charts (size,
-calibration error and latency against the score); their score against ours for the index's 15 models; one tab per
-bench. ?model=<name> shows one model's page instead (all-benches.js). Without JavaScript the page is the default view's
-static parts and every bench's table."""
+The page in order: the line on what it measures; the ranking (a column chart of the decision models, each bar in its
+maker's colour with the maker's mark under it, the score switch, Combined · Reading · Turkish · Reading · English ·
+Reading · Vision · Logic & Math · Backgammon, and the size slider; it opens on the #1 decision model); How it's scored;
+Head to head; Full results; the three charts (size, calibration error and latency against the score); their score against
+ours for the index's 15 models; one tab per bench. ?model=<name> shows one model's page instead (all-benches.js).
+Without JavaScript the page is the default view's static parts and every bench's table."""
 
 from __future__ import annotations
 
@@ -27,6 +34,7 @@ import math
 import statistics
 import unicodedata
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections import Counter
 from datetime import datetime, timezone
@@ -34,19 +42,30 @@ from typing import Any, Callable
 
 import build_page as bp
 from sitebuild import bench_scores
-from sitebuild.site import ROOT, Site, asset, billions, esc, family_icon, icon_id, model_families, rel
+from sitebuild.site import (ROOT, SUITE_CSS, THEME_SWITCH, Site, asset, billions, esc, family_icon, family_sprite,
+                            model_families, rel, suite_bar)
 
-# The page's name, one constant (the project lead names it later); never "Index".
+# The page's name (project lead, bus #4172: final); never "Index".
 TITLE = "All benches"
-PATH = "all-benches/"
-METHOD = "all-benches/method/"
+# The folder the build writes for /analysis/all-benches/ (git-ignored), and the pages' paths inside it.
+OUT = "_suite/all-benches/"
+PATH = ""
+METHOD = "method/"
+# The files the two pages use, copied into OUT beside them, so the folder needs nothing from the Reading site.
+ASSETS = (SUITE_CSS, "v3.css", "site.js", "all-benches.css", "all-benches.js")
+# The pages' earlier addresses in the Reading site, now redirects to the new ones.
+OLD_PATH = "all-benches/"
+OLD_METHOD = "all-benches/method/"
+# What the build last read from the other sites (in the repo, so the next build can fall back on it), with its copy in
+# OUT, which the Methodology page links.
 SNAPSHOT = "all-benches/benches.json"
+SNAPSHOT_COPY = "benches.json"
 UP, DOWN = "\u2191", "\u2193"
-# The benches in the page's order: (key, label, board). Reading's two come from this site; the others from
-# page_config.json all_benches.benches. The combined score averages COMBINED.
-READING = (("reading", "Reading", "text"), ("reading-vision", "Reading", "vision"))
+# This site's benches in the page's order, (key, label), after Combined and before the other sites' benches
+# (page_config.json all_benches.benches). The keys stay as they were before Reading was split (#4173). The combined score
+# averages COMBINED.
+READING = (("reading", "Reading · Turkish"), ("reading-english", "Reading · English"), ("reading-vision", "Reading · Vision"))
 COMBINED = ("reading", "logic", "backgammon")
-BOARDS = (("text", "Text"), ("vision", "Vision"))
 KINDS = (("decision", "Decision models"), ("chat", "Chat models"), ("program", "Programs"))
 NOT_PUBLISHED = "not published yet"
 NOT_TIMED = "not timed on the pinned machine yet"
@@ -170,11 +189,10 @@ class Data:
         config = site.config["all_benches"]
         mine = bench_scores.benches(site)
         feed = site.config["site_url"] + bench_scores.PATH
-        self.benches: list[dict[str, Any]] = [
-            {"key": key, "label": label, "board": board, "bench": bench, "feed": feed, "seen": None}
-            for (key, label, board), bench in zip(READING, mine)]
         others, self.snapshot = external(site)
-        self.benches[1:1] = others  # Reading (Text), Logic & Math, Backgammon, then Reading (Vision)
+        self.benches: list[dict[str, Any]] = [
+            *({"key": key, "label": label, "bench": bench, "feed": feed, "seen": None} for (key, label), bench in zip(READING, mine)),
+            *others]
         self.by_key = {bench["key"]: bench for bench in self.benches}
         colours = json.loads((ROOT / "maker_colours.json").read_text())
         self.maker_colour = {norm(maker): entry["colour"] for maker, entry in colours["makers"].items()}
@@ -249,7 +267,7 @@ class Data:
             model = next((model for model in self.models.values()
                           if f"text:{run_id}" in (model["scores"].get("reading") or {}).get("runs", [])), None)
             if model is None:
-                raise SystemExit(f"page_config.json all_benches.latency_runs: run {run_id} is in no Reading (Text) row")
+                raise SystemExit(f"page_config.json all_benches.latency_runs: run {run_id} is in no Reading · Turkish row")
             model["latency"] = latency(self.site, run_id)
 
     # ------------------------------------------------------------------------------------------------------- views
@@ -257,16 +275,12 @@ class Data:
     def published(self, key: str) -> bool:
         return key == "combined" or self.by_key[key]["bench"] is not None
 
-    def views(self, board: str) -> list[str]:
-        if board == "text":
-            return ["combined", *(bench["key"] for bench in self.benches if bench["board"] == "text")]
-        return [bench["key"] for bench in self.benches if bench["board"] == board]
+    def views(self) -> list[str]:
+        """The score switch's views in its order: Combined, then each bench."""
+        return ["combined", *(bench["key"] for bench in self.benches)]
 
     def view_label(self, view: str) -> str:
-        if view == "combined":
-            return "Combined"
-        bench = self.by_key[view]
-        return bench["label"] + (" (Vision)" if bench["board"] == "vision" else "")
+        return "Combined" if view == "combined" else self.by_key[view]["label"]
 
     def score(self, model: dict[str, Any], view: str) -> float | None:
         if view == "combined":
@@ -292,11 +306,11 @@ class Data:
         models = [model for model in self.models.values() if model["kind"] == kind and self.score(model, view) is not None]
         return sorted(models, key=lambda model: (-self.score(model, view), model["name"]))
 
-    def default_view(self, board: str) -> str:
-        return next(view for view in self.views(board) if self.ranked(view))
+    def default_view(self) -> str:
+        return next(view for view in self.views() if self.ranked(view))
 
     def decision(self) -> list[dict[str, Any]]:
-        view = self.default_view("text")
+        view = self.default_view()
         rest = [model for model in self.models.values() if model["kind"] == "decision" and self.score(model, view) is None]
         return self.ranked(view) + sorted(rest, key=lambda model: model["name"])
 
@@ -314,9 +328,8 @@ class Data:
 # ------------------------------------------------------------------------------------------------------------- pieces
 
 
-def model_href(model: dict[str, Any], origin: str = PATH) -> str:
-    return rel(origin, PATH) + "?model=" + urllib.request.quote(model["name"], safe="") if origin != PATH else \
-        "?model=" + urllib.request.quote(model["name"], safe="")
+def model_href(model: dict[str, Any]) -> str:
+    return "?model=" + urllib.request.quote(model["name"], safe="")
 
 
 def icon(model: dict[str, Any]) -> str:
@@ -419,9 +432,9 @@ def empty_note(data: Data, view: str) -> str:
     if view == "combined":
         missing = [data.by_key[key]["label"] for key in COMBINED if not data.published(key)]
         if missing:
-            return (f"No combined score yet: it needs a model on all three of Reading, Logic & Math and Backgammon, and "
+            return (f"No combined score yet: it needs a model on all three of Reading · Turkish, Logic & Math and Backgammon, and "
                     f"{' and '.join(missing)} {'is' if len(missing) == 1 else 'are'} {NOT_PUBLISHED}.")
-        return "No decision model has a score on all three of Reading, Logic & Math and Backgammon yet."
+        return "No decision model has a score on all three of Reading · Turkish, Logic & Math and Backgammon yet."
     if not data.published(view):
         bench = data.by_key[view]
         return f'{esc(bench["label"])}: {NOT_PUBLISHED} (its file, <a href="{esc(bench["feed"])}">bench-scores.json</a>, is not live).'
@@ -439,7 +452,7 @@ def leader(data: Data, view: str) -> str:
     cells = []
     for bench in data.benches:
         key = bench["key"]
-        label = bench["label"] + (" (Vision)" if bench["board"] == "vision" else "")
+        label = bench["label"]
         value = data.score(first, key)
         text = (NOT_PUBLISHED if not data.published(key) else "not run" if value is None else f"{number(value)} {UP}")
         cells.append(f"<li><span class=\"muted\">{esc(label)}</span> {text}</li>")
@@ -455,23 +468,19 @@ def size_steps(data: Data) -> list[float]:
 
 
 def ranking(data: Data) -> str:
-    parts = []
-    for board, board_label in BOARDS:
-        views = data.views(board)
-        default = data.default_view(board)
-        view_keys = keys("Score", [(view, data.view_label(view) + ("" if data.published(view) else " (not published)"),
-                                    view == default) for view in views], "data-ab-view", f"{board_label} board: score shown")
-        panels = "".join(f'<div class="ab-view" data-view="{view}"{shown_if(view == default)}>{leader(data, view)}{bars(data, view)}</div>'
-                         for view in views)
-        parts.append(f'<div class="ab-board" data-board="{board}"{shown_if(board == "text")}>'
-                     f'<h3 class="ab-board-title">{board_label} board: decision models</h3>{view_keys}{panels}</div>')
+    views = data.views()
+    default = data.default_view()
+    view_keys = keys("Score", [(view, data.view_label(view) + ("" if data.published(view) else " (not published)"),
+                                view == default) for view in views], "data-ab-view", "Score shown")
+    panels = "".join(f'<div class="ab-view" data-view="{view}"{shown_if(view == default)}>{leader(data, view)}{bars(data, view)}</div>'
+                     for view in views)
     steps = size_steps(data)
     slider = (f'<div class="ab-size needs-js"><label for="ab-size">Model size up to</label> '
               f'<input type="range" id="ab-size" min="0" max="{len(steps)}" value="{len(steps)}" step="1" '
               f'data-steps="{",".join(f"{step:g}" for step in steps)}"> '
               f'<output for="ab-size" class="ab-size-out">all sizes, with undisclosed ones</output></div>')
     reference = data.their["reference"]
-    return (f'<section class="card" id="ranking" data-ab-main><h2>Ranking</h2>{slider}{"".join(parts)}'
+    return (f'<section class="card" id="ranking" data-ab-main><h2>Ranking</h2>{slider}{view_keys}{panels}'
             f'<p class="note">Each bar is a decision model\'s score from 0 (chance) to 100 (perfect), higher is better {UP}, '
             f"in its maker's colour with the maker's mark under it; the training method is the small tag where our records "
             f'state it. "tied": too close to the bar before it to tell apart (<a href="method/#tied">the rule</a>). '
@@ -482,14 +491,14 @@ def ranking(data: Data) -> str:
 
 
 def scoring(data: Data) -> str:
-    text, vision = (data.by_key[key]["bench"] for key in ("reading", "reading-vision"))
+    text, english, vision = (data.by_key[key]["bench"] for key, _ in READING)
     return f"""<section class="card prose" id="scoring" data-ab-main>
       <h2>How it's scored</h2>
       <ul>
         <li>Every bench on one scale: <strong>0 = random guessing, 100 = perfect</strong>; higher is better {UP}.</li>
-        <li><strong>Reading</strong> ({bp.count(text["models"][0]["raw"]["questions"])} Turkish questions, 5 options) and <strong>Logic &amp; Math</strong>: accuracy corrected for chance, (accuracy − 1/k) / (1 − 1/k) × 100, k the number of options. <strong>Vision</strong>: the same on Reading's {bp.count(vision["models"][0]["raw"]["questions"])} questions that depend on the printed page, read from the page image alone.</li>
+        <li><strong>Reading · Turkish</strong> ({bp.count(text["models"][0]["raw"]["questions"])} Turkish questions, 5 options), <strong>Reading · English</strong> ({bp.count(english["models"][0]["raw"]["questions"])} of its reading questions translated into English, 5 options) and <strong>Logic &amp; Math</strong>: accuracy corrected for chance, (accuracy − 1/k) / (1 − 1/k) × 100, k the number of options. <strong>Reading · Vision</strong>: the same on Reading's {bp.count(vision["models"][0]["raw"]["questions"])} questions that depend on the printed page, read from the page image alone.</li>
         <li><strong>Backgammon</strong>: 0 = the error rate of a player that picks a random legal move, 100 = no error.</li>
-        <li><strong>Combined</strong> = the plain mean of Reading (Text), Logic &amp; Math and Backgammon, equal weights, only for a model that ran all three, one model on every bench (<a href="method/#combined">the rule</a>); the others are in each bench's tab.</li>
+        <li><strong>Combined</strong> = the plain mean of Reading · Turkish, Logic &amp; Math and Backgammon, equal weights, only for a model that ran all three, one model on every bench (<a href="method/#combined">the rule</a>); the others are in each bench's tab.</li>
         <li><strong>Learning from experience</strong> ("did it improve?", points gained, higher is better {UP}) is a column of its own, outside the combined score.</li>
         <li>Lower is better {DOWN} for calibration error (ECE, in points: how far the stated probabilities are from the hit rate) and latency. Close scores read <strong>tied</strong>, never with an interval: <a href="method/#tied">the rule</a>.</li>
       </ul>
@@ -499,8 +508,7 @@ def scoring(data: Data) -> str:
 
 def h2h_rows(data: Data, first: dict[str, Any], second: dict[str, Any]) -> str:
     rows = []
-    for key, label in [("combined", "Combined"), *((bench["key"], bench["label"] + (" (Vision)" if bench["board"] == "vision" else ""))
-                                                   for bench in data.benches)]:
+    for key, label in [("combined", "Combined"), *((bench["key"], bench["label"]) for bench in data.benches)]:
         a, b = data.score(first, key), data.score(second, key)
         if not data.published(key):
             verdict = f'<span class="nm">{NOT_PUBLISHED}</span>'
@@ -542,12 +550,10 @@ def head_to_head(data: Data) -> str:
 
 
 def results_table(data: Data, models: list[dict[str, Any]], caption: str) -> str:
-    text_benches = [bench for bench in data.benches if bench["board"] == "text"]
-    vision_benches = [bench for bench in data.benches if bench["board"] == "vision"]
     head = ['<th scope="col">Model</th>', '<th scope="col" class="num">Size<span class="small">parameters</span></th>',
             f'<th scope="col" class="num">Combined {UP}<span class="small">mean of 3</span></th>']
-    for bench in [*text_benches, *vision_benches]:
-        sub = NOT_PUBLISHED if not bench["bench"] else ("Vision · " if bench["board"] == "vision" else "") + f"ECE {DOWN} under it"
+    for bench in data.benches:
+        sub = NOT_PUBLISHED if not bench["bench"] else f"ECE {DOWN} under it"
         head.append(f'<th scope="col" class="num">{esc(bench["label"])} {UP}<span class="small">{sub}</span></th>')
     head += [f'<th scope="col" class="num">Learning from experience {UP}<span class="small">points gained</span></th>',
              f'<th scope="col" class="num">Latency {DOWN}<span class="small">median, p95; {esc(PINNED)}</span></th>']
@@ -556,7 +562,7 @@ def results_table(data: Data, models: list[dict[str, Any]], caption: str) -> str
         cells = [name_cell(model), f'<td class="num">{size_text(model)}</td>',
                  f'<td class="num">{"–" if model["combined"] is None else number(model["combined"])}'
                  f'{"<span class=\"small\">not one model</span>" if model["not_combined"] else ""}</td>']
-        for bench in [*text_benches, *vision_benches]:
+        for bench in data.benches:
             row = model["scores"].get(bench["key"])
             cells.append(f'<td class="num">{"–" if row is None else number(row["score_0_100"]) + ece_text(row)}</td>')
         points = [(data.by_key[key]["label"], row["improvement_points"]) for key, row in model["scores"].items()
@@ -569,12 +575,12 @@ def results_table(data: Data, models: list[dict[str, Any]], caption: str) -> str
 
 
 def full_results(data: Data) -> str:
-    view = data.default_view("text")
+    view = data.default_view()
     chat = sorted((model for model in data.models.values() if model["kind"] != "decision"),
                   key=lambda model: (model["kind"], -(data.score(model, view) or -1e9), model["name"]))
     return f"""<section class="card" id="results" data-ab-main>
       <h2>Full results</h2>
-      <p class="note">Every decision model on every bench, highest first by {esc(data.view_label(view))}. Scores 0 to 100, higher is better {UP}; under each score its calibration error (ECE, points), lower is better {DOWN}. – : not on that bench. Latency: Reading's Text requests on the pinned machine ({esc(PINNED)}), one request at a time.</p>
+      <p class="note">Every decision model on every bench, highest first by {esc(data.view_label(view))}. Scores 0 to 100, higher is better {UP}; under each score its calibration error (ECE, points), lower is better {DOWN}. – : not on that bench. Latency: Reading · Turkish requests on the pinned machine ({esc(PINNED)}), one request at a time.</p>
       {results_table(data, data.decision(), "Decision models")}
       <details class="ab-more"><summary>Chat models and programs on the same benches</summary>{results_table(data, chat, "Chat models and programs")}</details>
     </section>"""
@@ -660,7 +666,7 @@ def charts_for(data: Data, view: str) -> str:
         ("calibration", f"Calibration error {DOWN} against score", "Calibration error, ECE in points" + (" (mean of the three benches)" if view == "combined" else ""),
          lambda model: None if ece(model) is None else 100 * ece(model), False, "models without a calibration error are left out"),
         ("latency", f"Latency {DOWN} against score", "Median time per request, ms (log scale)",
-         lambda model: (model["latency"] or {}).get("median"), True, f"latency: Reading's Text requests on {PINNED}"),
+         lambda model: (model["latency"] or {}).get("median"), True, f"latency: Reading · Turkish requests on {PINNED}"),
     ]
     out = []
     for key, heading, x_title, measure, log, rule in specs:
@@ -679,12 +685,9 @@ def charts_for(data: Data, view: str) -> str:
 
 
 def charts(data: Data) -> str:
-    panels = []
-    for board, _ in BOARDS:
-        default = data.default_view(board)
-        for view in data.views(board):
-            panels.append(f'<div class="ab-view ab-charts" data-board-view="{board}" data-view="{view}"'
-                          f'{shown_if(board == "text" and view == default)}>{charts_for(data, view)}</div>')
+    default = data.default_view()
+    panels = [f'<div class="ab-view ab-charts" data-view="{view}"{shown_if(view == default)}>{charts_for(data, view)}</div>'
+              for view in data.views()]
     return (f'<section class="card" id="charts" data-ab-main><h2>Size, calibration and latency against score</h2>'
             f'<p class="note">The score in view above (switch it in the ranking). Each dot a decision model in its maker\'s colour; '
             f'a dot opens its page. Score: higher is better {UP}; calibration error and latency: lower is better {DOWN}.</p>'
@@ -739,12 +742,9 @@ def their_for(data: Data, view: str) -> str:
 
 
 def their_score(data: Data) -> str:
-    panels = []
-    for board, _ in BOARDS:
-        default = data.default_view(board)
-        for view in data.views(board):
-            panels.append(f'<div class="ab-view" data-board-view="{board}" data-view="{view}"{shown_if(board == "text" and view == default)}>'
-                          f'{their_for(data, view)}</div>')
+    default = data.default_view()
+    panels = [f'<div class="ab-view" data-view="{view}"{shown_if(view == default)}>{their_for(data, view)}</div>'
+              for view in data.views()]
     their = data.their
     return (f'<section class="card" id="their-score" data-ab-main><h2>Their score against ours</h2>'
             f'<p class="note">Does the {esc(their["name"])}\'s ranking hold on our private benches? Its {esc(their["measure"])} '
@@ -783,7 +783,7 @@ def bench_table(data: Data, bench: dict[str, Any], kind: str) -> str:
 
 
 def bench_panel(data: Data, bench: dict[str, Any]) -> str:
-    title = bench["label"] + (" · Vision" if bench["board"] == "vision" else "")
+    title = bench["label"]
     if not bench["bench"]:
         return (f'<h3>{esc(title)}</h3><p class="note">{NOT_PUBLISHED.capitalize()}: <a href="{esc(bench["feed"])}">'
                 f"{esc(bench['feed'])}</a> serves no file yet. It shows here once its site publishes it.</p>")
@@ -813,8 +813,8 @@ def learning_panel(data: Data) -> str:
 
 
 def bench_tabs(data: Data) -> str:
-    tabs = [(bench["key"], bench["label"] + (" · Vision" if bench["board"] == "vision" else "")
-             + ("" if bench["bench"] else " (not published)")) for bench in data.benches] + [("learning", "Learning from experience")]
+    tabs = [(bench["key"], bench["label"] + ("" if bench["bench"] else " (not published)")) for bench in data.benches] + [
+        ("learning", "Learning from experience")]
     keys_html = "".join(f'<button type="button" class="key" role="tab" data-ab-tab="{key}" aria-selected="{str(index == 0).lower()}">'
                         f'<span class="lamp" aria-hidden="true"></span>{esc(label)}</button>' for index, (key, label) in enumerate(tabs))
     panels = "".join(f'<div class="ab-tab-panel" role="tabpanel" data-ab-panel="{bench["key"]}">{bench_panel(data, bench)}</div>'
@@ -839,14 +839,13 @@ def rank_text(data: Data, model: dict[str, Any], view: str) -> str:
 
 def model_page(data: Data, model: dict[str, Any]) -> str:
     rows = []
-    for key, label in [("combined", "Combined"), *((bench["key"], bench["label"] + (" · Vision" if bench["board"] == "vision" else ""))
-                                                   for bench in data.benches)]:
+    for key, label in [("combined", "Combined"), *((bench["key"], bench["label"]) for bench in data.benches)]:
         if not data.published(key):
             rows.append(f'<tr><th scope="row">{esc(label)}</th><td colspan="5"><span class="nm">{NOT_PUBLISHED}</span></td></tr>')
             continue
         value = data.score(model, key)
         if value is None:
-            reason = ((model["not_combined"] or "needs all three of Reading, Logic & Math and Backgammon") if key == "combined"
+            reason = ((model["not_combined"] or "needs all three of Reading · Turkish, Logic & Math and Backgammon") if key == "combined"
                       else "not on this bench")
             rows.append(f'<tr><th scope="row">{esc(label)}</th><td colspan="5"><span class="nm">{esc(reason)}</span></td></tr>')
             continue
@@ -882,10 +881,10 @@ def model_page(data: Data, model: dict[str, Any]) -> str:
 def script_data(data: Data) -> str:
     """What all-benches.js needs: the benches and every model's scores with their question counts (Head to head)."""
     payload = {
-        "benches": [{"key": bench["key"], "label": bench["label"] + (" (Vision)" if bench["board"] == "vision" else ""),
-                     "published": bench["bench"] is not None} for bench in data.benches],
+        "benches": [{"key": bench["key"], "label": bench["label"], "published": bench["bench"] is not None}
+                    for bench in data.benches],
         "combined": list(COMBINED),
-        "defaults": {board: data.default_view(board) for board, _ in BOARDS},
+        "default": data.default_view(),
         "models": [{"key": model["key"], "name": model["name"], "slug": model["slug"], "repo": model["repo"],
                     "scores": {key: [row["score_0_100"], row["raw"]["questions"]] for key, row in model["scores"].items()},
                     "combined": model["combined"], "nc": bool(model["not_combined"])} for model in data.models.values()],
@@ -893,20 +892,63 @@ def script_data(data: Data) -> str:
     return f'<script type="application/json" id="ab-data">{json.dumps(payload, ensure_ascii=False, separators=(",", ":"))}</script>'
 
 
+def frame(data: Data, path: str, title: str, description: str, body: str, scripts: tuple[str, ...] = ()) -> str:
+    """A whole page of OUT at path ("" or "method/"), for its address under /analysis/all-benches/: the head with its
+    canonical address, the theme line of the Reading site's pages and the folder's own copies of the files (ASSETS,
+    versioned as site.asset does), then the one sticky header: the suite strip with All benches marked (suite_bar), and
+    the page's own title row, its name linking the page and the Dark / Light switch (site.js), without the Reading
+    site's tabs; the family icons; the body; a footer."""
+    root = rel(path, "")
+    config = data.site.config["all_benches"]
+    extra = "".join(f'\n  <script src="{root}{asset(script)}" defer></script>' for script in scripts)
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{esc(title)} · Zeki Works</title>
+  <link rel="canonical" href="{esc(config["url"] + path)}">
+  <meta name="description" content="{esc(description)}">
+  <script>document.documentElement.classList.add("js"); document.documentElement.dataset.theme = "dark"; try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; }} catch (e) {{}}</script>
+  <link rel="stylesheet" href="{root}{asset(SUITE_CSS)}">
+  <link rel="stylesheet" href="{root}{asset("v3.css")}">
+  <link rel="stylesheet" href="{root}{asset("all-benches.css")}">
+  <script src="{root}{asset("site.js")}" defer></script>{extra}
+</head>
+<body class="v3">
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="site-header">
+  {suite_bar(suite_path(data.site))}
+  <header class="site-bar"><div class="site-bar-in"><div class="site-title-row"><a class="site-title" href="{root}">{TITLE}</a>{THEME_SWITCH}</div></div></header>
+  </div>
+  {family_sprite()}
+  <main id="main">
+{body}
+  </main>
+  <footer class="footer">
+    <nav class="footer-links" aria-label="Site"><a href="{root}">{TITLE}</a> · <a href="{root}{METHOD}">Methodology</a> · <a href="{esc(data.site.config["site_url"])}">Reading bench</a></nav>
+    <p>Reading · Turkish, English and Vision: {data.site.version()}</p>
+  </footer>
+</body>
+</html>
+"""
+
+
+def suite_path(site: Site) -> str:
+    """The pages' address on the mirror, as the suite strip links it: /analysis/all-benches/."""
+    return urllib.parse.urlparse(site.config["all_benches"]["url"]).path
+
+
 def page(data: Data) -> str:
-    site = data.site
-    published = [bench["label"] + (" (Vision)" if bench["board"] == "vision" else "") for bench in data.benches if bench["bench"]]
+    published = [bench["label"] for bench in data.benches if bench["bench"]]
     missing = [bench["label"] for bench in data.benches if not bench["bench"]]
     status = f"Published now: {', '.join(published)}." + (f" {NOT_PUBLISHED.capitalize()}: {', '.join(missing)}." if missing else "")
-    board_keys = keys("Board", [(board, label, board == "text") for board, label in BOARDS], "data-ab-board", "Text or Vision")
-    body = f"""    <link rel="stylesheet" href="{rel(PATH, asset("all-benches.css"))}">
-    {script_data(data)}
+    body = f"""    {script_data(data)}
     <section class="card ab-intro" id="top" data-ab-main>
       <p class="eyebrow">Zeki Works benches · draft</p>
       <h1>{TITLE}</h1>
-      <p>How the decision models do on every Zeki Works bench, each scored 0 (random guessing) to 100 (perfect), higher is better {UP}: Reading, Logic &amp; Math and Backgammon, their combined score, and learning from experience.</p>
-      {board_keys}
-      <p class="note">{esc(status)} <a href="method/">Methodology</a>.</p>
+      <p>How the decision models do on every Zeki Works bench, each scored 0 (random guessing) to 100 (perfect), higher is better {UP}: Reading in Turkish, in English and from the page image (Vision), Logic &amp; Math and Backgammon, their combined score, and learning from experience.</p>
+      <p class="note">{esc(status)} <a href="{METHOD}">Methodology</a>.</p>
     </section>
     {ranking(data)}
     {scoring(data)}
@@ -916,38 +958,36 @@ def page(data: Data) -> str:
     {their_score(data)}
     {bench_tabs(data)}
     {"".join(model_page(data, model) for model in data.models.values())}"""
-    return site.page(PATH, TITLE, "Every Zeki Works bench for the decision models on one page: Reading, Logic & Math and "
-                     "Backgammon on one 0 to 100 scale, their combined score, head to head, and each bench's full table.",
-                     body, scripts=("all-benches.js",))
+    return frame(data, PATH, TITLE, "Every Zeki Works bench for the decision models on one page: Reading in Turkish, in "
+                 "English and from the page image, Logic & Math and Backgammon on one 0 to 100 scale, their combined score, "
+                 "head to head, and each bench's full table.", body, scripts=("all-benches.js",))
 
 
 def method_page(data: Data) -> str:
     site = data.site
-    text = data.by_key["reading"]["bench"]
-    vision = data.by_key["reading-vision"]["bench"]
-    n_text, n_vision = text["models"][0]["raw"]["questions"], vision["models"][0]["raw"]["questions"]
+    n_text, n_english, n_vision = (data.by_key[key]["bench"]["models"][0]["raw"]["questions"] for key, _ in READING)
     sources = "".join(
-        f'<li>{esc(bench["label"] + (" · Vision" if bench["board"] == "vision" else ""))}: <a href="{esc(bench["feed"])}">{esc(bench["feed"])}</a> — '
+        f'<li>{esc(bench["label"])}: <a href="{esc(bench["feed"])}">{esc(bench["feed"])}</a> — '
         + (f'published, {len(bench["bench"]["models"])} rows, updated {esc(bp.long_date(bench["bench"]["updated"]))}'
            if bench["bench"] and bench["bench"].get("updated") else NOT_PUBLISHED)
         + "</li>" for bench in data.benches)
     missing = sorted(data.missing_colours)
     up = rel(METHOD, PATH)
-    body = f"""    <link rel="stylesheet" href="{rel(METHOD, asset("all-benches.css"))}">
-    <section class="card prose" id="method">
+    body = f"""    <section class="card prose" id="method">
       <p class="ab-back"><a href="{up}">← {TITLE}</a></p>
       <h1>{TITLE}: Methodology</h1>
       <p>How the page <a href="{up}">{TITLE}</a> puts the Zeki Works benches side by side. It uses only the files each bench publishes, bench-scores.json, in one schema for the three sites; a bench whose file is not live says "{NOT_PUBLISHED}".</p>
       <h2 id="scale">One scale: 0 = random guessing, 100 = perfect</h2>
       <ul>
-        <li><strong>Reading (Text)</strong>: {bp.count(n_text)} Turkish reading and grammar questions, 5 options each. Score = (accuracy − 1/k) / (1 − 1/k) × 100 with k = 5: 20% right reads 0, every question right reads 100. Below 0 means worse than guessing.</li>
-        <li><strong>Reading (Vision)</strong>: the {bp.count(n_vision)} questions that depend on the printed page, asked with the page image alone (the Vision tab's condition B), k = each question's number of options. Models that read only text are not on this board.</li>
+        <li><strong>Reading · Turkish</strong>: {bp.count(n_text)} Turkish reading and grammar questions, 5 options each, as the Reading site's Text tab asks them. Score = (accuracy − 1/k) / (1 − 1/k) × 100 with k = 5: 20% right reads 0, every question right reads 100. Below 0 means worse than guessing.</li>
+        <li><strong>Reading · English</strong>: the {bp.count(n_english)} reading questions kept after translation into English (the Reading site's <a href="{esc(site.config["site_url"])}english/">English reading</a> page), 5 options each, the same score with k = 5. A model's row is its first English run of the setup its Reading · Turkish row shows (else of another setup of the same row, in the Leaderboard's order); the models run only in English have a row here and none on Reading · Turkish.</li>
+        <li><strong>Reading · Vision</strong>: the {bp.count(n_vision)} questions that depend on the printed page, asked with the page image alone (the Reading site's Vision tab, condition B), k = each question's number of options. Models that read only text are not on it.</li>
         <li><strong>Logic &amp; Math</strong>: the same correction, on its own questions (k = 5), as its file states.</li>
         <li><strong>Backgammon</strong>: 0 = the error rate of a player that picks a random legal move, 100 = no error, as its file states.</li>
         <li>Higher is better {UP} on every score; lower is better {DOWN} for calibration error and latency. Size has no better direction.</li>
       </ul>
       <h2 id="combined">Combined score</h2>
-      <p>The plain mean, equal weights, of Reading (Text), Logic &amp; Math and Backgammon. Only a model with a score on all three gets one; the others appear in each bench's tab. Vision is not part of it.</p>
+      <p>The plain mean, equal weights, of Reading · Turkish, Logic &amp; Math and Backgammon. Only a model with a score on all three gets one; the others appear in each bench's tab. Reading · English and Reading · Vision are not part of it.</p>
       <p>A row gets a combined score only if one model answered every bench: the same checkpoint (one repo, one set of weights) or the same served version of a hosted model. A hosted service that changed its model between the benches' runs keeps its score on each bench, but gets no combined score{":" if data.not_combined else "."}</p>
       {"<ul>" + "".join(f"<li>{esc(model['name'])}: {esc(model['not_combined'])}</li>" for model in data.not_combined) + "</ul>" if data.not_combined else ""}
       <h2 id="learning">Learning from experience</h2>
@@ -955,14 +995,14 @@ def method_page(data: Data) -> str:
       <h2 id="tied">When we write "tied"</h2>
       <p>No interval bars and no ranges: where two scores are too close to tell apart, the page says <strong>tied</strong>. The rule, the same everywhere on the page:</p>
       <ul>
-        <li>On one bench, two models are tied when their scores differ by less than <strong>100 ÷ √n points</strong>, n being the smaller of their two question counts on that bench (Backgammon: scored decisions). On Reading's {bp.count(n_text)} Text questions that is {number(100 / math.sqrt(n_text), 2)} points; on its {bp.count(n_vision)} Vision questions {number(100 / math.sqrt(n_vision), 2)} points. The margin is about the size of the noise a score on n questions carries, so a smaller bench needs a larger gap.</li>
+        <li>On one bench, two models are tied when their scores differ by less than <strong>100 ÷ √n points</strong>, n being the smaller of their two question counts on that bench (Backgammon: scored decisions). On Reading · Turkish's {bp.count(n_text)} questions that is {number(100 / math.sqrt(n_text), 2)} points; on Reading · English's {bp.count(n_english)} {number(100 / math.sqrt(n_english), 2)} points; on Reading · Vision's {bp.count(n_vision)} {number(100 / math.sqrt(n_vision), 2)} points. The margin is about the size of the noise a score on n questions carries, so a smaller bench needs a larger gap.</li>
         <li>On the combined score, a mean of three, the three benches' margins add up as noise does: √(m₁² + m₂² + m₃²) ÷ 3.</li>
         <li>The ranking marks a bar "tied" when it is within the margin of the bar before it; the #1 line names every model within the margin of #1; Head to head says "tied" for a bench where the two are within it; each bench's table writes "tied with" the row above. Ties are not chained: A tied with B and B with C does not tie A with C.</li>
       </ul>
       <h2 id="calibration">Calibration error</h2>
-      <p>ECE: the answers sorted into 10 equal-width bins of the chosen option's probability; in each bin the gap between the mean probability and the share right, weighted by the answers in it; shown in points (×100), lower is better {DOWN}. Reading's is its Text run's, as the Text tab gives it; Vision's the page-image run's; the other benches' as their files give them. On the combined view the chart uses the mean of the three.</p>
+      <p>ECE: the answers sorted into 10 equal-width bins of the chosen option's probability; in each bin the gap between the mean probability and the share right, weighted by the answers in it; shown in points (×100), lower is better {DOWN}. Reading · Turkish's is its Text tab run's, as the Text tab gives it; Reading · English's is its first English run's, computed the same way over its answers that carry a probability (none for a run without one); Reading · Vision's the page-image run's; the other benches' as their files give them. On the combined view the chart uses the mean of the three.</p>
       <h2 id="latency">Latency</h2>
-      <p>One pinned machine for every model: {esc(PINNED)}, one request at a time, Reading's Text requests; the median and the 95th percentile (nearest rank) of the time per request, in milliseconds. A run's machine is read from the host its requests went to, not from the hardware text. Models timed elsewhere, on another machine or through an API, read "{NOT_TIMED}".</p>
+      <p>One pinned machine for every model: {esc(PINNED)}, one request at a time, Reading · Turkish requests (the Text tab's runs); the median and the 95th percentile (nearest rank) of the time per request, in milliseconds. A run's machine is read from the host its requests went to, not from the hardware text. Models timed elsewhere, on another machine or through an API, read "{NOT_TIMED}".</p>
       <h2 id="size">Size</h2>
       <p>Total parameters (and the active count for a mixture of experts) as the bench files give them, in billions; "not disclosed" where the maker states none. The size slider keeps the bars of models up to the size chosen; models of undisclosed size show only at "all sizes".</p>
       <h2 id="join">One model across benches</h2>
@@ -973,13 +1013,40 @@ def method_page(data: Data) -> str:
       <p>Each bar and dot takes its maker's colour from maker_colours.json, the one colour map of the three sites, with the maker's mark under the bar (a plain shape where the maker's mark is not freely licensed). Makers without a colour there yet read grey: {esc(", ".join(missing)) if missing else "none"}. The small tag is the training method where our setup records state it (fine-tune, post-trained, LoRA, blend …); blank where they do not.</p>
       <h2 id="sources">Sources</h2>
       <ul>{sources}</ul>
-      <p class="note">The build reads the other sites' files from these addresses and keeps what it read in <a href="{rel(METHOD, SNAPSHOT)}">benches.json</a>.</p>
+      <p class="note">The build reads the other sites' files from these addresses and keeps what it read in <a href="{rel(METHOD, SNAPSHOT_COPY)}">benches.json</a>.</p>
     </section>"""
-    return site.page(METHOD, f"{TITLE}: Methodology", f"How {TITLE} scores, combines and compares the Zeki Works benches.", body)
+    return frame(data, METHOD, f"{TITLE}: Methodology", f"How {TITLE} scores, combines and compares the Zeki Works benches.",
+                 body)
+
+
+def redirect(site: Site, old: str, new: str) -> str:
+    """A page's earlier address in the Reading site: sends the reader to its address under /analysis/all-benches/ with
+    the query (?model=) and the fragment, as v2/ does (the meta refresh alone drops both)."""
+    target = suite_path(site) + new
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Moved: {TITLE}</title>
+  <link rel="canonical" href="{esc(site.config["all_benches"]["url"] + new)}">
+  <meta http-equiv="refresh" content="0; url={target}">
+  <!-- Keeps the query (?model=) and a deep link's section: the meta refresh alone drops both. -->
+  <script>location.replace("{target}" + location.search + location.hash);</script>
+</head>
+<body>
+  <p>{TITLE} has moved to <a href="{target}">zekiworks.github.io{target}</a>.</p>
+</body>
+</html>
+"""
 
 
 def build(site: Site) -> dict[str, str]:
+    """The two pages and the snapshot's copy in OUT with the files they use (ASSETS); the snapshot in the repo; the
+    redirects at the earlier addresses."""
     data = Data(site)
     if data.missing_colours:
         print(f"all-benches: makers without a colour in maker_colours.json: {', '.join(sorted(data.missing_colours))}")
-    return {PATH: page(data), METHOD: method_page(data), SNAPSHOT: data.snapshot}
+    return {OUT + PATH: page(data), OUT + METHOD: method_page(data), OUT + SNAPSHOT_COPY: data.snapshot, SNAPSHOT: data.snapshot,
+            **{OUT + name: (ROOT / name).read_text(encoding="utf-8") for name in ASSETS},
+            OLD_PATH: redirect(site, OLD_PATH, PATH), OLD_METHOD: redirect(site, OLD_METHOD, METHOD)}

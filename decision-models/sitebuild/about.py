@@ -75,7 +75,7 @@ def page(site: Site, intro: str, how_scores: str, notes: str, cards: str, stats:
     </section>
     <section class="card prose" id="more">
       <h2>More</h2>
-      <p><a href="{rel(PATH, "method/")}">Method</a>: how the questions, the answer key, the runs and the tests were made. <a href="{rel(PATH, "data/")}">Data</a>: every file behind the site. <a href="{rel(PATH, all_benches.PATH)}">{all_benches.TITLE}</a> (draft): every Zeki Works bench for the decision models on one page.</p>
+      <p><a href="{rel(PATH, "method/")}">Method</a>: how the questions, the answer key, the runs and the tests were made. <a href="{rel(PATH, "data/")}">Data</a>: every file behind the site. <a href="{all_benches.suite_path(site)}">{all_benches.TITLE}</a> (draft): every Zeki Works bench for the decision models on one page.</p>
     </section>"""
     return site.page(PATH, TITLE, "What the Reading bench is, how its scores and its leaderboard work, and its main results.",
                      body)

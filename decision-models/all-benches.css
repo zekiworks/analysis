@@ -1,12 +1,11 @@
-/* The combined page (all-benches/ and all-benches/method/, sitebuild/all_benches.py), on top of v3.css and in its
-   variables, so both themes hold: the ranking's columns (rows on a phone), the size slider, the switches, the pair bars
-   of "Their score against ours", the scatter charts and the model pages. */
+/* All benches (/analysis/all-benches/ and its method/, sitebuild/all_benches.py), on top of v3.css and in its variables,
+   so both themes hold: the ranking's columns (rows on a phone), the size slider, the score switch, the pair bars of
+   "Their score against ours", the scatter charts and the model pages. */
 
-:is(.ab-view, .ab-board, .ab-model, .ab-tab-panel, .ab-bar, .card)[hidden] { display: none !important; }
+:is(.ab-view, .ab-model, .ab-tab-panel, .ab-bar, .card)[hidden] { display: none !important; }
 
 .ab-keys { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin: .4rem 0 .6rem; }
 .ab-keys .group-label { margin-right: .2rem; color: var(--text-2); font-size: .85rem; }
-.ab-board-title { margin: .5rem 0 .2rem; font-size: 1rem; }
 .ab-size { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; margin: 0 0 .25rem; font-size: .875rem; }
 .ab-size input { width: min(22rem, 100%); accent-color: var(--text); }
 .ab-size-out { color: var(--text-2); font-family: var(--mono); font-size: .82rem; }

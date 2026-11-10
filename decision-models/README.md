@@ -167,12 +167,22 @@ python3 -m http.server 8000                                # preview at http://1
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
   - **Suite strip** (`suite-bar.css`, `suite-bar.html`, published with the site as they are; `suite_bar` in
-    `sitebuild/site.py` inlines the snippet with this site's link marked `aria-current="page"`): one 27 px line of
-    links to the three benchmark sites, English & Turkish Reading (`/analysis/decision-models/`), Logic & Math
-    (`/analysis/logic/`) and Backgammon (`/analysis/backgammon/`), the current one filled; the first row of the sticky
-    header on every page, identical on the three sites, which copy both files. Its stylesheet is self-contained (its own
-    `--suite-*` colours, light and dark by `data-theme` on `<html>`, else the system setting); our pages always set
-    `data-theme` ("light" or "dark") so it matches the page.
+    `sitebuild/site.py` inlines the snippet with this site's link marked `aria-current="page"`): four links, All
+    benches first (`/analysis/all-benches/`), then the three benchmark sites, English & Turkish Reading
+    (`/analysis/decision-models/`), Logic & Math (`/analysis/logic/`) and Backgammon (`/analysis/backgammon/`), the
+    current one filled; one centred line on a desktop, two centred lines where one no longer fits (a phone), every
+    label whole, never scrolling sideways; the first row of the sticky header on every page, identical on the three
+    sites, which copy both files, and on All benches. Its stylesheet is self-contained (its own `--suite-*` colours,
+    light and dark by `data-theme` on `<html>`, else the system setting); our pages always set `data-theme` ("light" or
+    "dark") so it matches the page.
+  - **All benches** (`sitebuild/all_benches.py`, `all-benches.css`, `all-benches.js`): every Zeki Works bench on one
+    page at `/analysis/all-benches/` (and its Methodology, `method/`), outside this site. The build writes it into
+    the git-ignored folder `_suite/all-benches/`, self-contained (its pages, `benches.json` and copies of
+    `suite-bar.css`, `v3.css`, `site.js`, `all-benches.css` and `all-benches.js`); publishing copies that folder to
+    the mirror's `analysis/all-benches/`. `all-benches/` and `all-benches/method/` here are redirects to it that keep
+    the query and the fragment; `all-benches/benches.json` is what the build last read from the other sites. This
+    site's `bench-scores.json` feeds it three benches: Reading · Turkish (`reading-text`), Reading · English
+    (`reading-english`, the kept reading questions in English) and Reading · Vision (`reading-vision`).
   - **Top bar** (`topbar` in `sitebuild/site.py`, under the suite strip in the one sticky header `.site-header` on
     every page, as on the Backgammon site; `--view-bar-h` is the header's height, kept by `site.js`): the Hilde leaf
     (`hilde-leaf.svg`) and the site's name, "Reading bench" (`SITE_NAME`), linking the home page, with the Dark /
@@ -474,8 +484,10 @@ python3 -m http.server 8000                                # preview at http://1
     ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it
     measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting
     for an API key or credit).
-  - **Highlights** (`highlights/`, `sitebuild/highlights.py`): a page shell, a heading and one sentence; single
-    questions with two or three models' answers come later. No question text.
+  - **Highlights** (`highlights/`, `sitebuild/highlights.py`): five short cards, one finding each (GLiDE 27B (open)
+    against the earlier GLiDE rows, the Vision tab's averages, holding back with "Bilmiyorum", Turkish against English,
+    the best small open model in English), every number computed from `results.json` and `vision.json` at build time;
+    each card's heading is a claim the build checks (`finding`), stopping when the data no longer supports it.
   - **Questions** is Every question (`questions/`), with links to Where models disagree, Topics and Compare.
   - **The home page's charts**: each chart card has a line saying
     which way is better, and each bar chart names its value columns above them (`COLUMN_HEADS` in `v3.js`; the static
