@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-10T09:09:18Z",
+ "generated_at": "2026-11-10T09:48:15Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -279,7 +279,7 @@
      "n_scored": 1125,
      "decision_score_lacking": 0,
      "auroc": 0.8220413951007558,
-     "non_hallucination": null,
+     "non_hallucination": 0.44299065420560746,
      "cost_per_1000": null,
      "cost_basis": null,
      "median_latency_ms": 543.5380580020137,
@@ -1212,6 +1212,26 @@
      "mixed_concurrency": false
     },
     {
+     "name": "GLiDE 27B",
+     "group": "decision",
+     "gpu_or_api": "API",
+     "accuracy": 0.7198335644937587,
+     "wilson_low": 0.7005308906504427,
+     "wilson_high": 0.7383567511596462,
+     "right": 1557,
+     "n": 2163,
+     "decision_score": 79.21924223892869,
+     "chosen_answer_brier": 0.13544871971518474,
+     "n_scored": 2163,
+     "decision_score_lacking": 0,
+     "auroc": 0.8637474537434475,
+     "non_hallucination": 0.21638330757341576,
+     "cost_per_1000": null,
+     "cost_basis": null,
+     "median_latency_ms": 425.01643899595365,
+     "mixed_concurrency": false
+    },
+    {
      "name": "vLLM-SR d3-ultra",
      "group": "decision",
      "gpu_or_api": "1× RTX PRO 6000",
@@ -2055,6 +2075,26 @@
      "cost_per_1000": 0.008365766423357663,
      "cost_basis": "provider price × reported usage",
      "median_latency_ms": 180.41042401455343,
+     "mixed_concurrency": false
+    },
+    {
+     "name": "GLiDE 27B",
+     "group": "decision",
+     "gpu_or_api": "API",
+     "accuracy": 0.6733576642335767,
+     "wilson_low": 0.657132851448653,
+     "wilson_high": 0.6891778580338448,
+     "right": 2214,
+     "n": 3288,
+     "decision_score": 76.29261981431505,
+     "chosen_answer_brier": 0.14750526794727564,
+     "n_scored": 3288,
+     "decision_score_lacking": 0,
+     "auroc": 0.852341793126187,
+     "non_hallucination": 0.3189509306260575,
+     "cost_per_1000": null,
+     "cost_basis": "basis not given",
+     "median_latency_ms": 450.0299205101328,
      "mixed_concurrency": false
     },
     {
