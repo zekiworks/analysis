@@ -42,12 +42,14 @@ from benchmark_ollama import (
     PLAIN_PROMPT_VERSIONS,
     PROMPT_VERSION,
     GPU_RATE,
+    SYSTEM_ONE,
     GPU_TIME,
     PRICES,
     WEB_GROUNDING_PRICES,
     TURKISH_CHAT,
     Option,
     Question,
+    add_images,
     answer_problems,
     answer_usage,
     ask_batch,
@@ -97,6 +99,23 @@ class RegradeTests(unittest.TestCase):
 
     def test_an_unchanged_question_keeps_its_grade(self) -> None:
         self.assertEqual(regrade(self.ANSWER, {"key": "A", "status": None}), self.ANSWER)
+
+
+class GlideImagesTests(unittest.TestCase):
+    def test_images_go_into_the_state_as_parts_after_the_text(self) -> None:
+        # GLiDE's server passes only `state` and `questions` to the model: an image anywhere else never reaches it.
+        with tempfile.TemporaryDirectory() as folder:
+            crop = Path(folder) / "crop.png"
+            crop.write_bytes(b"\x89PNG\r\n\x1a\n")
+            payload = {"state": "Passage text", "questions": {}}
+            add_images(SYSTEM_ONE["glide"], payload, {}, (crop,))
+            empty = {"state": "", "questions": {}}
+            add_images(SYSTEM_ONE["glide"], empty, {}, (crop,))
+        self.assertEqual(set(payload), {"state", "questions"})
+        self.assertEqual(payload["state"][0], {"type": "text", "text": "Passage text"})
+        self.assertEqual(payload["state"][1]["type"], "image_url")
+        self.assertTrue(payload["state"][1]["image_url"]["url"].startswith("data:image/png;base64,"))
+        self.assertEqual([part["type"] for part in empty["state"]], ["image_url"])
 
 
 class ParseOllamaContentTests(unittest.TestCase):

@@ -76,8 +76,10 @@ class SystemOneService:
     # (TypeSafe: a top-level map of base64 files, each read where its reference string appears, sent with the
     # TypeSafe-Danger-Zone-Images header), "data-urls" (a top-level `images` list of data URLs: Liquid, vLLM),
     # "input-image" (OpenAI: `input_image` parts in the input message), "media" (OneJev's server: a `media`
-    # list, each item read where its `<image:N>` reference appears) or "media-type" (SubQ: a top-level `images` list of
-    # {mediaType, base64} objects, the base64 without a data: prefix).
+    # list, each item read where its `<image:N>` reference appears), "media-type" (SubQ: a top-level `images` list of
+    # {mediaType, base64} objects, the base64 without a data: prefix) or "state-parts" (GLiDE's server: the state as a
+    # list of a `text` part and `image_url` parts; glide/server.py passes only `state` and `questions` to the model, so
+    # a top-level `images` list would be dropped without an error).
     images: str | None = None
 
     def key_help(self) -> str:
@@ -138,10 +140,11 @@ SYSTEM_ONE = {
     # the server code its checkpoint ships (server.py there); v1.2 and Flash v1.2 through servers/pplx_decider_server.py
     # and the pplx_decider package their checkpoints ship. Each takes the same request and returns the same answers.
     "pplx-decider": SystemOneService("Perplexity Decider", server_url("PPLX_DECIDER_URL"), request_id_header="x-request-id"),
-    # Fastino's released GLiDE v1.2 checkpoint (fastino/GLiDE) behind the server its repository ships (python -m
-    # glide.server), which takes the same request at the default path, ignores the model field and returns the same
-    # answers.
-    "glide": SystemOneService("GLiDE", server_url("GLIDE_URL")),
+    # Fastino's released GLiDE checkpoints (fastino/GLiDE-27B with v1.2 at its tag glide-v1.2, and GLiDE-9B, -2B, -0.8B,
+    # -0.4B) behind the server each repository ships (python -m glide.server), which takes the same request at the
+    # default path, ignores the model field and returns the same answers; images go in the state (GLiDE 27B is the
+    # only size whose checkpoint holds a vision encoder; the others' servers reject images).
+    "glide": SystemOneService("GLiDE", server_url("GLIDE_URL"), images="state-parts"),
     # vLLM's own System One endpoint (/v1/systemone) serving the vLLM Semantic Router's Decision 3.0 checkpoints
     # (vllm-sr/d3) on our GPU, from a current nightly build (the support is on vLLM's main branch since 14 October 2026),
     # which takes the same request at the default path and returns the same answers; the model field names the checkpoint.
@@ -4019,6 +4022,11 @@ def add_images(service: SystemOneService, payload: dict[str, Any], headers: dict
             "content": ([{"type": "input_text", "text": text}] if text else [])
             + [{"type": "input_image", "image_url": url} for url in urls],
         }]
+    elif service.images == "state-parts":
+        text = payload["state"]
+        payload["state"] = ([{"type": "text", "text": text}] if text else []) + [
+            {"type": "image_url", "image_url": {"url": url}} for url in urls
+        ]
     elif service.images in ("assets", "media"):
         if service.images == "assets":
             # References that cannot occur in the text by accident: each file's SHA-256.
