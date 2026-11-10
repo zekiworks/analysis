@@ -134,20 +134,24 @@
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
 })();
 
-/* Did they improve?: the results table's filter (Ümit/Zeki #3710): All, Chat models, Decision models or Small models
-   (rows marked data-small="yes": the model's disclosed total parameters at most the leaderboard's provisional
-   threshold); the Small models key shows its definition under the keys. */
+/* Did they improve?: the results table's filter (Ümit/Zeki #3710): All, Chat models, Decision models, Small chat
+   models or Small decision models (Ümit #3876: rows of that group marked data-small="yes", the leaderboard's rule);
+   a Small key shows its definition under the keys; ?models= opens on a key (the old ?models=small: Small chat). */
 (function improveFilter() {
   const table = document.getElementById('improve-results-table');
   const keys = [...document.querySelectorAll('[data-improve-filter]')];
-  const note = document.querySelector('.improve-small-note');
+  const notes = [...document.querySelectorAll('.improve-small-note')];
   if (!table || !keys.length) return;
   keys.forEach(k => k.addEventListener('click', () => {
     const type = k.dataset.improveFilter;
+    const small = type.startsWith('small-');
     keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
     table.querySelectorAll('tbody tr[data-group]').forEach(tr => {
-      tr.hidden = type !== 'all' && (type === 'small' ? tr.dataset.small !== 'yes' : tr.dataset.group !== type);
+      tr.hidden = type !== 'all' && ((small && tr.dataset.small !== 'yes') || tr.dataset.group !== (small ? type.slice(6) : type));
     });
-    if (note) note.hidden = type !== 'small';
+    notes.forEach(n => { n.hidden = n.dataset.smallNote !== type; });
   }));
+  const asked = new URLSearchParams(location.search).get('models');
+  const start = keys.find(k => k.dataset.improveFilter === (asked === 'small' ? 'small-chat' : asked));
+  if (start) start.click();
 })();

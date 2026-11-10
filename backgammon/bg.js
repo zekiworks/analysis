@@ -552,27 +552,32 @@ async function savePng(panel, svg, title, lines, filename) {
   }));
 })();
 
-/* Home page: the leaderboard's own filter (Ümit #2907): All, Chat models, Decision models or Small models (Ümit #3465:
-   rows marked data-hl-small, the model's disclosed total parameters at most story's threshold), local to the table
+/* Home page: the leaderboard's own filter (Ümit #2907): All, Chat models, Decision models, Small chat
+   models or Small decision models (Ümit #3465, #3876: rows of that type marked data-hl-small; ?models=small-chat or
+   small-decision opens on one, the old ?models=small on Small chat models), local to the table
    (the page's filters never change it). A row out of the view and its other-settings rows go out of view (class
    hl-off), whatever their expander says; the programs stay in every view; the ranks are the ranks among all models;
-   the Small models key shows its definition under the keys. */
+   a Small key shows its definition under the keys. */
 (function headlineFilter() {
   const table = document.getElementById('headline-table');
   const keys = [...document.querySelectorAll('[data-hl-filter]')];
-  const note = document.querySelector('.hl-small-note');
+  const notes = [...document.querySelectorAll('.hl-small-note')];
   if (!table || !keys.length) return;
   keys.forEach(k => k.addEventListener('click', () => {
     const type = k.dataset.hlFilter;
+    const small = type.startsWith('small-');
     keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
     table.querySelectorAll('tbody tr[data-hl-type]').forEach(tr => {
       const t = tr.dataset.hlType;
-      const out = type === 'small' ? tr.dataset.hlSmall !== 'yes' : t !== type;
+      const out = small ? tr.dataset.hlSmall !== 'yes' || t !== type.slice(6) : t !== type;
       tr.classList.toggle('hl-off', type !== 'all' && t !== 'program' && out);
     });
-    if (note) note.hidden = type !== 'small';
+    notes.forEach(n => { n.hidden = n.dataset.smallNote !== type; });
     table.dispatchEvent(new CustomEvent('hl-filter'));
   }));
+  const asked = new URLSearchParams(location.search).get('models');
+  const start = keys.find(k => k.dataset.hlFilter === (asked === 'small' ? 'small-chat' : asked));
+  if (start) start.click();
 })();
 
 /* Home page: a leaderboard row's details box (Ümit #2904, as Clocktower Bench's). A tap on a phone opens it and a
