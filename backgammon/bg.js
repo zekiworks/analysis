@@ -564,6 +564,9 @@ async function savePng(panel, svg, title, lines, filename) {
   const notes = [...document.querySelectorAll('.hl-small-note')];
   if (!table || !keys.length) return;
   keys.forEach(k => k.addEventListener('click', () => {
+    // A second click on the pressed key undoes it: back to All (Ümit #3923).
+    const all = keys.find(x => x.dataset.hlFilter === 'all');
+    if (k !== all && k.getAttribute('aria-pressed') === 'true' && all) { all.click(); return; }
     const type = k.dataset.hlFilter;
     const small = type.startsWith('small-');
     keys.forEach(x => x.setAttribute('aria-pressed', String(x === k)));
