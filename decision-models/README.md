@@ -527,10 +527,13 @@ python3 -m http.server 8000                                # preview at http://1
     ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it
     measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting
     for an API key or credit).
-  - **Highlights** (`highlights/`, `sitebuild/highlights.py`): five short cards, one finding each (GLiDE 27B
-    against the earlier GLiDE rows, the Vision tab's averages, holding back with "Bilmiyorum", Turkish against English,
-    the best small open model in English), every number computed from `results.json` and `vision.json` at build time;
-    each card's heading is a claim the build checks (`finding`), stopping when the data no longer supports it.
+  - **Highlights** (`highlights/`, `sitebuild/highlights.py`): about English reading, one finding per card: the best
+    decision model in English with its paired test against the other decision models, the best chat models against it
+    (counted, not tested), the decision model that holds back most with "I don't know" in English, decision against chat
+    models with that option, and the best small open model run in English only; then one short card pointing to the
+    Vision tab (the page's only mention of the questions' original Turkish). Every setup is named by its official name
+    and tag (`Site.plain` / `Site.shown`). Every number is computed from `results.json` and `vision.json` at build
+    time; each card's heading is a claim the build checks (`finding`), stopping when the data no longer supports it.
   - **Questions** is Every question (`questions/`), with links to Where models disagree, Topics and Compare.
   - **The home page's charts**: each chart card has a line saying
     which way is better, and each bar chart names its value columns above them (`COLUMN_HEADS` in `v3.js`; the static

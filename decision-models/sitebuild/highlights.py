@@ -1,7 +1,9 @@
 """The Highlights tab (highlights/): a few short cards, one striking finding each, with a heading that states it, a line
-or two with its numbers and a link to the page that shows the evidence. Every number and comparison is computed from
-results.json and vision.json when the site is built; a card's heading makes a claim, and the build stops when the data
-no longer supports it (finding), so the page never says what the data does not."""
+or two with its numbers and a link to the page that shows the evidence. The page is about English reading
+(results.json english_reading: its kept questions, its English "I don't know" runs and its English-only setups); one
+last short card points to the Vision tab, the page's only word on the questions' original language. Every number and
+comparison is computed from results.json and vision.json when the site is built; a card's heading makes a claim, and the
+build stops when the data no longer supports it (finding), so the page never says what the data does not."""
 
 from __future__ import annotations
 
@@ -11,7 +13,7 @@ from typing import Any
 import build_page as bp
 
 from sitebuild import vision
-from sitebuild.english_reading import SIGNIFICANT
+from sitebuild.english_reading import (SIGNIFICANT, english_members, english_only, idk_key, setup_key, setup_run)
 from sitebuild.site import Site, billions, esc, pct, rel
 
 PATH = "highlights/"
@@ -31,92 +33,106 @@ def card(heading: str, lines: list[str], href: str, link: str) -> str:
             f'<p class="highlight-link"><a href="{rel(PATH, href)}">{esc(link)}</a></p></li>')
 
 
-def one_run(site: Site, provider: str, model: str) -> dict[str, Any]:
-    runs = [run for run in site.runs if run["provider"] == provider and run["model"] == model]
-    finding(len(runs) == 1, f"one Text tab run of {provider}/{model}, found {len(runs)}")
-    return runs[0]
+def setups(site: Site) -> dict[int, dict[str, Any]]:
+    """Every English reading entry (english_reading.models and english_only) by setup_key."""
+    data = site.results["english_reading"]
+    return {setup_key(model): model for model in [*data["models"], *english_only(data)]}
 
 
-def glide(site: Site) -> str:
-    """Fastino's released GLiDE 27B against the earlier GLiDE rows on the Text tab, with what the leaderboard's letters
-    (the all-pairs test) say about each gap."""
-    total = site.total
-    new, old, hosted = (one_run(site, *key) for key in (("glide", "glide-27b"), ("glide", "glide-v1.2"), ("fastino", "fastino/GLiDE")))
-    finding(new["correct"] > max(old["correct"], hosted["correct"]), f"{site.plain(new)} has the most right answers of the GLiDE rows")
-    said = lambda run: f"{site.shown(run)}: {run['correct']:,} ({pct(run['correct'] / total)})"  # noqa: E731
-    apart = lambda run: not set(new["group"]) & set(run["group"])  # noqa: E731
-    separated = [site.shown(run) for run in (old, hosted) if apart(run)]
-    shared = [site.shown(run) for run in (old, hosted) if not apart(run)]
-    if separated and shared:
-        test = (f"The leaderboard's letters separate it from {separated[0]}; it shares a letter with {shared[0]}, "
-                "so the paired test does not separate those two.")
-    elif separated:
-        test = "The leaderboard's letters separate it from both."
-    else:
-        test = "It shares a letter with both on the leaderboard, so the paired test does not separate them."
-    return card(f"{site.plain(new)} gets more questions right than the earlier GLiDE rows",
-                [f"Right answers of the {total:,} Turkish questions: {said(new)}; {said(old)}; {said(hosted)}.", test],
-                site.model_path(new), f"{site.plain(new)} on the Text tab")
+def best_decision(site: Site) -> str:
+    """The decision model with the most English right answers, and what english_reading.against_reference (its exact
+    McNemar test against each other decision model, Holm-adjusted, on turkish-vs-english/) says about the others."""
+    data = site.results["english_reading"]
+    questions = data["questions"]
+    decision = english_members(site, data, "decision")
+    against = data["against_reference"]
+    tested = {model["runs"][0]: model for model in decision}
+    finding(against["reference_run"] in tested, "the test's reference is an English decision model run")
+    top = tested[against["reference_run"]]
+    run = setup_run(site, top)
+    finding(top["english"]["right"] == max(model["english"]["right"] for model in decision),
+            f"{site.plain(run)} has the most English right answers of the decision models")
+    close = [model for model in against["models"] if model["p_holm"] >= SIGNIFICANT]
+    behind = [model for model in against["models"] if model["p_holm"] < SIGNIFICANT
+              and model["reference_only_right"] > model["other_only_right"]]
+    finding(len(close) + len(behind) == len(against["models"]) and close,
+            f"no decision model ahead of {site.plain(run)}, and some too close to call")
+    named = ", ".join(site.shown(setup_run(site, tested[model["run"]])) for model in close)
+    return card(f"{site.plain(run)} gets the most English reading questions right of the decision models",
+                [f"{site.shown(run)} answered {top['english']['right']:,} of the {questions:,} questions right "
+                 f"({pct(top['english']['accuracy'])}).",
+                 f"Against each of the {len(against['models'])} other decision models in the paired test (Holm-adjusted): "
+                 f"{len(close)} {'is' if len(close) == 1 else 'are'} too close to call ({named}); the other {len(behind)} "
+                 "got fewer right."],
+                "turkish-vs-english/#against-reference", f"Each decision model against {site.plain(run)}")
 
 
-def page_images(site: Site) -> str:
-    """The Vision tab's three averages (vision.differences), as its summary lines give them."""
-    data = site.vision
-    found = vision.differences(data)
-    finding(set(found) == {"B", "C", "D"}, "Vision has results for B, C and D")
-    (picture, images), (both, _), (route, routes) = found["B"], found["C"], found["D"]
-    finding(picture < 0, "the picture alone scores lower than the text on average")
-    return card(f"From a page picture alone, models score {-picture:.1f} points lower than from the text",
-                [f"On the {data['subset']['questions']:,} Turkish questions with underlined or numbered words, against the "
-                 f"text alone (A): the picture alone (B) {vision.signed(picture)} and the text plus the picture (C) "
-                 f"{vision.signed(both)}, averaged over {images} image models; the best OCR route (D) {vision.signed(route)}, "
-                 f"over {routes} models."],
-                vision.PATH, "The Vision tab")
+def chat_ahead(site: Site) -> str:
+    """The best chat model setup in English against the best decision model: right answers, and how many chat setups
+    got more right; no test on the site compares a chat model with a decision model, and the card says so."""
+    data = site.results["english_reading"]
+    questions = data["questions"]
+    decision, chat = english_members(site, data, "decision"), english_members(site, data, "chat")
+    best_chat, best_dec = chat[0], decision[0]
+    finding(best_chat["english"]["right"] > best_dec["english"]["right"], "the best chat setup gets more right than the best decision model")
+    above = sum(model["english"]["right"] > best_dec["english"]["right"] for model in chat)
+    said = lambda model: f"{site.shown(setup_run(site, model))}, {model['english']['right']:,} ({pct(model['english']['accuracy'])})"  # noqa: E731
+    return card("In English, the best chat models get more questions right than any decision model",
+                [f"Right answers of the {questions:,} questions: the best chat model, {said(best_chat)}; the best decision "
+                 f"model, {said(best_dec)}. {above} of the {len(chat)} chat model setups got more right than "
+                 f"{site.shown(setup_run(site, best_dec))}.",
+                 "No test on the site compares a chat model with a decision model, so these gaps are counted, not tested."],
+                "english/#accuracy", "English reading: accuracy")
+
+
+def idk_entries(site: Site, group: str) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """The setups of a kind (decision or chat) with an English “I don't know” run (english_reading.dont_know's models
+    and English-only setups), each as (its English side, its setup as a run for its name), by non-hallucination rate,
+    highest first."""
+    data = site.results["english_reading"]["dont_know"]
+    known = setups(site)
+    entries = [model for model in data["models"] + data["english_only"] if model["group"] == group and model["english"]
+               and model["english"]["non_hallucination"] is not None]
+    finding(all(idk_key(model) in known for model in entries), "each English “I don't know” setup has an English reading entry")
+    return sorted(((model["english"], setup_run(site, known[idk_key(model)])) for model in entries),
+                  key=lambda entry: -entry[0]["non_hallucination"])
 
 
 def holding_back(site: Site) -> str:
-    """The decision model with the highest non-hallucination rate with “Bilmiyorum” offered, and the next one."""
-    data = site.results["dont_know"]
-    option = data["option"]
-    rated = sorted((model for model in data["models"] if model["group"] == "decision" and model["non_hallucination"] is not None),
-                   key=lambda model: -model["non_hallucination"])
-    finding(len(rated) >= 2, "two decision models with a non-hallucination rate")
-    top, second = rated[:2]
-    top_run, second_run = site.by_id[top["original_run"]], site.by_id[second["original_run"]]
-    finding(top["attempt_rate"] < 0.5, f"{site.plain(top_run)} answers fewer than half of the questions")
+    """The decision model with the highest non-hallucination rate with “I don't know” offered in English, and the next."""
+    data = site.results["english_reading"]["dont_know"]
+    rated = idk_entries(site, "decision")
+    finding(len(rated) >= 2, "two decision models with an English “I don't know” run")
+    (mine, top), (theirs, second) = rated[:2]
+    finding(mine["non_hallucination"] > theirs["non_hallucination"], f"{site.plain(top)} alone has the highest rate")
+    best, most = max(rated, key=lambda entry: entry[0]["right"])
+    finding(mine["right"] < best["right"], f"{site.plain(top)} gets fewer right than the most accurate of them")
     total = data["questions"]
-    return card(f"{site.plain(top_run)} holds back the most, but answers few questions",
-                [f"Offered “{esc(option)}”, it chose it for {top['dont_know']:,} of its {top['dont_know'] + top['wrong']:,} "
-                 f"answers that were not right ({pct(top['non_hallucination'])}), and got {top['right']:,} of {total:,} right "
-                 f"({pct(top['accuracy'])}).",
-                 f"Next of the {len(rated)} decision models: {site.shown(second_run)}, {pct(second['non_hallucination'])}, with "
-                 f"{second['right']:,} right ({pct(second['accuracy'])})."],
-                "dont-know/#findings", "What we found with “I don't know”")
+    return card(f"With “I don't know” offered in English, {site.plain(top)} holds back a wrong answer most often",
+                [f"With an “I don't know” option in English, it chose it for {mine['dont_know']:,} of its "
+                 f"{mine['dont_know'] + mine['wrong']:,} answers that were not right ({pct(mine['non_hallucination'])}), "
+                 f"and got {mine['right']:,} of {total:,} right ({pct(mine['accuracy'])}), against {best['right']:,} "
+                 f"for {site.shown(most)}, the most accurate decision model with that run.",
+                 f"Next of the {len(rated)} decision models with that run: {site.shown(second)}, "
+                 f"{pct(theirs['non_hallucination'])}, with {theirs['right']:,} right ({pct(theirs['accuracy'])})."],
+                "dont-know/#english-option", "Hallucination: the English questions")
 
 
-def languages(site: Site) -> str:
-    """The same reading questions in Turkish and in English: how many setups got more right in each language, the median
-    difference, and the paired tests that pass."""
-    data = site.results["english_reading"]
-    models = data["models"]
-    gap = lambda model: model["english"]["right"] - model["turkish"]["right"]  # noqa: E731
-    english, turkish = sum(gap(model) > 0 for model in models), sum(gap(model) < 0 for model in models)
-    tied = len(models) - english - turkish
-    median = 100 * statistics.median(model["english"]["accuracy"] - model["turkish"]["accuracy"] for model in models)
-    finding(turkish > english and median < 0, "more setups score higher in Turkish than in English, and the median favours Turkish")
-    passed = [model for model in models if model["paired"]["p_holm"] < SIGNIFICANT]
-    up = sum(gap(model) > 0 for model in passed)
-    if not passed:
-        test = "No setup's difference passes the paired test."
-    else:
-        side = ("all of them higher in English" if up == len(passed) else "all of them higher in Turkish" if up == 0
-                else f"{up} higher in English and {len(passed) - up} in Turkish")
-        test = f"Only {len(passed)} setups' differences pass the paired test (Holm-adjusted), {side}."
-    return card("Most setups do a little better in Turkish than in English",
-                [f"On the same {data['questions']:,} reading questions, machine-translated into English: {turkish} of "
-                 f"{len(models)} setups got more right in Turkish, {english} in English ({tied} tied); the median difference "
-                 f"is {-median:.1f} points in Turkish's favour.", test],
-                "turkish-vs-english/", "Turkish vs English")
+def kinds_holding_back(site: Site) -> str:
+    """Decision models against chat model setups with “I don't know” in English: the median non-hallucination rate of
+    each kind, and how many decision models are above the best chat setup."""
+    decision, chat = idk_entries(site, "decision"), idk_entries(site, "chat")
+    finding(bool(decision and chat), "decision and chat setups with an English “I don't know” run")
+    rate = lambda entry: entry[0]["non_hallucination"]  # noqa: E731
+    middle = {kind: statistics.median(rate(entry) for entry in entries) for kind, entries in (("decision", decision), ("chat", chat))}
+    finding(middle["decision"] > middle["chat"], "the decision models' median rate is above the chat setups'")
+    above = sum(rate(entry) > rate(chat[0]) for entry in decision)
+    return card("In English, decision models choose “I don't know” over a wrong answer more often than chat models",
+                [f"The median non-hallucination rate is {pct(middle['decision'])} for the {len(decision)} decision models "
+                 f"and {pct(middle['chat'])} for the {len(chat)} chat model setups with an “I don't know” option in English.",
+                 f"The best chat setup, {site.shown(chat[0][1])}, reaches {pct(rate(chat[0]))}; {above} decision models are "
+                 "above it."],
+                "english/#non-hallucination", "English reading: non-hallucination")
 
 
 def small_english(site: Site) -> str:
@@ -126,25 +142,39 @@ def small_english(site: Site) -> str:
              and model["parameters"] is not None and model["parameters"] <= site.small_max]
     finding(bool(small), "a small open-weights chat model run in English only")
     best = max(small, key=lambda model: model["english"]["right"])
-    finding((best["hardware"] or "").startswith("1 × "), f"{site.plain(best)} ran on one GPU")
+    finding((best["hardware"] or "").startswith("1 × "), f"{site.plain(setup_run(site, best))} ran on one GPU")
     everyone = data["models"] + data["english_only"]
     above = sum(model["english"]["right"] > best["english"]["right"] for model in everyone)
     top = max(model["english"]["right"] for model in everyone)
     questions = data["questions"]
     return card(f"A {billions(best['parameters'])} open model on one GPU gets {pct(best['english']['accuracy'])} of the English reading questions",
-                [f"{site.shown(best)} answered {best['english']['right']:,} of {questions:,} right, the best of the "
+                [f"{site.shown(setup_run(site, best))} answered {best['english']['right']:,} of {questions:,} right, the best of the "
                  f"{len(small)} small open chat models run in English only.",
                  f"{above} of all {len(everyone)} English setups got more right; the best got {top:,} ({pct(top / questions)})."],
                 "english/", "English reading")
 
 
+def page_images(site: Site) -> str:
+    """A short pointer to the Vision tab: its picture-alone average (vision.differences' B), with the one note on the
+    questions' language."""
+    found = vision.differences(site.vision)
+    finding("B" in found, "Vision has results for the picture alone")
+    picture, images = found["B"]
+    finding(picture < 0, "the picture alone scores lower than the text on average")
+    return card(f"From a page picture alone, models score {-picture:.1f} points lower than from the text",
+                [f"Averaged over {images} image models. Vision's questions are original Turkish page images; the Vision "
+                 "tab has every result."],
+                vision.PATH, "The Vision tab")
+
+
 def build(site: Site) -> dict[str, str]:
-    cards = (glide(site), page_images(site), holding_back(site), languages(site), small_english(site))
-    count = bp.in_words(len(cards))
+    english = (best_decision(site), chat_ahead(site), holding_back(site), kinds_holding_back(site), small_english(site))
+    cards = (*english, page_images(site))
+    count = bp.in_words(len(english))
     body = f"""    <section class="card">
       <h1>Highlights</h1>
-      <p>{count.capitalize()} findings from this site's results, each computed when the site is built; each card links to its evidence.</p>
+      <p>{count.capitalize()} findings from the English reading results, on its {site.results["english_reading"]["questions"]:,} questions, and one from the Vision tab, each computed when the site is built; each card links to its evidence.</p>
       <ul class="exp-cards highlights">{"".join(cards)}</ul>
     </section>"""
-    return {PATH: site.page(PATH, TITLE, f"{count.capitalize()} findings from the site's results, each with its numbers and a link to the "
-                                         "evidence.", body)}
+    return {PATH: site.page(PATH, TITLE, f"{count.capitalize()} English reading findings and one from the Vision tab, each with its "
+                                         "numbers and a link to the evidence.", body)}

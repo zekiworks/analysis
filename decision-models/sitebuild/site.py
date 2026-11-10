@@ -798,8 +798,12 @@ class Site:
                       and not part.endswith("per request")]
             shown[name] = names.plain(self.title({"name": name}), names.SEPARATOR.join(common))
         for name in sorted(shown, key=len, reverse=True):
-            # Whole names only; a base checkpoint's name ("Gemma 4 12B IT") is another model's, left as written.
-            text = re.sub(rf"(?<![\w.-]){re.escape(esc(name))}(?![\w.-]| IT\b)", esc(shown[name]), text)
+            # Whole names only; a base checkpoint's name ("Gemma 4 12B IT") is another model's, left as written; and a
+            # name already followed by the rest of its official name ("Gemma 4 12B" in "Gemma 4 12B Unified") is
+            # already shown, so it is never extended twice.
+            rest = shown[name][len(name):] if shown[name].startswith(name) else ""
+            done = f"|{re.escape(esc(rest))}" if rest else ""
+            text = re.sub(rf"(?<![\w.-]){re.escape(esc(name))}(?![\w.-]| IT\b{done})", esc(shown[name]), text)
         return text
 
     def decision(self, run: dict[str, Any]) -> bool:
