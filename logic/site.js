@@ -23,14 +23,28 @@
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
   });
   document.querySelectorAll('a[data-view-group]').forEach(link => {
-    if (link.dataset.viewGroup === group) link.setAttribute('aria-current', 'true');
-    else link.removeAttribute('aria-current');
+    if (link.dataset.viewGroup === group) {
+      link.setAttribute('aria-current', 'true');
+      // A second tap on the selected key undoes it (Ümit #3923): back to the default models (Decision), and from
+      // Decision itself to All.
+      const url = new URL(link.href);
+      url.searchParams.set('models', group === 'decision' ? 'all' : 'decision');
+      link.href = url.toString();
+    } else link.removeAttribute('aria-current');
   });
   window.keepGroup = value => document.querySelectorAll('a[data-keep-group]').forEach(link => {
     const [path, fragment] = link.getAttribute('href').split('#');
     link.setAttribute('href', `${path.split('?')[0]}?models=${value}${fragment ? `#${fragment}` : ''}`);
   });
   if (!document.getElementById('leaderboard')) window.keepGroup(group);
+  // A test page's selected Part or Measure key (aria-current="page"): a second tap goes back to the front page with the
+  // same models in view (Ümit #3923; the earlier rule "selected key → Home"). Set after keepGroup, which would undo it.
+  const front = document.querySelector('.site-bar nav a');
+  if (front) document.querySelectorAll('.view-keys a[aria-current="page"]').forEach(link => {
+    const url = new URL(front.href);
+    url.searchParams.set('models', group);
+    link.href = url.toString();
+  });
 })();
 
 /* --view-bar-h holds the sticky header's height (links to a part of a page land below it). */
@@ -101,8 +115,13 @@
     }
     board.dispatchEvent(new CustomEvent('lb-change'));
   };
-  board.querySelectorAll('[data-lb-part]').forEach(k => k.addEventListener('click', () => { state.part = k.dataset.lbPart; apply(true); }));
-  board.querySelectorAll('[data-lb-filter]').forEach(k => k.addEventListener('click', () => { state.filter = k.dataset.lbFilter; apply(true); }));
+  // A second tap on the selected key undoes it (Ümit #3923): a part back to Logic, a models filter back to the default
+  // (Decision), and Decision itself to All.
+  board.querySelectorAll('[data-lb-part]').forEach(k => k.addEventListener('click', () => {
+    state.part = state.part === k.dataset.lbPart && k.dataset.lbPart !== 'logic' ? 'logic' : k.dataset.lbPart; apply(true); }));
+  board.querySelectorAll('[data-lb-filter]').forEach(k => k.addEventListener('click', () => {
+    const key = k.dataset.lbFilter;
+    state.filter = state.filter !== key ? key : key === 'decision' ? 'all' : 'decision'; apply(true); }));
   board.querySelector('[data-lb-setups]').addEventListener('click', () => { state.setups = !state.setups; apply(true); });
   board.querySelectorAll('.hl-more').forEach(b => b.addEventListener('click', () => {
     const open = b.getAttribute('aria-expanded') !== 'true';
