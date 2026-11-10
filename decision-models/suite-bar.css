@@ -7,11 +7,13 @@
    and is filled like a selected key; the others are plain links.
 
    The links sit in the middle of the strip (project lead, 9 November). They are centred by auto margins, not by
-   justify-content: center: where they are wider than the screen (a phone) they then start at its left edge and
-   scroll sideways inside the strip, never the page; plain centring would push the start of the first link off the
-   left edge, out of reach. On a desktop about 57 px tall: 10 px above and below the links, the links 36 px high with
-   10 px by 18 px inside and 24 px between them, 14 px text. On screens narrower than 600 px about 52 px: 10 px above
-   and below, the links 31 px high with 8 px by 12 px inside and 12 px between them, 13 px text. One line. */
+   justify-content: center: where they are wider than the screen they then start at its left edge and scroll sideways
+   inside the strip, never the page; plain centring would push the start of the first link off the left edge, out of
+   reach. On a desktop about 57 px tall: 10 px above and below the links, the links 36 px high with 10 px by 18 px
+   inside and 24 px between them, 14 px text. Below 600 px wide about 52 px tall, links 31 px high, 13 px text, and the
+   spacing narrows with the screen so that the three full names fit side by side on a phone (project lead, 10
+   November): 8 px inside each link and 8 px between them and at the edges below 600 px, 3 px inside and 5 px between
+   below 430 px, 2 px inside and 3 px between below 390 px. One line. */
 .suite-bar {
   --suite-bg: #ecebe6;
   --suite-edge: #c9c6bf;
@@ -92,8 +94,18 @@
   text-decoration: none;
 }
 @media (max-width: 599px) {
-  .suite-bar { min-height: 48px; padding: 10px 14px; font-size: 13px; }
-  .suite-bar ul { gap: 12px; }
-  .suite-bar a { min-height: 31px; padding: 8px 12px; }
+  .suite-bar { min-height: 48px; padding: 10px 8px; font-size: 13px; }
+  .suite-bar ul { gap: 8px; }
+  .suite-bar a { min-height: 31px; padding: 8px 8px; }
+}
+@media (max-width: 429px) {
+  .suite-bar { padding: 10px 5px; }
+  .suite-bar ul { gap: 5px; }
+  .suite-bar a { padding: 8px 3px; }
+}
+@media (max-width: 389px) {
+  .suite-bar { padding: 10px 3px; }
+  .suite-bar ul { gap: 3px; }
+  .suite-bar a { padding: 8px 2px; }
 }
 @media print { .suite-bar { display: none; } }
