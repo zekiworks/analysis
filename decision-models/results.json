@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "ff7c1f5d",
-  "updated": "2026-11-10T01:49:04Z",
+  "results_version": "44bf9d6b",
+  "updated": "2026-11-10T04:01:02Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -308038,6 +308038,84 @@
     ],
     "english_only": [
       {
+        "name": "Gemma 4 12B",
+        "model": "gemma-4-12b-it",
+        "provider": "vllm-plain",
+        "reasoning": "default",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 895,
+        "runs": [
+          895
+        ],
+        "dates": [
+          "2026-11-10"
+        ],
+        "parameters": 11959730176,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings) + vision and audio embedders",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, google/gemma-4-12B-it@43c9d01",
+          "https://huggingface.co/google/gemma-4-12B-it"
+        ],
+        "parameters_read": "2026-11-09",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision google/gemma-4-12B-it@43c9d01), one question per request, plain answer line ANSWER: X (no answer schema); sampling temperature 0.0; output cap 8,192",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 0.0844917,
+            "per_1000": 0.154463802559415,
+            "basis": "weights",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 151212,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 231235
+            },
+            "requests": 547,
+            "price": {
+              "basis": "SiliconFlow's list price for the same weights (Gemma 4 12B IT; precision not stated)",
+              "source": "https://www.siliconflow.com/models/gemma-4-12b-it",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "weights",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 0.1,
+                "cached_input_tokens": 0.1,
+                "cache_write_input_tokens": 0.1,
+                "cache_write_1h_input_tokens": 0.1,
+                "output_tokens": 0.3
+              },
+              "text": "$0.10 input, $0.30 output per 1M tokens"
+            },
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 15.80257351900218,
+            "p90_request_seconds": 20.392024458403466,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 475,
+          "wrong": 71,
+          "invalid": 1,
+          "accuracy": 0.8683729433272395
+        }
+      },
+      {
         "name": "Celeris-1.1 Decision",
         "model": "celeris-1.1-decision",
         "provider": "celeris",
@@ -312242,6 +312320,42 @@
             "accuracy": 0.8098720292504571,
             "attempt_rate": 0.9780621572212066,
             "non_hallucination": 0.09803921568627451,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Gemma 4 12B",
+          "model": "gemma-4-12b-it",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 895,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 896,
+            "runs": [
+              896
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 2,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "invalid_by_kind": {
+                "cut off": 1,
+                "unreadable": 1
+              }
+            },
+            "right": 472,
+            "wrong": 69,
+            "dont_know": 4,
+            "invalid": 2,
+            "accuracy": 0.8628884826325411,
+            "attempt_rate": 0.9890310786106032,
+            "non_hallucination": 0.0547945205479452,
             "mean_dont_know_probability": null
           }
         }

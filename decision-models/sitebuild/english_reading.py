@@ -140,13 +140,14 @@ def setup_key(model: dict[str, Any]) -> int:
 
 def setup_run(site: Site, model: dict[str, Any]) -> dict[str, Any]:
     """An English reading entry's setup as a run: its Text tab run, or an English-only setup's entry itself (provider,
-    model, settings, size record, billing, hardware) with its first English run's cost basis, cost and upper-bound mark
-    in the Text tab runs' fields, for the view groups, families, names and cost words."""
+    model, settings, size record, billing, hardware) with its first English run's cost basis, cost, upper-bound mark and
+    price (results.json prices holds the Text tab runs' only) in the Text tab runs' fields, for the view groups,
+    families, names and cost words."""
     if "turkish_run" in model:
         return site.by_id[model["turkish_run"]]
     cost = model["cost"]["english"] or {}
     return {**model, "cost_basis": cost.get("basis"), "api_equivalent_usd": cost.get("usd"),
-            "cost_upper_bound": bool(cost.get("upper_bound"))}
+            "cost_upper_bound": bool(cost.get("upper_bound")), "price": cost.get("price")}
 
 
 def idk_key(model: dict[str, Any]) -> int:

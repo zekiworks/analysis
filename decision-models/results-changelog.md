@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 44bf9d6b (10 November 2026)
+
+- The fourth small open model on English reading (project lead, bus #3446, #3475): Gemma 4 12B (Google; 12.0B parameters in total with its vision and audio encoders), on logic's server (vLLM v0.30.0, BF16, `google/gemma-4-12B-it` at `43c9d01`), one question per request with the plain answer line and the request settings of logic's Logic & Math runs of the same model (temperature 0, output cap 8,192 tokens, thinking off). English-only. Run 895: 475 of the 547 kept questions right (86.8%), 71 wrong, 1 invalid (no answer line). With "I don't know" (run 896): 472 right, 4 "I don't know", 69 wrong, 2 invalid; non-hallucination 5.5%. Cost: an API-equivalent estimate at SiliconFlow's list price for the same weights (the price Cygnet's cost uses), $0.08 for the run ($0.15 per 1,000 questions). The same weights read out by option letter are the decision model Cygnet.
+- An English-only setup priced at a host's list price for the same weights now names that price in its cost tooltip, as the other setups do. No other number changed; no significance letter or paired verdict moved.
+
 ## Results ff7c1f5d (10 November 2026)
 
 - The third small open model on English reading (project lead, bus #3446, #3475): Gemma 4 E2B (Google; 5.1B parameters in total with its per-layer embeddings and vision and audio encoders, 2.3B effective as Google states it), on logic's server (vLLM v0.30.0, BF16, `google/gemma-4-E2B-it` at `4adf157`), one question per request with the plain answer line and the request settings of logic's Logic & Math runs of the same model (temperature 0, output cap 8,192 tokens, thinking off). English-only. Run 892: 408 of the 547 kept questions right (74.6%), 136 wrong, 3 invalid (no answer line). With "I don't know" (run 893): 397 right, 17 "I don't know", 131 wrong, 2 invalid; non-hallucination 11.5%. Cost from GPU time: 91 seconds of one GPU, $0.06 for the run ($0.12 per 1,000 questions).

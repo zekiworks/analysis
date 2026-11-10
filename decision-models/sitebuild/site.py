@@ -757,11 +757,12 @@ class Site:
 
     def cost_tip(self, run: dict[str, Any]) -> str | None:
         """How a run's cost was counted, for its value's tooltip, where it is not plain API list price: a setup on our own
-        hardware priced at its maker's list price for the same model or a host's for the same weights names that price;
-        a GPU-time estimate gives its rate; an upper-bound estimate says so."""
+        hardware priced at its maker's list price for the same model or a host's for the same weights names that price
+        (results.json prices, else the setup's own, as an English-only setup carries it); a GPU-time estimate gives its
+        rate; an upper-bound estimate says so."""
         parts = []
         marks = self.config["first_cost_marks"]
-        price = next((item for item in self.results["prices"] if bp.price_key(item) == bp.price_key(run)), None)
+        price = next((item for item in self.results["prices"] if bp.price_key(item) == bp.price_key(run)), None) or run.get("price")
         if run.get("cost_basis") == "maker":
             parts.append(f"Estimated at {price['basis'] if price else 'its maker’s list price for the same model'}; "
                          "our hardware cost is not measured.")
