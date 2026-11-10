@@ -16,7 +16,7 @@ from sitebuild import english_view, vision
 from sitebuild.english_reading import (ENGLISH_ANCHOR, PATH as COMPARISON, english_only, measure_cell, missing_side,
                                        setup_labels)
 from sitebuild.site import (NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per, cost_switch, cost_value, esc,
-                            interval, latency_text, parameters_text, pct, rel, request_size)
+                            interval, latency_text, parameters_text, pct, rel, request_size, size_sentence)
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
 # The documentation page page_config.json's reasoning_levels cite, by its host, as the Settings line names it.
@@ -102,14 +102,14 @@ def facts(items: list[tuple[str, str | None]]) -> str:
 
 
 def size_fact(run: dict[str, Any]) -> str:
-    """The Parameters fact: the size in the details box's words (parameters_text), then what it covers, its sources
-    (results.json parameters_source: each page linked, or the checkpoint counted, repo@revision) and the
-    date read."""
+    """The Parameters fact: the size in the details box's words (size_sentence for a mixture of experts or two models
+    run together, else parameters_text), then what it covers, its sources (results.json parameters_source: each page
+    linked, or the checkpoint counted, repo@revision) and the date read."""
     sources = ", ".join(f'<a href="{esc(source)}">{esc(source.removeprefix("https://"))}</a>' if source.startswith("https://")
                         else esc(source) for source in run["parameters_source"])
     scope = f"{esc(run['parameters_scope'])}; " if run.get("parameters_scope") else ""
     checked = "pages checked" if run.get("parameters") is None else "source"
-    return (f'{esc(parameters_text(run))}<span class="small">{scope}{checked}: {sources}; read '
+    return (f'{esc(size_sentence(run) or parameters_text(run))}<span class="small">{scope}{checked}: {sources}; read '
             f'{bp.long_date(run["parameters_read"])}</span>')
 
 

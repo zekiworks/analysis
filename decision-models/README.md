@@ -425,11 +425,13 @@ python3 -m http.server 8000                                # preview at http://1
       (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
       opens on a tap on a phone and on hover or the keyboard focus on a desktop, focus beating the pointer, capped to
       the room on a short screen, and closes on a second tap, a tap outside or Escape; it lists the setup, its model's
-      size with its architecture ("Parameters: 26.1B dense", "Parameters: 552B MoE · 8B to 16B active", "Parameters:
-      753.3B MoE, active not disclosed by maker", "Parameters: 8B dense · 4.5B effective" or "Parameters: not disclosed
-      by maker", `parameters_text`; MoE or dense from the size record, `architecture`: MoE where it has active counts or
-      its scope says mixture of experts, dense for a counted released checkpoint without them, nothing where neither
-      holds; Ümit #4183, as on the other two sites; the same words on the model page and Method's sizes table), its accuracy
+      size ("Mixture of experts: 35.11B total, about 3B active per step. Size class uses 3B." for a mixture of experts,
+      "Two models run together, option probabilities averaged 50/50: 57.36B in all, all used on every question." for
+      two models run together, `size_sentence`, Ümit #4229; otherwise "Parameters: 26.1B dense", "Parameters: 8B dense ·
+      4.5B effective" or "Parameters: not disclosed by maker", `parameters_text`; MoE or dense from the size record,
+      `architecture`: MoE where it has active counts or its scope says mixture of experts, dense for a counted released
+      checkpoint without them, nothing where neither holds; two models run together where its scope says "two full
+      models", `combined`; the same words on the model page; Method's sizes table keeps `parameters_text`), its accuracy
       with the interval, reading and grammar, non-hallucination with "Bilmiyorum", the answers kept at 99% confidence
       (decision models), the cost with its basis and the request size, and "Open its answers →" (its model page), each
       line only where the data has it. The size shows there and on the model page (with what it covers, its
@@ -447,10 +449,11 @@ python3 -m http.server 8000                                # preview at http://1
       40B, Undisclosed when the maker discloses no size; `small_models.left_out_models` in no class, under Size: All
       only; the build stops unless Tiny and Small together hold exactly the small views' setups). The old addresses
       `?models=small-chat` (and `small`) and `?models=small-decision` press Tiny and Small with Chat models or Decision
-      models, `small-chat` on the English reading part as before. Each row shows its model's size beside its name
-      (`size_label`, the format agreed with Logic & Math, #4192: one decimal unless the maker's whole figure, with the
-      architecture: "26.1B dense", "552B MoE · 8B to 16B active", "753.3B MoE", "8.0B dense · 4.5B effective",
-      "undisclosed"). The # column numbers the rows in view: on the Turkish part their
+      models, `small-chat` on the English reading part as before. Each row shows its model's size beside its name, as
+      Logic & Math does (`size_label`, the shared form, #4229 and #4231): the total only, whole from 10B up ("26B",
+      "266B"), one decimal below ("7.9B", "0.4B"), "2.8T" from 1T up, with a small superscript mark, "MoE" after a
+      mixture of experts or "2×" after two models run together, none for a dense model, nothing for an undisclosed
+      size; the mark takes the focus and a hover, focus or tap on it opens the row's details box. The # column numbers the rows in view: on the Turkish part their
       tier (a row joins the tier of the tier's top row when they share a tie-group letter of the full ranking's
       all-pairs test, else it starts the next tier; a thin line between tiers), on the other parts, which no all-pairs
       test covers, their rank, ties sharing a rank. Lines of text: what the score means above the table, what # shows,

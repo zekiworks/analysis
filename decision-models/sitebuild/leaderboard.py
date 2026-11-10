@@ -20,8 +20,8 @@ from typing import Any
 import benchmark_metrics as bm
 import build_page as bp
 from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run)
-from sitebuild.site import (NOT_MEASURED, Site, architecture, billions, cost_missing, cost_per, cost_value, esc,
-                            family_icon, parameters_text, pct, rel)
+from sitebuild.site import (NOT_MEASURED, Site, architecture, billions, combined, cost_missing, cost_per, cost_value, esc,
+                            family_icon, parameters_text, pct, rel, size_sentence)
 
 # The reasoning settings in order, as the requests sent them: none and off (and a setup without a setting, or a chat
 # template's default, vllm-plain's "default") lowest; "on" is the setting of a model with thinking on or off only, above
@@ -139,27 +139,25 @@ def tiers(letters: list[str | None]) -> list[int]:
 
 
 def label_count(value: int) -> str:
-    """A count in the size label (the format agreed with the Logic & Math site, #4192): one decimal ("26.1B", "8.0B"),
-    none for a whole count as the maker states it ("552B", "3B"); below a billion as billions() writes it ("395M")."""
-    if value < 1e9 or value % (1e12 if value >= 1e12 else 1e9) == 0:
-        return billions(value)
-    return f"{value / 1e12:.1f}T" if value >= 1e12 else f"{value / 1e9:.1f}B"
+    """A count in the size label (the shared form, #4231): whole billions from 10B up ("26B", "57B", "266B"), one decimal
+    below ("7.9B", "1.9B", "0.4B"), one decimal of trillions from 1T up ("2.8T")."""
+    if value >= 1e12:
+        return f"{value / 1e12:.1f}T"
+    return f"{value / 1e9:.0f}B" if value >= 10e9 else f"{value / 1e9:.1f}B"
 
 
-def size_label(run: dict[str, Any]) -> str:
-    """The size beside a row's name (#4192): the total and the architecture (Site.architecture): "26.1B dense",
-    "35.1B MoE · 3B active", "552B MoE · 8B to 16B active", "753.3B MoE" (active not disclosed), "8.0B dense · 4.5B
-    effective", the bare total where the architecture is not known, or "undisclosed" with no number."""
+def size_label(run: dict[str, Any], box: str) -> str:
+    """The size beside a row's name (#4229, #4231): the total only (label_count), with a small superscript mark after a
+    mixture of experts ("MoE") or a setup of two models run together ("2×", site.combined), no mark for a dense model,
+    and nothing where the maker discloses no size. The mark takes the focus and, like the name, opens the row's details
+    box, which explains it (site.size_sentence)."""
     total = run.get("parameters")
     if total is None:
-        return "undisclosed"
-    kind = architecture(run)
-    text = label_count(total) + (f" {kind}" if kind else "")
-    if run.get("active_parameters"):
-        return f"{text} · {' to '.join(map(label_count, run['active_parameters']))} active"
-    if run.get("effective_parameters"):
-        return f"{text} · {label_count(run['effective_parameters'])} effective"
-    return text
+        return ""
+    mark = "2×" if combined(run) else "MoE" if architecture(run) == "MoE" else ""
+    said = "two models run together" if combined(run) else "mixture of experts"
+    sup = (f'<sup class="lb-mark" tabindex="0" aria-label="{said}" aria-describedby="{box}">{mark}</sup>' if mark else "")
+    return f'<span class="lb-size">{label_count(total)}{sup}</span>'
 
 
 def name_of(site: Site, run: dict[str, Any]) -> str:
@@ -217,12 +215,13 @@ def wide(value: str) -> str:
 
 
 def details(site: Site, run: dict[str, Any], box: str, lines: list[str | None], answers: str) -> str:
-    """A setup's details box: its name line, its model's size (parameters_text), then the lines the data has (never
+    """A setup's details box: its name line, its model's size (size_sentence, else parameters_text), then the lines the data has (never
     "n/a"), then the link to its answers (an English-only setup, with no Text tab run and no model page: its row on the
     English reading page)."""
     head = " · ".join([f"<strong>{esc(name_of(site, run))}</strong>", esc(under(site, run))])
     link = "Open its answers" if run["run"] in site.by_id else "Open its English results"
-    body = [head, f"Parameters: {esc(parameters_text(run))}", *lines, f'<a href="{answers}">{link} \u2192</a>']
+    size = size_sentence(run) or f"Parameters: {parameters_text(run)}"
+    body = [head, esc(size), *lines, f'<a href="{answers}">{link} \u2192</a>']
     return (f'<div class="lb-box" id="{box}" role="group" aria-label="{esc(name_of(site, run))}: details">'
             + "".join(f"<p>{line}</p>" for line in body if line) + "</div>")
 
@@ -348,7 +347,7 @@ def size_attributes(site: Site, run: dict[str, Any]) -> str:
 def name_cell(name: str, href: str, box: str, run: dict[str, Any]) -> str:
     """A row's name link and its size label beside it (size_label)."""
     return (f'<a class="model-name" href="{href}" title="{esc(name)}" aria-describedby="{box}">{esc(name)}</a>'
-            f'<span class="lb-size">{esc(size_label(run))}</span>')
+            f'{size_label(run, box)}')
 
 
 def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str, Any], list[dict[str, Any]]]], run_of: Any,

@@ -138,6 +138,33 @@ def parameters_text(run: dict[str, Any]) -> str:
     return text
 
 
+def combined(run: dict[str, Any]) -> bool:
+    """Whether a setup is two full models run together, as its size record's scope says ("two full models: part G ...
+    + part Q ...", REAX 1.3)."""
+    return (run.get("parameters_scope") or "").startswith("two full models")
+
+
+def size_sentence(run: dict[str, Any]) -> str | None:
+    """The details box's and the model page's explanation of a size label's mark (#4229, #4231): for a mixture of
+    experts, its total, its active count per step and the count its size class reads (Site.size); for two models run
+    together, their total, all of it used on every question; None for a dense model or an undisclosed size, which keep
+    parameters_text. The total with two decimals where it was counted, as the maker states it where it is whole."""
+    total = run.get("parameters")
+    if total is None:
+        return None
+    exact = lambda value: (billions(value) if value % 1e9 == 0 else  # noqa: E731
+                           f"{value / 1e12:.2f}T" if value >= 1e12 else f"{value / 1e9:.2f}B")
+    if combined(run):
+        return (f"Two models run together, option probabilities averaged 50/50: {exact(total)} in all, all used on every "
+                "question.")
+    if architecture(run) != "MoE":
+        return None
+    active = run.get("active_parameters")
+    each = f"about {' to '.join(map(billions, active))} active per step" if active else "active not disclosed by maker"
+    return f"Mixture of experts: {exact(total)} total, {each}. Size class uses {exact(Site.size(run))}."
+
+
+
 def experiments(results: dict[str, Any], path: str) -> str:
     """The line on the experiments beside the ranking, on both English pages: the web grounding page, when results.json
     has it, and the PWS-Decisions page, when pws-decisions.json is there, with its Answering habits step (#habits-2) when

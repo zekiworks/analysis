@@ -326,6 +326,10 @@ tr.lb-off { display: none !important; }
 .lb-controls.lb-size-keys { margin-top: -.25rem; }
 .lb-keys-label { align-self: center; margin-right: .15rem; color: var(--text-2); font-size: .82rem; }
 .lb-size { margin-left: .4rem; color: var(--text-2); font-size: .74rem; font-weight: 400; white-space: nowrap; }
+/* The size label's mark (MoE, 2×): small and muted after the number; it takes the focus, and a hover, focus or tap on it
+   opens the row's details box, which explains it (site.js). Padding widens the target without moving the text. */
+.lb-mark { margin-left: .12em; padding: .3em .2em; color: var(--text-2); font-size: .72em; letter-spacing: .02em; cursor: help; }
+.lb-mark:focus-visible { outline-offset: 0; border-radius: 3px; }
 .lb-table tbody tr.lb-tier-start > td { box-shadow: inset 0 1px 0 var(--control-edge); }
 .lb-size-line, .lb-numbers { margin: .4rem 0 0; }
 /* A row's details box (site.js): every value of the setup, a line per kind; in its row without the script, else over
