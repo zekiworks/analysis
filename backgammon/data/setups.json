@@ -7,10 +7,10 @@
    "missing": [
     "price.date"
    ],
-   "model": "Decider v1.1 27B",
+   "model": "Perplexity Decider 27B v1.1 (local GPU)",
    "model_id": "pplx-decider-v1.1-27b",
    "model_type": "decision model",
-   "name": "Decider v1.1 27B",
+   "name": "Perplexity Decider 27B v1.1 (local GPU)",
    "notes": "Perplexity's released checkpoint on our GPUs; moved to a DGX Spark on 16 Oct 11:04 UTC (same checkpoint and server arguments; 20 replayed requests: same play 20/20)",
    "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -148,10 +148,10 @@
    "missing": [
     "sampling"
    ],
-   "model": "Cygnet (Gemma 4 12B)",
+   "model": "Cygnet",
    "model_id": "cygnet",
-   "model_type": "chat model, answer-letter probabilities",
-   "name": "Cygnet (Gemma 4 12B)",
+   "model_type": "decision model",
+   "name": "Cygnet",
    "notes": "Google's gemma-4-12B-it behind a server that labels the options with letters and reads the letter probabilities; moved to a DGX Spark on 16 Oct 11:04 UTC (20 replayed requests: same play 20/20)",
    "option_groups": "up to 26 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -403,10 +403,10 @@
    "missing": [
     "weights"
    ],
-   "model": "GPT-6 Luna",
+   "model": "GPT-6 Luna (Decisions API)",
    "model_id": "gpt-6-luna",
    "model_type": "decision model",
-   "name": "GPT-6 Luna",
+   "name": "GPT-6 Luna (Decisions API)",
    "notes": "OpenAI Decisions API (public beta); an earlier League 1 entry through the ChatGPT subscription (chat model) was removed on 19 Oct",
    "option_groups": "up to 255 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -437,10 +437,10 @@
    "dataset": "league-1",
    "date_run": null,
    "missing": [],
-   "model": "Decider Flash v1.2",
+   "model": "Perplexity Decider Flash v1.2",
    "model_id": "pplx-decider-flash-v1.2",
    "model_type": "decision model",
-   "name": "Decider Flash v1.2",
+   "name": "Perplexity Decider Flash v1.2",
    "notes": "Perplexity's pplx-decider-flash-v1.2 (from Qwen3.5-4B) through the pplx_decider package its checkpoint ships, one request at a time; price is Perplexity's list price for the same model",
    "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -507,10 +507,10 @@
    "missing": [
     "weights"
    ],
-   "model": "Mercury Decide",
+   "model": "Inception Mercury Decide",
    "model_id": "inception/mercury-decide",
    "model_type": "decision model",
-   "name": "Mercury Decide",
+   "name": "Inception Mercury Decide",
    "notes": "Inception's Mercury Decide through OpenRouter's decision route, paid listing; latency includes OpenRouter's own time",
    "option_groups": "up to 255 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -573,10 +573,10 @@
    "dataset": "league-1",
    "date_run": null,
    "missing": [],
-   "model": "Decider v1.2 27B",
+   "model": "Perplexity Decider 27B v1.2 (local GPU)",
    "model_id": "pplx-decider-v1.2",
    "model_type": "decision model",
-   "name": "Decider v1.2 27B",
+   "name": "Perplexity Decider 27B v1.2 (local GPU)",
    "notes": "Perplexity's pplx-decider-v1.2 through the pplx_decider package its checkpoint ships, one request at a time; joined late (20 Oct); price is Perplexity's list price for the same model",
    "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -612,7 +612,7 @@
    "model": "Fastino GLiDE v1.2",
    "model_id": "fastino/GLiDE @ a7e45896 (glide-v1.2)",
    "model_type": "decision model",
-   "name": "Fastino GLiDE v1.2 (local)",
+   "name": "Fastino GLiDE v1.2",
    "notes": "Fastino's GLiDE v1.2 weights (Hugging Face fastino/GLiDE, Fastino Community License) through the glide/server.py its repository ships, bf16, one request per forward pass; joined late (22 Oct)",
    "option_groups": "up to 255 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": null,
@@ -874,10 +874,10 @@
    "missing": [
     "price.date"
    ],
-   "model": "DeepSeek V4.1 Flash",
+   "model": "DeepSeek-V4.1-Flash",
    "model_id": "deepseek-v4.1-flash",
    "model_type": "chat model, answer-letter probabilities",
-   "name": "DeepSeek V4.1 Flash (off)",
+   "name": "DeepSeek-V4.1-Flash (off)",
    "notes": "Fireworks via OpenRouter (model ID deepseek/deepseek-v4.1-flash, quantization not published, at most 5 top logprobs) until 20 Oct 21:56 UTC, then the published weights on our GPUs (SGLang), still 5 top logprobs; the price stays Fireworks' list price for comparison",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -916,10 +916,10 @@
    "missing": [
     "price.date"
    ],
-   "model": "DeepSeek V4.1 Flash",
+   "model": "DeepSeek-V4.1-Flash",
    "model_id": "deepseek-v4.1-flash",
    "model_type": "chat model, answer-letter probabilities",
-   "name": "DeepSeek V4.1 Flash (low)",
+   "name": "DeepSeek-V4.1-Flash (low)",
    "notes": "Fireworks via OpenRouter (model ID deepseek/deepseek-v4.1-flash, quantization not published) until 20 Oct 21:56 UTC, then the published weights on our GPUs (SGLang); letter probabilities read from the answer after the reasoning; the price stays Fireworks' list price for comparison",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -1739,10 +1739,10 @@
     "option_groups",
     "date_run"
    ],
-   "model": "GPT-6 Luna",
+   "model": "GPT-6 Luna (Decisions API)",
    "model_id": "gpt-6-luna",
    "model_type": "decision model",
-   "name": "GPT-6 Luna",
+   "name": "GPT-6 Luna (Decisions API)",
    "notes": null,
    "option_groups": null,
    "price": {
@@ -1774,10 +1774,10 @@
     "price.date",
     "date_run"
    ],
-   "model": "Decider v1.1 27B",
+   "model": "Perplexity Decider 27B v1.1 (local GPU)",
    "model_id": "pplx-decider-v1.1-27b",
    "model_type": "decision model",
-   "name": "Decider v1.1 27B",
+   "name": "Perplexity Decider 27B v1.1 (local GPU)",
    "notes": null,
    "option_groups": "groups of up to 25 options (8,192-token limit)",
    "price": {
@@ -1881,7 +1881,7 @@
    ],
    "model": "Cygnet",
    "model_id": "cygnet",
-   "model_type": "chat model, answer-letter probabilities",
+   "model_type": "decision model",
    "name": "Cygnet",
    "notes": "Google's gemma-4-12B-it, unchanged, behind a server that labels the options with letters and reads each letter's probability",
    "option_groups": "groups of up to 26 options",
@@ -1950,10 +1950,10 @@
     "option_groups",
     "date_run"
    ],
-   "model": "DeepSeek V4.1 Flash",
+   "model": "DeepSeek-V4.1-Flash",
    "model_id": "deepseek-v4.1-flash",
    "model_type": "chat model, answer-letter probabilities",
-   "name": "DeepSeek V4.1 Flash",
+   "name": "DeepSeek-V4.1-Flash",
    "notes": null,
    "option_groups": null,
    "price": {
@@ -2201,10 +2201,10 @@
     "option_groups",
     "date_run"
    ],
-   "model": "DeepSeek V4.1 Flash",
+   "model": "DeepSeek-V4.1-Flash",
    "model_id": "deepseek-v4.1-flash",
    "model_type": "chat model, one letter",
-   "name": "DeepSeek V4.1 Flash (thinking)",
+   "name": "DeepSeek-V4.1-Flash (thinking)",
    "notes": "answer constrained by a JSON schema; stored as choice only",
    "option_groups": null,
    "price": {
@@ -2788,10 +2788,10 @@
    "dataset": "smoke-part-a",
    "date_run": "2026-10-21",
    "missing": [],
-   "model": "MiniMax M3.1 Flash",
+   "model": "MiniMax-M3.1-Flash",
    "model_id": "minimax/minimax-m3.1-flash:free",
    "model_type": "chat model, one letter",
-   "name": "MiniMax M3.1 Flash (low)",
+   "name": "MiniMax-M3.1-Flash (low)",
    "notes": "not on Hugging Face, treated as closed; free endpoint, priced at MiniMax's list price; unconstrained letter",
    "option_groups": "one request (no split)",
    "price": {
@@ -2878,10 +2878,10 @@
    "dataset": "league-2",
    "date_run": "24–28 Oct 2026",
    "missing": [],
-   "model": "DeepSeek V4.1 Flash 1017",
+   "model": "DeepSeek-V4.1-Flash 1017",
    "model_id": "deepseek/deepseek-v4.1-flash-1017",
    "model_type": "chat model, answer-letter probabilities",
-   "name": "DeepSeek V4.1 Flash 1017 (off)",
+   "name": "DeepSeek-V4.1-Flash 1017 (off)",
    "notes": "The 17 Oct 2026 snapshot of DeepSeek V4.1 Flash, served by DeepSeek itself through OpenRouter (provider pinned, fallbacks off) for every decision; never on our GPUs. Late entry to League 2 on 24 Oct 2026; its missing pairings were played on 27–28 Oct 2026. No fixed answer format (DeepSeek's endpoint takes no JSON schema): the letter is read from the free-text answer with its probabilities. DeepSeek may train on paid prompts; allowed by Can, 24 Oct 2026.",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -2914,10 +2914,10 @@
    "dataset": "league-2",
    "date_run": "24–28 Oct 2026",
    "missing": [],
-   "model": "DeepSeek V4.1 Flash 1017",
+   "model": "DeepSeek-V4.1-Flash 1017",
    "model_id": "deepseek/deepseek-v4.1-flash-1017",
    "model_type": "chat model, answer-letter probabilities",
-   "name": "DeepSeek V4.1 Flash 1017 (low)",
+   "name": "DeepSeek-V4.1-Flash 1017 (low)",
    "notes": "The 17 Oct 2026 snapshot of DeepSeek V4.1 Flash, served by DeepSeek itself through OpenRouter (provider pinned, fallbacks off) for every decision; never on our GPUs. Late entry to League 2 on 24 Oct 2026; its missing pairings were played on 27–28 Oct 2026. No fixed answer format (DeepSeek's endpoint takes no JSON schema): the letter is read from the free-text answer with its probabilities. DeepSeek may train on paid prompts; allowed by Can, 24 Oct 2026.",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -3014,10 +3014,10 @@
    "dataset": "late-entry",
    "date_run": "2 Nov 2026",
    "missing": [],
-   "model": "Base Labs Elephant-1",
+   "model": "Elephant-1",
    "model_id": "baselabs/elephant-1 @ b3f8a93462fb1051a9de031e94a7ff380e254072 (Hugging Face; post-trained from Qwen3.5-9B)",
    "model_type": "decision model",
-   "name": "Base Labs Elephant-1",
+   "name": "Elephant-1",
    "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 2 Nov 2026. Probabilities come rounded to 6 decimals by the loader and are stored as returned.",
    "option_groups": "up to 120 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
@@ -3047,10 +3047,10 @@
    "dataset": "late-entry",
    "date_run": "2 Nov 2026",
    "missing": [],
-   "model": "Base Labs Mammoth-1",
+   "model": "Mammoth-1",
    "model_id": "baselabs/mammoth-1 @ 61cec44c281c693992e3d6ebeb44dd3402dfa186 (Hugging Face; post-trained from Qwen3.5-27B)",
    "model_type": "decision model",
-   "name": "Base Labs Mammoth-1",
+   "name": "Mammoth-1",
    "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 2 Nov 2026. Probabilities come rounded to 6 decimals by the loader and are stored as returned.",
    "option_groups": "up to 120 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {

@@ -484,7 +484,9 @@ i.swatch-ts-safety, i.swatch-ts-found { background-color: var(--text-2); }
 table.headline th[data-wide], table.headline td.hl-wide, .hl-wide-note { display: none; }
 @media (min-width: 900px) {
   table.headline th[data-wide], table.headline td.hl-wide { display: table-cell; white-space: nowrap; }
-  td.hl-judgement { width: 40%; }
+  td.hl-judgement { width: 34%; }
+  /* Tier (same positions), Ümit #4313: the wide heads wrap (their cells do not) so the fifth column fits at 1280. */
+  table.headline th[data-wide] { white-space: normal; }
   .hl-wide-note { display: inline; }
 }
 /* Wide desktop windows: the model column wide enough for the name and its chip on one line (Ümit #3193). */
