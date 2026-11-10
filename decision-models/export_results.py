@@ -230,6 +230,14 @@ MODELS: dict[str, dict[str, Any]] = {
         "note": "Meta's closed chat model, released 9 November 2026, added as a chat-model comparison",
         "access": "OpenRouter chat API, Meta's own endpoint, fallbacks off, output cap 65,536 tokens, reasoning max",
     },
+    # Anthropic's Claude Haiku 5.5 through OpenRouter (project lead bus #4257: a chat model on the reading bench at its
+    # highest setting); its output cap is the endpoint's maximum, since at 65,536 its reasoning used the whole cap on 5 of
+    # 13 smoke requests (run 944; runner/run_openrouter_claude_haiku_5_5.sh).
+    "anthropic/claude-haiku-5.5": {
+        "name": "Claude Haiku 5.5",
+        "note": "Anthropic's small chat model, added on the reading bench as a chat model",
+        "access": "OpenRouter chat API, Anthropic's own endpoint, fallbacks off, output cap 128,000 tokens, reasoning max",
+    },
     "jev-1.13.0": {"name": "Jev 1.13.0"},
     "jev-1.14.0": {"name": "Jev 1.14.0"},
     "open-jev-27b-v1.1": {
@@ -622,6 +630,9 @@ SIZES: dict[str, dict[str, Any]] = {
     # Meta's announcement and model page give no size (read 10 November 2026; project lead bus #4021).
     "meta/muse-ember": {"total": None, "sources": ["https://research.meta.ai/blog/muse-ember",
                                                    "https://dev.meta.ai/models/muse-ember"], "read": "2026-11-10"},
+    "anthropic/claude-haiku-5.5": {"total": None, "sources": ["https://www.anthropic.com/claude-haiku-5-5",
+                                                              "https://platform.claude.com/docs/en/models/overview"],
+                                   "read": "2026-11-10"},
     # Hosted decision models: no maker states a size.
     "celeris-1-decision": {"total": None, "sources": ["https://docs.celeris.ai/decisions", "https://celeris.ai/decisions"],
                            "read": READ},
@@ -2116,8 +2127,10 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
         ("open-jev", "open-jev-27b-v1.1"), ("pplx-decider", "pplx-decider-flash-v1.2"))},
     ("reax", "reax13", None): "added to the Hallucination tab on 6 November 2026 (run on our GPU), after the option-word "
     "check; not asked with “I don't know” yet.",
-    **{("glide", model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the option-word "
-       "check; not asked with “I don't know” yet." for model in ("glide-27b", "glide-9b", "glide-2b", "glide-0.8b", "glide-0.4b")},
+    **{(provider, model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the "
+       "option-word check; not asked with “I don't know” yet." for provider, model in (
+        ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),
+        ("knowline", "PelaAI/KnowLine-31B-Gen1.5"))},
 }
 # The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
 # five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't

@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results f0fa180a (10 November 2026)
+
+- KnowLine 31B Gen1.5's other runs, on the same DGX Spark: on the Hallucination tab, English "I don't know" (run 955) and Turkish "Bilmiyorum" (run 959); it chose the option for none of its 37 English answers that were not right and for 1 of its 412 Turkish ones (non-hallucination 0.0% and 0.2%).
+- Page images (its server takes a page image as a part of the chat state): picture only 380 of 763 (49.8%), text plus picture 580 (76.0%), best OCR route Surya OCR 2 576 (75.5%), against 603 (79.0%) with the text alone (condition A, from run 957). Its text-alone, text-plus-picture and best-OCR results are the highest of the image models (picture only is 2 questions below Liquid d1-ultra's 382), but neither the picture nor the OCR text added to what it got from the text alone.
+- With a twelfth image model the Vision tab's averages move: picture alone against the text −17.1 points (was −16.0 over 11 image models), text plus picture +1.2 (was +1.6); the best OCR route stays −4.0 (now over 15 models with an OCR route). Highlights' Vision card follows (17.1 points).
+- In the English "I don't know" comparison, Holm's correction now covers one more model, so the other models' adjusted p values rise slightly; no verdict changes. No other number changed.
+
 ## Results 6746e746 (10 November 2026)
 
 - Added KnowLine 31B Gen1.5, the first of the new Decision Index models (the project lead's bus #4057, #4300): PelaAI's released checkpoint (`PelaAI/KnowLine-31B-Gen1.5` at `8e56aa1`), a merged LoRA fine-tune of Gemma-4-31B-it, 31B by its card ("about 31B parameters"; our count of the released files 31,273,086,512, with its 0.58B vision encoder), through the server its repository ships (`serve_knowline.sh`: SGLang 0.5.21 in BF16 and `knowline_server.py`, which reads a request of up to 3,000 tokens twice) on one DGX Spark, one request at a time. Text: run 957, 1,798 of 2,198 right (81.8%), the most of any decision model and clearly ahead (it shares a significance letter with no other decision model); REAX 1.3 and Liquid d1-ultra, tied, follow. English reading: run 953, 512 of the 547 kept questions right (93.6%), against 94.3% in Turkish on the same questions. Its two "I don't know" runs and its Page images follow in a later release (a decision model's English "I don't know" run is published with its Turkish one, which is still running).
