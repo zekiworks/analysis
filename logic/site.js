@@ -5,35 +5,40 @@
    shows, the leaderboard shows Logic with every row and every details box in its row, costs read per 1,000 questions). */
 
 /* The model group from ?models= (the type: all, decision, chat; missing or unknown means decision, the default) and
-   ?size= (all, tiny, small, medium, large, undisclosed; missing means all), Ümit #4156/#4198. An old link's small,
-   small-chat or small-decision opens that type (chat for the oldest small) with every size, and the address is
-   rewritten. A page with Size keys (data-view-size) holds a copy per type and size ('decision-tiny'; the type alone
-   with size All); a page without them (Vision) a copy per type. Each element whose data-models lists other groups only
-   is hidden; the page's Models and Size keys in view are marked, each keeping the other choice; the links that keep the
-   group (data-keep-group) carry both. */
+   ?class= (all, tiny, small, medium, large, efficient, workhorse, flagship; missing means all), PREVIEW Ümit #4217 (the
+   Size keys of #4156/#4198 before it: an old ?size= of tiny, small, medium or large opens that class, undisclosed All,
+   and the address is rewritten). An old link's small, small-chat or small-decision opens that type (chat for the oldest
+   small) with every class. A page with Class keys (data-view-size) holds a copy per type and class ('decision-tiny'; the
+   type alone with class All); a page without them (Vision) a copy per type. Each element whose data-models lists other
+   groups only is hidden; the page's Models and Class keys in view are marked, each keeping the other choice, a class key
+   hidden when the chosen type has no setup of it on the page (data-has); the links that keep the group
+   (data-keep-group) carry both. */
 (function setupModels() {
   const types = ['all', 'decision', 'chat'];
-  const sizes = ['all', 'tiny', 'small', 'medium', 'large', 'undisclosed'];
+  const sizes = ['all', 'tiny', 'small', 'medium', 'large', 'efficient', 'workhorse', 'flagship'];
   const params = new URLSearchParams(window.location.search);
   const asked = (params.get('models') ?? '').replace(/[^a-z]+$/i, '');
   const old = { small: 'chat', 'small-chat': 'chat', 'small-decision': 'decision' };
   const type = old[asked] ?? (types.includes(asked) ? asked : 'decision');
-  const size = sizes.includes(params.get('size')) ? params.get('size') : 'all';
+  const askedClass = params.get('class') ?? params.get('size');
+  const size = sizes.includes(askedClass) ? askedClass : 'all';
   window.modelsGroup = type;
   window.modelsSize = size;
-  if (asked in old) {
+  if (asked in old || params.has('size')) {
     const url = new URL(window.location.href);
     url.searchParams.set('models', type);
+    url.searchParams.delete('size');
+    if (size !== 'all') url.searchParams.set('class', size);
     history.replaceState(history.state, '', url);
   }
   const sized = document.querySelector('a[data-view-size]') !== null;
   const group = sized && size !== 'all' ? `${type}-${size}` : type;
-  const query = (t, s) => `?models=${t}${s !== 'all' ? `&size=${s}` : ''}`;
+  const query = (t, s) => `?models=${t}${s !== 'all' ? `&class=${s}` : ''}`;
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
   });
-  // A second tap on the selected Models or Size key clears that filter to All (Ümit #3923, as on backgammon #3925).
+  // A second tap on the selected Models or Class key clears that filter to All (Ümit #3923, as on backgammon #3925).
   document.querySelectorAll('a[data-view-group]').forEach(link => {
     const key = link.dataset.viewGroup;
     const on = key === type;
@@ -45,6 +50,8 @@
     const on = key === size;
     if (on) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current');
     link.setAttribute('href', query(type, on ? 'all' : key));
+    const item = link.closest('li[data-has]');
+    if (item && !on) item.hidden = !item.dataset.has.split(/\s+/).includes(type);
   });
   window.keepGroup = (t, s) => document.querySelectorAll('a[data-keep-group]').forEach(link => {
     const [path, fragment] = link.getAttribute('href').split('#');
@@ -82,20 +89,21 @@
   window.addEventListener('hashchange', go);
 })();
 
-/* The leaderboard's keys (Ümit #2980 item 4; size classes and tiers, Ümit #4156/#4198): the part (Logic, Math, Both:
-   one panel each), the models (All, Chat models, Decision models) combined with the size (All, Tiny, Small, Medium,
-   Large, Undisclosed: data-size; rows of another type or size go out of view, class hl-off) and All setups (every setup
-   its own row). The # column shows each row's tier among the rows in view (data-tiers, computed by the build for every
-   type and size), a line above the first row of each tier after the first (class lb-tier-start). The choice is kept in
-   the address (?part=, ?models=, ?size=, ?setups=all) and carried by the links to the test pages.
-   Expander keys open a row's other settings. */
+/* The leaderboard's keys (Ümit #2980 item 4; classes and tiers, PREVIEW Ümit #4217): the part (Logic, Math, Both: one
+   panel each), the models (All, Chat models, Decision models) combined with the class (All, Tiny, Small, Medium, Large,
+   Efficient, Workhorse, Flagship: data-class; rows of another type or class go out of view, class hl-off; a class key
+   with no row of the chosen part, type and view is hidden) and All setups (every setup its own row). The # column shows
+   each tiered row's tier among the rows in view (data-tiers, computed by the build for every type and class), a line
+   above the first row of each tier after the first (class lb-tier-start); a with-web or sample row (data-untiered) shows
+   '–' and is passed over. The choice is kept in the address (?part=, ?models=, ?class=, ?setups=all) and carried by the
+   links to the test pages. Expander keys open a row's other settings. */
 (function setupLeaderboard() {
   const board = document.getElementById('leaderboard');
   if (!board) return;
   const params = new URLSearchParams(window.location.search);
   const parts = ['logic', 'math', 'together'];
-  const shows = tr => (state.filter === 'all' || tr.dataset.hlType === state.filter)
-    && (state.size === 'all' || tr.dataset.size === state.size);
+  const ofType = tr => state.filter === 'all' || tr.dataset.hlType === state.filter;
+  const shows = tr => ofType(tr) && (state.size === 'all' || tr.dataset.class === state.size);
   const tierOf = tr => {
     const mark = (tr.dataset.tiers || '').split(' ').find(item => item.startsWith(`${state.filter}.${state.size}=`));
     return mark ? mark.split('=')[1] : '';
@@ -110,7 +118,7 @@
   const apply = keep => {
     board.querySelectorAll('[data-lb-part]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbPart === state.part)));
     board.querySelectorAll('[data-lb-filter]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbFilter === state.filter)));
-    board.querySelectorAll('[data-lb-size]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbSize === state.size)));
+    board.querySelectorAll('[data-lb-class]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbClass === state.size)));
     board.querySelector('[data-lb-setups]').setAttribute('aria-pressed', String(state.setups));
     board.querySelector('.lb-size-rule').hidden = state.size === 'all';
     board.querySelectorAll('[data-lb-panel]').forEach(panel => {
@@ -122,6 +130,7 @@
         tr.classList.remove('lb-tier-start');
         if (!tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off') && !tr.closest('[data-lb-view]').hidden) {
           shown += 1;
+          if (tr.dataset.untiered) { tr.querySelector('.lb-rank').textContent = '–'; return; }
           const tier = tierOf(tr);
           tr.querySelector('.lb-rank').textContent = tier;
           if (last !== null && tier !== last) tr.classList.add('lb-tier-start');
@@ -129,13 +138,20 @@
         }
       });
       panel.querySelector('.lb-empty').hidden = shown > 0;
+      if (!panel.hidden) {
+        const rows = [...panel.querySelectorAll(`[data-lb-view="${state.setups ? 'setups' : 'models'}"] tbody tr.lb-row`)].filter(ofType);
+        board.querySelectorAll('[data-lb-class]').forEach(k => {
+          const key = k.dataset.lbClass;
+          k.hidden = key !== 'all' && key !== state.size && !rows.some(tr => tr.dataset.class === key);
+        });
+      }
     });
     window.keepGroup(state.filter, state.size);
     if (keep) {
       const url = new URL(window.location.href);
       url.searchParams.set('part', state.part === 'together' ? 'both' : state.part);
       url.searchParams.set('models', state.filter);
-      if (state.size !== 'all') url.searchParams.set('size', state.size); else url.searchParams.delete('size');
+      if (state.size !== 'all') url.searchParams.set('class', state.size); else url.searchParams.delete('class');
       if (state.setups) url.searchParams.set('setups', 'all'); else url.searchParams.delete('setups');
       history.replaceState(history.state, '', url);
     }
@@ -148,8 +164,8 @@
   board.querySelectorAll('[data-lb-filter]').forEach(k => k.addEventListener('click', () => {
     const key = k.dataset.lbFilter;
     state.filter = state.filter !== key ? key : 'all'; apply(true); }));
-  board.querySelectorAll('[data-lb-size]').forEach(k => k.addEventListener('click', () => {
-    const key = k.dataset.lbSize;
+  board.querySelectorAll('[data-lb-class]').forEach(k => k.addEventListener('click', () => {
+    const key = k.dataset.lbClass;
     state.size = state.size !== key ? key : 'all'; apply(true); }));
   board.querySelector('[data-lb-setups]').addEventListener('click', () => { state.setups = !state.setups; apply(true); });
   board.querySelectorAll('.hl-more').forEach(b => b.addEventListener('click', () => {
