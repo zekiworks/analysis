@@ -4,45 +4,60 @@
    unchanged) and the question index's filters. Every page works without it (the Decision copy of each test page's parts
    shows, the leaderboard shows Logic with every row and every details box in its row, costs read per 1,000 questions). */
 
-/* The model group from ?models= (all, decision, chat, small-chat or small-decision; the old small means small-chat;
-   missing or unknown means decision, the default). Each element
-   whose data-models lists other groups only is hidden; the page's Models key of the group is marked; the links that
-   keep the group (data-keep-group) carry it. */
+/* The model group from ?models= (the type: all, decision, chat; missing or unknown means decision, the default) and
+   ?size= (all, tiny, small, medium, large, undisclosed; missing means all), Ümit #4156/#4198. An old link's small,
+   small-chat or small-decision opens that type (chat for the oldest small) with every size, and the address is
+   rewritten. A page with Size keys (data-view-size) holds a copy per type and size ('decision-tiny'; the type alone
+   with size All); a page without them (Vision) a copy per type. Each element whose data-models lists other groups only
+   is hidden; the page's Models and Size keys in view are marked, each keeping the other choice; the links that keep the
+   group (data-keep-group) carry both. */
 (function setupModels() {
-  const groups = ['all', 'decision', 'chat', 'small-chat', 'small-decision'];
-  const asked = (new URLSearchParams(window.location.search).get('models') ?? '').replace(/[^a-z]+$/i, '');
-  const group = asked === 'small' ? 'small-chat' : groups.includes(asked) ? asked : 'decision';
-  window.modelsGroup = group;
-  if (asked === 'small') {  // an old link: Small models is now Small chat and Small decision models (Ümit #3876)
+  const types = ['all', 'decision', 'chat'];
+  const sizes = ['all', 'tiny', 'small', 'medium', 'large', 'undisclosed'];
+  const params = new URLSearchParams(window.location.search);
+  const asked = (params.get('models') ?? '').replace(/[^a-z]+$/i, '');
+  const old = { small: 'chat', 'small-chat': 'chat', 'small-decision': 'decision' };
+  const type = old[asked] ?? (types.includes(asked) ? asked : 'decision');
+  const size = sizes.includes(params.get('size')) ? params.get('size') : 'all';
+  window.modelsGroup = type;
+  window.modelsSize = size;
+  if (asked in old) {
     const url = new URL(window.location.href);
-    url.searchParams.set('models', group);
+    url.searchParams.set('models', type);
     history.replaceState(history.state, '', url);
   }
+  const sized = document.querySelector('a[data-view-size]') !== null;
+  const group = sized && size !== 'all' ? `${type}-${size}` : type;
+  const query = (t, s) => `?models=${t}${s !== 'all' ? `&size=${s}` : ''}`;
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
   });
+  // A second tap on the selected Models or Size key clears that filter to All (Ümit #3923, as on backgammon #3925).
   document.querySelectorAll('a[data-view-group]').forEach(link => {
-    if (link.dataset.viewGroup === group) {
-      link.setAttribute('aria-current', 'true');
-      // A second tap on the selected Models key clears the filter to All (Ümit #3923, as on backgammon #3925).
-      const url = new URL(link.href);
-      url.searchParams.set('models', 'all');
-      link.href = url.toString();
-    } else link.removeAttribute('aria-current');
+    const key = link.dataset.viewGroup;
+    const on = key === type;
+    if (on) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current');
+    link.setAttribute('href', query(on ? 'all' : key, sized ? size : 'all'));
   });
-  window.keepGroup = value => document.querySelectorAll('a[data-keep-group]').forEach(link => {
+  document.querySelectorAll('a[data-view-size]').forEach(link => {
+    const key = link.dataset.viewSize;
+    const on = key === size;
+    if (on) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current');
+    link.setAttribute('href', query(type, on ? 'all' : key));
+  });
+  window.keepGroup = (t, s) => document.querySelectorAll('a[data-keep-group]').forEach(link => {
     const [path, fragment] = link.getAttribute('href').split('#');
-    link.setAttribute('href', `${path.split('?')[0]}?models=${value}${fragment ? `#${fragment}` : ''}`);
+    link.setAttribute('href', `${path.split('?')[0]}${query(t, s)}${fragment ? `#${fragment}` : ''}`);
   });
-  if (!document.getElementById('leaderboard')) window.keepGroup(group);
-  // A test page's selected Part or Measure key (aria-current="page"): a second tap goes back to the front page with the
-  // same models in view (Ümit #3923; the earlier rule "selected key → Home"). Set after keepGroup, which would undo it.
-  const front = document.querySelector('.site-bar nav a');
-  if (front) document.querySelectorAll('.view-keys a[aria-current="page"]').forEach(link => {
-    const url = new URL(front.href);
-    url.searchParams.set('models', group);
-    link.href = url.toString();
+  if (!document.getElementById('leaderboard')) window.keepGroup(type, size);
+  // A test page's selected Part or Measure key (aria-current="page"): a second tap goes back to its row's default, the
+  // row's first key (Part → Logic, Measure → Accuracy), with the same models, size and the other row's choice; on the
+  // default itself it does nothing. Never the front page (Ümit via zeki #4205). Set after keepGroup, which would undo it.
+  document.querySelectorAll('.view-keys a[aria-current="page"]').forEach(link => {
+    const first = link.closest('ul').querySelector('a');
+    if (first === link) link.addEventListener('click', event => event.preventDefault());
+    else link.setAttribute('href', first.getAttribute('href'));
   });
 })();
 
@@ -67,60 +82,75 @@
   window.addEventListener('hashchange', go);
 })();
 
-/* The leaderboard's keys (Ümit #2980 item 4): the part (Logic, Math, Both: one panel each), the models (All, Chat models,
-   Decision models: rows of the other type go out of view, class hl-off; Small chat and Small decision models: the rows
-   of that type whose model is small, data-small, with the group's one-line rule under the keys) and All setups (every setup its own row); the
-   ranks are the places among the rows in view. The choice is kept in the address (?part=, ?models=, ?setups=all), and
-   the More views links carry the models. Expander keys open a row's other settings. */
+/* The leaderboard's keys (Ümit #2980 item 4; size classes and tiers, Ümit #4156/#4198): the part (Logic, Math, Both:
+   one panel each), the models (All, Chat models, Decision models) combined with the size (All, Tiny, Small, Medium,
+   Large, Undisclosed: data-size; rows of another type or size go out of view, class hl-off) and All setups (every setup
+   its own row). The # column shows each row's tier among the rows in view (data-tiers, computed by the build for every
+   type and size), a line above the first row of each tier after the first (class lb-tier-start). The choice is kept in
+   the address (?part=, ?models=, ?size=, ?setups=all) and carried by the links to the test pages.
+   Expander keys open a row's other settings. */
 (function setupLeaderboard() {
   const board = document.getElementById('leaderboard');
   if (!board) return;
   const params = new URLSearchParams(window.location.search);
   const parts = ['logic', 'math', 'together'];
-  const groups = ['all', 'chat', 'decision', 'small-chat', 'small-decision'];
-  const shows = tr => state.filter === 'all'
-    || (state.filter.startsWith('small-') ? tr.dataset.small === 'true' && `small-${tr.dataset.hlType}` === state.filter : tr.dataset.hlType === state.filter);
+  const shows = tr => (state.filter === 'all' || tr.dataset.hlType === state.filter)
+    && (state.size === 'all' || tr.dataset.size === state.size);
+  const tierOf = tr => {
+    const mark = (tr.dataset.tiers || '').split(' ').find(item => item.startsWith(`${state.filter}.${state.size}=`));
+    return mark ? mark.split('=')[1] : '';
+  };
   const askedPart = params.get('part') === 'both' ? 'together' : params.get('part');
   const state = {
     part: parts.includes(askedPart) ? askedPart : 'logic',
     filter: window.modelsGroup,
+    size: window.modelsSize,
     setups: params.get('setups') === 'all',
   };
   const apply = keep => {
     board.querySelectorAll('[data-lb-part]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbPart === state.part)));
     board.querySelectorAll('[data-lb-filter]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbFilter === state.filter)));
+    board.querySelectorAll('[data-lb-size]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbSize === state.size)));
     board.querySelector('[data-lb-setups]').setAttribute('aria-pressed', String(state.setups));
-    board.querySelectorAll('[data-lb-small-rule]').forEach(rule => { rule.hidden = rule.dataset.lbSmallRule !== state.filter; });
+    board.querySelector('.lb-size-rule').hidden = state.size === 'all';
     board.querySelectorAll('[data-lb-panel]').forEach(panel => {
       panel.hidden = panel.dataset.lbPanel !== state.part;
       panel.querySelectorAll('[data-lb-view]').forEach(view => { view.hidden = (view.dataset.lbView === 'setups') !== state.setups; });
-      let shown = 0;
+      let shown = 0, last = null;
       panel.querySelectorAll('tbody tr[data-hl-type]').forEach(tr => {
         tr.classList.toggle('hl-off', !shows(tr));
+        tr.classList.remove('lb-tier-start');
         if (!tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off') && !tr.closest('[data-lb-view]').hidden) {
           shown += 1;
-          tr.querySelector('.lb-rank').textContent = String(shown);
+          const tier = tierOf(tr);
+          tr.querySelector('.lb-rank').textContent = tier;
+          if (last !== null && tier !== last) tr.classList.add('lb-tier-start');
+          last = tier;
         }
       });
       panel.querySelector('.lb-empty').hidden = shown > 0;
     });
-    window.keepGroup(state.filter);
+    window.keepGroup(state.filter, state.size);
     if (keep) {
       const url = new URL(window.location.href);
       url.searchParams.set('part', state.part === 'together' ? 'both' : state.part);
       url.searchParams.set('models', state.filter);
+      if (state.size !== 'all') url.searchParams.set('size', state.size); else url.searchParams.delete('size');
       if (state.setups) url.searchParams.set('setups', 'all'); else url.searchParams.delete('setups');
       history.replaceState(history.state, '', url);
     }
     board.dispatchEvent(new CustomEvent('lb-change'));
   };
-  // A second tap on the selected key undoes it (Ümit #3923): a part back to Logic; a models filter cleared to All (as on
-  // backgammon, #3925).
+  // A second tap on the selected key undoes it (Ümit #3923): a part back to Logic; a models or size filter cleared to All
+  // (as on backgammon, #3925).
   board.querySelectorAll('[data-lb-part]').forEach(k => k.addEventListener('click', () => {
     state.part = state.part === k.dataset.lbPart && k.dataset.lbPart !== 'logic' ? 'logic' : k.dataset.lbPart; apply(true); }));
   board.querySelectorAll('[data-lb-filter]').forEach(k => k.addEventListener('click', () => {
     const key = k.dataset.lbFilter;
     state.filter = state.filter !== key ? key : 'all'; apply(true); }));
+  board.querySelectorAll('[data-lb-size]').forEach(k => k.addEventListener('click', () => {
+    const key = k.dataset.lbSize;
+    state.size = state.size !== key ? key : 'all'; apply(true); }));
   board.querySelector('[data-lb-setups]').addEventListener('click', () => { state.setups = !state.setups; apply(true); });
   board.querySelectorAll('.hl-more').forEach(b => b.addEventListener('click', () => {
     const open = b.getAttribute('aria-expanded') !== 'true';

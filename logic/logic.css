@@ -35,7 +35,7 @@ td.probs span { white-space: nowrap; }
 .chart-wide .hbar-value { white-space: nowrap; }
 .chart-wide .hbar.cols, .chart-wide .hbars.cols > .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) repeat(var(--cols), 7.5rem); }
 .chart-wide .cols .hbar-value { white-space: normal; }
-/* A test page's own keys (shell.view_keys: part, models, measure), in the card under its title. */
+/* A test page's own keys (shell.view_keys: part, models, size, measure), in the card under its title. */
 .view-keys { display: flex; flex-wrap: wrap; gap: .35rem 1.2rem; margin: .2rem 0 .7rem; }
 .view-keys-row { display: flex; align-items: center; gap: .4rem; min-width: 0; }
 .view-keys-label { color: var(--text-2); font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
@@ -55,7 +55,8 @@ td.probs span { white-space: nowrap; }
   .site-leaf { width: 15px; height: 18px; }
   .site-tabs a { padding: 5px 8px 4px; font-size: .88rem; }
   .theme-switch .key { padding: 1px 6px; gap: 4px; font-size: 11.5px; }
-  .view-keys-row ul { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .view-keys-row { align-items: flex-start; }  /* the rows wrap rather than scroll sideways, so no key is cut off (zeki #4177) */
+  .view-keys-row .view-keys-label { padding-top: .35rem; }
   .chart-wide .hbar:not(.cols), .chart-wide .hbars:not(.cols) > .hbar { grid-template-columns: minmax(0, 1fr) 12.5rem; }
   .chart-wide .hbar-value { font-size: .74rem; }
   .chart-wide .hbar.cols, .chart-wide .hbars.cols > .hbar { grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 3.7rem); column-gap: .35rem; }
@@ -213,6 +214,11 @@ td.lb-score { width: 45%; min-width: 9rem; }
 .hl-val { font-family: var(--mono); font-size: .84rem; }
 .hl-val .small { display: inline; margin-left: .4rem; }
 tr.hl-off { display: none !important; }
+/* The Size keys' row (Ümit #4156), the size label beside each name, a line above each new tier: 2px so it wins over the
+   row above's 1px border (border-collapse) and stands out from the rows' own lines. */
+.lb-keys-label { align-self: center; margin-right: .2rem; color: var(--text-2); font-size: .82rem; }
+.lb-size { color: var(--text-2); font-size: .76rem; white-space: nowrap; }
+table.lb-table tbody tr.lb-tier-start > td { border-top: 2px solid var(--text-2); }
 table.lb-table tbody tr.hl-open > td { background: var(--row-hover); }
 .hl-box { margin: .35rem 0 0; color: var(--text); font-size: .82rem; line-height: 1.4; white-space: normal; }
 .hl-box p { margin: .12rem 0; }
