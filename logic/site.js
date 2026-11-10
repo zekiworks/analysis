@@ -25,10 +25,9 @@
   document.querySelectorAll('a[data-view-group]').forEach(link => {
     if (link.dataset.viewGroup === group) {
       link.setAttribute('aria-current', 'true');
-      // A second tap on the selected key undoes it (Ümit #3923): back to the default models (Decision), and from
-      // Decision itself to All.
+      // A second tap on the selected Models key clears the filter to All (Ümit #3923, as on backgammon #3925).
       const url = new URL(link.href);
-      url.searchParams.set('models', group === 'decision' ? 'all' : 'decision');
+      url.searchParams.set('models', 'all');
       link.href = url.toString();
     } else link.removeAttribute('aria-current');
   });
@@ -115,13 +114,13 @@
     }
     board.dispatchEvent(new CustomEvent('lb-change'));
   };
-  // A second tap on the selected key undoes it (Ümit #3923): a part back to Logic, a models filter back to the default
-  // (Decision), and Decision itself to All.
+  // A second tap on the selected key undoes it (Ümit #3923): a part back to Logic; a models filter cleared to All (as on
+  // backgammon, #3925).
   board.querySelectorAll('[data-lb-part]').forEach(k => k.addEventListener('click', () => {
     state.part = state.part === k.dataset.lbPart && k.dataset.lbPart !== 'logic' ? 'logic' : k.dataset.lbPart; apply(true); }));
   board.querySelectorAll('[data-lb-filter]').forEach(k => k.addEventListener('click', () => {
     const key = k.dataset.lbFilter;
-    state.filter = state.filter !== key ? key : key === 'decision' ? 'all' : 'decision'; apply(true); }));
+    state.filter = state.filter !== key ? key : 'all'; apply(true); }));
   board.querySelector('[data-lb-setups]').addEventListener('click', () => { state.setups = !state.setups; apply(true); });
   board.querySelectorAll('.hl-more').forEach(b => b.addEventListener('click', () => {
     const open = b.getAttribute('aria-expanded') !== 'true';
