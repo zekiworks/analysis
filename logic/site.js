@@ -15,7 +15,7 @@
    (data-keep-group) carry both. */
 (function setupModels() {
   const types = ['all', 'decision', 'chat'];
-  const sizes = ['all', 'tiny', 'small', 'medium', 'large', 'efficient', 'workhorse', 'flagship'];
+  const sizes = ['all', 'tiny', 'small', 'medium', 'large', 'efficient', 'workhorse', 'flagship', 'undisclosed'];
   const params = new URLSearchParams(window.location.search);
   const asked = (params.get('models') ?? '').replace(/[^a-z]+$/i, '');
   const old = { small: 'chat', 'small-chat': 'chat', 'small-decision': 'decision' };
