@@ -135,19 +135,21 @@
   if (past > 0) controls.scrollLeft += past + 12;
 })();
 
-/* A leaderboard row's details box (as the backgammon site's, bg.js headlineDetails). A tap opens it and a second tap on
+/* A model's details box (as the backgammon site's, bg.js headlineDetails): a leaderboard row's, and on the test pages a
+   chart bar's or a full-table row's (every element with data-box). A tap opens it and a second tap on
    the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row; with the keyboard
    while the focus is in the row (the model's name, then the box's links), and focus beats the pointer. The box is placed
    under the row (above it near the bottom of the window), within the window's width, capped and scrolling inside where
    neither side has room. Without JavaScript every box is shown in its row. */
 (function setupDetails() {
+  const rows = document.querySelectorAll('#leaderboard tbody tr[data-box], main [data-box]');
+  if (!rows.length) return;
   const board = document.getElementById('leaderboard');
-  if (!board) return;
   let open = null, pinned = false, pointer = 'mouse', quiet = false;
   const boxOf = tr => document.getElementById(tr.dataset.box);
   const place = () => {
     if (!open) return;
-    const box = boxOf(open), row = open.getBoundingClientRect(), cell = open.querySelector('td.model').getBoundingClientRect();
+    const box = boxOf(open), row = open.getBoundingClientRect(), cell = open.querySelector('td.model, .hbar-label').getBoundingClientRect();
     const vw = document.documentElement.clientWidth;
     const width = Math.min(400, vw - 16);
     box.style.width = `${width}px`;
@@ -189,12 +191,12 @@
   const held = () => !!open && keyed && open.contains(document.activeElement);
   document.addEventListener('pointerdown', event => {
     pointing = true;
-    if (board.contains(event.target)) pointer = event.pointerType || 'mouse';
+    pointer = event.pointerType || 'mouse';
   }, true);
   const released = () => setTimeout(() => { pointing = false; });
   document.addEventListener('pointerup', released, true);
   document.addEventListener('pointercancel', released, true);
-  board.querySelectorAll('tbody tr[data-box]').forEach(tr => {
+  rows.forEach(tr => {
     tr.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && !pinned && !held()) show(tr, false); });
     tr.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && !pinned && open === tr && !held()) hide(); });
     tr.addEventListener('focusin', () => {
@@ -211,14 +213,14 @@
   document.addEventListener('click', event => { if (open && !open.contains(event.target)) hide(); });
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || !open) return;
-    const name = open.querySelector('.model-name');
+    const name = open.querySelector('.model-name, a');
     const inside = open.contains(document.activeElement);
     hide();
     if (inside && name) { quiet = true; name.focus(); quiet = false; }
   });
   addEventListener('scroll', place, { passive: true });
   addEventListener('resize', place);
-  board.addEventListener('lb-change', () => { if (open && (open.classList.contains('hl-off') || open.closest('[hidden]'))) hide(); });
+  board?.addEventListener('lb-change', () => { if (open && (open.classList.contains('hl-off') || open.closest('[hidden]'))) hide(); });
 })();
 
 /* The cost unit, one choice for the whole site (tb-next site.js setupCostUnit): ?cost-unit= or localStorage. */
