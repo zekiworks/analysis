@@ -473,10 +473,10 @@
    },
    {
     "reason": null,
-    "series_done": 1,
+    "series_done": 2,
     "setup": "Gemini 4 Argon (high)",
     "status": "running",
-    "updated_at": "2026-11-10T07:57:28+00:00"
+    "updated_at": "2026-11-10T08:42:56+00:00"
    },
    {
     "reason": null,
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-10T08:34:30+00:00"
+  "updated_at": "2026-11-10T08:49:37+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -1579,10 +1579,10 @@
      "risks_found": 7.760635354620312
     },
     "cost": {
-     "api_equivalent_usd": 22.6093,
-     "billed_usd": 29.9626,
+     "api_equivalent_usd": 22.6964,
+     "billed_usd": 30.1002,
      "estimate_usd": 44.0,
-     "reported_usd": 22.6196
+     "reported_usd": 22.7167
     },
     "empty": [
      {
@@ -2408,20 +2408,20 @@
    },
    {
     "after": {
-     "error_rate": 16.536565071128937,
-     "right_safety": 93.90243902439025,
-     "risks_found": 76.19047619047619
+     "error_rate": 18.781537870955034,
+     "right_safety": 92.95121951219512,
+     "risks_found": 71.5952380952381
     },
     "answers_after": {
-     "answer_rate": 83.0,
-     "answered": 200,
-     "expected": 200,
+     "answer_rate": 91.5,
+     "answered": 400,
+     "expected": 400,
      "failed": 0,
      "invalid": 34,
-     "risk_pays": 84,
-     "safety_pays": 82,
-     "tests": 1,
-     "valid": 166
+     "risk_pays": 184,
+     "safety_pays": 182,
+     "tests": 2,
+     "valid": 366
     },
     "answers_before": {
      "answer_rate": 77.5,
@@ -2440,12 +2440,12 @@
      "risks_found": 66.66666666666667
     },
     "change": {
-     "error_rate": -2.9507855311748443,
-     "right_safety": -0.07346459006758721,
-     "risks_found": 9.523809523809518
+     "error_rate": -0.7058127313487468,
+     "right_safety": -1.024684102262711,
+     "risks_found": 4.928571428571431
     },
     "cost": {
-     "api_equivalent_usd": 189.8977,
+     "api_equivalent_usd": 193.0751,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2472,9 +2472,9 @@
     "key": "gemini-4-argon-on",
     "progress": {
      "reason": null,
-     "series_done": 1,
+     "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-10T07:57:28+00:00"
+     "updated_at": "2026-11-10T08:42:56+00:00"
     },
     "range": null,
     "reason": null,
@@ -2547,15 +2547,85 @@
        "wall_seconds": 12342.7
       },
       "wins": 8
+     },
+     {
+      "finished": true,
+      "game_decisions": 245,
+      "game_invalid": 16,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- In contactless bear-offs, avoid reflexively playing internal moves from the 6-point: when the 5-point holds more checkers and the 1-point is down to a single checker, shifting from the 5-point to reinforce the 1-point prevents an early ace from emptying it and wasting future aces.\n- When forced to make an internal bear-off move while checkers remain on 5 and 6, prioritize filling an empty lower point so that number bears off directly, but balance checker counts across lower points when both destinations are already occupied.\n- During contactless bear-in, bringing checkers home takes priority, but if using an ace from the 7-point only piles onto heavy 5- and 6-point stacks above empty lower points, consider smoothing the 5-point to the 4-point since aces still enter cleanly from the 7-point."
+       },
+       {
+        "game": 2,
+        "text": "- When an opponent is on the bar, prioritize hitting a second blot; putting two checkers on the bar neutralizes outfield return shots and amplifies your attack.\n- When entering from the bar, do not reflexively make a defensive anchor if you can instead hit an outer-board blot to seize tempo.\n- With a strong home board, prefer hitting outfield blots over making safe outfield points, since the opponent must enter from the bar before counterattacking.\n- Avoid loose hits on your ace point when out-boarded; instead, unstack heavy points to develop builders and improve your structure.\n- When hitting in your home board puts a second checker on the bar, avoid reflexively tucking the hitter deeper; keep it on the point you want to make and use spare pips constructively."
+       },
+       {
+        "game": 3,
+        "text": "- When holding a strong or low-crunched home board, hit opponent blots aggressively in the outfield or near your bar-point instead of racing passively.\n- With the stronger board and a heavy outfield stack, advance checkers from that stack even if it leaves a shot rather than burying checkers deep or breaking your top home point.\n- Whenever the opponent is on the bar, use the tempo to split or escape back checkers instead of making quiet outfield or home-board plays.\n- Avoid loose hits on your ace-point when the opponent holds a higher anchor; instead, enter securely and step out with a back checker.\n- Prioritize completing a home-board point cleanly over leaving multiple blots in your board or tidying a blot in the opponent's board."
+       },
+       {
+        "game": 4,
+        "text": "- When an opening six cannot make a point or reach the midpoint, split to the opponent's bar point and bring down a midpoint builder rather than running into outfield fire.\n- Prioritize advancing outfield blots past the opponent's midpoint stack so they escape direct shots from that heavy concentration of checkers.\n- Avoid stacking a fourth checker onto an already-made point when the same move can turn a vulnerable blot into an active builder on a new point."
+       },
+       {
+        "game": 5,
+        "text": "- Never break a six-prime that traps an opponent checker just to play safe; move your back checkers instead, since getting hit gives you timing to keep the prime intact.\n- Once your midpoint and outfield are empty, prioritize freeing your back checkers early rather than playing inside your home board until it crunches.\n- Against a weak opponent home board, prefer stepping out from an anchor, especially with an outfield hit, over making deep points that burn timing.\n- When your front checkers face an imminent crunch, break your anchor on a big roll to escape rather than burying checkers on your deepest points.\n- Weigh the cost of being hit against structural damage: when your board is stronger, leaving outfield blots is cheaper than ruining your own formation."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize making inner-board points with a hit or executing double-hits over protecting single outfield blots.\n- When holding two advanced anchors, aggressively break one to hit loose blots in the opponent's home board or outfield.\n- Escape back checkers into the outfield when possible rather than burying and over-stacking checkers on your low home-board points.\n- Preserve the midpoint as a landing bridge for your back checkers instead of clearing it prematurely during outfield skirmishes.\n- When bearing in, fill empty low points to smooth your distribution rather than adding to points that are already heavily stacked."
+       },
+       {
+        "game": 7,
+        "text": "- Avoid stepping a lone back checker into the direct range of your opponent's builders; unstack a heavy midpoint instead.\n- When bearing in against opponent anchors, play checkers to safe points behind their anchors rather than over-stacking higher points.\n- When bearing off with an opponent in your home board, always take off the maximum number of checkers whenever it is completely safe to do so.\n- Distribute spare checkers evenly across your prime rather than advancing a single blot an extra pip in the outfield."
+       },
+       {
+        "game": 8,
+        "text": "- Cover blots to make home-board points rather than making loose hits or running back checkers while leaving home-board blots exposed.\n- Use small doubles to advance back checkers to a higher anchor (like the 20-point) rather than settling for a deep anchor and hitting loose.\n- Unstack a heavy midpoint (13-point) to bring builders to the outer board instead of burying checkers deep in your home board.\n- After hitting in the outer board, consider staying on the hit point and using your other die to bring down a builder from a stacked midpoint.\n- When bearing in, prioritize clearing the midpoint rather than prematurely breaking your bar point and burying checkers on the 1- and 2-points."
+       },
+       {
+        "game": 9,
+        "text": "- Hit loose on your 1-point when you have a stronger home board, as putting the opponent on the bar steals crucial tempo.\n- Prioritize hitting blots in your opponent's home board to free your back checkers and disrupt their prime, even over making strong points of your own.\n- Never leave back checkers stranded on the 24-point behind a prime; use small rolls to step them up to the edge of the blockade so they can escape with a six.\n- Look for early opportunities to split your back checkers rather than purely playing in the outfield, making it harder for your opponent to trap you.\n- When a blocked back checker forces you to move inside your home board, unstack your highest points first to maintain an even structure for as long as possible."
+       },
+       {
+        "game": 10,
+        "text": "- When putting the opponent on the bar, avoid slotting home-board points that give them an immediate return shot; prefer splitting or advancing your back checkers safely.\n- When you have a strong home board and back checkers stuck on the 24-point, prioritize hitting an opponent's inner-board blot (like on the 20-point) to gain tempo and fight for an advanced anchor.\n- Advance trapped back checkers to the edge of the opponent's prime so they can escape on 6s, rather than making quiet midfield adjustments.\n- With four checkers left in a tight bear-off across the 4, 5, and 6 points, unstack the 5-point (5/4) instead of playing 6/5 so future 6s use their full pip value and don't leave stranded checkers on the 5-point."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 21.026510670781136,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 92.0,
+       "risk_pays": 100,
+       "risks_found": 67.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 2728.0
+      },
+      "wins": 8
      }
     ],
-    "series_finished": 1,
+    "series_finished": 2,
     "setup": "Gemini 4 Argon (high)",
     "state": "running",
-    "status": "running, 1 of 5 series",
+    "status": "running, 2 of 5 series",
     "steps_done": [
      "E1",
-     "S1"
+     "S1",
+     "S2"
     ],
     "threshold": null,
     "verdict": false
@@ -2589,7 +2659,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 58.086,
+     "api_equivalent_usd": 59.429,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -3318,14 +3388,14 @@
    }
   ],
   "money": {
-   "billed_total_usd": 45.4203,
+   "billed_total_usd": 45.5579,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-10T08:34:30+00:00"
+  "updated_at": "2026-11-10T08:49:37+00:00"
  },
- "source_sha256": "70b9077a34e6bb8f8a5b71965d96a7e3e85c121f806ff39fa951a74b6dd998ba",
+ "source_sha256": "91827cd6e45a86cc1cc723350fd2c2ad7cf7bc5fe7b4ce482aa237b0b12befe3",
  "status": {
-  "last_update": "2026-11-10T08:34:30+00:00",
+  "last_update": "2026-11-10T08:49:37+00:00",
   "line": "3 of 15 models with a verdict · 5 running · 7 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 7,
