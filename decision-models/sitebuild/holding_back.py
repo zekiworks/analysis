@@ -85,11 +85,12 @@ def confidence_side(site: Site, setups: list[tuple[dict[str, Any], str, str]], g
         rated.sort(key=lambda item: (item[4] > 0, item[4] / item[3] if item[4] else -item[3], item[1].casefold()))
         sources = Counter(item[0]["confidence"]["source"] for item in rated)
         main = sources.most_common(1)[0][0] if sources else None
-        rows = [{"label": label, "family": site.families[run["run"]]["name"], "href": href, "class_key": site.model_class(run),
+        rows = [{"label": site.title(run), "tag": site.tag(run), "family": site.families[run["run"]]["name"], "href": href,
+                 "class_key": site.model_class(run),
                  "note": None if run["confidence"]["source"] == main else SOURCES[run["confidence"]["source"]],
                  "bars": [{"value": kept / total, "colour": site.families[run["run"]]["colour"]}],
                  "texts": [f"{kept:,}", f"{wrong:,}", f"{run['confidence']['auroc']:.3f}"],
-                 "title": f"{label}: {kept:,} of {total:,} answers at {sure} confidence or more, {wrong:,} of them wrong"
+                 "title": f"{site.plain(run)}: {kept:,} of {total:,} answers at {sure} confidence or more, {wrong:,} of them wrong"
                           + (f" ({pct(wrong / kept, digits)})" if kept else "")
                           + f"; ranking score {run['confidence']['auroc']:.3f} (run {run['run']})"}
                 for run, label, href, kept, wrong in rated]

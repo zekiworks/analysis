@@ -70,7 +70,8 @@ def english(site: Site) -> dict[str, Any] | None:
         runs.append({
             "run": model["run"],
             "turkish_run": model["turkish_run"],
-            "name": site.row_name(site.by_id[model["turkish_run"]]),
+            "name": site.title(site.by_id[model["turkish_run"]]),
+            "tag": site.tag(site.by_id[model["turkish_run"]]),
             "picks": letters,
             "scores": [score_text(answers["score"][index]) for index in indices],
         })
@@ -88,7 +89,6 @@ def picks(site: Site) -> dict[str, Any]:
     questions = site.answers["questions"]
     order = site.scored
     runs: list[dict[str, Any]] = []
-    shown = site.names(site.runs)
     for run in site.ranked():
         answers = site.answer_runs[run["run"]]
         letters = pick_letters(answers, order, questions["key"], f"run {run['run']}", questions["id"])
@@ -96,7 +96,8 @@ def picks(site: Site) -> dict[str, Any]:
             raise ValueError(f"run {run['run']}: picks.json would not reproduce its {run['correct']} right answers")
         runs.append({
             "run": run["run"],
-            "name": shown[run["run"]],
+            "name": site.title(run),
+            "tag": site.tag(run),
             "detail": site.detail(run),
             "decision": site.decision(run),
             "score": run["confidence"]["label"],

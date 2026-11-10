@@ -36,22 +36,21 @@ def heatmap(site: Site) -> str:
     )
     stops = site.config["rank_scale"]["stops"]
     rows = []
-    shown = site.names(site.runs)
     ranked = site.ranked()
     for run in ranked:
         cells = []
         for position, unit in enumerate(units):
             share = run["units"][position] / unit["questions"]
-            cells.append(f'<td class="heat" style="{heat_style(stops, share)}" title="{esc(shown[run["run"]])}, {esc(unit["english"])}: '
+            cells.append(f'<td class="heat" style="{heat_style(stops, share)}" title="{esc(site.plain(run))}, {esc(unit["english"])}: '
                          f'{run["units"][position]} of {unit["questions"]}">{pct(share, 0)}</td>')
-        rows.append(f'<tr data-run="{run["run"]}">{site.model_cell(path, run, name=shown[run["run"]])}{"".join(cells)}</tr>')
+        rows.append(f'<tr data-run="{run["run"]}">{site.model_cell(path, run)}{"".join(cells)}</tr>')
     listing = "".join(
         f'<li><a href="{rel(path, f"topics/{unit["number"]}/")}">{esc(unit["english"])}</a> '
         f'<span class="muted">{site.part(unit["number"]).capitalize()} · {unit["questions"]} questions</span></li>'
         for unit in units
     )
     scale = "".join(f'<li class="heat" style="{heat_style(stops, step / 10)}">{step * 10}%</li>' for step in range(11))
-    choices = "".join(f'<label><input type="checkbox" value="{run["run"]}" checked> {esc(shown[run["run"]])}</label>' for run in ranked)
+    choices = "".join(f'<label><input type="checkbox" value="{run["run"]}" checked> {site.shown(run)}</label>' for run in ranked)
     body = f"""    <section class="card">
       <h1>Topics</h1>
       <p>The {site.total:,} questions fall into {len(units)} topics of the book: {sum(site.part(u["number"]) == "reading" for u in units)} test reading and {sum(site.part(u["number"]) == "grammar" for u in units)} test grammar. Each topic's page lists its questions and every setup's result on it.</p>
@@ -81,11 +80,10 @@ def topic_page(site: Site, unit: dict[str, Any], data: dict[str, Any]) -> str:
     path = f"topics/{number}/"
     position = site.units.index(unit)
     results = []
-    shown = site.names(site.runs)
     for run in sorted(site.runs, key=lambda run: -run["units"][position]):
         correct = run["units"][position]
         results.append(
-            f"<tr>{site.model_cell(path, run, kind=True, name=shown[run['run']])}"
+            f"<tr>{site.model_cell(path, run, kind=True)}"
             f'<td class="num" data-label="Accuracy">{pct(correct / unit["questions"])}<span class="small">{interval(correct, unit["questions"])}</span></td>'
             f'<td class="num" data-label="Right">{correct} of {unit["questions"]}</td></tr>'
         )

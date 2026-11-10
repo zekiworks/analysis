@@ -141,16 +141,13 @@ function render() {
   }
   document.querySelector('[data-pick="a"]').value = String(a.run);
   document.querySelector('[data-pick="b"]').value = String(b.run);
-  /* Each name, and only where the two read the same, what tells them apart: variant, reasoning, request size (as
-     site.names). The rest of the settings go in the tooltip. */
-  const differs = field => a.name === b.name && a[field] !== b[field];
-  const label = run => {
-    const parts = [differs('variant') && run.variant, differs('reasoning') && run.reasoning && reasoningLabel(run.reasoning),
-      differs('questions_per_request') && `${run.questions_per_request} per request`].filter(Boolean);
-    return parts.length ? `${run.name} (${parts.join(', ')})` : run.name;
-  };
+  /* Each setup's official name and its tag (compare-settings names, from Site.title and Site.tag; results.json keeps
+     the setup names): the two always read apart. The settings go in the tooltip. */
+  const named = run => SETTINGS.names[run.run];
+  const label = run => (named(run).tag ? `${named(run).name} · ${named(run).tag}` : named(run).name);
   const head = run =>
-    `<th scope="col" class="num" title="${esc(detail(run))}"><a href="../models/${run.run}/">${esc(label(run))}</a></th>`;
+    `<th scope="col" class="num" title="${esc(detail(run))}"><a href="../models/${run.run}/">${esc(named(run).name)}</a>` +
+    `${named(run).tag ? ` <span class="name-tag">${esc(named(run).tag)}</span>` : ''}</th>`;
   const measures = MEASURES.map(([label, cell]) => {
     const kind = label === 'Cost basis' ? 'basis' : 'num';
     return `<tr><th scope="row">${typeof label === 'function' ? label() : label}</th><td class="${kind}">${cell(a)}</td><td class="${kind}">${cell(b)}</td></tr>`;
@@ -180,7 +177,7 @@ function render() {
     `${scopes}</table></div>`;
   document.querySelector('[data-compare-status]')?.remove();
   document.querySelector('[data-compare]').hidden = false;
-  document.title = `${a.name} against ${b.name} · Hilde`;
+  document.title = `${label(a)} against ${label(b)} · Hilde`;
 }
 
 function choose() {

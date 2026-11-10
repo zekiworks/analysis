@@ -109,13 +109,14 @@ const DARK: [(&str, &str); 73] = [
     // OneJev 27B, a deep sky blue that turns light in the dark theme: apart from the pinks of d3 and d3-ultra, the Jev
     // runs' cyans and the GLiDE blues of its panels.
     ("#0c4a6e", "#bae6fd"),
-    // Drex Max 1.1 (hosted) and Drex Max v1 (open weights), teals apart from the orange, fuchsia, indigo and yellow runs of
-    // their confidence panel: the hosted run's darker light shade becomes a 400 in the dark theme, the open one's a 200.
+    // Drex Max 1.1, a hosted model, and Drex Max v1, an open-weights one: teals apart from the orange, fuchsia, indigo and
+    // yellow runs of their confidence panel: the hosted run's darker light shade becomes a 400 in the dark theme, the open
+    // one's a 200.
     // Drex 2.0, a deeper teal, a 300.
     ("#115e59", "#2dd4bf"),
     ("#14b8a6", "#99f6e4"),
     ("#134e4a", "#5eead4"),
-    // Liquid d1-2B (open weights), an amber beside the other Liquid rows' yellows and apart from the orange, cyan, purple
+    // Liquid d1-2B, the open-weights Liquid model: an amber beside the other Liquid rows' yellows and apart from the orange, cyan, purple
     // and blue runs of its confidence panel; a 300 in the dark theme, as the Sonnet format rerun's amber in another panel.
     ("#d97706", "#fcd34d"),
     // Base Labs' Elephant-1 and Mammoth-1: a cool slate and a warm brown no other row uses, light in the dark theme.

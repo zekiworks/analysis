@@ -4,9 +4,9 @@
 //! text is the figure's insta snapshot (`tests/snapshots.rs`), and [`svg::buffer_to_svg`] turns the
 //! same buffer into the light and dark SVGs the page shows (`src/main.rs`). The sharing images come from `build_page.py`.
 //!
-//! Every number a figure prints comes from `results.json`, and which runs are decision models from the page's
-//! `page_config.json` (the lists its tables and charts read); the code holds only the run lists, the wording and the
-//! layout.
+//! Every number a figure prints comes from `results.json`, which runs are decision models from the page's
+//! `page_config.json` (the lists its tables and charts read), and every model name from the site's `names.json` (each
+//! run's official name and its tag, how we ran it); the code holds only the run lists, the wording and the layout.
 
 pub mod svg;
 
@@ -67,7 +67,12 @@ pub struct Unit {
 pub struct Run {
     pub run: u32,
     pub model: String,
+    /// The maker's official name, from `names.json` ([`load`]); results.json's setup name is an identity and not drawn.
+    #[serde(skip)]
     pub name: String,
+    /// How we ran it ("low · chat", "API · with web"), from `names.json`; empty when the name alone tells it apart.
+    #[serde(skip)]
+    pub tag: String,
     pub variant: Option<String>,
     pub reasoning: Option<String>,
     pub provider: String,
@@ -213,14 +218,41 @@ pub struct Share {
     pub wrong: u32,
 }
 
-/// The page's `results.json` and, from its `page_config.json`, which runs are decision models.
-pub fn load(results: &Path, config: &Path) -> Result<Results, Box<dyn Error>> {
-    fn parse<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T, Box<dyn Error>> {
-        let text = std::fs::read_to_string(path).map_err(|error| format!("{}: {error}", path.display()))?;
-        Ok(serde_json::from_str(&text).map_err(|error| format!("{}: {error}", path.display()))?)
-    }
+/// One run's entry in `names.json`.
+#[derive(Deserialize)]
+struct RunName {
+    name: String,
+    tag: String,
+}
+
+#[derive(Deserialize)]
+struct Names {
+    runs: HashMap<String, RunName>,
+}
+
+fn parse<T: serde::de::DeserializeOwned>(path: &Path) -> Result<T, Box<dyn Error>> {
+    let text = std::fs::read_to_string(path).map_err(|error| format!("{}: {error}", path.display()))?;
+    Ok(serde_json::from_str(&text).map_err(|error| format!("{}: {error}", path.display()))?)
+}
+
+/// The page's `results.json` and, from its `page_config.json`, which runs are decision models; without names (each
+/// run's `name` and `tag` empty): enough for `charts --types`.
+pub fn load_types(results: &Path, config: &Path) -> Result<Results, Box<dyn Error>> {
     let mut loaded: Results = parse(results)?;
     loaded.decision_lists = parse(config)?;
+    Ok(loaded)
+}
+
+/// [`load_types`] with each run's official name and tag from the site's `names.json`; a run missing from it is an
+/// error.
+pub fn load(results: &Path, config: &Path, names: &Path) -> Result<Results, Box<dyn Error>> {
+    let mut loaded = load_types(results, config)?;
+    let mut entries = parse::<Names>(names)?.runs;
+    for run in &mut loaded.runs {
+        let entry = entries.remove(&run.run.to_string()).ok_or_else(|| format!("{}: no run {}", names.display(), run.run))?;
+        run.name = entry.name;
+        run.tag = entry.tag;
+    }
     Ok(loaded)
 }
 
@@ -287,57 +319,10 @@ impl Results {
         })
     }
 
-    /// The plain name of a run with its setting in parentheses: its confidence variant, or its
-    /// reasoning setting where that is a level ("low reasoning") or where the model has runs with
-    /// another setting ("reasoning on"); then its questions per request where the same setup also
-    /// ran with another number. For charts that can show both runs of such a setup.
+    /// A run's official name and its tag, how we ran it, joined with " · " ("GPT-6 Astra · low · chat"); the name
+    /// alone where it has no tag. Tags are unique across the site, so the label names one setup.
     pub fn label(&self, run: &Run) -> String {
-        self.name_with(run, true)
-    }
-
-    /// `label` without the questions per request: for charts that show a setup's first run only, or
-    /// that name the request size in a group title.
-    pub fn setup_label(&self, run: &Run) -> String {
-        self.name_with(run, false)
-    }
-
-    fn name_with(&self, run: &Run, with_format: bool) -> String {
-        // The full display name; the parentheses add only what tells it apart from another run.
-        let base = run.name.as_str();
-        let sibling = self
-            .runs
-            .iter()
-            .any(|other| other.model == run.model && other.variant == run.variant && other.reasoning != run.reasoning);
-        let setting = match (run.variant.as_deref(), run.reasoning.as_deref()) {
-            (Some("stated confidence"), _) => Some("written estimate".to_string()),
-            (Some("yes/no scoring"), _) => Some("yes/no score".to_string()),
-            (Some("vote share"), _) => Some("agreement across ten answers".to_string()),
-            (Some(_), _) if run.provider == "openai-decisions" && !base.contains("Decisions API") => {
-                Some("Decisions API".to_string())
-            }
-            (Some(_), _) if run.provider == "openai-decisions" => None,
-            // A name that already carries its variant ("(with web)") needs no second note.
-            (Some(variant), _) if base.contains(variant) => None,
-            // Another variant (a route or access note) names the setup only where it tells it apart from another run
-            // of the same model ID; a model with one run keeps its note on its model page ("transformers, rev 52ba9e7").
-            (Some(variant), _) if self.runs.iter().any(|other| other.run != run.run && other.model == run.model) => {
-                Some(variant.to_string())
-            }
-            (Some(_), _) => None,
-            (None, Some(level @ ("low" | "medium" | "high"))) => Some(format!("{level} reasoning")),
-            (None, Some(setting)) if sibling => Some(format!("reasoning {setting}")),
-            _ => None,
-        };
-        let other_format = self.runs.iter().any(|other| {
-            other.provider == run.provider
-                && other.model == run.model
-                && other.variant == run.variant
-                && other.reasoning == run.reasoning
-                && other.questions_per_request != run.questions_per_request
-        });
-        let format = (with_format && other_format).then(|| format!("{} per request", run.questions_per_request));
-        let parts: Vec<String> = setting.into_iter().chain(format).collect();
-        if parts.is_empty() { base.to_string() } else { format!("{base} ({})", parts.join(", ")) }
+        if run.tag.is_empty() { run.name.clone() } else { format!("{} · {}", run.name, run.tag) }
     }
 
     /// The reading and grammar question counts, from the units.
@@ -506,7 +491,13 @@ fn and_list(items: &[String]) -> String {
     }
 }
 
-/// `text` broken at spaces into lines of at most `width` characters.
+/// `text` with no-break spaces for [`wrap`], as the topic chart's "(131)": a label ("GPT-6 Astra · low · chat") stays
+/// on one line.
+fn unbroken(text: &str) -> String {
+    text.replace(' ', "\u{a0}")
+}
+
+/// `text` broken at spaces into lines of at most `width` characters; never at a no-break space.
 fn wrap(text: &str, width: usize) -> Vec<String> {
     let mut lines: Vec<String> = Vec::new();
     for word in text.split(' ') {
@@ -648,19 +639,47 @@ fn percent(value: f64) -> String {
     format!("{value}%")
 }
 
-/// The named series as legend keys, wrapped into lines of at most `width` cells.
+/// The named series as legend keys, wrapped into lines of at most `width` cells. A name too long for one line (a
+/// name with its tag and confidence source) breaks at its " · " separators onto indented lines of its own.
 fn legend(series: &[Series], width: u16) -> Vec<Line<'static>> {
+    let width = usize::from(width);
     let mut lines = vec![Line::default()];
     for series in series {
         let Some(name) = &series.name else { continue };
-        let entry = 3 + name.chars().count() + 3;
-        if lines.last().is_some_and(|line| line.width() > 0 && line.width() + entry > usize::from(width)) {
+        let style = |text: String| if series.front { Span::from(text).bold() } else { Span::from(text) };
+        if lines.last().is_some_and(|line| line.width() > 0 && line.width() + 3 + name.chars().count() + 3 > width) {
             lines.push(Line::default());
         }
-        let line = lines.last_mut().expect("lines starts with one line");
-        line.push_span(Span::from("━━ ").fg(series.color));
-        let text = Span::from(format!("{name}   "));
-        line.push_span(if series.front { text.bold() } else { text });
+        if 3 + name.chars().count() <= width {
+            let line = lines.last_mut().expect("lines starts with one line");
+            line.push_span(Span::from("━━ ").fg(series.color));
+            line.push_span(style(format!("{name}   ")));
+            continue;
+        }
+        let mut parts: Vec<String> = Vec::new();
+        for part in name.split(" · ") {
+            match parts.last_mut() {
+                Some(last) if 3 + last.chars().count() + 3 + part.chars().count() <= width => {
+                    last.push_str(" · ");
+                    last.push_str(part);
+                }
+                Some(_) => parts.push(format!("· {part}")),
+                None => parts.push(part.to_string()),
+            }
+        }
+        for (index, part) in parts.into_iter().enumerate() {
+            let line = lines.last_mut().expect("lines starts with one line");
+            if index == 0 {
+                line.push_span(Span::from("━━ ").fg(series.color));
+            } else {
+                line.push_span(Span::from("   "));
+            }
+            line.push_span(style(part));
+            lines.push(Line::default());
+        }
+    }
+    if lines.len() > 1 && lines.last().is_some_and(|line| line.width() == 0) {
+        lines.pop();
     }
     lines
 }
@@ -1115,6 +1134,8 @@ fn cutoffs(results: &Results) -> Option<Figure<'_>> {
 
 const HANDOFF_TITLE: &str = "Decider answers when it is confident; Opus answers the rest";
 const HANDOFF_WIDTH: u16 = 70;
+/// The first model's box: its label wraps inside it, leaving room for its speed on the right.
+const DECIDER_BOX: u16 = 19;
 
 /// A box of `width` columns with `lines` centred in it, its border in `color`.
 fn draw_box(buf: &mut Buffer, x: u16, y: u16, width: u16, lines: Vec<Line<'static>>, color: Color) -> Rect {
@@ -1163,7 +1184,8 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
         .filter_map(|cascade| Some((results.run(cascade.frontier).filter(|run| run.format_of.is_none())?, cascade.held_out.answered)))
         .collect();
     others.sort_by(|first, second| second.1.total_cmp(&first.1));
-    let names: Vec<String> = others.iter().map(|(run, _)| run.name.clone()).collect();
+    // Labels with their tags (two setups of one model can both be second models), each kept on one line.
+    let names: Vec<String> = others.iter().map(|(run, _)| unbroken(&results.label(run))).collect();
     let same = if names.is_empty() {
         Vec::new()
     } else {
@@ -1173,7 +1195,10 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
         &format!("{} on the {} questions. We replayed recorded answers.", results.label(decider), thousands(total)),
         HANDOFF_WIDTH,
     );
-    let decider_name = results.label(decider);
+    // The first model's box holds its label on as many lines as it needs; the steps below it move down with it.
+    let decider_lines: Vec<Line<'static>> =
+        wrap(&results.label(decider), usize::from(DECIDER_BOX - 2)).into_iter().map(|line| Line::from(line).bold().fg(ACCENT)).collect();
+    let drop = decider_lines.len().saturating_sub(1) as u16;
     let opus_name = opus.name.clone();
     let kept_line = format!("{} of questions", whole_percent(share.kept, total));
     let right_line = format!("{} of {} right", thousands(share.kept - share.wrong), thousands(share.kept));
@@ -1183,7 +1208,7 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
         format!("about {:.0} s per request", opus_time),
         format!("of {} questions", opus.questions_per_request),
     ];
-    let height = 2 + subtitle.len() as u16 + 22 + same.len().max(1) as u16;
+    let height = 2 + subtitle.len() as u16 + 22 + drop + same.len().max(1) as u16;
     Some(Figure {
         name: "handoff",
         title: HANDOFF_TITLE.into(),
@@ -1195,9 +1220,10 @@ fn handoff(results: &Results) -> Option<Figure<'_>> {
             let centre_column = x + 32;
             let question = draw_box(buf, centre_column - 7, y, 15, vec![Line::from("Question")], GUIDE);
             arrow_down(buf, centre_column, question.bottom() - 1, 1, GUIDE);
-            let first = draw_box(buf, centre_column - 8, y + 4, 17, vec![Line::from(decider_name.clone()).bold().fg(ACCENT)], ACCENT);
+            let first = draw_box(buf, centre_column - DECIDER_BOX / 2, y + 4, DECIDER_BOX, decider_lines.clone(), ACCENT);
             buf.set_line(first.right() + 2, y + 5, &muted(decider_speed.clone()), HANDOFF_WIDTH);
             arrow_down(buf, centre_column, first.bottom() - 1, 1, ACCENT);
+            let y = y + drop;
             let ask = draw_box(buf, x + 10, y + 8, 45, vec![Line::from("Among its most confident quarter?").bold()], GUIDE);
             let (yes, no) = (x + 16, x + 48);
             arrow_down(buf, yes, ask.bottom() - 1, 2, GUIDE);
@@ -1242,7 +1268,7 @@ const FIRST_MODELS_TITLE: &str = "How many questions can each model handle befor
 const FIRST_BAR_CELLS: u16 = 30;
 const FIRST_STEP: f64 = 5.0;
 
-/// The held-out share of each first model in front of GPT-6 Astra (low reasoning) with the cutoff chosen on half the questions,
+/// The held-out share of each first model in front of GPT-6 Astra · low · chat with the cutoff chosen on half the questions,
 /// decision models first and chat models below; `all` adds the first models we served ourselves.
 fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
     let astra = results.find(ASTRA)?;
@@ -1268,7 +1294,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
     let label_width = decision
         .iter()
         .chain(&chat)
-        .map(|(run, _)| results.setup_label(run).chars().count())
+        .map(|(run, _)| results.label(run).chars().count())
         .chain([baseline.chars().count()])
         .max()? as u16;
     // Indent, labels, a space, the bars, the share ("20.9%"), then the change column.
@@ -1279,7 +1305,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
         &format!(
             "We replayed recorded answers on the {} questions. The first model answers the questions it is most confident about; {} answers the rest. We choose the cutoff on half the questions and test it on the other half; bars show the average over {} splits.",
             thousands(results.questions),
-            results.setup_label(astra),
+            results.label(astra),
             thousands(splits)
         ),
         width,
@@ -1310,7 +1336,7 @@ fn first_models(results: &Results, all: bool) -> Option<Figure<'_>> {
                 buf.set_line(x, y, &Line::from(*title).bold(), body.width);
                 y += 1;
                 for (run, cascade) in rows {
-                    let label = results.setup_label(run);
+                    let label = results.label(run);
                     let decider = results.is_decider(run);
                     let fill = if decider { ACCENT } else if results.is_decision(run) { GUIDE } else { MUTED };
                     let start = x + 2 + label_width - label.chars().count() as u16;
@@ -1412,7 +1438,7 @@ fn cost_groups<'a>(results: &'a Results, all: bool) -> Vec<(String, Vec<CostRow<
     let row = |run: &'a Run, latency: &Latency| CostRow {
         run,
         single: false,
-        label: results.setup_label(run),
+        label: results.label(run),
         decider: results.is_decider(run),
         cost: cost(run).ok_or(match run.billing.as_str() {
             "free" => "Free tier used",
@@ -1465,7 +1491,7 @@ fn cost_groups<'a>(results: &'a Results, all: bool) -> Vec<(String, Vec<CostRow<
                 Some(CostRow {
                     run,
                     single: true,
-                    label: results.setup_label(run),
+                    label: results.label(run),
                     decider: results.is_decider(run),
                     cost: Err("Not measured in this test"),
                     local_estimate: false,
@@ -1567,7 +1593,7 @@ fn cost_time(results: &Results, all: bool) -> Option<Figure<'_>> {
     };
     let sample = named("sample");
     if let Some(latency) = sample.first().and_then(|run| run.latency.as_ref()) {
-        let list: Vec<String> = sample.iter().map(|run| results.label(run)).collect();
+        let list: Vec<String> = sample.iter().map(|run| unbroken(&results.label(run))).collect();
         footnotes.extend(notes(
             &format!(
                 "Times for {} were measured on a sample ({} questions), over {} repeat runs.",
@@ -1580,7 +1606,7 @@ fn cost_time(results: &Results, all: bool) -> Option<Figure<'_>> {
     }
     let repeats = named("repeats");
     if !repeats.is_empty() {
-        let list: Vec<String> = repeats.iter().map(|run| results.label(run)).collect();
+        let list: Vec<String> = repeats.iter().map(|run| unbroken(&results.label(run))).collect();
         footnotes.extend(notes(&format!("Times for {} come from later repeat runs on all questions.", and_list(&list)), width));
     }
     if rows().any(|row| row.local_estimate && row.cost.is_ok()) {
@@ -1659,7 +1685,7 @@ const READING_GRAMMAR_CHAT: [RunKey; 2] = [GEMMA, ASTRA];
 fn reading_grammar(results: &Results) -> Figure<'_> {
     let row = |key: &RunKey| -> Option<(String, f64, f64, bool)> {
         let run = results.find(*key)?;
-        Some((results.setup_label(run), accuracy(run.groups.get("reading")?), accuracy(run.groups.get("grammar")?), results.is_decider(run)))
+        Some((results.label(run), accuracy(run.groups.get("reading")?), accuracy(run.groups.get("grammar")?), results.is_decider(run)))
     };
     let groups: Vec<(&str, Vec<(String, f64, f64, bool)>)> = vec![
         ("Decision models", READING_GRAMMAR_DECISION.iter().filter_map(&row).collect()),
@@ -1970,9 +1996,8 @@ fn coverage(results: &Results) -> Figure<'_> {
     }
 }
 
-/// A calibration panel: the diagonal, then each run's groups as a line with dots sized by answers,
-/// named with their questions per request when `with_format` and their setup also ran with another.
-fn calibration_panel(results: &Results, title: String, runs: &[&Run], with_format: bool) -> Panel {
+/// A calibration panel: the diagonal, then each run's groups as a line with dots sized by answers.
+fn calibration_panel(results: &Results, title: String, runs: &[&Run]) -> Panel {
     let mut series = vec![Series::line(DIAGONAL, GUIDE, vec![(0.0, 0.0), (100.0, 100.0)])];
     for run in runs {
         let Some(confidence) = run.confidence.as_ref() else { continue };
@@ -1985,9 +2010,11 @@ fn calibration_panel(results: &Results, title: String, runs: &[&Run], with_forma
         let points = |large: bool| -> Vec<(f64, f64)> {
             bins.iter().filter(|bin| (bin.2 >= LARGE_BIN_ANSWERS) == large).map(|bin| (bin.0, bin.1)).collect()
         };
-        // The run's name with its confidence source, unless the name already says it.
-        let label = results.name_with(run, with_format);
-        let name = if label.to_lowercase().contains(&confidence.label.to_lowercase()) {
+        // The run's label with its confidence source, unless its tag already names it (a stated-confidence or
+        // vote-share setup) or the label says it.
+        let label = results.label(run);
+        let named = matches!(run.variant.as_deref(), Some("stated confidence" | "vote share"));
+        let name = if named || label.to_lowercase().contains(&confidence.label.to_lowercase()) {
             label
         } else {
             format!("{label} · {}", confidence.label)
@@ -2018,8 +2045,8 @@ fn calibration(results: &Results) -> Option<Figure<'_>> {
     if runs.is_empty() {
         return None;
     }
-    let names: Vec<String> = runs.iter().map(|run| results.setup_label(run)).collect();
-    let grid = Grid::new(vec![calibration_panel(results, names.join(" and "), &runs, false)], 1);
+    let names: Vec<String> = runs.iter().map(|run| results.label(run)).collect();
+    let grid = Grid::new(vec![calibration_panel(results, names.join(" and "), &runs)], 1);
     let x = percent_scale(CALIBRATION_X, 0.0, 100.0, 20.0);
     let lines = calibration_notes(results.questions, NARROW_WIDTH);
     Some(Figure {
@@ -2035,7 +2062,7 @@ fn calibration(results: &Results) -> Option<Figure<'_>> {
 }
 
 fn calibration_all(results: &Results) -> Figure<'_> {
-    let panels = families(results).into_iter().map(|(title, runs)| calibration_panel(results, title, &runs, true)).collect();
+    let panels = families(results).into_iter().map(|(title, runs)| calibration_panel(results, title, &runs)).collect();
     let grid = Grid::new(panels, 2);
     let x = percent_scale(CALIBRATION_X, 0.0, 100.0, 20.0);
     let lines = calibration_notes(results.questions, WIDE_WIDTH);
@@ -2109,7 +2136,7 @@ fn paired(results: &Results) -> Figure<'_> {
         .filter_map(|pair| {
             let (first, second) = (results.run(pair.first)?, results.run(pair.second)?);
             Some((
-                format!("{} minus {}", results.setup_label(first), results.setup_label(second)),
+                format!("{} minus {}", results.label(first), results.label(second)),
                 100.0 * pair.difference,
                 100.0 * pair.low,
                 100.0 * pair.high,
@@ -2247,11 +2274,11 @@ fn cascade(results: &Results) -> Option<Figure<'_>> {
                     continue;
                 };
                 let points = cascade.curve.iter().map(|&[answered, accuracy]| (100.0 * answered, 100.0 * accuracy)).collect();
-                series.push(Series::line(results.setup_label(decision), color(decision), points).in_front(results.is_decider(decision)));
+                series.push(Series::line(results.label(decision), color(decision), points).in_front(results.is_decider(decision)));
             }
             series.push(Series::line(format!("{} alone", frontier.name), GUIDE, vec![(0.0, accuracy), (100.0, accuracy)]));
             let y = accuracy_scale("Accuracy of the combined answers", &series);
-            panels.push(Panel { title: format!("Second model: {}", results.setup_label(frontier)), series, y });
+            panels.push(Panel { title: format!("Second model: {}", results.label(frontier)), series, y });
         }
     }
     if panels.is_empty() {

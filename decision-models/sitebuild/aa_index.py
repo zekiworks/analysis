@@ -10,6 +10,7 @@ import math
 from typing import Any
 
 import build_page as bp
+from sitebuild import names
 from sitebuild.site import (NOT_MEASURED, ROOT, Site, cost_missing, esc, hbars, latency_text, pct, rank_fill, rel,
                             scale_legend)
 from sitebuild.vision import NO_IMAGE, NOT_AVAILABLE, cell, joined
@@ -85,7 +86,7 @@ def build(site: Site) -> dict[str, str]:
     pairs, absent = entries(site)
     digits = site.config["percent_digits"]
     stops = site.config["rank_scale"]["stops"]
-    shown = site.names([run for _, run in pairs])
+    plain = site.plain
     dont_know = site.results["dont_know"]
     option = dont_know["option"]
     held = {model["original_run"]: model for model in dont_know["models"]}
@@ -102,27 +103,27 @@ def build(site: Site) -> dict[str, str]:
     date = lambda run: bp.long_date(run["started"][:10])  # noqa: E731
 
     accuracies = [share(run)[0] / share(run)[1] for _, run in pairs]
-    accuracy_rows = [{"label": shown[run["run"]], "family": site.families[run["run"]]["name"], "href": href(run), "text": pct(value, digits),
+    accuracy_rows = [{"label": site.title(run), "tag": site.tag(run), "family": site.families[run["run"]]["name"], "href": href(run), "text": pct(value, digits),
                       "bars": [{"value": value, "colour": rank_fill(stops, value, min(accuracies), max(accuracies))}],
-                      "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {share(run)[0]:,} of {total:,} right"}
+                      "title": f"{plain(run)} (Artificial Analysis: {name}): {share(run)[0]:,} of {total:,} right"}
                      for (name, run), value in zip(pairs, accuracies)]
     ran = sorted(((name, run, held[run["run"]]) for name, run in pairs if run["run"] in held and held[run["run"]]["non_hallucination"] is not None),
                  key=lambda item: -item[2]["non_hallucination"])
     rates = [model["non_hallucination"] for _, _, model in ran]
-    rate_rows = [{"label": shown[run["run"]], "family": site.families[run["run"]]["name"], "href": href(run), "text": pct(model["non_hallucination"], digits),
+    rate_rows = [{"label": site.title(run), "tag": site.tag(run), "family": site.families[run["run"]]["name"], "href": href(run), "text": pct(model["non_hallucination"], digits),
                   "bars": [{"value": model["non_hallucination"], "colour": rank_fill(stops, model["non_hallucination"], min(rates), max(rates))}],
-                  "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {model['dont_know']:,} “{option}” of {model['dont_know'] + model['wrong']:,} not right"}
+                  "title": f"{plain(run)} (Artificial Analysis: {name}): {model['dont_know']:,} “{option}” of {model['dont_know'] + model['wrong']:,} not right"}
                  for name, run, model in ran]
-    not_held = [site.row_name(run) for _, run in pairs if run["run"] not in held]
+    not_held = [plain(run) for _, run in pairs if run["run"] not in held]
     priced = sorted(((name, run, per_million(cost_per_1000(run))) for name, run in pairs if cost_per_1000(run) is not None),
                     key=lambda item: (cost_per_1000(item[1]), item[1]["name"].casefold()))
     dollars = [value for _, _, value in priced]
     # A tick at each quarter of the axis, the quarter a round number of dollars that fits the dearest model.
     quarter = math.ceil(max(dollars) / 40) * 10 if max(dollars) >= 40 else max(1, math.ceil(max(dollars) / 4))
-    cost_rows = [{"label": shown[run["run"]], "family": site.families[run["run"]]["name"], "href": href(run),
+    cost_rows = [{"label": site.title(run), "tag": site.tag(run), "family": site.families[run["run"]]["name"], "href": href(run),
                   "text": f"{upper(run)}${value:,.0f}",
                   "bars": [{"value": value, "colour": rank_fill(stops, value, max(dollars), min(dollars))}],
-                  "title": f"{site.row_name(run)} (Artificial Analysis: {name}): {upper(run)}${cost_per_1000(run):.3f} per 1,000 questions, "
+                  "title": f"{plain(run)} (Artificial Analysis: {name}): {upper(run)}${cost_per_1000(run):.3f} per 1,000 questions, "
                            f"{upper(run)}${value:,.0f} per 1M." + (f" {site.cost_tip(run)}" if site.cost_tip(run) else "")}
                  for name, run, value in priced]
     latency = lambda run: (run.get("latency") or {}).get("median_request_seconds")  # noqa: E731
@@ -133,16 +134,16 @@ def build(site: Site) -> dict[str, str]:
     # A tick at each quarter of the axis, the quarter a round number of seconds that fits the slowest model.
     step = 10 ** math.floor(math.log10(max(seconds) / 4))
     latency_quarter = round(math.ceil(max(seconds) / 4 / step) * step, 6)
-    latency_rows = [{"label": shown[run["run"]], "family": site.families[run["run"]]["name"], "href": href(run), "text": f"{latency_text(value)}{sample(run)}",
+    latency_rows = [{"label": site.title(run), "tag": site.tag(run), "family": site.families[run["run"]]["name"], "href": href(run), "text": f"{latency_text(value)}{sample(run)}",
                      "bars": [{"value": value, "colour": rank_fill(stops, value, max(seconds), min(seconds))}],
-                     "title": f"{site.row_name(run)} (Artificial Analysis: {name}): median {latency_text(value)} per request"}
+                     "title": f"{plain(run)} (Artificial Analysis: {name}): median {latency_text(value)} per request"}
                     for (name, run), value in zip(timed, seconds)]
     flight: dict[int, list[str]] = {}
     for _, run in timed:
-        flight.setdefault(run["latency"].get("concurrency") or 1, []).append(site.row_name(run))
-    several_at_once = [(count, names) for count, names in sorted(flight.items()) if count > 1]
-    in_flight = "; ".join(f"{esc(joined(names))} sent {count} requests at a time" for count, names in several_at_once)
-    untimed = [site.row_name(run) for _, run in pairs if latency(run) is None]
+        flight.setdefault(run["latency"].get("concurrency") or 1, []).append(plain(run))
+    several_at_once = [(count, listed) for count, listed in sorted(flight.items()) if count > 1]
+    in_flight = "; ".join(f"{esc(joined(listed))} sent {count} requests at a time" for count, listed in several_at_once)
+    untimed = [plain(run) for _, run in pairs if latency(run) is None]
     sampled = [run for _, run in timed if run["latency"]["source"] == "sample"]
 
     def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, **axis: Any) -> str:
@@ -170,7 +171,7 @@ def build(site: Site) -> dict[str, str]:
                latency_rows,
                scale_legend(stops, latency_text(max(seconds)), latency_text(min(seconds)), higher=False)
                + (f" <span>{in_flight}; the others one.</span>" if in_flight else "")
-               + (f" <span>* Measured on a sample of questions: {esc(joined([site.row_name(run) for run in sampled]))}.</span>" if sampled else "")
+               + (f" <span>* Measured on a sample of questions: {esc(joined([plain(run) for run in sampled]))}.</span>" if sampled else "")
                + (f" <span>No latency recorded: {esc(joined(untimed))}.</span>" if untimed else ""),
                top=4 * latency_quarter, tick=lambda value: f"{round(value, 2):g} s"))
 
@@ -206,7 +207,7 @@ def build(site: Site) -> dict[str, str]:
                  f'<span class="small">Measured on a sample ({run["latency"].get("questions", 0):,} questions)</span>' if run["latency"]["source"] == "sample" else ""),
         ]
         model_cell = (f'<td class="model" title="Run {run["run"]}, {date(run)}; {esc(route(run))}">'
-                      f'<a class="model-name" href="{href(run)}">{esc(shown[run["run"]])}</a>'
+                      f'<a class="model-name" href="{href(run)}">{esc(site.title(run))}</a>{names.tag_html(site.tag(run))}'
                       f'<span class="small">Artificial Analysis: {esc(name)}</span></td>')
         rows.append(f"<tr>{model_cell}" + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{esc(direction)}</span></th>' for text, direction in heads)
@@ -217,17 +218,17 @@ def build(site: Site) -> dict[str, str]:
     for name, run in pairs:
         price = prices.get(bp.price_key(run))
         if run["billing"] == "free":
-            notes.append(f"{esc(site.row_name(run))}: its free tier, priced at {esc(price['basis'])}.")
+            notes.append(f"{esc(plain(run))}: its free tier, priced at {esc(price['basis'])}.")
         if price and price.get("change"):
-            notes.append(f"{esc(site.row_name(run))}: at the price recorded on {bp.long_date(price['date'])}. Provider update: {esc(price['change'])}.")
+            notes.append(f"{esc(plain(run))}: at the price recorded on {bp.long_date(price['date'])}. Provider update: {esc(price['change'])}.")
     notes.append("Latency: the median time per request. Local setups ran on our hardware, listed on each setup’s page; "
                  "API latency includes the network, and via OpenRouter, OpenRouter’s time.")
     for name, run in timed:
         if run["latency"]["source"] == "repeats":
-            notes.append(f"{esc(site.row_name(run))}: latency from its repeat runs "
+            notes.append(f"{esc(plain(run))}: latency from its repeat runs "
                          f"(runs {esc(joined([str(number) for number in run['latency']['runs']]))}), "
                          f"{latency_text(latency(run))} median per request.")
-    several = [site.row_name(run) for _, run, model in ran if len(model["runs"]) > 1]
+    several = [plain(run) for _, run, model in ran if len(model["runs"]) > 1]
     post = config["post"]
     not_ours = f"; {esc(joined(absent))} {'is' if len(absent) == 1 else 'are'} not" if absent else ""
     body = f"""    <section class="card">

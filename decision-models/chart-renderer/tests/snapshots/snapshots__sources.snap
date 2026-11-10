@@ -3,9 +3,9 @@ source: tests/snapshots.rs
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 Can different scores help us judge the same answers?
-The same 2,198 answers from Qwen3.8-27B (written estimate) in every curve, 1,191 of them right.
-Only the score that ranks them changes. Ranking score (AUROC): how often a right answer gets a
-higher score than a wrong one.
+The same 2,198 answers from Qwen3.8-27B · stated confidence · reasoning off · chat in every curve,
+1,191 of them right. Only the score that ranks them changes. Ranking score (AUROC): how often a
+right answer gets a higher score than a wrong one.
 
 
 Accuracy among the kept answers
@@ -29,6 +29,6 @@ Accuracy among the kept answers
                            Share of answers we keep, most confident first
 
 ━━ Written estimate: ranking score 0.51
-━━ Open-Jev 27B v1.1 score (a separately trained scorer): ranking score 0.82
+━━ Open-Jev-27B-v1.1 score (a separately trained scorer): ranking score 0.82
 ━━ Agreement across ten answers: ranking score 0.78
 ━━ Qwen3.8-27B option score: ranking score 0.78

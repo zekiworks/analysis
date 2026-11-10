@@ -10,6 +10,7 @@ from typing import Any
 from urllib.parse import quote
 
 import build_page as bp
+from sitebuild import names
 from sitebuild.questions import picks_data, question_link
 from sitebuild.site import ISSUE_URL, Site, esc, rel
 
@@ -69,8 +70,8 @@ def build(site: Site) -> dict[str, str]:
     runs = data["runs"]
     five = strongest(site)
     strict = agreed(site, data, five)
-    links = [f'<a href="{rel(PATH, site.model_path(run))}">{esc(run["name"])}</a>' for run in five]
-    names = ", ".join(links[:-1]) + " and " + links[-1]
+    links = [f'<a href="{rel(PATH, site.model_path(run))}">{esc(site.title(run))}</a>{names.tag_html(site.tag(run))}' for run in five]
+    listed = ", ".join(links[:-1]) + " and " + links[-1]
     strict_rows = "".join(
         "<tr>"
         f'<td class="model">{question_link(PATH, question_id)}</td>{topic_cells(site, unit)}'
@@ -106,7 +107,7 @@ def build(site: Site) -> dict[str, str]:
     )
     body = f"""    <section class="card">
       <h1>Where models disagree with the answer key</h1>
-      <p>On these {len(strict)} questions, at least {site.config["key_disagreement"]["agree"]} of the {len(five)} most accurate chat models asked one question per request ({names}) chose the same answer, and it is not the key. All {len(five)} agreed on {sum(row[0] == len(five) for row in strict)}. Key status is the label from the key review: verified, suspect (still marked uncertain) or none.</p>
+      <p>On these {len(strict)} questions, at least {site.config["key_disagreement"]["agree"]} of the {len(five)} most accurate chat models asked one question per request ({listed}) chose the same answer, and it is not the key. All {len(five)} agreed on {sum(row[0] == len(five) for row in strict)}. Key status is the label from the key review: verified, suspect (still marked uncertain) or none.</p>
       <p>Think a key is wrong? <a href="{CORRECTION_URL}">Report an answer key correction</a>. The <a href="{rel(PATH, "data/")}#key-changelog">key changelog</a> lists every change and how a fix works.</p>
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">ID</th><th scope="col">Part</th><th scope="col">Topic</th><th scope="col" class="num">Answer key</th><th scope="col" class="num">Models' answer</th><th scope="col" class="num">Agree</th><th scope="col">Key status</th><th scope="col">Key correction</th></tr></thead>
       <tbody>{strict_rows}</tbody></table></div>

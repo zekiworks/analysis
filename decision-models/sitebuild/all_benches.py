@@ -31,7 +31,8 @@ site's Leaderboard's classes, Site.model_class), which choose the models in view
 the column chart ranks by (each bar in its maker's colour with the maker's mark under it), then the table of every model
 in view on every bench, sortable by any column; How it's scored; Head to head; Full results (calibration, learning,
 latency); the three charts (size, calibration error and latency against the score); their score against ours for the
-index's 15 models; one tab per bench. ?model=<name> shows one model's page instead (all-benches.js). Without
+index's 15 models; one tab per bench. ?model=<name> (its slug where two models share a name, told apart by their tags)
+shows one model's page instead (all-benches.js). Without
 JavaScript the page is the default view's static parts and every bench's table."""
 
 from __future__ import annotations
@@ -49,7 +50,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 import build_page as bp
-from sitebuild import bench_scores, leaderboard
+from sitebuild import bench_scores, leaderboard, names
 from sitebuild.english_reading import english_only, setup_families, setup_run
 from sitebuild.site import (ROOT, SUITE_CSS, THEME_SWITCH, Site, asset, billions, esc, family_icon, family_sprite,
                             label_count, model_families, rel, stated_total, suite_bar)
@@ -183,10 +184,12 @@ SETTING_WORDS = {"perplexity", "api", "local", "gpu", "open", "weights", "high",
 
 def name_key(row: dict[str, Any]) -> str:
     """A row's name for joining where a file has no model_key yet (Ümit #4270): its words in lower case, in any order,
-    without its maker's name, setting and route words (SETTING_WORDS) and brackets, "with web" kept as a mark of its own:
-    "Decider v1.2 27B" and "Perplexity Decider 27B v1.2 (API)" meet; "... (API, with web)" stays apart."""
+    without its maker's name, setting and route words (SETTING_WORDS) and brackets, "with web" kept as a mark of its own
+    (in its name, or in its tag where the file gives one, as this site's rows do): "Decider v1.2 27B" and "Perplexity
+    Decider 27B v1.2" (tag "API") meet; the same with the tag "API · with web" stays apart."""
     words = re.sub(r"[(),=]", " ", row["name"].lower()).split()
-    web = any(first == "with" and second == "web" for first, second in zip(words, words[1:]))
+    web = (any(first == "with" and second == "web" for first, second in zip(words, words[1:]))
+           or "with web" in (row.get("tag") or "").lower())
     maker = set((row.get("maker") or "").lower().split())
     kept = sorted(word for word in words if word not in SETTING_WORDS | maker and not (web and word in ("with", "web")))
     return " ".join(kept) + (" +web" if web else "")
@@ -269,8 +272,7 @@ class Data:
             match = entry["match"]
             found = next((model for model in self.models.values()
                           if (match["repo"].lower() in model["repos"] if match.get("repo")
-                              else f"{norm(match['name'])}|{match['kind']}" in {f"{norm(row['name'])}|{kind_of(row)}"
-                                                                                for row in model["scores"].values()})), None)
+                              else match["model_key"] in model["keys"] and model["kind"] == match["kind"])), None)
             if found is None:
                 raise SystemExit(f"page_config.json all_benches.not_combined: no row matches {match}")
             found["combined"] = None
@@ -284,6 +286,11 @@ class Data:
         for model in self.models.values():
             if slugs[model["slug"]] > 1:
                 model["slug"] += "-" + model["kind"]
+        # A model's page address (?model=): its name, or its slug where another model shows the same name (two setups of
+        # one model, told apart by their tags).
+        shared = Counter(model["name"].casefold() for model in self.models.values())
+        for model in self.models.values():
+            model["query"] = model["slug"] if shared[model["name"].casefold()] > 1 else model["name"]
 
     def colour(self, maker: str | None, kind: str) -> str:
         if kind == "program" or not maker:
@@ -315,6 +322,8 @@ class Data:
         rows = [row for row in bench["bench"]["models"] if isinstance(row.get("score_0_100"), (int, float))]
         for row in rows:
             key, repo, name = row_keys(row)
+            # A Reading model_key the shared names table maps to the other sites' (its row's source_model_key).
+            key = names.key_aliases().get(key, key) if key else key
             kind = kind_of(row)
             # Never two rows of one bench in one model, nor two rows whose repos differ.
             free = [model for model in self.models.values() if bench["key"] not in model["scores"]
@@ -330,13 +339,15 @@ class Data:
                 family = setup_families(self.site).get(run["run"]) if run else None
                 family = family["name"] if family else self.maker_family.get(norm(row.get("maker") or ""))
                 training = self.training.get(row.get("repo") or "") or self.training.get(row["name"])
-                ident = f"repo:{repo}" if repo else f"name:{norm(row['name'])}|{kind}"
+                ident = f"repo:{repo}" if repo else f"name:{norm(row['name'] + (row.get('tag') or ''))}|{kind}"
                 while ident in self.models:
                     ident += "+"
                 model = self.models[ident] = {
-                    "key": ident, "name": row["name"], "slug": slug(row["name"]), "maker": row.get("maker"), "kind": kind,
-                    "repo": row.get("repo"), "repos": set(), "keys": set(), "names": set(), "run": run, "family": family,
-                    "colour": self.colour(row.get("maker"), kind), "tag": training["tag"] if training else None,
+                    "key": ident, "name": row["name"], "tag": row.get("tag") or "",
+                    "slug": slug(" ".join(filter(None, (row["name"], row.get("tag"))))), "maker": row.get("maker"),
+                    "kind": kind, "repo": row.get("repo"), "repos": set(), "keys": set(), "names": set(), "run": run,
+                    "family": family, "colour": self.colour(row.get("maker"), kind),
+                    "training": training["tag"] if training else None,
                     "size": row.get("params_total"), "active": row.get("params_active"), "scores": {}, "latency": None,
                     "not_combined": None, "setups": None}
             model["scores"][bench["key"]] = row
@@ -441,16 +452,17 @@ class Data:
         return [(item, by_repo.get(item["repo"].lower())) for item in self.their["models"]]
 
     def reference(self) -> dict[str, Any] | None:
-        name = norm(self.their["reference"]["name"])
-        return next((model for model in self.models.values() if norm(model["name"]) == name and model["kind"] == "decision"),
-                    None)
+        """The reference bar's model: the decision model whose rows carry the reference's model_key (never by its name,
+        which may read differently on each site)."""
+        key = self.their["reference"]["model_key"]
+        return next((model for model in self.models.values() if key in model["keys"] and model["kind"] == "decision"), None)
 
 
 # ------------------------------------------------------------------------------------------------------------- pieces
 
 
 def model_href(model: dict[str, Any]) -> str:
-    return "?model=" + urllib.request.quote(model["name"], safe="")
+    return "?model=" + urllib.request.quote(model["query"], safe="")
 
 
 def icon(model: dict[str, Any]) -> str:
@@ -459,8 +471,19 @@ def icon(model: dict[str, Any]) -> str:
     return f'<span class="ab-noicon" style="background:{model["colour"]}" aria-hidden="true"></span>'
 
 
-def tag(model: dict[str, Any]) -> str:
-    return f' <span class="ab-tag">{esc(model["tag"])}</span>' if model["tag"] else ""
+def plain_name(model: dict[str, Any]) -> str:
+    """A model's name and its setup's tag as plain text (sitebuild/names.py plain): "Perplexity Decider 27B v1.2 · API ·
+    with web"; its name alone where its row carries no tag."""
+    return names.plain(model["name"], model["tag"])
+
+
+def name_html(model: dict[str, Any]) -> str:
+    """A model's name, then its setup's small tag (how this site ran it, names.tag_html), then its training tag."""
+    return esc(model["name"]) + names.tag_html(model["tag"]) + training_tag(model)
+
+
+def training_tag(model: dict[str, Any]) -> str:
+    return f' <span class="ab-tag">{esc(model["training"])}</span>' if model["training"] else ""
 
 
 def size_text(model: dict[str, Any]) -> str:
@@ -473,18 +496,21 @@ def size_text(model: dict[str, Any]) -> str:
 
 
 def size_label(data: Data, model: dict[str, Any]) -> str:
-    """The main table's size, as the Reading site's Leaderboard labels it (Site.label, #4229, #4245, #4269): an open
-    model's total as its maker states it, "MoE" and the active count after a mixture of experts; for a model only on the
-    other sites' benches the same from its file (params_total, params_active); empty where no size is disclosed."""
+    """The main table's size, as the Reading site's Leaderboard labels it (Site.label, #4229, #4245, #4269), after
+    "Open ·" (Ümit #4445): an open model's total as its maker states it, "MoE" and the active count after a mixture of
+    experts; for a model only on the other sites' benches the same from its file (params_total, params_active), "Open ·"
+    where its row names a released checkpoint (repo), the size alone where its file settles no openness; empty where
+    no size is disclosed."""
     run = model["run"]
     if run is not None:
         return data.site.label(run) if data.site.is_open(run) and stated_total(run) is not None else ""
     if model["size"] is None:
         return ""
     total, active = round(model["size"] * 1e9), model["active"]
+    openness = "Open · " if model["repo"] else ""
     if active is None or active >= model["size"]:
-        return f'<span class="lb-size">{label_count(total)}</span>'
-    return (f'<span class="lb-size">{label_count(total)} <sup class="lb-mark" aria-label="mixture of experts">MoE</sup>'
+        return f'<span class="lb-size">{openness}{label_count(total)}</span>'
+    return (f'<span class="lb-size">{openness}{label_count(total)} <sup class="lb-mark" aria-label="mixture of experts">MoE</sup>'
             f' · {billions(round(active * 1e9))} active</span>')
 
 
@@ -518,7 +544,8 @@ def ece_text(row: dict[str, Any] | None) -> str:
 
 
 def name_cell(model: dict[str, Any], detail: str = "") -> str:
-    return (f'<td class="model">{icon(model)}<a class="model-name" href="{model_href(model)}">{esc(model["name"])}</a>{tag(model)}'
+    return (f'<td class="model">{icon(model)}<a class="model-name" href="{model_href(model)}">{esc(model["name"])}</a>'
+            f'{names.tag_html(model["tag"])}{training_tag(model)}'
             f'<span class="small">{esc(model["maker"] or "no maker")}{detail}</span></td>')
 
 
@@ -552,7 +579,7 @@ def bars(data: Data, view: str) -> str:
         index = shown.index(model) if model in shown else 0
         tied = bool(index) and data.tied(view, shown[index - 1], model)
         ref = model is reference
-        title = (f"{model['name']} · {model['maker']}" + (f" · {model['tag']}" if model["tag"] else "")
+        title = (f"{plain_name(model)} · {model['maker']}" + (f" · {model['training']}" if model["training"] else "")
                  + f" · {number(value)} {UP}" + (" · reference: TypeSafe's hosted Jev" if ref else ""))
         items.append(
             f'<li{filters(model, "ab-bar" + (" ab-ref" if ref else ""))} data-maker="{esc(model["maker"] or "no maker")}" '
@@ -562,7 +589,7 @@ def bars(data: Data, view: str) -> str:
             f'<span class="ab-tied"{"" if tied else " hidden"}>tied</span></span><span class="ab-bar-fill"></span></span>'
             f'<span class="ab-bar-logo">{icon(model)}</span>'
             f'<span class="ab-bar-name">{esc(model["name"])}{"<span class=\"ab-ref-word\"> (reference)</span>" if ref else ""}'
-            f'{tag(model)}</span></a></li>')
+            f'{names.tag_html(model["tag"])}{training_tag(model)}</span></a></li>')
     makers = dict.fromkeys((model["maker"] or "no maker", model["colour"]) for model in ranked)
     visible = {model["maker"] or "no maker" for model in shown}
     legend = "".join(f'<span data-maker="{esc(maker)}"{"" if maker in visible else " class=\"ab-off\""}>'
@@ -576,7 +603,7 @@ def not_combined_note(data: Data, view: str) -> str:
     """Under the combined board: the rows left out of it, each with its reason (Methodology #combined)."""
     if view != "combined" or not data.not_combined:
         return ""
-    return "".join(f'<p class="note ab-not-combined">No combined score for <a href="{model_href(model)}">{esc(model["name"])}</a>: '
+    return "".join(f'<p class="note ab-not-combined">No combined score for <a href="{model_href(model)}">{esc(plain_name(model))}</a>: '
                    f'{esc(model["not_combined"])} (<a href="method/#combined">the rule</a>)</p>' for model in data.not_combined)
 
 
@@ -639,18 +666,19 @@ def main_table(data: Data) -> str:
         for key, _, _ in columns:
             value = data.score(model, key)
             cells.append('<td class="num"></td>' if value is None else f'<td class="num" data-v="{value:.4f}">{number(value)}</td>')
-        body.append(f'<tr{filters(model)} data-name="{esc(model["name"].casefold())}" '
+        body.append(f'<tr{filters(model)} data-name="{esc(plain_name(model).casefold())}" '
                     f'data-size="{"" if model["size"] is None else model["size"]}">'
                     f'<td class="num ab-rank">{numbers.get(id(model), "")}</td>'
                     f'<td class="model"><i class="lb-dot" style="background:{model["colour"]}" title="{esc(model["maker"] or "no maker")}"></i>'
-                    f'{icon(model)}<a class="model-name" href="{model_href(model)}">{esc(model["name"])}</a>{tag(model)}'
+                    f'{icon(model)}<a class="model-name" href="{model_href(model)}">{esc(model["name"])}</a>'
+                    f'{names.tag_html(model["tag"])}{training_tag(model)}'
                     + (f'<a class="ab-setup-mark" href="#setup-{esc(model["slug"])}" title="{esc(model["setups"])}">setups differ</a>'
                        if model["setups"] else "") + "</td>"
                     f'<td class="num">{size_label(data, model)}</td>{"".join(cells)}</tr>')
     return (f'<div class="table-wrap ab-main-wrap"><table class="board ab-main"><caption class="visually-hidden">Every model in view on '
             f'every bench</caption><thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>'
             + "".join(f'<p{filters(model, "note ab-setup-note")} id="setup-{esc(model["slug"])}"><a href="{model_href(model)}">'
-                      f'{esc(model["name"])}</a>, different setups of one model: {esc(model["setups"])}</p>'
+                      f'{esc(plain_name(model))}</a>, different setups of one model: {esc(model["setups"])}</p>'
                       for model in models if model["setups"])
             + f'<p class="note">Scores 0 to 100, higher is better {UP}; an empty cell: not on that bench. # is the rank by the '
             f'score chosen, among the models in view, tied scores sharing one (no bench\'s file carries an all-pairs test, '
@@ -672,8 +700,9 @@ def ranking(data: Data) -> str:
     return (f'<section class="card" id="ranking" data-ab-main><h2>Ranking</h2>{type_keys}{class_keys}{view_keys}'
             f'{combined_note(data)}{panels}'
             f'<p class="note">Each bar is a model\'s score from 0 (chance) to 100 (perfect), higher is better {UP}, '
-            f"in its maker's colour with the maker's mark under it; the training method is the small tag where our records "
-            f'state it. "tied": too close to the bar before it to tell apart (<a href="method/#tied">the rule</a>). '
+            f"in its maker's colour with the maker's mark under it; beside the name, a small tag says how the setup ran "
+            f"where its file gives one (setting · route · snapshot), then the training method where our records state it. "
+            f'"tied": too close to the bar before it to tell apart (<a href="method/#tied">the rule</a>). '
             f"{esc(reference['name'])} is the reference bar: {esc(reference['note'])}. A bar opens the model's page. "
             f'Class: the Reading site\'s Leaderboard\'s, by total parameters, '
             f'else by list price (<a href="method/#filters">the classes</a>).</p>{main_table(data)}</section>')
@@ -707,16 +736,16 @@ def h2h_rows(data: Data, first: dict[str, Any], second: dict[str, Any]) -> str:
         if not data.published(key):
             verdict = f'<span class="nm">{NOT_PUBLISHED}</span>'
         elif key == "combined" and (first["not_combined"] or second["not_combined"]):
-            verdict = (f'<span class="nm">no combined score for {esc((first if first["not_combined"] else second)["name"])}: '
+            verdict = (f'<span class="nm">no combined score for {esc(plain_name(first if first["not_combined"] else second))}: '
                        f'one model did not answer every bench</span>')
         elif a is None and b is None:
             verdict = '<span class="nm">neither ran it</span>'
         elif a is None or b is None:
-            verdict = f'<span class="nm">only {esc((first if b is None else second)["name"])} ran it</span>'
+            verdict = f'<span class="nm">only {esc(plain_name(first if b is None else second))} ran it</span>'
         elif data.tied(key, first, second):
             verdict = f"tied ({number(a - b, 1)})"
         else:
-            verdict = f"{esc((first if a > b else second)['name'])} ahead by {number(abs(a - b))}"
+            verdict = f"{esc(plain_name(first if a > b else second))} ahead by {number(abs(a - b))}"
         cell = lambda value: "–" if value is None else number(value)  # noqa: E731
         rows.append(f'<tr><th scope="row">{esc(label)} {UP}</th><td class="num">{cell(a)}</td><td class="num">{cell(b)}</td>'
                     f"<td>{verdict}</td></tr>")
@@ -728,8 +757,8 @@ def head_to_head(data: Data) -> str:
     first, second = ranked[0], ranked[1]
     options = lambda chosen: "".join(  # noqa: E731
         f'<optgroup label="{label}">' + "".join(
-            f'<option value="{esc(model["key"])}"{" selected" if model is chosen else ""}>{esc(model["name"])}</option>'
-            for model in sorted((model for model in data.models.values() if model["kind"] == kind), key=lambda model: model["name"].lower()))
+            f'<option value="{esc(model["key"])}"{" selected" if model is chosen else ""}>{esc(plain_name(model))}</option>'
+            for model in sorted((model for model in data.models.values() if model["kind"] == kind), key=lambda model: plain_name(model).lower()))
         + "</optgroup>" for kind, label in KINDS if any(model["kind"] == kind for model in data.models.values()))
     return f"""<section class="card" id="head-to-head" data-ab-main>
       <h2>Head to head</h2>
@@ -737,7 +766,7 @@ def head_to_head(data: Data) -> str:
         <label class="control">First <select data-ab-pick="a">{options(first)}</select></label>
         <label class="control">Second <select data-ab-pick="b">{options(second)}</select></label>
       </div>
-      <div class="table-wrap"><table class="board ab-h2h"><thead><tr><th scope="col">Bench</th><th scope="col" class="num" data-ab-name="a">{esc(first["name"])}</th><th scope="col" class="num" data-ab-name="b">{esc(second["name"])}</th><th scope="col">Difference</th></tr></thead>
+      <div class="table-wrap"><table class="board ab-h2h"><thead><tr><th scope="col">Bench</th><th scope="col" class="num" data-ab-name="a">{esc(plain_name(first))}</th><th scope="col" class="num" data-ab-name="b">{esc(plain_name(second))}</th><th scope="col">Difference</th></tr></thead>
       <tbody data-ab-h2h>{h2h_rows(data, first, second)}</tbody></table></div>
       <p class="note">The models to choose from follow the type and class keys in the ranking. Scores 0 to 100, higher is better {UP}; "tied" where the two are too close to tell apart (<a href="method/#tied">the rule</a>).</p>
     </section>"""
@@ -836,21 +865,21 @@ def scatter(points: list[tuple[dict[str, Any], float, float]], x_title: str, lab
                  f'<text class="axis-title" x="{(L + W - R) / 2:.0f}" y="{H - 8}" text-anchor="middle">{esc(x_title)}</text>'
                  f'<text class="axis-title" transform="translate(13 {(T + H - B) / 2:.0f}) rotate(-90)" text-anchor="middle">Score 0–100 {UP}</text>')
     boxes: list[tuple[float, float, float, float]] = []
-    dots, names = [], []
+    dots, names_drawn = [], []
     # The default type's names are placed first, so the page opens with as many of them named as fit.
     for model, x_value, y_value in sorted(points, key=lambda item: (item[0]["kind"] != DEFAULT_TYPE, -item[2])):
         x, y = place_x(x_value), place_y(y_value)
         dots.append(f'<a href="{model_href(model)}"{filters(model)}><circle class="ab-dot" cx="{x:.1f}" cy="{y:.1f}" r="5" fill="{model["colour"]}">'
-                    f'<title>{esc(model["name"])}: {number(y_value)}, {esc(x_title)} {tick_text(round(x_value, 1))}</title></circle></a>')
-        width = 6.2 * len(model["name"])
+                    f'<title>{esc(plain_name(model))}: {number(y_value)}, {esc(x_title)} {tick_text(round(x_value, 1))}</title></circle></a>')
+        width = 6.2 * len(plain_name(model))
         box = (x + 8, y - 9, x + 8 + width, y + 4)
         if box[2] > W - R:
             box = (x - 8 - width, y - 9, x - 8, y + 4)
         if box[0] >= L and not any(box[0] < other[2] and other[0] < box[2] and box[1] < other[3] and other[1] < box[3] for other in boxes):
             boxes.append(box)
-            names.append(f'<text{filters(model, "ab-dot-label")} x="{box[0]:.1f}" y="{y + 3.5:.1f}">{esc(model["name"])}</text>')
+            names_drawn.append(f'<text{filters(model, "ab-dot-label")} x="{box[0]:.1f}" y="{y + 3.5:.1f}">{esc(plain_name(model))}</text>')
     return (f'<svg class="ab-scatter" viewBox="0 0 {W} {H}" role="img" aria-label="{esc(label)}" '
-            f'preserveAspectRatio="xMidYMid meet">{"".join(parts)}{"".join(dots)}{"".join(names)}</svg>')
+            f'preserveAspectRatio="xMidYMid meet">{"".join(parts)}{"".join(dots)}{"".join(names_drawn)}</svg>')
 
 
 def combined_ece(model: dict[str, Any]) -> float | None:
@@ -929,7 +958,7 @@ def their_for(data: Data, view: str) -> str:
     reference = data.reference()
     if reference is not None and data.score(reference, view) is not None:
         value = data.score(reference, view)
-        lines.append(f'<tr class="ab-ref-row"><td class="num">ref.</td><td class="model">{icon(reference)}<a class="model-name" href="{model_href(reference)}">{esc(reference["name"])}</a>'
+        lines.append(f'<tr class="ab-ref-row"><td class="num">ref.</td><td class="model">{icon(reference)}<a class="model-name" href="{model_href(reference)}">{esc(reference["name"])}</a>{names.tag_html(reference["tag"])}'
                      f'<span class="small">reference, hosted</span></td><td class="ab-pair"><span class="nm">no index score here</span></td>'
                      f'<td class="ab-pair"><span class="ab-pair-bar ab-ours ab-ref" style="--h:{max(0.0, value):.2f}%;--c:{reference["colour"]}"></span>'
                      f'<span class="ab-pair-value">{number(value)}</span></td><td class="num">–</td></tr>')
@@ -977,7 +1006,7 @@ def bench_table(data: Data, bench: dict[str, Any], kind: str) -> str:
     rows = []
     for index, model in enumerate(ranked):
         row = model["scores"][view]
-        tie = (f'<span class="small">tied with {esc(ranked[index - 1]["name"])}</span>'
+        tie = (f'<span class="small">tied with {esc(plain_name(ranked[index - 1]))}</span>'
                if index and data.tied(view, ranked[index - 1], model) else "")
         raw = row["raw"]
         raw_text = (f'{100 * raw["value"]:.1f}%' if raw.get("metric") == "accuracy" else f'{raw["value"]:g}'
@@ -1044,7 +1073,7 @@ def rank_text(data: Data, model: dict[str, Any], view: str) -> str:
     if model not in ranked:
         return "–"
     index = ranked.index(model)
-    level = [other["name"] for other in ranked if other is not model and data.tied(view, model, other)]
+    level = [plain_name(other) for other in ranked if other is not model and data.tied(view, model, other)]
     return (f"{index + 1} of {len(ranked)}" + (f'<span class="small">tied with {esc(", ".join(level[:3]))}'
                                                f'{f" and {len(level) - 3} more" if len(level) > 3 else ""}</span>' if level else ""))
 
@@ -1071,7 +1100,7 @@ def model_page(data: Data, model: dict[str, Any]) -> str:
                     f'<td>{f"<code title=\"{esc(commit)}\">{esc(commit[:7])}</code>" if commit else "–"}</td><td><span class="small">{esc(runs)}</span></td></tr>')
     points = improvement(data, model)
     their = next((item for item, joined in data.their_rows() if joined is model), None)
-    facts = [f"<li>Maker: {esc(model['maker'] or 'none')}{' · training: ' + esc(model['tag']) if model['tag'] else ''}</li>",
+    facts = [f"<li>Maker: {esc(model['maker'] or 'none')}{' · training: ' + esc(model['training']) if model['training'] else ''}</li>",
              f"<li>Kind: {dict(KINDS)[model['kind']][:-1].lower()} · class: {esc(dict(data.site.model_classes()).get(model['class'] or '', 'none'))}</li>",
              f"<li>Size: {size_text(model).replace('<span class=\"small\">', ' (').replace('</span>', ')') if model['size'] is not None else 'not disclosed'}</li>",
              f"<li>Repo: {'<a href=\"https://huggingface.co/' + esc(model['repo']) + '\">' + esc(model['repo']) + '</a>' if model['repo'] else 'none (an API setup, or no released checkpoint)'}</li>",
@@ -1081,9 +1110,9 @@ def model_page(data: Data, model: dict[str, Any]) -> str:
         facts.append(f"<li>Setups: {esc(model['setups'])}</li>")
     if their:
         facts.append(f"<li>{esc(data.their['name'])} {esc(data.their['measure'])}: {number(their['score'])} (theirs, a sanity check; not our score)</li>")
-    return (f'<section class="card ab-model" data-ab-model="{esc(model["slug"])}" data-ab-model-name="{esc(model["name"])}" '
+    return (f'<section class="card ab-model" data-ab-model="{esc(model["slug"])}" data-ab-model-name="{esc(plain_name(model))}" '
             f'data-ab-model-key="{esc(model["key"])}" hidden><p class="ab-back"><a href="./" data-ab-back>← {TITLE}</a></p>'
-            f'<h1>{icon(model)}{esc(model["name"])}{tag(model)}</h1><ul class="ab-facts">{"".join(facts)}</ul>'
+            f'<h1>{icon(model)}{name_html(model)}</h1><ul class="ab-facts">{"".join(facts)}</ul>'
             f'<div class="table-wrap"><table class="board"><thead><tr><th scope="col">Bench</th><th scope="col" class="num">Score {UP}<span class="small">0–100</span></th>'
             f'<th scope="col" class="num">Rank<span class="small">among {dict(KINDS)[model["kind"]].lower()}</span></th>'
             f'<th scope="col" class="num">Calibration error {DOWN}<span class="small">ECE, points</span></th><th scope="col">Commit</th><th scope="col">Runs</th></tr></thead>'
@@ -1104,7 +1133,7 @@ def script_data(data: Data) -> str:
         "type": DEFAULT_TYPE,
         "types": {value: label for value, label in TYPES},
         "kinds": dict(KINDS),
-        "models": [{"key": model["key"], "name": model["name"], "slug": model["slug"], "repo": model["repo"],
+        "models": [{"key": model["key"], "name": model["name"], "label": plain_name(model), "slug": model["slug"], "repo": model["repo"],
                     "kind": model["kind"], "class": model["class"],
                     "scores": {key: [row["score_0_100"], row["raw"]["questions"]] for key, row in model["scores"].items()},
                     "combined": model["combined"], "nc": bool(model["not_combined"])} for model in data.models.values()],
@@ -1232,11 +1261,11 @@ def method_page(data: Data) -> str:
       <h2 id="size">Size</h2>
       <p>Total parameters (and the active count for a mixture of experts) as the bench files give them, in billions; "not disclosed" where the maker states none. The table's size is the Leaderboard's: the total only, MoE after a mixture of experts, 2× after two models run together, empty where undisclosed.</p>
       <h2 id="join">One model across benches</h2>
-      <p>Two rows are one model (the three sites' rule) when both have a Hugging Face repo and the repos match (in any case, without a commit, and without the org where one side gives none); else, unless both have repos that differ, when their model_key match: the three sites' join key, the model's name without its setting or route, lower case, hyphens for spaces, "-with-web" for a setup with web search, which never joins the plain one. A repo on one side never keeps rows apart, and the route never splits a model (Ümit #4270). Else, for a row another site names differently, by the model_key a fixed list gives its name (the alias list, page_config.json all_benches.aliases: Backgammon's "Decider v1.2 27B" is Perplexity Decider 27B v1.2, its "Mercury Decide" Inception Mercury Decide, and so on); else, for a row without model_key, by the name in lower case without the maker's name, setting and route words, in any word order ("Decider v1.2 27B" meets "Perplexity Decider 27B v1.2 (API)"). A row never joins a model already on its bench. The model shows the name of this site's row, else Logic &amp; Math's. Where the benches ran different setups of one model (our hardware's checkpoint and a hosted API, or two checkpoints), the table under the chart says which bench ran which, and so does the model's page. Each bench's commit is on the model's page: the benches may have run different commits of one repo.</p>
+      <p>Two rows are one model (the three sites' rule) when both have a Hugging Face repo and the repos match (in any case, without a commit, and without the org where one side gives none); else, unless both have repos that differ, when their model_key match: the three sites' join key, the model's name without its setting or route, lower case, hyphens for spaces, "-with-web" for a setup with web search, which never joins the plain one; a Reading model_key the three sites' shared names table maps to another (its row's source_model_key: Reading's qwen-3.5-397b-a17b is qwen3.5-397b-a17b) joins as that one. A repo on one side never keeps rows apart, and the route never splits a model (Ümit #4270). Else, for a row another site names differently, by the model_key a fixed list gives its name (the alias list, page_config.json all_benches.aliases: Backgammon's "Decider v1.2 27B" is Perplexity Decider 27B v1.2, its "Mercury Decide" is Mercury Decide, and so on); else, for a row without model_key, by the name in lower case without the maker's name, setting and route words, in any word order ("Decider v1.2 27B" meets "Perplexity Decider 27B v1.2" with the tag "API"). A row never joins a model already on its bench. The model shows the name of this site's row, else Logic &amp; Math's. Where the benches ran different setups of one model (our hardware's checkpoint and a hosted API, or two checkpoints), the table under the chart says which bench ran which, and so does the model's page. Each bench's commit is on the model's page: the benches may have run different commits of one repo.</p>
       <h2 id="their-score">Their score</h2>
       <p>{esc(data.their["name"])} {esc(data.their["edition"])}, "{esc(data.their["measure"])}", as of {bp.long_date(data.their["date"])} (<a href="{esc(data.their["source"])}">source</a>), for its 15 open decision models: a sanity check beside ours, never shown as our score. {esc(data.their["reference"]["name"])} is a reference bar: {esc(data.their["reference"]["note"])}.</p>
       <h2 id="colours">Colours, marks and tags</h2>
-      <p>Each bar and dot takes its maker's colour from maker_colours.json, the one colour map of the three sites, with the maker's mark under the bar (a plain shape where the maker's mark is not freely licensed). Makers without a colour there yet read grey: {esc(", ".join(missing)) if missing else "none"}. The small tag is the training method where our setup records state it (fine-tune, post-trained, LoRA, blend …); blank where they do not.</p>
+      <p>Each bar and dot takes its maker's colour from maker_colours.json, the one colour map of the three sites, with the maker's mark under the bar (a plain shape where the maker's mark is not freely licensed). Makers without a colour there yet read grey: {esc(", ".join(missing)) if missing else "none"}. Every model shows by its maker's official name. Beside it, a small tag says how the setup ran where its bench's file gives one (the file's tag field: setting · route · snapshot, as "API · with web" or "high · chat"); two rows of one model differ only by their tag, and rows join by the rule above, never by their names. Then a second small tag, the training method, where our setup records state it (fine-tune, post-trained, LoRA, blend …); blank where they do not.</p>
       <h2 id="sources">Sources</h2>
       <ul>{sources}</ul>
       <p class="note">The build reads the other sites' files from these addresses and keeps what it read in <a href="{rel(METHOD, SNAPSHOT_COPY)}">benches.json</a>.</p>

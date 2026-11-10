@@ -153,22 +153,35 @@ def setting(item: dict[str, Any]) -> str:
     return ", ".join(parts)
 
 
+def shown_name(item: dict[str, Any]) -> str:
+    """A setup's model as every page names it: its official name from the three sites' shared table (sitebuild/names.py,
+    model_names.json); results.json keeps the setup name."""
+    from sitebuild import names  # sitebuild imports this module
+    return names.official(item["name"], json.loads((ROOT / "page_config.json").read_text(encoding="utf-8")))
+
+
+def names_snapshot(item: dict[str, Any]) -> str | None:
+    """The release or version that sets a setup apart (the shared table's snapshot), as its tag ends with it."""
+    from sitebuild import names
+    return names.snapshot(item, json.loads((ROOT / "page_config.json").read_text(encoding="utf-8")))
+
+
 def label(item: dict[str, Any]) -> str:
     detail = setting(item)
-    return item["name"] + (f" · {detail}" if detail else "")
+    return shown_name(item) + (f" · {detail}" if detail else "")
 
 
 def named(item: dict[str, Any]) -> str:
     """A configuration's name with its setting in brackets, for use inside a longer label."""
     detail = setting(item)
-    return item["name"] + (f" ({detail})" if detail else "")
+    return shown_name(item) + (f" ({detail})" if detail else "")
 
 
 def alone(item: dict[str, Any]) -> str:
     """'GPT-6.1 Sol alone (low reasoning)': a configuration that answers every question itself, without its request size:
     the live tests' tables and texts name the request size of the test."""
     detail = setting({**item, "format": None})
-    return f"{item['name']} alone" + (f" ({detail})" if detail else "")
+    return f"{shown_name(item)} alone" + (f" ({detail})" if detail else "")
 
 
 def minutes(seconds: float) -> str:
@@ -410,7 +423,7 @@ class Snapshot:
 
     def short(self, run: dict[str, Any]) -> str:
         """A configuration's short name, for a second mention in one sentence (page_config.json's short_names)."""
-        return self.config["short_names"].get(run["model"], run["name"])
+        return self.config["short_names"].get(run["model"], shown_name(run))
 
     def frontier_key(self, run: dict[str, Any]) -> str:
         """The key a second model has among page_config.json's named runs."""
@@ -542,7 +555,7 @@ def values(snap: Snapshot) -> dict[str, str]:
     by_gap = sorted((run for run in snap.runs if snap.decision_model(run) and (run.get("confidence") or {}).get("ece") is not None),
                     key=lambda run: run["confidence"]["ece"])
     ahead = by_gap[: by_gap.index(snap.named["luna_api"])]
-    gaps = [f"{run['name']} ({100 * run['confidence']['ece']:.1f} points)" for run in ahead]
+    gaps = [f"{shown_name(run)} ({100 * run['confidence']['ece']:.1f} points)" for run in ahead]
     places = {2: "second", 3: "third", 4: "fourth", 5: "fifth"}
     if not ahead:
         out["luna_api_gap_place"] = "the smallest"
@@ -777,7 +790,7 @@ def reasoning_table(snap: Snapshot) -> str:
             # The level as the provider writes it ("high reasoning", "reasoning on"), never capitalized or rewritten.
             reasoning = reasoning_label(run["reasoning"]) if run["reasoning"] else "Not applicable"
             rows.append(
-                f"<tr><td>{esc(run['name'])}</td><td>{esc(reasoning)}</td>"
+                f"<tr><td>{esc(' · '.join(filter(None, (shown_name(run), names_snapshot(run)))))}</td><td>{esc(reasoning)}</td>"
                 f'<td class="num">{fmt.pct(run["correct"] / snap.total)}</td><td class="num">{fmt.pct(grammar["correct"] / grammar["questions"])}</td>'
                 f'<td class="num">{count(round(run["output_tokens"] / run["answered_questions"]))}</td><td class="num">{per_thousand}</td>'
                 f'<td class="num">{minutes(run["request_seconds"])} min{in_flight}</td></tr>'
@@ -966,7 +979,7 @@ def study_blocks(snap: Snapshot, images: dict[str, dict[str, str]]) -> dict[str,
     for item in results["cascades"]:
         if snap.by_id[item["frontier"]].get("format_of") is None:
             seconds.setdefault(item["frontier"], snap.by_id[item["frontier"]])
-    cascade_seconds = [run["name"] for run in seconds.values()]
+    cascade_seconds = [shown_name(run) for run in seconds.values()]
     return {
         "study-top": study_top(snap),
         "study-reading-grammar": chart_figure(
@@ -1260,7 +1273,7 @@ def method_values(snap: Snapshot) -> dict[str, str]:
     rises = {run["run"]: (run["previous"]["changed"]["newer_correct"] - run["previous"]["changed"]["older_correct"])
              / run["previous"]["changed"]["questions"] for run in repaired}
     gained = [rise for rise in rises.values() if rise > 0]
-    fell = list(dict.fromkeys(run["name"] for run in repaired if rises[run["run"]] <= 0))
+    fell = list(dict.fromkeys(shown_name(run) for run in repaired if rises[run["run"]] <= 0))
     out["method_repair_low"] = f"{100 * min(gained):.0f}"
     out["method_repair_high"] = f"{100 * max(gained):.0f}"
     out["method_repair_others"] = (f", apart from {and_list(fell)}, whose accuracy on them did not rise" if fell else "")
@@ -1591,7 +1604,7 @@ def english_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
 def vision_image(snap: Snapshot, size: dict[str, int], theme: str, vision: dict[str, Any]) -> str:
     """The Page images page's link preview: the most accurate models from a picture of the question alone (condition
     B)."""
-    rows = [(model["name"], model["conditions"]["B"]["accuracy"]) for model in vision["models"]
+    rows = [(shown_name(model), model["conditions"]["B"]["accuracy"]) for model in vision["models"]
             if model["conditions"].get("B", {}).get("accuracy") is not None]
     title = (f"Page images: the {IMAGE_TOP} most accurate of {count(len(rows))} models" if len(rows) > IMAGE_TOP
              else f"Page images: all {count(len(rows))} models, from a picture alone")

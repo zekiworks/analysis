@@ -17,6 +17,7 @@ from typing import Any
 
 import benchmark_metrics as bm
 import build_page as bp
+from sitebuild import names
 
 # The site's folder: the data, page_config.json, key-changelog.md and every page.
 ROOT = Path(__file__).resolve().parent.parent
@@ -227,8 +228,9 @@ def experiments(results: dict[str, Any], path: str) -> str:
            if pws_file.exists() else "")
     if grounding is None:
         return f"Beside the ranking: {pws}" if pws else ""
-    return (f"Beside the ranking: {link('web-grounding/', 'Web grounding')}, {esc(grounding['names']['off'])} against "
-            f"{esc(grounding['names']['on'])}." + (f" {pws}" if pws else ""))
+    model = (names.entry(grounding["names"]["off"]) or {}).get("name") or grounding["names"]["off"]
+    return (f"Beside the ranking: {link('web-grounding/', 'Web grounding')}, {esc(model)} with web search off against "
+            "on." + (f" {pws}" if pws else ""))
 
 
 # The LLMs the home page's Routing tab puts behind a first model, in its order: (key in page_config.json's named_runs,
@@ -398,7 +400,8 @@ def family_legend(families: list[dict[str, str]]) -> str:
 def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], str] | None = None,
           head: tuple[str, str] | None = None, divisions: int = 4, columns: list[tuple[str, str]] | None = None) -> str:
     """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
-    readable at any width and in both themes. Each row: label, family (optional, whose icon goes before it), href (optional), bars (each a value from 0 to top, with a
+    readable at any width and in both themes. Each row: label (a setup's official name), tag (optional, the setup's
+    small tag beside it, Site.tag), family (optional, whose icon goes before it), href (optional), bars (each a value from 0 to top, with a
     colour, a kind (a CSS class) or both: a kind's pattern, as the English bar's stripes, goes over the colour), marker
     (optional, a value drawn as a line),
     text (the value as shown; or html, the value as HTML, as a cost in both units) or texts (one value per bar, each
@@ -431,6 +434,7 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
             group = row["group"]
             items.append(f'<li class="hbar-group"{marks(under.get(group, set()))}>{esc(group)}</li>')
         label = f'<a href="{row["href"]}">{esc(row["label"])}</a>' if row.get("href") else esc(row["label"])
+        label += names.tag_html(row.get("tag") or "")
         if row.get("family"):
             label = family_icon(row["family"]) + label
         if row.get("note"):
@@ -671,28 +675,6 @@ def cost_switch() -> str:
     return f'<span class="cost-unit needs-js" role="group" aria-label="Cost unit">{keys}</span>'
 
 
-def route_labels(runs: Iterable[dict[str, Any]], decision: Callable[[dict[str, Any]], bool]) -> dict[int, str]:
-    """The route of each run whose model ID has runs among the decision models and among the other models, by run id, so
-    that its rows read "GPT-6 Luna (Decisions API)" and "GPT-6 Luna (chat API)": the run's variant up to its first comma,
-    else "chat API" for a run that is not a decision model. decision is page_config.json's rule (Site.decision)."""
-    runs = list(runs)
-    kinds: dict[str, set[bool]] = {}
-    for run in runs:
-        kinds.setdefault(run["model"], set()).add(decision(run))
-    labels = {}
-    for run in runs:
-        if len(kinds[run["model"]]) < 2:
-            continue
-        if run.get("variant"):
-            labels[run["run"]] = run["variant"].split(",")[0]
-        elif not decision(run):
-            labels[run["run"]] = "chat API"
-        else:
-            raise ValueError(f"run {run['run']} ({run['name']}) is a decision model whose model ID also has runs among the "
-                             "other models; give it a variant that names its route")
-    return labels
-
-
 def pct(fraction: float, digits: int = 1) -> str:
     return f"{100 * fraction:.{digits}f}%"
 
@@ -778,13 +760,47 @@ class Site:
         return json.loads((ROOT / "vision.json").read_text(encoding="utf-8"))
 
     @cached_property
-    def route_labels(self) -> dict[int, str]:
-        return route_labels(self.runs, self.decision)
+    def tags(self) -> dict[int, str]:
+        """Each setup's tag beside its name, by run id (sitebuild/names.py): the Text tab's runs and the English-only
+        setups (keyed by their first English run). The build stops where two setups would read the same."""
+        setups = [*self.runs, *(self.results["english_reading"].get("english_only") or [])]
+        return names.tags(setups, self.decision, self.config)
 
-    def row_name(self, run: dict[str, Any]) -> str:
-        """A setup's name in a leaderboard row, with its route where the same model ID runs as both kinds of model."""
-        label = self.route_labels.get(run["run"])
-        return f"{run['name']} ({label})" if label else run["name"]
+    def title(self, run: dict[str, Any]) -> str:
+        """A setup's model by its official name only (names.official): 'GLiDE 27B', 'Perplexity Decider 27B v1.2'."""
+        return names.official(run["name"], self.config)
+
+    def tag(self, run: dict[str, Any]) -> str:
+        """How a setup ran, the small tag beside its name ('high · chat', 'API · with web'); '' for none (tags)."""
+        return self.tags[run["run"]]
+
+    def plain(self, run: dict[str, Any]) -> str:
+        """A setup's name and tag as plain text, for a tooltip, a chart label or a list: 'GPT-6 Astra · low · chat'."""
+        return names.plain(self.title(run), self.tag(run))
+
+    def shown(self, run: dict[str, Any]) -> str:
+        """A setup's name and its small tag as HTML (names.name_html), wherever a page names it."""
+        return names.name_html(self.title(run), self.tag(run))
+
+    def in_prose(self, text: str) -> str:
+        """Fixed text written with the setups' recorded names (the changelogs), each name that reads otherwise on the
+        pages replaced by its official name and the parts of its tag all its runs share, other than the setting
+        ('Perplexity Decider 27B v1.2 (API, with web)' reads 'Perplexity Decider 27B v1.2 · API · with web',
+        'DeepSeek-V4.1-Flash 1017' 'DeepSeek-V4.1-Flash · 1017'); longest names first, whole names only."""
+        setups = [*self.runs, *(self.results["english_reading"].get("english_only") or [])]
+        setting = {"chat", "minimal", "low", "medium", "high", "xhigh", "max", *names.REASONING_WORDS.values()}
+        shown = {}
+        for name in {run["name"] for run in setups}:
+            if self.title({"name": name}) == name:
+                continue
+            parts = [[part for part in self.tag(run).split(names.SEPARATOR) if part] for run in setups if run["name"] == name]
+            common = [part for part in parts[0] if all(part in other for other in parts[1:]) and part not in setting
+                      and not part.endswith("per request")]
+            shown[name] = names.plain(self.title({"name": name}), names.SEPARATOR.join(common))
+        for name in sorted(shown, key=len, reverse=True):
+            # Whole names only; a base checkpoint's name ("Gemma 4 12B IT") is another model's, left as written.
+            text = re.sub(rf"(?<![\w.-]){re.escape(esc(name))}(?![\w.-]| IT\b)", esc(shown[name]), text)
+        return text
 
     def decision(self, run: dict[str, Any]) -> bool:
         return run["provider"] in self.config["decision_model_providers"] and run["model"] not in self.config["not_decision_models"]
@@ -853,14 +869,15 @@ class Site:
         return f' data-class="{self.model_class(run) or ""}"'
 
     def label(self, run: dict[str, Any], box: str | None = None) -> str:
-        """The label beside a model's name on a board, as HTML (#4229, #4231, #4217, #4245): an open model's total as the
-        maker states it (stated_total, label_count); a mixture of experts with a space, a small superscript "MoE" and its
-        active count in the same form ("309B MoE · 15B active", "35B MoE · 3.0B active"; "753B MoE" where the maker gives
-        no active count); a dense model, and a
-        setup of two models run together (REAX 1.3, explained in its details box only, #4269), the number only. The mark takes the focus and, with box
-        (the row's details box, which explains it: size_sentence), opens it. A closed model shows its class by price
-        ("Closed · Workhorse"); an open model whose maker discloses no size, "Open ·" and its price class (#4265); a model with no
-        per-token price and no disclosed size, "Undisclosed" (#4259); a class from a promotional price only, "(provisional)" after it
+        """The class label beside a model's name on a board, as HTML (#4229, #4231, #4217, #4245), always starting with
+        "Open" or "Closed" (Ümit #4445; openness by is_open): an open model's total as the maker states it (stated_total,
+        label_count), "Open · 27B"; a mixture of experts with a small superscript "MoE" and its active count in the same
+        form ("Open · 309B MoE · 15B active", "Open · 35B MoE · 3.0B active"; "Open · 753B MoE" where the maker gives no
+        active count); a setup of two models run together (REAX 1.3, explained in its details box only, #4269), the
+        number only after "Open ·". The mark takes the focus and, with box (the row's details box, which explains it:
+        size_sentence), opens it. A closed model shows its class by price ("Closed · Workhorse"); an open model whose
+        maker discloses no size, "Open ·" and its price class (#4265); a model with no per-token price and no disclosed
+        size, "Undisclosed" after its openness (#4259); a class from a promotional price only, "(provisional)" after it
         (#4238)."""
         total = stated_total(run)
         price_class = dict(self.model_classes()).get(self.model_class(run) or "", "Undisclosed")
@@ -872,10 +889,10 @@ class Site:
             return f'<span class="lb-size">Open · {esc(price_class)}</span>'
         described = f' aria-describedby="{box}"' if box else ""
         if not mixture(run):
-            return f'<span class="lb-size">{label_count(total)}</span>'
+            return f'<span class="lb-size">Open · {label_count(total)}</span>'
         active = stated_active(run)
         each = f" · {' to '.join(map(label_count, active))} active" if active else ""
-        return (f'<span class="lb-size">{label_count(total)} <sup class="lb-mark" tabindex="0" '
+        return (f'<span class="lb-size">Open · {label_count(total)} <sup class="lb-mark" tabindex="0" '
                 f'aria-label="mixture of experts"{described}>MoE</sup>{each}</span>')
 
     def price_note(self, run: dict[str, Any]) -> str | None:
@@ -900,27 +917,6 @@ class Site:
 
     def unit(self, number: int) -> dict[str, Any]:
         return next(unit for unit in self.units if unit["number"] == number)
-
-    def names(self, runs: Iterable[dict[str, Any]]) -> dict[int, str]:
-        """Each run's name where runs show together (a chart, a table), by run id: its full name (row_name, with its route
-        where the same model ID runs as both kinds of model), then, only where two of them would read the same, what
-        tells them apart in parentheses: the variant, the reasoning setting, the request size ("Gemini 3.8 Flash (high
-        reasoning, 16 per request)"). The rest of the settings stay on the model page and in tooltips. As v3.js
-        chartLabels."""
-        groups: dict[str, list[dict[str, Any]]] = {}
-        for run in runs:
-            groups.setdefault(self.row_name(run), []).append(run)
-        labels = {}
-        for base, same in groups.items():
-            differs = lambda field: len({other.get(field) for other in same}) > 1  # noqa: E731
-            for run in same:
-                parts = [run["variant"]] if run.get("variant") and differs("variant") else []
-                if run.get("reasoning") and differs("reasoning"):
-                    parts.append(bp.reasoning_label(run["reasoning"]))
-                if differs("questions_per_request"):
-                    parts.append(f"{run['questions_per_request']} per request")
-                labels[run["run"]] = f"{base} ({', '.join(parts)})" if parts else base
-        return labels
 
     def cost_basis_text(self, run: dict[str, Any]) -> str:
         """How a run's cost was counted, in the model page's "Basis" words: the maker's or the same weights' list price
@@ -997,18 +993,20 @@ class Site:
         return " · ".join(parts)
 
     def full_name(self, run: dict[str, Any]) -> str:
-        return f"{run['name']} · {self.detail(run)}"
+        """A setup's name and tag with its request size, for a page title or a list of setups: 'GPT-6 Astra · low · chat
+        · 16 questions per request'."""
+        return f"{self.plain(run)} · {request_size(run['questions_per_request'])}"
 
     @staticmethod
     def model_path(run: dict[str, Any]) -> str:
         return f"models/{run['run']}/"
 
-    def model_cell(self, origin: str, run: dict[str, Any], kind: bool = False, name: str | None = None) -> str:
-        """A table cell naming a setup, linked to its page: its name (name, as Site.names gives it among the table's
-        rows, else its full name), its settings and, with kind, its kind in the link's tooltip."""
+    def model_cell(self, origin: str, run: dict[str, Any], kind: bool = False) -> str:
+        """A table cell naming a setup, linked to its page: its official name, its small tag beside the link (shown),
+        its settings and, with kind, its kind in the link's tooltip."""
         about = self.detail(run) + (f" · {self.kind(run)}" if kind else "")
         return (f'<td class="model"><a class="model-name" href="{rel(origin, self.model_path(run))}" title="{esc(about)}">'
-                f'{esc(name or self.row_name(run))}</a></td>')
+                f'{esc(self.title(run))}</a>{names.tag_html(self.tag(run))}</td>')
 
     def per_thousand(self, run: dict[str, Any]) -> float | None:
         return bp.per_thousand(run)

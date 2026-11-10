@@ -23,6 +23,9 @@ const pickCell = (pick, key) =>
     ? '<span class="hint" tabindex="0" data-tip="No valid answer; counts as wrong">Invalid</span>'
     : `${esc(pick)}${pick === key ? ' <span class="small inline">right</span>' : ''}`;
 
+/* A setup's small tag beside its official name (picks.json's tag; '' for none), as the build's names.tag_html. */
+const tagHtml = tag => (tag ? ` <span class="name-tag">${esc(tag)}</span>` : '');
+
 /* The Turkish and English panel: for a reading question kept on the Turkish vs English tab, each compared model's
    answer and its probability in Turkish (its Text tab run, among data.runs) and in English (its first English run);
    for a flagged reading question, the flag's reasons; for a grammar question, why it is not compared. */
@@ -57,7 +60,7 @@ function englishPanel(data, id, key, unit) {
   const table = rows
     .map(
       ({ model, source, turkish, english: answer }) =>
-        `<tr><td class="model"><a class="model-name" href="../models/${model.turkish_run}/">${esc(model.name)}</a></td>` +
+        `<tr><td class="model"><a class="model-name" href="../models/${model.turkish_run}/">${esc(model.name)}</a>${tagHtml(model.tag)}</td>` +
         `<td class="num" data-label="Turkish">${pickCell(turkish.pick, key)}</td>` +
         `<td class="num" data-label="Turkish probability">${scoreCell(turkish.score, source)}</td>` +
         `<td class="num" data-label="English">${pickCell(answer.pick, key)}</td>` +
@@ -114,7 +117,7 @@ async function start() {
   const table = rows
     .map(
       ({ run, pick, score }) =>
-        `<tr${pick === key ? ' class="right"' : ''}><td class="model"${run.detail ? ` title="${esc(run.detail)}"` : ''}><a class="model-name" href="../models/${run.run}/">${esc(run.name)}</a></td>` +
+        `<tr${pick === key ? ' class="right"' : ''}><td class="model"${run.detail ? ` title="${esc(run.detail)}"` : ''}><a class="model-name" href="../models/${run.run}/">${esc(run.name)}</a>${tagHtml(run.tag)}</td>` +
         `<td class="num" data-label="Pick">${pick === '-' ? '<span class="hint" tabindex="0" data-tip="No valid answer; counts as wrong">—</span>' : esc(pick)}${pick === key ? ' <span class="small inline">right</span>' : ''}</td>` +
         `<td class="num" data-label="Probability">${scoreCell(score, run.score)}</td></tr>`,
     )

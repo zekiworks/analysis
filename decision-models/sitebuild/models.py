@@ -326,7 +326,6 @@ def routing(site: Site, run: dict[str, Any]) -> str | None:
     marked = False
     rows = []
     items = [item for item in site.results["cascades"] if item["decision"] == run["run"]]
-    shown = site.names([site.by_id[item["frontier"]] for item in items])
     for item in items:
         frontier = site.by_id[item["frontier"]]
         alone = site.per_thousand(frontier)
@@ -339,7 +338,7 @@ def routing(site: Site, run: dict[str, Any]) -> str | None:
                 saving += f'<span class="mark">{esc(unpriced["mark"])}</span>'
                 marked = True
         rows.append(
-            f"<tr>{site.model_cell(path, frontier, name=shown[frontier['run']])}<td class=\"num\" data-label=\"Share taken\">{pct(held['answered'])}</td>"
+            f"<tr>{site.model_cell(path, frontier)}<td class=\"num\" data-label=\"Share taken\">{pct(held['answered'])}</td>"
             f'<td class="num" data-label="Accuracy change">{bp.points(held["difference"])} points</td>'
             f'<td class="num" data-label="Saving">{saving}</td></tr>'
         )
@@ -396,10 +395,11 @@ def web_grounding(site: Site, run: dict[str, Any]) -> str | None:
         return None
     link = f'<a href="{rel(site.model_path(run), "web-grounding/")}">Web grounding</a>'
     arm = next((arm for arm, text_run in data["text_runs"].items() if text_run == run["run"]), None)
+    named = {side: site.plain(site.by_id[text_run]) for side, text_run in data["text_runs"].items()}
     if arm is not None:
-        other = data["names"]["on" if arm == "off" else "off"]
+        other = named["on" if arm == "off" else "off"]
         return f"<p>The same model with Perplexity's web search {'on' if arm == 'off' else 'off'} is {esc(other)}: {link} compares the two.</p>"
-    return (f"<p>{esc(data['names']['off'])} and {esc(data['names']['on'])}, with Perplexity's web search off and on, are "
+    return (f"<p>{esc(named['off'])} and {esc(named['on'])}, with Perplexity's web search off and on, are "
             f"compared on {link}.</p>")
 
 
@@ -489,7 +489,7 @@ def model_page(site: Site, run: dict[str, Any]) -> str:
     path = site.model_path(run)
     lead = summary(site, run)
     parts = [
-        f'    <section class="card">\n      <p class="eyebrow">{site.kind(run)}</p>\n      <h1>{esc(run["name"])}</h1>\n'
+        f'    <section class="card">\n      <p class="eyebrow">{site.kind(run)}</p>\n      <h1>{site.shown(run)}</h1>\n'
         f'      <p class="subtitle">{esc(site.detail(run))}</p>\n      {lead}{formats(site, run) or ""}{routed_llm(site, run) or ""}'
         f'{web_grounding(site, run) or ""}\n    </section>',
         section("How we called it", called(site, run), "called"),

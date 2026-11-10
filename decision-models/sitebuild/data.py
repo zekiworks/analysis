@@ -133,12 +133,12 @@ def build(site: Site) -> dict[str, str]:
     </section>
     <section class="card" id="results-changelog">
       <h2>Results changelog</h2>
-      {markdown((ROOT / "results-changelog.md").read_text())}
+      {site.in_prose(markdown((ROOT / "results-changelog.md").read_text()))}
     </section>
     <section class="card" id="key-changelog">
       <h2>Answer key changelog</h2>
       <p>Every setup is scored on answer key version {key["version"]}. Question bank SHA-256 <code>{esc(results["dataset"]["graded_sha256"])}</code>; key fingerprint <code>{esc(key["fingerprint"])}</code>.</p>
-      {markdown((ROOT / "key-changelog.md").read_text())}
+      {site.in_prose(markdown((ROOT / "key-changelog.md").read_text()))}
       <p>To report a wrong key, use the <a href="https://github.com/zekiworks/analysis/issues/new?template=answer-key-correction.md">answer key correction</a> form.</p>
     </section>
     <section class="card" id="citation">

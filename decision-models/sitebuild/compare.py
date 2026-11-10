@@ -1,7 +1,8 @@
 """Compare: two setups side by side, with the exact McNemar test on the questions they answered differently. The page is
 drawn by compare.js from the site's results.json and from data/picks.json (written by sitebuild.questions), at the
-versioned addresses the page gives it (Site asset), and from compare-settings: each run's cost basis and price in the
-model page's words (Site.cost_basis_text), and the upper-bound mark with its note."""
+versioned addresses the page gives it (Site asset), and from compare-settings: each run's official name and tag
+(Site.title, Site.tag; results.json keeps the setup names), its cost basis and price in the model page's words
+(Site.cost_basis_text), and the upper-bound mark with its note."""
 
 from __future__ import annotations
 
@@ -14,7 +15,8 @@ PATH = "compare/"
 
 
 def settings(site: Site) -> str:
-    """Each run's cost basis and list price, by run id, and the upper-bound mark, for compare.js; as v3-settings."""
+    """Each run's official name and tag, its cost basis and list price, by run id, and the upper-bound mark, for
+    compare.js; as v3-settings."""
     prices = {bp.price_key(item): item for item in site.results["prices"]}
     costs = {}
     for run in site.runs:
@@ -22,13 +24,14 @@ def settings(site: Site) -> str:
         costs[run["run"]] = {"basis": site.cost_basis_text(run),
                              "price": {key: price[key] for key in ("text", "source", "date")} if price else None}
     upper = site.config["first_cost_marks"]["upper"]
-    data = {"costs": costs, "upper": {"mark": upper["mark"], "note": upper["note"]}}
+    data = {"names": {run["run"]: {"name": site.title(run), "tag": site.tag(run)} for run in site.runs},
+            "costs": costs, "upper": {"mark": upper["mark"], "note": upper["note"]}}
     return f'<script type="application/json" id="compare-settings">{json.dumps(data, ensure_ascii=False, separators=(",", ":"))}</script>'
 
 
 def build(site: Site) -> dict[str, str]:
     ranked = site.ranked()
-    options = "".join(f'<option value="{run["run"]}">{esc(site.full_name(run))}</option>' for run in ranked)
+    options = "".join(f'<option value="{run["run"]}">{esc(site.plain(run))}</option>' for run in ranked)
     first = next(run for run in ranked if site.decision(run))
     second = ranked[0]
     body = f"""    {settings(site)}

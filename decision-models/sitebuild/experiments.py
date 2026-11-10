@@ -37,7 +37,8 @@ def cards(site: Site) -> list[tuple[str, str, str, str]]:
     if grounding and grounding_file.exists():
         runs = len(json.loads(grounding_file.read_text(encoding="utf-8"))["runs"])
         found.append(("web-grounding/", "Web grounding",
-                      f"One model with web search off and on: {grounding['names']['off']} against {grounding['names']['on']}.",
+                      f"One model with web search off and on: {site.plain(site.by_id[grounding['text_runs']['off']])} against "
+                      f"{site.plain(site.by_id[grounding['text_runs']['on']])}.",
                       f"Done: {plural(runs, 'run')}"))
     pws_file = ROOT / "pws-decisions.json"
     if pws_file.exists():

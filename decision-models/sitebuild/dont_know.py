@@ -29,6 +29,7 @@ import build_page as bp
 from sitebuild import holding_back as hold
 from sitebuild.site import (DECISION_ONLY, GROUPS, Site, esc, hbars, legend_mark, line_plot, marker_path, more_link, pct,
                             rank_fill, rel, scale_legend, shown)
+from sitebuild.names import entry as shared_entry, tag_html
 from sitebuild.vision import cell, joined, run_span
 
 PATH = "dont-know/"
@@ -73,14 +74,14 @@ def ranked(models: list[dict[str, Any]]) -> list[dict[str, Any]]:
                                              -model["accuracy"], model["name"].casefold()))
 
 
-def model_cell(site: Site, model: dict[str, Any], name: str | None = None) -> str:
-    """The model, linked to the page of its Text tab setup (the original run): its name as the table's site.names gives it
-    (the original runs' names differ, so row_name), its settings in the tooltip."""
+def model_cell(site: Site, model: dict[str, Any]) -> str:
+    """The model, linked to the page of its Text tab setup (the original run): its official name, its small tag beside
+    the link, its settings in the tooltip."""
     run = site.by_id[model["original_run"]]
     detail = site.detail(run)
     tip = f' title="{esc(detail)}"' if detail else ""
     return (f'<td class="model"{tip}>{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">'
-            f'{esc(name or site.row_name(run))}</a> {site.label(run)}</td>')
+            f'{esc(site.title(run))}</a>{tag_html(site.tag(run))} {site.label(run)}</td>')
 
 
 def model_tr(site: Site, model: dict[str, Any]) -> str:
@@ -143,7 +144,8 @@ def not_run(items: list[dict[str, Any]]) -> str:
     """The models chosen but not run, each with its reason (page_config.json's dont_know.not_run)."""
     if not items:
         return ""
-    lines = "".join(f"<li><strong>{esc(item['name'])}</strong>: {esc(item['reason'].removeprefix('Not run: '))}</li>" for item in items)
+    lines = "".join(f"<li><strong>{esc((shared_entry(item['name']) or {}).get('name') or item['name'])}</strong>: "
+                    f"{esc(item['reason'].removeprefix('Not run: '))}</li>" for item in items)
     return f'<h3 class="board-group">Not run</h3><ul>{lines}</ul>'
 
 
@@ -159,8 +161,8 @@ def running_list(site: Site, group: str) -> str:
     runs = [run for run in running_setups(site) if site.in_group(run, group)]
     if not runs:
         return ""
-    names = site.names(runs)
-    lines = "".join(f'<li><a href="{rel(PATH, site.model_path(run))}">{esc(names[run["run"]])}</a></li>' for run in runs)
+    lines = "".join(f'<li><a href="{rel(PATH, site.model_path(run))}">{esc(site.title(run))}</a>{tag_html(site.tag(run))}</li>'
+                    for run in runs)
     return (f'<h3 class="board-group">Running</h3><p class="note">{esc(site.config["dont_know"]["running"])} The English run '
             f"of each is on the Turkish vs English tab.</p><ul>{lines}</ul>")
 
@@ -185,7 +187,7 @@ def findings(site: Site, data: dict[str, Any], word: dict[str, Any] | None = Non
     option, total = esc(data["option"]), data["questions"]
     p = lambda value: pct(value, digits)  # noqa: E731
     shown = lambda value: round(100 * value, digits)  # noqa: E731 - a rate in points, as the table shows it
-    name = lambda model: esc(model["name"])  # noqa: E731
+    name = lambda model: esc(site.plain(site.by_id[model["original_run"]]))  # noqa: E731
     models = ranked(data["models"])
     used = [model for model in models if model["dont_know"] >= total / 100]
     rare = [model for model in models if model["dont_know"] < total / 100]
@@ -276,7 +278,7 @@ def findings(site: Site, data: dict[str, Any], word: dict[str, Any] | None = Non
     return first + second + third + "</p>" + fourth
 
 
-def headline(data: dict[str, Any], word: dict[str, Any] | None = None) -> str:
+def headline(site: Site, data: dict[str, Any], word: dict[str, Any] | None = None) -> str:
     """One line at the top of the tab, from vs_confidence (and, when results.json has it, dont_know_option_word's
     vs_confidence, the same comparison with “I don't know”): the models whose own confidence, holding back on about as
     many questions, left significantly fewer wrong answers than the option (Holm-adjusted p below 0.05); none when there
@@ -306,14 +308,17 @@ def headline(data: dict[str, Any], word: dict[str, Any] | None = None) -> str:
         return ""
 
     option = esc(data["option"])
-    family = [dict(model["vs_confidence"], name=model["name"]) for model in ranked(data["models"])
+    run_of = {model["name"]: site.by_id[model["original_run"]] for model in data["models"]}
+    family = [dict(model["vs_confidence"], name=site.plain(run_of[model["name"]])) for model in ranked(data["models"])
               if model["vs_confidence"]["p_holm"] is not None]
     texts = [sentence("Holding back on as many questions, ", option, family, True)]
     vs = (word or {}).get("vs_confidence")
     if vs:
         order = {model["name"]: index for index, model in enumerate(ranked(data["models"]))}
         new = esc(word["option"])
-        others_family = sorted((model for model in vs["models"] if model["p_holm"] is not None), key=lambda model: order[model["name"]])
+        others_family = [dict(model, name=site.plain(run_of[model["name"]]))
+                         for model in sorted((model for model in vs["models"] if model["p_holm"] is not None),
+                                             key=lambda model: order[model["name"]])]
         texts.append(sentence(f"With “{new}” in place of “{option}”, ", new, others_family, False))
         if not texts[0] and texts[1]:
             texts[0] = f"With “{option}”, no difference in wrong answers between the option and confidence is significant"
@@ -344,8 +349,9 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
     total = data["questions"]
     digits = site.config["percent_digits"]
     run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
-    names = site.names([run_of(model) for model in data["models"]])
-    label = lambda model: names[model["original_run"]]  # noqa: E731
+    label = lambda model: site.plain(run_of(model))  # noqa: E731
+    title = lambda model: site.title(run_of(model))  # noqa: E731
+    tag = lambda model: site.tag(run_of(model))  # noqa: E731
     href = lambda model: rel(PATH, site.model_path(run_of(model)))  # noqa: E731
     models = ranked(group_models(site, data, group))
     rated = [model for model in models if model["non_hallucination"] is not None]
@@ -381,7 +387,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         mine = [model for model in models if model["group"] == who]
         if not mine:
             return ""
-        rows = [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+        rows = [{"label": title(model), "tag": tag(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
                  "class_key": site.model_class(run_of(model)),
                  "texts": [shown_rate(value(model)) for _, _, value in measures],
                  "bars": [{"value": value(model) or 0.0, "kind": kind} for _, kind, value in measures],
@@ -411,7 +417,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
         f"Each model's non-hallucination rate with “{option}”, and its five-option run held back by its own confidence at "
         "about the same attempt rate · higher is better",
         [model for model in rated if model["derived"]["non_hallucination"] is not None],
-        lambda mine: [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+        lambda mine: [{"label": title(model), "tag": tag(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
                        "class_key": site.model_class(run_of(model)),
                        "text": f"{pct(model['non_hallucination'], digits)} · {pct(model['derived']['non_hallucination'], digits)}",
                        "bars": [{"value": model["non_hallucination"], "kind": "lead"},
@@ -456,7 +462,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
             f"questions: the questions only one of the two got wrong, by the exact McNemar test with p adjusted by Holm's method "
             f"over the {len(family)} decision models that chose “{option}” on at least {share} of the questions · the shorter bar left "
             "fewer wrong answers",
-            [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+            [{"label": title(model), "tag": tag(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
               "class_key": site.model_class(run_of(model)),
               "text": f"{counts(model)[0]:,} · {counts(model)[1]:,}{' *' if model['vs_confidence']['p_holm'] < 0.05 else ''}",
               "bars": [{"value": counts(model)[0], "kind": "lead"}, {"value": counts(model)[1], "kind": "base"}],
@@ -475,7 +481,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
 
     def accuracy_rows(mine: list[dict[str, Any]]) -> list[dict[str, Any]]:
         accuracies = [model["accuracy"] for model in mine]
-        return [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
+        return [{"label": title(model), "tag": tag(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
                  "class_key": site.model_class(run_of(model)),
                  "text": pct(model["accuracy"], digits),
                  "bars": [{"value": model["accuracy"], "colour": rank_fill(stops, model["accuracy"], min(accuracies), max(accuracies))}],
@@ -578,13 +584,13 @@ def option_word_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -> 
     digits = site.config["percent_digits"]
     old, new = esc(data["option"]), esc(word["option"])
     run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
-    shown = site.names([run_of(model) for model in data["models"]])
-    label = lambda model: shown[model["original_run"]]  # noqa: E731
+    label = lambda model: site.plain(run_of(model))  # noqa: E731
     rows = [model for model in option_word_rows(site, data, word)
             if model["i_dont_know"]["non_hallucination"] is not None and model["bilmiyorum"]["non_hallucination"] is not None]
     side = lambda model, key: model[key]  # noqa: E731
     chart = hbars([
-        {"label": label(model), "family": site.families[model["original_run"]]["name"], "href": rel(PATH, site.model_path(run_of(model))),
+        {"label": site.title(run_of(model)), "tag": site.tag(run_of(model)), "family": site.families[model["original_run"]]["name"],
+         "href": rel(PATH, site.model_path(run_of(model))),
          "class_key": site.model_class(run_of(model)),
          "text": f"{pct(model['i_dont_know']['non_hallucination'], digits)} · {pct(model['bilmiyorum']['non_hallucination'], digits)}",
          "bars": [{"value": model["i_dont_know"]["non_hallucination"], "kind": "lead"},
@@ -778,8 +784,7 @@ def vs_confidence_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -
     side made, drawn as the paired test's chart."""
     new, old = esc(word["option"]), esc(data["option"])
     run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
-    shown = site.names([run_of(model) for model in data["models"]])
-    label = lambda model: shown[model["original_run"]]  # noqa: E731
+    label = lambda model: site.plain(run_of(model))  # noqa: E731
     models = vs_confidence_rows(site, data, word)
     tested = sorted((model for model in models if model["p_holm"] is not None),
                     key=lambda model: (model["p_holm"], model["p"], model["name"].casefold()))
@@ -799,7 +804,8 @@ def vs_confidence_face(site: Site, data: dict[str, Any], word: dict[str, Any]) -
     if others:
         verdict += f" The other {len(others)}: {adjusted(others)}." if significant else f" Adjusted: {adjusted(others)}."
     chart = hbars(
-        [{"label": label(model), "family": site.families[model["original_run"]]["name"], "href": rel(PATH, site.model_path(run_of(model))),
+        [{"label": site.title(run_of(model)), "tag": site.tag(run_of(model)), "family": site.families[model["original_run"]]["name"],
+          "href": rel(PATH, site.model_path(run_of(model))),
           "class_key": site.model_class(run_of(model)),
           "text": f"{model['option_only_wrong']:,} · {model['confidence_only_wrong']:,}{' *' if model['p_holm'] < 0.05 else ''}",
           "bars": [{"value": model["option_only_wrong"], "kind": "lead"}, {"value": model["confidence_only_wrong"], "kind": "base"}],
@@ -864,10 +870,10 @@ def vs_confidence_info(site: Site, data: dict[str, Any], word: dict[str, Any]) -
         rows.append(f"{model_tr(site, model)}{model_cell(site, model)}" + "".join(cell(head, value) for head, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
     family = word["vs_confidence"]["family"]
-    outside = [model["name"] for model in vs_confidence_rows(site, data, word) if model["p_holm"] is None]
+    outside = [site.plain(site.by_id[model["original_run"]]) for model in vs_confidence_rows(site, data, word) if model["p_holm"] is None]
     glide = [model for model in word["vs_confidence"]["models"] if model["replaces_run"] is not None]
     glide_text = "".join(
-        f" For {esc(model['name'])}, the five-option run is {model['five_option_run']}, not the Text tab's run "
+        f" For {esc(site.plain(site.by_id[model['replaces_run']]))}, the five-option run is {model['five_option_run']}, not the Text tab's run "
         f"{model['replaces_run']}: Fastino changed its hosted model after 6 October, so run {model['replaces_run']} is a "
         f"different model from the one behind run {model['option_run']}, and run {model['five_option_run']} is a new "
         f'five-option run of the same hosted model (<a href="#hosted-glide-rerun-method">Our method for the hosted GLiDE '
@@ -912,7 +918,7 @@ def rerun_face(site: Site, data: dict[str, Any], rerun: dict[str, Any], model: d
     digits = site.config["percent_digits"]
     option = esc(data["option"])
     old = site.by_id[rerun["replaces_run"]]
-    name = esc(site.row_name(old))
+    name = esc(site.plain(old))
     new_derived, old_derived = rerun["derived"], model["derived"]
     paired = rerun["vs_confidence"]
     old_accuracy = model["original_accuracy"]
@@ -932,7 +938,7 @@ def rerun_face(site: Site, data: dict[str, Any], rerun: dict[str, Any], model: d
         (f"Confidence, run {old['run']} (as published)", old_derived["non_hallucination"], "base"),
     ]
     chart = hbars([{"label": label, "text": pct(value, digits), "bars": [{"value": value, "kind": kind}],
-                    "title": f"{site.row_name(old)}: {label}, {pct(value, digits)}"} for label, value, kind in rows if value is not None])
+                    "title": f"{site.plain(old)}: {label}, {pct(value, digits)}"} for label, value, kind in rows if value is not None])
     return (f'<section class="card" id="hosted-glide-rerun"><h2>Hosted GLiDE against a new five-option run</h2>{summary}'
             f'<figure class="panel chart-card" id="chart-glide-rerun"><div class="chart-head"><h2>{name}: saying “I don\'t know”, or held back by confidence</h2>'
             f'<p class="chart-sub">Non-hallucination rate with “{option}”, and with each five-option run held back by its own '
@@ -978,7 +984,7 @@ def rerun_info(site: Site, data: dict[str, Any], rerun: dict[str, Any], model: d
     return f"""
     <section class="card" id="hosted-glide-rerun-results">
       <h2>Hosted GLiDE: the comparison redone with run {rerun["run"]}</h2>
-      <p class="note">Both against {esc(site.row_name(old))}'s first run with “{option}”, run {model["run"]}. Run {old["run"]} is the Text tab's run and the row in the table above; run {rerun["run"]} is new and replaces it here only.</p>
+      <p class="note">Both against {esc(site.plain(old))}'s first run with “{option}”, run {model["run"]}. Run {old["run"]} is the Text tab's run and the row in the table above; run {rerun["run"]} is new and replaces it here only.</p>
       <div class="table-wrap"><table class="board list stack idk"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>
     </section>
     <section class="card method-notes" id="hosted-glide-rerun-method">
@@ -1048,7 +1054,7 @@ def english_four_card(site: Site, idk: dict[str, Any], four: dict[str, Any]) -> 
                   p(model["p_holm"]) + (" *" if model["p_holm"] < 0.05 else "")]
         detail = site.detail(run)
         tip = f' title="{esc(detail)}"' if detail else ""
-        rows += (f'<tr{site.class_attribute(run)}><td class="model"{tip}>{site.icon(run)}<a class="model-name" href="{er.idk_href(site, entry)}">{esc(er.idk_label(site, entry))}</a> {site.label(run)}</td>'
+        rows += (f'<tr{site.class_attribute(run)}><td class="model"{tip}>{site.icon(run)}<a class="model-name" href="{er.idk_href(site, entry)}">{esc(site.title(run))}</a>{tag_html(site.tag(run))} {site.label(run)}</td>'
                  + "".join(cell(f"{head} ({note})", item) for (head, note), item in zip(heads, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{esc(note)}</span></th>' for name, note in heads)
     significant = [entry for model, entry in pairs if model["p_holm"] < 0.05]
@@ -1057,13 +1063,13 @@ def english_four_card(site: Site, idk: dict[str, Any], four: dict[str, Any]) -> 
     if significant:
         verdict = (f"{bp.in_words(len(significant)).capitalize()} of the {words} differences in wrong answers "
                    f"{'is' if len(significant) == 1 else 'are'} significant with Holm's correction over the {words} "
-                   f"(adjusted p below 0.05): {joined([esc(er.idk_label(site, entry)) for entry in significant])}.")
+                   f"(adjusted p below 0.05): {joined([esc(site.plain(site.by_id[entry['text_run']])) for entry in significant])}.")
     else:
         verdict = (f"None of the {words} differences in wrong answers is significant with Holm's correction over the "
                    f"{words} (adjusted p below 0.05); the smallest adjusted p is "
-                   f"{esc(er.idk_label(site, smallest[1]))}'s, {esc(bp.p_text(smallest[0]['p_holm']))}.")
+                   f"{esc(site.plain(site.by_id[smallest[1]['text_run']]))}'s, {esc(bp.p_text(smallest[0]['p_holm']))}.")
     return (f'<section class="card" id="english-option-four"><h2>The four models of the request: Holm\'s correction over '
-            f"the four</h2><p>{joined([esc(er.idk_label(site, entry)) for _, entry in pairs])}, as Ümit's follow-up of "
+            f"the four</h2><p>{joined([esc(site.plain(site.by_id[entry['text_run']])) for _, entry in pairs])}, as Ümit's follow-up of "
             f"2 November 2026 asked: each model's first run in English with “{esc(option)}” and in Turkish with "
             f"“Bilmiyorum” on the {four['questions']:,} kept questions, and the exact McNemar test of wrong answers, with p "
             f"adjusted by Holm's method over these {words}. {verdict} The charts below and the "
@@ -1242,10 +1248,10 @@ def check_same_answers(site: Site, data: dict[str, Any], word: dict[str, Any] | 
 
 
 def same_label(site: Site, model: dict[str, Any], family: dict[str, Any] | None = None) -> str:
-    """A model's name as its Text tab row names it; within a family where another entry has the same name, with its run,
-    so setups of one model stay apart in the prose (the tables give each setup's detail)."""
-    label = site.row_name(site.by_id[model["text_run"]])
-    if family and sum(1 for other in family["models"] if site.row_name(site.by_id[other["text_run"]]) == label) > 1:
+    """A model's name and tag as plain text (Site.plain of its Text tab run); within a family where another entry reads
+    the same, with its run, so setups of one model stay apart in the prose (the tables give each setup's detail)."""
+    label = site.plain(site.by_id[model["text_run"]])
+    if family and sum(1 for other in family["models"] if site.plain(site.by_id[other["text_run"]]) == label) > 1:
         label += f" (run {model['text_run']})"
     return label
 
@@ -1544,7 +1550,7 @@ def same_curves(site: Site, same: dict[str, Any], family: dict[str, Any]) -> str
             f'<g id="same-frame-{key}">{frame}</g><polyline id="same-ref-{key}" points="{points(ref["curve"])}"/></defs></svg>')
     shapes = " ".join(f"{legend_mark('var(--text-2)', er.SHAPES[wording])} “{esc(wording)}”"
                       for wording in dict.fromkeys(point["wording"] for model in family["models"] for point in model["points"] or []))
-    shown = site.names([site.by_id[model["text_run"]] for model in family["models"]])
+    shown = {model["text_run"]: site.plain(site.by_id[model["text_run"]]) for model in family["models"]}
 
     def card(model: dict[str, Any]) -> str:
         run = site.by_id[model["text_run"]]
@@ -1577,7 +1583,7 @@ def same_curves(site: Site, same: dict[str, Any], family: dict[str, Any]) -> str
                f'{model["curve"][-1][0]:,} answers; {same_wrong_text(model["wrong"])} wrong of its {k:,} most confident</title>'
                f'</polyline><g fill="{SAME_SMALL_COLOUR}" stroke="var(--panel)" stroke-width="1">{marks}</g></svg>')
         return (f'<li{site.class_attribute(run)}><figure style="margin:0">{svg}<figcaption class="note" style="margin:.25rem 0 0">'
-                f'{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" title="{esc(site.detail(run))}">{esc(name)}</a> {site.label(run)} '
+                f'{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" title="{esc(site.detail(run))}">{esc(site.title(run))}</a>{tag_html(site.tag(run))} {site.label(run)} '
                 f'Wrong of the {k:,} answers: {wrong}, {versus}<br>'
                 f"{option}</figcaption></figure></li>")
 
@@ -1642,7 +1648,7 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
                           f"{100 * high:+.{digits}f}</span>",
                           p_text(model["p"]), p_text(model["p_holm"]) + (" *" if model["p_holm"] < 0.05 else ""), context]
             text = {'original_run': model['text_run']}
-            return (f"{model_tr(site, text)}{model_cell(site, text, shown[model['text_run']])}"
+            return (f"{model_tr(site, text)}{model_cell(site, text)}"
                     + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
 
         def board(models: list[dict[str, Any]]) -> str:
@@ -1650,7 +1656,6 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
             return (f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Model</th>{head}'
                     f'</tr></thead><tbody>{"".join(row(model) for model in models)}</tbody></table></div>')
 
-        shown = site.names([site.by_id[model["text_run"]] for model in family["models"]])
         where = "questions" if family["key"] == "turkish" else "kept reading questions"
         tables += f"<h3>{family['language']}: k = {k:,} of the {total:,} {where}</h3>"
         if family["key"] == "turkish":
@@ -1697,22 +1702,23 @@ def high_rate(kept: int, wrong: int, digits: int) -> str:
     return f'{pct(wrong / kept, digits)}<span class="small">{wrong:,} of {kept:,}</span>'
 
 
-def high_check_text(high: dict[str, Any], digits: int) -> str:
+def high_check_text(site: Site, high: dict[str, Any], digits: int) -> str:
     """The sentence under the cutoff table, from `check` and the table: whether Liquid d1-ultra's worst run stays below
     the best run of each other model at every whole-percent cutoff up to 98%, and where it does not."""
     cuts, (ref, *others) = high["cutoffs"]["cutoffs"], high["cutoffs"]["models"]
     rates = lambda model, index: [run["wrong"][index] / run["kept"][index] for run in model["runs"]]  # noqa: E731
-    names = " and of ".join(esc(model["name"]) for model in others)
+    name = lambda model: esc(site.plain(site.by_id[model["text_run"]]))  # noqa: E731
+    names = " and of ".join(name(model) for model in others)
     top = cuts.index(0.99)
     highest = max(rate for model in high["cutoffs"]["models"] for rate in rates(model, top))
     if high["cutoffs"]["check"]["holds"]:
-        return (f"At every cutoff up to 98% (each whole percent), {esc(ref['name'])}'s worst run has a lower % wrong than "
+        return (f"At every cutoff up to 98% (each whole percent), {name(ref)}'s worst run has a lower % wrong than "
                 f"the best run of {names}; at 99%, all three are at or near 0 (highest: {pct(highest, digits)}).")
     failing = [f"{100 * cut:g}%" for index, cut in enumerate(cuts) if cut < 0.99
                and not all(max(rates(ref, index)) < min(rates(model, index)) for model in others)]
     where = (f"in the table it fails at {joined(failing)}" if failing
              else "it fails at one or more whole-percent cutoffs between the table's columns")
-    return (f"Not at every cutoff up to 98% (each whole percent) does {esc(ref['name'])}'s worst run have a lower % wrong "
+    return (f"Not at every cutoff up to 98% (each whole percent) does {name(ref)}'s worst run have a lower % wrong "
             f"than the best run of {names}: {where}.")
 
 
@@ -1744,9 +1750,9 @@ def check_high_confidence(site: Site, high: dict[str, Any]) -> None:
     for run in high["english"]["runs"]:
         if len(run["wrong_questions"]) != run["wrong"] or run["wrong_questions"] != sorted(run["wrong_questions"]):
             raise fail(f"English run {run['run']}: wrong_questions do not fit the wrong count")
-    if high["cutoffs"]["check"]["holds"] and "Not at every" in high_check_text(high, 1):
+    if high["cutoffs"]["check"]["holds"] and "Not at every" in high_check_text(site, high, 1):
         raise fail("check holds, but the table's columns say otherwise")
-    if not high["cutoffs"]["check"]["holds"] and "Not at every" not in high_check_text(high, 1):
+    if not high["cutoffs"]["check"]["holds"] and "Not at every" not in high_check_text(site, high, 1):
         raise fail("the sentence does not match check")
 
 
@@ -1767,7 +1773,8 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
 
     def name_cell(run_id: int, note: str) -> str:
         run = site.by_id[run_id]
-        return (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">{esc(site.row_name(run))}</a> {site.label(run)}'
+        return (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}">{esc(site.title(run))}</a>'
+                f'{tag_html(site.tag(run))} {site.label(run)}'
                 f'<span class="small">{esc(note)}</span></td>')
 
     run_note = lambda run, text_run: f"run {run}, " + ("Text tab run" if run == text_run else "repeat run")  # noqa: E731
@@ -1775,15 +1782,14 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
     decision.sort(key=lambda model: (not model["kept"], model["wrong"] / model["kept"] if model["kept"] else 0,
                                      -model["kept"], model["name"]))
     heads = ("Model", "Run", f"Answers kept (at {threshold}+)", "Wrong", "% wrong")
-    shown = site.names([site.by_id[model["text_run"]] for model in decision])
-    main = board(heads, [(model["text_run"], model_cell(site, {"original_run": model["text_run"]}, shown[model["text_run"]]),
+    main = board(heads, [(model["text_run"], model_cell(site, {"original_run": model["text_run"]}),
                           [str(model["text_run"]), f"{model['kept']:,}", f"{model['wrong']:,}",
                            high_rate(model["kept"], model["wrong"], digits)]) for model in decision])
     repeats = ""
     for entry in high["repeats"]:
         first = next(model for model in high["models"] if model["text_run"] == entry["text_run"])
         runs = [{"run": entry["text_run"], "kept": first["kept"], "wrong": first["wrong"]}] + entry["runs"]
-        repeats += (f"<h3>{esc(entry['name'])}'s repeat runs</h3>"
+        repeats += (f"<h3>{site.shown(site.by_id[entry['text_run']])}'s repeat runs</h3>"
                     f'<p class="note">The same questions and settings, run again; run {entry["text_run"]} is the Text tab '
                     "run above, shown for context.</p>"
                     + board(("Run", "Answers kept", "Wrong", "% wrong"),
@@ -1796,6 +1802,7 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
                  [high_rate(kept, wrong, digits) for kept, wrong in zip(run["kept"], run["wrong"])])
                 for model in high["cutoffs"]["models"] for run in model["runs"]]
     english = high["english"]
+    english_name = site.plain(next(run for run in site.runs if run["name"] == english["name"]))
     eruns = english["runs"]
     count = len(eruns)
     kept = sorted(run["kept"] for run in eruns)
@@ -1812,7 +1819,7 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
             [f"{run['wrong']:,} wrong in run {run['run']}" + (f" (question {links(run['wrong_questions'])})" if run["wrong"] else "")
              for run in eruns])
     note = (f'<p class="note">In English (the {english["questions"]:,} kept reading questions of the '
-            f'<a href="{rel(PATH, "turkish-vs-english/")}">Turkish vs English tab</a>), at {threshold}, {esc(english["name"])} '
+            f'<a href="{rel(PATH, "turkish-vs-english/")}">Turkish vs English tab</a>), at {threshold}, {esc(english_name)} '
             f"{result}; each run keeps {kept_text} answers (runs {joined([str(run['run']) for run in eruns])}).</p>")
     return (f'<section class="card" id="high-confidence"><h2>Answers at {threshold}+ confidence</h2>'
             f"<p>{esc(high['rule'])} Each decision model is counted on its Text tab run (its first five-option Turkish run, "
@@ -1828,7 +1835,7 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
             "one row per run. Each column is a cutoff: % wrong of the answers kept at that probability or higher, with "
             "wrong of kept below.</p>"
             f"{board(cut_heads, cut_rows)}"
-            f"<p>{high_check_text(high, digits)}</p>{note}</section>")
+            f"<p>{high_check_text(site, high, digits)}</p>{note}</section>")
 
 
 def chat_findings(site: Site, data: dict[str, Any]) -> str:
@@ -1841,8 +1848,7 @@ def chat_findings(site: Site, data: dict[str, Any]) -> str:
     running = [run for run in running_setups(site) if not site.decision(run)]
     if not chat:
         return ""
-    names = site.names([site.by_id[model["original_run"]] for model in data["models"]])
-    name = lambda model: esc(names[model["original_run"]])  # noqa: E731
+    name = lambda model: esc(site.plain(site.by_id[model["original_run"]]))  # noqa: E731
     spread = (f"from {pct(chat[-1]['non_hallucination'], digits)} ({name(chat[-1])}) to "
               f"{pct(chat[0]['non_hallucination'], digits)} ({name(chat[0])})") if len(chat) > 1 else \
         f"{pct(chat[0]['non_hallucination'], digits)} ({name(chat[0])})"
@@ -1906,7 +1912,7 @@ def build(site: Site) -> dict[str, str]:
     site.note(PATH, "Hallucination",
               f"<p>A wrong answer counts as a hallucination: the model could have chosen “{option}” (“{esc(data['option_en'])}”) "
               "instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its "
-              f"numbers.</p><div {DECISION_ONLY}>{headline(decision, against)}</div>")
+              f"numbers.</p><div {DECISION_ONLY}>{headline(site, decision, against)}</div>")
     body = f"""    <section class="card">
       <p class="eyebrow">Hallucination</p>
       <h1>The Text tab's {total} questions, with “{option}” as a sixth option</h1>

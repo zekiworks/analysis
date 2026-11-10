@@ -20,7 +20,7 @@ import statistics
 from typing import Any
 
 from build_page import long_date
-from sitebuild import pws_decisions
+from sitebuild import names, pws_decisions
 from sitebuild.site import (DECISION_ONLY, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value, esc,
                             family_icon, hbars, log_axis, more_link, pct, rel)
 
@@ -203,12 +203,13 @@ def pilot_arms(rows: list[tuple[str, dict[str, Any], dict[str, Any], dict[str, A
 
 
 def setups(site: Site, data: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    """The two setups, off and with web (on): their full names, links from this page, their family, and their size label,
-    class key and data-class attribute for the Class row."""
+    """The two setups, off and with web (on): their official name, tag and the two as plain text (name), links from this
+    page, their family, and their size label, class key and data-class attribute for the Class row."""
     found = {}
     for side in SIDES:
         run = site.by_id[data["text_runs"][side]]
-        found[side] = {"name": data["names"][side], "href": rel(PATH, site.model_path(run)),
+        found[side] = {"name": site.plain(run), "title": site.title(run), "tag": site.tag(run),
+                       "href": rel(PATH, site.model_path(run)),
                        "family": site.families[data["text_runs"][side]], "label": site.label(run),
                        "class_key": site.model_class(run), "class_attribute": site.class_attribute(run)}
     return found
@@ -217,7 +218,7 @@ def setups(site: Site, data: dict[str, Any]) -> dict[str, dict[str, Any]]:
 def pair_rows(named: dict[str, dict[str, Any]], group: str, values: dict[str, float], texts: dict[str, Any],
               titles: dict[str, str], markers: dict[str, float] | None = None, html: bool = False) -> list[dict[str, Any]]:
     """A set of questions' two rows under the set's heading: the setup with web off (grey), then with web (the accent
-    colour, v3.css .web-off and .web-on), each with its family icon and full name. A side's text as a list: one value
+    colour, v3.css .web-off and .web-on), each with its family icon, official name and tag. A side's text as a list: one value
     per line (the mean, then the runs' range)."""
     def value(side: str) -> dict[str, Any]:
         text = texts[side]
@@ -225,7 +226,8 @@ def pair_rows(named: dict[str, dict[str, Any]], group: str, values: dict[str, fl
             return {"texts": text} if len(text) > 1 else {"text": text[0]}
         return {"html" if html else "text": text}
 
-    return [{"group": group, "label": named[side]["name"], "href": named[side]["href"], "family": named[side]["family"]["name"],
+    return [{"group": group, "label": named[side]["title"], "tag": named[side]["tag"], "href": named[side]["href"],
+             "family": named[side]["family"]["name"],
              "class_key": named[side]["class_key"],
              "bars": [{"value": values[side], "kind": f"web-{side}"}], **value(side),
              "title": f"{named[side]['name']}, {group}: {titles[side]}", **({"marker": markers[side]} if markers else {})}
@@ -233,8 +235,8 @@ def pair_rows(named: dict[str, dict[str, Any]], group: str, values: dict[str, fl
 
 
 def legend_pair(named: dict[str, dict[str, Any]]) -> str:
-    return (f'<span><i class="swatch swatch-web-off"></i>Web off: {esc(named["off"]["name"])}</span> '
-            f'<span><i class="swatch swatch-web-on"></i>With web: {esc(named["on"]["name"])}</span>')
+    return (f'<span><i class="swatch swatch-web-off"></i>Web off: {names.name_html(named["off"]["title"], named["off"]["tag"])}</span> '
+            f'<span><i class="swatch swatch-web-on"></i>With web: {names.name_html(named["on"]["title"], named["on"]["tag"])}</span>')
 
 
 def card(key: str, title: str, sub: str, chart: str, named: dict[str, dict[str, Any]], legend: str = "",
@@ -399,10 +401,11 @@ def result_cards(rows: list[Any], digits: int, upper: dict[str, str]) -> str:
 
 
 def setup_cell(named: dict[str, dict[str, Any]], side: str, questions: str, run: str) -> str:
-    """A table row's setup: its family icon and full name, linked to its page, with its questions and run under it."""
+    """A table row's setup: its family icon and official name, linked to its page, its tag, with its questions and run
+    under it."""
     item = named[side]
     return (f'<td class="model">{family_icon(item["family"]["name"])}<a class="model-name" href="{item["href"]}">'
-            f'{esc(item["name"])}</a> {item["label"]}<span class="small">{esc(questions)} · {esc(run)}</span></td>')
+            f'{esc(item["title"])}</a>{names.tag_html(item["tag"])} {item["label"]}<span class="small">{esc(questions)} · {esc(run)}</span></td>')
 
 
 HEADS = (("Right", "of the questions"), ("Accuracy", "higher is better"), ("Median per request", "ms; lower is better"),
@@ -650,8 +653,8 @@ def caveats(data: dict[str, Any], pws_rows: tuple[dict[str, Any], dict[str, Any]
     </section>"""
 
 
-def method(data: dict[str, Any], pws_rows: tuple[dict[str, Any], dict[str, Any]], pws_dates: list[str]) -> str:
-    names, turkish, pilot, english = data["names"], data["turkish"], data["pilot"], data["english"]
+def method(data: dict[str, Any], named: dict[str, dict[str, Any]], pws_rows: tuple[dict[str, Any], dict[str, Any]], pws_dates: list[str]) -> str:
+    turkish, pilot, english = data["turkish"], data["pilot"], data["english"]
     reading = data["reading_units"]
 
     def repeats(pair: dict[str, Any]) -> str:
@@ -665,7 +668,7 @@ def method(data: dict[str, Any], pws_rows: tuple[dict[str, Any], dict[str, Any]]
       <h2>Our method</h2>
       <p>Model <code>{esc(data['model'])}</code> through Perplexity's Decisions API, one question per request, the Text tab's System One prompts. Each pair of runs differs only in the request's mode: off, or <code>web_grounding</code>, which runs a web search per question and adds its results as evidence. Runs from {esc(long_date(data['dates'][0]))} to {esc(long_date(data['dates'][-1]))}. {cap(run_counts(data))}: each mode's first run and its repeats with the same questions in the same order, answer key, runner and settings; the ranking keeps each setup's first run, and the repeats enter only this page.</p>
       <ul>
-        <li>Turkish, full bank: {turkish['questions']:,} questions = {turkish['off']['groups']['reading']['questions']:,} reading + {turkish['off']['groups']['grammar']['questions']:,} grammar (first runs {turkish['off']['run']} and {turkish['on']['run']}, the Text tab rows {esc(names['off'])} and {esc(names['on'])}).{repeats(turkish)} Reading: units {", ".join(str(unit) for unit in reading[:-1])} and {reading[-1]}.</li>
+        <li>Turkish, full bank: {turkish['questions']:,} questions = {turkish['off']['groups']['reading']['questions']:,} reading + {turkish['off']['groups']['grammar']['questions']:,} grammar (first runs {turkish['off']['run']} and {turkish['on']['run']}, the Text tab rows {esc(named['off']['name'])} and {esc(named['on']['name'])}).{repeats(turkish)} Reading: units {", ".join(str(unit) for unit in reading[:-1])} and {reading[-1]}.</li>
         <li>Turkish pilot: {pilot['questions']:,} = {pilot['off']['groups']['reading']['questions']:,} reading + {pilot['off']['groups']['grammar']['questions']:,} grammar, the runner's sample with seed {data['sample']['seed']} (runs {pilot['off']['run']} and {pilot['on']['run']}).</li>
         <li>“Bilmiyorum” as an extra option, as on the Hallucination tab: the full bank ({data['dont_know']['questions']:,} questions, runs {data['dont_know']['off']['run']} and {data['dont_know']['on']['run']}) and the pilot ({data['pilot_dont_know']['questions']:,}, runs {data['pilot_dont_know']['off']['run']} and {data['pilot_dont_know']['on']['run']}). “I don't know” as an extra option in English, as on English and Turkish: the {data['english_dont_know']['questions']:,} kept questions (runs {data['english_dont_know']['off']['run']} and {data['english_dont_know']['on']['run']}).</li>
         <li>English: the {english['questions']:,} kept reading questions of the English pages in our translations (first runs {english['off']['run']} and {english['on']['run']}).{repeats(english)}</li>
@@ -710,13 +713,13 @@ def build(site: Site) -> dict[str, str]:
     rows = arms(data, pws_rows)
     days = sorted(set(data["dates"]) | {PWS_RUN_DATE} | set(pws_dates))
     when = long_date(days[0]) if len(days) == 1 else f"{long_date(days[0])} to {long_date(days[-1])}"
-    site.note(PATH, TITLE, f'<p {DECISION_ONLY}><a href="{named["off"]["href"]}">{esc(named["off"]["name"])}</a> and '
-              f'<a href="{named["on"]["href"]}">{esc(named["on"]["name"])}</a>, Perplexity\'s Decisions API without and '
+    site.note(PATH, TITLE, f'<p {DECISION_ONLY}><a href="{named["off"]["href"]}">{esc(named["off"]["title"])}</a>{names.tag_html(named["off"]["tag"])} and '
+              f'<a href="{named["on"]["href"]}">{esc(named["on"]["title"])}</a>{names.tag_html(named["on"]["tag"])}, Perplexity\'s Decisions API without and '
               f"with a web search per question; {run_counts(data, pws_rows)}, the ranking keeping each setup's first run; "
               f"run on {esc(when)}.</p>")
     body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
-      <h1>Web grounding: {esc(site.by_id[data["text_runs"]["off"]]["name"])} off and with web</h1>
+      <h1>Web grounding: {esc(named["off"]["title"])} off and with web</h1>
       {chat_note("Chat models: this page compares decision-model setups, so it shows under All models and Decision models. PWS-Decisions with chat models: its own page.")}
       <div {DECISION_ONLY}>
       <p>Perplexity's Decisions API without and with a web search per question.</p>
@@ -736,8 +739,8 @@ def build(site: Site) -> dict[str, str]:
       {table(rows, pws_idk, data, named, digits, upper)}
     </section>
     {each_run(data, named, digits, upper)}
-    {method(data, pws_rows, pws_dates)}
+    {method(data, named, pws_rows, pws_dates)}
     </details>
     </div>"""
-    return {PATH: site.page(PATH, TITLE, f"{data['names']['off']} and {data['names']['on']}: accuracy, non-hallucination, "
+    return {PATH: site.page(PATH, TITLE, f"{named['off']['name']} and {named['on']['name']}: accuracy, non-hallucination, "
                             "time per request and cost on our Turkish and English questions and on PWS-Decisions.", body)}

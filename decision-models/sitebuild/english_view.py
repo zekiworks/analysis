@@ -30,8 +30,8 @@ from typing import Any
 from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMPARISON, RECORD, TRANSLATORS, anchor,
                                        check_dont_know, cost_note, english_members, english_only, entry_href,
                                        experiments_note, group_models, idk_key, label, limit_line, limit_note,
-                                       measure_card, measure_cell, measure_heads, missing_note, missing_side, noun,
-                                       only_anchor, setup_families, setup_icon, setup_key, setup_run)
+                                       measure_card, measure_cell, measure_heads, missing_note, missing_side, name_html,
+                                       noun, only_anchor, setup_families, setup_icon, setup_key, setup_run)
 from sitebuild import holding_back as hold
 from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, more_link, pct, rel, shown
 from sitebuild.vision import cell
@@ -99,10 +99,10 @@ def score_cell(model: dict[str, Any]) -> str:
     return '<span class="nm">not applicable</span>'
 
 
-def score_notes(models: list[dict[str, Any]]) -> str:
+def score_notes(site: Site, models: list[dict[str, Any]]) -> str:
     """The Decision Score notes under a table of `models`: the formula, the two required lines, and each unavailable
     setup's reason."""
-    unavailable = "".join(f" {esc(model['name'])}: unavailable, {esc(model['decision_score_unavailable'])}."
+    unavailable = "".join(f" {esc(label(site, model))}: unavailable, {esc(model['decision_score_unavailable'])}."
                           for model in models if "decision_score_unavailable" in model)
     return (f'<p class="note">{esc(SCORE_HEAD)}: 50 × (1 + accuracy − chosen-answer Brier) on the first English run, '
             "the chosen-answer Brier being the mean of (p − c)², p the probability given to the chosen answer and c 1 if "
@@ -123,13 +123,12 @@ def score_table(site: Site, models: list[dict[str, Any]]) -> str:
                   if found is None else
                   [f'{found["score"]:.2f}', f'{100 * found["accuracy"]:.2f}%', f'{found["brier"]:.4f}'])
         rows.append(f'<tr{site.class_attribute(setup_run(site, model))}><td class="model">{setup_icon(site, model)}'
-                    f'<a class="model-name" href="{href(site, model)}">'
-                    f'{esc(label(site, model))}</a> {site.label(setup_run(site, model))}</td>'
+                    f'{name_html(site, setup_run(site, model), href(site, model))}</td>'
                     + "".join(cell(text, value) for text, value in zip(heads, values))
                     + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text)}</th>' for text in heads)
     return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'
-            f'</thead><tbody>{"".join(rows)}</tbody></table></div>{score_notes(mine)}')
+            f'</thead><tbody>{"".join(rows)}</tbody></table></div>{score_notes(site, mine)}')
 
 
 def build(site: Site) -> dict[str, str]:
@@ -161,7 +160,8 @@ def build(site: Site) -> dict[str, str]:
 
     def accuracy_card(group: str) -> str:
         members = english_members(site, data, group)
-        rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
+        rows = [{"label": site.title(setup_run(site, model)), "tag": site.tag(setup_run(site, model)),
+                 "family": family(model)["name"], "href": href(site, model),
                  "class_key": site.model_class(setup_run(site, model)),
                  "text": f"{pct(model['english']['accuracy'], digits)} · {model['english']['right']:,}",
                  "bars": [{"value": model["english"]["accuracy"], "colour": family(model)["colour"]}],
@@ -203,7 +203,8 @@ def build(site: Site) -> dict[str, str]:
             no_option = [(label(site, model), NO_OPTION[provider(model)]) for model in mine
                          if setup_key(model) not in held and provider(model) in NO_OPTION]
             waiting = [label(site, model) for model in mine if setup_key(model) not in held and provider(model) not in NO_OPTION]
-            rows = [{"label": label(site, model), "family": family(model)["name"], "href": href(site, model),
+            rows = [{"label": site.title(setup_run(site, model)), "tag": site.tag(setup_run(site, model)),
+                     "family": family(model)["name"], "href": href(site, model),
                      "class_key": site.model_class(setup_run(site, model)),
                      "text": f"{pct(counts['non_hallucination'], digits)} · {pct(counts['attempt_rate'], digits)}",
                      "bars": [{"value": counts["non_hallucination"], "colour": family(model)["colour"]}],
@@ -278,9 +279,8 @@ def build(site: Site) -> dict[str, str]:
             values += [measure_cell(site, model, "cost", "english"), measure_cell(site, model, "latency", "english")]
             run = setup_run(site, model)
             row_id = "" if "turkish_run" in model else f' id="{anchor(only_anchor(model), group)}"'
-            name = (f'<td class="model">{setup_icon(site, model)}<a class="model-name" href="{href(site, model)}" '
-                    f'title="{esc(" · ".join(filter(None, (site.detail(run), f"English run {model['run']}"))))}">'
-                    f'{esc(label(site, model))}</a> {site.label(run)}</td>')
+            name = (f'<td class="model">{setup_icon(site, model)}'
+                    f'{name_html(site, run, href(site, model), " · ".join(filter(None, (site.detail(run), f"English run {model['run']}"))))}</td>')
             rows.append(f"<tr{row_id}{site.class_attribute(run)}>{name}"
                         + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
         head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{cost_unit_in(esc(note))}</span></th>'
@@ -304,7 +304,7 @@ def build(site: Site) -> dict[str, str]:
                 + " Each name opens its model page's English section"
                 + (" (an English-only setup has no model page: its name opens its row here)" if alone else "")
                 + "; its tooltip gives its settings and English run.</p>"
-                f'{score_notes(members)}'
+                f'{score_notes(site, members)}'
                 f'<p class="note">{esc(cost_note(site, members, ("english",)))}</p></section>')
 
     def lead(group: str) -> str:

@@ -12,7 +12,9 @@ the class (Class: All · Tiny · Small · Medium · Large · Efficient · Workho
 one scale with the Logic & Math site), combined; a class key with no row in the view hides. Each row carries its kind,
 its class and its score; on the Turkish part also its tie-group letters (results.json runs' group), so the # column
 shows each row's tier among the rows in view (tiers()); the other parts, which no all-pairs test covers, show the rank.
-A setup with web search (its name says "with web") is in no tier and no rank: its # cell shows a dash."""
+A setup with web search (its tag says "with web") is in no tier and no rank: its # cell shows a dash. A row names its
+model by its official name with the chosen setup's tag beside it (Site.title, Site.tag; sitebuild/names.py) and its
+class label after them (Site.label: "Open · 27B", "Closed · Efficient")."""
 
 from __future__ import annotations
 
@@ -21,6 +23,7 @@ from typing import Any
 import benchmark_metrics as bm
 import build_page as bp
 from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run)
+from sitebuild.names import base_model, tag_html
 from sitebuild.site import (NOT_MEASURED, Site, cost_missing, cost_per, cost_value, esc, family_icon, parameters_text,
                             pct, rel, size_sentence, stated_total)
 
@@ -142,34 +145,9 @@ def tiers(letters: list[str | None]) -> list[int]:
 
 
 
-def name_of(site: Site, run: dict[str, Any]) -> str:
-    name = site.row_name(run)
-    return f"{name} (with web)" if run["perplexity_mode"] and "with web" not in name else name
-
-
-def setting(site: Site, run: dict[str, Any]) -> str | None:
-    """The setting the record has, in words: its variant where another setup of the model ID has one, its reasoning
-    level and its request size ("high reasoning, 16 per request"), and where it ran ("our GPU" or "API") where that
-    tells it apart from another setup of the model ID. A decision model sends no reasoning level and no request size:
-    only its variant or where it ran, when they tell it apart. Nothing the record lacks."""
-    same = [other for other in site.runs if other["model"] == run["model"] and other["run"] != run["run"]]
-    name = name_of(site, run).casefold()
-    where = lambda item: "our GPU" if item["billing"] == "local" else "API"  # noqa: E731
-    # A variant or a place the row's name already says ("with web", "local GPU", "API") is not repeated.
-    parts = [run["variant"]] if run.get("variant") and same and run["variant"].casefold() not in name else []
-    if not site.decision(run):
-        if run.get("reasoning"):
-            parts.append(bp.reasoning_label(run["reasoning"]))
-        parts.append(f"{bp.count(run['questions_per_request'])} per request")
-    if any(where(other) != where(run) for other in same) and not any(word in name for word in ("gpu", "api")):
-        parts.append(where(run))
-    return ", ".join(parts) or None
-
-
 def under(site: Site, run: dict[str, Any]) -> str:
-    """Under the name: maker · chat model / decision model · the setting the record has (setting)."""
-    return " · ".join(filter(None, (setup_families(site)[run["run"]]["maker"], TYPE_LABEL[site.decision(run)],
-                                    setting(site, run))))
+    """Beside the name and tag in the details box: maker · chat model / decision model (the tag says how it ran)."""
+    return f"{setup_families(site)[run['run']]['maker']} · {TYPE_LABEL[site.decision(run)]}"
 
 
 def bar(correct: int, total: int, colour: str, kind: str = "") -> str:
@@ -197,15 +175,18 @@ def wide(value: str) -> str:
 
 
 def details(site: Site, run: dict[str, Any], box: str, lines: list[str | None], answers: str) -> str:
-    """A setup's details box: its name line, its model's size (size_sentence, else parameters_text), its price line where
-    it is classed by price (Site.price_note), then the lines the data has (never
+    """A setup's details box: its name line, the model its model is built on where the shared names table
+    (model_names.json, names.base_model) gives one (there only, never in the name), its model's size (size_sentence, else
+    parameters_text), its price line where it is classed by price (Site.price_note), then the lines the data has (never
     "n/a"), then the link to its answers (an English-only setup, with no Text tab run and no model page: its row on the
     English reading page)."""
-    head = " · ".join([f"<strong>{esc(name_of(site, run))}</strong>", esc(under(site, run))])
+    head = " · ".join([f"<strong>{site.shown(run)}</strong>", esc(under(site, run))])
     link = "Open its answers" if run["run"] in site.by_id else "Open its English results"
     size = size_sentence(run) or f"Parameters: {parameters_text(run)}"
-    body = [head, esc(size), esc(site.price_note(run) or ""), *lines, f'<a href="{answers}">{link} \u2192</a>']
-    return (f'<div class="lb-box" id="{box}" role="group" aria-label="{esc(name_of(site, run))}: details">'
+    base = base_model(run)
+    body = [head, f"Base model: {esc(base)}" if base else "", esc(size), esc(site.price_note(run) or ""), *lines,
+            f'<a href="{answers}">{link} \u2192</a>']
+    return (f'<div class="lb-box" id="{box}" role="group" aria-label="{esc(site.plain(run))}: details">'
             + "".join(f"<p>{line}</p>" for line in body if line) + "</div>")
 
 
@@ -321,19 +302,20 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
     return heads, body
 
 
-def name_cell(site: Site, name: str, href: str, box: str, run: dict[str, Any]) -> str:
-    """A row's name link, a space (so copied text and screen readers never run the two together, #4269), and its label
-    beside it (Site.label)."""
-    return (f'<a class="model-name" href="{href}" title="{esc(name)}" aria-describedby="{box}">{esc(name)}</a>'
-            f' {site.label(run, box)}')
+def name_cell(site: Site, href: str, box: str, run: dict[str, Any]) -> str:
+    """A row's name link (the model's official name, Site.title), its tag beside it (Site.tag: how the setup ran, a
+    space before it), then a space (so copied text and screen readers never run the two together, #4269) and its
+    class label (Site.label)."""
+    return (f'<a class="model-name" href="{href}" title="{esc(site.plain(run))}" aria-describedby="{box}">'
+            f'{esc(site.title(run))}</a>{tag_html(site.tag(run))} {site.label(run, box)}')
 
 
 def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str, Any], list[dict[str, Any]]]], run_of: Any,
                facts: Any, score: Any, answers: Any, tested: bool) -> list[str]:
     """The body rows of one part: each model row (# cell, maker dot and icon, name with its label and its expander,
-    the score, the wide cells; its details box in the name cell, the only place its maker · kind · setting shows:
-    project lead, bus #3039), then its other setups' rows, hidden, each with its setting under its name, the one thing
-    that tells it apart. Each model row carries its kind, class (data-class) and score (data-score), and with tested
+    the score, the wide cells; its details box in the name cell, the only place its maker and kind show: project lead,
+    bus #3039), then its other setups' rows, hidden, each with its own tag beside its name, the one thing that tells it
+    apart. Each model row carries its kind, class (data-class) and score (data-score), and with tested
     (the Turkish part) its tie-group letters (data-letters), from which site.js numbers the rows in view; the # cell
     holds the tier (tested) or rank among every row, as the table shows without JavaScript. A setup with web search
     (data-unranked) is numbered in neither: its # cell holds a dash (Ümit #4217)."""
@@ -363,7 +345,6 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
         sub_ids = [f"{row_id}-{number}" for number in range(1, len(others) + 1)]
         more = (f'<button type="button" class="lb-more needs-js" aria-expanded="false" aria-controls="{" ".join(sub_ids)}">'
                 f'{len(others)} other setting{"s" if len(others) > 1 else ""}</button>' if others else "")
-        name = name_of(site, run)
         tested_attributes = f' data-letters="{letters[index]}"' if tested else ""
         if unranked[index]:
             tested_attributes += " data-unranked"
@@ -375,7 +356,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             f'<tr data-kind="{kind}"{site.class_attribute(run)} data-score="{points}"{tested_attributes} data-box="{box}">'
             f'<td class="num rank">{"–" if unranked[index] else numbers[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{family_icon(family["name"])}'
-            f'{name_cell(site, name, answers(item), box, run)}{more}'
+            f'{name_cell(site, answers(item), box, run)}{more}'
             f'{details(site, run, box, lines, answers(item))}</td><td class="lb-score">{cell}</td>'
             + "".join(wide(value) for value in cells) + "</tr>")
         for sub_id, other in zip(sub_ids, others):
@@ -385,9 +366,8 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             out.append(
                 f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{site.class_attribute(other_run)} '
                 f'data-box="{other_box}"><td class="num"></td>'
-                f'<td class="model">{name_cell(site, name_of(site, other_run), answers(other), other_box, other_run)}<span class="small">'
-                f'{esc(setting(site, other_run) + " · ") if setting(site, other_run) else ""}other setting of '
-                f'{esc(name)}</span>{details(site, other_run, other_box, other_lines, answers(other))}</td>'
+                f'<td class="model">{name_cell(site, answers(other), other_box, other_run)}<span class="small">'
+                f'other setting of {esc(site.title(run))}</span>{details(site, other_run, other_box, other_lines, answers(other))}</td>'
                 f'<td class="lb-score">{score(other)[0]}</td>' + "".join(wide(value) for value in other_cells) + "</tr>")
     return out
 
@@ -422,18 +402,12 @@ def model_count(site: Site) -> int:
     return len(Board(site).turkish_rows())
 
 
-def chosen(site: Site) -> dict[str, list[int]]:
-    """For every row with several setups, the chosen run first, then the others."""
-    return {name_of(site, run): [run["run"], *(other["run"] for other in others)]
-            for run, others in Board(site).turkish_rows() if others}
-
-
 def class_line(site: Site, runs: list[dict[str, Any]]) -> str:
     """The Class keys' rule, under the table while a class is chosen: the project lead's words (page_config.json
     model_classes.line, #4245), the provisional classes (#4238) and the setups only this site ran, in no class."""
-    provisional = sorted({name_of(site, run) for run in runs if (site.list_price(run) or {}).get("provisional")
+    provisional = sorted({site.title(run) for run in runs if (site.list_price(run) or {}).get("provisional")
                           and not (site.is_open(run) and stated_total(run) is not None)}, key=str.casefold)
-    left_out = sorted({name_of(site, run) for run in runs
+    left_out = sorted({site.title(run) for run in runs
                        if run["model"] in site.config["small_models"].get("left_out_models", [])}, key=str.casefold)
     undisclosed = any(site.model_class(run) == "undisclosed" for run in runs)
     return (site.config["model_classes"]["line"]
@@ -499,8 +473,10 @@ def about_text(site: Site, origin: str) -> str:
             "Class: All. On the Turkish part # is the tier among the rows in view: ranked by "
             "accuracy, a row joins the tier of the tier's top row when the all-pairs test behind the full ranking's "
             "letters found no difference between them, else it starts the next tier. On Turkish reading, Turkish grammar, "
-            "English reading and Both, which no all-pairs test covers, # is the rank; tied scores share a rank. Each row shows its model's size beside its "
-            "name; its details box gives the size in full and the model page its source.</p>"
+            "English reading and Both, which no all-pairs test covers, # is the rank; tied scores share a rank. Each row "
+            "names its model by its official name, with a small tag beside it for how the setup ran (setting · route · "
+            "snapshot, as \u201chigh \u00b7 chat\u201d or \u201cAPI \u00b7 with web\u201d; a decision model with one setup has none), "
+            "then its class label, starting Open or Closed; its details box gives the size in full and the model page its source.</p>"
             "<p>Each bar runs from 0 to 100%; its whisker is the Wilson 95% interval of the accuracy, the interval each "
             "setup's page gives. The paired tests behind the full ranking's letters are on "
             f'<a href="{rel(origin, "method/")}">Method</a>.</p>'

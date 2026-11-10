@@ -15,6 +15,7 @@ import statistics
 from typing import Any
 
 from build_page import long_date
+from sitebuild import names
 from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, cost_per, cost_switch, cost_tick, cost_words, cost_value,
                             esc, family_legend, hbars, log_axis, more_link, pct, rel, seconds_tick)
 from sitebuild.vision import cell, joined
@@ -99,32 +100,51 @@ def cost_kind(setup: dict[str, Any]) -> str:
 
 
 
+def setup_tag(site: Site, setup: dict[str, Any], run: dict[str, Any], shared: bool) -> str:
+    """A setup's tag (sitebuild/names.py's words and order, setting · route · snapshot): its Text tab run's tag where the
+    setup is that run's setup; else built from the run's tag: a chat model's interface where the setup names one ("CLI",
+    "API") after "chat"; a decision model's host where the setup names another than the run's ("Baseten"), or, where
+    another setup here shares its official name and the run's tag has no route, the run's machine ("DGX Spark") or
+    "API"; then "with web" for a setup that searched, then the snapshot. The requests another model answered
+    (stand_in_words) close the tag, so a mixed-model run never reads as one model's."""
+    tag = site.tag(run)
+    own = (not setup.get("interface") and setup.get("host") != "Baseten" and web(setup) == bool(run.get("perplexity_mode"))
+           and (tag or not shared))
+    if not own:
+        snapshot = names.snapshot(run, site.config)
+        # A rebuilt tag drops the run's request size ("1 per request"): every setup here asks one question per request.
+        parts = [part for part in tag.split(names.SEPARATOR)
+                 if part and part not in ("with web", snapshot) and not part.endswith(" per request")]
+        if chat(setup):
+            if setup.get("interface"):
+                parts.insert(parts.index("chat") + 1 if "chat" in parts else len(parts), setup["interface"])
+        else:
+            if setup.get("host") == "Baseten":
+                parts = ["Baseten"]
+            elif not parts and shared:
+                parts = [names.machine(run) if run.get("billing") == "local" else "API"]
+            if setup.get("interface"):
+                parts.append(setup["interface"])
+        parts += (["with web"] if web(setup) else []) + ([snapshot] if snapshot else [])
+        tag = names.SEPARATOR.join(parts)
+    return names.SEPARATOR.join(part for part in (tag, stand_in_words(setup)) if part)
+
+
 def entries(site: Site, data: dict[str, Any]) -> list[dict[str, Any]]:
-    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat") and chart label: its full
-    name, with "chat" for a chat model, its interface where the setup names one
-    (CLI, API: two rows of one model never
-    read the same), its host where the setup names one (Baseten, our GPU), "with web" for a setup that searched where
-    the name does not say so, and the requests another model answered (stand_in_words), so a mixed-model run never
-    reads as one model's. Ranked by mean accuracy."""
-    out = []
-    for setup in data["setups"]:
-        run = setup_run(site, setup)
-        name = site.row_name(run)
-        # The Text tab's route label ("GPT-6 Luna (chat API)", set apart from the Decisions API row) gives way to the
-        # setup's own interface here, so a row never reads "(chat API) (chat, CLI)".
-        if setup.get("interface") and name.endswith(" (chat API)"):
-            name = name.removesuffix(" (chat API)")
-        twins = [other for other in data["setups"] if other is not setup and other["model"] == setup["model"]
-                 and other.get("host") == setup.get("host") and web(other) == web(setup)
-                 and other.get("interface") == setup.get("interface") and other.get("reasoning") != setup.get("reasoning")]
-        marks = ((["chat"] if chat(setup) else []) + ([setup["interface"]] if setup.get("interface") else [])
-                 + ([f"reasoning {setup['reasoning']}"] if twins and setup.get("reasoning") else [])
-                 + ([f"on {setup['host']}"] if setup.get("host") else [])
-                 + (["with web"] if web(setup) and "with web" not in name else []))
-        inside = "; ".join(part for part in (", ".join(marks), stand_in_words(setup)) if part)
-        label = f"{name} ({inside})" if inside else name
+    """Each setup with its run, family, view bar groups (models: "all decision" or "all chat"), its official name
+    (title), its tag (setup_tag) and the two as plain text (label). Two setups never read the same (the build stops
+    otherwise). Ranked by mean accuracy."""
+    runs = [(setup, setup_run(site, setup)) for setup in data["setups"]]
+    titles = [site.title(run) for _, run in runs]
+    out, seen = [], {}
+    for (setup, run), title in zip(runs, titles):
+        tag = setup_tag(site, setup, run, titles.count(title) > 1)
+        label = names.plain(title, tag)
+        if label in seen:
+            raise SystemExit(f"pws-decisions.json: setups {seen[label]} and {setup['model']} would both read {label!r}")
+        seen[label] = setup["model"]
         out.append({"setup": setup, "run": run, "family": site.families[run["run"]], "models": models(setup),
-                    "label": label})
+                    "title": title, "tag": tag, "label": label})
     return sorted(out, key=lambda item: (-item["setup"]["accuracy"]["mean"], item["label"].casefold()))
 
 
@@ -247,7 +267,7 @@ def marks_legend(items: list[dict[str, Any]], striped: str) -> str:
         out += f' <span><i class="swatch swatch-web"></i>{striped}</span>'
     chats = [item for item in items if chat(item["setup"])]
     if chats:
-        out += (" <span data-models=\"all chat\">(chat): a chat model, asked each question in the benchmark's own words, its answer read from its "
+        out += (" <span data-models=\"all chat\">“chat” in a tag: a chat model, asked each question in the benchmark's own words, its answer read from its "
                 "reply; the other rows are decision models.</span>")
     return out
 
@@ -267,7 +287,7 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
         ci = interval(setup, digits)
         note = habits_note(data, setup) if notes else None
         rows.append({
-            "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
+            "group": condition(item), "label": item["title"], "tag": item["tag"], "family": item["family"]["name"], "href": link(site, origin, item),
             "models": item["models"], "class_key": site.model_class(item["run"]), **({"note": note} if note else {}),
             "bars": [{"value": accuracy, "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "marker": random,
@@ -309,7 +329,7 @@ def cost_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]], or
         value = setup["cost_per_million_questions"]["mean"]
         fee = " incl. search" if search_fee(setup) else " tokens only" if lower(setup) else ""
         rows.append({
-            "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
+            "group": condition(item), "label": item["title"], "tag": item["tag"], "family": item["family"]["name"], "href": link(site, origin, item),
             "models": item["models"], "class_key": site.model_class(item["run"]),
             "bars": [{"value": place(value / 1000), "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "html": cost_html(setup, value, mark) + esc(fee),
@@ -346,7 +366,7 @@ def latency_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]],
         setup = item["setup"]
         median, p95 = setup["median_request_seconds"]["mean"], setup["p95_request_seconds"]["mean"]
         rows.append({
-            "group": condition(item), "label": item["label"], "family": item["family"]["name"], "href": link(site, origin, item),
+            "group": condition(item), "label": item["title"], "tag": item["tag"], "family": item["family"]["name"], "href": link(site, origin, item),
             "models": item["models"], "class_key": site.model_class(item["run"]),
             "bars": [{"value": place(median), "colour": item["family"]["colour"], **({"kind": "web"} if web(setup) else {})}],
             "marker": place(p95), "text": f"{ms(median)} · {ms(p95)} ms",
@@ -446,7 +466,7 @@ def table(site: Site, data: dict[str, Any], items: list[dict[str, Any]], mark: s
             values += ['<span class="nm">No probabilities</span>'] * 2
         access = setup.get("access", run["access"])
         name = (f'<td class="model">{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" '
-                f'title="{esc(site.detail(run))}">{esc(item["label"])}</a> {site.label(run)}'
+                f'title="{esc(site.detail(run))}">{esc(item["title"])}</a>{names.tag_html(item["tag"])} {site.label(run)}'
                 f'<span class="small">{esc(access)}; <code>{esc(setup["request_model"])}</code></span>'
                 + (f'<span class="small">{esc(setup["method_note"][0].upper() + setup["method_note"][1:])}.</span>'
                    if setup.get("method_note") else "")
@@ -496,7 +516,7 @@ def pending(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> st
     page yet (no line when none is missing), the API setups that are blocked (pws-decisions.json's blocked, each with
     its reason), with what Baseten's Base Labs models gave (Mammoth-1 leaves the list once its Baseten setup is in)."""
     shown = {(item["setup"]["provider"], item["setup"]["model"]) for item in items}
-    gpu = [site.row_name(run) for run in site.ranked()
+    gpu = [site.plain(run) for run in site.ranked()
            if site.decision(run) and run["hardware"] is not None and (run["provider"], run["model"]) not in shown]
     check = data["baseten_check"]
     gaps = {model: check[model] for model in ("baselabs/elephant-1", "baselabs/mammoth-1")}
@@ -528,13 +548,16 @@ def pending(site: Site, data: dict[str, Any], items: list[dict[str, Any]]) -> st
 
 
 def setup_name(site: Site, key: str) -> str:
-    """A pws/bench.py setup key's model as the site names it: the name of results.json's runs of that model (the key
-    without "-web" and "-api"), with "(API)" for a key with "-api" and "with web" for a key ending in "-web"."""
+    """A pws/bench.py setup key's model as the site names it, as plain text: the official name of results.json's runs
+    of that model (the key without "-web" and "-api"), with a tag in sitebuild/names.py's words and order: "chat" for a
+    chat model, "API" for a key with "-api", "with web" for a key ending in "-web"."""
     model, web_key, api = setup_key(key)
-    names = {run["name"] for run in site.runs if run["model"] == model}
-    if len(names) != 1:
-        raise SystemExit(f"pws-decisions.json: setup {key} matches the names {sorted(names)} in results.json")
-    return names.pop() + (" (API)" if api else "") + (" with web" if web_key else "")
+    runs = [run for run in site.runs if run["model"] == model]
+    found = {site.title(run) for run in runs}
+    if len(found) != 1:
+        raise SystemExit(f"pws-decisions.json: setup {key} matches the names {sorted(found)} in results.json")
+    parts = (["chat"] if any(not site.decision(run) for run in runs) else []) + (["API"] if api else []) + (["with web"] if web_key else [])
+    return names.plain(found.pop(), names.SEPARATOR.join(parts))
 
 
 def setup_key(key: str) -> tuple[str, bool, bool]:
@@ -627,7 +650,7 @@ def dont_know_section(site: Site, data: dict[str, Any], items: list[dict[str, An
                    for key in ("accuracy", "answered", "wrong_of_answers", "non_hallucination")]
         values.append(spread(arm["errors"], lambda value: esc(count(value))))
         name = (f'<td class="model">{site.icon(item["run"])}<a class="model-name" href="{link(site, PATH, item)}">'
-                f'{esc(item["label"])}</a> {site.label(item["run"])}<span class="small">{len(arm["runs"])} runs</span></td>')
+                f'{esc(item["title"])}</a>{names.tag_html(item["tag"])} {site.label(item["run"])}<span class="small">{len(arm["runs"])} runs</span></td>')
         body.append(f'<tr data-models="{item["models"]}"{site.class_attribute(item["run"])}>{name}' + "".join(cell(label, value) for label, value in zip(labels, values)) + "</tr>")
     head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{esc(direction)}</span></th>'
                    for text, direction in heads)
@@ -642,8 +665,8 @@ def dont_know_section(site: Site, data: dict[str, Any], items: list[dict[str, An
 
 
 def block_name(items: list[dict[str, Any]], block: dict[str, Any]) -> str:
-    """The model of the “I don't know” runs, as its setup without web is named."""
-    return dont_know_item(items, block, "off")["label"]
+    """The model of the “I don't know” runs, by its official name (the page says off and with web beside it)."""
+    return dont_know_item(items, block, "off")["title"]
 
 
 def summary_cards(items: list[dict[str, Any]], digits: int) -> str:
@@ -704,8 +727,8 @@ def habits_table(heads: list[tuple[str, str]], rows: list[tuple[str, list[str]] 
 
 
 def setup_row(site: Site, item: dict[str, Any], values: list[str]) -> tuple[str, list[str], str]:
-    """A habits_table row for one setup: its label with its size label, its cells, and its data-class."""
-    return f'{esc(item["label"])} {site.label(item["run"])}', values, site.class_attribute(item["run"])
+    """A habits_table row for one setup: its official name and tag with its size label, its cells, and its data-class."""
+    return f'{names.name_html(item["title"], item["tag"])} {site.label(item["run"])}', values, site.class_attribute(item["run"])
 
 
 def habits_figure(step: int, chart: str, legend: list[str], families: list[dict[str, str]]) -> str:
@@ -751,7 +774,7 @@ def habits_charts(site: Site, data: dict[str, Any], rows: list[dict[str, Any]], 
     random = lazy["random"]
     yes_n = lazy["always_yes"]["questions"]
     ordinals = ["first", "second", "third", "fourth", "fifth", "sixth"]
-    row_of = lambda item, **fields: {"label": item["label"], "family": item["family"]["name"],  # noqa: E731
+    row_of = lambda item, **fields: {"label": item["title"], "tag": item["tag"], "family": item["family"]["name"],  # noqa: E731
                                      "href": link(site, PATH, item), "models": item["models"],
                                      "class_key": site.model_class(item["run"]), **fields}
     strategies = [
@@ -1035,7 +1058,7 @@ def reversed_step(site: Site, data: dict[str, Any], rows: list[dict[str, Any]]) 
              f"and the ranking are unchanged. {kept} of the {len(done)} scored within {margin} points of their run 1"
              + (f"; {joined(moved)}" + (", consistent with sensitivity to the position of the choices" if lost else "")
                 if moved else "") + ".")
-    chart_rows = [{"label": item["label"], "family": item["family"]["name"], "href": link(site, PATH, item),
+    chart_rows = [{"label": item["title"], "tag": item["tag"], "family": item["family"]["name"], "href": link(site, PATH, item),
                    "models": item["models"], "class_key": site.model_class(item["run"]),
                    "bars": [{"value": turned(item)["run_1_accuracy"], "colour": item["family"]["colour"]},
                             {"value": turned(item)["accuracy"], "kind": "base"}],
@@ -1091,7 +1114,7 @@ def build(site: Site) -> dict[str, str]:
     boot = data.get("bootstrap")
     reported, parallel = data["reported"]["perplexity"], data["reported"]["parallel"]
     openai_web = data["openai_web"]
-    not_run = "".join(f"<li><strong>{esc(site.row_name(named(site, item)))}.</strong> {esc(item['reason'])}</li>"
+    not_run = "".join(f"<li><strong>{esc(site.plain(named(site, item)))}.</strong> {esc(item['reason'])}</li>"
                       for item in data["not_run"])
     leaderboard = "; ".join(f"{esc(row['name'])} {row['public_percent']:.2f}%" for row in parallel["rows"])
     searched = [item["label"] for item in items if web(item["setup"])]

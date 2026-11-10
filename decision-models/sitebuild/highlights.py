@@ -42,22 +42,21 @@ def glide(site: Site) -> str:
     (the all-pairs test) say about each gap."""
     total = site.total
     new, old, hosted = (one_run(site, *key) for key in (("glide", "glide-27b"), ("glide", "glide-v1.2"), ("fastino", "fastino/GLiDE")))
-    finding(new["correct"] > max(old["correct"], hosted["correct"]), f"{new['name']} has the most right answers of the GLiDE rows")
-    label = {old["run"]: old["name"], hosted["run"]: f"{hosted['name']} (hosted)"}
-    said = lambda run: f"{esc(label.get(run['run'], run['name']))}: {run['correct']:,} ({pct(run['correct'] / total)})"  # noqa: E731
+    finding(new["correct"] > max(old["correct"], hosted["correct"]), f"{site.plain(new)} has the most right answers of the GLiDE rows")
+    said = lambda run: f"{site.shown(run)}: {run['correct']:,} ({pct(run['correct'] / total)})"  # noqa: E731
     apart = lambda run: not set(new["group"]) & set(run["group"])  # noqa: E731
-    separated = [label[run["run"]] for run in (old, hosted) if apart(run)]
-    shared = [label[run["run"]] for run in (old, hosted) if not apart(run)]
+    separated = [site.shown(run) for run in (old, hosted) if apart(run)]
+    shared = [site.shown(run) for run in (old, hosted) if not apart(run)]
     if separated and shared:
-        test = (f"The leaderboard's letters separate it from {esc(separated[0])}; it shares a letter with {esc(shared[0])}, "
+        test = (f"The leaderboard's letters separate it from {separated[0]}; it shares a letter with {shared[0]}, "
                 "so the paired test does not separate those two.")
     elif separated:
         test = "The leaderboard's letters separate it from both."
     else:
         test = "It shares a letter with both on the leaderboard, so the paired test does not separate them."
-    return card(f"{new['name']} gets more questions right than the earlier GLiDE rows",
+    return card(f"{site.plain(new)} gets more questions right than the earlier GLiDE rows",
                 [f"Right answers of the {total:,} Turkish questions: {said(new)}; {said(old)}; {said(hosted)}.", test],
-                site.model_path(new), f"{new['name']} on the Text tab")
+                site.model_path(new), f"{site.plain(new)} on the Text tab")
 
 
 def page_images(site: Site) -> str:
@@ -83,13 +82,14 @@ def holding_back(site: Site) -> str:
                    key=lambda model: -model["non_hallucination"])
     finding(len(rated) >= 2, "two decision models with a non-hallucination rate")
     top, second = rated[:2]
-    finding(top["attempt_rate"] < 0.5, f"{top['name']} answers fewer than half of the questions")
+    top_run, second_run = site.by_id[top["original_run"]], site.by_id[second["original_run"]]
+    finding(top["attempt_rate"] < 0.5, f"{site.plain(top_run)} answers fewer than half of the questions")
     total = data["questions"]
-    return card(f"{top['name']} holds back the most, but answers few questions",
+    return card(f"{site.plain(top_run)} holds back the most, but answers few questions",
                 [f"Offered “{esc(option)}”, it chose it for {top['dont_know']:,} of its {top['dont_know'] + top['wrong']:,} "
                  f"answers that were not right ({pct(top['non_hallucination'])}), and got {top['right']:,} of {total:,} right "
                  f"({pct(top['accuracy'])}).",
-                 f"Next of the {len(rated)} decision models: {esc(second['name'])}, {pct(second['non_hallucination'])}, with "
+                 f"Next of the {len(rated)} decision models: {site.shown(second_run)}, {pct(second['non_hallucination'])}, with "
                  f"{second['right']:,} right ({pct(second['accuracy'])})."],
                 "dont-know/#findings", "What we found with “I don't know”")
 
@@ -126,13 +126,13 @@ def small_english(site: Site) -> str:
              and model["parameters"] is not None and model["parameters"] <= site.small_max]
     finding(bool(small), "a small open-weights chat model run in English only")
     best = max(small, key=lambda model: model["english"]["right"])
-    finding((best["hardware"] or "").startswith("1 × "), f"{best['name']} ran on one GPU")
+    finding((best["hardware"] or "").startswith("1 × "), f"{site.plain(best)} ran on one GPU")
     everyone = data["models"] + data["english_only"]
     above = sum(model["english"]["right"] > best["english"]["right"] for model in everyone)
     top = max(model["english"]["right"] for model in everyone)
     questions = data["questions"]
     return card(f"A {billions(best['parameters'])} open model on one GPU gets {pct(best['english']['accuracy'])} of the English reading questions",
-                [f"{esc(best['name'])} answered {best['english']['right']:,} of {questions:,} right, the best of the "
+                [f"{site.shown(best)} answered {best['english']['right']:,} of {questions:,} right, the best of the "
                  f"{len(small)} small open chat models run in English only.",
                  f"{above} of all {len(everyone)} English setups got more right; the best got {top:,} ({pct(top / questions)})."],
                 "english/", "English reading")

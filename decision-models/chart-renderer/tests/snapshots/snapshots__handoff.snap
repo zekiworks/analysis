@@ -1,5 +1,6 @@
 ---
 source: tests/snapshots.rs
+assertion_line: 18
 expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 Decider answers when it is confident; Opus answers the rest
@@ -10,9 +11,10 @@ recorded answers.
                          │  Question   │
                          └──────┬──────┘
                                 ▼
-                        ┌───────────────┐
-                        │Perplexity Deci│  about 0.23 s per question
-                        └───────┬───────┘
+                       ┌─────────────────┐
+                       │   Perplexity    │  about 0.23 s per question
+                       │Decider 27B v1.1 │
+                       └────────┬────────┘
                                 ▼
           ┌───────────────────────────────────────────┐
           │     Among its most confident quarter?     │
@@ -28,6 +30,9 @@ recorded answers.
         546 of 550 right              about 13 s per request
                                          of 16 questions
 
-The same steps work with Claude Sonnet 5.5, GPT-6.1 Terra, GPT-6.1
-Sol, GPT-6 Astra, GPT-6.1 Sol, GPT-6.1 Terra, GPT-6 Astra, Claude Opus
-5.5, Gemini 3.8 Flash and Gemini 3.8 Flash.
+The same steps work with Claude Sonnet 5.5 · high · chat,
+GPT-6.1 Terra · low · chat, GPT-6.1 Sol · high · chat,
+GPT-6 Astra · low · chat, GPT-6.1 Sol · low · chat,
+GPT-6.1 Terra · high · chat, GPT-6 Astra · high · chat,
+Claude Opus 5.5 · high · chat, Gemini 3.8 Flash · low · chat and
+Gemini 3.8 Flash · high · chat.

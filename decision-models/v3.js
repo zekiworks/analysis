@@ -140,10 +140,10 @@ const requestSize = size => `${integer(size)} question${size === 1 ? '' : 's'} p
    tells two setups apart (chartLabels); the settings stay in tooltips and on the model page. */
 const runDetail = run =>
   [run.variant, run.reasoning && reasoningLabel(run.reasoning), requestSize(run.questions_per_request)].filter(Boolean).join(' · ');
-/* A setup's name in a row, with its route where the same model ID runs as both kinds of model (page_config.json's lists,
-   build_site.py route_labels): "GPT-6 Luna (Decisions API)" and "GPT-6 Luna (chat API)". */
-const routed = (run, name) => (SETTINGS.routeLabels[run.run] ? `${name} (${SETTINGS.routeLabels[run.run]})` : name);
-const rowName = run => routed(run, run.name);
+/* A setup's name is its model's official name and its tag says how it ran (data/home.json's name and tag, from
+   Site.title and Site.tag; sitebuild/names.py): the tag as HTML beside a name, and both as plain text for a tooltip. */
+const tagHtml = tag => (tag ? ` <span class="name-tag">${esc(tag)}</span>` : '');
+const plainName = run => (run.tag ? `${run.name} · ${run.tag}` : run.name);
 const isDecision = run => SETTINGS.decisionProviders.includes(run.provider) && !SETTINGS.notDecisionModels.includes(run.model);
 const costPer1000 = run => (run.api_equivalent_usd == null ? null : (1000 * run.api_equivalent_usd) / run.answered_questions);
 /* A cost in the reader's unit (site.js: per 1,000 or per 1M questions), for the charts and cells that show it; sorting
@@ -194,23 +194,10 @@ const nearView = new IntersectionObserver(entries => {
   loadMore();
 }, { rootMargin: '100% 0px' });
 
-/* Names where setups show together (a chart, a table): each setup's full name (rowName) and, only where two of them
-   would read the same, what tells them apart: the variant, the reasoning setting, the request size ("high reasoning,
-   16 per request"), as detail, a smaller second line in a chart. Site.names in sitebuild/site.py writes the same. */
+/* Names where setups show together (a chart, a table): each setup's official name, and its tag as detail, a smaller
+   second line in a chart; text, both as plain text. The tags tell every two setups apart (the build stops otherwise). */
 function chartLabels(runs) {
-  const labels = new Map();
-  runs.forEach(run => {
-    const name = rowName(run);
-    const same = runs.filter(other => rowName(other) === name);
-    const differs = field => new Set(same.map(other => other[field])).size > 1;
-    const detail = [
-      differs('variant') && run.variant,
-      differs('reasoning') && run.reasoning && reasoningLabel(run.reasoning),
-      differs('questions_per_request') && `${integer(run.questions_per_request)} per request`,
-    ].filter(Boolean).join(', ');
-    labels.set(run, { name, detail, text: detail ? `${name} (${detail})` : name });
-  });
-  return labels;
+  return new Map(runs.map(run => [run, { name: run.name, detail: run.tag, text: plainName(run) }]));
 }
 
 /* The filters, each also a key in the page URL (readUrl, writeUrl). web: every setup ('all'), those that searched the
@@ -310,14 +297,14 @@ function visibleRuns() {
 
 /* ---- Leaderboard ---- */
 
-/* A setup's name cell: its name with what tells it apart from the other rows (chartLabels); its settings and kind in
-   the link's tooltip and on its model page. */
+/* A setup's name cell: its official name with its tag beside it; its settings and kind in the link's tooltip and on its
+   model page. */
 function modelCell(run, labels) {
-  const { text } = labels.get(run);
+  const { name, detail, text } = labels.get(run);
   const about = `${runDetail(run)} · ${isDecision(run) ? 'Decision model' : 'Chat model'}`;
   return `<td class="model"><div class="who"><button type="button" class="pick" data-select="${run.run}" aria-pressed="${state.selected === run.run}" ` +
     `aria-label="Highlight ${esc(text)} in the charts"><span class="lamp" aria-hidden="true"></span></button>` +
-    `<span class="names">${familyIcon(run)}<a class="model-name" href="models/${run.run}/" title="${esc(about)}">${esc(text)}</a>${webBadge(run, text)}</span></div></td>`;
+    `<span class="names">${familyIcon(run)}<a class="model-name" href="models/${run.run}/" title="${esc(about)}">${esc(name)}</a>${tagHtml(detail)}${webBadge(run, text)}</span></div></td>`;
 }
 
 function accuracyCell(run) {
@@ -1112,7 +1099,7 @@ function barChart(box, name) {
       const shown = value == null ? missing : cell
         ? `${cell.value}, Wilson 95% interval ${pct(cell.low)} to ${pct(cell.high)}${cell.letters ? `, tie group ${cell.letters}` : ''}`
         : measure.text(value);
-      const full = `${run.name} · ${runDetail(run)}: ${shown}${maker ? ` (${basisCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}${latency}`;
+      const full = `${plainName(run)} · ${runDetail(run)}: ${shown}${maker ? ` (${basisCostTip(run)})` : ''}${sample ? ` (${sample})` : ''}${price}${latency}`;
       const barTop = phone ? y + 18 : y + (row - 16) / 2;
       const barHeight = phone ? 14 : 16;
       const mid = barTop + barHeight / 2;
@@ -1302,7 +1289,7 @@ function scatterChart(box) {
   [...points].sort((a, b) => (a === chosen) - (b === chosen)).forEach(({ run, cx, cy }) => {
     const maker = state.across === 'cost' && basisCostTip(run);
     const sample = state.across === 'latency' && sampleLabel(run);
-    const tooltip = `${run.name} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `${upperPrefix(run)}$${across.text(across.value(run))} ${costLabel()}` : `${across.text(across.value(run))} s per request`}${maker ? ` (${basisCostTip(run)})` : ''}${state.across === 'cost' && run.cost_upper_bound ? ` (${UPPER_MARK.tip})` : ''}${sample ? ` (${sample})` : ''}`;
+    const tooltip = `${plainName(run)} · ${runDetail(run)}: ${percent(accuracyOf(run))}% right, ${state.across === 'cost' ? `${upperPrefix(run)}$${across.text(across.value(run))} ${costLabel()}` : `${across.text(across.value(run))} s per request`}${maker ? ` (${basisCostTip(run)})` : ''}${state.across === 'cost' && run.cost_upper_bound ? ` (${UPPER_MARK.tip})` : ''}${sample ? ` (${sample})` : ''}`;
     parts.push(`<g ${markAttributes(run, tooltip)}><circle class="ring" cx="${cx}" cy="${cy}" r="9"/>` +
       `<circle class="dot-${isDecision(run) ? 'decision' : 'chat'}" style="fill:${familyColour(run)}" cx="${cx}" cy="${cy}" r="${run === chosen?.run ? 6 : 4.5}"><title>${esc(tooltip)}</title></circle></g>`);
   });
@@ -1379,7 +1366,7 @@ function readingGrammarChart(box) {
   rows.forEach((run, index) => {
     const y = yOf(index);
     const shares = ['reading', 'grammar'].map(part => [part, run.groups[part].correct / run.groups[part].questions]);
-    const full = `${run.name} · ${runDetail(run)}: reading ${percent(shares[0][1])}%, grammar ${percent(shares[1][1])}%`;
+    const full = `${plainName(run)} · ${runDetail(run)}: reading ${percent(shares[0][1])}%, grammar ${percent(shares[1][1])}%`;
     const barsTop = phone ? y + 18 : y + (row - pair) / 2;
     const inner = [`<rect class="ring" x="1" y="${y + 1}" width="${width - 2}" height="${row - 2}" rx="3"/>`, rowLabel(labels, run, y, row, width, labelWidth, full)];
     shares.forEach(([part, share], at) => {
@@ -1446,7 +1433,7 @@ function costTable(box) {
     /* With both kinds in one table, a chat model says so. */
     const chat = state.models === 'all' && !isDecision(run) ? '<span class="small">Chat model</span>' : '';
     const tag = pareto.has(run) ? ' <span class="pareto-tag">Pareto</span>' : '';
-    return `<tr><td class="model">${familyIcon(run)}<a class="model-name" href="models/${run.run}/">${esc(labels.get(run).text)}</a>${tag}${chat}</td>` +
+    return `<tr><td class="model">${familyIcon(run)}<a class="model-name" href="models/${run.run}/">${esc(labels.get(run).name)}</a>${tagHtml(labels.get(run).detail)}${tag}${chat}</td>` +
       `<td class="num">${cost == null ? `<span class="nm">${costMissing(run)}</span>` : esc(priceText(run))}</td>` +
       `<td class="num">${cost == null ? '' : timesText(cost / costPer1000(cheapest))}</td>` +
       `<td class="num">${percent(overallAccuracy(run))}</td>` +

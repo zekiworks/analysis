@@ -412,6 +412,11 @@ tr.lb-off { display: none !important; }
 /* Beside the name of a setup that searched the web before answering. */
 .web-badge { display: inline-block; margin-left: .35rem; padding: 0 .35rem; border: 1px solid var(--control-edge); border-radius: 999px;
   color: var(--text-2); font-size: .72rem; font-weight: 600; line-height: 1.4; white-space: nowrap; vertical-align: .05em; }
+/* Beside a model's official name, how that setup ran (setting · route · snapshot; sitebuild/names.py): small, muted and
+   outlined, never part of the name; a long tag wraps inside its own box on a narrow screen. */
+.name-tag { display: inline-block; max-width: 100%; margin-left: .1rem; padding: 0 .3rem; border: 1px solid var(--edge);
+  border-radius: 4px; color: var(--text-2); font-size: .72rem; font-weight: 400; line-height: 1.35; white-space: normal;
+  vertical-align: .05em; }
 .chevron { display: inline-block; width: .7rem; font-size: .8rem; }
 .chevron::before { content: "\25B8"; }
 [aria-expanded="true"] > .chevron::before { content: "\25BE"; }

@@ -22,6 +22,7 @@ from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
+from sitebuild import names
 from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, esc, family_icon, family_legend, hbars, interval, more_link,
                             pct, rel, run_families)
 
@@ -100,26 +101,33 @@ def cells(data: dict[str, Any], model: dict[str, Any]) -> str:
     return "".join(out)
 
 
-def shown_names(site: Site, models: list[dict[str, Any]]) -> dict[int, str]:
-    """The models' names where they show together, by condition A's run (site.names over their Text tab setups)."""
-    return site.names([site.by_id[model["a_run"]] for model in models if model["a_run"] in site.by_id])
+def text_run(site: Site, model: dict[str, Any]) -> dict[str, Any]:
+    """A vision.json model's Text tab setup (condition A's run), through which the page names it: vision.json's own
+    model names are setup names, never shown raw. The build stops for a model without one."""
+    run = site.by_id.get(model["a_run"])
+    if run is None:
+        raise SystemExit(f"vision.json: {model['name']}'s condition A run {model['a_run']} is not on the Text tab, so the "
+                         "page has no name for it")
+    return run
 
 
-def model_cell(site: Site, origin: str, model: dict[str, Any], shown: dict[int, str]) -> str:
+def plain_name(site: Site, model: dict[str, Any]) -> str:
+    """A model's official name and tag as plain text (Site.plain of its Text tab setup)."""
+    return site.plain(text_run(site, model))
+
+
+def model_cell(site: Site, origin: str, model: dict[str, Any]) -> str:
     """The model, after its maker's colour dot and its family's icon (as the home page's Leaderboard), linked to the page
-    of its Text tab setup (condition A's run) when the Text tab has it, named as shown gives it, its settings in the
+    of its Text tab setup (condition A's run), its official name with its tag after the link, its settings in the
     tooltip."""
     known = family(site, model)
     mark = (f'<i class="lb-dot" style="background:{known["colour"]}" title="{esc(known["maker"])}"></i>'
             f'{family_icon(known["name"])}')
-    run = site.by_id.get(model["a_run"])
-    if run is None:
-        return (f'<td class="model">{mark}<span class="model-name">{esc(model["name"])}</span>'
-                '<span class="small">Not on the Text tab</span></td>')
+    run = text_run(site, model)
     detail = site.detail(run)
     tip = f' title="{esc(detail)}"' if detail else ""
     return (f'<td class="model"{tip}>{mark}<a class="model-name" href="{rel(origin, site.model_path(run))}">'
-            f'{esc(shown[run["run"]])}</a> {site.label(run)}</td>')
+            f'{esc(site.title(run))}</a>{names.tag_html(site.tag(run))} {site.label(run)}</td>')
 
 
 def class_attribute(site: Site, model: dict[str, Any]) -> str:
@@ -132,8 +140,7 @@ def class_attribute(site: Site, model: dict[str, Any]) -> str:
 def model_table(site: Site, origin: str, data: dict[str, Any], models: list[dict[str, Any]]) -> str:
     """The leaderboard's columns for these models, in this order; every header says which way is better."""
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{DIRECTION}</span></th>' for _, name in COLUMNS)
-    shown = shown_names(site, models)
-    rows = "".join(f"<tr{class_attribute(site, model)}>{model_cell(site, origin, model, shown)}{cells(data, model)}</tr>"
+    rows = "".join(f"<tr{class_attribute(site, model)}>{model_cell(site, origin, model)}{cells(data, model)}</tr>"
                    for model in models)
     return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr></thead>'
             f"<tbody>{rows}</tbody></table></div>")
@@ -146,8 +153,8 @@ def ranked(models: list[dict[str, Any]], result: Callable[[dict[str, Any]], dict
     return sorted(have, key=lambda model: -result(model)["accuracy"]), [model for model in models if result(model) is None]
 
 
-def names(models: list[dict[str, Any]]) -> str:
-    items = [model["name"] for model in models]
+def listed(site: Site, models: list[dict[str, Any]]) -> str:
+    items = [plain_name(site, model) for model in models]
     return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
 
 
@@ -167,7 +174,7 @@ def group(site: Site, data: dict[str, Any], models: list[dict[str, Any]], kind: 
     if kind == "text":
         note = f"These models take no image input, so B and C do not apply. {note}"
     if rest:
-        note += (f" {esc(names(rest))} {'has' if len(rest) == 1 else 'have'} {missing}, so "
+        note += (f" {esc(listed(site, rest))} {'has' if len(rest) == 1 else 'have'} {missing}, so "
                  f"{'it is' if len(rest) == 1 else 'they are'} not ranked and {'follows' if len(rest) == 1 else 'follow'} the ranked rows.")
     return (f'<div class="board-part">{heading}<p class="note">{note}</p>{model_table(site, PATH, data, top + rest)}'
             '</div>')
@@ -197,7 +204,8 @@ def not_run(items: list[dict[str, Any]]) -> str:
     """The models we have not run yet, each with its reason from vision.json's skipped."""
     if not items:
         return ""
-    lines = "".join(f"<li><strong>{esc(item['model'])}</strong>: {esc(public(item['reason'].removeprefix('Not run: ')))}</li>" for item in items)
+    lines = "".join(f"<li><strong>{esc((names.entry(item['model']) or {}).get('name') or item['model'])}</strong>: "
+                    f"{esc(public(item['reason'].removeprefix('Not run: ')))}</li>" for item in items)
     return f'<h3 class="board-group">Not run</h3><ul>{lines}</ul>'
 
 
@@ -262,7 +270,7 @@ def joined(items: list[str]) -> str:
     return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
 
 
-def repeats_note(data: dict[str, Any]) -> str:
+def repeats_note(site: Site, data: dict[str, Any]) -> str:
     """vision-repeats.json's repeat passes, kept outside the table: for each model, the cells asked again with the same
     inputs and runner, and whether their picks and option probabilities match the table's first pass. Stops the build
     when a repeat's first pass is not the table's cell (its runs and its answers)."""
@@ -278,7 +286,7 @@ def repeats_note(data: dict[str, Any]) -> str:
         if cell["first_pass"]["runs"] != table["runs"] or cell["first_pass"]["right"] != table["correct"] or any(
                 passed["answers"].keys() != answers.keys() for passed in cell["passes"]):
             raise SystemExit(f"vision-repeats.json: {cell['name']} {cell['condition']} is not the table's cell")
-        by_model.setdefault(cell["name"], []).append(cell)
+        by_model.setdefault(plain_name(site, model), []).append(cell)
     sentences = []
     for name, cells in by_model.items():
         passes = sorted({passed["pass"] for cell in cells for passed in cell["passes"]})
@@ -346,8 +354,14 @@ def full_scan(data: dict[str, Any]) -> str:
     return text + "</p>"
 
 
-def cell_name(cell: str) -> str:
-    """A cell of vision.json's requests ("GPT-6 Luna D dots-mocr") with the OCR model's name: "GPT-6 Luna D · dots.mocr"."""
+def cell_name(site: Site, data: dict[str, Any], cell: str) -> str:
+    """A cell of vision.json's requests ("GPT-6 Luna D dots-mocr") with its model's official name and tag (plain_name;
+    the cell starts with vision.json's setup name) and the OCR model's name: "GPT-6 Luna D · dots.mocr"."""
+    model = max((item for item in data["models"] if cell.startswith(f"{item['name']} ")), key=lambda item: len(item["name"]),
+                default=None)
+    if model is None:
+        raise SystemExit(f"vision.json: the requests' cell {cell!r} names no model of the table")
+    cell = plain_name(site, model) + cell.removeprefix(model["name"])
     for key, name in OCR_NAMES.items():
         cell = cell.replace(f"D {key}", f"D · {name}")
     return cell
@@ -370,12 +384,12 @@ def requests_note(site: Site, data: dict[str, Any]) -> str:
     groups: dict[tuple[str, str], list[str]] = {}
     for run, count in retries["by_run"].items():
         model = run_model[int(run)]
-        name = model["name"]
+        name = plain_name(site, model)
         groups.setdefault((name, status[run]), []).append(f"{count} in run {run}")
     parts = [f"{joined(items)}, {'both ' if len(items) == 2 else ''}{esc(name)} after HTTP {code}{' errors' if len(items) > 1 else ''}"
              for (name, code), items in groups.items()]
     continued = requests["continued_cells"]
-    cells = "; ".join(f"{esc(cell_name(item['cell']))}, runs {joined([str(run) for run in item['runs']])}" for item in continued)
+    cells = "; ".join(f"{esc(cell_name(site, data, item['cell']))}, runs {joined([str(run) for run in item['runs']])}" for item in continued)
     return (f"<p>Each cell holds one stored answer per question: {requests['retained_answers']:,} in all, from "
             f"{requests['runs']:,} runs. {words(len(continued))} cells were finished by a second run after an interruption "
             f"({cells}); these are continuations, not repeats. {requests['valid_choices']:,} answers name an option and "
@@ -422,10 +436,11 @@ def engine_check(site: Site, data: dict[str, Any]) -> str:
     if ("d3_server.py" not in check["hardware"] or "transformers" not in check["hardware"] or "vLLM" not in row["hardware"]
             or round(paired["difference"] * paired["questions"]) != check["correct"] - row["correct"]):
         raise SystemExit("vision.json: engine_checks[0] no longer matches the engines or the order its note states")
-    short = server["name"]
+    short = plain_name(site, server)
+    asked = plain_name(site, next(model for model in data["models"] if model["name"] == item["name"]))
     runs = lambda side: " and ".join(f"run {run}" for run in side["runs"])  # noqa: E731
     questions = f"{check['questions']:,}"
-    return (f"<p>Engine check: we asked {esc(item['name'])}'s condition {esc(item['condition'])} again through d3_server.py on "
+    return (f"<p>Engine check: we asked {esc(asked)}'s condition {esc(item['condition'])} again through d3_server.py on "
             f"transformers, the server {esc(short)} ran on ({runs(check)}): {check['correct']:,} of {questions} right "
             f"({pct(check['correct'] / check['questions'])}), against {row['correct']:,} ({pct(row['correct'] / row['questions'])}) "
             f"through vLLM ({runs(row)}), the run in the table. Exact McNemar test: {paired['first_only']:,} questions right only "
@@ -444,10 +459,8 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     acc = lambda model, label: exact(model["conditions"][label])  # noqa: E731
     points = lambda value: f"{value:.1f}"  # noqa: E731
 
-    shown = shown_names(site, data["models"])
-
     def name(model: dict[str, Any]) -> str:
-        return esc(shown.get(model["a_run"], model["name"]))
+        return esc(plain_name(site, model))
 
     def p_value(model: dict[str, Any], first: str, second: str) -> float:
         found = [item["accuracy"]["mcnemar_p"] for item in model["paired"] if item["first"] == first and item["second"] == second]
@@ -507,7 +520,7 @@ def findings(site: Site, data: dict[str, Any]) -> str:
                  f"the text: its best route was {points(min(gap.values()))} to {points(max(gap.values()))} points below "
                  f"condition A.")
     else:
-        # A model whose best OCR route reaches its text (GLiDE 2B (open), 10 November 2026: 247 against 242 of 763) is
+        # A model whose best OCR route reaches its text (GLiDE 2B, 10 November 2026: 247 against 242 of 763) is
         # named with its gap; the OCR routes have no paired test against the text (fifth paragraph).
         under = [gap[model["name"]] for model in below]
         third = (f"<p>Through an OCR model (D), {len(below)} of the {len(routes)} models with an OCR route were less accurate "
@@ -614,10 +627,11 @@ def face(site: Site, data: dict[str, Any]) -> str:
     questions = f"{data['subset']['questions']:,}"
     acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
 
-    names_shown = shown_names(site, data["models"])
-
     def name(model: dict[str, Any]) -> str:
-        return names_shown.get(model["a_run"], model["name"])
+        return site.title(text_run(site, model))
+
+    def tag(model: dict[str, Any]) -> str:
+        return site.tag(text_run(site, model))
 
     def class_key(model: dict[str, Any]) -> str | None:
         run = site.by_id.get(model["a_run"])
@@ -637,19 +651,19 @@ def face(site: Site, data: dict[str, Any]) -> str:
     by_b = sorted(image, key=lambda model: -acc(model, "B"))
     first = card(
         "chart-image", "The picture alone (B)", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
-        [{"label": name(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
+        [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
           "marker": acc(model, "A"), "bars": [{"value": acc(model, "B"), "colour": family(site, model)["colour"]}],
-          "title": f"{name(model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
+          "title": f"{plain_name(site, model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
           "class_key": class_key(model)}
          for model in by_b],
         family_legend([family(site, model) for model in by_b]) + marker)
     by_c = sorted(image, key=lambda model: -acc(model, "C"))
     second = card(
         "chart-both", "The text plus the picture (C)", "Accuracy with the picture after the text, and with the text alone · higher is better",
-        [{"label": name(model), "family": family(site, model)["name"], "href": href(model),
+        [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model),
           "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
           "bars": [{"value": acc(model, "C"), "colour": family(site, model)["colour"]}, {"value": acc(model, "A"), "kind": "base"}],
-          "title": f"{name(model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text",
+          "title": f"{plain_name(site, model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text",
           "class_key": class_key(model)}
          for model in by_c],
         family_legend([family(site, model) for model in by_c])
@@ -662,9 +676,9 @@ def face(site: Site, data: dict[str, Any]) -> str:
             if len(best_keys) == 1 else "")
     third = card(
         "chart-ocr-route", "The best OCR route (D)", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
-        [{"label": name(model), "family": family(site, model)["name"], "href": href(model), "text": pct(share), "marker": acc(model, "A"),
+        [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(share), "marker": acc(model, "A"),
           "bars": [{"value": share, "colour": family(site, model)["colour"]}],
-          "title": f"{name(model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
+          "title": f"{plain_name(site, model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
           "class_key": class_key(model)}
          for (model, label, _), share in zip(routes, shares)],
         family_legend([family(site, model) for model, _, _ in routes]) + marker + same)
@@ -705,7 +719,7 @@ def build(site: Site) -> dict[str, str]:
     if undecided:
         raise SystemExit("vision.json: decide whether each of these is a decision model, then list it under its provider in "
                          "page_config.json's mixed_providers: " + ", ".join(f"{model} ({provider})" for provider, model in undecided))
-    chat = [model["name"] for model in data["models"] if not site.decision(model)]
+    chat = [plain_name(site, model) for model in data["models"] if not site.decision(model)]
     if chat:
         raise SystemExit("vision.json: chat or general models, which the page's charts and the view bar's chat group do not "
                          "show yet (give the face one copy per group, as english_view.py does): " + ", ".join(chat))
@@ -721,7 +735,7 @@ def build(site: Site) -> dict[str, str]:
     for model in data["models"]:
         for value in dict.fromkeys((model.get("hardware") or {}).values()):
             hardware, dtype, *server = public(value).split("; ", 2)
-            hosted.append(f"<strong>{esc(model['name'])}</strong>: " + esc(", ".join([hardware, dtype, *server])))
+            hosted.append(f"<strong>{esc(plain_name(site, model))}</strong>: " + esc(", ".join([hardware, dtype, *server])))
     topics = {unit["number"]: unit["english"] for unit in site.units}
     units = "; ".join(f"{topics[int(unit)]}: {count}" for unit, count in subset["by_unit"].items())
     failures = [esc(item) if isinstance(item, str) else esc(str(item)) for item in data["failures"]]
@@ -782,7 +796,7 @@ def build(site: Site) -> dict[str, str]:
       {listing(hosted) if hosted else "<p>None.</p>"}
       {engine_check(site, data)}
       {requests_note(site, data)}
-      {repeats_note(data)}
+      {repeats_note(site, data)}
       {"<h3>Failures</h3>" + listing(failures) if failures else ""}
       </details>
     </section>

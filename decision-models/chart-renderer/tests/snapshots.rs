@@ -5,7 +5,8 @@ use std::path::Path;
 
 fn results() -> charts::Results {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("..");
-    charts::load(&root.join("results.json"), &root.join("page_config.json")).expect("results.json and page_config.json load")
+    charts::load(&root.join("results.json"), &root.join("page_config.json"), &root.join("data/names.json"))
+        .expect("results.json, page_config.json and data/names.json load")
 }
 
 #[test]

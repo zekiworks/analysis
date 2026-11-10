@@ -15,6 +15,7 @@ from typing import Any
 
 import benchmark_metrics as bm
 import build_page as bp
+from sitebuild import names
 from sitebuild.models import REPLY_ANCHOR, REPLY_RULE, idk_runs, reply_counts
 from sitebuild.site import MODEL_GROUPS, REPO_URL, ROOT, SITE_NAME, TABS, Site, esc, parameters_text, rel
 
@@ -190,17 +191,18 @@ def reasoning_pairs(site: Site, snap: bp.Snapshot) -> list[dict[str, Any]]:
     return pairs
 
 
-def pair_label(item: dict[str, Any]) -> str:
+def pair_label(site: Site, item: dict[str, Any]) -> str:
+    """A reasoning pair by its model's official name and the two settings it compares."""
     low, high = item["first"]["reasoning"], item["second"]["reasoning"]
     setting = f"reasoning {low} → {high}" if {low, high} == {"off", "on"} else f"{low} → {high} reasoning"
-    return f"{esc(item['first']['name'])}, {setting}"
+    return f"{esc(site.title(item['first']))}, {setting}"
 
 
-def pairs_table(pairs: list[dict[str, Any]]) -> str:
+def pairs_table(site: Site, pairs: list[dict[str, Any]]) -> str:
     heads = ("Pair", "Reading gain (points)", "Grammar gain (points)", "Difference (grammar gain minus reading gain, points)",
              "95% interval of the difference")
     rows = "".join(
-        f'<tr><td data-label="{heads[0]}">{pair_label(item)}</td>'
+        f'<tr><td data-label="{heads[0]}">{pair_label(site, item)}</td>'
         f'<td class="num" data-label="{heads[1]}">{signed(item["reading"])}</td>'
         f'<td class="num" data-label="{heads[2]}">{signed(item["grammar"])}</td>'
         f'<td class="num" data-label="{heads[3]}">{signed(item["grammar"] - item["reading"])}</td>'
@@ -267,8 +269,9 @@ def setups_table(site: Site, snap: bp.Snapshot) -> str:
         firsts = {}
         for run in runs:
             firsts.setdefault(run["name"], run)
-        names = bp.and_list([f'<a href="{rel(PATH, site.model_path(run))}">{esc(name)}</a>' for name, run in firsts.items()])
-        rows.append(f'<tr><th scope="row">{names}</th><td><p>{esc(text.format(**fields))}</p></td></tr>')
+        listed = bp.and_list([f'<a href="{rel(PATH, site.model_path(run))}">{esc(site.title(run))}</a>{names.tag_html(site.tag(run))}'
+                              for run in firsts.values()])
+        rows.append(f'<tr><th scope="row">{listed}</th><td><p>{esc(text.format(**fields))}</p></td></tr>')
     missing = [bp.label(run) for run in snap.runs if run["run"] not in used]
     if missing:
         raise ValueError(f"setups without a row: {', '.join(missing)}")
@@ -279,12 +282,27 @@ def setups_table(site: Site, snap: bp.Snapshot) -> str:
 def left_out_names(site: Site) -> list[str]:
     """The names of the setups only this site ran (page_config.json small_models.left_out_models), in no class."""
     left_out = site.config["small_models"].get("left_out_models", [])
-    return sorted({site.row_name(run) for run in site.runs if run["model"] in left_out}, key=str.casefold)
+    return sorted({site.plain(run) for run in site.runs if run["model"] in left_out}, key=str.casefold)
+
+
+def names_table(site: Site) -> str:
+    """Each model the site shows, by its setup name in the results: the name shown, and from the three sites' shared
+    table (model_names.json, sitebuild/names.py) its source status and evidence; a model the table lacks says so."""
+    rows = []
+    for recorded in dict.fromkeys(run["name"] for run in [*site.runs, *(site.results["english_reading"].get("english_only") or [])]):
+        entry = names.entry(recorded)
+        source = (f'<a href="{esc(entry["evidence"]["url"])}">{esc(entry["evidence"]["url"].split("://", 1)[-1])}</a>'
+                  if entry and entry.get("evidence", {}).get("url") else "")
+        rows.append(f'<tr><td>{esc(recorded)}</td><td>{esc(names.official(recorded, site.config))}</td>'
+                    f'<td>{esc(entry["source_status"]) if entry else "not in the shared table yet"}</td><td>{source}</td></tr>')
+    return ('<div class="table-wrap"><table class="settings"><thead><tr><th scope="col">Setup name in the results</th>'
+            '<th scope="col">Name shown</th><th scope="col">Status</th><th scope="col">Source</th></tr></thead>'
+            f'<tbody>{"".join(sorted(rows, key=str.casefold))}</tbody></table></div>')
 
 
 def sizes_table(site: Site) -> str:
     """Each model's size record (results.json parameters, active_parameters, effective_parameters, parameters_scope,
-    parameters_source, parameters_read), one row per model name, in the details box's words (parameters_text), each with
+    parameters_source, parameters_read), one row per setup name, its official name and tag, in the details box's words (parameters_text), each with
     its class label as the boards show it (Site.label)."""
     firsts: dict[str, dict[str, Any]] = {}
     for run in sorted(site.runs, key=lambda run: run["name"].casefold()):
@@ -295,12 +313,12 @@ def sizes_table(site: Site) -> str:
                          else esc(source) for source in run["parameters_source"])
 
     rows = "".join(
-        f'<tr><th scope="row"><a href="{rel(PATH, site.model_path(run))}">{esc(name)}</a></th>'
+        f'<tr><th scope="row"><a href="{rel(PATH, site.model_path(run))}">{esc(site.title(run))}</a>{names.tag_html(site.tag(run))}</th>'
         f'<td data-label="Parameters">{esc(parameters_text(run))}'
         + (f'<span class="small">{esc(run["parameters_scope"])}</span>' if run.get("parameters_scope") else "")
         + f'</td><td data-label="Class">{site.label(run)}</td>'
         f'<td data-label="Source">{sources(run)}<span class="small">read {bp.long_date(run["parameters_read"])}</span></td></tr>'
-        for name, run in firsts.items())
+        for run in firsts.values())
     return ('<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>'
             '<th scope="col">Parameters</th><th scope="col">Class</th><th scope="col">Source</th></tr></thead>'
             f"<tbody>{rows}</tbody></table></div>")
@@ -314,7 +332,6 @@ def refit_table(site: Site, snap: bp.Snapshot) -> str:
              "Better than a flat guess (%)")
     rows = []
     scored = sorted((run for run in snap.runs if run.get("confidence")), key=lambda run: -bp.flat_gain(run))
-    shown = site.names(scored)
     for run in scored:
         confidence = run["confidence"]
         settings = site.detail(run)
@@ -323,7 +340,8 @@ def refit_table(site: Site, snap: bp.Snapshot) -> str:
         cells = (f"{100 * confidence['ece']:.1f}", f"{100 * confidence['ece_refit']:.1f}", f"{confidence['brier_refit']:.3f}",
                  f"{confidence['brier_base']:.3f}", gain)
         rows.append(
-            f'<tr><td data-label="{heads[0]}"{tip}><a href="{rel(PATH, site.model_path(run))}">{esc(shown[run["run"]])}</a></td>'
+            f'<tr><td data-label="{heads[0]}"{tip}><a href="{rel(PATH, site.model_path(run))}">{esc(site.title(run))}</a>'
+            f'{names.tag_html(site.tag(run))}</td>'
             + "".join(f'<td class="num" data-label="{head}">{cell}</td>' for head, cell in zip(heads[1:], cells)) + "</tr>"
         )
     head = "".join(f'<th scope="col"{"" if index == 0 else " class=\"num\""}>{text}</th>' for index, text in enumerate(heads))
@@ -430,14 +448,6 @@ def flat_guess_examples(snap: bp.Snapshot) -> dict[str, str]:
     }
 
 
-def display_name(run: dict[str, Any], runs: list[dict[str, Any]]) -> str:
-    """A setup's name with its format and, where it tells it apart from another run of the same model ID, its variant (a
-    route or access note; one of a model with one run stays on its model page)."""
-    variant = run.get("variant") if any(other["run"] != run["run"] and other["model"] == run["model"] for other in runs) else None
-    details = [item for item in (variant, run.get("format")) if item]
-    return run["name"] + (f" ({', '.join(details)})" if details else "")
-
-
 def rate(value: float) -> str:
     if float(value).is_integer():
         return f"${int(value)}"
@@ -464,10 +474,11 @@ def rate_parts(price: dict[str, Any]) -> list[str]:
     return parts
 
 
-def price_list(snap: bp.Snapshot) -> str:
-    """The price notes as the earlier page's app.js (v1/) drew them under "How we estimate the money cost"."""
-    def names(runs: list[dict[str, Any]]) -> str:
-        return ", ".join(dict.fromkeys(display_name(run, snap.runs) for run in runs))
+def price_list(site: Site, snap: bp.Snapshot) -> str:
+    """The price notes as the earlier page's app.js (v1/) drew them under "How we estimate the money cost", each setup
+    named as plain name and tag (Site.plain)."""
+    def listed(runs: list[dict[str, Any]]) -> str:
+        return ", ".join(dict.fromkeys(site.plain(run) for run in runs))
 
     items = []
     tokens = [price for price in snap.results["prices"] if price["applies_to"] != "gpu"]
@@ -480,19 +491,19 @@ def price_list(snap: bp.Snapshot) -> str:
         billed = f" Billed input: {extra} tokens per request more than our count, which we add." if extra else ""
         rates = (f"GPU time: {price['text']}" if price["applies_to"] == "gpu"
                  else f"Per one million tokens: {'; '.join(rate_parts(price))}")
-        items.append(f"{esc(names(runs) or price['model'])}. Prices recorded {bp.long_date(price['date'])}. "
+        items.append(f"{esc(listed(runs) or price['model'])}. Prices recorded {bp.long_date(price['date'])}. "
                      f"{esc(rates)}. Source: "
                      f'<a href="{esc(price["source"])}">{esc(price["basis"])}</a>.{change}{esc(billed)}')
     free = [run for run in snap.runs if run["billing"] == "free" and run["api_equivalent_usd"] is None]
     local = [run for run in snap.runs if run["billing"] == "local" and run["api_equivalent_usd"] is None]
     if free:
-        items.append(esc(f"{names(free)}. {FREE_RATE}"))
+        items.append(esc(f"{listed(free)}. {FREE_RATE}"))
     if local:
-        items.append(esc(f"{names(local)}. {NO_COST_LOCAL}."))
+        items.append(esc(f"{listed(local)}. {NO_COST_LOCAL}."))
     return '<ul class="footnote price-list">' + "".join(f"<li>{item}</li>" for item in items) + "</ul>"
 
 
-def maker_priced(snap: bp.Snapshot) -> str:
+def maker_priced(site: Site, snap: bp.Snapshot) -> str:
     """The setups on our hardware estimated at their maker's list price for the same model, by maker ("Perplexity for A
     and B; Cloudflare for C"), then the makers that bill input tokens per request beyond our count."""
     prices = {bp.price_key(price): price for price in snap.results["prices"]}
@@ -504,27 +515,29 @@ def maker_priced(snap: bp.Snapshot) -> str:
         price = prices[bp.price_key(run)]
         maker = price["basis"].split("'s list price for the same model")[0]
         makers.setdefault(maker, [])
-        if run["name"] not in makers[maker]:
-            makers[maker].append(run["name"])
+        if site.plain(run) not in makers[maker]:
+            makers[maker].append(site.plain(run))
         if price.get("extra_input_per_request"):
             extra[maker] = price["extra_input_per_request"]
-    groups = [f"{maker} for {bp.and_list(names)}" for maker, names in makers.items()]
+    groups = [f"{maker} for {bp.and_list(named)}" for maker, named in makers.items()]
     listed = groups[0] if len(groups) == 1 else "; ".join(groups[:-1]) + "; and " + groups[-1]
     billed = "".join(f" {maker} bills {count} input tokens per request more than our servers count, so we add them." for maker, count in extra.items())
     return f"{listed}.{billed}"
 
 
-def reply_notes(snap: bp.Snapshot) -> str:
+def reply_notes(site: Site, snap: bp.Snapshot) -> str:
     """The Method notes' item on empty and broken chat replies: the rule in one plain sentence, and for each run it did
     something in, its counts as the setup's page gives them (models.reply_counts), by run: the Text tab runs, named as
     their setups, and the runs with the "I don't know" option (models.idk_runs), named as their setups with the option;
-    an English-only setup (no Text tab run, english_reading.dont_know.english_only) by its own name."""
+    an English-only setup (no Text tab run, english_reading.dont_know.english_only) by its own setup (english_reading's
+    English-only entry of its reading run); each named as plain name and tag (Site.plain)."""
     by_run = {run["run"]: run for run in snap.runs}
-    english_only = {entry["english"]["run"]: entry["name"]
+    reading = {entry["run"]: entry for entry in (snap.results.get("english_reading") or {}).get("english_only", [])}
+    english_only = {entry["english"]["run"]: site.plain(reading[entry["reading_run"]])
                     for entry in ((snap.results.get("english_reading") or {}).get("dont_know") or {}).get("english_only", [])
                     if entry.get("text_run") is None}
-    rows = [(run["run"], display_name(run, snap.runs), counts) for run in snap.runs if (counts := reply_counts(run)) is not None]
-    rows += [(item["run"], f"{display_name(by_run[text_run], snap.runs) if text_run is not None else english_only[item['run']]}"
+    rows = [(run["run"], site.plain(run), counts) for run in snap.runs if (counts := reply_counts(run)) is not None]
+    rows += [(item["run"], f"{site.plain(by_run[text_run]) if text_run is not None else english_only[item['run']]}"
                            f" with “{option}”", counts)
              for text_run, _, option, item in idk_runs(snap.results) if (counts := reply_counts(item)) is not None]
     listed = "".join(f"<li>{esc(name)} (run {number}): {esc(counts)}</li>" for number, name, counts in sorted(rows))
@@ -537,10 +550,10 @@ def reply_notes(snap: bp.Snapshot) -> str:
             + (f"<ul>{listed}</ul>" if listed else " No setup on this page needed it.") + "</li>")
 
 
-def local_estimates(snap: bp.Snapshot) -> str:
+def local_estimates(site: Site, snap: bp.Snapshot) -> str:
     """The setups on our hardware estimated at a public host's list price for the same weights, then those estimated
     from GPU time (first_cost_marks' gpu tip), each named, or nothing where there are none."""
-    named = {basis: list(dict.fromkeys(run["name"] for run in snap.runs if run.get("cost_basis") == basis))
+    named = {basis: list(dict.fromkeys(site.plain(run) for run in snap.runs if run.get("cost_basis") == basis))
              for basis in ("weights", "gpu")}
     text = ""
     if named["weights"]:
@@ -551,11 +564,11 @@ def local_estimates(snap: bp.Snapshot) -> str:
     return text
 
 
-def gemma_lead(snap: bp.Snapshot) -> tuple[str, str]:
+def gemma_lead(site: Site, snap: bp.Snapshot) -> tuple[str, str]:
     """What we found says Gemma 4 31B, a chat model, scored higher than every decision model on Reading and on Grammar
     except the ones it names, which scored higher than Gemma on both, and that its confidence matched its hit rate less
     closely than the best decision models' did; a decision model with exactly Gemma's right answers on a part is named as
-    tied there (GLiDE 27B (open) on Reading, 10 November 2026). Returns those decision models' short names and the ties'
+    tied there (GLiDE 27B on Reading, 10 November 2026). Returns those decision models' short names and tags (Site.plain) and the ties'
     clause ("" without one); the build stops when a part no longer holds."""
     decision = [run for run in snap.runs if snap.decision_model(run)]
     gemma = snap.named["gemma"]
@@ -572,8 +585,8 @@ def gemma_lead(snap: bp.Snapshot) -> tuple[str, str]:
         ties += [(run, group) for run in decision if run not in ahead and bp.study_share(snap, run, group) == share]
     if gemma["confidence"]["ece"] <= min(run["confidence"]["ece"] for run in decision):
         raise ValueError("What we found says Gemma's confidence matched its hit rate less closely than the best decision models'")
-    tied = "".join(f" ({esc(run['name'])} tied with it on {group.capitalize()})" for run, group in ties)
-    return bp.and_list([run["name"].removeprefix("Liquid ") for run in ahead]), tied
+    tied = "".join(f" ({esc(site.plain(run))} tied with it on {group.capitalize()})" for run, group in ties)
+    return bp.and_list([site.plain(run).removeprefix("Liquid ") for run in ahead]), tied
 
 
 def and_list(items: tuple[tuple[str, str], ...]) -> str:
@@ -655,7 +668,7 @@ def glance(site: Site) -> str:
 def build(site: Site) -> dict[str, str]:
     snap = site.snapshot
     v = site.values
-    gemma_ahead, gemma_tied = gemma_lead(snap)
+    gemma_ahead, gemma_tied = gemma_lead(site, snap)
     cite = Cites()
     pairs = reasoning_pairs(site, snap)
     smaller, live_total = average_cost(snap)
@@ -752,6 +765,15 @@ for each option.</p>
 {v['configs']} setups of {v['models']} models. Each name links to its setup's page; the results file keeps each identifier,
 server and hardware.</p>
 {setups_table(site, snap)}
+<h3 id="names">Model names and tags</h3>
+<p>Every page names a model by its official name only, in its maker's spelling (a maker's display title over its repository
+name), with a small tag beside it for how we ran that setup: its setting, route and snapshot (as “high · chat”, “API · with
+web”, “DGX Spark”, “1017”), and “1 per request” where a model's setups differ only in that; a decision model with one setup
+has none. Two setups of one model differ only by their tag. The results file keeps each setup's own name. Not every name
+rests on a maker's quote: the table gives each name we show instead of a setup's recorded one, with its source and how we
+know it (a maker's quote, inferred from a sibling's card, only an OpenRouter listing, or unverified, kept as the three
+sites show it).</p>
+{names_table(site)}
 <h3 id="sizes">Model sizes and classes</h3>
 <p>Each model's size is its maker's figure for the released model or our count of the released checkpoint's tensors
 (logical shapes, never quantized storage), with what it covers and the checkpoint's revision; each size says whether the
@@ -925,7 +947,7 @@ of {v['method_pair_astra_medium_sol_split']} questions only one got right, Astra
 {v['pair_astra_medium_sol_p_holm']} among the selected comparisons and {v['pair_astra_medium_sol_p_holm_all']} across all pairs,
 {v['method_pair_astra_medium_sol_relation']} {v['method_alpha']}. A p value says
 how unusual so uneven a split would be at equal accuracy, not the chance that the models are equal.</p>
-<p>DeepSeek-V4.1-Flash 1017 with reasoning scored {v['pair_deepseek_1017_on_terra_low_difference']} points above GPT-6.1 Terra with low reasoning
+<p>DeepSeek-V4.1-Flash, the 1017 release, with reasoning scored {v['pair_deepseek_1017_on_terra_low_difference']} points above GPT-6.1 Terra with low reasoning
 (adjusted p {v['pair_deepseek_1017_on_terra_low_p_holm']}). Not establishing a difference does not show equal accuracy: many
 language comparisons have too few questions to detect gaps this small.{cite(18)}</p>
 {paired_figure}"""),
@@ -968,7 +990,7 @@ models do not stand for equal computation.</p>
 <p>Reasoning helped grammar much more than reading. In all four pairs we tested, the grammar gain was larger, and every 95%
 interval of the difference is above 0. Claude Sonnet 5.5, low to high reasoning: +32.7 points on grammar, +2.3 on reading.
 For DeepSeek and GLM, turning on reasoning also turns on random sampling, so those pairs mix two changes.</p>
-{pairs_table(pairs)}
+{pairs_table(site, pairs)}
 <p class="table-note">Each interval is a paired bootstrap over the scored questions ({site.results['reasoning']['resamples']:,}
 resamples, each shared passage's questions kept together). The {results_file} holds them, and <code>reproduce.py</code>
 recomputes them.</p>
@@ -984,11 +1006,11 @@ separately.</p>
 difference is not only a model improvement. Gemini 3.8 Flash's price is introductory: it
 {v['study_price_gemini_low_change']}.</p>
 <p>Every cost of a model on our own GPUs is an estimate, not measured spending. Where the model's maker lists a price for the
-same model, the estimate uses it: {esc(maker_priced(snap))} Each is estimated at its maker's list price for the same model,
-from our recorded tokens; our hardware cost is not measured.{esc(local_estimates(snap))} Liquid d1:
+same model, the estimate uses it: {esc(maker_priced(site, snap))} Each is estimated at its maker's list price for the same model,
+from our recorded tokens; our hardware cost is not measured.{esc(local_estimates(site, snap))} Liquid d1:
 the run used the free tier (d1:free); its cost is now estimated at Liquid's list price for the same model. Fixed output
 token charges of some decision services follow pricing rules, not written reasoning.</p>
-{price_list(snap)}"""),
+{price_list(site, snap)}"""),
         ("understanding", "What can these results tell us about understanding?", f"""
 <p>A model may answer a passage question correctly and miss a grammar rule in the same language: performance changes by task,
 which does not settle whether it understands. These tests measure skills models have, not how fast they learn; Mitchell and
@@ -1121,7 +1143,7 @@ latency measured on a sample of the questions carries a mark that names the samp
 <li><strong>Non-hallucination.</strong> “Bilmiyorum” among the answers that were not right, with it offered as a sixth
 option; read it with the share answered. The <a href="{rel(PATH, 'dont-know/')}">Hallucination tab</a> has the full
 table and its method.</li>
-{reply_notes(snap)}
+{reply_notes(site, snap)}
 </ul>"""))
     toc = '<li><a href="#at-a-glance">At a glance</a></li>' + "".join(f'<li><a href="#{anchor}">{esc(title)}</a></li>' for anchor, title, _ in sections)
     cards = "".join(

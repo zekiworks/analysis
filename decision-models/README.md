@@ -183,7 +183,8 @@ python3 -m http.server 8000                                # preview at http://1
     the query and the fragment; `all-benches/benches.json` is what the build last read from the other sites (one file
     per bench: Logic, Math, the pooled Logic & Math and Backgammon; Logic & Math shows in place of Logic and Math until
     both are live, and Combined uses it either way). This site's `bench-scores.json` feeds it five benches, each row
-    with `model_key`, the three sites' join key: Reading · Turkish (`reading-text`, all 2,198 questions, in Combined
+    with `name` (the model's official name), `tag` (how the row's setup ran, `''` for none) and `model_key`, the three
+    sites' join key (unchanged: rows join by repo and `model_key`, never because their names match): Reading · Turkish (`reading-text`, all 2,198 questions, in Combined
     only), Turkish Reading (`turkish-reading`), Turkish Grammar (`turkish-grammar`), English Reading
     (`reading-english`, the kept reading questions in English) and Vision (`reading-vision`). The page's type and class
     keys (the Leaderboard's, `?models=` and `?class=`) choose the models in view; the score keys pick what the chart
@@ -415,6 +416,22 @@ python3 -m http.server 8000                                # preview at http://1
     - **Hero**: the question "When should you trust a decision model?" and one line of counts (`hero_counts`:
       questions, models, that is the Leaderboard's rows, setups and the last update) with "More about this page"
       (About, where the intro, `INTRO`, and How the scores work now stand; Ümit via Zeki, bus #3521).
+    - **Names** (`sitebuild/names.py`, `Site.title`, `Site.tag`; the project lead's rule, Ümit #4445, the three sites'
+      scheme #4449, #4484): every page shows a model by its official name only, in the maker's spelling (a maker's
+      display title over its repo slug), with a small tag beside it for how that setup ran, setting · route · snapshot
+      ("high · chat", "API · with web", "DGX Spark", "Decisions API", "reasoning on · chat · 1017", "v1.2"), "1 per
+      request" added where a model's setups differ only in that; a decision model with one setup has no tag.
+      `results.json` keeps every setup name, run id and model id unchanged. Names come from the three sites' shared table,
+      `model_names.json` at the root (kept by the Logic & Math site, copied byte for byte), by `model_key`, or by a row's
+      `source_model_key` where Reading's key differs (that one alias also joins the row on All benches): each with its
+      source status, "maker", "inferred", "openrouter-only" or "unverified" (not every name is maker-proven; the Method
+      page lists them), its snapshot and its base model (shown in the details box only). `page_config.json`
+      `display_names` keeps only Reading's tag rules and what the table lacks: `routes` names a decision model's route by
+      run where two of its setups differ by it (never inferred), `pending` and `snapshots` any name or release the table
+      lacks. The build stops where two setups would show the same name and the same tag. `data/home.json` and
+      `data/names.json` (chart-renderer's labels) carry the name and tag by run; `bench-scores.json` carries `name` and
+      `tag`, its `model_key` unchanged. Fixed text written with setup names (the changelogs) reads them through
+      `Site.in_prose`.
     - **The Leaderboard** (`#leaderboard`, `sitebuild/leaderboard.py`): one row per model, a model being its model ID,
       its kind (chat or decision model) and web search (a setup with web is its own row; different version names are
       separate rows). A dated checkpoint joins its original's row only through `page_config.json`'s
@@ -423,10 +440,11 @@ python3 -m http.server 8000                                # preview at http://1
       < low < medium < high < xhigh < max; "on" above off for a model with only on and off; a decision model has no
       setting; the build stops for a model with "on" and a level), then the earliest run (lowest run id); a model
       with one setup uses it. Every value of a row and of its details box is that one setup's; the row's other setups
-      sit behind its expander ("N other settings"), each with its setting under its name. A row: rank, maker dot in the
-      family colour and the family icon, the model's name, the main-score bar from 0 to 100% with its Wilson 95%
+      sit behind its expander ("N other settings"), each with its own tag beside its name. A row: rank, maker dot in the
+      family colour and the family icon, the model's official name with the chosen setup's tag beside it, the
+      main-score bar from 0 to 100% with its Wilson 95%
       interval as the whisker, and the score; from 900 px more columns. Nothing sits under the name (project lead, bus
-      #3039): "maker · chat model / decision model · setting" heads the details box (the maker is the family's maker in
+      #3039): "name tag · maker · chat model / decision model" heads the details box (the maker is the family's maker in
       `maker_colours.json`, named as on the maker's own pages, each with its source URL). The details box
       (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
       opens on a tap on a phone and on hover or the keyboard focus on a desktop, focus beating the pointer, capped to
@@ -463,10 +481,11 @@ python3 -m http.server 8000                                # preview at http://1
       with no row of the part and type in view hides). The old addresses `?models=small-chat` (and `small`) and
       `?models=small-decision` press Tiny and Small with Chat models or Decision models, `small-chat` on the English
       reading part as before; the class rule under the table is `model_classes.line`, the project lead's words. Each row
-      shows a label beside its name, as Logic & Math does (`Site.label`, #4229, #4231, #4245): an open model's total,
+      shows a class label beside its name and tag, always starting "Open" or "Closed" (`Site.label`, #4229, #4231,
+      #4245, Ümit #4445): an open model's total, "Open · 27B",
       whole from 10B up ("26B", "276B"), one decimal below ("7.9B", "0.4B"), "2.8T" from 1T up; a mixture of experts
-      with a space, a small superscript "MoE" and its active count ("309B MoE · 15B active", "753B MoE" where none is
-      stated), the number only for a dense model and for two models run together (REAX 1.3 "57B", #4269; its details
+      with a space, a small superscript "MoE" and its active count ("Open · 309B MoE · 15B active", "Open · 753B MoE" where none is
+      stated), the number only for a dense model and for two models run together (REAX 1.3 "Open · 57B", #4269; its details
       box explains), a space and a .5rem gap between the name and the label; the mark takes the focus and a hover,
       focus or tap on it opens the row's details box, which ends "Size class uses the total (276B)."; a closed model
       "Closed · Workhorse" ("(provisional)" after a class from a promotional price only), an open one of undisclosed
@@ -508,7 +527,7 @@ python3 -m http.server 8000                                # preview at http://1
     ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it
     measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting
     for an API key or credit).
-  - **Highlights** (`highlights/`, `sitebuild/highlights.py`): five short cards, one finding each (GLiDE 27B (open)
+  - **Highlights** (`highlights/`, `sitebuild/highlights.py`): five short cards, one finding each (GLiDE 27B
     against the earlier GLiDE rows, the Vision tab's averages, holding back with "Bilmiyorum", Turkish against English,
     the best small open model in English), every number computed from `results.json` and `vision.json` at build time;
     each card's heading is a claim the build checks (`finding`), stopping when the data no longer supports it.
@@ -522,9 +541,9 @@ python3 -m http.server 8000                                # preview at http://1
     the bar) ($ in the chosen cost unit, ≤ before an
     upper-bound estimate, each estimate's basis in its tooltip and the note under the chart; seconds, * for a latency
     measured on a sample; No list price for a cost of a setup on our own hardware with no estimate, `cost_missing` in
-    `sitebuild/site.py` and `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured). A run's variant (its
-    route or access note) shows beside its name only where it tells it apart from another setup of the same model ID
-    (`shownVariant` in `v3.js`); otherwise it is on the model page only. Non-hallucination
+    `sitebuild/site.py` and `costMissing` in `v3.js`, on every page; Not measured for any other value nobody measured).
+    How a setup ran is its tag beside its name, a smaller second line in a chart (`chartLabels` in `v3.js`); its
+    settings in words are in the tooltips and on the model page. Non-hallucination
     (`non_hallucination` in `build_site.py`, static HTML, one copy per group; the same two sides on the Hallucination tab,
     and on english/ with confidence Not measured in English and the Turkish reference apart, `sitebuild/holding_back.py`;
     on the Hallucination tab its other charts and its table also show Decision models and Chat models as separate
@@ -569,8 +588,8 @@ python3 -m http.server 8000                                # preview at http://1
     accuracy (in the all view decision and chat models together, each row saying which); the Routing tab opens by the
     share taken and the Stability tab by changed answers, most first, ties by the same wrong answer in all five runs,
     most first (`DEFAULT_SORTS` and a column's `tie` in `v3.js`). A model ID with runs in both groups
-    gets its route after its name in each row ("GPT-6 Luna (Decisions API)", "GPT-6 Luna (chat API)"; `route_labels`
-    in `sitebuild/site.py`). The full ranking's rows carry no notes: a setup's notes are on its model page (How we
+    reads the same name in each row, its tag telling the routes apart ("GPT-6 Luna" with "Decisions API" and with
+    "low · chat"; `sitebuild/names.py`). The full ranking's rows carry no notes: a setup's notes are on its model page (How we
     called it), which its name links to. The Reading vs grammar chart lists the setups in the full ranking's order.
     `v3.js` draws the charts and the four tabs of the full ranking in the
     browser from two compact files that `build_site.py` writes from `results.json` (`home_data`), which stays the

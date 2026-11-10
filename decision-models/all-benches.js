@@ -189,8 +189,8 @@
     const a = models.get(pickA.value);
     const b = models.get(pickB.value);
     if (!a || !b) return;
-    document.querySelector('[data-ab-name="a"]').textContent = a.name;
-    document.querySelector('[data-ab-name="b"]').textContent = b.name;
+    document.querySelector('[data-ab-name="a"]').textContent = a.label;
+    document.querySelector('[data-ab-name="b"]').textContent = b.label;
     const rows = [['combined', 'Combined'], ...DATA.benches.map(bench => [bench.key, bench.label])].map(([key, label]) => {
       const first = score(a, key);
       const second = score(b, key);
@@ -198,11 +198,11 @@
       let verdict;
       if (!open) verdict = '<span class="nm">not published yet</span>';
       else if (key === 'combined' && (a.nc || b.nc)) {
-        verdict = `<span class="nm">no combined score for ${esc((a.nc ? a : b).name)}: one model did not answer every bench</span>`;
+        verdict = `<span class="nm">no combined score for ${esc((a.nc ? a : b).label)}: one model did not answer every bench</span>`;
       } else if (first === null && second === null) verdict = '<span class="nm">neither ran it</span>';
-      else if (first === null || second === null) verdict = `<span class="nm">only ${esc((second === null ? a : b).name)} ran it</span>`;
+      else if (first === null || second === null) verdict = `<span class="nm">only ${esc((second === null ? a : b).label)} ran it</span>`;
       else if (tied(key, a, b)) verdict = `tied (${number(first - second)})`;
-      else verdict = `${esc((first > second ? a : b).name)} ahead by ${number(Math.abs(first - second))}`;
+      else verdict = `${esc((first > second ? a : b).label)} ahead by ${number(Math.abs(first - second))}`;
       const cell = value => (value === null ? '–' : number(value));
       return `<tr><th scope="row">${esc(label)} \u2191</th><td class="num">${cell(first)}</td><td class="num">${cell(second)}</td><td>${verdict}</td></tr>`;
     });
@@ -212,14 +212,14 @@
     if (!pickA || !pickB) return;
     const choices = DATA.models.filter(fits);
     const order = [...choices].sort((first, second) =>
-      (score(second, DATA.default) ?? -Infinity) - (score(first, DATA.default) ?? -Infinity) || first.name.localeCompare(second.name));
+      (score(second, DATA.default) ?? -Infinity) - (score(first, DATA.default) ?? -Infinity) || first.label.localeCompare(second.label));
     const keep = (wanted, other) => (choices.some(model => model.key === wanted) ? wanted : order.find(model => model.key !== other)?.key);
     const a = keep(state.a || pickA.value, null);
     const b = keep(state.b || pickB.value, a);
     const options = chosen => Object.entries(DATA.kinds).map(([kind, label]) => {
-      const group = choices.filter(model => model.kind === kind).sort((first, second) => first.name.toLowerCase().localeCompare(second.name.toLowerCase()));
+      const group = choices.filter(model => model.kind === kind).sort((first, second) => first.label.toLowerCase().localeCompare(second.label.toLowerCase()));
       return group.length ? `<optgroup label="${esc(label)}">${group.map(model =>
-        `<option value="${esc(model.key)}"${model.key === chosen ? ' selected' : ''}>${esc(model.name)}</option>`).join('')}</optgroup>` : '';
+        `<option value="${esc(model.key)}"${model.key === chosen ? ' selected' : ''}>${esc(model.label)}</option>`).join('')}</optgroup>` : '';
     }).join('');
     pickA.innerHTML = options(a);
     pickB.innerHTML = options(b);

@@ -12,20 +12,21 @@ rows on the reading units' and the grammar units' questions only, Ümit #4239); 
 (results.json english_reading: the same rows' first English run on the kept reading questions, and the English-only
 setups); reading-vision, Reading · Vision (vision.json, condition B: the page image only; the models that read only text
 are not on it). Each bench scores 0 = chance and 100 = every question right: (accuracy - mean of 1/k) / (1 - mean of
-1/k) x 100, k each question's number of options. Every row carries model_key, the three sites' join key (#4243): the
-model's name without its setting or route, lower case, spaces as hyphens, dots kept, "(open)" dropped, "-with-web"
-after it for a setup with web search (#4253)."""
+1/k) x 100, k each question's number of options. Every row carries name, the model's official name (Site.title, the
+project lead's naming rule, Ümit #4445), and tag, how the row's setup ran ('API · with web', 'high · chat'; '' for none;
+Site.tag), and model_key, the three sites' join key (#4243), unchanged: the setup name without its setting or route,
+lower case, spaces as hyphens, dots kept, "(open)" dropped, "-with-web" after it for a setup with web search (#4253)."""
 
 from __future__ import annotations
 
 import json
-import re
 from typing import Any
 
 import benchmark_metrics as bm
 import export_results as er
 from sitebuild import leaderboard
 from sitebuild.english_reading import english_only, setup_families
+from sitebuild.names import model_key
 from sitebuild.site import Site
 
 PATH = "bench-scores.json"
@@ -36,18 +37,6 @@ TITLES = {"text": "Reading · Turkish", "english": "Reading · English", "vision
 # The Turkish parts (Ümit #4239): (bench key, results.json group, the questions in words).
 PARTS = (("turkish-reading", "reading", "Turkish reading questions (units 1 to 6)"),
          ("turkish-grammar", "grammar", "Turkish grammar questions (units 7 to 20)"))
-
-
-# What a run's name may say about how it ran rather than which model it is: openness and route in parentheses. A release
-# after a comma stays: "DeepSeek-V4.1-Flash, first release" is not the 1017 update nor a hosted "DeepSeek V4.1 Flash".
-SETTING = re.compile(r"\s*\((?:open(?: weights)?|api[^)]*|local gpu)\)", re.I)
-
-
-def model_key(name: str) -> str:
-    """The three sites' join key (#4243): the model's name without its setting or route (a run's name, not its row's,
-    SETTING dropped), lower case, spaces as hyphens, dots kept: "GLiDE 27B (open)" reads glide-27b, "Perplexity Decider
-    27B v1.2 (API, with web)" perplexity-decider-27b-v1.2, "GLiNER2.5 Multi (base)" gliner2.5-multi-base."""
-    return "-".join(re.sub(r"[(),]", " ", SETTING.sub("", name)).lower().split())
 
 
 def run_key(run: dict[str, Any]) -> str:
@@ -125,7 +114,7 @@ def text_bench(site: Site, part: tuple[str, str, str] | None = None) -> dict[str
         repo, commit = checkpoint(run)
         params_total, params_active = sizes(run)
         models.append({
-            "repo": repo, "commit": commit, "name": leaderboard.name_of(site, run), "model_key": run_key(run),
+            "repo": repo, "commit": commit, "name": site.title(run), "tag": site.tag(run), "model_key": run_key(run),
             "maker": site.families[run["run"]]["maker"], "kind": "decision" if site.decision(run) else "chat",
             "params_total": params_total, "params_active": params_active, "quantization": quantization(run),
             "score_0_100": score(correct / questions, 1 / TEXT_OPTIONS),
@@ -156,7 +145,7 @@ def vision_bench(site: Site) -> dict[str, Any]:
         repo, commit = checkpoint(run)
         params_total, params_active = sizes(run)
         models.append({
-            "repo": repo, "commit": commit, "name": leaderboard.name_of(site, run), "model_key": run_key(run), "maker": site.families[run["run"]]["maker"],
+            "repo": repo, "commit": commit, "name": site.title(run), "tag": site.tag(run), "model_key": run_key(run), "maker": site.families[run["run"]]["maker"],
             "kind": "decision" if site.decision(run) else "chat", "params_total": params_total,
             "params_active": params_active, "quantization": quantization(run),
             "score_0_100": score(got["accuracy"], chance),
@@ -194,12 +183,13 @@ def english_bench(site: Site) -> dict[str, Any]:
     families = setup_families(site)
     models = []
 
-    def add(entry: dict[str, Any], run: dict[str, Any], name: str, maker: str, kind: str) -> None:
+    def add(entry: dict[str, Any], run: dict[str, Any], maker: str, kind: str) -> None:
         counts = entry["english"]
         repo, commit = checkpoint(run)
         params_total, params_active = sizes(run)
         models.append({
-            "repo": repo, "commit": commit, "name": name, "model_key": run_key(run), "maker": maker, "kind": kind,
+            "repo": repo, "commit": commit, "name": site.title(run), "tag": site.tag(run), "model_key": run_key(run),
+            "maker": maker, "kind": kind,
             "params_total": params_total, "params_active": params_active, "quantization": quantization(run),
             "score_0_100": score(counts["accuracy"], 1 / TEXT_OPTIONS),
             "raw": {"metric": "accuracy", "value": counts["accuracy"], "questions": total, "options": TEXT_OPTIONS},
@@ -210,10 +200,9 @@ def english_bench(site: Site) -> dict[str, Any]:
     for run, others in text_rows(site):
         entry = next((by_text[item["run"]] for item in (run, *others) if item["run"] in by_text), None)
         if entry is not None:
-            add(entry, run, leaderboard.name_of(site, run), site.families[run["run"]]["maker"],
-                "decision" if site.decision(run) else "chat")
+            add(entry, run, site.families[run["run"]]["maker"], "decision" if site.decision(run) else "chat")
     for entry in english_only(data):
-        add(entry, entry, entry["name"], families[entry["run"]]["maker"], "decision" if site.decision(entry) else "chat")
+        add(entry, entry, families[entry["run"]]["maker"], "decision" if site.decision(entry) else "chat")
     return {"bench": "reading-english", "title": TITLES["english"], "url": site.config["site_url"] + "english/",
             "updated": site.results["updated"],
             "score": {"zero": f"chance: 1 of {TEXT_OPTIONS} options right on every question (accuracy 20%)",

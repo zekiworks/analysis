@@ -55,9 +55,10 @@ import build_page as bp  # noqa: E402
 from sitebuild.dont_know import ranked as dont_know_ranked, running_setups  # noqa: E402
 from sitebuild import holding_back as hold  # noqa: E402
 from sitebuild.site import (GROUPS, NOT_MEASURED, ROUTE_LLMS, SUITE_CSS, Site, asset, cost_missing, cost_per, cost_unit_in,  # noqa: E402
-                            cost_value, family_icon, family_legend, footer, hbars, model_families, pct, route_labels,
+                            cost_value, family_icon, family_legend, footer, hbars, model_families, pct,
                             run_families, shown, topbar)
 from sitebuild import about, leaderboard  # noqa: E402
+from sitebuild.names import tag_html  # noqa: E402
 
 PAGE = ROOT / "index.html"
 # The home page's data, from results.json, which stays the published download: HOME, preloaded, holds what v3.js's
@@ -66,6 +67,9 @@ PAGE = ROOT / "index.html"
 # Confidence or Routing tab opens. Both are paths inside the site, as asset takes them.
 HOME = "data/home.json"
 HOME_MORE = "data/home-more.json"
+# Each setup's official name and tag by run id (Site.title, Site.tag; sitebuild/names.py), for chart-renderer, which
+# draws from results.json, whose setup names stay as recorded.
+NAMES = "data/names.json"
 HOME_KEYS = ("results_version", "questions", "sure_threshold", "units", "prices", "dont_know", "pipelines", "repeats",
              "replay", "baselines")
 # The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
@@ -84,7 +88,7 @@ INTRO = (
 DESCRIPTION = (
     "We tested {decision} decision models on a reading comprehension and grammar test in native Turkish (not "
     "translated): {questions} questions. "
-    "No model led on every measure. KnowLine 31B Gen1.5 got the most answers right, ahead of REAX 1.3 and Liquid's "
+    "No model led on every measure. KnowLine-31B-Gen1.5 got the most answers right, ahead of REAX 1.3 and Liquid's "
     "d1-ultra, which tied. Of the decision "
     "models with no observed mistakes at 99% confidence, Perplexity's Decider v1.2, run on our hardware, kept the most "
     "answers. With every model at 1 question per request, the decision model "
@@ -115,7 +119,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: KnowLine 31B Gen1.5 clearly ahead at 81.8%; REAX 1.3 and Liquid d1-ultra, tied at 77.9% and 77.1%; GLiDE 27B (open) at 71.1%; then Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra, Drex Max v1 and 1.1, Mammoth-1, Deciders v1.1 and v1.2 (local GPU), at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: KnowLine-31B-Gen1.5 clearly ahead at 81.8%; REAX 1.3 and Liquid's d1-ultra, tied at 77.9% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, hosted GLiDE, d3 and d3-ultra, Drex Max and Drex Max v1.1, Mammoth-1, Decider v1.1 and Decider v1.2 on our DGX Spark, at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -130,8 +134,6 @@ class Data:
         self.config = json.loads((ROOT / "page_config.json").read_text())
         self.runs: list[dict[str, Any]] = self.results["runs"]
         self.by_id = {run["run"]: run for run in self.runs}
-        # The route of each run whose model ID runs as both kinds of model, by run id (sitebuild.site.route_labels).
-        self.route_labels = route_labels(self.runs, self.decision)
 
     def decision(self, run: dict[str, Any]) -> bool:
         return run["provider"] in self.config["decision_model_providers"] and run["model"] not in self.config["not_decision_models"]
@@ -170,10 +172,10 @@ def fallback_table(data: Data, site: Site) -> str:
     """The Accuracy tab on all questions as one plain table, as v3.js opens the all view (?models=all, the default):
     every setup, decision and chat models ranked together by accuracy. Readers without JavaScript see it; with
     JavaScript, v3.js replaces it with the table of the group in view. Units sit in the headers, each column with one
-    number of decimals, as in v3.js; each name is the full name with only what tells it apart (Site.names), its
-    settings in its tooltip; a cost carries no basis mark (its tooltip and the note under the table give the basis)."""
+    number of decimals, as in v3.js; each name is the model's official name with its setup's tag beside it (Site.title,
+    Site.tag), its settings in its tooltip; a cost carries no basis mark (its tooltip and the note under the table give
+    the basis)."""
     rows: list[str] = []
-    names = site.names(data.runs)
     for run in sorted(data.runs, key=lambda run: -accuracy(run)[0]):
         correct, total = accuracy(run)
         low, high = bm.wilson_interval(correct, total)
@@ -187,7 +189,7 @@ def fallback_table(data: Data, site: Site) -> str:
         cost_text = f'<span title="{bp.esc(tip)}">{cost:.3f}</span>' if cost is not None and tip else f"{cost:.3f}" if cost is not None else cost_missing(run)
         rows.append(
             "<tr>"
-            f'<td class="model">{site.icon(run)}<a class="model-name" href="models/{run["run"]}/" title="{bp.esc(about)}">{bp.esc(names[run["run"]])}</a></td>'
+            f'<td class="model">{site.icon(run)}<a class="model-name" href="models/{run["run"]}/" title="{bp.esc(about)}">{bp.esc(site.title(run))}</a>{tag_html(site.tag(run))}</td>'
             f'<td class="num">{percent(correct / total)}<span class="small">{percent(low)} to {percent(high)}</span></td>'
             f'<td class="num">{percent(reading["correct"] / reading["questions"])}</td>'
             f'<td class="num">{percent(grammar["correct"] / grammar["questions"])}</td>'
@@ -224,10 +226,19 @@ def renderer(*args: str) -> str:
     return done.stdout
 
 
+def names_data(site: Site) -> None:
+    """Write NAMES (see there): {"runs": {run id: {"name": official name, "tag": tag}}}, the Text tab's runs."""
+    content = {"about": "Each setup's official name and the tag beside it, by run id (build_site.py from results.json and "
+                        "page_config.json display_names; sitebuild/names.py). results.json keeps the setup names.",
+               "runs": {str(run["run"]): {"name": site.title(run), "tag": site.tag(run)} for run in site.runs}}
+    (ROOT / NAMES).write_text(json.dumps(content, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"Wrote {NAMES}")
+
+
 def charts() -> None:
     """Every chart in both themes, drawn from results.json into charts/ by chart-renderer, which takes the decision
-    model lists from page_config.json."""
-    out = renderer("results.json", "page_config.json", "charts")
+    model lists from page_config.json and each setup's official name and tag from NAMES."""
+    out = renderer("results.json", "page_config.json", NAMES, "charts")
     print(f"Wrote {sum(line.startswith('Wrote ') for line in out.splitlines())} charts to charts/")
 
 
@@ -331,8 +342,6 @@ def page_settings(data: Data) -> str:
         "notDecisionModels": data.config["not_decision_models"],
         "readingUnits": data.config["reading_units"],
         "threshold": data.config["threshold"],
-        # Each route label, by run id.
-        "routeLabels": data.route_labels,
         # The charts' colours: each run's model family by run id, and each family's colour (model_families, from
         # maker_colours.json; run_families stops the build unless every run has exactly one family).
         "families": {run: family["name"] for run, family in run_families(data.runs).items()},
@@ -354,13 +363,14 @@ def page_settings(data: Data) -> str:
     return f'<script type="application/json" id="v3-settings">{json.dumps(settings, separators=(",", ":"))}</script>'
 
 
-def home_data(data: Data) -> None:
-    """Write HOME and HOME_MORE (see there) from results.json, compact. A cascade drops its curve, which v3.js never
-    reads."""
+def home_data(data: Data, site: Site) -> None:
+    """Write HOME and HOME_MORE (see there) from results.json, compact, each run with its model's official name as its
+    name and its tag (Site.title, Site.tag; results.json keeps the setup names). A cascade drops its curve, which v3.js
+    never reads."""
     results = data.results
 
     def first(run: dict[str, Any]) -> dict[str, Any]:
-        slim = {key: value for key, value in run.items() if key != "confidence"}
+        slim = {key: value for key, value in run.items() if key != "confidence"} | {"name": site.title(run), "tag": site.tag(run)}
         sure = (run.get("confidence") or {}).get("sure")
         if sure is not None:
             slim["confidence"] = {"sure": sure}
@@ -398,7 +408,6 @@ def non_hallucination(site: Site, finding: str) -> str:
             raise SystemExit(f"results.json dont_know: {model['name']} (run {model['run']}) is not in group {model['group']} on the Text tab")
     tab = '<a href="dont-know/">Hallucination tab</a>'
     runs = running_setups(site)
-    names = site.names(runs)
 
     def error(model: dict[str, Any]) -> str:
         answered = model["right"] + model["wrong"]
@@ -408,23 +417,23 @@ def non_hallucination(site: Site, finding: str) -> str:
         models = dont_know_ranked([model for model in data["models"]
                                    if model["group"] == kind and site.in_group(run_of(model), group)])
         rated = [model for model in models if model["non_hallucination"] is not None]
-        undefined = [site.row_name(run_of(model)) for model in models if model["non_hallucination"] is None]
-        running = [names[run["run"]] for run in runs if kind == "chat" and not site.decision(run) and site.in_group(run, group)]
+        undefined = [site.plain(run_of(model)) for model in models if model["non_hallucination"] is None]
+        running = [site.plain(run) for run in runs if kind == "chat" and not site.decision(run) and site.in_group(run, group)]
         one, many = NON_HALLUCINATION_NOUNS[kind]
         running_note = (f" <span>{bp.esc(site.config['dont_know']['running'].removesuffix('.'))}; still running in Turkish: "
                         f"{bp.esc(', '.join(running))}.</span>") if running else ""
         if not models:
             return (hold.block(heading, f'<p class="note">No {one} has a run with “{bp.esc(option)}” yet.{running_note}</p>')
                     if running else "")
-        rows = [{"label": site.row_name(run_of(model)), "family": site.families[model["original_run"]]["name"],
+        rows = [{"label": site.title(run_of(model)), "tag": site.tag(run_of(model)), "family": site.families[model["original_run"]]["name"],
                  "href": site.model_path(run_of(model)),
                  "texts": [pct(model["non_hallucination"], digits), pct(model["attempt_rate"], digits), error(model)],
                  "bars": [{"value": model["non_hallucination"], "colour": site.families[model["original_run"]]["colour"]}],
-                 "title": f"{site.row_name(run_of(model))}: {model['dont_know']:,} “{option}” of "
+                 "title": f"{site.plain(run_of(model))}: {model['dont_know']:,} “{option}” of "
                           f"{model['dont_know'] + model['wrong']:,} not right; {model['right'] + model['wrong']:,} of {total:,} "
                           f"answered, {model['wrong']:,} of them wrong (run {model['run']})"}
                 for model in rated]
-        rare = hold.rare_note([(site.row_name(run_of(model)), model["dont_know"], model["non_hallucination"]) for model in models],
+        rare = hold.rare_note([(site.plain(run_of(model)), model["dont_know"], model["non_hallucination"]) for model in models],
                               total, data["vs_confidence_share"], option, digits) if kind == "decision" else ""
         return hold.block(heading, (
             f'<p class="hold-kind">Each of the {len(models)} {one if len(models) == 1 else many}\' first run with it.</p>'
@@ -437,7 +446,7 @@ def non_hallucination(site: Site, finding: str) -> str:
 
     def copy(group: str) -> str:
         members = dont_know_ranked([model for model in data["models"] if site.in_group(run_of(model), group)])
-        setups = [(run_of(model), site.row_name(run_of(model)), site.model_path(run_of(model))) for model in members]
+        setups = [(run_of(model), site.plain(run_of(model)), site.model_path(run_of(model))) for model in members]
         confidence = hold.confidence_side(site, setups, group, ", in its Text tab run") if setups else ""
         with_option = hold.side(
             hold.option_title(option),
@@ -516,14 +525,14 @@ def findings(data: Data, site: Site) -> dict[str, dict[str, Any]]:
         "label": "Accuracy", "holds": share(best_chat) > share(best_decision),
         "claim": (f"The best chat setup gets {tenths(share(best_chat))} in 10 questions right; the best decision model "
                   f"{tenths(share(best_decision))} in 10"),
-        "text": (f"{site.row_name(best_chat)} answered {pct(share(best_chat))} of the {questions} questions right; "
-                 f"{site.row_name(best_decision)}, the best decision model, {pct(share(best_decision))}.")}
+        "text": (f"{site.plain(best_chat)} answered {pct(share(best_chat))} of the {questions} questions right; "
+                 f"{site.plain(best_decision)}, the best decision model, {pct(share(best_decision))}.")}
 
     idk = data.results["dont_know"]
     rates = {kind: [(model["non_hallucination"], model) for model in idk["models"]
                     if model["group"] == kind and model["non_hallucination"] is not None] for kind in ("decision", "chat")}
     top = {kind: max(rates[kind], key=lambda item: item[0]) for kind in rates}
-    name = lambda model: site.row_name(site.by_id[model["original_run"]])  # noqa: E731
+    name = lambda model: site.plain(site.by_id[model["original_run"]])  # noqa: E731
     out["non-hallucination"] = {
         "label": "Non-hallucination", "holds": top["decision"][0] > top["chat"][0],
         "claim": (f"The decision model that chooses “{bp.esc(idk['option'])}” most does so on {round(100 * top['decision'][0])} "
@@ -576,10 +585,10 @@ def calibration(data: Data, site: Site) -> dict[str, Any]:
     points = lambda run: f"{100 * run['confidence']['ece']:.1f}"  # noqa: E731
     return {
         "label": "Calibration", "holds": best["confidence"]["ece"] < second["confidence"]["ece"],
-        "claim": (f"{bp.esc(site.row_name(best))} has the smallest calibration gap of the {len(decision)} decision models, "
+        "claim": (f"{bp.esc(site.plain(best))} has the smallest calibration gap of the {len(decision)} decision models, "
                   f"as shipped: {points(best)} points"),
         "text": (f"The gap is how far a model's confidence is from how often it is right. Among decision models, the "
-                 f"largest is {site.row_name(worst)}'s, {points(worst)} points.")}
+                 f"largest is {site.plain(worst)}'s, {points(worst)} points.")}
 
 
 def finding_html(item: dict[str, Any], key: str) -> str:
@@ -635,9 +644,9 @@ def findings_checks(page: str, data: Data, site: Site) -> list[str]:
     lowest = [run for run in decision if run["confidence"]["ece"] == gaps[0]]
     title = re.search(r'<div class="finding" data-finding="calibration">.*?<h2 class="finding-title">(.*?)</h2>', page, re.S)
     if holds["calibration"] and (not title or title.group(1) != (
-            f"{bp.esc(site.row_name(lowest[0]))} has the smallest calibration gap of the {len(decision)} decision models, "
+            f"{bp.esc(site.plain(lowest[0]))} has the smallest calibration gap of the {len(decision)} decision models, "
             f"as shipped: {100 * gaps[0]:.1f} points")):
-        found.append(f"Calibration heading: {site.row_name(lowest[0])}, the smallest gap of the {len(decision)} decision "
+        found.append(f"Calibration heading: {site.plain(lowest[0])}, the smallest gap of the {len(decision)} decision "
                      f"models, {100 * gaps[0]:.1f} points")
     return found
 
@@ -682,13 +691,12 @@ def result_cards(data: Data, site: Site) -> str:
     sets = [f'<h2 class="results-heading">Full test · {bp.count(total)} questions</h2>']
     for group, scope in CARD_SCOPES.items():
         runs = group_runs(data, site, group)
-        names = site.names(runs)
         among = scope.format(n=bp.count(len(runs)))
         facts = card_facts(data, runs)
 
         def setups(chosen: list[dict[str, Any]]) -> str:
             return " and ".join(f'{family_icon(site.families[run["run"]]["name"])}<a href="{site.model_path(run)}">'
-                                f'{bp.esc(names[run["run"]])}</a>' for run in chosen)
+                                f'{bp.esc(site.title(run))}</a>{tag_html(site.tag(run))}' for run in chosen)
 
         def card(title: str, value: str, chosen: str, scope_text: str, tip: str | None = None) -> str:
             tip_attr = f' title="{bp.esc(tip)}"' if tip else ""
@@ -731,7 +739,7 @@ def card_checks(page: str, data: Data, site: Site) -> list[str]:
     total = data.results["questions"]
     for group in CARD_SCOPES:
         runs = group_runs(data, site, group)
-        names = site.names(runs)
+        names = {run["run"]: site.title(run) for run in runs}
         block = re.search(rf'<div class="result-cards" data-models="{group}"[^>]*>(.*?)</div>', page, re.S)
         if block is None:
             found.append(f"Result cards ({group}): index.html has the block")
@@ -793,7 +801,7 @@ def copy_checks(data: Data) -> list[str]:
     check("Stability: every repeated setup ran 5 times", all(len(item["runs"]) == 5 for item in results["repeats"]))
     best = max(decision, key=lambda run: accuracy(run)[0])
     knowline = data.by_name("PelaAI/KnowLine-31B-Gen1.5")
-    check("KnowLine 31B Gen1.5 got the most answers right (among decision models), ahead of REAX 1.3 and Liquid's "
+    check("KnowLine-31B-Gen1.5 got the most answers right (among decision models), ahead of REAX 1.3 and Liquid's "
           "d1-ultra, which tied",
           best is knowline and not any(letter in (run.get("group") or "") for run in (reax, ultra)
                                        for letter in (knowline.get("group") or ""))
@@ -862,12 +870,12 @@ def copy_checks(data: Data) -> list[str]:
     check("Stability note: the other chat models were repeated on a sample of 200",
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
-    # replayed): KnowLine 31B Gen1.5 leads on accuracy, sharing a letter with no other decision model; then REAX 1.3 and
-    # Liquid d1-ultra, sharing a letter with each other and with no other decision model; then GLiDE 27B (open); then
-    # Decider v1.2 (API, with web), GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex Max v1 and
-    # 1.1, Mammoth-1, and Deciders v1.1 and v1.2 (local GPU), in that order, at 66.9% to 68.7%;
-    # Liquid d1.1 has the smallest calibration gap as
-    # shipped; Perplexity Decider 27B v1.2 (API) scores highest on Better than a flat guess, then Open-Jev 27B v1.1, then
+    # replayed): KnowLine-31B-Gen1.5 leads on accuracy, sharing a letter with no other decision model; then REAX 1.3 and
+    # d1-ultra, sharing a letter with each other and with no other decision model; then GLiDE 27B; then Decider v1.2 with
+    # web search (through its API), GLiDE v1.2, hosted GLiDE, d3 and d3-ultra (tied on right answers), Drex Max and Drex
+    # Max v1.1, Mammoth-1, and Decider v1.1 and Decider v1.2 on our DGX Spark, in that order, at 66.9% to 68.7%;
+    # d1.1 has the smallest calibration gap as shipped; hosted Perplexity Decider 27B v1.2 scores highest on Better than a
+    # flat guess, then Open-Jev-27B-v1.1, then
     # SubQ Snap 1.1 and Decider v1.1 (equal to one decimal); d1-ultra gives the biggest estimated saving in 10 of the 16
     # LLM setups and REAX 1.3 in the other 6 (every routing LLM at each request size we ran it at).
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
@@ -879,11 +887,11 @@ def copy_checks(data: Data) -> list[str]:
         correct, total = accuracy(run)
         return f"{100 * correct / total:.1f}"
 
-    check("Summary: KnowLine 31B Gen1.5 has the highest accuracy among decision models, at 81.8%, clearly ahead: it shares "
+    check("Summary: KnowLine-31B-Gen1.5 has the highest accuracy among decision models, at 81.8%, clearly ahead: it shares "
           "a letter with no other decision model",
           ranked[0] is knowline and percent(knowline) == "81.8"
           and not any(shares(knowline, run) for run in decision if run is not knowline))
-    check("Summary: REAX 1.3 and Liquid d1-ultra next, tied at 77.9% and 77.1%: they share a letter with each other and "
+    check("Summary: REAX 1.3 and d1-ultra next, tied at 77.9% and 77.1%: they share a letter with each other and "
           "with no other decision model",
           ranked[1] is reax and ranked[2] is ultra and percent(reax) == "77.9" and percent(ultra) == "77.1"
           and shares(reax, ultra)
@@ -891,10 +899,13 @@ def copy_checks(data: Data) -> list[str]:
     with_web = data.by_name("pplx-decider-v1.2", "perplexity", "web_grounding")
     hosted = data.by_name("pplx-decider-v1.2", "perplexity", None)
     glide27 = data.by_name("glide-27b")
-    check("Summary: GLiDE 27B (open) at 71.1%", ranked[3] is glide27 and percent(glide27) == "71.1")
-    check(f"Summary: then {with_web['name']}, GLiDE v1.2, GLiDE, vLLM-SR d3 and d3-ultra (tied on right answers), Drex "
-          f"Max v1 and 1.1, Mammoth-1, {decider['name']} and {decider12['name']}, in that order",
-          ranked[4] is with_web and ranked[5] is glide12 and ranked[6] is glide
+    check("Summary: GLiDE 27B at 71.1%", ranked[3] is glide27 and percent(glide27) == "71.1")
+    check("Summary: then Decider v1.2 with web search (through its API), GLiDE v1.2, hosted GLiDE, d3 and d3-ultra "
+          "(tied on right answers), Drex Max and Drex Max v1.1, Mammoth-1, Decider v1.1 and Decider v1.2 on our DGX Spark, "
+          "in that order",
+          "DGX Spark" in (decider12.get("hardware") or "") and with_web["billing"] == "api" and decider["billing"] == "api"
+          and glide["billing"] == "api"
+          and ranked[4] is with_web and ranked[5] is glide12 and ranked[6] is glide
           and {run["run"] for run in ranked[7:9]} == {d3["run"], d3_ultra["run"]}
           and accuracy(d3) == accuracy(d3_ultra) and ranked[9] is drex_v1 and ranked[10] is drex_11 and ranked[11] is mammoth
           and {run["run"] for run in ranked[12:14]} == {decider["run"], decider12["run"]})
@@ -902,11 +913,13 @@ def copy_checks(data: Data) -> list[str]:
     check("Summary: at 66.9% to 68.7%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])
-    check("Summary: calibration gap, as shipped: Liquid d1.1 had the smallest gap among decision models",
+    check("Summary: calibration gap, as shipped: d1.1 had the smallest gap among decision models",
           calibrated[0] is data.by_name("d1.1"))
     flat = sorted(decision, key=lambda run: -bp.flat_gain(run))
-    check(f"Summary: better than a flat guess, after refit: {hosted['name']} (32.1%), then Open-Jev 27B v1.1 (31.9%), "
-          f"then SubQ Snap 1.1 and {decider['name']} (31.5% each), the four highest among decision models",
+    check("Summary: better than a flat guess, after refit: hosted Perplexity Decider 27B v1.2 (32.1%), then "
+          "Open-Jev-27B-v1.1 (31.9%), then SubQ Snap 1.1 and Perplexity Decider 27B v1.1 (31.5% each), the four highest "
+          "among decision models",
+          hosted["billing"] == "api" and
           flat[0] is hosted and flat[1] is data.by_name("open-jev-27b-v1.1")
           and {run["run"] for run in flat[2:4]} == {data.by_name("subq-snap-1.1")["run"], data.by_name("pplx-decider-v1.1-27b")["run"]}
           and [f"{bp.flat_gain(run):.1f}" for run in flat[:4]] == ["32.1", "31.9", "31.5", "31.5"])
@@ -956,7 +969,7 @@ def copy_checks(data: Data) -> list[str]:
                        for run in decision if (run["run"], frontier["run"]) in cascades]
             winners.append(max(savings)[1])
     tally = Counter(winners)
-    check(f"Summary: d1-ultra gave the biggest estimated saving in 8 of the 16 LLM setups, REAX 1.3 in 6, GLiDE 27B (open) "
+    check(f"Summary: d1-ultra gave the biggest estimated saving in 8 of the 16 LLM setups, REAX 1.3 in 6, GLiDE 27B "
           f"in the other 2 ({len(winners)} setups: {dict((data.by_id[run]['name'], times) for run, times in tally.items())})",
           len(winners) == 16 and tally == Counter({ultra["run"]: 8, reax["run"]: 6, data.by_name("glide-27b")["run"]: 2}))
     return found
@@ -994,11 +1007,12 @@ def main() -> int:
     provider_checks(data)
     snap = site.snapshot  # runs reproduce.py (--fast: unless stored): the build stops here unless every check matches
     type_checks(data, site, snap)
+    names_data(site)
     charts()
     names = images(site, args.no_images)
     bp.CITATION.write_text(bp.citation(snap, site.values), encoding="utf-8")
     print(f"Wrote {bp.CITATION.relative_to(ROOT)}")
-    home_data(data)
+    home_data(data, site)
     found = findings(data, site)
     blocks = {
         "head": head(data, names["preview"]["dark"]),
@@ -1029,7 +1043,7 @@ def main() -> int:
         seen.add(match.group(2))
         return match.group(1) + blocks[match.group(2)] + match.group(4)
 
-    text = bp.BLOCK.sub(fill, text)
+    text = site.in_prose(bp.BLOCK.sub(fill, text))
     if seen != set(blocks):
         raise ValueError(f"index.html lacks the markers {sorted(set(blocks) - seen)}")
     PAGE.write_text(text)
@@ -1040,7 +1054,8 @@ def main() -> int:
     finding_notes(site, found)
     notes = (f"<p>{bp.esc(RANKS_NOTE)}</p><p>"
              f'{bp.esc(" ".join(filter(None, [site.cost_note(data.runs), not_measured_note(data)])))}</p>')
-    about_page = about.page(site, INTRO.format(**counts(data)), how_scores(data), notes, result_cards(data, site), stats(data))
+    about_page = site.in_prose(about.page(site, INTRO.format(**counts(data)), how_scores(data), notes,
+                                          result_cards(data, site), stats(data)))
     (ROOT / about.PATH).mkdir(exist_ok=True)
     (ROOT / about.PATH / "index.html").write_text(about_page)
     written += 1
@@ -1053,14 +1068,25 @@ def main() -> int:
     return 1 if differ else 0
 
 
+# Pages whose fixed text names models by another's own label, kept as written: Artificial Analysis's names on its index's
+# page. The Method page's names table (#names) lists the setup names as recorded, by design.
+PROSE_KEPT = ("aa-decision-index/",)
+
+
 def write_pages(site: Site) -> int:
     """Every page of PAGE_MODULES, each to <path>index.html, and the plain files they return under a path that does not
-    end in "/" (as turkish-vs-english/kept-question-ids.txt); the number of pages written."""
+    end in "/" (as turkish-vs-english/kept-question-ids.txt); the number of pages written. A page's text written with
+    the setups' recorded names (notes, fixed copy, results' own lists) reads them through Site.in_prose, the Method
+    page's names table and PROSE_KEPT left as they are."""
     written = 0
     for name in PAGE_MODULES:
         module = importlib.import_module(f"sitebuild.{name}")
         for path, text in module.build(site).items():
             page = not path or path.endswith("/")
+            if page and path not in PROSE_KEPT:
+                kept = re.search(r'<h3 id="names">.*?</table>', text, re.S)
+                text = (site.in_prose(text[:kept.start()]) + kept.group(0) + site.in_prose(text[kept.end():])
+                        if kept else site.in_prose(text))
             target = ROOT / path / "index.html" if page else ROOT / path
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(text)
