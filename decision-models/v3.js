@@ -1757,8 +1757,8 @@ function onClick(event) {
     return;
   }
   const { dataset } = button;
-  /* A second tap on a pressed key undoes it, back to the key row's default (the three sites' rule, bus #3923-#3927);
-     a sort key keeps flipping its order instead. */
+  /* A second tap on a pressed key undoes it, back to the key row's default (our reading of the project lead's "undo",
+     bus #3923; her word on these keys is pending, #3945); a sort key keeps flipping its order instead. */
   const pick = (current, chosen, fallback) => (String(current) === String(chosen) ? fallback : chosen);
   if (dataset.select) toggleSelected(Number(dataset.select));
   else if (dataset.tab) {

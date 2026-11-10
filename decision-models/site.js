@@ -13,8 +13,8 @@ function secondsText(value) {
    the chosen one; v3.js and compare.js write theirs with costScale and costNumber and redraw on the "costunit" event.
    A key with data-cost-unit-choice (site.py cost_switch) changes it everywhere, keeps it in localStorage and in the
    address (the rest of the address and its history state stay); a second tap on the pressed key goes back to the
-   default, per 1,000 questions (the three sites' rule, bus #3923-#3927). Without JavaScript costs read per 1,000
-   questions. */
+   default, per 1,000 questions (our reading of the project lead's "undo", bus #3923; her word on it is pending, #3945).
+   Without JavaScript costs read per 1,000 questions. */
 const COST_UNITS = { '1k': { label: 'per 1,000 questions', scale: 1 }, '1m': { label: 'per 1M questions', scale: 1000 } };
 const costUnit = () => (document.documentElement.dataset.costUnit === '1m' ? '1m' : '1k');
 /* A cost per 1,000 questions times costScale() is the cost in the chosen unit. */
@@ -95,8 +95,8 @@ const costSwitch = () =>
    means all; trailing dots, punctuation or spaces are dropped, so "all." reads as all; the old small reads as
    small-chat, so old links and bookmarks keep working). Each element whose data-models lists other groups only is
    hidden (and shown again when it lists this one), before the page's own scripts run; <html data-models-view> carries
-   the group for them, and a page's group keys (.group-switch) mark it; the marked key leads back to the page's default,
-   All models, so a second tap undoes it (the three sites' rule, bus #3923-#3927). A group asked for in the address
+   the group for them, and a page's group keys (.group-switch) mark it; the marked key leads to All models, so a second
+   tap clears the group (the three sites' rule for the model keys, bus #3937, #3953). A group asked for in the address
    stays in the links marked data-keep-group. The sticky header's height (the suite strip and the site's bar) is kept
    in --view-bar-h, so the page scrolls links and parts below it. */
 const GROUP_KEYS = ['all', 'decision', 'chat', 'small-chat', 'small-decision'];
@@ -251,8 +251,8 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     return;
   }
   // Small chat models opens on English (leaderboard.py SMALL_PART): the small open models ran in English only. Small
-  // decision models keeps the part in view. A second tap on a pressed key undoes it, back to the default (the three
-  // sites' rule, bus #3923-#3927): a part to Turkish; a filter to Decision models, and Decision models to All.
+  // decision models keeps the part in view. A second tap on a pressed key undoes it: a model filter clears to All and All
+  // stays (the three sites' rule, bus #3937, #3953); a part goes back to Turkish (our reading of "undo", #3923, #3945).
   const DEFAULT_PART = 'turkish';
   const DEFAULT_FILTER = 'decision';
   const state = {
@@ -306,7 +306,7 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     if (key.dataset.lbPart) state.part = key.dataset.lbPart === state.part ? DEFAULT_PART : key.dataset.lbPart;
     else if (key.dataset.lbFilter) {
       const chosen = key.dataset.lbFilter;
-      state.filter = chosen !== state.filter ? chosen : chosen === DEFAULT_FILTER ? 'all' : DEFAULT_FILTER;
+      state.filter = chosen !== state.filter ? chosen : 'all';
       if (state.filter === 'small-chat') state.part = 'english';
     } else if (key.hasAttribute('data-lb-all')) {
       openAll(!state.all);
