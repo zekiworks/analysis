@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results ff7c1f5d (10 November 2026)
+
+- The third small open model on English reading (project lead, bus #3446, #3475): Gemma 4 E2B (Google; 5.1B parameters in total with its per-layer embeddings and vision and audio encoders, 2.3B effective as Google states it), on logic's server (vLLM v0.30.0, BF16, `google/gemma-4-E2B-it` at `4adf157`), one question per request with the plain answer line and the request settings of logic's Logic & Math runs of the same model (temperature 0, output cap 8,192 tokens, thinking off). English-only. Run 892: 408 of the 547 kept questions right (74.6%), 136 wrong, 3 invalid (no answer line). With "I don't know" (run 893): 397 right, 17 "I don't know", 131 wrong, 2 invalid; non-hallucination 11.5%. Cost from GPU time: 91 seconds of one GPU, $0.06 for the run ($0.12 per 1,000 questions).
+- Inkling Small's size record now carries its card's active count, 12B (its total stays our count of the checkpoint, 265,956,439,040), so it is in Small chat models by the three sites' rule (total or active 15B or fewer) rather than by name. No other number changed; no significance letter or paired verdict moved.
+
 ## Results 70efbd84 (9 November 2026)
 
 - The second small open model on English reading (project lead, bus #3446, #3475): Gemma 4 E4B (Google; 8.0B parameters in total with its per-layer embeddings and vision and audio encoders, 4.5B effective as Google states it), on logic's server (vLLM v0.30.0, BF16, `google/gemma-4-E4B-it` at `4ecc2ba`), one question per request with the plain answer line and the request settings of logic's Logic & Math runs of the same model (temperature 0, output cap 8,192 tokens, thinking off as in our Gemma 4 31B runs). English-only, as LFM2.5-8B-A1B. Run 889: 451 of the 547 kept questions right (82.4%), 94 wrong, 2 invalid (no answer line). With "I don't know" (run 890): 443 right, 10 "I don't know", 92 wrong, 2 invalid; non-hallucination 9.8%. Cost from GPU time: 157 seconds of one GPU, $0.11 for the run ($0.20 per 1,000 questions). No other number changed; no significance letter or paired verdict moved.

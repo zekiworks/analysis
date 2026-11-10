@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "70efbd84",
-  "updated": "2026-11-09T18:08:54Z",
+  "results_version": "ff7c1f5d",
+  "updated": "2026-11-10T01:49:04Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -12835,9 +12835,11 @@
       "perplexity_mode": null,
       "note": null,
       "parameters": 265956439040,
-      "active_parameters": null,
+      "active_parameters": [
+        12000000000
+      ],
       "effective_parameters": null,
-      "parameters_scope": "mixture of experts: language model + multi-token prediction layer + vision and audio encoders; card: 276B total, 12B active",
+      "parameters_scope": "mixture of experts: language model + multi-token prediction layer + vision and audio encoders, counted; active per token as the card states it; card: 276B total, 12B active",
       "parameters_source": [
         "counted from the checkpoint's safetensors, thinkingmachines/Inkling-Small@8cc5877",
         "https://thinkingmachines.ai/model-card/inkling-small/",
@@ -308195,6 +308197,79 @@
         }
       },
       {
+        "name": "Gemma 4 E2B",
+        "model": "gemma-4-e2b-it",
+        "provider": "vllm-plain",
+        "reasoning": "default",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 892,
+        "runs": [
+          892
+        ],
+        "dates": [
+          "2026-11-10"
+        ],
+        "parameters": 5123178016,
+        "active_parameters": null,
+        "effective_parameters": 2300000000,
+        "parameters_scope": "language model with per-layer embeddings + vision and audio encoders; effective size as Google states it",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, google/gemma-4-E2B-it@4adf157",
+          "https://huggingface.co/google/gemma-4-E2B-it"
+        ],
+        "parameters_read": "2026-11-09",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision google/gemma-4-E2B-it@4adf157), one question per request, plain answer line ANSWER: X (no answer schema); sampling temperature 0.0; output cap 8,192",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 0.06301759276825482,
+            "per_1000": 0.11520583687066693,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 149024,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 297775
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 91.10977267699491
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 4.842848351996508,
+            "p90_request_seconds": 7.3982656715990744,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 408,
+          "wrong": 136,
+          "invalid": 3,
+          "accuracy": 0.7458866544789763
+        }
+      },
+      {
         "name": "LFM2.5-8B-A1B",
         "model": "lfm2.5-8b-a1b",
         "provider": "vllm-plain",
@@ -312097,6 +312172,41 @@
             "accuracy": 0.6453382084095064,
             "attempt_rate": 0.9049360146252285,
             "non_hallucination": 0.26424870466321243,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Gemma 4 E2B",
+          "model": "gemma-4-e2b-it",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 892,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 893,
+            "runs": [
+              893
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 2,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "invalid_by_kind": {
+                "unreadable": 2
+              }
+            },
+            "right": 397,
+            "wrong": 131,
+            "dont_know": 17,
+            "invalid": 2,
+            "accuracy": 0.7257769652650823,
+            "attempt_rate": 0.9652650822669104,
+            "non_hallucination": 0.11486486486486487,
             "mean_dont_know_probability": null
           }
         },

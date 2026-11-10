@@ -292,11 +292,9 @@ const MODEL_GROUPS = {
 };
 /* A setup of a small model (page_config.json small_models, as Site.small): its maker's disclosed total, or for a
    mixture of experts every active count, at most the threshold; never a model id the view leaves out
-   (SETTINGS.smallLeftOut), always a setup it holds by name (SETTINGS.smallByName, "provider|model"); a model whose
-   maker discloses no size never is. */
+   (SETTINGS.smallLeftOut); a model whose maker discloses no size never is. */
 const isSmall = run => {
   if ((SETTINGS.smallLeftOut || []).includes(run.model)) return false;
-  if ((SETTINGS.smallByName || []).includes(`${run.provider}|${run.model}`)) return true;
   const active = run.active_parameters || [];
   return (run.parameters != null && run.parameters <= SETTINGS.smallModels)
     || (active.length > 0 && Math.max(...active) <= SETTINGS.smallModels);

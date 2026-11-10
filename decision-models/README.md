@@ -197,9 +197,9 @@ python3 -m http.server 8000                                # preview at http://1
     small chat models, Small decision models the small decision models. `small_models.left_out_models` are never small
     here: the six small setups only this site ran (Laya, Laya multilingual, GLiNER2.5-multi-Decide in the decision
     group's sentence; GLiNER2.5 Multi (base), Qwen3-14B, Erk-14B in the chat group's; Zeki #3805, #3818), named in each
-    group's `left_out_text` and shown under All. `small_models.also_by_name` holds a setup whose size record does not carry its maker's active count
-    yet (Inkling Small, 12B active on its card). A part that covers every decision model whatever its size (a Holm family,
-    a decision-model finding) is not split by size: under both small groups a note (`small_note`) stands in its
+    group's `left_out_text` and shown under All. Inkling Small is in Small chat models by its card's 12B active
+    parameters. A part that covers every decision model whatever its size (a Holm family, a decision-model finding)
+    is not split by size: under both small groups a note (`small_note`) stands in its
     place, as under Chat models. A group asked for in the address stays in the links marked
     `data-keep-group`. The footer of every page (`footer`): About · Method · Data · GitHub, the downloads and the
     results version. **Cost unit**: every cost reads per 1,000 questions or per

@@ -687,16 +687,12 @@ class Site:
 
     def small(self, run: dict[str, Any]) -> bool:
         """Whether a setup is small (the three sites' rule, project lead through Zeki #3812-#3816; Small chat models and
-        Small decision models hold the small setups of each kind, #3876-#3882): its
-        model's total, or for a mixture of experts every active count, as the maker discloses it, at most small_max; a
-        model whose maker discloses no size never is. small_models.left_out_models never are (setups only this site
-        ran, Zeki #3805, #3818); small_models.also_by_name always are (a setup whose maker's active count its size record
-        does not carry yet)."""
+        Small decision models hold the small setups of each kind, #3876-#3882): its model's total, or for a mixture of
+        experts every active count, as the maker discloses it, at most small_max; a model whose maker discloses no size
+        never is. small_models.left_out_models never are (setups only this site ran, Zeki #3805, #3818)."""
         small = self.config["small_models"]
         if run["model"] in small.get("left_out_models", []):
             return False
-        if any(item["provider"] == run["provider"] and item["model"] == run["model"] for item in small.get("also_by_name", [])):
-            return True
         total, active = run.get("parameters"), run.get("active_parameters") or []
         return (total is not None and total <= self.small_max) or (bool(active) and max(active) <= self.small_max)
 
