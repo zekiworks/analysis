@@ -224,14 +224,16 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
 /* Home page: the Leaderboard (sitebuild/leaderboard.py). Its controls: the part (Turkish, Turkish reading, Turkish
    grammar, English reading or Both, Turkish first; Ümit #4181), the type (All, Chat models or Decision models; Decision models unless ?models= asks for another) and All
    setups, which shows today's full ranking with its tabs (#all-setups, v3.js) in place of the one-row-per-model table;
-   then the Size keys (All, Tiny, Small, Medium, Large, Undisclosed; Ümit #4156), combined with the type. A row outside
-   the keys (its data-kind, its data-size; a row with no size, a setup only this site ran, shows under Size: All only)
-   and its other-setting rows go out of view (lb-off). The # cell numbers the rows in view: on a table whose rows carry
-   tie-group letters (the Turkish part) the tier (leaderboard.py tiers(): a row joins the tier of the tier's top row when
-   they share a letter, else it starts the next tier, marked lb-tier-start for the line between tiers), elsewhere the
-   rank, tied scores sharing one. While a size is chosen its rule shows under the table; a part with no row in view says
-   so. The old small addresses (?models=small-chat, small, small-decision) press Tiny and Small together, the rows of the
-   old small views; small-chat opens on English, as before (the small open models ran in English only). Each row's
+   then the Class keys (All, Tiny, Small, Medium, Large, Efficient, Workhorse, Flagship; Ümit #4217), combined with the
+   type; a class key with no row of the part in view under the type pressed hides (and lets go if it was pressed). A row
+   outside the keys (its data-kind, its data-class; a row with no class, a setup only this site ran, shows under Class:
+   All only) and its other-setting rows go out of view (lb-off). The # cell numbers the rows in view: on a table whose
+   rows carry tie-group letters (the Turkish part) the tier (leaderboard.py tiers(): a row joins the tier of the tier's
+   top row when they share a letter, else it starts the next tier, marked lb-tier-start for the line between tiers),
+   elsewhere the rank, tied scores sharing one; a row with web search (data-unranked) is numbered in neither and keeps
+   its dash. While a class is chosen the class rule shows under the table; a part with no row in view says so. The old
+   small addresses (?models=small-chat, small, small-decision) press Tiny and Small together; small-chat opens on
+   English, as before (the small open models ran in English only). Each row's
    expander shows or hides its other setups. Old addresses keep working: #headline lands on the Leaderboard; #board,
    #all-setups, #cost-table and #chart-tradeoff open All setups first; on the home page itself, #info, whose summary and
    notes moved, and #how-scores, which moved, open About (MOVED; the About page has its own #leaderboard). Without
@@ -245,8 +247,8 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     window.location.replace(MOVED[hash]);
     return;
   }
-  // A second tap on a pressed key undoes it: a type or size clears to All and All stays (the three sites' rule, bus
-  // #3937, #3953); a part goes back to Turkish (our reading of "undo", #3923, #3945). A size key pressed while two are
+  // A second tap on a pressed key undoes it: a type or class clears to All and All stays (the three sites' rule, bus
+  // #3937, #3953); a part goes back to Turkish (our reading of "undo", #3923, #3945). A class key pressed while two are
   // (an old small address) keeps only itself.
   const DEFAULT_PART = 'turkish';
   const DEFAULT_TYPE = 'decision';
@@ -254,11 +256,11 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
   const state = {
     part: ASKED_GROUP === 'small-chat' ? 'english' : DEFAULT_PART,
     type: SMALL ? ASKED_GROUP.slice(6) : (GROUP_KEYS.includes(ASKED_GROUP) ? ASKED_GROUP : DEFAULT_TYPE),
-    sizes: SMALL ? ['tiny', 'small'] : [],
+    classes: SMALL ? ['tiny', 'small'] : [],
     all: false,
   };
   const allPanel = document.getElementById('all-setups');
-  const sizeLine = board.querySelector('.lb-size-line');
+  const classLine = board.querySelector('.lb-size-line');
   const number = table => {
     let previous = null;
     let top = null;
@@ -266,6 +268,10 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     let seen = 0;
     const tiered = table.dataset.part === 'turkish';
     table.querySelectorAll('tbody tr[data-score]:not(.lb-off)').forEach(row => {
+      if (row.hasAttribute('data-unranked')) {
+        row.classList.remove('lb-tier-start');
+        return;
+      }
       const score = Number(row.dataset.score);
       seen += 1;
       let starts = false;
@@ -278,7 +284,7 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
       row.classList.toggle('lb-tier-start', tiered && starts && seen > 1);
       row.querySelector('td.rank').textContent = String(count);
     });
-    table.closest('.lb-part').querySelector('.lb-empty').hidden = seen > 0;
+    table.closest('.lb-part').querySelector('.lb-empty').hidden = table.querySelector('tbody tr[data-score]:not(.lb-off)') !== null;
   };
   const apply = () => {
     board.querySelectorAll('[data-lb-part]').forEach(key => {
@@ -286,15 +292,22 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
       else key.hidden = key.dataset.lbPart !== state.part;
     });
     board.querySelectorAll('button[data-lb-type]').forEach(key => key.setAttribute('aria-pressed', String(key.dataset.lbType === state.type)));
-    board.querySelectorAll('button[data-lb-size]').forEach(key => key.setAttribute('aria-pressed',
-      String(key.dataset.lbSize === 'all' ? !state.sizes.length : state.sizes.includes(key.dataset.lbSize))));
+    // The class keys of the part in view: a class with no row under the type pressed hides, and lets go if pressed.
+    const rows = [...board.querySelectorAll(`.lb-table[data-part="${state.part}"] tbody tr[data-score]`)];
+    const present = new Set(rows.filter(row => state.type === 'all' || row.dataset.kind === state.type).map(row => row.dataset.class));
+    state.classes = state.classes.filter(found => present.has(found));
+    board.querySelectorAll('button[data-lb-class]').forEach(key => {
+      const found = key.dataset.lbClass;
+      key.hidden = found !== 'all' && !present.has(found);
+      key.setAttribute('aria-pressed', String(found === 'all' ? !state.classes.length : state.classes.includes(found)));
+    });
     board.querySelectorAll('tbody tr[data-kind]').forEach(row => {
       const off = (state.type !== 'all' && row.dataset.kind !== state.type)
-        || (state.sizes.length > 0 && !state.sizes.includes(row.dataset.size));
+        || (state.classes.length > 0 && !state.classes.includes(row.dataset.class));
       row.classList.toggle('lb-off', off);
     });
     board.querySelectorAll('.lb-table').forEach(number);
-    if (sizeLine) sizeLine.hidden = !state.sizes.length;
+    if (classLine) classLine.hidden = !state.classes.length;
     board.querySelector('[data-lb-all]')?.setAttribute('aria-pressed', String(state.all));
     board.classList.toggle('all-open', state.all);
     allPanel?.classList.toggle('is-open', state.all);
@@ -324,9 +337,9 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     if (!key) return;
     if (key.dataset.lbPart) state.part = key.dataset.lbPart === state.part ? DEFAULT_PART : key.dataset.lbPart;
     else if (key.dataset.lbType) state.type = key.dataset.lbType !== state.type ? key.dataset.lbType : 'all';
-    else if (key.dataset.lbSize) {
-      const chosen = key.dataset.lbSize;
-      state.sizes = chosen === 'all' || (state.sizes.length === 1 && state.sizes[0] === chosen) ? [] : [chosen];
+    else if (key.dataset.lbClass) {
+      const chosen = key.dataset.lbClass;
+      state.classes = chosen === 'all' || (state.classes.length === 1 && state.classes[0] === chosen) ? [] : [chosen];
     } else if (key.hasAttribute('data-lb-all')) {
       openAll(!state.all);
       return;
@@ -362,6 +375,33 @@ const ASKED_GROUP = (asked => (asked === 'small' ? 'small-chat' : asked))(
     if (link && INTO_ALL.includes(link.getAttribute('href').slice(1)) && !link.dataset.gotoTab) openAll(true);
   }, true);
   if (hash === 'headline') board.scrollIntoView();
+})();
+
+/* Other boards with a Class row (data-class-board: the Vision page's decision models; sitebuild/vision.py class_keys;
+   Ümit #4217): one class key pressed at a time, a second tap back to All; a row of another class, or of none (a setup
+   only this site ran), goes out of view while a class is pressed, and a group left with no row says so. */
+(function classBoards() {
+  document.querySelectorAll('[data-class-board]').forEach(board => {
+    let chosen = 'all';
+    const apply = () => {
+      board.querySelectorAll('button[data-class-key]').forEach(key => key.setAttribute('aria-pressed', String(key.dataset.classKey === chosen)));
+      board.querySelectorAll('.board-part').forEach(part => {
+        let seen = 0;
+        part.querySelectorAll('tbody tr').forEach(row => {
+          row.hidden = chosen !== 'all' && row.dataset.class !== chosen;
+          if (!row.hidden) seen += 1;
+        });
+        part.querySelector('.table-wrap').hidden = seen === 0;
+        part.querySelector('.board-empty').hidden = seen > 0;
+      });
+    };
+    board.addEventListener('click', event => {
+      const key = event.target.closest('button[data-class-key]');
+      if (!key) return;
+      chosen = key.dataset.classKey === chosen ? 'all' : key.dataset.classKey;
+      apply();
+    });
+  });
 })();
 
 /* Home page: a Leaderboard row's details box, as on the Backgammon site. A tap on a phone opens it and a second tap on

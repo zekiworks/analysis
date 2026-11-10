@@ -121,14 +121,34 @@ def model_cell(site: Site, origin: str, model: dict[str, Any], shown: dict[int, 
     detail = site.detail(run)
     tip = f' title="{esc(detail)}"' if detail else ""
     return (f'<td class="model"{tip}>{mark}<a class="model-name" href="{rel(origin, site.model_path(run))}">'
-            f'{esc(shown[run["run"]])}</a></td>')
+            f'{esc(shown[run["run"]])}</a> {site.label(run)}</td>')
+
+
+def class_attribute(site: Site, model: dict[str, Any]) -> str:
+    """A row's class for the board's Class keys (Site.model_class of its Text tab setup, condition A's run); none for a
+    model without one or a setup only this site ran (Class: All only)."""
+    run = site.by_id.get(model["a_run"])
+    found = site.model_class(run) if run else None
+    return f' data-class="{found}"' if found else ""
+
+
+def class_keys(site: Site, models: list[dict[str, Any]]) -> str:
+    """The board's Class row (Ümit #4217, as the home page's Leaderboard): All, then each class some model of the
+    board is in, in the scale's order; site.js (classBoards) filters the rows."""
+    present = {site.model_class(site.by_id[model["a_run"]]) for model in models if model["a_run"] in site.by_id}
+    keys = [("all", "All"), *((key, label) for key, label in site.model_classes() if key in present)]
+    buttons = "".join(f'<button type="button" class="key" data-class-key="{key}" aria-pressed="{str(key == "all").lower()}">'
+                      f'{esc(label)}</button>' for key, label in keys)
+    return (f'<div class="lb-controls lb-size-keys needs-js"><span class="keys" role="group" aria-label="Class">'
+            f'<span class="lb-keys-label" aria-hidden="true">Class:</span>{buttons}</span></div>')
 
 
 def model_table(site: Site, origin: str, data: dict[str, Any], models: list[dict[str, Any]]) -> str:
     """The leaderboard's columns for these models, in this order; every header says which way is better."""
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{DIRECTION}</span></th>' for _, name in COLUMNS)
     shown = shown_names(site, models)
-    rows = "".join(f"<tr>{model_cell(site, origin, model, shown)}{cells(data, model)}</tr>" for model in models)
+    rows = "".join(f"<tr{class_attribute(site, model)}>{model_cell(site, origin, model, shown)}{cells(data, model)}</tr>"
+                   for model in models)
     return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr></thead>'
             f"<tbody>{rows}</tbody></table></div>")
 
@@ -163,7 +183,8 @@ def group(site: Site, data: dict[str, Any], models: list[dict[str, Any]], kind: 
     if rest:
         note += (f" {esc(names(rest))} {'has' if len(rest) == 1 else 'have'} {missing}, so "
                  f"{'it is' if len(rest) == 1 else 'they are'} not ranked and {'follows' if len(rest) == 1 else 'follow'} the ranked rows.")
-    return f'{heading}<p class="note">{note}</p>{model_table(site, PATH, data, top + rest)}'
+    return (f'<div class="board-part">{heading}<p class="note">{note}</p>{model_table(site, PATH, data, top + rest)}'
+            '<p class="note board-empty" hidden>No model of this class in this group.</p></div>')
 
 
 # vision.json's texts as the page says them: internal notes (decision numbers, people, remarks about the machine) are
@@ -204,12 +225,13 @@ def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
         return ""
     title = "Decision models" if decision else "Other models: chat and general models"
     marks = DECISION_ONLY if decision else 'data-models="all"'
-    start = f'    <section class="card" id="{"decision" if decision else "other"}" {marks}>\n      <h2>{title}</h2>\n      '
+    start = (f'    <section class="card" id="{"decision" if decision else "other"}" {marks}'
+             f'{" data-class-board" if decision else ""}>\n      <h2>{title}</h2>\n      ')
     if not models:
         empty = "No chat or general model has been run on the page images yet." if not decision else "No decision model has been run on the page images yet."
         return f'{start}<p class="note">{empty}</p>{not_run(skipped)}\n    </section>'
     groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
-    return f"{start}{groups}{not_run(skipped)}\n    </section>"
+    return f"{start}{class_keys(site, models) if decision else ''}{groups}{not_run(skipped)}\n    </section>"
 
 
 def small(site: Site, model: dict[str, Any]) -> bool:

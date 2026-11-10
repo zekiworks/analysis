@@ -321,11 +321,13 @@ tr.lb-sub > td { background: var(--sunk); }
 tr.lb-sub td.model { padding-left: 1.4rem; }
 tr.lb-off { display: none !important; }
 .lb-rule { margin: .5rem 0 0; }
-/* The Size keys' row under the other keys (Ümit #4156), its "Size:" label as the keys' text; a model's size beside its
-   name, under it below 640 px; a thin line above the first row of each tier after the first (site.js lb-tier-start). */
+/* The Class keys' row under the other keys (Ümit #4217), its "Class:" label as the keys' text, a key with no row in
+   the view hidden; a model's label beside its name, under it below 640 px; a thin line above the first row of each
+   tier after the first (site.js lb-tier-start). */
 .lb-controls.lb-size-keys { margin-top: -.25rem; }
+.lb-controls button.key[hidden] { display: none; }
 .lb-keys-label { align-self: center; margin-right: .15rem; color: var(--text-2); font-size: .82rem; }
-.lb-size { margin-left: .4rem; color: var(--text-2); font-size: .74rem; font-weight: 400; white-space: nowrap; }
+.lb-size { margin-left: .5rem; color: var(--text-2); font-size: .74rem; font-weight: 400; white-space: nowrap; }
 /* The size label's mark (MoE, 2×): small and muted after the number; it takes the focus, and a hover, focus or tap on it
    opens the row's details box, which explains it (site.js). Padding widens the target without moving the text. */
 .lb-mark { margin-left: .12em; padding: .3em .2em; color: var(--text-2); font-size: .72em; letter-spacing: .02em; cursor: help; }

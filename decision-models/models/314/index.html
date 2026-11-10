@@ -8,8 +8,8 @@
   <meta name="description" content="GLM-5.3 · low reasoning · 16 questions per request: how we called it, results, confidence, latency and cost.">
   <script>document.documentElement.classList.add("js"); document.documentElement.dataset.theme = "dark"; try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if ((new URLSearchParams(location.search).get("cost-unit") || localStorage.getItem("costUnit")) === "1m") document.documentElement.dataset.costUnit = "1m"; } catch (e) {}</script>
   <link rel="stylesheet" href="../../suite-bar.css?v=7da78a80">
-  <link rel="stylesheet" href="../../v3.css?v=7067d774">
-  <script src="../../site.js?v=5f010dae" defer></script>
+  <link rel="stylesheet" href="../../v3.css?v=a4b3d441">
+  <script src="../../site.js?v=f156bea5" defer></script>
 </head>
 <body class="v3">
   <a class="skip" href="#main">Skip to content</a>
@@ -28,7 +28,7 @@
     </section>
     <section class="card" id="called">
       <h2>How we called it</h2>
-      <dl class="facts"><dt>Kind</dt><dd>Chat model</dd><dt>Access</dt><dd>OpenRouter chat API, Fireworks endpoint, fallbacks off</dd><dt>Paid as</dt><dd>Provider service</dd><dt>Model ID</dt><dd><code>z-ai/glm-5.3</code></dd><dt>Parameters</dt><dd>Mixture of experts: 753.33B total, active not disclosed by maker. Size class uses 753.33B.<span class="small">mixture of experts: language model with its LM head + one multi-token prediction layer (text only); Z.ai states no active count; source: counted from the checkpoint&#x27;s safetensors, zai-org/GLM-5.3@ba32f8c, <a href="https://huggingface.co/zai-org/GLM-5.3">huggingface.co/zai-org/GLM-5.3</a>, <a href="https://docs.z.ai/guides/llm/glm-5.3">docs.z.ai/guides/llm/glm-5.3</a>; read 9 November 2026</span></dd><dt>Note</dt><dd>The Fireworks pin admits all of Fireworks&#x27; endpoints: OpenRouter billed 135 of the 138 requests at the spot endpoint&#x27;s rates, 2 at the standard rates and 1 at the fast endpoint&#x27;s rates ($1.82 in all); the cost shown uses the spot rates.</dd><dt>Confidence from</dt><dd>Written estimate</dd><dt>Run</dt><dd>314, 28 October 2026</dd></dl>
+      <dl class="facts"><dt>Kind</dt><dd>Chat model</dd><dt>Access</dt><dd>OpenRouter chat API, Fireworks endpoint, fallbacks off</dd><dt>Paid as</dt><dd>Provider service</dd><dt>Model ID</dt><dd><code>z-ai/glm-5.3</code></dd><dt>Parameters</dt><dd>Mixture of experts: 753.33B total, active not disclosed by maker. Size class uses the total (753B).<span class="small">mixture of experts: language model with its LM head + one multi-token prediction layer (text only); Z.ai states no active count; source: counted from the checkpoint&#x27;s safetensors, zai-org/GLM-5.3@ba32f8c, <a href="https://huggingface.co/zai-org/GLM-5.3">huggingface.co/zai-org/GLM-5.3</a>, <a href="https://docs.z.ai/guides/llm/glm-5.3">docs.z.ai/guides/llm/glm-5.3</a>; read 9 November 2026</span></dd><dt>Note</dt><dd>The Fireworks pin admits all of Fireworks&#x27; endpoints: OpenRouter billed 135 of the 138 requests at the spot endpoint&#x27;s rates, 2 at the standard rates and 1 at the fast endpoint&#x27;s rates ($1.82 in all); the cost shown uses the spot rates.</dd><dt>Confidence from</dt><dd>Written estimate</dd><dt>Run</dt><dd>314, 28 October 2026</dd></dl>
     </section>
     <section class="card" id="settings">
       <h2>Settings</h2>

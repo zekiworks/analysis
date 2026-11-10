@@ -138,31 +138,64 @@ def parameters_text(run: dict[str, Any]) -> str:
     return text
 
 
+def label_count(value: int) -> str:
+    """A count in the size label (the shared form, #4231, #4235): one decimal of trillions from 1,000B up ("2.8T"), whole
+    billions from 10B to 999B ("26B", "57B", "276B"), one decimal below ("7.9B", "1.9B", "0.4B"); each range by the
+    value as rounded, so 999.6B reads "1.0T" and 9.96B "10B"."""
+    if round(value / 1e9) >= 1000:
+        return f"{value / 1e12:.1f}T"
+    return f"{value / 1e9:.0f}B" if round(value / 1e8) >= 100 else f"{value / 1e9:.1f}B"
+
+
 def combined(run: dict[str, Any]) -> bool:
     """Whether a setup is two full models run together, as its size record's scope says ("two full models: part G ...
     + part Q ...", REAX 1.3)."""
     return (run.get("parameters_scope") or "").startswith("two full models")
 
 
+@cache
+def stated_sizes() -> dict[str, dict[str, Any]]:
+    """page_config.json stated_sizes: the maker's own total (and active count) by model ID, where its card states one."""
+    return json.loads((ROOT / "page_config.json").read_text(encoding="utf-8"))["stated_sizes"]["models"]
+
+
+def stated_total(run: dict[str, Any]) -> int | None:
+    """The total a size label and a class read (Ümit #4245): the maker's stated total (stated_sizes) where its card
+    states one, else the size record's (the maker's figure for a hosted model, else our count of the released
+    checkpoint); None where the maker discloses no size."""
+    return stated_sizes().get(run["model"], {}).get("total", run.get("parameters"))
+
+
+def stated_active(run: dict[str, Any]) -> list[int] | None:
+    """The active count per token a label shows: the maker's stated one (stated_sizes), else the size record's."""
+    return stated_sizes().get(run["model"], {}).get("active", run.get("active_parameters"))
+
+
+def mixture(run: dict[str, Any]) -> bool:
+    """Whether a setup's model is a mixture of experts: by its size record (architecture) or a stated active count."""
+    return architecture(run) == "MoE" or bool(stated_active(run))
+
+
 def size_sentence(run: dict[str, Any]) -> str | None:
-    """The details box's and the model page's explanation of a size label's mark (#4229, #4231): for a mixture of
-    experts, its total, its active count per step and the count its size class reads (Site.size); for two models run
-    together, their total, all of it used on every question; None for a dense model or an undisclosed size, which keep
-    parameters_text. The total with two decimals where it was counted, as the maker states it where it is whole."""
-    total = run.get("parameters")
-    if total is None:
+    """The details box's and the model page's explanation of a size label's mark (#4229, #4231, #4245): for a mixture
+    of experts, its total as the maker states it (with our count of the checkpoint where it differs) and its active
+    count per step, then "Size class uses the total (276B)."; for two models run together, their total, all of it used
+    on every question; None for a dense model or an undisclosed size, which keep parameters_text. A counted total with
+    two decimals, a stated whole one as the maker gives it."""
+    total, stated = run.get("parameters"), stated_total(run)
+    if stated is None:
         return None
     exact = lambda value: (billions(value) if value % 1e9 == 0 else  # noqa: E731
                            f"{value / 1e12:.2f}T" if value >= 1e12 else f"{value / 1e9:.2f}B")
     if combined(run):
         return (f"Two models run together, option probabilities averaged 50/50: {exact(total)} in all, all used on every "
                 "question.")
-    if architecture(run) != "MoE":
+    if not mixture(run):
         return None
-    active = run.get("active_parameters")
+    active = stated_active(run)
+    counted = f" (our count of the released checkpoint: {exact(total)})" if total is not None and stated != total else ""
     each = f"about {' to '.join(map(billions, active))} active per step" if active else "active not disclosed by maker"
-    return f"Mixture of experts: {exact(total)} total, {each}. Size class uses {exact(Site.size(run))}."
-
+    return f"Mixture of experts: {exact(stated)} total{counted}, {each}. Size class uses the total ({label_count(stated)})."
 
 
 def experiments(results: dict[str, Any], path: str) -> str:
@@ -761,30 +794,77 @@ class Site:
         return small["line"] + (f" Left out here: {small['left_out_text']}." if small.get("left_out_text") else "")
 
     @staticmethod
-    def size(run: dict[str, Any]) -> int | None:
-        """The parameter count a setup's size class reads (Ümit #4156): the smaller of its model's total and its active
-        count per token, the larger active figure where the maker gives two (DeepSeek's prefill and decode, as small()
-        reads every active count); None when the maker discloses no size."""
-        total, active = run.get("parameters"), run.get("active_parameters") or []
-        if total is None:
-            return None
-        return min(total, max(active)) if active else total
+    def is_open(run: dict[str, Any]) -> bool:
+        """Whether a setup's model has released weights (Ümit #4217): its size record counts the released checkpoint
+        ("counted from ...") or cites the weights' Hugging Face page; closed otherwise (API or subscription only)."""
+        return any(source.startswith("counted from") or "huggingface.co/" in source for source in run["parameters_source"])
 
-    def size_class(self, run: dict[str, Any]) -> str | None:
-        """A setup's size class key (page_config.json size_classes): the first class whose max holds size(), the last
-        with none; undisclosed without a size; None for small_models.left_out_models, which show under Size: All only."""
+    def list_price(self, run: dict[str, Any]) -> dict[str, Any] | None:
+        """A model's list price per 1M input tokens, its base rate, with its source and date (Ümit #4217):
+        page_config.json model_classes.prices where it gives the model, else results.json prices' input rate for the
+        model ID (the runner's PRICES); None where neither has one. The build stops where results.json gives the model
+        two input rates and model_classes.prices does not choose."""
+        chosen = self.config["model_classes"]["prices"].get(run["model"])
+        if chosen:
+            return chosen
+        found = {(item["rates"]["input_tokens"], item["source"], item["date"]) for item in self.results["prices"]
+                 if item["model"] == run["model"] and "rates" in item and item["perplexity_mode"] is None}
+        if len({rate for rate, _, _ in found}) > 1:
+            raise SystemExit(f"model_class: {run['model']} has several input rates {sorted(found)}; choose one in "
+                             "page_config.json model_classes.prices")
+        if not found:
+            return None
+        rate, source, date = min(found)
+        return {"input": rate, "source": source, "date": date}
+
+    def model_class(self, run: dict[str, Any]) -> str | None:
+        """A setup's class key (page_config.json model_classes; Ümit #4217, #4245): an open model with a disclosed size by
+        its total parameters as the maker states it (stated_total; Gemma's "E" models by their total with embeddings,
+        never the effective count); a closed model, or an open one whose maker discloses no size, by its standard list
+        price per 1M input tokens (list_price). Each scale's classes hold up to and including their max, the last with
+        none. Undisclosed for a model with neither a disclosed size nor a per-token list price (Ümit #4259). None for
+        small_models.left_out_models (the setups only this site ran, shown under All only)."""
         if run["model"] in self.config["small_models"].get("left_out_models", []):
             return None
-        classes = self.config["size_classes"]
-        size = self.size(run)
-        if size is None:
-            return classes["undisclosed"]["key"]
-        return next(item["key"] for item in classes["classes"] if item["max"] is None or size <= item["max"])
+        classes = self.config["model_classes"]
+        if self.is_open(run) and stated_total(run) is not None:
+            value, scale = stated_total(run), classes["open"]
+        else:
+            price = self.list_price(run)
+            if price is None:
+                return classes["undisclosed"]["key"]
+            value, scale = price["input"], classes["closed"]
+        return next(item["key"] for item in scale if item["max"] is None or value <= item["max"])
 
-    def size_classes(self) -> list[tuple[str, str]]:
-        """The size classes in order, Undisclosed last: (key, label)."""
-        classes = self.config["size_classes"]
-        return [(item["key"], item["label"]) for item in [*classes["classes"], classes["undisclosed"]]]
+    def model_classes(self) -> list[tuple[str, str]]:
+        """The class keys in order, the size scale, the price scale, then Undisclosed: (key, label)."""
+        classes = self.config["model_classes"]
+        return [(item["key"], item["label"]) for item in [*classes["open"], *classes["closed"], classes["undisclosed"]]]
+
+    def label(self, run: dict[str, Any], box: str | None = None) -> str:
+        """The label beside a model's name on a board, as HTML (#4229, #4231, #4217, #4245): an open model's total as the
+        maker states it (stated_total, label_count); a mixture of experts with a space, a small superscript "MoE" and its
+        active count ("309B MoE · 15B active"; "753B MoE" where the maker gives no active count); a dense model, and a
+        setup of two models run together (REAX 1.3, explained in its details box only, #4269), the number only. The mark takes the focus and, with box
+        (the row's details box, which explains it: size_sentence), opens it. A closed model shows its class by price
+        ("Closed · Workhorse"); an open model whose maker discloses no size, "Open ·" and its price class (#4265); a model with no
+        per-token price and no disclosed size, "Undisclosed" (#4259); a class from a promotional price only, "(provisional)" after it
+        (#4238)."""
+        total = stated_total(run)
+        price_class = dict(self.model_classes()).get(self.model_class(run) or "", "Undisclosed")
+        if (self.list_price(run) or {}).get("provisional"):
+            price_class += " (provisional)"
+        if not self.is_open(run):
+            return f'<span class="lb-size">Closed · {esc(price_class)}</span>'
+        if total is None:
+            return f'<span class="lb-size">Open · {esc(price_class)}</span>'
+        described = f' aria-describedby="{box}"' if box else ""
+        if not mixture(run):
+            return f'<span class="lb-size">{label_count(total)}</span>'
+        active = stated_active(run)
+        each = f" · {' to '.join(map(billions, active))} active" if active else ""
+        return (f'<span class="lb-size">{label_count(total)} <sup class="lb-mark" tabindex="0" '
+                f'aria-label="mixture of experts"{described}>MoE</sup>{each}</span>')
 
     def kind(self, run: dict[str, Any]) -> str:
         return "Decision model" if self.decision(run) else "Chat model"

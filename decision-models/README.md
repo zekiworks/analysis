@@ -442,22 +442,35 @@ python3 -m http.server 8000                                # preview at http://1
       English reading: the English setups on the 547 kept reading questions, from `english_reading`, with
       non-hallucination with "I don't know" and cost; Both: Turkish and English accuracy on the same questions, as
       `turkish-vs-english/` computes them, ranked by Turkish), the type (All · Chat models · Decision models, Decision models by default, or
-      the group `?models=` names) and All setups, which shows today's full ranking in the table's place; then the Size
-      keys on a row of their own (Size: All · Tiny · Small · Medium · Large · Undisclosed, Ümit #4156, combined with the
-      type; `page_config.json` `size_classes`, `Site.size_class`: by the smaller of the model's total and active
-      parameters as its size record gives them, Tiny below 6B, Small 6B to 15B, Medium above 15B up to 40B, Large above
-      40B, Undisclosed when the maker discloses no size; `small_models.left_out_models` in no class, under Size: All
-      only; the build stops unless Tiny and Small together hold exactly the small views' setups). The old addresses
-      `?models=small-chat` (and `small`) and `?models=small-decision` press Tiny and Small with Chat models or Decision
-      models, `small-chat` on the English reading part as before. Each row shows its model's size beside its name, as
-      Logic & Math does (`size_label`, the shared form, #4229 and #4231): the total only, whole from 10B up ("26B",
-      "266B"), one decimal below ("7.9B", "0.4B"), "2.8T" from 1T up, with a small superscript mark, "MoE" after a
-      mixture of experts or "2×" after two models run together, none for a dense model, nothing for an undisclosed
-      size; the mark takes the focus and a hover, focus or tap on it opens the row's details box. The # column numbers the rows in view: on the Turkish part their
+      the group `?models=` names) and All setups, which shows today's full ranking in the table's place; then the Class
+      keys on a row of their own (Class: All · Tiny · Small · Medium · Large · Efficient · Workhorse · Flagship, Ümit
+      #4217, one scale with the Logic & Math and Backgammon sites, combined with the type; `page_config.json`
+      `model_classes`, `Site.model_class`: an open model with a disclosed size by its TOTAL parameters (#4245; the
+      maker's stated total where `stated_sizes` gives it, Inkling Small's 276B and DeepSeek-V4.1-Flash's 552B, else the
+      size record, `stated_total`), Tiny below 6B, Small 6B to 15B, Medium above 15B up to 40B, Large above 40B (Gemma's
+      E models by their total with embeddings); a
+      closed model, or an open one whose maker discloses no size, by its standard list price per 1M input tokens, never
+      an introductory or promotional one (#4238; `Site.list_price`: `model_classes.prices`, else results.json prices),
+      Efficient $0.50 or less, Workhorse above $0.50 up to $3, Flagship above $3, "provisional" where only a
+      promotional price is published; `small_models.left_out_models` in no class, under Class: All only; a class key
+      with no row of the part and type in view hides). The old addresses `?models=small-chat` (and `small`) and
+      `?models=small-decision` press Tiny and Small with Chat models or Decision models, `small-chat` on the English
+      reading part as before; the class rule under the table is `model_classes.line`, the project lead's words. Each row
+      shows a label beside its name, as Logic & Math does (`Site.label`, #4229, #4231, #4245): an open model's total,
+      whole from 10B up ("26B", "276B"), one decimal below ("7.9B", "0.4B"), "2.8T" from 1T up; a mixture of experts
+      with a space, a small superscript "MoE" and its active count ("309B MoE · 15B active", "753B MoE" where none is
+      stated), the number only for a dense model and for two models run together (REAX 1.3 "57B", #4269; its details
+      box explains), a space and a .5rem gap between the name and the label; the mark takes the focus and a hover,
+      focus or tap on it opens the row's details box, which ends "Size class uses the total (276B)."; a closed model
+      "Closed · Workhorse" ("(provisional)" after a class from a promotional price only), an open one of undisclosed
+      size "Open · Workhorse" (#4265). The #
+      column numbers the rows in view: on the Turkish part their
       tier (a row joins the tier of the tier's top row when they share a tie-group letter of the full ranking's
       all-pairs test, else it starts the next tier; a thin line between tiers), on the other parts, which no all-pairs
-      test covers, their rank, ties sharing a rank. Lines of text: what the score means above the table, what # shows,
-      the row rule and, while a size is chosen, the size rule under it; the longer notes are on About.
+      test covers, their rank, ties sharing a rank; a setup with web search is in neither (# shows a dash). Lines of
+      text: what the score means above the table, what # shows, the row rule and, while a class is chosen, the class
+      rule under it; the longer notes are on About. The Vision page's decision models board has the same Class row
+      (`vision.class_keys`, `site.js` `classBoards`) and labels.
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
       then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
       `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;
