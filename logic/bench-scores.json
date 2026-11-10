@@ -1,0 +1,1152 @@
+{
+ "bench": "logic-math",
+ "title": "Logic & Math",
+ "url": "https://zekiworks.github.io/analysis/logic/",
+ "updated": "2026-11-10T10:28:56Z",
+ "score": {
+  "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
+  "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
+ },
+ "models": [
+  {
+   "repo": null,
+   "commit": null,
+   "name": "DeepSeek-V4.1-Flash 1017",
+   "maker": "DeepSeek",
+   "kind": "chat",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 98.0611313868613,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9844890510948905,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:deepseek-v4.1-flash-1017_en",
+    "math:deepseek-v4.1-flash-1017_en",
+    "logic:deepseek-v4.1-flash-1017_en_dontknow",
+    "math:deepseek-v4.1-flash-1017_en_dontknow"
+   ],
+   "notes": "hosted API via OpenRouter"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Inkling Small",
+   "maker": "Thinking Machines",
+   "kind": "chat",
+   "params_total": 265.96,
+   "params_active": 12.0,
+   "quantization": null,
+   "score_0_100": 97.71897810218977,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9817518248175182,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:inkling-small-64k_en",
+    "math:inkling-small-64k_en",
+    "logic:inkling-small-64k_en_dontknow",
+    "math:inkling-small-64k_en_dontknow"
+   ],
+   "notes": "hosted API via OpenRouter"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "MiMo V2.6 Flash",
+   "maker": "Xiaomi",
+   "kind": "chat",
+   "params_total": 309.0,
+   "params_active": 15.0,
+   "quantization": null,
+   "score_0_100": 97.45285888077859,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9796228710462287,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:mimo-v2.6-flash-64k_en",
+    "math:mimo-v2.6-flash-64k_en",
+    "logic:mimo-v2.6-flash-64k_en_dontknow",
+    "math:mimo-v2.6-flash-64k_en_dontknow"
+   ],
+   "notes": "hosted API via OpenRouter"
+  },
+  {
+   "repo": "Qwen/Qwen3.8-27B",
+   "commit": "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
+   "name": "Qwen3.8-27B",
+   "maker": "Alibaba",
+   "kind": "chat",
+   "params_total": 27.78,
+   "params_active": 27.78,
+   "quantization": "BF16",
+   "score_0_100": 96.80656934306569,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9744525547445255,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:qwen3.8-27b-bf16_en_low",
+    "math:qwen3.8-27b-bf16_en_low"
+   ],
+   "notes": "run on our hardware (1× RTX PRO 6000); no complete 'I don't know' run"
+  },
+  {
+   "repo": "google/gemma-4-31B-it",
+   "commit": "842da3794eaa0b77d5f08bae87a17459d91ff475",
+   "name": "Gemma 4 31B",
+   "maker": "Google",
+   "kind": "chat",
+   "params_total": 31.27,
+   "params_active": 31.27,
+   "quantization": "FP8",
+   "score_0_100": 96.65450121654501,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9732360097323601,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:gemma-4-31b-it_en_t0",
+    "math:gemma-4-31b-it_en_t0"
+   ],
+   "notes": "run on our hardware (1× RTX PRO 6000); BF16 weights quantized to FP8 by vLLM at load; no complete 'I don't know' run"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "GLM-5.3-Flash",
+   "maker": "Z.ai",
+   "kind": "chat",
+   "params_total": 320.0,
+   "params_active": 18.0,
+   "quantization": null,
+   "score_0_100": 96.08424574209245,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9686739659367397,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:glm-5.3-flash_en",
+    "math:glm-5.3-flash_en",
+    "logic:glm-5.3-flash_en_dontknow",
+    "math:glm-5.3-flash_en_dontknow"
+   ],
+   "notes": "hosted API via OpenRouter"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "MiniMax-M3.1-Flash",
+   "maker": "MiniMax",
+   "kind": "chat",
+   "params_total": 428.0,
+   "params_active": 23.0,
+   "quantization": null,
+   "score_0_100": 95.97019464720194,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9677615571776156,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:minimax-m3.1-flash_en",
+    "math:minimax-m3.1-flash_en",
+    "logic:minimax-m3.1-flash_en_dontknow",
+    "math:minimax-m3.1-flash_en_dontknow"
+   ],
+   "notes": "hosted API via OpenRouter"
+  },
+  {
+   "repo": "google/gemma-4-12B-it",
+   "commit": "43c9d014b231474fa7212dbb48a762566c2b255d",
+   "name": "Gemma 4 12B",
+   "maker": "Google",
+   "kind": "chat",
+   "params_total": 11.96,
+   "params_active": 11.96,
+   "quantization": "BF16",
+   "score_0_100": 93.80322384428224,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9504257907542579,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:gemma-4-12b-it_en",
+    "math:gemma-4-12b-it_en",
+    "logic:gemma-4-12b-it_en_dontknow",
+    "math:gemma-4-12b-it_en_dontknow"
+   ],
+   "notes": "run on our hardware (1× RTX PRO 6000)"
+  },
+  {
+   "repo": "google/gemma-4-E4B-it",
+   "commit": "4ecc2ba63bcac23ba4a767fc87025b1450f84c9c",
+   "name": "Gemma 4 E4B",
+   "maker": "Google",
+   "kind": "chat",
+   "params_total": 8.0,
+   "params_active": 8.0,
+   "quantization": "BF16",
+   "score_0_100": 91.25608272506082,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9300486618004866,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:gemma-4-e4b-it_en",
+    "math:gemma-4-e4b-it_en",
+    "logic:gemma-4-e4b-it_en_dontknow",
+    "math:gemma-4-e4b-it_en_dontknow"
+   ],
+   "notes": "run on our hardware (1× RTX PRO 6000); 4.5B effective parameters"
+  },
+  {
+   "repo": "google/gemma-4-E2B-it",
+   "commit": "4adf15748de9e1a0097b6274cee9c15836c41c37",
+   "name": "Gemma 4 E2B",
+   "maker": "Google",
+   "kind": "chat",
+   "params_total": 5.12,
+   "params_active": 5.12,
+   "quantization": "BF16",
+   "score_0_100": 85.74361313868614,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8859489051094891,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:gemma-4-e2b-it_en",
+    "math:gemma-4-e2b-it_en",
+    "logic:gemma-4-e2b-it_en_dontknow",
+    "math:gemma-4-e2b-it_en_dontknow"
+   ],
+   "notes": "run on our hardware (1× RTX PRO 6000); 2.3B effective parameters"
+  },
+  {
+   "repo": "LiquidAI/LFM2.5-8B-A1B",
+   "commit": "dd83f5cb02aa2938b66bba9a9998d38d0517c1f3",
+   "name": "LFM2.5-8B-A1B",
+   "maker": "Liquid AI",
+   "kind": "chat",
+   "params_total": 8.47,
+   "params_active": 1.69,
+   "quantization": "BF16",
+   "score_0_100": 79.8889902676399,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8391119221411192,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:lfm2.5-8b-a1b_en",
+    "math:lfm2.5-8b-a1b_en",
+    "logic:lfm2.5-8b-a1b_en_dontknow",
+    "math:lfm2.5-8b-a1b_en_dontknow"
+   ],
+   "notes": "run on our hardware (1× RTX PRO 6000)"
+  },
+  {
+   "repo": "decisionmodels/REAX-1.3",
+   "commit": "fa4bf7ee3bb56a8bc421dad090631be1c5845c2d",
+   "name": "REAX 1.3",
+   "maker": "REAX",
+   "kind": "decision",
+   "params_total": 57.36,
+   "params_active": 57.36,
+   "quantization": "FP8",
+   "score_0_100": 64.49209245742094,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7159367396593674,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.04659104431713918,
+   "improvement_points": null,
+   "runs": [
+    "logic:reax13_en",
+    "math:reax13_en",
+    "logic:reax13_en_dontknow",
+    "math:reax13_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB)); weights byte-identical to decisionmodels/REAX-1.3 at this commit; served by the REAX engine (github.com/reaxlabs/reax-engine ff8f595)"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Liquid d1-ultra",
+   "maker": "Liquid AI",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 59.43582725060828,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6754866180048662,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.020692482363286382,
+   "improvement_points": null,
+   "runs": [
+    "logic:d1-ultra_en",
+    "math:d1-ultra_en",
+    "logic:d1-ultra_en_dontknow",
+    "math:d1-ultra_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": "fastino/GLiDE-27B",
+   "commit": "4d32743ae96b74f0116f050d37742bbd43c04e7d",
+   "name": "GLiDE 27B",
+   "maker": "Fastino",
+   "kind": "decision",
+   "params_total": 26.09,
+   "params_active": 26.09,
+   "quantization": "BF16",
+   "score_0_100": 59.169708029197075,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6733576642335767,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.04139597970976491,
+   "improvement_points": null,
+   "runs": [
+    "logic:glide-27b_en",
+    "math:glide-27b_en",
+    "logic:glide-27b_en_dontknow",
+    "math:glide-27b_en_dontknow"
+   ],
+   "notes": "run on our hardware (DGX Spark (GB10))"
+  },
+  {
+   "repo": "baselabs/mammoth-1",
+   "commit": "61cec44c281c693992e3d6ebeb44dd3402dfa186",
+   "name": "Mammoth-1",
+   "maker": "Base Labs",
+   "kind": "decision",
+   "params_total": 27.36,
+   "params_active": 27.36,
+   "quantization": "BF16",
+   "score_0_100": 59.13169099756691,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6730535279805353,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.0315745736009732,
+   "improvement_points": null,
+   "runs": [
+    "logic:mammoth-1_en",
+    "math:mammoth-1_en",
+    "logic:mammoth-1_en_dontknow",
+    "math:mammoth-1_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": "vllm-sr/d3-ultra",
+   "commit": "52ba9e7a00402f9560c7fba8c039608e7ddee7fb",
+   "name": "vLLM-SR d3-ultra",
+   "maker": "vLLM Semantic Router",
+   "kind": "decision",
+   "params_total": 26.09,
+   "params_active": 26.09,
+   "quantization": "BF16",
+   "score_0_100": 57.15480535279804,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6572384428223844,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.10115505435596814,
+   "improvement_points": null,
+   "runs": [
+    "logic:d3-ultra_en",
+    "math:d3-ultra_en",
+    "logic:d3-ultra_en_dontknow",
+    "math:d3-ultra_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Fastino GLiDE",
+   "maker": "Fastino",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 56.50851581508515,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6520681265206812,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05343725853741545,
+   "improvement_points": null,
+   "runs": [
+    "logic:glide_en",
+    "math:glide_en",
+    "logic:glide_en_dontknow",
+    "math:glide_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": "vllm-sr/d3",
+   "commit": "20f37b9a892acc13d4b07a4f3c4f11b2518c615c",
+   "name": "vLLM-SR d3",
+   "maker": "vLLM Semantic Router",
+   "kind": "decision",
+   "params_total": 26.09,
+   "params_active": 26.09,
+   "quantization": "BF16",
+   "score_0_100": 56.20437956204379,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6496350364963503,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.04423810997461454,
+   "improvement_points": null,
+   "runs": [
+    "logic:d3_en",
+    "math:d3_en",
+    "logic:d3_en_dontknow",
+    "math:d3_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Drex Max 1.1",
+   "maker": "Nace.AI",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 56.052311435523116,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.648418491484185,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05762789601484136,
+   "improvement_points": null,
+   "runs": [
+    "logic:drex-max-1.1_en",
+    "math:drex-max-1.1_en",
+    "logic:drex-max-1.1_en_dontknow",
+    "math:drex-max-1.1_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": "fastino/GLiDE",
+   "commit": "a7e45896be7c96ba3354891da790c5ec99c30b6c",
+   "name": "Fastino GLiDE v1.2",
+   "maker": "Fastino",
+   "kind": "decision",
+   "params_total": 26.09,
+   "params_active": 26.09,
+   "quantization": "BF16",
+   "score_0_100": 56.052311435523116,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.648418491484185,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05086397570791474,
+   "improvement_points": null,
+   "runs": [
+    "logic:glide-v1.2_en",
+    "math:glide-v1.2_en",
+    "logic:glide-v1.2_en_dontknow",
+    "math:glide-v1.2_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": "nace-ai/drex-max-v1",
+   "commit": "cac65e1982a0237e996419ba559004522d9a33ac",
+   "name": "Drex Max v1",
+   "maker": "Nace.AI",
+   "kind": "decision",
+   "params_total": 26.09,
+   "params_active": 26.09,
+   "quantization": "BF16",
+   "score_0_100": 55.52007299270072,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6441605839416058,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.13306835732526895,
+   "improvement_points": null,
+   "runs": [
+    "logic:drex-max-v1_en",
+    "math:drex-max-v1_en",
+    "logic:drex-max-v1_en_dontknow",
+    "math:drex-max-v1_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB)); served with Nace's drex-decision-models code at e206b27"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Perplexity Decider 27B v1.2 API",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "params_total": 26.09,
+   "params_active": 26.09,
+   "quantization": null,
+   "score_0_100": 55.17791970802919,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6414233576642335,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.030739340675629948,
+   "improvement_points": null,
+   "runs": [
+    "logic:decider-v1.2_en",
+    "math:decider-v1.2_en",
+    "logic:decider-v1.2_en_dontknow",
+    "math:decider-v1.2_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service); other setups of this model under its row, not in this entry: Perplexity Decider 27B v1.2 local"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Perplexity Decider 27B v1.2 API with web",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "params_total": 26.09,
+   "params_active": 26.09,
+   "quantization": null,
+   "score_0_100": 54.45559610705596,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6356447688564477,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.036947861603181184,
+   "improvement_points": null,
+   "runs": [
+    "logic:decider-v1.2-web_en",
+    "math:decider-v1.2-web_en",
+    "logic:decider-v1.2-web_en_dontknow",
+    "math:decider-v1.2-web_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "SubQ Snap 1.1 = Preview",
+   "maker": "Subquadratic",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 53.771289537712896,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6301703163017032,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.10473201449715741,
+   "improvement_points": null,
+   "runs": [
+    "logic:subq-1.1_en",
+    "math:subq-1.1_en",
+    "logic:subq-1.1_en_dontknow",
+    "math:subq-1.1_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service); shown as one row with SubQ Snap Preview (the same answer to every question); every number from SubQ Snap 1.1"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Celeris-1 Decision",
+   "maker": "Celeris",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 52.78284671532846,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6222627737226277,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05759124087591238,
+   "improvement_points": null,
+   "runs": [
+    "logic:celeris_en",
+    "math:celeris_en",
+    "logic:celeris_en_dontknow",
+    "math:celeris_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Celeris-1.1 Decision",
+   "maker": "Celeris",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 52.66879562043795,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6213503649635036,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05964111922141121,
+   "improvement_points": null,
+   "runs": [
+    "logic:celeris-1.1_en",
+    "math:celeris-1.1_en",
+    "logic:celeris-1.1_en_dontknow",
+    "math:celeris-1.1_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Jev 1.14.0",
+   "maker": "TypeSafe",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 49.17122871046229,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5933698296836983,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.017801094890510953,
+   "improvement_points": null,
+   "runs": [
+    "logic:jev-1.14_en",
+    "math:jev-1.14_en",
+    "logic:jev-1.14_en_dontknow",
+    "math:jev-1.14_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Liquid d1.1",
+   "maker": "Liquid AI",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 48.29683698296836,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5863746958637469,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.008077240223353713,
+   "improvement_points": null,
+   "runs": [
+    "logic:d1.1_en",
+    "math:d1.1_en",
+    "logic:d1.1_en_dontknow",
+    "math:d1.1_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Jev 1.13.0",
+   "maker": "TypeSafe",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 47.49847931873479,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5799878345498783,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.0318734793187348,
+   "improvement_points": null,
+   "runs": [
+    "logic:jev-1.13_en",
+    "math:jev-1.13_en",
+    "logic:jev-1.13_en_dontknow",
+    "math:jev-1.13_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": "baselabs/elephant-1",
+   "commit": "b3f8a93462fb1051a9de031e94a7ff380e254072",
+   "name": "Elephant-1",
+   "maker": "Base Labs",
+   "kind": "decision",
+   "params_total": 9.41,
+   "params_active": 9.41,
+   "quantization": "BF16",
+   "score_0_100": 45.29349148418491,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5623479318734793,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05632416940389293,
+   "improvement_points": null,
+   "runs": [
+    "logic:elephant-1_en",
+    "math:elephant-1_en",
+    "logic:elephant-1_en_dontknow",
+    "math:elephant-1_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Microsoft-Decision-1",
+   "maker": "Microsoft",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 42.82238442822384,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5425790754257908,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.048894690921314585,
+   "improvement_points": null,
+   "runs": [
+    "logic:ms-decision-1_en",
+    "math:ms-decision-1_en",
+    "logic:ms-decision-1_en_dontknow",
+    "math:ms-decision-1_en_dontknow"
+   ],
+   "notes": "hosted API via OpenRouter"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Drex 2.0",
+   "maker": "Nace.AI",
+   "kind": "decision",
+   "params_total": 35.11,
+   "params_active": 3.0,
+   "quantization": null,
+   "score_0_100": 41.41575425790754,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5313260340632603,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.011098965936739638,
+   "improvement_points": null,
+   "runs": [
+    "logic:drex-2.0_en",
+    "math:drex-2.0_en",
+    "logic:drex-2.0_en_dontknow",
+    "math:drex-2.0_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": "perplexity-ai/pplx-decider-flash-v1.2",
+   "commit": "6d771ad7b5ecff5e93b8fc7b90d4c5ccc341954d",
+   "name": "Perplexity Decider Flash v1.2",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "params_total": 4.54,
+   "params_active": 4.54,
+   "quantization": "BF16",
+   "score_0_100": 38.86861313868613,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5109489051094891,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.08868503250528151,
+   "improvement_points": null,
+   "runs": [
+    "logic:decider-flash-v1.2_en",
+    "math:decider-flash-v1.2_en",
+    "logic:decider-flash-v1.2_en_dontknow",
+    "math:decider-flash-v1.2_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Inception Mercury Decide",
+   "maker": "Inception",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 38.26034063260341,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5060827250608273,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.15653227083997467,
+   "improvement_points": null,
+   "runs": [
+    "logic:mercury-decide_en",
+    "math:mercury-decide_en",
+    "logic:mercury-decide_en_dontknow",
+    "math:mercury-decide_en_dontknow"
+   ],
+   "notes": "hosted API via OpenRouter"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Liquid d1",
+   "maker": "Liquid AI",
+   "kind": "decision",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 38.184306569343065,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5054744525547445,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05821117407187681,
+   "improvement_points": null,
+   "runs": [
+    "logic:d1_en",
+    "math:d1_en",
+    "logic:d1_en_dontknow",
+    "math:d1_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)"
+  },
+  {
+   "repo": "ZefanCai/Open-Jev-27B-v1.1",
+   "commit": "28cf73067d5b337860bbef3c85b8b82ba8730956",
+   "name": "Open-Jev 27B v1.1",
+   "maker": "Zefan Cai",
+   "kind": "decision",
+   "params_total": 27.8,
+   "params_active": 27.8,
+   "quantization": "BF16",
+   "score_0_100": 38.070255474452544,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5045620437956204,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.18263166301686395,
+   "improvement_points": null,
+   "runs": [
+    "logic:open-jev_en",
+    "math:open-jev_en",
+    "logic:open-jev_en_dontknow",
+    "math:open-jev_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB)); the repository holds an adapter and head on Qwen3.8-27B"
+  },
+  {
+   "repo": "OmniJev/OneJev-27B",
+   "commit": "a5e5f55bdbdc9deda44f3fcb5b163776b9b369e8",
+   "name": "OneJev 27B",
+   "maker": "OmniJev",
+   "kind": "decision",
+   "params_total": 27.36,
+   "params_active": 27.36,
+   "quantization": "BF16",
+   "score_0_100": 36.58759124087591,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.4927007299270073,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.03139984793187349,
+   "improvement_points": null,
+   "runs": [
+    "logic:onejev_en",
+    "math:onejev_en",
+    "logic:onejev_en_dontknow",
+    "math:onejev_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": "Cloudflare/clef",
+   "commit": "2f3de3dd85f379784083b0814d997ab627200f0c",
+   "name": "Clef",
+   "maker": "Cloudflare",
+   "kind": "decision",
+   "params_total": 27.48,
+   "params_active": 27.48,
+   "quantization": "BF16",
+   "score_0_100": 34.458637469586364,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.47566909975669097,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.12585444038929441,
+   "improvement_points": null,
+   "runs": [
+    "logic:clef_en",
+    "math:clef_en",
+    "logic:clef_en_dontknow",
+    "math:clef_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": "Cloudflare/clef-flash",
+   "commit": "fde727a287004204b7518dcc983fe64379776712",
+   "name": "Clef-flash",
+   "maker": "Cloudflare",
+   "kind": "decision",
+   "params_total": 9.53,
+   "params_active": 9.53,
+   "quantization": "BF16",
+   "score_0_100": 32.59580291970802,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.4607664233576642,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05666110097323602,
+   "improvement_points": null,
+   "runs": [
+    "logic:clef-flash_en",
+    "math:clef-flash_en",
+    "logic:clef-flash_en_dontknow",
+    "math:clef-flash_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": "EldanRing/Winnow-12B",
+   "commit": "b2b14213dfa252e6d6b543c8b334762e51772d29",
+   "name": "Winnow-12B",
+   "maker": "EldanRing",
+   "kind": "decision",
+   "params_total": 11.91,
+   "params_active": 11.91,
+   "quantization": "Q8_0",
+   "score_0_100": 30.542883211678834,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.4443430656934307,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.10460486276550544,
+   "improvement_points": null,
+   "runs": [
+    "logic:winnow_en",
+    "math:winnow_en",
+    "logic:winnow_en_dontknow",
+    "math:winnow_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB)); the Q8_0 GGUF, served by winnow-inference at d4631fb"
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "name": "Cygnet",
+   "maker": "Blockbrain Labs",
+   "kind": "decision",
+   "params_total": 11.96,
+   "params_active": 11.96,
+   "quantization": "BF16",
+   "score_0_100": 28.261861313868607,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.4260948905109489,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.07390293444681291,
+   "improvement_points": null,
+   "runs": [
+    "logic:cygnet_en",
+    "math:cygnet_en",
+    "logic:cygnet_en_dontknow",
+    "math:cygnet_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB)); no weights of its own: google/gemma-4-12B-it at 707f0a3b8a3c7ad586ed01e27eafbad8a27dd0f7, unchanged, behind cygnet-recipe's shim (github.com/blockbrain-ai/cygnet-recipe 3cf591c, temperature 3.4); repo left empty so it is not matched with Gemma 4 12B"
+  },
+  {
+   "repo": "wayfind/metask-jev-4b-policy-mix",
+   "commit": "ea20fe85b28733b1522721dec119bec50947a869",
+   "name": "Metask-Jev 4B",
+   "maker": "Metask Lab",
+   "kind": "decision",
+   "params_total": 4.54,
+   "params_active": 4.54,
+   "quantization": "BF16",
+   "score_0_100": 20.92457420924574,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.36739659367396593,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.02210388753173417,
+   "improvement_points": null,
+   "runs": [
+    "logic:metask_en",
+    "math:metask_en",
+    "logic:metask_en_dontknow",
+    "math:metask_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": "LiquidAI/d1-2B",
+   "commit": "10e7671d44e4b37700020b1eed3f594c5f2af0b4",
+   "name": "Liquid d1-2B",
+   "maker": "Liquid AI",
+   "kind": "decision",
+   "params_total": 1.92,
+   "params_active": 1.92,
+   "quantization": "BF16",
+   "score_0_100": 18.605535279805352,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.3488442822384428,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.0592241765431583,
+   "improvement_points": null,
+   "runs": [
+    "logic:d1-2b_en",
+    "math:d1-2b_en",
+    "logic:d1-2b_en_dontknow",
+    "math:d1-2b_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB))"
+  },
+  {
+   "repo": "StrandsAgents/strands-decider-2B-hobson-v21",
+   "commit": "2b52a6235c1b8306bbfa30b00b9d4b74b63a39f5",
+   "name": "Strands Decider 2B",
+   "maker": "Strands Agents",
+   "kind": "decision",
+   "params_total": 2.29,
+   "params_active": 2.29,
+   "quantization": "BF16",
+   "score_0_100": 8.150851581508515,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.26520681265206814,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.09887791970802917,
+   "improvement_points": null,
+   "runs": [
+    "logic:strands_en",
+    "math:strands_en",
+    "logic:strands_en_dontknow",
+    "math:strands_en_dontknow"
+   ],
+   "notes": "run on our hardware (1 × RTX PRO 6000 Blackwell (96 GB)); the repository holds a LoRA and head on Qwen3.5-2B-Base"
+  }
+ ]
+}
