@@ -77,9 +77,12 @@ class SystemOneService:
     # TypeSafe-Danger-Zone-Images header), "data-urls" (a top-level `images` list of data URLs: Liquid, vLLM),
     # "input-image" (OpenAI: `input_image` parts in the input message), "media" (OneJev's server: a `media`
     # list, each item read where its `<image:N>` reference appears), "media-type" (SubQ: a top-level `images` list of
-    # {mediaType, base64} objects, the base64 without a data: prefix) or "state-parts" (GLiDE's server: the state as a
+    # {mediaType, base64} objects, the base64 without a data: prefix), "state-parts" (GLiDE's server: the state as a
     # list of a `text` part and `image_url` parts; glide/server.py passes only `state` and `questions` to the model, so
-    # a top-level `images` list would be dropped without an error).
+    # a top-level `images` list would be dropped without an error) or "chat-parts" (KnowLine's server: the state as a
+    # chat of one user turn whose content is a `text` part and `image_url` parts; knowline_server.py reads images only
+    # from a chat state's parts or from `assets` whose names a state string equals in full, so a top-level `images`
+    # list, or TypeSafe's assets referenced inside the text, would be dropped without an error).
     images: str | None = None
 
     def key_help(self) -> str:
@@ -151,7 +154,10 @@ SYSTEM_ONE = {
     "vllm-sr": SystemOneService("vLLM-SR", server_url("VLLM_SR_URL"), images="data-urls"),
     # OmniJev's OneJev-27B (OmniJev/OneJev-27B) on our GPU behind the server its package ships (`qev serve`,
     # github.com/OmniJev/OneJev), which takes the same request at the default path, plus a `media` list for images, and
-    # returns the same answers; the model field must name the checkpoint as the server was started (--name).
+    # returns the same answers; the model field must name the checkpoint as the server was started (--name). OmniJev's
+    # OneJev1.6-0.8B (OmniJev/OneJev1.6-0.8B at c89933c) is served the way its card says, by Flide (`flide serve`,
+    # flide 0.1.11, github.com/OmniJev/Flide at 50db86c), whose request, `media`, request ID header, answers and model
+    # field rule (the --name, an alias or none) are the same; its probabilities come rounded to 6 places.
     "onejev": SystemOneService(
         "OneJev", server_url("ONEJEV_URL"), request_id_header="x-typesafe-request-id", images="media"
     ),
@@ -223,6 +229,30 @@ SYSTEM_ONE = {
     # option's probability the 50/50 mean of the two parts'. It takes the same request at the default path, text only,
     # and returns the same answers; the model field, when sent, must be reax13.
     "reax": SystemOneService("REAX", server_url("REAX_URL")),
+    # PelaAI's KnowLine 31B Gen1.5 and 4B Gen5.5 (PelaAI/KnowLine-31B-Gen1.5 at 8e56aa1, PelaAI/KnowLine-4B-Gen5.5 at
+    # 779944d) on our GPU behind the front end each repository ships (knowline_server.py over SGLang 0.5.21, started by
+    # its serve_knowline.sh), which takes the same request at the default path, echoes the model field, and returns the
+    # same answers, unrounded, with the response's own ID in its `id` field; images go in a chat state ("chat-parts").
+    "knowline": SystemOneService("KnowLine", server_url("KNOWLINE_URL"), request_id_field="id", images="chat-parts"),
+    # Sieve 31B v3 (sthanika-ai/Sieve-31B-v3 at 8fcee85) behind the server its card names (sieve-serve, sieve.serve of
+    # github.com/sthanika-ai/Sieve at 1e64657): the same state and questions at /v1/decide, no model field (it would be
+    # ignored), text only (a list state is flattened to text), and the same answers, rounded to 4 places, with no
+    # input-token count (its usage gives only the number of questions).
+    "sieve": SystemOneService("Sieve", server_url("SIEVE_URL"), path="/v1/decide", model_field=False),
+    # Turion Jev 31B (turion-ai/turion-jev-31b at 866c0fc) behind the server its package ships (python -m
+    # turion_jev.serve, vLLM in process, FP8 at load), which takes the same request at the default path, ignores the
+    # model field, reads text only and returns the same answers, rounded to 6 places, without `confidence`.
+    "turion-jev": SystemOneService("Turion Jev", server_url("TURION_JEV_URL")),
+    # StartLux-Decision v1.1 4B Instant (startlux-models/StartLux-Decision-v1.1-4B-Instant at 416088f) behind the server
+    # of its package (startlux-decide serve --launch-vllm, github.com/StartLuxLabs/StartLux-Decision at a99977d, vLLM
+    # 0.31.0), which takes the same request at the default path, ignores the model field, takes images as a top-level
+    # `images` list of data URLs (placed before the state without `<image>` marks) and returns the same answers,
+    # unrounded, each choice answer with an extra `none_probability`, and the request ID in x-request-id.
+    "startlux": SystemOneService("StartLux", server_url("STARTLUX_URL"), request_id_header="x-request-id", images="data-urls"),
+    # Cerno 9B v1.2 (apertixai/cerno-9b-v1.2 at f02a632). Its card ships no server, only the in-process engine
+    # (evals.decision_index.engine:CernoEngine); logic's thin server passes the request's state and questions to it and
+    # returns its answers (probabilities rounded to 4 places by the vendored decider), text only, no model field.
+    "cerno": SystemOneService("Cerno", server_url("CERNO_URL"), model_field=False),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -3875,6 +3905,13 @@ ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     ("clef", "clef-omni"): 4,
     ("strands", "strands-decider-2b"): 4, ("laya", "laya"): 4, ("laya", "laya-multilingual"): 4,
     ("onejev", "OmniJev/OneJev-27B"): 6,
+    # The rule of #1152 for the new Decision Index models' servers that round (Ümit #4057), each by its own code: Flide's
+    # answers (flide 0.1.11, flide/api/answers.py _round, 6 places) for OneJev1.6-0.8B; turion_jev's Predictor.decide
+    # (code/turion_jev/predictor.py lines 362 and 369 at 866c0fc, 6); sieve.api.standard_answers, which sieve.load.decide
+    # applies to every answer sieve-serve returns (Sieve at 1e64657, sieve/api.py, 4); decider.systemone.format_answer,
+    # which CernoEngine's answers come from (the decider vendored at f02a632, third_party/decider/decider/systemone.py, 4).
+    ("onejev", "OmniJev/OneJev1.6-0.8B"): 6, ("turion-jev", "turion-ai/turion-jev-31b"): 6,
+    ("sieve", "sthanika-ai/Sieve-31B-v3"): 4, ("cerno", "apertixai/cerno-9b-v1.2"): 4,
 }
 # Models whose output reports each option's probability as a 32-bit float, so that the probabilities sum to 1 only
 # within 32-bit rounding: SubQ Snap 1.1 (smoke run 345, 1 November 2026; every value an exact 32-bit float; the user's
@@ -4022,11 +4059,12 @@ def add_images(service: SystemOneService, payload: dict[str, Any], headers: dict
             "content": ([{"type": "input_text", "text": text}] if text else [])
             + [{"type": "input_image", "image_url": url} for url in urls],
         }]
-    elif service.images == "state-parts":
+    elif service.images in ("state-parts", "chat-parts"):
         text = payload["state"]
-        payload["state"] = ([{"type": "text", "text": text}] if text else []) + [
+        parts = ([{"type": "text", "text": text}] if text else []) + [
             {"type": "image_url", "image_url": {"url": url}} for url in urls
         ]
+        payload["state"] = parts if service.images == "state-parts" else [{"role": "user", "content": parts}]
     elif service.images in ("assets", "media"):
         if service.images == "assets":
             # References that cannot occur in the text by accident: each file's SHA-256.

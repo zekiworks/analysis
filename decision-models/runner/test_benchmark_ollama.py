@@ -53,6 +53,7 @@ from benchmark_ollama import (
     answer_problems,
     answer_usage,
     ask_batch,
+    ask_jev,
     confidence_answers,
     derived_abstention,
     dont_know_lines,
@@ -116,6 +117,53 @@ class GlideImagesTests(unittest.TestCase):
         self.assertEqual(payload["state"][1]["type"], "image_url")
         self.assertTrue(payload["state"][1]["image_url"]["url"].startswith("data:image/png;base64,"))
         self.assertEqual([part["type"] for part in empty["state"]], ["image_url"])
+
+
+class KnowLineImagesTests(unittest.TestCase):
+    def test_images_go_into_a_chat_state_as_parts_after_the_text(self) -> None:
+        # knowline_server.py reads images only from a chat state's content parts (or from assets whose names a state
+        # string equals in full): a top-level list, or GLiDE's list of bare parts, would reach the model as no image.
+        with tempfile.TemporaryDirectory() as folder:
+            crop = Path(folder) / "crop.png"
+            crop.write_bytes(b"\x89PNG\r\n\x1a\n")
+            payload = {"model": "PelaAI/KnowLine-31B-Gen1.5", "state": "Passage text", "questions": {}}
+            add_images(SYSTEM_ONE["knowline"], payload, {}, (crop,))
+        self.assertEqual(set(payload), {"model", "state", "questions"})
+        [turn] = payload["state"]
+        self.assertEqual(turn["role"], "user")
+        self.assertEqual(turn["content"][0], {"type": "text", "text": "Passage text"})
+        self.assertEqual(turn["content"][1]["type"], "image_url")
+        self.assertTrue(turn["content"][1]["image_url"]["url"].startswith("data:image/png;base64,"))
+
+
+class SieveRequestTests(unittest.TestCase):
+    QUESTION = Question(1, "1. Unit", "1", "Unit", "Section", "Test", "1", "1", "Passage and stem",
+                        (Option("A", "one"), Option("B", "two"), Option("C", "three")), "A", 1, False, None)
+    # sieve-serve's response (sieve/serve.py AnyServer.decide): answers keyed by question ID, rounded to 4 places by
+    # sieve.api.standard_answers (so they may sum to 0.9999), and a usage without token counts.
+    RESPONSE = {"answers": {"answer": {"type": "choice", "choice": "B", "confidence": 0.0001,
+                                       "probabilities": {"A": 0.3333, "B": 0.3333, "C": 0.3333}}},
+                "usage": {"questions": 1}, "latency_ms": 212.4}
+
+    def test_a_request_goes_to_decide_without_a_model_field_and_its_answer_is_read(self) -> None:
+        sent = []
+
+        def post(endpoint, payload, headers, timeout, verbose_log, service):
+            sent.append((endpoint, payload))
+            return copy.deepcopy(self.RESPONSE), {}
+
+        with mock.patch("benchmark_ollama.post_json", post):
+            prediction, raw = ask_jev(SYSTEM_ONE["sieve"], "http://host:8020", None, "sthanika-ai/Sieve-31B-v3",
+                                      self.QUESTION, 30, None)
+        [(endpoint, payload)] = sent
+        self.assertEqual(endpoint, "http://host:8020/v1/decide")
+        self.assertEqual(set(payload), {"state", "questions"})
+        self.assertEqual(prediction, "B")
+        tokens, score = answer_usage("sieve", 1, raw)
+        self.assertEqual((tokens["input_tokens"], score), (0, 0.3333))
+        options = json.dumps([{"label": option.label, "text": option.text} for option in self.QUESTION.options])
+        self.assertEqual(answer_problems("sieve", options, raw, rounded_to=4), [])
+        self.assertNotEqual(answer_problems("sieve", options, raw), [])
 
 
 class ParseOllamaContentTests(unittest.TestCase):
