@@ -855,7 +855,8 @@ class Site:
     def label(self, run: dict[str, Any], box: str | None = None) -> str:
         """The label beside a model's name on a board, as HTML (#4229, #4231, #4217, #4245): an open model's total as the
         maker states it (stated_total, label_count); a mixture of experts with a space, a small superscript "MoE" and its
-        active count ("309B MoE · 15B active"; "753B MoE" where the maker gives no active count); a dense model, and a
+        active count in the same form ("309B MoE · 15B active", "35B MoE · 3.0B active"; "753B MoE" where the maker gives
+        no active count); a dense model, and a
         setup of two models run together (REAX 1.3, explained in its details box only, #4269), the number only. The mark takes the focus and, with box
         (the row's details box, which explains it: size_sentence), opens it. A closed model shows its class by price
         ("Closed · Workhorse"); an open model whose maker discloses no size, "Open ·" and its price class (#4265); a model with no
@@ -873,7 +874,7 @@ class Site:
         if not mixture(run):
             return f'<span class="lb-size">{label_count(total)}</span>'
         active = stated_active(run)
-        each = f" · {' to '.join(map(billions, active))} active" if active else ""
+        each = f" · {' to '.join(map(label_count, active))} active" if active else ""
         return (f'<span class="lb-size">{label_count(total)} <sup class="lb-mark" tabindex="0" '
                 f'aria-label="mixture of experts"{described}>MoE</sup>{each}</span>')
 
