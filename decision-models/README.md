@@ -415,8 +415,11 @@ python3 -m http.server 8000                                # preview at http://1
       (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
       opens on a tap on a phone and on hover or the keyboard focus on a desktop, focus beating the pointer, capped to
       the room on a short screen, and closes on a second tap, a tap outside or Escape; it lists the setup, its model's
-      size ("Parameters: 31.3B", "Parameters: 552B total, 8B to 16B active per token", "Parameters: 8B total, 4.5B
-      effective" or "Parameters: not disclosed by maker", `parameters_text`), its accuracy
+      size with its architecture ("Parameters: 26.1B dense", "Parameters: 552B MoE · 8B to 16B active", "Parameters:
+      753.3B MoE, active not disclosed by maker", "Parameters: 8B dense · 4.5B effective" or "Parameters: not disclosed
+      by maker", `parameters_text`; MoE or dense from the size record, `architecture`: MoE where it has active counts or
+      its scope says mixture of experts, dense for a counted released checkpoint without them, nothing where neither
+      holds; Ümit #4183, as on the other two sites; the same words on the model page and Method's sizes table), its accuracy
       with the interval, reading and grammar, non-hallucination with "Bilmiyorum", the answers kept at 99% confidence
       (decision models), the cost with its basis and the request size, and "Open its answers →" (its model page), each
       line only where the data has it. The size shows only there and on the model page (with what it covers, its

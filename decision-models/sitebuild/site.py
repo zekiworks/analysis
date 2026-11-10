@@ -105,18 +105,35 @@ def billions(value: int) -> str:
     return f"{round(value / 1e6)}M"
 
 
+def architecture(run: dict[str, Any]) -> str | None:
+    """A setup's model architecture from its size record (Ümit #4183): "MoE" where the record has active counts or its
+    scope says mixture of experts; "dense" for a released checkpoint we counted (a source "counted from ...") without
+    experts; None otherwise (a hosted model whose maker states a total but no architecture: nothing is guessed)."""
+    if run.get("active_parameters") or "mixture of experts" in (run.get("parameters_scope") or ""):
+        return "MoE"
+    if any(source.startswith("counted from") for source in run.get("parameters_source") or []):
+        return "dense"
+    return None
+
+
 def parameters_text(run: dict[str, Any]) -> str:
     """A setup's model size from its size record (results.json parameters, active_parameters, effective_parameters),
-    one wording for the details box and the model page: "31.3B", "552B total, 8B to 16B active per token", "8B total,
-    4.5B effective", or "not disclosed by maker" when the maker publishes none (parameters null)."""
+    with its architecture (architecture(); Ümit #4183, as on the other two sites), one wording for the details box, the
+    model page and Method's sizes table: "26.1B dense", "552B MoE · 8B to 16B active", "753.3B MoE, active not
+    disclosed by maker", "8B dense · 4.5B effective", the bare total where the architecture is not known, or "not
+    disclosed by maker" when the maker publishes no size (parameters null)."""
     total = run.get("parameters")
     if total is None:
         return "not disclosed by maker"
+    kind = architecture(run)
+    text = billions(total) + (f" {kind}" if kind else "")
     if run.get("active_parameters"):
-        return f"{billions(total)} total, {' to '.join(map(billions, run['active_parameters']))} active per token"
+        return f"{text} · {' to '.join(map(billions, run['active_parameters']))} active"
+    if kind == "MoE":
+        return f"{text}, active not disclosed by maker"
     if run.get("effective_parameters"):
-        return f"{billions(total)} total, {billions(run['effective_parameters'])} effective"
-    return billions(total)
+        return f"{text} · {billions(run['effective_parameters'])} effective"
+    return text
 
 
 def experiments(results: dict[str, Any], path: str) -> str:

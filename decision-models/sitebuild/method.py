@@ -752,10 +752,12 @@ server and hardware.</p>
 {setups_table(site, snap)}
 <h3 id="sizes">Model sizes and the small views</h3>
 <p>Each model's size is its maker's figure for the released model or our count of the released checkpoint's tensors
-(logical shapes, never quantized storage), with what it covers and the checkpoint's revision; a mixture of experts has its
-total and the parameters active per token, and a model with per-layer embeddings its effective size where the maker
-states one. A model whose maker publishes no size reads "not disclosed by maker"; we never guess one from a name or from
-an open sibling. The details box of each Leaderboard row and each model page give the same wording.</p>
+(logical shapes, never quantized storage), with what it covers and the checkpoint's revision; each size says whether the
+model is dense or a mixture of experts (MoE: as its maker states it, or as the checkpoint we counted shows it), a mixture
+of experts with the parameters active per token (or "active not disclosed by maker"), and a model with per-layer
+embeddings its effective size where the maker states one. A model whose maker publishes no size reads "not disclosed by
+maker"; we never guess one from a name or from an open sibling. The details box of each Leaderboard row and each model
+page give the same wording.</p>
 <p>{esc(site.small_line("small-chat"))}</p>
 <p>{esc(site.small_line("small-decision"))}</p>
 <p>Each small view is ranked as its own group; chat and decision models never mix.</p>
