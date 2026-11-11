@@ -135,6 +135,18 @@ main > details.about { max-width: 1100px; margin: 1rem auto 0; padding: 0 .25rem
 .hero-board svg.hero-bd { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
 .hero-board figcaption { color: var(--text-2); font-size: .82rem; margin-top: .4rem; }
 @media (max-width: 860px) { .hero-split { grid-template-columns: minmax(0, 1fr); } }
+/* The leaderboard on the first screen of a phone (Ümit via Zeki #4649): the hero's text, then the leaderboard, then the
+   hero's board, each as a card of its own; a wide screen keeps the text and the board side by side in one card. */
+@media (max-width: 860px) {
+  body.home main { display: flex; flex-direction: column; }
+  body.home main > * { order: 3; }
+  body.home main > .hero-card, body.home main > .hero-card > .hero-split { display: contents; }
+  body.home main > .hero-card .hero-text, body.home main > .hero-card .hero-board { background: var(--panel);
+    border: 1px solid var(--edge); border-radius: 8px; box-shadow: var(--shadow); padding: .75rem; margin: 0 0 1rem; }
+  body.home main > .hero-card .hero-text { order: 0; }
+  body.home main > #leaderboard { order: 1; }
+  body.home main > .hero-card .hero-board { order: 2; }
+}
 #findings { margin: 0 0 1rem; }
 #findings .summary-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .5rem; }
 #findings .summary-list li { padding: .55rem .7rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
