@@ -2,6 +2,15 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 34863e19 (11 November 2026)
+
+- Repeat checks complete (the project lead via Zeki #4849, #4881, #4906). KnowLine-31B-Gen1.5 ran on logic's server on spark2 with its first runs' server and settings:
+  - Turkish Text run 998: 1,798 of 2,198 right, as run 957. Every pick is the same; 1 probability set differs, by 0.004.
+  - Picture-only pass 2: 380 of 763, as run 86, with every pick and probability the same.
+- Every entry of the three tables is now done or retained.
+- The Leaderboard's Non-hallucination column and details box read Queued or Running, not Not run, for a setup whose runs with the option are not in yet (`page_config.json` `dont_know.under_way`; Zeki #4748). Claude Fable 5.2's are queued behind its Turkish Text run.
+- No other number changed; the published scores stay the first runs'.
+
 ## Results fd528ce0 (11 November 2026)
 
 - Repeat checks, Run 2 done (the project lead via Zeki #4844, #4849): Drex Max 1.1 on Nace's API with its first runs' settings, English run 999, 484 of 547 right as run 399 (1 pick and 59 probability sets differ), and Page images picture-only pass 2, 344 of 763 as its first pass, every pick and probability the same; KnowLine-31B-Gen1.5's English run 996, 512 of 547 as run 953, every pick the same (30 probability sets differ, by at most 0.028).

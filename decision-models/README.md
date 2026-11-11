@@ -519,7 +519,9 @@ python3 -m http.server 8000                                # preview at http://1
       source and the date read), and in short beside the name. **Controls** (`site.js` `leaderboard`): the part (Ümit
       #4181: Turkish, the default: the 2,198-question ranking, with reading, grammar, non-hallucination with
       "Bilmiyorum" (the share answered as a small second line, "answered 6%", as the score's interval line and as Logic &
-      Math's, `held_cell`) and cost; Turkish reading and Turkish grammar: the same rows ranked on the 656 reading or the 1,542
+      Math's, `held_cell`; Queued or Running instead of Not run while a side's run with the option is not in, as
+      `page_config.json`'s `dont_know.under_way` gives it per model and side, Zeki #4748, and the build stops when a
+      listed side's run is in) and cost; Turkish reading and Turkish grammar: the same rows ranked on the 656 reading or the 1,542
       grammar questions, with that accuracy and its 95% interval, then the whole Turkish accuracy and the other group;
       English reading: the English setups on the 547 kept reading questions, from `english_reading`, with
       non-hallucination with "I don't know" and cost; Both: Turkish and English accuracy on the same questions, as

@@ -100,6 +100,32 @@ class Board:
         self.rated = {model["original_run"]: model for model in site.results["dont_know"]["models"]}
         idk = self.english["dont_know"]
         self.english_rated = {idk_key(model): model["english"] for model in [*idk["models"], *english_only(idk)]}
+        # Setups whose runs with the option are not in yet read Queued or Running for that side (Zeki #4748).
+        self.under_way: dict[str, dict[str, str]] = site.config["dont_know"]["under_way"]["models"]
+        self.check_under_way()
+
+    def check_under_way(self) -> None:
+        """Stops the build on an entry of page_config.json's dont_know.under_way that does not fit: a model the site does
+        not show, a side other than english or turkish, a state other than queued or running, or a side whose run with
+        the option is in (its Text tab run on the Hallucination tab, its English reading entry in the English
+        comparison): that side then comes off the list."""
+        entries = [*self.english["models"], *english_only(self.english)]
+        for model, sides in sorted(self.under_way.items()):
+            label = f"page_config.json dont_know.under_way: {model}"
+            texts = [run for run in self.site.runs if run["model"] == model]
+            english = [entry for entry in entries if entry["model"] == model]
+            if not texts and not english:
+                raise SystemExit(f"{label} is not on the site")
+            if not set(sides) <= {"english", "turkish"} or not set(sides.values()) <= {"queued", "running"}:
+                raise SystemExit(f"{label}: its sides are english or turkish, each queued or running (found {sides})")
+            if "turkish" in sides and any(run["run"] in self.rated for run in texts):
+                raise SystemExit(f"{label}: its Turkish run with the option is in; take turkish off")
+            if "english" in sides and any(entry.get("turkish_run", entry["run"]) in self.english_rated for entry in english):
+                raise SystemExit(f"{label}: its English run with the option is in; take english off")
+
+    def pending(self, model: str, side: str) -> str | None:
+        """A side's state while its run with the option is not in (dont_know.under_way): queued, running or None."""
+        return self.under_way.get(model, {}).get(side)
 
     def key(self, run: dict[str, Any]) -> tuple[str, bool, bool]:
         return self.checkpoints.get(run["model"], run["model"]), self.site.decision(run), run["perplexity_mode"] is not None
@@ -220,19 +246,23 @@ def held_head(option: str) -> str:
     return f'Non-hallucination<span class="small">of answers not right, % \u201c{esc(option)}\u201d \u00b7 higher is better</span>'
 
 
-def held_cell(counts: dict[str, Any] | None, digits: int) -> str:
+def held_cell(counts: dict[str, Any] | None, digits: int, pending: str | None = None) -> str:
     """The Non-hallucination cell (Ümit #4665): the rate with, as a small second line as the score's interval, the share
-    answered, as Logic & Math's ("answered 98%"); Not run without a run with the option, No rate where the rate is
-    undefined."""
+    answered, as Logic & Math's ("answered 98%"); without a run with the option, Queued or Running while that run is
+    not in (page_config.json's dont_know.under_way; Zeki #4748), else Not run; No rate where the rate is undefined."""
     if counts is None:
-        return '<span class="nm">Not run</span>'
+        return f'<span class="nm">{pending.capitalize() if pending else "Not run"}</span>'
     rate = '<span class="nm">No rate</span>' if counts["non_hallucination"] is None else pct(counts["non_hallucination"], digits)
     return f'{rate}<span class="small lb-ci">answered {pct(counts["attempt_rate"], 0)}</span>'
 
 
-def held_line(option: str, counts: dict[str, Any] | None, digits: int) -> str | None:
+def held_line(option: str, counts: dict[str, Any] | None, digits: int, pending: str | None = None) -> str | None:
     """The details box's line on the run with the option: the non-hallucination rate, the share answered and the error
-    rate among the answers together (Ümit #4665), in Logic & Math's words; none without a run or a rate."""
+    rate among the answers together (Ümit #4665), in Logic & Math's words; Queued or Running while that run is not in;
+    none without a run or a rate."""
+    if counts is None and pending:
+        return (f"Non-hallucination with \u201c{esc(option)}\u201d: {pending.capitalize()} (its run with the option "
+                + ("is under way)" if pending == "running" else "has not started yet)"))
     if counts is None or counts["non_hallucination"] is None:
         return None
     error = hold.error_rate(counts)
@@ -268,13 +298,14 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
     def facts(run: dict[str, Any]) -> tuple[list[str | None], list[str]]:
         correct, questions = accuracy(run)
         model = board.rated.get(run["run"])
+        pending = board.pending(run["model"], "turkish")
         kept = (run.get("confidence") or {}).get("sure") if site.decision(run) else None
         value = bp.per_thousand(run)
         lines = [
             (f"Turkish {group} {pct(counts(run)[0] / counts(run)[1])} {interval(*counts(run))}" if group else None),
             f"Accuracy {pct(correct / questions)} {interval(correct, questions)}",
             f"Reading {pct(share(run, 'reading'))} · grammar {pct(share(run, 'grammar'))}",
-            held_line(board.option, model, digits),
+            held_line(board.option, model, digits, pending),
             kept_line(sure, kept, questions),
             " · ".join(filter(None, (cost_text(site, run, value, run.get("cost_basis"), bool(run.get("cost_upper_bound"))),
                                      bp.count(run["questions_per_request"]) + " question"
@@ -284,7 +315,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
         cost = (cost_missing(run) if value is None else
                 f'{cost_value(value, mark)}<span class="small">{esc(BASIS_WORDS[run["cost_basis"]])}</span>')
         cells = ([pct(share(run, "reading")), pct(share(run, "grammar"))] if group is None else
-                 [pct(correct / questions), pct(share(run, other))]) + [held_cell(model, digits), cost]
+                 [pct(correct / questions), pct(share(run, other))]) + [held_cell(model, digits, pending), cost]
         return lines, cells
 
     def score(run: dict[str, Any]) -> tuple[str, int]:
@@ -311,6 +342,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
     def facts(model: dict[str, Any]) -> tuple[list[str | None], list[str]]:
         en, tr = model["english"], model.get("turkish")
         held = board.english_rated.get(model.get("turkish_run", model["run"]))
+        pending = board.pending(model["model"], "english")
         cost = model["cost"]["english"]
         value = cost["per_1000"] if cost else None
         size = (model["latency"].get("english") or {}).get("questions_per_request")
@@ -318,7 +350,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                   f"{interval(en['right'], kept)}, on the same {bp.count(kept)} kept reading questions",
                   f"English minus Turkish: {100 * model['difference']:+.1f} points"] if both else
                  [f"Accuracy in English {pct(en['accuracy'])} {interval(en['right'], kept)}, {bp.count(kept)} kept reading questions",
-                  held_line(board.english_option, held, digits),
+                  held_line(board.english_option, held, digits, pending),
                   " · ".join(filter(None, (cost_text(site, run_of(model), value, cost["basis"] if cost else None,
                                                      bool(cost and cost.get("upper_bound"))),
                                            f"{bp.count(size)} question{'' if size == 1 else 's'} per request" if size else None))),
@@ -330,7 +362,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
         if both:
             cells = [pct(tr["accuracy"]), pct(en["accuracy"]), f"{100 * model['difference']:+.1f}"]
         else:
-            hall = held_cell(held, digits)
+            hall = held_cell(held, digits, pending)
             mark = f'{site.config["first_cost_marks"]["upper"]["mark"]} ' if cost and cost.get("upper_bound") else ""
             money = (cost_missing(run_of(model)) if value is None else
                      f'{cost_value(value, mark)}<span class="small">{esc(BASIS_WORDS[cost["basis"]])}</span>')

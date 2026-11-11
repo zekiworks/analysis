@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "fd528ce0",
-  "updated": "2026-11-11T17:41:46Z",
+  "results_version": "34863e19",
+  "updated": "2026-11-11T18:20:08Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -712017,8 +712017,8 @@
       {
         "area": "text",
         "name": "KnowLine 31B Gen1.5",
-        "status": "running",
-        "note": "One DGX Spark (GB10), BF16, behind the KnowLine server, as run 957: repeat 2 running since 11 November 2026, 17:13 UTC (logic's server on spark2).",
+        "status": "done",
+        "note": "One DGX Spark (GB10), BF16, behind the KnowLine server (the card's serve_knowline.sh, PelaAI/KnowLine-31B-Gen1.5 at 8e56aa1), as run 957: repeat 2 on 11 November 2026 (logic's server on spark2, shared by the three benches).",
         "first": {
           "run": 957,
           "repeat": null,
@@ -712030,7 +712030,19 @@
           "right": 1798,
           "questions": 2198
         },
-        "repeats": []
+        "repeats": [
+          {
+            "run": 998,
+            "repeat": 2,
+            "date": "2026-11-11",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16",
+            "cost_basis": null,
+            "usd": null,
+            "right": 1798,
+            "questions": 2198
+          }
+        ]
       },
       {
         "area": "text",
@@ -712483,8 +712495,8 @@
       {
         "area": "vision",
         "name": "KnowLine 31B Gen1.5",
-        "status": "queued",
-        "note": "One DGX Spark (GB10), BF16, as run 86; pass 2.",
+        "status": "done",
+        "note": "One DGX Spark (GB10), BF16, behind the KnowLine server (the card's serve_knowline.sh, PelaAI/KnowLine-31B-Gen1.5 at 8e56aa1), as run 86: pass 2 (run 8 of vision/repeats/repeat-2.sqlite), 11 November 2026, on logic's server on spark2.",
         "first": {
           "runs": [
             86
@@ -712500,7 +712512,24 @@
           "usd": null,
           "price": null
         },
-        "repeats": []
+        "repeats": [
+          {
+            "pass": 2,
+            "runs": [
+              8
+            ],
+            "dates": [
+              "2026-11-11"
+            ],
+            "right": 380,
+            "questions": 763,
+            "hardware": "1 × DGX Spark (GB10); BF16",
+            "access": null,
+            "cost_basis": null,
+            "picks_differ": 0,
+            "probabilities_differ": 0
+          }
+        ]
       },
       {
         "area": "vision",
