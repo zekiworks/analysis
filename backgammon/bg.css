@@ -333,11 +333,18 @@ td.badges .small { display: block; white-space: normal; }
 .experiment-counts { color: var(--text-2); font-size: .9em; font-variant-numeric: tabular-nums; }
 .experiment-card .hero-links { display: flex; flex-wrap: wrap; gap: .3rem 1rem; }
 .experiment-small { font-size: .95em; }
-/* Repeat checks, top of Experiments (Ümit via Zeki #4831): a compact table per area, each row's details in the full-width
-   row under it; below 640 px model, first run's risk judgement, repeat and status, the rest in the details. */
+/* Repeat checks, top of Experiments (Ümit via Zeki #4831; Run 2 view, Zeki #4838): a compact table per area, each row's
+   details in the full-width row under it; below 640 px rank, model, both risk judgements and status, the rest in the
+   details. */
 #repeat-checks { margin-bottom: 1rem; }
 #repeat-checks h3 { margin: .2rem 0 .4rem; font-size: 1rem; }
 table.repeat-table { width: 100%; }
+table.repeat-table td.rc-rank { width: 3.2rem; }
+table.repeat-table td.rc-rank .nm { font-size: .78rem; }
+table.repeat-table .rc-short { display: none; }
+table.repeat-table thead th:nth-child(2) { text-align: left; }
+table.repeat-table thead th, table.repeat-table thead th .rc-more { white-space: normal; }
+#repeat-checks .rc-view { margin: 0 0 .5rem; }
 table.repeat-table tbody tr > td { background: var(--panel); }
 table.repeat-table tr.rc-row > td { border-bottom: none; }
 table.repeat-table td.model .hl-dot { width: .7rem; height: .7rem; border-radius: 50%; margin-right: .3rem; vertical-align: -1px; }
@@ -348,10 +355,12 @@ table.repeat-table tr.rc-detail-row > td { padding-top: 0; white-space: normal; 
 .rc-details dl.facts { overflow-wrap: anywhere; }
 .rc-details .small { display: inline; margin-left: .3em; }
 @media (max-width: 640px) {
-  table.repeat-table thead .rc-more, table.repeat-table td.num .rc-more, table.repeat-table th:nth-child(4),
+  table.repeat-table thead .rc-more, table.repeat-table td.num .rc-more, table.repeat-table th:nth-child(5),
   table.repeat-table td.rc-pairs { display: none; }
-  table.repeat-table th:first-child, table.repeat-table td:first-child { position: static; width: 50%; min-width: 0; max-width: none;
-    box-shadow: none; }
+  table.repeat-table th:first-child, table.repeat-table td:first-child { position: static; width: 2.4rem; min-width: 0;
+    max-width: none; box-shadow: none; }
+  table.repeat-table td.model { width: 40%; min-width: 0; }
+  table.repeat-table .rc-short { display: inline; }
   table.repeat-table thead th { min-width: 0; }
   table.repeat-table th, table.repeat-table td { padding: .45rem .3rem; }
   table.repeat-table td.num .small { display: none; }

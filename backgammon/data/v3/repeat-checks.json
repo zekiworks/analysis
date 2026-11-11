@@ -63,6 +63,7 @@
    "original_played": 19,
    "playable": 17,
    "played": 0,
+   "rank": null,
    "repeat": null,
    "repeat_matches": [],
    "run_id": "repeat-2026-11-11-mammoth-1-r1",
@@ -136,6 +137,7 @@
    "original_played": 18,
    "playable": 17,
    "played": 0,
+   "rank": null,
    "repeat": null,
    "repeat_matches": [],
    "run_id": "repeat-2026-11-11-drex-max-v1-r1",
@@ -211,6 +213,7 @@
    "original_played": 18,
    "playable": 17,
    "played": 0,
+   "rank": null,
    "repeat": null,
    "repeat_matches": [],
    "run_id": "repeat-2026-11-11-reax-1.3-r1",
@@ -282,11 +285,161 @@
    "original_played": 18,
    "playable": 16,
    "played": 0,
+   "rank": null,
    "repeat": null,
    "repeat_matches": [],
    "run_id": "repeat-2026-11-11-d1-ultra-r1",
    "settings": "as the original's, changed: one match at a time, name, note; League 1 rules (prompt bg-v2, 3 rounds, 300 turns, the original's option-order seed, mirror games off); each pair with its original match's seed and seats; one match at a time",
    "setup": "its own players row: liquid/d1-ultra · liquid · hosted",
+   "status": "queued"
+  },
+  {
+   "blocked_today": [
+    "Inception Mercury Decide"
+   ],
+   "cost": {
+    "cap_usd": 5.0,
+    "entrant_usd": 0.28,
+    "estimate_usd": 0.4
+   },
+   "dates": {
+    "finished": null,
+    "prepared": "2026-11-11",
+    "started": null
+   },
+   "differences": [
+    "Name: '<original> [repeat 1]', a new players row; settings otherwise as the original's (the changed fields are listed under Settings); one match at a time, where the original played several at once.",
+    "Runner: the pinned-pairs build 4ca4f08 (the pins are its only change for these leagues), where the original ran e58fc6c (clean); the same prompt version, option-order seed and rules.",
+    "Hosted model: Drex Max 1.1 is served by Nace; whether the model behind drex-max-v1.1 changed since 2026-11-06 cannot be checked from here.",
+    "Nace pre-send cap: the settings (unchanged) book every request in the original's ledger workspace/drex/state/nace-budget.db, cap $1.25 shared with Drex 2.0, which the original started empty and which held $0.7856 settled on 2026-11-11 (Drex Max 1.1 $0.2853, Drex 2.0 $0.5003); the repeat has the $0.4644 left. Its expected own bill ($0.2751 at $0.03/M) fits; reaching the cap would refuse its requests and leave the repeat incomplete.",
+    "Not replayable today, though played in the original: Mercury Decide (blockers today); their seed pins are kept so they replay with the original seeds once unblocked."
+   ],
+   "field": 19,
+   "id": "drex-max-1.1-r1",
+   "model": "Drex Max 1.1",
+   "not_played": [
+    {
+     "opponent": "GPT-6 Luna (Decisions API)",
+     "reason": "opponent's API out of credit"
+    }
+   ],
+   "original": {
+    "decisions": 2072,
+    "error_hi": 33.936002184889496,
+    "error_lo": 28.414645034658935,
+    "error_rate": 31.10405380575123,
+    "judgement": 59.14333434808007,
+    "judgement_hi": 61.486889154541316,
+    "judgement_lo": 56.979341546632114,
+    "judgement_na": null,
+    "too_few": false
+   },
+   "original_dates": [
+    "2026-11-06",
+    "2026-11-06"
+   ],
+   "original_field": 19,
+   "original_in": "late entry",
+   "original_matches": [
+    830,
+    831,
+    839,
+    842,
+    844,
+    850,
+    851,
+    854,
+    862,
+    865,
+    866,
+    869,
+    871,
+    875,
+    878,
+    880,
+    884
+   ],
+   "original_played": 18,
+   "playable": 17,
+   "played": 0,
+   "rank": null,
+   "repeat": null,
+   "repeat_matches": [],
+   "run_id": "repeat-2026-11-11-drex-max-1.1-r1",
+   "settings": "as the original's, changed: one match at a time, name, note; League 1 rules (prompt bg-v2, 3 rounds, 300 turns, the original's option-order seed, mirror games on); each pair with its original match's seed and seats; one match at a time",
+   "setup": "its own players row: nace/drex-max-v1.1 · nace · hosted",
+   "status": "queued"
+  },
+  {
+   "blocked_today": [
+    "GPT-6 Luna (Decisions API)",
+    "Inception Mercury Decide"
+   ],
+   "cost": {
+    "cap_usd": 5.0,
+    "entrant_usd": 0,
+    "estimate_usd": 0.12
+   },
+   "dates": {
+    "finished": null,
+    "prepared": "2026-11-11",
+    "started": null
+   },
+   "differences": [
+    "Name: '<original> [repeat 1]', a new players row; settings otherwise as the original's (the changed fields are listed under Settings); one match at a time, where the original played several at once.",
+    "Runner: its 18 League 1 matches were played by d2f1f9e with uncommitted changes (#482-#486) and ec555d6 (clean, #487-#499); the repeat uses the pinned-pairs build 4ca4f08. Same prompt version bg-v2, option-order seed and rules; mirror games off as in its originals.",
+    "Opponent hardware: Clef (#484) and Cygnet (#486) answered from DGX Spark (GB10) servers then, Decider v1.1 27B (#483) from spark3 until 22:41 UTC; they now run on our RTX PRO 6000 cards with the same checkpoints and arguments (their players.device records the move and its 20-request replays: same play 20/20, 20/20 and 19/20).",
+    "Server: the same script, snapshot and Python environment; the original ran on one RTX PRO 6000 card beside the opponents' servers on two others and the DGX Sparks, the repeat runs it on one card with the opponents one at a time on the same or a second card.",
+    "Not replayable today, though played in the original: GPT-6 Luna, Mercury Decide (blockers today); their seed pins are kept so they replay with the original seeds once unblocked."
+   ],
+   "field": 18,
+   "id": "glide-v1.2-r1",
+   "model": "Fastino GLiDE v1.2 (local)",
+   "not_played": [],
+   "original": {
+    "decisions": 1790,
+    "error_hi": 40.07466160736893,
+    "error_lo": 32.05140023517557,
+    "error_rate": 36.04640092430168,
+    "judgement": 58.65581017283904,
+    "judgement_hi": 61.075164838711956,
+    "judgement_lo": 56.15123311258921,
+    "judgement_na": null,
+    "too_few": false
+   },
+   "original_dates": [
+    "2026-10-22",
+    "2026-10-22"
+   ],
+   "original_field": 18,
+   "original_in": "League 1",
+   "original_matches": [
+    482,
+    483,
+    484,
+    485,
+    486,
+    487,
+    488,
+    489,
+    490,
+    491,
+    492,
+    493,
+    495,
+    496,
+    498,
+    499
+   ],
+   "original_played": 18,
+   "playable": 16,
+   "played": 0,
+   "rank": null,
+   "repeat": null,
+   "repeat_matches": [],
+   "run_id": "repeat-2026-11-11-glide-v1.2-r1",
+   "settings": "as the original's, changed: one match at a time, name, note; League 1 rules (prompt bg-v2, 3 rounds, 300 turns, the original's option-order seed, mirror games off); each pair with its original match's seed and seats; one match at a time",
+   "setup": "its own players row: fastino/glide-v1.2 · local (glide/server.py) · bf16",
    "status": "queued"
   }
  ],
