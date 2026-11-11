@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-11T19:19:16Z",
+ "updated": "2026-11-11T19:39:40Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -452,6 +452,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.30833333333333335,
    "gpu_cost_usd": 0.76775
+  },
+  {
+   "repo": "ecloudtech/Erk-14B",
+   "commit": "8584b14a829d5cc803bc227f44e9012e36e8ad04",
+   "model_key": "erk-14b",
+   "name": "Erk-14B",
+   "display_name": "Erk-14B",
+   "tag": "off · chat",
+   "class_label": "Open · 15B",
+   "base_model": null,
+   "setup_label": "Erk-14B (chat, reasoning off, on our GPU)",
+   "maker": "eCloud Technology",
+   "kind": "chat",
+   "params_total": 14.77,
+   "params_active": 14.77,
+   "quantization": "BF16",
+   "score_0_100": 88.44197873324086,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.907535829865927,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "math:erk-14b_en",
+    "math:erk-14b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+   "gpu_hours": 0.2311111111111111,
+   "gpu_cost_usd": 0.5754666666666668
   },
   {
    "repo": "decisionmodels/REAX-1.3",
@@ -1668,6 +1700,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.013055555555555556,
    "gpu_cost_usd": 0.0027784549516606076
+  },
+  {
+   "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
+   "commit": "6496ae641cc71b149ce9dad69bd97f2a44e7bf11",
+   "model_key": "startlux-decision-v1.1-0.8b-instant",
+   "name": "StartLux-Decision-v1.1-0.8B-Instant",
+   "display_name": "StartLux-Decision-v1.1-0.8B-Instant",
+   "tag": "",
+   "class_label": "Open · 0.8B",
+   "base_model": "Qwen3.5-0.8B",
+   "setup_label": "StartLux-Decision-v1.1-0.8B-Instant",
+   "maker": "StartLux",
+   "kind": "decision",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 12.101248266296807,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.29680998613037446,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.04765301858447206,
+   "improvement_points": null,
+   "runs": [
+    "math:startlux-0.8b_en",
+    "math:startlux-0.8b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10)",
+   "gpu_hours": 0.015555555555555555,
+   "gpu_cost_usd": 0.003310499516872213
   },
   {
    "repo": "StrandsAgents/strands-decider-2B-hobson-v21",

@@ -6998,7 +6998,135 @@
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D, E or F). If you do not know the answer, choose I don&#x27;t know.
 
-{question}</pre></dd></dl></section><section class="run-record" id="run-math-qwen3.8-27b-bf16_en_low"><h3>Math · qwen3.8-27b-bf16_en_low</h3><dl class="facts"><dt>Name</dt><dd>Qwen3.8-27B <span class="name-tag">low · chat</span></dd><dt>Setup</dt><dd>Qwen3.8-27B (chat, reasoning low, on our GPU) · chat model</dd><dt>Model</dt><dd><code>qwen38-27b-bf16</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$1.437 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.577 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $1.437. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run qwen3.8-27b-bf16_en_low · first answer 2026-11-06 21:41:16 UTC · last answer 2026-11-06 22:15:53 UTC · span 2077.0 s, pauses included (not charged) · charged 2077.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $1.4366 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 12.9 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>60,000 tokens · 0 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 27B dense · source <a href="https://huggingface.co/Qwen/Qwen3.8-27B">https://huggingface.co/Qwen/Qwen3.8-27B</a> · read 2026-11-10 · the card states Number of Parameters: 27B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 27.78B (counted from the checkpoint (27,781,427,952, the vision encoder included); the card says 27B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:8022/v1/chat/completions</code></dd><dt>Started</dt><dd>6 Nov 2026 21:41 UTC; last answer 6 Nov 2026 22:15 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Qwen3.8-27B BF16 (vLLM v0.30.0, MTP, bariton GPU 1), thinking on at reasoning_effort low, model generation config sampling (1.0/0.95/20, seed 0), JSON answer schema; English translations (DeepSeek + review)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+{question}</pre></dd></dl></section><section class="run-record" id="run-logic-startlux-0.8b_en"><h3>Logic · startlux-0.8b_en</h3><dl class="facts"><dt>Name</dt><dd>StartLux-Decision-v1.1-0.8B-Instant</dd><dt>Setup</dt><dd>StartLux-Decision-v1.1-0.8B-Instant · decision model</dd><dt>Model</dt><dd><code>startlux-models/StartLux-Decision-v1.1-0.8B-Instant</code> · provider startlux</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.00201 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.00944 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.002 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run startlux-0.8b_en · first answer 2026-11-11 19:32:44 UTC · last answer 2026-11-11 19:33:18 UTC · span 34.0 s, pauses included (not charged) · charged 34.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0020 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 0.8B dense · source <a href="https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant">https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant</a> · read 2026-11-11 · the card states a 0.8B decision model; checkpoint count 0.87B (counted from the checkpoint (873,438,784: language model incl. MTP layer 772,845,888, vision tower 100,592,896); from Qwen3.5-0.8B; dense; the card: 0.8B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19460</code></dd><dt>Started</dt><dd>11 Nov 2026 19:32 UTC; last answer 11 Nov 2026 19:33 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup StartLux-Decision-v1.1-0.8B-Instant (site run None); runner 5fb51788d; startlux-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae641cc71b149ce9dad69bd97f2a44e7bf11 (weights CC BY-NC 4.0, non-commercial: run for this non-commercial benchmark, as StartLux 4B and 2B; code Apache-2.0; Qwen3.5-0.8B, per-type temperatures from decision_config.json (choice 1.4364), prefix-bidirectional vLLM plugin) behind the card&#x27;s server (github.com/StartLuxLabs/StartLux-Decision at a99977d): ~/envs/startlux/bin/startlux-decide serve --model ~/decision-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae641cc71b149ce9dad69bd97f2a44e7bf11 --launch-vllm --gpus 0 --host 0.0.0.0 --port 19460 (env ~/envs/startlux: vllm==0.31.0, torch 2.13.0+cu130, the repository at a99977d with [vllm]; vLLM 0.31.0 because 0.19.1, the version of the card&#x27;s published scores, has no aarch64 build; the card supports 0.31); vram_mib is vLLM&#x27;s --gpu-memory-utilization default 0.88 of the unified memory, so it cannot run beside another large server; vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19460; spark2 (DGX Spark, GB10); runner provider &#x27;startlux&#x27; (System One at /v1/systemone, model ignored)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+    &quot;--provider&quot;,
+    &quot;startlux&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;b55c22654bc72e59b7a430a92a37731267ddb6de&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;startlux&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 30.847514470195165,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;1f99ab009188745ea80379e05e073c26be9da55bcfca9f5f4e3968c616f31c5d&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;5fb51788d3992285ed8f0cf76fd6e8716353b0d9&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 394757,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19460/v1/systemone
+{
+ &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-startlux-0.8b_en_dontknow"><h3>Logic · startlux-0.8b_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>StartLux-Decision-v1.1-0.8B-Instant</dd><dt>Setup</dt><dd>StartLux-Decision-v1.1-0.8B-Instant · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>startlux-models/StartLux-Decision-v1.1-0.8B-Instant</code> · provider startlux</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.00201 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.00944 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.002 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run startlux-0.8b_en_dontknow · first answer 2026-11-11 19:34:22 UTC · last answer 2026-11-11 19:34:56 UTC · span 34.0 s, pauses included (not charged) · charged 34.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0020 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 0.8B dense · source <a href="https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant">https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant</a> · read 2026-11-11 · the card states a 0.8B decision model; checkpoint count 0.87B (counted from the checkpoint (873,438,784: language model incl. MTP layer 772,845,888, vision tower 100,592,896); from Qwen3.5-0.8B; dense; the card: 0.8B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19460</code></dd><dt>Started</dt><dd>11 Nov 2026 19:34 UTC; last answer 11 Nov 2026 19:34 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup StartLux-Decision-v1.1-0.8B-Instant (site run None); runner 5fb51788d; startlux-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae641cc71b149ce9dad69bd97f2a44e7bf11 (weights CC BY-NC 4.0, non-commercial: run for this non-commercial benchmark, as StartLux 4B and 2B; code Apache-2.0; Qwen3.5-0.8B, per-type temperatures from decision_config.json (choice 1.4364), prefix-bidirectional vLLM plugin) behind the card&#x27;s server (github.com/StartLuxLabs/StartLux-Decision at a99977d): ~/envs/startlux/bin/startlux-decide serve --model ~/decision-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae641cc71b149ce9dad69bd97f2a44e7bf11 --launch-vllm --gpus 0 --host 0.0.0.0 --port 19460 (env ~/envs/startlux: vllm==0.31.0, torch 2.13.0+cu130, the repository at a99977d with [vllm]; vLLM 0.31.0 because 0.19.1, the version of the card&#x27;s published scores, has no aarch64 build; the card supports 0.31); vram_mib is vLLM&#x27;s --gpu-memory-utilization default 0.88 of the unified memory, so it cannot run beside another large server; vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19460; spark2 (DGX Spark, GB10); runner provider &#x27;startlux&#x27; (System One at /v1/systemone, model ignored)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+    &quot;--provider&quot;,
+    &quot;startlux&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;b55c22654bc72e59b7a430a92a37731267ddb6de&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;startlux&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 31.834609649784397,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;b99dd6f71c75b4e50f73c0011df6f9786bdb2979a184c4b4b46196d58222067a&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;5fb51788d3992285ed8f0cf76fd6e8716353b0d9&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 426257,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19460/v1/systemone
+{
+ &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-qwen3.8-27b-bf16_en_low"><h3>Math · qwen3.8-27b-bf16_en_low</h3><dl class="facts"><dt>Name</dt><dd>Qwen3.8-27B <span class="name-tag">low · chat</span></dd><dt>Setup</dt><dd>Qwen3.8-27B (chat, reasoning low, on our GPU) · chat model</dd><dt>Model</dt><dd><code>qwen38-27b-bf16</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$1.437 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.577 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $1.437. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run qwen3.8-27b-bf16_en_low · first answer 2026-11-06 21:41:16 UTC · last answer 2026-11-06 22:15:53 UTC · span 2077.0 s, pauses included (not charged) · charged 2077.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $1.4366 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 12.9 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>60,000 tokens · 0 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 27B dense · source <a href="https://huggingface.co/Qwen/Qwen3.8-27B">https://huggingface.co/Qwen/Qwen3.8-27B</a> · read 2026-11-10 · the card states Number of Parameters: 27B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 27.78B (counted from the checkpoint (27,781,427,952, the vision encoder included); the card says 27B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:8022/v1/chat/completions</code></dd><dt>Started</dt><dd>6 Nov 2026 21:41 UTC; last answer 6 Nov 2026 22:15 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Qwen3.8-27B BF16 (vLLM v0.30.0, MTP, bariton GPU 1), thinking on at reasoning_effort low, model generation config sampling (1.0/0.95/20, seed 0), JSON answer schema; English translations (DeepSeek + review)</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: true,
     &quot;reasoning_effort&quot;: &quot;low&quot;
@@ -13716,7 +13844,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-grok-4.7-sub_en"><h3>Math · grok-4.7-sub_en</h3><dl class="facts"><dt>Name</dt><dd>Grok 4.7 <span class="name-tag">chat</span></dd><dt>Setup</dt><dd>Grok 4.7 · chat model</dd><dt>Model</dt><dd><code>grok-4.7</code> · provider xai-subscription</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0 for the run · xAI subscription</dd><dt>Answer time</dt><dd>run grok-4.7-sub_en · first answer 2026-11-11 15:17:40 UTC · last answer 2026-11-11 19:19:14 UTC · span 14494.0 s, pauses included (not charged) · charged 12800.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.7 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker (closed weights) · source <a href="https://x.ai">https://x.ai</a> · read 2026-11-11</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.x.ai/v1/responses</code></dd><dt>Started</dt><dd>11 Nov 2026 15:17 UTC; last answer 11 Nov 2026 19:19 UTC</dd><dt>Progress</dt><dd>410 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Grok 4.7 on the SuperGrok subscription through xAI&#x27;s Responses API with OMP&#x27;s xai-oauth login (as turkce&#x27;s ask_xai and jevgammon&#x27;s xai-subscription route), model grok-4.7, reasoning effort high (Reading&#x27;s setting); max_output_tokens 32768; no temperature sent (xAI&#x27;s default) and no tools; a neutral one-line system prompt; one question per request, one request at a time; a usage-limit reply stops the run without retrying it (resumable); cost $0 (xAI subscription); api_equivalent_usd is the tokens at xAI&#x27;s API list price {&quot;input&quot;: 2.0, &quot;cached_input&quot;: 0.5, &quot;output&quot;: 6.0} per 1M tokens, not a cost. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-grok-4.7-sub_en"><h3>Math · grok-4.7-sub_en</h3><dl class="facts"><dt>Name</dt><dd>Grok 4.7 <span class="name-tag">chat</span></dd><dt>Setup</dt><dd>Grok 4.7 · chat model</dd><dt>Model</dt><dd><code>grok-4.7</code> · provider xai-subscription</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0 for the run · xAI subscription</dd><dt>Answer time</dt><dd>run grok-4.7-sub_en · first answer 2026-11-11 15:17:40 UTC · last answer 2026-11-11 19:39:42 UTC · span 15722.0 s, pauses included (not charged) · charged 14028.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.7 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker (closed weights) · source <a href="https://x.ai">https://x.ai</a> · read 2026-11-11</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.x.ai/v1/responses</code></dd><dt>Started</dt><dd>11 Nov 2026 15:17 UTC; last answer 11 Nov 2026 19:39 UTC</dd><dt>Progress</dt><dd>493 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Grok 4.7 on the SuperGrok subscription through xAI&#x27;s Responses API with OMP&#x27;s xai-oauth login (as turkce&#x27;s ask_xai and jevgammon&#x27;s xai-subscription route), model grok-4.7, reasoning effort high (Reading&#x27;s setting); max_output_tokens 32768; no temperature sent (xAI&#x27;s default) and no tools; a neutral one-line system prompt; one question per request, one request at a time; a usage-limit reply stops the run without retrying it (resumable); cost $0 (xAI subscription); api_equivalent_usd is the tokens at xAI&#x27;s API list price {&quot;input&quot;: 2.0, &quot;cached_input&quot;: 0.5, &quot;output&quot;: 6.0} per 1M tokens, not a cost. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;effort&quot;: &quot;high&quot;,
   &quot;list_price_per_mtok&quot;: {
     &quot;cached_input&quot;: 0.5,
@@ -13877,7 +14005,7 @@
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D, E or F). If you do not know the answer, choose I don&#x27;t know.
 
-{question}</pre></dd></dl></section><section class="run-record" id="run-math-erk-14b_en"><h3>Math · erk-14b_en</h3><dl class="facts"><dt>Name</dt><dd>Erk-14B <span class="name-tag">off · chat</span></dd><dt>Setup</dt><dd>Erk-14B (chat, reasoning off, on our GPU) · chat model</dd><dt>Model</dt><dd><code>erk-14b</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$0.4288 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.172 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $0.429. GPU time = first to last stored answer, less gaps of more than 10 minutes; pauses left out: 2026-11-11 18:52:50–19:11:38 UTC</dd><dt>GPU time</dt><dd>run erk-14b_en · first answer 2026-11-11 18:50:10 UTC · last answer 2026-11-11 19:19:18 UTC · span 1748.0 s, pauses included (not charged) · charged 620.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.4288 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 23.8 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>8,192 tokens · 7 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 14.77B dense · source <a href="https://huggingface.co/ecloudtech/Erk-14B">https://huggingface.co/ecloudtech/Erk-14B</a> · read 2026-11-11 · dense; counted from the released checkpoint</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19501/v1/chat/completions</code></dd><dt>Started</dt><dd>11 Nov 2026 18:50 UTC; last answer 11 Nov 2026 19:19 UTC</dd><dt>Progress</dt><dd>1,525 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Erk-14B as Reading&#x27;s setup: ecloudtech/Erk-14B@8584b14a829d5cc803bc227f44e9012e36e8ad04 BF16, served on bariton (one RTX PRO 6000) via docker vLLM 0.30.0 (vllm/vllm-openai:v0.30.0) from the HF cache as Reading&#x27;s runs, max-model-len 16,384, gpu-memory-utilization 0.85; reasoning off as Reading&#x27;s requests (chat_template_kwargs enable_thinking=false, thinking=false), temperature 0, seed 0; max_tokens 8192; one question per request (32 in flight), line prompt &#x27;ANSWER: X&#x27;, no system message and no JSON schema (Reading: system prompt, JSON schema, 16 questions per request); with no system message Erk-14B&#x27;s chat template inserts its own default (Turkish identity) system prompt. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+{question}</pre></dd></dl></section><section class="run-record" id="run-math-erk-14b_en"><h3>Math · erk-14b_en</h3><dl class="facts"><dt>Name</dt><dd>Erk-14B <span class="name-tag">off · chat</span></dd><dt>Setup</dt><dd>Erk-14B (chat, reasoning off, on our GPU) · chat model</dd><dt>Model</dt><dd><code>erk-14b</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$0.5755 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.231 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $0.575. GPU time = first to last stored answer, less gaps of more than 10 minutes; pauses left out: 2026-11-11 18:52:50–19:11:38 UTC</dd><dt>GPU time</dt><dd>run erk-14b_en · first answer 2026-11-11 18:50:10 UTC · last answer 2026-11-11 19:22:50 UTC · span 1960.0 s, pauses included (not charged) · charged 832.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.5755 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 25.8 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>8,192 tokens · 11 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 14.77B dense · source <a href="https://huggingface.co/ecloudtech/Erk-14B">https://huggingface.co/ecloudtech/Erk-14B</a> · read 2026-11-11 · dense; counted from the released checkpoint</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19501/v1/chat/completions</code></dd><dt>Started</dt><dd>11 Nov 2026 18:50 UTC; last answer 11 Nov 2026 19:22 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Erk-14B as Reading&#x27;s setup: ecloudtech/Erk-14B@8584b14a829d5cc803bc227f44e9012e36e8ad04 BF16, served on bariton (one RTX PRO 6000) via docker vLLM 0.30.0 (vllm/vllm-openai:v0.30.0) from the HF cache as Reading&#x27;s runs, max-model-len 16,384, gpu-memory-utilization 0.85; reasoning off as Reading&#x27;s requests (chat_template_kwargs enable_thinking=false, thinking=false), temperature 0, seed 0; max_tokens 8192; one question per request (32 in flight), line prompt &#x27;ANSWER: X&#x27;, no system message and no JSON schema (Reading: system prompt, JSON schema, 16 questions per request); with no system message Erk-14B&#x27;s chat template inserts its own default (Turkish identity) system prompt. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: false,
     &quot;thinking&quot;: false
@@ -13887,13 +14015,158 @@
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
 
-{question}</pre></dd></dl></section>
+{question}</pre></dd></dl></section><section class="run-record" id="run-math-erk-14b_en_dontknow"><h3>Math · erk-14b_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>Erk-14B <span class="name-tag">off · chat</span></dd><dt>Setup</dt><dd>Erk-14B (chat, reasoning off, on our GPU) · chat model · with the I don't know option F</dd><dt>Model</dt><dd><code>erk-14b</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$0.5782 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.232 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $0.578. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run erk-14b_en_dontknow · first answer 2026-11-11 19:22:52 UTC · last answer 2026-11-11 19:36:48 UTC · span 836.0 s, pauses included (not charged) · charged 836.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.5782 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 26.5 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>8,192 tokens · 18 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 14.77B dense · source <a href="https://huggingface.co/ecloudtech/Erk-14B">https://huggingface.co/ecloudtech/Erk-14B</a> · read 2026-11-11 · dense; counted from the released checkpoint</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:19501/v1/chat/completions</code></dd><dt>Started</dt><dd>11 Nov 2026 19:22 UTC; last answer 11 Nov 2026 19:36 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Erk-14B as Reading&#x27;s setup: ecloudtech/Erk-14B@8584b14a829d5cc803bc227f44e9012e36e8ad04 BF16, served on bariton (one RTX PRO 6000) via docker vLLM 0.30.0 (vllm/vllm-openai:v0.30.0) from the HF cache as Reading&#x27;s runs, max-model-len 16,384, gpu-memory-utilization 0.85; reasoning off as Reading&#x27;s requests (chat_template_kwargs enable_thinking=false, thinking=false), temperature 0, seed 0; max_tokens 8192; one question per request (32 in flight), line prompt &#x27;ANSWER: X&#x27;, no system message and no JSON schema (Reading: system prompt, JSON schema, 16 questions per request); with no system message Erk-14B&#x27;s chat template inserts its own default (Turkish identity) system prompt. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;chat_template_kwargs&quot;: {
+    &quot;enable_thinking&quot;: false,
+    &quot;thinking&quot;: false
+  },
+  &quot;max_tokens&quot;: 8192,
+  &quot;seed&quot;: 0,
+  &quot;temperature&quot;: 0.0
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D, E or F). If you do not know the answer, choose I don&#x27;t know.
+
+{question}</pre></dd></dl></section><section class="run-record" id="run-math-claude-opus-5.5-sub_en"><h3>Math · claude-opus-5.5-sub_en</h3><dl class="facts"><dt>Name</dt><dd>Claude Opus 5.5 <span class="name-tag">chat</span></dd><dt>Setup</dt><dd>Claude Opus 5.5 · chat model</dd><dt>Model</dt><dd><code>claude-opus-5-5</code> · provider claude-subscription</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not measured</dd><dt>Answer time</dt><dd>run claude-opus-5.5-sub_en · first answer 2026-11-11 19:31:58 UTC · last answer 2026-11-11 19:39:43 UTC · span 465.0 s, pauses included (not charged) · charged 465.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not on record yet</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>claude-code-subscription</code></dd><dt>Started</dt><dd>11 Nov 2026 19:31 UTC; last answer 11 Nov 2026 19:39 UTC</dd><dt>Progress</dt><dd>123 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Claude Opus 5.5 on the Claude subscription through the Claude Code CLI (`claude --print`, as turkce&#x27;s runs 968/971), model claude-opus-5-5, --effort high (the highest of low/medium/high/xhigh/max; adaptive thinking always on); CLAUDE_CODE_MAX_OUTPUT_TOKENS 32768; no temperature sent (Anthropic&#x27;s default 1.0); Claude Code&#x27;s agent prompt replaced by a neutral one-line system prompt, tools, settings, MCP servers and session saving off, API-key variables removed; one question per request, one request at a time; cost $0 (Claude subscription); api_equivalent_usd is Claude Code&#x27;s API-list-price estimate, not a cost. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;effort&quot;: &quot;high&quot;,
+  &quot;max_output_tokens&quot;: 32768,
+  &quot;route&quot;: &quot;claude-code-cli --print&quot;,
+  &quot;system_prompt&quot;: &quot;You are taking a multiple-choice benchmark. Follow the instructions in the user&#x27;s message.&quot;
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
+
+{question}</pre></dd></dl></section><section class="run-record" id="run-math-startlux-0.8b_en"><h3>Math · startlux-0.8b_en</h3><dl class="facts"><dt>Name</dt><dd>StartLux-Decision-v1.1-0.8B-Instant</dd><dt>Setup</dt><dd>StartLux-Decision-v1.1-0.8B-Instant · decision model</dd><dt>Model</dt><dd><code>startlux-models/StartLux-Decision-v1.1-0.8B-Instant</code> · provider startlux</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.00331 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0156 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.003 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run startlux-0.8b_en · first answer 2026-11-11 19:33:21 UTC · last answer 2026-11-11 19:34:17 UTC · span 56.0 s, pauses included (not charged) · charged 56.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0033 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 0.8B dense · source <a href="https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant">https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant</a> · read 2026-11-11 · the card states a 0.8B decision model; checkpoint count 0.87B (counted from the checkpoint (873,438,784: language model incl. MTP layer 772,845,888, vision tower 100,592,896); from Qwen3.5-0.8B; dense; the card: 0.8B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19460</code></dd><dt>Started</dt><dd>11 Nov 2026 19:33 UTC; last answer 11 Nov 2026 19:34 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup StartLux-Decision-v1.1-0.8B-Instant (site run None); runner 5fb51788d; startlux-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae641cc71b149ce9dad69bd97f2a44e7bf11 (weights CC BY-NC 4.0, non-commercial: run for this non-commercial benchmark, as StartLux 4B and 2B; code Apache-2.0; Qwen3.5-0.8B, per-type temperatures from decision_config.json (choice 1.4364), prefix-bidirectional vLLM plugin) behind the card&#x27;s server (github.com/StartLuxLabs/StartLux-Decision at a99977d): ~/envs/startlux/bin/startlux-decide serve --model ~/decision-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae641cc71b149ce9dad69bd97f2a44e7bf11 --launch-vllm --gpus 0 --host 0.0.0.0 --port 19460 (env ~/envs/startlux: vllm==0.31.0, torch 2.13.0+cu130, the repository at a99977d with [vllm]; vLLM 0.31.0 because 0.19.1, the version of the card&#x27;s published scores, has no aarch64 build; the card supports 0.31); vram_mib is vLLM&#x27;s --gpu-memory-utilization default 0.88 of the unified memory, so it cannot run beside another large server; vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19460; spark2 (DGX Spark, GB10); runner provider &#x27;startlux&#x27; (System One at /v1/systemone, model ignored)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+    &quot;--provider&quot;,
+    &quot;startlux&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;b55c22654bc72e59b7a430a92a37731267ddb6de&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;startlux&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 51.167206322570564,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;55d9817a5924cb3c884527a1474385d2beaa033ae1f9d6beee56a38aff0a6631&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;5fb51788d3992285ed8f0cf76fd6e8716353b0d9&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 416668,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19460/v1/systemone
+{
+ &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-startlux-0.8b_en_dontknow"><h3>Math · startlux-0.8b_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>StartLux-Decision-v1.1-0.8B-Instant</dd><dt>Setup</dt><dd>StartLux-Decision-v1.1-0.8B-Instant · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>startlux-models/StartLux-Decision-v1.1-0.8B-Instant</code> · provider startlux</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.003429 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0161 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.003 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run startlux-0.8b_en_dontknow · first answer 2026-11-11 19:35:00 UTC · last answer 2026-11-11 19:35:58 UTC · span 58.0 s, pauses included (not charged) · charged 58.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0034 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 0.8B dense · source <a href="https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant">https://huggingface.co/startlux-models/StartLux-Decision-v1.1-0.8B-Instant</a> · read 2026-11-11 · the card states a 0.8B decision model; checkpoint count 0.87B (counted from the checkpoint (873,438,784: language model incl. MTP layer 772,845,888, vision tower 100,592,896); from Qwen3.5-0.8B; dense; the card: 0.8B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19460</code></dd><dt>Started</dt><dd>11 Nov 2026 19:35 UTC; last answer 11 Nov 2026 19:35 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup StartLux-Decision-v1.1-0.8B-Instant (site run None); runner 5fb51788d; startlux-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae641cc71b149ce9dad69bd97f2a44e7bf11 (weights CC BY-NC 4.0, non-commercial: run for this non-commercial benchmark, as StartLux 4B and 2B; code Apache-2.0; Qwen3.5-0.8B, per-type temperatures from decision_config.json (choice 1.4364), prefix-bidirectional vLLM plugin) behind the card&#x27;s server (github.com/StartLuxLabs/StartLux-Decision at a99977d): ~/envs/startlux/bin/startlux-decide serve --model ~/decision-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae641cc71b149ce9dad69bd97f2a44e7bf11 --launch-vllm --gpus 0 --host 0.0.0.0 --port 19460 (env ~/envs/startlux: vllm==0.31.0, torch 2.13.0+cu130, the repository at a99977d with [vllm]; vLLM 0.31.0 because 0.19.1, the version of the card&#x27;s published scores, has no aarch64 build; the card supports 0.31); vram_mib is vLLM&#x27;s --gpu-memory-utilization default 0.88 of the unified memory, so it cannot run beside another large server; vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19460; spark2 (DGX Spark, GB10); runner provider &#x27;startlux&#x27; (System One at /v1/systemone, model ignored)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+    &quot;--provider&quot;,
+    &quot;startlux&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;b55c22654bc72e59b7a430a92a37731267ddb6de&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;startlux&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 52.60540234367363,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;9dd867b97bed5e3831910c81aac227bea9ca58c20a51c98209bf7bedbda2c8e0&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;5fb51788d3992285ed8f0cf76fd6e8716353b0d9&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 477232,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19460/v1/systemone
+{
+ &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-0.8B-Instant&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <nav class="footer-links" aria-label="About this site"><a href="../about/">About</a><a href="../method/">Method</a><a href="../about/#data">Data</a></nav>
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 11 Nov 2026 19:19 UTC from the logic and math benchmark.db files (371,314 graded answers in 241 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 11 Nov 2026 19:39 UTC from the logic and math benchmark.db files (380,897 graded answers in 247 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>

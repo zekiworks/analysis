@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-11T19:19:16Z",
+ "updated": "2026-11-11T19:39:40Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1733,6 +1733,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.010555555555555556,
    "gpu_cost_usd": 0.002246410386449002
+  },
+  {
+   "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
+   "commit": "6496ae641cc71b149ce9dad69bd97f2a44e7bf11",
+   "model_key": "startlux-decision-v1.1-0.8b-instant",
+   "name": "StartLux-Decision-v1.1-0.8B-Instant",
+   "display_name": "StartLux-Decision-v1.1-0.8B-Instant",
+   "tag": "",
+   "class_label": "Open · 0.8B",
+   "base_model": "Qwen3.5-0.8B",
+   "setup_label": "StartLux-Decision-v1.1-0.8B-Instant",
+   "maker": "StartLux",
+   "kind": "decision",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 5.8888888888888875,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.24711111111111111,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.07773130108783036,
+   "improvement_points": null,
+   "runs": [
+    "logic:startlux-0.8b_en",
+    "logic:startlux-0.8b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10)",
+   "gpu_hours": 0.009444444444444445,
+   "gpu_cost_usd": 0.0020099461352438438
   },
   {
    "repo": "fastino/GLiDE-0.4B",
