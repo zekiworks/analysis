@@ -466,10 +466,10 @@
    },
    {
     "reason": null,
-    "series_done": 2,
+    "series_done": 3,
     "setup": "Claude Opus 5.5 (high)",
     "status": "running",
-    "updated_at": "2026-11-11T13:34:38+00:00"
+    "updated_at": "2026-11-11T13:46:11+00:00"
    },
    {
     "reason": null,
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-11T13:34:53+00:00"
+  "updated_at": "2026-11-11T13:49:14+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -2912,20 +2912,20 @@
    },
    {
     "after": {
-     "error_rate": 27.84591481089592,
+     "error_rate": 27.820787578821182,
      "right_safety": 96.0,
-     "risks_found": 53.5
+     "risks_found": 54.0
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 400,
-     "expected": 400,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 200,
-     "safety_pays": 200,
-     "tests": 2,
-     "valid": 400
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -2944,12 +2944,12 @@
      "risks_found": 46.0
     },
     "change": {
-     "error_rate": -3.7501180917024612,
+     "error_rate": -3.775245323777199,
      "right_safety": -0.5,
-     "risks_found": 7.5
+     "risks_found": 8.0
     },
     "cost": {
-     "api_equivalent_usd": 72.0982,
+     "api_equivalent_usd": 84.8965,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2991,9 +2991,9 @@
     "key": "claude-opus-5.5-on",
     "progress": {
      "reason": null,
-     "series_done": 2,
+     "series_done": 3,
      "status": "running",
-     "updated_at": "2026-11-11T13:34:38+00:00"
+     "updated_at": "2026-11-11T13:46:11+00:00"
     },
     "range": null,
     "reason": null,
@@ -3135,17 +3135,87 @@
        "wall_seconds": 548.2
       },
       "wins": 6
+     },
+     {
+      "finished": true,
+      "game_decisions": 209,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Never bury checkers on your 1-3 points just to keep things safe. If every home-board move wrecks your structure, move your back checkers instead.\n- When back checkers are trailing, use big numbers (5s and 6s) to escape them first. Bring outfield checkers home later. Leaving two checkers stranded behind caused your biggest losses.\n- With small quiet rolls, step your back anchor up (for example 22/20 or 21/20). This beats stacking or shuffling midpoint checkers, keeps your timing, and eases a later escape.\n- Look for hits made by back checkers that also run, such as 21/15/14*. They gain tempo and solve the escape problem at once, which is better than making a safe outfield point.\n- Early on, avoid deep hits on your 1-2 points. Prefer plays that build useful points or bring builders down, unless the hit clearly gains much more."
+       },
+       {
+        "game": 2,
+        "text": "- When opponent checkers are trapped behind you, making a blocking point (bar/7-point) to extend the prime beats making a safe anchor or stacking spares deep.\n- Prefer moves that make new points or add priming builders over moves that pile extra checkers onto points you already own.\n- With big doubles, use every pip to make new points and bring in loose builders, rather than stacking several checkers on one point.\n- Against opponent anchors deep in your board, keep outfield blocking points as long as possible; spend awkward rolls on spare checkers inside rather than breaking points early.\n- Keep hitting loose blots when your board is stronger and anchors are secure; the aggression won this gammon."
+       },
+       {
+        "game": 3,
+        "text": "- Don't stack or bury checkers on low points (4, 3, 2, 1). Use rolls to make new, higher points like the bar or 5-point instead of piling onto ones I already own.\n- Bring builders down from the midpoint (13/10, 13/9) rather than shuffling checkers already on the 8 or 10. Diverse builders aimed at the 7 and 5 points beat dead checkers.\n- When my back anchor is the last thing holding me up, run it with big numbers (6s) while the outfield is open. Don't spend the roll crunching my home board.\n- I keep choosing the \"safe\" play where the engine accepts a small shot risk for a better structure. Trust bolder, constructive plays when the opponent's board is weak.\n- Late in the game, bear in to keep a smooth spread (6/3 6/3 rather than 4/1 4/1). Avoid wasting pips deep on the ace point."
+       },
+       {
+        "game": 4,
+        "text": "- Early on, don't hit loose on the 1- or 2-point. It buries checkers and invites return shots. Split or advance the back checkers instead (e.g., 24/20).\n- When I hit in my home board, point on the blot (hit with two) or cover existing home blots. Clean up my own blots before leaving shots elsewhere.\n- Don't run a lone back checker into the outfield while my home board has loose blots. First make points and safety the blots.\n- Use big doubles and spare pips to free trapped back checkers, especially once the opponent's board is strong. Blitzing with them while my back checkers stay stuck invites gammons.\n- Stop stacking extra checkers on the ace point (moves like 7/1). Every wasted pip there is a tempo lost for escaping and avoiding a gammon."
+       },
+       {
+        "game": 5,
+        "text": "- When the opponent is building blocking points in front of your back checkers, run one with a big roll (like 24/20/15) rather than stacking extra home-board points you don't yet need.\n- Before playing safe builder moves, compare each candidate's gain against the cost of leaving back checkers trapped. Mobility for the back checkers often matters more than one more inner point.\n- When the opponent has blots in or entering your home board and your board is strong, keep attacking: hit and close points (the blitz). It worked repeatedly here.\n- Leave the midpoint and anchors only when every checker can come home safely. Clearing points in pairs and from the back kept the bear-in shot-free.\n- In bearoffs with no contact, take checkers off whenever possible, and spread the remaining checkers to avoid gaps that waste future rolls."
+       },
+       {
+        "game": 6,
+        "text": "- Early on, bring builders down from the midpoint to diversify. Don't spend a roll making a deep point like the 4 if it strips the 8 and 7 points.\n- When a back checker can escape and hit an outfield blot in one move, that usually beats quiet midpoint plays. Running while hitting gains tempo and race.\n- With big doubles, split the roll between hitting and making a home-board point. Using every pip to move the back checkers wastes the chance to build a prison.\n- With a strong home board and the opponent's blots in it, hit loose to attack (pick-and-pass). Safe outfield moves miss the gammon chances.\n- When bearing in against checkers on the bar or anchored, clear from the back (7 point first) and keep a smooth distribution. Don't pile checkers deep or leave gaps."
+       },
+       {
+        "game": 7,
+        "text": "- When the opponent has checkers on the bar, attack hard: hitting loose blots in your home board and closing points beats safe outfield moves, because gammon chances soar.\n- With a strong board and opponent checkers on the bar, use big doubles to close points or hit, not just to bring builders down safely.\n- Once the opponent is closed out or dancing, run your last back checker to safety early instead of adding more builders.\n- When bearing in, fill the empty high points (5, 6) and spread checkers evenly. Don't bury checkers on the 1-2 points or stack deep.\n- When bearing off against checkers on the bar, keep the board closed and the distribution smooth, avoiding gaps that waste later rolls."
+       },
+       {
+        "game": 8,
+        "text": "- Early in the game, avoid a loose hit deep in your home board (the 1-, 2- or 3-point). Use the roll to bring a builder or a runner to safety instead.\n- When you can make your 5-point (or another key home point) with two builders, do it rather than hitting loose from the midpoint. A solid point is worth more than a risky tempo hit.\n- When several checkers can make the same hit, prefer hitting with a back checker. It escapes your rear anchor and keeps your midpoint and builders intact.\n- When the opponent is on the bar against your closed board, bring the stragglers home safely and in order. Don't make a new outfield point from the back.\n- In the bear-off, take a checker off whenever it is safe. Don't spend pips stacking extra checkers onto low points."
+       },
+       {
+        "game": 9,
+        "text": "- When the opponent has a checker on the bar or deep in my home board, attack: hit loose blots to pick up extra checkers and play for a closeout or gammon. Safe \"tidying\" moves there can throw away a lot.\n- Once my front structure is built, start moving the back checkers (split, step up, run) instead of piling more builders up front. Stranded back checkers cost equity.\n- Don't bury checkers on the deep points (1–3) early. Keep spares on the 6–9 points where they make useful points and keep the position flexible.\n- Avoid loose hits deep in my home board early in the game. Developing builders (e.g., 13/11, 24/23) is usually better than a pointless deep hit.\n- In bear-offs with contact, keep the remaining checkers balanced and minimize gaps. Small inaccuracies add up, so check every candidate move."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize making new home-board points, especially the 4 and 5 points, over stacking extra checkers on points you already own. Making a point with two builders beats a \"safe\" pile-up.\n- With doubles, spend the pips on new inner points (such as the 5-point) rather than tidying up outfield checkers.\n- Bring your most advanced, exposed outfield checkers home first. Keep the midpoint as a landing spot until those stragglers are safe.\n- When bearing in, place checkers on the higher empty or thin points (6, 7, 8 area). Dumping checkers deep on the 1 and 2 points wastes pips and flexibility.\n- In the bearoff against an anchor or back checkers, keep the position smooth and avoid gaps. Don't hit loose on deep points unless the gain clearly outweighs the risk of being hit back."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 27.770533114671707,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 96.0,
+       "risk_pays": 100,
+       "risks_found": 55.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 569.5
+      },
+      "wins": 7
      }
     ],
-    "series_finished": 2,
+    "series_finished": 3,
     "setup": "Claude Opus 5.5 (high)",
     "state": "running",
-    "status": "running, 2 of 5 series",
+    "status": "running, 3 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
-     "E2"
+     "E2",
+     "S3"
     ],
     "threshold": null,
     "verdict": false
@@ -3655,7 +3725,7 @@
      "risks_found": 5.5
     },
     "cost": {
-     "api_equivalent_usd": 145.1558,
+     "api_equivalent_usd": 145.4545,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -5168,11 +5238,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-11T13:34:53+00:00"
+  "updated_at": "2026-11-11T13:49:14+00:00"
  },
- "source_sha256": "e7664cc1e5c3fa26e19ecc540c67125177d44a780fccc0f85d79d51f18cf4047",
+ "source_sha256": "cf8b01f3f5fb8f7d5f3c9a88cefc15bb46b5beb836f8735469cf79f32a98026d",
  "status": {
-  "last_update": "2026-11-11T13:34:53+00:00",
+  "last_update": "2026-11-11T13:49:14+00:00",
   "line": "8 of 15 models with a verdict · 3 running · 4 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 4,
