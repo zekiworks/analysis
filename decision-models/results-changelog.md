@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results fd528ce0 (11 November 2026)
+
+- Repeat checks, Run 2 done (the project lead via Zeki #4844, #4849): Drex Max 1.1 on Nace's API with its first runs' settings, English run 999, 484 of 547 right as run 399 (1 pick and 59 probability sets differ), and Page images picture-only pass 2, 344 of 763 as its first pass, every pick and probability the same; KnowLine-31B-Gen1.5's English run 996, 512 of 547 as run 953, every pick the same (30 probability sets differ, by at most 0.028).
+- KnowLine-31B-Gen1.5's Turkish repeat reads Running; its picture-only pass follows.
+- GLiDE v1.2's English rows now give the machine its English runs used, an RTX PRO 6000 Blackwell, for run 521 and repeat 992 alike; they had shown its Text tab run's DGX Spark (Zeki #4925). An English repeat entry may name its runs' machine (`hardware`), checked by reproduce.py.
+- No other number changed; the published scores stay the first runs'.
+
 ## Results 924a0a1f (11 November 2026)
 
 - Repeat checks, Run 2 done (the project lead via Zeki #4849, #4870, #4881), each with its first run's server and settings: GLiDE 27B (open), English run 994, 497 of 547 right, and Page images picture-only pass 2, 381 of 763; GLiDE v1.2, English run 992, 494 of 547. Each gave the same pick and the same option probabilities on every question as its first run (901, 68, 521).

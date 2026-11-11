@@ -25,7 +25,7 @@
       <p>Our reading comprehension and grammar test: 2,198 questions answered by 48 decision models, with chat models for comparison. A decision model scores each answer option and picks one. Grammar questions test whether a model knows a rule and can apply it. Every answer is public.</p>
       <p>The questions come from a published book; their text stays unpublished, as the publisher owns it. Every setup's answer to every question is in <a href="../answers.json" download>answers.json</a>. The <a href="../method/">Method</a> page has the full study: the questions, the answer key, the runs and the tests.</p>
       <ul class="readouts"><li class="readout"><span class="readout-value">2,198</span> <span class="readout-label">questions</span></li><li class="readout"><span class="readout-value">20</span> <span class="readout-label">topics</span></li><li class="readout"><span class="readout-value">48</span> <span class="readout-label">decision models</span></li><li class="readout"><span class="readout-value">95</span> <span class="readout-label">setups</span></li></ul>
-      <p class="version">Results 924a0a1f, updated 11 November 2026; answer key version 2.</p>
+      <p class="version">Results fd528ce0, updated 11 November 2026; answer key version 2.</p>
     </section>
     <section class="panel how-scores" id="how-scores" aria-labelledby="how-scores-title"><h2 id="how-scores-title">How the scores work</h2><ul><li><strong>What is scored.</strong> 2,198 questions written in Turkish, not translated: 656 reading and 1,542 grammar. Each answer is right or wrong against the answer key; an invalid answer counts as wrong.</li><li><strong>How models answer.</strong> A decision model scores each answer option and picks one, with a confidence for it. A chat model gets the question and its options in a prompt and replies with the letter of its answer.</li><li><strong>What a setup is.</strong> One model with one setting: its reasoning level, how many questions go in one request (1 or 16), where it ran (a provider's API, a subscription or our GPUs) and whether it searched the web. 95 setups: 48 decision-model and 47 chat-model setups.</li><li><strong>How differences were tested.</strong> Paired tests on the same questions, with Holm's correction for the number of comparisons. Setups that share a letter in the ranking were not told apart by the paired test.</li><li><strong>What cost means.</strong> An estimate in dollars per 1,000 questions, not a bill: list prices and recorded token use for API setups; for our GPUs, a list price for the same model or weights, or the GPU time.</li></ul><p class="caveat">The rest is on the <a href="../method/">Method</a> page.</p></section>
     <section class="card prose" id="notes">
@@ -79,7 +79,7 @@ A) İsim  B) Sıfat  C) Zarf  D) Fiil  E) Zamir</pre><p class="small">One OCR mo
   <footer class="footer">
     <nav class="footer-links" aria-label="Site"><a href="../about/">About</a> · <a href="../method/">Method</a> · <a href="../data/">Data</a> · <a href="https://github.com/zekiworks/analysis">GitHub</a></nav>
     <p>Download: <a href="../results.json" download>results.json</a> · <a href="../answers.json" download>answers.json</a></p>
-    <p>Results 924a0a1f, updated 11 November 2026; answer key version 2.</p>
+    <p>Results fd528ce0, updated 11 November 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>

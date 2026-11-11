@@ -1215,6 +1215,10 @@ def check_repeat_checks(docs: Path, results: dict[str, Any], answers: dict[str, 
             cost = reference["cost"]["english"]
             check(f"{label}: first run's date and cost", [first["date"] in reference["dates"], first["cost_basis"], first["usd"]],
                   [True, None if cost is None else cost["basis"], None if cost is None else cost["usd"]])
+            if "hardware" in entry:
+                check(f"{label}: the English runs' hardware as the entry names it",
+                      [first["hardware"], *(item["hardware"] for item in published["repeats"])],
+                      [entry["hardware"]] * (1 + len(published["repeats"])))
         found_repeats = []
         for run_id in entry["repeats"]:
             if entry["status"] == "retained":

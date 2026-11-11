@@ -4305,6 +4305,14 @@ def repeat_checks(config: dict[str, Any], data: dict[str, Any], by_run: dict[int
                 if area != "text" or sets.get(first_id) != [first_id, *entry["repeats"]]:
                     raise ValueError(f"{label}: retained repeats {entry['repeats']} are not run {first_id}'s Stability tab set")
             repeats = [{**repeat_check_run(by_run[run]), **counted(run, area)} for run in entry["repeats"]]
+            # A setup's English runs can have run on another machine than its Text tab run (GLiDE v1.2 and the two
+            # Deciders: page_config english_reading method_notes); the entry then names it, for its first run and
+            # its repeats alike (Zeki #4925). Only English entries may.
+            if "hardware" in entry:
+                if area != "english":
+                    raise ValueError(f"{label}: only an English entry may name its runs' hardware")
+                for run in (first, *repeats):
+                    run["hardware"] = entry["hardware"]
         entries.append({"area": area, "name": name, "status": entry["status"], "note": entry["note"],
                         "first": first, "repeats": repeats})
     return {
