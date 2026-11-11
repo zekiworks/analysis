@@ -262,6 +262,22 @@ table.lb-table tbody tr.hl-open > td { background: var(--row-hover); }
     box-shadow: var(--key-shadow); cursor: pointer; }
   .js .lb-details[aria-expanded="true"] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
 }
+/* Method's Repeat checks (zeki #4831): one compact table per part; on a phone the model and status only, the numbers in
+   the row's details (as the leaderboard), no sideways scroll. */
+#repeat-checks > h3 { margin: .7rem 0 .35rem; font-size: .92rem; }
+table.repeat-table td.model { white-space: normal; }
+.rc-details { margin: .2rem 0 0; font-size: .8rem; }
+.rc-details > summary { cursor: pointer; }
+.rc-details p { margin: .25rem 0 0; }
+.rc-phone { display: none; }
+.rc-line { display: none; }
+@media (max-width: 599.98px) {
+  .rc-line { display: block; margin: .15rem 0 0; color: var(--text-2); font-family: var(--mono); font-size: .76rem; }
+  table.repeat-table .rc-wide { display: none; }
+  .rc-phone { display: block; font-weight: 600; }
+  table.board.repeat-table { table-layout: auto; width: 100%; }
+  table.board.repeat-table td:first-child, table.board.repeat-table th:first-child { position: static; min-width: 0; max-width: none; width: auto; }
+}
 tr.hl-sub[hidden] { display: table-row; }
 .js tr.hl-sub[hidden] { display: none; }
 tr.hl-sub td { background: var(--sunk); }
