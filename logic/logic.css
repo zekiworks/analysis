@@ -84,6 +84,13 @@ td.probs span { white-space: nowrap; }
 @media (min-width: 641px) { table.board.headline.wrap-headers thead th:not(:first-child) { min-width: 0; } }
 .cost-mark { font-size: .78rem; color: var(--text-2); }
 .cost-gpu { display: block; font-size: .78rem; color: var(--text-2); }
+/* A GPU-time cost: the amount, then a small 'estimate · <machine>' line (shell.estimate_cell). */
+.cost-est { display: inline-block; max-width: 100%; }
+.cost-est.cost-tip { text-decoration: none; }
+.cost-est > .cost-1k, .cost-est > .cost-1m { text-decoration: underline dotted; }
+.cost-machine { display: block; font-size: .72rem; color: var(--text-2); font-weight: normal; }
+@media (min-width: 641px) { .cost-machine { white-space: nowrap; } }
+@media (max-width: 640px) { .cost-machine { white-space: normal; } }
 /* A GPU-time cost's machine name: its method, pauses and rate show on hover, focus or tap (shell.gpu_tip). */
 .cost-tip { position: relative; cursor: help; text-decoration: underline dotted; }
 .cost-tip:hover::after, .cost-tip:focus::after { content: attr(data-tip); position: absolute; z-index: 20; left: 0; top: 100%;
