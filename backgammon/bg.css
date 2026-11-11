@@ -439,12 +439,25 @@ table.headline tbody tr.hl-open > td, #improve-results-table tbody tr.hl-open > 
    the header's) sticky cells, the box in plain text, not the row header's bold. */
 #improve-results-table tbody tr.hl-open > th:first-child { z-index: 4; }
 #improve-results-table .hl-box { font-weight: 400; text-align: left; }
-/* On a phone the table fits the screen (Ümit): Model, Change and Improved? only; the group, status, series
-   and the before → after values are in each row's details box. */
+/* On a phone the table fits the screen (Ümit): Model, Change, Bar and Improved? only (the first four columns, so
+   Improved? is in view without a sideways scroll at any width, #4665); the group, status, series and right safety are
+   in each row's details box. */
 @media (max-width: 640px) {
-  #improve-results-table :is(th, td):is(:nth-child(2), :nth-child(3), :nth-child(4), :nth-child(5), :nth-child(7)),
+  #improve-results-table :is(th, td):nth-child(n+5),
   #improve-results .swipe-hint { display: none !important; }
   #improve-results-table .model-name { white-space: normal; overflow-wrap: anywhere; }
+  /* The four columns fit a 375-pixel screen: tighter cells, the before → after and spread lines wrap, a narrower
+     sticky model column. */
+  #improve-results-table :is(th, td) { padding: .4rem .3rem; }
+  #improve-results-table thead th { min-width: 0; }
+  #improve-results-table td.num { white-space: normal; }
+  #improve-results-table tr > :first-child { width: 30vw; min-width: 30vw; max-width: 30vw; }
+  #improve-results-table .hl-size { white-space: normal; }
+}
+@media (max-width: 360px) {
+  #improve-results-table { font-size: .74rem; }
+  #improve-results-table td.num { font-size: .76rem; }
+  #improve-results-table tr > :first-child { width: 27vw; min-width: 27vw; max-width: 27vw; }
 }
 /* A row's details box (bg.js): every value of the setup, a line per kind; in its row without script, else over the page
    beside its row where the window has room, else under it (fixed to the window, within its width), opened by a tap,
