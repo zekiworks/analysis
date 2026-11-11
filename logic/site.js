@@ -227,10 +227,13 @@
       box.style.top = `${header + 4}px`;
     }
   };
+  // A row's Details key (phones, zeki #4793) says whether its box is open.
+  const expand = (tr, value) => tr.querySelector(':scope > td .lb-details')?.setAttribute('aria-expanded', String(value));
   const hide = () => {
     if (!open) return;
     boxOf(open).classList.remove('open');
     open.classList.remove('hl-open');
+    expand(open, false);
     open = null;
     pinned = false;
   };
@@ -241,6 +244,7 @@
     open = tr;
     pinned = pin;
     tr.classList.add('hl-open');
+    expand(tr, true);
     box.classList.add('open');
     place();
   };
@@ -262,6 +266,11 @@
     });
     tr.addEventListener('focusout', event => { if (open === tr && !pinned && !tr.contains(event.relatedTarget)) hide(); });
     tr.addEventListener('click', event => {
+      if (event.target.closest('.lb-details')) {  // the Details key opens and closes the same box: a tap, a click or the keyboard
+        event.preventDefault();
+        if (open === tr) hide(); else show(tr, true);
+        return;
+      }
       if (pointer === 'mouse' || event.detail === 0 || boxOf(tr).contains(event.target) || event.target.closest('.hl-more')) return;
       event.preventDefault();  // a tap opens the box; its own link opens the answers
       if (open === tr && pinned) hide(); else show(tr, true);

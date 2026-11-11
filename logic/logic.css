@@ -180,12 +180,9 @@ td[data-label="GPU"] { white-space: nowrap; }
 /* Compact headings (Ümit #3521): page titles and card headings one or two lines, the charts and tables right under them. */
 main > .card h1, .hero-card h1 { font-size: clamp(1.05rem, 1.6vw, 1.35rem); line-height: 1.25; margin: 0 0 .35rem; }
 .card > h2 { font-size: clamp(.95rem, 1.2vw, 1.05rem); margin-bottom: .5rem; padding-bottom: .35rem; }
-/* The front page's hero: the title, one short sentence and the counts; the leaderboard right under it. */
+/* The front page's hero: the title only (zeki #4793, as Reading); the leaderboard right under it. */
 .hero-card { max-width: none; padding-top: .8rem; padding-bottom: .6rem; }
-.hero-card .intro { max-width: 62rem; margin: 0 0 .4rem; font-size: .95rem; }
-.hero-card .readout-row { margin: 0; padding: .35rem 0 0; }
-.readout-date { font-size: .9rem; white-space: normal; }
-.readout-when { flex-wrap: wrap; min-width: 0; }
+.hero-card h1 { margin-bottom: 0; }
 /* Link buttons (the internal Questions tab's indexes). */
 .hero-links { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0 0; }
 .hero-links a { display: inline-flex; align-items: center; min-height: 2.3rem; padding: .3rem .8rem; color: var(--view-text);
@@ -253,6 +250,18 @@ table.lb-table tbody tr.hl-open > td { background: var(--row-hover); }
   font-size: .8rem; cursor: pointer; text-decoration: underline dotted; }
 .hl-more::before { content: "\25B8\00a0"; }
 .hl-more[aria-expanded="true"]::before { content: "\25BE\00a0"; }
+/* The models keys and All setups in one row (zeki #4793); the time of the last answer under the table. */
+.lb-keys-row { display: flex; flex-wrap: wrap; gap: .4rem .9rem; }
+.lb-updated { margin: .35rem 0 0; font-size: .8rem; }
+/* A row's Details key (zeki #4793, as Reading): on a phone, under the name, it opens the row's details box (site.js);
+   from 600 px the box opens on hover, focus or a tap on the row. */
+.lb-details { display: none; }
+@media (max-width: 599.98px) {
+  .js .lb-details { display: block; margin: .3rem 0 0; min-height: 1.6rem; padding: .05rem .55rem; color: var(--text); font: inherit;
+    font-size: .74rem; font-weight: 600; background: var(--key); border: 1px solid var(--control-edge); border-radius: 6px;
+    box-shadow: var(--key-shadow); cursor: pointer; }
+  .js .lb-details[aria-expanded="true"] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
+}
 tr.hl-sub[hidden] { display: table-row; }
 .js tr.hl-sub[hidden] { display: none; }
 tr.hl-sub td { background: var(--sunk); }
@@ -270,13 +279,11 @@ table.lb-table .lb-wide { display: none; }
 .finding-link { margin: .3rem 0 0; font-weight: 600; }
 .story > figure { margin: .5rem 0 .6rem; }
 @media (max-width: 640px) {
-  .hero-card .intro { font-size: .9rem; }
-  .readouts { gap: .2rem 0; }
   .hero-links a { min-height: 2rem; padding: .2rem .6rem; font-size: .88rem; }
-  .readout { margin-right: .5rem; padding-right: .5rem; }
   /* The key rows wrap onto more lines rather than scroll sideways, so no key is cut off at the edge (zeki #4177; Ümit
      #4163 asked the same of the tab bar). Each group stays on its own line(s). */
   .lb-controls { flex-direction: column; gap: .35rem; }
+  .lb-keys-row { gap: .25rem .45rem; }
   .lb-keys { flex-wrap: wrap; }
   .lb-keys .key { min-height: 1.7rem; padding: .1rem .45rem; font-size: .76rem; white-space: nowrap; }
   .lb-keys.lb-measures { margin: 0 0 .45rem; }
