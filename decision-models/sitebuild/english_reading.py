@@ -132,6 +132,19 @@ def english_only(data: dict[str, Any]) -> list[dict[str, Any]]:
     return data.get("english_only") or []
 
 
+def turkish_running(site: Site, data: dict[str, Any]) -> set[str]:
+    """The English-only setups whose Text tab run is still running (page_config.json english_reading.turkish_running's
+    models, by model id): their Turkish side reads Running, not Not run (the project lead via Zeki #4748: a measure still
+    running is shown pending, never as 0 or another run's number). The build stops when a listed model is not an
+    English-only setup: its Text tab run is in, so take it off the list."""
+    listed = set((site.config["english_reading"].get("turkish_running") or {}).get("models", []))
+    stale = sorted(listed - {model["model"] for model in english_only(data)})
+    if stale:
+        raise SystemExit(f"page_config.json english_reading.turkish_running: {', '.join(stale)} is not an English-only "
+                         "setup (its Text tab run is published: take it off the list)")
+    return listed
+
+
 def setup_key(model: dict[str, Any]) -> int:
     """An English reading entry's key on the English pages: its Text tab run, or an English-only setup's first English
     run (run ids are unique across the report, so the two never collide)."""
@@ -802,9 +815,10 @@ def english_only_list(site: Site, data: dict[str, Any], group: str) -> str:
     alone = [model for model in english_only(data) if site.in_group(setup_run(site, model), group)]
     if not alone:
         return ""
+    running = turkish_running(site, data)
     items = joined([f'<a href="{href(site, model)}">{esc(label(site, model))}</a>: English '
                     f'{pct(model["english"]["accuracy"], digits)} ({model["english"]["right"]:,} of {data["questions"]:,} '
-                    "right), Turkish Not run" for model in alone])
+                    f"right), Turkish {'still running' if model['model'] in running else 'Not run'}" for model in alone])
     return (f'<p class="note" {shown(group)}>English-only setups (no Turkish run, so in no paired test and no Holm '
             f"adjustment): {items}.</p>")
 

@@ -29,11 +29,12 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMPARISON, RECORD, TRANSLATORS, anchor,
-                                       check_dont_know, cost_note, english_members, english_only, entry_href,
+from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMPARISON, RECORD, RUNNING, TRANSLATORS,
+                                       anchor, check_dont_know, cost_note, english_members, english_only, entry_href,
                                        experiments_note, group_models, idk_key, label, limit_line, limit_note,
                                        measure_card, measure_cell, measure_heads, missing_note, missing_side, name_html,
-                                       noun, only_anchor, setup_families, setup_icon, setup_key, setup_run)
+                                       noun, only_anchor, setup_families, setup_icon, setup_key, setup_run,
+                                       turkish_running)
 from sitebuild import holding_back as hold
 from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, more_link, pct, rel, shown
 from sitebuild.vision import cell
@@ -267,11 +268,14 @@ def build(site: Site) -> dict[str, str]:
         labels = [f"{head} ({note})" for head, note in heads]
         rows = []
         members = english_members(site, data, group)
+        running = turkish_running(site, data)
         for model in members:
             values = [
                 f'{pct(model["english"]["accuracy"], digits)}<span class="small">{model["english"]["right"]:,} of {total:,} right</span>',
                 f'{pct(model["turkish"]["accuracy"], digits)}<span class="small">{model["turkish"]["right"]:,} of {total:,} right</span>'
-                if "turkish_run" in model else f'{NOT_RUN}<span class="small">English only, no Text tab run</span>',
+                if "turkish_run" in model else
+                f'{RUNNING}<span class="small">its Text tab run is still running</span>' if model["model"] in running else
+                f'{NOT_RUN}<span class="small">English only, no Text tab run</span>',
             ]
             values.insert(1, score_cell(model))
             counts = held.get(setup_key(model))
@@ -303,7 +307,9 @@ def build(site: Site) -> dict[str, str]:
                 f'<p class="note">Ranked by English accuracy, highest first: right answers of the {total:,} kept reading '
                 "questions in each setup's first English run (an invalid answer counts as not right). Turkish accuracy: the "
                 f"setup's Text tab run on the same {total:,} questions, for context"
-                + (f" (Not run: an English-only setup, with no Text tab run)" if alone else "")
+                + (" (Not run: an English-only setup, with no Text tab run"
+                   + ("; Running: its Text tab run is still under way, shown when it is in"
+                      if any(model["model"] in running for model in alone) else "") + ")" if alone else "")
                 + f'; the paired comparison is on <a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ '
                 f"{cost_per()}, with its basis under it; English latency: the median time per request, with the request "
                 "size and the requests in flight under it, each from the first English run (Cost and Latency above)."

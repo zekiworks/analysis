@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "c7ef830f",
-  "updated": "2026-11-11T13:42:55Z",
+  "results_version": "74cbd2a9",
+  "updated": "2026-11-11T14:15:31Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -348194,6 +348194,84 @@
       }
     ],
     "english_only": [
+      {
+        "name": "Claude Fable 5.2",
+        "model": "claude-fable-5-2",
+        "provider": "claude",
+        "reasoning": "max",
+        "variant": null,
+        "questions_per_request": 16,
+        "perplexity_mode": null,
+        "run": 971,
+        "runs": [
+          971
+        ],
+        "dates": [
+          "2026-11-11"
+        ],
+        "parameters": null,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": null,
+        "parameters_source": [
+          "https://www.anthropic.com/claude-fable-and-mythos-5-2",
+          "https://platform.claude.com/docs/en/models/overview"
+        ],
+        "parameters_read": "2026-11-11",
+        "group": "chat",
+        "access": "Claude Code CLI, Claude subscription",
+        "billing": "subscription",
+        "hardware": null,
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 28.9592584,
+            "per_1000": 52.94197148080438,
+            "basis": "subscription",
+            "billing": "subscription",
+            "tokens": {
+              "input_tokens": 284051,
+              "cached_input_tokens": 81572,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 202409,
+              "output_tokens": 642596
+            },
+            "requests": 35,
+            "price": {
+              "basis": "Anthropic's API list price",
+              "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+              "date": "2026-11-11",
+              "change": null,
+              "applies_to": "billed",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 8.0,
+                "cached_input_tokens": 0.2,
+                "cache_write_input_tokens": 10.0,
+                "cache_write_1h_input_tokens": 16.0,
+                "output_tokens": 40.0
+              },
+              "text": "$8 input, $0.20 cached input, $10 5-minute cache writes, $16 1-hour cache writes, $40 output per 1M tokens"
+            },
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 74.02228519599885,
+            "p90_request_seconds": 507.77205007600713,
+            "concurrency": 1,
+            "questions_per_request": 16
+          }
+        },
+        "english": {
+          "right": 536,
+          "wrong": 11,
+          "invalid": 0,
+          "accuracy": 0.979890310786106
+        }
+      },
       {
         "name": "Gemma 4 12B",
         "model": "gemma-4-12b-it",

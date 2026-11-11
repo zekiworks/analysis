@@ -287,7 +287,9 @@ python3 -m http.server 8000                                # preview at http://1
     counts: no Turkish side, no paired test, in no Holm family. Its English "I don't know" runs join
     `english_reading.dont_know.english_only` by rule (`text_run` null, `reading_run` its entry's first run, reason "no
     Turkish run: an English-only setup"). English reading and the Leaderboard's English part rank them with the paired
-    setups (Turkish accuracy Not run; no Turkish reference); the Both and Turkish parts and the paired tables and tests
+    setups (Turkish accuracy Not run; no Turkish reference; a setup listed in `page_config.json`'s
+    `english_reading.turkish_running`, whose Text tab run is still under way, reads Running instead, and the build stops
+    once a listed setup has its Text tab run published); the Both and Turkish parts and the paired tables and tests
     of Turkish vs English leave them out, which lists them per group under its main table with their English accuracy.
     With no model page, their name links to their row on English reading (`#english-only-<run>`); their details box says
     "English only" and how they were called. A `vllm-plain` run's access text comes from its record's `request_params`

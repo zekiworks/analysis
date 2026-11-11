@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 74cbd2a9 (11 November 2026)
+
+- Added Claude Fable 5.2 (Anthropic, released 9 November 2026) as a chat model at the project lead's request (bus #4218, #4676), at its highest effort, max (Anthropic's levels: low, medium, high, xhigh, max), through the Claude Code CLI on the Claude subscription, as Claude Fable 5.1, with the answer schema every other chat setup uses and 16 questions per request. Anthropic states no size; its list price of $8 per 1M input tokens puts it in the Flagship class.
+- English reading, run 971: 536 of the 547 kept questions right (98.0%), no invalid answers, the most of any setup (GPT-6 Astra 527). Its cost is the list-price equivalent of its tokens: $28.96 for the 547 questions ($52.94 per 1,000; 642,596 output tokens at $40 per 1M), against $6.31 for Claude Fable 5.1 at high; the subscription bills nothing per request.
+- Its Turkish run is still running (the project lead via Zeki #4748: publish what is ready, show the rest as pending): until it is in, Claude Fable 5.2 is an English-only setup whose Turkish side reads Running, not Not run (page_config.json's new `english_reading.turkish_running`). Its Text tab run, the Turkish side of the English comparison and both "I don't know" runs follow when they finish.
+- English-only setups are in no paired test or Holm family, so no verdict moved. No other number changed.
+
 ## Results c7ef830f (11 November 2026)
 
 - New section `repeat_checks` and the Experiments page's "Repeat checks" table (the project lead via Zeki #4663, #4666, #4748): the top three decision models of each Reading area run once more with their first run's settings, to show how much a run moves when nothing changes. The published scores stay each setup's first run; a repeat changes no score, rank or test. Areas: Turkish Text (KnowLine-31B-Gen1.5, REAX 1.3, d1-ultra), English reading (KnowLine-31B-Gen1.5, REAX 1.3, GLiDE 27B) and Vision, picture only (d1-ultra, GLiDE 27B, KnowLine-31B-Gen1.5).
