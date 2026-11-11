@@ -72,7 +72,9 @@ def size(path) -> str:
 
 
 # What each section that answers.json keeps in a file of its own holds, for that file's line (answers.json `files`).
-SECTION_WORDS = {"repeat_runs": "the repeat runs of each repeated setup (the Stability tab's), each with its repeat set"}
+SECTION_WORDS = {"repeat_runs": "the repeat runs of each repeated setup (the Stability tab's), each with its repeat set",
+                 "repeat_check_runs": "the Experiments page's repeat checks' Text and English repeat runs, each with its "
+                                      "first run"}
 
 
 def build(site: Site) -> dict[str, str]:

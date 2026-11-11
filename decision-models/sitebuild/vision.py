@@ -292,16 +292,18 @@ def repeats_note(site: Site, data: dict[str, Any]) -> str:
         passes = sorted({passed["pass"] for cell in cells for passed in cell["passes"]})
         differ = sum(passed["picks_differ"] + passed["probabilities_differ"] for cell in cells for passed in cell["passes"])
         runs = joined([str(run) for cell in cells for run in cell["first_pass"]["runs"]])
-        outcome = (f"every pass gave the same picks and option probabilities as the table's runs {runs}" if not differ else
+        outcome = (f"{'every' if len(passes) > 1 else 'the'} pass gave the same picks and option probabilities as the "
+                   f"table's runs {runs}" if not differ else
                    f"{sum(passed['picks_differ'] for cell in cells for passed in cell['passes']):,} picks and "
                    f"{sum(passed['probabilities_differ'] for cell in cells for passed in cell['passes']):,} sets of option "
                    f"probabilities differ from the table's runs {runs}")
+        conditions = joined([cell["condition"] for cell in cells])
+        times = "one more time" if len(passes) == 1 else f"{bp.in_words(len(passes))} more times"
+        numbers = f"pass {passes[0]}" if len(passes) == 1 else f"passes {passes[0]} to {passes[-1]}"
         sentences.append(
-            f"{esc(name)} answered conditions {joined([cell['condition'] for cell in cells])} {bp.in_words(len(passes))} more "
-            f"times with the same inputs and runner (passes {passes[0]} to {passes[-1]}, in "
-            f'<a href="{rel(PATH, "vision-repeats.json")}">vision-repeats.json</a>); {outcome}. The table shows the first '
-            "pass, chosen as the cell before the runs.")
-    return f"<p>{' '.join(sentences)}</p>"
+            f"{esc(name)} answered condition{'s' if len(cells) > 1 else ''} {conditions} {times} with the same inputs and "
+            f'runner ({numbers}, in <a href="{rel(PATH, "vision-repeats.json")}">vision-repeats.json</a>); {outcome}.')
+    return f"<p>{' '.join(sentences)} The table shows each first pass, chosen as the cell before the runs.</p>" if sentences else ""
 
 
 # The image documentation of each API the image models were called through.

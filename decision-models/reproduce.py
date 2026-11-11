@@ -59,11 +59,15 @@ each pair's runs (grounding off and on: the 200-question sample, with "Bilmiyoru
 accuracy, median and 95th-percentile request time and cost overall and by group, the paired counts and tests, the
 repeats of the full bank's and the English pair's first runs (each repeat's runs, paired counts and source checks, and
 each arm's mean with its lowest and highest run), the "Bilmiyorum" counts, the source checks' right answers, and the
-tokens, sources and PWS-Decisions' aggregates of web-grounding.json.
+tokens, sources and PWS-Decisions' aggregates of web-grounding.json. Then the repeat checks (`repeat_checks`,
+page_config.json's manifest): each entry's first run and repeats with their right answers recomputed from the answers
+(Text: the scored questions; English: the kept questions; Vision: vision.json's cell and vision-repeats.json's passes),
+a retained entry's repeats as its Stability tab set, every other Text and English repeat in answers.json's
+`repeat_check_runs` only, as a repeat of its first run's setup.
 Last the footer date (`updated`, when results with this content first went out): never older than a published run's
 date, and with --report never older than the newest
 `updated` of the runs answers.json publishes. answers.json keeps some sections in files of their own beside it (its
-`files`: answers-repeats.json holds `repeat_runs`), each with answers.json's schema_version and dataset; load_answers
+`files`: answers-repeats.json holds `repeat_runs` and `repeat_check_runs`), each with answers.json's schema_version and dataset; load_answers
 reads every file and merges them, and stops when a file's header or sections are not the ones answers.json lists.
 Uses only the standard library and benchmark_metrics.py, the metric code
 the benchmark report uses. Exits with status 1 when anything differs beyond the tolerances printed.
@@ -624,6 +628,14 @@ def main() -> int:
         print(line)
 
     before = checks.passed + checks.failed
+    repeat_check_mismatches = check_repeat_checks(args.docs, results, answers, scored, checks)
+    checked = checks.passed + checks.failed - before
+    print(f"\nRepeat checks (right answers of each first run and repeat from their answers, exact): "
+          f"{checked - len(repeat_check_mismatches)} of {checked} match")
+    for line in repeat_check_mismatches:
+        print(line)
+
+    before = checks.passed + checks.failed
     updated_mismatches = check_updated(args.report, results, answers, checks)
     checked = checks.passed + checks.failed - before
     print(
@@ -823,7 +835,7 @@ def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[
     for run in (answers.get("repeat_runs", []) + answers.get("pipeline_runs", []) + answers.get("batching_runs", [])
                 + answers.get("dont_know_runs", []) + answers.get("english_runs", []) + answers.get("english_dont_know_runs", [])
                 + answers.get("english_dont_know_turkish_runs", []) + answers.get("dont_know_word_runs", [])
-                + answers.get("rerun_runs", []) + answers.get("web_grounding_runs", [])):
+                + answers.get("rerun_runs", []) + answers.get("web_grounding_runs", []) + answers.get("repeat_check_runs", [])):
         given = [index for index in scored if run["correct"][index] is not None and keys[index] is not None]
         differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
         if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
@@ -1104,8 +1116,130 @@ def counted_dont_know(run: dict[str, Any], scored: list[int]) -> dict[str, Any]:
 def listed_elsewhere(answers: dict[str, Any], own: str) -> set[int]:
     """The runs of every answers.json list but `own`."""
     keys = ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs", "english_dont_know_runs",
-            "english_dont_know_turkish_runs", "dont_know_word_runs", "rerun_runs", "web_grounding_runs")
+            "english_dont_know_turkish_runs", "dont_know_word_runs", "rerun_runs", "web_grounding_runs", "repeat_check_runs")
     return {run["run"] for key in keys if key != own for run in answers.get(key, [])}
+
+
+# A repeat check's repeat is a run of its first run's setup (answers.json's run fields).
+REPEAT_CHECK_SETUP = ("provider", "model", "thinking", "questions_per_request", "perplexity_mode", "dataset_sha256",
+                      "question_list", "dont_know", "dont_know_word", "rerun", "shuffle_options", "replace_key_text")
+
+
+def check_repeat_checks(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int],
+                        checks: Checks) -> list[str]:
+    """Recompute results.json's `repeat_checks` against page_config.json's manifest: the areas and entries in its order
+    with their names, statuses, notes and runs; per Text and English entry its first run (a main run, or the English
+    reading model's first English run, with that run's date, hardware, access and cost as results.json gives them) and
+    each repeat, with their right answers over the scored or kept questions from answers.json; a retained entry's
+    repeats are its Stability tab set (results.json `repeats`, answers.json `repeat_runs`); every other repeat is in
+    `repeat_check_runs` only, with its first run, a repeat number and its first run's setup and language. Per Vision
+    entry vision.json's cell (runs, right answers, questions) and each named pass of vision-repeats.json with its right
+    answers from its answers. Returns a line per mismatch."""
+    section = results.get("repeat_checks")
+    config = json.loads((docs / "page_config.json").read_text(encoding="utf-8")).get("repeat_checks")
+    if section is None and config is None:
+        return []
+    mismatches = []
+
+    def check(name: str, published: Any, recomputed: Any) -> None:
+        if "≠" in checks.cell(published == recomputed, str(recomputed), str(published)):
+            mismatches.append(f"  {name}: {recomputed} ≠ {published}")
+
+    if section is None or config is None:
+        check("section and manifest", section is None, config is None)
+        return mismatches
+    public = json.loads((docs / "english-reading.json").read_text(encoding="utf-8"))
+    position = {question: index for index, question in enumerate(answers["questions"]["id"])}
+    kept = sorted(position[item["question_id"]] for item in public["questions"] if item["kept"])
+    lists = {key: {run["run"]: run for run in found} for key, found in answers.items() if key.endswith("runs")}
+    held = lists.get("repeat_check_runs", {})
+    vision = json.loads((docs / "vision.json").read_text(encoding="utf-8"))
+    repeats_path = docs / "vision-repeats.json"
+    passes = json.loads(repeats_path.read_text(encoding="utf-8")) if repeats_path.exists() else {"cells": []}
+    totals = {"text": len(scored), "english": len(kept), "vision": vision["subset"]["questions"]}
+    check("areas", section["areas"], [{**area, "questions": totals[area["area"]]} for area in config["areas"]])
+    check("rule says the published scores stay the first run's", "first run" in section["rule"], True)
+    check("entries", [(entry["area"], entry["name"], entry["status"], entry["note"]) for entry in section["entries"]],
+          [(entry["area"], entry["name"], entry["status"], entry["note"]) for entry in config["entries"]])
+    main = {run["run"]: run for run in results["runs"]}
+    english = {model["run"]: model for model in results["english_reading"]["models"]}
+    sets = {item["runs"][0]: item["runs"] for item in results["repeats"] if item["variant"] is None}
+    named: list[int] = []
+    for entry, published in zip(config["entries"], section["entries"]):
+        area, label = entry["area"], f"{entry['name']} ({entry['area']})"
+        check(f"{label}: status and repeats", bool(entry["repeats"]), entry["status"] in ("retained", "done"))
+        if area == "vision":
+            condition = next(item["condition"] for item in config["areas"] if item["area"] == "vision")
+            model = next(item for item in vision["models"] if item["name"] == entry["name"])
+            cell = model["conditions"][condition]
+            first = published["first"]
+            check(f"{label}: first pass", [first["runs"], entry["runs"], first["right"], first["questions"], first["dates"]],
+                  [cell["runs"], cell["runs"], cell["correct"], cell["questions"], entry["first_dates"]])
+            found = next((item for item in passes["cells"] if (item["provider"], item["model"], item["condition"], item["ocr"])
+                          == (model["provider"], model["model"], condition, "")), {"passes": []})
+            by_pass = {item["pass"]: item for item in found["passes"]}
+            ids = [str(question) for question in vision["subset"]["question_ids"]]
+            recomputed = []
+            for number in entry["repeats"]:
+                item = by_pass.get(number)
+                if item is None:
+                    check(f"{label}: pass {number} in vision-repeats.json", False, True)
+                    continue
+                given = item["answers"]
+                recomputed.append([number, [run["id"] for run in item["runs"]],
+                                   sum(int(given[qid][2]) for qid in ids if qid in given), len(given)])
+            check(f"{label}: repeat passes", [[item["pass"], item["runs"], item["right"], item["questions"]]
+                                              for item in published["repeats"]], recomputed)
+            continue
+        positions = kept if area == "english" else scored
+        first_id = entry["runs"][0]
+        reference = main.get(first_id) if area == "text" else english.get(first_id)
+        run = (lists["runs"] if area == "text" else lists["english_runs"]).get(first_id)
+        if reference is None or run is None or len(entry["runs"]) != 1:
+            check(f"{label}: first run {entry['runs']} published", False, True)
+            continue
+        check(f"{label}: first run's name", reference["name"], entry["name"])
+
+        def right(found: dict[str, Any]) -> list[int]:
+            return [found["run"], sum(1 for index in positions if found["correct"][index]), len(positions)]
+
+        first = published["first"]
+        check(f"{label}: first run", [first["run"], first["right"], first["questions"]], right(run))
+        if area == "text":
+            check(f"{label}: first run's date, hardware, access and cost",
+                  [first["date"], first["hardware"], first["access"], first["cost_basis"], first["usd"]],
+                  [reference["started"][:10], reference["hardware"], reference["access"], reference["cost_basis"],
+                   reference["api_equivalent_usd"]])
+        else:
+            cost = reference["cost"]["english"]
+            check(f"{label}: first run's date and cost", [first["date"] in reference["dates"], first["cost_basis"], first["usd"]],
+                  [True, None if cost is None else cost["basis"], None if cost is None else cost["usd"]])
+        found_repeats = []
+        for run_id in entry["repeats"]:
+            if entry["status"] == "retained":
+                repeat = lists.get("repeat_runs", {}).get(run_id)
+            else:
+                repeat = held.get(run_id)
+                named.append(run_id)
+                if repeat is not None:
+                    check(f"{label}: repeat run {run_id}'s first run, repeat number, setup and language",
+                          [repeat["repeat_check"], repeat["repeat"] is not None, [repeat.get(key) for key in REPEAT_CHECK_SETUP],
+                           bool(repeat.get("english"))],
+                          [first_id, True, [run.get(key) for key in REPEAT_CHECK_SETUP], area == "english"])
+                    if area == "english":
+                        check(f"{label}: repeat run {run_id} asked the kept questions",
+                              [index for index, value in enumerate(repeat["correct"]) if value is not None], kept)
+            if repeat is None:
+                check(f"{label}: repeat run {run_id} in answers.json", False, True)
+                continue
+            found_repeats.append(right(repeat))
+        check(f"{label}: repeats", [[item["run"], item["right"], item["questions"]] for item in published["repeats"]],
+              found_repeats)
+        if entry["status"] == "retained":
+            check(f"{label}: retained repeats are the Stability tab set", sets.get(first_id), [first_id, *entry["repeats"]])
+    check("repeat_check_runs: each named by one entry, in no other list",
+          [sorted(held), sorted(set(held) & listed_elsewhere(answers, "repeat_check_runs"))], [sorted(named), []])
+    return mismatches
 
 
 def check_option_word(results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:

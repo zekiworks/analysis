@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "cc4085e6",
-  "updated": "2026-11-11T12:52:56Z",
+  "results_version": "c7ef830f",
+  "updated": "2026-11-11T13:42:55Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -710911,5 +710911,268 @@
         "on_p95_request_seconds": 0.685
       }
     }
+  },
+  "repeat_checks": {
+    "rule": "The published scores stay each setup's first run: a repeat check changes no score, rank or comparison. Right answers over the area's questions, the first run's and each repeat's.",
+    "areas": [
+      {
+        "area": "text",
+        "title": "Turkish Text",
+        "scope": "2,198 questions; the reading and grammar parts are subsets of the same run",
+        "questions": 2198
+      },
+      {
+        "area": "english",
+        "title": "English reading",
+        "scope": "547 kept questions",
+        "questions": 547
+      },
+      {
+        "area": "vision",
+        "title": "Vision, picture only",
+        "scope": "763 questions, the page's picture alone (condition B)",
+        "condition": "B",
+        "questions": 763
+      }
+    ],
+    "entries": [
+      {
+        "area": "text",
+        "name": "KnowLine 31B Gen1.5",
+        "status": "queued",
+        "note": "One DGX Spark (GB10), BF16, behind the KnowLine server, as run 957.",
+        "first": {
+          "run": 957,
+          "repeat": null,
+          "date": "2026-11-10",
+          "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+          "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16",
+          "cost_basis": null,
+          "usd": null,
+          "right": 1798,
+          "questions": 2198
+        },
+        "repeats": []
+      },
+      {
+        "area": "text",
+        "name": "REAX 1.3",
+        "status": "queued",
+        "note": "One RTX PRO 6000 Blackwell (96 GB), FP8 (block-128), behind the REAX Engine server, as run 827.",
+        "first": {
+          "run": 827,
+          "repeat": null,
+          "date": "2026-11-06",
+          "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 (block-128)",
+          "access": "REAX Engine server (reax13 mode, the maker's release code), self-hosted, FP8",
+          "cost_basis": "gpu",
+          "usd": 0.4057847202618238,
+          "right": 1713,
+          "questions": 2198
+        },
+        "repeats": []
+      },
+      {
+        "area": "text",
+        "name": "Liquid d1-ultra",
+        "status": "retained",
+        "note": "Liquid AI's decisions API; its repeats 2 to 5 of 16 October 2026, also on the Stability tab.",
+        "first": {
+          "run": 199,
+          "repeat": null,
+          "date": "2026-10-16",
+          "hardware": null,
+          "access": "Liquid AI decisions API",
+          "cost_basis": "api",
+          "usd": 0.031515876,
+          "right": 1694,
+          "questions": 2198
+        },
+        "repeats": [
+          {
+            "run": 200,
+            "repeat": 2,
+            "date": "2026-10-16",
+            "hardware": null,
+            "access": "Liquid AI decisions API",
+            "cost_basis": "api",
+            "usd": 0.031515876,
+            "right": 1686,
+            "questions": 2198
+          },
+          {
+            "run": 201,
+            "repeat": 3,
+            "date": "2026-10-16",
+            "hardware": null,
+            "access": "Liquid AI decisions API",
+            "cost_basis": "api",
+            "usd": 0.031515876,
+            "right": 1669,
+            "questions": 2198
+          },
+          {
+            "run": 202,
+            "repeat": 4,
+            "date": "2026-10-16",
+            "hardware": null,
+            "access": "Liquid AI decisions API",
+            "cost_basis": "api",
+            "usd": 0.031515876,
+            "right": 1685,
+            "questions": 2198
+          },
+          {
+            "run": 203,
+            "repeat": 5,
+            "date": "2026-10-16",
+            "hardware": null,
+            "access": "Liquid AI decisions API",
+            "cost_basis": "api",
+            "usd": 0.031515876,
+            "right": 1670,
+            "questions": 2198
+          }
+        ]
+      },
+      {
+        "area": "english",
+        "name": "KnowLine 31B Gen1.5",
+        "status": "queued",
+        "note": "One DGX Spark (GB10), BF16, behind the KnowLine server, as run 953.",
+        "first": {
+          "run": 953,
+          "repeat": null,
+          "date": "2026-11-10",
+          "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+          "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16",
+          "cost_basis": null,
+          "usd": null,
+          "right": 512,
+          "questions": 547
+        },
+        "repeats": []
+      },
+      {
+        "area": "english",
+        "name": "REAX 1.3",
+        "status": "queued",
+        "note": "One RTX PRO 6000 Blackwell (96 GB), FP8 (block-128), behind the REAX Engine server, as run 829.",
+        "first": {
+          "run": 829,
+          "repeat": null,
+          "date": "2026-11-06",
+          "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 (block-128)",
+          "access": "REAX Engine server (reax13 mode, the maker's release code), self-hosted, FP8",
+          "cost_basis": "gpu",
+          "usd": 0.09233775673082661,
+          "right": 506,
+          "questions": 547
+        },
+        "repeats": []
+      },
+      {
+        "area": "english",
+        "name": "GLiDE 27B (open)",
+        "status": "queued",
+        "note": "One DGX Spark (GB10), BF16, behind the server its repository ships, as run 901.",
+        "first": {
+          "run": 901,
+          "repeat": null,
+          "date": "2026-11-10",
+          "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+          "access": "GLiDE server (Fastino's release code), self-hosted",
+          "cost_basis": null,
+          "usd": null,
+          "right": 497,
+          "questions": 547
+        },
+        "repeats": []
+      },
+      {
+        "area": "vision",
+        "name": "Liquid d1-ultra",
+        "status": "done",
+        "note": "Liquid AI's decisions API with the first pass's settings (3 requests in flight, 30 s timeout): pass 2 (run 3 of vision/repeats/repeat-2.sqlite), $0.0256 (610,157 input tokens at $0.042 per 1M, output free).",
+        "first": {
+          "runs": [
+            2,
+            5
+          ],
+          "dates": [
+            "2026-10-27"
+          ],
+          "right": 382,
+          "questions": 763,
+          "hardware": null,
+          "access": "Liquid AI decisions API",
+          "cost_basis": "api",
+          "usd": 0.025626594000000003,
+          "price": "$0.042 input, output free per 1M tokens"
+        },
+        "repeats": [
+          {
+            "pass": 2,
+            "runs": [
+              3
+            ],
+            "dates": [
+              "2026-11-11"
+            ],
+            "right": 379,
+            "questions": 763,
+            "hardware": null,
+            "access": "Liquid AI decisions API",
+            "cost_basis": "api",
+            "picks_differ": 181,
+            "probabilities_differ": 763
+          }
+        ]
+      },
+      {
+        "area": "vision",
+        "name": "GLiDE 27B (open)",
+        "status": "queued",
+        "note": "One DGX Spark (GB10), BF16, as run 68; pass 2.",
+        "first": {
+          "runs": [
+            68
+          ],
+          "dates": [
+            "2026-11-10"
+          ],
+          "right": 381,
+          "questions": 763,
+          "hardware": "1 × DGX Spark (GB10); BF16",
+          "access": null,
+          "cost_basis": null,
+          "usd": null,
+          "price": null
+        },
+        "repeats": []
+      },
+      {
+        "area": "vision",
+        "name": "KnowLine 31B Gen1.5",
+        "status": "queued",
+        "note": "One DGX Spark (GB10), BF16, as run 86; pass 2.",
+        "first": {
+          "runs": [
+            86
+          ],
+          "dates": [
+            "2026-11-10"
+          ],
+          "right": 380,
+          "questions": 763,
+          "hardware": "1 × DGX Spark (GB10); BF16",
+          "access": null,
+          "cost_basis": null,
+          "usd": null,
+          "price": null
+        },
+        "repeats": []
+      }
+    ]
   }
 }

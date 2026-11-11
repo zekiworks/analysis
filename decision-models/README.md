@@ -114,7 +114,11 @@ python3 -m http.server 8000                                # preview at http://1
   each Text tab run's kept and wrong answers at 95%, Liquid d1-ultra's repeat runs, the three models Artificial Analysis
   ties at 65 in all their runs at six cutoffs with the check at every whole percent up to 98%, and d1-ultra's English
   runs with the questions they got wrong; and for Liquid d1-ultra against each English reading model
-  (`english_reading.against_reference`) the paired counts, the exact McNemar test and Holm over the others.
+  (`english_reading.against_reference`) the paired counts, the exact McNemar test and Holm over the others. For the
+  repeat checks (`repeat_checks`) it follows `page_config.json`'s manifest: each first run's and repeat's right answers
+  from the answers (the scored questions, the kept questions, or `vision.json` and `vision-repeats.json`), a retained
+  entry's repeats as its Stability tab set, and every other repeat in `repeat_check_runs` only, as a repeat of its
+  first run's setup.
 - **The graphs** are drawn by `chart-renderer/`, a Rust crate, from `results.json`, with the decision model
   lists of `page_config.json` (see below).
 - **The build** (`build_site.py`, one step) runs `reproduce.py` first and stops unless every check
@@ -599,7 +603,11 @@ python3 -m http.server 8000                                # preview at http://1
   - **Experiments** (`experiments/`, `sitebuild/experiments.py`): one card each for Page images, Hallucination
     ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it
     measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting
-    for an API key or credit).
+    for an API key or credit). After the cards, Repeat checks (`#repeat-checks`, results.json `repeat_checks`): one
+    table, rows grouped by area (Turkish Text, English reading, Vision with the picture only), each of the top three
+    decision models' first run and its repeat as right answers over the area's questions, and the status (Retained,
+    Queued, Running, Done); the runs' ids and dates under the name, their hardware or access, cost basis and where the
+    repeat runs in a Settings details element; under the table, the line that the published scores stay the first run's.
   - **Highlights** (`highlights/`, `sitebuild/highlights.py`): about English reading, one finding per card: the best
     decision model in English with its paired test against the other decision models, the best chat models against it
     (counted, not tested), the decision model that holds back most with "I don't know" in English, decision against chat
@@ -845,9 +853,10 @@ that serves several tests, such as a second model alone on the shared test half,
 has), the runs with the "I don't know" option (`dont_know_runs`), the English reading runs (`english_runs`), the
 English "I don't know" runs with their Turkish counterparts on the kept questions (`english_dont_know_runs`,
 `english_dont_know_turkish_runs`), the option-word check's runs (`dont_know_word_runs`, with `dont_know_word_prompts`)
-and the hosted GLiDE rerun (`rerun_runs`), and the web grounding test's own runs (`web_grounding_runs`), with scores
+and the hosted GLiDE rerun (`rerun_runs`), the web grounding test's own runs (`web_grounding_runs`) and the repeat
+checks' Text and English repeat runs (`repeat_check_runs`, each with its first run as `repeat_check`), with scores
 and option probabilities at full precision; no run is in two lists. The sections of `ANSWER_FILES` go to files of
-their own beside `answers.json` (`answers-repeats.json`: `repeat_runs`, the largest section), so that no file nears
+their own beside `answers.json` (`answers-repeats.json`: `repeat_runs`, the largest section, and `repeat_check_runs`), so that no file nears
 GitHub's 100 MiB limit: each repeats `answers.json`'s `schema_version` and `dataset`, and `answers.json` lists them
 under `files`. The export stops when a file would pass `ANSWERS_LIMIT` (80 MB); then move another section to a file
 of its own. `reproduce.py` (`load_answers`), `build_page.py` and the pages read them merged; the Data page lists each
@@ -870,6 +879,19 @@ grep -r -I -E '/(home|Volumes)|T[7]' --exclude-dir=.git --exclude-dir=target .
 The last command must find nothing; its pattern is written so that it does not match itself.
 `sync_runner.sh` refuses to copy a file that contains a local path; it copies every `run_*.sh` script
 except those listed in it as behind no published run, and prints the list.
+
+**Repeat checks** (results.json `repeat_checks`, the Experiments page): `page_config.json`'s `repeat_checks` lists
+the areas and one entry per area and model: `area`, `name` (as published), `runs` (the first run; a Vision entry its
+first pass's runs, with `first_dates`), `repeats` (Text and English: the repeat run ids; Vision: pass numbers in
+`vision-repeats.json`; empty until done), `status` (`retained`: repeats already on the Stability tab; `queued`;
+`running`; `done`) and a `note` on where it runs. A Text or English repeat is a runner run of the first run's
+configuration with `--repeat N`; the export reads it from the report it is given and holds it out of every other
+section (the main runs, the English reading models, the Stability tab's `repeats`), so no published score changes,
+and stops when a named repeat is missing from the report, has another setup, or would join a configuration that
+already has repeats on the Stability tab. Vision rows read `vision.json` and `vision-repeats.json`
+(`vision_track.py repeats`). To add a finished repeat: put its run id (or pass number) in the entry's `repeats`, set
+`status` to `done`, then export with the repeat's report among the records and its run id among the runs (or copy the
+new `vision-repeats.json`), and run `reproduce.py`, which recomputes every first run and repeat from the answers.
 
 A new provider needs an entry in `PROVIDERS` (its access route and how it is paid for); the script
 stops until it has one. A decision model's provider also goes in `page_config.json`'s

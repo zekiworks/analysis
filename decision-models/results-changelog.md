@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results c7ef830f (11 November 2026)
+
+- New section `repeat_checks` and the Experiments page's "Repeat checks" table (the project lead via Zeki #4663, #4666, #4748): the top three decision models of each Reading area run once more with their first run's settings, to show how much a run moves when nothing changes. The published scores stay each setup's first run; a repeat changes no score, rank or test. Areas: Turkish Text (KnowLine-31B-Gen1.5, REAX 1.3, d1-ultra), English reading (KnowLine-31B-Gen1.5, REAX 1.3, GLiDE 27B) and Vision, picture only (d1-ultra, GLiDE 27B, KnowLine-31B-Gen1.5).
+- Done: d1-ultra on Turkish Text, its four repeats of 16 October (runs 200–203, already on the Stability tab: 1,686, 1,669, 1,685 and 1,670 right against the first run's 1,694); d1-ultra on Vision, picture only, pass 2 on 11 November (379 of 763 right against 382, with 181 of the 763 picks different; Liquid AI's API with the first pass's settings, $0.0256).
+- Queued: the other seven, run when their servers are free; REAX 1.3's server needed its security setup approved first (now approved, #4745).
+- The repeat runs' answers go to `answers-repeats.json` (`repeat_check_runs`); reproduce.py recomputes every first run and repeat. No other number changed.
+
 ## Results cc4085e6 (11 November 2026)
 
 - Added StartLux-Decision-v1.1-2B-Instant, one of the tiny batch of new decision models (the project lead's bus #4578, #4720): StartLux Labs' released checkpoint `startlux-models/StartLux-Decision-v1.1-2B-Instant` at `f1e6cd1`, a fine-tune of Qwen3.5-2B (2B as its card states it). It ran on our hardware, one NVIDIA DGX Spark, one request at a time, through the card's `startlux-decide serve` (vLLM 0.31.0 with the card's prefix-bidirectional plugin, BF16), with images on. The three sites' shared names table now gives StartLux's 2B and 4B their cards' titles (logic #4741).

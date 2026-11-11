@@ -12,8 +12,10 @@ with the option on the English track's kept questions, only `english_reading.don
 enter only `dont_know_option_word` and answers.json's `dont_know_word_runs`, fresh runs of a setup (--rerun) only
 `hosted_glide_rerun` and answers.json's `rerun_runs`, and the web grounding test's own runs (the pilots,
 WEB_GROUNDING_PILOTS, and the repeats of its first runs, web_grounding_repeat) only `web_grounding` and answers.json's
-`web_grounding_runs`. The answers' sections in ANSWER_FILES (the repeat runs, `repeat_runs`) are written to files of
-their own beside answers.json, which lists them under `files`, so that no file nears GitHub's 100 MiB limit.
+`web_grounding_runs`. The repeat checks' Text and English repeat runs (page_config.json `repeat_checks`) enter only
+`repeat_checks` and answers.json's `repeat_check_runs`. The answers' sections in ANSWER_FILES (the repeat runs,
+`repeat_runs` and `repeat_check_runs`) are written to files of their own beside answers.json, which lists them under
+`files`, so that no file nears GitHub's 100 MiB limit.
 """
 
 from __future__ import annotations
@@ -42,13 +44,17 @@ DEFAULT_OUTPUT = Path(__file__).resolve().parent / "results.json"
 # The answers' sections written to files of their own next to answers.json, by file: GitHub takes no file over 100 MiB.
 # Each file carries answers.json's ANSWERS_HEADER so it stands alone, and answers.json lists them under `files`
 # (reproduce.load_answers merges them back). A file over ANSWERS_LIMIT stops the export: move a section out of it here.
-ANSWER_FILES = {"answers-repeats.json": ("repeat_runs",)}
+ANSWER_FILES = {"answers-repeats.json": ("repeat_runs", "repeat_check_runs")}
 ANSWERS_HEADER = ("schema_version", "dataset")
 ANSWERS_LIMIT = 80_000_000  # bytes
 # The English reading track's public record (runner translate_reading.py publish): flags, per-question hashes, prompts.
 ENGLISH_READING_PATH = Path(__file__).resolve().parent / "english-reading.json"
 # The site's settings: which runs are decision models (decision_model_providers, not_decision_models; Site.decision).
 PAGE_CONFIG_PATH = Path(__file__).resolve().parent / "page_config.json"
+# The Page images track's table (vision_track.py measures) and its repeat passes (vision_track.py repeats), for the
+# repeat checks' vision rows.
+VISION_PATH = Path(__file__).resolve().parent / "vision.json"
+VISION_REPEATS_PATH = Path(__file__).resolve().parent / "vision-repeats.json"
 SCHEMA_VERSION = 5
 # The frozen answer keys, by version (key-changelog.md): the question bank's SHA-256 and the fingerprint of its key as
 # scored (bm.answer_key_fingerprint). An export graded against any other key stops: record the change in
@@ -201,6 +207,7 @@ MODELS: dict[str, dict[str, Any]] = {
     "grok-4.7": {"name": "Grok 4.7"},
     "gemini-4-argon": {"name": "Gemini 4 Argon"},
     "claude-fable-5-1": {"name": "Claude Fable 5.1"},
+    "claude-fable-5-2": {"name": "Claude Fable 5.2"},
     "moonshotai/kimi-k3.1-pro": {
         "name": "Kimi K3.1 Pro",
         "access": "OpenRouter chat API, Moonshot AI's endpoint (mxfp4), fallbacks off",
@@ -703,6 +710,8 @@ SIZES: dict[str, dict[str, Any]] = {
                                                      "https://platform.claude.com/docs/en/models/overview"], "read": READ},
     "claude-fable-5-1": {"total": None, "sources": ["https://www.anthropic.com/claude/fable",
                                                     "https://platform.claude.com/docs/en/models/overview"], "read": READ},
+    "claude-fable-5-2": {"total": None, "sources": ["https://www.anthropic.com/claude-fable-and-mythos-5-2",
+                                                    "https://platform.claude.com/docs/en/models/overview"], "read": "2026-11-11"},
     "gemini-3.8-flash": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-3-8-flash/"], "read": READ},
     # The card: "a large scale sparse mixture-of-experts (MoE) ... transformer-based model", with no number.
     "gemini-4-argon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-argon/"], "read": READ},
@@ -4108,19 +4117,209 @@ def decision_scores(reading: dict[str, Any], answers: dict[str, Any], public: di
             model["decision_score"] = found
 
 
+# The repeat checks (results.json `repeat_checks`, page_config.json `repeat_checks`, Ümit via Zeki #4663, #4666): one
+# repeat of the top three decision models of each area beside their first runs. The published scores stay the first
+# runs': a Text or English repeat run named there is held out of every other section (the main runs, the English
+# reading models and the Stability tab's `repeats`), and its answers go to answers.json's `repeat_check_runs` only.
+REPEAT_CHECK_STATUSES = ("retained", "queued", "running", "done")
+REPEAT_CHECK_RULE = ("The published scores stay each setup's first run: a repeat check changes no score, rank or "
+                     "comparison. Right answers over the area's questions, the first run's and each repeat's.")
+
+
+def repeat_check_config() -> dict[str, Any]:
+    """page_config.json's `repeat_checks`, checked: known areas and statuses, each entry's repeats present exactly when
+    its status is retained or done, and retained only for a Text or English entry."""
+    config = json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))["repeat_checks"]
+    areas = {area["area"] for area in config["areas"]}
+    if areas != {"text", "english", "vision"}:
+        raise ValueError(f"repeat_checks: areas {sorted(areas)}, expected text, english and vision")
+    for entry in config["entries"]:
+        label = f"repeat_checks: {entry['name']} ({entry['area']})"
+        if entry["area"] not in areas or entry["status"] not in REPEAT_CHECK_STATUSES or not entry["runs"]:
+            raise ValueError(f"{label}: unknown area or status, or no first run")
+        if bool(entry["repeats"]) != (entry["status"] in ("retained", "done")):
+            raise ValueError(f"{label}: status {entry['status']} with repeats {entry['repeats']}; a retained or done entry "
+                             "names its repeats, a queued or running one none")
+        if entry["status"] == "retained" and entry["area"] == "vision":
+            raise ValueError(f"{label}: retained is for a Text or English entry whose repeats are on the Stability tab")
+        if (entry["area"] == "vision") != ("first_dates" in entry):
+            raise ValueError(f"{label}: a vision entry, and only one, gives its first pass's dates (first_dates)")
+    return config
+
+
+def repeat_check_runs(config: dict[str, Any], by_run: dict[int, dict[str, Any]]) -> dict[int, int]:
+    """The Text and English repeat runs the repeat checks hold out of every other section, each with its entry's first
+    run: the repeats of each such entry that is not retained. Each must be in the report as a repeat (a repeat number)
+    of its first run's configuration: the same provider, model, reasoning, questions per request, Perplexity mode,
+    language, question bank and question list, without a variant of its own."""
+    held: dict[int, int] = {}
+    for entry in config["entries"]:
+        if entry["area"] == "vision" or entry["status"] == "retained":
+            continue
+        first_id = entry["runs"][0]
+        if len(entry["runs"]) != 1 or first_id not in by_run:
+            raise ValueError(f"repeat_checks: {entry['name']} ({entry['area']}): one first run in the report expected, "
+                             f"found {entry['runs']}")
+        first = by_run[first_id]
+        for run in entry["repeats"]:
+            label = f"repeat_checks: {entry['name']} ({entry['area']}) repeat run {run}"
+            record = by_run.get(run)
+            if record is None:
+                raise ValueError(f"{label} is not in the report: give the export its report (EXTRA_REPORTS) and its run id")
+            if record.get("repeat") is None or run in held:
+                raise ValueError(f"{label}: needs a repeat number (--repeat) and one entry")
+            for key in ("provider", "model", "thinking", "batch_size", "perplexity_mode", "dataset_sha256", "graded_sha256",
+                        "question_list", "dont_know", "dont_know_word", "rerun", "shuffle_options", "replace_key_text"):
+                if record.get(key) != first.get(key):
+                    raise ValueError(f"{label} differs from run {first_id} in {key}")
+            if bool(record.get("english")) != (entry["area"] == "english") or bool(first.get("english")) != (entry["area"] == "english"):
+                raise ValueError(f"{label}: an English entry's runs are in English, a Text entry's in Turkish")
+            held[run] = first_id
+    return held
+
+
+def without_held(analysis: dict[str, Any], by_run: dict[int, dict[str, Any]], held: dict[int, int]) -> dict[str, Any]:
+    """The report's analysis without the repeated configurations that hold a repeat check's run (`held`), so that the
+    Stability tab stays as it is. Stops when such a configuration would still have repeats without the held runs (a
+    repeat check of a setup already on the Stability tab: list it as retained, or run it under another repeat number
+    and set it apart first)."""
+    keys = {by_run[run]["run_key"]: run for run in held}
+    repeats = []
+    for item in analysis.get("repeats", []):
+        found = [key for key in item["run_keys"] if key in keys]
+        if not found:
+            repeats.append(item)
+            continue
+        rest = {key for key in item["run_keys"] if key not in keys}
+        if len(rest) > 1 and any(record.get("repeat") is not None for record in by_run.values() if record["run_key"] in rest):
+            raise ValueError(f"repeat_checks: runs {sorted(keys[key] for key in found)} join a configuration with repeats "
+                             "of its own on the Stability tab")
+    return {**analysis, "repeats": repeats}
+
+
+def repeat_check_run(record: dict[str, Any]) -> dict[str, Any]:
+    """A Text or English run's facts for the repeat checks, from its report record as the main runs take them: its id,
+    repeat number, start date, hardware and number format (a run on our GPUs, MODELS), access, cost basis and cost."""
+    provider = record.get("provider", "ollama")
+    info = model_info(provider, record["model"], record.get("perplexity_mode"))
+    billing = info.get("billing", PROVIDERS[provider]["billing"])
+    cost, price = record.get("cost_usd"), record.get("price")
+    if (cost is None) != (price is None):
+        raise ValueError(f"repeat_checks: run {record['run_id']}: a cost needs its price, and a price its cost")
+    applies = None if price is None else price.get("applies_to", "billed")
+    if price is not None and applies not in COST_BASES[billing]:
+        raise ValueError(f"repeat_checks: run {record['run_id']}: billed as {billing!r}, but its price applies to {applies!r}")
+    return {
+        "run": record["run_id"],
+        "repeat": record.get("repeat"),
+        "date": record["started"][:10],
+        "hardware": info.get("hardware") if billing == "local" else None,
+        "access": access_text(provider, info, record),
+        "cost_basis": None if cost is None else COST_BASES[billing][applies],
+        "usd": cost,
+    }
+
+
+def repeat_checks(config: dict[str, Any], data: dict[str, Any], by_run: dict[int, dict[str, Any]], answers: dict[str, Any],
+                  public: dict[str, Any]) -> dict[str, Any]:
+    """The repeat checks (results.json `repeat_checks`) from page_config.json's manifest: per entry, in its order, the
+    first run's right answers over the area's questions and each repeat's, from the answers (Text: the scored questions;
+    English: the kept questions), with each run's id, date, hardware, access and cost basis from its report record. A
+    retained Text entry's repeats are its Stability tab repeat set (`repeats`). Vision rows from vision.json (the
+    condition's cell: runs, right answers, hardware, cost) and vision-repeats.json (each named pass)."""
+    scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
+    kept = kept_questions(answers, public)
+    lists = {run["run"]: run for key, found in answers.items() if key.endswith("runs") for run in found}
+    main = {run["run"]: run for run in data["runs"]}
+    english = {model["run"]: model for model in data["english_reading"]["models"]}
+    vision = json.loads(VISION_PATH.read_text(encoding="utf-8"))
+    passes = json.loads(VISION_REPEATS_PATH.read_text(encoding="utf-8")) if VISION_REPEATS_PATH.exists() else {"cells": []}
+    vision_costs = vision["cost"]["by_run"]
+    areas = {area["area"]: area for area in config["areas"]}
+    totals = {"text": len(scored), "english": len(kept), "vision": vision["subset"]["questions"]}
+
+    def counted(run_id: int, area: str) -> dict[str, Any]:
+        run = lists.get(run_id)
+        if run is None:
+            raise ValueError(f"repeat_checks: the answers file lacks run {run_id}")
+        positions = kept if area == "english" else scored
+        if area == "english" and [index for index, value in enumerate(run["correct"]) if value is not None] != kept:
+            raise ValueError(f"repeat_checks: English run {run_id} was not asked exactly the kept questions")
+        return {"right": sum(1 for index in positions if run["correct"][index]), "questions": len(positions)}
+
+    entries = []
+    for entry in config["entries"]:
+        area, name = entry["area"], entry["name"]
+        label = f"repeat_checks: {name} ({area})"
+        if area == "vision":
+            condition = areas["vision"]["condition"]
+            model = next((item for item in vision["models"] if item["name"] == name), None)
+            if model is None or model["conditions"][condition]["runs"] != entry["runs"]:
+                raise ValueError(f"{label}: not vision.json's model with condition {condition} runs {entry['runs']}")
+            cell = model["conditions"][condition]
+            cost = vision_costs.get(f"{name} {condition}")
+            hardware = (model.get("hardware") or {}).get(condition)
+            if (cost is None) == (hardware is None):
+                raise ValueError(f"{label}: a vision cell has an API cost or our hardware, one of the two")
+            access = None if cost is None else main[model["a_run"]]["access"]
+            first = {"runs": cell["runs"], "dates": entry["first_dates"], "right": cell["correct"], "questions": cell["questions"],
+                     "hardware": hardware, "access": access, "cost_basis": None if cost is None else "api",
+                     "usd": None if cost is None else cost["cost_usd"], "price": None if cost is None else cost["price"]}
+            found = next((item for item in passes["cells"] if (item["provider"], item["model"], item["condition"], item["ocr"])
+                          == (model["provider"], model["model"], condition, "")), None)
+            by_pass = {item["pass"]: item for item in (found or {}).get("passes", [])}
+            if entry["repeats"] and (found is None or found["first_pass"]["runs"] != cell["runs"]
+                                     or found["first_pass"]["right"] != cell["correct"]):
+                raise ValueError(f"{label}: vision-repeats.json has no repeat of the table's cell")
+            repeats = []
+            for number in entry["repeats"]:
+                item = by_pass.get(number)
+                if item is None or item["questions"] != cell["questions"]:
+                    raise ValueError(f"{label}: vision-repeats.json lacks pass {number} on every question")
+                repeats.append({
+                    "pass": number, "runs": [run["id"] for run in item["runs"]],
+                    "dates": sorted({run["started_at"][:10] for run in item["runs"]}),
+                    "right": item["right"], "questions": item["questions"],
+                    "hardware": next(iter({run["hardware"] for run in item["runs"]})) if len({run["hardware"] for run in item["runs"]}) == 1 else None,
+                    "access": access, "cost_basis": first["cost_basis"],
+                    "picks_differ": item["picks_differ"], "probabilities_differ": item["probabilities_differ"],
+                })
+        else:
+            first_id = entry["runs"][0]
+            published = main.get(first_id) if area == "text" else english.get(first_id)
+            if len(entry["runs"]) != 1 or published is None or published["name"] != name:
+                raise ValueError(f"{label}: run {entry['runs']} is not the {areas[area]['title']} run of {name}")
+            first = {**repeat_check_run(by_run[first_id]), **counted(first_id, area)}
+            if entry["status"] == "retained":
+                sets = {item["runs"][0]: item["runs"] for item in data["repeats"] if item["variant"] is None}
+                if area != "text" or sets.get(first_id) != [first_id, *entry["repeats"]]:
+                    raise ValueError(f"{label}: retained repeats {entry['repeats']} are not run {first_id}'s Stability tab set")
+            repeats = [{**repeat_check_run(by_run[run]), **counted(run, area)} for run in entry["repeats"]]
+        entries.append({"area": area, "name": name, "status": entry["status"], "note": entry["note"],
+                        "first": first, "repeats": repeats})
+    return {
+        "rule": REPEAT_CHECK_RULE,
+        "areas": [{**area, "questions": totals[area["area"]]} for area in config["areas"]],
+        "entries": entries,
+    }
+
+
 
 def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_section: dict[str, Any] | None = None,
                    english_section: dict[str, Any] | None = None,
                    english_dont_know_section: dict[str, Any] | None = None,
                    option_word_section: dict[str, Any] | None = None,
-                   rerun_section: dict[str, Any] | None = None, grounding_runs: frozenset[int] = frozenset()) -> dict[str, Any]:
+                   rerun_section: dict[str, Any] | None = None, grounding_runs: frozenset[int] = frozenset(),
+                   check_runs: dict[int, int] | None = None) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
     runs, the repeats of each repeated configuration, the runs of each measured routing pipeline, the runs with
     the "I don't know" option (`dont_know_section`), the runs in English (`english_section`), the English "I don't
     know" comparison's runs in English and its Turkish runs on the kept questions (`english_dont_know_section`), the
-    option-word check's runs (`option_word_section`), the hosted GLiDE rerun (`rerun_section`) and the web grounding
-    test's own runs (`grounding_runs`, web_grounding_runs), which no other list holds. A run's answers on questions it
-    was not asked are None, also in `correct`."""
+    option-word check's runs (`option_word_section`), the hosted GLiDE rerun (`rerun_section`), the web grounding
+    test's own runs (`grounding_runs`, web_grounding_runs) and the repeat checks' held-out runs (`check_runs`, each with
+    its first run; repeat_check_runs), which no other list holds. A run's answers on questions it was not asked are
+    None, also in `correct`."""
+    check_runs = check_runs or {}
     dataset = next(
         (item for item in document["datasets"] if item["graded_sha256"] == data["dataset"]["graded_sha256"]), None
     )
@@ -4161,9 +4360,12 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
     word_runs = {model["i_dont_know"]["run"] for model in (option_word_section or {}).get("models", [])}
     rerun_runs = {rerun_section["run"]} if rerun_section else set()
     missing = (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
-               | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs) - set(by_id)
+               | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs | set(check_runs)) - set(by_id)
     if missing:
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
+    if set(check_runs) & (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
+                          | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs):
+        raise ValueError(f"runs {sorted(check_runs)}: the repeat checks' runs are also in another section")
     if grounding_runs & (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
                          | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs):
         raise ValueError(f"runs {sorted(grounding_runs)}: the web grounding test's pilots and the others are mixed up")
@@ -4226,6 +4428,9 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         **({"rerun_runs": [by_id[run] for run in sorted(rerun_runs)]} if rerun_runs else {}),
         # The web grounding test's own runs (results.json `web_grounding`).
         **({"web_grounding_runs": [by_id[run] for run in sorted(grounding_runs)]} if grounding_runs else {}),
+        # The repeat checks' held-out repeat runs, each with its first run (results.json `repeat_checks`).
+        **({"repeat_check_runs": [{**by_id[run], "repeat_check": first} for run, first in sorted(check_runs.items())]}
+           if check_runs else {}),
     }
 
 
@@ -4294,16 +4499,19 @@ def main() -> int:
         # Turkish), the runs in English only theirs, `english_reading`, and the runs with the option in English and
         # their Turkish counterparts on the kept questions only `english_reading.dont_know`. The option-word check's runs
         # enter only `dont_know_option_word` and fresh runs only `hosted_glide_rerun`. The web grounding test's own runs
-        # (web_grounding_runs: its pilots and the repeats of its first runs) enter only `web_grounding`.
+        # (web_grounding_runs: its pilots and the repeats of its first runs) enter only `web_grounding`. The repeat
+        # checks' Text and English repeat runs (repeat_check_runs) enter only `repeat_checks`.
         by_run = {record["run_id"]: record for record in records}
         grounding = web_grounding_runs(by_run)
+        checks_config = repeat_check_config()
+        held = repeat_check_runs(checks_config, by_run)
         words = [record for record in records if record.get("dont_know_word")]
         reruns = [record for record in records if record.get("rerun") is not None]
         kept = [record for record in records if not record.get("dont_know_word") and record.get("rerun") is None
-                and record["run_id"] not in grounding]
+                and record["run_id"] not in grounding and record["run_id"] not in held]
         data = export(
             [record for record in kept if not record.get("dont_know") and not record.get("english")],
-            json.loads(analysis.group(1)) if analysis else {},
+            without_held(json.loads(analysis.group(1)), by_run, held) if analysis else {},
         )
         section = dont_know([record for record in kept if record.get("dont_know") and not record.get("english")], data, by_run)
         english = english_reading([record for record in kept if record.get("english") and not record.get("dont_know")], data)
@@ -4311,7 +4519,7 @@ def main() -> int:
         option_word = dont_know_option_word(words, section, data, by_run)
         rerun = hosted_glide_rerun(reruns, section, data, by_run)
         document = json.loads(args.answers.read_text(encoding="utf-8"))
-        answers = export_answers(document, data, section, english, english_idk, option_word, rerun, grounding)
+        answers = export_answers(document, data, section, english, english_idk, option_word, rerun, grounding, held)
         if section is not None:
             data["dont_know"] = dont_know_answers_part(section, document, answers)
         if option_word is not None:
@@ -4350,6 +4558,7 @@ def main() -> int:
         data["baselines"] = baselines(answers, data["replay"]["decision"])
         if grounding:
             data["web_grounding"] = web_grounding(data, by_run, answers, json.loads(WEB_GROUNDING_PATH.read_text(encoding="utf-8")))
+        data["repeat_checks"] = repeat_checks(checks_config, data, by_run, answers, public)
         # The footer date: when results with this content first went out, never older than the newest `updated` of any
         # run a section publishes (every run in the answers file, from the report's records).
         published = {run["run"] for key, runs in answers.items() if key.endswith("runs") for run in runs}
