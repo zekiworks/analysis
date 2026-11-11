@@ -458,18 +458,18 @@
     "updated_at": "2026-11-09T02:02:54+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "Claude Sonnet 5.5 (high)",
-    "status": "paused",
-    "updated_at": "2026-11-09T11:42:31+00:00"
+    "status": "running",
+    "updated_at": "2026-11-11T15:49:56+00:00"
    },
    {
     "reason": null,
-    "series_done": 4,
+    "series_done": 5,
     "setup": "Claude Opus 5.5 (high)",
-    "status": "running",
-    "updated_at": "2026-11-11T15:28:31+00:00"
+    "status": "done",
+    "updated_at": "2026-11-11T15:46:27+00:00"
    },
    {
     "reason": null,
@@ -483,7 +483,7 @@
     "series_done": 2,
     "setup": "Grok 4.7 (high)",
     "status": "running",
-    "updated_at": "2026-11-11T15:06:57+00:00"
+    "updated_at": "2026-11-11T15:41:52+00:00"
    },
    {
     "reason": null,
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-11T15:34:47+00:00"
+  "updated_at": "2026-11-11T15:49:56+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -2872,11 +2872,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 29.51385110616684,
+     "right_safety": 97.0,
+     "risks_found": 45.0
     },
     "change": {
      "error_rate": null,
@@ -2884,48 +2894,66 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 2.5554,
+     "api_equivalent_usd": 4.5968,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 29.51385110616684,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 97.0,
+      "risk_pays": 100,
+      "risks_found": 45.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 208.4
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "claude-sonnet-5.5-high",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-09T11:42:31+00:00"
+     "status": "running",
+     "updated_at": "2026-11-11T15:49:56+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "Claude Sonnet 5.5 (high)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
-    "steps_done": [],
+    "state": "running",
+    "status": "running, 0 of 5 series",
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
    {
     "after": {
-     "error_rate": 27.935000993311405,
-     "right_safety": 96.75,
+     "error_rate": 27.803659081459045,
+     "right_safety": 96.8,
      "risks_found": 54.0
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 800,
-     "expected": 800,
+     "answered": 1000,
+     "expected": 1000,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 400,
-     "safety_pays": 400,
-     "tests": 4,
-     "valid": 800
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -2944,12 +2972,12 @@
      "risks_found": 47.333333333333336
     },
     "change": {
-     "error_rate": -2.7349257096648216,
-     "right_safety": 1.0833333333333286,
+     "error_rate": -2.8662676215171814,
+     "right_safety": 1.1333333333333258,
      "risks_found": 6.666666666666664
     },
     "cost": {
-     "api_equivalent_usd": 127.711,
+     "api_equivalent_usd": 139.8217,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -3002,13 +3030,13 @@
      }
     ],
     "empty_done": 3,
-    "improved": null,
+    "improved": true,
     "key": "claude-opus-5.5-on",
     "progress": {
      "reason": null,
-     "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-11T15:28:31+00:00"
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-11T15:46:27+00:00"
     },
     "range": 5.0,
     "reason": null,
@@ -3288,12 +3316,81 @@
        "wall_seconds": 560.6
       },
       "wins": 4
+     },
+     {
+      "finished": true,
+      "game_decisions": 275,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Never bury checkers on my 1-2 points just to stay safe; deep checkers are wasted. Spend spare pips moving back checkers toward home instead.\n- When my home board is already crushed and my back checkers are stuck, run them early (e.g., 18/16/10). Every trapped checker raises my gammon risk.\n- In holding games, judge when the hold has lost its value. Once the opponent's position is about to break, get my last checkers moving before I'm left behind with no timing.\n- Avoid loose double hits that land deep in my board (like 7/2*). Advancing or connecting my back anchors is often stronger than a deep hit that leaves blots.\n- After entering from the bar, consider running the back checker (24/18) rather than adding another hit that leaves more blots in my outfield."
+       },
+       {
+        "game": 2,
+        "text": "- Don't break the 6-point or other key home points just to hit a blot on the 1 or 2 point. Deep hits that wreck the board cost a lot; bring outfield checkers home safely instead.\n- With the opponent on the bar, use doubles to make blocking points (the 7, 6 and 5 points). Never waste pips burying checkers on the ace point.\n- With doubles like 3-3, keep builders on the 8 and 11 points. Making inner points from the 6 can beat stripping the midpoint and outfield.\n- Early, with a small roll after entering from the bar, split or advance the back checkers (24/22) rather than bringing a builder down from the midpoint.\n- When bearing in, fill gaps in the home board (e.g., the 2-point) to avoid wasted pips later, rather than leaving a straggler outside."
+       },
+       {
+        "game": 3,
+        "text": "- When bearing off against an anchor, clear the back points and keep a smooth spread. Don't take the most checkers off if it leaves gaps or awkward stacks that will force shots later.\n- Don't bury checkers deep (the 1, 2 and 3 points) while you still have stragglers in the outfield. Use your rolls to bring outside checkers home first.\n- Clear points from the back (the 8 and 7 points first). Keeping the inner points even beats crunching your board.\n- Late in the game, don't break your home board just to hit loose on the ace point. Getting the last outfield checker home safely is usually worth more.\n- You keep making safe \"missed risk\" plays. Accept a small amount of indirect-shot exposure when it brings stragglers home efficiently or keeps a flexible structure."
+       },
+       {
+        "game": 4,
+        "text": "- Avoid hitting loose in your home board when the opponent holds an anchor behind it. Bringing builders down from the midpoint usually beats a loose hit that leaves return shots.\n- When the opponent holds a deep anchor (your 1-point), slot or make the missing low point (the 2-point) to extend your prime. Don't keep stacking extra checkers on points you already own.\n- Don't break the front of a strong prime (7- or 6-point) to play small numbers. Run your back checkers instead, so the prime keeps its timing.\n- Keep your home board flexible. Spread spare checkers onto empty points rather than piling them up, because stacks waste pips and destroy future point-making rolls.\n- Accept small, calculated risks that build a closed board. Consistently choosing the safest stacking play has a cost too."
+       },
+       {
+        "game": 5,
+        "text": "- When the opponent has blots in my home board and I have builders nearby, attack: hit loose or double-hit rather than making quiet safe plays. My passive choices cost the most equity.\n- With early doubles, make the key blocking points first (5-point, then bar-point). Do not use doubles to hit deep or to make low points like the 4-point.\n- Use big doubles to bring midpoint and outfield checkers in as point-makers. Do not run the last back checker early while there is still building to do.\n- Do not strip the 6- and 8-points or bury checkers on the 2- and 3-points. Keep spares on high points so they can cover and make the 5- and 4-points.\n- When re-entering from the bar late, play the small leftover number deep (for example 2/1 or 3/1). That keeps the high home points intact for blocking and bearing off."
+       },
+       {
+        "game": 6,
+        "text": "- Use big rolls (6-6, 6-5) to run back checkers to safety. Don't pile extra checkers onto front points while the back checkers stay trapped.\n- Don't break a home point or hit loose on the deep points (1-3) when my back checkers are stuck behind a strong enemy board. Getting hit back costs more than the hit gains.\n- When my board is crumbling and theirs is strong, stop attacking. Making escape and safety my first priority.\n- Avoid wasted moves inside my home board like 3/1 or 2/1. Spend the pips on outfield checkers or back checkers instead.\n- When a gammon threatens, first bring my farthest-back checkers toward home with full rolls. Don't leave stragglers behind or shuffle checkers inside the board."
+       },
+       {
+        "game": 7,
+        "text": "- Never bury checkers on the 1–2 points while I have back checkers to move; spend spare pips advancing or escaping them instead.\n- When the opponent is stuck on the bar against my board, use that time to bring my back checkers out. Don't spend it wrecking my home board.\n- Always check for a double hit, especially when behind or when the opponent already has a checker on the bar. Two hits usually beat a safe running play.\n- When hitting, use home-board spares rather than breaking the 8 point or midpoint. Keep my outfield points and builders for later.\n- Early on, use small numbers to slot or build new home points rather than stacking spares on the 6 point."
+       },
+       {
+        "game": 8,
+        "text": "- When the opponent has blots in my home board and I have builders nearby, attack hard. Double hits that start a blitz beat quiet safe plays.\n- During a blitz, hit loose with a spare and keep builders spread on high points. Don't stack extra checkers on low points I already own.\n- When bringing checkers home, land them on high open points (5, 4). Don't bury them on the 1 or 3 point, which wastes material and pips.\n- Once the opponent's board is crushed and they have checkers on the bar, release my back checkers early. They are nearly free to run.\n- When bearing off with contact, keep the distribution smooth. Fill gaps (for example 3/1) rather than taking two checkers off, so later rolls don't force me to leave shots."
+       },
+       {
+        "game": 9,
+        "text": "- When several checkers sit back on the opponent's ace point, move them up or split them early instead of bringing more builders down. A stacked deep anchor turns into a crunched game and a backgammon risk.\n- Don't hit loose in your home board when a safe consolidating move exists, especially when you have many checkers back and a return hit costs you a lot.\n- Once a backgammon is possible, bring the checkers in the opponent's home board out first. Moving mid-board checkers wastes pips needed to escape.\n- When bearing in, spread checkers across the open home points. Don't pile them onto the 1 and 2 points; deep stacking wastes pips and timing.\n- Hitting two checkers is not automatically right. Making a home point or building a strong structure is often better than a second loose hit."
+       },
+       {
+        "game": 10,
+        "text": "- Avoid loose hits in your home board, especially double hits, when the opponent has builders aimed at your blots. A return hit while you have many back checkers often turns a loss into a gammon.\n- Don't hit deep on the 1, 2, 4 or 5 point if it buries checkers or leaves a direct shot. A safe quiet move is usually better.\n- When 6 or more of your checkers are stuck in the opponent's home board, spend rolls on escaping and on consolidating anchors, not on attacking. Big doubles should run back checkers rather than chase hits.\n- Early on, build points with checkers from your midpoint and split your back checkers. Don't blitz with blots unless you can close points behind the hit.\n- Before any hit, count your opponent's return shots and ask what happens if they hit you. If the downside is a gammon, choose the safer play."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 27.278291434049606,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 97.0,
+       "risk_pays": 100,
+       "risks_found": 54.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 557.8
+      },
+      "wins": 5
      }
     ],
-    "series_finished": 4,
+    "series_finished": 5,
     "setup": "Claude Opus 5.5 (high)",
-    "state": "running",
-    "status": "running, 4 of 5 series",
+    "state": "complete",
+    "status": "Yes",
     "steps_done": [
      "E1",
      "S1",
@@ -3301,10 +3398,11 @@
      "E2",
      "S3",
      "S4",
-     "E3"
+     "E3",
+     "S5"
     ],
     "threshold": 5.0,
-    "verdict": false
+    "verdict": true
    },
    {
     "after": {
@@ -3811,7 +3909,7 @@
      "risks_found": 5.5
     },
     "cost": {
-     "api_equivalent_usd": 147.9402,
+     "api_equivalent_usd": 148.2004,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -3855,7 +3953,7 @@
      "reason": null,
      "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-11T15:06:57+00:00"
+     "updated_at": "2026-11-11T15:41:52+00:00"
     },
     "range": null,
     "reason": null,
@@ -5324,18 +5422,18 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-11T15:34:47+00:00"
+  "updated_at": "2026-11-11T15:49:56+00:00"
  },
- "source_sha256": "b106bbb7ad5390e17309a65e3341a817ae15c8ebaba21f433df11eaabfa941b5",
+ "source_sha256": "ddceaa095165ffbd3986dd62c25fdf90370780a59b71c289ee227b6d6e7bfe34",
  "status": {
-  "last_update": "2026-11-11T15:34:47+00:00",
-  "line": "8 of 15 models with a verdict · 3 running · 4 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-11T15:49:56+00:00",
+  "line": "9 of 15 models with a verdict · 3 running · 3 paused · 0 incomplete or stopped",
   "models": 15,
-  "paused": 4,
+  "paused": 3,
   "phase": "running",
   "running": 3,
   "stopped": 0,
-  "verdicts": 8
+  "verdicts": 9
  },
  "validation": {
   "accepted": true,
