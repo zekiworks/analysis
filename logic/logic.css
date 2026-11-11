@@ -226,6 +226,16 @@ tr.hl-off { display: none !important; }
 .name-tag { color: var(--text-2); font-size: .76rem; font-weight: 400; white-space: nowrap; margin-left: .3rem; }  /* setting · route · snapshot (Ümit #4445) */
 .lb-mark { margin-left: .1rem; font-size: .62rem; line-height: 0; letter-spacing: .02em; cursor: help; }
 table.lb-table tbody tr.lb-tier-start > td { border-top: 2px solid var(--text-2); }
+/* Ümit via zeki #4611: the class rule as one short line (thresholds open under '*') and short cards whose scope and basis
+   open under 'Details'; nothing is dropped. */
+.class-rule { margin: .3rem 0 .6rem; font-size: .85rem; color: var(--text-2); }
+.class-rule > summary { cursor: pointer; }
+.class-rule .star { color: var(--link); }
+.class-rule > p { margin: .35rem 0 0; }
+.card-more { margin-top: .3rem; font-size: .8rem; color: var(--text-2); }
+.card-more > summary { cursor: pointer; }
+.card-more > p { margin: .25rem 0 0; }
+.result-card .card-scope { margin-bottom: 0; }
 /* PREVIEW (Ümit #4217): a class key with no model in view is hidden; the 'with web' / 'sample' label of an untiered row. */
 .lb-keys .key[hidden], .view-keys li[hidden] { display: none !important; }
 .lb-flag { color: var(--text-2); font-size: .72rem; white-space: nowrap; border: 1px solid var(--text-2); border-radius: .6rem; padding: 0 .35rem; }
