@@ -1191,16 +1191,10 @@ def suite_path(site: Site) -> str:
 
 
 def page(data: Data) -> str:
-    published = [bench["label"] for bench in data.benches if bench["bench"]]
-    missing = [bench["label"] for bench in data.benches if not bench["bench"]]
-    status = f"Published now: {', '.join(published)}." + (f" {NOT_PUBLISHED.capitalize()}: {', '.join(missing)}." if missing else "")
+    # No visible intro (Ümit via Zeki #4646): the keys, the chart and the results come first. The page's h1 stays for
+    # screen readers and as #top; a model's page hides it with the rest (data-ab-main).
     body = f"""    {script_data(data)}
-    <section class="card ab-intro" id="top" data-ab-main>
-      <p class="eyebrow">Zeki Works benches · draft</p>
-      <h1>{TITLE}</h1>
-      <p>How the models do on every Zeki Works bench, each scored 0 (random guessing) to 100 (perfect), higher is better {UP}: Turkish reading and grammar, English reading, Vision (reading from the page image), {"Logic, Math" if data.by_key["logic"]["shown"] else "Logic &amp; Math"} and Backgammon, their combined score, and learning from experience. Decision models first; the type and class keys show the chat models too.</p>
-      <p class="note">{esc(status)} <a href="{METHOD}">Methodology</a>.</p>
-    </section>
+    <h1 class="visually-hidden" id="top" data-ab-main>{TITLE}</h1>
     {ranking(data)}
     {scoring(data)}
     {head_to_head(data)}
