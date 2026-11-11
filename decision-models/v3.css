@@ -772,15 +772,8 @@ i.swatch-wrong { background: var(--wrong); }
   .hold-pair .hbar-head .head-short { display: inline; }
 }
 
-/* The result cards above the Accuracy chart (build_site.py result_cards): three cards, each with its setup and scope,
-   under a heading naming their scope, the full test. */
-.results-heading { margin: 0 0 .5rem; font-size: 1.05rem; }
+/* Result cards (Web grounding, PWS-Decisions): three to a row. */
 .result-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
-.panel.result-card { display: flex; flex-direction: column; gap: .2rem; margin: 0; padding: .7rem .9rem; min-width: 0; }
-.result-card .card-title { margin: 0; padding: 0; border: 0; color: var(--text-2); font-size: .8rem; font-weight: 600; line-height: 1.3; }
-.result-card .card-value { margin: .1rem 0 0; font-family: var(--mono); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-.result-card .card-setup { margin: 0; font-size: .92rem; font-weight: 600; overflow-wrap: anywhere; }
-.result-card .card-scope { margin: 0; color: var(--text-2); font-size: .78rem; line-height: 1.35; }
 
 /* Info: the tables, the summary and the notes, behind the charts; its summary line opens it like a key. */
 .info { margin: 1.25rem 0 0; }
@@ -931,14 +924,8 @@ ul.price-list { padding-left: 1.25rem; }
   .hbar-head .head-short { display: inline; }
   .hbar.cols, .hbars.cols > .hbar { grid-template-columns: minmax(0, 1fr) repeat(var(--cols), 3.2rem); column-gap: .35rem; }
   .hbar-axis.cols .hbar-tick:nth-child(even) { display: none; }
-  /* On a phone the cards stack, each value beside its setup. */
+  /* On a phone the result cards stack. */
   .result-cards { grid-template-columns: minmax(0, 1fr); gap: .4rem; }
-  .panel.result-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: .1rem .6rem; padding: .45rem .7rem; }
-  .result-card :is(.card-title, .card-scope) { grid-column: 1 / -1; }
-  .result-card .card-title { font-size: .76rem; }
-  .result-card .card-value { margin: 0; font-size: 1.1rem; }
-  .result-card .card-setup { font-size: .85rem; }
-  .result-card .card-scope { font-size: .74rem; }
   .chart-wide .hbar { grid-template-columns: minmax(0, 1fr) 11.5rem; }
   .chart-wide .hbar-value, .chart-wide .hbar-head { font-size: .72rem; }
   .chart-wide .hbar-axis .hbar-tick:nth-child(even) { display: none; }

@@ -1734,7 +1734,16 @@ function onClick(event) {
   const pick = (current, chosen, fallback) => (String(current) === String(chosen) ? fallback : chosen);
   if (dataset.select) toggleSelected(Number(dataset.select));
   else if (dataset.tab) {
-    state.tab = pick(state.tab, dataset.tab, 'accuracy');
+    /* A second tap on the measure in view leaves the measure views for the Leaderboard, its part, type and class keys
+       kept (the project lead via Zeki #4660; it replaces the old step back to Accuracy): site.js closes All setups. */
+    if (dataset.tab === state.tab) {
+      state.tab = 'accuracy';
+      state.sort = defaultSort(state.tab);
+      render();
+      document.dispatchEvent(new CustomEvent('close-all-setups'));
+      return;
+    }
+    state.tab = dataset.tab;
     state.sort = defaultSort(state.tab);
   } else if (dataset.sort) {
     const column = TABS[state.tab].columns.find(item => item.key === dataset.sort);

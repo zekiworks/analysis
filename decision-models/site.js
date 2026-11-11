@@ -458,6 +458,14 @@ const keepModels = (type, classes) => {
     board.dispatchEvent(new CustomEvent('lb-change'));
   });
   document.addEventListener('open-all-setups', () => openAll(true));
+  // A second tap on the measure in view (v3.js): back to the Leaderboard, the address no longer pointing into All
+  // setups, the focus on its key (the tab it was on is gone).
+  document.addEventListener('close-all-setups', () => {
+    openAll(false);
+    history.replaceState(history.state, '', `${window.location.pathname}${window.location.search}#leaderboard`);
+    board.scrollIntoView();
+    board.querySelector('[data-lb-all]')?.focus({ preventScroll: true });
+  });
   apply();
   const INTO_ALL = ['board', 'all-setups', 'cost-table', 'chart-tradeoff', 'tab-accuracy', 'tab-confidence', 'tab-routing', 'tab-stability'];
   const land = (id, opening) => {

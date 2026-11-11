@@ -523,11 +523,9 @@ python3 -m http.server 8000                                # preview at http://1
     (`leaderboard.about_text`: the row rule, the dated checkpoints, the ranks, the whiskers), Notes on each page
     (`#page-notes`, `about.page_notes`: the longer explanations moved from the top of each page and the home page's
     finding sentences, each page under its own sub-heading and anchor, `#notes-<page>`; a page calls `Site.note` and
-    leaves `more_link`, "More about this page", where the text stood), the three result cards (`result_cards`, one set per group,
-    the group keys showing the one in view: the highest accuracy, the most answers kept at the 99% confidence threshold
-    with no observed mistakes, and the lowest cost per 1,000 questions within 1 point of the best accuracy, or the
-    cheapest overall, saying so; `card_checks` tests them on this page), the summary (`about.SUMMARY`; `summary_checks`
-    and `copy_checks` test it) and the links to Method and Data.
+    leaves `more_link`, "More about this page", where the text stood), the summary (`about.SUMMARY`; `summary_checks`
+    and `copy_checks` test it) and the links to Method and Data. No leader cards (highest accuracy, most answers kept,
+    lowest cost): the project lead wants no leader summaries ahead of the results (via Zeki #4663).
   - **Experiments** (`experiments/`, `sitebuild/experiments.py`): one card each for Page images, Hallucination
     ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it
     measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting

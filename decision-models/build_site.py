@@ -653,128 +653,6 @@ def findings_checks(page: str, data: Data, site: Site) -> list[str]:
     return found
 
 
-# The model groups (?models=) the result cards on the About page cover, each in the words that name a card's scope.
-CARD_SCOPES = {"all": "all {n} setups", "decision": "the {n} decision-model setups", "chat": "the {n} chat-model setups"}
-
-
-def group_runs(data: Data, site: Site, group: str) -> list[dict[str, Any]]:
-    """The setups of a model group (Site.in_group): every setup, the decision models' or the chat models'."""
-    return [run for run in data.runs if site.in_group(run, group)]
-
-
-def card_facts(data: Data, runs: list[dict[str, Any]]) -> dict[str, Any]:
-    """The result cards' facts for a group's setups, from results.json: the setups with the most right answers; the setups
-    that kept the most answers at the confidence threshold with none of them wrong, and how many setups kept more but got
-    some wrong; and the cheapest setup per 1,000 questions among those with a cost within 1 point of the best accuracy
-    (near), else among every setup with a cost."""
-    best = max(accuracy(run)[0] for run in runs)
-    kept = lambda run: run["confidence"]["sure"]["questions"]  # noqa: E731
-    sure = [run for run in runs if (run.get("confidence") or {}).get("sure")]
-    flawless = [run for run in sure if kept(run) and kept(run) == run["confidence"]["sure"]["correct"]]
-    most = max(map(kept, flawless), default=0)
-    # Within 1 point: at most 1 percentage point fewer right answers than the best, in whole answers.
-    near = [run for run in runs if 100 * (best - accuracy(run)[0]) <= accuracy(run)[1] and bp.per_thousand(run) is not None]
-    pool = near or [run for run in runs if bp.per_thousand(run) is not None]
-    return {
-        "best": best, "top": [run for run in runs if accuracy(run)[0] == best],
-        "most": most, "keepers": [run for run in flawless if kept(run) == most], "more": [run for run in sure if kept(run) > most],
-        "near": bool(near), "cheapest": min(pool, key=lambda run: (bp.per_thousand(run), -accuracy(run)[0])) if pool else None,
-    }
-
-
-def result_cards(data: Data, site: Site) -> str:
-    """The three result cards on the About page, under a heading naming their scope (the full test and its question
-    count), one set per model group (data-models; site.js shows the one in view): the highest accuracy, the most answers
-    kept at the confidence threshold
-    with no observed mistakes, and the lowest cost per 1,000 questions within 1 point of the best accuracy (or, if no
-    such setup has a cost, the lowest overall). Each card names its scope. card_checks tests the numbers against
-    results.json."""
-    total, sure = data.results["questions"], pct(data.config["threshold"], 0)
-    sets = [f'<h2 class="results-heading">Full test · {bp.count(total)} questions</h2>']
-    for group, scope in CARD_SCOPES.items():
-        runs = group_runs(data, site, group)
-        among = scope.format(n=bp.count(len(runs)))
-        facts = card_facts(data, runs)
-
-        def setups(chosen: list[dict[str, Any]]) -> str:
-            return " and ".join(f'{family_icon(site.families[run["run"]]["name"])}<a href="{site.model_path(run)}">'
-                                f'{bp.esc(site.title(run))}</a>{tag_html(site.tag(run))}' for run in chosen)
-
-        def card(title: str, value: str, chosen: str, scope_text: str, tip: str | None = None) -> str:
-            tip_attr = f' title="{bp.esc(tip)}"' if tip else ""
-            return (f'<section class="panel result-card"><h2 class="card-title">{title}</h2>'
-                    f'<p class="card-value"{tip_attr}>{value}</p><p class="card-setup">{chosen}</p>'
-                    f'<p class="card-scope">{scope_text}</p></section>')
-
-        best = facts["best"]
-        cards = [card("Highest accuracy", f"{100 * best / total:.1f}%", setups(facts["top"]),
-                      f"{bp.count(best)} right of {bp.count(total)} questions. Among {among}.")]
-        more = len(facts["more"])
-        caveat = f" {more} setup{'s' if more != 1 else ''} kept more but got some wrong." if more else ""
-        cards.append(card(f"Most answers kept at the {sure} confidence threshold with no observed mistakes",
-                          bp.count(facts["most"]), setups(facts["keepers"]),
-                          f"{bp.count(facts['most'])} of {bp.count(total)} questions kept, all right. Among {among}.{caveat}")
-                     if facts["keepers"] else
-                     card(f"Most answers kept at the {sure} confidence threshold with no observed mistakes", "None", "",
-                          f"Every setup that kept answers at {sure} got some wrong. Among {among}."))
-        cheapest = facts["cheapest"]
-        title = cost_unit_in("Lowest cost per 1,000 questions within 1 point of the best accuracy" if facts["near"]
-                             else "Lowest cost per 1,000 questions overall")
-        if cheapest is None:
-            cards.append(card(title, NOT_MEASURED, "", f"No setup has a cost. Among {among}."))
-        else:
-            upper = data.config["first_cost_marks"]["upper"]["mark"] + " " if cheapest.get("cost_upper_bound") else ""
-            at = f"At {100 * accuracy(cheapest)[0] / total:.1f}% accuracy; the best is {100 * best / total:.1f}%."
-            why = "" if facts["near"] else " No setup within 1 point of the best accuracy has a cost, so this is the cheapest overall."
-            cards.append(card(title, cost_value(bp.per_thousand(cheapest), upper), setups([cheapest]),
-                              f"{at}{why} Among {among}.", site.cost_tip(cheapest)))
-        hidden = "" if group == "all" else " hidden"
-        sets.append(f'<div class="result-cards" data-models="{group}"{hidden}>{"".join(cards)}</div>')
-    return "".join(sets)
-
-
-def card_checks(page: str, data: Data, site: Site) -> list[str]:
-    """The result cards (result_cards) against results.json: for each group, its block on the page states the highest
-    accuracy and its setup, the most answers kept at the threshold with none wrong and that setup, and the cheapest setup
-    near the best accuracy, each computed here anew by sorting the group's setups; the claims that differ."""
-    found = []
-    total = data.results["questions"]
-    for group in CARD_SCOPES:
-        runs = group_runs(data, site, group)
-        names = {run["run"]: site.title(run) for run in runs}
-        block = re.search(rf'<div class="result-cards" data-models="{group}"[^>]*>(.*?)</div>', page, re.S)
-        if block is None:
-            found.append(f"Result cards ({group}): index.html has the block")
-            continue
-        text = summary_text(block.group(1))
-        claims = []
-        by_right = sorted(runs, key=lambda run: -accuracy(run)[0])
-        top = by_right[0]
-        claims.append((f"Highest accuracy {100 * accuracy(top)[0] / total:.1f}%, {names[top['run']]}, "
-                       f"{bp.count(accuracy(top)[0])} right of {bp.count(total)} questions",
-                       [f"{100 * accuracy(top)[0] / total:.1f}%", names[top["run"]], f"right of {bp.count(total)} questions"]))
-        clean = sorted((run for run in runs if run["confidence"]["sure"]["questions"]
-                        and run["confidence"]["sure"]["correct"] == run["confidence"]["sure"]["questions"]),
-                       key=lambda run: -run["confidence"]["sure"]["questions"])
-        if clean:
-            kept = clean[0]["confidence"]["sure"]["questions"]
-            claims.append((f"Most kept with no observed mistakes: {names[clean[0]['run']]}, {kept}",
-                           [names[clean[0]["run"]], f"{bp.count(kept)} of {bp.count(total)} questions kept, all right"]))
-        best = accuracy(top)[0]
-        priced = sorted((run for run in runs if bp.per_thousand(run) is not None), key=bp.per_thousand)
-        near = [run for run in priced if (best - accuracy(run)[0]) / total <= 0.01]
-        if priced:
-            cheapest = (near or priced)[0]
-            claims.append((f"Lowest cost per 1,000 questions {'within 1 point of the best' if near else 'overall'}: "
-                           f"{names[cheapest['run']]}, ${bp.per_thousand(cheapest):.3f}",
-                           [names[cheapest["run"]], f"${bp.per_thousand(cheapest):.3f}",
-                            "within 1 point of the best accuracy" if near else "the cheapest overall"]))
-        for claim, parts in claims:
-            if not all(part in text for part in parts):
-                found.append(f"Result cards ({group}): {claim}")
-    return found
-
-
 def version(data: Data) -> str:
     results = data.results
     return (f"Results {bp.esc(results['results_version'])}, updated {bp.long_date(results['updated'])}; "
@@ -1050,20 +928,18 @@ def main() -> int:
         raise ValueError(f"index.html lacks the markers {sorted(set(blocks) - seen)}")
     PAGE.write_text(text)
     written = write_pages(site)
-    # The About page, from the home page's parts: the intro, How the scores work, the result cards, the counters and the
-    # notes behind the full ranking moved there, with the summary and the notes on each page; its cards and summary are
-    # checked there.
+    # The About page, from the home page's parts: the intro, How the scores work, the counters and the notes behind the
+    # full ranking moved there, with the summary and the notes on each page; its summary is checked there.
     finding_notes(site, found)
     notes = (f"<p>{bp.esc(RANKS_NOTE)}</p><p>"
              f'{bp.esc(" ".join(filter(None, [site.cost_note(data.runs), not_measured_note(data)])))}</p>')
-    about_page = site.in_prose(about.page(site, INTRO.format(**counts(data)), how_scores(data), notes,
-                                          result_cards(data, site), stats(data)))
+    about_page = site.in_prose(about.page(site, INTRO.format(**counts(data)), how_scores(data), notes, stats(data)))
     (ROOT / about.PATH).mkdir(exist_ok=True)
     (ROOT / about.PATH / "index.html").write_text(about_page)
     written += 1
     summary, words = summary_checks(about_page)
     print(f"Summary block: {words} words (at most {SUMMARY_WORDS})")
-    differ = copy_checks(data) + card_checks(about_page, data, site) + findings_checks(text, data, site) + summary
+    differ = copy_checks(data) + findings_checks(text, data, site) + summary
     for claim in differ:
         print(f"copy differs from results.json: {claim}", file=sys.stderr)
     print(f"wrote index.html and {written} other pages; {len(differ)} copy claims differ from results.json")

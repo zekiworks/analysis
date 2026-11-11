@@ -1,8 +1,9 @@
 """The About tab (about/): what the test is and how it was built (short, with the Method page for the full study), how
 the scores work in detail (moved from the home page), the leaderboard rules (sitebuild/leaderboard.py), the notes on each
-page (the longer explanations moved from the top of the pages and from above their charts, Site.note), the three result
-cards and the summary that stood on the home page before (build_site.py checks both on this page: card_checks,
-summary_checks), and the links to Method and Data. build_site.py builds it, after the home page and the other pages,
+page (the longer explanations moved from the top of the pages and from above their charts, Site.note), the summary that
+stood on the home page before (build_site.py checks it on this page: summary_checks), and the links to Method and Data.
+The three result cards (highest accuracy, most answers kept, lowest cost) are gone: the project lead wants no leader
+summaries ahead of the results (via Zeki #4663). build_site.py builds the page, after the home page and the other pages,
 from the parts it computes (page)."""
 
 from __future__ import annotations
@@ -44,9 +45,9 @@ def page_notes(site: Site) -> str:
             + "\n      ".join(blocks) + "\n    </section>")
 
 
-def page(site: Site, intro: str, how_scores: str, notes: str, cards: str, stats: str) -> str:
+def page(site: Site, intro: str, how_scores: str, notes: str, stats: str) -> str:
     """The About page from the home page's parts: the intro (plain text), the How the scores work bullets, the notes
-    behind the full ranking, the result cards and the counters (HTML, links relative to the home page, moved here)."""
+    behind the full ranking and the counters (HTML, links relative to the home page, moved here)."""
     up = rel(PATH, "")
     moved = lambda text: text.replace('href="models/', f'href="{up}models/').replace('href="method/', f'href="{up}method/')  # noqa: E731
     body = f"""    <section class="card prose" id="test">
@@ -66,9 +67,6 @@ def page(site: Site, intro: str, how_scores: str, notes: str, cards: str, stats:
       {leaderboard.about_text(site, PATH)}
     </section>
     {page_notes(site)}
-    <section class="card results-lead" id="results" aria-label="Main results">
-      {moved(cards)}
-    </section>
     <section class="card prose" id="summary">
       <h2>Summary</h2>
       {SUMMARY}
