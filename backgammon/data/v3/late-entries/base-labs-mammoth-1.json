@@ -334,11 +334,11 @@
  },
  "played": 19,
  "price": {
-  "date": "2026-11-01",
-  "input_per_mtok": 0.1,
-  "label": "Baseten list price for the hosted model, not billed",
-  "output_per_mtok": 0.0,
-  "source": "Baseten Model API list price for the same model"
+  "date": null,
+  "input_per_mtok": null,
+  "label": "estimate: GPU time, at most",
+  "output_per_mtok": null,
+  "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
  },
  "quality": {
   "auroc": 0.7262009556097464,
@@ -374,6 +374,38 @@
   "last_date": "2026-11-02",
   "mean_confidence": 0.38546028670980587,
   "over_budget": 0.0,
+  "own_cost": {
+   "decisions": 2021,
+   "estimate": true,
+   "excluded_hours": 0.7166666666666667,
+   "gaps": [
+    [
+     "2026-11-02T19:00Z",
+     "2026-11-02T19:43Z",
+     43
+    ]
+   ],
+   "gpu_decisions": 2021,
+   "gpu_usd": 2.01871700839798,
+   "hosted_decisions": 0,
+   "hosted_unpriced": 0,
+   "hosted_usd": 0,
+   "hours": 0.8107297222481847,
+   "kind": "gpu",
+   "parts": [
+    {
+     "gpus": 1,
+     "hours": 0.8107297222481847,
+     "machine": "rtx_pro_6000",
+     "usd": 2.01871700839798,
+     "usd_per_gpu_hour": 2.49
+    }
+   ],
+   "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+   "spark_rate": null,
+   "usd": 2.01871700839798,
+   "usd_per_1000": 0.9988703653626819
+  },
   "p95_loss": 0.27234458923339844,
   "probability_source": "decision",
   "retry_mean": 4.01355962394854,
@@ -383,7 +415,7 @@
   "tokens_in": 3867.093518060366,
   "tokens_out": 1.012370113805047,
   "too_few": false,
-  "usd_per_1000": 0.3867093518060366,
+  "usd_per_1000": 0.9988703653626819,
   "very_confident": 0.003982080637132902,
   "worst_mean": 0.41062249021955055
  },
@@ -410,6 +442,38 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.587602041322314,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2021,
+    "estimate": true,
+    "excluded_hours": 0.7166666666666667,
+    "gaps": [
+     [
+      "2026-11-02T19:00Z",
+      "2026-11-02T19:43Z",
+      43
+     ]
+    ],
+    "gpu_decisions": 2021,
+    "gpu_usd": 2.01871700839798,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.8107297222481847,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.8107297222481847,
+      "machine": "rtx_pro_6000",
+      "usd": 2.01871700839798,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 2.01871700839798,
+    "usd_per_1000": 0.9988703653626819
+   },
    "p95_loss": 0.1476287841796875,
    "probability_source": "decision",
    "retry_mean": 3.0175619834710745,
@@ -419,7 +483,7 @@
    "tokens_in": 2917.9504132231405,
    "tokens_out": 1.0,
    "too_few": true,
-   "usd_per_1000": 0.29179504132231404,
+   "usd_per_1000": 0.9988703653626819,
    "very_confident": 0.049586776859504134,
    "worst_mean": 0.3419506053129832
   },
@@ -455,6 +519,38 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.35822751284046694,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2021,
+    "estimate": true,
+    "excluded_hours": 0.7166666666666667,
+    "gaps": [
+     [
+      "2026-11-02T19:00Z",
+      "2026-11-02T19:43Z",
+      43
+     ]
+    ],
+    "gpu_decisions": 2021,
+    "gpu_usd": 2.01871700839798,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.8107297222481847,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.8107297222481847,
+      "machine": "rtx_pro_6000",
+      "usd": 2.01871700839798,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 2.01871700839798,
+    "usd_per_1000": 0.9988703653626819
+   },
    "p95_loss": 0.30371705889701783,
    "probability_source": "decision",
    "retry_mean": 4.210678764478764,
@@ -464,7 +560,7 @@
    "tokens_in": 3996.9444015444014,
    "tokens_out": 1.0162162162162163,
    "too_few": false,
-   "usd_per_1000": 0.3996944401544401,
+   "usd_per_1000": 0.9988703653626819,
    "very_confident": 0.0015564202334630351,
    "worst_mean": 0.4353257096730746
   },
@@ -492,6 +588,38 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.38190135416666665,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2021,
+    "estimate": true,
+    "excluded_hours": 0.7166666666666667,
+    "gaps": [
+     [
+      "2026-11-02T19:00Z",
+      "2026-11-02T19:43Z",
+      43
+     ]
+    ],
+    "gpu_decisions": 2021,
+    "gpu_usd": 2.01871700839798,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.8107297222481847,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.8107297222481847,
+      "machine": "rtx_pro_6000",
+      "usd": 2.01871700839798,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 2.01871700839798,
+    "usd_per_1000": 0.9988703653626819
+   },
    "p95_loss": 0.2212342023849481,
    "probability_source": "decision",
    "retry_mean": 4.226762886597938,
@@ -501,7 +629,7 @@
    "tokens_in": 3806.3298969072166,
    "tokens_out": 1.0206185567010309,
    "too_few": true,
-   "usd_per_1000": 0.3806329896907216,
+   "usd_per_1000": 0.9988703653626819,
    "very_confident": 0.0,
    "worst_mean": 0.34074221849441527
   },
@@ -529,6 +657,38 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.35726870818505335,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2021,
+    "estimate": true,
+    "excluded_hours": 0.7166666666666667,
+    "gaps": [
+     [
+      "2026-11-02T19:00Z",
+      "2026-11-02T19:43Z",
+      43
+     ]
+    ],
+    "gpu_decisions": 2021,
+    "gpu_usd": 2.01871700839798,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.8107297222481847,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.8107297222481847,
+      "machine": "rtx_pro_6000",
+      "usd": 2.01871700839798,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 2.01871700839798,
+    "usd_per_1000": 0.9988703653626819
+   },
    "p95_loss": 0.21280396580696084,
    "probability_source": "decision",
    "retry_mean": 3.8180602836879434,
@@ -538,7 +698,7 @@
    "tokens_in": 4272.578014184397,
    "tokens_out": 1.0070921985815602,
    "too_few": false,
-   "usd_per_1000": 0.4272578014184397,
+   "usd_per_1000": 0.9988703653626819,
    "very_confident": 0.0,
    "worst_mean": 0.3230797840016229
   },
@@ -564,6 +724,38 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.46863928318584075,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2021,
+    "estimate": true,
+    "excluded_hours": 0.7166666666666667,
+    "gaps": [
+     [
+      "2026-11-02T19:00Z",
+      "2026-11-02T19:43Z",
+      43
+     ]
+    ],
+    "gpu_decisions": 2021,
+    "gpu_usd": 2.01871700839798,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.8107297222481847,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.8107297222481847,
+      "machine": "rtx_pro_6000",
+      "usd": 2.01871700839798,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 2.01871700839798,
+    "usd_per_1000": 0.9988703653626819
+   },
    "p95_loss": 0.22254613041877747,
    "probability_source": "decision",
    "retry_mean": 3.569738938053097,
@@ -573,7 +765,7 @@
    "tokens_in": 3151.3274336283184,
    "tokens_out": 1.0,
    "too_few": false,
-   "usd_per_1000": 0.31513274336283187,
+   "usd_per_1000": 0.9988703653626819,
    "very_confident": 0.0,
    "worst_mean": 0.37920955094424164
   }

@@ -334,11 +334,11 @@
  },
  "played": 19,
  "price": {
-  "date": "2026-11-01",
-  "input_per_mtok": 0.035,
-  "label": "Baseten list price for the hosted model, not billed",
-  "output_per_mtok": 0.0,
-  "source": "Baseten Model API list price for the same model"
+  "date": null,
+  "input_per_mtok": null,
+  "label": "estimate: GPU time, at most",
+  "output_per_mtok": null,
+  "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
  },
  "quality": {
   "auroc": 0.720357781292748,
@@ -369,6 +369,43 @@
   "last_date": "2026-11-02",
   "mean_confidence": 0.4240564084437899,
   "over_budget": 0.0,
+  "own_cost": {
+   "decisions": 2044,
+   "estimate": true,
+   "excluded_hours": 1.0333333333333334,
+   "gaps": [
+    [
+     "2026-11-02T18:39Z",
+     "2026-11-02T18:57Z",
+     17
+    ],
+    [
+     "2026-11-02T18:58Z",
+     "2026-11-02T19:43Z",
+     45
+    ]
+   ],
+   "gpu_decisions": 2044,
+   "gpu_usd": 1.399394525134564,
+   "hosted_decisions": 0,
+   "hosted_unpriced": 0,
+   "hosted_usd": 0,
+   "hours": 0.5620058333873751,
+   "kind": "gpu",
+   "parts": [
+    {
+     "gpus": 1,
+     "hours": 0.5620058333873751,
+     "machine": "rtx_pro_6000",
+     "usd": 1.399394525134564,
+     "usd_per_gpu_hour": 2.49
+    }
+   ],
+   "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+   "spark_rate": null,
+   "usd": 1.399394525134564,
+   "usd_per_1000": 0.6846352862693562
+  },
   "p95_loss": 0.3945407301187515,
   "probability_source": "decision",
   "retry_mean": 1.4375626223091977,
@@ -378,7 +415,7 @@
   "tokens_in": 3795.581213307241,
   "tokens_out": 1.0068493150684932,
   "too_few": false,
-  "usd_per_1000": 0.13284534246575344,
+  "usd_per_1000": 0.6846352862693562,
   "very_confident": 0.0029455081001472753,
   "worst_mean": 0.6520218101202273
  },
@@ -405,6 +442,43 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.5969549896907217,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2044,
+    "estimate": true,
+    "excluded_hours": 1.0333333333333334,
+    "gaps": [
+     [
+      "2026-11-02T18:39Z",
+      "2026-11-02T18:57Z",
+      17
+     ],
+     [
+      "2026-11-02T18:58Z",
+      "2026-11-02T19:43Z",
+      45
+     ]
+    ],
+    "gpu_decisions": 2044,
+    "gpu_usd": 1.399394525134564,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.5620058333873751,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.5620058333873751,
+      "machine": "rtx_pro_6000",
+      "usd": 1.399394525134564,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 1.399394525134564,
+    "usd_per_1000": 0.6846352862693562
+   },
    "p95_loss": 0.476399397850036,
    "probability_source": "decision",
    "retry_mean": 0.9992474226804124,
@@ -414,7 +488,7 @@
    "tokens_in": 2788.742268041237,
    "tokens_out": 1.0,
    "too_few": true,
-   "usd_per_1000": 0.09760597938144329,
+   "usd_per_1000": 0.6846352862693562,
    "very_confident": 0.0,
    "worst_mean": 0.6655001521110535
   },
@@ -445,6 +519,43 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.41230523001508296,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2044,
+    "estimate": true,
+    "excluded_hours": 1.0333333333333334,
+    "gaps": [
+     [
+      "2026-11-02T18:39Z",
+      "2026-11-02T18:57Z",
+      17
+     ],
+     [
+      "2026-11-02T18:58Z",
+      "2026-11-02T19:43Z",
+      45
+     ]
+    ],
+    "gpu_decisions": 2044,
+    "gpu_usd": 1.399394525134564,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.5620058333873751,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.5620058333873751,
+      "machine": "rtx_pro_6000",
+      "usd": 1.399394525134564,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 1.399394525134564,
+    "usd_per_1000": 0.6846352862693562
+   },
    "p95_loss": 0.4512169063091275,
    "probability_source": "decision",
    "retry_mean": 1.4405827067669172,
@@ -454,7 +565,7 @@
    "tokens_in": 3872.8075187969926,
    "tokens_out": 1.006015037593985,
    "too_few": false,
-   "usd_per_1000": 0.13554826315789473,
+   "usd_per_1000": 0.6846352862693562,
    "very_confident": 0.003770739064856712,
    "worst_mean": 0.72356349726518
   },
@@ -480,6 +591,43 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.4683633432835821,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2044,
+    "estimate": true,
+    "excluded_hours": 1.0333333333333334,
+    "gaps": [
+     [
+      "2026-11-02T18:39Z",
+      "2026-11-02T18:57Z",
+      17
+     ],
+     [
+      "2026-11-02T18:58Z",
+      "2026-11-02T19:43Z",
+      45
+     ]
+    ],
+    "gpu_decisions": 2044,
+    "gpu_usd": 1.399394525134564,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.5620058333873751,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.5620058333873751,
+      "machine": "rtx_pro_6000",
+      "usd": 1.399394525134564,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 1.399394525134564,
+    "usd_per_1000": 0.6846352862693562
+   },
    "p95_loss": 0.24122732281684864,
    "probability_source": "decision",
    "retry_mean": 0.9564776119402986,
@@ -489,7 +637,7 @@
    "tokens_in": 3420.626865671642,
    "tokens_out": 1.0,
    "too_few": true,
-   "usd_per_1000": 0.11972194029850748,
+   "usd_per_1000": 0.6846352862693562,
    "very_confident": 0.0,
    "worst_mean": 0.361591100692749
   },
@@ -518,6 +666,43 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.3428153234323432,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2044,
+    "estimate": true,
+    "excluded_hours": 1.0333333333333334,
+    "gaps": [
+     [
+      "2026-11-02T18:39Z",
+      "2026-11-02T18:57Z",
+      17
+     ],
+     [
+      "2026-11-02T18:58Z",
+      "2026-11-02T19:43Z",
+      45
+     ]
+    ],
+    "gpu_decisions": 2044,
+    "gpu_usd": 1.399394525134564,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.5620058333873751,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.5620058333873751,
+      "machine": "rtx_pro_6000",
+      "usd": 1.399394525134564,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 1.399394525134564,
+    "usd_per_1000": 0.6846352862693562
+   },
    "p95_loss": 0.32964291572570814,
    "probability_source": "decision",
    "retry_mean": 1.8652819672131147,
@@ -527,7 +712,7 @@
    "tokens_in": 4344.75737704918,
    "tokens_out": 1.0131147540983607,
    "too_few": false,
-   "usd_per_1000": 0.15206650819672135,
+   "usd_per_1000": 0.6846352862693562,
    "very_confident": 0.0033003300330033004,
    "worst_mean": 0.3930498500665029
   },
@@ -555,6 +740,43 @@
    "last_date": "2026-11-02",
    "mean_confidence": 0.5079022459016393,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 2044,
+    "estimate": true,
+    "excluded_hours": 1.0333333333333334,
+    "gaps": [
+     [
+      "2026-11-02T18:39Z",
+      "2026-11-02T18:57Z",
+      17
+     ],
+     [
+      "2026-11-02T18:58Z",
+      "2026-11-02T19:43Z",
+      45
+     ]
+    ],
+    "gpu_decisions": 2044,
+    "gpu_usd": 1.399394525134564,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 0.5620058333873751,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 0.5620058333873751,
+      "machine": "rtx_pro_6000",
+      "usd": 1.399394525134564,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": null,
+    "usd": 1.399394525134564,
+    "usd_per_1000": 0.6846352862693562
+   },
    "p95_loss": 0.21952056884765625,
    "probability_source": "decision",
    "retry_mean": 1.1938,
@@ -564,7 +786,7 @@
    "tokens_in": 3193.8489795918367,
    "tokens_out": 1.0081632653061225,
    "too_few": false,
-   "usd_per_1000": 0.11178471428571429,
+   "usd_per_1000": 0.6846352862693562,
    "very_confident": 0.0,
    "worst_mean": 0.5190599809090296
   }

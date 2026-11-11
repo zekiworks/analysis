@@ -549,7 +549,7 @@
   "clusters": 94,
   "confidence_n": 1956,
   "confident_badly_wrong": 0.0,
-  "cost_coverage": 0.0,
+  "cost_coverage": 1.0,
   "decisions": 1978,
   "ece": 0.1641242331288344,
   "engine_scored": 1978,
@@ -582,6 +582,80 @@
   "last_date": "2026-10-26",
   "mean_confidence": 0.2847510224948875,
   "over_budget": 0.0015166835187057635,
+  "own_cost": {
+   "decisions": 1978,
+   "estimate": true,
+   "excluded_hours": 243.23333333333332,
+   "gaps": [
+    [
+     "2026-10-16T04:52Z",
+     "2026-10-19T18:36Z",
+     5144
+    ],
+    [
+     "2026-10-19T18:43Z",
+     "2026-10-19T20:53Z",
+     129
+    ],
+    [
+     "2026-10-19T21:57Z",
+     "2026-10-20T05:03Z",
+     426
+    ],
+    [
+     "2026-10-20T05:26Z",
+     "2026-10-26T09:05Z",
+     8859
+    ],
+    [
+     "2026-10-26T10:41Z",
+     "2026-10-26T10:51Z",
+     10
+    ],
+    [
+     "2026-10-26T11:29Z",
+     "2026-10-26T11:40Z",
+     11
+    ],
+    [
+     "2026-10-26T12:57Z",
+     "2026-10-26T13:12Z",
+     15
+    ]
+   ],
+   "gpu_decisions": 1978,
+   "gpu_usd": 11.34597609421184,
+   "hosted_decisions": 0,
+   "hosted_unpriced": 0,
+   "hosted_usd": 0,
+   "hours": 6.0104752777682435,
+   "kind": "gpu",
+   "parts": [
+    {
+     "gpus": 1,
+     "hours": 1.5897311110628984,
+     "machine": "dgx_spark",
+     "usd": 0.33832311911552904,
+     "usd_per_gpu_hour": 0.21281782608464228
+    },
+    {
+     "gpus": 1,
+     "hours": 4.4207441667053455,
+     "machine": "rtx_pro_6000",
+     "usd": 11.007652975096311,
+     "usd_per_gpu_hour": 2.49
+    }
+   ],
+   "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+   "spark_rate": {
+    "chf_per_h": 0.17465558152207,
+    "electricity_chf_per_h": 0.02244858,
+    "purchase_chf_per_h": 0.15220700152207,
+    "usd_per_h": 0.21281782608464228
+   },
+   "usd": 11.34597609421184,
+   "usd_per_1000": 5.736084981906896
+  },
   "p95_loss": 0.3336704969406126,
   "probability_source": "decision",
   "retry_mean": 2.1500176946410514,
@@ -591,6 +665,7 @@
   "tokens_in": 4027.62891809909,
   "tokens_out": 0.0,
   "too_few": false,
+  "usd_per_1000": 5.736084981906896,
   "very_confident": 0.0,
   "worst_mean": 0.530567927794023
  },
@@ -603,7 +678,7 @@
    "clusters": 52,
    "confidence_n": 116,
    "confident_badly_wrong": 0.0,
-   "cost_coverage": 0.0,
+   "cost_coverage": 1.0,
    "decisions": 116,
    "ece": 0.43144568965517244,
    "engine_scored": 116,
@@ -617,6 +692,80 @@
    "last_date": "2026-10-26",
    "mean_confidence": 0.4651060344827586,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 1978,
+    "estimate": true,
+    "excluded_hours": 243.23333333333332,
+    "gaps": [
+     [
+      "2026-10-16T04:52Z",
+      "2026-10-19T18:36Z",
+      5144
+     ],
+     [
+      "2026-10-19T18:43Z",
+      "2026-10-19T20:53Z",
+      129
+     ],
+     [
+      "2026-10-19T21:57Z",
+      "2026-10-20T05:03Z",
+      426
+     ],
+     [
+      "2026-10-20T05:26Z",
+      "2026-10-26T09:05Z",
+      8859
+     ],
+     [
+      "2026-10-26T10:41Z",
+      "2026-10-26T10:51Z",
+      10
+     ],
+     [
+      "2026-10-26T11:29Z",
+      "2026-10-26T11:40Z",
+      11
+     ],
+     [
+      "2026-10-26T12:57Z",
+      "2026-10-26T13:12Z",
+      15
+     ]
+    ],
+    "gpu_decisions": 1978,
+    "gpu_usd": 11.34597609421184,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 6.0104752777682435,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 1.5897311110628984,
+      "machine": "dgx_spark",
+      "usd": 0.33832311911552904,
+      "usd_per_gpu_hour": 0.21281782608464228
+     },
+     {
+      "gpus": 1,
+      "hours": 4.4207441667053455,
+      "machine": "rtx_pro_6000",
+      "usd": 11.007652975096311,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": {
+     "chf_per_h": 0.17465558152207,
+     "electricity_chf_per_h": 0.02244858,
+     "purchase_chf_per_h": 0.15220700152207,
+     "usd_per_h": 0.21281782608464228
+    },
+    "usd": 11.34597609421184,
+    "usd_per_1000": 5.736084981906896
+   },
    "p95_loss": 0.01047372817993164,
    "probability_source": "decision",
    "retry_mean": 2.3541724137931035,
@@ -626,6 +775,7 @@
    "tokens_in": 2923.896551724138,
    "tokens_out": 0.0,
    "too_few": true,
+   "usd_per_1000": 5.736084981906896,
    "very_confident": 0.0,
    "worst_mean": 0.20225632190704346
   },
@@ -637,7 +787,7 @@
    "clusters": 94,
    "confidence_n": 1345,
    "confident_badly_wrong": 0.0,
-   "cost_coverage": 0.0,
+   "cost_coverage": 1.0,
    "decisions": 1361,
    "ece": 0.136675687732342,
    "engine_scored": 1361,
@@ -665,6 +815,80 @@
    "last_date": "2026-10-26",
    "mean_confidence": 0.2767072118959108,
    "over_budget": 0.002204261572373255,
+   "own_cost": {
+    "decisions": 1978,
+    "estimate": true,
+    "excluded_hours": 243.23333333333332,
+    "gaps": [
+     [
+      "2026-10-16T04:52Z",
+      "2026-10-19T18:36Z",
+      5144
+     ],
+     [
+      "2026-10-19T18:43Z",
+      "2026-10-19T20:53Z",
+      129
+     ],
+     [
+      "2026-10-19T21:57Z",
+      "2026-10-20T05:03Z",
+      426
+     ],
+     [
+      "2026-10-20T05:26Z",
+      "2026-10-26T09:05Z",
+      8859
+     ],
+     [
+      "2026-10-26T10:41Z",
+      "2026-10-26T10:51Z",
+      10
+     ],
+     [
+      "2026-10-26T11:29Z",
+      "2026-10-26T11:40Z",
+      11
+     ],
+     [
+      "2026-10-26T12:57Z",
+      "2026-10-26T13:12Z",
+      15
+     ]
+    ],
+    "gpu_decisions": 1978,
+    "gpu_usd": 11.34597609421184,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 6.0104752777682435,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 1.5897311110628984,
+      "machine": "dgx_spark",
+      "usd": 0.33832311911552904,
+      "usd_per_gpu_hour": 0.21281782608464228
+     },
+     {
+      "gpus": 1,
+      "hours": 4.4207441667053455,
+      "machine": "rtx_pro_6000",
+      "usd": 11.007652975096311,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": {
+     "chf_per_h": 0.17465558152207,
+     "electricity_chf_per_h": 0.02244858,
+     "purchase_chf_per_h": 0.15220700152207,
+     "usd_per_h": 0.21281782608464228
+    },
+    "usd": 11.34597609421184,
+    "usd_per_1000": 5.736084981906896
+   },
    "p95_loss": 0.37729185819625854,
    "probability_source": "decision",
    "retry_mean": 2.164611315209405,
@@ -674,6 +898,7 @@
    "tokens_in": 4044.7604702424687,
    "tokens_out": 0.0,
    "too_few": false,
+   "usd_per_1000": 5.736084981906896,
    "very_confident": 0.0,
    "worst_mean": 0.5563905462622643
   },
@@ -685,7 +910,7 @@
    "clusters": 11,
    "confidence_n": 14,
    "confident_badly_wrong": 0.0,
-   "cost_coverage": 0.0,
+   "cost_coverage": 1.0,
    "decisions": 15,
    "ece": 0.2996285714285714,
    "engine_scored": 15,
@@ -701,6 +926,80 @@
    "last_date": "2026-10-26",
    "mean_confidence": 0.2733285714285714,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 1978,
+    "estimate": true,
+    "excluded_hours": 243.23333333333332,
+    "gaps": [
+     [
+      "2026-10-16T04:52Z",
+      "2026-10-19T18:36Z",
+      5144
+     ],
+     [
+      "2026-10-19T18:43Z",
+      "2026-10-19T20:53Z",
+      129
+     ],
+     [
+      "2026-10-19T21:57Z",
+      "2026-10-20T05:03Z",
+      426
+     ],
+     [
+      "2026-10-20T05:26Z",
+      "2026-10-26T09:05Z",
+      8859
+     ],
+     [
+      "2026-10-26T10:41Z",
+      "2026-10-26T10:51Z",
+      10
+     ],
+     [
+      "2026-10-26T11:29Z",
+      "2026-10-26T11:40Z",
+      11
+     ],
+     [
+      "2026-10-26T12:57Z",
+      "2026-10-26T13:12Z",
+      15
+     ]
+    ],
+    "gpu_decisions": 1978,
+    "gpu_usd": 11.34597609421184,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 6.0104752777682435,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 1.5897311110628984,
+      "machine": "dgx_spark",
+      "usd": 0.33832311911552904,
+      "usd_per_gpu_hour": 0.21281782608464228
+     },
+     {
+      "gpus": 1,
+      "hours": 4.4207441667053455,
+      "machine": "rtx_pro_6000",
+      "usd": 11.007652975096311,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": {
+     "chf_per_h": 0.17465558152207,
+     "electricity_chf_per_h": 0.02244858,
+     "purchase_chf_per_h": 0.15220700152207,
+     "usd_per_h": 0.21281782608464228
+    },
+    "usd": 11.34597609421184,
+    "usd_per_1000": 5.736084981906896
+   },
    "p95_loss": 0.10417979955673216,
    "probability_source": "decision",
    "retry_mean": 3.0801333333333334,
@@ -710,6 +1009,7 @@
    "tokens_in": 4561.533333333334,
    "tokens_out": 0.0,
    "too_few": true,
+   "usd_per_1000": 5.736084981906896,
    "very_confident": 0.0,
    "worst_mean": 0.11484801769256592
   },
@@ -721,7 +1021,7 @@
    "clusters": 94,
    "confidence_n": 276,
    "confident_badly_wrong": 0.0,
-   "cost_coverage": 0.0,
+   "cost_coverage": 1.0,
    "decisions": 280,
    "ece": 0.2264978260869565,
    "engine_scored": 280,
@@ -740,6 +1040,80 @@
    "last_date": "2026-10-26",
    "mean_confidence": 0.22277753623188407,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 1978,
+    "estimate": true,
+    "excluded_hours": 243.23333333333332,
+    "gaps": [
+     [
+      "2026-10-16T04:52Z",
+      "2026-10-19T18:36Z",
+      5144
+     ],
+     [
+      "2026-10-19T18:43Z",
+      "2026-10-19T20:53Z",
+      129
+     ],
+     [
+      "2026-10-19T21:57Z",
+      "2026-10-20T05:03Z",
+      426
+     ],
+     [
+      "2026-10-20T05:26Z",
+      "2026-10-26T09:05Z",
+      8859
+     ],
+     [
+      "2026-10-26T10:41Z",
+      "2026-10-26T10:51Z",
+      10
+     ],
+     [
+      "2026-10-26T11:29Z",
+      "2026-10-26T11:40Z",
+      11
+     ],
+     [
+      "2026-10-26T12:57Z",
+      "2026-10-26T13:12Z",
+      15
+     ]
+    ],
+    "gpu_decisions": 1978,
+    "gpu_usd": 11.34597609421184,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 6.0104752777682435,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 1.5897311110628984,
+      "machine": "dgx_spark",
+      "usd": 0.33832311911552904,
+      "usd_per_gpu_hour": 0.21281782608464228
+     },
+     {
+      "gpus": 1,
+      "hours": 4.4207441667053455,
+      "machine": "rtx_pro_6000",
+      "usd": 11.007652975096311,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": {
+     "chf_per_h": 0.17465558152207,
+     "electricity_chf_per_h": 0.02244858,
+     "purchase_chf_per_h": 0.15220700152207,
+     "usd_per_h": 0.21281782608464228
+    },
+    "usd": 11.34597609421184,
+    "usd_per_1000": 5.736084981906896
+   },
    "p95_loss": 0.2687466591596604,
    "probability_source": "decision",
    "retry_mean": 2.2107,
@@ -749,6 +1123,7 @@
    "tokens_in": 4876.664285714286,
    "tokens_out": 0.0,
    "too_few": false,
+   "usd_per_1000": 5.736084981906896,
    "very_confident": 0.0,
    "worst_mean": 0.33010203923497883
   },
@@ -760,7 +1135,7 @@
    "clusters": 82,
    "confidence_n": 205,
    "confident_badly_wrong": 0.0,
-   "cost_coverage": 0.0,
+   "cost_coverage": 1.0,
    "decisions": 206,
    "ece": 0.12041317073170733,
    "engine_scored": 206,
@@ -776,6 +1151,80 @@
    "last_date": "2026-10-26",
    "mean_confidence": 0.3196892682926829,
    "over_budget": 0.0,
+   "own_cost": {
+    "decisions": 1978,
+    "estimate": true,
+    "excluded_hours": 243.23333333333332,
+    "gaps": [
+     [
+      "2026-10-16T04:52Z",
+      "2026-10-19T18:36Z",
+      5144
+     ],
+     [
+      "2026-10-19T18:43Z",
+      "2026-10-19T20:53Z",
+      129
+     ],
+     [
+      "2026-10-19T21:57Z",
+      "2026-10-20T05:03Z",
+      426
+     ],
+     [
+      "2026-10-20T05:26Z",
+      "2026-10-26T09:05Z",
+      8859
+     ],
+     [
+      "2026-10-26T10:41Z",
+      "2026-10-26T10:51Z",
+      10
+     ],
+     [
+      "2026-10-26T11:29Z",
+      "2026-10-26T11:40Z",
+      11
+     ],
+     [
+      "2026-10-26T12:57Z",
+      "2026-10-26T13:12Z",
+      15
+     ]
+    ],
+    "gpu_decisions": 1978,
+    "gpu_usd": 11.34597609421184,
+    "hosted_decisions": 0,
+    "hosted_unpriced": 0,
+    "hosted_usd": 0,
+    "hours": 6.0104752777682435,
+    "kind": "gpu",
+    "parts": [
+     {
+      "gpus": 1,
+      "hours": 1.5897311110628984,
+      "machine": "dgx_spark",
+      "usd": 0.33832311911552904,
+      "usd_per_gpu_hour": 0.21281782608464228
+     },
+     {
+      "gpus": 1,
+      "hours": 4.4207441667053455,
+      "machine": "rtx_pro_6000",
+      "usd": 11.007652975096311,
+      "usd_per_gpu_hour": 2.49
+     }
+    ],
+    "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+    "spark_rate": {
+     "chf_per_h": 0.17465558152207,
+     "electricity_chf_per_h": 0.02244858,
+     "purchase_chf_per_h": 0.15220700152207,
+     "usd_per_h": 0.21281782608464228
+    },
+    "usd": 11.34597609421184,
+    "usd_per_1000": 5.736084981906896
+   },
    "p95_loss": 0.19919651746749878,
    "probability_source": "decision",
    "retry_mean": 1.7884320388349513,
@@ -785,6 +1234,7 @@
    "tokens_in": 3343.0582524271845,
    "tokens_out": 0.0,
    "too_few": false,
+   "usd_per_1000": 5.736084981906896,
    "very_confident": 0.0,
    "worst_mean": 0.6151353120803833
   }

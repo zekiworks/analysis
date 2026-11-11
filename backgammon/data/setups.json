@@ -15,11 +15,12 @@
    "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
     "date": null,
-    "input_per_mtok": 0.02,
-    "label": "list-price estimate; runs on our GPUs",
-    "output_per_mtok": 0.0
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPUs, bf16; DGX Spark from 16 Oct",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16; NVIDIA DGX Spark (GB10) from 16 Oct",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -87,10 +88,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPUs, bf16; DGX Spark from 16 Oct",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16; NVIDIA DGX Spark (GB10) from 16 Oct",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -121,10 +123,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -157,10 +160,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPUs, bf16; DGX Spark from 16 Oct",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16; NVIDIA DGX Spark (GB10) from 16 Oct",
    "reasoning": "none (letter read directly)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -444,12 +448,13 @@
    "notes": "Perplexity's pplx-decider-flash-v1.2 (from Qwen3.5-4B) through the pplx_decider package its checkpoint ships, one request at a time; price is Perplexity's list price for the same model",
    "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
-    "date": "2026-10-18",
-    "input_per_mtok": 0.01,
-    "label": "list-price estimate; runs on our GPUs",
-    "output_per_mtok": 0.0
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -480,10 +485,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, Q8_0 GGUF, author's server",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), Q8_0 GGUF, author's server",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -550,7 +556,13 @@
    "name": "Fastino GLiDE",
    "notes": "Fastino's hosted decision API; every stored response (all its League 1 matches, 20 Oct) names the model glide_v2, as did the API on 22 Oct",
    "option_groups": "up to 255 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
-   "price": null,
+   "price": {
+    "date": "2026-11-10",
+    "input_per_mtok": 0.04,
+    "label": "API price",
+    "output_per_mtok": 0.0,
+    "source": "https://docs.fastino.ai/pricing (list price × our recorded tokens; the turns carry no cost)"
+   },
    "provider": "Fastino API (responses name the model glide_v2)",
    "reasoning": "none (decision model)",
    "rules_text": "long",
@@ -580,12 +592,13 @@
    "notes": "Perplexity's pplx-decider-v1.2 through the pplx_decider package its checkpoint ships, one request at a time; joined late (20 Oct); price is Perplexity's list price for the same model",
    "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
-    "date": "2026-10-18",
-    "input_per_mtok": 0.02,
-    "label": "list-price estimate; runs on our GPUs",
-    "output_per_mtok": 0.0
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -615,8 +628,14 @@
    "name": "Fastino GLiDE v1.2",
    "notes": "Fastino's GLiDE v1.2 weights (Hugging Face fastino/GLiDE, Fastino Community License) through the glide/server.py its repository ships, bf16, one request per forward pass; joined late (22 Oct)",
    "option_groups": "up to 255 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
-   "price": null,
-   "provider": "our GPU, bf16, Fastino's released weights and server",
+   "price": {
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
+   },
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16, Fastino's released weights and server",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -883,10 +902,10 @@
    "price": {
     "date": null,
     "input_per_mtok": 0.3,
-    "label": "API price",
+    "label": "estimate: GPU time, at most",
     "output_per_mtok": 1.2
    },
-   "provider": "Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then our four GPUs (SGLang, published FP4/FP8 weights, 17 Oct revision)",
+   "provider": "Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then 4 × NVIDIA RTX PRO 6000 Blackwell (96 GB) (SGLang, published FP4/FP8 weights, 17 Oct revision)",
    "reasoning": "thinking off",
    "rules_text": "long",
    "runs_on": "API",
@@ -925,10 +944,10 @@
    "price": {
     "date": null,
     "input_per_mtok": 0.3,
-    "label": "API price",
+    "label": "estimate: GPU time, at most",
     "output_per_mtok": 1.2
    },
-   "provider": "Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then our four GPUs (SGLang, published FP4/FP8 weights, 17 Oct revision)",
+   "provider": "Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then 4 × NVIDIA RTX PRO 6000 Blackwell (96 GB) (SGLang, published FP4/FP8 weights, 17 Oct revision)",
    "reasoning": "thinking on, reasoning effort low",
    "rules_text": "long",
    "runs_on": "API",
@@ -1068,10 +1087,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16 (vLLM); DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16 (vLLM); NVIDIA DGX Spark (GB10) from 20 Oct 21:10 UTC (back on the NVIDIA RTX PRO 6000 Blackwell (96 GB) 21 Oct 01:25-05:00)",
    "reasoning": "no reasoning (the letter continues a prefilled empty thinking block and Answer:)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -1105,10 +1125,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16 (vLLM); first decisions on Liquid AI's API (voided); DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16 (vLLM); first decisions on Liquid AI's API (voided); NVIDIA DGX Spark (GB10) from 20 Oct 21:10 UTC (back on the NVIDIA RTX PRO 6000 Blackwell (96 GB) 21 Oct 01:25-05:00)",
    "reasoning": "reasons on every answer (its template has no switch or effort setting; \"low\" is sent and ignored)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -1142,10 +1163,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, fp8 (vLLM); DGX Spark 19 Oct 18:36-22:26 UTC and from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), fp8 (vLLM); NVIDIA DGX Spark (GB10) 19 Oct 18:36-22:26 UTC and from 20 Oct 21:10 UTC (back on the NVIDIA RTX PRO 6000 Blackwell (96 GB) 21 Oct 01:25-05:00)",
    "reasoning": "thinking on (template default; no effort setting)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -1179,10 +1201,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, fp8 (vLLM); DGX Spark 19 Oct 18:36-22:26 UTC and from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), fp8 (vLLM); NVIDIA DGX Spark (GB10) 19 Oct 18:36-22:26 UTC and from 20 Oct 21:10 UTC (back on the NVIDIA RTX PRO 6000 Blackwell (96 GB) 21 Oct 01:25-05:00)",
    "reasoning": "thinking off",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -1216,10 +1239,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, fp16 (vLLM); first decisions on Cerebras via OpenRouter; DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), fp16 (vLLM); first decisions on Cerebras via OpenRouter; NVIDIA DGX Spark (GB10) from 20 Oct 21:10 UTC (back on the NVIDIA RTX PRO 6000 Blackwell (96 GB) 21 Oct 01:25-05:00)",
    "reasoning": "thinking off",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -1256,10 +1280,11 @@
    "price": {
     "date": null,
     "input_per_mtok": null,
-    "label": "own hardware",
-    "output_per_mtok": null
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, fp16 (vLLM); first decisions on Cerebras via OpenRouter; DGX Spark from 20 Oct 21:10 UTC (back on our GPU 21 Oct 01:25-05:00)",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), fp16 (vLLM); first decisions on Cerebras via OpenRouter; NVIDIA DGX Spark (GB10) from 20 Oct 21:10 UTC (back on the NVIDIA RTX PRO 6000 Blackwell (96 GB) 21 Oct 01:25-05:00)",
    "reasoning": "thinking on, reasoning effort low (the chat template's reasoning_effort)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -3021,13 +3046,13 @@
    "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 2 Nov 2026. Probabilities come rounded to 6 decimals by the loader and are stored as returned.",
    "option_groups": "up to 120 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
-    "date": "2026-11-01",
-    "input_per_mtok": 0.035,
-    "label": "Baseten list price for the hosted model, not billed",
-    "output_per_mtok": 0.0,
-    "source": "Baseten Model API list price for the same model"
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16, through its model card's loader (qev's DecisionEngine from OneJev 81ce62f with the checkpoint's serve.patch) behind our HTTP server, one request at a time",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16, through its model card's loader (qev's DecisionEngine from OneJev 81ce62f with the checkpoint's serve.patch) behind our HTTP server, one request at a time",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -3054,13 +3079,13 @@
    "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 2 Nov 2026. Probabilities come rounded to 6 decimals by the loader and are stored as returned.",
    "option_groups": "up to 120 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
-    "date": "2026-11-01",
-    "input_per_mtok": 0.1,
-    "label": "Baseten list price for the hosted model, not billed",
-    "output_per_mtok": 0.0,
-    "source": "Baseten Model API list price for the same model"
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16, through its model card's loader (qev's DecisionEngine from OneJev 81ce62f with the checkpoint's serve.patch) behind our HTTP server, one request at a time",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16, through its model card's loader (qev's DecisionEngine from OneJev 81ce62f with the checkpoint's serve.patch) behind our HTTP server, one request at a time",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -3155,13 +3180,13 @@
    "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.",
    "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
-    "date": "2026-11-05",
-    "input_per_mtok": 0.06,
-    "label": "list price for the hosted model, not billed",
-    "output_per_mtok": 0.0,
-    "source": "nace.ai/drex (Nace's list price for hosted Drex Max)"
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16, through Nace's own drex_max loader (Nace's public GitHub repository, commit e206b27) behind our HTTP server, one request at a time",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16, through Nace's own drex_max loader (Nace's public GitHub repository, commit e206b27) behind our HTTP server, one request at a time",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -3188,13 +3213,13 @@
    "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities come rounded to 4 decimals by that server and are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.",
    "option_groups": "up to 25 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
-    "date": "2026-11-05",
-    "input_per_mtok": 0.06,
-    "label": "list price for the hosted model, not billed",
-    "output_per_mtok": 0.0,
-    "source": "console.nace.ai/docs/drex/reference/pricing (Nace's list price for hosted Drex 2.0)"
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, bf16, through the serve.py and kev loader its checkpoint ships, one request at a time",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), bf16, through the serve.py and kev loader its checkpoint ships, one request at a time",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",
@@ -3221,13 +3246,13 @@
    "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 7 Nov 2026. Each option's probability is the 50/50 mean of the two parts' probabilities, stored as returned; in the smoke test before the run every probability sum was 1.000000. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit. Run note: the server's container ran without Docker's no-new-privileges setting, approved for this run only (the host's Docker refused every container with it); every other protection was kept: all capabilities dropped, read-only root filesystem, non-root user, weights mounted read-only, no outside network.",
    "option_groups": "up to 255 options per request (the server's limit, from the model card); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
-    "date": "2026-11-07",
+    "date": null,
     "input_per_mtok": null,
-    "label": "no price (our GPU)",
+    "label": "estimate: GPU time, at most",
     "output_per_mtok": null,
-    "source": "no list price published for REAX 1.3"
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
    },
-   "provider": "our GPU, in Docker, through reax-engine (github.com/reaxlabs/reax-engine @ ff8f595f149abdd50ea914455eadc74cf97a277f, reax13 mode, its serve.py), one request at a time, no outside network",
+   "provider": "NVIDIA RTX PRO 6000 Blackwell (96 GB), in Docker, through reax-engine (github.com/reaxlabs/reax-engine @ ff8f595f149abdd50ea914455eadc74cf97a277f, reax13 mode, its serve.py), one request at a time, no outside network",
    "reasoning": "none (decision model)",
    "rules_text": "long",
    "runs_on": "our GPUs",

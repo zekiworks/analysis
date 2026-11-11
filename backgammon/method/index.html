@@ -824,13 +824,21 @@ Which of the following moves makes a point in front of the opponent's checkers, 
 
 <p>Cost per 1,000 decisions carries one of three labels. They are never mixed in one figure or ranking.</p>
 <dl class="facts">
-  <dt>API price estimate</dt><dd>The provider's list price, on a stated date, × the tokens its API reported. The bill
-    itself was not checked.</dd>
+  <dt>API price estimate</dt><dd>The provider's list price, on a stated date, × the tokens its API reported (where the
+    API records no cost per answer, × our recorded token counts). The bill itself was not checked.</dd>
   <dt>API-equivalent (subscription)</dt><dd>A setup played through a subscription, which is not billed per token,
     priced at the API list price × the tokens reported. Not money paid.</dd>
-  <dt>Own hardware</dt><dd>A setup run on our own GPUs. It has no per-request price; no dollar figure is shown.</dd>
-  <dt>List-price estimate; runs on our GPUs</dt><dd>A model that runs on our GPUs but has a maker's list price,
-    priced at that list price × the tokens reported. Not money paid.</dd>
+  <dt>GPU time, at most</dt><dd>A setup run on our own machines (NVIDIA RTX PRO 6000 Blackwell (96 GB) at
+    $2.49 per GPU-hour; NVIDIA DGX Spark (GB10) at its purchase
+    price over 3 years plus electricity at the chip's measured draw): the wall clock from its first to its last
+    answer, leaving out every gap over 10 minutes between consecutive answers, × the
+    machine's hourly rate × the GPUs its server used, ÷ its decisions. Its own simultaneous matches count once. Other
+    setups' servers on the same machine at the same time are not separated, so each setup is charged the whole
+    device: an upper bound. A setup that also answered through a hosted API adds those answers' recorded cost. The
+    cost cell shows the estimate first, then a small line naming it and the machine it used most ('estimate · DGX
+    Spark', 'estimate · RTX PRO 6000 Blackwell'; '+ API' where some answers came from a hosted API); how it was counted
+    is in its tooltip (hover, keyboard focus or tap) and its details box. Cost sorting and the cost charts use the
+    estimate.</dd>
 </dl>
 <p>Every view shows how many of its decisions have a cost (cost coverage).</p>
 </section>
@@ -1030,7 +1038,7 @@ Which of the following moves makes a point in front of the opponent's checkers, 
   <footer class="footer">
     <nav class="footer-links" aria-label="Site"><a href="../about/">About</a> · <a href="../method/">Method</a> · <a href="../data/">Data</a> · <a href="https://github.com/zekiworks/jevgammon">GitHub</a></nav>
     <p>Download: <a href="../data/results.json" download="results.json">results.json</a> · <a href="../decisions/index.json" download="decisions.json">decisions.json</a> · <a href="../data/">every data file</a></p>
-    <p>Results 3c37f2e1, updated 11 November 2026, 12:01 UTC; scored by GNU Backgammon 1.08, 2-ply.</p>
+    <p>Results 1710b319, updated 11 November 2026, 12:05 UTC; scored by GNU Backgammon 1.08, 2-ply.</p>
   </footer>
 </body>
 </html>

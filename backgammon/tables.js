@@ -80,8 +80,9 @@
     const th = event.target.closest('thead th');
     if (th) { if (!th.hasAttribute('data-nosort')) sortBy(th); return; }
     const row = event.target.closest('tbody tr');
-    // A click the row's own handler took (the leaderboard's tap that opens a details box, bg.js) does not navigate.
-    if (!row || event.defaultPrevented || event.target.closest('a, button, select, input, label, summary')) return;
+    // A click the row's own handler took (the leaderboard's tap that opens a details box, bg.js) does not navigate;
+    // nor does a tap on a tooltip (.hint: the own-machine cost explanation opens on focus instead).
+    if (!row || event.defaultPrevented || event.target.closest('a, button, select, input, label, summary, .hint')) return;
     if (String(window.getSelection())) return;
     const link = row.dataset.href || row.querySelector('a[href]')?.getAttribute('href');
     if (!link) return;
