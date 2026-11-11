@@ -196,6 +196,7 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_openrouter_inkling_small.sh` | Inkling Small via OpenRouter's chat API, pinned to DeepInfra (`deepinfra/fp8`), no response format, the answer layout in the prompt, reasoning_effort high, output cap 65,536 tokens | `OPENROUTER_API_KEY` |
 | `run_openrouter_muse_ember.sh` | Muse Ember via OpenRouter's chat API, pinned to Meta (`meta`) with required parameters and the answer schema, reasoning_effort max, output cap 65,536 tokens | `OPENROUTER_API_KEY` |
 | `run_openrouter_claude_haiku_5_5.sh` | Claude Haiku 5.5 via OpenRouter's chat API, pinned to Anthropic (`anthropic`) with the answer schema (no required parameters: the endpoint lists no temperature), reasoning_effort max, output cap 128,000 tokens (the endpoint's maximum: at 65,536 its reasoning used the whole cap on 5 of 13 smoke requests), 1,800 s per request | `OPENROUTER_API_KEY` |
+| `run_openrouter_qwen3_8_flash.sh` | Qwen3.8 Flash via OpenRouter's chat API, pinned to Alibaba (`alibaba`, its only provider) with required parameters and the answer schema, reasoning_effort none (reasoning off, as its backgammon and Logic & Math setups) | `OPENROUTER_API_KEY` |
 | `run_xai_grok_high.sh` | Grok 4.7 through xAI's Responses API with a SuperGrok subscription login, reasoning effort high, 4 requests at a time | OMP's `xai-oauth` login (`omp token xai-oauth`) |
 | `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
 

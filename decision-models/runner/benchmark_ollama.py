@@ -522,6 +522,12 @@ PRICES: dict[tuple[str, str], Price] = {
         "OpenRouter's price for DeepInfra's endpoint (fp8)", "https://openrouter.ai/qwen/qwen3.5-397b-a17b", "2026-11-08",
         0.45, 3.00, cached_input=0.22,
     ),
+    # Qwen3.8 Flash at OpenRouter's price for Alibaba's endpoint (its only provider; its endpoints API, read 11 November
+    # 2026), the same as Alibaba Cloud Model Studio's international price for qwen3.8-flash up to 1M tokens.
+    ("openrouter-chat", "qwen/qwen3.8-flash"): Price(
+        "OpenRouter's price for Alibaba's endpoint", "https://openrouter.ai/qwen/qwen3.8-flash", "2026-11-11",
+        0.15, 0.47, cached_input=0.016,
+    ),
     # MiMo V2.6 Flash at OpenRouter's price for Xiaomi's own endpoint (xiaomi/fp8; its endpoints API, read 8 November
     # 2026).
     ("openrouter-chat", "xiaomi/mimo-v2.6-flash"): Price(

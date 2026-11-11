@@ -230,6 +230,11 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "Qwen 3.5 397B-A17B",
         "access": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included",
     },
+    "qwen/qwen3.8-flash": {
+        "name": "Qwen3.8 Flash",
+        "note": "Alibaba's closed chat model (API id qwen3.8-flash), added on the reading bench as on backgammon and Logic & Math",
+        "access": "OpenRouter chat API, Alibaba's endpoint, fallbacks off, reasoning off",
+    },
     "xiaomi/mimo-v2.6-flash": {
         "name": "MiMo V2.6 Flash",
         "access": "OpenRouter chat API, Xiaomi's own endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included",
@@ -723,6 +728,9 @@ SIZES: dict[str, dict[str, Any]] = {
     "anthropic/claude-haiku-5.5": {"total": None, "sources": ["https://www.anthropic.com/claude-haiku-5-5",
                                                               "https://platform.claude.com/docs/en/models/overview"],
                                    "read": "2026-11-10"},
+    "qwen/qwen3.8-flash": {"total": None, "sources": ["https://www.alibabacloud.com/help/en/model-studio/model-pricing",
+                                                       "https://openrouter.ai/qwen/qwen3.8-flash"],
+                           "read": "2026-11-11"},
     # Hosted decision models: no maker states a size.
     "celeris-1-decision": {"total": None, "sources": ["https://docs.celeris.ai/decisions", "https://celeris.ai/decisions"],
                            "read": READ},
