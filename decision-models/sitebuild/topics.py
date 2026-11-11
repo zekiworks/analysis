@@ -53,12 +53,11 @@ def heatmap(site: Site) -> str:
     choices = "".join(f'<label><input type="checkbox" value="{run["run"]}" checked> {site.shown(run)}</label>' for run in ranked)
     body = f"""    <section class="card">
       <h1>Topics</h1>
-      <p>The {site.total:,} questions fall into {len(units)} topics of the book: {sum(site.part(u["number"]) == "reading" for u in units)} test reading and {sum(site.part(u["number"]) == "grammar" for u in units)} test grammar.</p>
       <ul class="topic-list">{listing}</ul>
+      <p class="note">The {site.total:,} questions fall into {len(units)} topics of the book: {sum(site.part(u["number"]) == "reading" for u in units)} test reading and {sum(site.part(u["number"]) == "grammar" for u in units)} test grammar.</p>
     </section>
     <section class="card" id="heatmap">
       <h2>Accuracy by topic</h2>
-      <p class="note">Each cell: the share of the topic's questions the setup got right. Setups by accuracy on all questions.</p>
       <figure class="heat-legend">
         <figcaption>Colour: accuracy on the topic, from dark blue at 0% to yellow at 100%. It does not show the model family.</figcaption>
         <ol class="heat-scale">{scale}</ol>
@@ -70,6 +69,7 @@ def heatmap(site: Site) -> str:
       </details>
       <p class="note" data-setup-none hidden>No setup chosen. Choose at least one above, or press Show all.</p>
       <div class="table-wrap heatmap-wrap" tabindex="0" role="region" aria-label="Accuracy by topic, scrollable"><table class="heatmap-table"><thead><tr><th scope="col">Setup</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>
+      <p class="note">Each cell: the share of the topic's questions the setup got right. Setups by accuracy on all questions.</p>
     </section>"""
     return site.page(path, "Topics", f"Accuracy by topic for every setup, and a page for each of the {len(units)} topics.", body,
                      scripts=("topics.js",))
@@ -110,12 +110,11 @@ def topic_page(site: Site, unit: dict[str, Any], data: dict[str, Any]) -> str:
     body = f"""    <section class="card">
       <p class="eyebrow">{part} · topic {number}</p>
       <h1>{esc(unit["english"])}</h1>
-      <p>{unit["questions"]} scored questions. <a href="{rel(path, "topics/")}#heatmap">Accuracy by topic</a> compares this topic with the others.</p>
     </section>
     <section class="card">
-      <h2>Every setup's result</h2>
-      <p class="note">Accuracy on this topic's questions, with its 95% interval. Few questions make wide intervals.</p>
+      <h2>Every setup's result · {unit["questions"]} scored questions</h2>
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Setup</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">Right</th></tr></thead><tbody>{"".join(results)}</tbody></table></div>
+      <p class="note">Accuracy on this topic's questions, with its 95% interval. Few questions make wide intervals. <a href="{rel(path, "topics/")}#heatmap">Accuracy by topic</a> compares this topic with the others.</p>
     </section>
     <section class="card">
       <h2>Its questions</h2>

@@ -275,7 +275,10 @@ def marks_legend(items: list[dict[str, Any]], striped: str) -> str:
 def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]], origin: str, anchor: str,
                    mark: str, notes: bool = False) -> str:
     """Accuracy, one bar per setup in its family's colour (with web striped), the random-guess line on each, and the
-    setup's cost and request times beside it; with notes, the habits note (habits_note) under a setup's name."""
+    setup's cost and request times beside it; with notes, the habits note (habits_note) under a setup's name and, where
+    the totals file has the habits block, the score of always picking the first option (habits.lazy.always_first: the
+    share of the questions whose right answer is the first choice, pws/bench.py) as a labelled dashed line through every
+    row, so each bar reads against it."""
     digits = site.config["percent_digits"]
     random = data["random_accuracy"]
     rows = []
@@ -299,7 +302,9 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
                      + f"; median request {ms(median)} ms, 95th percentile {ms(p95)} ms"
                      + (f". {setup_notes(setup)}" if setup_notes(setup) else "")
                      + (f". Habits: {note}" if note else "")})
-    chart = hbars(rows, head=("Accuracy | Cost | Median · p95 ms", "Acc | Cost | ms"))
+    first = data["habits"]["lazy"]["always_first"] if notes and data.get("habits") else None
+    chart = hbars(rows, head=("Accuracy | Cost | Median · p95 ms", "Acc | Cost | ms"),
+                  reference=None if first is None else (first, f"Always the first option: {whole(first)}"))
     return (f'<figure class="panel chart-card chart-wide" id="{anchor}"><div class="chart-head"><h2>Accuracy</h2>'
             f'<p class="chart-sub">Share of the {data["questions"]} public questions answered right, the mean of our '
             f'{data["runs_per_setup"]} runs per setup · higher is better; beside it the cost ({cost_per()}) and the '
@@ -309,6 +314,10 @@ def accuracy_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
             f'<span><i class="swatch swatch-marker"></i>The chance line: Parallel\'s random-guess baseline, {pct(random, 2)} '
             f'(<a href="{BASELINE_SOURCE}">the benchmark\'s README</a>), uniform guessing over each question\'s choices, a '
             f"property of the questions, not a run of ours.</span>"
+            + ("" if first is None else
+               f' <span><i class="swatch swatch-ref"></i>The dashed line: always picking the first option scores '
+               f'{whole(first)}, as the right answer is the first choice on {data["habits"]["right_positions"][0]} of the '
+               f'{data["habits"]["questions"]} questions.</span>')
             + (f' <span {DECISION_ONLY}>A line under a setup\'s name: its score is at most {round(100 * data["habits"]["explained_margin"], 1):g} '
                f'point above what its answering habits alone would score (<a href="#habits">without knowing the facts</a>).</span>'
                if any("note" in row for row in rows) else "")
@@ -384,15 +393,17 @@ def latency_chart(site: Site, data: dict[str, Any], items: list[dict[str, Any]],
 
 
 def charts(site: Site, data: dict[str, Any], items: list[dict[str, Any]], origin: str, prefix: str,
-           measures: bool = False) -> str:
-    """Accuracy, Cost and Latency; with measures, each in its Measure section (the id the view bar's Measure row links
-    to: pws-decisions/, where these are the page's own charts) and the Accuracy rows with their habits notes."""
+           measures: bool = False, keys: tuple[str, ...] = ("accuracy", "cost", "latency")) -> str:
+    """Accuracy, Cost and Latency (or those of keys, in that order); with measures, each in its Measure section (the id
+    the view bar's Measure row links to: pws-decisions/, where these are the page's own charts) and the Accuracy rows
+    with their habits notes and the first-option line."""
     upper_mark = site.config["first_cost_marks"]["upper"]
-    cards = [("accuracy", "Accuracy", accuracy_chart(site, data, items, origin, f"{prefix}accuracy", upper_mark["mark"],
-                                                     notes=measures)),
-             ("cost", "Cost", cost_chart(site, data, items, origin, f"{prefix}cost", upper_mark["mark"],
-                                         upper_note(items, upper_mark))),
-             ("latency", "Latency", latency_chart(site, data, items, origin, f"{prefix}latency"))]
+    makers = {"accuracy": ("Accuracy", lambda: accuracy_chart(site, data, items, origin, f"{prefix}accuracy",
+                                                              upper_mark["mark"], notes=measures)),
+              "cost": ("Cost", lambda: cost_chart(site, data, items, origin, f"{prefix}cost", upper_mark["mark"],
+                                                  upper_note(items, upper_mark))),
+              "latency": ("Latency", lambda: latency_chart(site, data, items, origin, f"{prefix}latency"))}
+    cards = [(key, makers[key][0], makers[key][1]()) for key in keys]
     if not measures:
         return "".join(card for _, _, card in cards)
     return "".join(f'<section class="measure" id="{key}" aria-label="{title}">{card}</section>' for key, title, card in cards)
@@ -994,7 +1005,7 @@ def habits_section(site: Site, data: dict[str, Any], items: list[dict[str, Any]]
     charts = habits_charts(site, data, rows, best, mark_words)
     steps = ("Strategies", "Habits", "Hard questions", "Probability", "Reversed", "Dates")
     links = "".join(f'<a href="#habits-{index}">{index}. {name}</a>' for index, name in enumerate(steps, 1))
-    return f"""<section class="card" id="habits" {DECISION_ONLY}>
+    return f"""<section class="card" id="habits" {DECISION_ONLY} data-top-rows>
       <h2>Can a model score here without knowing the facts?</h2>
       <p><strong>{esc(summary)}</strong></p>
       <p>{esc(key_words)} The checks below use only totals: the answer key's positions, each decision setup's answers over its {runs} runs, and public dates.</p>
@@ -1132,13 +1143,15 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Experiment</p>
       <h1>PWS-Decisions: the site's models on dated web facts</h1>
-      <p>Parallel Web Systems' {data['questions']} public English questions on dated web facts; not part of the Turkish ranking.</p>
-      {more_link(PATH)}
       {summary_cards(items, digits)}
-      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{f'<a href="#habits" {DECISION_ONLY}>Without the facts</a><a href="#habits-2" {DECISION_ONLY}>Answering habits</a>' if data.get("habits") else ""}{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
+      <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a>{f'<a href="#habits" {DECISION_ONLY}>Without the facts</a><a href="#habits-2" {DECISION_ONLY}>Answering habits</a>' if data.get("habits") else ""}<a href="#cost">Cost</a><a href="#latency">Latency</a><a href="#results">Every number</a>{idk_nav}<a href="#not-run">Not run</a><a href="#method">Method</a></nav>
     </section>
-    <section class="charts" aria-label="Charts">{charts(site, data, items, PATH, "chart-", measures=True)}</section>
-    <section class="card" id="results">
+    <section class="charts" aria-label="Accuracy" data-top-rows>{charts(site, data, items, PATH, "chart-", measures=True, keys=("accuracy",))}</section>
+    {habits_section(site, data, items)}
+    <section class="charts" aria-label="Cost and latency" data-top-rows>{charts(site, data, items, PATH, "chart-", measures=True, keys=("cost", "latency"))}</section>
+    <p class="note">Parallel Web Systems' {data['questions']} public English questions on dated web facts; not part of the Turkish ranking.</p>
+    {more_link(PATH)}
+    <section class="card" id="results" data-top-rows>
       <h2>Every number, setup by setup</h2>
       <p class="note">Ranked by mean accuracy. Each value is the mean of the {data['runs_per_setup']} runs, with the lowest and highest run under it{"; under accuracy also the 95% interval from the question sample" if boot else ""}. Request times are from our machine. Probabilities: where the API returns them, the mean probability it gave the answer it chose, and how many answers given at {pct(data['sure_threshold'], 0)} or more (the site's “sure” threshold) were wrong, over the {data['runs_per_setup']} runs.</p>
       {cost_switch()}
@@ -1151,7 +1164,6 @@ def build(site: Site) -> dict[str, str]:
         {f'<li {DECISION_ONLY}>A line under a name, “picks the first choice in N of 10 questions; …”: that setup scores at most {round(100 * data["habits"]["explained_margin"], 1):g} point above what its answering habits alone would score (<a href="#habits">without knowing the facts</a>).</li>' if any(habits_note(data, item["setup"]) for item in items) else ""}
       </ul>
     </section>
-    {habits_section(site, data, items)}
     {dont_know_section(site, data, items)}
     <section class="card" id="not-run">
       <h2>Not run, and why</h2>

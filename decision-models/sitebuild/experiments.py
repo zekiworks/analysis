@@ -27,8 +27,8 @@ def cards(site: Site) -> list[tuple[str, str, str, str]]:
     idk = site.results["dont_know"]
     running = running_setups(site)
     not_run = len(site.config["dont_know"].get("not_run") or [])
-    found.append(("dont-know/", "Hallucination (\u201cBilmiyorum\u201d)",
-                  f"The Turkish questions with a sixth option, \u201c{idk['option']}\u201d (I don't know): how often a model "
+    found.append(("dont-know/", "Hallucination (\u201cI don't know\u201d)",
+                  "The Turkish questions with a sixth option, \u201cI don't know\u201d: how often a model "
                   "says it does not know instead of answering wrong.",
                   (f"Running: {plural(len(running), 'chat setup')} still running in Turkish" if running else
                    f"Done: {plural(len(idk['models']), 'setup')}") + (f" · {bp.count(not_run)} not run" if not_run else "")))

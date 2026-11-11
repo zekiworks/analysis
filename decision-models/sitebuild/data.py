@@ -126,9 +126,9 @@ def build(site: Site) -> dict[str, str]:
               "answer, but not the questions: the publisher owns them.</p>")
     body = f"""    <section class="card">
       <h1>Data</h1>
-      <p>Everything the pages show comes from these files.</p>
-      {more_link(PATH)}
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">File</th><th scope="col">Contents</th><th scope="col" class="num">Size</th></tr></thead><tbody>{downloads}</tbody></table></div>
+      <p class="note">Everything the pages show comes from these files.</p>
+      {more_link(PATH)}
       <p class="note">Results version {esc(results["results_version"])} (what changed: the <a href="#results-changelog">results changelog</a>); picks.json {picks_hash}. The code that ran the benchmark and rebuilds these files is in the <a href="{CODE_URL}">repository</a>; its runner README explains how someone who owns the book rebuilds the question bank.</p>
     </section>
     <section class="card" id="results-changelog">

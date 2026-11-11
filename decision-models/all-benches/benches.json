@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-11T11:52:27Z",
+    "updated": "2026-11-11T12:29:29Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1550,6 +1550,38 @@
       "gpu_cost_usd": 0.10236666666666668
      },
      {
+      "repo": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
+      "commit": "f1e6cd147dda82c9ffa3e8e725d5c1f175566fb1",
+      "model_key": "startlux-decision-v1.1-2b",
+      "name": "StartLux-Decision v1.1 2B",
+      "display_name": "StartLux-Decision v1.1 2B",
+      "tag": "",
+      "class_label": "Open · 2.0B",
+      "base_model": null,
+      "setup_label": "StartLux-Decision v1.1 2B",
+      "maker": "StartLux",
+      "kind": "decision",
+      "params_total": 2.0,
+      "params_active": 2.0,
+      "quantization": "BF16",
+      "score_0_100": 13.444444444444445,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.3075555555555556,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.053115119095329164,
+      "improvement_points": null,
+      "runs": [
+       "logic:startlux-2b_en",
+       "logic:startlux-2b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.013333333333333334,
+      "gpu_cost_usd": 0.002837571014461897
+     },
+     {
       "repo": "LiquidAI/d1-2B",
       "commit": "10e7671d44e4b37700020b1eed3f594c5f2af0b4",
       "model_key": "liquid-d1-2b",
@@ -1688,7 +1720,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-11T11:52:27Z",
+    "updated": "2026-11-11T12:29:29Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3196,6 +3228,38 @@
       "gpu_cost_usd": 0.17983333333333335
      },
      {
+      "repo": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
+      "commit": "f1e6cd147dda82c9ffa3e8e725d5c1f175566fb1",
+      "model_key": "startlux-decision-v1.1-2b",
+      "name": "StartLux-Decision v1.1 2B",
+      "display_name": "StartLux-Decision v1.1 2B",
+      "tag": "",
+      "class_label": "Open · 2.0B",
+      "base_model": null,
+      "setup_label": "StartLux-Decision v1.1 2B",
+      "maker": "StartLux",
+      "kind": "decision",
+      "params_total": 2.0,
+      "params_active": 2.0,
+      "quantization": "BF16",
+      "score_0_100": 23.312528895053163,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.3865002311604253,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.026080989749775452,
+      "improvement_points": null,
+      "runs": [
+       "math:startlux-2b_en",
+       "math:startlux-2b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.023055555555555555,
+      "gpu_cost_usd": 0.00490663321250703
+     },
+     {
       "repo": "LiquidAI/d1-2B",
       "commit": "10e7671d44e4b37700020b1eed3f594c5f2af0b4",
       "model_key": "liquid-d1-2b",
@@ -3366,7 +3430,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-11T11:52:27Z",
+    "updated": "2026-11-11T12:29:29Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -4933,6 +4997,40 @@
       "gpu_cost_usd": 0.2822
      },
      {
+      "repo": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
+      "commit": "f1e6cd147dda82c9ffa3e8e725d5c1f175566fb1",
+      "model_key": "startlux-decision-v1.1-2b",
+      "name": "StartLux-Decision v1.1 2B",
+      "display_name": "StartLux-Decision v1.1 2B",
+      "tag": "",
+      "class_label": "Open · 2.0B",
+      "base_model": null,
+      "setup_label": "StartLux-Decision v1.1 2B",
+      "maker": "StartLux",
+      "kind": "decision",
+      "params_total": 2.0,
+      "params_active": 2.0,
+      "quantization": "BF16",
+      "score_0_100": 19.93613138686131,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.3594890510948905,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.03276380893703266,
+      "improvement_points": null,
+      "runs": [
+       "logic:startlux-2b_en",
+       "math:startlux-2b_en",
+       "logic:startlux-2b_en_dontknow",
+       "math:startlux-2b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.03638888888888889,
+      "gpu_cost_usd": 0.007744204226968927
+     },
+     {
       "repo": "fastino/GLiDE-2B",
       "commit": "00f122c120cdeed82284106cb77d9bab5a50ad16",
       "model_key": "glide-2b",
@@ -6093,7 +6191,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-11T12:05Z",
+    "updated": "2026-11-11T12:20Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

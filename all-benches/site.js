@@ -134,12 +134,17 @@ const keepModels = (type, classes) => {
     link.setAttribute('href', `${base}${kept ? `?${kept}` : ''}${fragment ? `#${fragment}` : ''}`);
   });
 };
-(function setupGroup() {
-  const group = ASKED_TYPE ?? 'all';
+/* Shows each element whose data-models lists the type and hides the others, and marks the type in <html
+   data-models-view>: on load for ?models=, and on the home page for the Leaderboard's type keys as they change. */
+const showGroup = group => {
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
   });
+};
+(function setupGroup() {
+  const group = ASKED_TYPE ?? 'all';
+  showGroup(group);
   document.querySelectorAll('.group-switch a[data-group-key]').forEach(link => {
     if (link.dataset.groupKey === group) link.setAttribute('aria-current', 'true');
     else link.removeAttribute('aria-current');
@@ -152,13 +157,53 @@ const keepModels = (type, classes) => {
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(header);
 })();
 
+/* The elements of models marked data-class (a table row or a bar; empty for a setup only this site ran, shown under
+   Class: All only) under a choice of classes: each of another class goes out of view (class-off), a bar chart's heading
+   with no bar left goes with its bars, and a table or chart left with no row says so in its place. Returns the function
+   that applies a choice (no class: every row). */
+const classFilter = marked => {
+  // Each list or table of model rows: its rows, the part that goes out of view when none is left, and the note that
+  // then stands in its place (added once, after it).
+  const holders = [...new Set(marked.map(element => element.parentElement))].map(holder => {
+    const table = holder.closest('table');
+    const box = table ? (table.closest('.table-wrap') ?? table) : holder;
+    const note = document.createElement('p');
+    note.className = 'note class-empty';
+    note.hidden = true;
+    note.textContent = 'No model of the chosen class here.';
+    box.after(note);
+    const axis = holder.matches('ol.hbars') && holder.previousElementSibling?.matches('.hbar-axis') ? holder.previousElementSibling : null;
+    // A reference line's label above the axis (site.py hbars reference) goes with it.
+    const label = axis?.previousElementSibling?.matches('.hbar-ref-head') ? axis.previousElementSibling : null;
+    return { holder, box, axis, label, note };
+  });
+  return classes => {
+    marked.forEach(element => element.classList.toggle('class-off', classes.length > 0 && !classes.includes(element.dataset.class)));
+    holders.forEach(({ holder, box, axis, label, note }) => {
+      const rows = [...holder.children].filter(child => child.hasAttribute('data-class'));
+      const empty = rows.every(row => row.classList.contains('class-off'));
+      [box, axis, label].forEach(part => part?.classList.toggle('class-off', empty));
+      note.hidden = !empty;
+      let heading = null;
+      let seen = false;
+      const close = () => heading?.classList.toggle('class-off', !seen);
+      [...holder.children].forEach(child => {
+        if (child.matches('.hbar-group')) {
+          close();
+          heading = child;
+          seen = false;
+        } else if (!child.classList.contains('class-off')) seen = true;
+      });
+      close();
+    });
+  };
+};
+
 /* Every page with model rows besides the home page: the Class keys under the type keys (sitebuild/site.py
    group_switch; the Leaderboard's keys and rule, Ümit #4217), combined with the type in view. A class key with no row
    of the type in view hides (and lets go if it was pressed); a second tap on the pressed key, or All, clears it; a key
-   pressed while two are (an old small address) keeps only itself. While a class is chosen each element of a model
-   (data-class: a table row or a bar; empty for a setup only this site ran, shown under Class: All only) of another
-   class goes out of view (class-off), a bar chart's heading with no bar left goes with its bars, a table or chart left
-   with no row says so in its place, and the class rule shows under the keys. The choice is kept in the address
+   pressed while two are (an old small address) keeps only itself. While a class is chosen the rows and bars of other
+   classes go out of view (classFilter) and the class rule shows under the keys. The choice is kept in the address
    (?class=, the old small address read as its type), so Back from a model page returns to the same view, and in the
    type keys and the links marked data-keep-group. */
 (function classPages() {
@@ -182,44 +227,16 @@ const keepModels = (type, classes) => {
   // A type with no model row of any class (a page whose rows are all of the other type) has no class to pick.
   switcher.classList.toggle('class-off', ![...present].some(Boolean));
   const line = document.querySelector('.class-line');
-  // Each list or table of model rows: its rows, the part that goes out of view when none is left, and the note that
-  // then stands in its place (added once, after it).
-  const holders = [...new Set(marked.map(element => element.parentElement))].map(holder => {
-    const table = holder.closest('table');
-    const box = table ? (table.closest('.table-wrap') ?? table) : holder;
-    const note = document.createElement('p');
-    note.className = 'note class-empty';
-    note.hidden = true;
-    note.textContent = 'No model of the chosen class here.';
-    box.after(note);
-    const axis = holder.matches('ol.hbars') && holder.previousElementSibling?.matches('.hbar-axis') ? holder.previousElementSibling : null;
-    return { holder, box, axis, note };
-  });
+  const filter = classFilter(marked);
   const apply = () => {
     switcher.querySelectorAll('button[data-class-key]').forEach(key => {
       const found = key.dataset.classKey;
       key.hidden = found !== 'all' && !present.has(found);
       key.setAttribute('aria-pressed', String(found === 'all' ? !classes.length : classes.includes(found)));
     });
-    marked.forEach(element => element.classList.toggle('class-off', classes.length > 0 && !classes.includes(element.dataset.class)));
-    holders.forEach(({ holder, box, axis, note }) => {
-      const rows = [...holder.children].filter(child => child.hasAttribute('data-class'));
-      const empty = rows.every(row => row.classList.contains('class-off'));
-      [box, axis].forEach(part => part?.classList.toggle('class-off', empty));
-      note.hidden = !empty;
-      let heading = null;
-      let seen = false;
-      const close = () => heading?.classList.toggle('class-off', !seen);
-      [...holder.children].forEach(child => {
-        if (child.matches('.hbar-group')) {
-          close();
-          heading = child;
-          seen = false;
-        } else if (!child.classList.contains('class-off')) seen = true;
-      });
-      close();
-    });
+    filter(classes);
     if (line) line.hidden = !classes.length;
+    document.dispatchEvent(new CustomEvent('class-change'));
   };
   switcher.addEventListener('click', event => {
     const key = event.target.closest('button[data-class-key]');
@@ -228,11 +245,104 @@ const keepModels = (type, classes) => {
     classes = chosen === 'all' || (classes.length === 1 && classes[0] === chosen) ? [] : [chosen];
     apply();
     links();
+    // The address keeps its other keys (the open lists' ?all=, topRows below).
     const url = new URL(window.location.href);
-    url.search = modelsQuery(ASKED_TYPE, classes);
+    const kept = new URLSearchParams(url.search);
+    kept.delete('models');
+    kept.delete('class');
+    url.search = [modelsQuery(ASKED_TYPE, classes), kept.toString()].filter(Boolean).join('&');
     history.replaceState(history.state, '', url.href);
   });
   apply();
+})();
+
+/* Pages with long lists of setups (english/, pws-decisions/: the parts marked data-top-rows): each bar list and table in
+   them shows its first TOP_ROWS setups in view under each of its headings (a row of a setup carries data-class; a row a
+   Class or type key took out of view does not count; a row of no setup, as an answer key, always shows), and the Show
+   all key under it (a button, so Enter and Space work) opens every row in place and closes them again, as the home
+   page's charts do (v3.js topRows). A bar heading with none of its rows left in view goes with them. The open lists are
+   kept in the address (?all=, their names, comma-separated), so a link, a reload or Back from a model page opens the
+   same view; a link to a row past the first TOP_ROWS opens its list. Without JavaScript every row shows. */
+(function topRows() {
+  const TOP_ROWS = 10;
+  const lists = [...document.querySelectorAll('[data-top-rows] ol.hbars, [data-top-rows] table > tbody')];
+  if (!lists.length) return;
+  const opened = new Set((ADDRESS.get('all') ?? '').split(',').filter(Boolean));
+  // Each list's name: the id of the part it is in, numbered from the second list of that part on.
+  const seen = {};
+  const found = lists.map(list => {
+    const part = list.closest('[id]')?.id ?? 'list';
+    seen[part] = (seen[part] ?? 0) + 1;
+    const name = seen[part] === 1 ? part : `${part}-${seen[part]}`;
+    if (!list.id) list.id = `${name}-rows`;
+    const key = document.createElement('button');
+    key.type = 'button';
+    key.className = 'key show-all';
+    key.setAttribute('aria-controls', list.id);
+    (list.closest('.table-wrap') ?? list).after(key);
+    return { list, name, key };
+  });
+  const fit = ({ list, name, key }) => {
+    const open = opened.has(name);
+    const away = row => row.hidden || row.classList.contains('class-off');
+    let total = 0;
+    let cut = 0;
+    let under = 0;
+    let heading = null;
+    let shown = false;
+    const close = () => heading?.classList.toggle('top-off', !shown);
+    [...list.children].forEach(child => {
+      if (child.matches('.hbar-group')) {
+        close();
+        heading = child;
+        shown = false;
+        under = 0;
+        return;
+      }
+      const setup = child.matches('li.hbar, tr') && child.hasAttribute('data-class') && !away(child);
+      if (setup) {
+        total += 1;
+        under += 1;
+      }
+      const off = setup && under > TOP_ROWS;
+      if (off) cut += 1;
+      child.classList.toggle('top-off', off && !open);
+      if (!away(child) && !(off && !open)) shown = true;
+    });
+    close();
+    key.hidden = !cut;
+    key.setAttribute('aria-expanded', String(open));
+    key.textContent = open ? `Show the top ${TOP_ROWS}` : `Show all ${total.toLocaleString('en-US')} setups`;
+  };
+  const remember = () => {
+    const url = new URL(window.location.href);
+    if (opened.size) url.searchParams.set('all', [...opened].join(','));
+    else url.searchParams.delete('all');
+    history.replaceState(history.state, '', url.href.replace(/%2C/g, ','));
+  };
+  found.forEach(fit);
+  document.addEventListener('class-change', () => found.forEach(fit));
+  document.addEventListener('click', event => {
+    const item = found.find(({ key }) => key === event.target.closest('button.show-all'));
+    if (!item) return;
+    const closing = opened.delete(item.name);
+    if (!closing) opened.add(item.name);
+    fit(item);
+    remember();
+    // On closing, the page scrolls only as far as keeps the key in view, so the reader stays at the list.
+    if (closing) item.key.scrollIntoView({ block: 'nearest' });
+  });
+  const reach = () => {
+    const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    const item = target && found.find(({ list }) => list.contains(target) && target.closest('.top-off'));
+    if (!item) return;
+    opened.add(item.name);
+    fit(item);
+    remember();
+    target.scrollIntoView();
+  };
+  reach();
+  window.addEventListener('hashchange', reach);
 })();
 
 /* Pages that keep their details under a closed Info (a details element): a link to a part inside it, in the address or
@@ -325,6 +435,49 @@ const keepModels = (type, classes) => {
   fromHash(true);
 })();
 
+/* The home page's view (the Leaderboard below; null on other pages): its part, type, classes and whether All setups is
+   open, one state for the Leaderboard and for v3.js's charts and full ranking (Ümit #4665), and scope(), the words for
+   what a chart or table shows. */
+let homeView = null;
+/* The Leaderboard's parts with Turkish data, which the charts drawn from data/home.json can show: the whole test, and
+   its reading or grammar questions (v3.js's part filter). */
+const TURKISH_PARTS = ['turkish', 'turkish-reading', 'turkish-grammar'];
+/* Each chart or table below the Leaderboard, by its element's id, with the parts it can show (follows; another part
+   chosen, it shows its own, shown, Turkish on all questions unless it says otherwise). All setups' full ranking follows a
+   part on its Accuracy, Confidence and Stability tabs (a column with no value for a part says so), not on Routing,
+   whose own line names the questions its numbers cover. The cost of every setup and the Calibration, Cost, Latency and
+   Non-hallucination charts have values on all Turkish questions only; Reading vs grammar shows both parts by design. */
+const SCOPES = {
+  'all-setups': { follows: () => (document.getElementById('tab-routing')?.getAttribute('aria-selected') === 'true' ? ['turkish'] : TURKISH_PARTS) },
+  'cost-table': { follows: ['turkish'] },
+  'chart-tradeoff': { follows: TURKISH_PARTS },
+  'chart-accuracy': { follows: TURKISH_PARTS },
+  'chart-non-hallucination': { follows: ['turkish'] },
+  'chart-cost': { follows: ['turkish'] },
+  'chart-latency': { follows: ['turkish'] },
+  'chart-reading-grammar': { follows: TURKISH_PARTS, shown: 'Turkish reading and grammar' },
+  'chart-calibration': { follows: ['turkish'] },
+};
+const scopeLines = new Map();
+/* The scope line in each header of SCOPES, under its heading (the finding, All setups' title, a chart's title): the
+   part it shows, the type and the classes ("Turkish reading · Decision models · Class: Small"; a part it cannot show
+   named against its own, "Turkish, all questions (not English reading)"). The Leaderboard redraws them as its keys
+   change, v3.js as the full ranking's tab changes. */
+function renderScopes() {
+  if (!homeView) return;
+  Object.entries(SCOPES).forEach(([id, { follows, shown }]) => {
+    if (!scopeLines.has(id)) {
+      const head = document.getElementById(id)?.querySelector('.finding, .all-setups-title, .chart-head h3');
+      if (!head) return;
+      const line = document.createElement('p');
+      line.className = 'chart-scope';
+      head.after(line);
+      scopeLines.set(id, line);
+    }
+    scopeLines.get(id).textContent = homeView.scope(typeof follows === 'function' ? follows() : follows, shown);
+  });
+}
+
 /* Home page: the Leaderboard (sitebuild/leaderboard.py). Its controls: the part (Turkish, Turkish reading, Turkish
    grammar, English reading or Both, Turkish first; Ümit #4181), the type (All, Chat models or Decision models; Decision models unless ?models= asks for another) and All
    setups, which shows today's full ranking with its tabs (#all-setups, v3.js) in place of the one-row-per-model table;
@@ -336,14 +489,23 @@ const keepModels = (type, classes) => {
    the tier's top row when they share a letter, else it starts the next tier, marked lb-tier-start for the line between
    tiers), elsewhere (head Rank) the row's place, 1, 2, 3 without repeats, rows with the same score keeping the table's
    order (Zeki #4630); a row with web search (data-unranked) is numbered in neither and keeps its dash. While a class is
-   chosen the class rule shows under the table; a part with no row in view says so. The type
-   and classes asked for in the address (ASKED_TYPE, ASKED_CLASSES: ?models=, ?class=, as the other pages keep them in
-   their links) are pressed first; the old small addresses (?models=small-chat, small, small-decision) press Tiny and
-   Small together; small-chat opens on English, as before (the small open models ran in English only). Each row's
-   expander shows or hides its other setups. Old addresses keep working: #headline lands on the Leaderboard; #board,
-   #all-setups, #cost-table and #chart-tradeoff open All setups first; on the home page itself, #info, whose summary and
-   notes moved, and #how-scores, which moved, open About (MOVED; the About page has its own #leaderboard). Without
-   JavaScript the Turkish table, every row numbered among all, and the full ranking both show. */
+   chosen the class rule shows under the table; a part with no row in view says so. Each row's expander shows or hides
+   its other setups.
+   The keys govern the whole results area (homeView, Ümit #4665): the Non-hallucination chart's blocks show for the type
+   (showGroup) and its bars for the classes (classFilter), v3.js draws its charts and All setups for the type and classes
+   and, where it has the part's data, the part ('home-view'), and every chart and table says what it shows in its
+   header (renderScopes). The view lives in the address, with the names Logic & Math's site uses, defaults left out:
+   ?part= (turkish-reading, turkish-grammar, english, both), ?models= (all, chat), ?class= and ?setups=all for All setups
+   open (beside the numbers of the models picked, v3.js), so a reload, Back from another page or a pasted link opens the
+   same view; the type and classes also go into the links to the other pages with model keys (keepModels). Old
+   addresses keep working: ?models= and ?class= as the other pages read them (ASKED_TYPE, ASKED_CLASSES), the old small
+   addresses (?models=small-chat, small, small-decision) pressing Tiny and Small together and small-chat opening on
+   English, as before (the small open models ran in English only); ?part=reading and ?part=grammar (the full ranking's
+   old part filter) open Turkish reading and Turkish grammar; ?tab= of the full ranking, or the Routing tab's keys,
+   open All setups at that tab; #headline lands on the Leaderboard; #board, #all-setups, #cost-table and
+   #chart-tradeoff open All setups first; on the home page itself, #info, whose summary and notes moved, and
+   #how-scores, which moved, open About (MOVED; the About page has its own #leaderboard). Without JavaScript the
+   Turkish table, every row numbered among all, and the full ranking both show. */
 (function leaderboard() {
   const board = document.getElementById('leaderboard');
   if (!board) return;
@@ -358,14 +520,59 @@ const keepModels = (type, classes) => {
   // (an old small address) keeps only itself.
   const DEFAULT_PART = 'turkish';
   const DEFAULT_TYPE = 'decision';
+  const OLD_PARTS = { reading: 'turkish-reading', grammar: 'turkish-grammar' };
+  const INTO_ALL = ['board', 'all-setups', 'cost-table', 'chart-tradeoff', 'tab-accuracy', 'tab-confidence', 'tab-routing', 'tab-stability'];
+  const ROUTE_KEYS = ['llm', 'per-request', 'rule', 'test'];
+  const keyText = (name, value) => board.querySelector(`button[data-lb-${name}="${value}"]`)?.textContent ?? value;
+  const parts = [...board.querySelectorAll('button[data-lb-part]')].map(key => key.dataset.lbPart);
+  const askedPart = OLD_PARTS[ADDRESS.get('part')] ?? ADDRESS.get('part');
+  const askedTab = ADDRESS.has('tab') && document.getElementById(`tab-${ADDRESS.get('tab')}`)?.getAttribute('role') === 'tab';
   const state = {
-    part: ASKED_GROUP === 'small-chat' ? 'english' : DEFAULT_PART,
+    part: parts.includes(askedPart) ? askedPart : ASKED_GROUP === 'small-chat' ? 'english' : DEFAULT_PART,
     type: ASKED_TYPE ?? DEFAULT_TYPE,
     classes: ASKED_CLASSES,
-    all: false,
+    all: (ADDRESS.get('setups') ?? '').split(',').includes('all') || askedTab || ROUTE_KEYS.some(key => ADDRESS.has(key)),
+  };
+  homeView = {
+    get part() { return state.part; },
+    get type() { return state.type; },
+    get classes() { return [...state.classes]; },
+    get all() { return state.all; },
+    /* The classes chosen, in words ("Class: Small"; nothing under Class: All). */
+    get classText() { return state.classes.length ? `Class: ${state.classes.map(key => keyText('class', key)).join(', ')}` : ''; },
+    /* What a chart that can show the parts in follows shows, in words (renderScopes). */
+    scope: (follows, shown) => {
+      const chosen = keyText('part', state.part);
+      const part = follows.includes(state.part) ? shown ?? chosen : `${shown ?? 'Turkish, all questions'} (not ${chosen})`;
+      const type = state.type === 'all' ? 'All models' : keyText('type', state.type);
+      return [part, type, homeView.classText].filter(Boolean).join(' · ');
+    },
+    /* Every model again (v3.js's Reset filters, where no setup of the full ranking is left in view). */
+    reset: () => {
+      state.type = 'all';
+      state.classes = [];
+      apply();
+    },
   };
   const allPanel = document.getElementById('all-setups');
   const classLine = board.querySelector('.lb-size-line');
+  const chartClasses = classFilter([...document.querySelectorAll('#charts [data-class]')]);
+  // Each finding's heading for every view (build_site.py variant_headings, data-variants by "type|classes"): the claim
+  // that holds for the type and classes in view, else the measure's name, its small label above it only with a claim.
+  const findings = [...document.querySelectorAll('.finding[data-variants]')].map(finding => ({
+    variants: JSON.parse(finding.dataset.variants),
+    title: finding.querySelector('.finding-title'),
+    label: finding.querySelector('.finding-label'),
+  }));
+  const renderFindings = () => {
+    const view = `${state.type}|${[...state.classes].sort().join(',')}`;
+    findings.forEach(({ variants, title, label }) => {
+      const claim = variants[view];
+      if (claim) title.innerHTML = claim;
+      else title.textContent = label.textContent;
+      label.hidden = !claim;
+    });
+  };
   const number = table => {
     let top = null;
     let count = 0;
@@ -387,6 +594,22 @@ const keepModels = (type, classes) => {
       row.querySelector('td.rank').textContent = String(count);
     });
     table.closest('.lb-part').querySelector('.lb-empty').hidden = table.querySelector('tbody tr[data-score]:not(.lb-off)') !== null;
+  };
+  // The view in the address: each key set or dropped (at its default), the models picked (v3.js) kept beside
+  // setups=all, every other key and the hash kept.
+  const writeAddress = () => {
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
+    const picked = (params.get('setups') ?? '').split(',').filter(token => /^\d+$/.test(token));
+    const view = {
+      part: state.part === DEFAULT_PART ? '' : state.part,
+      models: state.type === DEFAULT_TYPE ? '' : state.type,
+      class: state.classes.join(','),
+      setups: [...(state.all ? ['all'] : []), ...picked].join(','),
+    };
+    Object.entries(view).forEach(([name, value]) => (value ? params.set(name, value) : params.delete(name)));
+    url.search = params.toString().replace(/%2C/g, ',');
+    history.replaceState(history.state, '', url.href);
   };
   const apply = () => {
     board.querySelectorAll('[data-lb-part]').forEach(key => {
@@ -414,6 +637,13 @@ const keepModels = (type, classes) => {
     board.classList.toggle('all-open', state.all);
     allPanel?.classList.toggle('is-open', state.all);
     reveal();
+    showGroup(state.type);
+    chartClasses(state.classes);
+    renderFindings();
+    writeAddress();
+    keepModels(state.type === DEFAULT_TYPE ? null : state.type, state.classes);
+    renderScopes();
+    document.dispatchEvent(new CustomEvent('home-view'));
   };
   // On a phone the controls are one strip that scrolls sideways: the pressed keys (the part, the filter) are brought
   // into view together where they fit, else the last pressed one.
@@ -428,11 +658,14 @@ const keepModels = (type, classes) => {
     const right = Math.max(...keys.map(([, end]) => end));
     strip.scrollLeft = right - left + 16 <= strip.clientWidth ? Math.max(0, right - strip.clientWidth + 8) : Math.max(0, keys[keys.length - 1][0] - 8);
   };
+  // All setups closed while the address points into it: the address points at the Leaderboard, so a reload keeps it closed.
   const openAll = open => {
     if (state.all === open) return;
     state.all = open;
+    if (!open && INTO_ALL.includes(decodeURIComponent(window.location.hash.slice(1)))) {
+      history.replaceState(history.state, '', `${window.location.pathname}${window.location.search}#leaderboard`);
+    }
     apply();
-    document.dispatchEvent(new CustomEvent('leaderboard-view'));
   };
   board.addEventListener('click', event => {
     const key = event.target.closest('button');
@@ -455,7 +688,6 @@ const keepModels = (type, classes) => {
       return;
     } else return;
     apply();
-    board.dispatchEvent(new CustomEvent('lb-change'));
   });
   document.addEventListener('open-all-setups', () => openAll(true));
   // A second tap on the measure in view (v3.js): back to the Leaderboard, the address no longer pointing into All
@@ -467,7 +699,6 @@ const keepModels = (type, classes) => {
     board.querySelector('[data-lb-all]')?.focus({ preventScroll: true });
   });
   apply();
-  const INTO_ALL = ['board', 'all-setups', 'cost-table', 'chart-tradeoff', 'tab-accuracy', 'tab-confidence', 'tab-routing', 'tab-stability'];
   const land = (id, opening) => {
     if (id === 'headline') {
       history.replaceState(history.state, '', `${window.location.pathname}${window.location.search}#leaderboard`);
@@ -489,9 +720,12 @@ const keepModels = (type, classes) => {
 
 /* Home page: a Leaderboard row's details box, as on the Backgammon site. A tap on a phone opens it and a second tap on
    the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row; with the
-   keyboard while the focus is in the row (the model's name, then the box's link). Focus beats the pointer. The box is
-   placed under the row (above it near the bottom of the window), within the window's width, and capped to the room
-   there on a short screen, scrolling inside. Without JavaScript every box shows in its row. */
+   keyboard while the focus is in the row (the model's name, then the box's link). Focus beats the pointer. Below
+   900 px each row also has its Details key (leaderboard.py details_key; Ümit #4665 item 10), a button that opens the
+   box and closes it again by tap, click, Enter or Space, its aria-expanded following the box however it opened; the
+   focus reaching the key does not open the box by itself, and Escape leaves the focus on it. The box is placed under
+   the row (above it near the bottom of the window), within the window's width, and capped to the room there on a
+   short screen, scrolling inside. Without JavaScript every box shows in its row. */
 (function leaderboardDetails() {
   const board = document.getElementById('leaderboard');
   if (!board) return;
@@ -500,6 +734,7 @@ const keepModels = (type, classes) => {
   let pointer = 'mouse';
   let quiet = false;
   const boxOf = row => document.getElementById(row.dataset.box);
+  const keyOf = row => row.querySelector(':scope > td.model > .lb-details-key');
   const place = () => {
     if (!open) return;
     const box = boxOf(open);
@@ -528,6 +763,7 @@ const keepModels = (type, classes) => {
     if (!open) return;
     boxOf(open).classList.remove('open');
     open.classList.remove('lb-open');
+    keyOf(open)?.setAttribute('aria-expanded', 'false');
     open = null;
     pinned = false;
   };
@@ -539,6 +775,7 @@ const keepModels = (type, classes) => {
     pinned = pin;
     row.classList.add('lb-open');
     box.classList.add('open');
+    keyOf(row)?.setAttribute('aria-expanded', 'true');
     place();
   };
   // Keyboard focus in the open row (its name or its box) keeps the box: the pointer leaving the row or entering another
@@ -557,16 +794,24 @@ const keepModels = (type, classes) => {
   board.querySelectorAll('tbody tr[data-box]').forEach(row => {
     row.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && !pinned && !held()) show(row, false); });
     row.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && !pinned && open === row && !held()) hide(); });
-    row.addEventListener('focusin', () => {
+    row.addEventListener('focusin', event => {
       keyed = !pointing;
-      if (keyed && open !== row && !quiet) show(row, false);
+      if (keyed && open !== row && !quiet && !event.target.closest('.lb-details-key')) show(row, false);
     });
     row.addEventListener('focusout', event => { if (open === row && !pinned && !row.contains(event.relatedTarget)) hide(); });
     row.addEventListener('click', event => {
-      // A mouse click or a key (detail 0) follows the link; a link in the box or the expander does its own job.
-      if (pointer === 'mouse' || event.detail === 0 || boxOf(row).contains(event.target) || event.target.closest('.lb-more')) return;
+      // A mouse click or a key (detail 0) follows the link; a link in the box, the Details key or the expander does its
+      // own job.
+      if (pointer === 'mouse' || event.detail === 0 || boxOf(row).contains(event.target)
+          || event.target.closest('.lb-more, .lb-details-key')) return;
       event.preventDefault(); // a tap opens the box; its own link opens the answers
       if (open === row && pinned) hide();
+      else show(row, true);
+    });
+    // The Details key: a box open by a tap, a key or the keyboard's focus closes; one the mouse only points at stays,
+    // held open.
+    keyOf(row)?.addEventListener('click', event => {
+      if (open === row && (pinned || pointer !== 'mouse' || event.detail === 0)) hide();
       else show(row, true);
     });
   });
@@ -576,7 +821,7 @@ const keepModels = (type, classes) => {
     const name = open.querySelector('.model-name');
     const inside = open.contains(document.activeElement);
     hide();
-    if (inside && name) {
+    if (inside && name && !document.activeElement.closest('.lb-details-key')) {
       quiet = true;
       name.focus();
       quiet = false;
@@ -584,5 +829,5 @@ const keepModels = (type, classes) => {
   });
   window.addEventListener('scroll', place, { passive: true });
   window.addEventListener('resize', place);
-  board.addEventListener('lb-change', () => { if (open && (open.classList.contains('lb-off') || !open.offsetParent)) hide(); });
+  document.addEventListener('home-view', () => { if (open && (open.classList.contains('lb-off') || !open.offsetParent)) hide(); });
 })();

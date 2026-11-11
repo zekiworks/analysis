@@ -1,11 +1,10 @@
 /* All benches (/analysis/all-benches/ and its method/, sitebuild/all_benches.py), on top of v3.css and in its variables,
-   so both themes hold: the ranking's columns (rows on a phone), the type, class and score keys, the table under the chart,
+   so both themes hold: the ranking's rows, the type, class and score keys, the table under the chart,
    the pair bars of "Their score against ours", the scatter charts and the model pages. */
 
 :is(.ab-view, .ab-model, .ab-tab-panel, .ab-bar, .card)[hidden] { display: none !important; }
 /* Out of view by the type and class keys (all-benches.js): bars, rows, dots, names, legend entries, tables. */
 .ab-off, .ab-tied[hidden] { display: none !important; }
-.ab-combined-note { margin: -.2rem 0 .4rem; }
 
 .ab-keys { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin: .4rem 0 .6rem; }
 .ab-keys .group-label { margin-right: .2rem; color: var(--text-2); font-size: .85rem; }
@@ -16,41 +15,34 @@
   border-radius: 3px; vertical-align: -1px; }
 
 
-/* The ranking: one column per decision model, its value on top, its maker's mark and its name under it. */
-.ab-bars { display: flex; align-items: flex-start; gap: 3px; margin: .5rem 0 0; padding: 0; list-style: none; }
-.ab-bar { flex: 1 1 0; min-width: 0; }
-.ab-bar > a { display: flex; flex-direction: column; align-items: center; color: var(--text); text-decoration: none; }
-.ab-bar-value { display: block; margin-bottom: 2px; font-family: var(--mono); font-size: .64rem; line-height: 1.1; text-align: center; }
-.ab-tied { display: block; color: var(--text-2); font-family: var(--sans); font-size: .6rem; }
-.ab-bar-track { display: flex; flex-direction: column; justify-content: flex-end; width: 100%; height: 230px;
-  border-bottom: 1px solid var(--control-edge); }
-.ab-bar-fill { display: block; flex: none; width: 100%; height: calc(var(--h) * .85); background: var(--c);
-  border: 1px solid var(--mark-edge); border-bottom: 0; border-radius: 3px 3px 0 0; }
-.ab-ref .ab-bar-fill, .ab-pair-bar.ab-ref { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, transparent 3px 6px); }
-.ab-bar-logo { display: flex; justify-content: center; height: 14px; margin: .3rem 0 .2rem; }
+/* The ranking (Ümit #4665): under its title, a row per model, its maker's mark and its name, then its bar in its
+   maker's colour with its score after it, so a long name reads in line with its bar at any width. */
+.ab-chart-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .5rem; margin: .5rem 0 .25rem;
+  font-size: .98rem; }
+.ab-chart-title > .small { font-weight: 400; }
+.ab-groups { color: var(--text); font-size: .78rem; font-weight: 600; }
+.ab-bars { margin: .3rem 0 0; padding: 0; list-style: none; }
+.ab-bar > a { display: grid; grid-template-columns: 16px minmax(0, 17rem) minmax(0, 1fr); align-items: center; gap: .45rem;
+  padding: .1rem .2rem; color: var(--text); text-decoration: none; border-radius: 3px; }
+.ab-bar > a:hover, .ab-bar > a:focus-visible { background: var(--row-hover); }
+.ab-bar-logo { display: flex; justify-content: center; }
 .ab-bar-logo .fam-icon, .ab-bar-logo .ab-noicon { margin: 0; }
-.ab-bar-name { max-height: 10.5rem; overflow: hidden; font-size: .72rem; line-height: 1.1; white-space: nowrap; text-overflow: ellipsis;
-  writing-mode: vertical-rl; transform: rotate(180deg); }
-.ab-bar-name .ab-tag { display: none; }
+.ab-bar-name { font-size: .8rem; line-height: 1.25; overflow-wrap: anywhere; }
+.ab-bar-name .ab-tag { font-size: .64rem; }
 .ab-ref-word { color: var(--text-2); }
-.ab-bar > a:hover .ab-bar-fill, .ab-bar > a:focus-visible .ab-bar-fill { border-color: var(--text); border-width: 2px; }
+.ab-bar-track { display: flex; flex-wrap: wrap; align-items: center; min-height: 1rem; }
+.ab-bar-fill { display: block; flex: none; width: calc(var(--h) * .8); height: .8rem; background: var(--c);
+  border: 1px solid var(--mark-edge); border-left: 0; border-radius: 0 3px 3px 0; }
+.ab-ref .ab-bar-fill, .ab-pair-bar.ab-ref { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, transparent 3px 6px); }
+.ab-bar-value { display: flex; gap: .3rem; align-items: baseline; margin-left: .35rem; font-family: var(--mono); font-size: .76rem;
+  line-height: 1.2; }
+.ab-tied { color: var(--text-2); font-family: var(--sans); font-size: .68rem; }
+.ab-bar > a:hover .ab-bar-fill, .ab-bar > a:focus-visible .ab-bar-fill { border-color: var(--text); border-width: 2px; border-left: 0; }
 .ab-bar > a:hover .ab-bar-name { text-decoration: underline; }
 .ab-legend { display: flex; flex-wrap: wrap; gap: 0 .7rem; margin: .6rem 0 0; font-size: .74rem; }
 .ab-empty { padding: .75rem 0; }
-
-/* On a phone the columns turn into rows: mark, name, then the bar with its value after it. */
 @media (max-width: 760px) {
-  .ab-bars { display: block; }
-  .ab-bar > a { display: grid; grid-template-columns: 16px minmax(0, 8.5rem) minmax(0, 1fr); align-items: center;
-    gap: .35rem; padding: .1rem 0; }
-  .ab-bar-logo { order: 1; height: auto; margin: 0; }
-  .ab-bar-name { order: 2; max-height: none; writing-mode: horizontal-tb; transform: none; font-size: .8rem; }
-  .ab-bar-track { order: 3; flex-direction: row; align-items: center; justify-content: flex-start; height: auto; min-height: 1rem;
-    border-bottom: 0; }
-  .ab-bar-fill { order: 1; width: calc(var(--h) * .78); height: .75rem; border: 1px solid var(--mark-edge); border-left: 0;
-    border-radius: 0 3px 3px 0; }
-  .ab-bar-value { order: 2; display: flex; gap: .3rem; align-items: baseline; margin: 0 0 0 .3rem; font-size: .74rem; }
-  .ab-tied { font-size: .68rem; }
+  .ab-bar > a { grid-template-columns: 16px minmax(0, 9rem) minmax(0, 1fr); gap: .35rem; }
 }
 
 /* The table under the chart (Ümit #4239): every model in view side by side, each head a sort key; the model column
@@ -60,6 +52,14 @@ table.ab-main { min-width: 100%; }
 table.ab-main thead th { min-width: 0; white-space: normal; vertical-align: bottom; }
 table.ab-main th, table.ab-main td { padding-left: .45rem; padding-right: .45rem; }
 table.ab-main thead th.num { width: 4.6rem; }
+/* Combined: its groups' label in its head, each row's three group scores under its value (Ümit #4665). */
+table.ab-main thead th.ab-combined { width: 6.4rem; }
+.ab-parts { display: block; margin-top: .1rem; color: var(--text-2); font-size: .68rem; line-height: 1.3; white-space: normal; }
+table.ab-results td.num .ab-parts { white-space: normal; }
+.ab-parts > span { display: inline-block; margin-left: .3rem; white-space: nowrap; }
+.ab-parts abbr { text-decoration: none; cursor: help; }
+/* A cell without a score: its status in one piece (Not run, Not applicable), the reason on hover and focus. */
+td > .nm.hint { white-space: nowrap; }
 table.ab-main th.ab-rank, table.ab-main td.ab-rank { width: 2.4rem; min-width: 2.4rem; max-width: 2.4rem; color: var(--text-2); }
 table.ab-main th.model, table.ab-main td.model { position: sticky; left: 0; z-index: 2; min-width: 11rem; background: var(--panel);
   box-shadow: 1px 0 0 var(--edge); }

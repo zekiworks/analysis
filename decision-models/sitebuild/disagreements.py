@@ -107,16 +107,15 @@ def build(site: Site) -> dict[str, str]:
     )
     body = f"""    <section class="card">
       <h1>Where models disagree with the answer key</h1>
-      <p>On these {len(strict)} questions, at least {site.config["key_disagreement"]["agree"]} of the {len(five)} most accurate chat models (one question per request) chose the same answer, and it is not the key; all {len(five)} agreed on {sum(row[0] == len(five) for row in strict)}.</p>
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">ID</th><th scope="col">Part</th><th scope="col">Topic</th><th scope="col" class="num">Answer key</th><th scope="col" class="num">Models' answer</th><th scope="col" class="num">Agree</th><th scope="col">Key status</th><th scope="col">Key correction</th></tr></thead>
       <tbody>{strict_rows}</tbody></table></div>
-      <p class="note">The {len(five)} chat models: {listed}. Key status is the label from the key review: verified, suspect (still marked uncertain) or none. Think a key is wrong? <a href="{CORRECTION_URL}">Report an answer key correction</a>; the <a href="{rel(PATH, "data/")}#key-changelog">key changelog</a> lists every change and how a fix works.</p>
+      <p class="note">On these {len(strict)} questions, at least {site.config["key_disagreement"]["agree"]} of the {len(five)} most accurate chat models (one question per request) chose the same answer, and it is not the key; all {len(five)} agreed on {sum(row[0] == len(five) for row in strict)}. The {len(five)} chat models: {listed}. Key status is the label from the key review: verified, suspect (still marked uncertain) or none. Think a key is wrong? <a href="{CORRECTION_URL}">Report an answer key correction</a>; the <a href="{rel(PATH, "data/")}#key-changelog">key changelog</a> lists every change and how a fix works.</p>
     </section>
     <section class="card" id="most-wrong">
       <h2>Questions most setups got wrong</h2>
-      <p>These {len(rows):,} questions were answered wrongly by more than half of the {len(runs)} setups. Most are simply hard. Where many setups agree on another answer, the key may be wrong.</p>
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">ID</th><th scope="col">Part</th><th scope="col">Topic</th><th scope="col" class="num">Answer key</th><th scope="col" class="num">Setups wrong</th><th scope="col" class="num">Most common other pick</th><th scope="col" class="num">Chat models right</th></tr></thead>
       <tbody>{wrong_rows}</tbody></table></div>
+      <p class="note">These {len(rows):,} questions were answered wrongly by more than half of the {len(runs)} setups. Most are simply hard. Where many setups agree on another answer, the key may be wrong.</p>
     </section>"""
     return {PATH: site.page(PATH, "Where models disagree with the answer key",
                             "Questions where the most accurate chat models agree on an answer that is not the key, and the questions most setups got wrong.",

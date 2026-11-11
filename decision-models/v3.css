@@ -139,14 +139,8 @@ html { --view-bar-h: 119px; scroll-padding-top: var(--view-bar-h); }
    keeps --view-bar-h at the header's height either way. */
 .site-tabs ul { display: flex; flex-wrap: wrap; gap: 0 .2rem; list-style: none; margin: 0 -.35rem; padding: 0 .35rem; }
 .site-tabs li { flex: none; }
-/* Vision: one sentence under the title whose asterisk links to the note under the results (the Turkish line and the
-   three average lines); the run details closed under the method. The asterisk is a 24 px tap target with a visible
-   keyboard focus, and the note it reaches is marked like a reference. */
-.lede { margin: .2rem 0 .4rem; font-size: 1.02rem; }
-.note-ref { display: inline-block; min-width: 24px; min-height: 24px; line-height: 24px; text-align: center; font-weight: 700; text-decoration: none; }
-.note-ref:focus-visible { outline: 2px solid currentColor; outline-offset: 1px; border-radius: 4px; }
-.note-mark { font-weight: 700; }
-#vision-note:target { background: var(--bar); }
+/* Vision: the note under the results (the Turkish line and the three average lines); the run details closed under the
+   method. */
 .vision-summary { margin: .3rem 0 .6rem; padding: 0; list-style: none; }
 .vision-summary li { margin: .12rem 0; }
 .vision-summary .small { color: var(--text-2); font-size: .82rem; }
@@ -266,19 +260,21 @@ input[type="checkbox"] { accent-color: var(--text); width: 1rem; height: 1rem; }
 main h1 { font-size: clamp(1.05rem, 1.6vw, 1.35rem); text-wrap: balance; }
 main > .card h1 { margin: 0 0 .5rem; }
 .eyebrow { margin: 0 0 .25rem; color: var(--text-2); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-/* A result that is not final: a marked line at the top of a model page's Page images section; and a test's limit, in
-   the intro of the English pages. */
+/* A result that is not final: a marked line at the top of a model page's Page images section; and a test's limit, under
+   the accuracy charts of the English pages. */
 .preliminary, .limit { margin: 0 0 .75rem; padding: .4rem .7rem; background: var(--sunk); border-left: 3px solid var(--text); border-radius: 4px; }
 .limit { margin: .5rem 0 0; font-size: .92rem; }
 .subtitle { color: var(--text-2); margin: 0 0 .75rem; }
 
-/* The hero: the question and one line of counts with the link to the About page. */
+/* The hero: the question alone; the line of counts with the link to the About page sits under the Leaderboard. */
 .hero { margin: .15rem 0 0; }
-.hero h1 { margin: 0 0 .35rem; letter-spacing: -.01em; }
-.hero-counts { margin: 0 0 .9rem; color: var(--text-2); font-family: var(--mono); font-size: .9rem; }
-.hero-counts a { white-space: nowrap; }
-/* The link where a page's longer text stood, to its notes on the About page (Notes on each page). */
+.hero h1 { margin: 0 0 .9rem; letter-spacing: -.01em; }
+.site-counts { margin: .9rem 0 0; color: var(--text-2); font-family: var(--mono); font-size: .9rem; }
+.site-counts a { white-space: nowrap; }
+/* The link where a page's longer text stood, to its notes on the About page (Notes on each page), under the results;
+   between two cards it keeps the cards' distance from the next one. */
 .more-note { margin: .35rem 0 0; font-size: .85rem; }
+main > .more-note, main > div > .more-note { margin-bottom: 1rem; }
 .page-notes h3 { margin: 1.25rem 0 .4rem; font-size: 1rem; }
 .page-notes h4 { margin: .9rem 0 .3rem; font-size: .95rem; }
 /* A home part's finding: a small label with the measure's name and the heading that states what the data shows. */
@@ -295,7 +291,7 @@ main > .card h1 { margin: 0 0 .5rem; }
 .leaderboard > h2, .how-scores h2 { margin: 0 0 .5rem; font-size: 1.1rem; }
 .lb-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; margin: 0 0 .6rem; }
 .lb-controls .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
-.lb-meaning { margin: 0 0 .4rem; }
+.lb-meaning { margin: .4rem 0 0; }
 .lb-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
 .lb-table th { padding: .35rem .45rem; color: var(--text-2); font-size: .78rem; font-weight: 600; text-align: left;
   vertical-align: bottom; border-bottom: 1px solid var(--edge); }
@@ -328,6 +324,16 @@ main > .card h1 { margin: 0 0 .5rem; }
   font-size: .8rem; cursor: pointer; text-decoration: underline dotted; }
 .lb-more::before { content: "\25B8\00a0"; }
 .lb-more[aria-expanded="true"]::before { content: "\25BE\00a0"; }
+/* A row's Details key (leaderboard.py details_key, site.js leaderboardDetails; Ümit #4665 item 10): below 900 px only,
+   where the other columns are in the details box; a real button at least 24 px each way, the expander beside it. */
+.lb-details-key { display: none; }
+@media (max-width: 899px) {
+  .js .lb-details-key { display: inline-flex; align-items: center; min-width: 24px; min-height: 24px; margin: .3rem .6rem 0 0;
+    padding: 0 .5rem; border: 1px solid var(--control-edge); border-radius: 6px; background: var(--panel); color: var(--text);
+    font: inherit; font-size: .78rem; font-weight: 600; line-height: 1; vertical-align: middle; cursor: pointer; }
+  .js .lb-details-key[aria-expanded="true"] { background: var(--sunk); }
+  .js .lb-details-key + .lb-more { display: inline-block; vertical-align: middle; }
+}
 tr.lb-sub > td { background: var(--sunk); }
 tr.lb-sub td.model { padding-left: 1.4rem; }
 tr.lb-off { display: none !important; }
@@ -451,7 +457,7 @@ button.mode[aria-selected="true"] { background: var(--sunk); border-color: var(-
 button.mode[aria-selected="true"]::after { content: ""; position: absolute; left: .6rem; right: .6rem; bottom: -.55rem; height: 3px;
   border-radius: 2px; background: var(--text); }
 .in-view { margin-left: auto; color: var(--text-2); font-family: var(--mono); font-size: .85rem; white-space: nowrap; }
-.definition { margin: 0 0 .75rem; color: var(--text-2); font-size: .9rem; }
+.definition { margin: .75rem 0 0; color: var(--text-2); font-size: .9rem; }
 .definition[hidden] { display: none; }
 
 /* Tables: the model's name prominent, its settings smaller below; numbers right-aligned in a fixed-width face, one
@@ -568,8 +574,8 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 .scope { color: var(--text-2); font-size: .85rem; margin: 0 0 .5rem; }
 .tab-notes { color: var(--text-2); font-size: .875rem; max-width: 80ch; }
 .tab-notes p { margin: .5rem 0 0; }
-/* The Confidence tab's guide above the table: a short heading, then each term with what it means. */
-.tab-guide { max-width: 80ch; margin: 0 0 .9rem; font-size: .875rem; }
+/* The Confidence tab's guide under the table: a short heading, then each term with what it means. */
+.tab-guide { max-width: 80ch; margin: .9rem 0 0; font-size: .875rem; }
 .tab-guide h3 { margin: 0 0 .3rem; font-size: .95rem; }
 .tab-guide ul { margin: 0; padding-left: 1.1rem; }
 .tab-guide li { margin: .15rem 0; }
@@ -603,6 +609,11 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 .chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-bottom: .5rem; }
 .chart-head h2 { margin: 0 auto 0 0; padding: 0; border: 0; font-size: 1.05rem; }
 .chart-sub { flex-basis: 100%; margin: 0; color: var(--text-2); font-size: .85rem; }
+/* What a chart or table below the Leaderboard shows, under its heading (site.js renderScopes; Ümit #4665): the part,
+   type and classes of the Leaderboard's keys, or the part it shows where it has no data for the one chosen. */
+.chart-scope { flex-basis: 100%; margin: 0 0 .5rem; padding-left: .5rem; border-left: 3px solid var(--control-edge);
+  color: var(--text); font-size: .85rem; font-weight: 600; }
+.chart-head .chart-scope { margin: 0; }
 /* The cost of every setup, under the Cost chart in the same card: the leaderboard's table, its first rows until its Show
    all key opens the rest; it never scrolls up and down inside the card. */
 .cost-setups { margin-top: 1.25rem; padding-top: .75rem; border-top: 1px solid var(--edge); }
@@ -617,6 +628,8 @@ table.cost-table td.num:nth-child(n+6) { white-space: normal; min-width: 9rem; }
 .chart-box > svg { display: block; }
 /* The key under a list that opens every row in place, and closes them again. */
 .key.show-all { margin: .5rem 0 0; }
+/* A row past a list's first rows until its Show all key opens them, and a key with nothing to open (site.js topRows). */
+.top-off, .key.show-all[hidden] { display: none !important; }
 .chart-box .row-apart { stroke: var(--control-edge); stroke-width: 1; stroke-dasharray: 2 3; }
 .chart-box svg text { font-family: var(--sans); font-size: 12px; }
 .chart-box .grid { stroke: var(--edge); stroke-width: 1; }
@@ -686,6 +699,7 @@ i.swatch-english { background: repeating-linear-gradient(135deg, rgba(255, 255, 
 /* With web (web-grounding/, pws-decisions/): the English bar's stripes over the setup's family colour. */
 i.swatch-web { background-color: var(--text-2); background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 2px, rgba(0, 0, 0, .12) 2px 4px); }
 i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
+i.swatch-ref { width: 2px; background: repeating-linear-gradient(to bottom, var(--text-2) 0 4px, transparent 4px 6px); border-radius: 0; }
 
 /* Bars in HTML (Site hbars), the face of the tabs without a script: the label, the bars on one axis with a line at each
    quarter, and the value; on a phone the label takes its own line above the bars. */
@@ -693,6 +707,8 @@ i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
 .hbars { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
 .hbar-label { font-size: .85rem; text-align: right; overflow-wrap: anywhere; }
 .hbar-note { display: block; color: var(--text-2); font-size: .75rem; line-height: 1.3; }
+/* A setup with no answers at the threshold (Site hbars muted, NO_ANSWERS): its row muted, after those that keep some. */
+.hbar.muted .hbar-label, .hbar.muted .hbar-value { color: var(--text-2); }
 .hbar-track { position: relative; display: grid; gap: 3px; min-height: 1rem;
   background-image: linear-gradient(to right, var(--edge) 1px, transparent 1px); background-size: 25% 100%; background-repeat: repeat-x; }
 .hbar-fill { display: block; height: .85rem; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
@@ -722,6 +738,16 @@ i.swatch-marker { width: 2px; background: var(--text); border-radius: 0; }
    search"; web-grounding/ Accuracy's two-line values and Non-hallucination's long head): a wider value column. */
 .chart-wide .hbar { grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) 15rem; }
 .hbar-marker { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--text); }
+/* A reference every row reads against (Site hbars reference; pws-decisions/ Accuracy: always the first option): a line
+   of long dashes in the secondary text colour (red stays for wrong and warning marks, #4296, #4297; the solid line in
+   the text colour is the random-guess baseline), through each row's track, joined across the gaps between rows, and
+   its label above the axis, ending at the line. */
+.hbar-ref { position: absolute; top: -.2rem; bottom: -.2rem; width: 2px; margin-left: -1px; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, var(--text-2) 0 6px, transparent 6px 10px); }
+.hbar-ref-head .hbar-track { display: block; min-height: 0; background: none; text-align: right; }
+.hbar-ref-label { display: inline-block; padding: 0 .35rem .15rem 0; margin-right: -1px; color: var(--text-2);
+  background: repeating-linear-gradient(to bottom, var(--text-2) 0 6px, transparent 6px 10px) right / 2px 100% no-repeat;
+  font-size: .78rem; font-weight: 600; line-height: 1.25; }
 /* A value wraps at its spaces where it is longer than its column (pws-decisions/ Accuracy: accuracy | cost | median ·
    p95; Latency: median · p95 ms), so no bar ever covers the start of a value. */
 .hbar-value { font-family: var(--mono); font-size: .82rem; white-space: normal; }
@@ -918,7 +944,7 @@ ul.price-list { padding-left: 1.25rem; }
 @media (max-width: 640px) {
   .hbar { grid-template-columns: minmax(0, 1fr) 5.5rem; gap: .15rem .5rem; }
   .hbar-label { grid-column: 1 / -1; text-align: left; }
-  .hbar-axis > span:first-child { display: none; }
+  .hbar-axis > span:first-child, .hbar-ref-head > span:first-child { display: none; }
   .hbar-axis.dense .hbar-tick:nth-child(even) { display: none; }
   .hbar-head .head-long { display: none; }
   .hbar-head .head-short { display: inline; }
@@ -942,7 +968,8 @@ ul.price-list { padding-left: 1.25rem; }
   .panel, .card { padding: .75rem; border-radius: 8px; }
   main { padding-top: .5rem; }
   .hero { margin-top: 0; }
-  .hero-counts { font-size: .8rem; margin-bottom: .6rem; }
+  .hero h1 { margin-bottom: .6rem; }
+  .site-counts { font-size: .8rem; margin-top: .6rem; }
   /* The Leaderboard's keys wrap onto lines as on a wide screen, so no key is out of view. */
   .lb-controls { gap: .35rem .6rem; }
   .lb-controls .key { padding: .15rem .45rem; font-size: .78rem; }
@@ -987,6 +1014,15 @@ ul.price-list { padding-left: 1.25rem; }
     position: sticky; left: 0; z-index: 2; width: min(140px, 40vw); min-width: min(140px, 40vw); max-width: min(140px, 40vw);
     box-shadow: 1px 0 0 var(--edge); overflow-wrap: break-word; white-space: normal; }
   table.board thead th:first-child, table.cards thead th:first-child { z-index: 3; background: var(--panel); }
+  /* The Hallucination tab's tables whose first three columns after the model are Non-hallucination, Answered and Error
+     rate (.idk-lead, Ümit #4665): a narrower model column and three narrow wrapping columns, so the frame's first view
+     shows the model with all three; the other columns follow inside the scroll. */
+  table.board.idk-lead th:first-child, table.board.idk-lead td:first-child {
+    width: min(112px, 30vw); min-width: min(112px, 30vw); max-width: min(112px, 30vw); }
+  table.board.idk-lead :is(th, td):is(:nth-child(2), :nth-child(3), :nth-child(4)) {
+    width: 4.1rem; min-width: 4.1rem; max-width: 4.1rem; padding-left: .3rem; padding-right: .3rem; white-space: normal;
+    overflow-wrap: anywhere; hyphens: auto; }
+  table.board.idk-lead td:is(:nth-child(2), :nth-child(3), :nth-child(4)) .small { white-space: normal; }
   .compare-pickers label, label.control { display: flex; width: 100%; }
   /* The paired table: each scope's label on its own line above its numbers, so no sticky label covers a number while
      the row scrolls; the inline label and its header stay for screen readers only. The numbers row then fits the

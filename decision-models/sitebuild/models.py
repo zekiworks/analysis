@@ -12,11 +12,11 @@ from typing import Any
 
 import build_page as bp
 
-from sitebuild import english_view, vision
+from sitebuild import english_view, holding_back as hold, vision
 from sitebuild.english_reading import (ENGLISH_ANCHOR, PATH as COMPARISON, english_only, measure_cell, missing_side,
                                        setup_labels)
-from sitebuild.site import (NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per, cost_switch, cost_value, esc,
-                            interval, latency_text, parameters_text, pct, rel, request_size, size_sentence)
+from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per, cost_switch,
+                            cost_value, esc, interval, latency_text, parameters_text, pct, rel, request_size, size_sentence)
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
 # The documentation page page_config.json's reasoning_levels cite, by its host, as the Settings line names it.
@@ -226,9 +226,9 @@ def confidence(site: Site, run: dict[str, Any]) -> str:
                         f" and {run['invalid']:,} without a valid answer")
     else:
         skipped_text = f"; {skipped:,} skipped, the model less than {threshold} sure"
-    sure_text = (f"{sure['questions']:,}, of which {sure['questions'] - sure['correct']:,} wrong"
-                 + (f" (share right: {interval(sure['correct'], sure['questions'])}, 95% interval)" if sure["questions"] else "")
-                 + skipped_text)
+    sure_text = ((f"{sure['questions']:,}, of which {sure['questions'] - sure['correct']:,} wrong"
+                  f" (share right: {interval(sure['correct'], sure['questions'])}, 95% interval)") if sure["questions"]
+                 else f'<span class="nm">{NO_ANSWERS}</span>') + skipped_text
     parts = item["parts"]
 
     def auroc(entry: dict[str, Any]) -> str:
@@ -424,11 +424,15 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
     found = next((item["english"] for item in idk["models"] + english_only(idk) if item["text_run"] == run["run"]), None)
     option = esc(idk["option"])
     if found is None:
-        rate = missing_side(site, run)
+        rate, answered, error = missing_side(site, run), None, None
     else:
         value = "No rate" if found["non_hallucination"] is None else pct(found["non_hallucination"], digits)
-        rate = (f"{value}: {found['dont_know']:,} “{option}” of {found['dont_know'] + found['wrong']:,} not right; "
-                f"answered {pct(found['attempt_rate'], digits)} (run {found['run']})")
+        rate = (f"{value}: {found['dont_know']:,} “{option}” of {found['dont_know'] + found['wrong']:,} not right "
+                f"(run {found['run']})")
+        answered = f"{pct(found['attempt_rate'], digits)}: {found['right'] + found['wrong']:,} of {total:,}"
+        wrong = hold.error_rate(found)
+        error = ("No answers" if wrong is None else
+                 f"{pct(wrong, digits)}: {found['wrong']:,} of {found['right'] + found['wrong']:,} answers")
     # A setting as the English runs' records hold it, each value once.
     each = lambda show: esc(", ".join(dict.fromkeys(show(record) for record in held)))  # noqa: E731
     dates = [bp.long_date(day) for day in model["dates"]]
@@ -443,6 +447,8 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
                 ("Right answers", f"{model['english']['right']:,} of {total:,}, first English run ({model['run']})"),
                 ("Accuracy", accuracy),
                 (f"Non-hallucination with “{option}”", rate),
+                (f"Answered with “{option}”", answered),
+                (f"Error rate with “{option}”", error),
                 (f"Cost, $ {cost_per()}, first English run", measure_cell(site, model, "cost", "english")),
                 ("Latency, median request, first English run", latency_value),
                 (f"English run{'s' if len(held) > 1 else ''}", esc(", ".join(map(str, model["runs"])))),
@@ -464,8 +470,10 @@ def summary(site: Site, run: dict[str, Any]) -> str:
     sure = run["confidence"]["sure"]
     threshold = pct(site.config["threshold"], 0)
     wrong = sure["questions"] - sure["correct"]
-    kept_detail = f"{wrong:,} wrong" + (f"; share right {interval(sure['correct'], sure['questions'])}, 95% interval"
-                                          if sure["questions"] else "")
+    kept_value = (f"{sure['questions']:,} of {site.results['questions']:,}" if sure["questions"]
+                  else f'<span class="nm">{NO_ANSWERS}</span>')
+    kept_detail = (f"{wrong:,} wrong; share right {interval(sure['correct'], sure['questions'])}, 95% interval"
+                   if sure["questions"] else f"none of the {site.results['questions']:,} questions at {threshold} or more")
     item = run.get("latency")
     if item:
         latency_value = latency_text(item["median_request_seconds"])
@@ -476,7 +484,7 @@ def summary(site: Site, run: dict[str, Any]) -> str:
     figures = (
         (f"Accuracy, all {total:,} questions", pct(correct / total),
          f"{interval(correct, total)}, 95% interval; {correct:,} right"),
-        (f"Answers kept at {threshold} confidence", f"{sure['questions']:,} of {site.results['questions']:,}", kept_detail),
+        (f"Answers kept at {threshold} confidence", kept_value, kept_detail),
         (f"Cost, $ {cost_per()}", per_thousand_text(site, run), '<a href="#cost">Basis and price under Cost</a>'),
         ("Latency", latency_value, latency_detail),
     )

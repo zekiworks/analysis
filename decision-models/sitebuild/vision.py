@@ -650,7 +650,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
     image = [model for model in data["models"] if all(label in model["conditions"] for label in ("A", "B", "C"))]
     by_b = sorted(image, key=lambda model: -acc(model, "B"))
     first = card(
-        "chart-image", "The picture alone (B)", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
+        "chart-image", f"The picture alone (B) · {questions} Turkish questions", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
         [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
           "marker": acc(model, "A"), "bars": [{"value": acc(model, "B"), "colour": family(site, model)["colour"]}],
           "title": f"{plain_name(site, model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
@@ -659,7 +659,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
         family_legend([family(site, model) for model in by_b]) + marker)
     by_c = sorted(image, key=lambda model: -acc(model, "C"))
     second = card(
-        "chart-both", "The text plus the picture (C)", "Accuracy with the picture after the text, and with the text alone · higher is better",
+        "chart-both", f"The text plus the picture (C) · {questions} Turkish questions", "Accuracy with the picture after the text, and with the text alone · higher is better",
         [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model),
           "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
           "bars": [{"value": acc(model, "C"), "colour": family(site, model)["colour"]}, {"value": acc(model, "A"), "kind": "base"}],
@@ -675,7 +675,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
     same = (f" <span>The best route is {esc(OCR_NAMES[next(iter(best_keys))])} for every model.</span>"
             if len(best_keys) == 1 else "")
     third = card(
-        "chart-ocr-route", "The best OCR route (D)", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
+        "chart-ocr-route", f"The best OCR route (D) · {questions} Turkish questions", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
         [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(share), "marker": acc(model, "A"),
           "bars": [{"value": share, "colour": family(site, model)["colour"]}],
           "title": f"{plain_name(site, model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
@@ -750,7 +750,6 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Vision</p>
       <h1>Same questions, as text and as a page image</h1>
-      <p class="lede">{questions} Turkish questions, each asked as text, as a page image and through OCR.<a class="note-ref" href="#vision-note" aria-label="What the questions and the four ways are, and the averages: the note under the results">*</a></p>
       <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
     </section>
     {charts}
@@ -762,7 +761,7 @@ def build(site: Site) -> dict[str, str]:
       {ocr_table(data)}
     </section>
     <section class="card" id="vision-note">
-      <p><span class="note-mark" aria-hidden="true">*</span> <strong>Turkish:</strong> {questions} questions with underlined or numbered words (original Turkish pages). Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D). These rankings are separate from the Text tab.</p>
+      <p><strong>Turkish:</strong> {questions} questions with underlined or numbered words (original Turkish pages). Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D). These rankings are separate from the Text tab.</p>
       {summary(data)}
       {"" if "chat" in hidden else chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
       {more_link(PATH)}

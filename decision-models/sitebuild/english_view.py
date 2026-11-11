@@ -1,6 +1,8 @@
 """English reading (english/): the Text tab's setups on its kept reading questions in English, from results.json's
-english_reading only. Its face, under the view bar: a one-sentence lead and the translation check's limit (no links row:
-the view bar's row 3 links to the parts), then the four parts row 3 links to: Accuracy (#accuracy, the language
+english_reading only. Its face, under the view bar: nothing above the results but a group's empty-view line (no links
+row: the view bar's row 3 links to the parts; the scope is in the first chart's heading, "Accuracy in English · 547
+machine-translated questions"; the translation check's limit, limit_line(), and More about this page sit under the
+charts), then the four parts row 3 links to: Accuracy (#accuracy, the language
 difference first, as on turkish-vs-english/, then English accuracy), Non-hallucination (#non-hallucination), Cost (#cost)
 and Latency (#latency), each chart in the
 site's static style (Site hbars, each bar in its model family's colour, as the home page's charts), and one table ranked
@@ -168,7 +170,7 @@ def build(site: Site) -> dict[str, str]:
                  "title": f"{label(site, model)}: {model['english']['right']:,} of {total:,} right in English "
                           f"(run {model['run']})"}
                 for model in members]
-        return card(anchor("chart-accuracy", group), shown(group), f"Accuracy on the {total:,} English questions",
+        return card(anchor("chart-accuracy", group), shown(group), f"Accuracy in English · {total:,} machine-translated questions",
                     f"Share of the {total:,} kept reading questions answered right in English, then the right answers of "
                     f"{total:,}: each of the {len(members)} {noun(group, len(members))}' first English run · higher is better",
                     rows, family_legend([family(model) for model in members]), ("Accuracy · Right", "% · Right"))
@@ -206,11 +208,12 @@ def build(site: Site) -> dict[str, str]:
             rows = [{"label": site.title(setup_run(site, model)), "tag": site.tag(setup_run(site, model)),
                      "family": family(model)["name"], "href": href(site, model),
                      "class_key": site.model_class(setup_run(site, model)),
-                     "text": f"{pct(counts['non_hallucination'], digits)} · {pct(counts['attempt_rate'], digits)}",
+                     "texts": [pct(counts["non_hallucination"], digits), pct(counts["attempt_rate"], digits),
+                               pct(hold.error_rate(counts), digits) if hold.error_rate(counts) is not None else "none"],
                      "bars": [{"value": counts["non_hallucination"], "colour": family(model)["colour"]}],
                      "title": f"{label(site, model)}: {counts['dont_know']:,} “{option}” of "
                               f"{counts['dont_know'] + counts['wrong']:,} not right; {counts['right'] + counts['wrong']:,} of "
-                              f"{total:,} answered (run {counts['run']})"}
+                              f"{total:,} answered, {counts['wrong']:,} of them wrong (run {counts['run']})"}
                     for model, counts in rated]
             rare = hold.rare_note([(label(site, model), held[setup_key(model)]["dont_know"],
                                     held[setup_key(model)]["non_hallucination"]) for model in mine if setup_key(model) in held],
@@ -228,14 +231,15 @@ def build(site: Site) -> dict[str, str]:
                       + "".join(f" <span>Not run, as {esc(reason)}: {esc(name)}.</span>" for name, reason in no_option))
             line = (f'<p class="hold-kind">Each of the {len(rated)} {noun(kind, len(rated))}\' first English run with it.</p>'
                     if rated else "")
-            return hold.block(heading, f'{line}{hbars(rows, head=("Non-hallucination · Answered", "Rate · Ans.")) if rows else ""}'
+            return hold.block(heading, f'{line}{hbars(rows, columns=hold.COLUMNS) if rows else ""}'
                                        f'{rare}<p class="chart-legend">{legend}</p>')
 
         with_option = hold.side(
             hold.option_title(option) + " in English",
             f"“{esc(option)}” among the answers that were not right, with it offered as a sixth option in English, on the "
-            f"{total:,} kept questions, then the answered share (right + wrong of {total:,}) · higher is better, read with the "
-            "answered share; a model that always chose the option would reach 100% with no right answers",
+            f"{total:,} kept questions; beside it the share answered (right + wrong of {total:,}) and the error rate among "
+            "the answers (wrong of right + wrong) · higher non-hallucination is better, read with the share answered; a "
+            "model that always chose the option would reach 100% with no right answers",
             "".join(option_block(kind, heading) for kind, heading in hold.kinds(group)))
         return (f'<figure class="panel chart-card" id="{anchor("chart-non-hallucination", group)}" {shown(group)}>'
                 f'<div class="chart-head"><h2>Non-hallucination</h2></div>{hold.pair(confidence, with_option)}{scores}'
@@ -257,7 +261,8 @@ def build(site: Site) -> dict[str, str]:
         heads = [("English accuracy", "first English run; higher is better"),
                  (SCORE_HEAD, "first English run; higher is better"),
                  ("Turkish accuracy", f"Text tab run, same {total:,}; for context"),
-                 ("English non-hallucination", f"with “{option}”; higher is better")]
+                 ("English non-hallucination",
+                  f"of answers not right, % “{option}” · higher is better; answered and error rate under it")]
         heads += measure_heads("cost", ("english",)) + measure_heads("latency", ("english",))
         labels = [f"{head} ({note})" for head, note in heads]
         rows = []
@@ -275,7 +280,9 @@ def build(site: Site) -> dict[str, str]:
                 f'{NO_RATE if counts["non_hallucination"] is None else pct(counts["non_hallucination"], digits)}'
                 f'<span class="small">{counts["dont_know"]:,} “{esc(option)}” of '
                 f'{counts["dont_know"] + counts["wrong"]:,} not right</span>'
-                f'<span class="small">answered {pct(counts["attempt_rate"], digits)}</span>')
+                f'<span class="small">answered {pct(counts["attempt_rate"], digits)}</span>'
+                + ("" if hold.error_rate(counts) is None else
+                   f'<span class="small">error rate {pct(hold.error_rate(counts), digits)}</span>'))
             values += [measure_cell(site, model, "cost", "english"), measure_cell(site, model, "latency", "english")]
             run = setup_run(site, model)
             row_id = "" if "turkish_run" in model else f' id="{anchor(only_anchor(model), group)}"'
@@ -289,7 +296,7 @@ def build(site: Site) -> dict[str, str]:
         rate_note = (f" English non-hallucination: “{esc(option)}” among the answers that were not right, in the setup's "
                      "first English run with it offered as a sixth option; Running: a chat model's run still running; Not "
                      "run: a decision model not run with it yet" + (", or an English-only setup" if alone else "") + ".")
-        return (f'<section class="card" id="{anchor("table", group)}" {shown(group)}>'
+        return (f'<section class="card" id="{anchor("table", group)}" {shown(group)} data-top-rows>'
                 f"<h2>Every {noun(group, 1)} in English</h2>"
                 f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'
                 f'</thead><tbody>{"".join(rows)}</tbody></table></div>'
@@ -321,13 +328,9 @@ def build(site: Site) -> dict[str, str]:
                 f"{noun(group, count)}{split} {settings}. The paired comparison with Turkish is on "
                 f'<a href="{comparison}">English and Turkish</a>.</p></div>')
 
-    def short(group: str) -> str:
-        """A group's one line at the top: how many of its setups answered the English questions (lead in the notes)."""
-        count = counts[group]
-        if not count:
-            return lead(group)
-        return (f"<div {shown(group)}><p>The Text tab's {total:,} kept reading questions in English, answered by {count} "
-                f"{noun(group, count)}.</p></div>")
+    def empty(group: str) -> str:
+        """A group's empty-view line at the top, where none of its setups has an English run (lead in the notes)."""
+        return "" if counts[group] else lead(group)
 
     comparison = rel(PATH, COMPARISON)
     translator = TRANSLATORS[json.loads(RECORD.read_text(encoding="utf-8"))["translator"]["model"]]
@@ -336,11 +339,11 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">English reading</p>
       <h1>The reading questions in English</h1>
-      {"".join(short(group) for group in GROUPS)}
-      {limit_line(method)}
-      {more_link(PATH)}
+      {"".join(empty(group) for group in GROUPS)}
     </section>
-    <div class="charts">{charts}</div>
+    <div class="charts" data-top-rows>{charts}</div>
+    {limit_line(method)}
+    {more_link(PATH)}
     <p class="note">Calibration of holding back by confidence at the {pct(site.config["threshold"], 0)} threshold is not measured in English.</p>
     {"".join(table(group) for group in GROUPS if counts[group])}"""
     return {PATH: site.page(PATH, TITLE, f"The Text tab's {total:,} kept reading questions in English: accuracy of "

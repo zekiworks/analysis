@@ -52,6 +52,9 @@ SUITE_HTML = "suite-bar.html"
 SUITE_HERE = "/analysis/decision-models/"
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
+# A setup that keeps no answers at a confidence threshold (Ümit #4665): these words in a muted style, never "0 wrong" or
+# "0.0%", after the setups that keep answers and never in a "fewest wrong" or best claim.
+NO_ANSWERS = "No answers at this threshold"
 # A cost with no estimate because the setup ran on our own hardware and its maker lists no price for the same model
 # (billing 'local'): "No list price", not "Not measured" (cost_missing).
 NO_LIST_PRICE = '<span class="nm">No list price</span>'
@@ -398,7 +401,8 @@ def family_legend(families: list[dict[str, str]]) -> str:
 
 
 def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], str] | None = None,
-          head: tuple[str, str] | None = None, divisions: int = 4, columns: list[tuple[str, str]] | None = None) -> str:
+          head: tuple[str, str] | None = None, divisions: int = 4, columns: list[tuple[str, str]] | None = None,
+          reference: tuple[float, str] | None = None) -> str:
     """A horizontal bar chart in HTML, the face of the pages without a script (the Hallucination and Page images tabs):
     readable at any width and in both themes. Each row: label (a setup's official name), tag (optional, the setup's
     small tag beside it, Site.tag), family (optional, whose icon goes before it), href (optional), bars (each a value from 0 to top, with a
@@ -410,9 +414,12 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     cost_tick both cost units). head names the value column above it: (in full, on a phone), as ("Turkish · English",
     "TR · EN"). With columns, several value columns, each named so: a row's texts then give one value per column
     A row's models (optional, the view bar's groups it shows in, as
-    "all decision") marks it data-models, and its heading with every group of its rows (pws-decisions/). A row's
+    "all decision") marks it data-models, and its heading with every group of its rows (pws-decisions/). A row's muted
+    (optional, true) draws it muted (a setup with no answers at the threshold, NO_ANSWERS). A row's
     class_key (optional: present for a model's row, Site.model_class, None for one in no class) marks it data-class,
-    so a page's Class keys (site.js) narrow the chart; a heading whose rows are all out of view goes with them."""
+    so a page's Class keys (site.js) narrow the chart; a heading whose rows are all out of view goes with them.
+    reference (optional): (value, label), one value every row reads against, drawn as a dashed line through every row's
+    track with its label above the axis, ending at the line (pws-decisions/: always the first option)."""
     place = lambda value: f"{100 * min(max(value, 0.0), top) / top:.4g}%"  # noqa: E731
     write = tick or (lambda value: f"{100 * value:.0f}%")
     ticks = "".join(f'<span class="hbar-tick" style="left:{place(top * index / divisions)}">'
@@ -421,6 +428,7 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     # labels every second tick (v3.css .dense).
     lines = "" if divisions == 4 else f' style="background-size:{100 / divisions:.4g}% 100%"'
     dense = " dense" if divisions > 4 else ""
+    ref = f'<span class="hbar-ref" style="left:{place(reference[0])}"></span>' if reference else ""
     items = []
     group = None
     # Each heading's groups: those of the rows under it, in the view bar's order.
@@ -450,9 +458,10 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
         else:
             values = f'<span class="hbar-value">{row["html"] if "html" in row else esc(row["text"])}</span>'
         cls = f' data-class="{row["class_key"] or ""}"' if "class_key" in row else ""
-        items.append(f'<li class="hbar" title="{esc(row["title"])}"{marks(set(row.get("models", "").split()))}{cls}>'
+        items.append(f'<li class="hbar{" muted" if row.get("muted") else ""}" title="{esc(row["title"])}"'
+                     f'{marks(set(row.get("models", "").split()))}{cls}>'
                      f'<span class="hbar-label">{label}</span>'
-                     f'<span class="hbar-track"{lines}>{fills}{marker}</span>{values}</li>')
+                     f'<span class="hbar-track"{lines}>{fills}{marker}{ref}</span>{values}</li>')
     named = "".join(f'<span class="hbar-head"><span class="head-long">{esc(long)}</span><span class="head-short">{esc(short)}'
                     "</span></span>" for long, short in (columns or ([head] if head else []))) or "<span></span>"
     # A chart with named value columns right-aligns each name and every value on the column's right edge (v3.css
@@ -460,8 +469,14 @@ def hbars(rows: list[dict[str, Any]], top: float = 1.0, tick: Callable[[float], 
     headed = " headed" if head or columns else ""
     cols = " cols" if columns else ""
     count = f' style="--cols:{len(columns)}"' if columns else ""
-    return (f'<div class="hbar hbar-axis{headed}{dense}{cols}"{count} aria-hidden="true"><span></span>'
-            f'<span class="hbar-track">{ticks}</span>{named}</div>'
+    # The reference's label ends at its line (the track padded on the right by the rest of the axis), so it wraps on a
+    # narrow track instead of running past the axis's right end.
+    end = f"{100 - 100 * min(max(reference[0], 0.0), top) / top:.4g}%" if reference else ""
+    labelled = (f'<div class="hbar hbar-ref-head{cols}"{count}><span></span><span class="hbar-track" style="padding-right:{end}">'
+                f'<span class="hbar-ref-label">{esc(reference[1])}</span></span><span></span></div>'
+                if reference else "")
+    return (f'{labelled}<div class="hbar hbar-axis{headed}{dense}{cols}"{count} aria-hidden="true"><span></span>'
+            f'<span class="hbar-track">{ticks}{ref}</span>{named}</div>'
             f'<ol class="hbars{headed}{cols}"{count}>{"".join(items)}</ol>')
 
 

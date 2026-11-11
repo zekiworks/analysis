@@ -9,7 +9,7 @@ are drawn by headless Chrome from HTML made here, in both themes, and saved unde
 image gets a new address and no link preview shows a cached copy. share/images.json names the current files, which
 the pages' link previews use. Earlier images are deleted until "announced" holds the date of the first public
 post, and kept after it, so that earlier link previews keep working. Set CHROME to use another Chrome or Chromium
-binary.
+binary. All benches draws its own link preview with the same layout and screenshot() (sitebuild/all_benches.py).
 """
 
 from __future__ import annotations
@@ -1619,10 +1619,25 @@ def png_size(path: Path) -> tuple[int, int]:
     return int.from_bytes(data[:4], "big"), int.from_bytes(data[4:], "big")
 
 
+def screenshot(html: str, size: dict[str, int], work: Path, key: str) -> bytes:
+    """A page drawn by headless Chrome (CHROME, else google-chrome) at size, in the folder work: the PNG's bytes."""
+    chrome = os.environ.get("CHROME", "google-chrome")
+    source, shot = work / f"{key}.html", work / f"{key}.png"
+    source.write_text(html, encoding="utf-8")
+    subprocess.run(
+        [chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", f"--user-data-dir={work}/profile",
+         "--force-device-scale-factor=1", "--hide-scrollbars", f"--window-size={size['width']},{size['height']}",
+         f"--screenshot={shot}", source.as_uri()],
+        check=True, capture_output=True,
+    )
+    if png_size(shot) != (size["width"], size["height"]):
+        raise SystemExit(f"{key} is {png_size(shot)}, not {size['width']}x{size['height']}")
+    return shot.read_bytes()
+
+
 def render_images(snap: Snapshot, folder: Path = ROOT) -> dict[str, dict[str, str]]:
     """Draw every sharing image in both themes and save it under folder's share/ as <stem>-<theme>-<hash>.png, the hash
     being the start of the file's SHA-256. Returns the names by image and theme, relative to folder."""
-    chrome = os.environ.get("CHROME", "google-chrome")
     sizes = snap.config["images"]
     vision = json.loads((folder / "vision.json").read_text(encoding="utf-8"))
     pages = {"preview": (lambda theme: accuracy_image(snap, sizes["preview"], theme), sizes["preview"]),
@@ -1634,17 +1649,7 @@ def render_images(snap: Snapshot, folder: Path = ROOT) -> dict[str, dict[str, st
         for key, stem in IMAGE_STEMS:
             page, size = pages[key]
             for theme in THEMES:
-                source, shot = Path(work) / f"{key}-{theme}.html", Path(work) / f"{key}-{theme}.png"
-                source.write_text(page(theme), encoding="utf-8")
-                subprocess.run(
-                    [chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", f"--user-data-dir={work}/profile",
-                     "--force-device-scale-factor=1", "--hide-scrollbars", f"--window-size={size['width']},{size['height']}",
-                     f"--screenshot={shot}", source.as_uri()],
-                    check=True, capture_output=True,
-                )
-                if png_size(shot) != (size["width"], size["height"]):
-                    raise SystemExit(f"{key} ({theme}) is {png_size(shot)}, not {size['width']}x{size['height']}")
-                data = shot.read_bytes()
+                data = screenshot(page(theme), size, Path(work), f"{key}-{theme}")
                 name = f"share/{stem}-{theme}-{hashlib.sha256(data).hexdigest()[:8]}.png"
                 (folder / name).write_bytes(data)
                 os.chmod(folder / name, 0o644)

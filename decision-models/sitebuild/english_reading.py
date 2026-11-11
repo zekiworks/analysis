@@ -15,9 +15,11 @@ know" in both languages, cost and latency, the rank in both languages and the la
 risk-coverage plots and the table of the runs with the option, the Non-hallucination part (#non-hallucination: the same
 questions with an "I don't know" option in English against the Hallucination tab's "Bilmiyorum", dont_know_face(),
 decision and chat models ranked together in the all group, a chat model's side still running read as Running), the
-Results table and the setups without an English run. The top is one line and the translation check's limit in one line
-(limit_line()); the lead with the headline, limit_note() and the experiments line are in About's notes on each page
-(Site.note). The view bar's row 3 links to the face's parts: #accuracy, #non-hallucination, #cost and
+Results table and the setups without an English run. Nothing stands above the results but a group's empty-view line (no
+intro, the project lead via Zeki #4663, #4666): the scope is in the first chart's heading and the translation check's limit
+in one line (limit_line()) with More about this page sits under the accuracy charts; the lead with the headline,
+limit_note() and the experiments line are in About's notes on each page (Site.note). The view bar's row 3 links to the
+face's parts: #accuracy, #non-hallucination, #cost and
 #latency, so the page has no links row of its own. The parts about decision models only come once, for the all and
 decision groups: Liquid d1-ultra against each decision model (with one note for the chat group), the same with the
 option written "I don't know" in Turkish too (dont_know_word_face()) and the option's word on the Turkish questions
@@ -614,7 +616,7 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
                 f'<p class="chart-sub">{sub}</p></div>{hbars(rows, **axis)}<p class="chart-legend">{legend}</p></figure>')
 
     accuracy = card(
-        "chart-accuracy", "Accuracy in Turkish and in English",
+        "chart-accuracy", f"Accuracy in Turkish and in English · {total:,} reading questions, the English machine-translated",
         f"Share of the {total:,} kept reading questions answered right: each of the {bp.in_words(count)} "
         f"{noun(group, count)}' Text tab run and its first English run, ordered by English accuracy · higher is better",
         [{"label": site.title(site.by_id[model["turkish_run"]]), "tag": site.tag(site.by_id[model["turkish_run"]]),
@@ -676,7 +678,7 @@ def limit_note(translator: str, method: str) -> str:
 
 
 def limit_line(method: str) -> str:
-    """The translation check's limit in one line, at the top of both English pages (limit_note in their notes)."""
+    """The translation check's limit in one line, under the accuracy charts of both English pages (limit_note in their notes)."""
     return ('<p class="limit"><strong>Limit:</strong> a model translated the questions and no person checked them '
             f'(<a href="{method}">Our method</a>).</p>')
 
@@ -1251,7 +1253,7 @@ def dont_know_summary(site: Site, idk: dict[str, Any], group: str = "all") -> st
         alone += (f" {esc(idk_label(site, model))} has an English rate of {rate_text(counts['non_hallucination'], digits)} "
                   f"({counts['dont_know']:,} “{esc(idk['option'])}” of {counts['dont_know'] + counts['wrong']:,} not right) "
                   f"with an attempt rate of {pct(counts['attempt_rate'], digits)} ({counts['right'] + counts['wrong']:,} "
-                  f"answered) but no Turkish run with “Bilmiyorum” on these questions, so no comparison or test.")
+                  f"answered) but no Turkish run with the option on these questions, so no comparison or test.")
     for language, entries in (("Turkish", [model for model in english_only(idk) if model.get("running")]),
                               ("English", turkish_only(idk))):
         if entries:
@@ -1296,7 +1298,7 @@ def dont_know_charts(site: Site, idk: dict[str, Any], group: str = "all") -> str
         return "running" if counts is None else pct(counts["attempt_rate"], digits)
 
     alone = [esc(idk_label(site, model)) for model in english_only(idk) if not model.get("running")]
-    not_charted = (f" <span>Not charted, with no Turkish run with “Bilmiyorum” on these questions: {joined(alone)} (in "
+    not_charted = (f" <span>Not charted, with no Turkish run with the option on these questions: {joined(alone)} (in "
                    "the table under Info).</span>") if alone else ""
     running = [model for model in english_only(idk) if model.get("running")]
     # The paired models and the running ones in English by the English rate, then the running ones in Turkish only.
@@ -1316,11 +1318,11 @@ def dont_know_charts(site: Site, idk: dict[str, Any], group: str = "all") -> str
           "text": f"{side_text(model, 'turkish')} · {side_text(model, 'english')}",
           "bars": family_bars(site, model["text_run"], (side_value(model, "turkish"), "turkish"),
                               (side_value(model, "english"), "english")),
-          "title": f"{idk_label(site, model)}: {side_title(model, 'turkish', 'Turkish', 'Bilmiyorum')}; "
+          "title": f"{idk_label(site, model)}: {side_title(model, 'turkish', 'Turkish', idk['option'])}; "
                    f"{side_title(model, 'english', 'English', idk['option'])}"}
          for model in charted],
-        '<span><i class="swatch swatch-turkish"></i>Turkish, with “Bilmiyorum”, the upper bar</span> '
-        '<span><i class="swatch swatch-english"></i>English, with “I don\'t know”, the lower bar, striped</span> '
+        '<span><i class="swatch swatch-turkish"></i>Turkish option, the upper bar</span> '
+        '<span><i class="swatch swatch-english"></i>English option, the lower bar, striped</span> '
         + NUMBERS + " " + family_legend([site.families[model["text_run"]] for model in charted]) + " "
         "<span>Attempt rate, Turkish · English: "
         + esc("; ".join(f"{idk_label(site, model)} {attempt(model, 'turkish')} · {attempt(model, 'english')}" for model in charted))
@@ -1378,29 +1380,32 @@ def dont_know_face(site: Site, idk: dict[str, Any], word: dict[str, Any] | None,
                'the decision models\' comparison is in the <a href="#dont-know-word">next section</a>.</p>') \
         if word and group in ("all", "decision") else ""
     return (f'<div {shown(group)}><section class="card" id="{anchor("dont-know", group)}"><h2>With an “I don\'t know” option</h2>'
-            f"<p>The same {total:,} kept questions with a sixth option, “{option}” in English and “Bilmiyorum” in Turkish, as "
+            f"<p>The same {total:,} kept questions with a sixth option, “{option}”, in English and in Turkish, as "
             f'on the <a href="{rel(PATH, "dont-know/")}">Hallucination tab</a>, asked of the same models '
             f'(<a href="#dont-know-method">how</a>).</p>{dont_know_summary(site, idk, group)}{pointer}</section>'
             f"{dont_know_charts(site, idk, group)}</div>")
 
 
 def dont_know_columns(idk: dict[str, Any]) -> tuple[tuple[str, str], ...]:
+    """The table's columns after the model: each language's non-hallucination rate, answered share and error rate side
+    by side first, English then Turkish, so a phone's first view of the frame shows them with the model (Ümit #4665,
+    Logic & Math's labels and order), then the runs, accuracy, the option's mean probability and the paired test."""
     families = Counter(model["group"] for model in idk["models"])
     holm = "; ".join(f"over the {count} {kind} model{'' if count == 1 else 's'}" for kind, count in sorted(families.items(), reverse=True))
     option = idk["option"]
     return (
+        ("English non-hallucination", f"of answers not right, % “{option}” · higher is better, read with the answered share"),
+        ("English answered", f"not “{option}”: (right + wrong) / {idk['questions']:,}"),
+        ("English error rate", "of its answers: wrong / (right + wrong) · lower is better"),
+        ("Turkish non-hallucination", "of answers not right, % the Turkish option · higher is better, read with the answered share"),
+        ("Turkish answered", f"not the Turkish option: (right + wrong) / {idk['questions']:,}"),
+        ("Turkish error rate", "of its answers: wrong / (right + wrong) · lower is better"),
         ("English runs", "with “I don't know”; the first is compared"),
-        ("Turkish runs", "with “Bilmiyorum”; the first is compared"),
-        ("English answered", f"(right + wrong) / {idk['questions']:,}; higher is better"),
-        ("Turkish answered", f"(right + wrong) / {idk['questions']:,}; higher is better"),
-        ("English wrong of answers", "wrong / (right + wrong); lower is better"),
-        ("Turkish wrong of answers", "wrong / (right + wrong); lower is better"),
-        ("English non-hallucination", f"“{option}” / (“{option}” + wrong); higher is better, read with the answered share"),
-        ("Turkish non-hallucination", "“Bilmiyorum” / (“Bilmiyorum” + wrong); higher is better, read with the answered share"),
+        ("Turkish runs", "with the Turkish option; the first is compared"),
         ("English accuracy", "higher is better"),
         ("Turkish accuracy", "higher is better"),
         ("English mean probability", f"of “{option}”"),
-        ("Turkish mean probability", "of “Bilmiyorum”"),
+        ("Turkish mean probability", "of the Turkish option"),
         ("Wrong only in English", "questions the English run got wrong and the Turkish run did not"),
         ("Wrong only in Turkish", "questions the Turkish run got wrong and the English run did not"),
         ("p", "exact McNemar"),
@@ -1445,7 +1450,7 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
         return run_span(counts["runs"]) + f'<span class="small">{source}</span>'
 
     def option(side: str) -> str:
-        return idk["option"] if side == "english" else "Bilmiyorum"
+        return idk["option"]  # both sides' option shown by its meaning (Ümit #4397, #4606); the column names the language
 
     def not_right(side: str) -> str:
         counts = model[side]
@@ -1462,10 +1467,11 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
 
     paired = model["paired"]
     values = [
+        value("english", "non_hallucination", not_right("english")), value("english", "attempt_rate", answered("english")),
+        wrong_of("english"),
+        value("turkish", "non_hallucination", not_right("turkish")), value("turkish", "attempt_rate", answered("turkish")),
+        wrong_of("turkish"),
         runs("english"), runs("turkish"),
-        value("english", "attempt_rate", answered("english")), value("turkish", "attempt_rate", answered("turkish")),
-        wrong_of("english"), wrong_of("turkish"),
-        value("english", "non_hallucination", not_right("english")), value("turkish", "non_hallucination", not_right("turkish")),
         value("english", "accuracy", f"{model['english']['right']:,} of {total:,} right"),
         value("turkish", "accuracy", f"{model['turkish']['right']:,} of {total:,} right"),
         *((value("english", "mean_dont_know_probability", ""), value("turkish", "mean_dont_know_probability", ""))
@@ -1496,7 +1502,7 @@ def one_side_row(site: Site, idk: dict[str, Any], model: dict[str, Any], side: s
     digits = site.config["percent_digits"]
     total = idk["questions"]
     counts = model[side]
-    word = esc(idk["option"]) if side == "english" else "Bilmiyorum"
+    word = esc(idk["option"])  # both sides' option shown by its meaning; the column names the language
     missing = RUNNING if model.get("running") else NOT_RUN
 
     def value(key: str, note: str) -> str:
@@ -1515,9 +1521,10 @@ def one_side_row(site: Site, idk: dict[str, Any], model: dict[str, Any], side: s
         "probability": value("mean_dont_know_probability", "") if model["group"] == "decision" else
         NOT_MEASURED_CONFIDENCE if model["provider"] in PLAIN_PROVIDERS else NO_PROBABILITIES,
     }
-    pairs = [(filled[key], missing) if side == "english" else (missing, filled[key])
-             for key in ("runs", "answered", "wrong", "rate", "accuracy", "probability")]
-    values = [item for pair in pairs for item in pair] + [missing] * 4
+    side_cells = lambda keys: [item for key in keys for item in ((filled[key], missing) if side == "english" else (missing, filled[key]))]  # noqa: E731
+    mine = [filled[key] for key in ("rate", "answered", "wrong")]
+    values = ((mine + [missing] * 3 if side == "english" else [missing] * 3 + mine)
+              + side_cells(("runs", "accuracy", "probability")) + [missing] * 4)
     heads = [f"{head} ({note})" for head, note in dont_know_columns(idk)]
     run = idk_run(site, model)
     icon = family_icon(setup_families(site)[idk_key(model)]["name"])
@@ -1540,7 +1547,7 @@ def dont_know_table(site: Site, idk: dict[str, Any], attributes: str = "") -> st
         alone = [single for single in alone if single not in ahead]
     rows = "".join(rows + [one_side_row(site, idk, single, "english") for single in alone]
                    + [one_side_row(site, idk, single, "turkish") for single in turkish_only(idk)])
-    return (f'<div class="table-wrap"{" " + attributes if attributes else ""}><table class="board list stack idk"><thead><tr>'
+    return (f'<div class="table-wrap"{" " + attributes if attributes else ""}><table class="board list stack idk idk-lead"><thead><tr>'
             f'<th scope="col">Model</th>{head}</tr></thead><tbody>{rows}</tbody></table></div>')
 
 
@@ -1609,7 +1616,7 @@ def dont_know_info(site: Site, idk: dict[str, Any], tables: str | None = None) -
     return f"""
     <section class="card" id="dont-know-results">
       <h2>Results with an “I don't know” option</h2>
-      <p class="note">Ordered by the non-hallucination rate in English, highest first. Each row compares the model's first run with “{option}” in English with its first run with “Bilmiyorum” in Turkish, out of the {total} kept questions. Where a side has more than one run, its rates show the range over its runs. The paired counts, p and the Holm-adjusted p ({holm_text}) are those of the exact McNemar test on wrong answers; * marks a Holm-adjusted p below {SIGNIFICANT:g}.</p>
+      <p class="note">Ordered by the non-hallucination rate in English, highest first. Each row compares the model's first run with the English option with its first run with the Turkish option, out of the {total} kept questions. Where a side has more than one run, its rates show the range over its runs. The paired counts, p and the Holm-adjusted p ({holm_text}) are those of the exact McNemar test on wrong answers; * marks a Holm-adjusted p below {SIGNIFICANT:g}.</p>
       {dont_know_table(site, idk) if tables is None else tables}
     </section>
     <section class="card method-notes" id="dont-know-method">
@@ -2367,14 +2374,10 @@ def build(site: Site) -> dict[str, str]:
                 f"asked of {bp.in_words(count)} {noun(group, count)}" + (f" ({split})" if group == "all" else "")
                 + f", each compared with its own Turkish run.</p>{headline(site, data, group)}</div>")
 
-    def short(group: str) -> str:
-        """A group's one line at the top: what was asked of how many of its setups (lead, with the headline, in the
-        notes)."""
-        count = counts[group]
-        if not count:
-            return lead(group)
-        return (f"<div {shown(group)}><p>{kept} of the Text tab's {reading} reading questions, translated into English, "
-                f"asked of {bp.in_words(count)} {noun(group, count)}.</p></div>")
+    def empty(group: str) -> str:
+        """A group's empty-view line at the top, where none of its setups has an English run (lead, with the headline,
+        in the notes)."""
+        return "" if counts[group] else lead(group)
 
     def copies(render: Callable[[str], str]) -> str:
         return "".join(render(group) for group in GROUPS if counts[group])
@@ -2406,11 +2409,11 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Turkish vs English</p>
       <h1>The Text tab's reading questions, in Turkish and in English</h1>
-      {"".join(short(group) for group in GROUPS)}
-      {limit_line(method)}
-      {more_link(PATH)}
+      {"".join(empty(group) for group in GROUPS)}
     </section>
     <section class="measure" id="accuracy" aria-label="Accuracy">{copies(lambda group: face(site, data, group))}{against_block}</section>
+    {limit_line(method)}
+    {more_link(PATH)}
     {copies(lambda group: main_table(site, data, group))}{"".join(english_only_list(site, data, group) for group in GROUPS)}
     <section class="measure" id="non-hallucination" aria-label="Non-hallucination">{idk_block}</section>
     <section class="measure" id="cost" aria-label="Cost">{copies(lambda group: measure_card(site, data, group, "cost", tuple(SIDES), href, method))}</section>

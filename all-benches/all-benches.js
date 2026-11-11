@@ -27,6 +27,8 @@
     const text = Math.abs(value).toFixed(1);
     return (value < 0 && Number(text) !== 0 ? '\u2212' : '') + text;
   };
+  // A cell without a score: its status, the reason on hover and focus (sitebuild/all_benches.py missing).
+  const status = (word, reason) => `<span class="nm hint" tabindex="0" data-tip="${esc(reason)}">${word}</span>`;
   const models = new Map(DATA.models.map(model => [model.key, model]));
   const published = Object.fromEntries(DATA.benches.map(bench => [bench.key, bench.published]));
 
@@ -201,8 +203,13 @@
       else if (first === null || second === null) verdict = `<span class="nm">only ${esc((second === null ? a : b).label)} ran it</span>`;
       else if (tied(key, a, b)) verdict = `tied (${number(first - second)})`;
       else verdict = `${esc((first > second ? a : b).label)} ahead by ${number(Math.abs(first - second))}`;
-      const cell = value => (value === null ? '–' : number(value));
-      return `<tr><th scope="row">${esc(label)} \u2191</th><td class="num">${cell(first)}</td><td class="num">${cell(second)}</td><td>${verdict}</td></tr>`;
+      const cell = (model, value) => {
+        if (value !== null) return number(value);
+        if (key === 'combined') return status('Not applicable', model.na);
+        return open ? status('Not run', `No ${label} run for this model: it is not in that bench's file`)
+          : status('Not applicable', `${label}: not published yet`);
+      };
+      return `<tr><th scope="row">${esc(label)} \u2191</th><td class="num">${cell(a, first)}</td><td class="num">${cell(b, second)}</td><td>${verdict}</td></tr>`;
     });
     document.querySelector('[data-ab-h2h]').innerHTML = rows.join('');
   }

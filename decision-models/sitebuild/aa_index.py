@@ -10,7 +10,7 @@ import math
 from typing import Any
 
 import build_page as bp
-from sitebuild import names
+from sitebuild import holding_back as hold, names
 from sitebuild.site import (NOT_MEASURED, ROOT, Site, cost_missing, esc, hbars, latency_text, pct, rank_fill, rel,
                             scale_legend)
 from sitebuild.vision import NO_IMAGE, NOT_AVAILABLE, cell, joined
@@ -58,10 +58,11 @@ def route(run: dict[str, Any]) -> str:
     return {"local": "on our GPU, from the released weights", "free": "its API's free tier"}.get(run["billing"], "its API")
 
 
-def reply_cards(site: Site) -> str:
+def reply_cards(site: Site, scope: str) -> str:
     """Our reply charts: the cards of our thread on X in reply to Artificial Analysis's post (page_config.json's
     aa_decision_index.thread: each card's file in aa-decision-index/ and its alt text), in the thread's order, each
-    opening its PNG, never redrawn. The build stops when a card's file is missing or not a PNG, or its alt text is empty."""
+    opening its PNG, never redrawn; under them the page's scope line, what the cards are, and the thread's note. The build
+    stops when a card's file is missing or not a PNG, or its alt text is empty."""
     thread = site.config["aa_decision_index"]["thread"]
     figures = []
     for index, card in enumerate(thread["cards"], 1):
@@ -76,9 +77,10 @@ def reply_cards(site: Site) -> str:
             f'width="{width}" height="{height}" loading="lazy" alt="{esc(card["alt"])}" style="display:block;width:100%;height:auto"></a>'
             f'<figcaption class="note">Card {index} of {len(thread["cards"])} · PNG, {width:,} × {height:,}</figcaption></figure>')
     return (f"<section class=\"card\" id=\"reply-charts\"><h2>Our {bp.in_words(len(thread['cards']))} reply charts</h2>"
+            f"{''.join(figures)}<p class=\"note\">{scope}</p>"
             f"<p class=\"note\">The cards of our thread on X in reply to Artificial Analysis's post, in the thread's order "
             f"(results {esc(thread['results'])}); each opens as an image.</p>"
-            f"{''.join(figures)}<p class=\"note\">{esc(thread['note'])}</p></section>")
+            f"<p class=\"note\">{esc(thread['note'])}</p></section>")
 
 
 def build(site: Site) -> dict[str, str]:
@@ -110,7 +112,9 @@ def build(site: Site) -> dict[str, str]:
     ran = sorted(((name, run, held[run["run"]]) for name, run in pairs if run["run"] in held and held[run["run"]]["non_hallucination"] is not None),
                  key=lambda item: -item[2]["non_hallucination"])
     rates = [model["non_hallucination"] for _, _, model in ran]
-    rate_rows = [{"label": site.title(run), "tag": site.tag(run), "family": site.families[run["run"]]["name"], "href": href(run), "text": pct(model["non_hallucination"], digits),
+    error = lambda model: "none" if hold.error_rate(model) is None else pct(hold.error_rate(model), digits)  # noqa: E731
+    rate_rows = [{"label": site.title(run), "tag": site.tag(run), "family": site.families[run["run"]]["name"], "href": href(run),
+                  "texts": [pct(model["non_hallucination"], digits), pct(model["attempt_rate"], digits), error(model)],
                   "bars": [{"value": model["non_hallucination"], "colour": rank_fill(stops, model["non_hallucination"], min(rates), max(rates))}],
                   "title": f"{plain(run)} (Artificial Analysis: {name}): {model['dont_know']:,} “{option}” of {model['dont_know'] + model['wrong']:,} not right"}
                  for name, run, model in ran]
@@ -154,10 +158,13 @@ def build(site: Site) -> dict[str, str]:
         card("chart-accuracy", "Accuracy", f"Share of the Text tab's {total:,} questions answered right · higher is better", accuracy_rows,
              scale_legend(stops, pct(min(accuracies), digits), pct(max(accuracies), digits)))
         + card("chart-non-hallucination", "Non-hallucination rate",
-               f"“{esc(option)}” among the answers that were not right, with it offered as a sixth option (the Hallucination tab) · higher is better",
+               f"“{esc(option)}” among the answers that were not right, with it offered as a sixth option (the Hallucination "
+               "tab); beside it the share answered and the error rate among the answers · higher non-hallucination is "
+               "better, read with the share answered",
                rate_rows,
                scale_legend(stops, pct(min(rates), digits), pct(max(rates), digits))
-               + (f" <span>Not run with “{esc(option)}”: {esc(joined(not_held))}.</span>" if not_held else ""))
+               + (f" <span>Not run with “{esc(option)}”: {esc(joined(not_held))}.</span>" if not_held else ""),
+               columns=hold.COLUMNS)
         + card("chart-cost", "Cost per 1M questions",
                "Estimated from list prices and the token use recorded in each run, in US dollars per 1 million questions (the "
                "Text tab gives it per 1,000 questions) · lower is better",
@@ -177,7 +184,9 @@ def build(site: Site) -> dict[str, str]:
 
     heads = [("Accuracy", f"{total:,} questions; higher is better"), ("Reading", f"{reading_n:,} questions; higher is better"),
              ("Grammar", f"{grammar_n:,} questions; higher is better"), ("Page images, picture alone", f"{pages_n:,} questions; higher is better"),
-             ("Non-hallucination rate", f"with “{option}”; higher is better"), ("Attempt rate", f"with “{option}”; neither better nor worse on its own"),
+             ("Non-hallucination", f"of answers not right, % “{option}” · higher is better"),
+             ("Answered", f"not “{option}”: (right + wrong) / {total:,}"),
+             ("Error rate", "of its answers: wrong / (right + wrong) · lower is better"),
              ("Cost per 1,000 questions", "estimated; lower is better"), ("Cost per 1M questions", "the same, × 1,000; lower is better"),
              ("Median latency per request", "seconds; lower is better")]
     labels = [f"{head} ({direction})" for head, direction in heads]
@@ -199,6 +208,7 @@ def build(site: Site) -> dict[str, str]:
              else f'{pct(picture["accuracy"], digits)}<span class="small">{picture["correct"]:,} of {picture["questions"]:,}</span>'),
             NOT_RUN if model is None else f'{pct(model["non_hallucination"], digits)}<span class="small">{model["dont_know"]:,} “{esc(option)}” of {model["dont_know"] + model["wrong"]:,} not right</span>',
             NOT_RUN if model is None else f'{pct(model["attempt_rate"], digits)}<span class="small">{model["right"] + model["wrong"]:,} of {total:,} answered</span>',
+            NOT_RUN if model is None else error(model),
             cost_missing(run) if cost is None else priced_cell(f"{upper(run)}${cost:.3f}"),
             cost_missing(run) if cost is None else priced_cell(f"{upper(run)}${per_million(cost):,.0f}"),
             NOT_MEASURED if latency(run) is None else f"{latency_text(latency(run))}{sample(run)}" + (
@@ -234,10 +244,9 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Compared with Artificial Analysis</p>
       <h1>{esc(TITLE)}</h1>
-      <p>Our numbers for {len(pairs)} of the {len(pairs) + len(absent)} decision models of Artificial Analysis's Decision Index v1.0; our tests differ from theirs, so the two rank different things.</p>
       <nav class="face-nav" aria-label="On this page"><a href="#reply-charts">Reply charts</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#chart-latency">Latency</a><a href="#table">Every number</a></nav>
     </section>
-    {reply_cards(site)}
+    {reply_cards(site, f"Our numbers for {len(pairs)} of the {len(pairs) + len(absent)} decision models of Artificial Analysis's Decision Index v1.0; our tests differ from theirs, so the two rank different things.")}
     <section class="charts" aria-label="Charts">{charts}</section>
     <section class="card" id="table">
       <h2>Every number, model by model</h2>

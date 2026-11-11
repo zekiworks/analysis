@@ -23,10 +23,11 @@ from typing import Any
 
 import benchmark_metrics as bm
 import build_page as bp
+from sitebuild import holding_back as hold
 from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run)
 from sitebuild.names import base_model, tag_html
-from sitebuild.site import (NOT_MEASURED, Site, cost_missing, cost_per, cost_value, esc, family_icon, parameters_text,
-                            pct, rel, size_sentence, stated_total)
+from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, Site, cost_missing, cost_per, cost_value, esc, family_icon,
+                            parameters_text, pct, rel, size_sentence, stated_total)
 
 # The reasoning settings in order, as the requests sent them: none and off (and a setup without a setting, or a chat
 # template's default, vllm-plain's "default") lowest; "on" is the setting of a model with thinking on or off only, above
@@ -206,6 +207,52 @@ def details(site: Site, run: dict[str, Any], box: str, lines: list[str | None], 
             + "".join(f"<p>{line}</p>" for line in body if line) + "</div>")
 
 
+def details_key(site: Site, run: dict[str, Any], box: str) -> str:
+    """A row's Details key below 900 px (Ümit #4665 item 10): a button that opens and closes its details box (site.js
+    leaderboardDetails), beside the tap, hover and focus that open it too. Hidden from 900 px, where the row shows every
+    column, and without JavaScript, where every box shows in its row."""
+    return (f'<button type="button" class="lb-details-key needs-js" aria-expanded="false" aria-controls="{box}" '
+            f'aria-label="Details: {esc(site.plain(run))}">Details</button>')
+
+
+def held_head(option: str) -> str:
+    """The Non-hallucination column's head, with what it is in one phrase, as Logic & Math's (bus #4685)."""
+    return f'Non-hallucination<span class="small">of answers not right, % \u201c{esc(option)}\u201d \u00b7 higher is better</span>'
+
+
+def held_cell(counts: dict[str, Any] | None, digits: int) -> str:
+    """The Non-hallucination cell (Ümit #4665): the rate with, as a small second line as the score's interval, the share
+    answered, as Logic & Math's ("answered 98%"); Not run without a run with the option, No rate where the rate is
+    undefined."""
+    if counts is None:
+        return '<span class="nm">Not run</span>'
+    rate = '<span class="nm">No rate</span>' if counts["non_hallucination"] is None else pct(counts["non_hallucination"], digits)
+    return f'{rate}<span class="small lb-ci">answered {pct(counts["attempt_rate"], 0)}</span>'
+
+
+def held_line(option: str, counts: dict[str, Any] | None, digits: int) -> str | None:
+    """The details box's line on the run with the option: the non-hallucination rate, the share answered and the error
+    rate among the answers together (Ümit #4665), in Logic & Math's words; none without a run or a rate."""
+    if counts is None or counts["non_hallucination"] is None:
+        return None
+    error = hold.error_rate(counts)
+    return (f"Non-hallucination with \u201c{esc(option)}\u201d {pct(counts['non_hallucination'], digits)} \u00b7 answered "
+            f"{pct(counts['attempt_rate'], digits)}" + (f" \u00b7 error rate {pct(error, digits)}" if error is not None else ""))
+
+
+def kept_line(sure: str, kept: dict[str, Any] | None, questions: int) -> str | None:
+    """The details box's line on the answers kept at the threshold: none kept reads NO_ANSWERS, muted (Ümit #4665),
+    never "no observed mistakes"."""
+    if not kept:
+        return None
+    if not kept["questions"]:
+        return f'Kept at {sure} confidence: <span class="nm">{NO_ANSWERS}</span>'
+    if kept["correct"] == kept["questions"]:
+        return f"Kept at {sure} confidence with no observed mistakes: {pct(kept['questions'] / questions)}"
+    return (f"Kept at {sure} confidence: {pct(kept['questions'] / questions)}, {bp.count(kept['questions'] - kept['correct'])} "
+            "of them wrong")
+
+
 def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[str], list[str], int]:
     """The Turkish part (group None: all questions, ranked in tiers) or the Turkish reading or Turkish grammar part
     (group "reading" or "grammar": the same rows, ranked on that group's questions, with its accuracy and 95% interval;
@@ -221,28 +268,23 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
     def facts(run: dict[str, Any]) -> tuple[list[str | None], list[str]]:
         correct, questions = accuracy(run)
         model = board.rated.get(run["run"])
-        rate = None if model is None or model["non_hallucination"] is None else pct(model["non_hallucination"], digits)
         kept = (run.get("confidence") or {}).get("sure") if site.decision(run) else None
         value = bp.per_thousand(run)
         lines = [
             (f"Turkish {group} {pct(counts(run)[0] / counts(run)[1])} {interval(*counts(run))}" if group else None),
             f"Accuracy {pct(correct / questions)} {interval(correct, questions)}",
             f"Reading {pct(share(run, 'reading'))} · grammar {pct(share(run, 'grammar'))}",
-            f"Non-hallucination with \u201c{esc(board.option)}\u201d: {rate}" if rate else None,
-            (f"Kept at {sure} confidence with no observed mistakes: {pct(kept['questions'] / questions)}"
-             if kept["correct"] == kept["questions"] else
-             f"Kept at {sure} confidence: {pct(kept['questions'] / questions)}, {bp.count(kept['questions'] - kept['correct'])} "
-             f"of them wrong") if kept and kept["questions"] else None,
+            held_line(board.option, model, digits),
+            kept_line(sure, kept, questions),
             " · ".join(filter(None, (cost_text(site, run, value, run.get("cost_basis"), bool(run.get("cost_upper_bound"))),
                                      bp.count(run["questions_per_request"]) + " question"
                                      + ("" if run["questions_per_request"] == 1 else "s") + " per request"))),
         ]
-        hall = ('<span class="nm">Not run</span>' if model is None else rate or '<span class="nm">No rate</span>')
         mark = f'{site.config["first_cost_marks"]["upper"]["mark"]} ' if run.get("cost_upper_bound") else ""
         cost = (cost_missing(run) if value is None else
                 f'{cost_value(value, mark)}<span class="small">{esc(BASIS_WORDS[run["cost_basis"]])}</span>')
         cells = ([pct(share(run, "reading")), pct(share(run, "grammar"))] if group is None else
-                 [pct(correct / questions), pct(share(run, other))]) + [hall, cost]
+                 [pct(correct / questions), pct(share(run, other))]) + [held_cell(model, digits), cost]
         return lines, cells
 
     def score(run: dict[str, Any]) -> tuple[str, int]:
@@ -252,7 +294,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
 
     rows = board.turkish_rows()
     heads = (["Reading", "Grammar"] if group is None else ["Turkish<span class=\"small\">all questions</span>", other.capitalize()])
-    heads += [f"Non-hallucination<span class=\"small\">with \u201c{esc(board.option)}\u201d</span>",
+    heads += [held_head(board.option),
               f"Cost<span class=\"small\">{cost_per()}</span>"]
     questions = total if group is None else counts(rows[0][0])[1]
     title = "Accuracy" if group is None else f"Accuracy on {group}"
@@ -269,7 +311,6 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
     def facts(model: dict[str, Any]) -> tuple[list[str | None], list[str]]:
         en, tr = model["english"], model.get("turkish")
         held = board.english_rated.get(model.get("turkish_run", model["run"]))
-        rate = None if held is None or held["non_hallucination"] is None else pct(held["non_hallucination"], digits)
         cost = model["cost"]["english"]
         value = cost["per_1000"] if cost else None
         size = (model["latency"].get("english") or {}).get("questions_per_request")
@@ -277,7 +318,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                   f"{interval(en['right'], kept)}, on the same {bp.count(kept)} kept reading questions",
                   f"English minus Turkish: {100 * model['difference']:+.1f} points"] if both else
                  [f"Accuracy in English {pct(en['accuracy'])} {interval(en['right'], kept)}, {bp.count(kept)} kept reading questions",
-                  f"Non-hallucination with \u201c{esc(board.english_option)}\u201d: {rate}" if rate else None,
+                  held_line(board.english_option, held, digits),
                   " · ".join(filter(None, (cost_text(site, run_of(model), value, cost["basis"] if cost else None,
                                                      bool(cost and cost.get("upper_bound"))),
                                            f"{bp.count(size)} question{'' if size == 1 else 's'} per request" if size else None))),
@@ -289,7 +330,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
         if both:
             cells = [pct(tr["accuracy"]), pct(en["accuracy"]), f"{100 * model['difference']:+.1f}"]
         else:
-            hall = ('<span class="nm">Not run</span>' if held is None else rate or '<span class="nm">No rate</span>')
+            hall = held_cell(held, digits)
             mark = f'{site.config["first_cost_marks"]["upper"]["mark"]} ' if cost and cost.get("upper_bound") else ""
             money = (cost_missing(run_of(model)) if value is None else
                      f'{cost_value(value, mark)}<span class="small">{esc(BASIS_WORDS[cost["basis"]])}</span>')
@@ -311,7 +352,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                  "English", "Difference<span class=\"small\">points, English minus Turkish</span>"]
     else:
         heads = [f"Accuracy in English<span class=\"small\">{bp.count(kept)} questions, 95% interval</span>",
-                 f"Non-hallucination<span class=\"small\">with \u201c{esc(board.english_option)}\u201d</span>",
+                 held_head(board.english_option),
                  f"Cost<span class=\"small\">{cost_per()}</span>"]
     body = table_rows(site, board, "bo" if both else "en", rows, run_of, facts, score,
                       lambda model: entry_href(site, "", model), False)
@@ -328,7 +369,8 @@ def name_cell(site: Site, href: str, box: str, run: dict[str, Any]) -> str:
 
 def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str, Any], list[dict[str, Any]]]], run_of: Any,
                facts: Any, score: Any, answers: Any, tested: bool) -> list[str]:
-    """The body rows of one part: each model row (Tier or Rank cell, maker dot and icon, name with its label and its expander,
+    """The body rows of one part: each model row (Tier or Rank cell, maker dot and icon, name with its label, its Details
+    key (details_key) and its expander,
     the score, the wide cells; its details box in the name cell, the only place its maker and kind show: project lead,
     bus #3039), then its other setups' rows, hidden, each with its own tag beside its name, the one thing that tells it
     apart. Each model row carries its kind, class (data-class) and score (data-score), and with tested
@@ -372,7 +414,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             f'<tr data-kind="{kind}"{site.class_attribute(run)} data-score="{points}"{tested_attributes} data-box="{box}">'
             f'<td class="num rank">{"–" if unranked[index] else numbers[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{family_icon(family["name"])}'
-            f'{name_cell(site, answers(item), box, run)}{more}'
+            f'{name_cell(site, answers(item), box, run)}{details_key(site, run, box)}{more}'
             f'{details(site, run, box, lines, answers(item))}</td><td class="lb-score">{cell}</td>'
             + "".join(wide(value) for value in cells) + "</tr>")
         for sub_id, other in zip(sub_ids, others):
@@ -383,7 +425,8 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
                 f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{site.class_attribute(other_run)} '
                 f'data-box="{other_box}"><td class="num"></td>'
                 f'<td class="model">{name_cell(site, answers(other), other_box, other_run)}<span class="small">'
-                f'other setting of {esc(site.title(run))}</span>{details(site, other_run, other_box, other_lines, answers(other))}</td>'
+                f'other setting of {esc(site.title(run))}</span>{details_key(site, other_run, other_box)}'
+                f'{details(site, other_run, other_box, other_lines, answers(other))}</td>'
                 f'<td class="lb-score">{score(other)[0]}</td>' + "".join(wide(value) for value in other_cells) + "</tr>")
     return out
 
@@ -398,7 +441,7 @@ def table(part: str, heads: list[str], body: list[str], caption: str) -> str:
 
 
 def meaning(part: str, total: int, kept: int, groups: dict[str, int]) -> str:
-    """What the score means, the one line above each part's table (groups: the reading and grammar question counts)."""
+    """What the score means, the one line under each part's table (groups: the reading and grammar question counts)."""
     return {
         "turkish": f"Accuracy: the share of the {bp.count(total)} Turkish questions answered right, with its 95% interval "
                    "as the whisker; higher is better.",
@@ -435,9 +478,10 @@ def class_line(site: Site, runs: list[dict[str, Any]]) -> str:
 
 def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
     """The Leaderboard's controls (the part switch, the type keys, the All setups key, then the Class keys on a row of
-    their own), then each part's meaning line, table, # line (TIER_LINE or RANK_LINE) and empty-view line, the row rule
-    line and the class rule line (Turkish shown first, Decision models and Class: All the default, site.js). The All
-    setups panel (today's full ranking with its tabs, #all-setups) follows it in index.html."""
+    their own), then each part's table, meaning line, empty-view line and # line (TIER_LINE or RANK_LINE), the row rule
+    line and the class rule line (Turkish shown first, Decision models and Class: All the default, site.js); nothing
+    stands between the keys and the table. The All setups panel (today's full ranking with its tabs, #all-setups) follows
+    it in index.html, then the line of counts."""
     board = Board(site)
     tr_heads, tr_body, _ = turkish(site, board)
     re_heads, re_body, _ = turkish(site, board, "reading")
@@ -464,7 +508,7 @@ def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
                 f'<span class="lb-keys-label" aria-hidden="true">Class:</span>{keys("class", [("all", "All"), *site.model_classes()], "all")}'
                 '</span></div>')
     panels = "".join(f'<div class="lb-part" data-lb-part="{part}"{"" if part == DEFAULT_PART else " hidden"}>'
-                     f'<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept, groups))}</p>{parts[part]}'
+                     f'{parts[part]}<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept, groups))}</p>'
                      f'<p class="table-note lb-empty" hidden>{esc(EMPTY_LINE)}</p>'
                      f'<p class="table-note lb-numbers">{esc(numbers[part])}</p></div>'
                      for part, _ in PARTS)

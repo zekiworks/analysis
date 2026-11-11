@@ -80,7 +80,7 @@ const ROUTING_NOTES = [
 const STABILITY_NOTE = [
   'Only the setups we repeated, five times each. Decision models and two Qwen3.8-27B setups were repeated on all questions; the other chat models on a sample of 200.',
 ];
-/* One line under the tab keys for Confidence and Stability, in the Method page's terms; the Routing tab's heading and
+/* One line under the board for Confidence and Stability, in the Method page's terms; the Routing tab's heading and
    diagram explain it. */
 const DEFINITIONS = {
   confidence: 'Whether a model’s confidence ranks right answers above wrong ones and matches its hit rate.',
@@ -210,10 +210,11 @@ const state = {
   ...DEFAULT_FILTERS,
   picked: new Set(),
   selected: null,
-  /* The model group the charts and the full ranking show, from the URL's ?models= (site.js): every setup ('all',
-     decision and chat models ranked together), the decision models ('decision') or the chat and general models
-     ('chat'). */
+  /* The model group the charts and the full ranking show, the Leaderboard's type (site.js homeView): every setup
+     ('all', decision and chat models ranked together), the decision models ('decision') or the chat and general models
+     ('chat'); and its classes (none: every class). */
   models: 'all',
+  classes: [],
   tab: 'accuracy',
   sort: { key: 'accuracy', descending: true },
   route: { ...DEFAULT_ROUTE },
@@ -274,9 +275,12 @@ const MODEL_GROUPS = {
   decision: { title: 'Decision models', every: 'every decision model', of: count => `the ${count} decision models` },
   chat: { title: 'Chat models', every: 'every chat and general model', of: count => `the ${count} chat and general models` },
 };
-const inGroup = run => state.models === 'all' || isDecision(run) === (state.models === 'decision');
-/* Every setup of the group in view, whatever the filters. */
+const inGroup = run => (state.models === 'all' || isDecision(run) === (state.models === 'decision'))
+  && (!state.classes.length || state.classes.includes(SETTINGS.classes[run.run]));
+/* Every setup of the group and classes in view, whatever the filters. */
 const groupRuns = () => data.runs.filter(inGroup);
+/* The classes in view, in words for a heading or a chart's notes ("Class: Small"; nothing under Class: All). */
+const classWords = () => homeView?.classText ?? '';
 
 /* A setup that searched the web before answering (perplexity_mode), and the small badge beside its displayed name in a
    list, left out where that name already says "with web". */
@@ -325,8 +329,15 @@ const sureCounts = run => {
   const sure = run.confidence?.sure;
   return sure ? { right: sure.correct, kept: sure.questions, skipped: data.questions - sure.questions, invalid: run.invalid || 0 } : null;
 };
+/* A setup that keeps no answers at the threshold reads so, muted, never "0 of 0 kept" (Ümit #4665); it sorts last. */
+const NO_ANSWERS = '<span class="nm">No answers at this threshold</span>';
+/* Right of kept at the threshold, with the skipped ones (and those without a valid answer) under it. */
+const keptText = sure =>
+  `${integer(sure.right)} of ${integer(sure.kept)} kept<span class="small">${integer(sure.skipped)} skipped${sure.invalid ? `, ${integer(sure.invalid)} without a valid answer` : ''}</span>`;
+/* The error rate among a run's answers with the option: wrong / (right + wrong). */
+const errorRate = held => (held.right + held.wrong ? pct(held.wrong / (held.right + held.wrong)) : 'none');
 
-/* The Confidence tab's guide above the table: each term, then what it means. */
+/* The Confidence tab's guide under the table: each term, then what it means. */
 const CONFIDENCE_GUIDE = [
   ['Confidence', 'the probability a model gives to its own answer.'],
   ['Calibration', 'whether that probability matches how often the model is right. Of 100 answers scored 80%, about 80 should be right.'],
@@ -376,11 +387,11 @@ const TABS = {
       {
         key: 'sure-correct', label: `Correct answers at ${pct(SETTINGS.threshold, 0)}`,
         tip: `Answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only the questions it was ${pct(SETTINGS.threshold, 0)} sure of.`,
-        value: run => (filtered() ? null : run.confidence.sure.correct),
+        value: run => (filtered() || !run.confidence.sure.questions ? null : run.confidence.sure.correct),
         cell: run => {
           if (filtered()) return MISSING;
           const sure = sureCounts(run);
-          return `${integer(sure.right)} of ${integer(sure.kept)} kept<span class="small">${integer(sure.skipped)} skipped${sure.invalid ? `, ${integer(sure.invalid)} without a valid answer` : ''}</span>`;
+          return sure.kept ? keptText(sure) : NO_ANSWERS;
         },
       },
       {
@@ -669,6 +680,7 @@ function emptyReason() {
   if (!visibleRuns().length) {
     const size = state.qpr === 'all' || state.web !== 'all' ? null : `ran at ${requestSize(state.qpr)}`;
     if (state.picked.size) return `None of the models you picked ${size ?? 'matches these filters'}.`;
+    if (!size && state.web === 'all' && state.classes.length) return 'No setup of the type and class chosen on the Leaderboard.';
     return `No setup ${size ?? 'matches these filters'}.`;
   }
   if (state.tab === 'routing' && state.models === 'chat') return 'Only decision models went first in front of an LLM: the Routing tab has no chat model.';
@@ -677,8 +689,8 @@ function emptyReason() {
   return 'No setup matches these filters.';
 }
 
-/* The tab's rows as one table, ranked together: the group of ?models= (every setup, the decision models or the chat
-   models). */
+/* The tab's rows as one table, ranked together: the Leaderboard's type and classes (every setup, the decision models or
+   the chat models). */
 function renderBoard() {
   const tab = TABS[state.tab];
   if (tab.more && !more.ready) {
@@ -691,7 +703,7 @@ function renderBoard() {
   const rows = sortRows(tab.rows(), tab.columns);
   const labels = chartLabels(rows.map(row => row.run));
   const table = rows.length
-    ? `<h3 class="board-group">${esc(MODEL_GROUPS[state.models].title)}</h3><div class="table-frame"><div class="table-wrap"><table class="board${tab.wrapHeaders ? ' wrap-headers' : ''}"><thead><tr><th scope="col">Model</th>` +
+    ? `<h3 class="board-group">${esc([MODEL_GROUPS[state.models].title, classWords()].filter(Boolean).join(' · '))}</h3><div class="table-frame"><div class="table-wrap"><table class="board${tab.wrapHeaders ? ' wrap-headers' : ''}"><thead><tr><th scope="col">Model</th>` +
       `${tab.columns.map(column => header(column, tab.directions)).join('')}</tr></thead><tbody>` +
       rows.map(row => `<tr data-run="${row.run.run}"${state.selected === row.run.run ? ' class="is-selected"' : ''}>${modelCell(row.run, labels)}` +
         `${tab.columns.map(column => `<td class="num">${column.cell(row)}</td>`).join('')}</tr>`).join('') +
@@ -718,7 +730,7 @@ function renderBoard() {
     : '';
   const board = document.getElementById('board');
   const split = state.tab === 'routing' ? splitNote(rows) : '';
-  board.innerHTML = routing + guide + table + (split ? `<p class="table-note">${esc(split)}</p>` : '') + marks + (notes ? `<div class="tab-notes">${notes}</div>` : '');
+  board.innerHTML = routing + table + (split ? `<p class="table-note">${esc(split)}</p>` : '') + marks + guide + (notes ? `<div class="tab-notes">${notes}</div>` : '');
   board.setAttribute('aria-labelledby', `tab-${state.tab}`);
   board.querySelectorAll('.table-wrap').forEach(wrap => wrap.addEventListener('scroll', onTableScroll, { passive: true }));
   document.querySelectorAll('[data-setups]').forEach(count => {
@@ -795,18 +807,20 @@ function renderFilters() {
 
 /* ---- Charts ---- */
 
-/* Which setups a chart shows, in words: the group, then any filter that narrows it. */
+/* Which setups a chart shows, in words: the group and its classes, then any filter that narrows it. */
 function chartScope(runs) {
   const head = `${integer(runs.length)} setup${runs.length === 1 ? '' : 's'}`;
   const group = MODEL_GROUPS[state.models];
+  const classes = classWords() ? ` (${classWords()})` : '';
   const web = { all: '', with: 'with web grounding', without: 'without web grounding' }[state.web];
   const narrowed = [state.qpr === 'all' ? '' : `at ${requestSize(state.qpr)}`, web, state.picked.size ? 'the models you picked' : ''].filter(Boolean);
-  if (!narrowed.length) return `${head}: ${group.every}.`;
-  return `${head} of ${group.of(integer(groupRuns().length))}: ${narrowed.join(', ')}.`;
+  if (!narrowed.length) return `${head}: ${group.every}${classes}.`;
+  return `${head} of ${group.of(integer(groupRuns().length))}${classes}: ${narrowed.join(', ')}.`;
 }
 
-/* The filters behind a chart, for its downloaded image. */
-function chartCondition() {
+/* The filters behind a chart, for its downloaded image; a chart on all questions only (allOnly) ignores the part. */
+function chartCondition(allOnly = false) {
+  if (allOnly) return [`${integer(data.questions)} questions (all questions)`, filterSummary()].join(' · ');
   const where = state.topic != null
     ? `topic “${units().find(unit => unit.number === state.topic).english}”`
     : state.part === 'all' ? 'all questions' : `${state.part} questions`;
@@ -815,10 +829,11 @@ function chartCondition() {
 
 const MEASURES = {
   accuracy: { label: 'Accuracy', axis: 'Accuracy (%)', value: run => accuracyOf(run), log: false, text: value => percent(value), higher: true },
-  /* As in the Confidence tab: on all questions only, in points. */
+  /* As in the Confidence tab, in points, on all questions only: with the Leaderboard on Turkish reading or grammar the
+     chart keeps every question (its header says so); under a topic it has no value. */
   gap: {
     more: true,
-    label: 'Calibration gap', axis: 'Calibration gap, as shipped (points)', value: run => (filtered() ? null : run.confidence?.ece ?? null),
+    label: 'Calibration gap', axis: 'Calibration gap, as shipped (points)', value: run => (state.topic != null ? null : run.confidence?.ece ?? null),
     log: false, points: true, allOnly: true, text: value => (100 * value).toFixed(1), higher: false,
   },
   latency: { label: 'Latency', axis: 'Median latency per request (s), log scale', value: latencyOf, log: true, text: secondsText, higher: false },
@@ -1026,8 +1041,8 @@ function barChart(box, name) {
     box.innerHTML = `<p class="note">${esc(emptyReason())}</p>`;
     return;
   }
-  if (measure.allOnly && filtered()) {
-    box.innerHTML = `<p class="note">${esc(`${EMPTY.allOnly}: clear the part and topic filters to see it.`)}</p>`;
+  if (measure.allOnly && state.topic != null) {
+    box.innerHTML = `<p class="note">${esc(`${EMPTY.allOnly}: clear the topic filter to see it.`)}</p>`;
     return;
   }
   const labels = chartLabels(runs);
@@ -1402,12 +1417,12 @@ function renderCharts() {
   readingGrammarChart(document.querySelector('[data-chart="reading-grammar"]'));
 }
 
-/* The cost of every setup: one table of every setup of the group in view (?models=), whatever the filters and the model
-   selection, so cheap alternatives sit beside accuracy and latency. Cheapest first by costPer1000, ties by higher
-   accuracy; setups without a cost last, by accuracy. "× cheapest" is a cost over the cheapest priced setup's in the
-   table, from the unrounded values, to 2 significant figures. Pareto: the trade-off chart's rule over every priced setup
-   in the table, on accuracy on all questions. The first TOP_ROWS rows until its Show all key opens the rest. Drawn once,
-   and again when that key is pressed, as nothing else on the page changes it. */
+/* The cost of every setup: one table of every setup of the Leaderboard's type and classes, whatever the address's other
+   filters and the model selection, so cheap alternatives sit beside accuracy and latency. Cheapest first by
+   costPer1000, ties by higher accuracy; setups without a cost last, by accuracy. "× cheapest" is a cost over the
+   cheapest priced setup's in the table, from the unrounded values, to 2 significant figures. Pareto: the trade-off
+   chart's rule over every priced setup in the table, on accuracy on all questions. The first TOP_ROWS rows until its
+   Show all key opens the rest. Drawn again when that key is pressed and as the Leaderboard's keys change. */
 const timesText = ratio => `×${ratio.toLocaleString('en-US', { maximumSignificantDigits: 2 })}`;
 function costTable(box) {
   const runs = groupRuns();
@@ -1438,8 +1453,8 @@ function costTable(box) {
       `<td class="num">${cost == null ? '' : timesText(cost / costPer1000(cheapest))}</td>` +
       `<td class="num">${percent(overallAccuracy(run))}</td>` +
       `<td class="num">${latencyOf(run) == null ? NM : esc(latencyText(run))}</td>` +
-      `<td class="num">${counts ? `${integer(counts.right)} right of ${integer(counts.kept)} kept, ${integer(counts.skipped)} skipped${counts.invalid ? ` (${integer(counts.invalid)} without a valid answer)` : ''}` : NM}</td>` +
-      `<td class="num">${held ? `<a href="dont-know/">${pct(held.non_hallucination)}, attempt rate ${pct(held.attempt_rate)}</a>` : 'Not run'}</td></tr>`;
+      `<td class="num">${counts ? (counts.kept ? `${integer(counts.right)} right of ${integer(counts.kept)} kept, ${integer(counts.skipped)} skipped${counts.invalid ? ` (${integer(counts.invalid)} without a valid answer)` : ''}` : NO_ANSWERS) : NM}</td>` +
+      `<td class="num">${held ? `<a href="dont-know/">${pct(held.non_hallucination)}</a><span class="small">answered ${pct(held.attempt_rate, 0)} · error rate ${errorRate(held)}</span>` : 'Not run'}</td></tr>`;
   };
   /* The section's one caveat line is under the Cost chart; the columns (× cheapest, Pareto, Kept at, Non-hallucination)
      are explained on the Method page with the cost bases. */
@@ -1453,8 +1468,8 @@ function costTable(box) {
     `</tr></thead><tbody>${shown.map(row).join('')}</tbody></table></div></div>` +
     showAllKey('cost-table', all.length) +
     [shownNote('cost-table', all, shown), ...notes].filter(Boolean).map(note => `<p class="chart-legend">${esc(note)}</p>`).join('');
-  const group = MODEL_GROUPS[state.models].every;
-  document.querySelector('[data-cost-sub]').textContent = `${group[0].toUpperCase()}${group.slice(1)}, whatever the filters or the model selection · ` +
+  const group = `${MODEL_GROUPS[state.models].every}${classWords() ? ` (${classWords()})` : ''}`;
+  document.querySelector('[data-cost-sub]').textContent = `${group[0].toUpperCase()}${group.slice(1)}, whatever the other filters or the model selection · ` +
     'cheapest first, with accuracy, latency, the confidence cutoff and hallucination beside the cost · lower cost is better';
 }
 
@@ -1500,7 +1515,7 @@ async function downloadChart(name) {
     y += Math.round(size * 1.4);
     texts.push(`<text x="10" y="${y}" font-family="${font}" font-size="${size}" font-weight="${weight}" fill="${fill}">${esc(line)}</text>`);
   });
-  write(name === 'tradeoff' ? `Trade-off: accuracy against ${state.across} · ${chartCondition()}` : `${MEASURES[name].label} · ${chartCondition()}`, 14, 700, colour('--text'));
+  write(name === 'tradeoff' ? `Trade-off: accuracy against ${state.across} · ${chartCondition()}` : `${MEASURES[name].label} · ${chartCondition(MEASURES[name].allOnly)}`, 14, 700, colour('--text'));
   write(chartScope(visibleRuns()), 12, 400, colour('--text-2'));
   const head = y + 12;
   y = head + height + 20;
@@ -1568,12 +1583,33 @@ function toggleRows(name) {
 
 /* ---- Page address and history ---- */
 
-/* The open tab, the filters and, on the Routing tab, its four choices live in the page URL, so a link, a reload or Back
-   opens that exact view: ?part=reading&topic=3&size=16&web=with&setups=145,199 for the filters (size, not Routing's
-   per-request; setups, the models picked), ?tab=routing&llm=astra&per-request=16&rule=half&test=replay for Routing. A
-   key at its default is left out; an unknown value is ignored. */
+/* The view lives in the page URL, so a link, a reload or Back opens that exact view (Ümit #4665). The Leaderboard's
+   part, type, classes and All setups (site.js: ?part=, ?models=, ?class=, ?setups=all) are this page's too (syncView).
+   Here: the address's filters, ?topic=3&size=16&web=with&setups=145,199 (size, not Routing's per-request; setups, the
+   models picked, beside site.js's "all"), and while All setups is open its tab, the sort when it is not the tab's own
+   (?sort=latency&order=asc), the trade-off chart's measure across (?across=latency) and on the Routing tab its four
+   choices (?tab=routing&llm=astra&per-request=16&rule=half&test=replay). A key at its default is left out; an unknown
+   value is ignored. */
 const llmSlug = llm => llm.slug;
-const FILTER_KEYS = ['part', 'topic', 'size', 'web', 'setups'];
+const VIEW_KEYS = ['topic', 'size', 'web', 'tab', 'sort', 'order', 'across', 'llm', 'per-request', 'rule', 'test'];
+/* The Leaderboard's parts that are a part filter here; on any other the charts keep all Turkish questions. */
+const LEADERBOARD_PARTS = { 'turkish-reading': 'reading', 'turkish-grammar': 'grammar' };
+
+/* The Leaderboard's view (site.js homeView) as this page's: its type and classes choose the setups, its Turkish reading
+   or Turkish grammar part is the part filter (a topic keeping its own part), and with All setups closed its tab, sort
+   and measure across go back to their defaults, as the address then leaves them out. */
+function syncView() {
+  state.models = homeView?.type ?? 'all';
+  state.classes = homeView?.classes ?? [];
+  state.part = LEADERBOARD_PARTS[homeView?.part] ?? 'all';
+  const topic = units().find(unit => unit.number === state.topic);
+  if (topic && state.part !== 'all' && state.part !== unitPart(topic)) state.part = unitPart(topic);
+  if (homeView && !homeView.all) {
+    state.tab = 'accuracy';
+    state.sort = defaultSort(state.tab);
+    state.across = DEFAULT_ACROSS;
+  }
+}
 
 function readUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -1588,53 +1624,56 @@ function readUrl() {
   const routed = llm || rule || params.has('per-request') || params.has('test');
   if (TABS[params.get('tab')]) state.tab = params.get('tab');
   else if (routed) state.tab = 'routing';
-  /* The model group from ?models=, as site.js reads it; missing or unknown means all. */
-  const models = document.documentElement.dataset.modelsView;
-  state.models = Object.hasOwn(MODEL_GROUPS, models ?? '') ? models : 'all';
-  /* The filters: a topic keeps the part it belongs to; the models picked stay those of the group in view. */
-  if (['reading', 'grammar'].includes(params.get('part'))) state.part = params.get('part');
+  const column = TABS[state.tab].columns.find(item => item.key === params.get('sort'));
+  state.sort = column ? { key: column.key, descending: params.get('order') !== 'asc' } : defaultSort(state.tab);
+  if (['cost', 'latency'].includes(params.get('across'))) state.across = params.get('across');
   const topic = units().find(unit => String(unit.number) === params.get('topic'));
-  if (topic) {
-    state.topic = topic.number;
-    if (state.part !== 'all' && state.part !== unitPart(topic)) state.part = unitPart(topic);
-  }
+  if (topic) state.topic = topic.number;
+  syncView();
+  /* The filters; the models picked stay those of the group in view. */
   const qpr = Number(params.get('size'));
   if (data.runs.some(run => run.questions_per_request === qpr)) state.qpr = qpr;
   if (['with', 'without'].includes(params.get('web'))) state.web = params.get('web');
-  state.picked = new Set((params.get('setups') ?? '').split(',').map(Number).filter(id => byId.get(id) && inGroup(byId.get(id))));
+  state.picked = new Set((params.get('setups') ?? '').split(',').filter(token => /^\d+$/.test(token)).map(Number)
+    .filter(id => byId.get(id) && inGroup(byId.get(id))));
 }
 
-/* The highlighted setup, the sort and the chart choice, kept with the browser's history entry rather than the URL, so
-   Back from a model's page returns to the same view. */
+/* The highlighted setup, kept with the browser's history entry rather than the URL, so Back from a model's page returns
+   to it. */
 function remembered() {
-  const { selected, sort, across } = state;
-  return { selected, sort, across };
+  return { selected: state.selected };
 }
 
-/* Only the keys remembered() writes come back, so an entry saved by an earlier version of the page sets nothing else
-   (the filters come from the URL). */
+/* Only the key remembered() writes comes back, so an entry saved by an earlier version of the page sets nothing else
+   (the view comes from the URL). */
 function restore() {
   const saved = window.history.state?.v3;
-  if (!saved) return;
-  ['selected', 'sort', 'across'].forEach(key => {
-    if (saved[key] !== undefined) state[key] = saved[key];
-  });
+  if (saved?.selected !== undefined) state.selected = saved.selected;
 }
 
 function writeUrl() {
   const params = new URLSearchParams(window.location.search);
-  ['tab', 'llm', 'per-request', 'rule', 'test', ...FILTER_KEYS].forEach(key => params.delete(key));
-  if (state.part !== 'all') params.set('part', state.part);
+  VIEW_KEYS.forEach(key => params.delete(key));
   if (state.topic != null) params.set('topic', String(state.topic));
   if (state.qpr !== 'all') params.set('size', String(state.qpr));
   if (state.web !== 'all') params.set('web', state.web);
-  if (state.picked.size) params.set('setups', [...state.picked].sort((a, b) => a - b).join(','));
-  if (state.tab !== 'accuracy') params.set('tab', state.tab);
-  if (state.tab === 'routing') {
-    params.set('llm', llmSlug(routeLlm()));
-    params.set('per-request', String(state.route.qpr));
-    params.set('rule', routeRule().slug);
-    params.set('test', state.route.mode);
+  const setups = [...((params.get('setups') ?? '').split(',').includes('all') ? ['all'] : []), ...[...state.picked].sort((a, b) => a - b)];
+  if (setups.length) params.set('setups', setups.join(','));
+  else params.delete('setups');
+  if (homeView?.all) {
+    if (state.tab !== 'accuracy') params.set('tab', state.tab);
+    const own = defaultSort(state.tab);
+    if (state.sort.key !== own.key || state.sort.descending !== own.descending) {
+      params.set('sort', state.sort.key);
+      params.set('order', state.sort.descending ? 'desc' : 'asc');
+    }
+    if (state.across !== DEFAULT_ACROSS) params.set('across', state.across);
+    if (state.tab === 'routing') {
+      params.set('llm', llmSlug(routeLlm()));
+      params.set('per-request', String(state.route.qpr));
+      params.set('rule', routeRule().slug);
+      params.set('test', state.route.mode);
+    }
   }
   /* The list of setups keeps its commas readable. */
   const query = params.toString().replace(/%2C/g, ',');
@@ -1650,6 +1689,8 @@ function render() {
   renderBoard();
   updateSwipe();
   renderCharts();
+  /* All setups' header line follows the part on some tabs only (site.js SCOPES). */
+  renderScopes();
   writeUrl();
 }
 
@@ -1757,6 +1798,12 @@ function onClick(event) {
   else if (dataset.control === 'share') {
     shareView(button);
     return;
+  } else if (dataset.control === 'reset') {
+    /* Reset filters: the address's filters and the models picked cleared, every type and class again on the
+       Leaderboard, which then redraws this page ('home-view'). */
+    Object.assign(state, { topic: null, qpr: DEFAULT_FILTERS.qpr, web: DEFAULT_FILTERS.web, picked: new Set() });
+    homeView.reset();
+    return;
   } else if (dataset.chartAll) {
     toggleRows(dataset.chartAll);
     return;
@@ -1829,7 +1876,6 @@ async function start() {
     costTable(document.querySelector('[data-cost-table]'));
     render();
   });
-  state.sort = defaultSort(state.tab);
   restore();
   render();
   /* The page opens at its top; a link into it (#board, a chart) lands on its target once the charts and the table
@@ -1842,11 +1888,12 @@ async function start() {
     else land();
   }
   document.addEventListener('click', onClick);
-  /* All setups opened (site.js): the full ranking, the cost table and the chart under it draw at the width they now have. */
-  document.addEventListener('leaderboard-view', () => {
+  /* The Leaderboard's keys changed or All setups opened or closed (site.js): its view is this page's, drawn at the
+     width All setups now has. */
+  document.addEventListener('home-view', () => {
+    syncView();
     costTable(document.querySelector('[data-cost-table]'));
-    updateSwipe();
-    renderCharts();
+    render();
   });
   document.addEventListener('keydown', onKeydown);
   document.addEventListener('change', onChange);

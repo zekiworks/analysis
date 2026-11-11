@@ -2,8 +2,8 @@
 """Build the site (this folder, at /analysis/decision-models/) from results.json, answers.json and page_config.json, in
 one step:
 
-    python3 build_site.py               # charts, link preview image, CITATION.cff and every page
-    python3 build_site.py --no-images   # the same, keeping the current link preview image (no Chrome needed)
+    python3 build_site.py               # charts, link preview images, CITATION.cff and every page
+    python3 build_site.py --no-images   # the same, keeping the Reading pages' current link preview images
     python3 build_site.py --no-images --fast   # the same, reusing reproduce.py's count when its inputs are unchanged
 
 It runs reproduce.py first and stops unless every check matches. reproduce.py takes about five minutes and the rest of
@@ -14,7 +14,9 @@ Every other step, every page and every copy check runs either way. It also stops
 decision and chat models has a run of a model whose type we have not decided (provider_checks), and when chart-renderer's
 figures give a run another type than the tables do (type_checks). Then it draws the charts with chart-renderer (cargo),
 the link preview image in both themes with headless Chrome (CHROME, else google-chrome) and CITATION.cff, both from
-build_page.py, and writes the pages.
+build_page.py, and writes the pages. All benches (sitebuild/all_benches.py) draws its own link preview the same way at
+every build, --no-images and --fast too, as its scores come from the benches' files read at each build: Chrome is
+needed either way.
 
 The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the Page images tab, dont-know/
 (sitebuild/dont_know.py) the Hallucination tab and turkish-vs-english/ (sitebuild/english_reading.py) the Turkish vs
@@ -326,15 +328,15 @@ def stats(data: Data) -> str:
     )
 
 
-def hero_counts(data: Data, site: Site) -> str:
-    """The hero's line of counts: questions, models (the Leaderboard's rows), setups and the last update."""
+def site_counts(data: Data, site: Site) -> str:
+    """The line of counts under the Leaderboard: questions, models (the Leaderboard's rows), setups and the last update."""
     return (f"{bp.count(data.results['questions'])} questions · {bp.count(leaderboard.model_count(site))} models · "
             f"{bp.count(len(data.runs))} setups · updated {bp.long_date(data.results['updated'])}")
 
 
-def page_settings(data: Data) -> str:
-    """What v3.js needs beyond its data files: their versioned addresses, which runs are decision models, the topics'
-    parts, the routing LLMs."""
+def page_settings(data: Data, site: Site) -> str:
+    """What v3.js needs beyond its data files: their versioned addresses, which runs are decision models, each run's
+    class, the topics' parts, the routing LLMs."""
     settings = {
         "homeUrl": asset(HOME),
         "moreUrl": asset(HOME_MORE),
@@ -346,6 +348,9 @@ def page_settings(data: Data) -> str:
         # maker_colours.json; run_families stops the build unless every run has exactly one family).
         "families": {run: family["name"] for run, family in run_families(data.runs).items()},
         "familyColours": {family["name"]: family["colour"] for family in model_families()},
+        # Each run's Class key (Site.model_class; empty for a setup in no class, shown under Class: All only), so the
+        # charts and the full ranking follow the Leaderboard's Class keys as its rows do (Ümit #4665).
+        "classes": {run["run"]: site.model_class(run) or "" for run in data.runs},
         # A saving whose first model ran on our own hardware: its marker, tooltip and note, by how its cost was counted.
         "firstCostMarks": {key: value for key, value in data.config["first_cost_marks"].items() if key != "about"},
         # The note under the Accuracy table (not_measured_note), also under the plain table, after the ranking's line.
@@ -391,7 +396,8 @@ NON_HALLUCINATION_NOUNS = {"decision": ("decision model", "decision models"), "c
 
 def non_hallucination(site: Site, finding: str) -> str:
     """The home page's Non-hallucination finding (#non-hallucination), in static HTML, once per model group (data-models,
-    from ?models=, site.js; the all group shown without it): the Hallucination tab's setups of the group (results.json
+    shown for the Leaderboard's type by site.js; the all group shown without it), each bar with its Class key (data-class,
+    which the Leaderboard's Class keys filter): the Hallucination tab's setups of the group (results.json
     dont_know, each row's group), held back two ways side by side (holding_back): (A) by confidence, each setup's Text tab
     run at the threshold, and (B) with the option, the tab's rows in its order, each bar its non-hallucination rate with
     the option in its model family's colour, then in columns of their own its attempt rate (the share of the questions
@@ -427,7 +433,7 @@ def non_hallucination(site: Site, finding: str) -> str:
             return (hold.block(heading, f'<p class="note">No {one} has a run with “{bp.esc(option)}” yet.{running_note}</p>')
                     if running else "")
         rows = [{"label": site.title(run_of(model)), "tag": site.tag(run_of(model)), "family": site.families[model["original_run"]]["name"],
-                 "href": site.model_path(run_of(model)),
+                 "href": site.model_path(run_of(model)), "class_key": site.model_class(run_of(model)),
                  "texts": [pct(model["non_hallucination"], digits), pct(model["attempt_rate"], digits), error(model)],
                  "bars": [{"value": model["non_hallucination"], "colour": site.families[model["original_run"]]["colour"]}],
                  "title": f"{site.plain(run_of(model))}: {model['dont_know']:,} “{option}” of "
@@ -438,7 +444,7 @@ def non_hallucination(site: Site, finding: str) -> str:
                               total, data["vs_confidence_share"], option, digits) if kind == "decision" else ""
         return hold.block(heading, (
             f'<p class="hold-kind">Each of the {len(models)} {one if len(models) == 1 else many}\' first run with it.</p>'
-            f'{hbars(rows, columns=[("Non-hallucination", "Non-hall."), ("Answered", "Ans."), ("Error rate (wrong / answered)", "Error")])}'
+            f'{hbars(rows, columns=hold.COLUMNS)}'
             f"{rare}"
             f'<p class="chart-legend">{family_legend([site.families[model["original_run"]] for model in rated])}'
             + (f" <span>No rate (neither a wrong answer nor “{bp.esc(option)}”): {bp.esc(', '.join(undefined))}.</span>"
@@ -593,11 +599,139 @@ def calibration(data: Data, site: Site) -> dict[str, Any]:
                  f"largest is {site.plain(worst)}'s, {points(worst)} points.")}
 
 
-def finding_html(item: dict[str, Any], key: str) -> str:
+# The views a finding heading reads for (Ümit #4665, via Main): the Leaderboard's type (all, decision or chat) with
+# Class: All, one class key, or Tiny and Small together (the old small addresses). site.js shows the view's heading as
+# the keys change (renderFindings); a view with no claim, or one not built here, shows the measure's name.
+VIEW_TYPES = ("all", "decision", "chat")
+OTHER_TYPE = {"decision": "chat", "chat": "decision"}
+
+
+def views(site: Site) -> list[tuple[str, tuple[str, ...]]]:
+    keys = [key for key, _ in site.model_classes()]
+    return [(kind, chosen) for kind in VIEW_TYPES for chosen in [(), *((key,) for key in keys), ("small", "tiny")]]
+
+
+def view_key(kind: str, chosen: tuple[str, ...]) -> str:
+    """A view as site.js names it: the type, then the class keys in alphabetical order ("decision|small,tiny")."""
+    return f"{kind}|{','.join(sorted(chosen))}"
+
+
+def class_words(site: Site, chosen: tuple[str, ...]) -> str:
+    """The classes of a view before a noun, in the keys' order ("Small ", "Tiny or Small "); nothing under Class: All."""
+    order = [key for key, _ in site.model_classes()]
+    labels = dict(site.model_classes())
+    return " or ".join(labels[key] for key in sorted(chosen, key=order.index)) + " " if chosen else ""
+
+
+# The headings that compare the two types, each as (both: under All with both types in view, the claim of findings();
+# one: the sentence about one type; other: the other type's figure as a "not shown here" clause), from the view's
+# classes in words (cw) and each type's figure as text. reading-grammar and calibration read for the setups in view
+# (variant_headings).
+PAIRED = {
+    "accuracy": (
+        lambda cw, f: f"The best {cw}chat setup gets {f['chat']} in 10 questions right; the best {cw}decision model {f['decision']} in 10",
+        lambda cw, kind, x: f"The best {cw}{'decision model' if kind == 'decision' else 'chat setup'} gets {x} in 10 questions right",
+        lambda cw, kind, x: f"; the best {cw}{'decision model' if kind == 'decision' else 'chat setup'}, not shown here, {x}"),
+    "non-hallucination": (
+        lambda cw, f, option: (f"The {cw}decision model that chooses “{option}” most does so on {f['decision']} in 100 of its "
+                               f"answers that were not right; the {cw}chat model that does so most, on {f['chat']}"),
+        lambda cw, kind, x, option: (f"The {cw}{kind} model that chooses “{option}” most does so on {x} in 100 of its answers "
+                                     "that were not right"),
+        lambda cw, kind, x, option: f"; the {cw}{kind} model that does so most, not shown here, on {x}"),
+    "cost": (
+        lambda cw, f: f"The median {cw}decision setup costs {f['decision']} {cost_per()}, the median {cw}chat setup {f['chat']}",
+        lambda cw, kind, x: f"The median {cw}{kind} setup costs {x} {cost_per()}",
+        lambda cw, kind, x: f"; the median {cw}{kind} setup, not shown here, {x}"),
+    "latency": (
+        lambda cw, f: (f"At 1 question per request, the median {cw}decision setup answers in {f['decision']} s, the median "
+                       f"{cw}chat setup in {f['chat']} s"),
+        lambda cw, kind, x: f"At 1 question per request, the median {cw}{kind} setup answers in {x} s",
+        lambda cw, kind, x: f"; the median {cw}{kind} setup, not shown here, in {x} s"),
+}
+
+
+def paired(key: str, kind: str, cw: str, figures: dict[str, str | None], holds: bool, *extra: str) -> str | None:
+    """A heading comparing the two types, for a view: under All with both types, the claim while it holds (else none);
+    under All with one type only in the view's classes, that type's sentence; with one type in view, its sentence and
+    the other type's figure for the same classes as a "not shown here" clause (none where the view has no setup)."""
+    both, one, other = PAIRED[key]
+    present = [name for name in ("decision", "chat") if figures[name] is not None]
+    if kind == "all":
+        if len(present) == 2:
+            return both(cw, figures, *extra) if holds else None
+        return one(cw, present[0], figures[present[0]], *extra) if present else None
+    if figures[kind] is None:
+        return None
+    rest = figures[OTHER_TYPE[kind]]
+    return one(cw, kind, figures[kind], *extra) + (other(cw, OTHER_TYPE[kind], rest, *extra) if rest is not None else "")
+
+
+def reading_grammar_heading(cw: str, kind: str, ahead: int, count: int) -> str | None:
+    """Reading vs grammar for the setups in view: a claim while more than half of two or more score higher on reading."""
+    noun = "setups" if kind == "all" else f"{kind} setups"
+    return f"{ahead} of {count} {cw}{noun} score higher on reading than on grammar" if count > 1 and 2 * ahead > count else None
+
+
+def calibration_heading(cw: str, kind: str, name: str, count: int, points: str, unique: bool) -> str | None:
+    """Calibration for the view: the decision models (the chat setups with Chat models in view) of its classes, a claim
+    while one has the smallest gap among two or more."""
+    noun = "chat setups" if kind == "chat" else "decision models"
+    return (f"{bp.esc(name)} has the smallest calibration gap of the {count} {cw}{noun}, as shipped: {points} points"
+            if count > 1 and unique else None)
+
+
+def variant_headings(data: Data, site: Site) -> dict[str, dict[str, str]]:
+    """Each finding's heading for every view (views): by view_key, the claim as HTML, or "" for the measure's name. The
+    figures are those of findings(), for the setups of the view's classes (Site.model_class; a dont_know row by its
+    Text tab run); findings_checks recomputes every one."""
+    idk = data.results["dont_know"]
+    option = bp.esc(leaderboard.OPTION_SHOWN.get(idk["option"], idk["option"]))
+    tenths = lambda value: f"{10 * value:.1f}"  # noqa: E731
+    out: dict[str, dict[str, str]] = {key: {} for key in ("accuracy", "non-hallucination", "cost", "latency", "reading-grammar", "calibration")}
+    for kind, chosen in views(site):
+        cw, view = class_words(site, chosen), view_key(kind, chosen)
+        classed = lambda run: not chosen or site.model_class(run) in chosen  # noqa: E731
+        runs = {name: [run for run in data.runs if classed(run) and data.decision(run) == (name == "decision")]
+                for name in ("decision", "chat")}
+        best = {name: max((share(run) for run in group), default=None) for name, group in runs.items()}
+        rates = {name: max((model["non_hallucination"] for model in idk["models"] if model["group"] == name
+                            and model["non_hallucination"] is not None and classed(site.by_id[model["original_run"]])), default=None)
+                 for name in runs}
+        costs = {name: [bp.per_thousand(run) for run in group if bp.per_thousand(run) is not None] for name, group in runs.items()}
+        cost = {name: statistics.median(values) if values else None for name, values in costs.items()}
+        single = {name: [run["latency"]["median_request_seconds"] for run in group if run["questions_per_request"] == 1
+                         and (run.get("latency") or {}).get("median_request_seconds") is not None] for name, group in runs.items()}
+        speed = {name: statistics.median(values) if values else None for name, values in single.items()}
+        text = lambda values, write: {name: None if value is None else write(value) for name, value in values.items()}  # noqa: E731
+        heads = {
+            "accuracy": paired("accuracy", kind, cw, text(best, tenths),
+                               None not in best.values() and best["chat"] > best["decision"]),
+            "non-hallucination": paired("non-hallucination", kind, cw, text(rates, lambda value: str(round(100 * value))),
+                                        None not in rates.values() and rates["decision"] > rates["chat"], option),
+            "cost": paired("cost", kind, cw, text(cost, cost_value), None not in cost.values() and cost["decision"] < cost["chat"]),
+            "latency": paired("latency", kind, cw, text(speed, lambda value: f"{value:.2g}"),
+                              None not in speed.values() and speed["decision"] < speed["chat"]),
+        }
+        shown = [run for run in data.runs if classed(run) and site.in_group(run, kind)]
+        heads["reading-grammar"] = reading_grammar_heading(
+            cw, kind, sum(share(run, "reading") > share(run, "grammar") for run in shown), len(shown))
+        gaps = sorted(runs["chat" if kind == "chat" else "decision"], key=lambda run: (run["confidence"]["ece"], run["run"]))
+        heads["calibration"] = calibration_heading(
+            cw, kind, site.plain(gaps[0]) if gaps else "", len(gaps), f"{100 * gaps[0]['confidence']['ece']:.1f}" if gaps else "",
+            len(gaps) > 1 and gaps[0]["confidence"]["ece"] < gaps[1]["confidence"]["ece"])
+        for key, heading in heads.items():
+            out[key][view] = heading or ""
+    return out
+
+
+def finding_html(item: dict[str, Any], key: str, variants: dict[str, str]) -> str:
     """A part's heading: the finding while its claim holds, under a small label with the measure's name, else the neutral
-    heading. Its sentences go to the About page's notes (finding_notes). The claims carry HTML (a cost in both units)."""
-    label = f'<p class="finding-label">{bp.esc(item["label"])}</p>' if item["holds"] else ""
-    return f'<div class="finding" data-finding="{key}">{label}<h2 class="finding-title">{finding_title(item)}</h2></div>'
+    heading; with its heading for every view of the Leaderboard's keys (data-variants, variant_headings), which site.js
+    shows as they change, the label hidden where a view has no claim. Its sentences go to the About page's notes
+    (finding_notes). The claims carry HTML (a cost in both units)."""
+    label = f'<p class="finding-label"{"" if item["holds"] else " hidden"}>{bp.esc(item["label"])}</p>'
+    return (f'<div class="finding" data-finding="{key}" data-variants="{bp.esc(json.dumps(variants, ensure_ascii=False))}">'
+            f'{label}<h2 class="finding-title">{finding_title(item)}</h2></div>')
 
 
 def finding_title(item: dict[str, Any]) -> str:
@@ -615,7 +749,7 @@ def finding_notes(site: Site, found: dict[str, dict[str, Any]]) -> None:
 
 def findings_checks(page: str, data: Data, site: Site) -> list[str]:
     """The finding headings as the page shows them, checked against results.json: a part shows its claim only where it
-    holds, recomputed here from the runs, and otherwise its neutral heading."""
+    holds, recomputed here from the runs, and otherwise its neutral heading; then every view's heading (variant_checks)."""
     runs = data.runs
     decision = [run for run in runs if data.decision(run)]
     chat = [run for run in runs if not data.decision(run)]
@@ -637,19 +771,77 @@ def findings_checks(page: str, data: Data, site: Site) -> list[str]:
     }
     found = []
     for key, item in findings(data, site).items():
-        title = re.search(rf'<div class="finding" data-finding="{key}">.*?<h2 class="finding-title">(.*?)</h2>', page, re.S)
+        title = re.search(rf'<div class="finding" data-finding="{key}"[^>]*>.*?<h2 class="finding-title">(.*?)</h2>', page, re.S)
         expected = item["claim"] if holds[key] else bp.esc(item["label"])
         if not title or title.group(1) != expected:
             found.append(f"finding heading {key}: {title.group(1) if title else 'missing'}")
     # The Calibration heading, worded as this computes it: the one decision model with the smallest gap as shipped,
     # among how many, and its gap in points to one decimal.
     lowest = [run for run in decision if run["confidence"]["ece"] == gaps[0]]
-    title = re.search(r'<div class="finding" data-finding="calibration">.*?<h2 class="finding-title">(.*?)</h2>', page, re.S)
+    title = re.search(r'<div class="finding" data-finding="calibration"[^>]*>.*?<h2 class="finding-title">(.*?)</h2>', page, re.S)
     if holds["calibration"] and (not title or title.group(1) != (
             f"{bp.esc(site.plain(lowest[0]))} has the smallest calibration gap of the {len(decision)} decision models, "
             f"as shipped: {100 * gaps[0]:.1f} points")):
         found.append(f"Calibration heading: {site.plain(lowest[0])}, the smallest gap of the {len(decision)} decision "
                      f"models, {100 * gaps[0]:.1f} points")
+    return found + variant_checks(page, data, site)
+
+
+def variant_checks(page: str, data: Data, site: Site) -> list[str]:
+    """Every view's heading of every finding as the page carries it (data-variants), against the figures recomputed
+    here for the view's type and classes from the runs and the Hallucination tab's rows: the claim, or "" (the
+    measure's name) where it does not hold; the view of All models and Class: All is the heading the page shows."""
+    idk = data.results["dont_know"]
+    option = bp.esc(leaderboard.OPTION_SHOWN.get(idk["option"], idk["option"]))
+    found = []
+    for key in ("accuracy", "non-hallucination", "cost", "latency", "reading-grammar", "calibration"):
+        block = re.search(rf'<div class="finding" data-finding="{key}" data-variants="([^"]*)">.*?<h2 class="finding-title">(.*?)</h2>',
+                          page, re.S)
+        if not block:
+            found.append(f"finding {key}: no heading variants")
+            continue
+        shown = json.loads(html.unescape(block.group(1)))
+        if (shown.get(view_key("all", ())) or bp.esc(findings(data, site)[key]["label"])) != block.group(2):
+            found.append(f"finding {key}: the All models · Class: All variant is not the heading shown")
+        for kind, chosen in views(site):
+            cw = class_words(site, chosen)
+            classes = {run["run"]: site.model_class(run) for run in data.runs}
+            pool = [run for run in data.runs if not chosen or classes[run["run"]] in chosen]
+            kinds = {"decision": [run for run in pool if data.decision(run)], "chat": [run for run in pool if not data.decision(run)]}
+            if key == "accuracy":
+                top = {name: max((accuracy(run)[0] / accuracy(run)[1] for run in group), default=None) for name, group in kinds.items()}
+                figures = {name: None if value is None else f"{10 * value:.1f}" for name, value in top.items()}
+                expected = paired(key, kind, cw, figures, None not in top.values() and top["chat"] > top["decision"])
+            elif key == "non-hallucination":
+                rows = [model for model in idk["models"] if model["non_hallucination"] is not None
+                        and (not chosen or classes[model["original_run"]] in chosen)]
+                top = {name: max((model["non_hallucination"] for model in rows
+                                  if data.decision(site.by_id[model["original_run"]]) == (name == "decision")), default=None)
+                       for name in kinds}
+                figures = {name: None if value is None else str(round(100 * value)) for name, value in top.items()}
+                expected = paired(key, kind, cw, figures, None not in top.values() and top["decision"] > top["chat"], option)
+            elif key in ("cost", "latency"):
+                value = ((lambda run: bp.per_thousand(run)) if key == "cost" else  # noqa: E731
+                         (lambda run: (run.get("latency") or {}).get("median_request_seconds") if run["questions_per_request"] == 1 else None))
+                middle = {name: statistics.median(values) if (values := [value(run) for run in group if value(run) is not None]) else None
+                          for name, group in kinds.items()}
+                figures = {name: None if found_value is None else (cost_value(found_value) if key == "cost" else f"{found_value:.2g}")
+                           for name, found_value in middle.items()}
+                expected = paired(key, kind, cw, figures, None not in middle.values() and middle["decision"] < middle["chat"])
+            elif key == "reading-grammar":
+                setups = pool if kind == "all" else kinds[kind]
+                ahead = sum(run["groups"]["reading"]["correct"] * run["groups"]["grammar"]["questions"]
+                            > run["groups"]["grammar"]["correct"] * run["groups"]["reading"]["questions"] for run in setups)
+                expected = reading_grammar_heading(cw, kind, ahead, len(setups))
+            else:
+                group = kinds["chat" if kind == "chat" else "decision"]
+                low = min((run["confidence"]["ece"] for run in group), default=None)
+                lowest = sorted((run for run in group if run["confidence"]["ece"] == low), key=lambda run: run["run"])
+                expected = calibration_heading(cw, kind, site.plain(lowest[0]) if lowest else "", len(group),
+                                               f"{100 * low:.1f}" if lowest else "", len(lowest) == 1)
+            if shown.get(view_key(kind, chosen)) != (expected or ""):
+                found.append(f"finding {key}, view {view_key(kind, chosen)}: {shown.get(view_key(kind, chosen))!r} "
+                             f"(expected {expected!r})")
     return found
 
 
@@ -686,7 +878,8 @@ def copy_checks(data: Data) -> list[str]:
           best is knowline and not any(letter in (run.get("group") or "") for run in (reax, ultra)
                                        for letter in (knowline.get("group") or ""))
           and any(letter in (ultra.get("group") or "") for letter in (reax.get("group") or "")))
-    flawless = [run for run in decision if run["confidence"]["sure"]["questions"] == run["confidence"]["sure"]["correct"]]
+    # No observed mistakes needs answers kept: a setup with none kept at 99% is in no such claim (Ümit #4665).
+    flawless = [run for run in decision if 0 < run["confidence"]["sure"]["questions"] == run["confidence"]["sure"]["correct"]]
     flawless_kept = sorted((run["confidence"]["sure"]["questions"], run["run"]) for run in flawless)
     check("Of the decision models with no observed mistakes at 99% confidence, Decider v1.2 kept the most answers",
           flawless_kept[-1][1] == decider12["run"] and flawless_kept[-1][0] > flawless_kept[-2][0])
@@ -879,7 +1072,8 @@ def summary_checks(page: str) -> tuple[list[str], int]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--no-images", action="store_true", help="keep the current link preview image (no Chrome needed)")
+    parser.add_argument("--no-images", action="store_true",
+                        help="keep the Reading pages' current link preview images (All benches draws its own either way)")
     parser.add_argument("--fast", action="store_true",
                         help="reuse reproduce.py's stored count when everything it reads is unchanged (a page-only change)")
     args = parser.parse_args()
@@ -894,6 +1088,7 @@ def main() -> int:
     print(f"Wrote {bp.CITATION.relative_to(ROOT)}")
     home_data(data, site)
     found = findings(data, site)
+    variants = variant_headings(data, site)
     blocks = {
         "head": head(data, names["preview"]["dark"]),
         # The stylesheets and scripts at versioned addresses (asset), so a page and its scripts always come from one build
@@ -904,16 +1099,17 @@ def main() -> int:
                    f'  <link rel="preload" href="{asset(HOME)}" as="fetch" crossorigin>\n'
                    f'  <script src="{asset("site.js")}" defer></script>\n'
                    f'  <script src="{asset("v3.js")}" defer></script>'),
-        "counts": hero_counts(data, site),
+        "counts": site_counts(data, site),
         "topbar": topbar(""),
         "version": version(data),
         "questions": f"{bp.count(data.results['questions'])} questions",
         "board": fallback_table(data, site),
-        "settings": page_settings(data),
+        "settings": page_settings(data, site),
         "leaderboard": leaderboard.leaderboard(site),
-        "non-hallucination": non_hallucination(site, finding_html(found["non-hallucination"], "non-hallucination")),
+        "non-hallucination": non_hallucination(site, finding_html(found["non-hallucination"], "non-hallucination",
+                                                                  variants["non-hallucination"])),
         "footer": footer("", version(data)),
-        **{f"finding-{key}": finding_html(found[key], key)
+        **{f"finding-{key}": finding_html(found[key], key, variants[key])
            for key in ("accuracy", "cost", "latency", "reading-grammar", "calibration")},
     }
     text = PAGE.read_text()

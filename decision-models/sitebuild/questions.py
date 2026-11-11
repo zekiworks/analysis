@@ -192,8 +192,6 @@ def every_question(site: Site, data: dict[str, Any]) -> str:
               "ID opens the question's page, with every setup's pick.</p>")
     body = f"""    <section class="card" id="questions" data-rows="{ROWS_SHOWN}">
       <h1>Every question</h1>
-      <p>The {len(data["questions"]):,} scored questions, in the order of the book.</p>
-      {more_link(path)}
       <nav class="face-nav" aria-label="More on the questions"><a href="{rel(path, "disagreements/")}">Where models disagree</a><a href="{rel(path, "topics/")}">Topics</a><a href="{rel(path, "compare/")}">Compare</a></nav>
       <form class="q-filters" data-q-filters role="search" aria-label="Filter the questions" hidden>
         <label class="control">Question ID <input type="search" inputmode="numeric" autocomplete="off" size="6" data-filter="id"></label>
@@ -202,12 +200,14 @@ def every_question(site: Site, data: dict[str, Any]) -> str:
         <label class="control">Difficulty <select data-filter="difficulty"><option value="">All</option>{levels}</select></label>
         <button type="button" class="key" data-q-reset>Reset</button>
       </form>
-      <p class="note" data-q-note hidden>Difficulty: the share of the {setups} setups that got the question right.</p>
       <p class="q-count" data-q-count aria-live="polite"></p>
       {pager}
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">ID</th><th scope="col">Part</th><th scope="col">Topic</th><th scope="col" class="num">Page</th><th scope="col" class="num">Number</th><th scope="col" class="num">Answer key</th><th scope="col" class="num">Setups right</th><th scope="col" class="num">Decision models right</th></tr></thead>
       <tbody>{"".join(rows)}</tbody></table></div>
       {pager.replace("data-q-pager", "data-q-pager data-q-bottom")}
+      <p class="note">The {len(data["questions"]):,} scored questions, in the order of the book.</p>
+      <p class="note" data-q-note hidden>Difficulty: the share of the {setups} setups that got the question right.</p>
+      {more_link(path)}
     </section>"""
     return site.page(path, "Every question", f"The {len(data['questions']):,} scored questions, each with every setup's pick.", body,
                      scripts=("questions.js",))

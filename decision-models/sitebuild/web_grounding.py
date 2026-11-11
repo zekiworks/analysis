@@ -321,7 +321,7 @@ def non_hallucination_chart(data: dict[str, Any], pws_idk: dict[str, Any] | None
     pws_note = (f"PWS-Decisions: “{pws_idk['option']}” as an extra choice, the mean of {pws_idk['off']['runs']} runs per mode"
                 if pws_idk else "Not run on PWS-Decisions")
     return card("non-hallucination", "Non-hallucination",
-                "“Bilmiyorum” in Turkish, “I don't know” in English, offered as an extra option: the bar is the option's "
+                "“I don't know”, in Turkish and in English, offered as an extra option: the bar is the option's "
                 "share of the answers that were not right; beside it the times it was chosen, the answered share (right + "
                 "wrong of the questions) and the wrong share of the answers · higher is better, read with the answered "
                 f"share. {pws_note}",
@@ -490,7 +490,7 @@ def table(rows: list[Any], pws_idk: dict[str, Any] | None, data: dict[str, Any],
             "machine; the 95th percentile by nearest rank. Cost: each run's input tokens at the price below, plus the fee "
             f"per search for every request with web ({esc(upper['mark'])} {esc(upper['note'])}) Right only with this "
             "setup: the questions it got right and the other setup did not, with the exact McNemar p of the pair.</p>"
-            '<h3 class="board-group">With “Bilmiyorum” (Turkish) or “I don\'t know” (English) as an extra option</h3>'
+            '<h3 class="board-group">With “I don\'t know” (Turkish or English) as an extra option</h3>'
             f'<div class="table-wrap"><table class="board list stack idk"><thead><tr><th scope="col">Setup</th>{idk_head}</tr>'
             f'</thead><tbody>{"".join(idk_rows(label, pair) for label, pair in dont_know_pairs(data, pws_idk))}</tbody></table></div>')
 
@@ -646,7 +646,7 @@ def caveats(data: dict[str, Any], pws_rows: tuple[dict[str, Any], dict[str, Any]
         <li><strong>Grounded searches send the questions to Perplexity's search.</strong> Each question with web went out as a web search.</li>
         <li><strong>The pilot came first.</strong> Our protocol's first step was {pilot['questions']:,} questions ({pilot['off']['groups']['reading']['questions']:,} reading, {pilot['off']['groups']['grammar']['questions']:,} grammar; runs {pilot['off']['run']} and {pilot['on']['run']}). Its rule: a full grounded run only for a gain of more than {PILOT_RULE_POINTS} points. The pilot gained {gain:+.1f} points, short of the rule; the full-bank grounded run was made afterwards so that the setup could be ranked.</li>
         <li><strong>Costs with web are an upper bound.</strong> {esc(upper['mark'])} {esc(upper['note'])} Price: ${price['input_per_million']:g} per 1M input tokens plus ${price['per_search']:g} per completed search (<a href="{esc(price['source'])}">pricing</a>, read {esc(long_date(price['date']))}). Search evidence counts as input tokens.</li>
-        <li><strong>{cap(run_counts(data))}.</strong> The cards, charts and first table show the mean of each mode's runs, with the lowest and highest run where there are several; Each run gives every run and its paired test. The ranking keeps each setup's first run. The pilot and the “Bilmiyorum” and “I don't know” pairs on our questions: one run each.</li>
+        <li><strong>{cap(run_counts(data))}.</strong> The cards, charts and first table show the mean of each mode's runs, with the lowest and highest run where there are several; Each run gives every run and its paired test. The ranking keeps each setup's first run. The pilot and the Turkish and English “I don't know” pairs on our questions: one run each.</li>
         <li><strong>Perplexity's own figures.</strong> Perplexity reported {reported['on_correct']} of {pws['on']['questions']} PWS-Decisions questions right with grounding (its run of {esc(long_date(reported['published']))}); the {reported['off_correct']}% without is the benchmark authors' (Parallel's) leaderboard figure, which Perplexity's own run matched. Its grounded requests took {ms(reported['on_median_request_seconds'])} ms at the median and {ms(reported['on_p95_request_seconds'])} ms at the 95th percentile, from Perplexity's client (<a href="{esc(reported['source'])}">{esc(reported['title'])}</a>, {esc(long_date(reported['published']))}). Ours are from our machine, the mean of {on['runs']} runs per mode on {esc(when)}: {pct(off['accuracy'], 1)} off, {pct(on['accuracy'], 1)} with web; {ms(on['median_request_seconds'])} and {ms(on['p95_request_seconds'])} ms at the median and 95th percentile with web.</li>
         <li><strong>PWS-Decisions is gated.</strong> {esc(pws['name'])} (version {esc(pws['version'])}) is Parallel's dataset, for evaluation only; we publish aggregates only.</li>
       </ul>
@@ -670,7 +670,7 @@ def method(data: dict[str, Any], named: dict[str, dict[str, Any]], pws_rows: tup
       <ul>
         <li>Turkish, full bank: {turkish['questions']:,} questions = {turkish['off']['groups']['reading']['questions']:,} reading + {turkish['off']['groups']['grammar']['questions']:,} grammar (first runs {turkish['off']['run']} and {turkish['on']['run']}, the Text tab rows {esc(named['off']['name'])} and {esc(named['on']['name'])}).{repeats(turkish)} Reading: units {", ".join(str(unit) for unit in reading[:-1])} and {reading[-1]}.</li>
         <li>Turkish pilot: {pilot['questions']:,} = {pilot['off']['groups']['reading']['questions']:,} reading + {pilot['off']['groups']['grammar']['questions']:,} grammar, the runner's sample with seed {data['sample']['seed']} (runs {pilot['off']['run']} and {pilot['on']['run']}).</li>
-        <li>“Bilmiyorum” as an extra option, as on the Hallucination tab: the full bank ({data['dont_know']['questions']:,} questions, runs {data['dont_know']['off']['run']} and {data['dont_know']['on']['run']}) and the pilot ({data['pilot_dont_know']['questions']:,}, runs {data['pilot_dont_know']['off']['run']} and {data['pilot_dont_know']['on']['run']}). “I don't know” as an extra option in English, as on English and Turkish: the {data['english_dont_know']['questions']:,} kept questions (runs {data['english_dont_know']['off']['run']} and {data['english_dont_know']['on']['run']}).</li>
+        <li>“I don't know” as an extra option in Turkish, as on the Hallucination tab: the full bank ({data['dont_know']['questions']:,} questions, runs {data['dont_know']['off']['run']} and {data['dont_know']['on']['run']}) and the pilot ({data['pilot_dont_know']['questions']:,}, runs {data['pilot_dont_know']['off']['run']} and {data['pilot_dont_know']['on']['run']}). “I don't know” as an extra option in English, as on English and Turkish: the {data['english_dont_know']['questions']:,} kept questions (runs {data['english_dont_know']['off']['run']} and {data['english_dont_know']['on']['run']}).</li>
         <li>English: the {english['questions']:,} kept reading questions of the English pages in our translations (first runs {english['off']['run']} and {english['on']['run']}).{repeats(english)}</li>
         <li>PWS-Decisions: its {pws_rows[1]['questions']} public English questions with the benchmark's own request, {pws_rows[1]['runs']} runs per mode by us on {esc(long_date(pws_dates[0]))}, as on <a href="{rel(PATH, pws_decisions.PATH)}">PWS-Decisions</a>; the source checks come from our first grounded run of {esc(long_date(PWS_RUN_DATE))}.</li>
       </ul>
@@ -722,12 +722,12 @@ def build(site: Site) -> dict[str, str]:
       <h1>Web grounding: {esc(named["off"]["title"])} off and with web</h1>
       {chat_note("Chat models: this page compares decision-model setups, so it shows under All models and Decision models. PWS-Decisions with chat models: its own page.")}
       <div {DECISION_ONLY}>
-      <p>Perplexity's Decisions API without and with a web search per question.</p>
-      {more_link(PATH)}
       {result_cards(rows, digits, upper)}
       <nav class="face-nav" aria-label="On this page"><a href="#accuracy">Accuracy</a><a href="#non-hallucination">Non-hallucination</a><a href="#latency">Latency</a><a href="#cost">Cost</a><a href="#pws">PWS-Decisions, decision models</a><a href="#sources">What the search returned</a><a href="#caveats">Caveats</a><a href="#info">Detailed results</a></nav></div>
     </section>
     <section class="charts" aria-label="Charts" {DECISION_ONLY}>{accuracy_chart(rows, named, digits, data["pilot"])}{non_hallucination_chart(data, pws_idk, named, digits)}{latency_chart(rows, named)}{cost_chart(data, rows, named, upper)}</section>
+    <div {DECISION_ONLY}><p class="note">Perplexity's Decisions API without and with a web search per question.</p>
+    {more_link(PATH)}</div>
     {pws_section(site, loaded)}
     <div {DECISION_ONLY}>
     {sources(data)}

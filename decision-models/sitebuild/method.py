@@ -1136,11 +1136,11 @@ GPUs, with no estimate. {esc(marks['upper']['mark'])} {esc(marks['upper']['note'
 unrounded costs; empty where there is no list price. Pareto: no other setup with a cost in the table is both at most as
 costly and at least as accurate, one of them strictly. Kept at {sure}: the answers given with at least {sure} confidence,
 how many of them were right, and how many questions were skipped. Non-hallucination: from the Hallucination tab's runs
-with the “Bilmiyorum” option; read it with its attempt rate.</li>
+with the “I don't know” option; read it with its attempt rate.</li>
 <li><strong>Latency.</strong> The median time per request, from our machine, on a log scale. Local setups ran on our
 hardware, listed on each setup's page; API latency includes the network, and through OpenRouter, OpenRouter's time. A
 latency measured on a sample of the questions carries a mark that names the sample.</li>
-<li><strong>Non-hallucination.</strong> “Bilmiyorum” among the answers that were not right, with it offered as a sixth
+<li><strong>Non-hallucination.</strong> “I don't know” among the answers that were not right, with it offered as a sixth
 option; read it with the share answered. The <a href="{rel(PATH, 'dont-know/')}">Hallucination tab</a> has the full
 table and its method.</li>
 {reply_notes(site, snap)}
