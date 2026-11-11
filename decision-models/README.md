@@ -443,10 +443,12 @@ python3 -m http.server 8000                                # preview at http://1
       < low < medium < high < xhigh < max; "on" above off for a model with only on and off; a decision model has no
       setting; the build stops for a model with "on" and a level), then the earliest run (lowest run id); a model
       with one setup uses it. Every value of a row and of its details box is that one setup's; the row's other setups
-      sit behind its expander ("N other settings"), each with its own tag beside its name. A row: rank, maker dot in the
-      family colour and the family icon, the model's official name with the chosen setup's tag beside it, the
-      main-score bar from 0 to 100% with its Wilson 95%
-      interval as the whisker, and the score; from 900 px more columns. Nothing sits under the name (project lead, bus
+      sit behind its expander ("N other settings"), each with its own tag beside its name. A row, as on Logic & Math's
+      table (the project lead via Zeki #4606): rank, maker dot in the family colour and the family icon (the icon not
+      on a phone), the model's official name with the chosen setup's tag and its class label beside it, the main-score
+      bar from 0 to 100% with its Wilson 95% interval as the whisker, the score and that interval under it; from 900 px
+      the other columns, below 900 px they are in the details box. The Turkish runs' option "Bilmiyorum" is named by
+      its meaning in the board's labels ('with “I don't know”', `leaderboard.OPTION_SHOWN`). Nothing sits under the name (project lead, bus
       #3039): "name tag · maker · chat model / decision model" heads the details box (the maker is the family's maker in
       `maker_colours.json`, named as on the maker's own pages, each with its source URL). The details box
       (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)

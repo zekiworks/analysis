@@ -401,7 +401,8 @@ def non_hallucination(site: Site, finding: str) -> str:
     with the option is still running (running_setups), with page_config.json's reason. Its heading is the part's finding
     (finding_html); one line with its link to the Hallucination tab closes it."""
     data = site.results["dont_know"]
-    digits, option, total = site.config["percent_digits"], data["option"], data["questions"]
+    # The Turkish runs' option shown by its meaning, as in the Leaderboard (leaderboard.OPTION_SHOWN, Zeki #4606).
+    digits, option, total = site.config["percent_digits"], leaderboard.OPTION_SHOWN.get(data["option"], data["option"]), data["questions"]
     run_of = lambda model: site.by_id[model["original_run"]]  # noqa: E731
     for model in data["models"]:
         if model["group"] != ("decision" if site.decision(run_of(model)) else "chat"):
@@ -533,12 +534,13 @@ def findings(data: Data, site: Site) -> dict[str, dict[str, Any]]:
                     if model["group"] == kind and model["non_hallucination"] is not None] for kind in ("decision", "chat")}
     top = {kind: max(rates[kind], key=lambda item: item[0]) for kind in rates}
     name = lambda model: site.plain(site.by_id[model["original_run"]])  # noqa: E731
+    shown = leaderboard.OPTION_SHOWN.get(idk["option"], idk["option"])  # by its meaning, as in the Leaderboard (Zeki #4606)
     out["non-hallucination"] = {
         "label": "Non-hallucination", "holds": top["decision"][0] > top["chat"][0],
-        "claim": (f"The decision model that chooses “{bp.esc(idk['option'])}” most does so on {round(100 * top['decision'][0])} "
+        "claim": (f"The decision model that chooses “{bp.esc(shown)}” most does so on {round(100 * top['decision'][0])} "
                   f"in 100 of its answers that were not right; the chat model that does so most, on "
                   f"{round(100 * top['chat'][0])}"),
-        "text": (f"{name(top['decision'][1])} chose “{idk['option']}” on {pct(top['decision'][0])} of the questions it did "
+        "text": (f"{name(top['decision'][1])} chose “{shown}” on {pct(top['decision'][0])} of the questions it did "
                  f"not answer right; the top chat model, {name(top['chat'][1])}, on {pct(top['chat'][0])}. Read it with the "
                  "share answered.")}
 

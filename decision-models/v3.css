@@ -353,16 +353,21 @@ tr.lb-off { display: none !important; }
   overflow: auto; overscroll-behavior: contain; background: var(--panel); border: 1px solid var(--control-edge);
   border-radius: 8px; box-shadow: var(--shadow); }
 .js .lb-box.open { display: block; }
-/* Every screen shows the same table, its head row and every column (the project lead via Zeki #4150: a phone as on
-   the web). Narrower than 900 px it is set tighter: the heads and the cost notes wrap, and the bar sits above the score
-   in a narrow column. */
+/* As Logic & Math's table (the project lead's reference, Zeki #4606): the main score's cell holds its bar, its value and
+   the 95% interval under the value. Narrower than 900 px the table keeps three columns, #, Model and that score; the
+   other columns are in each row's details box, which a tap, hover or the focus opens. From 900 px every column shows. */
+.lb-table .lb-wide { display: none; }
+@media (min-width: 900px) {
+  .lb-table .lb-wide { display: table-cell; white-space: nowrap; }
+}
 @media (max-width: 899px) {
-  .lb-table th.num, .lb-table th.lb-score, .lb-table td.num .small { white-space: normal; }
-  .lb-table td.model { min-width: 7rem; }
-  .lb-table td.lb-score, .lb-table th.lb-score { width: auto; }
-  .lb-table td.lb-score { min-width: 3.4rem; text-align: right; }
-  .lb-table td.lb-score .lb-bar { display: block; width: 100%; height: .45rem; margin: .15rem 0 .2rem; }
-  .lb-table td.lb-score .lb-value { display: block; width: auto; padding-left: 0; }
+  .lb-table { table-layout: auto; }
+  .lb-table td.model { min-width: 0; white-space: normal; }
+  .lb-table td.lb-score, .lb-table th.lb-score { width: 38%; min-width: 6.5rem; text-align: left; }
+  .lb-table th.lb-score { white-space: normal; }
+  .lb-table td.lb-score .lb-bar { display: block; width: 100%; margin: .1rem 0 .25rem; }
+  .lb-table td.lb-score .lb-value { display: block; width: auto; padding-left: 0; text-align: left; }
+  .lb-table td.lb-score .lb-ci { margin-top: .1rem; }
   .lb-table[data-part="both"] td.lb-score { display: table-cell; }
 }
 /* All setups: the full ranking in place of the one-row-per-model table (site.js); both show without the script. */
@@ -954,25 +959,13 @@ ul.price-list { padding-left: 1.25rem; }
   /* The Leaderboard's keys wrap onto lines as on a wide screen, so no key is out of view. */
   .lb-controls { gap: .35rem .6rem; }
   .lb-controls .key { padding: .15rem .45rem; font-size: .78rem; }
-  /* The Leaderboard on a phone: the wide screen's table, smaller. The panel runs to the screen's edges; the rank and
-     model columns stay in view while the number columns scroll beside them inside the table's wrapper when the screen
-     is too narrow for them all. A row whose details box is open sits above the rows under it. */
-  .panel.leaderboard { margin-inline: -.6rem; padding-inline: .4rem; border-inline: 0; border-radius: 0; }
-  .lb-table { font-size: .8rem; }
-  .lb-table th { padding: .3rem .25rem; font-size: .68rem; line-height: 1.25; }
-  .lb-table :is(th, td) .small { font-size: .62rem; }
-  .lb-table td { padding: .35rem .25rem; }
-  .lb-table :is(th, td):first-child { box-sizing: border-box; width: 1.7rem; min-width: 1.7rem; max-width: 1.7rem;
-    position: sticky; left: 0; z-index: 2; background: var(--panel); }
-  .lb-table :is(th, td):nth-child(2) { position: sticky; left: 1.7rem; z-index: 2; background: var(--panel);
-    box-shadow: 1px 0 0 var(--edge); }
-  .lb-table tr.lb-sub > td:is(:first-child, :nth-child(2)) { background: var(--sunk); }
-  .lb-table tr.lb-open > td:is(:first-child, :nth-child(2)) { z-index: 5; }
-  .lb-table td.model { min-width: 6.5rem; max-width: 8.5rem; }
-  .lb-table td.model .lb-dot { width: .55rem; height: .55rem; margin-right: .2rem; }
-  .lb-table td.model svg.fam-icon { width: 12px; height: 12px; margin-right: .2rem; }
-  .lb-size { display: block; margin-left: 0; font-size: .62rem; white-space: normal; }
-  .lb-table tbody tr.lb-tier-start > td:nth-child(2) { box-shadow: inset 0 1px 0 var(--control-edge), 1px 0 0 var(--edge); }
+  /* The Leaderboard on a phone: # narrow, the model's dot, name, tag and class label on one line as far as they fit,
+     then the main score (Logic & Math's layout, Zeki #4606). */
+  .lb-table th { padding: .3rem .3rem; }
+  .lb-table td { padding: .45rem .3rem; }
+  .lb-table :is(th, td):first-child { width: 1.6rem; }
+  .lb-table td.model svg.fam-icon { display: none; }
+  .lb-table td.model .lb-size { margin-left: .45rem; white-space: normal; }
   .readout-row { padding: .3rem 0; margin-bottom: .45rem; }
   .readouts { row-gap: .2rem; }
   .readout { gap: .2rem; margin-right: .4rem; padding-right: .4rem; white-space: nowrap; }

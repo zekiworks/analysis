@@ -54,6 +54,9 @@ DEFAULT_PART = "turkish"
 TYPES = (("all", "All"), ("chat", "Chat models"), ("decision", "Decision models"))
 DEFAULT_TYPE = "decision"
 TYPE_LABEL = {True: "decision model", False: "chat model"}
+# The Turkish runs' option "Bilmiyorum", named by its meaning in the board's labels ('with “I don't know”', the project
+# lead via Zeki #4606); the prompts, the data and the Hallucination tab's comparison of the two option words keep it.
+OPTION_SHOWN = {"Bilmiyorum": "I don't know"}
 # The # column's line under each part's table: the Turkish part's tiers, the other parts' ranks.
 TIER_LINE = ("# is the tier among the rows in view: ranked by accuracy, a row joins the tier of the tier's top row when "
              "the all-pairs test behind the Accuracy section's letters ({pairs} pairs, exact McNemar, Holm-corrected, "
@@ -88,7 +91,7 @@ class Board:
         self.english = site.results["english_reading"]
         self.total = site.results["questions"]
         self.kept = self.english["questions"]
-        self.option = site.results["dont_know"]["option"]
+        self.option = OPTION_SHOWN.get(site.results["dont_know"]["option"], site.results["dont_know"]["option"])
         self.english_option = self.english["dont_know"]["option"]
         self.rated = {model["original_run"]: model for model in site.results["dont_know"]["models"]}
         idk = self.english["dont_know"]
@@ -162,6 +165,13 @@ def interval(correct: int, total: int) -> str:
     return f"(95%: {100 * low:.1f}\u2013{pct(high)})"
 
 
+def ci(correct: int, total: int) -> str:
+    """The main score's Wilson 95% interval as a line under its value, as Logic & Math's table shows it (Zeki #4606):
+    "56.4%–62.1%"; the whisker draws the same interval."""
+    low, high = bm.wilson_interval(correct, total)
+    return f'<span class="small lb-ci">{pct(low)}\u2013{pct(high)}</span>'
+
+
 def cost_text(site: Site, run: dict[str, Any], value: float | None, basis: str | None, upper: bool) -> str | None:
     if value is None:
         return None
@@ -232,7 +242,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
     def score(run: dict[str, Any]) -> tuple[str, int]:
         correct, questions = counts(run)
         colour = site.families[run["run"]]["colour"]
-        return f'{bar(correct, questions, colour)}<span class="lb-value">{pct(correct / questions)}</span>', correct
+        return f'{bar(correct, questions, colour)}<span class="lb-value">{pct(correct / questions)}{ci(correct, questions)}</span>', correct
 
     rows = board.turkish_rows()
     heads = (["Reading", "Grammar"] if group is None else ["Turkish<span class=\"small\">all questions</span>", other.capitalize()])
@@ -287,7 +297,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
             return (f'{bar(tr["right"], kept, colour)}{bar(en["right"], kept, colour, " lb-en")}'
                     f'<span class="lb-value">{pct(tr["accuracy"])}<span class="small">{pct(en["accuracy"])}</span></span>',
                     tr["right"])
-        return f'{bar(en["right"], kept, colour)}<span class="lb-value">{pct(en["accuracy"])}</span>', en["right"]
+        return f'{bar(en["right"], kept, colour)}<span class="lb-value">{pct(en["accuracy"])}{ci(en["right"], kept)}</span>', en["right"]
 
     rows = board.english_rows(both)
     if both:
