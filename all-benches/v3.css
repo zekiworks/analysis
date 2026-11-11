@@ -139,8 +139,14 @@ html { --view-bar-h: 119px; scroll-padding-top: var(--view-bar-h); }
    keeps --view-bar-h at the header's height either way. */
 .site-tabs ul { display: flex; flex-wrap: wrap; gap: 0 .2rem; list-style: none; margin: 0 -.35rem; padding: 0 .35rem; }
 .site-tabs li { flex: none; }
-/* Vision: the Turkish line and the three summary lines under the title; the run details closed under the method. */
+/* Vision: one sentence under the title whose asterisk links to the note under the results (the Turkish line and the
+   three average lines); the run details closed under the method. The asterisk is a 24 px tap target with a visible
+   keyboard focus, and the note it reaches is marked like a reference. */
 .lede { margin: .2rem 0 .4rem; font-size: 1.02rem; }
+.note-ref { display: inline-block; min-width: 24px; min-height: 24px; line-height: 24px; text-align: center; font-weight: 700; text-decoration: none; }
+.note-ref:focus-visible { outline: 2px solid currentColor; outline-offset: 1px; border-radius: 4px; }
+.note-mark { font-weight: 700; }
+#vision-note:target { background: var(--bar); }
 .vision-summary { margin: .3rem 0 .6rem; padding: 0; list-style: none; }
 .vision-summary li { margin: .12rem 0; }
 .vision-summary .small { color: var(--text-2); font-size: .82rem; }

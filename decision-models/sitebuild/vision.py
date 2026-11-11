@@ -750,11 +750,7 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Vision</p>
       <h1>Same questions, as text and as a page image</h1>
-      <p class="lede"><strong>Turkish:</strong> {questions} questions with underlined or numbered words (original Turkish pages)</p>
-      {summary(data)}
-      {"" if "chat" in hidden else chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
-      <p>Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D). These rankings are separate from the Text tab.</p>
-      {more_link(PATH)}
+      <p class="lede">{questions} Turkish questions, each asked as text, as a page image and through OCR.<a class="note-ref" href="#vision-note" aria-label="What the questions and the four ways are, and the averages: the note under the results">*</a></p>
       <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
     </section>
     {charts}
@@ -764,6 +760,12 @@ def build(site: Site) -> dict[str, str]:
       <h2>How well the OCR models read the pages</h2>
       <p class="note">The error rates and counts use only human-verified question text: {esc(data["ocr"]["verified"].removeprefix("the human-verified subset: "))}. Each OCR model's text is compared with that text. Character error rate: edits over the reference's characters, summed over the {verified} crops. Turkish letter error rate: edits of the same alignment whose reference or OCR character is one of ı İ ş Ş ğ Ğ ç Ç ö Ö ü Ü, over the reference's count of those letters. Kept: an underlined word still marked, or a numbered word's numeral still there, in the text the models received.</p>
       {ocr_table(data)}
+    </section>
+    <section class="card" id="vision-note">
+      <p><span class="note-mark" aria-hidden="true">*</span> <strong>Turkish:</strong> {questions} questions with underlined or numbered words (original Turkish pages). Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D). These rankings are separate from the Text tab.</p>
+      {summary(data)}
+      {"" if "chat" in hidden else chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
+      {more_link(PATH)}
     </section>
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">What we found, the measure and how the benchmark was run</span></summary>
@@ -835,7 +837,8 @@ def differences(data: dict[str, Any]) -> dict[str, tuple[float, int]]:
 
 
 def summary(data: dict[str, Any]) -> str:
-    """The three lines under the title, from vision.json (differences)."""
+    """The three average lines of the page's note under the results (the title's asterisk links to it), from vision.json
+    (differences)."""
     names = {"B": ("Picture only (B) vs text (A)", "image models"), "C": ("Text + picture (C) vs text (A)", "image models"),
              "D": ("Best OCR route (D) vs text (A)", "models with an OCR route")}
     items = "".join(f"<li><strong>{esc(names[label][0])}:</strong> {signed(value)} <span class=\"small\">average over the "
