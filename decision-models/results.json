@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "660f7bcc",
-  "updated": "2026-11-11T16:36:24Z",
+  "results_version": "924a0a1f",
+  "updated": "2026-11-11T17:11:09Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -712302,8 +712302,8 @@
       {
         "area": "english",
         "name": "GLiDE 27B (open)",
-        "status": "queued",
-        "note": "One DGX Spark (GB10), BF16, behind the server its repository ships, as run 901.",
+        "status": "done",
+        "note": "One DGX Spark (GB10), BF16, behind the server its repository ships (fastino/GLiDE-27B at 4d32743, one request at a time), as run 901: repeat 2 on 11 November 2026 (logic's server on spark2, shared by the three benches).",
         "first": {
           "run": 901,
           "repeat": null,
@@ -712315,7 +712315,19 @@
           "right": 497,
           "questions": 547
         },
-        "repeats": []
+        "repeats": [
+          {
+            "run": 994,
+            "repeat": 2,
+            "date": "2026-11-11",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "GLiDE server (Fastino's release code), self-hosted",
+            "cost_basis": null,
+            "usd": null,
+            "right": 497,
+            "questions": 547
+          }
+        ]
       },
       {
         "area": "english",
@@ -712338,8 +712350,8 @@
       {
         "area": "english",
         "name": "Fastino GLiDE v1.2",
-        "status": "queued",
-        "note": "One RTX PRO 6000 Blackwell (96 GB), BF16, behind the server its checkpoint ships, as run 521; waits for that GPU (one server for the three benches: Logic & Math, Reading, backgammon).",
+        "status": "done",
+        "note": "One RTX PRO 6000 Blackwell (96 GB), BF16, behind the server its checkpoint ships (fastino/GLiDE at a7e4589), as run 521: repeat 2 on 11 November 2026 (logic's server on bariton GPU 0, shared by the three benches).",
         "first": {
           "run": 521,
           "repeat": null,
@@ -712351,7 +712363,19 @@
           "right": 494,
           "questions": 547
         },
-        "repeats": []
+        "repeats": [
+          {
+            "run": 992,
+            "repeat": 2,
+            "date": "2026-11-11",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "GLiDE server (Fastino's release code), self-hosted",
+            "cost_basis": "maker",
+            "usd": 0.00795712,
+            "right": 494,
+            "questions": 547
+          }
+        ]
       },
       {
         "area": "vision",
@@ -712396,8 +712420,8 @@
       {
         "area": "vision",
         "name": "GLiDE 27B (open)",
-        "status": "queued",
-        "note": "One DGX Spark (GB10), BF16, as run 68; pass 2.",
+        "status": "done",
+        "note": "One DGX Spark (GB10), BF16, as run 68: pass 2 (run 6 of vision/repeats/repeat-2.sqlite), 11 November 2026, on logic's server on spark2 (fastino/GLiDE-27B at 4d32743, one request at a time).",
         "first": {
           "runs": [
             68
@@ -712413,7 +712437,24 @@
           "usd": null,
           "price": null
         },
-        "repeats": []
+        "repeats": [
+          {
+            "pass": 2,
+            "runs": [
+              6
+            ],
+            "dates": [
+              "2026-11-11"
+            ],
+            "right": 381,
+            "questions": 763,
+            "hardware": "1 × DGX Spark (GB10); BF16",
+            "access": null,
+            "cost_basis": null,
+            "picks_differ": 0,
+            "probabilities_differ": 0
+          }
+        ]
       },
       {
         "area": "vision",
@@ -712458,6 +712499,84 @@
           "price": "$0.06 input, output free per 1M tokens"
         },
         "repeats": []
+      },
+      {
+        "area": "vision",
+        "name": "vLLM-SR d3",
+        "status": "done",
+        "note": "One RTX PRO 6000 Blackwell (96 GB), BF16, vLLM 0.32.1rc1.dev613+g8977b13a1 with the first pass's flags (the same server arguments as run 41's log), as run 41: pass 2 (run 4 of vision/repeats/repeat-2.sqlite), 11 November 2026, on bariton GPU 0 under jevgammon's reservation (#4873).",
+        "first": {
+          "runs": [
+            41
+          ],
+          "dates": [
+            "2026-10-27"
+          ],
+          "right": 370,
+          "questions": 763,
+          "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16; vLLM 0.32.1rc1.dev613+g8977b13a1 with --max-num-seqs 64 --gpu-memory-utilization 0.78 (another process held 18 GB of the GPU)",
+          "access": null,
+          "cost_basis": null,
+          "usd": null,
+          "price": null
+        },
+        "repeats": [
+          {
+            "pass": 2,
+            "runs": [
+              4
+            ],
+            "dates": [
+              "2026-11-11"
+            ],
+            "right": 368,
+            "questions": 763,
+            "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16; vLLM 0.32.1rc1.dev613+g8977b13a1 with --max-num-seqs 64 --gpu-memory-utilization 0.78",
+            "access": null,
+            "cost_basis": null,
+            "picks_differ": 2,
+            "probabilities_differ": 322
+          }
+        ]
+      },
+      {
+        "area": "vision",
+        "name": "Drex Max v1",
+        "status": "done",
+        "note": "One RTX PRO 6000 Blackwell (96 GB), BF16, drex_max_server.py with Nace's drex_max at e206b27 and nace-ai/drex-max-v1 at cac65e1, as run 56: pass 2 (run 5 of vision/repeats/repeat-2.sqlite), 11 November 2026, on bariton GPU 0 under jevgammon's reservation (#4873).",
+        "first": {
+          "runs": [
+            56
+          ],
+          "dates": [
+            "2026-10-31"
+          ],
+          "right": 357,
+          "questions": 763,
+          "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16; drex_max_server.py with Nace's drex_max at e206b27 (transformers 5.17.0, torch 2.15.0, flash-linear-attention 0.6.0; causal_conv1d not installed, so its reference PyTorch path)",
+          "access": null,
+          "cost_basis": null,
+          "usd": null,
+          "price": null
+        },
+        "repeats": [
+          {
+            "pass": 2,
+            "runs": [
+              5
+            ],
+            "dates": [
+              "2026-11-11"
+            ],
+            "right": 357,
+            "questions": 763,
+            "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16; drex_max_server.py with Nace's drex_max at e206b27 (transformers 5.17.0, torch 2.15.0, flash-linear-attention 0.6.0; causal_conv1d not installed, so its reference PyTorch path)",
+            "access": null,
+            "cost_basis": null,
+            "picks_differ": 0,
+            "probabilities_differ": 0
+          }
+        ]
       }
     ]
   }

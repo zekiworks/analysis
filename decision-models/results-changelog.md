@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 924a0a1f (11 November 2026)
+
+- Repeat checks, Run 2 done (the project lead via Zeki #4849, #4870, #4881), each with its first run's server and settings: GLiDE 27B (open), English run 994, 497 of 547 right, and Page images picture-only pass 2, 381 of 763; GLiDE v1.2, English run 992, 494 of 547. Each gave the same pick and the same option probabilities on every question as its first run (901, 68, 521).
+- The Page images picture-only top five (#4870) are all in the Vision table: vLLM-SR d3's pass 2, 368 of 763 against 370 (2 picks and 322 probability sets differ, on its vLLM server), and Drex Max v1's, 357 of 763 as its first pass, with every pick and probability the same; d1-ultra's and GLiDE 27B's as above, KnowLine-31B-Gen1.5's still queued. Drex Max 1.1 keeps its own row.
+- Still queued: KnowLine-31B-Gen1.5 in all three areas and Drex Max 1.1 in English and picture only (both running now).
+- No other number changed; the published scores stay the first runs'.
+
 ## Results 660f7bcc (11 November 2026)
 
 - Repeat checks: Artificial Analysis's top two decision models join the tables (the project lead via Zeki #4838, #4844), Drex Max 1.1 and Fastino GLiDE v1.2. Their Turkish Text repeats already existed and are shown, not run again: Drex Max 1.1's runs 329 to 332 (31 October) and GLiDE v1.2's runs 250 to 253 (22 October), both on the Stability tab; their Run 2, 1,481 and 1,505 of 2,198 right, equals their first run's. Their English repeats and Drex Max 1.1's picture-only pass are queued.
