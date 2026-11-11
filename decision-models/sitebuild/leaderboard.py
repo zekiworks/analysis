@@ -10,9 +10,10 @@ search (a setup with web is its own row); a dated checkpoint joins its original'
 leaderboard.dated_checkpoints. Two key rows filter the rows (site.js): the type (All · Chat models · Decision models) and
 the class (Class: All · Tiny · Small · Medium · Large · Efficient · Workhorse · Flagship, Site.model_class; Ümit #4217,
 one scale with the Logic & Math site), combined; a class key with no row in the view hides. Each row carries its kind,
-its class and its score; on the Turkish part also its tie-group letters (results.json runs' group), so the # column
-shows each row's tier among the rows in view (tiers()); the other parts, which no all-pairs test covers, show the rank.
-A setup with web search (its tag says "with web") is in no tier and no rank: its # cell shows a dash. A row names its
+its class and its score; on the Turkish part also its tie-group letters (results.json runs' group), so its Tier column
+shows each row's tier among the rows in view (tiers()); the other parts, which no all-pairs test covers, have a Rank
+column, the rows' places 1, 2, 3 without repeats (places(); Zeki #4629, #4630). A setup with web search (its tag says
+"with web") is in no tier and no rank: its first cell shows a dash. A row names its
 model by its official name with the chosen setup's tag beside it (Site.title, Site.tag; sitebuild/names.py) and its
 class label after them (Site.label: "Open · 27B", "Closed · Efficient")."""
 
@@ -57,13 +58,15 @@ TYPE_LABEL = {True: "decision model", False: "chat model"}
 # The Turkish runs' option "Bilmiyorum", named by its meaning in the board's labels ('with “I don't know”', the project
 # lead via Zeki #4606); the prompts, the data and the Hallucination tab's comparison of the two option words keep it.
 OPTION_SHOWN = {"Bilmiyorum": "I don't know"}
-# The # column's line under each part's table: the Turkish part's tiers, the other parts' ranks.
-TIER_LINE = ("# is the tier among the rows in view: ranked by accuracy, a row joins the tier of the tier's top row when "
-             "the all-pairs test behind the Accuracy section's letters ({pairs} pairs, exact McNemar, Holm-corrected, "
-             "5%) found no difference between them, else it starts the next tier; a line separates tiers. Rows in one "
-             "tier need not be equal. A setup with web search is in no tier (#: –).")
-RANK_LINE = ("# is the rank among the rows in view; tied scores share a rank. No test compares the models on the "
-             "{part} part, so it has no tiers. A setup with web search is not ranked (#: –).")
+# The first column's line under each part's table: the Turkish part's tiers (head "Tier"), the other parts' ranks (head
+# "Rank"; the project lead via Zeki #4629, #4630: a column says which it is, and a rank runs 1, 2, 3 without repeats).
+TIER_LINE = ("Tier: ranked by accuracy among the rows in view, a row joins the tier of the tier's top row when the "
+             "all-pairs test behind the Accuracy section's letters ({pairs} pairs, exact McNemar, Holm-corrected, 5%) found "
+             "no difference between them, else it starts the next tier; a line separates tiers. Rows in one tier need not be "
+             "equal. A setup with web search is in no tier (Tier: –).")
+RANK_LINE = ("Rank: the row's place among the rows in view, by accuracy, 1, 2, 3 without repeats; rows with the same score "
+             "keep the table's order, which claims no difference between them. No all-pairs test covers the {part} part, "
+             "so it has no tiers. A setup with web search is not ranked (Rank: –).")
 EMPTY_LINE = "No row of this part matches these keys. The small open chat models ran in English only."
 
 
@@ -125,9 +128,10 @@ def share(run: dict[str, Any], part: str) -> float:
     return run["groups"][part]["correct"] / run["groups"][part]["questions"]
 
 
-def ranks(scores: list[int]) -> list[int]:
-    """Each score's rank among all: 1 + the number of higher scores; ties share a rank."""
-    return [1 + sum(other > score for other in scores) for score in scores]
+def places(count: int) -> list[int]:
+    """The Rank column of rows already in the table's order: 1, 2, 3 without repeats, rows with the same score keeping
+    that order (the project lead via Zeki #4630: an ordinal display order, no tie-break claim)."""
+    return list(range(1, count + 1))
 
 
 def tiers(letters: list[str | None]) -> list[int]:
@@ -205,7 +209,7 @@ def details(site: Site, run: dict[str, Any], box: str, lines: list[str | None], 
 def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[str], list[str], int]:
     """The Turkish part (group None: all questions, ranked in tiers) or the Turkish reading or Turkish grammar part
     (group "reading" or "grammar": the same rows, ranked on that group's questions, with its accuracy and 95% interval;
-    no all-pairs test covers them, so # is the rank; Ümit #4181): the head cells, the body rows and the number of model
+    no all-pairs test covers them, so the first column is Rank; Ümit #4181): the head cells, the body rows and the number of model
     rows."""
     total, digits = board.total, site.config["percent_digits"]
     sure = pct(site.config["threshold"], 0)
@@ -324,20 +328,20 @@ def name_cell(site: Site, href: str, box: str, run: dict[str, Any]) -> str:
 
 def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str, Any], list[dict[str, Any]]]], run_of: Any,
                facts: Any, score: Any, answers: Any, tested: bool) -> list[str]:
-    """The body rows of one part: each model row (# cell, maker dot and icon, name with its label and its expander,
+    """The body rows of one part: each model row (Tier or Rank cell, maker dot and icon, name with its label and its expander,
     the score, the wide cells; its details box in the name cell, the only place its maker and kind show: project lead,
     bus #3039), then its other setups' rows, hidden, each with its own tag beside its name, the one thing that tells it
     apart. Each model row carries its kind, class (data-class) and score (data-score), and with tested
-    (the Turkish part) its tie-group letters (data-letters), from which site.js numbers the rows in view; the # cell
-    holds the tier (tested) or rank among every row, as the table shows without JavaScript. A setup with web search
-    (data-unranked) is numbered in neither: its # cell holds a dash (Ümit #4217)."""
+    (the Turkish part) its tie-group letters (data-letters), from which site.js numbers the rows in view; the first cell
+    holds the tier (tested) or the place 1, 2, 3 among every row (places()), as the table shows without JavaScript. A
+    setup with web search (data-unranked) is numbered in neither: its first cell holds a dash (Ümit #4217)."""
     scored = [(item, others, *score(item)) for item, others in rows]
     scored.sort(key=lambda entry: (-entry[3], run_of(entry[0])["run"]))
     unranked = [run_of(item)["perplexity_mode"] is not None for item, *_ in scored]
     counted = [index for index, flag in enumerate(unranked) if not flag]
     letters = [run_of(item)["group"] for item, *_ in scored] if tested else []
     numbered = (tiers([letters[index] for index in counted]) if tested
-                else ranks([scored[index][3] for index in counted]))
+                else places(len(counted)))
     numbers: list[int | None] = [None] * len(scored)
     for index, number in zip(counted, numbered):
         numbers[index] = number
@@ -386,7 +390,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
 
 def table(part: str, heads: list[str], body: list[str], caption: str) -> str:
     head = "".join(f'<th scope="col" class="num lb-wide">{text}</th>' for text in heads[1:])
-    number = '<abbr title="Tier">#</abbr>' if part == "turkish" else "#"
+    number = "Tier" if part == "turkish" else "Rank"
     return (f'<div class="table-wrap"><table class="lb-table" data-part="{part}"><caption class="visually-hidden">{esc(caption)}'
             f'</caption><thead><tr><th scope="col" class="num">{number}</th><th scope="col">Model</th>'
             f'<th scope="col" class="lb-score">{heads[0]}</th>{head}</tr></thead><tbody>{"".join(body)}'
@@ -482,10 +486,11 @@ def about_text(site: Site, origin: str) -> str:
             "models) and the Class keys (Tiny, Small, Medium and Large for an open model by its total parameters; "
             "Efficient, Workhorse and Flagship for a closed model, or an open one of undisclosed size, by its list price "
             "per 1M input tokens) choose the rows in view; the setups only this site ran are in no class and show under "
-            "Class: All. On the Turkish part # is the tier among the rows in view: ranked by "
+            "Class: All. On the Turkish part the Tier column holds each row's tier among the rows in view: ranked by "
             "accuracy, a row joins the tier of the tier's top row when the all-pairs test behind the full ranking's "
             "letters found no difference between them, else it starts the next tier. On Turkish reading, Turkish grammar, "
-            "English reading and Both, which no all-pairs test covers, # is the rank; tied scores share a rank. Each row "
+            "English reading and Both, which no all-pairs test covers, the Rank column holds the row's place, 1, 2, 3 "
+            "without repeats; rows with the same score keep the table's order, which claims no difference. Each row "
             "names its model by its official name, with a small tag beside it for how the setup ran (setting · route · "
             "snapshot, as \u201chigh \u00b7 chat\u201d or \u201cAPI \u00b7 with web\u201d; a decision model with one setup has none), "
             "then its class label, starting Open or Closed; its details box gives the size in full and the model page its source.</p>"

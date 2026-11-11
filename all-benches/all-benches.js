@@ -13,7 +13,8 @@
    view; the earlier ?board=vision opens Vision. ?model=<name> (or its slug or repo) shows that model's page instead.
    "tied" on the chart and in Head to head follows the page's one rule (Methodology #tied): apart only by at least
    100 / sqrt(n) points, n the smaller question count; on the combined score sqrt(sum of the three margins squared) / 3.
-   The table's # is the rank by the score in view among the rows in view, tied scores sharing one; the notes under it on
+   The table's Rank is the place by the score in view among the rows in view, 1, 2, 3 without repeats (rows with the same
+   score keep the table's order; Zeki #4630); the notes under it on
    models whose benches ran different setups follow the keys too. */
 (function allBenches() {
   const DATA = JSON.parse(document.getElementById('ab-data')?.textContent || 'null');
@@ -141,11 +142,8 @@
     body.append(...rows);
     const scored = rows.filter(row => !row.classList.contains('ab-off') && valueOf(row, state.view) !== null)
       .sort((first, second) => valueOf(second, state.view) - valueOf(first, state.view));
-    const rank = new Map();
-    scored.forEach((row, index) => {
-      const before = scored[index - 1];
-      rank.set(row, before && valueOf(before, state.view) === valueOf(row, state.view) ? rank.get(before) : index + 1);
-    });
+    // Places 1, 2, 3 without repeats; the sort keeps rows with the same score in the table's order (Zeki #4630).
+    const rank = new Map(scored.map((row, index) => [row, index + 1]));
     rows.forEach(row => { row.querySelector('.ab-rank').textContent = rank.has(row) ? String(rank.get(row)) : ''; });
     $$('thead th[data-ab-col]', table).forEach(head => {
       if (head.dataset.abCol === column) head.setAttribute('aria-sort', direction > 0 ? 'ascending' : 'descending');

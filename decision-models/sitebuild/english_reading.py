@@ -780,10 +780,11 @@ def against_reference(site: Site, data: dict[str, Any]) -> str:
 
 
 def ranks(models: list[dict[str, Any]], side: str) -> dict[int, int]:
-    """Each setup's rank by right answers in one language among these setups (1 = most right), ties sharing the higher
-    rank; by Turkish run."""
-    rights = [model[side]["right"] for model in models]
-    return {model["turkish_run"]: 1 + sum(1 for other in rights if other > model[side]["right"]) for model in models}
+    """Each setup's place by right answers in one language among these setups, 1, 2, 3 without repeats (1 = most right;
+    Zeki #4630); setups with as many right keep their order in `models`, the table's, which claims no difference; by
+    Turkish run."""
+    ordered = sorted(models, key=lambda model: -model[side]["right"])
+    return {model["turkish_run"]: place for place, model in enumerate(ordered, 1)}
 
 
 def languages_text(text: str) -> str:
@@ -828,7 +829,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
     with_languages = group != "chat"
     group_setups = group_models(site, data, group)
     models = sorted(group_setups, key=lambda model: (-model["turkish"]["accuracy"], label(site, model).casefold()))
-    turkish_rank, english_rank = ranks(group_setups, "turkish"), ranks(group_setups, "english")
+    turkish_rank, english_rank = ranks(models, "turkish"), ranks(models, "english")
     total = data["questions"]
     option = (word or {}).get("option", "")
     difference_note = "points higher in English than in Turkish (negative: higher in Turkish)"

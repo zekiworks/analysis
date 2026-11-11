@@ -621,15 +621,15 @@ def empty_note(data: Data, view: str) -> str:
 
 
 def ranks(values: list[float | None]) -> list[str]:
-    """The # of rows in order: the rank among the rows with a value, tied values sharing one; empty without a value."""
-    out, previous, rank = [], None, 0
-    for index, value in enumerate(values):
+    """The Rank column of rows in order: the place among the rows with a value, 1, 2, 3 without repeats, rows with the same
+    value keeping the table's order, which claims no difference (Zeki #4629, #4630); empty without a value."""
+    out, place = [], 0
+    for value in values:
         if value is None:
             out.append("")
             continue
-        if value != previous:
-            rank, previous = index + 1, value
-        out.append(str(rank))
+        place += 1
+        out.append(str(place))
     return out
 
 
@@ -646,9 +646,9 @@ def main_table(data: Data) -> str:
     """The table under the chart (Ümit #4239): every model side by side, its rows following the type and class keys: #,
     model (maker dot and icon, as on the Leaderboard), size (size_label), Combined and each bench shown, an empty cell
     where a model has no score. Sorted by the view's score, highest first, the models without one last by name; a
-    column head sorts by its column (again: the other way) and a score column's head picks the view (all-benches.js). #
-    is the rank by the view's score among the rows in view, tied scores sharing one: no bench's file carries an
-    all-pairs test, so no tiers."""
+    column head sorts by its column (again: the other way) and a score column's head picks the view (all-benches.js).
+    Rank is the place by the view's score among the rows in view, 1, 2, 3 without repeats (Zeki #4630): no bench's file
+    carries an all-pairs test, so no tiers."""
     view = data.default_view()
     columns = [("combined", "Combined", "mean of 3"), *((bench["key"], bench["short"], "") for bench in data.benches)]
     models = data.ordered(None)
@@ -658,7 +658,7 @@ def main_table(data: Data) -> str:
         f'<th scope="col" class="{css}" data-ab-col="{key}"{" aria-sort=\"descending\"" if key == view else ""}>'
         f'<button type="button" class="ab-sort" data-ab-sort="{key}">{esc(label)}</button>'
         + (f'<span class="small">{esc(sub)}</span>' if sub else "") + "</th>")
-    head = ('<th scope="col" class="num ab-rank">#</th>' + sort("model", "Model", "model") + sort("size", "Size")
+    head = ('<th scope="col" class="num ab-rank">Rank</th>' + sort("model", "Model", "model") + sort("size", "Size")
             + "".join(sort(key, label, "num", sub) for key, label, sub in columns))
     body = []
     for model in models:
@@ -680,9 +680,10 @@ def main_table(data: Data) -> str:
             + "".join(f'<p{filters(model, "note ab-setup-note")} id="setup-{esc(model["slug"])}"><a href="{model_href(model)}">'
                       f'{esc(plain_name(model))}</a>, different setups of one model: {esc(model["setups"])}</p>'
                       for model in models if model["setups"])
-            + f'<p class="note">Scores 0 to 100, higher is better {UP}; an empty cell: not on that bench. # is the rank by the '
-            f'score chosen, among the models in view, tied scores sharing one (no bench\'s file carries an all-pairs test, '
-            f'so no tiers). A column head sorts by it; again, the other way.</p>')
+            + f'<p class="note">Scores 0 to 100, higher is better {UP}; an empty cell: not on that bench. Rank is the place by '
+            f'the score chosen among the models in view, 1, 2, 3 without repeats; models with the same score keep the '
+            f'table\'s order, which claims no difference (no bench\'s file carries an all-pairs test, so no tiers). A column '
+            f'head sorts by it; again, the other way.</p>')
 
 
 def ranking(data: Data) -> str:
@@ -940,7 +941,8 @@ def their_for(data: Data, view: str) -> str:
     rows = data.their_rows()
     ours = [(item, model, data.score(model, view) if model else None) for item, model in rows]
     measured = [(item, model, value) for item, model, value in ours if value is not None]
-    our_rank = {id(model): 1 + sum(other > value for _, _, other in measured) for _, model, value in measured}
+    # Our places 1, 2, 3 without repeats (Zeki #4630); models with the same score keep the index's order.
+    our_rank = {id(model): place for place, (_, model, _) in enumerate(sorted(measured, key=lambda entry: -entry[2]), 1)}
     lines = []
     for index, (item, model, value) in enumerate(ours, start=1):
         colour = model["colour"] if model else data.colour(item["maker"], "decision")
@@ -1018,7 +1020,7 @@ def bench_table(data: Data, bench: dict[str, Any], kind: str) -> str:
                     f'<td>{esc(commit[:7]) if commit else "<span class=\"nm\">no repo</span>"}</td></tr>')
     metric = ranked[0]["scores"][view]["raw"].get("metric", "raw")
     return (f'<h4 class="board-group">{dict(KINDS)[kind]}</h4><div class="table-wrap"><table class="board ab-bench-table"><thead><tr>'
-            f'<th scope="col" class="num">#</th><th scope="col">Model</th><th scope="col" class="num">Size</th>'
+            f'<th scope="col" class="num">Rank</th><th scope="col">Model</th><th scope="col" class="num">Size</th>'
             f'<th scope="col" class="num">Score {UP}<span class="small">0–100</span></th><th scope="col" class="num">{esc(str(metric).capitalize())}</th>'
             f'<th scope="col" class="num">Calibration error {DOWN}<span class="small">ECE, points</span></th><th scope="col">Commit</th></tr></thead>'
             f'<tbody>{"".join(rows)}</tbody></table></div>')
@@ -1250,7 +1252,7 @@ def method_page(data: Data) -> str:
         <li>On one bench, two models are tied when their scores differ by less than <strong>100 ÷ √n points</strong>, n being the smaller of their two question counts on that bench (Backgammon: scored decisions). On Turkish Reading's {bp.count(n_reading)} questions that is {number(100 / math.sqrt(n_reading), 2)} points; on Turkish Grammar's {bp.count(n_grammar)} {number(100 / math.sqrt(n_grammar), 2)}; on English Reading's {bp.count(n_english)} {number(100 / math.sqrt(n_english), 2)}; on Vision's {bp.count(n_vision)} {number(100 / math.sqrt(n_vision), 2)}; on Reading · Turkish's {bp.count(n_text)}, in the Combined score, {number(100 / math.sqrt(n_text), 2)}. The margin is about the size of the noise a score on n questions carries, so a smaller bench needs a larger gap.</li>
         <li>On the combined score, a mean of three, the three benches' margins add up as noise does: √(m₁² + m₂² + m₃²) ÷ 3.</li>
         <li>The ranking marks a bar "tied" when it is within the margin of the bar in view before it; Head to head says "tied" for a bench where the two are within it; each bench's table writes "tied with" the row above. Ties are not chained: A tied with B and B with C does not tie A with C.</li>
-        <li>The table under the chart numbers its rows by rank (#): the rank by the score chosen among the models in view, tied scores (the same score) sharing one. No bench's file carries the all-pairs test the Reading site's Leaderboard draws its tiers from, so there are no tiers here.</li>
+        <li>The table under the chart numbers its rows in a Rank column: the place by the score chosen among the models in view, 1, 2, 3 without repeats; models with the same score keep the table's order, which claims no difference. Each bench's table numbers its rows the same way, and "tied with" there marks the margin above. No bench's file carries the all-pairs test the Reading site's Leaderboard draws its tiers from, so there are no tiers here.</li>
       </ul>
       <h2 id="calibration">Calibration error</h2>
       <p>ECE: the answers sorted into 10 equal-width bins of the chosen option's probability; in each bin the gap between the mean probability and the share right, weighted by the answers in it; shown in points (×100), lower is better {DOWN}. Reading · Turkish's is its Text tab run's, as the Text tab gives it; Turkish Reading's and Turkish Grammar's are the same run's, computed the same way over the part's answers that carry a probability; English Reading's is its first English run's, computed the same way (none for a run without a probability); Vision's the page-image run's; the other benches' as their files give them. On the Combined view the chart uses the mean of the benches' calibration errors: the mean over the benches in Combined (Reading · Turkish, Logic &amp; Math, Backgammon) that give the model one, so a model without one on a bench gets the mean of the other two; a model with fewer than two is left out of that chart.</p>

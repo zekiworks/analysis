@@ -331,11 +331,12 @@ const keepModels = (type, classes) => {
    then the Class keys (All, Tiny, Small, Medium, Large, Efficient, Workhorse, Flagship; Ümit #4217), combined with the
    type; a class key with no row of the part in view under the type pressed hides (and lets go if it was pressed). A row
    outside the keys (its data-kind, its data-class; a row with no class, a setup only this site ran, shows under Class:
-   All only) and its other-setting rows go out of view (lb-off). The # cell numbers the rows in view: on a table whose
-   rows carry tie-group letters (the Turkish part) the tier (leaderboard.py tiers(): a row joins the tier of the tier's
-   top row when they share a letter, else it starts the next tier, marked lb-tier-start for the line between tiers),
-   elsewhere the rank, tied scores sharing one; a row with web search (data-unranked) is numbered in neither and keeps
-   its dash. While a class is chosen the class rule shows under the table; a part with no row in view says so. The type
+   All only) and its other-setting rows go out of view (lb-off). The first cell numbers the rows in view: on a table whose
+   rows carry tie-group letters (the Turkish part, head Tier) the tier (leaderboard.py tiers(): a row joins the tier of
+   the tier's top row when they share a letter, else it starts the next tier, marked lb-tier-start for the line between
+   tiers), elsewhere (head Rank) the row's place, 1, 2, 3 without repeats, rows with the same score keeping the table's
+   order (Zeki #4630); a row with web search (data-unranked) is numbered in neither and keeps its dash. While a class is
+   chosen the class rule shows under the table; a part with no row in view says so. The type
    and classes asked for in the address (ASKED_TYPE, ASKED_CLASSES: ?models=, ?class=, as the other pages keep them in
    their links) are pressed first; the old small addresses (?models=small-chat, small, small-decision) press Tiny and
    Small together; small-chat opens on English, as before (the small open models ran in English only). Each row's
@@ -366,7 +367,6 @@ const keepModels = (type, classes) => {
   const allPanel = document.getElementById('all-setups');
   const classLine = board.querySelector('.lb-size-line');
   const number = table => {
-    let previous = null;
     let top = null;
     let count = 0;
     let seen = 0;
@@ -376,15 +376,13 @@ const keepModels = (type, classes) => {
         row.classList.remove('lb-tier-start');
         return;
       }
-      const score = Number(row.dataset.score);
       seen += 1;
       let starts = false;
       if (tiered) {
         const letters = row.dataset.letters;
         starts = top === null || ![...letters].some(letter => top.includes(letter));
         if (starts) { top = letters; count += 1; }
-      } else if (score !== previous) count = seen;
-      previous = score;
+      } else count = seen;
       row.classList.toggle('lb-tier-start', tiered && starts && seen > 1);
       row.querySelector('td.rank').textContent = String(count);
     });
