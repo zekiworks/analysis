@@ -7284,6 +7284,134 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-onejev1.6-0.8b_en"><h3>Logic · onejev1.6-0.8b_en</h3><dl class="facts"><dt>Name</dt><dd>OneJev1.6-0.8B</dd><dt>Setup</dt><dd>OneJev1.6-0.8B · decision model</dd><dt>Model</dt><dd><code>OmniJev/OneJev1.6-0.8B</code> · provider onejev</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.001301 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.00611 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.001 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run onejev1.6-0.8b_en · first answer 2026-11-11 20:54:07 UTC · last answer 2026-11-11 20:54:29 UTC · span 22.0 s, pauses included (not charged) · charged 22.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0013 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.8 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 0.8B dense · source <a href="https://huggingface.co/OmniJev/OneJev1.6-0.8B">https://huggingface.co/OmniJev/OneJev1.6-0.8B</a> · read 2026-11-10 · the official model name: OneJev1.6-0.8B (turkce #4263: the maker&#x27;s stated total is shown); counted from the released files: 0.85B (counted from the checkpoint (852,985,920: language model 752,393,024, vision tower 100,592,896); an average of three Qwen3.5-0.8B fine-tunes; the card&#x27;s chart: 0.9B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19420</code></dd><dt>Started</dt><dd>11 Nov 2026 20:54 UTC; last answer 11 Nov 2026 20:54 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup OneJev1.6-0.8B (site run None); runner 7b6fdc115; OmniJev/OneJev1.6-0.8B@bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0 (Apache-2.0; average of three Qwen3.5-0.8B fine-tunes; no calibration.json shipped, so temperature 1); main moved from c89933c2 to bcd88a38 on 10 Nov (README only: &#x27;Link the Flide paper&#x27;); all other files byte-identical, verified 2026-11-11. Behind the card&#x27;s server, Flide (flide pinned at 0.1.11, the current PyPI release; the card names no version): ~/envs/onejev16/bin/flide serve --model ~/decision-models/OneJev1.6-0.8B@bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0 --name OmniJev/OneJev1.6-0.8B --host 0.0.0.0 --port 19420 (env: glide-family&#x27;s stack + flide==0.1.11, accelerate, torchvision 0.29.1+cu130); vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19420; spark2 (DGX Spark, GB10); runner provider onejev as is (model field = --name; probabilities rounded to 6 places)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;OmniJev/OneJev1.6-0.8B&quot;,
+    &quot;--provider&quot;,
+    &quot;onejev&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;b49f0758f6a5aa13377063fd0c34ff02dd9deaa8&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;OmniJev/OneJev1.6-0.8B&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;onejev&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 18.095550994214136,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;a67ce3bc49b5fb1d3dc9245f350f9c80693065134de7e7e0f02bc81d2a527bbf&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;7b6fdc11507bb13f2aa97d91cc180214a3031447&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 431882,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19420/v1/systemone
+{
+ &quot;model&quot;: &quot;OmniJev/OneJev1.6-0.8B&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-onejev1.6-0.8b_en_dontknow"><h3>Logic · onejev1.6-0.8b_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>OneJev1.6-0.8B</dd><dt>Setup</dt><dd>OneJev1.6-0.8B · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>OmniJev/OneJev1.6-0.8B</code> · provider onejev</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.001478 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.00694 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.001 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run onejev1.6-0.8b_en_dontknow · first answer 2026-11-11 20:55:14 UTC · last answer 2026-11-11 20:55:39 UTC · span 25.0 s, pauses included (not charged) · charged 25.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0015 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.8 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 0.8B dense · source <a href="https://huggingface.co/OmniJev/OneJev1.6-0.8B">https://huggingface.co/OmniJev/OneJev1.6-0.8B</a> · read 2026-11-10 · the official model name: OneJev1.6-0.8B (turkce #4263: the maker&#x27;s stated total is shown); counted from the released files: 0.85B (counted from the checkpoint (852,985,920: language model 752,393,024, vision tower 100,592,896); an average of three Qwen3.5-0.8B fine-tunes; the card&#x27;s chart: 0.9B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19420</code></dd><dt>Started</dt><dd>11 Nov 2026 20:55 UTC; last answer 11 Nov 2026 20:55 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup OneJev1.6-0.8B (site run None); runner 7b6fdc115; OmniJev/OneJev1.6-0.8B@bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0 (Apache-2.0; average of three Qwen3.5-0.8B fine-tunes; no calibration.json shipped, so temperature 1); main moved from c89933c2 to bcd88a38 on 10 Nov (README only: &#x27;Link the Flide paper&#x27;); all other files byte-identical, verified 2026-11-11. Behind the card&#x27;s server, Flide (flide pinned at 0.1.11, the current PyPI release; the card names no version): ~/envs/onejev16/bin/flide serve --model ~/decision-models/OneJev1.6-0.8B@bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0 --name OmniJev/OneJev1.6-0.8B --host 0.0.0.0 --port 19420 (env: glide-family&#x27;s stack + flide==0.1.11, accelerate, torchvision 0.29.1+cu130); vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19420; spark2 (DGX Spark, GB10); runner provider onejev as is (model field = --name; probabilities rounded to 6 places)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;OmniJev/OneJev1.6-0.8B&quot;,
+    &quot;--provider&quot;,
+    &quot;onejev&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;b49f0758f6a5aa13377063fd0c34ff02dd9deaa8&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;OmniJev/OneJev1.6-0.8B&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;onejev&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 20.524674505839357,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;d1d5d032ecffe648414da84a7e53399776b9fa945b0804032d5c5fa163cadae0&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;7b6fdc11507bb13f2aa97d91cc180214a3031447&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 467882,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19420/v1/systemone
+{
+ &quot;model&quot;: &quot;OmniJev/OneJev1.6-0.8B&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-qwen3.8-27b-bf16_en_low"><h3>Math · qwen3.8-27b-bf16_en_low</h3><dl class="facts"><dt>Name</dt><dd>Qwen3.8-27B <span class="name-tag">low · chat</span></dd><dt>Setup</dt><dd>Qwen3.8-27B (chat, reasoning low, on our GPU) · chat model</dd><dt>Model</dt><dd><code>qwen38-27b-bf16</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$1.437 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.577 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $1.437. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run qwen3.8-27b-bf16_en_low · first answer 2026-11-06 21:41:16 UTC · last answer 2026-11-06 22:15:53 UTC · span 2077.0 s, pauses included (not charged) · charged 2077.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $1.4366 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 12.9 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>60,000 tokens · 0 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 27B dense · source <a href="https://huggingface.co/Qwen/Qwen3.8-27B">https://huggingface.co/Qwen/Qwen3.8-27B</a> · read 2026-11-10 · the card states Number of Parameters: 27B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 27.78B (counted from the checkpoint (27,781,427,952, the vision encoder included); the card says 27B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:8022/v1/chat/completions</code></dd><dt>Started</dt><dd>6 Nov 2026 21:41 UTC; last answer 6 Nov 2026 22:15 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Qwen3.8-27B BF16 (vLLM v0.30.0, MTP, bariton GPU 1), thinking on at reasoning_effort low, model generation config sampling (1.0/0.95/20, seed 0), JSON answer schema; English translations (DeepSeek + review)</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: true,
@@ -14002,7 +14130,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-grok-4.7-sub_en"><h3>Math · grok-4.7-sub_en</h3><dl class="facts"><dt>Name</dt><dd>Grok 4.7 <span class="name-tag">chat</span></dd><dt>Setup</dt><dd>Grok 4.7 · chat model</dd><dt>Model</dt><dd><code>grok-4.7</code> · provider xai-subscription</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0 for the run · xAI subscription</dd><dt>Answer time</dt><dd>run grok-4.7-sub_en · first answer 2026-11-11 15:17:40 UTC · last answer 2026-11-11 20:22:24 UTC · span 18284.0 s, pauses included (not charged) · charged 16590.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.8 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker (closed weights) · source <a href="https://x.ai">https://x.ai</a> · read 2026-11-11</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.x.ai/v1/responses</code></dd><dt>Started</dt><dd>11 Nov 2026 15:17 UTC; last answer 11 Nov 2026 20:22 UTC</dd><dt>Progress</dt><dd>769 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Grok 4.7 on the SuperGrok subscription through xAI&#x27;s Responses API with OMP&#x27;s xai-oauth login (as turkce&#x27;s ask_xai and jevgammon&#x27;s xai-subscription route), model grok-4.7, reasoning effort high (Reading&#x27;s setting); max_output_tokens 32768; no temperature sent (xAI&#x27;s default) and no tools; a neutral one-line system prompt; one question per request, one request at a time; a usage-limit reply stops the run without retrying it (resumable); cost $0 (xAI subscription); api_equivalent_usd is the tokens at xAI&#x27;s API list price {&quot;input&quot;: 2.0, &quot;cached_input&quot;: 0.5, &quot;output&quot;: 6.0} per 1M tokens, not a cost. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-grok-4.7-sub_en"><h3>Math · grok-4.7-sub_en</h3><dl class="facts"><dt>Name</dt><dd>Grok 4.7 <span class="name-tag">chat</span></dd><dt>Setup</dt><dd>Grok 4.7 · chat model</dd><dt>Model</dt><dd><code>grok-4.7</code> · provider xai-subscription</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0 for the run · xAI subscription</dd><dt>Answer time</dt><dd>run grok-4.7-sub_en · first answer 2026-11-11 15:17:40 UTC · last answer 2026-11-11 20:58:02 UTC · span 20422.0 s, pauses included (not charged) · charged 18728.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.8 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker (closed weights) · source <a href="https://x.ai">https://x.ai</a> · read 2026-11-11</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.x.ai/v1/responses</code></dd><dt>Started</dt><dd>11 Nov 2026 15:17 UTC; last answer 11 Nov 2026 20:58 UTC</dd><dt>Progress</dt><dd>1,009 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Grok 4.7 on the SuperGrok subscription through xAI&#x27;s Responses API with OMP&#x27;s xai-oauth login (as turkce&#x27;s ask_xai and jevgammon&#x27;s xai-subscription route), model grok-4.7, reasoning effort high (Reading&#x27;s setting); max_output_tokens 32768; no temperature sent (xAI&#x27;s default) and no tools; a neutral one-line system prompt; one question per request, one request at a time; a usage-limit reply stops the run without retrying it (resumable); cost $0 (xAI subscription); api_equivalent_usd is the tokens at xAI&#x27;s API list price {&quot;input&quot;: 2.0, &quot;cached_input&quot;: 0.5, &quot;output&quot;: 6.0} per 1M tokens, not a cost. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;effort&quot;: &quot;high&quot;,
   &quot;list_price_per_mtok&quot;: {
     &quot;cached_input&quot;: 0.5,
@@ -14183,7 +14311,7 @@
   &quot;temperature&quot;: 0.0
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D, E or F). If you do not know the answer, choose I don&#x27;t know.
 
-{question}</pre></dd></dl></section><section class="run-record" id="run-math-claude-opus-5.5-sub_en"><h3>Math · claude-opus-5.5-sub_en</h3><dl class="facts"><dt>Name</dt><dd>Claude Opus 5.5 <span class="name-tag">chat</span></dd><dt>Setup</dt><dd>Claude Opus 5.5 · chat model</dd><dt>Model</dt><dd><code>claude-opus-5-5</code> · provider claude-subscription</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not measured</dd><dt>Answer time</dt><dd>run claude-opus-5.5-sub_en · first answer 2026-11-11 19:31:58 UTC · last answer 2026-11-11 20:22:23 UTC · span 3025.0 s, pauses included (not charged) · charged 3025.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not on record yet</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>claude-code-subscription</code></dd><dt>Started</dt><dd>11 Nov 2026 19:31 UTC; last answer 11 Nov 2026 20:22 UTC</dd><dt>Progress</dt><dd>853 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Claude Opus 5.5 on the Claude subscription through the Claude Code CLI (`claude --print`, as turkce&#x27;s runs 968/971), model claude-opus-5-5, --effort high (the highest of low/medium/high/xhigh/max; adaptive thinking always on); CLAUDE_CODE_MAX_OUTPUT_TOKENS 32768; no temperature sent (Anthropic&#x27;s default 1.0); Claude Code&#x27;s agent prompt replaced by a neutral one-line system prompt, tools, settings, MCP servers and session saving off, API-key variables removed; one question per request, one request at a time; cost $0 (Claude subscription); api_equivalent_usd is Claude Code&#x27;s API-list-price estimate, not a cost. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+{question}</pre></dd></dl></section><section class="run-record" id="run-math-claude-opus-5.5-sub_en"><h3>Math · claude-opus-5.5-sub_en</h3><dl class="facts"><dt>Name</dt><dd>Claude Opus 5.5 <span class="name-tag">chat</span></dd><dt>Setup</dt><dd>Claude Opus 5.5 · chat model</dd><dt>Model</dt><dd><code>claude-opus-5-5</code> · provider claude-subscription</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>not measured</dd><dt>Answer time</dt><dd>run claude-opus-5.5-sub_en · first answer 2026-11-11 19:31:58 UTC · last answer 2026-11-11 20:57:59 UTC · span 5161.0 s, pauses included (not charged) · charged 5161.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not on record yet</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>claude-code-subscription</code></dd><dt>Started</dt><dd>11 Nov 2026 19:31 UTC; last answer 11 Nov 2026 20:57 UTC</dd><dt>Progress</dt><dd>1,479 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Claude Opus 5.5 on the Claude subscription through the Claude Code CLI (`claude --print`, as turkce&#x27;s runs 968/971), model claude-opus-5-5, --effort high (the highest of low/medium/high/xhigh/max; adaptive thinking always on); CLAUDE_CODE_MAX_OUTPUT_TOKENS 32768; no temperature sent (Anthropic&#x27;s default 1.0); Claude Code&#x27;s agent prompt replaced by a neutral one-line system prompt, tools, settings, MCP servers and session saving off, API-key variables removed; one question per request, one request at a time; cost $0 (Claude subscription); api_equivalent_usd is Claude Code&#x27;s API-list-price estimate, not a cost. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;effort&quot;: &quot;high&quot;,
   &quot;max_output_tokens&quot;: 32768,
   &quot;route&quot;: &quot;claude-code-cli --print&quot;,
@@ -14476,13 +14604,141 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-onejev1.6-0.8b_en"><h3>Math · onejev1.6-0.8b_en</h3><dl class="facts"><dt>Name</dt><dd>OneJev1.6-0.8B</dd><dt>Setup</dt><dd>OneJev1.6-0.8B · decision model</dd><dt>Model</dt><dd><code>OmniJev/OneJev1.6-0.8B</code> · provider onejev</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.002365 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0111 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.002 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run onejev1.6-0.8b_en · first answer 2026-11-11 20:54:31 UTC · last answer 2026-11-11 20:55:11 UTC · span 40.0 s, pauses included (not charged) · charged 40.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0024 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.8 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 0.8B dense · source <a href="https://huggingface.co/OmniJev/OneJev1.6-0.8B">https://huggingface.co/OmniJev/OneJev1.6-0.8B</a> · read 2026-11-10 · the official model name: OneJev1.6-0.8B (turkce #4263: the maker&#x27;s stated total is shown); counted from the released files: 0.85B (counted from the checkpoint (852,985,920: language model 752,393,024, vision tower 100,592,896); an average of three Qwen3.5-0.8B fine-tunes; the card&#x27;s chart: 0.9B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19420</code></dd><dt>Started</dt><dd>11 Nov 2026 20:54 UTC; last answer 11 Nov 2026 20:55 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup OneJev1.6-0.8B (site run None); runner 7b6fdc115; OmniJev/OneJev1.6-0.8B@bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0 (Apache-2.0; average of three Qwen3.5-0.8B fine-tunes; no calibration.json shipped, so temperature 1); main moved from c89933c2 to bcd88a38 on 10 Nov (README only: &#x27;Link the Flide paper&#x27;); all other files byte-identical, verified 2026-11-11. Behind the card&#x27;s server, Flide (flide pinned at 0.1.11, the current PyPI release; the card names no version): ~/envs/onejev16/bin/flide serve --model ~/decision-models/OneJev1.6-0.8B@bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0 --name OmniJev/OneJev1.6-0.8B --host 0.0.0.0 --port 19420 (env: glide-family&#x27;s stack + flide==0.1.11, accelerate, torchvision 0.29.1+cu130); vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19420; spark2 (DGX Spark, GB10); runner provider onejev as is (model field = --name; probabilities rounded to 6 places)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;OmniJev/OneJev1.6-0.8B&quot;,
+    &quot;--provider&quot;,
+    &quot;onejev&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;b49f0758f6a5aa13377063fd0c34ff02dd9deaa8&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;OmniJev/OneJev1.6-0.8B&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;onejev&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 31.670519392442657,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;baf401ec778c29c6413ed0d23cb2b712ddb99b3ddd8f7846b5d594a5371881b0&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;7b6fdc11507bb13f2aa97d91cc180214a3031447&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 488047,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19420/v1/systemone
+{
+ &quot;model&quot;: &quot;OmniJev/OneJev1.6-0.8B&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-onejev1.6-0.8b_en_dontknow"><h3>Math · onejev1.6-0.8b_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>OneJev1.6-0.8B</dd><dt>Setup</dt><dd>OneJev1.6-0.8B · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>OmniJev/OneJev1.6-0.8B</code> · provider onejev</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.002365 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0111 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.002 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run onejev1.6-0.8b_en_dontknow · first answer 2026-11-11 20:55:42 UTC · last answer 2026-11-11 20:56:22 UTC · span 40.0 s, pauses included (not charged) · charged 40.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0024 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.8 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 0.8B dense · source <a href="https://huggingface.co/OmniJev/OneJev1.6-0.8B">https://huggingface.co/OmniJev/OneJev1.6-0.8B</a> · read 2026-11-10 · the official model name: OneJev1.6-0.8B (turkce #4263: the maker&#x27;s stated total is shown); counted from the released files: 0.85B (counted from the checkpoint (852,985,920: language model 752,393,024, vision tower 100,592,896); an average of three Qwen3.5-0.8B fine-tunes; the card&#x27;s chart: 0.9B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19420</code></dd><dt>Started</dt><dd>11 Nov 2026 20:55 UTC; last answer 11 Nov 2026 20:56 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup OneJev1.6-0.8B (site run None); runner 7b6fdc115; OmniJev/OneJev1.6-0.8B@bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0 (Apache-2.0; average of three Qwen3.5-0.8B fine-tunes; no calibration.json shipped, so temperature 1); main moved from c89933c2 to bcd88a38 on 10 Nov (README only: &#x27;Link the Flide paper&#x27;); all other files byte-identical, verified 2026-11-11. Behind the card&#x27;s server, Flide (flide pinned at 0.1.11, the current PyPI release; the card names no version): ~/envs/onejev16/bin/flide serve --model ~/decision-models/OneJev1.6-0.8B@bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0 --name OmniJev/OneJev1.6-0.8B --host 0.0.0.0 --port 19420 (env: glide-family&#x27;s stack + flide==0.1.11, accelerate, torchvision 0.29.1+cu130); vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19420; spark2 (DGX Spark, GB10); runner provider onejev as is (model field = --name; probabilities rounded to 6 places)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;OmniJev/OneJev1.6-0.8B&quot;,
+    &quot;--provider&quot;,
+    &quot;onejev&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;b49f0758f6a5aa13377063fd0c34ff02dd9deaa8&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;OmniJev/OneJev1.6-0.8B&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;onejev&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 32.34961328122881,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;c4d551365668b59b47e723fcfa3dd2e595a3c4ff06a5bce1740a6a58b6df5c25&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;7b6fdc11507bb13f2aa97d91cc180214a3031447&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 557263,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19420/v1/systemone
+{
+ &quot;model&quot;: &quot;OmniJev/OneJev1.6-0.8B&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <nav class="footer-links" aria-label="About this site"><a href="../about/">About</a><a href="../method/">Method</a><a href="../about/#data">Data</a></nav>
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 11 Nov 2026 20:22 UTC from the logic and math benchmark.db files (388,479 graded answers in 251 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 11 Nov 2026 20:58 UTC from the logic and math benchmark.db files (395,921 graded answers in 255 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>

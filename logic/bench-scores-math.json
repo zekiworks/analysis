@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-11T20:22:18Z",
+ "updated": "2026-11-11T20:58:01Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -1796,6 +1796,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); the repository holds a LoRA and head on Qwen3.5-2B-Base",
    "gpu_hours": 0.02277777777777778,
    "gpu_cost_usd": 0.056716666666666665
+  },
+  {
+   "repo": "OmniJev/OneJev1.6-0.8B",
+   "commit": "bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0",
+   "model_key": "onejev1.6-0.8b",
+   "name": "OneJev1.6-0.8B",
+   "display_name": "OneJev1.6-0.8B",
+   "tag": "",
+   "class_label": "Open · 0.8B",
+   "base_model": null,
+   "setup_label": "OneJev1.6-0.8B",
+   "maker": "OmniJev",
+   "kind": "decision",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 10.309754969949147,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.2824780397595932,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.09989208737864079,
+   "improvement_points": null,
+   "runs": [
+    "math:onejev1.6-0.8b_en",
+    "math:onejev1.6-0.8b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10)",
+   "gpu_hours": 0.011111111111111112,
+   "gpu_cost_usd": 0.002364642512051581
   },
   {
    "repo": "PelaAI/KnowLine-0.8B-Gen1",
