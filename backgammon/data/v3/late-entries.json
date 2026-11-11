@@ -6311,6 +6311,710 @@
    "slug": "reax-1-3",
    "status": "Provisional",
    "total": 19
+  },
+  {
+   "close": null,
+   "confidence": {
+    "auroc_best": 0.7470441168810875,
+    "auroc_blunder": 0.7144470401627544,
+    "confident_badly_wrong": {
+     "den": 1928,
+     "n": 2,
+     "share": 0.001037344398340249
+    },
+    "cutoffs": {
+     "0.9": {
+      "blunders": {
+       "den": 183,
+       "n": 2,
+       "share": 0.01092896174863388
+      },
+      "kept": {
+       "den": 1928,
+       "n": 183,
+       "share": 0.09491701244813278
+      },
+      "mean_loss": 0.003968497117360433,
+      "too_few": true
+     },
+     "0.99": {
+      "blunders": {
+       "den": 18,
+       "n": 0,
+       "share": 0.0
+      },
+      "kept": {
+       "den": 1928,
+       "n": 18,
+       "share": 0.00933609958506224
+      },
+      "mean_loss": 0.0,
+      "too_few": true
+     }
+    },
+    "ece": 0.03150163103613434,
+    "held_out": {
+     "blunders": 0.009419426297907273,
+     "kept": 0.08930633537098011,
+     "no_cutoff": 0,
+     "runs": 300
+    },
+    "n": 1928,
+    "surest": {
+     "cut": 0.7456592794239957,
+     "error_rate": 5.376041182838535,
+     "n": 482,
+     "too_few": false
+    },
+    "too_few": false
+   },
+   "entry": "2026-11-10T20:35:36.827Z",
+   "exchanges": {
+    "cut_off": 0,
+    "decisions": 1928,
+    "efforts": {},
+    "limit_sent": 0,
+    "output_limit": 32768,
+    "past_limit_no_limit_sent": 0,
+    "with_exchanges": 1928
+   },
+   "field": [
+    "Celeris-1 Decision",
+    "Clef",
+    "Cygnet",
+    "Perplexity Decider Flash v1.2",
+    "Perplexity Decider 27B v1.1 (local GPU)",
+    "Perplexity Decider 27B v1.2 (local GPU)",
+    "Fastino GLiDE",
+    "Fastino GLiDE v1.2",
+    "GNUbg weak",
+    "GPT-6 Luna (Decisions API)",
+    "Jev 1.13.0",
+    "Jev 1.14.0",
+    "Liquid d1-ultra",
+    "Inception Mercury Decide",
+    "Open-Jev 27B v1.1",
+    "Random",
+    "Safest",
+    "SubQ Snap Preview",
+    "Winnow-12B"
+   ],
+   "field_league": 1,
+   "matches": [
+    {
+     "finished": "2026-11-10T20:45:13.181Z",
+     "id": 937,
+     "opponent": "Fastino GLiDE",
+     "score_against": 3,
+     "score_for": 4,
+     "started": "2026-11-10T20:35:36.827Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T20:53:58.142Z",
+     "id": 938,
+     "opponent": "Celeris-1 Decision",
+     "score_against": 5,
+     "score_for": 2,
+     "started": "2026-11-10T20:45:13.364Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T20:59:01.703Z",
+     "id": 939,
+     "opponent": "GNUbg weak",
+     "score_against": 5,
+     "score_for": 1,
+     "started": "2026-11-10T20:53:58.328Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T21:04:54.227Z",
+     "id": 940,
+     "opponent": "Random",
+     "score_against": 0,
+     "score_for": 8,
+     "started": "2026-11-10T20:59:01.863Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T21:13:55.870Z",
+     "id": 941,
+     "opponent": "Safest",
+     "score_against": 2,
+     "score_for": 6,
+     "started": "2026-11-10T21:04:54.386Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T21:23:37.585Z",
+     "id": 942,
+     "opponent": "Liquid d1-ultra",
+     "score_against": 4,
+     "score_for": 3,
+     "started": "2026-11-10T21:13:56.040Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T21:31:20.587Z",
+     "id": 943,
+     "opponent": "Jev 1.14.0",
+     "score_against": 1,
+     "score_for": 6,
+     "started": "2026-11-10T21:23:37.748Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T21:38:59.490Z",
+     "id": 944,
+     "opponent": "Jev 1.13.0",
+     "score_against": 2,
+     "score_for": 4,
+     "started": "2026-11-10T21:31:20.762Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T21:44:26.077Z",
+     "id": 945,
+     "opponent": "SubQ Snap Preview",
+     "score_against": 0,
+     "score_for": 6,
+     "started": "2026-11-10T21:38:59.650Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-10T21:44:26.672Z",
+     "id": 946,
+     "opponent": "Inception Mercury Decide",
+     "score_against": 0,
+     "score_for": 0,
+     "started": "2026-11-10T21:44:26.237Z",
+     "status": "aborted"
+    },
+    {
+     "finished": "2026-11-11T09:50:55.251Z",
+     "id": 947,
+     "opponent": "Cygnet",
+     "score_against": 2,
+     "score_for": 5,
+     "started": "2026-11-11T09:41:03.451Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-11T09:56:57.094Z",
+     "id": 948,
+     "opponent": "Winnow-12B",
+     "score_against": 1,
+     "score_for": 6,
+     "started": "2026-11-11T09:51:32.601Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-11T10:03:55.501Z",
+     "id": 949,
+     "opponent": "Perplexity Decider Flash v1.2",
+     "score_against": 1,
+     "score_for": 6,
+     "started": "2026-11-11T09:57:32.615Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-11T10:14:28.315Z",
+     "id": 950,
+     "opponent": "Perplexity Decider 27B v1.2 (local GPU)",
+     "score_against": 2,
+     "score_for": 5,
+     "started": "2026-11-11T10:05:02.602Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-11T10:21:34.243Z",
+     "id": 951,
+     "opponent": "Fastino GLiDE v1.2",
+     "score_against": 1,
+     "score_for": 5,
+     "started": "2026-11-11T10:15:32.604Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-11T10:33:57.516Z",
+     "id": 952,
+     "opponent": "Clef",
+     "score_against": 2,
+     "score_for": 6,
+     "started": "2026-11-11T10:23:02.601Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-11T10:43:08.344Z",
+     "id": 953,
+     "opponent": "Open-Jev 27B v1.1",
+     "score_against": 2,
+     "score_for": 7,
+     "started": "2026-11-11T10:35:32.602Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-11T10:55:33.424Z",
+     "id": 954,
+     "opponent": "Perplexity Decider 27B v1.1 (local GPU)",
+     "score_against": 4,
+     "score_for": 4,
+     "started": "2026-11-11T10:44:02.604Z",
+     "status": "finished"
+    }
+   ],
+   "name": "KnowLine 31B Gen1.5",
+   "not_played": [
+    {
+     "opponent": "GPT-6 Luna (Decisions API)",
+     "reason": "opponent's API out of credit"
+    },
+    {
+     "opponent": "Inception Mercury Decide",
+     "reason": "opponent no longer served on OpenRouter"
+    }
+   ],
+   "played": 17,
+   "price": {
+    "date": "2026-11-10",
+    "input_per_mtok": null,
+    "label": "no price (our GPU)",
+    "output_per_mtok": null,
+    "source": "no list price published for KnowLine-31B-Gen1.5"
+   },
+   "quality": {
+    "auroc": 0.7470441168810875,
+    "best_share": 0.5456431535269709,
+    "blunder_share": 0.19346473029045644,
+    "brier": 0.20192502557837588,
+    "clusters": 92,
+    "confidence_n": 1928,
+    "confident_badly_wrong": 0.001037344398340249,
+    "cost_coverage": 0.0,
+    "decisions": 1928,
+    "ece": 0.03150163103613434,
+    "engine_scored": 1928,
+    "error_hi": 29.35488540518521,
+    "error_lo": 22.96821457958493,
+    "error_rate": 26.21519251019381,
+    "first_date": "2026-11-10",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-11-11",
+    "mean_confidence": 0.5673088302668823,
+    "over_budget": 0.002074688796680498,
+    "p95_loss": 0.25624930858612044,
+    "probability_source": "decision",
+    "retry_mean": 3.1872520746887965,
+    "scored": 1928,
+    "time_median": 3.4545000000000003,
+    "time_p90": 5.805,
+    "tokens_in": 4812.419605809128,
+    "tokens_out": 1.0,
+    "too_few": false,
+    "very_confident": 0.09491701244813278,
+    "worst_mean": 0.4662347650155425
+   },
+   "record": {
+    "drawn": 1,
+    "lost": 3,
+    "won": 13
+   },
+   "risk": {
+    "main": {
+     "by_call": {
+      "missed": 16.723247886446007,
+      "needless": 1.4833876731732079,
+      "none": 2.038678316654506,
+      "right_risk": 1.2482139687691487,
+      "right_safety": 3.577430288141199,
+      "wrong_risk": 1.14423437700974
+     },
+     "calls": {
+      "missed": 437.0,
+      "needless": 45.0,
+      "right_risk": 187.0,
+      "right_safety": 758.0,
+      "wrong_risk": 25.0
+     },
+     "confidence": {
+      "auroc_right_risk": 0.6656226126814362,
+      "missed_mean_p": 0.49783027180182793,
+      "missed_n": 437,
+      "taken_grouped": 0,
+      "taken_n": 257,
+      "taken_other": 0
+     },
+     "error_rate": 26.21519251019381,
+     "found": {
+      "den": 649.0,
+      "n": 187.0,
+      "share": 0.288135593220339
+     },
+     "good": {
+      "den": 257.0,
+      "n": 187.0,
+      "share": 0.7276264591439688
+     },
+     "judgement": 61.60478713299702,
+     "judgement_hi": 63.50604798961475,
+     "judgement_lo": 59.635205892144185,
+     "judgement_na": null,
+     "map": {
+      "wrong_share": 0.05411255411255411,
+      "x": 0.711864406779661,
+      "y": 0.05603985056039851
+     },
+     "margin": 0.001,
+     "missed": {
+      "den": 649.0,
+      "n": 437.0,
+      "share": 0.6733436055469953
+     },
+     "needless": {
+      "den": 803.0,
+      "n": 45.0,
+      "share": 0.05603985056039851
+     },
+     "needless_by_loss": {
+      "big": {
+       "den": 803.0,
+       "n": 27.0,
+       "share": 0.033623910336239106
+      },
+      "medium": {
+       "den": 803.0,
+       "n": 11.0,
+       "share": 0.0136986301369863
+      },
+      "small": {
+       "den": 803.0,
+       "n": 7.0,
+       "share": 0.008717310087173101
+      }
+     },
+     "no_trade_off": 476.0,
+     "reference": null,
+     "right_safety": {
+      "den": 803.0,
+      "n": 758.0,
+      "share": 0.9439601494396015
+     },
+     "risk_pays": 649.0,
+     "safety_pays": 803.0,
+     "scored": 1928,
+     "sdt": {
+      "aim": {
+       "den": 212.0,
+       "n": 187.0,
+       "share": 0.8820754716981132
+      },
+      "beta": 1.0657953230160753,
+      "caution": 1.0162339220163177,
+      "caution_hi": 1.105069249886944,
+      "caution_lo": 0.9417959377611747,
+      "cstar": 0.0561116199485946,
+      "cstar_note": "unstable: fewer than 200 needless risks behind a mean cost",
+      "cstar_status": "unstable",
+      "dprime": 1.1356168774207662,
+      "dprime_hi": 1.329012032771482,
+      "dprime_lo": 0.9605632008863099,
+      "false_alarm": {
+       "den": 803.0,
+       "n": 45.0,
+       "share": 0.05603985056039851
+      },
+      "false_alarm_rate": 0.056592039800995024,
+      "hit": {
+       "den": 649.0,
+       "n": 212.0,
+       "share": 0.3266563944530046
+      },
+      "hit_rate": 0.3269230769230769,
+      "missed_loss": 0.1475625717394412,
+      "missed_n": 437.0,
+      "na": null,
+      "needless_loss": 0.12710984150568644,
+      "needless_n": 45.0
+     },
+     "size": {
+      "bad": {
+       "mean": 8.1,
+       "n": 70.0,
+       "too_few": true
+      },
+      "right": {
+       "mean": 9.893048128342246,
+       "n": 187.0,
+       "too_few": true
+      }
+     },
+     "stake": {
+      "big": {
+       "found": {
+        "den": 351.0,
+        "n": 126.0,
+        "share": 0.358974358974359
+       },
+       "missed": {
+        "den": 351.0,
+        "n": 209.0,
+        "share": 0.5954415954415955
+       },
+       "risk_pays": 351.0,
+       "wrong": {
+        "den": 351.0,
+        "n": 16.0,
+        "share": 0.045584045584045586
+       }
+      },
+      "medium": {
+       "found": {
+        "den": 213.0,
+        "n": 46.0,
+        "share": 0.215962441314554
+       },
+       "missed": {
+        "den": 213.0,
+        "n": 160.0,
+        "share": 0.7511737089201878
+       },
+       "risk_pays": 213.0,
+       "wrong": {
+        "den": 213.0,
+        "n": 7.0,
+        "share": 0.03286384976525822
+       }
+      },
+      "small": {
+       "found": {
+        "den": 85.0,
+        "n": 15.0,
+        "share": 0.17647058823529413
+       },
+       "missed": {
+        "den": 85.0,
+        "n": 68.0,
+        "share": 0.8
+       },
+       "risk_pays": 85.0,
+       "wrong": {
+        "den": 85.0,
+        "n": 2.0,
+        "share": 0.023529411764705882
+       }
+      }
+     },
+     "trade_off": 1452.0,
+     "wrong": {
+      "den": 649.0,
+      "n": 25.0,
+      "share": 0.03852080123266564
+     }
+    },
+    "robust": {
+     "by_call": {
+      "missed": 16.34314915173034,
+      "needless": 1.507291330712465,
+      "none": 2.038678316654506,
+      "right_risk": 1.1784521731474586,
+      "right_safety": 3.9575290228568667,
+      "wrong_risk": 1.190092515092173
+     },
+     "calls": {
+      "missed": 369.0,
+      "needless": 62.0,
+      "right_risk": 167.0,
+      "right_safety": 826.0,
+      "wrong_risk": 28.0
+     },
+     "confidence": {
+      "auroc_right_risk": 0.6614770459081837,
+      "missed_mean_p": 0.49512538808433554,
+      "missed_n": 369,
+      "taken_grouped": 0,
+      "taken_n": 257,
+      "taken_other": 0
+     },
+     "error_rate": 26.21519251019381,
+     "found": {
+      "den": 564.0,
+      "n": 167.0,
+      "share": 0.29609929078014185
+     },
+     "good": {
+      "den": 257.0,
+      "n": 167.0,
+      "share": 0.6498054474708171
+     },
+     "judgement": 61.31397354801611,
+     "judgement_hi": 63.463796610117164,
+     "judgement_lo": 59.11216023223554,
+     "judgement_na": null,
+     "map": {
+      "wrong_share": 0.07052896725440806,
+      "x": 0.7039007092198581,
+      "y": 0.06981981981981981
+     },
+     "margin": 0.02,
+     "missed": {
+      "den": 564.0,
+      "n": 369.0,
+      "share": 0.6542553191489362
+     },
+     "needless": {
+      "den": 888.0,
+      "n": 62.0,
+      "share": 0.06981981981981981
+     },
+     "needless_by_loss": {
+      "big": {
+       "den": 888.0,
+       "n": 27.0,
+       "share": 0.030405405405405407
+      },
+      "medium": {
+       "den": 888.0,
+       "n": 13.0,
+       "share": 0.01463963963963964
+      },
+      "small": {
+       "den": 888.0,
+       "n": 22.0,
+       "share": 0.024774774774774775
+      }
+     },
+     "no_trade_off": 476.0,
+     "reference": null,
+     "right_safety": {
+      "den": 888.0,
+      "n": 826.0,
+      "share": 0.9301801801801802
+     },
+     "risk_pays": 564.0,
+     "safety_pays": 888.0,
+     "scored": 1928,
+     "sdt": {
+      "aim": {
+       "den": 195.0,
+       "n": 167.0,
+       "share": 0.8564102564102564
+      },
+      "beta": 0.864231308675839,
+      "caution": 0.9348135980643407,
+      "caution_hi": 1.0148505707672506,
+      "caution_lo": 0.8643446812469879,
+      "cstar": -0.13542753339266103,
+      "cstar_note": "unstable: fewer than 200 needless risks behind a mean cost",
+      "cstar_status": "unstable",
+      "dprime": 1.0774384202241138,
+      "dprime_hi": 1.2575741944112582,
+      "dprime_lo": 0.8996336899126421,
+      "false_alarm": {
+       "den": 888.0,
+       "n": 62.0,
+       "share": 0.06981981981981981
+      },
+      "false_alarm_rate": 0.0703037120359955,
+      "hit": {
+       "den": 564.0,
+       "n": 195.0,
+       "share": 0.34574468085106386
+      },
+      "hit_rate": 0.34601769911504426,
+      "missed_loss": 0.1707836941167268,
+      "missed_n": 369.0,
+      "na": null,
+      "needless_loss": 0.09374379631011717,
+      "needless_n": 62.0
+     },
+     "size": {
+      "bad": {
+       "mean": 7.733333333333333,
+       "n": 90.0,
+       "too_few": true
+      },
+      "right": {
+       "mean": 10.305389221556887,
+       "n": 167.0,
+       "too_few": true
+      }
+     },
+     "stake": {
+      "big": {
+       "found": {
+        "den": 351.0,
+        "n": 125.0,
+        "share": 0.3561253561253561
+       },
+       "missed": {
+        "den": 351.0,
+        "n": 209.0,
+        "share": 0.5954415954415955
+       },
+       "risk_pays": 351.0,
+       "wrong": {
+        "den": 351.0,
+        "n": 17.0,
+        "share": 0.04843304843304843
+       }
+      },
+      "medium": {
+       "found": {
+        "den": 213.0,
+        "n": 42.0,
+        "share": 0.19718309859154928
+       },
+       "missed": {
+        "den": 213.0,
+        "n": 160.0,
+        "share": 0.7511737089201878
+       },
+       "risk_pays": 213.0,
+       "wrong": {
+        "den": 213.0,
+        "n": 11.0,
+        "share": 0.051643192488262914
+       }
+      },
+      "small": {
+       "found": {
+        "den": 0.0,
+        "n": 0.0,
+        "share": null
+       },
+       "missed": {
+        "den": 0.0,
+        "n": 0.0,
+        "share": null
+       },
+       "risk_pays": 0.0,
+       "wrong": {
+        "den": 0.0,
+        "n": 0.0,
+        "share": null
+       }
+      }
+     },
+     "trade_off": 1452.0,
+     "wrong": {
+      "den": 564.0,
+      "n": 28.0,
+      "share": 0.04964539007092199
+     }
+    }
+   },
+   "route": {
+    "provider": "local (knowline_server.py)",
+    "reasoning": null,
+    "spec": "knowline/m"
+   },
+   "running": 0,
+   "slug": "knowline-31b-gen1-5",
+   "status": "Provisional",
+   "total": 19
   }
  ],
  "note": "Late entries: not in any standings table, league table or other setup's numbers; each entrant's own late-entry games only.",

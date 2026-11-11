@@ -253,6 +253,31 @@
   },
   {
    "calibration_error": null,
+   "commit": "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "PelaAI",
+   "model_key": "knowline-31b-gen1.5",
+   "name": "KnowLine-31B-Gen1.5",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; run on our GPUs",
+   "params_active": 31.27,
+   "params_total": 31.27,
+   "quantization": "BF16",
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1928,
+    "value": 26.21519251019381
+   },
+   "repo": "PelaAI/KnowLine-31B-Gen1.5",
+   "runs": [
+    "backgammon:knowline-31b-gen1-5"
+   ],
+   "score_0_100": 78.35,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
    "commit": "fa4bf7ee3bb56a8bc421dad090631be1c5845c2d",
    "improvement_points": null,
    "kind": "decision",
@@ -957,6 +982,6 @@
   "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
  },
  "title": "Backgammon",
- "updated": "2026-11-11T11:05Z",
+ "updated": "2026-11-11T11:13Z",
  "url": "https://zekiworks.github.io/analysis/backgammon/"
 }

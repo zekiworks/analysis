@@ -3242,6 +3242,38 @@
    "weights": "open"
   },
   {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "10–11 Nov 2026",
+   "missing": [],
+   "model": "KnowLine 31B Gen1.5",
+   "model_id": "PelaAI/KnowLine-31B-Gen1.5 @ 8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140 (Hugging Face, Apache-2.0; a LoRA fine-tune of google/gemma-4-31B-it merged into bf16 weights)",
+   "model_type": "decision model",
+   "name": "KnowLine 31B Gen1.5",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 10–11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit). Each option's probability is a softmax over the option labels, stored as returned. Its first run played 4 matches at once (#933–936) on a server meant for one request at a time; those matches were voided (rows kept, left out of every number) and the pairs replayed from the start, one match at a time.",
+   "option_groups": "up to 255 options per request (the front end's limit); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-10",
+    "input_per_mtok": null,
+    "label": "no price (our GPU)",
+    "output_per_mtok": null,
+    "source": "no list price published for KnowLine-31B-Gen1.5"
+   },
+   "provider": "our GPU (NVIDIA DGX Spark, GB10), bf16, through the repo's own serve_knowline.sh (SGLang 0.5.21, then its knowline_server.py front end), one request at a time",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "our GPUs",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "knowline-31b-gen1-5",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/quantization/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries KnowLine - status.md"
+   ],
+   "weights": "open"
+  },
+  {
    "confidence_source": "none",
    "dataset": "late-entry",
    "date_run": null,
