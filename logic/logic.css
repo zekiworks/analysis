@@ -54,6 +54,8 @@ td.probs span { white-space: nowrap; }
   .site-title { gap: .3rem; font-size: .95rem; }
   .site-leaf { width: 15px; height: 18px; }
   .site-tabs a { padding: 5px 8px 4px; font-size: .88rem; }
+  /* Six tabs (Experiments added, zeki #4836): they wrap onto a second line rather than scroll, so none is cut off. */
+  .site-tabs ul { flex-wrap: wrap; overflow-x: visible; row-gap: 0; }
   .theme-switch .key { padding: 1px 6px; gap: 4px; font-size: 11.5px; }
   .view-keys-row { align-items: flex-start; }  /* the rows wrap rather than scroll sideways, so no key is cut off (zeki #4177) */
   .view-keys-row .view-keys-label { padding-top: .35rem; }
