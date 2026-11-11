@@ -234,7 +234,7 @@ def build(site: Site) -> dict[str, str]:
     body = f"""    <section class="card">
       <p class="eyebrow">Compared with Artificial Analysis</p>
       <h1>{esc(TITLE)}</h1>
-      <p>Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard{not_ours}. This page gathers our numbers for those {len(pairs)}, from our published results, and opens with our reply charts. Our tests are different from Artificial Analysis's, so the two rank different things. This page ranks nothing new and changes no number on the other pages.</p>
+      <p>Our numbers for {len(pairs)} of the {len(pairs) + len(absent)} decision models of Artificial Analysis's Decision Index v1.0; our tests differ from theirs, so the two rank different things.</p>
       <nav class="face-nav" aria-label="On this page"><a href="#reply-charts">Reply charts</a><a href="#chart-accuracy">Accuracy</a><a href="#chart-non-hallucination">Non-hallucination</a><a href="#chart-cost">Cost</a><a href="#chart-latency">Latency</a><a href="#table">Every number</a></nav>
     </section>
     {reply_cards(site)}
@@ -244,6 +244,7 @@ def build(site: Site) -> dict[str, str]:
       <p class="note">Ranked by accuracy. Accuracy, reading and grammar: each model's run on the <a href="{rel(PATH, "")}">Text tab</a>, one question per request, on all its questions and on each part. Page images: the <a href="{rel(PATH, "vision/")}">Page images tab</a>, the page's picture alone (condition B). Non-hallucination and attempt rates: the <a href="{rel(PATH, "dont-know/")}">Hallucination tab</a>, each model's first run{" (" + esc(joined(several)) + " have five; that tab gives their range)" if several else ""}. Cost: estimated from list prices and the token use recorded in each run, per 1,000 questions as on the Text tab, and the same times 1,000 for comparison with Artificial Analysis's cost per 1 million tasks. Artificial Analysis's Elephant 9B is Base Labs' elephant-1, our Elephant-1.</p>
       {table}
       <ul class="note">{"".join(f"<li>{note}</li>" for note in notes)}</ul>
+      <p class="note">Artificial Analysis's <a href="{esc(post)}">post of {bp.long_date(config["date"])}</a> ranks {len(pairs) + len(absent)} decision models on its Decision Index v1.0, a weighted average of four of its own evaluations ({esc(config["evaluations"])}). {len(pairs)} of them are on our leaderboard{not_ours}. This page gathers our numbers for those {len(pairs)}, from our published results, and opens with our reply charts. It ranks nothing new and changes no number on the other pages.</p>
       <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (the Text and Hallucination tabs' numbers) and <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (the Page images tab's).</p>
     </section>"""
     return {PATH: site.page(PATH, TITLE, f"Our numbers for the {len(pairs)} decision models of Artificial Analysis's Decision Index v1.0 that are on "

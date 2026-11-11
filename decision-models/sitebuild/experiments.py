@@ -66,7 +66,6 @@ def build(site: Site) -> dict[str, str]:
         f'<p class="exp-status">{esc(status)}</p></li>' for path, title, what, status in cards(site))
     body = f"""    <section class="card">
       <h1>Experiments</h1>
-      <p>Tests beside the ranking. Each has its own page and its own method; no score combines them with the Leaderboard.</p>
       <ul class="exp-cards">{items}</ul>
     </section>"""
     return {PATH: site.page(PATH, TITLE, "The tests beside the ranking: page images, hallucination, web grounding, "

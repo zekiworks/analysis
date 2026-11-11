@@ -173,7 +173,6 @@ def build(site: Site) -> dict[str, str]:
     count = bp.in_words(len(english))
     body = f"""    <section class="card">
       <h1>Highlights</h1>
-      <p>{count.capitalize()} findings from the English reading results, on its {site.results["english_reading"]["questions"]:,} questions, and one from the Vision tab, each computed when the site is built; each card links to its evidence.</p>
       <ul class="exp-cards highlights">{"".join(cards)}</ul>
     </section>"""
     return {PATH: site.page(PATH, TITLE, f"{count.capitalize()} English reading findings and one from the Vision tab, each with its "

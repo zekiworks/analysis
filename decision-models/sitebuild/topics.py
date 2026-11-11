@@ -53,12 +53,12 @@ def heatmap(site: Site) -> str:
     choices = "".join(f'<label><input type="checkbox" value="{run["run"]}" checked> {site.shown(run)}</label>' for run in ranked)
     body = f"""    <section class="card">
       <h1>Topics</h1>
-      <p>The {site.total:,} questions fall into {len(units)} topics of the book: {sum(site.part(u["number"]) == "reading" for u in units)} test reading and {sum(site.part(u["number"]) == "grammar" for u in units)} test grammar. Each topic's page lists its questions and every setup's result on it.</p>
+      <p>The {site.total:,} questions fall into {len(units)} topics of the book: {sum(site.part(u["number"]) == "reading" for u in units)} test reading and {sum(site.part(u["number"]) == "grammar" for u in units)} test grammar.</p>
       <ul class="topic-list">{listing}</ul>
     </section>
     <section class="card" id="heatmap">
       <h2>Accuracy by topic</h2>
-      <p class="note">Each cell: the share of the topic's questions the setup got right. Setups by accuracy on all questions. The table scrolls inside its box; the topic and setup names stay in view.</p>
+      <p class="note">Each cell: the share of the topic's questions the setup got right. Setups by accuracy on all questions.</p>
       <figure class="heat-legend">
         <figcaption>Colour: accuracy on the topic, from dark blue at 0% to yellow at 100%. It does not show the model family.</figcaption>
         <ol class="heat-scale">{scale}</ol>
