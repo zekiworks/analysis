@@ -459,10 +459,10 @@
    },
    {
     "reason": null,
-    "series_done": 3,
+    "series_done": 4,
     "setup": "Claude Sonnet 5.5 (high)",
     "status": "running",
-    "updated_at": "2026-11-11T18:43:51+00:00"
+    "updated_at": "2026-11-11T19:02:27+00:00"
    },
    {
     "reason": null,
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-11T18:49:27+00:00"
+  "updated_at": "2026-11-11T19:04:35+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -2867,11 +2867,22 @@
    },
    {
     "after": {
-     "error_rate": 31.445708374182384,
-     "right_safety": 91.66666666666667,
-     "risks_found": 50.666666666666664
+     "error_rate": 30.948068164288998,
+     "right_safety": 92.75,
+     "risks_found": 50.0
     },
     "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 800,
+     "expected": 800,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 400,
+     "safety_pays": 400,
+     "tests": 4,
+     "valid": 800
+    },
+    "answers_before": {
      "answer_rate": 100.0,
      "answered": 600,
      "expected": 600,
@@ -2882,29 +2893,18 @@
      "tests": 3,
      "valid": 600
     },
-    "answers_before": {
-     "answer_rate": 100.0,
-     "answered": 400,
-     "expected": 400,
-     "failed": 0,
-     "invalid": 0,
-     "risk_pays": 200,
-     "safety_pays": 200,
-     "tests": 2,
-     "valid": 400
-    },
     "before": {
-     "error_rate": 30.483490154147148,
-     "right_safety": 97.0,
-     "risks_found": 44.0
+     "error_rate": 30.86757744352023,
+     "right_safety": 96.33333333333333,
+     "risks_found": 43.0
     },
     "change": {
-     "error_rate": 0.9622182200352363,
-     "right_safety": -5.333333333333329,
-     "risks_found": 6.666666666666664
+     "error_rate": 0.0804907207687684,
+     "right_safety": -3.5833333333333286,
+     "risks_found": 7.0
     },
     "cost": {
-     "api_equivalent_usd": 55.8453,
+     "api_equivalent_usd": 63.1834,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2939,18 +2939,33 @@
       "safety_pays": 100,
       "valid": 200,
       "wall_seconds": 472.6
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 31.635752022266388,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 95.0,
+      "risk_pays": 100,
+      "risks_found": 41.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 471.2
      }
     ],
-    "empty_done": 2,
+    "empty_done": 3,
     "improved": null,
     "key": "claude-sonnet-5.5-high",
     "progress": {
      "reason": null,
-     "series_done": 3,
+     "series_done": 4,
      "status": "running",
-     "updated_at": "2026-11-11T18:43:51+00:00"
+     "updated_at": "2026-11-11T19:02:27+00:00"
     },
-    "range": null,
+    "range": 4.0,
     "reason": null,
     "series": [
      {
@@ -3159,20 +3174,91 @@
        "wall_seconds": 530.0
       },
       "wins": 7
+     },
+     {
+      "finished": true,
+      "game_decisions": 236,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When on the bar against a weak board, or when a big doubles roll can build points, make the strongest blocking points (e.g., 8/5 x3) rather than splitting checkers with loose hits. I lost 0.247 equity on this one error.\n- Before hitting loose with a spare checker, check how many return shots the opponent gets and what a return hit would cost. A hit alone isn't enough.\n- With small rolls, prefer hitting and building the inner board (6/5, 5/3*) over safe-looking moves that run a checker up into the outfield. Tempo hits and board strength matter.\n- With doubles, count each option in terms of points made and safe checkers. Stacking safely beats clever hits that leave blots.\n- In bearoff and safe-clearing phases, my play was accurate. Keep clearing from the back and avoid gaps."
+       },
+       {
+        "game": 2,
+        "text": "- When rolling doubles early, prefer making points from the back of your position (6/3 6/3 with 8/5 8/5) over stacking one point. A balanced structure beats a heavy stack on one point.\n- With a spare checker and a chance to hit loose in your home board, take the tempo hit (6/1*) over a passive builder move when the opponent has a blot to leave behind.\n- Don't run a lone checker to a safe-looking spot if a hit or a better point-making play exists. Check \"needless risk\" flags before settling.\n- Bearing in against an opponent on the bar, clear from the back and keep the points even. Prefer plays that fill gaps (4/1 10/5) over stacking the low points.\n- Safe, simple bear-offs were all correct. Keep taking the efficient bear-off when no contact remains."
+       },
+       {
+        "game": 3,
+        "text": "- When hitting loose in your board costs you flexibility, first ask whether a quiet safe play (e.g., 6/4* or running a back checker) keeps better structure and fewer return shots.\n- Don't crash your board or stack low points by tidying up when a spare back checker or midpoint checker can move. Keep a flexible position and don't give up your anchor or outfield contact too early.\n- When the opponent is on the bar against a closed or nearly closed board, escape or advance the back checkers before bearing in. Waiting costs more than the gammon-risk of a loose spot.\n- Before moving in the home board with a small roll, count which checkers still need to travel. Use the roll to bring them toward home (like 6/3 18/16) instead of piling on deep points.\n- When ahead in a race or already winning a gammon, avoid hitting on the opponent's deep points"
+       },
+       {
+        "game": 4,
+        "text": "- When you hit loose in the opening, don't leave your own blots exposed. Prefer a safe, constructive play like making a point (6/2 8/2) over the hit-and-run.\n- After entering a hit opponent, or when rolling doubles, use the pips to build outfield and midpoint coverage (13/9) instead of stacking deep points like the 2-point.\n- With a split back anchor and a blot on 23, advance or escape the back checkers (23/20) while the opponent's board is still weak. Don't spend a 3-1 on a safe inside move and wait.\n- In a holding or priming battle, don't stack spare checkers on low points. Use small numbers to move back checkers up (23/22) and keep a flexible structure before timing collapses.\n- In late bear-in or contact positions, weigh the risk of leaving shots. Pick the play that clears or safeties the rear checkers first, even over a tidy-looking move."
+       },
+       {
+        "game": 5,
+        "text": "- Don't stay passive with the back checkers. When the engine says to run or escape early (turn 4, 6-5: 24/18/13), do it. Burying a 6-5 on my own side let the opponent build an advantage.\n- When hit from the bar and the opponent has blots, take the full-pip hit or the safe escape. Don't leave a spare in the outfield (turn 16: 13/11 was needless risk, -0.195). Keep builders safe or use them to cover.\n- In the late race and bear-in phase, don't give up the anchor too late. By turn 58-62, I needed to run the back checkers while the opponent was still bearing off, not stack the low points (turn 62 cost 0.27). Start leaving earlier.\n- Bearing in, use the pips to fill the gaps and avoid stripping the high points. Don't waste pips on deep points (6/2, 3/1) when a back checker could move instead.\n- Before any"
+       },
+       {
+        "game": 6,
+        "text": "- Don't retreat into a passive, stripped-down structure early. When the engine prefers moving the back checkers, take that option instead of burying checkers deep on low points like 2 and 1.\n- Hit loose blots when the chance comes (e.g. 6/1*). Tempo hits and picking up a second checker usually beat quiet \"safe\" plays.\n- Move the back checkers up (24/18, 24/22*) before they get trapped. Waiting on the 24 point while the opponent builds a prime cost me the most equity, as much as 0.65 in one turn.\n- Don't strip the midpoint and outfield too early. Leaving a lone checker on 13 or 7 gives up flexibility and the landing spots needed for a safe escape.\n- When bearing off, count pips and take the spare-saving play with doubles or awkward rolls. Check the engine's preference for bringing checkers down over clearing from the back."
+       },
+       {
+        "game": 7,
+        "text": "- Don't stack checkers on low points early; with a 6 available, running a back checker (24/18) usually beats a safe-looking builder move that adds nothing.\n- When ahead in the race, keep checkers flexible and avoid crunching the board. Prefer moves that escape or advance back checkers over burying checkers deep.\n- When the opponent has a blot in your outfield or home and you have a hitting chance, check whether hitting is correct. In a bear-in/bear-off contact position, a missed hit cost me more than any other error.\n- Don't prioritize tidy, \"safe\" plays at the cost of equity. Contact is often still alive, so compare the risk and reward of each play rather than defaulting to safety.\n- In bear-off positions, clear from the back and avoid gaps. Fill open points (e.g. 6/3 over 5/2) and keep the distribution smooth."
+       },
+       {
+        "game": 8,
+        "text": "- When ahead in a race or holding an advanced anchor, keep running the back checkers (e.g. 21/15, 21/16) rather than making safe-looking but passive plays like 8/6 6/1 or bar/24 24/18. Don't bury checkers deep.\n- Don't pile checkers onto low points (1, 2, 3) while the opponent still has men back. Keep midpoint and outfield checkers moving and avoid stripping your board prematurely (e.g. 6/4 6/4 4/2 4/2, 4/2 4/1).\n- With a spare 2-2 or 3-3, use the roll to bring or escape checkers to useful outfield points (18/16, 21/18) instead of crunching the home board.\n- When hit and entering against a weak opposing board, prefer using the other die to escape from the anchor over running the checker that just entered. Compare \"escape one back checker\" against \"move the one just entered.\"\n- Bearing in against a contact opponent, move the rear checkers first (13/8, 13/10) and keep the board"
+       },
+       {
+        "game": 9,
+        "text": "- When ahead in a race or holding a closed board, don't take needless risks. Move safely (e.g., 23/17 four times with 6-6) instead of leaving blots to be hit by a checker on the bar or in the outfield.\n- Keep the back anchor and don't spend it early. Prefer to advance or improve back checkers (24/22, 24/20) over stacking checkers deep on low points, which wastes pips and builds a ragged board.\n- Before hitting loose, count return shots and what you lose if hit. Late hits that leave blots against a checker on the bar or in the opponent's home are often not worth the gammon risk.\n- Avoid burying checkers on the ace and 2-point. Use rolls to bring outside checkers to useful points (5, 4, 3) rather than piling on point 1.\n- When behind and facing a gammon, escape the back checkers early and keep a flexible position instead"
+       },
+       {
+        "game": 10,
+        "text": "- When you're past the opponent's checkers in a holding or racing position, prefer to bring builders and spare checkers down safely (13/10 10/6) over a loose back-checker move like 24/20.\n- In a late-game contact or bear-in position, keep your back anchor and move it up to escape or to a better point, rather than stacking spares on low points (1-2-3 points). The two biggest errors were burying checkers.\n- Don't stack deep with small doubles. Use 2-2 and similar rolls to keep a smooth distribution, e.g. play 13/11 and make the 5-point rather than shifting checkers to the ace point.\n- When bearing off against a bar checker or a remaining opponent anchor, make the clearing play that leaves the fewest shots, and don't pile up on the 5, 3 and 1 points.\n- Keep playing safe when ahead; most of my moves were right, so keep making the simple, solid plays."
+       }
+      ],
+      "lessons_cut": 4,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 29.45514753460884,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 96.0,
+       "risk_pays": 100,
+       "risks_found": 48.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 487.9
+      },
+      "wins": 7
      }
     ],
-    "series_finished": 3,
+    "series_finished": 4,
     "setup": "Claude Sonnet 5.5 (high)",
     "state": "running",
-    "status": "running, 3 of 5 series",
+    "status": "running, 4 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
      "E2",
-     "S3"
+     "S3",
+     "S4",
+     "E3"
     ],
-    "threshold": null,
+    "threshold": 5,
     "verdict": false
    },
    {
@@ -5659,11 +5745,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-11T18:49:27+00:00"
+  "updated_at": "2026-11-11T19:04:35+00:00"
  },
- "source_sha256": "16c54c298c89ed216bf4329040b886f2928317b2bd1c5019cdb0da97a822f408",
+ "source_sha256": "4a5942f0c56537c6f00b36a5609f4bce91cca13d829d3b21e46bae7660148d5b",
  "status": {
-  "last_update": "2026-11-11T18:49:27+00:00",
+  "last_update": "2026-11-11T19:04:35+00:00",
   "line": "9 of 15 models with a verdict · 3 running · 3 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 3,
