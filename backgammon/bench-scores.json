@@ -328,6 +328,31 @@
   },
   {
    "calibration_error": null,
+   "commit": null,
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Google",
+   "model_key": "gemini-decision-1",
+   "name": "Gemini Decision 1",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 17 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); not played: Inception Mercury Decide (opponent no longer served on OpenRouter); Google's Gemini Decision 1 through OpenRouter, pinned to Google AI Studio (fallbacks off) for every decision; never on our GPUs. Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1016 aborted) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit). Two runner builds: dab6da5 for its first 9 matches (#993–#1013, before 21:46:31 UTC), with no probability-map check, and 38024d6 (map-check v2) from 21:46:31 UTC for its last 8 (#1053–#1063). Under map-check v2 a returned probability map is used only if it covers exactly the options shown, every value is finite and in [0, 1], and the values sum to 1 within 1e-6; this sum rule is new (no frozen sum tolerance existed), was chosen on 11 Nov 2026 and applies to this entry only; a failed map still plays the returned choice and stores no probabilities. An offline audit of the first matches under the same rule found no failing map. Option order: we send the options in our seeded order, as for every setup, while Google's docs say the API sorts the option keys alphabetically (UTF-8 byte order; an exact tie goes to the alphabetically first key), so the order the model sees is probably not ours (Google's docs; not verified by us). Its cost is the billed cost of each decision; the entry, with its paid opponents, billed $1.1819 in all.; hosted (API or subscription)",
+   "params_active": null,
+   "params_total": null,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1704,
+    "value": 27.968576685153824
+   },
+   "repo": null,
+   "runs": [
+    "backgammon:gemini-decision-1"
+   ],
+   "score_0_100": 76.91,
+   "tag": "20261111"
+  },
+  {
+   "calibration_error": null,
    "commit": "61cec44c281c693992e3d6ebeb44dd3402dfa186",
    "improvement_points": null,
    "kind": "decision",
@@ -1007,6 +1032,6 @@
   "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
  },
  "title": "Backgammon",
- "updated": "2026-11-11T22:20Z",
+ "updated": "2026-11-11T22:28Z",
  "url": "https://zekiworks.github.io/analysis/backgammon/"
 }
