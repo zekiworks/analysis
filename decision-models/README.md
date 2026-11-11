@@ -623,14 +623,20 @@ python3 -m http.server 8000                                # preview at http://1
     leaves `more_link`, "More about this page", under its results), the summary (`about.SUMMARY`; `summary_checks`
     and `copy_checks` test it) and the links to Method and Data. No leader cards (highest accuracy, most answers kept,
     lowest cost): the project lead wants no leader summaries ahead of the results (via Zeki #4663).
-  - **Experiments** (`experiments/`, `sitebuild/experiments.py`): one card each for Page images, Hallucination
-    ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it
-    measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting
-    for an API key or credit). After the cards, Repeat checks (`#repeat-checks`, results.json `repeat_checks`): one
-    table, rows grouped by area (Turkish Text, English reading, Vision with the picture only), each of the top three
-    decision models' first run and its repeat as right answers over the area's questions, and the status (Retained,
-    Queued, Running, Done); the runs' ids and dates under the name, their hardware or access, cost basis and where the
-    repeat runs in a Settings details element; under the table, the line that the published scores stay the first run's.
+  - **Experiments** (`experiments/`, `sitebuild/experiments.py`): first, right under the page title, Repeat checks
+    (`#repeat-checks`, results.json `repeat_checks`; the project lead via Zeki #4831): one table per area, stacked, each
+    under its own heading with its scope (Turkish Text, English reading, Vision with the picture only), in the
+    Leaderboard's compact layout (`.lb-table`, no rank or tier): Model (the maker dot in the family's colour, the
+    official name with its tag, linked to its model page) · First run · Repeat(s) (each as the share right over its
+    right answers / the area's questions; `–` for a repeat not made yet, never 0) · Questions (from 900 px; the heading
+    gives it on a phone) · Status (Done, Retained, Running, Queued). The runs' ids and dates, picks that differ, the
+    questions, each run's hardware or access and cost, and the entry's note are in the row's details box, opened as the
+    Leaderboard's (`site.js` `leaderboardDetails`): the Details key at every width (tap, click, Enter or Space; Escape
+    closes), a tap on the row, the pointer or the focus. Under the tables, the line that the published scores stay the
+    first run's. Then, under "Tests beside the ranking", one card each for Page images, Hallucination ("Bilmiyorum"),
+    Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it measures and a
+    status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting for an API key or
+    credit).
   - **Highlights** (`highlights/`, `sitebuild/highlights.py`): about English reading, one finding per card: the best
     decision model in English with its paired test against the other decision models, the best chat models against it
     (counted, not tested), the decision model that holds back most with "I don't know" in English, decision against chat

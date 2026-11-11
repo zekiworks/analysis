@@ -342,13 +342,16 @@ main > .more-note, main > div > .more-note { margin-bottom: 1rem; }
 .lb-more::before { content: "\25B8\00a0"; }
 .lb-more[aria-expanded="true"]::before { content: "\25BE\00a0"; }
 /* A row's Details key (leaderboard.py details_key, site.js leaderboardDetails; Ümit #4665 item 10): below 900 px only,
-   where the other columns are in the details box; a real button at least 24 px each way, the expander beside it. */
+   where the other columns are in the details box; a real button at least 24 px each way, the expander beside it. The
+   Repeat checks tables (.rc-table) keep it at every width: their box holds what no column shows. */
 .lb-details-key { display: none; }
+.js .lb-details-key { align-items: center; min-width: 24px; min-height: 24px; margin: .3rem .6rem 0 0;
+  padding: 0 .5rem; border: 1px solid var(--control-edge); border-radius: 6px; background: var(--panel); color: var(--text);
+  font: inherit; font-size: .78rem; font-weight: 600; line-height: 1; vertical-align: middle; cursor: pointer; }
+.js .lb-details-key[aria-expanded="true"] { background: var(--sunk); }
+.js .rc-table .lb-details-key { display: inline-flex; margin-left: .45rem; }
 @media (max-width: 899px) {
-  .js .lb-details-key { display: inline-flex; align-items: center; min-width: 24px; min-height: 24px; margin: .3rem .6rem 0 0;
-    padding: 0 .5rem; border: 1px solid var(--control-edge); border-radius: 6px; background: var(--panel); color: var(--text);
-    font: inherit; font-size: .78rem; font-weight: 600; line-height: 1; vertical-align: middle; cursor: pointer; }
-  .js .lb-details-key[aria-expanded="true"] { background: var(--sunk); }
+  .js .lb-details-key { display: inline-flex; }
   .js .lb-details-key + .lb-more { display: inline-block; vertical-align: middle; }
 }
 tr.lb-sub > td { background: var(--sunk); }
@@ -404,6 +407,23 @@ tr.lb-off { display: none !important; }
 .all-setups-title { margin: .2rem 0 .6rem; font-size: 1.05rem; }
 .lb-all-setups > .chart-card { margin: 1.25rem 0 0; padding-top: 1rem; border-top: 1px solid var(--edge); }
 .how-scores { min-width: 0; margin: 0 0 1rem; }
+/* The Experiments page's Repeat checks (experiments.py): one .lb-table per area under its heading and scope; a run's
+   share over its right answers, a row's repeats side by side as far as they fit, '–' for a run not made yet. */
+.rc-area { margin: 1.1rem 0 .3rem; font-size: 1rem; }
+.rc-area .small { display: block; color: var(--text-2); font-size: .8rem; font-weight: 400; }
+.rc-table .rc-score { display: block; }
+.rc-runs { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .3rem .9rem; }
+.rc-table td.rc-status { white-space: nowrap; }
+.rc-table th.num { white-space: normal; }
+/* From 900 px the stacked tables share their column widths, so their columns line up. */
+@media (min-width: 900px) {
+  .rc-table { table-layout: fixed; }
+  .rc-table th:nth-child(1) { width: 32%; }
+  .rc-table th:nth-child(2) { width: 13%; }
+  .rc-table th:nth-child(3) { width: 35%; }
+  .rc-table th:nth-child(4) { width: 9%; }
+  .rc-table th:nth-child(5) { width: 11%; }
+}
 /* The Experiments cards: one per test beside the ranking, each with its status from the data. */
 .exp-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 1rem; list-style: none; margin: 1rem 0 0;
   padding: 0; }
@@ -999,6 +1019,9 @@ ul.price-list { padding-left: 1.25rem; }
   .lb-table th { padding: .3rem .3rem; }
   .lb-table td { padding: .45rem .3rem; }
   .lb-table :is(th, td):first-child { width: 1.6rem; }
+  .rc-table :is(th, td):first-child { width: auto; }
+  .rc-table td.rc-status { font-size: .8rem; }
+  .rc-table td.num .small { font-size: .7rem; }
   .lb-table td.model svg.fam-icon { display: none; }
   .lb-table td.model .lb-size { margin-left: .45rem; white-space: normal; }
   .readout-row { padding: .3rem 0; margin-bottom: .45rem; }

@@ -1,10 +1,13 @@
-"""The Experiments tab (experiments/): one card for each test beside the ranking, each with one line on what it measures
-and a status label from the data: Hallucination (results.json dont_know and the chat setups still running), Web
-grounding (web-grounding.json), PWS-Decisions (pws-decisions.json, with its setups still waiting) and the Artificial
-Analysis comparison (page_config.json aa_decision_index). Page images is the top bar's Vision tab. The pages themselves
-are unchanged. After the cards, the repeat checks (results.json repeat_checks): one table, rows grouped by area, each
-setup's first run and its repeat as right answers over the area's questions, with its status; the runs' ids, dates,
-settings and cost basis under the name."""
+"""The Experiments tab (experiments/): first, under the page title, the repeat checks (results.json repeat_checks; the
+project lead via Zeki #4831: at the top, one compact table per area, stacked): for each area (Turkish Text, English
+reading, Vision with the picture only) under its own heading and scope, a table in the Leaderboard's layout (v3.css
+.lb-table): the model (maker dot in its family's colour, official name with its tag, linked to its model page), the first
+run's and each repeat's share and right answers over the area's questions, the questions and the status; the runs' ids,
+dates, settings, cost and note in the row's details box (site.js leaderboardDetails, as the Leaderboard's). Then one card
+for each test beside the ranking, each with one line on what it measures and a status label from the data:
+Hallucination (results.json dont_know and the chat setups still running), Web grounding (web-grounding.json),
+PWS-Decisions (pws-decisions.json, with its setups still waiting) and the Artificial Analysis comparison
+(page_config.json aa_decision_index). Page images is the top bar's Vision tab. The pages themselves are unchanged."""
 
 from __future__ import annotations
 
@@ -13,7 +16,11 @@ from typing import Any
 
 import build_page as bp
 from sitebuild.dont_know import running_setups
-from sitebuild.site import ROOT, Site, esc, rel
+from sitebuild.english_reading import entry_href, setup_families, setup_run
+from sitebuild.names import tag_html
+from sitebuild.site import ROOT, Site, esc, family_icon, pct, rel
+from sitebuild.vision import family as vision_family
+from sitebuild.vision import text_run
 
 PATH = "experiments/"
 TITLE = "Experiments"
@@ -90,42 +97,86 @@ def settings_text(run: dict[str, Any]) -> str:
     return f"{where}; cost: {cost}"
 
 
+def setup_of(site: Site, area: str, entry: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str], str]:
+    """An entry's setup as a run (for its name and tag), its model family (maker and colour) and its link from this page:
+    a Text entry's first run is its Text tab run; an English entry's is the English reading model's first run (its model
+    page's English section, as elsewhere); a Vision entry's model is vision.json's of that name (its Text tab run's page)."""
+    if area == "text":
+        run = site.by_id[entry["first"]["run"]]
+        return run, site.families[run["run"]], rel(PATH, site.model_path(run))
+    if area == "english":
+        model = next(item for item in site.results["english_reading"]["models"] if item["run"] == entry["first"]["run"])
+        run = setup_run(site, model)
+        return run, setup_families(site)[run["run"]], entry_href(site, PATH, model)
+    model = next(item for item in site.vision["models"] if item["name"] == entry["name"])
+    run = text_run(site, model)
+    return run, vision_family(site, model), rel(PATH, site.model_path(run))
+
+
+def score_cell(run: dict[str, Any] | None, questions: int) -> str:
+    """A run's share right, its right answers over the questions under it; '–' for a run not made yet, never 0."""
+    if run is None:
+        return '<span class="rc-score" title="Not run yet">\u2013</span>'
+    return (f'<span class="rc-score">{pct(run["right"] / questions)}<span class="small">{bp.count(run["right"])}/'
+            f'{bp.count(questions)}</span></span>')
+
+
 def repeat_checks(site: Site) -> str:
-    """The Repeat checks section: one table, rows grouped by area, each entry's first run and repeat(s) as right answers
-    over the area's questions and its status, the runs and their settings under the name; the line that the published
-    scores stay the first run's under the table."""
+    """The Repeat checks section, first on the page: per area its heading with its scope, then its table (Model · First
+    run · Repeat(s) · Questions · Status; Questions from 900 px, the heading giving it on a phone), each row's runs, dates,
+    settings, cost and note in its details box, opened by its Details key, a tap, the pointer or the focus (site.js
+    leaderboardDetails); the line that the published scores stay the first run's under the tables."""
     section = site.results.get("repeat_checks")
     if not section:
         return ""
-    rows = []
+    tables = []
     for area in section["areas"]:
         entries = [entry for entry in section["entries"] if entry["area"] == area["area"]]
         if not entries:
             continue
-        rows.append(f'<tr><th scope="rowgroup" colspan="3">{esc(area["title"])}<span class="small">{esc(area["scope"])}</span></th></tr>')
-        for entry in entries:
+        questions = area["questions"]
+        several = any(len(entry["repeats"]) > 1 for entry in entries)
+        rows = []
+        for index, entry in enumerate(entries, 1):
             first, repeats = entry["first"], entry["repeats"]
-            questions = bp.count(area["questions"])
-            lines = [f'<span class="small">First: {esc(run_line(first))}</span>']
-            lines += [f'<span class="small">Repeat: {esc(run_line(run))}'
-                      + (f" · {bp.count(run['picks_differ'])} of {questions} picks differ" if "picks_differ" in run else "")
-                      + "</span>" for run in repeats]
-            settings = [f"First: {settings_text(first)}."] + [f"Repeat{'' if len(repeats) == 1 else ' ' + str(index)}: "
-                                                             f"{settings_text(run)}." for index, run in enumerate(repeats, 1)]
-            details = (f'<details class="chart-more"><summary>Settings</summary><p class="note">{esc(" ".join(settings))} '
-                       f'{esc(entry["note"])}</p></details>')
-            # Compact (no spaces around the slash, none after the arrow) so that the table fits a 375 px screen beside
-            # the phone layout's fixed first column.
-            values = [f"{bp.count(first['right'])}/{questions}"] + [
-                f"→{bp.count(run['right'])}/{questions}" for run in repeats] + ([] if repeats else ["→—"])
-            rows.append(f'<tr><td><span class="model-name">{esc(site.title({"name": entry["name"]}))}</span>{"".join(lines)}'
-                        f'{details}</td><td class="num">{"<br>".join(values)}</td>'
-                        f'<td>{STATUS_WORDS[entry["status"]]}</td></tr>')
+            run, family, href = setup_of(site, area["area"], entry)
+            box = f"rc-{area['area']}-{index}-box"
+            # One line per run: its ids and dates, then where it ran and its cost; a repeat by its number in the data
+            # (d1-ultra's Turkish repeats 2 to 5), a single one as "Repeat".
+            lines = [f"First run: {esc(run_line(first))}; {esc(settings_text(first))}."]
+            lines += [f"Repeat{'' if len(repeats) == 1 else ' ' + str(item.get('repeat') or number)}: {esc(run_line(item))}"
+                      + (f" · {bp.count(item['picks_differ'])} of {bp.count(questions)} picks differ"
+                         if "picks_differ" in item else "") + f"; {esc(settings_text(item))}."
+                      for number, item in enumerate(repeats, 1)]
+            lines += [f"Questions: {bp.count(questions)}", esc(entry["note"])]
+            details = (f'<div class="lb-box" id="{box}" role="group" aria-label="{esc(site.plain(run))}: details">'
+                       f'<p><strong>{site.shown(run)}</strong> · {esc(family["maker"])}</p>'
+                       + "".join(f"<p>{line}</p>" for line in lines)
+                       + f'<p><a href="{href}">Open its model page \u2192</a></p></div>')
+            key = (f'<button type="button" class="lb-details-key needs-js" aria-expanded="false" aria-controls="{box}" '
+                   f'aria-label="Details: {esc(site.plain(run))}">Details</button>')
+            rows.append(
+                f'<tr data-box="{box}"><td class="model"><i class="lb-dot" style="background:{family["colour"]}" '
+                f'title="{esc(family["maker"])}"></i>{family_icon(family["name"])}<a class="model-name" href="{href}" '
+                f'title="{esc(site.plain(run))}" aria-describedby="{box}">{esc(site.title(run))}</a>'
+                f'{tag_html(site.tag(run))}{key}{details}</td>'
+                f'<td class="num">{score_cell(first, questions)}</td>'
+                f'<td class="num"><div class="rc-runs">{"".join(score_cell(item, questions) for item in repeats) or score_cell(None, questions)}</div></td>'
+                f'<td class="num lb-wide">{bp.count(questions)}</td>'
+                f'<td class="rc-status">{STATUS_WORDS[entry["status"]]}</td></tr>')
+        heading = f"rc-{area['area']}"
+        tables.append(
+            f'<h3 class="rc-area" id="{heading}">{esc(area["title"])}<span class="small">{esc(area["scope"])}</span></h3>'
+            f'<div class="table-wrap"><table class="lb-table rc-table" aria-labelledby="{heading}"><thead><tr>'
+            '<th scope="col">Model</th><th scope="col" class="num">First run<span class="small">% · right / questions</span></th>'
+            f'<th scope="col" class="num">Repeat{"s" if several else ""}<span class="small">% · right / questions</span></th>'
+            '<th scope="col" class="num lb-wide">Questions</th><th scope="col">Status</th></tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table></div>')
     return f"""
     <section class="card" id="repeat-checks">
+      <h1>Experiments</h1>
       <h2>Repeat checks</h2>
-      <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Model</th><th scope="col" class="num">First run → Repeat<span class="small">right/questions</span></th><th scope="col">Status</th></tr></thead>
-      <tbody>{"".join(rows)}</tbody></table></div>
+      {"".join(tables)}
       <p class="note">The published scores stay each setup's first run; a repeat changes no score or rank. Data: <a href="{rel(PATH, "results.json")}">results.json</a> (<code>repeat_checks</code>).</p>
     </section>"""
 
@@ -134,10 +185,13 @@ def build(site: Site) -> dict[str, str]:
     items = "".join(
         f'<li class="panel exp-card"><h2><a href="{rel(PATH, path)}">{esc(title)}</a></h2><p>{esc(what)}</p>'
         f'<p class="exp-status">{esc(status)}</p></li>' for path, title, what, status in cards(site))
-    body = f"""    <section class="card">
-      <h1>Experiments</h1>
+    checks = repeat_checks(site)
+    title = "" if checks else "\n      <h1>Experiments</h1>"
+    body = f"""{checks}
+    <section class="card" id="tests">{title}
+      <h2>Tests beside the ranking</h2>
       <ul class="exp-cards">{items}</ul>
-    </section>{repeat_checks(site)}"""
-    return {PATH: site.page(PATH, TITLE, "The tests beside the ranking: page images, hallucination, web grounding, "
-                            "PWS-Decisions and the Artificial Analysis comparison, each with its status, and the repeat "
-                            "checks.", body)}
+    </section>"""
+    return {PATH: site.page(PATH, TITLE, "The repeat checks of the top decision models, then the tests beside the ranking: "
+                            "page images, hallucination, web grounding, PWS-Decisions and the Artificial Analysis "
+                            "comparison, each with its status.", body)}

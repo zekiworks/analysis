@@ -771,16 +771,18 @@ function renderScopes() {
   document.addEventListener('class-change', update);
 })();
 
-/* Home page: a Leaderboard row's details box, as on the Backgammon site. A tap on a phone opens it and a second tap on
+/* Home page: a Leaderboard row's details box, as on the Backgammon site; the Experiments page's Repeat checks tables
+   (experiments.py) use the same boxes and keys. A tap on a phone opens it and a second tap on
    the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row; with the
    keyboard while the focus is in the row (the model's name, then the box's link). Focus beats the pointer. Below
    900 px each row also has its Details key (leaderboard.py details_key; Ümit #4665 item 10), a button that opens the
    box and closes it again by tap, click, Enter or Space, its aria-expanded following the box however it opened; the
-   focus reaching the key does not open the box by itself, and Escape leaves the focus on it. The box is placed under
+   focus reaching the key does not open the box by itself, and Escape leaves the focus on it. The Repeat checks rows
+   keep their key at every width, their box holding what no column shows. The box is placed under
    the row (above it near the bottom of the window), within the window's width, and capped to the room there on a
    short screen, scrolling inside. Without JavaScript every box shows in its row. */
 (function leaderboardDetails() {
-  const board = document.getElementById('leaderboard');
+  const board = document.getElementById('leaderboard') || document.getElementById('repeat-checks');
   if (!board) return;
   let open = null;
   let pinned = false;
