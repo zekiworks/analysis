@@ -172,9 +172,11 @@ def ci(correct: int, total: int) -> str:
     return f'<span class="small lb-ci">{pct(low)}\u2013{pct(high)}</span>'
 
 
-def cost_text(site: Site, run: dict[str, Any], value: float | None, basis: str | None, upper: bool) -> str | None:
+def cost_text(site: Site, run: dict[str, Any], value: float | None, basis: str | None, upper: bool) -> str:
+    """The details box's cost line; a run without a cost says why, as its Cost cell does (cost_missing: No list price or
+    Not measured), since below 900 px the box is where the cost shows (Zeki #4618)."""
     if value is None:
-        return None
+        return f"Cost: {cost_missing(run)}"
     mark = f'{site.config["first_cost_marks"]["upper"]["mark"]} ' if upper else ""
     words = f" ({esc(BASIS_WORDS[basis])})" if basis in BASIS_WORDS else ""
     return f"Cost {cost_value(value, mark)} {cost_per()}{words}"
