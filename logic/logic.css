@@ -264,10 +264,11 @@ table.lb-table tbody tr.hl-open > td { background: var(--row-hover); }
     box-shadow: var(--key-shadow); cursor: pointer; }
   .js .lb-details[aria-expanded="true"] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
 }
-/* Method's Repeat checks (zeki #4831): one compact table per part; on a phone the model and status only, the numbers in
-   the row's details (as the leaderboard), no sideways scroll. */
+/* The Repeat checks (Experiments tab; zeki #4831, #4838): one compact table per part, ranked by the repeat; on a phone the
+   rank, the model and status only, the numbers in the row's details (as the leaderboard), no sideways scroll. */
 #repeat-checks > h3 { margin: .7rem 0 .35rem; font-size: .92rem; }
 table.repeat-table td.model { white-space: normal; }
+table.repeat-table th:first-child, table.repeat-table td.rc-rank { width: 2.6rem; }
 .rc-details { margin: .2rem 0 0; font-size: .8rem; }
 .rc-details > summary { cursor: pointer; }
 .rc-details p { margin: .25rem 0 0; }
