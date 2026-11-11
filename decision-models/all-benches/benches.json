@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-11T18:18:31Z",
+    "updated": "2026-11-11T19:19:16Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -780,6 +780,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.025833333333333333,
       "gpu_cost_usd": 0.06432500000000001
+     },
+     {
+      "repo": "ecloudtech/Erk-14B",
+      "commit": "8584b14a829d5cc803bc227f44e9012e36e8ad04",
+      "model_key": "erk-14b",
+      "name": "Erk-14B",
+      "display_name": "Erk-14B",
+      "tag": "off · chat",
+      "class_label": "Open · 15B",
+      "base_model": null,
+      "setup_label": "Erk-14B (chat, reasoning off, on our GPU)",
+      "maker": "eCloud Technology",
+      "kind": "chat",
+      "params_total": 14.77,
+      "params_active": 14.77,
+      "quantization": "BF16",
+      "score_0_100": 42.77777777777778,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5422222222222223,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:erk-14b_en",
+       "logic:erk-14b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.1761111111111111,
+      "gpu_cost_usd": 0.43851666666666667
      },
      {
       "repo": null,
@@ -1784,7 +1816,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-11T18:18:31Z",
+    "updated": "2026-11-11T19:19:16Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2202,6 +2234,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.41888888888888887,
       "gpu_cost_usd": 1.0430333333333335
+     },
+     {
+      "repo": "Qwen/Qwen3-14B",
+      "commit": "40c069824f4251a91eefaf281ebe4c544efd3e18",
+      "model_key": "qwen3-14b",
+      "name": "Qwen3-14B",
+      "display_name": "Qwen3-14B",
+      "tag": "off · chat",
+      "class_label": "Open · 15B",
+      "base_model": null,
+      "setup_label": "Qwen3-14B (chat, reasoning off, on our GPU)",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "params_total": 14.8,
+      "params_active": 14.8,
+      "quantization": "BF16",
+      "score_0_100": 94.7411003236246,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9579288025889967,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:qwen3-14b_en",
+       "math:qwen3-14b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.30833333333333335,
+      "gpu_cost_usd": 0.76775
      },
      {
       "repo": "decisionmodels/REAX-1.3",
@@ -3526,7 +3590,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-11T18:18:31Z",
+    "updated": "2026-11-11T19:19:16Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -3901,6 +3965,40 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); 2.3B effective parameters",
       "gpu_hours": 0.4127777777777778,
       "gpu_cost_usd": 1.0278166666666668
+     },
+     {
+      "repo": "Qwen/Qwen3-14B",
+      "commit": "40c069824f4251a91eefaf281ebe4c544efd3e18",
+      "model_key": "qwen3-14b",
+      "name": "Qwen3-14B",
+      "display_name": "Qwen3-14B",
+      "tag": "off · chat",
+      "class_label": "Open · 15B",
+      "base_model": null,
+      "setup_label": "Qwen3-14B (chat, reasoning off, on our GPU)",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "params_total": 14.8,
+      "params_active": 14.8,
+      "quantization": "BF16",
+      "score_0_100": 81.71380778588806,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8537104622871047,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:qwen3-14b_en",
+       "math:qwen3-14b_en",
+       "logic:qwen3-14b_en_dontknow",
+       "math:qwen3-14b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 1.108888888888889,
+      "gpu_cost_usd": 2.7611333333333334
      },
      {
       "repo": "LiquidAI/LFM2.5-8B-A1B",
@@ -6346,7 +6444,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-11T19:05Z",
+    "updated": "2026-11-11T19:20Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

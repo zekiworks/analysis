@@ -51,6 +51,10 @@ def server_url(variable: str) -> str:
 DEFAULT_OLLAMA_URL = server_url("OLLAMA_URL")
 
 
+# The Gemini API key (the gemini and gemini-decisions providers): GEMINI_API_KEY, else this file.
+GEMINI_KEY_FILE = Path("~/.config/gemini/key")
+
+
 @dataclass(frozen=True)
 class SystemOneService:
     """A server of TypeSafe's System One request and response format."""
@@ -58,10 +62,17 @@ class SystemOneService:
     name: str  # named in messages
     url: str  # default base URL
     path: str = "/v1/systemone"
-    # Environment variables holding the API key, checked in order. Without key_required, requests
-    # carry no key when none is set.
+    # Environment variables holding the API key, checked in order, then key_file when one is given. Without
+    # key_required, requests carry no key when none is set.
     key_vars: tuple[str, ...] = ()
     key_required: bool = False
+    key_file: Path | None = None
+    # The header carrying the key: None for `Authorization: Bearer <key>`, or the name of a header that takes the bare
+    # key (Google's x-goog-api-key).
+    key_header: str | None = None
+    # The request field holding the question and its options: System One's `state`, or `input` (Google's Decisions
+    # API, which otherwise takes the same `questions` and returns the same answers).
+    state_field: str = "state"
     # False when the server has one checkpoint and no `model` field; the model argument is then only
     # the report label.
     model_field: bool = True
@@ -82,13 +93,18 @@ class SystemOneService:
     # a top-level `images` list would be dropped without an error) or "chat-parts" (KnowLine's server: the state as a
     # chat of one user turn whose content is a `text` part and `image_url` parts; knowline_server.py reads images only
     # from a chat state's parts or from `assets` whose names a state string equals in full, so a top-level `images`
-    # list, or TypeSafe's assets referenced inside the text, would be dropped without an error).
+    # list, or TypeSafe's assets referenced inside the text, would be dropped without an error), "content-blocks"
+    # (Google: the input as a list of a `text` block and `image` blocks, each with base64 `data` and its `mime_type`) or
+    # "string-parts" (OpenRouter: the state as a list of the text as a plain string and `image_url` parts with data
+    # URLs; it rejects a top-level `images` list and `{"type": "text"}` parts are not its text items).
     images: str | None = None
 
     def key_help(self) -> str:
         if not self.key_vars:
             return "no key"
         names = " or ".join(self.key_vars)
+        if self.key_file is not None:
+            names += f", else the file {self.key_file}"
         return f"key from {names}" if self.key_required else f"key from {names} if set"
 
 
@@ -180,6 +196,23 @@ SYSTEM_ONE = {
         openai_format=True,
         images="input-image",
     ),
+    # Google's Decisions API (v1beta), which serves gemini-decision-1 (Gemini Decision 1): the same `questions` and
+    # answers (choice, probabilities and confidence under the question's key) with the state as `input`, images as
+    # content blocks after its text, and the key in x-goog-api-key (GEMINI_API_KEY, else GEMINI_KEY_FILE, as the gemini
+    # provider takes it). It sorts option keys in UTF-8 byte order before evaluating them, the order the letters already
+    # have. Its usage counts total_input_tokens and total_output_tokens (always 0); 402 (prepaid credits used up), like
+    # any status it does not retry, stops the run.
+    "gemini-decisions": SystemOneService(
+        "Google",
+        "https://generativelanguage.googleapis.com",
+        path="/v1beta/decisions",
+        key_vars=("GEMINI_API_KEY",),
+        key_required=True,
+        key_file=GEMINI_KEY_FILE,
+        key_header="x-goog-api-key",
+        state_field="input",
+        images="content-blocks",
+    ),
     # SubQ's decision models (subq-snap-preview, subq-snap-1.1) through its Decisions API (docs.subq.ai/endpoints/
     # decisions-api), which takes the same request at the default path and returns the same answers; images as a
     # top-level list of {mediaType, base64} objects (at most 4, each at most 4 MiB decoded).
@@ -194,9 +227,13 @@ SYSTEM_ONE = {
     ),
     # OpenRouter's System One route (openrouter.ai/api/v1/systemone) for the decision models it lists, which takes the
     # same request and returns the same answers. A request names the model with its vendor prefix
-    # (microsoft/microsoft-decision-1, inception/mercury-decide): a bare name is read as typesafe/<name>. Its latency
-    # includes OpenRouter's own time.
-    "openrouter": SystemOneService("OpenRouter", "https://openrouter.ai/api", key_vars=("OPENROUTER_API_KEY",), key_required=True),
+    # (microsoft/microsoft-decision-1, inception/mercury-decide, google/gemini-decision-1): a bare name is read as
+    # typesafe/<name>. Its latency includes OpenRouter's own time. Images go in the top-level state as `image_url` parts
+    # (its Multimodal Decisions guide, read 11 November 2026); whether an endpoint reads them is up to its adapter there,
+    # and one that does not is refused with 400 before the request goes upstream.
+    "openrouter": SystemOneService(
+        "OpenRouter", "https://openrouter.ai/api", key_vars=("OPENROUTER_API_KEY",), key_required=True, images="string-parts"
+    ),
     # Nace.AI's hosted Drex models through its System One endpoint (console.nace.ai/docs/drex), which takes the same
     # request at the default path, with images as data URLs in a top-level `images` list (at most 8, in a body of at most
     # 4 MiB), and returns the same answers, with the request ID in the response body. A request that ends in an error is
@@ -425,12 +462,24 @@ PRICES: dict[tuple[str, str], Price] = {
     ("openrouter", "inception/mercury-decide"): Price(
         "OpenRouter's Mercury Decide price", "https://openrouter.ai/inception/mercury-decide", "2026-10-17", 0.02
     ),
+    # Gemini Decision 1 via OpenRouter at its price for the Google AI Studio endpoint (google-ai-studio, its only one;
+    # its endpoints API, read 11 November 2026), the same as Google's own: input tokens only, output free.
+    ("openrouter", "google/gemini-decision-1"): Price(
+        "OpenRouter's Gemini Decision 1 price (Google AI Studio endpoint)", "https://openrouter.ai/google/gemini-decision-1",
+        "2026-11-11", 0.10
+    ),
     # No cache or output charges.
     ("openai-decisions", "gpt-6-luna"): Price(
         "OpenAI's Decisions API price",
         "https://developers.openai.com/api/docs/guides/decisions#pricing-and-availability",
         "2026-10-08",
         0.10,
+    ),
+    # Gemini Decision 1 through Google's Decisions API: $0.10 per 1M input tokens (text, image, video, audio, PDF) on the
+    # paid tier, no output tokens, no context caching (Google's pricing page, the Decisions API docs and its launch blog
+    # post, read 11 November 2026).
+    ("gemini-decisions", "gemini-decision-1"): Price(
+        "Google's Decisions API price", "https://aistudio.google.com/docs/pricing#gemini-decision", "2026-11-11", 0.10
     ),
     # Claude Code writes its prompts to the 1-hour cache; reads cost 0.05 times the input price on these models.
     ("claude", "claude-opus-5-5"): Price(
@@ -1149,8 +1198,6 @@ def run_prompt_version(provider: str, english: bool, dont_know: bool, dont_know_
 HARNESS_PATHS = ("decision-models/runner/benchmark_ollama.py", "runner/benchmark_ollama.py")
 CLAUDE_EFFORTS = ("low", "medium", "high", "xhigh", "max")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta"
-# The API key: GEMINI_API_KEY, else this file.
-GEMINI_KEY_FILE = Path("~/.config/gemini/key")
 # xAI's Responses API, which takes the SuperGrok subscription's OAuth token from OMP's xai-oauth login.
 XAI_RESPONSES_URL = "https://api.x.ai/v1/responses"
 XAI_EFFORTS = ("low", "medium", "high", "xhigh")
@@ -3829,14 +3876,19 @@ JEV_OPENER = build_opener(NoRedirect)
 
 
 def jev_api_key(provider: str) -> str | None:
-    """The System One provider's API key from its environment variables, or None without one."""
+    """The System One provider's API key from its environment variables, else from its key file, or None without one."""
     service = SYSTEM_ONE[provider]
     for name in service.key_vars:
         value = os.environ.get(name, "").strip()
         if value:
             return value
+    if service.key_file is not None and service.key_file.expanduser().is_file():
+        value = service.key_file.expanduser().read_text(encoding="utf-8").strip()
+        if value:
+            return value
     if service.key_required:
-        raise ValueError(f"--provider {provider} requires an API key in {' or '.join(service.key_vars)}")
+        where = " or ".join(service.key_vars) + (f", or the file {service.key_file}" if service.key_file is not None else "")
+        raise ValueError(f"--provider {provider} requires an API key in {where}")
     return None
 
 
@@ -4109,6 +4161,15 @@ def add_images(service: SystemOneService, payload: dict[str, Any], headers: dict
             {"type": "image_url", "image_url": {"url": url}} for url in urls
         ]
         payload["state"] = parts if service.images == "state-parts" else [{"role": "user", "content": parts}]
+    elif service.images == "string-parts":
+        text = payload["state"]
+        payload["state"] = ([text] if text else []) + [{"type": "image_url", "image_url": {"url": url}} for url in urls]
+    elif service.images == "content-blocks":
+        text = payload["input"]
+        payload["input"] = ([{"type": "text", "text": text}] if text else []) + [
+            {"type": "image", "data": data, "mime_type": f"image/{'png' if fmt == 'png' else 'jpeg'}"}
+            for fmt, data in zip(formats, encoded)
+        ]
     elif service.images in ("assets", "media"):
         if service.images == "assets":
             # References that cannot occur in the text by accident: each file's SHA-256.
@@ -4161,7 +4222,7 @@ def ask_jev(
         )
     else:
         payload.update(
-            state=question.prompt,
+            {service.state_field: question.prompt},
             questions={
                 "answer": {
                     "type": "choice",
@@ -4172,7 +4233,10 @@ def ask_jev(
         )
     headers = {"Content-Type": "application/json"}
     if api_key is not None:
-        headers["Authorization"] = f"Bearer {api_key}"
+        if service.key_header:
+            headers[service.key_header] = api_key
+        else:
+            headers["Authorization"] = f"Bearer {api_key}"
     if images:
         add_images(service, payload, headers, images)
     result, response_headers = post_json(
@@ -6022,7 +6086,11 @@ def answer_usage(
         usage = response.get("usage") or {}
         answer = system_one_answer(response)
         score = (answer.get("probabilities") or {}).get(answer.get("choice"))
-        input_tokens, output_tokens = usage.get("input_tokens"), usage.get("output_tokens")
+        if provider == "gemini-decisions":
+            # Google's usage names its totals total_input_tokens and total_output_tokens (always 0).
+            input_tokens, output_tokens = usage.get("total_input_tokens"), usage.get("total_output_tokens")
+        else:
+            input_tokens, output_tokens = usage.get("input_tokens"), usage.get("output_tokens")
     elif provider == "claude":
         usage = (record.get("output") or {}).get("usage") or {}
         score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")

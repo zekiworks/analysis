@@ -127,6 +127,7 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "claude": {"access": "Claude Code CLI, Claude subscription", "scoring": False, "billing": "subscription"},
     "openai": {"access": "Codex CLI, ChatGPT subscription", "scoring": False, "billing": "subscription"},
     "openai-decisions": {"access": "OpenAI Decisions API (public beta)", "scoring": True, "billing": "api"},
+    "gemini-decisions": {"access": "Gemini Decisions API (v1beta)", "scoring": True, "billing": "api"},
     # Other makers' decision models through OpenRouter's System One route; the request time includes OpenRouter's own.
     "openrouter": {"access": "OpenRouter System One API", "scoring": True, "billing": "api"},
     # The backgammon-paired runs: each model through the route, model ID and reasoning setting of its backgammon setup.
@@ -578,10 +579,22 @@ MODELS: dict[str, dict[str, Any]] = {
     "d1:free": {"name": "Liquid d1", "billing": "free"},
     "d1-ultra": {"name": "Liquid d1-ultra"},
     "d1.1": {"name": "Liquid d1.1"},
+    # Google's decision model (launched 11 November 2026) through its own Decisions API.
+    "gemini-decision-1": {
+        "name": "Gemini Decision 1",
+        "note": "Google's decision model, called through Google's Decisions API (Gemini API, v1beta). It returns a "
+        "probability for each option and bills input tokens only.",
+    },
     # Through OpenRouter's System One route; the variant names the route.
     "microsoft/microsoft-decision-1": {
         "name": "Microsoft-Decision-1",
         "note": "Microsoft's decision model, called through OpenRouter's System One route.",
+    },
+    "google/gemini-decision-1": {
+        "name": "Gemini Decision 1",
+        "note": "Google's decision model, called through OpenRouter's System One route on its one endpoint, Google AI "
+        "Studio. It returns a probability for each option and bills input tokens only.",
+        "access": "OpenRouter decisions API, Google AI Studio endpoint",
     },
     "inception/mercury-decide": {
         "name": "Inception Mercury Decide",
@@ -732,6 +745,13 @@ SIZES: dict[str, dict[str, Any]] = {
                                                        "https://openrouter.ai/qwen/qwen3.8-flash"],
                            "read": "2026-11-11"},
     # Hosted decision models: no maker states a size.
+    # Google's model page and launch post give its limits (262,144 input tokens, up to 1,000 questions), not a size.
+    "gemini-decision-1": {"total": None, "sources": [
+        "https://aistudio.google.com/docs/models/gemini-decision-1",
+        "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/"], "read": "2026-11-11"},
+    "google/gemini-decision-1": {"total": None, "sources": [
+        "https://aistudio.google.com/docs/models/gemini-decision-1", "https://openrouter.ai/google/gemini-decision-1",
+        "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/"], "read": "2026-11-11"},
     "celeris-1-decision": {"total": None, "sources": ["https://docs.celeris.ai/decisions", "https://celeris.ai/decisions"],
                            "read": READ},
     "celeris-1.1-decision": {"total": None, "sources": ["https://docs.celeris.ai/decisions", "https://docs.celeris.ai/models",

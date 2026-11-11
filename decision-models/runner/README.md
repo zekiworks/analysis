@@ -187,6 +187,7 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_drex_v2_0.sh` | Nace.AI's Drex 2.0 (`drex-v2.0`, text only; add `--repeat N` for repeats 2–5) | `NACE_API_KEY` |
 | `run_microsoft_decision_1.sh` | Microsoft-Decision-1 via OpenRouter (`microsoft/microsoft-decision-1`; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_mercury_decide.sh` | Inception Mercury Decide via OpenRouter (`inception/mercury-decide`, the paid listing; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
+| `run_openrouter_gemini_decision_1.sh` | Gemini Decision 1 via OpenRouter (`google/gemini-decision-1`, its one endpoint Google AI Studio; add `--repeat N` for repeats 2–5) | `OPENROUTER_API_KEY` |
 | `run_openrouter_kimi.sh` | Kimi K3.1 Pro via OpenRouter's chat API, pinned to Moonshot AI's endpoint (`moonshotai/mxfp4`), reasoning_effort none | `OPENROUTER_API_KEY` |
 | `run_openrouter_kimi_low.sh` | Kimi K3.1 Pro on the same route with reasoning_effort low | `OPENROUTER_API_KEY` |
 | `run_openrouter_glm.sh` | GLM-5.3 via OpenRouter's chat API, pinned to Fireworks with required parameters, reasoning_effort low | `OPENROUTER_API_KEY` |
@@ -199,6 +200,7 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | `run_openrouter_qwen3_8_flash.sh` | Qwen3.8 Flash via OpenRouter's chat API, pinned to Alibaba (`alibaba`, its only provider) with required parameters and the answer schema, reasoning_effort none (reasoning off, as its backgammon and Logic & Math setups) | `OPENROUTER_API_KEY` |
 | `run_xai_grok_high.sh` | Grok 4.7 through xAI's Responses API with a SuperGrok subscription login, reasoning effort high, 4 requests at a time | OMP's `xai-oauth` login (`omp token xai-oauth`) |
 | `run_openai_decisions.sh` | GPT-6 Luna through OpenAI's Decisions API (public beta), 4 requests at a time | `OPENAI_API_KEY` (an API key with billing) |
+| `run_gemini_decision_1.sh` | Gemini Decision 1 (`gemini-decision-1`) through Google's Decisions API (v1beta), one question per request (add `--repeat N` for repeats 2–5) | `GEMINI_API_KEY`, else `$HOME/.config/gemini/key` (a project with billing; HTTP 402, prepaid credits used up, stops the run) |
 
 `run_jev.sh` and `run_jev_114.sh` (and the `jev` and `jev-114` lanes of `run_experiments.sh`) read the key from the
 file `JEV_KEY_FILE` names; `run_glide.sh` reads it from `$HOME/.config/fastino/key`, `run_celeris.sh` from
@@ -207,7 +209,13 @@ file `JEV_KEY_FILE` names; `run_glide.sh` reads it from `$HOME/.config/fastino/k
 when their variable is unset; put the key there,
 or run the script's command with the variable set. The decision APIs get one question
 per request: the question and options as `state`, and one `choice` question with the option letters
-as criteria. Rate limits and server errors are retried.
+as criteria. Rate limits and server errors are retried; any other error (402 for a used-up prepayment among them)
+stops the run. Google's Decisions API (`--provider gemini-decisions`) takes the same question with the state as
+`input` (an image as an `image` block after a `text` block) and the key in `x-goog-api-key`, and counts usage as
+`total_input_tokens`; it sorts option keys in UTF-8 byte order before it reads them, the letters' own order.
+OpenRouter's System One route (`--provider openrouter`) takes an image as an `image_url` part (a data URL) after the
+text, the state then a list whose text item is a plain string; an endpoint whose adapter reads no images is refused
+with 400 before the request goes upstream.
 
 A new decision model's five runs start only after its smoke run passes `./benchmark_ollama.py --check-probabilities RUN`:
 every selected question stored, and each stored answer with a valid choice and a probability from 0 to 1 for every

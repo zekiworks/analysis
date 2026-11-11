@@ -1,6 +1,7 @@
 import argparse
 import copy
 import hashlib
+import io
 import json
 import math
 import os
@@ -10,14 +11,17 @@ import struct
 import subprocess
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest import mock
+from urllib.error import HTTPError
 
 from benchmark_ollama import (
     CHAT_DONT_KNOW_SENTENCE,
     DONT_KNOW_CHAT,
     DONT_KNOW_CHAT_PROMPT_VERSION,
     DONT_KNOW_CHAT_PROMPTS,
+    DONT_KNOW_INSTRUCTIONS,
     DONT_KNOW_OPTION,
     DONT_KNOW_PROMPT_VERSION,
     DONT_KNOW_PROMPTS,
@@ -63,6 +67,7 @@ from benchmark_ollama import (
     export_answers,
     harness_commit,
     in_main_tables,
+    jev_api_key,
     letter_probabilities,
     load_questions,
     mark_run,
@@ -259,6 +264,164 @@ class OpenAIDecisionsTests(unittest.TestCase):
         raw = self.stored([{"type": "refusal", "name": "answer"}])
         self.assertIsNone(answer_usage("openai-decisions", 1, raw)[1])
         self.assertIsNone(option_probabilities("openai-decisions", raw))
+
+
+class GeminiDecisionsTests(unittest.TestCase):
+    """Gemini Decision 1 through Google's Decisions API (--provider gemini-decisions), with the HTTP mocked: the request,
+    the answer and its probabilities, the usage and its cost, the key, and a 402 that stops the run."""
+
+    def bank(self) -> Path:
+        return DontKnowTests.bank(self)
+
+    SERVICE = SYSTEM_ONE["gemini-decisions"]
+    # A choice answer and usage in the shape of the Decisions API docs' examples (aistudio.google.com/docs/decisions-api).
+    PROBABILITIES = {"B": 0.91, "A": 0.04, "C": 0.03, "D": 0.015, "E": 0.005}
+    RESPONSE = {
+        "answers": {"answer": {"type": "choice", "choice": "B", "probabilities": PROBABILITIES, "confidence": 0.91}},
+        "usage": {"total_input_tokens": 412, "input_tokens_by_modality": [{"modality": "text", "tokens": 412}],
+                  "total_output_tokens": 0, "total_tokens": 412},
+    }
+
+    def args(self, **settings) -> argparse.Namespace:
+        return argparse.Namespace(**{
+            "provider": "gemini-decisions", "jev_url": self.SERVICE.url, "jev_api_key": "test-key",
+            "model": "gemini-decision-1", "timeout": 30, "dont_know": False, "english": None, "dont_know_word": "turkish",
+            "perplexity_mode": None, **settings,
+        })
+
+    def asked(self, question: Question, ask) -> tuple[list, str | None, str]:
+        """What `ask` sent to the mocked post_json, and its prediction and stored response."""
+        sent = []
+
+        def post(endpoint, payload, headers, *rest):
+            sent.append((endpoint, copy.deepcopy(payload), dict(headers)))
+            return copy.deepcopy(self.RESPONSE), {}
+
+        with mock.patch("benchmark_ollama.post_json", side_effect=post):
+            prediction, raw = ask(question)
+        return sent, prediction, raw
+
+    def test_one_choice_question_with_the_letters_as_criteria_in_order(self) -> None:
+        question = load_questions(self.bank(), None, None, None, 0).questions[0]
+        sent, predictions, _ = self.asked(question, lambda q: ask_batch(self.args(), [q], False, None))
+        [(endpoint, payload, headers)] = sent
+        self.assertEqual(endpoint, "https://generativelanguage.googleapis.com/v1beta/decisions")
+        self.assertEqual(headers, {"Content-Type": "application/json", "x-goog-api-key": "test-key"})
+        self.assertEqual(payload, {
+            "model": "gemini-decision-1",
+            "input": question.prompt,
+            "questions": {"answer": {"type": "choice", "instructions": JEV_INSTRUCTIONS,
+                                     "criteria": {label: f"option {label}" for label in "ABCDE"}}},
+        })
+        criteria = list(payload["questions"]["answer"]["criteria"])
+        # Google evaluates the option keys sorted in UTF-8 byte order: the order sent.
+        self.assertEqual(criteria, sorted(criteria, key=lambda key: key.encode("utf-8")))
+        self.assertEqual(predictions, ["B"])
+
+    def test_the_dont_know_option_is_one_more_criterion_in_turkish_and_english(self) -> None:
+        path = self.bank()
+        for word, option, instructions in (("turkish", DONT_KNOW_OPTION, DONT_KNOW_INSTRUCTIONS),
+                                           ("english", DONT_KNOW_WORD_OPTION, DONT_KNOW_WORD_INSTRUCTIONS)):
+            with self.subTest(word=word):
+                question = load_questions(path, None, None, None, 0, dont_know=True, dont_know_word=word).questions[0]
+                args = self.args(dont_know=True, dont_know_word=word)
+                sent, _, _ = self.asked(question, lambda q: ask_batch(args, [q], False, None))
+                answer = sent[0][1]["questions"]["answer"]
+                self.assertEqual(list(answer["criteria"]), list("ABCDEF"))
+                self.assertEqual(answer["criteria"]["F"], option)
+                self.assertEqual(answer["instructions"], instructions)
+                self.assertEqual(sent[0][1]["input"], question.prompt)
+
+    def test_an_image_goes_inline_after_the_text(self) -> None:
+        question = load_questions(self.bank(), None, None, None, 0).questions[0]
+        with tempfile.TemporaryDirectory() as folder:
+            page, photo = Path(folder) / "page.png", Path(folder) / "photo.jpg"
+            page.write_bytes(b"\x89PNG page")
+            photo.write_bytes(b"\xff\xd8 photo")
+            sent, _, _ = self.asked(question, lambda q: ask_jev(self.SERVICE, self.SERVICE.url, "test-key", "gemini-decision-1",
+                                                                q, 30, None, images=(page, photo)))
+        payload = sent[0][1]
+        self.assertEqual(set(payload), {"model", "input", "questions"})
+        self.assertEqual(payload["input"], [
+            {"type": "text", "text": question.prompt},
+            {"type": "image", "data": "iVBORyBwYWdl", "mime_type": "image/png"},
+            {"type": "image", "data": "/9ggcGhvdG8=", "mime_type": "image/jpeg"},
+        ])
+
+    def test_the_answer_its_probabilities_tokens_and_cost(self) -> None:
+        question = load_questions(self.bank(), None, None, None, 0).questions[0]
+        _, prediction, raw = self.asked(question, lambda q: ask_jev(self.SERVICE, self.SERVICE.url, "test-key",
+                                                                    "gemini-decision-1", q, 30, None))
+        self.assertEqual(prediction, "B")
+        self.assertEqual(json.loads(raw), {"request_id": None, "response": self.RESPONSE})
+        tokens, score = answer_usage("gemini-decisions", question.question_id, raw)
+        self.assertEqual((tokens, score), ({"input_tokens": 412, "output_tokens": 0}, 0.91))
+        self.assertEqual(option_probabilities("gemini-decisions", raw), self.PROBABILITIES)
+        options = json.dumps([{"label": option.label, "text": option.text} for option in question.options])
+        self.assertEqual(answer_problems("gemini-decisions", options, raw), [])
+        price = PRICES["gemini-decisions", "gemini-decision-1"]
+        self.assertEqual((price.input, price.output, price.date), (0.10, 0.0, "2026-11-11"))
+        self.assertTrue(math.isclose(price.cost(tokens), 412 * 0.10 / 1_000_000, rel_tol=1e-12))
+
+    def test_the_key_comes_from_gemini_api_key_else_the_gemini_key_file(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            key_file = Path(folder) / "key"
+            service = replace(self.SERVICE, key_file=key_file)
+            with mock.patch.dict(SYSTEM_ONE, {"gemini-decisions": service}), mock.patch.dict(os.environ):
+                os.environ["GEMINI_API_KEY"] = "from-variable"
+                self.assertEqual(jev_api_key("gemini-decisions"), "from-variable")
+                del os.environ["GEMINI_API_KEY"]
+                with self.assertRaisesRegex(ValueError, "GEMINI_API_KEY, or the file"):
+                    jev_api_key("gemini-decisions")
+                key_file.write_text("from-file\n", encoding="utf-8")
+                self.assertEqual(jev_api_key("gemini-decisions"), "from-file")
+        with mock.patch("sys.argv", ["benchmark_ollama.py", "gemini-decision-1", "--provider", "gemini-decisions"]):
+            self.assertEqual(parse_args().jev_url, "https://generativelanguage.googleapis.com")
+
+    def test_through_openrouter_the_same_answer_costs_openrouters_price_for_google_ai_studio(self) -> None:
+        # OpenRouter's System One route answers in System One's shape with input_tokens and its billed cost.
+        raw = json.dumps({"request_id": None, "response": {
+            "answers": self.RESPONSE["answers"], "provider": "Google AI Studio",
+            "usage": {"input_tokens": 412, "output_tokens": 0, "cost": 0.0000412}}})
+        tokens, score = answer_usage("openrouter", 1, raw)
+        self.assertEqual((tokens, score), ({"input_tokens": 412, "output_tokens": 0}, 0.91))
+        price = PRICES["openrouter", "google/gemini-decision-1"]
+        self.assertEqual((price.input, price.output, price.date, price.source),
+                         (0.10, 0.0, "2026-11-11", "https://openrouter.ai/google/gemini-decision-1"))
+        self.assertTrue(math.isclose(price.cost(tokens), 0.0000412, rel_tol=1e-12))
+
+    def test_through_openrouter_an_image_goes_in_the_state_after_the_text_as_a_plain_string(self) -> None:
+        # OpenRouter's Multimodal Decisions guide: image_url parts with data URLs in the top-level state array, text items
+        # as plain strings, no top-level `images` list.
+        service = SYSTEM_ONE["openrouter"]
+        question = load_questions(self.bank(), None, None, None, 0).questions[0]
+        with tempfile.TemporaryDirectory() as folder:
+            page = Path(folder) / "page.png"
+            page.write_bytes(b"\x89PNG page")
+            sent, prediction, _ = self.asked(question, lambda q: ask_jev(service, service.url, "test-key",
+                                                                         "google/gemini-decision-1", q, 30, None,
+                                                                         images=(page,)))
+        [(endpoint, payload, headers)] = sent
+        self.assertEqual(endpoint, "https://openrouter.ai/api/v1/systemone")
+        self.assertEqual(headers, {"Content-Type": "application/json", "Authorization": "Bearer test-key"})
+        self.assertEqual(payload, {
+            "model": "google/gemini-decision-1",
+            "state": [question.prompt, {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORyBwYWdl"}}],
+            "questions": {"answer": {"type": "choice", "instructions": JEV_INSTRUCTIONS,
+                                     "criteria": {label: f"option {label}" for label in "ABCDE"}}},
+        })
+        self.assertEqual(prediction, "B")
+
+    def test_402_stops_the_run_without_a_retry(self) -> None:
+        question = load_questions(self.bank(), None, None, None, 0).questions[0]
+        body = b'{"error": {"code": 402, "message": "prepayment credits depleted (test body)"}}'
+        error = HTTPError(self.SERVICE.url + self.SERVICE.path, 402, "Payment Required", {}, io.BytesIO(body))
+        with mock.patch("benchmark_ollama.JEV_OPENER.open", side_effect=error) as opened, \
+                mock.patch("benchmark_ollama.time.sleep") as slept, mock.patch("sys.stderr"):
+            with self.assertRaisesRegex(RuntimeError, "Google returned HTTP 402: .*prepayment credits depleted"):
+                ask_batch(self.args(), [question], False, None)
+        self.assertEqual(opened.call_count, 1)
+        slept.assert_not_called()
 
 
 class StatedConfidenceTests(unittest.TestCase):
