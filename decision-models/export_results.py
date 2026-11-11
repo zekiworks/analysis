@@ -105,6 +105,10 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "turion-jev": {"access": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load", "scoring": True, "billing": "local"},
     "startlux": {"access": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
     "cerno": {"access": "Cerno server (logic's thin server around the card's CernoEngine, transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
+    # Ümit's tiny batch (#4578): the two providers it adds; its other models run through knowline, startlux, onejev and
+    # baselabs.
+    "meteor": {"access": "PKU-KCL-Meteor server (serving/server.py, the maker's release code, transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "gliclass": {"access": "GLiClass server (our servers/gliclass_server.py: the card's gliclass pipeline and its System One mapping), self-hosted, BF16", "scoring": True, "billing": "local"},
     "gemini": {"access": "Gemini API", "scoring": False, "billing": "api"},
     "vllm-yes-no": {"access": "vLLM, self-hosted, BF16", "scoring": True, "billing": "local"},
     # vLLM's chat API with the hosted models' stated-confidence request, for a server without token probabilities.
@@ -412,8 +416,9 @@ MODELS: dict[str, dict[str, Any]] = {
     },
     "PelaAI/KnowLine-4B-Gen5.5": {
         "name": "KnowLine 4B Gen5.5",
-        "note": "PelaAI's released KnowLine-4B-Gen5.5 (PelaAI/KnowLine-4B-Gen5.5 at 779944d), a fine-tune of Qwen3.5-4B whose "
-        "weights are those of Gen5. It ran on our hardware (one DGX Spark), one request at a time, through the card's "
+        "note": "PelaAI's released KnowLine-4B-Gen5.5 (PelaAI/KnowLine-4B-Gen5.5 at 779944d), a merged LoRA fine-tune of "
+        "Qwen3.5-4B (the average of two) whose weights are those of Gen5. It ran on our hardware (one DGX Spark), one "
+        "request at a time, through the card's "
         "serve_knowline.sh (SGLang 0.5.21 with the weights quantised to FP8 at load, and the repository's "
         "knowline_server.py, which reads a request of up to 3,000 tokens twice), with vision on. Its card lists English "
         "and Chinese.",
@@ -460,11 +465,87 @@ MODELS: dict[str, dict[str, Any]] = {
     },
     "OmniJev/OneJev1.6-0.8B": {
         "name": "OneJev1.6-0.8B",
-        "note": "OmniJev's released OneJev1.6-0.8B (OmniJev/OneJev1.6-0.8B at c89933c), an average of three full fine-tunes "
+        "note": "OmniJev's released OneJev1.6-0.8B (OmniJev/OneJev1.6-0.8B at bcd88a3, whose files but its README are those "
+        "of c89933c), an average of three full fine-tunes "
         "of Qwen3.5-0.8B that also reads images. It ran on our hardware (one DGX Spark), one request at a time, through "
         "the server its card names (Flide 0.1.11, flide serve), with vision on (torchvision 0.29.1). Probabilities rounded "
         "to 6 decimals by Flide; they sum to 1 only within that rounding.",
         "access": "Flide server (flide 0.1.11, the card's server for OneJev 1.6), self-hosted, BF16",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    # Ümit's tiny batch (#4578), each on spark2 (one DGX Spark, GB10) behind the server its model card names, one request
+    # at a time, as logic serves them; names as their makers write them.
+    "PelaAI/KnowLine-0.8B-Gen1": {
+        "name": "KnowLine 0.8B Gen1",
+        "note": "PelaAI's released KnowLine-0.8B-Gen1 (PelaAI/KnowLine-0.8B-Gen1 at 6b27831), a merged LoRA fine-tune of "
+        "Qwen3.5-0.8B with its readout temperature (T = 1.54) folded into the weights. It ran on our hardware (one DGX "
+        "Spark), one request at a time, through the card's serve_knowline.sh (SGLang 0.5.21 in BF16 and the repository's "
+        "knowline_server.py, which reads a request of up to 3,000 tokens twice), with vision on: its vision tower is the "
+        "base model's, not trained on images. Its card lists English and Chinese.",
+        "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "PelaAI/KnowLine-2B-Gen1": {
+        "name": "KnowLine 2B Gen1",
+        "note": "PelaAI's released KnowLine-2B-Gen1 (PelaAI/KnowLine-2B-Gen1 at 53245d4), a merged LoRA fine-tune of "
+        "Qwen3.5-2B with its readout temperature (T = 1.32) folded into the weights. It ran on our hardware (one DGX "
+        "Spark), one request at a time, through the card's serve_knowline.sh (SGLang 0.5.21 in BF16 and the repository's "
+        "knowline_server.py, which reads a request of up to 3,000 tokens twice), with vision on: its vision tower is the "
+        "base model's, not trained on images. Its card lists English and Chinese.",
+        "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "startlux-models/StartLux-Decision-v1.1-0.8B-Instant": {
+        "name": "StartLux-Decision v1.1 0.8B",
+        "note": "StartLux Labs' released StartLux-Decision-v1.1-0.8B-Instant (at 6496ae6), a fine-tune of Qwen3.5-0.8B that "
+        "reads the prompt bidirectionally and also reads images. It ran on our hardware (one DGX Spark), one request at a "
+        "time, through the server of its package (startlux-decide serve --launch-vllm, StartLux-Decision at a99977d) on "
+        "vLLM 0.31.0, with vision on: the card's scores were measured on vLLM 0.19.1, which has no build for the DGX "
+        "Spark's processor (aarch64). Its weights are licensed for non-commercial use only (CC BY-NC 4.0); we use them "
+        "non-commercially, for evaluation. Its card lists English only.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "startlux-models/StartLux-Decision-v1.1-2B-Instant": {
+        "name": "StartLux-Decision v1.1 2B",
+        "note": "StartLux Labs' released StartLux-Decision-v1.1-2B-Instant (at f1e6cd1), a fine-tune of Qwen3.5-2B that "
+        "reads the prompt bidirectionally and also reads images. It ran on our hardware (one DGX Spark), one request at a "
+        "time, through the server of its package (startlux-decide serve --launch-vllm, StartLux-Decision at a99977d) on "
+        "vLLM 0.31.0, with vision on: the card's scores were measured on vLLM 0.19.1, which has no build for the DGX "
+        "Spark's processor (aarch64). Its weights are licensed for non-commercial use only (CC BY-NC 4.0); we use them "
+        "non-commercially, for evaluation. Its card lists English only.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "chiranko/PKU-KCL-Meteor-0.8B": {
+        "name": "PKU-KCL-Meteor-0.8B",
+        "note": "The Knowledge Computing Lab (KCL) of Peking University's released PKU-KCL-Meteor-0.8B "
+        "(chiranko/PKU-KCL-Meteor-0.8B at 66ef17e), a fine-tune of Qwen3.5-0.8B with a 255-way readout head that reads the "
+        "prompt bidirectionally in its full-attention layers. It ran on our hardware (one DGX Spark), one request at a "
+        "time, through the server its repository ships (serving/server.py, its meteor package on transformers: BF16 "
+        "weights, FP32 readout), text only. Its weights are licensed for non-commercial use only (CC BY-NC 4.0); we use "
+        "them non-commercially, for evaluation. Its card lists no languages.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "knowledgator/gliclass-v4-edge": {
+        "name": "GLiClass v4 Edge",
+        "note": "Knowledgator's released GLiClass v4 Edge (knowledgator/gliclass-v4-edge at 885af1a), a zero-shot "
+        "classifier fine-tuned from DeBERTa-v3-large (supervised training, reinforcement learning, then a calibrator). Its "
+        "card serves it as a library pipeline (gliclass) and maps a decision request onto it: the passage is the text, the "
+        "instructions the prompt, each option a label, and a softmax over the calibrated label scores. It ran on our "
+        "hardware (one DGX Spark), one request at a time, through our HTTP server (servers/gliclass_server.py) with that "
+        "mapping and gliclass 0.1.22, in BF16, text only; a request over 16,384 tokens (the card's limit) is refused, "
+        "never cut. Its card lists English only.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
+    "baselabs/joey-1": {
+        "name": "joey-1",
+        "note": "Base Labs' released joey-1 weights (baselabs/joey-1 at 9efbe48), a decision model post-trained from "
+        "Qwen3.5-2B (a full fine-tune of the language model, the vision encoder frozen). It ran on our hardware (one DGX "
+        "Spark), one request at a time, through its model card's loader (qev's DecisionEngine from OneJev at 81ce62f with "
+        "the checkpoint's serve.patch, as the card's setup.sh installs it; the same files as elephant-1's and "
+        "mammoth-1's) behind our HTTP server (servers/baselabs_server.py). That loader reads text only, so it is not on "
+        "the Page images tab. The card mentions a trained \"I don't know\" option, but its answers have no such output. "
+        "Probabilities rounded to 6 decimals by the model's own loader; they sum to 1 only within that rounding. Its card "
+        "lists English only.",
         "hardware": f"1 × {SPARK}; BF16",
     },
     "fastino/GLiDE": {"name": "Fastino GLiDE", "note": "Hosted decision model; Fastino describes it as reasoning on uncertain decisions"},
@@ -789,8 +870,34 @@ SIZES: dict[str, dict[str, Any]] = {
            ("startlux-models/StartLux-Decision-v1.1-4B-Instant", 4_659_865_088, "language model (tied embeddings) + "
             "multi-token prediction layer + 0.33B vision encoder", "startlux-models/StartLux-Decision-v1.1-4B-Instant",
             "416088f77cfce09633906a3675c7cd2e5dabcf10"),
+       )},
+    # Ümit's tiny batch (#4578), counted the same way (read 11 November 2026); OneJev1.6-0.8B recounted at bcd88a3, the
+    # commit its repository's main moved to on 10 November with only README.md changed (the same 852,985,920 as at
+    # c89933c). The cards: KnowLine "a 0.8B decision model", "a 2B decision model"; StartLux-Decision "a 0.8B decision
+    # model", "a 2B decision model"; PKU-KCL-Meteor-0.8B "parameters": 853247040 (its MODEL_MANIFEST.json); GLiClass v4
+    # edge "the 0.4B-parameter edge release"; joey-1 "a 2B parameter decision model". The KnowLine and StartLux
+    # checkpoints hold a multi-token prediction layer (KnowLine's in model-extra-from-base.safetensors) that no server
+    # reads; Meteor's server and qev's loader for joey-1 read text only.
+    **{key: {"total": total, "scope": scope, "repo": key, "commit": commit,
+             "sources": [f"counted from the checkpoint's safetensors, {key}@{commit[:7]}", f"https://huggingface.co/{key}"],
+             "read": "2026-11-11"}
+       for key, total, scope, commit in (
            ("OmniJev/OneJev1.6-0.8B", 852_985_920, "language model (tied embeddings) + 0.10B vision encoder",
-            "OmniJev/OneJev1.6-0.8B", "c89933c277629b707895bff752c61d2b0664c85e"),
+            "bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0"),
+           ("PelaAI/KnowLine-0.8B-Gen1", 873_438_784, "language model (tied embeddings) + multi-token prediction layer "
+            "+ 0.10B vision encoder", "6b27831f7b783c03278bd946d4d8f4f7a98a3798"),
+           ("PelaAI/KnowLine-2B-Gen1", 2_274_069_824, "language model (tied embeddings) + multi-token prediction layer "
+            "+ 0.33B vision encoder", "53245d470a4ce316e32fd0d18c24e142c697f40b"),
+           ("startlux-models/StartLux-Decision-v1.1-0.8B-Instant", 873_438_784, "language model (tied embeddings) + "
+            "multi-token prediction layer + 0.10B vision encoder", "6496ae641cc71b149ce9dad69bd97f2a44e7bf11"),
+           ("startlux-models/StartLux-Decision-v1.1-2B-Instant", 2_274_069_824, "language model (tied embeddings) + "
+            "multi-token prediction layer + 0.33B vision encoder", "f1e6cd147dda82c9ffa3e8e725d5c1f175566fb1"),
+           ("chiranko/PKU-KCL-Meteor-0.8B", 853_247_040, "language model (tied embeddings) + 0.10B vision encoder (not "
+            "read by its server) + 255-way readout", "66ef17e3cea0ff5513cdaf6bd05f279d963358d7"),
+           ("knowledgator/gliclass-v4-edge", 439_790_596, "DeBERTa-v3-large encoder + label projectors and scorer + "
+            "calibrator (text only)", "885af1af8a07edf4ed34df83ca0d995ed8201283"),
+           ("baselabs/joey-1", 2_721_801_024, "language model with its LM head + 0.33B vision encoder (not read by its "
+            "loader)", "9efbe485efbed9598dfca5294cbbe8da00e21908"),
        )},
     # The card: "ModernBERT-large (395M ...) + a decision head ... 421M total"; laya multilingual "mmBERT-base | 322M".
     "laya": {"total": 421_293_827, "scope": "ModernBERT-large encoder + decision head",

@@ -136,6 +136,21 @@ class KnowLineImagesTests(unittest.TestCase):
         self.assertTrue(turn["content"][1]["image_url"]["url"].startswith("data:image/png;base64,"))
 
 
+class TextOnlyServersTests(unittest.TestCase):
+    def test_a_page_images_request_is_refused_before_it_is_sent(self) -> None:
+        # Meteor's server (serving/server.py) refuses a top-level `images` list but turns a list state, image parts and
+        # all, into JSON text, and qev's text loader (joey-1) reads only text: an image put anywhere would be read as no
+        # image (or as base64 text) without an error, so the runner must not send one (nor to GLiClass, text only too).
+        with tempfile.TemporaryDirectory() as folder:
+            crop = Path(folder) / "crop.png"
+            crop.write_bytes(b"\x89PNG\r\n\x1a\n")
+            for provider in ("meteor", "gliclass", "baselabs"):
+                payload = {"state": "Passage text", "questions": {}}
+                with self.subTest(provider=provider), self.assertRaisesRegex(ValueError, "takes no images"):
+                    add_images(SYSTEM_ONE[provider], payload, {}, (crop,))
+                self.assertEqual(payload["state"], "Passage text")
+
+
 class SieveRequestTests(unittest.TestCase):
     QUESTION = Question(1, "1. Unit", "1", "Unit", "Section", "Test", "1", "1", "Passage and stem",
                         (Option("A", "one"), Option("B", "two"), Option("C", "three")), "A", 1, False, None)

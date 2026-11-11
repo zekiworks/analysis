@@ -137,7 +137,7 @@ variables. To repeat a run exactly, check out the commit it names.
 | `--provider vllm`, `vllm-stated`, `vllm-yes-no`, `vllm-verbal`, `vllm-vote`, `vllm-plain` | `VLLM_URL` | `--vllm-url` |
 | `--provider open-jev`, `laya`, `gliner`, `clef`, `metask`, `cygnet`, `winnow` | `OPEN_JEV_URL`, `LAYA_URL`, `GLINER_URL`, `CLEF_URL`, `METASK_URL`, `CYGNET_URL`, `WINNOW_URL` | `--jev-url` |
 | `--provider strands`, `pplx-decider`, `glide`, `vllm-sr`, `onejev`, `d3-server`, `drex-max`, `d1-server`, `baselabs` | `STRANDS_URL`, `PPLX_DECIDER_URL`, `GLIDE_URL`, `VLLM_SR_URL`, `ONEJEV_URL`, `D3_SERVER_URL`, `DREX_MAX_URL`, `D1_SERVER_URL`, `BASELABS_URL` | `--jev-url` |
-| `--provider reax`, `knowline`, `sieve`, `turion-jev`, `startlux`, `cerno` | `REAX_URL`, `KNOWLINE_URL`, `SIEVE_URL`, `TURION_JEV_URL`, `STARTLUX_URL`, `CERNO_URL` | `--jev-url` |
+| `--provider reax`, `knowline`, `sieve`, `turion-jev`, `startlux`, `cerno`, `meteor`, `gliclass` | `REAX_URL`, `KNOWLINE_URL`, `SIEVE_URL`, `TURION_JEV_URL`, `STARTLUX_URL`, `CERNO_URL`, `METEOR_URL`, `GLICLASS_URL` | `--jev-url` |
 | `run_clef_flash.sh`, `run_gliner_decide.sh`, `run_laya_multilingual.sh` | `CLEF_FLASH_URL`, `GLINER_DECIDE_URL`, `LAYA_MULTILINGUAL_URL` | |
 | `run_pplx_decider_v1_2.sh`, `run_pplx_decider_flash_v1_2.sh`, `run_glide_v1_2.sh` | `PPLX_DECIDER_V1_2_URL`, `GLIDE_V1_2_URL` | |
 | `run_gemma.sh`, `run_gemma_one.sh`, `run_deepseek*.sh`, `run_glm*.sh`, `run_erk.sh`, `run_qwen3_14b.sh` | `GEMMA_URL`, `DEEPSEEK_URL`, `GLM_URL`, `ERK_URL`, `QWEN3_14B_URL` | |
@@ -374,12 +374,21 @@ checkpoint pinned to the commit read on 10 November 2026:
 
 | Provider | Models | Server | Request and answers |
 |---|---|---|---|
-| `knowline` | `PelaAI/KnowLine-31B-Gen1.5` (`8e56aa1`), `PelaAI/KnowLine-4B-Gen5.5` (`779944d`) | the repository's `serve_knowline.sh`: SGLang 0.5.21 (31B BF16, 4B FP8 at load) behind its `knowline_server.py` | `/v1/systemone`; images as `image_url` parts of a chat state; probabilities unrounded |
+| `knowline` | `PelaAI/KnowLine-31B-Gen1.5` (`8e56aa1`), `PelaAI/KnowLine-4B-Gen5.5` (`779944d`), `PelaAI/KnowLine-2B-Gen1` (`53245d4`), `PelaAI/KnowLine-0.8B-Gen1` (`6b27831`) | the repository's `serve_knowline.sh`: SGLang 0.5.21 (31B, 2B and 0.8B BF16, 4B FP8 at load) behind its `knowline_server.py` | `/v1/systemone`; images as `image_url` parts of a chat state; probabilities unrounded |
 | `sieve` | `sthanika-ai/Sieve-31B-v3` (`8fcee85`) | `sieve-serve` of [Sieve](https://github.com/sthanika-ai/Sieve) at `1e64657` | `/v1/decide`, no `model` field, text only; probabilities rounded to 4 places; no token counts |
 | `turion-jev` | `turion-ai/turion-jev-31b` (`866c0fc`) | its package's `python -m turion_jev.serve` (vLLM, FP8 at load) | `/v1/systemone`, text only; probabilities rounded to 6 places; no `confidence` |
-| `startlux` | `startlux-models/StartLux-Decision-v1.1-4B-Instant` (`416088f`) | `startlux-decide serve --launch-vllm` of [StartLux-Decision](https://github.com/StartLuxLabs/StartLux-Decision) at `a99977d`, vLLM 0.31.0 | `/v1/systemone`; images as a top-level `images` list of data URLs; probabilities unrounded, plus `none_probability` |
+| `startlux` | `startlux-models/StartLux-Decision-v1.1-4B-Instant` (`416088f`), `-2B-Instant` (`f1e6cd1`), `-0.8B-Instant` (`6496ae6`) | `startlux-decide serve --launch-vllm` of [StartLux-Decision](https://github.com/StartLuxLabs/StartLux-Decision) at `a99977d`, vLLM 0.31.0 | `/v1/systemone`; images as a top-level `images` list of data URLs; probabilities unrounded, plus `none_probability` |
 | `cerno` | `apertixai/cerno-9b-v1.2` (`f02a632`) | the card ships no server: a thin server around its in-process `CernoEngine` | `/v1/systemone`, no `model` field, text only; probabilities rounded to 4 places |
-| `onejev` | `OmniJev/OneJev1.6-0.8B` (`c89933c`) | Flide 0.1.11 (`flide serve --name OmniJev/OneJev1.6-0.8B`) | as OneJev 27B's server; probabilities rounded to 6 places |
+| `onejev` | `OmniJev/OneJev1.6-0.8B` (`bcd88a3`; only its README differs from `c89933c`) | Flide 0.1.11 (`flide serve --name OmniJev/OneJev1.6-0.8B`) | as OneJev 27B's server; probabilities rounded to 6 places |
+
+Ümit's tiny batch (bus #4578) adds, with the checkpoints pinned to the commits read on 11 November 2026, KnowLine 2B and
+0.8B Gen1 and StartLux-Decision v1.1 2B and 0.8B to the rows above, OneJev1.6-0.8B at `bcd88a3`, and:
+
+| Provider | Models | Server | Request and answers |
+|---|---|---|---|
+| `meteor` | `chiranko/PKU-KCL-Meteor-0.8B` (`66ef17e`) | its repository's `uvicorn serving.server:app` (the `meteor` package on transformers, BF16 with an FP32 readout) | `/v1/systemone`, text only (a top-level `images` list gets 422); probabilities unrounded; over the model's length: 422, never cut |
+| `gliclass` | `knowledgator/gliclass-v4-edge` (`885af1a`) | the card serves it only as a library pipeline: `servers/gliclass_server.py`, the card's own System One mapping on gliclass 0.1.22 | `/v1/systemone`, text only; a softmax over the calibrated label scores, unrounded; over 16,384 tokens: 422, never cut |
+| `baselabs` | `baselabs/joey-1` (`9efbe48`) | as elephant-1 and mammoth-1: `servers/baselabs_server.py` around the card's qev `DecisionEngine` (OneJev `81ce62f` with the same `serve.patch`) | `/v1/systemone`, text only; probabilities rounded to 6 places |
 
 A response without `usage.input_tokens` (Sieve, as REAX's) gives the run 0 input tokens; a missing `confidence` changes
 nothing, since a decision model's score is the chosen option's probability.
