@@ -126,27 +126,13 @@ main > details.about { max-width: 1100px; margin: 1rem auto 0; padding: 0 .25rem
 /* The four questions of the findings on one line under the waiting note. */
 .hero .summary-lead { margin: 0 0 .15rem; }
 
-/* --- The home page's first card: the text and the board side by side on a wide screen. ------------------------- */
-.hero-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1rem 1.75rem; align-items: start; }
+/* --- The home page's first card: the heading and the links; the showcase board sits under the leaderboard. ------- */
 .hero-links { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .6rem; }
 .hero-links .key { text-decoration: none; padding: .3rem .8rem; border: 1px solid var(--control-edge); color: var(--text); font-size: .85rem; }
 .hero-links .key:hover { border-color: var(--accent); color: var(--accent); }
 .hero-board { margin: 0; }
 .hero-board svg.hero-bd { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
 .hero-board figcaption { color: var(--text-2); font-size: .82rem; margin-top: .4rem; }
-@media (max-width: 860px) { .hero-split { grid-template-columns: minmax(0, 1fr); } }
-/* The leaderboard on the first screen of a phone (Ümit via Zeki #4649): the hero's text, then the leaderboard, then the
-   hero's board, each as a card of its own; a wide screen keeps the text and the board side by side in one card. */
-@media (max-width: 860px) {
-  body.home main { display: flex; flex-direction: column; }
-  body.home main > * { order: 3; }
-  body.home main > .hero-card, body.home main > .hero-card > .hero-split { display: contents; }
-  body.home main > .hero-card .hero-text, body.home main > .hero-card .hero-board { background: var(--panel);
-    border: 1px solid var(--edge); border-radius: 8px; box-shadow: var(--shadow); padding: .75rem; margin: 0 0 1rem; }
-  body.home main > .hero-card .hero-text { order: 0; }
-  body.home main > #leaderboard { order: 1; }
-  body.home main > .hero-card .hero-board { order: 2; }
-}
 #findings { margin: 0 0 1rem; }
 #findings .summary-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .5rem; }
 #findings .summary-list li { padding: .55rem .7rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
@@ -161,9 +147,6 @@ tr.reference > td { font-style: italic; }
 .risk-limit { font-weight: 600; }
 
 /* --- v12: elements the house style has and the preview did not, in the preview's colours. ------------------- */
-.champions { margin-top: .1rem; }
-.champions > .readout-label { margin-right: .6rem; font-weight: 600; }
-.readout-value.champ { font-family: var(--sans); font-size: .9rem; }
 .filters-title { font-size: 1rem; margin: 0 0 .5rem; }
 .setup-count { font-family: var(--mono); font-size: .85rem; color: var(--text-2); margin-right: .6rem; }
 .reset-why { color: var(--text-2); margin-left: .4rem; }
@@ -259,8 +242,6 @@ a.cc-open { font-weight: 600; }
 /* Hype Cup and Nackgammon knockout brackets (Leagues page) and the Matches page. Rounds side by side on a wide screen,
    one under the other on a phone; the winner's row in bold with a marked edge; the tie's state as a small label. */
 .status-in-progress { color: var(--grammar-text); border-color: var(--grammar-text); }
-.cup-honesty { margin: .25rem 0 .5rem; }
-.cup-champion { margin: .25rem 0 .75rem; }
 .cup-sub { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--edge); }
 .bracket { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin: .5rem 0 .75rem; }
 .bracket-round h4 { margin: 0 0 .4rem; color: var(--text-2); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
@@ -290,15 +271,8 @@ td.date { white-space: nowrap; }
   .bracket .ties { height: auto; }
 }
 
-/* --- Presentation amendment (Ümit, 30 Oct 2026): the risk judgement leaders apart from the match winners, the quick
-   Decision models view, results first (summary columns; All columns adds the advanced measures, nothing removed). --- */
-.leaders { margin-top: .35rem; }
-.leaders > .readout-label { margin-right: .6rem; font-weight: 600; }
-.leaders .readout-value { font-family: var(--sans); font-size: .9rem; }
-.leader-detail { color: var(--text-2); font-family: var(--mono); font-size: .78rem; }
-.leader-view { font-size: .78rem; }
-.champ-note { color: var(--text-2); font-size: .75rem; font-style: italic; }
-.champions .readout, .leaders .readout { flex-wrap: wrap; white-space: normal; }
+/* --- Presentation amendment (Ümit, 30 Oct 2026): the quick Decision models view, results first (summary columns; All
+   columns adds the advanced measures, nothing removed). --- */
 .quick-view .keys { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
 .board-panel .col-switch { display: inline-flex; }
 /* Summary columns, by position (home.py RISK_HEAD, ROBUST_HEAD, the Quality head; the All leagues tables have League
@@ -415,8 +389,6 @@ i.swatch-interval { width: 1rem; height: 2px; background: var(--text); border-ra
 .hbar-reflabel { display: block; width: max-content; max-width: 100%; color: var(--text-2); font-size: .72rem; line-height: 1.2;
   white-space: normal; }
 i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2); border-radius: 0; }
-.result-unit { color: var(--text-2); font-size: .8rem; font-weight: 600; }
-.cards-note { margin: .4rem 0 .2rem; }
 .unmeasured { margin-top: .6rem; }
 @media (max-width: 640px) {
   /* The bars on a phone in two lines, as the sibling's Math accuracy chart (Ümit via Zeki #2895, #2898): the icon and
@@ -538,10 +510,8 @@ table.headline th[data-wide], table.headline td.hl-wide, .hl-wide-note { display
 .chart-svg .th-dot { stroke-width: 2; }
 .finding #too-safe-values { margin-top: .6rem; }
 .finding .lp-chart { margin: 0; }
-/* The front page's hero (Ümit #2938 item 2 (1)): the question, the description, the counts line and three buttons. */
+/* The front page's hero (Ümit via Zeki #4666): the question and the buttons, nothing else above the leaderboard. */
 .hero-card h1 { margin-top: 0; }
-.counts-line { margin: .3rem 0 .5rem; color: var(--text-2); font-size: .9rem; }
-.counts-line .readout-value { color: var(--text); font-weight: 700; }
 .footer-links { margin: .25rem 0 .4rem; }
 .decisions-links, .about-links { margin: 0 0 1rem; }
 /* Highlights: a filled slot shows its board beside the plays. */
