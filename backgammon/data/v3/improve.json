@@ -437,18 +437,18 @@
     "updated_at": "2026-11-09T05:48:16+00:00"
    },
    {
-    "reason": "waiting for its turn",
-    "series_done": 0,
+    "reason": null,
+    "series_done": 3,
     "setup": "Kimi K3.1 Pro (off)",
-    "status": "paused",
-    "updated_at": "2026-11-09T11:42:31+00:00"
+    "status": "running",
+    "updated_at": "2026-11-11T01:10:12+00:00"
    },
    {
     "reason": null,
-    "series_done": 4,
+    "series_done": 5,
     "setup": "DeepSeek-V4.1-Flash (low)",
-    "status": "running",
-    "updated_at": "2026-11-10T20:02:30+00:00"
+    "status": "done",
+    "updated_at": "2026-11-11T00:03:28+00:00"
    },
    {
     "reason": null,
@@ -473,38 +473,38 @@
    },
    {
     "reason": null,
-    "series_done": 4,
+    "series_done": 5,
     "setup": "Gemini 4 Argon (high)",
-    "status": "running",
-    "updated_at": "2026-11-10T20:17:06+00:00"
+    "status": "done",
+    "updated_at": "2026-11-10T22:10:11+00:00"
    },
    {
     "reason": null,
     "series_done": 1,
     "setup": "Grok 4.7 (high)",
     "status": "running",
-    "updated_at": "2026-11-10T18:55:20+00:00"
+    "updated_at": "2026-11-11T00:10:38+00:00"
    },
    {
-    "reason": "usage limit",
+    "reason": null,
     "series_done": 1,
     "setup": "Claude Fable 5.1 (high)",
-    "status": "paused",
-    "updated_at": "2026-11-10T19:31:01+00:00"
+    "status": "running",
+    "updated_at": "2026-11-11T00:53:24+00:00"
    },
    {
     "reason": null,
     "series_done": 4,
     "setup": "Gemma 4 31B (on)",
     "status": "running",
-    "updated_at": "2026-11-10T19:48:05+00:00"
+    "updated_at": "2026-11-11T01:04:44+00:00"
    },
    {
     "reason": null,
-    "series_done": 1,
+    "series_done": 2,
     "setup": "Qwen3.8-27B (low)",
     "status": "running",
-    "updated_at": "2026-11-10T18:58:02+00:00"
+    "updated_at": "2026-11-10T22:44:40+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-10T20:19:39+00:00"
+  "updated_at": "2026-11-11T01:11:44+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -1469,37 +1469,47 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 41.897933358947434,
+     "right_safety": 90.33333333333333,
+     "risks_found": 44.333333333333336
     },
-    "answers_after": null,
-    "answers_before": {
+    "answers_after": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
+    },
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 400,
+     "expected": 400,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 200,
+     "safety_pays": 200,
+     "tests": 2,
+     "valid": 400
     },
     "before": {
-     "error_rate": 47.16645307838917,
-     "right_safety": 90.0,
+     "error_rate": 48.013010174036026,
+     "right_safety": 89.0,
      "risks_found": 41.0
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": -6.115076815088592,
+     "right_safety": 1.3333333333333286,
+     "risks_found": 3.3333333333333357
     },
     "cost": {
-     "api_equivalent_usd": 0.9656,
-     "billed_usd": 0.9656,
+     "api_equivalent_usd": 9.054,
+     "billed_usd": 9.3974,
      "estimate_usd": 35.0,
-     "reported_usd": 0.9656
+     "reported_usd": 9.054
     },
     "empty": [
      {
@@ -1516,46 +1526,273 @@
       "safety_pays": 100,
       "valid": 200,
       "wall_seconds": 210.9
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 48.859567269682884,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 88.0,
+      "risk_pays": 100,
+      "risks_found": 41.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 136.2
      }
     ],
-    "empty_done": 1,
+    "empty_done": 2,
     "improved": null,
     "key": "kimi-k3.1-pro-off",
     "progress": {
-     "reason": "waiting for its turn",
-     "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-09T11:42:31+00:00"
+     "reason": null,
+     "series_done": 3,
+     "status": "running",
+     "updated_at": "2026-11-11T01:10:12+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
-    "series": [],
-    "series_finished": 0,
+    "reason": null,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 238,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Don't hit deep in your home board early just to make a low point; it can leave you overextended and short of useful builders.\n- When you have a rear anchor, consider escaping its back checkers before spending rolls on routine home-board tidying.\n- With a lone back checker and an opposing home-board threat, prioritize running to safety over making another inner point.\n- Use doubles to improve your whole position, including clearing awkward outfield points, rather than automatically moving the anchor.\n- In bearoffs with contact still possible, bear off when efficient instead of making extra inside moves that waste pips."
+       },
+       {
+        "game": 2,
+        "text": "- Don't get stuck on the 18-point: when it's time to run, commit fully rather than splitting moves between escaping and home-board building.\n- Racing home beats hitting when you're behind in the race—avoid unnecessary contact that gives opponent more chances to attack.\n- With a strong home board and opponent on the bar, prioritize escaping your back checkers over making inner-board points.\n- When opponent has escaped and you're behind, focus on bringing your back checkers home safely rather than slotting or hitting loose.\n- In mutual running games, maximize pip efficiency—don't waste movement on small home-board improvements when you should be racing."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize escaping back checkers early; advancing them often beats building inner-board points.\n- When hitting, check the opponent’s return shots and avoid leaving extra blots unnecessarily.\n- Use spare moves to improve outfield connectivity and flexibility rather than stripping key points.\n- While ahead or with opposing checkers on the bar, race and clear rear checkers instead of making low-value home-board plays.\n- In bearoff positions with checkers still trapped behind, preserve contact and avoid taking off checkers when safety is more valuable."
+       },
+       {
+        "game": 4,
+        "text": "- Don't get stuck passively building your home board while back checkers remain trapped; escaping them is often the priority.\n- Look for opportunities to hit opposing blots, especially when it gains tempo and advances your back checkers.\n- When ahead in the race, prioritize disengaging and running your back checkers to safety over further home board development.\n- After hitting an opponent's checker, use the tempo to continue your escape or improve your outfield position rather than making minor home board adjustments.\n- Avoid creating new blots or leaving indirect shots when safer, more constructive alternatives exist."
+       },
+       {
+        "game": 5,
+        "text": "- Don't hit just because you can; compare the quiet or escaping alternative before committing to an attack.\n- When entering from the bar, prefer the entry that develops your position or escapes a back checker over an automatic extra hit.\n- Use both dice to advance back checkers when the opponent threatens to prime them; inner-board tidying can wait.\n- With multiple hitting options, prioritize the play that also escapes or mobilizes your rear checkers.\n- After hitting, choose the second half of the move for flexibility and connectivity, not merely the nearest safe landing."
+       },
+       {
+        "game": 6,
+        "text": "- When your back checkers are still on 24, give real weight to splitting or running them (24/22, 24/21, 24/23) instead of automatically building or hitting in your home board.\n- After hitting two opposing checkers, don’t just keep stacking home-board points; use the tempo to escape a back checker and reduce your long-term risk.\n- Compare “safe-looking” home-board tidying with the cost of leaving rear checkers trapped behind a growing blockade.\n- With an opponent on the bar, prefer flexible development and rear-checker progress over moves that merely overstack low points.\n- Late in the game, use both dice to bring the last outfield checker home efficiently; small home-board improvements are usually secondary."
+       },
+       {
+        "game": 7,
+        "text": "- When entering from the bar, weigh hitting and escaping over quiet home-board building; passive entry can leave your back checkers trapped.\n- Before making an inner point, check whether an aggressive hit or back-checker advance gains more timing and freedom.\n- With doubles, compare the full resulting structures; avoid spending the last moves on a point that leaves a checker poorly placed.\n- Keep evaluating risk dynamically: a safe-looking play can be costly when the opponent has a strong blockade.\n- Continue preferring clean development and safe bear-in plays when no tactical gain justifies extra exposure."
+       },
+       {
+        "game": 8,
+        "text": "- Escape your back checkers early instead of overbuilding your home board; advanced anchors reduce blots and keep racing options.\n- Before slotting or stacking inner points, compare a clean runner split or advance, especially while the opponent’s home board is still weak.\n- Do not hit during the bearoff merely because it is available; prioritize safe clearing and extra crossovers unless the hit clearly saves time.\n- Bear off aggressively when the opponent cannot realistically re-enter, but avoid stripping key points or leaving shots when contact remains.\n- In closeout and containment positions, keep taking the forcing hits and entries; your best-play streak shows the value of simple, decisive pressure."
+       },
+       {
+        "game": 9,
+        "text": "- Don't overstack inner points early; escaping back checkers and improving flexibility can outweigh adding a builder.\n- When entering from the bar, use the other die for useful development rather than automatically filling an already-made home point.\n- After entering, compare all legal hitting options; choose the hit that best disrupts the opponent while improving your own structure.\n- Before making a quiet safety play, check whether a constructive alternative leaves fewer long-term problems.\n- Keep late-race plays simple: when contact is nearly gone, prioritize efficient movement and avoiding unnecessary gaps."
+       },
+       {
+        "game": 10,
+        "text": "- Before building quietly, scan for a direct hit; an attacking alternative can outweigh a tidy positional improvement.\n- With doubles, compare complete four-move structures; avoid spending too many moves stripping one point while leaving another stack heavy.\n- Keep rear checkers connected to the rest of your position instead of making small home-board moves that strand them.\n- When ahead, do not confuse a safe-looking play with the best play; check whether it preserves flexibility and future coverage.\n- Use spare checkers to improve distribution and avoid gaps, but reassess the whole board after every roll rather than following a fixed building plan."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 1,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 42.643570974469185,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 90.0,
+       "risk_pays": 100,
+       "risks_found": 44.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 166.3
+      },
+      "wins": 5
+     },
+     {
+      "finished": true,
+      "game_decisions": 227,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Don’t hit automatically in the bear-in: before hitting, check the return-shot risk and whether simply building your home board wins more.\n- When clearing the outfield, bring both checkers home together rather than slotting deep points early; keep spares on the midpoint/8-point for flexibility.\n- Use small doubles to improve structure and escape the back checker; don’t just stack the 5-point while leaving a rear blot.\n- After hitting, prefer the second half of the roll that keeps builders active and avoids burying checkers on low points.\n- In the bear-in, avoid stripping the 8/6 points too early; preserve smooth distribution so later doubles and high rolls don’t waste pips."
+       },
+       {
+        "game": 2,
+        "text": "- Don't overvalue hitting loose blots deep in opponent's home board; prioritize escaping back checkers and building your position instead.\n- When opponent has a checker on the bar, use the tempo to run your back checkers to safety rather than making inner-board points.\n- Keep your outfield checkers connected and advancing together; avoid leaving stragglers that become targets.\n- In the bearoff, avoid clearing points that leave gaps or stacks; maintain flexibility to handle future dice rolls safely.\n- Balance aggression with timing: hitting is right when it gains tempo or escapes checkers, wrong when it leaves you overextended."
+       },
+       {
+        "game": 3,
+        "text": "- When opponent has multiple checkers on the bar, prioritize hitting additional blots and building your home board over running back checkers.\n- Look for double-hit opportunities, especially when opponent is already on the bar; maximizing their bar checkers compounds their problems.\n- Don't waste strong attacking positions by playing safe; when you have opponent on the bar, aggressive hitting often outweighs defensive concerns.\n- In the bearoff, avoid unnecessary risks that leave shots when you're ahead; sometimes safety trumps bearing off an extra checker.\n- With opponent's checkers trapped on the bar, focus on home board control and containment rather than racing your back checkers home."
+       },
+       {
+        "game": 4,
+        "text": "- Don't overbuild the home board early; escaping back checkers and developing the midpoint usually matter more than adding inner points.\n- With an opponent on the bar, use the tempo to escape or split your back checkers rather than making quiet home-board plays.\n- Avoid slotting deep home points when it leaves extra blots and shots; connect checkers and build useful outer-board points instead.\n- Don't hit automatically: compare the gain with return shots, lost racing chances, and whether simply running keeps your position flexible.\n- When ahead or nearly home, prioritize safety and clean bearoff structure over flashy hits or unnecessary contact."
+       },
+       {
+        "game": 5,
+        "text": "- Don't overvalue small home-board gains while your back checkers are trapped; escaping them is often the priority.\n- When the opponent has a checker on the bar, look hard for a second hit before making a quiet building play.\n- Avoid volunteering extra blots or loose runners when you are already behind in development or racing.\n- After entering from the bar, use the other die to improve safety or connectivity, not just to stack inner points.\n- In prime-versus-prime positions, compare the timing cost of hitting, escaping, and slotting before choosing the \"natural\" play."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize escaping back checkers early instead of stacking home-board points.\n- Keep midpoint builders active; advance them to create outfield control and flexibility.\n- Avoid deep-slotting and overstacking low points when safer development is available.\n- Hit only when the tactical gain outweighs leaving extra blots and return shots.\n- With an opponent on the bar, improve board structure and connectivity rather than rushing inward."
+       },
+       {
+        "game": 7,
+        "text": "- When ahead in the race, prioritize bringing back checkers home safely over hitting or slotting deep points; avoid creating new blots unnecessarily.\n- Before bearing off, clear the outfield efficiently and keep your home board flexible—don't stack checkers on low points too early.\n- Look for hitting chances that also improve your structure, especially when the opponent has a lone blot in your home board.\n- Small bearoff inaccuracies matter little; focus your attention on middle-game safety and timing decisions where equity swings are largest.\n- Trust quiet, solid development when it matches the engine—your best plays came from clean point-making and safe escapes."
+       },
+       {
+        "game": 8,
+        "text": "- Don't overvalue hitting blots deep in the opponent's home board; escaping back checkers and improving connectivity often matters more.\n- When the opponent has multiple checkers on the bar, prioritize running your back checkers to safety rather than making quiet home-board improvements.\n- With a checker on the bar, compare entering deeper to split or escape back checkers against entering farther out for a single development move.\n- Use spare checkers from the midpoint to build useful points instead of overstacking the same runners.\n- In bear-in positions, clear points efficiently and avoid creating gaps or heavy stacks on the ace-point."
+       },
+       {
+        "game": 9,
+        "text": "- With a back checker on the 24-point, prefer advancing it to the 23-point over slotting the 23-point with a second checker; the extra flexibility and reduced duplication matter more than the slot.\n- When rolling doubles in the middle game, use all four moves to build your board and improve structure rather than burying checkers deep on low points.\n- After hitting to send multiple opposing checkers to the bar, keep your home board strong and avoid stripping points or overstacking the ace-point.\n- When escaping a back checker with a large die, continue running the same checker when safe instead of spending the other die on minor home-board tidying.\n- Once the opponent is contained and you are ahead, prioritize clean bear-in structure and avoid unnecessary contact."
+       },
+       {
+        "game": 10,
+        "text": "- When entering from the bar, consider hitting with the second die instead of making a passive anchor or safety play.\n- Do not automatically make an inner-board point while a back checker lags and an opposing blot can be attacked; compare development with escape-and-hit plays.\n- With attacking chances, weigh the opponent’s return shots and your follow-up structure rather than choosing quiet building moves by default.\n- Use doubles to improve several parts of the position—escape, build points, and advance builders—rather than spending them on one checker or slotting deep.\n- Once racing, prioritize smooth bear-in structure and efficient crossovers; avoid stacking the ace point or stripping high points unnecessarily."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 43.893840089440346,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 91.0,
+       "risk_pays": 100,
+       "risks_found": 40.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 148.0
+      },
+      "wins": 8
+     },
+     {
+      "finished": true,
+      "game_decisions": 279,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When entering from the bar, consider hitting a blot on the entry point instead of making a safe anchor; tempo can outweigh safety early.\n- With small dice in the opening, prefer building key inner-board points over stacking or slotting awkwardly.\n- When clearing the outfield, bring rear checkers home efficiently rather than overstacking deep points.\n- Avoid using both dice from the same rear point when another move improves distribution and flexibility.\n- In bear-in positions, smooth stacks and preserve crossovers instead of filling low points too early."
+       },
+       {
+        "game": 2,
+        "text": "- Don’t stack checkers on inner points just to make them; keep building a flexible prime and advancing back checkers.\n- After entering from the bar, prefer hitting or escaping a back checker over quiet home-board development.\n- When behind in the race, split or run back checkers before opponent’s blockade becomes overwhelming.\n- With several active choices, compare the whole position: racing, hitting, and escaping often outweigh safe-looking inner-board moves.\n- In late contact positions, keep rear checkers moving and avoid stripping points or leaving unnecessary shots; once the race is clear, bear off cleanly."
+       },
+       {
+        "game": 3,
+        "text": "- Keep developing your back checkers early; escaping them promptly matters more than small home-board improvements.\n- When entering from the bar, use the other dice to build useful outfield points rather than stacking checkers.\n- Avoid burying checkers deep in your home board while your rear checkers still need to escape.\n- With the last checker back, prioritize running it toward safety over routine inner-board tidying.\n- In the bear-in, preserve flexibility and avoid stripping points; smooth distribution reduces later awkward rolls."
+       },
+       {
+        "game": 4,
+        "text": "- Don't overbuild your home board while back checkers remain stranded; escaping them often matters more than adding inner points.\n- When behind in the race, avoid passive slotting and stacking that leaves rear checkers trapped; activate them instead.\n- With doubles, use all four moves to improve mobility, especially by advancing both back checkers when possible.\n- Once the opponent is bearing off, prioritize racing and clearing points cleanly over minor home-board rearrangements.\n- Hitting is not automatically best; compare it with escaping or improving connectivity before taking risks."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize escaping back checkers over building your home board when behind in the race; leaving them stranded invites gammon losses.\n- When hitting opponent blots, ensure the move also advances your back checkers or escapes them rather than making purely offensive hits that leave you trapped.\n- Avoid stacking checkers on your 1-point early; it destroys flexibility and racing potential while your back checkers remain stuck.\n- In mutual holding games, maintain outfield control and hitting chances rather than passively slotting home board points that don't improve your position.\n- When bearing in against an opponent's home board, keep checkers spread to maximize safe entry numbers instead of stacking deep and creating gaps."
+       },
+       {
+        "game": 6,
+        "text": "- Don't overvalue making inner-board points early; escaping back checkers and hitting key blots often matters more.\n- With double 4s, look for plays that both escape and hit instead of quietly building your board.\n- When behind in the race, keep checkers active and flexible rather than burying them deep in your home board.\n- Before slotting or leaving shots, compare the immediate tactical gain with the risk of being hit.\n- In the bear-in and bear-off, prioritize smooth distribution and legal future rolls over automatic bearing off."
+       },
+       {
+        "game": 7,
+        "text": "- With 2-2 after hitting, balance the hit with escaping a back checker; do not spend the whole roll deepening your home board.\n- Do not automatically run both back checkers with 2-2 when improving your inner board leaves them safer and keeps your structure flexible.\n- When your opponent has several blots and home-board points, bringing rear checkers into the outfield can matter more than stacking inner points.\n- Before making an apparently tidy home-board play, compare it with advancing the last two checkers from your midpoint.\n- Your bearoff was strong; keep prioritizing safe clearance and efficient bearing off once the race is decided."
+       },
+       {
+        "game": 8,
+        "text": "- When you have a clear hitting opportunity, especially on the opponent's side of the board, take it rather than playing safe and passive.\n- Don't hit deep in your own board when it leaves you overextended; sometimes quiet development is better than a loose hit.\n- When the opponent has checkers on the bar, use the tempo to hit again or build your board instead of making small, noncommittal moves.\n- In a lost race or late-game scramble, prioritize bringing your rear checkers home; don't waste pips tidying an already strong inner board.\n- Before choosing a \"safe\" play, check whether it gives up all your winning chances—aggressive hitting is often the only way to stay in the game."
+       },
+       {
+        "game": 9,
+        "text": "- When ahead in the race, prioritize escaping back checkers over hitting or home-board building.\n- Avoid loose hits that leave return shots; safety usually outweighs extra contact.\n- With opponent checkers on the bar, keep improving position and racing instead of taking needless risks.\n- In bearoffs, minimize shots and clear points safely rather than maximizing checkers borne off.\n- Before hitting late, compare the immediate gain with the cost of being hit back."
+       },
+       {
+        "game": 10,
+        "text": "- With doublets, scan the whole board for hitting and escaping options before defaulting to safe inner-board building.\n- Keep rear checkers moving when the opponent has blots or a loose home board; do not strip your midpoint just to tidy your structure.\n- Before clearing a key outfield point, compare advancing both runners with slotting deep home points, especially while contact remains.\n- In early bearoffs, sometimes smooth the position instead of bearing off; avoid creating gaps that waste future pips.\n- When escaping late, prefer hitting a useful blot over merely making a point if it delays the opponent’s counterplay."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 39.15638901293278,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 90.0,
+       "risk_pays": 100,
+       "risks_found": 49.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 148.8
+      },
+      "wins": 4
+     }
+    ],
+    "series_finished": 3,
     "setup": "Kimi K3.1 Pro (off)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "state": "running",
+    "status": "running, 3 of 5 series",
     "steps_done": [
-     "E1"
+     "E1",
+     "S1",
+     "S2",
+     "E2",
+     "S3"
     ],
     "threshold": null,
     "verdict": false
    },
    {
     "after": {
-     "error_rate": 35.09491272236738,
-     "right_safety": 87.63332302618016,
-     "risks_found": 51.7800724755612
+     "error_rate": 35.28870447130425,
+     "right_safety": 87.07635539064111,
+     "risks_found": 51.84958989534257
     },
     "answers_after": {
-     "answer_rate": 98.25,
-     "answered": 800,
-     "expected": 800,
+     "answer_rate": 97.9,
+     "answered": 1000,
+     "expected": 1000,
      "failed": 0,
-     "invalid": 14,
-     "risk_pays": 390,
-     "safety_pays": 396,
-     "tests": 4,
-     "valid": 786
+     "invalid": 21,
+     "risk_pays": 484,
+     "safety_pays": 495,
+     "tests": 5,
+     "valid": 979
     },
     "answers_before": {
      "answer_rate": 99.16666666666667,
@@ -1574,15 +1811,15 @@
      "risks_found": 44.63636363636363
     },
     "change": {
-     "error_rate": -2.253841144328561,
-     "right_safety": -3.6119185047756446,
-     "risks_found": 7.143708839197565
+     "error_rate": -2.060049395391694,
+     "right_safety": -4.168886140314697,
+     "risks_found": 7.213226258978935
     },
     "cost": {
-     "api_equivalent_usd": 32.9504,
-     "billed_usd": 44.7109,
+     "api_equivalent_usd": 37.5411,
+     "billed_usd": 50.3232,
      "estimate_usd": 44.0,
-     "reported_usd": 32.9504
+     "reported_usd": 37.5411
     },
     "empty": [
      {
@@ -1632,13 +1869,13 @@
      }
     ],
     "empty_done": 3,
-    "improved": null,
+    "improved": true,
     "key": "deepseek-v4.1-flash-on",
     "progress": {
      "reason": null,
-     "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-10T20:02:30+00:00"
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-11T00:03:28+00:00"
     },
     "range": 3.4646464646464636,
     "reason": null,
@@ -1918,12 +2155,81 @@
        "wall_seconds": 4406.6
       },
       "wins": 5
+     },
+     {
+      "finished": true,
+      "game_decisions": 263,
+      "game_invalid": 5,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When ahead in the race, prioritize safety and escape: don’t hit loose or leave unnecessary return shots for tempo.\n- With checkers still back, avoid burying checkers on low points; use those pips to advance rear checkers.\n- In the outfield, don’t stack adjacent points; move one checker as far as possible unless contact/blocking says otherwise.\n- In race/bear-off, bring back checkers home before shuffling inside; every pip toward home matters.\n- Weigh hits carefully: hitting a deep blot can be right, but don’t hit just because you can if it leaves you exposed."
+       },
+       {
+        "game": 2,
+        "text": "- When you have checkers trapped back, prioritize escaping and advancing them; passive inside safe plays often miss equity.\n- With doubles, strengthen your home board or make key points before stripping your midpoint or creating stacks.\n- Avoid piling extra checkers onto the 22/24 points; keep back checkers moving forward toward the outfield.\n- If GNUbg flags “missed risk,” look for a bolder play that improves your structure even if it leaves a shot.\n- Don’t bury checkers deep on low points when you can develop them to useful outfield or blocking points."
+       },
+       {
+        "game": 3,
+        "text": "- Early game: use large numbers to escape or split from the back rather than stacking the midpoint.\n- During bear-in, avoid burying checkers deep; keep outer checkers and smooth distribution for flexibility.\n- When clearly ahead, don’t play too passively by burying your last outer checker; take small risks to preserve timing.\n- In the bear-off, use all dice to minimize wastage and avoid leaving a lone checker on a low point.\n- With opponent on the bar, keep your home board closed; don’t open an entry point while playing for a gammon."
+       },
+       {
+        "game": 4,
+        "text": "- When on the bar or deep in the opponent’s home, use small dice and doubles to improve those rear checkers rather than stripping your midpoint or making a low point.\n- Avoid burying checkers on the 1-point or piling them on one point; in bearoffs, clear high points and spread checkers over consecutive points.\n- After hitting, use the spare die to advance a back checker or strengthen your position, not to make a passive ace-point move.\n- When the opponent has a strong board or is bearing off, prioritize escaping/racing rear checkers and making safe home-board points over inside shuffling.\n- In the bearoff/race, use higher points to fill gaps and keep flexibility; don’t move from 6/7 to 1/2 unless forced."
+       },
+       {
+        "game": 5,
+        "text": "- When you can hit an outfield blot while also escaping a back checker, don’t settle for a quiet developing play.\n- In the middle game, compare aggressive hitting/escaping plays against safe plays; a single missed hit can cost more than 0.3.\n- As contact fades, stop taking needless risks; make the safe move unless it clearly improves your race or bearoff.\n- In bear-in, preserve key blocking points and avoid stripping/stacking; use spare checkers from the rear to fill gaps.\n- In the bearoff, take checkers off from the lowest points first and avoid unnecessary inside shifts."
+       },
+       {
+        "game": 6,
+        "text": "- Early, don't make the deep 2-point while you can hit loose in your home board; tempo and keeping opponent on the bar matter.\n- When two hits are available, hit again, especially inside, instead of choosing safety.\n- After being hit or with big doubles, develop from the midpoint and escape back checkers rather than running or burying.\n- Avoid needless loose slots, especially when opponent has a strong board; make the safer point.\n- In bearoffs, take checkers off when possible and use small dice to bring outer checkers home; don't shuffle inside."
+       },
+       {
+        "game": 7,
+        "text": "- In races, run your back checkers before making home-board moves or hitting deep; hitting a deep blot often lets opponent escape while you strand checkers.\n- When bearing in, advance the rearmost checker first; don't move a front checker and leave a straggler behind.\n- Don't break your 5-point or stack checkers unnecessarily during the bearoff; keep your home board flexible and spread checkers.\n- In the endgame, use small dice to adjust your home board and big dice to bring outfield checkers home; don't bury outfield checkers deep.\n- Keep a checker on your back anchor to block opponent's escape; don't abandon it prematurely."
+       },
+       {
+        "game": 8,
+        "text": "- In contact, compare hitting versus building; don’t hit loose unless it clearly gains race/attack and limits return shots.\n- When ahead in the race or bearing off, prioritize safe, efficient bearoff plays over needless hits or risky blotting.\n- When behind, seek contact: hit, escape, or keep opponent’s checkers back instead of passively stacking.\n- Count return shots after every hit; missed risk means you avoided a good hit, wrong risk means you hit without cover or escape.\n- Keep checkers connected and flexible; advance rear checkers and unstack points instead of burying them."
+       },
+       {
+        "game": 9,
+        "text": "- Early game, don’t hit deep in your home board just because you can; prefer developing a back checker and bringing builders down when the hit leaves you exposed.\n- Keep your back checkers active: use small doubles/aces to split, escape, or unstack them instead of burying them or making minor home points.\n- When entering from the bar, improving your worst checker usually matters more than stripping your 6-point or making small home-board points.\n- Avoid needless hits that leave return shots or weaken your structure; in contact, safety and development usually beat hitting for its own sake.\n- In the bearoff, take checkers off whenever possible and clear high points; don’t shuffle checkers inside if you can bear off."
+       },
+       {
+        "game": 10,
+        "text": "- When you can hit, weigh the tempo gain against the shots you leave; don’t pass up good hits or make loose hits without a plan.\n- With an opponent on the bar, build your home board and contain; don’t race your back checkers past the action.\n- Prefer making new blocking points over burying checkers on low points.\n- After a hit, choose the safest continuation; avoid leaving extra blots without compensation.\n- In contact bearoffs, count return shots before clearing points or advancing a lone back checker."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 96.5,
+       "answered": 200,
+       "error_rate": 36.063871467051726,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 7,
+       "right_safety": 84.84848484848484,
+       "risk_pays": 94,
+       "risks_found": 52.12765957446808,
+       "safety_pays": 99,
+       "valid": 193,
+       "wall_seconds": 5164.1
+      },
+      "wins": 5
      }
     ],
-    "series_finished": 4,
+    "series_finished": 5,
     "setup": "DeepSeek-V4.1-Flash (low)",
-    "state": "running",
-    "status": "running, 4 of 5 series",
+    "state": "complete",
+    "status": "Yes",
     "steps_done": [
      "E1",
      "S1",
@@ -1931,10 +2237,11 @@
      "E2",
      "S3",
      "S4",
-     "E3"
+     "E3",
+     "S5"
     ],
     "threshold": 5,
-    "verdict": false
+    "verdict": true
    },
    {
     "after": {
@@ -2494,20 +2801,20 @@
    },
    {
     "after": {
-     "error_rate": 21.316906032657407,
-     "right_safety": 93.22560975609755,
-     "risks_found": 66.04761904761905
+     "error_rate": 21.39499408419592,
+     "right_safety": 93.18048780487804,
+     "risks_found": 65.03809523809524
     },
     "answers_after": {
-     "answer_rate": 95.75,
-     "answered": 800,
-     "expected": 800,
+     "answer_rate": 96.6,
+     "answered": 1000,
+     "expected": 1000,
      "failed": 0,
      "invalid": 34,
-     "risk_pays": 384,
-     "safety_pays": 382,
-     "tests": 4,
-     "valid": 766
+     "risk_pays": 484,
+     "safety_pays": 482,
+     "tests": 5,
+     "valid": 966
     },
     "answers_before": {
      "answer_rate": 92.5,
@@ -2526,12 +2833,12 @@
      "risks_found": 58.555555555555564
     },
     "change": {
-     "error_rate": -1.7929385987478774,
-     "right_safety": -1.4330247820550568,
-     "risks_found": 7.492063492063487
+     "error_rate": -1.714850547209366,
+     "right_safety": -1.4781467332745706,
+     "risks_found": 6.482539682539674
     },
     "cost": {
-     "api_equivalent_usd": 257.2879,
+     "api_equivalent_usd": 271.6459,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2584,13 +2891,13 @@
      }
     ],
     "empty_done": 3,
-    "improved": null,
+    "improved": false,
     "key": "gemini-4-argon-on",
     "progress": {
      "reason": null,
-     "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-10T20:17:06+00:00"
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-10T22:10:11+00:00"
     },
     "range": 12.666666666666671,
     "reason": null,
@@ -2870,12 +3177,81 @@
        "wall_seconds": 2553.7
       },
       "wins": 8
+     },
+     {
+      "finished": true,
+      "game_decisions": 276,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When the opponent is on the bar, prioritize advancing and splitting your deepest back checkers rather than moving front checkers further home.\n- With big rolls like 6-5 or 6-4 while the opponent is on the bar, jump both checkers off a defensive anchor into the outfield rather than running a single checker all the way in.\n- Once your home board is established, avoid crunching by stacking extra checkers onto low points (1 to 4); use those moves to free your back checkers and preserve timing.\n- When the opponent has multiple checkers on the bar, leave outfield blots as needed so you can use large dice to escape trapped back checkers instead of burying checkers on the 1-point.\n- Do not strip your midpoint early for a loose hit when you can safely escape a back checker."
+       },
+       {
+        "game": 2,
+        "text": "- When the opponent has two checkers on the bar, aggressively hit loose outer-board blots to put a third checker on the bar while advancing your back checkers.\n- Prioritize covering a blot in your home board to build a five-point board over making loose hits in the outer board.\n- Avoid stacking three or more checkers on a back anchor; unstack and step out into the outer board when your home board is strong.\n- When entering from the bar and hitting in your home board, prefer hitting on the 5-point and advancing your back checker further.\n- During the bear-in against a low anchor, clear outer points onto high home-board points even if it leaves an indirect shot, rather than burying checkers on the 1-point."
+       },
+       {
+        "game": 3,
+        "text": "- When opponent's checkers are trapped in your home board, use high doubles to extend your prime rather than prematurely abandoning your own safe anchor.\n- While bearing off against an opponent's anchor, prioritize taking checkers off from points behind their anchor instead of moving higher checkers internally.\n- When running a back checker home, always hit opponent's outfield blots along the path when it requires no extra risk.\n- After the opponent has vacated your home board, cover internal blots using checkers from higher points instead of burying them on the 1-point.\n- When entering from the bar against a weak home board, prioritize hitting opponent blots to seize tempo over passively making a defensive anchor."
+       },
+       {
+        "game": 4,
+        "text": "- When rolling doubles while bearing in a prime, shift your prime forward by making lower home-board points rather than candlesticking your middle points.\n- When the opponent is trapped behind your prime, spread builders across diverse outfield points instead of making redundant outer points or stacking existing ones.\n- Maintain your advanced anchor when you can constructively bring builders down from the midpoint to extend your prime.\n- When bearing off against an opponent on your ace point, unstack your heaviest points and fill low points to keep your structure even and safe for future rolls."
+       },
+       {
+        "game": 5,
+        "text": "- When entering from the bar against a weak home board, look to hit an opponent's blot and escape your back checker rather than passively making an anchor.\n- Avoid burying checkers on the 2- and 3-points early in the game; instead, bring builders down from the midpoint to maintain flexibility for making your 4- and 5-points.\n- In a pure race, prioritize bringing outer-board checkers directly into your home board rather than moving deeper checkers only partway across the outer board.\n- When bearing in, avoid over-stacking the 6-point if you can bring your furthest checker all the way into the home board and distribute checkers more evenly."
+       },
+       {
+        "game": 6,
+        "text": "- When bearing off against an anchor, prioritize taking checkers off to pursue gammons rather than making overly cautious safety plays if the opponent's home board is broken.\n- While bearing in or off above an opponent's anchor, unstack your heaviest points to keep spare moves flexible instead of piling more checkers onto an already tall stack.\n- When an entering hit already puts one opponent checker on the bar, prefer making a solid outer-board point over stripping a home-board point for a loose second hit.\n- After entering from the bar early in the game, develop new builders from the midpoint rather than over-advancing a single checker in the outfield."
+       },
+       {
+        "game": 7,
+        "text": "- Avoid stacking a sixth checker on the 6-point; instead, use spare checkers to slot open home-board points or unstack the 6-point.\n- When hitting in your home board, prioritize covering existing inner-board blots and keeping the 8-point intact rather than stripping the 8-point to make a point cleanly.\n- When the opponent has no checkers on the bar or deep in your home board, freely slot inner-board points behind their most advanced back checker where they cannot hit.\n- When bringing your last checkers home against an opponent with a checker already on the bar, aggressively hit loose blots on your 6-point to put a second checker on the bar and build toward a closeout or gammon."
+       },
+       {
+        "game": 8,
+        "text": "- Avoid hitting loose in your home board when your board is weak and contains other blots; prioritize securing your own blots and bringing down builders.\n- When the opponent already has multiple checkers on the bar, blitz relentlessly by hitting additional blots rather than using rolls to safety outfield checkers.\n- Before playing a hit-and-pass with a single checker inside your home board, check if using two checkers allows you to both hit and make the point.\n- When bringing checkers home against an opponent's anchors, advance builders directly into your inner-board zone rather than leaving them stranded in the deep outfield."
+       },
+       {
+        "game": 9,
+        "text": "- Hit loose inside your home board to deny your opponent an anchor when you already have a strong inner-board structure.\n- Prioritize escaping your deepest back checkers and securing an advanced anchor over running a checker that is already further ahead.\n- After hitting in the outfield with a back checker, continue running that checker toward safety rather than burying checkers in your home board.\n- Do not break a secure anchor and expose outfield blots against a strong opponent board; play quietly inside your own home board instead."
+       },
+       {
+        "game": 10,
+        "text": "- Hit opponent blots in their home or outer board to seize the initiative, even if it means passing up or breaking a defensive anchor.\n- Look for long-range running hits from your back anchor into the outfield before automatically clearing your midpoint.\n- Do not cling to a back anchor while your home board crunches; step out with a back checker before you are forced to bury checkers on low points.\n- Be especially willing to break an anchor and run one checker when the opponent's home board is crunched, stripped, or lacks a solid prime.\n- When bearing off your first checkers with a straggler still outside, use the larger die to bring the straggler deep into your board and the smaller die to bear off."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 21.70734629034996,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 93.0,
+       "risk_pays": 100,
+       "risks_found": 61.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 2489.4
+      },
+      "wins": 9
      }
     ],
-    "series_finished": 4,
+    "series_finished": 5,
     "setup": "Gemini 4 Argon (high)",
-    "state": "running",
-    "status": "running, 4 of 5 series",
+    "state": "complete",
+    "status": "No",
     "steps_done": [
      "E1",
      "S1",
@@ -2883,10 +3259,11 @@
      "E2",
      "S3",
      "S4",
-     "E3"
+     "E3",
+     "S5"
     ],
     "threshold": 12.666666666666671,
-    "verdict": false
+    "verdict": true
    },
    {
     "after": {
@@ -2927,7 +3304,7 @@
      "risks_found": 5.0
     },
     "cost": {
-     "api_equivalent_usd": 83.0158,
+     "api_equivalent_usd": 91.9594,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -2956,7 +3333,7 @@
      "reason": null,
      "series_done": 1,
      "status": "running",
-     "updated_at": "2026-11-10T18:55:20+00:00"
+     "updated_at": "2026-11-11T00:10:38+00:00"
     },
     "range": null,
     "reason": null,
@@ -3081,7 +3458,7 @@
      "risks_found": 8.0
     },
     "cost": {
-     "api_equivalent_usd": 152.848,
+     "api_equivalent_usd": 162.0475,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -3107,13 +3484,13 @@
     "improved": null,
     "key": "claude-fable-5.1-on",
     "progress": {
-     "reason": "usage limit",
+     "reason": null,
      "series_done": 1,
-     "status": "paused",
-     "updated_at": "2026-11-10T19:31:01+00:00"
+     "status": "running",
+     "updated_at": "2026-11-11T00:53:24+00:00"
     },
     "range": null,
-    "reason": "S2: usage limit (429 rate_limit_error)",
+    "reason": null,
     "series": [
      {
       "finished": true,
@@ -3187,8 +3564,8 @@
     ],
     "series_finished": 1,
     "setup": "Claude Fable 5.1 (high)",
-    "state": "paused",
-    "status": "paused: S2: usage limit (429 rate_limit_error)",
+    "state": "running",
+    "status": "running, 1 of 5 series",
     "steps_done": [
      "E1",
      "S1"
@@ -3215,24 +3592,24 @@
     },
     "answers_before": {
      "answer_rate": 100.0,
-     "answered": 400,
-     "expected": 400,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 200,
-     "safety_pays": 200,
-     "tests": 2,
-     "valid": 400
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
     },
     "before": {
-     "error_rate": 39.09936588257551,
-     "right_safety": 98.5,
-     "risks_found": 34.0
+     "error_rate": 39.470783645908035,
+     "right_safety": 98.33333333333333,
+     "risks_found": 34.333333333333336
     },
     "change": {
-     "error_rate": -5.253616124391556,
-     "right_safety": -1.25,
-     "risks_found": 9.25
+     "error_rate": -5.625033887724079,
+     "right_safety": -1.0833333333333286,
+     "risks_found": 8.916666666666664
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -3270,18 +3647,33 @@
       "safety_pays": 100,
       "valid": 200,
       "wall_seconds": 7968.2
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 40.21361917257309,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 98.0,
+      "risk_pays": 100,
+      "risks_found": 35.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 8026.3
      }
     ],
-    "empty_done": 2,
+    "empty_done": 3,
     "improved": null,
     "key": "gemma-4-31b-on",
     "progress": {
      "reason": null,
      "series_done": 4,
      "status": "running",
-     "updated_at": "2026-11-10T19:48:05+00:00"
+     "updated_at": "2026-11-11T01:04:44+00:00"
     },
-    "range": null,
+    "range": 1.0,
     "reason": null,
     "series": [
      {
@@ -3571,27 +3963,28 @@
      "S2",
      "E2",
      "S3",
-     "S4"
+     "S4",
+     "E3"
     ],
-    "threshold": null,
+    "threshold": 5,
     "verdict": false
    },
    {
     "after": {
-     "error_rate": 42.33236700296402,
-     "right_safety": 77.0,
-     "risks_found": 52.0
+     "error_rate": 41.14337380975485,
+     "right_safety": 81.0,
+     "risks_found": 46.5
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 400,
+     "expected": 400,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 200,
+     "safety_pays": 200,
+     "tests": 2,
+     "valid": 400
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -3610,9 +4003,9 @@
      "risks_found": 34.0
     },
     "change": {
-     "error_rate": -4.981239512562752,
-     "right_safety": -13.0,
-     "risks_found": 18.0
+     "error_rate": -6.170232705771923,
+     "right_safety": -9.0,
+     "risks_found": 12.5
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -3642,9 +4035,9 @@
     "key": "qwen3.8-27b-on",
     "progress": {
      "reason": null,
-     "series_done": 1,
+     "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-10T18:58:02+00:00"
+     "updated_at": "2026-11-10T22:44:40+00:00"
     },
     "range": null,
     "reason": null,
@@ -3717,15 +4110,85 @@
        "wall_seconds": 13800.7
       },
       "wins": 2
+     },
+     {
+      "finished": true,
+      "game_decisions": 239,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- In the opening, prioritize building your prime and inner board over small advances.\n- When you have a safe position and can hit a blot, take the hit — you missed hitting opportunities repeatedly.\n- In the bearing-off phase, always bring down the furthest checkers first.\n- Don't be overcautious: \"missed risk\" appeared four times, showing you default to safety when aggression is warranted.\n- When bearing off, avoid creating new blots on checkers that aren't yet ready to bear off."
+       },
+       {
+        "game": 2,
+        "text": "- I'm too passive: \"missed risk\" is my dominant error. Always check if hitting a blot beats safe play before defaulting to safety.\n- Advance my farthest checkers (24/22, 24/20) more consistently; I keep leaving them behind when I should be bringing them in.\n- Don't hit blots when advancing or building a position is the stronger play.\n- In the home board, make room by advancing mid-point checkers rather than stacking low points.\n- After bringing a checker in from the bar, advance your most advanced remaining checker."
+       },
+       {
+        "game": 3,
+        "text": "- When you have a checker on the 21-point, prioritize using it to hit or build a prime rather than ignoring it and playing safe inner-board moves.\n- When multiple hits are available, choose the one that creates the strongest follow-up threats; hitting with a distant checker often dominates hitting with a nearby one.\n- Don't default to safety when a hit clearly gives you a big attacking advantage—calculate the risk properly instead of reflexively avoiding it.\n- After making a hit, use remaining dice to bring down higher checkers to support the attack rather than stacking points in your inner board.\n- The reverse also applies: sometimes a hit is \"needless risk\" because it doesn't generate enough follow-up; weigh both directions of the risk call."
+       },
+       {
+        "game": 4,
+        "text": "- In races, always prioritize bringing up back checkers and advancing front checkers over moving mid-board checkers.\n- In endgame races, check for hitting opportunities before defaulting to safe moves.\n- When choosing which checker to advance, pick the one making the most net progress toward the goal.\n- Don't take unnecessary hits in the mid-game when advancing your prime is stronger.\n- When entering from the bar in a race, advance the entered checker rather than moving a mid-board one."
+       },
+       {
+        "game": 5,
+        "text": "- With doubles, advance checkers closest to home and push through rather than stacking on intermediate points.\n- When choosing which checker to advance, prefer the one already closer to home over bringing a distant checker forward.\n- Don't force every hit — weigh the gain against the resulting vulnerability in your own position.\n- I'm under-advancing: \"missed risk\" on 4 of 7 errors. Be bolder pushing checkers into the home board.\n- After re-entering from the bar, consolidate rather than immediately hitting with the freed checker."
+       },
+       {
+        "game": 6,
+        "text": "- Stop hitting blots needlessly; when a safe move is available and the hit doesn't create a decisive advantage, take the safe play.\n- When building your home board, prioritize making new points (especially the 3-point) over adding checkers to already-occupied points.\n- In the mid-game transition, focus on forming a contiguous prime by moving multiple checkers into adjacent points rather than splitting across gaps."
+       },
+       {
+        "game": 7,
+        "text": "- You miss hits far too often; when a hit is available and it's a risk situation, take it.\n- Don't over-commit to inner board work while back checkers remain behind; bringing them home often has higher equity.\n- When you re-enter from the bar, look for the hit rather than defaulting to safe play.\n- On doubles, remember to move back checkers even when you can advance inner ones."
+       },
+       {
+        "game": 8,
+        "text": "- When a back checker is your furthest, advance it before moving front checkers or making home points.\n- Take hits when available; don't default to safe moves when your board supports aggression.\n- In the endgame, bear off the largest checker available rather than making home points or small advances.\n- Once you have checkers off, focus on bearing off the remaining ones quickly instead of improving your board.\n- Don't expose a closed board needlessly in the endgame just to bear off a small checker."
+       },
+       {
+        "game": 9,
+        "text": "- When you have exposed back checkers, advance them before improving your inner game.\n- On doubles, move your most vulnerable checkers forward first; don't cluster mid-board while leaving advanced checkers exposed.\n- Before hitting a blot, verify the hit doesn't create a new weakness; safety often wins when the hit isn't decisive.\n- In the bear-off, bring in the most distant checkers first and avoid leaving unnecessary blots.\n- When choosing between a hit and a safe move, default to safety unless the hit clearly improves your structure."
+       },
+       {
+        "game": 10,
+        "text": "- Stop being too cautious: \"missed risk\" was your most frequent error type. When hitting is available and the odds favor you, take the hit.\n- Don't double-hit. One hit plus a safe advance usually beats two hits; evaluate if the extra hit is worth the extra exposure.\n- On 6-6, build points and advance inner checkers first; don't waste moves on back checkers.\n- When a safe play exists, use it to advance your back checkers rather than shuffling in your home board.\n- When choosing between hit points, prefer the one that leaves the blot harder to escape and builds your structure."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 39.95438061654568,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 85.0,
+       "risk_pays": 100,
+       "risks_found": 41.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 13597.6
+      },
+      "wins": 4
      }
     ],
-    "series_finished": 1,
+    "series_finished": 2,
     "setup": "Qwen3.8-27B (low)",
     "state": "running",
-    "status": "running on our GPU, 1 of 5 series",
+    "status": "running on our GPU, 2 of 5 series",
     "steps_done": [
      "E1",
-     "S1"
+     "S1",
+     "S2"
     ],
     "threshold": null,
     "verdict": false
@@ -3867,21 +4330,21 @@
    }
   ],
   "money": {
-   "billed_total_usd": 60.1686,
+   "billed_total_usd": 74.2126,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-10T20:19:39+00:00"
+  "updated_at": "2026-11-11T01:11:44+00:00"
  },
- "source_sha256": "5ce0b5a41541b93d5ea919638aadb1b2954d188fe909d3641e9b89ed79b9ccda",
+ "source_sha256": "fa28377d85ad00d67fb78a1b6706d1848f3b2a0052c51b84e22ab003ea66302d",
  "status": {
-  "last_update": "2026-11-10T20:19:39+00:00",
-  "line": "3 of 15 models with a verdict · 5 running · 7 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-11T01:11:44+00:00",
+  "line": "5 of 15 models with a verdict · 5 running · 5 paused · 0 incomplete or stopped",
   "models": 15,
-  "paused": 7,
+  "paused": 5,
   "phase": "running",
   "running": 5,
   "stopped": 0,
-  "verdicts": 3
+  "verdicts": 5
  },
  "validation": {
   "accepted": true,
