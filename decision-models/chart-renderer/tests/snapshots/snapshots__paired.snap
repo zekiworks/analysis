@@ -5,8 +5,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 92 comparisons (9 pass).
-━━ passes the Holm adjustment across these 92 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 93 comparisons (9 pass).
+━━ passes the Holm adjustment across these 93 comparisons   ━━ does not pass
 
                                                     Gemini 3.8 Flash · high · chat minus GPT-6 Astra · high · chat                              ⠠⠤⡧⠤                               +0.1
                                                          GPT-6 Astra · high · chat minus GPT-6.1 Sol · high · chat                               ⠠⣷⠤                               +0.2
@@ -54,7 +54,7 @@ shows a related but separate test, adjusted across these 92 comparisons (9 pass)
                                          Perplexity Decider 27B v1.2 · DGX Spark minus Perplexity Decider 27B v1.1                            ⠤⠤⠤⠤⣿⠤⠤⠤⠤                            +0.2
                                                 Perplexity Decider 27B v1.1 minus MiniMax-M3.1-Flash · high · chat                          ⠤⠤⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠤⠤                         +0.4
                                                        Perplexity Decider 27B v1.1 minus Perplexity Decider 27B v1                                ⡇             ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤        +6.5
-                                          MiniMax-M3.1-Flash · high · chat minus Perplexity Decider 27B v1.2 · API                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.1
+                                          MiniMax-M3.1-Flash · high · chat minus Perplexity Decider 27B v1.2 · API                         ⠠⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤⠤⠄                         +0.1
                          Perplexity Decider 27B v1.2 · API minus DeepSeek-V4.1-Flash · reasoning off · chat · 1017                          ⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠂                         +0.3
 DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash · reasoning off · chat · first release                            ⠐⠒⠒⠒⡗⠒⠒⠒                             +0.1
                                 DeepSeek-V4.1-Flash · reasoning off · chat · first release minus SubQ Snap Preview                           ⠐⠒⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠒⠂                        +0.7
@@ -72,7 +72,7 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                          Mercury Decide minus GLM-5.3-Flash · reasoning off · chat                          ⠐⠒⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒⠒⠒⠂                        +0.5
                                                                GLM-5.3-Flash · reasoning off · chat minus Jev 1.13                          ⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠂                         +0.3
                                                                                                Jev 1.13 minus Clef                          ⠐⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒                          +0.2
-                                                                          Clef minus Claude Haiku 5.5 · max · chat                         ⠐⠒⠒⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠒⠒                         +0.2
+                                                                          Clef minus Claude Haiku 5.5 · max · chat                         ⠐⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠒                         +0.2
                                                                             Claude Haiku 5.5 · max · chat minus d1                        ⠐⠒⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.0
                                                                                                  d1 minus Drex 2.0                              ⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠂                       +1.3
                                                                                   Drex 2.0 minus Open-Jev-27B-v1.1                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠂                          +0.0
@@ -84,7 +84,8 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                            Qwen3.8-27B · stated confidence · reasoning off · chat minus Elephant-1                              ⠐⠒⡗⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒                     +1.8
                                                                                          Elephant-1 minus GLiDE 9B                           ⠐⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠂                          +0.3
                                                                        GLiDE 9B minus Qwen3.8-27B · yes/no scoring                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.1
-                                                  Qwen3.8-27B · yes/no scoring minus Perplexity Decider Flash v1.2                                ⡇    ⠒⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠂             +4.1
+                                                             Qwen3.8-27B · yes/no scoring minus KnowLine 4B Gen5.5                                ⡇  ⠒⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠂               +3.4
+                                                            KnowLine 4B Gen5.5 minus Perplexity Decider Flash v1.2                            ⠒⠒⠒⠒⡗⠒⠗⠒⠒⠒⠒⠒                         +0.7
                                                           Perplexity Decider Flash v1.2 minus Microsoft-Decision-1                             ⠒⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠒⠒                      +1.3
                                                        Microsoft-Decision-1 minus Qwen3-14B · reasoning off · chat                           ⠒⠒⠒⠒⠒⡗⠒⠗⠒⠒⠒⠒⠒⠒                        +0.7
                                                                  Qwen3-14B · reasoning off · chat minus Clef-Flash                         ⠒⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒                          +0.0

@@ -2,6 +2,15 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 5005b0e8 (11 November 2026)
+
+- Added KnowLine 4B Gen5.5, the second of the new Decision Index models (the project lead's bus #4057, #4578): PelaAI's released checkpoint `PelaAI/KnowLine-4B-Gen5.5` at `779944d`, a merged LoRA fine-tune of Qwen3.5-4B (4B as its card states it). It ran on our hardware, one NVIDIA DGX Spark, one request at a time, through the card's `serve_knowline.sh` (SGLang 0.5.21, the weights quantised to FP8 at load as the card's own code does, and `knowline_server.py`, which reads a request of up to 3,000 tokens twice), with vision on. Its card lists English and Chinese.
+- Text tab, run 965: 1,066 of the 2,198 questions right (48.5%), 33rd of the 46 decision-model setups, between GLiDE 9B (52.0%) and Perplexity Decider Flash v1.2 (47.8%); 74.8% of the reading questions and 37.3% of the grammar ones.
+- English reading, run 961: 442 of the 547 kept questions right (80.8%), against 430 (78.6%) on the same questions in Turkish (51 right only in English, 39 only in Turkish, p = 0.25).
+- Hallucination tab: Turkish "Bilmiyorum" run 967 chose the option on 55 of its 1,176 answers that were not right (non-hallucination 4.7%); English "I don't know" run 963 on 1 of 106 (0.9%). No invalid answers in any run.
+- Page images (condition A from run 965): 349 of 763 from the text alone (45.7%), 230 from the picture alone (30.1%), 346 from text and picture (45.3%), and 298 through the best OCR route, Surya OCR 2 (39.1%). With a 13th image model the Vision tab's averages move: picture alone against text −17.0 points (was −17.1 over 12 image models), text and picture +1.1 (was +1.2), best OCR route −4.2 (was −4.0, now over 16 models with an OCR route).
+- Holm's correction in the English "I don't know" comparison now covers one more model. That moves one verdict: Perplexity Decider Flash v1.2's fewer wrong answers in English than in Turkish with the option (36 wrong only in English, 69 only in Turkish, p = 0.0017) go from just under 5% after the correction to just over it (0.0498 → 0.0514). Paired verdicts on the Text tab and the "same answers" comparisons: none moved. Significance letters move with the new setup. No other number changed.
+
 ## Results 258d4ef4 (10 November 2026)
 
 - Added Claude Haiku 5.5, Anthropic's small chat model, as a chat model at the project lead's request (bus #4257): through OpenRouter on Anthropic's own endpoint (fallbacks off), with the answer schema every other chat setup uses, reasoning max, 16 questions per request and an output cap of 128,000 tokens, the endpoint's maximum. Anthropic states no size; at its list price of $0.10 per 1M input tokens it is in the Efficient class.

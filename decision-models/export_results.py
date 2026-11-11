@@ -2238,6 +2238,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),
         ("knowline", "PelaAI/KnowLine-31B-Gen1.5"))},
+    ("knowline", "PelaAI/KnowLine-4B-Gen5.5", None): "added to the Hallucination tab on 11 November 2026 (run on our GPU), "
+    "after the option-word check; not asked with “I don't know” yet.",
 }
 # The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
 # five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't
